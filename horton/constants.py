@@ -18,8 +18,12 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
+"""Some useful physicochemical constants in atomic units
 
+   These are the physical constants defined in this module (in atomic units):
+"""
 
-from constants import *
-from context import *
-from units import *
+boltzmann = 3.1668154051341965e-06
+avogadro = 6.0221415e23
+lightspeed = 137.03599975303575
+planck = 6.2831853071795864769
