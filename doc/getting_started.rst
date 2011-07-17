@@ -72,3 +72,49 @@ the following in the root of the source tree::
     nosetests -v
 
 If all runs well, the screen output should end with 'OK'.
+
+
+Basic example
+=============
+
+.. highlight:: python
+   :linenothreshold: 5
+
+(For now, this is just an idea. It does not work yet.)
+
+This is a basic example computation in Horton. The input file is just
+a small Python main program that uses the Horton library. The following script
+performs a HF/STO-3G computation on HCl::
+
+    from horton import *
+    import numpy as np
+
+    system = System(np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])*angstrom, [1, 9], 'STO-3G')
+    hamiltonion = Hamiltonian(system, [KineticEnergy(),  Hartree(), Fock()])
+    wfn = minimize(hamiltonian)
+    print wfn.energy/kjmol
+
+
+In many cases, the molecule of interest is stored in an external file, e.g.
+an XYZ file. To avoid retyping this molecule into the script, on may work as
+follows::
+
+    from horton import *
+    import numpy as np
+
+    system = System.from_file('hcl.xyz', 'STO-3G')
+    hamiltonion = Hamiltonian(system, [KineticEnergy(),  Hartree(), Fock()])
+    wfn = minimize(hamiltonian)
+    print wfn.energy/kjmol
+
+The kinetic energy may be omitted. If not present, it will be added
+automatically. There is also a shortcut to combine the Hartree and the Fock
+potential::
+
+    from horton import *
+    import numpy as np
+
+    system = System.from_file('hcl.xyz', 'STO-3G')
+    hamiltonion = Hamiltonian(system, HartreeFock())
+    wfn = minimize(hamiltonian)
+    print wfn.energy/kjmol

@@ -55,6 +55,8 @@ following components for this to work:
 
 7. A Constrained minimizer.
 
+8. A basic unit conversion module
+
 The Python/C wrapping will be done with Cython. The Python/Fortran wrapping
 will be done with Fwrap.
 
