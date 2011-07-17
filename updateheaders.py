@@ -47,7 +47,7 @@ def fix_python(lines, header_lines):
     strip_header(lines, '#--\n')
     # add new header (insert must be in reverse order)
     for hline in header_lines[::-1]:
-        lines.insert(0, '# '+hline)
+        lines.insert(0, ('# '+hline).strip() + '\n')
     # add a source code encoding line
     lines.insert(0, '# -*- coding: utf-8 -*-\n')
     if do_shebang:
