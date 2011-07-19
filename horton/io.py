@@ -23,6 +23,7 @@
 
 import numpy as np
 from horton.units import angstrom
+from horton.periodic import periodic
 
 
 __all__ = ['load_geom']
@@ -36,7 +37,7 @@ def load_geom_xyz(filename):
     numbers = np.empty(size, int)
     for i in xrange(size):
         words = f.next().split()
-        numbers[i] = int(words[0])
+        numbers[i] = periodic[words[0]].number
         coordinates[i,0] = float(words[1])*angstrom
         coordinates[i,1] = float(words[2])*angstrom
         coordinates[i,2] = float(words[3])*angstrom

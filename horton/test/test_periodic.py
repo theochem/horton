@@ -20,24 +20,11 @@
 #--
 
 
-import numpy as np
+from horton import periodic
 
-from horton import *
-
-
-def test_load_water_number():
-    system = System.from_file('data/test/water_number.xyz')
-    check_water(system)
-
-
-def test_load_water_element():
-    system = System.from_file('data/test/water_element.xyz')
-    check_water(system)
-
-
-def check_water(system):
-    assert system.numbers[0] == 1
-    assert system.numbers[1] == 8
-    assert system.numbers[2] == 1
-    assert abs(np.linalg.norm(system.coordinates[0] - system.coordinates[1])/angstrom - 0.96) < 1e-5
-    assert abs(np.linalg.norm(system.coordinates[2] - system.coordinates[1])/angstrom - 0.96) < 1e-5
+def test_periodic():
+    assert periodic['si'].number == 14
+    assert periodic['He'].number == 2
+    assert periodic['h'].symbol == 'H'
+    assert periodic[3].symbol == 'Li'
+    assert periodic['5'].symbol == 'B'
