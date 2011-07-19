@@ -30,12 +30,36 @@ __all__ = ['System']
 
 
 class System(object):
+    '''This class specifies the molecular system in Horton
+
+       Users will create an instance of this class to specificy the system on
+       which a computation has to be performed. All other infromation, such
+       basissets, pseudopotentials, ghost atoms, etc. are also found in the
+       attributes of this class.
+    '''
     def __init__(self, coordinates, numbers):
+        '''Create a System object
+
+           *Arguments:*
+
+           coordinates
+                A (N, 3) float numpy array with Cartesian coordinates of the
+                atoms.
+
+           numbers
+                A (N, ) int numpy vector with the atomic numbers.
+        '''
         self.coordinates = np.array(coordinates, dtype=float, copy=False)
         self.numbers = np.array(numbers, dtype=int, copy=False)
 
     @classmethod
     def from_file(cls, filename, *args, **kwargs):
+        '''Create a System object from a file
+
+           This method is the same as the constructor, except that the first
+           two arguments: coordinates and numbers are replaced by a filename.
+           For now, only the '.xyz' format is supported.
+        '''
         ext = filename[filename.rfind('.'):]
         coordinates, numbers = load_geom[ext](filename)
         return cls(coordinates, numbers, *args, **kwargs)

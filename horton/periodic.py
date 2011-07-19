@@ -18,20 +18,45 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Periodic table of elements.'''
+'''Periodic table of elements.
+
+   This module contains an object ``periodic`` that can be used as a Pythonic
+   periodic table. It can be used as follows::
+
+       >>> from horton import periodic
+       >>> periodic['si'].number
+       14
+       >>> periodic['He'].number
+       2
+       >>> periodic['h'].symbol
+       'H'
+       >>> periodic[3].symbol
+       'Li'
+       >>> periodic['5'].symbol
+       'B'
+'''
 
 
 __all__ = ['periodic']
 
 
 class Element(object):
+    '''Represents an element from the periodic table.'''
     def __init__(self, number, symbol):
         self.number = number
         self.symbol = symbol
 
 
 class Periodic(object):
+    '''A periodic table data structure.'''
     def __init__(self, elements):
+        '''Create a periodic table object
+
+           *Arguments:*
+
+           elements
+                A list of Element instances.
+        '''
         self.elements = elements
         self._lookup = {}
         for element in elements:
@@ -39,6 +64,14 @@ class Periodic(object):
             self._lookup[element.symbol.lower()] = element
 
     def __getitem__(self, index):
+        '''Get an element from the table based on a flexible index.
+
+           *Argument:*
+
+           index
+                This can be either an integer atomic number, a string with the
+                elemental symbol (any case) or a string with the atomic number.
+        '''
         result = self._lookup.get(index)
         if result is None and isinstance(index, basestring):
             result = self._lookup.get(index.lower())

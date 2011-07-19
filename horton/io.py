@@ -30,6 +30,16 @@ __all__ = ['load_geom']
 
 
 def load_geom_xyz(filename):
+    '''Load a molecular geometry from a .xyz file.
+
+       *Argument:*
+
+       filename
+            The file to load the geometry from
+
+       *Returns:* two arrays, coordinates and numbers that can be used as the
+       two first arguments of the System constructor.
+    '''
     f = file(filename)
     size = int(f.next())
     f.next()
