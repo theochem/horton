@@ -20,7 +20,19 @@
 #--
 
 
-from horton.constants import *
-from horton.context import *
-from horton.system import *
-from horton.units import *
+import numpy as np
+
+from horton import *
+
+
+def test_load_water_number():
+    system = System.from_file('data/test/water_number.xyz')
+    check_water(system)
+
+
+def check_water(system):
+    assert system.numbers[0] == 1
+    assert system.numbers[1] == 8
+    assert system.numbers[2] == 1
+    assert abs(np.linalg.norm(system.coordinates[0] - system.coordinates[1])/angstrom - 0.96) < 1e-5
+    assert abs(np.linalg.norm(system.coordinates[2] - system.coordinates[1])/angstrom - 0.96) < 1e-5

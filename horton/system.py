@@ -18,9 +18,24 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
+"""Define a molecular system and all aspects relevant for a computation"""
 
 
-from horton.constants import *
-from horton.context import *
-from horton.system import *
-from horton.units import *
+import numpy as np
+
+from horton.io import load_geom
+
+
+__all__ = ['System']
+
+
+class System(object):
+    def __init__(self, coordinates, numbers):
+        self.coordinates = np.array(coordinates, dtype=float, copy=False)
+        self.numbers = np.array(numbers, dtype=int, copy=False)
+
+    @classmethod
+    def from_file(cls, filename, *args, **kwargs):
+        ext = filename[filename.rfind('.'):]
+        coordinates, numbers = load_geom[ext](filename)
+        return cls(coordinates, numbers, *args, **kwargs)
