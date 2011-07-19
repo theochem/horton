@@ -18,7 +18,14 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-"""Define a molecular system and all aspects relevant for a computation"""
+'''Define a molecular system and all aspects relevant for a computation.
+
+   Objects of the System class specify the geometry (and atomic elements) of the
+   molecule on which Horton will perform a computation. Also other parameters
+   that determine several aspects of the molecular wavefunction, are attributes
+   of a :class:`System` instance, e.g. basissets, pseudopotentials, ghost atoms,
+   etc.
+'''
 
 
 import numpy as np
@@ -30,17 +37,8 @@ __all__ = ['System']
 
 
 class System(object):
-    '''This class specifies the molecular system in Horton
-
-       Users will create an instance of this class to specificy the system on
-       which a computation has to be performed. All other infromation, such
-       basissets, pseudopotentials, ghost atoms, etc. are also found in the
-       attributes of this class.
-    '''
     def __init__(self, coordinates, numbers):
-        '''Create a System object
-
-           *Arguments:*
+        '''**Arguments:**
 
            coordinates
                 A (N, 3) float numpy array with Cartesian coordinates of the
@@ -60,6 +58,5 @@ class System(object):
            two arguments: coordinates and numbers are replaced by a filename.
            For now, only the '.xyz' format is supported.
         '''
-        ext = filename[filename.rfind('.'):]
-        coordinates, numbers = load_geom[ext](filename)
+        coordinates, numbers = load_geom(filename)
         return cls(coordinates, numbers, *args, **kwargs)

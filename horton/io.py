@@ -18,7 +18,15 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Input and output routines'''
+'''Input and output routines.
+
+   All input routines begin with ``load_``. All output routines begin with
+   ``dump_``.
+
+   This module also contains a smart routine, ``load_geoms``, which makes it
+   easier to load molecular geometries from various file formats. It uses to
+   extension of the filename to figure out what the file format is.
+'''
 
 
 import numpy as np
@@ -26,18 +34,18 @@ from horton.units import angstrom
 from horton.periodic import periodic
 
 
-__all__ = ['load_geom']
+__all__ = ['load_geom', 'load_geom_xyz']
 
 
 def load_geom_xyz(filename):
     '''Load a molecular geometry from a .xyz file.
 
-       *Argument:*
+       **Argument:**
 
        filename
             The file to load the geometry from
 
-       *Returns:* two arrays, coordinates and numbers that can be used as the
+       **Returns:** two arrays, coordinates and numbers that can be used as the
        two first arguments of the System constructor.
     '''
     f = file(filename)
@@ -55,6 +63,23 @@ def load_geom_xyz(filename):
     return coordinates, numbers
 
 
-load_geom = {
+_load_geom_map = {
     '.xyz': load_geom_xyz,
 }
+
+def load_geom(filename):
+    '''Load a molecular geometry from a file.
+
+       **Argument:**
+
+       filename
+            The file to load the geometry from
+
+       **Returns:** two arrays, coordinates and numbers that can be used as the
+       two first arguments of the System constructor.
+
+       This routine uses the extension of the filename to determine the file
+       format.
+    '''
+    ext = filename[filename.rfind('.'):]
+    return _load_geom_map[ext](filename)

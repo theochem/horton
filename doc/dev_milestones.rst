@@ -50,6 +50,8 @@ following components for this to work:
    * Overlap
    * Kinetic energy
    * Hartree & Exchange
+   * Constraint for number of particles
+   * Constraint for occupation numbers
 
 6. Hamiltonian-core guess.
 
@@ -105,6 +107,9 @@ Polymers, membranes and crystals
 
 1D, 2D and 3D periodic boundary conditions.
 
+
+Pseudopotentials
+================
 
 Quantum dots
 ============

@@ -1,9 +1,9 @@
-Development
-###########
+Getting Started
+###############
 
 This chapter discusses all the technology and conventions that make it fun to
 work on Horton with a small team, and to make sure things remain manageable
-as the code grows bigger and bigger.
+as the elephant grows bigger and bigger.
 
 Coding guidelines
 =================
@@ -12,7 +12,7 @@ Although the development of Horton is a rather informal business, it is not a
 bad idea to follow some guidelines to guarantee the quality of the program. It
 may feel a bit frustrating in the beginning, but it avoids a lot of frustration
 in the long run. These guidelines assume you are familiar with the revision
-system, with python in general, and know how to test to code. (vide infra)
+system, with Python in general, and know how to test to code. (vide infra)
 
 1. **Write validation routines for new pieces of code. Commit new code and tests
    in one patch.**
@@ -26,7 +26,7 @@ system, with python in general, and know how to test to code. (vide infra)
    * Check whether a computational result is translational invariant.
    * Compare energies from atomic computations with published results, or
      results obtained with other (reliable) programs.
-   * Compare analytical derivatives with fees finite differences.
+   * Compare analytical derivatives with finite differences.
    * Compare the output of a routine with a results derived on paper.
 
    In most cases, it is sufficient to imagine what `could` go wrong if your new
@@ -53,19 +53,26 @@ system, with python in general, and know how to test to code. (vide infra)
    fix the bug. Commit both test and fix in one patch.**
 
    This is a great way of fixing bugs and making tests. It also guarantees that
-   your bug will not be reintroduced in later versions accidentally.
+   the bug you found will not be reintroduced accidentally in later versions of
+   Horton.
 
 5. **Write lots of documentation, doc-strings and comments.**
 
-   Writing lots of comments is needed for obvious reasons. Doc-strings are a
-   rather Pythonic thing to do. More information about doc-strings can be found
-   here: http://todo. The documentation system is discussed below.
+   `Comments` are needed for obvious reasons.
+
+   `Doc-strings` are a rather Pythonic thing to do. More information about
+   doc-strings can be found `here <http://www.python.org/dev/peps/pep-0257#what-is-a-docstring>`_.
+
+   `The documentation` is written in `ReStructuredText <http://docutils.sourceforge.net/rst.html>`_
+   and compiled with `Sphinx <http://sphinx.pocoo.org/>`_ into the fancy
+   webpage you are currently looking at. More details on the documentation
+   system are given below.
 
 6. **Write Python code in style.**
 
-   There is an extensive guide for decently formatting Python source code:
-   http://todo. The main purpose is to make the source code easier to read and
-   maintain. These are the basics:
+   There is an extensive `Style Guide for Python Code <http://www.python.org/dev/peps/pep-0008/>`_.
+   The main purpose is to make the source code easier to read and maintain.
+   These are the basics:
 
    * Never use tabs. Always use four spaces to indent code.
    * Use CamelCase for class names. All other names are written in lower case,
@@ -85,20 +92,25 @@ system, with python in general, and know how to test to code. (vide infra)
    * Avoid long lines, i.e. no longer than 80 characters. Use the line-wrapping
      features in Python to break long lines into smaller ones.
 
+   Specific conventions for Horton
+
+   * Import the Numpy package as follows: ``import numpy as np``.
 
 Git: the fast version control system
 ====================================
 
+Horton uses `Git <http://git-scm.com/>`_ for version control.
+
 Because a few of us are new to version control systems (VCSs), I'll go through
 the basics. Although the commands below are specific for Git, most of the
-good practices are general and also apply to other VCSs such Bazaar
+good practices are general and also apply to other modern VCSs such Bazaar
 or Mercurial. There are however a few old-fashioned systems such as CVS (and to
 some extent Subversion), that do not (or only poorly) support some of the
-guidelines below. Of all the VCs out there, Git is probably the most snappy, and
+guidelines below. Of all the VCSs out there, Git is probably the most snappy, and
 definitely the most popular for new projects. Git is also the only widely
 adopted open-source VCS for the development of commercial software.
 
-The purpose of a VCS is to allow people to make modifications in the same
+The purpose of a VCS is to allow many different people to make modifications in the same
 program without messing things up. VCS software also makes life much easier for
 someone who has to merge different developments into one common source tree.
 With the help of a few good practices, it becomes even unnecessary to have a
@@ -108,7 +120,7 @@ codemeister at all.
 Configuring Git
 ---------------
 
-Put this in the file .gitconfig in your home directory::
+Make a file ~/.gitconfig as follows::
 
     [user]
         name = Toon Verstraelen
@@ -128,7 +140,7 @@ Put this in the file .gitconfig in your home directory::
         default = matching
 
 
-Replace my name and email by your's. Add the following to your ``.bashrc``,
+Replace my name and email by yours. Add the following to your ``.bashrc``,
 and modify to your taste::
 
     GITPS1='$(__git_ps1 ":%s")'
@@ -142,8 +154,8 @@ and modify to your taste::
     export PROMPT_DIRTRIM=3
     export PS1="${GREEN}\u@\h${RS} ${BLUE}\w${RS}${YELLOW}${GITPS1}${BLUE}>${RS} "
 
-The bash prompt shows will show what `branch` you are working on. It will become
-clear later what that means.
+With these settings, the bash prompt will show what `branch` you are working on.
+It will become clear later what that means.
 
 
 Some terminology
@@ -154,13 +166,14 @@ Patch
     `patch` file. Such a file specifies a set of lines that are removed and
     a set of lines that are added.
 
-SHA1 hash
-    A `numerical` checksum of a given length in bytes (in this case 256) of
-    a much larger dataset. One tries to design hashing algorithms such that are
-    doing two things very well: (i) it is not possible to derive the original
-    data from a hash and (ii) a small change in the original data completely
-    changes the hash. The MD5 checksum is well known and often used from CD
-    images, but it is not great in terms of the above two hashing objectives.
+`SHA-1 <http://en.wikipedia.org/wiki/SHA-1>`_ hash
+    A `numerical` checksum of a given length in bytes (in this case 256) for a
+    much larger amount of data, e.g. a very long character string. One tries to
+    design hashing algorithms such that they are doing two things very well: (i) it
+    is not possible to derive the original data from a hash and (ii) a small
+    change in the original data completely changes the hash. The `MD5 <http://en.wikipedia.org/wiki/MD5>`_ checksum is
+    well known and often used from CD images, but it is not great in terms of
+    the above two hashing objectives.
 
 Commit (git specific)
     A patch with a some extra information: author, timestamp, a SHA1 hash of the
@@ -205,12 +218,13 @@ the basic work flow is discussed, so things may become more complicated.
    Only start changing the code and committing patches once you have changed
    to a dedicated branch for the implementation of feature `bar`.
 
-4. Make some changes. When adding a new feature, also add tests for that
-   feature. (The more tests, the better.)
+4. Make some changes in the source code. When adding a new feature, also add
+   tests for that feature. (The more tests, the better.)
 
 5. Review your changes with ``git diff``. Make sure there are no trailing spaces
-   or trailing blank lines. These can be removed with the ``cleancode.sh``
-   script.
+   or trailing blank lines. These can be removed with the ``./cleancode.sh``
+   script. If you created new files, run the ``./updateheaders.py`` script to
+   make sure the new files have the propper headers.
 
 6. Review the changed/new files with ``git status``
 
@@ -229,9 +243,10 @@ the basic work flow is discussed, so things may become more complicated.
 
     toony@poony ~/.../horton:bar> git commit -m 'Short description'
 
-After adding a few commits, testing them thoroughly and having them reviewed by
-a peer, you may want to transfer your commits from your working branch ``bar``
-to the master branch. This is done as follows:
+In practice, you'll make a few commits before a new feature is finished. After
+adding a few commits, testing them thoroughly and having them reviewed by a
+peer, you may want to transfer your commits from your working branch ``bar`` to
+the master branch. This is done as follows:
 
 1. Switch to the master branch::
 
@@ -251,6 +266,8 @@ to the master branch. This is done as follows:
 
     toony@poony ~/.../horton:bar> git rebase master
 
+..
+
     This command will try to apply the patches from your working branch to the
     master branch. It may happen that others have changed the official version
     such that your patches do no longer simply apply. When that is the case,
@@ -258,7 +275,7 @@ to the master branch. This is done as follows:
 
 5. Run all tests again once the rebase procedure is completed.
 
-8. Upload the commits::
+6. Upload the commits::
 
     toony@poony ~/.../horton:bar> git push origin bar:master
 
@@ -272,7 +289,7 @@ Git shortcuts
 The above procedures are rather lengthly, and for small changes there are
 shortcuts that are more convenient.
 
-1. One may commit all changed files (not new ones) without adding them first::
+1. One may commit all changed files (not new ones) without using ``git add`` first::
 
     git commit -a -m 'Short description'
 
@@ -291,8 +308,9 @@ shortcuts that are more convenient.
 
         toony@poony ~/.../horton:master> git pull --rebase
 
-      If someone has added patches to the master branch in the meantime, this
-      will download then and run the rebase command with your patches.
+      If someone has added patches to the master branch in the meantime, they
+      will be downloaded. Your patches are then applied afterwards with ``git
+      rebase`` automatically.
 
    d. Upload your commits::
 
@@ -306,20 +324,21 @@ shortcuts that are more convenient.
 Writing tests
 =============
 
-Horton uses the Nosetests program to run all validation routines. Use one of the
-existing tests as an example, or go through the Nosetests documentation to learn
-how to write tests from scratch.
+Horton uses the `Nosetests <http://somethingaboutorange.com/mrl/projects/nose/0.11.2/>`_
+program to run all validation routines. Use one of the existing tests as an
+example, or go through the Nosetests documentation to learn how to write tests
+from scratch.
 
 All tests in Horton are located in the directory ``horton/test``. All module
 files containing tests have a filename that starts with ``test_``. In these
 modules, all functions with a name that starts with ``test_`` are picked up
 by Nosetests. Tests that do not follow this convention, are simply ignored.
 
-The tests are run as follows (including preparation steps):
+The tests are run as follows (including preparation steps)::
 
-        toony@poony ~/.../horton:master> ./cleanfiles.sh
-        toony@poony ~/.../horton:master> ./setup.py build_ext -i
-        toony@poony ~/.../horton:master> nosetests -v
+    toony@poony ~/.../horton:master> ./cleanfiles.sh
+    toony@poony ~/.../horton:master> ./setup.py build_ext -i
+    toony@poony ~/.../horton:master> nosetests -v
 
 There are some cases where the first two commands are not needed. You will
 figure out eventually.
@@ -328,14 +347,14 @@ figure out eventually.
 Writing documentation
 =====================
 
-All the documentation is located in the ``doc`` directory. We use the Sphinx
+All the documentation is located in the ``doc`` directory. We use the `Sphinx <http://sphinx.pocoo.org/>`_
 formatting engine to compile the `documentation source code` into fancy
 formatted HTML or PDF. Sphinx can be found here: http://todo
 
 The source files have the extension ``.rst``, and are written in the
-RestructuredText (RST) format. (http://todo) RST in some sense comparable to
-latex, but more intuitive to use. It also has some specific advantages for
-documenting software.
+`ReStructuredText <http://docutils.sourceforge.net/rst.html>`_ (RST) format.
+RST in some sense comparable to latex, but more intuitive to use.
+It also has some specific advantages for documenting software.
 
 All ``.rst``-files are part of the source tree, just like the actual source
 code. Git is also used to keep track of changes in the documentation.
@@ -350,16 +369,16 @@ There is a makefile to generate the documentation based in the source code::
 Add yourself as an author
 =========================
 
-The authors of Horton are listed in a few places. This matters for the open
-source license. (In the long run, it would be better to have a small consortium
-that can hold the copyrights, but it is too early for that.)
+The authors of Horton are listed in a few places. This matters for the
+open-source license. (In the long run, it would be better to have a small
+consortium that can hold the copyrights, but it is too early for that.)
 
-If you are going to write source code, update the source headers and commit a
-patch as follows:
+* If you are going to write source code, update the source headers and commit a
+  patch as follows:
 
-1. Edit HEADER and add your name and email
-2. Run the script ``./updateheaders.py``
-3. ``git commit -a -m 'Hello horton source code!'
+  1. Edit HEADER and add your name and email
+  2. Run the script ``./updateheaders.py``
+  3. ``git commit -a -m 'Hello horton source code!'``
 
-If you are going to write documentation, update the file ``doc/conf.py`` and
-commit that change. There is no need to run some update script.
+* If you are going to write documentation, update the file ``doc/conf.py`` and
+  commit that change. There is no need to run some update script.

@@ -18,22 +18,34 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-"""Defines the context in which Horton is used."""
+'''Defines the context in which Horton is used.
+
+   This module controls global parameters that are purely technical, e.g. the
+   location of data files. It is certainly not meant to keep track of input
+   parameters for a computation.
+
+   This module contains a context object, an instance of the :class:`Context`
+   class. For now, its functionality is rather limited. It tries to figure
+   out the location of the data directory. If it is not specified in the
+   environment variable ``HORTONDATA``, it is assumed that the data is located
+   in a directory called ``data``. If the data directory does not exist, an
+   error is raised.
+'''
 
 
 import os
 from glob import glob
 
 
-__all__ = ['context']
+__all__ = ['context', 'Context']
 
 
 class Context(object):
-    """Find out where the data directory is located etc.
+    '''Finds out where the data directory is located etc.
 
        The data directory contains data files with standard basis sets and
        pseudo potentials.
-    """
+    '''
     def __init__(self):
         self.data_dir = os.getenv('HORTONDATA')
         if self.data_dir is None:
@@ -42,11 +54,11 @@ class Context(object):
             raise IOError('Can not find the data files. The directory %s does not exist.' % self.data_dir)
 
     def get_fn(self, filename):
-        """Return the full path to the given filename"""
+        '''Return the full path to the given filename in the data directory.'''
         return os.path.join(self.data_dir, filename)
 
     def glob(self, pattern):
-        """Return all files in the data directory that match the given pattern."""
+        '''Return all files in the data directory that match the given pattern.'''
         return glob(self.get_fn(pattern))
 
 

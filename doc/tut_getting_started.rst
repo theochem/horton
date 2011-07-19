@@ -34,6 +34,12 @@ install relatively recent versions of the following programs/libraries:
 * Cython > (todo): http://www.cython.org/
 * Sphinx > 1.0: http://sphinx.pocoo.org/
 
+On a decent operation system, these programs/libraries can be easily installed
+with a package manager. First check that option before manually installing this
+software. On Ubuntu, this one-liner will take care of it::
+
+    sudo apt-get install python-dev python-numpy cython python-sphinx
+
 One may either do a regular installation in the home directory, or an in-pace
 build in the source tree.
 
@@ -62,13 +68,19 @@ Testing
 =======
 
 A bunch of validation routines are included in Horton. To run these tests, one
-must install the nosetests python package. It can be found here:
+must install the Nosetests testing framework. It can be found here:
 
 http://somethingaboutorange.com/mrl/projects/nose/0.11.2/
 
-Once this python package is installed, perform an **in-place build** and run
-the following in the root of the source tree::
+We recommend that you use a package manager to install Nosetests. On ubuntu,
+this software can be installed as follows::
 
+    sudo apt-get install python-nose
+
+Once this Python package is installed, perform an **in-place build** and run
+nosetests afterwards::
+
+    ./setup.py build_ext -i
     nosetests -v
 
 If all runs well, the screen output should end with 'OK'.
@@ -77,20 +89,17 @@ If all runs well, the screen output should end with 'OK'.
 Basic example
 =============
 
-.. highlight:: python
-   :linenothreshold: 5
-
 (For now, this is just an idea. It does not work yet.)
 
 This is a basic example computation in Horton. The input file is just
 a small Python main program that uses the Horton library. The following script
-performs a HF/STO-3G computation on HCl::
+performs a HF/STO-3G computation on HF::
 
     from horton import *
     import numpy as np
 
     system = System(np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])*angstrom, [1, 9], 'STO-3G')
-    hamiltonion = Hamiltonian(system, [KineticEnergy(),  Hartree(), Fock()])
+    hamiltonian = Hamiltonian(system, [KineticEnergy(),  Hartree(), Fock()])
     wfn = minimize(hamiltonian)
     print wfn.energy/kjmol
 
@@ -100,10 +109,9 @@ an XYZ file. To avoid retyping this molecule into the script, on may work as
 follows::
 
     from horton import *
-    import numpy as np
 
     system = System.from_file('hcl.xyz', 'STO-3G')
-    hamiltonion = Hamiltonian(system, [KineticEnergy(),  Hartree(), Fock()])
+    hamiltonian = Hamiltonian(system, [KineticEnergy(),  Hartree(), Fock()])
     wfn = minimize(hamiltonian)
     print wfn.energy/kjmol
 
@@ -112,9 +120,8 @@ automatically. There is also a shortcut to combine the Hartree and the Fock
 potential::
 
     from horton import *
-    import numpy as np
 
     system = System.from_file('hcl.xyz', 'STO-3G')
-    hamiltonion = Hamiltonian(system, HartreeFock())
+    hamiltonian = Hamiltonian(system, HartreeFock())
     wfn = minimize(hamiltonian)
     print wfn.energy/kjmol

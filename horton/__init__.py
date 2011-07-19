@@ -22,6 +22,7 @@
 
 from horton.constants import *
 from horton.context import *
+from horton.io import *
 from horton.periodic import *
 from horton.system import *
 from horton.units import *

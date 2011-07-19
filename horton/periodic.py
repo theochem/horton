@@ -37,11 +37,20 @@
 '''
 
 
-__all__ = ['periodic']
+__all__ = ['periodic', 'Element', 'Periodic']
 
 
 class Element(object):
-    '''Represents an element from the periodic table.'''
+    '''Represents an element from the periodic table.
+
+       The following attributes are supported:
+
+       number
+            The atomic number
+
+       symbol
+            A string with the symbol of the element.
+    '''
     def __init__(self, number, symbol):
         self.number = number
         self.symbol = symbol
@@ -50,12 +59,10 @@ class Element(object):
 class Periodic(object):
     '''A periodic table data structure.'''
     def __init__(self, elements):
-        '''Create a periodic table object
-
-           *Arguments:*
+        '''**Arguments:**
 
            elements
-                A list of Element instances.
+                A list of :class:`Element` instances.
         '''
         self.elements = elements
         self._lookup = {}
@@ -66,11 +73,13 @@ class Periodic(object):
     def __getitem__(self, index):
         '''Get an element from the table based on a flexible index.
 
-           *Argument:*
+           **Argument:**
 
            index
                 This can be either an integer atomic number, a string with the
-                elemental symbol (any case) or a string with the atomic number.
+                elemental symbol (any case), or a string with the atomic number.
+
+           **Returns:** the corresponding :class:`Element` instance
         '''
         result = self._lookup.get(index)
         if result is None and isinstance(index, basestring):

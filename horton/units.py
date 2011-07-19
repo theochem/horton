@@ -18,13 +18,12 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-"""Conversion from and to atomic units
+'''Conversion from and to atomic units
 
-   Internally the Horton package works always in atomic units. This unit system
-   is consistent, like the SI unit system one does not need conversion factors
-   in the middle of a computation once all values are converted to atomic units.
-   This facilitates the programming and reduces accidental bugs due to
-   forgetting these conversion factor in the body of the code.
+   Internally Horton always uses atomic units. Atomic units are consistent,
+   similar to the SI unit system: one does not need conversion factors in the
+   middle of a computation. This choice facilitates the programming and reduces
+   accidental bugs.
 
    References for the conversion values:
 
@@ -35,12 +34,27 @@
      (http://physics.nist.gov/cuu/Constants/index.html)
    * 1 calorie = 4.184 Joules
 
-   Naming conventions in this module: unit is the value of one external unit
-   in internal - i.e. atomic - units. e.g. If you want to have a distance of
-   five angstrom in internal units: ``5*angstrom``. If you want to convert a
-   length of 5 internal units to angstrom: ``5/angstrom``. It is recommended to
-   perform this kind of conversions, only when data is read from the input and
-   data is written to the output.
+   **Conventions followed by this module:**
+
+   Let foo be is the value of an external unit in internal (atomic) units. The
+   way to use this unit is as follows: ``5*foo`` litterally means `five times
+   foo`. The result of this operation is a floating point number for this value
+   in atomic units.
+
+   **Examples:**
+
+   If you want to have a distance of five angstrom in internal units:
+   ``5*angstrom``.
+
+   If you want to convert a length of 5 internal units to angstrom:
+   ``5/angstrom``.
+
+   **Remarks:**
+
+   It is highly recommended to perform unit conversions only when data is read
+   from the input or data is written to the output. It may also be useful in
+   `input scripts` that use Horton. Do not perform any unit conversion in other
+   parts of the program.
 
    An often recurring question is how to convert a frequency in internal units
    to a spectroscopic wavenumber in inverse centimeters. This is how it can be
@@ -53,7 +67,7 @@
 
    These are the conversion constants defined in this module:
 
-"""
+'''
 
 
 from horton.constants import avogadro
@@ -144,3 +158,24 @@ debye = 0.39343031369146675 # = 1e-21*coulomb*meter**2/second/lightspeed
 # *** Current ***
 
 ampere = coulomb/second
+
+
+
+# automatically spice up the docstrings
+
+lines = [
+    '    ================  ==================',
+    '    Name              Value             ',
+    '    ================  ==================',
+]
+
+for key, value in sorted(globals().iteritems()):
+    if not isinstance(value, float):
+        continue
+    lines.append('    %16s  %.10e' % (key, value))
+lines.append('    ================  ==================')
+
+__doc__ += '\n'.join(lines)
+
+
+del lines

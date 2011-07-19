@@ -214,3 +214,23 @@ man_pages = [
     ('index', 'horton', u'Horton Documentation',
      [u'Toon Verstraelen'], 1)
 ]
+
+# -- Options for manual page output --------------------------------------------
+
+sys.path.append('../')
+os.environ['HORTONDATA'] = '../data'
+autoclass_content = "both"
+
+def autodoc_skip_member(app, what, name, obj, skip, options):
+    if what=="class" and name=="__call__":
+        return False
+    if what=="class" and name=="__getitem__":
+        return False
+    if name.startswith("_"):
+        return True
+    return False
+
+def setup(app):
+    from sphinx.ext.autodoc import cut_lines
+    app.connect("autodoc-skip-member", autodoc_skip_member)
+    app.connect('autodoc-process-docstring', cut_lines(2, what=['module']))
