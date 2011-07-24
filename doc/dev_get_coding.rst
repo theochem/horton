@@ -1,9 +1,10 @@
-Getting Started
-###############
+Getting Started with Coding
+###########################
 
 This chapter discusses all the technology and conventions that make it fun to
 work on Horton with a small team, and to make sure things remain manageable
 as the elephant grows bigger and bigger.
+
 
 Coding guidelines
 =================
@@ -95,6 +96,7 @@ system, with Python in general, and know how to test to code. (vide infra)
    Specific conventions for Horton
 
    * Import the Numpy package as follows: ``import numpy as np``.
+
 
 Git: the fast version control system
 ====================================
@@ -194,8 +196,7 @@ Branch head
 Adding a feature
 ----------------
 
-The steps below assume that you already have cloned the repository earlier. Only
-the basic work flow is discussed, so things may become more complicated.
+Only the basic work flow is discussed, so things may become more complicated.
 
 1. Switch to the master branch if needed::
 
@@ -281,6 +282,13 @@ the master branch. This is done as follows:
 
    This may fail when someone has uploaded yet a few more patches in the
    meantime. Start again at step 1 to update your patches.
+
+The last step will only work if you have write access to the main Horton
+repository. If this is not the case, there are a few other ways to get your
+contributions into the master branch. The best option is to upload your patches
+to a personal git repository and notify one of the authors with write access
+about your contributions. They should take care of reviewing and committing your
+patches.
 
 
 Git shortcuts

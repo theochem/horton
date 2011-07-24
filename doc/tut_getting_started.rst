@@ -11,17 +11,19 @@ also makes sense to use it for personal projects. All information about git
 (including downloads and tutorials) can be found here: http://git-scm.com/. The
 official git URL of Horton is:
 
-    git://todo
+    git://github.com/theochem/horton.git
 
 In order to `clone` the official Horton repository, run this command::
 
-    git clone git://todo
+    git clone git://github.com/theochem/horton.git
 
 The version history can be updated with the latest patches with the following
 command::
 
     git pull
 
+There is also a web interface to Horton's git repository:
+https://github.com/theochem/horton
 
 Compilation
 ===========
@@ -34,7 +36,7 @@ install relatively recent versions of the following programs/libraries:
 * Cython > (todo): http://www.cython.org/
 * Sphinx > 1.0: http://sphinx.pocoo.org/
 
-On a decent operation system, these programs/libraries can be easily installed
+On a decent operating system, these programs/libraries can be easily installed
 with a package manager. First check that option before manually installing this
 software. On Ubuntu, this one-liner will take care of it::
 
@@ -72,7 +74,7 @@ must install the Nosetests testing framework. It can be found here:
 
 http://somethingaboutorange.com/mrl/projects/nose/0.11.2/
 
-We recommend that you use a package manager to install Nosetests. On ubuntu,
+We recommend that you use a package manager to install Nosetests. On Ubuntu,
 this software can be installed as follows::
 
     sudo apt-get install python-nose

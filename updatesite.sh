@@ -18,6 +18,6 @@ git checkout master && (
       git add $f
     done
     git commit -a -m 'Automatic documentation update'
-    git push origin gh-pages:gh-pages
+    git push official gh-pages:gh-pages
   )
 ) && git checkout master
