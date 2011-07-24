@@ -21,7 +21,7 @@ Development
 .. toctree::
    :maxdepth: 2
 
-   dev_getting_started
+   dev_get_coding
    dev_milestones
 
 Library reference
