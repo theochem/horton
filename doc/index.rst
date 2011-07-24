@@ -1,5 +1,10 @@
-Welcome to Horton's documentation!
-##################################
+Horton's Website
+################
+
+Horton is a Density Functional Theory program.
+
+For now, everything is under construction. If you are interested in our plans,
+check out the milestones below.
 
 Tutorials
 =========
