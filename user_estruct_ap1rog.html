@@ -1,0 +1,1705 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>4.2. The AP1roG module &mdash; HORTON 2.0.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="HORTON 2.0.0 documentation" href="index.html"/>
+        <link rel="up" title="4. Electronic Structure Methods" href="user_estruct.html"/>
+        <link rel="next" title="4.3. The perturbation theory module" href="user_estruct_perturbation.html"/>
+        <link rel="prev" title="4.1. How to use HORTON as a Hartree-Fock/DFT program" href="user_estruct_hf_dft.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+
+        
+          <a href="index.html">
+        
+
+        
+          
+          <img src="_static/horton.png" class="logo" />
+        
+        </a>
+
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+        
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro_horton_overview.html#our-manifesto">1.1. Our Manifesto</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro_horton_overview.html#main-features">1.2. Main Features</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_download_and_install_linux.html">1.1. Download and installation on Linux (Fedora and Ubuntu)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_download_and_install_linux.html#disclaimer">1.1.1. Disclaimer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_download_and_install_linux.html#download-the-code">1.1.2. Download the code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_download_and_install_linux.html#dependencies-for-building-installing-and-testing-horton">1.1.3. Dependencies for building, installing and testing HORTON</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user_download_and_install_linux.html#installing-dependencies-with-a-package-manager">1.1.3.1. Installing dependencies with a package manager</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_download_and_install_linux.html#installing-dependencies-manually">1.1.3.2. Installing dependencies manually</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user_download_and_install_linux.html#compilation-and-installation">1.1.4. Compilation and installation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user_download_and_install_linux.html#build-and-install">1.1.4.1. Build and install</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_download_and_install_linux.html#overriding-default-compiler-linker-settings-for-libxc-libint2-and-blas">1.1.4.2. Overriding default compiler/linker settings for LibXC, LibInt2 and BLAS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_download_and_install_linux.html#runtime-configuration">1.1.4.3. Runtime configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user_download_and_install_linux.html#running-the-tests">1.1.5. Running the tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_download_and_install_linux.html#building-the-documentation">1.1.6. Building the documentation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user_download_and_install_linux.html#dependencies">1.1.6.1. Dependencies</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_download_and_install_linux.html#installing-the-dependencies-with-a-package-manager-and-pip">1.1.6.2. Installing the dependencies with a package manager and PIP</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_download_and_install_linux.html#actual-build">1.1.6.3. Actual build</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_download_and_install_mac.html">1.2. Download and installation on Mac OS X (10.8&#8211;10.10)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_download_and_install_mac.html#disclaimer">1.2.1. Disclaimer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_download_and_install_mac.html#macports">1.2.2. MacPorts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user_download_and_install_mac.html#quick-tour-of-macports">1.2.2.1. Quick tour of MacPorts</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user_download_and_install_mac.html#download-the-code">1.2.3. Download the code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_download_and_install_mac.html#dependencies-for-building-installing-and-testing-horton">1.2.4. Dependencies for building, installing and testing HORTON</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user_download_and_install_mac.html#installing-the-dependencies-with-macports">1.2.4.1. Installing the dependencies with MacPorts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_download_and_install_mac.html#installing-dependencies-manually">1.2.4.2. Installing dependencies manually</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user_download_and_install_mac.html#compilation-and-installation">1.2.5. Compilation and installation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user_download_and_install_mac.html#build-and-install">1.2.5.1. Build and install</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_download_and_install_mac.html#overriding-default-compiler-linker-settings-for-libxc-libint2-and-blas">1.2.5.2. Overriding default compiler/linker settings for LibXC, LibInt2 and BLAS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_download_and_install_mac.html#runtime-configuration">1.2.5.3. Runtime configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user_download_and_install_mac.html#running-the-tests">1.2.6. Running the tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_download_and_install_mac.html#building-the-documentation">1.2.7. Building the documentation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user_download_and_install_mac.html#dependencies">1.2.7.1. Dependencies</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_download_and_install_mac.html#installing-the-dependencies-with-macports-and-pip">1.2.7.2. Installing the dependencies with MacPorts and PIP</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_download_and_install_mac.html#actual-build">1.2.7.3. Actual build</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_download_and_install_setup_cfg.html">1.3. Controlling dynamic/static linking against LibXC, LibInt2 and BLAS</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_download_and_install_setup_cfg.html#introduction">1.3.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_download_and_install_setup_cfg.html#setup-cfg-and-environment-variables">1.3.2. <code class="docutils literal"><span class="pre">setup.cfg</span></code> and environment variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_download_and_install_setup_cfg.html#other-ways-of-controlling-compilation-and-linker-flags">1.3.3. Other ways of controlling compilation and linker flags</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_download_and_install_troubleshooting.html">1.4. Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_download_and_install_troubleshooting.html#introduction">1.4.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_download_and_install_troubleshooting.html#python-modules">1.4.2. Python modules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_download_and_install_troubleshooting.html#excecutables">1.4.3. Excecutables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_download_and_install_troubleshooting.html#libraries">1.4.4. Libraries</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_getting_started.html#how-to-use-horton">2.1. How to use HORTON?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_getting_started.html#running-horton-as-a-python-library">2.1.1. Running HORTON as a Python library</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_getting_started.html#running-horton-as-horton-py-scripts">2.1.2. Running HORTON as <code class="docutils literal"><span class="pre">horton-*.py</span></code> scripts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_getting_started.html#writing-a-basic-horton-python-script">2.2. Writing a basic HORTON Python script</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_getting_started.html#atomic-units">2.2.1. Atomic Units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_getting_started.html#array-indexing">2.2.2. Array Indexing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_getting_started.html#loading-dumping-data-from-to-a-file">2.2.3. Loading/Dumping Data from/to a File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_getting_started.html#periodic-table">2.2.4. Periodic Table</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_getting_started.html#a-complete-example">2.2.5. A Complete Example</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_hamiltonian_molecular.html">3.1. Molecular Hamiltonians</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_hamiltonian_molecular.html#specifying-the-molecular-geometry">3.1.1. Specifying the molecular geometry</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user_hamiltonian_molecular.html#reading-the-molecular-geometry-from-file">3.1.1.1. Reading the molecular geometry from file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_hamiltonian_molecular.html#constructing-a-molecular-geometry-from-scratch">3.1.1.2. Constructing a molecular geometry from scratch</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user_hamiltonian_molecular.html#specifying-the-basis-set">3.1.2. Specifying the basis set</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user_hamiltonian_molecular.html#unique-basis-set-for-all-atoms">3.1.2.1. Unique basis set for all atoms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_hamiltonian_molecular.html#specifying-different-basis-sets-for-different-atoms">3.1.2.2. Specifying different basis sets for different atoms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_hamiltonian_molecular.html#loading-custom-basis-sets-from-file">3.1.2.3. Loading custom basis sets from file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_hamiltonian_molecular.html#defining-basis-sets-with-python-code">3.1.2.4. Defining basis sets with Python code</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_hamiltonian_molecular.html#loading-geometry-and-basis-set-info-from-one-file">3.1.2.5. Loading geometry and basis set info from one file</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user_hamiltonian_molecular.html#computing-hamiltonian-matrix-elements">3.1.3. Computing (Hamiltonian) matrix elements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_hamiltonian_model.html">3.2. Defining a model Hamiltonian</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_hamiltonian_model.html#supported-features">3.2.1. Supported features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_hamiltonian_model.html#the-hubbard-model-hamiltonian">3.2.2. The Hubbard model Hamiltonian</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user_hamiltonian_model.html#preliminaries">3.2.2.1. Preliminaries</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_hamiltonian_model.html#defining-the-hamiltonian-and-boundary-conditions-open-or-periodic">3.2.2.2. Defining the Hamiltonian and boundary conditions (open or periodic)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_hamiltonian_model.html#filling-the-lattice">3.2.2.3. Filling the lattice</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_hamiltonian_model.html#generate-initial-guess-orbitals-and-overlap-matrix">3.2.2.4. Generate initial guess orbitals and overlap matrix</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user_hamiltonian_model.html#example-python-script">3.2.3. Example Python script</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user_hamiltonian_model.html#restricted-hartree-fock-calculations-using-the-1-dim-hubbard-model-hamiltonian-with-pbc">3.2.3.1. Restricted Hartree-Fock calculations using the 1-dim Hubbard model Hamiltonian with PBC</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_hamiltonian_io.html">3.3. Dumping/Loading a Hamiltonian to/from a file</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_hamiltonian_io.html#horton-s-internal-format">3.3.1. HORTON&#8217;s internal format</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user_hamiltonian_io.html#dumping">3.3.1.1. Dumping</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_hamiltonian_io.html#loading">3.3.1.2. Loading</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user_hamiltonian_io.html#fcidump-format">3.3.2. FCIDUMP format</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user_hamiltonian_io.html#id1">3.3.2.1. Dumping</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_hamiltonian_io.html#id2">3.3.2.2. Loading</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="user_estruct_hf_dft.html">4.1. How to use HORTON as a Hartree-Fock/DFT program</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_estruct_hf_dft.html#setting-up-the-molecular-electronic-hamiltonian">4.1.1. Setting up the (molecular electronic) Hamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_estruct_hf_dft.html#generating-an-initial-guess-of-the-wavefunction">4.1.2. Generating an initial guess of the wavefunction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user_estruct_hf_dft.html#core-hamiltonian-guess">4.1.2.1. Core Hamiltonian guess</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_estruct_hf_dft.html#randomizing-an-initial-guess">4.1.2.2. Randomizing an initial guess</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_estruct_hf_dft.html#modifying-the-initial-guess">4.1.2.3. Modifying the initial guess</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_estruct_hf_dft.html#reading-a-guess-from-a-file">4.1.2.4. Reading a guess from a file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_estruct_hf_dft.html#projecting-orbitals-from-a-smaller-basis-onto-a-larger-one">4.1.2.5. Projecting orbitals from a smaller basis onto a larger one</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user_estruct_hf_dft.html#defining-the-effective-hamiltonian">4.1.3. Defining the effective Hamiltonian</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user_estruct_hf_dft.html#supported-energy-terms-for-the-effective-hamiltonians">4.1.3.1. Supported energy terms for the effective Hamiltonians</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_estruct_hf_dft.html#a-few-typical-examples">4.1.3.2. A few typical examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user_estruct_hf_dft.html#choose-an-orbital-occupation-scheme">4.1.4. Choose an orbital occupation scheme</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_estruct_hf_dft.html#optimize-the-wavefunction-with-a-self-consistent-field-algorithm">4.1.5. Optimize the wavefunction with a self-consistent field algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_estruct_hf_dft.html#conversion-of-density-and-fock-matrix-to-orbitals">4.1.6. Conversion of density and Fock matrix to orbitals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_estruct_hf_dft.html#writing-scf-results-to-a-file">4.1.7. Writing SCF results to a file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_estruct_hf_dft.html#preparing-for-a-post-hartree-fock-calculation">4.1.8. Preparing for a Post-Hartree-Fock calculation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user_estruct_hf_dft.html#transforming-the-hamiltonian-to-the-molecular-orbital-mo-basis">4.1.8.1. Transforming the Hamiltonian to the molecular-orbital (MO) basis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_estruct_hf_dft.html#reducing-the-hamiltonian-to-an-active-space">4.1.8.2. Reducing the Hamiltonian to an active space</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user_estruct_hf_dft.html#complete-examples">4.1.9. Complete examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">4.2. The AP1roG module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-ap1rog-model">4.2.1. The AP1roG model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#currently-supported-features">4.2.2. Currently supported features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#input-structure">4.2.3. Input structure</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#getting-started">4.2.3.1. Getting started</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ap1rog-with-orbital-optimization">4.2.3.2. AP1roG with orbital optimization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ap1rog-without-orbital-optimization">4.2.3.3. AP1roG without orbital optimization</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#troubleshooting-in-ap1rog-scf-calculations">4.2.4. Troubleshooting in AP1roG-SCF calculations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example-python-scripts">4.2.5. Example Python scripts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#the-water-molecule-a-minimum-input-example">4.2.5.1. The water molecule (a minimum input example)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-water-molecule-with-all-default-keyword-arguments">4.2.5.2. The water molecule (with all default keyword arguments)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ap1rog-with-external-integrals">4.2.5.3. AP1roG with external integrals</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ap1rog-using-model-hamiltonians">4.2.5.4. AP1roG using model Hamiltonians</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_estruct_perturbation.html">4.3. The perturbation theory module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_estruct_perturbation.html#supported-features">4.3.1. Supported features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_estruct_perturbation.html#moller-plesset-perturbation-theory-of-second-order">4.3.2. Moller-Plesset perturbation theory of second order</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user_estruct_perturbation.html#getting-started">4.3.2.1. Getting started</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_estruct_perturbation.html#how-to-set-up-an-mp2-calculation">4.3.2.2. How to set-up an MP2 calculation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user_estruct_perturbation.html#the-pta-module">4.3.3. The PTa module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user_estruct_perturbation.html#getstartedpta">4.3.3.1. Getting started</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_estruct_perturbation.html#how-to-set-up-a-calculation">4.3.3.2. How to set-up a calculation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user_estruct_perturbation.html#the-ptb-module">4.3.4. The PTb module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user_estruct_perturbation.html#getstartedptb">4.3.4.1. Getting started</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_estruct_perturbation.html#id5">4.3.4.2. How to set-up a calculation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_estruct_perturbation.html#summary-of-keyword-arguments">4.3.4.3. Summary of keyword arguments</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user_estruct_perturbation.html#example-python-scripts">4.3.5. Example Python scripts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user_estruct_perturbation.html#mp2-calculation-on-the-water-molecule">4.3.5.1. MP2 calculation on the water molecule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_estruct_perturbation.html#pta-calculation-on-the-water-molecule">4.3.5.2. PTa calculation on the water molecule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_estruct_perturbation.html#ptb-calculation-on-the-water-molecule">4.3.5.3. PTb calculation on the water molecule</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_postproc.html">5. Post-processing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_postproc_aim.html">5.1. Atoms-in-Molecules (AIM) analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_postproc_aim.html#introduction">5.1.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_postproc_aim.html#horton-atomdb-py-build-a-pro-atom-database">5.1.2. <code class="docutils literal"><span class="pre">horton-atomdb.py</span></code> &#8211; Build a pro-atom database</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user_postproc_aim.html#template-files">5.1.2.1. Template files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_postproc_aim.html#basic-template-file-for-gaussian-03-09">5.1.2.2. Basic template file for Gaussian 03/09</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_postproc_aim.html#advanced-template-file-for-gaussian-03-09">5.1.2.3. Advanced template file for Gaussian 03/09</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_postproc_aim.html#simple-template-file-for-orca">5.1.2.4. Simple template file for ORCA</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_postproc_aim.html#template-file-for-cp2k">5.1.2.5. Template file for CP2K</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_postproc_aim.html#simple-template-file-for-psi4">5.1.2.6. Simple template file for PSI4</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user_postproc_aim.html#horton-wpart-py-aim-analysis-based-on-a-wavefunction-file">5.1.3. <code class="docutils literal"><span class="pre">horton-wpart.py</span></code> &#8211; AIM analysis based on a wavefunction file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_postproc_aim.html#horton-cpart-py-aim-analysis-based-on-a-cube-file">5.1.4. <code class="docutils literal"><span class="pre">horton-cpart.py</span></code> &#8211; AIM analysis based on a cube file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_postproc_aim.html#python-interface-to-the-partitioning-code">5.1.5. Python interface to the partitioning code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_postproc_aim.html#frequently-asked-questions">5.1.6. Frequently asked questions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_postproc_espfit.html">5.2. Electrostatic potential fitting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_postproc_espfit.html#introduction">5.2.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_postproc_espfit.html#horton-esp-cost-py-set-up-an-esp-cost-function">5.2.2. <code class="docutils literal"><span class="pre">horton-esp-cost.py</span></code> &#8211; Set up an ESP cost function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_postproc_espfit.html#horton-esp-fit-py-fit-atomic-charges-to-the-esp">5.2.3. <code class="docutils literal"><span class="pre">horton-esp-fit.py</span></code> &#8211; Fit atomic charges to the ESP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_postproc_espfit.html#horton-esp-test-py-test-the-esp-quality-of-a-given-set-of-charges">5.2.4. <code class="docutils literal"><span class="pre">horton-esp-test.py</span></code> &#8211; Test the ESP quality of a given set of charges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_postproc_espfit.html#making-nice-cube-files-with-gaussian">5.2.5. Making nice cube files with Gaussian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_postproc_espfit.html#making-cube-files-with-cp2k">5.2.6. Making cube files with CP2K</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_postproc_espfit.html#python-interface-to-the-esp-fitting-code">5.2.7. Python interface to the ESP fitting code</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_postproc_localization.html">5.3. Localization of molecular orbitals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_postproc_localization.html#pipek-mezey-localization">5.3.1. Pipek-Mezey localization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_postproc_localization.html#example-python-scripts">5.3.2. Example Python scripts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user_postproc_localization.html#pipek-mezey-localization-of-restricted-hartree-fock-orbitals-for-the-water-molecule">5.3.2.1. Pipek-Mezey localization of restricted Hartree-Fock orbitals for the water molecule</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_postproc_orbital_entanglement.html">5.4. Orbital entanglement analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_postproc_orbital_entanglement.html#orbital-entanglement-and-orbital-correlation">5.4.1. Orbital entanglement and orbital correlation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_postproc_orbital_entanglement.html#supported-features">5.4.2. Supported features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_postproc_orbital_entanglement.html#orbital-entanglement-and-correlation-for-a-seniority-zero-wavefunction">5.4.3. Orbital entanglement and correlation for a seniority zero wavefunction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user_postproc_orbital_entanglement.html#how-to-set-up-a-calculation">5.4.3.1. How to set-up a calculation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user_postproc_orbital_entanglement.html#how-to-generate-correlation-diagrams">5.4.3.2. How to generate correlation diagrams</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user_postproc_orbital_entanglement.html#example-python-scripts">5.4.4. Example Python scripts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user_postproc_orbital_entanglement.html#orbital-entanglement-analysis-of-an-ap1rog-wavefunction">5.4.4.1. Orbital entanglement analysis of an AP1roG wavefunction</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_other_numerical_integration.html">6.1. How to use HORTON for numerical integration?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_other_numerical_integration.html#building-an-integration-grid">6.1.1. Building an integration grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_other_numerical_integration.html#computing-an-integral-involving-the-electron-density">6.1.2. Computing an integral involving the electron density</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_other_numerical_integration.html#constructing-a-one-body-operator-from-a-real-space-potential">6.1.3. Constructing a one-body operator from a real-space potential</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_other_matrix.html">6.2. How to use HORTON&#8217;s <code class="docutils literal"><span class="pre">matrix</span></code> package?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_other_matrix.html#introduction">6.2.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_other_matrix.html#using-the-matrix-package">6.2.2. Using the <code class="docutils literal"><span class="pre">matrix</span></code> package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_other_conversion.html">6.3. How to use HORTON to convert between file formats?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_other_conversion.html#horton-convert-py-conversion-between-file-formats-supported-by-horton">6.3.1. <code class="docutils literal"><span class="pre">horton-convert.py</span></code> &#8211; Conversion between file formats supported by HORTON</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_other_conversion.html#horton-hdf2csv-py-conversion-of-hdf5-files-to-csv-format">6.3.2. <code class="docutils literal"><span class="pre">horton-hdf2csv.py</span></code> &#8211; Conversion of HDF5 files to CSV format</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_coding_guidelines.html">1.1. Coding guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_git.html">1.2. How to use Git</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_git.html#installing-git">1.2.1. Installing Git</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_git.html#git-configuration">1.2.2. Git configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_git.html#some-terminology">1.2.3. Some terminology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_git.html#cloning-the-horton-git-repository">1.2.4. Cloning the HORTON git repository</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_git.html#additional-steps-required-to-build-the-development-version-of-horton">1.2.5. Additional steps required to build the development version of HORTON</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_git.html#work-flow-for-adding-a-new-feature">1.2.6. Work flow for adding a new feature</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tech_dev_git.html#develop-the-feature-in-a-separate-branch">1.2.6.1. Develop the feature in a separate branch</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tech_dev_git.html#make-your-branch-available-for-review">1.2.6.2. Make your branch available for review</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tech_dev_git.html#rebase-your-branch-on-top-of-the-master-branch">1.2.6.3. Rebase your branch on top of the <code class="docutils literal"><span class="pre">master</span></code> branch</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_git.html#common-issues">1.2.7. Common issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_documentation.html">1.3. Writing documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_documentation.html#introduction">1.3.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_documentation.html#building-documentation">1.3.2. Building documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_documentation.html#common-issues">1.3.3. Common issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_unit_tests.html">1.4. Writing unit tests</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_unit_tests.html#running-the-tests">1.4.1. Running the tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_unit_tests.html#writing-new-tests">1.4.2. Writing new tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_unit_tests.html#writing-tests-that-need-a-temporary-directory">1.4.3. Writing tests that need a temporary directory</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_examples.html">1.5. Writing examples scripts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_citing_papers.html">1.6. Citing scientific work</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_cython.html">1.7. Accelerating HORTON code with Cython</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_cython.html#before-you-begin">1.7.1. Before you begin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_cython.html#basic-example">1.7.2. Basic example</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tech_dev_cython.html#background">1.7.2.1. Background</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tech_dev_cython.html#cythonizing-your-code">1.7.2.2. Cythonizing your code</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_cython.html#additional-notes">1.7.3. Additional notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_cython.html#further-reading">1.7.4. Further reading</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_contributors.html">2.1. Contributors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_release_planning.html">2.2. Release planning</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_release_planning.html#stable-api-and-beta-code">2.2.1. Stable API and beta code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_release_planning.html#unstable-code-in-horton-version">2.2.2. Unstable code in HORTON 2.0.0</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_release_planning.html#features-in-development">2.2.3. Features in development</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_release_history.html">2.3. Release history</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_file_formats.html">2.4. Data file formats (input and output)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_file_formats.html#molecular-geometry-file-formats">2.4.1. Molecular geometry file formats</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tech_ref_file_formats.html#the-xyz-format">2.4.1.1. The <code class="docutils literal"><span class="pre">.xyz</span></code> format</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tech_ref_file_formats.html#the-poscar-format">2.4.1.2. The <code class="docutils literal"><span class="pre">POSCAR</span></code> format</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tech_ref_file_formats.html#the-cif-crystalographic-information-file-format">2.4.1.3. The <code class="docutils literal"><span class="pre">.cif</span></code> (Crystalographic Information File) format</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_file_formats.html#cube-file-formats">2.4.2. Cube file formats</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tech_ref_file_formats.html#the-gaussian-cube-format">2.4.2.1. The Gaussian <code class="docutils literal"><span class="pre">.cube</span></code> format</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tech_ref_file_formats.html#the-vasp-chgcar-and-locpot-formats">2.4.2.2. The VASP <code class="docutils literal"><span class="pre">CHGCAR</span></code> and <code class="docutils literal"><span class="pre">LOCPOT</span></code> formats</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_file_formats.html#wavefunction-formats-using-a-gaussian-basis-set">2.4.3. Wavefunction formats (using a Gaussian basis set)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tech_ref_file_formats.html#the-gaussian-fchk-format">2.4.3.1. The Gaussian <code class="docutils literal"><span class="pre">.fchk</span></code> format</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tech_ref_file_formats.html#the-molden-format">2.4.3.2. The <code class="docutils literal"><span class="pre">.molden</span></code> format</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tech_ref_file_formats.html#the-mkl-molekel-format">2.4.3.3. The <code class="docutils literal"><span class="pre">.mkl</span></code> (Molekel) format</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tech_ref_file_formats.html#the-wfn-format">2.4.3.4. The <code class="docutils literal"><span class="pre">.wfn</span></code> format</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_file_formats.html#hamiltonian-file-formats">2.4.4. Hamiltonian file formats</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tech_ref_file_formats.html#the-molpro-2012-fcidump-format">2.4.4.1. The Molpro 2012 <code class="docutils literal"><span class="pre">FCIDUMP</span></code> format</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tech_ref_file_formats.html#the-gaussian-log-file">2.4.4.2. The Gaussian <code class="docutils literal"><span class="pre">.log</span></code> file</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_file_formats.html#horton-s-internal-file-format">2.4.5. HORTON&#8217;s internal file format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_grids.html">2.5. Atomic integration grids</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_grids.html#built-in-grids">2.5.1. Built-in grids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_grids.html#the-grid-option">2.5.2. The <code class="docutils literal"><span class="pre">--grid</span></code> option</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_gaussian_basis.html">2.6. Gaussian basis sets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_gaussian_basis.html#standard-basis-sets">2.6.1. Standard basis sets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_gaussian_basis.html#collected-notes-on-gaussian-basis-sets">2.6.2. Collected notes on Gaussian basis sets</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tech_ref_gaussian_basis.html#introduction">2.6.2.1. Introduction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tech_ref_gaussian_basis.html#cartesian-basis-functions">2.6.2.2. Cartesian basis functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tech_ref_gaussian_basis.html#pure-or-harmonic-basis-functions">2.6.2.3. Pure or harmonic basis functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tech_ref_gaussian_basis.html#transformation-from-cartesian-to-pure-basis-functions">2.6.2.4. Transformation from Cartesian to pure basis functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tech_ref_gaussian_basis.html#recursion-relations-for-real-regular-solid-harmonics">2.6.2.5. Recursion relations for real regular solid harmonics</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_functionals.html">2.7. LibXC Functionals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_acronyms.html">2.8. Acronyms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_dictionary.html">2.9. HORTON dictionary of variables</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_dictionary.html#rules">2.9.1. Rules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_dictionary.html#variable-names-and-prefixes">2.9.2. Variable names and prefixes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_literature.html">2.10. Literature</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lib/pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> &#8211; The main HORTON Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_cache.html">3.1.1. <code class="docutils literal"><span class="pre">horton.cache</span></code> &#8211; Avoid recomputation of earlier results and reallocation of existing arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_cext.html">3.1.2. <code class="docutils literal"><span class="pre">horton.cext</span></code> &#8211; C++ extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_constants.html">3.1.3. <code class="docutils literal"><span class="pre">horton.constants</span></code> &#8211; Physicochemical constants in atomic units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_context.html">3.1.4. <code class="docutils literal"><span class="pre">horton.context</span></code> &#8211; The context in which HORTON is used</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_exceptions.html">3.1.5. <code class="docutils literal"><span class="pre">horton.exceptions</span></code> &#8211; Definition of all excpetions in HORTON</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_log.html">3.1.6. <code class="docutils literal"><span class="pre">horton.log</span></code> &#8211; Screen logging, timing and citation management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_moments.html">3.1.7. <code class="docutils literal"><span class="pre">horton.moments</span></code> &#8211; Auxiliary routines related to multipole moments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_orbital_utils.html">3.1.8. <code class="docutils literal"><span class="pre">horton.orbital_utils</span></code> &#8211; Utility functions for orbital modifications</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_periodic.html">3.1.9. <code class="docutils literal"><span class="pre">horton.periodic</span></code> &#8211; Periodic table of elements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_quadprog.html">3.1.10. <code class="docutils literal"><span class="pre">horton.quadprog</span></code> &#8211; A light-weight quadratic programming solver</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lib/mod_horton_quadprog.html#notation">3.1.10.1. Notation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_symmetry.html">3.1.11. <code class="docutils literal"><span class="pre">horton.symmetry</span></code> &#8211; Geometric symmetries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_units.html">3.1.12. <code class="docutils literal"><span class="pre">horton.units</span></code> &#8211; Conversion from and to atomic units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_utils.html">3.1.13. <code class="docutils literal"><span class="pre">horton.utils</span></code> &#8211; Utility functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_cell_h.html">3.1.14. <code class="docutils literal"><span class="pre">horton/cell.h</span></code> &#8211; Unit cell code to specify periodic boundary conditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_moments_h.html">3.1.15. <code class="docutils literal"><span class="pre">horton/moments.h</span></code> &#8211; Efficient evaluation of various of polynomials</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_nucpot_h.html">3.1.16. <code class="docutils literal"><span class="pre">horton/nucpot.h</span></code> &#8211; Low-level implementation of nuclear potential on a grid</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="lib/pck_horton_correlatedwfn.html">3.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn</span></code> &#8211; Methods for correlated wavefunctions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_correlatedwfn_geminal.html">3.2.1. <code class="docutils literal"><span class="pre">horton.correlatedwfn.geminal</span></code> &#8211; Correlated wavefunction implementations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_correlatedwfn_perturbation.html">3.2.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn.perturbation</span></code> &#8211; Perturbation theory module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_correlatedwfn_restricted_ap1rog.html">3.2.3. <code class="docutils literal"><span class="pre">horton.correlatedwfn.restricted_ap1rog</span></code> &#8211; Correlated wavefunction implementations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_correlatedwfn_stepsearch.html">3.2.4. <code class="docutils literal"><span class="pre">horton.correlatedwfn.stepsearch</span></code> &#8211; Step search methods for orbital rotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_correlatedwfn_trustregionopt.html">3.2.5. <code class="docutils literal"><span class="pre">horton.correlatedwfn.trustregionopt</span></code> &#8211; Optimization of Newton step</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="lib/pck_horton_espfit.html">3.3. <code class="docutils literal"><span class="pre">horton.espfit</span></code> &#8211; Electrostatic potential fitting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_espfit_cext.html">3.3.1. <code class="docutils literal"><span class="pre">horton.espfit.cext</span></code> &#8211; C++ extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_espfit_cost.html">3.3.2. <code class="docutils literal"><span class="pre">horton.espfit.cost</span></code> &#8211; ESP cost functions for estimating and testing charges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_espfit_electrostatics_h.html">3.3.3. <code class="docutils literal"><span class="pre">horton/espfit/electrostatics.h</span></code> &#8211; Computation of ESP cost functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_espfit_mask_h.html">3.3.4. <code class="docutils literal"><span class="pre">horton/espfit/mask.h</span></code> &#8211; Computation of weights for ESP cost functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="lib/pck_horton_gbasis.html">3.4. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> &#8211; Gaussian basis sets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_gbasis_cext.html">3.4.1. <code class="docutils literal"><span class="pre">horton.gbasis.cext</span></code> &#8211; C++ extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_gbasis_gobasis.html">3.4.2. <code class="docutils literal"><span class="pre">horton.gbasis.gobasis</span></code> &#8211; Gaussian orbital basis set module.</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_gbasis_iobas.html">3.4.3. <code class="docutils literal"><span class="pre">horton.gbasis.iobas</span></code> &#8211; Input/Output routines for gaussian basis sets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_gbasis_boys_h.html">3.4.4. <code class="docutils literal"><span class="pre">horton/gbasis/boys.h</span></code> &#8211; The Boys function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_gbasis_calc_h.html">3.4.5. <code class="docutils literal"><span class="pre">horton/gbasis/calc.h</span></code> &#8211; Base class for any integral/evaluation of Gaussian functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_gbasis_cartpure_h.html">3.4.6. <code class="docutils literal"><span class="pre">horton/gbasis/cartpure.h</span></code> &#8211; Conversion of Cartesian to Pure Gaussian functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_gbasis_cholesky_h.html">3.4.7. <code class="docutils literal"><span class="pre">horton/gbasis/cholesky.h</span></code> &#8211; Cholesky decomposition of (any) four-center integrals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_gbasis_common_h.html">3.4.8. <code class="docutils literal"><span class="pre">horton/gbasis/common.h</span></code> &#8211; Auxiliary functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_gbasis_fns_h.html">3.4.9. <code class="docutils literal"><span class="pre">horton/gbasis/fns.h</span></code> &#8211; Evaluation of functions expanded in a Gaussian basis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_gbasis_gbasis_h.html">3.4.10. <code class="docutils literal"><span class="pre">horton/gbasis/gbasis.h</span></code> &#8211; Gaussian basis set classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_gbasis_gbw_h.html">3.4.11. <code class="docutils literal"><span class="pre">horton/gbasis/gbw.h</span></code> &#8211; A four-center integral wrapper for the Cholesky code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_gbasis_ints_h.html">3.4.12. <code class="docutils literal"><span class="pre">horton/gbasis/ints.h</span></code> &#8211; Evaluation of integrals of Gaussian basis functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_gbasis_iter_gb_h.html">3.4.13. <code class="docutils literal"><span class="pre">horton/gbasis/iter_gb.h</span></code> &#8211; Iterators over Gaussian basis functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_gbasis_iter_pow_h.html">3.4.14. <code class="docutils literal"><span class="pre">horton/gbasis/iter_pow.h</span></code> &#8211; Iterators over Cartesian polynomials in one shell</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="lib/pck_horton_grid.html">3.5. <code class="docutils literal"><span class="pre">horton.grid</span></code> &#8211; Numerical integration grids</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_grid_atgrid.html">3.5.1. <code class="docutils literal"><span class="pre">horton.grid.atgrid</span></code> &#8211; Atomic grids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_grid_base.html">3.5.2. <code class="docutils literal"><span class="pre">horton.grid.base</span></code> &#8211; Base classes for 3D integration grids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_grid_cext.html">3.5.3. <code class="docutils literal"><span class="pre">horton.grid.cext</span></code> &#8211; C++ extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_grid_int1d.html">3.5.4. <code class="docutils literal"><span class="pre">horton.grid.int1d</span></code> &#8211; 1D integration algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_grid_molgrid.html">3.5.5. <code class="docutils literal"><span class="pre">horton.grid.molgrid</span></code> &#8211; Molecular integration grids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_grid_ode2.html">3.5.6. <code class="docutils literal"><span class="pre">horton.grid.ode2</span></code> &#8211; Finite-element second-order ODE solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_grid_poisson.html">3.5.7. <code class="docutils literal"><span class="pre">horton.grid.poisson</span></code> &#8211; Becke-style numerical Poisson solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_grid_radial.html">3.5.8. <code class="docutils literal"><span class="pre">horton.grid.radial</span></code> &#8211; 1D Radial integration grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_grid_utils.html">3.5.9. <code class="docutils literal"><span class="pre">horton.grid.utils</span></code> &#8211; Auxiliaries for numerical integrals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_grid_visual.html">3.5.10. <code class="docutils literal"><span class="pre">horton.grid.visual</span></code> &#8211; Grids suitable for visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_grid_becke_h.html">3.5.11. <code class="docutils literal"><span class="pre">horton/grid/becke.h</span></code> &#8211; Becke partitioning weight function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_grid_cubic_spline_h.html">3.5.12. <code class="docutils literal"><span class="pre">horton/grid/cubic_spline.h</span></code> &#8211; One-dimensional cubic splines (on uniform grids)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_grid_evaluate_h.html">3.5.13. <code class="docutils literal"><span class="pre">horton/grid/evaluate.h</span></code> &#8211; Evaluation of splines on grids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_grid_lebedev_laikov_h.html">3.5.14. <code class="docutils literal"><span class="pre">horton/grid/lebedev_laikov.h</span></code> &#8211; Grids for quadrature on a sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_grid_ode2_h.html">3.5.15. <code class="docutils literal"><span class="pre">horton/grid/ode2.h</span></code> &#8211; Second-order finite-element ODE solver using Hermite polynomials</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_grid_rtransform_h.html">3.5.16. <code class="docutils literal"><span class="pre">horton/grid/rtransform.h</span></code> &#8211; Transformation from uniform 1D to non-uniform 1D grids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_grid_uniform_h.html">3.5.17. <code class="docutils literal"><span class="pre">horton/grid/uniform.h</span></code> &#8211; Uniform 3D grids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_grid_utils_h.html">3.5.18. <code class="docutils literal"><span class="pre">horton/grid/utils.h</span></code> &#8211; Auxiliary functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="lib/pck_horton_io.html">3.6. <code class="docutils literal"><span class="pre">horton.io</span></code> &#8211; Input and output routines</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_io_cif.html">3.6.1. <code class="docutils literal"><span class="pre">horton.io.cif</span></code> &#8211; Crystalographic Information File format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_io_cp2k.html">3.6.2. <code class="docutils literal"><span class="pre">horton.io.cp2k</span></code> &#8211; CP2K atomic wavefunctions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_io_cube.html">3.6.3. <code class="docutils literal"><span class="pre">horton.io.cube</span></code> &#8211; Gaussian cube file format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_io_gaussian.html">3.6.4. <code class="docutils literal"><span class="pre">horton.io.gaussian</span></code> &#8211; Gaussian LOG and FCHK file fromats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_io_internal.html">3.6.5. <code class="docutils literal"><span class="pre">horton.io.internal</span></code> &#8211; HORTON internal file format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_io_iodata.html">3.6.6. <code class="docutils literal"><span class="pre">horton.io.iodata</span></code> &#8211; Input/output dispatcher for different file formats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_io_lockedh5.html">3.6.7. <code class="docutils literal"><span class="pre">horton.io.lockedh5</span></code> &#8211; H5 file with lock</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_io_molden.html">3.6.8. <code class="docutils literal"><span class="pre">horton.io.molden</span></code> &#8211; Molden wavefunction input file format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_io_molekel.html">3.6.9. <code class="docutils literal"><span class="pre">horton.io.molekel</span></code> &#8211; Molekel wavefunction input file format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_io_molpro.html">3.6.10. <code class="docutils literal"><span class="pre">horton.io.molpro</span></code> &#8211; Molpro 2012 FCIDUMP format.</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_io_vasp.html">3.6.11. <code class="docutils literal"><span class="pre">horton.io.vasp</span></code> &#8211; VASP POSCAR, CHGCAR and POTCAR file formats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_io_wfn.html">3.6.12. <code class="docutils literal"><span class="pre">horton.io.wfn</span></code> &#8211; WFN File format (Gaussian and GAMESS)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_io_xyz.html">3.6.13. <code class="docutils literal"><span class="pre">horton.io.xyz</span></code> &#8211; XYZ file format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="lib/pck_horton_localization.html">3.7. <code class="docutils literal"><span class="pre">horton.localization</span></code> &#8211; Methods for orbital localization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_localization_localization.html">3.7.1. <code class="docutils literal"><span class="pre">horton.localization.localization</span></code> &#8211; Orbital localization procedures</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="lib/pck_horton_matrix.html">3.8. <code class="docutils literal"><span class="pre">horton.matrix</span></code> &#8211; One-, two-, three- and four-dimensional matrix implementations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_matrix_base.html">3.8.1. <code class="docutils literal"><span class="pre">horton.matrix.base</span></code> &#8211; Base classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_matrix_cext.html">3.8.2. <code class="docutils literal"><span class="pre">horton.matrix.cext</span></code> &#8211; C++ extensions for matrix package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_matrix_cholesky.html">3.8.3. <code class="docutils literal"><span class="pre">horton.matrix.cholesky</span></code> &#8211; Cholesky decomposition of four-index objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_matrix_dense.html">3.8.4. <code class="docutils literal"><span class="pre">horton.matrix.dense</span></code> &#8211; Dense matrix implementations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lib/mod_horton_matrix_dense.html#naming-scheme-for-the-contract-slice-or-expand-methods">3.8.4.1. Naming scheme for the contract, slice or expand methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lib/mod_horton_matrix_dense.html#handling-of-index-symmetry">3.8.4.2. Handling of index symmetry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lib/mod_horton_matrix_dense.html#dense-matrix-classes">3.8.4.3. Dense matrix classes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_matrix_slicing_h.html">3.8.5. <code class="docutils literal"><span class="pre">horton/matrix/slicing.h</span></code> &#8211; Low-level routines for <code class="docutils literal"><span class="pre">CholeskyLinalgFactory</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="lib/pck_horton_meanfield.html">3.9. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> &#8211; Mean-field electronic structure code</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_meanfield_bond_order.html">3.9.1. <code class="docutils literal"><span class="pre">horton.meanfield.bond_order</span></code> &#8211; Generic implementation of bond orders for mean-field wavefunctions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_meanfield_builtin.html">3.9.2. <code class="docutils literal"><span class="pre">horton.meanfield.builtin</span></code> &#8211; Built-in energy terms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_meanfield_cext.html">3.9.3. <code class="docutils literal"><span class="pre">horton.meanfield.cext</span></code> &#8211; C++ extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_meanfield_convergence.html">3.9.4. <code class="docutils literal"><span class="pre">horton.meanfield.convergence</span></code> &#8211; Evaluation of convergence criteria</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_meanfield_gridgroup.html">3.9.5. <code class="docutils literal"><span class="pre">horton.meanfield.gridgroup</span></code> &#8211; Container for observables involving numerical integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_meanfield_guess.html">3.9.6. <code class="docutils literal"><span class="pre">horton.meanfield.guess</span></code> &#8211; Initial guesses for wavefunctions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_meanfield_hamiltonian.html">3.9.7. <code class="docutils literal"><span class="pre">horton.meanfield.hamiltonian</span></code> &#8211; Mean-field DFT/HF Hamiltonian data structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_meanfield_libxc.html">3.9.8. <code class="docutils literal"><span class="pre">horton.meanfield.libxc</span></code> &#8211; Interface to LDA, GGA and hybrid functionals from LibXC</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_meanfield_observable.html">3.9.9. <code class="docutils literal"><span class="pre">horton.meanfield.observable</span></code> &#8211; Base classes for energy terms and other observables of the wavefunction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_meanfield_occ.html">3.9.10. <code class="docutils literal"><span class="pre">horton.meanfield.occ</span></code> &#8211; Occupation number models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_meanfield_project.html">3.9.11. <code class="docutils literal"><span class="pre">horton.meanfield.project</span></code> &#8211; Projection of 1-electron orbitals to a new basis set</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_meanfield_response.html">3.9.12. <code class="docutils literal"><span class="pre">horton.meanfield.response</span></code> &#8211; Evaluation of response functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_meanfield_rotate.html">3.9.13. <code class="docutils literal"><span class="pre">horton.meanfield.rotate</span></code> &#8211; Rotation of orbitals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_meanfield_scf.html">3.9.14. <code class="docutils literal"><span class="pre">horton.meanfield.scf</span></code> &#8211; Basic Self-Consistent Field (SCF) algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_meanfield_scf_cdiis.html">3.9.15. <code class="docutils literal"><span class="pre">horton.meanfield.scf_cdiis</span></code> &#8211; Commutator DIIS SCF algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_meanfield_scf_diis.html">3.9.16. <code class="docutils literal"><span class="pre">horton.meanfield.scf_diis</span></code> &#8211; Abstract DIIS code used by the different DIIS implementations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_meanfield_scf_ediis.html">3.9.17. <code class="docutils literal"><span class="pre">horton.meanfield.scf_ediis</span></code> &#8211; Energy DIIS SCF algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_meanfield_scf_ediis2.html">3.9.18. <code class="docutils literal"><span class="pre">horton.meanfield.scf_ediis2</span></code> &#8211; EDIIS+DIIS SCF algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_meanfield_scf_oda.html">3.9.19. <code class="docutils literal"><span class="pre">horton.meanfield.scf_oda</span></code> &#8211; Optimal Damping SCF algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_meanfield_utils.html">3.9.20. <code class="docutils literal"><span class="pre">horton.meanfield.utils</span></code> &#8211; Utility functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="lib/pck_horton_modelhamiltonians.html">3.10. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> &#8211; Model Hamiltonians</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_modelhamiltonians_physmodham.html">3.10.1. <code class="docutils literal"><span class="pre">horton.modelhamiltonians.physmodham</span></code> &#8211; Physical Model Hamiltonian</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="lib/pck_horton_orbital_entanglement.html">3.11. <code class="docutils literal"><span class="pre">horton.orbital_entanglement</span></code> &#8211; Methods for measuring orbital entanglement</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_orbital_entanglement_orbital_entanglement.html">3.11.1. <code class="docutils literal"><span class="pre">horton.orbital_entanglement.orbital_entanglement</span></code> &#8211; One- and two-orbital entanglement measures</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="lib/pck_horton_part.html">3.12. <code class="docutils literal"><span class="pre">horton.part</span></code> &#8211; Density-based partitioning (fuzzy atoms-in-molecules) package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_part_base.html">3.12.1. <code class="docutils literal"><span class="pre">horton.part.base</span></code> &#8211; Base classes for (atoms-in-molecules) partitioning algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_part_becke.html">3.12.2. <code class="docutils literal"><span class="pre">horton.part.becke</span></code> &#8211; Becke partitioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_part_hirshfeld.html">3.12.3. <code class="docutils literal"><span class="pre">horton.part.hirshfeld</span></code> &#8211; Hirshfeld partitioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_part_hirshfeld_e.html">3.12.4. <code class="docutils literal"><span class="pre">horton.part.hirshfeld_e</span></code> &#8211; Extended Hirshfeld (HE) partitioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_part_hirshfeld_i.html">3.12.5. <code class="docutils literal"><span class="pre">horton.part.hirshfeld_i</span></code> &#8211; Iterative Hirshfeld (HI) partitioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_part_iterstock.html">3.12.6. <code class="docutils literal"><span class="pre">horton.part.iterstock</span></code> &#8211; Iterative Stockholder Analysis (ISA) partitioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_part_mbis.html">3.12.7. <code class="docutils literal"><span class="pre">horton.part.mbis</span></code> &#8211; Minimal Basis Iterative Stockholder (MBIS) partitioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_part_mulliken.html">3.12.8. <code class="docutils literal"><span class="pre">horton.part.mulliken</span></code> &#8211; Mulliken partitioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_part_proatomdb.html">3.12.9. <code class="docutils literal"><span class="pre">horton.part.proatomdb</span></code> &#8211; Pro-atom databases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_part_stockholder.html">3.12.10. <code class="docutils literal"><span class="pre">horton.part.stockholder</span></code> &#8211; Base classes for all stockholder partitioning schemes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_part_symmetry.html">3.12.11. <code class="docutils literal"><span class="pre">horton.part.symmetry</span></code> &#8211; Symmetry analysis of atoms-in-molecules results</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="lib/pck_horton_scripts.html">3.13. <code class="docutils literal"><span class="pre">horton.scripts</span></code> &#8211; Code (solely) used by HORTON&#8217;s command line scripts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_scripts_atomdb.html">3.13.1. <code class="docutils literal"><span class="pre">horton.scripts.atomdb</span></code> &#8211; Code used by <code class="docutils literal"><span class="pre">horton-atomdb.py</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_scripts_common.html">3.13.2. <code class="docutils literal"><span class="pre">horton.scripts.common</span></code> &#8211; Code shared by several scripts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_scripts_cpart.html">3.13.3. <code class="docutils literal"><span class="pre">horton.scripts.cpart</span></code> &#8211; Utility functions for the <code class="docutils literal"><span class="pre">horton-cpart.py</span></code> script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_scripts_espfit.html">3.13.4. <code class="docutils literal"><span class="pre">horton.scripts.espfit</span></code> &#8211; Code used by ESP fitting scripts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_scripts_hdf2csv.html">3.13.5. <code class="docutils literal"><span class="pre">horton.scripts.hdf2csv</span></code> &#8211; Code used by <code class="docutils literal"><span class="pre">horton-hdf2csv.py</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib/mod_horton_scripts_wpart.html">3.13.6. <code class="docutils literal"><span class="pre">horton.scripts.wpart</span></code> &#8211; Utility functions for the <code class="docutils literal"><span class="pre">horton-wpart.py</span></code> script</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">HORTON</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="user_estruct.html">4. Electronic Structure Methods</a> &raquo;</li>
+      
+    <li>4.2. The AP1roG module</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/user_estruct_ap1rog.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <div class="section" id="the-ap1rog-module">
+<span id="user-ap1rog"></span><h1>4.2. The AP1roG module<a class="headerlink" href="#the-ap1rog-module" title="Permalink to this headline">¶</a></h1>
+<p>Two-electron functions, called geminals, can be used to incorporate electron
+correlation effects into the many-particle wavefunction. Horton supports a
+special type of geminal-based wavefunction models, the antisymmetric product of
+1-reference orbital geminals (AP1roG), which is equivalent to pair-coupled
+cluster doubles. The AP1roG wavefunct ion effectively parameterizes the doubly
+occupied configuration interaction wavefunction (DOCI), but requires only
+mean-field computational cost in contrast to the factorial scaling of
+traditional DOCI implementations <a class="reference internal" href="tech_ref_literature.html#limacher2013" id="id1">[limacher2013]</a>. Currently the AP1roG module is
+limited to closed-shell systems only.</p>
+<div class="section" id="the-ap1rog-model">
+<span id="user-ap1rog-model"></span><h2>4.2.1. The AP1roG model<a class="headerlink" href="#the-ap1rog-model" title="Permalink to this headline">¶</a></h2>
+<p>The AP1roG wavefunction ansatz can be rewritten in terms of one-particle functions as a fully general pair-coupled-cluster wavefunction,</p>
+<div class="math" id="equation-ap1rog">
+<span class="eqno">(1)</span>\[\vert \textrm{AP1roG}\rangle = \exp(\sum_{ia} c_i^a a^\dagger_a a^\dagger_{\bar{a}} a_{\bar{i}} a_i) \vert \Psi_0 \rangle\]</div>
+<p>where <span class="math">\(a_p^{\dagger}\)</span>, <span class="math">\(a_{\bar{p}}^{\dagger}\)</span>, and <span class="math">\(a_p\)</span>, <span class="math">\(a_{\bar{p}}\)</span> are the electron creation and annihilation operators and <span class="math">\(p\)</span> and <span class="math">\(\bar{p}\)</span> denote <span class="math">\(\alpha\)</span> and <span class="math">\(\beta\)</span> spins, respectively. <span class="math">\(\vert \Psi_0 \rangle\)</span> is some independent-particle wave function (for instance, the Hartree−Fock determinant).
+Indices <span class="math">\(i\)</span> and <span class="math">\(a\)</span> correspond to virtual and occupied orbitals with respect to <span class="math">\(\vert \Psi_0 \rangle\)</span>, <span class="math">\(P\)</span> and <span class="math">\(K\)</span> denote the number of electron pairs (<span class="math">\(P = N/2\)</span> with <span class="math">\(N\)</span> being the total number of electrons) and orbitals, respectively.
+The geminal coefficient matrix (<span class="math">\(\mathbf{C}\)</span>) of AP1roG links the geminals with the underlying one-particle basis functions and has the following form,</p>
+<div class="math" id="equation-cia">
+<span class="eqno">(2)</span>\[\begin{split}\mathbf{C}  =
+\begin{pmatrix}
+  1      &amp; 0       &amp; \cdots &amp; 0       &amp; c_{1;P+1} &amp; c_{1;P+2}&amp;\cdots &amp;c_{1;K}\\
+  0      &amp; 1       &amp; \cdots &amp; 0       &amp; c_{2;P+1} &amp; c_{2;P+2}&amp;\cdots &amp;c_{2;K}\\
+  \vdots &amp; \vdots  &amp; \ddots &amp; \vdots  &amp; \vdots    &amp; \vdots   &amp;\ddots &amp;\vdots\\
+  0      &amp; 0       &amp; \cdots &amp; 1       &amp; c_{P;P+1} &amp; c_{P;P+2}&amp;\cdots &amp; c_{P;K}
+\end{pmatrix}\end{split}\]</div>
+<p>The exponential form of eq. <a href="#equation-ap1rog">(1)</a> assures the size extensivity of the geminal wavefunction, however, in order to ensure the size consistency, one has to optimize the orbitals (see <a class="reference internal" href="tech_ref_literature.html#boguslawski2014a" id="id2">[boguslawski2014a]</a> and <a class="reference internal" href="tech_ref_literature.html#boguslawski2014b" id="id3">[boguslawski2014b]</a>). The simplest and most robust way is to use the variational orbital optimization (vOO-AP1roG) method implemented in HORTON (see <a class="reference internal" href="#ooap1rog"><span>AP1roG with orbital optimization</span></a>).</p>
+</div>
+<div class="section" id="currently-supported-features">
+<h2>4.2.2. Currently supported features<a class="headerlink" href="#currently-supported-features" title="Permalink to this headline">¶</a></h2>
+<p>If not mentioned otherwise, the AP1roG module supports spin-restricted orbitals and the <code class="docutils literal"><span class="pre">DenseLinalgFactory</span></code> and <code class="docutils literal"><span class="pre">CholeskyLinalgFactory</span></code>. Specifically, the following features are provided:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Optimization of AP1roG (eq. <a href="#equation-ap1rog">(1)</a>) with (see <a class="reference internal" href="#ooap1rog"><span>AP1roG with orbital optimization</span></a>) and without orbital optimization (see <a class="reference internal" href="#ap1rog"><span>AP1roG without orbital optimization</span></a>) for a given Hamiltonian (see <a class="reference internal" href="#preamble"><span>Getting started</span></a>).</li>
+<li>Variational orbital optimization and PS2c orbital optimization (see <a class="reference internal" href="#keywords-oo-ap1rog"><span>Summary of keyword arguments</span></a> to choose the orbital optimizer)</li>
+<li>Calculation of response one- and two-particle reduced density matrices (see <a class="reference internal" href="#responsedms"><span>Response density matrices</span></a>)</li>
+<li>Determination of AP1roG natural orbitals and occupation numbers (see <a class="reference internal" href="#responsedms"><span>Response density matrices</span></a> and <a class="reference internal" href="#natorb"><span>Natural orbitals and occupation numbers</span></a>)</li>
+<li>Calculation of the exact orbital Hessian (see <a class="reference internal" href="#exacthessian"><span>The exact orbital Hessian</span></a>). Note that the orbital optimizer uses only a diagonal Hessian. The exact orbital Hessian can only be evaluated in combination with the <code class="docutils literal"><span class="pre">DenseLinalgFactory</span></code>.</li>
+</ol>
+</div></blockquote>
+<p>The AP1roG wave function and its response density matrices can then be used for post-processing. This version of HORTON offers:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>A posteriori addition of dynamic electron correlation using the perturbation module (see <a class="reference internal" href="user_estruct_perturbation.html#pta"><span>The PTa module</span></a> and <a class="reference internal" href="user_estruct_perturbation.html#ptb"><span>The PTb module</span></a> for documentation)</li>
+<li>Analysis of orbital correlations in the AP1roG wave function using the orbital entanglement module (see <a class="reference internal" href="user_postproc_orbital_entanglement.html#orbital-entanglementseniorityzero"><span>Orbital entanglement and correlation for a seniority zero wavefunction</span></a> for documentation)</li>
+<li>Dump the Hamiltonian (collection of one- and two-electron integrals and the energy term due to core electrons and external potentials) in the AP1roG MO basis. The one- and two-electron integrals can be calculated for any pre-defined active space, that is, a selected number of active electrons and orbitals. The Hamiltonian is stored in the Molpro file format (see <a class="reference internal" href="user_hamiltonian_io.html#hamiltonian-io"><span>Dumping/Loading a Hamiltonian to/from a file</span></a> for documentation)</li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="input-structure">
+<h2>4.2.3. Input structure<a class="headerlink" href="#input-structure" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="getting-started">
+<span id="preamble"></span><h3>4.2.3.1. Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h3>
+<p>To optimize an AP1roG wavefunction, the module requires a Hamiltonian and an initial guess for the orbitals (either an AO/MO coefficient matrix or an MO/MO coefficient matrix) as input arguments. HORTON provides different options for specifying the Hamiltonian and an orbital guess.</p>
+<ul>
+<li><p class="first">The Hamiltonian is divided into three contributions: the one- and two-electron integrals as well as an external term (also referred to as core energy). Possible choices are:</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p class="first">In-house calculation of the quantum chemical Hamiltonian expressed in the AO basis (kinetic energy of the electrons, electron-nuclear attraction, electron-electron repulsion, and nuclear-nuclear repulsion). All terms are calculated separately in HORTON (see <a class="reference internal" href="user_hamiltonian_molecular.html#user-molecularham-matrix-elements"><span>Computing (Hamiltonian) matrix elements</span></a> for documentation). Note, however, that all one-electron terms have to be combined into one single operator term. This can be done in the following way</p>
+<blockquote>
+<div><div class="highlight-python"><div class="highlight"><pre><span class="c">###############################################################################</span>
+<span class="c">## Calculate kinetic energy (kin) and nuclear attraction (na) term ############</span>
+<span class="c">###############################################################################</span>
+<span class="n">kin</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_kinetic</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+<span class="n">na</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_nuclear_attraction</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">,</span> <span class="n">lf</span><span class="p">)</span>
+<span class="c">###############################################################################</span>
+<span class="c">## Combine one-electron integrals to single Hamiltonian #######################</span>
+<span class="c">###############################################################################</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">kin</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">one</span><span class="o">.</span><span class="n">iadd</span><span class="p">(</span><span class="n">na</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">In-house calculation of model Hamiltonians. Supported model Hamiltonians are summarized in <a class="reference internal" href="user_hamiltonian_model.html#modphysham"><span>Defining a model Hamiltonian</span></a>. If the model Hamiltonian contains separate one-electron contributions, they have to be combined to a single operator as shown under point 1.</p>
+</li>
+<li><p class="first">External (one- and two-electron) integrals (in an orthonormal basis) and core energy can be read from file. The integral file must use the Molpro file format (see <a class="reference internal" href="user_hamiltonian_io.html#hamiltonian-io"><span>Dumping/Loading a Hamiltonian to/from a file</span></a> for more details). To load a Hamiltonian from file, run</p>
+<blockquote>
+<div><div class="highlight-python"><div class="highlight"><pre><span class="n">one</span><span class="p">,</span> <span class="n">two</span><span class="p">,</span> <span class="n">coreenergy</span> <span class="o">=</span> <span class="n">load_fcidump</span><span class="p">(</span><span class="n">lf</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s">&#39;./FCIDUMP&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ol>
+<blockquote>
+<div><p>with arguments</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">lf:</th><td class="field-body">A linear algebra factory. Must be of type <code class="docutils literal"><span class="pre">DenseLinalgFactory</span></code>. Note that <code class="docutils literal"><span class="pre">CholeskyLinalgFactory</span></code> is not supported</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>and optional arguments</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">filename:</th><td class="field-body">(str) the filename of the fcidump file (default <code class="docutils literal"><span class="pre">FCIDUMP</span></code>)</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>The function <code class="docutils literal"><span class="pre">load_fcidump</span></code> has three return values; the one-electron integrals (<code class="docutils literal"><span class="pre">one</span></code>) stored as a <code class="docutils literal"><span class="pre">TwoIndex</span></code> object, the two-electron integrals (<code class="docutils literal"><span class="pre">two</span></code>) stored as a <code class="docutils literal"><span class="pre">FourIndex</span></code> object, and the core energy (<code class="docutils literal"><span class="pre">coreenergy</span></code>, float).</p>
+</div></blockquote>
+</div></blockquote>
+</li>
+<li><p class="first">A set of initial guess orbitals can be either generated in HORTON (including the AO overlap matrix) or read from disk (see <a class="reference internal" href="#restart-ap1rog"><span>How to restart</span></a> to use orbitals generated in HORTON as initial guess). Examples for initial guess orbitals are:</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p class="first">Restricted canonical Hartree-Fock orbitals (see <a class="reference internal" href="user_estruct_hf_dft.html#user-hf-dft"><span>How to use HORTON as a Hartree-Fock/DFT program</span></a>)</p>
+</li>
+<li><p class="first">Localized orbitals. HORTON supports Pipek-Mezey localization of canonical Hartree-Fock orbitals. See <a class="reference internal" href="user_postproc_localization.html#localization"><span>Localization of molecular orbitals</span></a> for documentation.</p>
+</li>
+<li><p class="first">If external integrals (expressed in an orthonormal basis) are used to define the Hamiltonian, the initial orbitals and the overlap matrix are the identity matrix and can be set as follows:</p>
+<blockquote>
+<div><div class="highlight-python"><div class="highlight"><pre><span class="n">orb</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_expansion</span><span class="p">(</span><span class="n">nbasis</span><span class="p">)</span>
+<span class="n">olp</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_two_index</span><span class="p">(</span><span class="n">nbasis</span><span class="p">)</span>
+<span class="n">olp</span><span class="o">.</span><span class="n">assign_diagonal</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="n">orb</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">olp</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ol>
+<blockquote>
+<div><p>where <code class="docutils literal"><span class="pre">nbasis</span></code> is the number of basis function (total number of orbitals in the active space).</p>
+</div></blockquote>
+</div></blockquote>
+</li>
+</ul>
+</div>
+<div class="section" id="ap1rog-with-orbital-optimization">
+<span id="ooap1rog"></span><h3>4.2.3.2. AP1roG with orbital optimization<a class="headerlink" href="#ap1rog-with-orbital-optimization" title="Permalink to this headline">¶</a></h3>
+<p>If you use this part of the module, please cite <a class="reference internal" href="tech_ref_literature.html#boguslawski2014a" id="id4">[boguslawski2014a]</a> and <a class="reference internal" href="tech_ref_literature.html#boguslawski2014b" id="id5">[boguslawski2014b]</a></p>
+<div class="section" id="how-to-set-up-a-calculation">
+<span id="setup-oo-ap1rog"></span><h4>4.2.3.2.1. How to set-up a calculation<a class="headerlink" href="#how-to-set-up-a-calculation" title="Permalink to this headline">¶</a></h4>
+<p>After specifying a Hamiltonian and initial guess orbitals, you can create an instance of the <code class="docutils literal"><span class="pre">RAp1rog</span></code> class,</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">apr1og</span> <span class="o">=</span>  <span class="n">RAp1rog</span><span class="p">(</span><span class="n">lf</span><span class="p">,</span> <span class="n">occ_model</span><span class="p">,</span> <span class="n">npairs</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">nvirt</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>with arguments</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">lf:</th><td class="field-body">A <code class="docutils literal"><span class="pre">LinalgFactory</span></code> instance</td>
+</tr>
+<tr class="field-even field"><th class="field-name">occ_model:</th><td class="field-body">(<code class="docutils literal"><span class="pre">AufbauOccModel</span></code> instance) an Aufbau occupation model</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>and optional arguments</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">npairs:</th><td class="field-body">(int) number of electron pairs. If not specified, the number of pairs equals the number of occupied orbitals in the <code class="docutils literal"><span class="pre">AufbauOccModel</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">nvirt:</th><td class="field-body">(int) number of virtual orbitals. If not specified, the number of virtual orbitals is calculated from the total number of basis functions minus the number of electron pairs.</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>Note that no optional arguments need to be specified for the AP1roG model and the number of electron pairs and virtual orbitals is automatically determined using the <code class="docutils literal"><span class="pre">AufbauOccModel</span></code>. A restricted, orbital-optimized AP1roG calculation can be initiated with a function call,</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">energy</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">l</span> <span class="o">=</span> <span class="n">ap1rog</span><span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">two</span><span class="p">,</span> <span class="n">external</span><span class="p">,</span> <span class="n">orb</span><span class="p">,</span> <span class="n">olp</span><span class="p">,</span> <span class="n">scf</span><span class="p">,</span> <span class="o">**</span><span class="n">keywords</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>with arguments</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">one:</th><td class="field-body">(<code class="docutils literal"><span class="pre">TwoIndex</span></code> instance) the one-electron integrals</td>
+</tr>
+<tr class="field-even field"><th class="field-name">two:</th><td class="field-body">(<code class="docutils literal"><span class="pre">FourIndex</span></code> or <code class="docutils literal"><span class="pre">CholeskyLinalgFactory</span></code> instance) the two-electron integrals</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">external:</th><td class="field-body">(float) energy contribution due to an external potential, e.g., nuclear-nuclear repulsion term, etc.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">orb:</th><td class="field-body">(<code class="docutils literal"><span class="pre">Expansion</span></code> instance) the AO/MO or MO/MO coefficient matrix. It also contains information about orbital energies (not defined in the AP1roG model) and occupation numbers</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">olp:</th><td class="field-body">(<code class="docutils literal"><span class="pre">TwoIndex</span></code> instance) the AO overlap matrix or, in case of an orthonormal basis, the identity matrix</td>
+</tr>
+<tr class="field-even field"><th class="field-name">scf:</th><td class="field-body">(boolean) if <code class="docutils literal"><span class="pre">True</span></code>, orbitals are optimized</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>The keyword arguments are optional and contain optimization-specific options (like the number of orbital optimization steps, etc.) as well as orbital manipulation schemes (Givens rotations, swapping orbitals in reference determinant, etc.). Their default values are chosen to give reasonable performance and can be adjusted if convergence difficulties are encountered. All keyword arguments are summarized in the following section (<a class="reference internal" href="#keywords-oo-ap1rog"><span>Summary of keyword arguments</span></a>).</p>
+<p>The function call gives 3 return values,</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">energy:</th><td class="field-body">(float) the total AP1roG electronic energy (the <strong>external</strong> term included)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">c:</th><td class="field-body">(<code class="docutils literal"><span class="pre">TwoIndex</span></code> instance) the geminal coefficient matrix (without the diagonal occupied sub-block, see <a class="reference internal" href="#user-ap1rog-model"><span>The AP1roG model</span></a>)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">l:</th><td class="field-body">(<code class="docutils literal"><span class="pre">TwoIndex</span></code> instance) the Lagrange multipliers (can be used to calculated the response 1-RDM)</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>After the AP1roG calculation is finished (because AP1roG converged or the maximum number of iterations was reached), the orbitals and the overlap matrix are, by default, stored in a checkpoint file <code class="docutils literal"><span class="pre">checkpoint.h5</span></code> and can be used for a subsequent restart. Note that the geminal coefficient matrix and Lagrange multipliers are not stored after the calculation is completed.</p>
+</div>
+<div class="section" id="summary-of-keyword-arguments">
+<span id="keywords-oo-ap1rog"></span><h4>4.2.3.2.2. Summary of keyword arguments<a class="headerlink" href="#summary-of-keyword-arguments" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">indextrans:</th><td class="field-body"><p class="first">(str) 4-index Transformation. Choice between <code class="docutils literal"><span class="pre">tensordot</span></code> (default) and <code class="docutils literal"><span class="pre">einsum</span></code>. <code class="docutils literal"><span class="pre">tensordot</span></code> is faster than <code class="docutils literal"><span class="pre">einsum</span></code>, but requires more memory. If <code class="docutils literal"><span class="pre">DenseLinalgFactory</span></code> is used, the memory requirement scales as <span class="math">\(2N^4\)</span> for <code class="docutils literal"><span class="pre">einsum</span></code> and <span class="math">\(3N^4\)</span> for <code class="docutils literal"><span class="pre">tensordot</span></code>, respectively. Due to the storage of the two-electron integrals, the total amount of memory increases to <span class="math">\(3N^4\)</span> for <code class="docutils literal"><span class="pre">einsum</span></code> and <span class="math">\(4N^4\)</span> for <code class="docutils literal"><span class="pre">tensordot</span></code>, respectively.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">warning:</th><td class="field-body"><p class="first">(boolean) if <code class="docutils literal"><span class="pre">True</span></code>, (scipy) solver-specific warnings are printed (default <code class="docutils literal"><span class="pre">False</span></code>)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">guess:</th><td class="field-body"><p class="first">(dictionary) initial guess specifications:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">(str) guess type. One of <code class="docutils literal"><span class="pre">random</span></code> (random numbers, default), <code class="docutils literal"><span class="pre">const</span></code> (<code class="docutils literal"><span class="pre">1.0</span></code> scaled by <strong>factor</strong>)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">factor:</th><td class="field-body">(float) a scaling factor for the initial guess of type <code class="docutils literal"><span class="pre">type</span></code> (default <code class="docutils literal"><span class="pre">-0.1</span></code>)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">geminal:</th><td class="field-body">(1-dim np.array) external guess for geminal coefficients (default <code class="docutils literal"><span class="pre">None</span></code>). If provided, <strong>type</strong> and <strong>factor</strong> are ignored. The elements of the geminal matrix of eq. <a href="#equation-cia">(2)</a> have to be indexed in C-like order. Note that the identity block is not required. The size of the 1-dim np.array is thus equal to the number of unknowns, that is, <span class="math">\(n_{\rm pairs}*n_{\rm virtuals}\)</span>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">lagrange:</th><td class="field-body">(1-dim np.array) external guess for Lagrange multipliers (default <code class="docutils literal"><span class="pre">None</span></code>). If provided, <strong>type</strong> and <strong>factor</strong> are ignored. The elements have to be indexed in C-like order. The size of the 1-dim np.array is equal to the number of unknowns, that is, <span class="math">\(n_{\rm pairs}*n_{\rm virtuals}\)</span>.</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">solver:</th><td class="field-body"><p class="first">(dictionary) scipy wavefunction/Lagrange solver:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">wfn:</th><td class="field-body">(str) wavefunction solver (default <code class="docutils literal"><span class="pre">krylov</span></code>)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">lagrange:</th><td class="field-body">(str) Lagrange multiplier solver (default <code class="docutils literal"><span class="pre">krylov</span></code>)</td>
+</tr>
+</tbody>
+</table>
+<p>Note that the exact Jacobian of <strong>wfn</strong> and <strong>lagrange</strong> is not supported. Thus, scipy solvers that need the exact Jacobian cannot be used. See <a class="reference external" href="http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.optimize.root.html">scipy root-solvers</a> for more details.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">maxiter:</th><td class="field-body"><p class="first">(dictionary) maximum number of iterations:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">wfniter:</th><td class="field-body">(int) maximum number of iterations for the <strong>wfn/lagrange</strong> solver (default <code class="docutils literal"><span class="pre">200</span></code>)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">orbiter:</th><td class="field-body">(int) maximum number of orbital optimization steps (default <code class="docutils literal"><span class="pre">100</span></code>)</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">thresh:</th><td class="field-body"><p class="first">(dictionary) optimization thresholds:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">wfn:</th><td class="field-body">(float) optimization threshold for geminal coefficients and Lagrange multipliers (default <code class="docutils literal"><span class="pre">1e-12</span></code>)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">energy:</th><td class="field-body">(float) convergence threshold for energy (default <code class="docutils literal"><span class="pre">1e-8</span></code>)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">gradientnorm:</th><td class="field-body">(float) convergence threshold for norm of orbital gradient (default <code class="docutils literal"><span class="pre">1e-4</span></code>)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">gradientmax:</th><td class="field-body">(float) threshold for maximum absolute value of the orbital gradient (default <code class="docutils literal"><span class="pre">5e-5</span></code>)</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">printoptions:</th><td class="field-body"><p class="first">(dictionary) print level:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">geminal:</th><td class="field-body">(boolean) if True, geminal matrix is printed (default <code class="docutils literal"><span class="pre">True</span></code>). Note that the identity block is omitted.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">ci:</th><td class="field-body">(float) threshold for CI coefficients (requires evaluation of a permanent). All coefficients (for a given excitation order) larger than <strong>ci</strong> are printed (default <code class="docutils literal"><span class="pre">0.01</span></code>)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">excitationlevel:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">(int) number of excited pairs w.r.t. the reference determinant for which the wavefunction amplitudes are reconstructed (default <code class="docutils literal"><span class="pre">1</span></code>). At most, the coefficients corresponding to hextuply excited Slater determinants w.r.t the reference determinant can be calculated.</td>
+</tr>
+</tbody>
+</table>
+<p>Note that the reconstruction of the wavefunction amplitudes requires evaluating a permanent which is in general slow (in addition to the factorial number of determinants in the active space).</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">dumpci:</th><td class="field-body"><p class="first">(dictionary) dump Slater determinants and corresponding CI coefficients to file:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">amplitudestofile:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">(boolean) write wavefunction amplitudes to file (default <code class="docutils literal"><span class="pre">False</span></code>)</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">amplitudesfilename:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body">(str) file name (default <code class="docutils literal"><span class="pre">ap1rog_amplitudes.dat</span></code>)</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">stepsearch:</th><td class="field-body"><p class="first">(dictionary) optimizes an orbital rotation step:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">method:</th><td class="field-body">(str) step search method used. One of <code class="docutils literal"><span class="pre">trust-region</span></code> (default), <code class="docutils literal"><span class="pre">None</span></code>,  <code class="docutils literal"><span class="pre">backtracking</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">optimizer:</th><td class="field-body">(str) optimizes step to boundary of trust radius in <code class="docutils literal"><span class="pre">trust-region</span></code>. One of <code class="docutils literal"><span class="pre">pcg</span></code> (preconditioned conjugate gradient), <code class="docutils literal"><span class="pre">dogleg</span></code> (Powell&#8217;s single dogleg step), <code class="docutils literal"><span class="pre">ddl</span></code> (Powell&#8217;s double-dogleg step) (default <code class="docutils literal"><span class="pre">ddl</span></code>)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">alpha:</th><td class="field-body">(float) scaling factor for Newton step. Used in <code class="docutils literal"><span class="pre">backtracking</span></code> and <code class="docutils literal"><span class="pre">None</span></code> method (default <code class="docutils literal"><span class="pre">1.00</span></code>)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">c1:</th><td class="field-body">(float) parameter used in the Armijo condition of <code class="docutils literal"><span class="pre">backtracking</span></code> (default <code class="docutils literal"><span class="pre">1e-4</span></code>)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">minalpha:</th><td class="field-body">(float) minimum step length used in <code class="docutils literal"><span class="pre">backracking</span></code> (default <code class="docutils literal"><span class="pre">1e-6</span></code>). If step length falls below <strong>minalpha</strong>, the <code class="docutils literal"><span class="pre">backtracking</span></code> line search is terminated and the most recent step is accepted</td>
+</tr>
+<tr class="field-even field"><th class="field-name">maxiterouter:</th><td class="field-body">(int) maximum number of iterations to optimize orbital rotation step  (default <code class="docutils literal"><span class="pre">10</span></code>)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">maxiterinner:</th><td class="field-body">(int) maximum number of optimization steps in each step search (used only in <code class="docutils literal"><span class="pre">pcg</span></code>, default <code class="docutils literal"><span class="pre">500</span></code>)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">maxeta:</th><td class="field-body">(float) upper bound for estimated vs. actual change in <code class="docutils literal"><span class="pre">trust-region</span></code> (default <code class="docutils literal"><span class="pre">0.75</span></code>)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">mineta:</th><td class="field-body">(float) lower bound for estimated vs. actual change in <code class="docutils literal"><span class="pre">trust-region</span></code> (default <code class="docutils literal"><span class="pre">0.25</span></code>)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">upscale:</th><td class="field-body">(float) scaling factor to increase trust radius in <code class="docutils literal"><span class="pre">trust-region</span></code> (default <code class="docutils literal"><span class="pre">2.0</span></code>)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">downscale:</th><td class="field-body">(float) scaling factor to decrease trust radius in <code class="docutils literal"><span class="pre">trust-region</span></code> (default <code class="docutils literal"><span class="pre">0.25</span></code>)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">trustradius:</th><td class="field-body">(float) initial trust radius (default <code class="docutils literal"><span class="pre">0.75</span></code>)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">maxtrustradius:</th><td class="field-body">(float) maximum trust radius (default <code class="docutils literal"><span class="pre">0.75</span></code>)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">threshold:</th><td class="field-body">(float) trust-region optimization threshold, only used in <code class="docutils literal"><span class="pre">pcg</span></code> (default <code class="docutils literal"><span class="pre">1e-8</span></code>)</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">checkpoint:</th><td class="field-body"><p class="first">(int) frequency of checkpointing. If <strong>checkpoint</strong> &gt; 0, orbitals (<code class="docutils literal"><span class="pre">orb.hdf5</span></code>) and overlap (<code class="docutils literal"><span class="pre">olp.hdf5</span></code>) are written to disk (default <code class="docutils literal"><span class="pre">1</span></code>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">levelshift:</th><td class="field-body"><p class="first">(float) level shift of Hessian (default <code class="docutils literal"><span class="pre">1e-8</span></code>). Absolute value of elements of the orbital Hessian smaller than <strong>levelshift</strong> are shifted by <strong>levelshift</strong></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">absolute:</th><td class="field-body"><p class="first">(boolean), if <code class="docutils literal"><span class="pre">True</span></code>, the absolute value of the orbital Hessian is taken (default <code class="docutils literal"><span class="pre">False</span></code>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">sort:</th><td class="field-body"><p class="first">(boolean), if <code class="docutils literal"><span class="pre">True</span></code>, orbitals are sorted according to their natural occupation numbers. This requires re-solving for the wavefunction after each orbital optimization step. Works only if <strong>orbitaloptimizer</strong> is set to <code class="docutils literal"><span class="pre">variational</span></code> (default <code class="docutils literal"><span class="pre">True</span></code>)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">swapa:</th><td class="field-body"><p class="first">(2-dim np.array) swap orbitals. Each row in <strong>swapa</strong> contains 2 orbital indices to be swapped (default <code class="docutils literal"><span class="pre">np.array([[]])</span></code>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">givensrot:</th><td class="field-body"><p class="first">(2-dim np.array) rotate two orbitals using a Givens rotation. Each row in <strong>givensrot</strong> contains 2 orbital indices and the rotation angle in deg (default <code class="docutils literal"><span class="pre">np.array([[]])</span></code>). Orbitals are rotated sequentially according to the rows in <strong>givensrot</strong>. If a sequence of Givens rotation is performed, note that the indices in <strong>givensrot</strong> refer to the already rotated orbital basis. If <strong>givensrot</strong> is combined with <strong>swapa</strong>, all orbitals are swapped prior to any Givens rotation</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">orbitaloptimizer:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><p class="first last">(str) switch between variational orbital optimization (<code class="docutils literal"><span class="pre">variational</span></code>) and PS2c orbital optimization (<code class="docutils literal"><span class="pre">ps2c</span></code>) (default <code class="docutils literal"><span class="pre">variational</span></code>)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="how-to-restart">
+<span id="restart-ap1rog"></span><h4>4.2.3.2.3. How to restart<a class="headerlink" href="#how-to-restart" title="Permalink to this headline">¶</a></h4>
+<p>To restart an AP1roG calculation (for instance, using the orbitals from a different molecular geometry as initial guess or from a previous calculation using the same molecular geometry), the molecular orbitals (of the previous wavefunction run) need to be read from disk,</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">old</span> <span class="o">=</span> <span class="n">IOData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s">&#39;checkpoint.h5&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If this checkpoint file is used as an initial guess for a new geometry, the
+orbitals must be re-orthogonalized w.r.t. the new basis:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># It is assume that the following two variables available:</span>
+<span class="c">#   olp: the overlap matrix of the new basis (geometry)</span>
+<span class="c">#   orb: an instance of DenseExpansion to which the new orbitals will be</span>
+<span class="c">#        written</span>
+<span class="n">project_orbitals_ortho</span><span class="p">(</span><span class="n">old</span><span class="o">.</span><span class="n">olp</span><span class="p">,</span> <span class="n">olp</span><span class="p">,</span> <span class="n">old</span><span class="o">.</span><span class="n">exp_alpha</span><span class="p">,</span> <span class="n">orb</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then, generate an instance of the <code class="docutils literal"><span class="pre">RAp1rog</span></code> class and perform a function call:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">apr1og</span> <span class="o">=</span>  <span class="n">RAp1rog</span><span class="p">(</span><span class="n">lf</span><span class="p">,</span> <span class="n">occ_model</span><span class="p">)</span>
+<span class="n">energy</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">l</span> <span class="o">=</span> <span class="n">ap1rog</span><span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">two</span><span class="p">,</span> <span class="n">external</span><span class="p">,</span> <span class="n">orb</span><span class="p">,</span> <span class="n">olp</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that all optional arguments have been omitted and <code class="docutils literal"><span class="pre">orb</span></code> was set to <code class="docutils literal"><span class="pre">True</span></code>.</p>
+</div>
+<div class="section" id="response-density-matrices">
+<span id="responsedms"></span><h4>4.2.3.2.4. Response density matrices<a class="headerlink" href="#response-density-matrices" title="Permalink to this headline">¶</a></h4>
+<p>HORTON supports the calculation of the response 1- and 2-particle reduced density matrices (1-RDM and 2-RDM), <span class="math">\(\gamma_{pq}\)</span> and <span class="math">\(\Gamma_{pqrs}\)</span>, respectively. Since AP1roG is a product of natural geminals, the 1-RDM is diagonal and is calculated from</p>
+<div class="math">
+\[\gamma_p = \langle \Psi_0| (1+\hat{\Lambda}) a^\dagger_p a_p | \textrm{AP1roG} \rangle,\]</div>
+<p>where <span class="math">\(\hat{\Lambda}\)</span> contains the deexcitation operator,</p>
+<div class="math">
+\[\hat{\Lambda} = \sum_{ia} \lambda_i^a (a^\dagger_i a^\dagger_{\bar{i}} a_{\bar{a}} a_a - c_i^a).\]</div>
+<p>The response 1-RDM (a <code class="docutils literal"><span class="pre">OneIndex</span></code> instance) can be calculated in HORTON as follows</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">one_dm</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_one_index</span><span class="p">()</span>
+<span class="n">ap1rog</span><span class="o">.</span><span class="n">compute_1dm</span><span class="p">(</span><span class="n">one_dm</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">response</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="docutils">
+<dt>where ap1rog is an instance of the <code class="docutils literal"><span class="pre">RAp1rog</span></code> class and (see also <a class="reference internal" href="#setup-oo-ap1rog"><span>How to set-up a calculation</span></a> to get <code class="docutils literal"><span class="pre">c</span></code> and <code class="docutils literal"><span class="pre">l</span></code>)</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">one_dm:</th><td class="field-body">(<code class="docutils literal"><span class="pre">OneIndex</span></code> instance) output argument that contains the response 1-RDM in the _array attribute</td>
+</tr>
+<tr class="field-even field"><th class="field-name">c:</th><td class="field-body">(<code class="docutils literal"><span class="pre">TwoIndex</span></code> instance) the geminal coefficient matrix (without the diagonal occupied sub-block, see <a class="reference internal" href="#user-ap1rog-model"><span>The AP1roG model</span></a>)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">l:</th><td class="field-body">(<code class="docutils literal"><span class="pre">TwoIndex</span></code> instance) the Lagrange multipliers</td>
+</tr>
+</tbody>
+</table>
+</dd>
+<dt>and optional arguments</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">factor:</th><td class="field-body">(float) a scaling factor for the 1-RDM. If <code class="docutils literal"><span class="pre">factor=2.0</span></code>, the spin-summed 1-RDM is calculated, as <span class="math">\(\gamma_{p}=\gamma_{\bar{p}}\)</span> (default <code class="docutils literal"><span class="pre">1.0</span></code>)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">response:</th><td class="field-body">(boolean) if <code class="docutils literal"><span class="pre">True</span></code>, the response 1-RDM is calculated (default <code class="docutils literal"><span class="pre">True</span></code>)</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+<p>The response 2-RDM is defined as</p>
+<div class="math">
+\[\Gamma_{pqrs} = \langle \Psi_0| (1+\hat{\Lambda})a^\dagger_p a^\dagger_{q}  a_{s} a_r| \textrm{AP1roG} \rangle.\]</div>
+<p>In HORTON, only the non-zero elements of the response 2-RDM are calculated, which are <span class="math">\(\Gamma_{pqpq}=\Gamma_{p\bar{q}p\bar{q}}\)</span> and <span class="math">\(\Gamma_{p\bar{p}q\bar{q}}\)</span>. Specifically, the non-zero elements <span class="math">\(\Gamma_{pqpq}\)</span> and <span class="math">\(\Gamma_{ppqq}\)</span> (where we have omitted the information about electron spin) are calculated separately and stored as <code class="docutils literal"><span class="pre">TwoIndex</span></code> objects. Note that <span class="math">\(\gamma_p=\Gamma_{p\bar{p}p\bar{p}}\)</span>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">twoppqq</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_two_index</span><span class="p">()</span>
+<span class="n">twopqpq</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_two_index</span><span class="p">()</span>
+<span class="c">###############################################################################</span>
+<span class="c">## Gamma_ppqq #################################################################</span>
+<span class="c">###############################################################################</span>
+<span class="n">ap1rog</span><span class="o">.</span><span class="n">compute_2dm</span><span class="p">(</span><span class="n">twoppqq</span><span class="p">,</span> <span class="n">one_dm</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="s">&#39;ppqq&#39;</span><span class="p">,</span> <span class="n">response</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="c">###############################################################################</span>
+<span class="c">## Gamma_pqpq #################################################################</span>
+<span class="c">###############################################################################</span>
+<span class="n">ap1rog</span><span class="o">.</span><span class="n">compute_2dm</span><span class="p">(</span><span class="n">twopqpq</span><span class="p">,</span> <span class="n">one_dm</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="s">&#39;pqpq&#39;</span><span class="p">,</span> <span class="n">response</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>with arguments (see again <a class="reference internal" href="#setup-oo-ap1rog"><span>How to set-up a calculation</span></a> to get <code class="docutils literal"><span class="pre">c</span></code> and <code class="docutils literal"><span class="pre">l</span></code>)</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">twopqpq/twoppqq:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">(<code class="docutils literal"><span class="pre">TwoIndex</span></code> instance) output argument that contains the response 2-RDM</td>
+</tr>
+<tr class="field-even field"><th class="field-name">one_dm:</th><td class="field-body">(<code class="docutils literal"><span class="pre">OneIndex</span></code> instance) the response 1-RDM</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">c:</th><td class="field-body">(<code class="docutils literal"><span class="pre">TwoIndex</span></code> instance) the geminal coefficient matrix (without the diagonal occupied sub-block, see <a class="reference internal" href="#user-ap1rog-model"><span>The AP1roG model</span></a>)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">l:</th><td class="field-body">(<code class="docutils literal"><span class="pre">TwoIndex</span></code> instance) the Lagrange multipliers</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>and optional arguments</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">response:</th><td class="field-body">(boolean) if <code class="docutils literal"><span class="pre">True</span></code>, the response 1-RDM is calculated (default <code class="docutils literal"><span class="pre">True</span></code>)</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>Note that, in HORTON, <span class="math">\(\Gamma_{p\bar{p}q\bar{q}} = 0 \, \forall \, p=q \in \textrm{occupied}\)</span> and <span class="math">\(\Gamma_{p\bar{q}p\bar{q}} =  0 \, \forall \, p=q \in \textrm{virtual}\)</span>.</p>
+</div>
+<div class="section" id="natural-orbitals-and-occupation-numbers">
+<span id="natorb"></span><h4>4.2.3.2.5. Natural orbitals and occupation numbers<a class="headerlink" href="#natural-orbitals-and-occupation-numbers" title="Permalink to this headline">¶</a></h4>
+<p>If AP1roG converges, the final orbitals are the AP1roG natural orbitals and are stored in <code class="docutils literal"><span class="pre">orb</span></code> (see <a class="reference internal" href="#ooap1rog"><span>AP1roG with orbital optimization</span></a> how to obtain <code class="docutils literal"><span class="pre">orb</span></code>). The natural orbitals can be exported to the molden file format (see <a class="reference internal" href="tech_ref_file_formats.html#ref-file-formats"><span>Data file formats (input and output)</span></a>) and visualized using, for instance, <a class="reference external" href="http://jmol.sourceforge.net">Jmol</a> or <a class="reference external" href="http://jp-minerals.org/vesta/en/">VESTA</a>.</p>
+<p>The natural occupation numbers, the eigenvalues of the response 1-RDM (see <a class="reference internal" href="#responsedms"><span>Response density matrices</span></a> for how to calculate response RDMs) are stored in the <code class="docutils literal"><span class="pre">occupations</span></code> attribute (a 1-dim np.array) of <code class="docutils literal"><span class="pre">orb</span></code> and can be directly accessed after an AP1roG calculation using</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">orb</span><span class="o">.</span><span class="n">occupations</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="the-exact-orbital-hessian">
+<span id="exacthessian"></span><h4>4.2.3.2.6. The exact orbital Hessian<a class="headerlink" href="#the-exact-orbital-hessian" title="Permalink to this headline">¶</a></h4>
+<p>Although the orbital optimizer uses a diagonal approximation to the exact orbital Hessian, the exact orbital Hessian can be evaluated after an AP1roG calculation. Note that this feature is only available for the <code class="docutils literal"><span class="pre">DenseLinalgFactory</span></code>. The <code class="docutils literal"><span class="pre">CholeskyLinalgFactory</span></code> does not allow for the calculation of the exact orbital Hessian. Thus, this feature is limited by the memory bottleneck of the 4-index transformation of <code class="docutils literal"><span class="pre">DenseLinalgFactory</span></code> (see also <code class="docutils literal"><span class="pre">indextrans</span></code> in <a class="reference internal" href="#keywords-oo-ap1rog"><span>Summary of keyword arguments</span></a>). To calculate the exact orbital Hessian, the one-electron (<code class="docutils literal"><span class="pre">one</span></code>) and two-electron integrals (<code class="docutils literal"><span class="pre">two</span></code>) need to be transformed into the AP1roG MO basis first,</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">onemo</span><span class="p">,</span> <span class="n">twomo</span> <span class="o">=</span> <span class="n">transform_integrals</span><span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">two</span><span class="p">,</span> <span class="n">indextrans</span><span class="p">,</span> <span class="n">orb</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>with arguments</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">one:</th><td class="field-body">(<code class="docutils literal"><span class="pre">TwoIndex</span></code> instance) the one-electron integrals</td>
+</tr>
+<tr class="field-even field"><th class="field-name">two:</th><td class="field-body">(<code class="docutils literal"><span class="pre">FourIndex</span></code> instance) the two-electron integrals</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">indextrans:</th><td class="field-body">(str) the 4-index transformation, either <code class="docutils literal"><span class="pre">tensordot</span></code> (preferred) or <code class="docutils literal"><span class="pre">einsum</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">orb:</th><td class="field-body">(<code class="docutils literal"><span class="pre">Expansion</span></code> instance) the AO/MO coefficient matrix</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>and return values</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">onemo:</th><td class="field-body">(list of <code class="docutils literal"><span class="pre">TwoIndex</span></code> instances, one element for each spin combination) the transformed one-electron integrals</td>
+</tr>
+<tr class="field-even field"><th class="field-name">twomo:</th><td class="field-body">(list of <code class="docutils literal"><span class="pre">FourIndex</span></code> instances, one element for each spin combination) the transformed two-electron integrals</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>This step can be skipped if the one- and two-electron integrals are already expressed in the (optimized) MO basis. The transformed one- and two-electron integrals (first element in each list) are passed as function arguments to the <code class="docutils literal"><span class="pre">get_exact_hessian</span></code> attribute function of <code class="docutils literal"><span class="pre">RAp1rog</span></code> which returns a 2-dim np.array with elements <span class="math">\(H_{pq,rs} = H_{p,q,r,s}\)</span>,</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">hessian</span> <span class="o">=</span> <span class="n">ap1rog</span><span class="o">.</span><span class="n">get_exact_hessian</span><span class="p">(</span><span class="n">onemo</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">twomo</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal"><span class="pre">ap1rog</span></code> is an instance of <code class="docutils literal"><span class="pre">RAp1rog</span></code> (see <a class="reference internal" href="#ooap1rog"><span>AP1roG with orbital optimization</span></a>). The exact orbital Hessian can be diagonalized using, for instance, the <a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.linalg.eigvalsh.html#numpy.linalg.eigvalsh">np.linalg.eigvalsh routine</a>,</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">eigv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvalsh</span><span class="p">(</span><span class="n">hessian</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="ap1rog-without-orbital-optimization">
+<span id="ap1rog"></span><h3>4.2.3.3. AP1roG without orbital optimization<a class="headerlink" href="#ap1rog-without-orbital-optimization" title="Permalink to this headline">¶</a></h3>
+<p>If you use this part of the module, please cite <a class="reference internal" href="tech_ref_literature.html#limacher2013" id="id6">[limacher2013]</a></p>
+<div class="section" id="id7">
+<h4>4.2.3.3.1. How to set-up a calculation<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h4>
+<p>There are two different ways of performing a restricted AP1roG calculation without orbital optimization. Similar to the orbital-optimized counterpart, we have to create an instance of the <code class="docutils literal"><span class="pre">RAp1rog</span></code> class (using the same abbreviations for arguments as in <a class="reference internal" href="#ooap1rog"><span>AP1roG with orbital optimization</span></a> and excluding all optional arguments):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">apr1og</span> <span class="o">=</span>  <span class="n">RAp1rog</span><span class="p">(</span><span class="n">lf</span><span class="p">,</span> <span class="n">occ_model</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The geminal coefficients can be optimized as follows</p>
+<ol class="arabic">
+<li><p class="first">Use a function call and set <code class="docutils literal"><span class="pre">orb=False</span></code>:</p>
+<blockquote>
+<div><div class="highlight-python"><div class="highlight"><pre><span class="n">energy</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">ap1rog</span><span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">two</span><span class="p">,</span> <span class="n">external</span><span class="p">,</span> <span class="n">orb</span><span class="p">,</span> <span class="n">olp</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="o">**</span><span class="n">keywords</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where we have used the same abbreviations for function arguments as in <a class="reference internal" href="#ooap1rog"><span>AP1roG with orbital optimization</span></a>. The keyword arguments contain optimisation-specific options and are summarized in <a class="reference internal" href="#keywordsap1rog"><span>Summary of keyword arguments</span></a>.</p>
+<p>Note that the function call gives only 2 return values (the Lagrange multipliers are not calculated):</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">energy:</th><td class="field-body">(float) the total AP1roG electronic energy (the <strong>external</strong> term included)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">c:</th><td class="field-body">(<code class="docutils literal"><span class="pre">TwoIndex</span></code> instance) the geminal coefficient matrix (without the diagonal occupied sub-block, see <a class="reference internal" href="#user-ap1rog-model"><span>The AP1roG model</span></a>)</td>
+</tr>
+</tbody>
+</table>
+<p>In contrast to the orbital-optimized code, the orbitals and the overlap matrix are not stored to disk after the AP1roG calculation is finished.</p>
+</div></blockquote>
+</li>
+<li><p class="first">Use the orbital-optimized version of AP1roG (see <a class="reference internal" href="#ooap1rog"><span>AP1roG with orbital optimization</span></a>), but set <code class="docutils literal"><span class="pre">orbiter</span></code> to <code class="docutils literal"><span class="pre">0</span></code>, which suppresses an orbital-rotation step:</p>
+<blockquote>
+<div><div class="highlight-python"><div class="highlight"><pre><span class="n">energy</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">l</span> <span class="o">=</span> <span class="n">ap1rog</span><span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">two</span><span class="p">,</span> <span class="n">external</span><span class="p">,</span> <span class="n">orb</span><span class="p">,</span> <span class="n">olp</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span>
+    <span class="s">&#39;maxiter&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;orbiter&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>The function call gives 3 return values (total energy <strong>energy</strong>, geminal coefficients <strong>c</strong>, and Lagrange multipliers <strong>l</strong>). The Lagrange multipliers can be used for post-processing.</p>
+</div></blockquote>
+</li>
+</ol>
+</div>
+<div class="section" id="keywordsap1rog">
+<span id="id8"></span><h4>4.2.3.3.2. Summary of keyword arguments<a class="headerlink" href="#keywordsap1rog" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">indextrans:</th><td class="field-body"><p class="first">(str) 4-index Transformation. Choice between <code class="docutils literal"><span class="pre">tensordot</span></code> (default) and <code class="docutils literal"><span class="pre">einsum</span></code>. <code class="docutils literal"><span class="pre">tensordot</span></code> is faster than <code class="docutils literal"><span class="pre">einsum</span></code>, requires, however, more memory. If <code class="docutils literal"><span class="pre">DenseLinalgFactory</span></code> is used, the memory requirement scales as <span class="math">\(2N^4\)</span> for <code class="docutils literal"><span class="pre">einsum</span></code> and <span class="math">\(3N^4\)</span> for <code class="docutils literal"><span class="pre">tensordot</span></code>, respectively. Due to the storage of the two-electron integrals, the total amount of memory increases to <span class="math">\(3N^4\)</span> for <code class="docutils literal"><span class="pre">einsum</span></code> and <span class="math">\(4N^4\)</span> for <code class="docutils literal"><span class="pre">tensordot</span></code>, respectively.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">warning:</th><td class="field-body"><p class="first">(boolean) if <code class="docutils literal"><span class="pre">True</span></code>, (scipy) solver-specific warnings are printed (default <code class="docutils literal"><span class="pre">False</span></code>)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">guess:</th><td class="field-body"><p class="first">(dictionary) initial guess containing:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">(str) guess type. One of <code class="docutils literal"><span class="pre">random</span></code> (random numbers, default), <code class="docutils literal"><span class="pre">const</span></code> (constant numbers)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">factor:</th><td class="field-body">(float) a scaling factor for the initial guess of type <code class="docutils literal"><span class="pre">type</span></code> (default <code class="docutils literal"><span class="pre">-0.1</span></code>)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">geminal:</th><td class="field-body">(1-dim np.array) external guess for geminal coefficients (default <code class="docutils literal"><span class="pre">None</span></code>). If provided, <strong>type</strong> and <strong>factor</strong> are ignored. The elements of the geminal matrix of eq. <a href="#equation-cia">(2)</a> have to be indexed in C-like order. Note that the identity block is not required. The size of the 1-dim np.array is thus equal to the number of unknowns, that is, <span class="math">\(n_{\rm pairs}*n_{\rm virtuals}\)</span>.</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">solver:</th><td class="field-body"><p class="first">wfn/Lagrange solver (dictionary) containing:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">wfn:</th><td class="field-body">(str) wavefunction solver (default <code class="docutils literal"><span class="pre">krylov</span></code>)</td>
+</tr>
+</tbody>
+</table>
+<p>Note that the exact Jacobian of <strong>wfn</strong> is not supported. Thus, scipy solvers that need the exact Jacobian cannot be used. See <a class="reference external" href="http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.optimize.root.html">scipy root-solvers</a> for more details.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">maxiter:</th><td class="field-body"><p class="first">(dictionary) maximum number of iterations containing:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">wfniter:</th><td class="field-body">(int) maximum number of iterations for the <strong>wfn</strong> solver (default <code class="docutils literal"><span class="pre">200</span></code>)</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">thresh:</th><td class="field-body"><p class="first">(dictionary) optimization thresholds containing:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">wfn:</th><td class="field-body">(float) optimization threshold for geminal coefficients (default <code class="docutils literal"><span class="pre">1e-12</span></code>)</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">printoptions:</th><td class="field-body"><p class="first">print level; dictionary containing:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">geminal:</th><td class="field-body">(boolean) if True, geminal matrix is printed (default <code class="docutils literal"><span class="pre">True</span></code>). Note that the identity block is omitted.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">ci:</th><td class="field-body">(float) threshold for CI coefficients (requires evaluation of a permanent). All coefficients (for a given excitation order) larger than <strong>ci</strong> are printed (default <code class="docutils literal"><span class="pre">0.01</span></code>)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">excitationlevel:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">(int) number of excited pairs w.r.t. the reference determinant for which the wavefunction amplitudes are reconstructed (default <code class="docutils literal"><span class="pre">1</span></code>). At most, the coefficients corresponding to hextuply excited Slater determinants w.r.t the reference determinant can be calculated.</td>
+</tr>
+</tbody>
+</table>
+<p>Note that the reconstruction of the wavefunction amplitudes requires evaluating a permanent which is in general slow (in addition to the factorial number of determinants in the active space).</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">dumpci:</th><td class="field-body"><p class="first">(dictionary) dump Slater determinants and corresponding CI coefficients to file:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">amplitudestofile:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">(boolean) write wavefunction amplitudes to file (default <code class="docutils literal"><span class="pre">False</span></code>)</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">amplitudesfilename:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body">(str) file name (default <code class="docutils literal"><span class="pre">ap1rog_amplitudes.dat</span></code>)</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">swapa:</th><td class="field-body"><p class="first last">(2-dim np.array) swap orbitals. Each row in <strong>swapa</strong> contains 2 orbital indices to be swapped (default <code class="docutils literal"><span class="pre">np.array([[]])</span></code>)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div>
+</div>
+<div class="section" id="troubleshooting-in-ap1rog-scf-calculations">
+<h2>4.2.4. Troubleshooting in AP1roG-SCF calculations<a class="headerlink" href="#troubleshooting-in-ap1rog-scf-calculations" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first"><strong>How to change the number of orbital optimization steps:</strong></p>
+<p>To increase the number of iterations in the orbital optimization, adjust the keyword <code class="docutils literal"><span class="pre">maxiter</span></code> (see <a class="reference internal" href="#keywords-oo-ap1rog"><span>Summary of keyword arguments</span></a>):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&#39;maxiter&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;orbiter&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal"><span class="pre">int</span></code> is the desired number of iterations</p>
+</li>
+<li><p class="first"><strong>The energy oscillates during orbital optimization:</strong></p>
+<p>The occupied-virtual separation breaks down and the reference determinant cannot be optimized. In some cases, fixing the reference determinant might accelerate convergence. However, the final solution might not be reasonable if the optimized geminal coefficient matrix contains elements that are significantly larger than 1.0 in absolute value. To fix the reference determinant, the <code class="docutils literal"><span class="pre">sort</span></code> keyword has to be set to <code class="docutils literal"><span class="pre">False</span></code> (see <a class="reference internal" href="#keywords-oo-ap1rog"><span>Summary of keyword arguments</span></a>):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&#39;sort&#39;</span><span class="p">:</span> <span class="bp">False</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><strong>The orbital optimization converges very, very slowly:</strong></p>
+<p>Usually, the orbital optimization converges fast around the equilibrium. For stretched distances (in the vicinity of dissociation, etc.) convergence can be very slow, especially if the final solution results in symmetry-broken orbitals. In such cases, the diagonal approximation to the Hessian is not optimal. However, the current version of HORTON does not support orbital optimization with the exact Hessian nor Hessian updates.</p>
+</li>
+<li><p class="first"><strong>How to scan a potential energy surface</strong></p>
+<p>To accelerate convergence, restart from adjacent points on the potential energy surface (see <a class="reference internal" href="#restart-ap1rog"><span>How to restart</span></a>). Using Hartree-Fock orbitals as initial guess might result in convergence difficulties and optimization problems of the reference determinant.</p>
+</li>
+<li><p class="first"><strong>How to perturb the orbitals:</strong></p>
+<p>The initial guess orbitals can be perturbed using a sequence of Givens rotations (see also <a class="reference internal" href="#keywords-oo-ap1rog"><span>Summary of keyword arguments</span></a>),</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&#39;givensrot&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">orbindex1a</span><span class="p">,</span> <span class="n">orbindex1b</span><span class="p">,</span> <span class="n">angle1</span><span class="p">],[</span><span class="n">orbindex2a</span><span class="p">,</span> <span class="n">orbindex2b</span><span class="p">,</span> <span class="n">angle2</span><span class="p">],</span><span class="o">...</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>where orbitals with indices <strong>orbindex1a</strong> and <strong>orbindex1b</strong> are rotated by angle <strong>angle1</strong>, etc. Givens rotations between orbital pairs can be used if, for instance, the orbital optimizer converges to a saddle point.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="example-python-scripts">
+<h2>4.2.5. Example Python scripts<a class="headerlink" href="#example-python-scripts" title="Permalink to this headline">¶</a></h2>
+<p>Several complete examples can be found in the directory
+<code class="docutils literal"><span class="pre">data/examples/ap1rog</span></code>. Three of these are discussed in the following
+subsections.</p>
+<div class="section" id="the-water-molecule-a-minimum-input-example">
+<h3>4.2.5.1. The water molecule (a minimum input example)<a class="headerlink" href="#the-water-molecule-a-minimum-input-example" title="Permalink to this headline">¶</a></h3>
+<p>This is a basic example on how to perform an orbital-optimized AP1roG calculation in HORTON. This script performs an orbital-optimized AP1roG calculation on the water molecule using the cc-pVDZ basis set and RHF orbitals as initial orbitals.</p>
+<div class="literal-block-wrapper container" id="data-examples-ap1rog-water-minimal-py">
+<div class="code-block-caption"><span class="caption-text">data/examples/ap1rog/water_minimal.py</span><a class="headerlink" href="#data-examples-ap1rog-water-minimal-py" title="Permalink to this code">¶</a></div>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">horton</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="c">###############################################################################</span>
+<span class="c">## Set up molecule, define basis set ##########################################</span>
+<span class="c">###############################################################################</span>
+<span class="c"># get the XYZ file from HORTON&#39;s test data directory</span>
+<span class="n">fn_xyz</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get_fn</span><span class="p">(</span><span class="s">&#39;test/water.xyz&#39;</span><span class="p">)</span>
+<span class="n">mol</span> <span class="o">=</span> <span class="n">IOData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">fn_xyz</span><span class="p">)</span>
+<span class="n">obasis</span> <span class="o">=</span> <span class="n">get_gobasis</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">numbers</span><span class="p">,</span> <span class="s">&#39;cc-pvdz&#39;</span><span class="p">)</span>
+<span class="c">###############################################################################</span>
+<span class="c">## Define Occupation model, expansion coefficients and overlap ################</span>
+<span class="c">###############################################################################</span>
+<span class="n">lf</span> <span class="o">=</span> <span class="n">DenseLinalgFactory</span><span class="p">(</span><span class="n">obasis</span><span class="o">.</span><span class="n">nbasis</span><span class="p">)</span>
+<span class="n">occ_model</span> <span class="o">=</span> <span class="n">AufbauOccModel</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">orb</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_expansion</span><span class="p">(</span><span class="n">obasis</span><span class="o">.</span><span class="n">nbasis</span><span class="p">)</span>
+<span class="n">olp</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_overlap</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+<span class="c">###############################################################################</span>
+<span class="c">## Construct Hamiltonian ######################################################</span>
+<span class="c">###############################################################################</span>
+<span class="n">kin</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_kinetic</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+<span class="n">na</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_nuclear_attraction</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">,</span> <span class="n">lf</span><span class="p">)</span>
+<span class="n">two</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_electron_repulsion</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+<span class="n">external</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;nn&#39;</span><span class="p">:</span> <span class="n">compute_nucnuc</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">)}</span>
+<span class="n">terms</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">RTwoIndexTerm</span><span class="p">(</span><span class="n">kin</span><span class="p">,</span> <span class="s">&#39;kin&#39;</span><span class="p">),</span>
+    <span class="n">RDirectTerm</span><span class="p">(</span><span class="n">two</span><span class="p">,</span> <span class="s">&#39;hartree&#39;</span><span class="p">),</span>
+    <span class="n">RExchangeTerm</span><span class="p">(</span><span class="n">two</span><span class="p">,</span> <span class="s">&#39;x_hf&#39;</span><span class="p">),</span>
+    <span class="n">RTwoIndexTerm</span><span class="p">(</span><span class="n">na</span><span class="p">,</span> <span class="s">&#39;ne&#39;</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="n">ham</span> <span class="o">=</span> <span class="n">REffHam</span><span class="p">(</span><span class="n">terms</span><span class="p">,</span> <span class="n">external</span><span class="p">)</span>
+<span class="c">###############################################################################</span>
+<span class="c">## Perform initial guess ######################################################</span>
+<span class="c">###############################################################################</span>
+<span class="n">guess_core_hamiltonian</span><span class="p">(</span><span class="n">olp</span><span class="p">,</span> <span class="n">kin</span><span class="p">,</span> <span class="n">na</span><span class="p">,</span> <span class="n">orb</span><span class="p">)</span>
+<span class="c">###############################################################################</span>
+<span class="c">## Do a Hartree-Fock calculation ##############################################</span>
+<span class="c">###############################################################################</span>
+<span class="n">scf_solver</span> <span class="o">=</span> <span class="n">PlainSCFSolver</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">)</span>
+<span class="n">scf_solver</span><span class="p">(</span><span class="n">ham</span><span class="p">,</span> <span class="n">lf</span><span class="p">,</span> <span class="n">olp</span><span class="p">,</span> <span class="n">occ_model</span><span class="p">,</span> <span class="n">orb</span><span class="p">)</span>
+<span class="c">###############################################################################</span>
+<span class="c">## Combine one-electron integrals to single Hamiltonian #######################</span>
+<span class="c">###############################################################################</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">kin</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">one</span><span class="o">.</span><span class="n">iadd</span><span class="p">(</span><span class="n">na</span><span class="p">)</span>
+
+<span class="c">###############################################################################</span>
+<span class="c">## Do OO-AP1roG optimization ##################################################</span>
+<span class="c">###############################################################################</span>
+<span class="n">ap1rog</span> <span class="o">=</span> <span class="n">RAp1rog</span><span class="p">(</span><span class="n">lf</span><span class="p">,</span> <span class="n">occ_model</span><span class="p">)</span>
+<span class="n">energy</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">l</span> <span class="o">=</span> <span class="n">ap1rog</span><span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">two</span><span class="p">,</span> <span class="n">external</span><span class="p">[</span><span class="s">&#39;nn&#39;</span><span class="p">],</span> <span class="n">orb</span><span class="p">,</span> <span class="n">olp</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="the-water-molecule-with-all-default-keyword-arguments">
+<h3>4.2.5.2. The water molecule (with all default keyword arguments)<a class="headerlink" href="#the-water-molecule-with-all-default-keyword-arguments" title="Permalink to this headline">¶</a></h3>
+<p>This is the same example as above, but all keyword arguments are mentioned explicitly using their default values.</p>
+<div class="literal-block-wrapper container" id="data-examples-ap1rog-water-default-py">
+<div class="code-block-caption"><span class="caption-text">data/examples/ap1rog/water_default.py</span><a class="headerlink" href="#data-examples-ap1rog-water-default-py" title="Permalink to this code">¶</a></div>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">horton</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="c">###############################################################################</span>
+<span class="c">## Set up molecule, define basis set ##########################################</span>
+<span class="c">###############################################################################</span>
+<span class="c"># get the XYZ file from HORTON&#39;s test data directory</span>
+<span class="n">fn_xyz</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get_fn</span><span class="p">(</span><span class="s">&#39;test/water.xyz&#39;</span><span class="p">)</span>
+<span class="n">mol</span> <span class="o">=</span> <span class="n">IOData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">fn_xyz</span><span class="p">)</span>
+<span class="n">obasis</span> <span class="o">=</span> <span class="n">get_gobasis</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">numbers</span><span class="p">,</span> <span class="s">&#39;cc-pvdz&#39;</span><span class="p">)</span>
+<span class="c">###############################################################################</span>
+<span class="c">## Define Occupation model, expansion coefficients and overlap ################</span>
+<span class="c">###############################################################################</span>
+<span class="n">lf</span> <span class="o">=</span> <span class="n">DenseLinalgFactory</span><span class="p">(</span><span class="n">obasis</span><span class="o">.</span><span class="n">nbasis</span><span class="p">)</span>
+<span class="n">occ_model</span> <span class="o">=</span> <span class="n">AufbauOccModel</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">orb</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_expansion</span><span class="p">(</span><span class="n">obasis</span><span class="o">.</span><span class="n">nbasis</span><span class="p">)</span>
+<span class="n">olp</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_overlap</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+<span class="c">###############################################################################</span>
+<span class="c">## Construct Hamiltonian ######################################################</span>
+<span class="c">###############################################################################</span>
+<span class="n">kin</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_kinetic</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+<span class="n">na</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_nuclear_attraction</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">,</span> <span class="n">lf</span><span class="p">)</span>
+<span class="n">two</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_electron_repulsion</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+<span class="n">external</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;nn&#39;</span><span class="p">:</span> <span class="n">compute_nucnuc</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">)}</span>
+<span class="n">terms</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">RTwoIndexTerm</span><span class="p">(</span><span class="n">kin</span><span class="p">,</span> <span class="s">&#39;kin&#39;</span><span class="p">),</span>
+    <span class="n">RDirectTerm</span><span class="p">(</span><span class="n">two</span><span class="p">,</span> <span class="s">&#39;hartree&#39;</span><span class="p">),</span>
+    <span class="n">RExchangeTerm</span><span class="p">(</span><span class="n">two</span><span class="p">,</span> <span class="s">&#39;x_hf&#39;</span><span class="p">),</span>
+    <span class="n">RTwoIndexTerm</span><span class="p">(</span><span class="n">na</span><span class="p">,</span> <span class="s">&#39;ne&#39;</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="n">ham</span> <span class="o">=</span> <span class="n">REffHam</span><span class="p">(</span><span class="n">terms</span><span class="p">,</span> <span class="n">external</span><span class="p">)</span>
+<span class="c">###############################################################################</span>
+<span class="c">## Perform initial guess ######################################################</span>
+<span class="c">###############################################################################</span>
+<span class="n">guess_core_hamiltonian</span><span class="p">(</span><span class="n">olp</span><span class="p">,</span> <span class="n">kin</span><span class="p">,</span> <span class="n">na</span><span class="p">,</span> <span class="n">orb</span><span class="p">)</span>
+<span class="c">###############################################################################</span>
+<span class="c">## Do a Hartree-Fock calculation ##############################################</span>
+<span class="c">###############################################################################</span>
+<span class="n">scf_solver</span> <span class="o">=</span> <span class="n">PlainSCFSolver</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">)</span>
+<span class="n">scf_solver</span><span class="p">(</span><span class="n">ham</span><span class="p">,</span> <span class="n">lf</span><span class="p">,</span> <span class="n">olp</span><span class="p">,</span> <span class="n">occ_model</span><span class="p">,</span> <span class="n">orb</span><span class="p">)</span>
+<span class="c">###############################################################################</span>
+<span class="c">## Combine one-electron integrals to single Hamiltonian #######################</span>
+<span class="c">###############################################################################</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">kin</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">one</span><span class="o">.</span><span class="n">iadd</span><span class="p">(</span><span class="n">na</span><span class="p">)</span>
+
+<span class="c">###############################################################################</span>
+<span class="c">## Do OO-AP1roG optimization ##################################################</span>
+<span class="c">###############################################################################</span>
+<span class="n">ap1rog</span> <span class="o">=</span> <span class="n">RAp1rog</span><span class="p">(</span><span class="n">lf</span><span class="p">,</span> <span class="n">occ_model</span><span class="p">)</span>
+<span class="n">energy</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">l</span> <span class="o">=</span> <span class="n">ap1rog</span><span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">two</span><span class="p">,</span> <span class="n">external</span><span class="p">[</span><span class="s">&#39;nn&#39;</span><span class="p">],</span> <span class="n">orb</span><span class="p">,</span> <span class="n">olp</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span>
+    <span class="s">&#39;indextrans&#39;</span><span class="p">:</span> <span class="s">&#39;tensordot&#39;</span><span class="p">,</span>
+    <span class="s">&#39;warning&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+    <span class="s">&#39;checkpoint&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s">&#39;levelshift&#39;</span><span class="p">:</span> <span class="mf">1e-8</span><span class="p">,</span>
+    <span class="s">&#39;absolute&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+    <span class="s">&#39;givensrot&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[]]),</span>
+    <span class="s">&#39;swapa&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[]]),</span>
+    <span class="s">&#39;sort&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+    <span class="s">&#39;guess&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;random&#39;</span><span class="p">,</span> <span class="s">&#39;factor&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="s">&#39;geminal&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;lagrange&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">},</span>
+    <span class="s">&#39;solver&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;wfn&#39;</span><span class="p">:</span> <span class="s">&#39;krylov&#39;</span><span class="p">,</span> <span class="s">&#39;lagrange&#39;</span><span class="p">:</span> <span class="s">&#39;krylov&#39;</span><span class="p">},</span>
+    <span class="s">&#39;maxiter&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;wfniter&#39;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span> <span class="s">&#39;orbiter&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">},</span>
+    <span class="s">&#39;dumpci&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;amplitudestofile&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&#39;amplitudesfilename&#39;</span><span class="p">:</span> <span class="s">&#39;./ap1rog_amplitudes.dat&#39;</span><span class="p">},</span>
+    <span class="s">&#39;thresh&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;wfn&#39;</span><span class="p">:</span>  <span class="mf">1e-12</span><span class="p">,</span> <span class="s">&#39;energy&#39;</span><span class="p">:</span> <span class="mf">1e-8</span><span class="p">,</span> <span class="s">&#39;gradientnorm&#39;</span><span class="p">:</span> <span class="mf">1e-4</span><span class="p">,</span> <span class="s">&#39;gradientmax&#39;</span><span class="p">:</span> <span class="mf">5e-5</span><span class="p">},</span>
+    <span class="s">&#39;printoptions&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;geminal&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;ci&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s">&#39;excitationlevel&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+    <span class="s">&#39;stepsearch&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;method&#39;</span><span class="p">:</span> <span class="s">&#39;trust-region&#39;</span><span class="p">,</span> <span class="s">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s">&#39;c1&#39;</span><span class="p">:</span> <span class="mf">0.0001</span><span class="p">,</span> <span class="s">&#39;minalpha&#39;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s">&#39;maxiterouter&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s">&#39;maxiterinner&#39;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span> <span class="s">&#39;maxeta&#39;</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span> <span class="s">&#39;mineta&#39;</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span> <span class="s">&#39;upscale&#39;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span> <span class="s">&#39;downscale&#39;</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span> <span class="s">&#39;trustradius&#39;</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span> <span class="s">&#39;maxtrustradius&#39;</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span> <span class="s">&#39;threshold&#39;</span><span class="p">:</span> <span class="mf">1e-8</span><span class="p">,</span> <span class="s">&#39;optimizer&#39;</span><span class="p">:</span> <span class="s">&#39;ddl&#39;</span><span class="p">},</span>
+    <span class="s">&#39;orbitaloptimizer&#39;</span><span class="p">:</span> <span class="s">&#39;variational&#39;</span>
+<span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="ap1rog-with-external-integrals">
+<h3>4.2.5.3. AP1roG with external integrals<a class="headerlink" href="#ap1rog-with-external-integrals" title="Permalink to this headline">¶</a></h3>
+<p>This is a basic example on how to perform an orbital-optimized AP1roG calculation using one- and two-electron integrals from an external file. The number of doubly-occupied orbitals is <code class="docutils literal"><span class="pre">5</span></code>, while the total number of basis functions is <code class="docutils literal"><span class="pre">28</span></code>. See <a class="reference internal" href="user_hamiltonian_model.html#modphysham"><span>Defining a model Hamiltonian</span></a>.</p>
+<div class="literal-block-wrapper container" id="data-examples-ap1rog-external-hamiltonian-n2-dense-py">
+<div class="code-block-caption"><span class="caption-text">data/examples/ap1rog/external_hamiltonian_n2_dense.py</span><a class="headerlink" href="#data-examples-ap1rog-external-hamiltonian-n2-dense-py" title="Permalink to this code">¶</a></div>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">horton</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c"># Read Hamiltonian from file &#39;FCIDUMP&#39;</span>
+<span class="c"># ------------------------------------</span>
+<span class="c"># The required FCIDUMP file can be generated with the script</span>
+<span class="c"># data/examples/hf_dft/rhf_n2_dense.py</span>
+<span class="n">mol</span> <span class="o">=</span> <span class="n">IOData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s">&#39;n2.FCIDUMP&#39;</span><span class="p">)</span>
+
+<span class="c"># Define Occupation model, expansion coefficients and overlap</span>
+<span class="c"># -----------------------------------------------------------</span>
+<span class="n">nocc</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">occ_model</span> <span class="o">=</span> <span class="n">AufbauOccModel</span><span class="p">(</span><span class="n">nocc</span><span class="p">)</span>
+<span class="n">orb</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">lf</span><span class="o">.</span><span class="n">create_expansion</span><span class="p">()</span>
+<span class="n">olp</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">lf</span><span class="o">.</span><span class="n">create_two_index</span><span class="p">()</span>
+<span class="n">olp</span><span class="o">.</span><span class="n">assign_diagonal</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="n">orb</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">olp</span><span class="p">)</span>
+
+<span class="c"># Do OO-AP1roG optimization</span>
+<span class="c"># -------------------------</span>
+<span class="n">ap1rog</span> <span class="o">=</span> <span class="n">RAp1rog</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">lf</span><span class="p">,</span> <span class="n">occ_model</span><span class="p">)</span>
+<span class="n">energy</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">l</span> <span class="o">=</span> <span class="n">ap1rog</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">one_mo</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">two_mo</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">core_energy</span><span class="p">,</span> <span class="n">orb</span><span class="p">,</span> <span class="n">olp</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="ap1rog-using-model-hamiltonians">
+<h3>4.2.5.4. AP1roG using model Hamiltonians<a class="headerlink" href="#ap1rog-using-model-hamiltonians" title="Permalink to this headline">¶</a></h3>
+<p>This is a basic example on how to perform an orbital-optimized AP1roG calculation using 1-D Hubbard model
+Hamiltonian. The number of doubly-occupied sites is <code class="docutils literal"><span class="pre">3</span></code>, the total number of sites is <code class="docutils literal"><span class="pre">6</span></code>. The <code class="docutils literal"><span class="pre">t</span></code>
+parameter is set to -1, the <code class="docutils literal"><span class="pre">U</span></code> parameter is set to 2, and periodic boundary conditions are employed.</p>
+<div class="literal-block-wrapper container" id="data-examples-ap1rog-hubbard-py">
+<div class="code-block-caption"><span class="caption-text">data/examples/ap1rog/hubbard.py</span><a class="headerlink" href="#data-examples-ap1rog-hubbard-py" title="Permalink to this code">¶</a></div>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">horton</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c">###############################################################################</span>
+<span class="c">## Define Occupation model, expansion coefficients and overlap ################</span>
+<span class="c">###############################################################################</span>
+<span class="n">lf</span> <span class="o">=</span> <span class="n">DenseLinalgFactory</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">occ_model</span> <span class="o">=</span> <span class="n">AufbauOccModel</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">modelham</span> <span class="o">=</span> <span class="n">Hubbard</span><span class="p">(</span><span class="n">pbc</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">orb</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_expansion</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">olp</span> <span class="o">=</span> <span class="n">modelham</span><span class="o">.</span><span class="n">compute_overlap</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+<span class="c">###############################################################################</span>
+<span class="c"># t-param, t = -1 #############################################################</span>
+<span class="c">###############################################################################</span>
+<span class="n">kin</span> <span class="o">=</span> <span class="n">modelham</span><span class="o">.</span><span class="n">compute_kinetic</span><span class="p">(</span><span class="n">lf</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="c">###############################################################################</span>
+<span class="c"># U-param, U = 2 ##############################################################</span>
+<span class="c">###############################################################################</span>
+<span class="n">two</span> <span class="o">=</span> <span class="n">modelham</span><span class="o">.</span><span class="n">compute_er</span><span class="p">(</span><span class="n">lf</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="c">###############################################################################</span>
+<span class="c">## Perform initial guess ######################################################</span>
+<span class="c">###############################################################################</span>
+<span class="n">guess_core_hamiltonian</span><span class="p">(</span><span class="n">olp</span><span class="p">,</span> <span class="n">kin</span><span class="p">,</span> <span class="n">orb</span><span class="p">)</span>
+<span class="n">terms</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">RTwoIndexTerm</span><span class="p">(</span><span class="n">kin</span><span class="p">,</span> <span class="s">&#39;kin&#39;</span><span class="p">),</span>
+    <span class="n">RDirectTerm</span><span class="p">(</span><span class="n">two</span><span class="p">,</span> <span class="s">&#39;hartree&#39;</span><span class="p">),</span>
+    <span class="n">RExchangeTerm</span><span class="p">(</span><span class="n">two</span><span class="p">,</span> <span class="s">&#39;x_hf&#39;</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="n">ham</span> <span class="o">=</span> <span class="n">REffHam</span><span class="p">(</span><span class="n">terms</span><span class="p">)</span>
+<span class="c">###############################################################################</span>
+<span class="c">## Do a Hartree-Fock calculation ##############################################</span>
+<span class="c">###############################################################################</span>
+<span class="n">scf_solver</span> <span class="o">=</span> <span class="n">PlainSCFSolver</span><span class="p">()</span>
+<span class="n">scf_solver</span><span class="p">(</span><span class="n">ham</span><span class="p">,</span> <span class="n">lf</span><span class="p">,</span> <span class="n">olp</span><span class="p">,</span> <span class="n">occ_model</span><span class="p">,</span> <span class="n">orb</span><span class="p">)</span>
+<span class="c">###############################################################################</span>
+<span class="c">## Do OO-AP1roG optimization ##################################################</span>
+<span class="c">###############################################################################</span>
+<span class="n">ap1rog</span> <span class="o">=</span> <span class="n">RAp1rog</span><span class="p">(</span><span class="n">lf</span><span class="p">,</span> <span class="n">occ_model</span><span class="p">)</span>
+<span class="n">energy</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">l</span> <span class="o">=</span> <span class="n">ap1rog</span><span class="p">(</span><span class="n">kin</span><span class="p">,</span> <span class="n">two</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">orb</span><span class="p">,</span> <span class="n">olp</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Note that for the Hubbard model, the external potential has to be set to <code class="docutils literal"><span class="pre">0</span></code>,</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">energy</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">l</span> <span class="o">=</span> <span class="n">ap1rog</span><span class="p">(</span><span class="n">kin</span><span class="p">,</span> <span class="n">two</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">orb</span><span class="p">,</span> <span class="n">olp</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="user_estruct_perturbation.html" class="btn btn-neutral float-right" title="4.3. The perturbation theory module" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="user_estruct_hf_dft.html" class="btn btn-neutral" title="4.1. How to use HORTON as a Hartree-Fock/DFT program" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.0 built from release 2.0.0. </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 11, 2015.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.0.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
