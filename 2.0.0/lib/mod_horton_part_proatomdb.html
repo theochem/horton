@@ -1,0 +1,606 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.12.9. horton.part.proatomdb – Pro-atom databases &mdash; HORTON 2.0.0-244-gaaf5e2b documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="HORTON 2.0.0-244-gaaf5e2b documentation" href="../index.html"/>
+        <link rel="up" title="3.12. horton.part – Density-based partitioning (fuzzy atoms-in-molecules) package" href="pck_horton_part.html"/>
+        <link rel="next" title="3.12.10. horton.part.stockholder – Base classes for all stockholder partitioning schemes" href="mod_horton_part_stockholder.html"/>
+        <link rel="prev" title="3.12.8. horton.part.mulliken – Mulliken partitioning" href="mod_horton_part_mulliken.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> &#8211; The main HORTON Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_correlatedwfn.html">3.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn</span></code> &#8211; Methods for correlated wavefunctions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.3. <code class="docutils literal"><span class="pre">horton.espfit</span></code> &#8211; Electrostatic potential fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_gbasis.html">3.4. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> &#8211; Gaussian basis sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.5. <code class="docutils literal"><span class="pre">horton.grid</span></code> &#8211; Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.6. <code class="docutils literal"><span class="pre">horton.io</span></code> &#8211; Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_localization.html">3.7. <code class="docutils literal"><span class="pre">horton.localization</span></code> &#8211; Methods for orbital localization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.8. <code class="docutils literal"><span class="pre">horton.matrix</span></code> &#8211; One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.9. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> &#8211; Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.10. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> &#8211; Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_orbital_entanglement.html">3.11. <code class="docutils literal"><span class="pre">horton.orbital_entanglement</span></code> &#8211; Methods for measuring orbital entanglement</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_part.html">3.12. <code class="docutils literal"><span class="pre">horton.part</span></code> &#8211; Density-based partitioning (fuzzy atoms-in-molecules) package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_part_base.html">3.12.1. <code class="docutils literal"><span class="pre">horton.part.base</span></code> &#8211; Base classes for (atoms-in-molecules) partitioning algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_part_becke.html">3.12.2. <code class="docutils literal"><span class="pre">horton.part.becke</span></code> &#8211; Becke partitioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_part_hirshfeld.html">3.12.3. <code class="docutils literal"><span class="pre">horton.part.hirshfeld</span></code> &#8211; Hirshfeld partitioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_part_hirshfeld_e.html">3.12.4. <code class="docutils literal"><span class="pre">horton.part.hirshfeld_e</span></code> &#8211; Extended Hirshfeld (HE) partitioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_part_hirshfeld_i.html">3.12.5. <code class="docutils literal"><span class="pre">horton.part.hirshfeld_i</span></code> &#8211; Iterative Hirshfeld (HI) partitioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_part_iterstock.html">3.12.6. <code class="docutils literal"><span class="pre">horton.part.iterstock</span></code> &#8211; Iterative Stockholder Analysis (ISA) partitioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_part_mbis.html">3.12.7. <code class="docutils literal"><span class="pre">horton.part.mbis</span></code> &#8211; Minimal Basis Iterative Stockholder (MBIS) partitioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_part_mulliken.html">3.12.8. <code class="docutils literal"><span class="pre">horton.part.mulliken</span></code> &#8211; Mulliken partitioning</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.12.9. <code class="docutils literal"><span class="pre">horton.part.proatomdb</span></code> &#8211; Pro-atom databases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_part_stockholder.html">3.12.10. <code class="docutils literal"><span class="pre">horton.part.stockholder</span></code> &#8211; Base classes for all stockholder partitioning schemes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_part_symmetry.html">3.12.11. <code class="docutils literal"><span class="pre">horton.part.symmetry</span></code> &#8211; Symmetry analysis of atoms-in-molecules results</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.13. <code class="docutils literal"><span class="pre">horton.scripts</span></code> &#8211; Code (solely) used by HORTON&#8217;s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">HORTON</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+      
+          <li><a href="pck_horton_part.html">3.12. <code class="docutils literal"><span class="pre">horton.part</span></code> &#8211; Density-based partitioning (fuzzy atoms-in-molecules) package</a> &raquo;</li>
+      
+    <li>3.12.9. <code class="docutils literal"><span class="pre">horton.part.proatomdb</span></code> &#8211; Pro-atom databases</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/lib/mod_horton_part_proatomdb.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-horton.part.proatomdb">
+<span id="horton-part-proatomdb-pro-atom-databases"></span><h1>3.12.9. <code class="docutils literal"><span class="pre">horton.part.proatomdb</span></code> &#8211; Pro-atom databases<a class="headerlink" href="#module-horton.part.proatomdb" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="horton.part.proatomdb.ProAtomRecord">
+<em class="property">class </em><code class="descclassname">horton.part.proatomdb.</code><code class="descname">ProAtomRecord</code><span class="sig-paren">(</span><em>number</em>, <em>charge</em>, <em>energy</em>, <em>rgrid</em>, <em>rho</em>, <em>deriv=None</em>, <em>pseudo_number=None</em>, <em>ipot_energy=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.proatomdb.ProAtomRecord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>number</dt>
+<dd>The element number of the proatom.</dd>
+<dt>charge</dt>
+<dd>The net charge of the proatom. (integer)</dd>
+<dt>energy</dt>
+<dd>The total energy of the proatom.</dd>
+<dt>rgrid</dt>
+<dd>The radial grid on which the density (and optional radial
+density derivatives) are tabulated.</dd>
+<dt>rho</dt>
+<dd>The electron density on the grid.</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>deriv</dt>
+<dd>The radial derivative of the electron density.</dd>
+<dt>pseudo_number</dt>
+<dd>The effective core charge (defaults to number).</dd>
+<dt>ipot_energy</dt>
+<dd>The ionization potential.</dd>
+</dl>
+<dl class="method">
+<dt id="horton.part.proatomdb.ProAtomRecord.chop">
+<code class="descname">chop</code><span class="sig-paren">(</span><em>npoint</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.proatomdb.ProAtomRecord.chop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduce the proatom to the given number of radial grid points.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.part.proatomdb.ProAtomRecord.compute_radii">
+<code class="descname">compute_radii</code><span class="sig-paren">(</span><em>populations</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.proatomdb.ProAtomRecord.compute_radii" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute approximate radii and grid points at which the atom contains the given populations</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>populations</dt>
+<dd>A list of populations for which the corresponding radii have to
+be computed.</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="horton.part.proatomdb.ProAtomRecord.from_dm">
+<em class="property">classmethod </em><code class="descname">from_dm</code><span class="sig-paren">(</span><em>center</em>, <em>number</em>, <em>pseudo_number</em>, <em>obasis</em>, <em>dm_full</em>, <em>energy</em>, <em>agspec='fine'</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.proatomdb.ProAtomRecord.from_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a proatom record from a single-atom density matrix</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>center</dt>
+<dd>The position of the nuclues (needed for spherical average)</dd>
+<dt>number</dt>
+<dd>The atomic number</dd>
+<dt>pseudo_number</dt>
+<dd>The effective core charges</dd>
+<dt>obasis</dt>
+<dd>The orbital basis</dd>
+<dt>dm_full</dt>
+<dd>The spin-summed density matrix object</dd>
+<dt>energy</dt>
+<dd>The electronic energy of the atom</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>agspec</dt>
+<dd>A specifications of the atomic grid. This can either be an
+instance of the AtomicGridSpec object, or the first argument
+of its constructor.</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="horton.part.proatomdb.ProAtomRecord.from_iodata">
+<em class="property">classmethod </em><code class="descname">from_iodata</code><span class="sig-paren">(</span><em>iodata</em>, <em>agspec='fine'</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.proatomdb.ProAtomRecord.from_iodata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a proatom record from a data dictionary and an atomic grid</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>iodata</dt>
+<dd>IOData instance</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>agspec</dt>
+<dd>A specifications of the atomic grid. This can either be an
+instance of the AtomicGridSpec object, or the first argument
+of its constructor.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.part.proatomdb.ProAtomRecord.get_moment">
+<code class="descname">get_moment</code><span class="sig-paren">(</span><em>order</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.proatomdb.ProAtomRecord.get_moment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the integral of rho*r**order</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.part.proatomdb.ProAtomRecord.update_safe">
+<code class="descname">update_safe</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.proatomdb.ProAtomRecord.update_safe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the safe attribute based on a comparison with other records</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>other</dt>
+<dd>Another instance of ProAtomRecord</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.proatomdb.ProAtomRecord.charge">
+<code class="descname">charge</code><a class="headerlink" href="#horton.part.proatomdb.ProAtomRecord.charge" title="Permalink to this definition">¶</a></dt>
+<dd><p>The charge</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.proatomdb.ProAtomRecord.deriv">
+<code class="descname">deriv</code><a class="headerlink" href="#horton.part.proatomdb.ProAtomRecord.deriv" title="Permalink to this definition">¶</a></dt>
+<dd><p>The radial derivative of the density on a radial grid</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.proatomdb.ProAtomRecord.energy">
+<code class="descname">energy</code><a class="headerlink" href="#horton.part.proatomdb.ProAtomRecord.energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>The total electronic energy</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.proatomdb.ProAtomRecord.ipot_energy">
+<code class="descname">ipot_energy</code><a class="headerlink" href="#horton.part.proatomdb.ProAtomRecord.ipot_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ionization potential</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.proatomdb.ProAtomRecord.number">
+<code class="descname">number</code><a class="headerlink" href="#horton.part.proatomdb.ProAtomRecord.number" title="Permalink to this definition">¶</a></dt>
+<dd><p>The element number</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.proatomdb.ProAtomRecord.population">
+<code class="descname">population</code><a class="headerlink" href="#horton.part.proatomdb.ProAtomRecord.population" title="Permalink to this definition">¶</a></dt>
+<dd><p>The total number of electrons</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.proatomdb.ProAtomRecord.pseudo_number">
+<code class="descname">pseudo_number</code><a class="headerlink" href="#horton.part.proatomdb.ProAtomRecord.pseudo_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>The pseudo element number (effective core charge)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.proatomdb.ProAtomRecord.pseudo_population">
+<code class="descname">pseudo_population</code><a class="headerlink" href="#horton.part.proatomdb.ProAtomRecord.pseudo_population" title="Permalink to this definition">¶</a></dt>
+<dd><p>The total effective number of electrons</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.proatomdb.ProAtomRecord.rgrid">
+<code class="descname">rgrid</code><a class="headerlink" href="#horton.part.proatomdb.ProAtomRecord.rgrid" title="Permalink to this definition">¶</a></dt>
+<dd><p>The radial grid</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.proatomdb.ProAtomRecord.rho">
+<code class="descname">rho</code><a class="headerlink" href="#horton.part.proatomdb.ProAtomRecord.rho" title="Permalink to this definition">¶</a></dt>
+<dd><p>The density on a radial grid</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.proatomdb.ProAtomRecord.safe">
+<code class="descname">safe</code><a class="headerlink" href="#horton.part.proatomdb.ProAtomRecord.safe" title="Permalink to this definition">¶</a></dt>
+<dd><p>When safe is True, this pro atom is safe to use, i.e. not know to be basis-set bound</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.part.proatomdb.ProAtomDB">
+<em class="property">class </em><code class="descclassname">horton.part.proatomdb.</code><code class="descname">ProAtomDB</code><span class="sig-paren">(</span><em>records</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.proatomdb.ProAtomDB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>records</dt>
+<dd>A list of ProAtomRecord instances. If two or more records have
+the same number and charge, only the lowest in energy is
+retained.</dd>
+</dl>
+<p>Based on the records present it is determined which records are
+safe to use, i.e. apparently not bound by the basis set.</p>
+<dl class="method">
+<dt id="horton.part.proatomdb.ProAtomDB.compact">
+<code class="descname">compact</code><span class="sig-paren">(</span><em>nel_lost</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.proatomdb.ProAtomDB.compact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the pro-atoms more compact</p>
+<p><strong>Argument:</strong></p>
+<dl class="docutils">
+<dt>nel_lost</dt>
+<dd>This parameter controls the part of the tail that gets
+neglected. This is the (maximym) number of electrons in the part
+that gets discarded.</dd>
+</dl>
+<p>Note that only &#8216;safe&#8217; atoms are considered to determine the cutoff
+radius.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="horton.part.proatomdb.ProAtomDB.from_file">
+<em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.proatomdb.ProAtomDB.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct an dabase from an HDF5 file</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>filename</dt>
+<dd>A string with the filename of the hdf5 file, or a h5.File or
+h5.Group object.</dd>
+</dl>
+<p>Note that the records are loaded and given as argument to the
+constructor, which may weed out duplicates.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="horton.part.proatomdb.ProAtomDB.from_files">
+<em class="property">classmethod </em><code class="descname">from_files</code><span class="sig-paren">(</span><em>fns</em>, <em>agspec='fine'</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.proatomdb.ProAtomDB.from_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a ProAtomDB from a series of HORTON checkpoint files.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>fns_chk</dt>
+<dd>A list of atomic output files.</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>agspec</dt>
+<dd>A specifications of the atomic grid. This can either be an
+instance of the AtomicGridSpec object, or the first argument
+of its constructor.</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="horton.part.proatomdb.ProAtomDB.from_refatoms">
+<em class="property">classmethod </em><code class="descname">from_refatoms</code><span class="sig-paren">(</span><em>numbers=None</em>, <em>max_kation=3</em>, <em>max_anion=2</em>, <em>agspec='fine'</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.proatomdb.ProAtomDB.from_refatoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a ProAtomDB from reference atoms included in HORTON</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>fns_chk</dt>
+<dd>A list of HORTON checkpoint files.</dd>
+</dl>
+<p><strong>Optional Arguments:</strong></p>
+<dl class="docutils">
+<dt>numbers</dt>
+<dd>A list of atom numbers to limit the selection of atoms in the
+database. When not given, all reference atoms are loaded.</dd>
+<dt>max_kation</dt>
+<dd>The charge of the most positive kation to include</dd>
+<dt>max_anion</dt>
+<dd>Minus the charge of the most negativ anion to include. (This
+is typically a positive argument.)</dd>
+<dt>agspec</dt>
+<dd>A specifications of the atomic grid. This can either be an
+instance of the AtomicGridSpec object, or the first argument
+of its constructor.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.part.proatomdb.ProAtomDB.get_charges">
+<code class="descname">get_charges</code><span class="sig-paren">(</span><em>number</em>, <em>safe=False</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.proatomdb.ProAtomDB.get_charges" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.proatomdb.ProAtomDB.get_numbers">
+<code class="descname">get_numbers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.proatomdb.ProAtomDB.get_numbers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the element numbers present in the database</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.part.proatomdb.ProAtomDB.get_record">
+<code class="descname">get_record</code><span class="sig-paren">(</span><em>number</em>, <em>charge</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.proatomdb.ProAtomDB.get_record" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.proatomdb.ProAtomDB.get_rgrid">
+<code class="descname">get_rgrid</code><span class="sig-paren">(</span><em>number</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.proatomdb.ProAtomDB.get_rgrid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.proatomdb.ProAtomDB.get_rho">
+<code class="descname">get_rho</code><span class="sig-paren">(</span><em>number</em>, <em>parameters=0</em>, <em>combine='linear'</em>, <em>do_deriv=False</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.proatomdb.ProAtomDB.get_rho" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a proatom density on a grid.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>number</dt>
+<dd>The element</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>parameters</dt>
+<dd><p class="first">This argument may take two forms:</p>
+<ul class="last simple">
+<li>Integer: the charge of the pro-atom</li>
+<li>Dictionary: a linear or geometric combination of different
+charged pro-atoms. The keys are the charges and the values
+are the coefficients.</li>
+</ul>
+</dd>
+<dt>combine</dt>
+<dd>In case parameters is an array, this determines the type of
+combination: &#8216;linear&#8217; or &#8216;geometric&#8217;.</dd>
+<dt>do_deriv</dt>
+<dd>When set to True, the derivative of rho is also returned. In
+case the derivative is not available, the second return value is
+None.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.part.proatomdb.ProAtomDB.get_spline">
+<code class="descname">get_spline</code><span class="sig-paren">(</span><em>number</em>, <em>parameters=0</em>, <em>combine='linear'</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.proatomdb.ProAtomDB.get_spline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a proatom spline.</p>
+<p><strong>Arguments:</strong> See <code class="docutils literal"><span class="pre">get_rho</span></code> method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.part.proatomdb.ProAtomDB.normalize">
+<code class="descname">normalize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.proatomdb.ProAtomDB.normalize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.proatomdb.ProAtomDB.to_file">
+<code class="descname">to_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.proatomdb.ProAtomDB.to_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the database to an HDF5 file</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>filename</dt>
+<dd>A string with the filename of the hdf5 file, or a h5.File or
+h5.Group object.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.proatomdb.ProAtomDB.size">
+<code class="descname">size</code><a class="headerlink" href="#horton.part.proatomdb.ProAtomDB.size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_part_stockholder.html" class="btn btn-neutral float-right" title="3.12.10. horton.part.stockholder – Base classes for all stockholder partitioning schemes" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_part_mulliken.html" class="btn btn-neutral" title="3.12.8. horton.part.mulliken – Mulliken partitioning" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.0 built from release 2.0.0-244-gaaf5e2b. </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 16, 2016.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.0.0-244-gaaf5e2b',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

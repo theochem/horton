@@ -1,0 +1,376 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>5.3. Localization of molecular orbitals &mdash; HORTON 2.0.2 (Jun 30, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="HORTON 2.0.2 (Jun 30, 2017) documentation" href="index.html"/>
+        <link rel="up" title="5. Post-processing" href="user_postproc.html"/>
+        <link rel="next" title="5.4. Orbital entanglement analysis" href="user_postproc_orbital_entanglement.html"/>
+        <link rel="prev" title="5.2. Electrostatic potential fitting" href="user_postproc_espfit.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_postproc.html">5. Post-processing</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="user_postproc_aim.html">5.1. Atoms-in-Molecules (AIM) analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_postproc_espfit.html">5.2. Electrostatic potential fitting</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">5.3. Localization of molecular orbitals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pipek-mezey-localization">5.3.1. Pipek-Mezey localization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example-python-scripts">5.3.2. Example Python scripts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pipek-mezey-localization-of-restricted-hartree-fock-orbitals-for-the-water-molecule">5.3.2.1. Pipek-Mezey localization of restricted Hartree-Fock orbitals for the water molecule</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_postproc_orbital_entanglement.html">5.4. Orbital entanglement analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="user_postproc.html">5. Post-processing</a> &raquo;</li>
+        
+      <li>5.3. Localization of molecular orbitals</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/user_postproc_localization.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="localization-of-molecular-orbitals">
+<span id="localization"></span><h1>5.3. Localization of molecular orbitals<a class="headerlink" href="#localization-of-molecular-orbitals" title="Permalink to this headline">¶</a></h1>
+<p>In general, the localization algorithm optimizes some localization function by
+orthogonal transformation of the orbitals. Given orbitals
+<span class="math">\(\vert i \rangle\)</span>, the localized orbital <span class="math">\(\vert \tilde{i} \rangle\)</span>
+can be obtained by some transformation</p>
+<div class="math">
+\[\vert \tilde{i} \rangle = \sum_k \vert k \rangle \exp(-\mathbf{\kappa})_{ki},\]</div>
+<p>where</p>
+<div class="math">
+\[\mathbf{\kappa} = \sum_{k &gt; l} \kappa_{kl} (a^\dagger_k a_l - a^\dagger_l a_k)\]</div>
+<p>and <span class="math">\(\kappa_{kl}\)</span> is determined by the optimization of the localization function.</p>
+<p>Many of the localization schemes, and thus
+the result of the localization, differ by the localization function. The localization
+function somehow measures the localization of the orbitals. So far, HORTON only
+supports the Pipek-Mezey localization. <a class="reference internal" href="tech_ref_literature.html#pipek1989" id="id1">[pipek1989]</a></p>
+<div class="section" id="pipek-mezey-localization">
+<span id="pipek-mezey"></span><h2>5.3.1. Pipek-Mezey localization<a class="headerlink" href="#pipek-mezey-localization" title="Permalink to this headline">¶</a></h2>
+<p>In the Pipek-Mezey scheme, the Pipek-Mezey localization function, <span class="math">\(D\)</span>, is maximized.</p>
+<div class="math">
+\[D = \sum_{i} \sum_{A \in \textrm{atoms}} (Q_{ii}^A)^2,\]</div>
+<p>where <span class="math">\(\mathbf{Q}^A\)</span> is the atomic population matrix. The atomic population
+matrix can be obtained from the overlap of the atomic basis, the expansion of the molecular
+orbitals from the atomic basis, the occupation of each molecular orbital, and
+some weighted projection of atomic basis function within each atom.</p>
+<p>For example, if the Mulliken population analysis is used, the projectors are
+obtained through <a class="reference internal" href="lib/mod_horton_part_mulliken.html#horton.part.mulliken.get_mulliken_operators" title="horton.part.mulliken.get_mulliken_operators"><code class="xref py py-meth docutils literal"><span class="pre">get_mulliken_operators()</span></code></a>.
+Then the Pipek-Mezey localization function and the optimization are obtained through
+<a class="reference internal" href="lib/mod_horton_localization_localization.html#horton.localization.localization.PipekMezey" title="horton.localization.localization.PipekMezey"><code class="xref py py-class docutils literal"><span class="pre">PipekMezey</span></code></a>. Function call,
+<a class="reference internal" href="lib/mod_horton_localization_localization.html#horton.localization.localization.Localization.__call__" title="horton.localization.localization.Localization.__call__"><code class="xref py py-meth docutils literal"><span class="pre">__call__()</span></code></a>, of this
+instance results in localization.
+Please see documentation in <a class="reference internal" href="lib/mod_horton_localization_localization.html#module-horton.localization.localization" title="horton.localization.localization"><code class="xref py py-mod docutils literal"><span class="pre">horton.localization.localization</span></code></a> for more detail.</p>
+</div>
+<div class="section" id="example-python-scripts">
+<h2>5.3.2. Example Python scripts<a class="headerlink" href="#example-python-scripts" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="pipek-mezey-localization-of-restricted-hartree-fock-orbitals-for-the-water-molecule">
+<h3>5.3.2.1. Pipek-Mezey localization of restricted Hartree-Fock orbitals for the water molecule<a class="headerlink" href="#pipek-mezey-localization-of-restricted-hartree-fock-orbitals-for-the-water-molecule" title="Permalink to this headline">¶</a></h3>
+<p>This is a basic example on how to perform a Pipek-Mezey localization in HORTON. This script performs a Pipek-Mezey localization for the water molecule using the cc-pVDZ basis set and Mulliken projectors.</p>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">data/examples/localization/water_pm.py</span><a class="headerlink" href="#id2" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span>
+<span class="kn">from</span> <span class="nn">horton</span> <span class="k">import</span> <span class="o">*</span>
+<span class="c1">###############################################################################</span>
+<span class="c1">## Set up molecule, define basis set ##########################################</span>
+<span class="c1">###############################################################################</span>
+<span class="c1"># Use the XYZ file from HORTON&#39;s test data directory.</span>
+<span class="n">fn_xyz</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get_fn</span><span class="p">(</span><span class="s1">&#39;test/water.xyz&#39;</span><span class="p">)</span>
+<span class="n">mol</span> <span class="o">=</span> <span class="n">IOData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">fn_xyz</span><span class="p">)</span>
+<span class="n">obasis</span> <span class="o">=</span> <span class="n">get_gobasis</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">numbers</span><span class="p">,</span> <span class="s1">&#39;cc-pvdz&#39;</span><span class="p">)</span>
+<span class="c1">###############################################################################</span>
+<span class="c1">## Define Occupation model, expansion coefficients and overlap ################</span>
+<span class="c1">###############################################################################</span>
+<span class="n">lf</span> <span class="o">=</span> <span class="n">DenseLinalgFactory</span><span class="p">(</span><span class="n">obasis</span><span class="o">.</span><span class="n">nbasis</span><span class="p">)</span>
+<span class="n">occ_model</span> <span class="o">=</span> <span class="n">AufbauOccModel</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">orb</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_expansion</span><span class="p">(</span><span class="n">obasis</span><span class="o">.</span><span class="n">nbasis</span><span class="p">)</span>
+<span class="n">olp</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_overlap</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+<span class="c1">###############################################################################</span>
+<span class="c1">## Construct Hamiltonian ######################################################</span>
+<span class="c1">###############################################################################</span>
+<span class="n">kin</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_kinetic</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+<span class="n">na</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_nuclear_attraction</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">,</span> <span class="n">lf</span><span class="p">)</span>
+<span class="n">er</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_electron_repulsion</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+<span class="n">external</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;nn&#39;</span><span class="p">:</span> <span class="n">compute_nucnuc</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">)}</span>
+<span class="n">terms</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">RTwoIndexTerm</span><span class="p">(</span><span class="n">kin</span><span class="p">,</span> <span class="s1">&#39;kin&#39;</span><span class="p">),</span>
+    <span class="n">RDirectTerm</span><span class="p">(</span><span class="n">er</span><span class="p">,</span> <span class="s1">&#39;hartree&#39;</span><span class="p">),</span>
+    <span class="n">RExchangeTerm</span><span class="p">(</span><span class="n">er</span><span class="p">,</span> <span class="s1">&#39;x_hf&#39;</span><span class="p">),</span>
+    <span class="n">RTwoIndexTerm</span><span class="p">(</span><span class="n">na</span><span class="p">,</span> <span class="s1">&#39;ne&#39;</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="n">ham</span> <span class="o">=</span> <span class="n">REffHam</span><span class="p">(</span><span class="n">terms</span><span class="p">,</span> <span class="n">external</span><span class="p">)</span>
+<span class="c1">###############################################################################</span>
+<span class="c1">## Perform initial guess ######################################################</span>
+<span class="c1">###############################################################################</span>
+<span class="n">guess_core_hamiltonian</span><span class="p">(</span><span class="n">olp</span><span class="p">,</span> <span class="n">kin</span><span class="p">,</span> <span class="n">na</span><span class="p">,</span> <span class="n">orb</span><span class="p">)</span>
+<span class="c1">###############################################################################</span>
+<span class="c1">## Do a Hartree-Fock calculation ##############################################</span>
+<span class="c1">###############################################################################</span>
+<span class="n">scf_solver</span> <span class="o">=</span> <span class="n">PlainSCFSolver</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">)</span>
+<span class="n">scf_solver</span><span class="p">(</span><span class="n">ham</span><span class="p">,</span> <span class="n">lf</span><span class="p">,</span> <span class="n">olp</span><span class="p">,</span> <span class="n">occ_model</span><span class="p">,</span> <span class="n">orb</span><span class="p">)</span>
+<span class="c1">###############################################################################</span>
+<span class="c1">## Define Mulliken projectors #################################################</span>
+<span class="c1">###############################################################################</span>
+<span class="n">mulliken</span> <span class="o">=</span> <span class="n">get_mulliken_operators</span><span class="p">(</span><span class="n">obasis</span><span class="p">,</span> <span class="n">lf</span><span class="p">)</span>
+
+<span class="c1">###############################################################################</span>
+<span class="c1">## Pipek-Mezey localizaton ####################################################</span>
+<span class="c1">###############################################################################</span>
+<span class="n">loc</span> <span class="o">=</span> <span class="n">PipekMezey</span><span class="p">(</span><span class="n">lf</span><span class="p">,</span> <span class="n">occ_model</span><span class="p">,</span> <span class="n">mulliken</span><span class="p">)</span>
+<span class="c1">###############################################################################</span>
+<span class="c1">## occupied block #############################################################</span>
+<span class="c1">###############################################################################</span>
+<span class="n">loc</span><span class="p">(</span><span class="n">orb</span><span class="p">,</span> <span class="s1">&#39;occ&#39;</span><span class="p">)</span>
+<span class="c1">###############################################################################</span>
+<span class="c1">## virtual block ##############################################################</span>
+<span class="c1">###############################################################################</span>
+<span class="n">loc</span><span class="p">(</span><span class="n">orb</span><span class="p">,</span> <span class="s1">&#39;virt&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="user_postproc_orbital_entanglement.html" class="btn btn-neutral float-right" title="5.4. Orbital entanglement analysis" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="user_postproc_espfit.html" class="btn btn-neutral" title="5.2. Electrostatic potential fitting" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.2 built from release 2.0.2 (Jun 30, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 30, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.0.2 (Jun 30, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

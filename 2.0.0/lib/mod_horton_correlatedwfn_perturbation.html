@@ -1,0 +1,1152 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.2.2. horton.correlatedwfn.perturbation – Perturbation theory module &mdash; HORTON 2.0.0-244-gaaf5e2b documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="HORTON 2.0.0-244-gaaf5e2b documentation" href="../index.html"/>
+        <link rel="up" title="3.2. horton.correlatedwfn – Methods for correlated wavefunctions" href="pck_horton_correlatedwfn.html"/>
+        <link rel="next" title="3.2.3. horton.correlatedwfn.restricted_ap1rog – Correlated wavefunction implementations" href="mod_horton_correlatedwfn_restricted_ap1rog.html"/>
+        <link rel="prev" title="3.2.1. horton.correlatedwfn.geminal – Correlated wavefunction implementations" href="mod_horton_correlatedwfn_geminal.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> &#8211; The main HORTON Package</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_correlatedwfn.html">3.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn</span></code> &#8211; Methods for correlated wavefunctions</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_correlatedwfn_geminal.html">3.2.1. <code class="docutils literal"><span class="pre">horton.correlatedwfn.geminal</span></code> &#8211; Correlated wavefunction implementations</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.2.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn.perturbation</span></code> &#8211; Perturbation theory module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_correlatedwfn_restricted_ap1rog.html">3.2.3. <code class="docutils literal"><span class="pre">horton.correlatedwfn.restricted_ap1rog</span></code> &#8211; Correlated wavefunction implementations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_correlatedwfn_stepsearch.html">3.2.4. <code class="docutils literal"><span class="pre">horton.correlatedwfn.stepsearch</span></code> &#8211; Step search methods for orbital rotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_correlatedwfn_trustregionopt.html">3.2.5. <code class="docutils literal"><span class="pre">horton.correlatedwfn.trustregionopt</span></code> &#8211; Optimization of Newton step</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.3. <code class="docutils literal"><span class="pre">horton.espfit</span></code> &#8211; Electrostatic potential fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_gbasis.html">3.4. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> &#8211; Gaussian basis sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.5. <code class="docutils literal"><span class="pre">horton.grid</span></code> &#8211; Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.6. <code class="docutils literal"><span class="pre">horton.io</span></code> &#8211; Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_localization.html">3.7. <code class="docutils literal"><span class="pre">horton.localization</span></code> &#8211; Methods for orbital localization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.8. <code class="docutils literal"><span class="pre">horton.matrix</span></code> &#8211; One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.9. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> &#8211; Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.10. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> &#8211; Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_orbital_entanglement.html">3.11. <code class="docutils literal"><span class="pre">horton.orbital_entanglement</span></code> &#8211; Methods for measuring orbital entanglement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.12. <code class="docutils literal"><span class="pre">horton.part</span></code> &#8211; Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.13. <code class="docutils literal"><span class="pre">horton.scripts</span></code> &#8211; Code (solely) used by HORTON&#8217;s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">HORTON</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+      
+          <li><a href="pck_horton_correlatedwfn.html">3.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn</span></code> &#8211; Methods for correlated wavefunctions</a> &raquo;</li>
+      
+    <li>3.2.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn.perturbation</span></code> &#8211; Perturbation theory module</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/lib/mod_horton_correlatedwfn_perturbation.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-horton.correlatedwfn.perturbation">
+<span id="horton-correlatedwfn-perturbation-perturbation-theory-module"></span><h1>3.2.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn.perturbation</span></code> &#8211; Perturbation theory module<a class="headerlink" href="#module-horton.correlatedwfn.perturbation" title="Permalink to this headline">¶</a></h1>
+<dl class="docutils">
+<dt>Variables used in this module:</dt>
+<dd><table class="first docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">nocc:</th><td class="field-body">number of occupied orbitals in the principle configuration</td>
+</tr>
+<tr class="field-even field"><th class="field-name">nvirt:</th><td class="field-body">number of virtual orbitals in the principle configuration</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">nbasis:</th><td class="field-body">total number of basis functions</td>
+</tr>
+<tr class="field-even field"><th class="field-name">energy:</th><td class="field-body">the energy correction, list that can contain different
+contributions</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">amplitudes:</th><td class="field-body">the optimized amplitudes, list that can contain different
+contributions</td>
+</tr>
+</tbody>
+</table>
+<dl class="last docutils">
+<dt>Indexing convention:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">i,j,k,..:</th><td class="field-body">occupied orbitals of principle configuration</td>
+</tr>
+<tr class="field-even field"><th class="field-name">a,b,c,..:</th><td class="field-body">virtual orbitals of principle configuration</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">p,q,r,..:</th><td class="field-body">general indices (occupied, virtual)</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="class">
+<dt id="horton.correlatedwfn.perturbation.Perturbation">
+<em class="property">class </em><code class="descclassname">horton.correlatedwfn.perturbation.</code><code class="descname">Perturbation</code><span class="sig-paren">(</span><em>lf</em>, <em>occ_model</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.Perturbation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>lf</dt>
+<dd>A LinalgFactory instance.</dd>
+<dt>occ_model</dt>
+<dd>Aufbau model</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.Perturbation.calculate_energy">
+<code class="descname">calculate_energy</code><span class="sig-paren">(</span><em>amplitudes</em>, <em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.Perturbation.calculate_energy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.Perturbation.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.Perturbation.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear all wavefunction information</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.Perturbation.clear_aux_matrix">
+<code class="descname">clear_aux_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.Perturbation.clear_aux_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the auxiliary matrices</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.Perturbation.get_aux_matrix">
+<code class="descname">get_aux_matrix</code><span class="sig-paren">(</span><em>select</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.Perturbation.get_aux_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an auxiliary matrix.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>Suffix of auxiliary matrix. See <a class="reference internal" href="#horton.correlatedwfn.perturbation.RMP2.init_aux_matrix" title="horton.correlatedwfn.perturbation.RMP2.init_aux_matrix"><code class="xref py py-meth docutils literal"><span class="pre">RMP2.init_aux_matrix()</span></code></a>,
+<a class="reference internal" href="#horton.correlatedwfn.perturbation.PTa.init_aux_matrix" title="horton.correlatedwfn.perturbation.PTa.init_aux_matrix"><code class="xref py py-meth docutils literal"><span class="pre">PTa.init_aux_matrix()</span></code></a>, and
+<a class="reference internal" href="#horton.correlatedwfn.perturbation.PTb.init_aux_matrix" title="horton.correlatedwfn.perturbation.PTb.init_aux_matrix"><code class="xref py py-meth docutils literal"><span class="pre">PTb.init_aux_matrix()</span></code></a> for possible choices</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.Perturbation.get_guess">
+<code class="descname">get_guess</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.Perturbation.get_guess" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.Perturbation.update_amplitudes">
+<code class="descname">update_amplitudes</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.Perturbation.update_amplitudes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.Perturbation.update_energy">
+<code class="descname">update_energy</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.Perturbation.update_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update PT energy</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.Perturbation.vfunction">
+<code class="descname">vfunction</code><span class="sig-paren">(</span><em>coeffs</em>, <em>matrix</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.Perturbation.vfunction" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.perturbation.Perturbation.amplitudes">
+<code class="descname">amplitudes</code><a class="headerlink" href="#horton.correlatedwfn.perturbation.Perturbation.amplitudes" title="Permalink to this definition">¶</a></dt>
+<dd><p>The PT amplitudes</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.perturbation.Perturbation.energy">
+<code class="descname">energy</code><a class="headerlink" href="#horton.correlatedwfn.perturbation.Perturbation.energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>The PT energy</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.perturbation.Perturbation.lf">
+<code class="descname">lf</code><a class="headerlink" href="#horton.correlatedwfn.perturbation.Perturbation.lf" title="Permalink to this definition">¶</a></dt>
+<dd><p>The linalg factory</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.perturbation.Perturbation.nbasis">
+<code class="descname">nbasis</code><a class="headerlink" href="#horton.correlatedwfn.perturbation.Perturbation.nbasis" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of basis functions</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.perturbation.Perturbation.nocc">
+<code class="descname">nocc</code><a class="headerlink" href="#horton.correlatedwfn.perturbation.Perturbation.nocc" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of occupied orbitals</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.perturbation.Perturbation.nvirt">
+<code class="descname">nvirt</code><a class="headerlink" href="#horton.correlatedwfn.perturbation.Perturbation.nvirt" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of virtual orbitals</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.correlatedwfn.perturbation.RMP2">
+<em class="property">class </em><code class="descclassname">horton.correlatedwfn.perturbation.</code><code class="descname">RMP2</code><span class="sig-paren">(</span><em>lf</em>, <em>occ_model</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#horton.correlatedwfn.perturbation.Perturbation" title="horton.correlatedwfn.perturbation.Perturbation"><code class="xref py py-class docutils literal"><span class="pre">horton.correlatedwfn.perturbation.Perturbation</span></code></a></p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>lf</dt>
+<dd>A LinalgFactory instance.</dd>
+<dt>occ_model</dt>
+<dd>Aufbau model</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.RMP2.calculate_amplitudes">
+<code class="descname">calculate_amplitudes</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2.calculate_amplitudes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates MP2 amplitudes</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>matrix</dt>
+<dd>Sliced 2-el MO integrals</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.RMP2.calculate_aux_matrix">
+<code class="descname">calculate_aux_matrix</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2.calculate_aux_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute auxiliary matrices</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>args</dt>
+<dd>One- and two-electron integrals (some Hamiltonian matrix
+elements) in the MO basis.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.RMP2.calculate_energy">
+<code class="descname">calculate_energy</code><span class="sig-paren">(</span><em>amplitudes</em>, <em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2.calculate_energy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.RMP2.calculate_ex_matrix">
+<code class="descname">calculate_ex_matrix</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2.calculate_ex_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates excitation matrix with elements (jbkc)</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>mo2</dt>
+<dd>2-el MO integrals</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.RMP2.check_input">
+<code class="descname">check_input</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2.check_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check input parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.RMP2.check_result">
+<code class="descname">check_result</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2.check_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if amplitudes are symmetric (within a given threshold).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.RMP2.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear all wavefunction information</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.RMP2.clear_aux_matrix">
+<code class="descname">clear_aux_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2.clear_aux_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the auxiliary matrices</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.RMP2.get_aux_matrix">
+<code class="descname">get_aux_matrix</code><span class="sig-paren">(</span><em>select</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2.get_aux_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an auxiliary matrix.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>Suffix of auxiliary matrix. See <a class="reference internal" href="#horton.correlatedwfn.perturbation.RMP2.init_aux_matrix" title="horton.correlatedwfn.perturbation.RMP2.init_aux_matrix"><code class="xref py py-meth docutils literal"><span class="pre">RMP2.init_aux_matrix()</span></code></a>,
+<a class="reference internal" href="#horton.correlatedwfn.perturbation.PTa.init_aux_matrix" title="horton.correlatedwfn.perturbation.PTa.init_aux_matrix"><code class="xref py py-meth docutils literal"><span class="pre">PTa.init_aux_matrix()</span></code></a>, and
+<a class="reference internal" href="#horton.correlatedwfn.perturbation.PTb.init_aux_matrix" title="horton.correlatedwfn.perturbation.PTb.init_aux_matrix"><code class="xref py py-meth docutils literal"><span class="pre">PTb.init_aux_matrix()</span></code></a> for possible choices</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.RMP2.get_guess">
+<code class="descname">get_guess</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2.get_guess" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.RMP2.init_aux_matrix">
+<code class="descname">init_aux_matrix</code><span class="sig-paren">(</span><em>select</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2.init_aux_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize auxiliary matrices</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>One of &#8216;fock&#8217;</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.RMP2.print_energy">
+<code class="descname">print_energy</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2.print_energy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.RMP2.print_info">
+<code class="descname">print_info</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2.print_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.RMP2.solve">
+<code class="descname">solve</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2.solve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve for energy and amplitudes</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>args</dt>
+<dd><dl class="first last docutils">
+<dt>Contains one- and two-electron integrals in the MO basis:</dt>
+<dd><ul class="first last simple">
+<li>[0]:  wfn expansion coefficients</li>
+<li>[1]:  1-el MO integrals</li>
+<li>[2]:  2-el MO integrals</li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt><strong>Keywords</strong></dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">eref:</th><td class="field-body">reference energy</td>
+</tr>
+<tr class="field-even field"><th class="field-name">threshold:</th><td class="field-body">threshold for symmetry check of MP2 amplitudes</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.RMP2.update_amplitudes">
+<code class="descname">update_amplitudes</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2.update_amplitudes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update MP2 amplitudes</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>new</dt>
+<dd>PT amplitudes. A FourIndex instance</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.RMP2.update_aux_matrix">
+<code class="descname">update_aux_matrix</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2.update_aux_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Derive all auxiliary matrices.
+fock_pp:     one_pp + sum_m(2&lt;pm|pm&gt; - &lt;pm|mp&gt;),</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>mo1, mo2</dt>
+<dd>one- and two-electron integrals.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.RMP2.update_energy">
+<code class="descname">update_energy</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2.update_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update PT energy</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.RMP2.vfunction">
+<code class="descname">vfunction</code><span class="sig-paren">(</span><em>coeffs</em>, <em>matrix</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2.vfunction" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.perturbation.RMP2.amplitudes">
+<code class="descname">amplitudes</code><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2.amplitudes" title="Permalink to this definition">¶</a></dt>
+<dd><p>The PT amplitudes</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.perturbation.RMP2.energy">
+<code class="descname">energy</code><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2.energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>The PT energy</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.perturbation.RMP2.lf">
+<code class="descname">lf</code><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2.lf" title="Permalink to this definition">¶</a></dt>
+<dd><p>The linalg factory</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.perturbation.RMP2.nbasis">
+<code class="descname">nbasis</code><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2.nbasis" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of basis functions</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.perturbation.RMP2.nocc">
+<code class="descname">nocc</code><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2.nocc" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of occupied orbitals</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.perturbation.RMP2.nvirt">
+<code class="descname">nvirt</code><a class="headerlink" href="#horton.correlatedwfn.perturbation.RMP2.nvirt" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of virtual orbitals</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.correlatedwfn.perturbation.PTa">
+<em class="property">class </em><code class="descclassname">horton.correlatedwfn.perturbation.</code><code class="descname">PTa</code><span class="sig-paren">(</span><em>lf</em>, <em>occ_model</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#horton.correlatedwfn.perturbation.Perturbation" title="horton.correlatedwfn.perturbation.Perturbation"><code class="xref py py-class docutils literal"><span class="pre">horton.correlatedwfn.perturbation.Perturbation</span></code></a></p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>lf</dt>
+<dd>A LinalgFactory instance.</dd>
+<dt>occ_model</dt>
+<dd>Aufbau model</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTa.calculate_amplitudes">
+<code class="descname">calculate_amplitudes</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.calculate_amplitudes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate amplitudes</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>matrix</dt>
+<dd>A FourIndex instance.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTa.calculate_aux_matrix">
+<code class="descname">calculate_aux_matrix</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.calculate_aux_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute auxiliary matrices</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>args</dt>
+<dd>List of arguements. Only geminal coefficients [1], one- [2] and
+two-body [3] integrals are used.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTa.calculate_energy">
+<code class="descname">calculate_energy</code><span class="sig-paren">(</span><em>amplitudes</em>, <em>*args</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.calculate_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate PT energy and energy contribution of seniority sectors</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>amplitudes</dt>
+<dd>PT amplitudes. A FourIndex instance</dd>
+<dt>args</dt>
+<dd>List containing the geminal coefficients, 1- and 2-el
+integrals, and auxiliary matrices</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTa.check_input">
+<code class="descname">check_input</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.check_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check input parameters.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTa.check_result">
+<code class="descname">check_result</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.check_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if amplitudes are reasonable.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTa.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear all wavefunction information</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTa.clear_aux_matrix">
+<code class="descname">clear_aux_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.clear_aux_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the auxiliary matrices</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTa.get_aux_matrix">
+<code class="descname">get_aux_matrix</code><span class="sig-paren">(</span><em>select</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.get_aux_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an auxiliary matrix.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>Suffix of auxiliary matrix. See <a class="reference internal" href="#horton.correlatedwfn.perturbation.RMP2.init_aux_matrix" title="horton.correlatedwfn.perturbation.RMP2.init_aux_matrix"><code class="xref py py-meth docutils literal"><span class="pre">RMP2.init_aux_matrix()</span></code></a>,
+<a class="reference internal" href="#horton.correlatedwfn.perturbation.PTa.init_aux_matrix" title="horton.correlatedwfn.perturbation.PTa.init_aux_matrix"><code class="xref py py-meth docutils literal"><span class="pre">PTa.init_aux_matrix()</span></code></a>, and
+<a class="reference internal" href="#horton.correlatedwfn.perturbation.PTb.init_aux_matrix" title="horton.correlatedwfn.perturbation.PTb.init_aux_matrix"><code class="xref py py-meth docutils literal"><span class="pre">PTb.init_aux_matrix()</span></code></a> for possible choices</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTa.get_guess">
+<code class="descname">get_guess</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.get_guess" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTa.init_aux_matrix">
+<code class="descname">init_aux_matrix</code><span class="sig-paren">(</span><em>select</em>, <em>dim=None</em>, <em>dim2=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.init_aux_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize auxiliary matrices</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>One of <code class="docutils literal"><span class="pre">fock</span></code>, <code class="docutils literal"><span class="pre">ocjbc</span></code>, <code class="docutils literal"><span class="pre">vcjkb</span></code>, <code class="docutils literal"><span class="pre">ocjkb</span></code>,
+<code class="docutils literal"><span class="pre">vcjbc</span></code>, <code class="docutils literal"><span class="pre">dcjb</span></code></dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>dim, dim2</dt>
+<dd>The dimension of the auxiliary matrices for specific axes.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTa.print_energy">
+<code class="descname">print_energy</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.print_energy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTa.print_info">
+<code class="descname">print_info</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.print_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTa.solve">
+<code class="descname">solve</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.solve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve for energy and amplitudes</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>args</dt>
+<dd>Contains geminal coefficients, 1- and 2-el integrals, and
+auxiliary matrices</dd>
+<dt><strong>Keywords</strong></dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">eref:</th><td class="field-body">reference energy</td>
+</tr>
+<tr class="field-even field"><th class="field-name">ecore:</th><td class="field-body">core energy</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">threshold:</th><td class="field-body">threshold when checking symmetry of amplitudes</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTa.update_amplitudes">
+<code class="descname">update_amplitudes</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.update_amplitudes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update cluster amplitudes</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>new</dt>
+<dd>PT amplitudes. A FourIndex instance</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTa.update_aux_matrix">
+<code class="descname">update_aux_matrix</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.update_aux_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Derive all matrices.
+fock_pq:     one_pq + sum_m(2&lt;pm|qm&gt; - &lt;pm|mq&gt;),
+oc_jbc:      sum_m(&lt;mm|bc&gt; c_jm^bc),
+vc_jkb:      sum_d(&lt;dd|jk&gt; c_jk^bd),
+vc_jbc:      sum_d(&lt;dd|bc&gt; c_j^d),
+oc_jkb:      sum_m(&lt;mm|jk&gt; c_m^b),
+dc_jb:       sum_md(&lt;mm|dd&gt; c_jm^bd),</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>mo1, mo2</dt>
+<dd>one- and two-electron integrals to be sorted.</dd>
+<dt>cia</dt>
+<dd>The geminal coefficients. A TwoIndex instance</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTa.update_energy">
+<code class="descname">update_energy</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.update_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update PT energy</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTa.vfunction">
+<code class="descname">vfunction</code><span class="sig-paren">(</span><em>coeffs</em>, <em>matrix</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.vfunction" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTa.vfunction_0">
+<code class="descname">vfunction_0</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.vfunction_0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Elements of &lt;bcjk|H|0&gt;.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>args</dt>
+<dd><p class="first">All function arguments needed to calculate the vector
+function:</p>
+<ul class="last simple">
+<li>[0]:  wfn expansion coefficients</li>
+<li>[1]:  geminal coefficients</li>
+<li>[2]:  1-el MO integrals</li>
+<li>[3]:  2-el MO integrals</li>
+<li>[4]:  inactive Fock matrix</li>
+<li>[5]:  ocjbc auxilary matrix</li>
+<li>[6]:  vcjkb auxilary matrix</li>
+<li>[7]:  vcjbc auxilary matrix</li>
+<li>[8]:  ocjkb auxilary matrix</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTa.vfunction_psi0">
+<code class="descname">vfunction_psi0</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.vfunction_psi0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Elements of &lt;bcjk|H|AP1roG&gt;.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>args</dt>
+<dd><p class="first">All function arguments needed to calculate the vector
+function:</p>
+<ul class="last simple">
+<li>[0]:  wfn expansion coefficients</li>
+<li>[1]:  geminal coefficients</li>
+<li>[2]:  1-el MO integrals</li>
+<li>[3]:  2-el MO integrals</li>
+<li>[4]:  inactive Fock matrix</li>
+<li>[5]:  ocjbc auxilary matrix</li>
+<li>[6]:  vcjkb auxilary matrix</li>
+<li>[7]:  vcjbc auxilary matrix</li>
+<li>[8]:  ocjkb auxilary matrix</li>
+<li>[9]:  dcjb auxilary matrix</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.perturbation.PTa.amplitudes">
+<code class="descname">amplitudes</code><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.amplitudes" title="Permalink to this definition">¶</a></dt>
+<dd><p>The PT amplitudes</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.perturbation.PTa.energy">
+<code class="descname">energy</code><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>The PT energy</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.perturbation.PTa.lf">
+<code class="descname">lf</code><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.lf" title="Permalink to this definition">¶</a></dt>
+<dd><p>The linalg factory</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.perturbation.PTa.nbasis">
+<code class="descname">nbasis</code><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.nbasis" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of basis functions</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.perturbation.PTa.nocc">
+<code class="descname">nocc</code><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.nocc" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of occupied orbitals</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.perturbation.PTa.nvirt">
+<code class="descname">nvirt</code><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTa.nvirt" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of virtual orbitals</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.correlatedwfn.perturbation.PTb">
+<em class="property">class </em><code class="descclassname">horton.correlatedwfn.perturbation.</code><code class="descname">PTb</code><span class="sig-paren">(</span><em>lf</em>, <em>occ_model</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#horton.correlatedwfn.perturbation.Perturbation" title="horton.correlatedwfn.perturbation.Perturbation"><code class="xref py py-class docutils literal"><span class="pre">horton.correlatedwfn.perturbation.Perturbation</span></code></a></p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>lf</dt>
+<dd>A LinalgFactory instance.</dd>
+<dt>occ_model</dt>
+<dd>Aufbau model</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTb.calculate_aux_matrix">
+<code class="descname">calculate_aux_matrix</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTb.calculate_aux_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute auxiliary matrices</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>mo1, mo2</dt>
+<dd>One- and two-electron integrals (some Hamiltonian matrix
+elements) in the MO basis.</dd>
+<dt>args</dt>
+<dd>List of arguements. Only geminal coefficients are used.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTb.calculate_energy">
+<code class="descname">calculate_energy</code><span class="sig-paren">(</span><em>amplitudes</em>, <em>*args</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTb.calculate_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate PT energy and energy contribution of seniority sectors</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>amplitudes</dt>
+<dd>PT amplitudes. A FourIndex instance</dd>
+<dt>args</dt>
+<dd>List containing the geminal coefficients, 1- and 2-el
+integrals, and auxiliary matrices</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTb.check_input">
+<code class="descname">check_input</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTb.check_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check input parameters.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTb.check_result">
+<code class="descname">check_result</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTb.check_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if amplitudes are reasonable.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTb.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTb.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear all wavefunction information</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTb.clear_aux_matrix">
+<code class="descname">clear_aux_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTb.clear_aux_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the auxiliary matrices</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTb.get_aux_matrix">
+<code class="descname">get_aux_matrix</code><span class="sig-paren">(</span><em>select</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTb.get_aux_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an auxiliary matrix.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>Suffix of auxiliary matrix. See <a class="reference internal" href="#horton.correlatedwfn.perturbation.RMP2.init_aux_matrix" title="horton.correlatedwfn.perturbation.RMP2.init_aux_matrix"><code class="xref py py-meth docutils literal"><span class="pre">RMP2.init_aux_matrix()</span></code></a>,
+<a class="reference internal" href="#horton.correlatedwfn.perturbation.PTa.init_aux_matrix" title="horton.correlatedwfn.perturbation.PTa.init_aux_matrix"><code class="xref py py-meth docutils literal"><span class="pre">PTa.init_aux_matrix()</span></code></a>, and
+<a class="reference internal" href="#horton.correlatedwfn.perturbation.PTb.init_aux_matrix" title="horton.correlatedwfn.perturbation.PTb.init_aux_matrix"><code class="xref py py-meth docutils literal"><span class="pre">PTb.init_aux_matrix()</span></code></a> for possible choices</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTb.get_guess">
+<code class="descname">get_guess</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTb.get_guess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate initial guess for amplitudes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTb.init_aux_matrix">
+<code class="descname">init_aux_matrix</code><span class="sig-paren">(</span><em>select</em>, <em>dim=None</em>, <em>dim2=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTb.init_aux_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize auxiliary matrices</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>One of <code class="docutils literal"><span class="pre">fock</span></code>, <code class="docutils literal"><span class="pre">ocjbc</span></code>, <code class="docutils literal"><span class="pre">vcjkb</span></code>, <code class="docutils literal"><span class="pre">ocjkb</span></code>,
+<code class="docutils literal"><span class="pre">vcjbc</span></code>, <code class="docutils literal"><span class="pre">dcjb</span></code></dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>dim, dim2</dt>
+<dd>The dimension of the auxiliary matrices for specific axes.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTb.print_energy">
+<code class="descname">print_energy</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTb.print_energy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTb.print_info">
+<code class="descname">print_info</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTb.print_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTb.solve">
+<code class="descname">solve</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTb.solve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve for energy and amplitudes</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>args</dt>
+<dd>Contains geminal coefficients, 1- and 2-el integrals, and
+auxiliary matrices</dd>
+<dt><strong>Keywords</strong></dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">eref:</th><td class="field-body">reference energy</td>
+</tr>
+<tr class="field-even field"><th class="field-name">ecore:</th><td class="field-body">core energy</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">threshold:</th><td class="field-body">threshold when checking symmetry of amplitudes</td>
+</tr>
+<tr class="field-even field"><th class="field-name">guess:</th><td class="field-body">initial guess</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+<p>For more details, see <code class="xref py py-meth docutils literal"><span class="pre">Pertubation.__call__()</span></code></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTb.update_amplitudes">
+<code class="descname">update_amplitudes</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTb.update_amplitudes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update cluster amplitudes</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>new</dt>
+<dd>PT amplitudes. A FourIndex instance</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTb.update_aux_matrix">
+<code class="descname">update_aux_matrix</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTb.update_aux_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Derive all matrices.
+fock_pq:     one_pq + sum_m(2&lt;pm|qm&gt; - &lt;pm|mq&gt;),
+oc_jbc:      sum_m(&lt;mm|bc&gt; c_jm^bc),
+vc_jkb:      sum_d(&lt;dd|jk&gt; c_jk^bd),
+vc_jbc:      sum_d(&lt;dd|bc&gt; c_j^d),
+oc_jkb:      sum_m(&lt;mm|jk&gt; c_m^b),
+dc_jb:       sum_md(&lt;mm|dd&gt; c_jm^bd),</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>mo1, mo2</dt>
+<dd>one- and two-electron integrals to be sorted.</dd>
+<dt>cia</dt>
+<dd>The geminal coefficients. A TwoIndex instance</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTb.update_energy">
+<code class="descname">update_energy</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTb.update_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update PT energy</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTb.vfunction">
+<code class="descname">vfunction</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTb.vfunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>amplitudes</dt>
+<dd>Cluster amplitudes. Need to be determined.</dd>
+<dt>args</dt>
+<dd><p class="first">All function arguments needed to calculated the vector
+function:</p>
+<ul class="last simple">
+<li>[0]:  wfn expansion coefficients</li>
+<li>[1]:  geminal coefficients</li>
+<li>[2]:  1-el MO integrals</li>
+<li>[3]:  2-el MO integrals</li>
+<li>[4]:  inactive Fock matrix</li>
+<li>[5]:  ocjbc auxilary matrix</li>
+<li>[6]:  vcjkb auxilary matrix</li>
+<li>[7]:  vcjbc auxilary matrix</li>
+<li>[8]:  ocjkb auxilary matrix</li>
+<li>[9]:  dcjb auxilary matrix</li>
+<li>[10]: eref-ecore</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.perturbation.PTb.vfunction_psi0">
+<code class="descname">vfunction_psi0</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTb.vfunction_psi0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Elements of &lt;bcjk|H|AP1roG&gt;.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>args</dt>
+<dd><p class="first">All function arguments needed to calculate the vector
+function:</p>
+<ul class="last simple">
+<li>[0]:  wfn expansion coefficients</li>
+<li>[1]:  geminal coefficients</li>
+<li>[2]:  1-el MO integrals</li>
+<li>[3]:  2-el MO integrals</li>
+<li>[4]:  inactive Fock matrix</li>
+<li>[5]:  ocjbc auxilary matrix</li>
+<li>[6]:  vcjkb auxilary matrix</li>
+<li>[7]:  vcjbc auxilary matrix</li>
+<li>[8]:  ocjkb auxilary matrix</li>
+<li>[9]:  dcjb auxilary matrix</li>
+<li>[10]: eref-ecore</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.perturbation.PTb.amplitudes">
+<code class="descname">amplitudes</code><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTb.amplitudes" title="Permalink to this definition">¶</a></dt>
+<dd><p>The PT amplitudes</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.perturbation.PTb.energy">
+<code class="descname">energy</code><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTb.energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>The PT energy</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.perturbation.PTb.lf">
+<code class="descname">lf</code><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTb.lf" title="Permalink to this definition">¶</a></dt>
+<dd><p>The linalg factory</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.perturbation.PTb.nbasis">
+<code class="descname">nbasis</code><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTb.nbasis" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of basis functions</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.perturbation.PTb.nocc">
+<code class="descname">nocc</code><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTb.nocc" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of occupied orbitals</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.perturbation.PTb.nvirt">
+<code class="descname">nvirt</code><a class="headerlink" href="#horton.correlatedwfn.perturbation.PTb.nvirt" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of virtual orbitals</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_correlatedwfn_restricted_ap1rog.html" class="btn btn-neutral float-right" title="3.2.3. horton.correlatedwfn.restricted_ap1rog – Correlated wavefunction implementations" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_correlatedwfn_geminal.html" class="btn btn-neutral" title="3.2.1. horton.correlatedwfn.geminal – Correlated wavefunction implementations" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.0 built from release 2.0.0-244-gaaf5e2b. </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 16, 2016.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.0.0-244-gaaf5e2b',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,487 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>1.3. Download and installation from source on Mac OS X (10.8–10.11) &mdash; HORTON 2.1.0b3 (Jun 30, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="HORTON 2.1.0b3 (Jun 30, 2017) documentation" href="index.html"/>
+        <link rel="up" title="1. Download and Installation" href="user_download_and_install.html"/>
+        <link rel="next" title="1.4. Download and installation from source on Windows 10 64-bit (v. 1607)" href="user_download_and_install_windows.html"/>
+        <link rel="prev" title="1.2. Download and installation from source on Linux (Fedora and Ubuntu)" href="user_download_and_install_linux.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.0b3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="user_download_and_install_package_manager.html">1.1. Download and installation with a package manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_download_and_install_linux.html">1.2. Download and installation from source on Linux (Fedora and Ubuntu)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1.3. Download and installation from source on Mac OS X (10.8–10.11)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#disclaimer">1.3.1. Disclaimer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#macports">1.3.2. MacPorts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#quick-tour-of-macports">1.3.2.1. Quick tour of MacPorts</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#dependencies-for-building-installing-and-testing-horton">1.3.3. Dependencies for building, installing and testing HORTON</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#installing-the-dependencies-with-macports">1.3.3.1. Installing the dependencies with MacPorts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#installing-dependencies-manually">1.3.3.2. Installing dependencies manually</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#download-the-code">1.3.4. Download the code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compilation-and-installation">1.3.5. Compilation and installation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#build-and-install">1.3.5.1. Build and install</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#overriding-default-compiler-linker-settings-for-libxc-and-libint2">1.3.5.2. Overriding default compiler/linker settings for LibXC and LibInt2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#runtime-configuration">1.3.5.3. Runtime configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#running-the-tests">1.3.6. Running the tests</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_download_and_install_windows.html">1.4. Download and installation from source on Windows 10 64-bit (v. 1607)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_download_and_install_setup_cfg.html">1.5. Controlling dynamic/static linking against LibXC and LibInt2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_download_and_install_troubleshooting.html">1.6. Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="user_download_and_install.html">1. Download and Installation</a> &raquo;</li>
+        
+      <li>1.3. Download and installation from source on Mac OS X (10.8–10.11)</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/user_download_and_install_mac.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="download-and-installation-from-source-on-mac-os-x-10-8-10-11">
+<h1>1.3. Download and installation from source on Mac OS X (10.8–10.11)<a class="headerlink" href="#download-and-installation-from-source-on-mac-os-x-10-8-10-11" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="disclaimer">
+<h2>1.3.1. Disclaimer<a class="headerlink" href="#disclaimer" title="Permalink to this headline">¶</a></h2>
+<p>HORTON has been tested on Mac OS X 10.8–10.11 using MacPorts. If you
+are running any other version of OS X or if you are using other package
+managers, some of the instructions below may not work.</p>
+</div>
+<div class="section" id="macports">
+<h2>1.3.2. MacPorts<a class="headerlink" href="#macports" title="Permalink to this headline">¶</a></h2>
+<p>We strongly recommend that you install all of the packages required by HORTON
+through MacPorts. The latest version of MacPorts can be downloaded from the web:
+<a class="reference external" href="https://www.macports.org/install.php">https://www.macports.org/install.php</a>. This guide has been tested using
+MacPorts 2.3.3 but should also work with newer versions.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you have already installed a Python distribution (with another package
+manager than MacPorts), such as Canopy, it may interfere with the one
+installed through MacPorts. The instructions below assume that no such other
+installation of Python is present.</p>
+</div>
+<div class="section" id="quick-tour-of-macports">
+<h3>1.3.2.1. Quick tour of MacPorts<a class="headerlink" href="#quick-tour-of-macports" title="Permalink to this headline">¶</a></h3>
+<p>Here are some basic MacPorts commands:</p>
+<ul>
+<li><p class="first">updating ports (recommended):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo port -v selfupdate
+</pre></div>
+</div>
+</li>
+<li><p class="first">upgrade ports:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo port upgrade outdated
+</pre></div>
+</div>
+</li>
+<li><p class="first">finding ports (e.g, port_name = python27):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo port list python27
+</pre></div>
+</div>
+</li>
+<li><p class="first">searching ports (e.g, port_name = python27):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>port search python27
+</pre></div>
+</div>
+</li>
+<li><p class="first">installing ports (e.g, port_name = python27):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo port install python27
+</pre></div>
+</div>
+</li>
+<li><p class="first">selecting ports (e.g, select python27 as python):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo port <span class="k">select</span> --set python python27
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="dependencies-for-building-installing-and-testing-horton">
+<h2>1.3.3. Dependencies for building, installing and testing HORTON<a class="headerlink" href="#dependencies-for-building-installing-and-testing-horton" title="Permalink to this headline">¶</a></h2>
+<p>In order to compile and test HORTON, you need to install relatively recent
+versions of the following programs/libraries:</p>
+<ul class="simple">
+<li>GCC, G++ and GFortran &gt;=4.9: <a class="reference external" href="http://gcc.gnu.org">http://gcc.gnu.org</a> (In principle the Intel compilers or any other combination of C++11 and Fortran compiler should work. The GNU compilers are used for development and testing.)</li>
+<li>Python &gt;=2.7,&lt;3.0: <a class="reference external" href="http://www.python.org/">http://www.python.org/</a> (Also install development files.)</li>
+<li>Nosetests &gt;=1.1.2: <a class="reference external" href="http://readthedocs.org/docs/nose/en/latest/">http://readthedocs.org/docs/nose/en/latest/</a></li>
+<li>NumPy &gt;=1.9.1: <a class="reference external" href="http://www.numpy.org/">http://www.numpy.org/</a></li>
+<li>SciPy &gt;=0.11.0: <a class="reference external" href="http://www.scipy.org/">http://www.scipy.org/</a></li>
+<li>Cython &gt;=0.17.1: <a class="reference external" href="http://www.cython.org/">http://www.cython.org/</a></li>
+<li>H5Py &gt;=2.2.1: <a class="reference external" href="http://www.h5py.org/">http://www.h5py.org/</a></li>
+<li>Sympy &gt;=0.7.1: <a class="reference external" href="http://code.google.com/p/sympy/">http://code.google.com/p/sympy/</a></li>
+<li>Matplotlib &gt;=1.0: <a class="reference external" href="http://matplotlib.org/">http://matplotlib.org/</a></li>
+<li>LibXC ==2.2.2: <a class="reference external" href="http://www.tddft.org/programs/octopus/wiki/index.php/Libxc">http://www.tddft.org/programs/octopus/wiki/index.php/Libxc</a> (Also install development files.)</li>
+<li>LibInt ==2.0.3: <a class="reference external" href="http://sourceforge.net/p/libint/home">http://sourceforge.net/p/libint/home</a> (Also install development files.)</li>
+<li>Curl &gt;=7.0: <a class="reference external" href="http://curl.haxx.se/">http://curl.haxx.se/</a></li>
+<li>PIP &gt;=7.0: <a class="reference external" href="https://pip.pypa.io/">https://pip.pypa.io/</a> (Not required in some scenarios but never bad to have.)</li>
+</ul>
+<div class="section" id="installing-the-dependencies-with-macports">
+<span id="mac-compile-install"></span><h3>1.3.3.1. Installing the dependencies with MacPorts<a class="headerlink" href="#installing-the-dependencies-with-macports" title="Permalink to this headline">¶</a></h3>
+<p>All dependencies can be installed with MacPorts. We recommend the following ports:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">gcc49</span></code>: <a class="reference external" href="https://trac.macports.org/browser/trunk/dports/lang/gcc49/Portfile">https://trac.macports.org/browser/trunk/dports/lang/gcc49/Portfile</a></li>
+<li><code class="docutils literal"><span class="pre">python27</span></code>: <a class="reference external" href="https://trac.macports.org/browser/trunk/dports/lang/python27/Portfile">https://trac.macports.org/browser/trunk/dports/lang/python27/Portfile</a></li>
+<li><code class="docutils literal"><span class="pre">py27-nose</span></code>: <a class="reference external" href="https://trac.macports.org/browser/trunk/dports/python/py-nose/Portfile">https://trac.macports.org/browser/trunk/dports/python/py-nose/Portfile</a></li>
+<li><code class="docutils literal"><span class="pre">py27-numpy</span></code>: <a class="reference external" href="https://trac.macports.org/browser/trunk/dports/python/py-numpy/Portfile">https://trac.macports.org/browser/trunk/dports/python/py-numpy/Portfile</a></li>
+<li><code class="docutils literal"><span class="pre">py27-scipy</span></code>: <a class="reference external" href="https://trac.macports.org/browser/trunk/dports/python/py-scipy/Portfile">https://trac.macports.org/browser/trunk/dports/python/py-scipy/Portfile</a></li>
+<li><code class="docutils literal"><span class="pre">py27-cython</span></code>: <a class="reference external" href="https://trac.macports.org/browser/trunk/dports/python/py-cython/Portfile">https://trac.macports.org/browser/trunk/dports/python/py-cython/Portfile</a></li>
+<li><code class="docutils literal"><span class="pre">py27-h5py</span></code>: <a class="reference external" href="https://trac.macports.org/browser/trunk/dports/python/py-h5py/Portfile">https://trac.macports.org/browser/trunk/dports/python/py-h5py/Portfile</a></li>
+<li><code class="docutils literal"><span class="pre">py27-sympy</span></code>: <a class="reference external" href="https://trac.macports.org/browser/trunk/dports/python/py-sympy/Portfile">https://trac.macports.org/browser/trunk/dports/python/py-sympy/Portfile</a></li>
+<li><code class="docutils literal"><span class="pre">py27-matplotlib</span></code>: <a class="reference external" href="https://trac.macports.org/browser/trunk/dports/python/py-matplotlib/Portfile">https://trac.macports.org/browser/trunk/dports/python/py-matplotlib/Portfile</a></li>
+<li><code class="docutils literal"><span class="pre">libxc</span></code>: <a class="reference external" href="https://trac.macports.org/browser/trunk/dports/science/libxc/Portfile">https://trac.macports.org/browser/trunk/dports/science/libxc/Portfile</a></li>
+<li><code class="docutils literal"><span class="pre">libint</span></code>: <a class="reference external" href="https://trac.macports.org/browser/trunk/dports/science/libint/Portfile">https://trac.macports.org/browser/trunk/dports/science/libint/Portfile</a></li>
+<li><code class="docutils literal"><span class="pre">py27-pip</span></code>: <a class="reference external" href="https://trac.macports.org/browser/trunk/dports/python/py-pip/Portfile">https://trac.macports.org/browser/trunk/dports/python/py-pip/Portfile</a></li>
+</ul>
+<p>These are installed with the following commands. (When MacPorts is installed in user
+space, the <code class="docutils literal"><span class="pre">sudo</span></code> can be omitted.):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo port install gcc49<span class="p">;</span> sudo port <span class="k">select</span> --set gcc mp-gcc49
+sudo port install python27 +readline<span class="p">;</span> sudo port <span class="k">select</span> --set python python27
+sudo port install py27-nose<span class="p">;</span> sudo port <span class="k">select</span> --set nosetests nosetests27
+sudo port install py27-numpy +atlas
+sudo port install py27-scipy +atlas
+sudo port install py27-cython<span class="p">;</span> sudo port <span class="k">select</span> --set cython cython27
+sudo port install py27-h5py
+sudo port install py27-sympy<span class="p">;</span> sudo port <span class="k">select</span> --set py-sympy py27-sympy
+sudo port install py27-matplotlib
+sudo port install libxc
+sudo port install libint
+sudo port install py27-pip<span class="p">;</span> sudo port <span class="k">select</span> --set pip pip27
+</pre></div>
+</div>
+</div>
+<div class="section" id="installing-dependencies-manually">
+<span id="mac-manual-dependency-install"></span><h3>1.3.3.2. Installing dependencies manually<a class="headerlink" href="#installing-dependencies-manually" title="Permalink to this headline">¶</a></h3>
+<p><strong>LibXC</strong></p>
+<p>The directory <code class="docutils literal"><span class="pre">tools/qa</span></code> of the HORTON source tree contains scripts to download and
+build LibXC, which will work on most systems:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>./tools/qa/install_libxc-2.2.2.sh
+</pre></div>
+</div>
+<p>This results in a LibXC library suitable for compiling HORTON. If this fails,
+consult your local Mac guru to build LibXC. If you decided to make a custom compilation
+of LibXC, keep in mind that it is not reliable when using aggressive compiler optimization
+flags. For more info about LibXC, check the website:
+<a class="reference external" href="http://www.tddft.org/programs/octopus/wiki/index.php/Libxc">http://www.tddft.org/programs/octopus/wiki/index.php/Libxc</a></p>
+<p><strong>LibInt2</strong></p>
+<p>The directory <code class="docutils literal"><span class="pre">tools/qa</span></code> of the HORTON source tree contains scripts to download and
+build LibInt2, which will work on most systems:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>./tools/qa/install_libint-2.0.3.sh
+</pre></div>
+</div>
+<p>The compilation of LibInt2 takes a few minutes and results in a library suitable for
+compiling HORTON. If this fails, consult your local Mac guru to build LibInt2. For more
+info about LibInt2, check the website: <a class="reference external" href="https://github.com/evaleev/libint">https://github.com/evaleev/libint</a></p>
+</div>
+</div>
+<div class="section" id="download-the-code">
+<h2>1.3.4. Download the code<a class="headerlink" href="#download-the-code" title="Permalink to this headline">¶</a></h2>
+<p>The latest stable source code release of HORTON can be downloaded here:</p>
+<blockquote>
+<div><a class="reference external" href="https://github.com/theochem/horton/releases/download/2.1.0b3/horton-2.1.0b3.tar.gz">https://github.com/theochem/horton/releases/download/2.1.0b3/horton-2.1.0b3.tar.gz</a></div></blockquote>
+<p>Choose a suitable directory, e.g. <code class="docutils literal"><span class="pre">~/build</span></code>, download and unpack the archive:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>mkdir -p ~/build
+<span class="nb">cd</span> ~/build
+curl -kLO https://github.com/theochem/horton/releases/download/2.1.0b3/horton-2.1.0b3.tar.gz
+tar -xvzf horton-2.1.0b3.tar.gz
+<span class="nb">cd</span> horton-2.1.0b3
+</pre></div>
+</div>
+<p>Alternatively, you could use MacPorts to install HORTON:</p>
+</div>
+<div class="section" id="compilation-and-installation">
+<h2>1.3.5. Compilation and installation<a class="headerlink" href="#compilation-and-installation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="build-and-install">
+<h3>1.3.5.1. Build and install<a class="headerlink" href="#build-and-install" title="Permalink to this headline">¶</a></h3>
+<p>The regular build and install is done as follows:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>./setup.py install --user
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">setup.py</span></code> script makes a reasonable attempt configuring the compiler and
+linker settings for the LibXC and LibInt2 libraries. However, this does not work in all
+environments. In case of a failure, or if a configuration other than the default is
+desired, read the following section.</p>
+</div>
+<div class="section" id="overriding-default-compiler-linker-settings-for-libxc-and-libint2">
+<h3>1.3.5.2. Overriding default compiler/linker settings for LibXC and LibInt2<a class="headerlink" href="#overriding-default-compiler-linker-settings-for-libxc-and-libint2" title="Permalink to this headline">¶</a></h3>
+<p>The manual configuration of the compiler and linker settings is described here:
+<a class="reference internal" href="user_download_and_install_setup_cfg.html#setup-cfg"><span class="std std-ref">Controlling dynamic/static linking against LibXC and LibInt2</span></a>. You should read this section if the default build and install
+failed or if you would like to specify which libraries to use.</p>
+</div>
+<div class="section" id="runtime-configuration">
+<h3>1.3.5.3. Runtime configuration<a class="headerlink" href="#runtime-configuration" title="Permalink to this headline">¶</a></h3>
+<p>You need to set some environment variables to use HORTON. Add the following to
+<code class="docutils literal"><span class="pre">~/.bash_profile</span></code> if it exists, otherwise add them to <code class="docutils literal"><span class="pre">~/.profile</span></code>:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/Library/Python/2.7/bin:<span class="si">${</span><span class="nv">PATH</span><span class="si">}</span>
+</pre></div>
+</div>
+<p>If you run HORTON on a headless node, i.e. without an X server, you need to
+configure Matplotlib to use a backend that does not require a graphical user
+interface. (See <a class="reference external" href="http://matplotlib.org/faq/usage_faq.html#what-is-a-backend">http://matplotlib.org/faq/usage_faq.html#what-is-a-backend</a> for
+more details on the Matplotlib backends.) This can be done by adding the
+following line to your <code class="docutils literal"><span class="pre">matplotlibrc</span></code> file:</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>backend: agg
+</pre></div>
+</div>
+<p>This file is located either in <code class="docutils literal"><span class="pre">${HOME}/.matplotlib</span></code> or
+<code class="docutils literal"><span class="pre">${HOME}/.config/matplotlib</span></code>.</p>
+</div>
+</div>
+<div class="section" id="running-the-tests">
+<h2>1.3.6. Running the tests<a class="headerlink" href="#running-the-tests" title="Permalink to this headline">¶</a></h2>
+<p>To test that HORTON was installed properly and that you can can access it from
+other directories, you should change to a directory outside of the source tree
+and call nosetests as follows:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="o">(</span><span class="nb">cd</span> ~<span class="p">;</span> nosetests -v horton<span class="o">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="user_download_and_install_windows.html" class="btn btn-neutral float-right" title="1.4. Download and installation from source on Windows 10 64-bit (v. 1607)" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="user_download_and_install_linux.html" class="btn btn-neutral" title="1.2. Download and installation from source on Linux (Fedora and Ubuntu)" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.0b3 built from release 2.1.0b3 (Jun 30, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 30, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.1.0b3 (Jun 30, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

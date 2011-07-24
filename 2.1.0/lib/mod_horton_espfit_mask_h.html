@@ -1,0 +1,302 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.2.4. horton/espfit/mask.h – Computation of weights for ESP cost functions &mdash; HORTON 2.1.0 (Jul 06, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="HORTON 2.1.0 (Jul 06, 2017) documentation" href="../index.html"/>
+        <link rel="up" title="3.2. horton.espfit – Electrostatic potential fitting" href="pck_horton_espfit.html"/>
+        <link rel="next" title="3.3. horton.gbasis – Gaussian basis sets" href="pck_horton_gbasis.html"/>
+        <link rel="prev" title="3.2.3. horton/espfit/electrostatics.h – Computation of ESP cost functions" href="mod_horton_espfit_electrostatics_h.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> – The main HORTON Package</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_espfit.html">3.2. <code class="docutils literal"><span class="pre">horton.espfit</span></code> – Electrostatic potential fitting</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_espfit_cext.html">3.2.1. <code class="docutils literal"><span class="pre">horton.espfit.cext</span></code> – C++ extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_espfit_cost.html">3.2.2. <code class="docutils literal"><span class="pre">horton.espfit.cost</span></code> – ESP cost functions for estimating and testing charges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_espfit_electrostatics_h.html">3.2.3. <code class="docutils literal"><span class="pre">horton/espfit/electrostatics.h</span></code> – Computation of ESP cost functions</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.2.4. <code class="docutils literal"><span class="pre">horton/espfit/mask.h</span></code> – Computation of weights for ESP cost functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_gbasis.html">3.3. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.4. <code class="docutils literal"><span class="pre">horton.grid</span></code> – Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.5. <code class="docutils literal"><span class="pre">horton.io</span></code> – Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.6. <code class="docutils literal"><span class="pre">horton.matrix</span></code> – One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.7. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> – Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.8. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> – Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.9. <code class="docutils literal"><span class="pre">horton.part</span></code> – Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.10. <code class="docutils literal"><span class="pre">horton.scripts</span></code> – Code (solely) used by HORTON’s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+        
+          <li><a href="pck_horton_espfit.html">3.2. <code class="docutils literal"><span class="pre">horton.espfit</span></code> – Electrostatic potential fitting</a> &raquo;</li>
+        
+      <li>3.2.4. <code class="docutils literal"><span class="pre">horton/espfit/mask.h</span></code> – Computation of weights for ESP cost functions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/lib/mod_horton_espfit_mask_h.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="horton-espfit-mask-h-computation-of-weights-for-esp-cost-functions">
+<h1>3.2.4. <code class="docutils literal"><span class="pre">horton/espfit/mask.h</span></code> – Computation of weights for ESP cost functions<a class="headerlink" href="#horton-espfit-mask-h-computation-of-weights-for-esp-cost-functions" title="Permalink to this headline">¶</a></h1>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Functions</p>
+<dl class="function">
+<dt id="_CPPv218multiply_dens_maskPdddPdl">
+<span id="multiply_dens_mask__doubleP.double.double.doubleP.l"></span><span class="target" id="hortonmask_8h_1aecb9705566db555ae6772c0b08c34c82"></span>void <code class="descclassname"></code><code class="descname">multiply_dens_mask</code><span class="sig-paren">(</span>double *<em>rho</em>, double <em>lnrho0</em>, double <em>sigma</em>, double *<em>weights</em>, long <em>npoint</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv218multiply_dens_maskPdddPdl" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv218multiply_near_maskPdP11UniformGridddPd">
+<span id="multiply_near_mask__doubleP.UniformGridP.double.double.doubleP"></span><span class="target" id="hortonmask_8h_1abc7a29889609792fe2562de3df72f712"></span>void <code class="descclassname"></code><code class="descname">multiply_near_mask</code><span class="sig-paren">(</span>double *<em>center</em>, <a class="reference internal" href="mod_horton_grid_uniform_h.html#_CPPv211UniformGrid" title="UniformGrid">UniformGrid</a> *<em>ugrid</em>, double <em>r0</em>, double <em>gamma</em>, double *<em>weights</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv218multiply_near_maskPdP11UniformGridddPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv217multiply_far_maskPdlP11UniformGridddPd">
+<span id="multiply_far_mask__doubleP.l.UniformGridP.double.double.doubleP"></span><span class="target" id="hortonmask_8h_1af2315cdd95e53ecadff50e16eedc97e5"></span>void <code class="descclassname"></code><code class="descname">multiply_far_mask</code><span class="sig-paren">(</span>double *<em>centers</em>, long <em>ncenter</em>, <a class="reference internal" href="mod_horton_grid_uniform_h.html#_CPPv211UniformGrid" title="UniformGrid">UniformGrid</a> *<em>ugrid</em>, double <em>r0</em>, double <em>gamma</em>, double *<em>weights</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv217multiply_far_maskPdlP11UniformGridddPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pck_horton_gbasis.html" class="btn btn-neutral float-right" title="3.3. horton.gbasis – Gaussian basis sets" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_espfit_electrostatics_h.html" class="btn btn-neutral" title="3.2.3. horton/espfit/electrostatics.h – Computation of ESP cost functions" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.0 built from release 2.1.0 (Jul 06, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jul 06, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.1.0 (Jul 06, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,653 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.6.7. horton.io.lockedh5 – H5 file with lock &mdash; HORTON 2.0.0-244-gaaf5e2b documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="HORTON 2.0.0-244-gaaf5e2b documentation" href="../index.html"/>
+        <link rel="up" title="3.6. horton.io – Input and output routines" href="pck_horton_io.html"/>
+        <link rel="next" title="3.6.8. horton.io.molden – Molden wavefunction input file format" href="mod_horton_io_molden.html"/>
+        <link rel="prev" title="3.6.6. horton.io.iodata – Input/output dispatcher for different file formats" href="mod_horton_io_iodata.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> &#8211; The main HORTON Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_correlatedwfn.html">3.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn</span></code> &#8211; Methods for correlated wavefunctions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.3. <code class="docutils literal"><span class="pre">horton.espfit</span></code> &#8211; Electrostatic potential fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_gbasis.html">3.4. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> &#8211; Gaussian basis sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.5. <code class="docutils literal"><span class="pre">horton.grid</span></code> &#8211; Numerical integration grids</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_io.html">3.6. <code class="docutils literal"><span class="pre">horton.io</span></code> &#8211; Input and output routines</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_cif.html">3.6.1. <code class="docutils literal"><span class="pre">horton.io.cif</span></code> &#8211; Crystalographic Information File format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_cp2k.html">3.6.2. <code class="docutils literal"><span class="pre">horton.io.cp2k</span></code> &#8211; CP2K atomic wavefunctions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_cube.html">3.6.3. <code class="docutils literal"><span class="pre">horton.io.cube</span></code> &#8211; Gaussian cube file format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_gaussian.html">3.6.4. <code class="docutils literal"><span class="pre">horton.io.gaussian</span></code> &#8211; Gaussian LOG and FCHK file fromats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_internal.html">3.6.5. <code class="docutils literal"><span class="pre">horton.io.internal</span></code> &#8211; HORTON internal file format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_iodata.html">3.6.6. <code class="docutils literal"><span class="pre">horton.io.iodata</span></code> &#8211; Input/output dispatcher for different file formats</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.6.7. <code class="docutils literal"><span class="pre">horton.io.lockedh5</span></code> &#8211; H5 file with lock</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_molden.html">3.6.8. <code class="docutils literal"><span class="pre">horton.io.molden</span></code> &#8211; Molden wavefunction input file format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_molekel.html">3.6.9. <code class="docutils literal"><span class="pre">horton.io.molekel</span></code> &#8211; Molekel wavefunction input file format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_molpro.html">3.6.10. <code class="docutils literal"><span class="pre">horton.io.molpro</span></code> &#8211; Molpro 2012 FCIDUMP format.</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_vasp.html">3.6.11. <code class="docutils literal"><span class="pre">horton.io.vasp</span></code> &#8211; VASP POSCAR, CHGCAR and POTCAR file formats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_wfn.html">3.6.12. <code class="docutils literal"><span class="pre">horton.io.wfn</span></code> &#8211; WFN File format (Gaussian and GAMESS)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_xyz.html">3.6.13. <code class="docutils literal"><span class="pre">horton.io.xyz</span></code> &#8211; XYZ file format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_localization.html">3.7. <code class="docutils literal"><span class="pre">horton.localization</span></code> &#8211; Methods for orbital localization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.8. <code class="docutils literal"><span class="pre">horton.matrix</span></code> &#8211; One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.9. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> &#8211; Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.10. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> &#8211; Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_orbital_entanglement.html">3.11. <code class="docutils literal"><span class="pre">horton.orbital_entanglement</span></code> &#8211; Methods for measuring orbital entanglement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.12. <code class="docutils literal"><span class="pre">horton.part</span></code> &#8211; Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.13. <code class="docutils literal"><span class="pre">horton.scripts</span></code> &#8211; Code (solely) used by HORTON&#8217;s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">HORTON</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+      
+          <li><a href="pck_horton_io.html">3.6. <code class="docutils literal"><span class="pre">horton.io</span></code> &#8211; Input and output routines</a> &raquo;</li>
+      
+    <li>3.6.7. <code class="docutils literal"><span class="pre">horton.io.lockedh5</span></code> &#8211; H5 file with lock</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/lib/mod_horton_io_lockedh5.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-horton.io.lockedh5">
+<span id="horton-io-lockedh5-h5-file-with-lock"></span><h1>3.6.7. <code class="docutils literal"><span class="pre">horton.io.lockedh5</span></code> &#8211; H5 file with lock<a class="headerlink" href="#module-horton.io.lockedh5" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="horton.io.lockedh5.LockedH5File">
+<em class="property">class </em><code class="descclassname">horton.io.lockedh5.</code><code class="descname">LockedH5File</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.lockedh5.LockedH5File" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">h5py._hl.files.File</span></code></p>
+<p>Open an HDF5 file exclusively using flock (works only with sec2 driver)</p>
+<p>Except for the following two optional arguments, all arguments and
+keyword arguments are passed on to the h5.File constructor:</p>
+<dl class="docutils">
+<dt>count</dt>
+<dd>The number of attempts to open the file.</dd>
+<dt>wait</dt>
+<dd>The maximum number of seconds to wait between two attempts to
+open the file. [default=10]</dd>
+</dl>
+<p>Two processes on the same machine typically can not open the same
+HDF5 file for writing. The second one will get an IOError because the
+HDF5 library tries to detect such cases. When the h5.File constructor
+raises no IOError, fcntl.flock is used to obtain a non-blocking lock:
+shared when mode==&#8217;r&#8217;, exclusive in all other cases. This may also
+raise an IOError when two processes on different machines try to
+aquire incompatible locks. Whenever an IOError is raised, this
+constructor will wait for some time and try again, hoping that
+the other process has finished reading/writing and closed the file.
+Several attempts are made before finally giving up.</p>
+<p>This class guarantees that only one process is writing to the HDF5
+file (while no other processes are reading). Multiple processes may
+still read from the same HDF5 file.</p>
+<dl class="method">
+<dt id="horton.io.lockedh5.LockedH5File.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &rarr; None.  Remove all items from D.<a class="headerlink" href="#horton.io.lockedh5.LockedH5File.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.io.lockedh5.LockedH5File.close">
+<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the file.  All open objects become invalid</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.io.lockedh5.LockedH5File.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><em>source</em>, <em>dest</em>, <em>name=None</em>, <em>shallow=False</em>, <em>expand_soft=False</em>, <em>expand_external=False</em>, <em>expand_refs=False</em>, <em>without_attrs=False</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy an object or group.</p>
+<blockquote>
+<div><p>The source can be a path, Group, Dataset, or Datatype object.  The
+destination can be either a path or a Group object.  The source and
+destinations need not be in the same file.</p>
+<p>If the source is a Group object, all objects contained in that group
+will be copied recursively.</p>
+<p>When the destination is a Group object, by default the target will
+be created in that group with its current name (basename of obj.name).
+You can override that by setting &#8220;name&#8221; to a string.</p>
+<p>There are various options which all default to &#8220;False&#8221;:</p>
+<blockquote>
+<div><ul class="simple">
+<li>shallow: copy only immediate members of a group.</li>
+<li>expand_soft: expand soft links into new objects.</li>
+<li>expand_external: expand external links into new objects.</li>
+<li>expand_refs: copy objects that are pointed to by references.</li>
+<li>without_attrs: copy object without copying attributes.</li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+<p class="rubric">Example</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="s1">&#39;myfile.hdf5&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="o">.</span><span class="n">listnames</span><span class="p">()</span>
+<span class="go">[&#39;MyGroup&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s1">&#39;MyGroup&#39;</span><span class="p">,</span> <span class="s1">&#39;MyCopy&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="o">.</span><span class="n">listnames</span><span class="p">()</span>
+<span class="go">[&#39;MyGroup&#39;, &#39;MyCopy&#39;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.io.lockedh5.LockedH5File.create_dataset">
+<code class="descname">create_dataset</code><span class="sig-paren">(</span><em>name</em>, <em>shape=None</em>, <em>dtype=None</em>, <em>data=None</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.create_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new HDF5 dataset</p>
+<dl class="docutils">
+<dt>name</dt>
+<dd>Name of the dataset (absolute or relative).  Provide None to make
+an anonymous dataset.</dd>
+<dt>shape</dt>
+<dd>Dataset shape.  Use &#8220;()&#8221; for scalar datasets.  Required if &#8220;data&#8221;
+isn&#8217;t provided.</dd>
+<dt>dtype</dt>
+<dd>Numpy dtype or string.  If omitted, dtype(&#8216;f&#8217;) will be used.
+Required if &#8220;data&#8221; isn&#8217;t provided; otherwise, overrides data
+array&#8217;s dtype.</dd>
+<dt>data</dt>
+<dd>Provide data to initialize the dataset.  If used, you can omit
+shape and dtype arguments.</dd>
+</dl>
+<p>Keyword-only arguments:</p>
+<dl class="docutils">
+<dt>chunks</dt>
+<dd>(Tuple) Chunk shape, or True to enable auto-chunking.</dd>
+<dt>maxshape</dt>
+<dd>(Tuple) Make the dataset resizable up to this shape.  Use None for
+axes you want to be unlimited.</dd>
+<dt>compression</dt>
+<dd>(String or int) Compression strategy.  Legal values are &#8216;gzip&#8217;,
+&#8216;szip&#8217;, &#8216;lzf&#8217;.  If an integer in range(10), this indicates gzip
+compression level. Otherwise, an integer indicates the number of a
+dynamically loaded compression filter.</dd>
+<dt>compression_opts</dt>
+<dd>Compression settings.  This is an integer for gzip, 2-tuple for
+szip, etc. If specifying a dynamically loaded compression filter
+number, this must be a tuple of values.</dd>
+<dt>scaleoffset</dt>
+<dd>(Integer) Enable scale/offset filter for (usually) lossy
+compression of integer or floating-point data. For integer
+data, the value of scaleoffset is the number of bits to
+retain (pass 0 to let HDF5 determine the minimum number of
+bits necessary for lossless compression). For floating point
+data, scaleoffset is the number of digits after the decimal
+place to retain; stored values thus have absolute error
+less than 0.5*10**(-scaleoffset).</dd>
+<dt>shuffle</dt>
+<dd>(T/F) Enable shuffle filter.</dd>
+<dt>fletcher32</dt>
+<dd>(T/F) Enable fletcher32 error detection. Not permitted in
+conjunction with the scale/offset filter.</dd>
+<dt>fillvalue</dt>
+<dd>(Scalar) Use this value for uninitialized parts of the dataset.</dd>
+<dt>track_times</dt>
+<dd>(T/F) Enable dataset creation timestamps.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.io.lockedh5.LockedH5File.create_group">
+<code class="descname">create_group</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.create_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create and return a new subgroup.</p>
+<p>Name may be absolute or relative.  Fails if the target name already
+exists.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.io.lockedh5.LockedH5File.flush">
+<code class="descname">flush</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.flush" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tell the HDF5 library to flush its buffers.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.io.lockedh5.LockedH5File.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>name</em>, <em>default=None</em>, <em>getclass=False</em>, <em>getlink=False</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve an item or other information.</p>
+<dl class="docutils">
+<dt>&#8220;name&#8221; given only:</dt>
+<dd>Return the item, or &#8220;default&#8221; if it doesn&#8217;t exist</dd>
+<dt>&#8220;getclass&#8221; is True:</dt>
+<dd>Return the class of object (Group, Dataset, etc.), or &#8220;default&#8221;
+if nothing with that name exists</dd>
+<dt>&#8220;getlink&#8221; is True:</dt>
+<dd>Return HardLink, SoftLink or ExternalLink instances.  Return
+&#8220;default&#8221; if nothing with that name exists.</dd>
+<dt>&#8220;getlink&#8221; and &#8220;getclass&#8221; are True:</dt>
+<dd>Return HardLink, SoftLink and ExternalLink classes.  Return
+&#8220;default&#8221; if nothing with that name exists.</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cls</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="n">getclass</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">cls</span> <span class="o">==</span> <span class="n">SoftLink</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span> <span class="s1">&#39;&quot;foo&quot; is a soft link!&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.io.lockedh5.LockedH5File.items">
+<code class="descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of tuples containing (name, object) pairs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.io.lockedh5.LockedH5File.iteritems">
+<code class="descname">iteritems</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.iteritems" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an iterator over (name, object) pairs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.io.lockedh5.LockedH5File.iterkeys">
+<code class="descname">iterkeys</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &rarr; an iterator over the keys of D<a class="headerlink" href="#horton.io.lockedh5.LockedH5File.iterkeys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.io.lockedh5.LockedH5File.itervalues">
+<code class="descname">itervalues</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.itervalues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an iterator over member objects</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.io.lockedh5.LockedH5File.keys">
+<code class="descname">keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list containing member names</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.io.lockedh5.LockedH5File.move">
+<code class="descname">move</code><span class="sig-paren">(</span><em>source</em>, <em>dest</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.move" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move a link to a new location in the file.</p>
+<p>If &#8220;source&#8221; is a hard link, this effectively renames the object.  If
+&#8220;source&#8221; is a soft or external link, the link itself is moved, with its
+value unmodified.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.io.lockedh5.LockedH5File.pop">
+<code class="descname">pop</code><span class="sig-paren">(</span><em>k</em><span class="optional">[</span>, <em>d</em><span class="optional">]</span><span class="sig-paren">)</span> &rarr; v, remove specified key and return the corresponding value.<a class="headerlink" href="#horton.io.lockedh5.LockedH5File.pop" title="Permalink to this definition">¶</a></dt>
+<dd><p>If key is not found, d is returned if given, otherwise KeyError is raised.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.io.lockedh5.LockedH5File.popitem">
+<code class="descname">popitem</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &rarr; (k, v), remove and return some (key, value) pair<a class="headerlink" href="#horton.io.lockedh5.LockedH5File.popitem" title="Permalink to this definition">¶</a></dt>
+<dd><p>as a 2-tuple; but raise KeyError if D is empty.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.io.lockedh5.LockedH5File.require_dataset">
+<code class="descname">require_dataset</code><span class="sig-paren">(</span><em>name</em>, <em>shape</em>, <em>dtype</em>, <em>exact=False</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.require_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open a dataset, creating it if it doesn&#8217;t exist.</p>
+<p>If keyword &#8220;exact&#8221; is False (default), an existing dataset must have
+the same shape and a conversion-compatible dtype to be returned.  If
+True, the shape and dtype must match exactly.</p>
+<p>Other dataset keywords (see create_dataset) may be provided, but are
+only used if a new dataset is to be created.</p>
+<p>Raises TypeError if an incompatible object already exists, or if the
+shape or dtype don&#8217;t match according to the above rules.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.io.lockedh5.LockedH5File.require_group">
+<code class="descname">require_group</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.require_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a group, creating it if it doesn&#8217;t exist.</p>
+<p>TypeError is raised if something with that name already exists that
+isn&#8217;t a group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.io.lockedh5.LockedH5File.setdefault">
+<code class="descname">setdefault</code><span class="sig-paren">(</span><em>k</em><span class="optional">[</span>, <em>d</em><span class="optional">]</span><span class="sig-paren">)</span> &rarr; D.get(k,d), also set D[k]=d if k not in D<a class="headerlink" href="#horton.io.lockedh5.LockedH5File.setdefault" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.io.lockedh5.LockedH5File.update">
+<code class="descname">update</code><span class="sig-paren">(</span><span class="optional">[</span><em>E</em>, <span class="optional">]</span><em>**F</em><span class="sig-paren">)</span> &rarr; None.  Update D from mapping/iterable E and F.<a class="headerlink" href="#horton.io.lockedh5.LockedH5File.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>If E present and has a .keys() method, does:     for k in E: D[k] = E[k]
+If E present and lacks .keys() method, does:     for (k, v) in E: D[k] = v
+In either case, this is followed by: for k, v in F.items(): D[k] = v</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.io.lockedh5.LockedH5File.values">
+<code class="descname">values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list containing member objects</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.io.lockedh5.LockedH5File.visit">
+<code class="descname">visit</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.visit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursively visit all names in this group and subgroups (HDF5 1.8).</p>
+<p>You supply a callable (function, method or callable object); it
+will be called exactly once for each link in this group and every
+group below it. Your callable must conform to the signature:</p>
+<blockquote>
+<div>func(&lt;member name&gt;) =&gt; &lt;None or return value&gt;</div></blockquote>
+<p>Returning None continues iteration, returning anything else stops
+and immediately returns that value from the visit method.  No
+particular order of iteration within groups is guranteed.</p>
+<p>Example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># List the entire contents of the file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="s2">&quot;foo.hdf5&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">list_of_names</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="o">.</span><span class="n">visit</span><span class="p">(</span><span class="n">list_of_names</span><span class="o">.</span><span class="n">append</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.io.lockedh5.LockedH5File.visititems">
+<code class="descname">visititems</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.visititems" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursively visit names and objects in this group (HDF5 1.8).</p>
+<p>You supply a callable (function, method or callable object); it
+will be called exactly once for each link in this group and every
+group below it. Your callable must conform to the signature:</p>
+<blockquote>
+<div>func(&lt;member name&gt;, &lt;object&gt;) =&gt; &lt;None or return value&gt;</div></blockquote>
+<p>Returning None continues iteration, returning anything else stops
+and immediately returns that value from the visit method.  No
+particular order of iteration within groups is guranteed.</p>
+<p>Example:</p>
+<p># Get a list of all datasets in the file
+&gt;&gt;&gt; mylist = []
+&gt;&gt;&gt; def func(name, obj):
+...     if isinstance(obj, Dataset):
+...         mylist.append(name)
+...
+&gt;&gt;&gt; f = File(&#8216;foo.hdf5&#8217;)
+&gt;&gt;&gt; f.visititems(func)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.io.lockedh5.LockedH5File.attrs">
+<code class="descname">attrs</code><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.attrs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attributes attached to this object</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.io.lockedh5.LockedH5File.driver">
+<code class="descname">driver</code><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.driver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Low-level HDF5 file driver used to open file</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.io.lockedh5.LockedH5File.fid">
+<code class="descname">fid</code><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.fid" title="Permalink to this definition">¶</a></dt>
+<dd><p>File ID (backwards compatibility)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.io.lockedh5.LockedH5File.file">
+<code class="descname">file</code><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a File instance associated with this object</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.io.lockedh5.LockedH5File.filename">
+<code class="descname">filename</code><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>File name on disk</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.io.lockedh5.LockedH5File.id">
+<code class="descname">id</code><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Low-level identifier appropriate for this object</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.io.lockedh5.LockedH5File.libver">
+<code class="descname">libver</code><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.libver" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>File format version bounds (2-tuple</em> &#8211; low, high)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.io.lockedh5.LockedH5File.mode">
+<code class="descname">mode</code><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Python mode used to open file</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.io.lockedh5.LockedH5File.name">
+<code class="descname">name</code><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the full name of this object.  None if anonymous.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.io.lockedh5.LockedH5File.parent">
+<code class="descname">parent</code><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.parent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the parent group of this object.</p>
+<p>This is always equivalent to obj.file[posixpath.dirname(obj.name)].
+ValueError if this object is anonymous.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.io.lockedh5.LockedH5File.ref">
+<code class="descname">ref</code><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>An (opaque) HDF5 reference to this object</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.io.lockedh5.LockedH5File.regionref">
+<code class="descname">regionref</code><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.regionref" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a region reference (Datasets only).</p>
+<p>The syntax is regionref[&lt;slices&gt;]. For example, dset.regionref[...]
+creates a region reference in which the whole dataset is selected.</p>
+<p>Can also be used to determine the shape of the referenced dataset
+(via .shape property), or the shape of the selection (via the
+.selection property).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.io.lockedh5.LockedH5File.userblock_size">
+<code class="descname">userblock_size</code><a class="headerlink" href="#horton.io.lockedh5.LockedH5File.userblock_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>User block size (in bytes)</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_io_molden.html" class="btn btn-neutral float-right" title="3.6.8. horton.io.molden – Molden wavefunction input file format" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_io_iodata.html" class="btn btn-neutral" title="3.6.6. horton.io.iodata – Input/output dispatcher for different file formats" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.0 built from release 2.0.0-244-gaaf5e2b. </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 16, 2016.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.0.0-244-gaaf5e2b',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

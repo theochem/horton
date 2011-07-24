@@ -1,0 +1,565 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.3. Dumping/Loading a Hamiltonian to/from a file &mdash; HORTON 2.1.0 (Jul 06, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="HORTON 2.1.0 (Jul 06, 2017) documentation" href="index.html"/>
+        <link rel="up" title="3. Hamiltonians" href="user_hamiltonian.html"/>
+        <link rel="next" title="4. Electronic Structure Methods" href="user_estruct.html"/>
+        <link rel="prev" title="3.2. Defining a model Hamiltonian" href="user_hamiltonian_model.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="user_hamiltonian_molecular.html">3.1. Molecular Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_hamiltonian_model.html">3.2. Defining a model Hamiltonian</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">3.3. Dumping/Loading a Hamiltonian to/from a file</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#horton-s-internal-format">3.3.1. HORTON’s internal format</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#dumping">3.3.1.1. Dumping</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#loading">3.3.1.2. Loading</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fcidump-format">3.3.2. FCIDUMP format</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">3.3.2.1. Dumping</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">3.3.2.2. Loading</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="user_hamiltonian.html">3. Hamiltonians</a> &raquo;</li>
+        
+      <li>3.3. Dumping/Loading a Hamiltonian to/from a file</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/user_hamiltonian_io.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="dumping-loading-a-hamiltonian-to-from-a-file">
+<span id="hamiltonian-io"></span><h1>3.3. Dumping/Loading a Hamiltonian to/from a file<a class="headerlink" href="#dumping-loading-a-hamiltonian-to-from-a-file" title="Permalink to this headline">¶</a></h1>
+<p>HORTON supports two formats for Hamiltonians: (i) an internal binary format based
+on HDF5 (extension <code class="docutils literal"><span class="pre">.h5</span></code>) and (ii) Molpro’s FCIDUMP text format (containing <code class="docutils literal"><span class="pre">FCIDUMP</span></code>
+somewhere in the file name). The internal format is more flexible and can store
+Hamiltonians in various ways. The FCIDUMP format is more restricted
+but can be used to interface HORTON with different codes, e.g. Molpro. HORTON can
+also load integrals from a Gaussian log file but this is <strong>absolutely not</strong>
+recommended for any serious calculation.</p>
+<p>For general information on how to load and dump data with HORTON in different
+data file formats, refer to <a class="reference internal" href="tech_ref_file_formats.html#ref-file-formats"><span class="std std-ref">Data file formats (input and output)</span></a>.</p>
+<div class="section" id="horton-s-internal-format">
+<span id="hamiltonian-io-internal"></span><h2>3.3.1. HORTON’s internal format<a class="headerlink" href="#horton-s-internal-format" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="dumping">
+<h3>3.3.1.1. Dumping<a class="headerlink" href="#dumping" title="Permalink to this headline">¶</a></h3>
+<p>You can store all of the operators in the atomic-orbital (AO) basis. For example,
+you can store the core energy and all the integrals in the Cholesky decomposed format:</p>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">data/examples/hamiltonian/dump_internal_ao.py</span><a class="headerlink" href="#id3" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">horton</span> <span class="k">import</span> <span class="o">*</span>  <span class="c1"># pylint: disable=wildcard-import,unused-wildcard-import</span>
+
+<span class="c1"># Set up molecule, define basis set</span>
+<span class="c1"># ---------------------------------</span>
+<span class="c1"># get the XYZ file from HORTON&#39;s test data directory</span>
+<span class="n">fn_xyz</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get_fn</span><span class="p">(</span><span class="s1">&#39;test/water.xyz&#39;</span><span class="p">)</span>
+<span class="n">mol</span> <span class="o">=</span> <span class="n">IOData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">fn_xyz</span><span class="p">)</span>
+<span class="n">obasis</span> <span class="o">=</span> <span class="n">get_gobasis</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">numbers</span><span class="p">,</span> <span class="s1">&#39;cc-pvdz&#39;</span><span class="p">)</span>
+<span class="n">lf</span> <span class="o">=</span> <span class="n">CholeskyLinalgFactory</span><span class="p">(</span><span class="n">obasis</span><span class="o">.</span><span class="n">nbasis</span><span class="p">)</span>
+
+<span class="c1"># Construct Hamiltonian</span>
+<span class="c1"># ---------------------</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">lf</span> <span class="o">=</span> <span class="n">lf</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">kin</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_kinetic</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">na</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_nuclear_attraction</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">,</span> <span class="n">lf</span><span class="p">)</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">er</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_electron_repulsion</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">core_energy</span> <span class="o">=</span> <span class="n">compute_nucnuc</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">)</span>
+
+<span class="c1"># Write to a HDF5 file</span>
+<span class="c1"># --------------------</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;hamiltonian_ao.h5&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The internal format will store all attributes of the
+<a class="reference internal" href="lib/mod_horton_io_iodata.html#horton.io.iodata.IOData" title="horton.io.iodata.IOData"><code class="xref py py-class docutils literal"><span class="pre">IOData</span></code></a> instance. Note that the attributes
+<code class="docutils literal"><span class="pre">coordinates</span></code>, <code class="docutils literal"><span class="pre">numbers</span></code> and <code class="docutils literal"><span class="pre">title</span></code> were loaded from the <code class="docutils literal"><span class="pre">.xyz</span></code> file
+and will also be dumped into the internal format. Deleting an attribute, e.g.
+<code class="docutils literal"><span class="pre">del</span> <span class="pre">mol.title</span></code>, or adding a new attribute, e.g. <code class="docutils literal"><span class="pre">mol.egg</span> <span class="pre">=</span> <span class="pre">'spam'</span></code>, will
+result in the exclusion or the inclusion of the appropriate attribute,
+respectively.</p>
+<p>In the HDF5 file, all data is stored in binary form with full precision, which
+means that all significant digits are written to file. In the example above, the
+dumped HDF5 file will have the following layout:</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>$ h5dump -n hamiltonian_ao.h5
+HDF5 &quot;hamiltonian.h5&quot; {
+FILE_CONTENTS {
+ group      /
+ dataset    /coordinates
+ dataset    /core_energy
+ group      /er
+ dataset    /er/array
+ group      /kin
+ dataset    /kin/array
+ group      /lf
+ group      /na
+ dataset    /na/array
+ dataset    /numbers
+ dataset    /title
+ }
+}
+</pre></div>
+</div>
+<p>The attributes of the FCIDUMP format, <code class="docutils literal"><span class="pre">one_mo</span></code>, <code class="docutils literal"><span class="pre">two_mo</span></code>, <code class="docutils literal"><span class="pre">core_energy</span></code>,
+<code class="docutils literal"><span class="pre">nelec</span></code> and <code class="docutils literal"><span class="pre">ms2</span></code> can also be used in the internal format. We can create an
+empty <a class="reference internal" href="lib/mod_horton_io_iodata.html#horton.io.iodata.IOData" title="horton.io.iodata.IOData"><code class="xref py py-class docutils literal"><span class="pre">IOData</span></code></a> instance and assign each of these
+attributes. For example,</p>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-text">data/examples/hamiltonian/dump_internal_ao_fcidump.py</span><a class="headerlink" href="#id4" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">horton</span> <span class="k">import</span> <span class="o">*</span>  <span class="c1"># pylint: disable=wildcard-import,unused-wildcard-import</span>
+
+
+<span class="c1"># Set up Neon atom, define basis set</span>
+<span class="c1"># ----------------------------------</span>
+<span class="n">coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]])</span>
+<span class="n">numbers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">10</span><span class="p">])</span>
+<span class="n">obasis</span> <span class="o">=</span> <span class="n">get_gobasis</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">numbers</span><span class="p">,</span> <span class="s1">&#39;cc-pvdz&#39;</span><span class="p">)</span>
+<span class="n">lf</span> <span class="o">=</span> <span class="n">DenseLinalgFactory</span><span class="p">(</span><span class="n">obasis</span><span class="o">.</span><span class="n">nbasis</span><span class="p">)</span>
+
+<span class="c1"># Construct Hamiltonian</span>
+<span class="c1"># ---------------------</span>
+<span class="n">one_mo</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_two_index</span><span class="p">()</span>
+<span class="n">obasis</span><span class="o">.</span><span class="n">compute_kinetic</span><span class="p">(</span><span class="n">one_mo</span><span class="p">)</span>
+<span class="n">obasis</span><span class="o">.</span><span class="n">compute_nuclear_attraction</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span> <span class="n">one_mo</span><span class="p">)</span>
+<span class="n">two_mo</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_electron_repulsion</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+<span class="n">core_energy</span> <span class="o">=</span> <span class="n">compute_nucnuc</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span>
+
+<span class="c1"># Write to a HDF5 file</span>
+<span class="c1"># --------------------</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">IOData</span><span class="p">()</span>
+<span class="n">data</span><span class="o">.</span><span class="n">lf</span> <span class="o">=</span> <span class="n">lf</span>
+<span class="n">data</span><span class="o">.</span><span class="n">one_mo</span> <span class="o">=</span> <span class="n">one_mo</span>
+<span class="n">data</span><span class="o">.</span><span class="n">two_mo</span> <span class="o">=</span> <span class="n">two_mo</span>
+<span class="n">data</span><span class="o">.</span><span class="n">core_energy</span> <span class="o">=</span> <span class="n">core_energy</span>
+<span class="n">data</span><span class="o">.</span><span class="n">nelec</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">data</span><span class="o">.</span><span class="n">ms2</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">data</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;hamiltonian_ao_fcidump.h5&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>will results in the following HDF5 layout:</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>$ h5dump -n hamiltonian_ao_fcidump.h5
+HDF5 &quot;hamiltonian_ao_fcidump.h5&quot; {
+FILE_CONTENTS {
+ group      /
+ dataset    /core_energy
+ group      /lf
+ dataset    /ms2
+ dataset    /nelec
+ group      /one_mo
+ dataset    /one_mo/array
+ group      /two_mo
+ dataset    /two_mo/array
+ }
+}
+</pre></div>
+</div>
+<p>Note that the integrals in this example are actually stored in the AO basis
+(despite the <code class="docutils literal"><span class="pre">_mo</span></code> suffix). Read the section <a class="reference internal" href="user_estruct_hf_dft.html#user-hf-dft-preparing-posthf"><span class="std std-ref">Preparing for a Post-Hartree-Fock calculation</span></a>
+if you want to compute (and store) integrals in the molecular orbital (MO) basis.</p>
+</div>
+<div class="section" id="loading">
+<h3>3.3.1.2. Loading<a class="headerlink" href="#loading" title="Permalink to this headline">¶</a></h3>
+<p>You can load integrals from the HORTON’s internal format, as follows:</p>
+<div class="literal-block-wrapper docutils container" id="id5">
+<div class="code-block-caption"><span class="caption-text">data/examples/hamiltonian/load_internal_ao.py</span><a class="headerlink" href="#id5" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">horton</span> <span class="k">import</span> <span class="o">*</span>  <span class="c1"># pylint: disable=wildcard-import,unused-wildcard-import</span>
+
+
+<span class="c1"># Load the integrals from the file</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">IOData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;hamiltonian_ao.h5&#39;</span><span class="p">)</span>
+
+<span class="c1"># Access some attributes. In more realistic cases, some code follows that does a</span>
+<span class="c1"># useful calculation.</span>
+<span class="nb">print</span> <span class="n">data</span><span class="o">.</span><span class="n">kin</span><span class="o">.</span><span class="n">nbasis</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="fcidump-format">
+<span id="hamiltonian-io-fcidump"></span><h2>3.3.2. FCIDUMP format<a class="headerlink" href="#fcidump-format" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>3.3.2.1. Dumping<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>The FCIDUMP format is useful when exchanging Hamiltonians with different codes.
+Unlike the internal format, there are some restrictions:</p>
+<ol class="arabic simple">
+<li>One-body operators (usually kinetic energy and nuclear attraction)
+must all be added into a single two-index object.</li>
+<li>Integrals can only be stored in a restricted (MO) basis set, i.e. using
+different basis sets for the alpha and beta orbitals is not possible.</li>
+<li>Two-electron integrals must be stored as a <code class="docutils literal"><span class="pre">DenseFourIndex</span></code> object, so
+the Cholesky decomposition of the ERI is not supported.</li>
+</ol>
+<p>The FCIDUMP format is normally used for storing integrals in the MO basis
+but in the following example we will use the AO basis. Read the section
+<a class="reference internal" href="user_estruct_hf_dft.html#user-hf-dft-preparing-posthf"><span class="std std-ref">Preparing for a Post-Hartree-Fock calculation</span></a> if you want to compute (and store) integrals
+in the MO basis. The storage of integrals in AO basis in FCIDUMP format is as follows:</p>
+<div class="literal-block-wrapper docutils container" id="id6">
+<div class="code-block-caption"><span class="caption-text">data/examples/hamiltonian/dump_fcidump_ao.py</span><a class="headerlink" href="#id6" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">horton</span> <span class="k">import</span> <span class="o">*</span>  <span class="c1"># pylint: disable=wildcard-import,unused-wildcard-import</span>
+
+
+<span class="c1"># Set up Neon dimer, define basis set</span>
+<span class="c1"># -----------------------------------</span>
+<span class="n">coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">]])</span>
+<span class="n">numbers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>
+<span class="n">obasis</span> <span class="o">=</span> <span class="n">get_gobasis</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">numbers</span><span class="p">,</span> <span class="s1">&#39;cc-pvdz&#39;</span><span class="p">)</span>
+<span class="n">lf</span> <span class="o">=</span> <span class="n">DenseLinalgFactory</span><span class="p">(</span><span class="n">obasis</span><span class="o">.</span><span class="n">nbasis</span><span class="p">)</span>
+
+<span class="c1"># Construct Hamiltonian</span>
+<span class="c1"># ---------------------</span>
+<span class="c1"># The one-body operator is first created and then the kinetic energy and</span>
+<span class="c1"># nuclear attraction integrals are added in-place.</span>
+<span class="n">one_mo</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_two_index</span><span class="p">()</span>
+<span class="n">obasis</span><span class="o">.</span><span class="n">compute_kinetic</span><span class="p">(</span><span class="n">one_mo</span><span class="p">)</span>
+<span class="n">obasis</span><span class="o">.</span><span class="n">compute_nuclear_attraction</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span> <span class="n">one_mo</span><span class="p">)</span>
+<span class="n">two_mo</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_electron_repulsion</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+<span class="n">core_energy</span> <span class="o">=</span> <span class="n">compute_nucnuc</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span>
+
+<span class="c1"># Write to a HDF5 file</span>
+<span class="c1"># --------------------</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">IOData</span><span class="p">(</span><span class="n">one_mo</span><span class="o">=</span><span class="n">one_mo</span><span class="p">,</span> <span class="n">two_mo</span><span class="o">=</span><span class="n">two_mo</span><span class="p">,</span> <span class="n">core_energy</span><span class="o">=</span><span class="n">core_energy</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">ms2</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;hamiltonian_ao.FCIDUMP&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>In this example, we set the <a class="reference internal" href="lib/mod_horton_io_iodata.html#horton.io.iodata.IOData" title="horton.io.iodata.IOData"><code class="xref py py-class docutils literal"><span class="pre">IOData</span></code></a> attributes by
+using keyword arguments in the constructor. The file <code class="docutils literal"><span class="pre">hamiltonian_ao.FCIDUMP</span></code>
+will contain the following:</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span> &amp;FCI NORB=28,NELEC=20,MS2=0,
+  ORBSYM= 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  ISYM=1
+ &amp;END
+ 5.9786161694613265e+00    1    1    1    1
+-1.0433683639500952e+00    2    1    1    1
+ 1.9823368119430076e-01    2    1    2    1
+ 6.1978840317716133e-01    2    2    1    1
+.
+.
+.
+-1.4611205008249136e+01   27   27    0    0
+-8.5804159203863803e-12   28   14    0    0
+-1.4611205008249140e+01   28   28    0    0
+ 2.0000000000000000e+01    0    0    0    0
+</pre></div>
+</div>
+<p>This file is divided into two blocks. The first block (between <code class="docutils literal"><span class="pre">&amp;FCI</span></code> and
+<code class="docutils literal"><span class="pre">&amp;END</span></code>) contains system-specific information:</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">NORB:</th><td class="field-body">number of orbitals/basis functions</td>
+</tr>
+<tr class="field-even field"><th class="field-name">NELEC:</th><td class="field-body">number of electrons</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">MS2:</th><td class="field-body">spin projection</td>
+</tr>
+<tr class="field-even field"><th class="field-name">ORBSYM:</th><td class="field-body">irreducible representation of each orbital</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">ISYM:</th><td class="field-body">total symmetry of the wavefunction</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>The second block (after <code class="docutils literal"><span class="pre">&amp;END</span></code>) contains the one- and two-electron integrals
+and the core energy in that order:</p>
+<ol class="arabic simple">
+<li>All symmetry-unique elements of the two-electron integrals are listed,
+where the first column is the value of the integral, followed by the orbital
+indices. Note that the orbital indices start from one and that the orbital indices
+(<code class="docutils literal"><span class="pre">i</span> <span class="pre">j</span> <span class="pre">k</span> <span class="pre">l</span></code>) in an FCIDUMP file are written in chemists’ notation,</li>
+</ol>
+<blockquote>
+<div><div class="math">
+\[(ij\vert kl) = \langle ik \vert jl \rangle = \int \phi_i^*(\mathbf{x}_1)
+\phi_k^*(\mathbf{x}_2) \frac{1}{r_{12}} \phi_j(\mathbf{x}_1) \phi_l(\mathbf{x}_2)
+d\mathbf{x}_1 d\mathbf{x}_2\]</div>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li>All symmetry-unique elements of the one-electron integrals are listed, where
+the first column is the value of the integral, followed by the orbital
+indices. Note that the last two columns contain zeros.</li>
+<li>Core energy (for instance, the nuclear repulsion term, etc.) is written
+on the last line with all orbital indices equal 0.</li>
+</ol>
+<p>If the value of an integral is zero, the corresponding line is not included in
+the the FCIDUMP file. It’s important to note that HORTON does not (yet) support
+geometric symmetries, so all the orbitals will be assigned a symmetry label 1,
+which corresponds to the point group C1 in the FCIDUMP format.</p>
+</div>
+<div class="section" id="id2">
+<h3>3.3.2.2. Loading<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>You can load integrals, stored in an FCIDUMP file, as follows:</p>
+<div class="literal-block-wrapper docutils container" id="id7">
+<div class="code-block-caption"><span class="caption-text">data/examples/hamiltonian/load_fcidump_ao.py</span><a class="headerlink" href="#id7" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">horton</span> <span class="k">import</span> <span class="o">*</span>  <span class="c1"># pylint: disable=wildcard-import,unused-wildcard-import</span>
+
+
+<span class="c1"># Load the integrals from the file</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">IOData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;hamiltonian_ao.FCIDUMP&#39;</span><span class="p">)</span>
+
+<span class="c1"># Access some attributes. In more realistic cases, some code follows that does a</span>
+<span class="c1"># useful calculation.</span>
+<span class="nb">print</span> <span class="n">data</span><span class="o">.</span><span class="n">core_energy</span>
+<span class="nb">print</span> <span class="n">data</span><span class="o">.</span><span class="n">one_mo</span><span class="o">.</span><span class="n">get_element</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="user_estruct.html" class="btn btn-neutral float-right" title="4. Electronic Structure Methods" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="user_hamiltonian_model.html" class="btn btn-neutral" title="3.2. Defining a model Hamiltonian" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.0 built from release 2.1.0 (Jul 06, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jul 06, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.1.0 (Jul 06, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

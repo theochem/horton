@@ -1,0 +1,277 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.4.14. horton/grid/lebedev_laikov.h – Grids for quadrature on a sphere &mdash; HORTON 2.1.0b1-1-ge018244 (Feb 03, 2017) documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="HORTON 2.1.0b1-1-ge018244 (Feb 03, 2017) documentation" href="../index.html"/>
+        <link rel="up" title="3.4. horton.grid – Numerical integration grids" href="pck_horton_grid.html"/>
+        <link rel="next" title="3.4.15. horton/grid/ode2.h – Second-order finite-element ODE solver using Hermite polynomials" href="mod_horton_grid_ode2_h.html"/>
+        <link rel="prev" title="3.4.13. horton/grid/evaluate.h – Evaluation of splines on grids" href="mod_horton_grid_evaluate_h.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.0b1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> &#8211; The main HORTON Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.2. <code class="docutils literal"><span class="pre">horton.espfit</span></code> &#8211; Electrostatic potential fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_gbasis.html">3.3. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> &#8211; Gaussian basis sets</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_grid.html">3.4. <code class="docutils literal"><span class="pre">horton.grid</span></code> &#8211; Numerical integration grids</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_atgrid.html">3.4.1. <code class="docutils literal"><span class="pre">horton.grid.atgrid</span></code> &#8211; Atomic grids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_base.html">3.4.2. <code class="docutils literal"><span class="pre">horton.grid.base</span></code> &#8211; Base classes for 3D integration grids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_cext.html">3.4.3. <code class="docutils literal"><span class="pre">horton.grid.cext</span></code> &#8211; C++ extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_int1d.html">3.4.4. <code class="docutils literal"><span class="pre">horton.grid.int1d</span></code> &#8211; 1D integration algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_molgrid.html">3.4.5. <code class="docutils literal"><span class="pre">horton.grid.molgrid</span></code> &#8211; Molecular integration grids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_ode2.html">3.4.6. <code class="docutils literal"><span class="pre">horton.grid.ode2</span></code> &#8211; Finite-element second-order ODE solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_poisson.html">3.4.7. <code class="docutils literal"><span class="pre">horton.grid.poisson</span></code> &#8211; Becke-style numerical Poisson solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_radial.html">3.4.8. <code class="docutils literal"><span class="pre">horton.grid.radial</span></code> &#8211; 1D Radial integration grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_utils.html">3.4.9. <code class="docutils literal"><span class="pre">horton.grid.utils</span></code> &#8211; Auxiliaries for numerical integrals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_visual.html">3.4.10. <code class="docutils literal"><span class="pre">horton.grid.visual</span></code> &#8211; Grids suitable for visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_becke_h.html">3.4.11. <code class="docutils literal"><span class="pre">horton/grid/becke.h</span></code> &#8211; Becke partitioning weight function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_cubic_spline_h.html">3.4.12. <code class="docutils literal"><span class="pre">horton/grid/cubic_spline.h</span></code> &#8211; One-dimensional cubic splines (on uniform grids)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_evaluate_h.html">3.4.13. <code class="docutils literal"><span class="pre">horton/grid/evaluate.h</span></code> &#8211; Evaluation of splines on grids</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.4.14. <code class="docutils literal"><span class="pre">horton/grid/lebedev_laikov.h</span></code> &#8211; Grids for quadrature on a sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_ode2_h.html">3.4.15. <code class="docutils literal"><span class="pre">horton/grid/ode2.h</span></code> &#8211; Second-order finite-element ODE solver using Hermite polynomials</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_rtransform_h.html">3.4.16. <code class="docutils literal"><span class="pre">horton/grid/rtransform.h</span></code> &#8211; Transformation from uniform 1D to non-uniform 1D grids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_uniform_h.html">3.4.17. <code class="docutils literal"><span class="pre">horton/grid/uniform.h</span></code> &#8211; Uniform 3D grids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_utils_h.html">3.4.18. <code class="docutils literal"><span class="pre">horton/grid/utils.h</span></code> &#8211; Auxiliary functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.5. <code class="docutils literal"><span class="pre">horton.io</span></code> &#8211; Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.6. <code class="docutils literal"><span class="pre">horton.matrix</span></code> &#8211; One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.7. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> &#8211; Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.8. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> &#8211; Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.9. <code class="docutils literal"><span class="pre">horton.part</span></code> &#8211; Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.10. <code class="docutils literal"><span class="pre">horton.scripts</span></code> &#8211; Code (solely) used by HORTON&#8217;s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">HORTON</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+      
+          <li><a href="pck_horton_grid.html">3.4. <code class="docutils literal"><span class="pre">horton.grid</span></code> &#8211; Numerical integration grids</a> &raquo;</li>
+      
+    <li>3.4.14. <code class="docutils literal"><span class="pre">horton/grid/lebedev_laikov.h</span></code> &#8211; Grids for quadrature on a sphere</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/lib/mod_horton_grid_lebedev_laikov_h.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="horton-grid-lebedev-laikov-h-grids-for-quadrature-on-a-sphere">
+<h1>3.4.14. <code class="docutils literal"><span class="pre">horton/grid/lebedev_laikov.h</span></code> &#8211; Grids for quadrature on a sphere<a class="headerlink" href="#horton-grid-lebedev-laikov-h-grids-for-quadrature-on-a-sphere" title="Permalink to this headline">¶</a></h1>
+<div class="breathe-sectiondef container">
+<p class="breathe-sectiondef-title rubric">Functions</p>
+<dl class="function">
+<dt id="_CPPv221lebedev_laikov_sphereiPdPd">
+<span id="lebedev_laikov_sphere__i.doubleP.doubleP"></span><span class="target" id="hortonlebedev__laikov_8h_1aac1b8511522bf94f1084ec994c663e5d"></span>void <code class="descname">lebedev_laikov_sphere</code><span class="sig-paren">(</span>int <em>npoint</em>, double *<em>points</em>, double *<em>weights</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv221lebedev_laikov_sphereiPdPd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_grid_ode2_h.html" class="btn btn-neutral float-right" title="3.4.15. horton/grid/ode2.h – Second-order finite-element ODE solver using Hermite polynomials" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_grid_evaluate_h.html" class="btn btn-neutral" title="3.4.13. horton/grid/evaluate.h – Evaluation of splines on grids" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.0b1 built from release 2.1.0b1-1-ge018244 (Feb 03, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Feb 03, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.1.0b1-1-ge018244 (Feb 03, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

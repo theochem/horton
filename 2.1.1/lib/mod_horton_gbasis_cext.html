@@ -1,0 +1,2425 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.3.1. horton.gbasis.cext – C++ extensions &mdash; HORTON 2.1.1-1-g3a5adfea (Jan 18, 2019) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="3.3.2. horton.gbasis.gobasis – Gaussian orbital basis set module." href="mod_horton_gbasis_gobasis.html" />
+    <link rel="prev" title="3.3. horton.gbasis – Gaussian basis sets" href="pck_horton_gbasis.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal notranslate"><span class="pre">horton</span></code> – The main HORTON Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.2. <code class="docutils literal notranslate"><span class="pre">horton.espfit</span></code> – Electrostatic potential fitting</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_gbasis.html">3.3. <code class="docutils literal notranslate"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.3.1. <code class="docutils literal notranslate"><span class="pre">horton.gbasis.cext</span></code> – C++ extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_gobasis.html">3.3.2. <code class="docutils literal notranslate"><span class="pre">horton.gbasis.gobasis</span></code> – Gaussian orbital basis set module.</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_iobas.html">3.3.3. <code class="docutils literal notranslate"><span class="pre">horton.gbasis.iobas</span></code> – Input/Output routines for gaussian basis sets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_boys_h.html">3.3.4. <code class="docutils literal notranslate"><span class="pre">horton/gbasis/boys.h</span></code> – The Boys function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_calc_h.html">3.3.5. <code class="docutils literal notranslate"><span class="pre">horton/gbasis/calc.h</span></code> – Base class for any integral/evaluation of Gaussian functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_cartpure_h.html">3.3.6. <code class="docutils literal notranslate"><span class="pre">horton/gbasis/cartpure.h</span></code> – Conversion of Cartesian to Pure Gaussian functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_cholesky_h.html">3.3.7. <code class="docutils literal notranslate"><span class="pre">horton/gbasis/cholesky.h</span></code> – Cholesky decomposition of (any) four-center integrals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_common_h.html">3.3.8. <code class="docutils literal notranslate"><span class="pre">horton/gbasis/common.h</span></code> – Auxiliary functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_fns_h.html">3.3.9. <code class="docutils literal notranslate"><span class="pre">horton/gbasis/fns.h</span></code> – Evaluate functions on grids and derive Fock matrices from potentials on grids.</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_gbasis_h.html">3.3.10. <code class="docutils literal notranslate"><span class="pre">horton/gbasis/gbasis.h</span></code> – Gaussian basis set classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_gbw_h.html">3.3.11. <code class="docutils literal notranslate"><span class="pre">horton/gbasis/gbw.h</span></code> – A four-center integral wrapper for the Cholesky code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_ints_h.html">3.3.12. <code class="docutils literal notranslate"><span class="pre">horton/gbasis/ints.h</span></code> – Evaluation of integrals of Gaussian basis functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_iter_gb_h.html">3.3.13. <code class="docutils literal notranslate"><span class="pre">horton/gbasis/iter_gb.h</span></code> – Iterators over Gaussian basis functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_iter_pow_h.html">3.3.14. <code class="docutils literal notranslate"><span class="pre">horton/gbasis/iter_pow.h</span></code> – Iterators over Cartesian polynomials in one shell</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.4. <code class="docutils literal notranslate"><span class="pre">horton.grid</span></code> – Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.5. <code class="docutils literal notranslate"><span class="pre">horton.io</span></code> – Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.6. <code class="docutils literal notranslate"><span class="pre">horton.matrix</span></code> – One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.7. <code class="docutils literal notranslate"><span class="pre">horton.meanfield</span></code> – Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.8. <code class="docutils literal notranslate"><span class="pre">horton.modelhamiltonians</span></code> – Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.9. <code class="docutils literal notranslate"><span class="pre">horton.part</span></code> – Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.10. <code class="docutils literal notranslate"><span class="pre">horton.scripts</span></code> – Code (solely) used by HORTON’s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HORTON</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+        
+          <li><a href="pck_horton_gbasis.html">3.3. <code class="docutils literal notranslate"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a> &raquo;</li>
+        
+      <li>3.3.1. <code class="docutils literal notranslate"><span class="pre">horton.gbasis.cext</span></code> – C++ extensions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/lib/mod_horton_gbasis_cext.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-horton.gbasis.cext">
+<span id="horton-gbasis-cext-c-extensions"></span><h1>3.3.1. <code class="docutils literal notranslate"><span class="pre">horton.gbasis.cext</span></code> – C++ extensions<a class="headerlink" href="#module-horton.gbasis.cext" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="horton.gbasis.cext.GOBasis">
+<em class="property">class </em><code class="descclassname">horton.gbasis.cext.</code><code class="descname">GOBasis</code><a class="headerlink" href="#horton.gbasis.cext.GOBasis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">horton.gbasis.cext.GBasis</span></code></p>
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.check_matrix_coeffs">
+<code class="descname">check_matrix_coeffs</code><span class="sig-paren">(</span><em>self</em>, <em>matrix</em>, <em>nocc=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.check_matrix_coeffs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.check_matrix_four_index">
+<code class="descname">check_matrix_four_index</code><span class="sig-paren">(</span><em>self</em>, <em>matrix</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.check_matrix_four_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.check_matrix_two_index">
+<code class="descname">check_matrix_two_index</code><span class="sig-paren">(</span><em>self</em>, <em>matrix</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.check_matrix_two_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_electron_repulsion">
+<code class="descname">compute_electron_repulsion</code><span class="sig-paren">(</span><em>self</em>, <em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_electron_repulsion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute electron-electron repulsion integrals</p>
+<p>The potential has the following form:</p>
+<div class="math notranslate nohighlight">
+\[v = \frac{1}{r}\]</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>output</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.FourIndex" title="horton.matrix.base.FourIndex"><em>FourIndex</em></a>) – When a <code class="docutils literal notranslate"><span class="pre">DenseFourIndex</span></code> object is given, it is used as output argument and
+its contents are overwritten. When a <code class="docutils literal notranslate"><span class="pre">DenseLinalgFactory</span></code> or
+<code class="docutils literal notranslate"><span class="pre">CholeskyLinalgFactory</span></code> is given, it is used to construct the four-index
+object in which the integrals are stored.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li><em>output</em></li>
+<li><strong>Keywords</strong> (<span class="target" id="index-0"></span>ERI, <span class="target" id="index-1"></span>four-center integrals)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_erf_attraction">
+<code class="descname">compute_erf_attraction</code><span class="sig-paren">(</span><em>self</em>, <em>ndarray coordinates</em>, <em>ndarray charges</em>, <em>output</em>, <em>double mu=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_erf_attraction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the model nuclear attraction integral with the long-range potential</p>
+<p>The potential has the following form:</p>
+<div class="math notranslate nohighlight">
+\[v = \frac{\mathrm{erf}(\mu r)}{r}\]</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>coordinates</strong> (<em>np.ndarray</em><em>, </em><em>shape =</em><em> (</em><em>ncharge</em><em>,</em><em>3</em><em>)</em>) – A float array with shape (ncharge,3) with Cartesian coordinates
+of point charges that define the external field.</li>
+<li><strong>charges</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>ncharge</em><em>,</em><em>)</em>) – A float array with shape (ncharge,) with the values of the
+charges.</li>
+<li><strong>output</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.TwoIndex" title="horton.matrix.base.TwoIndex"><em>TwoIndex</em></a>) – <dl class="docutils">
+<dt>When a <code class="docutils literal notranslate"><span class="pre">TwoIndex</span></code> instance is given, it is used as output</dt>
+<dd>argument and its contents are overwritten. When <code class="docutils literal notranslate"><span class="pre">LinalgFactory</span></code>
+is given, it is used to construct the output <code class="docutils literal notranslate"><span class="pre">TwoIndex</span></code>
+object. In both cases, the output two-index object is returned.</dd>
+<dt>mu <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Parameter for the erf(mu r)/r potential. Default is zero.</dd>
+</dl>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">TwoIndex</span></code> object</li>
+<li><strong>Keywords</strong> (<span class="target" id="index-2"></span>two-center integrals)</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_erf_repulsion">
+<code class="descname">compute_erf_repulsion</code><span class="sig-paren">(</span><em>self</em>, <em>output</em>, <em>double mu=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_erf_repulsion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute short-range electron repulsion integrals.</p>
+<p>The potential has the following form:</p>
+<div class="math notranslate nohighlight">
+\[v = \frac{\mathrm{erf}(\mu r)}{r}\]</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>output</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.FourIndex" title="horton.matrix.base.FourIndex"><em>FourIndex</em></a>) – When a <code class="docutils literal notranslate"><span class="pre">DenseFourIndex</span></code> object is given, it is used as output argument and
+its contents are overwritten. When a <code class="docutils literal notranslate"><span class="pre">DenseLinalgFactory</span></code> or
+<code class="docutils literal notranslate"><span class="pre">CholeskyLinalgFactory</span></code> is given, it is used to construct the four-index
+object in which the integrals are stored.</li>
+<li><strong>mu</strong> (<em>float</em>) – Parameter for the erf(mu r)/r potential. Default is zero.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><em>output</em></li>
+<li><strong>Keywords</strong> (<span class="target" id="index-3"></span>ERI, <span class="target" id="index-4"></span>four-center integrals)</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_gauss_attraction">
+<code class="descname">compute_gauss_attraction</code><span class="sig-paren">(</span><em>self</em>, <em>ndarray coordinates</em>, <em>ndarray charges</em>, <em>output</em>, <em>double c=1.0</em>, <em>double alpha=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_gauss_attraction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the model nuclear attraction with a Gaussian potential.</p>
+<p>The potential has the following form:</p>
+<div class="math notranslate nohighlight">
+\[v = c \exp(-\alpha r^2)\]</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>output</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.TwoIndex" title="horton.matrix.base.TwoIndex"><em>TwoIndex</em></a>) – When a <code class="docutils literal notranslate"><span class="pre">DenseTwoIndex</span></code> object is given, it is used as output argument and
+its contents are overwritten.</li>
+<li><strong>c</strong> (<em>float</em>) – Coefficient of the gaussian.</li>
+<li><strong>alpha</strong> (<em>float</em>) – Exponential parameter of the gaussian.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><em>output</em></li>
+<li><strong>Keywords</strong> (<span class="target" id="index-5"></span>two-center integrals)</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_gauss_repulsion">
+<code class="descname">compute_gauss_repulsion</code><span class="sig-paren">(</span><em>self</em>, <em>output</em>, <em>double c=1.0</em>, <em>double alpha=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_gauss_repulsion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute gaussian repulsion four-center integrals.</p>
+<p>The potential has the following form:</p>
+<div class="math notranslate nohighlight">
+\[v = c \exp(-\alpha r^2)\]</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>output</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.FourIndex" title="horton.matrix.base.FourIndex"><em>FourIndex</em></a>) – When a <code class="docutils literal notranslate"><span class="pre">DenseFourIndex</span></code> object is given, it is used as output argument and
+its contents are overwritten. When a <code class="docutils literal notranslate"><span class="pre">DenseLinalgFactory</span></code> or
+<code class="docutils literal notranslate"><span class="pre">CholeskyLinalgFactory</span></code> is given, it is used to construct the four-index
+object in which the integrals are stored.</li>
+<li><strong>c</strong> (<em>float</em>) – Coefficient of the gaussian.</li>
+<li><strong>alpha</strong> (<em>float</em>) – Exponential parameter of the gaussian.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><em>output</em></li>
+<li><strong>Keywords</strong> (<span class="target" id="index-6"></span>ERI, <span class="target" id="index-7"></span>four-center integrals)</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_grid_density_dm">
+<code class="descname">compute_grid_density_dm</code><span class="sig-paren">(</span><em>self</em>, <em>dm</em>, <em>ndarray points</em>, <em>ndarray output=None</em>, <em>double epsilon=0</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_grid_density_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the electron density on a grid for a given density matrix.</p>
+<p><strong>Warning:</strong> the results are added to the output array! This may be useful to
+combine results from different spin components.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dm</strong> (<a class="reference internal" href="mod_horton_matrix_dense.html#horton.matrix.dense.DenseTwoIndex" title="horton.matrix.dense.DenseTwoIndex"><em>DenseTwoIndex</em></a>) – Density matrix, assumed to be symmetric.</li>
+<li><strong>points</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>3</em><em>)</em><em>, </em><em>dtype=float</em>) – Cartesian grid points.</li>
+<li><strong>output</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>,</em><em>)</em><em>, </em><em>dtype=float</em>) – Output array. When not given, it is allocated and returned.</li>
+<li><strong>epsilon</strong> (<em>float</em>) – Allow errors on the density of this magnitude for the sake of
+efficiency. Some grid_fn implementations may ignore this.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>output</strong> – The output array.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray, shape=(npoint,), dtype=float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_grid_density_fock">
+<code class="descname">compute_grid_density_fock</code><span class="sig-paren">(</span><em>self</em>, <em>ndarray points</em>, <em>ndarray weights</em>, <em>ndarray pots</em>, <em>fock</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_grid_density_fock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a Fock operator from a density potential.</p>
+<p><strong>Warning:</strong> the results are added to the Fock operator!</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>points</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>3</em><em>)</em><em>, </em><em>dtype=float</em>) – Cartesian grid points.</li>
+<li><strong>weights</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>,</em><em>)</em><em>, </em><em>dtype=float</em>) – Integration weights.</li>
+<li><strong>pots</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>,</em><em>)</em><em>, </em><em>dtype=float</em>) – Derivative of the energy toward the density at all grid points.</li>
+<li><strong>fock</strong> (<a class="reference internal" href="mod_horton_matrix_dense.html#horton.matrix.dense.DenseTwoIndex" title="horton.matrix.dense.DenseTwoIndex"><em>DenseTwoIndex</em></a>) – Output dense two-index object.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_grid_esp_dm">
+<code class="descname">compute_grid_esp_dm</code><span class="sig-paren">(</span><em>self</em>, <em>dm</em>, <em>ndarray coordinates</em>, <em>ndarray charges</em>, <em>ndarray points</em>, <em>ndarray output=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_grid_esp_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the electrostatic potential on a grid for a given density matrix.</p>
+<p><strong>Warning:</strong> the results are added to the output array! This may be useful to
+combine results from different spin components.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dm</strong> (<a class="reference internal" href="mod_horton_matrix_dense.html#horton.matrix.dense.DenseTwoIndex" title="horton.matrix.dense.DenseTwoIndex"><em>DenseTwoIndex</em></a>) – Density matrix, assumed to be symmetric.</li>
+<li><strong>coordinates</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>natom</em><em>, </em><em>3</em><em>)</em><em>, </em><em>dtype=float</em>) – Cartesian coordinates of the atoms.</li>
+<li><strong>charges</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>natom</em><em>,</em><em>)</em><em>, </em><em>dtype=float</em>) – Atomic charges.</li>
+<li><strong>points</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>3</em><em>)</em><em>, </em><em>dtype=float</em>) – Cartesian grid points.</li>
+<li><strong>output</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>,</em><em>)</em><em>, </em><em>dtype=float</em>) – Output array. When not given, it is allocated and returned.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>output</strong> – The output array.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray, shape=(npoint,), dtype=float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_grid_gga_dm">
+<code class="descname">compute_grid_gga_dm</code><span class="sig-paren">(</span><em>self</em>, <em>dm</em>, <em>ndarray points</em>, <em>ndarray output=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_grid_gga_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the electron density and gradient on a grid for a given density matrix.</p>
+<p><strong>Warning:</strong> the results are added to the output array! This may be useful to
+combine results from different spin components.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dm</strong> (<a class="reference internal" href="mod_horton_matrix_dense.html#horton.matrix.dense.DenseTwoIndex" title="horton.matrix.dense.DenseTwoIndex"><em>DenseTwoIndex</em></a>) – Density matrix, assumed to be symmetric.</li>
+<li><strong>points</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>3</em><em>)</em><em>, </em><em>dtype=float</em>) – Cartesian grid points.</li>
+<li><strong>output</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>4</em><em>)</em><em>, </em><em>dtype=float</em>) – Output array. When not given, it is allocated and returned. The first column
+contains the density. The last three columns contain the gradient.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>output</strong> – The output array.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray, shape=(npoint, 4), dtype=float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_grid_gga_fock">
+<code class="descname">compute_grid_gga_fock</code><span class="sig-paren">(</span><em>self</em>, <em>ndarray points</em>, <em>ndarray weights</em>, <em>ndarray pots</em>, <em>fock</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_grid_gga_fock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a Fock operator from GGA potential data.</p>
+<p><strong>Warning:</strong> the results are added to the Fock operator!</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>points</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>3</em><em>)</em><em>, </em><em>dtype=float</em>) – Cartesian grid points.</li>
+<li><strong>weights</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>,</em><em>)</em><em>, </em><em>dtype=float</em>) – Integration weights.</li>
+<li><strong>pots</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>4</em><em>)</em><em>, </em><em>dtype=float</em>) – Derivative of the energy toward GGA ingredients (density and gradient) at all
+grid points.</li>
+<li><strong>fock</strong> (<a class="reference internal" href="mod_horton_matrix_dense.html#horton.matrix.dense.DenseTwoIndex" title="horton.matrix.dense.DenseTwoIndex"><em>DenseTwoIndex</em></a>) – Output dense two-index object.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_grid_gradient_dm">
+<code class="descname">compute_grid_gradient_dm</code><span class="sig-paren">(</span><em>self</em>, <em>dm</em>, <em>ndarray points</em>, <em>ndarray output=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_grid_gradient_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the electron density gradient on a grid for a given density matrix.</p>
+<p><strong>Warning:</strong> the results are added to the output array! This may be useful to
+combine results from different spin components.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dm</strong> (<a class="reference internal" href="mod_horton_matrix_dense.html#horton.matrix.dense.DenseTwoIndex" title="horton.matrix.dense.DenseTwoIndex"><em>DenseTwoIndex</em></a>) – Density matrix, assumed to be symmetric.</li>
+<li><strong>points</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>3</em><em>)</em><em>, </em><em>dtype=float</em>) – Cartesian grid points.</li>
+<li><strong>output</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>3</em><em>)</em><em>, </em><em>dtype=float</em>) – Output array. When not given, it is allocated and returned.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>output</strong> – The output array.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray, shape=(npoint, 3), dtype=float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_grid_gradient_fock">
+<code class="descname">compute_grid_gradient_fock</code><span class="sig-paren">(</span><em>self</em>, <em>ndarray points</em>, <em>ndarray weights</em>, <em>ndarray pots</em>, <em>fock</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_grid_gradient_fock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a Fock operator from a density gradient potential.</p>
+<p><strong>Warning:</strong> the results are added to the Fock operator!</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>points</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>3</em><em>)</em><em>, </em><em>dtype=float</em>) – Cartesian grid points.</li>
+<li><strong>weights</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>,</em><em>)</em><em>, </em><em>dtype=float</em>) – Integration weights.</li>
+<li><strong>pots</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>3</em><em>)</em><em>, </em><em>dtype=float</em>) – Derivative of the energy toward the density gradient components at all grid
+points.</li>
+<li><strong>fock</strong> (<a class="reference internal" href="mod_horton_matrix_dense.html#horton.matrix.dense.DenseTwoIndex" title="horton.matrix.dense.DenseTwoIndex"><em>DenseTwoIndex</em></a>) – Output dense two-index object.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_grid_hartree_dm">
+<code class="descname">compute_grid_hartree_dm</code><span class="sig-paren">(</span><em>self</em>, <em>dm</em>, <em>ndarray points</em>, <em>ndarray output=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_grid_hartree_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the Hartree potential on a grid for a given density matrix.</p>
+<p><strong>Warning:</strong> the results are added to the output array! This may be useful to
+combine results from different spin components.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dm</strong> (<a class="reference internal" href="mod_horton_matrix_dense.html#horton.matrix.dense.DenseTwoIndex" title="horton.matrix.dense.DenseTwoIndex"><em>DenseTwoIndex</em></a>) – Density matrix, assumed to be symmetric.</li>
+<li><strong>points</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>3</em><em>)</em><em>, </em><em>dtype=float</em>) – Cartesian grid points.</li>
+<li><strong>output</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>,</em><em>)</em><em>, </em><em>dtype=float</em>) – Output array. When not given, it is allocated and returned.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>output</strong> – The output array.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray, shape=(npoint,), dtype=float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_grid_hessian_dm">
+<code class="descname">compute_grid_hessian_dm</code><span class="sig-paren">(</span><em>self</em>, <em>dm</em>, <em>ndarray points</em>, <em>ndarray output=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_grid_hessian_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the electron density Hessian on a grid for a given density matrix.</p>
+<p><strong>Warning:</strong> the results are added to the output array! This may be useful to
+combine results from different spin components.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dm</strong> (<a class="reference internal" href="mod_horton_matrix_dense.html#horton.matrix.dense.DenseTwoIndex" title="horton.matrix.dense.DenseTwoIndex"><em>DenseTwoIndex</em></a>) – Density matrix, assumed to be symmetric.</li>
+<li><strong>points</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>3</em><em>)</em><em>, </em><em>dtype=float</em>) – Cartesian grid points.</li>
+<li><strong>output</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>6</em><em>)</em><em>, </em><em>dtype=float</em>) – <p>Output array. When not given, it is allocated and returned. The columns are
+assigned as follows:</p>
+<ul>
+<li>0: element (0, 0) of the Hessian</li>
+<li>1: element (0, 1) of the Hessian</li>
+<li>2: element (0, 2) of the Hessian</li>
+<li>3: element (1, 1) of the Hessian</li>
+<li>4: element (1, 2) of the Hessian</li>
+<li>5: element (2, 2) of the Hessian</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>output</strong> – The output array.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray, shape=(npoint, 6), dtype=float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_grid_hessian_fock">
+<code class="descname">compute_grid_hessian_fock</code><span class="sig-paren">(</span><em>self</em>, <em>ndarray points</em>, <em>ndarray weights</em>, <em>ndarray pots</em>, <em>fock</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_grid_hessian_fock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a Fock operator from a density hessian potential.</p>
+<p><strong>Warning:</strong> the results are added to the Fock operator!</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>points</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>3</em><em>)</em><em>, </em><em>dtype=float</em>) – Cartesian grid points.</li>
+<li><strong>weights</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>,</em><em>)</em><em>, </em><em>dtype=float</em>) – Integration weights.</li>
+<li><strong>pots</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>6</em><em>)</em><em>, </em><em>dtype=float</em>) – <p>Derivative of energy toward components of the Hessian at all grid points. The
+columns are assigned as follows:</p>
+<ul>
+<li>0: element (0, 0) of the Hessian</li>
+<li>1: element (0, 1) of the Hessian</li>
+<li>2: element (0, 2) of the Hessian</li>
+<li>3: element (1, 1) of the Hessian</li>
+<li>4: element (1, 2) of the Hessian</li>
+<li>5: element (2, 2) of the Hessian</li>
+</ul>
+</li>
+<li><strong>fock</strong> (<a class="reference internal" href="mod_horton_matrix_dense.html#horton.matrix.dense.DenseTwoIndex" title="horton.matrix.dense.DenseTwoIndex"><em>DenseTwoIndex</em></a>) – Output dense two-index object.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_grid_kinetic_dm">
+<code class="descname">compute_grid_kinetic_dm</code><span class="sig-paren">(</span><em>self</em>, <em>dm</em>, <em>ndarray points</em>, <em>ndarray output=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_grid_kinetic_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the kinetic energy density on a grid for a given density matrix.</p>
+<p><strong>Warning:</strong> the results are added to the output array! This may be useful to
+combine results from different spin components.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dm</strong> (<a class="reference internal" href="mod_horton_matrix_dense.html#horton.matrix.dense.DenseTwoIndex" title="horton.matrix.dense.DenseTwoIndex"><em>DenseTwoIndex</em></a>) – Density matrix, assumed to be symmetric.</li>
+<li><strong>points</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>3</em><em>)</em><em>, </em><em>dtype=float</em>) – Cartesian grid points.</li>
+<li><strong>output</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>,</em><em>)</em><em>, </em><em>dtype=float</em>) – Output array. When not given, it is allocated and returned.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>output</strong> – The output array.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray, shape=(npoint,), dtype=float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_grid_kinetic_fock">
+<code class="descname">compute_grid_kinetic_fock</code><span class="sig-paren">(</span><em>self</em>, <em>ndarray points</em>, <em>ndarray weights</em>, <em>ndarray pots</em>, <em>fock</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_grid_kinetic_fock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a Fock operator from a kientic-energy-density potential.</p>
+<p><strong>Warning:</strong> the results are added to the Fock operator!</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>points</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>3</em><em>)</em><em>, </em><em>dtype=float</em>) – Cartesian grid points.</li>
+<li><strong>weights</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>,</em><em>)</em><em>, </em><em>dtype=float</em>) – Integration weights.</li>
+<li><strong>pots</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>,</em><em>)</em><em>, </em><em>dtype=float</em>) – Derivative of the energy toward the kinetic energy density at all grid points.</li>
+<li><strong>fock</strong> (<a class="reference internal" href="mod_horton_matrix_dense.html#horton.matrix.dense.DenseTwoIndex" title="horton.matrix.dense.DenseTwoIndex"><em>DenseTwoIndex</em></a>) – Output dense two-index object.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_grid_mgga_dm">
+<code class="descname">compute_grid_mgga_dm</code><span class="sig-paren">(</span><em>self</em>, <em>dm</em>, <em>ndarray points</em>, <em>ndarray output=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_grid_mgga_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the MGGA quantities for a given density matrix.</p>
+<p><strong>Warning:</strong> the results are added to the output array! This may be useful to
+combine results from different spin components.</p>
+<p>This includes the density, the gradient, the Laplacian and the
+kinetic energy density.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dm</strong> (<a class="reference internal" href="mod_horton_matrix_dense.html#horton.matrix.dense.DenseTwoIndex" title="horton.matrix.dense.DenseTwoIndex"><em>DenseTwoIndex</em></a>) – Density matrix, assumed to be symmetric.</li>
+<li><strong>points</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>3</em><em>)</em><em>, </em><em>dtype=float</em>) – Cartesian grid points.</li>
+<li><strong>output</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>6</em><em>)</em><em>, </em><em>dtype=float</em>) – <p>Output array. When not given, it is allocated and returned. The assignment of
+the columns is as follows:</p>
+<ul>
+<li>0: density</li>
+<li>1: gradient x</li>
+<li>2: gradient y</li>
+<li>3: gradient z</li>
+<li>4: laplacian</li>
+<li>5: kinetic energy density</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>output</strong> – The output array.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray, shape=(npoint, 6), dtype=float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_grid_mgga_fock">
+<code class="descname">compute_grid_mgga_fock</code><span class="sig-paren">(</span><em>self</em>, <em>ndarray points</em>, <em>ndarray weights</em>, <em>ndarray pots</em>, <em>fock</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_grid_mgga_fock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a Fock operator from MGGA potential data.</p>
+<p><strong>Warning:</strong> the results are added to the Fock operator!</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>points</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>3</em><em>)</em><em>, </em><em>dtype=float</em>) – Cartesian grid points.</li>
+<li><strong>weights</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>,</em><em>)</em><em>, </em><em>dtype=float</em>) – Integration weights.</li>
+<li><strong>pots</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>6</em><em>)</em><em>, </em><em>dtype=float</em>) – <p>Derivative of the energy toward density, gradient, Laplacian and kinetic
+energy density. The assignment of the columns is as follows:</p>
+<ul>
+<li>0: density</li>
+<li>1: gradient x</li>
+<li>2: gradient y</li>
+<li>3: gradient z</li>
+<li>4: laplacian</li>
+<li>5: kinetic energy density</li>
+</ul>
+</li>
+<li><strong>fock</strong> (<a class="reference internal" href="mod_horton_matrix_dense.html#horton.matrix.dense.DenseTwoIndex" title="horton.matrix.dense.DenseTwoIndex"><em>DenseTwoIndex</em></a>) – Output dense two-index object.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_grid_orb_gradient_exp">
+<code class="descname">compute_grid_orb_gradient_exp</code><span class="sig-paren">(</span><em>self</em>, <em>exp</em>, <em>ndarray points</em>, <em>ndarray iorbs</em>, <em>ndarray output=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_grid_orb_gradient_exp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the orbital gradient on a grid for a given set of expansion coefficients.</p>
+<p><strong>Warning:</strong> the results are added to the output array!</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>exp</strong> (<a class="reference internal" href="mod_horton_matrix_dense.html#horton.matrix.dense.DenseExpansion" title="horton.matrix.dense.DenseExpansion"><em>DenseExpansion</em></a>) – Orbitals.</li>
+<li><strong>points</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>3</em><em>)</em><em>, </em><em>dtype=float</em>) – Cartesian grid points.</li>
+<li><strong>iorbs</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>n</em><em>,</em><em>)</em><em>, </em><em>dtype=int</em>) – Indexes of the orbitals to be computed.</li>
+<li><strong>output</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>n</em><em>, </em><em>3</em><em>)</em><em>, </em><em>dtype=float</em>) – An output array. The results are added to this array. When not given, an
+output array is allocated.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>output</strong> – the output array. (It is allocated when not given.)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray, shape=(npoint, n, 3), dtype=float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_grid_orbitals_exp">
+<code class="descname">compute_grid_orbitals_exp</code><span class="sig-paren">(</span><em>self</em>, <em>exp</em>, <em>ndarray points</em>, <em>ndarray iorbs</em>, <em>ndarray output=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_grid_orbitals_exp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the orbitals on a grid for a given set of expansion coefficients.</p>
+<p><strong>Warning:</strong> the results are added to the output array!</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>exp</strong> (<a class="reference internal" href="mod_horton_matrix_dense.html#horton.matrix.dense.DenseExpansion" title="horton.matrix.dense.DenseExpansion"><em>DenseExpansion</em></a>) – Orbitals.</li>
+<li><strong>points</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>3</em><em>)</em><em>, </em><em>dtype=float</em>) – Cartesian grid points.</li>
+<li><strong>iorbs</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>n</em><em>,</em><em>)</em><em>, </em><em>dtype=int</em>) – Indexes of the orbitals to be computed. When not given, the orbitals with a
+non-zero occupation number are computed.</li>
+<li><strong>output</strong> (<em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><em>npoint</em><em>, </em><em>n</em><em>)</em><em>, </em><em>dtype=float</em>) – An output array. The results are added to this array. When not given, an
+output array is allocated.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>output</strong> – the output array. (It is allocated when not given.)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray, shape=(npoint, n), dtype=float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_grid_point1">
+<code class="descname">compute_grid_point1</code><span class="sig-paren">(</span><em>self</em>, <em>ndarray output</em>, <em>ndarray point</em>, <em>GB1DMGridFn grid_fn</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_grid_point1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_kinetic">
+<code class="descname">compute_kinetic</code><span class="sig-paren">(</span><em>self</em>, <em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_kinetic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the kinetic energy integrals in a Gaussian orbital basis</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>output</dt>
+<dd>When a <code class="docutils literal notranslate"><span class="pre">TwoIndex</span></code> instance is given, it is used as output
+argument and its contents are overwritten. When <code class="docutils literal notranslate"><span class="pre">LinalgFactory</span></code>
+is given, it is used to construct the output <code class="docutils literal notranslate"><span class="pre">TwoIndex</span></code>
+object. In both cases, the output two-index object is returned.</dd>
+</dl>
+<p><strong>Returns:</strong> <code class="docutils literal notranslate"><span class="pre">TwoIndex</span></code> object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_multipole_moment">
+<code class="descname">compute_multipole_moment</code><span class="sig-paren">(</span><em>self</em>, <em>ndarray xyz</em>, <em>ndarray center</em>, <em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_multipole_moment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the (multipole) moment integrals in a Gaussian orbital basis.</p>
+<p>Calculates the integral &lt; gto_a | (x - C_x)^l (y - C_y)^m (z - C_z)^n | gto_b &gt;</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>xyz</strong> (<em>numpy-array of int</em><em>, </em><em>shape=</em><em>(</em><em>3</em><em>,</em><em>)</em><em></em>) – A integer (long) numpy-array with shape (3,) with the powers of x,y,z in the
+integrals.</li>
+<li><strong>center</strong> (<em>np.ndarray</em><em>, </em><em>shape =</em><em> (</em><em>3</em><em>,</em><em>)</em>) – A numpy array of shape (3,) with the center [C_x, C_y, C_z] around which the
+moment integral is computed.</li>
+<li><strong>output</strong> (<code class="docutils literal notranslate"><span class="pre">TwoIndex</span></code> or <code class="docutils literal notranslate"><span class="pre">LinalgFactory</span></code> object) – When a <code class="docutils literal notranslate"><span class="pre">TwoIndex</span></code> instance is given, it is used as output argument and its
+contents are overwritten. When <code class="docutils literal notranslate"><span class="pre">LinalgFactory</span></code> is given, it is used to
+construct the output <code class="docutils literal notranslate"><span class="pre">TwoIndex</span></code> object. In both cases, the output two-index
+object is returned.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>output</strong> – The values of the integrals.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal notranslate"><span class="pre">TwoIndex</span></code> object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_nuclear_attraction">
+<code class="descname">compute_nuclear_attraction</code><span class="sig-paren">(</span><em>self</em>, <em>ndarray coordinates</em>, <em>ndarray charges</em>, <em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_nuclear_attraction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the nuclear attraction integral in a Gaussian orbital basis</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>coordinates</dt>
+<dd>A float array with shape (ncharge,3) with Cartesian coordinates
+of point charges that define the external field.</dd>
+<dt>charges</dt>
+<dd>A float array with shape (ncharge,) with the values of the
+charges.</dd>
+<dt>output</dt>
+<dd>When a <code class="docutils literal notranslate"><span class="pre">TwoIndex</span></code> instance is given, it is used as output
+argument and its contents are overwritten. When <code class="docutils literal notranslate"><span class="pre">LinalgFactory</span></code>
+is given, it is used to construct the output <code class="docutils literal notranslate"><span class="pre">TwoIndex</span></code>
+object. In both cases, the output two-index object is returned.</dd>
+</dl>
+<p><strong>Returns:</strong> <code class="docutils literal notranslate"><span class="pre">TwoIndex</span></code> object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_overlap">
+<code class="descname">compute_overlap</code><span class="sig-paren">(</span><em>self</em>, <em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_overlap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the overlap integrals in a Gaussian orbital basis</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>output</dt>
+<dd>When a <code class="docutils literal notranslate"><span class="pre">TwoIndex</span></code> instance is given, it is used as output
+argument and its contents are overwritten. When <code class="docutils literal notranslate"><span class="pre">LinalgFactory</span></code>
+is given, it is used to construct the output <code class="docutils literal notranslate"><span class="pre">TwoIndex</span></code>
+object. In both cases, the output two-index object is returned.</dd>
+</dl>
+<p><strong>Returns:</strong> <code class="docutils literal notranslate"><span class="pre">TwoIndex</span></code> object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.compute_ralpha_repulsion">
+<code class="descname">compute_ralpha_repulsion</code><span class="sig-paren">(</span><em>self</em>, <em>output</em>, <em>double alpha=-1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.compute_ralpha_repulsion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute r^alpha repulsion four-center integrals.</p>
+<p>The potential has the following form:</p>
+<div class="math notranslate nohighlight">
+\[v = r^{\alpha}\]</div>
+<p>with <span class="math notranslate nohighlight">\(\alpha &gt; -3\)</span>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>output</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.FourIndex" title="horton.matrix.base.FourIndex"><em>FourIndex</em></a>) – When a <code class="docutils literal notranslate"><span class="pre">DenseFourIndex</span></code> object is given, it is used as output argument and
+its contents are overwritten. When a <code class="docutils literal notranslate"><span class="pre">DenseLinalgFactory</span></code> or
+<code class="docutils literal notranslate"><span class="pre">CholeskyLinalgFactory</span></code> is given, it is used to construct the four-index
+object in which the integrals are stored.</li>
+<li><strong>alpha</strong> (<em>float</em>) – The power of r in the interation potential.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><em>output</em></li>
+<li><strong>Keywords</strong> (<span class="target" id="index-8"></span>ERI, <span class="target" id="index-9"></span>four-center integrals)</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.concatenate">
+<code class="descname">concatenate</code><span class="sig-paren">(</span><em>type cls</em>, <em>*gbs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.concatenate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Concatenate multiple basis objects into a new one.</p>
+<p><strong>Arguments:</strong> each argument is an instance of the same subclass of
+GBasis.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.from_hdf5">
+<code class="descname">from_hdf5</code><span class="sig-paren">(</span><em>type cls</em>, <em>grp</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.from_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.get_basis_atoms">
+<code class="descname">get_basis_atoms</code><span class="sig-paren">(</span><em>self</em>, <em>coordinates</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.get_basis_atoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of atomic basis sets for a given geometry</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>coordinates</dt>
+<dd>An (N, 3) array with atomic coordinates, used to find the
+centers associated with atoms. An exact match of the Cartesian
+coordinates is required to properly select a shell.</dd>
+</dl>
+<p><strong>Returns:</strong> A list with one tuple for every atom: (gbasis,
+ibasis_list), where gbasis is a basis set object for the atom and
+ibasis_list is a list of basis set indexes that can be used to
+substitute results from the atomic basis set back into the molecular
+basis set. For example, when a density matrix for the atom is
+obtained and it needs to be plugged back into the molecular density
+matrix, one can do the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mol_dm</span><span class="o">.</span><span class="n">_array</span><span class="p">[</span><span class="n">ibasis_list</span><span class="p">,</span><span class="n">ibasis_list</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">atom_dm</span><span class="o">.</span><span class="n">_array</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.get_scales">
+<code class="descname">get_scales</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.get_scales" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.get_subset">
+<code class="descname">get_subset</code><span class="sig-paren">(</span><em>self</em>, <em>ishells</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.get_subset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a sub basis set for a selection of shells</p>
+<p><strong>Argument:</strong></p>
+<dl class="docutils">
+<dt>ishells</dt>
+<dd>A list of indexes of shells to be retained in the sub basis set</dd>
+</dl>
+<p><strong>Returns:</strong> An instance of the same class as self containing only
+the basis functions of self that correspond to the select shells in
+the <code class="docutils literal notranslate"><span class="pre">ishells</span></code> list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GOBasis.to_hdf5">
+<code class="descname">to_hdf5</code><span class="sig-paren">(</span><em>self</em>, <em>grp</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GOBasis.to_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GOBasis.__init__">
+<code class="descname">__init__</code><a class="headerlink" href="#horton.gbasis.cext.GOBasis.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GOBasis.alphas">
+<code class="descname">alphas</code><a class="headerlink" href="#horton.gbasis.cext.GOBasis.alphas" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GOBasis.basis_offsets">
+<code class="descname">basis_offsets</code><a class="headerlink" href="#horton.gbasis.cext.GOBasis.basis_offsets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GOBasis.centers">
+<code class="descname">centers</code><a class="headerlink" href="#horton.gbasis.cext.GOBasis.centers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GOBasis.con_coeffs">
+<code class="descname">con_coeffs</code><a class="headerlink" href="#horton.gbasis.cext.GOBasis.con_coeffs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GOBasis.max_shell_type">
+<code class="descname">max_shell_type</code><a class="headerlink" href="#horton.gbasis.cext.GOBasis.max_shell_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GOBasis.nbasis">
+<code class="descname">nbasis</code><a class="headerlink" href="#horton.gbasis.cext.GOBasis.nbasis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GOBasis.ncenter">
+<code class="descname">ncenter</code><a class="headerlink" href="#horton.gbasis.cext.GOBasis.ncenter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GOBasis.nprim_total">
+<code class="descname">nprim_total</code><a class="headerlink" href="#horton.gbasis.cext.GOBasis.nprim_total" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GOBasis.nprims">
+<code class="descname">nprims</code><a class="headerlink" href="#horton.gbasis.cext.GOBasis.nprims" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GOBasis.nscales">
+<code class="descname">nscales</code><a class="headerlink" href="#horton.gbasis.cext.GOBasis.nscales" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GOBasis.nshell">
+<code class="descname">nshell</code><a class="headerlink" href="#horton.gbasis.cext.GOBasis.nshell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GOBasis.shell_lookup">
+<code class="descname">shell_lookup</code><a class="headerlink" href="#horton.gbasis.cext.GOBasis.shell_lookup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GOBasis.shell_map">
+<code class="descname">shell_map</code><a class="headerlink" href="#horton.gbasis.cext.GOBasis.shell_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GOBasis.shell_types">
+<code class="descname">shell_types</code><a class="headerlink" href="#horton.gbasis.cext.GOBasis.shell_types" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.gbasis.cext.GB2OverlapIntegral">
+<em class="property">class </em><code class="descclassname">horton.gbasis.cext.</code><code class="descname">GB2OverlapIntegral</code><a class="headerlink" href="#horton.gbasis.cext.GB2OverlapIntegral" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">horton.gbasis.cext.GB2Integral</span></code></p>
+<p>Wrapper for ints.GB2OverlapIntegral, for testing only</p>
+<dl class="method">
+<dt id="horton.gbasis.cext.GB2OverlapIntegral.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>self</em>, <em>double coeff</em>, <em>double alpha0</em>, <em>double alpha1</em>, <em>ndarray scales0</em>, <em>ndarray scales1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB2OverlapIntegral.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB2OverlapIntegral.cart_to_pure">
+<code class="descname">cart_to_pure</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB2OverlapIntegral.cart_to_pure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB2OverlapIntegral.get_work">
+<code class="descname">get_work</code><span class="sig-paren">(</span><em>self</em>, <em>shape0</em>, <em>shape1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB2OverlapIntegral.get_work" title="Permalink to this definition">¶</a></dt>
+<dd><p>This returns a <strong>copy</strong> of the c++ work array.</p>
+<p>Returning a numpy array with a buffer created in c++ is dangerous.
+If the c++ array becomes deallocated, the numpy array may still
+point to the deallocated memory. For that reason, a copy is returned.
+Speed is not an issue as this class is only used for testing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB2OverlapIntegral.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><em>self</em>, <em>long shell_type0</em>, <em>long shell_type1</em>, <em>ndarray r0</em>, <em>ndarray r1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB2OverlapIntegral.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB2OverlapIntegral.__init__">
+<code class="descname">__init__</code><a class="headerlink" href="#horton.gbasis.cext.GB2OverlapIntegral.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB2OverlapIntegral.max_nbasis">
+<code class="descname">max_nbasis</code><a class="headerlink" href="#horton.gbasis.cext.GB2OverlapIntegral.max_nbasis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB2OverlapIntegral.max_shell_type">
+<code class="descname">max_shell_type</code><a class="headerlink" href="#horton.gbasis.cext.GB2OverlapIntegral.max_shell_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB2OverlapIntegral.nwork">
+<code class="descname">nwork</code><a class="headerlink" href="#horton.gbasis.cext.GB2OverlapIntegral.nwork" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.gbasis.cext.GB2KineticIntegral">
+<em class="property">class </em><code class="descclassname">horton.gbasis.cext.</code><code class="descname">GB2KineticIntegral</code><a class="headerlink" href="#horton.gbasis.cext.GB2KineticIntegral" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">horton.gbasis.cext.GB2Integral</span></code></p>
+<p>Wrapper for ints.GB2KineticIntegral, for testing only</p>
+<dl class="method">
+<dt id="horton.gbasis.cext.GB2KineticIntegral.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>self</em>, <em>double coeff</em>, <em>double alpha0</em>, <em>double alpha1</em>, <em>ndarray scales0</em>, <em>ndarray scales1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB2KineticIntegral.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB2KineticIntegral.cart_to_pure">
+<code class="descname">cart_to_pure</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB2KineticIntegral.cart_to_pure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB2KineticIntegral.get_work">
+<code class="descname">get_work</code><span class="sig-paren">(</span><em>self</em>, <em>shape0</em>, <em>shape1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB2KineticIntegral.get_work" title="Permalink to this definition">¶</a></dt>
+<dd><p>This returns a <strong>copy</strong> of the c++ work array.</p>
+<p>Returning a numpy array with a buffer created in c++ is dangerous.
+If the c++ array becomes deallocated, the numpy array may still
+point to the deallocated memory. For that reason, a copy is returned.
+Speed is not an issue as this class is only used for testing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB2KineticIntegral.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><em>self</em>, <em>long shell_type0</em>, <em>long shell_type1</em>, <em>ndarray r0</em>, <em>ndarray r1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB2KineticIntegral.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB2KineticIntegral.__init__">
+<code class="descname">__init__</code><a class="headerlink" href="#horton.gbasis.cext.GB2KineticIntegral.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB2KineticIntegral.max_nbasis">
+<code class="descname">max_nbasis</code><a class="headerlink" href="#horton.gbasis.cext.GB2KineticIntegral.max_nbasis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB2KineticIntegral.max_shell_type">
+<code class="descname">max_shell_type</code><a class="headerlink" href="#horton.gbasis.cext.GB2KineticIntegral.max_shell_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB2KineticIntegral.nwork">
+<code class="descname">nwork</code><a class="headerlink" href="#horton.gbasis.cext.GB2KineticIntegral.nwork" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.gbasis.cext.GB2ErfAttractionIntegral">
+<em class="property">class </em><code class="descclassname">horton.gbasis.cext.</code><code class="descname">GB2ErfAttractionIntegral</code><a class="headerlink" href="#horton.gbasis.cext.GB2ErfAttractionIntegral" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">horton.gbasis.cext.GB2Integral</span></code></p>
+<p>Wrapper for ints.GB2ErfAttractionIntegral, for testing only</p>
+<dl class="method">
+<dt id="horton.gbasis.cext.GB2ErfAttractionIntegral.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>self</em>, <em>double coeff</em>, <em>double alpha0</em>, <em>double alpha1</em>, <em>ndarray scales0</em>, <em>ndarray scales1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB2ErfAttractionIntegral.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB2ErfAttractionIntegral.cart_to_pure">
+<code class="descname">cart_to_pure</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB2ErfAttractionIntegral.cart_to_pure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB2ErfAttractionIntegral.get_work">
+<code class="descname">get_work</code><span class="sig-paren">(</span><em>self</em>, <em>shape0</em>, <em>shape1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB2ErfAttractionIntegral.get_work" title="Permalink to this definition">¶</a></dt>
+<dd><p>This returns a <strong>copy</strong> of the c++ work array.</p>
+<p>Returning a numpy array with a buffer created in c++ is dangerous.
+If the c++ array becomes deallocated, the numpy array may still
+point to the deallocated memory. For that reason, a copy is returned.
+Speed is not an issue as this class is only used for testing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB2ErfAttractionIntegral.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><em>self</em>, <em>long shell_type0</em>, <em>long shell_type1</em>, <em>ndarray r0</em>, <em>ndarray r1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB2ErfAttractionIntegral.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB2ErfAttractionIntegral.__init__">
+<code class="descname">__init__</code><a class="headerlink" href="#horton.gbasis.cext.GB2ErfAttractionIntegral.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB2ErfAttractionIntegral.max_nbasis">
+<code class="descname">max_nbasis</code><a class="headerlink" href="#horton.gbasis.cext.GB2ErfAttractionIntegral.max_nbasis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB2ErfAttractionIntegral.max_shell_type">
+<code class="descname">max_shell_type</code><a class="headerlink" href="#horton.gbasis.cext.GB2ErfAttractionIntegral.max_shell_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB2ErfAttractionIntegral.mu">
+<code class="descname">mu</code><a class="headerlink" href="#horton.gbasis.cext.GB2ErfAttractionIntegral.mu" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB2ErfAttractionIntegral.nwork">
+<code class="descname">nwork</code><a class="headerlink" href="#horton.gbasis.cext.GB2ErfAttractionIntegral.nwork" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.gbasis.cext.GB2GaussAttractionIntegral">
+<em class="property">class </em><code class="descclassname">horton.gbasis.cext.</code><code class="descname">GB2GaussAttractionIntegral</code><a class="headerlink" href="#horton.gbasis.cext.GB2GaussAttractionIntegral" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">horton.gbasis.cext.GB2Integral</span></code></p>
+<p>Wrapper for ints.GB2GaussAttractionIntegral, for testing only</p>
+<dl class="method">
+<dt id="horton.gbasis.cext.GB2GaussAttractionIntegral.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>self</em>, <em>double coeff</em>, <em>double alpha0</em>, <em>double alpha1</em>, <em>ndarray scales0</em>, <em>ndarray scales1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB2GaussAttractionIntegral.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB2GaussAttractionIntegral.cart_to_pure">
+<code class="descname">cart_to_pure</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB2GaussAttractionIntegral.cart_to_pure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB2GaussAttractionIntegral.get_work">
+<code class="descname">get_work</code><span class="sig-paren">(</span><em>self</em>, <em>shape0</em>, <em>shape1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB2GaussAttractionIntegral.get_work" title="Permalink to this definition">¶</a></dt>
+<dd><p>This returns a <strong>copy</strong> of the c++ work array.</p>
+<p>Returning a numpy array with a buffer created in c++ is dangerous.
+If the c++ array becomes deallocated, the numpy array may still
+point to the deallocated memory. For that reason, a copy is returned.
+Speed is not an issue as this class is only used for testing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB2GaussAttractionIntegral.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><em>self</em>, <em>long shell_type0</em>, <em>long shell_type1</em>, <em>ndarray r0</em>, <em>ndarray r1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB2GaussAttractionIntegral.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB2GaussAttractionIntegral.__init__">
+<code class="descname">__init__</code><a class="headerlink" href="#horton.gbasis.cext.GB2GaussAttractionIntegral.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB2GaussAttractionIntegral.alpha">
+<code class="descname">alpha</code><a class="headerlink" href="#horton.gbasis.cext.GB2GaussAttractionIntegral.alpha" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB2GaussAttractionIntegral.c">
+<code class="descname">c</code><a class="headerlink" href="#horton.gbasis.cext.GB2GaussAttractionIntegral.c" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB2GaussAttractionIntegral.max_nbasis">
+<code class="descname">max_nbasis</code><a class="headerlink" href="#horton.gbasis.cext.GB2GaussAttractionIntegral.max_nbasis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB2GaussAttractionIntegral.max_shell_type">
+<code class="descname">max_shell_type</code><a class="headerlink" href="#horton.gbasis.cext.GB2GaussAttractionIntegral.max_shell_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB2GaussAttractionIntegral.nwork">
+<code class="descname">nwork</code><a class="headerlink" href="#horton.gbasis.cext.GB2GaussAttractionIntegral.nwork" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.gbasis.cext.GB2NuclearAttractionIntegral">
+<em class="property">class </em><code class="descclassname">horton.gbasis.cext.</code><code class="descname">GB2NuclearAttractionIntegral</code><a class="headerlink" href="#horton.gbasis.cext.GB2NuclearAttractionIntegral" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">horton.gbasis.cext.GB2Integral</span></code></p>
+<p>Wrapper for ints.GB2NuclearAttractionIntegral, for testing only</p>
+<dl class="method">
+<dt id="horton.gbasis.cext.GB2NuclearAttractionIntegral.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>self</em>, <em>double coeff</em>, <em>double alpha0</em>, <em>double alpha1</em>, <em>ndarray scales0</em>, <em>ndarray scales1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB2NuclearAttractionIntegral.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB2NuclearAttractionIntegral.cart_to_pure">
+<code class="descname">cart_to_pure</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB2NuclearAttractionIntegral.cart_to_pure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB2NuclearAttractionIntegral.get_work">
+<code class="descname">get_work</code><span class="sig-paren">(</span><em>self</em>, <em>shape0</em>, <em>shape1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB2NuclearAttractionIntegral.get_work" title="Permalink to this definition">¶</a></dt>
+<dd><p>This returns a <strong>copy</strong> of the c++ work array.</p>
+<p>Returning a numpy array with a buffer created in c++ is dangerous.
+If the c++ array becomes deallocated, the numpy array may still
+point to the deallocated memory. For that reason, a copy is returned.
+Speed is not an issue as this class is only used for testing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB2NuclearAttractionIntegral.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><em>self</em>, <em>long shell_type0</em>, <em>long shell_type1</em>, <em>ndarray r0</em>, <em>ndarray r1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB2NuclearAttractionIntegral.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB2NuclearAttractionIntegral.__init__">
+<code class="descname">__init__</code><a class="headerlink" href="#horton.gbasis.cext.GB2NuclearAttractionIntegral.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB2NuclearAttractionIntegral.max_nbasis">
+<code class="descname">max_nbasis</code><a class="headerlink" href="#horton.gbasis.cext.GB2NuclearAttractionIntegral.max_nbasis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB2NuclearAttractionIntegral.max_shell_type">
+<code class="descname">max_shell_type</code><a class="headerlink" href="#horton.gbasis.cext.GB2NuclearAttractionIntegral.max_shell_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB2NuclearAttractionIntegral.nwork">
+<code class="descname">nwork</code><a class="headerlink" href="#horton.gbasis.cext.GB2NuclearAttractionIntegral.nwork" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.gbasis.cext.GB4Integral">
+<em class="property">class </em><code class="descclassname">horton.gbasis.cext.</code><code class="descname">GB4Integral</code><a class="headerlink" href="#horton.gbasis.cext.GB4Integral" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Wrapper for ints.GB4Integral</p>
+<dl class="method">
+<dt id="horton.gbasis.cext.GB4Integral.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>self</em>, <em>double coeff</em>, <em>double alpha0</em>, <em>double alpha1</em>, <em>double alpha2</em>, <em>double alpha3</em>, <em>ndarray scales0</em>, <em>ndarray scales1</em>, <em>ndarray scales2</em>, <em>ndarray scales3</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB4Integral.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB4Integral.cart_to_pure">
+<code class="descname">cart_to_pure</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB4Integral.cart_to_pure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB4Integral.get_work">
+<code class="descname">get_work</code><span class="sig-paren">(</span><em>self</em>, <em>shape0</em>, <em>shape1</em>, <em>shape2</em>, <em>shape3</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB4Integral.get_work" title="Permalink to this definition">¶</a></dt>
+<dd><p>This returns a <strong>copy</strong> of the c++ work array.</p>
+<p>Returning a numpy array with a buffer created in c++ is dangerous.
+If the c++ array becomes deallocated, the numpy array may still
+point to the deallocated memory. For that reason, a copy is returned.
+Speed is not an issue as this class is only used for testing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB4Integral.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><em>self</em>, <em>long shell_type0</em>, <em>long shell_type1</em>, <em>long shell_type2</em>, <em>long shell_type3</em>, <em>ndarray r0</em>, <em>ndarray r1</em>, <em>ndarray r2</em>, <em>ndarray r3</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB4Integral.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB4Integral.__init__">
+<code class="descname">__init__</code><a class="headerlink" href="#horton.gbasis.cext.GB4Integral.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB4Integral.max_nbasis">
+<code class="descname">max_nbasis</code><a class="headerlink" href="#horton.gbasis.cext.GB4Integral.max_nbasis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB4Integral.max_shell_type">
+<code class="descname">max_shell_type</code><a class="headerlink" href="#horton.gbasis.cext.GB4Integral.max_shell_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB4Integral.nwork">
+<code class="descname">nwork</code><a class="headerlink" href="#horton.gbasis.cext.GB4Integral.nwork" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.gbasis.cext.GB4ElectronRepulsionIntegralLibInt">
+<em class="property">class </em><code class="descclassname">horton.gbasis.cext.</code><code class="descname">GB4ElectronRepulsionIntegralLibInt</code><a class="headerlink" href="#horton.gbasis.cext.GB4ElectronRepulsionIntegralLibInt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#horton.gbasis.cext.GB4Integral" title="horton.gbasis.cext.GB4Integral"><code class="xref py py-class docutils literal notranslate"><span class="pre">horton.gbasis.cext.GB4Integral</span></code></a></p>
+<p>Wrapper for ints.GB4ElectronRepulsionIntegralLibInt, for testing only</p>
+<dl class="method">
+<dt id="horton.gbasis.cext.GB4ElectronRepulsionIntegralLibInt.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>self</em>, <em>double coeff</em>, <em>double alpha0</em>, <em>double alpha1</em>, <em>double alpha2</em>, <em>double alpha3</em>, <em>ndarray scales0</em>, <em>ndarray scales1</em>, <em>ndarray scales2</em>, <em>ndarray scales3</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB4ElectronRepulsionIntegralLibInt.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB4ElectronRepulsionIntegralLibInt.cart_to_pure">
+<code class="descname">cart_to_pure</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB4ElectronRepulsionIntegralLibInt.cart_to_pure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB4ElectronRepulsionIntegralLibInt.get_work">
+<code class="descname">get_work</code><span class="sig-paren">(</span><em>self</em>, <em>shape0</em>, <em>shape1</em>, <em>shape2</em>, <em>shape3</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB4ElectronRepulsionIntegralLibInt.get_work" title="Permalink to this definition">¶</a></dt>
+<dd><p>This returns a <strong>copy</strong> of the c++ work array.</p>
+<p>Returning a numpy array with a buffer created in c++ is dangerous.
+If the c++ array becomes deallocated, the numpy array may still
+point to the deallocated memory. For that reason, a copy is returned.
+Speed is not an issue as this class is only used for testing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB4ElectronRepulsionIntegralLibInt.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><em>self</em>, <em>long shell_type0</em>, <em>long shell_type1</em>, <em>long shell_type2</em>, <em>long shell_type3</em>, <em>ndarray r0</em>, <em>ndarray r1</em>, <em>ndarray r2</em>, <em>ndarray r3</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB4ElectronRepulsionIntegralLibInt.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB4ElectronRepulsionIntegralLibInt.__init__">
+<code class="descname">__init__</code><a class="headerlink" href="#horton.gbasis.cext.GB4ElectronRepulsionIntegralLibInt.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB4ElectronRepulsionIntegralLibInt.max_nbasis">
+<code class="descname">max_nbasis</code><a class="headerlink" href="#horton.gbasis.cext.GB4ElectronRepulsionIntegralLibInt.max_nbasis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB4ElectronRepulsionIntegralLibInt.max_shell_type">
+<code class="descname">max_shell_type</code><a class="headerlink" href="#horton.gbasis.cext.GB4ElectronRepulsionIntegralLibInt.max_shell_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB4ElectronRepulsionIntegralLibInt.nwork">
+<code class="descname">nwork</code><a class="headerlink" href="#horton.gbasis.cext.GB4ElectronRepulsionIntegralLibInt.nwork" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.gbasis.cext.GB4ErfIntegralLibInt">
+<em class="property">class </em><code class="descclassname">horton.gbasis.cext.</code><code class="descname">GB4ErfIntegralLibInt</code><a class="headerlink" href="#horton.gbasis.cext.GB4ErfIntegralLibInt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#horton.gbasis.cext.GB4Integral" title="horton.gbasis.cext.GB4Integral"><code class="xref py py-class docutils literal notranslate"><span class="pre">horton.gbasis.cext.GB4Integral</span></code></a></p>
+<p>Wrapper for ints.GB4ElectronRepulsionIntegralLibInt, for testing only</p>
+<dl class="method">
+<dt id="horton.gbasis.cext.GB4ErfIntegralLibInt.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>self</em>, <em>double coeff</em>, <em>double alpha0</em>, <em>double alpha1</em>, <em>double alpha2</em>, <em>double alpha3</em>, <em>ndarray scales0</em>, <em>ndarray scales1</em>, <em>ndarray scales2</em>, <em>ndarray scales3</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB4ErfIntegralLibInt.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB4ErfIntegralLibInt.cart_to_pure">
+<code class="descname">cart_to_pure</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB4ErfIntegralLibInt.cart_to_pure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB4ErfIntegralLibInt.get_work">
+<code class="descname">get_work</code><span class="sig-paren">(</span><em>self</em>, <em>shape0</em>, <em>shape1</em>, <em>shape2</em>, <em>shape3</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB4ErfIntegralLibInt.get_work" title="Permalink to this definition">¶</a></dt>
+<dd><p>This returns a <strong>copy</strong> of the c++ work array.</p>
+<p>Returning a numpy array with a buffer created in c++ is dangerous.
+If the c++ array becomes deallocated, the numpy array may still
+point to the deallocated memory. For that reason, a copy is returned.
+Speed is not an issue as this class is only used for testing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB4ErfIntegralLibInt.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><em>self</em>, <em>long shell_type0</em>, <em>long shell_type1</em>, <em>long shell_type2</em>, <em>long shell_type3</em>, <em>ndarray r0</em>, <em>ndarray r1</em>, <em>ndarray r2</em>, <em>ndarray r3</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB4ErfIntegralLibInt.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB4ErfIntegralLibInt.__init__">
+<code class="descname">__init__</code><a class="headerlink" href="#horton.gbasis.cext.GB4ErfIntegralLibInt.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB4ErfIntegralLibInt.max_nbasis">
+<code class="descname">max_nbasis</code><a class="headerlink" href="#horton.gbasis.cext.GB4ErfIntegralLibInt.max_nbasis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB4ErfIntegralLibInt.max_shell_type">
+<code class="descname">max_shell_type</code><a class="headerlink" href="#horton.gbasis.cext.GB4ErfIntegralLibInt.max_shell_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB4ErfIntegralLibInt.mu">
+<code class="descname">mu</code><a class="headerlink" href="#horton.gbasis.cext.GB4ErfIntegralLibInt.mu" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB4ErfIntegralLibInt.nwork">
+<code class="descname">nwork</code><a class="headerlink" href="#horton.gbasis.cext.GB4ErfIntegralLibInt.nwork" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.gbasis.cext.GB4GaussIntegralLibInt">
+<em class="property">class </em><code class="descclassname">horton.gbasis.cext.</code><code class="descname">GB4GaussIntegralLibInt</code><a class="headerlink" href="#horton.gbasis.cext.GB4GaussIntegralLibInt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#horton.gbasis.cext.GB4Integral" title="horton.gbasis.cext.GB4Integral"><code class="xref py py-class docutils literal notranslate"><span class="pre">horton.gbasis.cext.GB4Integral</span></code></a></p>
+<p>Wrapper for ints.GB4GaussIntegralLibInt, for testing only</p>
+<dl class="method">
+<dt id="horton.gbasis.cext.GB4GaussIntegralLibInt.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>self</em>, <em>double coeff</em>, <em>double alpha0</em>, <em>double alpha1</em>, <em>double alpha2</em>, <em>double alpha3</em>, <em>ndarray scales0</em>, <em>ndarray scales1</em>, <em>ndarray scales2</em>, <em>ndarray scales3</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB4GaussIntegralLibInt.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB4GaussIntegralLibInt.cart_to_pure">
+<code class="descname">cart_to_pure</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB4GaussIntegralLibInt.cart_to_pure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB4GaussIntegralLibInt.get_work">
+<code class="descname">get_work</code><span class="sig-paren">(</span><em>self</em>, <em>shape0</em>, <em>shape1</em>, <em>shape2</em>, <em>shape3</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB4GaussIntegralLibInt.get_work" title="Permalink to this definition">¶</a></dt>
+<dd><p>This returns a <strong>copy</strong> of the c++ work array.</p>
+<p>Returning a numpy array with a buffer created in c++ is dangerous.
+If the c++ array becomes deallocated, the numpy array may still
+point to the deallocated memory. For that reason, a copy is returned.
+Speed is not an issue as this class is only used for testing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB4GaussIntegralLibInt.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><em>self</em>, <em>long shell_type0</em>, <em>long shell_type1</em>, <em>long shell_type2</em>, <em>long shell_type3</em>, <em>ndarray r0</em>, <em>ndarray r1</em>, <em>ndarray r2</em>, <em>ndarray r3</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB4GaussIntegralLibInt.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB4GaussIntegralLibInt.__init__">
+<code class="descname">__init__</code><a class="headerlink" href="#horton.gbasis.cext.GB4GaussIntegralLibInt.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB4GaussIntegralLibInt.alpha">
+<code class="descname">alpha</code><a class="headerlink" href="#horton.gbasis.cext.GB4GaussIntegralLibInt.alpha" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB4GaussIntegralLibInt.c">
+<code class="descname">c</code><a class="headerlink" href="#horton.gbasis.cext.GB4GaussIntegralLibInt.c" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB4GaussIntegralLibInt.max_nbasis">
+<code class="descname">max_nbasis</code><a class="headerlink" href="#horton.gbasis.cext.GB4GaussIntegralLibInt.max_nbasis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB4GaussIntegralLibInt.max_shell_type">
+<code class="descname">max_shell_type</code><a class="headerlink" href="#horton.gbasis.cext.GB4GaussIntegralLibInt.max_shell_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB4GaussIntegralLibInt.nwork">
+<code class="descname">nwork</code><a class="headerlink" href="#horton.gbasis.cext.GB4GaussIntegralLibInt.nwork" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.gbasis.cext.GB4RAlphaIntegralLibInt">
+<em class="property">class </em><code class="descclassname">horton.gbasis.cext.</code><code class="descname">GB4RAlphaIntegralLibInt</code><a class="headerlink" href="#horton.gbasis.cext.GB4RAlphaIntegralLibInt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#horton.gbasis.cext.GB4Integral" title="horton.gbasis.cext.GB4Integral"><code class="xref py py-class docutils literal notranslate"><span class="pre">horton.gbasis.cext.GB4Integral</span></code></a></p>
+<p>Wrapper for ints.GB4RAlphaIntegralLibInt, for testing only</p>
+<dl class="method">
+<dt id="horton.gbasis.cext.GB4RAlphaIntegralLibInt.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>self</em>, <em>double coeff</em>, <em>double alpha0</em>, <em>double alpha1</em>, <em>double alpha2</em>, <em>double alpha3</em>, <em>ndarray scales0</em>, <em>ndarray scales1</em>, <em>ndarray scales2</em>, <em>ndarray scales3</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB4RAlphaIntegralLibInt.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB4RAlphaIntegralLibInt.cart_to_pure">
+<code class="descname">cart_to_pure</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB4RAlphaIntegralLibInt.cart_to_pure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB4RAlphaIntegralLibInt.get_work">
+<code class="descname">get_work</code><span class="sig-paren">(</span><em>self</em>, <em>shape0</em>, <em>shape1</em>, <em>shape2</em>, <em>shape3</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB4RAlphaIntegralLibInt.get_work" title="Permalink to this definition">¶</a></dt>
+<dd><p>This returns a <strong>copy</strong> of the c++ work array.</p>
+<p>Returning a numpy array with a buffer created in c++ is dangerous.
+If the c++ array becomes deallocated, the numpy array may still
+point to the deallocated memory. For that reason, a copy is returned.
+Speed is not an issue as this class is only used for testing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB4RAlphaIntegralLibInt.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><em>self</em>, <em>long shell_type0</em>, <em>long shell_type1</em>, <em>long shell_type2</em>, <em>long shell_type3</em>, <em>ndarray r0</em>, <em>ndarray r1</em>, <em>ndarray r2</em>, <em>ndarray r3</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB4RAlphaIntegralLibInt.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB4RAlphaIntegralLibInt.__init__">
+<code class="descname">__init__</code><a class="headerlink" href="#horton.gbasis.cext.GB4RAlphaIntegralLibInt.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB4RAlphaIntegralLibInt.alpha">
+<code class="descname">alpha</code><a class="headerlink" href="#horton.gbasis.cext.GB4RAlphaIntegralLibInt.alpha" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB4RAlphaIntegralLibInt.max_nbasis">
+<code class="descname">max_nbasis</code><a class="headerlink" href="#horton.gbasis.cext.GB4RAlphaIntegralLibInt.max_nbasis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB4RAlphaIntegralLibInt.max_shell_type">
+<code class="descname">max_shell_type</code><a class="headerlink" href="#horton.gbasis.cext.GB4RAlphaIntegralLibInt.max_shell_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB4RAlphaIntegralLibInt.nwork">
+<code class="descname">nwork</code><a class="headerlink" href="#horton.gbasis.cext.GB4RAlphaIntegralLibInt.nwork" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.gbasis.cext.GB1DMGridDensityFn">
+<em class="property">class </em><code class="descclassname">horton.gbasis.cext.</code><code class="descname">GB1DMGridDensityFn</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridDensityFn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">horton.gbasis.cext.GB1DMGridFn</span></code></p>
+<dl class="method">
+<dt id="horton.gbasis.cext.GB1DMGridDensityFn.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>self</em>, <em>double coeff</em>, <em>double alpha0</em>, <em>ndarray scales0</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridDensityFn.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB1DMGridDensityFn.cart_to_pure">
+<code class="descname">cart_to_pure</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridDensityFn.cart_to_pure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB1DMGridDensityFn.get_work">
+<code class="descname">get_work</code><span class="sig-paren">(</span><em>self</em>, <em>shape0</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridDensityFn.get_work" title="Permalink to this definition">¶</a></dt>
+<dd><p>This returns a <strong>copy</strong> of the c++ work array.</p>
+<p>Returning a numpy array with a buffer created in c++ is dangerous.
+If the c++ array becomes deallocated, the numpy array may still
+point to the deallocated memory. For that reason, a copy is returned.
+Speed is not an issue as this class is only used for testing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB1DMGridDensityFn.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><em>self</em>, <em>long shell_type0</em>, <em>ndarray r0</em>, <em>ndarray point</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridDensityFn.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridDensityFn.__init__">
+<code class="descname">__init__</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridDensityFn.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridDensityFn.dim_output">
+<code class="descname">dim_output</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridDensityFn.dim_output" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridDensityFn.dim_work">
+<code class="descname">dim_work</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridDensityFn.dim_work" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridDensityFn.max_nbasis">
+<code class="descname">max_nbasis</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridDensityFn.max_nbasis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridDensityFn.max_shell_type">
+<code class="descname">max_shell_type</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridDensityFn.max_shell_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridDensityFn.nwork">
+<code class="descname">nwork</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridDensityFn.nwork" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridDensityFn.shell_type0">
+<code class="descname">shell_type0</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridDensityFn.shell_type0" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.gbasis.cext.GB1DMGridGradientFn">
+<em class="property">class </em><code class="descclassname">horton.gbasis.cext.</code><code class="descname">GB1DMGridGradientFn</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridGradientFn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">horton.gbasis.cext.GB1DMGridFn</span></code></p>
+<dl class="method">
+<dt id="horton.gbasis.cext.GB1DMGridGradientFn.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>self</em>, <em>double coeff</em>, <em>double alpha0</em>, <em>ndarray scales0</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridGradientFn.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB1DMGridGradientFn.cart_to_pure">
+<code class="descname">cart_to_pure</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridGradientFn.cart_to_pure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB1DMGridGradientFn.get_work">
+<code class="descname">get_work</code><span class="sig-paren">(</span><em>self</em>, <em>shape0</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridGradientFn.get_work" title="Permalink to this definition">¶</a></dt>
+<dd><p>This returns a <strong>copy</strong> of the c++ work array.</p>
+<p>Returning a numpy array with a buffer created in c++ is dangerous.
+If the c++ array becomes deallocated, the numpy array may still
+point to the deallocated memory. For that reason, a copy is returned.
+Speed is not an issue as this class is only used for testing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB1DMGridGradientFn.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><em>self</em>, <em>long shell_type0</em>, <em>ndarray r0</em>, <em>ndarray point</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridGradientFn.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridGradientFn.__init__">
+<code class="descname">__init__</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridGradientFn.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridGradientFn.dim_output">
+<code class="descname">dim_output</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridGradientFn.dim_output" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridGradientFn.dim_work">
+<code class="descname">dim_work</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridGradientFn.dim_work" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridGradientFn.max_nbasis">
+<code class="descname">max_nbasis</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridGradientFn.max_nbasis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridGradientFn.max_shell_type">
+<code class="descname">max_shell_type</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridGradientFn.max_shell_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridGradientFn.nwork">
+<code class="descname">nwork</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridGradientFn.nwork" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridGradientFn.shell_type0">
+<code class="descname">shell_type0</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridGradientFn.shell_type0" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.gbasis.cext.GB1DMGridGGAFn">
+<em class="property">class </em><code class="descclassname">horton.gbasis.cext.</code><code class="descname">GB1DMGridGGAFn</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridGGAFn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">horton.gbasis.cext.GB1DMGridFn</span></code></p>
+<dl class="method">
+<dt id="horton.gbasis.cext.GB1DMGridGGAFn.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>self</em>, <em>double coeff</em>, <em>double alpha0</em>, <em>ndarray scales0</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridGGAFn.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB1DMGridGGAFn.cart_to_pure">
+<code class="descname">cart_to_pure</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridGGAFn.cart_to_pure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB1DMGridGGAFn.get_work">
+<code class="descname">get_work</code><span class="sig-paren">(</span><em>self</em>, <em>shape0</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridGGAFn.get_work" title="Permalink to this definition">¶</a></dt>
+<dd><p>This returns a <strong>copy</strong> of the c++ work array.</p>
+<p>Returning a numpy array with a buffer created in c++ is dangerous.
+If the c++ array becomes deallocated, the numpy array may still
+point to the deallocated memory. For that reason, a copy is returned.
+Speed is not an issue as this class is only used for testing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB1DMGridGGAFn.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><em>self</em>, <em>long shell_type0</em>, <em>ndarray r0</em>, <em>ndarray point</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridGGAFn.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridGGAFn.__init__">
+<code class="descname">__init__</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridGGAFn.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridGGAFn.dim_output">
+<code class="descname">dim_output</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridGGAFn.dim_output" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridGGAFn.dim_work">
+<code class="descname">dim_work</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridGGAFn.dim_work" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridGGAFn.max_nbasis">
+<code class="descname">max_nbasis</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridGGAFn.max_nbasis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridGGAFn.max_shell_type">
+<code class="descname">max_shell_type</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridGGAFn.max_shell_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridGGAFn.nwork">
+<code class="descname">nwork</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridGGAFn.nwork" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridGGAFn.shell_type0">
+<code class="descname">shell_type0</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridGGAFn.shell_type0" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.gbasis.cext.GB1DMGridKineticFn">
+<em class="property">class </em><code class="descclassname">horton.gbasis.cext.</code><code class="descname">GB1DMGridKineticFn</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridKineticFn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">horton.gbasis.cext.GB1DMGridFn</span></code></p>
+<dl class="method">
+<dt id="horton.gbasis.cext.GB1DMGridKineticFn.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>self</em>, <em>double coeff</em>, <em>double alpha0</em>, <em>ndarray scales0</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridKineticFn.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB1DMGridKineticFn.cart_to_pure">
+<code class="descname">cart_to_pure</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridKineticFn.cart_to_pure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB1DMGridKineticFn.get_work">
+<code class="descname">get_work</code><span class="sig-paren">(</span><em>self</em>, <em>shape0</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridKineticFn.get_work" title="Permalink to this definition">¶</a></dt>
+<dd><p>This returns a <strong>copy</strong> of the c++ work array.</p>
+<p>Returning a numpy array with a buffer created in c++ is dangerous.
+If the c++ array becomes deallocated, the numpy array may still
+point to the deallocated memory. For that reason, a copy is returned.
+Speed is not an issue as this class is only used for testing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB1DMGridKineticFn.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><em>self</em>, <em>long shell_type0</em>, <em>ndarray r0</em>, <em>ndarray point</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridKineticFn.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridKineticFn.__init__">
+<code class="descname">__init__</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridKineticFn.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridKineticFn.dim_output">
+<code class="descname">dim_output</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridKineticFn.dim_output" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridKineticFn.dim_work">
+<code class="descname">dim_work</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridKineticFn.dim_work" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridKineticFn.max_nbasis">
+<code class="descname">max_nbasis</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridKineticFn.max_nbasis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridKineticFn.max_shell_type">
+<code class="descname">max_shell_type</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridKineticFn.max_shell_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridKineticFn.nwork">
+<code class="descname">nwork</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridKineticFn.nwork" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridKineticFn.shell_type0">
+<code class="descname">shell_type0</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridKineticFn.shell_type0" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.gbasis.cext.GB1DMGridHessianFn">
+<em class="property">class </em><code class="descclassname">horton.gbasis.cext.</code><code class="descname">GB1DMGridHessianFn</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridHessianFn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">horton.gbasis.cext.GB1DMGridFn</span></code></p>
+<dl class="method">
+<dt id="horton.gbasis.cext.GB1DMGridHessianFn.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>self</em>, <em>double coeff</em>, <em>double alpha0</em>, <em>ndarray scales0</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridHessianFn.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB1DMGridHessianFn.cart_to_pure">
+<code class="descname">cart_to_pure</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridHessianFn.cart_to_pure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB1DMGridHessianFn.get_work">
+<code class="descname">get_work</code><span class="sig-paren">(</span><em>self</em>, <em>shape0</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridHessianFn.get_work" title="Permalink to this definition">¶</a></dt>
+<dd><p>This returns a <strong>copy</strong> of the c++ work array.</p>
+<p>Returning a numpy array with a buffer created in c++ is dangerous.
+If the c++ array becomes deallocated, the numpy array may still
+point to the deallocated memory. For that reason, a copy is returned.
+Speed is not an issue as this class is only used for testing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB1DMGridHessianFn.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><em>self</em>, <em>long shell_type0</em>, <em>ndarray r0</em>, <em>ndarray point</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridHessianFn.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridHessianFn.__init__">
+<code class="descname">__init__</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridHessianFn.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridHessianFn.dim_output">
+<code class="descname">dim_output</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridHessianFn.dim_output" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridHessianFn.dim_work">
+<code class="descname">dim_work</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridHessianFn.dim_work" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridHessianFn.max_nbasis">
+<code class="descname">max_nbasis</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridHessianFn.max_nbasis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridHessianFn.max_shell_type">
+<code class="descname">max_shell_type</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridHessianFn.max_shell_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridHessianFn.nwork">
+<code class="descname">nwork</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridHessianFn.nwork" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridHessianFn.shell_type0">
+<code class="descname">shell_type0</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridHessianFn.shell_type0" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.gbasis.cext.GB1DMGridMGGAFn">
+<em class="property">class </em><code class="descclassname">horton.gbasis.cext.</code><code class="descname">GB1DMGridMGGAFn</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridMGGAFn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">horton.gbasis.cext.GB1DMGridFn</span></code></p>
+<dl class="method">
+<dt id="horton.gbasis.cext.GB1DMGridMGGAFn.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>self</em>, <em>double coeff</em>, <em>double alpha0</em>, <em>ndarray scales0</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridMGGAFn.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB1DMGridMGGAFn.cart_to_pure">
+<code class="descname">cart_to_pure</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridMGGAFn.cart_to_pure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB1DMGridMGGAFn.get_work">
+<code class="descname">get_work</code><span class="sig-paren">(</span><em>self</em>, <em>shape0</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridMGGAFn.get_work" title="Permalink to this definition">¶</a></dt>
+<dd><p>This returns a <strong>copy</strong> of the c++ work array.</p>
+<p>Returning a numpy array with a buffer created in c++ is dangerous.
+If the c++ array becomes deallocated, the numpy array may still
+point to the deallocated memory. For that reason, a copy is returned.
+Speed is not an issue as this class is only used for testing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.GB1DMGridMGGAFn.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><em>self</em>, <em>long shell_type0</em>, <em>ndarray r0</em>, <em>ndarray point</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridMGGAFn.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridMGGAFn.__init__">
+<code class="descname">__init__</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridMGGAFn.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridMGGAFn.dim_output">
+<code class="descname">dim_output</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridMGGAFn.dim_output" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridMGGAFn.dim_work">
+<code class="descname">dim_work</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridMGGAFn.dim_work" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridMGGAFn.max_nbasis">
+<code class="descname">max_nbasis</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridMGGAFn.max_nbasis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridMGGAFn.max_shell_type">
+<code class="descname">max_shell_type</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridMGGAFn.max_shell_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridMGGAFn.nwork">
+<code class="descname">nwork</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridMGGAFn.nwork" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.GB1DMGridMGGAFn.shell_type0">
+<code class="descname">shell_type0</code><a class="headerlink" href="#horton.gbasis.cext.GB1DMGridMGGAFn.shell_type0" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.gbasis.cext.IterGB1">
+<em class="property">class </em><code class="descclassname">horton.gbasis.cext.</code><code class="descname">IterGB1</code><a class="headerlink" href="#horton.gbasis.cext.IterGB1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Wrapper for the IterGB1 class, for testing only.</p>
+<dl class="method">
+<dt id="horton.gbasis.cext.IterGB1.inc_prim">
+<code class="descname">inc_prim</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.IterGB1.inc_prim" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.IterGB1.inc_shell">
+<code class="descname">inc_shell</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.IterGB1.inc_shell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.IterGB1.store">
+<code class="descname">store</code><span class="sig-paren">(</span><em>self</em>, <em>ndarray work</em>, <em>ndarray output</em>, <em>long dim=1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.IterGB1.store" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.IterGB1.update_prim">
+<code class="descname">update_prim</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.IterGB1.update_prim" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.IterGB1.update_shell">
+<code class="descname">update_shell</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.IterGB1.update_shell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.IterGB1.__init__">
+<code class="descname">__init__</code><a class="headerlink" href="#horton.gbasis.cext.IterGB1.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.IterGB1.private_fields">
+<code class="descname">private_fields</code><a class="headerlink" href="#horton.gbasis.cext.IterGB1.private_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.IterGB1.public_fields">
+<code class="descname">public_fields</code><a class="headerlink" href="#horton.gbasis.cext.IterGB1.public_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.gbasis.cext.IterGB2">
+<em class="property">class </em><code class="descclassname">horton.gbasis.cext.</code><code class="descname">IterGB2</code><a class="headerlink" href="#horton.gbasis.cext.IterGB2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Wrapper for the IterGB2 class, for testing only.</p>
+<dl class="method">
+<dt id="horton.gbasis.cext.IterGB2.inc_prim">
+<code class="descname">inc_prim</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.IterGB2.inc_prim" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.IterGB2.inc_shell">
+<code class="descname">inc_shell</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.IterGB2.inc_shell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.IterGB2.store">
+<code class="descname">store</code><span class="sig-paren">(</span><em>self</em>, <em>ndarray work</em>, <em>ndarray output</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.IterGB2.store" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.IterGB2.update_prim">
+<code class="descname">update_prim</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.IterGB2.update_prim" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.IterGB2.update_shell">
+<code class="descname">update_shell</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.IterGB2.update_shell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.IterGB2.__init__">
+<code class="descname">__init__</code><a class="headerlink" href="#horton.gbasis.cext.IterGB2.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.IterGB2.private_fields">
+<code class="descname">private_fields</code><a class="headerlink" href="#horton.gbasis.cext.IterGB2.private_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.IterGB2.public_fields">
+<code class="descname">public_fields</code><a class="headerlink" href="#horton.gbasis.cext.IterGB2.public_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.gbasis.cext.IterGB4">
+<em class="property">class </em><code class="descclassname">horton.gbasis.cext.</code><code class="descname">IterGB4</code><a class="headerlink" href="#horton.gbasis.cext.IterGB4" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Wrapper for the IterGB4 class, for testing only.</p>
+<dl class="method">
+<dt id="horton.gbasis.cext.IterGB4.inc_prim">
+<code class="descname">inc_prim</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.IterGB4.inc_prim" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.IterGB4.inc_shell">
+<code class="descname">inc_shell</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.IterGB4.inc_shell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.IterGB4.store">
+<code class="descname">store</code><span class="sig-paren">(</span><em>self</em>, <em>ndarray work</em>, <em>ndarray output</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.IterGB4.store" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.IterGB4.update_prim">
+<code class="descname">update_prim</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.IterGB4.update_prim" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.gbasis.cext.IterGB4.update_shell">
+<code class="descname">update_shell</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.IterGB4.update_shell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.IterGB4.__init__">
+<code class="descname">__init__</code><a class="headerlink" href="#horton.gbasis.cext.IterGB4.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.IterGB4.private_fields">
+<code class="descname">private_fields</code><a class="headerlink" href="#horton.gbasis.cext.IterGB4.private_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.IterGB4.public_fields">
+<code class="descname">public_fields</code><a class="headerlink" href="#horton.gbasis.cext.IterGB4.public_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.gbasis.cext.IterPow1">
+<em class="property">class </em><code class="descclassname">horton.gbasis.cext.</code><code class="descname">IterPow1</code><span class="sig-paren">(</span><em>long shell_type0</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.IterPow1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Wrapper for the IterPow1 class, for testing only.</p>
+<dl class="method">
+<dt id="horton.gbasis.cext.IterPow1.inc">
+<code class="descname">inc</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.IterPow1.inc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.IterPow1.__init__">
+<code class="descname">__init__</code><a class="headerlink" href="#horton.gbasis.cext.IterPow1.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.IterPow1.fields">
+<code class="descname">fields</code><a class="headerlink" href="#horton.gbasis.cext.IterPow1.fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.gbasis.cext.IterPow2">
+<em class="property">class </em><code class="descclassname">horton.gbasis.cext.</code><code class="descname">IterPow2</code><span class="sig-paren">(</span><em>long shell_type0</em>, <em>long shell_type1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.IterPow2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Wrapper for the IterPow2 class, for testing only.</p>
+<dl class="method">
+<dt id="horton.gbasis.cext.IterPow2.inc">
+<code class="descname">inc</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.IterPow2.inc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.IterPow2.__init__">
+<code class="descname">__init__</code><a class="headerlink" href="#horton.gbasis.cext.IterPow2.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.gbasis.cext.IterPow2.fields">
+<code class="descname">fields</code><a class="headerlink" href="#horton.gbasis.cext.IterPow2.fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="horton.gbasis.cext.boys_function">
+<code class="descclassname">horton.gbasis.cext.</code><code class="descname">boys_function</code><span class="sig-paren">(</span><em>long m</em>, <em>double t</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.boys_function" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="horton.gbasis.cext.boys_function_array">
+<code class="descclassname">horton.gbasis.cext.</code><code class="descname">boys_function_array</code><span class="sig-paren">(</span><em>long mmax</em>, <em>double t</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.boys_function_array" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="horton.gbasis.cext.cart_to_pure_low">
+<code class="descclassname">horton.gbasis.cext.</code><code class="descname">cart_to_pure_low</code><span class="sig-paren">(</span><em>ndarray work_cart</em>, <em>ndarray work_pure</em>, <em>long shell_type</em>, <em>long nant</em>, <em>long npost</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.cart_to_pure_low" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="horton.gbasis.cext.compute_cholesky">
+<code class="descclassname">horton.gbasis.cext.</code><code class="descname">compute_cholesky</code><span class="sig-paren">(</span><em>GOBasis gobasis</em>, <em>GB4Integral gb4int</em>, <em>double threshold=1e-8</em>, <em>lf=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.compute_cholesky" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="horton.gbasis.cext.fac">
+<code class="descclassname">horton.gbasis.cext.</code><code class="descname">fac</code><span class="sig-paren">(</span><em>long n</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.fac" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="horton.gbasis.cext.fac2">
+<code class="descclassname">horton.gbasis.cext.</code><code class="descname">fac2</code><span class="sig-paren">(</span><em>long n</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.fac2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="horton.gbasis.cext.binom">
+<code class="descclassname">horton.gbasis.cext.</code><code class="descname">binom</code><span class="sig-paren">(</span><em>long n</em>, <em>long m</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.binom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="horton.gbasis.cext.get_shell_nbasis">
+<code class="descclassname">horton.gbasis.cext.</code><code class="descname">get_shell_nbasis</code><span class="sig-paren">(</span><em>long shell_type</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.get_shell_nbasis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="horton.gbasis.cext.get_max_shell_type">
+<code class="descclassname">horton.gbasis.cext.</code><code class="descname">get_max_shell_type</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.get_max_shell_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="horton.gbasis.cext.gpt_coeff">
+<code class="descclassname">horton.gbasis.cext.</code><code class="descname">gpt_coeff</code><span class="sig-paren">(</span><em>long k</em>, <em>long n0</em>, <em>long n1</em>, <em>double pa</em>, <em>double pb</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.gpt_coeff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="horton.gbasis.cext.gb_overlap_int1d">
+<code class="descclassname">horton.gbasis.cext.</code><code class="descname">gb_overlap_int1d</code><span class="sig-paren">(</span><em>long n0</em>, <em>long n1</em>, <em>double pa</em>, <em>double pb</em>, <em>double inv_gamma</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.gb_overlap_int1d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="horton.gbasis.cext.nuclear_attraction_helper">
+<code class="descclassname">horton.gbasis.cext.</code><code class="descname">nuclear_attraction_helper</code><span class="sig-paren">(</span><em>ndarray work_g</em>, <em>long n0</em>, <em>long n1</em>, <em>double pa</em>, <em>double pb</em>, <em>double cp</em>, <em>double gamma_inv</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.nuclear_attraction_helper" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="horton.gbasis.cext.cit">
+<code class="descclassname">horton.gbasis.cext.</code><code class="descname">cit</code><span class="sig-paren">(</span><em>int i</em>, <em>double t</em>, <em>int m</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.cit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="horton.gbasis.cext.jfac">
+<code class="descclassname">horton.gbasis.cext.</code><code class="descname">jfac</code><span class="sig-paren">(</span><em>int j</em>, <em>int n</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.jfac" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="horton.gbasis.cext.dtaylor">
+<code class="descclassname">horton.gbasis.cext.</code><code class="descname">dtaylor</code><span class="sig-paren">(</span><em>int n</em>, <em>double alpha</em>, <em>double t</em>, <em>double tfactor</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.dtaylor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="horton.gbasis.cext.gob_cart_normalization">
+<code class="descclassname">horton.gbasis.cext.</code><code class="descname">gob_cart_normalization</code><span class="sig-paren">(</span><em>double alpha</em>, <em>ndarray n</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.gob_cart_normalization" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="horton.gbasis.cext.gob_pure_normalization">
+<code class="descclassname">horton.gbasis.cext.</code><code class="descname">gob_pure_normalization</code><span class="sig-paren">(</span><em>double alpha</em>, <em>long l</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.gob_pure_normalization" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="horton.gbasis.cext.get_2index_slice">
+<code class="descclassname">horton.gbasis.cext.</code><code class="descname">get_2index_slice</code><span class="sig-paren">(</span><em>GOBasis gobasis</em>, <em>long index0</em>, <em>long index2</em>, <em>ndarray slice</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.get_2index_slice" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="horton.gbasis.cext.compute_diagonal">
+<code class="descclassname">horton.gbasis.cext.</code><code class="descname">compute_diagonal</code><span class="sig-paren">(</span><em>GOBasis gobasis</em>, <em>ndarray diagonal</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.compute_diagonal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="horton.gbasis.cext.select_2index">
+<code class="descclassname">horton.gbasis.cext.</code><code class="descname">select_2index</code><span class="sig-paren">(</span><em>GOBasis gobasis</em>, <em>long index0</em>, <em>long index2</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.select_2index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="horton.gbasis.cext.iter_pow1_inc">
+<code class="descclassname">horton.gbasis.cext.</code><code class="descname">iter_pow1_inc</code><span class="sig-paren">(</span><em>ndarray n</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.gbasis.cext.iter_pow1_inc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_gbasis_gobasis.html" class="btn btn-neutral float-right" title="3.3.2. horton.gbasis.gobasis – Gaussian orbital basis set module." accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="pck_horton_gbasis.html" class="btn btn-neutral" title="3.3. horton.gbasis – Gaussian basis sets" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.1 built from release 2.1.1-1-g3a5adfea (Jan 18, 2019). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jan 18, 2019.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../',
+              VERSION:'2.1.1-1-g3a5adfea (Jan 18, 2019)',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

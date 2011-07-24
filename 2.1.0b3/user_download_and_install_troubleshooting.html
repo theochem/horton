@@ -1,0 +1,462 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>1.6. Troubleshooting &mdash; HORTON 2.1.0b3 (Jun 30, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="HORTON 2.1.0b3 (Jun 30, 2017) documentation" href="index.html"/>
+        <link rel="up" title="1. Download and Installation" href="user_download_and_install.html"/>
+        <link rel="next" title="2. Getting Started" href="user_getting_started.html"/>
+        <link rel="prev" title="1.5. Controlling dynamic/static linking against LibXC and LibInt2" href="user_download_and_install_setup_cfg.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.0b3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="user_download_and_install_package_manager.html">1.1. Download and installation with a package manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_download_and_install_linux.html">1.2. Download and installation from source on Linux (Fedora and Ubuntu)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_download_and_install_mac.html">1.3. Download and installation from source on Mac OS X (10.8–10.11)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_download_and_install_windows.html">1.4. Download and installation from source on Windows 10 64-bit (v. 1607)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_download_and_install_setup_cfg.html">1.5. Controlling dynamic/static linking against LibXC and LibInt2</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1.6. Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">1.6.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-packages">1.6.2. Python packages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#excecutables">1.6.3. Excecutables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#libraries">1.6.4. Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#failing-tests">1.6.5. Failing tests</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="user_download_and_install.html">1. Download and Installation</a> &raquo;</li>
+        
+      <li>1.6. Troubleshooting</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/user_download_and_install_troubleshooting.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="troubleshooting">
+<h1>1.6. Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h1>
+<p>On a fresh Linux or Mac machine, the instructions given in the “Download and
+Install” guides should result in a working installation of HORTON, without using
+any of the suggestions below. In reality, however, the Unix system of an average
+researcher isn’t pristine but rahter ranges from <em>cleverly customized</em> to
+<em>completely borked</em>. Such customizations may interfere with the installation of
+HORTON. This section provides some guidance for the novice Unix user on how to
+get HORTON working on a not-so-well-maintained Unix system.</p>
+<p>If you are still stuck after trying the suggestions in this section, do not
+hesitate to contact us on the <a class="reference external" href="https://groups.google.com/forum/#!forum/horton-discuss">the HORTON mailing list</a>.</p>
+<div class="section" id="introduction">
+<h2>1.6.1. Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Let us assume you have already built and installed all your dependencies.
+However, when you try to install HORTON, i.e.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>./setup.py install --user
+</pre></div>
+</div>
+<p>or when you run <code class="docutils literal"><span class="pre">nosetests</span></code>, you get an unexpected error message. The problem
+is most likely related to finding and using the dependencies. You have to make
+sure <code class="docutils literal"><span class="pre">setup.py</span></code> and the HORTON modules can find the right dependencies and are
+able to use them. We have seen problems with several types of dependencies: missing Python
+packages, executables, libraries and failing tests.</p>
+</div>
+<div class="section" id="python-packages">
+<h2>1.6.2. Python packages<a class="headerlink" href="#python-packages" title="Permalink to this headline">¶</a></h2>
+<p>If you have installed a python package (e.g. NumPy, SciPy, Cython, H5Py,
+SymPy, MatPlotLib, Nosetests, Sphinx, Breathe, Docutils) and you get an error
+saying your system cannot find that package, then you need to check the
+directories in which Python searches for package. These are stored
+in the attribute <code class="docutils literal"><span class="pre">path</span></code> of the <code class="docutils literal"><span class="pre">sys</span></code> module, which can be accessed by:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>python -c <span class="s2">&quot;import sys; import pprint; pprint.pprint(sys.path)&quot;</span>
+</pre></div>
+</div>
+<p>A typical output can be as follows (but is probably different in your case):</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;/usr/lib64/python27.zip&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;/usr/lib64/python2.7&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;/usr/lib64/python2.7/plat-linux2&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;/usr/lib64/python2.7/lib-tk&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;/usr/lib64/python2.7/lib-old&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;/usr/lib64/python2.7/lib-dynload&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;/home/foo/.local/lib/python2.7/site-packages&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;/usr/lib64/python2.7/site-packages&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;/usr/lib64/python2.7/site-packages/gtk-2.0&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;/usr/lib/python2.7/site-packages&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>If you installed a Python package in another directory, Python will not be able
+to load it. This can be fixed by adding your directory to the <code class="docutils literal"><span class="pre">PYTHONPATH</span></code>
+variable in your <code class="docutils literal"><span class="pre">${HOME}/.bashrc</span></code> (Linux) or <code class="docutils literal"><span class="pre">${HOME}/.bash_profile</span></code> (Mac),
+e.g.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span>/some/custom/path/lib/python2.7/site-packages:<span class="si">${</span><span class="nv">PYTHONPATH</span><span class="si">}</span>
+</pre></div>
+</div>
+<p>The next time you start Python (or any program implemented in with Python), the
+packages you installed in a non-standard location will become importable. If the
+same Python module or package is installed in multiple directories, the one
+found in the first directory in the <code class="docutils literal"><span class="pre">sys.path</span></code> list takes precedence.</p>
+<p>A typical problem is that there are multiple lines like these in <code class="docutils literal"><span class="pre">.bashrc</span></code> or
+<code class="docutils literal"><span class="pre">.bash_profile</span></code> of which the last is overwriting the former ones, e.g.:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span>/some/custom/path/lib/python2.7/site-packages:<span class="si">${</span><span class="nv">PYTHONPATH</span><span class="si">}</span>
+<span class="c1"># and several lines further ...</span>
+<span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span>/some/other/path/lib/python2.7/site-packages
+</pre></div>
+</div>
+<p>The second <code class="docutils literal"><span class="pre">export</span></code> line overrides the first one because it does not end with
+<code class="docutils literal"><span class="pre">:${PYTHONPATH}</span></code>.</p>
+<p>Some examples are given below. Note that, in principle, none of these should be
+necessary but they seem to have helped people with a broken installation of
+Python:</p>
+<ul>
+<li><p class="first">Some Mac users needed to set the <code class="docutils literal"><span class="pre">PYTHONPATH</span></code> after installing modules
+through PIP:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/Library/Python/2.7/lib/python/site-packages:<span class="si">${</span><span class="nv">PYTHONPATH</span><span class="si">}</span>
+</pre></div>
+</div>
+<p>or their system site-packages:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span>/Library/Python/2.7/lib/python/site-packages:<span class="si">${</span><span class="nv">PYTHONPATH</span><span class="si">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Similarly, a few Linux users needed to set <code class="docutils literal"><span class="pre">PYTHONPATH</span></code> after installation
+through PIP:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/.local/lib/python2.7/site-packages:<span class="si">${</span><span class="nv">PYTHONPATH</span><span class="si">}</span>
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span>/lib/python2.7/site-packages:<span class="si">${</span><span class="nv">PYTHONPATH</span><span class="si">}</span>
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span>/lib64/python2.7/site-packages
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="excecutables">
+<h2>1.6.3. Excecutables<a class="headerlink" href="#excecutables" title="Permalink to this headline">¶</a></h2>
+<p>During the installation (or when building the documentation) HORTON will use
+some executables, e.g. a compiler, <code class="docutils literal"><span class="pre">sphinx-build</span></code>, etc. These executables must
+be in one of the directories in the <code class="docutils literal"><span class="pre">PATH</span></code> environment variable. The essential
+changes to the <code class="docutils literal"><span class="pre">PATH</span></code> variable were already discussed in the “Download and
+install” guides but if your system is somehow broken, more changes may be
+needed.</p>
+<p>The contents of <code class="docutils literal"><span class="pre">PATH</span></code> can be accessed by:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">echo</span> <span class="nv">$PATH</span>
+</pre></div>
+</div>
+<p>In unfavorable circumstances, some directories may be missing from the <code class="docutils literal"><span class="pre">PATH</span></code>,
+e.g because it got carelessly overwritten in <code class="docutils literal"><span class="pre">${HOME}/.bashrc</span></code> (Linux) or
+<code class="docutils literal"><span class="pre">${HOME}/.bash_profile</span></code> (Mac). For example, the following should be avoided:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span>/some/custom/path/bin
+</pre></div>
+</div>
+<p>Instead, make sure the existing <code class="docutils literal"><span class="pre">PATH</span></code> variable is included as follows:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span>/some/custom/path/bin:<span class="si">${</span><span class="nv">PATH</span><span class="si">}</span>
+</pre></div>
+</div>
+<p>If the same executable name occurs in several directories in the <code class="docutils literal"><span class="pre">PATH</span></code>, the
+one in the first directory takes precedence.</p>
+<p>The following examples are in principle not needed but they seemed to be helpful
+for some:</p>
+<ul>
+<li><p class="first">Mac users that uses python scripts might do</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># Already mentioned in &quot;Download and install&quot; guide:</span>
+<span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/Library/Python/2.7/bin:<span class="si">${</span><span class="nv">PATH</span><span class="si">}</span>
+<span class="c1"># Should already be in the PATH anyway, unless your system is broken:</span>
+<span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span>/Library/Python/2.7/bin:<span class="si">${</span><span class="nv">PATH</span><span class="si">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Similarly, Linux users may do</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># Already mentioned in &quot;Download and install&quot; guide:</span>
+<span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/.local/bin:<span class="si">${</span><span class="nv">PATH</span><span class="si">}</span>
+<span class="c1"># Should already be in the PATH anyway, unless your system is broken:</span>
+<span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span>/usr/bin:<span class="si">${</span><span class="nv">PATH</span><span class="si">}</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>When you forgot where you installed a dependency, the <code class="docutils literal"><span class="pre">find</span></code> command may help
+you find the appropriate directory. The following example will search for
+location of the <code class="docutils literal"><span class="pre">sphinx-build</span></code> executable:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>find / <span class="p">|</span> grep sphinx-build
+</pre></div>
+</div>
+</div>
+<div class="section" id="libraries">
+<h2>1.6.4. Libraries<a class="headerlink" href="#libraries" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">LibXC-3</p>
+<p>When you get the following error message upon running <code class="docutils literal"><span class="pre">./setup.py</span></code>, you are trying
+to compile HORTON with LibXC-3:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>gcc -pthread -fno-strict-aliasing -O2 -g -pipe -Wall -Werror<span class="o">=</span>format-security -Wp,-D_FORTIFY_SOURCE<span class="o">=</span><span class="m">2</span> -fexceptions -fstack-protector-strong --param<span class="o">=</span>ssp-buffer-size<span class="o">=</span><span class="m">4</span> -grecord-gcc-switches -specs<span class="o">=</span>/usr/lib/rpm/redhat/redhat-hardened-cc1 -m64 -mtune<span class="o">=</span>generic -D_GNU_SOURCE -fPIC -fwrapv -DNDEBUG -O2 -g -pipe -Wall -Werror<span class="o">=</span>format-security -Wp,-D_FORTIFY_SOURCE<span class="o">=</span><span class="m">2</span> -fexceptions -fstack-protector-strong --param<span class="o">=</span>ssp-buffer-size<span class="o">=</span><span class="m">4</span> -grecord-gcc-switches -specs<span class="o">=</span>/usr/lib/rpm/redhat/redhat-hardened-cc1 -m64 -mtune<span class="o">=</span>generic -D_GNU_SOURCE -fPIC -fwrapv -fPIC -I/usr/lib64/python2.7/site-packages/numpy/core/include -I. -I/usr/include/python2.7 -c horton/meanfield/cext.cpp -o build/temp.linux-x86_64-2.7/horton/meanfield/cext.o -std<span class="o">=</span>c++11
+In file included from /usr/lib64/python2.7/site-packages/numpy/core/include/numpy/ndarraytypes.h:1777:0,
+                 from /usr/lib64/python2.7/site-packages/numpy/core/include/numpy/ndarrayobject.h:18,
+                 from /usr/lib64/python2.7/site-packages/numpy/core/include/numpy/arrayobject.h:4,
+                 from horton/meanfield/cext.cpp:449:
+/usr/lib64/python2.7/site-packages/numpy/core/include/numpy/npy_1_7_deprecated_api.h:15:2: warning: <span class="c1">#warning &quot;Using deprecated NumPy API, disable it by &quot; &quot;#defining NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION&quot; [-Wcpp]</span>
+ <span class="c1">#warning &quot;Using deprecated NumPy API, disable it by &quot; \</span>
+  ^~~~~~~
+horton/meanfield/cext.cpp: In <span class="k">function</span> ‘PyObject* __pyx_pf_6horton_9meanfield_4cext_12LibXCWrapper_4refs___get__<span class="o">(</span>__pyx_obj_6horton_9meanfield_4cext_LibXCWrapper*<span class="o">)</span>’:
+horton/meanfield/cext.cpp:2110:74: error: cannot convert ‘func_reference_type* const*’ to ‘const char*’ <span class="k">for</span> argument ‘1’ to ‘PyObject* PyString_FromString<span class="o">(</span>const char*<span class="o">)</span>’
+   <span class="nv">__pyx_t_1</span> <span class="o">=</span> __Pyx_PyBytes_FromString<span class="o">((</span>__pyx_v_self-&gt;_func.info<span class="o">[</span><span class="m">0</span><span class="o">])</span>.refs<span class="o">)</span><span class="p">;</span> <span class="k">if</span> <span class="o">(</span>unlikely<span class="o">(</span>!__pyx_t_1<span class="o">))</span> __PYX_ERR<span class="o">(</span><span class="m">0</span>, <span class="m">117</span>, __pyx_L1_error<span class="o">)</span>
+                                                                          ^
+error: <span class="nb">command</span> <span class="s1">&#39;gcc&#39;</span> failed with <span class="nb">exit</span> status <span class="m">1</span>
+</pre></div>
+</div>
+<p>The solution is to install LibXC-2.2.2. This can always be done by running
+<code class="docutils literal"><span class="pre">./tools/qa/install_libxc-2.2.2.sh</span></code> before running <code class="docutils literal"><span class="pre">./setup.py</span></code>.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="failing-tests">
+<h2>1.6.5. Failing tests<a class="headerlink" href="#failing-tests" title="Permalink to this headline">¶</a></h2>
+<p>The following failing tests are symptoms of specific problems:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">horton.meanfield.test.test_libxc.test_dot_hessian_o3lyp_cs_polynomial</span></code>. This is most
+likely caused by linking against a LibXC that has been compiled with too aggressive
+optimization flags. Use the script <code class="docutils literal"><span class="pre">/toos/qa/install_libxc-2.2.2.sh</span></code> to build a more
+modest version of LibXC, which can then be used to compile HORTON.</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="user_getting_started.html" class="btn btn-neutral float-right" title="2. Getting Started" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="user_download_and_install_setup_cfg.html" class="btn btn-neutral" title="1.5. Controlling dynamic/static linking against LibXC and LibInt2" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.0b3 built from release 2.1.0b3 (Jun 30, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 30, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.1.0b3 (Jun 30, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

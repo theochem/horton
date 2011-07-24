@@ -1,0 +1,546 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.1.14. horton/cell.h – Unit cell code to specify periodic boundary conditions &mdash; HORTON 2.1.1-1-g3a5adfea (Jan 18, 2019) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="3.1.15. horton/moments.h – Efficient evaluation of various of polynomials" href="mod_horton_moments_h.html" />
+    <link rel="prev" title="3.1.13. horton.utils – Utility functions" href="mod_horton_utils.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal notranslate"><span class="pre">horton</span></code> – The main HORTON Package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_cache.html">3.1.1. <code class="docutils literal notranslate"><span class="pre">horton.cache</span></code> – Avoid recomputation of earlier results and reallocation of existing arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_cext.html">3.1.2. <code class="docutils literal notranslate"><span class="pre">horton.cext</span></code> – C++ extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_constants.html">3.1.3. <code class="docutils literal notranslate"><span class="pre">horton.constants</span></code> – Physicochemical constants in atomic units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_context.html">3.1.4. <code class="docutils literal notranslate"><span class="pre">horton.context</span></code> – The context in which HORTON is used</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_exceptions.html">3.1.5. <code class="docutils literal notranslate"><span class="pre">horton.exceptions</span></code> – Definition of all excpetions in HORTON</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_log.html">3.1.6. <code class="docutils literal notranslate"><span class="pre">horton.log</span></code> – Screen logging, timing and citation management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_moments.html">3.1.7. <code class="docutils literal notranslate"><span class="pre">horton.moments</span></code> – Auxiliary routines related to multipole moments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_orbital_utils.html">3.1.8. <code class="docutils literal notranslate"><span class="pre">horton.orbital_utils</span></code> – Utility functions for orbital modifications</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_periodic.html">3.1.9. <code class="docutils literal notranslate"><span class="pre">horton.periodic</span></code> – Periodic table of elements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_quadprog.html">3.1.10. <code class="docutils literal notranslate"><span class="pre">horton.quadprog</span></code> – A light-weight quadratic programming solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_symmetry.html">3.1.11. <code class="docutils literal notranslate"><span class="pre">horton.symmetry</span></code> – Geometric symmetries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_units.html">3.1.12. <code class="docutils literal notranslate"><span class="pre">horton.units</span></code> – Conversion from and to atomic units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_utils.html">3.1.13. <code class="docutils literal notranslate"><span class="pre">horton.utils</span></code> – Utility functions</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.1.14. <code class="docutils literal notranslate"><span class="pre">horton/cell.h</span></code> – Unit cell code to specify periodic boundary conditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_moments_h.html">3.1.15. <code class="docutils literal notranslate"><span class="pre">horton/moments.h</span></code> – Efficient evaluation of various of polynomials</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_nucpot_h.html">3.1.16. <code class="docutils literal notranslate"><span class="pre">horton/nucpot.h</span></code> – Low-level implementation of nuclear potential on a grid</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.2. <code class="docutils literal notranslate"><span class="pre">horton.espfit</span></code> – Electrostatic potential fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_gbasis.html">3.3. <code class="docutils literal notranslate"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.4. <code class="docutils literal notranslate"><span class="pre">horton.grid</span></code> – Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.5. <code class="docutils literal notranslate"><span class="pre">horton.io</span></code> – Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.6. <code class="docutils literal notranslate"><span class="pre">horton.matrix</span></code> – One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.7. <code class="docutils literal notranslate"><span class="pre">horton.meanfield</span></code> – Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.8. <code class="docutils literal notranslate"><span class="pre">horton.modelhamiltonians</span></code> – Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.9. <code class="docutils literal notranslate"><span class="pre">horton.part</span></code> – Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.10. <code class="docutils literal notranslate"><span class="pre">horton.scripts</span></code> – Code (solely) used by HORTON’s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HORTON</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+        
+          <li><a href="pck_horton.html">3.1. <code class="docutils literal notranslate"><span class="pre">horton</span></code> – The main HORTON Package</a> &raquo;</li>
+        
+      <li>3.1.14. <code class="docutils literal notranslate"><span class="pre">horton/cell.h</span></code> – Unit cell code to specify periodic boundary conditions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/lib/mod_horton_cell_h.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="horton-cell-h-unit-cell-code-to-specify-periodic-boundary-conditions">
+<h1>3.1.14. <code class="docutils literal notranslate"><span class="pre">horton/cell.h</span></code> – Unit cell code to specify periodic boundary conditions<a class="headerlink" href="#horton-cell-h-unit-cell-code-to-specify-periodic-boundary-conditions" title="Permalink to this headline">¶</a></h1>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Functions</p>
+<dl class="function">
+<dt id="_CPPv310smart_wraplll">
+<span id="_CPPv210smart_wraplll"></span><span id="smart_wrap__l.l.l"></span><span class="target" id="cell_8h_1aa102ffffe0b1fafe708dda5965dbb474"></span>long <code class="descname">smart_wrap</code><span class="sig-paren">(</span>long <em>i</em>, long <em>shape</em>, long <em>pbc</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv310smart_wraplll" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A standardized modulo operation that works across all compilers. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>i % shape if pbc is non-zero. -1 is returned otherwise. </dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+<dl class="class">
+<dt id="_CPPv34Cell">
+<span id="_CPPv24Cell"></span><span id="Cell"></span><span class="target" id="classCell"></span><em class="property">class </em><code class="descname">Cell</code><a class="headerlink" href="#_CPPv34Cell" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;cell.h&gt;</em><p>3D/2D/1D periodic boundary conditions and derived quantities. </p>
+<p>Upon construction, an object of this class acts as a read-only representation of the periodic boundary conditions. Reciprocal cell vectors, vector lengths and spacings between planes are computed immediately. All sorts of manipulations of fractional/Cartesian coordinates are supported.</p>
+<p>Note that this implementation is specific for 3D systems, eventhough lower- dimensional periodic boundary conditions are supported. In case of 1D or 2D PBC, the cell vectors are internally extended with orthogonal basis vectors to guarantee an invertible transformation between cartesian and fractional coordinates. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv3N4Cell4CellEPdi">
+<span id="_CPPv2N4Cell4CellEPdi"></span><span id="Cell::Cell__doubleP.i"></span><span class="target" id="classCell_1acba60bc86e7336b6cbea07dfded1f394"></span><code class="descname">Cell</code><span class="sig-paren">(</span>double *<em>_rvecs</em>, int <em>_nvec</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N4Cell4CellEPdi" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#classCell"><span class="std std-ref">Cell</span></a> object. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">_rvecs</span></code>: A pointer to 3*nvec doubles that represent the real-space vectors in row-major ordering.</li>
+<li><code class="docutils literal notranslate"><span class="pre">_nvec</span></code>: The number of cell vectors. This corresponds to the dimensionality of the periodic boundary conditions. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3NK4Cell3micEPd">
+<span id="_CPPv2NK4Cell3micEPd"></span><span id="Cell::mic__doublePC"></span><span class="target" id="classCell_1aa6c51913b091cd76ff93a294b4a9ae27"></span>void <code class="descname">mic</code><span class="sig-paren">(</span>double *<em>delta</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv3NK4Cell3micEPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Apply the minimum image convention to a real-space relative vector. </p>
+<p>
+This is an approximate implementation that sometimes fails in very skewed cells. This is a common weakness in most implementations. For more details see: <a class="reference external" href="http://scicomp.stackexchange.com/questions/3107/minimum-image-convention-for-triclinic-unit-cell">http://scicomp.stackexchange.com/questions/3107/minimum-image-convention-for-triclinic-unit-cell</a> <dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">delta</span></code>: A pointer to 3 doubles with the relative vector. It will be modified inplace.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3NK4Cell7to_fracEPdPd">
+<span id="_CPPv2NK4Cell7to_fracEPdPd"></span><span id="Cell::to_frac__doubleP.doublePC"></span><span class="target" id="classCell_1a1f39cd91b36ba37e7c3ba156771e2687"></span>void <code class="descname">to_frac</code><span class="sig-paren">(</span>double *<em>cart</em>, double *<em>frac</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv3NK4Cell7to_fracEPdPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Convert a real-space vector to fractional coordinates. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">cart</span></code>: A pointer to 3 doubles containing the input real-space vector.</li>
+<li><code class="docutils literal notranslate"><span class="pre">frac</span></code>: A pointer to 3 doubles in which the output is written. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3NK4Cell7to_cartEPdPd">
+<span id="_CPPv2NK4Cell7to_cartEPdPd"></span><span id="Cell::to_cart__doubleP.doublePC"></span><span class="target" id="classCell_1a7a6da20ebc99a5170c2f38a90eb6be17"></span>void <code class="descname">to_cart</code><span class="sig-paren">(</span>double *<em>frac</em>, double *<em>cart</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv3NK4Cell7to_cartEPdPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Convert a fractional coordinates vector to real-space coordinates. This can also be interpreted as making a linear combination of real-space cell vectors. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">frac</span></code>: A pointer to 3 doubles containing the input fractional coordinates.</li>
+<li><code class="docutils literal notranslate"><span class="pre">cart</span></code>: A pointer to 3 doubles to which the output is written </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3NK4Cell9g_lincombEPdPd">
+<span id="_CPPv2NK4Cell9g_lincombEPdPd"></span><span id="Cell::g_lincomb__doubleP.doublePC"></span><span class="target" id="classCell_1a3dc9278352f744f7306a22d11c58b7fe"></span>void <code class="descname">g_lincomb</code><span class="sig-paren">(</span>double *<em>coeffs</em>, double *<em>gvec</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv3NK4Cell9g_lincombEPdPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a linear combination of reciprocal cell vectors. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">coeffs</span></code>: A pointer to 3 doubles containing the coefficients for the linear combination.</li>
+<li><code class="docutils literal notranslate"><span class="pre">gvec</span></code>: A pointer to 3 doubles to which the output is written </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3NK4Cell9dot_rvecsEPdPd">
+<span id="_CPPv2NK4Cell9dot_rvecsEPdPd"></span><span id="Cell::dot_rvecs__doubleP.doublePC"></span><span class="target" id="classCell_1a37729f55db417ddf9209fdf38ef59bb5"></span>void <code class="descname">dot_rvecs</code><span class="sig-paren">(</span>double *<em>cart</em>, double *<em>dots</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv3NK4Cell9dot_rvecsEPdPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Compute a dot-product of a real-space vector with each cell vector. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">cart</span></code>: A pointer to 3 doubles containing the input fractional coordinates.</li>
+<li><code class="docutils literal notranslate"><span class="pre">dots</span></code>: A pointer to 3 doubles to which the output is written. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3NK4Cell8add_rvecEPdPl">
+<span id="_CPPv2NK4Cell8add_rvecEPdPl"></span><span id="Cell::add_rvec__doubleP.lPC"></span><span class="target" id="classCell_1a477fa6b37d2bc76e1eb4b5d7eb7daf12"></span>void <code class="descname">add_rvec</code><span class="sig-paren">(</span>double *<em>delta</em>, long *<em>coeffs</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv3NK4Cell8add_rvecEPdPl" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add a linear combination of cell vectors to delta. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">delta</span></code>: A pointer to 3 doubles for the real-space vector to which the linear combination is added inplace.</li>
+<li><code class="docutils literal notranslate"><span class="pre">coeffs</span></code>: A pointer to 3 doubles with the coefficients of the linear combination. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3NK4Cell8get_nvecEv">
+<span id="_CPPv2NK4Cell8get_nvecEv"></span><span id="Cell::get_nvecC"></span><span class="target" id="classCell_1a669b26637998ec0a29eb65b1026bc207"></span>int <code class="descname">get_nvec</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv3NK4Cell8get_nvecEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Returns the dimensionality of the periodic boundary conditions. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3NK4Cell10get_volumeEv">
+<span id="_CPPv2NK4Cell10get_volumeEv"></span><span id="Cell::get_volumeC"></span><span class="target" id="classCell_1affcc2c379a2dbf80b17200430f709e33"></span>double <code class="descname">get_volume</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv3NK4Cell10get_volumeEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the volume (or area or length) of the cell. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3NK4Cell12get_rspacingEi">
+<span id="_CPPv2NK4Cell12get_rspacingEi"></span><span id="Cell::get_rspacing__iC"></span><span class="target" id="classCell_1ab6eeae8ca04c9fea22be4dbe358bd9fb"></span>double <code class="descname">get_rspacing</code><span class="sig-paren">(</span>int <em>i</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv3NK4Cell12get_rspacingEi" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the spacing between the i-th real-space crystal plane </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3NK4Cell12get_gspacingEi">
+<span id="_CPPv2NK4Cell12get_gspacingEi"></span><span id="Cell::get_gspacing__iC"></span><span class="target" id="classCell_1a9b40d1dfb11c28e7d58d6a3f729ce874"></span>double <code class="descname">get_gspacing</code><span class="sig-paren">(</span>int <em>i</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv3NK4Cell12get_gspacingEi" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the spacing between the i-th reciprocal crystal plane </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3NK4Cell11get_rlengthEi">
+<span id="_CPPv2NK4Cell11get_rlengthEi"></span><span id="Cell::get_rlength__iC"></span><span class="target" id="classCell_1a78a91f2891b1e4d6688741058b804bcc"></span>double <code class="descname">get_rlength</code><span class="sig-paren">(</span>int <em>i</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv3NK4Cell11get_rlengthEi" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the length of the i-th real-space cell vector </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3NK4Cell11get_glengthEi">
+<span id="_CPPv2NK4Cell11get_glengthEi"></span><span id="Cell::get_glength__iC"></span><span class="target" id="classCell_1ad3b75cf348ff5fd3012aa795d1cf0122"></span>double <code class="descname">get_glength</code><span class="sig-paren">(</span>int <em>i</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv3NK4Cell11get_glengthEi" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the length of the i-th reciprocal cell vector </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3NK4Cell10copy_rvecsEPd">
+<span id="_CPPv2NK4Cell10copy_rvecsEPd"></span><span id="Cell::copy_rvecs__doublePC"></span><span class="target" id="classCell_1ad7ad486ca57d4e277fd2b4a2bd98b3f0"></span>void <code class="descname">copy_rvecs</code><span class="sig-paren">(</span>double *<em>_rvecs</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv3NK4Cell10copy_rvecsEPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Write a copy of rvecs to _rvecs (3*nvec doubles) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3NK4Cell10copy_gvecsEPd">
+<span id="_CPPv2NK4Cell10copy_gvecsEPd"></span><span id="Cell::copy_gvecs__doublePC"></span><span class="target" id="classCell_1ae6d45782fe861541e1fcf1ef94cbc1f5"></span>void <code class="descname">copy_gvecs</code><span class="sig-paren">(</span>double *<em>_gvecs</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv3NK4Cell10copy_gvecsEPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Write a copy of gvecs to _gvecs (3*nvec doubles) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3NK4Cell13copy_rlengthsEPd">
+<span id="_CPPv2NK4Cell13copy_rlengthsEPd"></span><span id="Cell::copy_rlengths__doublePC"></span><span class="target" id="classCell_1a65f77c52d97e956ffdf7a5766ab14c90"></span>void <code class="descname">copy_rlengths</code><span class="sig-paren">(</span>double *<em>_rlengths</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv3NK4Cell13copy_rlengthsEPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Write a copy of rlengths to _rlengths (nvec doubles) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3NK4Cell13copy_glengthsEPd">
+<span id="_CPPv2NK4Cell13copy_glengthsEPd"></span><span id="Cell::copy_glengths__doublePC"></span><span class="target" id="classCell_1a4aaa78c132967c5f268c62aba918ef69"></span>void <code class="descname">copy_glengths</code><span class="sig-paren">(</span>double *<em>_glengths</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv3NK4Cell13copy_glengthsEPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Write a copy of glengths to _glengths (nvec doubles) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3NK4Cell14copy_rspacingsEPd">
+<span id="_CPPv2NK4Cell14copy_rspacingsEPd"></span><span id="Cell::copy_rspacings__doublePC"></span><span class="target" id="classCell_1a8eafd4eac15d6b47916546749e31e359"></span>void <code class="descname">copy_rspacings</code><span class="sig-paren">(</span>double *<em>_rspacings</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv3NK4Cell14copy_rspacingsEPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Write a copy of rspacings to _rspacings (nvec doubles) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3NK4Cell14copy_gspacingsEPd">
+<span id="_CPPv2NK4Cell14copy_gspacingsEPd"></span><span id="Cell::copy_gspacings__doublePC"></span><span class="target" id="classCell_1aefcbcf5624ebad7640be8e4719ef3db4"></span>void <code class="descname">copy_gspacings</code><span class="sig-paren">(</span>double *<em>_gspacings</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv3NK4Cell14copy_gspacingsEPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Write a copy of gspacings to _gspacings (nvec doubles) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3NK4Cell15set_ranges_rcutEPddPlPl">
+<span id="_CPPv2NK4Cell15set_ranges_rcutEPddPlPl"></span><span id="Cell::set_ranges_rcut__doubleP.double.lP.lPC"></span><span class="target" id="classCell_1aeed3be1e217e925b6665125b168119cd"></span>void <code class="descname">set_ranges_rcut</code><span class="sig-paren">(</span>double *<em>center</em>, double <em>rcut</em>, long *<em>ranges_begin</em>, long *<em>ranges_end</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv3NK4Cell15set_ranges_rcutEPddPlPl" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get ranges of periodic images without a cutoff radius. </p>
+<p>
+This function effectively defines a supercell that is guaranteed to enclose the cutoff sphere. <dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">center</span></code>: A pointer to three doubles that specify the center of the cutoff sphere in real-space.</li>
+<li><code class="docutils literal notranslate"><span class="pre">rcut</span></code>: The cutoff radius.</li>
+<li><code class="docutils literal notranslate"><span class="pre">ranges_begin</span></code>: A pointer to nvec longs to which the begin of each range of periodic images along a periodic boundary condition is written.</li>
+<li><code class="docutils literal notranslate"><span class="pre">ranges_end</span></code>: A pointer to nvec longs to which the end of each range of periodic images along a periodic boundary condition is written. Then end values are non-inclusive as in Python ranges.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv3N4Cell5rvecsE">
+<span id="_CPPv2N4Cell5rvecsE"></span><span id="Cell::rvecs__doubleA"></span><span class="target" id="classCell_1ad4dad19e58413b6451c653faeba2c516"></span>double <code class="descname">rvecs</code>[9]<a class="headerlink" href="#_CPPv3N4Cell5rvecsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N4Cell5gvecsE">
+<span id="_CPPv2N4Cell5gvecsE"></span><span id="Cell::gvecs__doubleA"></span><span class="target" id="classCell_1ae33fa1c1c83f50dc0fe2c65710e86ff0"></span>double <code class="descname">gvecs</code>[9]<a class="headerlink" href="#_CPPv3N4Cell5gvecsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N4Cell8rlengthsE">
+<span id="_CPPv2N4Cell8rlengthsE"></span><span id="Cell::rlengths__doubleA"></span><span class="target" id="classCell_1a32eddc1a92a5dd2deb90a45ed3d32ff5"></span>double <code class="descname">rlengths</code>[3]<a class="headerlink" href="#_CPPv3N4Cell8rlengthsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N4Cell8glengthsE">
+<span id="_CPPv2N4Cell8glengthsE"></span><span id="Cell::glengths__doubleA"></span><span class="target" id="classCell_1a6c06751e57b86865bb71da41b36077fc"></span>double <code class="descname">glengths</code>[3]<a class="headerlink" href="#_CPPv3N4Cell8glengthsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N4Cell9rspacingsE">
+<span id="_CPPv2N4Cell9rspacingsE"></span><span id="Cell::rspacings__doubleA"></span><span class="target" id="classCell_1a9ee24297008f631e395c1b3a2e43d120"></span>double <code class="descname">rspacings</code>[3]<a class="headerlink" href="#_CPPv3N4Cell9rspacingsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N4Cell9gspacingsE">
+<span id="_CPPv2N4Cell9gspacingsE"></span><span id="Cell::gspacings__doubleA"></span><span class="target" id="classCell_1a8557b866247b23a607dd1e195152e44d"></span>double <code class="descname">gspacings</code>[3]<a class="headerlink" href="#_CPPv3N4Cell9gspacingsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N4Cell6volumeE">
+<span id="_CPPv2N4Cell6volumeE"></span><span id="Cell::volume__double"></span><span class="target" id="classCell_1a426862431a79984cb040c6f396a8e1d9"></span>double <code class="descname">volume</code><a class="headerlink" href="#_CPPv3N4Cell6volumeE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N4Cell4nvecE">
+<span id="_CPPv2N4Cell4nvecE"></span><span id="Cell::nvec__i"></span><span class="target" id="classCell_1a7da51560e9a66761526cfd7c87e2daec"></span>int <code class="descname">nvec</code><a class="headerlink" href="#_CPPv3N4Cell4nvecE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_moments_h.html" class="btn btn-neutral float-right" title="3.1.15. horton/moments.h – Efficient evaluation of various of polynomials" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_utils.html" class="btn btn-neutral" title="3.1.13. horton.utils – Utility functions" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.1 built from release 2.1.1-1-g3a5adfea (Jan 18, 2019). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jan 18, 2019.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../',
+              VERSION:'2.1.1-1-g3a5adfea (Jan 18, 2019)',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

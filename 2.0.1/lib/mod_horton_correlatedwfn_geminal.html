@@ -1,0 +1,643 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.2.1. horton.correlatedwfn.geminal – Correlated wavefunction implementations &mdash; HORTON 2.0.1 (Jun 17, 2016) documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="HORTON 2.0.1 (Jun 17, 2016) documentation" href="../index.html"/>
+        <link rel="up" title="3.2. horton.correlatedwfn – Methods for correlated wavefunctions" href="pck_horton_correlatedwfn.html"/>
+        <link rel="next" title="3.2.2. horton.correlatedwfn.perturbation – Perturbation theory module" href="mod_horton_correlatedwfn_perturbation.html"/>
+        <link rel="prev" title="3.2. horton.correlatedwfn – Methods for correlated wavefunctions" href="pck_horton_correlatedwfn.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> &#8211; The main HORTON Package</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_correlatedwfn.html">3.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn</span></code> &#8211; Methods for correlated wavefunctions</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.2.1. <code class="docutils literal"><span class="pre">horton.correlatedwfn.geminal</span></code> &#8211; Correlated wavefunction implementations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_correlatedwfn_perturbation.html">3.2.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn.perturbation</span></code> &#8211; Perturbation theory module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_correlatedwfn_restricted_ap1rog.html">3.2.3. <code class="docutils literal"><span class="pre">horton.correlatedwfn.restricted_ap1rog</span></code> &#8211; Correlated wavefunction implementations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_correlatedwfn_stepsearch.html">3.2.4. <code class="docutils literal"><span class="pre">horton.correlatedwfn.stepsearch</span></code> &#8211; Step search methods for orbital rotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_correlatedwfn_trustregionopt.html">3.2.5. <code class="docutils literal"><span class="pre">horton.correlatedwfn.trustregionopt</span></code> &#8211; Optimization of Newton step</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.3. <code class="docutils literal"><span class="pre">horton.espfit</span></code> &#8211; Electrostatic potential fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_gbasis.html">3.4. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> &#8211; Gaussian basis sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.5. <code class="docutils literal"><span class="pre">horton.grid</span></code> &#8211; Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.6. <code class="docutils literal"><span class="pre">horton.io</span></code> &#8211; Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_localization.html">3.7. <code class="docutils literal"><span class="pre">horton.localization</span></code> &#8211; Methods for orbital localization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.8. <code class="docutils literal"><span class="pre">horton.matrix</span></code> &#8211; One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.9. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> &#8211; Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.10. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> &#8211; Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_orbital_entanglement.html">3.11. <code class="docutils literal"><span class="pre">horton.orbital_entanglement</span></code> &#8211; Methods for measuring orbital entanglement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.12. <code class="docutils literal"><span class="pre">horton.part</span></code> &#8211; Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.13. <code class="docutils literal"><span class="pre">horton.scripts</span></code> &#8211; Code (solely) used by HORTON&#8217;s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">HORTON</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+      
+          <li><a href="pck_horton_correlatedwfn.html">3.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn</span></code> &#8211; Methods for correlated wavefunctions</a> &raquo;</li>
+      
+    <li>3.2.1. <code class="docutils literal"><span class="pre">horton.correlatedwfn.geminal</span></code> &#8211; Correlated wavefunction implementations</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/lib/mod_horton_correlatedwfn_geminal.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-horton.correlatedwfn.geminal">
+<span id="horton-correlatedwfn-geminal-correlated-wavefunction-implementations"></span><h1>3.2.1. <code class="docutils literal"><span class="pre">horton.correlatedwfn.geminal</span></code> &#8211; Correlated wavefunction implementations<a class="headerlink" href="#module-horton.correlatedwfn.geminal" title="Permalink to this headline">¶</a></h1>
+<p>This is a general geminals class.</p>
+<dl class="class">
+<dt id="horton.correlatedwfn.geminal.Geminal">
+<em class="property">class </em><code class="descclassname">horton.correlatedwfn.geminal.</code><code class="descname">Geminal</code><span class="sig-paren">(</span><em>lf</em>, <em>occ_model</em>, <em>npairs=None</em>, <em>nvirt=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>lf</dt>
+<dd>A LinalgFactory instance.</dd>
+<dt>occ_model</dt>
+<dd>Occupation model</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>npairs</dt>
+<dd>Number of electron pairs, if not specified,
+npairs = number of occupied orbitals</dd>
+<dt>nvirt</dt>
+<dd>Number of virtual orbitals, if not specified,
+nvirt = (nbasis-npairs)</dd>
+</dl>
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.check_convergence">
+<code class="descname">check_convergence</code><span class="sig-paren">(</span><em>e0</em>, <em>e1</em>, <em>gradient</em>, <em>thresh</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.check_convergence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check convergence.</p>
+<p><strong>Arguements:</strong></p>
+<dl class="docutils">
+<dt>e0, e1</dt>
+<dd>Used to calculate energy difference e0-e1</dd>
+<dt>gradient</dt>
+<dd>The gradient, a OneIndex instance</dd>
+<dt>thresh</dt>
+<dd>Dictionary containing threshold parameters (&#8216;energy&#8217;, &#8216;gradientmax&#8217;,
+&#8216;gradientnorm&#8217;)</dd>
+<dt><strong>Returns:</strong></dt>
+<dd>True if energy difference, norm of orbital gradient, largest
+element of orbital gradient are smaller than some threshold
+values.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.check_stepsearch">
+<code class="descname">check_stepsearch</code><span class="sig-paren">(</span><em>linesearch</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.check_stepsearch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check trustradius. Abort calculation if trustradius is smaller than
+1e-8</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear all wavefunction information</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.clear_dm">
+<code class="descname">clear_dm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.clear_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear RDM information</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.clear_geminal">
+<code class="descname">clear_geminal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.clear_geminal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear geminal information</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.clear_lagrange">
+<code class="descname">clear_lagrange</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.clear_lagrange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear lagrange information</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.compute_rotation_matrix">
+<code class="descname">compute_rotation_matrix</code><span class="sig-paren">(</span><em>coeff</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.compute_rotation_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute orbital rotation matrix</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.generate_guess">
+<code class="descname">generate_guess</code><span class="sig-paren">(</span><em>guess</em>, <em>dim=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.generate_guess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a guess of type &#8216;guess&#8217;.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>guess</dt>
+<dd>A dictionary, containing the type of guess.</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>dim</dt>
+<dd>Length of guess.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.get_auxmatrix">
+<code class="descname">get_auxmatrix</code><span class="sig-paren">(</span><em>select</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.get_auxmatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get auxiliary matrices</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.get_four_dm">
+<code class="descname">get_four_dm</code><span class="sig-paren">(</span><em>select</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.get_four_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a density matrix (4-RDM). If not available, it will be created
+(if possible)</p>
+<p><strong>Arguments:</strong></p>
+<p>select</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.get_one_dm">
+<code class="descname">get_one_dm</code><span class="sig-paren">(</span><em>select</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.get_one_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a density matrix (1-RDM). If not available, it will be created
+(if possible)</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>&#8216;ps2&#8217;, or &#8216;response&#8217;.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.get_three_dm">
+<code class="descname">get_three_dm</code><span class="sig-paren">(</span><em>select</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.get_three_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a density matrix (3-RDM). If not available, it will be created
+(if possible)</p>
+<p><strong>Arguments:</strong></p>
+<p>select</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.get_two_dm">
+<code class="descname">get_two_dm</code><span class="sig-paren">(</span><em>select</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.get_two_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a density matrix (2-RDM). If not available, it will be created
+(if possible)</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>&#8216;(r(esponse))ppqq&#8217;, or &#8216;(r(esponse))pqpq&#8217;.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.init_four_dm">
+<code class="descname">init_four_dm</code><span class="sig-paren">(</span><em>select</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.init_four_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize 4-RDM</p>
+<p><strong>Arguments</strong></p>
+<p>select</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.init_one_dm">
+<code class="descname">init_one_dm</code><span class="sig-paren">(</span><em>select</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.init_one_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize 1-RDM as OneIndex object</p>
+<p>The 1-RDM expressed in the natural orbital basis is diagonal and
+only the diagonal elements are stored.</p>
+<p><strong>Arguments</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>&#8216;ps2&#8217; or &#8216;response&#8217;.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.init_three_dm">
+<code class="descname">init_three_dm</code><span class="sig-paren">(</span><em>select</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.init_three_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize 3-RDM</p>
+<p><strong>Arguments</strong></p>
+<p>select</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.init_two_dm">
+<code class="descname">init_two_dm</code><span class="sig-paren">(</span><em>select</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.init_two_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize 2-RDM as TwoIndex object</p>
+<p>Only the symmetry-unique elements of the (response) 2-RDM are
+stored. These are matrix elements of type</p>
+<div class="math">
+\[Gamma_{p\bar{q}p\bar{q}}\]</div>
+<p>(spin-up and spin-down (bar-sign)) or</p>
+<div class="math">
+\[Gamma_{p\bar{p}q\bar{q}}\]</div>
+<p>and are stored as elements <span class="math">\({pq}\)</span> of two_dm_pqpq, and
+two_dm_ppqq.</p>
+<p><strong>Arguments</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>&#8216;(r(esponse))ppqq&#8217;, or &#8216;(r(esponse))pqpq&#8217;.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.perm">
+<code class="descname">perm</code><span class="sig-paren">(</span><em>a</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.perm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the permament of a matrix</p>
+<p><strong>Arguements</strong></p>
+<dl class="docutils">
+<dt>a</dt>
+<dd>A np array</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.prod">
+<code class="descname">prod</code><span class="sig-paren">(</span><em>lst</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.prod" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.solve">
+<code class="descname">solve</code><span class="sig-paren">(</span><em>one</em>, <em>two</em>, <em>core</em>, <em>orb</em>, <em>olp</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.solve" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.solve_scf">
+<code class="descname">solve_scf</code><span class="sig-paren">(</span><em>one</em>, <em>two</em>, <em>core</em>, <em>orb</em>, <em>olp</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.solve_scf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.update_auxmatrix">
+<code class="descname">update_auxmatrix</code><span class="sig-paren">(</span><em>select</em>, <em>two_mo</em>, <em>one_mo=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.update_auxmatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update auxiliary matrices</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.update_ecore">
+<code class="descname">update_ecore</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.update_ecore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update core energy</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.update_four_dm">
+<code class="descname">update_four_dm</code><span class="sig-paren">(</span><em>four_dm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.update_four_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update 2-RDM</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>four_dm</dt>
+<dd>When provided, this 4-RDM is stored.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.update_geminal">
+<code class="descname">update_geminal</code><span class="sig-paren">(</span><em>geminal=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.update_geminal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update geminal matrix</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>geminal</dt>
+<dd>When provided, this geminal matrix is stored.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.update_lagrange">
+<code class="descname">update_lagrange</code><span class="sig-paren">(</span><em>lagrange=None</em>, <em>dim1=None</em>, <em>dim2=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.update_lagrange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update Lagragne multipliers</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>lagrange</dt>
+<dd>When provided, this set of Lagrange multipliers is stored.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.update_one_dm">
+<code class="descname">update_one_dm</code><span class="sig-paren">(</span><em>one_dm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.update_one_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update 1-RDM</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>one_dm</dt>
+<dd>When provided, this 1-RDM is stored.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.update_three_dm">
+<code class="descname">update_three_dm</code><span class="sig-paren">(</span><em>three_dm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.update_three_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update 3-RDM</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>three_dm</dt>
+<dd>When provided, this 3-RDM is stored.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.geminal.Geminal.update_two_dm">
+<code class="descname">update_two_dm</code><span class="sig-paren">(</span><em>two_dm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.update_two_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update 2-RDM</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>two_dm</dt>
+<dd>When provided, this 2-RDM is stored.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.geminal.Geminal.dimension">
+<code class="descname">dimension</code><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.dimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of unknowns (i.e. the number of geminal coefficients)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.geminal.Geminal.ecore">
+<code class="descname">ecore</code><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.ecore" title="Permalink to this definition">¶</a></dt>
+<dd><p>The core energy</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.geminal.Geminal.geminal">
+<code class="descname">geminal</code><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.geminal" title="Permalink to this definition">¶</a></dt>
+<dd><p>The geminal coefficients</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.geminal.Geminal.lagrange">
+<code class="descname">lagrange</code><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.lagrange" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Lagrange multipliers</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.geminal.Geminal.lf">
+<code class="descname">lf</code><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.lf" title="Permalink to this definition">¶</a></dt>
+<dd><p>The LinalgFactory instance</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.geminal.Geminal.nbasis">
+<code class="descname">nbasis</code><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.nbasis" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of basis functions</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.geminal.Geminal.nocc">
+<code class="descname">nocc</code><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.nocc" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of occupied orbitals</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.geminal.Geminal.npairs">
+<code class="descname">npairs</code><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.npairs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of electron pairs</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.geminal.Geminal.nvirt">
+<code class="descname">nvirt</code><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.nvirt" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of virtual orbitals</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.geminal.Geminal.one_dm_ps2">
+<code class="descname">one_dm_ps2</code><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.one_dm_ps2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alpha 1-RDM</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.geminal.Geminal.one_dm_response">
+<code class="descname">one_dm_response</code><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.one_dm_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alpha 1-RDM</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.geminal.Geminal.two_dm_ppqq">
+<code class="descname">two_dm_ppqq</code><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.two_dm_ppqq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alpha-beta PS2 (ppqq) 2-RDM</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.geminal.Geminal.two_dm_pqpq">
+<code class="descname">two_dm_pqpq</code><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.two_dm_pqpq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alpha-beta PS2 (pqpq) 2-RDM</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.geminal.Geminal.two_dm_rppqq">
+<code class="descname">two_dm_rppqq</code><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.two_dm_rppqq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alpha-beta (ppqq) 2-RDM</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.geminal.Geminal.two_dm_rpqpq">
+<code class="descname">two_dm_rpqpq</code><a class="headerlink" href="#horton.correlatedwfn.geminal.Geminal.two_dm_rpqpq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alpha-beta (pqpq) 2-RDM</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_correlatedwfn_perturbation.html" class="btn btn-neutral float-right" title="3.2.2. horton.correlatedwfn.perturbation – Perturbation theory module" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="pck_horton_correlatedwfn.html" class="btn btn-neutral" title="3.2. horton.correlatedwfn – Methods for correlated wavefunctions" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.1 built from release 2.0.1 (Jun 17, 2016). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 17, 2016.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.0.1 (Jun 17, 2016)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

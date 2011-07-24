@@ -1,0 +1,328 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>1. HORTON Overview &mdash; HORTON 2.0.0-244-gaaf5e2b documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="HORTON 2.0.0-244-gaaf5e2b documentation" href="index.html"/>
+        <link rel="next" title="2. Citing HORTON" href="intro_citing_horton.html"/>
+        <link rel="prev" title="HORTON 2.0.0" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">1. HORTON Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#our-manifesto">1.1. Our Manifesto</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#main-features">1.2. Main Features</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">HORTON</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>1. HORTON Overview</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/intro_horton_overview.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="horton-overview">
+<span id="intro-horton-overview"></span><h1>1. HORTON Overview<a class="headerlink" href="#horton-overview" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="our-manifesto">
+<h2>1.1. Our Manifesto<a class="headerlink" href="#our-manifesto" title="Permalink to this headline">¶</a></h2>
+<p>HORTON is a <em>H</em>elpful <em>O</em>pen-source <em>R</em>esearch <em>TO</em>ol for <em>N</em>-fermion
+systems, written primarily in the <a class="reference external" href="https://www.python.org/">Python programming language</a>.
+(HORTON is named after the <a class="reference external" href="http://en.wikipedia.org/wiki/Horton_the_Elephant">helpful pachyderm</a>, not the <a class="reference external" href="http://www.timhortons.com/">Canadian caffeine
+supply store</a>.) The ultimate goal of HORTON is to
+provide a platform for testing new ideas on the quantum many-body
+problem at a reasonable computational cost. Although HORTON is primarily designed
+to be a <a class="reference external" href="http://en.wikipedia.org/wiki/List_of_quantum_chemistry_and_solid-state_physics_software">quantum-chemistry program</a>,
+it can perform computations involving model Hamiltonians, and could be extended for computations in nuclear physics.</p>
+<p>What HORTON is (or is hoped to be):</p>
+<ul class="simple">
+<li>HORTON is designed to be a <em>helpful</em> framework for rapidly prototyping methods
+and testing ideas, together with utilities that ensure the resulting
+implementation is not too inefficient. HORTON is not designed to achieve
+bleeding-edge performance: readability, extensibility, and modifiability are
+often preferred over computational efficiency and code compactness when
+trade-offs are essential.</li>
+<li>HORTON is, and always will be, <em>open source</em>, distributed under the <a class="reference internal" href="intro_license_information.html#license-information"><span class="std std-ref">GNU
+General Public License</span></a>. The HORTON development team always welcomes new
+contributions.</li>
+<li>HORTON is a <em>research tool</em> for both its developers and users. As a result, the available functionality
+is naturally biased towards the interests of its developers. The current
+focus of HORTON is on low-cost <em>ab initio</em> electronic structure theory methods and
+post-processing tools for interpreting electronic structure calculations.
+Additional functionality can be provided by other developers, and through
+interfaces to various programs. If you are interested in joining the HORTON
+development team, please contact us through the <a class="reference external" href="https://groups.google.com/forum/#!forum/horton-discuss">the HORTON mailing list</a>.</li>
+<li>HORTON can used in three ways: as part of a larger program, as a stand-alone
+problem, outside other programs. Retaining this flexibility is a fundamental
+design principle of HORTON. Horton can be run as a stand-alone program using
+either input files or Python scripts. However, when HORTON&#8217;s functionality is
+limited or its computational requirements are too large, HORTON can be used in
+scripts for managing and post-processing calculations from other Schrödinger
+solver software. HORTON can also be used, to provide specialized functionality
+to a larger program (e.g., to update the atomic charges in a molecular
+dynamics simulation). To facilitate the use of HORTON within other programs,
+we guarantee no major <a class="reference external" href="http://en.wikipedia.org/wiki/Application_programming_interface">API</a> changes for
+at least twelve months after each major release.</li>
+</ul>
+</div>
+<div class="section" id="main-features">
+<h2>1.2. Main Features<a class="headerlink" href="#main-features" title="Permalink to this headline">¶</a></h2>
+<p><strong>Interoperability</strong></p>
+<ul class="simple">
+<li>Integrating the <a class="reference external" href="http://www.tddft.org/programs/octopus/wiki/index.php/Libxc">LibXC</a>
+<a class="reference internal" href="tech_ref_literature.html#marques2012" id="id1">[marques2012]</a> and <a class="reference external" href="https://github.com/evaleev/libint">LibInt2</a>
+<a class="reference internal" href="tech_ref_literature.html#valeev2014" id="id2">[valeev2014]</a> libraries.</li>
+<li>Supporting many <a class="reference internal" href="tech_ref_file_formats.html#ref-file-formats"><span class="std std-ref">Data file formats (input and output)</span></a> to exchange data with other codes.</li>
+<li>Adapting a modular structure to easily combine HORTON with custom developments.</li>
+</ul>
+<p><strong>Electronic Structure Methods</strong></p>
+<ul>
+<li><p class="first">Hamiltonians</p>
+<blockquote>
+<div><ul>
+<li><p class="first">Molecular electronic Hamiltonians in localized Gaussian basis sets</p>
+<blockquote>
+<div><ul class="simple">
+<li>Four-center integrals computed with
+<a class="reference external" href="https://github.com/evaleev/libint">LibInt2</a> <a class="reference internal" href="tech_ref_literature.html#valeev2014" id="id4">[valeev2014]</a></li>
+<li><a class="reference internal" href="tech_ref_gaussian_basis.html#ref-gaussian-basis-standard-sets"><span class="std std-ref">Standard basis sets</span></a></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">Model Hamiltonians</p>
+</li>
+<li><p class="first">User-provided Hamiltonians</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">Hartree-Fock and DFT methods:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Restricted and unrestricted orbitals</li>
+<li>LDA, GGA and Hybrid GGA <a class="reference internal" href="tech_ref_functionals.html#ref-functionals"><span class="std std-ref">LibXC Functionals</span></a></li>
+<li>Various SCF algorithms</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">Geminals-based methods. Specifically, Antisymmetry Product of 1
+reference-orbital Geminals (AP1roG)</p>
+</li>
+<li><p class="first">Perturbation theory</p>
+</li>
+</ul>
+<p><strong>Post-Processing</strong></p>
+<ul class="simple">
+<li>Several variants of the Hirshfeld atoms-in-molecules partitioning scheme</li>
+<li>Electrostatic potential fitting of atomic charges</li>
+<li>Orbital entanglement analysis</li>
+<li>Orbital localization</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="intro_citing_horton.html" class="btn btn-neutral float-right" title="2. Citing HORTON" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="HORTON 2.0.0" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.0 built from release 2.0.0-244-gaaf5e2b. </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 16, 2016.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.0.0-244-gaaf5e2b',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

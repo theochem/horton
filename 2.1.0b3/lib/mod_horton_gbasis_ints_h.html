@@ -1,0 +1,1272 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.3.12. horton/gbasis/ints.h – Evaluation of integrals of Gaussian basis functions &mdash; HORTON 2.1.0b3 (Jun 30, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="HORTON 2.1.0b3 (Jun 30, 2017) documentation" href="../index.html"/>
+        <link rel="up" title="3.3. horton.gbasis – Gaussian basis sets" href="pck_horton_gbasis.html"/>
+        <link rel="next" title="3.3.13. horton/gbasis/iter_gb.h – Iterators over Gaussian basis functions" href="mod_horton_gbasis_iter_gb_h.html"/>
+        <link rel="prev" title="3.3.11. horton/gbasis/gbw.h – A four-center integral wrapper for the Cholesky code" href="mod_horton_gbasis_gbw_h.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.0b3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> – The main HORTON Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.2. <code class="docutils literal"><span class="pre">horton.espfit</span></code> – Electrostatic potential fitting</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_gbasis.html">3.3. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_cext.html">3.3.1. <code class="docutils literal"><span class="pre">horton.gbasis.cext</span></code> – C++ extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_gobasis.html">3.3.2. <code class="docutils literal"><span class="pre">horton.gbasis.gobasis</span></code> – Gaussian orbital basis set module.</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_iobas.html">3.3.3. <code class="docutils literal"><span class="pre">horton.gbasis.iobas</span></code> – Input/Output routines for gaussian basis sets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_boys_h.html">3.3.4. <code class="docutils literal"><span class="pre">horton/gbasis/boys.h</span></code> – The Boys function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_calc_h.html">3.3.5. <code class="docutils literal"><span class="pre">horton/gbasis/calc.h</span></code> – Base class for any integral/evaluation of Gaussian functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_cartpure_h.html">3.3.6. <code class="docutils literal"><span class="pre">horton/gbasis/cartpure.h</span></code> – Conversion of Cartesian to Pure Gaussian functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_cholesky_h.html">3.3.7. <code class="docutils literal"><span class="pre">horton/gbasis/cholesky.h</span></code> – Cholesky decomposition of (any) four-center integrals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_common_h.html">3.3.8. <code class="docutils literal"><span class="pre">horton/gbasis/common.h</span></code> – Auxiliary functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_fns_h.html">3.3.9. <code class="docutils literal"><span class="pre">horton/gbasis/fns.h</span></code> – Evaluate functions on grids and derive Fock matrices from potentials on grids.</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_gbasis_h.html">3.3.10. <code class="docutils literal"><span class="pre">horton/gbasis/gbasis.h</span></code> – Gaussian basis set classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_gbw_h.html">3.3.11. <code class="docutils literal"><span class="pre">horton/gbasis/gbw.h</span></code> – A four-center integral wrapper for the Cholesky code</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.3.12. <code class="docutils literal"><span class="pre">horton/gbasis/ints.h</span></code> – Evaluation of integrals of Gaussian basis functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_iter_gb_h.html">3.3.13. <code class="docutils literal"><span class="pre">horton/gbasis/iter_gb.h</span></code> – Iterators over Gaussian basis functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_iter_pow_h.html">3.3.14. <code class="docutils literal"><span class="pre">horton/gbasis/iter_pow.h</span></code> – Iterators over Cartesian polynomials in one shell</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.4. <code class="docutils literal"><span class="pre">horton.grid</span></code> – Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.5. <code class="docutils literal"><span class="pre">horton.io</span></code> – Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.6. <code class="docutils literal"><span class="pre">horton.matrix</span></code> – One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.7. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> – Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.8. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> – Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.9. <code class="docutils literal"><span class="pre">horton.part</span></code> – Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.10. <code class="docutils literal"><span class="pre">horton.scripts</span></code> – Code (solely) used by HORTON’s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+        
+          <li><a href="pck_horton_gbasis.html">3.3. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a> &raquo;</li>
+        
+      <li>3.3.12. <code class="docutils literal"><span class="pre">horton/gbasis/ints.h</span></code> – Evaluation of integrals of Gaussian basis functions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/lib/mod_horton_gbasis_ints_h.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="horton-gbasis-ints-h-evaluation-of-integrals-of-gaussian-basis-functions">
+<h1>3.3.12. <code class="docutils literal"><span class="pre">horton/gbasis/ints.h</span></code> – Evaluation of integrals of Gaussian basis functions<a class="headerlink" href="#horton-gbasis-ints-h-evaluation-of-integrals-of-gaussian-basis-functions" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="_CPPv211GB2Integral">
+<span id="GB2Integral"></span><span class="target" id="hortonclassGB2Integral"></span><em class="property">class </em></dt>
+<dd><p>Inherits from <a class="reference internal" href="mod_horton_gbasis_calc_h.html#hortonclassGBCalculator"><span class="std std-ref">GBCalculator</span></a></p>
+<p>Subclassed by <a class="reference internal" href="#hortonclassGB2AttractionIntegral"><span class="std std-ref">GB2AttractionIntegral</span></a>, <a class="reference internal" href="#hortonclassGB2KineticIntegral"><span class="std std-ref">GB2KineticIntegral</span></a>, <a class="reference internal" href="#hortonclassGB2MomentIntegral"><span class="std std-ref">GB2MomentIntegral</span></a>, <a class="reference internal" href="#hortonclassGB2OverlapIntegral"><span class="std std-ref">GB2OverlapIntegral</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N11GB2Integral11GB2IntegralEl">
+<span id="GB2Integral::GB2Integral__l"></span><span class="target" id="hortonclassGB2Integral_1abc86ca27ba910ca953358f8d6604e26a"></span><code class="descclassname">GB2Integral::</code><code class="descname">GB2Integral</code><span class="sig-paren">(</span>long <em>max_shell_type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11GB2Integral11GB2IntegralEl" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N11GB2Integral5resetEllPKdPKd">
+<span id="GB2Integral::reset__l.l.doubleCP.doubleCP"></span><span class="target" id="hortonclassGB2Integral_1a94937246638d3a95b2cbb6199e0ea93e"></span>void <code class="descclassname">GB2Integral::</code><code class="descname">reset</code><span class="sig-paren">(</span>long <em>shell_type0</em>, long <em>shell_type1</em>, <em class="property">const</em> double *<em>r0</em>, <em class="property">const</em> double *<em>r1</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11GB2Integral5resetEllPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N11GB2Integral3addEdddPKdPKd">
+<span id="GB2Integral::add__double.double.double.doubleCP.doubleCP"></span><span class="target" id="hortonclassGB2Integral_1a66d39866ce5c38bc5ba4b2e4bde518cd"></span><em class="property">virtual</em> void <code class="descclassname">GB2Integral::</code><code class="descname">add</code><span class="sig-paren">(</span>double <em>coeff</em>, double <em>alpha0</em>, double <em>alpha1</em>, <em class="property">const</em> double *<em>scales0</em>, <em class="property">const</em> double *<em>scales1</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11GB2Integral3addEdddPKdPKd" title="Permalink to this definition">¶</a><br /> = 0</dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N11GB2Integral12cart_to_pureEv">
+<span id="GB2Integral::cart_to_pure"></span><span class="target" id="hortonclassGB2Integral_1a55c716fcf82dc22782bcc87780ee73fd"></span>void <code class="descclassname">GB2Integral::</code><code class="descname">cart_to_pure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11GB2Integral12cart_to_pureEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK11GB2Integral15get_shell_type0Ev">
+<span id="GB2Integral::get_shell_type0C"></span><span class="target" id="hortonclassGB2Integral_1a375e81f8d8d5e35b1dff95e2169163a2"></span><em class="property">const</em> long <code class="descclassname">GB2Integral::</code><code class="descname">get_shell_type0</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK11GB2Integral15get_shell_type0Ev" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK11GB2Integral15get_shell_type1Ev">
+<span id="GB2Integral::get_shell_type1C"></span><span class="target" id="hortonclassGB2Integral_1ab48657a2e8a1614a575547beef4c1f33"></span><em class="property">const</em> long <code class="descclassname">GB2Integral::</code><code class="descname">get_shell_type1</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK11GB2Integral15get_shell_type1Ev" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N11GB2Integral11shell_type0E">
+<span id="GB2Integral::shell_type0__l"></span><span class="target" id="hortonclassGB2Integral_1abef43706147366e41771c40a809e9f50"></span>long <code class="descclassname">GB2Integral::</code><code class="descname">shell_type0</code><a class="headerlink" href="#_CPPv2N11GB2Integral11shell_type0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N11GB2Integral11shell_type1E">
+<span id="GB2Integral::shell_type1__l"></span><span class="target" id="hortonclassGB2Integral_1abacf7bd4df8b0ce06b385affca8fd1d7"></span>long <code class="descclassname">GB2Integral::</code><code class="descname">shell_type1</code><a class="headerlink" href="#_CPPv2N11GB2Integral11shell_type1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N11GB2Integral2r0E">
+<span id="GB2Integral::r0__doubleCP"></span><span class="target" id="hortonclassGB2Integral_1a33e02f248b12e922662665f2a775e6c8"></span><em class="property">const</em> double *<code class="descclassname">GB2Integral::</code><code class="descname">r0</code><a class="headerlink" href="#_CPPv2N11GB2Integral2r0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N11GB2Integral2r1E">
+<span id="GB2Integral::r1__doubleCP"></span><span class="target" id="hortonclassGB2Integral_1aa80ec1f539e0947fba96fadcf5a1bf0d"></span><em class="property">const</em> double *<code class="descclassname">GB2Integral::</code><code class="descname">r1</code><a class="headerlink" href="#_CPPv2N11GB2Integral2r1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N11GB2Integral3i2pE">
+<span id="GB2Integral::i2p__IterPow2"></span><span class="target" id="hortonclassGB2Integral_1a1184b98e64b07039ad0d8d87ca6057d3"></span><a class="reference internal" href="mod_horton_gbasis_iter_pow_h.html#_CPPv28IterPow2" title="IterPow2">IterPow2</a> <code class="descclassname">GB2Integral::</code><code class="descname">i2p</code><a class="headerlink" href="#_CPPv2N11GB2Integral3i2pE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv218GB2OverlapIntegral">
+<span id="GB2OverlapIntegral"></span><span class="target" id="hortonclassGB2OverlapIntegral"></span><em class="property">class </em></dt>
+<dd><em>#include &lt;ints.h&gt;</em><p>Compute the overlap integrals in a Gaussian orbital basis. </p>
+<p>Inherits from <a class="reference internal" href="#hortonclassGB2Integral"><span class="std std-ref">GB2Integral</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N18GB2OverlapIntegral18GB2OverlapIntegralEl">
+<span id="GB2OverlapIntegral::GB2OverlapIntegral__l"></span><span class="target" id="hortonclassGB2OverlapIntegral_1a20fa811223b64eccf8ec27554c84de52"></span><code class="descclassname">GB2OverlapIntegral::</code><code class="descname">GB2OverlapIntegral</code><span class="sig-paren">(</span>long <em>max_shell_type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18GB2OverlapIntegral18GB2OverlapIntegralEl" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N18GB2OverlapIntegral3addEdddPKdPKd">
+<span id="GB2OverlapIntegral::add__double.double.double.doubleCP.doubleCP"></span><span class="target" id="hortonclassGB2OverlapIntegral_1a7280f443de899a4d6ecd73a11c594f1b"></span>void <code class="descclassname">GB2OverlapIntegral::</code><code class="descname">add</code><span class="sig-paren">(</span>double <em>coeff</em>, double <em>alpha0</em>, double <em>alpha1</em>, <em class="property">const</em> double *<em>scales0</em>, <em class="property">const</em> double *<em>scales1</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18GB2OverlapIntegral3addEdddPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv218GB2KineticIntegral">
+<span id="GB2KineticIntegral"></span><span class="target" id="hortonclassGB2KineticIntegral"></span><em class="property">class </em></dt>
+<dd><em>#include &lt;ints.h&gt;</em><p>Compute the kinetic integrals in a Gaussian orbital basis. </p>
+<p>Inherits from <a class="reference internal" href="#hortonclassGB2Integral"><span class="std std-ref">GB2Integral</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N18GB2KineticIntegral18GB2KineticIntegralEl">
+<span id="GB2KineticIntegral::GB2KineticIntegral__l"></span><span class="target" id="hortonclassGB2KineticIntegral_1ada6c057715ae5e7183b6bc66094035db"></span><code class="descclassname">GB2KineticIntegral::</code><code class="descname">GB2KineticIntegral</code><span class="sig-paren">(</span>long <em>max_shell_type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18GB2KineticIntegral18GB2KineticIntegralEl" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N18GB2KineticIntegral3addEdddPKdPKd">
+<span id="GB2KineticIntegral::add__double.double.double.doubleCP.doubleCP"></span><span class="target" id="hortonclassGB2KineticIntegral_1a62f77077e7713f84f4d8f2794cff6aed"></span>void <code class="descclassname">GB2KineticIntegral::</code><code class="descname">add</code><span class="sig-paren">(</span>double <em>coeff</em>, double <em>alpha0</em>, double <em>alpha1</em>, <em class="property">const</em> double *<em>scales0</em>, <em class="property">const</em> double *<em>scales1</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18GB2KineticIntegral3addEdddPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv221GB2AttractionIntegral">
+<span id="GB2AttractionIntegral"></span><span class="target" id="hortonclassGB2AttractionIntegral"></span><em class="property">class </em></dt>
+<dd><em>#include &lt;ints.h&gt;</em><p>Compute the nuclear attraction integrals in a Gaussian orbital basis. </p>
+<p>Inherits from <a class="reference internal" href="#hortonclassGB2Integral"><span class="std std-ref">GB2Integral</span></a></p>
+<p>Subclassed by <a class="reference internal" href="#hortonclassGB2ErfAttractionIntegral"><span class="std std-ref">GB2ErfAttractionIntegral</span></a>, <a class="reference internal" href="#hortonclassGB2GaussAttractionIntegral"><span class="std std-ref">GB2GaussAttractionIntegral</span></a>, <a class="reference internal" href="#hortonclassGB2NuclearAttractionIntegral"><span class="std std-ref">GB2NuclearAttractionIntegral</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N21GB2AttractionIntegral21GB2AttractionIntegralElPdPdl">
+<span id="GB2AttractionIntegral::GB2AttractionIntegral__l.doubleP.doubleP.l"></span><span class="target" id="hortonclassGB2AttractionIntegral_1a3c75cdd784d46b66fb56dfa9fde0dcab"></span><code class="descclassname">GB2AttractionIntegral::</code><code class="descname">GB2AttractionIntegral</code><span class="sig-paren">(</span>long <em>max_shell_type</em>, double *<em>charges</em>, double *<em>centers</em>, long <em>ncharge</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N21GB2AttractionIntegral21GB2AttractionIntegralElPdPdl" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Initialize a <a class="reference internal" href="#hortonclassGB2AttractionIntegral"><span class="std std-ref">GB2AttractionIntegral</span></a> object. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">max_shell_type</span></code> - <p>Highest angular momentum index to be expected in the reset method. </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N21GB2AttractionIntegralD0Ev">
+<span id="GB2AttractionIntegral::~GB2AttractionIntegral"></span><span class="target" id="hortonclassGB2AttractionIntegral_1a8e9c99b8a56ad7e4d71cc941482846d3"></span><code class="descclassname">GB2AttractionIntegral::</code><code class="descname">~GB2AttractionIntegral</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N21GB2AttractionIntegralD0Ev" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N21GB2AttractionIntegral3addEdddPKdPKd">
+<span id="GB2AttractionIntegral::add__double.double.double.doubleCP.doubleCP"></span><span class="target" id="hortonclassGB2AttractionIntegral_1a7b3304a74deb316a7809ea44578412d4"></span>void <code class="descclassname">GB2AttractionIntegral::</code><code class="descname">add</code><span class="sig-paren">(</span>double <em>coeff</em>, double <em>alpha0</em>, double <em>alpha1</em>, <em class="property">const</em> double *<em>scales0</em>, <em class="property">const</em> double *<em>scales1</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N21GB2AttractionIntegral3addEdddPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add results for a combination of Cartesian primitive shells to the work array. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">coeff</span></code> - <p>Product of the contraction coefficients of the four primitives.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">alpha0</span></code> - <p>The exponent of primitive shell 0.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">alpha1</span></code> - <p>The exponent of primitive shell 1.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">scales0</span></code> - <p>The normalization prefactors for basis functions in primitive shell 0</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">scales1</span></code> - <p>The normalization prefactors for basis functions in primitive shell 1 </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N21GB2AttractionIntegral20laplace_of_potentialEddlPd">
+<span id="GB2AttractionIntegral::laplace_of_potential__double.double.l.doubleP"></span><span class="target" id="hortonclassGB2AttractionIntegral_1a0dd731b0cf5e26488d519987a28c25f5"></span><em class="property">virtual</em> void <code class="descclassname">GB2AttractionIntegral::</code><code class="descname">laplace_of_potential</code><span class="sig-paren">(</span>double <em>gamma</em>, double <em>arg</em>, long <em>mmax</em>, double *<em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N21GB2AttractionIntegral20laplace_of_potentialEddlPd" title="Permalink to this definition">¶</a><br /> = 0</dt>
+<dd><p>Evaluate the Laplace transform of the the potential applied to nuclear attraction terms. </p>
+<p>For theoretical details and the precise definition of the Laplace transform, we refer to the following paper:</p>
+<p>Ahlrichs, R. A simple algebraic derivation of the Obara-Saika scheme for general two-electron interaction potentials. Phys. Chem. Chem. Phys. 8, 3072–3077 (2006). 10.1039/B605188J</p>
+<p>For the general definition of this transform, see Eq. (8) in the reference above. Section 5 contains solutions of the Laplace transform for several popular cases.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">gamma</span></code> - <p>Sum of the exponents of the two gaussian functions involved in the integral. Similar to the first term in Eq. (3) in Ahlrichs’ paper.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">arg</span></code> - <p>Rescaled distance between the two centers obtained from the application of the Gaussian product theorem. Equivalent to Eq. (5) in Ahlrichs’ paper.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">mmax</span></code> - <p>Maximum derivative of the Laplace transform to be considered.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">output</span></code> - <p>Output array. The size must be at least mmax + 1. </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv2N21GB2AttractionIntegral7chargesE">
+<span id="GB2AttractionIntegral::charges__doubleP"></span><span class="target" id="hortonclassGB2AttractionIntegral_1a9296561e5cdafec257f0ea29cf503d08"></span>double *<code class="descclassname">GB2AttractionIntegral::</code><code class="descname">charges</code><a class="headerlink" href="#_CPPv2N21GB2AttractionIntegral7chargesE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Array with values of the nuclear charges. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N21GB2AttractionIntegral7centersE">
+<span id="GB2AttractionIntegral::centers__doubleP"></span><span class="target" id="hortonclassGB2AttractionIntegral_1a0ec2a9e345b7cfe0ff5a8ab15d29e6f7"></span>double *<code class="descclassname">GB2AttractionIntegral::</code><code class="descname">centers</code><a class="headerlink" href="#_CPPv2N21GB2AttractionIntegral7centersE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The centers where the charges are located. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N21GB2AttractionIntegral7nchargeE">
+<span id="GB2AttractionIntegral::ncharge__l"></span><span class="target" id="hortonclassGB2AttractionIntegral_1a1dedf1c77e5f9bc2246b8b4267f394e6"></span>long <code class="descclassname">GB2AttractionIntegral::</code><code class="descname">ncharge</code><a class="headerlink" href="#_CPPv2N21GB2AttractionIntegral7nchargeE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Number of nuclear charges. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N21GB2AttractionIntegral7work_g0E">
+<span id="GB2AttractionIntegral::work_g0__doubleP"></span><span class="target" id="hortonclassGB2AttractionIntegral_1ad013582710c4db35c05c80f35112e596"></span>double *<code class="descclassname">GB2AttractionIntegral::</code><code class="descname">work_g0</code><a class="headerlink" href="#_CPPv2N21GB2AttractionIntegral7work_g0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Temporary array to store intermediate results. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N21GB2AttractionIntegral7work_g1E">
+<span id="GB2AttractionIntegral::work_g1__doubleP"></span><span class="target" id="hortonclassGB2AttractionIntegral_1a031d0cef6cebe00c1162233f2962558f"></span>double *<code class="descclassname">GB2AttractionIntegral::</code><code class="descname">work_g1</code><a class="headerlink" href="#_CPPv2N21GB2AttractionIntegral7work_g1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Temporary array to store intermediate results. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N21GB2AttractionIntegral7work_g2E">
+<span id="GB2AttractionIntegral::work_g2__doubleP"></span><span class="target" id="hortonclassGB2AttractionIntegral_1ae63f8a3f9f7034e1d2e357d50e38c33a"></span>double *<code class="descclassname">GB2AttractionIntegral::</code><code class="descname">work_g2</code><a class="headerlink" href="#_CPPv2N21GB2AttractionIntegral7work_g2E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Temporary array to store intermediate results. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N21GB2AttractionIntegral9work_boysE">
+<span id="GB2AttractionIntegral::work_boys__doubleP"></span><span class="target" id="hortonclassGB2AttractionIntegral_1a5cf5edb9275c7b7d035098795886b238"></span>double *<code class="descclassname">GB2AttractionIntegral::</code><code class="descname">work_boys</code><a class="headerlink" href="#_CPPv2N21GB2AttractionIntegral9work_boysE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Temporary array to store the laplace of the interaction potential. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv228GB2NuclearAttractionIntegral">
+<span id="GB2NuclearAttractionIntegral"></span><span class="target" id="hortonclassGB2NuclearAttractionIntegral"></span><em class="property">class </em></dt>
+<dd><em>#include &lt;ints.h&gt;</em><p>Nuclear Electron Attraction two-center integrals. </p>
+<p>The potential is 1/r. </p>
+<p>Inherits from <a class="reference internal" href="#hortonclassGB2AttractionIntegral"><span class="std std-ref">GB2AttractionIntegral</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N28GB2NuclearAttractionIntegral28GB2NuclearAttractionIntegralElPdPdl">
+<span id="GB2NuclearAttractionIntegral::GB2NuclearAttractionIntegral__l.doubleP.doubleP.l"></span><span class="target" id="hortonclassGB2NuclearAttractionIntegral_1a5e750020930eee960327f7d3488ffec4"></span><code class="descclassname">GB2NuclearAttractionIntegral::</code><code class="descname">GB2NuclearAttractionIntegral</code><span class="sig-paren">(</span>long <em>max_shell_type</em>, double *<em>charges</em>, double *<em>centers</em>, long <em>ncharge</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N28GB2NuclearAttractionIntegral28GB2NuclearAttractionIntegralElPdPdl" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Initialize a <a class="reference internal" href="#hortonclassGB2NuclearAttractionIntegral"><span class="std std-ref">GB2NuclearAttractionIntegral</span></a> object. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">max_shell_type</span></code> - <p>Highest angular momentum index to be expected in the reset method.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">charges</span></code> - <p>Array with values of the charges.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">centers</span></code> - <p>The centers [[C1_x, C1_y, C1_z],[…],] around which the moment integrals are computed.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">ncharge</span></code> - <p>Number of nuclear charges. </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N28GB2NuclearAttractionIntegral20laplace_of_potentialEddlPd">
+<span id="GB2NuclearAttractionIntegral::laplace_of_potential__double.double.l.doubleP"></span><span class="target" id="hortonclassGB2NuclearAttractionIntegral_1a810ca5e1801532585a14b46e93afa4e4"></span>void <code class="descclassname">GB2NuclearAttractionIntegral::</code><code class="descname">laplace_of_potential</code><span class="sig-paren">(</span>double <em>gamma</em>, double <em>arg</em>, long <em>mmax</em>, double *<em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N28GB2NuclearAttractionIntegral20laplace_of_potentialEddlPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Evaluate the Laplace transform of the ordinary Coulomb potential. </p>
+<p>See Eq. (39) in Ahlrichs’ paper. This is basically a rescaled Boys function.</p>
+<p>See base class for more details. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv224GB2ErfAttractionIntegral">
+<span id="GB2ErfAttractionIntegral"></span><span class="target" id="hortonclassGB2ErfAttractionIntegral"></span><em class="property">class </em></dt>
+<dd><em>#include &lt;ints.h&gt;</em><p>Short-range electron repulsion four-center integrals. </p>
+<p>The potential is erf(mu*r)/r. </p>
+<p>Inherits from <a class="reference internal" href="#hortonclassGB2AttractionIntegral"><span class="std std-ref">GB2AttractionIntegral</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N24GB2ErfAttractionIntegral24GB2ErfAttractionIntegralElPdPdld">
+<span id="GB2ErfAttractionIntegral::GB2ErfAttractionIntegral__l.doubleP.doubleP.l.double"></span><span class="target" id="hortonclassGB2ErfAttractionIntegral_1ab452a03349094e89b83763bf5660651e"></span><code class="descclassname">GB2ErfAttractionIntegral::</code><code class="descname">GB2ErfAttractionIntegral</code><span class="sig-paren">(</span>long <em>max_shell_type</em>, double *<em>charges</em>, double *<em>centers</em>, long <em>ncharge</em>, double <em>mu</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N24GB2ErfAttractionIntegral24GB2ErfAttractionIntegralElPdPdld" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Initialize a <a class="reference internal" href="#hortonclassGB2ErfAttractionIntegral"><span class="std std-ref">GB2ErfAttractionIntegral</span></a> object. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">max_shell_type</span></code> - <p>Highest angular momentum index to be expected in the reset method.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">charges</span></code> - <p>Array with values of the charges.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">centers</span></code> - <p>The centers [[C1_x, C1_y, C1_z],[…],] around which the moment integrals are computed.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">ncharge</span></code> - <p>Number of nuclear charges.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">mu</span></code> - <p>The range-separation parameter. </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N24GB2ErfAttractionIntegral20laplace_of_potentialEddlPd">
+<span id="GB2ErfAttractionIntegral::laplace_of_potential__double.double.l.doubleP"></span><span class="target" id="hortonclassGB2ErfAttractionIntegral_1a2fce606472ab437ac2803c942f7e3e1a"></span>void <code class="descclassname">GB2ErfAttractionIntegral::</code><code class="descname">laplace_of_potential</code><span class="sig-paren">(</span>double <em>gamma</em>, double <em>arg</em>, long <em>mmax</em>, double *<em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N24GB2ErfAttractionIntegral20laplace_of_potentialEddlPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Evaluate the Laplace transform of the long-range Coulomb potential. (The short-range part is damped away using an error function.) See (52) in Ahlrichs’ paper. </p>
+<p>See base class for more details. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK24GB2ErfAttractionIntegral6get_muEv">
+<span id="GB2ErfAttractionIntegral::get_muC"></span><span class="target" id="hortonclassGB2ErfAttractionIntegral_1a81c03161ff83415f0c7abe2a9a3ea477"></span><em class="property">const</em> double <code class="descclassname">GB2ErfAttractionIntegral::</code><code class="descname">get_mu</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK24GB2ErfAttractionIntegral6get_muEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The range-separation parameter. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv2N24GB2ErfAttractionIntegral2muE">
+<span id="GB2ErfAttractionIntegral::mu__double"></span><span class="target" id="hortonclassGB2ErfAttractionIntegral_1aac0da3bbcbf0ab1e6a52d3132755f801"></span>double <code class="descclassname">GB2ErfAttractionIntegral::</code><code class="descname">mu</code><a class="headerlink" href="#_CPPv2N24GB2ErfAttractionIntegral2muE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The range-separation parameter. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv226GB2GaussAttractionIntegral">
+<span id="GB2GaussAttractionIntegral"></span><span class="target" id="hortonclassGB2GaussAttractionIntegral"></span><em class="property">class </em></dt>
+<dd><em>#include &lt;ints.h&gt;</em><p>Gaussian nuclear electron attraction two-center integrals. </p>
+<p>The potential is c exp(-alpha r^2). </p>
+<p>Inherits from <a class="reference internal" href="#hortonclassGB2AttractionIntegral"><span class="std std-ref">GB2AttractionIntegral</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N26GB2GaussAttractionIntegral26GB2GaussAttractionIntegralElPdPdldd">
+<span id="GB2GaussAttractionIntegral::GB2GaussAttractionIntegral__l.doubleP.doubleP.l.double.double"></span><span class="target" id="hortonclassGB2GaussAttractionIntegral_1ae0fca62c56b59d244abf04f64adee6fa"></span><code class="descclassname">GB2GaussAttractionIntegral::</code><code class="descname">GB2GaussAttractionIntegral</code><span class="sig-paren">(</span>long <em>max_shell_type</em>, double *<em>charges</em>, double *<em>centers</em>, long <em>ncharge</em>, double <em>c</em>, double <em>alpha</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N26GB2GaussAttractionIntegral26GB2GaussAttractionIntegralElPdPdldd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Initialize a <a class="reference internal" href="#hortonclassGB2GaussAttractionIntegral"><span class="std std-ref">GB2GaussAttractionIntegral</span></a> object. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">max_shell_type</span></code> - <p>Highest angular momentum index to be expected in the reset method.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">charges</span></code> - <p>Array with values of the charges.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">centers</span></code> - <p>The centers [[C1_x, C1_y, C1_z],[…],] around which the moment integrals are computed.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">ncharge</span></code> - <p>Number of nuclear charges.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">c</span></code> - <p>Coefficient of the gaussian.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">alpha</span></code> - <p>Exponential parameter of the gaussian. </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N26GB2GaussAttractionIntegral20laplace_of_potentialEddlPd">
+<span id="GB2GaussAttractionIntegral::laplace_of_potential__double.double.l.doubleP"></span><span class="target" id="hortonclassGB2GaussAttractionIntegral_1ab887de0d6526602c66f259d3fca037ea"></span>void <code class="descclassname">GB2GaussAttractionIntegral::</code><code class="descname">laplace_of_potential</code><span class="sig-paren">(</span>double <em>gamma</em>, double <em>arg</em>, long <em>mmax</em>, double *<em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N26GB2GaussAttractionIntegral20laplace_of_potentialEddlPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Evaluate the Laplace transform of the Gaussian potential. </p>
+<p>See Ahlrichs’ paper for details. This type of potential is used in the papers of P.M.W Gill et al. and J. Toulouse et al.:</p>
+<p>Gill, P. M. W., &amp; Adamson, R. D. (1996). A family of attenuated Coulomb operators. Chem. Phys. Lett., 261(1-2), 105–110. <a class="reference external" href="http://doi.org/10.1016/0009-2614(96)00931-1">http://doi.org/10.1016/0009-2614(96)00931-1</a></p>
+<p>Toulouse, J., Colonna, F., &amp; Savin, A. (2004). Long-range-short-range separation of the electron-electron interaction in density-functional theory. Phys. Rev. A, 70, 62505. <a class="reference external" href="http://doi.org/10.1103/PhysRevA.70.062505">http://doi.org/10.1103/PhysRevA.70.062505</a></p>
+<p>See base class for more details. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK26GB2GaussAttractionIntegral5get_cEv">
+<span id="GB2GaussAttractionIntegral::get_cC"></span><span class="target" id="hortonclassGB2GaussAttractionIntegral_1a3edc582382812be3b646d105560de450"></span><em class="property">const</em> double <code class="descclassname">GB2GaussAttractionIntegral::</code><code class="descname">get_c</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK26GB2GaussAttractionIntegral5get_cEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Coefficient of the gaussian. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK26GB2GaussAttractionIntegral9get_alphaEv">
+<span id="GB2GaussAttractionIntegral::get_alphaC"></span><span class="target" id="hortonclassGB2GaussAttractionIntegral_1a96e5d76605029d8cb73f79dbadadfe05"></span><em class="property">const</em> double <code class="descclassname">GB2GaussAttractionIntegral::</code><code class="descname">get_alpha</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK26GB2GaussAttractionIntegral9get_alphaEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Exponential parameter of the gaussian. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv2N26GB2GaussAttractionIntegral1cE">
+<span id="GB2GaussAttractionIntegral::c__double"></span><span class="target" id="hortonclassGB2GaussAttractionIntegral_1ad8210ea4b9e47f506d57b7eb2adaaf02"></span>double <code class="descclassname">GB2GaussAttractionIntegral::</code><code class="descname">c</code><a class="headerlink" href="#_CPPv2N26GB2GaussAttractionIntegral1cE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Coefficient of the gaussian. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N26GB2GaussAttractionIntegral5alphaE">
+<span id="GB2GaussAttractionIntegral::alpha__double"></span><span class="target" id="hortonclassGB2GaussAttractionIntegral_1a9af8c31c84fb1ab336859d22297e6e1c"></span>double <code class="descclassname">GB2GaussAttractionIntegral::</code><code class="descname">alpha</code><a class="headerlink" href="#_CPPv2N26GB2GaussAttractionIntegral5alphaE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Exponential parameter of the gaussian. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv217GB2MomentIntegral">
+<span id="GB2MomentIntegral"></span><span class="target" id="hortonclassGB2MomentIntegral"></span><em class="property">class </em></dt>
+<dd><em>#include &lt;ints.h&gt;</em><p>Compute the (multipole) moment integrals in a Gaussian orbital basis. &lt; gto_a | (x - C_x)^l (y - C_y)^m (z - C_z)^n | gto_b &gt;. </p>
+<p>Inherits from <a class="reference internal" href="#hortonclassGB2Integral"><span class="std std-ref">GB2Integral</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N17GB2MomentIntegral17GB2MomentIntegralElPlPd">
+<span id="GB2MomentIntegral::GB2MomentIntegral__l.lP.doubleP"></span><span class="target" id="hortonclassGB2MomentIntegral_1a78590a61a050b36fde5022842c9b3d4f"></span><code class="descclassname">GB2MomentIntegral::</code><code class="descname">GB2MomentIntegral</code><span class="sig-paren">(</span>long <em>max_shell_type</em>, long *<em>xyz</em>, double *<em>center</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N17GB2MomentIntegral17GB2MomentIntegralElPlPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Initialize Moment integral calculator. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">max_shell_type</span></code> - <p>The highest angular momentum index suported</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">xyz</span></code> - <p>The powers of x,y,z in the integrals (l, m, n).</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">center</span></code> - <p>The center [C_x, C_y, C_z] around which the moment integrals arecomputed </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N17GB2MomentIntegral3addEdddPKdPKd">
+<span id="GB2MomentIntegral::add__double.double.double.doubleCP.doubleCP"></span><span class="target" id="hortonclassGB2MomentIntegral_1ad63f0167fba9b207e9f1d62668290d1f"></span>void <code class="descclassname">GB2MomentIntegral::</code><code class="descname">add</code><span class="sig-paren">(</span>double <em>coeff</em>, double <em>alpha0</em>, double <em>alpha1</em>, <em class="property">const</em> double *<em>scales0</em>, <em class="property">const</em> double *<em>scales1</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N17GB2MomentIntegral3addEdddPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add integrals for a pair of primite shells to the current contraction. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">coeff</span></code> - <p>The contraction coefficient for the current primitive.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">alpha0</span></code> - <p>The exponent of the primitive shell 0.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">alpha1</span></code> - <p>The exponent of the primitive shell 1.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">scales0</span></code> - <p>The normalization constants for the basis functions in primitive shell 0.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">scales1</span></code> - <p>The normalization constants for the basis functions in primitive shell 1. </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv2N17GB2MomentIntegral3xyzE">
+<span id="GB2MomentIntegral::xyz__lP"></span><span class="target" id="hortonclassGB2MomentIntegral_1a9c7d8b6a1860618892c11e110ede9d6d"></span>long *<code class="descclassname">GB2MomentIntegral::</code><code class="descname">xyz</code><a class="headerlink" href="#_CPPv2N17GB2MomentIntegral3xyzE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Powers for x, y and z of the multipole moment. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N17GB2MomentIntegral6centerE">
+<span id="GB2MomentIntegral::center__doubleP"></span><span class="target" id="hortonclassGB2MomentIntegral_1a36cb5100011086616528832f74b7c5a1"></span>double *<code class="descclassname">GB2MomentIntegral::</code><code class="descname">center</code><a class="headerlink" href="#_CPPv2N17GB2MomentIntegral6centerE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The origin w.r.t. to which the multipole moment is computed. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv211GB4Integral">
+<span id="GB4Integral"></span><span class="target" id="hortonclassGB4Integral"></span><em class="property">class </em></dt>
+<dd><em>#include &lt;ints.h&gt;</em><p>Base class for four-center integrals. </p>
+<p>Inherits from <a class="reference internal" href="mod_horton_gbasis_calc_h.html#hortonclassGBCalculator"><span class="std std-ref">GBCalculator</span></a></p>
+<p>Subclassed by <a class="reference internal" href="#hortonclassGB4IntegralLibInt"><span class="std std-ref">GB4IntegralLibInt</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N11GB4Integral11GB4IntegralEl">
+<span id="GB4Integral::GB4Integral__l"></span><span class="target" id="hortonclassGB4Integral_1a17e81951cc692506a8c60074b795d630"></span><code class="descclassname">GB4Integral::</code><code class="descname">GB4Integral</code><span class="sig-paren">(</span>long <em>max_shell_type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11GB4Integral11GB4IntegralEl" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Initialize a <a class="reference internal" href="#hortonclassGB4Integral"><span class="std std-ref">GB4Integral</span></a> object. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">max_shell_type</span></code> - <p>Highest angular momentum index to be expected in the reset method. </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N11GB4Integral5resetEllllPKdPKdPKdPKd">
+<span id="GB4Integral::reset__l.l.l.l.doubleCP.doubleCP.doubleCP.doubleCP"></span><span class="target" id="hortonclassGB4Integral_1a5eb8c1b02d1fd2135d4d37f0f99942da"></span>void <code class="descclassname">GB4Integral::</code><code class="descname">reset</code><span class="sig-paren">(</span>long <em>shell_type0</em>, long <em>shell_type1</em>, long <em>shell_type2</em>, long <em>shell_type3</em>, <em class="property">const</em> double *<em>r0</em>, <em class="property">const</em> double *<em>r1</em>, <em class="property">const</em> double *<em>r2</em>, <em class="property">const</em> double *<em>r3</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11GB4Integral5resetEllllPKdPKdPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set internal parameters for a new group of four contractions. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">shell_type0</span></code> - <p>Angular momentum index for contraction 0.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">shell_type1</span></code> - <p>Angular momentum index for contraction 1.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">shell_type2</span></code> - <p>Angular momentum index for contraction 2.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">shell_type3</span></code> - <p>Angular momentum index for contraction 3.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">r0</span></code> - <p>Cartesian coordinates of center 0.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">r1</span></code> - <p>Cartesian coordinates of center 1.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">r2</span></code> - <p>Cartesian coordinates of center 2.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">r3</span></code> - <p>Cartesian coordinates of center 3. </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N11GB4Integral3addEdddddPKdPKdPKdPKd">
+<span id="GB4Integral::add__double.double.double.double.double.doubleCP.doubleCP.doubleCP.doubleCP"></span><span class="target" id="hortonclassGB4Integral_1aa19f73b86000ebd13b6bd9766db1501e"></span><em class="property">virtual</em> void <code class="descclassname">GB4Integral::</code><code class="descname">add</code><span class="sig-paren">(</span>double <em>coeff</em>, double <em>alpha0</em>, double <em>alpha1</em>, double <em>alpha2</em>, double <em>alpha3</em>, <em class="property">const</em> double *<em>scales0</em>, <em class="property">const</em> double *<em>scales1</em>, <em class="property">const</em> double *<em>scales2</em>, <em class="property">const</em> double *<em>scales3</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11GB4Integral3addEdddddPKdPKdPKdPKd" title="Permalink to this definition">¶</a><br /> = 0</dt>
+<dd><p>Add results for a combination of Cartesian primitive shells to the work array. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">coeff</span></code> - <p>Product of the contraction coefficients of the four primitives.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">alpha0</span></code> - <p>The exponent of primitive shell 0.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">alpha1</span></code> - <p>The exponent of primitive shell 1.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">alpha2</span></code> - <p>The exponent of primitive shell 2.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">alpha3</span></code> - <p>The exponent of primitive shell 3.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">scales0</span></code> - <p>The normalization prefactors for basis functions in primitive shell 0</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">scales1</span></code> - <p>The normalization prefactors for basis functions in primitive shell 1</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">scales2</span></code> - <p>The normalization prefactors for basis functions in primitive shell 2</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">scales3</span></code> - <p>The normalization prefactors for basis functions in primitive shell 3 </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N11GB4Integral12cart_to_pureEv">
+<span id="GB4Integral::cart_to_pure"></span><span class="target" id="hortonclassGB4Integral_1ae43b38c9bafd45e1c63c386d7e93bc77"></span>void <code class="descclassname">GB4Integral::</code><code class="descname">cart_to_pure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11GB4Integral12cart_to_pureEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Transform the results in the work array from Cartesian to pure functions where needed. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK11GB4Integral15get_shell_type0Ev">
+<span id="GB4Integral::get_shell_type0C"></span><span class="target" id="hortonclassGB4Integral_1a231b8dd3fc36987200c0b8f6a725ec98"></span><em class="property">const</em> long <code class="descclassname">GB4Integral::</code><code class="descname">get_shell_type0</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK11GB4Integral15get_shell_type0Ev" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Shell type of contraction 0. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK11GB4Integral15get_shell_type1Ev">
+<span id="GB4Integral::get_shell_type1C"></span><span class="target" id="hortonclassGB4Integral_1ae043978e9dd83ff6a3123381bd04a340"></span><em class="property">const</em> long <code class="descclassname">GB4Integral::</code><code class="descname">get_shell_type1</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK11GB4Integral15get_shell_type1Ev" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Shell type of contraction 1. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK11GB4Integral15get_shell_type2Ev">
+<span id="GB4Integral::get_shell_type2C"></span><span class="target" id="hortonclassGB4Integral_1a3a2989dd0c4e313fae4eaf80c9813ec3"></span><em class="property">const</em> long <code class="descclassname">GB4Integral::</code><code class="descname">get_shell_type2</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK11GB4Integral15get_shell_type2Ev" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Shell type of contraction 2. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK11GB4Integral15get_shell_type3Ev">
+<span id="GB4Integral::get_shell_type3C"></span><span class="target" id="hortonclassGB4Integral_1acb893a8023a63bc3065494a16b259637"></span><em class="property">const</em> long <code class="descclassname">GB4Integral::</code><code class="descname">get_shell_type3</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK11GB4Integral15get_shell_type3Ev" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Shell type of contraction 3. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N11GB4Integral11shell_type0E">
+<span id="GB4Integral::shell_type0__l"></span><span class="target" id="hortonclassGB4Integral_1ac14bc04a84ba62e3e4a89620761974f0"></span>long <code class="descclassname">GB4Integral::</code><code class="descname">shell_type0</code><a class="headerlink" href="#_CPPv2N11GB4Integral11shell_type0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Shell type of contraction 0. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N11GB4Integral11shell_type1E">
+<span id="GB4Integral::shell_type1__l"></span><span class="target" id="hortonclassGB4Integral_1a08aa26ba731bba60e73b3d7222cc9589"></span>long <code class="descclassname">GB4Integral::</code><code class="descname">shell_type1</code><a class="headerlink" href="#_CPPv2N11GB4Integral11shell_type1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Shell type of contraction 1. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N11GB4Integral11shell_type2E">
+<span id="GB4Integral::shell_type2__l"></span><span class="target" id="hortonclassGB4Integral_1ab217425aa06b9ad1ed0eced153aedadf"></span>long <code class="descclassname">GB4Integral::</code><code class="descname">shell_type2</code><a class="headerlink" href="#_CPPv2N11GB4Integral11shell_type2E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Shell type of contraction 2. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N11GB4Integral11shell_type3E">
+<span id="GB4Integral::shell_type3__l"></span><span class="target" id="hortonclassGB4Integral_1ad738932d03814c446627fe47db9b9a46"></span>long <code class="descclassname">GB4Integral::</code><code class="descname">shell_type3</code><a class="headerlink" href="#_CPPv2N11GB4Integral11shell_type3E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Shell type of contraction 3. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N11GB4Integral2r0E">
+<span id="GB4Integral::r0__doubleCP"></span><span class="target" id="hortonclassGB4Integral_1a10ccd11e1876eb9351ce36206ef51040"></span><em class="property">const</em> double *<code class="descclassname">GB4Integral::</code><code class="descname">r0</code><a class="headerlink" href="#_CPPv2N11GB4Integral2r0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Center of contraction 0. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N11GB4Integral2r1E">
+<span id="GB4Integral::r1__doubleCP"></span><span class="target" id="hortonclassGB4Integral_1aaa04d91a367b25f8902589a3265514e2"></span><em class="property">const</em> double *<code class="descclassname">GB4Integral::</code><code class="descname">r1</code><a class="headerlink" href="#_CPPv2N11GB4Integral2r1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Center of contraction 1. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N11GB4Integral2r2E">
+<span id="GB4Integral::r2__doubleCP"></span><span class="target" id="hortonclassGB4Integral_1a6853a9700bf37b7860ece0123b69b9f9"></span><em class="property">const</em> double *<code class="descclassname">GB4Integral::</code><code class="descname">r2</code><a class="headerlink" href="#_CPPv2N11GB4Integral2r2E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Center of contraction 2. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N11GB4Integral2r3E">
+<span id="GB4Integral::r3__doubleCP"></span><span class="target" id="hortonclassGB4Integral_1ac7f712c4b9c3a4d291003654cfd2b360"></span><em class="property">const</em> double *<code class="descclassname">GB4Integral::</code><code class="descname">r3</code><a class="headerlink" href="#_CPPv2N11GB4Integral2r3E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Center of contraction 3. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv212libint_arg_t">
+<span id="libint_arg_t"></span><span class="target" id="hortonstructlibint__arg__t"></span><em class="property">struct </em></dt>
+<dd><em>#include &lt;ints.h&gt;</em><p>Arguments associated with one primitive shell in LibInt conventions. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="member">
+<dt id="_CPPv2N12libint_arg_t2amE">
+<span id="libint_arg_t::am__unsigned-i"></span><span class="target" id="hortonstructlibint__arg__t_1a626956072bb7820f90a49f91762a7ccf"></span>unsigned int <code class="descclassname">libint_arg_t::</code><code class="descname">am</code><a class="headerlink" href="#_CPPv2N12libint_arg_t2amE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Shell type in LibInt conventions. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N12libint_arg_t1rE">
+<span id="libint_arg_t::r__doubleCP"></span><span class="target" id="hortonstructlibint__arg__t_1adf654c2dbc72756b4c4885f420dc2ad6"></span><em class="property">const</em> double *<code class="descclassname">libint_arg_t::</code><code class="descname">r</code><a class="headerlink" href="#_CPPv2N12libint_arg_t1rE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Center of a primitive shell. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N12libint_arg_t5alphaE">
+<span id="libint_arg_t::alpha__double"></span><span class="target" id="hortonstructlibint__arg__t_1af16da9db3b81dd80f4936c01e781b750"></span>double <code class="descclassname">libint_arg_t::</code><code class="descname">alpha</code><a class="headerlink" href="#_CPPv2N12libint_arg_t5alphaE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Exponent of a primitive shell. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv217GB4IntegralLibInt">
+<span id="GB4IntegralLibInt"></span><span class="target" id="hortonclassGB4IntegralLibInt"></span><em class="property">class </em></dt>
+<dd><em>#include &lt;ints.h&gt;</em><p>Base class for four-center integrals that use LibInt. </p>
+<p>Inherits from <a class="reference internal" href="#hortonclassGB4Integral"><span class="std std-ref">GB4Integral</span></a></p>
+<p>Subclassed by <a class="reference internal" href="#hortonclassGB4ElectronRepulsionIntegralLibInt"><span class="std std-ref">GB4ElectronRepulsionIntegralLibInt</span></a>, <a class="reference internal" href="#hortonclassGB4ErfIntegralLibInt"><span class="std std-ref">GB4ErfIntegralLibInt</span></a>, <a class="reference internal" href="#hortonclassGB4GaussIntegralLibInt"><span class="std std-ref">GB4GaussIntegralLibInt</span></a>, <a class="reference internal" href="#hortonclassGB4RAlphaIntegralLibInt"><span class="std std-ref">GB4RAlphaIntegralLibInt</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N17GB4IntegralLibInt17GB4IntegralLibIntEl">
+<span id="GB4IntegralLibInt::GB4IntegralLibInt__l"></span><span class="target" id="hortonclassGB4IntegralLibInt_1a2b8c061f50daa0d25f38091a4dad5663"></span><code class="descclassname">GB4IntegralLibInt::</code><code class="descname">GB4IntegralLibInt</code><span class="sig-paren">(</span>long <em>max_shell_type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N17GB4IntegralLibInt17GB4IntegralLibIntEl" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Initialize a <a class="reference internal" href="#hortonclassGB4IntegralLibInt"><span class="std std-ref">GB4IntegralLibInt</span></a> object. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">max_shell_type</span></code> - <p>Highest angular momentum index to be expected in the reset method. </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N17GB4IntegralLibIntD0Ev">
+<span id="GB4IntegralLibInt::~GB4IntegralLibInt"></span><span class="target" id="hortonclassGB4IntegralLibInt_1ab38a6026beacb66ca3ba1e88632a44d7"></span><code class="descclassname">GB4IntegralLibInt::</code><code class="descname">~GB4IntegralLibInt</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N17GB4IntegralLibIntD0Ev" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N17GB4IntegralLibInt5resetEllllPKdPKdPKdPKd">
+<span id="GB4IntegralLibInt::reset__l.l.l.l.doubleCP.doubleCP.doubleCP.doubleCP"></span><span class="target" id="hortonclassGB4IntegralLibInt_1acdcc0b458c6e02743db186a7b34cbb6a"></span>void <code class="descclassname">GB4IntegralLibInt::</code><code class="descname">reset</code><span class="sig-paren">(</span>long <em>shell_type0</em>, long <em>shell_type1</em>, long <em>shell_type2</em>, long <em>shell_type3</em>, <em class="property">const</em> double *<em>r0</em>, <em class="property">const</em> double *<em>r1</em>, <em class="property">const</em> double *<em>r2</em>, <em class="property">const</em> double *<em>r3</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N17GB4IntegralLibInt5resetEllllPKdPKdPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set internal parameters for a new group of four contractions. </p>
+<p>See base class for details. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N17GB4IntegralLibInt3addEdddddPKdPKdPKdPKd">
+<span id="GB4IntegralLibInt::add__double.double.double.double.double.doubleCP.doubleCP.doubleCP.doubleCP"></span><span class="target" id="hortonclassGB4IntegralLibInt_1ace3a6da4830b24301860f13d31f77ba8"></span>void <code class="descclassname">GB4IntegralLibInt::</code><code class="descname">add</code><span class="sig-paren">(</span>double <em>coeff</em>, double <em>alpha0</em>, double <em>alpha1</em>, double <em>alpha2</em>, double <em>alpha3</em>, <em class="property">const</em> double *<em>scales0</em>, <em class="property">const</em> double *<em>scales1</em>, <em class="property">const</em> double *<em>scales2</em>, <em class="property">const</em> double *<em>scales3</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N17GB4IntegralLibInt3addEdddddPKdPKdPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add results for a combination of Cartesian primitive shells to the work array. </p>
+<p>See base class for details. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N17GB4IntegralLibInt20laplace_of_potentialEdddlPd">
+<span id="GB4IntegralLibInt::laplace_of_potential__double.double.double.l.doubleP"></span><span class="target" id="hortonclassGB4IntegralLibInt_1a8e98ee1448236c042510e55a3eb333cc"></span><em class="property">virtual</em> void <code class="descclassname">GB4IntegralLibInt::</code><code class="descname">laplace_of_potential</code><span class="sig-paren">(</span>double <em>prefac</em>, double <em>rho</em>, double <em>t</em>, long <em>mmax</em>, double *<em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N17GB4IntegralLibInt20laplace_of_potentialEdddlPd" title="Permalink to this definition">¶</a><br /> = 0</dt>
+<dd><p>Evaluate the Laplace transform of the the potential. </p>
+<p>For theoretical details and the precise definition of the Laplace transform, we refer to the following paper:</p>
+<p>Ahlrichs, R. A simple algebraic derivation of the Obara-Saika scheme for general two-electron interaction potentials. Phys. Chem. Chem. Phys. 8, 3072–3077 (2006). 10.1039/B605188J</p>
+<p>For the general definition of this transform, see Eq. (8) in the reference above. Section 5 contains solutions of the Laplace transform for several popular cases.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">prefac</span></code> - <p>Prefactor with which all results in the output array are multiplied.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">rho</span></code> - <p>See Eq. (3) in Ahlrichs’ paper.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">t</span></code> - <p>Rescaled distance between the two centers obtained from the application of the Gaussian product theorem. See Eq. (5) in Ahlrichs’ paper.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">mmax</span></code> - <p>Maximum derivative of the Laplace transform to be considered.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">output</span></code> - <p>Output array. The size must be at least mmax + 1. </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv2N17GB4IntegralLibInt7erievalE">
+<span id="GB4IntegralLibInt::erieval__Libint_eri_t"></span><span class="target" id="hortonclassGB4IntegralLibInt_1a24fda00032d5b895864eea4e68757f2d"></span>Libint_eri_t <code class="descclassname">GB4IntegralLibInt::</code><code class="descname">erieval</code><a class="headerlink" href="#_CPPv2N17GB4IntegralLibInt7erievalE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>LibInt runtime object. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N17GB4IntegralLibInt11libint_argsE">
+<span id="GB4IntegralLibInt::libint_args__libint_arg_tA"></span><span class="target" id="hortonclassGB4IntegralLibInt_1a72479304e58f6b45adb94353ab460de6"></span><a class="reference internal" href="#_CPPv212libint_arg_t" title="libint_arg_t">libint_arg_t</a> <code class="descclassname">GB4IntegralLibInt::</code><code class="descname">libint_args</code>[4]<a class="headerlink" href="#_CPPv2N17GB4IntegralLibInt11libint_argsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Arguments (shell info) for libint. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N17GB4IntegralLibInt5orderE">
+<span id="GB4IntegralLibInt::order__lA"></span><span class="target" id="hortonclassGB4IntegralLibInt_1a95169c4f8deb1a15d3ea9d302c862cc3"></span>long <code class="descclassname">GB4IntegralLibInt::</code><code class="descname">order</code>[4]<a class="headerlink" href="#_CPPv2N17GB4IntegralLibInt5orderE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Re-ordering of shells for compatibility with LibInt. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N17GB4IntegralLibInt2abE">
+<span id="GB4IntegralLibInt::ab__doubleA"></span><span class="target" id="hortonclassGB4IntegralLibInt_1a2f7040a2d522b945bc4272a0b401c986"></span>double <code class="descclassname">GB4IntegralLibInt::</code><code class="descname">ab</code>[3]<a class="headerlink" href="#_CPPv2N17GB4IntegralLibInt2abE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Relative vector from shell 2 to 0 (LibInt order). </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N17GB4IntegralLibInt2cdE">
+<span id="GB4IntegralLibInt::cd__doubleA"></span><span class="target" id="hortonclassGB4IntegralLibInt_1a40ee1e0fd5798387dbae7b76f327b9b2"></span>double <code class="descclassname">GB4IntegralLibInt::</code><code class="descname">cd</code>[3]<a class="headerlink" href="#_CPPv2N17GB4IntegralLibInt2cdE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Relative vector from shell 3 to 1 (LibInt order). </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N17GB4IntegralLibInt3ab2E">
+<span id="GB4IntegralLibInt::ab2__double"></span><span class="target" id="hortonclassGB4IntegralLibInt_1a25ffcd1b5d136cbe9e343e96214262e7"></span>double <code class="descclassname">GB4IntegralLibInt::</code><code class="descname">ab2</code><a class="headerlink" href="#_CPPv2N17GB4IntegralLibInt3ab2E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Norm squared of ab. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N17GB4IntegralLibInt3cd2E">
+<span id="GB4IntegralLibInt::cd2__double"></span><span class="target" id="hortonclassGB4IntegralLibInt_1a53cce925a72648303ca73023a7546910"></span>double <code class="descclassname">GB4IntegralLibInt::</code><code class="descname">cd2</code><a class="headerlink" href="#_CPPv2N17GB4IntegralLibInt3cd2E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Norm squared of cd. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv234GB4ElectronRepulsionIntegralLibInt">
+<span id="GB4ElectronRepulsionIntegralLibInt"></span><span class="target" id="hortonclassGB4ElectronRepulsionIntegralLibInt"></span><em class="property">class </em></dt>
+<dd><em>#include &lt;ints.h&gt;</em><p>Electron repulsion four-center integrals. </p>
+<p>The potential is 1/r. </p>
+<p>Inherits from <a class="reference internal" href="#hortonclassGB4IntegralLibInt"><span class="std std-ref">GB4IntegralLibInt</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N34GB4ElectronRepulsionIntegralLibInt34GB4ElectronRepulsionIntegralLibIntEl">
+<span id="GB4ElectronRepulsionIntegralLibInt::GB4ElectronRepulsionIntegralLibInt__l"></span><span class="target" id="hortonclassGB4ElectronRepulsionIntegralLibInt_1a524057339d1961b325f00b3d29f59e5b"></span><code class="descclassname">GB4ElectronRepulsionIntegralLibInt::</code><code class="descname">GB4ElectronRepulsionIntegralLibInt</code><span class="sig-paren">(</span>long <em>max_shell_type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N34GB4ElectronRepulsionIntegralLibInt34GB4ElectronRepulsionIntegralLibIntEl" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Initialize a <a class="reference internal" href="#hortonclassGB4ElectronRepulsionIntegralLibInt"><span class="std std-ref">GB4ElectronRepulsionIntegralLibInt</span></a> object. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">max_shell_type</span></code> - <p>Highest angular momentum index to be expected in the reset method. </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N34GB4ElectronRepulsionIntegralLibInt20laplace_of_potentialEdddlPd">
+<span id="GB4ElectronRepulsionIntegralLibInt::laplace_of_potential__double.double.double.l.doubleP"></span><span class="target" id="hortonclassGB4ElectronRepulsionIntegralLibInt_1a7ecc0f982c8653ef03d5f9350eff9ce0"></span>void <code class="descclassname">GB4ElectronRepulsionIntegralLibInt::</code><code class="descname">laplace_of_potential</code><span class="sig-paren">(</span>double <em>prefac</em>, double <em>rho</em>, double <em>t</em>, long <em>mmax</em>, double *<em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N34GB4ElectronRepulsionIntegralLibInt20laplace_of_potentialEdddlPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Evaluate the Laplace transform of the ordinary Coulomb potential. </p>
+<p>See Eq. (39) in Ahlrichs’ paper. This is basically a rescaled Boys function.</p>
+<p>See base class for more details. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv220GB4ErfIntegralLibInt">
+<span id="GB4ErfIntegralLibInt"></span><span class="target" id="hortonclassGB4ErfIntegralLibInt"></span><em class="property">class </em></dt>
+<dd><em>#include &lt;ints.h&gt;</em><p>Short-range electron repulsion four-center integrals. </p>
+<p>The potential is erf(mu*r)/r. </p>
+<p>Inherits from <a class="reference internal" href="#hortonclassGB4IntegralLibInt"><span class="std std-ref">GB4IntegralLibInt</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N20GB4ErfIntegralLibInt20GB4ErfIntegralLibIntEld">
+<span id="GB4ErfIntegralLibInt::GB4ErfIntegralLibInt__l.double"></span><span class="target" id="hortonclassGB4ErfIntegralLibInt_1ad9e6d8b8b0afed6b0b50c3daa44251d3"></span><code class="descclassname">GB4ErfIntegralLibInt::</code><code class="descname">GB4ErfIntegralLibInt</code><span class="sig-paren">(</span>long <em>max_shell_type</em>, double <em>mu</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N20GB4ErfIntegralLibInt20GB4ErfIntegralLibIntEld" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Initialize a <a class="reference internal" href="#hortonclassGB4ErfIntegralLibInt"><span class="std std-ref">GB4ErfIntegralLibInt</span></a> object. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">max_shell_type</span></code> - <p>Highest angular momentum index to be expected in the reset method.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">mu</span></code> - <p>The range-separation parameter </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N20GB4ErfIntegralLibInt20laplace_of_potentialEdddlPd">
+<span id="GB4ErfIntegralLibInt::laplace_of_potential__double.double.double.l.doubleP"></span><span class="target" id="hortonclassGB4ErfIntegralLibInt_1aa9f014d376f93b203b77e6f88aab691f"></span>void <code class="descclassname">GB4ErfIntegralLibInt::</code><code class="descname">laplace_of_potential</code><span class="sig-paren">(</span>double <em>prefac</em>, double <em>rho</em>, double <em>t</em>, long <em>mmax</em>, double *<em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N20GB4ErfIntegralLibInt20laplace_of_potentialEdddlPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Evaluate the Laplace transform of the long-range Coulomb potential. (The short-range part is damped away using an error function.) See (52) in Ahlrichs’ paper. </p>
+<p>See base class for more details. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK20GB4ErfIntegralLibInt6get_muEv">
+<span id="GB4ErfIntegralLibInt::get_muC"></span><span class="target" id="hortonclassGB4ErfIntegralLibInt_1abf65b20a6a9b73dc1030e6d591cb9442"></span><em class="property">const</em> double <code class="descclassname">GB4ErfIntegralLibInt::</code><code class="descname">get_mu</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK20GB4ErfIntegralLibInt6get_muEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The range-separation parameter. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv2N20GB4ErfIntegralLibInt2muE">
+<span id="GB4ErfIntegralLibInt::mu__double"></span><span class="target" id="hortonclassGB4ErfIntegralLibInt_1a5fd3248136761749c242881bb9802170"></span>double <code class="descclassname">GB4ErfIntegralLibInt::</code><code class="descname">mu</code><a class="headerlink" href="#_CPPv2N20GB4ErfIntegralLibInt2muE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The range-separation parameter. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv222GB4GaussIntegralLibInt">
+<span id="GB4GaussIntegralLibInt"></span><span class="target" id="hortonclassGB4GaussIntegralLibInt"></span><em class="property">class </em></dt>
+<dd><em>#include &lt;ints.h&gt;</em><p>Gaussian electron repulsion four-center integrals. </p>
+<p>The potential is c exp(-alpha r^2). </p>
+<p>Inherits from <a class="reference internal" href="#hortonclassGB4IntegralLibInt"><span class="std std-ref">GB4IntegralLibInt</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N22GB4GaussIntegralLibInt22GB4GaussIntegralLibIntEldd">
+<span id="GB4GaussIntegralLibInt::GB4GaussIntegralLibInt__l.double.double"></span><span class="target" id="hortonclassGB4GaussIntegralLibInt_1a6d1697cfb286706f36e141ff3ca33d92"></span><code class="descclassname">GB4GaussIntegralLibInt::</code><code class="descname">GB4GaussIntegralLibInt</code><span class="sig-paren">(</span>long <em>max_shell_type</em>, double <em>c</em>, double <em>alpha</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N22GB4GaussIntegralLibInt22GB4GaussIntegralLibIntEldd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Initialize a <a class="reference internal" href="#hortonclassGB4GaussIntegralLibInt"><span class="std std-ref">GB4GaussIntegralLibInt</span></a> object. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">max_shell_type</span></code> - <p>Highest angular momentum index to be expected in the reset method.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">c</span></code> - <p>Coefficient of the gaussian.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">alpha</span></code> - <p>Exponential parameter of the gaussian. </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N22GB4GaussIntegralLibInt20laplace_of_potentialEdddlPd">
+<span id="GB4GaussIntegralLibInt::laplace_of_potential__double.double.double.l.doubleP"></span><span class="target" id="hortonclassGB4GaussIntegralLibInt_1ae754eeeb5794a72ced202c2d47f5e11a"></span>void <code class="descclassname">GB4GaussIntegralLibInt::</code><code class="descname">laplace_of_potential</code><span class="sig-paren">(</span>double <em>prefac</em>, double <em>rho</em>, double <em>t</em>, long <em>mmax</em>, double *<em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N22GB4GaussIntegralLibInt20laplace_of_potentialEdddlPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Evaluate the Laplace transform of the Gaussian potential. </p>
+<p>See Ahlrichs’ paper for details. This type of potential is used in the papers of P.M.W Gill et al. and J. Toulouse et al.:</p>
+<p>Gill, P. M. W., &amp; Adamson, R. D. (1996). A family of attenuated Coulomb operators. Chem. Phys. Lett., 261(1-2), 105–110. <a class="reference external" href="http://doi.org/10.1016/0009-2614(96)00931-1">http://doi.org/10.1016/0009-2614(96)00931-1</a></p>
+<p>Toulouse, J., Colonna, F., &amp; Savin, A. (2004). Long-range-short-range separation of the electron-electron interaction in density-functional theory. Phys. Rev. A, 70, 62505. <a class="reference external" href="http://doi.org/10.1103/PhysRevA.70.062505">http://doi.org/10.1103/PhysRevA.70.062505</a></p>
+<p>See base class for more details. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK22GB4GaussIntegralLibInt5get_cEv">
+<span id="GB4GaussIntegralLibInt::get_cC"></span><span class="target" id="hortonclassGB4GaussIntegralLibInt_1a63926f08e47812f4d4f86b07a54c9380"></span><em class="property">const</em> double <code class="descclassname">GB4GaussIntegralLibInt::</code><code class="descname">get_c</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK22GB4GaussIntegralLibInt5get_cEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Coefficient of the gaussian. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK22GB4GaussIntegralLibInt9get_alphaEv">
+<span id="GB4GaussIntegralLibInt::get_alphaC"></span><span class="target" id="hortonclassGB4GaussIntegralLibInt_1ae1183150ac079229451772a74af4537e"></span><em class="property">const</em> double <code class="descclassname">GB4GaussIntegralLibInt::</code><code class="descname">get_alpha</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK22GB4GaussIntegralLibInt9get_alphaEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Exponential parameter of the gaussian. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv2N22GB4GaussIntegralLibInt1cE">
+<span id="GB4GaussIntegralLibInt::c__double"></span><span class="target" id="hortonclassGB4GaussIntegralLibInt_1aee84cb24f8d10f46edf7ba74a37f54a9"></span>double <code class="descclassname">GB4GaussIntegralLibInt::</code><code class="descname">c</code><a class="headerlink" href="#_CPPv2N22GB4GaussIntegralLibInt1cE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Coefficient of the gaussian. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N22GB4GaussIntegralLibInt5alphaE">
+<span id="GB4GaussIntegralLibInt::alpha__double"></span><span class="target" id="hortonclassGB4GaussIntegralLibInt_1ace81aa3e9d8c1877f6fb887e3e66ad19"></span>double <code class="descclassname">GB4GaussIntegralLibInt::</code><code class="descname">alpha</code><a class="headerlink" href="#_CPPv2N22GB4GaussIntegralLibInt5alphaE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Exponential parameter of the gaussian. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv223GB4RAlphaIntegralLibInt">
+<span id="GB4RAlphaIntegralLibInt"></span><span class="target" id="hortonclassGB4RAlphaIntegralLibInt"></span><em class="property">class </em></dt>
+<dd><em>#include &lt;ints.h&gt;</em><p>Gaussian electron repulsion four-center integrals. </p>
+<p>The potential is r^alpha. </p>
+<p>Inherits from <a class="reference internal" href="#hortonclassGB4IntegralLibInt"><span class="std std-ref">GB4IntegralLibInt</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N23GB4RAlphaIntegralLibInt23GB4RAlphaIntegralLibIntEld">
+<span id="GB4RAlphaIntegralLibInt::GB4RAlphaIntegralLibInt__l.double"></span><span class="target" id="hortonclassGB4RAlphaIntegralLibInt_1a15a1c498d7180f70efb77c5589d287cc"></span><code class="descclassname">GB4RAlphaIntegralLibInt::</code><code class="descname">GB4RAlphaIntegralLibInt</code><span class="sig-paren">(</span>long <em>max_shell_type</em>, double <em>alpha</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N23GB4RAlphaIntegralLibInt23GB4RAlphaIntegralLibIntEld" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Initialize a <a class="reference internal" href="#hortonclassGB4RAlphaIntegralLibInt"><span class="std std-ref">GB4RAlphaIntegralLibInt</span></a> object. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">max_shell_type</span></code> - <p>Highest angular momentum index to be expected in the reset method.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">alpha</span></code> - <p>The power of r in the potential. </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N23GB4RAlphaIntegralLibInt20laplace_of_potentialEdddlPd">
+<span id="GB4RAlphaIntegralLibInt::laplace_of_potential__double.double.double.l.doubleP"></span><span class="target" id="hortonclassGB4RAlphaIntegralLibInt_1ad55c5545feac3c8b6d4570922d31d34c"></span>void <code class="descclassname">GB4RAlphaIntegralLibInt::</code><code class="descname">laplace_of_potential</code><span class="sig-paren">(</span>double <em>prefac</em>, double <em>rho</em>, double <em>t</em>, long <em>mmax</em>, double *<em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N23GB4RAlphaIntegralLibInt20laplace_of_potentialEdddlPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Evaluate the Laplace transform of the r^alpha potential. See Eq. (49) in Ahlrichs’ paper. </p>
+<p>See base class for more details. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK23GB4RAlphaIntegralLibInt9get_alphaEv">
+<span id="GB4RAlphaIntegralLibInt::get_alphaC"></span><span class="target" id="hortonclassGB4RAlphaIntegralLibInt_1a1ec88838c0e0baf5f8ccb192f8e0f65a"></span><em class="property">const</em> double <code class="descclassname">GB4RAlphaIntegralLibInt::</code><code class="descname">get_alpha</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK23GB4RAlphaIntegralLibInt9get_alphaEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The power of r. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv2N23GB4RAlphaIntegralLibInt5alphaE">
+<span id="GB4RAlphaIntegralLibInt::alpha__double"></span><span class="target" id="hortonclassGB4RAlphaIntegralLibInt_1a2329223e355920d0925a114492019870"></span>double <code class="descclassname">GB4RAlphaIntegralLibInt::</code><code class="descname">alpha</code><a class="headerlink" href="#_CPPv2N23GB4RAlphaIntegralLibInt5alphaE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The power of r. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_gbasis_iter_gb_h.html" class="btn btn-neutral float-right" title="3.3.13. horton/gbasis/iter_gb.h – Iterators over Gaussian basis functions" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_gbasis_gbw_h.html" class="btn btn-neutral" title="3.3.11. horton/gbasis/gbw.h – A four-center integral wrapper for the Cholesky code" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.0b3 built from release 2.1.0b3 (Jun 30, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 30, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.1.0b3 (Jun 30, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

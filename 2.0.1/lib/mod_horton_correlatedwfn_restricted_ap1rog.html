@@ -1,0 +1,1428 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.2.3. horton.correlatedwfn.restricted_ap1rog – Correlated wavefunction implementations &mdash; HORTON 2.0.1 (Jun 17, 2016) documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="HORTON 2.0.1 (Jun 17, 2016) documentation" href="../index.html"/>
+        <link rel="up" title="3.2. horton.correlatedwfn – Methods for correlated wavefunctions" href="pck_horton_correlatedwfn.html"/>
+        <link rel="next" title="3.2.4. horton.correlatedwfn.stepsearch – Step search methods for orbital rotations" href="mod_horton_correlatedwfn_stepsearch.html"/>
+        <link rel="prev" title="3.2.2. horton.correlatedwfn.perturbation – Perturbation theory module" href="mod_horton_correlatedwfn_perturbation.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> &#8211; The main HORTON Package</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_correlatedwfn.html">3.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn</span></code> &#8211; Methods for correlated wavefunctions</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_correlatedwfn_geminal.html">3.2.1. <code class="docutils literal"><span class="pre">horton.correlatedwfn.geminal</span></code> &#8211; Correlated wavefunction implementations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_correlatedwfn_perturbation.html">3.2.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn.perturbation</span></code> &#8211; Perturbation theory module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.2.3. <code class="docutils literal"><span class="pre">horton.correlatedwfn.restricted_ap1rog</span></code> &#8211; Correlated wavefunction implementations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_correlatedwfn_stepsearch.html">3.2.4. <code class="docutils literal"><span class="pre">horton.correlatedwfn.stepsearch</span></code> &#8211; Step search methods for orbital rotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_correlatedwfn_trustregionopt.html">3.2.5. <code class="docutils literal"><span class="pre">horton.correlatedwfn.trustregionopt</span></code> &#8211; Optimization of Newton step</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.3. <code class="docutils literal"><span class="pre">horton.espfit</span></code> &#8211; Electrostatic potential fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_gbasis.html">3.4. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> &#8211; Gaussian basis sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.5. <code class="docutils literal"><span class="pre">horton.grid</span></code> &#8211; Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.6. <code class="docutils literal"><span class="pre">horton.io</span></code> &#8211; Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_localization.html">3.7. <code class="docutils literal"><span class="pre">horton.localization</span></code> &#8211; Methods for orbital localization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.8. <code class="docutils literal"><span class="pre">horton.matrix</span></code> &#8211; One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.9. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> &#8211; Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.10. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> &#8211; Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_orbital_entanglement.html">3.11. <code class="docutils literal"><span class="pre">horton.orbital_entanglement</span></code> &#8211; Methods for measuring orbital entanglement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.12. <code class="docutils literal"><span class="pre">horton.part</span></code> &#8211; Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.13. <code class="docutils literal"><span class="pre">horton.scripts</span></code> &#8211; Code (solely) used by HORTON&#8217;s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">HORTON</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+      
+          <li><a href="pck_horton_correlatedwfn.html">3.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn</span></code> &#8211; Methods for correlated wavefunctions</a> &raquo;</li>
+      
+    <li>3.2.3. <code class="docutils literal"><span class="pre">horton.correlatedwfn.restricted_ap1rog</span></code> &#8211; Correlated wavefunction implementations</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/lib/mod_horton_correlatedwfn_restricted_ap1rog.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-horton.correlatedwfn.restricted_ap1rog">
+<span id="horton-correlatedwfn-restricted-ap1rog-correlated-wavefunction-implementations"></span><h1>3.2.3. <code class="docutils literal"><span class="pre">horton.correlatedwfn.restricted_ap1rog</span></code> &#8211; Correlated wavefunction implementations<a class="headerlink" href="#module-horton.correlatedwfn.restricted_ap1rog" title="Permalink to this headline">¶</a></h1>
+<p>This module contains restricted AP1roG</p>
+<dl class="docutils">
+<dt>Variables used in this module:</dt>
+<dd><table class="first docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">nocc:</th><td class="field-body">number of (active) occupied orbitals in the principle configuration</td>
+</tr>
+<tr class="field-even field"><th class="field-name">pairs:</th><td class="field-body">number of electron pairs</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">nvirt:</th><td class="field-body">number of (active) virtual orbitals in the principle configuration</td>
+</tr>
+<tr class="field-even field"><th class="field-name">nbasis:</th><td class="field-body">total number of basis functions</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Indexing convention:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">i,j,k,..:</th><td class="field-body">occupied orbitals of principle configuration</td>
+</tr>
+<tr class="field-even field"><th class="field-name">a,b,c,..:</th><td class="field-body">virtual orbitals of principle configuration</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">p,q,r,..:</th><td class="field-body">general indices (occupied, virtual)</td>
+</tr>
+</tbody>
+</table>
+</dd>
+<dt>Abbreviations used (if not mentioned in doc-strings):</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">L_pqrs:</th><td class="field-body">2&lt;pq|rs&gt;-&lt;pq|sr&gt;</td>
+</tr>
+<tr class="field-even field"><th class="field-name">g_pqrs:</th><td class="field-body">&lt;pq|rs&gt;</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+<p class="last">For more information see doc-strings.</p>
+</dd>
+</dl>
+<dl class="class">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog">
+<em class="property">class </em><code class="descclassname">horton.correlatedwfn.restricted_ap1rog.</code><code class="descname">RAp1rog</code><span class="sig-paren">(</span><em>lf</em>, <em>occ_model</em>, <em>npairs=None</em>, <em>nvirt=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="mod_horton_correlatedwfn_geminal.html#horton.correlatedwfn.geminal.Geminal" title="horton.correlatedwfn.geminal.Geminal"><code class="xref py py-class docutils literal"><span class="pre">horton.correlatedwfn.geminal.Geminal</span></code></a></p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>lf</dt>
+<dd>A LinalgFactory instance.</dd>
+<dt>occ_model</dt>
+<dd>Occupation model</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>npairs</dt>
+<dd>Number of electron pairs, if not specified,
+npairs = number of occupied orbitals</dd>
+<dt>nvirt</dt>
+<dd>Number of virtual orbitals, if not specified,
+nvirt = (nbasis-npairs)</dd>
+</dl>
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.check_convergence">
+<code class="descname">check_convergence</code><span class="sig-paren">(</span><em>e0</em>, <em>e1</em>, <em>gradient</em>, <em>thresh</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.check_convergence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check convergence.</p>
+<p><strong>Arguements:</strong></p>
+<dl class="docutils">
+<dt>e0, e1</dt>
+<dd>Used to calculate energy difference e0-e1</dd>
+<dt>gradient</dt>
+<dd>The gradient, a OneIndex instance</dd>
+<dt>thresh</dt>
+<dd>Dictionary containing threshold parameters (&#8216;energy&#8217;, &#8216;gradientmax&#8217;,
+&#8216;gradientnorm&#8217;)</dd>
+<dt><strong>Returns:</strong></dt>
+<dd>True if energy difference, norm of orbital gradient, largest
+element of orbital gradient are smaller than some threshold
+values.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.check_keywords">
+<code class="descname">check_keywords</code><span class="sig-paren">(</span><em>guess</em>, <em>solver</em>, <em>maxiter</em>, <em>dumpci</em>, <em>thresh</em>, <em>printoptions</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.check_keywords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check dictionaries if they contain proper keys.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>guess, solver, maxiter, dumpci, thresh, printoptions</dt>
+<dd>See <a class="reference internal" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.solve" title="horton.correlatedwfn.restricted_ap1rog.RAp1rog.solve"><code class="xref py py-meth docutils literal"><span class="pre">RAp1rog.solve()</span></code></a></dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.check_keywords_scf">
+<code class="descname">check_keywords_scf</code><span class="sig-paren">(</span><em>guess</em>, <em>solver</em>, <em>maxiter</em>, <em>dumpci</em>, <em>thresh</em>, <em>printoptions</em>, <em>stepsearch</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.check_keywords_scf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check dictionaries if they contain proper keys.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>guess, solver, maxiter, dumpci, thresh, printoptions, stepseach</dt>
+<dd>See <a class="reference internal" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.solve_scf" title="horton.correlatedwfn.restricted_ap1rog.RAp1rog.solve_scf"><code class="xref py py-meth docutils literal"><span class="pre">RAp1rog.solve_scf()</span></code></a></dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.check_stepsearch">
+<code class="descname">check_stepsearch</code><span class="sig-paren">(</span><em>linesearch</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.check_stepsearch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check trustradius. Abort calculation if trustradius is smaller than
+1e-8</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear all wavefunction information</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.clear_auxmatrix">
+<code class="descname">clear_auxmatrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.clear_auxmatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear auxiliary matrices</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.clear_dm">
+<code class="descname">clear_dm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.clear_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear RDM information</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.clear_geminal">
+<code class="descname">clear_geminal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.clear_geminal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear geminal information</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.clear_lagrange">
+<code class="descname">clear_lagrange</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.clear_lagrange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear lagrange information</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.compute_1dm">
+<code class="descname">compute_1dm</code><span class="sig-paren">(</span><em>dmout</em>, <em>mat1</em>, <em>mat2</em>, <em>factor=1.0</em>, <em>response=True</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.compute_1dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute 1-RDM for AP1roG</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>mat1, mat2</dt>
+<dd>A DenseTwoIndex instance used to calculated 1-RDM. For response
+RDM, mat1 is the geminal matrix, mat2 the Lagrange multipliers</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>factor</dt>
+<dd>A scalar factor</dd>
+<dt>select</dt>
+<dd>Switch between response (True) and PS2 (False) 1-RDM</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.compute_2dm">
+<code class="descname">compute_2dm</code><span class="sig-paren">(</span><em>dmout</em>, <em>dm1</em>, <em>mat1</em>, <em>mat2</em>, <em>select</em>, <em>response=True</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.compute_2dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute response 2-RDM for AP1roG</p>
+<p>** Arguments **</p>
+<dl class="docutils">
+<dt>one_dm</dt>
+<dd>A 1DM. A OneIndex instance.</dd>
+<dt>mat1, mat2</dt>
+<dd>TwoIndex instances used to calculate the 2-RDM. To get the
+response DM, mat1 is the geminal coefficient matrix, mat2 are the
+Lagrange multipliers</dd>
+<dt>select</dt>
+<dd>Either &#8216;ppqq&#8217; or &#8216;pqpq&#8217;. Note that the elements (iiii), i.e.,
+the 1DM, are stored in pqpq, while the elements (aaaa) are
+stored in ppqq.</dd>
+<dt>response</dt>
+<dd>If True, calculate response 2-RDM. Otherwise the PS2 2-RDM is
+calculated.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.compute_correlation_energy">
+<code class="descname">compute_correlation_energy</code><span class="sig-paren">(</span><em>arg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.compute_correlation_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get correlation energy of restricted AP1roG</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>arg</dt>
+<dd>The geminal coefficient matrix (np.array or TwoIndex instance).
+If not provided, the correlation energy is calculated
+from self.geminal (default None)</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.compute_objective_function">
+<code class="descname">compute_objective_function</code><span class="sig-paren">(</span><em>coeff=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.compute_objective_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Objective function for line search optimization</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>coeff</dt>
+<dd>See <a class="reference internal" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.compute_total_energy" title="horton.correlatedwfn.restricted_ap1rog.RAp1rog.compute_total_energy"><code class="xref py py-meth docutils literal"><span class="pre">RAp1rog.compute_total_energy()</span></code></a></dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.compute_orbital_gradient">
+<code class="descname">compute_orbital_gradient</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.compute_orbital_gradient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine orbital gradient for all non-reduntant orbital rotations
+(oo,vo,vv).</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>ps2c</dt>
+<dd>(boolean) If True, switches to PS2c orbital optimization
+(default False)</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.compute_orbital_hessian">
+<code class="descname">compute_orbital_hessian</code><span class="sig-paren">(</span><em>lshift=1e-08</em>, <em>pos=False</em>, <em>ps2c=False</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.compute_orbital_hessian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct diagonal approximation to Hessian for orbital optimization
+of AP1roG.</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>lshift</dt>
+<dd>Level shift (float) (default 1e-8)</dd>
+<dt>pos</dt>
+<dd>Set all elements positive (boolean) (default False)</dd>
+<dt>ps2c</dt>
+<dd>(boolean) If True, switches to PS2c orbital optimization
+(default False)</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.compute_reference_energy">
+<code class="descname">compute_reference_energy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.compute_reference_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get energy of reference determinant for restricted AP1roG</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.compute_rotation_matrix">
+<code class="descname">compute_rotation_matrix</code><span class="sig-paren">(</span><em>coeff</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.compute_rotation_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine orbital rotation matrix for (oo), (vo), and (vv) blocks</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>coeff</dt>
+<dd>The nonreduntant orbital rotations k_pq (1-dim np.array). The
+elements are sorted w.r.t. lower triangular indices (p&gt;q).</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.compute_total_energy">
+<code class="descname">compute_total_energy</code><span class="sig-paren">(</span><em>coeff=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.compute_total_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get total energy (reference+correlation) including nuclear-repulsion/
+core energy for restricted AP1roG.</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>arg</dt>
+<dd>The geminal coefficient matrix (np.array or TwoIndex instance).
+If not provided, the correlation energy is calculated
+from self.geminal (default None)</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.do_checkpoint">
+<code class="descname">do_checkpoint</code><span class="sig-paren">(</span><em>orb</em>, <em>olp</em>, <em>checkpoint_fn</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.do_checkpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump orbitals for restart</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>orb</dt>
+<dd>An expansion instance. AO/MO coefficients stored to disk</dd>
+<dt>olp</dt>
+<dd>A TwoIndex instance. The AO overlap matrix. Required for restart
+at different molecular geometry.</dd>
+<dt>checkpoint_fn</dt>
+<dd>The filename of the checkpoint file.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.dump_final">
+<code class="descname">dump_final</code><span class="sig-paren">(</span><em>orb</em>, <em>olp</em>, <em>printoptions</em>, <em>dumpci</em>, <em>checkpoint</em>, <em>checkpoint_fn='checkpoint.h5'</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.dump_final" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump final solution (orbitals, wavefunction amplitudes, geminal
+coefficients)</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>orb</dt>
+<dd>An expansion instance. AO/MO coefficients stored to disk</dd>
+<dt>olp</dt>
+<dd>A TwoIndex instance. The AO overlap matrix. Required for restart</dd>
+<dt>printoptions, dumpci</dt>
+<dd>A dictionary. See <a class="reference internal" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.solve_scf" title="horton.correlatedwfn.restricted_ap1rog.RAp1rog.solve_scf"><code class="xref py py-meth docutils literal"><span class="pre">RAp1rog.solve_scf()</span></code></a></dd>
+<dt>checkpoint:</dt>
+<dd>An integer. See <a class="reference internal" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.solve_scf" title="horton.correlatedwfn.restricted_ap1rog.RAp1rog.solve_scf"><code class="xref py py-meth docutils literal"><span class="pre">RAp1rog.solve_scf()</span></code></a></dd>
+<dt>checkpoint_fn</dt>
+<dd>The filename of the checkpoint file.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.generate_guess">
+<code class="descname">generate_guess</code><span class="sig-paren">(</span><em>guess</em>, <em>dim=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.generate_guess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a guess of type &#8216;guess&#8217;.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>guess</dt>
+<dd>A dictionary, containing the type of guess.</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>dim</dt>
+<dd>Length of guess.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.get_auxmatrix">
+<code class="descname">get_auxmatrix</code><span class="sig-paren">(</span><em>select</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.get_auxmatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an auxiliary matrix from cache.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>&#8216;t&#8217;, &#8216;gpqpq&#8217;, &#8216;gpqqp&#8217;, &#8216;lpqpq&#8217;, &#8216;pqrq&#8217;, &#8216;gpqrr&#8217;, &#8216;fock&#8217;.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.get_exact_hessian">
+<code class="descname">get_exact_hessian</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.get_exact_hessian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct exact Hessian for orbital optimization of restricted OAP1roG.</p>
+<p>The usage of the exact orbital Hessian for the orbital optimization
+is currently not supported. The exact Hessian can only be evaluated
+a posteriori.</p>
+<p><strong>Arguements</strong></p>
+<dl class="docutils">
+<dt>mo1, mo2</dt>
+<dd>The 1- and 2-el integrals in the MO basis (TwoIndex and
+FourIndex instances)</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.get_four_dm">
+<code class="descname">get_four_dm</code><span class="sig-paren">(</span><em>select</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.get_four_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a density matrix (4-RDM). If not available, it will be created
+(if possible)</p>
+<p><strong>Arguments:</strong></p>
+<p>select</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.get_one_dm">
+<code class="descname">get_one_dm</code><span class="sig-paren">(</span><em>select</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.get_one_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a density matrix (1-RDM). If not available, it will be created
+(if possible)</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>&#8216;ps2&#8217;, or &#8216;response&#8217;.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.get_slater_determinant">
+<code class="descname">get_slater_determinant</code><span class="sig-paren">(</span><em>*indices</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.get_slater_determinant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return excited Slater Determinant.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>indices</dt>
+<dd>A (list of) multi-index. First element contains occupied index
+w.r.t. reference determinant, second element contains virtual
+index w.r.t. reference determinant.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.get_three_dm">
+<code class="descname">get_three_dm</code><span class="sig-paren">(</span><em>select</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.get_three_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a density matrix (3-RDM). If not available, it will be created
+(if possible)</p>
+<p><strong>Arguments:</strong></p>
+<p>select</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.get_two_dm">
+<code class="descname">get_two_dm</code><span class="sig-paren">(</span><em>select</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.get_two_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a density matrix (2-RDM). If not available, it will be created
+(if possible)</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>&#8216;(r(esponse))ppqq&#8217;, or &#8216;(r(esponse))pqpq&#8217;.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.init_auxmatrix">
+<code class="descname">init_auxmatrix</code><span class="sig-paren">(</span><em>select</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.init_auxmatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize auxiliary matrices</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>One of <code class="docutils literal"><span class="pre">t</span></code>, <code class="docutils literal"><span class="pre">fock</span></code>, <code class="docutils literal"><span class="pre">gppqq</span></code>, <code class="docutils literal"><span class="pre">gpqpq</span></code>, <code class="docutils literal"><span class="pre">gpqqp</span></code>,
+<code class="docutils literal"><span class="pre">lpqpq</span></code>, <code class="docutils literal"><span class="pre">lpqrq</span></code>, <code class="docutils literal"><span class="pre">gpqrr</span></code></dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.init_four_dm">
+<code class="descname">init_four_dm</code><span class="sig-paren">(</span><em>select</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.init_four_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize 4-RDM</p>
+<p><strong>Arguments</strong></p>
+<p>select</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.init_one_dm">
+<code class="descname">init_one_dm</code><span class="sig-paren">(</span><em>select</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.init_one_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize 1-RDM as OneIndex object</p>
+<p>The 1-RDM expressed in the natural orbital basis is diagonal and
+only the diagonal elements are stored.</p>
+<p><strong>Arguments</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>&#8216;ps2&#8217; or &#8216;response&#8217;.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.init_three_dm">
+<code class="descname">init_three_dm</code><span class="sig-paren">(</span><em>select</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.init_three_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize 3-RDM</p>
+<p><strong>Arguments</strong></p>
+<p>select</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.init_two_dm">
+<code class="descname">init_two_dm</code><span class="sig-paren">(</span><em>select</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.init_two_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize 2-RDM as TwoIndex object</p>
+<p>Only the symmetry-unique elements of the (response) 2-RDM are
+stored. These are matrix elements of type</p>
+<div class="math">
+\[Gamma_{p\bar{q}p\bar{q}}\]</div>
+<p>(spin-up and spin-down (bar-sign)) or</p>
+<div class="math">
+\[Gamma_{p\bar{p}q\bar{q}}\]</div>
+<p>and are stored as elements <span class="math">\({pq}\)</span> of two_dm_pqpq, and
+two_dm_ppqq.</p>
+<p><strong>Arguments</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>&#8216;(r(esponse))ppqq&#8217;, or &#8216;(r(esponse))pqpq&#8217;.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.jacobian_ap1rog">
+<code class="descname">jacobian_ap1rog</code><span class="sig-paren">(</span><em>coeff</em>, <em>miiaa</em>, <em>miaia</em>, <em>one</em>, <em>fock</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.jacobian_ap1rog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct Jacobian for optimization of geminal coefficients.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.jacobian_lambda">
+<code class="descname">jacobian_lambda</code><span class="sig-paren">(</span><em>lagrange</em>, <em>gmat</em>, <em>miiaa</em>, <em>miaia</em>, <em>one</em>, <em>diagfock</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.jacobian_lambda" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct Jacobian for optimization of Lagrange multipliers for
+restricted AP1roG.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.orbital_rotation_step">
+<code class="descname">orbital_rotation_step</code><span class="sig-paren">(</span><em>lshift=1e-08</em>, <em>pos=True</em>, <em>optimizer='variational'</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.orbital_rotation_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get orbital rotation step (Newton&#8211;Raphson)</p>
+<p><strong>Arguments:</strong></p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>lshift</dt>
+<dd>Level shift (float) for approximate Hessian added to small elements
+(default 1e-8)</dd>
+<dt>pos</dt>
+<dd>(boolean) Make all elements of Hessian positive if set to True
+(default True)</dd>
+<dt>optimizer</dt>
+<dd>Orbital otimization method (str) (default &#8216;variational&#8217;)</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.perm">
+<code class="descname">perm</code><span class="sig-paren">(</span><em>a</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.perm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the permament of a matrix</p>
+<p><strong>Arguements</strong></p>
+<dl class="docutils">
+<dt>a</dt>
+<dd>A np array</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.print_final">
+<code class="descname">print_final</code><span class="sig-paren">(</span><em>s='Final'</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.print_final" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print energies</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>s</dt>
+<dd>A string.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.print_geminal_coefficients">
+<code class="descname">print_geminal_coefficients</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.print_geminal_coefficients" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print geminal coefficients</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.print_options">
+<code class="descname">print_options</code><span class="sig-paren">(</span><em>guess</em>, <em>solver</em>, <em>maxiter</em>, <em>thresh</em>, <em>printoptions</em>, <em>indextrans</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.print_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print optimization options.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>guess, solver, maxiter, thresh, printoptions, indextrans</dt>
+<dd>See <a class="reference internal" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.solve" title="horton.correlatedwfn.restricted_ap1rog.RAp1rog.solve"><code class="xref py py-meth docutils literal"><span class="pre">RAp1rog.solve()</span></code></a></dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.print_options_scf">
+<code class="descname">print_options_scf</code><span class="sig-paren">(</span><em>guess</em>, <em>solver</em>, <em>maxiter</em>, <em>lshift</em>, <em>stepsearch</em>, <em>thresh</em>, <em>printoptions</em>, <em>checkpoint</em>, <em>checkpoint_fn</em>, <em>indextrans</em>, <em>orbitaloptimizer</em>, <em>sort</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.print_options_scf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print optimization options.</p>
+<p><strong>Arguments:</strong></p>
+<p>See <a class="reference internal" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.solve_scf" title="horton.correlatedwfn.restricted_ap1rog.RAp1rog.solve_scf"><code class="xref py py-meth docutils literal"><span class="pre">RAp1rog.solve_scf()</span></code></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.print_solution">
+<code class="descname">print_solution</code><span class="sig-paren">(</span><em>cithresh=0.01</em>, <em>excitationlevel=2</em>, <em>amplitudestofile=False</em>, <em>filename='./ap1rog_amplitudes'</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.print_solution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print coefficients <span class="math">\({ci}\)</span> and Slater Determinant if <span class="math">\(|ci|\)</span> &gt; threshold.
+Prints up to hextuply excited pairs.</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>cithresh</dt>
+<dd>Upper threshold (a float) for CI coefficients to be
+reconstructed. (Default 0.01)</dd>
+<dt>excitationslevel</dt>
+<dd>The maximum number of substitutions w.r.t. the reference
+determinant for which the CI coefficients are reconstructed.
+(Default 2)</dd>
+<dt>amplitudestofile</dt>
+<dd>A boolean. If True, the CI coefficients are stored in a separate
+file. (Default False)</dd>
+<dt>filename</dt>
+<dd>The file name for the wfn amplitudes.
+(Default ap1rog_amplitudes)</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.prod">
+<code class="descname">prod</code><span class="sig-paren">(</span><em>lst</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.prod" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.solve">
+<code class="descname">solve</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.solve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optimize AP1roG coefficients for some Hamiltonian.
+For restricted, closed-shell AP1roG.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>one, two</dt>
+<dd>One- (TwoIndex instance) and two-body integrals (FourIndex or
+Cholesky instance) (some Hamiltonian matrix elements)</dd>
+<dt>core</dt>
+<dd>The core energy (not included in &#8216;one&#8217; and &#8216;two&#8217;); a float.</dd>
+<dt>orb</dt>
+<dd>An expansion instance. It contains the MO coefficients.</dd>
+<dt>olp</dt>
+<dd>The AO overlap matrix. A TwoIndex instance.</dd>
+</dl>
+<p><strong>Keywords:</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">indextrans:</th><td class="field-body"><p class="first">4-index Transformation (str). Choice between
+<code class="docutils literal"><span class="pre">tensordot</span></code> (default) and <code class="docutils literal"><span class="pre">einsum</span></code></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">warning:</th><td class="field-body"><p class="first">Print warnings (boolean) (default False)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">guess:</th><td class="field-body"><p class="first">initial guess (dictionary) containing:</p>
+<ul class="simple">
+<li>type: guess type (str). One of <code class="docutils literal"><span class="pre">random</span></code> (random
+numbers, default), <code class="docutils literal"><span class="pre">const</span></code> (a constant scaled
+by a factor)</li>
+<li>factor: a scaling factor (float) (default -0.1)</li>
+<li>geminal: external guess for geminal coefficients
+(1-d np.array); if provided, &#8216;type&#8217; is
+ignored (default None)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">solver:</th><td class="field-body"><p class="first">wfn solver (dictionary) containing:</p>
+<ul class="simple">
+<li>wfn: wavefunction solver (str) (default <code class="docutils literal"><span class="pre">krylov</span></code>)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">maxiter:</th><td class="field-body"><p class="first">max number of iterations (dictionary) containing:</p>
+<ul class="simple">
+<li>wfniter: maximum number of iterations (int) for wfn
+solver (default 200)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">dumpci:</th><td class="field-body"><p class="first">dump ci coefficients (dictionary):</p>
+<ul class="simple">
+<li>amplitudestofile: write wfn amplitudes to file
+(boolean) (default False)</li>
+<li>amplitudesfilename: (str) (default ap1rog_amplitudes.dat)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">thresh:</th><td class="field-body"><p class="first">optimization thresholds (dictionary) containing:</p>
+<ul class="simple">
+<li>wfn: threshold for geminal coefficients (float)
+(default 1e-12)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">printoptions:</th><td class="field-body"><p class="first">print level (dictionary) containing:</p>
+<ul class="simple">
+<li>geminal: (boolean), if True, geminal matrix is
+printed (default True)</li>
+<li>ci: threshold for CI coefficients (float) (requires
+evaluation of a permanent), all coefficients
+(for a given excitation order) larger than
+&#8216;ci&#8217; are printed (default 0.01)</li>
+<li>excitationlevel: number of excited pairs w.r.t.
+reference determinant for which wfn amplitudes
+are reconstructed (int) (default 1)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">swapa:</th><td class="field-body"><p class="first last">swap orbitals (numpy 2-dim array), each row contains 2
+orbital indices to be swapped (default np.array([[]]))</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.solve_geminal">
+<code class="descname">solve_geminal</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.solve_geminal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solves for geminal matrix</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>guess</dt>
+<dd>The initial guess. A 1-dim np array.</dd>
+<dt>solver</dt>
+<dd>The solver used. A dictionary with element &#8216;wfn&#8217;.</dd>
+<dt>wfnthreshold</dt>
+<dd>The optimization threshold. A float.</dd>
+<dt>wfnmaxiter</dt>
+<dd>The maximum number of iterations. An integer.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.solve_lagrange">
+<code class="descname">solve_lagrange</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.solve_lagrange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solves for Lagrange multipliers</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>guess</dt>
+<dd>The initial guess. A 1-dim np array.</dd>
+<dt>solver</dt>
+<dd>The solver used. A dictionary with element &#8216;lagrange&#8217;.</dd>
+<dt>wfnthreshold</dt>
+<dd>The optimization threshold. A float.</dd>
+<dt>wfnmaxiter</dt>
+<dd>The maximum number of iterations. An integer.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.solve_model">
+<code class="descname">solve_model</code><span class="sig-paren">(</span><em>one</em>, <em>two</em>, <em>orb</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.solve_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve for geminal model.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>one, two</dt>
+<dd>One- and two-body integrals (some Hamiltonian matrix elements).
+A TwoIndex and FourIndex/Cholesky instance</dd>
+<dt>orb</dt>
+<dd>An expansion instance which contains the MO coefficients.</dd>
+<dt><strong>Keywords:</strong></dt>
+<dd><p class="first">guess: initial guess for wfn (1-dim np.array)
+guesslm: initial guess Lagrange multipliers (1-dim np.array)
+solver: wfn/Lagrange solver (dictionary)
+indextrans: 4-index Transformation (str).
+maxiter: maximum number of iterations (dictionary)
+thresh: thresholds (dictionary)
+orbitaloptimizer: orbital optimization method (str)</p>
+<p class="last">For more details, see <a class="reference internal" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.solve_scf" title="horton.correlatedwfn.restricted_ap1rog.RAp1rog.solve_scf"><code class="xref py py-meth docutils literal"><span class="pre">RAp1rog.solve_scf()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.solve_scf">
+<code class="descname">solve_scf</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.solve_scf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find Geminal expansion coefficient for some Hamiltonian.
+For restricted, closed-shell AP1roG.
+Perform orbital optimization.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>one, two</dt>
+<dd>One- (TwoIndex instance) and two-body integrals (FourIndex or
+Cholesky instance) (some Hamiltonian matrix elements)</dd>
+<dt>core</dt>
+<dd>The core energy (not included in &#8216;one&#8217; and &#8216;two&#8217;).</dd>
+<dt>orb</dt>
+<dd>An expansion instance. It contains the MO coefficients.</dd>
+<dt>olp</dt>
+<dd>The AO overlap matrix. A TwoIndex instance.</dd>
+</dl>
+<p><strong>Keywords:</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">indextrans:</th><td class="field-body"><p class="first">4-index Transformation (str). Choice between
+<code class="docutils literal"><span class="pre">tensordot</span></code> (default) and <code class="docutils literal"><span class="pre">einsum</span></code></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">warning:</th><td class="field-body"><p class="first">print warnings (boolean) (default False)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">guess:</th><td class="field-body"><p class="first">initial guess (dictionary) containing:</p>
+<ul class="simple">
+<li>type: guess type (str). One of <code class="docutils literal"><span class="pre">random</span></code> (random
+numbers, default), <code class="docutils literal"><span class="pre">const</span></code> (a constant scaled by a
+factor)</li>
+<li>factor: a scaling factor (float) (default -0.1)</li>
+<li>geminal: external guess for geminal coefficients
+(1-dim np.array) (default None)</li>
+<li>lagrange: external guess for Lagrange multipliers
+(1-dim np.array) (default None)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">solver:</th><td class="field-body"><p class="first">wfn/Lagrange solver (dictionary) containing:</p>
+<ul class="simple">
+<li>wfn: wavefunction solver (str) (default <code class="docutils literal"><span class="pre">krylov</span></code>)</li>
+<li>lagrange: Lagrange multiplier solver (str)
+(default krylov)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">maxiter:</th><td class="field-body"><p class="first">max number of iterations (dictionary) containing:</p>
+<ul>
+<li><dl class="first docutils">
+<dt>wfniter: maximum number of iterations for</dt>
+<dd><p class="first last">wfn/lagrange solver (int) (default 200)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>orbiter: maximum number of orbital optimization</dt>
+<dd><p class="first last">steps (int) (default 100)</p>
+</dd>
+</dl>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">dumpci:</th><td class="field-body"><p class="first">dump ci coefficient (dictionary) containing:</p>
+<ul class="simple">
+<li>amplitudestofile: write wfn amplitudes to file
+(boolean) (default False)</li>
+<li>amplitudesfilename: (str) (default ap1rog_amplitudes.dat)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">thresh:</th><td class="field-body"><p class="first">optimization thresholds (dictionary) containing:</p>
+<ul class="simple">
+<li>wfn: threshold for geminal coefficients and
+Lagrange multipliers (float) (defaulf 1e-12)</li>
+<li>energy: convergence threshold for energy (float)
+(default 1e-8)</li>
+<li>gradientnorm: convergence threshold for norm of
+orbital gradient (float) (default 1e-4)</li>
+<li>gradientmax: threshold for maximum absolute value of
+orbital gradient (float) (default 5e-5)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">printoptions:</th><td class="field-body"><p class="first">print level; dictionary containing:</p>
+<ul class="simple">
+<li>geminal: (boolean) if True, geminal matrix is
+printed (default True)</li>
+<li>ci: threshold for CI coefficients (requires
+evaluation of a permanent) (float). All
+coefficients (for a given excitation order)
+larger than ci are printed (default 0.01)</li>
+<li>excitationlevel: number of excited pairs w.r.t.
+reference determinant for which
+wfn amplitudes are reconstructed
+(int) (default 1)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">stepsearch:</th><td class="field-body"><p class="first">step search options (dictionary) containing:</p>
+<ul class="simple">
+<li>method: step search method used (str). One of
+<code class="docutils literal"><span class="pre">trust-region</span></code> (default), <code class="docutils literal"><span class="pre">None</span></code>,
+<code class="docutils literal"><span class="pre">backtracking</span></code></li>
+<li>alpha: scaling factor for Newton step (float),
+used in <code class="docutils literal"><span class="pre">backtracking</span></code> and <code class="docutils literal"><span class="pre">None</span></code> method (default
+1.00)</li>
+<li>c1: parameter used in <code class="docutils literal"><span class="pre">backtracking</span></code> (float)
+(default 1e-4)</li>
+<li>minalpha: minimum scaling factor used in
+<code class="docutils literal"><span class="pre">backracking</span></code> (float) (default 1e-6)</li>
+<li>maxiterouter: maximum number of search steps
+(int) (default 10)</li>
+<li>maxiterinner: maximum number of optimization
+step in each search step (int) (used only in <code class="docutils literal"><span class="pre">pcg</span></code>,
+default 500)</li>
+<li>maxeta: upper bound for estimated vs actual
+change in <code class="docutils literal"><span class="pre">trust-region</span></code> (float) (default 0.75)</li>
+<li>mineta: lower bound for estimated vs actual change in
+<code class="docutils literal"><span class="pre">trust-region</span></code> (float) (default 0.25)</li>
+<li>upscale: scaling factor to increase trustradius
+in <code class="docutils literal"><span class="pre">trust-region</span></code> (float) (default 2.0)</li>
+<li>downscale: scaling factor to decrease trustradius
+in <code class="docutils literal"><span class="pre">trust-region</span></code> and step length in
+<code class="docutils literal"><span class="pre">backtracking</span></code> (float) (default 0.25)</li>
+<li>trustradius: initial trustradius (float) (default
+0.75)</li>
+<li>maxtrustradius: maximum trustradius (float) (default
+0.75)</li>
+<li>threshold: trust-region optimization threshold, only
+used in <code class="docutils literal"><span class="pre">pcg</span></code> (float) (default 1e-8)</li>
+<li>optimizer: optimizes step to boundary of trustradius
+(str). One of <code class="docutils literal"><span class="pre">pcg</span></code>, <code class="docutils literal"><span class="pre">dogleg</span></code>, <code class="docutils literal"><span class="pre">ddl</span></code> (default
+ddl)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">checkpoint:</th><td class="field-body"><p class="first">frequency of checkpointing (int). If &gt; 0, writes
+orbitals and overlap to a checkpont file (defatul 1)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">checkpoint_fn:</th><td class="field-body"><p class="first">filename to use for the checkpoint file (default
+&#8220;checkpoint.h5&#8221;)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">levelshift:</th><td class="field-body"><p class="first">level shift of Hessian (float) (default 1e-8)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">absolute:</th><td class="field-body"><p class="first">(boolean), if True, take absolute values of Hessian
+(default False)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">sort:</th><td class="field-body"><p class="first">(boolean), if True, orbitals are sorted according to their
+natural occupation numbers. This requires us to solve for
+the wavefunction again. Works only if orbitaloptimizer
+is set to <code class="docutils literal"><span class="pre">variational</span></code>. (default True)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">swapa:</th><td class="field-body"><p class="first">swap orbitals (numpy 2-dim array) each row contains 2
+orbital indices to be swapped (default np.array([[]]))</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">givensrot:</th><td class="field-body"><p class="first">rotate two orbitals (numpy 2-dim array) each row
+contains 2 orbital indices and rotation angle
+(default np.array([[]]))</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">orbitaloptimizer:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><p class="first last">(str) switch between variational orbital
+optimization (<code class="docutils literal"><span class="pre">variational</span></code>) and PS2c
+(<code class="docutils literal"><span class="pre">ps2c</span></code>) (default <code class="docutils literal"><span class="pre">variational</span></code>).</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.sort_natural_orbitals">
+<code class="descname">sort_natural_orbitals</code><span class="sig-paren">(</span><em>orb</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.sort_natural_orbitals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sort orbitals w.r.t. the natural occupation numbers</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>orb</dt>
+<dd>The AO/MO coefficients (natural orbitals) and the natural
+occupation numbers (Expansion instance)</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.start_up">
+<code class="descname">start_up</code><span class="sig-paren">(</span><em>orb</em>, <em>swapa</em>, <em>givensrot=array([]</em>, <em>shape=(1</em>, <em>0)</em>, <em>dtype=float64)</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.start_up" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify orbitals prior to optimization</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>swapa</dt>
+<dd>An integer numpy array with two columns where every row
+corresponds to one swap.</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>givensrot</dt>
+<dd>Givens rotation of orbital pairs. A numpy array where every
+row corresponds to one Givens rotation with elements
+(index1, index2, angle in deg).</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.update_auxmatrix">
+<code class="descname">update_auxmatrix</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.update_auxmatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Derive all auxiliary matrices.
+gppqq:   &lt;pp|qq&gt;,
+gpqpq:   &lt;pq|pq&gt;,
+gpqqp:   &lt;pq|qp&gt;,
+lpqpq:   2&lt;pq|pq&gt;-&lt;pq|qp&gt;,
+lpqrq:   2&lt;pq|rq&gt;-&lt;pq|qr&gt;,
+gpqrr:   &lt;pq|rr&gt;,
+fock:    h_pp + sum_i(2&lt;pi|pi&gt;-&lt;pi|ip&gt;)</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd><code class="docutils literal"><span class="pre">scf</span></code>.</dd>
+<dt>two_mo</dt>
+<dd>two-electron integrals in the MO basis. A FourIndex instance.</dd>
+<dt>one_mo</dt>
+<dd>one-electron integrals in the MO basis. A TwoIndex instance.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.update_ecore">
+<code class="descname">update_ecore</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.update_ecore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update core energy</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.update_four_dm">
+<code class="descname">update_four_dm</code><span class="sig-paren">(</span><em>select</em>, <em>four_dm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.update_four_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update 4-RDM</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>four_dm</dt>
+<dd>When provided, this 4-RDM is stored.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.update_geminal">
+<code class="descname">update_geminal</code><span class="sig-paren">(</span><em>geminal=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.update_geminal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update geminal matrix</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>geminal</dt>
+<dd>When provided, this geminal matrix is stored.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.update_lagrange">
+<code class="descname">update_lagrange</code><span class="sig-paren">(</span><em>lagrange=None</em>, <em>dim1=None</em>, <em>dim2=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.update_lagrange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update Lagragne multipliers</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>lagrange</dt>
+<dd>When provided, this set of Lagrange multipliers is stored.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.update_one_dm">
+<code class="descname">update_one_dm</code><span class="sig-paren">(</span><em>select</em>, <em>one_dm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.update_one_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update 1-RDM</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>One of <code class="docutils literal"><span class="pre">ps2</span></code>, <code class="docutils literal"><span class="pre">response</span></code></dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>one_dm</dt>
+<dd>When provided, this 1-RDM is stored. A OneIndex instance.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.update_three_dm">
+<code class="descname">update_three_dm</code><span class="sig-paren">(</span><em>select</em>, <em>three_dm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.update_three_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update 3-RDM</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>three_dm</dt>
+<dd>When provided, this 3-RDM is stored.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.update_two_dm">
+<code class="descname">update_two_dm</code><span class="sig-paren">(</span><em>select</em>, <em>two_dm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.update_two_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update 2-RDM</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>One of <code class="docutils literal"><span class="pre">ps2</span></code>, <code class="docutils literal"><span class="pre">response</span></code></dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>two_dm</dt>
+<dd>When provided, this 2-RDM is stored.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.vector_function_geminal">
+<code class="descname">vector_function_geminal</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.vector_function_geminal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct vector function for optimization of geminal coefficients.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>coeff</dt>
+<dd>The geminal coefficients (np.array)</dd>
+<dt>miiaa, miaia</dt>
+<dd>Auxiliary matrices (TwoIndex instances)</dd>
+<dt>one</dt>
+<dd>1-electron integrals (TwoIndex instance)</dd>
+<dt>diagfock</dt>
+<dd>Diagonal inactive Fock matrix (OneIndex instances)</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.vector_function_lagrange">
+<code class="descname">vector_function_lagrange</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.vector_function_lagrange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct vector function for optimization of Lagrange multipliers.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>lagrange</dt>
+<dd>The lagrange multipliers (np array)</dd>
+<dt>gmat</dt>
+<dd>The geminal coefficients (TwoIndex instance)</dd>
+<dt>miiaa, miaia</dt>
+<dd>Auxiliary matrices (TwoIndex instances)</dd>
+<dt>one</dt>
+<dd>1-electron integrals (TwoIndex instance)</dd>
+<dt>diagfock</dt>
+<dd>Diagonal inactive Fock matrix (OneIndex instance)</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.dimension">
+<code class="descname">dimension</code><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.dimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of unknowns (i.e. the number of geminal coefficients)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.ecore">
+<code class="descname">ecore</code><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.ecore" title="Permalink to this definition">¶</a></dt>
+<dd><p>The core energy</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.geminal">
+<code class="descname">geminal</code><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.geminal" title="Permalink to this definition">¶</a></dt>
+<dd><p>The geminal coefficients</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.lagrange">
+<code class="descname">lagrange</code><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.lagrange" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Lagrange multipliers</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.lf">
+<code class="descname">lf</code><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.lf" title="Permalink to this definition">¶</a></dt>
+<dd><p>The LinalgFactory instance</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.nbasis">
+<code class="descname">nbasis</code><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.nbasis" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of basis functions</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.nocc">
+<code class="descname">nocc</code><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.nocc" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of occupied orbitals</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.npairs">
+<code class="descname">npairs</code><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.npairs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of electron pairs</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.nvirt">
+<code class="descname">nvirt</code><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.nvirt" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of virtual orbitals</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.one_dm_ps2">
+<code class="descname">one_dm_ps2</code><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.one_dm_ps2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alpha 1-RDM</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.one_dm_response">
+<code class="descname">one_dm_response</code><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.one_dm_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alpha 1-RDM</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.two_dm_ppqq">
+<code class="descname">two_dm_ppqq</code><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.two_dm_ppqq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alpha-beta PS2 (ppqq) 2-RDM</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.two_dm_pqpq">
+<code class="descname">two_dm_pqpq</code><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.two_dm_pqpq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alpha-beta PS2 (pqpq) 2-RDM</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.two_dm_rppqq">
+<code class="descname">two_dm_rppqq</code><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.two_dm_rppqq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alpha-beta (ppqq) 2-RDM</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.correlatedwfn.restricted_ap1rog.RAp1rog.two_dm_rpqpq">
+<code class="descname">two_dm_rpqpq</code><a class="headerlink" href="#horton.correlatedwfn.restricted_ap1rog.RAp1rog.two_dm_rpqpq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alpha-beta (pqpq) 2-RDM</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_correlatedwfn_stepsearch.html" class="btn btn-neutral float-right" title="3.2.4. horton.correlatedwfn.stepsearch – Step search methods for orbital rotations" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_correlatedwfn_perturbation.html" class="btn btn-neutral" title="3.2.2. horton.correlatedwfn.perturbation – Perturbation theory module" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.1 built from release 2.0.1 (Jun 17, 2016). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 17, 2016.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.0.1 (Jun 17, 2016)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

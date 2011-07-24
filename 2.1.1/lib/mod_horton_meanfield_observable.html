@@ -1,0 +1,981 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.7.9. horton.meanfield.observable – Base classes for energy terms and other observables of the wavefunction &mdash; HORTON 2.1.1-1-g3a5adfea (Jan 18, 2019) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="3.7.10. horton.meanfield.occ – Occupation number models" href="mod_horton_meanfield_occ.html" />
+    <link rel="prev" title="3.7.8. horton.meanfield.libxc – Interface to LDA, GGA and hybrid functionals from LibXC" href="mod_horton_meanfield_libxc.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal notranslate"><span class="pre">horton</span></code> – The main HORTON Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.2. <code class="docutils literal notranslate"><span class="pre">horton.espfit</span></code> – Electrostatic potential fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_gbasis.html">3.3. <code class="docutils literal notranslate"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.4. <code class="docutils literal notranslate"><span class="pre">horton.grid</span></code> – Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.5. <code class="docutils literal notranslate"><span class="pre">horton.io</span></code> – Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.6. <code class="docutils literal notranslate"><span class="pre">horton.matrix</span></code> – One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_meanfield.html">3.7. <code class="docutils literal notranslate"><span class="pre">horton.meanfield</span></code> – Mean-field electronic structure code</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_bond_order.html">3.7.1. <code class="docutils literal notranslate"><span class="pre">horton.meanfield.bond_order</span></code> – Generic implementation of bond orders for mean-field wavefunctions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_builtin.html">3.7.2. <code class="docutils literal notranslate"><span class="pre">horton.meanfield.builtin</span></code> – Built-in energy terms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_cext.html">3.7.3. <code class="docutils literal notranslate"><span class="pre">horton.meanfield.cext</span></code> – C++ extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_convergence.html">3.7.4. <code class="docutils literal notranslate"><span class="pre">horton.meanfield.convergence</span></code> – Evaluation of convergence criteria</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_gridgroup.html">3.7.5. <code class="docutils literal notranslate"><span class="pre">horton.meanfield.gridgroup</span></code> – Container for observables involving numerical integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_guess.html">3.7.6. <code class="docutils literal notranslate"><span class="pre">horton.meanfield.guess</span></code> – Initial guesses for wavefunctions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_hamiltonian.html">3.7.7. <code class="docutils literal notranslate"><span class="pre">horton.meanfield.hamiltonian</span></code> – Mean-field DFT/HF Hamiltonian data structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_libxc.html">3.7.8. <code class="docutils literal notranslate"><span class="pre">horton.meanfield.libxc</span></code> – Interface to LDA, GGA and hybrid functionals from LibXC</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.7.9. <code class="docutils literal notranslate"><span class="pre">horton.meanfield.observable</span></code> – Base classes for energy terms and other observables of the wavefunction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_occ.html">3.7.10. <code class="docutils literal notranslate"><span class="pre">horton.meanfield.occ</span></code> – Occupation number models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_project.html">3.7.11. <code class="docutils literal notranslate"><span class="pre">horton.meanfield.project</span></code> – Projection of 1-electron orbitals to a new basis set</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_response.html">3.7.12. <code class="docutils literal notranslate"><span class="pre">horton.meanfield.response</span></code> – Evaluation of response functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_rotate.html">3.7.13. <code class="docutils literal notranslate"><span class="pre">horton.meanfield.rotate</span></code> – Rotation of orbitals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_scf.html">3.7.14. <code class="docutils literal notranslate"><span class="pre">horton.meanfield.scf</span></code> – Basic Self-Consistent Field (SCF) algorithm.</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_scf_cdiis.html">3.7.15. <code class="docutils literal notranslate"><span class="pre">horton.meanfield.scf_cdiis</span></code> – Commutator DIIS SCF algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_scf_diis.html">3.7.16. <code class="docutils literal notranslate"><span class="pre">horton.meanfield.scf_diis</span></code> – Abstract DIIS code used by the different DIIS implementations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_scf_ediis.html">3.7.17. <code class="docutils literal notranslate"><span class="pre">horton.meanfield.scf_ediis</span></code> – Energy DIIS SCF algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_scf_ediis2.html">3.7.18. <code class="docutils literal notranslate"><span class="pre">horton.meanfield.scf_ediis2</span></code> – EDIIS+DIIS SCF algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_scf_oda.html">3.7.19. <code class="docutils literal notranslate"><span class="pre">horton.meanfield.scf_oda</span></code> – Optimal Damping SCF algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_utils.html">3.7.20. <code class="docutils literal notranslate"><span class="pre">horton.meanfield.utils</span></code> – Utility functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.8. <code class="docutils literal notranslate"><span class="pre">horton.modelhamiltonians</span></code> – Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.9. <code class="docutils literal notranslate"><span class="pre">horton.part</span></code> – Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.10. <code class="docutils literal notranslate"><span class="pre">horton.scripts</span></code> – Code (solely) used by HORTON’s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HORTON</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+        
+          <li><a href="pck_horton_meanfield.html">3.7. <code class="docutils literal notranslate"><span class="pre">horton.meanfield</span></code> – Mean-field electronic structure code</a> &raquo;</li>
+        
+      <li>3.7.9. <code class="docutils literal notranslate"><span class="pre">horton.meanfield.observable</span></code> – Base classes for energy terms and other observables of the wavefunction</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/lib/mod_horton_meanfield_observable.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-horton.meanfield.observable">
+<span id="horton-meanfield-observable-base-classes-for-energy-terms-and-other-observables-of-the-wavefunction"></span><h1>3.7.9. <code class="docutils literal notranslate"><span class="pre">horton.meanfield.observable</span></code> – Base classes for energy terms and other observables of the wavefunction<a class="headerlink" href="#module-horton.meanfield.observable" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="horton.meanfield.observable.Observable">
+<em class="property">class </em><code class="descclassname">horton.meanfield.observable.</code><code class="descname">Observable</code><span class="sig-paren">(</span><em>label</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.Observable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Initialize an Observable instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>label</strong> (<em>str</em>) – A short string to identify the observable.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="horton.meanfield.observable.Observable.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>label</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.Observable.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize an Observable instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>label</strong> (<em>str</em>) – A short string to identify the observable.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.observable.Observable.add_dot_hessian">
+<code class="descname">add_dot_hessian</code><span class="sig-paren">(</span><em>cache</em>, <em>*outputs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.Observable.add_dot_hessian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add contribution to the dot product of the Hessian with the trial delta DM.</p>
+<p>The Hessian in this method is the second derivative of the observable towards the
+matrix elements of the density matrix or matrices. The <code class="docutils literal notranslate"><span class="pre">dms</span></code> and <code class="docutils literal notranslate"><span class="pre">delta</span> <span class="pre">dms</span></code>
+are stored in the cache.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> – A cache object used to store intermediate results that can be reused or
+inspected later. All results specific for the detla_dm are stored with the tag
+‘d’ in the cache object.</li>
+<li><strong>output2</strong><strong>, </strong><strong>..</strong> (<em>output1</em><em>,</em>) – Output objects, to which contributions from the dot product of the Hessian
+with the delta density matrices is added.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.observable.Observable.add_fock">
+<code class="descname">add_fock</code><span class="sig-paren">(</span><em>cache</em>, <em>*focks</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.Observable.add_fock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add contributions to the Fock matrices.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to store intermediate results that can be reused or inspected later.</li>
+<li><strong>fock2</strong><strong>, </strong><strong>..</strong> (<em>fock1</em><em>,</em>) – A list of output Fock operators. The caller is responsible for setting these
+operators initially to zero (if desired).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.observable.Observable.compute_energy">
+<code class="descname">compute_energy</code><span class="sig-paren">(</span><em>cache</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.Observable.compute_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the expectation value of the observable.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to store intermediate results that can be reused or inspected later.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.meanfield.observable.RTwoIndexTerm">
+<em class="property">class </em><code class="descclassname">horton.meanfield.observable.</code><code class="descname">RTwoIndexTerm</code><span class="sig-paren">(</span><em>op_alpha</em>, <em>label</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.RTwoIndexTerm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#horton.meanfield.observable.Observable" title="horton.meanfield.observable.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">horton.meanfield.observable.Observable</span></code></a></p>
+<p>Initialize a RTwoIndexTerm instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>op_alpha</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.TwoIndex" title="horton.matrix.base.TwoIndex"><em>TwoIndex</em></a>) – Expansion of one-body operator in basis of alpha orbitals. Same is used for
+beta.</li>
+<li><strong>label</strong> (<em>str</em>) – A short string to identify the observable.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="horton.meanfield.observable.RTwoIndexTerm.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>op_alpha</em>, <em>label</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.RTwoIndexTerm.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a RTwoIndexTerm instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>op_alpha</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.TwoIndex" title="horton.matrix.base.TwoIndex"><em>TwoIndex</em></a>) – Expansion of one-body operator in basis of alpha orbitals. Same is used for
+beta.</li>
+<li><strong>label</strong> (<em>str</em>) – A short string to identify the observable.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.observable.RTwoIndexTerm.add_dot_hessian">
+<code class="descname">add_dot_hessian</code><span class="sig-paren">(</span><em>cache</em>, <em>output_alpha</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.RTwoIndexTerm.add_dot_hessian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add contribution to the dot product of the Hessian with the trial delta DM.</p>
+<p>The Hessian in this method is the second derivative of the observable towards the
+matrix elements of the density matrix or matrices. The <code class="docutils literal notranslate"><span class="pre">dms</span></code> and <code class="docutils literal notranslate"><span class="pre">delta</span> <span class="pre">dms</span></code>
+are stored in the cache.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> – A cache object used to store intermediate results that can be reused or
+inspected later. All results specific for the detla_dm are stored with the tag
+‘d’ in the cache object.</li>
+<li><strong>output2</strong><strong>, </strong><strong>..</strong> (<em>output1</em><em>,</em>) – Output objects, to which contributions from the dot product of the Hessian
+with the delta density matrices is added.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.observable.RTwoIndexTerm.add_fock">
+<code class="descname">add_fock</code><span class="sig-paren">(</span><em>cache</em>, <em>fock_alpha</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.RTwoIndexTerm.add_fock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add contributions to the Fock matrices.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to store intermediate results that can be reused or inspected later.</li>
+<li><strong>fock2</strong><strong>, </strong><strong>..</strong> (<em>fock1</em><em>,</em>) – A list of output Fock operators. The caller is responsible for setting these
+operators initially to zero (if desired).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.observable.RTwoIndexTerm.compute_energy">
+<code class="descname">compute_energy</code><span class="sig-paren">(</span><em>cache</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.RTwoIndexTerm.compute_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the expectation value of the observable.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to store intermediate results that can be reused or inspected later.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.meanfield.observable.UTwoIndexTerm">
+<em class="property">class </em><code class="descclassname">horton.meanfield.observable.</code><code class="descname">UTwoIndexTerm</code><span class="sig-paren">(</span><em>op_alpha</em>, <em>label</em>, <em>op_beta=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.UTwoIndexTerm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#horton.meanfield.observable.Observable" title="horton.meanfield.observable.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">horton.meanfield.observable.Observable</span></code></a></p>
+<p>Initialize a RTwoIndexTerm instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>op_alpha</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.TwoIndex" title="horton.matrix.base.TwoIndex"><em>TwoIndex</em></a>) – Expansion of one-body operator in basis of alpha orbitals.</li>
+<li><strong>label</strong> (<em>str</em>) – A short string to identify the observable.</li>
+<li><strong>op_beta</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.TwoIndex" title="horton.matrix.base.TwoIndex"><em>TwoIndex</em></a>) – Expansion of one-body operator in basis of beta orbitals. When not given,
+op_alpha is used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="horton.meanfield.observable.UTwoIndexTerm.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>op_alpha</em>, <em>label</em>, <em>op_beta=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.UTwoIndexTerm.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a RTwoIndexTerm instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>op_alpha</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.TwoIndex" title="horton.matrix.base.TwoIndex"><em>TwoIndex</em></a>) – Expansion of one-body operator in basis of alpha orbitals.</li>
+<li><strong>label</strong> (<em>str</em>) – A short string to identify the observable.</li>
+<li><strong>op_beta</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.TwoIndex" title="horton.matrix.base.TwoIndex"><em>TwoIndex</em></a>) – Expansion of one-body operator in basis of beta orbitals. When not given,
+op_alpha is used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.observable.UTwoIndexTerm.add_dot_hessian">
+<code class="descname">add_dot_hessian</code><span class="sig-paren">(</span><em>cache</em>, <em>output_alpha</em>, <em>output_beta</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.UTwoIndexTerm.add_dot_hessian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add contribution to the dot product of the Hessian with the trial delta DM.</p>
+<p>The Hessian in this method is the second derivative of the observable towards the
+matrix elements of the density matrix or matrices. The <code class="docutils literal notranslate"><span class="pre">dms</span></code> and <code class="docutils literal notranslate"><span class="pre">delta</span> <span class="pre">dms</span></code>
+are stored in the cache.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> – A cache object used to store intermediate results that can be reused or
+inspected later. All results specific for the detla_dm are stored with the tag
+‘d’ in the cache object.</li>
+<li><strong>output2</strong><strong>, </strong><strong>..</strong> (<em>output1</em><em>,</em>) – Output objects, to which contributions from the dot product of the Hessian
+with the delta density matrices is added.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.observable.UTwoIndexTerm.add_fock">
+<code class="descname">add_fock</code><span class="sig-paren">(</span><em>cache</em>, <em>fock_alpha</em>, <em>fock_beta</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.UTwoIndexTerm.add_fock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add contributions to the Fock matrices.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to store intermediate results that can be reused or inspected later.</li>
+<li><strong>fock2</strong><strong>, </strong><strong>..</strong> (<em>fock1</em><em>,</em>) – A list of output Fock operators. The caller is responsible for setting these
+operators initially to zero (if desired).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.observable.UTwoIndexTerm.compute_energy">
+<code class="descname">compute_energy</code><span class="sig-paren">(</span><em>cache</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.UTwoIndexTerm.compute_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the expectation value of the observable.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to store intermediate results that can be reused or inspected later.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.meanfield.observable.RDirectTerm">
+<em class="property">class </em><code class="descclassname">horton.meanfield.observable.</code><code class="descname">RDirectTerm</code><span class="sig-paren">(</span><em>op_alpha</em>, <em>label</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.RDirectTerm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#horton.meanfield.observable.Observable" title="horton.meanfield.observable.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">horton.meanfield.observable.Observable</span></code></a></p>
+<p>Initialize a RDirectTerm instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>op_alpha</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.FourIndex" title="horton.matrix.base.FourIndex"><em>FourIndex</em></a>) – Expansion of two-body operator in basis of alpha orbitals. Same is used for
+beta orbitals.</li>
+<li><strong>label</strong> (<em>str</em>) – A short string to identify the observable.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="horton.meanfield.observable.RDirectTerm.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>op_alpha</em>, <em>label</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.RDirectTerm.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a RDirectTerm instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>op_alpha</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.FourIndex" title="horton.matrix.base.FourIndex"><em>FourIndex</em></a>) – Expansion of two-body operator in basis of alpha orbitals. Same is used for
+beta orbitals.</li>
+<li><strong>label</strong> (<em>str</em>) – A short string to identify the observable.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.observable.RDirectTerm.add_dot_hessian">
+<code class="descname">add_dot_hessian</code><span class="sig-paren">(</span><em>cache</em>, <em>output_alpha</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.RDirectTerm.add_dot_hessian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add contribution to the dot product of the Hessian with the trial delta DM.</p>
+<p>The Hessian in this method is the second derivative of the observable towards the
+matrix elements of the density matrix or matrices. The <code class="docutils literal notranslate"><span class="pre">dms</span></code> and <code class="docutils literal notranslate"><span class="pre">delta</span> <span class="pre">dms</span></code>
+are stored in the cache.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> – A cache object used to store intermediate results that can be reused or
+inspected later. All results specific for the detla_dm are stored with the tag
+‘d’ in the cache object.</li>
+<li><strong>output2</strong><strong>, </strong><strong>..</strong> (<em>output1</em><em>,</em>) – Output objects, to which contributions from the dot product of the Hessian
+with the delta density matrices is added.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.observable.RDirectTerm.add_fock">
+<code class="descname">add_fock</code><span class="sig-paren">(</span><em>cache</em>, <em>fock_alpha</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.RDirectTerm.add_fock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add contributions to the Fock matrices.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to store intermediate results that can be reused or inspected later.</li>
+<li><strong>fock2</strong><strong>, </strong><strong>..</strong> (<em>fock1</em><em>,</em>) – A list of output Fock operators. The caller is responsible for setting these
+operators initially to zero (if desired).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.observable.RDirectTerm.compute_energy">
+<code class="descname">compute_energy</code><span class="sig-paren">(</span><em>cache</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.RDirectTerm.compute_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the expectation value of the observable.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to store intermediate results that can be reused or inspected later.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.meanfield.observable.UDirectTerm">
+<em class="property">class </em><code class="descclassname">horton.meanfield.observable.</code><code class="descname">UDirectTerm</code><span class="sig-paren">(</span><em>op_alpha</em>, <em>label</em>, <em>op_beta=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.UDirectTerm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#horton.meanfield.observable.Observable" title="horton.meanfield.observable.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">horton.meanfield.observable.Observable</span></code></a></p>
+<p>Initialize a UDirectTerm instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>op_alpha</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.FourIndex" title="horton.matrix.base.FourIndex"><em>FourIndex</em></a>) – Expansion of two-body operator in basis of alpha orbitals.</li>
+<li><strong>label</strong> (<em>str</em>) – A short string to identify the observable.</li>
+<li><strong>op_beta</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.FourIndex" title="horton.matrix.base.FourIndex"><em>FourIndex</em></a>) – Expansion of two-body operator in basis of beta orbitals. When not given,
+op_alpha is used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="horton.meanfield.observable.UDirectTerm.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>op_alpha</em>, <em>label</em>, <em>op_beta=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.UDirectTerm.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a UDirectTerm instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>op_alpha</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.FourIndex" title="horton.matrix.base.FourIndex"><em>FourIndex</em></a>) – Expansion of two-body operator in basis of alpha orbitals.</li>
+<li><strong>label</strong> (<em>str</em>) – A short string to identify the observable.</li>
+<li><strong>op_beta</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.FourIndex" title="horton.matrix.base.FourIndex"><em>FourIndex</em></a>) – Expansion of two-body operator in basis of beta orbitals. When not given,
+op_alpha is used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.observable.UDirectTerm.add_dot_hessian">
+<code class="descname">add_dot_hessian</code><span class="sig-paren">(</span><em>cache</em>, <em>output_alpha</em>, <em>output_beta</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.UDirectTerm.add_dot_hessian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add contribution to the dot product of the Hessian with the trial delta DM.</p>
+<p>The Hessian in this method is the second derivative of the observable towards the
+matrix elements of the density matrix or matrices. The <code class="docutils literal notranslate"><span class="pre">dms</span></code> and <code class="docutils literal notranslate"><span class="pre">delta</span> <span class="pre">dms</span></code>
+are stored in the cache.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> – A cache object used to store intermediate results that can be reused or
+inspected later. All results specific for the detla_dm are stored with the tag
+‘d’ in the cache object.</li>
+<li><strong>output2</strong><strong>, </strong><strong>..</strong> (<em>output1</em><em>,</em>) – Output objects, to which contributions from the dot product of the Hessian
+with the delta density matrices is added.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.observable.UDirectTerm.add_fock">
+<code class="descname">add_fock</code><span class="sig-paren">(</span><em>cache</em>, <em>fock_alpha</em>, <em>fock_beta</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.UDirectTerm.add_fock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add contributions to the Fock matrices.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to store intermediate results that can be reused or inspected later.</li>
+<li><strong>fock2</strong><strong>, </strong><strong>..</strong> (<em>fock1</em><em>,</em>) – A list of output Fock operators. The caller is responsible for setting these
+operators initially to zero (if desired).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.observable.UDirectTerm.compute_energy">
+<code class="descname">compute_energy</code><span class="sig-paren">(</span><em>cache</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.UDirectTerm.compute_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the expectation value of the observable.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to store intermediate results that can be reused or inspected later.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.meanfield.observable.RExchangeTerm">
+<em class="property">class </em><code class="descclassname">horton.meanfield.observable.</code><code class="descname">RExchangeTerm</code><span class="sig-paren">(</span><em>op_alpha</em>, <em>label</em>, <em>fraction=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.RExchangeTerm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#horton.meanfield.observable.Observable" title="horton.meanfield.observable.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">horton.meanfield.observable.Observable</span></code></a></p>
+<p>Initialize a RExchangeTerm instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>op_alpha</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.FourIndex" title="horton.matrix.base.FourIndex"><em>FourIndex</em></a>) – Expansion of two-body operator in basis of alpha orbitals. Same is used for
+beta orbitals.</li>
+<li><strong>fraction</strong> (<em>float</em>) – Amount of exchange to be included (1.0 corresponds to 100%).</li>
+<li><strong>label</strong> (<em>str</em>) – A short string to identify the observable.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="horton.meanfield.observable.RExchangeTerm.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>op_alpha</em>, <em>label</em>, <em>fraction=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.RExchangeTerm.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a RExchangeTerm instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>op_alpha</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.FourIndex" title="horton.matrix.base.FourIndex"><em>FourIndex</em></a>) – Expansion of two-body operator in basis of alpha orbitals. Same is used for
+beta orbitals.</li>
+<li><strong>fraction</strong> (<em>float</em>) – Amount of exchange to be included (1.0 corresponds to 100%).</li>
+<li><strong>label</strong> (<em>str</em>) – A short string to identify the observable.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.observable.RExchangeTerm.add_dot_hessian">
+<code class="descname">add_dot_hessian</code><span class="sig-paren">(</span><em>cache</em>, <em>output_alpha</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.RExchangeTerm.add_dot_hessian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add contribution to the dot product of the Hessian with the trial delta DM.</p>
+<p>The Hessian in this method is the second derivative of the observable towards the
+matrix elements of the density matrix or matrices. The <code class="docutils literal notranslate"><span class="pre">dms</span></code> and <code class="docutils literal notranslate"><span class="pre">delta</span> <span class="pre">dms</span></code>
+are stored in the cache.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> – A cache object used to store intermediate results that can be reused or
+inspected later. All results specific for the detla_dm are stored with the tag
+‘d’ in the cache object.</li>
+<li><strong>output2</strong><strong>, </strong><strong>..</strong> (<em>output1</em><em>,</em>) – Output objects, to which contributions from the dot product of the Hessian
+with the delta density matrices is added.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.observable.RExchangeTerm.add_fock">
+<code class="descname">add_fock</code><span class="sig-paren">(</span><em>cache</em>, <em>fock_alpha</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.RExchangeTerm.add_fock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add contributions to the Fock matrices.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to store intermediate results that can be reused or inspected later.</li>
+<li><strong>fock2</strong><strong>, </strong><strong>..</strong> (<em>fock1</em><em>,</em>) – A list of output Fock operators. The caller is responsible for setting these
+operators initially to zero (if desired).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.observable.RExchangeTerm.compute_energy">
+<code class="descname">compute_energy</code><span class="sig-paren">(</span><em>cache</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.RExchangeTerm.compute_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the expectation value of the observable.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to store intermediate results that can be reused or inspected later.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.meanfield.observable.UExchangeTerm">
+<em class="property">class </em><code class="descclassname">horton.meanfield.observable.</code><code class="descname">UExchangeTerm</code><span class="sig-paren">(</span><em>op_alpha</em>, <em>label</em>, <em>fraction=1.0</em>, <em>op_beta=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.UExchangeTerm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#horton.meanfield.observable.Observable" title="horton.meanfield.observable.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">horton.meanfield.observable.Observable</span></code></a></p>
+<p>Initialize a UExchangeTerm instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>op_alpha</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.FourIndex" title="horton.matrix.base.FourIndex"><em>FourIndex</em></a>) – Expansion of two-body operator in basis of alpha orbitals.</li>
+<li><strong>label</strong> (<em>str</em>) – A short string to identify the observable.</li>
+<li><strong>fraction</strong> (<em>float</em>) – Amount of exchange to be included (1.0 corresponds to 100%).</li>
+<li><strong>op_beta</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.FourIndex" title="horton.matrix.base.FourIndex"><em>FourIndex</em></a>) – Expansion of two-body operator in basis of beta orbitals. When not given,
+op_alpha is used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="horton.meanfield.observable.UExchangeTerm.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>op_alpha</em>, <em>label</em>, <em>fraction=1.0</em>, <em>op_beta=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.UExchangeTerm.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a UExchangeTerm instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>op_alpha</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.FourIndex" title="horton.matrix.base.FourIndex"><em>FourIndex</em></a>) – Expansion of two-body operator in basis of alpha orbitals.</li>
+<li><strong>label</strong> (<em>str</em>) – A short string to identify the observable.</li>
+<li><strong>fraction</strong> (<em>float</em>) – Amount of exchange to be included (1.0 corresponds to 100%).</li>
+<li><strong>op_beta</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.FourIndex" title="horton.matrix.base.FourIndex"><em>FourIndex</em></a>) – Expansion of two-body operator in basis of beta orbitals. When not given,
+op_alpha is used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.observable.UExchangeTerm.add_dot_hessian">
+<code class="descname">add_dot_hessian</code><span class="sig-paren">(</span><em>cache</em>, <em>output_alpha</em>, <em>output_beta</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.UExchangeTerm.add_dot_hessian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add contribution to the dot product of the Hessian with the trial delta DM.</p>
+<p>The Hessian in this method is the second derivative of the observable towards the
+matrix elements of the density matrix or matrices. The <code class="docutils literal notranslate"><span class="pre">dms</span></code> and <code class="docutils literal notranslate"><span class="pre">delta</span> <span class="pre">dms</span></code>
+are stored in the cache.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> – A cache object used to store intermediate results that can be reused or
+inspected later. All results specific for the detla_dm are stored with the tag
+‘d’ in the cache object.</li>
+<li><strong>output2</strong><strong>, </strong><strong>..</strong> (<em>output1</em><em>,</em>) – Output objects, to which contributions from the dot product of the Hessian
+with the delta density matrices is added.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.observable.UExchangeTerm.add_fock">
+<code class="descname">add_fock</code><span class="sig-paren">(</span><em>cache</em>, <em>fock_alpha</em>, <em>fock_beta</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.UExchangeTerm.add_fock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add contributions to the Fock matrices.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to store intermediate results that can be reused or inspected later.</li>
+<li><strong>fock2</strong><strong>, </strong><strong>..</strong> (<em>fock1</em><em>,</em>) – A list of output Fock operators. The caller is responsible for setting these
+operators initially to zero (if desired).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.observable.UExchangeTerm.compute_energy">
+<code class="descname">compute_energy</code><span class="sig-paren">(</span><em>cache</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.UExchangeTerm.compute_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the expectation value of the observable.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to store intermediate results that can be reused or inspected later.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="horton.meanfield.observable.compute_dm_full">
+<code class="descclassname">horton.meanfield.observable.</code><code class="descname">compute_dm_full</code><span class="sig-paren">(</span><em>cache</em>, <em>prefix=''</em>, <em>tags=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.observable.compute_dm_full" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the spin-summed density matrix to the cache unless it is already present.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to store intermediate results that can be reused or inspected later.</li>
+<li><strong>prefix</strong> (<em>str</em>) – A prefix, in case one wants to load a special density matrix and store the results
+in a special place. The typical use case is the <cite>delta_</cite> prefix which is used to
+process a change in density.</li>
+<li><strong>tags</strong> (<em>str</em>) – The tags to use for the cache when allocating the arrays. In case of changes in
+density matrices, this argument is typically equal to ‘d’.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_meanfield_occ.html" class="btn btn-neutral float-right" title="3.7.10. horton.meanfield.occ – Occupation number models" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_meanfield_libxc.html" class="btn btn-neutral" title="3.7.8. horton.meanfield.libxc – Interface to LDA, GGA and hybrid functionals from LibXC" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.1 built from release 2.1.1-1-g3a5adfea (Jan 18, 2019). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jan 18, 2019.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../',
+              VERSION:'2.1.1-1-g3a5adfea (Jan 18, 2019)',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

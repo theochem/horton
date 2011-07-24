@@ -1,0 +1,337 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>2. Reference Documentation &mdash; HORTON 2.1.0b3 (Jun 30, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="HORTON 2.1.0b3 (Jun 30, 2017) documentation" href="index.html"/>
+        <link rel="next" title="2.1. Contributors" href="tech_ref_contributors.html"/>
+        <link rel="prev" title="1.7. Accelerating HORTON code with Cython" href="tech_dev_cython.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.0b3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">2. Reference Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_contributors.html">2.1. Contributors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_release_planning.html">2.2. Release planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_release_history.html">2.3. Release history</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_file_formats.html">2.4. Data file formats (input and output)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_grids.html">2.5. Atomic integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_gaussian_basis.html">2.6. Gaussian basis sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_functionals.html">2.7. LibXC Functionals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_acronyms.html">2.8. Acronyms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_dictionary.html">2.9. HORTON dictionary of variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_literature.html">2.10. Literature</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>2. Reference Documentation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/tech_ref.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="reference-documentation">
+<h1>2. Reference Documentation<a class="headerlink" href="#reference-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref_contributors.html">2.1. Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref_release_planning.html">2.2. Release planning</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_release_planning.html#stable-api-and-beta-code">2.2.1. Stable API and beta code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_release_planning.html#unstable-code-in-horton-version">2.2.2. Unstable code in HORTON 2.1.0b3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_release_planning.html#features-in-development">2.2.3. Features in development</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref_release_history.html">2.3. Release history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref_file_formats.html">2.4. Data file formats (input and output)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_file_formats.html#molecular-geometry-file-formats">2.4.1. Molecular geometry file formats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_file_formats.html#the-xyz-format">2.4.1.1. The <code class="docutils literal"><span class="pre">.xyz</span></code> format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_file_formats.html#the-poscar-format">2.4.1.2. The <code class="docutils literal"><span class="pre">POSCAR</span></code> format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_file_formats.html#the-cif-crystalographic-information-file-format">2.4.1.3. The <code class="docutils literal"><span class="pre">.cif</span></code> (Crystalographic Information File) format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_file_formats.html#cube-file-formats">2.4.2. Cube file formats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_file_formats.html#the-gaussian-cube-format">2.4.2.1. The Gaussian <code class="docutils literal"><span class="pre">.cube</span></code> format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_file_formats.html#the-vasp-chgcar-and-locpot-formats">2.4.2.2. The VASP <code class="docutils literal"><span class="pre">CHGCAR</span></code> and <code class="docutils literal"><span class="pre">LOCPOT</span></code> formats</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_file_formats.html#wavefunction-formats-using-a-gaussian-basis-set">2.4.3. Wavefunction formats (using a Gaussian basis set)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_file_formats.html#the-gaussian-fchk-format">2.4.3.1. The Gaussian <code class="docutils literal"><span class="pre">.fchk</span></code> format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_file_formats.html#the-molden-format">2.4.3.2. The <code class="docutils literal"><span class="pre">.molden</span></code> format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_file_formats.html#the-mkl-molekel-format">2.4.3.3. The <code class="docutils literal"><span class="pre">.mkl</span></code> (Molekel) format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_file_formats.html#the-wfn-format">2.4.3.4. The <code class="docutils literal"><span class="pre">.wfn</span></code> format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_file_formats.html#hamiltonian-file-formats">2.4.4. Hamiltonian file formats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_file_formats.html#the-molpro-2012-fcidump-format">2.4.4.1. The Molpro 2012 <code class="docutils literal"><span class="pre">FCIDUMP</span></code> format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_file_formats.html#the-gaussian-log-file">2.4.4.2. The Gaussian <code class="docutils literal"><span class="pre">.log</span></code> file</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_file_formats.html#horton-s-internal-file-format">2.4.5. HORTON’s internal file format</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref_grids.html">2.5. Atomic integration grids</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_grids.html#built-in-grids">2.5.1. Built-in grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_grids.html#the-grid-option">2.5.2. The <code class="docutils literal"><span class="pre">--grid</span></code> option</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref_gaussian_basis.html">2.6. Gaussian basis sets</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_gaussian_basis.html#standard-basis-sets">2.6.1. Standard basis sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_gaussian_basis.html#collected-notes-on-gaussian-basis-sets">2.6.2. Collected notes on Gaussian basis sets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_gaussian_basis.html#introduction">2.6.2.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_gaussian_basis.html#cartesian-basis-functions">2.6.2.2. Cartesian basis functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_gaussian_basis.html#pure-or-harmonic-basis-functions">2.6.2.3. Pure or harmonic basis functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_gaussian_basis.html#transformation-from-cartesian-to-pure-basis-functions">2.6.2.4. Transformation from Cartesian to pure basis functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_ref_gaussian_basis.html#recursion-relations-for-real-regular-solid-harmonics">2.6.2.5. Recursion relations for real regular solid harmonics</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref_functionals.html">2.7. LibXC Functionals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref_acronyms.html">2.8. Acronyms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref_dictionary.html">2.9. HORTON dictionary of variables</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_dictionary.html#rules">2.9.1. Rules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_dictionary.html#variable-names-and-prefixes">2.9.2. Variable names and prefixes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref_literature.html">2.10. Literature</a></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tech_ref_contributors.html" class="btn btn-neutral float-right" title="2.1. Contributors" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="tech_dev_cython.html" class="btn btn-neutral" title="1.7. Accelerating HORTON code with Cython" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.0b3 built from release 2.1.0b3 (Jun 30, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 30, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.1.0b3 (Jun 30, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,690 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.4.9. horton/gbasis/fns.h – Evaluation of functions expanded in a Gaussian basis &mdash; HORTON 2.0.2 (Jun 30, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="HORTON 2.0.2 (Jun 30, 2017) documentation" href="../index.html"/>
+        <link rel="up" title="3.4. horton.gbasis – Gaussian basis sets" href="pck_horton_gbasis.html"/>
+        <link rel="next" title="3.4.10. horton/gbasis/gbasis.h – Gaussian basis set classes" href="mod_horton_gbasis_gbasis_h.html"/>
+        <link rel="prev" title="3.4.8. horton/gbasis/common.h – Auxiliary functions" href="mod_horton_gbasis_common_h.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> – The main HORTON Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_correlatedwfn.html">3.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn</span></code> – Methods for correlated wavefunctions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.3. <code class="docutils literal"><span class="pre">horton.espfit</span></code> – Electrostatic potential fitting</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_gbasis.html">3.4. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_cext.html">3.4.1. <code class="docutils literal"><span class="pre">horton.gbasis.cext</span></code> – C++ extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_gobasis.html">3.4.2. <code class="docutils literal"><span class="pre">horton.gbasis.gobasis</span></code> – Gaussian orbital basis set module.</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_iobas.html">3.4.3. <code class="docutils literal"><span class="pre">horton.gbasis.iobas</span></code> – Input/Output routines for gaussian basis sets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_boys_h.html">3.4.4. <code class="docutils literal"><span class="pre">horton/gbasis/boys.h</span></code> – The Boys function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_calc_h.html">3.4.5. <code class="docutils literal"><span class="pre">horton/gbasis/calc.h</span></code> – Base class for any integral/evaluation of Gaussian functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_cartpure_h.html">3.4.6. <code class="docutils literal"><span class="pre">horton/gbasis/cartpure.h</span></code> – Conversion of Cartesian to Pure Gaussian functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_cholesky_h.html">3.4.7. <code class="docutils literal"><span class="pre">horton/gbasis/cholesky.h</span></code> – Cholesky decomposition of (any) four-center integrals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_common_h.html">3.4.8. <code class="docutils literal"><span class="pre">horton/gbasis/common.h</span></code> – Auxiliary functions</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.4.9. <code class="docutils literal"><span class="pre">horton/gbasis/fns.h</span></code> – Evaluation of functions expanded in a Gaussian basis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_gbasis_h.html">3.4.10. <code class="docutils literal"><span class="pre">horton/gbasis/gbasis.h</span></code> – Gaussian basis set classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_gbw_h.html">3.4.11. <code class="docutils literal"><span class="pre">horton/gbasis/gbw.h</span></code> – A four-center integral wrapper for the Cholesky code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_ints_h.html">3.4.12. <code class="docutils literal"><span class="pre">horton/gbasis/ints.h</span></code> – Evaluation of integrals of Gaussian basis functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_iter_gb_h.html">3.4.13. <code class="docutils literal"><span class="pre">horton/gbasis/iter_gb.h</span></code> – Iterators over Gaussian basis functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_iter_pow_h.html">3.4.14. <code class="docutils literal"><span class="pre">horton/gbasis/iter_pow.h</span></code> – Iterators over Cartesian polynomials in one shell</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.5. <code class="docutils literal"><span class="pre">horton.grid</span></code> – Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.6. <code class="docutils literal"><span class="pre">horton.io</span></code> – Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_localization.html">3.7. <code class="docutils literal"><span class="pre">horton.localization</span></code> – Methods for orbital localization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.8. <code class="docutils literal"><span class="pre">horton.matrix</span></code> – One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.9. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> – Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.10. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> – Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_orbital_entanglement.html">3.11. <code class="docutils literal"><span class="pre">horton.orbital_entanglement</span></code> – Methods for measuring orbital entanglement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.12. <code class="docutils literal"><span class="pre">horton.part</span></code> – Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.13. <code class="docutils literal"><span class="pre">horton.scripts</span></code> – Code (solely) used by HORTON’s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+        
+          <li><a href="pck_horton_gbasis.html">3.4. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a> &raquo;</li>
+        
+      <li>3.4.9. <code class="docutils literal"><span class="pre">horton/gbasis/fns.h</span></code> – Evaluation of functions expanded in a Gaussian basis</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/lib/mod_horton_gbasis_fns_h.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="horton-gbasis-fns-h-evaluation-of-functions-expanded-in-a-gaussian-basis">
+<h1>3.4.9. <code class="docutils literal"><span class="pre">horton/gbasis/fns.h</span></code> – Evaluation of functions expanded in a Gaussian basis<a class="headerlink" href="#horton-gbasis-fns-h-evaluation-of-functions-expanded-in-a-gaussian-basis" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="_CPPv29GB1GridFn">
+<span id="GB1GridFn"></span><span class="target" id="hortonclassGB1GridFn"></span><em class="property">class </em></dt>
+<dd><p>Inherits from <a class="reference internal" href="mod_horton_gbasis_calc_h.html#hortonclassGBCalculator"><span class="std std-ref">GBCalculator</span></a></p>
+<p>Subclassed by <a class="reference internal" href="#hortonclassGB1DMGridFn"><span class="std std-ref">GB1DMGridFn</span></a>, <a class="reference internal" href="#hortonclassGB1ExpGridFn"><span class="std std-ref">GB1ExpGridFn</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N9GB1GridFn9GB1GridFnElll">
+<span id="GB1GridFn::GB1GridFn__l.l.l"></span><span class="target" id="hortonclassGB1GridFn_1a361f099578b8096a9195ef0043ada1c2"></span><code class="descclassname">GB1GridFn::</code><code class="descname">GB1GridFn</code><span class="sig-paren">(</span>long <em>max_shell_type</em>, long <em>dim_work</em>, long <em>dim_output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N9GB1GridFn9GB1GridFnElll" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N9GB1GridFn5resetElPKdPKd">
+<span id="GB1GridFn::reset__l.doubleCP.doubleCP"></span><span class="target" id="hortonclassGB1GridFn_1a561bce1d4b8c260eab524c3843eb8ff2"></span>void <code class="descclassname">GB1GridFn::</code><code class="descname">reset</code><span class="sig-paren">(</span>long <em>shell_type0</em>, <em class="property">const</em> double *<em>r0</em>, <em class="property">const</em> double *<em>point</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N9GB1GridFn5resetElPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N9GB1GridFn12cart_to_pureEv">
+<span id="GB1GridFn::cart_to_pure"></span><span class="target" id="hortonclassGB1GridFn_1a7e346b0db4c1160952b686b98f8fb0e7"></span>void <code class="descclassname">GB1GridFn::</code><code class="descname">cart_to_pure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N9GB1GridFn12cart_to_pureEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK9GB1GridFn15get_shell_type0Ev">
+<span id="GB1GridFn::get_shell_type0C"></span><span class="target" id="hortonclassGB1GridFn_1a4b889bd12821920470ffff0c20fe1708"></span><em class="property">const</em> long <code class="descclassname">GB1GridFn::</code><code class="descname">get_shell_type0</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK9GB1GridFn15get_shell_type0Ev" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N9GB1GridFn12get_dim_workEv">
+<span id="GB1GridFn::get_dim_work"></span><span class="target" id="hortonclassGB1GridFn_1a2f5424794ed6c650ed06070c4a8e2553"></span>long <code class="descclassname">GB1GridFn::</code><code class="descname">get_dim_work</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N9GB1GridFn12get_dim_workEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N9GB1GridFn14get_dim_outputEv">
+<span id="GB1GridFn::get_dim_output"></span><span class="target" id="hortonclassGB1GridFn_1a5e1dbe6b4c47939397d2c27ab59a1a0d"></span>long <code class="descclassname">GB1GridFn::</code><code class="descname">get_dim_output</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N9GB1GridFn14get_dim_outputEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N9GB1GridFn3addEddPKd">
+<span id="GB1GridFn::add__double.double.doubleCP"></span><span class="target" id="hortonclassGB1GridFn_1ab47ab60cfb8ca193354214520c97edc4"></span><em class="property">virtual</em> void <code class="descclassname">GB1GridFn::</code><code class="descname">add</code><span class="sig-paren">(</span>double <em>coeff</em>, double <em>alpha0</em>, <em class="property">const</em> double *<em>scales0</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N9GB1GridFn3addEddPKd" title="Permalink to this definition">¶</a><br /> = 0</dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N9GB1GridFn11shell_type0E">
+<span id="GB1GridFn::shell_type0__l"></span><span class="target" id="hortonclassGB1GridFn_1a9b5463aaa4951a676bd600b132928913"></span>long <code class="descclassname">GB1GridFn::</code><code class="descname">shell_type0</code><a class="headerlink" href="#_CPPv2N9GB1GridFn11shell_type0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N9GB1GridFn8dim_workE">
+<span id="GB1GridFn::dim_work__lC"></span><span class="target" id="hortonclassGB1GridFn_1a446cf892948d1d9a80dc7ea357bd960e"></span><em class="property">const</em> long <code class="descclassname">GB1GridFn::</code><code class="descname">dim_work</code><a class="headerlink" href="#_CPPv2N9GB1GridFn8dim_workE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N9GB1GridFn10dim_outputE">
+<span id="GB1GridFn::dim_output__lC"></span><span class="target" id="hortonclassGB1GridFn_1a1cdcfc27b293244b5ff733e72aed60f8"></span><em class="property">const</em> long <code class="descclassname">GB1GridFn::</code><code class="descname">dim_output</code><a class="headerlink" href="#_CPPv2N9GB1GridFn10dim_outputE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N9GB1GridFn2r0E">
+<span id="GB1GridFn::r0__doubleCP"></span><span class="target" id="hortonclassGB1GridFn_1a14bef4aacf0b5308783228b9906760b0"></span><em class="property">const</em> double *<code class="descclassname">GB1GridFn::</code><code class="descname">r0</code><a class="headerlink" href="#_CPPv2N9GB1GridFn2r0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N9GB1GridFn5pointE">
+<span id="GB1GridFn::point__doubleCP"></span><span class="target" id="hortonclassGB1GridFn_1a32df8b2d76be2250eb6727c887bbb84d"></span><em class="property">const</em> double *<code class="descclassname">GB1GridFn::</code><code class="descname">point</code><a class="headerlink" href="#_CPPv2N9GB1GridFn5pointE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N9GB1GridFn3i1pE">
+<span id="GB1GridFn::i1p__IterPow1"></span><span class="target" id="hortonclassGB1GridFn_1af6389465bc5e5108c4af20ff21c1be61"></span><a class="reference internal" href="mod_horton_gbasis_iter_pow_h.html#_CPPv28IterPow1" title="IterPow1">IterPow1</a> <code class="descclassname">GB1GridFn::</code><code class="descname">i1p</code><a class="headerlink" href="#_CPPv2N9GB1GridFn3i1pE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv212GB1ExpGridFn">
+<span id="GB1ExpGridFn"></span><span class="target" id="hortonclassGB1ExpGridFn"></span><em class="property">class </em></dt>
+<dd><p>Inherits from <a class="reference internal" href="#hortonclassGB1GridFn"><span class="std std-ref">GB1GridFn</span></a></p>
+<p>Subclassed by <a class="reference internal" href="#hortonclassGB1ExpGridOrbitalFn"><span class="std std-ref">GB1ExpGridOrbitalFn</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N12GB1ExpGridFn12GB1ExpGridFnEllll">
+<span id="GB1ExpGridFn::GB1ExpGridFn__l.l.l.l"></span><span class="target" id="hortonclassGB1ExpGridFn_1a3510cb9a5c20541959e5d9af54feb369"></span><code class="descclassname">GB1ExpGridFn::</code><code class="descname">GB1ExpGridFn</code><span class="sig-paren">(</span>long <em>max_shell_type</em>, long <em>nfn</em>, long <em>dim_work</em>, long <em>dim_output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N12GB1ExpGridFn12GB1ExpGridFnEllll" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N12GB1ExpGridFn22compute_point_from_expEPdPdlPd">
+<span id="GB1ExpGridFn::compute_point_from_exp__doubleP.doubleP.l.doubleP"></span><span class="target" id="hortonclassGB1ExpGridFn_1a30f5480d49f8fefc0f4cb8c9e29b1028"></span><em class="property">virtual</em> void <code class="descclassname">GB1ExpGridFn::</code><code class="descname">compute_point_from_exp</code><span class="sig-paren">(</span>double *<em>work_basis</em>, double *<em>coeffs</em>, long <em>nbasis</em>, double *<em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N12GB1ExpGridFn22compute_point_from_expEPdPdlPd" title="Permalink to this definition">¶</a><br /> = 0</dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N12GB1ExpGridFn3nfnE">
+<span id="GB1ExpGridFn::nfn__l"></span><span class="target" id="hortonclassGB1ExpGridFn_1ad7ad973d94a9ceb70e6b14fabae7918a"></span>long <code class="descclassname">GB1ExpGridFn::</code><code class="descname">nfn</code><a class="headerlink" href="#_CPPv2N12GB1ExpGridFn3nfnE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv219GB1ExpGridOrbitalFn">
+<span id="GB1ExpGridOrbitalFn"></span><span class="target" id="hortonclassGB1ExpGridOrbitalFn"></span><em class="property">class </em></dt>
+<dd><p>Inherits from <a class="reference internal" href="#hortonclassGB1ExpGridFn"><span class="std std-ref">GB1ExpGridFn</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N19GB1ExpGridOrbitalFn19GB1ExpGridOrbitalFnEllPll">
+<span id="GB1ExpGridOrbitalFn::GB1ExpGridOrbitalFn__l.l.lP.l"></span><span class="target" id="hortonclassGB1ExpGridOrbitalFn_1aa17b28765a42fa031621fa9c4af9b5a6"></span><code class="descclassname">GB1ExpGridOrbitalFn::</code><code class="descname">GB1ExpGridOrbitalFn</code><span class="sig-paren">(</span>long <em>max_shell_type</em>, long <em>nfn</em>, long *<em>iorbs</em>, long <em>norb</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N19GB1ExpGridOrbitalFn19GB1ExpGridOrbitalFnEllPll" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N19GB1ExpGridOrbitalFn3addEddPKd">
+<span id="GB1ExpGridOrbitalFn::add__double.double.doubleCP"></span><span class="target" id="hortonclassGB1ExpGridOrbitalFn_1ae831310bb3d84b7d39052207535c8e5f"></span>void <code class="descclassname">GB1ExpGridOrbitalFn::</code><code class="descname">add</code><span class="sig-paren">(</span>double <em>coeff</em>, double <em>alpha0</em>, <em class="property">const</em> double *<em>scales0</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N19GB1ExpGridOrbitalFn3addEddPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N19GB1ExpGridOrbitalFn22compute_point_from_expEPdPdlPd">
+<span id="GB1ExpGridOrbitalFn::compute_point_from_exp__doubleP.doubleP.l.doubleP"></span><span class="target" id="hortonclassGB1ExpGridOrbitalFn_1abaed3f026541cbf0934d97262b63db7a"></span>void <code class="descclassname">GB1ExpGridOrbitalFn::</code><code class="descname">compute_point_from_exp</code><span class="sig-paren">(</span>double *<em>work_basis</em>, double *<em>coeffs</em>, long <em>nbasis</em>, double *<em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N19GB1ExpGridOrbitalFn22compute_point_from_expEPdPdlPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N19GB1ExpGridOrbitalFn5iorbsE">
+<span id="GB1ExpGridOrbitalFn::iorbs__lP"></span><span class="target" id="hortonclassGB1ExpGridOrbitalFn_1aea12f1d6e740ea30dc6c063dbc2753e4"></span>long *<code class="descclassname">GB1ExpGridOrbitalFn::</code><code class="descname">iorbs</code><a class="headerlink" href="#_CPPv2N19GB1ExpGridOrbitalFn5iorbsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N19GB1ExpGridOrbitalFn4norbE">
+<span id="GB1ExpGridOrbitalFn::norb__l"></span><span class="target" id="hortonclassGB1ExpGridOrbitalFn_1a1f710ba9748f6cdbb05145b0806b6cea"></span>long <code class="descclassname">GB1ExpGridOrbitalFn::</code><code class="descname">norb</code><a class="headerlink" href="#_CPPv2N19GB1ExpGridOrbitalFn4norbE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv211GB1DMGridFn">
+<span id="GB1DMGridFn"></span><span class="target" id="hortonclassGB1DMGridFn"></span><em class="property">class </em></dt>
+<dd><p>Inherits from <a class="reference internal" href="#hortonclassGB1GridFn"><span class="std std-ref">GB1GridFn</span></a></p>
+<p>Subclassed by <a class="reference internal" href="#hortonclassGB1DMGridDensityFn"><span class="std std-ref">GB1DMGridDensityFn</span></a>, <a class="reference internal" href="#hortonclassGB1DMGridGradientFn"><span class="std std-ref">GB1DMGridGradientFn</span></a>, <a class="reference internal" href="#hortonclassGB1DMGridKineticFn"><span class="std std-ref">GB1DMGridKineticFn</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N11GB1DMGridFn11GB1DMGridFnElll">
+<span id="GB1DMGridFn::GB1DMGridFn__l.l.l"></span><span class="target" id="hortonclassGB1DMGridFn_1a60d68190f69bea0fde9c14a183f680bf"></span><code class="descclassname">GB1DMGridFn::</code><code class="descname">GB1DMGridFn</code><span class="sig-paren">(</span>long <em>max_shell_type</em>, long <em>dim_work</em>, long <em>dim_output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11GB1DMGridFn11GB1DMGridFnElll" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N11GB1DMGridFn21compute_point_from_dmEPdPdlPddPd">
+<span id="GB1DMGridFn::compute_point_from_dm__doubleP.doubleP.l.doubleP.double.doubleP"></span><span class="target" id="hortonclassGB1DMGridFn_1adfbd8b13d484e8bbe1a0e4710a27022f"></span><em class="property">virtual</em> void <code class="descclassname">GB1DMGridFn::</code><code class="descname">compute_point_from_dm</code><span class="sig-paren">(</span>double *<em>work_basis</em>, double *<em>dm</em>, long <em>nbasis</em>, double *<em>output</em>, double <em>epsilon</em>, double *<em>dmmaxrow</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11GB1DMGridFn21compute_point_from_dmEPdPdlPddPd" title="Permalink to this definition">¶</a><br /> = 0</dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N11GB1DMGridFn21compute_fock_from_potEPdPdlPd">
+<span id="GB1DMGridFn::compute_fock_from_pot__doubleP.doubleP.l.doubleP"></span><span class="target" id="hortonclassGB1DMGridFn_1a87c8e7e544bd3674cbfa4a2ab17c7090"></span><em class="property">virtual</em> void <code class="descclassname">GB1DMGridFn::</code><code class="descname">compute_fock_from_pot</code><span class="sig-paren">(</span>double *<em>pot</em>, double *<em>work_basis</em>, long <em>nbasis</em>, double *<em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11GB1DMGridFn21compute_fock_from_potEPdPdlPd" title="Permalink to this definition">¶</a><br /> = 0</dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv218GB1DMGridDensityFn">
+<span id="GB1DMGridDensityFn"></span><span class="target" id="hortonclassGB1DMGridDensityFn"></span><em class="property">class </em></dt>
+<dd><p>Inherits from <a class="reference internal" href="#hortonclassGB1DMGridFn"><span class="std std-ref">GB1DMGridFn</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N18GB1DMGridDensityFn18GB1DMGridDensityFnEl">
+<span id="GB1DMGridDensityFn::GB1DMGridDensityFn__l"></span><span class="target" id="hortonclassGB1DMGridDensityFn_1a07c06e471a738584f8ec9c87b5cd2218"></span><code class="descclassname">GB1DMGridDensityFn::</code><code class="descname">GB1DMGridDensityFn</code><span class="sig-paren">(</span>long <em>max_shell_type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18GB1DMGridDensityFn18GB1DMGridDensityFnEl" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N18GB1DMGridDensityFn5resetElPKdPKd">
+<span id="GB1DMGridDensityFn::reset__l.doubleCP.doubleCP"></span><span class="target" id="hortonclassGB1DMGridDensityFn_1aa552528c4766b734a91740dd20f7d477"></span>void <code class="descclassname">GB1DMGridDensityFn::</code><code class="descname">reset</code><span class="sig-paren">(</span>long <em>_shell_type0</em>, <em class="property">const</em> double *<em>_r0</em>, <em class="property">const</em> double *<em>_point</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18GB1DMGridDensityFn5resetElPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N18GB1DMGridDensityFn3addEddPKd">
+<span id="GB1DMGridDensityFn::add__double.double.doubleCP"></span><span class="target" id="hortonclassGB1DMGridDensityFn_1ab7dfea155f01c5b836c2403311566b75"></span>void <code class="descclassname">GB1DMGridDensityFn::</code><code class="descname">add</code><span class="sig-paren">(</span>double <em>coeff</em>, double <em>alpha0</em>, <em class="property">const</em> double *<em>scales0</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18GB1DMGridDensityFn3addEddPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N18GB1DMGridDensityFn21compute_point_from_dmEPdPdlPddPd">
+<span id="GB1DMGridDensityFn::compute_point_from_dm__doubleP.doubleP.l.doubleP.double.doubleP"></span><span class="target" id="hortonclassGB1DMGridDensityFn_1a15a29f346139d34f3ee751ec16d8a46d"></span>void <code class="descclassname">GB1DMGridDensityFn::</code><code class="descname">compute_point_from_dm</code><span class="sig-paren">(</span>double *<em>work_basis</em>, double *<em>dm</em>, long <em>nbasis</em>, double *<em>output</em>, double <em>epsilon</em>, double *<em>dmmaxrow</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18GB1DMGridDensityFn21compute_point_from_dmEPdPdlPddPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N18GB1DMGridDensityFn21compute_fock_from_potEPdPdlPd">
+<span id="GB1DMGridDensityFn::compute_fock_from_pot__doubleP.doubleP.l.doubleP"></span><span class="target" id="hortonclassGB1DMGridDensityFn_1a637f69bd9b81ed664dc99dedfb6fae02"></span>void <code class="descclassname">GB1DMGridDensityFn::</code><code class="descname">compute_fock_from_pot</code><span class="sig-paren">(</span>double *<em>pot</em>, double *<em>work_basis</em>, long <em>nbasis</em>, double *<em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18GB1DMGridDensityFn21compute_fock_from_potEPdPdlPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv2N18GB1DMGridDensityFn9poly_workE">
+<span id="GB1DMGridDensityFn::poly_work__doubleA"></span><span class="target" id="hortonclassGB1DMGridDensityFn_1a91f5dbf1fd7dc6a426e4e6d5ebb2714c"></span>double <code class="descclassname">GB1DMGridDensityFn::</code><code class="descname">poly_work</code>[MAX_NCART_CUMUL-1]<a class="headerlink" href="#_CPPv2N18GB1DMGridDensityFn9poly_workE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N18GB1DMGridDensityFn6offsetE">
+<span id="GB1DMGridDensityFn::offset__l"></span><span class="target" id="hortonclassGB1DMGridDensityFn_1af4a7ee1ad989f43397064073a5ce1ae4"></span>long <code class="descclassname">GB1DMGridDensityFn::</code><code class="descname">offset</code><a class="headerlink" href="#_CPPv2N18GB1DMGridDensityFn6offsetE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv219GB1DMGridGradientFn">
+<span id="GB1DMGridGradientFn"></span><span class="target" id="hortonclassGB1DMGridGradientFn"></span><em class="property">class </em></dt>
+<dd><p>Inherits from <a class="reference internal" href="#hortonclassGB1DMGridFn"><span class="std std-ref">GB1DMGridFn</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N19GB1DMGridGradientFn19GB1DMGridGradientFnEl">
+<span id="GB1DMGridGradientFn::GB1DMGridGradientFn__l"></span><span class="target" id="hortonclassGB1DMGridGradientFn_1adda2fd6f8826080f9b3f57cd1017807f"></span><code class="descclassname">GB1DMGridGradientFn::</code><code class="descname">GB1DMGridGradientFn</code><span class="sig-paren">(</span>long <em>max_shell_type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N19GB1DMGridGradientFn19GB1DMGridGradientFnEl" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N19GB1DMGridGradientFn3addEddPKd">
+<span id="GB1DMGridGradientFn::add__double.double.doubleCP"></span><span class="target" id="hortonclassGB1DMGridGradientFn_1a961785ad0ceee2d65bbb94d74342ee2b"></span>void <code class="descclassname">GB1DMGridGradientFn::</code><code class="descname">add</code><span class="sig-paren">(</span>double <em>coeff</em>, double <em>alpha0</em>, <em class="property">const</em> double *<em>scales0</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N19GB1DMGridGradientFn3addEddPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N19GB1DMGridGradientFn21compute_point_from_dmEPdPdlPddPd">
+<span id="GB1DMGridGradientFn::compute_point_from_dm__doubleP.doubleP.l.doubleP.double.doubleP"></span><span class="target" id="hortonclassGB1DMGridGradientFn_1aa0a99d6bafbad4693b8c8ba6c883e637"></span>void <code class="descclassname">GB1DMGridGradientFn::</code><code class="descname">compute_point_from_dm</code><span class="sig-paren">(</span>double *<em>work_basis</em>, double *<em>dm</em>, long <em>nbasis</em>, double *<em>output</em>, double <em>epsilon</em>, double *<em>dmmaxrow</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N19GB1DMGridGradientFn21compute_point_from_dmEPdPdlPddPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N19GB1DMGridGradientFn21compute_fock_from_potEPdPdlPd">
+<span id="GB1DMGridGradientFn::compute_fock_from_pot__doubleP.doubleP.l.doubleP"></span><span class="target" id="hortonclassGB1DMGridGradientFn_1ad6df4a6c720473d8f67d4b88e37c3424"></span>void <code class="descclassname">GB1DMGridGradientFn::</code><code class="descname">compute_fock_from_pot</code><span class="sig-paren">(</span>double *<em>pot</em>, double *<em>work_basis</em>, long <em>nbasis</em>, double *<em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N19GB1DMGridGradientFn21compute_fock_from_potEPdPdlPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv218GB1DMGridKineticFn">
+<span id="GB1DMGridKineticFn"></span><span class="target" id="hortonclassGB1DMGridKineticFn"></span><em class="property">class </em></dt>
+<dd><p>Inherits from <a class="reference internal" href="#hortonclassGB1DMGridFn"><span class="std std-ref">GB1DMGridFn</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N18GB1DMGridKineticFn18GB1DMGridKineticFnEl">
+<span id="GB1DMGridKineticFn::GB1DMGridKineticFn__l"></span><span class="target" id="hortonclassGB1DMGridKineticFn_1a98bdc35e897d965421e3bed06fb53482"></span><code class="descclassname">GB1DMGridKineticFn::</code><code class="descname">GB1DMGridKineticFn</code><span class="sig-paren">(</span>long <em>max_shell_type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18GB1DMGridKineticFn18GB1DMGridKineticFnEl" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N18GB1DMGridKineticFn3addEddPKd">
+<span id="GB1DMGridKineticFn::add__double.double.doubleCP"></span><span class="target" id="hortonclassGB1DMGridKineticFn_1ac37b5a08ebd7117eb7705e98c382b9fb"></span>void <code class="descclassname">GB1DMGridKineticFn::</code><code class="descname">add</code><span class="sig-paren">(</span>double <em>coeff</em>, double <em>alpha0</em>, <em class="property">const</em> double *<em>scales0</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18GB1DMGridKineticFn3addEddPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N18GB1DMGridKineticFn21compute_point_from_dmEPdPdlPddPd">
+<span id="GB1DMGridKineticFn::compute_point_from_dm__doubleP.doubleP.l.doubleP.double.doubleP"></span><span class="target" id="hortonclassGB1DMGridKineticFn_1abf5fdf72e1f343252b510977fc4c9328"></span>void <code class="descclassname">GB1DMGridKineticFn::</code><code class="descname">compute_point_from_dm</code><span class="sig-paren">(</span>double *<em>work_basis</em>, double *<em>dm</em>, long <em>nbasis</em>, double *<em>output</em>, double <em>epsilon</em>, double *<em>dmmaxrow</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18GB1DMGridKineticFn21compute_point_from_dmEPdPdlPddPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N18GB1DMGridKineticFn21compute_fock_from_potEPdPdlPd">
+<span id="GB1DMGridKineticFn::compute_fock_from_pot__doubleP.doubleP.l.doubleP"></span><span class="target" id="hortonclassGB1DMGridKineticFn_1a2c5bfd0ad19892e3bce6b383b8a769c2"></span>void <code class="descclassname">GB1DMGridKineticFn::</code><code class="descname">compute_fock_from_pot</code><span class="sig-paren">(</span>double *<em>pot</em>, double *<em>work_basis</em>, long <em>nbasis</em>, double *<em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18GB1DMGridKineticFn21compute_fock_from_potEPdPdlPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv211GB2DMGridFn">
+<span id="GB2DMGridFn"></span><span class="target" id="hortonclassGB2DMGridFn"></span><em class="property">class </em></dt>
+<dd><p>Inherits from <a class="reference internal" href="mod_horton_gbasis_calc_h.html#hortonclassGBCalculator"><span class="std std-ref">GBCalculator</span></a></p>
+<p>Subclassed by <a class="reference internal" href="#hortonclassGB2DMGridHartreeFn"><span class="std std-ref">GB2DMGridHartreeFn</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N11GB2DMGridFn11GB2DMGridFnEl">
+<span id="GB2DMGridFn::GB2DMGridFn__l"></span><span class="target" id="hortonclassGB2DMGridFn_1aa87646123ba8c38d1f0232f512c4f3a3"></span><code class="descclassname">GB2DMGridFn::</code><code class="descname">GB2DMGridFn</code><span class="sig-paren">(</span>long <em>max_shell_type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11GB2DMGridFn11GB2DMGridFnEl" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N11GB2DMGridFn5resetEllPKdPKdPKd">
+<span id="GB2DMGridFn::reset__l.l.doubleCP.doubleCP.doubleCP"></span><span class="target" id="hortonclassGB2DMGridFn_1aadf2320f9cde0ea28b125a4a182c1b50"></span>void <code class="descclassname">GB2DMGridFn::</code><code class="descname">reset</code><span class="sig-paren">(</span>long <em>shell_type0</em>, long <em>shell_type1</em>, <em class="property">const</em> double *<em>r0</em>, <em class="property">const</em> double *<em>r1</em>, <em class="property">const</em> double *<em>point</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11GB2DMGridFn5resetEllPKdPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N11GB2DMGridFn12cart_to_pureEv">
+<span id="GB2DMGridFn::cart_to_pure"></span><span class="target" id="hortonclassGB2DMGridFn_1ab6c46306a09679e84b229f4674c57458"></span>void <code class="descclassname">GB2DMGridFn::</code><code class="descname">cart_to_pure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11GB2DMGridFn12cart_to_pureEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK11GB2DMGridFn15get_shell_type0Ev">
+<span id="GB2DMGridFn::get_shell_type0C"></span><span class="target" id="hortonclassGB2DMGridFn_1a396d66b7a9f9b56947f21621676a8160"></span><em class="property">const</em> long <code class="descclassname">GB2DMGridFn::</code><code class="descname">get_shell_type0</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK11GB2DMGridFn15get_shell_type0Ev" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK11GB2DMGridFn15get_shell_type1Ev">
+<span id="GB2DMGridFn::get_shell_type1C"></span><span class="target" id="hortonclassGB2DMGridFn_1a4e41e6fa3dce65ea36a6a846c59c3ac7"></span><em class="property">const</em> long <code class="descclassname">GB2DMGridFn::</code><code class="descname">get_shell_type1</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK11GB2DMGridFn15get_shell_type1Ev" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N11GB2DMGridFn3addEdddPKdPKd">
+<span id="GB2DMGridFn::add__double.double.double.doubleCP.doubleCP"></span><span class="target" id="hortonclassGB2DMGridFn_1a11761f4676146d50681347a4cab773f0"></span><em class="property">virtual</em> void <code class="descclassname">GB2DMGridFn::</code><code class="descname">add</code><span class="sig-paren">(</span>double <em>coeff</em>, double <em>alpha0</em>, double <em>alpha1</em>, <em class="property">const</em> double *<em>scales0</em>, <em class="property">const</em> double *<em>scales1</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11GB2DMGridFn3addEdddPKdPKd" title="Permalink to this definition">¶</a><br /> = 0</dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N11GB2DMGridFn11shell_type0E">
+<span id="GB2DMGridFn::shell_type0__l"></span><span class="target" id="hortonclassGB2DMGridFn_1a0faa29f7bcd8b7ca584d533faa5f0353"></span>long <code class="descclassname">GB2DMGridFn::</code><code class="descname">shell_type0</code><a class="headerlink" href="#_CPPv2N11GB2DMGridFn11shell_type0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N11GB2DMGridFn11shell_type1E">
+<span id="GB2DMGridFn::shell_type1__l"></span><span class="target" id="hortonclassGB2DMGridFn_1a492ca6664450bb086d7220175713c037"></span>long <code class="descclassname">GB2DMGridFn::</code><code class="descname">shell_type1</code><a class="headerlink" href="#_CPPv2N11GB2DMGridFn11shell_type1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N11GB2DMGridFn2r0E">
+<span id="GB2DMGridFn::r0__doubleCP"></span><span class="target" id="hortonclassGB2DMGridFn_1aec19e780a982959f558ceebacb0bfb7f"></span><em class="property">const</em> double *<code class="descclassname">GB2DMGridFn::</code><code class="descname">r0</code><a class="headerlink" href="#_CPPv2N11GB2DMGridFn2r0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N11GB2DMGridFn2r1E">
+<span id="GB2DMGridFn::r1__doubleCP"></span><span class="target" id="hortonclassGB2DMGridFn_1a110b05afe7d67d1f9c68a6a890f2f2d8"></span><em class="property">const</em> double *<code class="descclassname">GB2DMGridFn::</code><code class="descname">r1</code><a class="headerlink" href="#_CPPv2N11GB2DMGridFn2r1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N11GB2DMGridFn5pointE">
+<span id="GB2DMGridFn::point__doubleCP"></span><span class="target" id="hortonclassGB2DMGridFn_1aee3cbdaa3e1ba4c3e4bbd91ecf7bbe27"></span><em class="property">const</em> double *<code class="descclassname">GB2DMGridFn::</code><code class="descname">point</code><a class="headerlink" href="#_CPPv2N11GB2DMGridFn5pointE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N11GB2DMGridFn3i2pE">
+<span id="GB2DMGridFn::i2p__IterPow2"></span><span class="target" id="hortonclassGB2DMGridFn_1a47f387707676e39298c6ce2f5652e797"></span><a class="reference internal" href="mod_horton_gbasis_iter_pow_h.html#_CPPv28IterPow2" title="IterPow2">IterPow2</a> <code class="descclassname">GB2DMGridFn::</code><code class="descname">i2p</code><a class="headerlink" href="#_CPPv2N11GB2DMGridFn3i2pE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv218GB2DMGridHartreeFn">
+<span id="GB2DMGridHartreeFn"></span><span class="target" id="hortonclassGB2DMGridHartreeFn"></span><em class="property">class </em></dt>
+<dd><p>Inherits from <a class="reference internal" href="#hortonclassGB2DMGridFn"><span class="std std-ref">GB2DMGridFn</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N18GB2DMGridHartreeFn18GB2DMGridHartreeFnEl">
+<span id="GB2DMGridHartreeFn::GB2DMGridHartreeFn__l"></span><span class="target" id="hortonclassGB2DMGridHartreeFn_1aecca26ac6c7416d58a000879b9db4aeb"></span><code class="descclassname">GB2DMGridHartreeFn::</code><code class="descname">GB2DMGridHartreeFn</code><span class="sig-paren">(</span>long <em>max_shell_type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18GB2DMGridHartreeFn18GB2DMGridHartreeFnEl" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N18GB2DMGridHartreeFnD0Ev">
+<span id="GB2DMGridHartreeFn::~GB2DMGridHartreeFn"></span><span class="target" id="hortonclassGB2DMGridHartreeFn_1a6af03032c7d2fccee8b40d5e6cde3148"></span><code class="descclassname">GB2DMGridHartreeFn::</code><code class="descname">~GB2DMGridHartreeFn</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18GB2DMGridHartreeFnD0Ev" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N18GB2DMGridHartreeFn3addEdddPKdPKd">
+<span id="GB2DMGridHartreeFn::add__double.double.double.doubleCP.doubleCP"></span><span class="target" id="hortonclassGB2DMGridHartreeFn_1abf7665e0458ca3a66965ac86f8a88234"></span>void <code class="descclassname">GB2DMGridHartreeFn::</code><code class="descname">add</code><span class="sig-paren">(</span>double <em>coeff</em>, double <em>alpha0</em>, double <em>alpha1</em>, <em class="property">const</em> double *<em>scales0</em>, <em class="property">const</em> double *<em>scales1</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18GB2DMGridHartreeFn3addEdddPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv2N18GB2DMGridHartreeFn7work_g0E">
+<span id="GB2DMGridHartreeFn::work_g0__doubleP"></span><span class="target" id="hortonclassGB2DMGridHartreeFn_1a3565282c0a1b1dba07a785450503a33e"></span>double *<code class="descclassname">GB2DMGridHartreeFn::</code><code class="descname">work_g0</code><a class="headerlink" href="#_CPPv2N18GB2DMGridHartreeFn7work_g0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N18GB2DMGridHartreeFn7work_g1E">
+<span id="GB2DMGridHartreeFn::work_g1__doubleP"></span><span class="target" id="hortonclassGB2DMGridHartreeFn_1afb90646ed6e1f05be9be6bd2b2ef976d"></span>double *<code class="descclassname">GB2DMGridHartreeFn::</code><code class="descname">work_g1</code><a class="headerlink" href="#_CPPv2N18GB2DMGridHartreeFn7work_g1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N18GB2DMGridHartreeFn7work_g2E">
+<span id="GB2DMGridHartreeFn::work_g2__doubleP"></span><span class="target" id="hortonclassGB2DMGridHartreeFn_1a78904224c26a6da0361d6c2708da0ec6"></span>double *<code class="descclassname">GB2DMGridHartreeFn::</code><code class="descname">work_g2</code><a class="headerlink" href="#_CPPv2N18GB2DMGridHartreeFn7work_g2E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N18GB2DMGridHartreeFn9work_boysE">
+<span id="GB2DMGridHartreeFn::work_boys__doubleP"></span><span class="target" id="hortonclassGB2DMGridHartreeFn_1ab96744b7a2c52192598223e72fe0beed"></span>double *<code class="descclassname">GB2DMGridHartreeFn::</code><code class="descname">work_boys</code><a class="headerlink" href="#_CPPv2N18GB2DMGridHartreeFn9work_boysE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_gbasis_gbasis_h.html" class="btn btn-neutral float-right" title="3.4.10. horton/gbasis/gbasis.h – Gaussian basis set classes" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_gbasis_common_h.html" class="btn btn-neutral" title="3.4.8. horton/gbasis/common.h – Auxiliary functions" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.2 built from release 2.0.2 (Jun 30, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 30, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.0.2 (Jun 30, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

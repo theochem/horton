@@ -1,0 +1,394 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.13.2. horton.scripts.common – Code shared by several scripts &mdash; HORTON 2.0.0-244-gaaf5e2b documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="HORTON 2.0.0-244-gaaf5e2b documentation" href="../index.html"/>
+        <link rel="up" title="3.13. horton.scripts – Code (solely) used by HORTON’s command line scripts" href="pck_horton_scripts.html"/>
+        <link rel="next" title="3.13.3. horton.scripts.cpart – Utility functions for the horton-cpart.py script" href="mod_horton_scripts_cpart.html"/>
+        <link rel="prev" title="3.13.1. horton.scripts.atomdb – Code used by horton-atomdb.py" href="mod_horton_scripts_atomdb.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> &#8211; The main HORTON Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_correlatedwfn.html">3.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn</span></code> &#8211; Methods for correlated wavefunctions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.3. <code class="docutils literal"><span class="pre">horton.espfit</span></code> &#8211; Electrostatic potential fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_gbasis.html">3.4. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> &#8211; Gaussian basis sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.5. <code class="docutils literal"><span class="pre">horton.grid</span></code> &#8211; Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.6. <code class="docutils literal"><span class="pre">horton.io</span></code> &#8211; Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_localization.html">3.7. <code class="docutils literal"><span class="pre">horton.localization</span></code> &#8211; Methods for orbital localization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.8. <code class="docutils literal"><span class="pre">horton.matrix</span></code> &#8211; One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.9. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> &#8211; Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.10. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> &#8211; Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_orbital_entanglement.html">3.11. <code class="docutils literal"><span class="pre">horton.orbital_entanglement</span></code> &#8211; Methods for measuring orbital entanglement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.12. <code class="docutils literal"><span class="pre">horton.part</span></code> &#8211; Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_scripts.html">3.13. <code class="docutils literal"><span class="pre">horton.scripts</span></code> &#8211; Code (solely) used by HORTON&#8217;s command line scripts</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_scripts_atomdb.html">3.13.1. <code class="docutils literal"><span class="pre">horton.scripts.atomdb</span></code> &#8211; Code used by <code class="docutils literal"><span class="pre">horton-atomdb.py</span></code></a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.13.2. <code class="docutils literal"><span class="pre">horton.scripts.common</span></code> &#8211; Code shared by several scripts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_scripts_cpart.html">3.13.3. <code class="docutils literal"><span class="pre">horton.scripts.cpart</span></code> &#8211; Utility functions for the <code class="docutils literal"><span class="pre">horton-cpart.py</span></code> script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_scripts_espfit.html">3.13.4. <code class="docutils literal"><span class="pre">horton.scripts.espfit</span></code> &#8211; Code used by ESP fitting scripts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_scripts_hdf2csv.html">3.13.5. <code class="docutils literal"><span class="pre">horton.scripts.hdf2csv</span></code> &#8211; Code used by <code class="docutils literal"><span class="pre">horton-hdf2csv.py</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_scripts_wpart.html">3.13.6. <code class="docutils literal"><span class="pre">horton.scripts.wpart</span></code> &#8211; Utility functions for the <code class="docutils literal"><span class="pre">horton-wpart.py</span></code> script</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">HORTON</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+      
+          <li><a href="pck_horton_scripts.html">3.13. <code class="docutils literal"><span class="pre">horton.scripts</span></code> &#8211; Code (solely) used by HORTON&#8217;s command line scripts</a> &raquo;</li>
+      
+    <li>3.13.2. <code class="docutils literal"><span class="pre">horton.scripts.common</span></code> &#8211; Code shared by several scripts</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/lib/mod_horton_scripts_common.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-horton.scripts.common">
+<span id="horton-scripts-common-code-shared-by-several-scripts"></span><h1>3.13.2. <code class="docutils literal"><span class="pre">horton.scripts.common</span></code> &#8211; Code shared by several scripts<a class="headerlink" href="#module-horton.scripts.common" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="horton.scripts.common.iter_elements">
+<code class="descclassname">horton.scripts.common.</code><code class="descname">iter_elements</code><span class="sig-paren">(</span><em>elements_str</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.scripts.common.iter_elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interpret a string as a list of elements</p>
+<dl class="docutils">
+<dt>elements_str</dt>
+<dd>A string with comma-separated element numbers. One may add ranges
+with the format &#8216;N-M&#8217; where M&gt;N.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="horton.scripts.common.reduce_ugrid">
+<code class="descclassname">horton.scripts.common.</code><code class="descname">reduce_ugrid</code><span class="sig-paren">(</span><em>ugrid</em>, <em>stride</em>, <em>chop</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.scripts.common.reduce_ugrid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduce the uniform grid</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>ugrid</dt>
+<dd>The uniform integration grid.</dd>
+<dt>stride</dt>
+<dd>The reduction factor.</dd>
+<dt>chop</dt>
+<dd>The number of slices to chop of the grid in each direction.</dd>
+</dl>
+<p>Returns: a reduced ugrid object</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="horton.scripts.common.reduce_data">
+<code class="descclassname">horton.scripts.common.</code><code class="descname">reduce_data</code><span class="sig-paren">(</span><em>cube_data</em>, <em>ugrid</em>, <em>stride</em>, <em>chop</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.scripts.common.reduce_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduce the uniform grid data according to stride and chop arguments</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>fn_cube</dt>
+<dd>The cube file with the electron density.</dd>
+<dt>ugrid</dt>
+<dd>The uniform integration grid.</dd>
+<dt>stride</dt>
+<dd>The reduction factor.</dd>
+<dt>chop</dt>
+<dd>The number of slices to chop of the grid in each direction.</dd>
+</dl>
+<p>Returns: a new array and an updated grid object</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="horton.scripts.common.parse_h5">
+<code class="descclassname">horton.scripts.common.</code><code class="descname">parse_h5</code><span class="sig-paren">(</span><em>arg_h5</em>, <em>name</em>, <em>path_optional=True</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.scripts.common.parse_h5" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse an HDF5 command line argument of the form file.h5:group or file.h5:dataset</p>
+<p><strong>Arguments</strong>:</p>
+<dl class="docutils">
+<dt>arg_h5</dt>
+<dd>The command line argument that consists of two parts, the HDF5
+filename and a path, separated by a colon. If the path is optional,
+the default value is the root group.</dd>
+<dt>name</dt>
+<dd>The name of the argument to be used in error messages.</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>path_optional</dt>
+<dd>Set this to False when a path in the HDF5 is not optional</dd>
+</dl>
+<p><strong>Returns:</strong> the filename and the group</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="horton.scripts.common.check_output">
+<code class="descclassname">horton.scripts.common.</code><code class="descname">check_output</code><span class="sig-paren">(</span><em>fn_h5</em>, <em>grp_name</em>, <em>overwrite</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.scripts.common.check_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the output is already present in print a warning if &#8211;overwrite is not used</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>fn_h5</dt>
+<dd>The output HDF5 file</dd>
+<dt>grp_name</dt>
+<dd>The HDF5 group in which the output is stored.</dd>
+<dt>overwrite</dt>
+<dd>Whether the user wants to overwrite contents that were already
+present.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="horton.scripts.common.parse_ewald_args">
+<code class="descclassname">horton.scripts.common.</code><code class="descname">parse_ewald_args</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.scripts.common.parse_ewald_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="horton.scripts.common.parse_pbc">
+<code class="descclassname">horton.scripts.common.</code><code class="descname">parse_pbc</code><span class="sig-paren">(</span><em>spbc</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.scripts.common.parse_pbc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="horton.scripts.common.store_args">
+<code class="descclassname">horton.scripts.common.</code><code class="descname">store_args</code><span class="sig-paren">(</span><em>args</em>, <em>grp</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.scripts.common.store_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the command line arguments to hdf5 attributes</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="horton.scripts.common.write_part_output">
+<code class="descclassname">horton.scripts.common.</code><code class="descname">write_part_output</code><span class="sig-paren">(</span><em>fn_h5</em>, <em>grp_name</em>, <em>part</em>, <em>keys</em>, <em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.scripts.common.write_part_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the output of horton-wpart.py or horton-cpart.py</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>fn_h5</dt>
+<dd>The filename for the HDF5 output file.</dd>
+<dt>grp_name</dt>
+<dd>the destination group</dd>
+<dt>part</dt>
+<dd>The partitioning object (instance of subclass of
+horton.part.base.Part)</dd>
+<dt>keys</dt>
+<dd>The keys of the cached items that must go in the HDF5 outut file.</dd>
+<dt>args</dt>
+<dd>The results of the command line parser. All arguments are stored
+as attributes in the HDF5 output file.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="horton.scripts.common.write_script_output">
+<code class="descclassname">horton.scripts.common.</code><code class="descname">write_script_output</code><span class="sig-paren">(</span><em>fn_h5</em>, <em>grp_name</em>, <em>results</em>, <em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.scripts.common.write_script_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store the output of a script in an open HDF5 file</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>fn_h5</dt>
+<dd>The HDF5 filename</dd>
+<dt>grp_name</dt>
+<dd>The name of the group where the results will be stored.</dd>
+<dt>results</dt>
+<dd>A dictionary with results.</dd>
+<dt>args</dt>
+<dd>The results of the command line parser. All arguments are stored
+as attributes in the HDF5 output file.</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_scripts_cpart.html" class="btn btn-neutral float-right" title="3.13.3. horton.scripts.cpart – Utility functions for the horton-cpart.py script" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_scripts_atomdb.html" class="btn btn-neutral" title="3.13.1. horton.scripts.atomdb – Code used by horton-atomdb.py" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.0 built from release 2.0.0-244-gaaf5e2b. </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 16, 2016.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.0.0-244-gaaf5e2b',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

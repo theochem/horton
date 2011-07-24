@@ -1,0 +1,769 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.6.3. horton.matrix.cholesky – Cholesky decomposition of four-index objects &mdash; HORTON 2.1.0 (Jul 06, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="HORTON 2.1.0 (Jul 06, 2017) documentation" href="../index.html"/>
+        <link rel="up" title="3.6. horton.matrix – One-, two-, three- and four-dimensional matrix implementations" href="pck_horton_matrix.html"/>
+        <link rel="next" title="3.6.4. horton.matrix.dense – Dense matrix implementations" href="mod_horton_matrix_dense.html"/>
+        <link rel="prev" title="3.6.2. horton.matrix.cext – C++ extensions for matrix package" href="mod_horton_matrix_cext.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> – The main HORTON Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.2. <code class="docutils literal"><span class="pre">horton.espfit</span></code> – Electrostatic potential fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_gbasis.html">3.3. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.4. <code class="docutils literal"><span class="pre">horton.grid</span></code> – Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.5. <code class="docutils literal"><span class="pre">horton.io</span></code> – Input and output routines</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_matrix.html">3.6. <code class="docutils literal"><span class="pre">horton.matrix</span></code> – One-, two-, three- and four-dimensional matrix implementations</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_matrix_base.html">3.6.1. <code class="docutils literal"><span class="pre">horton.matrix.base</span></code> – Base classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_matrix_cext.html">3.6.2. <code class="docutils literal"><span class="pre">horton.matrix.cext</span></code> – C++ extensions for matrix package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.6.3. <code class="docutils literal"><span class="pre">horton.matrix.cholesky</span></code> – Cholesky decomposition of four-index objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_matrix_dense.html">3.6.4. <code class="docutils literal"><span class="pre">horton.matrix.dense</span></code> – Dense matrix implementations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_matrix_slicing_h.html">3.6.5. <code class="docutils literal"><span class="pre">horton/matrix/slicing.h</span></code> – Low-level routines for <code class="docutils literal"><span class="pre">CholeskyLinalgFactory</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.7. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> – Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.8. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> – Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.9. <code class="docutils literal"><span class="pre">horton.part</span></code> – Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.10. <code class="docutils literal"><span class="pre">horton.scripts</span></code> – Code (solely) used by HORTON’s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+        
+          <li><a href="pck_horton_matrix.html">3.6. <code class="docutils literal"><span class="pre">horton.matrix</span></code> – One-, two-, three- and four-dimensional matrix implementations</a> &raquo;</li>
+        
+      <li>3.6.3. <code class="docutils literal"><span class="pre">horton.matrix.cholesky</span></code> – Cholesky decomposition of four-index objects</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/lib/mod_horton_matrix_cholesky.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-horton.matrix.cholesky">
+<span id="horton-matrix-cholesky-cholesky-decomposition-of-four-index-objects"></span><h1>3.6.3. <code class="docutils literal"><span class="pre">horton.matrix.cholesky</span></code> – Cholesky decomposition of four-index objects<a class="headerlink" href="#module-horton.matrix.cholesky" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex">
+<em class="property">class </em><code class="descclassname">horton.matrix.cholesky.</code><code class="descname">CholeskyFourIndex</code><span class="sig-paren">(</span><em>nbasis</em>, <em>nvec=None</em>, <em>array=None</em>, <em>array2=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.FourIndex" title="horton.matrix.base.FourIndex"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.base.FourIndex</span></code></a></p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>nbasis</dt>
+<dd>The number of basis functions.</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>nvec</dt>
+<dd>The number of (2-index) Cholesky vectors.</dd>
+<dt>array</dt>
+<dd>The array with Cholesky vectors, shape = (nvec, nbasis, nbasis).</dd>
+<dt>array2</dt>
+<dd>The second set of Cholesky vectors, if different from the first.</dd>
+</dl>
+<p>Either nvec or array must be given (or both).</p>
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>nbasis</em>, <em>nvec=None</em>, <em>array=None</em>, <em>array2=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>nbasis</dt>
+<dd>The number of basis functions.</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>nvec</dt>
+<dd>The number of (2-index) Cholesky vectors.</dd>
+<dt>array</dt>
+<dd>The array with Cholesky vectors, shape = (nvec, nbasis, nbasis).</dd>
+<dt>array2</dt>
+<dd>The second set of Cholesky vectors, if different from the first.</dd>
+</dl>
+<p>Either nvec or array must be given (or both).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.assign">
+<code class="descname">assign</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.assign" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assign with the contents of another object</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>other</dt>
+<dd>Another CholeskyFourIndex object.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.assign_four_index_transform">
+<code class="descname">assign_four_index_transform</code><span class="sig-paren">(</span><em>ao_integrals</em>, <em>exp0</em>, <em>exp1=None</em>, <em>exp2=None</em>, <em>exp3=None</em>, <em>method=’tensordot’</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.assign_four_index_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform four index transformation.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>oa_integrals</dt>
+<dd>A CholeskyFourIndex with integrals in atomic orbitals.</dd>
+<dt>exp0</dt>
+<dd>A DenseExpansion object with molecular orbitals</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>exp1, exp2, exp3</dt>
+<dd>Can be provided to transform each index differently. See
+<code class="docutils literal"><span class="pre">parse_four_index_transform_exps</span></code> for details.</dd>
+<dt>method</dt>
+<dd>Either <code class="docutils literal"><span class="pre">einsum</span></code> or <code class="docutils literal"><span class="pre">tensordot</span></code> (default).</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.change_basis_signs">
+<code class="descname">change_basis_signs</code><span class="sig-paren">(</span><em>signs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.change_basis_signs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Correct for different sign conventions of the basis functions.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset all elements to zero.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.contract_two_to_four">
+<code class="descname">contract_two_to_four</code><span class="sig-paren">(</span><em>subscripts</em>, <em>two</em>, <em>out=None</em>, <em>factor=1.0</em>, <em>clear=True</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.contract_two_to_four" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contracts with a two-index object to obtain a four-index object.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>subscripts</dt>
+<dd>Any of <code class="docutils literal"><span class="pre">abcd,cd-&gt;acbd</span></code>, <code class="docutils literal"><span class="pre">abcd,cd-&gt;acdb</span></code>, <code class="docutils literal"><span class="pre">abcd,cb-&gt;acdb</span></code>,
+<code class="docutils literal"><span class="pre">abcd,cb-&gt;acbd</span></code>, <code class="docutils literal"><span class="pre">abcd,ab-&gt;acbd</span></code>, <code class="docutils literal"><span class="pre">abcd,ab-&gt;acdb</span></code>,
+<code class="docutils literal"><span class="pre">abcd,ad-&gt;acbd</span></code>, <code class="docutils literal"><span class="pre">abcd,ad-&gt;acdb</span></code>, <code class="docutils literal"><span class="pre">abcd,ad-&gt;abcd</span></code>,
+<code class="docutils literal"><span class="pre">abcd,ad-&gt;abdc</span></code>, <code class="docutils literal"><span class="pre">abcd,bd-&gt;abcd</span></code>, <code class="docutils literal"><span class="pre">abcd,bd-&gt;abdc</span></code>,
+<code class="docutils literal"><span class="pre">abcd,bc-&gt;abdc</span></code>, <code class="docutils literal"><span class="pre">abcd,bc-&gt;abcd</span></code>, <code class="docutils literal"><span class="pre">abcd,ac-&gt;abcd</span></code>,
+<code class="docutils literal"><span class="pre">abcd,ac-&gt;abdc</span></code></dd>
+<dt>two</dt>
+<dd>An instance of DenseTwoIndex.</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>out, factor, clear</dt>
+<dd>See <code class="xref py py-meth docutils literal"><span class="pre">DenseLinalgFactory.einsum()</span></code></dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.contract_two_to_two">
+<code class="descname">contract_two_to_two</code><span class="sig-paren">(</span><em>subscripts</em>, <em>two</em>, <em>out=None</em>, <em>factor=1.0</em>, <em>clear=True</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.contract_two_to_two" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contract self with a two-index to obtain a two-index.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>subscripts</dt>
+<dd>Any of <code class="docutils literal"><span class="pre">abcd,bd-&gt;ac</span></code> (direct), <code class="docutils literal"><span class="pre">abcd,cb-&gt;ad</span></code> (exchange)</dd>
+<dt>two</dt>
+<dd>The input two-index object. (DenseTwoIndex)</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>out, factor, clear</dt>
+<dd>See <code class="xref py py-meth docutils literal"><span class="pre">DenseLinalgFactory.einsum()</span></code></dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a copy of the current four-index operator</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.decouple_array2">
+<code class="descname">decouple_array2</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.decouple_array2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allocates a second Cholesky vector if not done yet</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.from_hdf5">
+<em class="property">classmethod </em><code class="descname">from_hdf5</code><span class="sig-paren">(</span><em>grp</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.from_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct an instance from data previously stored in an h5py.Group.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>grp</dt>
+<dd>An h5py.Group object.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.get_dense">
+<code class="descname">get_dense</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.get_dense" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the DenseFourIndex equivalent. ONLY FOR TESTING. SUPER SLOW.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.get_element">
+<code class="descname">get_element</code><span class="sig-paren">(</span><em>i</em>, <em>j</em>, <em>k</em>, <em>l</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.get_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a matrix element</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.iadd">
+<code class="descname">iadd</code><span class="sig-paren">(</span><em>other</em>, <em>factor</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.iadd" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is not supported due to the Cholesky decomposition.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.iadd_exchange">
+<code class="descname">iadd_exchange</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.iadd_exchange" title="Permalink to this definition">¶</a></dt>
+<dd><p>In-place addition of its own exchange contribution</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.is_symmetric">
+<code class="descname">is_symmetric</code><span class="sig-paren">(</span><em>symmetry=2</em>, <em>rtol=1e-05</em>, <em>atol=1e-08</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.is_symmetric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check the symmetry of the array.</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>symmetry</dt>
+<dd>The symmetry to check. See <a class="reference internal" href="mod_horton_matrix_dense.html#dense-matrix-symmetry"><span class="std std-ref">Handling of index symmetry</span></a>
+for more details.</dd>
+<dt>rtol and atol</dt>
+<dd>relative and absolute tolerance. See to <code class="docutils literal"><span class="pre">np.allclose</span></code>.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.iscale">
+<code class="descname">iscale</code><span class="sig-paren">(</span><em>factor</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.iscale" title="Permalink to this definition">¶</a></dt>
+<dd><p>In-place multiplication with a scalar</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>factor</dt>
+<dd>A scalar factor.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.itranspose">
+<code class="descname">itranspose</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.itranspose" title="Permalink to this definition">¶</a></dt>
+<dd><p>In-place transpose: <code class="docutils literal"><span class="pre">0,1,2,3</span> <span class="pre">-&gt;</span> <span class="pre">1,0,3,2</span></code></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.new">
+<code class="descname">new</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.new" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new four-index object with the same nbasis</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.permute_basis">
+<code class="descname">permute_basis</code><span class="sig-paren">(</span><em>permutation</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.permute_basis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reorder the coefficients for a given permutation of basis functions.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.randomize">
+<code class="descname">randomize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.randomize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fill with random normal data</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.reset_array2">
+<code class="descname">reset_array2</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.reset_array2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deallocates the second cholesky vector and sets it to match the first.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.set_element">
+<code class="descname">set_element</code><span class="sig-paren">(</span><em>i</em>, <em>j</em>, <em>k</em>, <em>l</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.set_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is not supported due to the Cholesky decomposition.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.slice_to_three">
+<code class="descname">slice_to_three</code><span class="sig-paren">(</span><em>subscripts</em>, <em>out=None</em>, <em>factor=1.0</em>, <em>clear=True</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.slice_to_three" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a three-index contraction of the four-index object.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>subscripts</dt>
+<dd>Any of <code class="docutils literal"><span class="pre">abcc-&gt;bac</span></code>, <code class="docutils literal"><span class="pre">abcc-&gt;abc</span></code>, <code class="docutils literal"><span class="pre">abcb-&gt;abc</span></code>, <code class="docutils literal"><span class="pre">abbc-&gt;abc</span></code></dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>out, factor, clear</dt>
+<dd>See <code class="xref py py-meth docutils literal"><span class="pre">DenseLinalgFactory.einsum()</span></code></dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.slice_to_two">
+<code class="descname">slice_to_two</code><span class="sig-paren">(</span><em>subscripts</em>, <em>out=None</em>, <em>factor=1.0</em>, <em>clear=True</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.slice_to_two" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a two-index contraction of the four-index object.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>subscripts</dt>
+<dd>Any of <code class="docutils literal"><span class="pre">aabb-&gt;ab</span></code>, <code class="docutils literal"><span class="pre">abab-&gt;ab</span></code>, <code class="docutils literal"><span class="pre">abba-&gt;ab</span></code></dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>out, factor, clear</dt>
+<dd>See <code class="xref py py-meth docutils literal"><span class="pre">DenseLinalgFactory.einsum()</span></code></dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.sum">
+<code class="descname">sum</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the sum of all elements. EXPENSIVE!</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.symmetrize">
+<code class="descname">symmetrize</code><span class="sig-paren">(</span><em>symmetry=8</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.symmetrize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.to_hdf5">
+<code class="descname">to_hdf5</code><span class="sig-paren">(</span><em>grp</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.to_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump this object in an h5py.Group</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>grp</dt>
+<dd>An h5py.Group object.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.is_decoupled">
+<code class="descname">is_decoupled</code><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.is_decoupled" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.nbasis">
+<code class="descname">nbasis</code><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.nbasis" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of basis functions</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.ndim">
+<code class="descname">ndim</code><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.ndim" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of axes in the N-index object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.nvec">
+<code class="descname">nvec</code><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.nvec" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of Cholesky vectors</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.matrix.cholesky.CholeskyFourIndex.shape">
+<code class="descname">shape</code><a class="headerlink" href="#horton.matrix.cholesky.CholeskyFourIndex.shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>The shape of the object</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.matrix.cholesky.CholeskyLinalgFactory">
+<em class="property">class </em><code class="descclassname">horton.matrix.cholesky.</code><code class="descname">CholeskyLinalgFactory</code><span class="sig-paren">(</span><em>default_nbasis=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyLinalgFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="mod_horton_matrix_dense.html#horton.matrix.dense.DenseLinalgFactory" title="horton.matrix.dense.DenseLinalgFactory"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.dense.DenseLinalgFactory</span></code></a></p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>default_nbasis</dt>
+<dd>The default basis size when constructing new
+operators/expansions.</dd>
+</dl>
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyLinalgFactory.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>default_nbasis=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyLinalgFactory.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>default_nbasis</dt>
+<dd>The default basis size when constructing new
+operators/expansions.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyLinalgFactory.create_expansion">
+<code class="descname">create_expansion</code><span class="sig-paren">(</span><em>nbasis=None</em>, <em>nfn=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyLinalgFactory.create_expansion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a DenseExpansion with defaults from the LinalgFactory</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>nbasis</dt>
+<dd>The number of basis functions. When not given, the
+default_nbasis value of the DenseLinalgFactory instance will be
+used.</dd>
+<dt>nfn</dt>
+<dd>The number of orbitals. When not given, the default_nbasis
+value of the DenseLinalgFactory instance will be used.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyLinalgFactory.create_four_index">
+<code class="descname">create_four_index</code><span class="sig-paren">(</span><em>nbasis=None</em>, <em>nvec=None</em>, <em>array=None</em>, <em>array2=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyLinalgFactory.create_four_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a DenseFourIndex with defaults from the LinalgFactory</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>nbasis</dt>
+<dd>The number of basis functions. When not given, the
+default_nbasis value of the DenseLinalgFactory instance will be
+used.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyLinalgFactory.create_one_index">
+<code class="descname">create_one_index</code><span class="sig-paren">(</span><em>nbasis=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyLinalgFactory.create_one_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a DenseOneIndex with defaults from the LinalgFactory</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>nbasis</dt>
+<dd>The number of basis functions. When not given, the
+default_nbasis value of the DenseLinalgFactory instance will be
+used.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyLinalgFactory.create_three_index">
+<code class="descname">create_three_index</code><span class="sig-paren">(</span><em>nbasis=None</em>, <em>nbasis1=None</em>, <em>nbasis2=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyLinalgFactory.create_three_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a DenseThreeIndex with defaults from the LinalgFactory</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>nbasis</dt>
+<dd>The number of basis functions. When not given, the
+default_nbasis value of the DenseLinalgFactory instance will be
+used.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyLinalgFactory.create_two_index">
+<code class="descname">create_two_index</code><span class="sig-paren">(</span><em>nbasis=None</em>, <em>nbasis1=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyLinalgFactory.create_two_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a DenseTwoIndex with defaults from the LinalgFactory</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>nbasis</dt>
+<dd>The number of basis functions. When not given, the
+default_nbasis value of the DenseLinalgFactory instance will be
+used.</dd>
+<dt>nbasis1</dt>
+<dd>The number of basis functions for the second axis if it differes
+from <code class="docutils literal"><span class="pre">nbasis</span></code>.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyLinalgFactory.einsum">
+<code class="descname">einsum</code><span class="sig-paren">(</span><em>subscripts</em>, <em>out</em>, <em>factor</em>, <em>clear</em>, <em>*operands</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyLinalgFactory.einsum" title="Permalink to this definition">¶</a></dt>
+<dd><p>einsum wrapper for DenseNBody objects</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>subscripts</dt>
+<dd>The usual subscripts argument for the einsum function, except
+that the format is slightly limited. All indexes must be
+explicitly stated. If the output argument is a scalar, <code class="docutils literal"><span class="pre">-&gt;</span></code>
+may not be present. In all other cases, <code class="docutils literal"><span class="pre">-&gt;</span></code> must be present.</dd>
+<dt>out</dt>
+<dd>An output DenseNBody object. This argument is not allowed when
+the result is a scalar.</dd>
+<dt>factor</dt>
+<dd>Multiply the contraction by a scalar factor.</dd>
+<dt>clear</dt>
+<dd>When set to False, the output argument is not zeroed before
+adding the contraction.</dd>
+<dt>operands</dt>
+<dd>A list where each element is (i) a DenseNBody object or (ii) a
+two-tuple of DenseNBody object and ranges to select for slicing.
+The ranges must be a tuple of integers of the form (begin0,
+end0, begin1, end1, …) where the number of (begin, end) pairs
+depends on the dimensionality of the corresponding tensor.</dd>
+</dl>
+<p><strong>Returns:</strong> the out object. When the out argument is given, this is
+returned with in-place modifications.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyLinalgFactory.from_hdf5">
+<code class="descname">from_hdf5</code><span class="sig-paren">(</span><em>grp</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyLinalgFactory.from_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct an instance from data previously stored in an h5py.Group.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>grp</dt>
+<dd>An h5py.Group object.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyLinalgFactory.set_default_nbasis">
+<code class="descname">set_default_nbasis</code><span class="sig-paren">(</span><em>nbasis</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyLinalgFactory.set_default_nbasis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyLinalgFactory.tensordot">
+<code class="descname">tensordot</code><span class="sig-paren">(</span><em>a</em>, <em>b</em>, <em>axes</em>, <em>out=None</em>, <em>factor=1.0</em>, <em>clear=True</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyLinalgFactory.tensordot" title="Permalink to this definition">¶</a></dt>
+<dd><p>tensordot wrapper for dense n-index objects.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>a, b, axes</dt>
+<dd>See documentation of numpy.tensordot</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>out</dt>
+<dd>The output argument, an instance of one of the Dense?Index classes.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.cholesky.CholeskyLinalgFactory.to_hdf5">
+<code class="descname">to_hdf5</code><span class="sig-paren">(</span><em>grp</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.cholesky.CholeskyLinalgFactory.to_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a LinalgFactory to an HDF5 group</p>
+<p><strong>Argument:</strong></p>
+<dl class="docutils">
+<dt>grp</dt>
+<dd>A h5py.Group instance to write to.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_matrix_dense.html" class="btn btn-neutral float-right" title="3.6.4. horton.matrix.dense – Dense matrix implementations" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_matrix_cext.html" class="btn btn-neutral" title="3.6.2. horton.matrix.cext – C++ extensions for matrix package" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.0 built from release 2.1.0 (Jul 06, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jul 06, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.1.0 (Jul 06, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

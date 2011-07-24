@@ -1,0 +1,490 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.1. Molecular Hamiltonians &mdash; HORTON 2.1.0 (Jul 06, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="HORTON 2.1.0 (Jul 06, 2017) documentation" href="index.html"/>
+        <link rel="up" title="3. Hamiltonians" href="user_hamiltonian.html"/>
+        <link rel="next" title="3.2. Defining a model Hamiltonian" href="user_hamiltonian_model.html"/>
+        <link rel="prev" title="3. Hamiltonians" href="user_hamiltonian.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">3.1. Molecular Hamiltonians</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#specifying-the-molecular-geometry">3.1.1. Specifying the molecular geometry</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#reading-the-molecular-geometry-from-file">3.1.1.1. Reading the molecular geometry from file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#constructing-a-molecular-geometry-from-scratch">3.1.1.2. Constructing a molecular geometry from scratch</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#specifying-the-basis-set">3.1.2. Specifying the basis set</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#unique-basis-set-for-all-atoms">3.1.2.1. Unique basis set for all atoms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#specifying-different-basis-sets-for-different-atoms">3.1.2.2. Specifying different basis sets for different atoms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#loading-custom-basis-sets-from-file">3.1.2.3. Loading custom basis sets from file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#defining-basis-sets-with-python-code">3.1.2.4. Defining basis sets with Python code</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#loading-geometry-and-basis-set-info-from-one-file">3.1.2.5. Loading geometry and basis set info from one file</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#computing-hamiltonian-matrix-elements">3.1.3. Computing (Hamiltonian) matrix elements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_hamiltonian_model.html">3.2. Defining a model Hamiltonian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_hamiltonian_io.html">3.3. Dumping/Loading a Hamiltonian to/from a file</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="user_hamiltonian.html">3. Hamiltonians</a> &raquo;</li>
+        
+      <li>3.1. Molecular Hamiltonians</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/user_hamiltonian_molecular.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="molecular-hamiltonians">
+<h1>3.1. Molecular Hamiltonians<a class="headerlink" href="#molecular-hamiltonians" title="Permalink to this headline">¶</a></h1>
+<p>A molecular Hamiltonian is typically set up in three steps. First, you load or
+construct a molecular geometry. Then, you generate a Gaussian basis set for
+this molecule. Finally, you can calculate all kinds of matrix elements with that
+basis to define a Hamiltonian.</p>
+<div class="section" id="specifying-the-molecular-geometry">
+<span id="setup-molgeometry"></span><h2>3.1.1. Specifying the molecular geometry<a class="headerlink" href="#specifying-the-molecular-geometry" title="Permalink to this headline">¶</a></h2>
+<p>HORTON can load/dump the molecular geometry from/to different file formats. The
+file format is determined automatically using the extension or prefix of the
+filename. For more information on supported file formats, refer to
+<a class="reference internal" href="tech_ref_file_formats.html#ref-file-formats"><span class="std std-ref">Data file formats (input and output)</span></a>.</p>
+<div class="section" id="reading-the-molecular-geometry-from-file">
+<span id="read-molgeometry"></span><h3>3.1.1.1. Reading the molecular geometry from file<a class="headerlink" href="#reading-the-molecular-geometry-from-file" title="Permalink to this headline">¶</a></h3>
+<p>The molecular geometry can be read from file using the method
+<a class="reference internal" href="lib/mod_horton_io_iodata.html#horton.io.iodata.IOData.from_file" title="horton.io.iodata.IOData.from_file"><code class="xref py py-meth docutils literal"><span class="pre">from_file()</span></code></a> of the <code class="docutils literal"><span class="pre">IOData</span></code> class,</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">mol</span> <span class="o">=</span> <span class="n">IOData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="constructing-a-molecular-geometry-from-scratch">
+<h3>3.1.1.2. Constructing a molecular geometry from scratch<a class="headerlink" href="#constructing-a-molecular-geometry-from-scratch" title="Permalink to this headline">¶</a></h3>
+<p>You can also generate molecular geometries with Python code. The
+following example constructs a ring of Hydrogen atoms and writes it to an
+XYZ file</p>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">data/examples/hamiltonian/hydrogen_ring.py</span><a class="headerlink" href="#id2" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">horton</span> <span class="k">import</span> <span class="o">*</span>  <span class="c1"># pylint: disable=wildcard-import,unused-wildcard-import</span>
+
+
+<span class="c1"># Define the ring.</span>
+<span class="n">natom</span> <span class="o">=</span> <span class="mi">11</span>
+<span class="n">spacing</span> <span class="o">=</span> <span class="mf">1.3</span>  <span class="c1"># distance between two neighboring atoms in bohr</span>
+<span class="n">radius</span> <span class="o">=</span> <span class="n">spacing</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="n">natom</span><span class="p">))</span>
+
+<span class="c1"># Define the coordinates and elements.</span>
+<span class="n">coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">natom</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">numbers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">natom</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>  <span class="c1"># must be integers</span>
+<span class="k">for</span> <span class="n">iatom</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">natom</span><span class="p">):</span>
+    <span class="n">angle</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="n">natom</span><span class="p">)</span><span class="o">*</span><span class="n">iatom</span>
+    <span class="n">coordinates</span><span class="p">[</span><span class="n">iatom</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">radius</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+    <span class="n">coordinates</span><span class="p">[</span><span class="n">iatom</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">radius</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+
+<span class="c1"># Write the molecule to an XYZ file (optional).</span>
+<span class="n">mol</span> <span class="o">=</span> <span class="n">IOData</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">numbers</span><span class="o">=</span><span class="n">numbers</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;H Ring&#39;</span><span class="p">)</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;ring.xyz&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="specifying-the-basis-set">
+<span id="user-molecularham-basis"></span><h2>3.1.2. Specifying the basis set<a class="headerlink" href="#specifying-the-basis-set" title="Permalink to this headline">¶</a></h2>
+<p>HORTON supports basis sets consisting of generally contracted Cartesian Gaussian
+functions up to a maximum angular momentum of seven (I functions).
+HORTON is using the same basis set format as NWChem, and the basis sets can be
+downloaded from the EMSL webpage (<a class="reference external" href="https://bse.pnl.gov/bse/portal">https://bse.pnl.gov/bse/portal</a>).</p>
+<p>HORTON is distributed with most of the popular basis sets. A list of currently
+supported built-in basis sets can be found here:
+<a class="reference internal" href="tech_ref_gaussian_basis.html#ref-gaussian-basis-standard-sets"><span class="std std-ref">Standard basis sets</span></a>. The basis set for a given molecule is
+constructed with the function <a class="reference internal" href="lib/mod_horton_gbasis_gobasis.html#horton.gbasis.gobasis.get_gobasis" title="horton.gbasis.gobasis.get_gobasis"><code class="xref py py-func docutils literal"><span class="pre">get_gobasis()</span></code></a></p>
+<div class="section" id="unique-basis-set-for-all-atoms">
+<h3>3.1.2.1. Unique basis set for all atoms<a class="headerlink" href="#unique-basis-set-for-all-atoms" title="Permalink to this headline">¶</a></h3>
+<p>Usually, you want to define a unique (the same) basis set for the whole system.
+This can be done by a function call.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">obasis</span> <span class="o">=</span> <span class="n">get_gobasis</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">numbers</span><span class="p">,</span> <span class="s1">&#39;cc-pvdz&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal"><span class="pre">mol.coordinates</span></code> and <code class="docutils literal"><span class="pre">mol.numbers</span></code> are read from file (see
+<a class="reference internal" href="#read-molgeometry"><span class="std std-ref">Reading the molecular geometry from file</span></a>), and <code class="docutils literal"><span class="pre">cc-pvdz</span></code> is the cc-pVDZ basis set.</p>
+</div>
+<div class="section" id="specifying-different-basis-sets-for-different-atoms">
+<h3>3.1.2.2. Specifying different basis sets for different atoms<a class="headerlink" href="#specifying-different-basis-sets-for-different-atoms" title="Permalink to this headline">¶</a></h3>
+<p>In some cases, you may want to specify different basis sets for different atoms. For
+example, you might like to use the 3-21G basis set for the hydrogen atom, the
+6-31G basis set for the carbon atom, and STO-3G for all remaining atoms:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">obasis</span> <span class="o">=</span> <span class="n">get_gobasis</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">numbers</span><span class="p">,</span> <span class="s1">&#39;sto-3g&#39;</span><span class="p">,</span>
+                     <span class="n">element_map</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;H&#39;</span><span class="p">:</span><span class="s1">&#39;3-21g&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span><span class="s1">&#39;6-31g&#39;</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>where <cite>mol.coordinates</cite> and <cite>mol.numbers</cite> are read from file (see
+<a class="reference internal" href="#read-molgeometry"><span class="std std-ref">Reading the molecular geometry from file</span></a>),  and <code class="docutils literal"><span class="pre">sto-3g</span></code>, <code class="docutils literal"><span class="pre">3-21g</span></code> and <code class="docutils literal"><span class="pre">6-31g</span></code> are the basis
+set names (see <a class="reference internal" href="tech_ref_gaussian_basis.html#ref-gaussian-basis-standard-sets"><span class="std std-ref">Standard basis sets</span></a>)</p>
+<p>Alternatively, the same result can be obtained by substituting the H and C symbols
+with their atomic numbers:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">obasis</span> <span class="o">=</span> <span class="n">get_gobasis</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">numbers</span><span class="p">,</span> <span class="s1">&#39;sto-3g&#39;</span><span class="p">,</span>
+                     <span class="n">element_map</span><span class="o">=</span><span class="p">{</span><span class="mi">1</span><span class="p">:</span><span class="s1">&#39;3-21g&#39;</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span><span class="s1">&#39;6-31g&#39;</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>You can also override the default basis for selected atoms based on their index,
+i.e. position in the list of atoms that specify the molecule:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">obasis</span> <span class="o">=</span> <span class="n">get_gobasis</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">numbers</span><span class="p">,</span> <span class="s1">&#39;sto-3g&#39;</span><span class="p">,</span>
+                     <span class="n">index_map</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span><span class="s1">&#39;3-21g&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="s1">&#39;6-31g&#39;</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>The above example uses the <code class="docutils literal"><span class="pre">3-21g</span></code> basis for the first atom, the <code class="docutils literal"><span class="pre">6-31g</span></code>
+basis for the third atom and the <code class="docutils literal"><span class="pre">sto-3g</span></code> basis for all other atoms.</p>
+</div>
+<div class="section" id="loading-custom-basis-sets-from-file">
+<h3>3.1.2.3. Loading custom basis sets from file<a class="headerlink" href="#loading-custom-basis-sets-from-file" title="Permalink to this headline">¶</a></h3>
+<p>You can also use other basis sets besides the ones that are shipped with HORTON.
+It is assumed that the basis is available in NWChem format:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">mybasis</span> <span class="o">=</span> <span class="n">GOBasisFamily</span><span class="p">(</span><span class="s1">&#39;myname&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mybasis.nwchem&#39;</span><span class="p">),</span>
+<span class="n">obasis</span> <span class="o">=</span> <span class="n">get_gobasis</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">numbers</span><span class="p">,</span> <span class="n">mybasis</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Anywhere you can specify a built-in basis set with a string, you can also use
+instance of the <code class="docutils literal"><span class="pre">GOBasisFamily</span></code> class (<code class="docutils literal"><span class="pre">mybasis</span></code> in the example above), e.g.
+in the arguments <code class="docutils literal"><span class="pre">default</span></code>, <code class="docutils literal"><span class="pre">element_map</span></code> and <code class="docutils literal"><span class="pre">index_map</span></code> of
+<code class="docutils literal"><span class="pre">get_gobasis</span></code>.</p>
+</div>
+<div class="section" id="defining-basis-sets-with-python-code">
+<h3>3.1.2.4. Defining basis sets with Python code<a class="headerlink" href="#defining-basis-sets-with-python-code" title="Permalink to this headline">¶</a></h3>
+<p>In some circumstances, it may be useful to generate the basis set with some
+Python code. For example, the following code generates an even tempered basis
+for Lithium (without polarization functions):</p>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">data/examples/hamiltonian/even_tempered_li.py</span><a class="headerlink" href="#id3" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">horton</span> <span class="k">import</span> <span class="o">*</span>  <span class="c1"># pylint: disable=wildcard-import,unused-wildcard-import</span>
+
+
+<span class="c1"># specify the even tempered basis set</span>
+<span class="n">alpha_low</span> <span class="o">=</span> <span class="mf">5e-3</span>
+<span class="n">alpha_high</span> <span class="o">=</span> <span class="mf">5e2</span>
+<span class="n">nbasis</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="n">lnratio</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">alpha_high</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">alpha_low</span><span class="p">))</span><span class="o">/</span><span class="p">(</span><span class="n">nbasis</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># build a list of &quot;contractions&quot;. These aren&#39;t real contractions as every</span>
+<span class="c1"># contraction only contains one basis function.</span>
+<span class="n">bcs</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">ibasis</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">nbasis</span><span class="p">):</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha_low</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">lnratio</span> <span class="o">*</span> <span class="n">ibasis</span><span class="p">)</span>
+    <span class="c1"># arguments of GOBasisContraction:</span>
+    <span class="c1">#     shell_type, list of exponents, list of contraction coefficients</span>
+    <span class="n">bcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GOBasisContraction</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">alpha</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">])))</span>
+
+<span class="c1"># Finish setting up the basis set:</span>
+<span class="n">ba</span> <span class="o">=</span> <span class="n">GOBasisAtom</span><span class="p">(</span><span class="n">bcs</span><span class="p">)</span>
+<span class="n">obasis</span> <span class="o">=</span> <span class="n">get_gobasis</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">3</span><span class="p">]),</span> <span class="n">default</span><span class="o">=</span><span class="n">ba</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>All basis functions in this example are just single s-type primitives, i.e. no
+contactions are used. At the end of the example, the basis set is constructed
+for a single Li atom in the origin.</p>
+<p>Note that <code class="docutils literal"><span class="pre">get_gobasis</span></code> also accepts instances of GOBasisAtom for the
+arguments <code class="docutils literal"><span class="pre">default</span></code>, <code class="docutils literal"><span class="pre">element_map</span></code> and <code class="docutils literal"><span class="pre">index_map</span></code>.</p>
+</div>
+<div class="section" id="loading-geometry-and-basis-set-info-from-one-file">
+<span id="user-molecularham-geom-and-basis"></span><h3>3.1.2.5. Loading geometry and basis set info from one file<a class="headerlink" href="#loading-geometry-and-basis-set-info-from-one-file" title="Permalink to this headline">¶</a></h3>
+<p>When post-processing results from other programs, it may be desirable to use
+exactly the same basis set that was used in the other program (Gaussian, ORCA,
+PSI4, etc). This can be achieved by loading the geometry, basis set and
+wavefunction from one of the following formats: <code class="docutils literal"><span class="pre">.mkl</span></code>, <code class="docutils literal"><span class="pre">.molden</span></code>,
+<code class="docutils literal"><span class="pre">.fchk</span></code>, or HORTON’s internal <code class="docutils literal"><span class="pre">.h5</span></code> format. In principle, it is also
+possible to load the basis set from a <code class="docutils literal"><span class="pre">.wfn</span></code> file, but keep in mind that this
+format does not support contracted basis functions, so HORTON will then use a
+decontracted basis set, which is less efficient.</p>
+<p>You simply use the <code class="docutils literal"><span class="pre">IOData.from_file</span></code> method to load the file. The orbital
+basis object is then available in the <code class="docutils literal"><span class="pre">obasis</span></code> attribute if the return value.
+For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Load the geometry, orbital basis and wavefunction from a Gaussian</span>
+<span class="c1"># formatted checkpoint file:</span>
+<span class="n">mol</span> <span class="o">=</span> <span class="n">IOData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;water.fchk&#39;</span><span class="p">)</span>
+
+<span class="c1"># Print the number of basis functions</span>
+<span class="k">print</span> <span class="n">mol</span><span class="o">.</span><span class="n">obasis</span><span class="o">.</span><span class="n">nbasis</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="computing-hamiltonian-matrix-elements">
+<span id="user-molecularham-matrix-elements"></span><h2>3.1.3. Computing (Hamiltonian) matrix elements<a class="headerlink" href="#computing-hamiltonian-matrix-elements" title="Permalink to this headline">¶</a></h2>
+<p>Given a <code class="docutils literal"><span class="pre">GOBasis</span></code> instance (the <code class="docutils literal"><span class="pre">obasis</span></code> object from the
+examples in the previous section), you can generate the two-index and four-index
+objects for the molecular electronic Hamiltonian. It may also be useful to
+construct the overlap operator as the Gaussian basis sets are not orthonormal.</p>
+<p>Before computing the matrix elements, you first have to specify how the two- and four-index
+objects will be represented. By default, HORTON uses a dense
+matrix representation, which is implemented in the <code class="docutils literal"><span class="pre">DenseLinalgFactory</span></code> class.
+An instance of this class must be passed to the methods that compute the matrix
+elements. Alternatively, you may also use the <code class="docutils literal"><span class="pre">CholeskyLinalgFactory</span></code>, which
+represents all four-index objects with a Cholesky decomposition. Note that
+the four-center electron-repulsion integrals are computed with LibInt
+<a class="reference internal" href="tech_ref_literature.html#valeev2014" id="id1">[valeev2014]</a>.</p>
+<p>This is a basic example, assuming some of the preceding code has created the
+<code class="docutils literal"><span class="pre">obasis</span></code> object:</p>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-text">data/examples/hf_dft/rhf_water_dense.py, lines 22–29</span><a class="headerlink" href="#id4" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Create a linalg factory</span>
+<span class="n">lf</span> <span class="o">=</span> <span class="n">DenseLinalgFactory</span><span class="p">(</span><span class="n">obasis</span><span class="o">.</span><span class="n">nbasis</span><span class="p">)</span>
+
+<span class="c1"># Compute Gaussian integrals</span>
+<span class="n">olp</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_overlap</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+<span class="n">kin</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_kinetic</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+<span class="n">na</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_nuclear_attraction</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">,</span> <span class="n">lf</span><span class="p">)</span>
+<span class="n">er</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_electron_repulsion</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>For the nuclear attraction integrals, you also have to specify arrays with atomic
+coordinates and nuclear charges.</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="user_hamiltonian_model.html" class="btn btn-neutral float-right" title="3.2. Defining a model Hamiltonian" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="user_hamiltonian.html" class="btn btn-neutral" title="3. Hamiltonians" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.0 built from release 2.1.0 (Jul 06, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jul 06, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.1.0 (Jul 06, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

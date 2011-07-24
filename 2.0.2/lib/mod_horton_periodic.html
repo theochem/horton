@@ -1,0 +1,479 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.1.9. horton.periodic – Periodic table of elements &mdash; HORTON 2.0.2 (Jun 30, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="HORTON 2.0.2 (Jun 30, 2017) documentation" href="../index.html"/>
+        <link rel="up" title="3.1. horton – The main HORTON Package" href="pck_horton.html"/>
+        <link rel="next" title="3.1.10. horton.quadprog – A light-weight quadratic programming solver" href="mod_horton_quadprog.html"/>
+        <link rel="prev" title="3.1.8. horton.orbital_utils – Utility functions for orbital modifications" href="mod_horton_orbital_utils.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> – The main HORTON Package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_cache.html">3.1.1. <code class="docutils literal"><span class="pre">horton.cache</span></code> – Avoid recomputation of earlier results and reallocation of existing arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_cext.html">3.1.2. <code class="docutils literal"><span class="pre">horton.cext</span></code> – C++ extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_constants.html">3.1.3. <code class="docutils literal"><span class="pre">horton.constants</span></code> – Physicochemical constants in atomic units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_context.html">3.1.4. <code class="docutils literal"><span class="pre">horton.context</span></code> – The context in which HORTON is used</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_exceptions.html">3.1.5. <code class="docutils literal"><span class="pre">horton.exceptions</span></code> – Definition of all excpetions in HORTON</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_log.html">3.1.6. <code class="docutils literal"><span class="pre">horton.log</span></code> – Screen logging, timing and citation management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_moments.html">3.1.7. <code class="docutils literal"><span class="pre">horton.moments</span></code> – Auxiliary routines related to multipole moments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_orbital_utils.html">3.1.8. <code class="docutils literal"><span class="pre">horton.orbital_utils</span></code> – Utility functions for orbital modifications</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.1.9. <code class="docutils literal"><span class="pre">horton.periodic</span></code> – Periodic table of elements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_quadprog.html">3.1.10. <code class="docutils literal"><span class="pre">horton.quadprog</span></code> – A light-weight quadratic programming solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_symmetry.html">3.1.11. <code class="docutils literal"><span class="pre">horton.symmetry</span></code> – Geometric symmetries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_units.html">3.1.12. <code class="docutils literal"><span class="pre">horton.units</span></code> – Conversion from and to atomic units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_utils.html">3.1.13. <code class="docutils literal"><span class="pre">horton.utils</span></code> – Utility functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_cell_h.html">3.1.14. <code class="docutils literal"><span class="pre">horton/cell.h</span></code> – Unit cell code to specify periodic boundary conditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_moments_h.html">3.1.15. <code class="docutils literal"><span class="pre">horton/moments.h</span></code> – Efficient evaluation of various of polynomials</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_nucpot_h.html">3.1.16. <code class="docutils literal"><span class="pre">horton/nucpot.h</span></code> – Low-level implementation of nuclear potential on a grid</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_correlatedwfn.html">3.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn</span></code> – Methods for correlated wavefunctions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.3. <code class="docutils literal"><span class="pre">horton.espfit</span></code> – Electrostatic potential fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_gbasis.html">3.4. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.5. <code class="docutils literal"><span class="pre">horton.grid</span></code> – Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.6. <code class="docutils literal"><span class="pre">horton.io</span></code> – Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_localization.html">3.7. <code class="docutils literal"><span class="pre">horton.localization</span></code> – Methods for orbital localization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.8. <code class="docutils literal"><span class="pre">horton.matrix</span></code> – One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.9. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> – Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.10. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> – Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_orbital_entanglement.html">3.11. <code class="docutils literal"><span class="pre">horton.orbital_entanglement</span></code> – Methods for measuring orbital entanglement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.12. <code class="docutils literal"><span class="pre">horton.part</span></code> – Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.13. <code class="docutils literal"><span class="pre">horton.scripts</span></code> – Code (solely) used by HORTON’s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+        
+          <li><a href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> – The main HORTON Package</a> &raquo;</li>
+        
+      <li>3.1.9. <code class="docutils literal"><span class="pre">horton.periodic</span></code> – Periodic table of elements</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/lib/mod_horton_periodic.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-horton.periodic">
+<span id="horton-periodic-periodic-table-of-elements"></span><h1>3.1.9. <code class="docutils literal"><span class="pre">horton.periodic</span></code> – Periodic table of elements<a class="headerlink" href="#module-horton.periodic" title="Permalink to this headline">¶</a></h1>
+<p>This module contains an object <code class="docutils literal"><span class="pre">periodic</span></code> that can be used as a Pythonic
+periodic table. It can be used as follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">horton</span> <span class="k">import</span> <span class="n">periodic</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">periodic</span><span class="p">[</span><span class="s1">&#39;si&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">number</span>
+<span class="go">14</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">periodic</span><span class="p">[</span><span class="s1">&#39;He&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">number</span>
+<span class="go">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">periodic</span><span class="p">[</span><span class="s1">&#39;h&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">symbol</span>
+<span class="go">&#39;H&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">periodic</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">symbol</span>
+<span class="go">&#39;Li&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">periodic</span><span class="p">[</span><span class="s1">&#39;5&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">symbol</span>
+<span class="go">&#39;B&#39;</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="horton.periodic.Element">
+<em class="property">class </em><code class="descclassname">horton.periodic.</code><code class="descname">Element</code><span class="sig-paren">(</span><em>number=None</em>, <em>symbol=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.periodic.Element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Represents an element from the periodic table.</p>
+<p>The following attributes are supported for all elements:</p>
+<dl class="docutils">
+<dt>number</dt>
+<dd>The atomic number.</dd>
+<dt>symbol</dt>
+<dd>A string with the symbol of the element.</dd>
+<dt>name</dt>
+<dd>The full element name.</dd>
+<dt>group</dt>
+<dd>The group of the element (not for actinides and lanthanides).</dd>
+<dt>period</dt>
+<dd>The row of the periodic system.</dd>
+</dl>
+<p>The following attributes are present for some elements. When a parameter
+is not known for a given element, the attribute is set to None.</p>
+<dl class="docutils">
+<dt>cov_radius_cordero</dt>
+<dd>Covalent radius. B. Cordero, V. Gomez, A. E. Platero-Prats, M.
+Reves, J. Echeverria, E. Cremades, F. Barragan, and S. Alvarez,
+Dalton Trans. pp. 2832–2838 (2008), URL
+<a class="reference external" href="http://dx.doi.org/10.1039/b801115j">http://dx.doi.org/10.1039/b801115j</a></dd>
+<dt>cov_radius_bragg</dt>
+<dd>Covalent radius. W. L. Bragg, Phil. Mag. 40, 169 (1920), URL
+<a class="reference external" href="http://dx.doi.org/10.1080/14786440808636111">http://dx.doi.org/10.1080/14786440808636111</a></dd>
+<dt>cov_radius_slater</dt>
+<dd>Covalent radius. J. C. Slater, J. Chem. Phys. 41, 3199 (1964), URL
+<a class="reference external" href="http://dx.doi.org/10.1063/1.1725697">http://dx.doi.org/10.1063/1.1725697</a></dd>
+<dt>vdw_radius_bondi</dt>
+<dd>van der Waals radius. A. Bondi, J. Phys. Chem. 68, 441 (1964), URL
+<a class="reference external" href="http://dx.doi.org/10.1021/j100785a001">http://dx.doi.org/10.1021/j100785a001</a></dd>
+<dt>vdw_radius_truhlar</dt>
+<dd>van der Waals radius. M. Mantina A. C. Chamberlin R. Valero C. J.
+Cramer D. G. Truhlar J. Phys. Chem. A 113 5806 (2009), URL
+<a class="reference external" href="http://dx.doi.org/10.1021/jp8111556">http://dx.doi.org/10.1021/jp8111556</a></dd>
+<dt>vdw_radius_rt</dt>
+<dd>van der Waals radius. R. S. Rowland and R. Taylor, J. Phys. Chem.
+100, 7384 (1996), URL <a class="reference external" href="http://dx.doi.org/10.1021/jp953141+">http://dx.doi.org/10.1021/jp953141+</a></dd>
+<dt>vdw_radius_batsanov</dt>
+<dd>van der Waals radius. S. S. Batsanov Inorganic Materials 37 871
+(2001), URL <a class="reference external" href="http://dx.doi.org/10.1023/a%3a1011625728803">http://dx.doi.org/10.1023/a%3a1011625728803</a></dd>
+<dt>vdw_radius_dreiding</dt>
+<dd>van der Waals radius. Stephen L. Mayo, Barry D. Olafson, and William
+A. Goddard III J. Phys. Chem. 94 8897 (1990), URL
+<a class="reference external" href="http://dx.doi.org/10.1021/j100389a010">http://dx.doi.org/10.1021/j100389a010</a></dd>
+<dt>vdw_radius_uff</dt>
+<dd>van der Waals radius. A. K. Rappi, C. J. Casewit, K. S. Colwell, W.
+A. Goddard III, and W. M. Skid J. Am. Chem. Soc. 114 10024 (1992),
+URL <a class="reference external" href="http://dx.doi.org/10.1021/ja00051a040">http://dx.doi.org/10.1021/ja00051a040</a></dd>
+<dt>vdw_radius_mm3</dt>
+<dd>van der Waals radius. N. L. Allinger, X. Zhou, and J. Bergsma,
+Journal of Molecular Structure: THEOCHEM 312, 69 (1994),
+<a class="reference external" href="http://dx.doi.org/10.1016/s0166-1280(09)80008-0">http://dx.doi.org/10.1016/s0166-1280(09)80008-0</a></dd>
+<dt>wc_radius</dt>
+<dd>Waber-Cromer radius of the outermost orbital maximum. J. T. Waber
+and D. T. Cromer, J. Chem. Phys. 42, 4116 (1965), URL
+<a class="reference external" href="http://dx.doi.org/10.1063/1.1695904">http://dx.doi.org/10.1063/1.1695904</a></dd>
+<dt>cr_radius</dt>
+<dd>Clementi-Raimondi radius. E. Clementi, D. L. Raimondi, W. P.
+Reinhardt, J. Chem. Phys. 47, 1300 (1967), URL
+<a class="reference external" href="http://dx.doi.org/10.1063/1.1712084">http://dx.doi.org/10.1063/1.1712084</a></dd>
+<dt>pold_crc</dt>
+<dd>Isolated atom dipole polarizability. CRC Handbook of Chemistry and
+Physics (CRC, Boca Raton, FL, 2003). If multiple values were present
+in the CRC book, the value used in Erin’s postg code is taken.</dd>
+<dt>pold_chu</dt>
+<dd>Isolated atom dipole polarizability. X. Chu &amp; A. Dalgarno, J. Chem.
+Phys., 121(9), 4083–4088 (2004), URL
+<a class="reference external" href="http://dx.doi.org/10.1063/1.1779576">http://dx.doi.org/10.1063/1.1779576</a> Theoretical value for hydrogen
+from this paper: A.D. Buckingham, K.L. Clarke; Chem. Phys. Lett.
+57(3), 321–325 (1978), URL
+<a class="reference external" href="http://dx.doi.org/10.1016/0009-2614(78)85517-1">http://dx.doi.org/10.1016/0009-2614(78)85517-1</a></dd>
+<dt>c6_chu</dt>
+<dd>Isolated atom C_6 dispersion coefficient. X. Chu &amp; A. Dalgarno, J. Chem.
+Phys., 121(9), 4083–4088 (2004), URL
+<a class="reference external" href="http://dx.doi.org/10.1063/1.1779576">http://dx.doi.org/10.1063/1.1779576</a> Theoretical value for hydrogen
+from this paper: K. T. Tang, J. M. Norbeck and P. R. Certain; J.
+Chem. Phys. 64, 3063 (1976), URL #
+<a class="reference external" href="http://dx.doi.org/10.1063/1.432569">http://dx.doi.org/10.1063/1.432569</a></dd>
+<dt>mass</dt>
+<dd>The IUPAC atomic masses (wieghts) of 2013.
+T.B. Coplen, W.A. Brand, J. Meija, M. Gröning, N.E. Holden, M.
+Berglund, P. De Bièvre, R.D. Loss, T. Prohaska, and T. Walczyk.
+<a class="reference external" href="http://ciaaw.org">http://ciaaw.org</a>, <a class="reference external" href="http://www.ciaaw.org/pubs/TSAW2013_xls.xls">http://www.ciaaw.org/pubs/TSAW2013_xls.xls</a>,
+When ranges are provided, the middle of the range is used.</dd>
+</dl>
+<p>The following attributes are derived from the data given above:</p>
+<dl class="docutils">
+<dt>cov_radius:</dt>
+<dd><div class="first last line-block">
+<div class="line">equals cov_radius_cordero</div>
+</div>
+</dd>
+<dt>vdw_radius:</dt>
+<dd><div class="first last line-block">
+<div class="line">vdw_radius_truhlar if present</div>
+<div class="line">else vdw_radius_bondi if present</div>
+<div class="line">else vdw_radius_batsanov if present</div>
+<div class="line">else vdw_radius_mm3 if present</div>
+<div class="line">else None</div>
+</div>
+</dd>
+<dt>becke_radius:</dt>
+<dd><div class="first last line-block">
+<div class="line">cov_radius_slater if present</div>
+<div class="line">else cov_radius_cordero if present</div>
+<div class="line">else None</div>
+</div>
+</dd>
+<dt>pold:</dt>
+<dd><div class="first last line-block">
+<div class="line">pold_crc</div>
+</div>
+</dd>
+<dt>c6:</dt>
+<dd><div class="first last line-block">
+<div class="line">c6_chu</div>
+</div>
+</dd>
+</dl>
+<dl class="method">
+<dt id="horton.periodic.Element.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>number=None</em>, <em>symbol=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.periodic.Element.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.periodic.Periodic">
+<em class="property">class </em><code class="descclassname">horton.periodic.</code><code class="descname">Periodic</code><span class="sig-paren">(</span><em>elements</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.periodic.Periodic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>elements</dt>
+<dd>A list of <a class="reference internal" href="#horton.periodic.Element" title="horton.periodic.Element"><code class="xref py py-class docutils literal"><span class="pre">Element</span></code></a> instances.</dd>
+</dl>
+<dl class="method">
+<dt id="horton.periodic.Periodic.__getitem__">
+<code class="descname">__getitem__</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.periodic.Periodic.__getitem__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an element from the table based on a flexible index.</p>
+<p><strong>Argument:</strong></p>
+<dl class="docutils">
+<dt>index</dt>
+<dd>This can be either an integer atomic number, a string with the
+elemental symbol (any case), or a string with the atomic number.</dd>
+</dl>
+<p><strong>Returns:</strong> the corresponding <a class="reference internal" href="#horton.periodic.Element" title="horton.periodic.Element"><code class="xref py py-class docutils literal"><span class="pre">Element</span></code></a> instance</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.periodic.Periodic.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>elements</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.periodic.Periodic.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>elements</dt>
+<dd>A list of <a class="reference internal" href="#horton.periodic.Element" title="horton.periodic.Element"><code class="xref py py-class docutils literal"><span class="pre">Element</span></code></a> instances.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_quadprog.html" class="btn btn-neutral float-right" title="3.1.10. horton.quadprog – A light-weight quadratic programming solver" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_orbital_utils.html" class="btn btn-neutral" title="3.1.8. horton.orbital_utils – Utility functions for orbital modifications" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.2 built from release 2.0.2 (Jun 30, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 30, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.0.2 (Jun 30, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

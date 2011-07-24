@@ -1,0 +1,694 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>1.1. HORTON Development with Git &mdash; HORTON 2.1.0 (Jul 06, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="HORTON 2.1.0 (Jul 06, 2017) documentation" href="index.html"/>
+        <link rel="up" title="1. Developer Documentation" href="tech_dev.html"/>
+        <link rel="next" title="1.2. Branch review checklist" href="tech_dev_checklist.html"/>
+        <link rel="prev" title="1. Developer Documentation" href="tech_dev.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1.1. HORTON Development with Git</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#additional-steps-required-to-build-the-development-version-of-horton">1.1.1. Additional steps required to build the development version of HORTON</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#reference-atoms">1.1.1.1. Reference atoms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#other-development-tools">1.1.1.2. Other development tools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#building-the-documentation">1.1.1.3. Building the documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">1.1.2. Git</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#git-configuration">1.1.2.1. Git configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#some-terminology">1.1.2.2. Some terminology</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cloning-the-horton-git-repository">1.1.2.3. Cloning the HORTON git repository</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#work-flow-for-adding-a-new-feature">1.1.3. Work flow for adding a new feature</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#develop-the-feature-in-a-topic-branch">1.1.3.1. Develop the feature in a topic branch</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#make-your-branch-available-for-review-with-a-pull-request-pr">1.1.3.2. Make your branch available for review with a pull request (PR)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#merging-your-pull-request-with-the-master-branch">1.1.3.3. Merging your pull request with the master branch</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#common-issues">1.1.4. Common issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_checklist.html">1.2. Branch review checklist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_documentation.html">1.3. Writing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_unit_tests.html">1.4. Writing unit tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_examples.html">1.5. Writing examples scripts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_citing_papers.html">1.6. Citing scientific work</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_cython.html">1.7. Accelerating HORTON code with Cython</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="tech_dev.html">1. Developer Documentation</a> &raquo;</li>
+        
+      <li>1.1. HORTON Development with Git</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/tech_dev_git.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="horton-development-with-git">
+<h1>1.1. HORTON Development with Git<a class="headerlink" href="#horton-development-with-git" title="Permalink to this headline">¶</a></h1>
+<p>HORTON uses <a class="reference external" href="http://git-scm.com/">Git</a> for version control.</p>
+<p>A version control systems (VCS) allows many people to copy and modify the same source code
+while keeping track of all changes made. The VCS software also helps you merge different
+developments into one common source tree.</p>
+<p>This section goes through the basics of VCSs to get you started with a developer
+installation of HORTON. When working on a development version of HORTON, most of the
+<a class="reference internal" href="user_download_and_install.html#user-download-and-install"><span class="std std-ref">Download and Installation</span></a> instructions for released versions of HORTON are still
+applicable, except for some additional steps explained below.</p>
+<div class="section" id="additional-steps-required-to-build-the-development-version-of-horton">
+<h2>1.1.1. Additional steps required to build the development version of HORTON<a class="headerlink" href="#additional-steps-required-to-build-the-development-version-of-horton" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="reference-atoms">
+<h3>1.1.1.1. Reference atoms<a class="headerlink" href="#reference-atoms" title="Permalink to this headline">¶</a></h3>
+<p>Several parts of HORTON make use of reference atomic computations. These files
+are too large to be included in the git revision system. Therefore, they must be
+downloaded separately when compiling a development version of HORTON:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="o">(</span><span class="nb">cd</span> data/refatoms<span class="p">;</span> make all<span class="o">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="other-development-tools">
+<h3>1.1.1.2. Other development tools<a class="headerlink" href="#other-development-tools" title="Permalink to this headline">¶</a></h3>
+<p>If you want to contribute to the development of HORTON, the following tools will be
+convenient:</p>
+<ul class="simple">
+<li>Sympy &gt;=0.7.1: <a class="reference external" href="http://code.google.com/p/sympy/">http://code.google.com/p/sympy/</a></li>
+<li>PyLint &gt;=1.5.0: <a class="reference external" href="https://www.pylint.org/">https://www.pylint.org/</a></li>
+<li>pycodestyle &gt;=2.0.0: <a class="reference external" href="http://pycodestyle.readthedocs.io/">http://pycodestyle.readthedocs.io/</a></li>
+<li>pydocstyle &gt;=1.0.0: <a class="reference external" href="http://pydocstyle.readthedocs.io/">http://pydocstyle.readthedocs.io/</a></li>
+<li>coverage &gt;=4.1: <a class="reference external" href="https://coverage.readthedocs.io/">https://coverage.readthedocs.io/</a></li>
+<li>Cppcheck &gt;=1.73: <a class="reference external" href="http://cppcheck.sourceforge.net/">http://cppcheck.sourceforge.net/</a></li>
+<li>Git &gt;=1.8: <a class="reference external" href="https://git-scm.com/">https://git-scm.com/</a></li>
+<li>GitPython &gt;=2.0.5: <a class="reference external" href="http://gitpython.readthedocs.io/">http://gitpython.readthedocs.io/</a></li>
+</ul>
+<p>For the python development tools, we generally recommend installing the latest versions
+with <code class="docutils literal"><span class="pre">pip</span></code>.</p>
+<p><strong>Ubuntu Linux 16.04</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo apt-get install python-sympy cppcheck git
+pip install --user --upgrade pylint pycodestyle pydocstyle coverage GitPython
+</pre></div>
+</div>
+<p><strong>Ubuntu Linux 15.04 and 14.04</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo apt-get install python-sympy cppcheck git
+pip install --user --upgrade pylint pycodestyle pydocstyle coverage GitPython
+</pre></div>
+</div>
+<p><strong>Fedora Linux 24 and up</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo dnf install sympy cppcheck git
+pip install --user --upgrade pylint pycodestyle pydocstyle coverage GitPython
+</pre></div>
+</div>
+<p><strong>Fedora Linux 22 and 23</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo dnf install sympy cppcheck git
+pip install --user --upgrade pylint pycodestyle pydocstyle coverage GitPython
+</pre></div>
+</div>
+<p><strong>MacPorts</strong></p>
+<p>These are the required ports:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">py27-sympy</span></code>: <a class="reference external" href="https://trac.macports.org/browser/trunk/dports/python/py-sympy/Portfile">https://trac.macports.org/browser/trunk/dports/python/py-sympy/Portfile</a></li>
+<li><code class="docutils literal"><span class="pre">cppcheck</span></code>: <a class="reference external" href="https://trac.macports.org/browser/trunk/dports/devel/cppcheck/Portfile">https://trac.macports.org/browser/trunk/dports/devel/cppcheck/Portfile</a></li>
+<li><code class="docutils literal"><span class="pre">git</span></code>: <a class="reference external" href="https://trac.macports.org/browser/trunk/dports/devel/git/Portfile">https://trac.macports.org/browser/trunk/dports/devel/git/Portfile</a></li>
+</ul>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo port install py27-sympy<span class="p">;</span> sudo port <span class="k">select</span> --set py-sympy py27-sympy
+sudo port install cppcheck
+sudo port install git
+pip install --user --upgrade pylint pycodestyle pydocstyle coverage GitPython
+</pre></div>
+</div>
+</div>
+<div class="section" id="building-the-documentation">
+<h3>1.1.1.3. Building the documentation<a class="headerlink" href="#building-the-documentation" title="Permalink to this headline">¶</a></h3>
+<p>If you are interested in generating the documentation from source, the following
+packages are also needed:</p>
+<ul class="simple">
+<li>Sphinx &gt;=1.3.1: <a class="reference external" href="http://sphinx.pocoo.org/">http://sphinx.pocoo.org/</a></li>
+<li>Sphinx Read-The-Docs theme &gt;=0.1.8: <a class="reference external" href="https://github.com/snide/sphinx_rtd_theme">https://github.com/snide/sphinx_rtd_theme</a></li>
+<li>Doxygen &gt;=1.8.6: <a class="reference external" href="http://www.doxygen.org/">http://www.doxygen.org/</a></li>
+<li>Breathe &gt;=1.2.0,!=4.4.*,!=4.5.*,!=4.6.*: <a class="reference external" href="http://breathe.readthedocs.org/en/latest/">http://breathe.readthedocs.org/en/latest/</a></li>
+<li>Docutils &gt;=0.11: <a class="reference external" href="http://docutils.sourceforge.net/">http://docutils.sourceforge.net/</a></li>
+</ul>
+<p>These can be installed as follows.</p>
+<p><strong>Ubuntu Linux 16.04</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo apt-get install python-sphinx python-sphinx-rtd-theme doxygen <span class="se">\</span>
+            python-docutils
+</pre></div>
+</div>
+<p><strong>Ubuntu Linux 15.04 and 14.04</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo apt-get install doxygen python-docutils
+pip install --user --upgrade sphinx sphinx_rtd_theme breathe
+</pre></div>
+</div>
+<p><strong>Fedora Linux 24</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo dnf install python2-sphinx python2-sphinx_rtd_theme doxygen <span class="se">\</span>
+            python2-breathe python-docutils
+</pre></div>
+</div>
+<p><strong>Fedora Linux 22 and 23</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo dnf install doxygen python-docutils
+pip install --user --upgrade sphinx sphinx_rtd_theme breathe
+</pre></div>
+</div>
+<p><strong>MacPorts</strong></p>
+<p>These are the required ports</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">doxygen</span></code>: <a class="reference external" href="https://trac.macports.org/browser/trunk/dports/textproc/doxygen/Portfile">https://trac.macports.org/browser/trunk/dports/textproc/doxygen/Portfile</a></li>
+</ul>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo port install doxygen
+pip install --user --upgrade sphinx sphinx_rtd_theme breathe
+</pre></div>
+</div>
+<p>You must also manually build LibXC as explained in <a class="reference internal" href="user_download_and_install_linux.html#linux-manual-dependency-install"><span class="std std-ref">From-source dependencies for building, installing and testing HORTON</span></a>,
+to generate the list of DFT functionals in the documentation.</p>
+<p>The documentation is compiled and viewed as follows:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="o">(</span><span class="nb">cd</span> doc<span class="p">;</span> make html<span class="p">;</span> firefox _build/html/index.html<span class="o">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id1">
+<h2>1.1.2. Git<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="git-configuration">
+<h3>1.1.2.1. Git configuration<a class="headerlink" href="#git-configuration" title="Permalink to this headline">¶</a></h3>
+<p>We recommend you to set the following in your <code class="docutils literal"><span class="pre">~/.gitconfig</span></code> file:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="k">[user]</span>
+    <span class="na">name</span> <span class="o">=</span> <span class="s">{Replace by your official name: First M. Last}</span>
+<span class="s">    email = {Replace by a decent e-mail address, cfr. corresponding author on a paper.}</span>
+
+<span class="k">[color]</span>
+    <span class="na">diff</span> <span class="o">=</span> <span class="s">auto</span>
+<span class="s">    status = auto</span>
+<span class="s">    interactive = auto</span>
+<span class="s">    branch = auto</span>
+
+<span class="k">[push]</span>
+    <span class="na">default</span> <span class="o">=</span> <span class="s">simple</span>
+</pre></div>
+</div>
+<p>Also, install our pre-commit script as follows:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>cp -a tools/qa/check_commits.py .git/hooks/pre-commit
+</pre></div>
+</div>
+<p>This hook imposes some baseline quality checks on each commit.</p>
+<p>Furthermore, it is useful to include the current branch in your shell prompt. To
+do so, put one of the following in your <code class="docutils literal"><span class="pre">~/.bashrc</span></code> (Linux) or
+<code class="docutils literal"><span class="pre">~/.bash_profile</span></code> (Mac OS X) file:</p>
+<ul>
+<li><p class="first">For terminals with a dark background:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nv">GIT_PS</span><span class="o">=</span><span class="s1">&#39;$(__git_ps1 &quot;:%s&quot;)&#39;</span>
+<span class="nb">export</span> <span class="nv">PS1</span><span class="o">=</span><span class="s2">&quot;\[\033[1;32m\]\u@\h\[\033[00m\] \[\033[1;34m\]\w\[\033[00m\]\[\033[1;33m\]</span><span class="si">${</span><span class="nv">GIT_PS</span><span class="si">}</span><span class="s2">\[\033[1;34m\]&gt;\[\033[00m\] &quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">For terminals with a light background:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nv">GIT_PS</span><span class="o">=</span><span class="s1">&#39;$(__git_ps1 &quot;:%s&quot;)&#39;</span>
+<span class="nb">export</span> <span class="nv">PS1</span><span class="o">=</span><span class="s2">&quot;\[\033[2;32m\]\u@\h\[\033[00m\]:\[\033[2;34m\]\w\[\033[3;31m\]</span><span class="si">${</span><span class="nv">GIT_PS</span><span class="si">}</span><span class="s2">\[\033[00m\]</span>$<span class="s2"> &quot;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>You can customize it to your taste. You may also want to add the <code class="docutils literal"><span class="pre">export</span>
+<span class="pre">PROMPT_DIRTRIM=3</span></code> line to keep the shell prompt short. If you are a happy <code class="docutils literal"><span class="pre">vim</span></code>
+user, you can set <code class="docutils literal"><span class="pre">export</span> <span class="pre">EDITOR=vim</span></code> to get syntax highlighting when writing
+commit messages.</p>
+</div>
+<div class="section" id="some-terminology">
+<h3>1.1.2.2. Some terminology<a class="headerlink" href="#some-terminology" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt>Patch</dt>
+<dd>A set of changes in the source code. These are typically recorded in a
+<cite>patch</cite> file. Such a file specifies a set of lines that are removed and
+a set of lines that are added.</dd>
+<dt><a class="reference external" href="http://en.wikipedia.org/wiki/SHA-1">SHA-1</a> hash</dt>
+<dd>A <cite>numerical</cite> checksum of a given length in bytes (in this case 256) for a
+much larger amount of data, e.g. a very long character string. There are usually
+two main goals when designing hashing algorithms: (i) it is not possible to
+derive the original data from a hash and (ii) a small change in the original
+data completely changes the hash. The <a class="reference external" href="http://en.wikipedia.org/wiki/MD5">MD5</a> checksum is well known and often used
+for CD images, but it is not great in terms of the above two hashing
+objectives.</dd>
+<dt>Commit</dt>
+<dd>A patch with some extra information: author, timestamp, a SHA-1 hash of the
+code to which it applies, and some other things.</dd>
+<dt>Branch</dt>
+<dd><p class="first">A series of commits that describe the history of the source code.</p>
+<p class="last">In realistic projects, the source code history is not linear, but contains
+many deviations from the <code class="docutils literal"><span class="pre">master</span></code> branch where people try to implement a
+new feature. It is, however, useful to have only one official linear history.
+We will show below how this can be done with git.</p>
+</dd>
+<dt>Branch HEAD</dt>
+<dd>The last commit in a branch.</dd>
+</dl>
+</div>
+<div class="section" id="cloning-the-horton-git-repository">
+<h3>1.1.2.3. Cloning the HORTON git repository<a class="headerlink" href="#cloning-the-horton-git-repository" title="Permalink to this headline">¶</a></h3>
+<p>In order to <cite>clone</cite> the public HORTON repository, run the following commands:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>mkdir ~/code
+<span class="nb">cd</span> ~/code
+git clone git://github.com/theochem/horton.git
+<span class="nb">cd</span> horton
+</pre></div>
+</div>
+<p>The version history can be updated with the latest committed patches on GitHub by:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>git pull
+</pre></div>
+</div>
+<p>There is also a web interface to HORTON’s git repository:
+<a class="reference external" href="https://github.com/theochem/horton">https://github.com/theochem/horton</a></p>
+</div>
+</div>
+<div class="section" id="work-flow-for-adding-a-new-feature">
+<span id="ref-build-refatoms"></span><h2>1.1.3. Work flow for adding a new feature<a class="headerlink" href="#work-flow-for-adding-a-new-feature" title="Permalink to this headline">¶</a></h2>
+<p>The development of a new feature typically consists of the following steps:</p>
+<ol class="arabic simple">
+<li>You make modifications of the code in a topic branch. You test and document your
+modifications, fix problems where needed.</li>
+<li>Make a pull request on Github. (Some tests will be automatically executed.) Someone
+will review your pull request, which usually leads to suggestions to improve
+your modifications.</li>
+<li>As soon as you pull request is up to snuff, it will be merged into the master branch.</li>
+</ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Try to keep the amount of work in one branch as low as possible and get it
+reviewed/merged as early as possible. This takes some planning, as you have to
+figure out how to break your big plans up into smaller steps. In general
+this is a good exercise that will help you write more modular code.
+Although this seems to be cumbersome, it does save time for everyone involved.</p>
+</div>
+<p>When you intend to make relatively large modifications, it is recommended to discuss these
+first, e.g. on the <a class="reference external" href="https://groups.google.com/forum/#!forum/horton-discuss">HORTON mailing list</a>, just to avoid disapointments
+in the long run.</p>
+<div class="section" id="develop-the-feature-in-a-topic-branch">
+<h3>1.1.3.1. Develop the feature in a topic branch<a class="headerlink" href="#develop-the-feature-in-a-topic-branch" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic" start="0">
+<li><p class="first"><a class="reference external" href="https://help.github.com/articles/fork-a-repo">Fork</a> the public HORTON repository on
+Github (if not done yet), clone it on your local machine and enter the source tree:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ~/code&gt; git clone https://github.com/your_account/horton.git
+$ ~/code&gt; <span class="nb">cd</span> horton
+$ ~/.../horton:master&gt;
+</pre></div>
+</div>
+<p>where <code class="docutils literal"><span class="pre">your_account</span></code> needs to be replaced by your Github account name.</p>
+</li>
+<li><p class="first">Switch to the <code class="docutils literal"><span class="pre">master</span></code> branch, if needed:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ~/.../horton:foo&gt; git checkout master
+$ ~/.../horton:master&gt;
+</pre></div>
+</div>
+<p>Make sure there are no uncommitted changes in the source code on the <code class="docutils literal"><span class="pre">foo</span></code>
+branch before switching to the <code class="docutils literal"><span class="pre">master</span></code> branch.</p>
+</li>
+<li><p class="first">Get the latest version of the source code:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ~/.../horton:master&gt; git pull origin
+</pre></div>
+</div>
+</li>
+<li><p class="first">Make a topic branch, say <code class="docutils literal"><span class="pre">bar</span></code>, and switch to it:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ~/.../horton:master&gt; git checkout -b bar
+$ ~/.../horton:bar&gt;
+</pre></div>
+</div>
+<p>Make sure that you are on the right branch before starting to implement the
+new feature <code class="docutils literal"><span class="pre">bar</span></code>. (Try to pick a more meaningful branch name based on the feature
+you are implementing.)</p>
+</li>
+<li><p class="first">Now you are in the right place to start making changes to the source code,
+and committing patches. When adding a new feature, also add
+tests, documentation, docstrings, comments and examples to clarify and debug the new feature.
+(The more tests, documentation and examples, the better.)</p>
+</li>
+<li><p class="first">Review your changes with <code class="docutils literal"><span class="pre">git</span> <span class="pre">diff</span></code>. Make sure there are no trailing white spaces
+or trailing blank lines. These can be removed with the <code class="docutils literal"><span class="pre">./cleancode.sh</span></code>
+script. If you created new files, run the <code class="docutils literal"><span class="pre">./updateheaders.py</span></code> script to
+make sure the new files have the proper headers.</p>
+</li>
+<li><p class="first">Get an overall overview of the added changes and new files with <code class="docutils literal"><span class="pre">git</span> <span class="pre">status</span></code>.</p>
+</li>
+<li><p class="first">Add the changed files that will be committed with <code class="docutils literal"><span class="pre">git</span> <span class="pre">add</span> <span class="pre">&lt;file_name&gt;</span></code> command. There are
+two ways to do this:</p>
+<ul>
+<li><p class="first">Add all changes in certain files:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ~/.../horton:bar&gt; git add horton/file1.py horton/file2.py ...
+</pre></div>
+</div>
+</li>
+<li><p class="first">Add interactively by going through the changes in all/some files:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ~/.../horton:bar&gt; git add -p <span class="o">[</span>horton/file1.py horton/file2.py ...<span class="o">]</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+<li><p class="first">Commit the added files to your working branch:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ~/.../horton:bar&gt; git commit
+</pre></div>
+</div>
+<p>This command will start an editor in which you can write a commit message. By
+convention, such a message starts with a short single-line description
+of at most 69 characters. Optionally, a longer description follows
+that is separated from the short description by an empty line. More
+suggestions for writing meaningful commit messages can be found <a class="reference external" href="http://chris.beams.io/posts/git-commit/">here</a>. If you only intend to write a
+short description, it can be included on the command line:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ~/.../horton:bar&gt; git commit -m <span class="s1">&#39;Short description&#39;</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<p>In practice, you’ll make a couple of commits before a new feature is finished. After
+committing the changes and testing them thoroughly, you are ready for the next step.</p>
+</div>
+<div class="section" id="make-your-branch-available-for-review-with-a-pull-request-pr">
+<h3>1.1.3.2. Make your branch available for review with a pull request (PR)<a class="headerlink" href="#make-your-branch-available-for-review-with-a-pull-request-pr" title="Permalink to this headline">¶</a></h3>
+<p>In order to let others look at your code, you have to make your branch
+available by pushing it to your forked Github repository.</p>
+<ol class="arabic">
+<li><p class="first">Push your branch to the remote server:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>git push origin bar:bar
+</pre></div>
+</div>
+</li>
+<li><p class="first">Now go to the Github website and make a <a class="reference external" href="https://help.github.com/articles/using-pull-requests/">Pull Request</a> with the <code class="docutils literal"><span class="pre">master</span></code> branch of
+the <code class="docutils literal"><span class="pre">theochem/horton</span></code> repository as the destination. As soon as you do this, a series
+of basic QA tests will be executed to check for common problems. If these basic QA
+tests pass, someone will review your branch manually based on the
+<a class="reference internal" href="tech_dev_checklist.html#tech-dev-checklist"><span class="std std-ref">Branch review checklist</span></a>. You fix all the issues brought up during the review by
+making additional commits or, if you really messed up, by rewriting your branch. As
+soon as you push your changes back to the branch in your forked repository, they will
+show up in the PR, which triggers again the QA tests. When there are no further
+comments, your branch is ready to be merged.</p>
+</li>
+</ol>
+</div>
+<div class="section" id="merging-your-pull-request-with-the-master-branch">
+<h3>1.1.3.3. Merging your pull request with the master branch<a class="headerlink" href="#merging-your-pull-request-with-the-master-branch" title="Permalink to this headline">¶</a></h3>
+<p>You don’t have to do anything for this, unless other branches got merged into
+the master branch after you started your topic branch. In that case, you need to rebase
+your topic branch on the current <code class="docutils literal"><span class="pre">master</span></code> branch and rerun all tests. This can be done
+with the following steps:</p>
+<ol class="arabic simple">
+<li><a class="reference external" href="https://help.github.com/articles/syncing-a-fork/">Synchronize</a> the <code class="docutils literal"><span class="pre">master</span></code> branch
+in your fork with the official HORTON repository.</li>
+</ol>
+<ol class="arabic" start="3">
+<li><p class="first">Switch to your topic branch:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ~/.../horton:master&gt; git checkout bar
+$ ~/.../horton:bar&gt;
+</pre></div>
+</div>
+</li>
+<li><p class="first">Create a new branch in which the result of <code class="docutils literal"><span class="pre">git</span> <span class="pre">rebase</span></code> will be stored:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ~/.../horton:bar&gt; git checkout -b bar-1
+$ ~/.../horton:bar-1&gt;
+</pre></div>
+</div>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">Rebase</span></code> your commits on top of the latest <code class="docutils literal"><span class="pre">master</span></code> branch:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ~/.../horton:bar-1&gt; git rebase master
+</pre></div>
+</div>
+<p>This command will try to apply the patches from your topic branch on top of the
+<code class="docutils literal"><span class="pre">master</span></code> branch. It may happen that changes in the <code class="docutils literal"><span class="pre">master</span></code> branch are not
+compatible with yours, such that your patches cannot be simply applied. When that is
+the case, the <code class="docutils literal"><span class="pre">git</span> <span class="pre">rebase</span></code> script will be interrupted and you are instructed on what
+to do. Do not panic when this happens. If you feel uncertain about how to resolve
+conflicts, it is time to call your git-savvy friends for help.</p>
+</li>
+<li><p class="first">After the rebase procedure is complete, run all the tests again. If needed, fix
+problems and commit the changes.</p>
+</li>
+<li><p class="first">Upload the commits to your fork:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ~/.../horton:bar-1&gt; git push origin -f bar-1:bar
+</pre></div>
+</div>
+<p>This will rewrite the history of your topic branch, which will also show up in the PR.
+All automatic QA tests will be executed again.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="section" id="common-issues">
+<h2>1.1.4. Common issues<a class="headerlink" href="#common-issues" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">Remember to set the <code class="docutils literal"><span class="pre">pre-commit</span></code> hook. If this causes error messages when
+committing, use the <code class="docutils literal"><span class="pre">cleancode.sh</span></code> script. This removes all sorts of
+trailing white-space and converts every tab to four spaces. These conventions
+make <code class="docutils literal"><span class="pre">git</span> <span class="pre">diff</span></code> more meaningful and make it easier to merge and rebase commits.</p>
+</li>
+<li><p class="first">When you are customizing your bash prompt, you may get an error like
+<code class="docutils literal"><span class="pre">__git_ps1:</span> <span class="pre">command</span> <span class="pre">not</span> <span class="pre">found...</span></code>, if you sourced <code class="docutils literal"><span class="pre">git-completion.bash</span></code>.
+Then, before setting the <code class="docutils literal"><span class="pre">GIT_PS</span></code>, you need to add the following line to your
+<code class="docutils literal"><span class="pre">~/.bashrc</span></code> (Linux) or <code class="docutils literal"><span class="pre">~/.bash_profile</span></code> (Mac OS X):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">source</span> /usr/share/git-core/contrib/completion/git-prompt.sh
+</pre></div>
+</div>
+<p>If you cannot find this file, you can get it from the link below:
+<code class="docutils literal"><span class="pre">https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh</span></code></p>
+</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tech_dev_checklist.html" class="btn btn-neutral float-right" title="1.2. Branch review checklist" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="tech_dev.html" class="btn btn-neutral" title="1. Developer Documentation" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.0 built from release 2.1.0 (Jul 06, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jul 06, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.1.0 (Jul 06, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

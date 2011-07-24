@@ -1,0 +1,374 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>1.4. Writing unit tests &mdash; HORTON 2.1.1-1-g3a5adfea (Jan 18, 2019) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="1.5. Writing examples scripts" href="tech_dev_examples.html" />
+    <link rel="prev" title="1.3. Writing documentation" href="tech_dev_documentation.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_git.html">1.1. HORTON Development with Git</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_checklist.html">1.2. Branch review checklist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_documentation.html">1.3. Writing documentation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1.4. Writing unit tests</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#running-the-tests">1.4.1. Running the tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#writing-new-tests">1.4.2. Writing new tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#writing-tests-that-need-a-temporary-directory">1.4.3. Writing tests that need a temporary directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#writing-tests-that-use-random-numbers">1.4.4. Writing tests that use random numbers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_examples.html">1.5. Writing examples scripts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_citing_papers.html">1.6. Citing scientific work</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_cython.html">1.7. Accelerating HORTON code with Cython</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HORTON</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="tech_dev.html">1. Developer Documentation</a> &raquo;</li>
+        
+      <li>1.4. Writing unit tests</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/tech_dev_unit_tests.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="writing-unit-tests">
+<h1>1.4. Writing unit tests<a class="headerlink" href="#writing-unit-tests" title="Permalink to this headline">¶</a></h1>
+<p>HORTON uses the <a class="reference external" href="https://nose.readthedocs.org/en/latest/">Nosetests</a>
+program to run all the unit tests. The goal of a unit test is to check whether
+as small piece of code works as expected.</p>
+<div class="section" id="running-the-tests">
+<h2>1.4.1. Running the tests<a class="headerlink" href="#running-the-tests" title="Permalink to this headline">¶</a></h2>
+<p>The tests are run as follows (including preparation steps):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">toony</span><span class="nd">@poony</span> <span class="o">~/.../</span><span class="n">horton</span><span class="p">:</span><span class="n">master</span><span class="o">&gt;</span> <span class="o">./</span><span class="n">cleanfiles</span><span class="o">.</span><span class="n">sh</span>
+<span class="n">toony</span><span class="nd">@poony</span> <span class="o">~/.../</span><span class="n">horton</span><span class="p">:</span><span class="n">master</span><span class="o">&gt;</span> <span class="o">./</span><span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">build_ext</span> <span class="o">-</span><span class="n">i</span>
+<span class="n">toony</span><span class="nd">@poony</span> <span class="o">~/.../</span><span class="n">horton</span><span class="p">:</span><span class="n">master</span><span class="o">&gt;</span> <span class="n">nosetests</span> <span class="o">-</span><span class="n">v</span>
+</pre></div>
+</div>
+<p>This will run the tests with the version of HORTON in the source tree, i.e. not
+the one that is installed with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">install</span></code>. If you have not
+removed any <code class="docutils literal notranslate"><span class="pre">.py</span></code> files, the script <code class="docutils literal notranslate"><span class="pre">./cleanfiles.sh</span></code> can be skipped. If you
+did not change any low-level code, <code class="docutils literal notranslate"><span class="pre">./setup.py</span> <span class="pre">build_ext</span> <span class="pre">-i</span></code> can be skipped.</p>
+<p>When working on a specific part of the code, it is often convenient to limit the
+number of tests that are checked. The following runs only the tests in <code class="docutils literal notranslate"><span class="pre">horton/test/test_cell.py</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">toony</span><span class="nd">@poony</span> <span class="o">~/.../</span><span class="n">horton</span><span class="p">:</span><span class="n">master</span><span class="o">&gt;</span> <span class="n">nosetests</span> <span class="o">-</span><span class="n">v</span> <span class="n">horton</span><span class="o">/</span><span class="n">test</span><span class="o">/</span><span class="n">test_cell</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>Within one file, you can also select one test function:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">toony</span><span class="nd">@poony</span> <span class="o">~/.../</span><span class="n">horton</span><span class="p">:</span><span class="n">master</span><span class="o">&gt;</span> <span class="n">nosetests</span> <span class="o">-</span><span class="n">v</span> <span class="n">horton</span><span class="o">/</span><span class="n">test</span><span class="o">/</span><span class="n">test_cell</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="n">test_from_parameters3</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="writing-new-tests">
+<h2>1.4.2. Writing new tests<a class="headerlink" href="#writing-new-tests" title="Permalink to this headline">¶</a></h2>
+<p>All tests in HORTON are located in the directories <code class="docutils literal notranslate"><span class="pre">horton/test</span></code> and
+<code class="docutils literal notranslate"><span class="pre">horton/*/test</span></code>. All module files containing tests have a filename that starts
+with <code class="docutils literal notranslate"><span class="pre">test_</span></code>. In these modules, all functions with a name that starts with
+<code class="docutils literal notranslate"><span class="pre">test_</span></code> are picked up by Nosetests. Tests that do not follow this convention
+are simply ignored.</p>
+<p>The basic structure of a test is as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_sum</span><span class="p">():</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">assert</span> <span class="n">a</span><span class="o">+</span><span class="n">b</span> <span class="o">==</span> <span class="mi">3</span>
+</pre></div>
+</div>
+<p>HORTON currently contains many examples that can be used as a starting point
+for new tests. The easiest way to write new tests is to just copy an existing
+test (similar to what you have in mind) and start modifying it.</p>
+<p>Most test packages in <code class="docutils literal notranslate"><span class="pre">horton</span></code> contain a <code class="docutils literal notranslate"><span class="pre">common</span></code> module that contains useful
+functions that facilitate the development of tests. An important example is the
+<code class="docutils literal notranslate"><span class="pre">check_delta</span></code> function to test if analytical derivatives are properly
+implemented. This is a simple example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">horton.common</span> <span class="kn">import</span> <span class="n">check_delta</span>
+
+<span class="k">def</span> <span class="nf">test_quadratic</span><span class="p">():</span>
+    <span class="c1"># a vector function that computes the squared norm divided by two</span>
+    <span class="k">def</span> <span class="nf">fun</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+
+    <span class="c1"># the gradient of that vector function</span>
+    <span class="k">def</span> <span class="nf">deriv</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+    <span class="c1"># the dimension of the vector x</span>
+    <span class="n">ndim</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="c1"># the number of small displacements used in the test</span>
+    <span class="n">ndisp</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="c1"># a reference point used for the test of the analytical derivatives</span>
+    <span class="n">x0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ndim</span><span class="p">)</span>
+    <span class="c1"># the small displacements, i.e. each row is one (small) relative vector</span>
+    <span class="n">dxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">1e-5</span><span class="p">,</span> <span class="mf">1e5</span><span class="p">,</span> <span class="p">(</span><span class="n">ndisp</span><span class="p">,</span> <span class="n">ndim</span><span class="p">))</span>
+
+    <span class="n">check_delta</span><span class="p">(</span><span class="n">fun</span><span class="p">,</span> <span class="n">deriv</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">dxs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="writing-tests-that-need-a-temporary-directory">
+<h2>1.4.3. Writing tests that need a temporary directory<a class="headerlink" href="#writing-tests-that-need-a-temporary-directory" title="Permalink to this headline">¶</a></h2>
+<p>A context manager is implemented in <code class="docutils literal notranslate"><span class="pre">horton.test.common</span></code> to simplify tests
+that need a temporary working directory. It can be used as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">horton.test.common</span> <span class="kn">import</span> <span class="n">tmpdir</span>
+
+<span class="k">def</span> <span class="nf">test_something</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">tmpdir</span><span class="p">(</span><span class="s1">&#39;horton.somemodule.test.test_something&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dn</span><span class="p">:</span>
+        <span class="c1"># dn is a string with the temporary directory name.</span>
+        <span class="c1"># put here the part of the test that operates in the temporary directory.</span>
+</pre></div>
+</div>
+<p>On most systems, this temporary directory is a subdirectory of <code class="docutils literal notranslate"><span class="pre">/tmp</span></code>. The
+argument <code class="docutils literal notranslate"><span class="pre">'horton.somemodule.test.test_something'</span></code> will occur in the directory
+name, such that it can be easily recognized if needed.</p>
+</div>
+<div class="section" id="writing-tests-that-use-random-numbers">
+<span id="tech-dev-unit-tests-random"></span><h2>1.4.4. Writing tests that use random numbers<a class="headerlink" href="#writing-tests-that-use-random-numbers" title="Permalink to this headline">¶</a></h2>
+<p>Tests that make use of random numbers can be problematic when they only fail sometimes for
+very specific and rare values of the random numbers. To avoid issues with such corner
+cases, one must fix the random seed in the tests as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">horton.test.common</span> <span class="kn">import</span> <span class="n">numpy_seed</span>
+
+<span class="k">def</span> <span class="nf">test_foo</span><span class="p">():</span>
+    <span class="c1"># Some deterministic test code here.</span>
+    <span class="c1"># ...</span>
+    <span class="c1"># The part of test that uses random numbers should be repeated several times</span>
+    <span class="c1"># with different random numbers to make use of the randomness.</span>
+    <span class="k">for</span> <span class="n">irep</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+        <span class="c1"># Fix the seed differently but determinstically at each repetition.</span>
+        <span class="k">with</span> <span class="n">numpy_seed</span><span class="p">(</span><span class="n">irep</span><span class="p">):</span>
+            <span class="c1"># Test code that uses numpy.random should go here.</span>
+</pre></div>
+</div>
+<p>The test <code class="docutils literal notranslate"><span class="pre">test_tridiagsym_solve</span></code> in <code class="docutils literal notranslate"><span class="pre">horton/grid/test/test_cubic_spline.py</span></code> is a
+realistic example that properly uses random numbers.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tech_dev_examples.html" class="btn btn-neutral float-right" title="1.5. Writing examples scripts" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="tech_dev_documentation.html" class="btn btn-neutral" title="1.3. Writing documentation" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.1 built from release 2.1.1-1-g3a5adfea (Jan 18, 2019). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jan 18, 2019.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'./',
+              VERSION:'2.1.1-1-g3a5adfea (Jan 18, 2019)',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

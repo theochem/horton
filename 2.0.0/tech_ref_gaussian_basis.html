@@ -1,0 +1,756 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>2.6. Gaussian basis sets &mdash; HORTON 2.0.0-244-gaaf5e2b documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="HORTON 2.0.0-244-gaaf5e2b documentation" href="index.html"/>
+        <link rel="up" title="2. Reference Documentation" href="tech_ref.html"/>
+        <link rel="next" title="2.7. LibXC Functionals" href="tech_ref_functionals.html"/>
+        <link rel="prev" title="2.5. Atomic integration grids" href="tech_ref_grids.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_contributors.html">2.1. Contributors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_release_planning.html">2.2. Release planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_release_history.html">2.3. Release history</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_file_formats.html">2.4. Data file formats (input and output)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_grids.html">2.5. Atomic integration grids</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">2.6. Gaussian basis sets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#standard-basis-sets">2.6.1. Standard basis sets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#collected-notes-on-gaussian-basis-sets">2.6.2. Collected notes on Gaussian basis sets</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#introduction">2.6.2.1. Introduction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cartesian-basis-functions">2.6.2.2. Cartesian basis functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pure-or-harmonic-basis-functions">2.6.2.3. Pure or harmonic basis functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#transformation-from-cartesian-to-pure-basis-functions">2.6.2.4. Transformation from Cartesian to pure basis functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#recursion-relations-for-real-regular-solid-harmonics">2.6.2.5. Recursion relations for real regular solid harmonics</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_functionals.html">2.7. LibXC Functionals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_acronyms.html">2.8. Acronyms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_dictionary.html">2.9. HORTON dictionary of variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_literature.html">2.10. Literature</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">HORTON</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="tech_ref.html">2. Reference Documentation</a> &raquo;</li>
+      
+    <li>2.6. Gaussian basis sets</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/tech_ref_gaussian_basis.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="gaussian-basis-sets">
+<h1>2.6. Gaussian basis sets<a class="headerlink" href="#gaussian-basis-sets" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="standard-basis-sets">
+<span id="ref-gaussian-basis-standard-sets"></span><h2>2.6.1. Standard basis sets<a class="headerlink" href="#standard-basis-sets" title="Permalink to this headline">¶</a></h2>
+<p>A list of currently supported built-in basis sets is tabulated below.</p>
+<table border="1" class="table-striped docutils">
+<colgroup>
+<col width="44%" />
+<col width="56%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Basis set name</th>
+<th class="head">Supported elements</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>STO-3G</td>
+<td>H&#8211;Kr</td>
+</tr>
+<tr class="row-odd"><td>STO-6G</td>
+<td>H&#8211;Kr</td>
+</tr>
+<tr class="row-even"><td>3-21G</td>
+<td>H&#8211;Kr</td>
+</tr>
+<tr class="row-odd"><td>3-21G*</td>
+<td>Na&#8211;Ar</td>
+</tr>
+<tr class="row-even"><td>3-21++G*</td>
+<td>Na&#8211;Ar</td>
+</tr>
+<tr class="row-odd"><td>4-31G</td>
+<td>H&#8211;Ne, P&#8211;Cl</td>
+</tr>
+<tr class="row-even"><td>6-31G</td>
+<td>H&#8211;Zn</td>
+</tr>
+<tr class="row-odd"><td>6-31G*</td>
+<td>H&#8211;Zn</td>
+</tr>
+<tr class="row-even"><td>6-31G**</td>
+<td>H&#8211;Zn</td>
+</tr>
+<tr class="row-odd"><td>6-31+G</td>
+<td>H&#8211;Ca</td>
+</tr>
+<tr class="row-even"><td>6-31+G*</td>
+<td>H&#8211;Ca</td>
+</tr>
+<tr class="row-odd"><td>6-31++G**</td>
+<td>H, Li&#8211;Ca</td>
+</tr>
+<tr class="row-even"><td>cc-pVDZ</td>
+<td>H&#8211;Ar, Ca&#8211;Kr</td>
+</tr>
+<tr class="row-odd"><td>cc-pVTZ</td>
+<td>H&#8211;Ar, Ca&#8211;Kr</td>
+</tr>
+<tr class="row-even"><td>cc-pVQZ</td>
+<td>H&#8211;Ar, Ca&#8211;Kr</td>
+</tr>
+<tr class="row-odd"><td>cc-pCVDZ</td>
+<td>Li&#8211;Ar</td>
+</tr>
+<tr class="row-even"><td>cc-pCVTZ</td>
+<td>Li&#8211;Ar</td>
+</tr>
+<tr class="row-odd"><td>cc-pCVQZ</td>
+<td>Li&#8211;Ar</td>
+</tr>
+<tr class="row-even"><td>aug-cc-pVDZ</td>
+<td>H&#8211;Ar, Sc&#8211;Kr</td>
+</tr>
+<tr class="row-odd"><td>aug-cc-pVTZ</td>
+<td>H&#8211;Ar, Sc&#8211;Kr</td>
+</tr>
+<tr class="row-even"><td>aug-cc-pVQZ</td>
+<td>H&#8211;Ar, Sc&#8211;Kr</td>
+</tr>
+<tr class="row-odd"><td>aug-cc-pCVDZ</td>
+<td>Li&#8211;Ar</td>
+</tr>
+<tr class="row-even"><td>aug-cc-pCVTZ</td>
+<td>Li&#8211;Ar</td>
+</tr>
+<tr class="row-odd"><td>aug-cc-pCVQZ</td>
+<td>Li&#8211;Ar</td>
+</tr>
+<tr class="row-even"><td>def2-svpd</td>
+<td>H&#8211;Kr</td>
+</tr>
+<tr class="row-odd"><td>def2-tzvp</td>
+<td>H&#8211;Kr</td>
+</tr>
+<tr class="row-even"><td>def2-tzvpd</td>
+<td>H&#8211;Kr</td>
+</tr>
+<tr class="row-odd"><td>def2-qzvp</td>
+<td>H&#8211;Kr</td>
+</tr>
+<tr class="row-even"><td>def2-qzvpd</td>
+<td>H&#8211;Kr</td>
+</tr>
+<tr class="row-odd"><td>ANO-RCC</td>
+<td>H&#8211;Kr</td>
+</tr>
+</tbody>
+</table>
+<p>Note that the basis set names are case-insensitive in HORTON. These basis sets
+were taken from the EMSL library (<a class="reference external" href="https://bse.pnl.gov/bse/portal">https://bse.pnl.gov/bse/portal</a>). When
+publishing results obtained with these basis sets, please cite the following
+references <a class="reference internal" href="tech_ref_literature.html#feller1996" id="id1">[feller1996]</a> and <a class="reference internal" href="tech_ref_literature.html#didier2007" id="id2">[Didier2007]</a>.</p>
+</div>
+<div class="section" id="collected-notes-on-gaussian-basis-sets">
+<h2>2.6.2. Collected notes on Gaussian basis sets<a class="headerlink" href="#collected-notes-on-gaussian-basis-sets" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="introduction">
+<h3>2.6.2.1. Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h3>
+<p>HORTON supports contracted Gaussian basis functions, which have in general the
+following form:</p>
+<div class="math">
+\[b(\mathbf{r}; D_1, \ldots, D_k, P, \alpha_1, \ldots, \alpha_K, \mathbf{r}_A) =
+\sum_{k=1}^K D_k N(\alpha_k, P)
+P(\mathbf{r} - \mathbf{r}_A)
+\exp(-\alpha_k \Vert \mathbf{r} - \mathbf{r}_A \Vert^2)\]</div>
+<p>where <span class="math">\(K\)</span> is the contraction length, <span class="math">\(D_k\)</span> is a contraction
+coefficient, <span class="math">\(N\)</span> is a normalization constant, <span class="math">\(P\)</span> is a Cartesian
+polynomial, <span class="math">\(\alpha_k\)</span> is an exponent and <span class="math">\(\mathbf{r}_A\)</span> is the
+center of the basis function. The summation over <span class="math">\(k\)</span> is
+conventionally called a contraction of <cite>primitive Gaussian basis functions</cite>.
+The normalization of each primitive depends on both the polynomial and the
+exponent and is defined by the following relation:</p>
+<div class="math">
+\[\int \Bigl\vert N(\alpha_k, P) P(\mathbf{r} - \mathbf{r}_A)
+\exp(-\alpha_k \Vert \mathbf{r} - \mathbf{r}_A \Vert^2)
+\Bigr\vert^2 d\mathbf{r} = 1\]</div>
+<p>Likewise, the contraction coefficients are defined such that the total
+contraction satisfies the same normalization condition:</p>
+<div class="math">
+\[\int \Bigl\vert
+b(\mathbf{r}; D_1, \ldots, D_k, P, \alpha_1, \ldots, \alpha_K, \mathbf{r}_A)
+\Bigr\vert^2 d\mathbf{r} = 1\]</div>
+<p>There are two common forms of the polynomial: Cartesian and pure (harmonic) basis
+functions. Both types will be defined below, together with some conventions
+that are needed for the implementation in HORTON.</p>
+</div>
+<div class="section" id="cartesian-basis-functions">
+<h3>2.6.2.2. Cartesian basis functions<a class="headerlink" href="#cartesian-basis-functions" title="Permalink to this headline">¶</a></h3>
+<p>When the polynomial consists of a single term as follows:</p>
+<div class="math">
+\[P(x,y,z) = x^{n_x} y^{n_y} z^{n_z}\]</div>
+<p>with <span class="math">\(n_x\)</span>, <span class="math">\(n_y\)</span>, <span class="math">\(n_z\)</span>, zero or positive integer powers, one
+speaks of <cite>Cartesian Gaussian basis functions</cite>. One refers to the sum of the
+powers as the angular momentum of the Cartesian Gaussian basis. The
+normalization constant is:</p>
+<div class="math">
+\[N(\alpha_k, n_x, n_y, n_z) = \sqrt{\frac
+{(2\alpha_k/\pi)^{3/2} (4\alpha_k)^{n_x+n_y+n_z}}
+{(2n_x-1)!! (2n_y-1)!! (2n_z-1)!!}
+}\]</div>
+<p>In practice one combines all basis functions of a given angular momentum (or
+algebraic order). A basis specification typically only mentions the total
+angular momentum, and it is assumed that all polynomials of that
+order are included in the basis set. The number of basis functions, i.e. the
+number of polynomials, for a given angular momentum, <span class="math">\(n=n_x+n_y+n_z\)</span>, is
+<span class="math">\((n+1)(n+2)/2\)</span>. For the implementation, one must fix a certain ordering of
+these polynomials. In HORTON, the ordering is simply alphabetical.</p>
+<p>The first five angular momenta and the corresponding polynomials are listed in
+the table below.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="3%" />
+<col width="7%" />
+<col width="1%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Symbol</th>
+<th class="head">Angular momentum</th>
+<th class="head">#</th>
+<th class="head">Polynomials</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>S</td>
+<td>0</td>
+<td>1</td>
+<td><span class="math">\(1\)</span></td>
+</tr>
+<tr class="row-odd"><td>P</td>
+<td>1</td>
+<td>3</td>
+<td><span class="math">\(x\)</span>, <span class="math">\(y\)</span>, <span class="math">\(z\)</span></td>
+</tr>
+<tr class="row-even"><td>D</td>
+<td>2</td>
+<td>6</td>
+<td><span class="math">\(xx\)</span>, <span class="math">\(xy\)</span>, <span class="math">\(xz\)</span>, <span class="math">\(yy\)</span>, <span class="math">\(yz\)</span>, <span class="math">\(zz\)</span></td>
+</tr>
+<tr class="row-odd"><td>F</td>
+<td>3</td>
+<td>10</td>
+<td><span class="math">\(xxx\)</span>, <span class="math">\(xxy\)</span>, <span class="math">\(xxz\)</span>, <span class="math">\(xyy\)</span>, <span class="math">\(xyz\)</span>, <span class="math">\(xzz\)</span>, <span class="math">\(yyy\)</span>, <span class="math">\(yyz\)</span>, <span class="math">\(yzz\)</span>, <span class="math">\(zzz\)</span></td>
+</tr>
+<tr class="row-even"><td>G</td>
+<td>4</td>
+<td>15</td>
+<td><span class="math">\(xxxx\)</span>, <span class="math">\(xxxy\)</span>, <span class="math">\(xxxz\)</span>, <span class="math">\(xxyy\)</span>, <span class="math">\(xxyz\)</span>, <span class="math">\(xxzz\)</span>, <span class="math">\(xyyy\)</span>, <span class="math">\(xyyz\)</span>, <span class="math">\(xyzz\)</span>, <span class="math">\(xzzz\)</span>, <span class="math">\(yyyy\)</span>, <span class="math">\(yyyz\)</span>, <span class="math">\(yyzz\)</span>, <span class="math">\(yzzz\)</span>, <span class="math">\(zzzz\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="pure-or-harmonic-basis-functions">
+<h3>2.6.2.3. Pure or harmonic basis functions<a class="headerlink" href="#pure-or-harmonic-basis-functions" title="Permalink to this headline">¶</a></h3>
+<p>When the polynomial is a real regular solid harmonic, one speaks of <cite>pure
+Gaussian basis functions</cite>:</p>
+<div class="math">
+\[P(r,\theta,\phi) = C_{\ell m}(r,\theta,\phi) \quad \text{or} \quad P(r,\theta,\phi) = S_{\ell m}(r,\theta,\phi)\]</div>
+<p>where <span class="math">\(C_{\ell m}\)</span> and <span class="math">\(S_{\ell m}\)</span> are cosine and sine-like real regular
+solid harmonics, defined as follows:</p>
+<div class="math">
+\[\begin{split}R_{\ell, 0}(r,\theta,\phi)  = C_{\ell 0}(r,\theta,\phi) &amp; = R_\ell^0(r,\theta,\phi) \\
+R_{\ell, +m}(r,\theta,\phi) = C_{\ell m}(r,\theta,\phi) &amp; = \frac{1}{\sqrt{2}}((-1)^m R_\ell^m(\theta,\phi) + R_\ell^{-m}(\theta,\phi)) \quad m = 1\ldots \ell \\
+R_{\ell, -m}(r,\theta,\phi) = S_{\ell m}(r,\theta,\phi) &amp; = \frac{1}{i \sqrt{2}}((-1)^m R_\ell^m(\theta,\phi) - R_\ell^{-m}(\theta,\phi)) \quad m = 1\ldots \ell\end{split}\]</div>
+<p>where <span class="math">\(R_\ell^m\)</span> are the regular solid harmonics, which have in general
+complex function values. The index <span class="math">\(\ell\)</span> is a zero or positive. Note that <span class="math">\(m\)</span> in
+<span class="math">\(R_{\ell,+m}\)</span>, <span class="math">\(R_{\ell,-m}\)</span>, <span class="math">\(C_{\ell m}\)</span>, and <span class="math">\(S_{\ell
+m}\)</span> is moved to the subscript to indicate that these are real functions. The
+regular solid harmonics are derived from the standard spherical harmonics as
+follows:</p>
+<div class="math">
+\[\begin{split}R_\ell^m(r, \theta, \varphi) &amp; = \sqrt{\frac{4\pi}{2\ell+1}} r^l Y_\ell^m(\theta, \varphi) \\
+    &amp; = \sqrt{\frac{(\ell-m)!}{(\ell+m)!}} \, P_\ell^m(\cos{\theta})\, e^{i m \varphi}\end{split}\]</div>
+<p>(The Condon–Shortley phase is not used here.) Due to the presence of the factor
+<span class="math">\(r^\ell\)</span>, the real regular solid harmonics are homogeneous polynomials,
+i.e. linear combinations of the Cartesian polynomials defined in the previous
+section.</p>
+<p>Real regular solid harmonics are used because their normalization over the angular degrees of freedom, i.e.</p>
+<div class="math">
+\[\iint |R_{\ell m}(r, \theta, \varphi)|^2 \sin \theta d \theta d \varphi = \frac{4\pi r^{2l}}{2\ell+1},\]</div>
+<p>is compatible with the Cartesian s- and p-type polynomials from the previous
+section. The normalization constant of a pure Gaussian basis function is:</p>
+<div class="math">
+\[N(\alpha_k, \ell) = \sqrt{\frac
+{(2\alpha_k/\pi)^{3/2} (4\alpha_k)^\ell}
+{(2\ell-1)!!}
+}\]</div>
+<p>In practical applications, one always combines all the basis functions of a
+given angular momentum. A basis specification typically only mentions the total
+angular momentum, and it is assumed that all polynomials of that
+order are included in the basis set. The number of basis functions, i.e. the
+number of polynomials, for a given angular momentum, <span class="math">\(\ell\)</span>, is
+<span class="math">\(2\ell+1\)</span>. For the implementation, one must fix a certain ordering of
+these polynomials. The ordering in HORTON is based on the angular momentum
+number, <span class="math">\(m\)</span>. When <span class="math">\(m&gt;0\)</span>, the cosine-like functions is preceded by
+the sine-like function.</p>
+<p>The first five angular momenta and the corresponding polynomials are listed in
+the table below.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="4%" />
+<col width="10%" />
+<col width="1%" />
+<col width="86%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Symbol</th>
+<th class="head">Angular momentum</th>
+<th class="head">#</th>
+<th class="head">Polynomials</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>S</td>
+<td>0</td>
+<td>1</td>
+<td><span class="math">\(C_{00}=1\)</span></td>
+</tr>
+<tr class="row-odd"><td>P</td>
+<td>1</td>
+<td>3</td>
+<td><span class="math">\(C_{10}=z\)</span>, <span class="math">\(C_{11}=x\)</span>, <span class="math">\(S_{11}=y\)</span></td>
+</tr>
+<tr class="row-even"><td>D</td>
+<td>2</td>
+<td>5</td>
+<td><span class="math">\(C_{20}\)</span>, <span class="math">\(C_{21}\)</span>, <span class="math">\(S_{21}\)</span>, <span class="math">\(C_{22}\)</span>, <span class="math">\(S_{22}\)</span></td>
+</tr>
+<tr class="row-odd"><td>F</td>
+<td>3</td>
+<td>7</td>
+<td><span class="math">\(C_{30}\)</span>, <span class="math">\(C_{31}\)</span>, <span class="math">\(S_{31}\)</span>, <span class="math">\(C_{32}\)</span>, <span class="math">\(S_{32}\)</span>, <span class="math">\(C_{33}\)</span>, <span class="math">\(S_{33}\)</span></td>
+</tr>
+<tr class="row-even"><td>G</td>
+<td>4</td>
+<td>9</td>
+<td><span class="math">\(C_{40}\)</span>, <span class="math">\(C_{41}\)</span>, <span class="math">\(S_{41}\)</span>, <span class="math">\(C_{42}\)</span>, <span class="math">\(S_{42}\)</span>, <span class="math">\(C_{43}\)</span>, <span class="math">\(S_{43}\)</span>, <span class="math">\(C_{44}\)</span>, <span class="math">\(S_{44}\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="transformation-from-cartesian-to-pure-basis-functions">
+<h3>2.6.2.4. Transformation from Cartesian to pure basis functions<a class="headerlink" href="#transformation-from-cartesian-to-pure-basis-functions" title="Permalink to this headline">¶</a></h3>
+<p>Let us now derive convenient expressions for these real solid harmonics in terms
+of Cartesian coordinates. The function <span class="math">\(P_\ell^m\)</span> is the
+associated Legendre Polynomial. For positive <span class="math">\(m\)</span> we have:</p>
+<div class="math">
+\[\begin{split}P_\ell^m(x) &amp; = (-1)^m (1-x^2)^{m/2} \frac{d^m}{dx^m} P_\ell(x) \\
+P_\ell^{-m}(x) &amp; = (-1)^m \frac{(\ell-m)!}{(\ell+m)!} P_\ell^m\end{split}\]</div>
+<p>where <span class="math">\(P_\ell\)</span> is the ordinary Legendre polynomial of order <span class="math">\(\ell\)</span>.
+Note that the factors <span class="math">\((-1)^m\)</span> are canceled out in the definition of the
+real solid harmonics. Substitution of these definitions leads to the following
+form for the regular solid harmonics:</p>
+<div class="math">
+\[R_\ell^m(r, \theta, \varphi) = (-1)^{(m+|m|)/2}\sqrt{\frac{(\ell-|m|)!}{(\ell+|m|)!}} \, r^l sin^m \theta \frac{d^m P_\ell(\cos{\theta})}{d \cos \theta}\, e^{i m \varphi}\]</div>
+<p>For <span class="math">\(m&gt;0\)</span>, the real regular solid harmonics are first written as follows:</p>
+<div class="math">
+\[\begin{split}C_{\ell m}(r, \theta, \varphi) &amp; = r^\ell \sqrt{\frac{2(\ell-m)!}{(\ell+m)!}} \, sin^m \theta \frac{d^m P_\ell(\cos{\theta})}{d \cos \theta}\, cos(m \varphi) \\
+S_{\ell m}(r, \theta, \varphi) &amp; = r^\ell \sqrt{\frac{2(\ell-m)!}{(\ell+m)!}} \, sin^m \theta \frac{d^m P_\ell(\cos{\theta})}{d \cos \theta}\, sin(m \varphi)\end{split}\]</div>
+<p>It is conventional to factor out the <span class="math">\(z\)</span>-dependent part (which also has
+some pure <span class="math">\(r\)</span>-dependence). Making use of <span class="math">\(z=r\cos\theta\)</span>, one gets:</p>
+<div class="math">
+\[\begin{split}\Pi_{\ell m}(z,r^2) &amp; = r^{\ell-m} \frac{d^m P_\ell (\cos\theta)}{d \cos\theta} \\
+         &amp; = \sum_{k=0}^{\lfloor (\ell-m)/2 \rfloor} \gamma_{\ell k}^{(m)} r^{2k} z^{\ell-2k-m}\end{split}\]</div>
+<p>with</p>
+<div class="math">
+\[\gamma_{\ell k}^{(m)} = \frac{(-1)^k}{2^\ell} \binom{\ell}{k}\binom{2\ell-2k}{\ell}\frac{(\ell-2k)!}{(\ell-2k-m)!}\]</div>
+<p>For the <span class="math">\((x,y)\)</span>-dependence one has to define following polynomials for the
+cosine and sine-like functions, respectively:</p>
+<div class="math">
+\[\begin{split}A_m(x,y) &amp; = \mathrm{Re}[(x+iy)^m] \\
+         &amp; = r^m \sin^m \theta \cos(m \varphi) \\
+         &amp; = \frac{1}{2}\biggl( (r \sin \theta e^{i \varphi})^m + (r \sin \theta e^{-i \varphi})^m \biggr) \\
+         &amp; = \frac{1}{2}\biggl( (x + iy)^m + (x - iy)^m \biggr) \\
+         &amp; = \sum_p \binom{m}{p} x^p y^{m-p} \cos \bigl( (m-p) \pi/2 \bigl)\end{split}\]</div>
+<div class="math">
+\[\begin{split}B_m(x,y) &amp; = \mathrm{Im}[(x+iy)^m] \\
+         &amp; = r^m \sin^m \theta \sin(m \varphi) \\
+         &amp; = \frac{1}{2}\biggl( (r \sin \theta e^{i \varphi})^m - (r \sin \theta e^{-i \varphi})^m \biggr) \\
+         &amp; = \frac{1}{2}\biggl( (x + iy)^m - (x - iy)^m \biggr) \\
+         &amp; = \sum_p \binom{m}{p} x^p y^{m-p} \sin \bigl( (m-p) \pi/2 \bigl)\end{split}\]</div>
+<p>where we made use of <span class="math">\(i^k+(-i)^k = e^{k\pi/2} + e^{-k\pi/2} = \cos(k\pi/2)\)</span>
+and <span class="math">\(i^k-(-i)^k = e^{k\pi/2} - e^{-k\pi/2} = \sin(k\pi/2)\)</span>. Putting it
+all together, we have:</p>
+<div class="math">
+\[\begin{split}C_{\ell m}(x, y, z) &amp; = \sqrt{\frac{2(\ell-m)!}{(\ell+m)!}} \, \Pi_{\ell m}(z,r^2) \, A_m(x,y) \\
+S_{\ell m}(x, y, z) &amp; = \sqrt{\frac{2(\ell-m)!}{(\ell+m)!}} \, \Pi_{\ell m}(z,r^2) \, B_m(x,y)\end{split}\]</div>
+<p>Also for the case <span class="math">\(m=0\)</span>, one has a similar form:</p>
+<div class="math">
+\[\begin{split}C_{\ell 0}(x, y, z) &amp; = \Pi_{\ell 0}(z,r^2) \\\end{split}\]</div>
+<p>These expressions allow one to write the real solid harmonics in terms of a
+homogeneous polynomial of Cartesian coordinates. The following table is
+generated by the script <code class="docutils literal"><span class="pre">tools/harmonics.py</span></code>, which uses Sympy for the
+symbolic manipulations:</p>
+<div class="math">
+\[\begin{split}C_{00}(x,y,z) &amp; = 1 \\
+C_{10}(x,y,z) &amp; = z \\
+C_{11}(x,y,z) &amp; = x \\
+S_{11}(x,y,z) &amp; = y \\
+C_{20}(x,y,z) &amp; = - \frac{1}{2} r^{2} + \frac{3}{2} z^{2} \\
+C_{21}(x,y,z) &amp; = \sqrt{3} x z \\
+S_{21}(x,y,z) &amp; = \sqrt{3} y z \\
+C_{22}(x,y,z) &amp; = \frac{1}{2} \sqrt{3} \left(x^{2} - y^{2}\right) \\
+S_{22}(x,y,z) &amp; = \sqrt{3} x y \\
+C_{30}(x,y,z) &amp; = - \frac{3}{2} r^{2} z + \frac{5}{2} z^{3} \\
+C_{31}(x,y,z) &amp; = \frac{1}{6} \sqrt{6} x \left(- \frac{3}{2} r^{2} + \frac{15}{2} z^{2}\right) \\
+S_{31}(x,y,z) &amp; = \frac{1}{6} \sqrt{6} y \left(- \frac{3}{2} r^{2} + \frac{15}{2} z^{2}\right) \\
+C_{32}(x,y,z) &amp; = \frac{1}{2} \sqrt{15} z \left(x^{2} - y^{2}\right) \\
+S_{32}(x,y,z) &amp; = \sqrt{15} x y z \\
+C_{33}(x,y,z) &amp; = \frac{1}{4} \sqrt{10} \left(x^{3} - 3 x y^{2}\right) \\
+S_{33}(x,y,z) &amp; = \frac{1}{4} \sqrt{10} \left(3 x^{2} y - y^{3}\right) \\
+C_{40}(x,y,z) &amp; = \frac{3}{8} r^{4} - \frac{15}{4} r^{2} z^{2} + \frac{35}{8} z^{4} \\
+C_{41}(x,y,z) &amp; = \frac{1}{10} \sqrt{10} x \left(- \frac{15}{2} r^{2} z + \frac{35}{2} z^{3}\right) \\
+S_{41}(x,y,z) &amp; = \frac{1}{10} \sqrt{10} y \left(- \frac{15}{2} r^{2} z + \frac{35}{2} z^{3}\right) \\
+C_{42}(x,y,z) &amp; = \frac{1}{30} \sqrt{5} \left(- \frac{15}{2} r^{2} + \frac{105}{2} z^{2}\right) \left(x^{2} - y^{2}\right) \\
+S_{42}(x,y,z) &amp; = \frac{1}{15} \sqrt{5} x y \left(- \frac{15}{2} r^{2} + \frac{105}{2} z^{2}\right) \\
+C_{43}(x,y,z) &amp; = \frac{1}{4} \sqrt{70} z \left(x^{3} - 3 x y^{2}\right) \\
+S_{43}(x,y,z) &amp; = \frac{1}{4} \sqrt{70} z \left(3 x^{2} y - y^{3}\right) \\
+C_{44}(x,y,z) &amp; = \frac{1}{8} \sqrt{35} \left(x^{4} - 6 x^{2} y^{2} + y^{4}\right) \\
+S_{44}(x,y,z) &amp; = \frac{1}{8} \sqrt{35} \left(4 x^{3} y - 4 x y^{3}\right)\end{split}\]</div>
+<p>Note that these functions are not normalized yet.
+The formatting of the list above is not great because of the limitations of
+Sympy&#8217;s latex printer.</p>
+<p>The script <code class="docutils literal"><span class="pre">tools/harmonics.py</span></code> also generates the transformation matrices
+from Cartesian to pure basis functions. These do take into account the
+normalization.</p>
+<div class="math">
+\[\begin{split}\left(\begin{array}{c}
+X(C_{00})
+\end{array}\right)
+&amp;=
+\left(\begin{array}{c}
+1 \\
+\end{array}\right)
+\left(\begin{array}{c}
+X(1)
+\end{array}\right)
+\\
+\left(\begin{array}{c}
+X(C_{10}) \\ X(C_{11}) \\ X(S_{11})
+\end{array}\right)
+&amp;=
+\left(\begin{array}{ccc}
+0 &amp; 0 &amp; 1 \\
+1 &amp; 0 &amp; 0 \\
+0 &amp; 1 &amp; 0 \\
+\end{array}\right)
+\left(\begin{array}{c}
+X(x) \\ X(y) \\ X(z)
+\end{array}\right)
+\\
+\left(\begin{array}{c}
+X(C_{20}) \\ X(C_{21}) \\ X(S_{21}) \\ X(C_{22}) \\ X(S_{22})
+\end{array}\right)
+&amp;=
+\left(\begin{array}{cccccc}
+- \frac{1}{2} &amp; 0 &amp; 0 &amp; - \frac{1}{2} &amp; 0 &amp; 1 \\
+0 &amp; 0 &amp; 1 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; 0 \\
+\frac{1}{2} \sqrt{3} &amp; 0 &amp; 0 &amp; - \frac{1}{2} \sqrt{3} &amp; 0 &amp; 0 \\
+0 &amp; 1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+\end{array}\right)
+\left(\begin{array}{c}
+X(xx) \\ X(xy) \\ X(xz) \\ X(yy) \\ X(yz) \\ X(zz)
+\end{array}\right)
+\\
+\left(\begin{array}{c}
+X(C_{30}) \\ X(C_{31}) \\ X(S_{31}) \\ X(C_{32}) \\ X(S_{32}) \\ X(C_{33}) \\ X(S_{33})
+\end{array}\right)
+&amp;=
+\left(\begin{array}{cccccccccc}
+0 &amp; 0 &amp; - \frac{3}{10} \sqrt{5} &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; - \frac{3}{10} \sqrt{5} &amp; 0 &amp; 1 \\
+- \frac{1}{4} \sqrt{6} &amp; 0 &amp; 0 &amp; - \frac{1}{20} \sqrt{30} &amp; 0 &amp; \frac{1}{5} \sqrt{30} &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; - \frac{1}{20} \sqrt{30} &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; - \frac{1}{4} \sqrt{6} &amp; 0 &amp; \frac{1}{5} \sqrt{30} &amp; 0 \\
+0 &amp; 0 &amp; \frac{1}{2} \sqrt{3} &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; - \frac{1}{2} \sqrt{3} &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+\frac{1}{4} \sqrt{10} &amp; 0 &amp; 0 &amp; - \frac{3}{4} \sqrt{2} &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; \frac{3}{4} \sqrt{2} &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; - \frac{1}{4} \sqrt{10} &amp; 0 &amp; 0 &amp; 0 \\
+\end{array}\right)
+\left(\begin{array}{c}
+X(xxx) \\ X(xxy) \\ X(xxz) \\ X(xyy) \\ X(xyz) \\ X(xzz) \\ X(yyy) \\ X(yyz) \\ X(yzz) \\ X(zzz)
+\end{array}\right)
+\\
+\left(\begin{array}{c}
+X(C_{40}) \\ X(C_{41}) \\ X(S_{41}) \\ X(C_{42}) \\ X(S_{42}) \\ X(C_{43}) \\ X(S_{43}) \\ X(C_{44}) \\ X(S_{44})
+\end{array}\right)
+&amp;=
+\left(\begin{array}{ccccccccccccccc}
+\frac{3}{8} &amp; 0 &amp; 0 &amp; \frac{3}{140} \sqrt{105} &amp; 0 &amp; - \frac{3}{35} \sqrt{105} &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; \frac{3}{8} &amp; 0 &amp; - \frac{3}{35} \sqrt{105} &amp; 0 &amp; 1 \\
+0 &amp; 0 &amp; - \frac{3}{28} \sqrt{70} &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; - \frac{3}{28} \sqrt{14} &amp; 0 &amp; \frac{1}{7} \sqrt{70} &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; - \frac{3}{28} \sqrt{14} &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; - \frac{3}{28} \sqrt{70} &amp; 0 &amp; \frac{1}{7} \sqrt{70} &amp; 0 \\
+- \frac{1}{4} \sqrt{5} &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; \frac{3}{14} \sqrt{21} &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; \frac{1}{4} \sqrt{5} &amp; 0 &amp; - \frac{3}{14} \sqrt{21} &amp; 0 &amp; 0 \\
+0 &amp; - \frac{1}{14} \sqrt{35} &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; - \frac{1}{14} \sqrt{35} &amp; 0 &amp; \frac{3}{7} \sqrt{7} &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; \frac{1}{4} \sqrt{10} &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; - \frac{3}{4} \sqrt{2} &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; \frac{3}{4} \sqrt{2} &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; - \frac{1}{4} \sqrt{10} &amp; 0 &amp; 0 &amp; 0 \\
+\frac{1}{8} \sqrt{35} &amp; 0 &amp; 0 &amp; - \frac{3}{4} \sqrt{3} &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; \frac{1}{8} \sqrt{35} &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; \frac{1}{2} \sqrt{5} &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; - \frac{1}{2} \sqrt{5} &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+\end{array}\right)
+\left(\begin{array}{c}
+X(xxxx) \\ X(xxxy) \\ X(xxxz) \\ X(xxyy) \\ X(xxyz) \\ X(xxzz) \\ X(xyyy) \\ X(xyyz) \\ X(xyzz) \\ X(xzzz) \\ X(yyyy) \\ X(yyyz) \\ X(yyzz) \\ X(yzzz) \\ X(zzzz)
+\end{array}\right)\end{split}\]</div>
+<p>These transformations are implemented in <code class="docutils literal"><span class="pre">horton/cartpure.c</span></code> with sparse
+matrix products for angular momenta up to <span class="math">\(\ell=9\)</span>.</p>
+</div>
+<div class="section" id="recursion-relations-for-real-regular-solid-harmonics">
+<h3>2.6.2.5. Recursion relations for real regular solid harmonics<a class="headerlink" href="#recursion-relations-for-real-regular-solid-harmonics" title="Permalink to this headline">¶</a></h3>
+<p>Recurrence relations for <span class="math">\(\Pi_{\ell m}(z,r^2)\)</span> can be derived from the
+recurrence relations for the associated Legendre polynomials:</p>
+<blockquote>
+<div><p>Initialization</p>
+<div class="math">
+\[\Pi_{0 0}(z,r^2) &amp; = 1\]</div>
+<p>For <span class="math">\(\ell \ge 1\)</span></p>
+<div class="math">
+\[\begin{split}\Pi_{\ell \ell}(z,r^2) &amp; = (2\ell-1)\Pi_{\ell-1, \ell-1}(z,r^2) \\
+\Pi_{\ell, \ell-1}(z,r^2) &amp; = z\Pi_{\ell\ell}(z,r^2)\end{split}\]</div>
+<p>For <span class="math">\(\ell \ge 2\)</span> and <span class="math">\(0 \le m \le \ell-2\)</span></p>
+<div class="math">
+\[\Pi_{\ell m}(z,r^2) = z \frac{2\ell-1}{\ell-m} \Pi_{\ell-1, m}(z,r^2)
+                    - r^2 \frac{\ell+m-1}{\ell-m} \Pi_{\ell-2, m}(z,r^2)\]</div>
+</div></blockquote>
+<p>Recurrence relations for the functions <span class="math">\(A_m(x,y)\)</span> and <span class="math">\(B_m(x,y)\)</span> are
+easily derived from scratch:</p>
+<div class="math">
+\[\begin{split}A_m(x,y) + i B_m(x,y) &amp; = (x + iy)^m \\
+                      &amp; = (x + iy) (x + iy)^{m-1}\\
+                      &amp; = (x + iy) (A_{m-1}(x,y) + iB_{m-1}(x,y))\end{split}\]</div>
+<p>Hence, one gets:</p>
+<blockquote>
+<div><p>Initialization</p>
+<blockquote>
+<div><div class="math">
+\[\begin{split}A_1(x,y) &amp; = x \\
+B_1(x,y) &amp; = y\end{split}\]</div>
+</div></blockquote>
+<p>For <span class="math">\(m \ge 2\)</span></p>
+<blockquote>
+<div><div class="math">
+\[\begin{split}A_m(x,y) &amp; = x A_{m-1}(x,y) - y B_{m-1}(x,y) \\
+B_m(x,y) &amp; = y A_{m-1}(x,y) + x B_{m-1}(x,y)\end{split}\]</div>
+</div></blockquote>
+</div></blockquote>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tech_ref_functionals.html" class="btn btn-neutral float-right" title="2.7. LibXC Functionals" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="tech_ref_grids.html" class="btn btn-neutral" title="2.5. Atomic integration grids" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.0 built from release 2.0.0-244-gaaf5e2b. </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 16, 2016.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.0.0-244-gaaf5e2b',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

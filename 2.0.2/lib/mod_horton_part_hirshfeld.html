@@ -1,0 +1,781 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.12.3. horton.part.hirshfeld – Hirshfeld partitioning &mdash; HORTON 2.0.2 (Jun 30, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="HORTON 2.0.2 (Jun 30, 2017) documentation" href="../index.html"/>
+        <link rel="up" title="3.12. horton.part – Density-based partitioning (fuzzy atoms-in-molecules) package" href="pck_horton_part.html"/>
+        <link rel="next" title="3.12.4. horton.part.hirshfeld_e – Extended Hirshfeld (HE) partitioning" href="mod_horton_part_hirshfeld_e.html"/>
+        <link rel="prev" title="3.12.2. horton.part.becke – Becke partitioning" href="mod_horton_part_becke.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> – The main HORTON Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_correlatedwfn.html">3.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn</span></code> – Methods for correlated wavefunctions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.3. <code class="docutils literal"><span class="pre">horton.espfit</span></code> – Electrostatic potential fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_gbasis.html">3.4. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.5. <code class="docutils literal"><span class="pre">horton.grid</span></code> – Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.6. <code class="docutils literal"><span class="pre">horton.io</span></code> – Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_localization.html">3.7. <code class="docutils literal"><span class="pre">horton.localization</span></code> – Methods for orbital localization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.8. <code class="docutils literal"><span class="pre">horton.matrix</span></code> – One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.9. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> – Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.10. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> – Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_orbital_entanglement.html">3.11. <code class="docutils literal"><span class="pre">horton.orbital_entanglement</span></code> – Methods for measuring orbital entanglement</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_part.html">3.12. <code class="docutils literal"><span class="pre">horton.part</span></code> – Density-based partitioning (fuzzy atoms-in-molecules) package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_part_base.html">3.12.1. <code class="docutils literal"><span class="pre">horton.part.base</span></code> – Base classes for (atoms-in-molecules) partitioning algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_part_becke.html">3.12.2. <code class="docutils literal"><span class="pre">horton.part.becke</span></code> – Becke partitioning</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.12.3. <code class="docutils literal"><span class="pre">horton.part.hirshfeld</span></code> – Hirshfeld partitioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_part_hirshfeld_e.html">3.12.4. <code class="docutils literal"><span class="pre">horton.part.hirshfeld_e</span></code> – Extended Hirshfeld (HE) partitioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_part_hirshfeld_i.html">3.12.5. <code class="docutils literal"><span class="pre">horton.part.hirshfeld_i</span></code> – Iterative Hirshfeld (HI) partitioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_part_iterstock.html">3.12.6. <code class="docutils literal"><span class="pre">horton.part.iterstock</span></code> – Iterative Stockholder Analysis (ISA) partitioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_part_mbis.html">3.12.7. <code class="docutils literal"><span class="pre">horton.part.mbis</span></code> – Minimal Basis Iterative Stockholder (MBIS) partitioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_part_mulliken.html">3.12.8. <code class="docutils literal"><span class="pre">horton.part.mulliken</span></code> – Mulliken partitioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_part_proatomdb.html">3.12.9. <code class="docutils literal"><span class="pre">horton.part.proatomdb</span></code> – Pro-atom databases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_part_stockholder.html">3.12.10. <code class="docutils literal"><span class="pre">horton.part.stockholder</span></code> – Base classes for all stockholder partitioning schemes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_part_symmetry.html">3.12.11. <code class="docutils literal"><span class="pre">horton.part.symmetry</span></code> – Symmetry analysis of atoms-in-molecules results</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.13. <code class="docutils literal"><span class="pre">horton.scripts</span></code> – Code (solely) used by HORTON’s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+        
+          <li><a href="pck_horton_part.html">3.12. <code class="docutils literal"><span class="pre">horton.part</span></code> – Density-based partitioning (fuzzy atoms-in-molecules) package</a> &raquo;</li>
+        
+      <li>3.12.3. <code class="docutils literal"><span class="pre">horton.part.hirshfeld</span></code> – Hirshfeld partitioning</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/lib/mod_horton_part_hirshfeld.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-horton.part.hirshfeld">
+<span id="horton-part-hirshfeld-hirshfeld-partitioning"></span><h1>3.12.3. <code class="docutils literal"><span class="pre">horton.part.hirshfeld</span></code> – Hirshfeld partitioning<a class="headerlink" href="#module-horton.part.hirshfeld" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="horton.part.hirshfeld.HirshfeldWPart">
+<em class="property">class </em><code class="descclassname">horton.part.hirshfeld.</code><code class="descname">HirshfeldWPart</code><span class="sig-paren">(</span><em>coordinates</em>, <em>numbers</em>, <em>pseudo_numbers</em>, <em>grid</em>, <em>moldens</em>, <em>proatomdb</em>, <em>spindens=None</em>, <em>local=True</em>, <em>lmax=3</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">horton.part.hirshfeld.HirshfeldMixin</span></code>, <a class="reference internal" href="mod_horton_part_stockholder.html#horton.part.stockholder.StockholderWPart" title="horton.part.stockholder.StockholderWPart"><code class="xref py py-class docutils literal"><span class="pre">horton.part.stockholder.StockholderWPart</span></code></a></p>
+<p><strong>Arguments:</strong> (that are not defined in <code class="docutils literal"><span class="pre">WPart</span></code>)</p>
+<dl class="docutils">
+<dt>proatomdb</dt>
+<dd>In instance of ProAtomDB that contains all the reference atomic
+densities.</dd>
+</dl>
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.__getitem__">
+<code class="descname">__getitem__</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.__getitem__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>coordinates</em>, <em>numbers</em>, <em>pseudo_numbers</em>, <em>grid</em>, <em>moldens</em>, <em>proatomdb</em>, <em>spindens=None</em>, <em>local=True</em>, <em>lmax=3</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Arguments:</strong> (that are not defined in <code class="docutils literal"><span class="pre">WPart</span></code>)</p>
+<dl class="docutils">
+<dt>proatomdb</dt>
+<dd>In instance of ProAtomDB that contains all the reference atomic
+densities.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Discard all cached results, e.g. because wfn changed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.compute_pseudo_population">
+<code class="descname">compute_pseudo_population</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.compute_pseudo_population" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.do_all">
+<code class="descname">do_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.do_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes all properties and return a list of their keys.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.do_charges">
+<code class="descname">do_charges</code><span class="sig-paren">(</span><em>instance</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.do_charges" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.do_density_decomposition">
+<code class="descname">do_density_decomposition</code><span class="sig-paren">(</span><em>instance</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.do_density_decomposition" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.do_dispersion">
+<code class="descname">do_dispersion</code><span class="sig-paren">(</span><em>instance</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.do_dispersion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.do_hartree_decomposition">
+<code class="descname">do_hartree_decomposition</code><span class="sig-paren">(</span><em>instance</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.do_hartree_decomposition" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.do_moments">
+<code class="descname">do_moments</code><span class="sig-paren">(</span><em>instance</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.do_moments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.do_partitioning">
+<code class="descname">do_partitioning</code><span class="sig-paren">(</span><em>instance</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.do_partitioning" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.do_populations">
+<code class="descname">do_populations</code><span class="sig-paren">(</span><em>instance</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.do_populations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.do_prosplines">
+<code class="descname">do_prosplines</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.do_prosplines" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.do_spin_charges">
+<code class="descname">do_spin_charges</code><span class="sig-paren">(</span><em>instance</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.do_spin_charges" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.eval_proatom">
+<code class="descname">eval_proatom</code><span class="sig-paren">(</span><em>index</em>, <em>output</em>, <em>grid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.eval_proatom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.eval_spline">
+<code class="descname">eval_spline</code><span class="sig-paren">(</span><em>index</em>, <em>spline</em>, <em>output</em>, <em>grid=None</em>, <em>label=’noname’</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.eval_spline" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.fix_proatom_rho">
+<code class="descname">fix_proatom_rho</code><span class="sig-paren">(</span><em>index</em>, <em>rho</em>, <em>deriv</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.fix_proatom_rho" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the radial density for the proatom is correct and fix as needed.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>index</dt>
+<dd>The atom for which this proatom rho is created.</dd>
+<dt>rho</dt>
+<dd>The radial density</dd>
+<dt>deriv</dt>
+<dd>the derivative of the radial density or None.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.get_grid">
+<code class="descname">get_grid</code><span class="sig-paren">(</span><em>index=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.get_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an integration grid</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>index</dt>
+<dd>The index of the atom. If not given, a grid for the entire
+system is returned. If self.local is False, a full system grid
+is always returned.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.get_memory_estimates">
+<code class="descname">get_memory_estimates</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.get_memory_estimates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.get_moldens">
+<code class="descname">get_moldens</code><span class="sig-paren">(</span><em>index=None</em>, <em>output=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.get_moldens" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.get_proatom_rho">
+<code class="descname">get_proatom_rho</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.get_proatom_rho" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.get_proatom_spline">
+<code class="descname">get_proatom_spline</code><span class="sig-paren">(</span><em>index</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.get_proatom_spline" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.get_rgrid">
+<code class="descname">get_rgrid</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.get_rgrid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.get_spindens">
+<code class="descname">get_spindens</code><span class="sig-paren">(</span><em>index=None</em>, <em>output=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.get_spindens" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.get_wcor">
+<code class="descname">get_wcor</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.get_wcor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.to_atomic_grid">
+<code class="descname">to_atomic_grid</code><span class="sig-paren">(</span><em>index</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.to_atomic_grid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.update_at_weights">
+<code class="descname">update_at_weights</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.update_at_weights" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.update_pro">
+<code class="descname">update_pro</code><span class="sig-paren">(</span><em>index</em>, <em>proatdens</em>, <em>promoldens</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.update_pro" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.cache">
+<code class="descname">cache</code><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.coordinates">
+<code class="descname">coordinates</code><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.coordinates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.grid">
+<code class="descname">grid</code><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.grid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.linear">
+<code class="descname">linear</code><em class="property"> = True</em><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.linear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.lmax">
+<code class="descname">lmax</code><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.lmax" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.local">
+<code class="descname">local</code><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.local" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.name">
+<code class="descname">name</code><em class="property"> = ‘h’</em><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.natom">
+<code class="descname">natom</code><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.natom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.numbers">
+<code class="descname">numbers</code><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.numbers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.options">
+<code class="descname">options</code><em class="property"> = [‘lmax’]</em><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.options" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.proatomdb">
+<code class="descname">proatomdb</code><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.proatomdb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldWPart.pseudo_numbers">
+<code class="descname">pseudo_numbers</code><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldWPart.pseudo_numbers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.part.hirshfeld.HirshfeldCPart">
+<em class="property">class </em><code class="descclassname">horton.part.hirshfeld.</code><code class="descname">HirshfeldCPart</code><span class="sig-paren">(</span><em>coordinates</em>, <em>numbers</em>, <em>pseudo_numbers</em>, <em>grid</em>, <em>moldens</em>, <em>proatomdb</em>, <em>spindens=None</em>, <em>local=True</em>, <em>lmax=3</em>, <em>wcor_numbers=None</em>, <em>wcor_rcut_max=2.0</em>, <em>wcor_rcond=0.1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">horton.part.hirshfeld.HirshfeldMixin</span></code>, <a class="reference internal" href="mod_horton_part_stockholder.html#horton.part.stockholder.StockholderCPart" title="horton.part.stockholder.StockholderCPart"><code class="xref py py-class docutils literal"><span class="pre">horton.part.stockholder.StockholderCPart</span></code></a></p>
+<p><strong>Arguments:</strong> (that are not defined in <code class="docutils literal"><span class="pre">CPart</span></code>)</p>
+<dl class="docutils">
+<dt>proatomdb</dt>
+<dd>In instance of ProAtomDB that contains all the reference atomic
+densities.</dd>
+</dl>
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.__getitem__">
+<code class="descname">__getitem__</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.__getitem__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>coordinates</em>, <em>numbers</em>, <em>pseudo_numbers</em>, <em>grid</em>, <em>moldens</em>, <em>proatomdb</em>, <em>spindens=None</em>, <em>local=True</em>, <em>lmax=3</em>, <em>wcor_numbers=None</em>, <em>wcor_rcut_max=2.0</em>, <em>wcor_rcond=0.1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Arguments:</strong> (that are not defined in <code class="docutils literal"><span class="pre">CPart</span></code>)</p>
+<dl class="docutils">
+<dt>proatomdb</dt>
+<dd>In instance of ProAtomDB that contains all the reference atomic
+densities.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Discard all cached results, e.g. because wfn changed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.compute_pseudo_population">
+<code class="descname">compute_pseudo_population</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.compute_pseudo_population" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.do_all">
+<code class="descname">do_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.do_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes all properties and return a list of their keys.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.do_charges">
+<code class="descname">do_charges</code><span class="sig-paren">(</span><em>instance</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.do_charges" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.do_dispersion">
+<code class="descname">do_dispersion</code><span class="sig-paren">(</span><em>instance</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.do_dispersion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.do_moments">
+<code class="descname">do_moments</code><span class="sig-paren">(</span><em>instance</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.do_moments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.do_partitioning">
+<code class="descname">do_partitioning</code><span class="sig-paren">(</span><em>instance</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.do_partitioning" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.do_populations">
+<code class="descname">do_populations</code><span class="sig-paren">(</span><em>instance</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.do_populations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.do_prosplines">
+<code class="descname">do_prosplines</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.do_prosplines" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.do_spin_charges">
+<code class="descname">do_spin_charges</code><span class="sig-paren">(</span><em>instance</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.do_spin_charges" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.eval_proatom">
+<code class="descname">eval_proatom</code><span class="sig-paren">(</span><em>index</em>, <em>output</em>, <em>grid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.eval_proatom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.eval_spline">
+<code class="descname">eval_spline</code><span class="sig-paren">(</span><em>index</em>, <em>spline</em>, <em>output</em>, <em>grid=None</em>, <em>label=’noname’</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.eval_spline" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.fix_proatom_rho">
+<code class="descname">fix_proatom_rho</code><span class="sig-paren">(</span><em>index</em>, <em>rho</em>, <em>deriv</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.fix_proatom_rho" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the radial density for the proatom is correct and fix as needed.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>index</dt>
+<dd>The atom for which this proatom rho is created.</dd>
+<dt>rho</dt>
+<dd>The radial density</dd>
+<dt>deriv</dt>
+<dd>the derivative of the radial density or None.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.get_cutoff_radius">
+<code class="descname">get_cutoff_radius</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.get_cutoff_radius" title="Permalink to this definition">¶</a></dt>
+<dd><p>The radius at which the weight function goes to zero</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.get_grid">
+<code class="descname">get_grid</code><span class="sig-paren">(</span><em>index=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.get_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an integration grid</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>index</dt>
+<dd>The index of the atom. If not given, a grid for the entire
+system is returned. If self.local is False, a full system grid
+is always returned.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.get_memory_estimates">
+<code class="descname">get_memory_estimates</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.get_memory_estimates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.get_moldens">
+<code class="descname">get_moldens</code><span class="sig-paren">(</span><em>index=None</em>, <em>output=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.get_moldens" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.get_proatom_rho">
+<code class="descname">get_proatom_rho</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.get_proatom_rho" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.get_proatom_spline">
+<code class="descname">get_proatom_spline</code><span class="sig-paren">(</span><em>index</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.get_proatom_spline" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.get_rgrid">
+<code class="descname">get_rgrid</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.get_rgrid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.get_spindens">
+<code class="descname">get_spindens</code><span class="sig-paren">(</span><em>index=None</em>, <em>output=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.get_spindens" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.get_wcor">
+<code class="descname">get_wcor</code><span class="sig-paren">(</span><em>index=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.get_wcor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.get_wcor_funcs">
+<code class="descname">get_wcor_funcs</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.get_wcor_funcs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.to_atomic_grid">
+<code class="descname">to_atomic_grid</code><span class="sig-paren">(</span><em>index</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.to_atomic_grid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.to_sys_grid">
+<code class="descname">to_sys_grid</code><span class="sig-paren">(</span><em>index</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.to_sys_grid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.update_at_weights">
+<code class="descname">update_at_weights</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.update_at_weights" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.update_pro">
+<code class="descname">update_pro</code><span class="sig-paren">(</span><em>index</em>, <em>proatdens</em>, <em>promoldens</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.update_pro" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.cache">
+<code class="descname">cache</code><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.coordinates">
+<code class="descname">coordinates</code><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.coordinates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.grid">
+<code class="descname">grid</code><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.grid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.linear">
+<code class="descname">linear</code><em class="property"> = True</em><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.linear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.lmax">
+<code class="descname">lmax</code><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.lmax" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.local">
+<code class="descname">local</code><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.local" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.name">
+<code class="descname">name</code><em class="property"> = ‘h’</em><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.natom">
+<code class="descname">natom</code><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.natom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.numbers">
+<code class="descname">numbers</code><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.numbers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.options">
+<code class="descname">options</code><em class="property"> = [‘lmax’]</em><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.options" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.proatomdb">
+<code class="descname">proatomdb</code><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.proatomdb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.pseudo_numbers">
+<code class="descname">pseudo_numbers</code><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.pseudo_numbers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.part.hirshfeld.HirshfeldCPart.wcor_numbers">
+<code class="descname">wcor_numbers</code><a class="headerlink" href="#horton.part.hirshfeld.HirshfeldCPart.wcor_numbers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_part_hirshfeld_e.html" class="btn btn-neutral float-right" title="3.12.4. horton.part.hirshfeld_e – Extended Hirshfeld (HE) partitioning" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_part_becke.html" class="btn btn-neutral" title="3.12.2. horton.part.becke – Becke partitioning" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.2 built from release 2.0.2 (Jun 30, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 30, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.0.2 (Jun 30, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

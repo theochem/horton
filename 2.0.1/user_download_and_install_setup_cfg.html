@@ -1,0 +1,364 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>1.3. Controlling dynamic/static linking against LibXC, LibInt2 and BLAS &mdash; HORTON 2.0.1 (Jun 17, 2016) documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="HORTON 2.0.1 (Jun 17, 2016) documentation" href="index.html"/>
+        <link rel="up" title="1. Download and Installation" href="user_download_and_install.html"/>
+        <link rel="next" title="1.4. Troubleshooting" href="user_download_and_install_troubleshooting.html"/>
+        <link rel="prev" title="1.2. Download and installation on Mac OS X (10.8–10.11)" href="user_download_and_install_mac.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="user_download_and_install_linux.html">1.1. Download and installation on Linux (Fedora and Ubuntu)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_download_and_install_mac.html">1.2. Download and installation on Mac OS X (10.8&#8211;10.11)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1.3. Controlling dynamic/static linking against LibXC, LibInt2 and BLAS</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">1.3.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setup-cfg-and-environment-variables">1.3.2. <code class="docutils literal"><span class="pre">setup.cfg</span></code> and environment variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#other-ways-of-controlling-compilation-and-linker-flags">1.3.3. Other ways of controlling compilation and linker flags</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_download_and_install_troubleshooting.html">1.4. Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">HORTON</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="user_download_and_install.html">1. Download and Installation</a> &raquo;</li>
+      
+    <li>1.3. Controlling dynamic/static linking against LibXC, LibInt2 and BLAS</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/user_download_and_install_setup_cfg.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="controlling-dynamic-static-linking-against-libxc-libint2-and-blas">
+<span id="setup-cfg"></span><h1>1.3. Controlling dynamic/static linking against LibXC, LibInt2 and BLAS<a class="headerlink" href="#controlling-dynamic-static-linking-against-libxc-libint2-and-blas" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>1.3.1. Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>The script <code class="docutils literal"><span class="pre">setup.py</span></code> also compiles C++ code into Python extensions. Some of
+these extension are linked against LibXC, LibInt2, BLAS library or a combination
+of these. The <code class="docutils literal"><span class="pre">setup.py</span></code> script attempts to detect all of the compiler and
+linker settings for these libraries automatically.</p>
+<p>For <strong>each</strong> library, following attempts are made (in the given order) to detect
+the compiler and linker flags. If the attempt succeeds, i.e. gives a set of
+satisfactory flags, further steps are not considered for that library.</p>
+<ol class="arabic simple">
+<li>Read <code class="docutils literal"><span class="pre">setup.cfg</span></code> in the root of the source tree for compilation and link
+options for that library, as documented in <a class="reference internal" href="#cfgfile"><span class="std std-ref">setup.cfg and environment variables</span></a>. Read in
+environment variables for compilation and link options for that library.</li>
+<li>Statically link libraries in the <code class="docutils literal"><span class="pre">depends</span></code> directory (for LibXC and LibInt2).</li>
+<li>Use program <code class="docutils literal"><span class="pre">pkg-config</span></code> to get all of the compiler and linker flags
+for each library. See <a class="reference external" href="http://www.freedesktop.org/wiki/Software/pkg-config/">http://www.freedesktop.org/wiki/Software/pkg-config/</a> for
+more details.</li>
+<li>Read <code class="docutils literal"><span class="pre">setup.*.cfg</span></code> file in the directory <code class="docutils literal"><span class="pre">data/setup_cfgs</span></code> that
+corresponds to your operating system and CPU architecture for compilation and
+link options for that library.</li>
+<li>Dynamically link libraries using default library names: <code class="docutils literal"><span class="pre">xc</span></code>, <code class="docutils literal"><span class="pre">int2</span></code> and
+<code class="docutils literal"><span class="pre">atlas</span></code>, for LibXC, LibInt2 and BLAS, respectively.</li>
+</ol>
+<p>However, if these steps do not result in decent compiler/linker options for some
+library or the dependencies are not installed, then the compilation will fail
+and you will get a compiler error message.</p>
+<p>The following sections explain how you can override the default guesses of the
+<code class="docutils literal"><span class="pre">setup.py</span></code> script.</p>
+</div>
+<div class="section" id="setup-cfg-and-environment-variables">
+<span id="cfgfile"></span><h2>1.3.2. <code class="docutils literal"><span class="pre">setup.cfg</span></code> and environment variables<a class="headerlink" href="#setup-cfg-and-environment-variables" title="Permalink to this headline">¶</a></h2>
+<p>For each library, a section can be added to the file <code class="docutils literal"><span class="pre">setup.cfg</span></code> to configure
+the compiler and linker options. By default, no such file is present in the root
+of the source tree, so you have to create a new one. Several examples can be
+found in <code class="docutils literal"><span class="pre">data/setup_cfgs</span></code>. For example, this file would compile and link the
+extensions on a 64 bit version of Fedora 21:</p>
+<div class="literal-block-wrapper container" id="data-setup-cfgs-setup-linux-fedora-21-x86-64-cfg">
+<div class="code-block-caption"><span class="caption-text">data/setup_cfgs/setup.Linux-Fedora-21-x86_64.cfg</span><a class="headerlink" href="#data-setup-cfgs-setup-linux-fedora-21-x86-64-cfg" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">libint2</span><span class="p">]</span>
+<span class="n">include_dirs</span><span class="o">=/</span><span class="n">usr</span><span class="o">/</span><span class="n">include</span><span class="o">/</span><span class="n">libint2</span>
+<span class="n">libraries</span><span class="o">=</span><span class="n">int2</span>
+</pre></div>
+</div>
+</div>
+<p>This is a setup.cfg file for a compilation with the Intel MKL libraries on
+Fedora:</p>
+<div class="literal-block-wrapper container" id="data-setup-cfgs-setup-linux-fedora-mkl-cfg">
+<div class="code-block-caption"><span class="caption-text">data/setup_cfgs/setup.Linux-Fedora-MKL.cfg</span><a class="headerlink" href="#data-setup-cfgs-setup-linux-fedora-mkl-cfg" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">libint2</span><span class="p">]</span>
+<span class="n">include_dirs</span><span class="o">=/</span><span class="n">usr</span><span class="o">/</span><span class="n">include</span><span class="o">/</span><span class="n">libint2</span>
+<span class="n">libraries</span><span class="o">=</span><span class="n">int2</span>
+
+<span class="p">[</span><span class="n">blas</span><span class="p">]</span>
+<span class="n">libraries</span><span class="o">=</span><span class="n">mkl_intel_lp64</span><span class="p">:</span><span class="n">mkl_core</span><span class="p">:</span><span class="n">mkl_sequential</span><span class="p">:</span><span class="n">pthread</span><span class="p">:</span><span class="n">m</span>
+</pre></div>
+</div>
+</div>
+<p>In each section you can define the following variables: <code class="docutils literal"><span class="pre">include_dirs</span></code>,
+<code class="docutils literal"><span class="pre">library_dirs</span></code>, <code class="docutils literal"><span class="pre">libraries</span></code>, <code class="docutils literal"><span class="pre">extra_objects</span></code>, <code class="docutils literal"><span class="pre">extra_compile_args</span></code> and
+<code class="docutils literal"><span class="pre">extra_link_args</span></code>. They correspond to the optional arguments of the
+<code class="docutils literal"><span class="pre">Extension</span></code> class of the Distutils package, as described here:
+<a class="reference external" href="https://docs.python.org/2/distutils/setupscript.html#describing-extension-modules">https://docs.python.org/2/distutils/setupscript.html#describing-extension-modules</a>
+The purpose of each keyword is summarized below:</p>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">include_dirs</span></code></dt>
+<dd>A list of non-standard directories containing C/C++ header files</dd>
+<dt><code class="docutils literal"><span class="pre">library_dirs</span></code></dt>
+<dd>A list of non-standard directories with shared objects (dynamic link
+libraries). When any of the <code class="docutils literal"><span class="pre">*_LIBRARY_DIRS</span></code> variables or the <code class="docutils literal"><span class="pre">-L</span></code>
+option of <code class="docutils literal"><span class="pre">setup.py</span> <span class="pre">build_ext</span></code> are used, keep in mind that at runtime, the
+dynamic link loader must be informed of these directories. For example, on
+Linux, the variable <code class="docutils literal"><span class="pre">LD_LIBRARY_PATH</span></code> must be set accordingly.</dd>
+<dt><code class="docutils literal"><span class="pre">libraries</span></code></dt>
+<dd>A list of shared objects to link with.</dd>
+<dt><code class="docutils literal"><span class="pre">extra_objects</span></code></dt>
+<dd>Extra object files for static linking.</dd>
+<dt><code class="docutils literal"><span class="pre">extra_compile_args</span></code></dt>
+<dd>Extra arguments given to the compiler when compiling source code.</dd>
+<dt><code class="docutils literal"><span class="pre">extra_link_args</span></code></dt>
+<dd>Extra arguments given to the compiler when linking object files.</dd>
+</dl>
+<p>Multiple paths or names for one keyword are separated by a colon (<code class="docutils literal"><span class="pre">:</span></code>).</p>
+<p>Instead of setting the library configuration in the file <code class="docutils literal"><span class="pre">setup.cfg</span></code>, you may
+also set the following environment variables:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">LIBXC_LIBRARY_DIRS</span></code></li>
+<li><code class="docutils literal"><span class="pre">LIBXC_LIBRARIES</span></code></li>
+<li><code class="docutils literal"><span class="pre">LIBXC_EXTRA_OBJECTS</span></code></li>
+<li><code class="docutils literal"><span class="pre">LIBXC_EXTRA_COMPILE_ARGS</span></code></li>
+<li><code class="docutils literal"><span class="pre">LIBXC_EXTRA_LINK_ARGS</span></code></li>
+<li><code class="docutils literal"><span class="pre">LIBINT2_LIBRARY_DIRS</span></code></li>
+<li><code class="docutils literal"><span class="pre">LIBINT2_LIBRARIES</span></code></li>
+<li><code class="docutils literal"><span class="pre">LIBINT2_EXTRA_OBJECTS</span></code></li>
+<li><code class="docutils literal"><span class="pre">LIBINT2_EXTRA_COMPILE_ARGS</span></code></li>
+<li><code class="docutils literal"><span class="pre">LIBINT2_EXTRA_LINK_ARGS</span></code></li>
+<li><code class="docutils literal"><span class="pre">BLAS_LIBRARY_DIRS</span></code></li>
+<li><code class="docutils literal"><span class="pre">BLAS_LIBRARIES</span></code></li>
+<li><code class="docutils literal"><span class="pre">BLAS_EXTRA_OBJECTS</span></code></li>
+<li><code class="docutils literal"><span class="pre">BLAS_EXTRA_COMPILE_ARGS</span></code></li>
+<li><code class="docutils literal"><span class="pre">BLAS_EXTRA_LINK_ARGS</span></code></li>
+</ul>
+</div>
+<div class="section" id="other-ways-of-controlling-compilation-and-linker-flags">
+<h2>1.3.3. Other ways of controlling compilation and linker flags<a class="headerlink" href="#other-ways-of-controlling-compilation-and-linker-flags" title="Permalink to this headline">¶</a></h2>
+<p>Instead of the library-specific variables above, there are also general methods
+to configure the compiler and linker.</p>
+<p>You may specify a colon-separated list of non-standard directories with
+include files in the <code class="docutils literal"><span class="pre">CPATH</span></code> environment variable. For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">CPATH</span><span class="o">=/</span><span class="n">usr</span><span class="o">/</span><span class="n">include</span><span class="o">/</span><span class="n">libint2</span>
+</pre></div>
+</div>
+<p>In addition, general compiler and linker flags may be set in the <code class="docutils literal"><span class="pre">build_ext</span></code>
+stage of the installation process. To do so, the installation must be done
+in two steps:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">build_ext</span> <span class="n">EXTRA</span> <span class="n">OPTIONS</span> <span class="n">HERE</span>
+<span class="o">./</span><span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span> <span class="o">--</span><span class="n">user</span>
+</pre></div>
+</div>
+<p>Run <code class="docutils literal"><span class="pre">./setup.py</span> <span class="pre">build_ext</span> <span class="pre">--help</span></code> for a complete list of options. These
+options apply to all extensions, so avoid them for static linking.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="user_download_and_install_troubleshooting.html" class="btn btn-neutral float-right" title="1.4. Troubleshooting" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="user_download_and_install_mac.html" class="btn btn-neutral" title="1.2. Download and installation on Mac OS X (10.8–10.11)" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.1 built from release 2.0.1 (Jun 17, 2016). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 17, 2016.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.0.1 (Jun 17, 2016)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

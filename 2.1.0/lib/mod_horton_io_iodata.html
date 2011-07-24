@@ -1,0 +1,476 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.5.6. horton.io.iodata – Input/output dispatcher for different file formats &mdash; HORTON 2.1.0 (Jul 06, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="HORTON 2.1.0 (Jul 06, 2017) documentation" href="../index.html"/>
+        <link rel="up" title="3.5. horton.io – Input and output routines" href="pck_horton_io.html"/>
+        <link rel="next" title="3.5.7. horton.io.lockedh5 – H5 file with lock" href="mod_horton_io_lockedh5.html"/>
+        <link rel="prev" title="3.5.5. horton.io.internal – HORTON internal file format" href="mod_horton_io_internal.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> – The main HORTON Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.2. <code class="docutils literal"><span class="pre">horton.espfit</span></code> – Electrostatic potential fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_gbasis.html">3.3. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.4. <code class="docutils literal"><span class="pre">horton.grid</span></code> – Numerical integration grids</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_io.html">3.5. <code class="docutils literal"><span class="pre">horton.io</span></code> – Input and output routines</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_cif.html">3.5.1. <code class="docutils literal"><span class="pre">horton.io.cif</span></code> – Crystalographic Information File format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_cp2k.html">3.5.2. <code class="docutils literal"><span class="pre">horton.io.cp2k</span></code> – CP2K atomic wavefunctions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_cube.html">3.5.3. <code class="docutils literal"><span class="pre">horton.io.cube</span></code> – Gaussian cube file format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_gaussian.html">3.5.4. <code class="docutils literal"><span class="pre">horton.io.gaussian</span></code> – Gaussian LOG and FCHK file fromats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_internal.html">3.5.5. <code class="docutils literal"><span class="pre">horton.io.internal</span></code> – HORTON internal file format</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.5.6. <code class="docutils literal"><span class="pre">horton.io.iodata</span></code> – Input/output dispatcher for different file formats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_lockedh5.html">3.5.7. <code class="docutils literal"><span class="pre">horton.io.lockedh5</span></code> – H5 file with lock</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_molden.html">3.5.8. <code class="docutils literal"><span class="pre">horton.io.molden</span></code> – Molden wavefunction input file format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_molekel.html">3.5.9. <code class="docutils literal"><span class="pre">horton.io.molekel</span></code> – Molekel wavefunction input file format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_molpro.html">3.5.10. <code class="docutils literal"><span class="pre">horton.io.molpro</span></code> – Molpro 2012 FCIDUMP format.</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_vasp.html">3.5.11. <code class="docutils literal"><span class="pre">horton.io.vasp</span></code> – VASP POSCAR, CHGCAR and POTCAR file formats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_wfn.html">3.5.12. <code class="docutils literal"><span class="pre">horton.io.wfn</span></code> – WFN File format (Gaussian and GAMESS)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_xyz.html">3.5.13. <code class="docutils literal"><span class="pre">horton.io.xyz</span></code> – XYZ file format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.6. <code class="docutils literal"><span class="pre">horton.matrix</span></code> – One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.7. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> – Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.8. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> – Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.9. <code class="docutils literal"><span class="pre">horton.part</span></code> – Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.10. <code class="docutils literal"><span class="pre">horton.scripts</span></code> – Code (solely) used by HORTON’s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+        
+          <li><a href="pck_horton_io.html">3.5. <code class="docutils literal"><span class="pre">horton.io</span></code> – Input and output routines</a> &raquo;</li>
+        
+      <li>3.5.6. <code class="docutils literal"><span class="pre">horton.io.iodata</span></code> – Input/output dispatcher for different file formats</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/lib/mod_horton_io_iodata.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-horton.io.iodata">
+<span id="horton-io-iodata-input-output-dispatcher-for-different-file-formats"></span><h1>3.5.6. <code class="docutils literal"><span class="pre">horton.io.iodata</span></code> – Input/output dispatcher for different file formats<a class="headerlink" href="#module-horton.io.iodata" title="Permalink to this headline">¶</a></h1>
+<p>The <code class="docutils literal"><span class="pre">IOData.from_file</span></code> and <code class="docutils literal"><span class="pre">IOData.to_file</span></code> methods read/write data
+from/to a file. The format is deduced from the prefix or extension of the
+filename.</p>
+<dl class="class">
+<dt id="horton.io.iodata.IOData">
+<em class="property">class </em><code class="descclassname">horton.io.iodata.</code><code class="descname">IOData</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.iodata.IOData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>A container class for data loaded from (or to be written to) a file.</p>
+<p>In principle, the constructor accepts any keyword argument, which is
+stored as an attribute. All attributes are optional. Attributes can be
+set are removed after the IOData instance is constructed. The following
+attributes are supported by at least one of the io formats:</p>
+<p><strong>Type checked array attributes (if present):</strong></p>
+<dl class="docutils">
+<dt>cube_data</dt>
+<dd>A (L, M, N) array of data on a uniform grid (defined by ugrid).</dd>
+<dt>coordinates</dt>
+<dd>A (N, 3) float array with Cartesian coordinates of the atoms.</dd>
+<dt>numbers</dt>
+<dd>A (N,) int vector with the atomic numbers.</dd>
+<dt>polar</dt>
+<dd>A (3, 3) matrix containing the dipole polarizability tensor.</dd>
+<dt>pseudo_numbers</dt>
+<dd>A (N,) float array with pseudo-potential core charges.</dd>
+</dl>
+<p><strong>Unspecified type (duck typing):</strong></p>
+<dl class="docutils">
+<dt>cell</dt>
+<dd>A Cell object that describes the (generally triclinic) periodic
+boundary conditions.</dd>
+<dt>core_energy</dt>
+<dd>The Hartree-Fock energy due to the core orbitals</dd>
+<dt>energy</dt>
+<dd>The total energy (electronic+nn)</dd>
+<dt>er</dt>
+<dd>The electron repulsion four-index operator</dd>
+<dt>exp_alpha</dt>
+<dd>The alpha orbitals (coefficients, occupations and energies).</dd>
+<dt>exp_beta</dt>
+<dd>The beta orbitals (coefficients, occupations and energies).</dd>
+<dt>esp_charges</dt>
+<dd>Charges fitted to the electrostatic potential</dd>
+<dt>dm_full (optionally with a suffix like _mp2, _mp3, _cc, _ci, _scf).</dt>
+<dd>The spin-summed first-order density matrix.</dd>
+<dt>dm_spin (optionally with a suffix like _mp2, _mp3, _cc, _ci, _scf).</dt>
+<dd>The spin-difference first-order density matrix.</dd>
+<dt>grid</dt>
+<dd>An integration grid (usually a UniformGrid instance).</dd>
+<dt>kin</dt>
+<dd>The kinetic energy operator.</dd>
+<dt>lf</dt>
+<dd>A LinalgFactory instance.</dd>
+<dt>links</dt>
+<dd>A mapping between the atoms in the primitive unit and the
+crystallographic unit.</dd>
+<dt>ms2</dt>
+<dd>The spin multiplicity.</dd>
+<dt>mulliken_charges</dt>
+<dd>Mulliken AIM charges.</dd>
+<dt>na</dt>
+<dd>The nuclear attraction operator.</dd>
+<dt>nelec</dt>
+<dd>The number of electrons.</dd>
+<dt>npa_charges</dt>
+<dd>Natural charges.</dd>
+<dt>obasis</dt>
+<dd>An instance of the GOBasis class.</dd>
+<dt>olp</dt>
+<dd>The overlap operator.</dd>
+<dt>one_mo</dt>
+<dd>One-electron integrals in the (Hartree-Fock) molecular-orbital basis</dd>
+<dt>permutation</dt>
+<dd>The permutation applied to the basis functions.</dd>
+<dt>signs</dt>
+<dd>The sign changes applied to the basis functions.</dd>
+<dt>symmetry</dt>
+<dd>An instance of the Symmetry class, describing the geometric
+symmetry.</dd>
+<dt>title</dt>
+<dd>A suitable name for the data.</dd>
+<dt>two_mo</dt>
+<dd>Two-electron integrals in the (Hartree-Fock) molecular-orbital basis</dd>
+</dl>
+<dl class="method">
+<dt id="horton.io.iodata.IOData.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.iodata.IOData.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.io.iodata.IOData.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.iodata.IOData.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a shallow copy</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="horton.io.iodata.IOData.from_file">
+<em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>*filenames</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.iodata.IOData.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data from a file.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>filename1, filename2, …</dt>
+<dd>The files to load data from. When multiple files are given, data
+from the first file is overwritten by data from the second, etc.
+When one file contains sign and permutation changes for the
+orbital basis, these changes will be applied to data from all
+other files.</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>lf</dt>
+<dd>A LinalgFactory instance. DenseLinalgFactory is used as default.</dd>
+</dl>
+<p>This routine uses the extension or prefix of the filename to
+determine the file format. It returns a dictionary with data loaded
+from the file.</p>
+<p>For each file format, a specialized function is called that returns a
+dictionary with data from the file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.io.iodata.IOData.get_dm_full">
+<code class="descname">get_dm_full</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.iodata.IOData.get_dm_full" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a spin-summed density matrix using availlable attributes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.io.iodata.IOData.get_dm_spin">
+<code class="descname">get_dm_spin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.iodata.IOData.get_dm_spin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a spin-difference density matrix using availlable attributes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.io.iodata.IOData.to_file">
+<code class="descname">to_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.iodata.IOData.to_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write data to a file</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>filename</dt>
+<dd>The file to write the data to</dd>
+</dl>
+<p>This routine uses the extension or prefix of the filename to determine
+the file format. For each file format, a specialized function is
+called that does the real work.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.io.iodata.IOData.coordinates">
+<code class="descname">coordinates</code><a class="headerlink" href="#horton.io.iodata.IOData.coordinates" title="Permalink to this definition">¶</a></dt>
+<dd><p>A type-checked attribute</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.io.iodata.IOData.cube_data">
+<code class="descname">cube_data</code><a class="headerlink" href="#horton.io.iodata.IOData.cube_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>A type-checked attribute</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.io.iodata.IOData.natom">
+<code class="descname">natom</code><a class="headerlink" href="#horton.io.iodata.IOData.natom" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of atoms</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.io.iodata.IOData.numbers">
+<code class="descname">numbers</code><a class="headerlink" href="#horton.io.iodata.IOData.numbers" title="Permalink to this definition">¶</a></dt>
+<dd><p>A type-checked attribute</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.io.iodata.IOData.polar">
+<code class="descname">polar</code><a class="headerlink" href="#horton.io.iodata.IOData.polar" title="Permalink to this definition">¶</a></dt>
+<dd><p>A type-checked attribute</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.io.iodata.IOData.pseudo_numbers">
+<code class="descname">pseudo_numbers</code><a class="headerlink" href="#horton.io.iodata.IOData.pseudo_numbers" title="Permalink to this definition">¶</a></dt>
+<dd><p>A type-checked attribute</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_io_lockedh5.html" class="btn btn-neutral float-right" title="3.5.7. horton.io.lockedh5 – H5 file with lock" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_io_internal.html" class="btn btn-neutral" title="3.5.5. horton.io.internal – HORTON internal file format" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.0 built from release 2.1.0 (Jul 06, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jul 06, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.1.0 (Jul 06, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

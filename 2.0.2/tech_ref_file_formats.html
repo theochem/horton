@@ -1,0 +1,819 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>2.4. Data file formats (input and output) &mdash; HORTON 2.0.2 (Jun 30, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="HORTON 2.0.2 (Jun 30, 2017) documentation" href="index.html"/>
+        <link rel="up" title="2. Reference Documentation" href="tech_ref.html"/>
+        <link rel="next" title="2.5. Atomic integration grids" href="tech_ref_grids.html"/>
+        <link rel="prev" title="2.3. Release history" href="tech_ref_release_history.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_contributors.html">2.1. Contributors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_release_planning.html">2.2. Release planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_release_history.html">2.3. Release history</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">2.4. Data file formats (input and output)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#molecular-geometry-file-formats">2.4.1. Molecular geometry file formats</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#the-xyz-format">2.4.1.1. The <code class="docutils literal"><span class="pre">.xyz</span></code> format</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-poscar-format">2.4.1.2. The <code class="docutils literal"><span class="pre">POSCAR</span></code> format</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-cif-crystalographic-information-file-format">2.4.1.3. The <code class="docutils literal"><span class="pre">.cif</span></code> (Crystalographic Information File) format</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cube-file-formats">2.4.2. Cube file formats</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#the-gaussian-cube-format">2.4.2.1. The Gaussian <code class="docutils literal"><span class="pre">.cube</span></code> format</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-vasp-chgcar-and-locpot-formats">2.4.2.2. The VASP <code class="docutils literal"><span class="pre">CHGCAR</span></code> and <code class="docutils literal"><span class="pre">LOCPOT</span></code> formats</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#wavefunction-formats-using-a-gaussian-basis-set">2.4.3. Wavefunction formats (using a Gaussian basis set)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#the-gaussian-fchk-format">2.4.3.1. The Gaussian <code class="docutils literal"><span class="pre">.fchk</span></code> format</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-molden-format">2.4.3.2. The <code class="docutils literal"><span class="pre">.molden</span></code> format</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-mkl-molekel-format">2.4.3.3. The <code class="docutils literal"><span class="pre">.mkl</span></code> (Molekel) format</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-wfn-format">2.4.3.4. The <code class="docutils literal"><span class="pre">.wfn</span></code> format</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#hamiltonian-file-formats">2.4.4. Hamiltonian file formats</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#the-molpro-2012-fcidump-format">2.4.4.1. The Molpro 2012 <code class="docutils literal"><span class="pre">FCIDUMP</span></code> format</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-gaussian-log-file">2.4.4.2. The Gaussian <code class="docutils literal"><span class="pre">.log</span></code> file</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#horton-s-internal-file-format">2.4.5. HORTON’s internal file format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_grids.html">2.5. Atomic integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_gaussian_basis.html">2.6. Gaussian basis sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_functionals.html">2.7. LibXC Functionals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_acronyms.html">2.8. Acronyms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_dictionary.html">2.9. HORTON dictionary of variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_literature.html">2.10. Literature</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="tech_ref.html">2. Reference Documentation</a> &raquo;</li>
+        
+      <li>2.4. Data file formats (input and output)</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/tech_ref_file_formats.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="data-file-formats-input-and-output">
+<span id="ref-file-formats"></span><h1>2.4. Data file formats (input and output)<a class="headerlink" href="#data-file-formats-input-and-output" title="Permalink to this headline">¶</a></h1>
+<p>This section gives an overview of the file formats supported by HORTON. Some
+formats can be used for input and output, others only for input or for output.
+The formats are always used in the same way:</p>
+<ul>
+<li><p class="first">To load data from a file, you use the
+<a class="reference internal" href="lib/mod_horton_io_iodata.html#horton.io.iodata.IOData.from_file" title="horton.io.iodata.IOData.from_file"><code class="xref py py-meth docutils literal"><span class="pre">from_file()</span></code></a> method of the <code class="docutils literal"><span class="pre">IOData</span></code>
+class:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">mol</span> <span class="o">=</span> <span class="n">IOData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;example.xyz&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The format is recognized through the file extension (or in somecases by a
+prefix, as indicated in the following sections). The loaded data are
+accessible as attributes of the <code class="docutils literal"><span class="pre">mol</span></code> object, e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">print</span> <span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span>
+</pre></div>
+</div>
+<p>Each file format has its corresponding set of attributes that are filled with
+data read from the file. For some formats, the available attributes may also
+depend on the data available in the file.</p>
+</li>
+<li><p class="first">To dump data into a file, you create a <code class="docutils literal"><span class="pre">IOData</span></code> instance, assign
+attributes to this instance and call the
+<a class="reference internal" href="lib/mod_horton_io_iodata.html#horton.io.iodata.IOData.to_file" title="horton.io.iodata.IOData.to_file"><code class="xref py py-meth docutils literal"><span class="pre">to_file()</span></code></a> method, e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">mol</span> <span class="o">=</span> <span class="n">IOData</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Example&#39;</span><span class="p">)</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">numbers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">10</span><span class="p">])</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]])</span>
+<span class="n">mol</span> <span class="o">=</span> <span class="n">IOData</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;example.xyz&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>As shown in the above example, there are two ways to set the attributes: (i)
+by passing them as arguments to the constructor of the <code class="docutils literal"><span class="pre">IOData</span></code> class
+(first line) or by setting the attributes after creating a <code class="docutils literal"><span class="pre">IOData</span></code>
+instance (second and third line). Again, the file format is deduced from the
+file name. If not all required attributes for a given format are set, the
+<code class="docutils literal"><span class="pre">to_file</span></code> method will raise an <code class="docutils literal"><span class="pre">AtributeError</span></code>.</p>
+</li>
+</ul>
+<p>The complete list of all possible attributes (the superset for all supported
+formats) is documented here: <a class="reference internal" href="lib/mod_horton_io_iodata.html#horton.io.iodata.IOData" title="horton.io.iodata.IOData"><code class="xref py py-class docutils literal"><span class="pre">horton.io.iodata.IOData</span></code></a>. Note that
+HORTON’s internal format supports all of these and any other attribute that you
+assign to a <code class="docutils literal"><span class="pre">IOData</span></code> instance.</p>
+<div class="section" id="molecular-geometry-file-formats">
+<span id="ref-file-formats-geo"></span><h2>2.4.1. Molecular geometry file formats<a class="headerlink" href="#molecular-geometry-file-formats" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="the-xyz-format">
+<h3>2.4.1.1. The <code class="docutils literal"><span class="pre">.xyz</span></code> format<a class="headerlink" href="#the-xyz-format" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Load</td>
+<td>Yes</td>
+</tr>
+<tr class="row-even"><td>Dump</td>
+<td>Yes</td>
+</tr>
+<tr class="row-odd"><td>Recognized by</td>
+<td>File extension <code class="docutils literal"><span class="pre">.xyz</span></code></td>
+</tr>
+<tr class="row-even"><td>Interoperation</td>
+<td>Nearly all molecular simulation codes and <a class="reference external" href="http://openbabel.org/">Open Babel</a></td>
+</tr>
+<tr class="row-odd"><td>Always <strong>loading</strong></td>
+<td><code class="docutils literal"><span class="pre">title</span></code> <code class="docutils literal"><span class="pre">numbers</span></code> <code class="docutils literal"><span class="pre">coordinates</span></code></td>
+</tr>
+<tr class="row-even"><td>Derived when <strong>loading</strong></td>
+<td><code class="docutils literal"><span class="pre">natom</span></code> <code class="docutils literal"><span class="pre">pseudo_numbers</span></code></td>
+</tr>
+<tr class="row-odd"><td>Required for <strong>dumping</strong></td>
+<td><code class="docutils literal"><span class="pre">numbers</span></code> <code class="docutils literal"><span class="pre">coordinates</span></code></td>
+</tr>
+<tr class="row-even"><td>Optional for <strong>dumping</strong></td>
+<td><code class="docutils literal"><span class="pre">title</span></code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="the-poscar-format">
+<h3>2.4.1.2. The <code class="docutils literal"><span class="pre">POSCAR</span></code> format<a class="headerlink" href="#the-poscar-format" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Load</td>
+<td>Yes</td>
+</tr>
+<tr class="row-even"><td>Dump</td>
+<td>Yes</td>
+</tr>
+<tr class="row-odd"><td>Recognized by</td>
+<td>File prefix <code class="docutils literal"><span class="pre">POSCAR</span></code></td>
+</tr>
+<tr class="row-even"><td>Interoperation</td>
+<td><a class="reference external" href="https://www.vasp.at/">VASP 5.X</a>, <a class="reference external" href="http://jp-minerals.org/vesta/en/">VESTA</a></td>
+</tr>
+<tr class="row-odd"><td>Always <strong>loading</strong></td>
+<td><code class="docutils literal"><span class="pre">title</span></code> <code class="docutils literal"><span class="pre">numbers</span></code> <code class="docutils literal"><span class="pre">coordinates</span></code> <code class="docutils literal"><span class="pre">cell</span></code></td>
+</tr>
+<tr class="row-even"><td>Derived when <strong>loading</strong></td>
+<td><code class="docutils literal"><span class="pre">natom</span></code> <code class="docutils literal"><span class="pre">pseudo_numbers</span></code></td>
+</tr>
+<tr class="row-odd"><td>Required for <strong>dumping</strong></td>
+<td><code class="docutils literal"><span class="pre">numbers</span></code> <code class="docutils literal"><span class="pre">coordinates</span></code> <code class="docutils literal"><span class="pre">cell</span></code></td>
+</tr>
+<tr class="row-even"><td>Optional for <strong>dumping</strong></td>
+<td><code class="docutils literal"><span class="pre">title</span></code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="the-cif-crystalographic-information-file-format">
+<h3>2.4.1.3. The <code class="docutils literal"><span class="pre">.cif</span></code> (Crystalographic Information File) format<a class="headerlink" href="#the-cif-crystalographic-information-file-format" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Load</td>
+<td>Works only for simple files</td>
+</tr>
+<tr class="row-even"><td>Dump</td>
+<td>Yes, except for symmetry information</td>
+</tr>
+<tr class="row-odd"><td>Recognized by</td>
+<td>File extension <code class="docutils literal"><span class="pre">.cif</span></code></td>
+</tr>
+<tr class="row-even"><td>Interoperation</td>
+<td><a class="reference external" href="http://www.ccdc.cam.ac.uk/pages/Home.aspx">CCDC</a>, <a class="reference external" href="http://www.crystallography.net/">COD</a>, …</td>
+</tr>
+<tr class="row-odd"><td>Always <strong>loading</strong></td>
+<td><code class="docutils literal"><span class="pre">title</span></code> <code class="docutils literal"><span class="pre">numbers</span></code> <code class="docutils literal"><span class="pre">coordinates</span></code> <code class="docutils literal"><span class="pre">cell</span></code> <code class="docutils literal"><span class="pre">symmetry</span></code> <code class="docutils literal"><span class="pre">links</span></code></td>
+</tr>
+<tr class="row-even"><td>Derived when <strong>loading</strong></td>
+<td><code class="docutils literal"><span class="pre">natom</span></code> <code class="docutils literal"><span class="pre">pseudo_numbers</span></code></td>
+</tr>
+<tr class="row-odd"><td>Required for <strong>dumping</strong></td>
+<td><code class="docutils literal"><span class="pre">numbers</span></code> <code class="docutils literal"><span class="pre">coordinates</span></code> <code class="docutils literal"><span class="pre">cell</span></code></td>
+</tr>
+<tr class="row-even"><td>Optional for <strong>dumping</strong></td>
+<td><code class="docutils literal"><span class="pre">title</span></code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="cube-file-formats">
+<span id="ref-file-formats-cube"></span><h2>2.4.2. Cube file formats<a class="headerlink" href="#cube-file-formats" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="the-gaussian-cube-format">
+<h3>2.4.2.1. The Gaussian <code class="docutils literal"><span class="pre">.cube</span></code> format<a class="headerlink" href="#the-gaussian-cube-format" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Load</td>
+<td>Yes</td>
+</tr>
+<tr class="row-even"><td>Dump</td>
+<td>Yes</td>
+</tr>
+<tr class="row-odd"><td>Recognized by</td>
+<td>File extension <code class="docutils literal"><span class="pre">.cube</span></code></td>
+</tr>
+<tr class="row-even"><td>Interoperation</td>
+<td><a class="reference external" href="http://www.gaussian.com/">Gaussian</a>, <a class="reference external" href="http://www.cp2k.org/">CP2K</a>, <a class="reference external" href="https://wiki.fysik.dtu.dk/gpaw/">GPAW</a>, <cite>Q-Chem &lt;http://www.q-chem.com/&gt;`_</cite>, …</td>
+</tr>
+<tr class="row-odd"><td>Always <strong>loading</strong></td>
+<td><code class="docutils literal"><span class="pre">title</span></code> <code class="docutils literal"><span class="pre">numbers</span></code> <code class="docutils literal"><span class="pre">pseudo_numbers</span></code> <code class="docutils literal"><span class="pre">coordinates</span></code> <code class="docutils literal"><span class="pre">cell</span></code> <code class="docutils literal"><span class="pre">grid</span></code> <code class="docutils literal"><span class="pre">cube_data</span></code></td>
+</tr>
+<tr class="row-even"><td>Derived when <strong>loading</strong></td>
+<td><code class="docutils literal"><span class="pre">natom</span></code></td>
+</tr>
+<tr class="row-odd"><td>Required for <strong>dumping</strong></td>
+<td><code class="docutils literal"><span class="pre">numbers</span></code>  <code class="docutils literal"><span class="pre">coordinates</span></code> <code class="docutils literal"><span class="pre">cell</span></code> <code class="docutils literal"><span class="pre">grid</span></code> <code class="docutils literal"><span class="pre">cube_data</span></code></td>
+</tr>
+<tr class="row-even"><td>Optional for <strong>dumping</strong></td>
+<td><code class="docutils literal"><span class="pre">title</span></code> <code class="docutils literal"><span class="pre">pseudo_numbers</span></code></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The second column in the geometry specification of the cube file is used
+for the pseudo-numbers.</p>
+</div>
+</div>
+<div class="section" id="the-vasp-chgcar-and-locpot-formats">
+<h3>2.4.2.2. The VASP <code class="docutils literal"><span class="pre">CHGCAR</span></code> and <code class="docutils literal"><span class="pre">LOCPOT</span></code> formats<a class="headerlink" href="#the-vasp-chgcar-and-locpot-formats" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Load</td>
+<td>Yes</td>
+</tr>
+<tr class="row-even"><td>Dump</td>
+<td>No</td>
+</tr>
+<tr class="row-odd"><td>Recognized by</td>
+<td>File prefix <code class="docutils literal"><span class="pre">CHGCAR</span></code> or <code class="docutils literal"><span class="pre">LOCPOT</span></code></td>
+</tr>
+<tr class="row-even"><td>Interoperation</td>
+<td><a class="reference external" href="https://www.vasp.at/">VASP 5.X</a>, <a class="reference external" href="http://jp-minerals.org/vesta/en/">VESTA</a></td>
+</tr>
+<tr class="row-odd"><td>Always <strong>loading</strong></td>
+<td><code class="docutils literal"><span class="pre">title</span></code> <code class="docutils literal"><span class="pre">coordinates</span></code> <code class="docutils literal"><span class="pre">numbers</span></code> <code class="docutils literal"><span class="pre">cell</span></code> <code class="docutils literal"><span class="pre">grid</span></code> <code class="docutils literal"><span class="pre">cube_data</span></code></td>
+</tr>
+<tr class="row-even"><td>Derived when <strong>loading</strong></td>
+<td><code class="docutils literal"><span class="pre">natom</span></code> <code class="docutils literal"><span class="pre">pseudo_numbers</span></code></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Even though the <code class="docutils literal"><span class="pre">CHGCAR</span></code> and <code class="docutils literal"><span class="pre">LOCPOT</span></code> files look very similar, they
+require different conversions to atomic units.</p>
+</div>
+</div>
+</div>
+<div class="section" id="wavefunction-formats-using-a-gaussian-basis-set">
+<span id="ref-file-formats-wfn"></span><h2>2.4.3. Wavefunction formats (using a Gaussian basis set)<a class="headerlink" href="#wavefunction-formats-using-a-gaussian-basis-set" title="Permalink to this headline">¶</a></h2>
+<p>All wavefunction formats share the following behavior</p>
+<ul>
+<li><p class="first">In case of a restricted wavefunction, only the alpha orbitals are loaded.</p>
+</li>
+<li><p class="first">In case of an unrestricted wavefunction, both the alpha and beta orbitals are
+loaded.</p>
+</li>
+<li><p class="first">Some formats also <cite>load</cite> a <code class="docutils literal"><span class="pre">permutation</span></code> and/or a <code class="docutils literal"><span class="pre">signs</span></code> attribute. These are
+generated when loading the file, such that appropriate permutations and sign changes can be
+applied to convert to the proper HORTON conventions for Gaussian basis
+functions. These conventions are <cite>fixed</cite> in the <code class="docutils literal"><span class="pre">from_file</span></code> method. This
+allows you to fix also the order of elements in arrays loaded from another
+file. For example, you can load an <code class="docutils literal"><span class="pre">.fchk</span></code> and a <code class="docutils literal"><span class="pre">.log</span></code> file at the same
+time:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">mol</span> <span class="o">=</span> <span class="n">IOData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;foo.fchk&#39;</span><span class="p">,</span> <span class="s1">&#39;foo.log&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In this case, <code class="docutils literal"><span class="pre">permutation</span></code> is deduced from the file <code class="docutils literal"><span class="pre">foo.fchk</span></code> but is
+also applied to reorder the matrix elements loaded from <code class="docutils literal"><span class="pre">foo.log</span></code>, for the
+sake of consistency.</p>
+</li>
+</ul>
+<div class="section" id="the-gaussian-fchk-format">
+<h3>2.4.3.1. The Gaussian <code class="docutils literal"><span class="pre">.fchk</span></code> format<a class="headerlink" href="#the-gaussian-fchk-format" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="78%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Load</td>
+<td>Yes</td>
+</tr>
+<tr class="row-even"><td>Dump</td>
+<td>No</td>
+</tr>
+<tr class="row-odd"><td>Recognized by</td>
+<td>File extension <code class="docutils literal"><span class="pre">.fchk</span></code></td>
+</tr>
+<tr class="row-even"><td>Interoperation</td>
+<td><a class="reference external" href="http://www.gaussian.com/">Gaussian</a></td>
+</tr>
+<tr class="row-odd"><td>Always <strong>loading</strong></td>
+<td><code class="docutils literal"><span class="pre">title</span></code> <code class="docutils literal"><span class="pre">coordinates</span></code> <code class="docutils literal"><span class="pre">numbers</span></code> <code class="docutils literal"><span class="pre">obasis</span></code> <code class="docutils literal"><span class="pre">exp_alpha</span></code> <code class="docutils literal"><span class="pre">permutation</span></code> <br />
+<code class="docutils literal"><span class="pre">energy</span></code> <code class="docutils literal"><span class="pre">pseudo_numbers</span></code> <code class="docutils literal"><span class="pre">mulliken_charges</span></code></td>
+</tr>
+<tr class="row-even"><td><strong>loading</strong> if present</td>
+<td><code class="docutils literal"><span class="pre">npa_charges</span></code> <code class="docutils literal"><span class="pre">esp_charges</span></code> <code class="docutils literal"><span class="pre">exp_beta</span></code> <code class="docutils literal"><span class="pre">dm_full_mp2</span></code> <code class="docutils literal"><span class="pre">dm_spin_mp2</span></code> <br />
+<code class="docutils literal"><span class="pre">dm_full_mp3</span></code> <code class="docutils literal"><span class="pre">dm_spin_mp3</span></code> <code class="docutils literal"><span class="pre">dm_full_cc</span></code> <code class="docutils literal"><span class="pre">dm_spin_cc</span></code> <code class="docutils literal"><span class="pre">dm_full_ci</span></code> <br />
+<code class="docutils literal"><span class="pre">dm_spin_ci</span></code> <code class="docutils literal"><span class="pre">dm_full_scf</span></code> <code class="docutils literal"><span class="pre">dm_spin_scf</span></code></td>
+</tr>
+<tr class="row-odd"><td>Derived when <strong>loading</strong></td>
+<td><code class="docutils literal"><span class="pre">natom</span></code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="the-molden-format">
+<h3>2.4.3.2. The <code class="docutils literal"><span class="pre">.molden</span></code> format<a class="headerlink" href="#the-molden-format" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="72%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Load</td>
+<td>Yes</td>
+</tr>
+<tr class="row-even"><td>Dump</td>
+<td>Yes</td>
+</tr>
+<tr class="row-odd"><td>Recognized by</td>
+<td>File extension <code class="docutils literal"><span class="pre">.molden</span></code></td>
+</tr>
+<tr class="row-even"><td>Interoperation</td>
+<td><a class="reference external" href="https://www.molpro.net/">Molpro</a>,
+<a class="reference external" href="https://orcaforum.cec.mpg.de/">Orca</a>,
+<a class="reference external" href="http://www.psicode.org/">PSI4</a>,
+<a class="reference external" href="http://www.cmbi.ru.nl/molden/">Molden</a></td>
+</tr>
+<tr class="row-odd"><td>Always <strong>loading</strong></td>
+<td><code class="docutils literal"><span class="pre">coordinates</span></code> <code class="docutils literal"><span class="pre">numbers</span></code> <code class="docutils literal"><span class="pre">obasis</span></code> <code class="docutils literal"><span class="pre">exp_alpha</span></code> <code class="docutils literal"><span class="pre">signs</span></code></td>
+</tr>
+<tr class="row-even"><td><strong>loading</strong> if present</td>
+<td><code class="docutils literal"><span class="pre">title</span></code> <code class="docutils literal"><span class="pre">exp_beta</span></code></td>
+</tr>
+<tr class="row-odd"><td>Derived when <strong>loading</strong></td>
+<td><code class="docutils literal"><span class="pre">natom</span></code></td>
+</tr>
+<tr class="row-even"><td>Required for <strong>dumping</strong></td>
+<td><code class="docutils literal"><span class="pre">coordinates</span></code> <code class="docutils literal"><span class="pre">numbers</span></code> <code class="docutils literal"><span class="pre">obasis</span></code> <code class="docutils literal"><span class="pre">exp_alpha</span></code></td>
+</tr>
+<tr class="row-odd"><td>Optional for <strong>dumping</strong></td>
+<td><code class="docutils literal"><span class="pre">title</span></code> <code class="docutils literal"><span class="pre">exp_beta</span></code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="the-mkl-molekel-format">
+<h3>2.4.3.3. The <code class="docutils literal"><span class="pre">.mkl</span></code> (Molekel) format<a class="headerlink" href="#the-mkl-molekel-format" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="78%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Load</td>
+<td>Yes</td>
+</tr>
+<tr class="row-even"><td>Dump</td>
+<td>No</td>
+</tr>
+<tr class="row-odd"><td>Recognized by</td>
+<td>File extension <code class="docutils literal"><span class="pre">.mkl</span></code></td>
+</tr>
+<tr class="row-even"><td>Interoperation</td>
+<td><a class="reference external" href="http://ugovaretto.github.io/molekel/wiki/pmwiki.php/Main/HomePage.html">Molekel</a>,
+<a class="reference external" href="https://orcaforum.cec.mpg.de/">Orca</a>,</td>
+</tr>
+<tr class="row-odd"><td>Always <strong>loading</strong></td>
+<td><code class="docutils literal"><span class="pre">coordinates</span></code> <code class="docutils literal"><span class="pre">numbers</span></code> <code class="docutils literal"><span class="pre">obasis</span></code> <code class="docutils literal"><span class="pre">exp_alpha</span></code></td>
+</tr>
+<tr class="row-even"><td><strong>loading</strong> if present</td>
+<td><code class="docutils literal"><span class="pre">exp_beta</span></code> <code class="docutils literal"><span class="pre">signs</span></code></td>
+</tr>
+<tr class="row-odd"><td>Derived when <strong>loading</strong></td>
+<td><code class="docutils literal"><span class="pre">natom</span></code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="the-wfn-format">
+<h3>2.4.3.4. The <code class="docutils literal"><span class="pre">.wfn</span></code> format<a class="headerlink" href="#the-wfn-format" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="72%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Load</td>
+<td>Yes</td>
+</tr>
+<tr class="row-even"><td>Dump</td>
+<td>No</td>
+</tr>
+<tr class="row-odd"><td>Recognized by</td>
+<td>File extension <code class="docutils literal"><span class="pre">.wfn</span></code></td>
+</tr>
+<tr class="row-even"><td>Interoperation</td>
+<td><a class="reference external" href="http://www.msg.ameslab.gov/gamess/">GAMESS</a>,
+<a class="reference external" href="http://www.gaussian.com/">Gaussian</a>,</td>
+</tr>
+<tr class="row-odd"><td>Always <strong>loading</strong></td>
+<td><code class="docutils literal"><span class="pre">title</span></code> <code class="docutils literal"><span class="pre">coordinates</span></code> <code class="docutils literal"><span class="pre">numbers</span></code> <code class="docutils literal"><span class="pre">obasis</span></code> <code class="docutils literal"><span class="pre">exp_alpha</span></code></td>
+</tr>
+<tr class="row-even"><td><strong>loading</strong> if present</td>
+<td><code class="docutils literal"><span class="pre">exp_beta</span></code></td>
+</tr>
+<tr class="row-odd"><td>Derived when <strong>loading</strong></td>
+<td><code class="docutils literal"><span class="pre">natom</span></code></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Only use this format if the program that generated it does not offer any
+alternatives that HORTON can load. The WFN format has the disadvantage that
+it cannot represent contractions and therefore expands all orbitals into
+a decontracted basis. This makes the post-processing less efficient compared
+to formats that do support contractions of Gaussian functions.</p>
+</div>
+</div>
+</div>
+<div class="section" id="hamiltonian-file-formats">
+<span id="ref-file-formats-ham"></span><h2>2.4.4. Hamiltonian file formats<a class="headerlink" href="#hamiltonian-file-formats" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="the-molpro-2012-fcidump-format">
+<h3>2.4.4.1. The Molpro 2012 <code class="docutils literal"><span class="pre">FCIDUMP</span></code> format<a class="headerlink" href="#the-molpro-2012-fcidump-format" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="72%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Load</td>
+<td>Yes</td>
+</tr>
+<tr class="row-even"><td>Dump</td>
+<td>Yes</td>
+</tr>
+<tr class="row-odd"><td>Recognized by</td>
+<td>File name contains <code class="docutils literal"><span class="pre">FCIDUMP</span></code></td>
+</tr>
+<tr class="row-even"><td>Interoperation</td>
+<td><a class="reference external" href="https://www.molpro.net/">Molpro</a>,
+<a class="reference external" href="http://www.psicode.org/">PSI4</a></td>
+</tr>
+<tr class="row-odd"><td>Always <strong>loading</strong></td>
+<td><code class="docutils literal"><span class="pre">lf</span></code> <code class="docutils literal"><span class="pre">nelec</span></code> <code class="docutils literal"><span class="pre">ms2</span></code> <code class="docutils literal"><span class="pre">one_mo</span></code> <code class="docutils literal"><span class="pre">two_mo</span></code> <code class="docutils literal"><span class="pre">core_energy</span></code></td>
+</tr>
+<tr class="row-even"><td>Required for <strong>dumping</strong></td>
+<td><code class="docutils literal"><span class="pre">one_mo</span></code> <code class="docutils literal"><span class="pre">two_mo</span></code></td>
+</tr>
+<tr class="row-odd"><td>Optional for <strong>dumping</strong></td>
+<td><code class="docutils literal"><span class="pre">core_energy</span></code> <code class="docutils literal"><span class="pre">nelec</span></code> <code class="docutils literal"><span class="pre">ms</span></code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="the-gaussian-log-file">
+<h3>2.4.4.2. The Gaussian <code class="docutils literal"><span class="pre">.log</span></code> file<a class="headerlink" href="#the-gaussian-log-file" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Load</td>
+<td>Yes</td>
+</tr>
+<tr class="row-even"><td>Dump</td>
+<td>No</td>
+</tr>
+<tr class="row-odd"><td>Recognized by</td>
+<td>File extension <code class="docutils literal"><span class="pre">.log</span></code></td>
+</tr>
+<tr class="row-even"><td>Interoperation</td>
+<td><a class="reference external" href="http://www.gaussian.com/">Gaussian</a>,</td>
+</tr>
+<tr class="row-odd"><td><strong>loading</strong> if present</td>
+<td><code class="docutils literal"><span class="pre">olp</span></code> <code class="docutils literal"><span class="pre">kin</span></code> <code class="docutils literal"><span class="pre">na</span></code> <code class="docutils literal"><span class="pre">er</span></code></td>
+</tr>
+</tbody>
+</table>
+<p>In order to let Gaussian print out all the matrix elements (Gaussian integrals),
+the following commands must be used in the Gaussian input file:</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>scf(conventional) iop(3/33=5) extralinks=l316 iop(3/27=999)
+</pre></div>
+</div>
+<p>Just keep in mind that this feature in Gaussian only works for a low number of
+basis functions. The <code class="docutils literal"><span class="pre">FCIDUMP</span></code> files generated with Molpro or PSI4 are more
+reliable and also have the advantage that all integrals are stored in double
+precision.</p>
+</div>
+</div>
+<div class="section" id="horton-s-internal-file-format">
+<span id="ref-file-formats-internal"></span><h2>2.4.5. HORTON’s internal file format<a class="headerlink" href="#horton-s-internal-file-format" title="Permalink to this headline">¶</a></h2>
+<p>The internal HDF5-based format of HORTON is effectively a superset of all
+formats listed above. Moreover, the user is free to store any additional data
+not covered by the file formats above. Many (not all) Python data types can
+dumped into the internal format:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">int</span></code></li>
+<li><code class="docutils literal"><span class="pre">float</span></code></li>
+<li><code class="docutils literal"><span class="pre">str</span></code></li>
+<li>Any NumPy array</li>
+<li>Classes in the HORTON library that have a <code class="docutils literal"><span class="pre">to_hdf5</span></code> and <code class="docutils literal"><span class="pre">from_hdf5</span></code>
+method. For example: <code class="docutils literal"><span class="pre">AtomicGridSpec</span></code>, <code class="docutils literal"><span class="pre">BeckeMolGrid</span></code>, <code class="docutils literal"><span class="pre">Cell</span></code>,
+<code class="docutils literal"><span class="pre">CubicSpline</span></code>, <code class="docutils literal"><span class="pre">ESPCost</span></code>, <code class="docutils literal"><span class="pre">GBasis</span></code>, <code class="docutils literal"><span class="pre">GOBasis</span></code>, <code class="docutils literal"><span class="pre">Symmetry</span></code>,
+<code class="docutils literal"><span class="pre">UniformGrid</span></code> and all classes in the package <code class="docutils literal"><span class="pre">horton.matrix</span></code></li>
+<li>A dictionary with strings as keys and any mixture of the above data types as
+values.</li>
+</ul>
+<table border="1" class="docutils">
+<colgroup>
+<col width="27%" />
+<col width="73%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Load</td>
+<td>Yes</td>
+</tr>
+<tr class="row-even"><td>Dump</td>
+<td>Yes</td>
+</tr>
+<tr class="row-odd"><td>Recognized by</td>
+<td>File extension <code class="docutils literal"><span class="pre">.h5</span></code></td>
+</tr>
+<tr class="row-even"><td>Interoperation</td>
+<td>Custom scripts. Archiving of data generated with any other code.</td>
+</tr>
+<tr class="row-odd"><td><strong>loading</strong> when present</td>
+<td>Any attribute</td>
+</tr>
+<tr class="row-even"><td>Optional for <strong>dumping</strong></td>
+<td>Any attribute with the right type</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tech_ref_grids.html" class="btn btn-neutral float-right" title="2.5. Atomic integration grids" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="tech_ref_release_history.html" class="btn btn-neutral" title="2.3. Release history" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.2 built from release 2.0.2 (Jun 30, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 30, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.0.2 (Jun 30, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

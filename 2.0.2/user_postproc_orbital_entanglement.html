@@ -1,0 +1,446 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>5.4. Orbital entanglement analysis &mdash; HORTON 2.0.2 (Jun 30, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="HORTON 2.0.2 (Jun 30, 2017) documentation" href="index.html"/>
+        <link rel="up" title="5. Post-processing" href="user_postproc.html"/>
+        <link rel="next" title="6. Other Topics" href="user_other.html"/>
+        <link rel="prev" title="5.3. Localization of molecular orbitals" href="user_postproc_localization.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_postproc.html">5. Post-processing</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="user_postproc_aim.html">5.1. Atoms-in-Molecules (AIM) analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_postproc_espfit.html">5.2. Electrostatic potential fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_postproc_localization.html">5.3. Localization of molecular orbitals</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">5.4. Orbital entanglement analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#orbital-entanglement-and-orbital-correlation">5.4.1. Orbital entanglement and orbital correlation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#supported-features">5.4.2. Supported features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#orbital-entanglement-and-correlation-for-a-seniority-zero-wavefunction">5.4.3. Orbital entanglement and correlation for a seniority zero wavefunction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#how-to-set-up-a-calculation">5.4.3.1. How to set-up a calculation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#how-to-generate-correlation-diagrams">5.4.3.2. How to generate correlation diagrams</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#example-python-scripts">5.4.4. Example Python scripts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#orbital-entanglement-analysis-of-an-ap1rog-wavefunction">5.4.4.1. Orbital entanglement analysis of an AP1roG wavefunction</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="user_postproc.html">5. Post-processing</a> &raquo;</li>
+        
+      <li>5.4. Orbital entanglement analysis</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/user_postproc_orbital_entanglement.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="orbital-entanglement-analysis">
+<h1>5.4. Orbital entanglement analysis<a class="headerlink" href="#orbital-entanglement-analysis" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="orbital-entanglement-and-orbital-correlation">
+<span id="orbital-entanglement"></span><h2>5.4.1. Orbital entanglement and orbital correlation<a class="headerlink" href="#orbital-entanglement-and-orbital-correlation" title="Permalink to this headline">¶</a></h2>
+<p>In quantum chemistry, the interaction between orbitals is commonly used to
+understand chemical processes. For example, molecular orbital diagrams, frontier
+orbital theory, and ligand field theory all use orbitals to understand and justify
+chemical phenomenon. The interaction between orbitals can be quantified through
+ideas in entanglement.</p>
+<p>Specifically, the interaction between one orbital and all the other orbitals can be
+measured by the single-orbital entropy <span class="math">\(s(1)_i\)</span> (or one-orbital entropy).
+It is calculated from the eigenvalues <span class="math">\(\omega_{\alpha,i}\)</span> of the
+one-orbital reduced density matrix (RDM)</p>
+<div class="math">
+\[s(1)_i = -\sum_{\alpha=1}^4 \omega_{\alpha,i}\ln \omega_{\alpha,i}.\]</div>
+<p>The one-orbital RDM is obtained from the N-particle RDM by tracing out all
+other orbital degrees of freedom except those of orbital <em>i</em>. This leads to an
+RDM whose dimension is equal to the dimension of the one-orbital Fock space. For
+spatial orbitals, the one-orbital Fock space has a dimension of 4 (one for unoccupied,
+one for doubly occupied and two for singly occupied).</p>
+<p>Similarly, the two-orbital entropy <span class="math">\(s(2)_{i,j}\)</span> quantifies the interaction
+of an orbital pair <span class="math">\(i,j\)</span> and all other orbitals. It is calculated from the
+eigenvalues of the two-orbital RDM <span class="math">\(\omega_{\alpha, i, j}\)</span> (with 16
+possible states for spatial orbitals)</p>
+<div class="math">
+\[s(2)_{i,j} =-\sum_{\alpha=1}^{16} \omega_{\alpha, i, j} \ln \omega_{\alpha, i, j}.\]</div>
+<p>The total amount of correlation between any pair of orbitals <span class="math">\((i,j)\)</span> can
+be evaluated from the orbital-pair mutual information. The orbital-pair mutual
+information is calculated using the single- and two-orbital entropy and thus
+requires the one- and two-orbital RDMs,</p>
+<div class="math">
+\[I_{i|j} = \frac{1}{2} \big(s(2)_{i,j} - s(1)_{i} - s(1)_{j} \big) \big(1 - \delta_{ij}\big),\]</div>
+<p>where <span class="math">\(\delta_{ij}\)</span> is the Kronecker delta.</p>
+<p>Note that a correlated wavefunction is required to have non-zero orbital entanglement
+and correlation. In the case of an uncorrelated wavefunction (for instance, a
+single Slater determinant) the (orbital) entanglement entropy is zero.</p>
+<p>For more information on orbital entanglement and correlation, see ref. <a class="reference internal" href="tech_ref_literature.html#boguslawski2015a" id="id1">[boguslawski2015a]</a>.</p>
+</div>
+<div class="section" id="supported-features">
+<h2>5.4.2. Supported features<a class="headerlink" href="#supported-features" title="Permalink to this headline">¶</a></h2>
+<p>Unless mentioned otherwise, the orbital entanglement module only supports restricted
+orbitals, <code class="docutils literal"><span class="pre">DenseLinalgFactory</span></code> and <code class="docutils literal"><span class="pre">CholeskyLinalgFactory</span></code>. The current
+version of HORTON offers</p>
+<p>1. <a class="reference internal" href="#orbital-entanglementseniorityzero"><span class="std std-ref">Calculation of single-orbital entropy and orbital-pair mutual
+information for a seniority-zero wavefunction</span></a></p>
+<p>Supported wavefunction models are</p>
+<ol class="arabic simple">
+<li><a class="reference internal" href="user_estruct_ap1rog.html#user-ap1rog"><span class="std std-ref">AP1roG</span></a> (seniority-zero wavefunction)</li>
+</ol>
+</div>
+<div class="section" id="orbital-entanglement-and-correlation-for-a-seniority-zero-wavefunction">
+<span id="orbital-entanglementseniorityzero"></span><h2>5.4.3. Orbital entanglement and correlation for a seniority zero wavefunction<a class="headerlink" href="#orbital-entanglement-and-correlation-for-a-seniority-zero-wavefunction" title="Permalink to this headline">¶</a></h2>
+<p>If you use this module, please cite <a class="reference internal" href="tech_ref_literature.html#boguslawski2015a" id="id2">[boguslawski2015a]</a></p>
+<div class="section" id="how-to-set-up-a-calculation">
+<h3>5.4.3.1. How to set-up a calculation<a class="headerlink" href="#how-to-set-up-a-calculation" title="Permalink to this headline">¶</a></h3>
+<p>To evaluate the single-orbital entropy and orbital-pair mutual information for a
+given wavefunction model, the corresponding one and two-particle RDMs need to be calculated
+first. Then one- and two-particle RDMs are used to evaluate the one- and two-orbital RDM’s
+from which the eigenvalues are needed to calculate the single-orbital and
+two-orbital entropy.</p>
+<p>Given the one- and two-particle RDMs, an instance of the
+<code class="xref py py-class docutils literal"><span class="pre">orbital_entanglement</span></code>
+can be created. A function call of this instance,
+<code class="xref py py-meth docutils literal"><span class="pre">__call__()</span></code>,
+calculates the entanglement and correlation measures.</p>
+</div>
+<div class="section" id="how-to-generate-correlation-diagrams">
+<h3>5.4.3.2. How to generate correlation diagrams<a class="headerlink" href="#how-to-generate-correlation-diagrams" title="Permalink to this headline">¶</a></h3>
+<p>To generate the single-orbital entropy diagram and mutual information plot, run
+in the terminal:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>horton-entanglement.py threshold init_index final_index
+</pre></div>
+</div>
+<p>where <strong>threshold</strong> determines the lower cutoff value of the mutual information
+and must be given in orders of magnitude (1, 0.1, 0.01, 0.001, etc.). Orbital
+correlations that are smaller than <strong>cutoff</strong> will not be displayed in the
+mutual information diagram. The arguments <strong>init_index</strong> and <strong>final_index</strong> are
+optional arguments. If provided, the single-orbital entropy will be plotted for
+orbital indices in the interval [init_index, final_index].</p>
+</div>
+</div>
+<div class="section" id="example-python-scripts">
+<h2>5.4.4. Example Python scripts<a class="headerlink" href="#example-python-scripts" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="orbital-entanglement-analysis-of-an-ap1rog-wavefunction">
+<h3>5.4.4.1. Orbital entanglement analysis of an AP1roG wavefunction<a class="headerlink" href="#orbital-entanglement-analysis-of-an-ap1rog-wavefunction" title="Permalink to this headline">¶</a></h3>
+<p>This is a basic example on how to perform an orbital entanglement analysis in
+HORTON. This script performs an orbital-optimized AP1roG calculation, followed
+by an orbital entanglement analysis of the AP1roG wavefunction for the water
+molecule using the cc-pVDZ basis set.</p>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">data/examples/orbital_entanglement/water.py</span><a class="headerlink" href="#id3" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span>
+<span class="kn">from</span> <span class="nn">horton</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">horton.test.common</span> <span class="k">import</span> <span class="n">numpy_seed</span>
+
+<span class="c1">###############################################################################</span>
+<span class="c1">## Set up molecule, define basis set ##########################################</span>
+<span class="c1">###############################################################################</span>
+<span class="c1"># Use the XYZ file from HORTON&#39;s test data directory.</span>
+<span class="n">fn_xyz</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get_fn</span><span class="p">(</span><span class="s1">&#39;test/water.xyz&#39;</span><span class="p">)</span>
+<span class="n">mol</span> <span class="o">=</span> <span class="n">IOData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">fn_xyz</span><span class="p">)</span>
+<span class="n">obasis</span> <span class="o">=</span> <span class="n">get_gobasis</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">numbers</span><span class="p">,</span> <span class="s1">&#39;cc-pvdz&#39;</span><span class="p">)</span>
+<span class="c1">###############################################################################</span>
+<span class="c1">## Define Occupation model, expansion coefficients and overlap ################</span>
+<span class="c1">###############################################################################</span>
+<span class="n">lf</span> <span class="o">=</span> <span class="n">DenseLinalgFactory</span><span class="p">(</span><span class="n">obasis</span><span class="o">.</span><span class="n">nbasis</span><span class="p">)</span>
+<span class="n">occ_model</span> <span class="o">=</span> <span class="n">AufbauOccModel</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">orb</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_expansion</span><span class="p">(</span><span class="n">obasis</span><span class="o">.</span><span class="n">nbasis</span><span class="p">)</span>
+<span class="n">olp</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_overlap</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+<span class="c1">###############################################################################</span>
+<span class="c1">## Construct Hamiltonian ######################################################</span>
+<span class="c1">###############################################################################</span>
+<span class="n">kin</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_kinetic</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+<span class="n">na</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_nuclear_attraction</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">,</span> <span class="n">lf</span><span class="p">)</span>
+<span class="n">er</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_electron_repulsion</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+<span class="n">external</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;nn&#39;</span><span class="p">:</span> <span class="n">compute_nucnuc</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">)}</span>
+<span class="n">terms</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">RTwoIndexTerm</span><span class="p">(</span><span class="n">kin</span><span class="p">,</span> <span class="s1">&#39;kin&#39;</span><span class="p">),</span>
+    <span class="n">RDirectTerm</span><span class="p">(</span><span class="n">er</span><span class="p">,</span> <span class="s1">&#39;hartree&#39;</span><span class="p">),</span>
+    <span class="n">RExchangeTerm</span><span class="p">(</span><span class="n">er</span><span class="p">,</span> <span class="s1">&#39;x_hf&#39;</span><span class="p">),</span>
+    <span class="n">RTwoIndexTerm</span><span class="p">(</span><span class="n">na</span><span class="p">,</span> <span class="s1">&#39;ne&#39;</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="n">ham</span> <span class="o">=</span> <span class="n">REffHam</span><span class="p">(</span><span class="n">terms</span><span class="p">,</span> <span class="n">external</span><span class="p">)</span>
+<span class="c1">###############################################################################</span>
+<span class="c1">## Perform initial guess ######################################################</span>
+<span class="c1">###############################################################################</span>
+<span class="n">guess_core_hamiltonian</span><span class="p">(</span><span class="n">olp</span><span class="p">,</span> <span class="n">kin</span><span class="p">,</span> <span class="n">na</span><span class="p">,</span> <span class="n">orb</span><span class="p">)</span>
+<span class="c1">###############################################################################</span>
+<span class="c1">## Do a Hartree-Fock calculation ##############################################</span>
+<span class="c1">###############################################################################</span>
+<span class="n">scf_solver</span> <span class="o">=</span> <span class="n">PlainSCFSolver</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">)</span>
+<span class="n">scf_solver</span><span class="p">(</span><span class="n">ham</span><span class="p">,</span> <span class="n">lf</span><span class="p">,</span> <span class="n">olp</span><span class="p">,</span> <span class="n">occ_model</span><span class="p">,</span> <span class="n">orb</span><span class="p">)</span>
+<span class="c1">###############################################################################</span>
+<span class="c1">## Combine one-electron integrals to single Hamiltonian #######################</span>
+<span class="c1">###############################################################################</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">kin</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">one</span><span class="o">.</span><span class="n">iadd</span><span class="p">(</span><span class="n">na</span><span class="p">)</span>
+
+<span class="c1">###############################################################################</span>
+<span class="c1">## Do OO-AP1roG optimization ##################################################</span>
+<span class="c1">###############################################################################</span>
+<span class="n">ap1rog</span> <span class="o">=</span> <span class="n">RAp1rog</span><span class="p">(</span><span class="n">lf</span><span class="p">,</span> <span class="n">occ_model</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">numpy_seed</span><span class="p">():</span>  <span class="c1"># reproducible &#39;random&#39; numbers to make sure it always works</span>
+    <span class="n">energy</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">l</span> <span class="o">=</span> <span class="n">ap1rog</span><span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">er</span><span class="p">,</span> <span class="n">external</span><span class="p">[</span><span class="s1">&#39;nn&#39;</span><span class="p">],</span> <span class="n">orb</span><span class="p">,</span> <span class="n">olp</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+<span class="c1">###############################################################################</span>
+<span class="c1">## Calculate response density matrices ########################################</span>
+<span class="c1">###############################################################################</span>
+<span class="n">one_dm</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_one_index</span><span class="p">()</span>
+<span class="n">one_dm</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">orb</span><span class="o">.</span><span class="n">occupations</span><span class="p">)</span>
+<span class="n">twoppqq</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_two_index</span><span class="p">()</span>
+<span class="n">twopqpq</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_two_index</span><span class="p">()</span>
+<span class="n">ap1rog</span><span class="o">.</span><span class="n">compute_2dm</span><span class="p">(</span><span class="n">twoppqq</span><span class="p">,</span> <span class="n">one_dm</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="s1">&#39;ppqq&#39;</span><span class="p">)</span>
+<span class="n">ap1rog</span><span class="o">.</span><span class="n">compute_2dm</span><span class="p">(</span><span class="n">twoppqq</span><span class="p">,</span> <span class="n">one_dm</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="s1">&#39;pqpq&#39;</span><span class="p">)</span>
+
+<span class="c1">###############################################################################</span>
+<span class="c1">## Do orbital entanglement analysis ###########################################</span>
+<span class="c1">###############################################################################</span>
+<span class="n">entanglement</span> <span class="o">=</span> <span class="n">OrbitalEntanglementAp1rog</span><span class="p">(</span><span class="n">lf</span><span class="p">,</span> <span class="n">one_dm</span><span class="p">,</span> <span class="p">[</span><span class="n">twoppqq</span><span class="p">,</span><span class="n">twopqpq</span><span class="p">])</span>
+<span class="n">entanglement</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="user_other.html" class="btn btn-neutral float-right" title="6. Other Topics" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="user_postproc_localization.html" class="btn btn-neutral" title="5.3. Localization of molecular orbitals" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.2 built from release 2.0.2 (Jun 30, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 30, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.0.2 (Jun 30, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

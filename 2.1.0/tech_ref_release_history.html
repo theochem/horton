@@ -1,0 +1,484 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>2.3. Release history &mdash; HORTON 2.1.0 (Jul 06, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="HORTON 2.1.0 (Jul 06, 2017) documentation" href="index.html"/>
+        <link rel="up" title="2. Reference Documentation" href="tech_ref.html"/>
+        <link rel="next" title="2.4. Data file formats (input and output)" href="tech_ref_file_formats.html"/>
+        <link rel="prev" title="2.2. Release planning" href="tech_ref_release_planning.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_contributors.html">2.1. Contributors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_release_planning.html">2.2. Release planning</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">2.3. Release history</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_file_formats.html">2.4. Data file formats (input and output)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_grids.html">2.5. Atomic integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_gaussian_basis.html">2.6. Gaussian basis sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_functionals.html">2.7. LibXC Functionals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_acronyms.html">2.8. Acronyms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_dictionary.html">2.9. HORTON dictionary of variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_literature.html">2.10. Literature</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="tech_ref.html">2. Reference Documentation</a> &raquo;</li>
+        
+      <li>2.3. Release history</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/tech_ref_release_history.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="release-history">
+<h1>2.3. Release history<a class="headerlink" href="#release-history" title="Permalink to this headline">¶</a></h1>
+<p>Documentation of all HORTON versions can be found here: <a class="reference external" href="http://theochem.github.com/horton/">http://theochem.github.com/horton/</a></p>
+<p><strong>July 6, 2017. Version 2.1.0</strong></p>
+<blockquote>
+<div><ul>
+<li><p class="first">New features:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Simplified install instructions, which better anticipate for potential pitfalls.</li>
+<li>New flavors of nuclear attraction integrals (erf, gauss).</li>
+<li>Broken Molden files generated by TurboMole can be read.</li>
+<li>Broken Molden files from old PSI4 versions can be read.</li>
+<li>Molden files with Ghost atoms can be loaded.</li>
+<li>Evaluation of orbital gradients on a grid.</li>
+<li>Energy is also loaded from the WFN file.</li>
+<li>Basis set file names are made windows-friendly.</li>
+<li>Regression testing of example outputs.</li>
+<li>Install instructions for Windows.</li>
+<li>Partial implementations of the dot product of the second-order derivative of an
+effective Hamiltonian (HF/DFT) with a given density matrix.</li>
+<li>Basis sets in GBS format can be used (in addition to NWChem format).</li>
+<li>Support for MGGA and Hybrid MGGA functionals.</li>
+<li>Evaluation of density Hessian, Laplacian and kinetic energy density on a grid.</li>
+<li>New flavors of ERI integrals (erf, gauss, alpha) and some ERI speedups.</li>
+<li>Minimal Basis Iterative Stockholder (MBIS) partitioning.</li>
+<li>Multipole moment integrals in gbasis.</li>
+<li>HyperbolicRTransform to support radial integration grids used in GPAW.</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">Dropped features, due to maintenance and reliability issues:</p>
+<blockquote>
+<div><ul class="simple">
+<li>CPart (partitioning with cube files).</li>
+<li>Hirshfeld-E.</li>
+<li>Correlated wavefunctions.</li>
+<li>Orbital entanglement.</li>
+<li>Localization.</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">Bug fixes:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Installation: remove the BLAS dependency to facilitate the installation.</li>
+<li>Installation: remove data/setup_cfgs.</li>
+<li>Installation: compatibility with Cython 0.24</li>
+<li>Documentation: explain various potential issues with LibXC.</li>
+<li>Documentation: fix quoted code snippets.</li>
+<li>Documentation: fix broken MathJax equations.</li>
+<li>Documentation: move developer-related install instructions away from user
+installation.</li>
+<li>Inconsistent API and timer issues were fixed in horton.log.</li>
+<li>Fixed memory bug in Cholesky code.</li>
+<li>Many quality assurance improvements.</li>
+<li>Fix (rarely) failing tests that use random numbers.</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<p><strong>June 30, 2017. Version 2.0.2</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li>Backported a few installation and documentation bugfixes from the 2.1.0 branch.</li>
+</ul>
+</div></blockquote>
+<p><strong>June 17, 2016. Version 2.0.1</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li>QA framework for automatically testing pull requests on Github with Travis-CI.</li>
+<li>Update config files for recent OSX, Ubuntu Linux and Fedora Linux versions.</li>
+<li>Fix: contractions of Gaussian functions are normalized when creating new basis sets.
+(When loading wavefunctions from files that also contain a description of the basis
+set, the contractions are not renormalized for the sake of consistency.)</li>
+<li>Fix: The numerical Poisson solver now also computes the correct asymptotics in the
+limit of small radii.</li>
+<li>Fix: The two methods to project orbitals onto new basis sets (in
+<code class="docutils literal"><span class="pre">horton/meanfield/project.py</span></code>) contained mistakes, which are now fixed.</li>
+<li>Fix: Several unit tests using random data ocassionally failed, which is now fixed.</li>
+<li>Many small bug fixes and corrections.</li>
+</ul>
+</div></blockquote>
+<p><strong>June 11, 2015. Version 2.0.0</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li>The (orbital-optimized) AP1roG method (geminal-based wafecuntions).</li>
+<li>Perturbation theory methods: MP2 (post-HF) and PTa and PTb (post-AP1roG).</li>
+<li>Cholesky decomposition of the four-center integrals.</li>
+<li>Installation instructions for Mac OS/X.</li>
+<li>New file format: FCIDUMP.</li>
+<li>Improvements in other file formats, e.g. all different conventions for the
+Molden file format are recognized automatically.</li>
+<li>Model Hamiltonians.</li>
+<li>Orbital localization (Pipek-Mezey).</li>
+<li>Orbital entanglement analysis.</li>
+<li>A Numerical Poisson solver (AIM analysis and pure KS-DFT implementation).</li>
+<li>Evaluation of the kinetic energy density on a grid.</li>
+<li>Projection of orbitals onto new basis sets.</li>
+<li>Update to LibXC 2.2.2.</li>
+<li>A lot of documentation, revamped website and code examples.</li>
+<li>Many small cleanups and improvements under the hood.</li>
+</ul>
+</div></blockquote>
+<p><strong>March 17, 2014. Version 1.2.1</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li>Update to LibXC-2.0.3 plus overview of the supported functionals in the
+documentation.</li>
+<li>Update to h5py-2.2.1</li>
+<li>Several bug fixes in the ESP fitting scripts.</li>
+<li>Hu-Lu-Yang ESP cost function</li>
+<li>Documentation for the ESP fitting scripts.</li>
+<li>Mandatory output argument for most <code class="docutils literal"><span class="pre">horton-*.py</span></code> scripts.</li>
+<li>Properly load fchk files from Gaussian calculations with Ghost atoms.</li>
+<li>New script: <code class="docutils literal"><span class="pre">horton-convert.py</span></code>. (Conversion between different file formats supported in HORTON.)</li>
+<li>New script: <code class="docutils literal"><span class="pre">horton-cubehead.py</span></code>. (Part of the ESP fitting scripts. A tool te generate economic grid specs for cubegen.)</li>
+<li>Usability improvements in <code class="docutils literal"><span class="pre">horton-atomdb.py</span></code>.</li>
+<li>Skip expensive AIM computatoins by default in <code class="docutils literal"><span class="pre">horton-wpart.py</span></code></li>
+<li>Documentation generation for C++ code with Doxygen and Breathe.</li>
+<li>More covalent and van der Waals radii.</li>
+<li>Several fixes in the CIF reader.</li>
+<li>Improved EDIIS</li>
+<li>Constructing a DFT/HF hamiltonian without Exchange term raises an error (unless idiot_proof is disable)</li>
+<li>Additional basis sets</li>
+<li>Several minor fixes and cleanups</li>
+</ul>
+</div></blockquote>
+<p><strong>August 25, 2013. Version 1.2.0</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li>Gaussian/GAMESS wfn file reader. WFN files are now supported in
+<code class="docutils literal"><span class="pre">horton-wpart.sh</span></code>. (Thanks to Farnaz!)</li>
+<li>HORTON wavefunctions can now be written to the molden file format.</li>
+<li>The efficiency of <code class="docutils literal"><span class="pre">horton-wpart.sh</span></code> has improved.</li>
+<li>Added <code class="docutils literal"><span class="pre">--lmax</span></code> option to <code class="docutils literal"><span class="pre">horton-wpart.sh</span></code> and <code class="docutils literal"><span class="pre">horton-cpart.sh</span></code> to
+control the maximum angular momentum for the multipole analysis.</li>
+<li>Fixed a division-by-zero-bug and a caching bug in the Iterative
+Stockholder scheme.</li>
+<li>DIIS algorithms in <code class="docutils literal"><span class="pre">horton.meanfield</span></code> package: CDIIS <a class="reference internal" href="tech_ref_literature.html#pulay1980" id="id1">[pulay1980]</a>, EDIIS
+and EDIIS+DIIS <a class="reference internal" href="tech_ref_literature.html#kudin2002" id="id2">[kudin2002]</a>.</li>
+<li>Improved efficiency of numerical integration in DFT hamiltonians.</li>
+<li>A robust quadratic programming solver with linear (in)equality constraints.
+(This is used by EDIIS and Hirshfeld-E.)</li>
+<li>Fix for compilation of libxc-2.0.2 with gfortran 4.8.1 and newer.</li>
+<li>More detailed timer output. (Simplified usage of timer in source code.)</li>
+<li>Improved screen output.</li>
+<li>More documentation of the source code.</li>
+<li>Several mistakes were fixed in the Gaussian basis set tutorial.</li>
+<li>LineGrid and RectangleGrid for visualization purposes.</li>
+<li>Various cleanups.</li>
+</ul>
+</div></blockquote>
+<p><strong>July 22, 2013. Version 1.1.0</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li>Iterative Stockholder partitioning <a class="reference internal" href="tech_ref_literature.html#lillestolen2008" id="id3">[lillestolen2008]</a>.</li>
+<li>Pure (harmonic) multipoles in the AIM analysis.</li>
+<li>Spin charges in the AIM analysis.</li>
+<li>Switch to libxc-2.0.2.</li>
+<li>New pruned atomic integration grids for elements H-La, Hf-Rn, with more
+levels of accuracy.</li>
+<li>New radial integration grids with improved accuracy.</li>
+<li>ADF is no longer supported in <code class="docutils literal"><span class="pre">horton-atomdb.py</span></code>.</li>
+<li>More efficient Becke weights.</li>
+<li>Screen output and timer improvements.</li>
+<li>A fast (approximate) evaluation of the electron density in
+<code class="docutils literal"><span class="pre">horton-wpart.py</span></code>.</li>
+<li>Many cleanups.</li>
+</ul>
+</div></blockquote>
+<p><strong>July 5, 2013. Version 1.0.2</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li>Also support dynamic linking of libint and libx.</li>
+<li>Switch to libint-2.0.3-stable.</li>
+<li>Various cleanups.</li>
+</ul>
+</div></blockquote>
+<p><strong>July 1, 2013. Version 1.0.1</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li>Two bug fixes related to reading Gaussian formatted checkpoint files.<ol class="arabic">
+<li>The Gaussian 03 FCHK format contains a spelling error (‘independant’
+instead of ‘independent’). This is fixed in Gaussian 09. Both variants
+are now properly handled by HORTON.</li>
+<li>Post-HF density matrices are read in properly.</li>
+</ol>
+</li>
+<li>Reorganization of mean-field code. It is now located in a sub package
+<code class="docutils literal"><span class="pre">horton.meanfield</span></code>.</li>
+<li>It is now impossible to start the SCF-ODA algorithm with a density matrix
+whose occupation numbers fall out of the admissible range. This prevents
+<cite>fake</cite> convergence to nonphysical solutions.</li>
+<li>ESP fitting for isolated systems.</li>
+</ul>
+</div></blockquote>
+<p><strong>May 23, 2013. Version 1.0</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li>This release mainly focuses on real-space density partitioning
+(atoms-in-molecules) methods.</li>
+<li>Other major features include: import wavefunctions from various
+file formats, basic Hartree-Fock and DFT algorithms (making user of libint
+and libxc), pruned integration grids up to Ar, checkpointing, …</li>
+<li>Experimental features: ESP fitting of charges and related algorithms,
+currently only for 3D periodic systems.</li>
+</ul>
+</div></blockquote>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tech_ref_file_formats.html" class="btn btn-neutral float-right" title="2.4. Data file formats (input and output)" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="tech_ref_release_planning.html" class="btn btn-neutral" title="2.2. Release planning" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.0 built from release 2.1.0 (Jul 06, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jul 06, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.1.0 (Jul 06, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

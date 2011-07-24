@@ -1,0 +1,423 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.3.11. horton/gbasis/gbw.h – A four-center integral wrapper for the Cholesky code &mdash; HORTON 2.1.0b1-1-ge018244 (Feb 03, 2017) documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="HORTON 2.1.0b1-1-ge018244 (Feb 03, 2017) documentation" href="../index.html"/>
+        <link rel="up" title="3.3. horton.gbasis – Gaussian basis sets" href="pck_horton_gbasis.html"/>
+        <link rel="next" title="3.3.12. horton/gbasis/ints.h – Evaluation of integrals of Gaussian basis functions" href="mod_horton_gbasis_ints_h.html"/>
+        <link rel="prev" title="3.3.10. horton/gbasis/gbasis.h – Gaussian basis set classes" href="mod_horton_gbasis_gbasis_h.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.0b1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> &#8211; The main HORTON Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.2. <code class="docutils literal"><span class="pre">horton.espfit</span></code> &#8211; Electrostatic potential fitting</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_gbasis.html">3.3. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> &#8211; Gaussian basis sets</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_cext.html">3.3.1. <code class="docutils literal"><span class="pre">horton.gbasis.cext</span></code> &#8211; C++ extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_gobasis.html">3.3.2. <code class="docutils literal"><span class="pre">horton.gbasis.gobasis</span></code> &#8211; Gaussian orbital basis set module.</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_iobas.html">3.3.3. <code class="docutils literal"><span class="pre">horton.gbasis.iobas</span></code> &#8211; Input/Output routines for gaussian basis sets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_boys_h.html">3.3.4. <code class="docutils literal"><span class="pre">horton/gbasis/boys.h</span></code> &#8211; The Boys function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_calc_h.html">3.3.5. <code class="docutils literal"><span class="pre">horton/gbasis/calc.h</span></code> &#8211; Base class for any integral/evaluation of Gaussian functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_cartpure_h.html">3.3.6. <code class="docutils literal"><span class="pre">horton/gbasis/cartpure.h</span></code> &#8211; Conversion of Cartesian to Pure Gaussian functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_cholesky_h.html">3.3.7. <code class="docutils literal"><span class="pre">horton/gbasis/cholesky.h</span></code> &#8211; Cholesky decomposition of (any) four-center integrals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_common_h.html">3.3.8. <code class="docutils literal"><span class="pre">horton/gbasis/common.h</span></code> &#8211; Auxiliary functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_fns_h.html">3.3.9. <code class="docutils literal"><span class="pre">horton/gbasis/fns.h</span></code> &#8211; Evaluate functions on grids and derive Fock matrices from potentials on grids.</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_gbasis_h.html">3.3.10. <code class="docutils literal"><span class="pre">horton/gbasis/gbasis.h</span></code> &#8211; Gaussian basis set classes</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.3.11. <code class="docutils literal"><span class="pre">horton/gbasis/gbw.h</span></code> &#8211; A four-center integral wrapper for the Cholesky code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_ints_h.html">3.3.12. <code class="docutils literal"><span class="pre">horton/gbasis/ints.h</span></code> &#8211; Evaluation of integrals of Gaussian basis functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_iter_gb_h.html">3.3.13. <code class="docutils literal"><span class="pre">horton/gbasis/iter_gb.h</span></code> &#8211; Iterators over Gaussian basis functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_iter_pow_h.html">3.3.14. <code class="docutils literal"><span class="pre">horton/gbasis/iter_pow.h</span></code> &#8211; Iterators over Cartesian polynomials in one shell</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.4. <code class="docutils literal"><span class="pre">horton.grid</span></code> &#8211; Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.5. <code class="docutils literal"><span class="pre">horton.io</span></code> &#8211; Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.6. <code class="docutils literal"><span class="pre">horton.matrix</span></code> &#8211; One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.7. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> &#8211; Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.8. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> &#8211; Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.9. <code class="docutils literal"><span class="pre">horton.part</span></code> &#8211; Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.10. <code class="docutils literal"><span class="pre">horton.scripts</span></code> &#8211; Code (solely) used by HORTON&#8217;s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">HORTON</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+      
+          <li><a href="pck_horton_gbasis.html">3.3. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> &#8211; Gaussian basis sets</a> &raquo;</li>
+      
+    <li>3.3.11. <code class="docutils literal"><span class="pre">horton/gbasis/gbw.h</span></code> &#8211; A four-center integral wrapper for the Cholesky code</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/lib/mod_horton_gbasis_gbw_h.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="horton-gbasis-gbw-h-a-four-center-integral-wrapper-for-the-cholesky-code">
+<h1>3.3.11. <code class="docutils literal"><span class="pre">horton/gbasis/gbw.h</span></code> &#8211; A four-center integral wrapper for the Cholesky code<a class="headerlink" href="#horton-gbasis-gbw-h-a-four-center-integral-wrapper-for-the-cholesky-code" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="_CPPv218GB4IntegralWrapper">
+<span id="GB4IntegralWrapper"></span><span class="target" id="hortonclassGB4IntegralWrapper"></span><em class="property">class </em><code class="descname">GB4IntegralWrapper</code><a class="headerlink" href="#_CPPv218GB4IntegralWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><em>#include &lt;gbw.h&gt;</em><p>A wrapper around a four-center integral implementation that is suitable for a Cholesky algorithm. </p>
+<div class="breathe-sectiondef container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N18GB4IntegralWrapper18GB4IntegralWrapperEP7GOBasisP11GB4Integral">
+<span id="GB4IntegralWrapper::GB4IntegralWrapper__GOBasisP.GB4IntegralP"></span><span class="target" id="hortonclassGB4IntegralWrapper_1a864bf10c5def8824cdcf880dc4f618c6"></span><code class="descname">GB4IntegralWrapper</code><span class="sig-paren">(</span><a class="reference internal" href="mod_horton_gbasis_gbasis_h.html#_CPPv27GOBasis" title="GOBasis">GOBasis</a> *<em>gobasis</em>, <a class="reference internal" href="mod_horton_gbasis_ints_h.html#_CPPv211GB4Integral" title="GB4Integral">GB4Integral</a> *<em>gb4int</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18GB4IntegralWrapper18GB4IntegralWrapperEP7GOBasisP11GB4Integral" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct the wrapper. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">gobasis</span></code> - <p>A Gaussian basis set for which the four-center integrals are to be computed.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">gb4int</span></code> - <p>A definition/implementation of a four-center integral. </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N18GB4IntegralWrapperD0Ev">
+<span id="GB4IntegralWrapper::~GB4IntegralWrapper"></span><span class="target" id="hortonclassGB4IntegralWrapper_1ac3e19b7c3165e603246e41a41c9d7b68"></span><code class="descname">~GB4IntegralWrapper</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18GB4IntegralWrapperD0Ev" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N18GB4IntegralWrapper10get_nbasisEv">
+<span id="GB4IntegralWrapper::get_nbasis"></span><span class="target" id="hortonclassGB4IntegralWrapper_1a4f81308a52fc501ca20fe3d7a25912f6"></span>long <code class="descname">get_nbasis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18GB4IntegralWrapper10get_nbasisEv" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of basis functions. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N18GB4IntegralWrapper13select_2indexEllPlPlPlPl">
+<span id="GB4IntegralWrapper::select_2index__l.l.lP.lP.lP.lP"></span><span class="target" id="hortonclassGB4IntegralWrapper_1a3533fa26fa0da6ab69c3c277416b8782"></span>void <code class="descname">select_2index</code><span class="sig-paren">(</span>long <em>index0</em>, long <em>index2</em>, long *<em>pbegin0</em>, long *<em>pend0</em>, long *<em>pbegin2</em>, long *<em>pend2</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18GB4IntegralWrapper13select_2indexEllPlPlPlPl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select a pair of shells to which a pair of basis indexes belong. </p>
+<p>The output of this function is also stored internally for the next call to the compute method.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">index0</span></code> - <p>The first basis index.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">index2</span></code> - <p>The third basis index. (Physicist notation!)</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">pbegin0</span></code> - <p>Output argument. The begin of the range for the first shell.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">pend0</span></code> - <p>Output argument. The end (non-inclusive) of the range for the first shell.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">pbegin2</span></code> - <p>Output argument. The begin of the range for the third shell. (Physicist notation!)</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">pend2</span></code> - <p>Output argument. The end (non-inclusive) of the range for the third shell. (Physicist notation!) </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N18GB4IntegralWrapper7computeEv">
+<span id="GB4IntegralWrapper::compute"></span><span class="target" id="hortonclassGB4IntegralWrapper_1a7ce3337d8dfcff99a4cd82fa4f50e54f"></span>void <code class="descname">compute</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18GB4IntegralWrapper7computeEv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute four-center integrals for the slices selected with the select_2index method. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N18GB4IntegralWrapper16compute_diagonalEPd">
+<span id="GB4IntegralWrapper::compute_diagonal__doubleP"></span><span class="target" id="hortonclassGB4IntegralWrapper_1a1519c57ae1876a030434050af88e0b8f"></span>void <code class="descname">compute_diagonal</code><span class="sig-paren">(</span>double *<em>diagonal</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18GB4IntegralWrapper16compute_diagonalEPd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the (double) diagonal of the four-index object. This is usually needed in the initialization of a Cholesky algorithm. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">diagonal</span></code> - <p>The output array to which the result is written (size=nbasis*basis). </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N18GB4IntegralWrapper16get_2index_sliceEll">
+<span id="GB4IntegralWrapper::get_2index_slice__l.l"></span><span class="target" id="hortonclassGB4IntegralWrapper_1ad414e730ff91c53a584dc094dad92094"></span>double *<code class="descname">get_2index_slice</code><span class="sig-paren">(</span>long <em>index0</em>, long <em>index2</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18GB4IntegralWrapper16get_2index_sliceEll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a slice from the four-center integral computed with the last call to the compute method. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">index0</span></code> - <p>The first index of the slice. (Absolute indexes, not relative within the currently selected shell.)</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">index2</span></code> - <p>The third index of the slice. (Physicist notation!) (Absolute indexes, not relative within the currently selected shell.) </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef container">
+<p class="breathe-sectiondef-title rubric">Private Functions</p>
+<dl class="function">
+<dt id="_CPPv2N18GB4IntegralWrapper13compute_shellEll">
+<span id="GB4IntegralWrapper::compute_shell__l.l"></span><span class="target" id="hortonclassGB4IntegralWrapper_1aec762c1d44fe33eec6213635003bdf7b"></span>void <code class="descname">compute_shell</code><span class="sig-paren">(</span>long <em>ishell1</em>, long <em>ishell3</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18GB4IntegralWrapper13compute_shellEll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute four-center integrals for a quadruplet of shells (defined by ishell0, ishell1, ishell2 and ishell3). </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv2N18GB4IntegralWrapper7gobasisE">
+<span id="GB4IntegralWrapper::gobasis__GOBasisP"></span><span class="target" id="hortonclassGB4IntegralWrapper_1ad568199c1933b6d7c6caecf1a8bc5543"></span><a class="reference internal" href="mod_horton_gbasis_gbasis_h.html#_CPPv27GOBasis" title="GOBasis">GOBasis</a> *<code class="descname">gobasis</code><a class="headerlink" href="#_CPPv2N18GB4IntegralWrapper7gobasisE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N18GB4IntegralWrapper6gb4intE">
+<span id="GB4IntegralWrapper::gb4int__GB4IntegralP"></span><span class="target" id="hortonclassGB4IntegralWrapper_1a1a7c7ebb11c4ce73c63a16620c6c6d75"></span><a class="reference internal" href="mod_horton_gbasis_ints_h.html#_CPPv211GB4Integral" title="GB4Integral">GB4Integral</a> *<code class="descname">gb4int</code><a class="headerlink" href="#_CPPv2N18GB4IntegralWrapper6gb4intE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N18GB4IntegralWrapper14max_shell_sizeE">
+<span id="GB4IntegralWrapper::max_shell_size__l"></span><span class="target" id="hortonclassGB4IntegralWrapper_1a379de5480fe2d8940cefc81fa3463f43"></span>long <code class="descname">max_shell_size</code><a class="headerlink" href="#_CPPv2N18GB4IntegralWrapper14max_shell_sizeE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N18GB4IntegralWrapper10slice_sizeE">
+<span id="GB4IntegralWrapper::slice_size__l"></span><span class="target" id="hortonclassGB4IntegralWrapper_1a233e22fef951311e272d9f1c125bd5e1"></span>long <code class="descname">slice_size</code><a class="headerlink" href="#_CPPv2N18GB4IntegralWrapper10slice_sizeE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N18GB4IntegralWrapper9integralsE">
+<span id="GB4IntegralWrapper::integrals__doubleP"></span><span class="target" id="hortonclassGB4IntegralWrapper_1a6f2b56352c4ee51f075c9d362251fa2f"></span>double *<code class="descname">integrals</code><a class="headerlink" href="#_CPPv2N18GB4IntegralWrapper9integralsE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N18GB4IntegralWrapper7ishell0E">
+<span id="GB4IntegralWrapper::ishell0__l"></span><span class="target" id="hortonclassGB4IntegralWrapper_1a84d1efb356528e3fdde1daf4dd75baa4"></span>long <code class="descname">ishell0</code><a class="headerlink" href="#_CPPv2N18GB4IntegralWrapper7ishell0E" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N18GB4IntegralWrapper7ishell2E">
+<span id="GB4IntegralWrapper::ishell2__l"></span><span class="target" id="hortonclassGB4IntegralWrapper_1ac7b77de4c857c4fd403ea1b4eb8f7949"></span>long <code class="descname">ishell2</code><a class="headerlink" href="#_CPPv2N18GB4IntegralWrapper7ishell2E" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N18GB4IntegralWrapper6begin0E">
+<span id="GB4IntegralWrapper::begin0__l"></span><span class="target" id="hortonclassGB4IntegralWrapper_1ae1bfd65028356214abcb8fb7230647f9"></span>long <code class="descname">begin0</code><a class="headerlink" href="#_CPPv2N18GB4IntegralWrapper6begin0E" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N18GB4IntegralWrapper6begin2E">
+<span id="GB4IntegralWrapper::begin2__l"></span><span class="target" id="hortonclassGB4IntegralWrapper_1add68c87de174ad4812348ddfe0f93c86"></span>long <code class="descname">begin2</code><a class="headerlink" href="#_CPPv2N18GB4IntegralWrapper6begin2E" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_gbasis_ints_h.html" class="btn btn-neutral float-right" title="3.3.12. horton/gbasis/ints.h – Evaluation of integrals of Gaussian basis functions" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_gbasis_gbasis_h.html" class="btn btn-neutral" title="3.3.10. horton/gbasis/gbasis.h – Gaussian basis set classes" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.0b1 built from release 2.1.0b1-1-ge018244 (Feb 03, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Feb 03, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.1.0b1-1-ge018244 (Feb 03, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

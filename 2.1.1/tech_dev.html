@@ -1,0 +1,353 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>1. Developer Documentation &mdash; HORTON 2.1.1-1-g3a5adfea (Jan 18, 2019) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="1.1. HORTON Development with Git" href="tech_dev_git.html" />
+    <link rel="prev" title="6.3. How to use HORTON to convert between file formats?" href="user_other_conversion.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">1. Developer Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_git.html">1.1. HORTON Development with Git</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_checklist.html">1.2. Branch review checklist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_documentation.html">1.3. Writing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_unit_tests.html">1.4. Writing unit tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_examples.html">1.5. Writing examples scripts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_citing_papers.html">1.6. Citing scientific work</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_cython.html">1.7. Accelerating HORTON code with Cython</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HORTON</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>1. Developer Documentation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/tech_dev.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="developer-documentation">
+<h1>1. Developer Documentation<a class="headerlink" href="#developer-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tech_dev_git.html">1.1. HORTON Development with Git</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_git.html#additional-steps-required-to-build-the-development-version-of-horton">1.1.1. Additional steps required to build the development version of HORTON</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_git.html#reference-atoms">1.1.1.1. Reference atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_git.html#other-development-tools">1.1.1.2. Other development tools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_git.html#building-the-documentation">1.1.1.3. Building the documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_git.html#id1">1.1.2. Git</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_git.html#git-configuration">1.1.2.1. Git configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_git.html#some-terminology">1.1.2.2. Some terminology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_git.html#cloning-the-horton-git-repository">1.1.2.3. Cloning the HORTON git repository</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_git.html#work-flow-for-adding-a-new-feature">1.1.3. Work flow for adding a new feature</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_git.html#develop-the-feature-in-a-topic-branch">1.1.3.1. Develop the feature in a topic branch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_git.html#make-your-branch-available-for-review-with-a-pull-request-pr">1.1.3.2. Make your branch available for review with a pull request (PR)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_git.html#merging-your-pull-request-with-the-master-branch">1.1.3.3. Merging your pull request with the master branch</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_git.html#common-issues">1.1.4. Common issues</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tech_dev_checklist.html">1.2. Branch review checklist</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_checklist.html#reviewing-protocol">1.2.1. Reviewing protocol</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_checklist.html#step-1-automatic-qa-testing">1.2.1.1. Step 1. Automatic QA testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_checklist.html#step-2-human-review">1.2.1.2. Step 2. Human review</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_checklist.html#step-3-merging">1.2.1.3. Step 3. Merging</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_checklist.html#mindful-criteria">1.2.2. Mindful criteria</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_checklist.html#atomic-commits">1.2.2.1. Atomic commits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_checklist.html#unit-tests-other-than-coverage-see-below">1.2.2.2. Unit tests (other than coverage, see below)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_checklist.html#code-structure">1.2.2.3. Code structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_checklist.html#modularity">1.2.2.4. Modularity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_checklist.html#cython-is-evil">1.2.2.5. Cython is evil</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_checklist.html#general-mindless-criteria">1.2.3. General mindless criteria</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_checklist.html#miscellaneous-mg01">1.2.3.1. Miscellaneous (MG01##)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_checklist.html#whitespace-errors">1.2.3.2. Whitespace errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_checklist.html#comments-mg02">1.2.3.3. Comments (MG02##)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_checklist.html#author-name-and-e-mail-mg03">1.2.3.4. Author name and e-mail (MG03##)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_checklist.html#git-commit-message-format-mg04">1.2.3.5. Git commit message format (MG04##)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_checklist.html#units-and-unit-conversion">1.2.3.6. Units and unit conversion</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_checklist.html#mindless-python-criteria">1.2.4. Mindless Python criteria</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_checklist.html#pycodestyle">1.2.4.1. pycodestyle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_checklist.html#pydocstyle">1.2.4.2. Pydocstyle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_checklist.html#pylint">1.2.4.3. PyLint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_checklist.html#code-coverage-by-fast-unit-tests">1.2.4.4. Code coverage by (fast) unit tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_checklist.html#mindless-python-criteria-to-be-checked-manually">1.2.4.5. Mindless Python criteria to be checked manually</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_checklist.html#mindless-c-criteria">1.2.5. Mindless C++ criteria</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_checklist.html#cppcheck">1.2.5.1. CPPCheck</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_checklist.html#cpplint">1.2.5.2. CPPLint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_checklist.html#manual-checks">1.2.5.3. Manual checks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_checklist.html#api-documentation">1.2.5.4. API documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_checklist.html#code-coverage">1.2.5.5. Code coverage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_checklist.html#mindless-cython-criteria">1.2.6. Mindless Cython criteria</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tech_dev_documentation.html">1.3. Writing documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_documentation.html#introduction">1.3.1. Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_documentation.html#building-documentation">1.3.2. Building documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_documentation.html#common-issues">1.3.3. Common issues</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tech_dev_unit_tests.html">1.4. Writing unit tests</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_unit_tests.html#running-the-tests">1.4.1. Running the tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_unit_tests.html#writing-new-tests">1.4.2. Writing new tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_unit_tests.html#writing-tests-that-need-a-temporary-directory">1.4.3. Writing tests that need a temporary directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_unit_tests.html#writing-tests-that-use-random-numbers">1.4.4. Writing tests that use random numbers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tech_dev_examples.html">1.5. Writing examples scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_dev_citing_papers.html">1.6. Citing scientific work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_dev_cython.html">1.7. Accelerating HORTON code with Cython</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_cython.html#before-you-begin">1.7.1. Before you begin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_cython.html#basic-example">1.7.2. Basic example</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_cython.html#background">1.7.2.1. Background</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_dev_cython.html#cythonizing-your-code">1.7.2.2. Cythonizing your code</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_cython.html#additional-notes">1.7.3. Additional notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_cython.html#further-reading">1.7.4. Further reading</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tech_dev_git.html" class="btn btn-neutral float-right" title="1.1. HORTON Development with Git" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="user_other_conversion.html" class="btn btn-neutral" title="6.3. How to use HORTON to convert between file formats?" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.1 built from release 2.1.1-1-g3a5adfea (Jan 18, 2019). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jan 18, 2019.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'./',
+              VERSION:'2.1.1-1-g3a5adfea (Jan 18, 2019)',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

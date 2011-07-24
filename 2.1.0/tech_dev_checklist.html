@@ -1,0 +1,1277 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>1.2. Branch review checklist &mdash; HORTON 2.1.0 (Jul 06, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="HORTON 2.1.0 (Jul 06, 2017) documentation" href="index.html"/>
+        <link rel="up" title="1. Developer Documentation" href="tech_dev.html"/>
+        <link rel="next" title="1.3. Writing documentation" href="tech_dev_documentation.html"/>
+        <link rel="prev" title="1.1. HORTON Development with Git" href="tech_dev_git.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_git.html">1.1. HORTON Development with Git</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1.2. Branch review checklist</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#reviewing-protocol">1.2.1. Reviewing protocol</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#step-1-automatic-qa-testing">1.2.1.1. Step 1. Automatic QA testing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#step-2-human-review">1.2.1.2. Step 2. Human review</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#step-3-merging">1.2.1.3. Step 3. Merging</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#mindful-criteria">1.2.2. Mindful criteria</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#atomic-commits">1.2.2.1. Atomic commits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#unit-tests-other-than-coverage-see-below">1.2.2.2. Unit tests (other than coverage, see below)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#code-structure">1.2.2.3. Code structure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#modularity">1.2.2.4. Modularity</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cython-is-evil">1.2.2.5. Cython is evil</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#general-mindless-criteria">1.2.3. General mindless criteria</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#miscellaneous-mg01">1.2.3.1. Miscellaneous (MG01##)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#whitespace-errors">1.2.3.2. Whitespace errors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#comments-mg02">1.2.3.3. Comments (MG02##)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#author-name-and-e-mail-mg03">1.2.3.4. Author name and e-mail (MG03##)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#git-commit-message-format-mg04">1.2.3.5. Git commit message format (MG04##)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#units-and-unit-conversion">1.2.3.6. Units and unit conversion</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#mindless-python-criteria">1.2.4. Mindless Python criteria</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pycodestyle">1.2.4.1. pycodestyle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pydocstyle">1.2.4.2. Pydocstyle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pylint">1.2.4.3. PyLint</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#code-coverage-by-fast-unit-tests">1.2.4.4. Code coverage by (fast) unit tests</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mindless-python-criteria-to-be-checked-manually">1.2.4.5. Mindless Python criteria to be checked manually</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#mindless-c-criteria">1.2.5. Mindless C++ criteria</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cppcheck">1.2.5.1. CPPCheck</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cpplint">1.2.5.2. CPPLint</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#manual-checks">1.2.5.3. Manual checks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#api-documentation">1.2.5.4. API documentation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#code-coverage">1.2.5.5. Code coverage</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#mindless-cython-criteria">1.2.6. Mindless Cython criteria</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_documentation.html">1.3. Writing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_unit_tests.html">1.4. Writing unit tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_examples.html">1.5. Writing examples scripts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_citing_papers.html">1.6. Citing scientific work</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_cython.html">1.7. Accelerating HORTON code with Cython</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="tech_dev.html">1. Developer Documentation</a> &raquo;</li>
+        
+      <li>1.2. Branch review checklist</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/tech_dev_checklist.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="branch-review-checklist">
+<span id="tech-dev-checklist"></span><h1>1.2. Branch review checklist<a class="headerlink" href="#branch-review-checklist" title="Permalink to this headline">¶</a></h1>
+<p>Before you do anything else, watch this: <a class="reference external" href="https://www.youtube.com/watch?v=wf-BqAjZb8M&amp;index=2&amp;list=PLdBBfnzuDrjFsiqkVw82l0VAOrUwGAsMn">https://www.youtube.com/watch?v=wf-BqAjZb8M&amp;index=2&amp;list=PLdBBfnzuDrjFsiqkVw82l0VAOrUwGAsMn</a></p>
+<p>This section is meant as a guideline for reviewing a pull request. However,
+it is recommended that you also try to follow these guidelines while working on a new
+branch, before you make a pull request.</p>
+<div class="section" id="reviewing-protocol">
+<h2>1.2.1. Reviewing protocol<a class="headerlink" href="#reviewing-protocol" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="step-1-automatic-qa-testing">
+<h3>1.2.1.1. Step 1. Automatic QA testing<a class="headerlink" href="#step-1-automatic-qa-testing" title="Permalink to this headline">¶</a></h3>
+<p>When a pull request is made, a bunch of QA tests are executed to detect common problems.
+This reduces the burden of the reviewers but it is not a replacement for the remainder of
+the reviewing protocol. We strive to avoid false-positives in the QA scripts such that any
+error encountered must be fixed in the pull request. This implies that some tests (in
+Pylint, Pycodestyle, …) are disabled and must be inspected manually.</p>
+<p>If the automatic QA tests do not pass, fix the issues with additional commits to the
+branch of the pull request. These commits should appear automatically in the PR. When you
+made whitespace errors or when you have to fix author names, rewrite the commits and push
+them with the <code class="docutils literal"><span class="pre">--force</span></code> option.</p>
+<p>If you want to run the QA tests locally, this can be done as follows:</p>
+<ol class="arabic">
+<li><p class="first">Make sure all changes are committed in your feature branch and that the feature branch
+is checked out.</p>
+</li>
+<li><p class="first">Optional: if you like, you can build several dependencies of HORTON, using exactly the
+same version as in the continuous integration (buildbot or Travis-CI):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>./tools/qa/deps/install_alldeps_twobranches.sh
+</pre></div>
+</div>
+</li>
+</ol>
+<ol class="arabic" start="2">
+<li><p class="first">Run the QA tests:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>./tools/qa/test_all_twobranches.sh
+</pre></div>
+</div>
+<p>This is the same script that is used in the continuous integration.</p>
+</li>
+</ol>
+<p>After the QA scripts pass on the build server, your code is ready to be reviewed by a human
+being.</p>
+</div>
+<div class="section" id="step-2-human-review">
+<h3>1.2.1.2. Step 2. Human review<a class="headerlink" href="#step-2-human-review" title="Permalink to this headline">¶</a></h3>
+<p>The sections below specify a minimum of mindful and mindless criteria that new code must
+satisfy before it can be merged into the master branch. Some of these were checked by the
+automatically but a large part still needs to be checked manually.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>“A foolish consistency is the hobgoblin of little minds.” (PEP8)</p>
+<p class="last">Humans tend to tackle the mindless criteria first, just because they are easier to
+check. However, when you overemphasize on the mindless ones, you’ll be too busy to see
+the mindfull issues, even though these are still more important.</p>
+</div>
+<p>To the extent possible, all criteria that have to be checked have a label of the form
+M?####. These make it easier for reviewers to comment on specific lines of code in PRs.</p>
+<p>At least one person other than the author of the PR has to go through the change
+set and check for conflicts with the criteria below. When issues are found, the author
+should try to fix these with additional commits. In some cases, issues can only be
+resolved by rewriting the history of the branch.</p>
+</div>
+<div class="section" id="step-3-merging">
+<h3>1.2.1.3. Step 3. Merging<a class="headerlink" href="#step-3-merging" title="Permalink to this headline">¶</a></h3>
+<p>Once the review is completed and all issues are properly solved, someone with write access
+will check if the reviewing protocol was followed properly. If all is fine, the PR gets
+merged into the master branch. PRs must be fast-forward merge-able. The author of the PR
+is responsible for rebasing his/her branch if needed.</p>
+</div>
+</div>
+<div class="section" id="mindful-criteria">
+<h2>1.2.2. Mindful criteria<a class="headerlink" href="#mindful-criteria" title="Permalink to this headline">¶</a></h2>
+<p>These are criteria that require the reviewer to actually understand the whole change-set.
+They can’t be formulated in terms of checking just a few lines at a time, which also means
+such criteria are usually not testable with QA scripts.</p>
+<div class="section" id="atomic-commits">
+<h3>1.2.2.1. Atomic commits<a class="headerlink" href="#atomic-commits" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><strong>MM101</strong> Keep your Git commits as small as possible and avoid that unrelated changes
+are combined in one commit. This needs to be checked for all commits in a pull request.
+If needed, a history rewrite is in order.</li>
+<li><strong>MM102</strong> When a commit fixes a bug, include a unit test in the same commit that would
+break without the fix.</li>
+<li><strong>MM103</strong> When a commit adds a new feature, include a unit tests that validates the
+implementation.</li>
+</ul>
+<p>More background can be found here: <a class="reference external" href="http://www.freshconsulting.com/atomic-commits/">http://www.freshconsulting.com/atomic-commits/</a></p>
+</div>
+<div class="section" id="unit-tests-other-than-coverage-see-below">
+<h3>1.2.2.2. Unit tests (other than coverage, see below)<a class="headerlink" href="#unit-tests-other-than-coverage-see-below" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p class="first"><strong>MM201</strong> The unit tests are divided into two categories: slow and fast ones, where fast
+means execution time below 1 second. The slow ones are marked with a descriptor in the
+unit tests source code, while all other ones are assumed to be fast. For example, a slow
+test is marked as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># In the beginning of the unit test module</span>
+<span class="kn">from</span> <span class="nn">nose.plugins.attrib</span> <span class="kn">import</span> <span class="n">attr</span>
+
+<span class="c1"># The slow test</span>
+<span class="nd">@attr</span><span class="p">(</span><span class="s1">&#39;slow&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_something_slow</span><span class="p">():</span>
+    <span class="c1"># slow test code</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>All new code must covered with fast unit tests, which is checked automatically. Also make
+sure the fast unit tests follow these rules:</p>
+<ul class="simple">
+<li><strong>MM201</strong> Code must be unit tested with all possible combinations of arguments and
+options or with a reasonable subset thereof.</li>
+<li><strong>MM202</strong> Focus on testing the small components, rather than writing tests that depend
+on a lot of code.</li>
+<li><strong>MM203</strong> Also write unit tests for simple functions.</li>
+<li><strong>MM204</strong> Unit tests should not just run code but also check that the result is in line
+with expectations.</li>
+<li><strong>MM205</strong> When tests use random numbers, use a fixed random seed, such that at every
+execution the same random numbers are used. This avoids that a test breaks every now and
+then. See <a class="reference internal" href="tech_dev_unit_tests.html#tech-dev-unit-tests-random"><span class="std std-ref">Writing tests that use random numbers</span></a>.</li>
+<li><strong>MM206</strong> Avoid tests that just compare the output of a routine with the output from a
+previous initial version of that routine. Such tests need to be redone each time a bug
+is found in that routine.</li>
+<li><strong>MM207</strong> Check implementations of analytic derivatives with the tools provided in
+HORTON. This is currently the <code class="docutils literal"><span class="pre">check_delta</span></code> function.</li>
+<li><strong>MM208</strong> Use <code class="docutils literal"><span class="pre">numpy.testing</span></code> and <code class="docutils literal"><span class="pre">nose.tools</span></code> to make unit tests more readable.</li>
+</ul>
+</div>
+<div class="section" id="code-structure">
+<h3>1.2.2.3. Code structure<a class="headerlink" href="#code-structure" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><strong>MM301</strong> Whenever using class inheritance, check if it would be more convenient to use
+composition instead.</li>
+</ul>
+</div>
+<div class="section" id="modularity">
+<h3>1.2.2.4. Modularity<a class="headerlink" href="#modularity" title="Permalink to this headline">¶</a></h3>
+<p>Modular code is intuitively obtained through <a class="reference external" href="https://en.wikipedia.org/wiki/Separation_of_concerns">separation of concerns</a>. This means the following:</p>
+<blockquote>
+<div><strong>Different problems</strong> are handled in different <strong>maximally independent</strong> pieces of
+code (modules).</div></blockquote>
+<p>There are two important parts in this rule:</p>
+<ul>
+<li><p class="first"><strong>Different problems.</strong> You have to figure what this means in your case.
+Usually its straightforward, e.g. input/output code is different from actual
+computation code. You can (and should) obviously make the separation much more
+fine-grained. For example, different subproblems of a single computation can be
+separated.</p>
+</li>
+<li><p class="first"><strong>Maximally independent.</strong> Modules should depend on each other as little as possible,
+e.g.:</p>
+<blockquote>
+<div><ul class="simple">
+<li>The public API of a module has to be as small as possible. If a module has a huge
+public API, it means that the user must have intimate knowledge of how the module
+works, which is non-modular.</li>
+<li>The dependence graph of modules should not contain cycles. For example, when A
+depends on B and B depends on C, then C should not depend on A. It would be fine for
+A to depend on C.</li>
+<li>Modules should have as little dependencies as possible.</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div>
+<div class="section" id="cython-is-evil">
+<h3>1.2.2.5. Cython is evil<a class="headerlink" href="#cython-is-evil" title="Permalink to this headline">¶</a></h3>
+<p>Motivation:</p>
+<ul class="simple">
+<li>Cython is a constantly evolving language in which one can easily write very
+unreadable and dirty code. Good coding practices also evolve quickly as Cython is
+further developed.</li>
+<li>No QA tools (like Pycodestyle, Pydocstyle, Pylint, …) exist that do some basic QA
+assurance. Everything has to be checked manually.</li>
+</ul>
+<p>Work as follows:</p>
+<ul class="simple">
+<li>Either write Python or low-level code (C++, Fortran, …)</li>
+<li>Only use Cython for wrapping the low-level code.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="general-mindless-criteria">
+<h2>1.2.3. General mindless criteria<a class="headerlink" href="#general-mindless-criteria" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="miscellaneous-mg01">
+<h3>1.2.3.1. Miscellaneous (MG01##)<a class="headerlink" href="#miscellaneous-mg01" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><strong>MG0101</strong> Never commit code that breaks unit tests This also means that all tests must
+pass on every commit. (TODO: this is currently not tested automatically. This would be
+doable with fast unit tests.)</li>
+<li><strong>MG0102</strong> Never modify or tamper with QA scripts with no good reason.</li>
+</ul>
+</div>
+<div class="section" id="whitespace-errors">
+<h3>1.2.3.2. Whitespace errors<a class="headerlink" href="#whitespace-errors" title="Permalink to this headline">¶</a></h3>
+<p>The following are not allowed (and checked automatically):</p>
+<ul class="simple">
+<li>Lines ending with one or more whitespaces.</li>
+<li>Usage of tabs.</li>
+<li>Empty lines at the end of a file.</li>
+</ul>
+</div>
+<div class="section" id="comments-mg02">
+<h3>1.2.3.3. Comments (MG02##)<a class="headerlink" href="#comments-mg02" title="Permalink to this headline">¶</a></h3>
+<p>Python doc strings are great for documenting the API, but they are not sufficient to
+document the internals of code. When someone wants to understand your code, additional
+help is highly appreciated in the form of comments. At least include the following
+information:</p>
+<ul>
+<li><p class="first"><strong>MG0201</strong> A dictionary of local variables when variable names that do not speak
+for themselves. Such a dictionary can be written at the level of a single function or
+method, but it also makes sense at a class or even module level when certain variable
+names are consistently throughout. (Such consistency is preferable where possible.)</p>
+</li>
+<li><p class="first"><strong>MG0202</strong> When using variable names that correspond to symbols from equations in some
+paper, add a reference to that paper and the relevant equations. Also explicitly list
+the variables that correspond to symbols in the reference.</p>
+</li>
+<li><p class="first"><strong>MG0203</strong> Explain the role of groups of lines of source code in comments. Usually a
+single line does not need to be explained with a comment, unless it looks really
+cryptic. (Such cryptic statements should rather be avoided.) For example, it does not
+make sense to write the following comment because the Python code speaks for itself:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Select all strictly positive values from list l and assign the result to lpos.</span>
+<span class="n">lpos</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">l</span> <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="author-name-and-e-mail-mg03">
+<h3>1.2.3.4. Author name and e-mail (MG03##)<a class="headerlink" href="#author-name-and-e-mail-mg03" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><strong>MG0301</strong> Committer and Author e-mail addresses are checked automatically against the
+file AUTHORS in the source tree. This is just to make sure that everyone properly
+configures these settings in Git.</li>
+<li><strong>MG0302</strong> Use names and e-mail addresses that you would use as corresponding author on a
+scientific paper.</li>
+</ul>
+</div>
+<div class="section" id="git-commit-message-format-mg04">
+<h3>1.2.3.5. Git commit message format (MG04##)<a class="headerlink" href="#git-commit-message-format-mg04" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><strong>MG0401</strong> Separate subject from body with a blank line</li>
+<li><strong>MG0402</strong> Limit the subject line to 50 characters</li>
+<li><strong>MG0403</strong> Capitalize the subject line</li>
+<li><strong>MG0404</strong> Do not end the subject line with a period</li>
+<li><strong>MG0405</strong> Use the imperative mood in the subject line</li>
+<li><strong>MG0406</strong> Wrap the body at 72 characters</li>
+<li><strong>MG0407</strong> Use the body to explain what and why vs. how</li>
+</ul>
+<p>More background can be found here: <a class="reference external" href="http://chris.beams.io/posts/git-commit/">http://chris.beams.io/posts/git-commit/</a></p>
+<p>Consider setting the following environment variables such that <code class="docutils literal"><span class="pre">vim</span></code> is used as editor
+for the commit messages. It offers syntax highlighting to facilitate writing good commit
+messages:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">VISUAL</span><span class="o">=</span>vim
+<span class="nb">export</span> <span class="nv">EDITOR</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$VISUAL</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="units-and-unit-conversion">
+<h3>1.2.3.6. Units and unit conversion<a class="headerlink" href="#units-and-unit-conversion" title="Permalink to this headline">¶</a></h3>
+<p>TODO</p>
+</div>
+</div>
+<div class="section" id="mindless-python-criteria">
+<h2>1.2.4. Mindless Python criteria<a class="headerlink" href="#mindless-python-criteria" title="Permalink to this headline">¶</a></h2>
+<p>This section first goes over all the criteria that are checked automatically by different
+programs, listing all enforced rules and exceptions. The last subsection discusses the
+remaining criteria that have to be checked manually.</p>
+<div class="section" id="pycodestyle">
+<h3>1.2.4.1. pycodestyle<a class="headerlink" href="#pycodestyle" title="Permalink to this headline">¶</a></h3>
+<p>See <a class="reference external" href="http://pycodestyle.readthedocs.io/">http://pycodestyle.readthedocs.io/</a></p>
+<p>The complete list of error codes can be found here:
+<a class="reference external" href="http://pycodestyle.readthedocs.io/en/latest/intro.html#error-codes">http://pycodestyle.readthedocs.io/en/latest/intro.html#error-codes</a></p>
+<p>The following pycodestyle error codes are disabled.</p>
+<ul class="simple">
+<li><dl class="first docutils">
+<dt>By default in pycodestyle (2.0.0):</dt>
+<dd><ul class="first last">
+<li><strong>E121</strong> (*) continuation line under-indented for hanging indent</li>
+<li><strong>E123</strong> (*) closing bracket does not match indentation of opening bracket’s line</li>
+<li><strong>E126</strong> (*) continuation line over-indented for hanging indent</li>
+<li><strong>E226</strong> (*) missing whitespace around arithmetic operator</li>
+<li><strong>E241</strong> (*) multiple spaces after ‘,’</li>
+<li><strong>W503</strong> (*) line break occurred before a binary operator</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Because they cause undesirable false positives:</dt>
+<dd><ul class="first last">
+<li><strong>E127</strong> continuation line over-indented for visual indent</li>
+<li><strong>E128</strong> continuation line under-indented for visual indent</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Because PyLint does handles them already:</dt>
+<dd><ul class="first last">
+<li><strong>E402</strong> module level import not at top of file</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Because we don’t consider them the be fatal:</dt>
+<dd><ul class="first last">
+<li><strong>E201</strong> (*) whitespace after ‘[‘</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="pydocstyle">
+<h3>1.2.4.2. Pydocstyle<a class="headerlink" href="#pydocstyle" title="Permalink to this headline">¶</a></h3>
+<p>See <a class="reference external" href="http://pydocstyle.readthedocs.io/">http://pydocstyle.readthedocs.io/</a></p>
+<p>All errors caught automatically by the Pydocstyle program must be fixed. Keep in mind that
+this program does not cover all recommendations in PEP257.</p>
+<p>A complete list of error messages can be found here:
+<a class="reference external" href="http://pydocstyle.readthedocs.io/en/latest/error_codes.html">http://pydocstyle.readthedocs.io/en/latest/error_codes.html</a></p>
+<p>Pydocstyle is executed with the default settings, except that the following is disabled:</p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>D103</strong>: Missing docstring in public function</li>
+</ul>
+</div></blockquote>
+<p>This is already checked by Pylint and is not enforced for <code class="docutils literal"><span class="pre">test_*</span></code> functions.
+Pycodestyle cannot yet be configured to ignore test functions. (It can only ignore test
+files which is not fine-grained enough for our purposes.)</p>
+</div>
+<div class="section" id="pylint">
+<h3>1.2.4.3. PyLint<a class="headerlink" href="#pylint" title="Permalink to this headline">¶</a></h3>
+<p>See <a class="reference external" href="https://www.pylint.org/">https://www.pylint.org/</a>.</p>
+<p>The complete list of error messages can be found here:
+<a class="reference external" href="https://pylint.readthedocs.io/en/latest/reference_guide/features.html">https://pylint.readthedocs.io/en/latest/reference_guide/features.html</a></p>
+<p>The following messages are excluded by default: I0020, I0021, W0704. (It is not clear what
+these stand for. They are not documented in Pylint.)</p>
+<p>The following messages are excluded by default but are activated in our case (related to Python
+3): E1601, E1602, E1603, E1604, E1605, E1606, E1607, E1608, W1601, W1602, W1603, W1604,
+W1605, W1606, W1607, W1608, W1609, W1610, W1611, W1612, W1613, W1614, W1615, W1616, W1617,
+W1618, W1619, W1620, W1621, W1622, W1623, W1624, W1625, W1626, W1627, W1628, W1629, W1630,
+W1632, W1633, W1634, W1635, W1636, W1637, W1638, W1639, W1640</p>
+<p>The following are excluded because we don’t consider them the be fatal:</p>
+<ul class="simple">
+<li><strong>C0103</strong>: invalid-name. Invalid %s name “%s”%s used when the name doesn’t match
+the regular expression associated to its type (constant, variable, class…).</li>
+<li><strong>C0326</strong>: bad-whitespace. %s space %s %s %s used when a wrong number of spaces
+is used around an operator, bracket or block opener.</li>
+<li><strong>I0011</strong>: locally-disabled. used when an inline option disables a message or a messages
+category.</li>
+<li><strong>W0613</strong>: unused-argument. Unused argument %r used when a function or method argument
+is not used.</li>
+</ul>
+<p>The following is disabled to allow access to the protected members of the
+(not-so-well-designed) Matrix classes:</p>
+<ul class="simple">
+<li><strong>W0212</strong>: protected-access. Access to a protected member %s of a client class used when
+a protected member (i.e. class member with a name beginning with an underscore) is
+access outside the class or a descendant of the class where it’s defined.</li>
+</ul>
+<p>The following are excluded due false positives:</p>
+<ul>
+<li><p class="first"><strong>E0611</strong>: <em>no-name-in-module</em>. No name %r in module %r used when a name cannot be found
+in a module.</p>
+<p>PyLint seems unable to get the names from our Python extensions.</p>
+</li>
+<li><p class="first"><strong>E1136</strong>: <em>unsubscriptable-object</em>. Value ‘%s’ is unsubscriptable emitted when a
+subscripted value doesn’t support subscription(i.e. doesn’t define __getitem__ method)</p>
+<p>This does not work with Python extensions. (More specifically, array properties defined
+in Cython are not recognized properly.)</p>
+</li>
+<li><p class="first"><strong>E1101</strong>: <em>no-member</em>. %s %r has no %r member used when a variable is accessed for an
+unexistent member.</p>
+<p>PyLint has fairly simply heuristics to “know” the attribute names of a class. These
+heuristics fail in our case.</p>
+</li>
+<li><p class="first"><strong>R0201</strong>: <em>no-self-use</em>. Method could be a function used when a method doesn’t use its
+bound instance, and so could be written as a function.</p>
+<p>There are many legitimate reasons for not using <code class="docutils literal"><span class="pre">self</span></code> in a method, e.g. an virtual
+method in an abstract base class will not use <code class="docutils literal"><span class="pre">self</span></code>.</p>
+</li>
+<li><p class="first"><strong>C0411</strong>: <em>wrong-import-order</em>. %s comes before %s used when PEP8 import order is not
+respected (standard imports first, then third-party libraries, then local imports)</p>
+<p>This check fails when you have newer versions installed of Packages from the standard
+library. (E.g. argparse easily gets installed as a dependency of another Python package
+through pip.)</p>
+</li>
+<li><p class="first"><strong>W0621</strong>: <em>redefined-outer-name</em>. Redefining name %r from outer scope (line %s) used
+when a variable’s name hide a name defined in the outer scope.</p>
+<p>When doing <cite>from horton import *</cite>, one imports also the names of subpackages and
+submodules. These have common names that are often also used as variable names, causing
+tons of name clashes.</p>
+</li>
+<li><p class="first"><strong>W0221</strong>: <em>arguments-differ</em>. Arguments number differs from %s %r method used when a
+method has a different number of arguments than in the implemented interface or in an
+overridden method.</p>
+<p>PyLint does not understand <cite>*args, **kwargs</cite>.</p>
+</li>
+<li><p class="first"><strong>W0223</strong>: <em>abstract-method</em>. Method %r is abstract in class %r but is not overridden.
+used when an abstract method (i.e. raise NotImplementedError) is not overridden in
+concrete class.</p>
+<p>PyLint does not understand <cite>*args, **kwargs</cite>.</p>
+</li>
+<li><p class="first"><strong>W0511</strong>: <em>fixme</em>. Used when a warning note as FIXME or XXX is detected.</p>
+<p>PyLint also issues this warning for FIXME, XXX or TODO present in multiline strings.</p>
+</li>
+</ul>
+<p>The PyLint settings used by the QA scripts can be found in <code class="docutils literal"><span class="pre">tools/qa/pylintrc</span></code>. Some
+of the non-default settings in that file include:</p>
+<ul>
+<li><p class="first">No doc strings are required for unit tests, i.e. functions starting with <code class="docutils literal"><span class="pre">test_</span></code>.</p>
+</li>
+<li><p class="first">Variables that are intentionally unused should get the prefix <code class="docutils literal"><span class="pre">_</span></code>. These are dummy
+variables. These may be useful when receiving return values that are not used, e.g.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">a</span><span class="p">,</span> <span class="n">_b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">some_function</span><span class="p">()</span>  <span class="c1"># No intent to use _b</span>
+
+<span class="k">for</span> <span class="n">dirpath</span><span class="p">,</span> <span class="n">_dirnames</span><span class="p">,</span> <span class="n">filenames</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">source_directory</span><span class="p">):</span>
+    <span class="c1"># No intent to use _dirnames in the body of the for loop</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">The parameters for the design checks are significantly relaxed.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="code-coverage-by-fast-unit-tests">
+<h3>1.2.4.4. Code coverage by (fast) unit tests<a class="headerlink" href="#code-coverage-by-fast-unit-tests" title="Permalink to this headline">¶</a></h3>
+<p>QA scripts will check if new Python code is touched by unit tests.</p>
+</div>
+<div class="section" id="mindless-python-criteria-to-be-checked-manually">
+<h3>1.2.4.5. Mindless Python criteria to be checked manually<a class="headerlink" href="#mindless-python-criteria-to-be-checked-manually" title="Permalink to this headline">¶</a></h3>
+<p>The following sources were used to compile the list of criteria below, sometimes making
+verbatim copies:</p>
+<ul class="simple">
+<li>PEP8: <a class="reference external" href="http://www.python.org/dev/peps/pep-0008/">http://www.python.org/dev/peps/pep-0008/</a> (version 01-Aug-2013)</li>
+<li>PEP257: <a class="reference external" href="http://www.python.org/dev/peps/pep-0257/">http://www.python.org/dev/peps/pep-0257/</a> (vesion 13-Jun-2001)</li>
+<li>GPSG: <a class="reference external" href="https://google.github.io/styleguide/pyguide.html">https://google.github.io/styleguide/pyguide.html</a> (Revision 2.59)</li>
+</ul>
+<p>For every criterion below, the source is mentioned. If the source is prefixed with a
+twidle, it means that we intentionally deviate from recommendations given in the source.
+When no source is mentioned, the criteria are specific to HORTON.</p>
+<ul>
+<li><p class="first"><strong>MP01##</strong> Docstrings</p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>MP0101</strong> (~PEP257) Usage information of a script does not have to be listed in its
+module docstring. We use <code class="docutils literal"><span class="pre">argparse</span></code> instead, which also produces nice usage
+documentation when the script is called with <code class="docutils literal"><span class="pre">-h</span></code>.</li>
+<li><strong>MP0102</strong> (~PEP257) A list of classes, functions, etc in the module docstring is not
+required as such tables of content are generated automatically by Sphinx.</li>
+<li><strong>MP0103</strong> (PEP257) Module docstrings should start with a short title followed by an
+empty line. (This is also assumed by scripts that generate the API reference
+documentation.)</li>
+<li><strong>MP0104</strong> (PEP257) A Module docstring should give some basic background on the
+module and include some example usage.</li>
+<li><strong>MP0105</strong> (PEP257) Class doc strings should explain the purpose and behavior of a
+class.</li>
+<li><strong>MP0106</strong> (PEP257) A base class docstring must explain how to implement derived
+classes.</li>
+<li><strong>MP0107</strong> (PEP257) Function and method docstrings must use an imperative mood in
+their first line.</li>
+<li><strong>MP0108</strong> Docstrings must be written in <a class="reference external" href="http://sphinx-doc.org/rest.html">RestructedText</a>.</li>
+<li><strong>MP0109</strong> <a class="reference external" href="https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt">Numpy docstring conventions</a> must be
+followed.</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>MP02##</strong> Import conventions</p>
+<blockquote>
+<div><ul>
+<li><p class="first"><strong>MP0201</strong> NumPy, H5Py, PyPlot and SciPy packages must be imported in the following
+way:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Must be on separate lines</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">h5py</span> <span class="kn">as</span> <span class="nn">h5</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">pt</span>
+<span class="c1"># scipy subpackages have to import separately</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">whatever</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><strong>MP0202</strong> (PEP8) Wildcard imports are (only) allowed in two situations:</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p class="first">In <code class="docutils literal"><span class="pre">__init__.py</span></code> files to republish the API of submodules and subpackages.</p>
+</li>
+<li><p class="first">In unit tests, one may write:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">horton</span> <span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+<p>This tests if everything in HORTON can be properly imported.</p>
+</li>
+</ol>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>MP0203</strong> (PEP8) Put any relevant <code class="docutils literal"><span class="pre">__all__</span></code> specification directly after the
+imports.</p>
+</li>
+<li><p class="first"><strong>MP0204</strong> (beyond PEP8) Never use relative imports.</p>
+</li>
+<li><p class="first"><strong>MP0205</strong> (PEP8) When importing a class from a class-containing module, it’s usually okay
+to spell this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">myclass</span> <span class="kn">import</span> <span class="n">MyClass</span>
+<span class="kn">from</span> <span class="nn">foo.bar.yourclass</span> <span class="kn">import</span> <span class="n">YourClass</span>
+</pre></div>
+</div>
+<p>If this spelling causes local name clashes, then spell them</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">myclass</span>
+<span class="kn">import</span> <span class="nn">foo.bar.yourclass</span>
+</pre></div>
+</div>
+<p>and use <code class="docutils literal"><span class="pre">myclass.MyClass</span></code> and <code class="docutils literal"><span class="pre">foo.bar.yourclass.YourClass</span></code>.</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>MP03##</strong> Naming conventions</p>
+<blockquote>
+<div><ul>
+<li><p class="first"><strong>MP0301</strong> Use self-explaining variable, function, method, class, module names where
+reasonable.</p>
+</li>
+<li><p class="first"><strong>MP0302</strong> For integer quantities of something: <code class="docutils literal"><span class="pre">nsomething</span></code>, e.g. <code class="docutils literal"><span class="pre">natom</span></code>.</p>
+</li>
+<li><p class="first"><strong>MP0303</strong> Loop variable in loop over a number of things: <code class="docutils literal"><span class="pre">isomething</span></code>, e.g. for
+number of atoms:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">iatom</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">natom</span><span class="p">):</span>
+    <span class="c1"># loop content</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><strong>MP0304</strong> Use plural for arrays, e.g. <code class="docutils literal"><span class="pre">coordinates</span></code></p>
+</li>
+<li><p class="first"><strong>MP0305</strong> When using <code class="docutils literal"><span class="pre">*</span></code> and <code class="docutils literal"><span class="pre">**</span></code> constructs in python to allow for an arbitrary
+number of (keyword) arguments to functions, then always use the names <code class="docutils literal"><span class="pre">*args</span></code>
+and/or <code class="docutils literal"><span class="pre">**kwargs</span></code>.</p>
+</li>
+<li><p class="first"><strong>MP0306</strong> (PEP8) Use <code class="docutils literal"><span class="pre">_single_leading_underscore</span></code> as a weak “internal use”
+indicator. E.g. <code class="docutils literal"><span class="pre">from</span> <span class="pre">M</span> <span class="pre">import</span> <span class="pre">*</span></code> does not import objects whose name starts with
+an underscore.</p>
+</li>
+<li><p class="first"><strong>MP0307</strong> (PEP8) Use <code class="docutils literal"><span class="pre">single_trailing_underscore_</span></code> as to avoid conflicts with
+Python keyword.</p>
+</li>
+<li><p class="first"><strong>MP0308</strong> (PEP8) <code class="docutils literal"><span class="pre">__double_leading_and_trailing_underscore__</span></code> are “magic” objects
+or attributes that live in user-controlled namespaces. E.g. __init__ , __import__ or
+__file__ . Never invent such names; only use them as documented.</p>
+</li>
+<li><p class="first"><strong>MP0309</strong> (PEP8) Modules should have short, all-lowercase names. Underscores can
+be used in the module name if it improves readability. Python packages should also
+have short, all-lowercase names, although the use of underscores is discouraged.</p>
+</li>
+<li><p class="first"><strong>MP0310</strong> (PEP8) Class names should normally use the <code class="docutils literal"><span class="pre">CapWords</span></code> convention.
+When abbreviations and acronyms are used in a name, capitalize them, e.g.
+<code class="docutils literal"><span class="pre">CPPCheck</span></code>.</p>
+</li>
+<li><p class="first"><strong>MP0311</strong> (PEP8) Use the suffix “Error” on your exception names (if the exception
+actually is an error).</p>
+</li>
+<li><p class="first"><strong>MP0312</strong> (PEP8) Function, method and variable names should be lowercase, with words
+separated by underscores as necessary to improve readability.</p>
+</li>
+<li><p class="first"><strong>MP0313</strong> (PEP8) Always use self for the first argument to instance methods.</p>
+</li>
+<li><p class="first"><strong>MP0314</strong> (PEP8) Always use cls for the first argument to class methods.</p>
+</li>
+<li><p class="first"><strong>MP0315</strong> (PEP8) Constants are usually defined on a module level and written in all
+capital letters with underscores separating words. Examples include <code class="docutils literal"><span class="pre">MAX_OVERFLOW</span></code>
+and <code class="docutils literal"><span class="pre">TOTAL</span></code>.</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>MP04##</strong> Cite papers where appropriate. Whenever you add a feature based on a
+scientific publication, it should be cited properly:</p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>MP0401</strong> Add an item to the file data/references.bib. Use a lowercase bibtex key,
+following the lastnameyear convention. Include the doi if possible.
+(The url field can be used as an alternative if the doi is not available.)
+Maintain chronological order and alphabetical order within one year.</li>
+<li><strong>MP0402</strong> Cite the references in the HORTON documentation as follows:
+<code class="docutils literal"><span class="pre">[lastnameyear]_</span></code></li>
+<li><strong>MP0403</strong> Add <code class="docutils literal"><span class="pre">log.cite('someref',</span> <span class="pre">'a</span> <span class="pre">reason')</span></code> to the code based on the
+publication, e.g. <code class="docutils literal"><span class="pre">log.cite('marques2012',</span> <span class="pre">'using</span> <span class="pre">LibXC,</span> <span class="pre">the</span> <span class="pre">library</span> <span class="pre">of</span> <span class="pre">exchange</span>
+<span class="pre">and</span> <span class="pre">correlation</span> <span class="pre">functionals').</span></code></li>
+<li><strong>MP0404</strong> No begging for citations in the output or documentation. Go beyond
+self-citations. Try to be informative and neutral.</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>MP05##</strong> Code formatting (wrapping, indentation, whitespace, …)</p>
+<blockquote>
+<div><ul>
+<li><p class="first"><strong>MP0501</strong> (PEP8) Smart wrapping with parenthesis is preferred over wrapping with a
+backslash. However, in some cases, this may not be appropriate, like in <code class="docutils literal"><span class="pre">if</span></code>,
+<code class="docutils literal"><span class="pre">with</span></code>, <code class="docutils literal"><span class="pre">assert</span></code> statements etc.</p>
+</li>
+<li><p class="first"><strong>MP0502</strong> (PEP8) Extra blank lines may be used (sparingly) to separate groups of
+related functions. Blank lines may be omitted between a bunch of related one-liners
+(e.g. a set of dummy implementations).</p>
+</li>
+<li><p class="first"><strong>MP0503</strong> (PEP8) Use blank lines in functions, sparingly, to indicate logical
+sections.</p>
+</li>
+<li><p class="first"><strong>MP0504</strong> (PEP8) The first or second line of each Python file must contain
+<code class="docutils literal"><span class="pre">#</span> <span class="pre">-*-</span> <span class="pre">coding:</span> <span class="pre">UTF-8</span> <span class="pre">-*-&quot;</span></code>. (Only needed for Python 2.)</p>
+</li>
+<li><p class="first"><strong>MP0505</strong> (PEP8) If operators with different priorities are used, consider adding
+whitespace around the operators with the lowest priority(ies). Use your own
+judgment; however, never use more than one space, and always have the same amount of
+whitespace on both sides of a binary operator.</p>
+<p>Yes:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="n">submitted</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">*</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="n">hypot2</span> <span class="o">=</span> <span class="n">x</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="o">*</span><span class="n">y</span>
+<span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span><span class="o">+</span><span class="n">b</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">a</span><span class="o">-</span><span class="n">b</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>No:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span>
+<span class="n">submitted</span> <span class="o">+=</span><span class="mi">1</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="n">hypot2</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="n">y</span>
+<span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><strong>MP0506</strong> (PEP8) Don’t use spaces around the <code class="docutils literal"><span class="pre">=</span></code> sign when used to indicate a
+keyword argument or a default parameter value.</p>
+<p>Yes:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">munge</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">AnyStr</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">munge</span><span class="p">(</span><span class="n">sep</span><span class="p">:</span> <span class="n">AnyStr</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">munge</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">AnyStr</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">munge</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">sep</span><span class="p">:</span> <span class="n">AnyStr</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+</pre></div>
+</div>
+<p>No:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">munge</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">AnyStr</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">munge</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span><span class="n">AnyStr</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">munge</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">AnyStr</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">PosInt</span><span class="p">:</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><strong>MP0507</strong> (PEP8) Do use spaces around the = sign of an annotated function definition.
+Additionally, use a single space after the : , as well as a single space on either
+side of the -&gt; sign representing an annotated return value.</p>
+</li>
+<li><p class="first"><strong>MP0508</strong> (GPSG) Every file should contain license boilerplate.</p>
+</li>
+<li><p class="first"><strong>MP0509</strong> Scripts (and scripts only) should have <code class="docutils literal"><span class="pre">#!/usr/bin/env</span> <span class="pre">python</span></code> as their
+first line.</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>MP06##</strong> Follow the PEP8 rules for comments, except for Strunk and White if you know
+better: <a class="reference external" href="https://www.python.org/dev/peps/pep-0008/#comments">https://www.python.org/dev/peps/pep-0008/#comments</a>. (See also block comments and
+inline comments.) TODO: make list of bullet points instead of just linking to PEP8</p>
+</li>
+<li><p class="first"><strong>MP07##</strong> API</p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>MP0701</strong> (PEP8, GPSG) Do not define public <code class="docutils literal"><span class="pre">get_*</span></code> or <code class="docutils literal"><span class="pre">set_*</span></code> methods in a
+class that involve litte computation. Make these methods non-public (prefix with
+underscore) and wrap them in a property instead. If these methods involve
+significant computation, they are fine as a method but try to find a better name</li>
+<li><strong>MP0702</strong> Follow the PEP8 rules given here:
+<a class="reference external" href="https://www.python.org/dev/peps/pep-0008/#public-and-internal-interfaces">https://www.python.org/dev/peps/pep-0008/#public-and-internal-interfaces</a>
+TODO: make list of bullet points instead of just linking to PEP8</li>
+<li><strong>MP0703</strong> (PEP8) All of the following applies, except that we completely dissalow
+name mangling: <a class="reference external" href="https://www.python.org/dev/peps/pep-0008/#designing-for-inheritance">https://www.python.org/dev/peps/pep-0008/#designing-for-inheritance</a>
+TODO: make list of bullet points instead of just linking to PEP8</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>MP08##</strong> Exception handling</p>
+<blockquote>
+<div><ul>
+<li><p class="first"><strong>MP0801</strong> (PEP8) Derive exceptions from <code class="docutils literal"><span class="pre">Exception</span></code> rather than <code class="docutils literal"><span class="pre">BaseException</span></code>.</p>
+</li>
+<li><p class="first"><strong>MP0802</strong> (PEP8) When raising an exception in Python 2, use raise
+<code class="docutils literal"><span class="pre">ValueError('message')</span></code> instead of the older form raise <code class="docutils literal"><span class="pre">ValueError,</span> <span class="pre">'message'</span></code>.
+The latter form is not legal Python 3 syntax.</p>
+</li>
+<li><p class="first"><strong>MP0803</strong> (PEP8) When catching exceptions, mention specific exceptions whenever
+possible instead of using a bare <code class="docutils literal"><span class="pre">except:</span></code> clause.</p>
+</li>
+<li><p class="first"><strong>MP0804</strong> (PEP8) When binding caught exceptions to a name, prefer the explicit name
+binding syntax added in Python 2.6:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="n">process_data</span><span class="p">()</span>
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">DataProcessingFailedError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>This is the only syntax supported in Python 3, and avoids the ambiguity problems
+associated with the older comma-based syntax.</p>
+</li>
+<li><p class="first"><strong>MP0805</strong> (PEP8) Additionally, for all try/except clauses, limit the try clause to
+the absolute minimum amount of code necessary. This avoids masking bugs.</p>
+<p>Yes:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">collection</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+<span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">key_not_found</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">handle_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>No:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="c1"># Too broad!</span>
+    <span class="k">return</span> <span class="n">handle_value</span><span class="p">(</span><span class="n">collection</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+<span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+    <span class="c1"># Will also catch KeyError raised by handle_value()</span>
+    <span class="k">return</span> <span class="n">key_not_found</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><strong>MP0806</strong> (GPSG) When the built-in exceptions seem inappropriate or too vague (e.g.
+like <code class="docutils literal"><span class="pre">RuntimeError</span></code>), modules should defined their own exceptions. These
+exceptions must be defined in the module where they are used.</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>MP09##</strong> Boolean expressions, implicit True/False</p>
+<blockquote>
+<div><ul>
+<li><p class="first"><strong>MP0905</strong> (PEP8) Don’t compare boolean values to True or False using == .</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Yes:</span>
+<span class="k">if</span> <span class="n">greeting</span><span class="p">:</span>
+<span class="c1"># No:</span>
+<span class="k">if</span> <span class="n">greeting</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+<span class="c1"># Worse:</span>
+<span class="k">if</span> <span class="n">greeting</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><strong>MP0906</strong> (~PEP8, ~GPSG) For sequences, (strings, lists, tuples), DO NOT use the
+fact that empty sequences are false.</p>
+<blockquote>
+<div><ul>
+<li><p class="first">This is recommended in PEP8 but it is not very readable as one has to know the
+type of <code class="docutils literal"><span class="pre">seq</span></code> to figure out what is going on:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="ow">not</span> <span class="n">seq</span><span class="p">:</span>
+<span class="k">if</span> <span class="n">seq</span><span class="p">:</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Not good either:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">):</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">):</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Recommended explicit form:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>MP0906</strong> (GPSG) When handling integers, implicit false may involve more risk than
+benefit (i.e., accidentally handling None as 0).</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>MP99##</strong> Miscellaneous</p>
+<blockquote>
+<div><ul>
+<li><p class="first"><strong>MP9901</strong> (PEP8) When a resource is local to a particular section of code, use a
+<code class="docutils literal"><span class="pre">with</span></code> statement to ensure it is cleaned up promptly and reliably after use.</p>
+</li>
+<li><p class="first"><strong>MP9902</strong> (PEP8) Be consistent in return statements. Either all return statements
+in a function should return an expression, or none of them should. If any return
+statement returns an expression, any return statements where no value is returned
+should explicitly state this as <code class="docutils literal"><span class="pre">return</span> <span class="pre">None</span></code>, and an explicit return statement
+should be present at the end of the function (if reachable).</p>
+</li>
+<li><p class="first"><strong>MP9903</strong> (PEP8) Use string methods instead of the <code class="docutils literal"><span class="pre">string</span></code> module.</p>
+</li>
+<li><p class="first"><strong>MP9904</strong> (PEP8) Use <code class="docutils literal"><span class="pre">.startswith()</span></code> and <code class="docutils literal"><span class="pre">.endswith()</span></code> instead of string
+slicing to check for prefixes or suffixes.</p>
+</li>
+<li><p class="first"><strong>MP9905</strong> (GPSG) Use default iterators and operators for types that support them, like
+lists, dictionaries, and files. The built-in types define iterator methods, too.
+Prefer these methods to methods that return lists, except that you should not mutate
+a container while iterating over it.</p>
+<p>Yes:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">adict</span><span class="p">:</span> <span class="o">...</span>
+<span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">adict</span><span class="p">:</span> <span class="o">...</span>
+<span class="k">if</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">alist</span><span class="p">:</span> <span class="o">...</span>
+<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">afile</span><span class="p">:</span> <span class="o">...</span>
+<span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>No:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">adict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span> <span class="o">...</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">adict</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">key</span><span class="p">):</span> <span class="o">...</span>
+<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">afile</span><span class="o">.</span><span class="n">readlines</span><span class="p">():</span> <span class="o">...</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><strong>MP9906</strong> (GPSG) Avoid unreadable functional programming constructs, e.g. because
+they do not fit on one or two lines. This includes list comprehensions, lambda
+functions and inline conditionals.</p>
+</li>
+<li><p class="first"><strong>MP9907</strong> (GPSG, PEP8) If a class inherits from no other base classes, explicitly
+inherit from object. This also applies to nested classes.</p>
+</li>
+<li><p class="first"><strong>MP9908</strong> (GPSG) Your code should always check if <code class="docutils literal"><span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">'__main__'</span></code> before
+executing your main program so that the main program is not executed when the module
+is imported. Just call the <code class="docutils literal"><span class="pre">main</span></code> function in this if clause instead of adding a
+lot of code in the global scope.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="c1"># ...</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="mindless-c-criteria">
+<h2>1.2.5. Mindless C++ criteria<a class="headerlink" href="#mindless-c-criteria" title="Permalink to this headline">¶</a></h2>
+<p>All C++ code should make use of the C++11 standard. Automatic checks are only applied to
+manually written C++ code. Autogenerated code is excluded from such tests.</p>
+<div class="section" id="cppcheck">
+<h3>1.2.5.1. CPPCheck<a class="headerlink" href="#cppcheck" title="Permalink to this headline">¶</a></h3>
+<p>See <a class="reference external" href="http://cppcheck.sourceforge.net/">http://cppcheck.sourceforge.net/</a></p>
+<p>CPPCheck is executed with all checks enabled and with the C++11 flag. The following
+exceptions are added due to false positives:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">missingIncludeSystem</span></code></li>
+<li><code class="docutils literal"><span class="pre">unusedFunction</span></code></li>
+</ul>
+<p>All other errors must be fixed.</p>
+</div>
+<div class="section" id="cpplint">
+<h3>1.2.5.2. CPPLint<a class="headerlink" href="#cpplint" title="Permalink to this headline">¶</a></h3>
+<p>See <a class="reference external" href="https://github.com/google/styleguide/tree/gh-pages/cpplint">https://github.com/google/styleguide/tree/gh-pages/cpplint</a></p>
+<p>CPPLint is executed with the default settings, except that the maximum line length is set
+to 100. All errors must be fixed.</p>
+</div>
+<div class="section" id="manual-checks">
+<h3>1.2.5.3. Manual checks<a class="headerlink" href="#manual-checks" title="Permalink to this headline">¶</a></h3>
+<p>The following points should be checked manually. These are taken from the Google C++ Style
+Guide (GCSG). See <a class="reference external" href="https://google.github.io/styleguide/cppguide.html">https://google.github.io/styleguide/cppguide.html</a></p>
+<ul>
+<li><p class="first"><strong>MC00##</strong> Header files</p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>MC0001</strong> (GCSG) <a class="reference external" href="https://google.github.io/styleguide/cppguide.html#The__define_Guard">#define guard</a>
+All header files should have #define guards to prevent multiple inclusion. The
+format of the symbol name should be <code class="docutils literal"><span class="pre">&lt;PROJECT&gt;_&lt;PATH&gt;_&lt;FILE&gt;_H_</span></code>.</li>
+<li><strong>MC0004</strong> (GCSG) <a class="reference external" href="https://google.github.io/styleguide/cppguide.html#Names_and_Order_of_Includes">Names and Order of Includes</a>
+Use standard order for readability and to avoid hidden dependencies: Related header,
+C library, C++ library, other libraries’ <code class="docutils literal"><span class="pre">.h</span></code>, your project’s <code class="docutils literal"><span class="pre">.h</span></code>.</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>MC01##</strong> Scoping</p>
+</li>
+<li><p class="first"><strong>MC02##</strong> Classes</p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>MC0202</strong> (GCSG) <a class="reference external" href="https://google.github.io/styleguide/cppguide.html#Copyable_Movable_Types">Copyable and Movable Types</a>
+Support copying and/or moving if it makes sense for your type. Otherwise, disable
+the implicitly generated special functions that perform copies and moves.</li>
+<li><strong>MC0210</strong> (GCSG) <a class="reference external" href="https://google.github.io/styleguide/cppguide.html#Declaration_Order">Declaration Order</a>
+Use the specified order of declarations within a class: public: before private:,
+methods before data members (variables), etc.</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>MC03##</strong> Functions</p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>MC0300</strong> (GCSG) <a class="reference external" href="https://google.github.io/styleguide/cppguide.html#Function_Parameter_Ordering">Parameter Ordering</a></li>
+<li><strong>MC0302</strong> (GCSG) <a class="reference external" href="https://google.github.io/styleguide/cppguide.html#Reference_Arguments">Reference Arguments</a>
+All parameters passed by reference must be labeled const.</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>MC04##</strong> Other</p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>MC0401</strong> (GCSG) <a class="reference external" href="https://google.github.io/styleguide/cppguide.html#Variable-Length_Arrays_and_alloca__">Variable-Length Arrays and alloca()</a>
+We do not allow variable-length arrays or alloca().</li>
+<li><strong>MC0407</strong> (GCSG) <a class="reference external" href="https://google.github.io/styleguide/cppguide.html#Preincrement_and_Predecrement">Preincrement and Predecrement</a>
+Use prefix form (<code class="docutils literal"><span class="pre">++i</span></code>) of the increment and decrement operators with iterators
+and other template objects.</li>
+<li><strong>MC0408</strong> (GCSG) <a class="reference external" href="https://google.github.io/styleguide/cppguide.html#Use_of_const">Use of const</a>
+Use <code class="docutils literal"><span class="pre">const</span></code> whenever it makes sense. With C++11, <code class="docutils literal"><span class="pre">constexpr</span></code> is a better choice
+for some uses of <code class="docutils literal"><span class="pre">const</span></code>.</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>MC05##</strong> Naming</p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>MC0503</strong> (GCSG) <a class="reference external" href="https://google.github.io/styleguide/cppguide.html#Variable_Names">Variable Names</a>
+The names of variables and data members are all lowercase, with underscores between
+words. Data members of classes (but not structs) additionally have trailing
+underscores. For instance: <code class="docutils literal"><span class="pre">a_local_variable</span></code>, <code class="docutils literal"><span class="pre">a_struct_data_member</span></code>,
+<code class="docutils literal"><span class="pre">a_class_data_member_</span></code>.</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>MC06##</strong> Comments</p>
+</li>
+<li><p class="first"><strong>MC07##</strong> Formatting</p>
+</li>
+</ul>
+</div>
+<div class="section" id="api-documentation">
+<h3>1.2.5.4. API documentation<a class="headerlink" href="#api-documentation" title="Permalink to this headline">¶</a></h3>
+<p>QA scripts will test if C++ source code documentation is missing.</p>
+</div>
+<div class="section" id="code-coverage">
+<h3>1.2.5.5. Code coverage<a class="headerlink" href="#code-coverage" title="Permalink to this headline">¶</a></h3>
+<p>For the moment, the C++ code is not included in the coverage analysis. It wasn’t possible
+to get <code class="docutils literal"><span class="pre">gcov</span></code> to work on the C++ extensions.</p>
+</div>
+</div>
+<div class="section" id="mindless-cython-criteria">
+<h2>1.2.6. Mindless Cython criteria<a class="headerlink" href="#mindless-cython-criteria" title="Permalink to this headline">¶</a></h2>
+<p>All Python criteria must be followed but nothing can be tested automatically. You have to
+check everything manually. Because this is horribly inconvenient, the amount of Cython
+code should be kept to a minimum.</p>
+<p>In addition to the Python criteria, also use the following conventions:</p>
+<ul>
+<li><p class="first"><strong>MY0001</strong> Pointers to NumPy array data should be accessed as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">cdef</span> <span class="n">double</span><span class="o">*</span> <span class="n">pointer</span>
+<span class="n">pointer</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>         <span class="c1"># for a 1D array</span>
+<span class="n">pointer</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">array</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>      <span class="c1"># for a 2D array</span>
+<span class="n">pointer</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">array</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>   <span class="c1"># for a 3D array</span>
+<span class="c1"># etc.</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><strong>MY0002</strong> NumPy should be imported in Cython in a specific way. (See
+<a class="reference external" href="https://github.com/cython/cython/wiki/tutorials-numpy#c-api-initalization">https://github.com/cython/cython/wiki/tutorials-numpy#c-api-initalization</a>)</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="n">cimport</span> <span class="n">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="n">np</span><span class="o">.</span><span class="n">import_array</span><span class="p">()</span>
+<span class="c1"># Other import and cimport lines should be put below.</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tech_dev_documentation.html" class="btn btn-neutral float-right" title="1.3. Writing documentation" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="tech_dev_git.html" class="btn btn-neutral" title="1.1. HORTON Development with Git" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.0 built from release 2.1.0 (Jul 06, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jul 06, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.1.0 (Jul 06, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

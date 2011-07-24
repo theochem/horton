@@ -1,0 +1,87 @@
+.. 
+    DOCUMENTATION BUILT FROM RELEASE: 2.1.1-1-g3a5adfea (Jan 18, 2019)
+
+Literature
+##########
+
+.. [slater1964] "Atomic Radii in Crystals", Slater, J. C.; *J. Chem. Phys.* **1964** (v. 41 pp. 3199--3204); `http://dx.doi.org/10.1063/1.1725697 <http://dx.doi.org/10.1063/1.1725697>`_
+
+.. [hirshfeld1977] "Bonded-atom fragments for describing molecular charge densities", Hirshfeld, F. L.; *Theoret. Chem. Acc.* **1977** (v. 44 pp. 129--138); `http://dx.doi.org/10.1007/BF00549096 <http://dx.doi.org/10.1007/BF00549096>`_
+
+.. [yan1996] "Variational calculations of dispersion coefficients for interactions among H, He, and Li atoms", Zhong-Chao Yan; James F. Babb; A. Dalgarno; *Phys. Rev. A* **1977** (v. 54 pp. 2824--2833); `http://dx.doi.org/10.1103/PhysRevA.54.2824 <http://dx.doi.org/10.1103/PhysRevA.54.2824>`_
+
+.. [pulay1980] "Convergence acceleration of iterative sequences. the case of scf iteration", Pulay, Peter; *Chem. Phys. Lett.* **1980** (v. 73 pp. 393--398); `http://dx.doi.org/10.1016/0009-2614(80)80396-4 <http://dx.doi.org/10.1016/0009-2614%2880%2980396-4>`_
+
+.. [becke1988_multicenter] "A multicenter numerical integration scheme for polyatomic molecules", Becke, A. D.; *J. Chem. Phys.* **1988** (v. 88 pp. 2547--2553); `http://dx.doi.org/10.1063/1.454033 <http://dx.doi.org/10.1063/1.454033>`_
+
+.. [becke1988_poisson] "Numerical solution of Poisson's equation in polyatomic molecules", Becke, A. D.; Dickson, R. M.; *J. Chem. Phys.* **1988** (v. 89 pp. 2993--2997); `http://dx.doi.org/10.1063/1.455005 <http://dx.doi.org/10.1063/1.455005>`_
+
+.. [pipek1989] "A fast intrinsic localization procedure applicable for abinitio and semiempirical linear combination of atomic orbital wave functions", Pipek, J{\'a}nos; Mezey, Paul G.; *J. Chem. Phys.* **1989** (v. 90 pp. 4916-4926); `http://dx.doi.org/10.1063/1.456588 <http://dx.doi.org/10.1063/1.456588>`_
+
+.. [baker1994] "The effect of grid quality and weight derivatives in density functional calculations", Baker, Jon; Andzelm, Jan; Scheiner, Andrew; Delley, Bernard; *J. Chem. Phys.* **1994** (v. 101 pp. 8894--8902); `http://dx.doi.org/10.1063/1.468081 <http://dx.doi.org/10.1063/1.468081>`_
+
+.. [feller1996] "The Role Of Databases In Support Of Computational Chemistry Calculations", Feller, D; *J. Comp. Chem.* **1996** (v. 17 pp. 1571--1586); `http://dx.doi.org/10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P <http://dx.doi.org/10.1002/%28SICI%291096-987X%28199610%2917%3A13%3C1571%3A%3AAID-JCC9%3E3.0.CO%3B2-P>`_
+
+.. [gill1996] "{A family of attenuated Coulomb operators}", Gill, Peter M.W.; Adamson, Ross D; *Chem. Phys. Lett.* **1996** (v. 261 pp. 105--110); `http://dx.doi.org/10.1016/0009-2614(96)00931-1 <http://dx.doi.org/10.1016/0009-2614%2896%2900931-1>`_
+
+.. [lebedev1999] "A quadrature formula for the sphere of the 131st algebraic order of accuracy", Lebedev, V.I.; Laikov, D.N.; *Dokl. Math.* **1999** (v. 59 pp. 477--481)
+
+.. [rabuck1999] "{Improving self-consistent field convergence by varying occupation numbers}", Rabuck, Angela D.; Scuseria, Gustavo E.; *J. Chem. Phys.* **1999** (v. 110 pp. 695); `http://dx.doi.org/10.1063/1.478177 <http://dx.doi.org/10.1063/1.478177>`_
+
+.. [nalewajski2000] "Information theory, atoms in molecules, and molecular similarity", Nalewajski, Roman F.; Parr, Robert G.; *Proc. Natl. Acad. Sci.* **2000** (v. 97 pp. 8879--8882)
+
+.. [cances2001] "Self-consistent field algorithms for {Kohn--Sham} models with fractional occupation numbers", Canc\`{e}s, Eric; *J. Chem. Phys.* **2001** (v. 114 pp. 10616--10622); `http://dx.doi.org/10.1063/1.1373430 <http://dx.doi.org/10.1063/1.1373430>`_
+
+.. [kudin2002] "A black-box self-consistent field convergence algorithm: One step closer", Kudin, Konstantin N.; Scuseria, Gustavo E.; Canc\`{e}s, Eric; *J. Chem. Phys.* **2002** (v. 116 pp. 8255--8261); `http://dx.doi.org/10.1063/1.1470195 <http://dx.doi.org/10.1063/1.1470195>`_
+
+.. [chu2004] "Linear response time-dependent density functional theory for van der Waals coefficients", X. Chu; A. Dalgarno; *J. Chem. Phys.* **2004** (v. 121 pp. 4083--4088); `http://dx.doi.org/10.1063/1.1779576 <http://dx.doi.org/10.1063/1.1779576>`_
+
+.. [toulouse2004] "{Long-range-short-range separation of the electron-electron interaction in density-functional theory}", Toulouse, J; Colonna, F; Savin, Andreas; *Phys. Rev. A* **2004** (v. 70 pp. 62505); `http://dx.doi.org/10.1103/PhysRevA.70.062505 <http://dx.doi.org/10.1103/PhysRevA.70.062505>`_
+
+.. [ahlrichs2006] "{A simple algebraic derivation of the Obara–Saika scheme for general two-electron interaction potentials}", Ahlrichs, Reinhart; *Phys. Chem. Chem. Phys.* **2006** (v. 8 pp. 3072--3077); `http://dx.doi.org/10.1039/B605188J <http://dx.doi.org/10.1039/B605188J>`_
+
+.. [Didier2007] "Basis Set Exchange: A Community Database For Computational Sciences", K.L. Didier; B.T. Elsethagen; T. Sun, L. Gurumoorthi; V. Chase; J. Li; T. L. Windus; *J. Chem. Inf. Model.* **2007** (v. 47 pp. 1045--1052); `http://pubs.acs.org/doi/abs/10.1021/ci600510j <http://pubs.acs.org/doi/abs/10.1021/ci600510j>`_
+
+.. [bultinck2007] "Critical analysis and extension of the Hirshfeld atoms in molecules", Bultinck, Patrick; Van Alsenoy, Christian; Ayers, Paul W.; Carbo-Dorca, Ramon; *J. Chem. Phys.* **2007** (v. 126 pp. 144111); `http://dx.doi.org/10.1063/1.2715563 <http://dx.doi.org/10.1063/1.2715563>`_
+
+.. [bultinck2007b] "Uniqueness and basis set dependence of iterative Hirshfeld charges", Bultinck, Patrick; Ayers, Paul W.; Fias, Stijn; Tiels, Koen; Van Alsenoy, Christian; *Chem. Phys. Lett.* **2007** (v. 444 pp. 205--208); `http://dx.doi.org/10.1016/j.cplett.2007.07.014 <http://dx.doi.org/10.1016/j.cplett.2007.07.014>`_
+
+.. [hu2007] "Fitting Molecular Electrostatic Potentials from Quantum Mechanical Calculations", Hu, Hao; Lu, Zhenyu; Yang, Weitao; *J. Chem. Theory Comput.* **2007** (v. 3 pp. 1004--1013); `http://dx.doi.org/10.1021/ct600295n <http://dx.doi.org/10.1021/ct600295n>`_
+
+.. [cordero2008] "Covalent radii revisited", Cordero, Beatriz; Gomez, Veronica; Platero-Prats, Ana E.; Reves, Marc; Echeverria, Jorge; Cremades, Eduard; Barragan, Flavia; Alvarez, Santiago; *Dalton Trans.* **2008** (v.  pp. 2832--2838); `http://dx.doi.org/10.1039/b801115j <http://dx.doi.org/10.1039/b801115j>`_
+
+.. [lillestolen2008] "Redefining the atom: atomic charge densities produced by an iterative stockholder approach", Lillestolen, Timothy C.; Wheatley, Richard J.; *Chem. Commun.* **2008** (v. 44 pp. 5909--5911); `http://dx.doi.org/10.1039/b812691g <http://dx.doi.org/10.1039/b812691g>`_
+
+.. [campana2009] "Electrostatic Potential Derived Atomic Charges for Periodic Systems Using a Modified Error Functional", Campañá, Carlos; Mussard, Bastien; Woo, Tom K.; *Journal of Chemical Theory and Computation* **2009** (v. 5 pp. 2866--2878); `http://dx.doi.org/10.1021/ct9003405 <http://dx.doi.org/10.1021/ct9003405>`_
+
+.. [tkatchenko2009] "Accurate Molecular Van der Waals Interactions from Ground-State Electron Density and Free-Atom Reference Data", Alexandre Tkatchenko; Matthias Scheffler; *Phys. Rev. Lett.* **2009** (v. 102 pp. 073005); `http://dx.doi.org/10.1103/PhysRevLett.102.073005 <http://dx.doi.org/10.1103/PhysRevLett.102.073005>`_
+
+.. [verstraelen2009] "The electronegativity equalization method and the split charge equilibration applied to organic systems: Parametrization, validation, and comparison", Verstraelen, Toon; Van Speybroeck, Veronique; Waroquier, Michel; *J. Chem. Phys.* **2009** (v. 131 pp. 044127+); `http://dx.doi.org/10.1063/1.3187034 <http://dx.doi.org/10.1063/1.3187034>`_
+
+.. [verstraelen2011a] "Assessment of Atomic Charge Models for {Gas-Phase} Computations on Polypeptides", Verstraelen, Toon; Pauwels, Ewald; De Proft, Frank; Van Speybroeck, Veronique; Geerlings, Paul; Waroquier, Michel; *J. Chem. Theory Comput.* **2011** (v. 8 pp. 661--676); `http://dx.doi.org/10.1021/ct200512e <http://dx.doi.org/10.1021/ct200512e>`_
+
+.. [verstraelen2011b] "The Significance of Parameters in Charge Equilibration Models", Verstraelen, T.; Bultinck, P.; Van Speybroeck, V.; Ayers, P. W.; Van Neck, D.; Waroquier, M.; *J. Chem. Theory Comput.* **2011** (v. 7 pp. 1750--1764); `http://dx.doi.org/10.1021/ct200006e <http://dx.doi.org/10.1021/ct200006e>`_
+
+.. [marques2012] "Libxc: A library of exchange and correlation functionals for density functional theory", Miguel A.L. Marques; Micael J.T. Oliveira; Tobias Burnus; *Computer Physics Communications* **2012** (v. 183 pp. 2272--2281); `http://dx.doi.org/10.1016/j.cpc.2012.05.007 <http://dx.doi.org/10.1016/j.cpc.2012.05.007>`_
+
+.. [vanduyfhuys2012] "Ab Initio Parametrized Force Field for the Flexible {Metal–Organic} Framework {MIL}-{53(Al})", Vanduyfhuys, L.; Verstraelen, T.; Vandichel, M.; Waroquier, M.; Van Speybroeck, V.; *J. Chem. Theory Comput.* **2012** (v. 8 pp. 3217--3231); `http://dx.doi.org/10.1021/ct300172m <http://dx.doi.org/10.1021/ct300172m>`_
+
+.. [verstraelen2012a] "The conformational sensitivity of iterative stockholder partitioning schemes", Verstraelen, T.; Ayers, P. W.; Van Speybroeck, V.; Waroquier, M.; *Chem. Phys. Lett.* **2012** (v. 545 pp. 138--143); `http://dx.doi.org/10.1016/j.cplett.2012.07.028 <http://dx.doi.org/10.1016/j.cplett.2012.07.028>`_
+
+.. [verstraelen2012b] "Computation of Charge Distribution and Electrostatic Potential in Silicates with the Use of Chemical Potential Equalization Models", Verstraelen, Toon; Sukhomlinov, Sergey V.; Van Speybroeck, Veronique; Waroquier, Michel; Smirnov, Konstantin S.; *J. Phys. Chem. C* **2012** (v. 116 pp. 490--504); `http://dx.doi.org/10.1021/jp210129r <http://dx.doi.org/10.1021/jp210129r>`_
+
+.. [limacher2013] "A New Mean-Field Method Suitable For Strongly Correlated Electrons: Computationally Facile Antisymmetric Products Of Nonorthogonal Geminals", Limacher, Peter A; Ayers, Paul W.; Johnson, Paul A; De Baerdemacker, Stijn; Van Neck, Dimitri; Bultinck, Patrick; *J. Chem. Theory Comput.* **2013** (v. 9 pp. 1394--1401); `http://pubs.acs.org/doi/abs/10.1021/ct300902c <http://pubs.acs.org/doi/abs/10.1021/ct300902c>`_
+
+.. [verstraelen2013] "Hirshfeld-E Partitioning: AIM Charges with an Improved Trade-off between Robustness and Accurate Electrostatics", Verstraelen, T.; Ayers, P. W.; Van Speybroeck, V.; Waroquier, M.; *J. Chem. Theory Comput.* **2013** (v. 9 pp. 2221-2225); `http://dx.doi.org/10.1021/ct4000923 <http://dx.doi.org/10.1021/ct4000923>`_
+
+.. [Limacher2014] "Simple And Inexpensive Perturbative Correction Schemes For Antisymmetric Products Of Nonorthogonal Geminals", P. Limacher; P. Ayers; P. Johnson; S. {De Baerdemacker}; D. {Van Neck}; P. Bultinck; *Phys. Chem. Chem. Phys* **2014** (v. 16 pp. 5061--5065); `http://pubs.rsc.org/en/content/articlehtml/2014/cp/c3cp53301h <http://pubs.rsc.org/en/content/articlehtml/2014/cp/c3cp53301h>`_
+
+.. [boguslawski2014a] "Efficient description of strongly correlated electrons with mean-field cost", Katharina Boguslawski; P. Tecmer; P. W. Ayers; Bultinck, Patrick;  {De Baerdemacker}, Stijn; {Van Neck}, Dimitri; *Phys. Rev. B* **2014** (v. 89 pp. 201106(R)); `http://journals.aps.org/prb/abstract/10.1103/PhysRevB.89.201106 <http://journals.aps.org/prb/abstract/10.1103/PhysRevB.89.201106>`_
+
+.. [boguslawski2014b] "Non-Variational Orbital Optimization Techniques for the AP1roG Wave Function", Boguslawski, Katharina; Tecmer, Pawe{\l}; Ayers, Paul W; Bultinck, Patrick; {De Baerdemacker}, Stijn; {Van Neck}, Dimitri; *J. Chem. Theory Comput.* **2014** (v. 10 pp. 4873--4882); `http://dx.doi.org/10.1021/ct500759q <http://dx.doi.org/10.1021/ct500759q>`_
+
+.. [valeev2014] "A library for the evaluation of molecular integrals of many-body operators over Gaussian functions", E. F. Valeev; *X* **2014** (v. X pp. X--X); `http://libint.valeyev.net/ <http://libint.valeyev.net/>`_
+
+.. [boguslawski2015a] "Orbital entanglement in quantum chemistry", Boguslawski, Katharina; Tecmer, Pawel; *Int. J. Quantum Chem.* **2015** (v.  pp. ); `http://dx.doi.org/10.1002/qua.24832 <http://dx.doi.org/10.1002/qua.24832>`_
+
+.. [verstraelen2016] "Minimal Basis Iterative Stockholder: Atoms in Molecules for Force-Field Development", T. Verstraelen; S. Vandenbrande; F. Heidar-Zadeh; L. Vanduyfhuys; V. Van Speybroeck; M. Waroquier; P.W. Ayers; *J. Chem. Theory Comput.* **2016** (v. in revision pp. ?--?); `http://dx.doi.org/ <http://dx.doi.org/>`_

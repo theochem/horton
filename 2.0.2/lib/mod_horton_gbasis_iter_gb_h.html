@@ -1,0 +1,799 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.4.13. horton/gbasis/iter_gb.h – Iterators over Gaussian basis functions &mdash; HORTON 2.0.2 (Jun 30, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="HORTON 2.0.2 (Jun 30, 2017) documentation" href="../index.html"/>
+        <link rel="up" title="3.4. horton.gbasis – Gaussian basis sets" href="pck_horton_gbasis.html"/>
+        <link rel="next" title="3.4.14. horton/gbasis/iter_pow.h – Iterators over Cartesian polynomials in one shell" href="mod_horton_gbasis_iter_pow_h.html"/>
+        <link rel="prev" title="3.4.12. horton/gbasis/ints.h – Evaluation of integrals of Gaussian basis functions" href="mod_horton_gbasis_ints_h.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> – The main HORTON Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_correlatedwfn.html">3.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn</span></code> – Methods for correlated wavefunctions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.3. <code class="docutils literal"><span class="pre">horton.espfit</span></code> – Electrostatic potential fitting</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_gbasis.html">3.4. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_cext.html">3.4.1. <code class="docutils literal"><span class="pre">horton.gbasis.cext</span></code> – C++ extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_gobasis.html">3.4.2. <code class="docutils literal"><span class="pre">horton.gbasis.gobasis</span></code> – Gaussian orbital basis set module.</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_iobas.html">3.4.3. <code class="docutils literal"><span class="pre">horton.gbasis.iobas</span></code> – Input/Output routines for gaussian basis sets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_boys_h.html">3.4.4. <code class="docutils literal"><span class="pre">horton/gbasis/boys.h</span></code> – The Boys function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_calc_h.html">3.4.5. <code class="docutils literal"><span class="pre">horton/gbasis/calc.h</span></code> – Base class for any integral/evaluation of Gaussian functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_cartpure_h.html">3.4.6. <code class="docutils literal"><span class="pre">horton/gbasis/cartpure.h</span></code> – Conversion of Cartesian to Pure Gaussian functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_cholesky_h.html">3.4.7. <code class="docutils literal"><span class="pre">horton/gbasis/cholesky.h</span></code> – Cholesky decomposition of (any) four-center integrals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_common_h.html">3.4.8. <code class="docutils literal"><span class="pre">horton/gbasis/common.h</span></code> – Auxiliary functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_fns_h.html">3.4.9. <code class="docutils literal"><span class="pre">horton/gbasis/fns.h</span></code> – Evaluation of functions expanded in a Gaussian basis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_gbasis_h.html">3.4.10. <code class="docutils literal"><span class="pre">horton/gbasis/gbasis.h</span></code> – Gaussian basis set classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_gbw_h.html">3.4.11. <code class="docutils literal"><span class="pre">horton/gbasis/gbw.h</span></code> – A four-center integral wrapper for the Cholesky code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_ints_h.html">3.4.12. <code class="docutils literal"><span class="pre">horton/gbasis/ints.h</span></code> – Evaluation of integrals of Gaussian basis functions</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.4.13. <code class="docutils literal"><span class="pre">horton/gbasis/iter_gb.h</span></code> – Iterators over Gaussian basis functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_iter_pow_h.html">3.4.14. <code class="docutils literal"><span class="pre">horton/gbasis/iter_pow.h</span></code> – Iterators over Cartesian polynomials in one shell</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.5. <code class="docutils literal"><span class="pre">horton.grid</span></code> – Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.6. <code class="docutils literal"><span class="pre">horton.io</span></code> – Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_localization.html">3.7. <code class="docutils literal"><span class="pre">horton.localization</span></code> – Methods for orbital localization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.8. <code class="docutils literal"><span class="pre">horton.matrix</span></code> – One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.9. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> – Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.10. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> – Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_orbital_entanglement.html">3.11. <code class="docutils literal"><span class="pre">horton.orbital_entanglement</span></code> – Methods for measuring orbital entanglement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.12. <code class="docutils literal"><span class="pre">horton.part</span></code> – Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.13. <code class="docutils literal"><span class="pre">horton.scripts</span></code> – Code (solely) used by HORTON’s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+        
+          <li><a href="pck_horton_gbasis.html">3.4. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a> &raquo;</li>
+        
+      <li>3.4.13. <code class="docutils literal"><span class="pre">horton/gbasis/iter_gb.h</span></code> – Iterators over Gaussian basis functions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/lib/mod_horton_gbasis_iter_gb_h.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="horton-gbasis-iter-gb-h-iterators-over-gaussian-basis-functions">
+<h1>3.4.13. <code class="docutils literal"><span class="pre">horton/gbasis/iter_gb.h</span></code> – Iterators over Gaussian basis functions<a class="headerlink" href="#horton-gbasis-iter-gb-h-iterators-over-gaussian-basis-functions" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="_CPPv27IterGB1">
+<span id="IterGB1"></span><span class="target" id="hortonclassIterGB1"></span><em class="property">class </em></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N7IterGB17IterGB1EP6GBasis">
+<span id="IterGB1::IterGB1__GBasisP"></span><span class="target" id="hortonclassIterGB1_1a43413f39d8b1c2dbef9dc4d8582c2744"></span><code class="descclassname">IterGB1::</code><code class="descname">IterGB1</code><span class="sig-paren">(</span><a class="reference internal" href="mod_horton_gbasis_gbasis_h.html#_CPPv26GBasis" title="GBasis">GBasis</a> *<em>gbasis</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N7IterGB17IterGB1EP6GBasis" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N7IterGB19inc_shellEv">
+<span id="IterGB1::inc_shell"></span><span class="target" id="hortonclassIterGB1_1a6b76039be36c90cfcf6cce83280226e4"></span>int <code class="descclassname">IterGB1::</code><code class="descname">inc_shell</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N7IterGB19inc_shellEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N7IterGB112update_shellEv">
+<span id="IterGB1::update_shell"></span><span class="target" id="hortonclassIterGB1_1aa7f13ae1dde0ce79fa48cd3615196a2f"></span>void <code class="descclassname">IterGB1::</code><code class="descname">update_shell</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N7IterGB112update_shellEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N7IterGB18inc_primEv">
+<span id="IterGB1::inc_prim"></span><span class="target" id="hortonclassIterGB1_1a0a6fa3c65b2a24aa406272ecc06f7252"></span>int <code class="descclassname">IterGB1::</code><code class="descname">inc_prim</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N7IterGB18inc_primEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N7IterGB111update_primEv">
+<span id="IterGB1::update_prim"></span><span class="target" id="hortonclassIterGB1_1a9101f4a291cddcb0d29616edd4b09366"></span>void <code class="descclassname">IterGB1::</code><code class="descname">update_prim</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N7IterGB111update_primEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N7IterGB15storeEPKdPdl">
+<span id="IterGB1::store__doubleCP.doubleP.l"></span><span class="target" id="hortonclassIterGB1_1aae570ee14d32c138073b787b3f13eea8"></span>void <code class="descclassname">IterGB1::</code><code class="descname">store</code><span class="sig-paren">(</span><em class="property">const</em> double *<em>work</em>, double *<em>output</em>, long <em>dim</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N7IterGB15storeEPKdPdl" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="member">
+<dt id="_CPPv2N7IterGB111shell_type0E">
+<span id="IterGB1::shell_type0__l"></span><span class="target" id="hortonclassIterGB1_1ac531bba10f2c7b37cb6ca0389871bb64"></span>long <code class="descclassname">IterGB1::</code><code class="descname">shell_type0</code><a class="headerlink" href="#_CPPv2N7IterGB111shell_type0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB19con_coeffE">
+<span id="IterGB1::con_coeff__double"></span><span class="target" id="hortonclassIterGB1_1a11288e44d8c50a8c4d469216f2a57dc5"></span>double <code class="descclassname">IterGB1::</code><code class="descname">con_coeff</code><a class="headerlink" href="#_CPPv2N7IterGB19con_coeffE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB16alpha0E">
+<span id="IterGB1::alpha0__double"></span><span class="target" id="hortonclassIterGB1_1aa01dbeec1b09f8a7d30b457ea26565fd"></span>double <code class="descclassname">IterGB1::</code><code class="descname">alpha0</code><a class="headerlink" href="#_CPPv2N7IterGB16alpha0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB12r0E">
+<span id="IterGB1::r0__doubleCP"></span><span class="target" id="hortonclassIterGB1_1aebb712610b543f2027ef31e3dacc2744"></span><em class="property">const</em> double *<code class="descclassname">IterGB1::</code><code class="descname">r0</code><a class="headerlink" href="#_CPPv2N7IterGB12r0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB17scales0E">
+<span id="IterGB1::scales0__doubleCP"></span><span class="target" id="hortonclassIterGB1_1af2c641c21ed79ff5f88afaffe96fa02f"></span><em class="property">const</em> double *<code class="descclassname">IterGB1::</code><code class="descname">scales0</code><a class="headerlink" href="#_CPPv2N7IterGB17scales0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB17ibasis0E">
+<span id="IterGB1::ibasis0__l"></span><span class="target" id="hortonclassIterGB1_1a618d08ce790deb7567832c8401491d7b"></span>long <code class="descclassname">IterGB1::</code><code class="descname">ibasis0</code><a class="headerlink" href="#_CPPv2N7IterGB17ibasis0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB17ishell0E">
+<span id="IterGB1::ishell0__l"></span><span class="target" id="hortonclassIterGB1_1a7c142bc3cc6f5018b6fa6c13d5ec5617"></span>long <code class="descclassname">IterGB1::</code><code class="descname">ishell0</code><a class="headerlink" href="#_CPPv2N7IterGB17ishell0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB16nprim0E">
+<span id="IterGB1::nprim0__l"></span><span class="target" id="hortonclassIterGB1_1a1cf49ce3579a0dc1ae0614bc4acb9248"></span>long <code class="descclassname">IterGB1::</code><code class="descname">nprim0</code><a class="headerlink" href="#_CPPv2N7IterGB16nprim0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB16iprim0E">
+<span id="IterGB1::iprim0__l"></span><span class="target" id="hortonclassIterGB1_1aa3a5e3eabb3263978d35022d3285ef17"></span>long <code class="descclassname">IterGB1::</code><code class="descname">iprim0</code><a class="headerlink" href="#_CPPv2N7IterGB16iprim0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB16oprim0E">
+<span id="IterGB1::oprim0__l"></span><span class="target" id="hortonclassIterGB1_1a0cdadebe02869865410ee23d851c8fc6"></span>long <code class="descclassname">IterGB1::</code><code class="descname">oprim0</code><a class="headerlink" href="#_CPPv2N7IterGB16oprim0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv2N7IterGB16gbasisE">
+<span id="IterGB1::gbasis__GBasisCP"></span><span class="target" id="hortonclassIterGB1_1a86664fe3aa004c2d4cd0f46b26d1dfd5"></span><em class="property">const</em> <a class="reference internal" href="mod_horton_gbasis_gbasis_h.html#_CPPv26GBasis" title="GBasis">GBasis</a> *<code class="descclassname">IterGB1::</code><code class="descname">gbasis</code><a class="headerlink" href="#_CPPv2N7IterGB16gbasisE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB113basis_offsetsE">
+<span id="IterGB1::basis_offsets__lCP"></span><span class="target" id="hortonclassIterGB1_1a8ff939d87f568560d20f036303fc9c4c"></span><em class="property">const</em> long *<code class="descclassname">IterGB1::</code><code class="descname">basis_offsets</code><a class="headerlink" href="#_CPPv2N7IterGB113basis_offsetsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv27IterGB2">
+<span id="IterGB2"></span><span class="target" id="hortonclassIterGB2"></span><em class="property">class </em></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N7IterGB27IterGB2EP6GBasis">
+<span id="IterGB2::IterGB2__GBasisP"></span><span class="target" id="hortonclassIterGB2_1a00d4e6a7f5991f2a206ecb5c91632da3"></span><code class="descclassname">IterGB2::</code><code class="descname">IterGB2</code><span class="sig-paren">(</span><a class="reference internal" href="mod_horton_gbasis_gbasis_h.html#_CPPv26GBasis" title="GBasis">GBasis</a> *<em>gbasis</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N7IterGB27IterGB2EP6GBasis" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N7IterGB29inc_shellEv">
+<span id="IterGB2::inc_shell"></span><span class="target" id="hortonclassIterGB2_1ab0da174408aef71d2729f8227973fb9b"></span>int <code class="descclassname">IterGB2::</code><code class="descname">inc_shell</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N7IterGB29inc_shellEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N7IterGB212update_shellEv">
+<span id="IterGB2::update_shell"></span><span class="target" id="hortonclassIterGB2_1a7fb092b142cf2ce9049613871c4b7000"></span>void <code class="descclassname">IterGB2::</code><code class="descname">update_shell</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N7IterGB212update_shellEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N7IterGB28inc_primEv">
+<span id="IterGB2::inc_prim"></span><span class="target" id="hortonclassIterGB2_1aa1f2eaa18dcc8bef27c84991a4ba77d9"></span>int <code class="descclassname">IterGB2::</code><code class="descname">inc_prim</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N7IterGB28inc_primEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N7IterGB211update_primEv">
+<span id="IterGB2::update_prim"></span><span class="target" id="hortonclassIterGB2_1a2bb2e4dd1051096d4a7359122344faf2"></span>void <code class="descclassname">IterGB2::</code><code class="descname">update_prim</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N7IterGB211update_primEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N7IterGB25storeEPKdPd">
+<span id="IterGB2::store__doubleCP.doubleP"></span><span class="target" id="hortonclassIterGB2_1a9ddd8b07d6f77fe6230ef91f06f91555"></span>void <code class="descclassname">IterGB2::</code><code class="descname">store</code><span class="sig-paren">(</span><em class="property">const</em> double *<em>work</em>, double *<em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N7IterGB25storeEPKdPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N7IterGB23dotEPKdPKd">
+<span id="IterGB2::dot__doubleCP.doubleCP"></span><span class="target" id="hortonclassIterGB2_1a263b2ac39a085e58debb9460310f8859"></span>double <code class="descclassname">IterGB2::</code><code class="descname">dot</code><span class="sig-paren">(</span><em class="property">const</em> double *<em>work</em>, <em class="property">const</em> double *<em>dm</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N7IterGB23dotEPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="member">
+<dt id="_CPPv2N7IterGB211shell_type0E">
+<span id="IterGB2::shell_type0__l"></span><span class="target" id="hortonclassIterGB2_1a18ebe6a37ea1c4ba79fdf122984b8705"></span>long <code class="descclassname">IterGB2::</code><code class="descname">shell_type0</code><a class="headerlink" href="#_CPPv2N7IterGB211shell_type0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB211shell_type1E">
+<span id="IterGB2::shell_type1__l"></span><span class="target" id="hortonclassIterGB2_1ae4c972df412341b58fc285d97c3f9d13"></span>long <code class="descclassname">IterGB2::</code><code class="descname">shell_type1</code><a class="headerlink" href="#_CPPv2N7IterGB211shell_type1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB29con_coeffE">
+<span id="IterGB2::con_coeff__double"></span><span class="target" id="hortonclassIterGB2_1a9e1e47fbe3a8f98d45d41c5b0214858f"></span>double <code class="descclassname">IterGB2::</code><code class="descname">con_coeff</code><a class="headerlink" href="#_CPPv2N7IterGB29con_coeffE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB26alpha0E">
+<span id="IterGB2::alpha0__double"></span><span class="target" id="hortonclassIterGB2_1ab86718800d9faa4beb172bd46bdf16bf"></span>double <code class="descclassname">IterGB2::</code><code class="descname">alpha0</code><a class="headerlink" href="#_CPPv2N7IterGB26alpha0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB26alpha1E">
+<span id="IterGB2::alpha1__double"></span><span class="target" id="hortonclassIterGB2_1a5045c93d370238544cd1e1dee8af6e9d"></span>double <code class="descclassname">IterGB2::</code><code class="descname">alpha1</code><a class="headerlink" href="#_CPPv2N7IterGB26alpha1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB22r0E">
+<span id="IterGB2::r0__doubleCP"></span><span class="target" id="hortonclassIterGB2_1addc036fd686fb7d8da7aa638ab6a9791"></span><em class="property">const</em> double *<code class="descclassname">IterGB2::</code><code class="descname">r0</code><a class="headerlink" href="#_CPPv2N7IterGB22r0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB22r1E">
+<span id="IterGB2::r1__doubleCP"></span><span class="target" id="hortonclassIterGB2_1a472c122edb9326886c08356539389195"></span><em class="property">const</em> double *<code class="descclassname">IterGB2::</code><code class="descname">r1</code><a class="headerlink" href="#_CPPv2N7IterGB22r1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB27scales0E">
+<span id="IterGB2::scales0__doubleCP"></span><span class="target" id="hortonclassIterGB2_1a824687fdfb95a9f7116333eb33b60568"></span><em class="property">const</em> double *<code class="descclassname">IterGB2::</code><code class="descname">scales0</code><a class="headerlink" href="#_CPPv2N7IterGB27scales0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB27scales1E">
+<span id="IterGB2::scales1__doubleCP"></span><span class="target" id="hortonclassIterGB2_1af69cf343ccdd697f55c7e85350e22c01"></span><em class="property">const</em> double *<code class="descclassname">IterGB2::</code><code class="descname">scales1</code><a class="headerlink" href="#_CPPv2N7IterGB27scales1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB27ibasis0E">
+<span id="IterGB2::ibasis0__l"></span><span class="target" id="hortonclassIterGB2_1ab2ecf689644dd7c6e818b21e8f0090bd"></span>long <code class="descclassname">IterGB2::</code><code class="descname">ibasis0</code><a class="headerlink" href="#_CPPv2N7IterGB27ibasis0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB27ibasis1E">
+<span id="IterGB2::ibasis1__l"></span><span class="target" id="hortonclassIterGB2_1afc51be045b75fac659aaa786c5e80ed2"></span>long <code class="descclassname">IterGB2::</code><code class="descname">ibasis1</code><a class="headerlink" href="#_CPPv2N7IterGB27ibasis1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB27ishell0E">
+<span id="IterGB2::ishell0__l"></span><span class="target" id="hortonclassIterGB2_1a1c81bd954acb0d482efb21a1fee34201"></span>long <code class="descclassname">IterGB2::</code><code class="descname">ishell0</code><a class="headerlink" href="#_CPPv2N7IterGB27ishell0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB27ishell1E">
+<span id="IterGB2::ishell1__l"></span><span class="target" id="hortonclassIterGB2_1a5ecae3ee02bd5e68d2a622eb79b089aa"></span>long <code class="descclassname">IterGB2::</code><code class="descname">ishell1</code><a class="headerlink" href="#_CPPv2N7IterGB27ishell1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB26nprim0E">
+<span id="IterGB2::nprim0__l"></span><span class="target" id="hortonclassIterGB2_1a62c045d5664ecbb92ca999b8b2b42b1e"></span>long <code class="descclassname">IterGB2::</code><code class="descname">nprim0</code><a class="headerlink" href="#_CPPv2N7IterGB26nprim0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB26nprim1E">
+<span id="IterGB2::nprim1__l"></span><span class="target" id="hortonclassIterGB2_1a1ce609bd91a9e671e243247bcde4bc84"></span>long <code class="descclassname">IterGB2::</code><code class="descname">nprim1</code><a class="headerlink" href="#_CPPv2N7IterGB26nprim1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB26iprim0E">
+<span id="IterGB2::iprim0__l"></span><span class="target" id="hortonclassIterGB2_1ac1bc32544d35795fa7d0485b52f4ed20"></span>long <code class="descclassname">IterGB2::</code><code class="descname">iprim0</code><a class="headerlink" href="#_CPPv2N7IterGB26iprim0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB26iprim1E">
+<span id="IterGB2::iprim1__l"></span><span class="target" id="hortonclassIterGB2_1aa846bba04048d3c24a9cb1263c125bfa"></span>long <code class="descclassname">IterGB2::</code><code class="descname">iprim1</code><a class="headerlink" href="#_CPPv2N7IterGB26iprim1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB26oprim0E">
+<span id="IterGB2::oprim0__l"></span><span class="target" id="hortonclassIterGB2_1acc327f0bed14f012ff177ce55f0de842"></span>long <code class="descclassname">IterGB2::</code><code class="descname">oprim0</code><a class="headerlink" href="#_CPPv2N7IterGB26oprim0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB26oprim1E">
+<span id="IterGB2::oprim1__l"></span><span class="target" id="hortonclassIterGB2_1aa819dce059e680e430e7ae3f63b9c986"></span>long <code class="descclassname">IterGB2::</code><code class="descname">oprim1</code><a class="headerlink" href="#_CPPv2N7IterGB26oprim1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv2N7IterGB26gbasisE">
+<span id="IterGB2::gbasis__GBasisCP"></span><span class="target" id="hortonclassIterGB2_1a541af4cdd6a2c7a9b0c15eaa1e848ef0"></span><em class="property">const</em> <a class="reference internal" href="mod_horton_gbasis_gbasis_h.html#_CPPv26GBasis" title="GBasis">GBasis</a> *<code class="descclassname">IterGB2::</code><code class="descname">gbasis</code><a class="headerlink" href="#_CPPv2N7IterGB26gbasisE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB213basis_offsetsE">
+<span id="IterGB2::basis_offsets__lCP"></span><span class="target" id="hortonclassIterGB2_1ab8b93c6305c1e1f0f5c9e8f3f3be6007"></span><em class="property">const</em> long *<code class="descclassname">IterGB2::</code><code class="descname">basis_offsets</code><a class="headerlink" href="#_CPPv2N7IterGB213basis_offsetsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv27IterGB4">
+<span id="IterGB4"></span><span class="target" id="hortonclassIterGB4"></span><em class="property">class </em></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N7IterGB47IterGB4EP6GBasis">
+<span id="IterGB4::IterGB4__GBasisP"></span><span class="target" id="hortonclassIterGB4_1a7eb51418a14bcdcab106ad181f6c9e03"></span><code class="descclassname">IterGB4::</code><code class="descname">IterGB4</code><span class="sig-paren">(</span><a class="reference internal" href="mod_horton_gbasis_gbasis_h.html#_CPPv26GBasis" title="GBasis">GBasis</a> *<em>gbasis</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N7IterGB47IterGB4EP6GBasis" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N7IterGB49inc_shellEv">
+<span id="IterGB4::inc_shell"></span><span class="target" id="hortonclassIterGB4_1a3814705f829d753d45fc9e3b790b7ef9"></span>int <code class="descclassname">IterGB4::</code><code class="descname">inc_shell</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N7IterGB49inc_shellEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N7IterGB412update_shellEv">
+<span id="IterGB4::update_shell"></span><span class="target" id="hortonclassIterGB4_1ad14b8a668f66996cc25ae2dedd63e9b2"></span>void <code class="descclassname">IterGB4::</code><code class="descname">update_shell</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N7IterGB412update_shellEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N7IterGB48inc_primEv">
+<span id="IterGB4::inc_prim"></span><span class="target" id="hortonclassIterGB4_1a23bfa172e25240f047dc81ed8d65429f"></span>int <code class="descclassname">IterGB4::</code><code class="descname">inc_prim</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N7IterGB48inc_primEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N7IterGB411update_primEv">
+<span id="IterGB4::update_prim"></span><span class="target" id="hortonclassIterGB4_1a920ca24b9d054ac17b31385fd30f0cb6"></span>void <code class="descclassname">IterGB4::</code><code class="descname">update_prim</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N7IterGB411update_primEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N7IterGB45storeEPKdPd">
+<span id="IterGB4::store__doubleCP.doubleP"></span><span class="target" id="hortonclassIterGB4_1ac6a2f40d7378718c7f578627ad3e9ef7"></span>void <code class="descclassname">IterGB4::</code><code class="descname">store</code><span class="sig-paren">(</span><em class="property">const</em> double *<em>work</em>, double *<em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N7IterGB45storeEPKdPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="member">
+<dt id="_CPPv2N7IterGB411shell_type0E">
+<span id="IterGB4::shell_type0__l"></span><span class="target" id="hortonclassIterGB4_1a1be9aa1827f377ec8e7396744b62b22b"></span>long <code class="descclassname">IterGB4::</code><code class="descname">shell_type0</code><a class="headerlink" href="#_CPPv2N7IterGB411shell_type0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB411shell_type1E">
+<span id="IterGB4::shell_type1__l"></span><span class="target" id="hortonclassIterGB4_1a07e1eb0a6a0d5b06b4fd1406a78fff78"></span>long <code class="descclassname">IterGB4::</code><code class="descname">shell_type1</code><a class="headerlink" href="#_CPPv2N7IterGB411shell_type1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB411shell_type2E">
+<span id="IterGB4::shell_type2__l"></span><span class="target" id="hortonclassIterGB4_1a89fce159216e8bacde1add75c631da20"></span>long <code class="descclassname">IterGB4::</code><code class="descname">shell_type2</code><a class="headerlink" href="#_CPPv2N7IterGB411shell_type2E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB411shell_type3E">
+<span id="IterGB4::shell_type3__l"></span><span class="target" id="hortonclassIterGB4_1a09dcab789dc899b7375697444b991b34"></span>long <code class="descclassname">IterGB4::</code><code class="descname">shell_type3</code><a class="headerlink" href="#_CPPv2N7IterGB411shell_type3E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB49con_coeffE">
+<span id="IterGB4::con_coeff__double"></span><span class="target" id="hortonclassIterGB4_1a162ab6f54bfbf92456db29cdb7024f4c"></span>double <code class="descclassname">IterGB4::</code><code class="descname">con_coeff</code><a class="headerlink" href="#_CPPv2N7IterGB49con_coeffE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB46alpha0E">
+<span id="IterGB4::alpha0__double"></span><span class="target" id="hortonclassIterGB4_1a08da4665567769eb30ac30aabb80ae14"></span>double <code class="descclassname">IterGB4::</code><code class="descname">alpha0</code><a class="headerlink" href="#_CPPv2N7IterGB46alpha0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB46alpha1E">
+<span id="IterGB4::alpha1__double"></span><span class="target" id="hortonclassIterGB4_1a5867f86e7b82365de3042bb3d352e904"></span>double <code class="descclassname">IterGB4::</code><code class="descname">alpha1</code><a class="headerlink" href="#_CPPv2N7IterGB46alpha1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB46alpha2E">
+<span id="IterGB4::alpha2__double"></span><span class="target" id="hortonclassIterGB4_1a67c9615c744fcc674c8f4824ffa0e7e6"></span>double <code class="descclassname">IterGB4::</code><code class="descname">alpha2</code><a class="headerlink" href="#_CPPv2N7IterGB46alpha2E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB46alpha3E">
+<span id="IterGB4::alpha3__double"></span><span class="target" id="hortonclassIterGB4_1ad7d04c96306c5a591123a4fb6cf06916"></span>double <code class="descclassname">IterGB4::</code><code class="descname">alpha3</code><a class="headerlink" href="#_CPPv2N7IterGB46alpha3E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB42r0E">
+<span id="IterGB4::r0__doubleCP"></span><span class="target" id="hortonclassIterGB4_1ac912ba69a463952a8a9a75379eb35a9b"></span><em class="property">const</em> double *<code class="descclassname">IterGB4::</code><code class="descname">r0</code><a class="headerlink" href="#_CPPv2N7IterGB42r0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB42r1E">
+<span id="IterGB4::r1__doubleCP"></span><span class="target" id="hortonclassIterGB4_1aefc89cf300fecc426654a54e98552dbf"></span><em class="property">const</em> double *<code class="descclassname">IterGB4::</code><code class="descname">r1</code><a class="headerlink" href="#_CPPv2N7IterGB42r1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB42r2E">
+<span id="IterGB4::r2__doubleCP"></span><span class="target" id="hortonclassIterGB4_1a62bd75f46259fba11f7086259aa29851"></span><em class="property">const</em> double *<code class="descclassname">IterGB4::</code><code class="descname">r2</code><a class="headerlink" href="#_CPPv2N7IterGB42r2E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB42r3E">
+<span id="IterGB4::r3__doubleCP"></span><span class="target" id="hortonclassIterGB4_1a0880f66287f6aa8dde1a063c6c55cd2f"></span><em class="property">const</em> double *<code class="descclassname">IterGB4::</code><code class="descname">r3</code><a class="headerlink" href="#_CPPv2N7IterGB42r3E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB47scales0E">
+<span id="IterGB4::scales0__doubleCP"></span><span class="target" id="hortonclassIterGB4_1a49765f0c3007a56f83e51845830350a0"></span><em class="property">const</em> double *<code class="descclassname">IterGB4::</code><code class="descname">scales0</code><a class="headerlink" href="#_CPPv2N7IterGB47scales0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB47scales1E">
+<span id="IterGB4::scales1__doubleCP"></span><span class="target" id="hortonclassIterGB4_1a719502654d834563842e913ee6397184"></span><em class="property">const</em> double *<code class="descclassname">IterGB4::</code><code class="descname">scales1</code><a class="headerlink" href="#_CPPv2N7IterGB47scales1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB47scales2E">
+<span id="IterGB4::scales2__doubleCP"></span><span class="target" id="hortonclassIterGB4_1a9d78902299d98592a3b7cfb1db6d1fb9"></span><em class="property">const</em> double *<code class="descclassname">IterGB4::</code><code class="descname">scales2</code><a class="headerlink" href="#_CPPv2N7IterGB47scales2E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB47scales3E">
+<span id="IterGB4::scales3__doubleCP"></span><span class="target" id="hortonclassIterGB4_1af34768a0f26fb5a57dbc9c253b5f7651"></span><em class="property">const</em> double *<code class="descclassname">IterGB4::</code><code class="descname">scales3</code><a class="headerlink" href="#_CPPv2N7IterGB47scales3E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB47ibasis0E">
+<span id="IterGB4::ibasis0__l"></span><span class="target" id="hortonclassIterGB4_1a55b1f04a22d09377daecd271cca740f7"></span>long <code class="descclassname">IterGB4::</code><code class="descname">ibasis0</code><a class="headerlink" href="#_CPPv2N7IterGB47ibasis0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB47ibasis1E">
+<span id="IterGB4::ibasis1__l"></span><span class="target" id="hortonclassIterGB4_1a986247ff88c2ac1fb9287cc4e26a86ee"></span>long <code class="descclassname">IterGB4::</code><code class="descname">ibasis1</code><a class="headerlink" href="#_CPPv2N7IterGB47ibasis1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB47ibasis2E">
+<span id="IterGB4::ibasis2__l"></span><span class="target" id="hortonclassIterGB4_1a7e492da24cb6a500af680816000ef041"></span>long <code class="descclassname">IterGB4::</code><code class="descname">ibasis2</code><a class="headerlink" href="#_CPPv2N7IterGB47ibasis2E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB47ibasis3E">
+<span id="IterGB4::ibasis3__l"></span><span class="target" id="hortonclassIterGB4_1aff927966540640ccd93b8d5d22f75e3f"></span>long <code class="descclassname">IterGB4::</code><code class="descname">ibasis3</code><a class="headerlink" href="#_CPPv2N7IterGB47ibasis3E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB47ishell0E">
+<span id="IterGB4::ishell0__l"></span><span class="target" id="hortonclassIterGB4_1a96ddf875a1662a90960edca786dc039b"></span>long <code class="descclassname">IterGB4::</code><code class="descname">ishell0</code><a class="headerlink" href="#_CPPv2N7IterGB47ishell0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB47ishell1E">
+<span id="IterGB4::ishell1__l"></span><span class="target" id="hortonclassIterGB4_1a1847ddc7c8f846460de0cd3038c32dbf"></span>long <code class="descclassname">IterGB4::</code><code class="descname">ishell1</code><a class="headerlink" href="#_CPPv2N7IterGB47ishell1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB47ishell2E">
+<span id="IterGB4::ishell2__l"></span><span class="target" id="hortonclassIterGB4_1a34c2594e0f8dec09889fc2cfde0b4e19"></span>long <code class="descclassname">IterGB4::</code><code class="descname">ishell2</code><a class="headerlink" href="#_CPPv2N7IterGB47ishell2E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB47ishell3E">
+<span id="IterGB4::ishell3__l"></span><span class="target" id="hortonclassIterGB4_1a664c09b1e5e9b87931ca436e55cc3ebc"></span>long <code class="descclassname">IterGB4::</code><code class="descname">ishell3</code><a class="headerlink" href="#_CPPv2N7IterGB47ishell3E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB411ishell3_maxE">
+<span id="IterGB4::ishell3_max__l"></span><span class="target" id="hortonclassIterGB4_1a31558332f57e7517daeec4ca2bb8d418"></span>long <code class="descclassname">IterGB4::</code><code class="descname">ishell3_max</code><a class="headerlink" href="#_CPPv2N7IterGB411ishell3_maxE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB46nprim0E">
+<span id="IterGB4::nprim0__l"></span><span class="target" id="hortonclassIterGB4_1a752e3368b03b080d4354342f38544d4f"></span>long <code class="descclassname">IterGB4::</code><code class="descname">nprim0</code><a class="headerlink" href="#_CPPv2N7IterGB46nprim0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB46nprim1E">
+<span id="IterGB4::nprim1__l"></span><span class="target" id="hortonclassIterGB4_1a2b885e95c89225e659b8b9ee10655346"></span>long <code class="descclassname">IterGB4::</code><code class="descname">nprim1</code><a class="headerlink" href="#_CPPv2N7IterGB46nprim1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB46nprim2E">
+<span id="IterGB4::nprim2__l"></span><span class="target" id="hortonclassIterGB4_1a865a4d7e633f858dd3c0ad329c58ca84"></span>long <code class="descclassname">IterGB4::</code><code class="descname">nprim2</code><a class="headerlink" href="#_CPPv2N7IterGB46nprim2E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB46nprim3E">
+<span id="IterGB4::nprim3__l"></span><span class="target" id="hortonclassIterGB4_1a361a6a5af15295d805767d789075ef67"></span>long <code class="descclassname">IterGB4::</code><code class="descname">nprim3</code><a class="headerlink" href="#_CPPv2N7IterGB46nprim3E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB46iprim0E">
+<span id="IterGB4::iprim0__l"></span><span class="target" id="hortonclassIterGB4_1aeaeb5d39b5189c644a6550496e756c59"></span>long <code class="descclassname">IterGB4::</code><code class="descname">iprim0</code><a class="headerlink" href="#_CPPv2N7IterGB46iprim0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB46iprim1E">
+<span id="IterGB4::iprim1__l"></span><span class="target" id="hortonclassIterGB4_1ada40b6b2581f426779a0573168daf8ef"></span>long <code class="descclassname">IterGB4::</code><code class="descname">iprim1</code><a class="headerlink" href="#_CPPv2N7IterGB46iprim1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB46iprim2E">
+<span id="IterGB4::iprim2__l"></span><span class="target" id="hortonclassIterGB4_1af950a621c43103b13de2d17bf2a095b2"></span>long <code class="descclassname">IterGB4::</code><code class="descname">iprim2</code><a class="headerlink" href="#_CPPv2N7IterGB46iprim2E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB46iprim3E">
+<span id="IterGB4::iprim3__l"></span><span class="target" id="hortonclassIterGB4_1a195392a80b01982f18a9f681b09f7f22"></span>long <code class="descclassname">IterGB4::</code><code class="descname">iprim3</code><a class="headerlink" href="#_CPPv2N7IterGB46iprim3E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB46oprim0E">
+<span id="IterGB4::oprim0__l"></span><span class="target" id="hortonclassIterGB4_1a94090814d3ab0edbbce8b46303c5523e"></span>long <code class="descclassname">IterGB4::</code><code class="descname">oprim0</code><a class="headerlink" href="#_CPPv2N7IterGB46oprim0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB46oprim1E">
+<span id="IterGB4::oprim1__l"></span><span class="target" id="hortonclassIterGB4_1ae6fb9a5f58911d812b02884e0763e3b6"></span>long <code class="descclassname">IterGB4::</code><code class="descname">oprim1</code><a class="headerlink" href="#_CPPv2N7IterGB46oprim1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB46oprim2E">
+<span id="IterGB4::oprim2__l"></span><span class="target" id="hortonclassIterGB4_1a30f794850cc228ca78980f96691d349d"></span>long <code class="descclassname">IterGB4::</code><code class="descname">oprim2</code><a class="headerlink" href="#_CPPv2N7IterGB46oprim2E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB46oprim3E">
+<span id="IterGB4::oprim3__l"></span><span class="target" id="hortonclassIterGB4_1a1b719af88b383a43b28a66abffe107b5"></span>long <code class="descclassname">IterGB4::</code><code class="descname">oprim3</code><a class="headerlink" href="#_CPPv2N7IterGB46oprim3E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv2N7IterGB46gbasisE">
+<span id="IterGB4::gbasis__GBasisCP"></span><span class="target" id="hortonclassIterGB4_1a1ae8ce6d015a865b4ef76f5d2eb8d9d0"></span><em class="property">const</em> <a class="reference internal" href="mod_horton_gbasis_gbasis_h.html#_CPPv26GBasis" title="GBasis">GBasis</a> *<code class="descclassname">IterGB4::</code><code class="descname">gbasis</code><a class="headerlink" href="#_CPPv2N7IterGB46gbasisE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N7IterGB413basis_offsetsE">
+<span id="IterGB4::basis_offsets__lCP"></span><span class="target" id="hortonclassIterGB4_1a3ecf40109b54dec790b51c4ee9ad406f"></span><em class="property">const</em> long *<code class="descclassname">IterGB4::</code><code class="descname">basis_offsets</code><a class="headerlink" href="#_CPPv2N7IterGB413basis_offsetsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_gbasis_iter_pow_h.html" class="btn btn-neutral float-right" title="3.4.14. horton/gbasis/iter_pow.h – Iterators over Cartesian polynomials in one shell" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_gbasis_ints_h.html" class="btn btn-neutral" title="3.4.12. horton/gbasis/ints.h – Evaluation of integrals of Gaussian basis functions" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.2 built from release 2.0.2 (Jun 30, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 30, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.0.2 (Jun 30, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

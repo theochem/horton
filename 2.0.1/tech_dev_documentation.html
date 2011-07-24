@@ -1,0 +1,336 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>1.3. Writing documentation &mdash; HORTON 2.0.1 (Jun 17, 2016) documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="HORTON 2.0.1 (Jun 17, 2016) documentation" href="index.html"/>
+        <link rel="up" title="1. Developer Documentation" href="tech_dev.html"/>
+        <link rel="next" title="1.4. Writing unit tests" href="tech_dev_unit_tests.html"/>
+        <link rel="prev" title="1.2. Branch review checklist" href="tech_dev_checklist.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_git.html">1.1. How to use Git</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_checklist.html">1.2. Branch review checklist</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1.3. Writing documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">1.3.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#building-documentation">1.3.2. Building documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#common-issues">1.3.3. Common issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_unit_tests.html">1.4. Writing unit tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_examples.html">1.5. Writing examples scripts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_citing_papers.html">1.6. Citing scientific work</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_dev_cython.html">1.7. Accelerating HORTON code with Cython</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">HORTON</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="tech_dev.html">1. Developer Documentation</a> &raquo;</li>
+      
+    <li>1.3. Writing documentation</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/tech_dev_documentation.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="writing-documentation">
+<h1>1.3. Writing documentation<a class="headerlink" href="#writing-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>1.3.1. Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>All the documentation is located in the <code class="docutils literal"><span class="pre">doc</span></code> directory. We use the <a class="reference external" href="http://sphinx.pocoo.org/">Sphinx</a> formatting engine to compile the <cite>documentation
+source code</cite> into fancy formatted HTML or PDF.</p>
+<p>The source files have the extension <code class="docutils literal"><span class="pre">.rst</span></code>, and are written in the
+<a class="reference external" href="http://docutils.sourceforge.net/rst.html">ReStructuredText</a> (RST) format.
+RST is in some sense comparable to latex, but more intuitive to use.
+It also has some specific advantages for documenting software.</p>
+<p>All <code class="docutils literal"><span class="pre">.rst</span></code> files are part of the source tree, just like the actual source
+code. Git is also used to keep track of changes in the documentation. Whenever
+you add a new feature, please add the corresponding documentation to explain how
+your new feature can be used effectively. When you add a significant feature,
+also update the file <code class="docutils literal"><span class="pre">ref_features.rst</span></code> and <code class="docutils literal"><span class="pre">ref_releases.rst</span></code>.</p>
+</div>
+<div class="section" id="building-documentation">
+<h2>1.3.2. Building documentation<a class="headerlink" href="#building-documentation" title="Permalink to this headline">¶</a></h2>
+<p>There is a makefile to generate the documentation based in the source code:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">cd</span> doc<span class="p">;</span> make html
+</pre></div>
+</div>
+<p>If you don&#8217;t want to rebuild the documentations with sphinx every time you make
+a change, you can use the <cite>sphinx-autobuild</cite> tool available through PyPI.
+Installation is pretty much like any other PyPI package:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>pip install --user sphinx-autobuild
+</pre></div>
+</div>
+<p>If you are using <cite>sphinx-autobuild</cite>  the command is as follows:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="o">(</span><span class="nb">cd</span> doc<span class="p">;</span> firefox http://localhost:8000 <span class="p">&amp;;</span> make livehtml<span class="o">)</span>
+</pre></div>
+</div>
+<p>This sets up a server at <cite>localhost:8000</cite> and rebuilds the website whenever you
+make a change to the source files. Just like any other process, you can stop it
+with <cite>Ctrl-C</cite></p>
+</div>
+<div class="section" id="common-issues">
+<h2>1.3.3. Common issues<a class="headerlink" href="#common-issues" title="Permalink to this headline">¶</a></h2>
+<p>When sphinx reports errors or warnings, please fix these in the <code class="docutils literal"><span class="pre">.rst</span></code> files
+and the doc strings in the source code. Keep in mind that only the errors and
+warnings are shown for files that changed since the last call to <code class="docutils literal"><span class="pre">make</span> <span class="pre">html</span></code>.
+If you want to see all errors and warnings, then run <code class="docutils literal"><span class="pre">make</span> <span class="pre">clean;</span> <span class="pre">make</span> <span class="pre">html</span></code>.</p>
+<p>The following problems are often encountered:</p>
+<dl class="docutils">
+<dt><strong>Duplicate labels</strong></dt>
+<dd><p class="first">When the same label is defined in two places, they become useless. To avoid
+such name clashes, add a unique prefix to all labels in one rst file. This
+is a bad example (once found in the file <code class="docutils literal"><span class="pre">download_and_install_mac.rst</span></code>):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">..</span> <span class="n">_compile_install</span><span class="p">::</span>
+</pre></div>
+</div>
+<p>It is safer to use instead:</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="o">..</span> <span class="n">_mac_compile_install</span><span class="p">::</span>
+</pre></div>
+</div>
+</dd>
+<dt><strong>Indentation and empty-line errors</strong></dt>
+<dd><p class="first">RestructeredText is sensitive to indentation and blank lines. For example
+when making bullet points, the following formatting must be used:</p>
+<div class="highlight-rst"><div class="highlight"><pre><span></span>Some paragraph before.
+
+<span class="m">*</span> This is a bullet point with a lot of text that spans several lines.
+  Blah blah blah.
+<span class="m">*</span> This is the next
+
+Some paragraph after
+</pre></div>
+</div>
+<p>This won&#8217;t work:</p>
+<div class="highlight-rst"><div class="highlight"><pre><span></span><span class="m">*</span> This is a bullet point with a lot of text that spans several lines.
+Blah blah blah.
+<span class="m">*</span> This is the next
+</pre></div>
+</div>
+<p>This won&#8217;t work either:</p>
+<div class="last highlight-rst"><div class="highlight"><pre><span></span>Some paragraph before.
+<span class="m">*</span> This is a bullet point with a lot of text that spans several lines.
+  Blah blah blah.
+<span class="m">*</span> This is the next
+Some paragraph after
+</pre></div>
+</div>
+</dd>
+<dt><strong>Overriden methods in subclasses do not get inherited docstrings</strong></dt>
+<dd>Please use the <a class="reference internal" href="lib/mod_horton_utils.html#horton.utils.doc_inherit" title="horton.utils.doc_inherit"><code class="xref py py-func docutils literal"><span class="pre">horton.utils.doc_inherit()</span></code></a> decorator.</dd>
+<dt><strong>A signature should be added manually to the `__init__` method in Cython</strong></dt>
+<dd>The current behavior of Cython is not compatible with PEP257. The signature gets
+assigned to the class docstring instead of the __init__ docstring. This is a bug in
+Cython that should eventually be fixed. See...
+See <a class="reference external" href="https://groups.google.com/forum/#!searchin/cython-users/embedsignature/cython-users/sXtBF2nh5RI/GjcirKOWqBcJ">https://groups.google.com/forum/#!searchin/cython-users/embedsignature/cython-users/sXtBF2nh5RI/GjcirKOWqBcJ</a></dd>
+</dl>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tech_dev_unit_tests.html" class="btn btn-neutral float-right" title="1.4. Writing unit tests" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="tech_dev_checklist.html" class="btn btn-neutral" title="1.2. Branch review checklist" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.1 built from release 2.0.1 (Jun 17, 2016). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 17, 2016.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.0.1 (Jun 17, 2016)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

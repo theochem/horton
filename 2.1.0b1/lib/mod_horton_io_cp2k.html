@@ -1,0 +1,302 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.5.2. horton.io.cp2k – CP2K atomic wavefunctions &mdash; HORTON 2.1.0b1-1-ge018244 (Feb 03, 2017) documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="HORTON 2.1.0b1-1-ge018244 (Feb 03, 2017) documentation" href="../index.html"/>
+        <link rel="up" title="3.5. horton.io – Input and output routines" href="pck_horton_io.html"/>
+        <link rel="next" title="3.5.3. horton.io.cube – Gaussian cube file format" href="mod_horton_io_cube.html"/>
+        <link rel="prev" title="3.5.1. horton.io.cif – Crystalographic Information File format" href="mod_horton_io_cif.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.0b1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> &#8211; The main HORTON Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.2. <code class="docutils literal"><span class="pre">horton.espfit</span></code> &#8211; Electrostatic potential fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_gbasis.html">3.3. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> &#8211; Gaussian basis sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.4. <code class="docutils literal"><span class="pre">horton.grid</span></code> &#8211; Numerical integration grids</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_io.html">3.5. <code class="docutils literal"><span class="pre">horton.io</span></code> &#8211; Input and output routines</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_cif.html">3.5.1. <code class="docutils literal"><span class="pre">horton.io.cif</span></code> &#8211; Crystalographic Information File format</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.5.2. <code class="docutils literal"><span class="pre">horton.io.cp2k</span></code> &#8211; CP2K atomic wavefunctions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_cube.html">3.5.3. <code class="docutils literal"><span class="pre">horton.io.cube</span></code> &#8211; Gaussian cube file format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_gaussian.html">3.5.4. <code class="docutils literal"><span class="pre">horton.io.gaussian</span></code> &#8211; Gaussian LOG and FCHK file fromats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_internal.html">3.5.5. <code class="docutils literal"><span class="pre">horton.io.internal</span></code> &#8211; HORTON internal file format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_iodata.html">3.5.6. <code class="docutils literal"><span class="pre">horton.io.iodata</span></code> &#8211; Input/output dispatcher for different file formats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_lockedh5.html">3.5.7. <code class="docutils literal"><span class="pre">horton.io.lockedh5</span></code> &#8211; H5 file with lock</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_molden.html">3.5.8. <code class="docutils literal"><span class="pre">horton.io.molden</span></code> &#8211; Molden wavefunction input file format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_molekel.html">3.5.9. <code class="docutils literal"><span class="pre">horton.io.molekel</span></code> &#8211; Molekel wavefunction input file format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_molpro.html">3.5.10. <code class="docutils literal"><span class="pre">horton.io.molpro</span></code> &#8211; Molpro 2012 FCIDUMP format.</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_vasp.html">3.5.11. <code class="docutils literal"><span class="pre">horton.io.vasp</span></code> &#8211; VASP POSCAR, CHGCAR and POTCAR file formats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_wfn.html">3.5.12. <code class="docutils literal"><span class="pre">horton.io.wfn</span></code> &#8211; WFN File format (Gaussian and GAMESS)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_io_xyz.html">3.5.13. <code class="docutils literal"><span class="pre">horton.io.xyz</span></code> &#8211; XYZ file format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.6. <code class="docutils literal"><span class="pre">horton.matrix</span></code> &#8211; One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.7. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> &#8211; Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.8. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> &#8211; Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.9. <code class="docutils literal"><span class="pre">horton.part</span></code> &#8211; Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.10. <code class="docutils literal"><span class="pre">horton.scripts</span></code> &#8211; Code (solely) used by HORTON&#8217;s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">HORTON</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+      
+          <li><a href="pck_horton_io.html">3.5. <code class="docutils literal"><span class="pre">horton.io</span></code> &#8211; Input and output routines</a> &raquo;</li>
+      
+    <li>3.5.2. <code class="docutils literal"><span class="pre">horton.io.cp2k</span></code> &#8211; CP2K atomic wavefunctions</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/lib/mod_horton_io_cp2k.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-horton.io.cp2k">
+<span id="horton-io-cp2k-cp2k-atomic-wavefunctions"></span><h1>3.5.2. <code class="docutils literal"><span class="pre">horton.io.cp2k</span></code> &#8211; CP2K atomic wavefunctions<a class="headerlink" href="#module-horton.io.cp2k" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="horton.io.cp2k.load_atom_cp2k">
+<code class="descclassname">horton.io.cp2k.</code><code class="descname">load_atom_cp2k</code><span class="sig-paren">(</span><em>filename</em>, <em>lf</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.io.cp2k.load_atom_cp2k" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data from a CP2K ATOM computation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>filename</strong> (<em>str</em>) &#8211; The name of the cp2k out file</li>
+<li><strong>lf</strong> (<a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.LinalgFactory" title="horton.matrix.base.LinalgFactory"><em>LinalgFactory</em></a>) &#8211; A linear-algebra factory.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>results</strong> &#8211; Contains: <code class="docutils literal"><span class="pre">obasis</span></code>, <code class="docutils literal"><span class="pre">exp_alpha</span></code>, <code class="docutils literal"><span class="pre">coordinates</span></code>, <code class="docutils literal"><span class="pre">numbers</span></code>,
+<code class="docutils literal"><span class="pre">energy</span></code>, <code class="docutils literal"><span class="pre">pseudo_numbers</span></code>. May contain: <code class="docutils literal"><span class="pre">exp_beta</span></code>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This function assumes that the following subsections are present in the CP2K
+ATOM input file, in the section <code class="docutils literal"><span class="pre">ATOM%PRINT</span></code>:</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>&amp;PRINT
+  &amp;POTENTIAL
+  &amp;END POTENTIAL
+  &amp;BASIS_SET
+  &amp;END BASIS_SET
+  &amp;ORBITALS
+  &amp;END ORBITALS
+&amp;END PRINT
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_io_cube.html" class="btn btn-neutral float-right" title="3.5.3. horton.io.cube – Gaussian cube file format" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_io_cif.html" class="btn btn-neutral" title="3.5.1. horton.io.cif – Crystalographic Information File format" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.0b1 built from release 2.1.0b1-1-ge018244 (Feb 03, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Feb 03, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.1.0b1-1-ge018244 (Feb 03, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

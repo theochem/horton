@@ -1,0 +1,873 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.6.1. horton.matrix.base – Base classes &mdash; HORTON 2.1.0b3 (Jun 30, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="HORTON 2.1.0b3 (Jun 30, 2017) documentation" href="../index.html"/>
+        <link rel="up" title="3.6. horton.matrix – One-, two-, three- and four-dimensional matrix implementations" href="pck_horton_matrix.html"/>
+        <link rel="next" title="3.6.2. horton.matrix.cext – C++ extensions for matrix package" href="mod_horton_matrix_cext.html"/>
+        <link rel="prev" title="3.6. horton.matrix – One-, two-, three- and four-dimensional matrix implementations" href="pck_horton_matrix.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.0b3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> – The main HORTON Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.2. <code class="docutils literal"><span class="pre">horton.espfit</span></code> – Electrostatic potential fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_gbasis.html">3.3. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.4. <code class="docutils literal"><span class="pre">horton.grid</span></code> – Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.5. <code class="docutils literal"><span class="pre">horton.io</span></code> – Input and output routines</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_matrix.html">3.6. <code class="docutils literal"><span class="pre">horton.matrix</span></code> – One-, two-, three- and four-dimensional matrix implementations</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.6.1. <code class="docutils literal"><span class="pre">horton.matrix.base</span></code> – Base classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_matrix_cext.html">3.6.2. <code class="docutils literal"><span class="pre">horton.matrix.cext</span></code> – C++ extensions for matrix package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_matrix_cholesky.html">3.6.3. <code class="docutils literal"><span class="pre">horton.matrix.cholesky</span></code> – Cholesky decomposition of four-index objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_matrix_dense.html">3.6.4. <code class="docutils literal"><span class="pre">horton.matrix.dense</span></code> – Dense matrix implementations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_matrix_slicing_h.html">3.6.5. <code class="docutils literal"><span class="pre">horton/matrix/slicing.h</span></code> – Low-level routines for <code class="docutils literal"><span class="pre">CholeskyLinalgFactory</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.7. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> – Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.8. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> – Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.9. <code class="docutils literal"><span class="pre">horton.part</span></code> – Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.10. <code class="docutils literal"><span class="pre">horton.scripts</span></code> – Code (solely) used by HORTON’s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+        
+          <li><a href="pck_horton_matrix.html">3.6. <code class="docutils literal"><span class="pre">horton.matrix</span></code> – One-, two-, three- and four-dimensional matrix implementations</a> &raquo;</li>
+        
+      <li>3.6.1. <code class="docutils literal"><span class="pre">horton.matrix.base</span></code> – Base classes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/lib/mod_horton_matrix_base.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-horton.matrix.base">
+<span id="horton-matrix-base-base-classes"></span><h1>3.6.1. <code class="docutils literal"><span class="pre">horton.matrix.base</span></code> – Base classes<a class="headerlink" href="#module-horton.matrix.base" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="horton.matrix.base.LinalgFactory">
+<em class="property">class </em><code class="descclassname">horton.matrix.base.</code><code class="descname">LinalgFactory</code><span class="sig-paren">(</span><em>default_nbasis=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.LinalgFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>default_nbasis</dt>
+<dd>The default basis size when constructing new
+operators/expansions.</dd>
+</dl>
+<dl class="method">
+<dt id="horton.matrix.base.LinalgFactory.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>default_nbasis=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.LinalgFactory.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>default_nbasis</dt>
+<dd>The default basis size when constructing new
+operators/expansions.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.LinalgFactory.create_expansion">
+<code class="descname">create_expansion</code><span class="sig-paren">(</span><em>nbasis=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.LinalgFactory.create_expansion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.LinalgFactory.create_four_index">
+<code class="descname">create_four_index</code><span class="sig-paren">(</span><em>nbasis=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.LinalgFactory.create_four_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.LinalgFactory.create_one_index">
+<code class="descname">create_one_index</code><span class="sig-paren">(</span><em>nbasis=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.LinalgFactory.create_one_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.LinalgFactory.create_three_index">
+<code class="descname">create_three_index</code><span class="sig-paren">(</span><em>nbasis=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.LinalgFactory.create_three_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.LinalgFactory.create_two_index">
+<code class="descname">create_two_index</code><span class="sig-paren">(</span><em>nbasis=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.LinalgFactory.create_two_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="horton.matrix.base.LinalgFactory.from_hdf5">
+<em class="property">classmethod </em><code class="descname">from_hdf5</code><span class="sig-paren">(</span><em>grp</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.LinalgFactory.from_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct an instance from data previously stored in an h5py.Group.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>grp</dt>
+<dd>An h5py.Group object.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.LinalgFactory.set_default_nbasis">
+<code class="descname">set_default_nbasis</code><span class="sig-paren">(</span><em>nbasis</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.LinalgFactory.set_default_nbasis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.LinalgFactory.to_hdf5">
+<code class="descname">to_hdf5</code><span class="sig-paren">(</span><em>grp</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.LinalgFactory.to_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a LinalgFactory to an HDF5 group</p>
+<p><strong>Argument:</strong></p>
+<dl class="docutils">
+<dt>grp</dt>
+<dd>A h5py.Group instance to write to.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.matrix.base.LinalgObject">
+<em class="property">class </em><code class="descclassname">horton.matrix.base.</code><code class="descname">LinalgObject</code><a class="headerlink" href="#horton.matrix.base.LinalgObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="horton.matrix.base.LinalgObject.assign">
+<code class="descname">assign</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.LinalgObject.assign" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.LinalgObject.change_basis_signs">
+<code class="descname">change_basis_signs</code><span class="sig-paren">(</span><em>signs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.LinalgObject.change_basis_signs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.LinalgObject.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.LinalgObject.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.LinalgObject.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.LinalgObject.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="horton.matrix.base.LinalgObject.from_hdf5">
+<em class="property">classmethod </em><code class="descname">from_hdf5</code><span class="sig-paren">(</span><em>grp</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.LinalgObject.from_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.LinalgObject.new">
+<code class="descname">new</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.LinalgObject.new" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.LinalgObject.permute_basis">
+<code class="descname">permute_basis</code><span class="sig-paren">(</span><em>permutation</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.LinalgObject.permute_basis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.LinalgObject.randomize">
+<code class="descname">randomize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.LinalgObject.randomize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.LinalgObject.to_hdf5">
+<code class="descname">to_hdf5</code><span class="sig-paren">(</span><em>grp</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.LinalgObject.to_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.matrix.base.LinalgObject.__init__">
+<code class="descname">__init__</code><a class="headerlink" href="#horton.matrix.base.LinalgObject.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.matrix.base.OneIndex">
+<em class="property">class </em><code class="descclassname">horton.matrix.base.</code><code class="descname">OneIndex</code><span class="sig-paren">(</span><em>nbasis</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.OneIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">horton.matrix.base.NIndexObject</span></code></p>
+<dl class="method">
+<dt id="horton.matrix.base.OneIndex.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>nbasis</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.OneIndex.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.OneIndex.assign">
+<code class="descname">assign</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.OneIndex.assign" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.OneIndex.change_basis_signs">
+<code class="descname">change_basis_signs</code><span class="sig-paren">(</span><em>signs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.OneIndex.change_basis_signs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.OneIndex.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.OneIndex.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.OneIndex.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><em>begin=0</em>, <em>end=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.OneIndex.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.OneIndex.from_hdf5">
+<code class="descname">from_hdf5</code><span class="sig-paren">(</span><em>grp</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.OneIndex.from_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.OneIndex.get_element">
+<code class="descname">get_element</code><span class="sig-paren">(</span><em>i</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.OneIndex.get_element" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.OneIndex.iadd">
+<code class="descname">iadd</code><span class="sig-paren">(</span><em>other</em>, <em>factor=1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.OneIndex.iadd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.OneIndex.iscale">
+<code class="descname">iscale</code><span class="sig-paren">(</span><em>factor</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.OneIndex.iscale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.OneIndex.new">
+<code class="descname">new</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.OneIndex.new" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.OneIndex.permute_basis">
+<code class="descname">permute_basis</code><span class="sig-paren">(</span><em>permutation</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.OneIndex.permute_basis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.OneIndex.randomize">
+<code class="descname">randomize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.OneIndex.randomize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.OneIndex.set_element">
+<code class="descname">set_element</code><span class="sig-paren">(</span><em>i</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.OneIndex.set_element" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.OneIndex.to_hdf5">
+<code class="descname">to_hdf5</code><span class="sig-paren">(</span><em>grp</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.OneIndex.to_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.matrix.base.OneIndex.ndim">
+<code class="descname">ndim</code><a class="headerlink" href="#horton.matrix.base.OneIndex.ndim" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of axes in the N-index object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.matrix.base.OneIndex.shape">
+<code class="descname">shape</code><a class="headerlink" href="#horton.matrix.base.OneIndex.shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.matrix.base.Expansion">
+<em class="property">class </em><code class="descclassname">horton.matrix.base.</code><code class="descname">Expansion</code><span class="sig-paren">(</span><em>nbasis</em>, <em>nfn=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.Expansion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#horton.matrix.base.LinalgObject" title="horton.matrix.base.LinalgObject"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.base.LinalgObject</span></code></a></p>
+<dl class="method">
+<dt id="horton.matrix.base.Expansion.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>nbasis</em>, <em>nfn=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.Expansion.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.Expansion.assign">
+<code class="descname">assign</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.Expansion.assign" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.Expansion.change_basis_signs">
+<code class="descname">change_basis_signs</code><span class="sig-paren">(</span><em>signs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.Expansion.change_basis_signs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.Expansion.check_normalization">
+<code class="descname">check_normalization</code><span class="sig-paren">(</span><em>olp</em>, <em>eps=0.0001</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.Expansion.check_normalization" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.Expansion.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.Expansion.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.Expansion.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.Expansion.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.Expansion.error_eigen">
+<code class="descname">error_eigen</code><span class="sig-paren">(</span><em>fock</em>, <em>overlap</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.Expansion.error_eigen" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.Expansion.from_hdf5">
+<code class="descname">from_hdf5</code><span class="sig-paren">(</span><em>grp</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.Expansion.from_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.Expansion.new">
+<code class="descname">new</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.Expansion.new" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.Expansion.permute_basis">
+<code class="descname">permute_basis</code><span class="sig-paren">(</span><em>permutation</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.Expansion.permute_basis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.Expansion.randomize">
+<code class="descname">randomize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.Expansion.randomize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.Expansion.to_hdf5">
+<code class="descname">to_hdf5</code><span class="sig-paren">(</span><em>grp</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.Expansion.to_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.matrix.base.TwoIndex">
+<em class="property">class </em><code class="descclassname">horton.matrix.base.</code><code class="descname">TwoIndex</code><span class="sig-paren">(</span><em>nbasis</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.TwoIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">horton.matrix.base.NIndexObject</span></code></p>
+<dl class="method">
+<dt id="horton.matrix.base.TwoIndex.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>nbasis</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.TwoIndex.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.TwoIndex.assign">
+<code class="descname">assign</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.TwoIndex.assign" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.TwoIndex.change_basis_signs">
+<code class="descname">change_basis_signs</code><span class="sig-paren">(</span><em>signs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.TwoIndex.change_basis_signs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.TwoIndex.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.TwoIndex.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.TwoIndex.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><em>begin0=0</em>, <em>end0=None</em>, <em>begin1=None</em>, <em>end1=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.TwoIndex.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.TwoIndex.from_hdf5">
+<code class="descname">from_hdf5</code><span class="sig-paren">(</span><em>grp</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.TwoIndex.from_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.TwoIndex.get_element">
+<code class="descname">get_element</code><span class="sig-paren">(</span><em>i</em>, <em>j</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.TwoIndex.get_element" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.TwoIndex.iadd">
+<code class="descname">iadd</code><span class="sig-paren">(</span><em>other</em>, <em>factor=1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.TwoIndex.iadd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.TwoIndex.inner">
+<code class="descname">inner</code><span class="sig-paren">(</span><em>vec0</em>, <em>vec1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.TwoIndex.inner" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.TwoIndex.iscale">
+<code class="descname">iscale</code><span class="sig-paren">(</span><em>factor</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.TwoIndex.iscale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.TwoIndex.itranspose">
+<code class="descname">itranspose</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.TwoIndex.itranspose" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.TwoIndex.new">
+<code class="descname">new</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.TwoIndex.new" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.TwoIndex.permute_basis">
+<code class="descname">permute_basis</code><span class="sig-paren">(</span><em>permutation</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.TwoIndex.permute_basis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.TwoIndex.randomize">
+<code class="descname">randomize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.TwoIndex.randomize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.TwoIndex.set_element">
+<code class="descname">set_element</code><span class="sig-paren">(</span><em>i</em>, <em>j</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.TwoIndex.set_element" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.TwoIndex.sum">
+<code class="descname">sum</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.TwoIndex.sum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.TwoIndex.to_hdf5">
+<code class="descname">to_hdf5</code><span class="sig-paren">(</span><em>grp</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.TwoIndex.to_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.TwoIndex.trace">
+<code class="descname">trace</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.TwoIndex.trace" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.matrix.base.TwoIndex.ndim">
+<code class="descname">ndim</code><a class="headerlink" href="#horton.matrix.base.TwoIndex.ndim" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of axes in the N-index object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.matrix.base.TwoIndex.shape">
+<code class="descname">shape</code><a class="headerlink" href="#horton.matrix.base.TwoIndex.shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.matrix.base.ThreeIndex">
+<em class="property">class </em><code class="descclassname">horton.matrix.base.</code><code class="descname">ThreeIndex</code><span class="sig-paren">(</span><em>nbasis</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.ThreeIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">horton.matrix.base.NIndexObject</span></code></p>
+<dl class="method">
+<dt id="horton.matrix.base.ThreeIndex.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>nbasis</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.ThreeIndex.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.ThreeIndex.assign">
+<code class="descname">assign</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.ThreeIndex.assign" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.ThreeIndex.change_basis_signs">
+<code class="descname">change_basis_signs</code><span class="sig-paren">(</span><em>signs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.ThreeIndex.change_basis_signs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.ThreeIndex.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.ThreeIndex.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.ThreeIndex.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><em>begin0=0</em>, <em>end0=None</em>, <em>begin1=None</em>, <em>end1=None</em>, <em>begin2=None</em>, <em>end2=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.ThreeIndex.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.ThreeIndex.from_hdf5">
+<code class="descname">from_hdf5</code><span class="sig-paren">(</span><em>grp</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.ThreeIndex.from_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.ThreeIndex.get_element">
+<code class="descname">get_element</code><span class="sig-paren">(</span><em>i</em>, <em>j</em>, <em>k</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.ThreeIndex.get_element" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.ThreeIndex.iadd">
+<code class="descname">iadd</code><span class="sig-paren">(</span><em>other</em>, <em>factor=1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.ThreeIndex.iadd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.ThreeIndex.iscale">
+<code class="descname">iscale</code><span class="sig-paren">(</span><em>factor</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.ThreeIndex.iscale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.ThreeIndex.new">
+<code class="descname">new</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.ThreeIndex.new" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.ThreeIndex.permute_basis">
+<code class="descname">permute_basis</code><span class="sig-paren">(</span><em>permutation</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.ThreeIndex.permute_basis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.ThreeIndex.randomize">
+<code class="descname">randomize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.ThreeIndex.randomize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.ThreeIndex.set_element">
+<code class="descname">set_element</code><span class="sig-paren">(</span><em>i</em>, <em>j</em>, <em>k</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.ThreeIndex.set_element" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.ThreeIndex.to_hdf5">
+<code class="descname">to_hdf5</code><span class="sig-paren">(</span><em>grp</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.ThreeIndex.to_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.matrix.base.ThreeIndex.ndim">
+<code class="descname">ndim</code><a class="headerlink" href="#horton.matrix.base.ThreeIndex.ndim" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of axes in the N-index object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.matrix.base.ThreeIndex.shape">
+<code class="descname">shape</code><a class="headerlink" href="#horton.matrix.base.ThreeIndex.shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.matrix.base.FourIndex">
+<em class="property">class </em><code class="descclassname">horton.matrix.base.</code><code class="descname">FourIndex</code><span class="sig-paren">(</span><em>nbasis</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.FourIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">horton.matrix.base.NIndexObject</span></code></p>
+<dl class="method">
+<dt id="horton.matrix.base.FourIndex.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>nbasis</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.FourIndex.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.FourIndex.assign">
+<code class="descname">assign</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.FourIndex.assign" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.FourIndex.change_basis_signs">
+<code class="descname">change_basis_signs</code><span class="sig-paren">(</span><em>signs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.FourIndex.change_basis_signs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.FourIndex.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.FourIndex.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.FourIndex.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><em>begin=0</em>, <em>end=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.FourIndex.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.FourIndex.from_hdf5">
+<code class="descname">from_hdf5</code><span class="sig-paren">(</span><em>grp</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.FourIndex.from_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.FourIndex.get_element">
+<code class="descname">get_element</code><span class="sig-paren">(</span><em>i</em>, <em>j</em>, <em>k</em>, <em>l</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.FourIndex.get_element" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.FourIndex.iadd">
+<code class="descname">iadd</code><span class="sig-paren">(</span><em>other</em>, <em>factor=1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.FourIndex.iadd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.FourIndex.iscale">
+<code class="descname">iscale</code><span class="sig-paren">(</span><em>factor</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.FourIndex.iscale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.FourIndex.new">
+<code class="descname">new</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.FourIndex.new" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.FourIndex.permute_basis">
+<code class="descname">permute_basis</code><span class="sig-paren">(</span><em>permutation</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.FourIndex.permute_basis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.FourIndex.randomize">
+<code class="descname">randomize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.FourIndex.randomize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.FourIndex.set_element">
+<code class="descname">set_element</code><span class="sig-paren">(</span><em>i</em>, <em>j</em>, <em>k</em>, <em>l</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.FourIndex.set_element" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.matrix.base.FourIndex.to_hdf5">
+<code class="descname">to_hdf5</code><span class="sig-paren">(</span><em>grp</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.FourIndex.to_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="horton.matrix.base.FourIndex.ndim">
+<code class="descname">ndim</code><a class="headerlink" href="#horton.matrix.base.FourIndex.ndim" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of axes in the N-index object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.matrix.base.FourIndex.shape">
+<code class="descname">shape</code><a class="headerlink" href="#horton.matrix.base.FourIndex.shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="horton.matrix.base.parse_four_index_transform_exps">
+<code class="descclassname">horton.matrix.base.</code><code class="descname">parse_four_index_transform_exps</code><span class="sig-paren">(</span><em>exp0</em>, <em>exp1</em>, <em>exp2</em>, <em>exp3</em>, <em>Class</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.matrix.base.parse_four_index_transform_exps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the optional arguments exp1, exp2 and exp3.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>exp0, exp1, exp2, exp3</dt>
+<dd><p class="first">Four sets of orbitals for the mo transformation. Some may be None
+but only the following not None combinations are allowed:</p>
+<ul class="last simple">
+<li><code class="docutils literal"><span class="pre">(exp0,)</span></code>: maintain eight-fold symmetry (if any)</li>
+<li><code class="docutils literal"><span class="pre">(exp0,</span> <span class="pre">exp1)</span></code>: maintain four-fold symmetry (if any)</li>
+<li><code class="docutils literal"><span class="pre">(exp0,</span> <span class="pre">exp2)</span></code>: maintain two-fold symmetry (if any)</li>
+<li><code class="docutils literal"><span class="pre">(exp0,</span> <span class="pre">exp1,</span> <span class="pre">exp2,</span> <span class="pre">exp3)</span></code>: break all symmetry</li>
+</ul>
+</dd>
+<dt>Class</dt>
+<dd>The expected class of the exps objects.</dd>
+</dl>
+<p><strong>Returns:</strong> exp0, exp1, exp2, exp3. (All not None)</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_matrix_cext.html" class="btn btn-neutral float-right" title="3.6.2. horton.matrix.cext – C++ extensions for matrix package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="pck_horton_matrix.html" class="btn btn-neutral" title="3.6. horton.matrix – One-, two-, three- and four-dimensional matrix implementations" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.0b3 built from release 2.1.0b3 (Jun 30, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 30, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.1.0b3 (Jun 30, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

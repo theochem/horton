@@ -1,0 +1,1333 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.3.9. horton/gbasis/fns.h – Evaluate functions on grids and derive Fock matrices from potentials on grids. &mdash; HORTON 2.1.1-1-g3a5adfea (Jan 18, 2019) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="3.3.10. horton/gbasis/gbasis.h – Gaussian basis set classes" href="mod_horton_gbasis_gbasis_h.html" />
+    <link rel="prev" title="3.3.8. horton/gbasis/common.h – Auxiliary functions" href="mod_horton_gbasis_common_h.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal notranslate"><span class="pre">horton</span></code> – The main HORTON Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.2. <code class="docutils literal notranslate"><span class="pre">horton.espfit</span></code> – Electrostatic potential fitting</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_gbasis.html">3.3. <code class="docutils literal notranslate"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_cext.html">3.3.1. <code class="docutils literal notranslate"><span class="pre">horton.gbasis.cext</span></code> – C++ extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_gobasis.html">3.3.2. <code class="docutils literal notranslate"><span class="pre">horton.gbasis.gobasis</span></code> – Gaussian orbital basis set module.</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_iobas.html">3.3.3. <code class="docutils literal notranslate"><span class="pre">horton.gbasis.iobas</span></code> – Input/Output routines for gaussian basis sets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_boys_h.html">3.3.4. <code class="docutils literal notranslate"><span class="pre">horton/gbasis/boys.h</span></code> – The Boys function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_calc_h.html">3.3.5. <code class="docutils literal notranslate"><span class="pre">horton/gbasis/calc.h</span></code> – Base class for any integral/evaluation of Gaussian functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_cartpure_h.html">3.3.6. <code class="docutils literal notranslate"><span class="pre">horton/gbasis/cartpure.h</span></code> – Conversion of Cartesian to Pure Gaussian functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_cholesky_h.html">3.3.7. <code class="docutils literal notranslate"><span class="pre">horton/gbasis/cholesky.h</span></code> – Cholesky decomposition of (any) four-center integrals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_common_h.html">3.3.8. <code class="docutils literal notranslate"><span class="pre">horton/gbasis/common.h</span></code> – Auxiliary functions</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.3.9. <code class="docutils literal notranslate"><span class="pre">horton/gbasis/fns.h</span></code> – Evaluate functions on grids and derive Fock matrices from potentials on grids.</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_gbasis_h.html">3.3.10. <code class="docutils literal notranslate"><span class="pre">horton/gbasis/gbasis.h</span></code> – Gaussian basis set classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_gbw_h.html">3.3.11. <code class="docutils literal notranslate"><span class="pre">horton/gbasis/gbw.h</span></code> – A four-center integral wrapper for the Cholesky code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_ints_h.html">3.3.12. <code class="docutils literal notranslate"><span class="pre">horton/gbasis/ints.h</span></code> – Evaluation of integrals of Gaussian basis functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_iter_gb_h.html">3.3.13. <code class="docutils literal notranslate"><span class="pre">horton/gbasis/iter_gb.h</span></code> – Iterators over Gaussian basis functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_iter_pow_h.html">3.3.14. <code class="docutils literal notranslate"><span class="pre">horton/gbasis/iter_pow.h</span></code> – Iterators over Cartesian polynomials in one shell</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.4. <code class="docutils literal notranslate"><span class="pre">horton.grid</span></code> – Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.5. <code class="docutils literal notranslate"><span class="pre">horton.io</span></code> – Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.6. <code class="docutils literal notranslate"><span class="pre">horton.matrix</span></code> – One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.7. <code class="docutils literal notranslate"><span class="pre">horton.meanfield</span></code> – Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.8. <code class="docutils literal notranslate"><span class="pre">horton.modelhamiltonians</span></code> – Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.9. <code class="docutils literal notranslate"><span class="pre">horton.part</span></code> – Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.10. <code class="docutils literal notranslate"><span class="pre">horton.scripts</span></code> – Code (solely) used by HORTON’s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HORTON</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+        
+          <li><a href="pck_horton_gbasis.html">3.3. <code class="docutils literal notranslate"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a> &raquo;</li>
+        
+      <li>3.3.9. <code class="docutils literal notranslate"><span class="pre">horton/gbasis/fns.h</span></code> – Evaluate functions on grids and derive Fock matrices from potentials on grids.</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/lib/mod_horton_gbasis_fns_h.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="horton-gbasis-fns-h-evaluate-functions-on-grids-and-derive-fock-matrices-from-potentials-on-grids">
+<h1>3.3.9. <code class="docutils literal notranslate"><span class="pre">horton/gbasis/fns.h</span></code> – Evaluate functions on grids and derive Fock matrices from potentials on grids.<a class="headerlink" href="#horton-gbasis-fns-h-evaluate-functions-on-grids-and-derive-fock-matrices-from-potentials-on-grids" title="Permalink to this headline">¶</a></h1>
+<p>Evaluate functions on grids and derive Fock matrices from potentials on grids. </p>
+<p>Functions on grid points are calculated in three steps, which are controlled by methods in the <a class="reference internal" href="mod_horton_gbasis_gbasis_h.html#classGBasis"><span class="std std-ref">GBasis</span></a> class in gbasis.h. Also code is shared with the Fock build from potentials on grids.</p>
+<p><a class="reference internal" href="#classGB1GridFn"><span class="std std-ref">GB1GridFn</span></a> functions require only a single loop to compute properties of basis functions. See following methods in gbasis.h: <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">GOBasis</span><span class="p">::</span><span class="n">compute_grid1_exp</span>
+<span class="n">GOBasis</span><span class="p">::</span><span class="n">compute_grid1_dm</span>
+<span class="n">GOBasis</span><span class="p">::</span><span class="n">compute_grid1_fock</span>
+<span class="n">GOBasis</span><span class="p">::</span><span class="n">compute_grid_point1</span> <span class="p">(</span><span class="n">called</span> <span class="n">by</span> <span class="n">the</span> <span class="n">previous</span> <span class="n">three</span><span class="p">)</span>
+</pre></div>
+</div>
+</p>
+<p>GB2GridFn functions requires double loop to compute properties of basis pairs of basis functions. See following methods in gbasis.h: <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">GOBasis</span><span class="p">::</span><span class="n">compute_grid2_dm</span>
+<span class="n">GOBasis</span><span class="p">::</span><span class="n">compute_grid_point2</span> <span class="p">(</span><span class="n">called</span> <span class="n">by</span> <span class="n">compute_grid2_dm</span><span class="p">)</span>
+</pre></div>
+</div>
+</p>
+<p>The methods <code class="docutils literal notranslate"><span class="pre">reset</span></code>, <code class="docutils literal notranslate"><span class="pre">add</span></code>, <code class="docutils literal notranslate"><span class="pre">cart_to_pure</span></code> and <code class="docutils literal notranslate"><span class="pre">compute_point_from_*</span></code> or <code class="docutils literal notranslate"><span class="pre">compute_fock_from_pot</span></code>, are called from functions in gbasis.cpp (<a class="reference internal" href="mod_horton_gbasis_gbasis_h.html#classGOBasis"><span class="std std-ref">GOBasis</span></a>). For a given grid point…</p>
+<p>1) The method <code class="docutils literal notranslate"><span class="pre">reset</span></code> is called with basic information of the contraction and the position of the grid point.</p>
+<p>2) The method <code class="docutils literal notranslate"><span class="pre">add</span></code> is called to evaluate properties (function value and/or derivatives) of primitives on the grid point. Code in gbasis.cpp takes care of contractions and calls <code class="docutils literal notranslate"><span class="pre">add</span></code> with the proper prefactor <code class="docutils literal notranslate"><span class="pre">coeff</span></code>. The <code class="docutils literal notranslate"><span class="pre">add</span></code> method adds results for one primitive in <code class="docutils literal notranslate"><span class="pre">work_cart</span></code>.</p>
+<p>3) <code class="docutils literal notranslate"><span class="pre">cart_to_pure</span></code> to transform the results for a contraction to pure functions when needed.</p>
+<p>4) After looping over all the (pairs of) contractions (steps 1 to 3), one of the following two happens, still just for one grid point</p>
+<p>4a) The compute_point_from_* method is called to convert the properties of the basis functions into the (density) function(s) of interest, making use of either expansion coefficients of the orbitals or first-order density matrix coefficients.</p>
+<p>4b) The compute_fock_from_pot method is called to convert a potential on a grid into a Fock operator.</p>
+<p>The above work flow is repeated for every grid point.</p>
+<p>The Cartesian polynomials in the Gaussian primitives (and/or their derivatives) are computed only once for a given contraction when calling the <code class="docutils literal notranslate"><span class="pre">reset</span></code> method. This is done by calling <code class="docutils literal notranslate"><span class="pre">fill_cartesian_polynomials</span></code>, which computes all mononomials in alphabetical order up to a given order. It returns an offset, which is the position of the first mononomial of the highest order. This offset is used to quickly find the desired mononomial for evaluating each primitive. The offset is stored as a class attribute and used on the <code class="docutils literal notranslate"><span class="pre">add</span></code> method:</p>
+<p><ul class="simple">
+<li>There is only only offset attribute in many cases, i.e. when only mononomials of one order are needed.</li>
+<li>When mononomials of different orders are needed, their offsets are computed in the <code class="docutils literal notranslate"><span class="pre">reset</span></code> method: offset_l1, offset_h1, offset_l2 and offset_h2. The suffixes h and l refer to higher and lower.</li>
+<li>Keep in mind that the derivative (toward x) of a primitive (with x^k) includes two terms (one with a mononomial x^{k-1} and one with x^(k+1}). So in the case of GGA and even more so for MGGA, many mononomials are needed and several relevant offsets must be stored.</li>
+</ul>
+</p>
+<p>Given the position of a mononomial, related mononomials (increasing or decreasing one or two powers) are “easily” found. Given a mononomial:</p>
+<p><ul class="simple">
+<li>mono = x**nx * y**ny * z**nz: offset + i</li>
+<li>mono * x: offset_h1 + i</li>
+<li>mono / x: offset_l1 + i</li>
+<li>mono * y: offset_h1 + i + 1 + ny + nz</li>
+<li>mono / y: offset_l1 + i - ny - nz</li>
+<li>mono * z: offset_h1 + i + 2 + ny + nz</li>
+<li>mono / z: offset_l1 + i - 1 - ny - nz</li>
+<li>mono * (x*x): offset_h2 + i</li>
+<li>mono / (x*x): offset_l2 + i</li>
+<li>mono * (x*y): offset_h2 + i + 1 + ny + nz</li>
+<li>mono / (x*y): offset_l2 + i - ny - nz</li>
+<li>mono * (x*z): offset_h2 + i + 2 + ny + nz</li>
+<li>mono / (x*z): offset_l2 + i - 1 - ny - nz</li>
+<li>mono * (y*y): offset_h2 + i + 3 + 2*ny + 2*nz</li>
+<li>mono / (y*y): offset_l2 + i + 1 - 2*ny - 2*nz</li>
+<li>mono * (y*z): offset_h2 + i + 4 + 2*ny + 2*nz</li>
+<li>mono / (y*z): offset_l2 + i - 2*ny - 2*nz</li>
+<li>mono * (z*z): offset_h2 + i + 5 + 2*ny + 2*nz</li>
+<li>mono / (z*z): offset_l2 + i - 1 - 2*ny - 2*nz</li>
+</ul>
+</p>
+<p>These rules are used on the <code class="docutils literal notranslate"><span class="pre">add</span></code> methods. </p>
+<dl class="class">
+<dt id="_CPPv39GB1GridFn">
+<span id="_CPPv29GB1GridFn"></span><span id="GB1GridFn"></span><span class="target" id="classGB1GridFn"></span><em class="property">class </em><code class="descname">GB1GridFn</code><a class="headerlink" href="#_CPPv39GB1GridFn" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;fns.h&gt;</em><p>Base class for grid calculators that require only a single loop over all basis functions. </p>
+<p>Inherits from <a class="reference internal" href="mod_horton_gbasis_calc_h.html#classGBCalculator"><span class="std std-ref">GBCalculator</span></a></p>
+<p>Subclassed by <a class="reference internal" href="#classGB1DMGridFn"><span class="std std-ref">GB1DMGridFn</span></a>, <a class="reference internal" href="#classGB1ExpGridFn"><span class="std std-ref">GB1ExpGridFn</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv3N9GB1GridFn9GB1GridFnElll">
+<span id="_CPPv2N9GB1GridFn9GB1GridFnElll"></span><span id="GB1GridFn::GB1GridFn__l.l.l"></span><span class="target" id="classGB1GridFn_1a361f099578b8096a9195ef0043ada1c2"></span><code class="descname">GB1GridFn</code><span class="sig-paren">(</span>long <em>max_shell_type</em>, long <em>dim_work</em>, long <em>dim_output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N9GB1GridFn9GB1GridFnElll" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#classGB1GridFn"><span class="std std-ref">GB1GridFn</span></a> object. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">max_shell_type</span></code>: The maximum shell type in the basis set.</li>
+<li><code class="docutils literal notranslate"><span class="pre">dim_work</span></code>: A multiplier for the size of the work array, e.g. when multiple results need to be stored, such as the orbitals and its gradient.</li>
+<li><code class="docutils literal notranslate"><span class="pre">dim_output</span></code>: The number of results for each grid point, e.g. 3 for a density gradient. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N9GB1GridFn5resetElPKdPKd">
+<span id="_CPPv2N9GB1GridFn5resetElPKdPKd"></span><span id="GB1GridFn::reset__l.doubleCP.doubleCP"></span><span class="target" id="classGB1GridFn_1a561bce1d4b8c260eab524c3843eb8ff2"></span>void <code class="descname">reset</code><span class="sig-paren">(</span>long <em>shell_type0</em>, <em class="property">const</em> double *<em>r0</em>, <em class="property">const</em> double *<em>point</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N9GB1GridFn5resetElPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Reset calculator for a new contraction. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">shell_type0</span></code>: Shell type of contraction.</li>
+<li><code class="docutils literal notranslate"><span class="pre">r0</span></code>: Center of the contraction. (size=3)</li>
+<li><code class="docutils literal notranslate"><span class="pre">point</span></code>: Cartesian coordinates of the grid point. (size=3) </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N9GB1GridFn12cart_to_pureEv">
+<span id="_CPPv2N9GB1GridFn12cart_to_pureEv"></span><span id="GB1GridFn::cart_to_pure"></span><span class="target" id="classGB1GridFn_1a7e346b0db4c1160952b686b98f8fb0e7"></span>void <code class="descname">cart_to_pure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N9GB1GridFn12cart_to_pureEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Convert results in work array from Cartesian to pure functions where needed. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3NK9GB1GridFn15get_shell_type0Ev">
+<span id="_CPPv2NK9GB1GridFn15get_shell_type0Ev"></span><span id="GB1GridFn::get_shell_type0C"></span><span class="target" id="classGB1GridFn_1a4b889bd12821920470ffff0c20fe1708"></span><em class="property">const</em> long <code class="descname">get_shell_type0</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv3NK9GB1GridFn15get_shell_type0Ev" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Shell type of the contraction. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N9GB1GridFn12get_dim_workEv">
+<span id="_CPPv2N9GB1GridFn12get_dim_workEv"></span><span id="GB1GridFn::get_dim_work"></span><span class="target" id="classGB1GridFn_1a2f5424794ed6c650ed06070c4a8e2553"></span>long <code class="descname">get_dim_work</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N9GB1GridFn12get_dim_workEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Multiplier for the size of the work array. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N9GB1GridFn14get_dim_outputEv">
+<span id="_CPPv2N9GB1GridFn14get_dim_outputEv"></span><span id="GB1GridFn::get_dim_output"></span><span class="target" id="classGB1GridFn_1a5e1dbe6b4c47939397d2c27ab59a1a0d"></span>long <code class="descname">get_dim_output</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N9GB1GridFn14get_dim_outputEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Number of results per grid point. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N9GB1GridFn3addEddPKd">
+<span id="_CPPv2N9GB1GridFn3addEddPKd"></span><span id="GB1GridFn::add__double.double.doubleCP"></span><span class="target" id="classGB1GridFn_1ab47ab60cfb8ca193354214520c97edc4"></span><em class="property">virtual</em> void <code class="descname">add</code><span class="sig-paren">(</span>double <em>coeff</em>, double <em>alpha0</em>, <em class="property">const</em> double *<em>scales0</em><span class="sig-paren">)</span> = 0<a class="headerlink" href="#_CPPv3N9GB1GridFn3addEddPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add contributions to work array for current grid point and given primitive shell. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">coeff</span></code>: Contraction coefficient of current primitive shells.</li>
+<li><code class="docutils literal notranslate"><span class="pre">alpha0</span></code>: Exponent of the primitive shell.</li>
+<li><code class="docutils literal notranslate"><span class="pre">scales0</span></code>: Normalization prefactors for primitives in the shell. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv3N9GB1GridFn8dim_workE">
+<span id="_CPPv2N9GB1GridFn8dim_workE"></span><span id="GB1GridFn::dim_work__lC"></span><span class="target" id="classGB1GridFn_1a446cf892948d1d9a80dc7ea357bd960e"></span><em class="property">const</em> long <code class="descname">dim_work</code><a class="headerlink" href="#_CPPv3N9GB1GridFn8dim_workE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Multiplier for the size of the work array. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N9GB1GridFn10dim_outputE">
+<span id="_CPPv2N9GB1GridFn10dim_outputE"></span><span id="GB1GridFn::dim_output__lC"></span><span class="target" id="classGB1GridFn_1a1cdcfc27b293244b5ff733e72aed60f8"></span><em class="property">const</em> long <code class="descname">dim_output</code><a class="headerlink" href="#_CPPv3N9GB1GridFn10dim_outputE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Number of results per grid point. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N9GB1GridFn11shell_type0E">
+<span id="_CPPv2N9GB1GridFn11shell_type0E"></span><span id="GB1GridFn::shell_type0__l"></span><span class="target" id="classGB1GridFn_1a9b5463aaa4951a676bd600b132928913"></span>long <code class="descname">shell_type0</code><a class="headerlink" href="#_CPPv3N9GB1GridFn11shell_type0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Shell type of the current contraction. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N9GB1GridFn2r0E">
+<span id="_CPPv2N9GB1GridFn2r0E"></span><span id="GB1GridFn::r0__doubleCP"></span><span class="target" id="classGB1GridFn_1a14bef4aacf0b5308783228b9906760b0"></span><em class="property">const</em> double *<code class="descname">r0</code><a class="headerlink" href="#_CPPv3N9GB1GridFn2r0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Center of the current contraction. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N9GB1GridFn5pointE">
+<span id="_CPPv2N9GB1GridFn5pointE"></span><span id="GB1GridFn::point__doubleCP"></span><span class="target" id="classGB1GridFn_1a32df8b2d76be2250eb6727c887bbb84d"></span><em class="property">const</em> double *<code class="descname">point</code><a class="headerlink" href="#_CPPv3N9GB1GridFn5pointE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Grid point at which the fn is evaluated. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N9GB1GridFn3i1pE">
+<span id="_CPPv2N9GB1GridFn3i1pE"></span><span id="GB1GridFn::i1p__IterPow1"></span><span class="target" id="classGB1GridFn_1af6389465bc5e5108c4af20ff21c1be61"></span><a class="reference internal" href="mod_horton_gbasis_iter_pow_h.html#_CPPv38IterPow1" title="IterPow1">IterPow1</a> <code class="descname">i1p</code><a class="headerlink" href="#_CPPv3N9GB1GridFn3i1pE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Iterator over Cartesian powers for given ang mom. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv312GB1ExpGridFn">
+<span id="_CPPv212GB1ExpGridFn"></span><span id="GB1ExpGridFn"></span><span class="target" id="classGB1ExpGridFn"></span><em class="property">class </em><code class="descname">GB1ExpGridFn</code><a class="headerlink" href="#_CPPv312GB1ExpGridFn" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;fns.h&gt;</em><p>Base class for GB1 grid calculators that use the expansion coefficients of the orbitals. </p>
+<p>Inherits from <a class="reference internal" href="#classGB1GridFn"><span class="std std-ref">GB1GridFn</span></a></p>
+<p>Subclassed by <a class="reference internal" href="#classGB1ExpGridOrbGradientFn"><span class="std std-ref">GB1ExpGridOrbGradientFn</span></a>, <a class="reference internal" href="#classGB1ExpGridOrbitalFn"><span class="std std-ref">GB1ExpGridOrbitalFn</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv3N12GB1ExpGridFn12GB1ExpGridFnEllll">
+<span id="_CPPv2N12GB1ExpGridFn12GB1ExpGridFnEllll"></span><span id="GB1ExpGridFn::GB1ExpGridFn__l.l.l.l"></span><span class="target" id="classGB1ExpGridFn_1a3510cb9a5c20541959e5d9af54feb369"></span><code class="descname">GB1ExpGridFn</code><span class="sig-paren">(</span>long <em>max_shell_type</em>, long <em>nfn</em>, long <em>dim_work</em>, long <em>dim_output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N12GB1ExpGridFn12GB1ExpGridFnEllll" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#classGB1ExpGridFn"><span class="std std-ref">GB1ExpGridFn</span></a> object. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">max_shell_type</span></code>: The maximum shell type in the basis set.</li>
+<li><code class="docutils literal notranslate"><span class="pre">nfn</span></code>: The number of orbitals (occupied and virtual).</li>
+<li><code class="docutils literal notranslate"><span class="pre">dim_work</span></code>: A multiplier for the size of the work array, e.g. when multiple results need to be stored, such as an orbital and its gradient.</li>
+<li><code class="docutils literal notranslate"><span class="pre">dim_output</span></code>: The number of results, i.e. elements in output and pot arguments, for each grid point, e.g. 3 for a density gradient. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N12GB1ExpGridFn22compute_point_from_expEPdPdlPd">
+<span id="_CPPv2N12GB1ExpGridFn22compute_point_from_expEPdPdlPd"></span><span id="GB1ExpGridFn::compute_point_from_exp__doubleP.doubleP.l.doubleP"></span><span class="target" id="classGB1ExpGridFn_1a30f5480d49f8fefc0f4cb8c9e29b1028"></span><em class="property">virtual</em> void <code class="descname">compute_point_from_exp</code><span class="sig-paren">(</span>double *<em>work_basis</em>, double *<em>coeffs</em>, long <em>nbasis</em>, double *<em>output</em><span class="sig-paren">)</span> = 0<a class="headerlink" href="#_CPPv3N12GB1ExpGridFn22compute_point_from_expEPdPdlPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Compute (final) results for a given grid point. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">work_basis</span></code>: Properties of basis functions computed for the current grid point. (Work done by add method.) (size=nbasis*dim_work)</li>
+<li><code class="docutils literal notranslate"><span class="pre">coeffs</span></code>: The orbital expansion coefficients. (size=nbasis*nfn)</li>
+<li><code class="docutils literal notranslate"><span class="pre">nbasis</span></code>: The number of basis functions.</li>
+<li><code class="docutils literal notranslate"><span class="pre">output</span></code>: The output array for the current grid point. (size=dim_output) </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv3N12GB1ExpGridFn3nfnE">
+<span id="_CPPv2N12GB1ExpGridFn3nfnE"></span><span id="GB1ExpGridFn::nfn__l"></span><span class="target" id="classGB1ExpGridFn_1ad7ad973d94a9ceb70e6b14fabae7918a"></span>long <code class="descname">nfn</code><a class="headerlink" href="#_CPPv3N12GB1ExpGridFn3nfnE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Number of orbitals (occupied and virtual). </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv319GB1ExpGridOrbitalFn">
+<span id="_CPPv219GB1ExpGridOrbitalFn"></span><span id="GB1ExpGridOrbitalFn"></span><span class="target" id="classGB1ExpGridOrbitalFn"></span><em class="property">class </em><code class="descname">GB1ExpGridOrbitalFn</code><a class="headerlink" href="#_CPPv319GB1ExpGridOrbitalFn" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;fns.h&gt;</em><p>Evaluates a selection of orbitals on a grid. </p>
+<p>Content of work_basis (at one grid point): [0] Basis function value. Content of the argument ‘output’ (at one grid point): [0-norb] Values of the orbitals. </p>
+<p>Inherits from <a class="reference internal" href="#classGB1ExpGridFn"><span class="std std-ref">GB1ExpGridFn</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv3N19GB1ExpGridOrbitalFn19GB1ExpGridOrbitalFnEllPll">
+<span id="_CPPv2N19GB1ExpGridOrbitalFn19GB1ExpGridOrbitalFnEllPll"></span><span id="GB1ExpGridOrbitalFn::GB1ExpGridOrbitalFn__l.l.lP.l"></span><span class="target" id="classGB1ExpGridOrbitalFn_1aa17b28765a42fa031621fa9c4af9b5a6"></span><code class="descname">GB1ExpGridOrbitalFn</code><span class="sig-paren">(</span>long <em>max_shell_type</em>, long <em>nfn</em>, long *<em>iorbs</em>, long <em>norb</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N19GB1ExpGridOrbitalFn19GB1ExpGridOrbitalFnEllPll" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#classGB1ExpGridOrbitalFn"><span class="std std-ref">GB1ExpGridOrbitalFn</span></a> object. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">max_shell_type</span></code>: The maximum shell type in the basis set.</li>
+<li><code class="docutils literal notranslate"><span class="pre">nfn</span></code>: The number of orbitals (occupied and virtual).</li>
+<li><code class="docutils literal notranslate"><span class="pre">iorbs</span></code>: An array with orbitals to be computed.</li>
+<li><code class="docutils literal notranslate"><span class="pre">norb</span></code>: The number of elements in iorbs. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N19GB1ExpGridOrbitalFn5resetElPKdPKd">
+<span id="_CPPv2N19GB1ExpGridOrbitalFn5resetElPKdPKd"></span><span id="GB1ExpGridOrbitalFn::reset__l.doubleCP.doubleCP"></span><span class="target" id="classGB1ExpGridOrbitalFn_1a3d82ae2a4a7414bedcbfe17bea7f6158"></span>void <code class="descname">reset</code><span class="sig-paren">(</span>long <em>_shell_type0</em>, <em class="property">const</em> double *<em>_r0</em>, <em class="property">const</em> double *<em>_point</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N19GB1ExpGridOrbitalFn5resetElPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Reset calculator for a new contraction. (See base class for details.) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N19GB1ExpGridOrbitalFn3addEddPKd">
+<span id="_CPPv2N19GB1ExpGridOrbitalFn3addEddPKd"></span><span id="GB1ExpGridOrbitalFn::add__double.double.doubleCP"></span><span class="target" id="classGB1ExpGridOrbitalFn_1ae831310bb3d84b7d39052207535c8e5f"></span>void <code class="descname">add</code><span class="sig-paren">(</span>double <em>coeff</em>, double <em>alpha0</em>, <em class="property">const</em> double *<em>scales0</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N19GB1ExpGridOrbitalFn3addEddPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add contributions to work array for current grid point and given primitive shell. (See base class for more details.) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N19GB1ExpGridOrbitalFn22compute_point_from_expEPdPdlPd">
+<span id="_CPPv2N19GB1ExpGridOrbitalFn22compute_point_from_expEPdPdlPd"></span><span id="GB1ExpGridOrbitalFn::compute_point_from_exp__doubleP.doubleP.l.doubleP"></span><span class="target" id="classGB1ExpGridOrbitalFn_1abaed3f026541cbf0934d97262b63db7a"></span>void <code class="descname">compute_point_from_exp</code><span class="sig-paren">(</span>double *<em>work_basis</em>, double *<em>coeffs</em>, long <em>nbasis</em>, double *<em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N19GB1ExpGridOrbitalFn22compute_point_from_expEPdPdlPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Compute (final) results for a given grid point. (See base class for details.) </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv3N19GB1ExpGridOrbitalFn9poly_workE">
+<span id="_CPPv2N19GB1ExpGridOrbitalFn9poly_workE"></span><span id="GB1ExpGridOrbitalFn::poly_work__doubleA"></span><span class="target" id="classGB1ExpGridOrbitalFn_1a1e78b64c01e26ff59b7822739261772a"></span>double <code class="descname">poly_work</code>[<code class="descname">MAX_NCART_CUMUL</code>]<a class="headerlink" href="#_CPPv3N19GB1ExpGridOrbitalFn9poly_workE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Work array with Cartesian polynomials. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N19GB1ExpGridOrbitalFn6offsetE">
+<span id="_CPPv2N19GB1ExpGridOrbitalFn6offsetE"></span><span id="GB1ExpGridOrbitalFn::offset__l"></span><span class="target" id="classGB1ExpGridOrbitalFn_1a521b1314390ca3059cf106f3008345b2"></span>long <code class="descname">offset</code><a class="headerlink" href="#_CPPv3N19GB1ExpGridOrbitalFn6offsetE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Offset for the polynomials for the density. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N19GB1ExpGridOrbitalFn5iorbsE">
+<span id="_CPPv2N19GB1ExpGridOrbitalFn5iorbsE"></span><span id="GB1ExpGridOrbitalFn::iorbs__lP"></span><span class="target" id="classGB1ExpGridOrbitalFn_1aea12f1d6e740ea30dc6c063dbc2753e4"></span>long *<code class="descname">iorbs</code><a class="headerlink" href="#_CPPv3N19GB1ExpGridOrbitalFn5iorbsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Array of indices of orbitals to be evaluated on grid. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N19GB1ExpGridOrbitalFn4norbE">
+<span id="_CPPv2N19GB1ExpGridOrbitalFn4norbE"></span><span id="GB1ExpGridOrbitalFn::norb__l"></span><span class="target" id="classGB1ExpGridOrbitalFn_1a1f710ba9748f6cdbb05145b0806b6cea"></span>long <code class="descname">norb</code><a class="headerlink" href="#_CPPv3N19GB1ExpGridOrbitalFn4norbE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The number of elements in iorbs. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv323GB1ExpGridOrbGradientFn">
+<span id="_CPPv223GB1ExpGridOrbGradientFn"></span><span id="GB1ExpGridOrbGradientFn"></span><span class="target" id="classGB1ExpGridOrbGradientFn"></span><em class="property">class </em><code class="descname">GB1ExpGridOrbGradientFn</code><a class="headerlink" href="#_CPPv323GB1ExpGridOrbGradientFn" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;fns.h&gt;</em><p>Evaluates the gradient of a selection of orbitals on a grid. </p>
+<p>Content of work_basis (at one grid point): [0] Basis function derivative toward x. [1] Basis function derivative toward y. [2] Basis function derivative toward z. Content of the argument ‘output’ (at one grid point): [i*norb + 0] derivative of orbital i toward x. [i*norb + 1] derivative of orbital i toward y. [i*norb + 2] derivative of orbital i toward z. </p>
+<p>Inherits from <a class="reference internal" href="#classGB1ExpGridFn"><span class="std std-ref">GB1ExpGridFn</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv3N23GB1ExpGridOrbGradientFn23GB1ExpGridOrbGradientFnEllPll">
+<span id="_CPPv2N23GB1ExpGridOrbGradientFn23GB1ExpGridOrbGradientFnEllPll"></span><span id="GB1ExpGridOrbGradientFn::GB1ExpGridOrbGradientFn__l.l.lP.l"></span><span class="target" id="classGB1ExpGridOrbGradientFn_1a12298eb24be7b743f300d2c4cdd5c4e0"></span><code class="descname">GB1ExpGridOrbGradientFn</code><span class="sig-paren">(</span>long <em>max_shell_type</em>, long <em>nfn</em>, long *<em>iorbs</em>, long <em>norb</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N23GB1ExpGridOrbGradientFn23GB1ExpGridOrbGradientFnEllPll" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#classGB1ExpGridOrbGradientFn"><span class="std std-ref">GB1ExpGridOrbGradientFn</span></a> object. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">max_shell_type</span></code>: The maximum shell type in the basis set.</li>
+<li><code class="docutils literal notranslate"><span class="pre">nfn</span></code>: The number of orbitals (occupied and virtual).</li>
+<li><code class="docutils literal notranslate"><span class="pre">iorbs</span></code>: An array with orbitals to be computed.</li>
+<li><code class="docutils literal notranslate"><span class="pre">norb</span></code>: The number of elements in iorbs. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N23GB1ExpGridOrbGradientFn5resetElPKdPKd">
+<span id="_CPPv2N23GB1ExpGridOrbGradientFn5resetElPKdPKd"></span><span id="GB1ExpGridOrbGradientFn::reset__l.doubleCP.doubleCP"></span><span class="target" id="classGB1ExpGridOrbGradientFn_1a7586663509d68e666803dc62a6346b08"></span>void <code class="descname">reset</code><span class="sig-paren">(</span>long <em>_shell_type0</em>, <em class="property">const</em> double *<em>_r0</em>, <em class="property">const</em> double *<em>_point</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N23GB1ExpGridOrbGradientFn5resetElPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Reset calculator for a new contraction. (See base class for details.) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N23GB1ExpGridOrbGradientFn3addEddPKd">
+<span id="_CPPv2N23GB1ExpGridOrbGradientFn3addEddPKd"></span><span id="GB1ExpGridOrbGradientFn::add__double.double.doubleCP"></span><span class="target" id="classGB1ExpGridOrbGradientFn_1a4f08c46a43ddf34f7583ee7f6a1d0067"></span>void <code class="descname">add</code><span class="sig-paren">(</span>double <em>coeff</em>, double <em>alpha0</em>, <em class="property">const</em> double *<em>scales0</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N23GB1ExpGridOrbGradientFn3addEddPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add contributions to work array for current grid point and given primitive shell. (See base class for more details.) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N23GB1ExpGridOrbGradientFn22compute_point_from_expEPdPdlPd">
+<span id="_CPPv2N23GB1ExpGridOrbGradientFn22compute_point_from_expEPdPdlPd"></span><span id="GB1ExpGridOrbGradientFn::compute_point_from_exp__doubleP.doubleP.l.doubleP"></span><span class="target" id="classGB1ExpGridOrbGradientFn_1ade799b4fdba8dc2021f3343151624954"></span>void <code class="descname">compute_point_from_exp</code><span class="sig-paren">(</span>double *<em>work_basis</em>, double *<em>coeffs</em>, long <em>nbasis</em>, double *<em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N23GB1ExpGridOrbGradientFn22compute_point_from_expEPdPdlPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Compute the final result on one grid point. (See base class for details.) </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv3N23GB1ExpGridOrbGradientFn5iorbsE">
+<span id="_CPPv2N23GB1ExpGridOrbGradientFn5iorbsE"></span><span id="GB1ExpGridOrbGradientFn::iorbs__lP"></span><span class="target" id="classGB1ExpGridOrbGradientFn_1af173ed87787c08b87d60244e7dbe0d0b"></span>long *<code class="descname">iorbs</code><a class="headerlink" href="#_CPPv3N23GB1ExpGridOrbGradientFn5iorbsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Array of indices of orbitals to be evaluated on grid. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N23GB1ExpGridOrbGradientFn4norbE">
+<span id="_CPPv2N23GB1ExpGridOrbGradientFn4norbE"></span><span id="GB1ExpGridOrbGradientFn::norb__l"></span><span class="target" id="classGB1ExpGridOrbGradientFn_1ac927434efe21a53a6a86cbc9fb31265c"></span>long <code class="descname">norb</code><a class="headerlink" href="#_CPPv3N23GB1ExpGridOrbGradientFn4norbE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The number of elements in iorbs. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N23GB1ExpGridOrbGradientFn9poly_workE">
+<span id="_CPPv2N23GB1ExpGridOrbGradientFn9poly_workE"></span><span id="GB1ExpGridOrbGradientFn::poly_work__doubleA"></span><span class="target" id="classGB1ExpGridOrbGradientFn_1a6bec5ee9c40aa3e01f437f4293609e89"></span>double <code class="descname">poly_work</code>[<code class="descname">MAX_NCART_CUMUL_D</code>]<a class="headerlink" href="#_CPPv3N23GB1ExpGridOrbGradientFn9poly_workE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Work array with Cartesian polynomials. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N23GB1ExpGridOrbGradientFn6offsetE">
+<span id="_CPPv2N23GB1ExpGridOrbGradientFn6offsetE"></span><span id="GB1ExpGridOrbGradientFn::offset__l"></span><span class="target" id="classGB1ExpGridOrbGradientFn_1add448e6140966df7da3688c5f510aadb"></span>long <code class="descname">offset</code><a class="headerlink" href="#_CPPv3N23GB1ExpGridOrbGradientFn6offsetE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Offset for the polynomials for the density. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N23GB1ExpGridOrbGradientFn9offset_l1E">
+<span id="_CPPv2N23GB1ExpGridOrbGradientFn9offset_l1E"></span><span id="GB1ExpGridOrbGradientFn::offset_l1__l"></span><span class="target" id="classGB1ExpGridOrbGradientFn_1a6e19bb8d3b781f1c9dcd64f48582b687"></span>long <code class="descname">offset_l1</code><a class="headerlink" href="#_CPPv3N23GB1ExpGridOrbGradientFn9offset_l1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Lower offset for the polynomials for the gradient. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N23GB1ExpGridOrbGradientFn9offset_h1E">
+<span id="_CPPv2N23GB1ExpGridOrbGradientFn9offset_h1E"></span><span id="GB1ExpGridOrbGradientFn::offset_h1__l"></span><span class="target" id="classGB1ExpGridOrbGradientFn_1ad70ce3811c6adb0ce6a8129db92621dd"></span>long <code class="descname">offset_h1</code><a class="headerlink" href="#_CPPv3N23GB1ExpGridOrbGradientFn9offset_h1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Higher offset for the polynomials for the gradient. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv311GB1DMGridFn">
+<span id="_CPPv211GB1DMGridFn"></span><span id="GB1DMGridFn"></span><span class="target" id="classGB1DMGridFn"></span><em class="property">class </em><code class="descname">GB1DMGridFn</code><a class="headerlink" href="#_CPPv311GB1DMGridFn" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;fns.h&gt;</em><p>Base class for GB1 grid calculators that use the first-order density matrix coefficients. </p>
+<p>Inherits from <a class="reference internal" href="#classGB1GridFn"><span class="std std-ref">GB1GridFn</span></a></p>
+<p>Subclassed by <a class="reference internal" href="#classGB1DMGridDensityFn"><span class="std std-ref">GB1DMGridDensityFn</span></a>, <a class="reference internal" href="#classGB1DMGridGradientFn"><span class="std std-ref">GB1DMGridGradientFn</span></a>, <a class="reference internal" href="#classGB1DMGridHessianFn"><span class="std std-ref">GB1DMGridHessianFn</span></a>, <a class="reference internal" href="#classGB1DMGridKineticFn"><span class="std std-ref">GB1DMGridKineticFn</span></a>, <a class="reference internal" href="#classGB1DMGridMGGAFn"><span class="std std-ref">GB1DMGridMGGAFn</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv3N11GB1DMGridFn11GB1DMGridFnElll">
+<span id="_CPPv2N11GB1DMGridFn11GB1DMGridFnElll"></span><span id="GB1DMGridFn::GB1DMGridFn__l.l.l"></span><span class="target" id="classGB1DMGridFn_1a60d68190f69bea0fde9c14a183f680bf"></span><code class="descname">GB1DMGridFn</code><span class="sig-paren">(</span>long <em>max_shell_type</em>, long <em>dim_work</em>, long <em>dim_output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N11GB1DMGridFn11GB1DMGridFnElll" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#classGB1GridFn"><span class="std std-ref">GB1GridFn</span></a> object. (See base class for details.) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N11GB1DMGridFn21compute_point_from_dmEPdPdlPddPd">
+<span id="_CPPv2N11GB1DMGridFn21compute_point_from_dmEPdPdlPddPd"></span><span id="GB1DMGridFn::compute_point_from_dm__doubleP.doubleP.l.doubleP.double.doubleP"></span><span class="target" id="classGB1DMGridFn_1adfbd8b13d484e8bbe1a0e4710a27022f"></span><em class="property">virtual</em> void <code class="descname">compute_point_from_dm</code><span class="sig-paren">(</span>double *<em>work_basis</em>, double *<em>dm</em>, long <em>nbasis</em>, double *<em>output</em>, double <em>epsilon</em>, double *<em>dmmaxrow</em><span class="sig-paren">)</span> = 0<a class="headerlink" href="#_CPPv3N11GB1DMGridFn21compute_point_from_dmEPdPdlPddPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Compute the final result on one grid point. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">work_basis</span></code>: Properties of basis functions computed for the current grid point. (Work done by add method.) (size=nbasis*dim_work)</li>
+<li><code class="docutils literal notranslate"><span class="pre">dm</span></code>: The coefficients of the first-order density matrix. (size=nbasis*nbasis)</li>
+<li><code class="docutils literal notranslate"><span class="pre">nbasis</span></code>: The number of basis functions.</li>
+<li><code class="docutils literal notranslate"><span class="pre">output</span></code>: The output array for the current grid point. (size=dim_output)</li>
+<li><code class="docutils literal notranslate"><span class="pre">epsilon</span></code>: A cutoff value used to discard small contributions.</li>
+<li><code class="docutils literal notranslate"><span class="pre">dmmaxrow</span></code>: The maximum value of the density matrix on each row. (size=nbasis) </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N11GB1DMGridFn21compute_fock_from_potEPdPdlPd">
+<span id="_CPPv2N11GB1DMGridFn21compute_fock_from_potEPdPdlPd"></span><span id="GB1DMGridFn::compute_fock_from_pot__doubleP.doubleP.l.doubleP"></span><span class="target" id="classGB1DMGridFn_1a8c00c104a4e35821759be7b05fb1f99d"></span><em class="property">virtual</em> void <code class="descname">compute_fock_from_pot</code><span class="sig-paren">(</span>double *<em>pot</em>, double *<em>work_basis</em>, long <em>nbasis</em>, double *<em>fock</em><span class="sig-paren">)</span> = 0<a class="headerlink" href="#_CPPv3N11GB1DMGridFn21compute_fock_from_potEPdPdlPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add contribution to Fock matrix from one grid point. </p>
+<p>The chain rule is used to transform grid potential data (in one point, see reset method) into a Fock matrix contribution.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">pot</span></code>: The value of the potential at the grid point. This may be multiple values, e.g in case of GGA, this contains four elements: the functional derivative of the energy w.r.t. the density and the components of the gradient. (size=dim_output)</li>
+<li><code class="docutils literal notranslate"><span class="pre">work_basis</span></code>: Properties of the orbital basis in the current grid point, typically the value of the basis function and optionally first or second derivatives toward x, y and z, all evaluated in <code class="docutils literal notranslate"><span class="pre">point</span></code> (see reset method). (size=nbasis*dim_work)</li>
+<li><code class="docutils literal notranslate"><span class="pre">nbasis</span></code>: The number of basis functions.</li>
+<li><code class="docutils literal notranslate"><span class="pre">fock</span></code>: The Fock matrix to which the result will be added. (size=nbasis*nbasis) </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv318GB1DMGridDensityFn">
+<span id="_CPPv218GB1DMGridDensityFn"></span><span id="GB1DMGridDensityFn"></span><span class="target" id="classGB1DMGridDensityFn"></span><em class="property">class </em><code class="descname">GB1DMGridDensityFn</code><a class="headerlink" href="#_CPPv318GB1DMGridDensityFn" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;fns.h&gt;</em><p>Compute just the electron density on a grid. </p>
+<p>Content of work_basis (at one grid point): [0] Basis function value. Content of the argument ‘output’ and the energy derivative in ‘pot’ (at one grid point): [0] The electron density </p>
+<p>Inherits from <a class="reference internal" href="#classGB1DMGridFn"><span class="std std-ref">GB1DMGridFn</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv3N18GB1DMGridDensityFn18GB1DMGridDensityFnEl">
+<span id="_CPPv2N18GB1DMGridDensityFn18GB1DMGridDensityFnEl"></span><span id="GB1DMGridDensityFn::GB1DMGridDensityFn__l"></span><span class="target" id="classGB1DMGridDensityFn_1a07c06e471a738584f8ec9c87b5cd2218"></span><code class="descname">GB1DMGridDensityFn</code><span class="sig-paren">(</span>long <em>max_shell_type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N18GB1DMGridDensityFn18GB1DMGridDensityFnEl" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#classGB1DMGridDensityFn"><span class="std std-ref">GB1DMGridDensityFn</span></a> object. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">max_shell_type</span></code>: The maximum shell type in the basis set. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N18GB1DMGridDensityFn5resetElPKdPKd">
+<span id="_CPPv2N18GB1DMGridDensityFn5resetElPKdPKd"></span><span id="GB1DMGridDensityFn::reset__l.doubleCP.doubleCP"></span><span class="target" id="classGB1DMGridDensityFn_1aa552528c4766b734a91740dd20f7d477"></span>void <code class="descname">reset</code><span class="sig-paren">(</span>long <em>_shell_type0</em>, <em class="property">const</em> double *<em>_r0</em>, <em class="property">const</em> double *<em>_point</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N18GB1DMGridDensityFn5resetElPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Reset calculator for a new contraction. (See base class for details.) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N18GB1DMGridDensityFn3addEddPKd">
+<span id="_CPPv2N18GB1DMGridDensityFn3addEddPKd"></span><span id="GB1DMGridDensityFn::add__double.double.doubleCP"></span><span class="target" id="classGB1DMGridDensityFn_1ab7dfea155f01c5b836c2403311566b75"></span>void <code class="descname">add</code><span class="sig-paren">(</span>double <em>coeff</em>, double <em>alpha0</em>, <em class="property">const</em> double *<em>scales0</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N18GB1DMGridDensityFn3addEddPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add contributions to work array for current grid point and given primitive shell. (See base class for more details.) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N18GB1DMGridDensityFn21compute_point_from_dmEPdPdlPddPd">
+<span id="_CPPv2N18GB1DMGridDensityFn21compute_point_from_dmEPdPdlPddPd"></span><span id="GB1DMGridDensityFn::compute_point_from_dm__doubleP.doubleP.l.doubleP.double.doubleP"></span><span class="target" id="classGB1DMGridDensityFn_1a15a29f346139d34f3ee751ec16d8a46d"></span>void <code class="descname">compute_point_from_dm</code><span class="sig-paren">(</span>double *<em>work_basis</em>, double *<em>dm</em>, long <em>nbasis</em>, double *<em>output</em>, double <em>epsilon</em>, double *<em>dmmaxrow</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N18GB1DMGridDensityFn21compute_point_from_dmEPdPdlPddPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Compute the final result on one grid point. (See base class for details.) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N18GB1DMGridDensityFn21compute_fock_from_potEPdPdlPd">
+<span id="_CPPv2N18GB1DMGridDensityFn21compute_fock_from_potEPdPdlPd"></span><span id="GB1DMGridDensityFn::compute_fock_from_pot__doubleP.doubleP.l.doubleP"></span><span class="target" id="classGB1DMGridDensityFn_1a5f3c67a8be19361337a0d513e17218d9"></span>void <code class="descname">compute_fock_from_pot</code><span class="sig-paren">(</span>double *<em>pot</em>, double *<em>work_basis</em>, long <em>nbasis</em>, double *<em>fock</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N18GB1DMGridDensityFn21compute_fock_from_potEPdPdlPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add contribution to Fock matrix for one grid point. (See base class for details.) </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv3N18GB1DMGridDensityFn9poly_workE">
+<span id="_CPPv2N18GB1DMGridDensityFn9poly_workE"></span><span id="GB1DMGridDensityFn::poly_work__doubleA"></span><span class="target" id="classGB1DMGridDensityFn_1ab07b46344f1ec02df2d413c08088afc6"></span>double <code class="descname">poly_work</code>[<code class="descname">MAX_NCART_CUMUL</code>]<a class="headerlink" href="#_CPPv3N18GB1DMGridDensityFn9poly_workE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Work array with Cartesian polynomials. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N18GB1DMGridDensityFn6offsetE">
+<span id="_CPPv2N18GB1DMGridDensityFn6offsetE"></span><span id="GB1DMGridDensityFn::offset__l"></span><span class="target" id="classGB1DMGridDensityFn_1af4a7ee1ad989f43397064073a5ce1ae4"></span>long <code class="descname">offset</code><a class="headerlink" href="#_CPPv3N18GB1DMGridDensityFn6offsetE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Offset for the polynomials for the density. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv319GB1DMGridGradientFn">
+<span id="_CPPv219GB1DMGridGradientFn"></span><span id="GB1DMGridGradientFn"></span><span class="target" id="classGB1DMGridGradientFn"></span><em class="property">class </em><code class="descname">GB1DMGridGradientFn</code><a class="headerlink" href="#_CPPv319GB1DMGridGradientFn" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;fns.h&gt;</em><p>Compute gradient of the electron density on a grid. </p>
+<p>Content of work_basis (at one grid point): [0] Basis function value. [1] Basis function derivative toward x. [2] Basis function derivative toward y. [3] Basis function derivative toward z. Content of the argument ‘output’ and the energy derivative in ‘pot’ (at one grid point): [0] Density derivative toward x. [1] Density derivative toward y. [2] Density derivative toward z. </p>
+<p>Inherits from <a class="reference internal" href="#classGB1DMGridFn"><span class="std std-ref">GB1DMGridFn</span></a></p>
+<p>Subclassed by <a class="reference internal" href="#classGB1DMGridGGAFn"><span class="std std-ref">GB1DMGridGGAFn</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv3N19GB1DMGridGradientFn19GB1DMGridGradientFnEl">
+<span id="_CPPv2N19GB1DMGridGradientFn19GB1DMGridGradientFnEl"></span><span id="GB1DMGridGradientFn::GB1DMGridGradientFn__l"></span><span class="target" id="classGB1DMGridGradientFn_1adda2fd6f8826080f9b3f57cd1017807f"></span><code class="descname">GB1DMGridGradientFn</code><span class="sig-paren">(</span>long <em>max_shell_type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N19GB1DMGridGradientFn19GB1DMGridGradientFnEl" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#classGB1DMGridGradientFn"><span class="std std-ref">GB1DMGridGradientFn</span></a> object. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">max_shell_type</span></code>: The maximum shell type in the basis set. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N19GB1DMGridGradientFn19GB1DMGridGradientFnEll">
+<span id="_CPPv2N19GB1DMGridGradientFn19GB1DMGridGradientFnEll"></span><span id="GB1DMGridGradientFn::GB1DMGridGradientFn__l.l"></span><span class="target" id="classGB1DMGridGradientFn_1a03b20e3dff6527616f8be7b8347f53ee"></span><code class="descname">GB1DMGridGradientFn</code><span class="sig-paren">(</span>long <em>max_shell_type</em>, long <em>dim_output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N19GB1DMGridGradientFn19GB1DMGridGradientFnEll" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#classGB1DMGridGradientFn"><span class="std std-ref">GB1DMGridGradientFn</span></a> object. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">max_shell_type</span></code>: The maximum shell type in the basis set.</li>
+<li><code class="docutils literal notranslate"><span class="pre">dim_output</span></code>: The number of results for each grid point. This may be different from 3 for derived classes. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N19GB1DMGridGradientFn5resetElPKdPKd">
+<span id="_CPPv2N19GB1DMGridGradientFn5resetElPKdPKd"></span><span id="GB1DMGridGradientFn::reset__l.doubleCP.doubleCP"></span><span class="target" id="classGB1DMGridGradientFn_1ae9ce15d11fe3d2eb91f0db8838ab9fc4"></span>void <code class="descname">reset</code><span class="sig-paren">(</span>long <em>_shell_type0</em>, <em class="property">const</em> double *<em>_r0</em>, <em class="property">const</em> double *<em>_point</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N19GB1DMGridGradientFn5resetElPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Reset calculator for a new contraction. (See base class for details.) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N19GB1DMGridGradientFn3addEddPKd">
+<span id="_CPPv2N19GB1DMGridGradientFn3addEddPKd"></span><span id="GB1DMGridGradientFn::add__double.double.doubleCP"></span><span class="target" id="classGB1DMGridGradientFn_1a961785ad0ceee2d65bbb94d74342ee2b"></span>void <code class="descname">add</code><span class="sig-paren">(</span>double <em>coeff</em>, double <em>alpha0</em>, <em class="property">const</em> double *<em>scales0</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N19GB1DMGridGradientFn3addEddPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add contributions to work array for current grid point and given primitive shell. (See base class for more details.) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N19GB1DMGridGradientFn21compute_point_from_dmEPdPdlPddPd">
+<span id="_CPPv2N19GB1DMGridGradientFn21compute_point_from_dmEPdPdlPddPd"></span><span id="GB1DMGridGradientFn::compute_point_from_dm__doubleP.doubleP.l.doubleP.double.doubleP"></span><span class="target" id="classGB1DMGridGradientFn_1aa0a99d6bafbad4693b8c8ba6c883e637"></span>void <code class="descname">compute_point_from_dm</code><span class="sig-paren">(</span>double *<em>work_basis</em>, double *<em>dm</em>, long <em>nbasis</em>, double *<em>output</em>, double <em>epsilon</em>, double *<em>dmmaxrow</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N19GB1DMGridGradientFn21compute_point_from_dmEPdPdlPddPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Compute the final result on one grid point. (See base class for details.) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N19GB1DMGridGradientFn21compute_fock_from_potEPdPdlPd">
+<span id="_CPPv2N19GB1DMGridGradientFn21compute_fock_from_potEPdPdlPd"></span><span id="GB1DMGridGradientFn::compute_fock_from_pot__doubleP.doubleP.l.doubleP"></span><span class="target" id="classGB1DMGridGradientFn_1afed7680bcf6ae9a54ba74db271e55189"></span>void <code class="descname">compute_fock_from_pot</code><span class="sig-paren">(</span>double *<em>pot</em>, double *<em>work_basis</em>, long <em>nbasis</em>, double *<em>fock</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N19GB1DMGridGradientFn21compute_fock_from_potEPdPdlPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add contribution to Fock matrix for one grid point. (See base class for details.) </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv3N19GB1DMGridGradientFn9poly_workE">
+<span id="_CPPv2N19GB1DMGridGradientFn9poly_workE"></span><span id="GB1DMGridGradientFn::poly_work__doubleA"></span><span class="target" id="classGB1DMGridGradientFn_1a82b6f2baa9dc232bd6973d53264b0053"></span>double <code class="descname">poly_work</code>[<code class="descname">MAX_NCART_CUMUL_D</code>]<a class="headerlink" href="#_CPPv3N19GB1DMGridGradientFn9poly_workE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Work array with Cartesian polynomials. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N19GB1DMGridGradientFn6offsetE">
+<span id="_CPPv2N19GB1DMGridGradientFn6offsetE"></span><span id="GB1DMGridGradientFn::offset__l"></span><span class="target" id="classGB1DMGridGradientFn_1a7975807345315fee91111d07ccac7088"></span>long <code class="descname">offset</code><a class="headerlink" href="#_CPPv3N19GB1DMGridGradientFn6offsetE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Offset for the polynomials for the density. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N19GB1DMGridGradientFn9offset_l1E">
+<span id="_CPPv2N19GB1DMGridGradientFn9offset_l1E"></span><span id="GB1DMGridGradientFn::offset_l1__l"></span><span class="target" id="classGB1DMGridGradientFn_1aa78a2edfa204cb9fac1d937e08b1ca9f"></span>long <code class="descname">offset_l1</code><a class="headerlink" href="#_CPPv3N19GB1DMGridGradientFn9offset_l1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Lower offset for the polynomials for the gradient. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N19GB1DMGridGradientFn9offset_h1E">
+<span id="_CPPv2N19GB1DMGridGradientFn9offset_h1E"></span><span id="GB1DMGridGradientFn::offset_h1__l"></span><span class="target" id="classGB1DMGridGradientFn_1a48a5a811d6a7201610590c571a60939c"></span>long <code class="descname">offset_h1</code><a class="headerlink" href="#_CPPv3N19GB1DMGridGradientFn9offset_h1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Higher offset for the polynomials for the gradient. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv314GB1DMGridGGAFn">
+<span id="_CPPv214GB1DMGridGGAFn"></span><span id="GB1DMGridGGAFn"></span><span class="target" id="classGB1DMGridGGAFn"></span><em class="property">class </em><code class="descname">GB1DMGridGGAFn</code><a class="headerlink" href="#_CPPv314GB1DMGridGGAFn" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;fns.h&gt;</em><p>Compute density and gradient on a grid. </p>
+<p>Content of work_basis (at one grid point): [0] Basis function value. [1] Basis function derivative toward x. [2] Basis function derivative toward y. [3] Basis function derivative toward z. Content of the argument ‘output’ and the energy derivative in ‘pot’ (at one grid point): [0] Density. [1] Density derivative toward x. [2] Density derivative toward y. [3] Density derivative toward z. </p>
+<p>Inherits from <a class="reference internal" href="#classGB1DMGridGradientFn"><span class="std std-ref">GB1DMGridGradientFn</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv3N14GB1DMGridGGAFn14GB1DMGridGGAFnEl">
+<span id="_CPPv2N14GB1DMGridGGAFn14GB1DMGridGGAFnEl"></span><span id="GB1DMGridGGAFn::GB1DMGridGGAFn__l"></span><span class="target" id="classGB1DMGridGGAFn_1a58c116547312b2465715baef9dbe6729"></span><code class="descname">GB1DMGridGGAFn</code><span class="sig-paren">(</span>long <em>max_shell_type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N14GB1DMGridGGAFn14GB1DMGridGGAFnEl" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#classGB1DMGridGGAFn"><span class="std std-ref">GB1DMGridGGAFn</span></a> object. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">max_shell_type</span></code>: The maximum shell type in the basis set. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N14GB1DMGridGGAFn21compute_point_from_dmEPdPdlPddPd">
+<span id="_CPPv2N14GB1DMGridGGAFn21compute_point_from_dmEPdPdlPddPd"></span><span id="GB1DMGridGGAFn::compute_point_from_dm__doubleP.doubleP.l.doubleP.double.doubleP"></span><span class="target" id="classGB1DMGridGGAFn_1a7cba791a09ffc9c48e0ce78a260a9ba2"></span>void <code class="descname">compute_point_from_dm</code><span class="sig-paren">(</span>double *<em>work_basis</em>, double *<em>dm</em>, long <em>nbasis</em>, double *<em>output</em>, double <em>epsilon</em>, double *<em>dmmaxrow</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N14GB1DMGridGGAFn21compute_point_from_dmEPdPdlPddPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Compute the final result on one grid point. (See base class for details.) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N14GB1DMGridGGAFn21compute_fock_from_potEPdPdlPd">
+<span id="_CPPv2N14GB1DMGridGGAFn21compute_fock_from_potEPdPdlPd"></span><span id="GB1DMGridGGAFn::compute_fock_from_pot__doubleP.doubleP.l.doubleP"></span><span class="target" id="classGB1DMGridGGAFn_1a6094777527ee5ee03d0dd30d72126945"></span>void <code class="descname">compute_fock_from_pot</code><span class="sig-paren">(</span>double *<em>pot</em>, double *<em>work_basis</em>, long <em>nbasis</em>, double *<em>fock</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N14GB1DMGridGGAFn21compute_fock_from_potEPdPdlPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add contribution to Fock matrix for one grid point. (See base class for details.) </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv318GB1DMGridKineticFn">
+<span id="_CPPv218GB1DMGridKineticFn"></span><span id="GB1DMGridKineticFn"></span><span class="target" id="classGB1DMGridKineticFn"></span><em class="property">class </em><code class="descname">GB1DMGridKineticFn</code><a class="headerlink" href="#_CPPv318GB1DMGridKineticFn" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;fns.h&gt;</em><p>Compute kinetic energy density on a grid. </p>
+<p>Content of work_basis (at one grid point): [0] Basis function derivative toward x. [1] Basis function derivative toward y. [2] Basis function derivative toward z. Content of the argument ‘output’ and the energy derivative in ‘pot’ (at one grid point): [0] Kinetic energy density. </p>
+<p>Inherits from <a class="reference internal" href="#classGB1DMGridFn"><span class="std std-ref">GB1DMGridFn</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv3N18GB1DMGridKineticFn18GB1DMGridKineticFnEl">
+<span id="_CPPv2N18GB1DMGridKineticFn18GB1DMGridKineticFnEl"></span><span id="GB1DMGridKineticFn::GB1DMGridKineticFn__l"></span><span class="target" id="classGB1DMGridKineticFn_1a98bdc35e897d965421e3bed06fb53482"></span><code class="descname">GB1DMGridKineticFn</code><span class="sig-paren">(</span>long <em>max_shell_type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N18GB1DMGridKineticFn18GB1DMGridKineticFnEl" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#classGB1DMGridKineticFn"><span class="std std-ref">GB1DMGridKineticFn</span></a> object. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">max_shell_type</span></code>: The maximum shell type in the basis set. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N18GB1DMGridKineticFn5resetElPKdPKd">
+<span id="_CPPv2N18GB1DMGridKineticFn5resetElPKdPKd"></span><span id="GB1DMGridKineticFn::reset__l.doubleCP.doubleCP"></span><span class="target" id="classGB1DMGridKineticFn_1a713c099b974348d063bff3120f74cccf"></span>void <code class="descname">reset</code><span class="sig-paren">(</span>long <em>_shell_type0</em>, <em class="property">const</em> double *<em>_r0</em>, <em class="property">const</em> double *<em>_point</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N18GB1DMGridKineticFn5resetElPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Reset calculator for a new contraction. (See base class for details.) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N18GB1DMGridKineticFn3addEddPKd">
+<span id="_CPPv2N18GB1DMGridKineticFn3addEddPKd"></span><span id="GB1DMGridKineticFn::add__double.double.doubleCP"></span><span class="target" id="classGB1DMGridKineticFn_1ac37b5a08ebd7117eb7705e98c382b9fb"></span>void <code class="descname">add</code><span class="sig-paren">(</span>double <em>coeff</em>, double <em>alpha0</em>, <em class="property">const</em> double *<em>scales0</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N18GB1DMGridKineticFn3addEddPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add contributions to work array for current grid point and given primitive shell. (See base class for more details.) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N18GB1DMGridKineticFn21compute_point_from_dmEPdPdlPddPd">
+<span id="_CPPv2N18GB1DMGridKineticFn21compute_point_from_dmEPdPdlPddPd"></span><span id="GB1DMGridKineticFn::compute_point_from_dm__doubleP.doubleP.l.doubleP.double.doubleP"></span><span class="target" id="classGB1DMGridKineticFn_1abf5fdf72e1f343252b510977fc4c9328"></span>void <code class="descname">compute_point_from_dm</code><span class="sig-paren">(</span>double *<em>work_basis</em>, double *<em>dm</em>, long <em>nbasis</em>, double *<em>output</em>, double <em>epsilon</em>, double *<em>dmmaxrow</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N18GB1DMGridKineticFn21compute_point_from_dmEPdPdlPddPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Compute the final result on one grid point. (See base class for details.) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N18GB1DMGridKineticFn21compute_fock_from_potEPdPdlPd">
+<span id="_CPPv2N18GB1DMGridKineticFn21compute_fock_from_potEPdPdlPd"></span><span id="GB1DMGridKineticFn::compute_fock_from_pot__doubleP.doubleP.l.doubleP"></span><span class="target" id="classGB1DMGridKineticFn_1aba0131b6a48d7325fbb19721366cc27f"></span>void <code class="descname">compute_fock_from_pot</code><span class="sig-paren">(</span>double *<em>pot</em>, double *<em>work_basis</em>, long <em>nbasis</em>, double *<em>fock</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N18GB1DMGridKineticFn21compute_fock_from_potEPdPdlPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add contribution to Fock matrix for one grid point. (See base class for details.) </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv3N18GB1DMGridKineticFn9poly_workE">
+<span id="_CPPv2N18GB1DMGridKineticFn9poly_workE"></span><span id="GB1DMGridKineticFn::poly_work__doubleA"></span><span class="target" id="classGB1DMGridKineticFn_1a196f4d9819074f5949d9aa414b1d425c"></span>double <code class="descname">poly_work</code>[<code class="descname">MAX_NCART_CUMUL_D</code>]<a class="headerlink" href="#_CPPv3N18GB1DMGridKineticFn9poly_workE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Work array with Cartesian polynomials. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N18GB1DMGridKineticFn6offsetE">
+<span id="_CPPv2N18GB1DMGridKineticFn6offsetE"></span><span id="GB1DMGridKineticFn::offset__l"></span><span class="target" id="classGB1DMGridKineticFn_1ab68c1ea0e2d6c454255180050474e39e"></span>long <code class="descname">offset</code><a class="headerlink" href="#_CPPv3N18GB1DMGridKineticFn6offsetE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Offset for the polynomials for the density. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N18GB1DMGridKineticFn9offset_l1E">
+<span id="_CPPv2N18GB1DMGridKineticFn9offset_l1E"></span><span id="GB1DMGridKineticFn::offset_l1__l"></span><span class="target" id="classGB1DMGridKineticFn_1a9521e8947322a058eeb5708b5ade3b1b"></span>long <code class="descname">offset_l1</code><a class="headerlink" href="#_CPPv3N18GB1DMGridKineticFn9offset_l1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Lower offset for the polynomials for the gradient. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N18GB1DMGridKineticFn9offset_h1E">
+<span id="_CPPv2N18GB1DMGridKineticFn9offset_h1E"></span><span id="GB1DMGridKineticFn::offset_h1__l"></span><span class="target" id="classGB1DMGridKineticFn_1ae208dea109eabce5d42a6b2ee2e30940"></span>long <code class="descname">offset_h1</code><a class="headerlink" href="#_CPPv3N18GB1DMGridKineticFn9offset_h1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Higher offset for the polynomials for the gradient. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv318GB1DMGridHessianFn">
+<span id="_CPPv218GB1DMGridHessianFn"></span><span id="GB1DMGridHessianFn"></span><span class="target" id="classGB1DMGridHessianFn"></span><em class="property">class </em><code class="descname">GB1DMGridHessianFn</code><a class="headerlink" href="#_CPPv318GB1DMGridHessianFn" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;fns.h&gt;</em><p>Compute density Hessian on a grid: xx, xy, xz, yy, yz, zz. </p>
+<p>Content of work_basis (at one grid point): [0] Basis function value. [1] Basis function derivative toward x. [2] Basis function derivative toward y. [3] Basis function derivative toward z. [4] Basis function derivative toward xx. [5] Basis function derivative toward xy. [6] Basis function derivative toward xz. [7] Basis function derivative toward yy. [8] Basis function derivative toward yz. [9] Basis function derivative toward zz. Content of the argument ‘output’ and the energy derivative in ‘pot’ (at one grid point): [0] Density derivative toward xx. [1] Density derivative toward xy. [2] Density derivative toward xz. [3] Density derivative toward yy. [4] Density derivative toward yz. [5] Density derivative toward zz. </p>
+<p>Inherits from <a class="reference internal" href="#classGB1DMGridFn"><span class="std std-ref">GB1DMGridFn</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv3N18GB1DMGridHessianFn18GB1DMGridHessianFnEl">
+<span id="_CPPv2N18GB1DMGridHessianFn18GB1DMGridHessianFnEl"></span><span id="GB1DMGridHessianFn::GB1DMGridHessianFn__l"></span><span class="target" id="classGB1DMGridHessianFn_1acb2955928b53a359f0a1a0fb60abf175"></span><code class="descname">GB1DMGridHessianFn</code><span class="sig-paren">(</span>long <em>max_shell_type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N18GB1DMGridHessianFn18GB1DMGridHessianFnEl" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#classGB1DMGridHessianFn"><span class="std std-ref">GB1DMGridHessianFn</span></a> object. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">max_shell_type</span></code>: The maximum shell type in the basis set. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N18GB1DMGridHessianFn5resetElPKdPKd">
+<span id="_CPPv2N18GB1DMGridHessianFn5resetElPKdPKd"></span><span id="GB1DMGridHessianFn::reset__l.doubleCP.doubleCP"></span><span class="target" id="classGB1DMGridHessianFn_1a1d7655c0f521d38a6147f544f2e3886b"></span>void <code class="descname">reset</code><span class="sig-paren">(</span>long <em>_shell_type0</em>, <em class="property">const</em> double *<em>_r0</em>, <em class="property">const</em> double *<em>_point</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N18GB1DMGridHessianFn5resetElPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Reset calculator for a new contraction. (See base class for details.) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N18GB1DMGridHessianFn3addEddPKd">
+<span id="_CPPv2N18GB1DMGridHessianFn3addEddPKd"></span><span id="GB1DMGridHessianFn::add__double.double.doubleCP"></span><span class="target" id="classGB1DMGridHessianFn_1a63af4cd2d4fd6daddcd2690c491b64b2"></span>void <code class="descname">add</code><span class="sig-paren">(</span>double <em>coeff</em>, double <em>alpha0</em>, <em class="property">const</em> double *<em>scales0</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N18GB1DMGridHessianFn3addEddPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add contributions to work array for current grid point and given primitive shell. (See base class for more details.) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N18GB1DMGridHessianFn21compute_point_from_dmEPdPdlPddPd">
+<span id="_CPPv2N18GB1DMGridHessianFn21compute_point_from_dmEPdPdlPddPd"></span><span id="GB1DMGridHessianFn::compute_point_from_dm__doubleP.doubleP.l.doubleP.double.doubleP"></span><span class="target" id="classGB1DMGridHessianFn_1ab6a87a22277813c0617bc6a8fb2d8c0e"></span>void <code class="descname">compute_point_from_dm</code><span class="sig-paren">(</span>double *<em>work_basis</em>, double *<em>dm</em>, long <em>nbasis</em>, double *<em>output</em>, double <em>epsilon</em>, double *<em>dmmaxrow</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N18GB1DMGridHessianFn21compute_point_from_dmEPdPdlPddPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Compute the final result on one grid point. (See base class for details.) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N18GB1DMGridHessianFn21compute_fock_from_potEPdPdlPd">
+<span id="_CPPv2N18GB1DMGridHessianFn21compute_fock_from_potEPdPdlPd"></span><span id="GB1DMGridHessianFn::compute_fock_from_pot__doubleP.doubleP.l.doubleP"></span><span class="target" id="classGB1DMGridHessianFn_1a6ca081e105f029e12d927e0e394b262d"></span>void <code class="descname">compute_fock_from_pot</code><span class="sig-paren">(</span>double *<em>pot</em>, double *<em>work_basis</em>, long <em>nbasis</em>, double *<em>fock</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N18GB1DMGridHessianFn21compute_fock_from_potEPdPdlPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add contribution to Fock matrix for one grid point. (See base class for details.) </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv3N18GB1DMGridHessianFn9poly_workE">
+<span id="_CPPv2N18GB1DMGridHessianFn9poly_workE"></span><span id="GB1DMGridHessianFn::poly_work__doubleA"></span><span class="target" id="classGB1DMGridHessianFn_1a949c6550d1aea2fcd64d911636f3db4e"></span>double <code class="descname">poly_work</code>[<code class="descname">MAX_NCART_CUMUL_DD</code>]<a class="headerlink" href="#_CPPv3N18GB1DMGridHessianFn9poly_workE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Work array with Cartesian polynomials. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N18GB1DMGridHessianFn6offsetE">
+<span id="_CPPv2N18GB1DMGridHessianFn6offsetE"></span><span id="GB1DMGridHessianFn::offset__l"></span><span class="target" id="classGB1DMGridHessianFn_1a8293f09a92d43d2d071d2abe2a395637"></span>long <code class="descname">offset</code><a class="headerlink" href="#_CPPv3N18GB1DMGridHessianFn6offsetE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Offset for the polynomials for the density. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N18GB1DMGridHessianFn9offset_l1E">
+<span id="_CPPv2N18GB1DMGridHessianFn9offset_l1E"></span><span id="GB1DMGridHessianFn::offset_l1__l"></span><span class="target" id="classGB1DMGridHessianFn_1ab16fdcebc6042fb199f4ea1613bbcbf1"></span>long <code class="descname">offset_l1</code><a class="headerlink" href="#_CPPv3N18GB1DMGridHessianFn9offset_l1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Lower offset for the polynomials for the gradient. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N18GB1DMGridHessianFn9offset_h1E">
+<span id="_CPPv2N18GB1DMGridHessianFn9offset_h1E"></span><span id="GB1DMGridHessianFn::offset_h1__l"></span><span class="target" id="classGB1DMGridHessianFn_1aedf1347fdbcc83f6ca9169eab2d44eb0"></span>long <code class="descname">offset_h1</code><a class="headerlink" href="#_CPPv3N18GB1DMGridHessianFn9offset_h1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Higher offset for the polynomials for the gradient. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N18GB1DMGridHessianFn9offset_l2E">
+<span id="_CPPv2N18GB1DMGridHessianFn9offset_l2E"></span><span id="GB1DMGridHessianFn::offset_l2__l"></span><span class="target" id="classGB1DMGridHessianFn_1a48ffb89284fd575b99c92570f0af023e"></span>long <code class="descname">offset_l2</code><a class="headerlink" href="#_CPPv3N18GB1DMGridHessianFn9offset_l2E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Lower offset for the polynomials for the hessian. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N18GB1DMGridHessianFn9offset_h2E">
+<span id="_CPPv2N18GB1DMGridHessianFn9offset_h2E"></span><span id="GB1DMGridHessianFn::offset_h2__l"></span><span class="target" id="classGB1DMGridHessianFn_1ae4b38770c49d60690cdc10bee0c00aa8"></span>long <code class="descname">offset_h2</code><a class="headerlink" href="#_CPPv3N18GB1DMGridHessianFn9offset_h2E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Higher offset for the polynomials for the hessian. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv315GB1DMGridMGGAFn">
+<span id="_CPPv215GB1DMGridMGGAFn"></span><span id="GB1DMGridMGGAFn"></span><span class="target" id="classGB1DMGridMGGAFn"></span><em class="property">class </em><code class="descname">GB1DMGridMGGAFn</code><a class="headerlink" href="#_CPPv315GB1DMGridMGGAFn" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;fns.h&gt;</em><p>Compute MGGA properties on a grid: density, gradient, laplacian and kinetic energy density. </p>
+<p>Content of work_basis (at one grid point): [0] Basis function value. [1] Basis function derivative toward x. [2] Basis function derivative toward y. [3] Basis function derivative toward z. [4] Basis function Laplacian. Content of the argument ‘output’ and the energy derivative in ‘pot’ (at one grid point): [0] Density. [1] Density derivative toward x. [2] Density derivative toward y. [3] Density derivative toward z. [4] Laplacian of the density. [5] Kinetic energy density. </p>
+<p>Inherits from <a class="reference internal" href="#classGB1DMGridFn"><span class="std std-ref">GB1DMGridFn</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv3N15GB1DMGridMGGAFn15GB1DMGridMGGAFnEl">
+<span id="_CPPv2N15GB1DMGridMGGAFn15GB1DMGridMGGAFnEl"></span><span id="GB1DMGridMGGAFn::GB1DMGridMGGAFn__l"></span><span class="target" id="classGB1DMGridMGGAFn_1a0a8885cb9da199315391cf24650b6807"></span><code class="descname">GB1DMGridMGGAFn</code><span class="sig-paren">(</span>long <em>max_shell_type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N15GB1DMGridMGGAFn15GB1DMGridMGGAFnEl" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#classGB1DMGridMGGAFn"><span class="std std-ref">GB1DMGridMGGAFn</span></a> object. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">max_shell_type</span></code>: The maximum shell type in the basis set. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N15GB1DMGridMGGAFn5resetElPKdPKd">
+<span id="_CPPv2N15GB1DMGridMGGAFn5resetElPKdPKd"></span><span id="GB1DMGridMGGAFn::reset__l.doubleCP.doubleCP"></span><span class="target" id="classGB1DMGridMGGAFn_1a2f33ce29cc22819fa03b580f5cdd22db"></span>void <code class="descname">reset</code><span class="sig-paren">(</span>long <em>_shell_type0</em>, <em class="property">const</em> double *<em>_r0</em>, <em class="property">const</em> double *<em>_point</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N15GB1DMGridMGGAFn5resetElPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Reset calculator for a new contraction. (See base class for details.) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N15GB1DMGridMGGAFn3addEddPKd">
+<span id="_CPPv2N15GB1DMGridMGGAFn3addEddPKd"></span><span id="GB1DMGridMGGAFn::add__double.double.doubleCP"></span><span class="target" id="classGB1DMGridMGGAFn_1a467ea3f3aaaac5795a70d304a244afb9"></span>void <code class="descname">add</code><span class="sig-paren">(</span>double <em>coeff</em>, double <em>alpha0</em>, <em class="property">const</em> double *<em>scales0</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N15GB1DMGridMGGAFn3addEddPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add contributions to work array for current grid point and given primitive shell. (See base class for more details.) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N15GB1DMGridMGGAFn21compute_point_from_dmEPdPdlPddPd">
+<span id="_CPPv2N15GB1DMGridMGGAFn21compute_point_from_dmEPdPdlPddPd"></span><span id="GB1DMGridMGGAFn::compute_point_from_dm__doubleP.doubleP.l.doubleP.double.doubleP"></span><span class="target" id="classGB1DMGridMGGAFn_1a6ad36b2811085b6ea24fbd062fc8bf45"></span>void <code class="descname">compute_point_from_dm</code><span class="sig-paren">(</span>double *<em>work_basis</em>, double *<em>dm</em>, long <em>nbasis</em>, double *<em>output</em>, double <em>epsilon</em>, double *<em>dmmaxrow</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N15GB1DMGridMGGAFn21compute_point_from_dmEPdPdlPddPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Compute the final result on one grid point. (See base class for details.) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N15GB1DMGridMGGAFn21compute_fock_from_potEPdPdlPd">
+<span id="_CPPv2N15GB1DMGridMGGAFn21compute_fock_from_potEPdPdlPd"></span><span id="GB1DMGridMGGAFn::compute_fock_from_pot__doubleP.doubleP.l.doubleP"></span><span class="target" id="classGB1DMGridMGGAFn_1a05596f302a5187ab305c372edb3f3aee"></span>void <code class="descname">compute_fock_from_pot</code><span class="sig-paren">(</span>double *<em>pot</em>, double *<em>work_basis</em>, long <em>nbasis</em>, double *<em>fock</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N15GB1DMGridMGGAFn21compute_fock_from_potEPdPdlPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add contribution to Fock matrix for one grid point. (See base class for details.) </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv3N15GB1DMGridMGGAFn9poly_workE">
+<span id="_CPPv2N15GB1DMGridMGGAFn9poly_workE"></span><span id="GB1DMGridMGGAFn::poly_work__doubleA"></span><span class="target" id="classGB1DMGridMGGAFn_1a30690a5b3534b076125da670f338b9e2"></span>double <code class="descname">poly_work</code>[<code class="descname">MAX_NCART_CUMUL_DD</code>]<a class="headerlink" href="#_CPPv3N15GB1DMGridMGGAFn9poly_workE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Work array with Cartesian polynomials. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N15GB1DMGridMGGAFn6offsetE">
+<span id="_CPPv2N15GB1DMGridMGGAFn6offsetE"></span><span id="GB1DMGridMGGAFn::offset__l"></span><span class="target" id="classGB1DMGridMGGAFn_1a3c1ed283c6fec9f284b3009bf3eea18a"></span>long <code class="descname">offset</code><a class="headerlink" href="#_CPPv3N15GB1DMGridMGGAFn6offsetE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Offset for the polynomials for the density. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N15GB1DMGridMGGAFn9offset_l1E">
+<span id="_CPPv2N15GB1DMGridMGGAFn9offset_l1E"></span><span id="GB1DMGridMGGAFn::offset_l1__l"></span><span class="target" id="classGB1DMGridMGGAFn_1a1177f553a739511a68cfcc49d3562253"></span>long <code class="descname">offset_l1</code><a class="headerlink" href="#_CPPv3N15GB1DMGridMGGAFn9offset_l1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Lower offset for the polynomials for the gradient. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N15GB1DMGridMGGAFn9offset_h1E">
+<span id="_CPPv2N15GB1DMGridMGGAFn9offset_h1E"></span><span id="GB1DMGridMGGAFn::offset_h1__l"></span><span class="target" id="classGB1DMGridMGGAFn_1ae85f6c4ff7bfe4b684867270392f4411"></span>long <code class="descname">offset_h1</code><a class="headerlink" href="#_CPPv3N15GB1DMGridMGGAFn9offset_h1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Higher offset for the polynomials for the gradient. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N15GB1DMGridMGGAFn9offset_l2E">
+<span id="_CPPv2N15GB1DMGridMGGAFn9offset_l2E"></span><span id="GB1DMGridMGGAFn::offset_l2__l"></span><span class="target" id="classGB1DMGridMGGAFn_1a93fb53f2d21f2fef2977894170facd9b"></span>long <code class="descname">offset_l2</code><a class="headerlink" href="#_CPPv3N15GB1DMGridMGGAFn9offset_l2E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Lower offset for the polynomials for the hessian. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N15GB1DMGridMGGAFn9offset_h2E">
+<span id="_CPPv2N15GB1DMGridMGGAFn9offset_h2E"></span><span id="GB1DMGridMGGAFn::offset_h2__l"></span><span class="target" id="classGB1DMGridMGGAFn_1a186a48409cb04dd5855d0cff7a89cced"></span>long <code class="descname">offset_h2</code><a class="headerlink" href="#_CPPv3N15GB1DMGridMGGAFn9offset_h2E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Higher offset for the polynomials for the hessian. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv311GB2DMGridFn">
+<span id="_CPPv211GB2DMGridFn"></span><span id="GB2DMGridFn"></span><span class="target" id="classGB2DMGridFn"></span><em class="property">class </em><code class="descname">GB2DMGridFn</code><a class="headerlink" href="#_CPPv311GB2DMGridFn" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;fns.h&gt;</em><p>Base class for grid calculators that require a double loop over all basis functions. </p>
+<p>Inherits from <a class="reference internal" href="mod_horton_gbasis_calc_h.html#classGBCalculator"><span class="std std-ref">GBCalculator</span></a></p>
+<p>Subclassed by <a class="reference internal" href="#classGB2DMGridHartreeFn"><span class="std std-ref">GB2DMGridHartreeFn</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv3N11GB2DMGridFn11GB2DMGridFnEl">
+<span id="_CPPv2N11GB2DMGridFn11GB2DMGridFnEl"></span><span id="GB2DMGridFn::GB2DMGridFn__l"></span><span class="target" id="classGB2DMGridFn_1aa87646123ba8c38d1f0232f512c4f3a3"></span><code class="descname">GB2DMGridFn</code><span class="sig-paren">(</span>long <em>max_shell_type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N11GB2DMGridFn11GB2DMGridFnEl" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#classGB2DMGridFn"><span class="std std-ref">GB2DMGridFn</span></a> object. (See base class for details.) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N11GB2DMGridFn5resetEllPKdPKdPKd">
+<span id="_CPPv2N11GB2DMGridFn5resetEllPKdPKdPKd"></span><span id="GB2DMGridFn::reset__l.l.doubleCP.doubleCP.doubleCP"></span><span class="target" id="classGB2DMGridFn_1aadf2320f9cde0ea28b125a4a182c1b50"></span>void <code class="descname">reset</code><span class="sig-paren">(</span>long <em>shell_type0</em>, long <em>shell_type1</em>, <em class="property">const</em> double *<em>r0</em>, <em class="property">const</em> double *<em>r1</em>, <em class="property">const</em> double *<em>point</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N11GB2DMGridFn5resetEllPKdPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Reset calculator for a new pair of contractions. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">shell_type0</span></code>: Shell type of first contraction.</li>
+<li><code class="docutils literal notranslate"><span class="pre">shell_type1</span></code>: Shell type of second contraction.</li>
+<li><code class="docutils literal notranslate"><span class="pre">r0</span></code>: Center of the first contraction. (size=3)</li>
+<li><code class="docutils literal notranslate"><span class="pre">r1</span></code>: Center of the second contraction. (size=3)</li>
+<li><code class="docutils literal notranslate"><span class="pre">point</span></code>: Cartesian coordinates of the grid point. (size=3) </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N11GB2DMGridFn12cart_to_pureEv">
+<span id="_CPPv2N11GB2DMGridFn12cart_to_pureEv"></span><span id="GB2DMGridFn::cart_to_pure"></span><span class="target" id="classGB2DMGridFn_1ab6c46306a09679e84b229f4674c57458"></span>void <code class="descname">cart_to_pure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N11GB2DMGridFn12cart_to_pureEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Convert results in work array from Cartesian to pure functions where needed. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3NK11GB2DMGridFn15get_shell_type0Ev">
+<span id="_CPPv2NK11GB2DMGridFn15get_shell_type0Ev"></span><span id="GB2DMGridFn::get_shell_type0C"></span><span class="target" id="classGB2DMGridFn_1a396d66b7a9f9b56947f21621676a8160"></span><em class="property">const</em> long <code class="descname">get_shell_type0</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv3NK11GB2DMGridFn15get_shell_type0Ev" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Shell type of the first contraction. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3NK11GB2DMGridFn15get_shell_type1Ev">
+<span id="_CPPv2NK11GB2DMGridFn15get_shell_type1Ev"></span><span id="GB2DMGridFn::get_shell_type1C"></span><span class="target" id="classGB2DMGridFn_1a4e41e6fa3dce65ea36a6a846c59c3ac7"></span><em class="property">const</em> long <code class="descname">get_shell_type1</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv3NK11GB2DMGridFn15get_shell_type1Ev" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Shell type of the second contraction. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N11GB2DMGridFn3addEdddPKdPKd">
+<span id="_CPPv2N11GB2DMGridFn3addEdddPKdPKd"></span><span id="GB2DMGridFn::add__double.double.double.doubleCP.doubleCP"></span><span class="target" id="classGB2DMGridFn_1a11761f4676146d50681347a4cab773f0"></span><em class="property">virtual</em> void <code class="descname">add</code><span class="sig-paren">(</span>double <em>coeff</em>, double <em>alpha0</em>, double <em>alpha1</em>, <em class="property">const</em> double *<em>scales0</em>, <em class="property">const</em> double *<em>scales1</em><span class="sig-paren">)</span> = 0<a class="headerlink" href="#_CPPv3N11GB2DMGridFn3addEdddPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add contributions to work array for current grid point and given pair of primitive shells. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">coeff</span></code>: Product of contraction coefficients of current primitive shells.</li>
+<li><code class="docutils literal notranslate"><span class="pre">alpha0</span></code>: Exponent of the first shell.</li>
+<li><code class="docutils literal notranslate"><span class="pre">alpha1</span></code>: Exponent of the second shell.</li>
+<li><code class="docutils literal notranslate"><span class="pre">scales0</span></code>: Normalization prefactors for primitives in first shell.</li>
+<li><code class="docutils literal notranslate"><span class="pre">scales1</span></code>: Normalization prefactors for primitives in second shell. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv3N11GB2DMGridFn11shell_type0E">
+<span id="_CPPv2N11GB2DMGridFn11shell_type0E"></span><span id="GB2DMGridFn::shell_type0__l"></span><span class="target" id="classGB2DMGridFn_1a0faa29f7bcd8b7ca584d533faa5f0353"></span>long <code class="descname">shell_type0</code><a class="headerlink" href="#_CPPv3N11GB2DMGridFn11shell_type0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Shell type of the first contraction. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N11GB2DMGridFn11shell_type1E">
+<span id="_CPPv2N11GB2DMGridFn11shell_type1E"></span><span id="GB2DMGridFn::shell_type1__l"></span><span class="target" id="classGB2DMGridFn_1a492ca6664450bb086d7220175713c037"></span>long <code class="descname">shell_type1</code><a class="headerlink" href="#_CPPv3N11GB2DMGridFn11shell_type1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Shell type of the second contraction. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N11GB2DMGridFn2r0E">
+<span id="_CPPv2N11GB2DMGridFn2r0E"></span><span id="GB2DMGridFn::r0__doubleCP"></span><span class="target" id="classGB2DMGridFn_1aec19e780a982959f558ceebacb0bfb7f"></span><em class="property">const</em> double *<code class="descname">r0</code><a class="headerlink" href="#_CPPv3N11GB2DMGridFn2r0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Center of first basis contraction. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N11GB2DMGridFn2r1E">
+<span id="_CPPv2N11GB2DMGridFn2r1E"></span><span id="GB2DMGridFn::r1__doubleCP"></span><span class="target" id="classGB2DMGridFn_1a0e30b4eac72ce4e04691129e15a130c2"></span><em class="property">const</em> double *<code class="descname">r1</code><a class="headerlink" href="#_CPPv3N11GB2DMGridFn2r1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Center of second basis contraction. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N11GB2DMGridFn5pointE">
+<span id="_CPPv2N11GB2DMGridFn5pointE"></span><span id="GB2DMGridFn::point__doubleCP"></span><span class="target" id="classGB2DMGridFn_1aee3cbdaa3e1ba4c3e4bbd91ecf7bbe27"></span><em class="property">const</em> double *<code class="descname">point</code><a class="headerlink" href="#_CPPv3N11GB2DMGridFn5pointE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Grid point at which the fn is evaluated. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N11GB2DMGridFn3i2pE">
+<span id="_CPPv2N11GB2DMGridFn3i2pE"></span><span id="GB2DMGridFn::i2p__IterPow2"></span><span class="target" id="classGB2DMGridFn_1a47f387707676e39298c6ce2f5652e797"></span><a class="reference internal" href="mod_horton_gbasis_iter_pow_h.html#_CPPv38IterPow2" title="IterPow2">IterPow2</a> <code class="descname">i2p</code><a class="headerlink" href="#_CPPv3N11GB2DMGridFn3i2pE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Double loop iterator over Cartesian powers of given ang mom. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv318GB2DMGridHartreeFn">
+<span id="_CPPv218GB2DMGridHartreeFn"></span><span id="GB2DMGridHartreeFn"></span><span class="target" id="classGB2DMGridHartreeFn"></span><em class="property">class </em><code class="descname">GB2DMGridHartreeFn</code><a class="headerlink" href="#_CPPv318GB2DMGridHartreeFn" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;fns.h&gt;</em><p>Calculator for Hartree potential on a set of grid points. </p>
+<p>This requires a double loop over all basis functions because the contributions from the products of basis functions cannot completely be factorized.</p>
+<p>Content of work_basis (at one grid point): [0] The Hartree potential due to the product of the two basis functions. </p>
+<p>Inherits from <a class="reference internal" href="#classGB2DMGridFn"><span class="std std-ref">GB2DMGridFn</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv3N18GB2DMGridHartreeFn18GB2DMGridHartreeFnEl">
+<span id="_CPPv2N18GB2DMGridHartreeFn18GB2DMGridHartreeFnEl"></span><span id="GB2DMGridHartreeFn::GB2DMGridHartreeFn__l"></span><span class="target" id="classGB2DMGridHartreeFn_1aecca26ac6c7416d58a000879b9db4aeb"></span><code class="descname">GB2DMGridHartreeFn</code><span class="sig-paren">(</span>long <em>max_shell_type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N18GB2DMGridHartreeFn18GB2DMGridHartreeFnEl" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#classGB2DMGridHartreeFn"><span class="std std-ref">GB2DMGridHartreeFn</span></a> object. (See base class for details.) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N18GB2DMGridHartreeFnD0Ev">
+<span id="_CPPv2N18GB2DMGridHartreeFnD0Ev"></span><span id="GB2DMGridHartreeFn::~GB2DMGridHartreeFn"></span><span class="target" id="classGB2DMGridHartreeFn_1a6af03032c7d2fccee8b40d5e6cde3148"></span><code class="descname">~GB2DMGridHartreeFn</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N18GB2DMGridHartreeFnD0Ev" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv3N18GB2DMGridHartreeFn3addEdddPKdPKd">
+<span id="_CPPv2N18GB2DMGridHartreeFn3addEdddPKdPKd"></span><span id="GB2DMGridHartreeFn::add__double.double.double.doubleCP.doubleCP"></span><span class="target" id="classGB2DMGridHartreeFn_1abf7665e0458ca3a66965ac86f8a88234"></span>void <code class="descname">add</code><span class="sig-paren">(</span>double <em>coeff</em>, double <em>alpha0</em>, double <em>alpha1</em>, <em class="property">const</em> double *<em>scales0</em>, <em class="property">const</em> double *<em>scales1</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N18GB2DMGridHartreeFn3addEdddPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add contributions to work array for current grid point and given pair of primitive shells. (See base class for details.) </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv3N18GB2DMGridHartreeFn7work_g0E">
+<span id="_CPPv2N18GB2DMGridHartreeFn7work_g0E"></span><span id="GB2DMGridHartreeFn::work_g0__doubleP"></span><span class="target" id="classGB2DMGridHartreeFn_1a3565282c0a1b1dba07a785450503a33e"></span>double *<code class="descname">work_g0</code><a class="headerlink" href="#_CPPv3N18GB2DMGridHartreeFn7work_g0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Work array for results from NAI helper code (x). </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N18GB2DMGridHartreeFn7work_g1E">
+<span id="_CPPv2N18GB2DMGridHartreeFn7work_g1E"></span><span id="GB2DMGridHartreeFn::work_g1__doubleP"></span><span class="target" id="classGB2DMGridHartreeFn_1afb90646ed6e1f05be9be6bd2b2ef976d"></span>double *<code class="descname">work_g1</code><a class="headerlink" href="#_CPPv3N18GB2DMGridHartreeFn7work_g1E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Work array for results from NAI helper code (y). </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N18GB2DMGridHartreeFn7work_g2E">
+<span id="_CPPv2N18GB2DMGridHartreeFn7work_g2E"></span><span id="GB2DMGridHartreeFn::work_g2__doubleP"></span><span class="target" id="classGB2DMGridHartreeFn_1a78904224c26a6da0361d6c2708da0ec6"></span>double *<code class="descname">work_g2</code><a class="headerlink" href="#_CPPv3N18GB2DMGridHartreeFn7work_g2E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Work array for results from NAI helper code (z). </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N18GB2DMGridHartreeFn9work_boysE">
+<span id="_CPPv2N18GB2DMGridHartreeFn9work_boysE"></span><span id="GB2DMGridHartreeFn::work_boys__doubleP"></span><span class="target" id="classGB2DMGridHartreeFn_1ab96744b7a2c52192598223e72fe0beed"></span>double *<code class="descname">work_boys</code><a class="headerlink" href="#_CPPv3N18GB2DMGridHartreeFn9work_boysE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Work array for Boys function values for different m values. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_gbasis_gbasis_h.html" class="btn btn-neutral float-right" title="3.3.10. horton/gbasis/gbasis.h – Gaussian basis set classes" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_gbasis_common_h.html" class="btn btn-neutral" title="3.3.8. horton/gbasis/common.h – Auxiliary functions" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.1 built from release 2.1.1-1-g3a5adfea (Jan 18, 2019). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jan 18, 2019.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../',
+              VERSION:'2.1.1-1-g3a5adfea (Jan 18, 2019)',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

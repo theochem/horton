@@ -1,0 +1,819 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.4.12. horton/grid/cubic_spline.h – One-dimensional cubic splines (on uniform grids) &mdash; HORTON 2.1.0 (Jul 06, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="HORTON 2.1.0 (Jul 06, 2017) documentation" href="../index.html"/>
+        <link rel="up" title="3.4. horton.grid – Numerical integration grids" href="pck_horton_grid.html"/>
+        <link rel="next" title="3.4.13. horton/grid/evaluate.h – Evaluation of splines on grids" href="mod_horton_grid_evaluate_h.html"/>
+        <link rel="prev" title="3.4.11. horton/grid/becke.h – Becke partitioning weight function" href="mod_horton_grid_becke_h.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> – The main HORTON Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.2. <code class="docutils literal"><span class="pre">horton.espfit</span></code> – Electrostatic potential fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_gbasis.html">3.3. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_grid.html">3.4. <code class="docutils literal"><span class="pre">horton.grid</span></code> – Numerical integration grids</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_atgrid.html">3.4.1. <code class="docutils literal"><span class="pre">horton.grid.atgrid</span></code> – Atomic grids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_base.html">3.4.2. <code class="docutils literal"><span class="pre">horton.grid.base</span></code> – Base classes for 3D integration grids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_cext.html">3.4.3. <code class="docutils literal"><span class="pre">horton.grid.cext</span></code> – C++ extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_int1d.html">3.4.4. <code class="docutils literal"><span class="pre">horton.grid.int1d</span></code> – 1D integration algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_molgrid.html">3.4.5. <code class="docutils literal"><span class="pre">horton.grid.molgrid</span></code> – Molecular integration grids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_ode2.html">3.4.6. <code class="docutils literal"><span class="pre">horton.grid.ode2</span></code> – Finite-element second-order ODE solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_poisson.html">3.4.7. <code class="docutils literal"><span class="pre">horton.grid.poisson</span></code> – Becke-style numerical Poisson solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_radial.html">3.4.8. <code class="docutils literal"><span class="pre">horton.grid.radial</span></code> – 1D Radial integration grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_utils.html">3.4.9. <code class="docutils literal"><span class="pre">horton.grid.utils</span></code> – Auxiliaries for numerical integrals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_visual.html">3.4.10. <code class="docutils literal"><span class="pre">horton.grid.visual</span></code> – Grids suitable for visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_becke_h.html">3.4.11. <code class="docutils literal"><span class="pre">horton/grid/becke.h</span></code> – Becke partitioning weight function</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.4.12. <code class="docutils literal"><span class="pre">horton/grid/cubic_spline.h</span></code> – One-dimensional cubic splines (on uniform grids)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_evaluate_h.html">3.4.13. <code class="docutils literal"><span class="pre">horton/grid/evaluate.h</span></code> – Evaluation of splines on grids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_lebedev_laikov_h.html">3.4.14. <code class="docutils literal"><span class="pre">horton/grid/lebedev_laikov.h</span></code> – Grids for quadrature on a sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_ode2_h.html">3.4.15. <code class="docutils literal"><span class="pre">horton/grid/ode2.h</span></code> – Second-order finite-element ODE solver using Hermite polynomials</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_rtransform_h.html">3.4.16. <code class="docutils literal"><span class="pre">horton/grid/rtransform.h</span></code> – Transformation from uniform 1D to non-uniform 1D grids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_uniform_h.html">3.4.17. <code class="docutils literal"><span class="pre">horton/grid/uniform.h</span></code> – Uniform 3D grids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_utils_h.html">3.4.18. <code class="docutils literal"><span class="pre">horton/grid/utils.h</span></code> – Auxiliary functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.5. <code class="docutils literal"><span class="pre">horton.io</span></code> – Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.6. <code class="docutils literal"><span class="pre">horton.matrix</span></code> – One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.7. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> – Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.8. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> – Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.9. <code class="docutils literal"><span class="pre">horton.part</span></code> – Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.10. <code class="docutils literal"><span class="pre">horton.scripts</span></code> – Code (solely) used by HORTON’s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+        
+          <li><a href="pck_horton_grid.html">3.4. <code class="docutils literal"><span class="pre">horton.grid</span></code> – Numerical integration grids</a> &raquo;</li>
+        
+      <li>3.4.12. <code class="docutils literal"><span class="pre">horton/grid/cubic_spline.h</span></code> – One-dimensional cubic splines (on uniform grids)</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/lib/mod_horton_grid_cubic_spline_h.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="horton-grid-cubic-spline-h-one-dimensional-cubic-splines-on-uniform-grids">
+<h1>3.4.12. <code class="docutils literal"><span class="pre">horton/grid/cubic_spline.h</span></code> – One-dimensional cubic splines (on uniform grids)<a class="headerlink" href="#horton-grid-cubic-spline-h-one-dimensional-cubic-splines-on-uniform-grids" title="Permalink to this headline">¶</a></h1>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Functions</p>
+<dl class="function">
+<dt id="_CPPv216tridiagsym_solvePdPdPdPdi">
+<span id="tridiagsym_solve__doubleP.doubleP.doubleP.doubleP.i"></span><span class="target" id="hortoncubic__spline_8h_1abf6629f99131a374d33f5bdab61d843e"></span>void <code class="descclassname"></code><code class="descname">tridiagsym_solve</code><span class="sig-paren">(</span>double *<em>diag_mid</em>, double *<em>diag_up</em>, double *<em>right</em>, double *<em>solution</em>, int <em>n</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv216tridiagsym_solvePdPdPdPdi" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv225solve_cubic_spline_systemPdPdi">
+<span id="solve_cubic_spline_system__doubleP.doubleP.i"></span><span class="target" id="hortoncubic__spline_8h_1a4088d87fd52ad006bf2b85b32c109dc7"></span>void <code class="descclassname"></code><code class="descname">solve_cubic_spline_system</code><span class="sig-paren">(</span>double *<em>y</em>, double *<em>d</em>, int <em>npoint</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv225solve_cubic_spline_systemPdPdi" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv232compute_cubic_spline_int_weightsPdi">
+<span id="compute_cubic_spline_int_weights__doubleP.i"></span><span class="target" id="hortoncubic__spline_8h_1a315369cd99c13beadc774ca7bcd9adf2"></span>void <code class="descclassname"></code><code class="descname">compute_cubic_spline_int_weights</code><span class="sig-paren">(</span>double *<em>weights</em>, int <em>npoint</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv232compute_cubic_spline_int_weightsPdi" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<dl class="class">
+<dt id="_CPPv211CubicSpline">
+<span id="CubicSpline"></span><span class="target" id="hortonclassCubicSpline"></span><em class="property">class </em></dt>
+<dd><em>#include &lt;cubic_spline.h&gt;</em><p>Construct and use cubic splines, with optional transformation of x-axis and extrapolation rules beyond spline range. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N11CubicSpline11CubicSplineEPdPdP13ExtrapolationP10RTransformi">
+<span id="CubicSpline::CubicSpline__doubleP.doubleP.ExtrapolationP.RTransformP.i"></span><span class="target" id="hortonclassCubicSpline_1af3de63b3ed9a32f1820d063ed7e1cc34"></span><code class="descclassname">CubicSpline::</code><code class="descname">CubicSpline</code><span class="sig-paren">(</span>double *<em>y</em>, double *<em>dt</em>, <a class="reference internal" href="#_CPPv213Extrapolation" title="Extrapolation">Extrapolation</a> *<em>extrapolation</em>, <a class="reference internal" href="mod_horton_grid_rtransform_h.html#_CPPv210RTransform" title="RTransform">RTransform</a> *<em>rtf</em>, int <em>n</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11CubicSpline11CubicSplineEPdPdP13ExtrapolationP10RTransformi" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Create a <a class="reference internal" href="#hortonclassCubicSpline"><span class="std std-ref">CubicSpline</span></a> object. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">y</span></code> - <p>An array with y-values on the grid.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">dt</span></code> - <p>An array with derivatives of y toward the uniform x-axis (thus t-axis).</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">extrapolation</span></code> - <p>An instance of an <a class="reference internal" href="#hortonclassExtrapolation"><span class="std std-ref">Extrapolation</span></a> subclass that describes the function outside the spline range.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">rtf</span></code> - <p>The transformation from the t-axis to the x-axis.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">n</span></code> - <p>The number of grid points. </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N11CubicSpline4evalEPKdPdi">
+<span id="CubicSpline::eval__doubleCP.doubleP.i"></span><span class="target" id="hortonclassCubicSpline_1a5267c7bf02d786eb4c86200c10d9f702"></span>void <code class="descclassname">CubicSpline::</code><code class="descname">eval</code><span class="sig-paren">(</span><em class="property">const</em> double *<em>new_x</em>, double *<em>new_y</em>, int <em>new_n</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11CubicSpline4evalEPKdPdi" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Evaluate the cubic spline in a set of new x values. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">new_x</span></code> - <p>An array with new x values.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">new_y</span></code> - <p>An output array with the corresponding y values.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">new_n</span></code> - <p>The number of values in new_x. </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N11CubicSpline10eval_derivEPKdPdi">
+<span id="CubicSpline::eval_deriv__doubleCP.doubleP.i"></span><span class="target" id="hortonclassCubicSpline_1a6f15764cc14cbf9dcc1fc3fda34f3af6"></span>void <code class="descclassname">CubicSpline::</code><code class="descname">eval_deriv</code><span class="sig-paren">(</span><em class="property">const</em> double *<em>new_x</em>, double *<em>new_dx</em>, int <em>new_n</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11CubicSpline10eval_derivEPKdPdi" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Evaluate the derivative of the cubic spline (dy/dx) in a set of new x values. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">new_x</span></code> - <p>An array with new x values.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">new_dx</span></code> - <p>An output array with the corresponding dy/dx values.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">new_n</span></code> - <p>The number of values in new_x. </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N11CubicSpline14get_rtransformEv">
+<span id="CubicSpline::get_rtransform"></span><span class="target" id="hortonclassCubicSpline_1a45cd6181a163b2196873a658ab182436"></span><a class="reference internal" href="mod_horton_grid_rtransform_h.html#_CPPv210RTransform" title="RTransform">RTransform</a> *<code class="descclassname">CubicSpline::</code><code class="descname">get_rtransform</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11CubicSpline14get_rtransformEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the transformation of the x-axis. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N11CubicSpline11get_first_xEv">
+<span id="CubicSpline::get_first_x"></span><span class="target" id="hortonclassCubicSpline_1a667f0c6f107a308ad41956a5d17705a9"></span>double <code class="descclassname">CubicSpline::</code><code class="descname">get_first_x</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11CubicSpline11get_first_xEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the first grid point on the x-axis (transformed coordinates). </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N11CubicSpline10get_last_xEv">
+<span id="CubicSpline::get_last_x"></span><span class="target" id="hortonclassCubicSpline_1a3fb4a46529b4dd26dc877155c1777c15"></span>double <code class="descclassname">CubicSpline::</code><code class="descname">get_last_x</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11CubicSpline10get_last_xEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the last grid point on the x-axis (transformed coordinates). </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N11CubicSpline17get_extrapolationEv">
+<span id="CubicSpline::get_extrapolation"></span><span class="target" id="hortonclassCubicSpline_1a3c5f4cfd10df95dd6aa4845eca13d54a"></span><a class="reference internal" href="#_CPPv213Extrapolation" title="Extrapolation">Extrapolation</a> *<code class="descclassname">CubicSpline::</code><code class="descname">get_extrapolation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11CubicSpline17get_extrapolationEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the extrapolation function used outside the spline range. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="member">
+<dt id="_CPPv2N11CubicSpline1yE">
+<span id="CubicSpline::y__doubleP"></span><span class="target" id="hortonclassCubicSpline_1a36cd0c388772bf61e574a810f34d7b32"></span>double *<code class="descclassname">CubicSpline::</code><code class="descname">y</code><a class="headerlink" href="#_CPPv2N11CubicSpline1yE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The y-values of the spline at each grid point. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N11CubicSpline2dtE">
+<span id="CubicSpline::dt__doubleP"></span><span class="target" id="hortonclassCubicSpline_1a9a17cd1052d174003567012692074618"></span>double *<code class="descclassname">CubicSpline::</code><code class="descname">dt</code><a class="headerlink" href="#_CPPv2N11CubicSpline2dtE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The derivative towards the t-axis (uniform x-axis). </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N11CubicSpline1nE">
+<span id="CubicSpline::n__i"></span><span class="target" id="hortonclassCubicSpline_1a0204811e45641415d7e4e79a163d7443"></span>int <code class="descclassname">CubicSpline::</code><code class="descname">n</code><a class="headerlink" href="#_CPPv2N11CubicSpline1nE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The number of grid points. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv2N11CubicSpline13extrapolationE">
+<span id="CubicSpline::extrapolation__ExtrapolationP"></span><span class="target" id="hortonclassCubicSpline_1a71809209c9cb348a91fb6645b094f8ab"></span><a class="reference internal" href="#_CPPv213Extrapolation" title="Extrapolation">Extrapolation</a> *<code class="descclassname">CubicSpline::</code><code class="descname">extrapolation</code><a class="headerlink" href="#_CPPv2N11CubicSpline13extrapolationE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Describes how function goes outside spline range. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N11CubicSpline3rtfE">
+<span id="CubicSpline::rtf__RTransformP"></span><span class="target" id="hortonclassCubicSpline_1a5017c4d8d0bc35ced694d0e0766b1d5e"></span><a class="reference internal" href="mod_horton_grid_rtransform_h.html#_CPPv210RTransform" title="RTransform">RTransform</a> *<code class="descclassname">CubicSpline::</code><code class="descname">rtf</code><a class="headerlink" href="#_CPPv2N11CubicSpline3rtfE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Transformation of the x-axis. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N11CubicSpline7first_xE">
+<span id="CubicSpline::first_x__double"></span><span class="target" id="hortonclassCubicSpline_1a1e1bd17d59f2ab38ae315ec819c780c1"></span>double <code class="descclassname">CubicSpline::</code><code class="descname">first_x</code><a class="headerlink" href="#_CPPv2N11CubicSpline7first_xE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Transformed first grid point. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N11CubicSpline6last_xE">
+<span id="CubicSpline::last_x__double"></span><span class="target" id="hortonclassCubicSpline_1ad884881bb3f590b461607ee15f5f5146"></span>double <code class="descclassname">CubicSpline::</code><code class="descname">last_x</code><a class="headerlink" href="#_CPPv2N11CubicSpline6last_xE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Transformed last grid point. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv213Extrapolation">
+<span id="Extrapolation"></span><span class="target" id="hortonclassExtrapolation"></span><em class="property">class </em></dt>
+<dd><em>#include &lt;cubic_spline.h&gt;</em><p>Base class for extrapolation of cubic splines outside their range. </p>
+<p>Subclassed by <a class="reference internal" href="#hortonclassCuspExtrapolation"><span class="std std-ref">CuspExtrapolation</span></a>, <a class="reference internal" href="#hortonclassPotentialExtrapolation"><span class="std std-ref">PotentialExtrapolation</span></a>, <a class="reference internal" href="#hortonclassPowerExtrapolation"><span class="std std-ref">PowerExtrapolation</span></a>, <a class="reference internal" href="#hortonclassZeroExtrapolation"><span class="std std-ref">ZeroExtrapolation</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N13Extrapolation13ExtrapolationEv">
+<span id="Extrapolation::Extrapolation"></span><span class="target" id="hortonclassExtrapolation_1a420d6493457ac057ee4c805e2b9639b3"></span><code class="descclassname">Extrapolation::</code><code class="descname">Extrapolation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N13Extrapolation13ExtrapolationEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Constructor. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N13ExtrapolationD0Ev">
+<span id="Extrapolation::~Extrapolation"></span><span class="target" id="hortonclassExtrapolation_1a8e369a5684e7a0284296883f62648bc7"></span><em class="property">virtual</em> <code class="descclassname">Extrapolation::</code><code class="descname">~Extrapolation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N13ExtrapolationD0Ev" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Destructor. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N13Extrapolation7prepareEP11CubicSpline">
+<span id="Extrapolation::prepare__CubicSplineP"></span><span class="target" id="hortonclassExtrapolation_1ab253b8809f6784589cde4122e676fd55"></span><em class="property">virtual</em> void <code class="descclassname">Extrapolation::</code><code class="descname">prepare</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv211CubicSpline" title="CubicSpline">CubicSpline</a> *<em>cs</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N13Extrapolation7prepareEP11CubicSpline" title="Permalink to this definition">¶</a><br /> = 0</dt>
+<dd><p>Derive parameters from spline. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N13Extrapolation9eval_leftEd">
+<span id="Extrapolation::eval_left__double"></span><span class="target" id="hortonclassExtrapolation_1aa41349944baf7cc5124182855a4d8126"></span><em class="property">virtual</em> double <code class="descclassname">Extrapolation::</code><code class="descname">eval_left</code><span class="sig-paren">(</span>double <em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N13Extrapolation9eval_leftEd" title="Permalink to this definition">¶</a><br /> = 0</dt>
+<dd><p>Compute extrapolation for low x. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N13Extrapolation10eval_rightEd">
+<span id="Extrapolation::eval_right__double"></span><span class="target" id="hortonclassExtrapolation_1a8fb79bd75e22d04a3654eedf4defeb8f"></span><em class="property">virtual</em> double <code class="descclassname">Extrapolation::</code><code class="descname">eval_right</code><span class="sig-paren">(</span>double <em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N13Extrapolation10eval_rightEd" title="Permalink to this definition">¶</a><br /> = 0</dt>
+<dd><p>Derivative of extrapolation for low x. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N13Extrapolation10deriv_leftEd">
+<span id="Extrapolation::deriv_left__double"></span><span class="target" id="hortonclassExtrapolation_1a82196dafd148f2e3f39823bfba3f3b4b"></span><em class="property">virtual</em> double <code class="descclassname">Extrapolation::</code><code class="descname">deriv_left</code><span class="sig-paren">(</span>double <em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N13Extrapolation10deriv_leftEd" title="Permalink to this definition">¶</a><br /> = 0</dt>
+<dd><p>Compute extrapolation for high x. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N13Extrapolation11deriv_rightEd">
+<span id="Extrapolation::deriv_right__double"></span><span class="target" id="hortonclassExtrapolation_1a2d766951e601996b29559d42f41e50c4"></span><em class="property">virtual</em> double <code class="descclassname">Extrapolation::</code><code class="descname">deriv_right</code><span class="sig-paren">(</span>double <em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N13Extrapolation11deriv_rightEd" title="Permalink to this definition">¶</a><br /> = 0</dt>
+<dd><p>Derivative of extrapolation for high x. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N13Extrapolation8has_tailEv">
+<span id="Extrapolation::has_tail"></span><span class="target" id="hortonclassExtrapolation_1a8d60d9d13014e390274f72daec747ae0"></span><em class="property">virtual</em> bool <code class="descclassname">Extrapolation::</code><code class="descname">has_tail</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N13Extrapolation8has_tailEv" title="Permalink to this definition">¶</a><br /> = 0</dt>
+<dd><p>Returns true if right extrapolation is nonzero. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv217ZeroExtrapolation">
+<span id="ZeroExtrapolation"></span><span class="target" id="hortonclassZeroExtrapolation"></span><em class="property">class </em></dt>
+<dd><em>#include &lt;cubic_spline.h&gt;</em><p>No extrapolation at all. Returns zero outside the spline range. </p>
+<p>Inherits from <a class="reference internal" href="#hortonclassExtrapolation"><span class="std std-ref">Extrapolation</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N17ZeroExtrapolation7prepareEP11CubicSpline">
+<span id="ZeroExtrapolation::prepare__CubicSplineP"></span><span class="target" id="hortonclassZeroExtrapolation_1a83894b1551c4daa518c14be00debe204"></span>void <code class="descclassname">ZeroExtrapolation::</code><code class="descname">prepare</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv211CubicSpline" title="CubicSpline">CubicSpline</a> *<em>cs</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N17ZeroExtrapolation7prepareEP11CubicSpline" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Derive parameters from spline. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N17ZeroExtrapolation9eval_leftEd">
+<span id="ZeroExtrapolation::eval_left__double"></span><span class="target" id="hortonclassZeroExtrapolation_1aa6c459b2a63b942bafa44838b370f60c"></span>double <code class="descclassname">ZeroExtrapolation::</code><code class="descname">eval_left</code><span class="sig-paren">(</span>double <em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N17ZeroExtrapolation9eval_leftEd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Compute extrapolation for low x. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N17ZeroExtrapolation10eval_rightEd">
+<span id="ZeroExtrapolation::eval_right__double"></span><span class="target" id="hortonclassZeroExtrapolation_1aae2fa1626c14d9bcb8e1cc64fbb4133c"></span>double <code class="descclassname">ZeroExtrapolation::</code><code class="descname">eval_right</code><span class="sig-paren">(</span>double <em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N17ZeroExtrapolation10eval_rightEd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Derivative of extrapolation for low x. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N17ZeroExtrapolation10deriv_leftEd">
+<span id="ZeroExtrapolation::deriv_left__double"></span><span class="target" id="hortonclassZeroExtrapolation_1a31af1f95371158a2e314c1445b911872"></span>double <code class="descclassname">ZeroExtrapolation::</code><code class="descname">deriv_left</code><span class="sig-paren">(</span>double <em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N17ZeroExtrapolation10deriv_leftEd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Compute extrapolation for high x. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N17ZeroExtrapolation11deriv_rightEd">
+<span id="ZeroExtrapolation::deriv_right__double"></span><span class="target" id="hortonclassZeroExtrapolation_1a8d2166d0cf7f2422e789eba321ceb7d2"></span>double <code class="descclassname">ZeroExtrapolation::</code><code class="descname">deriv_right</code><span class="sig-paren">(</span>double <em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N17ZeroExtrapolation11deriv_rightEd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Derivative of extrapolation for high x. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N17ZeroExtrapolation8has_tailEv">
+<span id="ZeroExtrapolation::has_tail"></span><span class="target" id="hortonclassZeroExtrapolation_1a3858849cc36989bca4539f3f751ecd20"></span><em class="property">virtual</em> bool <code class="descclassname">ZeroExtrapolation::</code><code class="descname">has_tail</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N17ZeroExtrapolation8has_tailEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Returns false because tail is zero. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv217CuspExtrapolation">
+<span id="CuspExtrapolation"></span><span class="target" id="hortonclassCuspExtrapolation"></span><em class="property">class </em></dt>
+<dd><em>#include &lt;cubic_spline.h&gt;</em><p>An extrapolation suitable for electronic densities. It uses a 1s Slater-type density function close to the nucleus. </p>
+<p>Inherits from <a class="reference internal" href="#hortonclassExtrapolation"><span class="std std-ref">Extrapolation</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N17CuspExtrapolation17CuspExtrapolationEv">
+<span id="CuspExtrapolation::CuspExtrapolation"></span><span class="target" id="hortonclassCuspExtrapolation_1a165f22782b015878b41c7726c356632d"></span><code class="descclassname">CuspExtrapolation::</code><code class="descname">CuspExtrapolation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N17CuspExtrapolation17CuspExtrapolationEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Constructor. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N17CuspExtrapolation7prepareEP11CubicSpline">
+<span id="CuspExtrapolation::prepare__CubicSplineP"></span><span class="target" id="hortonclassCuspExtrapolation_1a693e59c1aa4ef27f06fbbf5e8fb0e8e2"></span>void <code class="descclassname">CuspExtrapolation::</code><code class="descname">prepare</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv211CubicSpline" title="CubicSpline">CubicSpline</a> *<em>cs</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N17CuspExtrapolation7prepareEP11CubicSpline" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Derive parameters from spline. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N17CuspExtrapolation9eval_leftEd">
+<span id="CuspExtrapolation::eval_left__double"></span><span class="target" id="hortonclassCuspExtrapolation_1a6a491a0fc7f05fb17cf405b9e3f42b3b"></span>double <code class="descclassname">CuspExtrapolation::</code><code class="descname">eval_left</code><span class="sig-paren">(</span>double <em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N17CuspExtrapolation9eval_leftEd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Compute extrapolation for low x. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N17CuspExtrapolation10eval_rightEd">
+<span id="CuspExtrapolation::eval_right__double"></span><span class="target" id="hortonclassCuspExtrapolation_1a58b1accdae43a978772d1b83fbf544c7"></span>double <code class="descclassname">CuspExtrapolation::</code><code class="descname">eval_right</code><span class="sig-paren">(</span>double <em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N17CuspExtrapolation10eval_rightEd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Derivative of extrapolation for low x. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N17CuspExtrapolation10deriv_leftEd">
+<span id="CuspExtrapolation::deriv_left__double"></span><span class="target" id="hortonclassCuspExtrapolation_1a0bea8b475785f3bbe81d6514ebb24fb3"></span>double <code class="descclassname">CuspExtrapolation::</code><code class="descname">deriv_left</code><span class="sig-paren">(</span>double <em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N17CuspExtrapolation10deriv_leftEd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Compute extrapolation for high x. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N17CuspExtrapolation11deriv_rightEd">
+<span id="CuspExtrapolation::deriv_right__double"></span><span class="target" id="hortonclassCuspExtrapolation_1a2b8cf9b3f5cb1564dd358fb0938c1674"></span>double <code class="descclassname">CuspExtrapolation::</code><code class="descname">deriv_right</code><span class="sig-paren">(</span>double <em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N17CuspExtrapolation11deriv_rightEd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Derivative of extrapolation for high x. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N17CuspExtrapolation8has_tailEv">
+<span id="CuspExtrapolation::has_tail"></span><span class="target" id="hortonclassCuspExtrapolation_1a2ea8bfa1ff25b3a3e219e3d3815324b6"></span><em class="property">virtual</em> bool <code class="descclassname">CuspExtrapolation::</code><code class="descname">has_tail</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N17CuspExtrapolation8has_tailEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Returns false because tail is zero. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv2N17CuspExtrapolation2a0E">
+<span id="CuspExtrapolation::a0__double"></span><span class="target" id="hortonclassCuspExtrapolation_1aca07283b66853a97d1ce239cd594c455"></span>double <code class="descclassname">CuspExtrapolation::</code><code class="descname">a0</code><a class="headerlink" href="#_CPPv2N17CuspExtrapolation2a0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The value of the spline at the first grid point. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N17CuspExtrapolation2b0E">
+<span id="CuspExtrapolation::b0__double"></span><span class="target" id="hortonclassCuspExtrapolation_1a056ed03d66b7ade774d0b01bb8bf26c3"></span>double <code class="descclassname">CuspExtrapolation::</code><code class="descname">b0</code><a class="headerlink" href="#_CPPv2N17CuspExtrapolation2b0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The exponent of the 1s Slater-type function for the cusp. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N17CuspExtrapolation2x0E">
+<span id="CuspExtrapolation::x0__double"></span><span class="target" id="hortonclassCuspExtrapolation_1aeb512d795c56b1f7da5e45760dadf99a"></span>double <code class="descclassname">CuspExtrapolation::</code><code class="descname">x0</code><a class="headerlink" href="#_CPPv2N17CuspExtrapolation2x0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The position of the first grid point. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv218PowerExtrapolation">
+<span id="PowerExtrapolation"></span><span class="target" id="hortonclassPowerExtrapolation"></span><em class="property">class </em></dt>
+<dd><em>#include &lt;cubic_spline.h&gt;</em><p>An extrapolation with a polynomial of arbitrary order for high x values. </p>
+<p>The prefactor of the polynomial is such that the function remains continuous at the last grid point of the spline. </p>
+<p>Inherits from <a class="reference internal" href="#hortonclassExtrapolation"><span class="std std-ref">Extrapolation</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N18PowerExtrapolation18PowerExtrapolationEd">
+<span id="PowerExtrapolation::PowerExtrapolation__double"></span><span class="target" id="hortonclassPowerExtrapolation_1a52b6dc3921780687b19692a889c80229"></span><code class="descclassname">PowerExtrapolation::</code><code class="descname">PowerExtrapolation</code><span class="sig-paren">(</span>double <em>power</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18PowerExtrapolation18PowerExtrapolationEd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#hortonclassPowerExtrapolation"><span class="std std-ref">PowerExtrapolation</span></a>. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">power</span></code> - <p>The power of the polynomial tail, i.e. extrapolation on the right. </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N18PowerExtrapolation7prepareEP11CubicSpline">
+<span id="PowerExtrapolation::prepare__CubicSplineP"></span><span class="target" id="hortonclassPowerExtrapolation_1a17310648481fbcb5a6808ea04d2a3ade"></span>void <code class="descclassname">PowerExtrapolation::</code><code class="descname">prepare</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv211CubicSpline" title="CubicSpline">CubicSpline</a> *<em>cs</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18PowerExtrapolation7prepareEP11CubicSpline" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Derive parameters from spline. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N18PowerExtrapolation9eval_leftEd">
+<span id="PowerExtrapolation::eval_left__double"></span><span class="target" id="hortonclassPowerExtrapolation_1a05d7647fccc0688c5d0ab2b186079f50"></span>double <code class="descclassname">PowerExtrapolation::</code><code class="descname">eval_left</code><span class="sig-paren">(</span>double <em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18PowerExtrapolation9eval_leftEd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Compute extrapolation for low x. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N18PowerExtrapolation10eval_rightEd">
+<span id="PowerExtrapolation::eval_right__double"></span><span class="target" id="hortonclassPowerExtrapolation_1aa9e4926ed716882e71f450b4e21cdae4"></span>double <code class="descclassname">PowerExtrapolation::</code><code class="descname">eval_right</code><span class="sig-paren">(</span>double <em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18PowerExtrapolation10eval_rightEd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Derivative of extrapolation for low x. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N18PowerExtrapolation10deriv_leftEd">
+<span id="PowerExtrapolation::deriv_left__double"></span><span class="target" id="hortonclassPowerExtrapolation_1aa2f5befc7504399f7019f73225de0550"></span>double <code class="descclassname">PowerExtrapolation::</code><code class="descname">deriv_left</code><span class="sig-paren">(</span>double <em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18PowerExtrapolation10deriv_leftEd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Compute extrapolation for high x. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N18PowerExtrapolation11deriv_rightEd">
+<span id="PowerExtrapolation::deriv_right__double"></span><span class="target" id="hortonclassPowerExtrapolation_1ab5b14ded6a1e252b73c3c96e838c31a6"></span>double <code class="descclassname">PowerExtrapolation::</code><code class="descname">deriv_right</code><span class="sig-paren">(</span>double <em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18PowerExtrapolation11deriv_rightEd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Derivative of extrapolation for high x. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N18PowerExtrapolation8has_tailEv">
+<span id="PowerExtrapolation::has_tail"></span><span class="target" id="hortonclassPowerExtrapolation_1a6ee570250f373187ff76cacda9999f3d"></span><em class="property">virtual</em> bool <code class="descclassname">PowerExtrapolation::</code><code class="descname">has_tail</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18PowerExtrapolation8has_tailEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Returns true because if R**power tail. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N18PowerExtrapolation9get_powerEv">
+<span id="PowerExtrapolation::get_power"></span><span class="target" id="hortonclassPowerExtrapolation_1a22901fc06ce394d1966faa317d6f1104"></span>double <code class="descclassname">PowerExtrapolation::</code><code class="descname">get_power</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N18PowerExtrapolation9get_powerEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The power of the polynomial tail. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv2N18PowerExtrapolation3ampE">
+<span id="PowerExtrapolation::amp__double"></span><span class="target" id="hortonclassPowerExtrapolation_1a9b243ae9d592a1c27e7a4cc87baadb2b"></span>double <code class="descclassname">PowerExtrapolation::</code><code class="descname">amp</code><a class="headerlink" href="#_CPPv2N18PowerExtrapolation3ampE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The prefactor of the polynomial. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N18PowerExtrapolation5powerE">
+<span id="PowerExtrapolation::power__double"></span><span class="target" id="hortonclassPowerExtrapolation_1a8c11854c63c37fb4186eb763d84e6150"></span>double <code class="descclassname">PowerExtrapolation::</code><code class="descname">power</code><a class="headerlink" href="#_CPPv2N18PowerExtrapolation5powerE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The power of the polynomial. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv222PotentialExtrapolation">
+<span id="PotentialExtrapolation"></span><span class="target" id="hortonclassPotentialExtrapolation"></span><em class="property">class </em></dt>
+<dd><em>#include &lt;cubic_spline.h&gt;</em><p>An extrapolation suitable for solutions of the Poisson equation. </p>
+<p>The prefactor of the left and right polynomial are such that the function remains continuous at the last grid point of the spline. The power of R on the left and right side is consistent with the boundary conditions of the solutions of the Poisson equation. </p>
+<p>Inherits from <a class="reference internal" href="#hortonclassExtrapolation"><span class="std std-ref">Extrapolation</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N22PotentialExtrapolation22PotentialExtrapolationE7int64_t">
+<span id="PotentialExtrapolation::PotentialExtrapolation__int64_t"></span><span class="target" id="hortonclassPotentialExtrapolation_1a219fca53e8ae785afcf895b6b2adcb06"></span><code class="descclassname">PotentialExtrapolation::</code><code class="descname">PotentialExtrapolation</code><span class="sig-paren">(</span>int64_t <em>l</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N22PotentialExtrapolation22PotentialExtrapolationE7int64_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#hortonclassPotentialExtrapolation"><span class="std std-ref">PotentialExtrapolation</span></a>. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">l</span></code> - <p>The angular momentum for which the Coulomb potential is generated. </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N22PotentialExtrapolation7prepareEP11CubicSpline">
+<span id="PotentialExtrapolation::prepare__CubicSplineP"></span><span class="target" id="hortonclassPotentialExtrapolation_1ad59965b85186c5e6293e4c8f7b5263f8"></span>void <code class="descclassname">PotentialExtrapolation::</code><code class="descname">prepare</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv211CubicSpline" title="CubicSpline">CubicSpline</a> *<em>cs</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N22PotentialExtrapolation7prepareEP11CubicSpline" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Derive parameters from spline. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N22PotentialExtrapolation9eval_leftEd">
+<span id="PotentialExtrapolation::eval_left__double"></span><span class="target" id="hortonclassPotentialExtrapolation_1a1de2c01fa61d56e253a22fca75c75cae"></span>double <code class="descclassname">PotentialExtrapolation::</code><code class="descname">eval_left</code><span class="sig-paren">(</span>double <em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N22PotentialExtrapolation9eval_leftEd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Compute extrapolation for low x. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N22PotentialExtrapolation10eval_rightEd">
+<span id="PotentialExtrapolation::eval_right__double"></span><span class="target" id="hortonclassPotentialExtrapolation_1a262ad99d57d5f5472e89b2eb000db085"></span>double <code class="descclassname">PotentialExtrapolation::</code><code class="descname">eval_right</code><span class="sig-paren">(</span>double <em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N22PotentialExtrapolation10eval_rightEd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Derivative of extrapolation for low x. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N22PotentialExtrapolation10deriv_leftEd">
+<span id="PotentialExtrapolation::deriv_left__double"></span><span class="target" id="hortonclassPotentialExtrapolation_1af0ba6ce99b0dcd50b9e9e160ce117506"></span>double <code class="descclassname">PotentialExtrapolation::</code><code class="descname">deriv_left</code><span class="sig-paren">(</span>double <em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N22PotentialExtrapolation10deriv_leftEd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Compute extrapolation for high x. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N22PotentialExtrapolation11deriv_rightEd">
+<span id="PotentialExtrapolation::deriv_right__double"></span><span class="target" id="hortonclassPotentialExtrapolation_1a1043e3bf81af9e73947cf11a2a694e5e"></span>double <code class="descclassname">PotentialExtrapolation::</code><code class="descname">deriv_right</code><span class="sig-paren">(</span>double <em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N22PotentialExtrapolation11deriv_rightEd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Derivative of extrapolation for high x. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N22PotentialExtrapolation8has_tailEv">
+<span id="PotentialExtrapolation::has_tail"></span><span class="target" id="hortonclassPotentialExtrapolation_1a3ae53bbdc672d975b8911c9949d046fa"></span><em class="property">virtual</em> bool <code class="descclassname">PotentialExtrapolation::</code><code class="descname">has_tail</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N22PotentialExtrapolation8has_tailEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Returns true because if 1/R**(l+1) tail. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N22PotentialExtrapolation5get_lEv">
+<span id="PotentialExtrapolation::get_l"></span><span class="target" id="hortonclassPotentialExtrapolation_1af19d8e9486691de3f1c2d512723f0567"></span>int64_t <code class="descclassname">PotentialExtrapolation::</code><code class="descname">get_l</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N22PotentialExtrapolation5get_lEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The angular momentum of the Coulomb potential spline. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N22PotentialExtrapolation12get_amp_leftEv">
+<span id="PotentialExtrapolation::get_amp_left"></span><span class="target" id="hortonclassPotentialExtrapolation_1a7b256367c09f5a181f744c172a62eebb"></span>double <code class="descclassname">PotentialExtrapolation::</code><code class="descname">get_amp_left</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N22PotentialExtrapolation12get_amp_leftEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The prefactor for the polynomial for low x. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N22PotentialExtrapolation13get_amp_rightEv">
+<span id="PotentialExtrapolation::get_amp_right"></span><span class="target" id="hortonclassPotentialExtrapolation_1a2a2cc47bcdd0a54fa6c391ac9589fc28"></span>double <code class="descclassname">PotentialExtrapolation::</code><code class="descname">get_amp_right</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N22PotentialExtrapolation13get_amp_rightEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The prefactor for the polynomial for high x. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv2N22PotentialExtrapolation1lE">
+<span id="PotentialExtrapolation::l__int64_t"></span><span class="target" id="hortonclassPotentialExtrapolation_1acde2fcf536109c21b93782e7a66f08b2"></span>int64_t <code class="descclassname">PotentialExtrapolation::</code><code class="descname">l</code><a class="headerlink" href="#_CPPv2N22PotentialExtrapolation1lE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The angular momentum for which the potential is computed. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N22PotentialExtrapolation8amp_leftE">
+<span id="PotentialExtrapolation::amp_left__double"></span><span class="target" id="hortonclassPotentialExtrapolation_1a5ca1124620b318c19d3dd92a9fe47b96"></span>double <code class="descclassname">PotentialExtrapolation::</code><code class="descname">amp_left</code><a class="headerlink" href="#_CPPv2N22PotentialExtrapolation8amp_leftE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The prefactor for the polynomial for low x. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N22PotentialExtrapolation9amp_rightE">
+<span id="PotentialExtrapolation::amp_right__double"></span><span class="target" id="hortonclassPotentialExtrapolation_1a2f3f4746d71c91fba078ba3f95af30b5"></span>double <code class="descclassname">PotentialExtrapolation::</code><code class="descname">amp_right</code><a class="headerlink" href="#_CPPv2N22PotentialExtrapolation9amp_rightE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The prefactor for the polynomial for high x. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_grid_evaluate_h.html" class="btn btn-neutral float-right" title="3.4.13. horton/grid/evaluate.h – Evaluation of splines on grids" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_grid_becke_h.html" class="btn btn-neutral" title="3.4.11. horton/grid/becke.h – Becke partitioning weight function" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.0 built from release 2.1.0 (Jul 06, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jul 06, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.1.0 (Jul 06, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

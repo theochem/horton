@@ -1,0 +1,658 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.2.4. horton.correlatedwfn.stepsearch – Step search methods for orbital rotations &mdash; HORTON 2.0.2 (Jun 30, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="HORTON 2.0.2 (Jun 30, 2017) documentation" href="../index.html"/>
+        <link rel="up" title="3.2. horton.correlatedwfn – Methods for correlated wavefunctions" href="pck_horton_correlatedwfn.html"/>
+        <link rel="next" title="3.2.5. horton.correlatedwfn.trustregionopt – Optimization of Newton step" href="mod_horton_correlatedwfn_trustregionopt.html"/>
+        <link rel="prev" title="3.2.3. horton.correlatedwfn.restricted_ap1rog – Correlated wavefunction implementations" href="mod_horton_correlatedwfn_restricted_ap1rog.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> – The main HORTON Package</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_correlatedwfn.html">3.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn</span></code> – Methods for correlated wavefunctions</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_correlatedwfn_geminal.html">3.2.1. <code class="docutils literal"><span class="pre">horton.correlatedwfn.geminal</span></code> – Correlated wavefunction implementations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_correlatedwfn_perturbation.html">3.2.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn.perturbation</span></code> – Perturbation theory module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_correlatedwfn_restricted_ap1rog.html">3.2.3. <code class="docutils literal"><span class="pre">horton.correlatedwfn.restricted_ap1rog</span></code> – Correlated wavefunction implementations</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.2.4. <code class="docutils literal"><span class="pre">horton.correlatedwfn.stepsearch</span></code> – Step search methods for orbital rotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_correlatedwfn_trustregionopt.html">3.2.5. <code class="docutils literal"><span class="pre">horton.correlatedwfn.trustregionopt</span></code> – Optimization of Newton step</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.3. <code class="docutils literal"><span class="pre">horton.espfit</span></code> – Electrostatic potential fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_gbasis.html">3.4. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.5. <code class="docutils literal"><span class="pre">horton.grid</span></code> – Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.6. <code class="docutils literal"><span class="pre">horton.io</span></code> – Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_localization.html">3.7. <code class="docutils literal"><span class="pre">horton.localization</span></code> – Methods for orbital localization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.8. <code class="docutils literal"><span class="pre">horton.matrix</span></code> – One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.9. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> – Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.10. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> – Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_orbital_entanglement.html">3.11. <code class="docutils literal"><span class="pre">horton.orbital_entanglement</span></code> – Methods for measuring orbital entanglement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.12. <code class="docutils literal"><span class="pre">horton.part</span></code> – Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.13. <code class="docutils literal"><span class="pre">horton.scripts</span></code> – Code (solely) used by HORTON’s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+        
+          <li><a href="pck_horton_correlatedwfn.html">3.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn</span></code> – Methods for correlated wavefunctions</a> &raquo;</li>
+        
+      <li>3.2.4. <code class="docutils literal"><span class="pre">horton.correlatedwfn.stepsearch</span></code> – Step search methods for orbital rotations</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/lib/mod_horton_correlatedwfn_stepsearch.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-horton.correlatedwfn.stepsearch">
+<span id="horton-correlatedwfn-stepsearch-step-search-methods-for-orbital-rotations"></span><h1>3.2.4. <code class="docutils literal"><span class="pre">horton.correlatedwfn.stepsearch</span></code> – Step search methods for orbital rotations<a class="headerlink" href="#module-horton.correlatedwfn.stepsearch" title="Permalink to this headline">¶</a></h1>
+<p>Optimize step length for orbital optimization (<code class="docutils literal"><span class="pre">kappa</span></code>) and rotate orbitals.</p>
+<p>Works only with diagonal approximation to the Hessian which is stored as a
+OneIndex instance.</p>
+<dl class="class">
+<dt id="horton.correlatedwfn.stepsearch.StepSearch">
+<em class="property">class </em><code class="descclassname">horton.correlatedwfn.stepsearch.</code><code class="descname">StepSearch</code><span class="sig-paren">(</span><em>lf</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.stepsearch.StepSearch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>lf</dt>
+<dd>A LinalgFactory instance</dd>
+<dt><strong>Keywords:</strong></dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">method:</th><td class="field-body">step search method used, one of <code class="docutils literal"><span class="pre">trust-region</span></code>
+(default), <code class="docutils literal"><span class="pre">None</span></code>, <code class="docutils literal"><span class="pre">backtracking</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">alpha:</th><td class="field-body">scaling factor for step, used in <code class="docutils literal"><span class="pre">backtracking</span></code> and
+<code class="docutils literal"><span class="pre">None</span></code> method (default 0.75)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">c1:</th><td class="field-body">parameter used in <code class="docutils literal"><span class="pre">backtracking</span></code> (default 1e-4)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">minalpha:</th><td class="field-body">minimum step length used in <code class="docutils literal"><span class="pre">backracking</span></code>
+(default 1e-6)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">maxiterouter:</th><td class="field-body">maximum number of step search steps (default 10)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">maxiterinner:</th><td class="field-body">maximum number of optimization steps in each
+step search step (used only in pcg, default 500)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">maxeta:</th><td class="field-body">upper bound for estimated vs actual change in
+<code class="docutils literal"><span class="pre">trust-region</span></code> (default 0.75)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">mineta:</th><td class="field-body">lower bound for estimated vs actual change in
+<code class="docutils literal"><span class="pre">trust-region</span></code> (default 0.25)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">upscale:</th><td class="field-body">scaling factor to increase trust radius in
+<code class="docutils literal"><span class="pre">trust-region</span></code> (default 2.0)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">downscale:</th><td class="field-body">scaling factor to decrease trust radius in
+<code class="docutils literal"><span class="pre">trust-region</span></code> and step length in <code class="docutils literal"><span class="pre">backtracking</span></code>
+(float) (default 0.25)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">trustradius:</th><td class="field-body">initial trust radius (default 0.75)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">maxtrustradius:</th><td class="field-body">maximum trust radius (default 0.75)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">threshold:</th><td class="field-body">trust-region optimization threshold, only used in
+<code class="docutils literal"><span class="pre">pcg</span></code> method of <code class="docutils literal"><span class="pre">trust-region</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">optimizer:</th><td class="field-body">optimizes step to boundary of trust radius. One of
+<code class="docutils literal"><span class="pre">pcg</span></code>, <code class="docutils literal"><span class="pre">dogleg</span></code>, <code class="docutils literal"><span class="pre">ddl</span></code> (default ddl)</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+<dl class="method">
+<dt id="horton.correlatedwfn.stepsearch.StepSearch.__call__">
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>obj</em>, <em>one</em>, <em>two</em>, <em>orb</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.stepsearch.StepSearch.__call__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.stepsearch.StepSearch.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>lf</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.stepsearch.StepSearch.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>lf</dt>
+<dd>A LinalgFactory instance</dd>
+<dt><strong>Keywords:</strong></dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">method:</th><td class="field-body">step search method used, one of <code class="docutils literal"><span class="pre">trust-region</span></code>
+(default), <code class="docutils literal"><span class="pre">None</span></code>, <code class="docutils literal"><span class="pre">backtracking</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">alpha:</th><td class="field-body">scaling factor for step, used in <code class="docutils literal"><span class="pre">backtracking</span></code> and
+<code class="docutils literal"><span class="pre">None</span></code> method (default 0.75)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">c1:</th><td class="field-body">parameter used in <code class="docutils literal"><span class="pre">backtracking</span></code> (default 1e-4)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">minalpha:</th><td class="field-body">minimum step length used in <code class="docutils literal"><span class="pre">backracking</span></code>
+(default 1e-6)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">maxiterouter:</th><td class="field-body">maximum number of step search steps (default 10)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">maxiterinner:</th><td class="field-body">maximum number of optimization steps in each
+step search step (used only in pcg, default 500)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">maxeta:</th><td class="field-body">upper bound for estimated vs actual change in
+<code class="docutils literal"><span class="pre">trust-region</span></code> (default 0.75)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">mineta:</th><td class="field-body">lower bound for estimated vs actual change in
+<code class="docutils literal"><span class="pre">trust-region</span></code> (default 0.25)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">upscale:</th><td class="field-body">scaling factor to increase trust radius in
+<code class="docutils literal"><span class="pre">trust-region</span></code> (default 2.0)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">downscale:</th><td class="field-body">scaling factor to decrease trust radius in
+<code class="docutils literal"><span class="pre">trust-region</span></code> and step length in <code class="docutils literal"><span class="pre">backtracking</span></code>
+(float) (default 0.25)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">trustradius:</th><td class="field-body">initial trust radius (default 0.75)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">maxtrustradius:</th><td class="field-body">maximum trust radius (default 0.75)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">threshold:</th><td class="field-body">trust-region optimization threshold, only used in
+<code class="docutils literal"><span class="pre">pcg</span></code> method of <code class="docutils literal"><span class="pre">trust-region</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">optimizer:</th><td class="field-body">optimizes step to boundary of trust radius. One of
+<code class="docutils literal"><span class="pre">pcg</span></code>, <code class="docutils literal"><span class="pre">dogleg</span></code>, <code class="docutils literal"><span class="pre">ddl</span></code> (default ddl)</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.stepsearch.StepSearch.update_alpha">
+<code class="descname">update_alpha</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.stepsearch.StepSearch.update_alpha" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update current scaling factor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.stepsearch.StepSearch.update_trustradius">
+<code class="descname">update_trustradius</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.stepsearch.StepSearch.update_trustradius" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update current trastradius</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.correlatedwfn.stepsearch.RStepSearch">
+<em class="property">class </em><code class="descclassname">horton.correlatedwfn.stepsearch.</code><code class="descname">RStepSearch</code><span class="sig-paren">(</span><em>lf</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.stepsearch.RStepSearch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#horton.correlatedwfn.stepsearch.StepSearch" title="horton.correlatedwfn.stepsearch.StepSearch"><code class="xref py py-class docutils literal"><span class="pre">horton.correlatedwfn.stepsearch.StepSearch</span></code></a></p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>lf</dt>
+<dd>A LinalgFactory instance</dd>
+<dt><strong>Keywords:</strong></dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">method:</th><td class="field-body">step search method used, one of <code class="docutils literal"><span class="pre">trust-region</span></code>
+(default), <code class="docutils literal"><span class="pre">None</span></code>, <code class="docutils literal"><span class="pre">backtracking</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">alpha:</th><td class="field-body">scaling factor for step, used in <code class="docutils literal"><span class="pre">backtracking</span></code> and
+<code class="docutils literal"><span class="pre">None</span></code> method (default 0.75)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">c1:</th><td class="field-body">parameter used in <code class="docutils literal"><span class="pre">backtracking</span></code> (default 1e-4)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">minalpha:</th><td class="field-body">minimum step length used in <code class="docutils literal"><span class="pre">backracking</span></code>
+(default 1e-6)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">maxiterouter:</th><td class="field-body">maximum number of step search steps (default 10)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">maxiterinner:</th><td class="field-body">maximum number of optimization steps in each
+step search step (used only in pcg, default 500)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">maxeta:</th><td class="field-body">upper bound for estimated vs actual change in
+<code class="docutils literal"><span class="pre">trust-region</span></code> (default 0.75)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">mineta:</th><td class="field-body">lower bound for estimated vs actual change in
+<code class="docutils literal"><span class="pre">trust-region</span></code> (default 0.25)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">upscale:</th><td class="field-body">scaling factor to increase trust radius in
+<code class="docutils literal"><span class="pre">trust-region</span></code> (default 2.0)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">downscale:</th><td class="field-body">scaling factor to decrease trust radius in
+<code class="docutils literal"><span class="pre">trust-region</span></code> and step length in <code class="docutils literal"><span class="pre">backtracking</span></code>
+(float) (default 0.25)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">trustradius:</th><td class="field-body">initial trust radius (default 0.75)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">maxtrustradius:</th><td class="field-body">maximum trust radius (default 0.75)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">threshold:</th><td class="field-body">trust-region optimization threshold, only used in
+<code class="docutils literal"><span class="pre">pcg</span></code> method of <code class="docutils literal"><span class="pre">trust-region</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">optimizer:</th><td class="field-body">optimizes step to boundary of trust radius. One of
+<code class="docutils literal"><span class="pre">pcg</span></code>, <code class="docutils literal"><span class="pre">dogleg</span></code>, <code class="docutils literal"><span class="pre">ddl</span></code> (default ddl)</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+<dl class="method">
+<dt id="horton.correlatedwfn.stepsearch.RStepSearch.__call__">
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.stepsearch.RStepSearch.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optimize Newton-Rapshon step.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>obj</dt>
+<dd>A class instance containing the objective function.</dd>
+<dt>one, two</dt>
+<dd>One- and Two-electron integrals (TwoIndex and FourIndex/Cholesky
+instances)</dd>
+<dt>orb</dt>
+<dd>An Expansion instance. Contains the MO coefficients</dd>
+</dl>
+<p><strong>Keywords:</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.stepsearch.RStepSearch.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>lf</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.stepsearch.RStepSearch.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>lf</dt>
+<dd>A LinalgFactory instance</dd>
+<dt><strong>Keywords:</strong></dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">method:</th><td class="field-body">step search method used, one of <code class="docutils literal"><span class="pre">trust-region</span></code>
+(default), <code class="docutils literal"><span class="pre">None</span></code>, <code class="docutils literal"><span class="pre">backtracking</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">alpha:</th><td class="field-body">scaling factor for step, used in <code class="docutils literal"><span class="pre">backtracking</span></code> and
+<code class="docutils literal"><span class="pre">None</span></code> method (default 0.75)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">c1:</th><td class="field-body">parameter used in <code class="docutils literal"><span class="pre">backtracking</span></code> (default 1e-4)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">minalpha:</th><td class="field-body">minimum step length used in <code class="docutils literal"><span class="pre">backracking</span></code>
+(default 1e-6)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">maxiterouter:</th><td class="field-body">maximum number of step search steps (default 10)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">maxiterinner:</th><td class="field-body">maximum number of optimization steps in each
+step search step (used only in pcg, default 500)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">maxeta:</th><td class="field-body">upper bound for estimated vs actual change in
+<code class="docutils literal"><span class="pre">trust-region</span></code> (default 0.75)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">mineta:</th><td class="field-body">lower bound for estimated vs actual change in
+<code class="docutils literal"><span class="pre">trust-region</span></code> (default 0.25)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">upscale:</th><td class="field-body">scaling factor to increase trust radius in
+<code class="docutils literal"><span class="pre">trust-region</span></code> (default 2.0)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">downscale:</th><td class="field-body">scaling factor to decrease trust radius in
+<code class="docutils literal"><span class="pre">trust-region</span></code> and step length in <code class="docutils literal"><span class="pre">backtracking</span></code>
+(float) (default 0.25)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">trustradius:</th><td class="field-body">initial trust radius (default 0.75)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">maxtrustradius:</th><td class="field-body">maximum trust radius (default 0.75)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">threshold:</th><td class="field-body">trust-region optimization threshold, only used in
+<code class="docutils literal"><span class="pre">pcg</span></code> method of <code class="docutils literal"><span class="pre">trust-region</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">optimizer:</th><td class="field-body">optimizes step to boundary of trust radius. One of
+<code class="docutils literal"><span class="pre">pcg</span></code>, <code class="docutils literal"><span class="pre">dogleg</span></code>, <code class="docutils literal"><span class="pre">ddl</span></code> (default ddl)</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.stepsearch.RStepSearch.check_line_search_condition">
+<code class="descname">check_line_search_condition</code><span class="sig-paren">(</span><em>cetot</em>, <em>petot</em>, <em>kappa</em>, <em>grad</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.stepsearch.RStepSearch.check_line_search_condition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if Armijo condition is satisfied
+(e_tot(0+alpha*kappa)-e_tot(0) &lt;= c1*alpha*(kappa,grad))</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.stepsearch.RStepSearch.do_backtracking">
+<code class="descname">do_backtracking</code><span class="sig-paren">(</span><em>obj</em>, <em>one</em>, <em>two</em>, <em>orb</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.stepsearch.RStepSearch.do_backtracking" title="Permalink to this definition">¶</a></dt>
+<dd><p>Backtracking line search.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>obj</dt>
+<dd>A class instance containing the objctive function.</dd>
+<dt>one, two</dt>
+<dd>One- and Two-electron integrals (TwoIndex and FourIndex/Cholesky
+instances)</dd>
+<dt>orb</dt>
+<dd>An Expansion instance. Contains the MO coefficients</dd>
+<dt><strong>Keywords:</strong></dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">kappa:</th><td class="field-body">Initial step size (OneIndex instance)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">gradient:</th><td class="field-body">Orbital gradient (OneIndex instance)</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.stepsearch.RStepSearch.do_no_stepsearch">
+<code class="descname">do_no_stepsearch</code><span class="sig-paren">(</span><em>obj</em>, <em>one</em>, <em>two</em>, <em>orb</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.stepsearch.RStepSearch.do_no_stepsearch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scale step size with factor self.alpha</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>obj</dt>
+<dd>A class instance containing the objective function.</dd>
+<dt>one, two</dt>
+<dd>One- and Two-electron integrals (TwoIndex and FourIndex/Cholesky
+instances)</dd>
+<dt>orb</dt>
+<dd>An Expansion instance. Contains the MO coefficients</dd>
+<dt><strong>Keywords:</strong></dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">kappa:</th><td class="field-body">Initial step size (OneIndex instance)</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.stepsearch.RStepSearch.do_trust_region">
+<code class="descname">do_trust_region</code><span class="sig-paren">(</span><em>obj</em>, <em>one</em>, <em>two</em>, <em>orb</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.stepsearch.RStepSearch.do_trust_region" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do trust-region optimization.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>obj</dt>
+<dd>A class instance containing the objective function.</dd>
+<dt>one/two</dt>
+<dd>One and Two-body Hamiltonian (TwoIndex and FourIndex/Cholesky
+instances)</dd>
+<dt>orb</dt>
+<dd>(Expansion instance) An MO expansion</dd>
+<dt><strong>Keywords:</strong></dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">kappa:</th><td class="field-body">Initial step size (OneIndex instance)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">gradient:</th><td class="field-body">Orbital gradient (OneIndex instance)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">hessian:</th><td class="field-body">Orbital Hessian (OneIndex instance)</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.stepsearch.RStepSearch.update_alpha">
+<code class="descname">update_alpha</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.stepsearch.RStepSearch.update_alpha" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update current scaling factor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.correlatedwfn.stepsearch.RStepSearch.update_trustradius">
+<code class="descname">update_trustradius</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.stepsearch.RStepSearch.update_trustradius" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update current trastradius</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_correlatedwfn_trustregionopt.html" class="btn btn-neutral float-right" title="3.2.5. horton.correlatedwfn.trustregionopt – Optimization of Newton step" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_correlatedwfn_restricted_ap1rog.html" class="btn btn-neutral" title="3.2.3. horton.correlatedwfn.restricted_ap1rog – Correlated wavefunction implementations" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.2 built from release 2.0.2 (Jun 30, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 30, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.0.2 (Jun 30, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,527 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.1.2. horton.cext – C++ extensions &mdash; HORTON 2.1.0b1-1-ge018244 (Feb 03, 2017) documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="HORTON 2.1.0b1-1-ge018244 (Feb 03, 2017) documentation" href="../index.html"/>
+        <link rel="up" title="3.1. horton – The main HORTON Package" href="pck_horton.html"/>
+        <link rel="next" title="3.1.3. horton.constants – Physicochemical constants in atomic units" href="mod_horton_constants.html"/>
+        <link rel="prev" title="3.1.1. horton.cache – Avoid recomputation of earlier results and reallocation of existing arrays" href="mod_horton_cache.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.0b1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> &#8211; The main HORTON Package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_cache.html">3.1.1. <code class="docutils literal"><span class="pre">horton.cache</span></code> &#8211; Avoid recomputation of earlier results and reallocation of existing arrays</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.1.2. <code class="docutils literal"><span class="pre">horton.cext</span></code> &#8211; C++ extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_constants.html">3.1.3. <code class="docutils literal"><span class="pre">horton.constants</span></code> &#8211; Physicochemical constants in atomic units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_context.html">3.1.4. <code class="docutils literal"><span class="pre">horton.context</span></code> &#8211; The context in which HORTON is used</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_exceptions.html">3.1.5. <code class="docutils literal"><span class="pre">horton.exceptions</span></code> &#8211; Definition of all excpetions in HORTON</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_log.html">3.1.6. <code class="docutils literal"><span class="pre">horton.log</span></code> &#8211; Screen logging, timing and citation management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_moments.html">3.1.7. <code class="docutils literal"><span class="pre">horton.moments</span></code> &#8211; Auxiliary routines related to multipole moments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_orbital_utils.html">3.1.8. <code class="docutils literal"><span class="pre">horton.orbital_utils</span></code> &#8211; Utility functions for orbital modifications</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_periodic.html">3.1.9. <code class="docutils literal"><span class="pre">horton.periodic</span></code> &#8211; Periodic table of elements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_quadprog.html">3.1.10. <code class="docutils literal"><span class="pre">horton.quadprog</span></code> &#8211; A light-weight quadratic programming solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_symmetry.html">3.1.11. <code class="docutils literal"><span class="pre">horton.symmetry</span></code> &#8211; Geometric symmetries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_units.html">3.1.12. <code class="docutils literal"><span class="pre">horton.units</span></code> &#8211; Conversion from and to atomic units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_utils.html">3.1.13. <code class="docutils literal"><span class="pre">horton.utils</span></code> &#8211; Utility functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_cell_h.html">3.1.14. <code class="docutils literal"><span class="pre">horton/cell.h</span></code> &#8211; Unit cell code to specify periodic boundary conditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_moments_h.html">3.1.15. <code class="docutils literal"><span class="pre">horton/moments.h</span></code> &#8211; Efficient evaluation of various of polynomials</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_nucpot_h.html">3.1.16. <code class="docutils literal"><span class="pre">horton/nucpot.h</span></code> &#8211; Low-level implementation of nuclear potential on a grid</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.2. <code class="docutils literal"><span class="pre">horton.espfit</span></code> &#8211; Electrostatic potential fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_gbasis.html">3.3. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> &#8211; Gaussian basis sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.4. <code class="docutils literal"><span class="pre">horton.grid</span></code> &#8211; Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.5. <code class="docutils literal"><span class="pre">horton.io</span></code> &#8211; Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.6. <code class="docutils literal"><span class="pre">horton.matrix</span></code> &#8211; One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.7. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> &#8211; Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.8. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> &#8211; Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.9. <code class="docutils literal"><span class="pre">horton.part</span></code> &#8211; Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.10. <code class="docutils literal"><span class="pre">horton.scripts</span></code> &#8211; Code (solely) used by HORTON&#8217;s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">HORTON</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+      
+          <li><a href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> &#8211; The main HORTON Package</a> &raquo;</li>
+      
+    <li>3.1.2. <code class="docutils literal"><span class="pre">horton.cext</span></code> &#8211; C++ extensions</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/lib/mod_horton_cext.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-horton.cext">
+<span id="horton-cext-c-extensions"></span><h1>3.1.2. <code class="docutils literal"><span class="pre">horton.cext</span></code> &#8211; C++ extensions<a class="headerlink" href="#module-horton.cext" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="horton.cext.Cell">
+<em class="property">class </em><code class="descclassname">horton.cext.</code><code class="descname">Cell</code><span class="sig-paren">(</span><em>ndarray rvecs=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.cext.Cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Representation of periodic boundary conditions.</p>
+<p>0, 1, 2 and 3 dimensional systems are supported. The cell vectors don&#8217;t
+need to be orthogonal.</p>
+<dl class="method">
+<dt id="horton.cext.Cell.add_rvec">
+<code class="descname">add_rvec</code><span class="sig-paren">(</span><em>self</em>, <em>ndarray delta</em>, <em>ndarray r</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.cext.Cell.add_rvec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a linear combination of real cell vectors, <code class="docutils literal"><span class="pre">r</span></code>, to <code class="docutils literal"><span class="pre">delta</span></code> in-place</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.cext.Cell.dot_rvecs">
+<code class="descname">dot_rvecs</code><span class="sig-paren">(</span><em>self</em>, <em>ndarray cart</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.cext.Cell.dot_rvecs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the corresponding dot product with the rvecs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.cext.Cell.from_hdf5">
+<code class="descname">from_hdf5</code><span class="sig-paren">(</span><em>type cls</em>, <em>grp</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.cext.Cell.from_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a Cell object from data in an HDF5 group</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.cext.Cell.from_parameters">
+<code class="descname">from_parameters</code><span class="sig-paren">(</span><em>type cls</em>, <em>lengths</em>, <em>angles</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.cext.Cell.from_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a cell with the given parameters</p>
+<p>The a vector is always parallel with the x-axis and they point in the
+same direction. The b vector is always in the xy plane and points
+towards the positive y-direction. The c vector points towards the
+positive z-direction.</p>
+<p>The number of elements in the lengths and angles arrays determines
+the number of cell vectors. There are four cases:</p>
+<ul class="simple">
+<li>len(lengths) == 0 and len(angles) == 0: 0 rvecs</li>
+<li>len(lengths) == 1 and len(angles) == 0: 1 rvecs</li>
+<li>len(lengths) == 2 and len(angles) == 1: 2 rvecs</li>
+<li>len(lengths) == 3 and len(angles) == 3: 3 rvecs</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.cext.Cell.g_lincomb">
+<code class="descname">g_lincomb</code><span class="sig-paren">(</span><em>self</em>, <em>ndarray coeffs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.cext.Cell.g_lincomb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a linear combination of reciprocal cell vectors</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.cext.Cell.get_glength">
+<code class="descname">get_glength</code><span class="sig-paren">(</span><em>self</em>, <em>int i</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.cext.Cell.get_glength" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the length of the i-the reciprocal cell vector.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.cext.Cell.get_gspacing">
+<code class="descname">get_gspacing</code><span class="sig-paren">(</span><em>self</em>, <em>int i</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.cext.Cell.get_gspacing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the spacing between the i-the reciprocal cell planes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.cext.Cell.get_ranges_rcut">
+<code class="descname">get_ranges_rcut</code><span class="sig-paren">(</span><em>self</em>, <em>ndarray center</em>, <em>double rcut</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.cext.Cell.get_ranges_rcut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the integer ranges for linear combinations of cell vectors.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>center</dt>
+<dd>The origin of the cutoff sphere</dd>
+<dt>rcut</dt>
+<dd>A cutoff radius</dd>
+</dl>
+<p>The returned ranges span the linear combination of cell vectors that
+can be added to delta to obtain all periodic images within the cutoff
+sphere.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.cext.Cell.get_rlength">
+<code class="descname">get_rlength</code><span class="sig-paren">(</span><em>self</em>, <em>int i</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.cext.Cell.get_rlength" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the length of the i-the real-space cell vector.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.cext.Cell.get_rspacing">
+<code class="descname">get_rspacing</code><span class="sig-paren">(</span><em>self</em>, <em>int i</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.cext.Cell.get_rspacing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the spacing between the i-the real-space cell planes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.cext.Cell.mic">
+<code class="descname">mic</code><span class="sig-paren">(</span><em>self</em>, <em>ndarray delta</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.cext.Cell.mic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the minimum image convention to delta in-place</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.cext.Cell.to_cart">
+<code class="descname">to_cart</code><span class="sig-paren">(</span><em>self</em>, <em>ndarray frac</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.cext.Cell.to_cart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the corresponding Cartesian coordinates</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.cext.Cell.to_frac">
+<code class="descname">to_frac</code><span class="sig-paren">(</span><em>self</em>, <em>ndarray cart</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.cext.Cell.to_frac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the corresponding fractional coordinates</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.cext.Cell.to_hdf5">
+<code class="descname">to_hdf5</code><span class="sig-paren">(</span><em>self</em>, <em>grp</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.cext.Cell.to_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the cell object to an HDF5 group</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.cext.Cell.glengths">
+<code class="descname">glengths</code><a class="headerlink" href="#horton.cext.Cell.glengths" title="Permalink to this definition">¶</a></dt>
+<dd><p>The lengths of the reciprocal-space vectors.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.cext.Cell.gspacings">
+<code class="descname">gspacings</code><a class="headerlink" href="#horton.cext.Cell.gspacings" title="Permalink to this definition">¶</a></dt>
+<dd><p>The (orthogonal) spacing between opposite sides of the reciprocal-space unit cell.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.cext.Cell.gvecs">
+<code class="descname">gvecs</code><a class="headerlink" href="#horton.cext.Cell.gvecs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The reciporcal-space cell vectors, layed out as rows.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.cext.Cell.nvec">
+<code class="descname">nvec</code><a class="headerlink" href="#horton.cext.Cell.nvec" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of cell vectors</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.cext.Cell.parameters">
+<code class="descname">parameters</code><a class="headerlink" href="#horton.cext.Cell.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>The cell parameters (lengths and angles)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.cext.Cell.rlengths">
+<code class="descname">rlengths</code><a class="headerlink" href="#horton.cext.Cell.rlengths" title="Permalink to this definition">¶</a></dt>
+<dd><p>The lengths of the real-space vectors.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.cext.Cell.rspacings">
+<code class="descname">rspacings</code><a class="headerlink" href="#horton.cext.Cell.rspacings" title="Permalink to this definition">¶</a></dt>
+<dd><p>The (orthogonal) spacing between opposite sides of the real-space unit cell.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.cext.Cell.rvecs">
+<code class="descname">rvecs</code><a class="headerlink" href="#horton.cext.Cell.rvecs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The real-space cell vectors, layed out as rows.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.cext.Cell.volume">
+<code class="descname">volume</code><a class="headerlink" href="#horton.cext.Cell.volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>The generalized volume of the unit cell (length, area or volume)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="horton.cext.smart_wrap">
+<code class="descclassname">horton.cext.</code><code class="descname">smart_wrap</code><span class="sig-paren">(</span><em>long i</em>, <em>long shape</em>, <em>long pbc</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.cext.smart_wrap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returned a standardize modulo operation i % shape if pbc is nonzero, -1 otherwise.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="horton.cext.fill_cartesian_polynomials">
+<code class="descclassname">horton.cext.</code><code class="descname">fill_cartesian_polynomials</code><span class="sig-paren">(</span><em>ndarray output</em>, <em>long lmax</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.cext.fill_cartesian_polynomials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fill the output vector with cartesian polynomials</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>output</dt>
+<dd>A double precision numpy array where the first three values are
+x, y and z coordinates.</dd>
+<dt>lmax</dt>
+<dd>The maximum angular momentum to compute.</dd>
+</dl>
+<p>The polynomials are stored according to the conventions set in
+<code class="docutils literal"><span class="pre">get_cartesian_powers</span></code>.</p>
+<p><strong>Returns:</strong></p>
+<p>The index of the first element of the array that contains the polynomials
+of the outermost shell.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="horton.cext.fill_pure_polynomials">
+<code class="descclassname">horton.cext.</code><code class="descname">fill_pure_polynomials</code><span class="sig-paren">(</span><em>ndarray output</em>, <em>long lmax</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.cext.fill_pure_polynomials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fill the output vector with pure polynomials</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>output</dt>
+<dd>This can either be a double precission Numpy vector or 2D array. In
+the first case, the first three values are z, x, and y coordinates.
+In the second case, the first three columns contain z, x and y
+coordinates.</dd>
+<dt>lmax</dt>
+<dd>The maximum angular momentum to compute.</dd>
+</dl>
+<p><strong>Returns:</strong></p>
+<p>The index of the first element of the array that contains the polynomials
+of the outermost shell.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="horton.cext.fill_radial_polynomials">
+<code class="descclassname">horton.cext.</code><code class="descname">fill_radial_polynomials</code><span class="sig-paren">(</span><em>ndarray output</em>, <em>long lmax</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.cext.fill_radial_polynomials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fill the output vector with radial polynomials</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>output</dt>
+<dd>A double precision numpy array where the first element is the radius</dd>
+<dt>lmax</dt>
+<dd>The maximum angular momentum to compute.</dd>
+</dl>
+<p>All elements after the first will be filled up with increasing powers of
+the first element, up to lmax.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="horton.cext.compute_grid_nucpot">
+<code class="descclassname">horton.cext.</code><code class="descname">compute_grid_nucpot</code><span class="sig-paren">(</span><em>ndarray coordinates</em>, <em>ndarray charges</em>, <em>ndarray points</em>, <em>ndarray output</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.cext.compute_grid_nucpot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the potential due to a set of (nuclear) point charges</p>
+<dl class="docutils">
+<dt>coordinates</dt>
+<dd>A (N, 3) float numpy array with Cartesian coordinates of the
+atoms.</dd>
+<dt>charges</dt>
+<dd>A (N,) numpy vector with the atomic charges.</dd>
+<dt>points</dt>
+<dd>An (M, 3) array with grid points where the potential must be
+computed.</dd>
+<dt>output</dt>
+<dd>An (M,) output array in which the potential is stored.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="horton.cext.compute_nucnuc">
+<code class="descclassname">horton.cext.</code><code class="descname">compute_nucnuc</code><span class="sig-paren">(</span><em>ndarray coordinates</em>, <em>ndarray charges</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.cext.compute_nucnuc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute interaction energy of the nuclei</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>coordinates</dt>
+<dd>A (N, 3) float numpy array with Cartesian coordinates of the
+atoms.</dd>
+<dt>charges</dt>
+<dd>A (N,) numpy vector with the atomic charges.</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_constants.html" class="btn btn-neutral float-right" title="3.1.3. horton.constants – Physicochemical constants in atomic units" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_cache.html" class="btn btn-neutral" title="3.1.1. horton.cache – Avoid recomputation of earlier results and reallocation of existing arrays" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.0b1 built from release 2.1.0b1-1-ge018244 (Feb 03, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Feb 03, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.1.0b1-1-ge018244 (Feb 03, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

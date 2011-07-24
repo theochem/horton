@@ -1,0 +1,533 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>1.1. Download and installation on Linux (Fedora and Ubuntu) &mdash; HORTON 2.0.0-244-gaaf5e2b documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="HORTON 2.0.0-244-gaaf5e2b documentation" href="index.html"/>
+        <link rel="up" title="1. Download and Installation" href="user_download_and_install.html"/>
+        <link rel="next" title="1.2. Download and installation on Mac OS X (10.8–10.11)" href="user_download_and_install_mac.html"/>
+        <link rel="prev" title="1. Download and Installation" href="user_download_and_install.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1.1. Download and installation on Linux (Fedora and Ubuntu)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#disclaimer">1.1.1. Disclaimer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#download-the-code">1.1.2. Download the code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dependencies-for-building-installing-and-testing-horton">1.1.3. Dependencies for building, installing and testing HORTON</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#installing-dependencies-with-a-package-manager">1.1.3.1. Installing dependencies with a package manager</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#installing-dependencies-manually">1.1.3.2. Installing dependencies manually</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#compilation-and-installation">1.1.4. Compilation and installation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#build-and-install">1.1.4.1. Build and install</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#overriding-default-compiler-linker-settings-for-libxc-libint2-and-blas">1.1.4.2. Overriding default compiler/linker settings for LibXC, LibInt2 and BLAS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#runtime-configuration">1.1.4.3. Runtime configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#reference-atoms">1.1.5. Reference atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-the-tests">1.1.6. Running the tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#building-the-documentation">1.1.7. Building the documentation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#dependencies">1.1.7.1. Dependencies</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#installing-the-dependencies-with-a-package-manager-and-pip">1.1.7.2. Installing the dependencies with a package manager and PIP</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#actual-build">1.1.7.3. Actual build</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#development-tools">1.1.8. Development tools</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_download_and_install_mac.html">1.2. Download and installation on Mac OS X (10.8&#8211;10.11)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_download_and_install_setup_cfg.html">1.3. Controlling dynamic/static linking against LibXC, LibInt2 and BLAS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_download_and_install_troubleshooting.html">1.4. Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">HORTON</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="user_download_and_install.html">1. Download and Installation</a> &raquo;</li>
+      
+    <li>1.1. Download and installation on Linux (Fedora and Ubuntu)</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/user_download_and_install_linux.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="download-and-installation-on-linux-fedora-and-ubuntu">
+<h1>1.1. Download and installation on Linux (Fedora and Ubuntu)<a class="headerlink" href="#download-and-installation-on-linux-fedora-and-ubuntu" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="disclaimer">
+<h2>1.1.1. Disclaimer<a class="headerlink" href="#disclaimer" title="Permalink to this headline">¶</a></h2>
+<p>HORTON has been tested on Fedora and Ubuntu Linux. If you are running
+another Linux distribution, some of the instructions below may not work.</p>
+</div>
+<div class="section" id="download-the-code">
+<h2>1.1.2. Download the code<a class="headerlink" href="#download-the-code" title="Permalink to this headline">¶</a></h2>
+<p>The latest stable source code release of HORTON can be downloaded here:</p>
+<blockquote>
+<div><a class="reference external" href="https://github.com/theochem/horton/releases/download/2.0.1/horton-2.0.1.tar.gz">https://github.com/theochem/horton/releases/download/2.0.1/horton-2.0.1.tar.gz</a></div></blockquote>
+<p>Choose a suitable directory, e.g. <code class="docutils literal"><span class="pre">~/build</span></code>, download and unpack the archive</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>mkdir -p ~/build
+<span class="nb">cd</span> ~/build
+curl -kLO https://github.com/theochem/horton/releases/download/2.0.1/horton-2.0.1.tar.gz
+tar -xvzf horton-2.0.1.tar.gz
+<span class="nb">cd</span> horton-2.0.1
+</pre></div>
+</div>
+</div>
+<div class="section" id="dependencies-for-building-installing-and-testing-horton">
+<h2>1.1.3. Dependencies for building, installing and testing HORTON<a class="headerlink" href="#dependencies-for-building-installing-and-testing-horton" title="Permalink to this headline">¶</a></h2>
+<p>In order to compile and test HORTON, you need to install relatively recent
+versions of the following programs/libraries:</p>
+<ul class="simple">
+<li>GCC, G++ and GFortran &gt;= 4.9: <a class="reference external" href="http://gcc.gnu.org">http://gcc.gnu.org</a> (In principle the Intel compilers or any other combination of C++11 and Fortran compiler should work. The GNU compilers are used for development and testing.)</li>
+<li>Python &gt;= 2.7, &lt; 3.0: <a class="reference external" href="http://www.python.org/">http://www.python.org/</a> (Also install development files.)</li>
+<li>Nosetests &gt;= 1.1.2: <a class="reference external" href="http://readthedocs.org/docs/nose/en/latest/">http://readthedocs.org/docs/nose/en/latest/</a></li>
+<li>Atlas &gt;= 3.10.1: <a class="reference external" href="http://math-atlas.sourceforge.net/">http://math-atlas.sourceforge.net/</a> (Also install development files. You should be able to use any other BLAS implementation as well.)</li>
+<li>NumPy &gt;= 1.9.1: <a class="reference external" href="http://www.numpy.org/">http://www.numpy.org/</a></li>
+<li>SciPy &gt;= 0.11.0: <a class="reference external" href="http://www.scipy.org/">http://www.scipy.org/</a></li>
+<li>Cython &gt;= 0.17.1: <a class="reference external" href="http://www.cython.org/">http://www.cython.org/</a></li>
+<li>H5Py &gt;= 2.2.1: <a class="reference external" href="http://www.h5py.org/">http://www.h5py.org/</a></li>
+<li>Sympy &gt;= 0.7.1: <a class="reference external" href="http://code.google.com/p/sympy/">http://code.google.com/p/sympy/</a></li>
+<li>Matplotlib &gt;= 1.0: <a class="reference external" href="http://matplotlib.org/">http://matplotlib.org/</a></li>
+<li>LibXC == 2.2.2: <a class="reference external" href="http://www.tddft.org/programs/octopus/wiki/index.php/Libxc">http://www.tddft.org/programs/octopus/wiki/index.php/Libxc</a> (Also install development files.)</li>
+<li>LibInt == 2.0.3: <a class="reference external" href="http://sourceforge.net/p/libint/home">http://sourceforge.net/p/libint/home</a> (Also install development files.)</li>
+<li>Curl &gt;= 7.0: <a class="reference external" href="http://curl.haxx.se/">http://curl.haxx.se/</a></li>
+<li>PIP &gt;= 7.0: <a class="reference external" href="https://pip.pypa.io/">https://pip.pypa.io/</a> (Not required in some scenarios but never bad to have.)</li>
+</ul>
+<div class="section" id="installing-dependencies-with-a-package-manager">
+<h3>1.1.3.1. Installing dependencies with a package manager<a class="headerlink" href="#installing-dependencies-with-a-package-manager" title="Permalink to this headline">¶</a></h3>
+<p>With popular Linux distributions, most of these dependencies can be installed
+with a package manager:</p>
+<ul>
+<li><p class="first"><strong>Ubuntu Linux 16.04</strong>:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo apt-get install gcc g++ gfortran python-dev python-nose libatlas-base-dev <span class="se">\</span>
+            python-scipy cython python-h5py python-sympy <span class="se">\</span>
+            python-matplotlib libxc-dev curl python-pip
+</pre></div>
+</div>
+<p>Note that Ubuntu 16.04 does not have up-to-date packages for all dependencies. LibInt2
+must be compiled manually as explained in <a class="reference internal" href="#linux-manual-dependency-install"><span class="std std-ref">Installing dependencies manually</span></a>. (The
+beta version of LibInt2 that comes with Ubuntu 16.04 is compiled with a too low
+LIBINT2_MAX_AM_ERI value.)</p>
+</li>
+<li><p class="first"><strong>Ubuntu Linux 15.04 and 14.04</strong>:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo apt-get install gcc g++ gfortran python-dev python-nose libatlas-base-dev <span class="se">\</span>
+            python-scipy cython python-h5py python-sympy <span class="se">\</span>
+            python-matplotlib libxc-dev curl python-pip
+pip install --user --upgrade numpy
+</pre></div>
+</div>
+<p>Note that Ubuntu 15.04 and 14.04 do not have up-to-date packages for all dependencies.
+Hence, some are installed with PIP. LibInt2 must be compiled manually as explained in
+<a class="reference internal" href="#linux-manual-dependency-install"><span class="std std-ref">Installing dependencies manually</span></a>.</p>
+</li>
+<li><p class="first"><strong>Fedora Linux 24</strong>:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo dnf install gcc gcc-c++ gcc-gfortran redhat-rpm-config python-devel <span class="se">\</span>
+            python-nose atlas-devel python2-numpy <span class="se">\</span>
+            python2-scipy Cython python2-h5py sympy <span class="se">\</span>
+            python2-matplotlib libxc-devel libint2-devel <span class="se">\</span>
+            curl python-pip
+</pre></div>
+</div>
+</li>
+<li><p class="first"><strong>Fedora Linux 22 and 23</strong>:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo dnf install gcc gcc-c++ gcc-gfortran redhat-rpm-config python-devel <span class="se">\</span>
+            python-nose atlas-devel numpy scipy Cython <span class="se">\</span>
+            h5py sympy python-matplotlib libxc-devel <span class="se">\</span>
+            libint2-devel curl python-pip
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="installing-dependencies-manually">
+<span id="linux-manual-dependency-install"></span><h3>1.1.3.2. Installing dependencies manually<a class="headerlink" href="#installing-dependencies-manually" title="Permalink to this headline">¶</a></h3>
+<p>If the package manager of your Linux distribution does not have the desired
+packages (or the right versions), you have to install them manually, e.g.
+download and execute an installer, or download and unpack a binary package. On
+HPC environments a compilation from scratch is recommended.</p>
+<p><strong>BLAS</strong></p>
+<p>In principle, any BLAS implementation may be used. In case of a custom build,
+some environment variables must be set prior to building HORTON, as discussed
+in <a class="reference internal" href="#linux-compile-install"><span class="std std-ref">Compilation and installation</span></a>.</p>
+<p><strong>LibXC</strong></p>
+<p>The directory <code class="docutils literal"><span class="pre">tooals/qa</span></code> of the HORTON source tree contains scripts to download and
+build LibXC, which will work on most systems:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>./tools/qa/install_libxc-2.2.2.sh
+</pre></div>
+</div>
+<p>This results in a LibXC library suitable for compiling HORTON. If this fails,
+consult your local Linux guru to build LibXC. For more info about LibXC, check
+the website: <a class="reference external" href="http://www.tddft.org/programs/octopus/wiki/index.php/Libxc">http://www.tddft.org/programs/octopus/wiki/index.php/Libxc</a></p>
+<p><strong>LibInt2</strong></p>
+<p>The directory <code class="docutils literal"><span class="pre">tooals/qa</span></code> of the HORTON source tree contains scripts to download and
+build LibInt2, which will work on most systems:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>./tools/qa/install_libint-2.0.3.sh
+</pre></div>
+</div>
+<p>The compilation of LibInt2 takes a few minutes and results in a library suitable for
+compiling HORTON. If this fails, consult your local Linux guru to build LibInt2. For more
+info about LibInt2, check the website: <a class="reference external" href="http://sourceforge.net/p/libint/home">http://sourceforge.net/p/libint/home</a></p>
+<p><strong>Python dependencies</strong></p>
+<p>In some cases, PIP, the Python package manager, may be a good choice to install
+the most recent versions of the Python packages in the list of dependencies. Examples
+are given above for Ubuntu and Fedora.</p>
+</div>
+</div>
+<div class="section" id="compilation-and-installation">
+<span id="linux-compile-install"></span><h2>1.1.4. Compilation and installation<a class="headerlink" href="#compilation-and-installation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="build-and-install">
+<h3>1.1.4.1. Build and install<a class="headerlink" href="#build-and-install" title="Permalink to this headline">¶</a></h3>
+<p>The regular build and install is done as follows:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>./setup.py install --user
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">setup.py</span></code> script makes a reasonable attempt at configuring the compiler and
+linker settings for the LibXC, LibInt2 and BLAS libraries. However, this does
+not work in all environments. In case of a failure, or if a configuration other
+than the default is desired, read the following section.</p>
+</div>
+<div class="section" id="overriding-default-compiler-linker-settings-for-libxc-libint2-and-blas">
+<h3>1.1.4.2. Overriding default compiler/linker settings for LibXC, LibInt2 and BLAS<a class="headerlink" href="#overriding-default-compiler-linker-settings-for-libxc-libint2-and-blas" title="Permalink to this headline">¶</a></h3>
+<p>The manual configuration of the compiler and linker settings is described here:
+<a class="reference internal" href="user_download_and_install_setup_cfg.html#setup-cfg"><span class="std std-ref">Controlling dynamic/static linking against LibXC, LibInt2 and BLAS</span></a>. You should read this section if the default build and install
+has failed or if you would like to specify which libraries to use.</p>
+</div>
+<div class="section" id="runtime-configuration">
+<h3>1.1.4.3. Runtime configuration<a class="headerlink" href="#runtime-configuration" title="Permalink to this headline">¶</a></h3>
+<p>You need to set the following variable in <code class="docutils literal"><span class="pre">~/.bashrc</span></code> to use HORTON:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/.local/bin:<span class="si">${</span><span class="nv">PATH</span><span class="si">}</span>
+
+<span class="c1"># If you used special link options for LibXC, LibInt2 or BLAS, something along</span>
+<span class="c1"># the following lines may also be needed:</span>
+<span class="c1"># export LD_LIBRARY_PATH=some_dir/with/shared_objects/${LD_LIBRARY_PATH}</span>
+</pre></div>
+</div>
+<p>If you run HORTON on a headless node, i.e. without an X server, you need to
+configure Matplotlib to use a backend that does not require a graphical user
+interface. (See <a class="reference external" href="http://matplotlib.org/faq/usage_faq.html#what-is-a-backend">http://matplotlib.org/faq/usage_faq.html#what-is-a-backend</a> for
+more details on the Matplotlib backends.) This can be done by adding the
+following line to your <code class="docutils literal"><span class="pre">matplotlibrc</span></code> file:</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>backend: agg
+</pre></div>
+</div>
+<p>This file is located in either <code class="docutils literal"><span class="pre">${HOME}/.matplotlib</span></code> or
+<code class="docutils literal"><span class="pre">${HOME}/.config/matplotlib</span></code>.</p>
+</div>
+</div>
+<div class="section" id="reference-atoms">
+<h2>1.1.5. Reference atoms<a class="headerlink" href="#reference-atoms" title="Permalink to this headline">¶</a></h2>
+<p>Several parts of HORTON make use of reference atomic computations. When compiling
+a stable release from a .tar.gz file these reference atoms are already included in
+the release. When building a development version of HORTON, please refer to
+<a class="reference internal" href="tech_dev_git.html#ref-build-refatoms"><span class="std std-ref">Additional steps required to build the development version of HORTON</span></a> on how to build these reference atoms.</p>
+</div>
+<div class="section" id="running-the-tests">
+<h2>1.1.6. Running the tests<a class="headerlink" href="#running-the-tests" title="Permalink to this headline">¶</a></h2>
+<p>To test if HORTON was installed properly and if it can be accessed from any directory,
+you should change to a directory outside of the source tree and call nosetests
+as follows:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="o">(</span><span class="nb">cd</span> ~<span class="p">;</span> nosetests -v horton<span class="o">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="building-the-documentation">
+<h2>1.1.7. Building the documentation<a class="headerlink" href="#building-the-documentation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="dependencies">
+<h3>1.1.7.1. Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h3>
+<p>If you are interested in generating the documentation from source, the following
+packages are also needed:</p>
+<ul class="simple">
+<li>Sphinx &gt;= 1.3.1: <a class="reference external" href="http://sphinx.pocoo.org/">http://sphinx.pocoo.org/</a></li>
+<li>Sphinx Read-The-Docs theme &gt;= 0.1.8: <a class="reference external" href="https://github.com/snide/sphinx_rtd_theme">https://github.com/snide/sphinx_rtd_theme</a></li>
+<li>Doxygen &gt;= 1.8.6: <a class="reference external" href="http://www.doxygen.org/">http://www.doxygen.org/</a></li>
+<li>Breathe &gt;= 1.2.0: <a class="reference external" href="http://breathe.readthedocs.org/en/latest/">http://breathe.readthedocs.org/en/latest/</a></li>
+<li>Docutils &gt;= 0.11: <a class="reference external" href="http://docutils.sourceforge.net/">http://docutils.sourceforge.net/</a></li>
+</ul>
+</div>
+<div class="section" id="installing-the-dependencies-with-a-package-manager-and-pip">
+<h3>1.1.7.2. Installing the dependencies with a package manager and PIP<a class="headerlink" href="#installing-the-dependencies-with-a-package-manager-and-pip" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p class="first"><strong>Ubuntu Linux 16.04</strong>:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo apt-get install python-sphinx python-sphinx-rtd-theme doxygen <span class="se">\</span>
+          python-docutils
+</pre></div>
+</div>
+</li>
+<li><p class="first"><strong>Ubuntu Linux 15.04 and 14.04</strong>:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo apt-get install doxygen python-docutils
+pip install --user --upgrade sphinx sphinx_rtd_theme breathe
+</pre></div>
+</div>
+</li>
+<li><p class="first"><strong>Fedora Linux 24</strong>:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo dnf install python2-sphinx python2-sphinx_rtd_theme doxygen <span class="se">\</span>
+          python2-breathe python-docutils
+</pre></div>
+</div>
+</li>
+<li><p class="first"><strong>Fedora Linux 22 and 23</strong>:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo dnf install doxygen python-docutils
+pip install --user --upgrade sphinx sphinx_rtd_theme breathe
+</pre></div>
+</div>
+</li>
+</ul>
+<p>You must also manually build LibXC as explained in <a class="reference internal" href="#linux-manual-dependency-install"><span class="std std-ref">Installing dependencies manually</span></a>,
+to generate the list of DFT functionals in the documentation.</p>
+</div>
+<div class="section" id="actual-build">
+<h3>1.1.7.3. Actual build<a class="headerlink" href="#actual-build" title="Permalink to this headline">¶</a></h3>
+<p>The documentation is compiled and viewed as follows:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="o">(</span><span class="nb">cd</span> doc<span class="p">;</span> make html<span class="p">;</span> firefox _build/html/index.html<span class="o">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="development-tools">
+<span id="linux-install-dev"></span><h2>1.1.8. Development tools<a class="headerlink" href="#development-tools" title="Permalink to this headline">¶</a></h2>
+<p>If you want to contribute to the development of HORTON, you&#8217;ll need to install at least
+the following dependencies:</p>
+<ul class="simple">
+<li>PyLint &gt;= 1.5.0: <a class="reference external" href="https://www.pylint.org/">https://www.pylint.org/</a></li>
+<li>pycodestyle &gt;= 2.0.0: <a class="reference external" href="http://pycodestyle.readthedocs.io/">http://pycodestyle.readthedocs.io/</a></li>
+<li>pydocstyle &gt;= 1.0.0: <a class="reference external" href="http://pydocstyle.readthedocs.io/">http://pydocstyle.readthedocs.io/</a></li>
+<li>coverage &gt;= 4.1: <a class="reference external" href="https://coverage.readthedocs.io/">https://coverage.readthedocs.io/</a></li>
+<li>Cppcheck &gt;= 1.73: <a class="reference external" href="http://cppcheck.sourceforge.net/">http://cppcheck.sourceforge.net/</a></li>
+<li>Git &gt;= 1.8: <a class="reference external" href="https://git-scm.com/">https://git-scm.com/</a></li>
+<li>GitPython &gt;= 2.0.5: <a class="reference external" href="http://gitpython.readthedocs.io/">http://gitpython.readthedocs.io/</a></li>
+</ul>
+<p>For the python development tools, we generally recommend installing the latest versions
+with <code class="docutils literal"><span class="pre">pip</span></code>.</p>
+<ul>
+<li><p class="first"><strong>Ubuntu Linux 16.04</strong>:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo apt-get install cppcheck git
+pip install --user --upgrade pylint pycodestyle pydocstyle coverage GitPython
+</pre></div>
+</div>
+</li>
+<li><p class="first"><strong>Ubuntu Linux 15.04 and 14.04</strong>:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo apt-get install cppcheck git
+pip install --user --upgrade pylint pycodestyle pydocstyle coverage GitPython
+</pre></div>
+</div>
+</li>
+<li><p class="first"><strong>Fedora Linux 24</strong>:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo dnf install cppcheck git
+pip install --user --upgrade pylint pycodestyle pydocstyle coverage GitPython
+</pre></div>
+</div>
+</li>
+<li><p class="first"><strong>Fedora Linux 22 and 23</strong>:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo dnf install cppcheck git
+pip install --user --upgrade pylint pycodestyle pydocstyle coverage GitPython
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="user_download_and_install_mac.html" class="btn btn-neutral float-right" title="1.2. Download and installation on Mac OS X (10.8–10.11)" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="user_download_and_install.html" class="btn btn-neutral" title="1. Download and Installation" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.0 built from release 2.0.0-244-gaaf5e2b. </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 16, 2016.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.0.0-244-gaaf5e2b',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

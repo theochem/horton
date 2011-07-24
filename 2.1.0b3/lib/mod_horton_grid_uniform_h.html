@@ -1,0 +1,469 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.4.17. horton/grid/uniform.h – Uniform 3D grids &mdash; HORTON 2.1.0b3 (Jun 30, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="HORTON 2.1.0b3 (Jun 30, 2017) documentation" href="../index.html"/>
+        <link rel="up" title="3.4. horton.grid – Numerical integration grids" href="pck_horton_grid.html"/>
+        <link rel="next" title="3.4.18. horton/grid/utils.h – Auxiliary functions" href="mod_horton_grid_utils_h.html"/>
+        <link rel="prev" title="3.4.16. horton/grid/rtransform.h – Transformation from uniform 1D to non-uniform 1D grids" href="mod_horton_grid_rtransform_h.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.0b3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> – The main HORTON Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.2. <code class="docutils literal"><span class="pre">horton.espfit</span></code> – Electrostatic potential fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_gbasis.html">3.3. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_grid.html">3.4. <code class="docutils literal"><span class="pre">horton.grid</span></code> – Numerical integration grids</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_atgrid.html">3.4.1. <code class="docutils literal"><span class="pre">horton.grid.atgrid</span></code> – Atomic grids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_base.html">3.4.2. <code class="docutils literal"><span class="pre">horton.grid.base</span></code> – Base classes for 3D integration grids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_cext.html">3.4.3. <code class="docutils literal"><span class="pre">horton.grid.cext</span></code> – C++ extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_int1d.html">3.4.4. <code class="docutils literal"><span class="pre">horton.grid.int1d</span></code> – 1D integration algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_molgrid.html">3.4.5. <code class="docutils literal"><span class="pre">horton.grid.molgrid</span></code> – Molecular integration grids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_ode2.html">3.4.6. <code class="docutils literal"><span class="pre">horton.grid.ode2</span></code> – Finite-element second-order ODE solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_poisson.html">3.4.7. <code class="docutils literal"><span class="pre">horton.grid.poisson</span></code> – Becke-style numerical Poisson solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_radial.html">3.4.8. <code class="docutils literal"><span class="pre">horton.grid.radial</span></code> – 1D Radial integration grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_utils.html">3.4.9. <code class="docutils literal"><span class="pre">horton.grid.utils</span></code> – Auxiliaries for numerical integrals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_visual.html">3.4.10. <code class="docutils literal"><span class="pre">horton.grid.visual</span></code> – Grids suitable for visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_becke_h.html">3.4.11. <code class="docutils literal"><span class="pre">horton/grid/becke.h</span></code> – Becke partitioning weight function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_cubic_spline_h.html">3.4.12. <code class="docutils literal"><span class="pre">horton/grid/cubic_spline.h</span></code> – One-dimensional cubic splines (on uniform grids)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_evaluate_h.html">3.4.13. <code class="docutils literal"><span class="pre">horton/grid/evaluate.h</span></code> – Evaluation of splines on grids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_lebedev_laikov_h.html">3.4.14. <code class="docutils literal"><span class="pre">horton/grid/lebedev_laikov.h</span></code> – Grids for quadrature on a sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_ode2_h.html">3.4.15. <code class="docutils literal"><span class="pre">horton/grid/ode2.h</span></code> – Second-order finite-element ODE solver using Hermite polynomials</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_rtransform_h.html">3.4.16. <code class="docutils literal"><span class="pre">horton/grid/rtransform.h</span></code> – Transformation from uniform 1D to non-uniform 1D grids</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.4.17. <code class="docutils literal"><span class="pre">horton/grid/uniform.h</span></code> – Uniform 3D grids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_grid_utils_h.html">3.4.18. <code class="docutils literal"><span class="pre">horton/grid/utils.h</span></code> – Auxiliary functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.5. <code class="docutils literal"><span class="pre">horton.io</span></code> – Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.6. <code class="docutils literal"><span class="pre">horton.matrix</span></code> – One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.7. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> – Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.8. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> – Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.9. <code class="docutils literal"><span class="pre">horton.part</span></code> – Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.10. <code class="docutils literal"><span class="pre">horton.scripts</span></code> – Code (solely) used by HORTON’s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+        
+          <li><a href="pck_horton_grid.html">3.4. <code class="docutils literal"><span class="pre">horton.grid</span></code> – Numerical integration grids</a> &raquo;</li>
+        
+      <li>3.4.17. <code class="docutils literal"><span class="pre">horton/grid/uniform.h</span></code> – Uniform 3D grids</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/lib/mod_horton_grid_uniform_h.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="horton-grid-uniform-h-uniform-3d-grids">
+<h1>3.4.17. <code class="docutils literal"><span class="pre">horton/grid/uniform.h</span></code> – Uniform 3D grids<a class="headerlink" href="#horton-grid-uniform-h-uniform-3d-grids" title="Permalink to this headline">¶</a></h1>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Functions</p>
+<dl class="function">
+<dt id="_CPPv210index_wrapll">
+<span id="index_wrap__l.l"></span><span class="target" id="hortonuniform_8h_1a128e86921ac938df3b36d29c71aaf5cc"></span>long <code class="descclassname"></code><code class="descname">index_wrap</code><span class="sig-paren">(</span>long <em>i</em>, long <em>high</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv210index_wrapll" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<dl class="class">
+<dt id="_CPPv211UniformGrid">
+<span id="UniformGrid"></span><span class="target" id="hortonclassUniformGrid"></span><em class="property">class </em></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N11UniformGrid11UniformGridEPdPdPlPl">
+<span id="UniformGrid::UniformGrid__doubleP.doubleP.lP.lP"></span><span class="target" id="hortonclassUniformGrid_1abfd59dbc333e98bd41dd2ddaadcd1cae"></span><code class="descclassname">UniformGrid::</code><code class="descname">UniformGrid</code><span class="sig-paren">(</span>double *<em>_origin</em>, double *<em>_grid_rvecs</em>, long *<em>_shape</em>, long *<em>_pbc</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11UniformGrid11UniformGridEPdPdPlPl" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N11UniformGrid8get_cellEv">
+<span id="UniformGrid::get_cell"></span><span class="target" id="hortonclassUniformGrid_1a4f3caa9c26e041d2fb1b780022087166"></span><a class="reference internal" href="mod_horton_cell_h.html#_CPPv24Cell" title="Cell">Cell</a> *<code class="descclassname">UniformGrid::</code><code class="descname">get_cell</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11UniformGrid8get_cellEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N11UniformGrid13get_grid_cellEv">
+<span id="UniformGrid::get_grid_cell"></span><span class="target" id="hortonclassUniformGrid_1ada4a2d0952710b0ef34cd88e098bd3f3"></span><a class="reference internal" href="mod_horton_cell_h.html#_CPPv24Cell" title="Cell">Cell</a> *<code class="descclassname">UniformGrid::</code><code class="descname">get_grid_cell</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11UniformGrid13get_grid_cellEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N11UniformGrid15set_ranges_rcutEPddPlPl">
+<span id="UniformGrid::set_ranges_rcut__doubleP.double.lP.lP"></span><span class="target" id="hortonclassUniformGrid_1a95b3da32e70b2e4c52542f06a049f6c4"></span>void <code class="descclassname">UniformGrid::</code><code class="descname">set_ranges_rcut</code><span class="sig-paren">(</span>double *<em>center</em>, double <em>rcut</em>, long *<em>ranges_begin</em>, long *<em>ranges_end</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11UniformGrid15set_ranges_rcutEPddPlPl" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N11UniformGrid15dist_grid_pointEPdPl">
+<span id="UniformGrid::dist_grid_point__doubleP.lP"></span><span class="target" id="hortonclassUniformGrid_1a8d73f0122d8058a3c7e7c22770a4cf2f"></span>double <code class="descclassname">UniformGrid::</code><code class="descname">dist_grid_point</code><span class="sig-paren">(</span>double *<em>center</em>, long *<em>i</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11UniformGrid15dist_grid_pointEPdPl" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N11UniformGrid16delta_grid_pointEPdPl">
+<span id="UniformGrid::delta_grid_point__doubleP.lP"></span><span class="target" id="hortonclassUniformGrid_1ac7459cd680ea5c96d9a886598a21b6cd"></span>void <code class="descclassname">UniformGrid::</code><code class="descname">delta_grid_point</code><span class="sig-paren">(</span>double *<em>center</em>, long *<em>i</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11UniformGrid16delta_grid_pointEPdPl" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N11UniformGrid11get_pointerEPdPl">
+<span id="UniformGrid::get_pointer__doubleP.lP"></span><span class="target" id="hortonclassUniformGrid_1ad2970179fba704918500d99d3415e00f"></span>double *<code class="descclassname">UniformGrid::</code><code class="descname">get_pointer</code><span class="sig-paren">(</span>double *<em>array</em>, long *<em>i</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N11UniformGrid11get_pointerEPdPl" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="member">
+<dt id="_CPPv2N11UniformGrid6originE">
+<span id="UniformGrid::origin__doubleA"></span><span class="target" id="hortonclassUniformGrid_1a0e0a72e4361530b57c8f3b785ab9213c"></span>double <code class="descclassname">UniformGrid::</code><code class="descname">origin</code>[3]<a class="headerlink" href="#_CPPv2N11UniformGrid6originE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N11UniformGrid10grid_rvecsE">
+<span id="UniformGrid::grid_rvecs__doubleA"></span><span class="target" id="hortonclassUniformGrid_1a9243524af59849354d00ed97413f9545"></span>double <code class="descclassname">UniformGrid::</code><code class="descname">grid_rvecs</code>[9]<a class="headerlink" href="#_CPPv2N11UniformGrid10grid_rvecsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N11UniformGrid5shapeE">
+<span id="UniformGrid::shape__lA"></span><span class="target" id="hortonclassUniformGrid_1a44111a304bd59dd9de1dd532e344299c"></span>long <code class="descclassname">UniformGrid::</code><code class="descname">shape</code>[3]<a class="headerlink" href="#_CPPv2N11UniformGrid5shapeE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N11UniformGrid3pbcE">
+<span id="UniformGrid::pbc__lA"></span><span class="target" id="hortonclassUniformGrid_1adbb4ab0c4bf5885b37f59123235a6182"></span>long <code class="descclassname">UniformGrid::</code><code class="descname">pbc</code>[3]<a class="headerlink" href="#_CPPv2N11UniformGrid3pbcE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv214Range3Iterator">
+<span id="Range3Iterator"></span><span class="target" id="hortonclassRange3Iterator"></span><em class="property">class </em></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N14Range3Iterator14Range3IteratorEPKlPKlPKl">
+<span id="Range3Iterator::Range3Iterator__lCP.lCP.lCP"></span><span class="target" id="hortonclassRange3Iterator_1a0ab5d1b59000a39f238836e2099d7e01"></span><code class="descclassname">Range3Iterator::</code><code class="descname">Range3Iterator</code><span class="sig-paren">(</span><em class="property">const</em> long *<em>ranges_begin</em>, <em class="property">const</em> long *<em>ranges_end</em>, <em class="property">const</em> long *<em>shape</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N14Range3Iterator14Range3IteratorEPKlPKlPKl" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK14Range3Iterator10get_npointEv">
+<span id="Range3Iterator::get_npointC"></span><span class="target" id="hortonclassRange3Iterator_1a9afaf77c2217fb2e4c295254a4acb6c2"></span>long <code class="descclassname">Range3Iterator::</code><code class="descname">get_npoint</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK14Range3Iterator10get_npointEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N14Range3Iterator9set_pointElPlPl">
+<span id="Range3Iterator::set_point__l.lP.lP"></span><span class="target" id="hortonclassRange3Iterator_1a235a043d317da4ccaf62465e9166c0eb"></span>void <code class="descclassname">Range3Iterator::</code><code class="descname">set_point</code><span class="sig-paren">(</span>long <em>ipoint</em>, long *<em>i</em>, long *<em>iwrap</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N14Range3Iterator9set_pointElPlPl" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv2N14Range3Iterator12ranges_beginE">
+<span id="Range3Iterator::ranges_begin__lCP"></span><span class="target" id="hortonclassRange3Iterator_1abdaff8ce0139c47c48c7a3f0d20acaa5"></span><em class="property">const</em> long *<code class="descclassname">Range3Iterator::</code><code class="descname">ranges_begin</code><a class="headerlink" href="#_CPPv2N14Range3Iterator12ranges_beginE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N14Range3Iterator10ranges_endE">
+<span id="Range3Iterator::ranges_end__lCP"></span><span class="target" id="hortonclassRange3Iterator_1a9619261be4a634799e6f0783d15fdd15"></span><em class="property">const</em> long *<code class="descclassname">Range3Iterator::</code><code class="descname">ranges_end</code><a class="headerlink" href="#_CPPv2N14Range3Iterator10ranges_endE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N14Range3Iterator5shapeE">
+<span id="Range3Iterator::shape__lCP"></span><span class="target" id="hortonclassRange3Iterator_1a8aec67b951dc9cee071514284db789c7"></span><em class="property">const</em> long *<code class="descclassname">Range3Iterator::</code><code class="descname">shape</code><a class="headerlink" href="#_CPPv2N14Range3Iterator5shapeE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N14Range3Iterator10loop_shapeE">
+<span id="Range3Iterator::loop_shape__lA"></span><span class="target" id="hortonclassRange3Iterator_1a68b31b3a0478aa3dcadc477d339383a8"></span>long <code class="descclassname">Range3Iterator::</code><code class="descname">loop_shape</code>[3]<a class="headerlink" href="#_CPPv2N14Range3Iterator10loop_shapeE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N14Range3Iterator6npointE">
+<span id="Range3Iterator::npoint__l"></span><span class="target" id="hortonclassRange3Iterator_1ac749e118abb896ff9bf201b3dc61a6a6"></span>long <code class="descclassname">Range3Iterator::</code><code class="descname">npoint</code><a class="headerlink" href="#_CPPv2N14Range3Iterator6npointE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv213Cube3Iterator">
+<span id="Cube3Iterator"></span><span class="target" id="hortonclassCube3Iterator"></span><em class="property">class </em></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N13Cube3Iterator13Cube3IteratorEPKlPKl">
+<span id="Cube3Iterator::Cube3Iterator__lCP.lCP"></span><span class="target" id="hortonclassCube3Iterator_1a27fa4c031f7f38bee84f11404adfe9e1"></span><code class="descclassname">Cube3Iterator::</code><code class="descname">Cube3Iterator</code><span class="sig-paren">(</span><em class="property">const</em> long *<em>begin</em>, <em class="property">const</em> long *<em>end</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N13Cube3Iterator13Cube3IteratorEPKlPKl" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK13Cube3Iterator10get_npointEv">
+<span id="Cube3Iterator::get_npointC"></span><span class="target" id="hortonclassCube3Iterator_1a005b3f2b434c55a6f3299367adade2b6"></span>long <code class="descclassname">Cube3Iterator::</code><code class="descname">get_npoint</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK13Cube3Iterator10get_npointEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N13Cube3Iterator9set_pointElPl">
+<span id="Cube3Iterator::set_point__l.lP"></span><span class="target" id="hortonclassCube3Iterator_1a3b01148b78ef384ed3c87168c130e5d2"></span>void <code class="descclassname">Cube3Iterator::</code><code class="descname">set_point</code><span class="sig-paren">(</span>long <em>ipoint</em>, long *<em>j</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N13Cube3Iterator9set_pointElPl" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Private Members</p>
+<dl class="member">
+<dt id="_CPPv2N13Cube3Iterator5beginE">
+<span id="Cube3Iterator::begin__lCP"></span><span class="target" id="hortonclassCube3Iterator_1a99d8884ae8c311b03d5782093fe41b59"></span><em class="property">const</em> long *<code class="descclassname">Cube3Iterator::</code><code class="descname">begin</code><a class="headerlink" href="#_CPPv2N13Cube3Iterator5beginE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N13Cube3Iterator3endE">
+<span id="Cube3Iterator::end__lCP"></span><span class="target" id="hortonclassCube3Iterator_1adf5afa813dedab2d1d0add577e5a1e00"></span><em class="property">const</em> long *<code class="descclassname">Cube3Iterator::</code><code class="descname">end</code><a class="headerlink" href="#_CPPv2N13Cube3Iterator3endE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N13Cube3Iterator5shapeE">
+<span id="Cube3Iterator::shape__lA"></span><span class="target" id="hortonclassCube3Iterator_1a6620c1b514da8b02f01da759e1327136"></span>long <code class="descclassname">Cube3Iterator::</code><code class="descname">shape</code>[3]<a class="headerlink" href="#_CPPv2N13Cube3Iterator5shapeE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N13Cube3Iterator6npointE">
+<span id="Cube3Iterator::npoint__l"></span><span class="target" id="hortonclassCube3Iterator_1a9abbb3e2a0e36ec10780e3de29667bfd"></span>long <code class="descclassname">Cube3Iterator::</code><code class="descname">npoint</code><a class="headerlink" href="#_CPPv2N13Cube3Iterator6npointE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_grid_utils_h.html" class="btn btn-neutral float-right" title="3.4.18. horton/grid/utils.h – Auxiliary functions" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_grid_rtransform_h.html" class="btn btn-neutral" title="3.4.16. horton/grid/rtransform.h – Transformation from uniform 1D to non-uniform 1D grids" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.0b3 built from release 2.1.0b3 (Jun 30, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 30, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.1.0b3 (Jun 30, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

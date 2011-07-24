@@ -1,0 +1,1019 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>5.1. Atoms-in-Molecules (AIM) analysis &mdash; HORTON 2.0.0-244-gaaf5e2b documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="HORTON 2.0.0-244-gaaf5e2b documentation" href="index.html"/>
+        <link rel="up" title="5. Post-processing" href="user_postproc.html"/>
+        <link rel="next" title="5.2. Electrostatic potential fitting" href="user_postproc_espfit.html"/>
+        <link rel="prev" title="5. Post-processing" href="user_postproc.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_postproc.html">5. Post-processing</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">5.1. Atoms-in-Molecules (AIM) analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">5.1.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#horton-atomdb-py-build-a-pro-atom-database">5.1.2. <code class="docutils literal"><span class="pre">horton-atomdb.py</span></code> &#8211; Build a pro-atom database</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#template-files">5.1.2.1. Template files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#basic-template-file-for-gaussian-03-09">5.1.2.2. Basic template file for Gaussian 03/09</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#advanced-template-file-for-gaussian-03-09">5.1.2.3. Advanced template file for Gaussian 03/09</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#simple-template-file-for-orca">5.1.2.4. Simple template file for ORCA</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#template-file-for-cp2k">5.1.2.5. Template file for CP2K</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#simple-template-file-for-psi4">5.1.2.6. Simple template file for PSI4</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#horton-wpart-py-aim-analysis-based-on-a-wavefunction-file">5.1.3. <code class="docutils literal"><span class="pre">horton-wpart.py</span></code> &#8211; AIM analysis based on a wavefunction file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#horton-cpart-py-aim-analysis-based-on-a-cube-file">5.1.4. <code class="docutils literal"><span class="pre">horton-cpart.py</span></code> &#8211; AIM analysis based on a cube file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-interface-to-the-partitioning-code">5.1.5. Python interface to the partitioning code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#frequently-asked-questions">5.1.6. Frequently asked questions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_postproc_espfit.html">5.2. Electrostatic potential fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_postproc_localization.html">5.3. Localization of molecular orbitals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_postproc_orbital_entanglement.html">5.4. Orbital entanglement analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">HORTON</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="user_postproc.html">5. Post-processing</a> &raquo;</li>
+      
+    <li>5.1. Atoms-in-Molecules (AIM) analysis</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/user_postproc_aim.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="atoms-in-molecules-aim-analysis">
+<h1>5.1. Atoms-in-Molecules (AIM) analysis<a class="headerlink" href="#atoms-in-molecules-aim-analysis" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>5.1.1. Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>HORTON supports several real-space atoms-in-molecules (AIM) partitioning schemes. For this purpose, a
+wavefunction or an electron density on a grid can be loaded from several file
+formats. An overview of all supported file formats can be found here:
+<a class="reference internal" href="tech_ref_file_formats.html#ref-file-formats"><span class="std std-ref">Data file formats (input and output)</span></a>. For a given wavefunction or cube file, several AIM partitioning
+schemes can be used to derive AIM observables, e.g. atomic charge, atomic
+multipole expansion, etc.</p>
+<p>HORTON supports two different approaches to perform the partitioning: WPart
+(based on wavefunction files) and CPart (based on cube files). The WPart and
+CPart implementations are built on the same algorithms but use different types of
+grids for numerical integration. An overview of both implementations is given by
+the following table:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="26%" />
+<col width="26%" />
+<col width="24%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Feature</th>
+<th class="head">WPart</th>
+<th class="head">CPart</th>
+<th class="head">References</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Command-line script</td>
+<td><code class="docutils literal"><span class="pre">horton-wpart.py</span></code></td>
+<td><code class="docutils literal"><span class="pre">horton-cpart.py</span></code></td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td><strong>Boundary conditions</strong></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>0D</td>
+<td>X</td>
+<td>X</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>1D</td>
+<td>&nbsp;</td>
+<td>X</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>2D</td>
+<td>&nbsp;</td>
+<td>X</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>3D</td>
+<td>&nbsp;</td>
+<td>X</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td><strong>AIM schemes</strong></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>Becke</td>
+<td>X</td>
+<td>&nbsp;</td>
+<td><a class="reference internal" href="tech_ref_literature.html#becke1988-multicenter" id="id1">[becke1988_multicenter]</a></td>
+</tr>
+<tr class="row-even"><td>Hirshfeld</td>
+<td>X</td>
+<td>X</td>
+<td><a class="reference internal" href="tech_ref_literature.html#hirshfeld1977" id="id2">[hirshfeld1977]</a></td>
+</tr>
+<tr class="row-odd"><td>Iterative Hirshfeld</td>
+<td>X</td>
+<td>X</td>
+<td><a class="reference internal" href="tech_ref_literature.html#bultinck2007" id="id3">[bultinck2007]</a></td>
+</tr>
+<tr class="row-even"><td>Iterative Stockholder</td>
+<td>X</td>
+<td>&nbsp;</td>
+<td><a class="reference internal" href="tech_ref_literature.html#lillestolen2008" id="id4">[lillestolen2008]</a></td>
+</tr>
+<tr class="row-odd"><td>Extended Hirshfeld</td>
+<td>X</td>
+<td>X</td>
+<td><a class="reference internal" href="tech_ref_literature.html#verstraelen2013" id="id5">[verstraelen2013]</a></td>
+</tr>
+<tr class="row-even"><td><strong>AIM properties</strong></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>Charges</td>
+<td>X</td>
+<td>X</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>Spin charges</td>
+<td>X</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>Cartesian multipoles</td>
+<td>X</td>
+<td>X</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>Pure/harmonic multipoles</td>
+<td>X</td>
+<td>X</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>Radial moments</td>
+<td>X</td>
+<td>X</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>Dispersion coefficients</td>
+<td>X</td>
+<td>X</td>
+<td><a class="reference internal" href="tech_ref_literature.html#tkatchenko2009" id="id6">[tkatchenko2009]</a></td>
+</tr>
+<tr class="row-odd"><td>Spherical decomposition</td>
+<td>X</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>ESP due to each AIM</td>
+<td>X</td>
+<td>&nbsp;</td>
+<td><a class="reference internal" href="tech_ref_literature.html#becke1988-poisson" id="id7">[becke1988_poisson]</a></td>
+</tr>
+<tr class="row-odd"><td>ESP due to pro-atom</td>
+<td>X</td>
+<td>X</td>
+<td><a class="reference internal" href="tech_ref_literature.html#becke1988-poisson" id="id8">[becke1988_poisson]</a></td>
+</tr>
+<tr class="row-even"><td>Wiberg bond order</td>
+<td>X</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>Kohn-Sham response</td>
+<td>X</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td><strong>Extra options</strong></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>Symmetry analysis</td>
+<td>&nbsp;</td>
+<td>X</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>Note that Gaussian cube files can be generated from other programs like CPMD,
+ADF, Siesta, Crystal, etc. The output of all these programs should be compatible
+with HORTON. Moreover, both all-electron and pseudo-potential
+wavefunctions can be partitioned with HORTON. However, very fine grids are required for all-electron
+partitioning with CPart.</p>
+<p>For almost all the Hirshfeld variants, you must first set up a pro-atom database
+densities, preferably at the same level of theory used for the molecular
+computation. The <code class="docutils literal"><span class="pre">horton-atomdb.py</span></code> script facilitates setting up such a
+database.</p>
+<p>All of the outputs generated by HORTON are written to <a class="reference external" href="http://www.hdfgroup.org/HDF5/">HDF5</a> files (with extension <code class="docutils literal"><span class="pre">.h5</span></code>). These are
+binary (compact) platform-independent files that can be post-processed easily
+with Python scripts. The <code class="docutils literal"><span class="pre">horton-hdf2csv.py</span></code> script can be used to convert
+(part of) an HDF5 file into the &#8220;comma-separated value&#8221; (CSV) format, which is
+supported by most spreadsheet software.</p>
+<p>The usage of the four scripts (<code class="docutils literal"><span class="pre">horton-atomdb.py</span></code>, <code class="docutils literal"><span class="pre">horton-wpart.py</span></code>,
+<code class="docutils literal"><span class="pre">horton-cpart.py</span></code> and <code class="docutils literal"><span class="pre">horton-hdf2csv.py</span></code>) will be discussed in <a class="reference internal" href="#atomdb"><span class="std std-ref">horton-atomdb.py &#8211; Build a pro-atom database</span></a>,
+<a class="reference internal" href="#wpart"><span class="std std-ref">horton-wpart.py &#8211; AIM analysis based on a wavefunction file</span></a>, <a class="reference internal" href="#cpart"><span class="std std-ref">horton-cpart.py &#8211; AIM analysis based on a cube file</span></a>, and <a class="reference internal" href="user_other_conversion.html#hdf2csv"><span class="std std-ref">horton-hdf2csv.py &#8211; Conversion of HDF5 files to CSV format</span></a>, respectively. All scripts have
+a <code class="docutils literal"><span class="pre">--help</span></code> flag that prints out their complete list of command-line arguments. The penultimate
+section, <a class="reference internal" href="#partition"><span class="std std-ref">Python interface to the partitioning code</span></a>, shows how to use the partitioning code through the
+Python interface. The last section, <a class="reference internal" href="#faq"><span class="std std-ref">Frequently asked questions</span></a>, answers some frequently asked
+questions regarding AIM partitioning with HORTON.</p>
+</div>
+<div class="section" id="horton-atomdb-py-build-a-pro-atom-database">
+<span id="atomdb"></span><h2>5.1.2. <code class="docutils literal"><span class="pre">horton-atomdb.py</span></code> &#8211; Build a pro-atom database<a class="headerlink" href="#horton-atomdb-py-build-a-pro-atom-database" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">horton-atomdb.py</span></code> script should be used in three steps to build a pro-atom database:</p>
+<ol class="arabic">
+<li><p class="first"><strong>Generate input files</strong> for isolated atom computations using one of the
+following programs: Gaussian03/09, Orca, PSI4 or CP2K. The following example
+generates Gaussian09 input files for hydrogen, carbon, nitrogen and oxygen:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">horton</span><span class="o">-</span><span class="n">atomdb</span><span class="o">.</span><span class="n">py</span> <span class="nb">input</span> <span class="n">g09</span> <span class="mi">1</span><span class="p">,</span><span class="mi">6</span><span class="o">-</span><span class="mi">8</span> <span class="n">template</span><span class="o">.</span><span class="n">com</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">template.com</span></code> file is used to generate the input files and will
+be discussed in detail below. A series of directories is created with input
+files for the atomic computations, like <code class="docutils literal"><span class="pre">001__h_001_q+00</span></code>, <code class="docutils literal"><span class="pre">001__h_002_q-01</span></code>,
+<code class="docutils literal"><span class="pre">001__h_003_q-02</span></code>, etc. Optional arguments can be used to control the range
+of cations and anions, the spin multiplicities, etc. Also a
+<code class="docutils literal"><span class="pre">run_g09.sh</span></code> script is generated to take care of the next step.</p>
+<p>Run the command below to obtain a complete list of all arguments:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>horton-atomdb.py input --help
+</pre></div>
+</div>
+</li>
+<li><p class="first"><strong>Run the atomic computations</strong> by executing the <code class="docutils literal"><span class="pre">run_PROGRAM.sh</span></code> script.
+In this case:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">run_g09</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+<p>Note that the <code class="docutils literal"><span class="pre">run_PROGRAM.sh</span></code> scripts assume a default installation of
+the corresponding software. In the case of non-standard installations or
+when special calls or environment variables are needed, you must modify this
+script first. (It will not be overwritten when <code class="docutils literal"><span class="pre">horton-atomdb.py</span> <span class="pre">input</span> <span class="pre">...</span></code>
+is executed again.)</p>
+</li>
+<li><p class="first"><strong>Convert the output files</strong> of the external programs into a database of
+spherically averaged pro-atom densities (<code class="docutils literal"><span class="pre">atoms.h5</span></code>). Just run:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">horton</span><span class="o">-</span><span class="n">atomdb</span><span class="o">.</span><span class="n">py</span> <span class="n">convert</span>
+</pre></div>
+</div>
+<p>This script also generates figures of the radial densities and Fukui
+functions, if <code class="docutils literal"><span class="pre">matplotlib</span></code> is installed. In this step, you may use
+<a class="reference internal" href="tech_ref_grids.html#ref-grid-option"><span class="std std-ref">the &#8211; grid option</span></a>, although the default setting
+should be fine for nearly all cases.</p>
+</li>
+</ol>
+<p>If you remove some directories for atomic computations before or after
+executing the <code class="docutils literal"><span class="pre">run_PROGRAM.sh</span></code> script, the corresponding atoms will not be
+included in the database. Similarly, you may rerun <code class="docutils literal"><span class="pre">horton-atomdb.py</span> <span class="pre">input</span> <span class="pre">...</span></code>
+to generate more input files. In that case <code class="docutils literal"><span class="pre">run_PROGRAM.sh</span></code> will only consider
+the atomic computations that have not been completed yet. In some cases, the
+<code class="docutils literal"><span class="pre">run_PROGRAM.sh</span></code> script needs to be customized, e.g. you may want to use
+<code class="docutils literal"><span class="pre">mpirun</span></code> to run the atomic computations in parallel. When such modifications
+are made, subsequent runs of <code class="docutils literal"><span class="pre">horton-atomdb.py</span> <span class="pre">input</span> <span class="pre">...</span></code> will not overwrite
+the <code class="docutils literal"><span class="pre">run_PROGRAM.sh</span></code> script.</p>
+<div class="section" id="template-files">
+<h3>5.1.2.1. Template files<a class="headerlink" href="#template-files" title="Permalink to this headline">¶</a></h3>
+<p>A template file is simply an input file for an atomic computation, where the
+distinguishing parameters (element, charge, ...) are replaced with keys that are
+recognized by the input generator of <code class="docutils literal"><span class="pre">horton-atomdb.py</span></code>. These keys are:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">${element}</span></code>: The element symbol of the atom.</li>
+<li><code class="docutils literal"><span class="pre">${number}</span></code>: The atomic number of the atom.</li>
+<li><code class="docutils literal"><span class="pre">${charge}</span></code>: The charge of the atom (or cation, or anion).</li>
+<li><code class="docutils literal"><span class="pre">${mult}</span></code>: The spin multiplicity of the atom.</li>
+</ul>
+<p>For more advanced cases, you may include (parts of) other files with generic
+keys, e.g. for basis sets that are different for every element:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">${file:filename}</span></code>: This is replaced by the contents of
+<code class="docutils literal"><span class="pre">filename.NNN_PPP_MM</span></code>, where <code class="docutils literal"><span class="pre">NNN</span></code> is the atomic number, <code class="docutils literal"><span class="pre">PPP</span></code> is the
+atomic population and <code class="docutils literal"><span class="pre">MM</span></code> is the spin multiplicity. These numbers are
+left-padded with zeros to fix the the length. If a field in the filename is
+zero, it is considered as a wild card. For example, you may use
+<code class="docutils literal"><span class="pre">${file:basis}</span></code> in the template file and store a basis set specification for
+oxygen in the file <code class="docutils literal"><span class="pre">basis.008_000_00</span></code>. The basis contained in this file will be
+used for all cations, anions, and multiplicities of oxygen, because the
+zeros in the file name act as a wildcard.</li>
+<li><code class="docutils literal"><span class="pre">${line:filename}</span></code>: This is comparable to the previous key, except that all
+replacements are stored in one file. Each (non-empty) line in this file that
+starts with <code class="docutils literal"><span class="pre">NNN_PPP_MM</span></code> has a string that will be filled into the field of
+the file that corresponds to the specified <code class="docutils literal"><span class="pre">NNN_PPP_MM</span></code>.</li>
+</ul>
+<p>None of the keys are mandatory, although <code class="docutils literal"><span class="pre">${element}</span></code> (or <code class="docutils literal"><span class="pre">${number}</span></code>),
+<code class="docutils literal"><span class="pre">${charge}</span></code> and <code class="docutils literal"><span class="pre">${mult}</span></code> must be present to obtain sensible results.</p>
+</div>
+<div class="section" id="basic-template-file-for-gaussian-03-09">
+<h3>5.1.2.2. Basic template file for Gaussian 03/09<a class="headerlink" href="#basic-template-file-for-gaussian-03-09" title="Permalink to this headline">¶</a></h3>
+<p>This is a simple template file for atomic computations at the HF/3-21G level:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>%chk=atom.chk
+#p HF/3-21G scf(xqc)
+
+A random title line
+
+${charge} ${mult}
+${element} 0.0 0.0 0.0
+</pre></div>
+</div>
+<p>Do not forget to include an empty line at the end. Otherwise, Gaussian will
+complain. The first line <code class="docutils literal"><span class="pre">%chk=atom.chk</span></code> is required to write the atomic
+wavefunction to a file that is needed in the <code class="docutils literal"><span class="pre">convert</span></code> step of
+the <code class="docutils literal"><span class="pre">horton-atomdb.py</span></code> script.</p>
+</div>
+<div class="section" id="advanced-template-file-for-gaussian-03-09">
+<h3>5.1.2.3. Advanced template file for Gaussian 03/09<a class="headerlink" href="#advanced-template-file-for-gaussian-03-09" title="Permalink to this headline">¶</a></h3>
+<p>When custom basis sets are specified with the <code class="docutils literal"><span class="pre">Gen</span></code> keyword in Gaussian, you
+have to use keys that include other files. For a database containing H, C and O, you
+could use the following template:</p>
+<ul>
+<li><p class="first"><code class="docutils literal"><span class="pre">template.com</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>%chk=atom.chk
+#p PBE1PBE/Gen scf(xqc)
+
+A random title line
+
+${charge} ${mult}
+${element} 0.0 0.0 0.0
+
+${file:basis}
+</pre></div>
+</div>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">basis.001_000_00</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">H</span> <span class="mi">0</span>
+<span class="mi">6</span><span class="o">-</span><span class="mi">31</span><span class="n">G</span><span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="n">p</span><span class="p">)</span>
+<span class="o">****</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">basis.006_000_00</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">C</span> <span class="mi">0</span>
+<span class="mi">6</span><span class="o">-</span><span class="mi">31</span><span class="n">G</span><span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="n">p</span><span class="p">)</span>
+<span class="o">****</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">basis.008_000_00</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">O</span>     <span class="mi">0</span>
+<span class="n">S</span>   <span class="mi">6</span>   <span class="mf">1.00</span>
+   <span class="mf">8588.5000000</span>              <span class="mf">0.00189515</span>
+   <span class="mf">1297.2300000</span>              <span class="mf">0.0143859</span>
+    <span class="mf">299.2960000</span>              <span class="mf">0.0707320</span>
+     <span class="mf">87.3771000</span>              <span class="mf">0.2400010</span>
+     <span class="mf">25.6789000</span>              <span class="mf">0.5947970</span>
+      <span class="mf">3.7400400</span>              <span class="mf">0.2808020</span>
+<span class="n">SP</span>   <span class="mi">3</span>   <span class="mf">1.00</span>
+     <span class="mf">42.1175000</span>              <span class="mf">0.1138890</span>              <span class="mf">0.0365114</span>
+      <span class="mf">9.6283700</span>              <span class="mf">0.9208110</span>              <span class="mf">0.2371530</span>
+      <span class="mf">2.8533200</span>             <span class="o">-</span><span class="mf">0.00327447</span>             <span class="mf">0.8197020</span>
+<span class="n">SP</span>   <span class="mi">1</span>   <span class="mf">1.00</span>
+      <span class="mf">0.9056610</span>              <span class="mf">1.0000000</span>              <span class="mf">1.0000000</span>
+<span class="n">SP</span>   <span class="mi">1</span>   <span class="mf">1.00</span>
+      <span class="mf">0.2556110</span>              <span class="mf">1.0000000</span>              <span class="mf">1.0000000</span>
+<span class="n">SP</span>   <span class="mi">1</span>   <span class="mf">1.00</span>
+      <span class="mf">0.0845000</span>              <span class="mf">1.0000000</span>              <span class="mf">1.0000000</span>
+<span class="n">D</span>   <span class="mi">1</span>   <span class="mf">1.00</span>
+      <span class="mf">5.1600000</span>              <span class="mf">1.0000000</span>
+<span class="n">D</span>   <span class="mi">1</span>   <span class="mf">1.00</span>
+      <span class="mf">1.2920000</span>              <span class="mf">1.0000000</span>
+<span class="n">D</span>   <span class="mi">1</span>   <span class="mf">1.00</span>
+      <span class="mf">0.3225000</span>              <span class="mf">1.0000000</span>
+<span class="n">F</span>   <span class="mi">1</span>   <span class="mf">1.00</span>
+      <span class="mf">1.4000000</span>              <span class="mf">1.0000000</span>
+<span class="o">****</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="simple-template-file-for-orca">
+<h3>5.1.2.4. Simple template file for ORCA<a class="headerlink" href="#simple-template-file-for-orca" title="Permalink to this headline">¶</a></h3>
+<p>The following template file uses the built-in <code class="docutils literal"><span class="pre">cc_pVQZ</span></code> basis set of ORCA:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>!HF TightSCF
+
+%basis
+  Basis cc_pVQZ
+end
+
+*xyz ${charge} ${mult}
+${element} 0.0 0.0 0.0
+*
+</pre></div>
+</div>
+</div>
+<div class="section" id="template-file-for-cp2k">
+<h3>5.1.2.5. Template file for CP2K<a class="headerlink" href="#template-file-for-cp2k" title="Permalink to this headline">¶</a></h3>
+<p>You must use <code class="docutils literal"><span class="pre">CP2K</span></code> version 2.4-r12857 (or newer). The computation of pro-atoms
+with <code class="docutils literal"><span class="pre">CP2K</span></code> is more involved because you have to specify the occupation
+of each subshell. The <code class="docutils literal"><span class="pre">ATOM</span></code> program of <code class="docutils literal"><span class="pre">CP2K</span></code> does not simply follow the
+Aufbau rule to assign orbital occupations. At this moment, only the computation of
+atomic densities with contracted basis sets and pseudopotentials are supported.</p>
+<p>The following example can be used to generate a pro-atom database with the
+elements, O, Na, Al and Si, using the GTH pseudopotential and the MolOpt basis
+set.</p>
+<ul>
+<li><p class="first"><code class="docutils literal"><span class="pre">template.inp</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>&amp;GLOBAL
+  PROJECT ATOM
+  PROGRAM_NAME ATOM
+&amp;END GLOBAL
+&amp;ATOM
+  ATOMIC_NUMBER ${number}
+  ELECTRON_CONFIGURATION (${mult}) CORE ${line:valence.inc}
+  CORE none
+
+  MAX_ANGULAR_MOMENTUM 1
+  &amp;METHOD
+     METHOD_TYPE UKS
+     &amp;XC
+       &amp;XC_FUNCTIONAL PBE
+       &amp;END XC_FUNCTIONAL
+     &amp;END XC
+  &amp;END METHOD
+  &amp;POTENTIAL
+      PSEUDO_TYPE GTH
+      POTENTIAL_FILE_NAME ../../PBE_PSEUDOPOTENTIALS
+      POTENTIAL_NAME ${line:ppot.inc}
+  &amp;END POTENTIAL
+  &amp;PP_BASIS
+      BASIS_SET_FILE_NAME ../../BASIS_MOLOPT
+      BASIS_TYPE CONTRACTED_GTO
+      BASIS_SET DZVP-MOLOPT-SR-GTH
+  &amp;END PP_BASIS
+  &amp;PRINT
+    &amp;BASIS_SET ON
+    &amp;END
+    &amp;ORBITALS ON
+    &amp;END
+    &amp;POTENTIAL ON
+    &amp;END
+  &amp;END
+&amp;END ATOM
+</pre></div>
+</div>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">ppot.inc</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mi">008</span><span class="n">_000_00</span> <span class="n">GTH</span><span class="o">-</span><span class="n">PBE</span><span class="o">-</span><span class="n">q6</span>
+<span class="mi">011</span><span class="n">_000_00</span> <span class="n">GTH</span><span class="o">-</span><span class="n">PBE</span><span class="o">-</span><span class="n">q9</span>
+<span class="mi">013</span><span class="n">_000_00</span> <span class="n">GTH</span><span class="o">-</span><span class="n">PBE</span><span class="o">-</span><span class="n">q3</span>
+<span class="mi">014</span><span class="n">_000_00</span> <span class="n">GTH</span><span class="o">-</span><span class="n">PBE</span><span class="o">-</span><span class="n">q4</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">valence.inc</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mi">008</span><span class="n">_005_02</span> <span class="mi">1</span><span class="n">s2</span> <span class="mi">2</span><span class="n">p1</span>
+<span class="mi">008</span><span class="n">_006_03</span> <span class="mi">1</span><span class="n">s2</span> <span class="mi">2</span><span class="n">p2</span>
+<span class="mi">008</span><span class="n">_007_04</span> <span class="mi">1</span><span class="n">s2</span> <span class="mi">2</span><span class="n">p3</span>
+<span class="mi">008</span><span class="n">_008_03</span> <span class="mi">1</span><span class="n">s2</span> <span class="mi">2</span><span class="n">p4</span>
+<span class="mi">008</span><span class="n">_009_02</span> <span class="mi">1</span><span class="n">s2</span> <span class="mi">2</span><span class="n">p5</span>
+<span class="mi">008</span><span class="n">_010_01</span> <span class="mi">1</span><span class="n">s2</span> <span class="mi">2</span><span class="n">p6</span>
+
+<span class="mi">011</span><span class="n">_005_02</span> <span class="mi">1</span><span class="n">s2</span> <span class="mi">2</span><span class="n">p1</span>
+<span class="mi">011</span><span class="n">_006_03</span> <span class="mi">1</span><span class="n">s2</span> <span class="mi">2</span><span class="n">p2</span>
+<span class="mi">011</span><span class="n">_007_04</span> <span class="mi">1</span><span class="n">s2</span> <span class="mi">2</span><span class="n">p3</span>
+<span class="mi">011</span><span class="n">_008_03</span> <span class="mi">1</span><span class="n">s2</span> <span class="mi">2</span><span class="n">p4</span>
+<span class="mi">011</span><span class="n">_009_02</span> <span class="mi">1</span><span class="n">s2</span> <span class="mi">2</span><span class="n">p5</span>
+<span class="mi">011</span><span class="n">_010_01</span> <span class="mi">1</span><span class="n">s2</span> <span class="mi">2</span><span class="n">p6</span>
+<span class="mi">011</span><span class="n">_011_02</span> <span class="mi">1</span><span class="n">s2</span> <span class="mi">2</span><span class="n">p6</span> <span class="mi">2</span><span class="n">s1</span>
+<span class="mi">011</span><span class="n">_012_01</span> <span class="mi">1</span><span class="n">s2</span> <span class="mi">2</span><span class="n">p6</span> <span class="mi">2</span><span class="n">s2</span>
+<span class="mi">011</span><span class="n">_013_02</span> <span class="mi">1</span><span class="n">s2</span> <span class="mi">2</span><span class="n">p6</span> <span class="mi">2</span><span class="n">s2</span> <span class="mi">3</span><span class="n">p1</span>
+
+<span class="mi">013</span><span class="n">_011_02</span> <span class="mi">1</span><span class="n">s1</span>
+<span class="mi">013</span><span class="n">_012_01</span> <span class="mi">1</span><span class="n">s2</span>
+<span class="mi">013</span><span class="n">_013_02</span> <span class="mi">1</span><span class="n">s2</span> <span class="mi">2</span><span class="n">p1</span>
+<span class="mi">013</span><span class="n">_014_03</span> <span class="mi">1</span><span class="n">s2</span> <span class="mi">2</span><span class="n">p2</span>
+
+<span class="mi">014</span><span class="n">_011_02</span> <span class="mi">1</span><span class="n">s1</span>
+<span class="mi">014</span><span class="n">_012_01</span> <span class="mi">1</span><span class="n">s2</span>
+<span class="mi">014</span><span class="n">_013_02</span> <span class="mi">1</span><span class="n">s2</span> <span class="mi">2</span><span class="n">p1</span>
+<span class="mi">014</span><span class="n">_014_03</span> <span class="mi">1</span><span class="n">s2</span> <span class="mi">2</span><span class="n">p2</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="simple-template-file-for-psi4">
+<h3>5.1.2.6. Simple template file for PSI4<a class="headerlink" href="#simple-template-file-for-psi4" title="Permalink to this headline">¶</a></h3>
+<p>The following template file uses the BLYP functional and the built-in
+<code class="docutils literal"><span class="pre">cc-pvdz</span></code> basis set of PSI4:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>molecule {
+ ${charge} ${mult}
+ ${element} 0.0 0.0 0.0
+}
+
+set {
+ basis cc-pvdz
+ scf_type df
+ guess sad
+ molden_write true
+ reference uhf
+}
+
+energy(&#39;blyp&#39;)
+</pre></div>
+</div>
+<p>Note that the flags <code class="docutils literal"><span class="pre">molden_write</span> <span class="pre">true</span></code> and <code class="docutils literal"><span class="pre">reference</span> <span class="pre">uhf</span></code> are required.
+The former instructs the SCF program to write the orbitals, which HORTON picks
+up to compute atomic densities. The latter is needed because, usually, most of the
+atomic computations are on open-shell systems. Because PSI4 only writes Molden
+files for SCF computations, it is not possible to prepare atomic densities with
+other levels of theory with PSI4.</p>
+</div>
+</div>
+<div class="section" id="horton-wpart-py-aim-analysis-based-on-a-wavefunction-file">
+<span id="wpart"></span><h2>5.1.3. <code class="docutils literal"><span class="pre">horton-wpart.py</span></code> &#8211; AIM analysis based on a wavefunction file<a class="headerlink" href="#horton-wpart-py-aim-analysis-based-on-a-wavefunction-file" title="Permalink to this headline">¶</a></h2>
+<p>The basic usage of <code class="docutils literal"><span class="pre">horton-wpart.py</span></code> is as follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">horton</span><span class="o">-</span><span class="n">wpart</span><span class="o">.</span><span class="n">py</span> <span class="n">wfn</span> <span class="n">output</span><span class="o">.</span><span class="n">h5</span><span class="p">[:</span><span class="n">group</span><span class="p">]</span> <span class="p">{</span><span class="n">b</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">hi</span><span class="p">,</span><span class="ow">is</span><span class="p">,</span><span class="n">he</span><span class="p">}</span> <span class="p">[</span><span class="n">atoms</span><span class="o">.</span><span class="n">h5</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>This script has four important arguments:</p>
+<ol class="arabic">
+<li><p class="first">The <code class="docutils literal"><span class="pre">wfn</span></code> argument is the wave-function file, like a Gaussian03 or 09 formatted checkpoint file, a
+Molekel file or a Molden input file.</p>
+</li>
+<li><p class="first">The output file (HDF5 format) in which the partitioning results are written.
+Usually, the output file has the
+<code class="docutils literal"><span class="pre">.h5</span></code> extension. The output file is optionally followed by a colon and a group
+suffix. This suffix can be used to specify a group in the HDF5 output file
+where the output is to be stored.</p>
+</li>
+<li><p class="first">The third argument refers to the partitioning scheme:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">b</span></code>: Becke partitioning. <a class="reference internal" href="tech_ref_literature.html#becke1988-multicenter" id="id9">[becke1988_multicenter]</a></li>
+<li><code class="docutils literal"><span class="pre">h</span></code>: Hirshfeld partitioning. <a class="reference internal" href="tech_ref_literature.html#hirshfeld1977" id="id10">[hirshfeld1977]</a></li>
+<li><code class="docutils literal"><span class="pre">hi</span></code>: Iterative Hirshfeld partitioning. <a class="reference internal" href="tech_ref_literature.html#bultinck2007" id="id11">[bultinck2007]</a></li>
+<li><code class="docutils literal"><span class="pre">is</span></code>: Iterative Stockholder partitioning. <a class="reference internal" href="tech_ref_literature.html#lillestolen2008" id="id12">[lillestolen2008]</a></li>
+<li><code class="docutils literal"><span class="pre">he</span></code>: Extended Hirshfeld partitioning. <a class="reference internal" href="tech_ref_literature.html#verstraelen2013" id="id13">[verstraelen2013]</a></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">The <code class="docutils literal"><span class="pre">atoms.h5</span></code> argument is only needed for the Hirshfeld variants, not for
+<code class="docutils literal"><span class="pre">b</span></code> and <code class="docutils literal"><span class="pre">is</span></code>. The file <code class="docutils literal"><span class="pre">atoms.h5</span></code> contains a database of pro-atoms and
+can be generated as explained in <a class="reference internal" href="#atomdb"><span class="std std-ref">horton-atomdb.py &#8211; Build a pro-atom database</span></a>.</p>
+</li>
+</ol>
+<p>This script computes atomic weight functions, and derives all AIM
+observables that are implemented for that scheme. These results are stored in
+the specified HDF5 output file.</p>
+<p>An elaborate description of all command-line arguments can be obtained from:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>horton-wpart.py --help
+</pre></div>
+</div>
+<p>The integration grid can be tuned with <a class="reference internal" href="tech_ref_grids.html#ref-grid-option"><span class="std std-ref">The &#8211;grid option</span></a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When a post-Hartree-Fock (post-HF) level is used in Gaussian 03/09 (MP2, MP3, CC or
+CI), you must add the keyword <code class="docutils literal"><span class="pre">Density=current</span></code> to the route section in the
+Gaussian input file. This is needed to have the corresponding density matrix
+in the formatted checkpoint file. When such a post-HF density matrix is
+present, HORTON will load that density matrix instead of the SCF density
+matrix. Also note that for some levels of theory, no 1RDM is constructed,
+including MP4, MP5, ZINDO and QCISD(T).</p>
+</div>
+</div>
+<div class="section" id="horton-cpart-py-aim-analysis-based-on-a-cube-file">
+<span id="cpart"></span><h2>5.1.4. <code class="docutils literal"><span class="pre">horton-cpart.py</span></code> &#8211; AIM analysis based on a cube file<a class="headerlink" href="#horton-cpart-py-aim-analysis-based-on-a-cube-file" title="Permalink to this headline">¶</a></h2>
+<p>The basic usage of <code class="docutils literal"><span class="pre">horton-cpart.py</span></code> is as follows:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>horton-cpart.py cube output.h5:group <span class="o">{</span>h,hi,he<span class="o">}</span> atoms.h5
+</pre></div>
+</div>
+<p>The script takes three arguments:</p>
+<ol class="arabic">
+<li><p class="first">The <code class="docutils literal"><span class="pre">cube</span></code> argument can be a Gaussian cube file (possibly generated with
+another program, e.g. CP2K). Some information must be added to the cube file
+about the effective core charges that were used. This information is needed
+to compute the correct net charges. (This is not only relevant for the final
+output, but also for constructing the proper pro-atoms. When these numbers
+are not set correctly, you&#8217;ll get garbage output.)</p>
+<p>For example, given an original cube file with the following header:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">-</span><span class="n">Quickstep</span><span class="o">-</span>
+ <span class="n">ELECTRON</span> <span class="n">DENSITY</span>
+   <span class="mi">18</span>    <span class="mf">0.000000</span>    <span class="mf">0.000000</span>    <span class="mf">0.000000</span>
+   <span class="mi">54</span>    <span class="mf">0.183933</span>    <span class="mf">0.000000</span>    <span class="mf">0.000000</span>
+   <span class="mi">75</span>    <span class="mf">0.000000</span>    <span class="mf">0.187713</span>    <span class="mf">0.000000</span>
+   <span class="mi">81</span>    <span class="mf">0.000000</span>    <span class="mf">0.000000</span>    <span class="mf">0.190349</span>
+    <span class="mi">8</span>    <span class="mf">0.000000</span>    <span class="mf">0.000000</span>    <span class="mf">3.677294</span>    <span class="mf">0.000000</span>
+    <span class="mi">8</span>    <span class="mf">0.000000</span>    <span class="mf">4.966200</span>   <span class="mf">10.401166</span>    <span class="mf">0.000000</span>
+    <span class="mi">8</span>    <span class="mf">0.000000</span>    <span class="mf">0.000000</span>   <span class="mf">10.401166</span>    <span class="mf">0.000000</span>
+    <span class="mi">8</span>    <span class="mf">0.000000</span>    <span class="mf">4.966200</span>    <span class="mf">3.677294</span>    <span class="mf">0.000000</span>
+    <span class="mi">8</span>    <span class="mf">0.000000</span>    <span class="mf">2.483100</span>    <span class="mf">0.000000</span>    <span class="mf">2.243351</span>
+    <span class="mi">8</span>    <span class="mf">0.000000</span>    <span class="mf">7.449300</span>    <span class="mf">0.000000</span>   <span class="mf">13.174925</span>
+    <span class="mi">8</span>    <span class="mf">0.000000</span>    <span class="mf">2.483100</span>    <span class="mf">4.554391</span>    <span class="mf">4.206115</span>
+    <span class="mi">8</span>    <span class="mf">0.000000</span>    <span class="mf">2.483100</span>    <span class="mf">9.524087</span>    <span class="mf">4.206115</span>
+    <span class="mi">8</span>    <span class="mf">0.000000</span>    <span class="mf">7.449300</span>    <span class="mf">9.524087</span>   <span class="mf">11.212180</span>
+    <span class="mi">8</span>    <span class="mf">0.000000</span>    <span class="mf">7.449300</span>    <span class="mf">4.554391</span>   <span class="mf">11.212180</span>
+    <span class="mi">8</span>    <span class="mf">0.000000</span>    <span class="mf">4.966200</span>    <span class="mf">7.039230</span>    <span class="mf">7.709138</span>
+    <span class="mi">8</span>    <span class="mf">0.000000</span>    <span class="mf">0.000000</span>    <span class="mf">7.039230</span>    <span class="mf">7.709138</span>
+   <span class="mi">14</span>    <span class="mf">0.000000</span>    <span class="mf">2.483100</span>    <span class="mf">2.971972</span>    <span class="mf">1.606588</span>
+   <span class="mi">14</span>    <span class="mf">0.000000</span>    <span class="mf">2.483100</span>   <span class="mf">11.106506</span>    <span class="mf">1.606588</span>
+   <span class="mi">14</span>    <span class="mf">0.000000</span>    <span class="mf">7.449300</span>   <span class="mf">11.106506</span>   <span class="mf">13.811687</span>
+   <span class="mi">14</span>    <span class="mf">0.000000</span>    <span class="mf">7.449300</span>    <span class="mf">2.971972</span>   <span class="mf">13.811687</span>
+   <span class="mi">14</span>    <span class="mf">0.000000</span>    <span class="mf">2.483100</span>    <span class="mf">7.039230</span>    <span class="mf">5.959157</span>
+   <span class="mi">14</span>    <span class="mf">0.000000</span>    <span class="mf">7.449300</span>    <span class="mf">7.039230</span>    <span class="mf">9.459119</span>
+</pre></div>
+</div>
+<p>Now consider the case that 6 effective electrons were used for oxygen and 4
+effective electrons for silicon. Then, the second column in the atom lines
+has to be set to the effective core charge. (This number is not used in the
+cube format.) In this case, you get:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">-</span><span class="n">Quickstep</span><span class="o">-</span>
+ <span class="n">ELECTRON</span> <span class="n">DENSITY</span>
+   <span class="mi">18</span>    <span class="mf">0.000000</span>    <span class="mf">0.000000</span>    <span class="mf">0.000000</span>
+   <span class="mi">54</span>    <span class="mf">0.183933</span>    <span class="mf">0.000000</span>    <span class="mf">0.000000</span>
+   <span class="mi">75</span>    <span class="mf">0.000000</span>    <span class="mf">0.187713</span>    <span class="mf">0.000000</span>
+   <span class="mi">81</span>    <span class="mf">0.000000</span>    <span class="mf">0.000000</span>    <span class="mf">0.190349</span>
+    <span class="mi">8</span>    <span class="mf">6.0</span>         <span class="mf">0.000000</span>    <span class="mf">3.677294</span>    <span class="mf">0.000000</span>
+    <span class="mi">8</span>    <span class="mf">6.0</span>         <span class="mf">4.966200</span>   <span class="mf">10.401166</span>    <span class="mf">0.000000</span>
+    <span class="mi">8</span>    <span class="mf">6.0</span>         <span class="mf">0.000000</span>   <span class="mf">10.401166</span>    <span class="mf">0.000000</span>
+    <span class="mi">8</span>    <span class="mf">6.0</span>         <span class="mf">4.966200</span>    <span class="mf">3.677294</span>    <span class="mf">0.000000</span>
+    <span class="mi">8</span>    <span class="mf">6.0</span>         <span class="mf">2.483100</span>    <span class="mf">0.000000</span>    <span class="mf">2.243351</span>
+    <span class="mi">8</span>    <span class="mf">6.0</span>         <span class="mf">7.449300</span>    <span class="mf">0.000000</span>   <span class="mf">13.174925</span>
+    <span class="mi">8</span>    <span class="mf">6.0</span>         <span class="mf">2.483100</span>    <span class="mf">4.554391</span>    <span class="mf">4.206115</span>
+    <span class="mi">8</span>    <span class="mf">6.0</span>         <span class="mf">2.483100</span>    <span class="mf">9.524087</span>    <span class="mf">4.206115</span>
+    <span class="mi">8</span>    <span class="mf">6.0</span>         <span class="mf">7.449300</span>    <span class="mf">9.524087</span>   <span class="mf">11.212180</span>
+    <span class="mi">8</span>    <span class="mf">6.0</span>         <span class="mf">7.449300</span>    <span class="mf">4.554391</span>   <span class="mf">11.212180</span>
+    <span class="mi">8</span>    <span class="mf">6.0</span>         <span class="mf">4.966200</span>    <span class="mf">7.039230</span>    <span class="mf">7.709138</span>
+    <span class="mi">8</span>    <span class="mf">6.0</span>         <span class="mf">0.000000</span>    <span class="mf">7.039230</span>    <span class="mf">7.709138</span>
+   <span class="mi">14</span>    <span class="mf">4.0</span>         <span class="mf">2.483100</span>    <span class="mf">2.971972</span>    <span class="mf">1.606588</span>
+   <span class="mi">14</span>    <span class="mf">4.0</span>         <span class="mf">2.483100</span>   <span class="mf">11.106506</span>    <span class="mf">1.606588</span>
+   <span class="mi">14</span>    <span class="mf">4.0</span>         <span class="mf">7.449300</span>   <span class="mf">11.106506</span>   <span class="mf">13.811687</span>
+   <span class="mi">14</span>    <span class="mf">4.0</span>         <span class="mf">7.449300</span>    <span class="mf">2.971972</span>   <span class="mf">13.811687</span>
+   <span class="mi">14</span>    <span class="mf">4.0</span>         <span class="mf">2.483100</span>    <span class="mf">7.039230</span>    <span class="mf">5.959157</span>
+   <span class="mi">14</span>    <span class="mf">4.0</span>         <span class="mf">7.449300</span>    <span class="mf">7.039230</span>    <span class="mf">9.459119</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">The output file (HDF5 format) in which the partitioning results are written.
+Usually, the output file has the extension
+<code class="docutils literal"><span class="pre">.h5</span></code>. The output file is optionally followed by a colon and a group
+suffix. This suffix can be used to specify a group in the HDF5 output file
+where the output is stored.</p>
+</li>
+<li><p class="first">The third argument refers to the partitioning scheme:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">h</span></code>: Hirshfeld partitioning. <a class="reference internal" href="tech_ref_literature.html#hirshfeld1977" id="id14">[hirshfeld1977]</a></li>
+<li><code class="docutils literal"><span class="pre">hi</span></code>: Iterative Hirshfeld partitioning. <a class="reference internal" href="tech_ref_literature.html#bultinck2007" id="id15">[bultinck2007]</a></li>
+<li><code class="docutils literal"><span class="pre">he</span></code>: Extended Hirshfeld partitioning. <a class="reference internal" href="tech_ref_literature.html#verstraelen2013" id="id16">[verstraelen2013]</a></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">The fourth argument is the pro-atom database generated with <code class="docutils literal"><span class="pre">horton-atomdb.py</span></code> script.</p>
+</li>
+</ol>
+<p>The <code class="docutils literal"><span class="pre">horton-cpart.py</span></code> script computes atomic weight functions, and then derives
+all AIM observables that are implemented for that scheme. These results are
+stored in the specifief HDF5 output file.</p>
+<p>The <code class="docutils literal"><span class="pre">horton-cpart.py</span></code> script is somewhat experimental. Always make sure that the
+numbers converge with an increase in the number of grid points. You may need the
+following options to control the efficiency of the program:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">--compact</span> <span class="pre">COMPACT</span></code>. Automatically determine cutoff radii for the pro-atoms,
+where <code class="docutils literal"><span class="pre">COMPACT</span></code> is the maximum number of electrons lost in the tail after
+the cutoff radius. 0.001 is typically a reasonable value for <code class="docutils literal"><span class="pre">COMPACT</span></code>. The
+pro-atoms are renormalized after setting the cutoff radii. One cutoff radius
+is defined per element. This implies that the tail of the most diffuse anion
+determines the cutoff radius when the <code class="docutils literal"><span class="pre">--compact</span></code> option is used.</li>
+<li><code class="docutils literal"><span class="pre">--greedy</span></code>. This enables a more memory-hungry version of the Iterative and
+Extended Hirshfeld algorithms that runs considerably faster. This becomes
+unfeasible for systems with huge unit cells.</li>
+<li><code class="docutils literal"><span class="pre">--stride</span> <span class="pre">STRIDE</span></code>. The <code class="docutils literal"><span class="pre">STRIDE</span></code> parameter controls the sub-sampling of the
+cube file prior to the partitioning. It is <code class="docutils literal"><span class="pre">1</span></code> by default.</li>
+</ul>
+<p>To get a complete list of command-line options, run:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">horton</span><span class="o">-</span><span class="n">cpart</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">help</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="python-interface-to-the-partitioning-code">
+<span id="partition"></span><h2>5.1.5. Python interface to the partitioning code<a class="headerlink" href="#python-interface-to-the-partitioning-code" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">horton-wpart.py</span></code> and <code class="docutils literal"><span class="pre">horton-cpart.py</span></code> scripts have a rather intuitive
+Python interface that allows you to run a more customized analysis. The script
+<code class="docutils literal"><span class="pre">data/examples/wpart/becke.py</span></code> is a simple example that runs a Becke partitioning
+to compute charges and that writes the charges into a simple text file.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">horton</span> <span class="k">import</span> <span class="o">*</span>
+
+<span class="c1"># Load the Gaussian output from file</span>
+<span class="n">fn_fchk</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get_fn</span><span class="p">(</span><span class="s1">&#39;test/water_sto3g_hf_g03.fchk&#39;</span><span class="p">)</span>
+<span class="c1"># Replace the previous line with any other fchk file, e.g. fn_fchk = &#39;yourfile.fchk&#39;.</span>
+<span class="n">mol</span> <span class="o">=</span> <span class="n">IOData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">fn_fchk</span><span class="p">)</span>
+
+<span class="c1"># Partition the density with the Becke scheme</span>
+<span class="n">grid</span> <span class="o">=</span> <span class="n">BeckeMolGrid</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">numbers</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;only&#39;</span><span class="p">)</span>
+<span class="n">moldens</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">obasis</span><span class="o">.</span><span class="n">compute_grid_density_dm</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">get_dm_full</span><span class="p">(),</span> <span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+<span class="n">wpart</span> <span class="o">=</span> <span class="n">BeckeWPart</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">numbers</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">moldens</span><span class="p">,</span> <span class="n">local</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">wpart</span><span class="o">.</span><span class="n">do_charges</span><span class="p">()</span>
+
+<span class="c1"># Write the result to a file</span>
+<span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="s1">&#39;charges.txt&#39;</span><span class="p">,</span> <span class="n">wpart</span><span class="p">[</span><span class="s1">&#39;charges&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>The unit tests in the source code contain many small examples that can be used
+as a starting point for similar scripts. These unit tests can be found in
+<code class="docutils literal"><span class="pre">horton/part/test/test_wpart.py</span></code> and <code class="docutils literal"><span class="pre">horton/part/test/test_cpart.py</span></code>.</p>
+</div>
+<div class="section" id="frequently-asked-questions">
+<span id="faq"></span><h2>5.1.6. Frequently asked questions<a class="headerlink" href="#frequently-asked-questions" title="Permalink to this headline">¶</a></h2>
+<p><strong>Which atoms-in-molecules (AIM) partitioning scheme should I use?</strong></p>
+<blockquote>
+<div><p>There is no single partitioning scheme that is most suitable for any
+application. Nevertheless, some people claim that only one AIM scheme should
+be used above all others, especially in the QTAIM and electron density
+communities. Try to stay away from such fanboyism, as it has little to do
+with good science.</p>
+<p>In practice, the choice depends on the purposes you have in mind. You should
+try to select a scheme that shows some desirable behavior.
+Typically, you would like to have a compromise between some of the following
+features:</p>
+<ul class="simple">
+<li>Numerical stability</li>
+<li>Robustness with respect to conformational changes</li>
+<li>Uniqueness of the result</li>
+<li>Computational efficiency</li>
+<li>Mathematical elegance</li>
+<li>Simplicity</li>
+<li>Linearity in the density (matrix)</li>
+<li>Chemical transferability</li>
+<li>Applicable to a broad range of systems</li>
+<li>Applicable to periodic/isolated systems</li>
+<li>Applicable to a broad range of electronic structure methods/implementations</li>
+<li>Accuracy of electrostatic interactions with a limited multipole expansion
+of the atoms</li>
+<li>Good (empirical) correlations between some AIM property with some experimental
+observable</li>
+<li>...</li>
+</ul>
+<p>It goes beyond the scope of this FAQ to describe how each partitioning scheme
+(implemented in HORTON or not) performs for these features. Some of these
+features are very difficult to assess and, therefore, are subject to intense
+debate in the literature.</p>
+<p>Regarding our own work, the following papers are directly related to this
+question:</p>
+<ul class="simple">
+<li><a class="reference internal" href="tech_ref_literature.html#verstraelen2011a" id="id17">[verstraelen2011a]</a> &#8220;Assessment of Atomic Charge Models for Gas-Phase Computations on Polypeptides&#8221;</li>
+<li><a class="reference internal" href="tech_ref_literature.html#verstraelen2012a" id="id18">[verstraelen2012a]</a> &#8220;The conformational sensitivity of iterative stockholder partitioning schemes&#8221;</li>
+<li><a class="reference internal" href="tech_ref_literature.html#verstraelen2013" id="id19">[verstraelen2013]</a> &#8220;Hirshfeld-E Partitioning: AIM Charges with an Improved Trade-off between Robustness and Accurate Electrostatics&#8221;</li>
+</ul>
+<p>The following are also related to this question, but the list is far from
+complete:</p>
+<ul class="simple">
+<li><a class="reference internal" href="tech_ref_literature.html#bultinck2007" id="id20">[bultinck2007]</a> &#8220;Critical analysis and extension of the Hirshfeld atoms in molecules&#8221;</li>
+<li><a class="reference internal" href="tech_ref_literature.html#bultinck2007b" id="id21">[bultinck2007b]</a> &#8220;Uniqueness and basis set dependence of iterative Hirshfeld charges&#8221;</li>
+</ul>
+<p>If you have more suggestions, please drop me a note: <a class="reference external" href="mailto:Toon&#46;Verstraelen&#37;&#52;&#48;UGent&#46;be">Toon<span>&#46;</span>Verstraelen<span>&#64;</span>UGent<span>&#46;</span>be</a>.</p>
+</div></blockquote>
+<p><strong>What is the recommended level of theory for computing the pro-atom databses?</strong></p>
+<blockquote>
+<div><p>This question is relevant to the following methods implemented in HORTON:
+Hirshfeld, Hirshfeld-I and Hirshfeld-E, which require a pro-atoms database. They are referred to in this answer
+as Hirshfeld-like schemes.</p>
+<p>In principle, you are free to choose any level of theory. In
+practice, several papers tend to be consistent in the level of theory (and
+basis set) that is used for the molecular and pro-atomic computations.
+See for example: <a class="reference internal" href="tech_ref_literature.html#bultinck2007" id="id22">[bultinck2007]</a>, <a class="reference internal" href="tech_ref_literature.html#verstraelen2009" id="id23">[verstraelen2009]</a>, <a class="reference internal" href="tech_ref_literature.html#verstraelen2011a" id="id24">[verstraelen2011a]</a>,
+<a class="reference internal" href="tech_ref_literature.html#verstraelen2011b" id="id25">[verstraelen2011b]</a>, <a class="reference internal" href="tech_ref_literature.html#vanduyfhuys2012" id="id26">[vanduyfhuys2012]</a>, <a class="reference internal" href="tech_ref_literature.html#verstraelen2012a" id="id27">[verstraelen2012a]</a>,
+<a class="reference internal" href="tech_ref_literature.html#verstraelen2012b" id="id28">[verstraelen2012b]</a>, <a class="reference internal" href="tech_ref_literature.html#verstraelen2013" id="id29">[verstraelen2013]</a>.</p>
+<p>One motivation for this consistency is that Hirshfeld-like partitioning
+schemes yield atoms-in-molecules that are maximally similar to the
+pro-atoms. <a class="reference internal" href="tech_ref_literature.html#nalewajski2000" id="id30">[nalewajski2000]</a> (Technically speaking, the sum
+of the <a class="reference external" href="https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence">Kullback-Leibler divergence</a>
+between the atomic and pro-atomic densities for all the atoms is minimized.)
+This principle is (or should be) one of the reasons that Hirshfeld-like
+charges are somewhat transferable between chemically similar atoms. You
+could hope that the Kullback-Leibler divergence is easier to minimize when
+the molecular and pro-atomic densities are computed as consistently as
+possible. Thus, using the same level of theory and basis set is advised.</p>
+<p>Another motivation is that such consistency may (to some degree) result in,
+cancellation of errors, when comparing Hirshfeld-like charges computed at different
+levels of theory. For example, it is found that Hirshfeld-I charges have
+only a small basis set dependency based on <a class="reference internal" href="tech_ref_literature.html#bultinck2007b" id="id31">[bultinck2007b]</a>. In this work, the
+molecular and pro-atomic densities were computed consistently.</p>
+<p>At the end, it can also be argued that without consistency in the level of
+theory, there are so many possible combinations that it becomes impossible
+to make a well-motivated choice. Then again, this is a problem that
+computational chemists usually embrace with open arms hoping that they
+will find a unique combination of levels of theory that turns out to be
+useful.</p>
+</div></blockquote>
+<p><strong>How can one generate Cube files with CP2K?</strong></p>
+<blockquote>
+<div>Electron density cube files can be generated with CP2K by adding the following section to the CP2K input file: <a class="reference external" href="http://manual.cp2k.org/trunk/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/E_DENSITY_CUBE.html">E_DENSITY_CUBE</a>.</div></blockquote>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="user_postproc_espfit.html" class="btn btn-neutral float-right" title="5.2. Electrostatic potential fitting" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="user_postproc.html" class="btn btn-neutral" title="5. Post-processing" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.0 built from release 2.0.0-244-gaaf5e2b. </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 16, 2016.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.0.0-244-gaaf5e2b',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

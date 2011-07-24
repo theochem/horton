@@ -1,0 +1,886 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.11.1. horton.orbital_entanglement.orbital_entanglement – One- and two-orbital entanglement measures &mdash; HORTON 2.0.2 (Jun 30, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="HORTON 2.0.2 (Jun 30, 2017) documentation" href="../index.html"/>
+        <link rel="up" title="3.11. horton.orbital_entanglement – Methods for measuring orbital entanglement" href="pck_horton_orbital_entanglement.html"/>
+        <link rel="next" title="3.12. horton.part – Density-based partitioning (fuzzy atoms-in-molecules) package" href="pck_horton_part.html"/>
+        <link rel="prev" title="3.11. horton.orbital_entanglement – Methods for measuring orbital entanglement" href="pck_horton_orbital_entanglement.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> – The main HORTON Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_correlatedwfn.html">3.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn</span></code> – Methods for correlated wavefunctions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.3. <code class="docutils literal"><span class="pre">horton.espfit</span></code> – Electrostatic potential fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_gbasis.html">3.4. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.5. <code class="docutils literal"><span class="pre">horton.grid</span></code> – Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.6. <code class="docutils literal"><span class="pre">horton.io</span></code> – Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_localization.html">3.7. <code class="docutils literal"><span class="pre">horton.localization</span></code> – Methods for orbital localization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.8. <code class="docutils literal"><span class="pre">horton.matrix</span></code> – One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.9. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> – Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.10. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> – Model Hamiltonians</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_orbital_entanglement.html">3.11. <code class="docutils literal"><span class="pre">horton.orbital_entanglement</span></code> – Methods for measuring orbital entanglement</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.11.1. <code class="docutils literal"><span class="pre">horton.orbital_entanglement.orbital_entanglement</span></code> – One- and two-orbital entanglement measures</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.12. <code class="docutils literal"><span class="pre">horton.part</span></code> – Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.13. <code class="docutils literal"><span class="pre">horton.scripts</span></code> – Code (solely) used by HORTON’s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+        
+          <li><a href="pck_horton_orbital_entanglement.html">3.11. <code class="docutils literal"><span class="pre">horton.orbital_entanglement</span></code> – Methods for measuring orbital entanglement</a> &raquo;</li>
+        
+      <li>3.11.1. <code class="docutils literal"><span class="pre">horton.orbital_entanglement.orbital_entanglement</span></code> – One- and two-orbital entanglement measures</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/lib/mod_horton_orbital_entanglement_orbital_entanglement.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-horton.orbital_entanglement.orbital_entanglement">
+<span id="horton-orbital-entanglement-orbital-entanglement-one-and-two-orbital-entanglement-measures"></span><h1>3.11.1. <code class="docutils literal"><span class="pre">horton.orbital_entanglement.orbital_entanglement</span></code> – One- and two-orbital entanglement measures<a class="headerlink" href="#module-horton.orbital_entanglement.orbital_entanglement" title="Permalink to this headline">¶</a></h1>
+<p>Abbreviations used in this module:</p>
+<ul class="simple">
+<li>dm1 = a 1-RDM</li>
+<li>dm2 = a 2-RDM</li>
+<li>dm3 = a 3-RDM</li>
+<li>dm4 = a 4-RDM</li>
+<li>odm1 = one-orbital reduced density matrix</li>
+<li>odm2 = two-orbital reduced density matrix</li>
+<li>soentropy = single-orbital entropy</li>
+<li>toentropy = two-orbital entropy</li>
+<li>mutualinfo = mutual information</li>
+</ul>
+<dl class="class">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement">
+<em class="property">class </em><code class="descclassname">horton.orbital_entanglement.orbital_entanglement.</code><code class="descname">OrbitalEntanglement</code><span class="sig-paren">(</span><em>lf</em>, <em>one_dm</em>, <em>two_dm</em>, <em>three_dm=None</em>, <em>four_dm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<blockquote>
+<div><p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>lf</dt>
+<dd>Instance of <a class="reference internal" href="mod_horton_matrix_dense.html#horton.matrix.dense.DenseLinalgFactory" title="horton.matrix.dense.DenseLinalgFactory"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.dense.DenseLinalgFactory</span></code></a> or <a class="reference internal" href="mod_horton_matrix_cholesky.html#horton.matrix.cholesky.CholeskyLinalgFactory" title="horton.matrix.cholesky.CholeskyLinalgFactory"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.cholesky.CholeskyLinalgFactory</span></code></a></dd>
+<dt>one_dm</dt>
+<dd><p class="first">Instance of <a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.OneIndex" title="horton.matrix.base.OneIndex"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.base.OneIndex</span></code></a></p>
+<p class="last">A 1-RDM</p>
+</dd>
+<dt>two_dm</dt>
+<dd><p class="first">List of instances of <a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.TwoIndex" title="horton.matrix.base.TwoIndex"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.base.TwoIndex</span></code></a></p>
+<p class="last">List of 2-RDM’s. e.g. [<span class="math">\(\Gamma_{pp}^{qq}\)</span>, <span class="math">\(\Gamma_{pq}^{pq}\)</span>]</p>
+</dd>
+</dl>
+</div></blockquote>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>three_dm</dt>
+<dd><p class="first">Instance of <a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.ThreeIndex" title="horton.matrix.base.ThreeIndex"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.base.ThreeIndex</span></code></a></p>
+<p class="last">A 3-RDM.</p>
+</dd>
+<dt>four_dm</dt>
+<dd><p class="first">Instance of <a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.FourIndex" title="horton.matrix.base.FourIndex"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.base.FourIndex</span></code></a></p>
+<p class="last">A 4-RDM.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.__call__">
+<code class="descname">__call__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>dumps single-orbital entropy and orbital-pair mututal information</p>
+<p>see <a class="reference internal" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.dump_output" title="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.dump_output"><code class="xref py py-meth docutils literal"><span class="pre">horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.dump_output()</span></code></a> for more info</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>lf</em>, <em>one_dm</em>, <em>two_dm</em>, <em>three_dm=None</em>, <em>four_dm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>lf</dt>
+<dd>Instance of <a class="reference internal" href="mod_horton_matrix_dense.html#horton.matrix.dense.DenseLinalgFactory" title="horton.matrix.dense.DenseLinalgFactory"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.dense.DenseLinalgFactory</span></code></a> or <a class="reference internal" href="mod_horton_matrix_cholesky.html#horton.matrix.cholesky.CholeskyLinalgFactory" title="horton.matrix.cholesky.CholeskyLinalgFactory"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.cholesky.CholeskyLinalgFactory</span></code></a></dd>
+<dt>one_dm</dt>
+<dd><p class="first">Instance of <a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.OneIndex" title="horton.matrix.base.OneIndex"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.base.OneIndex</span></code></a></p>
+<p class="last">A 1-RDM</p>
+</dd>
+<dt>two_dm</dt>
+<dd><p class="first">List of instances of <a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.TwoIndex" title="horton.matrix.base.TwoIndex"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.base.TwoIndex</span></code></a></p>
+<p class="last">List of 2-RDM’s. e.g. [<span class="math">\(\Gamma_{pp}^{qq}\)</span>, <span class="math">\(\Gamma_{pq}^{pq}\)</span>]</p>
+</dd>
+</dl>
+</div></blockquote>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>three_dm</dt>
+<dd><p class="first">Instance of <a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.ThreeIndex" title="horton.matrix.base.ThreeIndex"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.base.ThreeIndex</span></code></a></p>
+<p class="last">A 3-RDM.</p>
+</dd>
+<dt>four_dm</dt>
+<dd><p class="first">Instance of <a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.FourIndex" title="horton.matrix.base.FourIndex"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.base.FourIndex</span></code></a></p>
+<p class="last">A 4-RDM.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.append_odm1">
+<code class="descname">append_odm1</code><span class="sig-paren">(</span><em>index</em>, <em>matrix</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.append_odm1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append index and one-orbital-reduced density matrix of orbital
+‘index’ to list.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>index</dt>
+<dd>Orbital index.</dd>
+<dt>matrix</dt>
+<dd>The OneIndex object containing the ODMs.</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.append_odm2">
+<code class="descname">append_odm2</code><span class="sig-paren">(</span><em>index1</em>, <em>index2</em>, <em>matrix</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.append_odm2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append indices and two-orbital-reduced density matrix of orbital
+pair ‘index1/index2’ to list.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>index1</dt>
+<dd>First orbital index.</dd>
+<dt>index2</dt>
+<dd>Second orbital index.</dd>
+<dt>matrix</dt>
+<dd>The OneIndex object containing the ODMs.</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.calculate_entropy_term">
+<code class="descname">calculate_entropy_term</code><span class="sig-paren">(</span><em>val</em>, <em>select=’vonNeumann’</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.calculate_entropy_term" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate entropic term</p>
+<p><strong>Arguements</strong></p>
+<dl class="docutils">
+<dt>val</dt>
+<dd>Used to determine entropy</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>Select entropy function. Default: von Neumann.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear all information</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.clear_dm">
+<code class="descname">clear_dm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.clear_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the orbital density matrices</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.compute_mutual_information">
+<code class="descname">compute_mutual_information</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.compute_mutual_information" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute mutual information using the single-orbital entropy and the
+two-orbital entropy.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>one_entropy</dt>
+<dd>Single-orbital entropy.</dd>
+<dt>two_entropy</dt>
+<dd>Two-orbital entropy.</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.compute_odm1">
+<code class="descname">compute_odm1</code><span class="sig-paren">(</span><em>index1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.compute_odm1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.compute_odm2">
+<code class="descname">compute_odm2</code><span class="sig-paren">(</span><em>index1</em>, <em>index2</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.compute_odm2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.compute_single_orbital_entropy">
+<code class="descname">compute_single_orbital_entropy</code><span class="sig-paren">(</span><em>select=’vonNeumann’</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.compute_single_orbital_entropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute single-orbital entropy for each orbital in the active space.
+Currently, only the von Neumann entropy is supported.</p>
+<p>The 1-ODM is assumed to be diagonalized.</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>Select entropy function. Default: von Neumann.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.compute_two_orbital_entropy">
+<code class="descname">compute_two_orbital_entropy</code><span class="sig-paren">(</span><em>select=’vonNeumann’</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.compute_two_orbital_entropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute two-orbital entropy for each orbital in the active space.
+Currently, only the von Neumann entropy is supported.</p>
+<p>The 1-ODM and 2-ODM are assumed to be diagonalized.</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>Select entropy function. Default: von Neumann.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.diagonalize">
+<code class="descname">diagonalize</code><span class="sig-paren">(</span><em>mat</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.diagonalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns eigenvalues of a TwoIndex instance. Only real eigenvalues
+are returned, any imaginary part will be ignored</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>mat</dt>
+<dd>An TwoIndex instance to be diagonalized.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.dump_output">
+<code class="descname">dump_output</code><span class="sig-paren">(</span><em>file1=’s1.dat’</em>, <em>file2=’i12.dat’</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.dump_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump entanglement output files for postprocessing.
+Output files can be visualized using the
+build_orbital_entanglement_diagrams.sh script, which uses gnuplot.</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>file1</dt>
+<dd><p class="first">string</p>
+<p>Filename for storing single-orbital entropy</p>
+<p>Default: s1.dat</p>
+<p class="last">Format: First column is orbital index. Second column is single-orbital entropy</p>
+</dd>
+<dt>file2</dt>
+<dd><p class="first">string</p>
+<p>Filename for storing orbital-pair mutual information</p>
+<p>Default: i12.dat</p>
+<p class="last">Format: First two columns are orbital indices. Second column is corresponding orbital-pair mutual information</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.cache">
+<code class="descname">cache</code><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>The cache object in which the main attributes are stored</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.dm1">
+<code class="descname">dm1</code><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.dm1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Some input 1-RDM</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.dm2">
+<code class="descname">dm2</code><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.dm2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Some input 2-RDM</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.dm3">
+<code class="descname">dm3</code><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.dm3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Some input 3-RDM</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.dm4">
+<code class="descname">dm4</code><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.dm4" title="Permalink to this definition">¶</a></dt>
+<dd><p>Some input 4-RDM</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.lf">
+<code class="descname">lf</code><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.lf" title="Permalink to this definition">¶</a></dt>
+<dd><p>The LinalgFactory.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.mutual_info">
+<code class="descname">mutual_info</code><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.mutual_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>The mutual information</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.nbasis">
+<code class="descname">nbasis</code><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.nbasis" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of basis functions.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.odm1">
+<code class="descname">odm1</code><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.odm1" title="Permalink to this definition">¶</a></dt>
+<dd><p>The 1-ORDM</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.odm2">
+<code class="descname">odm2</code><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.odm2" title="Permalink to this definition">¶</a></dt>
+<dd><p>The 2-ORDM</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.so_entropy">
+<code class="descname">so_entropy</code><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.so_entropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>The single-orbital entropy</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.to_entropy">
+<code class="descname">to_entropy</code><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.to_entropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>The two-orbital entropy</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog">
+<em class="property">class </em><code class="descclassname">horton.orbital_entanglement.orbital_entanglement.</code><code class="descname">OrbitalEntanglementAp1rog</code><span class="sig-paren">(</span><em>lf</em>, <em>one_dm</em>, <em>two_dm</em>, <em>three_dm=None</em>, <em>four_dm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement" title="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement"><code class="xref py py-class docutils literal"><span class="pre">horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement</span></code></a></p>
+<blockquote>
+<div><p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>lf</dt>
+<dd>Instance of <a class="reference internal" href="mod_horton_matrix_dense.html#horton.matrix.dense.DenseLinalgFactory" title="horton.matrix.dense.DenseLinalgFactory"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.dense.DenseLinalgFactory</span></code></a> or <a class="reference internal" href="mod_horton_matrix_cholesky.html#horton.matrix.cholesky.CholeskyLinalgFactory" title="horton.matrix.cholesky.CholeskyLinalgFactory"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.cholesky.CholeskyLinalgFactory</span></code></a></dd>
+<dt>one_dm</dt>
+<dd><p class="first">Instance of <a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.OneIndex" title="horton.matrix.base.OneIndex"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.base.OneIndex</span></code></a></p>
+<p class="last">A 1-RDM</p>
+</dd>
+<dt>two_dm</dt>
+<dd><p class="first">List of instances of <a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.TwoIndex" title="horton.matrix.base.TwoIndex"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.base.TwoIndex</span></code></a></p>
+<p class="last">List of 2-RDM’s. e.g. [<span class="math">\(\Gamma_{pp}^{qq}\)</span>, <span class="math">\(\Gamma_{pq}^{pq}\)</span>]</p>
+</dd>
+</dl>
+</div></blockquote>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>three_dm</dt>
+<dd><p class="first">Instance of <a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.ThreeIndex" title="horton.matrix.base.ThreeIndex"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.base.ThreeIndex</span></code></a></p>
+<p class="last">A 3-RDM.</p>
+</dd>
+<dt>four_dm</dt>
+<dd><p class="first">Instance of <a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.FourIndex" title="horton.matrix.base.FourIndex"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.base.FourIndex</span></code></a></p>
+<p class="last">A 4-RDM.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.__call__">
+<code class="descname">__call__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>dumps single-orbital entropy and orbital-pair mututal information</p>
+<p>see <a class="reference internal" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.dump_output" title="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.dump_output"><code class="xref py py-meth docutils literal"><span class="pre">horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.dump_output()</span></code></a> for more info</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>lf</em>, <em>one_dm</em>, <em>two_dm</em>, <em>three_dm=None</em>, <em>four_dm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>lf</dt>
+<dd>Instance of <a class="reference internal" href="mod_horton_matrix_dense.html#horton.matrix.dense.DenseLinalgFactory" title="horton.matrix.dense.DenseLinalgFactory"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.dense.DenseLinalgFactory</span></code></a> or <a class="reference internal" href="mod_horton_matrix_cholesky.html#horton.matrix.cholesky.CholeskyLinalgFactory" title="horton.matrix.cholesky.CholeskyLinalgFactory"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.cholesky.CholeskyLinalgFactory</span></code></a></dd>
+<dt>one_dm</dt>
+<dd><p class="first">Instance of <a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.OneIndex" title="horton.matrix.base.OneIndex"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.base.OneIndex</span></code></a></p>
+<p class="last">A 1-RDM</p>
+</dd>
+<dt>two_dm</dt>
+<dd><p class="first">List of instances of <a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.TwoIndex" title="horton.matrix.base.TwoIndex"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.base.TwoIndex</span></code></a></p>
+<p class="last">List of 2-RDM’s. e.g. [<span class="math">\(\Gamma_{pp}^{qq}\)</span>, <span class="math">\(\Gamma_{pq}^{pq}\)</span>]</p>
+</dd>
+</dl>
+</div></blockquote>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>three_dm</dt>
+<dd><p class="first">Instance of <a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.ThreeIndex" title="horton.matrix.base.ThreeIndex"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.base.ThreeIndex</span></code></a></p>
+<p class="last">A 3-RDM.</p>
+</dd>
+<dt>four_dm</dt>
+<dd><p class="first">Instance of <a class="reference internal" href="mod_horton_matrix_base.html#horton.matrix.base.FourIndex" title="horton.matrix.base.FourIndex"><code class="xref py py-class docutils literal"><span class="pre">horton.matrix.base.FourIndex</span></code></a></p>
+<p class="last">A 4-RDM.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.append_odm1">
+<code class="descname">append_odm1</code><span class="sig-paren">(</span><em>index</em>, <em>matrix</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.append_odm1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append index and one-orbital-reduced density matrix of orbital
+‘index’ to list.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>index</dt>
+<dd>Orbital index.</dd>
+<dt>matrix</dt>
+<dd>The OneIndex object containing the ODMs.</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.append_odm2">
+<code class="descname">append_odm2</code><span class="sig-paren">(</span><em>index1</em>, <em>index2</em>, <em>matrix</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.append_odm2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append indices and two-orbital-reduced density matrix of orbital
+pair ‘index1/index2’ to list.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>index1</dt>
+<dd>First orbital index.</dd>
+<dt>index2</dt>
+<dd>Second orbital index.</dd>
+<dt>matrix</dt>
+<dd>The OneIndex object containing the ODMs.</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.calculate_entropy_term">
+<code class="descname">calculate_entropy_term</code><span class="sig-paren">(</span><em>val</em>, <em>select=’vonNeumann’</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.calculate_entropy_term" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate entropic term</p>
+<p><strong>Arguements</strong></p>
+<dl class="docutils">
+<dt>val</dt>
+<dd>Used to determine entropy</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>Select entropy function. Default: von Neumann.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear all information</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.clear_dm">
+<code class="descname">clear_dm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.clear_dm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the orbital density matrices</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.compute_mutual_information">
+<code class="descname">compute_mutual_information</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.compute_mutual_information" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute mutual information using the single-orbital entropy and the
+two-orbital entropy.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>one_entropy</dt>
+<dd>Single-orbital entropy.</dd>
+<dt>two_entropy</dt>
+<dd>Two-orbital entropy.</dd>
+</dl>
+<p><strong>Optional arguments:</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.compute_odm1">
+<code class="descname">compute_odm1</code><span class="sig-paren">(</span><em>index1</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.compute_odm1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute ODM for orbital index1.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>index1</dt>
+<dd>First orbital index.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.compute_odm2">
+<code class="descname">compute_odm2</code><span class="sig-paren">(</span><em>index1</em>, <em>index2</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.compute_odm2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute 2-ODM for orbital indices ‘index1/index2’.</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>index1</dt>
+<dd>First orbital index.</dd>
+<dt>index2</dt>
+<dd>Second orbital index.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.compute_single_orbital_entropy">
+<code class="descname">compute_single_orbital_entropy</code><span class="sig-paren">(</span><em>select=’vonNeumann’</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.compute_single_orbital_entropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute single-orbital entropy for each orbital in the active space.
+Currently, only the von Neumann entropy is supported.</p>
+<p>The 1-ODM is assumed to be diagonalized.</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>Select entropy function. Default: von Neumann.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.compute_two_orbital_entropy">
+<code class="descname">compute_two_orbital_entropy</code><span class="sig-paren">(</span><em>select=’vonNeumann’</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.compute_two_orbital_entropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute two-orbital entropy for each orbital in the active space.
+Currently, only the von Neumann entropy is supported.</p>
+<p>The 1-ODM and 2-ODM are assumed to be diagonalized.</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>select</dt>
+<dd>Select entropy function. Default: von Neumann.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.diagonalize">
+<code class="descname">diagonalize</code><span class="sig-paren">(</span><em>mat</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.diagonalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns eigenvalues of a TwoIndex instance. Only real eigenvalues
+are returned, any imaginary part will be ignored</p>
+<p><strong>Arguments:</strong></p>
+<dl class="docutils">
+<dt>mat</dt>
+<dd>An TwoIndex instance to be diagonalized.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.dump_output">
+<code class="descname">dump_output</code><span class="sig-paren">(</span><em>file1=’s1.dat’</em>, <em>file2=’i12.dat’</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.dump_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump entanglement output files for postprocessing.
+Output files can be visualized using the
+build_orbital_entanglement_diagrams.sh script, which uses gnuplot.</p>
+<p><strong>Optional arguments:</strong></p>
+<dl class="docutils">
+<dt>file1</dt>
+<dd><p class="first">string</p>
+<p>Filename for storing single-orbital entropy</p>
+<p>Default: s1.dat</p>
+<p class="last">Format: First column is orbital index. Second column is single-orbital entropy</p>
+</dd>
+<dt>file2</dt>
+<dd><p class="first">string</p>
+<p>Filename for storing orbital-pair mutual information</p>
+<p>Default: i12.dat</p>
+<p class="last">Format: First two columns are orbital indices. Second column is corresponding orbital-pair mutual information</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.cache">
+<code class="descname">cache</code><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>The cache object in which the main attributes are stored</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.dm1">
+<code class="descname">dm1</code><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.dm1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Some input 1-RDM</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.dm2">
+<code class="descname">dm2</code><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.dm2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Some input 2-RDM</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.dm3">
+<code class="descname">dm3</code><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.dm3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Some input 3-RDM</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.dm4">
+<code class="descname">dm4</code><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.dm4" title="Permalink to this definition">¶</a></dt>
+<dd><p>Some input 4-RDM</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.lf">
+<code class="descname">lf</code><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.lf" title="Permalink to this definition">¶</a></dt>
+<dd><p>The LinalgFactory.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.mutual_info">
+<code class="descname">mutual_info</code><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.mutual_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>The mutual information</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.nbasis">
+<code class="descname">nbasis</code><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.nbasis" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of basis functions.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.odm1">
+<code class="descname">odm1</code><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.odm1" title="Permalink to this definition">¶</a></dt>
+<dd><p>The 1-ORDM</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.odm2">
+<code class="descname">odm2</code><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.odm2" title="Permalink to this definition">¶</a></dt>
+<dd><p>The 2-ORDM</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.so_entropy">
+<code class="descname">so_entropy</code><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.so_entropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>The single-orbital entropy</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.to_entropy">
+<code class="descname">to_entropy</code><a class="headerlink" href="#horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglementAp1rog.to_entropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>The two-orbital entropy</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pck_horton_part.html" class="btn btn-neutral float-right" title="3.12. horton.part – Density-based partitioning (fuzzy atoms-in-molecules) package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="pck_horton_orbital_entanglement.html" class="btn btn-neutral" title="3.11. horton.orbital_entanglement – Methods for measuring orbital entanglement" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.2 built from release 2.0.2 (Jun 30, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 30, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.0.2 (Jun 30, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

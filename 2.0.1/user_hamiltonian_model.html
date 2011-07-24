@@ -1,0 +1,397 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.2. Defining a model Hamiltonian &mdash; HORTON 2.0.1 (Jun 17, 2016) documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="HORTON 2.0.1 (Jun 17, 2016) documentation" href="index.html"/>
+        <link rel="up" title="3. Hamiltonians" href="user_hamiltonian.html"/>
+        <link rel="next" title="3.3. Dumping/Loading a Hamiltonian to/from a file" href="user_hamiltonian_io.html"/>
+        <link rel="prev" title="3.1. Molecular Hamiltonians" href="user_hamiltonian_molecular.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="user_hamiltonian_molecular.html">3.1. Molecular Hamiltonians</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">3.2. Defining a model Hamiltonian</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#supported-features">3.2.1. Supported features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-hubbard-model-hamiltonian">3.2.2. The Hubbard model Hamiltonian</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#preliminaries">3.2.2.1. Preliminaries</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#defining-the-hamiltonian-and-boundary-conditions-open-or-periodic">3.2.2.2. Defining the Hamiltonian and boundary conditions (open or periodic)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#filling-the-lattice">3.2.2.3. Filling the lattice</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#generate-initial-guess-orbitals-and-overlap-matrix">3.2.2.4. Generate initial guess orbitals and overlap matrix</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#example-python-script">3.2.3. Example Python script</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#restricted-hartree-fock-calculations-using-the-1-dim-hubbard-model-hamiltonian-with-pbc">3.2.3.1. Restricted Hartree-Fock calculations using the 1-dim Hubbard model Hamiltonian with PBC</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_hamiltonian_io.html">3.3. Dumping/Loading a Hamiltonian to/from a file</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">HORTON</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="user_hamiltonian.html">3. Hamiltonians</a> &raquo;</li>
+      
+    <li>3.2. Defining a model Hamiltonian</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/user_hamiltonian_model.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="defining-a-model-hamiltonian">
+<span id="modphysham"></span><h1>3.2. Defining a model Hamiltonian<a class="headerlink" href="#defining-a-model-hamiltonian" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="supported-features">
+<h2>3.2.1. Supported features<a class="headerlink" href="#supported-features" title="Permalink to this headline">¶</a></h2>
+<p>HORTON implements the <a class="reference internal" href="#hubbardham"><span class="std std-ref">1- dimensional Hubbard model Hamiltonian</span></a> with open and periodic boundary conditions. Note that only
+<code class="docutils literal"><span class="pre">DenseLinalgFactory</span></code> is supported for model Hamiltonians.</p>
+</div>
+<div class="section" id="the-hubbard-model-hamiltonian">
+<span id="hubbardham"></span><h2>3.2.2. The Hubbard model Hamiltonian<a class="headerlink" href="#the-hubbard-model-hamiltonian" title="Permalink to this headline">¶</a></h2>
+<p>The Hubbard model Hamiltonian is the simplest model of interacting particles on a lattice and reads</p>
+<div class="math" id="equation-hubbard">
+<span class="eqno">(1)</span>\[\hat{H}_{\rm Hub} = -t\sum_{j,\sigma} \left( a_{(j+1)\sigma}^{\dagger}a_{j\sigma}
++ a_{j\sigma}^{\dagger}a_{(j+1)\sigma} \right )
++U\sum_j n_{j\uparrow} n_{j\downarrow},\]</div>
+<p>where the first term is a one-electron term and accounts for the nearest-neighbor
+hopping, while the second term is the repulsive on-site interaction. The <span class="math">\(t\)</span>
+and <span class="math">\(U\)</span> are user specified parameters and <span class="math">\(\sigma\)</span> is the electron spin.</p>
+<div class="section" id="preliminaries">
+<h3>3.2.2.1. Preliminaries<a class="headerlink" href="#preliminaries" title="Permalink to this headline">¶</a></h3>
+<p>In contrast to the molecular Hamiltonian, the Hubbard Hamiltonian does not require
+a molecule and <a class="reference internal" href="lib/mod_horton_gbasis_cext.html#horton.gbasis.cext.GOBasis" title="horton.gbasis.cext.GOBasis"><code class="xref py py-class docutils literal"><span class="pre">GOBasis</span></code></a> instance. Instead, a
+<a class="reference internal" href="lib/mod_horton_matrix_dense.html#horton.matrix.dense.DenseLinalgFactory" title="horton.matrix.dense.DenseLinalgFactory"><code class="xref py py-class docutils literal"><span class="pre">DenseLinalgFactory</span></code></a> instance can
+be immediately created,</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">lf</span> <span class="o">=</span> <span class="n">DenseLinalgFactory</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that <code class="docutils literal"><span class="pre">CholeskyLinalgFactory</span></code> is not supported.</p>
+</div>
+<div class="section" id="defining-the-hamiltonian-and-boundary-conditions-open-or-periodic">
+<h3>3.2.2.2. Defining the Hamiltonian and boundary conditions (open or periodic)<a class="headerlink" href="#defining-the-hamiltonian-and-boundary-conditions-open-or-periodic" title="Permalink to this headline">¶</a></h3>
+<p>Before the hopping and on-site repulsion terms can be calculated, you need to create
+an instance of <a class="reference internal" href="lib/mod_horton_modelhamiltonians_physmodham.html#horton.modelhamiltonians.physmodham.Hubbard" title="horton.modelhamiltonians.physmodham.Hubbard"><code class="xref py py-class docutils literal"><span class="pre">Hubbard</span></code></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">modelham</span> <span class="o">=</span> <span class="n">Hubbard</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>By default, the Hubbard Hamiltonian is constructed with periodic boundary conditions.
+Open boundary conditions can be enforced during the initialization using</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">modelham</span> <span class="o">=</span> <span class="n">Hubbard</span><span class="p">(</span><span class="n">pbc</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The nearest-neighbor hopping term (<span class="math">\(t\)</span> in eq. <a href="#equation-hubbard">(1)</a>) is calculated
+using the method <a class="reference internal" href="lib/mod_horton_modelhamiltonians_physmodham.html#horton.modelhamiltonians.physmodham.Hubbard.compute_kinetic" title="horton.modelhamiltonians.physmodham.Hubbard.compute_kinetic"><code class="xref py py-meth docutils literal"><span class="pre">compute_kinetic()</span></code></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">hopping</span> <span class="o">=</span> <span class="n">modelham</span><span class="o">.</span><span class="n">compute_kinetic</span><span class="p">(</span><span class="n">lf</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The the on-site repulsion <span class="math">\(U\)</span> is calculated using the method
+<a class="reference internal" href="lib/mod_horton_modelhamiltonians_physmodham.html#horton.modelhamiltonians.physmodham.Hubbard.compute_er" title="horton.modelhamiltonians.physmodham.Hubbard.compute_er"><code class="xref py py-meth docutils literal"><span class="pre">compute_er()</span></code></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">onsite</span> <span class="o">=</span> <span class="n">modelham</span><span class="o">.</span><span class="n">compute_er</span><span class="p">(</span><span class="n">lf</span><span class="p">,</span> <span class="n">U</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Finally, all terms of the 1-dimensional Hubbard Hamiltonian are combined together
+and passed to the effective Hamiltonian class, <a class="reference internal" href="lib/mod_horton_meanfield_hamiltonian.html#horton.meanfield.hamiltonian.REffHam" title="horton.meanfield.hamiltonian.REffHam"><code class="xref py py-class docutils literal"><span class="pre">REffHam</span></code></a>,
+which can then be passed to the restricted Hartree-Fock or DFT modules,</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">terms</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">RTwoIndexTerm</span><span class="p">(</span><span class="n">hopping</span><span class="p">,</span> <span class="s1">&#39;kin&#39;</span><span class="p">),</span>
+        <span class="n">RDirectTerm</span><span class="p">(</span><span class="n">onsite</span><span class="p">,</span> <span class="s1">&#39;hartree&#39;</span><span class="p">),</span>
+        <span class="n">RExchangeTerm</span><span class="p">(</span><span class="n">onsite</span><span class="p">,</span> <span class="s1">&#39;x_hf&#39;</span><span class="p">),</span>
+        <span class="p">]</span>
+<span class="n">ham</span> <span class="o">=</span> <span class="n">REffHam</span><span class="p">(</span><span class="n">terms</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that the last step can be omitted for post-Hartree-Fock methods, like
+<a class="reference internal" href="user_estruct_ap1rog.html#user-ap1rog"><span class="std std-ref">AP1roG</span></a>, <a class="reference internal" href="user_estruct_perturbation.html#mp2"><span class="std std-ref">MP2</span></a>, <a class="reference internal" href="user_estruct_perturbation.html#pta"><span class="std std-ref">PTa</span></a>, and <a class="reference internal" href="user_estruct_perturbation.html#ptb"><span class="std std-ref">PTb</span></a>.</p>
+</div>
+<div class="section" id="filling-the-lattice">
+<h3>3.2.2.3. Filling the lattice<a class="headerlink" href="#filling-the-lattice" title="Permalink to this headline">¶</a></h3>
+<p>The number of electrons/spin-half particles on the lattice is assigned using the
+Aufbau occupation number model. An instance of the class
+<a class="reference internal" href="lib/mod_horton_meanfield_occ.html#horton.meanfield.occ.AufbauOccModel" title="horton.meanfield.occ.AufbauOccModel"><code class="xref py py-class docutils literal"><span class="pre">AufbauOccModel</span></code></a> will be used later for setting
+the occupations.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">occ_model</span> <span class="o">=</span> <span class="n">AufbauOccModel</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that the number of electrons/spin-half particles must be even and orbitals
+must be restricted.</p>
+</div>
+<div class="section" id="generate-initial-guess-orbitals-and-overlap-matrix">
+<h3>3.2.2.4. Generate initial guess orbitals and overlap matrix<a class="headerlink" href="#generate-initial-guess-orbitals-and-overlap-matrix" title="Permalink to this headline">¶</a></h3>
+<p>The instance of class <a class="reference internal" href="lib/mod_horton_matrix_dense.html#horton.matrix.dense.DenseExpansion" title="horton.matrix.dense.DenseExpansion"><code class="xref py py-class docutils literal"><span class="pre">DenseExpansion</span></code></a> by using
+the method <a class="reference internal" href="lib/mod_horton_matrix_dense.html#horton.matrix.dense.DenseLinalgFactory.create_expansion" title="horton.matrix.dense.DenseLinalgFactory.create_expansion"><code class="xref py py-meth docutils literal"><span class="pre">create_expansion()</span></code></a>
+is used to initiate the orbitals:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">orb</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_expansion</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>An initial guess can be obtained with
+<a class="reference internal" href="lib/mod_horton_meanfield_guess.html#horton.meanfield.guess.guess_core_hamiltonian" title="horton.meanfield.guess.guess_core_hamiltonian"><code class="xref py py-func docutils literal"><span class="pre">guess_core_hamiltonian()</span></code></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">guess_core_hamiltonian</span><span class="p">(</span><span class="n">olp</span><span class="p">,</span> <span class="n">hopping</span><span class="p">,</span> <span class="n">orb</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The overlap matrix of the Hubbard model can be computed using the method
+<a class="reference internal" href="lib/mod_horton_modelhamiltonians_physmodham.html#horton.modelhamiltonians.physmodham.Hubbard.compute_overlap" title="horton.modelhamiltonians.physmodham.Hubbard.compute_overlap"><code class="xref py py-meth docutils literal"><span class="pre">compute_overlap()</span></code></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">olp</span> <span class="o">=</span> <span class="n">modelham</span><span class="o">.</span><span class="n">compute_overlap</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="example-python-script">
+<h2>3.2.3. Example Python script<a class="headerlink" href="#example-python-script" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="restricted-hartree-fock-calculations-using-the-1-dim-hubbard-model-hamiltonian-with-pbc">
+<h3>3.2.3.1. Restricted Hartree-Fock calculations using the 1-dim Hubbard model Hamiltonian with PBC<a class="headerlink" href="#restricted-hartree-fock-calculations-using-the-1-dim-hubbard-model-hamiltonian-with-pbc" title="Permalink to this headline">¶</a></h3>
+<p>This example shows a restricted Hartree-Fock calculation for the half-filled
+Hubbard model. Both the number of electron spins and sites is 6. The <span class="math">\(t\)</span>
+parameter is set to -1, while the <span class="math">\(U\)</span> parameter is equal to 2. Periodic
+boundary conditions are used.</p>
+<div class="literal-block-wrapper container" id="data-examples-hamiltonian-hubbard-py">
+<div class="code-block-caption"><span class="caption-text">data/examples/hamiltonian/hubbard.py</span><a class="headerlink" href="#data-examples-hamiltonian-hubbard-py" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span>
+<span class="kn">from</span> <span class="nn">horton</span> <span class="k">import</span> <span class="o">*</span>
+
+
+<span class="c1"># Define Occupation model, expansion coefficients and overlap</span>
+<span class="c1"># -----------------------------------------------------------</span>
+<span class="n">lf</span> <span class="o">=</span> <span class="n">DenseLinalgFactory</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">occ_model</span> <span class="o">=</span> <span class="n">AufbauOccModel</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">modelham</span> <span class="o">=</span> <span class="n">Hubbard</span><span class="p">(</span><span class="n">pbc</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">orb</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_expansion</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">olp</span> <span class="o">=</span> <span class="n">modelham</span><span class="o">.</span><span class="n">compute_overlap</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+
+
+<span class="c1"># One and two-body interaction terms</span>
+<span class="c1"># ----------------------------------</span>
+
+<span class="c1"># t-param, t = -1</span>
+<span class="n">hopping</span> <span class="o">=</span> <span class="n">modelham</span><span class="o">.</span><span class="n">compute_kinetic</span><span class="p">(</span><span class="n">lf</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="c1"># U-param, U = 2</span>
+<span class="n">onsite</span> <span class="o">=</span> <span class="n">modelham</span><span class="o">.</span><span class="n">compute_er</span><span class="p">(</span><span class="n">lf</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+
+<span class="c1"># Perform initial guess</span>
+<span class="c1"># ---------------------</span>
+<span class="n">guess_core_hamiltonian</span><span class="p">(</span><span class="n">olp</span><span class="p">,</span> <span class="n">hopping</span><span class="p">,</span> <span class="n">orb</span><span class="p">)</span>
+<span class="n">terms</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">RTwoIndexTerm</span><span class="p">(</span><span class="n">hopping</span><span class="p">,</span> <span class="s1">&#39;kin&#39;</span><span class="p">),</span>
+    <span class="n">RDirectTerm</span><span class="p">(</span><span class="n">onsite</span><span class="p">,</span> <span class="s1">&#39;hartree&#39;</span><span class="p">),</span>
+    <span class="n">RExchangeTerm</span><span class="p">(</span><span class="n">onsite</span><span class="p">,</span> <span class="s1">&#39;x_hf&#39;</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="n">ham</span> <span class="o">=</span> <span class="n">REffHam</span><span class="p">(</span><span class="n">terms</span><span class="p">)</span>
+
+
+<span class="c1"># Do a Hartree-Fock calculation</span>
+<span class="c1"># -----------------------------</span>
+<span class="n">scf_solver</span> <span class="o">=</span> <span class="n">PlainSCFSolver</span><span class="p">()</span>
+<span class="n">scf_solver</span><span class="p">(</span><span class="n">ham</span><span class="p">,</span> <span class="n">lf</span><span class="p">,</span> <span class="n">olp</span><span class="p">,</span> <span class="n">occ_model</span><span class="p">,</span> <span class="n">orb</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="user_hamiltonian_io.html" class="btn btn-neutral float-right" title="3.3. Dumping/Loading a Hamiltonian to/from a file" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="user_hamiltonian_molecular.html" class="btn btn-neutral" title="3.1. Molecular Hamiltonians" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.1 built from release 2.0.1 (Jun 17, 2016). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 17, 2016.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.0.1 (Jun 17, 2016)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

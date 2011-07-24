@@ -1,0 +1,2230 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>2.7. LibXC Functionals &mdash; HORTON 2.1.0b3 (Jun 30, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="HORTON 2.1.0b3 (Jun 30, 2017) documentation" href="index.html"/>
+        <link rel="up" title="2. Reference Documentation" href="tech_ref.html"/>
+        <link rel="next" title="2.8. Acronyms" href="tech_ref_acronyms.html"/>
+        <link rel="prev" title="2.6. Gaussian basis sets" href="tech_ref_gaussian_basis.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.0b3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_contributors.html">2.1. Contributors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_release_planning.html">2.2. Release planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_release_history.html">2.3. Release history</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_file_formats.html">2.4. Data file formats (input and output)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_grids.html">2.5. Atomic integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_gaussian_basis.html">2.6. Gaussian basis sets</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">2.7. LibXC Functionals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_acronyms.html">2.8. Acronyms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_dictionary.html">2.9. HORTON dictionary of variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_ref_literature.html">2.10. Literature</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="tech_ref.html">2. Reference Documentation</a> &raquo;</li>
+        
+      <li>2.7. LibXC Functionals</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/tech_ref_functionals.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="libxc-functionals">
+<span id="ref-functionals"></span><h1>2.7. LibXC Functionals<a class="headerlink" href="#libxc-functionals" title="Permalink to this headline">¶</a></h1>
+<p>The following functionals are available in HORTON through <a class="reference external" href="http://www.tddft.org/programs/octopus/wiki/index.php/Libxc">LibXC</a> 2.2.2.
+<a class="reference internal" href="tech_ref_literature.html#marques2012" id="id1">[marques2012]</a></p>
+<dl class="docutils">
+<dt><strong>lda_k_lp</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Lee and Parr Gaussian ansatz for the kinetic energy</div>
+<div class="line"><em>CL and RG Parr, Phys. Rev. A 35, 2377-2383 (1987)</em></div>
+</div>
+</dd>
+<dt><strong>lda_k_tf</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Thomas-Fermi kinetic energy</div>
+<div class="line"><em>LH Thomas, Proc. Cambridge Phil. Soc. 23,  542-548 (1927)</em></div>
+<div class="line"><em>E Fermi. Rend. Accad. Naz. Lincei 6, 602-607 (1927)</em></div>
+</div>
+</dd>
+<dt><strong>lda_x</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Slater exchange</div>
+<div class="line"><em>PAM Dirac, Proceedings of the Cambridge Philosophical Society 26, 376 (1930)</em></div>
+<div class="line"><em>F Bloch, Zeitschrift fuer Physik 57, 545 (1929)</em></div>
+</div>
+</dd>
+<dt><strong>lda_x_1d</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Exchange in 1D</div>
+<div class="line"><em>N. Helbig, J. I. Fuks, M. Casula, M. J. Verstraete, M. A. L. Marques, I. V. Tokatly and A. Rubio, Phys. Rev. A 83, 032503 (2011)</em></div>
+</div>
+</dd>
+<dt><strong>lda_x_2d</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Slater exchange</div>
+<div class="line"><em>PAM Dirac, Proceedings of the Cambridge Philosophical Society 26, 376 (1930)</em></div>
+<div class="line"><em>F Bloch, Zeitschrift fuer Physik 57, 545 (1929)</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_1d_csc</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Casula, Sorella &amp; Senatore</div>
+<div class="line"><em>M Casula, S Sorella, and G Senatore, Phys. Rev. B 74, 245427 (2006)</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_1d_loos</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">P-F Loos correlation LDA</div>
+<div class="line"><em>P-F Loos, arXiv:1207.6849v1 [cond-mat.str-el] (2012)</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_2d_amgb</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">AMGB (for 2D systems)</div>
+<div class="line"><em>C Attaccalite et al, Phys. Rev. Lett. 88, 256601 (2002)</em></div>
+<div class="line"><em>C Attaccalite, PhD thesis</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_2d_prm</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">PRM (for 2D systems)</div>
+<div class="line"><em>S Pittalis, E Rasanen, and MAL Marques, Phys. Rev. B 78, 195322 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_gl</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Gunnarson &amp; Lundqvist</div>
+<div class="line"><em>O Gunnarsson and BI Lundqvist, PRB 13, 4274 (1976)</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_gombas</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Gombas</div>
+<div class="line"><em>P. Gombas, Pseudopotentiale (Springer-Verlag, Wien, New York, 1967)</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_hl</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Hedin &amp; Lundqvist</div>
+<div class="line"><em>L Hedin and BI Lundqvist, J. Phys. C 4, 2064 (1971)</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_ml1</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Modified LSD (version 1) of Proynov and Salahub</div>
+<div class="line"><em>EI Proynov and D Salahub, Phys. Rev. B 49, 7874 (1994)</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_ml2</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Modified LSD (version 2) of Proynov and Salahub</div>
+<div class="line"><em>EI Proynov and D Salahub, Phys. Rev. B 49, 7874 (1994)</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_ob_pw</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Ortiz &amp; Ballone (PW parametrization)</div>
+<div class="line"><em>G Ortiz and P Ballone, Phys. Rev. B 50, 1391 (1994)</em></div>
+<div class="line"><em>G Ortiz and P Ballone, Phys. Rev. B 56, 9970(E) (1997)</em></div>
+<div class="line"><em>JP Perdew and Y Wang, Phys. Rev. B 45, 13244 (1992)</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_ob_pz</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Ortiz &amp; Ballone (PZ parametrization)</div>
+<div class="line"><em>G Ortiz and P Ballone, Phys. Rev. B 50, 1391 (1994)</em></div>
+<div class="line"><em>G Ortiz and P Ballone, Phys. Rev. B 56, 9970(E) (1997)</em></div>
+<div class="line"><em>Perdew and Zunger, Phys. Rev. B 23, 5048 (1981)</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_pw</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Perdew &amp; Wang</div>
+<div class="line"><em>JP Perdew and Y Wang, Phys. Rev. B 45, 13244 (1992)</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_pw_mod</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Perdew &amp; Wang (modified)</div>
+<div class="line"><em>JP Perdew and Y Wang, Phys. Rev. B 45, 13244 (1992)</em></div>
+<div class="line"><em>Added extra digits to some constants as in the PBE routine</em></div>
+<div class="line"><em>http://dft.rutgers.edu/pubs/PBE.asc</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_pw_rpa</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Perdew &amp; Wang (fit to the RPA energy)</div>
+<div class="line"><em>JP Perdew and Y Wang, Phys. Rev. B 45, 13244 (1992)</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_pz</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Perdew &amp; Zunger</div>
+<div class="line"><em>Perdew and Zunger, Phys. Rev. B 23, 5048 (1981)</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_pz_mod</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Perdew &amp; Zunger (Modified)</div>
+<div class="line"><em>Perdew and Zunger, Phys. Rev. B 23, 5048 (1981)</em></div>
+<div class="line"><em>Modified to improve the matching between the low- and high-rs parts</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_rc04</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Ragot-Cortona</div>
+<div class="line"><em>S Ragot and P Cortona, J. Chem. Phys. 121, 7671 (2004)</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_rpa</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Random Phase Approximation (RPA)</div>
+<div class="line"><em>M Gell-Mann and KA Brueckner, Phys. Rev. 106, 364 (1957)</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_vbh</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">von Barth &amp; Hedin</div>
+<div class="line"><em>U von Barth and L Hedin, J. Phys. C: Solid State Phys. 5, 1629 (1972)</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_vwn</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Vosko, Wilk &amp; Nusair (VWN5)</div>
+<div class="line"><em>SH Vosko, L Wilk, and M Nusair, Can. J. Phys. 58, 1200 (1980)</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_vwn_1</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Vosko, Wilk &amp; Nusair (VWN1)</div>
+<div class="line"><em>SH Vosko, L Wilk, and M Nusair, Can. J. Phys. 58, 1200 (1980)</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_vwn_2</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Vosko, Wilk &amp; Nusair (VWN2)</div>
+<div class="line"><em>SH Vosko, L Wilk, and M Nusair, Can. J. Phys. 58, 1200 (1980)</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_vwn_3</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Vosko, Wilk &amp; Nusair (VWN3)</div>
+<div class="line"><em>SH Vosko, L Wilk, and M Nusair, Can. J. Phys. 58, 1200 (1980)</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_vwn_4</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Vosko, Wilk &amp; Nusair (VWN4)</div>
+<div class="line"><em>SH Vosko, L Wilk, and M Nusair, Can. J. Phys. 58, 1200 (1980)</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_vwn_rpa</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Vosko, Wilk &amp; Nusair (VWN5_RPA)</div>
+<div class="line"><em>SH Vosko, L Wilk, and M Nusair, Can. J. Phys. 58, 1200 (1980)</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_wigner</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Wigner</div>
+<div class="line"><em>EP Wigner, Trans. Faraday Soc. 34, 678 (1938)</em></div>
+</div>
+</dd>
+<dt><strong>lda_c_xalpha</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Slater’s Xalpha</div>
+<div class="line"><em>JC Slater, Phys. Rev. 81, 385 (1951)</em></div>
+</div>
+</dd>
+<dt><strong>lda_xc_teter93</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Teter 93</div>
+<div class="line"><em>S Goedecker, M Teter, J Hutter, PRB 54, 1703 (1996)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_absp1</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">gamma-TFvW form by Acharya et al [g = 1 - 1.412/N^(1/3)]</div>
+<div class="line"><em>PK Acharya, LJ Bartolotti, SB Sears, and RG Parr, Proc. Natl. Acad. Sci. USA 77 6978-6982 (1980)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_absp2</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">gamma-TFvW form by Acharya et al [g = 1 - 1.332/N^(1/3)]</div>
+<div class="line"><em>PK Acharya, LJ Bartolotti, SB Sears, and RG Parr, Proc. Natl. Acad. Sci. USA 77 6978-6982 (1980)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_apbe</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">mu fixed from the semiclassical neutral atom</div>
+<div class="line"><em>LA Constantin, E Fabiano, S Laricchia, and F Della Sala, Phys. Rev. Lett. 106, 186406 (2011)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_apbeint</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">interpolated version of APBE</div>
+<div class="line"><em>S Laricchia, E Fabiano, LA Constantin, and F Della Sala, J. Chem. Theory Comput. 7, 2439-2451 (2011)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_baltin</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">TF-lambda-vW form by Baltin (l = 5/9)</div>
+<div class="line"><em>R Baltin, Z. Naturforsch. A 27, 1176 (1972)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_dk</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">DePristo and Kress</div>
+<div class="line"><em>AE DePristo and JD Kress, Phys. Rev. A 35, 438-441 (1987)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_ernzerhof</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Ernzerhof</div>
+<div class="line"><em>M Ernzerhof, J. Mol. Struct.:THEOCHEM 501-502, 59 (2000)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_fr_b88</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Fuentealba &amp; Reyes (B88 version)</div>
+<div class="line"><em>P Fuentealba and O Reyes, Chem. Phys. Lett. 232, 31-34 (1995)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_fr_pw86</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Fuentealba &amp; Reyes (PW86 version)</div>
+<div class="line"><em>P Fuentealba and O Reyes, Chem. Phys. Lett. 232, 31-34 (1995)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_ge2</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Second-order gradient expansion of the kinetic energy density</div>
+<div class="line"><em>AS Kompaneets and ES Pavlovskii, Zh. Eksp. Teor. Fiz. 31, 427 (1956) [Sov. Phys. JETP 4, 328 (1957)]DA Kirznits, Zh. Eksp. Teor. Fiz. 32, 115 (1957) [Sov. Phys. JETP 5, 64 (1957)]</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_golden</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">TF-lambda-vW form by Golden (l = 13/45)</div>
+<div class="line"><em>S Golden, Phys. Rev. 105, 604-615 (1957)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_gp85</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">gamma-TFvW form by Ghosh and Parr</div>
+<div class="line"><em>SK Ghosh and RG Parr, J. Chem. Phys. 82, 3307 (1985)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_gr</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">gamma-TFvW form by Gázquez and Robles</div>
+<div class="line"><em>JL Gázquez and J Robles, J. Chem. Phys. 76, 1467 (1982)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_lc94</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Lembarki &amp; Chermette</div>
+<div class="line"><em>A Lembarki and H Chermette, Phys. Rev. A 50, 5328-5331 (1994)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_lieb</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">TF-lambda-vW form by Lieb (l = 0.185909191)</div>
+<div class="line"><em>EH Lieb, Rev. Mod. Phys. 53, 603-641 (1981)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_llp</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Becke 88</div>
+<div class="line"><em>H Lee, C Lee, and RG Parr, Phys. Rev. A 44, 768 (1991)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_ludena</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">gamma-TFvW form by Ludeña</div>
+<div class="line"><em>EV Ludeña, in Cond. Matt. Theor. Vol 1, ed. by FB Malik (Plenum, New York, 1986), p. 183</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_meyer</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Meyer,  Wang, and Young</div>
+<div class="line"><em>A Meyer, GC Wang and WH Young, Z. Naturforsch. A 31, 898-903 (1976)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_ol1</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Ou-Yang and Levy v.1</div>
+<div class="line"><em>H Ou-Yang, M Levy, Int. J. of Quant. Chem. 40, 379-388 (1991)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_ol2</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Ou-Yang and Levy v.2</div>
+<div class="line"><em>H Ou-Yang, M Levy, Int. J. of Quant. Chem. 40, 379-388 (1991)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_pearson</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Pearson 1992</div>
+<div class="line"><em>DJ Lacks and RG Gordon, J. Chem. Phys. 100, 4446 (1994)</em></div>
+<div class="line"><em>E W Pearson and R G Gordon, J. Chem. Phys. 82, 881 (1985)</em></div>
+<div class="line"><em>E W Pearson, Ph.D. thesis, Harvard University (1983)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_perdew</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Perdew</div>
+<div class="line"><em>JP Perdew, Phys. Lett. A 165, 79 (1992)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_revapbe</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">revised APBE</div>
+<div class="line"><em>LA Constantin, E Fabiano, S Laricchia, and F Della Sala, Phys. Rev. Lett. 106, 186406 (2011)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_revapbeint</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">interpolated version of REVAPBE</div>
+<div class="line"><em>S Laricchia, E Fabiano, LA Constantin, and F Della Sala, J. Chem. Theory Comput. 7, 2439-2451 (2011)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_tfvw</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Thomas-Fermi plus von Weiszaecker correction</div>
+<div class="line"><em>CF von Weiszaecker, Z. Phys. 96, 431 (1935)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_thakkar</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Thakkar 1992</div>
+<div class="line"><em>AJ Thakkar, Phys. Rev. A 46, 6920-6924 (1992)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_tw1</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Tran and Wesolowski set 1 (Table II)</div>
+<div class="line"><em>F Tran and TA Wesolowski, Int. J. Quant. Chem. 89, 441-446 (2002)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_tw2</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Tran and Wesolowski set 1 (Table II)</div>
+<div class="line"><em>F Tran and TA Wesolowski, Int. J. Quant. Chem. 89, 441-446 (2002)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_tw3</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Tran and Wesolowski set 1 (Table II)</div>
+<div class="line"><em>F Tran and TA Wesolowski, Int. J. Quant. Chem. 89, 441-446 (2002)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_tw4</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Tran and Wesolowski set 1 (Table II)</div>
+<div class="line"><em>F Tran and TA Wesolowski, Int. J. Quant. Chem. 89, 441-446 (2002)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_vjks</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Vitos, Johansson, Kollar, and Skriver</div>
+<div class="line"><em>L Vitos, B Johansson, J. Kollár, and HL Skriver, Phys. Rev. A 61, 052511 (2000)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_vsk</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Vitos, Skriver, and Kollar</div>
+<div class="line"><em>L Vitos, HL Skriver, and J. Kollár, Phys. Rev. B 57, 12611-12615 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_vw</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">von Weiszaecker correction to Thomas-Fermi</div>
+<div class="line"><em>CF von Weiszaecker, Z. Phys. 96, 431 (1935)</em></div>
+</div>
+</dd>
+<dt><strong>gga_k_yt65</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">TF-lambda-vW form by Yonei and Tomishima (l = 1/5)</div>
+<div class="line"><em>K. Yonei and Y. Tomishima, J. Phys. Soc. Jpn. 20, 1051-1057 (1965)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_2d_b86</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Becke 86 in 2D</div>
+<div class="line"><em>G Vilhena and MAL Marques, unpublished</em></div>
+<div class="line"><em>AD Becke, J. Chem. Phys 84, 4524 (1986)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_2d_b86_mgc</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Becke 86 with modified gradient correction for 2D</div>
+<div class="line"><em>S Pittalis, E Rasanen, JG Vilhena, and MAL Marques, Phys. Rev. A 79, 012503 (2009)</em></div>
+<div class="line"><em>AD Becke, J. Chem. Phys 85, 7184 (1986)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_2d_b88</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Becke 88</div>
+<div class="line"><em>G Vilhena, MAL Marques, unpublished</em></div>
+<div class="line"><em>AD Becke, Phys. Rev. A 38, 3098 (1988)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_2d_pbe</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Perdew, Burke &amp; Ernzerhof in 2D</div>
+<div class="line"><em>G Vilhena and MAL Marques, unpublished</em></div>
+<div class="line"><em>JP Perdew, K Burke, and M Ernzerhof, Phys. Rev. Lett. 77, 3865 (1996)</em></div>
+<div class="line"><em>JP Perdew, K Burke, and M Ernzerhof, Phys. Rev. Lett. 78, 1396(E) (1997)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_airy</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Constantin et al based on the Airy gas</div>
+<div class="line"><em>LA Constantin, A Ruzsinszky, and JP Perdew, Phys. Rev. B 80, 035125 (2009)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_ak13</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Armiento &amp; Kuemmel 2013</div>
+<div class="line"><em>R Armiento and S Kuemmel, PRL 111, 036402 (2013)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_am05</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Armiento &amp; Mattsson 05</div>
+<div class="line"><em>R Armiento and AE Mattsson, Phys. Rev. B 72, 085108 (2005)</em></div>
+<div class="line"><em>AE Mattsson, R Armiento, J Paier, G Kresse, JM Wills, and TR Mattsson, J. Chem. Phys. 128, 084714 (2008).</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_apbe</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">mu fixed from the semiclassical neutral atom</div>
+<div class="line"><em>LA Constantin, E Fabiano, S Laricchia, and F Della Sala, Phys. Rev. Lett. 106, 186406 (2011)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_b86</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Becke 86</div>
+<div class="line"><em>AD Becke, J. Chem. Phys 84, 4524 (1986)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_b86_mgc</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Becke 86 with modified gradient correction</div>
+<div class="line"><em>AD Becke, J. Chem. Phys 84, 4524 (1986)</em></div>
+<div class="line"><em>AD Becke, J. Chem. Phys 85, 7184 (1986)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_b88</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Becke 88</div>
+<div class="line"><em>AD Becke, Phys. Rev. A 38, 3098 (1988)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_bayesian</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Bayesian best fit for the enhancement factor</div>
+<div class="line"><em>JJ Mortensen, K Kaasbjerg, SL Frederiksen, JK Nørskov, JP Sethna, and KW Jacobsen, Phys. Rev. Lett. 95, 216401 (2005)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_bpccac</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">BPCCAC (GRAC for the energy)</div>
+<div class="line"><em>E Bremond, D Pilard, I Ciofini, H Chermette, C Adamo, and P Cortona, Theor Chem Acc 131, 1184 (2012)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_c09x</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">C09x to be used with the VdW of Rutgers-Chalmers</div>
+<div class="line"><em>VR Cooper, Phys. Rev. B 81, 161104(R) (2010)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_dk87_r1</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">dePristo &amp; Kress 87 version R1</div>
+<div class="line"><em>AE DePristo and JD Kress, J. Chem. Phys. 86, 1425 (1987)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_dk87_r2</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">dePristo &amp; Kress 87 version R2</div>
+<div class="line"><em>AE DePristo and JD Kress, J. Chem. Phys. 86, 1425 (1987)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_ft97_a</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Filatov &amp; Thiel 97 (version A)</div>
+<div class="line"><em>M Filatov and W Thiel, Mol. Phys 91, 847 (1997)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_ft97_b</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Filatov &amp; Thiel 97 (version B)</div>
+<div class="line"><em>M Filatov and W Thiel, Mol. Phys 91, 847 (1997)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_g96</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Gill 96</div>
+<div class="line"><em>PMW Gill, Mol. Phys. 89, 433 (1996)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_herman</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Herman Xalphabeta GGA</div>
+<div class="line"><em>F Herman, JP Van Dyke, and IB Ortenburger, Phys. Rev. Lett. 22, 807 (1969)</em></div>
+<div class="line"><em>F Herman, IB Ortenburger, and JP Van Dyke, Int. J. Quantum Chem. Symp. 3, 827 (1970)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_hjs_b88</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">HJS screened exchange B88 version</div>
+<div class="line"><em>TM Henderson, BG Janesko, and GE Scuseria, J. Chem. Phys. 128, 194105 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_hjs_b97x</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">HJS screened exchange B97x version</div>
+<div class="line"><em>TM Henderson, BG Janesko, and GE Scuseria, J. Chem. Phys. 128, 194105 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_hjs_pbe</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">HJS screened exchange PBE version</div>
+<div class="line"><em>TM Henderson, BG Janesko, and GE Scuseria, J. Chem. Phys. 128, 194105 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_hjs_pbe_sol</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">HJS screened exchange PBE_SOL version</div>
+<div class="line"><em>TM Henderson, BG Janesko, and GE Scuseria, J. Chem. Phys. 128, 194105 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_htbs</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Haas, Tran, Blaha, and Schwarz</div>
+<div class="line"><em>P Haas, F Tran, P Blaha, and K Schwarz, Phys. Rev. B 83, 205117 (2011)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_ityh</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Short-range recipe for exchange GGA functionals</div>
+<div class="line"><em>H Iikura, T Tsuneda, T Yanai, and K Hirao, J. Chem. Phys. 115, 3540 (2001)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_kt1</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Keal and Tozer, version 1</div>
+<div class="line"><em>TW Keal and DJ Tozer, J. Chem. Phys. 119, 3015 (2003)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_lag</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Local Airy Gas</div>
+<div class="line"><em>L Vitos, B Johansson, J Kollar, and HL Skriver, Phys. Rev. B 62, 10046-10050 (2000)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_lb</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">van Leeuwen &amp; Baerends</div>
+<div class="line"><em>R van Leeuwen and EJ Baerends, Phys. Rev. A. 49, 2421 (1994)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_lbm</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">van Leeuwen &amp; Baerends modified</div>
+<div class="line"><em>PRT Schipper, OV Gritsenko, SJA van Gisbergen, and EJ Baerends, J. Chem. Phys. 112, 1344 (2000)</em></div>
+<div class="line"><em>R van Leeuwen and EJ Baerends, Phys. Rev. A. 49, 2421 (1994)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_lg93</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Lacks &amp; Gordon 93</div>
+<div class="line"><em>DJ Lacks and RG Gordon, Phys. Rev. A 47, 4681 (1993)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_lv_rpw86</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Berland and Hyldgaard</div>
+<div class="line"><em>K Berland and P Hyldgaard, arXiv:1309.1756 [cond-mat.mtrl-sci] (2013)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_mb88</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Modified Becke 88 for proton transfer</div>
+<div class="line"><em>V Tognetti and C Adamo, J. Phys. Chem. A 113, 14415-14419 (2009)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_mpbe</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Adamo &amp; Barone modification to PBE</div>
+<div class="line"><em>C Adamo and V Barone, J. Chem. Phys. 116, 5933 (2002)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_mpw91</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">mPW91 of Adamo &amp; Barone</div>
+<div class="line"><em>C Adamo and V Barone, J. Chem. Phys. 108, 664 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_n12</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">N12 functional of Minnesota</div>
+<div class="line"><em>R Peverati and DG Truhlar, J. Chem. Theory Comput. 8, 2310-2319 (2012)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_ol2</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Exchange form based on Ou-Yang and Levy v.2</div>
+<div class="line"><em>P Fuentealba and O Reyes, Chem. Phys. Lett. 232, 31-34 (1995)</em></div>
+<div class="line"><em>H Ou-Yang, M Levy, Int. J. of Quant. Chem. 40, 379-388 (1991)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_optb88_vdw</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">opt-Becke 88 for vdW</div>
+<div class="line"><em>J Klimes, DR Bowler, and A Michaelides, J. Phys.: Condens. Matter 22, 022201 (2010)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_optpbe_vdw</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Reparametrized PBE for vdW</div>
+<div class="line"><em>J Klimes, DR Bowler, and A Michaelides, J. Phys.: Condens. Matter 22, 022201 (2010)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_optx</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Handy &amp; Cohen OPTX 01</div>
+<div class="line"><em>NC Handy and AJ Cohen, Mol. Phys. 99, 403 (2001)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_pbe</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Perdew, Burke &amp; Ernzerhof</div>
+<div class="line"><em>JP Perdew, K Burke, and M Ernzerhof, Phys. Rev. Lett. 77, 3865 (1996)</em></div>
+<div class="line"><em>JP Perdew, K Burke, and M Ernzerhof, Phys. Rev. Lett. 78, 1396(E) (1997)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_pbe_jsjr</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Reparametrized PBE by Pedroza, Silva &amp; Capelle</div>
+<div class="line"><em>LS Pedroza, AJR da Silva, and K. Capelle, Phys. Rev. B 79, 201106(R) (2009)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_pbe_mol</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Reparametrized PBE by del Campo, Gazquez, Trickey &amp; Vela</div>
+<div class="line"><em>JM del Campo, JL Gazquez, SB Trickey, and A Vela, J. Chem. Phys. 136, 104108 (2012)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_pbe_r</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Revised PBE from Zhang &amp; Yang</div>
+<div class="line"><em>Y Zhang and W Yang, Phys. Rev. Lett 80, 890 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_pbe_sol</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Perdew, Burke &amp; Ernzerhof SOL</div>
+<div class="line"><em>JP Perdew, et al, Phys. Rev. Lett. 100, 136406 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_pbe_tca</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">PBE revised by Tognetti et al</div>
+<div class="line"><em>V Tognetti, P Cortona, and C Adamo, Chem. Phys. Lett. 460, 536-539 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_pbea</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Madsen 07</div>
+<div class="line"><em>G Madsen, Phys. Rev. B 75, 195108 (2007)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_pbeint</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">PBE for hybrid interfaces</div>
+<div class="line"><em>E. Fabiano, LA Constantin, and F. Della Sala, Phys. Rev. B 82, 113104 (2010)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_pbek1_vdw</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Reparametrized PBE for vdW</div>
+<div class="line"><em>J Klimes, DR Bowler, and A Michaelides, J. Phys.: Condens. Matter 22, 022201 (2010)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_pw86</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Perdew &amp; Wang 86</div>
+<div class="line"><em>JP Perdew and Y Wang, Phys. Rev. B 33, 8800 (1986)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_pw91</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Perdew &amp; Wang 91</div>
+<div class="line"><em>JP Perdew, in Proceedings of the 21st Annual International Symposium on the Electronic Structure of Solids, ed. by P Ziesche and H Eschrig (Akademie Verlag, Berlin, 1991), p. 11.</em></div>
+<div class="line"><em>JP Perdew, JA Chevary, SH Vosko, KA Jackson, MR Pederson, DJ Singh, and C Fiolhais, Phys. Rev. B 46, 6671 (1992)</em></div>
+<div class="line"><em>JP Perdew, JA Chevary, SH Vosko, KA Jackson, MR Pederson, DJ Singh, and C Fiolhais, Phys. Rev. B 48, 4978(E) (1993)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_q2d</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Chiodo et al</div>
+<div class="line"><em>L Chiodo, LA Constantin, E Fabiano, and F Della Sala, Phys. Rev. Lett. 108, 126402 (2012)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_rge2</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Regularized PBE</div>
+<div class="line"><em>A Ruzsinszky, GI Csonka, and G Scuseria, J. Chem. Theory Comput. 5, 763 (2009)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_rpbe</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Hammer, Hansen, and Nørskov</div>
+<div class="line"><em>B Hammer, LB Hansen and JK Nørskov, Phys. Rev. B 59, 7413 (1999)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_rpw86</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Refitted Perdew &amp; Wang 86</div>
+<div class="line"><em>ED Murray, K Lee and DC Langreth, J. Chem. Theory Comput. 5, 2754-2762 (2009)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_sfat</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Short-range recipe for exchange GGA functionals - Yukawa</div>
+<div class="line"><em>A Savin, H-J Flad, J. of Quant. Chem. 56, 327-332 (1995)</em></div>
+<div class="line"><em>Y Akinaga, S Ten-no, Chem. Phys. Lett. 462, 348-351 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_sogga</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Second-order generalized gradient approximation</div>
+<div class="line"><em>Y Zhao and DG Truhlar, J. Chem. Phys. 128, 184109 (2008)</em></div>
+<div class="line"><em>http://comp.chem.umn.edu/mfm/index.html</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_sogga11</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Second-order generalized gradient approximation 2011</div>
+<div class="line"><em>R Peverati, Y Zhao, and DG Truhlar, J. Phys. Chem. Lett. 2, 1991-1997 (2011)</em></div>
+<div class="line"><em>http://comp.chem.umn.edu/mfm/index.html</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_ssb</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Swarta, Sola and Bickelhaupt</div>
+<div class="line"><em>M Swart, M Sola, and FM Bickelhaupt, J. Chem. Phys. 131, 094103 (2009)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_ssb_d</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Swarta, Sola and Bickelhaupt dispersion</div>
+<div class="line"><em>M Swart, M Sola, and FM Bickelhaupt, J. Chem. Phys. 131, 094103 (2009)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_ssb_sw</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Swarta, Sola and Bickelhaupt correction to PBE</div>
+<div class="line"><em>M Swart, M Sola, and FM Bickelhaupt, J. Comp. Meth. Sci. Engin. 9, 69 (2009)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_vmt84_pbe</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">VMT{8,4} with constraint satisfaction with mu = mu_GE</div>
+<div class="line"><em>A Vela, JC Pacheco-Kato, JL Gazquez, JM del Campo, and SB Trickey, J. Chem. Phys. 136, 144115 (2012)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_vmt_ge</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Vela, Medel, and Trickey with mu = mu_GE</div>
+<div class="line"><em>A. Vela, V. Medel, and S. B. Trickey, J. Chem. Phys. 130, 244103 (2009)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_vmt_pbe</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Vela, Medel, and Trickey with mu = mu_PBE</div>
+<div class="line"><em>A. Vela, V. Medel, and S. B. Trickey, J. Chem. Phys. 130, 244103 (2009)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_wc</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Wu &amp; Cohen</div>
+<div class="line"><em>Z Wu and RE Cohen, Phys. Rev. B 73, 235116 (2006)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_wpbeh</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">short-range part of the PBE (default w=0 gives PBEh)</div>
+<div class="line"><em>J Heyd, GE Scuseria, and M Ernzerhof, J. Chem. Phys. 118, 8207 (2003)</em></div>
+</div>
+</dd>
+<dt><strong>gga_x_xpbe</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Extended PBE by Xu &amp; Goddard III</div>
+<div class="line"><em>X Xu and WA Goddard III, J. Chem. Phys. 121, 4068 (2004)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_am05</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Armiento &amp; Mattsson 05</div>
+<div class="line"><em>R Armiento and AE Mattsson, Phys. Rev. B 72, 085108 (2005)</em></div>
+<div class="line"><em>AE Mattsson, R Armiento, J Paier, G Kresse, JM Wills, and TR Mattsson, J. Chem. Phys. 128, 084714 (2008).</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_apbe</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">mu fixed from the semiclassical neutral atom</div>
+<div class="line"><em>LA Constantin, E Fabiano, S Laricchia, and F Della Sala, Phys. Rev. Lett. 106, 186406 (2011)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_ft97</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Filatov &amp; Thiel correlation</div>
+<div class="line"><em>M Filatov &amp; W Thiel, Int. J. Quant. Chem. 62, 603-616 (1997)</em></div>
+<div class="line"><em>M Filatov &amp; W Thiel, Mol Phys 91, 847 (1997)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_lm</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Langreth &amp; Mehl</div>
+<div class="line"><em>DC Langreth and MJ Mehl, Phys. Rev. Lett. 47, 446 (1981)</em></div>
+<div class="line"><em>CD Hu and DC Langreth, Phys. Scr. 32, 391 (1985)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_lyp</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Lee, Yang &amp; Parr</div>
+<div class="line"><em>C Lee, W Yang and RG Parr, Phys. Rev. B 37, 785 (1988)</em></div>
+<div class="line"><em>B Miehlich, A Savin, H Stoll and H Preuss, Chem. Phys. Lett. 157, 200 (1989)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_n12</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">N12 functional of Minnesota</div>
+<div class="line"><em>R Peverati and DG Truhlar, J. Chem. Theory Comput. 8, 2310-2319 (2012)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_n12_sx</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">N12-SX functional of Minnesota</div>
+<div class="line"><em>R Peverati and DG Truhlar, Phys. Chem. Chem. Phys. 14, 16187-16191 (2012)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_op_b88</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">one-parameter progressive functional (B88 version)</div>
+<div class="line"><em>T Tsuneda, T Suzumura, and K Hirao, J. Chem. Phys. 110, 10664 (1999)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_op_g96</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">one-parameter progressive functional (G96 version)</div>
+<div class="line"><em>T Tsuneda, T Suzumura, and K Hirao, J. Chem. Phys. 111, 5656 (1999)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_op_pbe</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">one-parameter progressive functional (PBE version)</div>
+<div class="line"><em>T Tsuneda, T Suzumura, and K Hirao, J. Chem. Phys. 111, 5656 (1999)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_op_xalpha</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">one-parameter progressive functional (Xalpha version)</div>
+<div class="line"><em>T Tsuneda, T Suzumura, and K Hirao, J. Chem. Phys. 111, 5656 (1999)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_optc</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Optimized correlation functional of Cohen and Handy</div>
+<div class="line"><em>AJ Cohen and NC Handy, Mol. Phys. 99, 607-615 (2001)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_p86</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Perdew 86</div>
+<div class="line"><em>JP Perdew, Phys. Rev. B 33, 8822 (1986)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_pbe</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Perdew, Burke &amp; Ernzerhof</div>
+<div class="line"><em>JP Perdew, K Burke, and M Ernzerhof, Phys. Rev. Lett. 77, 3865 (1996)</em></div>
+<div class="line"><em>JP Perdew, K Burke, and M Ernzerhof, Phys. Rev. Lett. 78, 1396(E) (1997)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_pbe_jrgx</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Reparametrized PBE by Pedroza, Silva &amp; Capelle</div>
+<div class="line"><em>LS Pedroza, AJR da Silva, and K. Capelle, Phys. Rev. B 79, 201106(R) (2009)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_pbe_sol</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Perdew, Burke &amp; Ernzerhof SOL</div>
+<div class="line"><em>JP Perdew, et al, Phys. Rev. Lett. 100, 136406 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_pbeint</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">PBE for hybrid interfaces</div>
+<div class="line"><em>E. Fabiano, LA Constantin, and F. Della Sala, Phys. Rev. B 82, 113104 (2010)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_pw91</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Perdew &amp; Wang 91</div>
+<div class="line"><em>JP Perdew, JA Chevary, SH Vosko, KA Jackson, MR Pederson, DJ Singh, and C Fiolhais, Phys. Rev. B 46, 6671 (1992)</em></div>
+<div class="line"><em>JP Perdew, JA Chevary, SH Vosko, KA Jackson, MR Pederson, DJ Singh, and C Fiolhais, Phys. Rev. B 48, 4978(E) (1993)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_q2d</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Chiodo et al</div>
+<div class="line"><em>L Chiodo, LA Constantin, E Fabiano, and F Della Sala, Phys. Rev. Lett. 108, 126402 (2012)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_revtca</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Tognetti, Cortona, Adamo (revised)</div>
+<div class="line"><em>V Tognetti, P Cortona, and C Adamo, Chem. Phys. Lett. 460, 536-539 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_rge2</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Regularized PBE</div>
+<div class="line"><em>A Ruzsinszky, GI Csonka, and G Scuseria, J. Chem. Theory Comput. 5, 763 (2009)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_sogga11</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Second-order generalized gradient approximation 2011</div>
+<div class="line"><em>R Peverati, Y Zhao, and DG Truhlar, J. Phys. Chem. Lett. 2, 1911-1997 (2011)</em></div>
+<div class="line"><em>http://comp.chem.umn.edu/mfm/index.html</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_sogga11_x</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">To be used with hyb_gga_x_SOGGA11-X</div>
+<div class="line"><em>R Peverati and DG Truhlar, J. Chem. Phys. 135, 191102 (2011)</em></div>
+<div class="line"><em>http://comp.chem.umn.edu/mfm/index.html</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_spbe</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">PBE correlation to be used with the SSB exchange</div>
+<div class="line"><em>M Swart, M Sola, and FM Bickelhaupt, J. Chem. Phys. 131, 094103 (2009)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_tca</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Tognetti, Cortona, Adamo</div>
+<div class="line"><em>V Tognetti, P Cortona, and C Adamo, J. Chem. Phys. 128, 034101 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_vpbe</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">variant PBE</div>
+<div class="line"><em>JP Perdew, A Ruzsinszky, GI Csonka, LA Constantin, and J Sun, Phys. Rev. Lett. 103, 026403 (2009)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_wi</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Wilson &amp; Ivanov</div>
+<div class="line"><em>LC Wilson &amp; S Ivanov, Int. J. Quantum Chem. 69, 523-532 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_wi0</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Wilson &amp; Ivanov initial version</div>
+<div class="line"><em>LC Wilson &amp; S Ivanov, Int. J. Quantum Chem. 69, 523-532 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_wl</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Wilson &amp; Levy</div>
+<div class="line"><em>LC Wilson and M Levy, Phys. Rev. B 41, 12930 (1990)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_xpbe</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Extended PBE by Xu &amp; Goddard III</div>
+<div class="line"><em>X Xu and WA Goddard III, J. Chem. Phys. 121, 4068 (2004)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_zpbeint</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">spin-dependent gradient correction to PBEint</div>
+<div class="line"><em>A Constantin, E Fabiano, and F Della Sala, Phys. Rev. B 84, 233103 (2011)</em></div>
+</div>
+</dd>
+<dt><strong>gga_c_zpbesol</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">spin-dependent gradient correction to PBEsol</div>
+<div class="line"><em>A Constantin, E Fabiano, and F Della Sala, Phys. Rev. B 84, 233103 (2011)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_b97</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Becke 97</div>
+<div class="line"><em>AD Becke, J. Chem. Phys. 107, 8554 (1997)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_b97_1</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Becke 97-1</div>
+<div class="line"><em>FA Hamprecht, AJ Cohen, DJ Tozer, and NC Handy, J. Chem. Phys. 109, 6264 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_b97_2</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Becke 97-2</div>
+<div class="line"><em>PJ Wilson, TJ Bradley, and DJ Tozer, J. Chem. Phys. 115, 9233 (2001)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_b97_3</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Becke 97-3</div>
+<div class="line"><em>TW Keal and DJ Tozer, J. Chem. Phys. 123, 121103 (2005)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_b97_d</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Becke 97-D</div>
+<div class="line"><em>S Grimme, J. Comput. Chem. 27, 1787 (2006)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_b97_gga1</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Becke 97 GGA-1</div>
+<div class="line"><em>AJ Cohen and NC Handy, Chem. Phys. Lett. 316, 160-166 (2000)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_b97_k</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Boese-Martin for Kinetics</div>
+<div class="line"><em>AD Boese and JML Martin, J. Chem. Phys., Vol. 121, 3405 (2004)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_edf1</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">EDF1</div>
+<div class="line"><em>RD Adamson, PMW Gill, and JA Pople, Chem. Phys. Lett. 284 6 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_hcth_120</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">HCTH/120</div>
+<div class="line"><em>AD Boese, NL Doltsinis, NC Handy, and M Sprik, J. Chem. Phys. 112, 1670 (2000)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_hcth_147</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">HCTH/147</div>
+<div class="line"><em>AD Boese, NL Doltsinis, NC Handy, and M Sprik, J. Chem. Phys. 112, 1670 (2000)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_hcth_407</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">HCTH/407</div>
+<div class="line"><em>AD Boese and NC Handy, J. Chem. Phys. 114, 5497 (2001)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_hcth_407p</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">HCTH/407+</div>
+<div class="line"><em>AD Boese, A Chandra, JML Martin, and Dominik Marx, J. Chem. Phys. 119, 5965 (2003)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_hcth_93</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">HCTH/93</div>
+<div class="line"><em>FA Hamprecht, AJ Cohen, DJ Tozer, and NC Handy, J. Chem. Phys. 109, 6264 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_hcth_a</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">HCTH-A</div>
+<div class="line"><em>FA Hamprecht, AJ Cohen, DJ Tozer, and NC Handy, J. Chem. Phys. 109, 6264 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_hcth_p14</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">HCTH p=1/4</div>
+<div class="line"><em>G Menconi, PJ Wilson, and DJ Tozer, J. Chem. Phys. 114, 3958 (2001)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_hcth_p76</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">HCTH p=1/4</div>
+<div class="line"><em>G Menconi, PJ Wilson, and DJ Tozer, J. Chem. Phys. 114, 3958 (2001)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_kt2</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Keal and Tozer, version 2</div>
+<div class="line"><em>TW Keal and DJ Tozer, J. Chem. Phys. 119, 3015 (2003)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_mohlyp</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Functional for organometallic chemistry</div>
+<div class="line"><em>NE Schultz, Y Zhao, DGJ Truhlar, Phys. Chem. A, 109, 11127 (2005)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_mohlyp2</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Functional for barrier heights</div>
+<div class="line"><em>J Zheng, Y Zhao, DGJ Truhlar, Chem. Theory. Comput. 5, 808 (2009)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_mpwlyp1w</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">mPWLYP1w</div>
+<div class="line"><em>EE Dahlke and DG Truhlar, J. Phys. Chem. B 109, 15677 (2005)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_oblyp_d</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">oBLYP-D functional of Goerigk and Grimme</div>
+<div class="line"><em>L Goerigk and S Grimme, J. Chem. Theory Comput. 6, 107-126 (2010)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_opbe_d</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">oBLYP-D functional of Goerigk and Grimme</div>
+<div class="line"><em>L Goerigk and S Grimme, J. Chem. Theory Comput. 6, 107-126 (2010)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_opwlyp_d</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">oPWLYP-D functional of Goerigk and Grimme</div>
+<div class="line"><em>L Goerigk and S Grimme, J. Chem. Theory Comput. 6, 107-126 (2010)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_pbe1w</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">PBE1W</div>
+<div class="line"><em>EE Dahlke and DG Truhlar, J. Phys. Chem. B 109, 15677 (2005)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_pbelyp1w</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">PBELYP1W</div>
+<div class="line"><em>EE Dahlke and DG Truhlar, J. Phys. Chem. B 109, 15677 (2005)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_sb98_1a</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">SB98 (1a)</div>
+<div class="line"><em>HL Schmider and AD Becke, J. Chem. Phys. 108, 9624 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_sb98_1b</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">SB98 (1b)</div>
+<div class="line"><em>HL Schmider and AD Becke, J. Chem. Phys. 108, 9624 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_sb98_1c</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">SB98 (1c)</div>
+<div class="line"><em>HL Schmider and AD Becke, J. Chem. Phys. 108, 9624 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_sb98_2a</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">SB98 (2a)</div>
+<div class="line"><em>HL Schmider and AD Becke, J. Chem. Phys. 108, 9624 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_sb98_2b</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">SB98 (2b)</div>
+<div class="line"><em>HL Schmider and AD Becke, J. Chem. Phys. 108, 9624 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_sb98_2c</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">SB98 (2c)</div>
+<div class="line"><em>HL Schmider and AD Becke, J. Chem. Phys. 108, 9624 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_th1</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Tozer and Handy v. 1</div>
+<div class="line"><em>DJ Tozer and NC Handy, J. Chem. Phys. 108, 2545 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_th2</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Tozer and Handy v. 2</div>
+<div class="line"><em>DJ Tozer and NC Handy, J. Phys. Chem. A 102, 3162 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_th3</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Tozer and Handy v. 3</div>
+<div class="line"><em>DJ Tozer and NC Handy, Mol. Phys. 94, 707 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_th4</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Tozer and Handy v. 4</div>
+<div class="line"><em>DJ Tozer and NC Handy, Mol. Phys. 94, 707 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_th_fc</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Tozer and Handy v. FC</div>
+<div class="line"><em>DJ Tozer, NC Handy, amd WH Green, Chem. Phys. Lett. 273, 183-194 (1997)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_th_fcfo</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Tozer and Handy v. FCFO</div>
+<div class="line"><em>DJ Tozer, NC Handy, amd WH Green, Chem. Phys. Lett. 273, 183-194 (1997)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_th_fco</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Tozer and Handy v. FCO</div>
+<div class="line"><em>DJ Tozer, NC Handy, amd WH Green, Chem. Phys. Lett. 273, 183-194 (1997)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_th_fl</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Tozer and Handy v. FL</div>
+<div class="line"><em>DJ Tozer, NC Handy, amd WH Green, Chem. Phys. Lett. 273, 183-194 (1997)</em></div>
+</div>
+</dd>
+<dt><strong>gga_xc_xlyp</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">XLYP</div>
+<div class="line"><em>X Xu and WA Goddard, III, PNAS 101, 2673 (2004)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_x_n12_sx</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">N12-SX functional of Minnesota</div>
+<div class="line"><em>R Peverati and DG Truhlar, Phys. Chem. Chem. Phys. 14, 16187-16191 (2012)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_x_sogga11_x</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Hybrid based on SOGGA11 form</div>
+<div class="line"><em>R Peverati and DG Truhlar, J. Chem. Phys. 135, 191102 (2011)</em></div>
+<div class="line"><em>http://comp.chem.umn.edu/mfm/index.html</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_b1lyp</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">B1LYP</div>
+<div class="line"><em>C. Adamo, V. Barone, Chem. Phys. Lett. 274, 242 (1997)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_b1pw91</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">B1PW91</div>
+<div class="line"><em>C. Adamo, V. Barone, Chem. Phys. Lett. 274, 242 (1997)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_b1wc</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">B1WC</div>
+<div class="line"><em>DI Bilc, R Orlando, R Shaltaf, G-M Rignanese, J Iniguez, and Ph Ghosez, Phys. Rev. B 77, 165107 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_b3lyp</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">B3LYP</div>
+<div class="line"><em>PJ Stephens, FJ Devlin, CF Chabalowski, MJ Frisch, J. Phys. Chem. 98 11623 (1994)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_b3p86</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">B3P86</div>
+<div class="line"><em>Defined through Gaussian implementation</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_b3pw91</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">The original (ACM, B3PW91) hybrid of Becke</div>
+<div class="line"><em>AD Becke, J. Chem. Phys. 98, 5648 (1993)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_b97</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Becke 97</div>
+<div class="line"><em>AD Becke, J. Chem. Phys. 107, 8554 (1997)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_b97_1</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Becke 97-1</div>
+<div class="line"><em>FA Hamprecht, AJ Cohen, DJ Tozer, and NC Handy, J. Chem. Phys. 109, 6264 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_b97_2</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Becke 97-2</div>
+<div class="line"><em>PJ Wilson, TJ Bradley, and DJ Tozer, J. Chem. Phys. 115, 9233 (2001)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_b97_3</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Becke 97-3</div>
+<div class="line"><em>TW Keal and DJ Tozer, J. Chem. Phys. 123, 121103 (2005)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_b97_k</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Boese-Martin for Kinetics</div>
+<div class="line"><em>AD Boese and JML Martin, J. Chem. Phys., Vol. 121, 3405 (2004)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_bhandh</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">BHandH</div>
+<div class="line"><em>AD Becke, J. Chem. Phys., 98 1372-77 (1993)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_bhandhlyp</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">BHandHLYP</div>
+<div class="line"><em>AD Becke, J. Chem. Phys., 98 1372-77 (1993)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_cam_b3lyp</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">CAM version of B3LYP</div>
+<div class="line"><em>T Yanai, DP Tew, NC Handy, Chem. Phys. Lett. 393, 51-57 (2004)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_camy_blyp</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">CAMY version of BLYP</div>
+<div class="line"><em>Y Akinaga, S Ten-no, Chem. Phys. Lett. 462, 348-351 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_hjs_b88</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">HJS hybrid screened exchange B88 version</div>
+<div class="line"><em>TM Henderson, BG Janesko, and GE Scuseria, J. Chem. Phys. 128, 194105 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_hjs_b97x</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">HJS hybrid screened exchange B97x version</div>
+<div class="line"><em>TM Henderson, BG Janesko, and GE Scuseria, J. Chem. Phys. 128, 194105 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_hjs_pbe</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">HJS hybrid screened exchange PBE version</div>
+<div class="line"><em>TM Henderson, BG Janesko, and GE Scuseria, J. Chem. Phys. 128, 194105 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_hjs_pbe_sol</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">HJS hybrid screened exchange PBE_SOL version</div>
+<div class="line"><em>TM Henderson, BG Janesko, and GE Scuseria, J. Chem. Phys. 128, 194105 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_hse03</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">HSE03</div>
+<div class="line"><em>J Heyd, GE Scuseria, and M Ernzerhof, J. Chem. Phys. 118, 8207 (2003)</em></div>
+<div class="line"><em>J Heyd, GE Scuseria, and M Ernzerhof, J. Chem. Phys. 124, 219906 (2006)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_hse06</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">HSE06</div>
+<div class="line"><em>J Heyd, GE Scuseria, and M Ernzerhof, J. Chem. Phys. 118, 8207 (2003)</em></div>
+<div class="line"><em>J Heyd, GE Scuseria, and M Ernzerhof, J. Chem. Phys. 124, 219906 (2006)</em></div>
+<div class="line"><em>AV Krukau, OA Vydrov, AF Izmaylov, and GE Scuseria, J. Chem. Phys. 125, 224106 (2006)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_mb3lyp_rc04</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">B3LYP with RC04 LDA</div>
+<div class="line"><em>V Tognetti, P Cortona, and C Adamo, Chem. Phys. Lett. 439, 381-385 (2007)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_mpw1k</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">mPW1K</div>
+<div class="line"><em>BJ Lynch, PL Fast, M Harris, DGJ Truhlar, Phys. Chem. A 104, 4811 (2000)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_mpw1pw</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">mPW1PW</div>
+<div class="line"><em>C. Adamo, V. Barone, J. Chem. Phys. 108, 664 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_mpw3lyp</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">MPW3LYP</div>
+<div class="line"><em>Y Zhao and DGJ Truhlar, Phys. Chem. A 108, 6908-6918 (2004)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_mpw3pw</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">MPW3PW of Adamo &amp; Barone</div>
+<div class="line"><em>C Adamo and V Barone, J. Chem. Phys. 108, 664 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_mpwlyp1m</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">MPW with 1 par. for metals/LYP</div>
+<div class="line"><em>NE Schultz, Y Zhao, and DG Truhlar, J. Phys. Chem. A 109, 11127-11143 (2005)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_o3lyp</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">O3LYP</div>
+<div class="line"><em>AJ Cohen, NC Handy, Mol. Phys. 99 607 (2001)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_pbe0_13</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">PBE0-1/3</div>
+<div class="line"><em>P Cortona, J. Chem. Phys. 136, 086101 (2012)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_pbeh</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">PBEH (PBE0)</div>
+<div class="line"><em>C Adamo and V Barone, J. Chem. Phys. 110, 6158 (1999)</em></div>
+<div class="line"><em>M. Ernzerhof, G. E. Scuseria, J. Chem. Phys. 110, 5029 (1999)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_revb3lyp</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Revised B3LYP</div>
+<div class="line"><em>L Lua, H Hua, H Houa, B Wang, Comput. Theor. Chem. 1015, 64-71 (2013)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_sb98_1a</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">SB98 (1a)</div>
+<div class="line"><em>HL Schmider and AD Becke, J. Chem. Phys. 108, 9624 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_sb98_1b</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">SB98 (1b)</div>
+<div class="line"><em>HL Schmider and AD Becke, J. Chem. Phys. 108, 9624 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_sb98_1c</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">SB98 (1c)</div>
+<div class="line"><em>HL Schmider and AD Becke, J. Chem. Phys. 108, 9624 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_sb98_2a</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">SB98 (2a)</div>
+<div class="line"><em>HL Schmider and AD Becke, J. Chem. Phys. 108, 9624 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_sb98_2b</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">SB98 (2b)</div>
+<div class="line"><em>HL Schmider and AD Becke, J. Chem. Phys. 108, 9624 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_sb98_2c</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">SB98 (2c)</div>
+<div class="line"><em>HL Schmider and AD Becke, J. Chem. Phys. 108, 9624 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_tuned_cam_b3lyp</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">CAM version of B3LYP</div>
+<div class="line"><em>K Okuno, Y Shigeta, R Kishi, H Miyasaka, M Nakano, J. Photochem. Photobiol., A 235, 29-34 (2012)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_gga_xc_x3lyp</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">X3LYP</div>
+<div class="line"><em>X Xu, WA Goddard, III, PNAS 101, 2673 (2004)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_2d_prhg07</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Pittalis-Rasanen-Helbig-Gross 2007</div>
+<div class="line"><em>S. Pittalis, E. Rasanen, N. Helbig, and E. K. U. Gross, Phys. Rev. B 76, 235314 (2007)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_2d_prhg07_prp10</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">PRHG07 with Pittalis-Rasanen-Proetto 2010 correction</div>
+<div class="line"><em>S. Pittalis, E. Rasanen, N. Helbig, and E. K. U. Gross, Phys. Rev. B 76, 235314 (2007)</em></div>
+<div class="line"><em>S. Pittalis, E. Rasanen, C.R. Proetto, Phys. Rev. B. 81, 115108 (2010)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_bj06</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Becke &amp; Johnson 06</div>
+<div class="line"><em>AD Becke and ER Johnson, J. Chem. Phys. 124, 221101 (2006)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_bloc</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">functional with balanced localization</div>
+<div class="line"><em>LA Constantin, E Fabiano, F Della Sala, J. Chem. Theory Comput. 9, 2256 (2013)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_br89</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Becke-Roussel 89</div>
+<div class="line"><em>AD Becke and MR Roussel, Phys. Rev. A 39, 3761 (1989)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_gvt4</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">GVT4 (X part of VSXC)</div>
+<div class="line"><em>T Van Voorhis and GE Scuseria, JCP 109, 400 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_lta</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Local tau approximation</div>
+<div class="line"><em>M Ernzerhof and G Scuseria, J. Chem. Phys. 111, 911 (1999)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_m05</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M05 functional of Minnesota</div>
+<div class="line"><em>Y Zhao, NE Schultz, and DG Truhlar, J. Chem. Phys. 123, 161103 (2005)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_m05_2x</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M05-2X functional of Minnesota</div>
+<div class="line"><em>Y Zhao, NE Schultz, and DG Truhlar, J. Chem. Theory Comput. 2, 364 (2006)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_m06</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M06 functional of Minnesota</div>
+<div class="line"><em>Y Zhao and DG Truhlar, Theor. Chem. Acc. 120, 215 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_m06_2x</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M06-2X functional of Minnesota</div>
+<div class="line"><em>Y Zhao and DG Truhlar, Theor. Chem. Acc. 120, 215 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_m06_hf</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M06-HF functional of Minnesota</div>
+<div class="line"><em>Y Zhao and DG Truhlar, J. Phys. Chem. A 110, 13126 (2006)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_m06_l</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M06-Local functional of Minnesota</div>
+<div class="line"><em>Y Zhao and DG Truhlar, JCP 125, 194101 (2006)</em></div>
+<div class="line"><em>Y Zhao and DG Truhlar, Theor. Chem. Account 120, 215 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_m08_hx</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M08-HX functional of Minnesota</div>
+<div class="line"><em>Y Zhao and DG Truhlar, J. Chem. Theory Comput. 4, 1849-1868 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_m08_so</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M08-SO functional of Minnesota</div>
+<div class="line"><em>Y Zhao and DG Truhlar, J. Chem. Theory Comput. 4, 1849-1868 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_m11_l</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M11-L functional of Minnesota</div>
+<div class="line"><em>R Peverati, and DG Truhlar, J. Phys. Chem. Lett. 3, 117 (2012)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_mk00</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Exchange for accurate virtual orbital energies</div>
+<div class="line"><em>FR Manby and PJ Knowles, J. Chem. Phys. 112, 7002 (2000)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_mk00b</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Exchange for accurate virtual orbital energies (v. B)</div>
+<div class="line"><em>FR Manby and PJ Knowles, J. Chem. Phys. 112, 7002 (2000)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_mn12_l</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">MN12-L functional of Minnesota</div>
+<div class="line"><em>R Peverati and DG Truhlar, Phys. Chem. Chem. Phys. 14, 13171-13174 (2012)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_mn12_sx</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">MN12-SX functional of Minnesota</div>
+<div class="line"><em>R Peverati and DG Truhlar, Phys. Chem. Chem. Phys. 14, accepted (2012)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_modtpss</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Modified Tao, Perdew, Staroverov &amp; Scuseria</div>
+<div class="line"><em>JP Perdew, A Ruzsinszky, J Tao, GI Csonka, and GE Scuseria, Phys. Rev. A 76, 042506 (2007)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_ms0</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">MS exchange of Sun, Xiao, and Ruzsinszky</div>
+<div class="line"><em>J Sun, B Xiao, and A Ruzsinszky, J. Chem. Phys. 137, 051101 (2012)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_ms1</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">MS1 exchange of Sun, et al</div>
+<div class="line"><em>J Sun, R Haunschild, B Xiao, IW Bulik, GE Scuseria, JP Perdew, J. Chem. Phys. 138, 044113 (2013)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_ms2</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">MS2 exchange of Sun, et al</div>
+<div class="line"><em>J Sun, R Haunschild, B Xiao, IW Bulik, GE Scuseria, JP Perdew, J. Chem. Phys. 138, 044113 (2013)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_ms2h</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">MS2 hybrid exchange of Sun, et al</div>
+<div class="line"><em>J Sun, R Haunschild, B Xiao, IW Bulik, GE Scuseria, JP Perdew, J. Chem. Phys. 138, 044113 (2013)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_pkzb</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Perdew, Kurth, Zupan, and Blaha</div>
+<div class="line"><em>JP Perdew, S Kurth, A Zupan, and P. Blaha, Phys. Rev. Lett. 82, 2544-2547 (1999)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_revtpss</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">revised Tao, Perdew, Staroverov &amp; Scuseria</div>
+<div class="line"><em>JP Perdew, A Ruzsinszky, GI Csonka, LA Constantin, and J Sun, Phys. Rev. Lett. 103, 026403 (2009)</em></div>
+<div class="line"><em>JP Perdew, A Ruzsinszky, GI Csonka, LA Constantin, and J Sun, Phys. Rev. Lett. 106, 179902(E) (2011)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_rpp09</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Rasanen, Pittalis &amp; Proetto 09</div>
+<div class="line"><em>E Rasanen, S Pittalis &amp; C Proetto, J. Chem. Phys. 132, 044112 (2010)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_tau_hcth</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">tau-HCTH</div>
+<div class="line"><em>AD Boese and NC Handy, JCP 116, 9559 (2002)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_tb09</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Tran &amp; Blaha 09</div>
+<div class="line"><em>F Tran and P Blaha, Phys. Rev. Lett. 102, 226401 (2009)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_x_tpss</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Tao, Perdew, Staroverov &amp; Scuseria</div>
+<div class="line"><em>J Tao, JP Perdew, VN Staroverov, and G Scuseria, Phys. Rev. Lett. 91, 146401 (2003)</em></div>
+<div class="line"><em>JP Perdew, J Tao, VN Staroverov, and G Scuseria, J. Chem. Phys. 120, 6898 (2004)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_c_bc95</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Becke correlation 95</div>
+<div class="line"><em>AD Becke, J. Chem. Phys. 104, 1040 (1996)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_c_cc06</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Cancio and Chou 2006</div>
+<div class="line"><em>AC Cancio, and MY Chou, Phys. Rev. B 74, 081202(R) (2006)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_c_cs</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Colle and Salvetti</div>
+<div class="line"><em>Colle and Salvetti, Theor. Chim. Acta 37, 329 (1975)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_c_m05</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M05 functional of Minnesota</div>
+<div class="line"><em>Y Zhao, NE Schultz, and DG Truhlar, J. Chem. Phys. 123, 161103 (2005)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_c_m05_2x</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M05-2X functional of Minnesota</div>
+<div class="line"><em>Y Zhao, NE Schultz, and DG Truhlar, J. Chem. Theory Comput. 2, 364 (2006)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_c_m06</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M06 functional of Minnesota</div>
+<div class="line"><em>Theor. Chem. Acc. 120, 215 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_c_m06_2x</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M06-2X functional of Minnesota</div>
+<div class="line"><em>Theor. Chem. Acc. 120, 215 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_c_m06_hf</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M06-HF functional of Minnesota</div>
+<div class="line"><em>Y Zhao and DG Truhlar, J. Phys. Chem. A 110, 13126 (2006)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_c_m06_l</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M06-Local functional of Minnesota</div>
+<div class="line"><em>Y Zhao and DG Truhlar, JCP 125, 194101 (2006)</em></div>
+<div class="line"><em>Y Zhao and DG Truhlar, Theor. Chem. Account 120, 215 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_c_m08_hx</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M08-HX functional of Minnesota</div>
+<div class="line"><em>Y Zhao and DG Truhlar, J. Chem. Theory Comput. 4, 1849-1868 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_c_m08_so</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M08-SO functional of Minnesota</div>
+<div class="line"><em>Y Zhao and DG Truhlar, J. Chem. Theory Comput. 4, 1849-1868 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_c_m11</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M11 functional of Minnesota</div>
+<div class="line"><em>R Peverati, and DG Truhlar, J. Phys. Chem. Lett. 2, 2810 (2011)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_c_m11_l</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M11-L functional of Minnesota</div>
+<div class="line"><em>R Peverati, and DG Truhlar, J. Phys. Chem. Lett. 3, 117 (2012)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_c_mn12_l</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">MN12-L functional of Minnesota</div>
+<div class="line"><em>R Peverati and DG Truhlar, Phys. Chem. Chem. Phys. 14, 13171-13174 (2012)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_c_mn12_sx</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">MN12-SX functional of Minnesota</div>
+<div class="line"><em>R Peverati and DG Truhlar, Phys. Chem. Chem. Phys. 14, accepted (2012)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_c_pkzb</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Perdew, Kurth, Zupan, and Blaha</div>
+<div class="line"><em>JP Perdew, S Kurth, A Zupan, and P. Blaha, Phys. Rev. Lett. 82, 2544-2547 (1999)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_c_revtpss</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">revised TPSS correlation</div>
+<div class="line"><em>JP Perdew, A Ruzsinszky, GI Csonka, LA Constantin, and J Sun, Phys. Rev. Lett. 103, 026403 (2009)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_c_tpss</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Tao, Perdew, Staroverov &amp; Scuseria</div>
+<div class="line"><em>J Tao, JP Perdew, VN Staroverov, and G Scuseria, Phys. Rev. Lett. 91, 146401 (2003)</em></div>
+<div class="line"><em>JP Perdew, J Tao, VN Staroverov, and G Scuseria, J. Chem. Phys. 120, 6898 (2004)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_c_vsxc</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">VSXC (correlation part)</div>
+<div class="line"><em>T Van Voorhis and GE Scuseria, JCP 109, 400 (1998)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_xc_otpss_d</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">oTPSS-D functional of Goerigk and Grimme</div>
+<div class="line"><em>L Goerigk and S Grimme, J. Chem. Theory Comput. 6, 107-126 (2010)</em></div>
+</div>
+</dd>
+<dt><strong>mgga_xc_tpsslyp1w</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">TPSSLYP1W</div>
+<div class="line"><em>EE Dahlke and DG Truhlar, J. Phys. Chem. B 109, 15677 (2005)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_mgga_x_m11</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M11 functional of Minnesota</div>
+<div class="line"><em>R Peverati, and DG Truhlar, J. Phys. Chem. Lett. 2, 2810 (2011)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_mgga_xc_b86b95</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Mixture of B86 with BC95</div>
+<div class="line"><em>A Becke, J. Chem. Phys. 104, 1040 (1996)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_mgga_xc_b88b95</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Mixture of B88 with BC95 (B1B95)</div>
+<div class="line"><em>A Becke, J. Chem. Phys. 104, 1040 (1996)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_mgga_xc_bb1k</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Mixture of B88 with BC95 from Zhao and Truhlar</div>
+<div class="line"><em>Y Zhao and DG Truhlar, J. Phys. Chem. A 108, 2715 (2004)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_mgga_xc_m05</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M05 functional of Minnesota</div>
+<div class="line"><em>Y Zhao, NE Schultz, and DG Truhlar, J. Chem. Phys. 123, 161103 (2005)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_mgga_xc_m05_2x</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M05-2X functional of Minnesota</div>
+<div class="line"><em>Y Zhao, NE Schultz, and DG Truhlar, J. Chem. Theory Comput. 2, 364 (2006)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_mgga_xc_m06</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M06 functional of Minnesota</div>
+<div class="line"><em>Y Zhao and DG Truhlar, Theor. Chem. Acc. 120, 215 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_mgga_xc_m06_2x</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M06-2X functional of Minnesota</div>
+<div class="line"><em>Y Zhao and DG Truhlar, Theor. Chem. Acc. 120, 215 (2008)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_mgga_xc_m06_hf</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">M06-HF functional of Minnesota</div>
+<div class="line"><em>Y Zhao and DG Truhlar, J. Phys. Chem. A 110, 13126 (2006)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_mgga_xc_mpw1b95</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Mixture of mPW91 with BC95 from Zhao and Truhlar</div>
+<div class="line"><em>Y Zhao and DG Truhlar, J. Phys. Chem. A 108, 6908-6918 (2004)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_mgga_xc_mpwb1k</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Mixture of mPW91 with BC95 for kinetics</div>
+<div class="line"><em>Y Zhao and DG Truhlar, J. Phys. Chem. A 108, 6908-6918 (2004)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_mgga_xc_pw6b95</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Mixture of PW91 with BC95 from Zhao and Truhlar</div>
+<div class="line"><em>Y Zhao and DG Truhlar, J. Phys. Chem. A 109, 5656-5667 (2005)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_mgga_xc_pw86b95</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Mixture of PW86 with BC95</div>
+<div class="line"><em>A Becke, J. Chem. Phys. 104, 1040 (1996)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_mgga_xc_pwb6k</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Mixture of PW91 with BC95 from Zhao and Truhlar for kinetics</div>
+<div class="line"><em>Y Zhao and DG Truhlar, J. Phys. Chem. A 109, 5656-5667 (2005)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_mgga_xc_revtpssh</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">revTPSSh</div>
+<div class="line"><em>G. I. Csonka, J. P. Perdew, and A. Ruzsinszky, J. Chem. Theory Comput. 6, 3688 (2010)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_mgga_xc_tpssh</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">TPSSh</div>
+<div class="line"><em>V. N. Staroverov, G. E. Scuseria, J. Tao and J. P. Perdew, J. Chem. Phys. 119, 12129 (2003)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_mgga_xc_x1b95</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Mixture of X with BC95</div>
+<div class="line"><em>Y Zhao and DG Truhlar, J. Phys. Chem. A 108, 6908-6918 (2004)</em></div>
+</div>
+</dd>
+<dt><strong>hyb_mgga_xc_xb1k</strong></dt>
+<dd><div class="first last line-block">
+<div class="line">Mixture of X with BC95 for kinetics</div>
+<div class="line"><em>Y Zhao and DG Truhlar, J. Phys. Chem. A 108, 6908-6918 (2004)</em></div>
+</div>
+</dd>
+</dl>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tech_ref_acronyms.html" class="btn btn-neutral float-right" title="2.8. Acronyms" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="tech_ref_gaussian_basis.html" class="btn btn-neutral" title="2.6. Gaussian basis sets" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.0b3 built from release 2.1.0b3 (Jun 30, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 30, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.1.0b3 (Jun 30, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

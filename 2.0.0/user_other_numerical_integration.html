@@ -1,0 +1,426 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>6.1. How to use HORTON for numerical integration? &mdash; HORTON 2.0.0-244-gaaf5e2b documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="HORTON 2.0.0-244-gaaf5e2b documentation" href="index.html"/>
+        <link rel="up" title="6. Other Topics" href="user_other.html"/>
+        <link rel="next" title="6.2. How to use HORTON’s matrix package?" href="user_other_matrix.html"/>
+        <link rel="prev" title="6. Other Topics" href="user_other.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_other.html">6. Other Topics</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">6.1. How to use HORTON for numerical integration?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#building-an-integration-grid">6.1.1. Building an integration grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#computing-an-integral-involving-the-electron-density">6.1.2. Computing an integral involving the electron density</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#constructing-a-one-body-operator-from-a-real-space-potential">6.1.3. Constructing a one-body operator from a real-space potential</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_other_matrix.html">6.2. How to use HORTON&#8217;s <code class="docutils literal"><span class="pre">matrix</span></code> package?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_other_conversion.html">6.3. How to use HORTON to convert between file formats?</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">HORTON</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="user_other.html">6. Other Topics</a> &raquo;</li>
+      
+    <li>6.1. How to use HORTON for numerical integration?</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/user_other_numerical_integration.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="how-to-use-horton-for-numerical-integration">
+<span id="user-other-numerical-integration"></span><h1>6.1. How to use HORTON for numerical integration?<a class="headerlink" href="#how-to-use-horton-for-numerical-integration" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="building-an-integration-grid">
+<span id="user-other-numerical-integration-specify"></span><h2>6.1.1. Building an integration grid<a class="headerlink" href="#building-an-integration-grid" title="Permalink to this headline">¶</a></h2>
+<p>HORTON primarily makes use of Becke-Lebedev grids for numerical integrations over
+molecular volumes. It can automatically construct Becke-Lebedev integration grids for a given
+molecular geometry. This is needed for DFT computations (typically to
+evaluate the exchange-correlation functional) or atoms-in-molecules
+analyses. To familiarize yourself with these grids, please refer to <a class="reference internal" href="tech_ref_literature.html#becke1988-multicenter" id="id1">[becke1988_multicenter]</a> and
+<a class="reference internal" href="tech_ref_literature.html#lebedev1999" id="id2">[lebedev1999]</a>.</p>
+<p>In a nutshell, a Becke-Lebedev integration grid works as follows. Say, you are interested in
+computing the integral of <span class="math">\(f(\mathbf{r})\)</span> over a molecular volume. In
+practice, the integrand is often a functional of the electron density, so similar to the electron
+density, it contains sharp spikes close to the atomic nuclei. In order to properly integrate all these
+unsmooth spikes, the molecular integral is first split into atomic
+contributions:</p>
+<div class="math">
+\[\int f(\mathbf{r}) d\mathbf{r} = \sum_A \int w_A(\mathbf{r}) f(\mathbf{r}) d\mathbf{r}\]</div>
+<p>where <span class="math">\(w_A(\mathbf{r})\)</span> is the atomic weight function for atom A. This function is
+1 close to the nucleus of atom A, and goes to zero upon leaving the domain of atom A. Every
+atomic integral is then computed on a grid in a spherical coordinate system centered on
+the nucleus of the corresponding atom. This atomic grid is typically a product grid, where different
+one-dimensional radial grids are possible, and the Lebedev-Laikov grids are always used
+for the angular part. Putting all these together, you can always approximate the numerical
+integration as follows:</p>
+<div class="math">
+\[\int f(\mathbf{r}) d\mathbf{r} \approx \sum_{i=1}^{N_\text{grid}} w_i f(\mathbf{r}_i)\]</div>
+<p>where <span class="math">\(N_\text{grid}\)</span> is the number of grid points, <span class="math">\(w_i\)</span> are the
+integration grid weights and <span class="math">\(\mathbf{r}_i\)</span> are the integration grid
+points.</p>
+<p>The default Becke-Lebedev grid is constructed by specifying three non-optional arguments, as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">grid</span> <span class="o">=</span> <span class="n">BeckeMolGrid</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">numbers</span><span class="p">,</span> <span class="n">pseudo_numbers</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal"><span class="pre">coordinates</span></code> is an array containing the Cartesian coordinates of the atoms,
+<code class="docutils literal"><span class="pre">numbers</span></code> is an array containing the (integer) atomic numbers of the atoms, and <code class="docutils literal"><span class="pre">pseudo_numbers</span></code>
+is an array containing the (float) effective core charges of the atoms. These arrays are always
+available when you load a molecule from a file. For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">mol</span> <span class="o">=</span> <span class="n">IOData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;water.xyz&#39;</span><span class="p">)</span>
+<span class="n">grid</span> <span class="o">=</span> <span class="n">BeckeMolGrid</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">numbers</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The fourth optional argument can be provided to control the accuracy of the integration
+grid, e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">grid</span> <span class="o">=</span> <span class="n">BeckeMolGrid</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">numbers</span><span class="p">,</span> <span class="n">pseudo_numbers</span><span class="p">,</span> <span class="s1">&#39;fine&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The available levels of accuracy for the built-in numerical integration grids are
+documented in <a class="reference internal" href="tech_ref_grids.html#ref-grids"><span class="std std-ref">Atomic integration grids</span></a>. You can also control in more detail the
+radial and angular components of the integration grids. For more details,
+please refer to the API documentation of <a class="reference internal" href="lib/mod_horton_grid_molgrid.html#horton.grid.molgrid.BeckeMolGrid" title="horton.grid.molgrid.BeckeMolGrid"><code class="xref py py-class docutils literal"><span class="pre">horton.grid.molgrid.BeckeMolGrid</span></code></a>
+and <a class="reference internal" href="lib/mod_horton_grid_atgrid.html#horton.grid.atgrid.AtomicGridSpec" title="horton.grid.atgrid.AtomicGridSpec"><code class="xref py py-class docutils literal"><span class="pre">horton.grid.atgrid.AtomicGridSpec</span></code></a>.</p>
+</div>
+<div class="section" id="computing-an-integral-involving-the-electron-density">
+<h2>6.1.2. Computing an integral involving the electron density<a class="headerlink" href="#computing-an-integral-involving-the-electron-density" title="Permalink to this headline">¶</a></h2>
+<p>This section assumes that the following objects are already available:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">obasis</span></code>: an orbital basis set object</li>
+<li><code class="docutils literal"><span class="pre">dm_full</span></code>: a spin-summed density matrix</li>
+<li><code class="docutils literal"><span class="pre">grid</span></code>: a Becke-Lebedev integration grid as introduced above.</li>
+</ul>
+<p>If you are not familiar with the <code class="docutils literal"><span class="pre">obasis</span></code> and <code class="docutils literal"><span class="pre">dm_full</span></code> objects, please
+refer to <a class="reference internal" href="user_hamiltonian_molecular.html#user-molecularham-basis"><span class="std std-ref">Specifying the basis set</span></a> and <a class="reference internal" href="user_estruct_hf_dft.html#user-hf-dft"><span class="std std-ref">How to use HORTON as a Hartree-Fock/DFT program</span></a>,
+respectively. Note that the density matrix can also be loaded from a file
+instead of being computed by HORTON. This is demonstrated in an example at the
+end of this section.</p>
+<p>First, you must evaluate the integrand on all the points of the integration grid.
+In case of the electron density, this can be done as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">rho</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_grid_density_dm</span><span class="p">(</span><span class="n">dm_full</span><span class="p">,</span> <span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Several other quantities can also be evaluated on the grid. For more
+details, please refer to: <a class="reference internal" href="lib/mod_horton_gbasis_cext.html#horton.gbasis.cext.GOBasis.compute_grid_density_dm" title="horton.gbasis.cext.GOBasis.compute_grid_density_dm"><code class="xref py py-meth docutils literal"><span class="pre">compute_grid_density_dm()</span></code></a>,
+<a class="reference internal" href="lib/mod_horton_gbasis_cext.html#horton.gbasis.cext.GOBasis.compute_grid_gradient_dm" title="horton.gbasis.cext.GOBasis.compute_grid_gradient_dm"><code class="xref py py-meth docutils literal"><span class="pre">compute_grid_gradient_dm()</span></code></a>,
+<a class="reference internal" href="lib/mod_horton_gbasis_cext.html#horton.gbasis.cext.GOBasis.compute_grid_kinetic_dm" title="horton.gbasis.cext.GOBasis.compute_grid_kinetic_dm"><code class="xref py py-meth docutils literal"><span class="pre">compute_grid_kinetic_dm()</span></code></a>,
+<a class="reference internal" href="lib/mod_horton_gbasis_cext.html#horton.gbasis.cext.GOBasis.compute_grid_hartree_dm" title="horton.gbasis.cext.GOBasis.compute_grid_hartree_dm"><code class="xref py py-meth docutils literal"><span class="pre">compute_grid_hartree_dm()</span></code></a>,
+<a class="reference internal" href="lib/mod_horton_gbasis_cext.html#horton.gbasis.cext.GOBasis.compute_grid_esp_dm" title="horton.gbasis.cext.GOBasis.compute_grid_esp_dm"><code class="xref py py-meth docutils literal"><span class="pre">compute_grid_esp_dm()</span></code></a>,
+and
+<a class="reference internal" href="lib/mod_horton_gbasis_cext.html#horton.gbasis.cext.GOBasis.compute_grid_orbitals_exp" title="horton.gbasis.cext.GOBasis.compute_grid_orbitals_exp"><code class="xref py py-meth docutils literal"><span class="pre">compute_grid_orbitals_exp()</span></code></a>.</p>
+<p>Integrating the electron density by itself results in the total number of electrons.
+This is a simple way to verify the accuracy of the integration grid.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">print</span> <span class="n">grid</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">rho</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Since <code class="docutils literal"><span class="pre">rho</span></code> is simply a Numpy array, it can be manipulated easily to compute
+functionals of the electron density, e.g.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">print</span> <span class="n">grid</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">rho</span><span class="o">**</span><span class="p">(</span><span class="mf">4.0</span><span class="o">/</span><span class="mf">3.0</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>You can also use the <code class="docutils literal"><span class="pre">grid.points</span></code> array to evaluate other expectation values
+numerically, e.g. the following snippet evaluates the expectation value of
+<span class="math">\(\vert\mathbf{r}\vert=(x^{2}+y^{2}+z^{2})^{0.5}\)</span>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">r</span> <span class="o">=</span> <span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mf">0.5</span>
+<span class="n">grid</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">rho</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>As shown in the above snippet, the <code class="docutils literal"><span class="pre">integrate</span></code> method can take multiple
+one-dimensional arrays that are all multiplied before integration.</p>
+<p>The following script is a complete example for computing the expectation value
+of <span class="math">\(\vert\mathbf{r}\vert=(x^{2}+y^{2}+z^{2})^{0.5}\)</span>
+for a molecular wave-function loaded from a file.</p>
+<div class="literal-block-wrapper container" id="data-examples-grid-expectation-r-py">
+<div class="code-block-caption"><span class="caption-text">../data/examples/grid/expectation_r.py</span><a class="headerlink" href="#data-examples-grid-expectation-r-py" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span>
+<span class="kn">from</span> <span class="nn">horton</span> <span class="k">import</span> <span class="o">*</span>
+
+<span class="c1"># Load the Gaussian output from file from HORTON&#39;s test data directory.</span>
+<span class="n">fn_fchk</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get_fn</span><span class="p">(</span><span class="s1">&#39;test/water_sto3g_hf_g03.fchk&#39;</span><span class="p">)</span>
+<span class="c1"># Replace the previous line with any other fchk file, e.g. fn_fchk = &#39;yourfile.fchk&#39;.</span>
+<span class="n">mol</span> <span class="o">=</span> <span class="n">IOData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">fn_fchk</span><span class="p">)</span>
+
+<span class="c1"># Specify the integration grid</span>
+<span class="n">grid</span> <span class="o">=</span> <span class="n">BeckeMolGrid</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">numbers</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">)</span>
+
+<span class="c1"># Get the spin-summed density matrix</span>
+<span class="n">dm_full</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">get_dm_full</span><span class="p">()</span>
+
+<span class="c1"># Compute the density on the grid</span>
+<span class="n">rho</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">obasis</span><span class="o">.</span><span class="n">compute_grid_density_dm</span><span class="p">(</span><span class="n">dm_full</span><span class="p">,</span> <span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+
+<span class="c1"># Compute the expectation value of |r|.</span>
+<span class="n">r</span> <span class="o">=</span> <span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mf">0.5</span>
+<span class="nb">print</span> <span class="s1">&#39;EXPECTATION VALUE OF |R|:&#39;</span><span class="p">,</span> <span class="n">grid</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">rho</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="constructing-a-one-body-operator-from-a-real-space-potential">
+<h2>6.1.3. Constructing a one-body operator from a real-space potential<a class="headerlink" href="#constructing-a-one-body-operator-from-a-real-space-potential" title="Permalink to this headline">¶</a></h2>
+<p>This section assumes that the following objects are already available:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">obasis</span></code>: an orbital basis set object</li>
+<li><code class="docutils literal"><span class="pre">lf</span></code>: an instance of <code class="docutils literal"><span class="pre">DenseLinalgFactory</span></code> or <code class="docutils literal"><span class="pre">CholeskyLinalgFactory</span></code></li>
+<li><code class="docutils literal"><span class="pre">dm_full</span></code>: a spin-summed density matrix</li>
+<li><code class="docutils literal"><span class="pre">grid</span></code>: a Becke-Lebedev integration grid as introduced above.</li>
+</ul>
+<p>If you are not familiar with the <code class="docutils literal"><span class="pre">obasis</span></code> or <code class="docutils literal"><span class="pre">lf</span></code> object, please refer to
+<a class="reference internal" href="user_hamiltonian_molecular.html#user-molecularham-basis"><span class="std std-ref">Specifying the basis set</span></a>. The density matrix can either be read from a
+file or computed with HORTON. For more information, please refer to <a class="reference internal" href="user_estruct_hf_dft.html#user-hf-dft"><span class="std std-ref">How to use HORTON as a Hartree-Fock/DFT program</span></a>.</p>
+<p>Given a multiplicative potential, its expectation value is written as:</p>
+<div class="math">
+\[\langle V \rangle = \int \rho(\mathbf{r}) V(\mathbf{r}) d\mathbf{r}.\]</div>
+<p>Expanding the orbitals in a local basis set results in:</p>
+<div class="math">
+\[\langle V \rangle = \sum_{\mu\nu} D_{\mu\nu} \mathcal{V}_{\nu\mu}\]</div>
+<p>where <span class="math">\(D_{\mu\nu}\)</span> is the spin-summed density matrix. The matrix
+<span class="math">\(\mathcal{V}_{\nu\mu}\)</span> is defined as</p>
+<div class="math">
+\[\mathcal{V}_{\nu\mu} = \int V(\mathbf{r}) b_\nu^*(\mathbf{r}) b_\mu(\mathbf{r}) d\mathbf{r}\]</div>
+<p>where <span class="math">\(b_\mu(\mathbf{r})\)</span> are the orbital basis functions. Such matrices
+can be constructed with the
+<a class="reference internal" href="lib/mod_horton_gbasis_cext.html#horton.gbasis.cext.GOBasis.compute_grid_density_fock" title="horton.gbasis.cext.GOBasis.compute_grid_density_fock"><code class="xref py py-meth docutils literal"><span class="pre">compute_grid_density_fock()</span></code></a> method. This method is
+also useful when applying the chain rule to construct the contribution of a density functional
+to a Fock matrix:</p>
+<div class="math">
+\[\frac{\partial E[\rho]}{\partial D_{\nu\mu}} = \int \frac{\delta E[\rho]}{\delta \rho(\mathbf{r})}  b_\nu^*(\mathbf{r}) b_\mu(\mathbf{r}) d\mathbf{r}\]</div>
+<p>The usage pattern is as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Construct some potential, e.g. a hyperbolic well</span>
+<span class="n">rsq</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
+<span class="n">pot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">rsq</span><span class="p">)</span>
+
+<span class="c1"># Allocate an output array for the operator</span>
+<span class="n">fock</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_two_index</span><span class="p">()</span>
+
+<span class="c1"># Actual computation</span>
+<span class="n">obasis</span><span class="o">.</span><span class="n">compute_grid_density_fock</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="n">grid</span><span class="o">.</span><span class="n">weights</span><span class="p">,</span> <span class="n">pot</span><span class="p">,</span> <span class="n">fock</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Similar methods, like
+<a class="reference internal" href="lib/mod_horton_gbasis_cext.html#horton.gbasis.cext.GOBasis.compute_grid_gradient_fock" title="horton.gbasis.cext.GOBasis.compute_grid_gradient_fock"><code class="xref py py-meth docutils literal"><span class="pre">compute_grid_gradient_fock()</span></code></a> and
+<a class="reference internal" href="lib/mod_horton_gbasis_cext.html#horton.gbasis.cext.GOBasis.compute_grid_kinetic_fock" title="horton.gbasis.cext.GOBasis.compute_grid_kinetic_fock"><code class="xref py py-meth docutils literal"><span class="pre">compute_grid_kinetic_fock()</span></code></a>,
+are available for the following two chain rules:</p>
+<div class="math">
+\[\begin{split}\frac{\partial E[\nabla\rho]}{\partial D_{\nu\mu}} &amp; =
+    \int \frac{\delta E[\nabla\rho]}{\delta \nabla\rho(\mathbf{r})}
+    \cdot \left(
+        \nabla b_\nu^*(\mathbf{r}) b_\mu(\mathbf{r}) +
+        b_\nu^*(\mathbf{r}) \nabla b_\mu(\mathbf{r})
+    \right) d\mathbf{r} \\
+\frac{\partial E[\tau]}{\partial D_{\nu\mu}} &amp; =
+    \frac{1}{2}\int \frac{\delta E[\tau]}{\delta \tau(\mathbf{r})}
+    \nabla b_\nu^*(\mathbf{r}) \nabla b_\mu(\mathbf{r}) d\mathbf{r}\end{split}\]</div>
+<p>where <span class="math">\(\tau(\mathbf{r})\)</span> is the positive kinetic energy density:</p>
+<div class="math">
+\[\tau(\mathbf{r}) = \frac{1}{2} \sum_{\mu\nu} D_{\mu\nu} \nabla b_\nu^*(\mathbf{r}) \nabla b_\mu(\mathbf{r})\]</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="user_other_matrix.html" class="btn btn-neutral float-right" title="6.2. How to use HORTON’s matrix package?" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="user_other.html" class="btn btn-neutral" title="6. Other Topics" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.0 built from release 2.0.0-244-gaaf5e2b. </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 16, 2016.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.0.0-244-gaaf5e2b',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

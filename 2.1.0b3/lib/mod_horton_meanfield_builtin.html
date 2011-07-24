@@ -1,0 +1,742 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.7.2. horton.meanfield.builtin – Built-in energy terms &mdash; HORTON 2.1.0b3 (Jun 30, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="HORTON 2.1.0b3 (Jun 30, 2017) documentation" href="../index.html"/>
+        <link rel="up" title="3.7. horton.meanfield – Mean-field electronic structure code" href="pck_horton_meanfield.html"/>
+        <link rel="next" title="3.7.3. horton.meanfield.cext – C++ extensions" href="mod_horton_meanfield_cext.html"/>
+        <link rel="prev" title="3.7.1. horton.meanfield.bond_order – Generic implementation of bond orders for mean-field wavefunctions" href="mod_horton_meanfield_bond_order.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.0b3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> – The main HORTON Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.2. <code class="docutils literal"><span class="pre">horton.espfit</span></code> – Electrostatic potential fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_gbasis.html">3.3. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.4. <code class="docutils literal"><span class="pre">horton.grid</span></code> – Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.5. <code class="docutils literal"><span class="pre">horton.io</span></code> – Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.6. <code class="docutils literal"><span class="pre">horton.matrix</span></code> – One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_meanfield.html">3.7. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> – Mean-field electronic structure code</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_bond_order.html">3.7.1. <code class="docutils literal"><span class="pre">horton.meanfield.bond_order</span></code> – Generic implementation of bond orders for mean-field wavefunctions</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.7.2. <code class="docutils literal"><span class="pre">horton.meanfield.builtin</span></code> – Built-in energy terms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_cext.html">3.7.3. <code class="docutils literal"><span class="pre">horton.meanfield.cext</span></code> – C++ extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_convergence.html">3.7.4. <code class="docutils literal"><span class="pre">horton.meanfield.convergence</span></code> – Evaluation of convergence criteria</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_gridgroup.html">3.7.5. <code class="docutils literal"><span class="pre">horton.meanfield.gridgroup</span></code> – Container for observables involving numerical integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_guess.html">3.7.6. <code class="docutils literal"><span class="pre">horton.meanfield.guess</span></code> – Initial guesses for wavefunctions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_hamiltonian.html">3.7.7. <code class="docutils literal"><span class="pre">horton.meanfield.hamiltonian</span></code> – Mean-field DFT/HF Hamiltonian data structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_libxc.html">3.7.8. <code class="docutils literal"><span class="pre">horton.meanfield.libxc</span></code> – Interface to LDA, GGA and hybrid functionals from LibXC</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_observable.html">3.7.9. <code class="docutils literal"><span class="pre">horton.meanfield.observable</span></code> – Base classes for energy terms and other observables of the wavefunction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_occ.html">3.7.10. <code class="docutils literal"><span class="pre">horton.meanfield.occ</span></code> – Occupation number models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_project.html">3.7.11. <code class="docutils literal"><span class="pre">horton.meanfield.project</span></code> – Projection of 1-electron orbitals to a new basis set</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_response.html">3.7.12. <code class="docutils literal"><span class="pre">horton.meanfield.response</span></code> – Evaluation of response functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_rotate.html">3.7.13. <code class="docutils literal"><span class="pre">horton.meanfield.rotate</span></code> – Rotation of orbitals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_scf.html">3.7.14. <code class="docutils literal"><span class="pre">horton.meanfield.scf</span></code> – Basic Self-Consistent Field (SCF) algorithm.</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_scf_cdiis.html">3.7.15. <code class="docutils literal"><span class="pre">horton.meanfield.scf_cdiis</span></code> – Commutator DIIS SCF algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_scf_diis.html">3.7.16. <code class="docutils literal"><span class="pre">horton.meanfield.scf_diis</span></code> – Abstract DIIS code used by the different DIIS implementations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_scf_ediis.html">3.7.17. <code class="docutils literal"><span class="pre">horton.meanfield.scf_ediis</span></code> – Energy DIIS SCF algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_scf_ediis2.html">3.7.18. <code class="docutils literal"><span class="pre">horton.meanfield.scf_ediis2</span></code> – EDIIS+DIIS SCF algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_scf_oda.html">3.7.19. <code class="docutils literal"><span class="pre">horton.meanfield.scf_oda</span></code> – Optimal Damping SCF algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_meanfield_utils.html">3.7.20. <code class="docutils literal"><span class="pre">horton.meanfield.utils</span></code> – Utility functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.8. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> – Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.9. <code class="docutils literal"><span class="pre">horton.part</span></code> – Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.10. <code class="docutils literal"><span class="pre">horton.scripts</span></code> – Code (solely) used by HORTON’s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+        
+          <li><a href="pck_horton_meanfield.html">3.7. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> – Mean-field electronic structure code</a> &raquo;</li>
+        
+      <li>3.7.2. <code class="docutils literal"><span class="pre">horton.meanfield.builtin</span></code> – Built-in energy terms</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/lib/mod_horton_meanfield_builtin.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-horton.meanfield.builtin">
+<span id="horton-meanfield-builtin-built-in-energy-terms"></span><h1>3.7.2. <code class="docutils literal"><span class="pre">horton.meanfield.builtin</span></code> – Built-in energy terms<a class="headerlink" href="#module-horton.meanfield.builtin" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="horton.meanfield.builtin.RBeckeHartree">
+<em class="property">class </em><code class="descclassname">horton.meanfield.builtin.</code><code class="descname">RBeckeHartree</code><span class="sig-paren">(</span><em>lmax</em>, <em>label=’hartree_becke’</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.builtin.RBeckeHartree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">horton.meanfield.builtin.BeckeHartree</span></code></p>
+<p>Hartree term with numerical Becke-Poisson solver for restricted wavefunctions.</p>
+<dl class="method">
+<dt id="horton.meanfield.builtin.RBeckeHartree.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>lmax</em>, <em>label=’hartree_becke’</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.builtin.RBeckeHartree.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.builtin.RBeckeHartree.add_dot">
+<code class="descname">add_dot</code><span class="sig-paren">(</span><em>cache</em>, <em>grid</em>, <em>*args</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.builtin.RBeckeHartree.add_dot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a dot product with the kernel to the output arguments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to share intermediate results between the <code class="docutils literal"><span class="pre">compute</span></code> and <code class="docutils literal"><span class="pre">add_pot</span></code>
+methods. This cache will also contain pre-computed functions evaluate on the
+grid. See <code class="xref py py-class docutils literal"><span class="pre">RGridGroup</span></code> and <code class="xref py py-class docutils literal"><span class="pre">UGridGroup</span></code> for more details.</li>
+<li><strong>grid</strong> (<a class="reference internal" href="mod_horton_grid_base.html#horton.grid.base.IntGrid" title="horton.grid.base.IntGrid"><em>IntGrid</em></a>) – A numerical integration grid.</li>
+<li><strong>args</strong> (<em>list of</em><em> [</em><em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><a class="reference internal" href="mod_horton_grid_cext.html#horton.grid.cext.ExpRTransform.npoint" title="horton.grid.cext.ExpRTransform.npoint"><em>npoint</em></a><em>, </em><em>npot</em><em>)</em><em>, </em><em>dtype=float</em><em>]</em>) – The result of this method is added to these output arguments. They are a list
+of <cite>dot</cite> arrays. (Only one array for the alpha density in case of restricted.
+Two arrays, one for alpha and one for beta electrons, in case of
+unrestricted.) To each array <cite>dot</cite> data will be added, e.g. the dot product of
+the density kernel with a change in density, the dot product of the gradient
+kernel with a change in gradient, etc.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.builtin.RBeckeHartree.add_pot">
+<code class="descname">add_pot</code><span class="sig-paren">(</span><em>cache</em>, <em>grid</em>, <em>pots_alpha</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.builtin.RBeckeHartree.add_pot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the potential to the output arguments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to share intermediate results between the <code class="docutils literal"><span class="pre">compute</span></code> and <code class="docutils literal"><span class="pre">add_pot</span></code>
+methods. This cache will also contain pre-computed functions evaluate on the
+grid. See <code class="xref py py-class docutils literal"><span class="pre">RGridGroup</span></code> and <code class="xref py py-class docutils literal"><span class="pre">UGridGroup</span></code> for more details.</li>
+<li><strong>grid</strong> (<a class="reference internal" href="mod_horton_grid_base.html#horton.grid.base.IntGrid" title="horton.grid.base.IntGrid"><em>IntGrid</em></a>) – A numerical integration grid.</li>
+<li><strong>args</strong> (<em>list of</em><em> [</em><em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><a class="reference internal" href="mod_horton_grid_cext.html#horton.grid.cext.ExpRTransform.npoint" title="horton.grid.cext.ExpRTransform.npoint"><em>npoint</em></a><em>, </em><em>npot</em><em>)</em><em>, </em><em>dtype=float</em><em>]</em>) – <p>A list of potential arrays. (Only one array for the alpha density in case of
+restricted. Two arrays, one for alpha and one for beta electrons, in case of
+unrestricted.) Each array contains <cite>potential</cite> data, e.g. derivatives of a
+density functional toward:</p>
+<ul>
+<li>column 0: the density</li>
+<li>columns 1,2,3: gradient (x, y, z)</li>
+<li>column 4: Laplacian</li>
+<li>column 5: kinetic energy density</li>
+</ul>
+<p>Later columns may not be present if the functional does not need them. They
+could be present when other terms in the effective Hamiltonian need them.</p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.builtin.RBeckeHartree.compute_energy">
+<code class="descname">compute_energy</code><span class="sig-paren">(</span><em>cache</em>, <em>grid</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.builtin.RBeckeHartree.compute_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the expectation value using numerical integration.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to share intermediate results between the <code class="docutils literal"><span class="pre">compute</span></code> and <code class="docutils literal"><span class="pre">add_pot</span></code>
+methods. This cache will also contain pre-computed functions evaluate on the
+grid. See <code class="xref py py-class docutils literal"><span class="pre">RGridGroup</span></code> and <code class="xref py py-class docutils literal"><span class="pre">UGridGroup</span></code> for more details.</li>
+<li><strong>grid</strong> (<a class="reference internal" href="mod_horton_grid_base.html#horton.grid.base.IntGrid" title="horton.grid.base.IntGrid"><em>IntGrid</em></a>) – A numerical integration grid.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.meanfield.builtin.RBeckeHartree.df_level">
+<code class="descname">df_level</code><em class="property"> = 0</em><a class="headerlink" href="#horton.meanfield.builtin.RBeckeHartree.df_level" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.meanfield.builtin.UBeckeHartree">
+<em class="property">class </em><code class="descclassname">horton.meanfield.builtin.</code><code class="descname">UBeckeHartree</code><span class="sig-paren">(</span><em>lmax</em>, <em>label=’hartree_becke’</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.builtin.UBeckeHartree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">horton.meanfield.builtin.BeckeHartree</span></code></p>
+<p>Hartree term with numerical Becke-Poisson solver for unrestricted wavefunctions.</p>
+<dl class="method">
+<dt id="horton.meanfield.builtin.UBeckeHartree.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>lmax</em>, <em>label=’hartree_becke’</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.builtin.UBeckeHartree.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.builtin.UBeckeHartree.add_dot">
+<code class="descname">add_dot</code><span class="sig-paren">(</span><em>cache</em>, <em>grid</em>, <em>*args</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.builtin.UBeckeHartree.add_dot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a dot product with the kernel to the output arguments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to share intermediate results between the <code class="docutils literal"><span class="pre">compute</span></code> and <code class="docutils literal"><span class="pre">add_pot</span></code>
+methods. This cache will also contain pre-computed functions evaluate on the
+grid. See <code class="xref py py-class docutils literal"><span class="pre">RGridGroup</span></code> and <code class="xref py py-class docutils literal"><span class="pre">UGridGroup</span></code> for more details.</li>
+<li><strong>grid</strong> (<a class="reference internal" href="mod_horton_grid_base.html#horton.grid.base.IntGrid" title="horton.grid.base.IntGrid"><em>IntGrid</em></a>) – A numerical integration grid.</li>
+<li><strong>args</strong> (<em>list of</em><em> [</em><em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><a class="reference internal" href="mod_horton_grid_cext.html#horton.grid.cext.ExpRTransform.npoint" title="horton.grid.cext.ExpRTransform.npoint"><em>npoint</em></a><em>, </em><em>npot</em><em>)</em><em>, </em><em>dtype=float</em><em>]</em>) – The result of this method is added to these output arguments. They are a list
+of <cite>dot</cite> arrays. (Only one array for the alpha density in case of restricted.
+Two arrays, one for alpha and one for beta electrons, in case of
+unrestricted.) To each array <cite>dot</cite> data will be added, e.g. the dot product of
+the density kernel with a change in density, the dot product of the gradient
+kernel with a change in gradient, etc.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.builtin.UBeckeHartree.add_pot">
+<code class="descname">add_pot</code><span class="sig-paren">(</span><em>cache</em>, <em>grid</em>, <em>pots_alpha</em>, <em>pots_beta</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.builtin.UBeckeHartree.add_pot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the potential to the output arguments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to share intermediate results between the <code class="docutils literal"><span class="pre">compute</span></code> and <code class="docutils literal"><span class="pre">add_pot</span></code>
+methods. This cache will also contain pre-computed functions evaluate on the
+grid. See <code class="xref py py-class docutils literal"><span class="pre">RGridGroup</span></code> and <code class="xref py py-class docutils literal"><span class="pre">UGridGroup</span></code> for more details.</li>
+<li><strong>grid</strong> (<a class="reference internal" href="mod_horton_grid_base.html#horton.grid.base.IntGrid" title="horton.grid.base.IntGrid"><em>IntGrid</em></a>) – A numerical integration grid.</li>
+<li><strong>args</strong> (<em>list of</em><em> [</em><em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><a class="reference internal" href="mod_horton_grid_cext.html#horton.grid.cext.ExpRTransform.npoint" title="horton.grid.cext.ExpRTransform.npoint"><em>npoint</em></a><em>, </em><em>npot</em><em>)</em><em>, </em><em>dtype=float</em><em>]</em>) – <p>A list of potential arrays. (Only one array for the alpha density in case of
+restricted. Two arrays, one for alpha and one for beta electrons, in case of
+unrestricted.) Each array contains <cite>potential</cite> data, e.g. derivatives of a
+density functional toward:</p>
+<ul>
+<li>column 0: the density</li>
+<li>columns 1,2,3: gradient (x, y, z)</li>
+<li>column 4: Laplacian</li>
+<li>column 5: kinetic energy density</li>
+</ul>
+<p>Later columns may not be present if the functional does not need them. They
+could be present when other terms in the effective Hamiltonian need them.</p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.builtin.UBeckeHartree.compute_energy">
+<code class="descname">compute_energy</code><span class="sig-paren">(</span><em>cache</em>, <em>grid</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.builtin.UBeckeHartree.compute_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the expectation value using numerical integration.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to share intermediate results between the <code class="docutils literal"><span class="pre">compute</span></code> and <code class="docutils literal"><span class="pre">add_pot</span></code>
+methods. This cache will also contain pre-computed functions evaluate on the
+grid. See <code class="xref py py-class docutils literal"><span class="pre">RGridGroup</span></code> and <code class="xref py py-class docutils literal"><span class="pre">UGridGroup</span></code> for more details.</li>
+<li><strong>grid</strong> (<a class="reference internal" href="mod_horton_grid_base.html#horton.grid.base.IntGrid" title="horton.grid.base.IntGrid"><em>IntGrid</em></a>) – A numerical integration grid.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.meanfield.builtin.UBeckeHartree.df_level">
+<code class="descname">df_level</code><em class="property"> = 0</em><a class="headerlink" href="#horton.meanfield.builtin.UBeckeHartree.df_level" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.meanfield.builtin.RDiracExchange">
+<em class="property">class </em><code class="descclassname">horton.meanfield.builtin.</code><code class="descname">RDiracExchange</code><span class="sig-paren">(</span><em>label=’x_dirac’</em>, <em>coeff=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.builtin.RDiracExchange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">horton.meanfield.builtin.DiracExchange</span></code></p>
+<p>Initialize a DiracExchange instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>label</strong> (<em>str</em>) – A label for this observable.</li>
+<li><strong>coeff</strong> (<em>float</em>) – The coefficient Cx in front of the Dirac exchange energy. It defaults to the
+uniform electron gas value, i.e. <span class="math">\(C_x = \frac{3}{4}
+\left(\frac{3}{\pi}\right)^{1/3}\)</span>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="horton.meanfield.builtin.RDiracExchange.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>label=’x_dirac’</em>, <em>coeff=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.builtin.RDiracExchange.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a DiracExchange instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>label</strong> (<em>str</em>) – A label for this observable.</li>
+<li><strong>coeff</strong> (<em>float</em>) – The coefficient Cx in front of the Dirac exchange energy. It defaults to the
+uniform electron gas value, i.e. <span class="math">\(C_x = \frac{3}{4}
+\left(\frac{3}{\pi}\right)^{1/3}\)</span>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.builtin.RDiracExchange.add_dot">
+<code class="descname">add_dot</code><span class="sig-paren">(</span><em>cache</em>, <em>grid</em>, <em>*args</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.builtin.RDiracExchange.add_dot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a dot product with the kernel to the output arguments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to share intermediate results between the <code class="docutils literal"><span class="pre">compute</span></code> and <code class="docutils literal"><span class="pre">add_pot</span></code>
+methods. This cache will also contain pre-computed functions evaluate on the
+grid. See <code class="xref py py-class docutils literal"><span class="pre">RGridGroup</span></code> and <code class="xref py py-class docutils literal"><span class="pre">UGridGroup</span></code> for more details.</li>
+<li><strong>grid</strong> (<a class="reference internal" href="mod_horton_grid_base.html#horton.grid.base.IntGrid" title="horton.grid.base.IntGrid"><em>IntGrid</em></a>) – A numerical integration grid.</li>
+<li><strong>args</strong> (<em>list of</em><em> [</em><em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><a class="reference internal" href="mod_horton_grid_cext.html#horton.grid.cext.ExpRTransform.npoint" title="horton.grid.cext.ExpRTransform.npoint"><em>npoint</em></a><em>, </em><em>npot</em><em>)</em><em>, </em><em>dtype=float</em><em>]</em>) – The result of this method is added to these output arguments. They are a list
+of <cite>dot</cite> arrays. (Only one array for the alpha density in case of restricted.
+Two arrays, one for alpha and one for beta electrons, in case of
+unrestricted.) To each array <cite>dot</cite> data will be added, e.g. the dot product of
+the density kernel with a change in density, the dot product of the gradient
+kernel with a change in gradient, etc.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.builtin.RDiracExchange.add_pot">
+<code class="descname">add_pot</code><span class="sig-paren">(</span><em>cache</em>, <em>grid</em>, <em>pots_alpha</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.builtin.RDiracExchange.add_pot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the potential to the output arguments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to share intermediate results between the <code class="docutils literal"><span class="pre">compute</span></code> and <code class="docutils literal"><span class="pre">add_pot</span></code>
+methods. This cache will also contain pre-computed functions evaluate on the
+grid. See <code class="xref py py-class docutils literal"><span class="pre">RGridGroup</span></code> and <code class="xref py py-class docutils literal"><span class="pre">UGridGroup</span></code> for more details.</li>
+<li><strong>grid</strong> (<a class="reference internal" href="mod_horton_grid_base.html#horton.grid.base.IntGrid" title="horton.grid.base.IntGrid"><em>IntGrid</em></a>) – A numerical integration grid.</li>
+<li><strong>args</strong> (<em>list of</em><em> [</em><em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><a class="reference internal" href="mod_horton_grid_cext.html#horton.grid.cext.ExpRTransform.npoint" title="horton.grid.cext.ExpRTransform.npoint"><em>npoint</em></a><em>, </em><em>npot</em><em>)</em><em>, </em><em>dtype=float</em><em>]</em>) – <p>A list of potential arrays. (Only one array for the alpha density in case of
+restricted. Two arrays, one for alpha and one for beta electrons, in case of
+unrestricted.) Each array contains <cite>potential</cite> data, e.g. derivatives of a
+density functional toward:</p>
+<ul>
+<li>column 0: the density</li>
+<li>columns 1,2,3: gradient (x, y, z)</li>
+<li>column 4: Laplacian</li>
+<li>column 5: kinetic energy density</li>
+</ul>
+<p>Later columns may not be present if the functional does not need them. They
+could be present when other terms in the effective Hamiltonian need them.</p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.builtin.RDiracExchange.compute_energy">
+<code class="descname">compute_energy</code><span class="sig-paren">(</span><em>cache</em>, <em>grid</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.builtin.RDiracExchange.compute_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the expectation value using numerical integration.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to share intermediate results between the <code class="docutils literal"><span class="pre">compute</span></code> and <code class="docutils literal"><span class="pre">add_pot</span></code>
+methods. This cache will also contain pre-computed functions evaluate on the
+grid. See <code class="xref py py-class docutils literal"><span class="pre">RGridGroup</span></code> and <code class="xref py py-class docutils literal"><span class="pre">UGridGroup</span></code> for more details.</li>
+<li><strong>grid</strong> (<a class="reference internal" href="mod_horton_grid_base.html#horton.grid.base.IntGrid" title="horton.grid.base.IntGrid"><em>IntGrid</em></a>) – A numerical integration grid.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.meanfield.builtin.RDiracExchange.df_level">
+<code class="descname">df_level</code><em class="property"> = 0</em><a class="headerlink" href="#horton.meanfield.builtin.RDiracExchange.df_level" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.meanfield.builtin.UDiracExchange">
+<em class="property">class </em><code class="descclassname">horton.meanfield.builtin.</code><code class="descname">UDiracExchange</code><span class="sig-paren">(</span><em>label=’x_dirac’</em>, <em>coeff=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.builtin.UDiracExchange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">horton.meanfield.builtin.DiracExchange</span></code></p>
+<p>Initialize a DiracExchange instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>label</strong> (<em>str</em>) – A label for this observable.</li>
+<li><strong>coeff</strong> (<em>float</em>) – The coefficient Cx in front of the Dirac exchange energy. It defaults to the
+uniform electron gas value, i.e. <span class="math">\(C_x = \frac{3}{4}
+\left(\frac{3}{\pi}\right)^{1/3}\)</span>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="horton.meanfield.builtin.UDiracExchange.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>label=’x_dirac’</em>, <em>coeff=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.builtin.UDiracExchange.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a DiracExchange instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>label</strong> (<em>str</em>) – A label for this observable.</li>
+<li><strong>coeff</strong> (<em>float</em>) – The coefficient Cx in front of the Dirac exchange energy. It defaults to the
+uniform electron gas value, i.e. <span class="math">\(C_x = \frac{3}{4}
+\left(\frac{3}{\pi}\right)^{1/3}\)</span>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.builtin.UDiracExchange.add_dot">
+<code class="descname">add_dot</code><span class="sig-paren">(</span><em>cache</em>, <em>grid</em>, <em>*args</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.builtin.UDiracExchange.add_dot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a dot product with the kernel to the output arguments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to share intermediate results between the <code class="docutils literal"><span class="pre">compute</span></code> and <code class="docutils literal"><span class="pre">add_pot</span></code>
+methods. This cache will also contain pre-computed functions evaluate on the
+grid. See <code class="xref py py-class docutils literal"><span class="pre">RGridGroup</span></code> and <code class="xref py py-class docutils literal"><span class="pre">UGridGroup</span></code> for more details.</li>
+<li><strong>grid</strong> (<a class="reference internal" href="mod_horton_grid_base.html#horton.grid.base.IntGrid" title="horton.grid.base.IntGrid"><em>IntGrid</em></a>) – A numerical integration grid.</li>
+<li><strong>args</strong> (<em>list of</em><em> [</em><em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><a class="reference internal" href="mod_horton_grid_cext.html#horton.grid.cext.ExpRTransform.npoint" title="horton.grid.cext.ExpRTransform.npoint"><em>npoint</em></a><em>, </em><em>npot</em><em>)</em><em>, </em><em>dtype=float</em><em>]</em>) – The result of this method is added to these output arguments. They are a list
+of <cite>dot</cite> arrays. (Only one array for the alpha density in case of restricted.
+Two arrays, one for alpha and one for beta electrons, in case of
+unrestricted.) To each array <cite>dot</cite> data will be added, e.g. the dot product of
+the density kernel with a change in density, the dot product of the gradient
+kernel with a change in gradient, etc.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.builtin.UDiracExchange.add_pot">
+<code class="descname">add_pot</code><span class="sig-paren">(</span><em>cache</em>, <em>grid</em>, <em>pots_alpha</em>, <em>pots_beta</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.builtin.UDiracExchange.add_pot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the potential to the output arguments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to share intermediate results between the <code class="docutils literal"><span class="pre">compute</span></code> and <code class="docutils literal"><span class="pre">add_pot</span></code>
+methods. This cache will also contain pre-computed functions evaluate on the
+grid. See <code class="xref py py-class docutils literal"><span class="pre">RGridGroup</span></code> and <code class="xref py py-class docutils literal"><span class="pre">UGridGroup</span></code> for more details.</li>
+<li><strong>grid</strong> (<a class="reference internal" href="mod_horton_grid_base.html#horton.grid.base.IntGrid" title="horton.grid.base.IntGrid"><em>IntGrid</em></a>) – A numerical integration grid.</li>
+<li><strong>args</strong> (<em>list of</em><em> [</em><em>np.ndarray</em><em>, </em><em>shape=</em><em>(</em><a class="reference internal" href="mod_horton_grid_cext.html#horton.grid.cext.ExpRTransform.npoint" title="horton.grid.cext.ExpRTransform.npoint"><em>npoint</em></a><em>, </em><em>npot</em><em>)</em><em>, </em><em>dtype=float</em><em>]</em>) – <p>A list of potential arrays. (Only one array for the alpha density in case of
+restricted. Two arrays, one for alpha and one for beta electrons, in case of
+unrestricted.) Each array contains <cite>potential</cite> data, e.g. derivatives of a
+density functional toward:</p>
+<ul>
+<li>column 0: the density</li>
+<li>columns 1,2,3: gradient (x, y, z)</li>
+<li>column 4: Laplacian</li>
+<li>column 5: kinetic energy density</li>
+</ul>
+<p>Later columns may not be present if the functional does not need them. They
+could be present when other terms in the effective Hamiltonian need them.</p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="horton.meanfield.builtin.UDiracExchange.compute_energy">
+<code class="descname">compute_energy</code><span class="sig-paren">(</span><em>cache</em>, <em>grid</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.meanfield.builtin.UDiracExchange.compute_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the expectation value using numerical integration.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache</strong> (<a class="reference internal" href="mod_horton_cache.html#horton.cache.Cache" title="horton.cache.Cache"><em>Cache</em></a>) – Used to share intermediate results between the <code class="docutils literal"><span class="pre">compute</span></code> and <code class="docutils literal"><span class="pre">add_pot</span></code>
+methods. This cache will also contain pre-computed functions evaluate on the
+grid. See <code class="xref py py-class docutils literal"><span class="pre">RGridGroup</span></code> and <code class="xref py py-class docutils literal"><span class="pre">UGridGroup</span></code> for more details.</li>
+<li><strong>grid</strong> (<a class="reference internal" href="mod_horton_grid_base.html#horton.grid.base.IntGrid" title="horton.grid.base.IntGrid"><em>IntGrid</em></a>) – A numerical integration grid.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="horton.meanfield.builtin.UDiracExchange.df_level">
+<code class="descname">df_level</code><em class="property"> = 0</em><a class="headerlink" href="#horton.meanfield.builtin.UDiracExchange.df_level" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_meanfield_cext.html" class="btn btn-neutral float-right" title="3.7.3. horton.meanfield.cext – C++ extensions" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_meanfield_bond_order.html" class="btn btn-neutral" title="3.7.1. horton.meanfield.bond_order – Generic implementation of bond orders for mean-field wavefunctions" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.0b3 built from release 2.1.0b3 (Jun 30, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 30, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.1.0b3 (Jun 30, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

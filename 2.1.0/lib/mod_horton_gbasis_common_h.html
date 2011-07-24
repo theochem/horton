@@ -1,0 +1,404 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.3.8. horton/gbasis/common.h – Auxiliary functions &mdash; HORTON 2.1.0 (Jul 06, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="HORTON 2.1.0 (Jul 06, 2017) documentation" href="../index.html"/>
+        <link rel="up" title="3.3. horton.gbasis – Gaussian basis sets" href="pck_horton_gbasis.html"/>
+        <link rel="next" title="3.3.9. horton/gbasis/fns.h – Evaluate functions on grids and derive Fock matrices from potentials on grids." href="mod_horton_gbasis_fns_h.html"/>
+        <link rel="prev" title="3.3.7. horton/gbasis/cholesky.h – Cholesky decomposition of (any) four-center integrals" href="mod_horton_gbasis_cholesky_h.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> – The main HORTON Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.2. <code class="docutils literal"><span class="pre">horton.espfit</span></code> – Electrostatic potential fitting</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_gbasis.html">3.3. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_cext.html">3.3.1. <code class="docutils literal"><span class="pre">horton.gbasis.cext</span></code> – C++ extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_gobasis.html">3.3.2. <code class="docutils literal"><span class="pre">horton.gbasis.gobasis</span></code> – Gaussian orbital basis set module.</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_iobas.html">3.3.3. <code class="docutils literal"><span class="pre">horton.gbasis.iobas</span></code> – Input/Output routines for gaussian basis sets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_boys_h.html">3.3.4. <code class="docutils literal"><span class="pre">horton/gbasis/boys.h</span></code> – The Boys function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_calc_h.html">3.3.5. <code class="docutils literal"><span class="pre">horton/gbasis/calc.h</span></code> – Base class for any integral/evaluation of Gaussian functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_cartpure_h.html">3.3.6. <code class="docutils literal"><span class="pre">horton/gbasis/cartpure.h</span></code> – Conversion of Cartesian to Pure Gaussian functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_cholesky_h.html">3.3.7. <code class="docutils literal"><span class="pre">horton/gbasis/cholesky.h</span></code> – Cholesky decomposition of (any) four-center integrals</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.3.8. <code class="docutils literal"><span class="pre">horton/gbasis/common.h</span></code> – Auxiliary functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_fns_h.html">3.3.9. <code class="docutils literal"><span class="pre">horton/gbasis/fns.h</span></code> – Evaluate functions on grids and derive Fock matrices from potentials on grids.</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_gbasis_h.html">3.3.10. <code class="docutils literal"><span class="pre">horton/gbasis/gbasis.h</span></code> – Gaussian basis set classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_gbw_h.html">3.3.11. <code class="docutils literal"><span class="pre">horton/gbasis/gbw.h</span></code> – A four-center integral wrapper for the Cholesky code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_ints_h.html">3.3.12. <code class="docutils literal"><span class="pre">horton/gbasis/ints.h</span></code> – Evaluation of integrals of Gaussian basis functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_iter_gb_h.html">3.3.13. <code class="docutils literal"><span class="pre">horton/gbasis/iter_gb.h</span></code> – Iterators over Gaussian basis functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_iter_pow_h.html">3.3.14. <code class="docutils literal"><span class="pre">horton/gbasis/iter_pow.h</span></code> – Iterators over Cartesian polynomials in one shell</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.4. <code class="docutils literal"><span class="pre">horton.grid</span></code> – Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.5. <code class="docutils literal"><span class="pre">horton.io</span></code> – Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.6. <code class="docutils literal"><span class="pre">horton.matrix</span></code> – One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.7. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> – Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.8. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> – Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.9. <code class="docutils literal"><span class="pre">horton.part</span></code> – Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.10. <code class="docutils literal"><span class="pre">horton.scripts</span></code> – Code (solely) used by HORTON’s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+        
+          <li><a href="pck_horton_gbasis.html">3.3. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> – Gaussian basis sets</a> &raquo;</li>
+        
+      <li>3.3.8. <code class="docutils literal"><span class="pre">horton/gbasis/common.h</span></code> – Auxiliary functions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/lib/mod_horton_gbasis_common_h.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="horton-gbasis-common-h-auxiliary-functions">
+<h1>3.3.8. <code class="docutils literal"><span class="pre">horton/gbasis/common.h</span></code> – Auxiliary functions<a class="headerlink" href="#horton-gbasis-common-h-auxiliary-functions" title="Permalink to this headline">¶</a></h1>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Defines</p>
+<dl class="macro">
+<dt id="c.MAX_SHELL_TYPE">
+<span class="target" id="hortoncommon_8h_1a7fc288042e77defda80a2366feb92a99"></span><code class="descname">MAX_SHELL_TYPE</code><a class="headerlink" href="#c.MAX_SHELL_TYPE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="macro">
+<dt id="c.MAX_NCART_CUMUL">
+<span class="target" id="hortoncommon_8h_1af92deb2006db6870162c152c0d1c3388"></span><code class="descname">MAX_NCART_CUMUL</code><a class="headerlink" href="#c.MAX_NCART_CUMUL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="macro">
+<dt id="c.MAX_NCART_CUMUL_D">
+<span class="target" id="hortoncommon_8h_1a8f9e7b45d2b4c3edab93fb68982a9c7d"></span><code class="descname">MAX_NCART_CUMUL_D</code><a class="headerlink" href="#c.MAX_NCART_CUMUL_D" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="macro">
+<dt id="c.MAX_NCART_CUMUL_DD">
+<span class="target" id="hortoncommon_8h_1a631c55ab628f0dbf5a609e5e26d3e1d7"></span><code class="descname">MAX_NCART_CUMUL_DD</code><a class="headerlink" href="#c.MAX_NCART_CUMUL_DD" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Functions</p>
+<dl class="function">
+<dt id="_CPPv23facl">
+<span id="fac__l"></span><span class="target" id="hortoncommon_8h_1a5f5865fbf6150586aff9fb7da0da42b2"></span>long <code class="descclassname"></code><code class="descname">fac</code><span class="sig-paren">(</span>long <em>n</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv23facl" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv24fac2l">
+<span id="fac2__l"></span><span class="target" id="hortoncommon_8h_1ab3962a86252c448805604451c308c577"></span>long <code class="descclassname"></code><code class="descname">fac2</code><span class="sig-paren">(</span>long <em>n</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv24fac2l" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv25binomll">
+<span id="binom__l.l"></span><span class="target" id="hortoncommon_8h_1adfcbe093a83b1ed1379e8425d453c146"></span>long <code class="descclassname"></code><code class="descname">binom</code><span class="sig-paren">(</span>long <em>n</em>, long <em>m</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv25binomll" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv216get_shell_nbasisl">
+<span id="get_shell_nbasis__l"></span><span class="target" id="hortoncommon_8h_1a663ebb485e495a5f5b43d7bee4aa1eb1"></span>long <code class="descclassname"></code><code class="descname">get_shell_nbasis</code><span class="sig-paren">(</span>long <em>shell_type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv216get_shell_nbasisl" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv218get_max_shell_typev">
+<span id="get_max_shell_type"></span><span class="target" id="hortoncommon_8h_1ade71226574eef13b59ec72672995c6f4"></span>long <code class="descclassname"></code><code class="descname">get_max_shell_type</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv218get_max_shell_typev" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv27dist_sqPKdPKd">
+<span id="dist_sq__doubleCP.doubleCP"></span><span class="target" id="hortoncommon_8h_1a914b4afd9fefe6af1900db0442c4f6a1"></span><em class="property">const</em> double <code class="descclassname"></code><code class="descname">dist_sq</code><span class="sig-paren">(</span><em class="property">const</em> double *<em>r0</em>, <em class="property">const</em> double *<em>r1</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv27dist_sqPKdPKd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv218compute_gpt_centerdPKddPKddPd">
+<span id="compute_gpt_center__double.doubleCP.double.doubleCP.double.doubleP"></span><span class="target" id="hortoncommon_8h_1a8aa7ff77bb38f288a672d42e2197ef2c"></span>void <code class="descclassname"></code><code class="descname">compute_gpt_center</code><span class="sig-paren">(</span>double <em>alpha0</em>, <em class="property">const</em> double *<em>r0</em>, double <em>alpha1</em>, <em class="property">const</em> double *<em>r1</em>, double <em>gamma_inv</em>, double *<em>gpt_center</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv218compute_gpt_centerdPKddPKddPd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv29gpt_coeffllldd">
+<span id="gpt_coeff__l.l.l.double.double"></span><span class="target" id="hortoncommon_8h_1aaae0f2a68c8d3b6c36d5dc6c37e81eec"></span>double <code class="descclassname"></code><code class="descname">gpt_coeff</code><span class="sig-paren">(</span>long <em>k</em>, long <em>n0</em>, long <em>n1</em>, double <em>pa</em>, double <em>pb</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv29gpt_coeffllldd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv216gb_overlap_int1dllddd">
+<span id="gb_overlap_int1d__l.l.double.double.double"></span><span class="target" id="hortoncommon_8h_1aebb550fc1280200dae313cf45158104f"></span>double <code class="descclassname"></code><code class="descname">gb_overlap_int1d</code><span class="sig-paren">(</span>long <em>n0</em>, long <em>n1</em>, double <em>pa</em>, double <em>pb</em>, double <em>gamma_inv</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv216gb_overlap_int1dllddd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv225nuclear_attraction_helperPdlldddd">
+<span id="nuclear_attraction_helper__doubleP.l.l.double.double.double.double"></span><span class="target" id="hortoncommon_8h_1a11972f7d8df559a1d2572b915bb6bc30"></span>void <code class="descclassname"></code><code class="descname">nuclear_attraction_helper</code><span class="sig-paren">(</span>double *<em>work_g</em>, long <em>n0</em>, long <em>n1</em>, double <em>pa</em>, double <em>pb</em>, double <em>pc</em>, double <em>gamma_inv</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv225nuclear_attraction_helperPdlldddd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv23citidi">
+<span id="cit__i.double.i"></span><span class="target" id="hortoncommon_8h_1afe872a6a97a01e7b42d64c110a0394d9"></span>double <code class="descclassname"></code><code class="descname">cit</code><span class="sig-paren">(</span>int <em>i</em>, double <em>t</em>, int <em>m</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv23citidi" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>cit =t^m (2^(2i)/(2i +1)!) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv24jfacii">
+<span id="jfac__i.i"></span><span class="target" id="hortoncommon_8h_1a1dd605cae0a4f9b38fa098da4eeb6f77"></span>long <code class="descclassname"></code><code class="descname">jfac</code><span class="sig-paren">(</span>int <em>j</em>, int <em>n</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv24jfacii" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>j(j-1)(j-2)(j-3)…(j-n) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv27dtayloriddd">
+<span id="dtaylor__i.double.double.double"></span><span class="target" id="hortoncommon_8h_1a15da7b052c1e5df832e41eb54efc7395"></span>double <code class="descclassname"></code><code class="descname">dtaylor</code><span class="sig-paren">(</span>int <em>n</em>, double <em>alpha</em>, double <em>t</em>, double <em>prefac</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv27dtayloriddd" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Evaluas the taylor series for r^alpha integrals. </p>
+<p>Sum_i t^i * Gamma(i+(alpha+3)/2)*(2^(2i)/(2i +1)!</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><code class="first docutils literal"><span class="pre">n</span></code> - <p>Angular moment (the order of the derivative of the basic integral Gn in Alhrichs Phys. Chem. Chem. Phys., 8, 3072 (2006)). The maximum value implemented is n=10.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">alpha</span></code> - <p>The power of r in the potential.</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">t</span></code> - <p>rho|p-q|^2</p>
+</li>
+<li><code class="first docutils literal"><span class="pre">prefac</span></code> - <p>e^(-t)/rho^3/2 - This term helps the Taylor series to converge when t is a large number, the factor 1/2*sqrt(rho^alpha) was “replaced” and multiplied outside, at the end, in the laplace_of_potential function. </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_gbasis_fns_h.html" class="btn btn-neutral float-right" title="3.3.9. horton/gbasis/fns.h – Evaluate functions on grids and derive Fock matrices from potentials on grids." accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_gbasis_cholesky_h.html" class="btn btn-neutral" title="3.3.7. horton/gbasis/cholesky.h – Cholesky decomposition of (any) four-center integrals" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.1.0 built from release 2.1.0 (Jul 06, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jul 06, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.1.0 (Jul 06, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

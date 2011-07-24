@@ -1,0 +1,1175 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>4.1. How to use HORTON as a Hartree-Fock/DFT program &mdash; HORTON 2.0.0-244-gaaf5e2b documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="HORTON 2.0.0-244-gaaf5e2b documentation" href="index.html"/>
+        <link rel="up" title="4. Electronic Structure Methods" href="user_estruct.html"/>
+        <link rel="next" title="4.2. The AP1roG module" href="user_estruct_ap1rog.html"/>
+        <link rel="prev" title="4. Electronic Structure Methods" href="user_estruct.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">4.1. How to use HORTON as a Hartree-Fock/DFT program</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#setting-up-the-molecular-electronic-hamiltonian">4.1.1. Setting up the (molecular electronic) Hamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generating-an-initial-guess-of-the-wavefunction">4.1.2. Generating an initial guess of the wavefunction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#core-hamiltonian-guess">4.1.2.1. Core Hamiltonian guess</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#randomizing-an-initial-guess">4.1.2.2. Randomizing an initial guess</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#modifying-the-initial-guess">4.1.2.3. Modifying the initial guess</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reading-a-guess-from-a-file">4.1.2.4. Reading a guess from a file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#projecting-orbitals-from-a-smaller-basis-onto-a-larger-one">4.1.2.5. Projecting orbitals from a smaller basis onto a larger one</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#defining-the-effective-hamiltonian">4.1.3. Defining the effective Hamiltonian</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#supported-energy-terms-for-the-effective-hamiltonians">4.1.3.1. Supported energy terms for the effective Hamiltonians</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#a-few-typical-examples">4.1.3.2. A few typical examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#choose-an-orbital-occupation-scheme">4.1.4. Choose an orbital occupation scheme</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optimize-the-wavefunction-with-a-self-consistent-field-algorithm">4.1.5. Optimize the wavefunction with a self-consistent field algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#conversion-of-density-and-fock-matrix-to-orbitals">4.1.6. Conversion of density and Fock matrix to orbitals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#writing-scf-results-to-a-file">4.1.7. Writing SCF results to a file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#preparing-for-a-post-hartree-fock-calculation">4.1.8. Preparing for a Post-Hartree-Fock calculation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#transforming-the-hamiltonian-to-the-molecular-orbital-mo-basis">4.1.8.1. Transforming the Hamiltonian to the molecular-orbital (MO) basis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reducing-the-hamiltonian-to-an-active-space">4.1.8.2. Reducing the Hamiltonian to an active space</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#complete-examples">4.1.9. Complete examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_estruct_ap1rog.html">4.2. The AP1roG module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_estruct_perturbation.html">4.3. The perturbation theory module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">HORTON</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="user_estruct.html">4. Electronic Structure Methods</a> &raquo;</li>
+      
+    <li>4.1. How to use HORTON as a Hartree-Fock/DFT program</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/user_estruct_hf_dft.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="how-to-use-horton-as-a-hartree-fock-dft-program">
+<span id="user-hf-dft"></span><h1>4.1. How to use HORTON as a Hartree-Fock/DFT program<a class="headerlink" href="#how-to-use-horton-as-a-hartree-fock-dft-program" title="Permalink to this headline">¶</a></h1>
+<p>This section explains how the relevant Hartree-Fock and DFT features in HORTON
+are used with Python scripts. This is different from most regular quantum
+chemistry codes, where you just prepare an input file with a molecular geometry
+and some control options. Such an input-file interface for HORTON is under
+construction. The script interface, explained here, is more expressive and
+laborsome than a regular input file, because you basically have to write the
+main program. However, it has the advantage of flexibility, since you can tinker
+more with the individual steps in the calculation.</p>
+<p>HORTON can do restricted and unrestricted HF/DFT SCF calculations in various
+different ways. The following sections cover the typical steps of a calculation:</p>
+<ol class="arabic simple">
+<li><a class="reference internal" href="#user-hf-dft-setup-hamiltonian"><span class="std std-ref">Setting up the (molecular electronic) Hamiltonian</span></a></li>
+<li><a class="reference internal" href="#user-hf-dft-initial-guess"><span class="std std-ref">Generating an initial guess of the wavefunction</span></a></li>
+<li><a class="reference internal" href="#user-hf-dft-effective-ham"><span class="std std-ref">Defining the effective Hamiltonian</span></a></li>
+<li><a class="reference internal" href="#user-hf-dft-occupation"><span class="std std-ref">Choose an orbital occupation scheme</span></a></li>
+<li><a class="reference internal" href="#user-hf-dft-scf"><span class="std std-ref">Optimize the wavefunction with a self-consistent field algorithm</span></a></li>
+<li>Optional (if needed for 7 or 8): <a class="reference internal" href="#user-hf-dft-get-orbitals"><span class="std std-ref">Conversion of density and Fock matrix to orbitals</span></a></li>
+<li>Optional: <a class="reference internal" href="#user-hf-dft-to-file"><span class="std std-ref">Writing SCF results to a file</span></a></li>
+<li>Optional: <a class="reference internal" href="#user-hf-dft-preparing-posthf"><span class="std std-ref">Preparing for a Post-Hartree-Fock calculation</span></a></li>
+</ol>
+<p>The last section contains an overview of <a class="reference internal" href="#hf-dft-complete-examples"><span class="std std-ref">Complete examples</span></a>
+that are shipped (and tested) with HORTON. These may be convenient as a starting
+point when preparing your own scripts. You may also just dive straight
+into these examples and consult the first five sections to better understand how
+each example works.</p>
+<p>The code snippets below use the following conventions for variable names. The
+following are defined by setting up the Hamiltonian:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">olp</span></code>: two-index object with the overlap integrals.</li>
+<li><code class="docutils literal"><span class="pre">kin</span></code>: two-index object with the kinetic energy integrals.</li>
+<li><code class="docutils literal"><span class="pre">na</span></code>: two-index object with the nuclear attraction integrals.</li>
+<li><code class="docutils literal"><span class="pre">er</span></code>: four-index object with the electron repulsion integrals.</li>
+</ul>
+<p>The following names are also used systematically:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">exp_alpha</span></code>, <code class="docutils literal"><span class="pre">exp_beta</span></code>: the expansion coefficient of the alpha and beta
+orbitals in a (local) basis.</li>
+</ul>
+<div class="section" id="setting-up-the-molecular-electronic-hamiltonian">
+<span id="user-hf-dft-setup-hamiltonian"></span><h2>4.1.1. Setting up the (molecular electronic) Hamiltonian<a class="headerlink" href="#setting-up-the-molecular-electronic-hamiltonian" title="Permalink to this headline">¶</a></h2>
+<p>See <a class="reference internal" href="user_hamiltonian.html#user-hamiltonian"><span class="std std-ref">Hamiltonians</span></a>.</p>
+<p>You first have to compute/load the two- and four-index objects for the one- and
+two-body terms in the Hamiltonian. Some DFT implementations in HORTON do not
+require pre-computed four-center integrals.</p>
+</div>
+<div class="section" id="generating-an-initial-guess-of-the-wavefunction">
+<span id="user-hf-dft-initial-guess"></span><h2>4.1.2. Generating an initial guess of the wavefunction<a class="headerlink" href="#generating-an-initial-guess-of-the-wavefunction" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="core-hamiltonian-guess">
+<span id="user-hf-dft-core-guess"></span><h3>4.1.2.1. Core Hamiltonian guess<a class="headerlink" href="#core-hamiltonian-guess" title="Permalink to this headline">¶</a></h3>
+<p>This guess involves only the one-body terms of the electronic Hamiltonian and
+completely neglects electron-electron interactions. The orbitals for such a
+one-body Hamiltonian can be computed without any prior guess.</p>
+<p>The function <a class="reference internal" href="lib/mod_horton_meanfield_guess.html#horton.meanfield.guess.guess_core_hamiltonian" title="horton.meanfield.guess.guess_core_hamiltonian"><code class="xref py py-func docutils literal"><span class="pre">guess_core_hamiltonian()</span></code></a> can be
+used to compute the core hamiltonian guess. This type of guess only relies on a
+simple one-body Hamiltonian, usually consisting of the kinetic energy and the
+interaction with the external field. In case of an unrestricted calculation,
+this means that the same initial orbital guess is made for the alpha and beta
+spins.</p>
+<p>The guess for a restricted wavefunction is done as follows:</p>
+<div class="literal-block-wrapper container" id="data-examples-hf-dft-rhf-water-dense-py-lines-31-35">
+<div class="code-block-caption"><span class="caption-text">data/examples/hf_dft/rhf_water_dense.py, lines 31&#8211;35</span><a class="headerlink" href="#data-examples-hf-dft-rhf-water-dense-py-lines-31-35" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Create alpha orbitals</span>
+<span class="n">exp_alpha</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_expansion</span><span class="p">()</span>
+
+<span class="c1"># Initial guess</span>
+<span class="n">guess_core_hamiltonian</span><span class="p">(</span><span class="n">olp</span><span class="p">,</span> <span class="n">kin</span><span class="p">,</span> <span class="n">na</span><span class="p">,</span> <span class="n">exp_alpha</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>For an unrestricted wavefunction, the procedure is very similar:</p>
+<div class="literal-block-wrapper container" id="data-examples-hf-dft-uhf-methyl-dense-py-lines-27-32">
+<div class="code-block-caption"><span class="caption-text">data/examples/hf_dft/uhf_methyl_dense.py, lines 27&#8211;32</span><a class="headerlink" href="#data-examples-hf-dft-uhf-methyl-dense-py-lines-27-32" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Create alpha orbitals</span>
+<span class="n">exp_alpha</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_expansion</span><span class="p">()</span>
+<span class="n">exp_beta</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_expansion</span><span class="p">()</span>
+
+<span class="c1"># Initial guess</span>
+<span class="n">guess_core_hamiltonian</span><span class="p">(</span><span class="n">olp</span><span class="p">,</span> <span class="n">kin</span><span class="p">,</span> <span class="n">na</span><span class="p">,</span> <span class="n">exp_alpha</span><span class="p">,</span> <span class="n">exp_beta</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The arguments <code class="docutils literal"><span class="pre">exp_alpha</span></code> and <code class="docutils literal"><span class="pre">exp_beta</span></code> are treated as output arguments.
+Instead of <code class="docutils literal"><span class="pre">kin</span></code> and <code class="docutils literal"><span class="pre">na</span></code>, you may provide just any set of one-body
+operators to construct different types of guesses.</p>
+</div>
+<div class="section" id="randomizing-an-initial-guess">
+<h3>4.1.2.2. Randomizing an initial guess<a class="headerlink" href="#randomizing-an-initial-guess" title="Permalink to this headline">¶</a></h3>
+<p>The method <a class="reference internal" href="lib/mod_horton_matrix_dense.html#horton.matrix.dense.DenseExpansion.rotate_random" title="horton.matrix.dense.DenseExpansion.rotate_random"><code class="xref py py-meth docutils literal"><span class="pre">rotate_random()</span></code></a> can be
+used to apply a random unitary rotation to all the orbitals (occupied and virtual).
+The orbital energies and occupation numbers are not affected. For example, after
+constructing a <a class="reference internal" href="#user-hf-dft-core-guess"><span class="std std-ref">Core Hamiltonian guess</span></a>, the following line randomizes the
+orbitals:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># randomly rotate the orbitals (irrespective of occupied or virtual)</span>
+<span class="n">exp_alpha</span><span class="o">.</span><span class="n">rotate_random</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="modifying-the-initial-guess">
+<h3>4.1.2.3. Modifying the initial guess<a class="headerlink" href="#modifying-the-initial-guess" title="Permalink to this headline">¶</a></h3>
+<p>If needed, you may fine-tune the initial guess by making fine-grained
+modifications to the orbitals. (These may also be useful for fixing the orbitals
+that come out of a failed SCF.)</p>
+<ul>
+<li><p class="first">The method <a class="reference internal" href="lib/mod_horton_matrix_dense.html#horton.matrix.dense.DenseExpansion.rotate_2orbitals" title="horton.matrix.dense.DenseExpansion.rotate_2orbitals"><code class="xref py py-meth docutils literal"><span class="pre">rotate_2orbitals()</span></code></a>
+allows you to mix two orbitals. By default, it rotates the HOMO and LUMO
+orbitals by 45 degrees:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Mix HOMO and LUMO orbitals</span>
+<span class="n">exp_alpha</span><span class="o">.</span><span class="n">rotate_2orbitals</span><span class="p">()</span>
+
+<span class="c1"># Rotate 1st and 6th orbital by 30 deg</span>
+<span class="n">exp</span><span class="o">.</span><span class="n">_alpha</span><span class="o">.</span><span class="n">rotate_2orbitals</span><span class="p">(</span><span class="mi">30</span><span class="o">*</span><span class="n">deg</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that HORTON uses radians as unit for angles, i.e. <code class="docutils literal"><span class="pre">30*deg</span> <span class="pre">==</span> <span class="pre">np.pi/6</span></code>.
+Also, HORTON uses zero-based indices, so the arguments <code class="docutils literal"><span class="pre">0,</span> <span class="pre">5</span></code>
+refer to the first and the sixth orbital.</p>
+</li>
+<li><p class="first">The method <a class="reference internal" href="lib/mod_horton_matrix_dense.html#horton.matrix.dense.DenseExpansion.swap_orbitals" title="horton.matrix.dense.DenseExpansion.swap_orbitals"><code class="xref py py-meth docutils literal"><span class="pre">swap_orbitals()</span></code></a> allows
+you to swap several orbitals. It takes as an argument an array where each row
+is a pair of orbitals to swap. For example, the following swaps 1st and 3rd,
+followed by a swap of 2nd and 4th:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Swap some orbitals</span>
+<span class="n">swaps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
+<span class="n">exp_alpha</span><span class="o">.</span><span class="n">swap_orbitals</span><span class="p">(</span><span class="n">swaps</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="reading-a-guess-from-a-file">
+<h3>4.1.2.4. Reading a guess from a file<a class="headerlink" href="#reading-a-guess-from-a-file" title="Permalink to this headline">¶</a></h3>
+<p>You may also load orbitals from an external file. The file formats <code class="docutils literal"><span class="pre">.mkl</span></code>,
+<code class="docutils literal"><span class="pre">.molden</span></code>, <code class="docutils literal"><span class="pre">.fchk</span></code>, or HORTON&#8217;s internal <code class="docutils literal"><span class="pre">.h5</span></code> are all viable
+sources of orbitals. For example, the orbitals from a Gaussian formatted
+checkpoint file, <code class="docutils literal"><span class="pre">*.fchk</span></code>, may be loaded as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Load fchk file</span>
+<span class="n">mol</span> <span class="o">=</span> <span class="n">IOData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;water.fchk&#39;</span><span class="p">)</span>
+
+<span class="c1"># Print the number of alpha orbitals (occupied and virtual)</span>
+<span class="k">print</span> <span class="n">mol</span><span class="o">.</span><span class="n">exp_alpha</span><span class="o">.</span><span class="n">nfn</span>
+</pre></div>
+</div>
+<p>Obviously, if you would like to use these orbitals without projecting them onto
+a new basis set (as explained in <a class="reference internal" href="#user-hf-dft-project-basis"><span class="std std-ref">Projecting orbitals from a smaller basis onto a larger one</span></a>), you are
+forced to continue working in the same basis set, which can be accessed
+in this example as <code class="docutils literal"><span class="pre">mol.obasis</span></code>. See <a class="reference internal" href="user_hamiltonian_molecular.html#user-molecularham-geom-and-basis"><span class="std std-ref">Loading geometry and basis set info from one file</span></a>
+for more details.</p>
+</div>
+<div class="section" id="projecting-orbitals-from-a-smaller-basis-onto-a-larger-one">
+<span id="user-hf-dft-project-basis"></span><h3>4.1.2.5. Projecting orbitals from a smaller basis onto a larger one<a class="headerlink" href="#projecting-orbitals-from-a-smaller-basis-onto-a-larger-one" title="Permalink to this headline">¶</a></h3>
+<p>Assuming you have obtained (converged) orbitals in a smaller basis set, you can
+try to use these as initial guess after projecting the orbitals onto the
+larger basis set. This is exactly what the function
+<a class="reference internal" href="lib/mod_horton_meanfield_project.html#horton.meanfield.project.project_orbitals_mgs" title="horton.meanfield.project.project_orbitals_mgs"><code class="xref py py-func docutils literal"><span class="pre">project_orbitals_mgs()</span></code></a> does. The following
+snippet assumes that the <code class="docutils literal"><span class="pre">obasis0</span></code> and <code class="docutils literal"><span class="pre">exp_alpha0</span></code> are the small basis set
+and a set of orbitals in that basis for the <code class="docutils literal"><span class="pre">IOData</span></code> instance <code class="docutils literal"><span class="pre">mol</span></code>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Definition of the bigger basis set</span>
+<span class="n">obasis1</span> <span class="o">=</span> <span class="n">get_gobasis</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">numbers</span><span class="p">,</span> <span class="s1">&#39;aug-cc-pvtz&#39;</span><span class="p">):</span>
+
+<span class="c1"># Linalg factory for the bigger basis set</span>
+<span class="n">lf1</span> <span class="o">=</span> <span class="n">DenseLinalgFactory</span><span class="p">(</span><span class="n">obasis1</span><span class="o">.</span><span class="n">nbasis</span><span class="p">)</span>
+
+<span class="c1"># Create a expansion object for the alpha orbitals in the large basis</span>
+<span class="n">exp_alpha1</span> <span class="o">=</span> <span class="n">lf1</span><span class="o">.</span><span class="n">create_expansion</span><span class="p">()</span>
+
+<span class="c1"># The actual projection</span>
+<span class="n">project_orbitals_msg</span><span class="p">(</span><span class="n">obasis0</span><span class="p">,</span> <span class="n">obasis1</span><span class="p">,</span> <span class="n">exp_alpha0</span><span class="p">,</span> <span class="n">exp_alpha1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="defining-the-effective-hamiltonian">
+<span id="user-hf-dft-effective-ham"></span><h2>4.1.3. Defining the effective Hamiltonian<a class="headerlink" href="#defining-the-effective-hamiltonian" title="Permalink to this headline">¶</a></h2>
+<p>HORTON implements spin-restricted and spin-unrestricted effective Hamiltonians.
+Mathematically speaking, these are models for the energy as function of a set of
+density matrices. The implementation also provides an API to compute the
+corresponding Fock matrix for every density matrix, i.e. the derivative of the
+energy toward the density matrix elements.</p>
+<ul>
+<li><p class="first">For the restricted case, the alpha and beta density matrices are assumed
+to be identical. Hence the energy is only a function of the alpha density
+matrix. When constructing the Fock matrix, the derivative is divided by two
+to obtain such that the Fock matrix has the conventional orbital energies as
+eigenvalues.</p>
+<div class="math">
+\[\begin{split}D^\alpha &amp;\rightarrow E(D^\alpha) \\
+         &amp;\rightarrow F^\alpha_{\mu\nu} = \frac{1}{2}\frac{\partial E}{\partial D^\alpha_{\nu\mu}}\end{split}\]</div>
+</li>
+<li><p class="first">For the unrestricted case, the alpha and beta density matrices are allowed to
+be different. Hence, there are also alpha and beta Fock matrices.</p>
+<div class="math">
+\[\begin{split}D^\alpha, D^\beta &amp;\rightarrow E(D^\alpha, D^\beta) \\
+                  &amp;\rightarrow F^\alpha_{\mu\nu} = \frac{\partial E}{\partial D^\alpha_{\nu\mu}} \\
+                  &amp;\rightarrow F^\beta_{\mu\nu} = \frac{\partial E}{\partial D^\beta_{\nu\mu}}\end{split}\]</div>
+</li>
+</ul>
+<p>A generic <a class="reference external" href="http://en.wikipedia.org/wiki/Application_programming_interface">API</a> for such
+density matrix functionals is implemented in the classes
+<a class="reference internal" href="lib/mod_horton_meanfield_hamiltonian.html#horton.meanfield.hamiltonian.REffHam" title="horton.meanfield.hamiltonian.REffHam"><code class="xref py py-class docutils literal"><span class="pre">REffHam</span></code></a> and
+<a class="reference internal" href="lib/mod_horton_meanfield_hamiltonian.html#horton.meanfield.hamiltonian.UEffHam" title="horton.meanfield.hamiltonian.UEffHam"><code class="xref py py-class docutils literal"><span class="pre">UEffHam</span></code></a>. The prefixes <code class="docutils literal"><span class="pre">R</span></code> and <code class="docutils literal"><span class="pre">U</span></code>
+are used (also below) to differentiate between restricted and unrestricted
+implementations. A Hartree-Fock or DFT effective Hamiltonian is defined by
+constructing an instance of the <code class="docutils literal"><span class="pre">REffHam</span></code> or <code class="docutils literal"><span class="pre">UEffHam</span></code> classes and providing
+the necessary energy terms to the constructor.</p>
+<div class="section" id="supported-energy-terms-for-the-effective-hamiltonians">
+<h3>4.1.3.1. Supported energy terms for the effective Hamiltonians<a class="headerlink" href="#supported-energy-terms-for-the-effective-hamiltonians" title="Permalink to this headline">¶</a></h3>
+<p>All classes below take a <code class="docutils literal"><span class="pre">label</span></code> argument to give each term in the Hamiltonian
+a name, e.g. used for storing/displaying results. For each class listed below,
+follow the hyperlinks to the corresponding documentation for a description of
+the constructor arguments.</p>
+<ul>
+<li><p class="first">Simple one-body terms are specified with
+<a class="reference internal" href="lib/mod_horton_meanfield_observable.html#horton.meanfield.observable.RTwoIndexTerm" title="horton.meanfield.observable.RTwoIndexTerm"><code class="xref py py-class docutils literal"><span class="pre">RTwoIndexTerm</span></code></a>, or
+<a class="reference internal" href="lib/mod_horton_meanfield_observable.html#horton.meanfield.observable.UTwoIndexTerm" title="horton.meanfield.observable.UTwoIndexTerm"><code class="xref py py-class docutils literal"><span class="pre">UTwoIndexTerm</span></code></a>.</p>
+</li>
+<li><p class="first">The direct term of a two-body interaction is specified with
+<a class="reference internal" href="lib/mod_horton_meanfield_observable.html#horton.meanfield.observable.RDirectTerm" title="horton.meanfield.observable.RDirectTerm"><code class="xref py py-class docutils literal"><span class="pre">RDirectTerm</span></code></a>, or
+<a class="reference internal" href="lib/mod_horton_meanfield_observable.html#horton.meanfield.observable.UDirectTerm" title="horton.meanfield.observable.UDirectTerm"><code class="xref py py-class docutils literal"><span class="pre">UDirectTerm</span></code></a>.</p>
+</li>
+<li><p class="first">The exchange term of a two-body interaction is specified with
+<a class="reference internal" href="lib/mod_horton_meanfield_observable.html#horton.meanfield.observable.RExchangeTerm" title="horton.meanfield.observable.RExchangeTerm"><code class="xref py py-class docutils literal"><span class="pre">RExchangeTerm</span></code></a>, or
+<a class="reference internal" href="lib/mod_horton_meanfield_observable.html#horton.meanfield.observable.UExchangeTerm" title="horton.meanfield.observable.UExchangeTerm"><code class="xref py py-class docutils literal"><span class="pre">UExchangeTerm</span></code></a>.</p>
+</li>
+<li><p class="first">Functionals of the density (or its derivatives) that require numerical
+integration are all grouped into on term using
+<a class="reference internal" href="lib/mod_horton_meanfield_gridgroup.html#horton.meanfield.gridgroup.RGridGroup" title="horton.meanfield.gridgroup.RGridGroup"><code class="xref py py-class docutils literal"><span class="pre">RGridGroup</span></code></a>, or
+<a class="reference internal" href="lib/mod_horton_meanfield_gridgroup.html#horton.meanfield.gridgroup.UGridGroup" title="horton.meanfield.gridgroup.UGridGroup"><code class="xref py py-class docutils literal"><span class="pre">UGridGroup</span></code></a>. This makes it possible
+to compute at every SCF iteration the density (and its gradients) only once
+for all terms that depend on the density. This also allows for a similar gain
+in efficiency when building the Fock matrices. The constructor of a
+<code class="docutils literal"><span class="pre">GridGroup</span></code> class takes a numerical integration grid and a list of instances
+of the following classes as arguments:</p>
+<blockquote>
+<div><ul class="simple">
+<li>An LDA functional from LibXC can be specified with
+<a class="reference internal" href="lib/mod_horton_meanfield_libxc.html#horton.meanfield.libxc.RLibXCLDA" title="horton.meanfield.libxc.RLibXCLDA"><code class="xref py py-class docutils literal"><span class="pre">RLibXCLDA</span></code></a> or
+<a class="reference internal" href="lib/mod_horton_meanfield_libxc.html#horton.meanfield.libxc.ULibXCLDA" title="horton.meanfield.libxc.ULibXCLDA"><code class="xref py py-class docutils literal"><span class="pre">ULibXCLDA</span></code></a>.</li>
+<li>A GGA functional from LibXC can be specified with
+<a class="reference internal" href="lib/mod_horton_meanfield_libxc.html#horton.meanfield.libxc.RLibXCGGA" title="horton.meanfield.libxc.RLibXCGGA"><code class="xref py py-class docutils literal"><span class="pre">RLibXCGGA</span></code></a> or
+<a class="reference internal" href="lib/mod_horton_meanfield_libxc.html#horton.meanfield.libxc.ULibXCGGA" title="horton.meanfield.libxc.ULibXCGGA"><code class="xref py py-class docutils literal"><span class="pre">ULibXCGGA</span></code></a>.</li>
+<li>A Hybrid GGA functional from LibXC can be specified with
+<a class="reference internal" href="lib/mod_horton_meanfield_libxc.html#horton.meanfield.libxc.RLibXCHybridGGA" title="horton.meanfield.libxc.RLibXCHybridGGA"><code class="xref py py-class docutils literal"><span class="pre">RLibXCHybridGGA</span></code></a> or
+<a class="reference internal" href="lib/mod_horton_meanfield_libxc.html#horton.meanfield.libxc.ULibXCHybridGGA" title="horton.meanfield.libxc.ULibXCHybridGGA"><code class="xref py py-class docutils literal"><span class="pre">ULibXCHybridGGA</span></code></a>.</li>
+<li>A numerical implementation of the Hartree term (using an improved version
+of Becke&#8217;s Poisson solver) can be used instead of the <code class="docutils literal"><span class="pre">RDirectTerm</span></code> or
+<code class="docutils literal"><span class="pre">UDirectTerm</span></code> classes, which require four-center integrals. The relevant
+classes are
+<a class="reference internal" href="lib/mod_horton_meanfield_builtin.html#horton.meanfield.builtin.RBeckeHartree" title="horton.meanfield.builtin.RBeckeHartree"><code class="xref py py-class docutils literal"><span class="pre">RBeckeHartree</span></code></a> or
+<a class="reference internal" href="lib/mod_horton_meanfield_builtin.html#horton.meanfield.builtin.UBeckeHartree" title="horton.meanfield.builtin.UBeckeHartree"><code class="xref py py-class docutils literal"><span class="pre">UBeckeHartree</span></code></a>.</li>
+</ul>
+</div></blockquote>
+<p>Integration grids are discussed in more detail in the section
+<a class="reference internal" href="user_other_numerical_integration.html#user-other-numerical-integration-specify"><span class="std std-ref">Building an integration grid</span></a>. A list of the supported LibXC functionals can
+be found in <a class="reference internal" href="tech_ref_functionals.html#ref-functionals"><span class="std std-ref">LibXC Functionals</span></a>. Note that HORTON does not support
+meta-GGAs (MGGAs) yet.</p>
+</li>
+</ul>
+<p>Using these classes, you can construct the Hartree-Fock or a DFT effective
+Hamiltonian.</p>
+</div>
+<div class="section" id="a-few-typical-examples">
+<h3>4.1.3.2. A few typical examples<a class="headerlink" href="#a-few-typical-examples" title="Permalink to this headline">¶</a></h3>
+<p>The examples below assume that some or all of the following variables are
+already defined:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">obasis</span></code>: An orbital basis set.</li>
+<li><code class="docutils literal"><span class="pre">olp</span></code>: two-index object with the overlap integrals.</li>
+<li><code class="docutils literal"><span class="pre">kin</span></code>: two-index object with the kinetic energy integrals.</li>
+<li><code class="docutils literal"><span class="pre">na</span></code>: two-index object with the nuclear attraction integrals.</li>
+<li><code class="docutils literal"><span class="pre">er</span></code>: four-index object with the electron repulsion integrals.</li>
+<li><code class="docutils literal"><span class="pre">grid</span></code>: a numerical integration grid.</li>
+</ul>
+<p>If you are unfamiliar with any of these, please read the sections
+<a class="reference internal" href="user_hamiltonian.html#user-hamiltonian"><span class="std std-ref">Hamiltonians</span></a> and <a class="reference internal" href="user_other_numerical_integration.html#user-other-numerical-integration"><span class="std std-ref">How to use HORTON for numerical integration?</span></a>. The examples below
+also make use of the external argument of
+<a class="reference internal" href="lib/mod_horton_meanfield_hamiltonian.html#horton.meanfield.hamiltonian.REffHam" title="horton.meanfield.hamiltonian.REffHam"><code class="xref py py-class docutils literal"><span class="pre">REffHam</span></code></a> or
+<a class="reference internal" href="lib/mod_horton_meanfield_hamiltonian.html#horton.meanfield.hamiltonian.UEffHam" title="horton.meanfield.hamiltonian.UEffHam"><code class="xref py py-class docutils literal"><span class="pre">UEffHam</span></code></a> to add the nuclear-nuclear
+repulsion energy to the total energy reported by the effective Hamiltonian.</p>
+<ul>
+<li><p class="first">Restricted Hartree-Fock:</p>
+<div class="literal-block-wrapper container" id="data-examples-hf-dft-rhf-water-dense-py-lines-37-45">
+<div class="code-block-caption"><span class="caption-text">data/examples/hf_dft/rhf_water_dense.py, lines 37&#8211;45</span><a class="headerlink" href="#data-examples-hf-dft-rhf-water-dense-py-lines-37-45" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Construct the restricted HF effective Hamiltonian</span>
+<span class="n">external</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;nn&#39;</span><span class="p">:</span> <span class="n">compute_nucnuc</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">)}</span>
+<span class="n">terms</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">RTwoIndexTerm</span><span class="p">(</span><span class="n">kin</span><span class="p">,</span> <span class="s1">&#39;kin&#39;</span><span class="p">),</span>
+    <span class="n">RDirectTerm</span><span class="p">(</span><span class="n">er</span><span class="p">,</span> <span class="s1">&#39;hartree&#39;</span><span class="p">),</span>
+    <span class="n">RExchangeTerm</span><span class="p">(</span><span class="n">er</span><span class="p">,</span> <span class="s1">&#39;x_hf&#39;</span><span class="p">),</span>
+    <span class="n">RTwoIndexTerm</span><span class="p">(</span><span class="n">na</span><span class="p">,</span> <span class="s1">&#39;ne&#39;</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="n">ham</span> <span class="o">=</span> <span class="n">REffHam</span><span class="p">(</span><span class="n">terms</span><span class="p">,</span> <span class="n">external</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</li>
+<li><p class="first">Unrestricted Hartree-Fock:</p>
+<div class="literal-block-wrapper container" id="data-examples-hf-dft-uhf-methyl-dense-py-lines-35-42">
+<div class="code-block-caption"><span class="caption-text">data/examples/hf_dft/uhf_methyl_dense.py, lines 35&#8211;42</span><a class="headerlink" href="#data-examples-hf-dft-uhf-methyl-dense-py-lines-35-42" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">external</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;nn&#39;</span><span class="p">:</span> <span class="n">compute_nucnuc</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">)}</span>
+<span class="n">terms</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">UTwoIndexTerm</span><span class="p">(</span><span class="n">kin</span><span class="p">,</span> <span class="s1">&#39;kin&#39;</span><span class="p">),</span>
+    <span class="n">UDirectTerm</span><span class="p">(</span><span class="n">er</span><span class="p">,</span> <span class="s1">&#39;hartree&#39;</span><span class="p">),</span>
+    <span class="n">UExchangeTerm</span><span class="p">(</span><span class="n">er</span><span class="p">,</span> <span class="s1">&#39;x_hf&#39;</span><span class="p">),</span>
+    <span class="n">UTwoIndexTerm</span><span class="p">(</span><span class="n">na</span><span class="p">,</span> <span class="s1">&#39;ne&#39;</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="n">ham</span> <span class="o">=</span> <span class="n">UEffHam</span><span class="p">(</span><span class="n">terms</span><span class="p">,</span> <span class="n">external</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</li>
+<li><p class="first">Restricted Kohn-Sham DFT with the Dirac exchange and the VWN correlation
+functionals:</p>
+<div class="literal-block-wrapper container" id="data-examples-hf-dft-rks-water-lda-py-lines-37-47">
+<div class="code-block-caption"><span class="caption-text">data/examples/hf_dft/rks_water_lda.py, lines 37&#8211;47</span><a class="headerlink" href="#data-examples-hf-dft-rks-water-lda-py-lines-37-47" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">external</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;nn&#39;</span><span class="p">:</span> <span class="n">compute_nucnuc</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">)}</span>
+<span class="n">terms</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">RTwoIndexTerm</span><span class="p">(</span><span class="n">kin</span><span class="p">,</span> <span class="s1">&#39;kin&#39;</span><span class="p">),</span>
+    <span class="n">RDirectTerm</span><span class="p">(</span><span class="n">er</span><span class="p">,</span> <span class="s1">&#39;hartree&#39;</span><span class="p">),</span>
+    <span class="n">RGridGroup</span><span class="p">(</span><span class="n">obasis</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="p">[</span>
+        <span class="n">RLibXCLDA</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">),</span>
+        <span class="n">RLibXCLDA</span><span class="p">(</span><span class="s1">&#39;c_vwn&#39;</span><span class="p">),</span>
+    <span class="p">]),</span>
+    <span class="n">RTwoIndexTerm</span><span class="p">(</span><span class="n">na</span><span class="p">,</span> <span class="s1">&#39;ne&#39;</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="n">ham</span> <span class="o">=</span> <span class="n">REffHam</span><span class="p">(</span><span class="n">terms</span><span class="p">,</span> <span class="n">external</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</li>
+<li><p class="first">Unrestricted Kohn-Sham DFT with the PBE GGA exchange and correlation
+functionals:</p>
+<div class="literal-block-wrapper container" id="data-examples-hf-dft-uks-methyl-gga-py-lines-38-48">
+<div class="code-block-caption"><span class="caption-text">data/examples/hf_dft/uks_methyl_gga.py, lines 38&#8211;48</span><a class="headerlink" href="#data-examples-hf-dft-uks-methyl-gga-py-lines-38-48" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">external</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;nn&#39;</span><span class="p">:</span> <span class="n">compute_nucnuc</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">)}</span>
+<span class="n">terms</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">UTwoIndexTerm</span><span class="p">(</span><span class="n">kin</span><span class="p">,</span> <span class="s1">&#39;kin&#39;</span><span class="p">),</span>
+    <span class="n">UDirectTerm</span><span class="p">(</span><span class="n">er</span><span class="p">,</span> <span class="s1">&#39;hartree&#39;</span><span class="p">),</span>
+    <span class="n">UGridGroup</span><span class="p">(</span><span class="n">obasis</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="p">[</span>
+        <span class="n">ULibXCGGA</span><span class="p">(</span><span class="s1">&#39;x_pbe&#39;</span><span class="p">),</span>
+        <span class="n">ULibXCGGA</span><span class="p">(</span><span class="s1">&#39;c_pbe&#39;</span><span class="p">),</span>
+    <span class="p">]),</span>
+    <span class="n">UTwoIndexTerm</span><span class="p">(</span><span class="n">na</span><span class="p">,</span> <span class="s1">&#39;ne&#39;</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="n">ham</span> <span class="o">=</span> <span class="n">UEffHam</span><span class="p">(</span><span class="n">terms</span><span class="p">,</span> <span class="n">external</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</li>
+<li><p class="first">Restricted Kohn-Sham DFT with the Hybrid GGA functional B3LYP:</p>
+<div class="literal-block-wrapper container" id="data-examples-hf-dft-rks-water-hybgga-py-lines-37-46">
+<div class="code-block-caption"><span class="caption-text">data/examples/hf_dft/rks_water_hybgga.py, lines 37&#8211;46</span><a class="headerlink" href="#data-examples-hf-dft-rks-water-hybgga-py-lines-37-46" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">external</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;nn&#39;</span><span class="p">:</span> <span class="n">compute_nucnuc</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">)}</span>
+<span class="n">libxc_term</span> <span class="o">=</span> <span class="n">RLibXCHybridGGA</span><span class="p">(</span><span class="s1">&#39;xc_b3lyp&#39;</span><span class="p">)</span>
+<span class="n">terms</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">RTwoIndexTerm</span><span class="p">(</span><span class="n">kin</span><span class="p">,</span> <span class="s1">&#39;kin&#39;</span><span class="p">),</span>
+    <span class="n">RDirectTerm</span><span class="p">(</span><span class="n">er</span><span class="p">,</span> <span class="s1">&#39;hartree&#39;</span><span class="p">),</span>
+    <span class="n">RGridGroup</span><span class="p">(</span><span class="n">obasis</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="p">[</span><span class="n">libxc_term</span><span class="p">]),</span>
+    <span class="n">RExchangeTerm</span><span class="p">(</span><span class="n">er</span><span class="p">,</span> <span class="s1">&#39;x_hf&#39;</span><span class="p">,</span> <span class="n">libxc_term</span><span class="o">.</span><span class="n">get_exx_fraction</span><span class="p">()),</span>
+    <span class="n">RTwoIndexTerm</span><span class="p">(</span><span class="n">na</span><span class="p">,</span> <span class="s1">&#39;ne&#39;</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="n">ham</span> <span class="o">=</span> <span class="n">REffHam</span><span class="p">(</span><span class="n">terms</span><span class="p">,</span> <span class="n">external</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</li>
+<li><p class="first">Unrestricted Kohn-Sham DFT with LDA exchange and correlation
+functionals and with a numerical integration of the Hartree term:</p>
+<div class="literal-block-wrapper container" id="data-examples-hf-dft-uks-methyl-numlda-py-lines-38-48">
+<div class="code-block-caption"><span class="caption-text">data/examples/hf_dft/uks_methyl_numlda.py, lines 38&#8211;48</span><a class="headerlink" href="#data-examples-hf-dft-uks-methyl-numlda-py-lines-38-48" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">external</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;nn&#39;</span><span class="p">:</span> <span class="n">compute_nucnuc</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">)}</span>
+<span class="n">terms</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">UTwoIndexTerm</span><span class="p">(</span><span class="n">kin</span><span class="p">,</span> <span class="s1">&#39;kin&#39;</span><span class="p">),</span>
+    <span class="n">UGridGroup</span><span class="p">(</span><span class="n">obasis</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="p">[</span>
+        <span class="n">UBeckeHartree</span><span class="p">(</span><span class="n">lmax</span><span class="o">=</span><span class="mi">8</span><span class="p">),</span>
+        <span class="n">ULibXCLDA</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">),</span>
+        <span class="n">ULibXCLDA</span><span class="p">(</span><span class="s1">&#39;c_vwn&#39;</span><span class="p">),</span>
+    <span class="p">]),</span>
+    <span class="n">UTwoIndexTerm</span><span class="p">(</span><span class="n">na</span><span class="p">,</span> <span class="s1">&#39;ne&#39;</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="n">ham</span> <span class="o">=</span> <span class="n">UEffHam</span><span class="p">(</span><span class="n">terms</span><span class="p">,</span> <span class="n">external</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="choose-an-orbital-occupation-scheme">
+<span id="user-hf-dft-occupation"></span><h2>4.1.4. Choose an orbital occupation scheme<a class="headerlink" href="#choose-an-orbital-occupation-scheme" title="Permalink to this headline">¶</a></h2>
+<p>Before calling an SCF solver, you have to select a scheme to set the orbital
+occupations after each SCF iteration, even when the occupation numbers are to
+remain fixed throughout the calculation. You can use any of the following
+three options:</p>
+<ul>
+<li><p class="first"><a class="reference internal" href="lib/mod_horton_meanfield_occ.html#horton.meanfield.occ.FixedOccModel" title="horton.meanfield.occ.FixedOccModel"><code class="xref py py-class docutils literal"><span class="pre">FixedOccModel</span></code></a>. Keep all occupation numbers
+fixed at preset values. For example,</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Restricted case</span>
+<span class="n">occ_model</span> <span class="o">=</span> <span class="n">FixedOccModel</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]))</span>
+<span class="c1"># Unrestricted case</span>
+<span class="n">occ_model</span> <span class="o">=</span> <span class="n">FixedOccModel</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">]))</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><a class="reference internal" href="lib/mod_horton_meanfield_occ.html#horton.meanfield.occ.AufbauOccModel" title="horton.meanfield.occ.AufbauOccModel"><code class="xref py py-class docutils literal"><span class="pre">AufbauOccModel</span></code></a>. Fill all orbitals according
+to the <a class="reference external" href="http://en.wikipedia.org/wiki/Aufbau_principle">Aufbau principle</a>.
+For example,</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Restricted case (three alpha and three beta electrons)</span>
+<span class="n">occ_model</span> <span class="o">=</span> <span class="n">AufbauOccModel</span><span class="p">(</span><span class="mf">3.0</span><span class="p">)</span>
+<span class="c1"># Unrestricted case (two alpha and three beta electrons)</span>
+<span class="n">occ_model</span> <span class="o">=</span> <span class="n">AufbauOccModel</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><a class="reference internal" href="lib/mod_horton_meanfield_occ.html#horton.meanfield.occ.FermiOccModel" title="horton.meanfield.occ.FermiOccModel"><code class="xref py py-class docutils literal"><span class="pre">FermiOccModel</span></code></a>. Use the Fermi-smearing method
+to fill up the orbitals. <a class="reference internal" href="tech_ref_literature.html#rabuck1999" id="id1">[rabuck1999]</a> Only part of the methodology presented
+Rabuck is implemented. See <a class="reference internal" href="lib/mod_horton_meanfield_occ.html#horton.meanfield.occ.FermiOccModel" title="horton.meanfield.occ.FermiOccModel"><code class="xref py py-class docutils literal"><span class="pre">FermiOccModel</span></code></a> for
+details. For example,</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Restricted case (three alpha and three beta electrons, 300K)</span>
+<span class="n">occ_model</span> <span class="o">=</span> <span class="n">FermiOccModel</span><span class="p">(</span><span class="mf">3.0</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+<span class="c1"># Unrestricted case (two alpha and three beta electrons, 500K)</span>
+<span class="n">occ_model</span> <span class="o">=</span> <span class="n">AufbauOccModel</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="optimize-the-wavefunction-with-a-self-consistent-field-algorithm">
+<span id="user-hf-dft-scf"></span><h2>4.1.5. Optimize the wavefunction with a self-consistent field algorithm<a class="headerlink" href="#optimize-the-wavefunction-with-a-self-consistent-field-algorithm" title="Permalink to this headline">¶</a></h2>
+<p>HORTON supports the following SCF algorithms:</p>
+<ul class="simple">
+<li><a class="reference internal" href="lib/mod_horton_meanfield_scf.html#horton.meanfield.scf.PlainSCFSolver" title="horton.meanfield.scf.PlainSCFSolver"><code class="xref py py-class docutils literal"><span class="pre">PlainSCFSolver</span></code></a>: the ordinary SCF solver.
+This method just builds and diagonalizes the Fock matrices at every iteration.</li>
+<li><a class="reference internal" href="lib/mod_horton_meanfield_scf_oda.html#horton.meanfield.scf_oda.ODASCFSolver" title="horton.meanfield.scf_oda.ODASCFSolver"><code class="xref py py-class docutils literal"><span class="pre">ODASCFSolver</span></code></a>: the optimal damping SCF
+solver. <a class="reference internal" href="tech_ref_literature.html#cances2001" id="id2">[cances2001]</a> It uses a cubic interpolation to estimate the optimal
+mixing between the old and the new density matrices. This is relatively robust
+but slow.</li>
+<li><a class="reference internal" href="lib/mod_horton_meanfield_scf_cdiis.html#horton.meanfield.scf_cdiis.CDIISSCFSolver" title="horton.meanfield.scf_cdiis.CDIISSCFSolver"><code class="xref py py-class docutils literal"><span class="pre">CDIISSCFSolver</span></code></a>: the (traditional)
+commutator direct inversion of the iterative subspace (CDIIS) algorithm, also
+know as Pulay mixing. <a class="reference internal" href="tech_ref_literature.html#pulay1980" id="id3">[pulay1980]</a> This is usually very efficient but
+sensitive to the initial guess.</li>
+<li><a class="reference internal" href="lib/mod_horton_meanfield_scf_ediis.html#horton.meanfield.scf_ediis.EDIISSCFSolver" title="horton.meanfield.scf_ediis.EDIISSCFSolver"><code class="xref py py-class docutils literal"><span class="pre">EDIISSCFSolver</span></code></a>: the energy direct
+inversion of the iterative subspace (EDIIS) method. <a class="reference internal" href="tech_ref_literature.html#kudin2002" id="id4">[kudin2002]</a> This method
+works well for the initial iterations but becomes numerically unstable close
+to the solution. It typically works better with a relativey poor initial
+guess.</li>
+<li><a class="reference internal" href="lib/mod_horton_meanfield_scf_ediis2.html#horton.meanfield.scf_ediis2.EDIIS2SCFSolver" title="horton.meanfield.scf_ediis2.EDIIS2SCFSolver"><code class="xref py py-class docutils literal"><span class="pre">EDIIS2SCFSolver</span></code></a>: a combination of
+CDIIS and EDIIS. <a class="reference internal" href="tech_ref_literature.html#kudin2002" id="id5">[kudin2002]</a> This method tries to combine the benefits of
+both approaches.</li>
+</ul>
+<p>The plain SCF solver starts from an initial guess of the orbitals and updates
+these in-place.</p>
+<ul>
+<li><p class="first">Usage in the restricted case:</p>
+<div class="literal-block-wrapper container" id="data-examples-hf-dft-rhf-water-dense-py-lines-50-52">
+<div class="code-block-caption"><span class="caption-text">data/examples/hf_dft/rhf_water_dense.py, lines 50&#8211;52</span><a class="headerlink" href="#data-examples-hf-dft-rhf-water-dense-py-lines-50-52" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Converge WFN with plain SCF</span>
+<span class="n">scf_solver</span> <span class="o">=</span> <span class="n">PlainSCFSolver</span><span class="p">(</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">scf_solver</span><span class="p">(</span><span class="n">ham</span><span class="p">,</span> <span class="n">lf</span><span class="p">,</span> <span class="n">olp</span><span class="p">,</span> <span class="n">occ_model</span><span class="p">,</span> <span class="n">exp_alpha</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</li>
+<li><p class="first">Usage in the unrestricted case:</p>
+<div class="literal-block-wrapper container" id="data-examples-hf-dft-uhf-methyl-dense-py-lines-47-49">
+<div class="code-block-caption"><span class="caption-text">data/examples/hf_dft/uhf_methyl_dense.py, lines 47&#8211;49</span><a class="headerlink" href="#data-examples-hf-dft-uhf-methyl-dense-py-lines-47-49" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Converge WFN with plain SCF</span>
+<span class="n">scf_solver</span> <span class="o">=</span> <span class="n">PlainSCFSolver</span><span class="p">(</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">scf_solver</span><span class="p">(</span><span class="n">ham</span><span class="p">,</span> <span class="n">lf</span><span class="p">,</span> <span class="n">olp</span><span class="p">,</span> <span class="n">occ_model</span><span class="p">,</span> <span class="n">exp_alpha</span><span class="p">,</span> <span class="n">exp_beta</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</li>
+</ul>
+<p>All other solvers start from an initial guess of the density matrix and update
+that quantity in-place. The usage pattern is as follow:</p>
+<ul>
+<li><p class="first">Usage in the restricted case:</p>
+<div class="literal-block-wrapper container" id="data-examples-hf-dft-rks-water-lda-py-lines-52-58">
+<div class="code-block-caption"><span class="caption-text">data/examples/hf_dft/rks_water_lda.py, lines 52&#8211;58</span><a class="headerlink" href="#data-examples-hf-dft-rks-water-lda-py-lines-52-58" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Converge WFN with Optimal damping algorithm (ODA) SCF</span>
+<span class="c1"># - Construct the initial density matrix (needed for ODA).</span>
+<span class="n">occ_model</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">exp_alpha</span><span class="p">)</span>
+<span class="n">dm_alpha</span> <span class="o">=</span> <span class="n">exp_alpha</span><span class="o">.</span><span class="n">to_dm</span><span class="p">()</span>
+<span class="c1"># - SCF solver</span>
+<span class="n">scf_solver</span> <span class="o">=</span> <span class="n">ODASCFSolver</span><span class="p">(</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">scf_solver</span><span class="p">(</span><span class="n">ham</span><span class="p">,</span> <span class="n">lf</span><span class="p">,</span> <span class="n">olp</span><span class="p">,</span> <span class="n">occ_model</span><span class="p">,</span> <span class="n">dm_alpha</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</li>
+<li><p class="first">Usage in the unrestricted case:</p>
+<div class="literal-block-wrapper container" id="data-examples-hf-dft-uks-methyl-lda-py-lines-53-60">
+<div class="code-block-caption"><span class="caption-text">data/examples/hf_dft/uks_methyl_lda.py, lines 53&#8211;60</span><a class="headerlink" href="#data-examples-hf-dft-uks-methyl-lda-py-lines-53-60" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Converge WFN with Optimal damping algorithm (ODA) SCF</span>
+<span class="c1"># - Construct the initial density matrix (needed for ODA).</span>
+<span class="n">occ_model</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">exp_alpha</span><span class="p">,</span> <span class="n">exp_beta</span><span class="p">)</span>
+<span class="n">dm_alpha</span> <span class="o">=</span> <span class="n">exp_alpha</span><span class="o">.</span><span class="n">to_dm</span><span class="p">()</span>
+<span class="n">dm_beta</span> <span class="o">=</span> <span class="n">exp_beta</span><span class="o">.</span><span class="n">to_dm</span><span class="p">()</span>
+<span class="c1"># - SCF solver</span>
+<span class="n">scf_solver</span> <span class="o">=</span> <span class="n">ODASCFSolver</span><span class="p">(</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">scf_solver</span><span class="p">(</span><span class="n">ham</span><span class="p">,</span> <span class="n">lf</span><span class="p">,</span> <span class="n">olp</span><span class="p">,</span> <span class="n">occ_model</span><span class="p">,</span> <span class="n">dm_alpha</span><span class="p">,</span> <span class="n">dm_beta</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</li>
+</ul>
+<p>All SCF solvers support the following two options:</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">threshold:</th><td class="field-body">The convergence threshold for the SCF solver. The exact meaning
+of this threshold is algorithm-dependent. In case of the
+<code class="docutils literal"><span class="pre">PlainSCFSolver</span></code>, convergence is tested with the RSMD error on
+the Roothaan equations. In all other cases, the square root of
+the commutator of the density and the Fock matrix is tested.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">maxiter:</th><td class="field-body">The maximum allowed number of SCF iterations. If convergence is not
+reached within this number of iterations, a <code class="docutils literal"><span class="pre">NoSCFConvergence</span></code>
+error is raised.</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>Click on the links of the SCF solver classes above for more optional arguments
+and their default values.</p>
+</div>
+<div class="section" id="conversion-of-density-and-fock-matrix-to-orbitals">
+<span id="user-hf-dft-get-orbitals"></span><h2>4.1.6. Conversion of density and Fock matrix to orbitals<a class="headerlink" href="#conversion-of-density-and-fock-matrix-to-orbitals" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="lib/mod_horton_meanfield_scf.html#horton.meanfield.scf.PlainSCFSolver" title="horton.meanfield.scf.PlainSCFSolver"><code class="xref py py-class docutils literal"><span class="pre">PlainSCFSolver</span></code></a> iteratively updates the
+orbitals. Hence, for this SCF solver, there is no need to reconstruct the orbitals
+after SCF convergence. For all other SCF algorithms, however, you need to iteratively
+update the density matrix and explicitly reconstruct the orbitals after SCF
+convergence.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">SCF algorithms that update the density matrix may produce a converged
+density matrix with fractional occupations for degenerate orbitals at the
+Fermi level. The code snippets below properly handle such cases as well. For
+more details, refer to
+<a class="reference internal" href="lib/mod_horton_matrix_dense.html#horton.matrix.dense.DenseExpansion.from_fock_and_dm" title="horton.matrix.dense.DenseExpansion.from_fock_and_dm"><code class="xref py py-meth docutils literal"><span class="pre">from_fock_and_dm()</span></code></a>.</p>
+</div>
+<ul>
+<li><p class="first">Usage in the restricted case:</p>
+<div class="literal-block-wrapper container" id="data-examples-hf-dft-rks-water-lda-py-lines-60-67">
+<div class="code-block-caption"><span class="caption-text">data/examples/hf_dft/rks_water_lda.py, lines 60&#8211;67</span><a class="headerlink" href="#data-examples-hf-dft-rks-water-lda-py-lines-60-67" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Derive orbitals (coeffs, energies and occupations) from the Fock and density</span>
+<span class="c1"># matrices. The energy is also computed to store it in the output file below.</span>
+<span class="n">fock_alpha</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_two_index</span><span class="p">()</span>
+<span class="n">ham</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">dm_alpha</span><span class="p">)</span>
+<span class="n">ham</span><span class="o">.</span><span class="n">compute_energy</span><span class="p">()</span>
+<span class="n">ham</span><span class="o">.</span><span class="n">compute_fock</span><span class="p">(</span><span class="n">fock_alpha</span><span class="p">)</span>
+<span class="n">exp_alpha</span><span class="o">.</span><span class="n">from_fock_and_dm</span><span class="p">(</span><span class="n">fock_alpha</span><span class="p">,</span> <span class="n">dm_alpha</span><span class="p">,</span> <span class="n">olp</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</li>
+<li><p class="first">Usage in the unrestricted case:</p>
+<div class="literal-block-wrapper container" id="data-examples-hf-dft-uks-methyl-lda-py-lines-62-71">
+<div class="code-block-caption"><span class="caption-text">data/examples/hf_dft/uks_methyl_lda.py, lines 62&#8211;71</span><a class="headerlink" href="#data-examples-hf-dft-uks-methyl-lda-py-lines-62-71" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Derive orbitals (coeffs, energies and occupations) from the Fock and density</span>
+<span class="c1"># matrices. The energy is also computed to store it in the output file below.</span>
+<span class="n">fock_alpha</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_two_index</span><span class="p">()</span>
+<span class="n">fock_beta</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_two_index</span><span class="p">()</span>
+<span class="n">ham</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">dm_alpha</span><span class="p">,</span> <span class="n">dm_beta</span><span class="p">)</span>
+<span class="n">ham</span><span class="o">.</span><span class="n">compute_energy</span><span class="p">()</span>
+<span class="n">ham</span><span class="o">.</span><span class="n">compute_fock</span><span class="p">(</span><span class="n">fock_alpha</span><span class="p">,</span> <span class="n">fock_beta</span><span class="p">)</span>
+<span class="n">exp_alpha</span><span class="o">.</span><span class="n">from_fock_and_dm</span><span class="p">(</span><span class="n">fock_alpha</span><span class="p">,</span> <span class="n">dm_alpha</span><span class="p">,</span> <span class="n">olp</span><span class="p">)</span>
+<span class="n">exp_beta</span><span class="o">.</span><span class="n">from_fock_and_dm</span><span class="p">(</span><span class="n">fock_beta</span><span class="p">,</span> <span class="n">dm_beta</span><span class="p">,</span> <span class="n">olp</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="writing-scf-results-to-a-file">
+<span id="user-hf-dft-to-file"></span><h2>4.1.7. Writing SCF results to a file<a class="headerlink" href="#writing-scf-results-to-a-file" title="Permalink to this headline">¶</a></h2>
+<p>Once you have obtained a converged set of molecular orbitals, they can be stored
+in a file. Two file formats can be used: (i) HORTON&#8217;s internal format based on
+HDF5 and (ii) the Molden format. The internal format has the advantage that all
+data is stored in full precision and that you can include as much additional
+information as you like. The Molden format is useful for visualization purposes
+or when you would like to use the orbitals in another quantum chemistry code.
+Both formats can be used to store the wavefunction and to use it as an initial
+guess afterwards. For more background information on data formats in HORTON,
+refer to <a class="reference internal" href="tech_ref_file_formats.html#ref-file-formats"><span class="std std-ref">Data file formats (input and output)</span></a>.</p>
+<p>The two code snippets below show how a wavefunction can be written to a file.
+In both examples, the object <code class="docutils literal"><span class="pre">mol</span></code> is an instance of <code class="docutils literal"><span class="pre">IOData</span></code> that was
+created earlier in the script by loading an <code class="docutils literal"><span class="pre">.xyz</span></code> file as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">mol</span> <span class="o">=</span> <span class="n">IOData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;some_molecule.xyz&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When the <code class="docutils literal"><span class="pre">.xyz</span></code> file is loaded, the attributes <code class="docutils literal"><span class="pre">numbers</span></code> and <code class="docutils literal"><span class="pre">coordinates</span></code>
+of the object <code class="docutils literal"><span class="pre">mol</span></code> are already set as required for the <code class="docutils literal"><span class="pre">.molden</span></code> format.</p>
+<ul>
+<li><p class="first">Usage in the restricted case:</p>
+<div class="literal-block-wrapper container" id="data-examples-hf-dft-rks-water-lda-py-lines-68-80">
+<div class="code-block-caption"><span class="caption-text">data/examples/hf_dft/rks_water_lda.py, lines 68&#8211;80</span><a class="headerlink" href="#data-examples-hf-dft-rks-water-lda-py-lines-68-80" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Assign results to the molecule object and write it to a file, e.g. for</span>
+<span class="c1"># later analysis. Note that the ODA algorithm can only really construct an</span>
+<span class="c1"># optimized density matrix and no orbitals.</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;RKS computation on water&#39;</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">energy</span> <span class="o">=</span> <span class="n">ham</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">obasis</span> <span class="o">=</span> <span class="n">obasis</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">exp_alpha</span> <span class="o">=</span> <span class="n">exp_alpha</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">dm_alpha</span> <span class="o">=</span> <span class="n">dm_alpha</span>
+
+<span class="c1"># useful for visualization:</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;water.molden&#39;</span><span class="p">)</span>
+<span class="c1"># useful for post-processing (results stored in double precision):</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;water.h5&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</li>
+<li><p class="first">Usage in the unrestricted case:</p>
+<div class="literal-block-wrapper container" id="data-examples-hf-dft-uks-methyl-lda-py-lines-72-86">
+<div class="code-block-caption"><span class="caption-text">data/examples/hf_dft/uks_methyl_lda.py, lines 72&#8211;86</span><a class="headerlink" href="#data-examples-hf-dft-uks-methyl-lda-py-lines-72-86" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Assign results to the molecule object and write it to a file, e.g. for</span>
+<span class="c1"># later analysis. Note that the ODA algorithm can only really construct an</span>
+<span class="c1"># optimized density matrix and no orbitals.</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;UKS computation on methyl&#39;</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">energy</span> <span class="o">=</span> <span class="n">ham</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">obasis</span> <span class="o">=</span> <span class="n">obasis</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">exp_alpha</span> <span class="o">=</span> <span class="n">exp_alpha</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">exp_beta</span> <span class="o">=</span> <span class="n">exp_beta</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">dm_alpha</span> <span class="o">=</span> <span class="n">dm_alpha</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">dm_beta</span> <span class="o">=</span> <span class="n">dm_beta</span>
+
+<span class="c1"># useful for visualization:</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;methyl.molden&#39;</span><span class="p">)</span>
+<span class="c1"># useful for post-processing (results stored in double precision):</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;methyl.h5&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="preparing-for-a-post-hartree-fock-calculation">
+<span id="user-hf-dft-preparing-posthf"></span><h2>4.1.8. Preparing for a Post-Hartree-Fock calculation<a class="headerlink" href="#preparing-for-a-post-hartree-fock-calculation" title="Permalink to this headline">¶</a></h2>
+<p>Once the SCF has converged and you have obtained a set of orbitals, you can use
+these orbitals to convert the integrals from the atomic-orbital (AO) basis to
+the molecular-orbital (MO) basis. Two implementations are available in HORTON:
+(i) using all molecular orbitals or (ii) by specifying a frozen core and active
+set of orbitals. A full example, <code class="docutils literal"><span class="pre">rhf_n2_dense.py</span></code>, which covers both options
+and which includes dumping the transformed integrals to a file, is given in the
+section <a class="reference internal" href="#hf-dft-complete-examples"><span class="std std-ref">Complete examples</span></a> below.</p>
+<p>The conversion to an MO basis is useful for post-HF calculations. For such
+purposes, it is also of interest to sum all one-body operators into a single
+term:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">lf</span> <span class="o">=</span> <span class="n">DenseLinalgFactory</span><span class="p">(</span><span class="n">obasis</span><span class="o">.</span><span class="n">nbasis</span><span class="p">)</span>
+<span class="n">kin</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_kinetic</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+<span class="n">na</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_nuclear_attraction</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">,</span> <span class="n">lf</span><span class="p">)</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">kin</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">one</span><span class="o">.</span><span class="n">iadd</span><span class="p">(</span><span class="n">na</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="transforming-the-hamiltonian-to-the-molecular-orbital-mo-basis">
+<h3>4.1.8.1. Transforming the Hamiltonian to the molecular-orbital (MO) basis<a class="headerlink" href="#transforming-the-hamiltonian-to-the-molecular-orbital-mo-basis" title="Permalink to this headline">¶</a></h3>
+<p>The function <a class="reference internal" href="lib/mod_horton_orbital_utils.html#horton.orbital_utils.transform_integrals" title="horton.orbital_utils.transform_integrals"><code class="xref py py-func docutils literal"><span class="pre">transform_integrals()</span></code></a> can be used for
+this purpose. It works differently for restricted and unrestricted orbitals:</p>
+<ol class="arabic">
+<li><p class="first">In the case of restricted (Hartree-Fock) orbitals, there is just one
+transformed one-body and one transformed two-body operator:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">one_mo</span><span class="p">,),</span> <span class="p">(</span><span class="n">two_mo</span><span class="p">,)</span> <span class="o">=</span> <span class="n">transform_integrals</span><span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">er</span><span class="p">,</span> <span class="s1">&#39;tensordot&#39;</span><span class="p">,</span> <span class="n">exp_alpha</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">In the case of unrestricted (Hartree-Fock) orbitals, there are two
+transformed one-body and three transformed two-body operators:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">one_mo_ops</span><span class="p">,</span> <span class="n">two_mo_ops</span> <span class="o">=</span> <span class="n">transform_integrals</span><span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">er</span><span class="p">,</span> <span class="s1">&#39;tensordot&#39;</span><span class="p">,</span> <span class="n">exp_alpha</span><span class="p">,</span> <span class="n">exp_beta</span><span class="p">)</span>
+<span class="n">one_mo_alpha</span><span class="p">,</span> <span class="n">one_mo_beta</span> <span class="o">=</span> <span class="n">one_mo_ops</span>
+<span class="n">two_mo_alpha_alpha</span><span class="p">,</span> <span class="n">two_mo_alpha_beta</span><span class="p">,</span> <span class="n">two_mo_beta_beta</span> <span class="o">=</span> <span class="n">two_mo_ops</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</div>
+<div class="section" id="reducing-the-hamiltonian-to-an-active-space">
+<h3>4.1.8.2. Reducing the Hamiltonian to an active space<a class="headerlink" href="#reducing-the-hamiltonian-to-an-active-space" title="Permalink to this headline">¶</a></h3>
+<p>The active-space feature only works for restricted orbitals. The new
+one-electron integrals <span class="math">\(\tilde{t}_{pq}\)</span> become</p>
+<div class="math">
+\[\tilde{t}_{pq} = t_{pq} + \sum_{i \in \textrm{ncore}} ( 2 \langle pi \vert qi \rangle - \langle pi \vert iq \rangle),\]</div>
+<p>where <span class="math">\(t_{pq}\)</span> is the element <span class="math">\(pq\)</span> of the old one-electron integrals
+and <span class="math">\(\langle pi \vert qi \rangle\)</span> is the appropriate two-electron integral
+in physicist&#8217;s notation. The core energy of the active space is calculated as</p>
+<div class="math">
+\[e_\text{core} = e_\text{nn} + 2\sum_{i \in \textrm{ncore}} t_{ii} + \sum_{i, j \in \textrm{ncore}} (2 \langle ij \vert ij \rangle - \langle ij \vert ji \rangle)\]</div>
+<p>where the two-electron integrals <span class="math">\(\langle pq \vert rs \rangle\)</span> contain only
+the elements with active orbital indices <span class="math">\(p,q,r,s\)</span>. This type of conversion
+is implemented in the function <a class="reference internal" href="lib/mod_horton_orbital_utils.html#horton.orbital_utils.split_core_active" title="horton.orbital_utils.split_core_active"><code class="xref py py-func docutils literal"><span class="pre">split_core_active()</span></code></a>.
+It is used as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">one_small</span><span class="p">,</span> <span class="n">two_small</span><span class="p">,</span> <span class="n">core_energy</span> <span class="o">=</span> <span class="n">split_core_active</span><span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">er</span><span class="p">,</span>
+   <span class="n">external</span><span class="p">[</span><span class="s1">&#39;nn&#39;</span><span class="p">],</span> <span class="n">exp_alpha</span><span class="p">,</span> <span class="n">ncore</span><span class="p">,</span> <span class="n">nactive</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="complete-examples">
+<span id="hf-dft-complete-examples"></span><h2>4.1.9. Complete examples<a class="headerlink" href="#complete-examples" title="Permalink to this headline">¶</a></h2>
+<p>The following is a basic example of a restricted Hartree-Fock calculation of
+water. It contains all the steps discussed in the previous sections.</p>
+<div class="literal-block-wrapper container" id="data-examples-hf-dft-rhf-n2-dense-py">
+<div class="code-block-caption"><span class="caption-text">data/examples/hf_dft/rhf_n2_dense.py</span><a class="headerlink" href="#data-examples-hf-dft-rhf-n2-dense-py" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span>
+<span class="kn">from</span> <span class="nn">horton</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<span class="c1"># Hartree-Fock calculation</span>
+<span class="c1"># ------------------------</span>
+
+<span class="c1"># Construct a molecule from scratch</span>
+<span class="n">bond_length</span> <span class="o">=</span> <span class="mf">1.098</span><span class="o">*</span><span class="n">angstrom</span>
+<span class="n">mol</span> <span class="o">=</span> <span class="n">IOData</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;dinitrogen&#39;</span><span class="p">)</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">bond_length</span><span class="p">]])</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">numbers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">])</span>
+
+<span class="c1"># Create a Gaussian basis set</span>
+<span class="n">obasis</span> <span class="o">=</span> <span class="n">get_gobasis</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">numbers</span><span class="p">,</span> <span class="s1">&#39;cc-pvdz&#39;</span><span class="p">)</span>
+
+<span class="c1"># Create a linalg factory</span>
+<span class="n">lf</span> <span class="o">=</span> <span class="n">DenseLinalgFactory</span><span class="p">(</span><span class="n">obasis</span><span class="o">.</span><span class="n">nbasis</span><span class="p">)</span>
+
+<span class="c1"># Compute Gaussian integrals</span>
+<span class="n">olp</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_overlap</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+<span class="n">kin</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_kinetic</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+<span class="n">na</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_nuclear_attraction</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">,</span> <span class="n">lf</span><span class="p">)</span>
+<span class="n">er</span> <span class="o">=</span> <span class="n">obasis</span><span class="o">.</span><span class="n">compute_electron_repulsion</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+
+<span class="c1"># Create alpha orbitals</span>
+<span class="n">exp_alpha</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">create_expansion</span><span class="p">()</span>
+
+<span class="c1"># Initial guess</span>
+<span class="n">guess_core_hamiltonian</span><span class="p">(</span><span class="n">olp</span><span class="p">,</span> <span class="n">kin</span><span class="p">,</span> <span class="n">na</span><span class="p">,</span> <span class="n">exp_alpha</span><span class="p">)</span>
+
+<span class="c1"># Construct the restricted HF effective Hamiltonian</span>
+<span class="n">external</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;nn&#39;</span><span class="p">:</span> <span class="n">compute_nucnuc</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">pseudo_numbers</span><span class="p">)}</span>
+<span class="n">terms</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">RTwoIndexTerm</span><span class="p">(</span><span class="n">kin</span><span class="p">,</span> <span class="s1">&#39;kin&#39;</span><span class="p">),</span>
+    <span class="n">RDirectTerm</span><span class="p">(</span><span class="n">er</span><span class="p">,</span> <span class="s1">&#39;hartree&#39;</span><span class="p">),</span>
+    <span class="n">RExchangeTerm</span><span class="p">(</span><span class="n">er</span><span class="p">,</span> <span class="s1">&#39;x_hf&#39;</span><span class="p">),</span>
+    <span class="n">RTwoIndexTerm</span><span class="p">(</span><span class="n">na</span><span class="p">,</span> <span class="s1">&#39;ne&#39;</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="n">ham</span> <span class="o">=</span> <span class="n">REffHam</span><span class="p">(</span><span class="n">terms</span><span class="p">,</span> <span class="n">external</span><span class="p">)</span>
+
+<span class="c1"># Decide how to occupy the orbitals (7 alpha electrons)</span>
+<span class="n">occ_model</span> <span class="o">=</span> <span class="n">AufbauOccModel</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+
+<span class="c1"># Converge WFN with plain SCF</span>
+<span class="n">scf_solver</span> <span class="o">=</span> <span class="n">PlainSCFSolver</span><span class="p">(</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">scf_solver</span><span class="p">(</span><span class="n">ham</span><span class="p">,</span> <span class="n">lf</span><span class="p">,</span> <span class="n">olp</span><span class="p">,</span> <span class="n">occ_model</span><span class="p">,</span> <span class="n">exp_alpha</span><span class="p">)</span>
+
+
+<span class="c1"># Write SCF results to a file</span>
+<span class="c1"># ---------------------------</span>
+
+<span class="c1"># Assign results to the molecule object and write it to a file, e.g. for</span>
+<span class="c1"># later analysis</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;RHF computation on dinitrogen&#39;</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">energy</span> <span class="o">=</span> <span class="n">ham</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">obasis</span> <span class="o">=</span> <span class="n">obasis</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">exp_alpha</span> <span class="o">=</span> <span class="n">exp_alpha</span>
+
+<span class="c1"># useful for visualization:</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;n2-scf.molden&#39;</span><span class="p">)</span>
+<span class="c1"># useful for post-processing (results stored in double precision)</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;n2-scf.h5&#39;</span><span class="p">)</span>
+
+
+<span class="c1"># Export Hamiltonian in Hartree-Fock molecular orbital basis (all orbitals active)</span>
+<span class="c1"># --------------------------------------------------------------------------------</span>
+
+<span class="c1"># Transform orbitals</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">kin</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">one</span><span class="o">.</span><span class="n">iadd</span><span class="p">(</span><span class="n">na</span><span class="p">)</span>
+<span class="n">two</span> <span class="o">=</span> <span class="n">er</span>
+<span class="p">(</span><span class="n">one_mo</span><span class="p">,),</span> <span class="p">(</span><span class="n">two_mo</span><span class="p">,)</span> <span class="o">=</span> <span class="n">transform_integrals</span><span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">two</span><span class="p">,</span> <span class="s1">&#39;tensordot&#39;</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">exp_alpha</span><span class="p">)</span>
+
+<span class="c1"># Write files</span>
+<span class="n">mol_all_active</span> <span class="o">=</span> <span class="n">IOData</span><span class="p">(</span><span class="n">core_energy</span><span class="o">=</span><span class="n">external</span><span class="p">[</span><span class="s1">&#39;nn&#39;</span><span class="p">],</span> <span class="n">one_mo</span><span class="o">=</span><span class="n">one_mo</span><span class="p">,</span> <span class="n">two_mo</span><span class="o">=</span><span class="n">two_mo</span><span class="p">)</span>
+<span class="c1"># useful for exchange with other codes</span>
+<span class="n">mol_all_active</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;n2.FCIDUMP&#39;</span><span class="p">)</span>
+<span class="c1"># useful for exchange with other HORTON scripts</span>
+<span class="n">mol_all_active</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;n2-hamiltonian.h5&#39;</span><span class="p">)</span>
+
+
+<span class="c1"># Export Hamiltonian in Hartree-Fock molecular orbital basis for CAS(8,8)</span>
+<span class="c1"># -----------------------------------------------------------------------</span>
+
+<span class="c1"># Transform orbitals</span>
+<span class="n">one_small</span><span class="p">,</span> <span class="n">two_small</span><span class="p">,</span> <span class="n">core_energy</span> <span class="o">=</span> <span class="n">split_core_active</span><span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">er</span><span class="p">,</span>
+    <span class="n">external</span><span class="p">[</span><span class="s1">&#39;nn&#39;</span><span class="p">],</span> <span class="n">exp_alpha</span><span class="p">,</span> <span class="n">ncore</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">nactive</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+
+<span class="c1"># Write files</span>
+<span class="n">mol_cas88</span> <span class="o">=</span> <span class="n">IOData</span><span class="p">(</span><span class="n">core_energy</span><span class="o">=</span><span class="n">core_energy</span><span class="p">,</span> <span class="n">one_mo</span><span class="o">=</span><span class="n">one_mo</span><span class="p">,</span> <span class="n">two_mo</span><span class="o">=</span><span class="n">two_mo</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">ms2</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">lf</span><span class="o">=</span><span class="n">lf</span><span class="p">)</span>
+<span class="c1"># useful for exchange with other codes</span>
+<span class="n">mol_cas88</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;n2-cas8-8.FCIDUMP&#39;</span><span class="p">)</span>
+<span class="c1"># useful for exchange with other HORTON scripts</span>
+<span class="n">mol_cas88</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;n2-hamiltonian-cas8-8.h5&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The directory <code class="docutils literal"><span class="pre">data/examples/hf_dft</span></code> contains many more examples that use the
+different options discussed above. The following table shows which features are
+used in which example.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="18%" />
+<col width="10%" />
+<col width="13%" />
+<col width="59%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">File name</th>
+<th class="head">LOT</th>
+<th class="head">SCF</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>rhf_h2_cholesky.py</td>
+<td>RHF/6-31G</td>
+<td>PlainSCFSolver</td>
+<td>Basic RHF example with Cholesky matrices, includes export of Hamiltonian</td>
+</tr>
+<tr class="row-odd"><td>rhf_n2_dense.py</td>
+<td>RHF/cc-pvtz</td>
+<td>PlainSCFSolver</td>
+<td>Basic RHF example with dense matrices, includes export of Hamiltonian</td>
+</tr>
+<tr class="row-even"><td>rhf_water_dense.py</td>
+<td>RHF/3-21G</td>
+<td>PlainSCFSolver</td>
+<td>Basic RHF example with dense matrices</td>
+</tr>
+<tr class="row-odd"><td>uhf_methyl_dense.py</td>
+<td>UHF/3-21G</td>
+<td>PlainSCFSolver</td>
+<td>Basic UHF example with dense matrices</td>
+</tr>
+<tr class="row-even"><td>rhf_water_cholesky.py</td>
+<td>RHF/cc-pVDZ</td>
+<td>PlainSCFSolver</td>
+<td>Basic RHF example with Cholesky decomposition of the ERI</td>
+</tr>
+<tr class="row-odd"><td>uhf_methyl_cholesky.py</td>
+<td>UHF/cc-pVDZ</td>
+<td>PlainSCFSolver</td>
+<td>Basic UHF example with Cholesky decomposition of the ERI</td>
+</tr>
+<tr class="row-even"><td>rks_water_lda.py</td>
+<td>RKS/6-31G*</td>
+<td>ODASCFSolver</td>
+<td>Basic RKS DFT example with LDA exhange-correlation functional (Dirac+VWN)</td>
+</tr>
+<tr class="row-odd"><td>uks_methyl_lda.py</td>
+<td>UKS/6-31G*</td>
+<td>ODASCFSolver</td>
+<td>Basic UKS DFT example with LDA exhange-correlation functional (Dirac+VWN)</td>
+</tr>
+<tr class="row-even"><td>rks_water_gga.py</td>
+<td>RKS/6-31G*</td>
+<td>CDIISSCFSolver</td>
+<td>Basic RKS DFT example with GGA exhange-correlation functional (PBE)</td>
+</tr>
+<tr class="row-odd"><td>uks_methyl_gga.py</td>
+<td>UKS/6-31G*</td>
+<td>CDIISSCFSolver</td>
+<td>Basic UKS DFT example with GGA exhange-correlation functional (PBE)</td>
+</tr>
+<tr class="row-even"><td>rks_water_hybgga.py</td>
+<td>RKS/6-31G*</td>
+<td>EDIIS2SCFSolver</td>
+<td>Basic RKS DFT example with hyrbid GGA exhange-correlation functional (B3LYP)</td>
+</tr>
+<tr class="row-odd"><td>uks_methyl_hybgga.py</td>
+<td>UKS/6-31G*</td>
+<td>EDIIS2SCFSolver</td>
+<td>Basic UKS DFT example with hyrbid GGA exhange-correlation functional (B3LYP)</td>
+</tr>
+<tr class="row-even"><td>rks_water_numlda.py</td>
+<td>RKS/6-31G*</td>
+<td>CDIISSCFSolver</td>
+<td>RKS DFT example with LDA and numerical Hartree</td>
+</tr>
+<tr class="row-odd"><td>uks_methyl_numlda.py</td>
+<td>UKS/6-31G*</td>
+<td>CDIISSCFSolver</td>
+<td>UKS DFT example with LDA and numerical Hartree</td>
+</tr>
+<tr class="row-even"><td>rks_water_numgga.py</td>
+<td>RKS/6-31G*</td>
+<td>CDIISSCFSolver</td>
+<td>RKS DFT example with GGA and numerical Hartree</td>
+</tr>
+<tr class="row-odd"><td>uks_methyl_numgga.py</td>
+<td>UKS/6-31G*</td>
+<td>CDIISSCFSolver</td>
+<td>UKS DFT example with GGA and numerical Hartree</td>
+</tr>
+</tbody>
+</table>
+<p>A more elaborate example can be found in <code class="docutils literal"><span class="pre">data/examples/hf_compare</span></code>. It
+contains a script that systematically computes all elements in the periodic table
+(for different charges and multiplicities), and compares the results with
+outputs obtained with Gaussian. See the <code class="docutils literal"><span class="pre">README</span></code> file for instructions how to
+run this example.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="user_estruct_ap1rog.html" class="btn btn-neutral float-right" title="4.2. The AP1roG module" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="user_estruct.html" class="btn btn-neutral" title="4. Electronic Structure Methods" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.0 built from release 2.0.0-244-gaaf5e2b. </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 16, 2016.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.0.0-244-gaaf5e2b',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

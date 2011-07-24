@@ -1,0 +1,436 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>2. Getting Started &mdash; HORTON 2.0.0-244-gaaf5e2b documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="HORTON 2.0.0-244-gaaf5e2b documentation" href="index.html"/>
+        <link rel="next" title="3. Hamiltonians" href="user_hamiltonian.html"/>
+        <link rel="prev" title="1.4. Troubleshooting" href="user_download_and_install_troubleshooting.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">2. Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-use-horton">2.1. How to use HORTON?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#running-horton-as-a-python-library">2.1.1. Running HORTON as a Python library</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-horton-as-horton-py-scripts">2.1.2. Running HORTON as <code class="docutils literal"><span class="pre">horton-*.py</span></code> scripts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#writing-a-basic-horton-python-script">2.2. Writing a basic HORTON Python script</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#atomic-units">2.2.1. Atomic Units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#array-indexing">2.2.2. Array Indexing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#loading-dumping-data-from-to-a-file">2.2.3. Loading/Dumping Data from/to a File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#periodic-table">2.2.4. Periodic Table</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#a-complete-example">2.2.5. A Complete Example</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">HORTON</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>2. Getting Started</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/user_getting_started.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="getting-started">
+<span id="user-getting-started"></span><h1>2. Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="how-to-use-horton">
+<h2>2.1. How to use HORTON?<a class="headerlink" href="#how-to-use-horton" title="Permalink to this headline">¶</a></h2>
+<p>HORTON is essentially a Python library that can be used for performing electronic structure
+calculations as well as interpreting these calculations (i.e. post-processing). There are two different
+ways to use HORTON. The most versatile approach is to write Python scripts
+that use HORTON as a Python library. This gives you full access to all the features available in
+HORTON; however, this requires some knowledge of the Python programming language.
+Alternatively, part of HORTON&#8217;s functionality is accessible through built-in
+python scripts whose performance can be controlled through command line arguments.
+Obviously, this requires less programming knowledge.</p>
+<div class="section" id="running-horton-as-a-python-library">
+<h3>2.1.1. Running HORTON as a Python library<a class="headerlink" href="#running-horton-as-a-python-library" title="Permalink to this headline">¶</a></h3>
+<p>There will be many examples in the following sections demonstrating how
+HORTON can be used when writing your own Python scripts. These scripts should all
+start with the following lines:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="c1"># Import the HORTON library</span>
+<span class="kn">from</span> <span class="nn">horton</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># Import some other stuff (optional)</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span><span class="o">,</span> <span class="nn">h5py</span> <span class="kn">as</span> <span class="nn">h5</span><span class="o">,</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">pt</span>
+
+<span class="c1"># Actual Python script</span>
+</pre></div>
+</div>
+<p>This header is then followed by some Python code that does the actual computation
+of interest. In such a script, you basically write the <cite>main</cite> program to do your
+calculations, exploiting the components that HORTON offers. The HORTON library
+is designed such that all its features are as modular as possible, allowing you to
+combine them in various ways.</p>
+<p>Before running your script, say <code class="docutils literal"><span class="pre">run.py</span></code>, we recommend that you to make it
+executable (this needs to be done only once for every script):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>chmod +x run.py
+</pre></div>
+</div>
+<p>Now, when your script has completed, you can run it as follows:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>./run.py
+</pre></div>
+</div>
+<p>Do not use <code class="docutils literal"><span class="pre">horton.py</span></code> as your script name; this will cause trouble when loading
+the <code class="docutils literal"><span class="pre">horton</span></code> library (due to a namespace collision).</p>
+</div>
+<div class="section" id="running-horton-as-horton-py-scripts">
+<span id="using-horton-as-a-script"></span><h3>2.1.2. Running HORTON as <code class="docutils literal"><span class="pre">horton-*.py</span></code> scripts<a class="headerlink" href="#running-horton-as-horton-py-scripts" title="Permalink to this headline">¶</a></h3>
+<p>The built-in HORTON scripts all have the <code class="docutils literal"><span class="pre">horton-*.py</span></code> filename pattern.
+Through command line arguments, one can control the actual calculations performed by these scripts. Basic
+information on how to use each built-in script can be obtained by using the <code class="docutils literal"><span class="pre">--help</span></code> flag. For example,</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>horton-convert.py --help
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="writing-a-basic-horton-python-script">
+<h2>2.2. Writing a basic HORTON Python script<a class="headerlink" href="#writing-a-basic-horton-python-script" title="Permalink to this headline">¶</a></h2>
+<p>HORTON scripts just run with a regular Python interpreter
+(like <a class="reference external" href="https://wiki.fysik.dtu.dk/ase/">ASE</a> and unlike
+<a class="reference external" href="http://www.psicode.org/">PSI4</a>, which uses a modified Python interpreter).
+This means that you need to have a basic knowledge of Python. In addition, it will be helpful to be
+familiar with popular Python packages for scientific computing. The links below provide
+some resources to broaden your Python knowledge:</p>
+<ul class="simple">
+<li><a class="reference external" href="https://www.python.org/">Python</a>, <a class="reference external" href="https://docs.python.org/2.7">Python documentation</a>, <a class="reference external" href="https://www.python.org/about/gettingstarted/">Getting started with Python</a></li>
+<li><a class="reference external" href="http://www.numpy.org/">NumPy</a> (array manipulation), <a class="reference external" href="http://docs.scipy.org/doc/numpy/user/">Getting started with NumPy</a></li>
+<li><a class="reference external" href="http://www.scipy.org/">SciPy</a> (scientific computing library), <a class="reference external" href="http://docs.scipy.org/doc/scipy/reference/tutorial/index.html">The SciPy tutorial</a></li>
+<li><a class="reference external" href="http://matplotlib.org/">Matplotlib</a> (plotting)</li>
+<li><a class="reference external" href="http://www.h5py.org/">H5Py</a> (load/dump arrays from/to binary files)</li>
+<li><a class="reference external" href="http://stackoverflow.com/">Programming Q&amp;A</a></li>
+<li><a class="reference external" href="http://code.activestate.com/recipes/langs/python/">Python code snippets</a></li>
+</ul>
+<p>The following sections go through some basic features that will appear in many
+other examples in the documentation.</p>
+<div class="section" id="atomic-units">
+<h3>2.2.1. Atomic Units<a class="headerlink" href="#atomic-units" title="Permalink to this headline">¶</a></h3>
+<p>Internally, HORTON works exclusively in atomic units. If you want to convert a
+value from a different unit to atomic units, multiply it with the appropriate unit
+constant, e.g. the following snippet sets <code class="docutils literal"><span class="pre">length</span></code> to 5 Angstrom and prints it in
+atomic units:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">length</span> <span class="o">=</span> <span class="mi">5</span><span class="o">*</span><span class="n">angstrom</span>    <span class="c1"># recording 5 angstrom in atomic units</span>
+<span class="k">print</span> <span class="n">length</span>
+</pre></div>
+</div>
+<p>Conversely, if you want to print a value in a different unit than atomic units,
+divide it by the appropriate constant. For example, the following prints an
+energy of 0.001 Hartree in kJ/mol:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">energy</span> <span class="o">=</span> <span class="mf">0.001</span>            <span class="c1"># recording energy in Hartree</span>
+<span class="k">print</span> <span class="n">energy</span><span class="o">/</span><span class="n">kjmol</span>        <span class="c1"># printing energy in kJ/mol</span>
+</pre></div>
+</div>
+<p>An overview of all units can be found in <a class="reference internal" href="lib/mod_horton_units.html#module-horton.units" title="horton.units"><code class="xref py py-mod docutils literal"><span class="pre">horton.units</span></code></a>.</p>
+<p>There are two special cases:</p>
+<ol class="arabic simple">
+<li>Angles are in radians, but you can use the <code class="docutils literal"><span class="pre">deg</span></code> unit to work with degrees,
+for example, <code class="docutils literal"><span class="pre">90*deg</span></code> and <code class="docutils literal"><span class="pre">np.pi/2</span></code> are equivalent.</li>
+<li>Temperatures are in Kelvin.</li>
+</ol>
+</div>
+<div class="section" id="array-indexing">
+<h3>2.2.2. Array Indexing<a class="headerlink" href="#array-indexing" title="Permalink to this headline">¶</a></h3>
+<p>All arrays and list-like objects in Python use zero-based indexing. This means
+that the first element of a vector is accessed as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="k">print</span> <span class="n">vector</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>This convention also applies to all array-like (and list-like) objects in HORTON, e.g. the
+first orbital in a Slater determinant has index 0.</p>
+</div>
+<div class="section" id="loading-dumping-data-from-to-a-file">
+<h3>2.2.3. Loading/Dumping Data from/to a File<a class="headerlink" href="#loading-dumping-data-from-to-a-file" title="Permalink to this headline">¶</a></h3>
+<p>All input and output of data in HORTON is managed through the <a class="reference internal" href="lib/mod_horton_io_iodata.html#horton.io.iodata.IOData" title="horton.io.iodata.IOData"><code class="xref py py-class docutils literal"><span class="pre">IOData</span></code></a>
+class. To load data, call the <a class="reference internal" href="lib/mod_horton_io_iodata.html#horton.io.iodata.IOData.from_file" title="horton.io.iodata.IOData.from_file"><code class="xref py py-meth docutils literal"><span class="pre">from_file()</span></code></a> method
+of the <a class="reference internal" href="lib/mod_horton_io_iodata.html#horton.io.iodata.IOData" title="horton.io.iodata.IOData"><code class="xref py py-class docutils literal"><span class="pre">IOData</span></code></a> class, e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">mol</span> <span class="o">=</span> <span class="n">IOData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;water.xyz&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The information read from the file is accessible through attributes of the <code class="docutils literal"><span class="pre">mol</span></code> object. For
+example, the following prints the coordinates of the nuclei in Angstrom:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">print</span> <span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span><span class="o">/</span><span class="n">angstrom</span>
+</pre></div>
+</div>
+<p>To write data into a file, first create an instance of the <a class="reference internal" href="lib/mod_horton_io_iodata.html#horton.io.iodata.IOData" title="horton.io.iodata.IOData"><code class="xref py py-class docutils literal"><span class="pre">IOData</span></code></a>
+class, then set the appropriate attributes, and write the content into a file by
+calling the <a class="reference internal" href="lib/mod_horton_io_iodata.html#horton.io.iodata.IOData.to_file" title="horton.io.iodata.IOData.to_file"><code class="xref py py-meth docutils literal"><span class="pre">to_file()</span></code></a> method of the
+<a class="reference internal" href="lib/mod_horton_io_iodata.html#horton.io.iodata.IOData" title="horton.io.iodata.IOData"><code class="xref py py-class docutils literal"><span class="pre">IOData</span></code></a> class. For example, the following snippet creates a <code class="docutils literal"><span class="pre">.xyz</span></code>
+file for a Neon atom:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">mol</span> <span class="o">=</span> <span class="n">IOData</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Neon&#39;</span><span class="p">)</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]])</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">numbers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">10</span><span class="p">])</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;neon.xyz&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For a complete list of supported input/output file formats please refer to
+<a class="reference internal" href="tech_ref_file_formats.html#ref-file-formats"><span class="std std-ref">Data file formats (input and output)</span></a>; this includes a list of <a class="reference internal" href="lib/mod_horton_io_iodata.html#horton.io.iodata.IOData" title="horton.io.iodata.IOData"><code class="xref py py-class docutils literal"><span class="pre">IOData</span></code></a>
+attributes supported by each file format. A definition of all possible
+<a class="reference internal" href="lib/mod_horton_io_iodata.html#horton.io.iodata.IOData" title="horton.io.iodata.IOData"><code class="xref py py-class docutils literal"><span class="pre">IOData</span></code></a> attributes can be found in
+<a class="reference internal" href="lib/mod_horton_io_iodata.html#horton.io.iodata.IOData" title="horton.io.iodata.IOData"><code class="xref py py-class docutils literal"><span class="pre">horton.io.iodata.IOData</span></code></a>.</p>
+</div>
+<div class="section" id="periodic-table">
+<h3>2.2.4. Periodic Table<a class="headerlink" href="#periodic-table" title="Permalink to this headline">¶</a></h3>
+<p>HORTON has a periodic table of elements alongside several atomic properties that may
+come in handy in computations. For more details please refer to <a class="reference internal" href="lib/mod_horton_periodic.html#module-horton.periodic" title="horton.periodic"><code class="xref py py-mod docutils literal"><span class="pre">horton.periodic</span></code></a>.
+The following example prints some information for Carbon atom:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">print</span> <span class="n">periodic</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="o">/</span><span class="n">amu</span>                <span class="c1"># The mass in atomic mass units</span>
+<span class="k">print</span> <span class="n">periodic</span><span class="p">[</span><span class="s1">&#39;C&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">cov_radius</span><span class="o">/</span><span class="n">angstrom</span>   <span class="c1"># The covalent radius in angstrom</span>
+<span class="k">print</span> <span class="n">periodic</span><span class="p">[</span><span class="s1">&#39;c &#39;</span><span class="p">]</span><span class="o">.</span><span class="n">c6</span>                   <span class="c1"># The C6 coefficient in atomic units</span>
+</pre></div>
+</div>
+<p>As demonstrated above, you can be relatively sloppy with the index when referring to elements of the periodic table.</p>
+</div>
+<div class="section" id="a-complete-example">
+<h3>2.2.5. A Complete Example<a class="headerlink" href="#a-complete-example" title="Permalink to this headline">¶</a></h3>
+<p>This first example is kept very simple in order to illustrate the basics of a HORTON
+Python script. (It neither performs an electronic calculation nor does post-processing.) This example
+loads a <code class="docutils literal"><span class="pre">.xyz</span></code> file and computes the molecular mass. Finally, it writes the
+data read from the <code class="docutils literal"><span class="pre">.xyz</span></code> file and the calculated mass into a <code class="docutils literal"><span class="pre">.h5</span></code> file, using HORTON&#8217;s
+internal data format.</p>
+<div class="literal-block-wrapper container" id="data-examples-getting-started-first-py">
+<div class="code-block-caption"><span class="caption-text">data/examples/getting_started/first.py</span><a class="headerlink" href="#data-examples-getting-started-first-py" title="Permalink to this code">¶</a></div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="kn">from</span> <span class="nn">horton</span> <span class="k">import</span> <span class="o">*</span>
+
+<span class="c1"># Load the molecule from an ``.xyz`` file.</span>
+<span class="n">mol</span> <span class="o">=</span> <span class="n">IOData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">get_fn</span><span class="p">(</span><span class="s1">&#39;test/water.xyz&#39;</span><span class="p">))</span>
+
+<span class="c1"># Compute the molecular mass</span>
+<span class="n">mass</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="c1">#   Loop over all atomic numbers</span>
+<span class="k">for</span> <span class="n">number</span> <span class="ow">in</span> <span class="n">mol</span><span class="o">.</span><span class="n">numbers</span><span class="p">:</span>
+    <span class="n">mass</span> <span class="o">+=</span> <span class="n">periodic</span><span class="p">[</span><span class="n">number</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span>
+
+<span class="c1"># Print the mass in the amu unit</span>
+<span class="nb">print</span> <span class="s1">&#39;MOLECULAR MASS [amu]: </span><span class="si">%.5f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">mass</span><span class="o">/</span><span class="n">amu</span><span class="p">)</span>
+
+<span class="c1"># Store the mass in the IOData instance, in order to write it to the file</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="n">mass</span>
+
+<span class="c1"># Write data in the mol object to a file in HORTON&#39;s internal HDF5-based</span>
+<span class="c1"># file format.</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;water.h5&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Note that the <code class="docutils literal"><span class="pre">context.get_fn('test/water.xyz')</span></code> expression is used to look up a data
+file from the HORTON data directory. If you want to use your own file, load the
+molecule as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">mol</span> <span class="o">=</span> <span class="n">IOData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;your_file.xyz&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="user_hamiltonian.html" class="btn btn-neutral float-right" title="3. Hamiltonians" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="user_download_and_install_troubleshooting.html" class="btn btn-neutral" title="1.4. Troubleshooting" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.0 built from release 2.0.0-244-gaaf5e2b. </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 16, 2016.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.0.0-244-gaaf5e2b',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

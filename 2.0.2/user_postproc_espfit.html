@@ -1,0 +1,482 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>5.2. Electrostatic potential fitting &mdash; HORTON 2.0.2 (Jun 30, 2017) documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="HORTON 2.0.2 (Jun 30, 2017) documentation" href="index.html"/>
+        <link rel="up" title="5. Post-processing" href="user_postproc.html"/>
+        <link rel="next" title="5.3. Localization of molecular orbitals" href="user_postproc_localization.html"/>
+        <link rel="prev" title="5.1. Atoms-in-Molecules (AIM) analysis" href="user_postproc_aim.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_postproc.html">5. Post-processing</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="user_postproc_aim.html">5.1. Atoms-in-Molecules (AIM) analysis</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">5.2. Electrostatic potential fitting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">5.2.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#horton-esp-cost-py-set-up-an-esp-cost-function">5.2.2. <code class="docutils literal"><span class="pre">horton-esp-cost.py</span></code> – Set up an ESP cost function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#horton-esp-fit-py-fit-atomic-charges-to-the-esp">5.2.3. <code class="docutils literal"><span class="pre">horton-esp-fit.py</span></code> – Fit atomic charges to the ESP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#horton-esp-test-py-test-the-esp-quality-of-a-given-set-of-charges">5.2.4. <code class="docutils literal"><span class="pre">horton-esp-test.py</span></code> – Test the ESP quality of a given set of charges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#making-nice-cube-files-with-gaussian">5.2.5. Making nice cube files with Gaussian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#making-cube-files-with-cp2k">5.2.6. Making cube files with CP2K</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-interface-to-the-esp-fitting-code">5.2.7. Python interface to the ESP fitting code</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_postproc_localization.html">5.3. Localization of molecular orbitals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_postproc_orbital_entanglement.html">5.4. Orbital entanglement analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">3. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HORTON</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="user_postproc.html">5. Post-processing</a> &raquo;</li>
+        
+      <li>5.2. Electrostatic potential fitting</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/user_postproc_espfit.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="electrostatic-potential-fitting">
+<h1>5.2. Electrostatic potential fitting<a class="headerlink" href="#electrostatic-potential-fitting" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<span id="user-espfit-introduction"></span><h2>5.2.1. Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>The general idea behind the electrostatic potential (ESP) fitting tools in HORTON is to allow:</p>
+<blockquote>
+<div><ul class="simple">
+<li>ESP-fitting: Fitting atomic charges to reproduce the actual molecular ESP, and</li>
+<li>ESP-testing: Assessing how well a given set of charges reproduce the actual molecular ESP</li>
+</ul>
+</div></blockquote>
+<p>in isolated and 3D-periodic systems with compatible
+methodologies. These procedures are broken into small steps, such
+that you can carry out more specialized ESP fittings.</p>
+<p>These two computations, fitting charges and testing the quality of given charges
+to reproduce the ESP, can be carried out once an ESP cost function
+is constructed. In HORTON, this ESP cost function takes the following form:</p>
+<div class="math">
+\[\text{COST}(\{q\}, \Delta V_\text{ref}) = \int_V d\mathbf{r} w(\mathbf{r}) \left(V_\text{ai}(\mathbf{r}) - \sum_A q_A V_\text{point}(\mathbf{r} - \mathbf{R}_A) - \Delta V_\text{ref} \right)^2\]</div>
+<p>where the symbols have the following meaning:</p>
+<ul class="simple">
+<li><span class="math">\(\{q\}\)</span>: the set of the atomic charges</li>
+<li><span class="math">\(V\)</span>: the volume where the point-charge ESP (approximated molecular ESP) is compared to the
+reference ESP (actual molecular ESP). In isolated systems, this is some volume surrounding the molecule.
+In periodic systems, this is the volume of a single primitive cell.</li>
+<li><span class="math">\(w(\mathbf{r})\)</span>: the weight function with range [0, 1] that selects the
+relevant parts of the volume for the ESP fit. In HORTON, the weight function
+of Hu, Lu and Yang is used. <a class="reference internal" href="tech_ref_literature.html#hu2007" id="id1">[hu2007]</a> This weight function is zero far away
+from and inside the atoms. It becomes one in the part of the electron density
+tail where non-bonding contacts are typically found. The weight function
+smoothly varies from 0 to 1. In the Hu-Lu-Yang paper, a pro-density is
+recommended for this purpose while we recommend the use of a proper all-electron
+density or a corrected pseudo-density.</li>
+<li><span class="math">\(V_\text{ai}(\mathbf{r})\)</span>: the actual molecular ESP from <cite>ab initio</cite> or DFT calculations obtained
+from programs, like Gaussian, CP2K, VASP, etc.</li>
+<li><span class="math">\(q_A\)</span>: the charge of atom <span class="math">\(A\)</span>.</li>
+<li><span class="math">\(V_\text{point}(\mathbf{r} - \mathbf{R}_A)\)</span>: the ESP due to a unit point
+charge. In an isolated molecule, this is simply <span class="math">\(1/|\mathbf{r} - \mathbf{R}_A|\)</span>
+(in atomic units). For periodic systems, this part is quite a bit more involved.</li>
+<li><span class="math">\(\Delta V_\text{ref}\)</span>: constant that may account for differences in
+reference between the ab initio ESP and the point charge ESP.
+The need for such a term was established in the REPEAT paper for ESP fitting
+in 3D periodic systems. <a class="reference internal" href="tech_ref_literature.html#campana2009" id="id2">[campana2009]</a></li>
+</ul>
+<p>This approach differs from traditional ESP fitting methods (RESP, MKS, CHELPG)
+in the sense that the cost function is defined as an integral rather than a sum
+over sample points. This idea comes from the Hu-Lu-Yang paper. <a class="reference internal" href="tech_ref_literature.html#hu2007" id="id3">[hu2007]</a>
+The main difference with the REPEAT method <a class="reference internal" href="tech_ref_literature.html#campana2009" id="id4">[campana2009]</a> is that the selected
+volume for the fit is defined by a smooth weight function. When this weight
+function is based on an all-electron density, there is no need to define atomic
+radii as is done usually in ESP fitting.</p>
+<p>The cost function is obviously a quadratic function of the unknown parameters,
+<span class="math">\(X\)</span>, the charges (and <span class="math">\(\Delta V_\text{ref}\)</span> in the case of
+a 3D periodic system), which we can always write as follows:</p>
+<div class="math">
+\[\text{COST}(X) = X^T A X - 2 B^T X - C\]</div>
+<p>The script <code class="docutils literal"><span class="pre">horton-esp-cost.py</span></code> constructs the matrix <span class="math">\(A\)</span>, the vector
+<span class="math">\(B\)</span> and the constant <span class="math">\(C\)</span>. These results are stored in an HDF5 file
+that is subsequently used by the <code class="docutils literal"><span class="pre">horton-esp-fit.py</span></code> script to obtain
+ESP-fitted charges, or by the <code class="docutils literal"><span class="pre">horton-esp-test.py</span></code> script to evaluate the
+cost function for a given set of charges.</p>
+<p>In the output of these three scripts, the following quantities are reported (if
+applicable):</p>
+<ul class="simple">
+<li><span class="math">\(\text{RMSD} = \sqrt{\text{COST}/V_w}\)</span></li>
+<li><span class="math">\(\text{RRMSD} = \sqrt{\text{COST}/C}\)</span> (expressed as a percentage)</li>
+</ul>
+<p>where the cost is computed with a certain set of charges (and the optimal
+<span class="math">\(\Delta V_\text{ref}\)</span> when applicable). The parameter <span class="math">\(V_w\)</span> is the
+integral of the weight function. When these charges are the ESP-fitted charges,
+<span class="math">\(\text{COST}\)</span>, <span class="math">\(\text{RMSD}\)</span> and <span class="math">\(\text{RRMSD}\)</span> are minimal.
+When the charges are all set to zero, you obtain the worst-case value for
+<span class="math">\(\text{COST}=C\)</span>, <span class="math">\(\text{RMSD}=\sqrt{C/V_w}\)</span> and
+<span class="math">\(\text{RRMSD}=100\%\)</span>. (You can still obtain a higher
+<span class="math">\(\text{COST}\)</span>, but only when using completely insensible charges. When that is
+the case, it is better to set the charges equal to zero to model the ESP.)</p>
+</div>
+<div class="section" id="horton-esp-cost-py-set-up-an-esp-cost-function">
+<h2>5.2.2. <code class="docutils literal"><span class="pre">horton-esp-cost.py</span></code> – Set up an ESP cost function<a class="headerlink" href="#horton-esp-cost-py-set-up-an-esp-cost-function" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">horton-esp-cost.py</span></code> script can be used to construct the cost function for
+the ESP fitting or charge testing.</p>
+<p>For an all-electron calculation, it is recommended to use:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>horton-esp-cost.py esp.cube cost.h5 --wdens<span class="o">=</span>rho.cube --pbc<span class="o">={</span><span class="m">000</span><span class="p">|</span><span class="m">111</span><span class="o">}</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal"><span class="pre">esp.cube</span></code> is a Gaussian cube file containing the actual molecular ESP on a grid. The results will
+be written in <code class="docutils literal"><span class="pre">cost.h5</span></code>. The option <code class="docutils literal"><span class="pre">--wdens=rho.cube</span></code> implies that the
+weight function is constructed according to the Hu-Lu-Yang method <a class="reference internal" href="tech_ref_literature.html#hu2007" id="id5">[hu2007]</a> using the given
+density cube file. The option <code class="docutils literal"><span class="pre">--pbc</span></code> can be used to construct a cost
+function for an isolated system (<code class="docutils literal"><span class="pre">000</span></code>) or a 3D periodic system (<code class="docutils literal"><span class="pre">111</span></code>).</p>
+<p>When a pseudo-potential computation is used, the density cube file contains
+regions of low electron density close to the nucleus. These regions may not be
+excluded from the fit with the Hu-Lu-Yang weight function. Therefore, HORTON
+allows you to build the weight function as a product of several factors:
+<span class="math">\(w(\mathbf{r}) = w_1(\mathbf{r})w_2(\mathbf{r})w_3(\mathbf{r})w_4(\mathbf{r}) \ldots\)</span>, where the
+first one is typically the Hu-Lu-Yang weight function and additional weight
+functions can be included for every pseudo-core,</p>
+<p>For a pseudo-potential calculation, it is recommended to use:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>horton-esp-cost.py esp.cube cost.h5 --wdens<span class="o">=</span>rho.cube --pbc<span class="o">={</span><span class="m">000</span><span class="p">|</span><span class="m">111</span><span class="o">}</span> <span class="se">\</span>
+                   --wnear Z1:r1:gamma1 <span class="o">[</span>Z2:r2:gamma2 ...<span class="o">]</span>
+</pre></div>
+</div>
+<p>where the new option, <code class="docutils literal"><span class="pre">--wnear</span></code>, takes at least one
+argument. This argument must be presented for every element in the system for
+which a pseudo potential is used. The parameter <code class="docutils literal"><span class="pre">Z1</span></code> is the atomic number of atom 1. The
+parameter <code class="docutils literal"><span class="pre">r1</span></code> is the radius of the core region that you would like to
+exclude for atom 1. The parameter <code class="docutils literal"><span class="pre">gamma1</span></code> determines how quickly the weight factor for
+elements <code class="docutils literal"><span class="pre">Z1</span></code> switches from 0 (inside a sphere with radius <code class="docutils literal"><span class="pre">r1</span></code>) to 1
+(outside a sphere with radius <code class="docutils literal"><span class="pre">r1</span></code>). Both <code class="docutils literal"><span class="pre">r1</span></code> and <code class="docutils literal"><span class="pre">gamma1</span></code> must be given
+in angstrom.</p>
+<p>The <code class="docutils literal"><span class="pre">horton-esp-cost.py</span></code> script has several more options. As discussed in the
+<a class="reference internal" href="user_getting_started.html#using-horton-as-a-script"><span class="std std-ref">Running HORTON as horton-*.py scripts</span></a> section, the commands below describe
+the arguments that each script take:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>horton-esp-cost.py --help
+horton-esp-fit.py  --help
+horton-esp-test.py --help
+horton-cubehead.py --help
+</pre></div>
+</div>
+</div>
+<div class="section" id="horton-esp-fit-py-fit-atomic-charges-to-the-esp">
+<h2>5.2.3. <code class="docutils literal"><span class="pre">horton-esp-fit.py</span></code> – Fit atomic charges to the ESP<a class="headerlink" href="#horton-esp-fit-py-fit-atomic-charges-to-the-esp" title="Permalink to this headline">¶</a></h2>
+<p>Once a cost function is constructed, it can be used to estimate the atomic charges by
+minimizing the cost function. A bare-bones fit can be carried out as follows:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>horton-esp-fit.py cost.h5 charges.h5
+</pre></div>
+</div>
+<p>where the file <code class="docutils literal"><span class="pre">cost.h5</span></code> is the file generated by the
+<code class="docutils literal"><span class="pre">horton-esp-cost.py</span></code> script.</p>
+<p>Useful ESP-fitted charges typically involve a more advanced minimizations of
+the ESP cost function, for example, by adding constraints, restraints,
+transforming to bond-charge increments, fitting to several different molecules
+concurrently, etc. Such advanced features are not supported in
+<code class="docutils literal"><span class="pre">horton-esp-fit.py</span></code> script, but you can implement these in customized scripts
+that use the the ESP cost functions obtained from the <code class="docutils literal"><span class="pre">horton-esp-cost.py</span></code> script.</p>
+</div>
+<div class="section" id="horton-esp-test-py-test-the-esp-quality-of-a-given-set-of-charges">
+<h2>5.2.4. <code class="docutils literal"><span class="pre">horton-esp-test.py</span></code> – Test the ESP quality of a given set of charges<a class="headerlink" href="#horton-esp-test-py-test-the-esp-quality-of-a-given-set-of-charges" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">horton-esp-test.py</span></code> script can be used to test the quality of a given set of
+charges to reproduce the ESP. These charges are typically obtained
+with <code class="docutils literal"><span class="pre">horton-wpart.py</span></code> or <code class="docutils literal"><span class="pre">horton-cpart.py</span></code>. This script can be used as follows:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>horton-esp-test.py cost.h5 wpart.h5:hi/charges wpart_espcost.h5:hi
+</pre></div>
+</div>
+<p>The first file, <code class="docutils literal"><span class="pre">cost.h5</span></code>, contains the cost function and is generated with the
+<code class="docutils literal"><span class="pre">horton-esp-cost.py</span></code> script. The second file, <code class="docutils literal"><span class="pre">wpart.h5</span></code>, contains the given atomic chanrges
+and, for example, is generated with <code class="docutils literal"><span class="pre">horton-wpart.py</span> <span class="pre">gaussian.fchk</span> <span class="pre">wpart.h5:hi</span> <span class="pre">hi</span> <span class="pre">atoms.h5</span></code>. The last file,
+<code class="docutils literal"><span class="pre">wpart_espcost.h5</span></code>, will contain the assessment results in the HDF5 group <code class="docutils literal"><span class="pre">hi</span></code>.</p>
+</div>
+<div class="section" id="making-nice-cube-files-with-gaussian">
+<h2>5.2.5. Making nice cube files with Gaussian<a class="headerlink" href="#making-nice-cube-files-with-gaussian" title="Permalink to this headline">¶</a></h2>
+<p>HORTON contains an auxiliary tool, <code class="docutils literal"><span class="pre">horton-cubehead.py</span></code>, to prepare an input
+header for a cube file aligned with the molecule of interest. This is more
+efficient than the default settings of cubegen, which makes a significant difference in
+disk space when working with molecular databases. For occasional use,
+<code class="docutils literal"><span class="pre">horton-cubehead.py</span></code> is probably an overkill. The script is used as follows:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>horton-cubehead.py structure.xyz cubehead.txt
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">cubehead.txt</span></code> file will contain something along the following lines:</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>  0   16.5695742234   -2.4411573645  -11.3378429796
+-61   -0.0000100512    0.0000288090    0.3779452256
+ 61   -0.2210334948    0.3065726468   -0.0000292468
+ 65   -0.3065726480   -0.2210334949    0.0000086952
+</pre></div>
+</div>
+<p>This file can be used for the cubegen utility as follows:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>cubegen <span class="m">0</span> <span class="nv">fdensity</span><span class="o">=</span>scf somefile.fchk rho.cube -1 &lt; cubehead.txt
+cubegen <span class="m">0</span> <span class="nv">potential</span><span class="o">=</span>scf somefile.fchk esp.cube -1 &lt; cubehead.txt
+</pre></div>
+</div>
+<p>where <code class="docutils literal"><span class="pre">scf</span></code> must be replaced by the type of wavefunction to be analyzed. Read
+the <a class="reference external" href="http://www.gaussian.com/g_tech/g_ur/u_cubegen.htm">cubegen manual</a> for
+more details.</p>
+</div>
+<div class="section" id="making-cube-files-with-cp2k">
+<h2>5.2.6. Making cube files with CP2K<a class="headerlink" href="#making-cube-files-with-cp2k" title="Permalink to this headline">¶</a></h2>
+<p>CP2K can generate cube files for periodic systems. You have to use the input sections <a class="reference external" href="http://manual.cp2k.org/trunk/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/E_DENSITY_CUBE.html">E_DENSITY_CUBE</a> and <a class="reference external" href="http://manual.cp2k.org/trunk/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/V_HARTREE_CUBE.html">V_HARTREE_CUBE</a> for density and ESP cube files, respectively. (The name <code class="docutils literal"><span class="pre">V_HARTREE_CUBE</span></code> is misleading. CP2K will print out the potential due to the electrons <cite>and</cite> the nuclei felt by a point charge with charge <span class="math">\(-e\)</span>.)</p>
+</div>
+<div class="section" id="python-interface-to-the-esp-fitting-code">
+<h2>5.2.7. Python interface to the ESP fitting code<a class="headerlink" href="#python-interface-to-the-esp-fitting-code" title="Permalink to this headline">¶</a></h2>
+<p>You can use the ESP cost function constructed by <code class="docutils literal"><span class="pre">horton-esp-cost.py</span></code> script to
+implement customized charge fitting protocols, e.g. using bond-charge
+increments, constraints or hyperbolic restraints. At the beginning of such
+a customized script, the cost function can be loaded as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">cost</span> <span class="o">=</span> <span class="n">load_h5</span><span class="p">(</span><span class="s2">&quot;cost.h5&quot;</span><span class="p">)[</span><span class="s1">&#39;cost&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">cost</span></code> object is an instance of the
+<a class="reference internal" href="lib/mod_horton_espfit_cost.html#horton.espfit.cost.ESPCost" title="horton.espfit.cost.ESPCost"><code class="xref py py-class docutils literal"><span class="pre">ESPCost</span></code></a> class. This
+instance can, for example, be used to evaluate the ESP cost or its gradient for a
+given array of atomic charges:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">print</span> <span class="n">cost</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">charges</span><span class="p">)</span>
+<span class="k">print</span> <span class="n">cost</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">charges</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If desired, you can also directly access <span class="math">\(A\)</span>, <span class="math">\(B\)</span>, <span class="math">\(C\)</span> that
+define the quadratic cost functions:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">print</span> <span class="n">cost</span><span class="o">.</span><span class="n">_A</span>
+<span class="k">print</span> <span class="n">cost</span><span class="o">.</span><span class="n">_B</span>
+<span class="k">print</span> <span class="n">cost</span><span class="o">.</span><span class="n">_C</span>
+</pre></div>
+</div>
+<p>For more information, please refer to <a class="reference internal" href="#user-espfit-introduction"><span class="std std-ref">Introduction</span></a>.</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="user_postproc_localization.html" class="btn btn-neutral float-right" title="5.3. Localization of molecular orbitals" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="user_postproc_aim.html" class="btn btn-neutral" title="5.1. Atoms-in-Molecules (AIM) analysis" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.2 built from release 2.0.2 (Jun 30, 2017). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 30, 2017.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.0.2 (Jun 30, 2017)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

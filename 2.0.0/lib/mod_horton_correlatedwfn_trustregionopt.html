@@ -1,0 +1,388 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.2.5. horton.correlatedwfn.trustregionopt – Optimization of Newton step &mdash; HORTON 2.0.0-244-gaaf5e2b documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="HORTON 2.0.0-244-gaaf5e2b documentation" href="../index.html"/>
+        <link rel="up" title="3.2. horton.correlatedwfn – Methods for correlated wavefunctions" href="pck_horton_correlatedwfn.html"/>
+        <link rel="next" title="3.3. horton.espfit – Electrostatic potential fitting" href="pck_horton_espfit.html"/>
+        <link rel="prev" title="3.2.4. horton.correlatedwfn.stepsearch – Step search methods for orbital rotations" href="mod_horton_correlatedwfn_stepsearch.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> &#8211; The main HORTON Package</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_correlatedwfn.html">3.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn</span></code> &#8211; Methods for correlated wavefunctions</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_correlatedwfn_geminal.html">3.2.1. <code class="docutils literal"><span class="pre">horton.correlatedwfn.geminal</span></code> &#8211; Correlated wavefunction implementations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_correlatedwfn_perturbation.html">3.2.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn.perturbation</span></code> &#8211; Perturbation theory module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_correlatedwfn_restricted_ap1rog.html">3.2.3. <code class="docutils literal"><span class="pre">horton.correlatedwfn.restricted_ap1rog</span></code> &#8211; Correlated wavefunction implementations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_correlatedwfn_stepsearch.html">3.2.4. <code class="docutils literal"><span class="pre">horton.correlatedwfn.stepsearch</span></code> &#8211; Step search methods for orbital rotations</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.2.5. <code class="docutils literal"><span class="pre">horton.correlatedwfn.trustregionopt</span></code> &#8211; Optimization of Newton step</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.3. <code class="docutils literal"><span class="pre">horton.espfit</span></code> &#8211; Electrostatic potential fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_gbasis.html">3.4. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> &#8211; Gaussian basis sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.5. <code class="docutils literal"><span class="pre">horton.grid</span></code> &#8211; Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.6. <code class="docutils literal"><span class="pre">horton.io</span></code> &#8211; Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_localization.html">3.7. <code class="docutils literal"><span class="pre">horton.localization</span></code> &#8211; Methods for orbital localization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.8. <code class="docutils literal"><span class="pre">horton.matrix</span></code> &#8211; One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.9. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> &#8211; Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.10. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> &#8211; Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_orbital_entanglement.html">3.11. <code class="docutils literal"><span class="pre">horton.orbital_entanglement</span></code> &#8211; Methods for measuring orbital entanglement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.12. <code class="docutils literal"><span class="pre">horton.part</span></code> &#8211; Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.13. <code class="docutils literal"><span class="pre">horton.scripts</span></code> &#8211; Code (solely) used by HORTON&#8217;s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">HORTON</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+      
+          <li><a href="pck_horton_correlatedwfn.html">3.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn</span></code> &#8211; Methods for correlated wavefunctions</a> &raquo;</li>
+      
+    <li>3.2.5. <code class="docutils literal"><span class="pre">horton.correlatedwfn.trustregionopt</span></code> &#8211; Optimization of Newton step</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/lib/mod_horton_correlatedwfn_trustregionopt.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-horton.correlatedwfn.trustregionopt">
+<span id="horton-correlatedwfn-trustregionopt-optimization-of-newton-step"></span><h1>3.2.5. <code class="docutils literal"><span class="pre">horton.correlatedwfn.trustregionopt</span></code> &#8211; Optimization of Newton step<a class="headerlink" href="#module-horton.correlatedwfn.trustregionopt" title="Permalink to this headline">¶</a></h1>
+<p>Module contains different trust radius optimization algorithms</p>
+<dl class="class">
+<dt id="horton.correlatedwfn.trustregionopt.Dogleg">
+<em class="property">class </em><code class="descclassname">horton.correlatedwfn.trustregionopt.</code><code class="descname">Dogleg</code><span class="sig-paren">(</span><em>pn</em>, <em>g</em>, <em>H</em>, <em>radius</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.trustregionopt.Dogleg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Powell’s single dogleg steps approximate the trust region step over
+the two dimensional subspace spanned by the Cauchy step and any Newton
+step. Depending on the size of current step length, the step is
+adjusted yielding one of the following steps:</p>
+<blockquote>
+<div><ul class="simple">
+<li>if p(newton) &lt; radius:   Do full Newton step (not calculated here)</li>
+<li>elif p(cauchy) &gt; radius: Do Cauchy step</li>
+<li>else:                    Do dogleg step</li>
+</ul>
+</div></blockquote>
+<p>** Arguements **</p>
+<dl class="docutils">
+<dt>pn</dt>
+<dd>The full Newton step</dd>
+<dt>g</dt>
+<dd>The gradient, a OneIndex instance</dd>
+<dt>H</dt>
+<dd>The Hessian, a OneIndex instance</dd>
+<dt>radius</dt>
+<dd>The current trustradius</dd>
+</dl>
+<p>** Returns **</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">step:</th><td class="field-body">final step, a OneIndex instance</td>
+</tr>
+<tr class="field-even field"><th class="field-name">stepNorm:</th><td class="field-body">Euclidian norm of the step</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.correlatedwfn.trustregionopt.DoubleDogleg">
+<em class="property">class </em><code class="descclassname">horton.correlatedwfn.trustregionopt.</code><code class="descname">DoubleDogleg</code><span class="sig-paren">(</span><em>pn</em>, <em>g</em>, <em>H</em>, <em>radius</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.trustregionopt.DoubleDogleg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Double dogleg steps approximate the trust region step</p>
+<blockquote>
+<div><ul class="simple">
+<li>if ||p(g)|| &gt;= radius:      Do step in g direction</li>
+<li>elif c*||p(n)|| &gt;= radius:  Do ddl step</li>
+<li>elif ||p(n)|| &gt;= radius:    Do scaled Newton step</li>
+<li>else:                       Do Newton step</li>
+</ul>
+</div></blockquote>
+<p>** Arguements **</p>
+<dl class="docutils">
+<dt>pn</dt>
+<dd>The full Newton step</dd>
+<dt>g</dt>
+<dd>The gradient, a OneIndex instance</dd>
+<dt>H</dt>
+<dd>The Hessian, a OneIndex instance</dd>
+<dt>radius</dt>
+<dd>The current trustradius</dd>
+</dl>
+<p>** Returns **</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">step:</th><td class="field-body">final step, a OneIndex instance</td>
+</tr>
+<tr class="field-even field"><th class="field-name">stepNorm:</th><td class="field-body">Euclidian norm of the step</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</dd></dl>
+
+<dl class="class">
+<dt id="horton.correlatedwfn.trustregionopt.TruncatedCG">
+<em class="property">class </em><code class="descclassname">horton.correlatedwfn.trustregionopt.</code><code class="descname">TruncatedCG</code><span class="sig-paren">(</span><em>lf</em>, <em>g</em>, <em>H</em>, <em>radius</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.trustregionopt.TruncatedCG" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve the quadratic trust-region subproblem</p>
+<blockquote>
+<div>minimize    &lt; g, s &gt; + 1/2 &lt; s, Hs &gt;
+subject to  &lt; s, s &gt;  &lt;=  radius</div></blockquote>
+<p>by means of the truncated conjugate gradient algorithm as described in
+Trond Steihaug, SIAM Journal on Numerical Analysis (1983), 20, 626-637.</p>
+<p>The algorithm stops as soon as the preconditioned norm of the gradient
+falls under</p>
+<blockquote>
+<div>max( abstol, reltol * g0 )</div></blockquote>
+<p>where g0 is the preconditioned norm of the initial gradient (or the
+Euclidian norm if no preconditioner is given), or as soon as the
+iterates cross the boundary of the trust region.</p>
+<p>** Arguements **</p>
+<dl class="docutils">
+<dt>lf</dt>
+<dd>A linalg factory instance</dd>
+<dt>g</dt>
+<dd>The gradient, a OneIndex instance</dd>
+<dt>H</dt>
+<dd>The Hessian, a OneIndex instance</dd>
+</dl>
+<p>** Returns **</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">step:</th><td class="field-body">final step</td>
+</tr>
+<tr class="field-even field"><th class="field-name">niter:</th><td class="field-body">number of iterations</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">stepNorm:</th><td class="field-body">Euclidian norm of the step</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<dl class="method">
+<dt id="horton.correlatedwfn.trustregionopt.TruncatedCG.to_boundary">
+<code class="descname">to_boundary</code><span class="sig-paren">(</span><em>s</em>, <em>p</em>, <em>radius</em>, <em>ss=None</em><span class="sig-paren">)</span><a class="headerlink" href="#horton.correlatedwfn.trustregionopt.TruncatedCG.to_boundary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given vectors <cite>s</cite> and <cite>p</cite> and a trust-region radius <cite>radius</cite> &gt; 0,
+return the positive scalar <cite>sigma</cite> such that</p>
+<blockquote>
+<div>|| s + sigma * p || = radius</div></blockquote>
+<p>in Euclidian norm. If known, supply optional argument <cite>ss</cite> whose value
+should be the squared Euclidian norm of <cite>s</cite>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pck_horton_espfit.html" class="btn btn-neutral float-right" title="3.3. horton.espfit – Electrostatic potential fitting" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_correlatedwfn_stepsearch.html" class="btn btn-neutral" title="3.2.4. horton.correlatedwfn.stepsearch – Step search methods for orbital rotations" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.0 built from release 2.0.0-244-gaaf5e2b. </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 16, 2016.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.0.0-244-gaaf5e2b',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

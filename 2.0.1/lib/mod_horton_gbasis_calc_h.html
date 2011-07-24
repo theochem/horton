@@ -1,0 +1,339 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3.4.5. horton/gbasis/calc.h – Base class for any integral/evaluation of Gaussian functions &mdash; HORTON 2.0.1 (Jun 17, 2016) documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="HORTON 2.0.1 (Jun 17, 2016) documentation" href="../index.html"/>
+        <link rel="up" title="3.4. horton.gbasis – Gaussian basis sets" href="pck_horton_gbasis.html"/>
+        <link rel="next" title="3.4.6. horton/gbasis/cartpure.h – Conversion of Cartesian to Pure Gaussian functions" href="mod_horton_gbasis_cartpure_h.html"/>
+        <link rel="prev" title="3.4.4. horton/gbasis/boys.h – The Boys function" href="mod_horton_gbasis_boys_h.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/horton.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro_horton_overview.html">1. HORTON Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_citing_horton.html">2. Citing HORTON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_license_information.html">3. License Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro_contact_information.html">4. Contact Information</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_download_and_install.html">1. Download and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_getting_started.html">2. Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_hamiltonian.html">3. Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_estruct.html">4. Electronic Structure Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_postproc.html">5. Post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_other.html">6. Other Topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical stuff</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tech_dev.html">1. Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tech_ref.html">2. Reference Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">3. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pck_horton.html">3.1. <code class="docutils literal"><span class="pre">horton</span></code> &#8211; The main HORTON Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_correlatedwfn.html">3.2. <code class="docutils literal"><span class="pre">horton.correlatedwfn</span></code> &#8211; Methods for correlated wavefunctions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_espfit.html">3.3. <code class="docutils literal"><span class="pre">horton.espfit</span></code> &#8211; Electrostatic potential fitting</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pck_horton_gbasis.html">3.4. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> &#8211; Gaussian basis sets</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_cext.html">3.4.1. <code class="docutils literal"><span class="pre">horton.gbasis.cext</span></code> &#8211; C++ extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_gobasis.html">3.4.2. <code class="docutils literal"><span class="pre">horton.gbasis.gobasis</span></code> &#8211; Gaussian orbital basis set module.</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_iobas.html">3.4.3. <code class="docutils literal"><span class="pre">horton.gbasis.iobas</span></code> &#8211; Input/Output routines for gaussian basis sets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_boys_h.html">3.4.4. <code class="docutils literal"><span class="pre">horton/gbasis/boys.h</span></code> &#8211; The Boys function</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">3.4.5. <code class="docutils literal"><span class="pre">horton/gbasis/calc.h</span></code> &#8211; Base class for any integral/evaluation of Gaussian functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_cartpure_h.html">3.4.6. <code class="docutils literal"><span class="pre">horton/gbasis/cartpure.h</span></code> &#8211; Conversion of Cartesian to Pure Gaussian functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_cholesky_h.html">3.4.7. <code class="docutils literal"><span class="pre">horton/gbasis/cholesky.h</span></code> &#8211; Cholesky decomposition of (any) four-center integrals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_common_h.html">3.4.8. <code class="docutils literal"><span class="pre">horton/gbasis/common.h</span></code> &#8211; Auxiliary functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_fns_h.html">3.4.9. <code class="docutils literal"><span class="pre">horton/gbasis/fns.h</span></code> &#8211; Evaluation of functions expanded in a Gaussian basis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_gbasis_h.html">3.4.10. <code class="docutils literal"><span class="pre">horton/gbasis/gbasis.h</span></code> &#8211; Gaussian basis set classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_gbw_h.html">3.4.11. <code class="docutils literal"><span class="pre">horton/gbasis/gbw.h</span></code> &#8211; A four-center integral wrapper for the Cholesky code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_ints_h.html">3.4.12. <code class="docutils literal"><span class="pre">horton/gbasis/ints.h</span></code> &#8211; Evaluation of integrals of Gaussian basis functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_iter_gb_h.html">3.4.13. <code class="docutils literal"><span class="pre">horton/gbasis/iter_gb.h</span></code> &#8211; Iterators over Gaussian basis functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mod_horton_gbasis_iter_pow_h.html">3.4.14. <code class="docutils literal"><span class="pre">horton/gbasis/iter_pow.h</span></code> &#8211; Iterators over Cartesian polynomials in one shell</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_grid.html">3.5. <code class="docutils literal"><span class="pre">horton.grid</span></code> &#8211; Numerical integration grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_io.html">3.6. <code class="docutils literal"><span class="pre">horton.io</span></code> &#8211; Input and output routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_localization.html">3.7. <code class="docutils literal"><span class="pre">horton.localization</span></code> &#8211; Methods for orbital localization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_matrix.html">3.8. <code class="docutils literal"><span class="pre">horton.matrix</span></code> &#8211; One-, two-, three- and four-dimensional matrix implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_meanfield.html">3.9. <code class="docutils literal"><span class="pre">horton.meanfield</span></code> &#8211; Mean-field electronic structure code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_modelhamiltonians.html">3.10. <code class="docutils literal"><span class="pre">horton.modelhamiltonians</span></code> &#8211; Model Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_orbital_entanglement.html">3.11. <code class="docutils literal"><span class="pre">horton.orbital_entanglement</span></code> &#8211; Methods for measuring orbital entanglement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_part.html">3.12. <code class="docutils literal"><span class="pre">horton.part</span></code> &#8211; Density-based partitioning (fuzzy atoms-in-molecules) package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pck_horton_scripts.html">3.13. <code class="docutils literal"><span class="pre">horton.scripts</span></code> &#8211; Code (solely) used by HORTON&#8217;s command line scripts</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">HORTON</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../tech_api.html">3. API Documentation</a> &raquo;</li>
+      
+          <li><a href="pck_horton_gbasis.html">3.4. <code class="docutils literal"><span class="pre">horton.gbasis</span></code> &#8211; Gaussian basis sets</a> &raquo;</li>
+      
+    <li>3.4.5. <code class="docutils literal"><span class="pre">horton/gbasis/calc.h</span></code> &#8211; Base class for any integral/evaluation of Gaussian functions</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/lib/mod_horton_gbasis_calc_h.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="horton-gbasis-calc-h-base-class-for-any-integral-evaluation-of-gaussian-functions">
+<h1>3.4.5. <code class="docutils literal"><span class="pre">horton/gbasis/calc.h</span></code> &#8211; Base class for any integral/evaluation of Gaussian functions<a class="headerlink" href="#horton-gbasis-calc-h-base-class-for-any-integral-evaluation-of-gaussian-functions" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="_CPPv212GBCalculator">
+<span id="GBCalculator"></span><span class="target" id="hortonclassGBCalculator"></span><em class="property">class </em><code class="descname">GBCalculator</code><a class="headerlink" href="#_CPPv212GBCalculator" title="Permalink to this definition">¶</a></dt>
+<dd><div class="breathe-sectiondef container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N12GBCalculator12GBCalculatorEl">
+<span id="GBCalculator::GBCalculator__l"></span><span class="target" id="hortonclassGBCalculator_1a0e4756889cd796e9f4aa558d900d503f"></span><code class="descname">GBCalculator</code><span class="sig-paren">(</span>long <em>max_shell_type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N12GBCalculator12GBCalculatorEl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N12GBCalculatorD0Ev">
+<span id="GBCalculator::~GBCalculator"></span>virtual <span class="target" id="hortonclassGBCalculator_1adb854fd8106dad4bca43503ab353d972"></span><code class="descname">~GBCalculator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N12GBCalculatorD0Ev" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N12GBCalculator9get_nworkEv">
+<span id="GBCalculator::get_nwork"></span><span class="target" id="hortonclassGBCalculator_1a8e07f4b818e8cd7e8b046742777848cd"></span><em class="property">const</em> long <code class="descname">get_nwork</code><span class="sig-paren">(</span><span class="sig-paren">)</span> const<a class="headerlink" href="#_CPPv2N12GBCalculator9get_nworkEv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N12GBCalculator18get_max_shell_typeEv">
+<span id="GBCalculator::get_max_shell_type"></span><span class="target" id="hortonclassGBCalculator_1a1b88b8060f6f63a28e90bf044c2f75fc"></span><em class="property">const</em> long <code class="descname">get_max_shell_type</code><span class="sig-paren">(</span><span class="sig-paren">)</span> const<a class="headerlink" href="#_CPPv2N12GBCalculator18get_max_shell_typeEv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N12GBCalculator14get_max_nbasisEv">
+<span id="GBCalculator::get_max_nbasis"></span><span class="target" id="hortonclassGBCalculator_1a642365d494db4c85e087a12659c5f033"></span><em class="property">const</em> long <code class="descname">get_max_nbasis</code><span class="sig-paren">(</span><span class="sig-paren">)</span> const<a class="headerlink" href="#_CPPv2N12GBCalculator14get_max_nbasisEv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N12GBCalculator8get_workEv">
+<span id="GBCalculator::get_work"></span><span class="target" id="hortonclassGBCalculator_1aad707d6f4542d469ea5543a8a30adbee"></span><em class="property">const</em> double *<code class="descname">get_work</code><span class="sig-paren">(</span><span class="sig-paren">)</span> const<a class="headerlink" href="#_CPPv2N12GBCalculator8get_workEv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef container">
+<p class="breathe-sectiondef-title rubric">Protected Functions</p>
+<dl class="function">
+<dt id="_CPPv2N12GBCalculator9swap_workEv">
+<span id="GBCalculator::swap_work"></span><span class="target" id="hortonclassGBCalculator_1a97b8ad4c523ecfd35f54d8ea0be92a25"></span>void <code class="descname">swap_work</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N12GBCalculator9swap_workEv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N12GBCalculator5nworkE">
+<span id="GBCalculator::nwork__l"></span><span class="target" id="hortonclassGBCalculator_1a3267d91a5e2ee7f67c15bb27d973f851"></span>long <code class="descname">nwork</code><a class="headerlink" href="#_CPPv2N12GBCalculator5nworkE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N12GBCalculator14max_shell_typeE">
+<span id="GBCalculator::max_shell_type__l"></span><span class="target" id="hortonclassGBCalculator_1a8bcc4d11ec94200f8b36d42297b43f0b"></span>long <code class="descname">max_shell_type</code><a class="headerlink" href="#_CPPv2N12GBCalculator14max_shell_typeE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N12GBCalculator10max_nbasisE">
+<span id="GBCalculator::max_nbasis__l"></span><span class="target" id="hortonclassGBCalculator_1a379ca97de0b0b96e674218f1e4150ceb"></span>long <code class="descname">max_nbasis</code><a class="headerlink" href="#_CPPv2N12GBCalculator10max_nbasisE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N12GBCalculator9work_pureE">
+<span id="GBCalculator::work_pure__doubleP"></span><span class="target" id="hortonclassGBCalculator_1a92706e2b11a0c8d8a84935830791d8ef"></span>double *<code class="descname">work_pure</code><a class="headerlink" href="#_CPPv2N12GBCalculator9work_pureE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N12GBCalculator9work_cartE">
+<span id="GBCalculator::work_cart__doubleP"></span><span class="target" id="hortonclassGBCalculator_1a2fd7109680e9226b70e35c68ce6210ad"></span>double *<code class="descname">work_cart</code><a class="headerlink" href="#_CPPv2N12GBCalculator9work_cartE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mod_horton_gbasis_cartpure_h.html" class="btn btn-neutral float-right" title="3.4.6. horton/gbasis/cartpure.h – Conversion of Cartesian to Pure Gaussian functions" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mod_horton_gbasis_boys_h.html" class="btn btn-neutral" title="3.4.4. horton/gbasis/boys.h – The Boys function" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>Documentation for HORTON 2.0.1 built from release 2.0.1 (Jun 17, 2016). </div>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2015, The HORTON Development Team.
+      Last updated on Jun 17, 2016.
+    </p>
+  </div>
+
+  <div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  </div>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.0.1 (Jun 17, 2016)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
