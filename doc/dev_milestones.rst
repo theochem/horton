@@ -102,6 +102,7 @@ Response of the wavefunction to perturbations. This has several applications:
 3. Softness matrix.
 4. ...
 
+
 Polymers, membranes and crystals
 ================================
 
@@ -110,6 +111,7 @@ Polymers, membranes and crystals
 
 Pseudopotentials
 ================
+
 
 Quantum dots
 ============
@@ -121,3 +123,9 @@ Cut the crap
 ============
 
 Decent partitioning schemes.
+
+
+QM/MM interface
+===============
+
+An onion-like scheme, with long-range polarization.
