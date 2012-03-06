@@ -26,12 +26,14 @@ from horton import *
 
 
 def test_load_water_number():
-    system = System.from_file('data/test/water_number.xyz')
+    fn = context.get_fn('test/water_number.xyz')
+    system = System.from_file(fn)
     check_water(system)
 
 
 def test_load_water_element():
-    system = System.from_file('data/test/water_element.xyz')
+    fn = context.get_fn('test/water_element.xyz')
+    system = System.from_file(fn)
     check_water(system)
 
 
