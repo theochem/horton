@@ -32,9 +32,10 @@
 import numpy as np
 from horton.units import angstrom
 from horton.periodic import periodic
+from horton.matrix import Dense2, Dense4
 
 
-__all__ = ['load_geom', 'load_geom_xyz']
+__all__ = ['load_geom', 'load_geom_xyz', 'load_operators_g09']
 
 
 def load_geom_xyz(filename):
@@ -83,3 +84,102 @@ def load_geom(filename):
     '''
     ext = filename[filename.rfind('.'):]
     return _load_geom_map[ext](filename)
+
+
+def load_operators_g09(fn):
+    """Loads several one- and two-body operators from a Gaussian log file.
+
+       **Arugment:**
+
+       fn
+            The filename of the Gaussian log file.
+
+       The following one-body operators are loaded if present: overlap, kinetic,
+       nuclear attraction. The following two-body operator is loaded if present:
+       electrostatic repulsion. In order to make all these matrices are present
+       in the Gaussian log file, the following commands must be used in the
+       Gaussian input file:
+
+            scf(conventional) iop(3/33=5) extralinks=l316 iop(3/27=999)
+    """
+
+
+    with open(fn) as f:
+        # First get the line with the number of basis functions
+        for line in f:
+            if line.startswith('    NBasis ='):
+                size = int(line[12:18])
+                break
+
+        # Then load the one- and two-body operators. This part is written such
+        # that it does not make any assumptions about the order in which these
+        # operators are printed.
+        overlap = None
+        kinetic = None
+        nuclear_attraction = None
+        electron_repulsion = None
+
+        for line in f:
+            if line == ' *** Overlap ***\n':
+                overlap = _load_onebody_g09(f, size)
+            elif line == ' *** Kinetic Energy ***\n':
+                kinetic = _load_onebody_g09(f, size)
+            elif line == ' ***** Potential Energy *****\n':
+                nuclear_attraction = _load_onebody_g09(f, size)
+            elif line == ' *** Dumping Two-Electron integrals ***\n':
+                electron_repulsion = _load_twobody_g09(f, size)
+
+        return overlap, kinetic, nuclear_attraction, electron_repulsion
+
+
+def _load_onebody_g09(f, size):
+    """Load a one-body operator from a Gaussian log file
+
+       **Arguments:**
+
+       f
+            A file object for the Gaussian log file in read mode.
+    """
+    result = Dense2(size)
+    block_counter = 0
+    while block_counter < size:
+        # skip the header line
+        f.next()
+        # determine the number of rows in this part
+        nrow = size - block_counter
+        for i in xrange(nrow):
+            words = f.next().split()[1:]
+            for j in xrange(len(words)):
+                value = float(words[j].replace('D', 'E'))
+                result.set_element(i+block_counter, j+block_counter, value)
+        block_counter += 5
+    return result
+
+
+def _load_twobody_g09(f, size):
+    """Load a two-body operator from a Gaussian log file
+
+       **Arguments:**
+
+       f
+            A file object for the Gaussian log file in read mode.
+    """
+    result = Dense4(size)
+    # Skip first six lines
+    for i in xrange(6):
+        f.next()
+    # Start reading elements until a line is encountered that does not start
+    # with ' I='
+    while True:
+        line = f.next()
+        if not line.startswith(' I='):
+            break
+        i = int(line[3:7])-1
+        j = int(line[9:13])-1
+        k = int(line[15:19])-1
+        l = int(line[21:25])-1
+        value = float(line[28:].replace('D', 'E'))
+        # Gaussian uses the chemists notation for the 4-center indexes. Horton
+        # uses the physicists notation.
+        result.set_element(i, k, j, l, value)
+    return result
