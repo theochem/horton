@@ -48,7 +48,7 @@ def test_load_operators_g09():
     assert abs(nuclear_attraction.get_element(2,6) - 2.76941) < eps
     assert abs(nuclear_attraction.get_element(0,3) - 0.0) < eps
 
-    assert abs(electron_repulsion.get_element(0,0,0,0) - 1.19626643801) < eps
-    assert abs(electron_repulsion.get_element(6,6,6,6) - 0.193651486048) < eps
-    assert abs(electron_repulsion.get_element(6,5,0,5) - 0.0246787442970) < eps
-    assert abs(electron_repulsion.get_element(5,4,0,1) - (-0.0159089522951)) < eps
+    assert abs(electron_repulsion.get_element(0,0,0,0) - 4.78506575204) < eps
+    assert abs(electron_repulsion.get_element(6,6,6,6) - 0.774605944194) < eps
+    assert abs(electron_repulsion.get_element(6,5,0,5) - 0.0289424337101) < eps
+    assert abs(electron_repulsion.get_element(5,4,0,1) - 0.00274145291476) < eps
