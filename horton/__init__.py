@@ -27,3 +27,4 @@ from horton.matrix import *
 from horton.periodic import *
 from horton.system import *
 from horton.units import *
+from horton.wfn import *

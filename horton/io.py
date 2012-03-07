@@ -174,11 +174,12 @@ def _load_twobody_g09(f, size):
         line = f.next()
         if not line.startswith(' I='):
             break
+        #print line[3:7], line[9:13], line[15:19], line[21:25], line[28:].replace('D', 'E')
         i = int(line[3:7])-1
         j = int(line[9:13])-1
         k = int(line[15:19])-1
         l = int(line[21:25])-1
-        value = float(line[28:].replace('D', 'E'))
+        value = float(line[29:].replace('D', 'E'))
         # Gaussian uses the chemists notation for the 4-center indexes. Horton
         # uses the physicists notation.
         result.set_element(i, k, j, l, value)

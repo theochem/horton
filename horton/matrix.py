@@ -37,10 +37,44 @@
    One should use these matrix implementations without accessing the internals
    of each class, i.e. without accessing attributes or methodsthat start with an
    underscore.
+
+   In order to avoid temporaries when working with these arrays, all operations
+   are defined as in-place operations. This forces the user to allocate all
+   memory in advance, which can then be moved out of the inner loops.
 """
 
 
 import numpy as np
+
+
+__all__ = ['DenseExpansion', 'Dense2', 'Dense4', 'error_eigen', 'diagonalize']
+
+
+
+class DenseExpansion(object):
+    """An expansion of several functions in a basis with a dense matrix of
+       coefficients.
+    """
+    def __init__(self, nfn, nbasis):
+        self._coeffs = np.zeros((nbasis, nfn), float)
+
+    def get_nbasis(self):
+        return self._coeffs.shape[1]
+
+    nbasis = property(get_nbasis)
+
+    def get_density_matrix(self, noc):
+        """Get the density matrix
+
+           **Arguments:**
+
+           noc
+                The number of 'occupied' functions
+        """
+        result = Dense2(self.nbasis)
+        occupied = self._coeffs[:,:noc]
+        result._array[:] = np.dot(occupied, occupied.T)
+        return result
 
 
 class Dense2(object):
@@ -50,7 +84,7 @@ class Dense2(object):
        computer time. Due to its simplicity, it is trivial to implement. This
        implementation mainly serves as a reference for testing purposes.
     """
-    def __init__(self, size):
+    def __init__(self, size=None):
         """
            **Arguments:**
 
@@ -74,6 +108,15 @@ class Dense2(object):
     def check_symmetry(self):
         """Check the symmetry of the array."""
         assert abs(self._array - self._array.T).max() == 0.0
+
+    def reset(self):
+        self._array[:] = 0.0
+
+    def iadd(self, other, factor=1):
+        self._array += other._array*factor
+
+    def expectation_value(self, dm):
+        return np.dot(self._array.ravel(), dm._array.ravel())
 
 
 class Dense4(object):
@@ -121,3 +164,32 @@ class Dense4(object):
         assert abs(self._array - self._array.transpose(3,0,1,2)).max() == 0.0
         assert abs(self._array - self._array.transpose(0,3,2,1)).max() == 0.0
         assert abs(self._array - self._array.transpose(1,2,3,0)).max() == 0.0
+
+    def apply_direct(self, dm, output):
+        """Compute the direct dot product with a density matrix."""
+        if not isinstance(dm, Dense2):
+            raise TypeError('The dm argument must be a Dense2 class')
+        if not isinstance(output, Dense2):
+            raise TypeError('The output argument must be a Dense2 class')
+        output._array[:] = np.tensordot(self._array, dm._array, ([1,3], [0,1]))
+
+    def apply_exchange(self, dm, output):
+        """Compute the exchange dot product with a density matrix."""
+        if not isinstance(dm, Dense2):
+            raise TypeError('The dm argument must be a Dense2 class')
+        if not isinstance(output, Dense2):
+            raise TypeError('The output argument must be a Dense2 class')
+        output._array[:] = np.tensordot(self._array, dm._array, ([1,2], [0,1]))
+
+
+def error_eigen(ham, overlap, wfn):
+    errors = np.dot(ham._array, wfn._expansion._coeffs) \
+             - wfn._epsilons*np.dot(overlap._array, wfn._expansion._coeffs)
+    return np.sqrt((errors**2).mean())
+
+
+def diagonalize(ham, overlap, wfn):
+    from scipy.linalg import eigh
+    evals, evecs = eigh(ham._array, overlap._array)
+    wfn._expansion._coeffs[:] = evecs
+    wfn._epsilons[:] = evals
