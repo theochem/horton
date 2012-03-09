@@ -87,26 +87,12 @@ class ClosedShellWFN(object):
 
     expansion = property(get_expansion)
 
-    def get_density_matrix(self):
-        return self._expansion.get_density_matrix(self.nep)
-
-    def apply_two_body(self, two_body, direct, exchange):
-        """Compute the direct and exchange one-body operators
+    def compute_density_matrix(self, dm):
+        """Compute the density matrix
 
            **Arguments:**
 
-           two_body
-                The two_body operators, e.g. an instance of the DenseTwoBody
-                class
-
-           direct, exchange
-                The two output arguments, which must be DenseOneBody instances.
-
-           Returns the one-body operator for the direct and the exchange
-           contribution to the derivative of the expectation value of the
-           two-body operator.
+           dm
+                An output density matrix. This must be a DenseOneBody instance.
         """
-        dm = self.get_density_matrix()
-        two_body.apply_direct(dm, direct)
-        two_body.apply_exchange(dm, exchange)
-        return direct, exchange
+        self._expansion.compute_density_matrix(self.nep, dm)

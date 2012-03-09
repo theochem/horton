@@ -35,12 +35,16 @@
    symmetries.
 
    One should use these matrix implementations without accessing the internals
-   of each class, i.e. without accessing attributes or methodsthat start with an
-   underscore.
+   of each class, i.e. without accessing attributes or methods that start with
+   an underscore.
 
-   In order to avoid temporaries when working with these arrays, all operations
-   are defined as in-place operations. This forces the user to allocate all
-   memory in advance, which can then be moved out of the inner loops.
+   In order to avoid temporaries when working with arrays, the methods do
+   not return arrays. Instead such methods are an in place operation or have
+   output arguments. This forces the user to allocate all memory in advance,
+   which can then be moved out of the loops. The initial implementation (the
+   Dense... classes) are just a proof of concept and may therefore contain
+   internals that still make temporaries. This fixed later with an alternative
+   implementation.
 """
 
 
@@ -166,18 +170,20 @@ class DenseExpansion(object):
 
     energies = property(get_energies)
 
-    def get_density_matrix(self, noc):
-        """Get the density matrix
+    def compute_density_matrix(self, noc, dm):
+        """Compute the density matrix
 
            **Arguments:**
 
            noc
                 The number of 'occupied' functions
+
+           dm
+                An output density matrix. This must be a DenseOneBody instance.
         """
         result = DenseOneBody(self.nbasis)
         occupied = self._coeffs[:,:noc]
-        result._array[:] = np.dot(occupied, occupied.T)
-        return result
+        dm._array[:] = np.dot(occupied, occupied.T)
 
 
 class DenseOneBody(object):
