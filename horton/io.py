@@ -32,7 +32,6 @@
 import numpy as np
 from horton.units import angstrom
 from horton.periodic import periodic
-from horton.matrix import DenseOneBody, DenseTwoBody
 
 
 __all__ = ['load_geom', 'load_geom_xyz', 'load_operators_g09']
@@ -86,13 +85,16 @@ def load_geom(filename):
     return _load_geom_map[ext](filename)
 
 
-def load_operators_g09(fn):
+def load_operators_g09(fn, lf):
     """Loads several one- and two-body operators from a Gaussian log file.
 
        **Arugment:**
 
        fn
             The filename of the Gaussian log file.
+
+       lf
+            A LinalgFactory instance.
 
        The following one-body operators are loaded if present: overlap, kinetic,
        nuclear attraction. The following two-body operator is loaded if present:
@@ -108,7 +110,7 @@ def load_operators_g09(fn):
         # First get the line with the number of basis functions
         for line in f:
             if line.startswith('    NBasis ='):
-                size = int(line[12:18])
+                nbasis = int(line[12:18])
                 break
 
         # Then load the one- and two-body operators. This part is written such
@@ -121,32 +123,38 @@ def load_operators_g09(fn):
 
         for line in f:
             if line == ' *** Overlap ***\n':
-                overlap = _load_onebody_g09(f, size)
+                overlap = _load_onebody_g09(f, nbasis, lf)
             elif line == ' *** Kinetic Energy ***\n':
-                kinetic = _load_onebody_g09(f, size)
+                kinetic = _load_onebody_g09(f, nbasis, lf)
             elif line == ' ***** Potential Energy *****\n':
-                nuclear_attraction = _load_onebody_g09(f, size)
+                nuclear_attraction = _load_onebody_g09(f, nbasis, lf)
             elif line == ' *** Dumping Two-Electron integrals ***\n':
-                electron_repulsion = _load_twobody_g09(f, size)
+                electron_repulsion = _load_twobody_g09(f, nbasis, lf)
 
         return overlap, kinetic, nuclear_attraction, electron_repulsion
 
 
-def _load_onebody_g09(f, size):
+def _load_onebody_g09(f, nbasis, lf):
     """Load a one-body operator from a Gaussian log file
 
        **Arguments:**
 
        f
             A file object for the Gaussian log file in read mode.
+
+       nbasis
+            The number of basis functions.
+
+       lf
+            A LinalgFactory instance.
     """
-    result = DenseOneBody(size)
+    result = lf.create_one_body(nbasis)
     block_counter = 0
-    while block_counter < size:
+    while block_counter < nbasis:
         # skip the header line
         f.next()
         # determine the number of rows in this part
-        nrow = size - block_counter
+        nrow = nbasis - block_counter
         for i in xrange(nrow):
             words = f.next().split()[1:]
             for j in xrange(len(words)):
@@ -156,15 +164,21 @@ def _load_onebody_g09(f, size):
     return result
 
 
-def _load_twobody_g09(f, size):
+def _load_twobody_g09(f, nbasis, lf):
     """Load a two-body operator from a Gaussian log file
 
        **Arguments:**
 
        f
             A file object for the Gaussian log file in read mode.
+
+       nbasis
+            The number of basis functions.
+
+       lf
+            A LinalgFactory instance.
     """
-    result = DenseTwoBody(size)
+    result = lf.create_two_body(nbasis)
     # Skip first six lines
     for i in xrange(6):
         f.next()
