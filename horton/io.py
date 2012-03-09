@@ -32,7 +32,7 @@
 import numpy as np
 from horton.units import angstrom
 from horton.periodic import periodic
-from horton.matrix import Dense2, Dense4
+from horton.matrix import DenseOneBody, DenseTwoBody
 
 
 __all__ = ['load_geom', 'load_geom_xyz', 'load_operators_g09']
@@ -140,7 +140,7 @@ def _load_onebody_g09(f, size):
        f
             A file object for the Gaussian log file in read mode.
     """
-    result = Dense2(size)
+    result = DenseOneBody(size)
     block_counter = 0
     while block_counter < size:
         # skip the header line
@@ -164,7 +164,7 @@ def _load_twobody_g09(f, size):
        f
             A file object for the Gaussian log file in read mode.
     """
-    result = Dense4(size)
+    result = DenseTwoBody(size)
     # Skip first six lines
     for i in xrange(6):
         f.next()

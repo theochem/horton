@@ -47,7 +47,10 @@
 import numpy as np
 
 
-__all__ = ['DenseExpansion', 'Dense2', 'Dense4', 'error_eigen', 'diagonalize']
+__all__ = [
+    'DenseExpansion', 'DenseOneBody', 'DenseTwoBody',
+    'error_eigen', 'diagonalize'
+]
 
 
 
@@ -71,13 +74,13 @@ class DenseExpansion(object):
            noc
                 The number of 'occupied' functions
         """
-        result = Dense2(self.nbasis)
+        result = DenseOneBody(self.nbasis)
         occupied = self._coeffs[:,:noc]
         result._array[:] = np.dot(occupied, occupied.T)
         return result
 
 
-class Dense2(object):
+class DenseOneBody(object):
     """Dense symmetric two-dimensional matrix.
 
        This is the most inefficient implementation in terms of memory usage and
@@ -119,7 +122,7 @@ class Dense2(object):
         return np.dot(self._array.ravel(), dm._array.ravel())
 
 
-class Dense4(object):
+class DenseTwoBody(object):
     """Dense symmetric four-dimensional matrix.
 
        This is the most inefficient implementation in terms of memory usage and
@@ -167,18 +170,18 @@ class Dense4(object):
 
     def apply_direct(self, dm, output):
         """Compute the direct dot product with a density matrix."""
-        if not isinstance(dm, Dense2):
-            raise TypeError('The dm argument must be a Dense2 class')
-        if not isinstance(output, Dense2):
-            raise TypeError('The output argument must be a Dense2 class')
+        if not isinstance(dm, DenseOneBody):
+            raise TypeError('The dm argument must be a DenseOneBody class')
+        if not isinstance(output, DenseOneBody):
+            raise TypeError('The output argument must be a DenseOneBody class')
         output._array[:] = np.tensordot(self._array, dm._array, ([1,3], [0,1]))
 
     def apply_exchange(self, dm, output):
         """Compute the exchange dot product with a density matrix."""
-        if not isinstance(dm, Dense2):
-            raise TypeError('The dm argument must be a Dense2 class')
-        if not isinstance(output, Dense2):
-            raise TypeError('The output argument must be a Dense2 class')
+        if not isinstance(dm, DenseOneBody):
+            raise TypeError('The dm argument must be a DenseOneBody class')
+        if not isinstance(output, DenseOneBody):
+            raise TypeError('The output argument must be a DenseOneBody class')
         output._array[:] = np.tensordot(self._array, dm._array, ([1,2], [0,1]))
 
 
