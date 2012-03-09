@@ -57,9 +57,12 @@ def test_fock_matrix_eigen():
     lf, overlap, kinetic, nuclear_attraction, electron_repulsion, wfn = get_water_sto3g_hf()
     nbasis = overlap.nbasis
 
+    dm = lf.create_one_body(7)
     coulomb = lf.create_one_body(nbasis)
     exchange = lf.create_one_body(nbasis)
-    wfn.apply_two_body(electron_repulsion, coulomb, exchange)
+    wfn.compute_density_matrix(dm)
+    electron_repulsion.apply_direct(dm, coulomb)
+    electron_repulsion.apply_exchange(dm, exchange)
 
     # Construct the Fock operator
     fock = lf.create_one_body(nbasis)
@@ -83,14 +86,14 @@ def test_fock_matrix_eigen():
 
 def test_kinetic_energy_water_sto3g():
     lf, overlap, kinetic, nuclear_attraction, electron_repulsion, wfn = get_water_sto3g_hf()
-    dm = wfn.get_density_matrix()
+    dm = lf.create_one_body(7)
+    wfn.compute_density_matrix(dm)
     ekin = 2*kinetic.expectation_value(dm)
     assert abs(ekin - 74.60736832935) < 1e-4
 
 
 def test_ortho_water_sto3g():
     lf, overlap, kinetic, nuclear_attraction, electron_repulsion, wfn = get_water_sto3g_hf()
-    dm = wfn.get_density_matrix()
     for i0 in xrange(7):
         orb0 = wfn.expansion.coeffs[:,i0]
         for i1 in xrange(i0+1):
@@ -101,18 +104,22 @@ def test_ortho_water_sto3g():
 
 def test_potential_energy_water_sto3g_hf():
     lf, overlap, kinetic, nuclear_attraction, electron_repulsion, wfn = get_water_sto3g_hf()
-    dm = wfn.get_density_matrix()
+    dm = lf.create_one_body(7)
+    wfn.compute_density_matrix(dm)
     epot = -2*nuclear_attraction.expectation_value(dm)
     assert abs(epot - (-197.1170963957)) < 2e-3
 
 
 def test_electron_electron_water_sto3g_hf():
     lf, overlap, kinetic, nuclear_attraction, electron_repulsion, wfn = get_water_sto3g_hf()
-    dm = wfn.get_density_matrix()
+    dm = lf.create_one_body(7)
     coulomb = lf.create_one_body(7)
     exchange = lf.create_one_body(7)
-    wfn.apply_two_body(electron_repulsion, coulomb, exchange)
-    eee = 2*coulomb.expectation_value(dm) - exchange.expectation_value(dm)
+    wfn.compute_density_matrix(dm)
+    electron_repulsion.apply_direct(dm, coulomb)
+    electron_repulsion.apply_exchange(dm, exchange)
+    eee = 2*coulomb.expectation_value(dm) \
+          - exchange.expectation_value(dm)
     assert abs(eee - 38.29686853319) < 1e-4
 
 
@@ -133,11 +140,14 @@ def test_hartree_fock_water():
     coulomb = lf.create_one_body(nbasis)
     exchange = lf.create_one_body(nbasis)
     fock = lf.create_one_body(nbasis)
+    dm = lf.create_one_body(nbasis)
     for i in xrange(1000):
         # Construct the Fock operator
         fock.reset()
         fock.iadd(hamcore, 1)
-        wfn.apply_two_body(electron_repulsion, coulomb, exchange)
+        wfn.compute_density_matrix(dm)
+        electron_repulsion.apply_direct(dm, coulomb)
+        electron_repulsion.apply_exchange(dm, exchange)
         fock.iadd(coulomb, 2)
         fock.iadd(exchange, -1)
         # Check for convergence
@@ -150,8 +160,6 @@ def test_hartree_fock_water():
     assert abs(wfn.expansion.energies - wfn0.expansion.energies).max() < 1e-4
 
     # Check the hartree-fock energy
-    dm = wfn.get_density_matrix()
-    wfn.apply_two_body(electron_repulsion, coulomb, exchange)
     hf1 = sum([
         -2*coulomb.expectation_value(dm),
         +1*exchange.expectation_value(dm),
