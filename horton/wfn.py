@@ -90,10 +90,11 @@ class ClosedShellWFN(object):
            **Arguments:**
 
            two_body
-                The two_body operators, e.g. an instance of the Dense4 class
+                The two_body operators, e.g. an instance of the DenseTwoBody
+                class
 
            direct, exchange
-                The two output arguments, which must be Dense2 instances.
+                The two output arguments, which must be DenseOneBody instances.
 
            Returns the one-body operator for the direct and the exchange
            contribution to the derivative of the expectation value of the

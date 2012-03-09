@@ -32,15 +32,15 @@ def test_hartree_fock_water():
     wfn = ClosedShellWFN(nep=5, nbasis=nbasis)
 
     # Construct the hamiltonian core guess
-    hamcore = Dense2(nbasis)
+    hamcore = DenseOneBody(nbasis)
     hamcore.iadd(kinetic, 1)
     hamcore.iadd(nuclear_attraction, -1)
     diagonalize(hamcore, overlap, wfn)
 
     # The SCF loop
-    coulomb = Dense2(nbasis)
-    exchange = Dense2(nbasis)
-    fock = Dense2(nbasis)
+    coulomb = DenseOneBody(nbasis)
+    exchange = DenseOneBody(nbasis)
+    fock = DenseOneBody(nbasis)
     for i in xrange(1000):
         # Construct the Fock operator
         fock.reset()
@@ -112,12 +112,12 @@ def test_fock_matrix_eigen():
     overlap, kinetic, nuclear_attraction, electron_repulsion = load_operators_g09(fn)
     nbasis = overlap.size
 
-    coulomb = Dense2(nbasis)
-    exchange = Dense2(nbasis)
+    coulomb = DenseOneBody(nbasis)
+    exchange = DenseOneBody(nbasis)
     wfn.apply_two_body(electron_repulsion, coulomb, exchange)
 
     # Construct the Fock operator
-    fock = Dense2(nbasis)
+    fock = DenseOneBody(nbasis)
     fock.iadd(kinetic, 1)
     fock.iadd(nuclear_attraction, -1)
     fock.iadd(coulomb, 2)
@@ -171,8 +171,8 @@ def test_electron_electron_water_sto3g_hf():
     dm = wfn.get_density_matrix()
     fn = context.get_fn('test/water_sto3g_hf_g03.log')
     overlap, kinetic, nuclear_attraction, electron_repulsion = load_operators_g09(fn)
-    coulomb = Dense2(7)
-    exchange = Dense2(7)
+    coulomb = DenseOneBody(7)
+    exchange = DenseOneBody(7)
     wfn.apply_two_body(electron_repulsion, coulomb, exchange)
     eee = 2*coulomb.expectation_value(dm) - exchange.expectation_value(dm)
     assert abs(eee - 38.29686853319) < 1e-4
