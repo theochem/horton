@@ -29,16 +29,17 @@
 
 import numpy as np
 
-from horton.matrix import DenseExpansion
-
 
 class ClosedShellWFN(object):
-    def __init__(self, nep, basis=None, nbasis=None):
+    def __init__(self, nep, lf, basis=None, nbasis=None):
         """
            **Arguments:**
 
            nep
                 The number of electron pairs in the wave function.
+
+           lf
+                A LinalgFactor instance
 
            **Optional arguments:**
 
@@ -51,6 +52,7 @@ class ClosedShellWFN(object):
            Either basis or nbasis must be given.
         """
         self._nep = nep
+        self._lf = lf
         self._basis = basis
         self._nbasis = nbasis
 
@@ -60,8 +62,7 @@ class ClosedShellWFN(object):
             raise ValueError('The number of spatial basis functions must not be lower than the number of electron pairs.')
 
         norb = self.nbasis
-        self._expansion = DenseExpansion(norb, self.nbasis)
-        self._epsilons = np.zeros(norb, float)
+        self._expansion = lf.create_expansion(self.nbasis, norb, do_energies=True)
 
     def get_nep(self):
         return self._nep
@@ -80,6 +81,11 @@ class ClosedShellWFN(object):
             return self._nbasis
 
     nbasis = property(get_nbasis)
+
+    def get_expansion(self):
+        return self._expansion
+
+    expansion = property(get_expansion)
 
     def get_density_matrix(self):
         return self._expansion.get_density_matrix(self.nep)

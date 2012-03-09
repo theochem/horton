@@ -23,63 +23,11 @@
 from horton import *
 
 
-def test_hartree_fock_water():
+def get_water_sto3g_hf(lf=None):
+    if lf is None:
+        lf = DenseLinalgFactory()
     fn = context.get_fn('test/water_sto3g_hf_g03.log')
-    overlap, kinetic, nuclear_attraction, electron_repulsion = load_operators_g09(fn)
-    nbasis = overlap.size
-
-    # Construct a wavefunction
-    wfn = ClosedShellWFN(nep=5, nbasis=nbasis)
-
-    # Construct the hamiltonian core guess
-    hamcore = DenseOneBody(nbasis)
-    hamcore.iadd(kinetic, 1)
-    hamcore.iadd(nuclear_attraction, -1)
-    diagonalize(hamcore, overlap, wfn)
-
-    # The SCF loop
-    coulomb = DenseOneBody(nbasis)
-    exchange = DenseOneBody(nbasis)
-    fock = DenseOneBody(nbasis)
-    for i in xrange(1000):
-        # Construct the Fock operator
-        fock.reset()
-        fock.iadd(hamcore, 1)
-        wfn.apply_two_body(electron_repulsion, coulomb, exchange)
-        fock.iadd(coulomb, 2)
-        fock.iadd(exchange, -1)
-        # Check for convergence
-        error = error_eigen(fock, overlap, wfn)
-        if error < 1e-10:
-            break
-        # Diagonalize the fock operator
-        diagonalize(fock, overlap, wfn)
-
-    check_epsilons = np.array([
-        -2.02333942E+01, -1.26583942E+00, -6.29365088E-01, -4.41724988E-01,
-        -3.87671783E-01, 6.03082408E-01, 7.66134805E-01
-    ])
-    assert abs(wfn._epsilons - check_epsilons).max() < 1e-4
-
-    # Check the hartree-fock energy
-    dm = wfn.get_density_matrix()
-    wfn.apply_two_body(electron_repulsion, coulomb, exchange)
-    hf1 = sum([
-        -2*coulomb.expectation_value(dm),
-        +1*exchange.expectation_value(dm),
-    ]) + wfn._epsilons[:wfn.nep].sum()*2
-    hf2 = sum([
-        2*kinetic.expectation_value(dm),
-        -2*nuclear_attraction.expectation_value(dm),
-        +2*coulomb.expectation_value(dm),
-        -exchange.expectation_value(dm),
-    ])
-    enn = 9.2535672047 # nucleus-nucleus interaction
-    assert abs(hf1 + enn - (-74.9592923284)) < 1e-4
-    assert abs(hf2 + enn - (-74.9592923284)) < 1e-4
-
-
-def get_water_sto3g_hf_wfn():
+    overlap, kinetic, nuclear_attraction, electron_repulsion = load_operators_g09(fn, lf)
     coeffs = np.array([
         9.94099882E-01, 2.67799213E-02, 3.46630004E-03, -1.54676269E-15,
         2.45105601E-03, -6.08393842E-03, -6.08393693E-03, -2.32889095E-01,
@@ -99,80 +47,121 @@ def get_water_sto3g_hf_wfn():
         -2.02333942E+01, -1.26583942E+00, -6.29365088E-01, -4.41724988E-01,
         -3.87671783E-01, 6.03082408E-01, 7.66134805E-01
     ])
-    wfn = ClosedShellWFN(nep=5, nbasis=7)
-    wfn._expansion._coeffs[:] = coeffs
-    wfn._epsilons[:] = epsilons
-    return wfn
+    wfn = ClosedShellWFN(nep=5, lf=lf, nbasis=7)
+    wfn.expansion.coeffs[:] = coeffs
+    wfn.expansion.energies[:] = epsilons
+    return lf, overlap, kinetic, nuclear_attraction, electron_repulsion, wfn
 
 
 def test_fock_matrix_eigen():
-    wfn = get_water_sto3g_hf_wfn()
-    dm = wfn.get_density_matrix()
-    fn = context.get_fn('test/water_sto3g_hf_g03.log')
-    overlap, kinetic, nuclear_attraction, electron_repulsion = load_operators_g09(fn)
-    nbasis = overlap.size
+    lf, overlap, kinetic, nuclear_attraction, electron_repulsion, wfn = get_water_sto3g_hf()
+    nbasis = overlap.nbasis
 
-    coulomb = DenseOneBody(nbasis)
-    exchange = DenseOneBody(nbasis)
+    coulomb = lf.create_one_body(nbasis)
+    exchange = lf.create_one_body(nbasis)
     wfn.apply_two_body(electron_repulsion, coulomb, exchange)
 
     # Construct the Fock operator
-    fock = DenseOneBody(nbasis)
+    fock = lf.create_one_body(nbasis)
     fock.iadd(kinetic, 1)
     fock.iadd(nuclear_attraction, -1)
     fock.iadd(coulomb, 2)
     fock.iadd(exchange, -1)
 
     # Check for convergence
-    error = error_eigen(fock, overlap, wfn)
+    expansion = wfn.expansion
+    error = lf.error_eigen(fock, overlap, expansion)
     assert error > 0
     assert error < 1e-4
 
     # Check self-consistency of the orbital energies
-    old_epsilons = wfn._epsilons.copy()
-    diagonalize(fock, overlap, wfn)
-    assert abs(wfn._epsilons - old_epsilons).max() < 1e-4
+    old_energies = expansion.energies.copy()
+    lf.diagonalize(fock, overlap, expansion)
+    assert abs(expansion.energies - old_energies).max() < 1e-4
 
 
 
 def test_kinetic_energy_water_sto3g():
-    wfn = get_water_sto3g_hf_wfn()
+    lf, overlap, kinetic, nuclear_attraction, electron_repulsion, wfn = get_water_sto3g_hf()
     dm = wfn.get_density_matrix()
-    fn = context.get_fn('test/water_sto3g_hf_g03.log')
-    overlap, kinetic, nuclear_attraction, electron_repulsion = load_operators_g09(fn)
     ekin = 2*kinetic.expectation_value(dm)
     assert abs(ekin - 74.60736832935) < 1e-4
 
 
 def test_ortho_water_sto3g():
-    wfn = get_water_sto3g_hf_wfn()
+    lf, overlap, kinetic, nuclear_attraction, electron_repulsion, wfn = get_water_sto3g_hf()
     dm = wfn.get_density_matrix()
-    fn = context.get_fn('test/water_sto3g_hf_g03.log')
-    overlap, kinetic, nuclear_attraction, electron_repulsion = load_operators_g09(fn)
     for i0 in xrange(7):
-        orb0 = wfn._expansion._coeffs[:,i0]
+        orb0 = wfn.expansion.coeffs[:,i0]
         for i1 in xrange(i0+1):
-            orb1 = wfn._expansion._coeffs[:,i1]
-            check = np.dot(orb0, np.dot(overlap._array, orb1))
+            orb1 = wfn.expansion.coeffs[:,i1]
+            check = overlap.dot(orb0, orb1)
             assert abs(check - (i0==i1)) < 1e-4
 
 
 def test_potential_energy_water_sto3g_hf():
-    wfn = get_water_sto3g_hf_wfn()
+    lf, overlap, kinetic, nuclear_attraction, electron_repulsion, wfn = get_water_sto3g_hf()
     dm = wfn.get_density_matrix()
-    fn = context.get_fn('test/water_sto3g_hf_g03.log')
-    overlap, kinetic, nuclear_attraction, electron_repulsion = load_operators_g09(fn)
     epot = -2*nuclear_attraction.expectation_value(dm)
     assert abs(epot - (-197.1170963957)) < 2e-3
 
 
 def test_electron_electron_water_sto3g_hf():
-    wfn = get_water_sto3g_hf_wfn()
+    lf, overlap, kinetic, nuclear_attraction, electron_repulsion, wfn = get_water_sto3g_hf()
     dm = wfn.get_density_matrix()
-    fn = context.get_fn('test/water_sto3g_hf_g03.log')
-    overlap, kinetic, nuclear_attraction, electron_repulsion = load_operators_g09(fn)
-    coulomb = DenseOneBody(7)
-    exchange = DenseOneBody(7)
+    coulomb = lf.create_one_body(7)
+    exchange = lf.create_one_body(7)
     wfn.apply_two_body(electron_repulsion, coulomb, exchange)
     eee = 2*coulomb.expectation_value(dm) - exchange.expectation_value(dm)
     assert abs(eee - 38.29686853319) < 1e-4
+
+
+def test_hartree_fock_water():
+    lf, overlap, kinetic, nuclear_attraction, electron_repulsion, wfn0 = get_water_sto3g_hf()
+    nbasis = overlap.nbasis
+
+    # Construct a wavefunction
+    wfn = ClosedShellWFN(nep=5, lf=lf, nbasis=nbasis)
+
+    # Construct the hamiltonian core guess
+    hamcore = lf.create_one_body(nbasis)
+    hamcore.iadd(kinetic, 1)
+    hamcore.iadd(nuclear_attraction, -1)
+    lf.diagonalize(hamcore, overlap, wfn.expansion)
+
+    # The SCF loop
+    coulomb = lf.create_one_body(nbasis)
+    exchange = lf.create_one_body(nbasis)
+    fock = lf.create_one_body(nbasis)
+    for i in xrange(1000):
+        # Construct the Fock operator
+        fock.reset()
+        fock.iadd(hamcore, 1)
+        wfn.apply_two_body(electron_repulsion, coulomb, exchange)
+        fock.iadd(coulomb, 2)
+        fock.iadd(exchange, -1)
+        # Check for convergence
+        error = lf.error_eigen(fock, overlap, wfn.expansion)
+        if error < 1e-10:
+            break
+        # Diagonalize the fock operator
+        lf.diagonalize(fock, overlap, wfn.expansion)
+
+    assert abs(wfn.expansion.energies - wfn0.expansion.energies).max() < 1e-4
+
+    # Check the hartree-fock energy
+    dm = wfn.get_density_matrix()
+    wfn.apply_two_body(electron_repulsion, coulomb, exchange)
+    hf1 = sum([
+        -2*coulomb.expectation_value(dm),
+        +1*exchange.expectation_value(dm),
+    ]) + wfn.expansion.energies[:wfn.nep].sum()*2
+    hf2 = sum([
+        2*kinetic.expectation_value(dm),
+        -2*nuclear_attraction.expectation_value(dm),
+        +2*coulomb.expectation_value(dm),
+        -exchange.expectation_value(dm),
+    ])
+    enn = 9.2535672047 # nucleus-nucleus interaction
+    assert abs(hf1 + enn - (-74.9592923284)) < 1e-4
+    assert abs(hf2 + enn - (-74.9592923284)) < 1e-4

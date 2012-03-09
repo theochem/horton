@@ -48,23 +48,123 @@ import numpy as np
 
 
 __all__ = [
-    'DenseExpansion', 'DenseOneBody', 'DenseTwoBody',
-    'error_eigen', 'diagonalize'
+    'LinalgFactory', 'DenseLinalgFactory', 'DenseExpansion', 'DenseOneBody',
+    'DenseTwoBody',
 ]
 
+
+class LinalgFactory(object):
+    """A collection of compatible matrix and linear algebra routines.
+
+       This is just an abstract base class that serves as a template for
+       specific implementations.
+    """
+    def create_expansion(self, nbasis):
+        raise NotImplementedError
+
+    def create_one_body(self, nbasis):
+        raise NotImplementedError
+
+    def create_two_body(self, nbasis):
+        raise NotImplementedError
+
+    def error_eigen(self, ham, overlap, expansion, epsilons):
+        raise NotImplementedError
+
+    def diagonalize(self, ham, overlap, expansion, epsilons):
+        raise NotImplementedError
+
+
+class DenseLinalgFactory(LinalgFactory):
+    def create_expansion(self, nbasis, nfn, do_energies=False):
+        return DenseExpansion(nbasis, nfn, do_energies)
+
+    def create_one_body(self, nbasis):
+        return DenseOneBody(nbasis)
+
+    def create_two_body(self, nbasis):
+        return DenseTwoBody(nbasis)
+
+    def error_eigen(self, ham, overlap, expansion):
+        """Compute the error of the orbitals with respect to the eigenproblem
+
+           **Arguments:**
+
+           ham
+                A DenseOneBody Hamiltonian (or Fock) operator.
+
+           overlap
+                A DenseOneBody overlap operator.
+
+           expansion
+                An expansion object containing the current orbitals/eginvectors.
+
+           epsilons
+                An array with the orbital energies.
+        """
+        errors = np.dot(ham._array, expansion.coeffs) \
+                 - expansion.energies*np.dot(overlap._array, expansion.coeffs)
+        return np.sqrt((errors**2).mean())
+
+
+    def diagonalize(self, ham, overlap, expansion):
+        """Generalized eigen solver for the given Hamiltonian and overlap.
+
+           **Arguments:**
+
+           ham
+                A DenseOneBody Hamiltonian (or Fock) operator.
+
+           overlap
+                A DenseOneBody overlap operator.
+
+        """
+        from scipy.linalg import eigh
+        evals, evecs = eigh(ham._array, overlap._array)
+        expansion.coeffs[:] = evecs
+        expansion.energies[:] = evals
 
 
 class DenseExpansion(object):
     """An expansion of several functions in a basis with a dense matrix of
        coefficients.
     """
-    def __init__(self, nfn, nbasis):
+    def __init__(self, nbasis, nfn, do_energies=False):
+        """
+           **Arguments:**
+
+           nbasis
+                The number of basis functions
+
+           nfn
+                The number of functions to store
+
+           **Optional arguments:**
+
+           do_energies
+                Also allocate an array to store an energy corresponding to each
+                function.
+        """
         self._coeffs = np.zeros((nbasis, nfn), float)
+        if do_energies:
+            self._energies = np.zeros(nfn, float)
+        else:
+            self._energies = None
 
     def get_nbasis(self):
         return self._coeffs.shape[1]
 
     nbasis = property(get_nbasis)
+
+    def get_coeffs(self):
+        return self._coeffs.view()
+
+    coeffs = property(get_coeffs)
+
+    def get_energies(self):
+        return self._energies.view()
+
+    energies = property(get_energies)
 
     def get_density_matrix(self, noc):
         """Get the density matrix
@@ -87,19 +187,19 @@ class DenseOneBody(object):
        computer time. Due to its simplicity, it is trivial to implement. This
        implementation mainly serves as a reference for testing purposes.
     """
-    def __init__(self, size=None):
+    def __init__(self, nbasis=None):
         """
            **Arguments:**
 
-           size
+           nbasis
                 The number of basis functions.
         """
-        self._array = np.zeros((size, size), float)
+        self._array = np.zeros((nbasis, nbasis), float)
 
-    def get_size(self):
+    def get_nbasis(self):
         return self._array.shape[0]
 
-    size = property(get_size)
+    nbasis = property(get_nbasis)
 
     def set_element(self, i, j, value):
         self._array[i,j] = value
@@ -121,6 +221,9 @@ class DenseOneBody(object):
     def expectation_value(self, dm):
         return np.dot(self._array.ravel(), dm._array.ravel())
 
+    def dot(self, vec0, vec1):
+        return np.dot(vec0, np.dot(self._array, vec1))
+
 
 class DenseTwoBody(object):
     """Dense symmetric four-dimensional matrix.
@@ -129,19 +232,19 @@ class DenseTwoBody(object):
        computer time. Due to its simplicity, it is trivial to implement. This
        implementation mainly serves as a reference for testing purposes.
     """
-    def __init__(self, size):
+    def __init__(self, nbasis):
         """
            **Arguments:**
 
-           size
+           nbasis
                 The number of basis functions.
         """
-        self._array = np.zeros((size, size, size, size), float)
+        self._array = np.zeros((nbasis, nbasis, nbasis, nbasis), float)
 
-    def get_size(self):
+    def get_nbasis(self):
         return self._array.shape[0]
 
-    size = property(get_size)
+    nbasis = property(get_nbasis)
 
     def set_element(self, i, j, k, l, value):
         #    <ij|kl> = <ji|lk> = <kl|ij> = <lk|ji> =
@@ -183,16 +286,3 @@ class DenseTwoBody(object):
         if not isinstance(output, DenseOneBody):
             raise TypeError('The output argument must be a DenseOneBody class')
         output._array[:] = np.tensordot(self._array, dm._array, ([1,2], [0,1]))
-
-
-def error_eigen(ham, overlap, wfn):
-    errors = np.dot(ham._array, wfn._expansion._coeffs) \
-             - wfn._epsilons*np.dot(overlap._array, wfn._expansion._coeffs)
-    return np.sqrt((errors**2).mean())
-
-
-def diagonalize(ham, overlap, wfn):
-    from scipy.linalg import eigh
-    evals, evecs = eigh(ham._array, overlap._array)
-    wfn._expansion._coeffs[:] = evecs
-    wfn._epsilons[:] = evals

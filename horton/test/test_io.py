@@ -20,18 +20,19 @@
 #--
 
 
-from horton import context, load_operators_g09
+from horton import context, load_operators_g09, DenseLinalgFactory
 
 
 def test_load_operators_g09():
+    lf = DenseLinalgFactory()
     eps = 1e-5
     fn = context.get_fn('test/water_sto3g_hf_g03.log')
-    overlap, kinetic, nuclear_attraction, electron_repulsion = load_operators_g09(fn)
+    overlap, kinetic, nuclear_attraction, electron_repulsion = load_operators_g09(fn, lf)
 
-    for mat in overlap, kinetic, nuclear_attraction, electron_repulsion:
-        assert mat is not None
-        assert mat.size == 7
-        mat.check_symmetry()
+    for op in overlap, kinetic, nuclear_attraction, electron_repulsion:
+        assert op is not None
+        assert op.nbasis == 7
+        op.check_symmetry()
 
     assert abs(overlap.get_element(0,0) - 1.0) < eps
     assert abs(overlap.get_element(0,1) - 0.236704) < eps
