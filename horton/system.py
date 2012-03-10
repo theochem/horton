@@ -30,15 +30,16 @@
 
 import numpy as np
 
-from horton.io import load_geom
+from horton.io import load_system_args
 
 
 __all__ = ['System']
 
 
 class System(object):
-    def __init__(self, coordinates, numbers, basis):
-        '''**Arguments:**
+    def __init__(self, coordinates, numbers, basis=None):
+        """
+           **Arguments:**
 
            coordinates
                 A (N, 3) float numpy array with Cartesian coordinates of the
@@ -47,10 +48,12 @@ class System(object):
            numbers
                 A (N,) int numpy vector with the atomic numbers.
 
+           **Optional arguments:**
+
            basis
                 A string or an instance of either the basis set or basis set
                 description classes, e.g. 'STO-3G', GOBasisDesc('STO-3G'), ...
-        '''
+        """
         self._coordinates = np.array(coordinates, dtype=float, copy=False)
         self._numbers = np.array(numbers, dtype=int, copy=False)
         from horton.gobasis import GOBasisDesc, GOBasis
@@ -59,7 +62,7 @@ class System(object):
             self._basis = basis_desc.apply_to(self)
         elif isinstance(basis, GOBasisDesc):
             self._basis = basis.apply_to(self)
-        elif isinstance(basis, GOBasis):
+        elif isinstance(basis, GOBasis) or basis is None:
             self._basis = basis
         else:
             raise TypeError('Can not interpret %s as a basis.' % basis)
@@ -85,12 +88,17 @@ class System(object):
     basis = property(get_basis)
 
     @classmethod
-    def from_file(cls, filename, *args, **kwargs):
-        '''Create a System object from a file
+    def from_file(cls, *args, **kwargs):
+        """Create a System object from a file.
 
-           This method is the same as the constructor, except that the first
-           two arguments: coordinates and numbers are replaced by a filename.
-           For now, only the '.xyz' format is supported.
-        '''
-        coordinates, numbers = load_geom(filename)
-        return cls(coordinates, numbers, *args, **kwargs)
+           A list of filenames may be provided, which will be loaded in that
+           order. Each file complements or overrides the information loaded
+           from a previous file in the list. Furthermore, keyword arguments
+           may be used to specify additional constructor arguments.
+        """
+        constructor_args = {}
+        for fn in args:
+            fn_args = load_system_args(fn)
+            constructor_args.update(fn_args)
+        constructor_args.update(kwargs)
+        return cls(**constructor_args)

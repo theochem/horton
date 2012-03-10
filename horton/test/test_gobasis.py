@@ -133,7 +133,8 @@ def test_go_basis_desc_lithium_321g():
 
 
 def test_go_basis_desc_water_sto3g():
-    system = System(np.zeros((3,3)), np.array([1,8,1]), 'STO-3G')
+    fn = context.get_fn('test/water_element.xyz')
+    system = System.from_file(fn, basis='STO-3G')
     assert (system.basis._shell_map == np.array([0,1,1,2])).all()
     assert (system.basis._num_exponents == np.array([3,3,3,3])).all()
     assert (system.basis._num_contractions == np.array([1,1,2,1])).all()

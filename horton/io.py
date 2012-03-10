@@ -23,8 +23,8 @@
    All input routines begin with ``load_``. All output routines begin with
    ``dump_``.
 
-   This module also contains a smart routine, ``load_geoms``, which makes it
-   easier to load molecular geometries from various file formats. It uses to
+   This module also contains a smart routine, ``load_system_args``, which makes
+   it easier to load molecular data from various file formats. It uses to
    extension of the filename to figure out what the file format is.
 '''
 
@@ -34,7 +34,26 @@ from horton.units import angstrom
 from horton.periodic import periodic
 
 
-__all__ = ['load_geom', 'load_geom_xyz', 'load_operators_g09']
+__all__ = ['load_system_args', 'load_geom_xyz', 'load_operators_g09']
+
+
+def load_system_args(filename):
+    '''Load a molecular data from a file.
+
+       **Argument:**
+
+       filename
+            The file to load the geometry from
+
+       This routine uses the extension of the filename to determine the file
+       format. It returns a dictionary with constructor arguments for the System
+       class.
+    '''
+    if filename.endswith('.xyz'):
+        coordinates, numbers = load_geom_xyz(filename)
+        return {'coordinates': coordinates, 'numbers': numbers}
+    else:
+        raise ValueError('Unknown file format: %s' % filename)
 
 
 def load_geom_xyz(filename):
@@ -61,28 +80,6 @@ def load_geom_xyz(filename):
         coordinates[i,2] = float(words[3])*angstrom
     f.close()
     return coordinates, numbers
-
-
-_load_geom_map = {
-    '.xyz': load_geom_xyz,
-}
-
-def load_geom(filename):
-    '''Load a molecular geometry from a file.
-
-       **Argument:**
-
-       filename
-            The file to load the geometry from
-
-       **Returns:** two arrays, coordinates and numbers that can be used as the
-       two first arguments of the System constructor.
-
-       This routine uses the extension of the filename to determine the file
-       format.
-    '''
-    ext = filename[filename.rfind('.'):]
-    return _load_geom_map[ext](filename)
 
 
 def load_operators_g09(fn, lf):
