@@ -37,7 +37,7 @@ __all__ = ['System']
 
 
 class System(object):
-    def __init__(self, coordinates, numbers):
+    def __init__(self, coordinates, numbers, basis):
         '''**Arguments:**
 
            coordinates
@@ -45,10 +45,44 @@ class System(object):
                 atoms.
 
            numbers
-                A (N, ) int numpy vector with the atomic numbers.
+                A (N,) int numpy vector with the atomic numbers.
+
+           basis
+                A string or an instance of either the basis set or basis set
+                description classes, e.g. 'STO-3G', GOBasisDesc('STO-3G'), ...
         '''
-        self.coordinates = np.array(coordinates, dtype=float, copy=False)
-        self.numbers = np.array(numbers, dtype=int, copy=False)
+        self._coordinates = np.array(coordinates, dtype=float, copy=False)
+        self._numbers = np.array(numbers, dtype=int, copy=False)
+        from horton.gobasis import GOBasisDesc, GOBasis
+        if isinstance(basis, str):
+            basis_desc = GOBasisDesc(basis)
+            self._basis = basis_desc.apply_to(self)
+        elif isinstance(basis, GOBasisDesc):
+            self._basis = basis.apply_to(self)
+        elif isinstance(basis, GOBasis):
+            self._basis = basis
+        else:
+            raise TypeError('Can not interpret %s as a basis.' % basis)
+
+    def get_natom(self):
+        return len(self.numbers)
+
+    natom = property(get_natom)
+
+    def get_coordinates(self):
+        return self._coordinates.view()
+
+    coordinates = property(get_coordinates)
+
+    def get_numbers(self):
+        return self._numbers.view()
+
+    numbers = property(get_numbers)
+
+    def get_basis(self):
+        return self._basis
+
+    basis = property(get_basis)
 
     @classmethod
     def from_file(cls, filename, *args, **kwargs):

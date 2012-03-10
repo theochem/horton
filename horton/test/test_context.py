@@ -26,7 +26,7 @@ from horton import context
 
 
 def test_context():
-    fn = context.get_fn('basis/sto3g.g94')
+    fn = context.get_fn('basis/sto-3g.nwchem')
     assert os.path.isfile(fn)
-    fns = context.glob('basis/*.g94')
+    fns = context.glob('basis/*.nwchem')
     assert fn in fns

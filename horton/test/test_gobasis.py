@@ -20,15 +20,14 @@
 #--
 
 
-from horton import context, GaussianOrbBasis, get_con_nbasis
+from horton import *
 
 from molmod.io import FCHKFile
 
 
 def test_hf_sto3g_num():
     fchk = FCHKFile(context.get_fn('test/hf_sto3g.fchk'))
-    basis = GaussianOrbBasis.from_fchk(fchk)
-    assert len(basis.centers) == 2
+    basis = GOBasis.from_fchk(fchk)
     assert basis.nshell == 3
     assert basis.nbasis == 6
     assert basis._num_contractions.max() <= 2
@@ -37,8 +36,7 @@ def test_hf_sto3g_num():
 
 def test_h_sto3g_num():
     fchk = FCHKFile(context.get_fn('test/h_sto3g.fchk'))
-    basis = GaussianOrbBasis.from_fchk(fchk)
-    assert len(basis.centers) == 1
+    basis = GOBasis.from_fchk(fchk)
     assert basis.nshell == 1
     assert basis.nbasis == 1
     assert basis._num_contractions.max() <= 2
@@ -47,8 +45,7 @@ def test_h_sto3g_num():
 
 def test_o2_cc_pvtz_pure_num():
     fchk = FCHKFile(context.get_fn('test/o2_cc_pvtz_pure.fchk'))
-    basis = GaussianOrbBasis.from_fchk(fchk)
-    assert len(basis.centers)==2
+    basis = GOBasis.from_fchk(fchk)
     assert basis.nshell == 20
     assert basis.nbasis == 60
     assert basis._num_contractions.max() <= 2
@@ -56,8 +53,7 @@ def test_o2_cc_pvtz_pure_num():
 
 def test_o2_cc_pvtz_cart_num():
     fchk = FCHKFile(context.get_fn('test/o2_cc_pvtz_cart.fchk'))
-    basis = GaussianOrbBasis.from_fchk(fchk)
-    assert len(basis.centers)==2
+    basis = GOBasis.from_fchk(fchk)
     assert basis.nshell == 20
     assert basis.nbasis == 70
     assert basis._num_contractions.max() <= 2
@@ -75,3 +71,83 @@ def test_con_nbasis():
         assert False
     except ValueError:
         pass
+
+
+def test_str_to_con_types():
+    assert str_to_con_types('s') == [0]
+    assert str_to_con_types('S') == [0]
+    assert str_to_con_types('Ss') == [0,0]
+    assert str_to_con_types('SP') == [0,1]
+    assert str_to_con_types('SDD') == [0,2,2]
+
+
+def test_go_basis_desc_neon_sto3g():
+    system = System(np.array([[0.0,0.0,0.0]]), np.array([2]), 'STO-3G')
+    assert (system.basis._shell_map == np.array([0])).all()
+    assert (system.basis._num_exponents == np.array([3])).all()
+    assert (system.basis._num_contractions == np.array([1])).all()
+    assert (system.basis._con_types == np.array([0])).all()
+    assert abs(system.basis._exponents - np.array([6.36242139, 1.15892300, 0.31364979])).all() < 1e-10
+    assert abs(system.basis._con_coeffs - np.array([0.15432897, 0.53532814, 0.44463454])).all() < 1e-10
+
+
+def test_go_basis_desc_neon_sto3g():
+    system = System(np.array([[0.0,0.0,0.0]]), np.array([2]), 'STO-3G')
+    assert (system.basis._shell_map == np.array([0])).all()
+    assert (system.basis._num_exponents == np.array([3])).all()
+    assert (system.basis._num_contractions == np.array([1])).all()
+    assert (system.basis._con_types == np.array([0])).all()
+    assert abs(system.basis._exponents - np.array([6.36242139, 1.15892300, 0.31364979])).all() < 1e-10
+    assert abs(system.basis._con_coeffs - np.array([0.15432897, 0.53532814, 0.44463454])).all() < 1e-10
+    assert system.basis.nbasis == 1
+
+
+def test_go_basis_desc_hydrogen_321g():
+    system = System(np.array([[0.0,0.0,0.0]]), np.array([1]), '3-21G')
+    assert (system.basis._shell_map == np.array([0,0])).all()
+    assert (system.basis._num_exponents == np.array([2,1])).all()
+    assert (system.basis._num_contractions == np.array([1,1])).all()
+    assert (system.basis._con_types == np.array([0,0])).all()
+    assert abs(system.basis._exponents - np.array([5.4471780, 0.8245470, 0.1831920])).all() < 1e-10
+    assert abs(system.basis._con_coeffs - np.array([0.1562850, 0.9046910, 1.0000000])).all() < 1e-10
+    assert system.basis.nbasis == 2
+
+
+def test_go_basis_desc_lithium_321g():
+    system = System(np.array([[0.0,0.0,0.0]]), np.array([3]), '3-21G')
+    assert (system.basis._shell_map == np.array([0,0,0])).all()
+    assert (system.basis._num_exponents == np.array([3,2,1])).all()
+    assert (system.basis._num_contractions == np.array([1,2,2])).all()
+    assert (system.basis._con_types == np.array([0,0,1,0,1])).all()
+    assert abs(system.basis._exponents - np.array([
+        36.8382000, 5.4817200, 1.1132700,
+        0.5402050, 0.1022550,
+        0.0285650
+    ])).all() < 1e-10
+    assert abs(system.basis._con_coeffs - np.array([
+        0.0696686, 0.3813460, 0.6817020,
+        -0.2631270, 0.1615460, 1.1433900, 0.9156630,
+        1.0000000, 1.0000000
+    ])).all() < 1e-10
+    assert system.basis.nbasis == 9
+
+
+def test_go_basis_desc_water_sto3g():
+    system = System(np.zeros((3,3)), np.array([1,8,1]), 'STO-3G')
+    assert (system.basis._shell_map == np.array([0,1,1,2])).all()
+    assert (system.basis._num_exponents == np.array([3,3,3,3])).all()
+    assert (system.basis._num_contractions == np.array([1,1,2,1])).all()
+    assert (system.basis._con_types == np.array([0,0,0,1,0])).all()
+    assert abs(system.basis._exponents - np.array([
+        3.42525091, 0.62391373, 0.16885540,
+        130.7093200, 23.8088610, 6.4436083,
+        5.0331513, 1.1695961, 0.3803890,
+        3.42525091, 0.62391373, 0.16885540,
+    ])).all() < 1e-10
+    assert abs(system.basis._con_coeffs - np.array([
+        0.15432897, 0.53532814, 0.44463454,
+        0.15432897, 0.53532814, 0.44463454,
+        -0.09996723, 0.15591627, 0.39951283, 0.60768372, 0.70011547, 0.39195739,
+        0.15432897, 0.53532814, 0.44463454,
+    ])).all() < 1e-10
+    assert system.basis.nbasis == 7
