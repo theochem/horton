@@ -22,4 +22,8 @@
 cdef extern from "contraction.h":
     int compute_gobasis_overlap(double* centers, long* shell_map,
         long* num_exponents, long* num_contractions, long* con_types,
-        double* exponents, double* con_coeffs, double* output)
+        double* exponents, double* con_coeffs, long num_shells,
+        long tot_num_con, double* output)
+
+    int get_max_nbasis(long* num_contractions, long* con_types, long num_shells,
+        long tot_num_con)
