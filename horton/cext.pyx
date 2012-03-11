@@ -20,13 +20,16 @@
 #--
 
 
-from horton.cext import *
-from horton.constants import *
-from horton.context import *
-from horton.gobasis import *
-from horton.io import *
-from horton.matrix import *
-from horton.periodic import *
-from horton.system import *
-from horton.units import *
-from horton.wfn import *
+import numpy as np
+cimport numpy as np
+cimport cints
+
+
+__all__ = ['fact', 'fact2']
+
+
+def fact(int n):
+    return cints.fact(n)
+
+def fact2(int n):
+    return cints.fact2(n)

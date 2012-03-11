@@ -36,11 +36,11 @@ setup(
     package_dir = {'horton': 'horton'},
     packages=['horton', 'horton/test'],
     cmdclass = {'build_ext': build_ext},
-    #ext_modules=[
-    #    Extension("horton.ext", [
-    #        'horton/ext.pyx', 'horton/foo.c'
-    #    ]),
-    #],
+    ext_modules=[
+        Extension("horton.cext", [
+            'horton/cext.pyx', 'horton/cints.c'
+        ]),
+    ],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Console',

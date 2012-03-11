@@ -4,4 +4,4 @@ rm -vr doc/_build/
 rm -v MANIFEST
 rm -vr dist
 rm -vr build
-rm -v horton/extmodule.c
+rm -v horton/cext.c

@@ -20,13 +20,24 @@
 #--
 
 
-from horton.cext import *
-from horton.constants import *
-from horton.context import *
-from horton.gobasis import *
-from horton.io import *
-from horton.matrix import *
-from horton.periodic import *
-from horton.system import *
-from horton.units import *
-from horton.wfn import *
+from horton import *
+
+
+def test_fact():
+    assert fact(-20) == 1
+    assert fact(0) == 1
+    assert fact(1) == 1
+    assert fact(2) == 2
+    assert fact(3) == 6
+    assert fact(4) == 24
+    assert fact(5) == 120
+
+
+def test_fact2():
+    assert fact2(-20) == 1
+    assert fact2(0) == 1
+    assert fact2(1) == 1
+    assert fact2(2) == 2
+    assert fact2(3) == 3
+    assert fact2(4) == 8
+    assert fact2(5) == 15
