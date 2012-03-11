@@ -480,3 +480,11 @@ class GOBasis(object):
         result.g03_permutation = np.array(permutation, dtype=int)
 
         return result
+
+    def compute_overlap(self, centers, overlap):
+        from horton.ext import compute_gobasis_overlap
+        compute_gobasis_overlap(
+            centers, self._shell_map, self._num_exponents,
+            self._num_contractions, self._con_types, self._exponents,
+            self._con_coeffs, overlap._array
+        )

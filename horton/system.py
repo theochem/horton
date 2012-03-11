@@ -102,3 +102,6 @@ class System(object):
             constructor_args.update(fn_args)
         constructor_args.update(kwargs)
         return cls(**constructor_args)
+
+    def compute_overlap(self, overlap):
+        self.basis.compute_overlap(self.coordinates, overlap)
