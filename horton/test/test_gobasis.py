@@ -22,12 +22,9 @@
 
 from horton import *
 
-from molmod.io import FCHKFile
-
 
 def test_hf_sto3g_num():
-    fchk = FCHKFile(context.get_fn('test/hf_sto3g.fchk'))
-    basis = GOBasis.from_fchk(fchk)
+    basis = GOBasis.from_fchk(context.get_fn('test/hf_sto3g.fchk'))
     assert basis.nshell == 3
     assert basis.nbasis == 6
     assert basis._num_contractions.max() <= 2
@@ -35,8 +32,7 @@ def test_hf_sto3g_num():
 
 
 def test_h_sto3g_num():
-    fchk = FCHKFile(context.get_fn('test/h_sto3g.fchk'))
-    basis = GOBasis.from_fchk(fchk)
+    basis = GOBasis.from_fchk(context.get_fn('test/h_sto3g.fchk'))
     assert basis.nshell == 1
     assert basis.nbasis == 1
     assert basis._num_contractions.max() <= 2
@@ -44,16 +40,14 @@ def test_h_sto3g_num():
 
 
 def test_o2_cc_pvtz_pure_num():
-    fchk = FCHKFile(context.get_fn('test/o2_cc_pvtz_pure.fchk'))
-    basis = GOBasis.from_fchk(fchk)
+    basis = GOBasis.from_fchk(context.get_fn('test/o2_cc_pvtz_pure.fchk'))
     assert basis.nshell == 20
     assert basis.nbasis == 60
     assert basis._num_contractions.max() <= 2
 
 
 def test_o2_cc_pvtz_cart_num():
-    fchk = FCHKFile(context.get_fn('test/o2_cc_pvtz_cart.fchk'))
-    basis = GOBasis.from_fchk(fchk)
+    basis = GOBasis.from_fchk(context.get_fn('test/o2_cc_pvtz_cart.fchk'))
     assert basis.nshell == 20
     assert basis.nbasis == 70
     assert basis._num_contractions.max() <= 2

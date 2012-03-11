@@ -416,7 +416,13 @@ class GOBasis(object):
     nbasis = property(get_nbasis)
 
     @classmethod
-    def from_fchk(cls, fchk):
+    def from_fchk(cls, filename):
+        from horton.io import FCHKFile
+        fchk = FCHKFile(filename, [
+            "Shell types", "Shell to atom map", "Shell to atom map",
+            "Number of primitives per shell", "Primitive exponents",
+            "Contraction coefficients", "P(S=P) Contraction coefficients",
+        ])
         shell_types = fchk.fields["Shell types"]
         shell_map = fchk.fields["Shell to atom map"] - 1
         num_exponents = fchk.fields["Number of primitives per shell"]
