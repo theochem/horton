@@ -19,14 +19,6 @@
 #
 #--
 
-
-from horton.cext import *
-from horton.constants import *
-from horton.context import *
-from horton.gobasis import *
-from horton.io import *
-from horton.matrix import *
-from horton.periodic import *
-from horton.system import *
-from horton.units import *
-from horton.wfn import *
+cdef extern from "cints.h":
+    int fact(int n)
+    int fact2(int n)

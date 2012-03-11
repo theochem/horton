@@ -55,6 +55,10 @@ def fix_python(lines, header_lines):
 
 
 def fix_c(lines, header_lines):
+    # check for an exception line
+    for line in lines:
+        if 'no_update_headers' in line:
+            return
     # remove the current header
     strip_header(lines, '//--\n')
     # add new header (insert must be in reverse order)
@@ -71,6 +75,8 @@ def main():
 
     fixers = [
         ('.py', fix_python),
+        ('.pxd', fix_python),
+        ('.pyx', fix_python),
         ('.c', fix_c),
         ('.h', fix_c),
     ]
