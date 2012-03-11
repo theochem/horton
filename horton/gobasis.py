@@ -299,10 +299,12 @@ class GOBasisShell(object):
 def get_con_nbasis(con_type):
     """Return the number basis function for a given contraction type."""
     if con_type > 0:
+        # Cartesian
         return (con_type+1)*(con_type+2)/2
     elif con_type == -1:
         raise ValueError
     else:
+        # Pure
         return -2*con_type+1
 
 
@@ -394,6 +396,7 @@ class GOBasis(object):
              1 -> 3xxy-yyy
              0 -> xxx-3xyy
         """
+        # TODO: use prefix 'n' instead of 'num_'
         # All fields are stored as internal parameters. Once they are set,
         # they are no supposed to be modified.
         self._shell_map = shell_map
