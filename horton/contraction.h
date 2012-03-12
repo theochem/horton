@@ -26,9 +26,9 @@
 long get_con_nbasis(long con_type);
 
 int compute_gobasis_overlap(double* centers, long* shell_map,
-    long* nexps, long* ncons, long* con_types,
-    double* exponents, double* con_coeffs, long nshell,
-    long ncon_total, double* output);
+    long* ncons, long* nexps, long* con_types, double* exponents, double*
+    con_coeffs, long nshell, long ncenter, long ncon_total, long nexp_total,
+    long ncon_coeff_total, double* output, long nbasis);
 
 
 
@@ -36,8 +36,8 @@ typedef struct {
     // input data
     double* centers;
     long* shell_map;
-    long* nexps;
     long* ncons;
+    long* nexps;
     long* con_types;
     double* exponents;
     double* con_coeffs;
@@ -50,9 +50,15 @@ typedef struct {
     // TODO
 } i2gob_type;
 
+
+i2gob_type* i2gob_new(void);
+void i2gob_free(i2gob_type* i2);
 int i2gob_init(i2gob_type* i2, double* centers, long* shell_map,
-    long* nexps, long* ncons, long* con_types,
-    double* exponents, double* con_coeffs);
+    long* ncons, long* nexps, long* con_types, double* exponents,
+    double* con_coeffs, long nshell, long ncenter, long ncon_total,
+    long nexp_total, long ncon_coeff_total, long nbasis);
+int i2gob_check(i2gob_type* i2, long nshell, long ncenter, long ncon_total,
+    long nexp_total, long ncon_coeff_total, long nbasis);
 int i2gob_inc_shell(i2gob_type* i2);
 int i2gob_inc_con(i2gob_type* i2);
 int i2gob_inc_exp(i2gob_type* i2);
@@ -76,9 +82,6 @@ int i1pow_inc(int* l, int* m, int* n);
 
 void project_cartesian_to_pure(double *work_cart, double* work_pure, long
     con_type, long stride, long spacing, long count);
-
-int get_max_nbasis(long* ncons, long* con_types, long nshell,
-    long ncon_total);
 
 
 #endif
