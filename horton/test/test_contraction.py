@@ -55,3 +55,108 @@ def test_get_max_nbasis():
         assert False
     except ValueError:
         pass
+
+
+def test_i1pow_inc_l0():
+    indexes = (0,0,0)
+    indexes, result = i1pow_inc(*indexes)
+    assert indexes == (0,0,0)
+    assert result == 0
+
+
+def test_i1pow_inc_l1():
+    indexes = (1,0,0)
+    indexes, result = i1pow_inc(*indexes)
+    assert indexes == (0,1,0)
+    assert result == 1
+    indexes, result = i1pow_inc(*indexes)
+    assert indexes == (0,0,1)
+    assert result == 1
+    indexes, result = i1pow_inc(*indexes)
+    assert indexes == (1,0,0)
+    assert result == 0
+
+
+def test_i1pow_inc_l2():
+    indexes = (2,0,0)
+    indexes, result = i1pow_inc(*indexes)
+    assert indexes == (1,1,0)
+    assert result == 1
+    indexes, result = i1pow_inc(*indexes)
+    assert indexes == (1,0,1)
+    assert result == 1
+    indexes, result = i1pow_inc(*indexes)
+    assert indexes == (0,2,0)
+    assert result == 1
+    indexes, result = i1pow_inc(*indexes)
+    assert indexes == (0,1,1)
+    assert result == 1
+    indexes, result = i1pow_inc(*indexes)
+    assert indexes == (0,0,2)
+    assert result == 1
+    indexes, result = i1pow_inc(*indexes)
+    assert indexes == (2,0,0)
+    assert result == 0
+
+
+def test_i2_pow_l0l0():
+    i2p = I2Pow(0, 0, 3)
+    assert i2p.fields == (0, 0, 0, 0, 0, 0, 0)
+    assert i2p.inc() == False
+    assert i2p.fields == (0, 0, 0, 0, 0, 0, 0)
+
+
+def test_i2_pow_l1l0():
+    i2p = I2Pow(1, 0, 3)
+    assert i2p.fields == (1, 0, 0, 0, 0, 0, 0)
+    assert i2p.inc() == True
+    assert i2p.fields == (0, 1, 0, 0, 0, 0, 1)
+    assert i2p.inc() == True
+    assert i2p.fields == (0, 0, 1, 0, 0, 0, 2)
+    assert i2p.inc() == False
+    assert i2p.fields == (1, 0, 0, 0, 0, 0, 0)
+
+
+def test_i2_pow_l2l1():
+    i2p = I2Pow(2, 1, 10)
+    assert i2p.fields == (2, 0, 0, 1, 0, 0, 0)
+    assert i2p.inc() == True
+    assert i2p.fields == (1, 1, 0, 1, 0, 0, 1)
+    assert i2p.inc() == True
+    assert i2p.fields == (1, 0, 1, 1, 0, 0, 2)
+    assert i2p.inc() == True
+    assert i2p.fields == (0, 2, 0, 1, 0, 0, 3)
+    assert i2p.inc() == True
+    assert i2p.fields == (0, 1, 1, 1, 0, 0, 4)
+    assert i2p.inc() == True
+    assert i2p.fields == (0, 0, 2, 1, 0, 0, 5)
+    assert i2p.inc() == True
+    assert i2p.fields == (2, 0, 0, 0, 1, 0, 10)
+    assert i2p.inc() == True
+    assert i2p.fields == (1, 1, 0, 0, 1, 0, 11)
+
+
+def test_i2_pow_raise():
+    try:
+        i2p = I2Pow(-1,1,3)
+        assert False
+    except ValueError:
+        pass
+
+    try:
+        i2p = I2Pow(1,-1,3)
+        assert False
+    except ValueError:
+        pass
+
+    try:
+        i2p = I2Pow(2,1,3)
+        assert False
+    except ValueError:
+        pass
+
+    try:
+        i2p = I2Pow(1,2,3)
+        assert False
+    except ValueError:
+        pass

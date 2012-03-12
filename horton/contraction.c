@@ -20,11 +20,36 @@
 
 
 #include "contraction.h"
+#include "cints.h"
+
 #include <math.h>
+#include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 
 #define safe_exit(x) {result=x; goto exit;}
+
+
+long get_con_nbasis(long con_type) {
+    if (con_type > 0) {
+        // Cartesian
+        return (con_type+1)*(con_type+2)/2;
+    } else if (con_type == -1) {
+        // should not happen.
+        return -1;
+    } else {
+        // Pure
+        return -2*con_type+1;
+    }
+}
+
+void swap_ptr(double **x, double **y) {
+    double *t = *x;
+    *x = *y;
+    *y = t;
+}
 
 
 int compute_gobasis_overlap(double* centers, long* shell_map,
@@ -50,11 +75,11 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
             (E) Double loop over the exponents:
 
                 (F) Double loop over basis functions associated with the angular
-                    momenta of each contraction
+                    momenta of each contraction:
 
                     (G) Add contribution from a pair of primitives to the
                         working memory. This part contains a call to a function
-                        from cints.c
+                        from cints.c.
 
             (H) If needed, perform projection from Cartesian to pure basis
                 functions. (A second piece of working memory is needed for this
@@ -62,7 +87,7 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
 
             (I) Store the result in the output array.
 
-    (J) Free memory and return
+    (J) Free memory and return.
 
     ----------------------------------------------------------------------------
 
@@ -79,34 +104,216 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
 
     */
 
-    int max_nbasis, result;
+    int nwork, result;
     double* work_cart;
     double* work_pure;
+    i2gob_type* i2;
+    i2pow_type* i2p;
+
+    // initialize some variables
 
     result = 0;
     work_cart = NULL;
     work_pure = NULL;
+    i2 = NULL;
+    i2p = NULL;
 
     // (A) (A) (A) (A) (A) (A) (A) (A) (A) (A) (A) (A) (A) (A) (A) (A) (A) (A)
 
-    // Get the maximum number of basis functions associated with a contraction.
-    max_nbasis = get_max_nbasis(num_contractions, con_types, num_shells,
-                                tot_num_con);
-    if (max_nbasis < 0) safe_exit(max_nbasis);
+    // Allocate iterators
+    i2 = malloc(sizeof(i2gob_type));
+    if (i2==NULL) safe_exit(-1);
+    i2p = i2pow_new();
+    if (i2p==NULL) safe_exit(-1);
+
+    // i2gob stands for double iterator for gaussian orbital basis sets. For
+    // now there is just one c-ish implementation of this iterator. We may
+    // need to make a c++-ish iterator in future if we to generalize this
+    // routine for different iterators. Note that the iterator is designed for
+    // the nesting of the loops below.
+    result = i2gob_init(i2, centers, shell_map, num_exponents, num_contractions,
+                        con_types, exponents, con_coeffs);
+    if (result != 0) goto exit;
 
     // Allocate work arrays.
-    work_cart = (double *)malloc(max_nbasis*max_nbasis*sizeof(double));
+    nwork = (*i2).max_nbasis*(*i2).max_nbasis;
+    work_cart = malloc(nwork*sizeof(double));
     if (work_cart==NULL) safe_exit(-1);
-    work_pure = (double *)malloc(max_nbasis*max_nbasis*sizeof(double));
+    work_pure = malloc(nwork*sizeof(double));
     if (work_pure==NULL) safe_exit(-1);
+
+
+    // (B) (B) (B) (B) (B) (B) (B) (B) (B) (B) (B) (B) (B) (B) (B) (B) (B) (B)
+    do {
+
+        // (C) (C) (C) (C) (C) (C) (C) (C) (C) (C) (C) (C) (C) (C) (C) (C) (C)
+        do {
+            //con_type0 = con_types[(*i2_shell).ocon0 + (*i2_con).i0];
+            //con_type1 = con_types[(*i2_shell).ocon1 + (*i2_con).i1];
+
+            // (D) (D) (D) (D) (D) (D) (D) (D) (D) (D) (D) (D) (D) (D) (D) (D)
+            // We make use of the fact that a floating point zero consists of
+            // consecutive zero bytes.
+            memset(work_cart, 0, nwork*sizeof(double));
+            memset(work_pure, 0, nwork*sizeof(double));
+
+            // (E) (E) (E) (E) (E) (E) (E) (E) (E) (E) (E) (E) (E) (E) (E) (E)
+            do {
+                //exp0 = exponents[(*i2_shell).oexp0 + (*i2_exp).i0];
+                //exp1 = exponents[(*i2_shell).oexp1 + (*i2_exp).i1];
+                //coeff = con_coeffs[(*i2_shell).occ0 + (*i2_shell).ncon0*(*i2_exp).i0 + (*i2_con).i0]*
+                //        con_coeffs[(*i2_shell).occ1 + (*i2_shell).ncon1*(*i2_exp).i0 + (*i2_con).i1];
+
+                // (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F)
+                i2pow_init(i2p, abs((*i2).con_type0), abs((*i2).con_type1), (*i2).max_nbasis);
+                do {
+                    work_cart[(*i2p).offset] += (*i2).con_coeff*overlap(
+                        (*i2).exp0, (*i2p).l0, (*i2p).m0, (*i2p).n0,
+                        (*i2).x0, (*i2).y0, (*i2).z0,
+                        (*i2).exp1, (*i2p).l1, (*i2p).m1, (*i2p).n1,
+                        (*i2).x1, (*i2).y1, (*i2).z1
+                    );
+                } while (i2pow_inc(i2p));
+            } while (i2gob_inc_exp(i2));
+
+            // (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H)
+            if ((*i2).con_type0 < -1) {
+                project_cartesian_to_pure(work_cart, work_pure, (*i2).con_type0,
+                    1, // stride
+                    (*i2).max_nbasis, // spacing
+                    get_con_nbasis(abs((*i2).con_type1)) // count
+                );
+                swap_ptr(&work_cart, &work_pure);
+            }
+
+            if ((*i2).con_type1 < -1) {
+                project_cartesian_to_pure(work_cart, work_pure, (*i2).con_type1,
+                    (*i2).max_nbasis, // stride
+                    1, // spacing
+                    get_con_nbasis((*i2).con_type0) // count
+                );
+                swap_ptr(&work_cart, &work_pure);
+            }
+
+            // make sure the final result after projections is in work_pure.
+            swap_ptr(&work_cart, &work_pure);
+
+            // (I) (I) (I) (I) (I) (I) (I) (I) (I) (I) (I) (I) (I) (I) (I) (I)
+            i2gob_store(i2, work_pure, output);
+        } while  (i2gob_inc_con(i2));
+    } while (i2gob_inc_shell(i2));
 
 exit:
     // (J) (J) (J) (J) (J) (J) (J) (J) (J) (J) (J) (J) (J) (J) (J) (J) (J) (J)
 
     free(work_cart);
     free(work_pure);
+    free(i2);
+    i2pow_free(i2p);
     return result;
 }
+
+
+
+
+
+int i2gob_init(i2gob_type* i2, double* centers, long* shell_map,
+    long* num_exponents, long* num_contractions, long* con_types,
+    double* exponents, double* con_coeffs) {
+    return 0;
+}
+
+int i2gob_inc_shell(i2gob_type* i2) {
+    return 0;
+}
+
+int i2gob_inc_con(i2gob_type* i2) {
+    return 0;
+}
+
+int i2gob_inc_exp(i2gob_type* i2) {
+    return 0;
+}
+
+void i2gob_store(i2gob_type* i2, double *work_pure, double *output) {
+}
+
+
+
+
+
+i2pow_type* i2pow_new(void) {
+    return malloc(sizeof(i2pow_type));
+}
+
+
+void i2pow_free(i2pow_type* i2p) {
+    free(i2p);
+}
+
+
+void i2pow_init(i2pow_type* i2p, long con_type0, long con_type1, long max_nbasis) {
+    assert(con_type0 >= 0);
+    assert(con_type1 >= 0);
+    (*i2p).con_type0 = con_type0;
+    (*i2p).con_type1 = con_type1;
+    (*i2p).skip = max_nbasis - get_con_nbasis(con_type0) + 1;
+    assert((*i2p).skip >= 0);
+    assert(max_nbasis >= get_con_nbasis(con_type1));
+    (*i2p).l0 = con_type0;
+    (*i2p).m0 = 0;
+    (*i2p).n0 = 0;
+    (*i2p).l1 = con_type1;
+    (*i2p).m1 = 0;
+    (*i2p).n1 = 0;
+    (*i2p).offset = 0;
+}
+
+
+int i2pow_inc(i2pow_type* i2p) {
+    // Increment indexes of shell 0
+    int result;
+    result = i1pow_inc(&(*i2p).l0, &(*i2p).m0, &(*i2p).n0);
+    if (result) {
+        (*i2p).offset++;
+    } else {
+        result = i1pow_inc(&(*i2p).l1, &(*i2p).m1, &(*i2p).n1);
+        if (result) {
+            (*i2p).offset += (*i2p).skip;
+        } else {
+            (*i2p).offset = 0;
+        }
+    }
+    return result;
+}
+
+
+int i1pow_inc(int* l, int* m, int* n) {
+    // Modify the indexes in place as to move to the next combination of powers
+    // withing one angular momentum.
+    // Note: con_type = (*l) + (*m) + (*n);
+    if (*m == 0) {
+      if (*l == 0) {
+        *l = *n;
+        *n = 0;
+        return 0;
+      } else {
+        *m = *n + 1;
+        *n = 0;
+        (*l)--;
+      }
+    } else {
+      (*m)--;
+      (*n)++;
+    }
+    return 1;
+}
+
+
+void project_cartesian_to_pure(double *work_cart, double* work_pure, long
+    con_type, long stride, long spacing, long count) {
+}
+
 
 
 int get_max_nbasis(long* num_contractions, long* con_types, long num_shells,

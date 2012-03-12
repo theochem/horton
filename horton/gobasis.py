@@ -25,11 +25,12 @@ import numpy as np
 
 from horton.context import context
 from horton.periodic import periodic
+from horton.cext import get_con_nbasis
 
 
 __all__ = [
     'GOBasisDesc', 'str_to_con_types', 'GOBasisFamily', 'go_basis_families',
-    'GOBasisAtom', 'GOBasisShell', 'get_con_nbasis', 'GOBasis'
+    'GOBasisAtom', 'GOBasisShell', 'GOBasis'
 ]
 
 
@@ -294,18 +295,6 @@ class GOBasisShell(object):
         self.con_types = con_types
         self.exponents = exponents
         self.con_coeffs = con_coeffs
-
-
-def get_con_nbasis(con_type):
-    """Return the number basis function for a given contraction type."""
-    if con_type > 0:
-        # Cartesian
-        return (con_type+1)*(con_type+2)/2
-    elif con_type == -1:
-        raise ValueError
-    else:
-        # Pure
-        return -2*con_type+1
 
 
 class GOBasis(object):

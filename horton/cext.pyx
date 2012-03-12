@@ -28,7 +28,9 @@ cimport contraction
 
 __all__ = [
     'fact', 'fact2',
-    'compute_gobasis_overlap', 'get_max_nbasis',
+    'get_con_nbasis',
+    'compute_gobasis_overlap', 'I2Pow', 'i1pow_inc',
+    'get_max_nbasis',
 ]
 
 
@@ -46,6 +48,13 @@ def fact2(int n):
 #
 # contraction wrappers
 #
+
+
+def get_con_nbasis(long con_type):
+    result = contraction.get_con_nbasis(con_type)
+    if result <= 0:
+        raise ValueError("con_type -1 is not supported.")
+    return result
 
 
 cdef handle_retcode(retcode):
@@ -97,6 +106,45 @@ def compute_gobasis_overlap(np.ndarray[double, ndim=2] centers,
         <double*>output.data,
     )
     handle_retcode(retcode)
+
+
+cdef class I2Pow:
+    cdef contraction.i2pow_type *_c_i2p
+
+    def __cinit__(self):
+        self._c_i2p = contraction.i2pow_new()
+        if self._c_i2p is NULL:
+            raise MemoryError()
+
+    def __init__(self, long con_type0, long con_type1, max_nbasis):
+        if con_type0 < 0 or con_type1 < 0:
+            raise ValueError('A con_type parameter can not be negative.')
+        if max_nbasis < get_con_nbasis(con_type0):
+            raise ValueError('max_nbasis to small for con_type0.')
+        if max_nbasis < get_con_nbasis(con_type1):
+            raise ValueError('max_nbasis to small for con_type1.')
+        contraction.i2pow_init(self._c_i2p, con_type0, con_type1, max_nbasis)
+
+    def inc(self):
+        return contraction.i2pow_inc(self._c_i2p)
+
+    def __dealoc__(self):
+        if self._c_i2p is not NULL:
+            contraction.i2pow_free(self._c_i2p)
+
+    property fields:
+        def __get__(self):
+            return (
+                self._c_i2p[0].l0, self._c_i2p[0].m0, self._c_i2p[0].n0,
+                self._c_i2p[0].l1, self._c_i2p[0].m1, self._c_i2p[0].n1,
+                self._c_i2p[0].offset
+            )
+
+
+def i1pow_inc(int l, int m, int n):
+    cdef int result
+    result = contraction.i1pow_inc(&l, &m, &n)
+    return (l, m, n), result
 
 
 def get_max_nbasis(np.ndarray[long, ndim=1] num_contractions,
