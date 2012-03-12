@@ -53,9 +53,9 @@ void swap_ptr(double **x, double **y) {
 
 
 int compute_gobasis_overlap(double* centers, long* shell_map,
-    long* nexps, long* ncons, long* con_types,
-    double* exponents, double* con_coeffs, long nshell,
-    long ncon_total, double* output) {
+    long* ncons, long* nexps, long* con_types, double* exponents, double*
+    con_coeffs, long nshell, long ncenter, long ncon_total, long nexp_total,
+    long ncon_coeff_total, double* output, long nbasis) {
 
     /*
 
@@ -121,7 +121,7 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
     // (A) (A) (A) (A) (A) (A) (A) (A) (A) (A) (A) (A) (A) (A) (A) (A) (A) (A)
 
     // Allocate iterators
-    i2 = malloc(sizeof(i2gob_type));
+    i2 = i2gob_new();
     if (i2==NULL) safe_exit(-1);
     i2p = i2pow_new();
     if (i2p==NULL) safe_exit(-1);
@@ -129,10 +129,11 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
     // i2gob stands for double iterator for gaussian orbital basis sets. For
     // now there is just one c-ish implementation of this iterator. We may
     // need to make a c++-ish iterator in future if we to generalize this
-    // routine for different iterators. Note that the iterator is designed for
-    // the nesting of the loops below.
-    result = i2gob_init(i2, centers, shell_map, nexps, ncons,
-                        con_types, exponents, con_coeffs);
+    // routine for different storage types. Note that the iterator is designed
+    // for the nesting of the loops below.
+    result = i2gob_init(i2, centers, shell_map, ncons, nexps, con_types,
+                        exponents, con_coeffs, nshell, ncenter, ncon_total,
+                        nexp_total, ncon_coeff_total, nbasis);
     if (result != 0) goto exit;
 
     // Allocate work arrays.
@@ -208,19 +209,116 @@ exit:
 
     free(work_cart);
     free(work_pure);
-    free(i2);
+    i2gob_free(i2);
     i2pow_free(i2p);
     return result;
 }
 
 
 
+i2gob_type* i2gob_new(void) {
+    return malloc(sizeof(i2gob_type));
+}
+
+
+void i2gob_free(i2gob_type* i2) {
+    free(i2);
+}
 
 
 int i2gob_init(i2gob_type* i2, double* centers, long* shell_map,
-    long* nexps, long* ncons, long* con_types,
-    double* exponents, double* con_coeffs) {
+    long* ncons, long* nexps, long* con_types, double* exponents,
+    double* con_coeffs, long nshell, long ncenter, long ncon_total,
+    long nexp_total, long ncon_coeff_total, long nbasis) {
+
+    int result;
+
+    // assign input variables
+    (*i2).centers = centers;
+    (*i2).shell_map = shell_map;
+    (*i2).ncons = ncons;
+    (*i2).nexps = nexps;
+    (*i2).con_types = con_types;
+    (*i2).exponents = exponents;
+    (*i2).con_coeffs = con_coeffs;
+
+    result = i2gob_check(i2, nshell, ncenter, ncon_total, nexp_total,
+                         ncon_coeff_total, nbasis);
+    if (result < 0) return result;
+
+    // reset public fields
+    (*i2).max_nbasis = result;
+    (*i2).con_type0 = 0;
+    (*i2).con_type1 = 0;
+    (*i2).con_coeff = 0.0;
+    (*i2).exp0 = 0.0;
+    (*i2).exp1 = 0.0;
+    (*i2).x0 = 0.0;
+    (*i2).y0 = 0.0;
+    (*i2).z0 = 0.0;
+    (*i2).x1 = 0.0;
+    (*i2).y1 = 0.0;
+    (*i2).z1 = 0.0;
+
+    // reset internal fields
+    // TODO
+
     return 0;
+}
+
+int i2gob_check(i2gob_type* i2, long nshell, long ncenter, long ncon_total,
+    long nexp_total, long ncon_coeff_total, long nbasis) {
+
+    /*
+
+    This routine computes the maximum number of basis functions associated with
+    a contraction over the entire basis set.
+
+    Besides this principal purpose, this routine also checks for all possible
+    inconsistencies in the basis set description:
+
+        -2: the center indexes in the shell_map are out of range.
+        -3: an element of ncons is less than one.
+        -4: ncon_total does not match the sum of all values in ncons.
+        -5: an element of nexps is less than one.
+        -6: nexp_total does not match the sum of all values in nexps.
+        -7: con_type -1 occurs.
+        -8: ncon_coeff_total does not match the total number of expected
+            con_coeffs.
+        -9: the total number of basis functions is incorrect.
+
+    */
+
+    long i, j, max_angmom, i_con, i_exp, i_con_coeff, i_basis, con_type;
+
+    max_angmom = 0;
+    i_con = 0;
+    i_exp = 0;
+    i_con_coeff = 0;
+    i_basis = 0;
+    for (i=0; i<nshell; i++) {
+        if (((*i2).shell_map[i] < 0) || ((*i2).shell_map[i] >= ncenter)) return -2;
+        if ((*i2).ncons[i] <= 0) return -3;
+        for (j=0; j < (*i2).ncons[i]; j++) {
+            con_type = (*i2).con_types[i_con];
+            if (con_type == -1) return -7;
+            if (abs(con_type) > max_angmom) max_angmom = abs(con_type);
+            i_con++;
+            if (i_con > ncon_total) return -4;
+            i_basis += get_con_nbasis(con_type);
+            if (i_basis > nbasis) return -9;
+        }
+        if ((*i2).nexps[i] <= 0) return -5;
+        i_exp += (*i2).nexps[i];
+        if (i_exp > nexp_total) return -6;
+        i_con_coeff += (*i2).nexps[i]*(*i2).ncons[i];
+        if (i_con_coeff > ncon_coeff_total) return -8;
+    }
+    if (i_con != ncon_total) return -4;
+    if (i_exp != nexp_total) return -6;
+    if (i_con_coeff != ncon_coeff_total) return -8;
+    if (i_basis != nbasis) return -9;
+    return ((max_angmom+1)*(max_angmom+2))/2;
 }
 
 int i2gob_inc_shell(i2gob_type* i2) {
@@ -312,41 +410,4 @@ int i1pow_inc(int* l, int* m, int* n) {
 
 void project_cartesian_to_pure(double *work_cart, double* work_pure, long
     con_type, long stride, long spacing, long count) {
-}
-
-
-
-int get_max_nbasis(long* ncons, long* con_types, long nshell,
-    long ncon_total) {
-
-    /*
-
-    This routine computes the maximum number of basis functions associated with
-    a contraction over the entire basis set.
-
-    Besides this principal purpose, this routine also asserts two expected
-    properties of the input data:
-
-        -2: each element of ncons is at least 1
-        -3: con_type -1 does not occur
-        -4: ncon_total matches the sum of all values in ncons
-
-    */
-
-    long i, j, max_angmom, counter;
-
-    max_angmom = 0;
-    counter = 0;
-    for (i=0; i<nshell; i++) {
-        if ((*ncons) <= 0) return -2;
-        for (j=0; j < (*ncons); j++) {
-            if ((*con_types) == -1) return -3;
-            if (abs(*con_types) > max_angmom) max_angmom = abs(*con_types);
-            con_types++;
-            counter++;
-            if (counter > ncon_total) return -4;
-        }
-        ncons++;
-    }
-    return ((max_angmom+1)*(max_angmom+2))/2;
 }

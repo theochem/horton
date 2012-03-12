@@ -23,35 +23,89 @@
 from horton import *
 
 
-def test_get_max_nbasis():
+def test_igob2_init():
+    centers = np.random.uniform(-1, 1, (2, 3))
+    shell_map = np.array([0, 0, 1, 1])
     ncons = np.array([1, 2, 3, 1])
+    nexps = np.array([2, 3, 5, 7])
     con_types = np.array([2, 1, 0, -2, 3, 0, 1])
-    assert get_max_nbasis(ncons, con_types) == 10
+    exponents = np.random.uniform(-1, 1, nexps.sum())
+    con_coeffs = np.random.uniform(-1, 1, np.dot(nexps, ncons))
+    nbasis = sum(get_con_nbasis(con_type) for con_type in con_types)
+    i2 = I2Gob(centers, shell_map, ncons, nexps, con_types, exponents, con_coeffs, nbasis)
+    assert i2.max_nbasis == 10
 
-    ncons = np.array([1, 2, 3, 1])
     con_types = np.array([1, 1, 0, -2, -2, 0, 1])
-    assert get_max_nbasis(ncons, con_types) == 6
+    nbasis = sum(get_con_nbasis(con_type) for con_type in con_types)
+    i2 = I2Gob(centers, shell_map, ncons, nexps, con_types, exponents, con_coeffs, nbasis)
+    assert i2.max_nbasis == 6
 
-    ncons = np.array([0, 1, 1])
-    con_types = np.array([1, 1])
+    # -2) The center indexes in the shell_map are out of range.
+    shell_map[0] = 2
     try:
-        get_max_nbasis(ncons, con_types)
+        i2 = I2Gob(centers, shell_map, ncons, nexps, con_types, exponents, con_coeffs, nbasis)
         assert False
     except ValueError:
         pass
+    shell_map[0] = 0
 
-    ncons = np.array([1, 1, 1])
-    con_types = np.array([-1, 1, 2])
+    # -3) The elements of ncons should be at least 1.
+    ncons[3] = 0
     try:
-        get_max_nbasis(ncons, con_types)
+        i2 = I2Gob(centers, shell_map, ncons, nexps, con_types, exponents, con_coeffs, nbasis)
         assert False
     except ValueError:
         pass
+    ncons[3] = 3
 
-    ncons = np.array([1, 1, 1])
+    # -4) The size of the array con_types does not match the sum of ncons.
     con_types = np.array([1, 1])
     try:
-        get_max_nbasis(ncons, con_types)
+        i2 = I2Gob(centers, shell_map, ncons, nexps, con_types, exponents, con_coeffs, nbasis)
+        assert False
+    except ValueError:
+        pass
+    con_types = np.array([1, 1, 0, -2, -2, 0, 1])
+
+    # -5) The elements of nexps should be at least 1.
+    nexps[1] = 0
+    try:
+        i2 = I2Gob(centers, shell_map, ncons, nexps, con_types, exponents, con_coeffs, nbasis)
+        assert False
+    except ValueError:
+        pass
+    nexps[1] = 3
+
+    # -6) The size of the array exponents does not match the sum of nexps.
+    exponents = np.random.uniform(-1, 1, 2)
+    try:
+        i2 = I2Gob(centers, shell_map, ncons, nexps, con_types, exponents, con_coeffs, nbasis)
+        assert False
+    except ValueError:
+        pass
+    exponents = np.random.uniform(-1, 1, nexps.sum())
+
+    # -7) Encountered the nonexistent con_type -1.
+    con_types[1] = -1
+    try:
+        i2 = I2Gob(centers, shell_map, ncons, nexps, con_types, exponents, con_coeffs, nbasis)
+        assert False
+    except ValueError:
+        pass
+    con_types[1] = 1
+
+    # -8) The size of con_coeffs does not match nexp and ncon.
+    con_coeffs = np.random.uniform(-1, 1, 3)
+    try:
+        i2 = I2Gob(centers, shell_map, ncons, nexps, con_types, exponents, con_coeffs, nbasis)
+        assert False
+    except ValueError:
+        pass
+    con_coeffs = np.random.uniform(-1, 1, np.dot(nexps, ncons))
+
+    # -9) The total number of basis functions does not match the output array.
+    try:
+        i2 = I2Gob(centers, shell_map, ncons, nexps, con_types, exponents, con_coeffs, 5)
         assert False
     except ValueError:
         pass

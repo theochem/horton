@@ -24,17 +24,22 @@ cdef extern from "contraction.h":
     long get_con_nbasis(long con_type)
 
     int compute_gobasis_overlap(double* centers, long* shell_map,
-        long* nexps, long* ncons, long* con_types,
-        double* exponents, double* con_coeffs, long nshell,
-        long ncon_total, double* output)
+        long* ncons, long* nexps, long* con_types, double* exponents, double*
+        con_coeffs, long nshell, long ncenter, long ncon_total, long nexp_total,
+        long ncon_coeff_total, double* output, long nbasis)
 
     ctypedef struct i2gob_type:
         long max_nbasis, con_type0, con_type1
         double con_coeff, exp0, exp1, x0, y0, z0, x1, y1, z1
 
+    i2gob_type* i2gob_new()
+    void i2gob_free(i2gob_type* i2)
     int i2gob_init(i2gob_type* i2, double* centers, long* shell_map,
-        long* nexps, long* ncons, long* con_types,
-        double* exponents, double* con_coeffs)
+        long* ncons, long* nexps, long* con_types, double* exponents,
+        double* con_coeffs, long nshell, long ncenter, long ncon_total,
+        long nexp_total, long ncon_coeff_total, long nbasis)
+    int i2gob_check(i2gob_type* i2, long nshell, long ncenter, long ncon_total,
+        long nexp_total, long ncon_coeff_total, long nbasis)
     bint i2gob_inc_shell(i2gob_type* i2)
     bint i2gob_inc_con(i2gob_type* i2)
     bint i2gob_inc_exp(i2gob_type* i2)

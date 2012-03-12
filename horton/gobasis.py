@@ -126,18 +126,18 @@ class GOBasisDesc(object):
             n = system.numbers[i]
             basis_x = get_basis(i, n)
             basis_atom = translate_basis(basis_x, n)
-            basis_atom.extend(i, shell_map, nexps, ncons, con_types, exponents, con_coeffs, self.pure)
+            basis_atom.extend(i, shell_map, ncons, nexps, con_types, exponents, con_coeffs, self.pure)
 
         # Turn the lists into arrays
         shell_map = np.array(shell_map)
-        nexps = np.array(nexps)
         ncons = np.array(ncons)
+        nexps = np.array(nexps)
         con_types = np.array(con_types)
-        con_coeffs = np.array(con_coeffs)
         exponents = np.array(exponents)
+        con_coeffs = np.array(con_coeffs)
 
         # Return the Gaussian basis object.
-        return GOBasis(shell_map, nexps, ncons, con_types, exponents, con_coeffs)
+        return GOBasis(shell_map, ncons, nexps, con_types, exponents, con_coeffs)
 
 
 def str_to_con_types(s):
@@ -235,7 +235,7 @@ class GOBasisAtom(object):
     def __init__(self, contractions):
         self.contractions = contractions
 
-    def extend(self, i, shell_map, nexps, ncons, con_types, exponents, con_coeffs, pure=True):
+    def extend(self, i, shell_map, ncons, nexps, con_types, exponents, con_coeffs, pure=True):
         """Extend the lists with basis functions for this atom.
 
            **Arguments:**
@@ -243,7 +243,7 @@ class GOBasisAtom(object):
            i
                 The index of the center of this atom.
 
-           shell_map, nexps, ncons, con_types, con_coeffs, exponents
+           shell_map, ncons, nexps, con_types, con_coeffs, exponents
                 These are all output arguments that must be extended with the
                 basis set parameters for this atom. The meaning of each argument
                 is defined in the documentation for constructor of the GOBasis
@@ -299,19 +299,19 @@ class GOBasisShell(object):
 
 class GOBasis(object):
     """This class describes basis sets applied to a certain molecular structure."""
-    def __init__(self, shell_map, nexps, ncons, con_types, exponents, con_coeffs):
+    def __init__(self, shell_map, ncons, nexps, con_types, exponents, con_coeffs):
         """
            **Arguments:**
 
            shell_map
                 An array with the center index for each shell.
 
-           nexps
-                The number of exponents in each shell.
-
            ncons
                 The number of contractions in each shell. This is used to
                 implement optimized general contractions.
+
+           nexps
+                The number of exponents in each shell.
 
            con_types
                 An array with contraction types: 0 = S, 1 = P, 2 = Cartesian D,
@@ -388,8 +388,8 @@ class GOBasis(object):
         # All fields are stored as internal parameters. Once they are set,
         # they are no supposed to be modified.
         self._shell_map = shell_map
-        self._nexps = nexps
         self._ncons = ncons
+        self._nexps = nexps
         self._con_types = con_types
         self._exponents = exponents
         self._con_coeffs = con_coeffs
@@ -446,7 +446,7 @@ class GOBasis(object):
         con_coeffs = np.concatenate(con_coeffs)
 
 
-        result = cls(shell_map, nexps, ncons, con_types, exponents, con_coeffs)
+        result = cls(shell_map, ncons, nexps, con_types, exponents, con_coeffs)
 
         # permutation of the basis functions
         g03_reordering = {
@@ -475,7 +475,6 @@ class GOBasis(object):
     def compute_overlap(self, centers, overlap):
         from horton.ext import compute_gobasis_overlap
         compute_gobasis_overlap(
-            centers, self._shell_map, self._nexps,
-            self._ncons, self._con_types, self._exponents,
-            self._con_coeffs, overlap._array
+            centers, self._shell_map, self._ncons, self._nexps, self._con_types,
+            self._exponents, self._con_coeffs, overlap._array
         )
