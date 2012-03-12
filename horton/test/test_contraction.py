@@ -24,34 +24,34 @@ from horton import *
 
 
 def test_get_max_nbasis():
-    num_contractions = np.array([1, 2, 3, 1])
+    ncons = np.array([1, 2, 3, 1])
     con_types = np.array([2, 1, 0, -2, 3, 0, 1])
-    assert get_max_nbasis(num_contractions, con_types) == 10
+    assert get_max_nbasis(ncons, con_types) == 10
 
-    num_contractions = np.array([1, 2, 3, 1])
+    ncons = np.array([1, 2, 3, 1])
     con_types = np.array([1, 1, 0, -2, -2, 0, 1])
-    assert get_max_nbasis(num_contractions, con_types) == 6
+    assert get_max_nbasis(ncons, con_types) == 6
 
-    num_contractions = np.array([0, 1, 1])
+    ncons = np.array([0, 1, 1])
     con_types = np.array([1, 1])
     try:
-        get_max_nbasis(num_contractions, con_types)
+        get_max_nbasis(ncons, con_types)
         assert False
     except ValueError:
         pass
 
-    num_contractions = np.array([1, 1, 1])
+    ncons = np.array([1, 1, 1])
     con_types = np.array([-1, 1, 2])
     try:
-        get_max_nbasis(num_contractions, con_types)
+        get_max_nbasis(ncons, con_types)
         assert False
     except ValueError:
         pass
 
-    num_contractions = np.array([1, 1, 1])
+    ncons = np.array([1, 1, 1])
     con_types = np.array([1, 1])
     try:
-        get_max_nbasis(num_contractions, con_types)
+        get_max_nbasis(ncons, con_types)
         assert False
     except ValueError:
         pass

@@ -61,17 +61,17 @@ cdef handle_retcode(retcode):
     if retcode == -1:
         raise MemoryError('Ran out of memory inside C routine.')
     elif retcode == -2:
-        raise ValueError('The elements of num_contractions should be at least 1.')
+        raise ValueError('The elements of ncons should be at least 1.')
     elif retcode == -3:
         raise ValueError('Encountered the nonexistent con_type -1.')
     elif retcode == -4:
-        raise ValueError('The size of the array con_types does not match the sum of num_contractions.')
+        raise ValueError('The size of the array con_types does not match the sum of ncons.')
 
 
 def compute_gobasis_overlap(np.ndarray[double, ndim=2] centers,
                             np.ndarray[long, ndim=1] shell_map,
-                            np.ndarray[long, ndim=1] num_exponents,
-                            np.ndarray[long, ndim=1] num_contractions,
+                            np.ndarray[long, ndim=1] nexps,
+                            np.ndarray[long, ndim=1] ncons,
                             np.ndarray[long, ndim=1] con_types,
                             np.ndarray[double, ndim=1] exponents,
                             np.ndarray[double, ndim=1] con_coeffs,
@@ -81,10 +81,10 @@ def compute_gobasis_overlap(np.ndarray[double, ndim=2] centers,
     assert centers.shape[1] == 3
     assert centers.flags['C_CONTIGUOUS']
     assert shell_map.flags['C_CONTIGUOUS']
-    assert num_exponents.flags['C_CONTIGUOUS']
-    assert shell_map.shape[0] == num_exponents.shape[0]
-    assert num_contractions.flags['C_CONTIGUOUS']
-    assert num_exponents.shape[0] == num_contractions.shape[0]
+    assert nexps.flags['C_CONTIGUOUS']
+    assert shell_map.shape[0] == nexps.shape[0]
+    assert ncons.flags['C_CONTIGUOUS']
+    assert nexps.shape[0] == ncons.shape[0]
     assert con_types.flags['C_CONTIGUOUS']
     assert exponents.flags['C_CONTIGUOUS']
     assert con_coeffs.flags['C_CONTIGUOUS']
@@ -96,8 +96,8 @@ def compute_gobasis_overlap(np.ndarray[double, ndim=2] centers,
     retcode = contraction.compute_gobasis_overlap(
         <double*>centers.data,
         <long*>shell_map.data,
-        <long*>num_exponents.data,
-        <long*>num_contractions.data,
+        <long*>nexps.data,
+        <long*>ncons.data,
         <long*>con_types.data,
         <double*>exponents.data,
         <double*>con_coeffs.data,
@@ -147,13 +147,13 @@ def i1pow_inc(int l, int m, int n):
     return (l, m, n), result
 
 
-def get_max_nbasis(np.ndarray[long, ndim=1] num_contractions,
+def get_max_nbasis(np.ndarray[long, ndim=1] ncons,
                    np.ndarray[long, ndim=1] con_types):
-    assert num_contractions.flags['C_CONTIGUOUS']
+    assert ncons.flags['C_CONTIGUOUS']
     assert con_types.flags['C_CONTIGUOUS']
     retcode = contraction.get_max_nbasis(
-        <long*>num_contractions.data, <long*>con_types.data,
-        len(num_contractions), len(con_types)
+        <long*>ncons.data, <long*>con_types.data,
+        len(ncons), len(con_types)
     )
     handle_retcode(retcode)
     return retcode

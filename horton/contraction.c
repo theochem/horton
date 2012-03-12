@@ -53,9 +53,9 @@ void swap_ptr(double **x, double **y) {
 
 
 int compute_gobasis_overlap(double* centers, long* shell_map,
-    long* num_exponents, long* num_contractions, long* con_types,
-    double* exponents, double* con_coeffs, long num_shells,
-    long tot_num_con, double* output) {
+    long* nexps, long* ncons, long* con_types,
+    double* exponents, double* con_coeffs, long nshell,
+    long ncon_total, double* output) {
 
     /*
 
@@ -131,7 +131,7 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
     // need to make a c++-ish iterator in future if we to generalize this
     // routine for different iterators. Note that the iterator is designed for
     // the nesting of the loops below.
-    result = i2gob_init(i2, centers, shell_map, num_exponents, num_contractions,
+    result = i2gob_init(i2, centers, shell_map, nexps, ncons,
                         con_types, exponents, con_coeffs);
     if (result != 0) goto exit;
 
@@ -218,7 +218,7 @@ exit:
 
 
 int i2gob_init(i2gob_type* i2, double* centers, long* shell_map,
-    long* num_exponents, long* num_contractions, long* con_types,
+    long* nexps, long* ncons, long* con_types,
     double* exponents, double* con_coeffs) {
     return 0;
 }
@@ -316,8 +316,8 @@ void project_cartesian_to_pure(double *work_cart, double* work_pure, long
 
 
 
-int get_max_nbasis(long* num_contractions, long* con_types, long num_shells,
-    long tot_num_con) {
+int get_max_nbasis(long* ncons, long* con_types, long nshell,
+    long ncon_total) {
 
     /*
 
@@ -327,9 +327,9 @@ int get_max_nbasis(long* num_contractions, long* con_types, long num_shells,
     Besides this principal purpose, this routine also asserts two expected
     properties of the input data:
 
-        -2: each element of num_contractions is at least 1
+        -2: each element of ncons is at least 1
         -3: con_type -1 does not occur
-        -4: tot_num_con matches the sum of all values in num_contractions
+        -4: ncon_total matches the sum of all values in ncons
 
     */
 
@@ -337,16 +337,16 @@ int get_max_nbasis(long* num_contractions, long* con_types, long num_shells,
 
     max_angmom = 0;
     counter = 0;
-    for (i=0; i<num_shells; i++) {
-        if ((*num_contractions) <= 0) return -2;
-        for (j=0; j < (*num_contractions); j++) {
+    for (i=0; i<nshell; i++) {
+        if ((*ncons) <= 0) return -2;
+        for (j=0; j < (*ncons); j++) {
             if ((*con_types) == -1) return -3;
             if (abs(*con_types) > max_angmom) max_angmom = abs(*con_types);
             con_types++;
             counter++;
-            if (counter > tot_num_con) return -4;
+            if (counter > ncon_total) return -4;
         }
-        num_contractions++;
+        ncons++;
     }
     return ((max_angmom+1)*(max_angmom+2))/2;
 }
