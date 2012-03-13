@@ -264,6 +264,10 @@ int i2gob_init(i2gob_type* i2, double* centers, long* shell_map,
     // reset internal fields
     (*i2).ishell0 = 0;
     (*i2).ishell1 = 0;
+    (*i2).ncon0 = (*i2).ncons[0];
+    (*i2).ncon1 = (*i2).ncons[0];
+    (*i2).icon0 = 0;
+    (*i2).icon1 = 0;
 
     return 0;
 }
@@ -328,21 +332,37 @@ int i2gob_check(i2gob_type* i2, long nshell, long ncenter, long ncon_total,
 int i2gob_inc_shell(i2gob_type* i2) {
     if ((*i2).ishell0 < (*i2).ishell1) {
         (*i2).ishell0++;
+        (*i2).ncon0 = (*i2).ncons[(*i2).ishell0];
         return 1;
     } else if ((*i2).ishell1 < (*i2).nshell-1) {
-        (*i2).ishell1++;
         (*i2).ishell0 = 0;
+        (*i2).ishell1++;
+        (*i2).ncon0 = (*i2).ncons[(*i2).ishell0];
+        (*i2).ncon1 = (*i2).ncons[(*i2).ishell1];
         return 1;
     } else {
         (*i2).ishell0 = 0;
         (*i2).ishell1 = 0;
+        (*i2).ncon0 = (*i2).ncons[(*i2).ishell0];
+        (*i2).ncon1 = (*i2).ncons[(*i2).ishell1];
         return 0;
     }
 }
 
 
 int i2gob_inc_con(i2gob_type* i2) {
-    return 0;
+    if ((*i2).icon0 < (*i2).ncon0-1) {
+        (*i2).icon0++;
+        return 1;
+    } else if ((*i2).icon1 < (*i2).ncon1-1) {
+        (*i2).icon1++;
+        (*i2).icon0 = 0;
+        return 1;
+    } else {
+        (*i2).icon0 = 0;
+        (*i2).icon1 = 0;
+        return 0;
+    }
 }
 
 
