@@ -48,7 +48,7 @@ typedef struct {
     double con_coeff, exp0, exp1, x0, y0, z0, x1, y1, z1;
 
     // private iterator fields
-    long ishell0, ishell1;
+    long ishell0, ishell1, ncon0, ncon1, icon0, icon1;
 } i2gob_type;
 
 

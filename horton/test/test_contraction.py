@@ -121,97 +121,118 @@ def test_i2gob_init():
 
 def test_i2gob_inc_shell():
     i2 = get_test_i2gob()[0]
-    i2.private_fields == (0, 0)
-    i2.inc_shell()
-    i2.private_fields == (0, 1)
-    i2.inc_shell()
-    i2.private_fields == (1, 1)
-    i2.inc_shell()
-    i2.private_fields == (0, 2)
-    i2.inc_shell()
-    i2.private_fields == (1, 2)
-    i2.inc_shell()
-    i2.private_fields == (2, 2)
-    i2.inc_shell()
-    i2.private_fields == (0, 3)
+    assert i2.private_fields == (0, 0, 1, 1, 0, 0)
+    assert i2.inc_shell() is True
+    assert i2.private_fields == (0, 1, 1, 2, 0, 0)
+    assert i2.inc_shell() is True
+    assert i2.private_fields == (1, 1, 2, 2, 0, 0)
+    assert i2.inc_shell() is True
+    assert i2.private_fields == (0, 2, 1, 3, 0, 0)
+    assert i2.inc_shell() is True
+    assert i2.private_fields == (1, 2, 2, 3, 0, 0)
+    assert i2.inc_shell() is True
+    assert i2.private_fields == (2, 2, 3, 3, 0, 0)
+    assert i2.inc_shell() is True
+    assert i2.private_fields == (0, 3, 1, 1, 0, 0)
+
+
+def test_i2gob_inc_con():
+    i2 = get_test_i2gob()[0]
+    assert i2.private_fields == (0, 0, 1, 1, 0, 0)
+    assert i2.inc_con() is False
+    assert i2.private_fields == (0, 0, 1, 1, 0, 0)
+    assert i2.inc_shell() is True
+    assert i2.private_fields == (0, 1, 1, 2, 0, 0)
+    assert i2.inc_con() is True
+    assert i2.private_fields == (0, 1, 1, 2, 0, 1)
+    assert i2.inc_con() is False
+    assert i2.private_fields == (0, 1, 1, 2, 0, 0)
+    assert i2.inc_shell() is True
+    assert i2.private_fields == (1, 1, 2, 2, 0, 0)
+    assert i2.inc_con() is True
+    assert i2.private_fields == (1, 1, 2, 2, 1, 0)
+    assert i2.inc_con() is True
+    assert i2.private_fields == (1, 1, 2, 2, 0, 1)
+    assert i2.inc_con() is True
+    assert i2.private_fields == (1, 1, 2, 2, 1, 1)
 
 
 def test_i1pow_inc_l0():
     indexes = (0,0,0)
     indexes, result = i1pow_inc(*indexes)
     assert indexes == (0,0,0)
-    assert result == 0
+    assert result is False
 
 
 def test_i1pow_inc_l1():
     indexes = (1,0,0)
     indexes, result = i1pow_inc(*indexes)
     assert indexes == (0,1,0)
-    assert result == 1
+    assert result is True
     indexes, result = i1pow_inc(*indexes)
     assert indexes == (0,0,1)
-    assert result == 1
+    assert result is True
     indexes, result = i1pow_inc(*indexes)
     assert indexes == (1,0,0)
-    assert result == 0
+    assert result is False
 
 
 def test_i1pow_inc_l2():
     indexes = (2,0,0)
     indexes, result = i1pow_inc(*indexes)
     assert indexes == (1,1,0)
-    assert result == 1
+    assert result is True
     indexes, result = i1pow_inc(*indexes)
     assert indexes == (1,0,1)
-    assert result == 1
+    assert result is True
     indexes, result = i1pow_inc(*indexes)
     assert indexes == (0,2,0)
-    assert result == 1
+    assert result is True
     indexes, result = i1pow_inc(*indexes)
     assert indexes == (0,1,1)
-    assert result == 1
+    assert result is True
     indexes, result = i1pow_inc(*indexes)
     assert indexes == (0,0,2)
-    assert result == 1
+    assert result is True
     indexes, result = i1pow_inc(*indexes)
     assert indexes == (2,0,0)
-    assert result == 0
+    assert result is False
 
 
 def test_i2_pow_l0l0():
     i2p = I2Pow(0, 0, 3)
     assert i2p.fields == (0, 0, 0, 0, 0, 0, 0)
-    assert i2p.inc() == False
+    assert i2p.inc() is False
     assert i2p.fields == (0, 0, 0, 0, 0, 0, 0)
 
 
 def test_i2_pow_l1l0():
     i2p = I2Pow(1, 0, 3)
     assert i2p.fields == (1, 0, 0, 0, 0, 0, 0)
-    assert i2p.inc() == True
+    assert i2p.inc() is True
     assert i2p.fields == (0, 1, 0, 0, 0, 0, 1)
-    assert i2p.inc() == True
+    assert i2p.inc() is True
     assert i2p.fields == (0, 0, 1, 0, 0, 0, 2)
-    assert i2p.inc() == False
+    assert i2p.inc() is False
     assert i2p.fields == (1, 0, 0, 0, 0, 0, 0)
 
 
 def test_i2_pow_l2l1():
     i2p = I2Pow(2, 1, 10)
     assert i2p.fields == (2, 0, 0, 1, 0, 0, 0)
-    assert i2p.inc() == True
+    assert i2p.inc() is True
     assert i2p.fields == (1, 1, 0, 1, 0, 0, 1)
-    assert i2p.inc() == True
+    assert i2p.inc() is True
     assert i2p.fields == (1, 0, 1, 1, 0, 0, 2)
-    assert i2p.inc() == True
+    assert i2p.inc() is True
     assert i2p.fields == (0, 2, 0, 1, 0, 0, 3)
-    assert i2p.inc() == True
+    assert i2p.inc() is True
     assert i2p.fields == (0, 1, 1, 1, 0, 0, 4)
-    assert i2p.inc() == True
+    assert i2p.inc() is True
     assert i2p.fields == (0, 0, 2, 1, 0, 0, 5)
-    assert i2p.inc() == True
+    assert i2p.inc() is True
     assert i2p.fields == (2, 0, 0, 0, 1, 0, 10)
-    assert i2p.inc() == True
+    assert i2p.inc() is True
     assert i2p.fields == (1, 1, 0, 0, 1, 0, 11)
 
 

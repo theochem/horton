@@ -126,6 +126,15 @@ cdef class I2Gob:
     """Wrapper for the i2gob code, for testing only."""
     cdef contraction.i2gob_type* _c_i2
 
+    # Internal attributes to avoid deallocation.
+    cdef np.ndarray _centers
+    cdef np.ndarray _shell_map
+    cdef np.ndarray _ncons
+    cdef np.ndarray _nexps
+    cdef np.ndarray _con_types
+    cdef np.ndarray _exponents
+    cdef np.ndarray _con_coeffs
+
     def __cinit__(self):
         self._c_i2 = contraction.i2gob_new()
         if self._c_i2 is NULL:
@@ -150,6 +159,15 @@ cdef class I2Gob:
         assert exponents.flags['C_CONTIGUOUS']
         assert con_coeffs.flags['C_CONTIGUOUS']
         assert nbasis > 0
+
+        # Assign arrays to internal attributes
+        self._centers = centers
+        self._shell_map = shell_map
+        self._ncons = ncons
+        self._nexps = nexps
+        self._con_types = con_types
+        self._exponents = exponents
+        self._con_coeffs = con_coeffs
 
         # TODO: proper error handling and bounds checking.
         # TODO: provide function pointer for specific integral routine.
@@ -176,7 +194,10 @@ cdef class I2Gob:
             contraction.i2gob_free(self._c_i2)
 
     def inc_shell(self):
-        contraction.i2gob_inc_shell(self._c_i2)
+        return contraction.i2gob_inc_shell(self._c_i2)
+
+    def inc_con(self):
+        return contraction.i2gob_inc_con(self._c_i2)
 
     property max_nbasis:
         def __get__(self):
@@ -186,6 +207,8 @@ cdef class I2Gob:
         def __get__(self):
             return (
                 self._c_i2[0].ishell0, self._c_i2[0].ishell1,
+                self._c_i2[0].ncon0, self._c_i2[0].ncon1,
+                self._c_i2[0].icon0, self._c_i2[0].icon1,
             )
 
 
@@ -224,6 +247,5 @@ cdef class I2Pow:
 
 
 def i1pow_inc(int l, int m, int n):
-    cdef int result
     result = contraction.i1pow_inc(&l, &m, &n)
     return (l, m, n), result
