@@ -41,13 +41,14 @@ typedef struct {
     long* con_types;
     double* exponents;
     double* con_coeffs;
+    long nshell;
 
     // public iterator fields
     long max_nbasis, con_type0, con_type1;
     double con_coeff, exp0, exp1, x0, y0, z0, x1, y1, z1;
 
     // private iterator fields
-    // TODO
+    long ishell0, ishell1;
 } i2gob_type;
 
 
