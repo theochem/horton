@@ -175,9 +175,18 @@ cdef class I2Gob:
         if self._c_i2 is not NULL:
             contraction.i2gob_free(self._c_i2)
 
+    def inc_shell(self):
+        contraction.i2gob_inc_shell(self._c_i2)
+
     property max_nbasis:
         def __get__(self):
             return self._c_i2[0].max_nbasis
+
+    property private_fields:
+        def __get__(self):
+            return (
+                self._c_i2[0].ishell0, self._c_i2[0].ishell1,
+            )
 
 
 cdef class I2Pow:

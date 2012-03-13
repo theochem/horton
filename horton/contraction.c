@@ -241,6 +241,7 @@ int i2gob_init(i2gob_type* i2, double* centers, long* shell_map,
     (*i2).con_types = con_types;
     (*i2).exponents = exponents;
     (*i2).con_coeffs = con_coeffs;
+    (*i2).nshell = nshell;
 
     result = i2gob_check(i2, nshell, ncenter, ncon_total, nexp_total,
                          ncon_coeff_total, nbasis);
@@ -261,10 +262,12 @@ int i2gob_init(i2gob_type* i2, double* centers, long* shell_map,
     (*i2).z1 = 0.0;
 
     // reset internal fields
-    // TODO
+    (*i2).ishell0 = 0;
+    (*i2).ishell1 = 0;
 
     return 0;
 }
+
 
 int i2gob_check(i2gob_type* i2, long nshell, long ncenter, long ncon_total,
     long nexp_total, long ncon_coeff_total, long nbasis) {
@@ -321,17 +324,32 @@ int i2gob_check(i2gob_type* i2, long nshell, long ncenter, long ncon_total,
     return ((max_angmom+1)*(max_angmom+2))/2;
 }
 
+
 int i2gob_inc_shell(i2gob_type* i2) {
-    return 0;
+    if ((*i2).ishell0 < (*i2).ishell1) {
+        (*i2).ishell0++;
+        return 1;
+    } else if ((*i2).ishell1 < (*i2).nshell-1) {
+        (*i2).ishell1++;
+        (*i2).ishell0 = 0;
+        return 1;
+    } else {
+        (*i2).ishell0 = 0;
+        (*i2).ishell1 = 0;
+        return 0;
+    }
 }
+
 
 int i2gob_inc_con(i2gob_type* i2) {
     return 0;
 }
 
+
 int i2gob_inc_exp(i2gob_type* i2) {
     return 0;
 }
+
 
 void i2gob_store(i2gob_type* i2, double *work_pure, double *output) {
 }

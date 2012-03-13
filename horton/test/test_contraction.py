@@ -23,7 +23,8 @@
 from horton import *
 
 
-def test_igob2_init():
+
+def get_test_i2gob():
     centers = np.random.uniform(-1, 1, (2, 3))
     shell_map = np.array([0, 0, 1, 1])
     ncons = np.array([1, 2, 3, 1])
@@ -32,7 +33,14 @@ def test_igob2_init():
     exponents = np.random.uniform(-1, 1, nexps.sum())
     con_coeffs = np.random.uniform(-1, 1, np.dot(nexps, ncons))
     nbasis = sum(get_con_nbasis(con_type) for con_type in con_types)
-    i2 = I2Gob(centers, shell_map, ncons, nexps, con_types, exponents, con_coeffs, nbasis)
+    return (
+        I2Gob(centers, shell_map, ncons, nexps, con_types, exponents, con_coeffs, nbasis),
+        centers, shell_map, ncons, nexps, con_types, exponents, con_coeffs, nbasis
+    )
+
+
+def test_i2gob_init():
+    i2, centers, shell_map, ncons, nexps, con_types, exponents, con_coeffs, nbasis = get_test_i2gob()
     assert i2.max_nbasis == 10
 
     con_types = np.array([1, 1, 0, -2, -2, 0, 1])
@@ -109,6 +117,23 @@ def test_igob2_init():
         assert False
     except ValueError:
         pass
+
+
+def test_i2gob_inc_shell():
+    i2 = get_test_i2gob()[0]
+    i2.private_fields == (0, 0)
+    i2.inc_shell()
+    i2.private_fields == (0, 1)
+    i2.inc_shell()
+    i2.private_fields == (1, 1)
+    i2.inc_shell()
+    i2.private_fields == (0, 2)
+    i2.inc_shell()
+    i2.private_fields == (1, 2)
+    i2.inc_shell()
+    i2.private_fields == (2, 2)
+    i2.inc_shell()
+    i2.private_fields == (0, 3)
 
 
 def test_i1pow_inc_l0():
