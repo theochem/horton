@@ -31,7 +31,7 @@ cdef extern from "contraction.h":
     ctypedef struct i2gob_type:
         long max_nbasis, con_type0, con_type1
         double con_coeff, exp0, exp1, x0, y0, z0, x1, y1, z1
-        long ishell0, ishell1, ncon0, ncon1, icon0, icon1
+        long ishell0, ishell1, ncon0, ncon1, icon0, icon1, ocon0, ocon1
 
     i2gob_type* i2gob_new()
     void i2gob_free(i2gob_type* i2)
@@ -42,7 +42,9 @@ cdef extern from "contraction.h":
     int i2gob_check(i2gob_type* i2, long nshell, long ncenter, long ncon_total,
         long nexp_total, long ncon_coeff_total, long nbasis)
     bint i2gob_inc_shell(i2gob_type* i2)
+    void i2gob_update_shell(i2gob_type* i2)
     bint i2gob_inc_con(i2gob_type* i2)
+    void i2gob_update_con(i2gob_type* i2)
     bint i2gob_inc_exp(i2gob_type* i2)
     void i2gob_store(i2gob_type* i2, double *work_pure, double *output)
 

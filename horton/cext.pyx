@@ -196,18 +196,31 @@ cdef class I2Gob:
     def inc_shell(self):
         return contraction.i2gob_inc_shell(self._c_i2)
 
+    def update_shell(self):
+        contraction.i2gob_update_shell(self._c_i2)
+
     def inc_con(self):
         return contraction.i2gob_inc_con(self._c_i2)
+
+    def update_con(self):
+        contraction.i2gob_update_con(self._c_i2)
 
     property max_nbasis:
         def __get__(self):
             return self._c_i2[0].max_nbasis
+
+    property public_fields:
+        def __get__(self):
+            return (
+                self._c_i2[0].con_type0, self._c_i2[0].con_type1,
+            )
 
     property private_fields:
         def __get__(self):
             return (
                 self._c_i2[0].ishell0, self._c_i2[0].ishell1,
                 self._c_i2[0].ncon0, self._c_i2[0].ncon1,
+                self._c_i2[0].ocon0, self._c_i2[0].ocon1,
                 self._c_i2[0].icon0, self._c_i2[0].icon1,
             )
 
