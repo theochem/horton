@@ -205,6 +205,24 @@ cdef class I2Gob:
     def update_con(self):
         contraction.i2gob_update_con(self._c_i2)
 
+    def inc_exp(self):
+        return contraction.i2gob_inc_exp(self._c_i2)
+
+    def update_exp(self):
+        contraction.i2gob_update_exp(self._c_i2)
+
+    property centers:
+        def __get__(self):
+            return self._centers
+
+    property exponents:
+        def __get__(self):
+            return self._exponents
+
+    property con_coeffs:
+        def __get__(self):
+            return self._con_coeffs
+
     property max_nbasis:
         def __get__(self):
             return self._c_i2[0].max_nbasis
@@ -212,7 +230,11 @@ cdef class I2Gob:
     property public_fields:
         def __get__(self):
             return (
+                self._c_i2[0].con_coeff,
                 self._c_i2[0].con_type0, self._c_i2[0].con_type1,
+                self._c_i2[0].exp0, self._c_i2[0].exp1,
+                self._c_i2[0].x0, self._c_i2[0].y0, self._c_i2[0].z0,
+                self._c_i2[0].x1, self._c_i2[0].y1, self._c_i2[0].z1,
             )
 
     property private_fields:
@@ -222,6 +244,10 @@ cdef class I2Gob:
                 self._c_i2[0].ncon0, self._c_i2[0].ncon1,
                 self._c_i2[0].ocon0, self._c_i2[0].ocon1,
                 self._c_i2[0].icon0, self._c_i2[0].icon1,
+                self._c_i2[0].nexp0, self._c_i2[0].nexp1,
+                self._c_i2[0].oexp0, self._c_i2[0].oexp1,
+                self._c_i2[0].iexp0, self._c_i2[0].iexp1,
+                self._c_i2[0].occ0, self._c_i2[0].occ1,
             )
 
 

@@ -158,11 +158,8 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
             memset(work_pure, 0, nwork*sizeof(double));
 
             // (E) (E) (E) (E) (E) (E) (E) (E) (E) (E) (E) (E) (E) (E) (E) (E)
+            i2gob_update_exp(i2);
             do {
-                //exp0 = exponents[(*i2_shell).oexp0 + (*i2_exp).i0];
-                //exp1 = exponents[(*i2_shell).oexp1 + (*i2_exp).i1];
-                //coeff = con_coeffs[(*i2_shell).occ0 + (*i2_shell).ncon0*(*i2_exp).i0 + (*i2_con).i0]*
-                //        con_coeffs[(*i2_shell).occ1 + (*i2_shell).ncon1*(*i2_exp).i0 + (*i2_con).i1];
 
                 // (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F)
                 i2pow_init(i2p, abs((*i2).con_type0), abs((*i2).con_type1), (*i2).max_nbasis);
@@ -263,12 +260,23 @@ int i2gob_init(i2gob_type* i2, double* centers, long* shell_map,
     // reset internal fields
     (*i2).ishell0 = 0;
     (*i2).ishell1 = 0;
-    (*i2).ncon0 = 0;
+
+    (*i2).ncon0 = 0; // number of contractions in a shell
     (*i2).ncon1 = 0;
     (*i2).icon0 = 0; // index of the current con_type within the current shell
     (*i2).icon1 = 0;
-    (*i2).ocon0 = 0; // offset of the current con_type within the current shell
+    (*i2).ocon0 = 0; // offset of the first con_type within the current shell
     (*i2).ocon1 = 0;
+
+    (*i2).nexp0 = 0; // number of exponents in a shell
+    (*i2).nexp1 = 0;
+    (*i2).iexp0 = 0; // index of the current exponent within the current shell
+    (*i2).iexp1 = 0;
+    (*i2).oexp0 = 0; // offset of the first exponent within the current shell
+    (*i2).oexp1 = 0;
+
+    (*i2).occ0 = 0; // offset of the first contraction coefficient within the current shell
+    (*i2).occ1 = 0;
 
     return 0;
 }
@@ -335,12 +343,18 @@ int i2gob_inc_shell(i2gob_type* i2) {
     if ((*i2).ishell0 < (*i2).ishell1) {
         (*i2).ishell0++;
         (*i2).ocon0 += (*i2).ncon0;
+        (*i2).oexp0 += (*i2).nexp0;
+        (*i2).occ0 += (*i2).ncon0 * (*i2).nexp0;
         i2gob_update_shell(i2);
         return 1;
     } else if ((*i2).ishell1 < (*i2).nshell-1) {
         (*i2).ishell0 = 0;
         (*i2).ocon0 = 0;
+        (*i2).oexp0 = 0;
+        (*i2).occ0 = 0;
         (*i2).ocon1 += (*i2).ncon1;
+        (*i2).oexp1 += (*i2).nexp1;
+        (*i2).occ1 += (*i2).ncon1 * (*i2).nexp1;
         (*i2).ishell1++;
         i2gob_update_shell(i2);
         return 1;
@@ -349,6 +363,10 @@ int i2gob_inc_shell(i2gob_type* i2) {
         (*i2).ishell1 = 0;
         (*i2).ocon0 = 0;
         (*i2).ocon1 = 0;
+        (*i2).oexp0 = 0;
+        (*i2).oexp1 = 0;
+        (*i2).occ0 = 0;
+        (*i2).occ1 = 0;
         i2gob_update_shell(i2);
         return 0;
     }
@@ -356,9 +374,29 @@ int i2gob_inc_shell(i2gob_type* i2) {
 
 
 void i2gob_update_shell(i2gob_type* i2) {
+    double* tmp;
     // Update fields that depend on shell and related counters.
     (*i2).ncon0 = (*i2).ncons[(*i2).ishell0];
     (*i2).ncon1 = (*i2).ncons[(*i2).ishell1];
+    (*i2).nexp0 = (*i2).nexps[(*i2).ishell0];
+    (*i2).nexp1 = (*i2).nexps[(*i2).ishell1];
+    // update center 0
+    tmp = (*i2).centers + 3*(*i2).shell_map[(*i2).ishell0];
+    (*i2).x0 = *tmp;
+    tmp++;
+    (*i2).y0 = *tmp;
+    tmp++;
+    (*i2).z0 = *tmp;
+    // update center 1
+    tmp = (*i2).centers + 3*(*i2).shell_map[(*i2).ishell1];
+    (*i2).x1 = *tmp;
+    tmp++;
+    (*i2).y1 = *tmp;
+    tmp++;
+    (*i2).z1 = *tmp;
+    // reset contraction counters
+    (*i2).icon0 = 0;
+    (*i2).icon1 = 0;
 }
 
 
@@ -386,14 +424,39 @@ void i2gob_update_con(i2gob_type* i2) {
     // Update fields that depend on contraction counters.
     (*i2).con_type0 = (*i2).con_types[(*i2).ocon0 + (*i2).icon0];
     (*i2).con_type1 = (*i2).con_types[(*i2).ocon1 + (*i2).icon1];
+    // Reset exponent counters.
+    (*i2).iexp0 = 0;
+    (*i2).iexp1 = 0;
 }
-
 
 
 int i2gob_inc_exp(i2gob_type* i2) {
-    return 0;
+    // Increment exponent counters.
+    if ((*i2).iexp0 < (*i2).nexp0-1) {
+        (*i2).iexp0++;
+        i2gob_update_exp(i2);
+        return 1;
+    } else if ((*i2).iexp1 < (*i2).nexp1-1) {
+        (*i2).iexp1++;
+        (*i2).iexp0 = 0;
+        i2gob_update_exp(i2);
+        return 1;
+    } else {
+        (*i2).iexp0 = 0;
+        (*i2).iexp1 = 0;
+        i2gob_update_exp(i2);
+        return 0;
+    }
 }
 
+
+void i2gob_update_exp(i2gob_type* i2) {
+    // Update fields that depend on exponent counters.
+    (*i2).exp0 = (*i2).exponents[(*i2).oexp0 + (*i2).iexp0];
+    (*i2).exp1 = (*i2).exponents[(*i2).oexp1 + (*i2).iexp1];
+    (*i2).con_coeff = (*i2).con_coeffs[(*i2).occ0 + (*i2).ncon0*(*i2).iexp0 + (*i2).icon0]*
+                      (*i2).con_coeffs[(*i2).occ1 + (*i2).ncon1*(*i2).iexp1 + (*i2).icon1];
+}
 
 void i2gob_store(i2gob_type* i2, double *work_pure, double *output) {
 }

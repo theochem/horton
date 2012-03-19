@@ -48,7 +48,10 @@ typedef struct {
     double con_coeff, exp0, exp1, x0, y0, z0, x1, y1, z1;
 
     // private iterator fields
-    long ishell0, ishell1, ncon0, ncon1, icon0, icon1, ocon0, ocon1;
+    long ishell0, ishell1;
+    long ncon0, ncon1, icon0, icon1, ocon0, ocon1; // contraction counters
+    long nexp0, nexp1, iexp0, iexp1, oexp0, oexp1; // exponent counters
+    long occ0, occ1; // contraction coefficient counters
 } i2gob_type;
 
 
@@ -65,6 +68,7 @@ void i2gob_update_shell(i2gob_type* i2);
 int i2gob_inc_con(i2gob_type* i2);
 void i2gob_update_con(i2gob_type* i2);
 int i2gob_inc_exp(i2gob_type* i2);
+void i2gob_update_exp(i2gob_type* i2);
 void i2gob_store(i2gob_type* i2, double *work_pure, double *output);
 
 
