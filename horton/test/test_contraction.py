@@ -121,40 +121,68 @@ def test_i2gob_init():
 
 def test_i2gob_inc_shell():
     i2 = get_test_i2gob()[0]
-    assert i2.private_fields == (0, 0, 1, 1, 0, 0)
+    i2.update_shell()
+    i2.update_con()
+    assert i2.private_fields == (0, 0, 1, 1, 0, 0, 0, 0)
+    assert i2.public_fields == (2, 2)
     assert i2.inc_shell() is True
-    assert i2.private_fields == (0, 1, 1, 2, 0, 0)
+    i2.update_con()
+    assert i2.private_fields == (0, 1, 1, 2, 0, 1, 0, 0)
+    assert i2.public_fields == (2, 1)
     assert i2.inc_shell() is True
-    assert i2.private_fields == (1, 1, 2, 2, 0, 0)
+    i2.update_con()
+    assert i2.private_fields == (1, 1, 2, 2, 1, 1, 0, 0)
+    assert i2.public_fields == (1, 1)
     assert i2.inc_shell() is True
-    assert i2.private_fields == (0, 2, 1, 3, 0, 0)
+    i2.update_con()
+    assert i2.private_fields == (0, 2, 1, 3, 0, 3, 0, 0)
+    assert i2.public_fields == (2, -2)
     assert i2.inc_shell() is True
-    assert i2.private_fields == (1, 2, 2, 3, 0, 0)
+    i2.update_con()
+    assert i2.private_fields == (1, 2, 2, 3, 1, 3, 0, 0)
+    assert i2.public_fields == (1, -2)
     assert i2.inc_shell() is True
-    assert i2.private_fields == (2, 2, 3, 3, 0, 0)
+    i2.update_con()
+    assert i2.private_fields == (2, 2, 3, 3, 3, 3, 0, 0)
+    assert i2.public_fields == (-2, -2)
     assert i2.inc_shell() is True
-    assert i2.private_fields == (0, 3, 1, 1, 0, 0)
+    i2.update_con()
+    assert i2.private_fields == (0, 3, 1, 1, 0, 6, 0, 0)
+    assert i2.public_fields == (2, 1)
 
 
 def test_i2gob_inc_con():
     i2 = get_test_i2gob()[0]
-    assert i2.private_fields == (0, 0, 1, 1, 0, 0)
+    i2.update_shell()
+    i2.update_con()
+    assert i2.private_fields == (0, 0, 1, 1, 0, 0, 0, 0)
+    assert i2.public_fields == (2, 2)
     assert i2.inc_con() is False
-    assert i2.private_fields == (0, 0, 1, 1, 0, 0)
+    assert i2.private_fields == (0, 0, 1, 1, 0, 0, 0, 0)
+    assert i2.public_fields == (2, 2)
     assert i2.inc_shell() is True
-    assert i2.private_fields == (0, 1, 1, 2, 0, 0)
+    i2.update_con()
+    assert i2.private_fields == (0, 1, 1, 2, 0, 1, 0, 0)
+    assert i2.public_fields == (2, 1)
     assert i2.inc_con() is True
-    assert i2.private_fields == (0, 1, 1, 2, 0, 1)
+    assert i2.private_fields == (0, 1, 1, 2, 0, 1, 0, 1)
+    assert i2.public_fields == (2, 0)
     assert i2.inc_con() is False
-    assert i2.private_fields == (0, 1, 1, 2, 0, 0)
+    assert i2.private_fields == (0, 1, 1, 2, 0, 1, 0, 0)
+    assert i2.public_fields == (2, 1)
     assert i2.inc_shell() is True
-    assert i2.private_fields == (1, 1, 2, 2, 0, 0)
+    i2.update_con()
+    assert i2.private_fields == (1, 1, 2, 2, 1, 1, 0, 0)
+    assert i2.public_fields == (1, 1)
     assert i2.inc_con() is True
-    assert i2.private_fields == (1, 1, 2, 2, 1, 0)
+    assert i2.private_fields == (1, 1, 2, 2, 1, 1, 1, 0)
+    assert i2.public_fields == (0, 1)
     assert i2.inc_con() is True
-    assert i2.private_fields == (1, 1, 2, 2, 0, 1)
+    assert i2.private_fields == (1, 1, 2, 2, 1, 1, 0, 1)
+    assert i2.public_fields == (1, 0)
     assert i2.inc_con() is True
-    assert i2.private_fields == (1, 1, 2, 2, 1, 1)
+    assert i2.private_fields == (1, 1, 2, 2, 1, 1, 1, 1)
+    assert i2.public_fields == (0, 0)
 
 
 def test_i1pow_inc_l0():
