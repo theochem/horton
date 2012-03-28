@@ -225,7 +225,7 @@ Only the basic work flow is discussed, so things may become more complicated.
 5. Review your changes with ``git diff``. Make sure there are no trailing spaces
    or trailing blank lines. These can be removed with the ``./cleancode.sh``
    script. If you created new files, run the ``./updateheaders.py`` script to
-   make sure the new files have the propper headers.
+   make sure the new files have the proper headers.
 
 6. Review the changed/new files with ``git status``
 
