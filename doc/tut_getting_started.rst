@@ -32,7 +32,7 @@ In order to `compile` the Horton C-extension and documentation, one needs to
 install relatively recent versions of the following programs/libraries:
 
 * Python < 3.0: http://www.python.org/ (also install `development files`)
-* Numpy > 1.0: http://www.scipy.org/
+* Numpy > 1.0: http://www.scipy.org/ (scipy is needed as well)
 * Cython > (todo): http://www.cython.org/
 * Sphinx > 1.0: http://sphinx.pocoo.org/
 
