@@ -1,6 +1,6 @@
 #!/bin/bash
 echo Cleaning python code in \'`pwd`\' and subdirectories
-for file in $(find data doc horton *.py | egrep "(\.rst$)|(\.py$)|(\.c$)|(\.h$)|(\.nwchem)|(\.pyx$)|(\.pxd$)"); do
+for file in $(find data doc horton tools *.py | egrep "(\.rst$)|(\.py$)|(\.c$)|(\.h$)|(\.nwchem)|(\.pyx$)|(\.pxd$)"); do
   echo Cleaning ${file}
   sed -i -e $'s/\t/    /g' ${file}
   sed -i -e $'s/[ \t]\+$//g' ${file}

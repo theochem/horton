@@ -22,6 +22,8 @@
 
 import numpy as np
 cimport numpy as np
+
+cimport cartpure
 cimport cints
 cimport contraction
 
@@ -30,6 +32,7 @@ __all__ = [
     'fact', 'fact2',
     'get_con_nbasis',
     'compute_gobasis_overlap', 'I2Gob', 'I2Pow', 'i1pow_inc',
+    'project_cartesian_to_pure'
 ]
 
 
@@ -288,3 +291,20 @@ cdef class I2Pow:
 def i1pow_inc(int l, int m, int n):
     result = contraction.i1pow_inc(&l, &m, &n)
     return (l, m, n), result
+
+
+#
+# cartpure wrappers (for testing only)
+#
+
+def project_cartesian_to_pure(np.ndarray[double] work_cart,
+                              np.ndarray[double] work_pure, long con_type,
+                              long stride, long spacing, long count):
+    assert work_cart.flags['C_CONTIGUOUS']
+    assert work_pure.flags['C_CONTIGUOUS']
+    assert con_type >= 0
+    assert con_type <= 9
+    cartpure.project_cartesian_to_pure(
+        <double*> work_cart.data, <double*> work_pure.data, con_type, stride,
+        spacing, count
+    )

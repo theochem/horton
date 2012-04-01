@@ -217,6 +217,9 @@ man_pages = [
 
 # -- Options for manual page output --------------------------------------------
 
+pngmath_use_preview = True
+pngmath_dvipng_args = ['-gamma 1.6', '-D 120']
+
 sys.path.append('../')
 os.environ['HORTONDATA'] = '../data'
 autoclass_content = "both"

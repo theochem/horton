@@ -20,6 +20,7 @@
 
 
 #include "contraction.h"
+#include "cartpure.h"
 #include "cints.h"
 
 #include <math.h>
@@ -530,9 +531,4 @@ int i1pow_inc(int* l, int* m, int* n) {
       (*n)++;
     }
     return 1;
-}
-
-
-void project_cartesian_to_pure(double *work_cart, double* work_pure, long
-    con_type, long stride, long spacing, long count) {
 }
