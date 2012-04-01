@@ -87,8 +87,5 @@ int i2pow_inc(i2pow_type* i2p);
 
 int i1pow_inc(int* l, int* m, int* n);
 
-void project_cartesian_to_pure(double *work_cart, double* work_pure, long
-    con_type, long stride, long spacing, long count);
-
 
 #endif

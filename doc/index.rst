@@ -14,6 +14,8 @@ Tutorials
 
    tut_getting_started
    tut_theory
+   tut_gaussian_basis
+
 
 Development
 ===========
@@ -24,6 +26,7 @@ Development
    dev_get_coding
    dev_milestones
 
+
 Library reference
 =================
 
@@ -31,6 +34,7 @@ Library reference
    :maxdepth: 2
 
    lib_horton
+
 
 Indices and tables
 ==================

@@ -38,7 +38,8 @@ setup(
     cmdclass = {'build_ext': build_ext},
     ext_modules=[
         Extension("horton.cext", [
-            'horton/cext.pyx', 'horton/cints.c', 'horton/contraction.c'
+            'horton/cext.pyx', 'horton/cartpure.c', 'horton/cints.c',
+            'horton/contraction.c'
         ]),
     ],
     classifiers=[
