@@ -284,7 +284,7 @@ normalization.
     \end{array}\right)
     &=
     \left(\begin{array}{cccccc}
-    -1 & 0 & 0 & - \frac{1}{2} & 0 & \frac{3}{2} \\
+    - \frac{1}{2} & 0 & 0 & - \frac{1}{2} & 0 & 1 \\
     0 & 0 & 1 & 0 & 0 & 0 \\
     0 & 0 & 0 & 0 & 1 & 0 \\
     \frac{1}{2} \sqrt{3} & 0 & 0 & - \frac{1}{2} \sqrt{3} & 0 & 0 \\
@@ -299,9 +299,9 @@ normalization.
     \end{array}\right)
     &=
     \left(\begin{array}{cccccccccc}
-    0 & 0 & - \frac{3}{5} \sqrt{5} & 0 & 0 & 0 & 0 & - \frac{3}{10} \sqrt{5} & 0 & \frac{5}{2} \\
-    - \frac{1}{2} \sqrt{6} & 0 & 0 & - \frac{1}{20} \sqrt{30} & 0 & \frac{1}{4} \sqrt{30} & 0 & 0 & 0 & 0 \\
-    0 & - \frac{1}{10} \sqrt{30} & 0 & 0 & 0 & 0 & - \frac{1}{4} \sqrt{6} & 0 & \frac{1}{4} \sqrt{30} & 0 \\
+    0 & 0 & - \frac{3}{10} \sqrt{5} & 0 & 0 & 0 & 0 & - \frac{3}{10} \sqrt{5} & 0 & 1 \\
+    - \frac{1}{4} \sqrt{6} & 0 & 0 & - \frac{1}{20} \sqrt{30} & 0 & \frac{1}{5} \sqrt{30} & 0 & 0 & 0 & 0 \\
+    0 & - \frac{1}{20} \sqrt{30} & 0 & 0 & 0 & 0 & - \frac{1}{4} \sqrt{6} & 0 & \frac{1}{5} \sqrt{30} & 0 \\
     0 & 0 & \frac{1}{2} \sqrt{3} & 0 & 0 & 0 & 0 & - \frac{1}{2} \sqrt{3} & 0 & 0 \\
     0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
     \frac{1}{4} \sqrt{10} & 0 & 0 & - \frac{3}{4} \sqrt{2} & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -316,11 +316,11 @@ normalization.
     \end{array}\right)
     &=
     \left(\begin{array}{ccccccccccccccc}
-    \frac{3}{2} & 0 & 0 & \frac{3}{70} \sqrt{105} & 0 & - \frac{3}{14} \sqrt{105} & 0 & 0 & 0 & 0 & \frac{3}{8} & 0 & - \frac{3}{28} \sqrt{105} & 0 & \frac{35}{8} \\
-    0 & 0 & - \frac{3}{14} \sqrt{70} & 0 & 0 & 0 & 0 & - \frac{3}{28} \sqrt{14} & 0 & \frac{1}{4} \sqrt{70} & 0 & 0 & 0 & 0 & 0 \\
-    0 & 0 & 0 & 0 & - \frac{3}{14} \sqrt{14} & 0 & 0 & 0 & 0 & 0 & 0 & - \frac{3}{28} \sqrt{70} & 0 & \frac{1}{4} \sqrt{70} & 0 \\
-    - \frac{1}{2} \sqrt{5} & 0 & 0 & \frac{1}{28} \sqrt{21} & 0 & \frac{1}{4} \sqrt{21} & 0 & 0 & 0 & 0 & \frac{1}{4} \sqrt{5} & 0 & - \frac{1}{4} \sqrt{21} & 0 & 0 \\
-    0 & - \frac{1}{7} \sqrt{35} & 0 & 0 & 0 & 0 & - \frac{1}{14} \sqrt{35} & 0 & \frac{1}{2} \sqrt{7} & 0 & 0 & 0 & 0 & 0 & 0 \\
+    \frac{3}{8} & 0 & 0 & \frac{3}{140} \sqrt{105} & 0 & - \frac{3}{35} \sqrt{105} & 0 & 0 & 0 & 0 & \frac{3}{8} & 0 & - \frac{3}{35} \sqrt{105} & 0 & 1 \\
+    0 & 0 & - \frac{3}{28} \sqrt{70} & 0 & 0 & 0 & 0 & - \frac{3}{28} \sqrt{14} & 0 & \frac{1}{7} \sqrt{70} & 0 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & - \frac{3}{28} \sqrt{14} & 0 & 0 & 0 & 0 & 0 & 0 & - \frac{3}{28} \sqrt{70} & 0 & \frac{1}{7} \sqrt{70} & 0 \\
+    - \frac{1}{4} \sqrt{5} & 0 & 0 & 0 & 0 & \frac{3}{14} \sqrt{21} & 0 & 0 & 0 & 0 & \frac{1}{4} \sqrt{5} & 0 & - \frac{3}{14} \sqrt{21} & 0 & 0 \\
+    0 & - \frac{1}{14} \sqrt{35} & 0 & 0 & 0 & 0 & - \frac{1}{14} \sqrt{35} & 0 & \frac{3}{7} \sqrt{7} & 0 & 0 & 0 & 0 & 0 & 0 \\
     0 & 0 & \frac{1}{4} \sqrt{10} & 0 & 0 & 0 & 0 & - \frac{3}{4} \sqrt{2} & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
     0 & 0 & 0 & 0 & \frac{3}{4} \sqrt{2} & 0 & 0 & 0 & 0 & 0 & 0 & - \frac{1}{4} \sqrt{10} & 0 & 0 & 0 \\
     \frac{1}{8} \sqrt{35} & 0 & 0 & - \frac{3}{4} \sqrt{3} & 0 & 0 & 0 & 0 & 0 & 0 & \frac{1}{8} \sqrt{35} & 0 & 0 & 0 & 0 \\
@@ -329,4 +329,3 @@ normalization.
     \left(\begin{array}{c}
     X(xxxx) \\ X(xxxy) \\ X(xxxz) \\ X(xxyy) \\ X(xxyz) \\ X(xxzz) \\ X(xyyy) \\ X(xyyz) \\ X(xyzz) \\ X(xzzz) \\ X(yyyy) \\ X(yyyz) \\ X(yyzz) \\ X(yzzz) \\ X(zzzz)
     \end{array}\right)
-    \\
