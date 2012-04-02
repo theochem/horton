@@ -25,7 +25,7 @@
 """
 
 
-from sympy import *
+from sympy import sqrt, Symbol, pi, S, Add, cos, sin, Wild
 from sympy.mpmath import fac, fac2, binomial
 
 import numpy as np
@@ -103,7 +103,7 @@ def get_pure_orb_polys(shell, alpha, xyz):
     """
     norm = get_pure_orb_norm(alpha, shell)
     x, y, z = xyz
-    polys = get_solid_harmonics(shell, sqrt(x*x+y*y+x*x), x, y, z)
+    polys = get_solid_harmonics(shell, sqrt(x*x+y*y+z*z), x, y, z)
     result = []
     for poly in polys:
         result.append((poly/norm).expand())
@@ -167,7 +167,7 @@ def get_poly_conversion(shell):
 
     for i_out, poly in enumerate(get_pure_orb_polys(shell, alpha, xyz)):
         poly = poly.expand()
-        if isinstance(poly, C.Add):
+        if isinstance(poly, Add):
             terms = poly.args
         else:
             terms = [poly]
@@ -194,7 +194,7 @@ def iter_labels(l):
         yield 'S_%i^%i' % (l,m)
 
 
-def test_print_solid_harmonics():
+def run_print_solid_harmonics():
     r = Symbol("r")
     x = Symbol("x")
     y = Symbol("y")
@@ -210,7 +210,7 @@ def test_print_solid_harmonics():
             print '    %s(x,y,z) & = %s \\\\' % (label, latex(poly))#.replace('$',''))
 
 
-def test_print_transformations_latex():
+def run_print_transformations_latex():
     x = Symbol("x")
     y = Symbol("y")
     z = Symbol("z")
@@ -246,7 +246,7 @@ def strip_zero(s):
     return s
 
 
-def test_print_transformations_c():
+def run_print_transformations_c():
     x = Symbol("x")
     y = Symbol("y")
     z = Symbol("z")
@@ -270,12 +270,12 @@ def test_print_transformations_c():
                     size +=1
         print '};'
         sizes.append(size)
-    print 'const static type_sparse_tf cptf[MAX_CON_TYPE] = {'
+    print 'const static type_sparse_tf cptf[MAX_CON_TYPE+1] = {'
     print '    %s' % (', '.join('{%i, cptf%i}' % (sizes[shell], shell) for shell in xrange(nshell)))
     print '};'
 
 
-def test_print_transformations_python():
+def run_print_transformations_python():
     x = Symbol("x")
     y = Symbol("y")
     z = Symbol("z")
@@ -299,9 +299,8 @@ def test_print_transformations_python():
         print '])'
 
 
-
 if __name__ == "__main__":
-    #test_print_solid_harmonics()
-    #test_print_transformations_latex()
-    #test_print_transformations_c()
-    test_print_transformations_python()
+    #run_print_solid_harmonics()
+    #run_print_transformations_latex()
+    #run_print_transformations_c()
+    run_print_transformations_python()
