@@ -153,19 +153,13 @@ associated Legendre Polynomial. For positive :math:`m` we have:
     P_\ell^m(x) & = (-1)^m (1-x^2)^{m/2} \frac{d^m}{dx^m} P_\ell(x) \\
     P_\ell^{-m}(x) & = (-1)^m \frac{(\ell-m)!}{(\ell+m)!} P_\ell^m
 
-where :math:`P_\ell` is the ordinary Legendre polynomial of order :math:`\ell`
+where :math:`P_\ell` is the ordinary Legendre polynomial of order :math:`\ell`.
 Note that the factors :math:`(-1)^m` are compensated in the definition of the
-real solid harmonics. Substitution of these definition leads to the following
+real solid harmonics. Substitution of these definitions leads to the following
 form for the spherical harmonics:
 
 .. math::
     Y_\ell^m(\theta, \varphi) = (-1)^{(m+|m|)/2}\sqrt{\frac{(\ell-|m|)!}{(\ell+|m|)!}} \, sin^m \theta \frac{d^m P_\ell(\cos{\theta})}{d \cos \theta}\, e^{i m \varphi}
-
-For :math:`m=0`, it is trivial to write the Cartesian form of the real solid
-harmonic with the substitution :math:`z=r\cos\theta`:
-
-.. math::
-    C_\ell^0(x, y, z) = P_\ell(z)
 
 For :math:`m>0`, the real spherical harmonics are first written as follows:
 
@@ -329,3 +323,7 @@ normalization.
     \left(\begin{array}{c}
     X(xxxx) \\ X(xxxy) \\ X(xxxz) \\ X(xxyy) \\ X(xxyz) \\ X(xxzz) \\ X(xyyy) \\ X(xyyz) \\ X(xyzz) \\ X(xzzz) \\ X(yyyy) \\ X(yyyz) \\ X(yyzz) \\ X(yzzz) \\ X(zzzz)
     \end{array}\right)
+
+
+These transformations are implemented in ``horton/cartpure.c`` with sparse
+matrix products for angular momenta up to :math:`\ell=9`.

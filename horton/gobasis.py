@@ -365,25 +365,21 @@ class GOBasis(object):
              7 -> yyz
              8 -> yzz
              9 -> zzz
-           con_type=-1, SP:
-             0 -> 1
-             1 -> x
-             2 -> y
-             3 -> z
+           con_type=-1, not allowed
            con_type=-2, pure D:
              0 -> zz
-             1 -> yz
-             2 -> xz
+             1 -> xz
+             2 -> yz
              3 -> xx-yy
              4 -> xy
            con_type=-3, pure F:
-             6 -> zzz
-             5 -> yzz
-             4 -> xzz
+             0 -> zzz
+             1 -> xzz
+             2 -> yzz
              3 -> xxz-yyz
-             2 -> xyz
-             1 -> 3xxy-yyy
-             0 -> xxx-3xyy
+             4 -> xyz
+             5 -> xxx-3xyy
+             6 -> 3xxy-yyy
         """
         # All fields are stored as internal parameters. Once they are set,
         # they are no supposed to be modified.
@@ -450,6 +446,7 @@ class GOBasis(object):
 
         # permutation of the basis functions
         g03_reordering = {
+          # TODO check reordering of the pure basis functions
           -6: np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]),
           -5: np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
           -4: np.array([0, 1, 2, 3, 4, 5, 6, 7, 8]),
