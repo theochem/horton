@@ -32,18 +32,19 @@ In order to `compile` the Horton C-extension and documentation, one needs to
 install relatively recent versions of the following programs/libraries:
 
 * Python < 3.0: http://www.python.org/ (also install `development files`)
-* Numpy > 1.0: http://www.scipy.org/ (scipy is needed as well)
-* Cython > (todo): http://www.cython.org/
+* Numpy > 1.0: http://www.scipy.org/
+* Numpy >= 0.10.0: http://www.scipy.org/
+* Cython >= 0.14.1 : http://www.cython.org/
 * Sphinx > 1.0: http://sphinx.pocoo.org/
 
 On a decent operating system, these programs/libraries can be easily installed
 with a package manager. First check that option before manually installing this
 software. On Ubuntu, this one-liner will take care of it::
 
-    sudo apt-get install python-dev python-numpy cython python-sphinx
+    sudo apt-get install python-dev python-numpy cython python-sphinx python-scipy
 
-One may either do a regular installation in the home directory, or an in-pace
-build in the source tree.
+One may either install Horton in the home directory, or an in-pace build in the
+source tree.
 
 The **regular build/install** is as done follows::
 
@@ -62,7 +63,6 @@ The documentation is compiled and viewed as follows::
 
     cd doc
     make html
-    make pdf
     firefox _build/html/index.html
 
 
@@ -85,13 +85,15 @@ nosetests afterwards::
     ./setup.py build_ext -i
     nosetests -v
 
-If all runs well, the screen output should end with 'OK'.
+If all runs well, the screen output should end with 'OK'. If at some point,
+something during the build process fails, try to clean up the source tree with
+the ``cleanfiles.sh`` script and try again.
 
 
 Basic example
 =============
 
-(For now, this is just an idea. It does not work yet.)
+(For now, this is just an idea. It does not work yet and it may change.)
 
 This is a basic example computation in Horton. The input file is just
 a small Python main program that uses the Horton library. The following script

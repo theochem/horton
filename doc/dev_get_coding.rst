@@ -69,7 +69,7 @@ system, with Python in general, and know how to test to code. (vide infra)
    webpage you are currently looking at. More details on the documentation
    system are given below.
 
-6. **Write Python code in style.**
+6. **Adopt a clean coding style.**
 
    There is an extensive `Style Guide for Python Code <http://www.python.org/dev/peps/pep-0008/>`_.
    The main purpose is to make the source code easier to read and maintain.
@@ -103,7 +103,7 @@ Git: the fast version control system
 
 Horton uses `Git <http://git-scm.com/>`_ for version control.
 
-Because a few of us are new to version control systems (VCSs), I'll go through
+This section goes through
 the basics. Although the commands below are specific for Git, most of the
 good practices are general and also apply to other modern VCSs such Bazaar
 or Mercurial. There are however a few old-fashioned systems such as CVS (and to
@@ -349,15 +349,15 @@ The tests are run as follows (including preparation steps)::
     toony@poony ~/.../horton:master> nosetests -v
 
 There are some cases where the first two commands are not needed. You will
-figure out eventually.
+figure out.
 
 
 Writing documentation
 =====================
 
-All the documentation is located in the ``doc`` directory. We use the `Sphinx <http://sphinx.pocoo.org/>`_
-formatting engine to compile the `documentation source code` into fancy
-formatted HTML or PDF. Sphinx can be found here: http://todo
+All the documentation is located in the ``doc`` directory. We use the `Sphinx
+<http://sphinx.pocoo.org/>`_ formatting engine to compile the `documentation
+source code` into fancy formatted HTML or PDF.
 
 The source files have the extension ``.rst``, and are written in the
 `ReStructuredText <http://docutils.sourceforge.net/rst.html>`_ (RST) format.
