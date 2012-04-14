@@ -31,13 +31,14 @@
 import numpy as np
 
 from horton.io import load_system_args
+from horton.matrix import DenseLinalgFactory
 
 
 __all__ = ['System']
 
 
 class System(object):
-    def __init__(self, coordinates, numbers, basis=None):
+    def __init__(self, coordinates, numbers, basis=None, wfn=None, lf=None):
         """
            **Arguments:**
 
@@ -48,11 +49,18 @@ class System(object):
            numbers
                 A (N,) int numpy vector with the atomic numbers.
 
-           **Optional arguments:**
-
            basis
                 A string or an instance of either the basis set or basis set
                 description classes, e.g. 'STO-3G', GOBasisDesc('STO-3G'), ...
+
+           **Optional arguments:**
+
+           wfn
+                A wavefunction object.
+
+           lf
+                A LinalgFactory instance. When not given, a DenseLinalgFactory
+                is used by default.
         """
         self._coordinates = np.array(coordinates, dtype=float, copy=False)
         self._numbers = np.array(numbers, dtype=int, copy=False)
@@ -66,6 +74,13 @@ class System(object):
             self._basis = basis
         else:
             raise TypeError('Can not interpret %s as a basis.' % basis)
+        self._wfn = wfn
+        if wfn is not None:
+            assert wfn.basis == basis
+        if lf is None:
+            self._lf = DenseLinalgFactory()
+        else:
+            self._lf = lf
 
     def get_natom(self):
         return len(self.numbers)
@@ -87,6 +102,16 @@ class System(object):
 
     basis = property(get_basis)
 
+    def get_wfn(self):
+        return self._wfn
+
+    wfn = property(get_wfn)
+
+    def get_lf(self):
+        return self._lf
+
+    lf = property(get_lf)
+
     @classmethod
     def from_file(cls, *args, **kwargs):
         """Create a System object from a file.
@@ -95,10 +120,18 @@ class System(object):
            order. Each file complements or overrides the information loaded
            from a previous file in the list. Furthermore, keyword arguments
            may be used to specify additional constructor arguments.
+
+           The ``lf`` optional argument is picked up from the kwargs list to
+           contstruct (when needed) arrays to store the results loaded from
+           file. When ``lf`` is not given, a DenseLinalgFactory is created by
+           default.
         """
         constructor_args = {}
+        lf = kwargs.get('lf')
+        if lf is None:
+            lf = DenseLinalgFactory()
         for fn in args:
-            fn_args = load_system_args(fn)
+            fn_args = load_system_args(fn, lf)
             constructor_args.update(fn_args)
         constructor_args.update(kwargs)
         return cls(**constructor_args)

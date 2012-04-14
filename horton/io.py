@@ -40,13 +40,16 @@ __all__ = [
 ]
 
 
-def load_system_args(filename):
+def load_system_args(filename, lf):
     '''Load a molecular data from a file.
 
        **Argument:**
 
        filename
             The file to load the geometry from
+
+       lf
+            A LinalgFactory instance.
 
        This routine uses the extension of the filename to determine the file
        format. It returns a dictionary with constructor arguments for the System
@@ -56,8 +59,8 @@ def load_system_args(filename):
         coordinates, numbers = load_geom_xyz(filename)
         return {'coordinates': coordinates, 'numbers': numbers}
     elif filename.endswith('.fchk'):
-        coordinates, numbers, basis = load_basis_fchk(filename)
-        return {'coordinates': coordinates, 'numbers': numbers, 'basis': basis}
+        coordinates, numbers, basis, wfn = load_fchk(filename, lf)
+        return {'coordinates': coordinates, 'numbers': numbers, 'basis': basis, 'wfn': wfn}
     else:
         raise ValueError('Unknown file format: %s' % filename)
 
@@ -320,21 +323,32 @@ class FCHKFile(object):
         f.close()
 
 
-def load_fchk(filename):
+def load_fchk(filename, lf):
     '''Load from a formatted checkpoint file.
 
        **Arguments:**
 
        filename
             The filename of the Gaussian formatted checkpoint file.
+
+       lf
+            A LinalgFactory instance.
     '''
     from horton.gobasis import GOBasis
+    from horton.wfn import ClosedShellWFN
+
+
     fchk = FCHKFile(filename, [
+        "Number of electrons",
         "Atomic numbers", "Current cartesian coordinates",
         "Shell types", "Shell to atom map", "Shell to atom map",
         "Number of primitives per shell", "Primitive exponents",
         "Contraction coefficients", "P(S=P) Contraction coefficients",
+        "Alpha Orbital Energies", "Alpha MO coefficients",
+        "Beta Orbital Energies", "Beta MO coefficients",
     ])
+
+    # A) Load the basis set
     shell_types = fchk.fields["Shell types"]
     shell_map = fchk.fields["Shell to atom map"] - 1
     nexps = fchk.fields["Number of primitives per shell"]
@@ -391,7 +405,18 @@ def load_fchk(filename):
         permutation.extend(g_reordering[shell_type]+len(permutation))
     basis.g_permutation = np.array(permutation, dtype=int)
 
+    # B) Load the geometry
     numbers = fchk.fields["Atomic numbers"]
     coordinates = fchk.fields["Current cartesian coordinates"].reshape(-1,3)
 
-    return coordinates, numbers, basis
+    # C) Load the wavefunction
+    if 'Beta Orbital Energies' in fchk.fields:
+        wfn = None
+    else:
+        nelec = fchk.fields["Number of electrons"]
+        assert nelec % 2 == 0
+        wfn = ClosedShellWFN(nelec/2, lf, basis)
+        wfn.expansion.coeffs[:] = fchk.fields['Alpha MO coefficients'].reshape(basis.nbasis, basis.nbasis).T
+        wfn.expansion.energies[:] = fchk.fields['Alpha Orbital Energies']
+
+    return coordinates, numbers, basis, wfn
