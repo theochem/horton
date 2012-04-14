@@ -214,6 +214,16 @@ cdef class I2Gob:
     def update_exp(self):
         contraction.i2gob_update_exp(self._c_i2)
 
+    def store(self, np.ndarray[double, ndim=2] work_pure,
+              np.ndarray[double, ndim=2] output):
+        assert work_pure.shape[0] == self._c_i2[0].max_nbasis
+        assert work_pure.shape[1] == self._c_i2[0].max_nbasis
+        assert work_pure.flags['C_CONTIGUOUS']
+        assert output.shape[0] == self._c_i2[0].nbasis
+        assert output.shape[1] == self._c_i2[0].nbasis
+        assert output.flags['C_CONTIGUOUS']
+        contraction.i2gob_store(self._c_i2, <double*>work_pure.data, <double*>output.data)
+
     property centers:
         def __get__(self):
             return self._centers
@@ -238,6 +248,7 @@ cdef class I2Gob:
                 self._c_i2[0].exp0, self._c_i2[0].exp1,
                 self._c_i2[0].x0, self._c_i2[0].y0, self._c_i2[0].z0,
                 self._c_i2[0].x1, self._c_i2[0].y1, self._c_i2[0].z1,
+                self._c_i2[0].ibasis0, self._c_i2[0].ibasis1,
             )
 
     property private_fields:

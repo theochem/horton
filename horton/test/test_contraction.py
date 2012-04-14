@@ -25,6 +25,7 @@ from horton import *
 
 
 def get_test_i2gob():
+    # This is a rather random basis specification for two centers.
     centers = np.random.uniform(-1, 1, (2, 3))
     shell_map = np.array([0, 0, 1, 1])
     ncons = np.array([1, 2, 3, 1])
@@ -33,6 +34,7 @@ def get_test_i2gob():
     exponents = np.random.uniform(-1, 1, nexps.sum())
     con_coeffs = np.random.uniform(-1, 1, np.dot(nexps, ncons))
     nbasis = sum(get_con_nbasis(con_type) for con_type in con_types)
+    assert nbasis == 29
     return (
         I2Gob(centers, shell_map, ncons, nexps, con_types, exponents, con_coeffs, nbasis),
         centers, shell_map, ncons, nexps, con_types, exponents, con_coeffs, nbasis
@@ -130,6 +132,7 @@ def test_i2gob_inc_shell():
         i2.exponents[0], i2.exponents[0],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
+        0, 0,
     )
     assert i2.inc_shell() is True
     i2.update_con()
@@ -140,6 +143,7 @@ def test_i2gob_inc_shell():
         i2.exponents[0], i2.exponents[2],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
+        0, 6,
     )
     assert i2.inc_shell() is True
     i2.update_con()
@@ -150,6 +154,7 @@ def test_i2gob_inc_shell():
         i2.exponents[2], i2.exponents[2],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
+        6, 6,
     )
     assert i2.inc_shell() is True
     i2.update_con()
@@ -160,6 +165,7 @@ def test_i2gob_inc_shell():
         i2.exponents[0], i2.exponents[5],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
         i2.centers[1,0], i2.centers[1,1], i2.centers[1,2],
+        0, 10,
     )
     assert i2.inc_shell() is True
     i2.update_con()
@@ -170,6 +176,7 @@ def test_i2gob_inc_shell():
         i2.exponents[2], i2.exponents[5],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
         i2.centers[1,0], i2.centers[1,1], i2.centers[1,2],
+        6, 10,
     )
     assert i2.inc_shell() is True
     i2.update_con()
@@ -180,6 +187,7 @@ def test_i2gob_inc_shell():
         i2.exponents[5], i2.exponents[5],
         i2.centers[1,0], i2.centers[1,1], i2.centers[1,2],
         i2.centers[1,0], i2.centers[1,1], i2.centers[1,2],
+        10, 10,
     )
     assert i2.inc_shell() is True
     i2.update_con()
@@ -190,6 +198,7 @@ def test_i2gob_inc_shell():
         i2.exponents[0], i2.exponents[10],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
         i2.centers[1,0], i2.centers[1,1], i2.centers[1,2],
+        0, 26,
     )
 
 
@@ -204,6 +213,7 @@ def test_i2gob_inc_con():
         i2.exponents[0], i2.exponents[0],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
+        0, 0,
     )
     assert i2.inc_con() is False
     i2.update_exp()
@@ -213,6 +223,7 @@ def test_i2gob_inc_con():
         i2.exponents[0], i2.exponents[0],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
+        0, 0,
     )
     assert i2.inc_shell() is True
     i2.update_con()
@@ -223,6 +234,7 @@ def test_i2gob_inc_con():
         i2.exponents[0], i2.exponents[2],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
+        0, 6,
     )
     assert i2.inc_con() is True
     i2.update_exp()
@@ -232,6 +244,7 @@ def test_i2gob_inc_con():
         i2.exponents[0], i2.exponents[2],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
+        0, 9,
     )
     assert i2.inc_con() is False
     i2.update_exp()
@@ -241,6 +254,7 @@ def test_i2gob_inc_con():
         i2.exponents[0], i2.exponents[2],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
+        0, 6,
     )
     assert i2.inc_shell() is True
     i2.update_con()
@@ -251,6 +265,7 @@ def test_i2gob_inc_con():
         i2.exponents[2], i2.exponents[2],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
+        6, 6,
     )
     assert i2.inc_con() is True
     i2.update_exp()
@@ -260,6 +275,7 @@ def test_i2gob_inc_con():
         i2.exponents[2], i2.exponents[2],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
+        9, 6,
     )
     assert i2.inc_con() is True
     i2.update_exp()
@@ -269,6 +285,7 @@ def test_i2gob_inc_con():
         i2.exponents[2], i2.exponents[2],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
+        6, 9,
     )
     assert i2.inc_con() is True
     i2.update_exp()
@@ -278,6 +295,7 @@ def test_i2gob_inc_con():
         i2.exponents[2], i2.exponents[2],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
+        9, 9,
     )
 
 
@@ -292,6 +310,7 @@ def test_i2gob_inc_exp():
         i2.exponents[0], i2.exponents[0],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
+        0, 0,
     )
     assert i2.inc_shell() is True
     assert i2.inc_shell() is True
@@ -305,6 +324,7 @@ def test_i2gob_inc_exp():
         i2.exponents[2], i2.exponents[5],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
         i2.centers[1,0], i2.centers[1,1], i2.centers[1,2],
+        6, 10,
     )
     assert i2.inc_exp() is True
     assert i2.private_fields == (1, 2,   2, 3, 1, 3, 0, 0,   3, 5, 2, 5, 1, 0,   2, 8)
@@ -313,6 +333,7 @@ def test_i2gob_inc_exp():
         i2.exponents[3], i2.exponents[5],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
         i2.centers[1,0], i2.centers[1,1], i2.centers[1,2],
+        6, 10,
     )
     assert i2.inc_exp() is True
     assert i2.private_fields == (1, 2,   2, 3, 1, 3, 0, 0,   3, 5, 2, 5, 2, 0,   2, 8)
@@ -321,6 +342,7 @@ def test_i2gob_inc_exp():
         i2.exponents[4], i2.exponents[5],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
         i2.centers[1,0], i2.centers[1,1], i2.centers[1,2],
+        6, 10,
     )
     assert i2.inc_exp() is True
     assert i2.private_fields == (1, 2,   2, 3, 1, 3, 0, 0,   3, 5, 2, 5, 0, 1,   2, 8)
@@ -329,9 +351,52 @@ def test_i2gob_inc_exp():
         i2.exponents[2], i2.exponents[6],
         i2.centers[0,0], i2.centers[0,1], i2.centers[0,2],
         i2.centers[1,0], i2.centers[1,1], i2.centers[1,2],
+        6, 10,
     )
 
 
+def test_i2gob_store():
+    i2 = get_test_i2gob()[0]
+    i2.update_shell()
+    i2.update_con()
+    i2.update_exp()
+    #
+    tmp = np.random.uniform(-1, 1, (i2.max_nbasis, i2.max_nbasis))
+    work = tmp + tmp.T
+    output = np.zeros((29, 29), float)
+    i2.store(work, output)
+    assert abs(output[:6,:6] - work[:6,:6]).max() < 1e-10
+    assert abs(output[6:,:]).max() == 0
+    assert abs(output[:,6:]).max() == 0
+    #
+    work = np.random.uniform(-1, 1, (i2.max_nbasis, i2.max_nbasis))
+    output[:] = 0
+    i2.inc_shell()
+    i2.inc_shell()
+    i2.inc_shell()
+    i2.inc_shell()
+    i2.update_con()
+    i2.store(work, output)
+    assert abs(output[6:9,10:15] - work[:3,:5]).max() < 1e-10
+    assert abs(output[10:15,6:9].T - work[:3,:5]).max() < 1e-10
+    assert abs(output[:6,:]).max() == 0
+    assert abs(output[15:,:]).max() == 0
+    assert abs(output[:,:6]).max() == 0
+    assert abs(output[:,15:]).max() == 0
+    assert abs(output[:10,:10]).max() == 0
+    assert abs(output[9:,9:]).max() == 0
+    #
+    i2.inc_con()
+    output[:] = 0
+    i2.store(work, output)
+    assert abs(output[9:10,10:15] - work[:1,:5]).max() < 1e-10
+    assert abs(output[10:15,9:10].T - work[:1,:5]).max() < 1e-10
+    assert abs(output[:9,:]).max() == 0
+    assert abs(output[15:,:]).max() == 0
+    assert abs(output[:,:9]).max() == 0
+    assert abs(output[:,15:]).max() == 0
+    assert abs(output[:10,:10]).max() == 0
+    assert abs(output[11:,11:]).max() == 0
 
 
 def test_i1pow_inc_l0():
