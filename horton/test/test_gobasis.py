@@ -23,36 +23,6 @@
 from horton import *
 
 
-def test_hf_sto3g_num():
-    basis = load_basis_fchk(context.get_fn('test/hf_sto3g.fchk'))
-    assert basis.nshell == 3
-    assert basis.nbasis == 6
-    assert basis._ncons.max() <= 2
-    assert (basis._nexps == 3).all()
-
-
-def test_h_sto3g_num():
-    basis = load_basis_fchk(context.get_fn('test/h_sto3g.fchk'))
-    assert basis.nshell == 1
-    assert basis.nbasis == 1
-    assert basis._ncons.max() <= 2
-    assert (basis._nexps == 3).all()
-
-
-def test_o2_cc_pvtz_pure_num():
-    basis = load_basis_fchk(context.get_fn('test/o2_cc_pvtz_pure.fchk'))
-    assert basis.nshell == 20
-    assert basis.nbasis == 60
-    assert basis._ncons.max() <= 2
-
-
-def test_o2_cc_pvtz_cart_num():
-    basis = load_basis_fchk(context.get_fn('test/o2_cc_pvtz_cart.fchk'))
-    assert basis.nshell == 20
-    assert basis.nbasis == 70
-    assert basis._ncons.max() <= 2
-
-
 def test_con_nbasis():
     assert get_con_nbasis(-3) == 7
     assert get_con_nbasis(-2) == 5
