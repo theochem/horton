@@ -76,7 +76,7 @@ class ClosedShellWFN(object):
 
     def get_nbasis(self):
         if self.basis is not None:
-            return self._basis.size
+            return self._basis.nbasis
         else:
             return self._nbasis
 
