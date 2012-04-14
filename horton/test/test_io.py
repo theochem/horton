@@ -20,7 +20,7 @@
 #--
 
 
-from horton import context, load_operators_g09, DenseLinalgFactory
+from horton import *
 
 
 def test_load_operators_g09():
@@ -53,3 +53,55 @@ def test_load_operators_g09():
     assert abs(electron_repulsion.get_element(6,6,6,6) - 0.774605944194) < eps
     assert abs(electron_repulsion.get_element(6,5,0,5) - 0.0289424337101) < eps
     assert abs(electron_repulsion.get_element(5,4,0,1) - 0.00274145291476) < eps
+
+
+def test_load_fchk_hf_sto3g_num():
+    coordinates, numbers, basis = load_fchk(context.get_fn('test/hf_sto3g.fchk'))
+    assert basis.nshell == 3
+    assert basis.nbasis == 6
+    assert basis._ncons.max() <= 2
+    assert (basis._nexps == 3).all()
+    assert len(coordinates) == len(numbers)
+    assert coordinates.shape[1] == 3
+    assert len(numbers) == 2
+
+
+def test_load_fchk_h_sto3g_num():
+    coordinates, numbers, basis = load_fchk(context.get_fn('test/h_sto3g.fchk'))
+    assert basis.nshell == 1
+    assert basis.nbasis == 1
+    assert basis._ncons.max() <= 2
+    assert (basis._nexps == 3).all()
+    assert len(coordinates) == len(numbers)
+    assert coordinates.shape[1] == 3
+    assert len(numbers) == 1
+
+
+def test_load_fchk_o2_cc_pvtz_pure_num():
+    coordinates, numbers, basis = load_fchk(context.get_fn('test/o2_cc_pvtz_pure.fchk'))
+    assert basis.nshell == 20
+    assert basis.nbasis == 60
+    assert basis._ncons.max() <= 2
+    assert len(coordinates) == len(numbers)
+    assert coordinates.shape[1] == 3
+    assert len(numbers) == 2
+
+
+def test_load_fchk_o2_cc_pvtz_cart_num():
+    coordinates, numbers, basis = load_fchk(context.get_fn('test/o2_cc_pvtz_cart.fchk'))
+    assert basis.nshell == 20
+    assert basis.nbasis == 70
+    assert basis._ncons.max() <= 2
+    assert len(coordinates) == len(numbers)
+    assert coordinates.shape[1] == 3
+    assert len(numbers) == 2
+
+
+def test_load_fchk_water_sto3g_hf():
+    coordinates, numbers, basis = load_fchk(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+    assert basis.nshell == 4
+    assert basis.nbasis == 7
+    assert basis._ncons.max() == 2
+    assert len(coordinates) == len(numbers)
+    assert coordinates.shape[1] == 3
+    assert len(numbers) == 3

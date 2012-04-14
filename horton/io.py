@@ -36,7 +36,7 @@ from horton.periodic import periodic
 
 __all__ = [
     'load_system_args', 'load_geom_xyz', 'load_operators_g09', 'FCHKFile',
-    'load_basis_fchk',
+    'load_fchk',
 ]
 
 
@@ -56,8 +56,8 @@ def load_system_args(filename):
         coordinates, numbers = load_geom_xyz(filename)
         return {'coordinates': coordinates, 'numbers': numbers}
     elif filename.endswith('.fchk'):
-        basis = load_basis_fchk(filename)
-        return {'basis': basis}
+        coordinates, numbers, basis = load_basis_fchk(filename)
+        return {'coordinates': coordinates, 'numbers': numbers, 'basis': basis}
     else:
         raise ValueError('Unknown file format: %s' % filename)
 
@@ -320,8 +320,8 @@ class FCHKFile(object):
         f.close()
 
 
-def load_basis_fchk(filename):
-    '''Loads a gaussian orbital basis set from a formatted checkpoint file.
+def load_fchk(filename):
+    '''Load from a formatted checkpoint file.
 
        **Arguments:**
 
@@ -330,6 +330,7 @@ def load_basis_fchk(filename):
     '''
     from horton.gobasis import GOBasis
     fchk = FCHKFile(filename, [
+        "Atomic numbers", "Current cartesian coordinates",
         "Shell types", "Shell to atom map", "Shell to atom map",
         "Number of primitives per shell", "Primitive exponents",
         "Contraction coefficients", "P(S=P) Contraction coefficients",
@@ -365,7 +366,7 @@ def load_basis_fchk(filename):
     con_types = np.array(con_types)
     con_coeffs = np.concatenate(con_coeffs)
 
-    result = GOBasis(shell_map, ncons, nexps, con_types, exponents, con_coeffs)
+    basis = GOBasis(shell_map, ncons, nexps, con_types, exponents, con_coeffs)
 
     # permutation of the basis functions
     g_reordering = {
@@ -388,6 +389,9 @@ def load_basis_fchk(filename):
     permutation = []
     for shell_type in shell_types:
         permutation.extend(g_reordering[shell_type]+len(permutation))
-    result.g_permutation = np.array(permutation, dtype=int)
+    basis.g_permutation = np.array(permutation, dtype=int)
 
-    return result
+    numbers = fchk.fields["Atomic numbers"]
+    coordinates = fchk.fields["Current cartesian coordinates"].reshape(-1,3)
+
+    return coordinates, numbers, basis
