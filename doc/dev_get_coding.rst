@@ -134,6 +134,9 @@ Make a file ~/.gitconfig as follows::
         interactive = always
         branch = always
 
+    [branch]
+        autosetuprebase = always
+
     [branch "master"]
         remote = origin
         merge = master
@@ -141,9 +144,10 @@ Make a file ~/.gitconfig as follows::
     [push]
         default = matching
 
-
-Replace my name and email by yours. Add the following to your ``.bashrc``,
-and modify to your taste::
+Replace my name and email by yours. If you are also working on other projects
+that use git, it may be useful to move some of these options to the file
+``.git/config`` in the Horton source tree. Add the following to your
+``.bashrc``, and modify to your taste::
 
     GITPS1='$(__git_ps1 ":%s")'
     SILVER="\[\033[0;37m\]"
