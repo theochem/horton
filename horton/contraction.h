@@ -26,9 +26,9 @@
 long get_con_nbasis(long con_type);
 
 int compute_gobasis_overlap(double* centers, long* shell_map,
-    long* ncons, long* nexps, long* con_types, double* exponents, double*
-    con_coeffs, long nshell, long ncenter, long ncon_total, long nexp_total,
-    long ncon_coeff_total, double* output, long nbasis);
+    long* ncons, long* nexps, long* con_types, double* exponents,
+    double* con_coeffs, long nshell, long ncenter, long ncon_total,
+    long nexp_total, long ncon_coeff_total, double* output, long nbasis);
 
 
 
@@ -39,13 +39,15 @@ typedef struct {
     long* ncons;
     long* nexps;
     long* con_types;
+    long* con_offsets;
     double* exponents;
     double* con_coeffs;
-    long nshell;
+    long nshell, nbasis;
 
     // public iterator fields
     long max_nbasis, con_type0, con_type1;
     double con_coeff, exp0, exp1, x0, y0, z0, x1, y1, z1;
+    long ibasis0, ibasis1; // basis function counters (for output storage)
 
     // private iterator fields
     long ishell0, ishell1;

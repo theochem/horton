@@ -29,8 +29,11 @@ cdef extern from "contraction.h":
         long ncon_coeff_total, double* output, long nbasis)
 
     ctypedef struct i2gob_type:
+        long nshell, nbasis
+
         long max_nbasis, con_type0, con_type1
         double con_coeff, exp0, exp1, x0, y0, z0, x1, y1, z1
+        long ibasis0, ibasis1
 
         long ishell0, ishell1
         long ncon0, ncon1, ocon0, ocon1, icon0, icon1

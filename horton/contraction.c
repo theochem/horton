@@ -97,12 +97,6 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
     able compute integrals for different angular momenta at the same time,
     making use of shared intermediate results.
 
-    TODO: The following steps are needed and can be tested independently.
-
-        - Write iterators for the double loops.
-        - Write transformation routines from Cartesian to pure basis functions.
-        - Routine to copy results in working memory to output array.
-
     */
 
     int nwork, result;
@@ -219,6 +213,7 @@ i2gob_type* i2gob_new(void) {
 
 
 void i2gob_free(i2gob_type* i2) {
+    free((*i2).con_offsets);
     free(i2);
 }
 
@@ -229,6 +224,7 @@ int i2gob_init(i2gob_type* i2, double* centers, long* shell_map,
     long nexp_total, long ncon_coeff_total, long nbasis) {
 
     int result;
+    long icon;
 
     // assign input variables
     (*i2).centers = centers;
@@ -236,13 +232,23 @@ int i2gob_init(i2gob_type* i2, double* centers, long* shell_map,
     (*i2).ncons = ncons;
     (*i2).nexps = nexps;
     (*i2).con_types = con_types;
+    (*i2).con_offsets = NULL;
     (*i2).exponents = exponents;
     (*i2).con_coeffs = con_coeffs;
     (*i2).nshell = nshell;
+    (*i2).nbasis = nbasis;
 
     result = i2gob_check(i2, nshell, ncenter, ncon_total, nexp_total,
                          ncon_coeff_total, nbasis);
     if (result < 0) return result;
+
+    // allocate and set up auxilliary array
+    (*i2).con_offsets = malloc(ncon_total*sizeof(long));
+    if ((*i2).con_offsets == NULL) return -1;
+    (*i2).con_offsets[0] = 0;
+    for (icon=1; icon<ncon_total; icon++) {
+        (*i2).con_offsets[icon] = (*i2).con_offsets[icon-1] + get_con_nbasis((*i2).con_types[icon-1]);
+    }
 
     // reset public fields
     (*i2).max_nbasis = result;
@@ -257,6 +263,8 @@ int i2gob_init(i2gob_type* i2, double* centers, long* shell_map,
     (*i2).x1 = 0.0;
     (*i2).y1 = 0.0;
     (*i2).z1 = 0.0;
+    (*i2).ibasis0 = 0;
+    (*i2).ibasis1 = 0;
 
     // reset internal fields
     (*i2).ishell0 = 0;
@@ -402,7 +410,7 @@ void i2gob_update_shell(i2gob_type* i2) {
 
 
 int i2gob_inc_con(i2gob_type* i2) {
-    // Increment contraction counters.
+    // Increment contraction and related counters.
     if ((*i2).icon0 < (*i2).ncon0-1) {
         (*i2).icon0++;
         i2gob_update_con(i2);
@@ -425,6 +433,8 @@ void i2gob_update_con(i2gob_type* i2) {
     // Update fields that depend on contraction counters.
     (*i2).con_type0 = (*i2).con_types[(*i2).ocon0 + (*i2).icon0];
     (*i2).con_type1 = (*i2).con_types[(*i2).ocon1 + (*i2).icon1];
+    (*i2).ibasis0 = (*i2).con_offsets[(*i2).ocon0 + (*i2).icon0];
+    (*i2).ibasis1 = (*i2).con_offsets[(*i2).ocon1 + (*i2).icon1];
     // Reset exponent counters.
     (*i2).iexp0 = 0;
     (*i2).iexp1 = 0;
@@ -459,7 +469,24 @@ void i2gob_update_exp(i2gob_type* i2) {
                       (*i2).con_coeffs[(*i2).occ1 + (*i2).ncon1*(*i2).iexp1 + (*i2).icon1];
 }
 
+
 void i2gob_store(i2gob_type* i2, double *work_pure, double *output) {
+    // TODO: this routine is hardwired to work only for the dense storage
+    long i0, i1, n0, n1;
+    n0 = get_con_nbasis((*i2).con_type0);
+    n1 = get_con_nbasis((*i2).con_type1);
+    for (i0=0; i0<n0; i0++) {
+        for (i1=0; i1<n1; i1++) {
+            output[(i0+(*i2).ibasis0)*(*i2).nbasis+i1+(*i2).ibasis1] = work_pure[i0*(*i2).max_nbasis+i1];
+        }
+    }
+    if ((*i2).ibasis0 != (*i2).ibasis1) {
+        for (i0=0; i0<n0; i0++) {
+            for (i1=0; i1<n1; i1++) {
+                output[(i1+(*i2).ibasis1)*(*i2).nbasis+i0+(*i2).ibasis0] = work_pure[i0*(*i2).max_nbasis+i1];
+            }
+        }
+    }
 }
 
 
