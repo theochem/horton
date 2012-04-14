@@ -35,7 +35,8 @@ from horton.periodic import periodic
 
 
 __all__ = [
-    'load_system_args', 'load_geom_xyz', 'load_operators_g09', 'FCHKFile'
+    'load_system_args', 'load_geom_xyz', 'load_operators_g09', 'FCHKFile',
+    'load_basis_fchk',
 ]
 
 
@@ -54,6 +55,9 @@ def load_system_args(filename):
     if filename.endswith('.xyz'):
         coordinates, numbers = load_geom_xyz(filename)
         return {'coordinates': coordinates, 'numbers': numbers}
+    elif filename.endswith('.fchk'):
+        basis = load_basis_fchk(filename)
+        return {'basis': basis}
     else:
         raise ValueError('Unknown file format: %s' % filename)
 
@@ -103,7 +107,6 @@ def load_operators_g09(fn, lf):
 
             scf(conventional) iop(3/33=5) extralinks=l316 iop(3/27=999)
     """
-
 
     with open(fn) as f:
         # First get the line with the number of basis functions
@@ -315,3 +318,76 @@ class FCHKFile(object):
             pass
 
         f.close()
+
+
+def load_basis_fchk(filename):
+    '''Loads a gaussian orbital basis set from a formatted checkpoint file.
+
+       **Arguments:**
+
+       filename
+            The filename of the Gaussian formatted checkpoint file.
+    '''
+    from horton.gobasis import GOBasis
+    fchk = FCHKFile(filename, [
+        "Shell types", "Shell to atom map", "Shell to atom map",
+        "Number of primitives per shell", "Primitive exponents",
+        "Contraction coefficients", "P(S=P) Contraction coefficients",
+    ])
+    shell_types = fchk.fields["Shell types"]
+    shell_map = fchk.fields["Shell to atom map"] - 1
+    nexps = fchk.fields["Number of primitives per shell"]
+    exponents = fchk.fields["Primitive exponents"]
+    ccoeffs_level1 = fchk.fields["Contraction coefficients"]
+    ccoeffs_level2 = fchk.fields.get("P(S=P) Contraction coefficients")
+
+    ncons = []
+    con_types = []
+    con_coeffs = []
+    counter = 0
+    for i, n in enumerate(nexps):
+        if shell_types[i] == -1:
+            # Special treatment for SP shell type
+            ncons.append(2)
+            con_types.append(0)
+            con_types.append(1)
+            tmp = np.array([
+                ccoeffs_level1[counter:counter+n],
+                ccoeffs_level2[counter:counter+n]
+            ])
+            con_coeffs.append(tmp.transpose().ravel())
+        else:
+            ncons.append(1)
+            con_types.append(shell_types[i])
+            con_coeffs.append(ccoeffs_level1[counter:counter+n])
+        counter += n
+    ncons = np.array(ncons)
+    con_types = np.array(con_types)
+    con_coeffs = np.concatenate(con_coeffs)
+
+    result = GOBasis(shell_map, ncons, nexps, con_types, exponents, con_coeffs)
+
+    # permutation of the basis functions
+    g_reordering = {
+      # TODO check reordering of the pure basis functions
+      -6: np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]),
+      -5: np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+      -4: np.array([0, 1, 2, 3, 4, 5, 6, 7, 8]),
+      -3: np.array([0, 1, 2, 3, 4, 5, 6]),
+      -2: np.array([0, 1, 2, 3, 4]),
+      -1: np.array([0, 1, 2, 3]),
+       0: np.array([0]),
+       1: np.array([0, 1, 2]),
+       2: np.array([0, 3, 4, 1, 5, 2]),
+       3: np.array([0, 4, 5, 3, 9, 6, 1, 8, 7, 2]),
+       4: np.arange(15)[::-1],
+       5: np.arange(21)[::-1],
+       6: np.arange(28)[::-1],
+    }
+    offset = 0
+    permutation = []
+    for shell_type in shell_types:
+        permutation.extend(g_reordering[shell_type]+len(permutation))
+    result.g_permutation = np.array(permutation, dtype=int)
+
+    return result
