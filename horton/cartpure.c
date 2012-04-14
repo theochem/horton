@@ -668,7 +668,7 @@ const static type_sparse_tf cptf[MAX_CON_TYPE+1] = {
 void project_cartesian_to_pure(double *work_cart, double* work_pure, long
     con_type, long stride, long spacing, long count) {
 
-    int c, npure, ncart, i;
+    int c, npure, i;
     const type_sparse_tf* tf;
     const type_sparse_el* el;
 
@@ -676,7 +676,6 @@ void project_cartesian_to_pure(double *work_cart, double* work_pure, long
     assert(con_type>0);
 
     npure = 2*con_type+1;
-    ncart = ((con_type+1)*(con_type+2))/2;
     tf = &cptf[con_type];
 
     for (c=count-1; c>=0; c--) {
