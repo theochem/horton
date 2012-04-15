@@ -22,3 +22,8 @@
 cdef extern from "cints.h":
     int fact(int n)
     int fact2(int n)
+
+    double overlap(double alpha1, int l1, int m1, int n1,
+              double xa, double ya, double za,
+              double alpha2, int l2, int m2, int n2,
+              double xb, double yb, double zb)

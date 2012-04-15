@@ -20,6 +20,8 @@
 #--
 
 
+import numpy as np
+
 from horton import *
 
 
@@ -41,3 +43,15 @@ def test_fact2():
     assert fact2(3) == 3
     assert fact2(4) == 8
     assert fact2(5) == 15
+
+
+def test_overlap():
+    for nx in xrange(3):
+        for ny in xrange(3):
+            for nz in xrange(3):
+                for alpha in np.arange(0.5, 2.51, 0.5):
+                    x, y, z = np.random.uniform(-1, 1, 3)
+                    olp = cints_overlap(alpha, nx, ny, nz, x, y, z,
+                                        alpha, nx, ny, nz, x, y, z)
+                    check = olp*gob_normalization(alpha, nx, ny, nz)**2
+                    assert abs(check - 1.0) < 1e-10

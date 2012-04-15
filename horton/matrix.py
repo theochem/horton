@@ -185,6 +185,11 @@ class DenseExpansion(object):
         occupied = self._coeffs[:,:noc]
         dm._array[:] = np.dot(occupied, occupied.T)
 
+    def apply_basis_permutation(self, permutation):
+        '''Reorder the coefficients for a given permutation of basis functions.
+        '''
+        self._coeffs[:] = self.coeffs[permutation]
+
 
 class DenseOneBody(object):
     """Dense symmetric two-dimensional matrix.
@@ -229,6 +234,12 @@ class DenseOneBody(object):
 
     def dot(self, vec0, vec1):
         return np.dot(vec0, np.dot(self._array, vec1))
+
+    def apply_basis_permutation(self, permutation):
+        '''Reorder the coefficients for a given permutation of basis functions.
+        '''
+        self._array[:] = self._array[permutation]
+        self._array[:] = self._array[:,permutation]
 
 
 class DenseTwoBody(object):
@@ -292,3 +303,11 @@ class DenseTwoBody(object):
         if not isinstance(output, DenseOneBody):
             raise TypeError('The output argument must be a DenseOneBody class')
         output._array[:] = np.tensordot(self._array, dm._array, ([1,2], [0,1]))
+
+    def apply_basis_permutation(self, permutation):
+        '''Reorder the coefficients for a given permutation of basis functions.
+        '''
+        self._array[:] = self._array[permutation]
+        self._array[:] = self._array[:,permutation]
+        self._array[:] = self._array[:,:,permutation]
+        self._array[:] = self._array[:,:,:,permutation]

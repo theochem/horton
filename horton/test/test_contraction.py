@@ -452,9 +452,9 @@ def test_i2_pow_l1l0():
     i2p = I2Pow(1, 0, 3)
     assert i2p.fields == (1, 0, 0, 0, 0, 0, 0)
     assert i2p.inc() is True
-    assert i2p.fields == (0, 1, 0, 0, 0, 0, 1)
+    assert i2p.fields == (0, 1, 0, 0, 0, 0, 3)
     assert i2p.inc() is True
-    assert i2p.fields == (0, 0, 1, 0, 0, 0, 2)
+    assert i2p.fields == (0, 0, 1, 0, 0, 0, 6)
     assert i2p.inc() is False
     assert i2p.fields == (1, 0, 0, 0, 0, 0, 0)
 
@@ -463,19 +463,19 @@ def test_i2_pow_l2l1():
     i2p = I2Pow(2, 1, 10)
     assert i2p.fields == (2, 0, 0, 1, 0, 0, 0)
     assert i2p.inc() is True
-    assert i2p.fields == (1, 1, 0, 1, 0, 0, 1)
+    assert i2p.fields == (2, 0, 0, 0, 1, 0, 1)
     assert i2p.inc() is True
-    assert i2p.fields == (1, 0, 1, 1, 0, 0, 2)
+    assert i2p.fields == (2, 0, 0, 0, 0, 1, 2)
     assert i2p.inc() is True
-    assert i2p.fields == (0, 2, 0, 1, 0, 0, 3)
-    assert i2p.inc() is True
-    assert i2p.fields == (0, 1, 1, 1, 0, 0, 4)
-    assert i2p.inc() is True
-    assert i2p.fields == (0, 0, 2, 1, 0, 0, 5)
-    assert i2p.inc() is True
-    assert i2p.fields == (2, 0, 0, 0, 1, 0, 10)
+    assert i2p.fields == (1, 1, 0, 1, 0, 0, 10)
     assert i2p.inc() is True
     assert i2p.fields == (1, 1, 0, 0, 1, 0, 11)
+    assert i2p.inc() is True
+    assert i2p.fields == (1, 1, 0, 0, 0, 1, 12)
+    assert i2p.inc() is True
+    assert i2p.fields == (1, 0, 1, 1, 0, 0, 20)
+    assert i2p.inc() is True
+    assert i2p.fields == (1, 0, 1, 0, 1, 0, 21)
 
 
 def test_i2_pow_raise():

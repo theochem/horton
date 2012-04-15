@@ -46,7 +46,7 @@
 ********************************************************************************
 
   The equations herein are based upon: 'Gaussian Expansion Methods for Molecular
-  Orbitals.' H. Taketa, S. Huzinaga, and K. O-ohata. H. Phys. Soc. Japan, 21,
+  Orbitals.' H. Taketa, S. Huzinaga, and K. O-ohata.; J. Phys. Soc. Japan, 21,
   2313, 1966. [THO paper]
 
 *******************************************************************************/

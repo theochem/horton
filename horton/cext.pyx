@@ -29,8 +29,8 @@ cimport contraction
 
 
 __all__ = [
-    'fact', 'fact2',
-    'get_con_nbasis',
+    'fact', 'fact2', 'cints_overlap',
+    'get_con_nbasis', 'gob_normalization',
     'compute_gobasis_overlap', 'I2Gob', 'I2Pow', 'i1pow_inc',
     'project_cartesian_to_pure'
 ]
@@ -46,6 +46,12 @@ def fact(int n):
 def fact2(int n):
     return cints.fact2(n)
 
+def cints_overlap(double alpha1, int l1, int m1, int n1,
+                  double xa, double ya, double za,
+                  double alpha2, int l2, int m2, int n2,
+                  double xb, double yb, double zb):
+    return cints.overlap(alpha1, l1, m1, n1, xa, ya, za, alpha2, l2, m2, n2, xb,
+                         yb, zb)
 
 #
 # contraction wrappers
@@ -123,6 +129,10 @@ def compute_gobasis_overlap(np.ndarray[double, ndim=2] centers,
         len(output), # nbasis
     )
     handle_retcode(retcode)
+
+
+def gob_normalization(double alpha, int l, int m, int n):
+    return contraction.gob_normalization(alpha, l, m, n)
 
 
 cdef class I2Gob:

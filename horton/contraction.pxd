@@ -28,6 +28,8 @@ cdef extern from "contraction.h":
         con_coeffs, long nshell, long ncenter, long ncon_total, long nexp_total,
         long ncon_coeff_total, double* output, long nbasis)
 
+    double gob_normalization(double exponent, int l, int m, int n)
+
     ctypedef struct i2gob_type:
         long nshell, nbasis
 

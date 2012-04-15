@@ -30,6 +30,7 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
     double* con_coeffs, long nshell, long ncenter, long ncon_total,
     long nexp_total, long ncon_coeff_total, double* output, long nbasis);
 
+double gob_normalization(double exponent, int l, int m, int n);
 
 
 typedef struct {
@@ -79,6 +80,8 @@ typedef struct {
     long con_type0, con_type1, skip;
 
     // public iterator fields
+    // TODO: change to
+    // int nx0, ny0, nz0, nx1, ny1, nz1, offset;
     int l0, m0, n0, l1, m1, n1, offset;
 } i2pow_type;
 
