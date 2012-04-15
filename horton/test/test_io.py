@@ -23,13 +23,13 @@
 from horton import *
 
 
-def test_load_operators_g09():
+def test_load_operators_water_sto3g_hf_g03():
     lf = DenseLinalgFactory()
     eps = 1e-5
     fn = context.get_fn('test/water_sto3g_hf_g03.log')
-    overlap, kinetic, nuclear_attraction, electron_repulsion = load_operators_g09(fn, lf)
+    overlap, kinetic, nuclear_attraction, electronic_repulsion = load_operators_g09(fn, lf)
 
-    for op in overlap, kinetic, nuclear_attraction, electron_repulsion:
+    for op in overlap, kinetic, nuclear_attraction, electronic_repulsion:
         assert op is not None
         assert op.nbasis == 7
         op.check_symmetry()
@@ -49,10 +49,43 @@ def test_load_operators_g09():
     assert abs(nuclear_attraction.get_element(2,6) - 2.76941) < eps
     assert abs(nuclear_attraction.get_element(0,3) - 0.0) < eps
 
-    assert abs(electron_repulsion.get_element(0,0,0,0) - 4.78506575204) < eps
-    assert abs(electron_repulsion.get_element(6,6,6,6) - 0.774605944194) < eps
-    assert abs(electron_repulsion.get_element(6,5,0,5) - 0.0289424337101) < eps
-    assert abs(electron_repulsion.get_element(5,4,0,1) - 0.00274145291476) < eps
+    assert abs(electronic_repulsion.get_element(0,0,0,0) - 4.78506575204) < eps
+    assert abs(electronic_repulsion.get_element(6,6,6,6) - 0.774605944194) < eps
+    assert abs(electronic_repulsion.get_element(6,5,0,5) - 0.0289424337101) < eps
+    assert abs(electronic_repulsion.get_element(5,4,0,1) - 0.00274145291476) < eps
+
+
+def test_load_operators_water_ccpvdz_pure_hf_g03():
+    lf = DenseLinalgFactory()
+    eps = 1e-5
+    fn = context.get_fn('test/water_ccpvdz_pure_hf_g03.log')
+    overlap, kinetic, nuclear_attraction, electronic_repulsion = load_operators_g09(fn, lf)
+
+    for op in overlap, kinetic, nuclear_attraction, electronic_repulsion:
+        assert op is not None
+        assert op.nbasis == 24
+        op.check_symmetry()
+
+    assert abs(overlap.get_element(0,0) - 1.0) < eps
+    assert abs(overlap.get_element(0,1) - 0.214476) < eps
+    assert abs(overlap.get_element(0,2) - 0.183817) < eps
+    assert abs(overlap.get_element(10,16) - 0.380024) < eps
+    assert abs(overlap.get_element(-1,-3) - 0.000000) < eps
+
+    assert abs(kinetic.get_element(2,0) - 0.160648) < eps
+    assert abs(kinetic.get_element(11,11) - 4.14750) < eps
+    assert abs(kinetic.get_element(-1,5) - (-0.0244025)) < eps
+    assert abs(kinetic.get_element(-1,-6) - (-0.0614899)) < eps
+
+    assert abs(nuclear_attraction.get_element(3,3) - 12.8806) < eps
+    assert abs(nuclear_attraction.get_element(-2,-1) - 0.0533113) < eps
+    assert abs(nuclear_attraction.get_element(2,6) - 0.173282) < eps
+    assert abs(nuclear_attraction.get_element(-1,0) - 1.24131) < eps
+
+    assert abs(electronic_repulsion.get_element(0,0,0,0) - 4.77005841522) < eps
+    assert abs(electronic_repulsion.get_element(23,23,23,23) - 0.785718708997) < eps
+    assert abs(electronic_repulsion.get_element(23,8,23,2) - (-0.0400337571969)) < eps
+    assert abs(electronic_repulsion.get_element(15,2,12,0) - (-0.0000308196281033)) < eps
 
 
 def test_load_fchk_hf_sto3g_num():

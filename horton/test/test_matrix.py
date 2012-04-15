@@ -27,7 +27,7 @@ def get_water_sto3g_hf(lf=None):
     if lf is None:
         lf = DenseLinalgFactory()
     fn = context.get_fn('test/water_sto3g_hf_g03.log')
-    overlap, kinetic, nuclear_attraction, electron_repulsion = load_operators_g09(fn, lf)
+    overlap, kinetic, nuclear_attraction, electronic_repulsion = load_operators_g09(fn, lf)
     coeffs = np.array([
         9.94099882E-01, 2.67799213E-02, 3.46630004E-03, -1.54676269E-15,
         2.45105601E-03, -6.08393842E-03, -6.08393693E-03, -2.32889095E-01,
@@ -50,19 +50,19 @@ def get_water_sto3g_hf(lf=None):
     wfn = ClosedShellWFN(nep=5, lf=lf, nbasis=7)
     wfn.expansion.coeffs[:] = coeffs
     wfn.expansion.energies[:] = epsilons
-    return lf, overlap, kinetic, nuclear_attraction, electron_repulsion, wfn
+    return lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn
 
 
 def test_fock_matrix_eigen():
-    lf, overlap, kinetic, nuclear_attraction, electron_repulsion, wfn = get_water_sto3g_hf()
+    lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn = get_water_sto3g_hf()
     nbasis = overlap.nbasis
 
     dm = lf.create_one_body(7)
     coulomb = lf.create_one_body(nbasis)
     exchange = lf.create_one_body(nbasis)
     wfn.compute_density_matrix(dm)
-    electron_repulsion.apply_direct(dm, coulomb)
-    electron_repulsion.apply_exchange(dm, exchange)
+    electronic_repulsion.apply_direct(dm, coulomb)
+    electronic_repulsion.apply_exchange(dm, exchange)
 
     # Construct the Fock operator
     fock = lf.create_one_body(nbasis)
@@ -85,7 +85,7 @@ def test_fock_matrix_eigen():
 
 
 def test_kinetic_energy_water_sto3g():
-    lf, overlap, kinetic, nuclear_attraction, electron_repulsion, wfn = get_water_sto3g_hf()
+    lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn = get_water_sto3g_hf()
     dm = lf.create_one_body(7)
     wfn.compute_density_matrix(dm)
     ekin = 2*kinetic.expectation_value(dm)
@@ -93,7 +93,7 @@ def test_kinetic_energy_water_sto3g():
 
 
 def test_ortho_water_sto3g():
-    lf, overlap, kinetic, nuclear_attraction, electron_repulsion, wfn = get_water_sto3g_hf()
+    lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn = get_water_sto3g_hf()
     for i0 in xrange(7):
         orb0 = wfn.expansion.coeffs[:,i0]
         for i1 in xrange(i0+1):
@@ -103,7 +103,7 @@ def test_ortho_water_sto3g():
 
 
 def test_potential_energy_water_sto3g_hf():
-    lf, overlap, kinetic, nuclear_attraction, electron_repulsion, wfn = get_water_sto3g_hf()
+    lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn = get_water_sto3g_hf()
     dm = lf.create_one_body(7)
     wfn.compute_density_matrix(dm)
     epot = -2*nuclear_attraction.expectation_value(dm)
@@ -111,20 +111,20 @@ def test_potential_energy_water_sto3g_hf():
 
 
 def test_electron_electron_water_sto3g_hf():
-    lf, overlap, kinetic, nuclear_attraction, electron_repulsion, wfn = get_water_sto3g_hf()
+    lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn = get_water_sto3g_hf()
     dm = lf.create_one_body(7)
     coulomb = lf.create_one_body(7)
     exchange = lf.create_one_body(7)
     wfn.compute_density_matrix(dm)
-    electron_repulsion.apply_direct(dm, coulomb)
-    electron_repulsion.apply_exchange(dm, exchange)
+    electronic_repulsion.apply_direct(dm, coulomb)
+    electronic_repulsion.apply_exchange(dm, exchange)
     eee = 2*coulomb.expectation_value(dm) \
           - exchange.expectation_value(dm)
     assert abs(eee - 38.29686853319) < 1e-4
 
 
 def test_hartree_fock_water():
-    lf, overlap, kinetic, nuclear_attraction, electron_repulsion, wfn0 = get_water_sto3g_hf()
+    lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn0 = get_water_sto3g_hf()
     nbasis = overlap.nbasis
 
     # Construct a wavefunction
@@ -146,8 +146,8 @@ def test_hartree_fock_water():
         fock.reset()
         fock.iadd(hamcore, 1)
         wfn.compute_density_matrix(dm)
-        electron_repulsion.apply_direct(dm, coulomb)
-        electron_repulsion.apply_exchange(dm, exchange)
+        electronic_repulsion.apply_direct(dm, coulomb)
+        electronic_repulsion.apply_exchange(dm, exchange)
         fock.iadd(coulomb, 2)
         fock.iadd(exchange, -1)
         # Check for convergence
