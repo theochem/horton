@@ -51,3 +51,19 @@ def test_overlap_water_sto3g_hf():
     sys2.init_overlap()
     error = abs(sys1.operators['olp']._array - sys2.operators['olp']._array).max()
     assert error < 1e-6
+
+
+def test_overlap_water_ccpvdz_pure_hf():
+    sys1 = System.from_file(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'), context.get_fn('test/water_ccpvdz_pure_hf_g03.log'))
+    sys2 = System.from_file(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'))
+    sys2.init_overlap()
+    error = abs(sys1.operators['olp']._array - sys2.operators['olp']._array).max()
+    assert error < 1e-6
+
+
+def test_overlap_water_ccpvdz_cart_hf():
+    sys1 = System.from_file(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'), context.get_fn('test/water_ccpvdz_cart_hf_g03.log'))
+    sys2 = System.from_file(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'))
+    sys2.init_overlap()
+    error = abs(sys1.operators['olp']._array - sys2.operators['olp']._array).max()
+    assert error < 1e-6

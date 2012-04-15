@@ -19,6 +19,8 @@
 //--
 
 
+// TODO: use c++ style pointer syntax, i.e. x->y instead of (*x).y
+
 #include "contraction.h"
 #include "cartpure.h"
 #include "cints.h"
@@ -100,7 +102,6 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
     */
 
     int nwork, result;
-    double tmp;
     double* work_cart;
     double* work_pure;
     i2gob_type* i2;
@@ -172,7 +173,7 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
 
             // (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H)
             if ((*i2).con_type0 < -1) {
-                project_cartesian_to_pure(work_cart, work_pure, (*i2).con_type0,
+                project_cartesian_to_pure(work_cart, work_pure, -(*i2).con_type0,
                     1, // stride
                     (*i2).max_nbasis, // spacing
                     get_con_nbasis(abs((*i2).con_type1)) // count
@@ -181,10 +182,9 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
             }
 
             if ((*i2).con_type1 < -1) {
-                project_cartesian_to_pure(work_cart, work_pure, (*i2).con_type1,
+                project_cartesian_to_pure(work_cart, work_pure, -(*i2).con_type1,
                     (*i2).max_nbasis, // stride
                     1, // spacing
-
                     get_con_nbasis((*i2).con_type0) // count
                 );
                 swap_ptr(&work_cart, &work_pure);
@@ -357,6 +357,7 @@ int i2gob_check(i2gob_type* i2, long nshell, long ncenter, long ncon_total,
 
 
 int i2gob_inc_shell(i2gob_type* i2) {
+    // TODO: change order of loops to c style: first *1, then *0
     // Increment shell and related counters.
     if ((*i2).ishell0 < (*i2).ishell1) {
         (*i2).ishell0++;
@@ -419,6 +420,7 @@ void i2gob_update_shell(i2gob_type* i2) {
 
 
 int i2gob_inc_con(i2gob_type* i2) {
+    // TODO: change order of loops to c style: first *1, then *0
     // Increment contraction and related counters.
     if ((*i2).icon0 < (*i2).ncon0-1) {
         (*i2).icon0++;
@@ -451,6 +453,7 @@ void i2gob_update_con(i2gob_type* i2) {
 
 
 int i2gob_inc_exp(i2gob_type* i2) {
+    // TODO: change order of loops to c style: first *1, then *0
     // Increment exponent counters.
     if ((*i2).iexp0 < (*i2).nexp0-1) {
         (*i2).iexp0++;

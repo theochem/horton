@@ -62,8 +62,8 @@ def load_system_args(filename, lf):
         coordinates, numbers, basis, wfn = load_fchk(filename, lf)
         return {'coordinates': coordinates, 'numbers': numbers, 'basis': basis, 'wfn': wfn}
     elif filename.endswith('.log'):
-        overlap, kinetic, nuclear_attraction, electron_repulsion = load_operators_g09(filename, lf)
-        return {'operators': {'olp': overlap, 'kin': overlap, 'na': overlap, 'er': overlap}}
+        overlap, kinetic, nuclear_attraction, electronic_repulsion = load_operators_g09(filename, lf)
+        return {'operators': {'olp': overlap, 'kin': kinetic, 'na': nuclear_attraction, 'er': electronic_repulsion}}
     else:
         raise ValueError('Unknown file format: %s' % filename)
 
@@ -127,19 +127,19 @@ def load_operators_g09(fn, lf):
         overlap = None
         kinetic = None
         nuclear_attraction = None
-        electron_repulsion = None
+        electronic_repulsion = None
 
         for line in f:
-            if line == ' *** Overlap ***\n':
+            if line.startswith(' *** Overlap ***'):
                 overlap = _load_onebody_g09(f, nbasis, lf)
-            elif line == ' *** Kinetic Energy ***\n':
+            elif line.startswith(' *** Kinetic Energy ***'):
                 kinetic = _load_onebody_g09(f, nbasis, lf)
-            elif line == ' ***** Potential Energy *****\n':
+            elif line.startswith(' ***** Potential Energy *****'):
                 nuclear_attraction = _load_onebody_g09(f, nbasis, lf)
-            elif line == ' *** Dumping Two-Electron integrals ***\n':
-                electron_repulsion = _load_twobody_g09(f, nbasis, lf)
+            elif line.startswith(' *** Dumping Two-Electron integrals ***'):
+                electronic_repulsion = _load_twobody_g09(f, nbasis, lf)
 
-        return overlap, kinetic, nuclear_attraction, electron_repulsion
+        return overlap, kinetic, nuclear_attraction, electronic_repulsion
 
 
 def _load_onebody_g09(f, nbasis, lf):
