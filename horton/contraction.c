@@ -100,6 +100,7 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
     */
 
     int nwork, result;
+    double tmp;
     double* work_cart;
     double* work_pure;
     i2gob_type* i2;
@@ -164,7 +165,8 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
                         (*i2).x0, (*i2).y0, (*i2).z0,
                         (*i2).exp1, (*i2p).l1, (*i2p).m1, (*i2p).n1,
                         (*i2).x1, (*i2).y1, (*i2).z1
-                    );
+                    )*gob_normalization((*i2).exp0, (*i2p).l0, (*i2p).m0, (*i2p).n0)
+                    *gob_normalization((*i2).exp1, (*i2p).l1, (*i2p).m1, (*i2p).n1);
                 } while (i2pow_inc(i2p));
             } while (i2gob_inc_exp(i2));
 
@@ -182,6 +184,7 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
                 project_cartesian_to_pure(work_cart, work_pure, (*i2).con_type1,
                     (*i2).max_nbasis, // stride
                     1, // spacing
+
                     get_con_nbasis((*i2).con_type0) // count
                 );
                 swap_ptr(&work_cart, &work_pure);
@@ -203,6 +206,12 @@ exit:
     i2gob_free(i2);
     i2pow_free(i2p);
     return result;
+}
+
+
+double gob_normalization(double exponent, int l, int m, int n) {
+    return sqrt(pow(4.0*exponent, l+m+n)*pow(2.0*exponent/M_PI, 1.5)
+           /(fact2(2*l-1)*fact2(2*m-1)*fact2(2*n-1)));
 }
 
 
@@ -508,7 +517,7 @@ void i2pow_init(i2pow_type* i2p, long con_type0, long con_type1, long max_nbasis
     assert(con_type1 >= 0);
     (*i2p).con_type0 = con_type0;
     (*i2p).con_type1 = con_type1;
-    (*i2p).skip = max_nbasis - get_con_nbasis(con_type0) + 1;
+    (*i2p).skip = max_nbasis - get_con_nbasis(con_type1) + 1;
     assert((*i2p).skip >= 0);
     assert(max_nbasis >= get_con_nbasis(con_type1));
     (*i2p).l0 = con_type0;
@@ -524,11 +533,11 @@ void i2pow_init(i2pow_type* i2p, long con_type0, long con_type1, long max_nbasis
 int i2pow_inc(i2pow_type* i2p) {
     // Increment indexes of shell 0
     int result;
-    result = i1pow_inc(&(*i2p).l0, &(*i2p).m0, &(*i2p).n0);
+    result = i1pow_inc(&(*i2p).l1, &(*i2p).m1, &(*i2p).n1);
     if (result) {
         (*i2p).offset++;
     } else {
-        result = i1pow_inc(&(*i2p).l1, &(*i2p).m1, &(*i2p).n1);
+        result = i1pow_inc(&(*i2p).l0, &(*i2p).m0, &(*i2p).n0);
         if (result) {
             (*i2p).offset += (*i2p).skip;
         } else {

@@ -403,7 +403,7 @@ class GOBasis(object):
     nbasis = property(get_nbasis)
 
     def compute_overlap(self, centers, overlap):
-        from horton.ext import compute_gobasis_overlap
+        from horton.cext import compute_gobasis_overlap
         compute_gobasis_overlap(
             centers, self._shell_map, self._ncons, self._nexps, self._con_types,
             self._exponents, self._con_coeffs, overlap._array

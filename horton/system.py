@@ -38,7 +38,7 @@ __all__ = ['System']
 
 
 class System(object):
-    def __init__(self, coordinates, numbers, basis=None, wfn=None, lf=None):
+    def __init__(self, coordinates, numbers, basis=None, wfn=None, lf=None, operators=None):
         """
            **Arguments:**
 
@@ -61,9 +61,14 @@ class System(object):
            lf
                 A LinalgFactory instance. When not given, a DenseLinalgFactory
                 is used by default.
+
+           operators
+                A dictionary with one- and two-body operators.
         """
+        # A) Assign all attributes
         self._coordinates = np.array(coordinates, dtype=float, copy=False)
         self._numbers = np.array(numbers, dtype=int, copy=False)
+        #
         from horton.gobasis import GOBasisDesc, GOBasis
         if isinstance(basis, str):
             basis_desc = GOBasisDesc(basis)
@@ -74,13 +79,28 @@ class System(object):
             self._basis = basis
         else:
             raise TypeError('Can not interpret %s as a basis.' % basis)
+        #
         self._wfn = wfn
         if wfn is not None:
             assert wfn.basis == basis
+        #
         if lf is None:
             self._lf = DenseLinalgFactory()
         else:
             self._lf = lf
+        #
+        self._operators = operators
+
+        # If the basis comes from Gaussian and some operators are loaded, some
+        # rows and columns need to be reordered. Similar for the orbital
+        # coefficients.
+        if hasattr(self.basis, 'g_permutation'):
+            if self.operators is not None:
+                for op in self.operators.itervalues():
+                    op.apply_basis_permutation(self.basis.g_permutation)
+            if self.wfn is not None:
+                self.wfn.expansion.apply_basis_permutation(self.basis.g_permutation)
+            del self.basis.g_permutation
 
     def get_natom(self):
         return len(self.numbers)
@@ -112,6 +132,11 @@ class System(object):
 
     lf = property(get_lf)
 
+    def get_operators(self):
+        return self._operators
+
+    operators = property(get_operators)
+
     @classmethod
     def from_file(cls, *args, **kwargs):
         """Create a System object from a file.
@@ -136,5 +161,13 @@ class System(object):
         constructor_args.update(kwargs)
         return cls(**constructor_args)
 
-    def compute_overlap(self, overlap):
+    def add_operator(self, name, op):
+        if self._operators is None:
+            self._operators = {name: op}
+        else:
+            self._operators[name] = op
+
+    def init_overlap(self):
+        overlap = self.lf.create_one_body(self.basis.nbasis)
         self.basis.compute_overlap(self.coordinates, overlap)
+        self.add_operator('olp', overlap)

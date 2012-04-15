@@ -61,6 +61,9 @@ def load_system_args(filename, lf):
     elif filename.endswith('.fchk'):
         coordinates, numbers, basis, wfn = load_fchk(filename, lf)
         return {'coordinates': coordinates, 'numbers': numbers, 'basis': basis, 'wfn': wfn}
+    elif filename.endswith('.log'):
+        overlap, kinetic, nuclear_attraction, electron_repulsion = load_operators_g09(filename, lf)
+        return {'operators': {'olp': overlap, 'kin': overlap, 'na': overlap, 'er': overlap}}
     else:
         raise ValueError('Unknown file format: %s' % filename)
 
