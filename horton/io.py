@@ -278,7 +278,7 @@ class FCHKFile(object):
                     return True
 
                 if words[0] == 'I':
-                    datatype = np.int64
+                    datatype = int
                     unreadable = 0
                 elif words[0] == 'R':
                     datatype = float
