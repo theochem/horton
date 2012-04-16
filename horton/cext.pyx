@@ -182,8 +182,6 @@ cdef class I2Gob:
         self._exponents = exponents
         self._con_coeffs = con_coeffs
 
-        # TODO: proper error handling and bounds checking.
-        # TODO: provide function pointer for specific integral routine.
         retcode = contraction.i2gob_init(
             self._c_i2,
             <double*>centers.data,

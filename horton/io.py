@@ -396,7 +396,6 @@ def load_fchk(filename, lf):
 
     # permutation of the basis functions
     g_reordering = {
-      # TODO check reordering of the pure basis functions
       -6: np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]),
       -5: np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
       -4: np.array([0, 1, 2, 3, 4, 5, 6, 7, 8]),
