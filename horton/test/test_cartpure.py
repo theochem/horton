@@ -88,3 +88,28 @@ def test_cart_pure_d():
     work_pure = np.random.normal(0, 1, (6, 10))
     project_cartesian_to_pure(work_cart.reshape(-1), work_pure.reshape(-1), con_type=2, stride=1, spacing=10, count=10)
     assert abs(np.dot(tf, work_cart) - work_pure[:5]).max() < 1e-10
+
+def test_cart_pure_g():
+    tf = np.array([
+        [0.375, 0, 0, 0.21957751641341996535, 0, -0.87831006565367986142, 0, 0, 0, 0, 0.375, 0, -0.87831006565367986142, 0, 1.0],
+        [0, 0, -0.89642145700079522998, 0, 0, 0, 0, -0.40089186286863657703, 0, 1.19522860933439364, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, -0.40089186286863657703, 0, 0, 0, 0, 0, 0, -0.89642145700079522998, 0, 1.19522860933439364, 0],
+        [-0.5590169943749474241, 0, 0, 0, 0, 0.9819805060619657157, 0, 0, 0, 0, 0.5590169943749474241, 0, -0.9819805060619657157, 0, 0],
+        [0, -0.42257712736425828875, 0, 0, 0, 0, -0.42257712736425828875, 0, 1.1338934190276816816, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0.790569415042094833, 0, 0, 0, 0, -1.0606601717798212866, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 1.0606601717798212866, 0, 0, 0, 0, 0, 0, -0.790569415042094833, 0, 0, 0],
+        [0.73950997288745200532, 0, 0, -1.2990381056766579701, 0, 0, 0, 0, 0, 0, 0.73950997288745200532, 0, 0, 0, 0],
+        [0, 1.1180339887498948482, 0, 0, 0, 0, -1.1180339887498948482, 0, 0, 0, 0, 0, 0, 0, 0],
+    ])
+
+    work_cart = np.random.normal(0, 1, 15)
+    work_pure = np.random.normal(0, 1, 15)
+    project_cartesian_to_pure(work_cart, work_pure, con_type=4, stride=15, spacing=1, count=1)
+    print np.dot(tf, work_cart)
+    print work_pure[:9]
+    assert abs(np.dot(tf, work_cart) - work_pure[:9]).max() < 1e-10
+
+    work_cart = np.random.normal(0, 1, (3,20))
+    work_pure = np.random.normal(0, 1, (3,20))
+    project_cartesian_to_pure(work_cart.reshape(-1), work_pure.reshape(-1), con_type=4, stride=20, spacing=1, count=3)
+    assert abs(np.dot(work_cart[:,:15], tf.T) - work_pure[:,:9]).max() < 1e-10

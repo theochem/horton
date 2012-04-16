@@ -31,7 +31,7 @@ import numpy as np
 
 
 class ClosedShellWFN(object):
-    def __init__(self, nep, lf, basis=None, nbasis=None):
+    def __init__(self, nep, lf, basis=None, nbasis=None, norb=None):
         """
            **Arguments:**
 
@@ -49,20 +49,24 @@ class ClosedShellWFN(object):
            nbasis
                 The number of basis functions.
 
+           norb
+               the number of orbitals (occupied + virtual). When not given,
+               it is set to nbasis.
+
            Either basis or nbasis must be given.
         """
         self._nep = nep
         self._lf = lf
         self._basis = basis
         self._nbasis = nbasis
+        self._norb = norb
 
         if self.nep <= 0:
             raise ValueError('At least one pair of electrons is required.')
         if self.nbasis < self.nep:
             raise ValueError('The number of spatial basis functions must not be lower than the number of electron pairs.')
 
-        norb = self.nbasis
-        self._expansion = lf.create_expansion(self.nbasis, norb, do_energies=True)
+        self._expansion = lf.create_expansion(self.nbasis, self.norb, do_energies=True)
 
     def get_nep(self):
         return self._nep
@@ -81,6 +85,14 @@ class ClosedShellWFN(object):
             return self._nbasis
 
     nbasis = property(get_nbasis)
+
+    def get_norb(self):
+        if self._norb is None:
+            return self.nbasis
+        else:
+            return self._norb
+
+    norb = property(get_norb)
 
     def get_expansion(self):
         return self._expansion

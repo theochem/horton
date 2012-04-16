@@ -159,6 +159,11 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
             do {
 
                 // (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F)
+                // TODO: this loop should go into the integral evaluation routine
+                // to avoid trivially redundant floating point operations.
+                // It would be yet more useful to have a data structure
+                // for each type of Gaussian integral, which can be initialized
+                // prior to this loop.
                 i2pow_init(i2p, abs((*i2).con_type0), abs((*i2).con_type1), (*i2).max_nbasis);
                 do {
                     work_cart[(*i2p).offset] += (*i2).con_coeff*overlap(

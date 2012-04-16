@@ -63,7 +63,16 @@ def load_system_args(filename, lf):
         return {'coordinates': coordinates, 'numbers': numbers, 'basis': basis, 'wfn': wfn}
     elif filename.endswith('.log'):
         overlap, kinetic, nuclear_attraction, electronic_repulsion = load_operators_g09(filename, lf)
-        return {'operators': {'olp': overlap, 'kin': kinetic, 'na': nuclear_attraction, 'er': electronic_repulsion}}
+        operators = {}
+        if overlap is not None:
+            operators['olp'] = overlap
+        if kinetic is not None:
+            operators['kin'] = kinetic
+        if nuclear_attraction is not None:
+            operators['na'] = nuclear_attraction
+        if electronic_repulsion is not None:
+            operators['er'] = electronic_repulsion
+        return {'operators': operators}
     else:
         raise ValueError('Unknown file format: %s' % filename)
 
@@ -342,7 +351,7 @@ def load_fchk(filename, lf):
 
 
     fchk = FCHKFile(filename, [
-        "Number of electrons",
+        "Number of electrons", "Number of independant functions",
         "Atomic numbers", "Current cartesian coordinates",
         "Shell types", "Shell to atom map", "Shell to atom map",
         "Number of primitives per shell", "Primitive exponents",
@@ -418,8 +427,11 @@ def load_fchk(filename, lf):
     else:
         nelec = fchk.fields["Number of electrons"]
         assert nelec % 2 == 0
-        wfn = ClosedShellWFN(nelec/2, lf, basis)
-        wfn.expansion.coeffs[:] = fchk.fields['Alpha MO coefficients'].reshape(basis.nbasis, basis.nbasis).T
+        nbasis_indep = fchk.fields.get("Number of independant functions")
+        if nbasis_indep is None:
+            nbasis_indep = basis.nbasis
+        wfn = ClosedShellWFN(nelec/2, lf, basis, norb=nbasis_indep)
+        wfn.expansion.coeffs[:] = fchk.fields['Alpha MO coefficients'].reshape(nbasis_indep, basis.nbasis).T
         wfn.expansion.energies[:] = fchk.fields['Alpha Orbital Energies']
 
     return coordinates, numbers, basis, wfn
