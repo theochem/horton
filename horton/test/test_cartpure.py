@@ -105,8 +105,6 @@ def test_cart_pure_g():
     work_cart = np.random.normal(0, 1, 15)
     work_pure = np.random.normal(0, 1, 15)
     project_cartesian_to_pure(work_cart, work_pure, con_type=4, stride=15, spacing=1, count=1)
-    print np.dot(tf, work_cart)
-    print work_pure[:9]
     assert abs(np.dot(tf, work_cart) - work_pure[:9]).max() < 1e-10
 
     work_cart = np.random.normal(0, 1, (3,20))
