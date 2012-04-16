@@ -660,8 +660,8 @@ typedef struct {
 
 
 const static type_sparse_tf cptf[MAX_CON_TYPE+1] = {
-    {1, cptf0}, {3, cptf1}, {8, cptf2}, {16, cptf3}, {29, cptf4}, {47, cptf5},
-    {71, cptf6}, {102, cptf7}, {142, cptf8}, {192, cptf9}
+    {1, cptf0}, {3, cptf1}, {8, cptf2}, {16, cptf3}, {28, cptf4}, {46, cptf5},
+    {70, cptf6}, {102, cptf7}, {141, cptf8}, {187, cptf9}
 };
 
 

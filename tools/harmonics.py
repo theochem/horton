@@ -281,7 +281,7 @@ def run_print_transformations_python():
     z = Symbol("z")
     xyz = (x, y, z)
 
-    nshell = 3
+    nshell = 5
 
     print
     for shell in xrange(nshell):
