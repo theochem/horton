@@ -19,8 +19,6 @@
 //--
 
 
-// TODO: use c++ style pointer syntax, i.e. x->y instead of (*x).y
-
 #include "contraction.h"
 #include "cartpure.h"
 #include "cints.h"
@@ -134,7 +132,7 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
     if (result != 0) goto exit;
 
     // Allocate work arrays.
-    nwork = (*i2).max_nbasis*(*i2).max_nbasis;
+    nwork = i2->max_nbasis*i2->max_nbasis;
     work_cart = malloc(nwork*sizeof(double));
     if (work_cart==NULL) safe_exit(-1);
     work_pure = malloc(nwork*sizeof(double));
@@ -164,33 +162,33 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
                 // It would be yet more useful to have a data structure
                 // for each type of Gaussian integral, which can be initialized
                 // prior to this loop.
-                i2pow_init(i2p, abs((*i2).con_type0), abs((*i2).con_type1), (*i2).max_nbasis);
+                i2pow_init(i2p, abs(i2->con_type0), abs(i2->con_type1), i2->max_nbasis);
                 do {
-                    work_cart[(*i2p).offset] += (*i2).con_coeff*overlap(
-                        (*i2).exp0, (*i2p).l0, (*i2p).m0, (*i2p).n0,
-                        (*i2).x0, (*i2).y0, (*i2).z0,
-                        (*i2).exp1, (*i2p).l1, (*i2p).m1, (*i2p).n1,
-                        (*i2).x1, (*i2).y1, (*i2).z1
-                    )*gob_normalization((*i2).exp0, (*i2p).l0, (*i2p).m0, (*i2p).n0)
-                    *gob_normalization((*i2).exp1, (*i2p).l1, (*i2p).m1, (*i2p).n1);
+                    work_cart[i2p->offset] += i2->con_coeff*overlap(
+                        i2->exp0, i2p->l0, i2p->m0, i2p->n0,
+                        i2->x0, i2->y0, i2->z0,
+                        i2->exp1, i2p->l1, i2p->m1, i2p->n1,
+                        i2->x1, i2->y1, i2->z1
+                    )*gob_normalization(i2->exp0, i2p->l0, i2p->m0, i2p->n0)
+                    *gob_normalization(i2->exp1, i2p->l1, i2p->m1, i2p->n1);
                 } while (i2pow_inc(i2p));
             } while (i2gob_inc_exp(i2));
 
             // (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H)
-            if ((*i2).con_type0 < -1) {
-                project_cartesian_to_pure(work_cart, work_pure, -(*i2).con_type0,
+            if (i2->con_type0 < -1) {
+                project_cartesian_to_pure(work_cart, work_pure, -i2->con_type0,
                     1, // stride
-                    (*i2).max_nbasis, // spacing
-                    get_con_nbasis(abs((*i2).con_type1)) // count
+                    i2->max_nbasis, // spacing
+                    get_con_nbasis(abs(i2->con_type1)) // count
                 );
                 swap_ptr(&work_cart, &work_pure);
             }
 
-            if ((*i2).con_type1 < -1) {
-                project_cartesian_to_pure(work_cart, work_pure, -(*i2).con_type1,
-                    (*i2).max_nbasis, // stride
+            if (i2->con_type1 < -1) {
+                project_cartesian_to_pure(work_cart, work_pure, -i2->con_type1,
+                    i2->max_nbasis, // stride
                     1, // spacing
-                    get_con_nbasis((*i2).con_type0) // count
+                    get_con_nbasis(i2->con_type0) // count
                 );
                 swap_ptr(&work_cart, &work_pure);
             }
@@ -227,7 +225,7 @@ i2gob_type* i2gob_new(void) {
 
 
 void i2gob_free(i2gob_type* i2) {
-    free((*i2).con_offsets);
+    free(i2->con_offsets);
     free(i2);
 }
 
@@ -241,65 +239,65 @@ int i2gob_init(i2gob_type* i2, double* centers, long* shell_map,
     long icon;
 
     // assign input variables
-    (*i2).centers = centers;
-    (*i2).shell_map = shell_map;
-    (*i2).ncons = ncons;
-    (*i2).nexps = nexps;
-    (*i2).con_types = con_types;
-    (*i2).con_offsets = NULL;
-    (*i2).exponents = exponents;
-    (*i2).con_coeffs = con_coeffs;
-    (*i2).nshell = nshell;
-    (*i2).nbasis = nbasis;
+    i2->centers = centers;
+    i2->shell_map = shell_map;
+    i2->ncons = ncons;
+    i2->nexps = nexps;
+    i2->con_types = con_types;
+    i2->con_offsets = NULL;
+    i2->exponents = exponents;
+    i2->con_coeffs = con_coeffs;
+    i2->nshell = nshell;
+    i2->nbasis = nbasis;
 
     result = i2gob_check(i2, nshell, ncenter, ncon_total, nexp_total,
                          ncon_coeff_total, nbasis);
     if (result < 0) return result;
 
     // allocate and set up auxilliary array
-    (*i2).con_offsets = malloc(ncon_total*sizeof(long));
-    if ((*i2).con_offsets == NULL) return -1;
-    (*i2).con_offsets[0] = 0;
+    i2->con_offsets = malloc(ncon_total*sizeof(long));
+    if (i2->con_offsets == NULL) return -1;
+    i2->con_offsets[0] = 0;
     for (icon=1; icon<ncon_total; icon++) {
-        (*i2).con_offsets[icon] = (*i2).con_offsets[icon-1] + get_con_nbasis((*i2).con_types[icon-1]);
+        i2->con_offsets[icon] = i2->con_offsets[icon-1] + get_con_nbasis(i2->con_types[icon-1]);
     }
 
     // reset public fields
-    (*i2).max_nbasis = result;
-    (*i2).con_type0 = 0;
-    (*i2).con_type1 = 0;
-    (*i2).con_coeff = 0.0;
-    (*i2).exp0 = 0.0;
-    (*i2).exp1 = 0.0;
-    (*i2).x0 = 0.0;
-    (*i2).y0 = 0.0;
-    (*i2).z0 = 0.0;
-    (*i2).x1 = 0.0;
-    (*i2).y1 = 0.0;
-    (*i2).z1 = 0.0;
-    (*i2).ibasis0 = 0;
-    (*i2).ibasis1 = 0;
+    i2->max_nbasis = result;
+    i2->con_type0 = 0;
+    i2->con_type1 = 0;
+    i2->con_coeff = 0.0;
+    i2->exp0 = 0.0;
+    i2->exp1 = 0.0;
+    i2->x0 = 0.0;
+    i2->y0 = 0.0;
+    i2->z0 = 0.0;
+    i2->x1 = 0.0;
+    i2->y1 = 0.0;
+    i2->z1 = 0.0;
+    i2->ibasis0 = 0;
+    i2->ibasis1 = 0;
 
     // reset internal fields
-    (*i2).ishell0 = 0;
-    (*i2).ishell1 = 0;
+    i2->ishell0 = 0;
+    i2->ishell1 = 0;
 
-    (*i2).ncon0 = 0; // number of contractions in a shell
-    (*i2).ncon1 = 0;
-    (*i2).icon0 = 0; // index of the current con_type within the current shell
-    (*i2).icon1 = 0;
-    (*i2).ocon0 = 0; // offset of the first con_type within the current shell
-    (*i2).ocon1 = 0;
+    i2->ncon0 = 0; // number of contractions in a shell
+    i2->ncon1 = 0;
+    i2->icon0 = 0; // index of the current con_type within the current shell
+    i2->icon1 = 0;
+    i2->ocon0 = 0; // offset of the first con_type within the current shell
+    i2->ocon1 = 0;
 
-    (*i2).nexp0 = 0; // number of exponents in a shell
-    (*i2).nexp1 = 0;
-    (*i2).iexp0 = 0; // index of the current exponent within the current shell
-    (*i2).iexp1 = 0;
-    (*i2).oexp0 = 0; // offset of the first exponent within the current shell
-    (*i2).oexp1 = 0;
+    i2->nexp0 = 0; // number of exponents in a shell
+    i2->nexp1 = 0;
+    i2->iexp0 = 0; // index of the current exponent within the current shell
+    i2->iexp1 = 0;
+    i2->oexp0 = 0; // offset of the first exponent within the current shell
+    i2->oexp1 = 0;
 
-    (*i2).occ0 = 0; // offset of the first contraction coefficient within the current shell
-    (*i2).occ1 = 0;
+    i2->occ0 = 0; // offset of the first contraction coefficient within the current shell
+    i2->occ1 = 0;
 
     return 0;
 }
@@ -336,10 +334,10 @@ int i2gob_check(i2gob_type* i2, long nshell, long ncenter, long ncon_total,
     i_con_coeff = 0;
     i_basis = 0;
     for (i=0; i<nshell; i++) {
-        if (((*i2).shell_map[i] < 0) || ((*i2).shell_map[i] >= ncenter)) return -2;
-        if ((*i2).ncons[i] <= 0) return -3;
-        for (j=0; j < (*i2).ncons[i]; j++) {
-            con_type = (*i2).con_types[i_con];
+        if ((i2->shell_map[i] < 0) || (i2->shell_map[i] >= ncenter)) return -2;
+        if (i2->ncons[i] <= 0) return -3;
+        for (j=0; j < i2->ncons[i]; j++) {
+            con_type = i2->con_types[i_con];
             if (con_type == -1) return -7;
             if (abs(con_type) > max_angmom) max_angmom = abs(con_type);
             i_con++;
@@ -347,10 +345,10 @@ int i2gob_check(i2gob_type* i2, long nshell, long ncenter, long ncon_total,
             i_basis += get_con_nbasis(con_type);
             if (i_basis > nbasis) return -9;
         }
-        if ((*i2).nexps[i] <= 0) return -5;
-        i_exp += (*i2).nexps[i];
+        if (i2->nexps[i] <= 0) return -5;
+        i_exp += i2->nexps[i];
         if (i_exp > nexp_total) return -6;
-        i_con_coeff += (*i2).nexps[i]*(*i2).ncons[i];
+        i_con_coeff += i2->nexps[i]*i2->ncons[i];
         if (i_con_coeff > ncon_coeff_total) return -8;
     }
     if (i_con != ncon_total) return -4;
@@ -364,33 +362,33 @@ int i2gob_check(i2gob_type* i2, long nshell, long ncenter, long ncon_total,
 int i2gob_inc_shell(i2gob_type* i2) {
     // TODO: change order of loops to c style: first *1, then *0
     // Increment shell and related counters.
-    if ((*i2).ishell0 < (*i2).ishell1) {
-        (*i2).ishell0++;
-        (*i2).ocon0 += (*i2).ncon0;
-        (*i2).oexp0 += (*i2).nexp0;
-        (*i2).occ0 += (*i2).ncon0 * (*i2).nexp0;
+    if (i2->ishell0 < i2->ishell1) {
+        i2->ishell0++;
+        i2->ocon0 += i2->ncon0;
+        i2->oexp0 += i2->nexp0;
+        i2->occ0 += i2->ncon0 * i2->nexp0;
         i2gob_update_shell(i2);
         return 1;
-    } else if ((*i2).ishell1 < (*i2).nshell-1) {
-        (*i2).ishell0 = 0;
-        (*i2).ocon0 = 0;
-        (*i2).oexp0 = 0;
-        (*i2).occ0 = 0;
-        (*i2).ocon1 += (*i2).ncon1;
-        (*i2).oexp1 += (*i2).nexp1;
-        (*i2).occ1 += (*i2).ncon1 * (*i2).nexp1;
-        (*i2).ishell1++;
+    } else if (i2->ishell1 < i2->nshell-1) {
+        i2->ishell0 = 0;
+        i2->ocon0 = 0;
+        i2->oexp0 = 0;
+        i2->occ0 = 0;
+        i2->ocon1 += i2->ncon1;
+        i2->oexp1 += i2->nexp1;
+        i2->occ1 += i2->ncon1 * i2->nexp1;
+        i2->ishell1++;
         i2gob_update_shell(i2);
         return 1;
     } else {
-        (*i2).ishell0 = 0;
-        (*i2).ishell1 = 0;
-        (*i2).ocon0 = 0;
-        (*i2).ocon1 = 0;
-        (*i2).oexp0 = 0;
-        (*i2).oexp1 = 0;
-        (*i2).occ0 = 0;
-        (*i2).occ1 = 0;
+        i2->ishell0 = 0;
+        i2->ishell1 = 0;
+        i2->ocon0 = 0;
+        i2->ocon1 = 0;
+        i2->oexp0 = 0;
+        i2->oexp1 = 0;
+        i2->occ0 = 0;
+        i2->occ1 = 0;
         i2gob_update_shell(i2);
         return 0;
     }
@@ -400,45 +398,45 @@ int i2gob_inc_shell(i2gob_type* i2) {
 void i2gob_update_shell(i2gob_type* i2) {
     double* tmp;
     // Update fields that depend on shell and related counters.
-    (*i2).ncon0 = (*i2).ncons[(*i2).ishell0];
-    (*i2).ncon1 = (*i2).ncons[(*i2).ishell1];
-    (*i2).nexp0 = (*i2).nexps[(*i2).ishell0];
-    (*i2).nexp1 = (*i2).nexps[(*i2).ishell1];
+    i2->ncon0 = i2->ncons[i2->ishell0];
+    i2->ncon1 = i2->ncons[i2->ishell1];
+    i2->nexp0 = i2->nexps[i2->ishell0];
+    i2->nexp1 = i2->nexps[i2->ishell1];
     // update center 0
-    tmp = (*i2).centers + 3*(*i2).shell_map[(*i2).ishell0];
-    (*i2).x0 = *tmp;
+    tmp = i2->centers + 3*i2->shell_map[i2->ishell0];
+    i2->x0 = *tmp;
     tmp++;
-    (*i2).y0 = *tmp;
+    i2->y0 = *tmp;
     tmp++;
-    (*i2).z0 = *tmp;
+    i2->z0 = *tmp;
     // update center 1
-    tmp = (*i2).centers + 3*(*i2).shell_map[(*i2).ishell1];
-    (*i2).x1 = *tmp;
+    tmp = i2->centers + 3*i2->shell_map[i2->ishell1];
+    i2->x1 = *tmp;
     tmp++;
-    (*i2).y1 = *tmp;
+    i2->y1 = *tmp;
     tmp++;
-    (*i2).z1 = *tmp;
+    i2->z1 = *tmp;
     // reset contraction counters
-    (*i2).icon0 = 0;
-    (*i2).icon1 = 0;
+    i2->icon0 = 0;
+    i2->icon1 = 0;
 }
 
 
 int i2gob_inc_con(i2gob_type* i2) {
     // TODO: change order of loops to c style: first *1, then *0
     // Increment contraction and related counters.
-    if ((*i2).icon0 < (*i2).ncon0-1) {
-        (*i2).icon0++;
+    if (i2->icon0 < i2->ncon0-1) {
+        i2->icon0++;
         i2gob_update_con(i2);
         return 1;
-    } else if ((*i2).icon1 < (*i2).ncon1-1) {
-        (*i2).icon1++;
-        (*i2).icon0 = 0;
+    } else if (i2->icon1 < i2->ncon1-1) {
+        i2->icon1++;
+        i2->icon0 = 0;
         i2gob_update_con(i2);
         return 1;
     } else {
-        (*i2).icon0 = 0;
-        (*i2).icon1 = 0;
+        i2->icon0 = 0;
+        i2->icon1 = 0;
         i2gob_update_con(i2);
         return 0;
     }
@@ -447,31 +445,31 @@ int i2gob_inc_con(i2gob_type* i2) {
 
 void i2gob_update_con(i2gob_type* i2) {
     // Update fields that depend on contraction counters.
-    (*i2).con_type0 = (*i2).con_types[(*i2).ocon0 + (*i2).icon0];
-    (*i2).con_type1 = (*i2).con_types[(*i2).ocon1 + (*i2).icon1];
-    (*i2).ibasis0 = (*i2).con_offsets[(*i2).ocon0 + (*i2).icon0];
-    (*i2).ibasis1 = (*i2).con_offsets[(*i2).ocon1 + (*i2).icon1];
+    i2->con_type0 = i2->con_types[i2->ocon0 + i2->icon0];
+    i2->con_type1 = i2->con_types[i2->ocon1 + i2->icon1];
+    i2->ibasis0 = i2->con_offsets[i2->ocon0 + i2->icon0];
+    i2->ibasis1 = i2->con_offsets[i2->ocon1 + i2->icon1];
     // Reset exponent counters.
-    (*i2).iexp0 = 0;
-    (*i2).iexp1 = 0;
+    i2->iexp0 = 0;
+    i2->iexp1 = 0;
 }
 
 
 int i2gob_inc_exp(i2gob_type* i2) {
     // TODO: change order of loops to c style: first *1, then *0
     // Increment exponent counters.
-    if ((*i2).iexp0 < (*i2).nexp0-1) {
-        (*i2).iexp0++;
+    if (i2->iexp0 < i2->nexp0-1) {
+        i2->iexp0++;
         i2gob_update_exp(i2);
         return 1;
-    } else if ((*i2).iexp1 < (*i2).nexp1-1) {
-        (*i2).iexp1++;
-        (*i2).iexp0 = 0;
+    } else if (i2->iexp1 < i2->nexp1-1) {
+        i2->iexp1++;
+        i2->iexp0 = 0;
         i2gob_update_exp(i2);
         return 1;
     } else {
-        (*i2).iexp0 = 0;
-        (*i2).iexp1 = 0;
+        i2->iexp0 = 0;
+        i2->iexp1 = 0;
         i2gob_update_exp(i2);
         return 0;
     }
@@ -480,27 +478,27 @@ int i2gob_inc_exp(i2gob_type* i2) {
 
 void i2gob_update_exp(i2gob_type* i2) {
     // Update fields that depend on exponent counters.
-    (*i2).exp0 = (*i2).exponents[(*i2).oexp0 + (*i2).iexp0];
-    (*i2).exp1 = (*i2).exponents[(*i2).oexp1 + (*i2).iexp1];
-    (*i2).con_coeff = (*i2).con_coeffs[(*i2).occ0 + (*i2).ncon0*(*i2).iexp0 + (*i2).icon0]*
-                      (*i2).con_coeffs[(*i2).occ1 + (*i2).ncon1*(*i2).iexp1 + (*i2).icon1];
+    i2->exp0 = i2->exponents[i2->oexp0 + i2->iexp0];
+    i2->exp1 = i2->exponents[i2->oexp1 + i2->iexp1];
+    i2->con_coeff = i2->con_coeffs[i2->occ0 + i2->ncon0*i2->iexp0 + i2->icon0]*
+                      i2->con_coeffs[i2->occ1 + i2->ncon1*i2->iexp1 + i2->icon1];
 }
 
 
 void i2gob_store(i2gob_type* i2, double *work_pure, double *output) {
     // TODO: this routine is hardwired to work only for the dense storage
     long i0, i1, n0, n1;
-    n0 = get_con_nbasis((*i2).con_type0);
-    n1 = get_con_nbasis((*i2).con_type1);
+    n0 = get_con_nbasis(i2->con_type0);
+    n1 = get_con_nbasis(i2->con_type1);
     for (i0=0; i0<n0; i0++) {
         for (i1=0; i1<n1; i1++) {
-            output[(i0+(*i2).ibasis0)*(*i2).nbasis+i1+(*i2).ibasis1] = work_pure[i0*(*i2).max_nbasis+i1];
+            output[(i0+i2->ibasis0)*i2->nbasis+i1+i2->ibasis1] = work_pure[i0*i2->max_nbasis+i1];
         }
     }
-    if ((*i2).ibasis0 != (*i2).ibasis1) {
+    if (i2->ibasis0 != i2->ibasis1) {
         for (i0=0; i0<n0; i0++) {
             for (i1=0; i1<n1; i1++) {
-                output[(i1+(*i2).ibasis1)*(*i2).nbasis+i0+(*i2).ibasis0] = work_pure[i0*(*i2).max_nbasis+i1];
+                output[(i1+i2->ibasis1)*i2->nbasis+i0+i2->ibasis0] = work_pure[i0*i2->max_nbasis+i1];
             }
         }
     }
@@ -523,33 +521,33 @@ void i2pow_free(i2pow_type* i2p) {
 void i2pow_init(i2pow_type* i2p, long con_type0, long con_type1, long max_nbasis) {
     assert(con_type0 >= 0);
     assert(con_type1 >= 0);
-    (*i2p).con_type0 = con_type0;
-    (*i2p).con_type1 = con_type1;
-    (*i2p).skip = max_nbasis - get_con_nbasis(con_type1) + 1;
-    assert((*i2p).skip >= 0);
+    i2p->con_type0 = con_type0;
+    i2p->con_type1 = con_type1;
+    i2p->skip = max_nbasis - get_con_nbasis(con_type1) + 1;
+    assert(i2p->skip >= 0);
     assert(max_nbasis >= get_con_nbasis(con_type1));
-    (*i2p).l0 = con_type0;
-    (*i2p).m0 = 0;
-    (*i2p).n0 = 0;
-    (*i2p).l1 = con_type1;
-    (*i2p).m1 = 0;
-    (*i2p).n1 = 0;
-    (*i2p).offset = 0;
+    i2p->l0 = con_type0;
+    i2p->m0 = 0;
+    i2p->n0 = 0;
+    i2p->l1 = con_type1;
+    i2p->m1 = 0;
+    i2p->n1 = 0;
+    i2p->offset = 0;
 }
 
 
 int i2pow_inc(i2pow_type* i2p) {
     // Increment indexes of shell 0
     int result;
-    result = i1pow_inc(&(*i2p).l1, &(*i2p).m1, &(*i2p).n1);
+    result = i1pow_inc(&i2p->l1, &i2p->m1, &i2p->n1);
     if (result) {
-        (*i2p).offset++;
+        i2p->offset++;
     } else {
-        result = i1pow_inc(&(*i2p).l0, &(*i2p).m0, &(*i2p).n0);
+        result = i1pow_inc(&i2p->l0, &i2p->m0, &i2p->n0);
         if (result) {
-            (*i2p).offset += (*i2p).skip;
+            i2p->offset += i2p->skip;
         } else {
-            (*i2p).offset = 0;
+            i2p->offset = 0;
         }
     }
     return result;

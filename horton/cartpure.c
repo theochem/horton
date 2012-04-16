@@ -685,9 +685,9 @@ void project_cartesian_to_pure(double *work_cart, double* work_pure, long
         }
 
         // B) Write linear combinations in work_pure
-        el = (*tf).elements;
-        for (i=(*tf).size-1; i>=0; i--) {
-            work_pure[(*el).ipure*spacing] += (*el).x*work_cart[(*el).icart*spacing];
+        el = tf->elements;
+        for (i=tf->size-1; i>=0; i--) {
+            work_pure[el->ipure*spacing] += el->x*work_cart[el->icart*spacing];
             el++;
         }
 
