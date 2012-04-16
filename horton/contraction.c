@@ -360,29 +360,28 @@ int i2gob_check(i2gob_type* i2, long nshell, long ncenter, long ncon_total,
 
 
 int i2gob_inc_shell(i2gob_type* i2) {
-    // TODO: change order of loops to c style: first *1, then *0
     // Increment shell and related counters.
-    if (i2->ishell0 < i2->ishell1) {
-        i2->ishell0++;
-        i2->ocon0 += i2->ncon0;
-        i2->oexp0 += i2->nexp0;
-        i2->occ0 += i2->ncon0 * i2->nexp0;
-        i2gob_update_shell(i2);
-        return 1;
-    } else if (i2->ishell1 < i2->nshell-1) {
-        i2->ishell0 = 0;
-        i2->ocon0 = 0;
-        i2->oexp0 = 0;
-        i2->occ0 = 0;
+    if (i2->ishell1 < i2->ishell0) {
+        i2->ishell1++;
         i2->ocon1 += i2->ncon1;
         i2->oexp1 += i2->nexp1;
         i2->occ1 += i2->ncon1 * i2->nexp1;
-        i2->ishell1++;
+        i2gob_update_shell(i2);
+        return 1;
+    } else if (i2->ishell0 < i2->nshell-1) {
+        i2->ishell1 = 0;
+        i2->ocon1 = 0;
+        i2->oexp1 = 0;
+        i2->occ1 = 0;
+        i2->ocon0 += i2->ncon0;
+        i2->oexp0 += i2->nexp0;
+        i2->occ0 += i2->ncon0 * i2->nexp0;
+        i2->ishell0++;
         i2gob_update_shell(i2);
         return 1;
     } else {
-        i2->ishell0 = 0;
         i2->ishell1 = 0;
+        i2->ishell0 = 0;
         i2->ocon0 = 0;
         i2->ocon1 = 0;
         i2->oexp0 = 0;
@@ -423,15 +422,14 @@ void i2gob_update_shell(i2gob_type* i2) {
 
 
 int i2gob_inc_con(i2gob_type* i2) {
-    // TODO: change order of loops to c style: first *1, then *0
     // Increment contraction and related counters.
-    if (i2->icon0 < i2->ncon0-1) {
-        i2->icon0++;
+    if (i2->icon1 < i2->ncon1-1) {
+        i2->icon1++;
         i2gob_update_con(i2);
         return 1;
-    } else if (i2->icon1 < i2->ncon1-1) {
-        i2->icon1++;
-        i2->icon0 = 0;
+    } else if (i2->icon0 < i2->ncon0-1) {
+        i2->icon0++;
+        i2->icon1 = 0;
         i2gob_update_con(i2);
         return 1;
     } else {
@@ -456,15 +454,14 @@ void i2gob_update_con(i2gob_type* i2) {
 
 
 int i2gob_inc_exp(i2gob_type* i2) {
-    // TODO: change order of loops to c style: first *1, then *0
     // Increment exponent counters.
-    if (i2->iexp0 < i2->nexp0-1) {
-        i2->iexp0++;
+    if (i2->iexp1 < i2->nexp1-1) {
+        i2->iexp1++;
         i2gob_update_exp(i2);
         return 1;
-    } else if (i2->iexp1 < i2->nexp1-1) {
-        i2->iexp1++;
-        i2->iexp0 = 0;
+    } else if (i2->iexp0 < i2->nexp0-1) {
+        i2->iexp0++;
+        i2->iexp1 = 0;
         i2gob_update_exp(i2);
         return 1;
     } else {
@@ -503,8 +500,6 @@ void i2gob_store(i2gob_type* i2, double *work_pure, double *output) {
         }
     }
 }
-
-
 
 
 
