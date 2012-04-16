@@ -28,7 +28,7 @@ cdef extern from "contraction.h":
         con_coeffs, long nshell, long ncenter, long ncon_total, long nexp_total,
         long ncon_coeff_total, double* output, long nbasis)
 
-    double gob_normalization(double exponent, int l, int m, int n)
+    double gob_normalization(double exponent, int nx, int ny, int nz)
 
     ctypedef struct i2gob_type:
         long nshell, nbasis
@@ -60,14 +60,14 @@ cdef extern from "contraction.h":
     void i2gob_store(i2gob_type* i2, double *work_pure, double *output)
 
     ctypedef struct i2pow_type:
-        int l0, m0, n0, l1, m1, n1, offset
+        int nx0, ny0, nz0, nx1, ny1, nz1, offset
 
     i2pow_type* i2pow_new()
     void i2pow_free(i2pow_type* i2p)
     void i2pow_init(i2pow_type* i2p, long con_type0, long con_type1, long max_nbasis)
     bint i2pow_inc(i2pow_type* i2p)
 
-    bint i1pow_inc(int* l, int* m, int* n)
+    bint i1pow_inc(int* nx, int* ny, int* nz)
 
     void project_cartesian_to_pure(double *work_cart, double* work_pure,
         long con_type, long stride, long spacing, long count)

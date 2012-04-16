@@ -165,12 +165,12 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
                 i2pow_init(i2p, abs(i2->con_type0), abs(i2->con_type1), i2->max_nbasis);
                 do {
                     work_cart[i2p->offset] += i2->con_coeff*overlap(
-                        i2->exp0, i2p->l0, i2p->m0, i2p->n0,
+                        i2->exp0, i2p->nx0, i2p->ny0, i2p->nz0,
                         i2->x0, i2->y0, i2->z0,
-                        i2->exp1, i2p->l1, i2p->m1, i2p->n1,
+                        i2->exp1, i2p->nx1, i2p->ny1, i2p->nz1,
                         i2->x1, i2->y1, i2->z1
-                    )*gob_normalization(i2->exp0, i2p->l0, i2p->m0, i2p->n0)
-                    *gob_normalization(i2->exp1, i2p->l1, i2p->m1, i2p->n1);
+                    )*gob_normalization(i2->exp0, i2p->nx0, i2p->ny0, i2p->nz0)
+                    *gob_normalization(i2->exp1, i2p->nx1, i2p->ny1, i2p->nz1);
                 } while (i2pow_inc(i2p));
             } while (i2gob_inc_exp(i2));
 
@@ -212,9 +212,9 @@ exit:
 }
 
 
-double gob_normalization(double exponent, int l, int m, int n) {
-    return sqrt(pow(4.0*exponent, l+m+n)*pow(2.0*exponent/M_PI, 1.5)
-           /(fact2(2*l-1)*fact2(2*m-1)*fact2(2*n-1)));
+double gob_normalization(double exponent, int nx, int ny, int nz) {
+    return sqrt(pow(4.0*exponent, nx+ny+nz)*pow(2.0*exponent/M_PI, 1.5)
+           /(fact2(2*nx-1)*fact2(2*ny-1)*fact2(2*nz-1)));
 }
 
 
@@ -521,12 +521,12 @@ void i2pow_init(i2pow_type* i2p, long con_type0, long con_type1, long max_nbasis
     i2p->skip = max_nbasis - get_con_nbasis(con_type1) + 1;
     assert(i2p->skip >= 0);
     assert(max_nbasis >= get_con_nbasis(con_type1));
-    i2p->l0 = con_type0;
-    i2p->m0 = 0;
-    i2p->n0 = 0;
-    i2p->l1 = con_type1;
-    i2p->m1 = 0;
-    i2p->n1 = 0;
+    i2p->nx0 = con_type0;
+    i2p->ny0 = 0;
+    i2p->nz0 = 0;
+    i2p->nx1 = con_type1;
+    i2p->ny1 = 0;
+    i2p->nz1 = 0;
     i2p->offset = 0;
 }
 
@@ -534,11 +534,11 @@ void i2pow_init(i2pow_type* i2p, long con_type0, long con_type1, long max_nbasis
 int i2pow_inc(i2pow_type* i2p) {
     // Increment indexes of shell 0
     int result;
-    result = i1pow_inc(&i2p->l1, &i2p->m1, &i2p->n1);
+    result = i1pow_inc(&i2p->nx1, &i2p->ny1, &i2p->nz1);
     if (result) {
         i2p->offset++;
     } else {
-        result = i1pow_inc(&i2p->l0, &i2p->m0, &i2p->n0);
+        result = i1pow_inc(&i2p->nx0, &i2p->ny0, &i2p->nz0);
         if (result) {
             i2p->offset += i2p->skip;
         } else {
@@ -549,23 +549,23 @@ int i2pow_inc(i2pow_type* i2p) {
 }
 
 
-int i1pow_inc(int* l, int* m, int* n) {
+int i1pow_inc(int* nx, int* ny, int* nz) {
     // Modify the indexes in place as to move to the next combination of powers
     // withing one angular momentum.
-    // Note: con_type = (*l) + (*m) + (*n);
-    if (*m == 0) {
-      if (*l == 0) {
-        *l = *n;
-        *n = 0;
+    // Note: con_type = (*nx) + (*ny) + (*nz);
+    if (*ny == 0) {
+      if (*nx == 0) {
+        *nx = *nz;
+        *nz = 0;
         return 0;
       } else {
-        *m = *n + 1;
-        *n = 0;
-        (*l)--;
+        *ny = *nz + 1;
+        *nz = 0;
+        (*nx)--;
       }
     } else {
-      (*m)--;
-      (*n)++;
+      (*ny)--;
+      (*nz)++;
     }
     return 1;
 }

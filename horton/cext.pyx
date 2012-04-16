@@ -46,12 +46,12 @@ def fact(int n):
 def fact2(int n):
     return cints.fact2(n)
 
-def cints_overlap(double alpha1, int l1, int m1, int n1,
+def cints_overlap(double alpha1, int nx1, int ny1, int nz1,
                   double xa, double ya, double za,
-                  double alpha2, int l2, int m2, int n2,
+                  double alpha2, int nx2, int ny2, int nz2,
                   double xb, double yb, double zb):
-    return cints.overlap(alpha1, l1, m1, n1, xa, ya, za, alpha2, l2, m2, n2, xb,
-                         yb, zb)
+    return cints.overlap(alpha1, nx1, ny1, nz1, xa, ya, za,
+                         alpha2, nx2, ny2, nz2, xb, yb, zb)
 
 #
 # contraction wrappers
@@ -131,8 +131,8 @@ def compute_gobasis_overlap(np.ndarray[double, ndim=2] centers,
     handle_retcode(retcode)
 
 
-def gob_normalization(double alpha, int l, int m, int n):
-    return contraction.gob_normalization(alpha, l, m, n)
+def gob_normalization(double alpha, int nx, int ny, int nz):
+    return contraction.gob_normalization(alpha, nx, ny, nz)
 
 
 cdef class I2Gob:
@@ -301,15 +301,15 @@ cdef class I2Pow:
     property fields:
         def __get__(self):
             return (
-                self._c_i2p[0].l0, self._c_i2p[0].m0, self._c_i2p[0].n0,
-                self._c_i2p[0].l1, self._c_i2p[0].m1, self._c_i2p[0].n1,
+                self._c_i2p[0].nx0, self._c_i2p[0].ny0, self._c_i2p[0].nz0,
+                self._c_i2p[0].nx1, self._c_i2p[0].ny1, self._c_i2p[0].nz1,
                 self._c_i2p[0].offset
             )
 
 
-def i1pow_inc(int l, int m, int n):
-    result = contraction.i1pow_inc(&l, &m, &n)
-    return (l, m, n), result
+def i1pow_inc(int nx, int ny, int nz):
+    result = contraction.i1pow_inc(&nx, &ny, &nz)
+    return (nx, ny, nz), result
 
 
 #
