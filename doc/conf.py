@@ -179,7 +179,7 @@ htmlhelp_basename = 'Hortondoc'
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'Horton.tex', u'Horton Documentation',
-   u'Toon Verstraelen', 'manual'),
+   u'Toon Verstraelen, Matthew Chan', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -212,7 +212,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'horton', u'Horton Documentation',
-     [u'Toon Verstraelen'], 1)
+     [u'Toon Verstraelen, Matthew Chan'], 1)
 ]
 
 # -- Options for manual page output --------------------------------------------
