@@ -29,7 +29,7 @@ cimport contraction
 
 
 __all__ = [
-    'fact', 'fact2', 'cints_overlap',
+    'fac2', 'binom', 'gpt_coeff', 'gob_overlap_int1d', 'gob_overlap',
     'get_con_nbasis', 'gob_normalization',
     'compute_gobasis_overlap', 'I2Gob', 'I2Pow', 'i1pow_inc',
     'project_cartesian_to_pure'
@@ -40,18 +40,33 @@ __all__ = [
 # cints wrappers
 #
 
-def fact(int n):
-    return cints.fact(n)
 
-def fact2(int n):
-    return cints.fact2(n)
+def fac2(long n):
+    return cints.fac2(n)
 
-def cints_overlap(double alpha1, int nx1, int ny1, int nz1,
-                  double xa, double ya, double za,
-                  double alpha2, int nx2, int ny2, int nz2,
-                  double xb, double yb, double zb):
-    return cints.overlap(alpha1, nx1, ny1, nz1, xa, ya, za,
-                         alpha2, nx2, ny2, nz2, xb, yb, zb)
+
+def binom(long n, long m):
+    return cints.binom(n, m)
+
+
+def gpt_coeff(long k, long n0, long n1, double pa, double pb):
+    return cints.gpt_coeff(k, n0, n1, pa, pb)
+
+
+def gob_overlap_int1d(long n0, long n1, double pa, double pb, double gamma):
+    return cints.gob_overlap_int1d(n0, n1, pa, pb, gamma)
+
+
+def gob_overlap(double exp0, long nx0, long ny0, long nz0,
+                np.ndarray[double, ndim=1] r0,
+                double exp1, long nx1, long ny1, long nz1,
+                np.ndarray[double, ndim=1] r1):
+    assert r0.shape[0] == 3
+    assert r0.flags['C_CONTIGUOUS']
+    assert r1.shape[0] == 3
+    assert r1.flags['C_CONTIGUOUS']
+    return cints.gob_overlap(exp0, nx0, ny0, nz0, <double*>r0.data,
+                             exp1, nx1, ny1, nz1, <double*>r1.data)
 
 #
 # contraction wrappers
@@ -254,8 +269,8 @@ cdef class I2Gob:
                 self._c_i2[0].con_coeff,
                 self._c_i2[0].con_type0, self._c_i2[0].con_type1,
                 self._c_i2[0].exp0, self._c_i2[0].exp1,
-                self._c_i2[0].x0, self._c_i2[0].y0, self._c_i2[0].z0,
-                self._c_i2[0].x1, self._c_i2[0].y1, self._c_i2[0].z1,
+                self._c_i2[0].r0[0], self._c_i2[0].r0[1], self._c_i2[0].r0[2],
+                self._c_i2[0].r1[0], self._c_i2[0].r1[1], self._c_i2[0].r1[2],
                 self._c_i2[0].ibasis0, self._c_i2[0].ibasis1,
             )
 

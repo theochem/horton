@@ -58,6 +58,14 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
     con_coeffs, long nshell, long ncenter, long ncon_total, long nexp_total,
     long ncon_coeff_total, double* output, long nbasis) {
 
+    /* TODO
+             This routine will eventually become a general contraction routine
+             for most one-body operators. For now, it just does the overlap
+             matrix. In future, it will be renamed and an argument will be added
+             (datatype or class) that contains the operator specific
+             information.
+    */
+
     /*
 
     This routine has the following structure:
@@ -96,6 +104,10 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
     we would also need an alternative Gaussian integral code, which should be
     able compute integrals for different angular momenta at the same time,
     making use of shared intermediate results.
+
+    TODO
+        Loops B and C can be combined into one. This is convenient when we add
+        sparse implementations of these loops.
 
     */
 
@@ -157,18 +169,18 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
             do {
 
                 // (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F)
-                // TODO: this loop should go into the integral evaluation routine
-                // to avoid trivially redundant floating point operations.
-                // It would be yet more useful to have a data structure
-                // for each type of Gaussian integral, which can be initialized
-                // prior to this loop.
+                /* TODO:
+                   This loop should go into the integral evaluation routine
+                   to avoid trivially redundant floating point operations.
+                   It would be yet more useful to have a data structure
+                   for each type of Gaussian integral, which can be initialized
+                   prior to this loop.
+                */
                 i2pow_init(i2p, abs(i2->con_type0), abs(i2->con_type1), i2->max_nbasis);
                 do {
-                    work_cart[i2p->offset] += i2->con_coeff*overlap(
-                        i2->exp0, i2p->nx0, i2p->ny0, i2p->nz0,
-                        i2->x0, i2->y0, i2->z0,
-                        i2->exp1, i2p->nx1, i2p->ny1, i2p->nz1,
-                        i2->x1, i2->y1, i2->z1
+                    work_cart[i2p->offset] += i2->con_coeff*gob_overlap(
+                        i2->exp0, i2p->nx0, i2p->ny0, i2p->nz0, i2->r0,
+                        i2->exp1, i2p->nx1, i2p->ny1, i2p->nz1, i2->r1
                     )*gob_normalization(i2->exp0, i2p->nx0, i2p->ny0, i2p->nz0)
                     *gob_normalization(i2->exp1, i2p->nx1, i2p->ny1, i2p->nz1);
                 } while (i2pow_inc(i2p));
@@ -214,7 +226,7 @@ exit:
 
 double gob_normalization(double exponent, int nx, int ny, int nz) {
     return sqrt(pow(4.0*exponent, nx+ny+nz)*pow(2.0*exponent/M_PI, 1.5)
-           /(fact2(2*nx-1)*fact2(2*ny-1)*fact2(2*nz-1)));
+           /(fac2(2*nx-1)*fac2(2*ny-1)*fac2(2*nz-1)));
 }
 
 
@@ -269,12 +281,8 @@ int i2gob_init(i2gob_type* i2, double* centers, long* shell_map,
     i2->con_coeff = 0.0;
     i2->exp0 = 0.0;
     i2->exp1 = 0.0;
-    i2->x0 = 0.0;
-    i2->y0 = 0.0;
-    i2->z0 = 0.0;
-    i2->x1 = 0.0;
-    i2->y1 = 0.0;
-    i2->z1 = 0.0;
+    i2->r0 = NULL;
+    i2->r1 = NULL;
     i2->ibasis0 = 0;
     i2->ibasis1 = 0;
 
@@ -395,26 +403,14 @@ int i2gob_inc_shell(i2gob_type* i2) {
 
 
 void i2gob_update_shell(i2gob_type* i2) {
-    double* tmp;
     // Update fields that depend on shell and related counters.
     i2->ncon0 = i2->ncons[i2->ishell0];
     i2->ncon1 = i2->ncons[i2->ishell1];
     i2->nexp0 = i2->nexps[i2->ishell0];
     i2->nexp1 = i2->nexps[i2->ishell1];
-    // update center 0
-    tmp = i2->centers + 3*i2->shell_map[i2->ishell0];
-    i2->x0 = *tmp;
-    tmp++;
-    i2->y0 = *tmp;
-    tmp++;
-    i2->z0 = *tmp;
-    // update center 1
-    tmp = i2->centers + 3*i2->shell_map[i2->ishell1];
-    i2->x1 = *tmp;
-    tmp++;
-    i2->y1 = *tmp;
-    tmp++;
-    i2->z1 = *tmp;
+    // update centers
+    i2->r0 = i2->centers + 3*i2->shell_map[i2->ishell0];
+    i2->r1 = i2->centers + 3*i2->shell_map[i2->ishell1];
     // reset contraction counters
     i2->icon0 = 0;
     i2->icon1 = 0;

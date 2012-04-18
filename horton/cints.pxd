@@ -20,10 +20,11 @@
 #--
 
 cdef extern from "cints.h":
-    int fact(int n)
-    int fact2(int n)
+    long fac2(long n)
+    long binom(long n, long m)
 
-    double overlap(double alpha1, int l1, int m1, int n1,
-              double xa, double ya, double za,
-              double alpha2, int l2, int m2, int n2,
-              double xb, double yb, double zb)
+    double gpt_coeff(long k, long n0, long n1, double pa, double pb)
+    double gob_overlap_int1d(long n0, long n1, double pa, double pb, double gamma)
+
+    double gob_overlap(double exp0, long nx0, long ny0, long nz0, double *r0,
+                       double exp1, long nx1, long ny1, long nz1, double *r1)

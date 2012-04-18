@@ -34,7 +34,8 @@ cdef extern from "contraction.h":
         long nshell, nbasis
 
         long max_nbasis, con_type0, con_type1
-        double con_coeff, exp0, exp1, x0, y0, z0, x1, y1, z1
+        double con_coeff, exp0, exp1
+        double r0[3], r1[3]
         long ibasis0, ibasis1
 
         long ishell0, ishell1
