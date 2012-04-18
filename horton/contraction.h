@@ -47,7 +47,9 @@ typedef struct {
 
     // public iterator fields
     long max_nbasis, con_type0, con_type1;
-    double con_coeff, exp0, exp1, x0, y0, z0, x1, y1, z1;
+    double con_coeff, exp0, exp1;
+    double *r0;
+    double *r1;
     long ibasis0, ibasis1; // basis function counters (for output storage)
 
     // private iterator fields

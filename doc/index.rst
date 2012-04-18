@@ -27,12 +27,13 @@ Development
    dev_milestones
 
 
-Library reference
-=================
+Reference
+=========
 
 .. toctree::
    :maxdepth: 2
 
+   ref_acronyms
    lib_horton
 
 
