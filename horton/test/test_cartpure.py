@@ -28,39 +28,39 @@ from horton.cext import project_cartesian_to_pure
 def test_cart_pure_s():
     work_cart = np.random.normal(0, 1, 1)
     work_pure = np.random.normal(0, 1, 1)
-    project_cartesian_to_pure(work_cart, work_pure, con_type=0, stride=1, spacing=1, count=1)
+    project_cartesian_to_pure(work_cart, work_pure, shell_type=0, stride=1, spacing=1, count=1)
     assert abs(work_cart - work_pure).max() < 1e-10
 
     work_cart = np.random.normal(0, 1, 10)
     work_pure = np.random.normal(0, 1, 10)
-    project_cartesian_to_pure(work_cart, work_pure, con_type=0, stride=1, spacing=1, count=10)
+    project_cartesian_to_pure(work_cart, work_pure, shell_type=0, stride=1, spacing=1, count=10)
     assert abs(work_cart - work_pure).max() < 1e-10
 
 
 def test_cart_pure_p():
     work_cart = np.random.normal(0, 1, 3)
     work_pure = np.random.normal(0, 1, 3)
-    project_cartesian_to_pure(work_cart, work_pure, con_type=1, stride=3, spacing=1, count=1)
+    project_cartesian_to_pure(work_cart, work_pure, shell_type=1, stride=3, spacing=1, count=1)
     assert abs(work_cart[[2,0,1]] - work_pure).max() < 1e-10
 
     work_cart = np.random.normal(0, 1, (10, 3))
     work_pure = np.random.normal(0, 1, (10, 3))
-    project_cartesian_to_pure(work_cart.reshape(-1), work_pure.reshape(-1), con_type=1, stride=3, spacing=1, count=10)
+    project_cartesian_to_pure(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=1, stride=3, spacing=1, count=10)
     assert abs(work_cart[:,[2,0,1]] - work_pure).max() < 1e-10
 
     work_cart = np.random.normal(0, 1, (10, 5))
     work_pure = np.random.normal(0, 1, (10, 5))
-    project_cartesian_to_pure(work_cart.reshape(-1), work_pure.reshape(-1), con_type=1, stride=5, spacing=1, count=10)
+    project_cartesian_to_pure(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=1, stride=5, spacing=1, count=10)
     assert abs(work_cart[:,[2,0,1]] - work_pure[:,[0,1,2]]).max() < 1e-10
 
     work_cart = np.random.normal(0, 1, (10, 6))
     work_pure = np.random.normal(0, 1, (10, 6))
-    project_cartesian_to_pure(work_cart.reshape(-1), work_pure.reshape(-1), con_type=1, stride=6, spacing=2, count=10)
+    project_cartesian_to_pure(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=1, stride=6, spacing=2, count=10)
     assert abs(work_cart[:,[4,0,2]] - work_pure[:,[0,2,4]]).max() < 1e-10
 
     work_cart = np.random.normal(0, 1, (3, 10))
     work_pure = np.random.normal(0, 1, (3, 10))
-    project_cartesian_to_pure(work_cart.reshape(-1), work_pure.reshape(-1), con_type=1, stride=1, spacing=10, count=10)
+    project_cartesian_to_pure(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=1, stride=1, spacing=10, count=10)
     assert abs(work_cart[[2,0,1],:] - work_pure).max() < 1e-10
 
 
@@ -76,17 +76,17 @@ def test_cart_pure_d():
 
     work_cart = np.random.normal(0, 1, 6)
     work_pure = np.random.normal(0, 1, 6)
-    project_cartesian_to_pure(work_cart, work_pure, con_type=2, stride=6, spacing=1, count=1)
+    project_cartesian_to_pure(work_cart, work_pure, shell_type=2, stride=6, spacing=1, count=1)
     assert abs(np.dot(tf, work_cart) - work_pure[:5]).max() < 1e-10
 
     work_cart = np.random.normal(0, 1, (10, 6))
     work_pure = np.random.normal(0, 1, (10, 6))
-    project_cartesian_to_pure(work_cart.reshape(-1), work_pure.reshape(-1), con_type=2, stride=6, spacing=1, count=10)
+    project_cartesian_to_pure(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=2, stride=6, spacing=1, count=10)
     assert abs(np.dot(work_cart, tf.T) - work_pure[:,:5]).max() < 1e-10
 
     work_cart = np.random.normal(0, 1, (6, 10))
     work_pure = np.random.normal(0, 1, (6, 10))
-    project_cartesian_to_pure(work_cart.reshape(-1), work_pure.reshape(-1), con_type=2, stride=1, spacing=10, count=10)
+    project_cartesian_to_pure(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=2, stride=1, spacing=10, count=10)
     assert abs(np.dot(tf, work_cart) - work_pure[:5]).max() < 1e-10
 
 def test_cart_pure_g():
@@ -104,10 +104,10 @@ def test_cart_pure_g():
 
     work_cart = np.random.normal(0, 1, 15)
     work_pure = np.random.normal(0, 1, 15)
-    project_cartesian_to_pure(work_cart, work_pure, con_type=4, stride=15, spacing=1, count=1)
+    project_cartesian_to_pure(work_cart, work_pure, shell_type=4, stride=15, spacing=1, count=1)
     assert abs(np.dot(tf, work_cart) - work_pure[:9]).max() < 1e-10
 
     work_cart = np.random.normal(0, 1, (3,20))
     work_pure = np.random.normal(0, 1, (3,20))
-    project_cartesian_to_pure(work_cart.reshape(-1), work_pure.reshape(-1), con_type=4, stride=20, spacing=1, count=3)
+    project_cartesian_to_pure(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=4, stride=20, spacing=1, count=3)
     assert abs(np.dot(work_cart[:,:15], tf.T) - work_pure[:,:9]).max() < 1e-10

@@ -33,16 +33,16 @@
 #define safe_exit(x) {result=x; goto exit;}
 
 
-long get_con_nbasis(long con_type) {
-    if (con_type > 0) {
+long get_shell_nbasis(long shell_type) {
+    if (shell_type > 0) {
         // Cartesian
-        return (con_type+1)*(con_type+2)/2;
-    } else if (con_type == -1) {
+        return (shell_type+1)*(shell_type+2)/2;
+    } else if (shell_type == -1) {
         // should not happen.
         return -1;
     } else {
         // Pure
-        return -2*con_type+1;
+        return -2*shell_type+1;
     }
 }
 
@@ -53,10 +53,9 @@ void swap_ptr(double **x, double **y) {
 }
 
 
-int compute_gobasis_overlap(double* centers, long* shell_map,
-    long* ncons, long* nexps, long* con_types, double* exponents, double*
-    con_coeffs, long nshell, long ncenter, long ncon_total, long nexp_total,
-    long ncon_coeff_total, double* output, long nbasis) {
+int compute_gobasis_overlap(double* centers, long* shell_map, long* nprims,
+    long* shell_types, double* alphas, double* con_coeffs, long nshell,
+    long ncenter, long nprim_total, double* output, long nbasis) {
 
     /* TODO
              This routine will eventually become a general contraction routine
@@ -77,26 +76,24 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
 
     (B) Double loop over the shells:
 
-        (C) Double loop over the contractions:
+        (C) Clear working memory for storage of Cartesian Gaussian integrals.
 
-            (D) Clear working memory for storage of Cartesian Gaussian integrals.
+        (D) Double loop over the alphas:
 
-            (E) Double loop over the exponents:
+            (E) Double loop over basis functions associated with the angular
+                momenta of each contraction:
 
-                (F) Double loop over basis functions associated with the angular
-                    momenta of each contraction:
+                (F) Add contribution from a pair of primitives to the
+                    working memory. This part contains a call to a function
+                    from cints.c.
 
-                    (G) Add contribution from a pair of primitives to the
-                        working memory. This part contains a call to a function
-                        from cints.c.
+        (G) If needed, perform projection from Cartesian to pure basis
+            functions. (A second piece of working memory is needed for this
+            transformation.)
 
-            (H) If needed, perform projection from Cartesian to pure basis
-                functions. (A second piece of working memory is needed for this
-                transformation.)
+        (H) Store the result in the output array.
 
-            (I) Store the result in the output array.
-
-    (J) Free memory and return.
+    (I) Free memory and return.
 
     ----------------------------------------------------------------------------
 
@@ -104,10 +101,6 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
     we would also need an alternative Gaussian integral code, which should be
     able compute integrals for different angular momenta at the same time,
     making use of shared intermediate results.
-
-    TODO
-        Loops B and C can be combined into one. This is convenient when we add
-        sparse implementations of these loops.
 
     */
 
@@ -138,9 +131,8 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
     // need to make a c++-ish iterator in future if we to generalize this
     // routine for different storage types. Note that the iterator is designed
     // for the nesting of the loops below.
-    result = i2gob_init(i2, centers, shell_map, ncons, nexps, con_types,
-                        exponents, con_coeffs, nshell, ncenter, ncon_total,
-                        nexp_total, ncon_coeff_total, nbasis);
+    result = i2gob_init(i2, centers, shell_map, nprims, shell_types, alphas,
+                        con_coeffs, nshell, ncenter, nprim_total, nbasis);
     if (result != 0) goto exit;
 
     // Allocate work arrays.
@@ -154,67 +146,63 @@ int compute_gobasis_overlap(double* centers, long* shell_map,
     // (B) (B) (B) (B) (B) (B) (B) (B) (B) (B) (B) (B) (B) (B) (B) (B) (B) (B)
     i2gob_update_shell(i2);
     do {
-
         // (C) (C) (C) (C) (C) (C) (C) (C) (C) (C) (C) (C) (C) (C) (C) (C) (C)
-        i2gob_update_con(i2);
+        // We make use of the fact that a floating point zero consists of
+        // consecutive zero bytes.
+        memset(work_cart, 0, nwork*sizeof(double));
+        memset(work_pure, 0, nwork*sizeof(double));
+
+        // (D) (D) (D) (D) (D) (D) (D) (D) (D) (D) (D) (D) (D) (D) (D) (D) (D)
+        i2gob_update_prim(i2);
         do {
-            // (D) (D) (D) (D) (D) (D) (D) (D) (D) (D) (D) (D) (D) (D) (D) (D)
-            // We make use of the fact that a floating point zero consists of
-            // consecutive zero bytes.
-            memset(work_cart, 0, nwork*sizeof(double));
-            memset(work_pure, 0, nwork*sizeof(double));
 
             // (E) (E) (E) (E) (E) (E) (E) (E) (E) (E) (E) (E) (E) (E) (E) (E)
-            i2gob_update_exp(i2);
+            /* TODO:
+               This loop should go into the integral evaluation routine
+               to avoid trivially redundant floating point operations.
+               It would be yet more useful to have a data structure
+               for each type of Gaussian integral, which can be initialized
+               prior to this loop.
+            */
+            i2pow_init(i2p, abs(i2->shell_type0), abs(i2->shell_type1), i2->max_nbasis);
             do {
-
                 // (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F) (F)
-                /* TODO:
-                   This loop should go into the integral evaluation routine
-                   to avoid trivially redundant floating point operations.
-                   It would be yet more useful to have a data structure
-                   for each type of Gaussian integral, which can be initialized
-                   prior to this loop.
-                */
-                i2pow_init(i2p, abs(i2->con_type0), abs(i2->con_type1), i2->max_nbasis);
-                do {
-                    work_cart[i2p->offset] += i2->con_coeff*gob_overlap(
-                        i2->exp0, i2p->nx0, i2p->ny0, i2p->nz0, i2->r0,
-                        i2->exp1, i2p->nx1, i2p->ny1, i2p->nz1, i2->r1
-                    )*gob_normalization(i2->exp0, i2p->nx0, i2p->ny0, i2p->nz0)
-                    *gob_normalization(i2->exp1, i2p->nx1, i2p->ny1, i2p->nz1);
-                } while (i2pow_inc(i2p));
-            } while (i2gob_inc_exp(i2));
+                work_cart[i2p->offset] += i2->con_coeff*gob_overlap(
+                    i2->alpha0, i2p->nx0, i2p->ny0, i2p->nz0, i2->r0,
+                    i2->alpha1, i2p->nx1, i2p->ny1, i2p->nz1, i2->r1
+                )*gob_normalization(i2->alpha0, i2p->nx0, i2p->ny0, i2p->nz0)
+                *gob_normalization(i2->alpha1, i2p->nx1, i2p->ny1, i2p->nz1);
+            } while (i2pow_inc(i2p));
+        } while (i2gob_inc_prim(i2));
 
-            // (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H)
-            if (i2->con_type0 < -1) {
-                project_cartesian_to_pure(work_cart, work_pure, -i2->con_type0,
-                    1, // stride
-                    i2->max_nbasis, // spacing
-                    get_con_nbasis(abs(i2->con_type1)) // count
-                );
-                swap_ptr(&work_cart, &work_pure);
-            }
-
-            if (i2->con_type1 < -1) {
-                project_cartesian_to_pure(work_cart, work_pure, -i2->con_type1,
-                    i2->max_nbasis, // stride
-                    1, // spacing
-                    get_con_nbasis(i2->con_type0) // count
-                );
-                swap_ptr(&work_cart, &work_pure);
-            }
-
-            // make sure the final result after projections is in work_pure.
+        // (G) (G) (G) (G) (G) (G) (G) (G) (G) (G) (G) (G) (G) (G) (G) (G)  (G)
+        if (i2->shell_type0 < -1) {
+            project_cartesian_to_pure(work_cart, work_pure, -i2->shell_type0,
+                1, // stride
+                i2->max_nbasis, // spacing
+                get_shell_nbasis(abs(i2->shell_type1)) // count
+            );
             swap_ptr(&work_cart, &work_pure);
+        }
 
-            // (I) (I) (I) (I) (I) (I) (I) (I) (I) (I) (I) (I) (I) (I) (I) (I)
-            i2gob_store(i2, work_pure, output);
-        } while (i2gob_inc_con(i2));
+        if (i2->shell_type1 < -1) {
+            project_cartesian_to_pure(work_cart, work_pure, -i2->shell_type1,
+                i2->max_nbasis, // stride
+                1, // spacing
+                get_shell_nbasis(i2->shell_type0) // count
+            );
+            swap_ptr(&work_cart, &work_pure);
+        }
+
+        // make sure the final result after projections is in work_pure.
+        swap_ptr(&work_cart, &work_pure);
+
+        // (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H) (H)
+        i2gob_store(i2, work_pure, output);
     } while (i2gob_inc_shell(i2));
 
 exit:
-    // (J) (J) (J) (J) (J) (J) (J) (J) (J) (J) (J) (J) (J) (J) (J) (J) (J) (J)
+    // (I) (I) (I) (I) (I) (I) (I) (I) (I) (I) (I) (I) (I) (I) (I) (I) (I) (I)
 
     free(work_cart);
     free(work_pure);
@@ -237,50 +225,48 @@ i2gob_type* i2gob_new(void) {
 
 
 void i2gob_free(i2gob_type* i2) {
-    free(i2->con_offsets);
+    free(i2->basis_offsets);
     free(i2);
 }
 
 
-int i2gob_init(i2gob_type* i2, double* centers, long* shell_map,
-    long* ncons, long* nexps, long* con_types, double* exponents,
-    double* con_coeffs, long nshell, long ncenter, long ncon_total,
-    long nexp_total, long ncon_coeff_total, long nbasis) {
+int i2gob_init(i2gob_type* i2, double* centers, long* shell_map, long* nprims,
+    long* shell_types, double* alphas, double* con_coeffs, long nshell,
+    long ncenter, long nprim_total, long nbasis) {
 
-    int result;
-    long icon;
+    long ishell, shell_nbasis;
 
     // assign input variables
     i2->centers = centers;
     i2->shell_map = shell_map;
-    i2->ncons = ncons;
-    i2->nexps = nexps;
-    i2->con_types = con_types;
-    i2->con_offsets = NULL;
-    i2->exponents = exponents;
+    i2->nprims = nprims;
+    i2->shell_types = shell_types;
+    i2->basis_offsets = NULL;
+    i2->alphas = alphas;
     i2->con_coeffs = con_coeffs;
     i2->nshell = nshell;
     i2->nbasis = nbasis;
 
-    result = i2gob_check(i2, nshell, ncenter, ncon_total, nexp_total,
-                         ncon_coeff_total, nbasis);
-    if (result < 0) return result;
-
     // allocate and set up auxilliary array
-    i2->con_offsets = malloc(ncon_total*sizeof(long));
-    if (i2->con_offsets == NULL) return -1;
-    i2->con_offsets[0] = 0;
-    for (icon=1; icon<ncon_total; icon++) {
-        i2->con_offsets[icon] = i2->con_offsets[icon-1] + get_con_nbasis(i2->con_types[icon-1]);
+    i2->basis_offsets = malloc(nshell*sizeof(long));
+    if (i2->basis_offsets == NULL) return -1;
+    i2->basis_offsets[0] = 0;
+    i2->max_nbasis = 0;
+    for (ishell=1; ishell<nshell; ishell++) {
+        shell_nbasis = get_shell_nbasis(i2->shell_types[ishell-1]);
+        i2->basis_offsets[ishell] = i2->basis_offsets[ishell-1] + shell_nbasis;
+        shell_nbasis = get_shell_nbasis(abs(i2->shell_types[ishell-1]));
+        if (i2->max_nbasis < shell_nbasis) {
+            i2->max_nbasis = shell_nbasis;
+        }
     }
 
     // reset public fields
-    i2->max_nbasis = result;
-    i2->con_type0 = 0;
-    i2->con_type1 = 0;
+    i2->shell_type0 = 0;
+    i2->shell_type1 = 0;
     i2->con_coeff = 0.0;
-    i2->exp0 = 0.0;
-    i2->exp1 = 0.0;
+    i2->alpha0 = 0.0;
+    i2->alpha1 = 0.0;
     i2->r0 = NULL;
     i2->r1 = NULL;
     i2->ibasis0 = 0;
@@ -290,80 +276,14 @@ int i2gob_init(i2gob_type* i2, double* centers, long* shell_map,
     i2->ishell0 = 0;
     i2->ishell1 = 0;
 
-    i2->ncon0 = 0; // number of contractions in a shell
-    i2->ncon1 = 0;
-    i2->icon0 = 0; // index of the current con_type within the current shell
-    i2->icon1 = 0;
-    i2->ocon0 = 0; // offset of the first con_type within the current shell
-    i2->ocon1 = 0;
-
-    i2->nexp0 = 0; // number of exponents in a shell
-    i2->nexp1 = 0;
-    i2->iexp0 = 0; // index of the current exponent within the current shell
-    i2->iexp1 = 0;
-    i2->oexp0 = 0; // offset of the first exponent within the current shell
-    i2->oexp1 = 0;
-
-    i2->occ0 = 0; // offset of the first contraction coefficient within the current shell
-    i2->occ1 = 0;
+    i2->nprim0 = 0; // number of alphas in a shell
+    i2->nprim1 = 0;
+    i2->iprim0 = 0; // index of the current exponent within the current shell
+    i2->iprim1 = 0;
+    i2->oprim0 = 0; // offset of the first exponent within the current shell
+    i2->oprim1 = 0;
 
     return 0;
-}
-
-
-int i2gob_check(i2gob_type* i2, long nshell, long ncenter, long ncon_total,
-    long nexp_total, long ncon_coeff_total, long nbasis) {
-
-    /*
-
-    This routine computes the maximum number of basis functions associated with
-    a contraction over the entire basis set.
-
-    Besides this principal purpose, this routine also checks for all possible
-    inconsistencies in the basis set description:
-
-        -2: the center indexes in the shell_map are out of range.
-        -3: an element of ncons is less than one.
-        -4: ncon_total does not match the sum of all values in ncons.
-        -5: an element of nexps is less than one.
-        -6: nexp_total does not match the sum of all values in nexps.
-        -7: con_type -1 occurs.
-        -8: ncon_coeff_total does not match the total number of expected
-            con_coeffs.
-        -9: the total number of basis functions is incorrect.
-
-    */
-
-    long i, j, max_angmom, i_con, i_exp, i_con_coeff, i_basis, con_type;
-
-    max_angmom = 0;
-    i_con = 0;
-    i_exp = 0;
-    i_con_coeff = 0;
-    i_basis = 0;
-    for (i=0; i<nshell; i++) {
-        if ((i2->shell_map[i] < 0) || (i2->shell_map[i] >= ncenter)) return -2;
-        if (i2->ncons[i] <= 0) return -3;
-        for (j=0; j < i2->ncons[i]; j++) {
-            con_type = i2->con_types[i_con];
-            if (con_type == -1) return -7;
-            if (abs(con_type) > max_angmom) max_angmom = abs(con_type);
-            i_con++;
-            if (i_con > ncon_total) return -4;
-            i_basis += get_con_nbasis(con_type);
-            if (i_basis > nbasis) return -9;
-        }
-        if (i2->nexps[i] <= 0) return -5;
-        i_exp += i2->nexps[i];
-        if (i_exp > nexp_total) return -6;
-        i_con_coeff += i2->nexps[i]*i2->ncons[i];
-        if (i_con_coeff > ncon_coeff_total) return -8;
-    }
-    if (i_con != ncon_total) return -4;
-    if (i_exp != nexp_total) return -6;
-    if (i_con_coeff != ncon_coeff_total) return -8;
-    if (i_basis != nbasis) return -9;
-    return ((max_angmom+1)*(max_angmom+2))/2;
 }
 
 
@@ -371,31 +291,21 @@ int i2gob_inc_shell(i2gob_type* i2) {
     // Increment shell and related counters.
     if (i2->ishell1 < i2->ishell0) {
         i2->ishell1++;
-        i2->ocon1 += i2->ncon1;
-        i2->oexp1 += i2->nexp1;
-        i2->occ1 += i2->ncon1 * i2->nexp1;
+        i2->oprim1 += i2->nprim1;
         i2gob_update_shell(i2);
         return 1;
     } else if (i2->ishell0 < i2->nshell-1) {
         i2->ishell1 = 0;
-        i2->ocon1 = 0;
-        i2->oexp1 = 0;
-        i2->occ1 = 0;
-        i2->ocon0 += i2->ncon0;
-        i2->oexp0 += i2->nexp0;
-        i2->occ0 += i2->ncon0 * i2->nexp0;
+        i2->oprim1 = 0;
+        i2->oprim0 += i2->nprim0;
         i2->ishell0++;
         i2gob_update_shell(i2);
         return 1;
     } else {
         i2->ishell1 = 0;
         i2->ishell0 = 0;
-        i2->ocon0 = 0;
-        i2->ocon1 = 0;
-        i2->oexp0 = 0;
-        i2->oexp1 = 0;
-        i2->occ0 = 0;
-        i2->occ1 = 0;
+        i2->oprim0 = 0;
+        i2->oprim1 = 0;
         i2gob_update_shell(i2);
         return 0;
     }
@@ -404,85 +314,57 @@ int i2gob_inc_shell(i2gob_type* i2) {
 
 void i2gob_update_shell(i2gob_type* i2) {
     // Update fields that depend on shell and related counters.
-    i2->ncon0 = i2->ncons[i2->ishell0];
-    i2->ncon1 = i2->ncons[i2->ishell1];
-    i2->nexp0 = i2->nexps[i2->ishell0];
-    i2->nexp1 = i2->nexps[i2->ishell1];
+    i2->nprim0 = i2->nprims[i2->ishell0];
+    i2->nprim1 = i2->nprims[i2->ishell1];
+    // Update indexes in output array
+    i2->ibasis0 = i2->basis_offsets[i2->ishell0];
+    i2->ibasis1 = i2->basis_offsets[i2->ishell1];
     // update centers
     i2->r0 = i2->centers + 3*i2->shell_map[i2->ishell0];
     i2->r1 = i2->centers + 3*i2->shell_map[i2->ishell1];
+    // update shell types
+    i2->shell_type0 = i2->shell_types[i2->ishell0];
+    i2->shell_type1 = i2->shell_types[i2->ishell1];
     // reset contraction counters
-    i2->icon0 = 0;
-    i2->icon1 = 0;
+    i2->iprim0 = 0;
+    i2->iprim1 = 0;
 }
 
 
-int i2gob_inc_con(i2gob_type* i2) {
-    // Increment contraction and related counters.
-    if (i2->icon1 < i2->ncon1-1) {
-        i2->icon1++;
-        i2gob_update_con(i2);
-        return 1;
-    } else if (i2->icon0 < i2->ncon0-1) {
-        i2->icon0++;
-        i2->icon1 = 0;
-        i2gob_update_con(i2);
-        return 1;
-    } else {
-        i2->icon0 = 0;
-        i2->icon1 = 0;
-        i2gob_update_con(i2);
-        return 0;
-    }
-}
-
-
-void i2gob_update_con(i2gob_type* i2) {
-    // Update fields that depend on contraction counters.
-    i2->con_type0 = i2->con_types[i2->ocon0 + i2->icon0];
-    i2->con_type1 = i2->con_types[i2->ocon1 + i2->icon1];
-    i2->ibasis0 = i2->con_offsets[i2->ocon0 + i2->icon0];
-    i2->ibasis1 = i2->con_offsets[i2->ocon1 + i2->icon1];
-    // Reset exponent counters.
-    i2->iexp0 = 0;
-    i2->iexp1 = 0;
-}
-
-
-int i2gob_inc_exp(i2gob_type* i2) {
+int i2gob_inc_prim(i2gob_type* i2) {
     // Increment exponent counters.
-    if (i2->iexp1 < i2->nexp1-1) {
-        i2->iexp1++;
-        i2gob_update_exp(i2);
+    if (i2->iprim1 < i2->nprim1-1) {
+        i2->iprim1++;
+        i2gob_update_prim(i2);
         return 1;
-    } else if (i2->iexp0 < i2->nexp0-1) {
-        i2->iexp0++;
-        i2->iexp1 = 0;
-        i2gob_update_exp(i2);
+    } else if (i2->iprim0 < i2->nprim0-1) {
+        i2->iprim0++;
+        i2->iprim1 = 0;
+        i2gob_update_prim(i2);
         return 1;
     } else {
-        i2->iexp0 = 0;
-        i2->iexp1 = 0;
-        i2gob_update_exp(i2);
+        i2->iprim0 = 0;
+        i2->iprim1 = 0;
+        i2gob_update_prim(i2);
         return 0;
     }
 }
 
 
-void i2gob_update_exp(i2gob_type* i2) {
+void i2gob_update_prim(i2gob_type* i2) {
     // Update fields that depend on exponent counters.
-    i2->exp0 = i2->exponents[i2->oexp0 + i2->iexp0];
-    i2->exp1 = i2->exponents[i2->oexp1 + i2->iexp1];
-    i2->con_coeff = i2->con_coeffs[i2->occ0 + i2->ncon0*i2->iexp0 + i2->icon0]*
-                      i2->con_coeffs[i2->occ1 + i2->ncon1*i2->iexp1 + i2->icon1];
+    i2->alpha0 = i2->alphas[i2->oprim0 + i2->iprim0];
+    i2->alpha1 = i2->alphas[i2->oprim1 + i2->iprim1];
+    i2->con_coeff = i2->con_coeffs[i2->oprim0 + i2->iprim0]*
+                      i2->con_coeffs[i2->oprim1 + i2->iprim1];
 }
 
 
 void i2gob_store(i2gob_type* i2, double *work_pure, double *output) {
     // TODO: this routine is hardwired to work only for the dense storage
     long i0, i1, n0, n1;
-    n0 = get_con_nbasis(i2->con_type0);
-    n1 = get_con_nbasis(i2->con_type1);
+    n0 = get_shell_nbasis(i2->shell_type0);
+    n1 = get_shell_nbasis(i2->shell_type1);
     for (i0=0; i0<n0; i0++) {
         for (i1=0; i1<n1; i1++) {
             output[(i0+i2->ibasis0)*i2->nbasis+i1+i2->ibasis1] = work_pure[i0*i2->max_nbasis+i1];
@@ -509,18 +391,18 @@ void i2pow_free(i2pow_type* i2p) {
 }
 
 
-void i2pow_init(i2pow_type* i2p, long con_type0, long con_type1, long max_nbasis) {
-    assert(con_type0 >= 0);
-    assert(con_type1 >= 0);
-    i2p->con_type0 = con_type0;
-    i2p->con_type1 = con_type1;
-    i2p->skip = max_nbasis - get_con_nbasis(con_type1) + 1;
+void i2pow_init(i2pow_type* i2p, long shell_type0, long shell_type1, long max_nbasis) {
+    assert(shell_type0 >= 0);
+    assert(shell_type1 >= 0);
+    i2p->shell_type0 = shell_type0;
+    i2p->shell_type1 = shell_type1;
+    i2p->skip = max_nbasis - get_shell_nbasis(shell_type1) + 1;
     assert(i2p->skip >= 0);
-    assert(max_nbasis >= get_con_nbasis(con_type1));
-    i2p->nx0 = con_type0;
+    assert(max_nbasis >= get_shell_nbasis(shell_type1));
+    i2p->nx0 = shell_type0;
     i2p->ny0 = 0;
     i2p->nz0 = 0;
-    i2p->nx1 = con_type1;
+    i2p->nx1 = shell_type1;
     i2p->ny1 = 0;
     i2p->nz1 = 0;
     i2p->offset = 0;
@@ -548,7 +430,7 @@ int i2pow_inc(i2pow_type* i2p) {
 int i1pow_inc(int* nx, int* ny, int* nz) {
     // Modify the indexes in place as to move to the next combination of powers
     // withing one angular momentum.
-    // Note: con_type = (*nx) + (*ny) + (*nz);
+    // Note: shell_type = (*nx) + (*ny) + (*nz);
     if (*ny == 0) {
       if (*nx == 0) {
         *nx = *nz;
