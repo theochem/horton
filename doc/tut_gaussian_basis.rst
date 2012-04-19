@@ -136,7 +136,7 @@ Symbol Angular momentum #  Polynomials
 ====== ================ == ===========
 S      0                1  :math:`C_0^0=1`
 P      1                3  :math:`C_1^0=z`, :math:`C_1^1=x`, :math:`S_1^1=y`
-D      2                8  :math:`C_2^0`, :math:`C_2^1`, :math:`S_2^1`, :math:`C_2^2`, :math:`S_2^2`
+D      2                5  :math:`C_2^0`, :math:`C_2^1`, :math:`S_2^1`, :math:`C_2^2`, :math:`S_2^2`
 F      3                7  :math:`C_3^0`, :math:`C_3^1`, :math:`S_3^1`, :math:`C_3^2`, :math:`S_3^2`, :math:`C_3^3`, :math:`S_3^3`
 G      4                9  :math:`C_4^0`, :math:`C_4^1`, :math:`S_4^1`, :math:`C_4^2`, :math:`S_4^2`, :math:`C_4^3`, :math:`S_4^3`, :math:`C_4^4`, :math:`S_4^4`
 ====== ================ == ===========

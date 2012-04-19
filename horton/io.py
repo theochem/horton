@@ -363,36 +363,48 @@ def load_fchk(filename, lf):
     # A) Load the basis set
     shell_types = fchk.fields["Shell types"]
     shell_map = fchk.fields["Shell to atom map"] - 1
-    nexps = fchk.fields["Number of primitives per shell"]
-    exponents = fchk.fields["Primitive exponents"]
+    nprims = fchk.fields["Number of primitives per shell"]
+    alphas = fchk.fields["Primitive exponents"]
     ccoeffs_level1 = fchk.fields["Contraction coefficients"]
     ccoeffs_level2 = fchk.fields.get("P(S=P) Contraction coefficients")
 
-    ncons = []
-    con_types = []
+    my_shell_types = []
+    my_shell_map = []
+    my_nprims = []
+    my_alphas = []
     con_coeffs = []
     counter = 0
-    for i, n in enumerate(nexps):
+    for i, n in enumerate(nprims):
         if shell_types[i] == -1:
             # Special treatment for SP shell type
-            ncons.append(2)
-            con_types.append(0)
-            con_types.append(1)
-            tmp = np.array([
-                ccoeffs_level1[counter:counter+n],
-                ccoeffs_level2[counter:counter+n]
-            ])
-            con_coeffs.append(tmp.transpose().ravel())
+            my_shell_types.append(0)
+            my_shell_types.append(1)
+            my_shell_map.append(shell_map[i])
+            my_shell_map.append(shell_map[i])
+            my_nprims.append(nprims[i])
+            my_nprims.append(nprims[i])
+            my_alphas.append(alphas[counter:counter+n])
+            my_alphas.append(alphas[counter:counter+n])
+            con_coeffs.append(ccoeffs_level1[counter:counter+n])
+            con_coeffs.append(ccoeffs_level2[counter:counter+n])
         else:
-            ncons.append(1)
-            con_types.append(shell_types[i])
+            my_shell_types.append(shell_types[i])
+            my_shell_map.append(shell_map[i])
+            my_nprims.append(nprims[i])
+            my_alphas.append(alphas[counter:counter+n])
             con_coeffs.append(ccoeffs_level1[counter:counter+n])
         counter += n
-    ncons = np.array(ncons)
-    con_types = np.array(con_types)
+    my_shell_types = np.array(my_shell_types)
+    my_shell_map = np.array(my_shell_map)
+    my_nprims = np.array(my_nprims)
+    my_alphas = np.concatenate(my_alphas)
     con_coeffs = np.concatenate(con_coeffs)
+    del shell_map
+    del shell_types
+    del nprims
+    del alphas
 
-    basis = GOBasis(shell_map, ncons, nexps, con_types, exponents, con_coeffs)
+    basis = GOBasis(my_shell_map, my_nprims, my_shell_types, my_alphas, con_coeffs)
 
     # permutation of the basis functions
     g_reordering = {
@@ -401,7 +413,6 @@ def load_fchk(filename, lf):
       -4: np.array([0, 1, 2, 3, 4, 5, 6, 7, 8]),
       -3: np.array([0, 1, 2, 3, 4, 5, 6]),
       -2: np.array([0, 1, 2, 3, 4]),
-      -1: np.array([0, 1, 2, 3]),
        0: np.array([0]),
        1: np.array([0, 1, 2]),
        2: np.array([0, 3, 4, 1, 5, 2]),
@@ -412,7 +423,7 @@ def load_fchk(filename, lf):
     }
     offset = 0
     permutation = []
-    for shell_type in shell_types:
+    for shell_type in my_shell_types:
         permutation.extend(g_reordering[shell_type]+len(permutation))
     basis.g_permutation = np.array(permutation, dtype=int)
 

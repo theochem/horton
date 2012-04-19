@@ -25,12 +25,12 @@ import numpy as np
 
 from horton.context import context
 from horton.periodic import periodic
-from horton.cext import get_con_nbasis
+from horton.cext import get_shell_nbasis
 
 
 __all__ = [
-    'GOBasisDesc', 'str_to_con_types', 'GOBasisFamily', 'go_basis_families',
-    'GOBasisAtom', 'GOBasisShell', 'GOBasis'
+    'GOBasisDesc', 'str_to_shell_types', 'GOBasisFamily', 'go_basis_families',
+    'GOBasisAtom', 'GOBasisContraction', 'GOBasis'
 ]
 
 
@@ -82,11 +82,10 @@ class GOBasisDesc(object):
     def apply_to(self, system):
         """Construct a GOBasis object for the system"""
         shell_map = []
-        nexps = []
-        ncons = []
-        con_types = []
+        nprims = []
+        shell_types = []
+        alphas = []
         con_coeffs = []
-        exponents = []
 
         def get_basis(i, n):
             """Look up the basis for a given atom"""
@@ -109,7 +108,7 @@ class GOBasisDesc(object):
                     raise ValueError('Unknown basis family: %s' % basis_x)
                 basis_atom = basis_fam.get(n)
                 if basis_atom is None:
-                    raise ValueError('The basis family %s does not contain element %n.' % (basis_x, n))
+                    raise ValueError('The basis family %s does not contain element %i.' % (basis_x, n))
                 return basis_atom
             elif isinstance(basis_x, GOBasisFamily):
                 basis_atom = basis_x.get(n)
@@ -126,21 +125,20 @@ class GOBasisDesc(object):
             n = system.numbers[i]
             basis_x = get_basis(i, n)
             basis_atom = translate_basis(basis_x, n)
-            basis_atom.extend(i, shell_map, ncons, nexps, con_types, exponents, con_coeffs, self.pure)
+            basis_atom.extend(i, shell_map, nprims, shell_types, alphas, con_coeffs, self.pure)
 
         # Turn the lists into arrays
         shell_map = np.array(shell_map)
-        ncons = np.array(ncons)
-        nexps = np.array(nexps)
-        con_types = np.array(con_types)
-        exponents = np.array(exponents)
+        nprims = np.array(nprims)
+        shell_types = np.array(shell_types)
+        alphas = np.array(alphas)
         con_coeffs = np.array(con_coeffs)
 
         # Return the Gaussian basis object.
-        return GOBasis(shell_map, ncons, nexps, con_types, exponents, con_coeffs)
+        return GOBasis(shell_map, nprims, shell_types, alphas, con_coeffs)
 
 
-def str_to_con_types(s):
+def str_to_shell_types(s):
     """Convert a string into a list of contraction types"""
     d = {'s': 0, 'p': 1, 'd': 2, 'f': 3, 'g': 4, 'h': 5, 'i': 6}
     return [d[c] for c in s.lower()]
@@ -190,9 +188,11 @@ class GOBasisFamily(object):
             raise IOError('File format not supported: %s' % self.filename)
 
     def _load_nwchem(self):
+        '''Load the basis set family from an NWChem file.'''
+        # TODO: move this to io.py
         f = open(self.filename)
         self.basis_atom_map = {}
-        bc = None # The current basis contraction being loaded
+        bc = None # The current contraction being loaded
         for line in f:
             # strip of comments and white space
             line = line[:line.find('#')].strip()
@@ -207,20 +207,41 @@ class GOBasisFamily(object):
                 # A new contraction begins, maybe even a new atom.
                 n = periodic[words[0]].number
                 ba = self.basis_atom_map.get(n)
-                con_types = str_to_con_types(words[1])
-                bc = GOBasisShell(con_types, [], [])
+                shell_types = str_to_shell_types(words[1])
+                bcs = [GOBasisContraction(shell_type, [], []) for shell_type in shell_types]
                 if ba is None:
-                    ba = GOBasisAtom([bc])
+                    ba = GOBasisAtom(bcs)
                     self.basis_atom_map[n] = ba
                 else:
-                    ba.contractions.append(bc)
+                    ba.bcs.extend(bcs)
             else:
-                # An extra primitive for the current contraction.
+                # An extra primitive for the current contraction(s).
                 exponent = float(words[0])
                 coeffs = [float(w) for w in words[1:]]
-                bc.exponents.append(exponent)
-                bc.con_coeffs.extend(coeffs)
+                for i, bc in enumerate(bcs):
+                    bc.alphas.append(exponent)
+                    bc.con_coeffs.append(coeffs[i::len(bcs)])
         f.close()
+        self._to_arrays()
+        self._to_segmented()
+
+    def _to_arrays(self):
+        '''Convert all contraction attributes to numpy arrays'''
+        for ba in self.basis_atom_map.itervalues():
+            for bc in ba.bcs:
+                bc.to_arrays()
+
+    def _to_segmented(self):
+        '''Convert all contractions from generalized to segmented'''
+        new_basis_atom_map = {}
+        for n, ba in self.basis_atom_map.iteritems():
+            new_bcs = []
+            for bc in ba.bcs:
+                new_bcs.extend(bc.get_segmented_bcs())
+            new_ba = GOBasisAtom(new_bcs)
+            new_basis_atom_map[n] = new_ba
+        self.basis_atom_map = new_basis_atom_map
+
 
 
 go_basis_families = [
@@ -231,11 +252,17 @@ go_basis_families = dict((bf.name.lower(), bf) for bf in go_basis_families)
 
 
 class GOBasisAtom(object):
-    """Description of an atomic basis set with generalized contractions."""
-    def __init__(self, contractions):
-        self.contractions = contractions
+    """Description of an atomic basis set with segmented contractions."""
+    def __init__(self, bcs):
+        """
+           **Arguments:**
 
-    def extend(self, i, shell_map, ncons, nexps, con_types, exponents, con_coeffs, pure=True):
+           bcs
+                A list of GOBasisContraction instances.
+        """
+        self.bcs = bcs
+
+    def extend(self, i, shell_map, nprims, shell_types, alphas, con_coeffs, pure=True):
         """Extend the lists with basis functions for this atom.
 
            **Arguments:**
@@ -243,7 +270,7 @@ class GOBasisAtom(object):
            i
                 The index of the center of this atom.
 
-           shell_map, ncons, nexps, con_types, con_coeffs, exponents
+           shell_map, nprims, shell_types, alphas, con_coeffs
                 These are all output arguments that must be extended with the
                 basis set parameters for this atom. The meaning of each argument
                 is defined in the documentation for constructor of the GOBasis
@@ -252,109 +279,133 @@ class GOBasisAtom(object):
            **Optional argument:**
 
            pure
-                By default pure basis functions are used. Set this to false to
+                By default pure basis functions are used. Set this to False to
                 switch to Cartesian basis functions.
         """
-        for bc in self.contractions:
+        for bc in self.bcs:
+            if bc.is_generalized():
+                raise ValueError('Generalized contractions are not supported (yet).')
             shell_map.append(i)
-            nexps.append(len(bc.exponents))
-            ncons.append(len(bc.con_types))
-            if pure:
-                con_types.extend(bc.con_types)
+            nprims.append(len(bc.alphas))
+            if pure or bc.shell_type < 2:
+                shell_types.append(bc.shell_type)
             else:
-                for con_type in bc.con_types:
-                    # swap sign for d and higher.
-                    if con_type > 1:
-                        con_type *= -1
-                    con_types.append(con_type)
-            exponents.extend(bc.exponents)
-            for coeffs in bc.con_coeffs:
-                con_coeffs.append(coeffs)
+                shell_types.append(-bc.shell_type)
+            alphas.extend(bc.alphas)
+            con_coeffs.extend(bc.con_coeffs)
 
 
-class GOBasisShell(object):
-    """Description of a generalized contraction for a given shell"""
-    def __init__(self, con_types, exponents, con_coeffs):
+class GOBasisContraction(object):
+    """Description of a contraction"""
+    def __init__(self, shell_type, alphas, con_coeffs):
         """
            **Arguments:**
 
-           con_types
-                a list of integers, the angular quantum numbers of each
-                contraction in the shell. (0=s, 1=p, 2=d, ...)
+           shell_type
+                The angular quantum numbers of the shell. (0=s, 1=p, 2=d, ...)
 
-           exponents
-                The exponents of the primitives in each contraction. These
-                are shared between the different contractions in the
-                shell. (This is the idea of the generalized contraction.)
+           alphas
+                1D array with exponents of the primitives.
 
            con_coeffs
-                A 2D array (or list of rows) with all the linear coefficients
-                of the contractions. Each row corresponds to one exponent.
-                Each column corresponds to one contraction.
+                the linear coefficients of the contraction. In the case of a
+                segmented basis set, this is just a 1D array with the same size
+                as alphas. In the case of a generalized contraction, this is a
+                2D numpy array, where each row corresponds to a primitive and
+                the columns correspond to different contractions.
+
+           It is possible to construct this object with lists instead of arrays
+           as arguments. Just call the to_arrays method once the lists are
+           completed. (This is convenient when loading basis sets from a file.)
         """
-        self.con_types = con_types
-        self.exponents = exponents
+        self.shell_type = shell_type
+        self.alphas = alphas
         self.con_coeffs = con_coeffs
+
+    def to_arrays(self):
+        '''Convert the alphas and con_coeffs attributes to numpy arrays.'''
+        self.alphas = np.array(self.alphas)
+        self.con_coeffs = np.array(self.con_coeffs)
+
+    def __length__(self):
+        '''Return the length of the contraction'''
+        l = len(self.alphas)
+        assert l == len(self.con_coeffs)
+        return l
+
+    def is_generalized(self):
+        '''Returns True if this is a generalized contraction
+
+           This routine also checks if the con_coeffs attribute is consistent.
+        '''
+        if len(self.con_coeffs.shape) == 2:
+            return True
+        elif len(self.con_coeffs.shape) == 1:
+            return False
+        else:
+            raise ValueError
+
+    def get_segmented_bcs(self):
+        '''Returns a list of segmented contractions'''
+        if not self.is_generalized():
+            raise TypeError('Conversion to segmented contractions only makes sense for generalized contractions.')
+        return [
+            GOBasisContraction(self.shell_type, self.alphas, self.con_coeffs[:,i])
+            for i in xrange(self.con_coeffs.shape[1])
+        ]
 
 
 class GOBasis(object):
     """This class describes basis sets applied to a certain molecular structure."""
-    def __init__(self, shell_map, ncons, nexps, con_types, exponents, con_coeffs):
+    def __init__(self, shell_map, nprims, shell_types, alphas, con_coeffs):
         """
            **Arguments:**
 
            shell_map
                 An array with the center index for each shell.
+                shape = (nshell,)
 
-           ncons
-                The number of contractions in each shell. This is used to
-                implement optimized general contractions.
+           nprims
+                The number of primitives in each shell.
+                shape = (nshell,)
 
-           nexps
-                The number of exponents in each shell.
-
-           con_types
+           shell_types
                 An array with contraction types: 0 = S, 1 = P, 2 = Cartesian D,
                 3 = Cartesian F, ..., -2 = pure D, -3 = pure F, ...
-                One contraction type is present for each contraction in each
-                shell. The so-called SP type is implemented as a shell
-                with two contractions, one of type S and one of type P.
+                shape = (nshell,)
 
-           exponents
+           alphas
                 The exponents of the primitives in one shell.
+                shape = (sum(nprims),)
 
            con_coeffs
                 The contraction coefficients of the primitives for each
                 contraction in a contiguous array. The coefficients are ordered
                 according to the shells. Within each shell, the coefficients are
                 grouped per exponent.
-
-           The number of primitives in shell i is nexps[i]*ncons[i].
+                shape = (sum(nprims),)
 
            Convention for basis functions of a given contraction type:
 
-           The order of the pure shells is based on the order of real spherical
-           harmonics: http://en.wikipedia.org/wiki/Table_of_spherical_harmonics
-           First the +- linear combination of highest angular momentum, then
-           the ++ combination of highest angular momentum, keep repeating and
-           finally take angular momention zero (without making a linear
-           combination). The order of the Cartesian shells is sorted
-           alhpabetically. The SP shell type is S first, then P. Some examples:
+           The order of the pure shells is based on the order of real spherical.
+           The functions are sorted from low to high magnetic quantum number,
+           with cosine-like functions before the sine-like functions. The order
+           of functions in a Cartesian shell is alhpabetic. Some examples:
 
-           con_type=0, S:
+           shell_type = 0, S:
              0 -> 1
-           con_type=1, P:
+           shell_type = 1, P:
              0 -> x
              1 -> y
              2 -> z
-           con_type=2, Cartesian D:
+           shell_type = 2, Cartesian D:
              0 -> xx
              1 -> xy
              2 -> xz
              3 -> yy
              4 -> yz
              5 -> zz
-           con_type=3, Cartesian F:
+           shell_type = 3, Cartesian F:
              0 -> xxx
              1 -> xxy
              2 -> xxz
@@ -365,14 +416,14 @@ class GOBasis(object):
              7 -> yyz
              8 -> yzz
              9 -> zzz
-           con_type=-1, not allowed
-           con_type=-2, pure D:
+           shell_type = -1, not allowed
+           shell_type = -2, pure D:
              0 -> zz
              1 -> xz
              2 -> yz
              3 -> xx-yy
              4 -> xy
-           con_type=-3, pure F:
+           shell_type = -3, pure F:
              0 -> zzz
              1 -> xzz
              2 -> yzz
@@ -384,13 +435,12 @@ class GOBasis(object):
         # All fields are stored as internal parameters. Once they are set,
         # they are no supposed to be modified.
         self._shell_map = shell_map
-        self._ncons = ncons
-        self._nexps = nexps
-        self._con_types = con_types
-        self._exponents = exponents
+        self._nprims = nprims
+        self._shell_types = shell_types
+        self._alphas = alphas
         self._con_coeffs = con_coeffs
         # derived property, read only
-        self._nbasis = sum(get_con_nbasis(con_type) for con_type in con_types)
+        self._nbasis = sum(get_shell_nbasis(shell_type) for shell_type in shell_types)
 
     def get_nshell(self):
         return len(self._shell_map)
@@ -405,6 +455,6 @@ class GOBasis(object):
     def compute_overlap(self, centers, overlap):
         from horton.cext import compute_gobasis_overlap
         compute_gobasis_overlap(
-            centers, self._shell_map, self._ncons, self._nexps, self._con_types,
-            self._exponents, self._con_coeffs, overlap._array
+            centers, self._shell_map, self._nprims, self._shell_types,
+            self._alphas, self._con_coeffs, overlap._array
         )

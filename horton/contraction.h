@@ -23,12 +23,11 @@
 #define HORTON_CONTRACTION_H
 
 
-long get_con_nbasis(long con_type);
+long get_shell_nbasis(long shell_type);
 
-int compute_gobasis_overlap(double* centers, long* shell_map,
-    long* ncons, long* nexps, long* con_types, double* exponents,
-    double* con_coeffs, long nshell, long ncenter, long ncon_total,
-    long nexp_total, long ncon_coeff_total, double* output, long nbasis);
+int compute_gobasis_overlap(double* centers, long* shell_map, long* nprims,
+    long* shell_types, double* alphas, double* con_coeffs, long nshell,
+    long ncenter, long nprim_total, double* output, long nbasis);
 
 double gob_normalization(double exponent, int nx, int ny, int nz);
 
@@ -37,49 +36,40 @@ typedef struct {
     // input data
     double* centers;
     long* shell_map;
-    long* ncons;
-    long* nexps;
-    long* con_types;
-    long* con_offsets;
-    double* exponents;
+    long* nprims;
+    long* shell_types;
+    long* basis_offsets;
+    double* alphas;
     double* con_coeffs;
     long nshell, nbasis;
 
     // public iterator fields
-    long max_nbasis, con_type0, con_type1;
-    double con_coeff, exp0, exp1;
-    double *r0;
-    double *r1;
+    long max_nbasis, shell_type0, shell_type1;
+    double con_coeff, alpha0, alpha1;
+    double *r0, *r1; // current centers
     long ibasis0, ibasis1; // basis function counters (for output storage)
 
     // private iterator fields
-    long ishell0, ishell1;
-    long ncon0, ncon1, icon0, icon1, ocon0, ocon1; // contraction counters
-    long nexp0, nexp1, iexp0, iexp1, oexp0, oexp1; // exponent counters
-    long occ0, occ1; // contraction coefficient counters
+    long ishell0, ishell1; // shell counters
+    long nprim0, nprim1, iprim0, iprim1, oprim0, oprim1; // primitive counters
 } i2gob_type;
 
 
 i2gob_type* i2gob_new(void);
 void i2gob_free(i2gob_type* i2);
-int i2gob_init(i2gob_type* i2, double* centers, long* shell_map,
-    long* ncons, long* nexps, long* con_types, double* exponents,
-    double* con_coeffs, long nshell, long ncenter, long ncon_total,
-    long nexp_total, long ncon_coeff_total, long nbasis);
-int i2gob_check(i2gob_type* i2, long nshell, long ncenter, long ncon_total,
-    long nexp_total, long ncon_coeff_total, long nbasis);
+int i2gob_init(i2gob_type* i2, double* centers, long* shell_map, long* nprims,
+    long* shell_types, double* alphas, double* con_coeffs, long nshell,
+    long ncenter, long nprim_total, long nbasis);
 int i2gob_inc_shell(i2gob_type* i2);
 void i2gob_update_shell(i2gob_type* i2);
-int i2gob_inc_con(i2gob_type* i2);
-void i2gob_update_con(i2gob_type* i2);
-int i2gob_inc_exp(i2gob_type* i2);
-void i2gob_update_exp(i2gob_type* i2);
+int i2gob_inc_prim(i2gob_type* i2);
+void i2gob_update_prim(i2gob_type* i2);
 void i2gob_store(i2gob_type* i2, double *work_pure, double *output);
 
 
 typedef struct {
     // input data
-    long con_type0, con_type1, skip;
+    long shell_type0, shell_type1, skip;
 
     // public iterator fields
     int nx0, ny0, nz0, nx1, ny1, nz1, offset;
@@ -87,7 +77,7 @@ typedef struct {
 
 i2pow_type* i2pow_new(void);
 void i2pow_free(i2pow_type* i2p);
-void i2pow_init(i2pow_type* i2p, long con_type0, long con_type1, long max_nbasis);
+void i2pow_init(i2pow_type* i2p, long shell_type0, long shell_type1, long max_nbasis);
 int i2pow_inc(i2pow_type* i2p);
 
 int i1pow_inc(int* nx, int* ny, int* nz);
