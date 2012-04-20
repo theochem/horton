@@ -220,7 +220,7 @@ class DenseOneBody(object):
         return self._array[i,j]
 
     def check_symmetry(self):
-        """Check the symmetry of the array."""
+        '''Check the symmetry of the array. For testing only.'''
         assert abs(self._array - self._array.T).max() == 0.0
 
     def reset(self):
@@ -231,6 +231,13 @@ class DenseOneBody(object):
 
     def expectation_value(self, dm):
         return np.dot(self._array.ravel(), dm._array.ravel())
+
+    def trace(self):
+        return np.trace(self._array)
+
+    def itranspose(self):
+        '''In-place transpose'''
+        self._array = self._array.T
 
     def dot(self, vec0, vec1):
         return np.dot(vec0, np.dot(self._array, vec1))

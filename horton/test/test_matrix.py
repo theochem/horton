@@ -173,3 +173,20 @@ def test_hartree_fock_water():
     enn = 9.2535672047 # nucleus-nucleus interaction
     assert abs(hf1 + enn - (-74.9592923284)) < 1e-4
     assert abs(hf2 + enn - (-74.9592923284)) < 1e-4
+
+
+def test_dense_one_body_trace():
+    lf = DenseLinalgFactory()
+    op1 = lf.create_one_body(3)
+    op1._array[:] = np.random.uniform(-1, 1, (3,3))
+    assert op1.trace() == op1._array[0,0] + op1._array[1,1] + op1._array[2,2]
+
+
+def test_dense_one_body_itranspose():
+    lf = DenseLinalgFactory()
+    op1 = lf.create_one_body(3)
+    op2 = lf.create_one_body(3)
+    op1._array[:] = np.random.uniform(-1, 1, (3,3))
+    op2._array[:] = op1._array
+    op2.itranspose()
+    assert op1._array[0,1] == op2._array[1,0]
