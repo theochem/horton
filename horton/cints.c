@@ -45,10 +45,10 @@ long binom(long n, long m) {
 }
 
 
-void compute_gpt_center(double exp0, double* r0, double exp1, double* r1, double gamma, double* gpt_center) {
-    gpt_center[0] = (exp0*r0[0] + exp1*r1[0])/gamma;
-    gpt_center[1] = (exp0*r0[1] + exp1*r1[1])/gamma;
-    gpt_center[2] = (exp0*r0[2] + exp1*r1[2])/gamma;
+void compute_gpt_center(double alpha0, double* r0, double alpha1, double* r1, double gamma, double* gpt_center) {
+    gpt_center[0] = (alpha0*r0[0] + alpha1*r1[0])/gamma;
+    gpt_center[1] = (alpha0*r0[1] + alpha1*r1[1])/gamma;
+    gpt_center[2] = (alpha0*r0[2] + alpha1*r1[2])/gamma;
 }
 
 
@@ -99,15 +99,15 @@ double gob_overlap_int1d(long n0, long n1, double pa, double pb, double gamma) {
        with the same number of arguments.
 */
 
-double gob_overlap(double exp0, long nx0, long ny0, long nz0, double *r0,
-                   double exp1, long nx1, long ny1, long nz1, double *r1) {
+double gob_overlap(double alpha0, long nx0, long ny0, long nz0, double *r0,
+                   double alpha1, long nx1, long ny1, long nz1, double *r1) {
     double gpt_center[3];
     double gamma;
 
-    gamma = exp0 + exp1;
-    compute_gpt_center(exp0, r0, exp1, r1, gamma, gpt_center);
+    gamma = alpha0 + alpha1;
+    compute_gpt_center(alpha0, r0, alpha1, r1, gamma, gpt_center);
     return (
-        exp(-exp0*exp1/gamma*dist_sq(r0, r1))*
+        exp(-alpha0*alpha1/gamma*dist_sq(r0, r1))*
         gob_overlap_int1d(nx0, nx1, gpt_center[0] - r0[0], gpt_center[0] - r1[0], gamma)*
         gob_overlap_int1d(ny0, ny1, gpt_center[1] - r0[1], gpt_center[1] - r1[1], gamma)*
         gob_overlap_int1d(nz0, nz1, gpt_center[2] - r0[2], gpt_center[2] - r1[2], gamma)
