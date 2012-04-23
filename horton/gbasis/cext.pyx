@@ -310,15 +310,24 @@ cdef class GOBasis(GBasis):
 
     # Integral computation
 
+    def check_matrix(self, matrix):
+        assert matrix.ndim == 2
+        assert matrix.flags['C_CONTIGUOUS']
+        assert matrix.shape[0] == matrix.shape[1]
+        assert matrix.shape[0] == self.nbasis
+
     def compute_overlap(self, overlap):
         """Compute the overlap matrix in a Gaussian orbital basis."""
         cdef np.ndarray output = overlap._array
-        assert output.ndim == 2
-        assert output.flags['C_CONTIGUOUS']
-        assert output.shape[0] == output.shape[1]
-        assert output.shape[0] == self.nbasis
+        self.check_matrix(output)
         gobasis = <gbasis.GOBasis*>self._this
-        gobasis.compute_gobasis_overlap(<double*>output.data)
+        (<gbasis.GOBasis*>self._this).compute_gobasis_overlap(<double*>output.data)
+
+    def compute_kinetic(self, overlap):
+        """Compute the kintic energy matrix in a Gaussian orbital basis."""
+        cdef np.ndarray output = overlap._array
+        self.check_matrix(output)
+        (<gbasis.GOBasis*>self._this).compute_gobasis_kinetic(<double*>output.data)
 
 
 #

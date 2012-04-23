@@ -57,4 +57,11 @@ class GB2OverlapIntegral: public GB2Integral {
         virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
     };
 
+
+class GB2KineticIntegral: public GB2Integral {
+    public:
+        GB2KineticIntegral(long max_nbasis) : GB2Integral(max_nbasis) {}
+        virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
+    };
+
 #endif

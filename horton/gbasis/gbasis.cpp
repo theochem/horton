@@ -129,3 +129,8 @@ void GOBasis::compute_gobasis_overlap(double* output) {
     GB2OverlapIntegral integral = GB2OverlapIntegral(get_max_shell_nbasis());
     compute_gobasis_one_body(output, &integral);
 }
+
+void GOBasis::compute_gobasis_kinetic(double* output) {
+    GB2KineticIntegral integral = GB2KineticIntegral(get_max_shell_nbasis());
+    compute_gobasis_one_body(output, &integral);
+}

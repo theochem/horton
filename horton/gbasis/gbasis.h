@@ -68,6 +68,7 @@ class GOBasis : public GBasis {
         const double normalization(const double alpha, const long* n) const;
 
         void compute_gobasis_overlap(double* output);
+        void compute_gobasis_kinetic(double* output);
     };
 
 #endif
