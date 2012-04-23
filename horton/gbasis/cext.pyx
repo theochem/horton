@@ -180,12 +180,12 @@ cdef class GBasis:
 
     def __cinit__(self, centers, shell_map, nprims, shell_types, alphas, con_coeffs):
         # Make private copies of the input arrays.
-        self._centers = np.array(centers, dtype=np.double)
-        self._shell_map = np.array(shell_map, dtype=np.long)
-        self._nprims = np.array(nprims, dtype=np.long)
-        self._shell_types = np.array(shell_types, dtype=np.long)
-        self._alphas = np.array(alphas, dtype=np.double)
-        self._con_coeffs = np.array(con_coeffs, dtype=np.double)
+        self._centers = np.array(centers, dtype=float)
+        self._shell_map = np.array(shell_map, dtype=int)
+        self._nprims = np.array(nprims, dtype=int)
+        self._shell_types = np.array(shell_types, dtype=int)
+        self._alphas = np.array(alphas, dtype=float)
+        self._con_coeffs = np.array(con_coeffs, dtype=float)
 
         # Set arrays unwritable because:
         #   (i) derived properties will be stored
