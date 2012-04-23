@@ -20,7 +20,6 @@
 
 
 #include "cartpure.h"
-#include "assert.h"
 
 
 typedef struct {
@@ -659,24 +658,27 @@ typedef struct {
 } type_sparse_tf;
 
 
-const static type_sparse_tf cptf[MAX_CON_TYPE+1] = {
+const static type_sparse_tf cptf[MAX_SHELL_TYPE+1] = {
     {1, cptf0}, {3, cptf1}, {8, cptf2}, {16, cptf3}, {28, cptf4}, {46, cptf5},
     {70, cptf6}, {102, cptf7}, {141, cptf8}, {187, cptf9}
 };
 
+const static bad_shell_type_exception bad_shell_type = bad_shell_type_exception();
 
-void project_cartesian_to_pure(double *work_cart, double* work_pure, long
-    con_type, long stride, long spacing, long count) {
+
+void cart_to_pure_low(double *work_cart, double* work_pure, long
+    shell_type, long stride, long spacing, long count) {
 
     int c, npure, i;
     const type_sparse_tf* tf;
     const type_sparse_el* el;
 
-    assert(con_type<=MAX_CON_TYPE);
-    assert(con_type>0);
+    if ((shell_type>MAX_SHELL_TYPE) || (shell_type<0)) {
+        throw bad_shell_type;
+    }
 
-    npure = 2*con_type+1;
-    tf = &cptf[con_type];
+    npure = 2*shell_type+1;
+    tf = &cptf[shell_type];
 
     for (c=count-1; c>=0; c--) {
         // A) Reset elements in work_pure

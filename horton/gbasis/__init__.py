@@ -20,12 +20,6 @@
 #--
 
 
-from horton.constants import *
-from horton.context import *
-from horton.gbasis import *
-from horton.io import *
-from horton.matrix import *
-from horton.periodic import *
-from horton.system import *
-from horton.units import *
-from horton.wfn import *
+from horton.gbasis.cext import *
+from horton.gbasis.gobasis import *
+from horton.gbasis.io import *

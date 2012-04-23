@@ -19,13 +19,6 @@
 #
 #--
 
-
-from horton.constants import *
-from horton.context import *
-from horton.gbasis import *
-from horton.io import *
-from horton.matrix import *
-from horton.periodic import *
-from horton.system import *
-from horton.units import *
-from horton.wfn import *
+cdef extern from "cartpure.h":
+    void cart_to_pure_low(double *work_cart, double* work_pure, long
+        con_type, long stride, long spacing, long count)

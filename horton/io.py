@@ -59,8 +59,9 @@ def load_system_args(filename, lf):
         coordinates, numbers = load_geom_xyz(filename)
         return {'coordinates': coordinates, 'numbers': numbers}
     elif filename.endswith('.fchk'):
-        coordinates, numbers, basis, wfn = load_fchk(filename, lf)
-        return {'coordinates': coordinates, 'numbers': numbers, 'basis': basis, 'wfn': wfn}
+        coordinates, numbers, basis, wfn, permutation = load_fchk(filename, lf)
+        return {'coordinates': coordinates, 'numbers': numbers, 'basis': basis,
+                'wfn': wfn, 'permutation': permutation}
     elif filename.endswith('.log'):
         overlap, kinetic, nuclear_attraction, electronic_repulsion = load_operators_g09(filename, lf)
         operators = {}
@@ -346,7 +347,7 @@ def load_fchk(filename, lf):
        lf
             A LinalgFactory instance.
     '''
-    from horton.gobasis import GOBasis
+    from horton.gbasis import GOBasis
     from horton.wfn import ClosedShellWFN
 
 
@@ -360,7 +361,11 @@ def load_fchk(filename, lf):
         "Beta Orbital Energies", "Beta MO coefficients",
     ])
 
-    # A) Load the basis set
+    # A) Load the geometry
+    numbers = fchk.fields["Atomic numbers"]
+    coordinates = fchk.fields["Current cartesian coordinates"].reshape(-1,3)
+
+    # B) Load the basis set
     shell_types = fchk.fields["Shell types"]
     shell_map = fchk.fields["Shell to atom map"] - 1
     nprims = fchk.fields["Number of primitives per shell"]
@@ -404,10 +409,10 @@ def load_fchk(filename, lf):
     del nprims
     del alphas
 
-    basis = GOBasis(my_shell_map, my_nprims, my_shell_types, my_alphas, con_coeffs)
+    basis = GOBasis(coordinates, my_shell_map, my_nprims, my_shell_types, my_alphas, con_coeffs)
 
     # permutation of the basis functions
-    g_reordering = {
+    permutation_rules = {
       -6: np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]),
       -5: np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
       -4: np.array([0, 1, 2, 3, 4, 5, 6, 7, 8]),
@@ -424,12 +429,8 @@ def load_fchk(filename, lf):
     offset = 0
     permutation = []
     for shell_type in my_shell_types:
-        permutation.extend(g_reordering[shell_type]+len(permutation))
-    basis.g_permutation = np.array(permutation, dtype=int)
-
-    # B) Load the geometry
-    numbers = fchk.fields["Atomic numbers"]
-    coordinates = fchk.fields["Current cartesian coordinates"].reshape(-1,3)
+        permutation.extend(permutation_rules[shell_type]+len(permutation))
+    permutation = np.array(permutation, dtype=int)
 
     # C) Load the wavefunction
     if 'Beta Orbital Energies' in fchk.fields:
@@ -444,4 +445,4 @@ def load_fchk(filename, lf):
         wfn.expansion.coeffs[:] = fchk.fields['Alpha MO coefficients'].reshape(nbasis_indep, basis.nbasis).T
         wfn.expansion.energies[:] = fchk.fields['Alpha Orbital Energies']
 
-    return coordinates, numbers, basis, wfn
+    return coordinates, numbers, basis, wfn, permutation

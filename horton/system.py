@@ -69,7 +69,7 @@ class System(object):
         self._coordinates = np.array(coordinates, dtype=float, copy=False)
         self._numbers = np.array(numbers, dtype=int, copy=False)
         #
-        from horton.gobasis import GOBasisDesc, GOBasis
+        from horton.gbasis import GOBasisDesc, GOBasis
         if isinstance(basis, str):
             basis_desc = GOBasisDesc(basis)
             self._basis = basis_desc.apply_to(self)
@@ -90,17 +90,6 @@ class System(object):
             self._lf = lf
         #
         self._operators = operators
-
-        # If the basis comes from Gaussian and some operators are loaded, some
-        # rows and columns need to be reordered. Similar for the orbital
-        # coefficients.
-        if hasattr(self.basis, 'g_permutation'):
-            if self.operators is not None:
-                for op in self.operators.itervalues():
-                    op.apply_basis_permutation(self.basis.g_permutation)
-            if self.wfn is not None:
-                self.wfn.expansion.apply_basis_permutation(self.basis.g_permutation)
-            del self.basis.g_permutation
 
     def get_natom(self):
         return len(self.numbers)
@@ -159,6 +148,21 @@ class System(object):
             fn_args = load_system_args(fn, lf)
             constructor_args.update(fn_args)
         constructor_args.update(kwargs)
+
+        # If the basis comes from an external code and some operators are
+        # loaded, rows and columns may need to be reordered. Similar for the
+        # orbital coefficients.
+        permutation = constructor_args.get('permutation')
+        if permutation is not None:
+            operators = constructor_args.get('operators')
+            if operators is not None:
+                for op in operators.itervalues():
+                    op.apply_basis_permutation(permutation)
+            wfn = constructor_args.get('wfn')
+            if wfn is not None:
+                wfn.expansion.apply_basis_permutation(permutation)
+            del constructor_args['permutation']
+
         return cls(**constructor_args)
 
     def add_operator(self, name, op):
@@ -169,5 +173,5 @@ class System(object):
 
     def init_overlap(self):
         overlap = self.lf.create_one_body(self.basis.nbasis)
-        self.basis.compute_overlap(self.coordinates, overlap)
+        self.basis.compute_overlap(overlap)
         self.add_operator('olp', overlap)

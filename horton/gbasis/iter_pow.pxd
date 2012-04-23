@@ -20,12 +20,10 @@
 #--
 
 
-from horton.constants import *
-from horton.context import *
-from horton.gbasis import *
-from horton.io import *
-from horton.matrix import *
-from horton.periodic import *
-from horton.system import *
-from horton.units import *
-from horton.wfn import *
+cdef extern from "iter_pow.h":
+    bint iter_pow1_inc(long* n)
+
+    cdef cppclass IterPow2:
+        void reset(long shell_type0, long shell_type1, long max_nbasis)
+        bint inc()
+        long n0[3], n1[3], offset, ibasis0, ibasis1

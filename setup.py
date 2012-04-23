@@ -37,10 +37,18 @@ setup(
     packages=['horton', 'horton/test'],
     cmdclass = {'build_ext': build_ext},
     ext_modules=[
-        Extension("horton.cext", [
-            'horton/cext.pyx', 'horton/cartpure.c', 'horton/cints.c',
-            'horton/contraction.c'
-        ]),
+        Extension("horton.gbasis.cext",
+            sources=['horton/gbasis/cext.pyx', 'horton/gbasis/cartpure.cpp',
+                     'horton/gbasis/common.cpp', 'horton/gbasis/gbasis.cpp',
+                     'horton/gbasis/ints.cpp', 'horton/gbasis/iter_gb.cpp',
+                     'horton/gbasis/iter_pow.cpp'],
+            depends=['horton/gbasis/cartpure.h', 'horton/gbasis/cartpure.pxd',
+                     'horton/gbasis/common.h', 'horton/gbasis/common.pxd'
+                     'horton/gbasis/gbasis.h', 'horton/gbasis/gbasis.pxd',
+                     'horton/gbasis/ints.h', 'horton/gbasis/ints.pxd',
+                     'horton/gbasis/iter_gb.h', 'horton/gbasis/iter_gb.pxd',
+                     'horton/gbasis/iter_pow.h', 'horton/gbasis/iter_pow.pxd'],
+            language="c++"),
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
