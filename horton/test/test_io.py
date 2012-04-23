@@ -90,10 +90,10 @@ def test_load_operators_water_ccpvdz_pure_hf_g03():
 
 def test_load_fchk_hf_sto3g_num():
     lf = DenseLinalgFactory()
-    coordinates, numbers, basis, wfn = load_fchk(context.get_fn('test/hf_sto3g.fchk'), lf)
+    coordinates, numbers, basis, wfn, permutation = load_fchk(context.get_fn('test/hf_sto3g.fchk'), lf)
     assert basis.nshell == 4
     assert basis.nbasis == 6
-    assert (basis._nprims == 3).all()
+    assert (basis.nprims == 3).all()
     assert len(coordinates) == len(numbers)
     assert coordinates.shape[1] == 3
     assert len(numbers) == 2
@@ -101,10 +101,10 @@ def test_load_fchk_hf_sto3g_num():
 
 def test_load_fchk_h_sto3g_num():
     lf = DenseLinalgFactory()
-    coordinates, numbers, basis, wfn = load_fchk(context.get_fn('test/h_sto3g.fchk'), lf)
+    coordinates, numbers, basis, wfn, permutation = load_fchk(context.get_fn('test/h_sto3g.fchk'), lf)
     assert basis.nshell == 1
     assert basis.nbasis == 1
-    assert (basis._nprims == 3).all()
+    assert (basis.nprims == 3).all()
     assert len(coordinates) == len(numbers)
     assert coordinates.shape[1] == 3
     assert len(numbers) == 1
@@ -112,7 +112,7 @@ def test_load_fchk_h_sto3g_num():
 
 def test_load_fchk_o2_cc_pvtz_pure_num():
     lf = DenseLinalgFactory()
-    coordinates, numbers, basis, wfn = load_fchk(context.get_fn('test/o2_cc_pvtz_pure.fchk'), lf)
+    coordinates, numbers, basis, wfn, permutation = load_fchk(context.get_fn('test/o2_cc_pvtz_pure.fchk'), lf)
     assert basis.nshell == 20
     assert basis.nbasis == 60
     assert len(coordinates) == len(numbers)
@@ -122,7 +122,7 @@ def test_load_fchk_o2_cc_pvtz_pure_num():
 
 def test_load_fchk_o2_cc_pvtz_cart_num():
     lf = DenseLinalgFactory()
-    coordinates, numbers, basis, wfn = load_fchk(context.get_fn('test/o2_cc_pvtz_cart.fchk'), lf)
+    coordinates, numbers, basis, wfn, permutation = load_fchk(context.get_fn('test/o2_cc_pvtz_cart.fchk'), lf)
     assert basis.nshell == 20
     assert basis.nbasis == 70
     assert len(coordinates) == len(numbers)
@@ -132,7 +132,7 @@ def test_load_fchk_o2_cc_pvtz_cart_num():
 
 def test_load_fchk_water_sto3g_hf():
     lf = DenseLinalgFactory()
-    coordinates, numbers, basis, wfn = load_fchk(context.get_fn('test/water_sto3g_hf_g03.fchk'), lf)
+    coordinates, numbers, basis, wfn, permutation = load_fchk(context.get_fn('test/water_sto3g_hf_g03.fchk'), lf)
     assert basis.nshell == 5
     assert basis.nbasis == 7
     assert len(coordinates) == len(numbers)

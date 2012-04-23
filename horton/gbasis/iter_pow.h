@@ -19,16 +19,18 @@
 //--
 
 
-#ifndef HORTON_CINTS_H
-#define HORTON_CINTS_H
+#ifndef HORTON_GBASIS_ITERPOW_H
+#define HORTON_GBASIS_ITERPOW_H
 
-long fac2(long n);
-long binom(long n, long m);
+int iter_pow1_inc(long* n);
 
-double gpt_coeff(long k, long n0, long n1, double pa, double pb);
-double gob_overlap_int1d(long n0, long n1, double pa, double pb, double gamma);
-
-double gob_overlap(double alpha0, long nx0, long ny0, long nz0, double *r0,
-                   double alpha1, long nx1, long ny1, long nz1, double *r1);
+class IterPow2 {
+    private:
+        long shell_type0, shell_type1, skip;
+    public:
+        void reset(long shell_type0, long shell_type1, long max_nbasis);
+        int inc();
+        long n0[3], n1[3], offset, ibasis0, ibasis1;
+    };
 
 #endif

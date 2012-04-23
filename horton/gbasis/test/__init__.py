@@ -18,14 +18,3 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-
-
-from horton.constants import *
-from horton.context import *
-from horton.gbasis import *
-from horton.io import *
-from horton.matrix import *
-from horton.periodic import *
-from horton.system import *
-from horton.units import *
-from horton.wfn import *

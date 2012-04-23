@@ -19,6 +19,26 @@
 #
 #--
 
-cdef extern from "cartpure.h":
-    void project_cartesian_to_pure(double *work_cart, double* work_pure, long
-        con_type, long stride, long spacing, long count)
+cdef extern from "gbasis.h":
+    cdef cppclass GBasis:
+        # Arrays that fully describe the basis set.
+        double* centers
+        long* shell_map
+        long* nprims
+        long* shell_types
+        double* alphas
+        double* con_coeffs
+        long ncenter, nshell, nprim_total
+
+        # Auxiliary bits
+        long get_nbasis()
+        long get_nscales()
+        long get_max_shell_nbasis()
+        double* get_scales(long iprim)
+
+    cdef cppclass GOBasis:
+        GOBasis(double* centers, long* shell_map, long* nprims,
+                long* shell_types, double* alphas, double* con_coeffs,
+                long ncenter, long nshell, long nprim_total)
+
+        void compute_gobasis_overlap(double* output)

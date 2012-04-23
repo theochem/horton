@@ -19,12 +19,39 @@
 //--
 
 
-#ifndef HORTON_CARTPURE_H
-#define HORTON_CARTPURE_H
+#include "common.h"
 
-#define MAX_CON_TYPE 9
 
-void project_cartesian_to_pure(double *work_cart, double* work_pure, long
-    con_type, long stride, long spacing, long count);
+long fac2(long n) {
+    long result = 1;
+    while (n > 1) {
+        result *= n;
+        n -= 2;
+    }
+    return result;
+}
 
-#endif
+
+long binom(long n, long m) {
+    long numer = 1, denom = 1;
+    while (n > m) {
+        numer *= n;
+        denom *= (n-m);
+        n--;
+    }
+    return numer/denom;
+}
+
+
+long get_shell_nbasis(long shell_type) {
+    if (shell_type > 0) {
+        // Cartesian
+        return (shell_type+1)*(shell_type+2)/2;
+    } else if (shell_type == -1) {
+        // should not happen.
+        return -1;
+    } else {
+        // Pure
+        return -2*shell_type+1;
+    }
+}

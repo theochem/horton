@@ -20,12 +20,26 @@
 #--
 
 
-from horton.constants import *
-from horton.context import *
-from horton.gbasis import *
-from horton.io import *
-from horton.matrix import *
-from horton.periodic import *
-from horton.system import *
-from horton.units import *
-from horton.wfn import *
+cimport gbasis
+
+
+cdef extern from "iter_gb.h":
+    cdef cppclass IterGB2:
+        IterGB2(gbasis.GBasis* gbasis)
+
+        bint inc_shell()
+        void update_shell()
+        bint inc_prim()
+        void update_prim()
+        void store(double *work, double *output)
+
+        # 'public' iterator fields
+        long shell_type0, shell_type1
+        double con_coeff, alpha0, alpha1
+        double *r0, *r1
+        double *scales0, *scales1
+        long ibasis0, ibasis1
+
+        # 'private' iterator fields
+        long ishell0, ishell1
+        long nprim0, nprim1, iprim0, iprim1, oprim0, oprim1

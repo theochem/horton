@@ -71,6 +71,8 @@ def main():
         '.',
         'horton',
         'horton/test',
+        'horton/gbasis',
+        'horton/gbasis/test',
     ]
 
     fixers = [
@@ -78,6 +80,7 @@ def main():
         ('.pxd', fix_python),
         ('.pyx', fix_python),
         ('.c', fix_c),
+        ('.cpp', fix_c),
         ('.h', fix_c),
     ]
 
