@@ -45,45 +45,68 @@ def check_water(system):
     assert abs(np.linalg.norm(system.coordinates[2] - system.coordinates[1])/angstrom - 0.96) < 1e-5
 
 
-def test_overlap_water_sto3g_hf():
-    sys1 = System.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'), context.get_fn('test/water_sto3g_hf_g03.log'))
-    sys2 = System.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+
+def check_overlap(fn_fchk):
+    fn_log = fn_fchk[:-5] + '.log'
+    sys1 = System.from_file(fn_fchk, fn_log)
+    sys2 = System.from_file(fn_fchk)
     sys2.init_overlap()
-    print sys1.operators['olp']._array
-    print sys2.operators['olp']._array
-    error = abs(sys1.operators['olp']._array - sys2.operators['olp']._array).max()
-    assert error < 1e-6
+    mask = abs(sys1.operators['olp']._array) > 1e-5
+    delta = sys1.operators['olp']._array - sys2.operators['olp']._array
+    expect = sys1.operators['olp']._array
+    error = (delta[mask]/expect[mask]).max()
+    assert error < 1e-5
+
+
+def test_overlap_water_sto3g_hf():
+    check_overlap(context.get_fn('test/water_sto3g_hf_g03.fchk'))
 
 
 def test_overlap_water_ccpvdz_pure_hf():
-    sys1 = System.from_file(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'), context.get_fn('test/water_ccpvdz_pure_hf_g03.log'))
-    sys2 = System.from_file(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'))
-    sys2.init_overlap()
-    error = abs(sys1.operators['olp']._array - sys2.operators['olp']._array).max()
-    assert error < 1e-6
+    check_overlap(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'))
 
 
 def test_overlap_water_ccpvdz_cart_hf():
-    sys1 = System.from_file(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'), context.get_fn('test/water_ccpvdz_cart_hf_g03.log'))
-    sys2 = System.from_file(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'))
-    sys2.init_overlap()
-    error = abs(sys1.operators['olp']._array - sys2.operators['olp']._array).max()
-    assert error < 1e-6
+    check_overlap(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'))
 
 
 def test_overlap_co_ccpv5z_pure_hf():
-    sys1 = System.from_file(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'), context.get_fn('test/co_ccpv5z_pure_hf_g03.log'))
-    sys2 = System.from_file(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'))
-    sys2.init_overlap()
-    delta = sys1.operators['olp']._array - sys2.operators['olp']._array
-    error = abs(sys1.operators['olp']._array - sys2.operators['olp']._array).max()
-    assert error < 1e-6
+    check_overlap(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'))
 
 
 def test_overlap_co_ccpv5z_cart_hf():
-    sys1 = System.from_file(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'), context.get_fn('test/co_ccpv5z_cart_hf_g03.log'))
-    sys2 = System.from_file(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
-    sys2.init_overlap()
-    delta = sys1.operators['olp']._array - sys2.operators['olp']._array
-    error = abs(sys1.operators['olp']._array - sys2.operators['olp']._array).max()
-    assert error < 1e-6
+    check_overlap(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
+
+
+
+
+def check_kinetic(fn_fchk):
+    fn_log = fn_fchk[:-5] + '.log'
+    sys1 = System.from_file(fn_fchk, fn_log)
+    sys2 = System.from_file(fn_fchk)
+    sys2.init_kinetic()
+    mask = abs(sys1.operators['kin']._array) > 1e-5
+    delta = sys1.operators['kin']._array - sys2.operators['kin']._array
+    expect = sys1.operators['kin']._array
+    error = (delta[mask]/expect[mask]).max()
+    assert error < 1e-5
+
+
+def test_kinetic_water_sto3g_hf():
+    check_kinetic(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+
+
+def test_kinetic_water_ccpvdz_pure_hf():
+    check_kinetic(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'))
+
+
+def test_kinetic_water_ccpvdz_cart_hf():
+    check_kinetic(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'))
+
+
+def test_kinetic_co_ccpv5z_pure_hf():
+    check_kinetic(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'))
+
+
+def test_kinetic_co_ccpv5z_cart_hf():
+    check_kinetic(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))

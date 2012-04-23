@@ -182,3 +182,58 @@ void GB2OverlapIntegral::add(double coeff, double alpha0, double alpha1, const d
         );
     } while (i2p.inc());
 }
+
+
+/*
+
+   GB2KineticIntegral
+
+*/
+
+
+double kinetic_helper(double alpha0, double alpha1, long n0, long n1, double pa, double pb, double gamma_inv) {
+    double poly = 0;
+
+    if (n0 > 0) {
+        if (n1 > 0) {
+            // <-1|-1>
+            poly += 0.5*n0*n1*gb_overlap_int1d(n0-1, n1-1, pa, pb, gamma_inv);
+        }
+        // <-1|+1>
+        poly -= alpha1*n0*gb_overlap_int1d(n0-1, n1+1, pa, pb, gamma_inv);
+    }
+    if (n1 > 0) {
+        // <+1|-1>
+        poly -= alpha0*n1*gb_overlap_int1d(n0+1, n1-1, pa, pb, gamma_inv);
+    }
+    // <+1|+1>
+    poly += 2.0*alpha0*alpha1*gb_overlap_int1d(n0+1, n1+1, pa, pb, gamma_inv);
+
+    return poly;
+}
+
+void GB2KineticIntegral::add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1) {
+    double pre, gamma_inv, poly, fx0, fy0, fz0;
+    double gpt_center[3], pa[3], pb[3];
+
+    gamma_inv = 1.0/(alpha0 + alpha1);
+    pre = coeff*exp(-alpha0*alpha1*gamma_inv*dist_sq(r0, r1));
+    compute_gpt_center(alpha0, r0, alpha1, r1, gamma_inv, gpt_center);
+    pa[0] = gpt_center[0] - r0[0];
+    pa[1] = gpt_center[1] - r0[1];
+    pa[2] = gpt_center[2] - r0[2];
+    pb[0] = gpt_center[0] - r1[0];
+    pb[1] = gpt_center[1] - r1[1];
+    pb[2] = gpt_center[2] - r1[2];
+
+    i2p.reset(abs(shell_type0), abs(shell_type1), max_nbasis);
+    do {
+        fx0 = gb_overlap_int1d(i2p.n0[0], i2p.n1[0], pa[0], pb[0], gamma_inv);
+        fy0 = gb_overlap_int1d(i2p.n0[1], i2p.n1[1], pa[1], pb[1], gamma_inv);
+        fz0 = gb_overlap_int1d(i2p.n0[2], i2p.n1[2], pa[2], pb[2], gamma_inv);
+        poly = fy0*fz0*kinetic_helper(alpha0, alpha1, i2p.n0[0], i2p.n1[0], pa[0], pb[0], gamma_inv) +
+               fz0*fx0*kinetic_helper(alpha0, alpha1, i2p.n0[1], i2p.n1[1], pa[1], pb[1], gamma_inv) +
+               fx0*fy0*kinetic_helper(alpha0, alpha1, i2p.n0[2], i2p.n1[2], pa[2], pb[2], gamma_inv);
+        work_cart[i2p.offset] += pre*scales0[i2p.ibasis0]*scales1[i2p.ibasis1]*poly;
+    } while (i2p.inc());
+}

@@ -34,3 +34,14 @@ cdef extern from "ints.h":
         long get_shell_type0()
         long get_shell_type1()
         double* get_work()
+
+    cdef cppclass GB2KineticIntegral:
+        GB2KineticIntegral(long max_nbasis)
+        long get_max_nbasis()
+        void reset(long shell_type0, long shell_type1, double* r0, double* r1)
+        void add(double coeff, double alpha0, double alpha1, double* scales0, double* scales1)
+        void cart_to_pure()
+
+        long get_shell_type0()
+        long get_shell_type1()
+        double* get_work()

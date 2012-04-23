@@ -175,3 +175,8 @@ class System(object):
         overlap = self.lf.create_one_body(self.basis.nbasis)
         self.basis.compute_overlap(overlap)
         self.add_operator('olp', overlap)
+
+    def init_kinetic(self):
+        kinetic = self.lf.create_one_body(self.basis.nbasis)
+        self.basis.compute_kinetic(kinetic)
+        self.add_operator('kin', kinetic)

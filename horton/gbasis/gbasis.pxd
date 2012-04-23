@@ -42,3 +42,4 @@ cdef extern from "gbasis.h":
                 long ncenter, long nshell, long nprim_total)
 
         void compute_gobasis_overlap(double* output)
+        void compute_gobasis_kinetic(double* output)
