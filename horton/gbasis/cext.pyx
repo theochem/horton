@@ -36,7 +36,8 @@ __all__ = [
     'cart_to_pure_low',
     'fac2', 'binom', 'get_shell_nbasis',
     'GOBasis',
-    'gpt_coeff', 'gb_overlap_int1d', 'GB2OverlapIntegral', 'gob_normalization',
+    'gpt_coeff', 'gb_overlap_int1d', 'GB2OverlapIntegral', 'GB2KineticIntegral',
+    'gob_normalization',
     'IterGB2',
     'iter_pow1_inc', 'IterPow2',
 ]
@@ -349,12 +350,10 @@ def gob_normalization(double alpha, np.ndarray[long, ndim=1] n):
     return ints.gob_normalization(alpha, <long*>n.data)
 
 
-cdef class GB2OverlapIntegral:
-    '''Wrapper for ints.GB2OverlapIntegral, for testing only'''
-    cdef ints.GB2OverlapIntegral* _this
+cdef class GB2Integral:
+    '''Wrapper for ints.GB2Integral, for testing only'''
+    cdef ints.GB2Integral* _this
 
-    def __cinit__(self, long max_nbasis):
-        self._this = new ints.GB2OverlapIntegral(max_nbasis)
 
     def __dealloc__(self):
         del self._this
@@ -395,6 +394,20 @@ cdef class GB2OverlapIntegral:
         shape[1] = self.max_nbasis
         tmp = np.PyArray_SimpleNewFromData(2, shape, np.NPY_DOUBLE, <void*> self._this.get_work())
         return tmp.copy()
+
+
+cdef class GB2OverlapIntegral(GB2Integral):
+    '''Wrapper for ints.GB2OverlapIntegral, for testing only'''
+
+    def __cinit__(self, long max_nbasis):
+        self._this = <ints.GB2Integral*>(new ints.GB2OverlapIntegral(max_nbasis))
+
+
+cdef class GB2KineticIntegral(GB2Integral):
+    '''Wrapper for ints.GB2OverlapIntegral, for testing only'''
+
+    def __cinit__(self, long max_nbasis):
+        self._this = <ints.GB2Integral*>(new ints.GB2KineticIntegral(max_nbasis))
 
 
 #
