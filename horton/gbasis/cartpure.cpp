@@ -19,6 +19,7 @@
 //--
 
 
+#include <stdexcept>
 #include "cartpure.h"
 
 
@@ -663,8 +664,6 @@ const static type_sparse_tf cptf[MAX_SHELL_TYPE+1] = {
     {70, cptf6}, {102, cptf7}, {141, cptf8}, {187, cptf9}
 };
 
-const static bad_shell_type_exception bad_shell_type = bad_shell_type_exception();
-
 
 void cart_to_pure_low(double *work_cart, double* work_pure, long
     shell_type, long stride, long spacing, long count) {
@@ -674,7 +673,7 @@ void cart_to_pure_low(double *work_cart, double* work_pure, long
     const type_sparse_el* el;
 
     if ((shell_type>MAX_SHELL_TYPE) || (shell_type<0)) {
-        throw bad_shell_type;
+        throw std::domain_error("The shell type must be in the interval [0,9].");
     }
 
     npure = 2*shell_type+1;
