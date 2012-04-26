@@ -20,6 +20,7 @@
 
 
 #include <stdexcept>
+#include "common.h"
 #include "cartpure.h"
 
 

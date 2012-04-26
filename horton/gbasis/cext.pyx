@@ -36,7 +36,7 @@ cimport iter_pow
 __all__ = [
     'boys_function',
     'cart_to_pure_low',
-    'fac2', 'binom', 'get_shell_nbasis',
+    'fac2', 'binom', 'get_shell_nbasis', 'get_max_shell_type',
     'GOBasis',
     'gpt_coeff', 'gb_overlap_int1d', 'GB2OverlapIntegral', 'GB2KineticIntegral',
     'gob_normalization',
@@ -89,6 +89,9 @@ def get_shell_nbasis(long shell_type):
         raise ValueError("shell_type -1 is not supported.")
     return result
 
+
+def get_max_shell_type():
+    return common.get_max_shell_type()
 
 #
 # gbasis wrappers

@@ -55,3 +55,8 @@ long get_shell_nbasis(long shell_type) {
         return -2*shell_type+1;
     }
 }
+
+
+long get_max_shell_type() {
+    return MAX_SHELL_TYPE;
+}

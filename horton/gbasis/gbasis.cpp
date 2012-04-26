@@ -20,6 +20,7 @@
 
 
 #include <cmath>
+#include <stdexcept>
 #include "gbasis.h"
 #include "common.h"
 #include "iter_gb.h"
@@ -41,7 +42,12 @@ GBasis::GBasis(const double* centers, const long* shell_map, const long* nprims,
 {
     long shell_nbasis;
 
-    // TODO: first check the maximum supported shell type.
+    // check for maximum shell type
+    for (long ishell=0; ishell<nshell; ishell++) {
+        if (abs(shell_types[ishell]) > MAX_SHELL_TYPE) {
+            throw std::domain_error("Exceeded the maximum shell type.");
+        }
+    }
 
     // basis_offsets
     basis_offsets = new long[nshell];

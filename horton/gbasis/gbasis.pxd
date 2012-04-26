@@ -39,7 +39,7 @@ cdef extern from "gbasis.h":
     cdef cppclass GOBasis:
         GOBasis(double* centers, long* shell_map, long* nprims,
                 long* shell_types, double* alphas, double* con_coeffs,
-                long ncenter, long nshell, long nprim_total)
+                long ncenter, long nshell, long nprim_total) except +
 
         void compute_gobasis_overlap(double* output)
         void compute_gobasis_kinetic(double* output)

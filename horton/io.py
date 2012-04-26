@@ -413,18 +413,24 @@ def load_fchk(filename, lf):
 
     # permutation of the basis functions
     permutation_rules = {
-      -6: np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]),
-      -5: np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
-      -4: np.array([0, 1, 2, 3, 4, 5, 6, 7, 8]),
-      -3: np.array([0, 1, 2, 3, 4, 5, 6]),
-      -2: np.array([0, 1, 2, 3, 4]),
+      -9: np.arange(19),
+      -8: np.arange(17),
+      -7: np.arange(15),
+      -6: np.arange(13),
+      -5: np.arange(11),
+      -4: np.arange(9),
+      -3: np.arange(7),
+      -2: np.arange(5),
        0: np.array([0]),
-       1: np.array([0, 1, 2]),
+       1: np.arange(3),
        2: np.array([0, 3, 4, 1, 5, 2]),
        3: np.array([0, 4, 5, 3, 9, 6, 1, 8, 7, 2]),
        4: np.arange(15)[::-1],
        5: np.arange(21)[::-1],
        6: np.arange(28)[::-1],
+       7: np.arange(36)[::-1],
+       8: np.arange(45)[::-1],
+       9: np.arange(55)[::-1],
     }
     offset = 0
     permutation = []
