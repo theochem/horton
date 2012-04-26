@@ -41,6 +41,8 @@ GBasis::GBasis(const double* centers, const long* shell_map, const long* nprims,
 {
     long shell_nbasis;
 
+    // TODO: first check the maximum supported shell type.
+
     // basis_offsets
     basis_offsets = new long[nshell];
     basis_offsets[0] = 0;

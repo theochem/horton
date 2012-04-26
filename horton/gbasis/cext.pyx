@@ -64,8 +64,6 @@ def cart_to_pure_low(np.ndarray[double] work_cart,
                      long stride, long spacing, long count):
     assert work_cart.flags['C_CONTIGUOUS']
     assert work_pure.flags['C_CONTIGUOUS']
-    assert shell_type >= 0
-    assert shell_type <= 9
     cartpure.cart_to_pure_low(
         <double*> work_cart.data, <double*> work_pure.data, shell_type, stride,
         spacing, count
