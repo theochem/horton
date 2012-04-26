@@ -34,7 +34,7 @@ install relatively recent versions of the following programs/libraries:
 * Python < 3.0: http://www.python.org/ (also install `development files`)
 * Numpy > 1.0: http://www.scipy.org/
 * Scipy >= 0.10.0: http://www.scipy.org/
-* Cython >= 0.14.1 : http://www.cython.org/
+* Cython >= 0.15.1 : http://www.cython.org/
 * Sphinx > 1.0: http://sphinx.pocoo.org/
 
 On a decent operating system, these programs/libraries can be easily installed
