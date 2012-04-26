@@ -24,6 +24,7 @@ import numpy as np
 cimport numpy as np
 np.import_array()
 
+cimport boys
 cimport cartpure
 cimport common
 cimport gbasis
@@ -33,6 +34,7 @@ cimport iter_pow
 
 
 __all__ = [
+    'boys_function',
     'cart_to_pure_low',
     'fac2', 'binom', 'get_shell_nbasis',
     'GOBasis',
@@ -41,6 +43,15 @@ __all__ = [
     'IterGB2',
     'iter_pow1_inc', 'IterPow2',
 ]
+
+
+#
+# boys wrappers (for testing only)
+#
+
+
+def boys_function(long m, double t):
+    return boys.boys_function(m, t)
 
 
 #
@@ -332,7 +343,7 @@ cdef class GOBasis(GBasis):
 
 
 #
-# ints wrappers
+# ints wrappers (for testing only)
 #
 
 
@@ -411,7 +422,7 @@ cdef class GB2KineticIntegral(GB2Integral):
 
 
 #
-# iter_gb wrappers
+# iter_gb wrappers (for testing only)
 #
 
 
@@ -471,7 +482,7 @@ cdef class IterGB2:
 
 
 #
-# iter_pow wrappers
+# iter_pow wrappers (for testing only)
 #
 
 
