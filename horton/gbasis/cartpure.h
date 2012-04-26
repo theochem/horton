@@ -23,9 +23,6 @@
 #define HORTON_GBASIS_CARTPURE_H
 
 
-// TODO: this has to move to common and should be used also by boys.*
-#define MAX_SHELL_TYPE 9
-
 void cart_to_pure_low(double *work_cart, double* work_pure, long
     shell_type, long stride, long spacing, long count);
 

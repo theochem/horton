@@ -108,3 +108,22 @@ def test_gobasis_consistency():
         assert False
     except TypeError:
         pass
+    con_coeffs = np.random.uniform(-1, 1, nprims.sum())
+
+    # Exceeding the maximym shell type (above):
+    shell_types[0] = get_max_shell_type()+1
+    try:
+        i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
+        assert False
+    except ValueError:
+        pass
+    shell_types[0] = 2
+
+    # Exceeding the maximym shell type (below):
+    shell_types[0] = -get_max_shell_type()-1
+    try:
+        i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
+        assert False
+    except ValueError:
+        pass
+    shell_types[0] = 2

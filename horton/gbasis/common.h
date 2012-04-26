@@ -22,8 +22,13 @@
 #ifndef HORTON_GBASIS_COMMON_H
 #define HORTON_GBASIS_COMMON_H
 
+
+#define MAX_SHELL_TYPE 9
+
+
 long fac2(long n);
 long binom(long n, long m);
 long get_shell_nbasis(long shell_type);
+long get_max_shell_type();
 
 #endif

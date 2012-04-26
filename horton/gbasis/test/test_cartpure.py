@@ -156,7 +156,7 @@ def test_cart_pure_domain():
     work_cart = np.random.normal(0, 1, (3,70))
     work_pure = np.random.normal(0, 1, (3,70))
     try:
-        cart_to_pure_low(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=10, stride=70, spacing=1, count=3)
+        cart_to_pure_low(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=get_max_shell_type()+1, stride=70, spacing=1, count=3)
         assert False
     except ValueError:
         pass
