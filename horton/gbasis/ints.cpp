@@ -20,6 +20,7 @@
 
 
 #include <cmath>
+#include <stdexcept>
 #include <cstring>
 #include "boys.h"
 #include "cartpure.h"
@@ -109,7 +110,11 @@ const double gob_normalization(const double alpha, const long* n) {
 */
 
 
-GB2Integral::GB2Integral(long max_nbasis): max_nbasis(max_nbasis) {
+GB2Integral::GB2Integral(long max_shell_type): max_shell_type(max_shell_type) {
+    if (max_shell_type < 0) {
+        throw std::domain_error("max_shell_type must be positive.");
+    }
+    max_nbasis = get_shell_nbasis(max_shell_type);
     nwork = max_nbasis*max_nbasis;
     work_cart = new double[nwork*sizeof(double)];
     work_pure = new double[nwork*sizeof(double)];
@@ -118,10 +123,6 @@ GB2Integral::GB2Integral(long max_nbasis): max_nbasis(max_nbasis) {
 GB2Integral::~GB2Integral() {
     delete[] work_cart;
     delete[] work_pure;
-}
-
-long GB2Integral::get_max_nbasis() {
-    return max_nbasis;
 }
 
 void GB2Integral::reset(long _shell_type0, long _shell_type1, const double* _r0, const double* _r1) {
@@ -260,15 +261,13 @@ void GB2KineticIntegral::add(double coeff, double alpha0, double alpha1, const d
 */
 
 
-GB2NuclearAttractionIntegral::GB2NuclearAttractionIntegral(long max_nbasis, double* charges, double* centers, long ncharge) :
-            GB2Integral(max_nbasis), charges(charges), centers(centers), ncharge(ncharge) {
-    // inverse of nbasis = ((max_shell_type+1)*(max_shell_type+2))/2
-    // TODO. Replace max_nbasis by max_shell_type in all Integral classes.
-    max_shell_type = (long)((sqrt(1+8*max_nbasis) - 3)/2);
-    work_g0 = new double[2*max_shell_type];
-    work_g1 = new double[2*max_shell_type];
-    work_g2 = new double[2*max_shell_type];
-    work_boys = new double[2*max_shell_type];
+GB2NuclearAttractionIntegral::GB2NuclearAttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge) :
+            GB2Integral(max_shell_type), charges(charges), centers(centers), ncharge(ncharge) {
+    // TODO: run tests with bounds checking
+    work_g0 = new double[2*max_shell_type+1];
+    work_g1 = new double[2*max_shell_type+1];
+    work_g2 = new double[2*max_shell_type+1];
+    work_boys = new double[2*max_shell_type+1];
 }
 
 

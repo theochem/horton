@@ -33,7 +33,7 @@ cdef extern from "gbasis.h":
         # Auxiliary bits
         long get_nbasis()
         long get_nscales()
-        long get_max_shell_nbasis()
+        long get_max_shell_type()
         double* get_scales(long iprim)
 
     cdef cppclass GOBasis:

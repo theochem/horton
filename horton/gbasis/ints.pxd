@@ -25,6 +25,7 @@ cdef extern from "ints.h":
     double gob_normalization(double alpha, long* n)
 
     cdef cppclass GB2Integral:
+        long get_max_shell_type()
         long get_max_nbasis()
         void reset(long shell_type0, long shell_type1, double* r0, double* r1)
         void add(double coeff, double alpha0, double alpha1, double* scales0, double* scales1)
@@ -35,12 +36,12 @@ cdef extern from "ints.h":
         double* get_work()
 
     cdef cppclass GB2OverlapIntegral:
-        GB2OverlapIntegral(long max_nbasis)
+        GB2OverlapIntegral(long max_shell_type)
 
     cdef cppclass GB2KineticIntegral:
-        GB2KineticIntegral(long max_nbasis)
+        GB2KineticIntegral(long max_shell_type)
 
     void nuclear_attraction_helper(double* work_g, long n0, long n1, double pa, double pb, double cp, double gamma_inv)
 
     cdef cppclass GB2NuclearAttractionIntegral:
-        GB2NuclearAttractionIntegral(long max_nbasis, double* charges, double* centers, long ncharge)
+        GB2NuclearAttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge)

@@ -32,15 +32,16 @@ class GB2Integral {
     private:
         void swap_work();
     protected:
-        long nwork, max_nbasis;
+        long nwork, max_shell_type, max_nbasis;
         long shell_type0, shell_type1;
         double *work_pure, *work_cart;
         const double *r0, *r1;
         IterPow2 i2p;
     public:
-        GB2Integral(long max_nbasis);
+        GB2Integral(long max_shell_type);
         ~GB2Integral();
-        long get_max_nbasis();
+        const long get_max_shell_type() const {return max_shell_type;};
+        const long get_max_nbasis() const {return max_nbasis;};
         void reset(long shell_type0, long shell_type1, const double* r0, const double* r1);
         virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1) = 0;
         void cart_to_pure();
@@ -53,14 +54,14 @@ class GB2Integral {
 
 class GB2OverlapIntegral: public GB2Integral {
     public:
-        GB2OverlapIntegral(long max_nbasis) : GB2Integral(max_nbasis) {}
+        GB2OverlapIntegral(long max_shell_type) : GB2Integral(max_shell_type) {}
         virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
     };
 
 
 class GB2KineticIntegral: public GB2Integral {
     public:
-        GB2KineticIntegral(long max_nbasis) : GB2Integral(max_nbasis) {}
+        GB2KineticIntegral(long max_shell_type) : GB2Integral(max_shell_type) {}
         virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
     };
 
@@ -73,13 +74,12 @@ class GB2NuclearAttractionIntegral: public GB2Integral {
         double* centers;
         long ncharge;
 
-        long max_shell_type;
         double* work_g0;
         double* work_g1;
         double* work_g2;
         double* work_boys;
     public:
-        GB2NuclearAttractionIntegral(long max_nbasis, double* charges, double* centers, long ncharge);
+        GB2NuclearAttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge);
         ~GB2NuclearAttractionIntegral();
         virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
     };

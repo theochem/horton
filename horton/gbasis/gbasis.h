@@ -31,7 +31,7 @@ class GBasis {
         long* scales_offsets;
         double* scales; // pre-computed normalization constants.
         long nbasis, nscales;
-        long max_shell_nbasis;
+        long max_shell_type;
 
     public:
         // Arrays that fully describe the basis set.
@@ -53,7 +53,7 @@ class GBasis {
 
         const long get_nbasis() const {return nbasis;};
         const long get_nscales() const {return nscales;};
-        const long get_max_shell_nbasis() const {return max_shell_nbasis;};
+        const long get_max_shell_type() const {return max_shell_type;};
         const long* get_basis_offsets() const {return basis_offsets;};
         const double* get_scales(long iprim) const {return scales + scales_offsets[iprim];};
     };

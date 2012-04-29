@@ -274,7 +274,8 @@ def test_itergb2_store():
     i2.update_shell()
     i2.update_prim()
     #
-    tmp = np.random.uniform(-1, 1, (gobasis.max_shell_nbasis, gobasis.max_shell_nbasis))
+    max_shell_nbasis = get_shell_nbasis(gobasis.max_shell_type)
+    tmp = np.random.uniform(-1, 1, (max_shell_nbasis, max_shell_nbasis))
     work = tmp + tmp.T
     output = np.zeros((29, 29), float)
     i2.store(work, output)
@@ -282,7 +283,7 @@ def test_itergb2_store():
     assert abs(output[6:,:]).max() == 0
     assert abs(output[:,6:]).max() == 0
     #
-    work = np.random.uniform(-1, 1, (gobasis.max_shell_nbasis, gobasis.max_shell_nbasis))
+    work = np.random.uniform(-1, 1, (max_shell_nbasis, max_shell_nbasis))
     output[:] = 0
     i2.inc_shell()
     i2.inc_shell()
