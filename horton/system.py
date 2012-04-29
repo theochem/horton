@@ -180,3 +180,8 @@ class System(object):
         kinetic = self.lf.create_one_body(self.basis.nbasis)
         self.basis.compute_kinetic(kinetic)
         self.add_operator('kin', kinetic)
+
+    def init_nuclear_attraction(self, charges, centers):
+        nuclear_attraction = self.lf.create_one_body(self.basis.nbasis)
+        self.basis.compute_nuclear_attraction(charges, centers, nuclear_attraction)
+        self.add_operator('na', nuclear_attraction)

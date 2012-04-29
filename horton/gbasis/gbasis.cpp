@@ -98,7 +98,7 @@ void GBasis::init_scales() {
     }
 }
 
-void GBasis::compute_gobasis_one_body(double* output, GB2Integral* integral) {
+void GBasis::compute_one_body(double* output, GB2Integral* integral) {
     /*
         TODO
              When multiple different memory storage schemes are implemented for
@@ -133,12 +133,17 @@ const double GOBasis::normalization(const double alpha, const long* n) const {
     return gob_normalization(alpha, n);
 }
 
-void GOBasis::compute_gobasis_overlap(double* output) {
+void GOBasis::compute_overlap(double* output) {
     GB2OverlapIntegral integral = GB2OverlapIntegral(get_max_shell_nbasis());
-    compute_gobasis_one_body(output, &integral);
+    compute_one_body(output, &integral);
 }
 
-void GOBasis::compute_gobasis_kinetic(double* output) {
+void GOBasis::compute_kinetic(double* output) {
     GB2KineticIntegral integral = GB2KineticIntegral(get_max_shell_nbasis());
-    compute_gobasis_one_body(output, &integral);
+    compute_one_body(output, &integral);
+}
+
+void GOBasis::compute_nuclear_attraction(double* charges, double* centers, long ncharge, double* output) {
+    GB2NuclearAttractionIntegral integral = GB2NuclearAttractionIntegral(get_max_shell_nbasis(), charges, centers, ncharge);
+    compute_one_body(output, &integral);
 }

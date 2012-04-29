@@ -41,5 +41,6 @@ cdef extern from "gbasis.h":
                 long* shell_types, double* alphas, double* con_coeffs,
                 long ncenter, long nshell, long nprim_total) except +
 
-        void compute_gobasis_overlap(double* output)
-        void compute_gobasis_kinetic(double* output)
+        void compute_overlap(double* output)
+        void compute_kinetic(double* output)
+        void compute_nuclear_attraction(double* charges, double* centers, long ncharge, double* output)

@@ -22,6 +22,16 @@
 #include "common.h"
 
 
+long fac(long n) {
+    long result = 1;
+    while (n > 1) {
+        result *= n;
+        n--;
+    }
+    return result;
+}
+
+
 long fac2(long n) {
     long result = 1;
     while (n > 1) {

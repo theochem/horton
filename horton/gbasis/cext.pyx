@@ -34,13 +34,21 @@ cimport iter_pow
 
 
 __all__ = [
+    # boys
     'boys_function',
+    # cartpure
     'cart_to_pure_low',
-    'fac2', 'binom', 'get_shell_nbasis', 'get_max_shell_type',
+    # common
+    'fac', 'fac2', 'binom', 'get_shell_nbasis', 'get_max_shell_type',
+    # gbasis
     'GOBasis',
+    # ints
     'gpt_coeff', 'gb_overlap_int1d', 'GB2OverlapIntegral', 'GB2KineticIntegral',
+    'nuclear_attraction_helper', 'GB2NuclearAttractionIntegral',
     'gob_normalization',
+    # iter_gb
     'IterGB2',
+    # iter_pow
     'iter_pow1_inc', 'IterPow2',
 ]
 
@@ -73,6 +81,10 @@ def cart_to_pure_low(np.ndarray[double] work_cart,
 #
 # common wrappers
 #
+
+
+def fac(long n):
+    return common.fac(n)
 
 
 def fac2(long n):
@@ -334,13 +346,28 @@ cdef class GOBasis(GBasis):
         cdef np.ndarray output = overlap._array
         self.check_matrix(output)
         gobasis = <gbasis.GOBasis*>self._this
-        (<gbasis.GOBasis*>self._this).compute_gobasis_overlap(<double*>output.data)
+        (<gbasis.GOBasis*>self._this).compute_overlap(<double*>output.data)
 
-    def compute_kinetic(self, overlap):
-        """Compute the kintic energy matrix in a Gaussian orbital basis."""
-        cdef np.ndarray output = overlap._array
+    def compute_kinetic(self, kinetic):
+        """Compute the kinetic energy matrix in a Gaussian orbital basis."""
+        cdef np.ndarray output = kinetic._array
         self.check_matrix(output)
-        (<gbasis.GOBasis*>self._this).compute_gobasis_kinetic(<double*>output.data)
+        (<gbasis.GOBasis*>self._this).compute_kinetic(<double*>output.data)
+
+    def compute_nuclear_attraction(self, np.ndarray[double, ndim=1] charges,
+                                   np.ndarray[double, ndim=2] centers,
+                                   nuclear_attraction):
+        """Compute the kintic energy matrix in a Gaussian orbital basis."""
+        cdef np.ndarray output = nuclear_attraction._array
+        self.check_matrix(output)
+        assert charges.flags['C_CONTIGUOUS']
+        cdef long ncharge = charges.shape[0]
+        assert centers.flags['C_CONTIGUOUS']
+        assert centers.shape[0] == ncharge
+        (<gbasis.GOBasis*>self._this).compute_nuclear_attraction(
+            <double*>charges.data, <double*>centers.data, ncharge,
+            <double*>output.data
+        )
 
 
 #
@@ -420,6 +447,32 @@ cdef class GB2KineticIntegral(GB2Integral):
 
     def __cinit__(self, long max_nbasis):
         self._this = <ints.GB2Integral*>(new ints.GB2KineticIntegral(max_nbasis))
+
+
+def nuclear_attraction_helper(np.ndarray[double, ndim=1] work_g, long n0,
+                              long n1, double pa, double pb, double cp,
+                              double gamma_inv):
+    assert work_g.flags['C_CONTIGUOUS']
+    assert work_g.shape[0] == n0+n1+1
+    ints.nuclear_attraction_helper(<double*>work_g.data, n0, n1, pa, pb, cp, gamma_inv)
+
+
+cdef class GB2NuclearAttractionIntegral(GB2Integral):
+    '''Wrapper for ints.GB2NuclearAttractionIntegral, for testing only'''
+    # make an additional reference to these arguments to avoid deallocation
+    cdef np.ndarray _charges
+    cdef np.ndarray _centers
+
+    def __cinit__(self, long max_nbasis, np.ndarray[double, ndim=1] charges, np.ndarray[double, ndim=2] centers):
+        assert charges.flags['C_CONTIGUOUS']
+        cdef long ncharge = charges.shape[0]
+        assert centers.flags['C_CONTIGUOUS']
+        assert centers.shape[0] == ncharge
+        self._charges = charges
+        self._centers = centers
+        self._this = <ints.GB2Integral*>(new ints.GB2NuclearAttractionIntegral(
+            max_nbasis, <double*>charges.data, <double*>centers.data, ncharge
+        ))
 
 
 #

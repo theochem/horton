@@ -64,4 +64,24 @@ class GB2KineticIntegral: public GB2Integral {
         virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
     };
 
+
+void nuclear_attraction_helper(double* work_g, long n0, long n1, double pa, double pb, double cp, double gamma_inv);
+
+class GB2NuclearAttractionIntegral: public GB2Integral {
+    private:
+        double* charges;
+        double* centers;
+        long ncharge;
+
+        long max_shell_type;
+        double* work_g0;
+        double* work_g1;
+        double* work_g2;
+        double* work_boys;
+    public:
+        GB2NuclearAttractionIntegral(long max_nbasis, double* charges, double* centers, long ncharge);
+        ~GB2NuclearAttractionIntegral();
+        virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
+    };
+
 #endif

@@ -20,9 +20,37 @@
 #--
 
 
-cdef extern from "common.h":
-    long fac(long n)
-    long fac2(long n)
-    long binom(long n, long m)
-    long get_shell_nbasis(long shell_type)
-    long get_max_shell_type()
+from horton import *
+
+
+def test_fac():
+    assert fac(-20) == 1
+    assert fac(0) == 1
+    assert fac(1) == 1
+    assert fac(2) == 2
+    assert fac(3) == 6
+    assert fac(4) == 24
+    assert fac(5) == 120
+    assert fac(10) == 3628800
+
+
+def test_fac2():
+    assert fac2(-20) == 1
+    assert fac2(0) == 1
+    assert fac2(1) == 1
+    assert fac2(2) == 2
+    assert fac2(3) == 3
+    assert fac2(4) == 8
+    assert fac2(5) == 15
+
+
+def test_binom():
+    assert binom(1,1) == 1
+    assert binom(5,3) == 10
+    assert binom(3,2) == 3
+    assert binom(10,4) == 210
+    assert binom(18,14) == 3060
+    assert binom(5, 1) == 5
+    assert binom(5, 0) == 1
+    assert binom(0, 0) == 1
+    assert binom(5, 5) == 1
