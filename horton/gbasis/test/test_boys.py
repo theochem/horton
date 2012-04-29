@@ -340,7 +340,6 @@ def test_boys_functions():
     errors = (result[big_mask] - check[big_mask])/check[big_mask]
     max_error = abs(errors).max()
     rms_error = np.sqrt((errors**2).mean())
-    print max_error, rms_error
     assert max_error < 1e-15
     assert rms_error < 1e-15
 
@@ -349,7 +348,6 @@ def test_boys_functions():
     errors = result[small_mask] - check[small_mask]
     max_error = abs(errors).max()
     rms_error = np.sqrt((errors**2).mean())
-    print max_error, rms_error
     assert max_error < 1e-16
     assert rms_error < 1e-16
 

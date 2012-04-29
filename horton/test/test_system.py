@@ -110,3 +110,39 @@ def test_kinetic_co_ccpv5z_pure_hf():
 
 def test_kinetic_co_ccpv5z_cart_hf():
     check_kinetic(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
+
+
+def check_nuclear_attraction(fn_fchk):
+    fn_log = fn_fchk[:-5] + '.log'
+    sys1 = System.from_file(fn_fchk, fn_log)
+    sys2 = System.from_file(fn_fchk)
+    charges = sys2.numbers.astype(float)
+    centers = sys2.coordinates
+    sys2.init_nuclear_attraction(charges, centers)
+    mask = abs(sys1.operators['na']._array) > 1e-5
+    expect = sys1.operators['na']._array
+    result = sys2.operators['na']._array
+    delta = expect - result
+    np.set_printoptions(suppress=True)
+    error = (delta[mask]/expect[mask]).max()
+    assert error < 4e-5
+
+
+def test_nuclear_attraction_water_sto3g_hf():
+    check_nuclear_attraction(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+
+
+def test_nuclear_attraction_water_ccpvdz_pure_hf():
+    check_nuclear_attraction(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'))
+
+
+def test_nuclear_attraction_water_ccpvdz_cart_hf():
+    check_nuclear_attraction(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'))
+
+
+def test_nuclear_attraction_co_ccpv5z_pure_hf():
+    check_nuclear_attraction(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'))
+
+
+def test_nuclear_attraction_co_ccpv5z_cart_hf():
+    check_nuclear_attraction(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))

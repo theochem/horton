@@ -148,7 +148,6 @@ def test_gb2_overlap_integral_class():
     work1 = gb2oi.get_work()[:9,:7]
     step0 = np.dot(work0, tfs[3].T)
     step1 = np.dot(tfs[4], step0)
-    print work1- step1
     assert abs(work1 - step1).max() < 1e-10
 
 
@@ -166,3 +165,25 @@ def test_cart_pure_domain():
         assert False
     except ValueError:
         pass
+
+
+def test_cart_pure_water_ccpvdz_hf():
+    fn_fchk_pure = context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk')
+    fn_log_pure = fn_fchk_pure[:-5] + '.log'
+    fn_fchk_cart = context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk')
+    fn_log_cart = fn_fchk_cart[:-5] + '.log'
+    # Also load fchk file to get reordering of matrix elements.
+    sys_pure = System.from_file(fn_fchk_pure, fn_log_pure)
+    sys_cart = System.from_file(fn_fchk_cart, fn_log_cart)
+    for key in 'olp', 'kin', 'na':
+        block_pure = sys_pure.operators[key]._array[9:14,9:14]
+        block_cart = sys_cart.operators[key]._array[9:15,9:15]
+        check_pure = np.dot(np.dot(tfs[2], block_cart), tfs[2].T)
+        error = abs(block_pure - check_pure).max()
+        assert error < 2e-5
+
+        block_pure = sys_pure.operators[key]._array[0,9:14]
+        block_cart = sys_cart.operators[key]._array[0,9:15]
+        check_pure = np.dot(block_cart, tfs[2].T)
+        error = abs(block_pure - check_pure).max()
+        assert error < 1e-5

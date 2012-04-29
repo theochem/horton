@@ -39,3 +39,8 @@ cdef extern from "ints.h":
 
     cdef cppclass GB2KineticIntegral:
         GB2KineticIntegral(long max_nbasis)
+
+    void nuclear_attraction_helper(double* work_g, long n0, long n1, double pa, double pb, double cp, double gamma_inv)
+
+    cdef cppclass GB2NuclearAttractionIntegral:
+        GB2NuclearAttractionIntegral(long max_nbasis, double* charges, double* centers, long ncharge)
