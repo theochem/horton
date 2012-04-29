@@ -47,14 +47,14 @@ def test_gobasis_consistency():
 
     gobasis = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
     assert gobasis.nbasis == 29
-    assert gobasis.max_shell_nbasis == 10
+    assert gobasis.max_shell_type == 3
     scales = gobasis.get_scales()
     assert abs(scales[0] - gob_normalization(alphas[0], np.array([2, 0, 0]))) < 1e-10
 
     shell_types = np.array([1, 1, 0, -2, -2, 0, 1])
     gobasis = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
     assert gobasis.nbasis == 21
-    assert gobasis.max_shell_nbasis == 6
+    assert gobasis.max_shell_type == 2
 
     # The center indexes in the shell_map are out of range.
     shell_map[0] = 2

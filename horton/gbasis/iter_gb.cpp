@@ -119,7 +119,7 @@ void IterGB2::store(const double *work, double *output) {
     // This routine is hardwired to work only for the dense storage
     long i0, i1, n0, n1;
     const long nbasis = gbasis->get_nbasis();
-    const long max_shell_nbasis = gbasis->get_max_shell_nbasis();
+    const long max_shell_nbasis = get_shell_nbasis(gbasis->get_max_shell_type());
     n0 = get_shell_nbasis(shell_type0);
     n1 = get_shell_nbasis(shell_type1);
     for (i0=0; i0<n0; i0++) {

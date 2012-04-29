@@ -35,17 +35,21 @@ using namespace std;
 GBasis::GBasis(const double* centers, const long* shell_map, const long* nprims,
                const long* shell_types, const double* alphas, const double* con_coeffs,
                const long ncenter, const long nshell, const long nprim_total) :
-    nbasis(0), nscales(0), max_shell_nbasis(0),
+    nbasis(0), nscales(0), max_shell_type(0),
     centers(centers), shell_map(shell_map), nprims(nprims),
     shell_types(shell_types), alphas(alphas), con_coeffs(con_coeffs),
     ncenter(ncenter), nshell(nshell), nprim_total(nprim_total)
 {
-    long shell_nbasis;
+    long shell_nbasis, shell_type;
 
     // check for maximum shell type
     for (long ishell=0; ishell<nshell; ishell++) {
-        if (abs(shell_types[ishell]) > MAX_SHELL_TYPE) {
+        shell_type = abs(shell_types[ishell]);
+        if (shell_type > MAX_SHELL_TYPE) {
             throw std::domain_error("Exceeded the maximum shell type.");
+        }
+        if (max_shell_type < shell_type) {
+            max_shell_type = shell_type;
         }
     }
 
@@ -59,12 +63,9 @@ GBasis::GBasis(const double* centers, const long* shell_map, const long* nprims,
     shell_nbasis = get_shell_nbasis(shell_types[nshell-1]);
     nbasis = basis_offsets[nshell-1] + shell_nbasis;
 
-    // max_shell_nbasis and nscales
+    // nscales
     for (long ishell=0; ishell<nshell; ishell++) {
         shell_nbasis = get_shell_nbasis(abs(shell_types[ishell]));
-        if (max_shell_nbasis < shell_nbasis) {
-            max_shell_nbasis = shell_nbasis;
-        }
         nscales += shell_nbasis*nprims[ishell];
     }
 
@@ -134,16 +135,16 @@ const double GOBasis::normalization(const double alpha, const long* n) const {
 }
 
 void GOBasis::compute_overlap(double* output) {
-    GB2OverlapIntegral integral = GB2OverlapIntegral(get_max_shell_nbasis());
+    GB2OverlapIntegral integral = GB2OverlapIntegral(get_max_shell_type());
     compute_one_body(output, &integral);
 }
 
 void GOBasis::compute_kinetic(double* output) {
-    GB2KineticIntegral integral = GB2KineticIntegral(get_max_shell_nbasis());
+    GB2KineticIntegral integral = GB2KineticIntegral(get_max_shell_type());
     compute_one_body(output, &integral);
 }
 
 void GOBasis::compute_nuclear_attraction(double* charges, double* centers, long ncharge, double* output) {
-    GB2NuclearAttractionIntegral integral = GB2NuclearAttractionIntegral(get_max_shell_nbasis(), charges, centers, ncharge);
+    GB2NuclearAttractionIntegral integral = GB2NuclearAttractionIntegral(get_max_shell_type(), charges, centers, ncharge);
     compute_one_body(output, &integral);
 }

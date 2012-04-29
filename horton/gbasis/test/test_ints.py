@@ -91,8 +91,8 @@ def test_gb_overlap_int1d():
 
 
 def test_overlap_norm():
-    max_nbasis = 15
-    gb2i = GB2OverlapIntegral(max_nbasis)
+    max_shell_type = 3
+    gb2i = GB2OverlapIntegral(max_shell_type)
     for shell_type in 0, 1, 2, 3:
         for alpha in np.arange(0.5, 2.51, 0.5):
             scales = np.ones(get_shell_nbasis(shell_type), float)
@@ -112,11 +112,12 @@ def test_overlap_norm():
 
 
 def test_gb2_overlap_integral_class():
-    max_nbasis = 15
+    max_shell_type = 4
+    max_nbasis = get_shell_nbasis(max_shell_type)
     r0 = np.array([2.645617, 0.377945, -0.188973])
     r1 = np.array([0.000000, 0.000000, 0.188973])
 
-    gb2i = GB2OverlapIntegral(max_nbasis)
+    gb2i = GB2OverlapIntegral(max_shell_type)
     assert gb2i.max_nbasis == max_nbasis
 
     # case 1
@@ -192,8 +193,9 @@ def test_nuclear_attraction_helper():
 def check_overlap(alphas0, alphas1, r0, r1, scales0, scales1, shell_type0, shell_type1, result0):
     # This test compares output from Horton with reference data computed with
     # PyQuante.
-    max_nbasis = 15
-    gb2i = GB2OverlapIntegral(max_nbasis)
+    max_shell_type = 4
+    max_nbasis = get_shell_nbasis(max_shell_type)
+    gb2i = GB2OverlapIntegral(max_shell_type)
     assert gb2i.max_nbasis == max_nbasis
     nbasis0 = get_shell_nbasis(shell_type0)
     nbasis1 = get_shell_nbasis(shell_type1)
@@ -485,9 +487,11 @@ def test_overlap_4_4():
 def check_kinetic(alphas0, alphas1, r0, r1, scales0, scales1, shell_type0, shell_type1, result0):
     # This test compares output from Horton with reference data computed with
     # PyQuante.
-    max_nbasis = 15
-    gb2i = GB2KineticIntegral(max_nbasis)
+    max_shell_type = 4
+    max_nbasis = get_shell_nbasis(max_shell_type)
+    gb2i = GB2KineticIntegral(max_shell_type)
     assert gb2i.max_nbasis == max_nbasis
+
     nbasis0 = get_shell_nbasis(shell_type0)
     nbasis1 = get_shell_nbasis(shell_type1)
     assert result0.shape == (nbasis0, nbasis1)
@@ -778,8 +782,11 @@ def test_kinetic_4_4():
 def check_nuclear_attraction(alphas0, alphas1, r0, r1, scales0, scales1, charges, centers, shell_type0, shell_type1, result0):
     # This test compares output from Horton with reference data computed with
     # PyQuante.
-    max_nbasis = 15
-    gb2i = GB2NuclearAttractionIntegral(max_nbasis, charges, centers)
+    max_shell_type = 4
+    max_nbasis = get_shell_nbasis(max_shell_type)
+    gb2i = GB2NuclearAttractionIntegral(max_shell_type, charges, centers)
+    assert gb2i.max_nbasis == max_nbasis
+
     assert gb2i.max_nbasis == max_nbasis
     nbasis0 = get_shell_nbasis(shell_type0)
     nbasis1 = get_shell_nbasis(shell_type1)

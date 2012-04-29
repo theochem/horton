@@ -129,13 +129,14 @@ def test_cart_pure_g():
 
 
 def test_gb2_overlap_integral_class():
-    max_nbasis = 15
+    max_shell_type = 4
+    max_nbasis = get_shell_nbasis(max_shell_type)
     r0 = np.array([2.645617, 0.377945, -0.188973])
     r1 = np.array([1.254878, 0.123456,  0.188973])
     scales0 = np.ones(15, float)
     scales1 = np.ones(10, float)
 
-    gb2oi = GB2OverlapIntegral(max_nbasis)
+    gb2oi = GB2OverlapIntegral(max_shell_type)
     assert gb2oi.max_nbasis == max_nbasis
 
     gb2oi.reset(-4, -3, r0, r1)

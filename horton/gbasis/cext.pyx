@@ -313,9 +313,9 @@ cdef class GBasis:
         def __get__(self):
             return self._this.get_nscales()
 
-    property max_shell_nbasis:
+    property max_shell_type:
         def __get__(self):
-            return self._this.get_max_shell_nbasis()
+            return self._this.get_max_shell_type()
 
     def get_scales(self):
         cdef np.npy_intp shape[1]
@@ -506,8 +506,9 @@ cdef class IterGB2:
 
     def store(self, np.ndarray[double, ndim=2] work_pure,
               np.ndarray[double, ndim=2] output):
-        assert work_pure.shape[0] == self._gbasis.max_shell_nbasis
-        assert work_pure.shape[1] == self._gbasis.max_shell_nbasis
+        max_shell_nbasis = get_shell_nbasis(self._gbasis.max_shell_type)
+        assert work_pure.shape[0] == max_shell_nbasis
+        assert work_pure.shape[1] == max_shell_nbasis
         assert work_pure.flags['C_CONTIGUOUS']
         assert output.shape[0] == self._gbasis.nbasis
         assert output.shape[1] == self._gbasis.nbasis
