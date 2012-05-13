@@ -127,3 +127,8 @@ def test_gobasis_consistency():
     except ValueError:
         pass
     shell_types[0] = 2
+
+
+def test_load_basis():
+    for go_basis_family in go_basis_families.itervalues():
+        go_basis_family.load()
