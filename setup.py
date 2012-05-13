@@ -49,6 +49,8 @@ setup(
                      'horton/gbasis/ints.h', 'horton/gbasis/ints.pxd',
                      'horton/gbasis/iter_gb.h', 'horton/gbasis/iter_gb.pxd',
                      'horton/gbasis/iter_pow.h', 'horton/gbasis/iter_pow.pxd'],
+            extra_objects=['depends/libint-2.0.0-stable/lib/libint2.a'],
+            include_dirs=['depends/libint-2.0.0-stable/include'],
             language="c++"),
     ],
     classifiers=[

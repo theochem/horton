@@ -50,4 +50,34 @@ class IterGB2 {
         long nprim0, nprim1, iprim0, iprim1, oprim0, oprim1; // primitive counters
     };
 
+
+class IterGB4 {
+    private:
+        // input fields
+        const GBasis* gbasis;
+        const long* basis_offsets;
+    public:
+        IterGB4(GBasis* gbasis);
+
+        int inc_shell();
+        void update_shell();
+        int inc_prim();
+        void update_prim();
+        void store(const double *work, double *output);
+
+        // 'public' iterator fields
+        long shell_type0, shell_type1, shell_type2, shell_type3;
+        double con_coeff, alpha0, alpha1, alpha2, alpha3;
+        const double *r0, *r1, *r2, *r3; // current centers
+        const double *scales0, *scales1, *scales2, *scales3; // normalization constants
+        long ibasis0, ibasis1, ibasis2, ibasis3; // basis function counters (for output storage)
+
+        // 'private' iterator fields
+        long ishell0, ishell1, ishell2, ishell3; // shell counters
+        long ishell3_max;
+        long nprim0, nprim1, nprim2, nprim3; // primitive counters
+        long iprim0, iprim1, iprim2, iprim3;
+        long oprim0, oprim1, oprim2, oprim3;
+    };
+
 #endif

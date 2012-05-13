@@ -32,6 +32,8 @@ cimport ints
 cimport iter_gb
 cimport iter_pow
 
+import atexit
+
 
 __all__ = [
     # boys
@@ -45,9 +47,10 @@ __all__ = [
     # ints
     'gpt_coeff', 'gb_overlap_int1d', 'GB2OverlapIntegral', 'GB2KineticIntegral',
     'nuclear_attraction_helper', 'GB2NuclearAttractionIntegral',
+    'GB4ElectronReuplsionIntegralLibInt',
     'gob_normalization',
     # iter_gb
-    'IterGB2',
+    'IterGB2', 'IterGB4',
     # iter_pow
     'iter_pow1_inc', 'IterPow2',
 ]
@@ -69,12 +72,12 @@ def boys_function(long m, double t):
 
 def cart_to_pure_low(np.ndarray[double] work_cart,
                      np.ndarray[double] work_pure, long shell_type,
-                     long stride, long spacing, long count):
+                     long nant, long npost):
     assert work_cart.flags['C_CONTIGUOUS']
     assert work_pure.flags['C_CONTIGUOUS']
     cartpure.cart_to_pure_low(
-        <double*> work_cart.data, <double*> work_pure.data, shell_type, stride,
-        spacing, count
+        <double*> work_cart.data, <double*> work_pure.data, shell_type, nant,
+        npost
     )
 
 
@@ -335,23 +338,31 @@ cdef class GOBasis(GBasis):
 
     # Integral computation
 
-    def check_matrix(self, matrix):
+    def check_matrix_one_body(self, matrix):
         assert matrix.ndim == 2
         assert matrix.flags['C_CONTIGUOUS']
-        assert matrix.shape[0] == matrix.shape[1]
         assert matrix.shape[0] == self.nbasis
+        assert matrix.shape[1] == self.nbasis
+
+    def check_matrix_two_body(self, matrix):
+        assert matrix.ndim == 4
+        assert matrix.flags['C_CONTIGUOUS']
+        assert matrix.shape[0] == self.nbasis
+        assert matrix.shape[1] == self.nbasis
+        assert matrix.shape[2] == self.nbasis
+        assert matrix.shape[3] == self.nbasis
 
     def compute_overlap(self, overlap):
         """Compute the overlap matrix in a Gaussian orbital basis."""
         cdef np.ndarray output = overlap._array
-        self.check_matrix(output)
+        self.check_matrix_one_body(output)
         gobasis = <gbasis.GOBasis*>self._this
         (<gbasis.GOBasis*>self._this).compute_overlap(<double*>output.data)
 
     def compute_kinetic(self, kinetic):
         """Compute the kinetic energy matrix in a Gaussian orbital basis."""
         cdef np.ndarray output = kinetic._array
-        self.check_matrix(output)
+        self.check_matrix_one_body(output)
         (<gbasis.GOBasis*>self._this).compute_kinetic(<double*>output.data)
 
     def compute_nuclear_attraction(self, np.ndarray[double, ndim=1] charges,
@@ -359,7 +370,7 @@ cdef class GOBasis(GBasis):
                                    nuclear_attraction):
         """Compute the kintic energy matrix in a Gaussian orbital basis."""
         cdef np.ndarray output = nuclear_attraction._array
-        self.check_matrix(output)
+        self.check_matrix_one_body(output)
         assert charges.flags['C_CONTIGUOUS']
         cdef long ncharge = charges.shape[0]
         assert centers.flags['C_CONTIGUOUS']
@@ -368,6 +379,11 @@ cdef class GOBasis(GBasis):
             <double*>charges.data, <double*>centers.data, ncharge,
             <double*>output.data
         )
+
+    def compute_electron_repulsion(self, electron_repulsion):
+        cdef np.ndarray output = electron_repulsion._array
+        self.check_matrix_two_body(output)
+        (<gbasis.GOBasis*>self._this).compute_electron_repulsion(<double*>output.data)
 
 
 #
@@ -393,9 +409,16 @@ cdef class GB2Integral:
     '''Wrapper for ints.GB2Integral, for testing only'''
     cdef ints.GB2Integral* _this
 
-
     def __dealloc__(self):
         del self._this
+
+    property nwork:
+        def __get__(self):
+            return self._this.get_nwork()
+
+    property max_shell_type:
+        def __get__(self):
+            return self._this.get_max_shell_type()
 
     property max_nbasis:
         def __get__(self):
@@ -420,7 +443,7 @@ cdef class GB2Integral:
     def cart_to_pure(self):
         self._this.cart_to_pure()
 
-    def get_work(self):
+    def get_work(self, shape0, shape1):
         '''This returns a **copy** of the c++ work array.
 
            Returning a numpy array with a buffer created in c++ is dangerous.
@@ -429,8 +452,12 @@ cdef class GB2Integral:
            Speed is not an issue as this class is only used for testing.
         '''
         cdef np.npy_intp shape[2]
-        shape[0] = self.max_nbasis
-        shape[1] = self.max_nbasis
+        assert shape0 > 0
+        assert shape1 > 0
+        assert shape0 <= self.max_nbasis
+        assert shape1 <= self.max_nbasis
+        shape[0] = shape0
+        shape[1] = shape1
         tmp = np.PyArray_SimpleNewFromData(2, shape, np.NPY_DOUBLE, <void*> self._this.get_work())
         return tmp.copy()
 
@@ -475,6 +502,96 @@ cdef class GB2NuclearAttractionIntegral(GB2Integral):
         ))
 
 
+ints.libint2_static_init()
+def libint2_static_cleanup():
+    ints.libint2_static_cleanup()
+atexit.register(libint2_static_cleanup)
+
+
+cdef class GB4Integral:
+    '''Wrapper for ints.GB4Integral, for testing only'''
+    cdef ints.GB4Integral* _this
+
+    def __dealloc__(self):
+        del self._this
+
+    property nwork:
+        def __get__(self):
+            return self._this.get_nwork()
+
+    property max_shell_type:
+        def __get__(self):
+            return self._this.get_max_shell_type()
+
+    property max_nbasis:
+        def __get__(self):
+            return self._this.get_max_nbasis()
+
+    def reset(self, long shell_type0, long shell_type1, long shell_type2, long shell_type3,
+              np.ndarray[double, ndim=1] r0, np.ndarray[double, ndim=1] r1,
+              np.ndarray[double, ndim=1] r2, np.ndarray[double, ndim=1] r3):
+        assert r0.flags['C_CONTIGUOUS']
+        assert r0.shape[0] == 3
+        assert r1.flags['C_CONTIGUOUS']
+        assert r1.shape[0] == 3
+        assert r2.flags['C_CONTIGUOUS']
+        assert r2.shape[0] == 3
+        assert r3.flags['C_CONTIGUOUS']
+        assert r3.shape[0] == 3
+        self._this.reset(shell_type0, shell_type1, shell_type2, shell_type3,
+                         <double*>r0.data, <double*>r1.data, <double*>r2.data, <double*>r3.data)
+
+    def add(self, double coeff, double alpha0, double alpha1, double alpha2, double alpha3,
+            np.ndarray[double, ndim=1] scales0, np.ndarray[double, ndim=1] scales1,
+            np.ndarray[double, ndim=1] scales2, np.ndarray[double, ndim=1] scales3):
+        assert scales0.flags['C_CONTIGUOUS']
+        assert scales0.shape[0] == get_shell_nbasis(abs(self._this.get_shell_type0()))
+        assert scales1.flags['C_CONTIGUOUS']
+        assert scales1.shape[0] == get_shell_nbasis(abs(self._this.get_shell_type1()))
+        assert scales2.flags['C_CONTIGUOUS']
+        assert scales2.shape[0] == get_shell_nbasis(abs(self._this.get_shell_type2()))
+        assert scales3.flags['C_CONTIGUOUS']
+        assert scales3.shape[0] == get_shell_nbasis(abs(self._this.get_shell_type3()))
+        self._this.add(coeff, alpha0, alpha1, alpha2, alpha3,
+                       <double*>scales0.data, <double*>scales1.data,
+                       <double*>scales2.data, <double*>scales3.data)
+
+    def cart_to_pure(self):
+        self._this.cart_to_pure()
+
+    def get_work(self, shape0, shape1, shape2, shape3):
+        '''This returns a **copy** of the c++ work array.
+
+           Returning a numpy array with a buffer created in c++ is dangerous.
+           If the c++ array becomes deallocated, the numpy array may still
+           point to the deallocated memory. For that reason, a copy is returned.
+           Speed is not an issue as this class is only used for testing.
+        '''
+        cdef np.npy_intp shape[4]
+        assert shape0 > 0
+        assert shape1 > 0
+        assert shape2 > 0
+        assert shape3 > 0
+        assert shape0 <= self.max_nbasis
+        assert shape1 <= self.max_nbasis
+        assert shape2 <= self.max_nbasis
+        assert shape3 <= self.max_nbasis
+        shape[0] = shape0
+        shape[1] = shape1
+        shape[2] = shape2
+        shape[3] = shape3
+        tmp = np.PyArray_SimpleNewFromData(4, shape, np.NPY_DOUBLE, <void*> self._this.get_work())
+        return tmp.copy()
+
+
+cdef class GB4ElectronReuplsionIntegralLibInt(GB4Integral):
+    '''Wrapper for ints.GB4ElectronReuplsionIntegralLibInt, for testing only'''
+
+    def __cinit__(self, long max_nbasis):
+        self._this = <ints.GB4Integral*>(new ints.GB4ElectronReuplsionIntegralLibInt(max_nbasis))
+
+
+
 #
 # iter_gb wrappers (for testing only)
 #
@@ -504,16 +621,16 @@ cdef class IterGB2:
     def update_prim(self):
         self._this.update_prim()
 
-    def store(self, np.ndarray[double, ndim=2] work_pure,
+    def store(self, np.ndarray[double, ndim=2] work,
               np.ndarray[double, ndim=2] output):
         max_shell_nbasis = get_shell_nbasis(self._gbasis.max_shell_type)
-        assert work_pure.shape[0] == max_shell_nbasis
-        assert work_pure.shape[1] == max_shell_nbasis
-        assert work_pure.flags['C_CONTIGUOUS']
+        assert work.shape[0] == get_shell_nbasis(self._this.shell_type0)
+        assert work.shape[1] == get_shell_nbasis(self._this.shell_type1)
+        assert work.flags['C_CONTIGUOUS']
         assert output.shape[0] == self._gbasis.nbasis
         assert output.shape[1] == self._gbasis.nbasis
         assert output.flags['C_CONTIGUOUS']
-        self._this.store(<double*>work_pure.data, <double*>output.data)
+        self._this.store(<double*>work.data, <double*>output.data)
 
     property public_fields:
         def __get__(self):
@@ -533,6 +650,68 @@ cdef class IterGB2:
                 self._this.nprim0, self._this.nprim1,
                 self._this.oprim0, self._this.oprim1,
                 self._this.iprim0, self._this.iprim1,
+            )
+
+
+cdef class IterGB4:
+    """Wrapper for the IterGB4 class, for testing only."""
+    cdef iter_gb.IterGB4* _this
+    cdef GBasis _gbasis
+
+    def __cinit__(self, GBasis gbasis):
+        self._this = new iter_gb.IterGB4(gbasis._this)
+        self._gbasis = gbasis
+
+    def __dealloc__(self):
+        del self._this
+
+    def inc_shell(self):
+        return self._this.inc_shell()
+
+    def update_shell(self):
+        self._this.update_shell()
+
+    def inc_prim(self):
+        return self._this.inc_prim()
+
+    def update_prim(self):
+        self._this.update_prim()
+
+    def store(self, np.ndarray[double, ndim=4] work,
+              np.ndarray[double, ndim=4] output):
+        max_shell_nbasis = get_shell_nbasis(self._gbasis.max_shell_type)
+        assert work.shape[0] == get_shell_nbasis(self._this.shell_type0)
+        assert work.shape[1] == get_shell_nbasis(self._this.shell_type1)
+        assert work.shape[2] == get_shell_nbasis(self._this.shell_type2)
+        assert work.shape[3] == get_shell_nbasis(self._this.shell_type3)
+        assert work.flags['C_CONTIGUOUS']
+        assert output.shape[0] == self._gbasis.nbasis
+        assert output.shape[1] == self._gbasis.nbasis
+        assert output.shape[2] == self._gbasis.nbasis
+        assert output.shape[3] == self._gbasis.nbasis
+        assert output.flags['C_CONTIGUOUS']
+        self._this.store(<double*>work.data, <double*>output.data)
+
+    property public_fields:
+        def __get__(self):
+            return (
+                self._this.con_coeff,
+                self._this.shell_type0, self._this.shell_type1, self._this.shell_type2, self._this.shell_type3,
+                self._this.alpha0, self._this.alpha1, self._this.alpha2, self._this.alpha3,
+                self._this.r0[0], self._this.r0[1], self._this.r0[2],
+                self._this.r1[0], self._this.r1[1], self._this.r1[2],
+                self._this.r2[0], self._this.r2[1], self._this.r2[2],
+                self._this.r3[0], self._this.r3[1], self._this.r3[2],
+                self._this.ibasis0, self._this.ibasis1, self._this.ibasis2, self._this.ibasis3,
+            )
+
+    property private_fields:
+        def __get__(self):
+            return (
+                self._this.ishell0, self._this.ishell1, self._this.ishell2, self._this.ishell3,
+                self._this.nprim0, self._this.nprim1, self._this.nprim2, self._this.nprim3,
+                self._this.oprim0, self._this.oprim1, self._this.oprim2, self._this.oprim3,
+                self._this.iprim0, self._this.iprim1, self._this.iprim2, self._this.iprim3,
             )
 
 

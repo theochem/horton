@@ -72,7 +72,7 @@ int IterPow2::inc() {
         result = iter_pow1_inc(n0);
         ibasis1 = 0;
         if (result) {
-            offset += skip;
+            offset += 1;
             ibasis0++;
         } else {
             offset = 0;

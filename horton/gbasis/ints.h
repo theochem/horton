@@ -23,45 +23,53 @@
 #define HORTON_GBASIS_INTS_H
 
 #include "iter_pow.h"
+#include "libint2.h"
 
 double gpt_coeff(long k, long n0, long n1, double pa, double pb);
 double gb_overlap_int1d(long n0, long n1, double pa, double pb, double gamma_inv);
 const double gob_normalization(const double alpha, const long* n);
 
-class GB2Integral {
-    private:
-        void swap_work();
+
+class GBIntegral {
     protected:
         long nwork, max_shell_type, max_nbasis;
-        long shell_type0, shell_type1;
         double *work_pure, *work_cart;
+        void swap_work();
+    public:
+        GBIntegral(long max_shell_type);
+        ~GBIntegral();
+        const long get_nwork() const {return nwork;};
+        const long get_max_shell_type() const {return max_shell_type;};
+        const long get_max_nbasis() const {return max_nbasis;};
+        const double* get_work() const {return work_cart;};
+    };
+
+
+class GB2Integral : public GBIntegral {
+    protected:
+        long shell_type0, shell_type1;
         const double *r0, *r1;
         IterPow2 i2p;
     public:
         GB2Integral(long max_shell_type);
-        ~GB2Integral();
-        const long get_max_shell_type() const {return max_shell_type;};
-        const long get_max_nbasis() const {return max_nbasis;};
         void reset(long shell_type0, long shell_type1, const double* r0, const double* r1);
         virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1) = 0;
         void cart_to_pure();
-
         const long get_shell_type0() const {return shell_type0;};
         const long get_shell_type1() const {return shell_type1;};
-        const double* get_work() const {return work_cart;};
     };
 
 
 class GB2OverlapIntegral: public GB2Integral {
     public:
-        GB2OverlapIntegral(long max_shell_type) : GB2Integral(max_shell_type) {}
+        GB2OverlapIntegral(long max_shell_type) : GB2Integral(max_shell_type) {};
         virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
     };
 
 
 class GB2KineticIntegral: public GB2Integral {
     public:
-        GB2KineticIntegral(long max_shell_type) : GB2Integral(max_shell_type) {}
+        GB2KineticIntegral(long max_shell_type) : GB2Integral(max_shell_type) {};
         virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
     };
 
@@ -83,5 +91,44 @@ class GB2NuclearAttractionIntegral: public GB2Integral {
         ~GB2NuclearAttractionIntegral();
         virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
     };
+
+
+class GB4Integral : public GBIntegral {
+    protected:
+        long shell_type0, shell_type1, shell_type2, shell_type3;
+        const double *r0, *r1, *r2, *r3;
+    public:
+        GB4Integral(long max_shell_type);
+        virtual void reset(long shell_type0, long shell_type1, long shell_type2, long shell_type3, const double* r0, const double* r1, const double* r2, const double* r3);
+        virtual void add(double coeff, double alpha0, double alpha1, double alpha2, double alpha3, const double* scales0, const double* scales1, const double* scales2, const double* scales3) = 0;
+        void cart_to_pure();
+
+        const long get_shell_type0() const {return shell_type0;};
+        const long get_shell_type1() const {return shell_type1;};
+        const long get_shell_type2() const {return shell_type2;};
+        const long get_shell_type3() const {return shell_type3;};
+    };
+
+
+typedef struct {
+    unsigned int am;
+    const double* r;
+    double alpha;
+} libint_arg_t;
+
+class GB4ElectronReuplsionIntegralLibInt : public GB4Integral {
+    private:
+        Libint_eri_t erieval;
+        libint_arg_t libint_args[4];
+        long order[4];
+        double ab[3], cd[3];
+        double ab2, cd2;
+    public:
+        GB4ElectronReuplsionIntegralLibInt(long max_shell_type);
+        ~GB4ElectronReuplsionIntegralLibInt();
+        virtual void reset(long shell_type0, long shell_type1, long shell_type2, long shell_type3, const double* r0, const double* r1, const double* r2, const double* r3);
+        virtual void add(double coeff, double alpha0, double alpha1, double alpha2, double alpha3, const double* scales0, const double* scales1, const double* scales2, const double* scales3);
+    };
+
 
 #endif

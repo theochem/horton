@@ -146,3 +146,32 @@ def test_nuclear_attraction_co_ccpv5z_pure_hf():
 
 def test_nuclear_attraction_co_ccpv5z_cart_hf():
     check_nuclear_attraction(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
+
+
+
+def check_electron_repulsion(fn_fchk, check_zeros=False):
+    fn_log = fn_fchk[:-5] + '.log'
+    sys1 = System.from_file(fn_fchk, fn_log)
+    sys2 = System.from_file(fn_fchk)
+    sys2.init_electron_repulsion()
+    mask = abs(sys1.operators['er']._array) > 1e-6
+    expect = sys1.operators['er']._array
+    got = sys2.operators['er']._array
+    if check_zeros:
+        assert ((expect == 0.0) == (got == 0.0)).all()
+    delta = expect - got
+    error = (delta[mask]/expect[mask]).max()
+    print error
+    assert error < 1e-5
+
+
+def test_electron_repulsion_water_sto3g_hf():
+    check_electron_repulsion(context.get_fn('test/water_sto3g_hf_g03.fchk'), True)
+
+
+def test_electron_repulsion_water_ccpvdz_pure_hf():
+    check_electron_repulsion(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'))
+
+
+def test_electron_repulsion_water_ccpvdz_cart_hf():
+    check_electron_repulsion(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'))

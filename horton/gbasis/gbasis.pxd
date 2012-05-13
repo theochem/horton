@@ -44,3 +44,4 @@ cdef extern from "gbasis.h":
         void compute_overlap(double* output)
         void compute_kinetic(double* output)
         void compute_nuclear_attraction(double* charges, double* centers, long ncharge, double* output)
+        void compute_electron_repulsion(double* output)

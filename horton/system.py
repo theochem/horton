@@ -185,3 +185,8 @@ class System(object):
         nuclear_attraction = self.lf.create_one_body(self.basis.nbasis)
         self.basis.compute_nuclear_attraction(charges, centers, nuclear_attraction)
         self.add_operator('na', nuclear_attraction)
+
+    def init_electron_repulsion(self):
+        electron_repulsion = self.lf.create_two_body(self.basis.nbasis)
+        self.basis.compute_electron_repulsion(electron_repulsion)
+        self.add_operator('er', electron_repulsion)

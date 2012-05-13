@@ -20,5 +20,5 @@
 #--
 
 cdef extern from "cartpure.h":
-    void cart_to_pure_low(double *work_cart, double* work_pure, long
-        con_type, long stride, long spacing, long count) except +
+    void cart_to_pure_low(double *work_cart, double* work_pure, long shell_type,
+    long nant, long npost) except +

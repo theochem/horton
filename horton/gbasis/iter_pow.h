@@ -26,6 +26,7 @@ int iter_pow1_inc(long* n);
 
 class IterPow2 {
     private:
+        // TODO: remove skip and offset
         long shell_type0, shell_type1, skip;
     public:
         void reset(long shell_type0, long shell_type1, long max_nbasis);

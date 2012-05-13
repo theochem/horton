@@ -25,6 +25,7 @@ cdef extern from "ints.h":
     double gob_normalization(double alpha, long* n)
 
     cdef cppclass GB2Integral:
+        long get_nwork()
         long get_max_shell_type()
         long get_max_nbasis()
         void reset(long shell_type0, long shell_type1, double* r0, double* r1)
@@ -45,3 +46,25 @@ cdef extern from "ints.h":
 
     cdef cppclass GB2NuclearAttractionIntegral:
         GB2NuclearAttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge)
+
+    cdef cppclass GB4Integral:
+        long get_nwork()
+        long get_max_shell_type()
+        long get_max_nbasis()
+        void reset(long shell_type0, long shell_type1, long shell_type2, long shell_type3, double* r0, double* r1, double* r2, double* r3)
+        void add(double coeff, double alpha0, double alpha1, double alpha2, double alpha3, double* scales0, double* scales1, double* scales2, double* scales3)
+        void cart_to_pure() except +
+
+        long get_shell_type0()
+        long get_shell_type1()
+        long get_shell_type2()
+        long get_shell_type3()
+        double* get_work()
+
+    cdef cppclass GB4ElectronReuplsionIntegralLibInt:
+        GB4ElectronReuplsionIntegralLibInt(long max_shell_type)
+
+
+cdef extern from "libint2.h":
+    void libint2_static_init()
+    void libint2_static_cleanup()
