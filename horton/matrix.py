@@ -78,6 +78,12 @@ class LinalgFactory(object):
     def diagonalize(self, ham, overlap, expansion, epsilons):
         raise NotImplementedError
 
+    def get_memory_one_body(self, nbasis):
+        raise NotImplementedError
+
+    def get_memory_two_body(self, nbasis):
+        raise NotImplementedError
+
 
 class DenseLinalgFactory(LinalgFactory):
     def create_expansion(self, nbasis, nfn, do_energies=False):
@@ -127,6 +133,12 @@ class DenseLinalgFactory(LinalgFactory):
         evals, evecs = eigh(ham._array, overlap._array)
         expansion.coeffs[:] = evecs
         expansion.energies[:] = evals
+
+    def get_memory_one_body(self, nbasis):
+        return nbasis**2*8
+
+    def get_memory_two_body(self, nbasis):
+        return nbasis**4*8
 
 
 class DenseExpansion(object):
