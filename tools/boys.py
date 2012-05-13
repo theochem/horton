@@ -59,9 +59,10 @@ def print_boys_inc(maxm, resolution):
             ft = boys_function_tail(m, t)
             ft_numer = ft.evalf(30, maxn=1000, strict=True)
             counter += 1
-            threshold = abs(f_numer - ft_numer) - abs(f_numer)*1e-16
-            print '%2i %5i % 20.12e' % (m, counter, threshold)
-            if threshold < 0:
+            error = abs(float(ft) - float(f))
+            if counter % 100 == 0 or error == 0:
+                print '%2i %5i % 20.12e % 20.12e' % (m, counter, f, error)
+            if error == 0:
                 break
 
     f = file('boys_inc.cpp', 'w')
@@ -124,5 +125,6 @@ def print_boys_test(maxm):
     print 'check = np.array([%s])' % ', '.join(l2)
 
 if __name__ == '__main__':
-    #print_boys_inc(maxm=24, resolution=20)
-    print_boys_test(maxm=18)
+    maxm = 4*7
+    #print_boys_inc(maxm=maxm+6, resolution=20)
+    print_boys_test(maxm=maxm)

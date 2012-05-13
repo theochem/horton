@@ -56,7 +56,7 @@ long binom(long n, long m) {
 long get_shell_nbasis(long shell_type) {
     if (shell_type > 0) {
         // Cartesian
-        return (shell_type+1)*(shell_type+2)/2;
+        return ((shell_type+1)*(shell_type+2))/2;
     } else if (shell_type == -1) {
         // should not happen.
         return -1;

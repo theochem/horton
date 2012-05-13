@@ -43,3 +43,26 @@ cdef extern from "iter_gb.h":
         # 'private' iterator fields
         long ishell0, ishell1
         long nprim0, nprim1, iprim0, iprim1, oprim0, oprim1
+
+    cdef cppclass IterGB4:
+        IterGB4(gbasis.GBasis* gbasis)
+
+        bint inc_shell()
+        void update_shell()
+        bint inc_prim()
+        void update_prim()
+        void store(double *work, double *output)
+
+        # 'public' iterator fields
+        long shell_type0, shell_type1, shell_type2, shell_type3
+        long ishell3_max
+        double con_coeff, alpha0, alpha1, alpha2, alpha3
+        double *r0, *r1, *r2, *r3
+        double *scales0, *scales1, *scales2, *scales3
+        long ibasis0, ibasis1, ibasis2, ibasis3
+
+        # 'private' iterator fields
+        long ishell0, ishell1, ishell2, ishell3
+        long nprim0, nprim1, nprim2, nprim3
+        long iprim0, iprim1, iprim2, iprim3
+        long oprim0, oprim1, oprim2, oprim3

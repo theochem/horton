@@ -23,7 +23,7 @@
 #define HORTON_BOYS_INTS_H
 
 #include "common.h"
-#define BOYS_MAX_M 2*MAX_SHELL_TYPE
+#define BOYS_MAX_M 4*MAX_SHELL_TYPE
 
 double boys_function(long m, double u);
 

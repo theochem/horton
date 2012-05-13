@@ -28,6 +28,9 @@
 // sympy and mpmath. (See tools/boys.py.)
 
 #include "boys_inc.cpp"
+#if BOYS_MAX_M + 6!= BOYS_MAX_DATA
+#error The file boys_inc.cpp is not consistent with the limits in horton/gbasis
+#endif
 #define SQRT_PI_D2      8.86226925452758013649e-1 // sqrt(pi)/2
 
 static double boys_function_tail(long m, double t) {

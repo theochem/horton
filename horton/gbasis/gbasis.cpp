@@ -120,6 +120,29 @@ void GBasis::compute_one_body(double* output, GB2Integral* integral) {
     } while (iter.inc_shell());
 }
 
+void GBasis::compute_two_body(double* output, GB4Integral* integral) {
+    /*
+        TODO
+             When multiple different memory storage schemes are implemented for
+             the operators, the iterator must also become an argument for this
+             function
+
+    */
+    IterGB4 iter = IterGB4(this);
+    iter.update_shell();
+    do {
+        integral->reset(iter.shell_type0, iter.shell_type1, iter.shell_type2, iter.shell_type3,
+                        iter.r0, iter.r1, iter.r2, iter.r3);
+        iter.update_prim();
+        do {
+            integral->add(iter.con_coeff, iter.alpha0, iter.alpha1, iter.alpha2, iter.alpha3,
+                          iter.scales0, iter.scales1, iter.scales2, iter.scales3);
+        } while (iter.inc_prim());
+        integral->cart_to_pure();
+        iter.store(integral->get_work(), output);
+    } while (iter.inc_shell());
+}
+
 
 
 GOBasis::GOBasis(const double* centers, const long* shell_map, const long* nprims,
@@ -147,4 +170,9 @@ void GOBasis::compute_kinetic(double* output) {
 void GOBasis::compute_nuclear_attraction(double* charges, double* centers, long ncharge, double* output) {
     GB2NuclearAttractionIntegral integral = GB2NuclearAttractionIntegral(get_max_shell_type(), charges, centers, ncharge);
     compute_one_body(output, &integral);
+}
+
+void GOBasis::compute_electron_repulsion(double* output) {
+    GB4ElectronReuplsionIntegralLibInt integral = GB4ElectronReuplsionIntegralLibInt(get_max_shell_type());
+    compute_two_body(output, &integral);
 }

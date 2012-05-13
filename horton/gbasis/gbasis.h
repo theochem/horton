@@ -50,6 +50,7 @@ class GBasis {
         virtual const double normalization(const double alpha, const long* n) const =0;
         void init_scales();
         void compute_one_body(double* output, GB2Integral* integral);
+        void compute_two_body(double* output, GB4Integral* integral);
 
         const long get_nbasis() const {return nbasis;};
         const long get_nscales() const {return nscales;};
@@ -70,6 +71,7 @@ class GOBasis : public GBasis {
         void compute_overlap(double* output);
         void compute_kinetic(double* output);
         void compute_nuclear_attraction(double* charges, double* centers, long ncharge, double* output);
+        void compute_electron_repulsion(double* output);
     };
 
 #endif

@@ -25,10 +25,10 @@ command::
 There is also a web interface to Horton's git repository:
 https://github.com/theochem/horton
 
-Compilation
-===========
+Common dependencies
+===================
 
-In order to `compile` the Horton C-extension and documentation, one needs to
+In order to compile and test Horton and its documentation, one needs to
 install relatively recent versions of the following programs/libraries:
 
 * Python < 3.0: http://www.python.org/ (also install `development files`)
@@ -36,15 +36,36 @@ install relatively recent versions of the following programs/libraries:
 * Scipy >= 0.10.0: http://www.scipy.org/
 * Cython >= 0.15.1 : http://www.cython.org/
 * Sphinx > 1.0: http://sphinx.pocoo.org/
+* Nosetests >= 1.1.2: http://readthedocs.org/docs/nose/en/latest/
+* Sympy >= 0.7.1: http://code.google.com/p/sympy/
 
 On a decent operating system, these programs/libraries can be easily installed
 with a package manager. First check that option before manually installing this
 software. On Ubuntu, this one-liner will take care of it::
 
-    sudo apt-get install python-dev python-numpy cython python-sphinx python-scipy
+    sudo apt-get install python-dev python-numpy python-scipy cython python-sphinx python-nose python-sympy
 
-One may either install Horton in the home directory, or an in-pace build in the
-source tree.
+
+Specific dependencies
+=====================
+
+The directory ``depends`` of the Horton source tree is used to build specific
+dependencies from source. For the moment, there is only one such dependency,
+namely libint2. The directory ``depends`` contains a ``Makefile`` that can
+take care of downloading the right version and compiling. The following should
+take care of everything, assuming that you have installed all the libint2
+dependencies::
+
+    cd depends
+    make -j4 libint2
+
+The option ``-j4`` instructs make to build libint2 in parallel of four cores.
+
+Compilation and installation
+============================
+
+One may either install Horton in the home directory, or perform an in-pace build
+in the source tree.
 
 The **regular build/install** is as done follows::
 
@@ -69,25 +90,15 @@ The documentation is compiled and viewed as follows::
 Testing
 =======
 
-A bunch of validation routines are included in Horton. To run these tests, one
-must install the Nosetests testing framework. It can be found here:
-
-http://somethingaboutorange.com/mrl/projects/nose/0.11.2/
-
-We recommend that you use a package manager to install Nosetests. On Ubuntu,
-this software can be installed as follows::
-
-    sudo apt-get install python-nose
-
-Once this Python package is installed, perform an **in-place build** and run
-nosetests afterwards::
+A bunch of validation routines are included in Horton. To run the tests, first
+perform an **in-place build** and run ``nosetests`` afterwards::
 
     ./setup.py build_ext -i
     nosetests -v
 
-If all runs well, the screen output should end with 'OK'. If at some point,
-something during the build process fails, try to clean up the source tree with
-the ``cleanfiles.sh`` script and try again.
+If all tests pass, the screen output should end with ``OK``. If at some point,
+something during the build process fails, clean up the source tree with the
+``cleanfiles.sh`` script and try again.
 
 
 Basic example
@@ -114,7 +125,7 @@ follows::
 
     from horton import *
 
-    system = System.from_file('hcl.xyz', 'STO-3G')
+    system = System.from_file('hcl.xyz', basis='STO-3G')
     hamiltonian = Hamiltonian(system, [KineticEnergy(),  Hartree(), Fock()])
     wfn = minimize(hamiltonian)
     print wfn.energy/kjmol
@@ -125,7 +136,7 @@ potential::
 
     from horton import *
 
-    system = System.from_file('hcl.xyz', 'STO-3G')
+    system = System.from_file('hcl.xyz', basis='STO-3G')
     hamiltonian = Hamiltonian(system, HartreeFock())
     wfn = minimize(hamiltonian)
     print wfn.energy/kjmol

@@ -22,7 +22,7 @@
 #ifndef HORTON_GBASIS_COMMON_H
 #define HORTON_GBASIS_COMMON_H
 
-#define MAX_SHELL_TYPE 9
+#define MAX_SHELL_TYPE 7
 
 long fac(long n);
 long fac2(long n);
