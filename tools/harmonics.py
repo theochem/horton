@@ -26,7 +26,10 @@
 
 
 from sympy import sqrt, Symbol, pi, S, Add, cos, sin, Wild
-from sympy.mpmath import fac, fac2, binomial
+try:
+    from sympy.mpmath import fac, fac2, binomial
+except ImportError:
+    from mpmath import fac, fac2, binomial
 
 import numpy as np
 
