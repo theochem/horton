@@ -20,6 +20,8 @@
 #--
 
 
+import numpy as np
+
 from horton import *
 
 

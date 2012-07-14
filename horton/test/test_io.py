@@ -20,6 +20,8 @@
 #--
 
 
+import numpy as np
+
 from horton import *
 
 
@@ -147,3 +149,62 @@ def test_load_fchk_water_sto3g_hf():
     assert abs(wfn.expansion.coeffs[-1,2] - (-0.44154)) < 1e-4
     assert abs(wfn.expansion.coeffs[3,-1]) < 1e-4
     assert abs(wfn.expansion.coeffs[4,-1] - (-0.82381)) < 1e-4
+
+
+def test_load_fchk_lih_321g_hf():
+    lf = DenseLinalgFactory()
+    fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
+    coordinates, numbers, basis, wfn, permutation = load_fchk(fn_fchk, lf)
+    assert basis.nshell == 7
+    assert basis.nbasis == 11
+    assert len(coordinates) == len(numbers)
+    assert coordinates.shape[1] == 3
+    assert len(numbers) == 2
+    assert wfn.nbasis == 11
+    assert wfn.nalpha == 2
+    assert wfn.nbeta == 1
+    assert abs(wfn.alpha_expansion.energies[0] - (-2.76117)) < 1e-4
+    assert abs(wfn.alpha_expansion.energies[-1] - 0.97089) < 1e-4
+    assert abs(wfn.alpha_expansion.coeffs[0,0] - 0.99105) < 1e-4
+    assert abs(wfn.alpha_expansion.coeffs[1,0] - 0.06311) < 1e-4
+    assert abs(wfn.alpha_expansion.coeffs[3,2]) < 1e-4
+    assert abs(wfn.alpha_expansion.coeffs[-1,9] - 0.13666) < 1e-4
+    assert abs(wfn.alpha_expansion.coeffs[4,-1] - 0.17828) < 1e-4
+    assert abs(wfn.beta_expansion.energies[0] - (-2.76031)) < 1e-4
+    assert abs(wfn.beta_expansion.energies[-1] - 1.13197) < 1e-4
+    assert abs(wfn.beta_expansion.coeffs[0,0] - 0.99108) < 1e-4
+    assert abs(wfn.beta_expansion.coeffs[1,0] - 0.06295) < 1e-4
+    assert abs(wfn.beta_expansion.coeffs[3,2]) < 1e-4
+    assert abs(wfn.beta_expansion.coeffs[-1,9] - 0.80875) < 1e-4
+    assert abs(wfn.beta_expansion.coeffs[4,-1] - (-0.15503)) < 1e-4
+
+    dm = lf.create_one_body(wfn.nbasis)
+    dms = lf.create_one_body(wfn.nbasis)
+    dma = lf.create_one_body(wfn.nbasis)
+    dmb = lf.create_one_body(wfn.nbasis)
+
+    wfn.compute_density_matrix(dm)
+    wfn.compute_spin_density_matrix(dms)
+    wfn.compute_alpha_density_matrix(dma)
+    wfn.compute_beta_density_matrix(dmb)
+
+    assert abs(dm._array - (dma._array + dmb._array)).max() < 1e-10
+    assert abs(dms._array - (dma._array - dmb._array)).max() < 1e-10
+
+    # Load some additional matrices from the fchk file and compare
+    fchk = FCHKFile(fn_fchk, ['Total SCF Density', 'Spin SCF Density'])
+    def to_dens(longrow, size):
+        result = np.zeros((size, size), float)
+        i0 = 0
+        i1 = 0
+        for i in xrange(len(longrow)):
+            result[i0, i1] = longrow[i]
+            result[i1, i0] = longrow[i]
+            if i0==i1:
+                i1 += 1
+                i0 = 0
+            else:
+                i0 += 1
+        return result
+    assert abs(dm._array - to_dens(fchk.fields['Total SCF Density'], 11)).max() < 1e-7
+    assert abs(dms._array - to_dens(fchk.fields['Spin SCF Density'], 11)).max() < 1e-7

@@ -143,7 +143,8 @@ class DenseLinalgFactory(LinalgFactory):
 
 class DenseExpansion(object):
     """An expansion of several functions in a basis with a dense matrix of
-       coefficients.
+       coefficients. The implementation is such that the columns of self._array
+       contain the orbitals
     """
     def __init__(self, nbasis, nfn, do_energies=False):
         """
@@ -182,7 +183,7 @@ class DenseExpansion(object):
 
     energies = property(get_energies)
 
-    def compute_density_matrix(self, noc, dm):
+    def compute_density_matrix(self, noc, dm, factor=None):
         """Compute the density matrix
 
            **Arguments:**
@@ -192,10 +193,20 @@ class DenseExpansion(object):
 
            dm
                 An output density matrix. This must be a DenseOneBody instance.
+
+           **Optional arguments:**
+
+           factor
+                When given, the density matrix is added with the given prefactor
+                to the output argument. If not given, the original contents of
+                dm are overwritten.
         """
         result = DenseOneBody(self.nbasis)
         occupied = self._coeffs[:,:noc]
-        dm._array[:] = np.dot(occupied, occupied.T)
+        if factor is None:
+            dm._array[:] = np.dot(occupied, occupied.T)
+        else:
+            dm._array[:] += factor*np.dot(occupied, occupied.T)
 
     def apply_basis_permutation(self, permutation):
         '''Reorder the coefficients for a given permutation of basis functions.
@@ -204,7 +215,7 @@ class DenseExpansion(object):
 
 
 class DenseOneBody(object):
-    """Dense symmetric two-dimensional matrix.
+    """Dense symmetric two-dimensional matrix, also used for density matrices.
 
        This is the most inefficient implementation in terms of memory usage and
        computer time. Due to its simplicity, it is trivial to implement. This
