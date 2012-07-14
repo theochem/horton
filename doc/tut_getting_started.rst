@@ -9,7 +9,7 @@ changes, you need to work with git. Git is a version control system that
 makes life easy when a group of people are working on a common source code. It
 also makes sense to use it for personal projects. All information about git
 (including downloads and tutorials) can be found here: http://git-scm.com/. The
-official git URL of Horton is:
+official git URL of Horton is::
 
     git://github.com/theochem/horton.git
 
@@ -41,9 +41,15 @@ install relatively recent versions of the following programs/libraries:
 
 On a decent operating system, these programs/libraries can be easily installed
 with a package manager. First check that option before manually installing this
-software. On Ubuntu, this one-liner will take care of it::
+software.
+
+On Ubuntu Linux::
 
     sudo apt-get install python-dev python-numpy python-scipy cython python-sphinx python-nose python-sympy
+
+On Fedora Linux::
+
+    sudo apt-get install python-devel numpy scipy Cython python-sphinx python-nose sympy
 
 
 Specific dependencies
@@ -51,15 +57,15 @@ Specific dependencies
 
 The directory ``depends`` of the Horton source tree is used to build specific
 dependencies from source. For the moment, there is only one such dependency,
-namely libint2. The directory ``depends`` contains a ``Makefile`` that can
-take care of downloading the right version and compiling. The following should
-take care of everything, assuming that you have installed all the libint2
-dependencies::
+namely `libint2 <http://sourceforge.net/p/libint/>`_. The directory ``depends``
+contains a ``Makefile`` that can take care of downloading the right version and
+compiling. The following should take care of everything, assuming that you have
+installed all the libint2 dependencies::
 
     cd depends
-    make -j4 libint2
+    make -j4 libint
 
-The option ``-j4`` instructs make to build libint2 in parallel of four cores.
+The option ``-j4`` instructs make to build libint2 in parallel on four cores.
 
 Compilation and installation
 ============================
