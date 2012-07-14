@@ -348,8 +348,6 @@ def load_fchk(filename, lf):
             A LinalgFactory instance.
     '''
     from horton.gbasis import GOBasis
-    from horton.wfn import ClosedShellWFN
-
 
     fchk = FCHKFile(filename, [
         "Number of electrons", "Number of independant functions",
@@ -439,14 +437,22 @@ def load_fchk(filename, lf):
     permutation = np.array(permutation, dtype=int)
 
     # C) Load the wavefunction
+    nbasis_indep = fchk.fields.get("Number of independant functions")
+    if nbasis_indep is None:
+        nbasis_indep = basis.nbasis
     if 'Beta Orbital Energies' in fchk.fields:
-        wfn = None
+        from horton.wfn import OpenShellWFN
+        nalpha = fchk.fields['Number of alpha electrons']
+        nbeta = fchk.fields['Number of beta electrons']
+        wfn = OpenShellWFN(nalpha, nbeta, lf, basis, norb=nbasis_indep)
+        wfn.alpha_expansion.coeffs[:] = fchk.fields['Alpha MO coefficients'].reshape(nbasis_indep, basis.nbasis).T
+        wfn.alpha_expansion.energies[:] = fchk.fields['Alpha Orbital Energies']
+        wfn.beta_expansion.coeffs[:] = fchk.fields['Beta MO coefficients'].reshape(nbasis_indep, basis.nbasis).T
+        wfn.beta_expansion.energies[:] = fchk.fields['Beta Orbital Energies']
     else:
+        from horton.wfn import ClosedShellWFN
         nelec = fchk.fields["Number of electrons"]
         assert nelec % 2 == 0
-        nbasis_indep = fchk.fields.get("Number of independant functions")
-        if nbasis_indep is None:
-            nbasis_indep = basis.nbasis
         wfn = ClosedShellWFN(nelec/2, lf, basis, norb=nbasis_indep)
         wfn.expansion.coeffs[:] = fchk.fields['Alpha MO coefficients'].reshape(nbasis_indep, basis.nbasis).T
         wfn.expansion.energies[:] = fchk.fields['Alpha Orbital Energies']
