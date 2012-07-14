@@ -24,7 +24,11 @@
 
 
 from sympy import *
-from sympy.mpmath.libmp import to_str
+try:
+    from sympy.mpmath.libmp import to_str
+except ImportError:
+    from mpmath.libmp import to_str
+
 
 
 def boys_mpmath(m, t):
