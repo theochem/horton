@@ -89,7 +89,10 @@ class System(object):
         else:
             self._lf = lf
         #
-        self._operators = operators
+        if operators is None:
+            self._operators = {}
+        else:
+            self._operators = operators
 
     def get_natom(self):
         return len(self.numbers)
@@ -165,28 +168,36 @@ class System(object):
 
         return cls(**constructor_args)
 
-    def add_operator(self, name, op):
-        if self._operators is None:
-            self._operators = {name: op}
-        else:
-            self._operators[name] = op
+    def get_overlap(self):
+        overlap = self._operators.get('olp')
+        if overlap is None:
+            overlap = self.lf.create_one_body(self.basis.nbasis)
+            self.basis.compute_overlap(overlap)
+            self._operators['olp'] = overlap
+        return overlap
 
-    def init_overlap(self):
-        overlap = self.lf.create_one_body(self.basis.nbasis)
-        self.basis.compute_overlap(overlap)
-        self.add_operator('olp', overlap)
+    def get_kinetic(self):
+        kinetic = self._operators.get('kin')
+        if kinetic is None:
+            kinetic = self.lf.create_one_body(self.basis.nbasis)
+            self.basis.compute_kinetic(kinetic)
+            self._operators['kin'] = kinetic
+        return kinetic
 
-    def init_kinetic(self):
-        kinetic = self.lf.create_one_body(self.basis.nbasis)
-        self.basis.compute_kinetic(kinetic)
-        self.add_operator('kin', kinetic)
+    def get_nuclear_attraction(self):
 
-    def init_nuclear_attraction(self, charges, centers):
-        nuclear_attraction = self.lf.create_one_body(self.basis.nbasis)
-        self.basis.compute_nuclear_attraction(charges, centers, nuclear_attraction)
-        self.add_operator('na', nuclear_attraction)
+        nuclear_attraction = self._operators.get('na')
+        if nuclear_attraction is None:
+            nuclear_attraction = self.lf.create_one_body(self.basis.nbasis)
+            # TODO: ghost atoms and extra charges
+            self.basis.compute_nuclear_attraction(self.numbers.astype(float), self.coordinates, nuclear_attraction)
+            self._operators['na'] = nuclear_attraction
+        return nuclear_attraction
 
-    def init_electron_repulsion(self):
-        electron_repulsion = self.lf.create_two_body(self.basis.nbasis)
-        self.basis.compute_electron_repulsion(electron_repulsion)
-        self.add_operator('er', electron_repulsion)
+    def get_electron_repulsion(self):
+        electron_repulsion = self._operators.get('er')
+        if electron_repulsion is None:
+            electron_repulsion = self.lf.create_two_body(self.basis.nbasis)
+            self.basis.compute_electron_repulsion(electron_repulsion)
+            self._operators['er'] = electron_repulsion
+        return electron_repulsion

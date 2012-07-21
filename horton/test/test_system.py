@@ -50,10 +50,11 @@ def check_overlap(fn_fchk):
     fn_log = fn_fchk[:-5] + '.log'
     sys1 = System.from_file(fn_fchk, fn_log)
     sys2 = System.from_file(fn_fchk)
-    sys2.init_overlap()
-    mask = abs(sys1.operators['olp']._array) > 1e-5
-    delta = sys1.operators['olp']._array - sys2.operators['olp']._array
-    expect = sys1.operators['olp']._array
+    olp1 = sys1.get_overlap()
+    olp2 = sys2.get_overlap()
+    mask = abs(olp1._array) > 1e-5
+    delta = olp1._array - olp2._array
+    expect = olp1._array
     error = (delta[mask]/expect[mask]).max()
     assert error < 1e-5
 
@@ -83,11 +84,12 @@ def test_overlap_co_ccpv5z_cart_hf():
 def check_kinetic(fn_fchk):
     fn_log = fn_fchk[:-5] + '.log'
     sys1 = System.from_file(fn_fchk, fn_log)
+    kin1 = sys1.get_kinetic()
     sys2 = System.from_file(fn_fchk)
-    sys2.init_kinetic()
-    mask = abs(sys1.operators['kin']._array) > 1e-5
-    delta = sys1.operators['kin']._array - sys2.operators['kin']._array
-    expect = sys1.operators['kin']._array
+    kin2 = sys2.get_kinetic()
+    mask = abs(kin1._array) > 1e-5
+    delta = kin1._array - kin2._array
+    expect = kin1._array
     error = (delta[mask]/expect[mask]).max()
     assert error < 1e-5
 
@@ -118,12 +120,12 @@ def check_nuclear_attraction(fn_fchk):
     sys2 = System.from_file(fn_fchk)
     charges = sys2.numbers.astype(float)
     centers = sys2.coordinates
-    sys2.init_nuclear_attraction(charges, centers)
-    mask = abs(sys1.operators['na']._array) > 1e-5
-    expect = sys1.operators['na']._array
-    result = sys2.operators['na']._array
+    na1 = sys1.get_nuclear_attraction()
+    na2 = sys2.get_nuclear_attraction()
+    mask = abs(na1._array) > 1e-5
+    expect = na1._array
+    result = na2._array
     delta = expect - result
-    np.set_printoptions(suppress=True)
     error = (delta[mask]/expect[mask]).max()
     assert error < 4e-5
 
@@ -152,11 +154,12 @@ def test_nuclear_attraction_co_ccpv5z_cart_hf():
 def check_electron_repulsion(fn_fchk, check_zeros=False):
     fn_log = fn_fchk[:-5] + '.log'
     sys1 = System.from_file(fn_fchk, fn_log)
+    er1 = sys1.get_electron_repulsion()
     sys2 = System.from_file(fn_fchk)
-    sys2.init_electron_repulsion()
-    mask = abs(sys1.operators['er']._array) > 1e-6
-    expect = sys1.operators['er']._array
-    got = sys2.operators['er']._array
+    er2 = sys2.get_electron_repulsion()
+    mask = abs(er1._array) > 1e-6
+    expect = er1._array
+    got = er2._array
     if check_zeros:
         assert ((expect == 0.0) == (got == 0.0)).all()
     delta = expect - got
