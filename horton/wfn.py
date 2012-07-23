@@ -113,6 +113,10 @@ class ClosedShellWFN(object):
         """
         self._expansion.compute_density_matrix(self.nep, dm)
 
+    def apply_basis_permutation(self, permutation):
+        """Reorder the expansion coefficients"""
+        self._expansion.apply_basis_permutation(permutation)
+
 
 class OpenShellWFN(object):
     def __init__(self, nalpha, nbeta, lf, basis=None, nbasis=None, norb=None):
@@ -245,3 +249,9 @@ class OpenShellWFN(object):
                 One-body operator class of the linalg factory, self.lf.
         """
         self._beta_expansion.compute_density_matrix(self.nbeta, dm)
+
+
+    def apply_basis_permutation(self, permutation):
+        """Reorder the expansion coefficients"""
+        self._alpha_expansion.apply_basis_permutation(permutation)
+        self._beta_expansion.apply_basis_permutation(permutation)

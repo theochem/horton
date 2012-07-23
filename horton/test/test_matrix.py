@@ -192,3 +192,12 @@ def test_dense_one_body_itranspose():
     op2._array[:] = op1._array
     op2.itranspose()
     assert op1._array[0,1] == op2._array[1,0]
+
+
+def test_dense_one_body_iscale():
+    lf = DenseLinalgFactory()
+    op = lf.create_one_body(3)
+    op._array[:] = np.random.uniform(-1, 1, (3,3))
+    tmp = op._array.copy()
+    op.iscale(3.0)
+    assert abs(op._array - 3*tmp).max() < 1e-10

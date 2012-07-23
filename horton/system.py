@@ -163,7 +163,7 @@ class System(object):
                     op.apply_basis_permutation(permutation)
             wfn = constructor_args.get('wfn')
             if wfn is not None:
-                wfn.expansion.apply_basis_permutation(permutation)
+                wfn.apply_basis_permutation(permutation)
             del constructor_args['permutation']
 
         return cls(**constructor_args)
