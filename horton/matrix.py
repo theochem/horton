@@ -262,6 +262,9 @@ class DenseOneBody(object):
         '''In-place transpose'''
         self._array = self._array.T
 
+    def iscale(self, factor):
+        self._array *= factor
+
     def dot(self, vec0, vec1):
         return np.dot(vec0, np.dot(self._array, vec1))
 
