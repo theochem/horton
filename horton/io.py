@@ -29,7 +29,7 @@
 '''
 
 
-import numpy as np
+import numpy as np, h5py as h5
 from horton.units import angstrom
 from horton.periodic import periodic
 
@@ -74,6 +74,8 @@ def load_system_args(filename, lf):
         if electronic_repulsion is not None:
             operators['er'] = electronic_repulsion
         return {'operators': operators}
+    elif filename.endswith('.h5'):
+        return load_checkpoint(filename)
     else:
         raise ValueError('Unknown file format: %s' % filename)
 
@@ -458,3 +460,34 @@ def load_fchk(filename, lf):
         wfn.expansion.energies[:] = fchk.fields['Alpha Orbital Energies']
 
     return coordinates, numbers, basis, wfn, permutation
+
+
+def load_checkpoint(filename):
+    """Load constructor arguments from a Horton checkpoint file
+
+       **Argument:**
+
+       filename
+            This is the file name of an HDF5 Horton checkpoint file. It may also
+            be an open h5.File object.
+    """
+    result = {}
+    if isinstance(filename, basestring):
+        chk = h5.File(filename)
+        do_close = True
+    else:
+        chk = filename
+        do_close = False
+    from horton.checkpoint import register
+    for field in register.itervalues():
+        att = field.read(chk)
+        d = result
+        name = field.att_name
+        if field.key is not None:
+            d = result.setdefault(field.att_name, {})
+            name = field.key()
+        d[name] = att
+    if do_close:
+        chk.close()
+    result['chk'] = filename
+    return result

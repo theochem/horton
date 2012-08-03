@@ -33,6 +33,7 @@ install relatively recent versions of the following programs/libraries:
 
 * Python < 3.0: http://www.python.org/ (also install `development files`)
 * Numpy > 1.0: http://www.scipy.org/
+* h5py >= 2.0.0: http://code.google.com/p/h5py/
 * Scipy >= 0.10.0: http://www.scipy.org/
 * Cython >= 0.15.1 : http://www.cython.org/
 * Sphinx > 1.0: http://sphinx.pocoo.org/
@@ -45,11 +46,11 @@ software.
 
 On Ubuntu Linux::
 
-    sudo apt-get install python-dev python-numpy python-scipy cython python-sphinx python-nose python-sympy
+    sudo apt-get install python-dev python-numpy python-h5py python-scipy cython python-sphinx python-nose python-sympy
 
 On Fedora Linux::
 
-    sudo apt-get install python-devel numpy scipy Cython python-sphinx python-nose sympy
+    sudo apt-get install python-devel numpy h5py scipy Cython python-sphinx python-nose sympy
 
 
 Specific dependencies
