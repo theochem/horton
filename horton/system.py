@@ -23,12 +23,13 @@
    Objects of the System class specify the geometry (and atomic elements) of the
    molecule on which Horton will perform a computation. Also other parameters
    that determine several aspects of the molecular wavefunction, are attributes
-   of a :class:`System` instance, e.g. basissets, pseudopotentials, ghost atoms,
+   of a :class:`System` instance, e.g. basis sets, pseudo-potentials, ghost atoms,
    etc.
 '''
 
 
 import numpy as np
+import h5py as h5
 
 from horton.io import load_system_args
 from horton.matrix import DenseLinalgFactory
@@ -38,7 +39,7 @@ __all__ = ['System']
 
 
 class System(object):
-    def __init__(self, coordinates, numbers, basis=None, wfn=None, lf=None, operators=None):
+    def __init__(self, coordinates, numbers, basis=None, wfn=None, lf=None, operators=None, chk=None):
         """
            **Arguments:**
 
@@ -64,6 +65,14 @@ class System(object):
 
            operators
                 A dictionary with one- and two-body operators.
+
+           chk
+                A filename for the checkpoint file or an open h5.File object.
+                If the file does not exist yet, it will be created. If the file
+                already exists, it must be an HDF5 file that is structured
+                such that it adheres to the format that Horton creates itself.
+                If chk is an open h5.File object, it will not be closed when the
+                System instance is deleted.
         """
         # A) Assign all attributes
         self._coordinates = np.array(coordinates, dtype=float, copy=False)
@@ -93,6 +102,22 @@ class System(object):
             self._operators = {}
         else:
             self._operators = operators
+        # The checkpoint file
+        if isinstance(chk, basestring):
+            # Suppose a filename is given. Create or open an HDF5 file.
+            self._chk = h5.File(chk)
+            self._close_chk = True
+        elif isinstance(chk, h5.File) or chk is None:
+            self._chk = chk
+            self._close_chk = False
+        else:
+            raise TypeError('The chk argument, when given, must be a filename or an open h5.File object.')
+        self.update_chk()
+
+    def __del__(self):
+        # Close the HD5 checkpoint file.
+        if self.chk is not None and self._close_chk:
+            self.chk.close()
 
     def get_natom(self):
         return len(self.numbers)
@@ -129,6 +154,11 @@ class System(object):
 
     operators = property(get_operators)
 
+    def get_chk(self):
+        return self._chk
+
+    chk = property(get_chk)
+
     @classmethod
     def from_file(cls, *args, **kwargs):
         """Create a System object from a file.
@@ -142,6 +172,12 @@ class System(object):
            contstruct (when needed) arrays to store the results loaded from
            file. When ``lf`` is not given, a DenseLinalgFactory is created by
            default.
+
+           The filenames may also contain checkpoint files and open h5.File
+           objects of checkpoint files. The last such checkpoint file will
+           automatically be used as a checkpoint file for this class. If you
+           want to override this behavior, provide the ``chk`` keyword argument
+           (may be None).
         """
         constructor_args = {}
         lf = kwargs.get('lf')
@@ -168,6 +204,27 @@ class System(object):
 
         return cls(**constructor_args)
 
+    def update_chk(self, field_name=None):
+        """Write (a part of) the system to the checkpoint file.
+
+           **Optional Argument:**
+
+           field
+                A field string that specifies which part must be written to the
+                checkpoint file. When not given, all possible fields are
+                written. The latter is only useful in specific cases, e.g. upon
+                initialization of the system. The available field names are
+                specified in the attribute register dictionary in the
+                module ``horton.checkpoint``.
+        """
+        from horton.checkpoint import register
+        if field_name is None:
+            for field_name, field in register.iteritems():
+                field.write(self.chk, self)
+        else:
+            field = register[field_name]
+            field.write(self.chk, self)
+
     def get_overlap(self):
         overlap = self._operators.get('olp')
         if overlap is None:
@@ -185,7 +242,6 @@ class System(object):
         return kinetic
 
     def get_nuclear_attraction(self):
-
         nuclear_attraction = self._operators.get('na')
         if nuclear_attraction is None:
             nuclear_attraction = self.lf.create_one_body(self.basis.nbasis)
