@@ -217,13 +217,14 @@ class System(object):
                 specified in the attribute register dictionary in the
                 module ``horton.checkpoint``.
         """
-        from horton.checkpoint import register
-        if field_name is None:
-            for field_name, field in register.iteritems():
-                field.write(self.chk, self)
-        else:
-            field = register[field_name]
-            field.write(self.chk, self)
+        if self._chk is not None:
+            from horton.checkpoint import register
+            if field_name is None:
+                for field_name, field in register.iteritems():
+                    field.write(self._chk, self)
+            else:
+                field = register[field_name]
+                field.write(self._chk, self)
 
     def get_overlap(self):
         overlap = self._operators.get('olp')
