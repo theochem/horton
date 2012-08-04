@@ -75,13 +75,17 @@ class CHKField(object):
         self.key = key
         self.att_class = att_class
 
-    def read(self, chk):
+    def read(self, chk, lf):
         """Read and return an the attribute from the chk file
 
            **Argument:**
 
            chk
                 A h5.File object corresponding to a Horton checkpoint file.
+
+           lf
+                A LinalgFractry class. For now, this is just used as a double
+                check.
 
            Depending on the contents of the checkpoint file corresponding to
            this field, the reading is done in a specific way. When not data is
@@ -106,7 +110,7 @@ class CHKField(object):
         elif isinstance(item, h5.Group):
             if self.att_class is None:
                 raise ValueError('The field matches a Group object in the checkpoint file but no att_class is given.')
-            return self.att_class.from_hdf5(item)
+            return self.att_class.from_hdf5(item, lf)
 
 
     def write(self, chk, system):
@@ -154,6 +158,8 @@ class CHKField(object):
             # clear the group if anything was present
             for key in grp.keys():
                 del grp[key]
+            for key in grp.attrs.keys():
+                del grp.attrs[key]
             att.to_hdf5(grp)
             # needed to create object of the right type when reading from
             # checkpoint:
@@ -161,8 +167,10 @@ class CHKField(object):
 
 
 from horton.gbasis.cext import GOBasis
+from horton.wfn import BaseWFN
 register = {
     'coordinates': CHKField('coordinates'),
     'numbers': CHKField('numbers'),
     'obasis': CHKField('basis', att_class=GOBasis),
+    'wfn': CHKField('wfn', att_class=BaseWFN),
 }

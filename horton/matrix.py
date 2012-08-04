@@ -168,6 +168,21 @@ class DenseExpansion(object):
         else:
             self._energies = None
 
+    def read_from_hdf5(self, grp):
+        if grp.attrs['class'] != self.__class__.__name__:
+            raise TypeError('The class of the expansion in the HDF5 file does not match.')
+        grp['coeffs'].read_direct(self.coeffs)
+        if self._energies is not None:
+            if 'energies' not in grp:
+                raise TypeError('The HDF5 file does not contain orbital energies.')
+            grp['energies'].read_direct(self.energies)
+
+    def to_hdf5(self, grp):
+        grp.attrs['class'] = self.__class__.__name__
+        grp['coeffs'] = self._coeffs
+        if self._energies is not None:
+            grp['energies'] = self._energies
+
     def get_nbasis(self):
         return self._coeffs.shape[1]
 

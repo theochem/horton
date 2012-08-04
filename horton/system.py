@@ -91,8 +91,6 @@ class System(object):
             raise TypeError('Can not interpret %s as a basis.' % basis)
         #
         self._wfn = wfn
-        if wfn is not None:
-            assert wfn.basis == basis
         #
         if lf is None:
             self._lf = DenseLinalgFactory()

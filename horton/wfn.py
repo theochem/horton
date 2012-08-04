@@ -21,20 +21,32 @@
 """Wavefunction implementations
 
    The essential part of the wavefunction consists of the expansion coefficients
-   in a certain basis. If all the relevant matrix elements with respect to the
-   basis are already known, it is not critical to have a detailed specification
-   of the basis set.
+   in a certain basis.
 """
 
 
 import numpy as np
 
 
-__all__ = ['ClosedShellWFN', 'OpenShellWFN']
+__all__ = ['BaseWFN', 'ClosedShellWFN', 'OpenShellWFN']
 
 
-class ClosedShellWFN(object):
-    def __init__(self, nep, lf, basis=None, nbasis=None, norb=None):
+# TODO: move common code to Base
+class BaseWFN(object):
+    @classmethod
+    def from_hdf5(cls, grp, lf):
+        clsname = grp.attrs['class']
+        if clsname == 'ClosedShellWFN':
+            return ClosedShellWFN.from_hdf5(grp, lf)
+        elif clsname == 'OpenShellWFN':
+            return OpenShellWFN.from_hdf5(grp, lf)
+        else:
+            raise TypeError('Can not load wavefunction of class %s from HDF5.' % clsname)
+
+
+
+class ClosedShellWFN(BaseWFN):
+    def __init__(self, nep, lf, nbasis, norb=None):
         """
            **Arguments:**
 
@@ -44,25 +56,22 @@ class ClosedShellWFN(object):
            lf
                 A LinalgFactor instance
 
-           **Optional arguments:**
-
-           basis
-                A specification of the basis set.
-
            nbasis
                 The number of basis functions.
+
+           **Optional arguments:**
 
            norb
                the number of orbitals (occupied + virtual). When not given,
                it is set to nbasis.
-
-           Either basis or nbasis must be given.
         """
         self._nep = nep
         self._lf = lf
-        self._basis = basis
         self._nbasis = nbasis
-        self._norb = norb
+        if norb is None:
+            self._norb = nbasis
+        else:
+            self._norb = norb
 
         if self.nep <= 0:
             raise ValueError('At least one pair of electrons is required.')
@@ -71,29 +80,31 @@ class ClosedShellWFN(object):
 
         self._expansion = lf.create_expansion(self.nbasis, self.norb, do_energies=True)
 
+    @classmethod
+    def from_hdf5(cls, grp, lf):
+        result = ClosedShellWFN(grp['nep'][()], lf, nbasis=grp['nbasis'][()], norb=grp['norb'][()])
+        result._expansion.read_from_hdf5(grp['expansion'])
+        return result
+
+    def to_hdf5(self, grp):
+        grp['nep'] = self._nep
+        grp['nbasis'] = self._nbasis
+        grp['norb'] = self._norb
+        grp_expansion = grp.create_group('expansion')
+        self._expansion.to_hdf5(grp_expansion)
+
     def get_nep(self):
         return self._nep
 
     nep = property(get_nep)
 
-    def get_basis(self):
-        return self._basis
-
-    basis = property(get_basis)
-
     def get_nbasis(self):
-        if self.basis is not None:
-            return self._basis.nbasis
-        else:
-            return self._nbasis
+        return self._nbasis
 
     nbasis = property(get_nbasis)
 
     def get_norb(self):
-        if self._norb is None:
-            return self.nbasis
-        else:
-            return self._norb
+        return self._norb
 
     norb = property(get_norb)
 
@@ -118,8 +129,8 @@ class ClosedShellWFN(object):
         self._expansion.apply_basis_permutation(permutation)
 
 
-class OpenShellWFN(object):
-    def __init__(self, nalpha, nbeta, lf, basis=None, nbasis=None, norb=None):
+class OpenShellWFN(BaseWFN):
+    def __init__(self, nalpha, nbeta, lf, nbasis, norb=None):
         """
            An unrestricted open-shell wavefunction.
 
@@ -134,26 +145,23 @@ class OpenShellWFN(object):
            lf
                 A LinalgFactor instance
 
-           **Optional arguments:**
-
-           basis
-                A specification of the basis set.
-
            nbasis
                 The number of basis functions.
+
+           **Optional arguments:**
 
            norb
                the number of orbitals (occupied + virtual). When not given,
                it is set to nbasis.
-
-           Either basis or nbasis must be given.
         """
         self._nalpha = nalpha
         self._nbeta = nbeta
         self._lf = lf
-        self._basis = basis
         self._nbasis = nbasis
-        self._norb = norb
+        if norb is None:
+            self._norb = nbasis
+        else:
+            self._norb = norb
 
         if self.nalpha + self.nbeta <= 0:
             raise ValueError('At least one alpha or beta electron is required.')
@@ -162,6 +170,23 @@ class OpenShellWFN(object):
 
         self._alpha_expansion = lf.create_expansion(self.nbasis, self.norb, do_energies=True)
         self._beta_expansion = lf.create_expansion(self.nbasis, self.norb, do_energies=True)
+
+    @classmethod
+    def from_hdf5(cls, grp, lf):
+        result = OpenShellWFN(grp['nalpha'][()], grp['nbeta'][()], lf, nbasis=grp['nbasis'][()], norb=grp['norb'][()])
+        result._alpha_expansion.read_from_hdf5(grp['alpha_expansion'])
+        result._beta_expansion.read_from_hdf5(grp['beta_expansion'])
+        return result
+
+    def to_hdf5(self, grp):
+        grp['nalpha'] = self._nalpha
+        grp['nbeta'] = self._nbeta
+        grp['nbasis'] = self._nbasis
+        grp['norb'] = self._norb
+        grp_alpha_expansion = grp.create_group('alpha_expansion')
+        self._alpha_expansion.to_hdf5(grp_alpha_expansion)
+        grp_beta_expansion = grp.create_group('beta_expansion')
+        self._beta_expansion.to_hdf5(grp_beta_expansion)
 
     def get_nalpha(self):
         return self._nalpha
@@ -173,24 +198,13 @@ class OpenShellWFN(object):
 
     nbeta = property(get_nbeta)
 
-    def get_basis(self):
-        return self._basis
-
-    basis = property(get_basis)
-
     def get_nbasis(self):
-        if self.basis is not None:
-            return self._basis.nbasis
-        else:
-            return self._nbasis
+        return self._nbasis
 
     nbasis = property(get_nbasis)
 
     def get_norb(self):
-        if self._norb is None:
-            return self.nbasis
-        else:
-            return self._norb
+        return self._norb
 
     norb = property(get_norb)
 

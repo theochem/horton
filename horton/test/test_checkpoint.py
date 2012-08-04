@@ -25,6 +25,14 @@ import tempfile, os, h5py as h5
 from horton import *
 
 
+def compare_expansions(e1, e2):
+    assert (e1.coeffs == e2.coeffs).all()
+    if e1.energies is None:
+        assert e2.energies is None
+    else:
+        assert (e1.energies == e2.energies).all()
+
+
 def compare_systems(sys1, sys2):
     assert (sys1.numbers == sys2.numbers).all()
     assert (sys1.coordinates == sys2.coordinates).all()
@@ -35,16 +43,54 @@ def compare_systems(sys1, sys2):
         assert (sys1.basis.shell_types == sys2.basis.shell_types).all()
         assert (sys1.basis.alphas == sys2.basis.alphas).all()
         assert (sys1.basis.con_coeffs == sys2.basis.con_coeffs).all()
+    else:
+        assert sys2.basis is None
+    if isinstance(sys1.wfn, ClosedShellWFN):
+        assert isinstance(sys2.wfn, ClosedShellWFN)
+        assert sys1.wfn.nep == sys2.wfn.nep
+        assert sys1.wfn.nbasis == sys2.wfn.nbasis
+        assert sys1.wfn.norb == sys2.wfn.norb
+        assert (sys1.wfn.expansion.coeffs == sys2.wfn.expansion.coeffs).all()
+        compare_expansions(sys1.wfn.expansion, sys2.wfn.expansion)
+    elif isinstance(sys1.wfn, OpenShellWFN):
+        assert isinstance(sys2.wfn, OpenShellWFN)
+        assert sys1.wfn.nalpha == sys2.wfn.nalpha
+        assert sys1.wfn.nbeta == sys2.wfn.nbeta
+        assert sys1.wfn.nbasis == sys2.wfn.nbasis
+        assert sys1.wfn.norb == sys2.wfn.norb
+        compare_expansions(sys1.wfn.alpha_expansion, sys2.wfn.alpha_expansion)
+        compare_expansions(sys1.wfn.beta_expansion, sys2.wfn.beta_expansion)
+    elif sys1.wfn is None:
+        assert sys2.wfn is None
+    else:
+        raise NotImplementedError
 
 
-def test_chk_initialization_filename():
-    tmpdir = tempfile.mkdtemp('horton.test.test_checkpoint.test_chk_initialization_filename')
+def test_chk_initialization_filename_cs():
+    tmpdir = tempfile.mkdtemp('horton.test.test_checkpoint.test_chk_initialization_filename_cs')
     try:
         fn_chk = '%s/chk.h5' % tmpdir
         sys1 = System.from_file(context.get_fn('test/hf_sto3g.fchk'), chk=fn_chk)
         del sys1
         sys1 = System.from_file(context.get_fn('test/hf_sto3g.fchk'))
         sys2 = System.from_file(fn_chk)
+        assert sys2.wfn is not None
+        compare_systems(sys1, sys2)
+    finally:
+        if os.path.isfile(fn_chk):
+            os.remove(fn_chk)
+        os.rmdir(tmpdir)
+
+
+def test_chk_initialization_filename_os():
+    tmpdir = tempfile.mkdtemp('horton.test.test_checkpoint.test_chk_initialization_filename_os')
+    try:
+        fn_chk = '%s/chk.h5' % tmpdir
+        sys1 = System.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'), chk=fn_chk)
+        del sys1
+        sys1 = System.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
+        sys2 = System.from_file(fn_chk)
+        assert sys2.wfn is not None
         compare_systems(sys1, sys2)
     finally:
         if os.path.isfile(fn_chk):

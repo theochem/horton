@@ -56,7 +56,7 @@ def load_system_args(filename, lf):
        class.
     '''
     if isinstance(filename, h5.File) or filename.endswith('.h5'):
-        return load_checkpoint(filename)
+        return load_checkpoint(filename, lf)
     if filename.endswith('.xyz'):
         coordinates, numbers = load_geom_xyz(filename)
         return {'coordinates': coordinates, 'numbers': numbers}
@@ -446,7 +446,7 @@ def load_fchk(filename, lf):
         from horton.wfn import OpenShellWFN
         nalpha = fchk.fields['Number of alpha electrons']
         nbeta = fchk.fields['Number of beta electrons']
-        wfn = OpenShellWFN(nalpha, nbeta, lf, basis, norb=nbasis_indep)
+        wfn = OpenShellWFN(nalpha, nbeta, lf, basis.nbasis, norb=nbasis_indep)
         wfn.alpha_expansion.coeffs[:] = fchk.fields['Alpha MO coefficients'].reshape(nbasis_indep, basis.nbasis).T
         wfn.alpha_expansion.energies[:] = fchk.fields['Alpha Orbital Energies']
         wfn.beta_expansion.coeffs[:] = fchk.fields['Beta MO coefficients'].reshape(nbasis_indep, basis.nbasis).T
@@ -455,14 +455,14 @@ def load_fchk(filename, lf):
         from horton.wfn import ClosedShellWFN
         nelec = fchk.fields["Number of electrons"]
         assert nelec % 2 == 0
-        wfn = ClosedShellWFN(nelec/2, lf, basis, norb=nbasis_indep)
+        wfn = ClosedShellWFN(nelec/2, lf, basis.nbasis, norb=nbasis_indep)
         wfn.expansion.coeffs[:] = fchk.fields['Alpha MO coefficients'].reshape(nbasis_indep, basis.nbasis).T
         wfn.expansion.energies[:] = fchk.fields['Alpha Orbital Energies']
 
     return coordinates, numbers, basis, wfn, permutation
 
 
-def load_checkpoint(filename):
+def load_checkpoint(filename, lf):
     """Load constructor arguments from a Horton checkpoint file
 
        **Argument:**
@@ -480,7 +480,7 @@ def load_checkpoint(filename):
         do_close = False
     from horton.checkpoint import register
     for field in register.itervalues():
-        att = field.read(chk)
+        att = field.read(chk, lf)
         d = result
         name = field.att_name
         if field.key is not None:
