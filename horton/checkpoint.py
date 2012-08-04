@@ -130,7 +130,7 @@ class CHKField(object):
            methods of its attributes.
         """
         # A) get the object that must be written to the checkpoint file
-        att = system.__dict__.get(self.att_name)
+        att = getattr(system, self.att_name, None)
         if att is None:
             return
         if self.key is not None:
@@ -145,7 +145,8 @@ class CHKField(object):
             name = self.key
         # C) Dump the data to HDF5
         if isinstance(att, np.ndarray):
-            grp[name] = att
+            dset = grp.require_dataset(name, shape=att.shape, dtype=att.dtype)
+            dset.write_direct(att)
         else:
             grp = grp.require_group(name)
             att.to_hdf5(grp)
@@ -155,6 +156,6 @@ class CHKField(object):
 
 
 register = {
-    'numbers': CHKField('numbers'),
     'coordinates': CHKField('coordinates'),
+    'numbers': CHKField('numbers'),
 }

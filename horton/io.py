@@ -55,6 +55,8 @@ def load_system_args(filename, lf):
        format. It returns a dictionary with constructor arguments for the System
        class.
     '''
+    if isinstance(filename, h5.File) or filename.endswith('.h5'):
+        return load_checkpoint(filename)
     if filename.endswith('.xyz'):
         coordinates, numbers = load_geom_xyz(filename)
         return {'coordinates': coordinates, 'numbers': numbers}
@@ -74,8 +76,6 @@ def load_system_args(filename, lf):
         if electronic_repulsion is not None:
             operators['er'] = electronic_repulsion
         return {'operators': operators}
-    elif filename.endswith('.h5'):
-        return load_checkpoint(filename)
     else:
         raise ValueError('Unknown file format: %s' % filename)
 
@@ -473,7 +473,7 @@ def load_checkpoint(filename):
     """
     result = {}
     if isinstance(filename, basestring):
-        chk = h5.File(filename)
+        chk = h5.File(filename,'r')
         do_close = True
     else:
         chk = filename
