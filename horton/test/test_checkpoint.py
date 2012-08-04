@@ -28,6 +28,13 @@ from horton import *
 def compare_systems(sys1, sys2):
     assert (sys1.numbers == sys2.numbers).all()
     assert (sys1.coordinates == sys2.coordinates).all()
+    if sys1.basis is not None:
+        assert (sys1.basis.centers == sys2.basis.centers).all()
+        assert (sys1.basis.shell_map == sys2.basis.shell_map).all()
+        assert (sys1.basis.nprims == sys2.basis.nprims).all()
+        assert (sys1.basis.shell_types == sys2.basis.shell_types).all()
+        assert (sys1.basis.alphas == sys2.basis.alphas).all()
+        assert (sys1.basis.con_coeffs == sys2.basis.con_coeffs).all()
 
 
 def test_chk_initialization_filename():
