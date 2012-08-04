@@ -340,7 +340,7 @@ cdef class GOBasis(GBasis):
         )
 
     @classmethod
-    def from_hdf5(cls, grp):
+    def from_hdf5(cls, grp, lf):
         return GOBasis(
             np.array(grp['centers']),
             np.array(grp['shell_map']),
