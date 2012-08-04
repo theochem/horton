@@ -266,6 +266,9 @@ cdef class GBasis:
         if (self._alphas.shape[0] != nprim_total):
             raise TypeError('The length of alphas must equal the total number of primitives.')
 
+    def to_hdf5(self, grp):
+        raise NotImplementedError
+
     # Array properties
 
     property centers:
@@ -335,6 +338,25 @@ cdef class GOBasis(GBasis):
             <double*>self._alphas.data, <double*>self._con_coeffs.data,
             self._centers.shape[0], self._shell_types.shape[0], self._alphas.shape[0]
         )
+
+    @classmethod
+    def from_hdf5(cls, grp):
+        return GOBasis(
+            np.array(grp['centers']),
+            np.array(grp['shell_map']),
+            np.array(grp['nprims']),
+            np.array(grp['shell_types']),
+            np.array(grp['alphas']),
+            np.array(grp['con_coeffs'])
+        )
+
+    def to_hdf5(self, grp):
+        grp['centers'] = self.centers
+        grp['shell_map'] = self.shell_map
+        grp['nprims'] = self.nprims
+        grp['shell_types'] = self.shell_types
+        grp['alphas'] = self.alphas
+        grp['con_coeffs'] = self.con_coeffs
 
     # Integral computation
 

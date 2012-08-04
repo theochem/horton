@@ -38,6 +38,7 @@ from horton.matrix import DenseLinalgFactory
 __all__ = ['System']
 
 
+# TODO: rename 'basis' to 'obasis' (where o stands for orbital)
 class System(object):
     def __init__(self, coordinates, numbers, basis=None, wfn=None, lf=None, operators=None, chk=None):
         """

@@ -24,8 +24,8 @@
    The philosophy of this module is to take away as much of the checkpointing
    machinery out of the rest of Horton. The only (somewhat unavoidable)
    exceptions to this philosophy are the ``load_checkpoint`` function in
-   ``horton.io`` and the ``from_hdf5`` and ``to_hdf5`` methods in several parts
-   of Horton.
+   ``horton.io``, the ``from_hdf5`` and ``to_hdf5`` methods in several parts
+   of Horton and calls to System.update_chk in several parts of the code.
 
    TODO: (long future) make the fields clever enough such that they can convert
    data from one linalgfactory into another.
@@ -105,8 +105,8 @@ class CHKField(object):
             return np.array(item)
         elif isinstance(item, h5.Group):
             if self.att_class is None:
-                raise ValueError('The field matches a Group object in the checkpoint file but not att_class is given.')
-            return att_class.from_hdf5(item)
+                raise ValueError('The field matches a Group object in the checkpoint file but no att_class is given.')
+            return self.att_class.from_hdf5(item)
 
 
     def write(self, chk, system):
@@ -145,17 +145,24 @@ class CHKField(object):
             name = self.key
         # C) Dump the data to HDF5
         if isinstance(att, np.ndarray):
-            dset = grp.require_dataset(name, shape=att.shape, dtype=att.dtype)
-            dset.write_direct(att)
+            # Simply overwrite old data
+            if name in grp:
+                del grp[name]
+            grp[name] = att
         else:
             grp = grp.require_group(name)
+            # clear the group if anything was present
+            for key in grp.keys():
+                del grp[key]
             att.to_hdf5(grp)
             # needed to create object of the right type when reading from
             # checkpoint:
             grp.attrs['class'] = att.__class__.__name__
 
 
+from horton.gbasis.cext import GOBasis
 register = {
     'coordinates': CHKField('coordinates'),
     'numbers': CHKField('numbers'),
+    'obasis': CHKField('basis', att_class=GOBasis),
 }
