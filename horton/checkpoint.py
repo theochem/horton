@@ -172,7 +172,7 @@ from horton.matrix import DenseOneBody, DenseTwoBody
 register = {
     'coordinates': CHKField('coordinates'),
     'numbers': CHKField('numbers'),
-    'obasis': CHKField('basis', att_class=GOBasis),
+    'obasis': CHKField('obasis', att_class=GOBasis),
     'wfn': CHKField('wfn', att_class=BaseWFN),
     'operators.olp': CHKField('operators', 'olp', att_class=DenseOneBody),
     'operators.kin': CHKField('operators', 'kin', att_class=DenseOneBody),

@@ -27,7 +27,7 @@ from horton import *
 def test_hamiltonian_init():
     coordinates = np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 1.0]])
     numbers = np.array([1, 1])
-    sys = System(coordinates, numbers, basis='STO-3G')
+    sys = System(coordinates, numbers, obasis='STO-3G')
 
     # test if no terms gives a ValueError
     try:

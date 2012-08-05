@@ -30,7 +30,7 @@ def test_guess_hamcore_cs():
     guess_hamiltionian_core(sys)
     # just a few simple checks
     assert abs(sys.wfn.expansion.energies[0] - (-2.59083334E+01)) > 1e-5 # values from fchk must be overwritten
-    assert (sys.wfn.expansion.energies.argsort() == np.arange(sys.basis.nbasis)).all()
+    assert (sys.wfn.expansion.energies.argsort() == np.arange(sys.obasis.nbasis)).all()
 
 
 def test_guess_hamcore_os():
@@ -40,6 +40,6 @@ def test_guess_hamcore_os():
     # just a few simple checks
     assert abs(sys.wfn.alpha_expansion.energies[0] - (-2.76116635E+00)) > 1e-5 # values from fchk must be overwritten
     assert abs(sys.wfn.beta_expansion.energies[0] - (-2.76031162E+00)) > 1e-5 # values from fchk must be overwritten
-    assert (sys.wfn.alpha_expansion.energies.argsort() == np.arange(sys.basis.nbasis)).all()
+    assert (sys.wfn.alpha_expansion.energies.argsort() == np.arange(sys.obasis.nbasis)).all()
     assert abs(sys.wfn.alpha_expansion.energies - sys.wfn.beta_expansion.energies).max() < 1e-10
     assert abs(sys.wfn.alpha_expansion.coeffs - sys.wfn.beta_expansion.coeffs).max() < 1e-10
