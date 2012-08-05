@@ -485,8 +485,9 @@ def load_checkpoint(filename, lf):
         name = field.att_name
         if field.key is not None:
             d = result.setdefault(field.att_name, {})
-            name = field.key()
-        d[name] = att
+            name = field.key
+        if att is not None:
+            d[name] = att
     if do_close:
         chk.close()
     result['chk'] = filename

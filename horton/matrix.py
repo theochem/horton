@@ -245,6 +245,18 @@ class DenseOneBody(object):
         """
         self._array = np.zeros((nbasis, nbasis), float)
 
+    @classmethod
+    def from_hdf5(cls, grp, lf):
+        if grp.attrs['class'] != cls.__name__:
+            raise TypeError('The class of the one-body operator in the HDF5 file does not match.')
+        nbasis = grp['array'].shape[0]
+        result = cls(nbasis)
+        grp['array'].read_direct(result._array)
+        return result
+
+    def to_hdf5(self, grp):
+        grp['array'] = self._array
+
     def get_nbasis(self):
         return self._array.shape[0]
 
@@ -305,6 +317,18 @@ class DenseTwoBody(object):
                 The number of basis functions.
         """
         self._array = np.zeros((nbasis, nbasis, nbasis, nbasis), float)
+
+    @classmethod
+    def from_hdf5(cls, grp, lf):
+        if grp.attrs['class'] != cls.__name__:
+            raise TypeError('The class of the one-body operator in the HDF5 file does not match.')
+        nbasis = grp['array'].shape[0]
+        result = cls(nbasis)
+        grp['array'].read_direct(result._array)
+        return result
+
+    def to_hdf5(self, grp):
+        grp['array'] = self._array
 
     def get_nbasis(self):
         return self._array.shape[0]

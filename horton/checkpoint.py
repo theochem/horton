@@ -168,9 +168,14 @@ class CHKField(object):
 
 from horton.gbasis.cext import GOBasis
 from horton.wfn import BaseWFN
+from horton.matrix import DenseOneBody, DenseTwoBody
 register = {
     'coordinates': CHKField('coordinates'),
     'numbers': CHKField('numbers'),
     'obasis': CHKField('basis', att_class=GOBasis),
     'wfn': CHKField('wfn', att_class=BaseWFN),
+    'operators.olp': CHKField('operators', 'olp', att_class=DenseOneBody),
+    'operators.kin': CHKField('operators', 'kin', att_class=DenseOneBody),
+    'operators.na': CHKField('operators', 'na', att_class=DenseOneBody),
+    'operators.er': CHKField('operators', 'er', att_class=DenseTwoBody),
 }
