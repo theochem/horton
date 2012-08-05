@@ -68,7 +68,7 @@ def converge_scf_cs(ham, max_iter=128, threshold=1e-8):
     '''
     lf = ham.system.lf
     wfn = ham.system.wfn
-    nbasis = ham.system.basis.nbasis
+    nbasis = ham.system.obasis.nbasis
     fock = lf.create_one_body(nbasis)
     dm = lf.create_one_body(nbasis)
     for i in xrange(max_iter):
@@ -103,7 +103,7 @@ def converge_scf_os(ham, max_iter=128, threshold=1e-8):
     '''
     lf = ham.system.lf
     wfn = ham.system.wfn
-    nbasis = ham.system.basis.nbasis
+    nbasis = ham.system.obasis.nbasis
     fock_alpha = lf.create_one_body(nbasis)
     fock_beta = lf.create_one_body(nbasis)
     dm_alpha = lf.create_one_body(nbasis)

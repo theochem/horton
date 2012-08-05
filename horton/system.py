@@ -38,9 +38,8 @@ from horton.matrix import DenseLinalgFactory
 __all__ = ['System']
 
 
-# TODO: rename 'basis' to 'obasis' (where o stands for orbital)
 class System(object):
-    def __init__(self, coordinates, numbers, basis=None, wfn=None, lf=None, operators=None, chk=None):
+    def __init__(self, coordinates, numbers, obasis=None, wfn=None, lf=None, operators=None, chk=None):
         """
            **Arguments:**
 
@@ -51,9 +50,10 @@ class System(object):
            numbers
                 A (N,) int numpy vector with the atomic numbers.
 
-           basis
+           obasis
                 A string or an instance of either the basis set or basis set
                 description classes, e.g. 'STO-3G', GOBasisDesc('STO-3G'), ...
+                for the orbitals.
 
            **Optional arguments:**
 
@@ -80,15 +80,15 @@ class System(object):
         self._numbers = np.array(numbers, dtype=int, copy=False)
         #
         from horton.gbasis import GOBasisDesc, GOBasis
-        if isinstance(basis, str):
-            basis_desc = GOBasisDesc(basis)
-            self._basis = basis_desc.apply_to(self)
-        elif isinstance(basis, GOBasisDesc):
-            self._basis = basis.apply_to(self)
-        elif isinstance(basis, GOBasis) or basis is None:
-            self._basis = basis
+        if isinstance(obasis, str):
+            obasis_desc = GOBasisDesc(obasis)
+            self._obasis = obasis_desc.apply_to(self)
+        elif isinstance(obasis, GOBasisDesc):
+            self._obasis = obasis.apply_to(self)
+        elif isinstance(obasis, GOBasis) or obasis is None:
+            self._obasis = obasis
         else:
-            raise TypeError('Can not interpret %s as a basis.' % basis)
+            raise TypeError('Can not interpret %s as an orbital basis.' % obasis)
         #
         self._wfn = wfn
         #
@@ -133,10 +133,10 @@ class System(object):
 
     numbers = property(get_numbers)
 
-    def get_basis(self):
-        return self._basis
+    def get_obasis(self):
+        return self._obasis
 
-    basis = property(get_basis)
+    obasis = property(get_obasis)
 
     def get_wfn(self):
         return self._wfn
@@ -228,32 +228,32 @@ class System(object):
     def get_overlap(self):
         overlap = self._operators.get('olp')
         if overlap is None:
-            overlap = self.lf.create_one_body(self.basis.nbasis)
-            self.basis.compute_overlap(overlap)
+            overlap = self.lf.create_one_body(self.obasis.nbasis)
+            self.obasis.compute_overlap(overlap)
             self._operators['olp'] = overlap
         return overlap
 
     def get_kinetic(self):
         kinetic = self._operators.get('kin')
         if kinetic is None:
-            kinetic = self.lf.create_one_body(self.basis.nbasis)
-            self.basis.compute_kinetic(kinetic)
+            kinetic = self.lf.create_one_body(self.obasis.nbasis)
+            self.obasis.compute_kinetic(kinetic)
             self._operators['kin'] = kinetic
         return kinetic
 
     def get_nuclear_attraction(self):
         nuclear_attraction = self._operators.get('na')
         if nuclear_attraction is None:
-            nuclear_attraction = self.lf.create_one_body(self.basis.nbasis)
+            nuclear_attraction = self.lf.create_one_body(self.obasis.nbasis)
             # TODO: ghost atoms and extra charges
-            self.basis.compute_nuclear_attraction(self.numbers.astype(float), self.coordinates, nuclear_attraction)
+            self.obasis.compute_nuclear_attraction(self.numbers.astype(float), self.coordinates, nuclear_attraction)
             self._operators['na'] = nuclear_attraction
         return nuclear_attraction
 
     def get_electron_repulsion(self):
         electron_repulsion = self._operators.get('er')
         if electron_repulsion is None:
-            electron_repulsion = self.lf.create_two_body(self.basis.nbasis)
-            self.basis.compute_electron_repulsion(electron_repulsion)
+            electron_repulsion = self.lf.create_two_body(self.obasis.nbasis)
+            self.obasis.compute_electron_repulsion(electron_repulsion)
             self._operators['er'] = electron_repulsion
         return electron_repulsion

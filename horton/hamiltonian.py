@@ -96,7 +96,7 @@ class KineticEnergy(HamiltonianTerm):
 class Hartree(HamiltonianTerm):
     def prepare_system(self, system):
         self.electron_repulsion = system.get_electron_repulsion()
-        self.coulomb = system.lf.create_one_body(system.basis.nbasis)
+        self.coulomb = system.lf.create_one_body(system.obasis.nbasis)
 
     def add_fock_matrix(self, dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta):
         if dm_beta is None:
@@ -117,7 +117,7 @@ class HartreeFock(Hartree):
 
     def prepare_system(self, system):
         Hartree.prepare_system(self, system)
-        self.exchange = system.lf.create_one_body(system.basis.nbasis)
+        self.exchange = system.lf.create_one_body(system.obasis.nbasis)
 
     def add_fock_matrix(self, dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta):
         """This method is called once before add_fock_matrix is called"""

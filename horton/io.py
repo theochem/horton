@@ -61,8 +61,8 @@ def load_system_args(filename, lf):
         coordinates, numbers = load_geom_xyz(filename)
         return {'coordinates': coordinates, 'numbers': numbers}
     elif filename.endswith('.fchk'):
-        coordinates, numbers, basis, wfn, permutation = load_fchk(filename, lf)
-        return {'coordinates': coordinates, 'numbers': numbers, 'basis': basis,
+        coordinates, numbers, obasis, wfn, permutation = load_fchk(filename, lf)
+        return {'coordinates': coordinates, 'numbers': numbers, 'obasis': obasis,
                 'wfn': wfn, 'permutation': permutation}
     elif filename.endswith('.log'):
         overlap, kinetic, nuclear_attraction, electronic_repulsion = load_operators_g09(filename, lf)
@@ -127,7 +127,7 @@ def load_operators_g09(fn, lf):
     """
 
     with open(fn) as f:
-        # First get the line with the number of basis functions
+        # First get the line with the number of orbital basis functions
         for line in f:
             if line.startswith('    NBasis ='):
                 nbasis = int(line[12:18])
@@ -163,7 +163,7 @@ def _load_onebody_g09(f, nbasis, lf):
             A file object for the Gaussian log file in read mode.
 
        nbasis
-            The number of basis functions.
+            The number of orbital basis functions.
 
        lf
             A LinalgFactory instance.
@@ -193,7 +193,7 @@ def _load_twobody_g09(f, nbasis, lf):
             A file object for the Gaussian log file in read mode.
 
        nbasis
-            The number of basis functions.
+            The number of orbital basis functions.
 
        lf
             A LinalgFactory instance.
@@ -326,7 +326,7 @@ class FCHKFile(object):
         self.title = f.readline()[:-1].strip()
         words = f.readline().split()
         if len(words) == 3:
-            self.command, self.lot, self.basis = words
+            self.command, self.lot, self.obasis = words
         elif len(words) == 2:
             self.command, self.lot = words
         else:
@@ -365,7 +365,7 @@ def load_fchk(filename, lf):
     numbers = fchk.fields["Atomic numbers"]
     coordinates = fchk.fields["Current cartesian coordinates"].reshape(-1,3)
 
-    # B) Load the basis set
+    # B) Load the orbital basis set
     shell_types = fchk.fields["Shell types"]
     shell_map = fchk.fields["Shell to atom map"] - 1
     nprims = fchk.fields["Number of primitives per shell"]
@@ -409,9 +409,9 @@ def load_fchk(filename, lf):
     del nprims
     del alphas
 
-    basis = GOBasis(coordinates, my_shell_map, my_nprims, my_shell_types, my_alphas, con_coeffs)
+    obasis = GOBasis(coordinates, my_shell_map, my_nprims, my_shell_types, my_alphas, con_coeffs)
 
-    # permutation of the basis functions
+    # permutation of the orbital basis functions
     permutation_rules = {
       -9: np.arange(19),
       -8: np.arange(17),
@@ -441,25 +441,25 @@ def load_fchk(filename, lf):
     # C) Load the wavefunction
     nbasis_indep = fchk.fields.get("Number of independant functions")
     if nbasis_indep is None:
-        nbasis_indep = basis.nbasis
+        nbasis_indep = obasis.nbasis
     if 'Beta Orbital Energies' in fchk.fields:
         from horton.wfn import OpenShellWFN
         nalpha = fchk.fields['Number of alpha electrons']
         nbeta = fchk.fields['Number of beta electrons']
-        wfn = OpenShellWFN(nalpha, nbeta, lf, basis.nbasis, norb=nbasis_indep)
-        wfn.alpha_expansion.coeffs[:] = fchk.fields['Alpha MO coefficients'].reshape(nbasis_indep, basis.nbasis).T
+        wfn = OpenShellWFN(nalpha, nbeta, lf, obasis.nbasis, norb=nbasis_indep)
+        wfn.alpha_expansion.coeffs[:] = fchk.fields['Alpha MO coefficients'].reshape(nbasis_indep, obasis.nbasis).T
         wfn.alpha_expansion.energies[:] = fchk.fields['Alpha Orbital Energies']
-        wfn.beta_expansion.coeffs[:] = fchk.fields['Beta MO coefficients'].reshape(nbasis_indep, basis.nbasis).T
+        wfn.beta_expansion.coeffs[:] = fchk.fields['Beta MO coefficients'].reshape(nbasis_indep, obasis.nbasis).T
         wfn.beta_expansion.energies[:] = fchk.fields['Beta Orbital Energies']
     else:
         from horton.wfn import ClosedShellWFN
         nelec = fchk.fields["Number of electrons"]
         assert nelec % 2 == 0
-        wfn = ClosedShellWFN(nelec/2, lf, basis.nbasis, norb=nbasis_indep)
-        wfn.expansion.coeffs[:] = fchk.fields['Alpha MO coefficients'].reshape(nbasis_indep, basis.nbasis).T
+        wfn = ClosedShellWFN(nelec/2, lf, obasis.nbasis, norb=nbasis_indep)
+        wfn.expansion.coeffs[:] = fchk.fields['Alpha MO coefficients'].reshape(nbasis_indep, obasis.nbasis).T
         wfn.expansion.energies[:] = fchk.fields['Alpha Orbital Energies']
 
-    return coordinates, numbers, basis, wfn, permutation
+    return coordinates, numbers, obasis, wfn, permutation
 
 
 def load_checkpoint(filename, lf):

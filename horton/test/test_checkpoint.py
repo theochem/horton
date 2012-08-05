@@ -66,16 +66,16 @@ def compare_two_body(sys1, sys2, key):
 def compare_systems(sys1, sys2):
     assert (sys1.numbers == sys2.numbers).all()
     assert (sys1.coordinates == sys2.coordinates).all()
-    # basis
-    if sys1.basis is not None:
-        assert (sys1.basis.centers == sys2.basis.centers).all()
-        assert (sys1.basis.shell_map == sys2.basis.shell_map).all()
-        assert (sys1.basis.nprims == sys2.basis.nprims).all()
-        assert (sys1.basis.shell_types == sys2.basis.shell_types).all()
-        assert (sys1.basis.alphas == sys2.basis.alphas).all()
-        assert (sys1.basis.con_coeffs == sys2.basis.con_coeffs).all()
+    # orbital basis
+    if sys1.obasis is not None:
+        assert (sys1.obasis.centers == sys2.obasis.centers).all()
+        assert (sys1.obasis.shell_map == sys2.obasis.shell_map).all()
+        assert (sys1.obasis.nprims == sys2.obasis.nprims).all()
+        assert (sys1.obasis.shell_types == sys2.obasis.shell_types).all()
+        assert (sys1.obasis.alphas == sys2.obasis.alphas).all()
+        assert (sys1.obasis.con_coeffs == sys2.obasis.con_coeffs).all()
     else:
-        assert sys2.basis is None
+        assert sys2.obasis is None
     # wfn
     if isinstance(sys1.wfn, ClosedShellWFN):
         assert isinstance(sys2.wfn, ClosedShellWFN)
