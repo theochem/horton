@@ -101,6 +101,20 @@ class System(object):
             self._operators = {}
         else:
             self._operators = operators
+
+        # Some consistency checks
+        if len(self.numbers.shape) != 1 or \
+           len(self.coordinates.shape) != 2 or \
+           self.coordinates.shape[1] != 3 or \
+           len(self.numbers) != len(self.coordinates):
+            raise TypeError('Inconsistent or incorrect shapes of numbers and coordinates.')
+        if self.obasis is not None:
+            if self._wfn is not None and self._obasis.nbasis != self._wfn.nbasis:
+                raise TypeError('The nbasis attributes of obasis and wfn are inconsistent.')
+            for key, op in self._operators.iteritems():
+                if op.nbasis != self._obasis.nbasis:
+                    raise TypeError('The nbasis attributes of the operator %s and obasis are inconsistent.')
+
         # The checkpoint file
         if isinstance(chk, basestring):
             # Suppose a filename is given. Create or open an HDF5 file.
@@ -114,8 +128,9 @@ class System(object):
         self.update_chk()
 
     def __del__(self):
-        # Close the HD5 checkpoint file.
-        if self.chk is not None and self._close_chk:
+        # Close the HD5 checkpoint file. This must be done carefully to avoid
+        # spurious error messages when an unrelated exception occurs.
+        if hasattr(self, '_chk') and self.chk is not None and self._close_chk:
             self.chk.close()
 
     def get_natom(self):
