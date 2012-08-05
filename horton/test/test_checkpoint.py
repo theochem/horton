@@ -199,3 +199,74 @@ def test_chk_update2():
     assert (sys1.numbers != [3, 2]).all()
     assert sys1.coordinates[0,2] == 0.25
     chk.close()
+
+
+def test_chk_operators():
+    chk = h5.File('horton.test.test_checkpoint.test_chk_operators', driver='core', backing_store=False)
+    sys1 = System.from_file(context.get_fn('test/hf_sto3g.fchk'), chk=chk)
+    ar_olp = sys1.get_overlap()._array
+    ar_kin = sys1.get_kinetic()._array
+    ar_na = sys1.get_nuclear_attraction()._array
+    ar_er = sys1.get_electron_repulsion()._array
+    del sys1
+    sys1 = System.from_file(chk)
+    assert (ar_olp == sys1.get_overlap()._array).all()
+    assert (ar_kin == sys1.get_kinetic()._array).all()
+    assert (ar_na == sys1.get_nuclear_attraction()._array).all()
+    assert (ar_er == sys1.get_electron_repulsion()._array).all()
+
+
+def test_chk_guess_scf_cs():
+    chk = h5.File('horton.test.test_checkpoint.test_chk_guess_cs', driver='core', backing_store=False)
+    fn_fchk = context.get_fn('test/hf_sto3g.fchk')
+    sys = System.from_file(fn_fchk, chk=chk)
+
+    guess_hamiltionian_core(sys)
+    c = sys.wfn.expansion._coeffs
+    e = sys.wfn.expansion._energies
+    del sys
+    sys = System.from_file(chk)
+    assert (sys.wfn.expansion._coeffs == c).all()
+    assert (sys.wfn.expansion._energies == e).all()
+
+    ham = Hamiltonian(sys, [HartreeFock()])
+    converge_scf(ham, 5)
+    c = sys.wfn.expansion._coeffs
+    e = sys.wfn.expansion._energies
+    del sys
+    del ham
+    sys = System.from_file(chk)
+    assert (sys.wfn.expansion._coeffs == c).all()
+    assert (sys.wfn.expansion._energies == e).all()
+
+
+def test_chk_guess_os():
+    chk = h5.File('horton.test.test_checkpoint.test_chk_guess_os', driver='core', backing_store=False)
+    fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
+    sys = System.from_file(fn_fchk, chk=chk)
+
+    guess_hamiltionian_core(sys)
+    ac = sys.wfn.alpha_expansion._coeffs
+    bc = sys.wfn.beta_expansion._coeffs
+    ae = sys.wfn.alpha_expansion._energies
+    be = sys.wfn.beta_expansion._energies
+    del sys
+    sys = System.from_file(chk)
+    assert (sys.wfn.alpha_expansion._coeffs == ac).all()
+    assert (sys.wfn.beta_expansion._coeffs == bc).all()
+    assert (sys.wfn.alpha_expansion._energies == ae).all()
+    assert (sys.wfn.beta_expansion._energies == be).all()
+
+    ham = Hamiltonian(sys, [HartreeFock()])
+    converge_scf(ham, 5)
+    ac = sys.wfn.alpha_expansion._coeffs
+    bc = sys.wfn.beta_expansion._coeffs
+    ae = sys.wfn.alpha_expansion._energies
+    be = sys.wfn.beta_expansion._energies
+    del sys
+    del ham
+    sys = System.from_file(chk)
+    assert (sys.wfn.alpha_expansion._coeffs == ac).all()
+    assert (sys.wfn.beta_expansion._coeffs == bc).all()
+    assert (sys.wfn.alpha_expansion._energies == ae).all()
+    assert (sys.wfn.beta_expansion._energies == be).all()

@@ -246,6 +246,7 @@ class System(object):
             overlap = self.lf.create_one_body(self.obasis.nbasis)
             self.obasis.compute_overlap(overlap)
             self._operators['olp'] = overlap
+            self.update_chk('operators.olp')
         return overlap
 
     def get_kinetic(self):
@@ -254,6 +255,7 @@ class System(object):
             kinetic = self.lf.create_one_body(self.obasis.nbasis)
             self.obasis.compute_kinetic(kinetic)
             self._operators['kin'] = kinetic
+            self.update_chk('operators.kin')
         return kinetic
 
     def get_nuclear_attraction(self):
@@ -263,6 +265,7 @@ class System(object):
             # TODO: ghost atoms and extra charges
             self.obasis.compute_nuclear_attraction(self.numbers.astype(float), self.coordinates, nuclear_attraction)
             self._operators['na'] = nuclear_attraction
+            self.update_chk('operators.na')
         return nuclear_attraction
 
     def get_electron_repulsion(self):
@@ -271,4 +274,5 @@ class System(object):
             electron_repulsion = self.lf.create_two_body(self.obasis.nbasis)
             self.obasis.compute_electron_repulsion(electron_repulsion)
             self._operators['er'] = electron_repulsion
+            self.update_chk('operators.er')
         return electron_repulsion
