@@ -82,6 +82,8 @@ def converge_scf_cs(ham, max_iter=128, threshold=1e-8):
             break
         # Diagonalize the fock operator
         lf.diagonalize(fock, ham.overlap, wfn.expansion)
+        # Write intermediate results to checkpoint
+        ham.system.update_chk('wfn')
 
 
 
@@ -127,3 +129,5 @@ def converge_scf_os(ham, max_iter=128, threshold=1e-8):
         # Diagonalize the fock operators
         lf.diagonalize(fock_alpha, ham.overlap, wfn.alpha_expansion)
         lf.diagonalize(fock_beta, ham.overlap, wfn.beta_expansion)
+        # Write intermediate results to checkpoint
+        ham.system.update_chk('wfn')
