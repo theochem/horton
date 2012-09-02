@@ -1,0 +1,69 @@
+# -*- coding: utf-8 -*-
+# Horton is a Density Functional Theory program.
+# Copyright (C) 2011-2012 Toon Verstraelen <Toon.Verstraelen@UGent.be>
+#
+# This file is part of Horton.
+#
+# Horton is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 3
+# of the License, or (at your option) any later version.
+#
+# Horton is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>
+#
+#--
+
+
+from horton import *
+
+import numpy as np
+
+
+def test_lebedev_laikov_npoint():
+    assert lebedev_laikov_npoint(0) == 6
+    assert lebedev_laikov_npoint(1) == 6
+    assert lebedev_laikov_npoint(2) == 6
+    assert lebedev_laikov_npoint(3) == 6
+    assert lebedev_laikov_npoint(4) == 14
+    assert lebedev_laikov_npoint(5) == 14
+    assert lebedev_laikov_npoint(6) == 26
+    assert lebedev_laikov_npoint(7) == 26
+    assert lebedev_laikov_npoint(30) == 350
+    assert lebedev_laikov_npoint(31) == 350
+    assert lebedev_laikov_npoint(32) == 434
+    assert lebedev_laikov_npoint(33) == 434
+    assert lebedev_laikov_npoint(34) == 434
+    assert lebedev_laikov_npoint(35) == 434
+    assert lebedev_laikov_npoint(36) == 590
+    assert lebedev_laikov_npoint(120) == 5294
+    assert lebedev_laikov_npoint(126) == 5810
+    assert lebedev_laikov_npoint(127) == 5810
+    assert lebedev_laikov_npoint(128) == 5810
+    assert lebedev_laikov_npoint(129) == 5810
+    assert lebedev_laikov_npoint(130) == 5810
+    assert lebedev_laikov_npoint(131) == 5810
+    for lvalue in -1, 132, 200, 2000:
+        try:
+            lebedev_laikov_npoint(lvalue)
+            assert False
+        except ValueError:
+            pass
+
+
+def test_lebedev_laikov_sphere():
+    previous_npoint = None
+    for i in xrange(132):
+        npoint = lebedev_laikov_npoint(i)
+        if npoint > previous_npoint:
+            grid = np.zeros((npoint, 4), float)
+            lebedev_laikov_sphere(grid)
+            assert abs(np.dot(grid[:,0], grid[:,3])) < 1e-20
+            assert abs(np.dot(grid[:,1], grid[:,3])) < 1e-20
+            assert abs(np.dot(grid[:,2], grid[:,3])) < 1e-20
+        previous_npoint = npoint

@@ -20,17 +20,30 @@
 #--
 
 
-from horton.atgrid import *
-from horton.checkpoint import *
-from horton.constants import *
-from horton.context import *
-from horton.gbasis import *
-from horton.guess import *
-from horton.hamiltonian import *
-from horton.io import *
-from horton.matrix import *
-from horton.periodic import *
-from horton.scf import *
-from horton.system import *
-from horton.units import *
-from horton.wfn import *
+import numpy as np
+cimport numpy as np
+np.import_array()
+
+cimport lebedev_laikov
+
+__all__ = [
+    # lebedev_laikov
+    'lebedev_laikov_npoint', 'lebedev_laikov_sphere'
+]
+
+def lebedev_laikov_npoint(int lvalue):
+    '''lebedev_laikov_npoint(lvalue)
+
+       Return the number of Lebedev-Laikov grid points for a given angular
+       momentum.
+    '''
+    return lebedev_laikov.lebedev_laikov_npoint(lvalue)
+
+def lebedev_laikov_sphere(np.ndarray[double, ndim=2] grid):
+    '''lebedev_laikov_sphere(grid)
+
+       Fill the grid with a Lebedev Laikov grid points of a given size.
+    '''
+    assert grid.flags['C_CONTIGUOUS']
+    assert grid.shape[1] == 4
+    lebedev_laikov.lebedev_laikov_sphere(grid.shape[0], <double*>grid.data)
