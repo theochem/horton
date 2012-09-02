@@ -71,6 +71,8 @@ def main():
         '.',
         'horton',
         'horton/test',
+        'horton/atgrid',
+        'horton/atgrid/test',
         'horton/gbasis',
         'horton/gbasis/test',
     ]

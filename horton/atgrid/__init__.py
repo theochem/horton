@@ -19,18 +19,4 @@
 #
 #--
 
-
-from horton.atgrid import *
-from horton.checkpoint import *
-from horton.constants import *
-from horton.context import *
-from horton.gbasis import *
-from horton.guess import *
-from horton.hamiltonian import *
-from horton.io import *
-from horton.matrix import *
-from horton.periodic import *
-from horton.scf import *
-from horton.system import *
-from horton.units import *
-from horton.wfn import *
+from horton.atgrid.cext import *

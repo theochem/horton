@@ -52,6 +52,10 @@ setup(
             extra_objects=['depends/libint-2.0.0-stable/lib/libint2.a'],
             include_dirs=['depends/libint-2.0.0-stable/include'],
             language="c++"),
+        Extension("horton.atgrid.cext",
+            sources=['horton/atgrid/cext.pyx', 'horton/atgrid/lebedev_laikov.cpp'],
+            depends=['horton/atgrid/lebedev_laikov.h', 'horton/atgrid/lebedev_laikov.pxd'],
+            language="c++"),
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
