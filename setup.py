@@ -34,7 +34,9 @@ setup(
     author_email='Toon.Verstraelen@UGent.be',
     url='http://molmod.ugent.be/code/',
     package_dir = {'horton': 'horton'},
-    packages=['horton', 'horton/test', 'horton/gbasis', 'horton/gbasis/test'],
+    packages=['horton', 'horton/test',
+              'horton/atgrid', 'horton/atgrid/test',
+              'horton/gbasis', 'horton/gbasis/test'],
     cmdclass = {'build_ext': build_ext},
     ext_modules=[
         Extension("horton.gbasis.cext",
