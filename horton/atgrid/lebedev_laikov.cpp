@@ -175,156 +175,159 @@ int lebedev_laikov_npoint(int lvalue)
    v
       The weight
 
-   grid
-      The first pointer of the grid.
+   points
+      The first pointer of the grid points.
+
+   weights
+      The first pointer of the grid weights.
 
    **Returns:**
 
    The number of grid points added.
 */
-static int lebedev_laikov_oh(int n, double a, double b, double v, double *grid)
+static int lebedev_laikov_oh(int n, double a, double b, double v, double* points, double* weights)
 {
   double c;
   switch (n) {
     case 1:
       a = 1.0;
-      grid[  0] =   a; grid[  1] = 0.0; grid[  2] = 0.0; grid[  3] =   v;
-      grid[  4] =  -a; grid[  5] = 0.0; grid[  6] = 0.0; grid[  7] =   v;
-      grid[  8] = 0.0; grid[  9] =   a; grid[ 10] = 0.0; grid[ 11] =   v;
-      grid[ 12] = 0.0; grid[ 13] =  -a; grid[ 14] = 0.0; grid[ 15] =   v;
-      grid[ 16] = 0.0; grid[ 17] = 0.0; grid[ 18] =   a; grid[ 19] =   v;
-      grid[ 20] = 0.0; grid[ 21] = 0.0; grid[ 22] =  -a; grid[ 23] =   v;
+      points[  0] =   a; points[  1] = 0.0; points[  2] = 0.0; weights[ 0] = v;
+      points[  3] =  -a; points[  4] = 0.0; points[  5] = 0.0; weights[ 1] = v;
+      points[  6] = 0.0; points[  7] =   a; points[  8] = 0.0; weights[ 2] = v;
+      points[  9] = 0.0; points[ 10] =  -a; points[ 11] = 0.0; weights[ 3] = v;
+      points[ 12] = 0.0; points[ 13] = 0.0; points[ 14] =   a; weights[ 4] = v;
+      points[ 15] = 0.0; points[ 16] = 0.0; points[ 17] =  -a; weights[ 5] = v;
       return 6;
     case 2:
       a = 1.0/sqrt (2.0);
-      grid[  0] = 0.0; grid[  1] =   a; grid[  2] =   a; grid[  3] =   v;
-      grid[  4] = 0.0; grid[  5] =   a; grid[  6] =  -a; grid[  7] =   v;
-      grid[  8] = 0.0; grid[  9] =  -a; grid[ 10] =   a; grid[ 11] =   v;
-      grid[ 12] = 0.0; grid[ 13] =  -a; grid[ 14] =  -a; grid[ 15] =   v;
-      grid[ 16] =   a; grid[ 17] = 0.0; grid[ 18] =   a; grid[ 19] =   v;
-      grid[ 20] =   a; grid[ 21] = 0.0; grid[ 22] =  -a; grid[ 23] =   v;
-      grid[ 24] =  -a; grid[ 25] = 0.0; grid[ 26] =   a; grid[ 27] =   v;
-      grid[ 28] =  -a; grid[ 29] = 0.0; grid[ 30] =  -a; grid[ 31] =   v;
-      grid[ 32] =   a; grid[ 33] =   a; grid[ 34] = 0.0; grid[ 35] =   v;
-      grid[ 36] =   a; grid[ 37] =  -a; grid[ 38] = 0.0; grid[ 39] =   v;
-      grid[ 40] =  -a; grid[ 41] =   a; grid[ 42] = 0.0; grid[ 43] =   v;
-      grid[ 44] =  -a; grid[ 45] =  -a; grid[ 46] = 0.0; grid[ 47] =   v;
+      points[  0] = 0.0; points[  1] =   a; points[  2] =   a; weights[ 0] = v;
+      points[  3] = 0.0; points[  4] =   a; points[  5] =  -a; weights[ 1] = v;
+      points[  6] = 0.0; points[  7] =  -a; points[  8] =   a; weights[ 2] = v;
+      points[  9] = 0.0; points[ 10] =  -a; points[ 11] =  -a; weights[ 3] = v;
+      points[ 12] =   a; points[ 13] = 0.0; points[ 14] =   a; weights[ 4] = v;
+      points[ 15] =   a; points[ 16] = 0.0; points[ 17] =  -a; weights[ 5] = v;
+      points[ 18] =  -a; points[ 19] = 0.0; points[ 20] =   a; weights[ 6] = v;
+      points[ 21] =  -a; points[ 22] = 0.0; points[ 23] =  -a; weights[ 7] = v;
+      points[ 24] =   a; points[ 25] =   a; points[ 26] = 0.0; weights[ 8] = v;
+      points[ 27] =   a; points[ 28] =  -a; points[ 29] = 0.0; weights[ 9] = v;
+      points[ 30] =  -a; points[ 31] =   a; points[ 32] = 0.0; weights[10] = v;
+      points[ 33] =  -a; points[ 34] =  -a; points[ 35] = 0.0; weights[11] = v;
       return 12;
     case 3:
       a = 1.0/sqrt (3.0);
-      grid[  0] =   a; grid[  1] =   a; grid[  2] =   a; grid[  3] =   v;
-      grid[  4] =   a; grid[  5] =   a; grid[  6] =  -a; grid[  7] =   v;
-      grid[  8] =   a; grid[  9] =  -a; grid[ 10] =   a; grid[ 11] =   v;
-      grid[ 12] =   a; grid[ 13] =  -a; grid[ 14] =  -a; grid[ 15] =   v;
-      grid[ 16] =  -a; grid[ 17] =   a; grid[ 18] =   a; grid[ 19] =   v;
-      grid[ 20] =  -a; grid[ 21] =   a; grid[ 22] =  -a; grid[ 23] =   v;
-      grid[ 24] =  -a; grid[ 25] =  -a; grid[ 26] =   a; grid[ 27] =   v;
-      grid[ 28] =  -a; grid[ 29] =  -a; grid[ 30] =  -a; grid[ 31] =   v;
+      points[  0] =   a; points[  1] =   a; points[  2] =   a; weights[ 0] = v;
+      points[  3] =   a; points[  4] =   a; points[  5] =  -a; weights[ 1] = v;
+      points[  6] =   a; points[  7] =  -a; points[  8] =   a; weights[ 2] = v;
+      points[  9] =   a; points[ 10] =  -a; points[ 11] =  -a; weights[ 3] = v;
+      points[ 12] =  -a; points[ 13] =   a; points[ 14] =   a; weights[ 4] = v;
+      points[ 15] =  -a; points[ 16] =   a; points[ 17] =  -a; weights[ 5] = v;
+      points[ 18] =  -a; points[ 19] =  -a; points[ 20] =   a; weights[ 6] = v;
+      points[ 21] =  -a; points[ 22] =  -a; points[ 23] =  -a; weights[ 7] = v;
       return 8;
     case 4:
       b = sqrt (1.0 - 2.0*a*a);
-      grid[  0] =   a; grid[  1] =   a; grid[  2] =   b; grid[  3] =   v;
-      grid[  4] =   a; grid[  5] =   a; grid[  6] =  -b; grid[  7] =   v;
-      grid[  8] =   a; grid[  9] =  -a; grid[ 10] =   b; grid[ 11] =   v;
-      grid[ 12] =   a; grid[ 13] =  -a; grid[ 14] =  -b; grid[ 15] =   v;
-      grid[ 16] =  -a; grid[ 17] =   a; grid[ 18] =   b; grid[ 19] =   v;
-      grid[ 20] =  -a; grid[ 21] =   a; grid[ 22] =  -b; grid[ 23] =   v;
-      grid[ 24] =  -a; grid[ 25] =  -a; grid[ 26] =   b; grid[ 27] =   v;
-      grid[ 28] =  -a; grid[ 29] =  -a; grid[ 30] =  -b; grid[ 31] =   v;
-      grid[ 32] =   a; grid[ 33] =   b; grid[ 34] =   a; grid[ 35] =   v;
-      grid[ 36] =   a; grid[ 37] =  -b; grid[ 38] =   a; grid[ 39] =   v;
-      grid[ 40] =   a; grid[ 41] =   b; grid[ 42] =  -a; grid[ 43] =   v;
-      grid[ 44] =   a; grid[ 45] =  -b; grid[ 46] =  -a; grid[ 47] =   v;
-      grid[ 48] =  -a; grid[ 49] =   b; grid[ 50] =   a; grid[ 51] =   v;
-      grid[ 52] =  -a; grid[ 53] =  -b; grid[ 54] =   a; grid[ 55] =   v;
-      grid[ 56] =  -a; grid[ 57] =   b; grid[ 58] =  -a; grid[ 59] =   v;
-      grid[ 60] =  -a; grid[ 61] =  -b; grid[ 62] =  -a; grid[ 63] =   v;
-      grid[ 64] =   b; grid[ 65] =   a; grid[ 66] =   a; grid[ 67] =   v;
-      grid[ 68] =  -b; grid[ 69] =   a; grid[ 70] =   a; grid[ 71] =   v;
-      grid[ 72] =   b; grid[ 73] =   a; grid[ 74] =  -a; grid[ 75] =   v;
-      grid[ 76] =  -b; grid[ 77] =   a; grid[ 78] =  -a; grid[ 79] =   v;
-      grid[ 80] =   b; grid[ 81] =  -a; grid[ 82] =   a; grid[ 83] =   v;
-      grid[ 84] =  -b; grid[ 85] =  -a; grid[ 86] =   a; grid[ 87] =   v;
-      grid[ 88] =   b; grid[ 89] =  -a; grid[ 90] =  -a; grid[ 91] =   v;
-      grid[ 92] =  -b; grid[ 93] =  -a; grid[ 94] =  -a; grid[ 95] =   v;
+      points[  0] =   a; points[  1] =   a; points[  2] =   b; weights[ 0] = v;
+      points[  3] =   a; points[  4] =   a; points[  5] =  -b; weights[ 1] = v;
+      points[  6] =   a; points[  7] =  -a; points[  8] =   b; weights[ 2] = v;
+      points[  9] =   a; points[ 10] =  -a; points[ 11] =  -b; weights[ 3] = v;
+      points[ 12] =  -a; points[ 13] =   a; points[ 14] =   b; weights[ 4] = v;
+      points[ 15] =  -a; points[ 16] =   a; points[ 17] =  -b; weights[ 5] = v;
+      points[ 18] =  -a; points[ 19] =  -a; points[ 20] =   b; weights[ 6] = v;
+      points[ 21] =  -a; points[ 22] =  -a; points[ 23] =  -b; weights[ 7] = v;
+      points[ 24] =   a; points[ 25] =   b; points[ 26] =   a; weights[ 8] = v;
+      points[ 27] =   a; points[ 28] =  -b; points[ 29] =   a; weights[ 9] = v;
+      points[ 30] =   a; points[ 31] =   b; points[ 32] =  -a; weights[10] = v;
+      points[ 33] =   a; points[ 34] =  -b; points[ 35] =  -a; weights[11] = v;
+      points[ 36] =  -a; points[ 37] =   b; points[ 38] =   a; weights[12] = v;
+      points[ 39] =  -a; points[ 40] =  -b; points[ 41] =   a; weights[13] = v;
+      points[ 42] =  -a; points[ 43] =   b; points[ 44] =  -a; weights[14] = v;
+      points[ 45] =  -a; points[ 46] =  -b; points[ 47] =  -a; weights[15] = v;
+      points[ 48] =   b; points[ 49] =   a; points[ 50] =   a; weights[16] = v;
+      points[ 51] =  -b; points[ 52] =   a; points[ 53] =   a; weights[17] = v;
+      points[ 54] =   b; points[ 55] =   a; points[ 56] =  -a; weights[18] = v;
+      points[ 57] =  -b; points[ 58] =   a; points[ 59] =  -a; weights[19] = v;
+      points[ 60] =   b; points[ 61] =  -a; points[ 62] =   a; weights[20] = v;
+      points[ 63] =  -b; points[ 64] =  -a; points[ 65] =   a; weights[21] = v;
+      points[ 66] =   b; points[ 67] =  -a; points[ 68] =  -a; weights[22] = v;
+      points[ 69] =  -b; points[ 70] =  -a; points[ 71] =  -a; weights[23] = v;
       return 24;
     case 5:
       b = sqrt (1.0 - a*a);
-      grid[  0] =   a; grid[  1] =   b; grid[  2] = 0.0; grid[  3] =   v;
-      grid[  4] =   a; grid[  5] =  -b; grid[  6] = 0.0; grid[  7] =   v;
-      grid[  8] =  -a; grid[  9] =   b; grid[ 10] = 0.0; grid[ 11] =   v;
-      grid[ 12] =  -a; grid[ 13] =  -b; grid[ 14] = 0.0; grid[ 15] =   v;
-      grid[ 16] =   b; grid[ 17] =   a; grid[ 18] = 0.0; grid[ 19] =   v;
-      grid[ 20] =   b; grid[ 21] =  -a; grid[ 22] = 0.0; grid[ 23] =   v;
-      grid[ 24] =  -b; grid[ 25] =   a; grid[ 26] = 0.0; grid[ 27] =   v;
-      grid[ 28] =  -b; grid[ 29] =  -a; grid[ 30] = 0.0; grid[ 31] =   v;
-      grid[ 32] =   a; grid[ 33] = 0.0; grid[ 34] =   b; grid[ 35] =   v;
-      grid[ 36] =   a; grid[ 37] = 0.0; grid[ 38] =  -b; grid[ 39] =   v;
-      grid[ 40] =  -a; grid[ 41] = 0.0; grid[ 42] =   b; grid[ 43] =   v;
-      grid[ 44] =  -a; grid[ 45] = 0.0; grid[ 46] =  -b; grid[ 47] =   v;
-      grid[ 48] =   b; grid[ 49] = 0.0; grid[ 50] =   a; grid[ 51] =   v;
-      grid[ 52] =   b; grid[ 53] = 0.0; grid[ 54] =  -a; grid[ 55] =   v;
-      grid[ 56] =  -b; grid[ 57] = 0.0; grid[ 58] =   a; grid[ 59] =   v;
-      grid[ 60] =  -b; grid[ 61] = 0.0; grid[ 62] =  -a; grid[ 63] =   v;
-      grid[ 64] = 0.0; grid[ 65] =   a; grid[ 66] =   b; grid[ 67] =   v;
-      grid[ 68] = 0.0; grid[ 69] =   a; grid[ 70] =  -b; grid[ 71] =   v;
-      grid[ 72] = 0.0; grid[ 73] =  -a; grid[ 74] =   b; grid[ 75] =   v;
-      grid[ 76] = 0.0; grid[ 77] =  -a; grid[ 78] =  -b; grid[ 79] =   v;
-      grid[ 80] = 0.0; grid[ 81] =   b; grid[ 82] =   a; grid[ 83] =   v;
-      grid[ 84] = 0.0; grid[ 85] =   b; grid[ 86] =  -a; grid[ 87] =   v;
-      grid[ 88] = 0.0; grid[ 89] =  -b; grid[ 90] =   a; grid[ 91] =   v;
-      grid[ 92] = 0.0; grid[ 93] =  -b; grid[ 94] =  -a; grid[ 95] =   v;
+      points[  0] =   a; points[  1] =   b; points[  2] = 0.0; weights[ 0] = v;
+      points[  3] =   a; points[  4] =  -b; points[  5] = 0.0; weights[ 1] = v;
+      points[  6] =  -a; points[  7] =   b; points[  8] = 0.0; weights[ 2] = v;
+      points[  9] =  -a; points[ 10] =  -b; points[ 11] = 0.0; weights[ 3] = v;
+      points[ 12] =   b; points[ 13] =   a; points[ 14] = 0.0; weights[ 4] = v;
+      points[ 15] =   b; points[ 16] =  -a; points[ 17] = 0.0; weights[ 5] = v;
+      points[ 18] =  -b; points[ 19] =   a; points[ 20] = 0.0; weights[ 6] = v;
+      points[ 21] =  -b; points[ 22] =  -a; points[ 23] = 0.0; weights[ 7] = v;
+      points[ 24] =   a; points[ 25] = 0.0; points[ 26] =   b; weights[ 8] = v;
+      points[ 27] =   a; points[ 28] = 0.0; points[ 29] =  -b; weights[ 9] = v;
+      points[ 30] =  -a; points[ 31] = 0.0; points[ 32] =   b; weights[10] = v;
+      points[ 33] =  -a; points[ 34] = 0.0; points[ 35] =  -b; weights[11] = v;
+      points[ 36] =   b; points[ 37] = 0.0; points[ 38] =   a; weights[12] = v;
+      points[ 39] =   b; points[ 40] = 0.0; points[ 41] =  -a; weights[13] = v;
+      points[ 42] =  -b; points[ 43] = 0.0; points[ 44] =   a; weights[14] = v;
+      points[ 45] =  -b; points[ 46] = 0.0; points[ 47] =  -a; weights[15] = v;
+      points[ 48] = 0.0; points[ 49] =   a; points[ 50] =   b; weights[16] = v;
+      points[ 51] = 0.0; points[ 52] =   a; points[ 53] =  -b; weights[17] = v;
+      points[ 54] = 0.0; points[ 55] =  -a; points[ 56] =   b; weights[18] = v;
+      points[ 57] = 0.0; points[ 58] =  -a; points[ 59] =  -b; weights[19] = v;
+      points[ 60] = 0.0; points[ 61] =   b; points[ 62] =   a; weights[20] = v;
+      points[ 63] = 0.0; points[ 64] =   b; points[ 65] =  -a; weights[21] = v;
+      points[ 66] = 0.0; points[ 67] =  -b; points[ 68] =   a; weights[22] = v;
+      points[ 69] = 0.0; points[ 70] =  -b; points[ 71] =  -a; weights[23] = v;
       return 24;
     case 6:
       c = sqrt (1.0 - a*a - b*b);
-      grid[  0] =   a; grid[  1] =   b; grid[  2] =   c; grid[  3] =   v;
-      grid[  4] =   a; grid[  5] =   b; grid[  6] =  -c; grid[  7] =   v;
-      grid[  8] =   a; grid[  9] =  -b; grid[ 10] =   c; grid[ 11] =   v;
-      grid[ 12] =   a; grid[ 13] =  -b; grid[ 14] =  -c; grid[ 15] =   v;
-      grid[ 16] =  -a; grid[ 17] =   b; grid[ 18] =   c; grid[ 19] =   v;
-      grid[ 20] =  -a; grid[ 21] =   b; grid[ 22] =  -c; grid[ 23] =   v;
-      grid[ 24] =  -a; grid[ 25] =  -b; grid[ 26] =   c; grid[ 27] =   v;
-      grid[ 28] =  -a; grid[ 29] =  -b; grid[ 30] =  -c; grid[ 31] =   v;
-      grid[ 32] =   a; grid[ 33] =   c; grid[ 34] =   b; grid[ 35] =   v;
-      grid[ 36] =   a; grid[ 37] =   c; grid[ 38] =  -b; grid[ 39] =   v;
-      grid[ 40] =   a; grid[ 41] =  -c; grid[ 42] =   b; grid[ 43] =   v;
-      grid[ 44] =   a; grid[ 45] =  -c; grid[ 46] =  -b; grid[ 47] =   v;
-      grid[ 48] =  -a; grid[ 49] =   c; grid[ 50] =   b; grid[ 51] =   v;
-      grid[ 52] =  -a; grid[ 53] =   c; grid[ 54] =  -b; grid[ 55] =   v;
-      grid[ 56] =  -a; grid[ 57] =  -c; grid[ 58] =   b; grid[ 59] =   v;
-      grid[ 60] =  -a; grid[ 61] =  -c; grid[ 62] =  -b; grid[ 63] =   v;
-      grid[ 64] =   b; grid[ 65] =   a; grid[ 66] =   c; grid[ 67] =   v;
-      grid[ 68] =   b; grid[ 69] =   a; grid[ 70] =  -c; grid[ 71] =   v;
-      grid[ 72] =   b; grid[ 73] =  -a; grid[ 74] =   c; grid[ 75] =   v;
-      grid[ 76] =   b; grid[ 77] =  -a; grid[ 78] =  -c; grid[ 79] =   v;
-      grid[ 80] =  -b; grid[ 81] =   a; grid[ 82] =   c; grid[ 83] =   v;
-      grid[ 84] =  -b; grid[ 85] =   a; grid[ 86] =  -c; grid[ 87] =   v;
-      grid[ 88] =  -b; grid[ 89] =  -a; grid[ 90] =   c; grid[ 91] =   v;
-      grid[ 92] =  -b; grid[ 93] =  -a; grid[ 94] =  -c; grid[ 95] =   v;
-      grid[ 96] =   b; grid[ 97] =   c; grid[ 98] =   a; grid[ 99] =   v;
-      grid[100] =   b; grid[101] =   c; grid[102] =  -a; grid[103] =   v;
-      grid[104] =   b; grid[105] =  -c; grid[106] =   a; grid[107] =   v;
-      grid[108] =   b; grid[109] =  -c; grid[110] =  -a; grid[111] =   v;
-      grid[112] =  -b; grid[113] =   c; grid[114] =   a; grid[115] =   v;
-      grid[116] =  -b; grid[117] =   c; grid[118] =  -a; grid[119] =   v;
-      grid[120] =  -b; grid[121] =  -c; grid[122] =   a; grid[123] =   v;
-      grid[124] =  -b; grid[125] =  -c; grid[126] =  -a; grid[127] =   v;
-      grid[128] =   c; grid[129] =   a; grid[130] =   b; grid[131] =   v;
-      grid[132] =   c; grid[133] =   a; grid[134] =  -b; grid[135] =   v;
-      grid[136] =   c; grid[137] =  -a; grid[138] =   b; grid[139] =   v;
-      grid[140] =   c; grid[141] =  -a; grid[142] =  -b; grid[143] =   v;
-      grid[144] =  -c; grid[145] =   a; grid[146] =   b; grid[147] =   v;
-      grid[148] =  -c; grid[149] =   a; grid[150] =  -b; grid[151] =   v;
-      grid[152] =  -c; grid[153] =  -a; grid[154] =   b; grid[155] =   v;
-      grid[156] =  -c; grid[157] =  -a; grid[158] =  -b; grid[159] =   v;
-      grid[160] =   c; grid[161] =   b; grid[162] =   a; grid[163] =   v;
-      grid[164] =   c; grid[165] =   b; grid[166] =  -a; grid[167] =   v;
-      grid[168] =   c; grid[169] =  -b; grid[170] =   a; grid[171] =   v;
-      grid[172] =   c; grid[173] =  -b; grid[174] =  -a; grid[175] =   v;
-      grid[176] =  -c; grid[177] =   b; grid[178] =   a; grid[179] =   v;
-      grid[180] =  -c; grid[181] =   b; grid[182] =  -a; grid[183] =   v;
-      grid[184] =  -c; grid[185] =  -b; grid[186] =   a; grid[187] =   v;
-      grid[188] =  -c; grid[189] =  -b; grid[190] =  -a; grid[191] =   v;
+      points[  0] =   a; points[  1] =   b; points[  2] =   c; weights[ 0] = v;
+      points[  3] =   a; points[  4] =   b; points[  5] =  -c; weights[ 1] = v;
+      points[  6] =   a; points[  7] =  -b; points[  8] =   c; weights[ 2] = v;
+      points[  9] =   a; points[ 10] =  -b; points[ 11] =  -c; weights[ 3] = v;
+      points[ 12] =  -a; points[ 13] =   b; points[ 14] =   c; weights[ 4] = v;
+      points[ 15] =  -a; points[ 16] =   b; points[ 17] =  -c; weights[ 5] = v;
+      points[ 18] =  -a; points[ 19] =  -b; points[ 20] =   c; weights[ 6] = v;
+      points[ 21] =  -a; points[ 22] =  -b; points[ 23] =  -c; weights[ 7] = v;
+      points[ 24] =   a; points[ 25] =   c; points[ 26] =   b; weights[ 8] = v;
+      points[ 27] =   a; points[ 28] =   c; points[ 29] =  -b; weights[ 9] = v;
+      points[ 30] =   a; points[ 31] =  -c; points[ 32] =   b; weights[10] = v;
+      points[ 33] =   a; points[ 34] =  -c; points[ 35] =  -b; weights[11] = v;
+      points[ 36] =  -a; points[ 37] =   c; points[ 38] =   b; weights[12] = v;
+      points[ 39] =  -a; points[ 40] =   c; points[ 41] =  -b; weights[13] = v;
+      points[ 42] =  -a; points[ 43] =  -c; points[ 44] =   b; weights[14] = v;
+      points[ 45] =  -a; points[ 46] =  -c; points[ 47] =  -b; weights[15] = v;
+      points[ 48] =   b; points[ 49] =   a; points[ 50] =   c; weights[16] = v;
+      points[ 51] =   b; points[ 52] =   a; points[ 53] =  -c; weights[17] = v;
+      points[ 54] =   b; points[ 55] =  -a; points[ 56] =   c; weights[18] = v;
+      points[ 57] =   b; points[ 58] =  -a; points[ 59] =  -c; weights[19] = v;
+      points[ 60] =  -b; points[ 61] =   a; points[ 62] =   c; weights[20] = v;
+      points[ 63] =  -b; points[ 64] =   a; points[ 65] =  -c; weights[21] = v;
+      points[ 66] =  -b; points[ 67] =  -a; points[ 68] =   c; weights[22] = v;
+      points[ 69] =  -b; points[ 70] =  -a; points[ 71] =  -c; weights[23] = v;
+      points[ 72] =   b; points[ 73] =   c; points[ 74] =   a; weights[24] = v;
+      points[ 75] =   b; points[ 76] =   c; points[ 77] =  -a; weights[25] = v;
+      points[ 78] =   b; points[ 79] =  -c; points[ 80] =   a; weights[26] = v;
+      points[ 81] =   b; points[ 82] =  -c; points[ 83] =  -a; weights[27] = v;
+      points[ 84] =  -b; points[ 85] =   c; points[ 86] =   a; weights[28] = v;
+      points[ 87] =  -b; points[ 88] =   c; points[ 89] =  -a; weights[29] = v;
+      points[ 90] =  -b; points[ 91] =  -c; points[ 92] =   a; weights[30] = v;
+      points[ 93] =  -b; points[ 94] =  -c; points[ 95] =  -a; weights[31] = v;
+      points[ 96] =   c; points[ 97] =   a; points[ 98] =   b; weights[32] = v;
+      points[ 99] =   c; points[100] =   a; points[101] =  -b; weights[33] = v;
+      points[102] =   c; points[103] =  -a; points[104] =   b; weights[34] = v;
+      points[105] =   c; points[106] =  -a; points[107] =  -b; weights[35] = v;
+      points[108] =  -c; points[109] =   a; points[110] =   b; weights[36] = v;
+      points[111] =  -c; points[112] =   a; points[113] =  -b; weights[37] = v;
+      points[114] =  -c; points[115] =  -a; points[116] =   b; weights[38] = v;
+      points[117] =  -c; points[118] =  -a; points[119] =  -b; weights[39] = v;
+      points[120] =   c; points[121] =   b; points[122] =   a; weights[40] = v;
+      points[123] =   c; points[124] =   b; points[125] =  -a; weights[41] = v;
+      points[126] =   c; points[127] =  -b; points[128] =   a; weights[42] = v;
+      points[129] =   c; points[130] =  -b; points[131] =  -a; weights[43] = v;
+      points[132] =  -c; points[133] =   b; points[134] =   a; weights[44] = v;
+      points[135] =  -c; points[136] =   b; points[137] =  -a; weights[45] = v;
+      points[138] =  -c; points[139] =  -b; points[140] =   a; weights[46] = v;
+      points[141] =  -c; points[142] =  -b; points[143] =  -a; weights[47] = v;
       return 48;
   }
   throw std::domain_error("Unsupported symmetry.");
@@ -336,15 +339,18 @@ static int lebedev_laikov_oh(int n, double a, double b, double v, double *grid)
    npoint
       The size of the grid
 
-   grid
-      A pointer to the grid data, with sufficient space allocated, i.e.
-      npoint*4. This grid is stored as a row-major array where each row contains
-      for elements: x, y, z and weight.
+   points
+      The first pointer of the grid points, with sufficient space allocated,
+      i.e. npoint*3. The grid points are stored as a row-major array where each
+      row contains three elements: x, y and z.
 
+   weights
+      The first pointer of the grid weights, with sufficient space allocated,
+      i.e. npoint.
 */
 #define A n+=lebedev_laikov_oh(
-#define B , grid+4*n);
-void lebedev_laikov_sphere(int npoint, double *grid)
+#define B , points+3*n, weights+n);
+void lebedev_laikov_sphere(int npoint, double* points, double* weights)
 {
   int n;
   n = 0;

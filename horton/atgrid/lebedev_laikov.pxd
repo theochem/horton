@@ -22,4 +22,4 @@
 
 cdef extern from "lebedev_laikov.h":
     int lebedev_laikov_npoint(int lvalue) except +
-    void lebedev_laikov_sphere(int npoint, double *grid) except +
+    void lebedev_laikov_sphere(int npoint, double* points, double* weights) except +
