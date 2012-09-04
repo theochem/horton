@@ -19,7 +19,25 @@
 #
 #--
 
-from horton.grid.atgrid import *
-from horton.grid.cext import *
-from horton.grid.int1d import *
-from horton.grid.rtransform import *
+
+import numpy as np
+
+
+__all__ = ['BaseIntegrator1D', 'TrapezoidIntegrator1D']
+
+
+class BaseIntegrator1D(object):
+    '''Base class for integration algorithms'''
+    def get_weights(self, npoint):
+        '''Return integration weights for linear grid.'''
+        raise NotImplementedError
+
+
+class TrapezoidIntegrator1D(object):
+    '''Trapezoid rule integration algorithm'''
+    def get_weights(self, npoint):
+        '''Return integration weights for linear grid.'''
+        result = np.ones(npoint, dtype=float)
+        result[0] = 0.5
+        result[-1] = 0.5
+        return result

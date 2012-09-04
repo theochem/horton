@@ -64,6 +64,10 @@ def test_lebedev_laikov_sphere():
             points = np.zeros((npoint, 3), float)
             weights = np.zeros(npoint, float)
             lebedev_laikov_sphere(points, weights)
+            assert abs(weights.sum() - 1.0) < 1e-13
+            assert abs(points[:,0].sum()) < 1e-10
+            assert abs(points[:,1].sum()) < 1e-10
+            assert abs(points[:,2].sum()) < 1e-10
             assert abs(np.dot(points[:,0], weights)) < 1e-20
             assert abs(np.dot(points[:,1], weights)) < 1e-20
             assert abs(np.dot(points[:,2], weights)) < 1e-20
