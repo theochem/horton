@@ -20,11 +20,11 @@
 #--
 
 
-from horton.atgrid import *
 from horton.checkpoint import *
 from horton.constants import *
 from horton.context import *
 from horton.gbasis import *
+from horton.grid import *
 from horton.guess import *
 from horton.hamiltonian import *
 from horton.io import *
