@@ -61,9 +61,10 @@ def test_lebedev_laikov_sphere():
     for i in xrange(132):
         npoint = lebedev_laikov_npoint(i)
         if npoint > previous_npoint:
-            grid = np.zeros((npoint, 4), float)
-            lebedev_laikov_sphere(grid)
-            assert abs(np.dot(grid[:,0], grid[:,3])) < 1e-20
-            assert abs(np.dot(grid[:,1], grid[:,3])) < 1e-20
-            assert abs(np.dot(grid[:,2], grid[:,3])) < 1e-20
+            points = np.zeros((npoint, 3), float)
+            weights = np.zeros(npoint, float)
+            lebedev_laikov_sphere(points, weights)
+            assert abs(np.dot(points[:,0], weights)) < 1e-20
+            assert abs(np.dot(points[:,1], weights)) < 1e-20
+            assert abs(np.dot(points[:,2], weights)) < 1e-20
         previous_npoint = npoint
