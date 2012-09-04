@@ -5,4 +5,4 @@ rm -v MANIFEST
 rm -vr dist
 rm -vr build
 rm -v horton/gbasis/cext.cpp
-rm -v horton/atgrid/cext.cpp
+rm -v horton/grid/cext.cpp

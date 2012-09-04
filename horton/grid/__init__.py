@@ -19,4 +19,4 @@
 #
 #--
 
-from horton.atgrid.cext import *
+from horton.grid.cext import *

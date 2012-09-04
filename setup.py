@@ -35,7 +35,7 @@ setup(
     url='http://molmod.ugent.be/code/',
     package_dir = {'horton': 'horton'},
     packages=['horton', 'horton/test',
-              'horton/atgrid', 'horton/atgrid/test',
+              'horton/grid', 'horton/grid/test',
               'horton/gbasis', 'horton/gbasis/test'],
     cmdclass = {'build_ext': build_ext},
     ext_modules=[
@@ -54,9 +54,9 @@ setup(
             extra_objects=['depends/libint-2.0.0-stable/lib/libint2.a'],
             include_dirs=['depends/libint-2.0.0-stable/include'],
             language="c++"),
-        Extension("horton.atgrid.cext",
-            sources=['horton/atgrid/cext.pyx', 'horton/atgrid/lebedev_laikov.cpp'],
-            depends=['horton/atgrid/lebedev_laikov.h', 'horton/atgrid/lebedev_laikov.pxd'],
+        Extension("horton.grid.cext",
+            sources=['horton/grid/cext.pyx', 'horton/grid/lebedev_laikov.cpp'],
+            depends=['horton/grid/lebedev_laikov.h', 'horton/grid/lebedev_laikov.pxd'],
             language="c++"),
     ],
     classifiers=[
