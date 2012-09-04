@@ -19,7 +19,24 @@
 #
 #--
 
-from horton.grid.atgrid import *
-from horton.grid.cext import *
-from horton.grid.int1d import *
-from horton.grid.rtransform import *
+
+import numpy as np
+
+from horton import *
+
+
+def test_trapezoid_weights():
+    int1d = TrapezoidIntegrator1D()
+    assert (int1d.get_weights(4) == np.array([0.5, 1.0, 1.0, 0.5])).all()
+
+
+def test_trapezoid_intlin():
+    # It should correctly integrate a linear function, duh.
+    int1d = TrapezoidIntegrator1D()
+    weights = int1d.get_weights(4)
+    a, b = np.random.uniform(-1, 1, 2)
+    x = np.arange(4)
+    y = a*x+b
+    int_numer = np.dot(y, weights)
+    int_ana = 0.5*(b + a*3+b)*3
+    assert abs(int_numer - int_ana) < 1e-10

@@ -19,7 +19,24 @@
 #
 #--
 
-from horton.grid.atgrid import *
-from horton.grid.cext import *
-from horton.grid.int1d import *
-from horton.grid.rtransform import *
+
+import numpy as np
+
+from horton import *
+
+
+def check_volume_elements(rtf):
+    eps = 1e-4
+    npoint = 10
+    r1 = rtf.get_radii(npoint, -0.5*eps)
+    r2 = rtf.get_radii(npoint, +0.5*eps)
+    g_ana = rtf.get_volume_elements(npoint)
+    g_numer = (r2 - r1)/eps
+    assert abs(g_ana - g_numer).max() < 1e-5
+
+
+def test_volume_elements_log():
+    rtf = LogRTransform(None, 0.1, 1.1)
+    assert rtf.rmin == 0.1
+    assert rtf.alpha == 1.1
+    check_volume_elements(rtf)
