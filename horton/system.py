@@ -276,3 +276,13 @@ class System(object):
             self._operators['er'] = electron_repulsion
             self.update_chk('operators.er')
         return electron_repulsion
+
+    def compute_density_grid(self, points):
+        # TODO: Avoid points argument by adding molgrid attribute to system class.
+        #       * Should grid data be stored in chk file? Probably not.
+        #       * after adding grid attribute, rename this to get_density_grid
+        rhos = np.zeros(len(points), float)
+        dm = self.lf.create_one_body(self.obasis.nbasis)
+        self.wfn.compute_density_matrix(dm)
+        self.obasis.compute_density_grid_dm(dm, points, rhos)
+        return rhos

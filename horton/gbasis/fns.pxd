@@ -20,7 +20,16 @@
 #--
 
 
-cdef extern from "becke.h":
-    void becke_helper_atom(int npoint, double* points, double* weights,
-                           int natom, double* radii, double* centers, int
-                           select, int order)
+cdef extern from "fns.h":
+    cdef cppclass GB1GridFn:
+        GB1GridFn(long max_shell_type) except +
+
+        long get_nwork()
+        long get_max_shell_type()
+        long get_max_nbasis()
+        void reset(long shell_type0, double* r0, double* point)
+        void add(double coeff, double alpha0, double* scales0)
+        void cart_to_pure() except +
+
+        long get_shell_type0()
+        double* get_work()

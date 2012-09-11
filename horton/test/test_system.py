@@ -164,7 +164,6 @@ def check_electron_repulsion(fn_fchk, check_zeros=False):
         assert ((expect == 0.0) == (got == 0.0)).all()
     delta = expect - got
     error = (delta[mask]/expect[mask]).max()
-    print error
     assert error < 1e-5
 
 
@@ -178,3 +177,43 @@ def test_electron_repulsion_water_ccpvdz_pure_hf():
 
 def test_electron_repulsion_water_ccpvdz_cart_hf():
     check_electron_repulsion(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'))
+
+
+def check_grid_fn(fn_fchk):
+    sys = System.from_file(fn_fchk)
+    # TODO: standard procedure for constructing recommended coarse, medium and fine grids.
+    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
+    grid = BeckeMolGrid(sys.numbers, sys.coordinates, (rtf, 110, 100), random_rotate=False)
+    rhos = sys.compute_density_grid(grid.points)
+    pop = np.dot(rhos, grid.weights)
+    tmp = rhos*grid.weights
+    print fn_fchk, pop, sys.wfn.nel, pop-sys.wfn.nel
+    assert abs(pop-sys.wfn.nel) < 2e-3
+
+
+def test_grid_fn_h_sto3g():
+    check_grid_fn(context.get_fn('test/h_sto3g.fchk'))
+
+
+def test_grid_fn_lih_321g_hf():
+    check_grid_fn(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
+
+
+def test_grid_fn_water_sto3g_hf():
+    check_grid_fn(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+
+
+def test_grid_fn_water_ccpvdz_pure_hf():
+    check_grid_fn(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'))
+
+
+def test_grid_fn_water_ccpvdz_cart_hf():
+    check_grid_fn(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'))
+
+
+def test_grid_fn_co_ccpv5z_pure_hf():
+    check_grid_fn(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'))
+
+
+def test_grid_fn_co_ccpv5z_cart_hf():
+    check_grid_fn(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))

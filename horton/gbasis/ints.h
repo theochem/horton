@@ -22,6 +22,7 @@
 #ifndef HORTON_GBASIS_INTS_H
 #define HORTON_GBASIS_INTS_H
 
+#include "calc.h"
 #include "iter_pow.h"
 #include "libint2.h"
 
@@ -30,22 +31,7 @@ double gb_overlap_int1d(long n0, long n1, double pa, double pb, double gamma_inv
 const double gob_normalization(const double alpha, const long* n);
 
 
-class GBIntegral {
-    protected:
-        long nwork, max_shell_type, max_nbasis;
-        double *work_pure, *work_cart;
-        void swap_work();
-    public:
-        GBIntegral(long max_shell_type);
-        ~GBIntegral();
-        const long get_nwork() const {return nwork;};
-        const long get_max_shell_type() const {return max_shell_type;};
-        const long get_max_nbasis() const {return max_nbasis;};
-        const double* get_work() const {return work_cart;};
-    };
-
-
-class GB2Integral : public GBIntegral {
+class GB2Integral : public GBCalculator {
     protected:
         long shell_type0, shell_type1;
         const double *r0, *r1;
@@ -93,7 +79,7 @@ class GB2NuclearAttractionIntegral: public GB2Integral {
     };
 
 
-class GB4Integral : public GBIntegral {
+class GB4Integral : public GBCalculator {
     protected:
         long shell_type0, shell_type1, shell_type2, shell_type3;
         const double *r0, *r1, *r2, *r3;

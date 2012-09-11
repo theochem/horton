@@ -18,7 +18,12 @@
 //
 //--
 
+//#define DEBUG
 
+#ifdef DEBUG
+#include <cstdio>
+#endif
+#include <cstdio>
 #include <cmath>
 #include <stdexcept>
 #include "gbasis.h"
@@ -143,6 +148,27 @@ void GBasis::compute_two_body(double* output, GB4Integral* integral) {
     } while (iter.inc_shell());
 }
 
+void GBasis::compute_grid(double* output, double* point, GB1GridFn* grid_fn) {
+    /*
+        TODO
+             When multiple different memory storage schemes are implemented for
+             the operators, the iterator must also become an argument for this
+             function
+
+    */
+    IterGB1 iter = IterGB1(this);
+    iter.update_shell();
+    do {
+        grid_fn->reset(iter.shell_type0, iter.r0, point);
+        iter.update_prim();
+        do {
+            grid_fn->add(iter.con_coeff, iter.alpha0, iter.scales0);
+        } while (iter.inc_prim());
+        grid_fn->cart_to_pure();
+        iter.store(grid_fn->get_work(), output);
+    } while (iter.inc_shell());
+}
+
 
 
 GOBasis::GOBasis(const double* centers, const long* shell_map, const long* nprims,
@@ -175,4 +201,47 @@ void GOBasis::compute_nuclear_attraction(double* charges, double* centers, long 
 void GOBasis::compute_electron_repulsion(double* output) {
     GB4ElectronReuplsionIntegralLibInt integral = GB4ElectronReuplsionIntegralLibInt(get_max_shell_type());
     compute_two_body(output, &integral);
+}
+
+void GOBasis::compute_density_grid_dm(double* dm, long npoint, double* points, double* rhos) {
+    double basis_fns[get_nbasis()];
+    GB1GridFn grid_fn = GB1GridFn(get_max_shell_type());
+
+    for (long ipoint=0; ipoint<npoint; ipoint++) {
+
+        // A) clear the basis functions.
+        for (long ibasis=0; ibasis<get_nbasis(); ibasis++) {
+            basis_fns[ibasis] = 0.0;
+        }
+
+        // B) evaluate the basis functions in the current point.
+        compute_grid(basis_fns, points, &grid_fn);
+#ifdef DEBUG
+        for (long ibasis=0; ibasis<get_nbasis(); ibasis++) {
+            printf("basis_fns[%i] = %f\n", ibasis, basis_fns[ibasis]);
+        }
+        printf("\n");
+#endif
+
+        // C) Make dot product of basis functions with density matrix. This is the
+        // bottle neck. Note that the result is added to the output array!
+        double rho = 0, row;
+        for (long ibasis0=0; ibasis0<get_nbasis(); ibasis0++) {
+            row = 0;
+            for (long ibasis1=0; ibasis1<get_nbasis(); ibasis1++) {
+                row += basis_fns[ibasis1]*dm[ibasis0*get_nbasis()+ibasis1];
+            }
+            rho += row*basis_fns[ibasis0];
+        }
+        *rhos += rho;
+
+        // D) Prepare for next iteration
+        rhos++;
+        points += 3;
+    }
+
+}
+
+void GOBasis::compute_density_grid_orb(double* orbs, long nocc, long npoint, double* points, double* rhos) {
+    // TODO
 }

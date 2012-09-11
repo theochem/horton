@@ -86,9 +86,9 @@ class LebedevLaikovSphereGrid(BaseGrid):
 
     def _get_radius(self):
         '''The radius of the sphere.'''
-        return self._center
+        return self._radius
 
-    center = property(_get_center)
+    radius = property(_get_radius)
 
     def _get_nll(self):
         '''The number of Lebedev-Laikov grid points.'''

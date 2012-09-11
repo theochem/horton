@@ -158,6 +158,6 @@ def get_atomic_grid_size(nlls, nsphere=None):
     size = 0
     for nll in nlls:
         if nll not in lebedev_laikov_npoints:
-            raise ValueError('A Lebedev-Laikov grid with %i points is not supported.')
+            raise ValueError('A Lebedev-Laikov grid with %i points is not supported.' % nll)
         size += nll
     return size, nlls

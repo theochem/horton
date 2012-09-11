@@ -20,7 +20,6 @@
 
 
 #include <cmath>
-#include <stdexcept>
 #include <cstring>
 #include "boys.h"
 #include "cartpure.h"
@@ -54,18 +53,6 @@ void compute_gpt_center(double alpha0, const double* r0, double alpha1, const do
 }
 
 
-const double dist_sq(const double* r0, const double* r1) {
-    double result, tmp;
-    tmp = r0[0] - r1[0];
-    result = tmp*tmp;
-    tmp = r0[1] - r1[1];
-    result += tmp*tmp;
-    tmp = r0[2] - r1[2];
-    result += tmp*tmp;
-    return result;
-}
-
-
 double gpt_coeff(long k, long n0, long n1, double pa, double pb) {
     long i0, i1;
     double result;
@@ -96,37 +83,10 @@ double gb_overlap_int1d(long n0, long n1, double pa, double pb, double gamma_inv
 }
 
 
+// TODO: move to gbasis.cpp
 const double gob_normalization(const double alpha, const long* n) {
     return sqrt(pow(4.0*alpha, n[0]+n[1]+n[2])*pow(2.0*alpha/M_PI, 1.5)
            /(fac2(2*n[0]-1)*fac2(2*n[1]-1)*fac2(2*n[2]-1)));
-}
-
-
-
-/*
-
-   GBIntegral
-
-*/
-
-
-GBIntegral::GBIntegral(long max_shell_type): max_shell_type(max_shell_type), work_pure(NULL), work_cart(NULL) {
-    if (max_shell_type < 0) {
-        throw std::domain_error("max_shell_type must be positive.");
-    }
-    max_nbasis = get_shell_nbasis(max_shell_type);
-}
-
-GBIntegral::~GBIntegral() {
-    delete[] work_cart;
-    delete[] work_pure;
-}
-
-void GBIntegral::swap_work() {
-    double* tmp;
-    tmp = work_cart;
-    work_cart = work_pure;
-    work_pure = tmp;
 }
 
 
@@ -137,10 +97,10 @@ void GBIntegral::swap_work() {
 */
 
 
-GB2Integral::GB2Integral(long max_shell_type): GBIntegral(max_shell_type) {
+GB2Integral::GB2Integral(long max_shell_type): GBCalculator(max_shell_type) {
     nwork = max_nbasis*max_nbasis;
-    work_cart = new double[nwork*sizeof(double)];
-    work_pure = new double[nwork*sizeof(double)];
+    work_cart = new double[nwork];
+    work_pure = new double[nwork];
 }
 
 void GB2Integral::reset(long _shell_type0, long _shell_type1, const double* _r0, const double* _r1) {
@@ -369,10 +329,10 @@ void GB2NuclearAttractionIntegral::add(double coeff, double alpha0, double alpha
 */
 
 
-GB4Integral::GB4Integral(long max_shell_type): GBIntegral(max_shell_type) {
+GB4Integral::GB4Integral(long max_shell_type): GBCalculator(max_shell_type) {
     nwork = max_nbasis*max_nbasis*max_nbasis*max_nbasis;
-    work_cart = new double[nwork*sizeof(double)];
-    work_pure = new double[nwork*sizeof(double)];
+    work_cart = new double[nwork];
+    work_pure = new double[nwork];
 }
 
 void GB4Integral::reset(long _shell_type0, long _shell_type1, long _shell_type2, long _shell_type3,

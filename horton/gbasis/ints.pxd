@@ -37,15 +37,15 @@ cdef extern from "ints.h":
         double* get_work()
 
     cdef cppclass GB2OverlapIntegral:
-        GB2OverlapIntegral(long max_shell_type)
+        GB2OverlapIntegral(long max_shell_type) except +
 
     cdef cppclass GB2KineticIntegral:
-        GB2KineticIntegral(long max_shell_type)
+        GB2KineticIntegral(long max_shell_type) except +
 
     void nuclear_attraction_helper(double* work_g, long n0, long n1, double pa, double pb, double cp, double gamma_inv)
 
     cdef cppclass GB2NuclearAttractionIntegral:
-        GB2NuclearAttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge)
+        GB2NuclearAttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge) except +
 
     cdef cppclass GB4Integral:
         long get_nwork()
@@ -62,7 +62,7 @@ cdef extern from "ints.h":
         double* get_work()
 
     cdef cppclass GB4ElectronReuplsionIntegralLibInt:
-        GB4ElectronReuplsionIntegralLibInt(long max_shell_type)
+        GB4ElectronReuplsionIntegralLibInt(long max_shell_type) except +
 
 
 cdef extern from "libint2.h":

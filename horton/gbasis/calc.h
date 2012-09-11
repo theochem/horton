@@ -19,16 +19,31 @@
 //--
 
 
-#ifndef HORTON_GBASIS_COMMON_H
-#define HORTON_GBASIS_COMMON_H
+#ifndef HORTON_GBASIS_CALC_H
+#define HORTON_GBASIS_CALC_H
 
-#define MAX_SHELL_TYPE 7
 
-long fac(long n);
-long fac2(long n);
-long binom(long n, long m);
-long get_shell_nbasis(long shell_type);
-long get_max_shell_type();
-const double dist_sq(const double* r0, const double* r1);
+/*
+
+    Base class for anything that computes stuff by iterating over Gaussian
+    basis functions
+
+*/
+
+
+class GBCalculator {
+    protected:
+        long nwork, max_shell_type, max_nbasis;
+        double *work_pure, *work_cart; // contiguous work arrays sufficiently large for max_shell_type
+        void swap_work();
+    public:
+        GBCalculator(long max_shell_type);
+        ~GBCalculator();
+        const long get_nwork() const {return nwork;};
+        const long get_max_shell_type() const {return max_shell_type;};
+        const long get_max_nbasis() const {return max_nbasis;};
+        const double* get_work() const {return work_cart;};
+    };
+
 
 #endif

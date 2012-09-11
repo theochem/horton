@@ -62,7 +62,7 @@ def test_fock_matrix_eigen():
     dm = lf.create_one_body(7)
     coulomb = lf.create_one_body(nbasis)
     exchange = lf.create_one_body(nbasis)
-    wfn.compute_density_matrix(dm)
+    wfn.compute_alpha_density_matrix(dm)
     electronic_repulsion.apply_direct(dm, coulomb)
     electronic_repulsion.apply_exchange(dm, exchange)
 
@@ -90,7 +90,7 @@ def test_kinetic_energy_water_sto3g():
     lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn = get_water_sto3g_hf()
     dm = lf.create_one_body(7)
     wfn.compute_density_matrix(dm)
-    ekin = 2*kinetic.expectation_value(dm)
+    ekin = kinetic.expectation_value(dm)
     assert abs(ekin - 74.60736832935) < 1e-4
 
 
@@ -108,7 +108,7 @@ def test_potential_energy_water_sto3g_hf():
     lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn = get_water_sto3g_hf()
     dm = lf.create_one_body(7)
     wfn.compute_density_matrix(dm)
-    epot = -2*nuclear_attraction.expectation_value(dm)
+    epot = -nuclear_attraction.expectation_value(dm)
     assert abs(epot - (-197.1170963957)) < 2e-3
 
 
@@ -117,7 +117,7 @@ def test_electron_electron_water_sto3g_hf():
     dm = lf.create_one_body(7)
     coulomb = lf.create_one_body(7)
     exchange = lf.create_one_body(7)
-    wfn.compute_density_matrix(dm)
+    wfn.compute_alpha_density_matrix(dm)
     electronic_repulsion.apply_direct(dm, coulomb)
     electronic_repulsion.apply_exchange(dm, exchange)
     eee = 2*coulomb.expectation_value(dm) \
@@ -147,7 +147,7 @@ def test_hartree_fock_water():
         # Construct the Fock operator
         fock.reset()
         fock.iadd(hamcore, 1)
-        wfn.compute_density_matrix(dm)
+        wfn.compute_alpha_density_matrix(dm)
         electronic_repulsion.apply_direct(dm, coulomb)
         electronic_repulsion.apply_exchange(dm, exchange)
         fock.iadd(coulomb, 2)
