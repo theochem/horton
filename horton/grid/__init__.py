@@ -19,7 +19,9 @@
 #
 #--
 
+from horton.grid.base import *
 from horton.grid.atgrid import *
 from horton.grid.cext import *
 from horton.grid.int1d import *
 from horton.grid.rtransform import *
+from horton.grid.sphere import *

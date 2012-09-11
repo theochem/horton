@@ -25,13 +25,6 @@ import numpy as np
 from horton import *
 
 
-def test_random_rotation():
-    for i in xrange(10):
-        rotmat = get_random_rotation()
-        assert abs(np.dot(rotmat, rotmat.T) - np.identity(3)).max() < 1e-10
-        assert abs(np.dot(rotmat.T, rotmat) - np.identity(3)).max() < 1e-10
-
-
 def test_get_grid_sizes():
     size, nlls = get_atomic_grid_size(6, 4)
     assert size == 24
