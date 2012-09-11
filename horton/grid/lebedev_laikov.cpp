@@ -83,6 +83,8 @@
 #include <cmath>
 #include <stdexcept>
 
+#include "lebedev_laikov.h"
+
 
 #define NMAX 65
 #define MMAX ((NMAX*2+3)*(NMAX*2+3)/3)
