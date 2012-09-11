@@ -1,0 +1,73 @@
+# -*- coding: utf-8 -*-
+# Horton is a Density Functional Theory program.
+# Copyright (C) 2011-2012 Toon Verstraelen <Toon.Verstraelen@UGent.be>
+#
+# This file is part of Horton.
+#
+# Horton is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 3
+# of the License, or (at your option) any later version.
+#
+# Horton is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>
+#
+#--
+
+
+__all__ = ['BaseGrid']
+
+
+class BaseGrid(object):
+    '''Base class for real-space atom-centered integration grids in Horton'''
+    def __init__(self, points, weights, subgrids=None):
+        '''
+           **Arguments:**
+
+           points
+                A numpy array with shape (npoint,3) with the Cartesian
+                coordinates of the grids points.
+
+           weights
+                The integration weights of the grid points
+
+           **Optional arguments:**
+
+           subgrids
+                Can be given when this grid is composed of several other
+                grids. The points data is shared, but the weights of the
+                subgrids may be different.
+        '''
+        self._points = points
+        self._weights = weights
+        self._subgrids = subgrids
+
+
+    def _get_size(self):
+        '''The size of the grid.'''
+        return self._weights.shape[0]
+
+    size = property(_get_size)
+
+    def _get_points(self):
+        '''The grid points.'''
+        return self._points
+
+    points = property(_get_points)
+
+    def _get_weights(self):
+        '''The grid weights.'''
+        return self._weights
+
+    weights = property(_get_weights)
+
+    def _get_subgrids(self):
+        '''A list of grid objects used to construct this grid.'''
+        return self._subgrids
+
+    subgrids = property(_get_subgrids)

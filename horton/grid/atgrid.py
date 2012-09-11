@@ -22,17 +22,19 @@
 
 import numpy as np
 
-from horton.grid.cext import lebedev_laikov_npoints, lebedev_laikov_sphere
+
+from horton.grid.base import BaseGrid
+from horton.grid.cext import lebedev_laikov_npoints
+from horton.grid.sphere import LebedevLaikovSphereGrid
 
 
 __all__ = [
-    'AtomicGrid', 'get_atomic_grid_size', 'fill_atomic_grid',
-    'get_random_rotation'
+    'AtomicGrid', 'get_atomic_grid_size',
 ]
 
 
-class AtomicGrid(object):
-    def __init__(self, center, rtransform, nlls, nsphere=None, random_rotate=True):
+class AtomicGrid(BaseGrid):
+    def __init__(self, center, rtransform, nlls, nsphere=None, random_rotate=True, points=None):
         '''
            **Arguments:**
 
@@ -59,6 +61,9 @@ class AtomicGrid(object):
                 disabled. Such random rotation improves the accuracy of the
                 integration, but leads to small random changes in the results
                 that are not reproducible.
+
+           points
+                Memory to store the grid points
         '''
         size, nlls = get_atomic_grid_size(nlls, nsphere)
         self._center = center
@@ -66,9 +71,24 @@ class AtomicGrid(object):
         self._nlls = nlls
         self._random_rotate = random_rotate
 
-        self._points = np.zeros((size, 3), float)
-        self._weights = np.zeros(size, float)
-        fill_atomic_grid(self._points, self._weights, center, rtransform, nlls, random_rotate)
+        if points is None:
+            points = np.zeros((size, 3), float)
+        weights = np.zeros(size, float)
+
+        llgrids = []
+        offset = 0
+        counter = 0
+        nsphere = len(nlls)
+        radii = rtransform.get_radii(nsphere)
+        rweights = rtransform.get_int_weights(nsphere)
+        for nll in nlls:
+            llgrid = LebedevLaikovSphereGrid(center, radii[counter], nll, random_rotate, points[offset:offset+nll])
+            llgrids.append(llgrid)
+            weights[offset:offset+nll] = rweights[counter]*llgrid.weights
+            offset += nll
+            counter += 1
+
+        BaseGrid.__init__(self, points, weights, llgrids)
 
     def _get_center(self):
         '''The center of the grid.'''
@@ -94,29 +114,11 @@ class AtomicGrid(object):
 
     nsphere = property(_get_nsphere)
 
-    def _get_size(self):
-        '''The size of the grid.'''
-        return self._weights.shape[0]
-
-    size = property(_get_size)
-
     def _get_random_rotate(self):
         '''The random rotation flag.'''
         return self._random_rotate
 
     random_rotate = property(_get_random_rotate)
-
-    def _get_points(self):
-        '''The grid points.'''
-        return self._points
-
-    points = property(_get_points)
-
-    def _get_weights(self):
-        '''The grid weights.'''
-        return self._weights
-
-    weights = property(_get_weights)
 
 
 
@@ -157,78 +159,3 @@ def get_atomic_grid_size(nlls, nsphere=None):
             raise ValueError('A Lebedev-Laikov grid with %i points is not supported.')
         size += nll
     return size, nlls
-
-
-def fill_atomic_grid(points, weights, center, rtransform, nlls, random_rotate):
-    '''Fill the arrays points and weights with the atomic grid
-
-       **Arguments:**
-
-       points
-            A numpy array with shape (size, 3), where size is obtained with
-            the method ``get_atomic_grid_size``. This is an output array.
-
-       weights
-            A numpy array with shape (size,), where size is obtained with
-            the method ``get_atomic_grid_size``. This is an output array.
-
-       center
-            The center of the radial grid
-
-       rtransform
-            An instance of a subclass of the BaseRTransform class.
-
-       nlls
-            The number Lebedev-Laikov grid points for each radial grid
-            point. When this argument is not a list, all radial grid
-            points get the same Lebedev-Laikov grid and the nsphere
-            argument must be given.
-
-
-       **Optional arguments:**
-
-       random_rotate
-            When set to False, the random rotation of the grid points is
-            disabled. Such random rotation improves the accuracy of the
-            integration, but leads to small random changes in the results
-            that are not reproducible.
-    '''
-    offset = 0
-    counter = 0
-    nsphere = len(nlls)
-    radii = rtransform.get_radii(nsphere)
-    rweights = rtransform.get_int_weights(nsphere)
-    for nll in nlls:
-        lebedev_laikov_sphere(points[offset:offset+nll], weights[offset:offset+nll])
-        if random_rotate:
-            rotmat = get_random_rotation()
-            points[offset:offset+nll] = np.dot(points[offset:offset+nll], rotmat)
-        points[offset:offset+nll] *= radii[counter]
-        weights[offset:offset+nll] *= rweights[counter]*4*np.pi*radii[counter]**2
-        offset += nll
-        counter += 1
-    points += center
-
-
-def get_random_rotation():
-    '''Return a random rotation matrix'''
-    # Get a random unit vector for the axis
-    while True:
-        axis = np.random.uniform(-1, 1, 3)
-        norm = np.linalg.norm(axis)
-        if norm < 1.0 and norm > 0.1:
-            axis /= norm
-            break
-    x, y, z = axis
-
-    # Get a random rotation angle
-    angle = np.random.uniform(0, 2*np.pi)
-    c = np.cos(angle)
-    s = np.sin(angle)
-
-    # Rodrigues' rotation formula
-    return np.array([
-        [x*x*(1-c)+c  , x*y*(1-c)-z*s, x*z*(1-c)+y*s],
-        [x*y*(1-c)+z*s, y*y*(1-c)+c  , y*z*(1-c)-x*s],
-        [x*z*(1-c)-y*s, y*z*(1-c)+x*s, z*z*(1-c)+c  ],
-    ])
