@@ -25,14 +25,23 @@ cimport numpy as np
 np.import_array()
 
 cimport lebedev_laikov
+cimport becke
 
 __all__ = [
     # lebedev_laikov
-    'lebedev_laikov_npoint', 'lebedev_laikov_sphere', 'lebedev_laikov_npoints'
+    'lebedev_laikov_npoint', 'lebedev_laikov_sphere', 'lebedev_laikov_npoints',
+    # becke
+    'becke_helper_atom',
 ]
 
 
+#
+# lebedev_laikov
+#
+
+
 lebedev_laikov_npoints = [6, 14, 26, 38, 50, 74, 86, 110, 146, 170, 194, 230, 266, 302, 350, 434, 590, 770, 974, 1202, 1454, 1730, 2030, 2354, 2702, 3074, 3470, 3890, 4334, 4802, 5294, 5810]
+
 
 def lebedev_laikov_npoint(int lvalue):
     '''lebedev_laikov_npoint(lvalue)
@@ -41,6 +50,7 @@ def lebedev_laikov_npoint(int lvalue):
        momentum.
     '''
     return lebedev_laikov.lebedev_laikov_npoint(lvalue)
+
 
 def lebedev_laikov_sphere(np.ndarray[double, ndim=2] points,
                           np.ndarray[double, ndim=1] weights):
@@ -58,6 +68,35 @@ def lebedev_laikov_sphere(np.ndarray[double, ndim=2] points,
     '''
     assert points.flags['C_CONTIGUOUS']
     assert points.shape[1] == 3
-    assert points.shape[0] == weights.shape[0]
-    lebedev_laikov.lebedev_laikov_sphere(points.shape[0], <double*>points.data,
+    npoint = points.shape[0]
+    assert weights.flags['C_CONTIGUOUS']
+    assert weights.shape[0] == npoint
+    lebedev_laikov.lebedev_laikov_sphere(npoint, <double*>points.data,
                                          <double*>weights.data)
+
+
+def becke_helper_atom(np.ndarray[double, ndim=2] points,
+                      np.ndarray[double, ndim=1] weights,
+                      np.ndarray[double, ndim=1] radii,
+                      np.ndarray[double, ndim=2] centers,
+                      int i, int k):
+    '''beck_helper_atom(points, weights, radii, centers, i, k)
+
+       Compute the Becke weights for a given atom an a grid
+    '''
+    assert points.flags['C_CONTIGUOUS']
+    assert points.shape[1] == 3
+    npoint = points.shape[0]
+    assert weights.flags['C_CONTIGUOUS']
+    assert weights.shape[0] == npoint
+    assert radii.flags['C_CONTIGUOUS']
+    natom = radii.shape[0]
+    assert centers.flags['C_CONTIGUOUS']
+    assert centers.shape[0] == natom
+    assert centers.shape[1] == 3
+    assert i >= 0 and i < natom
+    assert k > 0
+
+    becke.becke_helper_atom(points.shape[0], <double*>points.data,
+                            <double*>weights.data, natom, <double*>radii.data,
+                            <double*>centers.data, i, k)

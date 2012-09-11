@@ -55,8 +55,10 @@ setup(
             include_dirs=['depends/libint-2.0.0-stable/include'],
             language="c++"),
         Extension("horton.grid.cext",
-            sources=['horton/grid/cext.pyx', 'horton/grid/lebedev_laikov.cpp'],
-            depends=['horton/grid/lebedev_laikov.h', 'horton/grid/lebedev_laikov.pxd'],
+            sources=['horton/grid/becke.cpp', 'horton/grid/cext.pyx',
+                     'horton/grid/lebedev_laikov.cpp'],
+            depends=['horton/grid/becke.h', 'horton/grid/becke.pxd',
+                     'horton/grid/lebedev_laikov.h', 'horton/grid/lebedev_laikov.pxd'],
             language="c++"),
     ],
     classifiers=[

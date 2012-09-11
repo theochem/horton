@@ -73,6 +73,8 @@ class AtomicGrid(BaseGrid):
 
         if points is None:
             points = np.zeros((size, 3), float)
+        else:
+            assert len(points) == size
         weights = np.zeros(size, float)
 
         llgrids = []

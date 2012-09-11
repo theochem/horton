@@ -43,10 +43,11 @@ class BaseGrid(object):
                 grids. The points data is shared, but the weights of the
                 subgrids may be different.
         '''
+        if subgrids is not None and len(subgrids) == 0:
+            raise TypeError('When subgrids are given, it may not be an empty list.')
         self._points = points
         self._weights = weights
         self._subgrids = subgrids
-
 
     def _get_size(self):
         '''The size of the grid.'''

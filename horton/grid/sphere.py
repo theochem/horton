@@ -43,6 +43,8 @@ class LebedevLaikovSphereGrid(BaseGrid):
 
         if points is None:
             points = np.zeros((nll, 3), float)
+        else:
+            assert len(points) == nll
         weights = np.zeros(nll, float)
 
         lebedev_laikov_sphere(points, weights)
