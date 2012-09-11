@@ -19,16 +19,27 @@
 //--
 
 
-#ifndef HORTON_GBASIS_COMMON_H
-#define HORTON_GBASIS_COMMON_H
+#ifndef HORTON_GBASIS_FNS_H
+#define HORTON_GBASIS_FNS_H
 
-#define MAX_SHELL_TYPE 7
+#include "calc.h"
+#include "iter_pow.h"
 
-long fac(long n);
-long fac2(long n);
-long binom(long n, long m);
-long get_shell_nbasis(long shell_type);
-long get_max_shell_type();
-const double dist_sq(const double* r0, const double* r1);
+
+class GB1GridFn : public GBCalculator  {
+    private:
+        long shell_type0;
+        const double *r0;
+        const double *point;
+        IterPow1 i1p;
+    public:
+        GB1GridFn(long max_shell_type);
+
+        void reset(long shell_type0, const double* r0, const double* point);
+        void add(double coeff, double alpha0, const double* scales0);
+        void cart_to_pure();
+        const long get_shell_type0() const {return shell_type0;};
+    };
+
 
 #endif

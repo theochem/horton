@@ -70,3 +70,15 @@ long get_shell_nbasis(long shell_type) {
 long get_max_shell_type() {
     return MAX_SHELL_TYPE;
 }
+
+
+const double dist_sq(const double* r0, const double* r1) {
+    double result, tmp;
+    tmp = r0[0] - r1[0];
+    result = tmp*tmp;
+    tmp = r0[1] - r1[1];
+    result += tmp*tmp;
+    tmp = r0[2] - r1[2];
+    result += tmp*tmp;
+    return result;
+}

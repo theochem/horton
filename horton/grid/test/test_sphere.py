@@ -53,3 +53,15 @@ def test_sphere_int3():
     integral = np.dot(llgrid.weights, (1+x-y+z))
     check = 4*np.pi*4*(1+center[0]-center[1]+center[2])
     assert abs(integral - check) < 1e-10
+
+def test_sphere_attrs():
+    center = np.random.uniform(-1, 1, 3)
+    llgrid = LebedevLaikovSphereGrid(center, 2.33, 110)
+    assert llgrid.size == 110
+    assert llgrid.points.shape == (110, 3)
+    assert llgrid.weights.shape == (110,)
+    assert llgrid.subgrids is None
+    assert (llgrid.center == center).all()
+    assert llgrid.radius == 2.33
+    assert llgrid.nll == 110
+    assert llgrid.random_rotate

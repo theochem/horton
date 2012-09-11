@@ -29,6 +29,7 @@ cimport cartpure
 cimport common
 cimport gbasis
 cimport ints
+cimport fns
 cimport iter_gb
 cimport iter_pow
 
@@ -49,6 +50,8 @@ __all__ = [
     'nuclear_attraction_helper', 'GB2NuclearAttractionIntegral',
     'GB4ElectronReuplsionIntegralLibInt',
     'gob_normalization',
+    # fns
+    'GB1GridFn',
     # iter_gb
     'IterGB1', 'IterGB2', 'IterGB4',
     # iter_pow
@@ -324,10 +327,21 @@ cdef class GBasis:
             return self._this.get_max_shell_type()
 
     def get_scales(self):
+        # A **copy** of the scales is returned.
         cdef np.npy_intp shape[1]
         shape[0] = self.nscales
         tmp = np.PyArray_SimpleNewFromData(1, shape, np.NPY_DOUBLE, <void*> self._this.get_scales(0))
         return tmp.copy()
+
+    # low-level compute routines
+    def compute_grid(self, np.ndarray[double, ndim=1] output, np.ndarray[double, ndim=1] point, GB1GridFn grid_fn):
+        assert output.flags['C_CONTIGUOUS']
+        assert output.shape[0] == self.nbasis
+        assert point.flags['C_CONTIGUOUS']
+        assert point.shape[0] == 3
+        #assert isinstance(grid_fn, GB1GridFn)
+        self._this.compute_grid(<double*>output.data, <double*>point.data, grid_fn._this)
+
 
 
 cdef class GOBasis(GBasis):
@@ -397,6 +411,7 @@ cdef class GOBasis(GBasis):
         cdef long ncharge = charges.shape[0]
         assert centers.flags['C_CONTIGUOUS']
         assert centers.shape[0] == ncharge
+        assert centers.shape[1] == 3
         (<gbasis.GOBasis*>self._this).compute_nuclear_attraction(
             <double*>charges.data, <double*>centers.data, ncharge,
             <double*>output.data
@@ -406,6 +421,67 @@ cdef class GOBasis(GBasis):
         cdef np.ndarray output = electron_repulsion._array
         self.check_matrix_two_body(output)
         (<gbasis.GOBasis*>self._this).compute_electron_repulsion(<double*>output.data)
+
+    def compute_density_grid_dm(self, dm, np.ndarray[double, ndim=2] points, np.ndarray[double, ndim=1] rhos):
+        '''compute_density_grid_dm(dm, points, rho)
+
+           Compute the electron density on a grid for a given density matrix.
+
+           **Arguments:**
+
+           dm
+                A density matrix. For now, this must be a DenseOneBody object.
+
+           points
+                A Numpy array with grid points, shape (npoint,3).
+
+           rhos
+                A Numpy array for the output, shape (npoint,).
+
+           **Warning:** the results are added to the output array! This may
+           be useful to combine results from different spin components.
+        '''
+        cdef np.ndarray dmar = dm._array
+        self.check_matrix_one_body(dmar)
+        assert rhos.flags['C_CONTIGUOUS']
+        npoint = rhos.shape[0]
+        assert points.flags['C_CONTIGUOUS']
+        assert points.shape[0] == npoint
+        assert points.shape[1] == 3
+        (<gbasis.GOBasis*>self._this).compute_density_grid_dm(<double*>dmar.data, npoint, <double*>points.data, <double*>rhos.data)
+
+    def compute_density_grid_orb(self, expansion, long nocc, np.ndarray[double, ndim=2] points, np.ndarray[double, ndim=1] rhos):
+        '''compute_density_grid_dm(dm, points, rho)
+
+           Compute the electron density on a grid for a given wavefunction
+           expansion.
+
+           **Arguments:**
+
+           expansion
+                A wavefunction expansion. For now, this must be a DenseExpansion
+                object.
+
+           nocc
+                The number of occupied orbitals.
+
+           points
+                A Numpy array with grid points, shape (npoint,3).
+
+           rhos
+                A Numpy array for the output, shape (npoint,).
+
+           **Warning:** the results are added to the output array! This may
+           be useful to combine results from different spin components.
+        '''
+        cdef np.ndarray orbar = expansion._coeffs
+        self.check_matrix_expansion(orbar, nocc)
+        assert rhos.flags['C_CONTIGUOUS']
+        npoint = rhos.shape[0]
+        assert points.flags['C_CONTIGUOUS']
+        assert points.shape[0] == npoint
+        assert points.shape[1] == 3
+        (<gbasis.GOBasis*>self._this).compute_density_grid_orb(<double*>orbar.data, nocc, npoint, <double*>points.data, <double*>rhos.data)
 
 
 #
@@ -612,6 +688,69 @@ cdef class GB4ElectronReuplsionIntegralLibInt(GB4Integral):
     def __cinit__(self, long max_nbasis):
         self._this = <ints.GB4Integral*>(new ints.GB4ElectronReuplsionIntegralLibInt(max_nbasis))
 
+
+
+#
+# fns wrappers (for testing only)
+#
+
+
+cdef class GB1GridFn:
+    '''Wrapper for fns.GB1GridFn, for testing only'''
+    cdef fns.GB1GridFn* _this
+
+    def __cinit__(self, long max_nbasis):
+        self._this = new fns.GB1GridFn(max_nbasis)
+
+    def __dealloc__(self):
+        del self._this
+
+    property nwork:
+        def __get__(self):
+            return self._this.get_nwork()
+
+    property max_shell_type:
+        def __get__(self):
+            return self._this.get_max_shell_type()
+
+    property max_nbasis:
+        def __get__(self):
+            return self._this.get_max_nbasis()
+
+    property shell_type0:
+        def __get__(self):
+            return self._this.get_shell_type0()
+
+    def reset(self, long shell_type0, np.ndarray[double, ndim=1] r0, np.ndarray[double, ndim=1] point):
+        assert r0.flags['C_CONTIGUOUS']
+        assert r0.shape[0] == 3
+        assert point.flags['C_CONTIGUOUS']
+        assert point.shape[0] == 3
+        self._this.reset(shell_type0, <double*>r0.data, <double*>point.data)
+
+    def add(self, double coeff, double alpha0,
+            np.ndarray[double, ndim=1] scales0):
+        assert scales0.flags['C_CONTIGUOUS']
+        assert scales0.shape[0] == get_shell_nbasis(abs(self._this.get_shell_type0()))
+        self._this.add(coeff, alpha0, <double*>scales0.data)
+
+    def cart_to_pure(self):
+        self._this.cart_to_pure()
+
+    def get_work(self, shape0):
+        '''This returns a **copy** of the c++ work array.
+
+           Returning a numpy array with a buffer created in c++ is dangerous.
+           If the c++ array becomes deallocated, the numpy array may still
+           point to the deallocated memory. For that reason, a copy is returned.
+           Speed is not an issue as this class is only used for testing.
+        '''
+        cdef np.npy_intp shape[1]
+        assert shape0 > 0
+        assert shape0 <= self.max_nbasis
+        shape[0] = shape0
+        tmp = np.PyArray_SimpleNewFromData(1, shape, np.NPY_DOUBLE, <void*> self._this.get_work())
+        return tmp.copy()
 
 
 #

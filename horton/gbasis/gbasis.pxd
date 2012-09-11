@@ -19,6 +19,9 @@
 #
 #--
 
+
+cimport fns
+
 cdef extern from "gbasis.h":
     cdef cppclass GBasis:
         # Arrays that fully describe the basis set.
@@ -36,6 +39,9 @@ cdef extern from "gbasis.h":
         long get_max_shell_type()
         double* get_scales(long iprim)
 
+        # low-level compute routines
+        void compute_grid(double* output, double* point, fns.GB1GridFn* grid_fn)
+
     cdef cppclass GOBasis:
         GOBasis(double* centers, long* shell_map, long* nprims,
                 long* shell_types, double* alphas, double* con_coeffs,
@@ -45,3 +51,5 @@ cdef extern from "gbasis.h":
         void compute_kinetic(double* output)
         void compute_nuclear_attraction(double* charges, double* centers, long ncharge, double* output)
         void compute_electron_repulsion(double* output)
+        void compute_density_grid_dm(double* dm, long npoint, double* points, double* rhos)
+        void compute_density_grid_orb(double* orbs, long nocc, long npoint, double* points, double* rhos)

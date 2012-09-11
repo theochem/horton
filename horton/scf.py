@@ -74,7 +74,7 @@ def converge_scf_cs(ham, max_iter=128, threshold=1e-8):
     for i in xrange(max_iter):
         # Construct the Fock operator
         fock.reset()
-        wfn.compute_density_matrix(dm)
+        wfn.compute_alpha_density_matrix(dm)
         ham.compute_fock(dm, None, None, fock, None)
         # Check for convergence
         error = lf.error_eigen(fock, ham.overlap, wfn.expansion)

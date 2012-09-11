@@ -39,6 +39,7 @@ __all__ = [
 class BeckeMolGrid(BaseGrid):
     '''Molecular integration grid using Becke weights'''
     def __init__(self, numbers, centers, atspecs, k=3, random_rotate=True):
+        # TODO: centers to coordinates
         '''
            **Arguments:**
 
@@ -181,10 +182,10 @@ def get_mol_grid_size(atspecs, ncenter):
     for i in xrange(len(atspecs)):
         atspec = atspecs[i]
         if len(atspec) == 3:
-            nll, nsphere, rtransform = atspec
+            rtransform, nll, nsphere = atspec
             nlls = [nll]*nsphere
         elif len(atspec) == 2:
-            nlls, rtransform = atspec
+            rtransform, nlls = atspec
         else:
             raise TypeError('An atomic grid spec must contain two or three elements')
         atsize = get_atomic_grid_size(nlls)[0]

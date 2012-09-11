@@ -23,6 +23,7 @@
 #define HORTON_GBASIS_GBASIS_H
 
 #include "ints.h"
+#include "fns.h"
 
 class GBasis {
     private:
@@ -51,6 +52,7 @@ class GBasis {
         void init_scales();
         void compute_one_body(double* output, GB2Integral* integral);
         void compute_two_body(double* output, GB4Integral* integral);
+        void compute_grid(double* output, double* point, GB1GridFn* grid_fn);
 
         const long get_nbasis() const {return nbasis;};
         const long get_nscales() const {return nscales;};
@@ -72,6 +74,8 @@ class GOBasis : public GBasis {
         void compute_kinetic(double* output);
         void compute_nuclear_attraction(double* charges, double* centers, long ncharge, double* output);
         void compute_electron_repulsion(double* output);
+        void compute_density_grid_dm(double* dm, long npoint, double* points, double* rhos);
+        void compute_density_grid_orb(double* orbs, long nocc, long npoint, double* points, double* rhos);
     };
 
 #endif

@@ -93,6 +93,12 @@ class ClosedShellWFN(BaseWFN):
         grp_expansion = grp.create_group('expansion')
         self._expansion.to_hdf5(grp_expansion)
 
+    def _get_nel(self):
+        '''The number of electrons'''
+        return self._nep*2
+
+    nel = property(_get_nel)
+
     def get_nep(self):
         return self._nep
 
@@ -113,6 +119,17 @@ class ClosedShellWFN(BaseWFN):
 
     expansion = property(get_expansion)
 
+    def compute_alpha_density_matrix(self, dm):
+        """Compute the alpha density matrix
+
+           **Arguments:**
+
+           dm
+                An output density matrix. This must be an instance of the
+                One-body operator class of the linalg factory, self.lf.
+        """
+        self._expansion.compute_density_matrix(self.nep, dm)
+
     def compute_density_matrix(self, dm):
         """Compute the density matrix
 
@@ -122,7 +139,8 @@ class ClosedShellWFN(BaseWFN):
                 An output density matrix. This must be an instance of the
                 One-body operator class of the linalg factory, self.lf.
         """
-        self._expansion.compute_density_matrix(self.nep, dm)
+        self.compute_alpha_density_matrix(dm)
+        dm.iscale(2)
 
     def apply_basis_permutation(self, permutation):
         """Reorder the expansion coefficients"""
@@ -187,6 +205,12 @@ class OpenShellWFN(BaseWFN):
         self._alpha_expansion.to_hdf5(grp_alpha_expansion)
         grp_beta_expansion = grp.create_group('beta_expansion')
         self._beta_expansion.to_hdf5(grp_beta_expansion)
+
+    def _get_nel(self):
+        '''The number of electrons'''
+        return self._nalpha + self._nbeta
+
+    nel = property(_get_nel)
 
     def get_nalpha(self):
         return self._nalpha

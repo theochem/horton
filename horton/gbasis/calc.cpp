@@ -18,17 +18,31 @@
 //
 //--
 
+#include <cmath>
+#include <cstdlib>
+#include <stdexcept>
+#include "calc.h"
+#include "cartpure.h"
+#include "common.h"
+using namespace std;
 
-#ifndef HORTON_GBASIS_COMMON_H
-#define HORTON_GBASIS_COMMON_H
 
-#define MAX_SHELL_TYPE 7
 
-long fac(long n);
-long fac2(long n);
-long binom(long n, long m);
-long get_shell_nbasis(long shell_type);
-long get_max_shell_type();
-const double dist_sq(const double* r0, const double* r1);
+GBCalculator::GBCalculator(long max_shell_type): max_shell_type(max_shell_type), work_pure(NULL), work_cart(NULL) {
+    if (max_shell_type < 0) {
+        throw std::domain_error("max_shell_type must be positive.");
+    }
+    max_nbasis = get_shell_nbasis(max_shell_type);
+}
 
-#endif
+GBCalculator::~GBCalculator() {
+    delete[] work_cart;
+    delete[] work_pure;
+}
+
+void GBCalculator::swap_work() {
+    double* tmp;
+    tmp = work_cart;
+    work_cart = work_pure;
+    work_pure = tmp;
+}

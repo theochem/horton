@@ -19,8 +19,12 @@
 //--
 
 
-#include <cmath>
+//#define DEBUG
+
+#ifdef DEBUG
 #include <cstdio>
+#endif
+#include <cmath>
 #include <stdexcept>
 
 #include "becke.h"
@@ -87,7 +91,7 @@ void becke_helper_atom(int npoint, double* points, double* weights, int natom,
                 if (iatom0 == iatom1) continue;
 
                 // TODO: move the following block out of the loops
-                alpha = (radii[iatom1] - radii[iatom0])/(radii[iatom0] + radii[iatom1]);
+                alpha = (radii[iatom0] - radii[iatom1])/(radii[iatom0] + radii[iatom1]);
                 alpha = alpha/(alpha*alpha-1);
                 if (alpha > 0.45) {
                     alpha = 0.45;
@@ -96,7 +100,7 @@ void becke_helper_atom(int npoint, double* points, double* weights, int natom,
                 }
 
                 // TODO: move the constant parts, independent of grid point, out of the loops
-                s = (dist(points, &centers[iatom1]) - dist(points, &centers[iatom0]))/dist(&centers[iatom0], &centers[iatom1]);
+                s = (dist(points, &centers[3*iatom0]) - dist(points, &centers[3*iatom1]))/dist(&centers[3*iatom0], &centers[3*iatom1]);
                 s = s + alpha*(1-s*s);
 
                 for (int k=1; k <= order; k++) {
@@ -105,11 +109,17 @@ void becke_helper_atom(int npoint, double* points, double* weights, int natom,
                 s = 0.5*(1-s);
 
                 p *= s;
+#ifdef DEBUG
+                printf("iatom0=%i  iatom1=%i s=%f p=%f\n", iatom0, iatom1, s, p);
+#endif
             }
 
             if (iatom0 == select) nom = p;
             denom += p;
         }
+#ifdef DEBUG
+        printf("nom=%f  denom=%f\n", nom, denom);
+#endif
 
         *weights = nom/denom;
 

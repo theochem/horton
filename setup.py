@@ -40,13 +40,16 @@ setup(
     cmdclass = {'build_ext': build_ext},
     ext_modules=[
         Extension("horton.gbasis.cext",
-            sources=['horton/gbasis/boys.cpp', 'horton/gbasis/cext.pyx',
-                     'horton/gbasis/cartpure.cpp', 'horton/gbasis/common.cpp',
+            sources=['horton/gbasis/boys.cpp', 'horton/gbasis/calc.cpp',
+                     'horton/gbasis/cartpure.cpp', 'horton/gbasis/cext.pyx',
+                     'horton/gbasis/common.cpp', 'horton/gbasis/fns.cpp',
                      'horton/gbasis/gbasis.cpp', 'horton/gbasis/ints.cpp',
                      'horton/gbasis/iter_gb.cpp', 'horton/gbasis/iter_pow.cpp'],
             depends=['horton/gbasis/boys.h', 'horton/gbasis/boys_inc.cpp', 'horton/gbasis/boys.pxd',
+                     'horton/gbasis/calc.h', 'horton/gbasis/calc.pxd',
                      'horton/gbasis/cartpure.h', 'horton/gbasis/cartpure.pxd',
                      'horton/gbasis/common.h', 'horton/gbasis/common.pxd'
+                     'horton/gbasis/fns.h', 'horton/gbasis/fns.pxd',
                      'horton/gbasis/gbasis.h', 'horton/gbasis/gbasis.pxd',
                      'horton/gbasis/ints.h', 'horton/gbasis/ints.pxd',
                      'horton/gbasis/iter_gb.h', 'horton/gbasis/iter_gb.pxd',

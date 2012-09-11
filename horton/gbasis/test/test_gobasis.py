@@ -134,3 +134,46 @@ def test_gobasis_consistency():
 def test_load_basis():
     for go_basis_family in go_basis_families.itervalues():
         go_basis_family.load()
+
+
+def test_grid_lih_321g_hf_some_points():
+    ref = np.array([ # from cubegen
+        [0.0, 0.0, 0.0, 0.037565082428],
+        [0.1, 0.0, 0.0, 0.034775306876],
+        [0.0, 0.1, 0.0, 0.034775306876],
+        [0.0, 0.0, 1.0, 0.186234028507],
+        [0.4, 0.2, 0.1, 0.018503681370],
+    ])
+    ref[:,:3] *= angstrom # convert from angstrom, cubegen docs are wrong. pfff.
+    sys = System.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
+
+    # check for one point the compute_grid method
+    output = np.zeros(sys.obasis.nbasis, float)
+    point = np.array([0.0, 0.0, 1.0])*angstrom
+    grid_fn = GB1GridFn(sys.obasis.max_shell_type)
+    sys.obasis.compute_grid(output, point, grid_fn)
+    # first basis function is contraction of three s-type gaussians
+    assert sys.obasis.nprims[0] == 3
+    scales = sys.obasis.get_scales()
+    total = 0.0
+    for i in xrange(3):
+        alpha = sys.obasis.alphas[i]
+        coeff = sys.obasis.con_coeffs[i]
+        nrml = gob_normalization(alpha, np.zeros(3, int))
+        # check scale
+        assert abs(scales[i] - nrml) < 1e-10
+        # check that we are on the first atom
+        assert sys.obasis.shell_map[i] == 0
+        dsq = np.linalg.norm(point - sys.coordinates[0])**2
+        gauss = nrml*np.exp(-alpha*dsq)
+        total += coeff*gauss
+    assert abs(total - output[0]) < 1e-10
+
+    # check density matrix value
+    dm = sys.lf.create_one_body(sys.obasis.nbasis)
+    sys.wfn.compute_density_matrix(dm)
+    assert abs(dm._array[0,0] - 1.96589709) < 1e-7
+
+    points = ref[:,:3].copy()
+    rhos = sys.compute_density_grid(points)
+    assert abs(rhos - ref[:,3]).max() < 1e-5

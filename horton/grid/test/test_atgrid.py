@@ -72,3 +72,32 @@ def test_integrate_hydrogen_1s():
     fn = np.exp(-2*distances)/np.pi
     occupation = np.dot(fn, ag.weights)
     assert abs(occupation - 1.0) < 1e-8
+
+
+def test_molgrid_attrs():
+    center = np.array([0.7, 0.2, -0.5], float)
+    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.2)
+    ag = AtomicGrid(center, rtf, 26, 50)
+
+    assert ag.size == 50*26
+    assert ag.points.shape == (50*26, 3)
+    assert ag.weights.shape == (50*26,)
+    assert len(ag.subgrids) == 50
+    assert (ag.center == center).all()
+    assert ag.rtransform == rtf
+    assert (ag.nlls == [26]*50).all()
+    assert ag.nsphere == 50
+    assert ag.random_rotate
+
+    radii = rtf.get_radii(50)
+    for j in xrange(50):
+        llgrid = ag.subgrids[j]
+        assert isinstance(llgrid, LebedevLaikovSphereGrid)
+        assert llgrid.size == 26
+        assert llgrid.points.shape == (26, 3)
+        assert llgrid.weights.shape == (26,)
+        assert llgrid.subgrids is None
+        assert (llgrid.center == center).all()
+        assert llgrid.radius == radii[j]
+        assert llgrid.nll == 26
+        assert llgrid.random_rotate
