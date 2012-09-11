@@ -32,7 +32,28 @@ __all__ = [
 
 
 class LebedevLaikovSphereGrid(BaseGrid):
+    '''A spherical Lebedev-Laikov grid'''
     def __init__(self, center, radius, nll, random_rotate=True, points=None):
+        '''
+           **Arguments:**
+
+           center
+                The center of the sphere
+
+           radius
+                The radius of the sphere
+
+           nll
+                The number of Lebedev-Laikov grid points
+
+           **Optional arguments:**
+
+           random_rotate
+                Flag to control random rotation of spherical grids.
+
+           points
+                Array to store the grid points
+        '''
         self._center = center
         self._radius = radius
         self._nll = nll

@@ -79,10 +79,35 @@ def becke_helper_atom(np.ndarray[double, ndim=2] points,
                       np.ndarray[double, ndim=1] weights,
                       np.ndarray[double, ndim=1] radii,
                       np.ndarray[double, ndim=2] centers,
-                      int i, int k):
+                      int select, int order):
     '''beck_helper_atom(points, weights, radii, centers, i, k)
 
-       Compute the Becke weights for a given atom an a grid
+       Compute the Becke weights for a given atom an a grid.
+
+       **Arguments:**
+
+       points
+            The Cartesian coordinates of the grid points. Numpy array with
+            shape (npoint, 3)
+
+       weights
+            The output array where the Becke partitioning weights are written.
+            Numpy array with shape (npoint,)
+
+       radii
+            The covalent radii used to shrink/enlarge basins in the Becke
+            scheme.
+
+       centers
+            The positions of the nuclei.
+
+       select
+            The selected atom for which the weights should be created.
+
+       order
+            The order of the switching functions. (That is k in Becke's paper.)
+
+       See Becke's paper for the details: http://dx.doi.org/10.1063/1.454033
     '''
     assert points.flags['C_CONTIGUOUS']
     assert points.shape[1] == 3
@@ -94,9 +119,9 @@ def becke_helper_atom(np.ndarray[double, ndim=2] points,
     assert centers.flags['C_CONTIGUOUS']
     assert centers.shape[0] == natom
     assert centers.shape[1] == 3
-    assert i >= 0 and i < natom
-    assert k > 0
+    assert select >= 0 and select < natom
+    assert order > 0
 
     becke.becke_helper_atom(points.shape[0], <double*>points.data,
                             <double*>weights.data, natom, <double*>radii.data,
-                            <double*>centers.data, i, k)
+                            <double*>centers.data, select, order)

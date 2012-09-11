@@ -39,6 +39,41 @@ __all__ = [
 class BeckeMolGrid(BaseGrid):
     '''Molecular integration grid using Becke weights'''
     def __init__(self, numbers, centers, atspecs, k=3, random_rotate=True):
+        '''
+           **Arguments:**
+
+           numbers
+                An array with atomic numbers
+
+           centers
+                An array with the atomic positions.
+
+           atspecs
+                A specifications of the atomic grids. (See below.)
+
+           **Optional arguments:**
+
+           k
+                The order of the switching function in Becke's weighting scheme.
+
+           random_rotate
+                Flag to control random rotation of spherical grids.
+
+           The argument atspecs may have two formats:
+
+           * A single atspec tuple: ``(nll, nsphere, rtransform)`` or ``(nlls,
+             rtransform)``, where ``nll`` is the number of Lebedev-Laikov points
+             on each sphere, ``nsphere`` is the number of spheres,
+             ``rtransform`` is a transformation from a linear grid to some
+             more convenient radial grid for integration and ``nlls`` is a
+             list of numbers of Lebedev-Laikov grid points for the respective
+             spheres of the atomic grid. In this case, each atom gets the
+             same grid
+
+           * A list of atspec tuples as discussed in the foregoing bullet point,
+             one for each atom. The length of this list must equal the number of
+             atoms.
+        '''
         if len(numbers.shape) != 1 or numbers.dtype != int:
             raise TypeError('Numbers must be a 1D array of integers.')
         natom = len(numbers)
@@ -108,7 +143,7 @@ class BeckeMolGrid(BaseGrid):
     atspecs = property(_get_atspecs)
 
     def _get_k(self):
-        '''The order of the Becke polynamial.'''
+        '''The order of the Becke switching function.'''
         return self._k
 
     k = property(_get_k)
@@ -121,6 +156,16 @@ class BeckeMolGrid(BaseGrid):
 
 
 def get_mol_grid_size(atspecs, ncenter):
+    '''Compute the size of the molecule grid and recreate atspecs with extra info.
+
+       **Arguments:**
+
+       atspecs
+            A list of specifications for the atomic grids.
+
+       ncenter
+            The total number of centers.
+    '''
     if not hasattr(atspecs, '__len__'):
         raise TypeError('atspecs must be iterable')
     else:

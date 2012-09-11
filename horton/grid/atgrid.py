@@ -47,7 +47,7 @@ class AtomicGrid(BaseGrid):
            nlls
                 The number Lebedev-Laikov grid points for each radial grid
                 point. When this argument is not a list, all radial grid
-                points get the same Lebedev-Laikov grid and the nsphere
+                points get the same Lebedev-Laikov grid and the ``nsphere``
                 argument must be given.
 
            **Optional arguments:**
@@ -63,7 +63,7 @@ class AtomicGrid(BaseGrid):
                 that are not reproducible.
 
            points
-                Memory to store the grid points
+                Array to store the grid points
         '''
         size, nlls = get_atomic_grid_size(nlls, nsphere)
         self._center = center
