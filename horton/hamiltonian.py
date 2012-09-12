@@ -26,6 +26,7 @@ __all__ = [
 ]
 
 
+# TODO: something to easily compute/store the energy of a system
 class Hamiltonian(object):
     def __init__(self, system, terms):
         self.system = system
