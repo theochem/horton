@@ -167,7 +167,17 @@ def test_cart_pure_domain():
     except ValueError:
         pass
 
-    # TODO add domain checks on nant and npost
+    try:
+        cart_to_pure_low(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=3, nant=0, npost=1)
+        assert False
+    except ValueError:
+        pass
+
+    try:
+        cart_to_pure_low(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=3, nant=1, npost=0)
+        assert False
+    except ValueError:
+        pass
 
 
 def test_cart_pure_water_ccpvdz_hf():
