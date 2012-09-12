@@ -21,6 +21,7 @@
 
 #include <cmath>
 #include <cstring>
+#include <stdexcept>
 #include "boys.h"
 #include "cartpure.h"
 #include "common.h"
@@ -97,6 +98,12 @@ GB2Integral::GB2Integral(long max_shell_type): GBCalculator(max_shell_type) {
 }
 
 void GB2Integral::reset(long _shell_type0, long _shell_type1, const double* _r0, const double* _r1) {
+    if ((_shell_type0 < -max_shell_type) || (_shell_type0 > max_shell_type)) {
+      throw domain_error("shell_type0 out of range.");
+    }
+    if ((_shell_type1 < -max_shell_type) || (_shell_type1 > max_shell_type)) {
+      throw domain_error("shell_type1 out of range.");
+    }
     shell_type0 = _shell_type0;
     shell_type1 = _shell_type1;
     r0 = _r0;
@@ -330,6 +337,18 @@ GB4Integral::GB4Integral(long max_shell_type): GBCalculator(max_shell_type) {
 
 void GB4Integral::reset(long _shell_type0, long _shell_type1, long _shell_type2, long _shell_type3,
                         const double* _r0, const double* _r1, const double* _r2, const double* _r3) {
+    if ((_shell_type0 < -max_shell_type) || (_shell_type0 > max_shell_type)) {
+      throw domain_error("shell_type0 out of range.");
+    }
+    if ((_shell_type1 < -max_shell_type) || (_shell_type1 > max_shell_type)) {
+      throw domain_error("shell_type1 out of range.");
+    }
+    if ((_shell_type2 < -max_shell_type) || (_shell_type2 > max_shell_type)) {
+      throw domain_error("shell_type2 out of range.");
+    }
+    if ((_shell_type3 < -max_shell_type) || (_shell_type3 > max_shell_type)) {
+      throw domain_error("shell_type3 out of range.");
+    }
     shell_type0 = _shell_type0;
     shell_type1 = _shell_type1;
     shell_type2 = _shell_type2;

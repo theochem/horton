@@ -90,6 +90,17 @@ def test_gb_overlap_int1d():
     assert abs(gb_overlap_int1d(0, 3, 0.014528, -0.363418, 1/8.325) - -0.069710) < 1e-5
 
 
+def test_gb2integral_exceptions():
+    gb2i = GB2OverlapIntegral(2)
+    r = np.random.uniform(-1, 1, 3)
+    for st0, st1 in (-3, 0), (3, 0), (0, -3), (0, 3):
+        try:
+            gb2i.reset(st0, st1, r, r)
+            assert False
+        except ValueError:
+            pass
+
+
 def test_overlap_norm():
     max_shell_type = 3
     gb2i = GB2OverlapIntegral(max_shell_type)
