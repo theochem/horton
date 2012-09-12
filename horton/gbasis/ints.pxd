@@ -27,7 +27,7 @@ cdef extern from "ints.h":
         long get_nwork()
         long get_max_shell_type()
         long get_max_nbasis()
-        void reset(long shell_type0, long shell_type1, double* r0, double* r1)
+        void reset(long shell_type0, long shell_type1, double* r0, double* r1) except +
         void add(double coeff, double alpha0, double alpha1, double* scales0, double* scales1)
         void cart_to_pure() except +
 
@@ -50,7 +50,7 @@ cdef extern from "ints.h":
         long get_nwork()
         long get_max_shell_type()
         long get_max_nbasis()
-        void reset(long shell_type0, long shell_type1, long shell_type2, long shell_type3, double* r0, double* r1, double* r2, double* r3)
+        void reset(long shell_type0, long shell_type1, long shell_type2, long shell_type3, double* r0, double* r1, double* r2, double* r3) except +
         void add(double coeff, double alpha0, double alpha1, double alpha2, double alpha3, double* scales0, double* scales1, double* scales2, double* scales3)
         void cart_to_pure() except +
 

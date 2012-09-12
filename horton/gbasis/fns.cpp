@@ -25,6 +25,7 @@
 #endif
 #include <cmath>
 #include <cstring>
+#include <stdexcept>
 #include "cartpure.h"
 #include "common.h"
 #include "fns.h"
@@ -38,7 +39,9 @@ GB1GridFn::GB1GridFn(long max_shell_type): GBCalculator(max_shell_type) {
 }
 
 void GB1GridFn::reset(long _shell_type0, const double* _r0, const double* _point) {
-    // TODO: add checks (to all reset functions) that _shell_type* is withing bounds
+    if ((_shell_type0 < -max_shell_type) || (_shell_type0 > max_shell_type)) {
+      throw domain_error("shell_type0 out of range.");
+    }
     shell_type0 = _shell_type0;
     r0 = _r0;
     point = _point;

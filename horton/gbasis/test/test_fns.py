@@ -32,6 +32,23 @@ def test_exceptions():
     except ValueError:
         pass
 
+    center = np.array([-0.1, 0.6, -0.3])
+    point = np.array([0.5, -0.2, 0.7])
+
+    try:
+        grid_fn = GB1GridFn(2)
+        grid_fn.reset(-3, center, point)
+        assert False
+    except ValueError:
+        pass
+
+    try:
+        grid_fn = GB1GridFn(2)
+        grid_fn.reset(3, center, point)
+        assert False
+    except ValueError:
+        pass
+
 
 def test_grid_fn_s():
     grid_fn = GB1GridFn(0)
