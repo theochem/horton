@@ -217,7 +217,9 @@ class OpenShellWFN(BaseWFN):
         self._nalpha = nalpha
         self._nbeta = nbeta
 
-        if self.nalpha + self.nbeta <= 0:
+        if self.nalpha < 0 or self.nbeta < 0:
+            raise ValueError('Negative number of electrons is not allowed.')
+        if self.nalpha == 0 and self.nbeta == 0:
             raise ValueError('At least one alpha or beta electron is required.')
         if self.nbasis < self.nalpha or self.nbasis < self.nbeta:
             raise ValueError('The number of spatial basis functions must not be lower than the number of alpha or beta electrons.')
