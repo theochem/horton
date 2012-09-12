@@ -378,7 +378,12 @@ cdef class GOBasis(GBasis):
         grp['alphas'] = self.alphas
         grp['con_coeffs'] = self.con_coeffs
 
-    # Integral computation
+    def check_matrix_expansion(self, matrix, nocc):
+        assert matrix.ndim == 2
+        assert matrix.flags['C_CONTIGUOUS']
+        assert matrix.shape[0] == self.nbasis
+        assert matrix.shape[1] <= self.nbasis
+        assert matrix.shape[1] >= nocc
 
     def check_matrix_one_body(self, matrix):
         assert matrix.ndim == 2
@@ -456,7 +461,7 @@ cdef class GOBasis(GBasis):
         assert points.shape[1] == 3
         (<gbasis.GOBasis*>self._this).compute_density_grid_dm(<double*>dmar.data, npoint, <double*>points.data, <double*>rhos.data)
 
-    def compute_density_grid_orb(self, expansion, long nocc, np.ndarray[double, ndim=2] points, np.ndarray[double, ndim=1] rhos):
+    def compute_density_grid_orb(self, expansion, long nocc, double scale, np.ndarray[double, ndim=2] points, np.ndarray[double, ndim=1] rhos):
         '''compute_density_grid_dm(dm, points, rho)
 
            Compute the electron density on a grid for a given wavefunction
@@ -480,14 +485,15 @@ cdef class GOBasis(GBasis):
            **Warning:** the results are added to the output array! This may
            be useful to combine results from different spin components.
         '''
-        cdef np.ndarray orbar = expansion._coeffs
-        self.check_matrix_expansion(orbar, nocc)
+        cdef np.ndarray orbs = expansion._coeffs
+        self.check_matrix_expansion(orbs, nocc)
+        norb = orbs.shape[1]
         assert rhos.flags['C_CONTIGUOUS']
         npoint = rhos.shape[0]
         assert points.flags['C_CONTIGUOUS']
         assert points.shape[0] == npoint
         assert points.shape[1] == 3
-        (<gbasis.GOBasis*>self._this).compute_density_grid_orb(<double*>orbar.data, nocc, npoint, <double*>points.data, <double*>rhos.data)
+        (<gbasis.GOBasis*>self._this).compute_density_grid_orb(<double*>orbs.data, nocc, norb, scale, npoint, <double*>points.data, <double*>rhos.data)
 
 
 #

@@ -184,11 +184,12 @@ def check_grid_fn(fn_fchk):
     # TODO: standard procedure for constructing recommended coarse, medium and fine grids.
     rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
     grid = BeckeMolGrid(sys.numbers, sys.coordinates, (rtf, 110, 100), random_rotate=False)
-    rhos = sys.compute_density_grid(grid.points)
-    pop = np.dot(rhos, grid.weights)
-    tmp = rhos*grid.weights
-    print fn_fchk, pop, sys.wfn.nel, pop-sys.wfn.nel
-    assert abs(pop-sys.wfn.nel) < 2e-3
+    for use_dm in True, False:
+        rhos = sys.compute_density_grid(grid.points, use_dm)
+        pop = np.dot(rhos, grid.weights)
+        tmp = rhos*grid.weights
+        print fn_fchk, pop, sys.wfn.nel, pop-sys.wfn.nel
+        assert abs(pop-sys.wfn.nel) < 2e-3
 
 
 def test_grid_fn_h_sto3g():
