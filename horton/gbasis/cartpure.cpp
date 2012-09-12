@@ -380,6 +380,9 @@ void cart_to_pure_low(double *work_cart, double* work_pure, long shell_type,
     if ((shell_type>MAX_SHELL_TYPE) || (shell_type<0)) {
         throw std::domain_error("The shell type must be in the interval [0,9].");
     }
+    if ((nant < 1) || (npost<1)) {
+        throw std::domain_error("Both nant and npost have to be strictly positive.");
+    }
 
     int ca, cp, i;
     const long npure = 2*shell_type+1;
