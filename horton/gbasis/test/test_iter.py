@@ -130,8 +130,127 @@ def test_iter_pow2_raise():
         pass
 
 
+def get_itergb1():
+    # This is a rather random basis specification for two centers.
+    centers = np.random.uniform(-1, 1, (2, 3))
+    shell_map = np.array([0, 0, 0, 1, 1, 1, 1])
+    nprims = np.array([2, 3, 3, 5, 5, 5, 7])
+    shell_types = np.array([2, 1, 0, -2, 3, 0, 1])
+    alphas = np.random.uniform(0.5, 2, nprims.sum())
+    con_coeffs = np.random.uniform(-1, 1, nprims.sum())
+    gobasis = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
+    return IterGB1(gobasis), gobasis
 
-def get_test_itergb2():
+
+def test_itergb1_inc_shell():
+    i1, gobasis = get_itergb1()
+    i1.update_shell()
+    i1.update_prim()
+    assert i1.private_fields == (0,   2, 0, 0)
+    assert i1.public_fields == (
+        gobasis.con_coeffs[0], 2,
+        gobasis.alphas[0],
+        gobasis.centers[0,0], gobasis.centers[0,1], gobasis.centers[0,2],
+        0,
+    )
+    assert i1.inc_shell() is True
+    i1.update_prim()
+    assert i1.private_fields == (1,   3, 2, 0)
+    assert i1.public_fields == (
+        gobasis.con_coeffs[2], 1,
+        gobasis.alphas[2],
+        gobasis.centers[0,0], gobasis.centers[0,1], gobasis.centers[0,2],
+        6,
+    )
+    assert i1.inc_shell() is True
+    i1.update_prim()
+    assert i1.private_fields == (2,   3, 5, 0)
+    assert i1.public_fields == (
+        gobasis.con_coeffs[5], 0,
+        gobasis.alphas[5],
+        gobasis.centers[0,0], gobasis.centers[0,1], gobasis.centers[0,2],
+        9,
+    )
+    assert i1.inc_shell() is True
+    i1.update_prim()
+    assert i1.private_fields == (3,   5, 8, 0)
+    assert i1.public_fields == (
+        gobasis.con_coeffs[8], -2,
+        gobasis.alphas[8],
+        gobasis.centers[1,0], gobasis.centers[1,1], gobasis.centers[1,2],
+        10,
+    )
+    assert i1.inc_shell() is True
+    assert i1.inc_shell() is True
+    assert i1.inc_shell() is True
+    assert i1.inc_shell() is False
+
+
+
+def test_itergb1_inc_prim():
+    i1, gobasis = get_itergb1()
+    i1.update_shell()
+    i1.update_prim()
+    assert i1.private_fields == (0,   2, 0, 0)
+    assert i1.public_fields == (
+        gobasis.con_coeffs[0], 2,
+        gobasis.alphas[0],
+        gobasis.centers[0,0], gobasis.centers[0,1], gobasis.centers[0,2],
+        0,
+    )
+    assert i1.inc_shell() is True
+    assert i1.inc_shell() is True
+    i1.update_prim()
+    assert i1.private_fields == (2,   3, 5, 0)
+    assert i1.public_fields == (
+        gobasis.con_coeffs[5], 0,
+        gobasis.alphas[5],
+        gobasis.centers[0,0], gobasis.centers[0,1], gobasis.centers[0,2],
+        9
+    )
+    assert i1.inc_prim() is True
+    assert i1.private_fields == (2,  3, 5, 1)
+    assert i1.public_fields == (
+        gobasis.con_coeffs[6], 0,
+        gobasis.alphas[6],
+        gobasis.centers[0,0], gobasis.centers[0,1], gobasis.centers[0,2],
+        9,
+    )
+    assert i1.inc_prim() is True
+    assert i1.private_fields == (2,  3, 5, 2)
+    assert i1.public_fields == (
+        gobasis.con_coeffs[7], 0,
+        gobasis.alphas[7],
+        gobasis.centers[0,0], gobasis.centers[0,1], gobasis.centers[0,2],
+        9,
+    )
+    assert i1.inc_prim() is False
+
+
+def test_itergb1_store():
+    i1, gobasis = get_itergb1()
+    i1.update_shell()
+    i1.update_prim()
+    #
+    max_shell_nbasis = get_shell_nbasis(gobasis.max_shell_type)
+    work = np.random.uniform(-1, 1, 6)
+    output = np.zeros(29, float)
+    i1.store(work, output)
+    assert abs(output[:6] - work).max() < 1e-10
+    #
+    work = np.random.uniform(-1, 1, 5)
+    output[:] = 0
+    i1.inc_shell()
+    i1.inc_shell()
+    i1.inc_shell()
+    i1.store(work, output)
+    assert abs(output[10:15] - work).max() < 1e-10
+    assert abs(output[:10]).max() == 0
+    assert abs(output[15:]).max() == 0
+
+
+
+def get_itergb2():
     # This is a rather random basis specification for two centers.
     centers = np.random.uniform(-1, 1, (2, 3))
     shell_map = np.array([0, 0, 0, 1, 1, 1, 1])
@@ -144,7 +263,7 @@ def get_test_itergb2():
 
 
 def test_itergb2_inc_shell():
-    i2, gobasis = get_test_itergb2()
+    i2, gobasis = get_itergb2()
     i2.update_shell()
     i2.update_prim()
     assert i2.private_fields == (0, 0,   2, 2, 0, 0, 0, 0)
@@ -218,7 +337,7 @@ def test_itergb2_inc_shell():
 
 
 def test_itergb2_inc_prim():
-    i2, gobasis = get_test_itergb2()
+    i2, gobasis = get_itergb2()
     i2.update_shell()
     i2.update_prim()
     assert i2.private_fields == (0, 0,   2, 2, 0, 0, 0, 0)
@@ -272,7 +391,7 @@ def test_itergb2_inc_prim():
 
 
 def test_itergb2_store():
-    i2, gobasis = get_test_itergb2()
+    i2, gobasis = get_itergb2()
     i2.update_shell()
     i2.update_prim()
     #
@@ -364,7 +483,7 @@ def test_itergb4_idea():
                         raise AssertionError('(%i,%i,%i,%i): %i != %i' % (i,j,k,l,tboc[i,j,k,l],expected))
 
 
-def get_test_itergb4():
+def get_itergb4():
     # This is a rather random basis specification for two centers.
     centers = np.random.uniform(-1, 1, (2, 3))
     shell_map = np.array([0, 0, 1, 1, 1])
@@ -379,7 +498,7 @@ def get_test_itergb4():
 def test_itergb4_idea_inc_shell():
     # # This is a test for the shell loop structure of IterGB4.
     # # Note: physicists notation is used.
-    i4, gobasis = get_test_itergb4()
+    i4, gobasis = get_itergb4()
     N = gobasis.nshell
     # a counter for each element of a two-body operator with 5 DOF:
     tboc = np.zeros((N, N, N, N), int)
@@ -418,7 +537,7 @@ def test_itergb4_idea_inc_shell():
 
 
 def test_itergb4_inc_shell():
-    i4, gobasis = get_test_itergb4()
+    i4, gobasis = get_itergb4()
     oprims = np.zeros(gobasis.nshell, int)
     basis_offsets = np.zeros(gobasis.nshell, int)
     for i in xrange(1, gobasis.nshell):
@@ -507,7 +626,7 @@ def test_itergb4_inc_shell():
 
 
 def test_itergb4_inc_prim():
-    i4, gobasis = get_test_itergb4()
+    i4, gobasis = get_itergb4()
     oprims = np.zeros(gobasis.nshell, int)
     basis_offsets = np.zeros(gobasis.nshell, int)
     for i in xrange(1, gobasis.nshell):
@@ -560,7 +679,7 @@ def test_itergb4_inc_prim():
 
 
 def test_itergb4_store():
-    i4, gobasis = get_test_itergb4()
+    i4, gobasis = get_itergb4()
     i4.update_shell()
     i4.update_prim()
     #

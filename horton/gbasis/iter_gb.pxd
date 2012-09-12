@@ -24,6 +24,26 @@ cimport gbasis
 
 
 cdef extern from "iter_gb.h":
+    cdef cppclass IterGB1:
+        IterGB1(gbasis.GBasis* gbasis)
+
+        bint inc_shell()
+        void update_shell()
+        bint inc_prim()
+        void update_prim()
+        void store(double *work, double *output)
+
+        # 'public' iterator fields
+        long shell_type0
+        double con_coeff, alpha0
+        double *r0
+        double *scales0
+        long ibasis0
+
+        # 'private' iterator fields
+        long ishell0
+        long nprim0, iprim0, oprim0
+
     cdef cppclass IterGB2:
         IterGB2(gbasis.GBasis* gbasis)
 
