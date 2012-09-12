@@ -29,7 +29,7 @@ def test_scf_cs():
     sys = System.from_file(fn_fchk)
     guess_hamiltionian_core(sys)
     ham = Hamiltonian(sys, [HartreeFock()])
-    converge_scf(ham)
+    assert converge_scf(ham)
     expected_energies = np.array([
         -2.59083334E+01, -1.44689996E+00, -5.57467136E-01, -4.62288194E-01,
         -4.62288194E-01, 5.39578910E-01,
@@ -42,7 +42,7 @@ def test_scf_os():
     sys = System.from_file(fn_fchk)
     guess_hamiltionian_core(sys)
     ham = Hamiltonian(sys, [HartreeFock()])
-    converge_scf(ham)
+    assert converge_scf(ham)
     expected_alpha_energies = np.array([
         -2.76116635E+00, -7.24564188E-01, -1.79148636E-01, -1.28235698E-01,
         -1.28235698E-01, -7.59817520E-02, -1.13855167E-02, 6.52484445E-03,
