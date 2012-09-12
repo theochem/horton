@@ -52,7 +52,7 @@ __all__ = [
     # iter_gb
     'IterGB1', 'IterGB2', 'IterGB4',
     # iter_pow
-    'iter_pow1_inc', 'IterPow2',
+    'iter_pow1_inc', 'IterPow1', 'IterPow2',
 ]
 
 
@@ -801,6 +801,32 @@ def iter_pow1_inc(np.ndarray[long, ndim=1] n):
     return iter_pow.iter_pow1_inc(<long*>n.data)
 
 
+cdef class IterPow1:
+    """Wrapper for the IterPow1 class, for testing only."""
+    cdef iter_pow.IterPow1* _c_i1p
+
+    def __cinit__(self):
+        self._c_i1p = new iter_pow.IterPow1()
+
+    def __dealloc__(self):
+        del self._c_i1p
+
+    def __init__(self, long shell_type0):
+        if shell_type0 < 0:
+            raise ValueError('A shell_type parameter can not be negative.')
+        self._c_i1p.reset(shell_type0)
+
+    def inc(self):
+        return self._c_i1p.inc()
+
+    property fields:
+        def __get__(self):
+            return (
+                self._c_i1p.n0[0], self._c_i1p.n0[1], self._c_i1p.n0[2],
+                self._c_i1p.ibasis0
+            )
+
+
 cdef class IterPow2:
     """Wrapper for the IterPow2 class, for testing only."""
     cdef iter_pow.IterPow2* _c_i2p
@@ -811,14 +837,10 @@ cdef class IterPow2:
     def __dealloc__(self):
         del self._c_i2p
 
-    def __init__(self, long shell_type0, long shell_type1, max_nbasis):
+    def __init__(self, long shell_type0, long shell_type1):
         if shell_type0 < 0 or shell_type1 < 0:
             raise ValueError('A shell_type parameter can not be negative.')
-        if max_nbasis < get_shell_nbasis(shell_type0):
-            raise ValueError('max_nbasis to small for shell_type0.')
-        if max_nbasis < get_shell_nbasis(shell_type1):
-            raise ValueError('max_nbasis to small for shell_type1.')
-        self._c_i2p.reset(shell_type0, shell_type1, max_nbasis)
+        self._c_i2p.reset(shell_type0, shell_type1)
 
     def inc(self):
         return self._c_i2p.inc()
@@ -828,5 +850,5 @@ cdef class IterPow2:
             return (
                 self._c_i2p.n0[0], self._c_i2p.n0[1], self._c_i2p.n0[2],
                 self._c_i2p.n1[0], self._c_i2p.n1[1], self._c_i2p.n1[2],
-                self._c_i2p.offset
+                self._c_i2p.offset, self._c_i2p.ibasis0, self._c_i2p.ibasis1,
             )

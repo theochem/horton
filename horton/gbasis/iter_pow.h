@@ -24,12 +24,20 @@
 
 int iter_pow1_inc(long* n);
 
+class IterPow1 {
+    private:
+        long shell_type0;
+    public:
+        void reset(long shell_type0);
+        int inc();
+        long n0[3], ibasis0;
+    };
+
 class IterPow2 {
     private:
-        // TODO: remove skip and offset
-        long shell_type0, shell_type1, skip;
+        long shell_type0, shell_type1;
     public:
-        void reset(long shell_type0, long shell_type1, long max_nbasis);
+        void reset(long shell_type0, long shell_type1);
         int inc();
         long n0[3], n1[3], offset, ibasis0, ibasis1;
     };
