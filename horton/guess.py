@@ -53,6 +53,5 @@ def guess_hamiltonian_core_os(system):
     hamcore.iadd(system.get_kinetic(), 1)
     hamcore.iadd(system.get_nuclear_attraction(), -1)
     system.lf.diagonalize(hamcore, overlap, system.wfn.alpha_expansion)
-    # TODO: just copy the alpha guess to the beta
-    system.lf.diagonalize(hamcore, overlap, system.wfn.beta_expansion)
+    system.wfn.beta_expansion.assign(system.wfn.alpha_expansion) # clone alpha into beta
     system.update_chk('wfn')

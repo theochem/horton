@@ -228,6 +228,13 @@ class DenseExpansion(object):
         '''
         self._coeffs[:] = self.coeffs[permutation]
 
+    def assign(self, other):
+        if not isinstance(other, DenseExpansion):
+            raise TypeError('The other object must also be DenseExpansion instance.')
+        self._coeffs[:] = other._coeffs
+        if self._energies is not None:
+            self._energies[:] = other._energies
+
 
 class DenseOneBody(object):
     """Dense symmetric two-dimensional matrix, also used for density matrices.
