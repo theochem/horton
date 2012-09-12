@@ -28,7 +28,6 @@
 
 double gpt_coeff(long k, long n0, long n1, double pa, double pb);
 double gb_overlap_int1d(long n0, long n1, double pa, double pb, double gamma_inv);
-const double gob_normalization(const double alpha, const long* n);
 
 
 class GB2Integral : public GBCalculator {

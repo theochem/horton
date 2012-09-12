@@ -44,12 +44,12 @@ __all__ = [
     # common
     'fac', 'fac2', 'binom', 'get_shell_nbasis', 'get_max_shell_type',
     # gbasis
+    'gob_normalization',
     'GOBasis',
     # ints
     'gpt_coeff', 'gb_overlap_int1d', 'GB2OverlapIntegral', 'GB2KineticIntegral',
     'nuclear_attraction_helper', 'GB2NuclearAttractionIntegral',
     'GB4ElectronReuplsionIntegralLibInt',
-    'gob_normalization',
     # fns
     'GB1GridFn',
     # iter_gb
@@ -114,6 +114,12 @@ def get_max_shell_type():
 #
 # gbasis wrappers
 #
+
+
+def gob_normalization(double alpha, np.ndarray[long, ndim=1] n):
+    assert n.flags['C_CONTIGUOUS']
+    assert n.shape[0] == 3
+    return gbasis.gob_normalization(alpha, <long*>n.data)
 
 
 cdef class GBasis:
@@ -495,12 +501,6 @@ def gpt_coeff(long k, long n0, long n1, double pa, double pb):
 
 def gb_overlap_int1d(long n0, long n1, double pa, double pb, double inv_gamma):
     return ints.gb_overlap_int1d(n0, n1, pa, pb, inv_gamma)
-
-
-def gob_normalization(double alpha, np.ndarray[long, ndim=1] n):
-    assert n.flags['C_CONTIGUOUS']
-    assert n.shape[0] == 3
-    return ints.gob_normalization(alpha, <long*>n.data)
 
 
 cdef class GB2Integral:

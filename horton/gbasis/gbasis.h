@@ -25,6 +25,10 @@
 #include "ints.h"
 #include "fns.h"
 
+
+const double gob_normalization(const double alpha, const long* n);
+
+
 class GBasis {
     private:
         // Auxiliary arrays that contain convenient derived information.
