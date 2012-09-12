@@ -24,6 +24,7 @@
 #ifdef DEBUG
 #include <cstdio>
 #endif DEBUG
+#include <cstring>
 #include <stdexcept>
 #include "common.h"
 #include "cartpure.h"
@@ -390,11 +391,10 @@ void cart_to_pure_low(double *work_cart, double* work_pure, long shell_type,
     const type_sparse_tf* tf = &cptf[shell_type];
     const type_sparse_el* el;
 
-    // Reset elements in work_pure
-    // TODO use memset instead
-    for (i=nant*npure*npost-1; i>=0; i--) {
-        work_pure[i] = 0.0;
-    }
+    // Reset elements in work_pure. We make use of the fact that a floating
+    // point zero consists of consecutive zero bytes.
+    memset(work_pure, 0, nant*npure*npost*sizeof(double));
+
 
     for (ca=nant-1; ca>=0; ca--) {
         for (cp=npost-1; cp>=0; cp--) {
