@@ -50,7 +50,7 @@ __all__ = [
     'GB4ElectronReuplsionIntegralLibInt',
     'gob_normalization',
     # iter_gb
-    'IterGB2', 'IterGB4',
+    'IterGB1', 'IterGB2', 'IterGB4',
     # iter_pow
     'iter_pow1_inc', 'IterPow2',
 ]
@@ -617,6 +617,59 @@ cdef class GB4ElectronReuplsionIntegralLibInt(GB4Integral):
 #
 # iter_gb wrappers (for testing only)
 #
+
+
+cdef class IterGB1:
+    """Wrapper for the IterGB1 class, for testing only."""
+    cdef iter_gb.IterGB1* _this
+    cdef GBasis _gbasis
+
+    def __cinit__(self, GBasis gbasis):
+        self._this = new iter_gb.IterGB1(gbasis._this)
+        self._gbasis = gbasis
+
+    def __dealloc__(self):
+        del self._this
+
+    def inc_shell(self):
+        return self._this.inc_shell()
+
+    def update_shell(self):
+        self._this.update_shell()
+
+    def inc_prim(self):
+        return self._this.inc_prim()
+
+    def update_prim(self):
+        self._this.update_prim()
+
+    def store(self, np.ndarray[double, ndim=1] work,
+              np.ndarray[double, ndim=1] output):
+        max_shell_nbasis = get_shell_nbasis(self._gbasis.max_shell_type)
+        assert work.shape[0] == get_shell_nbasis(self._this.shell_type0)
+        assert work.flags['C_CONTIGUOUS']
+        assert output.shape[0] == self._gbasis.nbasis
+        assert output.flags['C_CONTIGUOUS']
+        self._this.store(<double*>work.data, <double*>output.data)
+
+    property public_fields:
+        def __get__(self):
+            return (
+                self._this.con_coeff,
+                self._this.shell_type0,
+                self._this.alpha0,
+                self._this.r0[0], self._this.r0[1], self._this.r0[2],
+                self._this.ibasis0,
+            )
+
+    property private_fields:
+        def __get__(self):
+            return (
+                self._this.ishell0,
+                self._this.nprim0,
+                self._this.oprim0,
+                self._this.iprim0,
+            )
 
 
 cdef class IterGB2:

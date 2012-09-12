@@ -24,6 +24,33 @@
 
 #include "gbasis.h"
 
+class IterGB1 {
+    private:
+        // input fields
+        const GBasis* gbasis;
+        const long* basis_offsets;
+    public:
+        IterGB1(GBasis* gbasis);
+
+        int inc_shell();
+        void update_shell();
+        int inc_prim();
+        void update_prim();
+        void store(const double *work, double *output);
+
+        // 'public' iterator fields
+        long shell_type0;
+        double con_coeff, alpha0;
+        const double *r0; // current centers
+        const double *scales0; // normalization constants
+        long ibasis0; // basis function counters (for output storage)
+
+        // 'private' iterator fields
+        long ishell0; // shell counters
+        long nprim0, iprim0, oprim0; // primitive counters
+    };
+
+
 class IterGB2 {
     private:
         // input fields
