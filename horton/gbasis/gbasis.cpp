@@ -253,9 +253,36 @@ void GOBasis::compute_density_grid_dm(double* dm, long npoint, double* points, d
         rhos++;
         points += 3;
     }
-
 }
 
-void GOBasis::compute_density_grid_orb(double* orbs, long nocc, long npoint, double* points, double* rhos) {
-    // TODO
+void GOBasis::compute_density_grid_orb(double* orbs, long nocc, long norb, double scale, long npoint, double* points, double* rhos) {
+    double basis_fns[get_nbasis()];
+    GB1GridFn grid_fn = GB1GridFn(get_max_shell_type());
+
+    for (long ipoint=0; ipoint<npoint; ipoint++) {
+
+        // A) clear the basis functions.
+        for (long ibasis=0; ibasis<get_nbasis(); ibasis++) {
+            basis_fns[ibasis] = 0.0;
+        }
+
+        // B) evaluate the basis functions in the current point.
+        compute_grid(basis_fns, points, &grid_fn);
+
+        // C) Make dot product of basis functions with orbital coefficients,
+        // square and add.
+        double rho = 0;
+        for (long ibasis0=0; ibasis0<nocc; ibasis0++) {
+            double orb = 0.0;
+            for (long ibasis1=0; ibasis1<get_nbasis(); ibasis1++) {
+                orb += orbs[ibasis1*norb+ibasis0]*basis_fns[ibasis1];
+            }
+            rho += orb*orb;
+        }
+        *rhos += scale*rho;
+
+        // D) Prepare for next iteration
+        rhos++;
+        points += 3;
+    }
 }

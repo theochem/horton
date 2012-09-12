@@ -44,7 +44,7 @@ class BaseWFN(object):
             raise TypeError('Can not load wavefunction of class %s from HDF5.' % clsname)
 
 
-
+# TODO: underscore convention get methods
 class ClosedShellWFN(BaseWFN):
     def __init__(self, nep, lf, nbasis, norb=None):
         """
@@ -118,6 +118,9 @@ class ClosedShellWFN(BaseWFN):
         return self._expansion
 
     expansion = property(get_expansion)
+
+    def iter_expansions(self):
+        yield self._expansion, self._nep, 2
 
     def compute_alpha_density_matrix(self, dm):
         """Compute the alpha density matrix
@@ -241,6 +244,10 @@ class OpenShellWFN(BaseWFN):
         return self._beta_expansion
 
     beta_expansion = property(get_beta_expansion)
+
+    def iter_expansions(self):
+        yield self._alpha_expansion, self._nalpha, 1
+        yield self._beta_expansion, self._nbeta, 1
 
     def compute_density_matrix(self, dm):
         """Compute the density matrix

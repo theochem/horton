@@ -79,7 +79,7 @@ class GOBasis : public GBasis {
         void compute_nuclear_attraction(double* charges, double* centers, long ncharge, double* output);
         void compute_electron_repulsion(double* output);
         void compute_density_grid_dm(double* dm, long npoint, double* points, double* rhos);
-        void compute_density_grid_orb(double* orbs, long nocc, long npoint, double* points, double* rhos);
+        void compute_density_grid_orb(double* orbs, long nocc, long norb, double scale, long npoint, double* points, double* rhos);
     };
 
 #endif
