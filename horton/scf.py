@@ -41,11 +41,16 @@ def converge_scf(ham, max_iter=128, threshold=1e-8):
 
        threshold
             The convergence threshold for the wavefunction
+
+       **Returns:**
+
+       converged
+            True of converged, False if not
     '''
     if isinstance(ham.system.wfn, ClosedShellWFN):
-        converge_scf_cs(ham, max_iter, threshold)
+        return converge_scf_cs(ham, max_iter, threshold)
     elif isinstance(ham.system.wfn, OpenShellWFN):
-        converge_scf_os(ham, max_iter, threshold)
+        return converge_scf_os(ham, max_iter, threshold)
     else:
         raise NotImplementedError
 
@@ -65,6 +70,11 @@ def converge_scf_cs(ham, max_iter=128, threshold=1e-8):
 
        threshold
             The convergence threshold for the wavefunction
+
+       **Returns:**
+
+       converged
+            True of converged, False if not
     '''
     lf = ham.system.lf
     wfn = ham.system.wfn
@@ -79,12 +89,12 @@ def converge_scf_cs(ham, max_iter=128, threshold=1e-8):
         # Check for convergence
         error = lf.error_eigen(fock, ham.overlap, wfn.expansion)
         if error < threshold:
-            break
+            return True
         # Diagonalize the fock operator
         lf.diagonalize(fock, ham.overlap, wfn.expansion)
         # Write intermediate results to checkpoint
         ham.system.update_chk('wfn')
-
+    return False
 
 
 def converge_scf_os(ham, max_iter=128, threshold=1e-8):
@@ -102,6 +112,11 @@ def converge_scf_os(ham, max_iter=128, threshold=1e-8):
 
        threshold
             The convergence threshold for the wavefunction
+
+       **Returns:**
+
+       converged
+            True of converged, False if not
     '''
     lf = ham.system.lf
     wfn = ham.system.wfn
@@ -125,9 +140,10 @@ def converge_scf_os(ham, max_iter=128, threshold=1e-8):
         error_alpha = lf.error_eigen(fock_alpha, ham.overlap, wfn.alpha_expansion)
         error_beta = lf.error_eigen(fock_beta, ham.overlap, wfn.beta_expansion)
         if error_alpha < threshold and error_beta < threshold:
-            break
+            return True
         # Diagonalize the fock operators
         lf.diagonalize(fock_alpha, ham.overlap, wfn.alpha_expansion)
         lf.diagonalize(fock_beta, ham.overlap, wfn.beta_expansion)
         # Write intermediate results to checkpoint
         ham.system.update_chk('wfn')
+    return False
