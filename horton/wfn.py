@@ -31,30 +31,13 @@ import numpy as np
 __all__ = ['BaseWFN', 'ClosedShellWFN', 'OpenShellWFN']
 
 
-# TODO: move common code to Base
 class BaseWFN(object):
-    @classmethod
-    def from_hdf5(cls, grp, lf):
-        clsname = grp.attrs['class']
-        if clsname == 'ClosedShellWFN':
-            return ClosedShellWFN.from_hdf5(grp, lf)
-        elif clsname == 'OpenShellWFN':
-            return OpenShellWFN.from_hdf5(grp, lf)
-        else:
-            raise TypeError('Can not load wavefunction of class %s from HDF5.' % clsname)
-
-
-# TODO: underscore convention get methods
-class ClosedShellWFN(BaseWFN):
-    def __init__(self, nep, lf, nbasis, norb=None):
+    def __init__(self, lf, nbasis, norb=None):
         """
            **Arguments:**
 
-           nep
-                The number of electron pairs in the wave function.
-
            lf
-                A LinalgFactor instance
+                A LinalgFactory instance.
 
            nbasis
                 The number of basis functions.
@@ -65,13 +48,79 @@ class ClosedShellWFN(BaseWFN):
                the number of orbitals (occupied + virtual). When not given,
                it is set to nbasis.
         """
-        self._nep = nep
         self._lf = lf
         self._nbasis = nbasis
         if norb is None:
             self._norb = nbasis
         else:
             self._norb = norb
+
+    @classmethod
+    def from_hdf5(cls, grp, lf):
+        clsname = grp.attrs['class']
+        if clsname == 'ClosedShellWFN':
+            return ClosedShellWFN.from_hdf5(grp, lf)
+        elif clsname == 'OpenShellWFN':
+            return OpenShellWFN.from_hdf5(grp, lf)
+        else:
+            raise TypeError('Can not load wavefunction of class %s from HDF5.' % clsname)
+
+    def _get_nbasis(self):
+        '''The number of basis functions.'''
+        return self._nbasis
+
+    nbasis = property(_get_nbasis)
+
+    def _get_norb(self):
+        '''The number of orbitals in the expansion(s)'''
+        return self._norb
+
+    norb = property(_get_norb)
+
+    def iter_expansions(self):
+        raise NotImplementedError
+
+    def apply_basis_permutation(self, permutation):
+        """Reorder the expansion coefficients"""
+        for expansion, nocc, scale in self.iter_expansions():
+            expansion.apply_basis_permutation(permutation)
+
+    def compute_density_matrix(self, dm):
+        """Compute the density matrix
+
+           **Arguments:**
+
+           dm
+                An output density matrix. This must be an instance of the
+                One-body operator class of the linalg factory, self.lf.
+        """
+        dm.reset()
+        for expansion, nocc, scale in self.iter_expansions():
+            expansion.compute_density_matrix(nocc, dm, factor=scale)
+
+
+class ClosedShellWFN(BaseWFN):
+    def __init__(self, nep, lf, nbasis, norb=None):
+        """
+           **Arguments:**
+
+           nep
+                The number of electron pairs in the wave function.
+
+           lf
+                A LinalgFactory instance
+
+           nbasis
+                The number of basis functions.
+
+           **Optional arguments:**
+
+           norb
+               the number of orbitals (occupied + virtual). When not given,
+               it is set to nbasis.
+        """
+        BaseWFN.__init__(self, lf, nbasis, norb)
+        self._nep = nep
 
         if self.nep <= 0:
             raise ValueError('At least one pair of electrons is required.')
@@ -99,27 +148,32 @@ class ClosedShellWFN(BaseWFN):
 
     nel = property(_get_nel)
 
-    def get_nep(self):
+    def _get_nep(self):
+        '''The number of electron pairs'''
         return self._nep
 
-    nep = property(get_nep)
+    nep = property(_get_nep)
 
-    def get_nbasis(self):
-        return self._nbasis
-
-    nbasis = property(get_nbasis)
-
-    def get_norb(self):
-        return self._norb
-
-    norb = property(get_norb)
-
-    def get_expansion(self):
+    def _get_expansion(self):
+        '''The expansion of the orbitals'''
         return self._expansion
 
-    expansion = property(get_expansion)
+    expansion = property(_get_expansion)
 
     def iter_expansions(self):
+        '''Iterate over all expansions
+
+           Yields records (expansion, nocc, scale) where:
+
+           expansion
+                An expansion of the orbitals.
+
+           nocc
+                The number of occupied orbitals.
+
+           scale
+                The occupancy of each orbital.
+        '''
         yield self._expansion, self._nep, 2
 
     def compute_alpha_density_matrix(self, dm):
@@ -132,22 +186,6 @@ class ClosedShellWFN(BaseWFN):
                 One-body operator class of the linalg factory, self.lf.
         """
         self._expansion.compute_density_matrix(self.nep, dm)
-
-    def compute_density_matrix(self, dm):
-        """Compute the density matrix
-
-           **Arguments:**
-
-           dm
-                An output density matrix. This must be an instance of the
-                One-body operator class of the linalg factory, self.lf.
-        """
-        self.compute_alpha_density_matrix(dm)
-        dm.iscale(2)
-
-    def apply_basis_permutation(self, permutation):
-        """Reorder the expansion coefficients"""
-        self._expansion.apply_basis_permutation(permutation)
 
 
 class OpenShellWFN(BaseWFN):
@@ -164,7 +202,7 @@ class OpenShellWFN(BaseWFN):
                 The number of beta electrons in the wave function.
 
            lf
-                A LinalgFactor instance
+                A LinalgFactory instance
 
            nbasis
                 The number of basis functions.
@@ -175,14 +213,9 @@ class OpenShellWFN(BaseWFN):
                the number of orbitals (occupied + virtual). When not given,
                it is set to nbasis.
         """
+        BaseWFN.__init__(self, lf, nbasis, norb)
         self._nalpha = nalpha
         self._nbeta = nbeta
-        self._lf = lf
-        self._nbasis = nbasis
-        if norb is None:
-            self._norb = nbasis
-        else:
-            self._norb = norb
 
         if self.nalpha + self.nbeta <= 0:
             raise ValueError('At least one alpha or beta electron is required.')
@@ -215,51 +248,46 @@ class OpenShellWFN(BaseWFN):
 
     nel = property(_get_nel)
 
-    def get_nalpha(self):
+    def _get_nalpha(self):
+        '''The number of alpha electrons'''
         return self._nalpha
 
-    nalpha = property(get_nalpha)
+    nalpha = property(_get_nalpha)
 
-    def get_nbeta(self):
+    def _get_nbeta(self):
+        '''The number of beta electrons'''
         return self._nbeta
 
-    nbeta = property(get_nbeta)
+    nbeta = property(_get_nbeta)
 
-    def get_nbasis(self):
-        return self._nbasis
-
-    nbasis = property(get_nbasis)
-
-    def get_norb(self):
-        return self._norb
-
-    norb = property(get_norb)
-
-    def get_alpha_expansion(self):
+    def _get_alpha_expansion(self):
+        '''The expansion of the alpha electrons'''
         return self._alpha_expansion
 
-    alpha_expansion = property(get_alpha_expansion)
+    alpha_expansion = property(_get_alpha_expansion)
 
-    def get_beta_expansion(self):
+    def _get_beta_expansion(self):
+        '''The expansion of the beta electrons'''
         return self._beta_expansion
 
-    beta_expansion = property(get_beta_expansion)
+    beta_expansion = property(_get_beta_expansion)
 
     def iter_expansions(self):
+        '''Iterate over all expansions
+
+           Yields records (expansion, nocc, scale) where:
+
+           expansion
+                An expansion of the orbitals.
+
+           nocc
+                The number of occupied orbitals.
+
+           scale
+                The occupancy of each orbital.
+        '''
         yield self._alpha_expansion, self._nalpha, 1
         yield self._beta_expansion, self._nbeta, 1
-
-    def compute_density_matrix(self, dm):
-        """Compute the density matrix
-
-           **Arguments:**
-
-           dm
-                An output density matrix. This must be an instance of the
-                One-body operator class of the linalg factory, self.lf.
-        """
-        self._alpha_expansion.compute_density_matrix(self.nalpha, dm)
-        self._beta_expansion.compute_density_matrix(self.nbeta, dm, factor=1)
 
     def compute_spin_density_matrix(self, dm):
         """Compute the spin density matrix
@@ -294,9 +322,3 @@ class OpenShellWFN(BaseWFN):
                 One-body operator class of the linalg factory, self.lf.
         """
         self._beta_expansion.compute_density_matrix(self.nbeta, dm)
-
-
-    def apply_basis_permutation(self, permutation):
-        """Reorder the expansion coefficients"""
-        self._alpha_expansion.apply_basis_permutation(permutation)
-        self._beta_expansion.apply_basis_permutation(permutation)
