@@ -32,6 +32,20 @@
 using namespace std;
 
 /*
+
+  Auxiliary routines
+
+*/
+
+const double gob_normalization(const double alpha, const long* n) {
+    return sqrt(pow(4.0*alpha, n[0]+n[1]+n[2])*pow(2.0*alpha/M_PI, 1.5)
+           /(fac2(2*n[0]-1)*fac2(2*n[1]-1)*fac2(2*n[2]-1)));
+}
+
+
+/*
+    GBasis
+
     The constructor assumes that the arrays are allocated externally and will
     not be deallocated prematurely. It is also assumed that the arrays are not
     changed once the constructor is called.

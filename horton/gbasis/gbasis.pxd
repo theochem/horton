@@ -23,6 +23,8 @@
 cimport fns
 
 cdef extern from "gbasis.h":
+    double gob_normalization(double alpha, long* n)
+
     cdef cppclass GBasis:
         # Arrays that fully describe the basis set.
         double* centers

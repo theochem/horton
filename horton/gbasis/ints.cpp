@@ -83,13 +83,6 @@ double gb_overlap_int1d(long n0, long n1, double pa, double pb, double gamma_inv
 }
 
 
-// TODO: move to gbasis.cpp
-const double gob_normalization(const double alpha, const long* n) {
-    return sqrt(pow(4.0*alpha, n[0]+n[1]+n[2])*pow(2.0*alpha/M_PI, 1.5)
-           /(fac2(2*n[0]-1)*fac2(2*n[1]-1)*fac2(2*n[2]-1)));
-}
-
-
 /*
 
    GB2Integral
