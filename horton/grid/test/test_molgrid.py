@@ -70,17 +70,17 @@ def test_integrate_hydrogen_trimer_1s():
 
 def test_molgrid_attrs():
     numbers = np.array([6, 8], int)
-    centers = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
+    coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
     rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
     atspecs = (rtf, 110, 100)
-    mg = BeckeMolGrid(numbers, centers, atspecs)
+    mg = BeckeMolGrid(numbers, coordinates, atspecs)
 
     assert mg.size == 2*110*100
     assert mg.points.shape == (mg.size, 3)
     assert mg.weights.shape == (mg.size,)
     assert len(mg.subgrids) == 2
     assert (mg.numbers == numbers).all()
-    assert (mg.centers == centers).all()
+    assert (mg.coordinates == coordinates).all()
     assert len(mg.atspecs) == 2
     assert mg.k == 3
     assert mg.random_rotate
@@ -97,7 +97,7 @@ def test_molgrid_attrs():
         assert atgrid.points.shape == (100*110, 3)
         assert atgrid.weights.shape == (100*110,)
         assert len(atgrid.subgrids) == 100
-        assert (atgrid.center == centers[i]).all()
+        assert (atgrid.center == coordinates[i]).all()
         assert atgrid.rtransform == rtf
         assert (atgrid.nlls == [110]*100).all()
         assert atgrid.nsphere == 100
@@ -111,7 +111,7 @@ def test_molgrid_attrs():
             assert llgrid.points.shape == (110, 3)
             assert llgrid.weights.shape == (110,)
             assert llgrid.subgrids is None
-            assert (llgrid.center == centers[i]).all()
+            assert (llgrid.center == coordinates[i]).all()
             assert llgrid.radius == radii[j]
             assert llgrid.nll == 110
             assert llgrid.random_rotate

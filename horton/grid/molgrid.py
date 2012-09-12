@@ -38,15 +38,14 @@ __all__ = [
 
 class BeckeMolGrid(BaseGrid):
     '''Molecular integration grid using Becke weights'''
-    def __init__(self, numbers, centers, atspecs, k=3, random_rotate=True):
-        # TODO: centers to coordinates
+    def __init__(self, numbers, coordinates, atspecs, k=3, random_rotate=True):
         '''
            **Arguments:**
 
            numbers
                 An array with atomic numbers
 
-           centers
+           coordinates
                 An array with the atomic positions.
 
            atspecs
@@ -80,15 +79,15 @@ class BeckeMolGrid(BaseGrid):
         natom = len(numbers)
         if numbers.min() < 0 or numbers.max() > len(periodic.elements)-1:
             raise ValueError('Atomic numbers are out of range.')
-        if len(centers.shape) != 2 or centers.shape[0] != natom or centers.shape[1] != 3:
-            raise TypeError('The array of centers is not compatible with the array of atomic numbers.')
+        if len(coordinates.shape) != 2 or coordinates.shape[0] != natom or coordinates.shape[1] != 3:
+            raise TypeError('The array of coordinates is not compatible with the array of atomic numbers.')
 
         # transform atspecs into usable format
         size, atspecs = get_mol_grid_size(atspecs, natom)
 
         # assign attributes
         self._numbers = numbers
-        self._centers = centers
+        self._coordinates = coordinates
         self._atspecs = atspecs
         self._k = k
         self._random_rotate = random_rotate
@@ -102,7 +101,7 @@ class BeckeMolGrid(BaseGrid):
         offset = 0
         for i in xrange(len(numbers)):
             rtransform, atnlls, atsize = atspecs[i]
-            atgrid = AtomicGrid(centers[i], rtransform, atnlls, atsize, random_rotate, points[offset:offset+atsize])
+            atgrid = AtomicGrid(coordinates[i], rtransform, atnlls, atsize, random_rotate, points[offset:offset+atsize])
             atgrids.append(atgrid)
             offset += atsize
 
@@ -120,7 +119,7 @@ class BeckeMolGrid(BaseGrid):
             atsize = atgrid.size
             atweights = weights[offset:offset+atsize]
 
-            becke_helper_atom(atgrid.points, atweights, radii, self._centers, i, self._k)
+            becke_helper_atom(atgrid.points, atweights, radii, self._coordinates, i, self._k)
             atweights[:] *= atgrid.weights
 
             offset += atsize
@@ -131,11 +130,11 @@ class BeckeMolGrid(BaseGrid):
 
     numbers = property(_get_numbers)
 
-    def _get_centers(self):
-        '''The centers of the grid.'''
-        return self._centers
+    def _get_coordinates(self):
+        '''The coordinates of the grid.'''
+        return self._coordinates
 
-    centers = property(_get_centers)
+    coordinates = property(_get_coordinates)
 
     def _get_atspecs(self):
         '''The specifications of the atomic grids.'''
@@ -156,7 +155,7 @@ class BeckeMolGrid(BaseGrid):
     random_rotate = property(_get_random_rotate)
 
 
-def get_mol_grid_size(atspecs, ncenter):
+def get_mol_grid_size(atspecs, natom):
     '''Compute the size of the molecule grid and recreate atspecs with extra info.
 
        **Arguments:**
@@ -164,8 +163,8 @@ def get_mol_grid_size(atspecs, ncenter):
        atspecs
             A list of specifications for the atomic grids.
 
-       ncenter
-            The total number of centers.
+       natom
+            The total number of coordinates.
     '''
     if not hasattr(atspecs, '__len__'):
         raise TypeError('atspecs must be iterable')
@@ -173,9 +172,9 @@ def get_mol_grid_size(atspecs, ncenter):
         if len(atspecs) == 0:
             raise TypeError('atspecs must have at least one item.')
         if not hasattr(atspecs[0], '__len__'):
-            atspecs = [atspecs]*ncenter
+            atspecs = [atspecs]*natom
         else:
-            if not len(atspecs) == ncenter:
+            if not len(atspecs) == natom:
                 raise TypeError('When a atspec is given per atom, the size of the list must match the number of atoms.')
 
     size = 0
