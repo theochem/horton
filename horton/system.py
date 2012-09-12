@@ -33,6 +33,7 @@ import h5py as h5
 
 from horton.io import load_system_args
 from horton.matrix import DenseLinalgFactory
+from horton.wfn import ClosedShellWFN, OpenShellWFN
 
 
 __all__ = ['System']
@@ -75,9 +76,17 @@ class System(object):
                 If chk is an open h5.File object, it will not be closed when the
                 System instance is deleted.
         """
+
         # A) Assign all attributes
         self._coordinates = np.array(coordinates, dtype=float, copy=False)
         self._numbers = np.array(numbers, dtype=int, copy=False)
+        # some checks
+        if len(self._coordinates.shape) != 2 or self._coordinates.shape[1] != 3:
+            raise TypeError('coordinates argument must be a 2D array with three columns')
+        if len(self._numbers.shape) != 1:
+            raise TypeError('numbers must a vector of integers.')
+        if self._numbers.shape[0] != self._coordinates.shape[0]:
+            raise TypeError('numbers and coordinates must have compatible array shapes.')
         #
         from horton.gbasis import GOBasisDesc, GOBasis
         if isinstance(obasis, str):
@@ -239,6 +248,45 @@ class System(object):
             else:
                 field = register[field_name]
                 field.write(self._chk, self)
+
+    def init_wfn(self, charge, mult, restricted=None):
+        '''Initialize a wavefunction object.
+
+           **Arguments:**
+
+           charge
+                The total charge of the system
+
+           mult
+                The spin multiplicity
+
+           **Optional arguments:**
+
+           restricted
+                Set to True or False to enforce a restricted or unrestricted
+                wavefunction. Note that restricted open shell is not yet
+                supported. When not set, restricted is used when mult==1 and
+                unrestricted otherwise.
+        '''
+        if self._wfn is not None:
+            raise RuntimeError('A wavefunction is already present.')
+        if self._obasis is None:
+            raise RuntimeError('A wavefunction can only be initialized when a basis is specified.')
+        nel = self.numbers.sum() - charge
+        if ((nel%2 == 0) ^ (mult%2 != 0)):
+            raise ValueError('Not compatible: number of electrons = %i and spin multiplicity = %i' % (nel, mult))
+        if mult < 1:
+            raise ValueError('mult must be strictly positive.')
+        if restricted is True and mult != 1:
+            raise ValueError('Restricted==True only works when mult==1. Restricted open shell is not supported yet.')
+        if restricted is None:
+            restricted = mult==1
+        if restricted:
+            self._wfn = ClosedShellWFN(nel/2, self.lf, self.obasis.nbasis)
+        else:
+            nalpha = (nel + (mult-1))/2
+            nbeta = (nel - (mult-1))/2
+            self._wfn = OpenShellWFN(nalpha, nbeta, self.lf, self.obasis.nbasis)
 
     def get_overlap(self):
         overlap = self._operators.get('olp')

@@ -45,6 +45,35 @@ def check_water(system):
     assert abs(np.linalg.norm(system.coordinates[2] - system.coordinates[1])/angstrom - 0.96) < 1e-5
 
 
+def test_init_wfn_cs():
+    sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
+    sys.init_wfn(0, 1)
+    assert isinstance(sys.wfn, ClosedShellWFN)
+    assert sys.wfn.nel == 6
+    assert sys.wfn.nep == 3
+
+    try:
+        sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
+        sys.init_wfn(0, 2)
+        assert False
+    except ValueError:
+        pass
+
+
+def test_init_wfn_os():
+    sys = System(np.zeros((1,3), float), np.array([7]), obasis='3-21g')
+    sys.init_wfn(0, 2)
+    assert isinstance(sys.wfn, OpenShellWFN)
+    assert sys.wfn.nalpha == 4
+    assert sys.wfn.nbeta == 3
+
+    try:
+        sys = System(np.zeros((1,3), float), np.array([7]), obasis='3-21g')
+        sys.init_wfn(0, 1)
+        assert False
+    except ValueError:
+        pass
+
 
 def check_overlap(fn_fchk):
     fn_log = fn_fchk[:-5] + '.log'
