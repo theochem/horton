@@ -44,10 +44,45 @@ int iter_pow1_inc(long* n) {
     return 1;
 }
 
-void IterPow2::reset(long shell_type0, long shell_type1, long max_nbasis) {
+
+/*
+
+  IterPow1
+
+*/
+
+void IterPow1::reset(long shell_type0) {
+    shell_type0 = shell_type0;
+    n0[0] = shell_type0;
+    n0[1] = 0;
+    n0[2] = 0;
+    ibasis0 = 0;
+}
+
+
+int IterPow1::inc() {
+    // Increment indexes of shell 1
+    int result;
+    result = iter_pow1_inc(n0);
+    if (result) {
+        ibasis0++;
+    } else {
+        ibasis0 = 0;
+    }
+    return result;
+}
+
+
+/*
+
+  IterPow2
+
+*/
+
+
+void IterPow2::reset(long shell_type0, long shell_type1) {
     shell_type0 = shell_type0;
     shell_type1 = shell_type1;
-    skip = max_nbasis - get_shell_nbasis(shell_type1) + 1;
     n0[0] = shell_type0;
     n0[1] = 0;
     n0[2] = 0;
@@ -72,7 +107,7 @@ int IterPow2::inc() {
         result = iter_pow1_inc(n0);
         ibasis1 = 0;
         if (result) {
-            offset += 1;
+            offset++;
             ibasis0++;
         } else {
             offset = 0;

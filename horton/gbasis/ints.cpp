@@ -197,7 +197,7 @@ void GB2OverlapIntegral::add(double coeff, double alpha0, double alpha1, const d
     gamma_inv = 1.0/(alpha0 + alpha1);
     pre = coeff*exp(-alpha0*alpha1*gamma_inv*dist_sq(r0, r1));
     compute_gpt_center(alpha0, r0, alpha1, r1, gamma_inv, gpt_center);
-    i2p.reset(abs(shell_type0), abs(shell_type1), max_nbasis);
+    i2p.reset(abs(shell_type0), abs(shell_type1));
     do {
         work_cart[i2p.offset] += pre*(
             gb_overlap_int1d(i2p.n0[0], i2p.n1[0], gpt_center[0] - r0[0], gpt_center[0] - r1[0], gamma_inv)*
@@ -251,7 +251,7 @@ void GB2KineticIntegral::add(double coeff, double alpha0, double alpha1, const d
     pb[1] = gpt_center[1] - r1[1];
     pb[2] = gpt_center[2] - r1[2];
 
-    i2p.reset(abs(shell_type0), abs(shell_type1), max_nbasis);
+    i2p.reset(abs(shell_type0), abs(shell_type1));
     do {
         fx0 = gb_overlap_int1d(i2p.n0[0], i2p.n1[0], pa[0], pb[0], gamma_inv);
         fy0 = gb_overlap_int1d(i2p.n0[1], i2p.n1[1], pa[1], pb[1], gamma_inv);
@@ -341,7 +341,7 @@ void GB2NuclearAttractionIntegral::add(double coeff, double alpha0, double alpha
         }
 
         // Iterate over all combinations of Cartesian exponents
-        i2p.reset(abs(shell_type0), abs(shell_type1), max_nbasis);
+        i2p.reset(abs(shell_type0), abs(shell_type1));
         do {
             // Fill the work arrays with the polynomials
             nuclear_attraction_helper(work_g0, i2p.n0[0], i2p.n1[0], pa[0], pb[0], pc[0], gamma_inv);

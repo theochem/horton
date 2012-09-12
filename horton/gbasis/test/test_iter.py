@@ -67,64 +67,87 @@ def test_iter_pow1_inc_l2():
     assert result is False
 
 
+def test_iter_pow1_l0():
+    ip1 = IterPow1(0)
+    assert ip1.fields == (0, 0, 0, 0)
+    assert ip1.inc() is False
+    assert ip1.fields == (0, 0, 0, 0)
+
+
+def test_iter_pow1_l1():
+    ip1 = IterPow1(1)
+    assert ip1.fields == (1, 0, 0, 0)
+    assert ip1.inc() is True
+    assert ip1.fields == (0, 1, 0, 1)
+    assert ip1.inc() is True
+    assert ip1.fields == (0, 0, 1, 2)
+    assert ip1.inc() is False
+    assert ip1.fields == (1, 0, 0, 0)
+
+
+def test_iter_pow1_l2():
+    ip1 = IterPow1(2)
+    assert ip1.fields == (2, 0, 0, 0)
+    assert ip1.inc() is True
+    assert ip1.fields == (1, 1, 0, 1)
+    assert ip1.inc() is True
+    assert ip1.fields == (1, 0, 1, 2)
+    assert ip1.inc() is True
+    assert ip1.fields == (0, 2, 0, 3)
+    assert ip1.inc() is True
+    assert ip1.fields == (0, 1, 1, 4)
+    assert ip1.inc() is True
+    assert ip1.fields == (0, 0, 2, 5)
+    assert ip1.inc() is False
+    assert ip1.fields == (2, 0, 0, 0)
+
+
 def test_iter_pow2_l0l0():
-    ip2 = IterPow2(0, 0, 3)
-    assert ip2.fields == (0, 0, 0, 0, 0, 0, 0)
+    ip2 = IterPow2(0, 0)
+    assert ip2.fields == (0, 0, 0, 0, 0, 0, 0, 0, 0)
     assert ip2.inc() is False
-    assert ip2.fields == (0, 0, 0, 0, 0, 0, 0)
+    assert ip2.fields == (0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 
 def test_iter_pow2_l1l0():
-    ip2 = IterPow2(1, 0, 3)
-    assert ip2.fields == (1, 0, 0, 0, 0, 0, 0)
+    ip2 = IterPow2(1, 0)
+    assert ip2.fields == (1, 0, 0, 0, 0, 0, 0, 0, 0)
     assert ip2.inc() is True
-    assert ip2.fields == (0, 1, 0, 0, 0, 0, 1)
+    assert ip2.fields == (0, 1, 0, 0, 0, 0, 1, 1, 0)
     assert ip2.inc() is True
-    assert ip2.fields == (0, 0, 1, 0, 0, 0, 2)
+    assert ip2.fields == (0, 0, 1, 0, 0, 0, 2, 2, 0)
     assert ip2.inc() is False
-    assert ip2.fields == (1, 0, 0, 0, 0, 0, 0)
+    assert ip2.fields == (1, 0, 0, 0, 0, 0, 0, 0, 0)
 
 
 def test_iter_pow2_l2l1():
-    ip2 = IterPow2(2, 1, 10)
-    assert ip2.fields == (2, 0, 0, 1, 0, 0, 0)
+    ip2 = IterPow2(2, 1)
+    assert ip2.fields == (2, 0, 0, 1, 0, 0, 0, 0, 0)
     assert ip2.inc() is True
-    assert ip2.fields == (2, 0, 0, 0, 1, 0, 1)
+    assert ip2.fields == (2, 0, 0, 0, 1, 0, 1, 0, 1)
     assert ip2.inc() is True
-    assert ip2.fields == (2, 0, 0, 0, 0, 1, 2)
+    assert ip2.fields == (2, 0, 0, 0, 0, 1, 2, 0, 2)
     assert ip2.inc() is True
-    assert ip2.fields == (1, 1, 0, 1, 0, 0, 3)
+    assert ip2.fields == (1, 1, 0, 1, 0, 0, 3, 1, 0)
     assert ip2.inc() is True
-    assert ip2.fields == (1, 1, 0, 0, 1, 0, 4)
+    assert ip2.fields == (1, 1, 0, 0, 1, 0, 4, 1, 1)
     assert ip2.inc() is True
-    assert ip2.fields == (1, 1, 0, 0, 0, 1, 5)
+    assert ip2.fields == (1, 1, 0, 0, 0, 1, 5, 1, 2)
     assert ip2.inc() is True
-    assert ip2.fields == (1, 0, 1, 1, 0, 0, 6)
+    assert ip2.fields == (1, 0, 1, 1, 0, 0, 6, 2, 0)
     assert ip2.inc() is True
-    assert ip2.fields == (1, 0, 1, 0, 1, 0, 7)
+    assert ip2.fields == (1, 0, 1, 0, 1, 0, 7, 2, 1)
 
 
 def test_iter_pow2_raise():
     try:
-        ip2 = IterPow2(-1,1,3)
+        ip2 = IterPow2(-1,1)
         assert False
     except ValueError:
         pass
 
     try:
-        ip2 = IterPow2(1,-1,3)
-        assert False
-    except ValueError:
-        pass
-
-    try:
-        ip2 = IterPow2(2,1,3)
-        assert False
-    except ValueError:
-        pass
-
-    try:
-        ip2 = IterPow2(1,2,3)
+        ip2 = IterPow2(1,-1)
         assert False
     except ValueError:
         pass
