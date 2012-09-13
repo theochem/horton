@@ -52,6 +52,18 @@ def test_init_wfn_cs():
     assert sys.wfn.nel == 6
     assert sys.wfn.nep == 3
 
+    sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
+    sys.init_wfn()
+    assert isinstance(sys.wfn, ClosedShellWFN)
+    assert sys.wfn.nel == 6
+    assert sys.wfn.nep == 3
+
+    sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
+    sys.init_wfn(2)
+    assert isinstance(sys.wfn, ClosedShellWFN)
+    assert sys.wfn.nel == 4
+    assert sys.wfn.nep == 2
+
     try:
         sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
         sys.init_wfn(0, 2)
@@ -63,6 +75,12 @@ def test_init_wfn_cs():
 def test_init_wfn_os():
     sys = System(np.zeros((1,3), float), np.array([7]), obasis='3-21g')
     sys.init_wfn(0, 2)
+    assert isinstance(sys.wfn, OpenShellWFN)
+    assert sys.wfn.nalpha == 4
+    assert sys.wfn.nbeta == 3
+
+    sys = System(np.zeros((1,3), float), np.array([8]), obasis='3-21g')
+    sys.init_wfn(1)
     assert isinstance(sys.wfn, OpenShellWFN)
     assert sys.wfn.nalpha == 4
     assert sys.wfn.nbeta == 3
