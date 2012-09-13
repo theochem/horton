@@ -371,11 +371,36 @@ class System(object):
             #self.update_chk('operators.er')
         return electron_repulsion
 
-    def compute_density_grid(self, points, use_dm=False):
+    def compute_density_grid(self, points, use_dm=False, rhos=None):
+        '''Compute the electron density on a grid
+
+           **Arguments:**
+
+           points
+                A Numpy array with grid points, shape (npoint,3)
+
+           **Optional arguments:**
+
+           use_dm
+                Use C routine based on the density matrix instead of the orbitals.
+
+           rhos
+                An output array, shape (npoint,). The results are added to this
+                array
+
+           **Returns:**
+
+           rhos
+                The array with the densities. This is the same as the output
+                argument, in case it was provided.
+        '''
         # TODO: Avoid points argument by adding molgrid attribute to system class.
         #       * Should grid data be stored in chk file? Probably not.
         #       * after adding grid attribute, rename this to get_density_grid
-        rhos = np.zeros(len(points), float)
+        if rhos is None:
+            rhos = np.zeros(len(points), float)
+        elif rhos.shape != (points.shape[0],):
+            raise TypeError('The shape of the output array is wrong')
         if use_dm:
             dm = self.lf.create_one_body(self.obasis.nbasis)
             self.wfn.compute_density_matrix(dm)

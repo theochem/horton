@@ -232,42 +232,72 @@ def test_electron_repulsion_water_ccpvdz_cart_hf():
     check_electron_repulsion(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'))
 
 
-def check_grid_fn(fn_fchk):
+def check_grid_fn(fn_fchk, use_dm, use_output_arg):
     sys = System.from_file(fn_fchk)
     # TODO: standard procedure for constructing recommended coarse, medium and fine grids.
     rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
     grid = BeckeMolGrid(sys.numbers, sys.coordinates, (rtf, 110, 100), random_rotate=False)
-    for use_dm in True, False:
+    if use_output_arg:
+        rhos = np.zeros(grid.size)
+        sys.compute_density_grid(grid.points, use_dm, rhos)
+    else:
         rhos = sys.compute_density_grid(grid.points, use_dm)
-        pop = np.dot(rhos, grid.weights)
-        tmp = rhos*grid.weights
-        print fn_fchk, pop, sys.wfn.nel, pop-sys.wfn.nel
-        assert abs(pop-sys.wfn.nel) < 2e-3
+    pop = np.dot(rhos, grid.weights)
+    tmp = rhos*grid.weights
+    print fn_fchk, pop, sys.wfn.nel, pop-sys.wfn.nel
+    assert abs(pop-sys.wfn.nel) < 2e-3
 
 
-def test_grid_fn_h_sto3g():
-    check_grid_fn(context.get_fn('test/h_sto3g.fchk'))
+def test_grid_fn_h_sto3g_TT():
+    check_grid_fn(context.get_fn('test/h_sto3g.fchk'), True, True)
+
+def test_grid_fn_h_sto3g_TF():
+    check_grid_fn(context.get_fn('test/h_sto3g.fchk'), True, False)
+
+def test_grid_fn_h_sto3g_FT():
+    check_grid_fn(context.get_fn('test/h_sto3g.fchk'), False, True)
+
+def test_grid_fn_h_sto3g_FF():
+    check_grid_fn(context.get_fn('test/h_sto3g.fchk'), False, False)
 
 
-def test_grid_fn_lih_321g_hf():
-    check_grid_fn(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
+def test_grid_fn_lih_321g_hf_TT():
+    check_grid_fn(context.get_fn('test/li_h_3-21G_hf_g09.fchk'), True, True)
 
 
-def test_grid_fn_water_sto3g_hf():
-    check_grid_fn(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+def test_grid_fn_water_sto3g_hf_FT():
+    check_grid_fn(context.get_fn('test/water_sto3g_hf_g03.fchk'), False, True)
 
 
-def test_grid_fn_water_ccpvdz_pure_hf():
-    check_grid_fn(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'))
+def test_grid_fn_water_ccpvdz_pure_hf_TF():
+    check_grid_fn(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'), True, False)
 
 
-def test_grid_fn_water_ccpvdz_cart_hf():
-    check_grid_fn(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'))
+def test_grid_fn_water_ccpvdz_cart_hf_FF():
+    check_grid_fn(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'), False, False)
 
 
-def test_grid_fn_co_ccpv5z_pure_hf():
-    check_grid_fn(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'))
+def test_grid_fn_co_ccpv5z_pure_hf_TT():
+    check_grid_fn(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'), True, True)
+
+def test_grid_fn_co_ccpv5z_pure_hf_TF():
+    check_grid_fn(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'), True, False)
+
+def test_grid_fn_co_ccpv5z_pure_hf_FT():
+    check_grid_fn(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'), False, True)
+
+def test_grid_fn_co_ccpv5z_pure_hf_FF():
+    check_grid_fn(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'), False, False)
 
 
-def test_grid_fn_co_ccpv5z_cart_hf():
-    check_grid_fn(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
+def test_grid_fn_co_ccpv5z_cart_hf_TT():
+    check_grid_fn(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'), True, True)
+
+def test_grid_fn_co_ccpv5z_cart_hf_TF():
+    check_grid_fn(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'), True, False)
+
+def test_grid_fn_co_ccpv5z_cart_hf_FT():
+    check_grid_fn(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'), False, True)
+
+def test_grid_fn_co_ccpv5z_cart_hf_FF():
+    check_grid_fn(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'), False, False)
