@@ -208,8 +208,14 @@ def test_chk_operators():
     ar_kin = sys1.get_kinetic()._array
     ar_na = sys1.get_nuclear_attraction()._array
     ar_er = sys1.get_electron_repulsion()._array
+    # manually put er integrals in checkpoint, not done by default
+    sys1.update_chk('operators.er')
     del sys1
     sys1 = System.from_file(chk)
+    assert 'olp' in sys1.operators
+    assert 'kin' in sys1.operators
+    assert 'na' in sys1.operators
+    assert 'er' in sys1.operators
     assert (ar_olp == sys1.get_overlap()._array).all()
     assert (ar_kin == sys1.get_kinetic()._array).all()
     assert (ar_na == sys1.get_nuclear_attraction()._array).all()

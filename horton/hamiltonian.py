@@ -186,7 +186,7 @@ class HartreeFock(Hartree):
     def prepare_system(self, system):
         Hartree.prepare_system(self, system)
         self.exchange_alpha = system.lf.create_one_body(system.obasis.nbasis)
-        if not system.closed_shell:
+        if not system.wfn.closed_shell:
             self.exchange_beta = system.lf.create_one_body(system.obasis.nbasis)
         else:
             self.exchange_beta = None
