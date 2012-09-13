@@ -84,7 +84,6 @@ def converge_scf_cs(ham, max_iter=128, threshold=1e-8):
     for i in xrange(max_iter):
         # Construct the Fock operator
         fock.reset()
-        ham.system.update_dms()
         ham.compute_fock(fock, None)
         # Check for convergence
         error = lf.error_eigen(fock, ham.overlap, wfn.expansion)
@@ -93,6 +92,7 @@ def converge_scf_cs(ham, max_iter=128, threshold=1e-8):
             break
         # Diagonalize the fock operator
         lf.diagonalize(fock, ham.overlap, wfn.expansion)
+        ham.invalidate_derived()
         # Write intermediate results to checkpoint
         ham.system.update_chk('wfn')
     print ham.compute_energy() # temporary hack. TODO: energies and dms must be stored in system
@@ -130,7 +130,6 @@ def converge_scf_os(ham, max_iter=128, threshold=1e-8):
         # Construct the Fock operators
         fock_alpha.reset()
         fock_beta.reset()
-        ham.system.update_dms()
         ham.compute_fock(fock_alpha, fock_beta)
         # Check for convergence
         error_alpha = lf.error_eigen(fock_alpha, ham.overlap, wfn.alpha_expansion)
@@ -141,6 +140,7 @@ def converge_scf_os(ham, max_iter=128, threshold=1e-8):
         # Diagonalize the fock operators
         lf.diagonalize(fock_alpha, ham.overlap, wfn.alpha_expansion)
         lf.diagonalize(fock_beta, ham.overlap, wfn.beta_expansion)
+        ham.invalidate_derived()
         # Write intermediate results to checkpoint
         ham.system.update_chk('wfn')
     print ham.compute_energy() # temporary hack. TODO: energies and dms must be stored in system

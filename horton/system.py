@@ -177,6 +177,11 @@ class System(object):
 
     wfn = property(get_wfn)
 
+    def _get_closed_shell(self):
+        return self._wfn.closed_shell
+
+    closed_shell = property(_get_closed_shell)
+
     def get_lf(self):
         return self._lf
 
