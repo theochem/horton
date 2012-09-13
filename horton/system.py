@@ -70,7 +70,11 @@ class System(object):
 
            dms
                 A dictionary with density matrices. Should be consistent with
-                wfn. Standard keys are 'full', 'alpha' and 'beta'.
+                wfn. Standard keys are 'alpha', 'beta' and 'full'. The last
+                two are absent in case of close-shell computations.
+
+           props
+                A dictionary with computed properties.
 
            chk
                 A filename for the checkpoint file or an open h5.File object.
@@ -156,63 +160,65 @@ class System(object):
         if hasattr(self, '_chk') and self.chk is not None and self._close_chk:
             self.chk.close()
 
-    # TODO: fix underscore convention of get methods
-    def get_natom(self):
+    def _get_natom(self):
+        '''The number of atoms'''
         return len(self.numbers)
 
-    natom = property(get_natom)
+    natom = property(_get_natom)
 
-    def get_coordinates(self):
+    def _get_coordinates(self):
+        '''The positions of the nuclei'''
         return self._coordinates.view()
 
-    coordinates = property(get_coordinates)
+    coordinates = property(_get_coordinates)
 
-    def get_numbers(self):
+    def _get_numbers(self):
+        '''An array with the atomic numbers'''
         return self._numbers.view()
 
-    numbers = property(get_numbers)
+    numbers = property(_get_numbers)
 
-    def get_obasis(self):
+    def _get_obasis(self):
+        '''The orbital basis'''
         return self._obasis
 
-    obasis = property(get_obasis)
+    obasis = property(_get_obasis)
 
-    def get_wfn(self):
+    def _get_wfn(self):
+        '''The wavefunction'''
         return self._wfn
 
-    wfn = property(get_wfn)
+    wfn = property(_get_wfn)
 
-    def _get_closed_shell(self):
-        return self._wfn.closed_shell
-
-    closed_shell = property(_get_closed_shell)
-
-    def get_lf(self):
+    def _get_lf(self):
+        '''The LinalgFactory for this system'''
         return self._lf
 
-    lf = property(get_lf)
+    lf = property(_get_lf)
 
-    def get_operators(self):
+    def _get_operators(self):
+        '''A dictionary with operators'''
         return self._operators
 
-    operators = property(get_operators)
+    operators = property(_get_operators)
 
-    def get_dms(self):
-        '''A dictionary with 'full', 'alpha' and 'beta' density matrices, beta and full optional.'''
+    def _get_dms(self):
+        '''A dictionary with 'alpha',  'beta' and 'full' density matrices.'''
         return self._dms
 
-    dms = property(get_dms)
+    dms = property(_get_dms)
 
-    def get_props(self):
+    def _get_props(self):
         '''A dictionary with computed properties.'''
         return self._props
 
-    props = property(get_props)
+    props = property(_get_props)
 
-    def get_chk(self):
+    def _get_chk(self):
+        '''A ``h5py.File`` instance used as checkpoint file or ``None``'''
         return self._chk
 
-    chk = property(get_chk)
+    chk = property(_get_chk)
 
     @classmethod
     def from_file(cls, *args, **kwargs):
@@ -358,7 +364,9 @@ class System(object):
             electron_repulsion = self.lf.create_two_body(self.obasis.nbasis)
             self.obasis.compute_electron_repulsion(electron_repulsion)
             self._operators['er'] = electron_repulsion
-            self.update_chk('operators.er')
+            # ER integrals are not checkpointed by default because they are too heavy.
+            # Can be done manually by user if needed: ``system.update_chk('operators.er')``
+            #self.update_chk('operators.er')
         return electron_repulsion
 
     def compute_density_grid(self, points, use_dm=False):
