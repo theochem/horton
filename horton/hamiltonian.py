@@ -26,7 +26,6 @@ __all__ = [
 ]
 
 
-# TODO: something to easily compute/store the energy of a system
 class Hamiltonian(object):
     def __init__(self, system, terms):
         self.system = system
@@ -49,6 +48,34 @@ class Hamiltonian(object):
         # Compute overlap matrix
         self.overlap = system.get_overlap()
 
+    def compute_energy(self, dm_alpha, dm_beta, dm_full):
+        '''Compute energy.
+
+           **Arguments:**
+
+           dm_alpha
+                The density matrix of the spin-up electrons
+
+           dm_beta
+                The density matrix of the spin-down electrons
+
+           dm_full
+                The density matrix of all the electrons
+
+           **Returns:**
+
+           The total energy, including nuclear-nuclear repulsion.
+
+           In the case of a closed-shell computation, the arguments dm_beta,
+           dm_full are ``None``.
+        '''
+        # TODO: store all sorts of energies in system object and checkpoint file
+        total = 0.0
+        for term in self.terms:
+            total += term.compute_energy(dm_alpha, dm_beta, dm_full)
+        total += self.system.compute_nucnuc()
+        return total
+
     def compute_fock(self, dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta):
         '''Compute alpha (and beta) Fock matrix(es).
 
@@ -70,7 +97,7 @@ class Hamiltonian(object):
                 A One-Body operator output argument for the beta fock matrix.
 
            In the case of a closed-shell computation, the arguments dm_beta,
-           dm_full and fock_beta are zero.
+           dm_full and fock_beta are ``None``.
         '''
         for term in self.terms:
             term.add_fock_matrix(dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta)
@@ -80,6 +107,9 @@ class HamiltonianTerm(object):
     def prepare_system(self, system):
         pass
 
+    def compute_energy(self, dm_alpha, dm_beta, dm_full):
+        raise NotImplementedError
+
     def add_fock_matrix(self, dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta):
         raise NotImplementedError
 
@@ -87,6 +117,12 @@ class HamiltonianTerm(object):
 class KineticEnergy(HamiltonianTerm):
     def prepare_system(self, system):
         self.kinetic = system.get_kinetic()
+
+    def compute_energy(self, dm_alpha, dm_beta, dm_full):
+        if dm_beta is None:
+            return 2*self.kinetic.expectation_value(dm_alpha)
+        else:
+            return self.kinetic.expectation_value(dm_full)
 
     def add_fock_matrix(self, dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta):
         for fock in fock_alpha, fock_beta:
@@ -98,6 +134,15 @@ class Hartree(HamiltonianTerm):
     def prepare_system(self, system):
         self.electron_repulsion = system.get_electron_repulsion()
         self.coulomb = system.lf.create_one_body(system.obasis.nbasis)
+
+    def compute_energy(self, dm_alpha, dm_beta, dm_full):
+        if dm_beta is None:
+            self.electron_repulsion.apply_direct(dm_alpha, self.coulomb)
+            self.coulomb.iscale(2)
+            return self.coulomb.expectation_value(dm_alpha)
+        else:
+            self.electron_repulsion.apply_direct(dm_full, self.coulomb)
+            return 0.5*self.coulomb.expectation_value(dm_full)
 
     def add_fock_matrix(self, dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta):
         if dm_beta is None:
@@ -120,8 +165,19 @@ class HartreeFock(Hartree):
         Hartree.prepare_system(self, system)
         self.exchange = system.lf.create_one_body(system.obasis.nbasis)
 
+    def compute_energy(self, dm_alpha, dm_beta, dm_full):
+        result = Hartree.compute_energy(self, dm_alpha, dm_beta, dm_full)
+        if dm_beta is None:
+            self.electron_repulsion.apply_exchange(dm_alpha, self.exchange)
+            return result - self.fraction_exchange*self.exchange.expectation_value(dm_alpha)
+        else:
+            self.electron_repulsion.apply_exchange(dm_alpha, self.exchange)
+            result -= 0.5*self.fraction_exchange*self.exchange.expectation_value(dm_alpha)
+            self.electron_repulsion.apply_exchange(dm_beta, self.exchange)
+            result -= 0.5*self.fraction_exchange*self.exchange.expectation_value(dm_beta)
+            return result
+
     def add_fock_matrix(self, dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta):
-        """This method is called once before add_fock_matrix is called"""
         Hartree.add_fock_matrix(self, dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta)
         for dm, fock in (dm_alpha, fock_alpha), (dm_beta, fock_beta):
             if dm is not None:
@@ -132,6 +188,12 @@ class HartreeFock(Hartree):
 class ExternalPotential(HamiltonianTerm):
     def prepare_system(self, system):
         self.nuclear_attraction = system.get_nuclear_attraction()
+
+    def compute_energy(self, dm_alpha, dm_beta, dm_full):
+        if dm_beta is None:
+            return -2*self.nuclear_attraction.expectation_value(dm_alpha)
+        else:
+            return -self.nuclear_attraction.expectation_value(dm_full)
 
     def add_fock_matrix(self, dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta):
         for fock in fock_alpha, fock_beta:

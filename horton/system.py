@@ -338,3 +338,13 @@ class System(object):
             for expansion, nocc, scale in self.wfn.iter_expansions():
                 self.obasis.compute_density_grid_orb(expansion, nocc, scale, points, rhos)
         return rhos
+
+    def compute_nucnuc(self):
+        '''Compute interaction energy of the nuclei'''
+        # TODO: move this to low-level code one day.
+        result = 0.0
+        for i in xrange(self.natom):
+            for j in xrange(i):
+                distance = np.linalg.norm(self.coordinates[i]-self.coordinates[j])
+                result += self.numbers[i]*self.numbers[j]/distance
+        return result

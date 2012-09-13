@@ -36,6 +36,18 @@ def test_scf_cs():
     ])
     assert abs(sys.wfn.expansion.energies - expected_energies).max() < 1e-5
 
+    # TODO: update these checks as soon as energies are stored in system
+    dm = sys.lf.create_one_body(sys.obasis.nbasis)
+    sys.wfn.compute_alpha_density_matrix(dm)
+    energy = ham.compute_energy(dm, None, None)
+    assert abs(energy - -9.856961609951867E+01) < 1e-8 # compare with g09
+
+    dm_full = sys.lf.create_one_body(sys.obasis.nbasis)
+    dm_full.iadd(dm, factor=2)
+    energy = ham.compute_energy(dm, dm, dm_full)
+    assert abs(energy - -9.856961609951867E+01) < 1e-8 # compare with g09
+
+
 
 def test_scf_os():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
@@ -55,3 +67,15 @@ def test_scf_os():
     ])
     assert abs(sys.wfn.alpha_expansion.energies - expected_alpha_energies).max() < 1e-5
     assert abs(sys.wfn.beta_expansion.energies - expected_beta_energies).max() < 1e-5
+
+    # TODO: update these checks as soon as energies are stored in system
+    dm_alpha = sys.lf.create_one_body(sys.obasis.nbasis)
+    dm_beta = sys.lf.create_one_body(sys.obasis.nbasis)
+    dm_full = sys.lf.create_one_body(sys.obasis.nbasis)
+    sys.wfn.compute_alpha_density_matrix(dm_alpha)
+    sys.wfn.compute_beta_density_matrix(dm_beta)
+    dm_full.iadd(dm_alpha)
+    dm_full.iadd(dm_beta)
+
+    energy = ham.compute_energy(dm_alpha, dm_beta, dm_full)
+    assert abs(energy - -7.687331212191962E+00) < 1e-8
