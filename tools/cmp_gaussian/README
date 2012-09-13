@@ -1,0 +1,16 @@
+This is an example program to make batch comparisons of Horton output for atomic
+HF computations with Gaussian output. It works as follows:
+
+1) Run the script mkinputs.py. This will create a bunch of input files for
+   Gaussian.
+
+2) Run the jobs with Gaussian 03 or 09. Create a formatted checkpoint file
+   ``gaussian.fchk`` for every successful job.
+
+3) Run the script ``compare.py``. It will load the ``.fchk`` files and recompute
+   the energy (before and after SCF) and compares these with the Gaussian result
+
+The comparison must not always be successful because the SCF algorithm,
+depending on the variant used, may fail to converge properly for some odd cases.
+Nevertheless, in many cases the difference in energy should be of the order
+1e-9 Hartree or less.
