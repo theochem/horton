@@ -287,18 +287,16 @@ class System(object):
                 field = register[field_name]
                 field.write(self._chk, self)
 
-    def init_wfn(self, charge, mult, restricted=None):
+    def init_wfn(self, charge=0, mult=None, restricted=None):
         '''Initialize a wavefunction object.
 
-           **Arguments:**
+           **Optional Arguments:**
 
            charge
-                The total charge of the system
+                The total charge of the system. Defaults to zero.
 
            mult
-                The spin multiplicity
-
-           **Optional arguments:**
+                The spin multiplicity. Defaults to lowest possible.
 
            restricted
                 Set to True or False to enforce a restricted or unrestricted
@@ -310,8 +308,12 @@ class System(object):
             raise RuntimeError('A wavefunction is already present.')
         if self._obasis is None:
             raise RuntimeError('A wavefunction can only be initialized when a basis is specified.')
+        if charge is None:
+            charge = 0
         nel = self.numbers.sum() - charge
-        if ((nel%2 == 0) ^ (mult%2 != 0)):
+        if mult is None:
+            mult = nel%2+1
+        elif ((nel%2 == 0) ^ (mult%2 != 0)):
             raise ValueError('Not compatible: number of electrons = %i and spin multiplicity = %i' % (nel, mult))
         if mult < 1:
             raise ValueError('mult must be strictly positive.')
