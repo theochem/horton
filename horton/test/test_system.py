@@ -75,6 +75,12 @@ def test_init_wfn_os():
         pass
 
 
+def test_nucnuc():
+    fn_fchk = context.get_fn('test/hf_sto3g.fchk')
+    sys = System.from_file(fn_fchk)
+    assert abs(sys.compute_nucnuc() - 4.7247965053) < 1e-5
+
+
 def check_overlap(fn_fchk):
     fn_log = fn_fchk[:-5] + '.log'
     sys1 = System.from_file(fn_fchk, fn_log)
