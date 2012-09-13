@@ -75,6 +75,14 @@ class CHKField(object):
         self.key = key
         self.att_class = att_class
 
+    def _read_dataset(self, ds):
+        if len(ds.shape) > 0:
+            # convert to a numpy array
+            return np.array(ds)
+        else:
+            # convert to a scalar
+            return ds[()]
+
     def read(self, chk, lf):
         """Read and return an the attribute from the chk file
 
@@ -105,16 +113,21 @@ class CHKField(object):
                 return None
         # B) Construct the corresponding Python object
         if isinstance(item, h5.Dataset):
-            if len(item.shape) > 0:
-                # convert it to a numpy array
-                return np.array(item)
-            else:
-                # a scalar
-                return item[()]
+            return self._read_dataset(item)
         elif isinstance(item, h5.Group):
             if self.att_class is None:
-                raise ValueError('The field matches a Group object in the checkpoint file but no att_class is given.')
-            return self.att_class.from_hdf5(item, lf)
+                # assuming that an entire dictionary must be read. only
+                # read datasets. raise error when group is encountered.
+                result = {}
+                for key, subitem in item.iteritems():
+                    if isinstance(subitem, h5.Dataset):
+                        result[key] = self._read_dataset(subitem)
+                    else:
+                        raise TypeError('Expecting only datasets when reading dictonary.')
+                return result
+            else:
+                # special constructor
+                return self.att_class.from_hdf5(item, lf)
 
 
     def write(self, chk, system):
@@ -153,10 +166,17 @@ class CHKField(object):
             name = self.key
         # C) Dump the data to HDF5
         if isinstance(att, int) or isinstance(att, float) or isinstance(att, np.ndarray):
-            # Simply overwrite old data
+            # Simply overwrite old dataset
             if name in grp:
                 del grp[name]
             grp[name] = att
+        elif isinstance(att, dict):
+            # Simply overwrite old datagroup
+            if name in grp:
+                del grp[name]
+            grp = grp.create_group(name)
+            for key, value in att.iteritems():
+                grp[key] = value
         else:
             grp = grp.require_group(name)
             # clear the group if anything was present
@@ -168,7 +188,6 @@ class CHKField(object):
             # needed to create object of the right type when reading from
             # checkpoint:
             grp.attrs['class'] = att.__class__.__name__
-
 
 from horton.gbasis.cext import GOBasis
 from horton.wfn import BaseWFN
@@ -182,5 +201,5 @@ register = {
     'operators.kin': CHKField('operators', 'kin', att_class=DenseOneBody),
     'operators.na': CHKField('operators', 'na', att_class=DenseOneBody),
     'operators.er': CHKField('operators', 'er', att_class=DenseTwoBody),
-    'props.energy': CHKField('props', 'energy')
+    'props': CHKField('props'),
 }

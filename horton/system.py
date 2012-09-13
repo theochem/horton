@@ -383,4 +383,5 @@ class System(object):
             for j in xrange(i):
                 distance = np.linalg.norm(self.coordinates[i]-self.coordinates[j])
                 result += self.numbers[i]*self.numbers[j]/distance
+        self._props['energy_nn'] = result
         return result

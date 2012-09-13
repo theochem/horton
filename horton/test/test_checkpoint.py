@@ -233,13 +233,24 @@ def test_chk_guess_scf_cs():
     converge_scf(ham, 5)
     c = sys.wfn.expansion._coeffs
     e = sys.wfn.expansion._energies
+    ham.compute_energy()
     energy = sys.props['energy']
+    energy_kin = sys.props['energy_kin']
+    energy_hartree = sys.props['energy_hartree']
+    energy_exchange_fock = sys.props['energy_exchange_fock']
+    energy_ne = sys.props['energy_ne']
+    energy_nn = sys.props['energy_nn']
     del sys
     del ham
     sys = System.from_file(chk)
     assert (sys.wfn.expansion._coeffs == c).all()
     assert (sys.wfn.expansion._energies == e).all()
     assert sys.props['energy'] == energy
+    assert sys.props['energy_kin'] == energy_kin
+    assert sys.props['energy_hartree'] == energy_hartree
+    assert sys.props['energy_exchange_fock'] == energy_exchange_fock
+    assert sys.props['energy_ne'] == energy_ne
+    assert sys.props['energy_nn'] == energy_nn
 
 
 def test_chk_guess_scf_os():
@@ -265,7 +276,13 @@ def test_chk_guess_scf_os():
     bc = sys.wfn.beta_expansion._coeffs
     ae = sys.wfn.alpha_expansion._energies
     be = sys.wfn.beta_expansion._energies
+    ham.compute_energy()
     energy = sys.props['energy']
+    energy_kin = sys.props['energy_kin']
+    energy_hartree = sys.props['energy_hartree']
+    energy_exchange_fock = sys.props['energy_exchange_fock']
+    energy_ne = sys.props['energy_ne']
+    energy_nn = sys.props['energy_nn']
     del sys
     del ham
     sys = System.from_file(chk)
@@ -274,3 +291,8 @@ def test_chk_guess_scf_os():
     assert (sys.wfn.alpha_expansion._energies == ae).all()
     assert (sys.wfn.beta_expansion._energies == be).all()
     assert sys.props['energy'] == energy
+    assert sys.props['energy_kin'] == energy_kin
+    assert sys.props['energy_hartree'] == energy_hartree
+    assert sys.props['energy_exchange_fock'] == energy_exchange_fock
+    assert sys.props['energy_ne'] == energy_ne
+    assert sys.props['energy_nn'] == energy_nn
