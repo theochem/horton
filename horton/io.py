@@ -61,9 +61,9 @@ def load_system_args(filename, lf):
         coordinates, numbers = load_geom_xyz(filename)
         return {'coordinates': coordinates, 'numbers': numbers}
     elif filename.endswith('.fchk'):
-        coordinates, numbers, obasis, wfn, permutation = load_fchk(filename, lf)
+        coordinates, numbers, obasis, wfn, permutation, props = load_fchk(filename, lf)
         return {'coordinates': coordinates, 'numbers': numbers, 'obasis': obasis,
-                'wfn': wfn, 'permutation': permutation}
+                'wfn': wfn, 'permutation': permutation, 'props': props}
     elif filename.endswith('.log'):
         overlap, kinetic, nuclear_attraction, electronic_repulsion = load_operators_g09(filename, lf)
         operators = {}
@@ -359,6 +359,7 @@ def load_fchk(filename, lf):
         "Contraction coefficients", "P(S=P) Contraction coefficients",
         "Alpha Orbital Energies", "Alpha MO coefficients",
         "Beta Orbital Energies", "Beta MO coefficients",
+        "Total Energy",
     ])
 
     # A) Load the geometry
@@ -459,8 +460,13 @@ def load_fchk(filename, lf):
         wfn.expansion.coeffs[:] = fchk.fields['Alpha MO coefficients'].reshape(nbasis_indep, obasis.nbasis).T
         wfn.expansion.energies[:] = fchk.fields['Alpha Orbital Energies']
 
-    # TODO: also load density matrices and supported properties
-    return coordinates, numbers, obasis, wfn, permutation
+    # D) Load properties
+    props = {
+        'energy': fchk.fields['Total Energy'],
+    }
+
+    # Note: density matrices are not loaded because these are wrong in some cases
+    return coordinates, numbers, obasis, wfn, permutation, props
 
 
 def load_checkpoint(filename, lf):
