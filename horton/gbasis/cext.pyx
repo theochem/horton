@@ -405,12 +405,14 @@ cdef class GOBasis(GBasis):
         self.check_matrix_one_body(output)
         gobasis = <gbasis.GOBasis*>self._this
         (<gbasis.GOBasis*>self._this).compute_overlap(<double*>output.data)
+        overlap._valid = True
 
     def compute_kinetic(self, kinetic):
         """Compute the kinetic energy matrix in a Gaussian orbital basis."""
         cdef np.ndarray output = kinetic._array
         self.check_matrix_one_body(output)
         (<gbasis.GOBasis*>self._this).compute_kinetic(<double*>output.data)
+        kinetic._valid = True
 
     def compute_nuclear_attraction(self, np.ndarray[double, ndim=1] charges,
                                    np.ndarray[double, ndim=2] centers,
@@ -427,6 +429,7 @@ cdef class GOBasis(GBasis):
             <double*>charges.data, <double*>centers.data, ncharge,
             <double*>output.data
         )
+        nuclear_attraction._valid = True
 
     def compute_electron_repulsion(self, electron_repulsion):
         cdef np.ndarray output = electron_repulsion._array

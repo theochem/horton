@@ -30,6 +30,21 @@ def test_scf_cs():
     guess_hamiltionian_core(sys)
     ham = Hamiltonian(sys, [HartreeFock()])
     assert converge_scf(ham)
+
+    # get the hatreefock term
+    for term in ham.terms:
+        if isinstance(term, HartreeFock):
+            hf_term = term
+            break
+
+    # test operator consistency
+    coulomb = sys.lf.create_one_body(sys.obasis.nbasis)
+    hf_term.electron_repulsion.apply_direct(sys.dms['alpha'], coulomb)
+    coulomb.iscale(2)
+    error = abs(coulomb._array - hf_term.coulomb._array).max()
+    assert error < 1e-5
+
+    # test orbital energies
     expected_energies = np.array([
         -2.59083334E+01, -1.44689996E+00, -5.57467136E-01, -4.62288194E-01,
         -4.62288194E-01, 5.39578910E-01,
@@ -41,6 +56,7 @@ def test_scf_cs():
     assert abs(energy - -9.856961609951867E+01) < 1e-8 # compare with g09
 
     # ugly hack:
+    hf_term.exchange_beta = hf_term.exchange_alpha
     sys.dms['beta'] = sys.dms['alpha']
     dm_full = sys.lf.create_one_body(sys.obasis.nbasis)
     dm_full.iadd(sys.dms['alpha'], factor=2)

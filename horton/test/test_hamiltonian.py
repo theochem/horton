@@ -28,6 +28,7 @@ def test_hamiltonian_init():
     coordinates = np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 1.0]])
     numbers = np.array([1, 1])
     sys = System(coordinates, numbers, obasis='STO-3G')
+    sys.init_wfn(0, 1)
 
     # test if no terms gives a ValueError
     try:
@@ -55,7 +56,6 @@ def test_hamiltonian_init():
 def test_energy_hydrogen():
     fn_fchk = context.get_fn('test/h_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    sys.update_dms()
     ham = Hamiltonian(sys, [HartreeFock()])
     energy = ham.compute_energy()
     assert abs(energy - -4.665818503844346E-01) < 1e-8

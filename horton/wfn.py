@@ -100,6 +100,8 @@ class BaseWFN(object):
 
 
 class ClosedShellWFN(BaseWFN):
+    closed_shell = True
+
     def __init__(self, nep, lf, nbasis, norb=None):
         """
            **Arguments:**
@@ -194,10 +196,13 @@ class ClosedShellWFN(BaseWFN):
         if dm_alpha is None:
             dm_alpha = self._lf.create_one_body(self._nbasis)
             dms['alpha'] = dm_alpha
-        self.compute_alpha_density_matrix(dm_alpha)
+        if not dm_alpha.valid:
+            self.compute_alpha_density_matrix(dm_alpha)
 
 
 class OpenShellWFN(BaseWFN):
+    closed_shell = False
+
     def __init__(self, nalpha, nbeta, lf, nbasis, norb=None):
         """
            An unrestricted open-shell wavefunction.
@@ -341,8 +346,11 @@ class OpenShellWFN(BaseWFN):
             if dm is None:
                 dm = self._lf.create_one_body(self._nbasis)
                 dms[key] = dm
-        self.compute_alpha_density_matrix(dms['alpha'])
-        self.compute_beta_density_matrix(dms['beta'])
-        dms['full'].reset()
-        dms['full'].iadd(dms['alpha'])
-        dms['full'].iadd(dms['beta'])
+        if not dms['alpha'].valid:
+            self.compute_alpha_density_matrix(dms['alpha'])
+        if not dms['beta'].valid:
+            self.compute_beta_density_matrix(dms['beta'])
+        if not dms['full'].valid:
+            dms['full'].reset()
+            dms['full'].iadd(dms['alpha'])
+            dms['full'].iadd(dms['beta'])

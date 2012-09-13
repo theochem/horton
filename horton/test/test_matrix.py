@@ -181,6 +181,7 @@ def test_dense_one_body_trace():
     lf = DenseLinalgFactory()
     op1 = lf.create_one_body(3)
     op1._array[:] = np.random.uniform(-1, 1, (3,3))
+    op1._valid = True
     assert op1.trace() == op1._array[0,0] + op1._array[1,1] + op1._array[2,2]
 
 
