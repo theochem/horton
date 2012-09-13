@@ -48,47 +48,32 @@ class Hamiltonian(object):
         # Compute overlap matrix
         self.overlap = system.get_overlap()
 
-    def compute_energy(self, dm_alpha, dm_beta, dm_full):
+    def compute_energy(self):
         '''Compute energy.
-
-           **Arguments:**
-
-           dm_alpha
-                The density matrix of the spin-up electrons
-
-           dm_beta
-                The density matrix of the spin-down electrons
-
-           dm_full
-                The density matrix of all the electrons
 
            **Returns:**
 
-           The total energy, including nuclear-nuclear repulsion.
-
-           In the case of a closed-shell computation, the arguments dm_beta,
-           dm_full are ``None``.
+           The total energy, including nuclear-nuclear repulsion. The density
+           matrices in ``self.system.dms`` are used for the computations, so
+           make sure they are up to date, i.e. call ``system.update_dms()``
+           prior to ``compute_energy``.
         '''
+        # TODO: require that an update_operators is called first in which
+        # coulomb, exchange and others are called.
         # TODO: store all sorts of energies in system object and checkpoint file
         total = 0.0
+        dm_alpha = self.system.dms.get('alpha')
+        dm_beta = self.system.dms.get('beta')
+        dm_full = self.system.dms.get('full')
         for term in self.terms:
             total += term.compute_energy(dm_alpha, dm_beta, dm_full)
         total += self.system.compute_nucnuc()
         return total
 
-    def compute_fock(self, dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta):
+    def compute_fock(self, fock_alpha, fock_beta):
         '''Compute alpha (and beta) Fock matrix(es).
 
            **Arguments:**
-
-           dm_alpha
-                The density matrix of the spin-up electrons
-
-           dm_beta
-                The density matrix of the spin-down electrons
-
-           dm_full
-                The density matrix of all the electrons
 
            fock_alpha
                 A One-Body operator output argument for the alpha fock matrix.
@@ -96,9 +81,16 @@ class Hamiltonian(object):
            fock_alpha
                 A One-Body operator output argument for the beta fock matrix.
 
-           In the case of a closed-shell computation, the arguments dm_beta,
-           dm_full and fock_beta are ``None``.
+           The density matrices in ``self.system.dms`` are used for the
+           computations, so make sure they are up to date, i.e. call
+           ``system.update_dms()`` prior to ``compute_energy``.
+
+           In the case of a closed-shell computation, the argument fock_beta is
+           ``None``.
         '''
+        dm_alpha = self.system.dms.get('alpha')
+        dm_beta = self.system.dms.get('beta')
+        dm_full = self.system.dms.get('full')
         for term in self.terms:
             term.add_fock_matrix(dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta)
 

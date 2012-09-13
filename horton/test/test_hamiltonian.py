@@ -55,15 +55,7 @@ def test_hamiltonian_init():
 def test_energy_hydrogen():
     fn_fchk = context.get_fn('test/h_sto3g.fchk')
     sys = System.from_file(fn_fchk)
+    sys.update_dms()
     ham = Hamiltonian(sys, [HartreeFock()])
-    # TODO: put the following in a utility routine in wfn classes
-    dm_alpha = sys.lf.create_one_body(sys.obasis.nbasis)
-    dm_beta = sys.lf.create_one_body(sys.obasis.nbasis)
-    dm_full = sys.lf.create_one_body(sys.obasis.nbasis)
-    sys.wfn.compute_alpha_density_matrix(dm_alpha)
-    sys.wfn.compute_beta_density_matrix(dm_beta)
-    dm_full.iadd(dm_alpha)
-    dm_full.iadd(dm_beta)
-
-    energy = ham.compute_energy(dm_alpha, dm_beta, dm_full)
+    energy = ham.compute_energy()
     assert abs(energy - -4.665818503844346E-01) < 1e-8

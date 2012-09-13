@@ -40,7 +40,7 @@ __all__ = ['System']
 
 
 class System(object):
-    def __init__(self, coordinates, numbers, obasis=None, wfn=None, lf=None, operators=None, chk=None):
+    def __init__(self, coordinates, numbers, obasis=None, wfn=None, lf=None, operators=None, dms=None, chk=None):
         """
            **Arguments:**
 
@@ -67,6 +67,10 @@ class System(object):
 
            operators
                 A dictionary with one- and two-body operators.
+
+           dms
+                A dictionary with density matrices. Should be consistent with
+                wfn. Standard keys are 'full', 'alpha' and 'beta'.
 
            chk
                 A filename for the checkpoint file or an open h5.File object.
@@ -110,6 +114,11 @@ class System(object):
             self._operators = {}
         else:
             self._operators = operators
+        #
+        if dms is None:
+            self._dms = {}
+        else:
+            self._dms = dms
 
         # Some consistency checks
         if len(self.numbers.shape) != 1 or \
@@ -142,6 +151,7 @@ class System(object):
         if hasattr(self, '_chk') and self.chk is not None and self._close_chk:
             self.chk.close()
 
+    # TODO: fix underscore convention of get methods
     def get_natom(self):
         return len(self.numbers)
 
@@ -176,6 +186,12 @@ class System(object):
         return self._operators
 
     operators = property(get_operators)
+
+    def get_dms(self):
+        '''A dictionary with 'full', 'alpha' and 'beta' density matrices, all optional.'''
+        return self._dms
+
+    dms = property(get_dms)
 
     def get_chk(self):
         return self._chk
@@ -287,6 +303,10 @@ class System(object):
             nalpha = (nel + (mult-1))/2
             nbeta = (nel - (mult-1))/2
             self._wfn = OpenShellWFN(nalpha, nbeta, self.lf, self.obasis.nbasis)
+
+    def update_dms(self):
+        '''Update the density matrices such that they become consistent with the wfn.'''
+        self._wfn.update_dms(self._dms)
 
     def get_overlap(self):
         overlap = self._operators.get('olp')

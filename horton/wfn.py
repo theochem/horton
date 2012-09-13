@@ -92,7 +92,7 @@ class BaseWFN(object):
 
            dm
                 An output density matrix. This must be an instance of the
-                One-body operator class of the linalg factory, self.lf.
+                One-body operator class of the linalg factory, self._lf.
         """
         dm.reset()
         for expansion, nocc, scale in self.iter_expansions():
@@ -183,9 +183,18 @@ class ClosedShellWFN(BaseWFN):
 
            dm
                 An output density matrix. This must be an instance of the
-                One-body operator class of the linalg factory, self.lf.
+                One-body operator class of the linalg factory, self._lf.
         """
         self._expansion.compute_density_matrix(self.nep, dm)
+
+    def update_dms(self, dms):
+        '''Update the dictionary with density matrices, allocate if needed'''
+        # no full or beta because they do not contain useful info.
+        dm_alpha = dms.get('alpha')
+        if dm_alpha is None:
+            dm_alpha = self._lf.create_one_body(self._nbasis)
+            dms['alpha'] = dm_alpha
+        self.compute_alpha_density_matrix(dm_alpha)
 
 
 class OpenShellWFN(BaseWFN):
@@ -298,7 +307,7 @@ class OpenShellWFN(BaseWFN):
 
            dm
                 An output density matrix. This must be an instance of the
-                One-body operator class of the linalg factory, self.lf.
+                One-body operator class of the linalg factory, self._lf.
         """
         self._alpha_expansion.compute_density_matrix(self.nalpha, dm)
         self._beta_expansion.compute_density_matrix(self.nbeta, dm, factor=-1)
@@ -310,7 +319,7 @@ class OpenShellWFN(BaseWFN):
 
            dm
                 An output density matrix. This must be an instance of the
-                One-body operator class of the linalg factory, self.lf.
+                One-body operator class of the linalg factory, self._lf.
         """
         self._alpha_expansion.compute_density_matrix(self.nalpha, dm)
 
@@ -321,6 +330,19 @@ class OpenShellWFN(BaseWFN):
 
            dm
                 An output density matrix. This must be an instance of the
-                One-body operator class of the linalg factory, self.lf.
+                One-body operator class of the linalg factory, self._lf.
         """
         self._beta_expansion.compute_density_matrix(self.nbeta, dm)
+
+    def update_dms(self, dms):
+        '''Update the dictionary with density matrices, allocate if needed'''
+        for key in 'alpha', 'beta', 'full':
+            dm = dms.get(key)
+            if dm is None:
+                dm = self._lf.create_one_body(self._nbasis)
+                dms[key] = dm
+        self.compute_alpha_density_matrix(dms['alpha'])
+        self.compute_beta_density_matrix(dms['beta'])
+        dms['full'].reset()
+        dms['full'].iadd(dms['alpha'])
+        dms['full'].iadd(dms['beta'])
