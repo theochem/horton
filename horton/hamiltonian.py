@@ -74,12 +74,11 @@ class Hamiltonian(object):
         dm_beta = self.system.dms.get('beta')
         dm_full = self.system.dms.get('full')
         for term in self.terms:
-            energy = term.compute_energy(dm_alpha, dm_beta, dm_full)
-            total += energy
+            total += term.compute_energy(dm_alpha, dm_beta, dm_full)
         total += self.system.compute_nucnuc()
         # Store result in chk file
         self.system._props['energy'] = total
-        self.system.update_chk('props.energy')
+        self.system.update_chk('props')
         return total
 
     def compute_fock(self, fock_alpha, fock_beta):
@@ -110,7 +109,7 @@ class Hamiltonian(object):
 
 class HamiltonianTerm(object):
     def prepare_system(self, system):
-        pass
+        self.system = system
 
     def invalidate_derived(self):
         pass
@@ -124,13 +123,17 @@ class HamiltonianTerm(object):
 
 class KineticEnergy(HamiltonianTerm):
     def prepare_system(self, system):
+        HamiltonianTerm.prepare_system(self, system)
         self.kinetic = system.get_kinetic()
 
     def compute_energy(self, dm_alpha, dm_beta, dm_full):
         if dm_beta is None:
-            return 2*self.kinetic.expectation_value(dm_alpha)
+            result = 2*self.kinetic.expectation_value(dm_alpha)
         else:
-            return self.kinetic.expectation_value(dm_full)
+            result = self.kinetic.expectation_value(dm_full)
+        self.system._props['energy_kin'] = result
+        return result
+
 
     def add_fock_matrix(self, dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta):
         for fock in fock_alpha, fock_beta:
@@ -140,6 +143,7 @@ class KineticEnergy(HamiltonianTerm):
 
 class Hartree(HamiltonianTerm):
     def prepare_system(self, system):
+        HamiltonianTerm.prepare_system(self, system)
         self.electron_repulsion = system.get_electron_repulsion()
         self.coulomb = system.lf.create_one_body(system.obasis.nbasis)
 
@@ -158,9 +162,11 @@ class Hartree(HamiltonianTerm):
     def compute_energy(self, dm_alpha, dm_beta, dm_full):
         self._update_coulomb(dm_alpha, dm_beta, dm_full)
         if dm_beta is None:
-            return self.coulomb.expectation_value(dm_alpha)
+            result = self.coulomb.expectation_value(dm_alpha)
         else:
-            return 0.5*self.coulomb.expectation_value(dm_full)
+            result = 0.5*self.coulomb.expectation_value(dm_full)
+        self.system._props['energy_hartree'] = result
+        return result
 
     def add_fock_matrix(self, dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta):
         self._update_coulomb(dm_alpha, dm_beta, dm_full)
@@ -199,18 +205,19 @@ class HartreeFock(Hartree):
             self.electron_repulsion.apply_exchange(dm_beta, self.exchange_beta)
 
     def compute_energy(self, dm_alpha, dm_beta, dm_full):
-        result = Hartree.compute_energy(self, dm_alpha, dm_beta, dm_full)
+        energy_hartree = Hartree.compute_energy(self, dm_alpha, dm_beta, dm_full)
         self._update_exchange(dm_alpha, dm_beta, dm_full)
         if dm_beta is None:
-            result -= self.fraction_exchange*self.exchange_alpha.expectation_value(dm_alpha)
+            energy_fock = -self.exchange_alpha.expectation_value(dm_alpha)
         else:
-            result -= 0.5*self.fraction_exchange*self.exchange_alpha.expectation_value(dm_alpha)
-            result -= 0.5*self.fraction_exchange*self.exchange_beta.expectation_value(dm_beta)
-        return result
+            energy_fock = -0.5*self.exchange_alpha.expectation_value(dm_alpha) \
+                          -0.5*self.exchange_beta.expectation_value(dm_beta)
+        self.system._props['energy_exchange_fock'] = energy_fock
+        return energy_hartree + self.fraction_exchange*energy_fock
 
     def add_fock_matrix(self, dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta):
-        self._update_exchange(dm_alpha, dm_beta, dm_full)
         Hartree.add_fock_matrix(self, dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta)
+        self._update_exchange(dm_alpha, dm_beta, dm_full)
         fock_alpha.iadd(self.exchange_alpha, -self.fraction_exchange)
         if fock_beta is not None:
             fock_beta.iadd(self.exchange_beta, -self.fraction_exchange)
@@ -219,13 +226,16 @@ class HartreeFock(Hartree):
 # TODO: derive from common base class with kinetic energy
 class ExternalPotential(HamiltonianTerm):
     def prepare_system(self, system):
+        HamiltonianTerm.prepare_system(self, system)
         self.nuclear_attraction = system.get_nuclear_attraction()
 
     def compute_energy(self, dm_alpha, dm_beta, dm_full):
         if dm_beta is None:
-            return -2*self.nuclear_attraction.expectation_value(dm_alpha)
+            result = -2*self.nuclear_attraction.expectation_value(dm_alpha)
         else:
-            return -self.nuclear_attraction.expectation_value(dm_full)
+            result = -self.nuclear_attraction.expectation_value(dm_full)
+        self.system._props['energy_ne'] = result
+        return result
 
     def add_fock_matrix(self, dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta):
         for fock in fock_alpha, fock_beta:

@@ -57,5 +57,5 @@ def test_energy_hydrogen():
     fn_fchk = context.get_fn('test/h_sto3g.fchk')
     sys = System.from_file(fn_fchk)
     ham = Hamiltonian(sys, [HartreeFock()])
-    energy = ham.compute_energy()
-    assert abs(energy - -4.665818503844346E-01) < 1e-8
+    ham.compute_energy()
+    assert abs(sys.props['energy'] - -4.665818503844346E-01) < 1e-8

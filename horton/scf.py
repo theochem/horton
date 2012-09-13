@@ -95,7 +95,6 @@ def converge_scf_cs(ham, max_iter=128, threshold=1e-8):
         ham.invalidate_derived()
         # Write intermediate results to checkpoint
         ham.system.update_chk('wfn')
-    print ham.compute_energy() # temporary hack. TODO: energies and dms must be stored in system
     return converged
 
 
@@ -143,5 +142,4 @@ def converge_scf_os(ham, max_iter=128, threshold=1e-8):
         ham.invalidate_derived()
         # Write intermediate results to checkpoint
         ham.system.update_chk('wfn')
-    print ham.compute_energy() # temporary hack. TODO: energies and dms must be stored in system
     return converged
