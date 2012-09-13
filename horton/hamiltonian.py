@@ -77,6 +77,9 @@ class Hamiltonian(object):
             energy = term.compute_energy(dm_alpha, dm_beta, dm_full)
             total += energy
         total += self.system.compute_nucnuc()
+        # Store result in chk file
+        self.system._props['energy'] = total
+        self.system.update_chk('props.energy')
         return total
 
     def compute_fock(self, fock_alpha, fock_beta):

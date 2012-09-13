@@ -105,8 +105,12 @@ class CHKField(object):
                 return None
         # B) Construct the corresponding Python object
         if isinstance(item, h5.Dataset):
-            # convert it to a numpy array
-            return np.array(item)
+            if len(item.shape) > 0:
+                # convert it to a numpy array
+                return np.array(item)
+            else:
+                # a scalar
+                return item[()]
         elif isinstance(item, h5.Group):
             if self.att_class is None:
                 raise ValueError('The field matches a Group object in the checkpoint file but no att_class is given.')
@@ -148,7 +152,7 @@ class CHKField(object):
             grp = chk.require_group(self.att_name)
             name = self.key
         # C) Dump the data to HDF5
-        if isinstance(att, np.ndarray):
+        if isinstance(att, int) or isinstance(att, float) or isinstance(att, np.ndarray):
             # Simply overwrite old data
             if name in grp:
                 del grp[name]
@@ -178,4 +182,5 @@ register = {
     'operators.kin': CHKField('operators', 'kin', att_class=DenseOneBody),
     'operators.na': CHKField('operators', 'na', att_class=DenseOneBody),
     'operators.er': CHKField('operators', 'er', att_class=DenseTwoBody),
+    'props.energy': CHKField('props', 'energy')
 }

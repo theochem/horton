@@ -217,7 +217,7 @@ def test_chk_operators():
 
 
 def test_chk_guess_scf_cs():
-    chk = h5.File('horton.test.test_checkpoint.test_chk_guess_cs', driver='core', backing_store=False)
+    chk = h5.File('horton.test.test_checkpoint.test_chk_guess_scf_cs', driver='core', backing_store=False)
     fn_fchk = context.get_fn('test/hf_sto3g.fchk')
     sys = System.from_file(fn_fchk, chk=chk)
 
@@ -233,15 +233,17 @@ def test_chk_guess_scf_cs():
     converge_scf(ham, 5)
     c = sys.wfn.expansion._coeffs
     e = sys.wfn.expansion._energies
+    energy = sys.props['energy']
     del sys
     del ham
     sys = System.from_file(chk)
     assert (sys.wfn.expansion._coeffs == c).all()
     assert (sys.wfn.expansion._energies == e).all()
+    assert sys.props['energy'] == energy
 
 
-def test_chk_guess_os():
-    chk = h5.File('horton.test.test_checkpoint.test_chk_guess_os', driver='core', backing_store=False)
+def test_chk_guess_scf_os():
+    chk = h5.File('horton.test.test_checkpoint.test_chk_guess_scf_os', driver='core', backing_store=False)
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     sys = System.from_file(fn_fchk, chk=chk)
 
@@ -263,6 +265,7 @@ def test_chk_guess_os():
     bc = sys.wfn.beta_expansion._coeffs
     ae = sys.wfn.alpha_expansion._energies
     be = sys.wfn.beta_expansion._energies
+    energy = sys.props['energy']
     del sys
     del ham
     sys = System.from_file(chk)
@@ -270,3 +273,4 @@ def test_chk_guess_os():
     assert (sys.wfn.beta_expansion._coeffs == bc).all()
     assert (sys.wfn.alpha_expansion._energies == ae).all()
     assert (sys.wfn.beta_expansion._energies == be).all()
+    assert sys.props['energy'] == energy

@@ -459,6 +459,7 @@ def load_fchk(filename, lf):
         wfn.expansion.coeffs[:] = fchk.fields['Alpha MO coefficients'].reshape(nbasis_indep, obasis.nbasis).T
         wfn.expansion.energies[:] = fchk.fields['Alpha Orbital Energies']
 
+    # TODO: also load density matrices and supported properties
     return coordinates, numbers, obasis, wfn, permutation
 
 

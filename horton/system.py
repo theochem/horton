@@ -40,7 +40,7 @@ __all__ = ['System']
 
 
 class System(object):
-    def __init__(self, coordinates, numbers, obasis=None, wfn=None, lf=None, operators=None, dms=None, chk=None):
+    def __init__(self, coordinates, numbers, obasis=None, wfn=None, lf=None, operators=None, dms=None, props=None, chk=None):
         """
            **Arguments:**
 
@@ -119,6 +119,11 @@ class System(object):
             self._dms = {}
         else:
             self._dms = dms
+        #
+        if props is None:
+            self._props = {}
+        else:
+            self._props = props
 
         # Some consistency checks
         if len(self.numbers.shape) != 1 or \
@@ -193,10 +198,16 @@ class System(object):
     operators = property(get_operators)
 
     def get_dms(self):
-        '''A dictionary with 'full', 'alpha' and 'beta' density matrices, all optional.'''
+        '''A dictionary with 'full', 'alpha' and 'beta' density matrices, beta and full optional.'''
         return self._dms
 
     dms = property(get_dms)
+
+    def get_props(self):
+        '''A dictionary with computed properties.'''
+        return self._props
+
+    props = property(get_props)
 
     def get_chk(self):
         return self._chk
