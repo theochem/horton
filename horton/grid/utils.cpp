@@ -19,10 +19,16 @@
 //--
 
 
-#ifndef HORTON_GRID_BECKE_H
-#define HORTON_GRID_BECKE_H
-
-void becke_helper_atom(int npoint, double* points, double* weights, int natom,
-                       double* radii, double* centers, int select, int order);
-
-#endif
+double dot_multi(int npoint, int nvector, double** data) {
+    double result = 0.0;
+    for (int ipoint=npoint; ipoint>0; ipoint--) {
+        double tmp = *(data[nvector-1]);
+        data[nvector-1]++;
+        for (int ivector=nvector-2; ivector>=0; ivector--) {
+           tmp *= *(data[ivector]);
+           data[ivector]++;
+        }
+        result += tmp;
+    }
+    return result;
+}

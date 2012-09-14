@@ -83,8 +83,7 @@ def test_energy_n2_hfs_sto3g():
             break
 
     # Test if the grid potential data is properly converted into an operator:
-    # TODO: add integrate method to BaseGrid class:
-    ev1 = np.dot(dterm.pot_alpha, dterm.rho_alpha*grid.weights)
+    ev1 = grid.integrate(dterm.pot_alpha, dterm.rho_alpha)
     dma = sys.lf.create_one_body(sys.obasis.nbasis)
     sys.wfn.compute_density_matrix(dma, 'alpha')
     ev2 = dterm.exchange_alpha.expectation_value(dma)

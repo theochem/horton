@@ -24,14 +24,19 @@ import numpy as np
 cimport numpy as np
 np.import_array()
 
+from libc.stdlib cimport malloc, free
+
 cimport lebedev_laikov
 cimport becke
+cimport utils
 
 __all__ = [
     # lebedev_laikov
     'lebedev_laikov_npoint', 'lebedev_laikov_sphere', 'lebedev_laikov_npoints',
     # becke
     'becke_helper_atom',
+    # utils
+    'dot_multi',
 ]
 
 
@@ -76,6 +81,11 @@ def lebedev_laikov_sphere(np.ndarray[double, ndim=2] points,
     assert weights.shape[0] == npoint
     lebedev_laikov.lebedev_laikov_sphere(npoint, <double*>points.data,
                                          <double*>weights.data)
+
+
+#
+# becke
+#
 
 
 def becke_helper_atom(np.ndarray[double, ndim=2] points,
@@ -128,3 +138,33 @@ def becke_helper_atom(np.ndarray[double, ndim=2] points,
     becke.becke_helper_atom(points.shape[0], <double*>points.data,
                             <double*>weights.data, natom, <double*>radii.data,
                             <double*>centers.data, select, order)
+
+
+#
+# utils
+#
+
+
+def dot_multi(*args):
+    if len(args) == 0:
+        return 0.0
+
+    cdef double** pointers = <double **>malloc(len(args)*sizeof(double*))
+    if pointers == NULL:
+        raise MemoryError()
+    cdef np.ndarray[double, ndim=1] arg
+
+    npoint = None
+    try:
+        for i in xrange(len(args)):
+            arg = args[i]
+            assert arg.flags['C_CONTIGUOUS']
+            if npoint is None:
+                npoint = arg.shape[0]
+            else:
+                assert npoint == arg.shape[0]
+            pointers[i] = <double*>arg.data
+        result = utils.dot_multi(npoint, len(args), pointers)
+    finally:
+        free(pointers)
+    return result

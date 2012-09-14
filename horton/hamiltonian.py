@@ -311,11 +311,9 @@ class DiracExchange(HamiltonianTerm):
 
     def compute_energy(self, dm_alpha, dm_beta, dm_full):
         self._update_exchange(dm_alpha, dm_beta, dm_full)
-        # TODO: add integrate method to BaseGrid class:
-        # energy = self.grid.integrate(self.pot_alpha, self.rho_alpha)
-        energy = np.dot(self.pot_alpha, self.rho_alpha*self.grid.weights)
+        energy = self.grid.integrate(self.pot_alpha, self.rho_alpha)
         if not self.system.wfn.closed_shell:
-            energy += np.dot(self.pot_beta, self.rho_beta*self.grid.weights)
+            energy += self.grid.integrate(self.pot_beta, self.rho_beta)
         else:
             energy *= 2
         energy *= 3.0/4.0
