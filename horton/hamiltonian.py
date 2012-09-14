@@ -20,9 +20,12 @@
 #--
 
 
+import numpy as np
+
+
 __all__ = [
-    'Hamiltonian', 'HamiltonianTerm', 'KineticEnergy', 'Hartree', 'HartreeFock',
-    'ExternalPotential',
+    'Hamiltonian', 'HamiltonianTerm', 'KineticEnergy', 'ExternalPotential',
+    'Hartree', 'HartreeFock', 'DiracExchange'
 ]
 
 
@@ -154,6 +157,13 @@ class KineticEnergy(FixedTerm):
         return system.get_kinetic(), 'kin'
 
 
+class ExternalPotential(FixedTerm):
+    def get_operator(self, system):
+        tmp = system.get_nuclear_attraction()
+        tmp.iscale(-1)
+        return tmp, 'ne'
+
+
 class Hartree(HamiltonianTerm):
     def prepare_system(self, system):
         HamiltonianTerm.prepare_system(self, system)
@@ -236,8 +246,84 @@ class HartreeFock(Hartree):
             fock_beta.iadd(self.exchange_beta, -self.fraction_exchange)
 
 
-class ExternalPotential(FixedTerm):
-    def get_operator(self, system):
-        tmp = system.get_nuclear_attraction()
-        tmp.iscale(-1)
-        return tmp, 'ne'
+class DiracExchange(HamiltonianTerm):
+    '''A (for now naive) implementation of the Dirac Exchange Functional'''
+    def __init__(self, grid, coeff=None):
+        '''
+           **Arguments:**
+
+
+
+           **Optional arguments:**
+
+           coeff
+                The coefficient Cx in front of the Dirac exchange energy.
+                It defaults to the uniform electron gas value, i.e.
+                Cx = 3/4 (3/pi)^(1/3).
+        '''
+        if coeff is None:
+            self.coeff = 3.0/4.0*(3.0/np.pi)**(1.0/3.0)
+        else:
+            self.coeff = coeff
+
+        # TODO: Internal stuff that should be handled by an over-coupling grid caching class.
+        #       Also the grid argument of the constructor should go there.
+        self.grid = grid
+        self.grid_valid = False
+
+    def prepare_system(self, system):
+        HamiltonianTerm.prepare_system(self, system)
+        self.exchange_alpha = system.lf.create_one_body(system.obasis.nbasis)
+        self.rho_alpha = np.zeros(self.grid.size) # to cache
+        self.pot_alpha = np.zeros(self.grid.size)
+        #self.edens_alpha = np.zeros(grid.size)
+        if not self.system.wfn.closed_shell:
+            self.exchange_beta = system.lf.create_one_body(system.obasis.nbasis)
+            self.rho_beta = np.zeros(self.grid.size) # to cache
+            self.pot_beta = np.zeros(self.grid.size)
+            #self.edens_beta = np.zeros(grid.size)
+
+    def invalidate_derived(self):
+        self.grid_valid = False
+        self.exchange_alpha.invalidate()
+        if not self.system.wfn.closed_shell:
+            self.exchange_beta.invalidate()
+
+    def _update_exchange(self, dm_alpha, dm_beta, dm_full):
+        '''Recompute the Exchange operator(s) if invalid'''
+        # update grids
+        if not self.grid_valid:
+            tmp = -self.coeff*(4.0/3.0)*2**(1.0/3.0)
+            self.rho_alpha[:] = 0.0
+            self.system.compute_density_grid(self.grid.points, rhos=self.rho_alpha, select='alpha') # to cache
+            self.pot_alpha[:] = tmp*self.rho_alpha**(1.0/3.0)
+            if not self.system.wfn.closed_shell:
+                self.rho_beta[:] = 0.0
+                self.system.compute_density_grid(self.grid.points, rhos=self.rho_beta, select='beta') # to cache
+                self.pot_beta[:] = tmp*self.rho_beta**(1.0/3.0)
+        # update operators
+        if not self.exchange_alpha.valid:
+            self.exchange_alpha.reset()
+            self.system.compute_grid_one_body(self.grid.points, self.grid.weights, self.pot_alpha, self.exchange_alpha)
+        if not self.system.wfn.closed_shell and not self.exchange_beta.valid:
+            self.exchange_beta.reset()
+            self.system.compute_grid_one_body(self.grid.points, self.grid.weights, self.pot_beta, self.exchange_beta)
+
+    def compute_energy(self, dm_alpha, dm_beta, dm_full):
+        self._update_exchange(dm_alpha, dm_beta, dm_full)
+        # TODO: add integrate method to BaseGrid class:
+        # energy = self.grid.integrate(self.pot_alpha, self.rho_alpha)
+        energy = np.dot(self.pot_alpha, self.rho_alpha*self.grid.weights)
+        if not self.system.wfn.closed_shell:
+            energy += np.dot(self.pot_beta, self.rho_beta*self.grid.weights)
+        else:
+            energy *= 2
+        energy *= 3.0/4.0
+        self.system._props['energy_exchange_dirac'] = energy
+        return energy
+
+    def add_fock_matrix(self, dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta):
+        self._update_exchange(dm_alpha, dm_beta, dm_full)
+        fock_alpha.iadd(self.exchange_alpha)
+        if fock_beta is not None:
+            fock_beta.iadd(self.exchange_beta)

@@ -92,8 +92,10 @@ def converge_scf_cs(ham, max_iter=128, threshold=1e-8, mixing=0.0):
     converged = False
     for i in xrange(max_iter):
         # Construct the Fock operator
+        #print fock._array[:2,:2]
         fock.reset()
         ham.compute_fock(fock, None)
+        #print fock._array[:2,:2]
         if mixing > 0.0 and old_fock is not None:
             old_fock.iscale(mixing)
             fock.iscale(1-mixing)

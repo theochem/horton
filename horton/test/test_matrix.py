@@ -62,7 +62,7 @@ def test_fock_matrix_eigen():
     dm = lf.create_one_body(7)
     coulomb = lf.create_one_body(nbasis)
     exchange = lf.create_one_body(nbasis)
-    wfn.compute_alpha_density_matrix(dm)
+    wfn.compute_density_matrix(dm, 'alpha')
     electronic_repulsion.apply_direct(dm, coulomb)
     electronic_repulsion.apply_exchange(dm, exchange)
 
@@ -117,7 +117,7 @@ def test_electron_electron_water_sto3g_hf():
     dm = lf.create_one_body(7)
     coulomb = lf.create_one_body(7)
     exchange = lf.create_one_body(7)
-    wfn.compute_alpha_density_matrix(dm)
+    wfn.compute_density_matrix(dm, 'alpha')
     electronic_repulsion.apply_direct(dm, coulomb)
     electronic_repulsion.apply_exchange(dm, exchange)
     eee = 2*coulomb.expectation_value(dm) \
@@ -147,7 +147,7 @@ def test_hartree_fock_water():
         # Construct the Fock operator
         fock.reset()
         fock.iadd(hamcore, 1)
-        wfn.compute_alpha_density_matrix(dm)
+        wfn.compute_density_matrix(dm, 'alpha')
         electronic_repulsion.apply_direct(dm, coulomb)
         electronic_repulsion.apply_exchange(dm, exchange)
         fock.iadd(coulomb, 2)
