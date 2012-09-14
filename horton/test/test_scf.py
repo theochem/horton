@@ -29,7 +29,9 @@ def test_scf_cs():
     sys = System.from_file(fn_fchk)
     guess_hamiltionian_core(sys)
     ham = Hamiltonian(sys, [HartreeFock()])
+    assert convergence_error(ham) > 1e-8
     assert converge_scf(ham)
+    assert convergence_error(ham) < 1e-8
 
     # get the hatreefock term
     for term in ham.terms:
@@ -73,13 +75,33 @@ def test_scf_cs():
     assert abs(sys.props['energy_nn'] - 4.7247965053) < 1e-8
 
 
+def test_scf_mixing_cs():
+    fn_fchk = context.get_fn('test/hf_sto3g.fchk')
+    sys = System.from_file(fn_fchk)
+    guess_hamiltionian_core(sys)
+    ham = Hamiltonian(sys, [HartreeFock()])
+    assert convergence_error(ham) > 1e-8
+    assert converge_scf(ham)
+    assert convergence_error(ham) < 1e-8
+    energy0 = ham.compute_energy()
+    guess_hamiltionian_core(sys)
+    assert convergence_error(ham) > 1e-8
+    assert converge_scf(ham, mixing=0.5)
+    assert convergence_error(ham) < 1e-8
+    energy1 = ham.compute_energy()
+    print energy0, energy1, energy0-energy1
+    assert abs(energy0 - energy1) < 1e-12
+
 
 def test_scf_os():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     sys = System.from_file(fn_fchk)
     guess_hamiltionian_core(sys)
     ham = Hamiltonian(sys, [HartreeFock()])
+    assert convergence_error(ham) > 1e-8
     assert converge_scf(ham)
+    assert convergence_error(ham) < 1e-8
+
     expected_alpha_energies = np.array([
         -2.76116635E+00, -7.24564188E-01, -1.79148636E-01, -1.28235698E-01,
         -1.28235698E-01, -7.59817520E-02, -1.13855167E-02, 6.52484445E-03,
@@ -100,3 +122,21 @@ def test_scf_os():
     assert abs(sys.props['energy_hartree'] + sys.props['energy_exchange_fock'] - 2.114420907894E+00) < 1e-7
     assert abs(sys.props['energy_ne'] - -1.811548789281E+01) < 2e-7
     assert abs(sys.props['energy_nn'] - 0.6731318487) < 1e-8
+
+
+def test_scf_mixing_os():
+    fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
+    sys = System.from_file(fn_fchk)
+    guess_hamiltionian_core(sys)
+    ham = Hamiltonian(sys, [HartreeFock()])
+    assert convergence_error(ham) > 1e-8
+    assert converge_scf(ham)
+    assert convergence_error(ham) < 1e-8
+    energy0 = ham.compute_energy()
+    guess_hamiltionian_core(sys)
+    assert convergence_error(ham) > 1e-8
+    assert converge_scf(ham, mixing=0.5)
+    assert convergence_error(ham) < 1e-8
+    energy1 = ham.compute_energy()
+    print energy0, energy1, energy0-energy1
+    assert abs(energy0 - energy1) < 1e-12
