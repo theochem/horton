@@ -81,6 +81,7 @@ class Cache(object):
         self._store = {}
 
     def invalidate(self):
+        # TODO: do not remove arrays, just mark them as resetted.
         self._store = {}
 
     def load(self, *key, **kwargs):

@@ -66,7 +66,7 @@ def test_energy_n2_hfs_sto3g():
     sys = System.from_file(fn_fchk)
     rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
     grid = BeckeMolGrid(sys, (rtf, 110, 100), random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(), DiracExchange(grid)])
+    ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
     ham.compute_energy()
 
     # Compare energies
@@ -83,10 +83,10 @@ def test_energy_n2_hfs_sto3g():
             break
 
     # Test if the grid potential data is properly converted into an operator:
-    ev1 = grid.integrate(dterm.pot_alpha, dterm.rho_alpha)
+    ev1 = grid.integrate(ham.cache.load('pot_exchange_dirac_alpha'), ham.cache.load('rho_alpha'))
     dma = sys.lf.create_one_body(sys.obasis.nbasis)
     sys.wfn.compute_density_matrix(dma, 'alpha')
-    ev2 = dterm.exchange_alpha.expectation_value(dma)
+    ev2 = dterm.exchange['alpha'].expectation_value(dma)
     assert abs(ev1 - ev2) < 1e-13
 
     # When repeating, we should get the same
@@ -94,7 +94,7 @@ def test_energy_n2_hfs_sto3g():
     assert abs(sys.props['energy'] - -106.205213597) < 1e-4
 
     # check symmetry
-    dterm.exchange_alpha.check_symmetry()
+    dterm.exchange['alpha'].check_symmetry()
 
 
 def test_fock_n2_hfs_sto3g():
@@ -104,7 +104,7 @@ def test_fock_n2_hfs_sto3g():
     sys = System.from_file(fn_fchk)
     rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
     grid = BeckeMolGrid(sys, (rtf, 110, 100), random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(), DiracExchange(grid)])
+    ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
@@ -140,7 +140,7 @@ def test_fock_h3_hfs_321g():
     sys = System.from_file(fn_fchk)
     rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
     grid = BeckeMolGrid(sys, (rtf, 110, 100), random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(), DiracExchange(grid)])
+    ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:

@@ -149,7 +149,7 @@ def test_scf_water_hfs_321g():
     sys = System.from_file(fn_fchk)
     rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
     grid = BeckeMolGrid(sys, (rtf, 110, 110), random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(), DiracExchange(grid)])
+    ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
