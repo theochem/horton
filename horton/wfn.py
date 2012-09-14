@@ -85,7 +85,7 @@ class BaseWFN(object):
         for expansion, nocc, scale in self.iter_expansions():
             expansion.apply_basis_permutation(permutation)
 
-    def compute_density_matrix(self, dm):
+    def compute_density_matrix(self, dm, select='full'):
         """Compute the density matrix
 
            **Arguments:**
@@ -93,9 +93,14 @@ class BaseWFN(object):
            dm
                 An output density matrix. This must be an instance of the
                 One-body operator class of the linalg factory, self._lf.
+
+           **Optional arguments:**
+
+           select
+                'alpha', 'beta', 'full' or 'spin'. ('full' is the default.)
         """
         dm.reset()
-        for expansion, nocc, scale in self.iter_expansions():
+        for expansion, nocc, scale in self.iter_expansions(select):
             expansion.compute_density_matrix(nocc, dm, factor=scale)
 
 
@@ -162,8 +167,13 @@ class ClosedShellWFN(BaseWFN):
 
     expansion = property(_get_expansion)
 
-    def iter_expansions(self):
+    def iter_expansions(self, select='full'):
         '''Iterate over all expansions
+
+           **Optional arguments:**
+
+           select
+                'alpha', 'beta', 'full' or 'spin'. ('full' is the default.)
 
            Yields records (expansion, nocc, scale) where:
 
@@ -176,18 +186,16 @@ class ClosedShellWFN(BaseWFN):
            scale
                 The occupancy of each orbital.
         '''
-        yield self._expansion, self._nep, 2
-
-    def compute_alpha_density_matrix(self, dm):
-        """Compute the alpha density matrix
-
-           **Arguments:**
-
-           dm
-                An output density matrix. This must be an instance of the
-                One-body operator class of the linalg factory, self._lf.
-        """
-        self._expansion.compute_density_matrix(self.nep, dm)
+        if select == 'alpha':
+            yield self._expansion, self._nep, 1
+        elif select == 'beta':
+            yield self._expansion, self._nep, 1
+        elif select == 'full':
+            yield self._expansion, self._nep, 2
+        elif select == 'spin':
+            return
+        else:
+            raise ValueError('select has to be one of alpha, beta, full or spin.')
 
     def update_dms(self, dms):
         '''Update the dictionary with density matrices, allocate if needed'''
@@ -197,7 +205,7 @@ class ClosedShellWFN(BaseWFN):
             dm_alpha = self._lf.create_one_body(self._nbasis)
             dms['alpha'] = dm_alpha
         if not dm_alpha.valid:
-            self.compute_alpha_density_matrix(dm_alpha)
+            self.compute_density_matrix(dm_alpha, 'alpha')
 
 
 class OpenShellWFN(BaseWFN):
@@ -288,8 +296,13 @@ class OpenShellWFN(BaseWFN):
 
     beta_expansion = property(_get_beta_expansion)
 
-    def iter_expansions(self):
+    def iter_expansions(self, select='full'):
         '''Iterate over all expansions
+
+           **Optional arguments:**
+
+           select
+                'alpha', 'beta', 'full' or 'spin'. ('full' is the default.)
 
            Yields records (expansion, nocc, scale) where:
 
@@ -302,42 +315,18 @@ class OpenShellWFN(BaseWFN):
            scale
                 The occupancy of each orbital.
         '''
-        yield self._alpha_expansion, self._nalpha, 1
-        yield self._beta_expansion, self._nbeta, 1
-
-    def compute_spin_density_matrix(self, dm):
-        """Compute the spin density matrix
-
-           **Arguments:**
-
-           dm
-                An output density matrix. This must be an instance of the
-                One-body operator class of the linalg factory, self._lf.
-        """
-        self._alpha_expansion.compute_density_matrix(self.nalpha, dm)
-        self._beta_expansion.compute_density_matrix(self.nbeta, dm, factor=-1)
-
-    def compute_alpha_density_matrix(self, dm):
-        """Compute the alpha density matrix
-
-           **Arguments:**
-
-           dm
-                An output density matrix. This must be an instance of the
-                One-body operator class of the linalg factory, self._lf.
-        """
-        self._alpha_expansion.compute_density_matrix(self.nalpha, dm)
-
-    def compute_beta_density_matrix(self, dm):
-        """Compute the beta density matrix
-
-           **Arguments:**
-
-           dm
-                An output density matrix. This must be an instance of the
-                One-body operator class of the linalg factory, self._lf.
-        """
-        self._beta_expansion.compute_density_matrix(self.nbeta, dm)
+        if select == 'alpha':
+            yield self._alpha_expansion, self._nalpha, 1
+        elif select == 'beta':
+            yield self._beta_expansion, self._nbeta, 1
+        elif select == 'full':
+            yield self._alpha_expansion, self._nalpha, 1
+            yield self._beta_expansion, self._nbeta, 1
+        elif select == 'spin':
+            yield self._alpha_expansion, self._nalpha, 1
+            yield self._beta_expansion, self._nbeta, -1
+        else:
+            raise ValueError('select has to be one of alpha, beta, full or spin.')
 
     def update_dms(self, dms):
         '''Update the dictionary with density matrices, allocate if needed'''
@@ -347,9 +336,9 @@ class OpenShellWFN(BaseWFN):
                 dm = self._lf.create_one_body(self._nbasis)
                 dms[key] = dm
         if not dms['alpha'].valid:
-            self.compute_alpha_density_matrix(dms['alpha'])
+            self.compute_density_matrix(dms['alpha'], 'alpha')
         if not dms['beta'].valid:
-            self.compute_beta_density_matrix(dms['beta'])
+            self.compute_density_matrix(dms['beta'], 'beta')
         if not dms['full'].valid:
             dms['full'].reset()
             dms['full'].iadd(dms['alpha'])

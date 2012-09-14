@@ -371,7 +371,7 @@ class System(object):
             #self.update_chk('operators.er')
         return electron_repulsion
 
-    def compute_density_grid(self, points, use_dm=False, rhos=None):
+    def compute_density_grid(self, points, use_dm=False, rhos=None, select='full'):
         '''Compute the electron density on a grid
 
            **Arguments:**
@@ -386,7 +386,10 @@ class System(object):
 
            rhos
                 An output array, shape (npoint,). The results are added to this
-                array
+                array.
+
+           select
+                'alpha', 'beta', 'full' or 'spin'. ('full' is the default.)
 
            **Returns:**
 
@@ -403,10 +406,10 @@ class System(object):
             raise TypeError('The shape of the output array is wrong')
         if use_dm:
             dm = self.lf.create_one_body(self.obasis.nbasis)
-            self.wfn.compute_density_matrix(dm)
+            self.wfn.compute_density_matrix(dm, select=select)
             self.obasis.compute_density_grid_dm(dm, points, rhos)
         else:
-            for expansion, nocc, scale in self.wfn.iter_expansions():
+            for expansion, nocc, scale in self.wfn.iter_expansions(select):
                 self.obasis.compute_density_grid_orb(expansion, nocc, scale, points, rhos)
         return rhos
 

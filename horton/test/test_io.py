@@ -202,10 +202,10 @@ def test_load_fchk_lih_321g_hf():
     dma = lf.create_one_body(wfn.nbasis)
     dmb = lf.create_one_body(wfn.nbasis)
 
-    wfn.compute_density_matrix(dm)
-    wfn.compute_spin_density_matrix(dms)
-    wfn.compute_alpha_density_matrix(dma)
-    wfn.compute_beta_density_matrix(dmb)
+    wfn.compute_density_matrix(dm, 'full')
+    wfn.compute_density_matrix(dms, 'spin')
+    wfn.compute_density_matrix(dma, 'alpha')
+    wfn.compute_density_matrix(dmb, 'beta')
 
     assert abs(dm._array - (dma._array + dmb._array)).max() < 1e-10
     assert abs(dms._array - (dma._array - dmb._array)).max() < 1e-10

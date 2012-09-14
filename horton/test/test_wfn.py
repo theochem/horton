@@ -45,7 +45,7 @@ def test_dm_lih_sto3g_hf():
     assert abs(dm.get_element(1, 1) - 0.0133112081) < 1e-7
     assert abs(dm.get_element(10, 10) - 4.23924688E-01) < 1e-7
 
-    sys.wfn.compute_spin_density_matrix(dm)
+    sys.wfn.compute_density_matrix(dm, 'spin')
     assert abs(dm.get_element(0, 0) - 1.40210760E-03) < 1e-9
     assert abs(dm.get_element(0, 1) - -2.65370873E-03) < 1e-9
     assert abs(dm.get_element(1, 1) - 5.38701212E-03) < 1e-9
