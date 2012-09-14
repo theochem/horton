@@ -305,8 +305,12 @@ void GOBasis::compute_grid_one_body(long npoint, double* points, double* weights
         double tmp0 = (*weights)*(*pots);
         for (long ibasis0=0; ibasis0<get_nbasis(); ibasis0++) {
             double tmp1 = tmp0*basis_fns[ibasis0];
-            for (long ibasis1=0; ibasis1<get_nbasis(); ibasis1++) {
+            for (long ibasis1=0; ibasis1<=ibasis0; ibasis1++) {
                 output[ibasis1*get_nbasis()+ibasis0] += tmp1*basis_fns[ibasis1];
+                if (ibasis1!=ibasis0) {
+                    // Enforce symmetry
+                    output[ibasis0*get_nbasis()+ibasis1] += tmp1*basis_fns[ibasis1];
+                }
             }
         }
 

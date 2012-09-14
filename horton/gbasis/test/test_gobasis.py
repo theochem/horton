@@ -191,3 +191,5 @@ def test_gird_one_body_ne():
     sys.compute_grid_one_body(grid.points, grid.weights, pot, na_grid)
     assert abs(na_grid._array).max() > 8.0
     assert abs(na_ana._array-na_grid._array).max() < 2e-3
+    # check symmetry
+    na_grid.check_symmetry()
