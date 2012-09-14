@@ -177,3 +177,17 @@ def test_grid_lih_321g_hf_some_points():
     points = ref[:,:3].copy()
     rhos = sys.compute_density_grid(points)
     assert abs(rhos - ref[:,3]).max() < 1e-5
+
+
+def test_gird_one_body_ne():
+    sys = System.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
+    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
+    grid = BeckeMolGrid(sys, (rtf, 110, 100), random_rotate=False)
+    dist0 = np.sqrt(((grid.points - sys.coordinates[0])**2).sum(axis=1))
+    dist1 = np.sqrt(((grid.points - sys.coordinates[1])**2).sum(axis=1))
+    pot = sys.numbers[0]/dist0 + sys.numbers[1]/dist1
+    na_ana = sys.get_nuclear_attraction()
+    na_grid = sys.lf.create_one_body(sys.obasis.nbasis)
+    sys.compute_grid_one_body(grid.points, grid.weights, pot, na_grid)
+    assert abs(na_grid._array).max() > 8.0
+    assert abs(na_ana._array-na_grid._array).max() < 2e-3

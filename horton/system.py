@@ -420,3 +420,7 @@ class System(object):
                 result += self.numbers[i]*self.numbers[j]/distance
         self._props['energy_nn'] = result
         return result
+
+    def compute_grid_one_body(self, points, weights, pots, one_body):
+        '''See documentation self.obasis.compute_grid_one_body'''
+        self.obasis.compute_grid_one_body(points, weights, pots, one_body)
