@@ -68,12 +68,12 @@ def test_integrate_hydrogen_trimer_1s():
     assert abs(occupation - 3.0) < 1e-3
 
 
-def test_molgrid_attrs():
+def test_molgrid_attrs_2_subgrid():
     numbers = np.array([6, 8], int)
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
     rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
     atspecs = (rtf, 110, 100)
-    mg = BeckeMolGrid(numbers, coordinates, atspecs)
+    mg = BeckeMolGrid(numbers, coordinates, atspecs, keep_subgrids=2)
 
     assert mg.size == 2*110*100
     assert mg.points.shape == (mg.size, 3)
@@ -115,3 +115,57 @@ def test_molgrid_attrs():
             assert llgrid.radius == radii[j]
             assert llgrid.nll == 110
             assert llgrid.random_rotate
+
+
+def test_molgrid_attrs_1_subgrid():
+    numbers = np.array([6, 8], int)
+    coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
+    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
+    atspecs = (rtf, 110, 100)
+    mg = BeckeMolGrid(numbers, coordinates, atspecs, keep_subgrids=1)
+
+    assert mg.size == 2*110*100
+    assert mg.points.shape == (mg.size, 3)
+    assert mg.weights.shape == (mg.size,)
+    assert len(mg.subgrids) == 2
+    assert (mg.numbers == numbers).all()
+    assert (mg.coordinates == coordinates).all()
+    assert len(mg.atspecs) == 2
+    assert mg.k == 3
+    assert mg.random_rotate
+
+    for i in xrange(2):
+        atspec = mg.atspecs[i]
+        assert atspec[0] == rtf
+        assert atspec[1] == [110]*100
+        assert atspec[2] == 100*110
+
+        atgrid = mg.subgrids[i]
+        assert isinstance(atgrid, AtomicGrid)
+        assert atgrid.size == 100*110
+        assert atgrid.points.shape == (100*110, 3)
+        assert atgrid.weights.shape == (100*110,)
+        assert atgrid.subgrids is None
+        assert (atgrid.center == coordinates[i]).all()
+        assert atgrid.rtransform == rtf
+        assert (atgrid.nlls == [110]*100).all()
+        assert atgrid.nsphere == 100
+        assert atgrid.random_rotate
+
+
+def test_molgrid_attrs_0_subgrid():
+    numbers = np.array([6, 8], int)
+    coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
+    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
+    atspecs = (rtf, 110, 100)
+    mg = BeckeMolGrid(numbers, coordinates, atspecs, keep_subgrids=0)
+
+    assert mg.size == 2*110*100
+    assert mg.points.shape == (mg.size, 3)
+    assert mg.weights.shape == (mg.size,)
+    assert mg.subgrids is None
+    assert (mg.numbers == numbers).all()
+    assert (mg.coordinates == coordinates).all()
+    assert len(mg.atspecs) == 2
+    assert mg.k == 3
+    assert mg.random_rotate

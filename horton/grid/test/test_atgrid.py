@@ -74,10 +74,10 @@ def test_integrate_hydrogen_1s():
     assert abs(occupation - 1.0) < 1e-8
 
 
-def test_molgrid_attrs():
+def test_atgrid_attrs_1_subgrid():
     center = np.array([0.7, 0.2, -0.5], float)
     rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.2)
-    ag = AtomicGrid(center, rtf, 26, 50)
+    ag = AtomicGrid(center, rtf, 26, 50, keep_subgrids=1)
 
     assert ag.size == 50*26
     assert ag.points.shape == (50*26, 3)
@@ -101,3 +101,19 @@ def test_molgrid_attrs():
         assert llgrid.radius == radii[j]
         assert llgrid.nll == 26
         assert llgrid.random_rotate
+
+
+def test_atgrid_attrs_0_subgrid():
+    center = np.array([0.7, 0.2, -0.5], float)
+    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.2)
+    ag = AtomicGrid(center, rtf, 26, 50, keep_subgrids=0)
+
+    assert ag.size == 50*26
+    assert ag.points.shape == (50*26, 3)
+    assert ag.weights.shape == (50*26,)
+    assert ag.subgrids is None
+    assert (ag.center == center).all()
+    assert ag.rtransform == rtf
+    assert (ag.nlls == [26]*50).all()
+    assert ag.nsphere == 50
+    assert ag.random_rotate

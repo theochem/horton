@@ -34,7 +34,7 @@ __all__ = [
 
 
 class AtomicGrid(BaseGrid):
-    def __init__(self, center, rtransform, nlls, nsphere=None, random_rotate=True, points=None):
+    def __init__(self, center, rtransform, nlls, nsphere=None, random_rotate=True, points=None, keep_subgrids=0):
         '''
            **Arguments:**
 
@@ -64,6 +64,10 @@ class AtomicGrid(BaseGrid):
 
            points
                 Array to store the grid points
+
+           keep_subgrids
+                By default the (Lebedev-Laikov) subgrids are not stored
+                separately. If set to 1, they are kept.
         '''
         size, nlls = get_atomic_grid_size(nlls, nsphere)
         self._center = center
@@ -77,7 +81,10 @@ class AtomicGrid(BaseGrid):
             assert len(points) == size
         weights = np.zeros(size, float)
 
-        llgrids = []
+        if keep_subgrids > 0:
+            llgrids = []
+        else:
+            llgrids = None
         offset = 0
         counter = 0
         nsphere = len(nlls)
@@ -85,7 +92,8 @@ class AtomicGrid(BaseGrid):
         rweights = rtransform.get_int_weights(nsphere)
         for nll in nlls:
             llgrid = LebedevLaikovSphereGrid(center, radii[counter], nll, random_rotate, points[offset:offset+nll])
-            llgrids.append(llgrid)
+            if keep_subgrids > 0:
+                llgrids.append(llgrid)
             weights[offset:offset+nll] = rweights[counter]*llgrid.weights
             offset += nll
             counter += 1
