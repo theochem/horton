@@ -228,7 +228,7 @@ class FCHKFile(object):
        command, lot (level of theory) and basis.
     """
 
-    def __init__(self, filename, ignore_errors=False, field_labels=None):
+    def __init__(self, filename, field_labels=None):
         """
            **Arguments:**
 
@@ -237,23 +237,12 @@ class FCHKFile(object):
 
            **Optional arguments:**
 
-           ignore_errors
-                Try to read incorrectly formatted files without raising
-                exceptions [default=False]
-
            field_labels
                 When provided, only these fields are read from the formatted
                 checkpoint file. (This can save a lot of time.)
         """
         self.filename = filename
-        self.ignore_errors = ignore_errors
-        try:
-            self._read(filename, field_labels)
-        except IOError:
-            if ignore_errors:
-                pass
-            else:
-                raise
+        self._read(filename, set(field_labels))
 
     def _read(self, filename, field_labels=None):
         """Read all the requested fields"""
@@ -353,6 +342,7 @@ def load_fchk(filename, lf):
 
     fchk = FCHKFile(filename, [
         "Number of electrons", "Number of independant functions",
+        "Number of alpha electrons", "Number of beta electrons",
         "Atomic numbers", "Current cartesian coordinates",
         "Shell types", "Shell to atom map", "Shell to atom map",
         "Number of primitives per shell", "Primitive exponents",
