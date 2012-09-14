@@ -39,8 +39,7 @@ __all__ = [
 class BeckeMolGrid(BaseGrid):
     '''Molecular integration grid using Becke weights'''
     # TODO: replace first two argument by system object, or at least swap order of args
-    # TODO: add keep_subgrids=False options, also in AtomicGrid
-    def __init__(self, numbers, coordinates, atspecs, k=3, random_rotate=True):
+    def __init__(self, numbers, coordinates, atspecs, k=3, random_rotate=True, keep_subgrids=0):
         '''
            **Arguments:**
 
@@ -60,6 +59,13 @@ class BeckeMolGrid(BaseGrid):
 
            random_rotate
                 Flag to control random rotation of spherical grids.
+
+           keep_subgrids
+                By default, not (atomic) subgrids are stored. When set to 1,
+                atomic subgrids will be stored, but their (Lebedev-Laikov)
+                subgrids are discarded. When set to 2, the Lebedev-Laikov
+                subgrids are also stored internally. This option is mainly of
+                interest for AIM analysis.
 
            The argument atspecs may have two formats:
 
@@ -99,32 +105,26 @@ class BeckeMolGrid(BaseGrid):
         weights = np.zeros(size, float)
 
         # construct the atomic grids
-        atgrids = []
+        if keep_subgrids > 0:
+            atgrids = []
+        else:
+            atgrids = None
         offset = 0
+        radii = np.array([periodic[n].cov_radius for n in self._numbers])
         for i in xrange(len(numbers)):
             rtransform, atnlls, atsize = atspecs[i]
-            atgrid = AtomicGrid(coordinates[i], rtransform, atnlls, atsize, random_rotate, points[offset:offset+atsize])
-            atgrids.append(atgrid)
+            atgrid = AtomicGrid(coordinates[i], rtransform, atnlls, atsize,
+                                random_rotate, points[offset:offset+atsize],
+                                keep_subgrids=keep_subgrids-1)
+            weights[offset:offset+atsize] = atgrid.weights
+            becke_helper_atom(points[offset:offset+atsize], weights[offset:offset+atsize], radii, self._coordinates, i, self._k)
+            if keep_subgrids > 0:
+                atgrids.append(atgrid)
             offset += atsize
-
-        # assign partitioning weights
-        self._init_weights(atgrids, weights)
 
         # finish
         BaseGrid.__init__(self, points, weights, atgrids)
 
-    def _init_weights(self, atgrids, weights):
-        offset = 0
-        radii = np.array([periodic[n].cov_radius for n in self._numbers])
-        for i in xrange(len(atgrids)):
-            atgrid = atgrids[i]
-            atsize = atgrid.size
-            atweights = weights[offset:offset+atsize]
-
-            becke_helper_atom(atgrid.points, atweights, radii, self._coordinates, i, self._k)
-            atweights[:] *= atgrid.weights
-
-            offset += atsize
 
     def _get_numbers(self):
         '''The atomic numbers of the grid.'''

@@ -57,7 +57,8 @@ static double dist(double* p0, double* p1) {
         The grid points. row-major storate of (npoint,3) array.
 
    weights
-        The output, i.e. the Becke weights for the grid points.
+        The output, i.e. the Becke weights for the grid points. Note that the
+        becke weight is **multiplied** with the original contents of the array!
 
    natom
         The number of atoms
@@ -121,7 +122,7 @@ void becke_helper_atom(int npoint, double* points, double* weights, int natom,
         printf("nom=%f  denom=%f\n", nom, denom);
 #endif
 
-        *weights = nom/denom;
+        *weights *= nom/denom;
 
         // go to next point
         points += 3;

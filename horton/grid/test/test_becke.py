@@ -31,8 +31,8 @@ def test_becke_sum2_one():
     weights = np.random.uniform(0, 1, npoint)
     grid = BaseGrid(points, weights)
 
-    weights0 = np.zeros(npoint, float)
-    weights1 = np.zeros(npoint, float)
+    weights0 = np.ones(npoint, float)
+    weights1 = np.ones(npoint, float)
 
     radii = np.array([0.5, 0.8])
     centers = np.array([[1.2, 2.3, 0.1], [-0.4, 0.0, -2.2]])
@@ -48,9 +48,9 @@ def test_becke_sum3_one():
     weights = np.random.uniform(0, 1, npoint)
     grid = BaseGrid(points, weights)
 
-    weights0 = np.zeros(npoint, float)
-    weights1 = np.zeros(npoint, float)
-    weights2 = np.zeros(npoint, float)
+    weights0 = np.ones(npoint, float)
+    weights1 = np.ones(npoint, float)
+    weights2 = np.ones(npoint, float)
 
     radii = np.array([0.5, 0.8, 5.0])
     centers = np.array([[1.2, 2.3, 0.1], [-0.4, 0.0, -2.2], [2.2, -1.5, 0.0]])
@@ -64,18 +64,20 @@ def test_becke_sum3_one():
 def test_becke_special_points():
     radii = np.array([0.5, 0.8, 5.0])
     centers = np.array([[1.2, 2.3, 0.1], [-0.4, 0.0, -2.2], [2.2, -1.5, 0.0]])
-    weights = np.zeros(3, float)
 
+    weights = np.ones(3, float)
     becke_helper_atom(centers, weights, radii, centers, 0, 3)
     assert abs(weights[0] - 1.0) < 1e-10
     assert abs(weights[1]) < 1e-10
     assert abs(weights[2]) < 1e-10
 
+    weights = np.ones(3, float)
     becke_helper_atom(centers, weights, radii, centers, 1, 3)
     assert abs(weights[0]) < 1e-10
     assert abs(weights[1] - 1.0) < 1e-10
     assert abs(weights[2]) < 1e-10
 
+    weights = np.ones(3, float)
     becke_helper_atom(centers, weights, radii, centers, 2, 3)
     assert abs(weights[0]) < 1e-10
     assert abs(weights[1]) < 1e-10
