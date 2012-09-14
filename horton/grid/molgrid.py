@@ -39,6 +39,7 @@ __all__ = [
 class BeckeMolGrid(BaseGrid):
     '''Molecular integration grid using Becke weights'''
     # TODO: replace first two argument by system object, or at least swap order of args
+    # TODO: add keep_subgrids=False options, also in AtomicGrid
     def __init__(self, numbers, coordinates, atspecs, k=3, random_rotate=True):
         '''
            **Arguments:**
