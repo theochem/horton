@@ -183,20 +183,29 @@ class DenseExpansion(object):
         if self._energies is not None:
             grp['energies'] = self._energies
 
-    def get_nbasis(self):
+    def _get_nbasis(self):
+        '''The number of basis functions'''
+        return self._coeffs.shape[0]
+
+    nbasis = property(_get_nbasis)
+
+    def _get_nfn(self):
+        '''The number of orbitals (or functions in general)'''
         return self._coeffs.shape[1]
 
-    nbasis = property(get_nbasis)
+    nfn = property(_get_nfn)
 
-    def get_coeffs(self):
+    def _get_coeffs(self):
+        '''The matrix with the expansion coefficients'''
         return self._coeffs.view()
 
-    coeffs = property(get_coeffs)
+    coeffs = property(_get_coeffs)
 
-    def get_energies(self):
-        return self._energies.view()
+    def _get_energies(self):
+        '''The orbital energies (optional)'''
+        return self._energies
 
-    energies = property(get_energies)
+    energies = property(_get_energies)
 
     def compute_density_matrix(self, noc, dm, factor=None):
         """Compute the density matrix
@@ -260,16 +269,6 @@ class DenseOneBody(object):
         self._array = np.zeros((nbasis, nbasis), float)
         self._valid = False
 
-    def _get_valid(self):
-        '''True if the contents are up-to-date.'''
-        return self._valid
-
-    valid = property(_get_valid)
-
-    def invalidate(self):
-        '''Mark this operator as outdated.'''
-        self._valid = False
-
     @classmethod
     def from_hdf5(cls, grp, lf):
         if grp.attrs['class'] != cls.__name__:
@@ -284,10 +283,21 @@ class DenseOneBody(object):
         assert self._valid
         grp['array'] = self._array
 
-    def get_nbasis(self):
+    def _get_nbasis(self):
+        '''The number of basis functions'''
         return self._array.shape[0]
 
-    nbasis = property(get_nbasis)
+    nbasis = property(_get_nbasis)
+
+    def _get_valid(self):
+        '''True if the contents are up-to-date'''
+        return self._valid
+
+    valid = property(_get_valid)
+
+    def invalidate(self):
+        '''Mark this operator as outdated.'''
+        self._valid = False
 
     def set_element(self, i, j, value):
         self._valid = True
@@ -365,10 +375,11 @@ class DenseTwoBody(object):
     def to_hdf5(self, grp):
         grp['array'] = self._array
 
-    def get_nbasis(self):
+    def _get_nbasis(self):
+        '''The number of basis functions'''
         return self._array.shape[0]
 
-    nbasis = property(get_nbasis)
+    nbasis = property(_get_nbasis)
 
     def set_element(self, i, j, k, l, value):
         #    <ij|kl> = <ji|lk> = <kl|ij> = <lk|ji> =

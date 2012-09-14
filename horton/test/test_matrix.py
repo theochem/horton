@@ -202,3 +202,29 @@ def test_dense_one_body_iscale():
     tmp = op._array.copy()
     op.iscale(3.0)
     assert abs(op._array - 3*tmp).max() < 1e-10
+
+
+def test_dense_expansion_properties():
+    lf = DenseLinalgFactory()
+    ex = lf.create_expansion(10, 8, do_energies=False)
+    assert ex.nbasis == 10
+    assert ex.nfn == 8
+    assert ex.coeffs.shape == (10,8) # orbitals stored as columns
+    assert ex.energies is None
+
+
+def test_dense_one_body_properties():
+    lf = DenseLinalgFactory()
+    op = lf.create_one_body(3)
+    assert op.nbasis == 3
+    assert not op.valid
+    op.set_element(0, 1, 1.2)
+    assert op.valid
+    op.invalidate()
+    assert not op.valid
+
+
+def test_dense_two_body_properties():
+    lf = DenseLinalgFactory()
+    op = lf.create_two_body(3)
+    assert op.nbasis == 3
