@@ -18,21 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
+'''Package for density-based partitioning (fuzzy atoms)'''
 
-
-from horton.cache import *
-from horton.checkpoint import *
-from horton.constants import *
-from horton.context import *
-from horton.dpart import *
-from horton.gbasis import *
-from horton.grid import *
-from horton.guess import *
-from horton.hamiltonian import *
-from horton.io import *
-from horton.matrix import *
-from horton.periodic import *
-from horton.scf import *
-from horton.system import *
-from horton.units import *
-from horton.wfn import *
+from horton.dpart.base import *
+from horton.dpart.becke import *

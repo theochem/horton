@@ -80,7 +80,7 @@ class Cache(object):
     def __init__(self):
         self._store = {}
 
-    def invalidate():
+    def invalidate(self):
         self._store = {}
 
     def load(self, *key, **kwargs):
