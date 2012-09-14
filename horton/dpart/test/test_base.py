@@ -50,3 +50,10 @@ def test_base_exceptions():
         assert False
     except NotImplementedError:
         pass
+
+    grid = BeckeMolGrid(sys, (rtf, 110, 100), random_rotate=False, keep_subgrids=0)
+    try:
+        bdp = BaseDPart(grid, local=False)
+        assert False
+    except NotImplementedError:
+        pass

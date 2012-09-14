@@ -42,3 +42,18 @@ def test_becke_n2_hfs_sto3g():
     bdp.do_charges()
     assert abs(bdp['populations'] - 7).max() < 1e-4
     assert abs(bdp['charges']).max() < 1e-4
+
+def test_becke_nonlocal_lih_hf_321g():
+    fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
+    sys = System.from_file(fn_fchk)
+    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
+
+    grid1 = BeckeMolGrid(sys, (rtf, 110, 100), random_rotate=False, keep_subgrids=1)
+    bdp1 = BeckeDPart(grid1)
+
+    grid2 = BeckeMolGrid(sys, (rtf, 110, 100), random_rotate=False, keep_subgrids=0)
+    bdp2 = BeckeDPart(grid2, local=False)
+
+    bdp1.do_charges()
+    bdp2.do_charges()
+    assert abs(bdp1['charges'] - bdp2['charges']).max() < 5e-4
