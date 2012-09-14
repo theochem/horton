@@ -70,7 +70,7 @@ def test_integrate_hydrogen_1s():
     ag = AtomicGrid(center, rtf, 110, 100)
     distances = np.sqrt(((center - ag.points)**2).sum(axis=1))
     fn = np.exp(-2*distances)/np.pi
-    occupation = np.dot(fn, ag.weights)
+    occupation = ag.integrate(fn)
     assert abs(occupation - 1.0) < 1e-8
 
 

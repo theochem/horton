@@ -20,6 +20,9 @@
 #--
 
 
+from horton.grid.cext import dot_multi
+
+
 __all__ = ['BaseGrid']
 
 
@@ -72,3 +75,15 @@ class BaseGrid(object):
         return self._subgrids
 
     subgrids = property(_get_subgrids)
+
+    def integrate(self, *args):
+        '''Integrate the product of all arguments
+
+           **Arguments:**
+
+           data1, data2, ...
+                All arguments must be arrays with the same size as the number
+                of grid points. The arrays contain the functions, evaluated
+                at the grid points, that must be multiplied and integrated.
+        '''
+        return dot_multi(self.weights, *args)

@@ -242,9 +242,7 @@ def check_grid_fn(fn_fchk, use_dm, use_output_arg):
         sys.compute_density_grid(grid.points, use_dm, rhos)
     else:
         rhos = sys.compute_density_grid(grid.points, use_dm)
-    pop = np.dot(rhos, grid.weights)
-    tmp = rhos*grid.weights
-    print fn_fchk, pop, sys.wfn.nel, pop-sys.wfn.nel
+    pop = grid.integrate(rhos)
     assert abs(pop-sys.wfn.nel) < 2e-3
 
 

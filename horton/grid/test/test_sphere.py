@@ -35,14 +35,14 @@ def test_random_rotation():
 def test_sphere_int1():
     llgrid = LebedevLaikovSphereGrid(np.zeros(3, float), 1.0, 110)
     x, y, z = llgrid.points.T
-    integral = np.dot(llgrid.weights, (1+x-y+z))
+    integral = llgrid.integrate(1+x-y+z)
     assert abs(integral - 4*np.pi) < 1e-10
 
 
 def test_sphere_int2():
     llgrid = LebedevLaikovSphereGrid(np.zeros(3, float), 2.0, 110)
     x, y, z = llgrid.points.T
-    integral = np.dot(llgrid.weights, (1+x-y+z))
+    integral = llgrid.integrate(1+x-y+z)
     assert abs(integral - 4*np.pi*4) < 1e-10
 
 
@@ -50,7 +50,7 @@ def test_sphere_int3():
     center = np.random.uniform(-1, 1, 3)
     llgrid = LebedevLaikovSphereGrid(center, 2.0, 110)
     x, y, z = llgrid.points.T
-    integral = np.dot(llgrid.weights, (1+x-y+z))
+    integral = llgrid.integrate(1+x-y+z)
     check = 4*np.pi*4*(1+center[0]-center[1]+center[2])
     assert abs(integral - check) < 1e-10
 
