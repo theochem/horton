@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
 # Horton is a Density Functional Theory program.
 # Copyright (C) 2011-2012 Toon Verstraelen <Toon.Verstraelen@UGent.be>
 #
@@ -20,19 +20,25 @@
 #--
 
 
-from horton.cache import *
-from horton.checkpoint import *
-from horton.constants import *
-from horton.context import *
-from horton.dpart import *
-from horton.gbasis import *
-from horton.grid import *
-from horton.guess import *
-from horton.hamiltonian import *
-from horton.io import *
-from horton.matrix import *
-from horton.periodic import *
-from horton.scf import *
-from horton.system import *
-from horton.units import *
-from horton.wfn import *
+from horton import *
+
+
+def test_becke_n2_hfs_sto3g():
+    fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
+    sys = System.from_file(fn_fchk)
+    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
+    grid = BeckeMolGrid(sys, (rtf, 110, 100), random_rotate=False, keep_subgrids=1)
+    bdp = BeckeDPart(grid)
+    bdp.do_populations()
+    assert abs(bdp['populations'] - 7).max() < 1e-4
+    bdp.do_charges()
+    assert abs(bdp['charges']).max() < 1e-4
+    bdp.invalidate()
+    try:
+        bdp['charges']
+        assert False
+    except KeyError:
+        pass
+    bdp.do_charges()
+    assert abs(bdp['populations'] - 7).max() < 1e-4
+    assert abs(bdp['charges']).max() < 1e-4

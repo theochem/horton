@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
 # Horton is a Density Functional Theory program.
 # Copyright (C) 2011-2012 Toon Verstraelen <Toon.Verstraelen@UGent.be>
 #
@@ -18,21 +18,3 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-
-
-from horton.cache import *
-from horton.checkpoint import *
-from horton.constants import *
-from horton.context import *
-from horton.dpart import *
-from horton.gbasis import *
-from horton.grid import *
-from horton.guess import *
-from horton.hamiltonian import *
-from horton.io import *
-from horton.matrix import *
-from horton.periodic import *
-from horton.scf import *
-from horton.system import *
-from horton.units import *
-from horton.wfn import *

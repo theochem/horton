@@ -60,6 +60,8 @@ def test_cache():
     assert c.load('foo') == 5
     c.dump('foo', 4, 6)
     assert c.load('foo', 4) == 6
+    c.invalidate()
+    assert len(c._store) == 0
 
 
 def test_cache_newshape1():
