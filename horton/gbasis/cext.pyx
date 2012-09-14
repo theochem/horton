@@ -462,7 +462,8 @@ cdef class GOBasis(GBasis):
         assert points.flags['C_CONTIGUOUS']
         assert points.shape[0] == npoint
         assert points.shape[1] == 3
-        (<gbasis.GOBasis*>self._this).compute_density_grid_dm(<double*>dmar.data, npoint, <double*>points.data, <double*>rhos.data)
+        (<gbasis.GOBasis*>self._this).compute_density_grid_dm(
+            <double*>dmar.data, npoint, <double*>points.data, <double*>rhos.data)
 
     def compute_density_grid_orb(self, expansion, long nocc, double scale, np.ndarray[double, ndim=2] points, np.ndarray[double, ndim=1] rhos):
         '''compute_density_grid_dm(dm, points, rho)
@@ -496,8 +497,47 @@ cdef class GOBasis(GBasis):
         assert points.flags['C_CONTIGUOUS']
         assert points.shape[0] == npoint
         assert points.shape[1] == 3
-        (<gbasis.GOBasis*>self._this).compute_density_grid_orb(<double*>orbs.data, nocc, norb, scale, npoint, <double*>points.data, <double*>rhos.data)
+        (<gbasis.GOBasis*>self._this).compute_density_grid_orb(
+            <double*>orbs.data, nocc, norb, scale, npoint, <double*>points.data,
+            <double*>rhos.data)
 
+    def compute_grid_one_body(self, np.ndarray[double, ndim=2] points,
+                                    np.ndarray[double, ndim=1] weights,
+                                    np.ndarray[double, ndim=1] pots, one_body):
+        '''compute_grid_one_body(points, weights, pots, one_body)
+
+           Compute a one-body operator based on potential grid data in real-space
+
+           **Arguments:**
+
+           points
+                A Numpy array with grid points, shape (npoint,3).
+
+           weights
+                A Numpy array with integration weights, shape (npoint,).
+
+           pots
+                A Numpy array with potential data, shape (npoint,).
+
+           one_body
+                A one-body operator. For now, this must be a DenseOneBody
+                object.
+
+           **Warning:** the results are added to the one_body object!
+        '''
+        cdef np.ndarray output = one_body._array
+        self.check_matrix_one_body(output)
+        assert points.flags['C_CONTIGUOUS']
+        npoint = points.shape[0]
+        assert points.shape[1] == 3
+        assert weights.flags['C_CONTIGUOUS']
+        assert npoint == weights.shape[0]
+        assert pots.flags['C_CONTIGUOUS']
+        assert npoint == pots.shape[0]
+        (<gbasis.GOBasis*>self._this).compute_grid_one_body(
+            npoint, <double*>points.data, <double*>weights.data,
+            <double*>pots.data, <double*>output.data)
+        one_body._valid = True
 
 #
 # ints wrappers (for testing only)

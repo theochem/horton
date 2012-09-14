@@ -286,3 +286,33 @@ void GOBasis::compute_density_grid_orb(double* orbs, long nocc, long norb, doubl
         points += 3;
     }
 }
+
+void GOBasis::compute_grid_one_body(long npoint, double* points, double* weights, double* pots, double* output) {
+    double basis_fns[get_nbasis()];
+    GB1GridFn grid_fn = GB1GridFn(get_max_shell_type());
+
+    for (long ipoint=0; ipoint<npoint; ipoint++) {
+
+        // A) clear the basis functions.
+        for (long ibasis=0; ibasis<get_nbasis(); ibasis++) {
+            basis_fns[ibasis] = 0.0;
+        }
+
+        // B) evaluate the basis functions in the current point.
+        compute_grid(basis_fns, points, &grid_fn);
+
+        // C) Add the contribution from this grid point to the operator
+        double tmp0 = (*weights)*(*pots);
+        for (long ibasis0=0; ibasis0<get_nbasis(); ibasis0++) {
+            double tmp1 = tmp0*basis_fns[ibasis0];
+            for (long ibasis1=0; ibasis1<get_nbasis(); ibasis1++) {
+                output[ibasis1*get_nbasis()+ibasis0] += tmp1*basis_fns[ibasis1];
+            }
+        }
+
+        // D) Prepare for next iteration
+        points += 3;
+        weights++;
+        pots++;
+    }
+}
