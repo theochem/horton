@@ -67,7 +67,6 @@ class Hamiltonian(object):
 
            The total energy, including nuclear-nuclear repulsion.
         '''
-        # TODO: store all sorts of energies in system object and checkpoint file
         total = 0.0
         self.system.update_dms()
         dm_alpha = self.system.dms.get('alpha')
@@ -121,24 +120,38 @@ class HamiltonianTerm(object):
         raise NotImplementedError
 
 
-class KineticEnergy(HamiltonianTerm):
+class FixedTerm(HamiltonianTerm):
+    '''Base class for all terms that are linear in the density matrix
+
+       This is (technically) a special class because the Fock operator does not
+       have to be recomputed when the density matrix changes.
+    '''
+    def get_operator(self, system):
+        # should return: the operator and a suffix for the energy_* property.
+        raise NotImplementedError
+
     def prepare_system(self, system):
         HamiltonianTerm.prepare_system(self, system)
-        self.kinetic = system.get_kinetic()
+        self.operator, self.suffix = self.get_operator(system)
 
     def compute_energy(self, dm_alpha, dm_beta, dm_full):
         if dm_beta is None:
-            result = 2*self.kinetic.expectation_value(dm_alpha)
+            result = 2*self.operator.expectation_value(dm_alpha)
         else:
-            result = self.kinetic.expectation_value(dm_full)
-        self.system._props['energy_kin'] = result
+            result = self.operator.expectation_value(dm_full)
+        self.system._props['energy_%s' % self.suffix] = result
         return result
 
 
     def add_fock_matrix(self, dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta):
         for fock in fock_alpha, fock_beta:
             if fock is not None:
-                fock.iadd(self.kinetic, 1)
+                fock.iadd(self.operator, 1)
+
+
+class KineticEnergy(FixedTerm):
+    def get_operator(self, system):
+        return system.get_kinetic(), 'kin'
 
 
 class Hartree(HamiltonianTerm):
@@ -223,21 +236,8 @@ class HartreeFock(Hartree):
             fock_beta.iadd(self.exchange_beta, -self.fraction_exchange)
 
 
-# TODO: derive from common base class with kinetic energy
-class ExternalPotential(HamiltonianTerm):
-    def prepare_system(self, system):
-        HamiltonianTerm.prepare_system(self, system)
-        self.nuclear_attraction = system.get_nuclear_attraction()
-
-    def compute_energy(self, dm_alpha, dm_beta, dm_full):
-        if dm_beta is None:
-            result = -2*self.nuclear_attraction.expectation_value(dm_alpha)
-        else:
-            result = -self.nuclear_attraction.expectation_value(dm_full)
-        self.system._props['energy_ne'] = result
-        return result
-
-    def add_fock_matrix(self, dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta):
-        for fock in fock_alpha, fock_beta:
-            if fock is not None:
-                fock.iadd(self.nuclear_attraction, -1)
+class ExternalPotential(FixedTerm):
+    def get_operator(self, system):
+        tmp = system.get_nuclear_attraction()
+        tmp.iscale(-1)
+        return tmp, 'ne'
