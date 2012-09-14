@@ -20,6 +20,7 @@
 #--
 
 
+from horton.cache import *
 from horton.checkpoint import *
 from horton.constants import *
 from horton.context import *
