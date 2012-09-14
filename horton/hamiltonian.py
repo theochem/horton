@@ -22,6 +22,8 @@
 
 import numpy as np
 
+from horton.cache import Cache
+
 
 __all__ = [
     'Hamiltonian', 'HamiltonianTerm', 'KineticEnergy', 'ExternalPotential',
@@ -30,11 +32,34 @@ __all__ = [
 
 
 class Hamiltonian(object):
-    def __init__(self, system, terms):
-        self.system = system
-        self.terms = list(terms)
+    def __init__(self, system, terms, grid=None):
+        '''
+           **Arguments:**
+
+           system
+                The System object for which the energy must be computed.
+
+           terms
+                The terms in the Hamiltonian. Kinetic energy and external
+                potential (nuclei) are added automatically.
+
+           **Optional arguments:**
+
+           grid
+                The integration grid, in case some terms need one.
+        '''
+        # check arguments:
         if len(terms) == 0:
             raise ValueError('At least one term must be present in the Hamiltonian.')
+        for term in terms:
+            if term.require_grid and grid is None:
+                raise TypeError('The term %s requires a grid, but not grid is given.' % term)
+
+        # Assign attributes
+        self.system = system
+        self.terms = list(terms)
+        self.grid = grid
+
         # Add standard terms if missing
         #  1) Kinetic energy
         if sum(isinstance(term, KineticEnergy) for term in terms) == 0:
@@ -45,9 +70,14 @@ class Hamiltonian(object):
         #  3) External Potential
         if sum(isinstance(term, ExternalPotential) for term in terms) == 0:
             self.terms.append(ExternalPotential())
+
+        # Create a cache for shared intermediate results.
+        self.cache = Cache()
+
         # Pre-compute stuff
         for term in self.terms:
-            term.prepare_system(self.system)
+            term.prepare_system(self.system, self.cache, self.grid)
+
         # Compute overlap matrix
         self.overlap = system.get_overlap()
 
@@ -58,6 +88,7 @@ class Hamiltonian(object):
            and density matrices as outdated. They are recomputed as they are
            needed.
         '''
+        self.cache.invalidate()
         for dm in self.system.dms.itervalues():
             dm.invalidate()
         for term in self.terms:
@@ -110,11 +141,22 @@ class Hamiltonian(object):
 
 
 class HamiltonianTerm(object):
-    def prepare_system(self, system):
+    require_grid = False
+    def prepare_system(self, system, cache, grid):
         self.system = system
+        self.cache = cache
+        self.grid = grid
 
     def invalidate_derived(self):
         pass
+
+    # Generic update routines that may be useful to various base classes
+    def update_rho(self, select):
+        rho, new = self.cache.load('rho_%s' % select, newshape=self.grid.size)
+        if new:
+            self.system.compute_density_grid(self.grid.points, rhos=rho, select=select)
+        return rho
+
 
     def compute_energy(self, dm_alpha, dm_beta, dm_full):
         raise NotImplementedError
@@ -130,11 +172,11 @@ class FixedTerm(HamiltonianTerm):
        have to be recomputed when the density matrix changes.
     '''
     def get_operator(self, system):
-        # should return: the operator and a suffix for the energy_* property.
+        # subclasses should return the operator and a suffix for the energy_* property.
         raise NotImplementedError
 
-    def prepare_system(self, system):
-        HamiltonianTerm.prepare_system(self, system)
+    def prepare_system(self, system, cache, grid):
+        HamiltonianTerm.prepare_system(self, system, cache, grid)
         self.operator, self.suffix = self.get_operator(system)
 
     def compute_energy(self, dm_alpha, dm_beta, dm_full):
@@ -144,7 +186,6 @@ class FixedTerm(HamiltonianTerm):
             result = self.operator.expectation_value(dm_full)
         self.system._props['energy_%s' % self.suffix] = result
         return result
-
 
     def add_fock_matrix(self, dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta):
         for fock in fock_alpha, fock_beta:
@@ -165,8 +206,8 @@ class ExternalPotential(FixedTerm):
 
 
 class Hartree(HamiltonianTerm):
-    def prepare_system(self, system):
-        HamiltonianTerm.prepare_system(self, system)
+    def prepare_system(self, system, cache, grid):
+        HamiltonianTerm.prepare_system(self, system, cache, grid)
         self.electron_repulsion = system.get_electron_repulsion()
         self.coulomb = system.lf.create_one_body(system.obasis.nbasis)
 
@@ -206,8 +247,8 @@ class HartreeFock(Hartree):
     def __init__(self, fraction_exchange=1.0):
         self.fraction_exchange = fraction_exchange
 
-    def prepare_system(self, system):
-        Hartree.prepare_system(self, system)
+    def prepare_system(self, system, cache, grid):
+        Hartree.prepare_system(self, system, cache, grid)
         self.exchange_alpha = system.lf.create_one_body(system.obasis.nbasis)
         if not system.wfn.closed_shell:
             self.exchange_beta = system.lf.create_one_body(system.obasis.nbasis)
@@ -248,7 +289,9 @@ class HartreeFock(Hartree):
 
 class DiracExchange(HamiltonianTerm):
     '''A (for now naive) implementation of the Dirac Exchange Functional'''
-    def __init__(self, grid, coeff=None):
+
+    require_grid = True
+    def __init__(self, coeff=None):
         '''
            **Arguments:**
 
@@ -265,55 +308,50 @@ class DiracExchange(HamiltonianTerm):
             self.coeff = 3.0/4.0*(3.0/np.pi)**(1.0/3.0)
         else:
             self.coeff = coeff
+        self.derived_coeff = -self.coeff*(4.0/3.0)*2**(1.0/3.0)
 
-        # TODO: Internal stuff that should be handled by an over-coupling grid caching class.
-        #       Also the grid argument of the constructor should go there.
-        self.grid = grid
-        self.grid_valid = False
-
-    def prepare_system(self, system):
-        HamiltonianTerm.prepare_system(self, system)
-        self.exchange_alpha = system.lf.create_one_body(system.obasis.nbasis)
-        self.rho_alpha = np.zeros(self.grid.size) # to cache
-        self.pot_alpha = np.zeros(self.grid.size)
-        #self.edens_alpha = np.zeros(grid.size)
+    def prepare_system(self, system, cache, grid):
+        HamiltonianTerm.prepare_system(self, system, cache, grid)
+        self.exchange = {}
+        self.exchange['alpha'] = system.lf.create_one_body(system.obasis.nbasis)
         if not self.system.wfn.closed_shell:
-            self.exchange_beta = system.lf.create_one_body(system.obasis.nbasis)
-            self.rho_beta = np.zeros(self.grid.size) # to cache
-            self.pot_beta = np.zeros(self.grid.size)
-            #self.edens_beta = np.zeros(grid.size)
+            self.exchange['beta'] = system.lf.create_one_body(system.obasis.nbasis)
 
     def invalidate_derived(self):
-        self.grid_valid = False
-        self.exchange_alpha.invalidate()
-        if not self.system.wfn.closed_shell:
-            self.exchange_beta.invalidate()
+        for exchange in self.exchange.itervalues():
+            exchange.invalidate()
 
     def _update_exchange(self, dm_alpha, dm_beta, dm_full):
         '''Recompute the Exchange operator(s) if invalid'''
-        # update grids
-        if not self.grid_valid:
-            tmp = -self.coeff*(4.0/3.0)*2**(1.0/3.0)
-            self.rho_alpha[:] = 0.0
-            self.system.compute_density_grid(self.grid.points, rhos=self.rho_alpha, select='alpha') # to cache
-            self.pot_alpha[:] = tmp*self.rho_alpha**(1.0/3.0)
-            if not self.system.wfn.closed_shell:
-                self.rho_beta[:] = 0.0
-                self.system.compute_density_grid(self.grid.points, rhos=self.rho_beta, select='beta') # to cache
-                self.pot_beta[:] = tmp*self.rho_beta**(1.0/3.0)
-        # update operators
-        if not self.exchange_alpha.valid:
-            self.exchange_alpha.reset()
-            self.system.compute_grid_one_body(self.grid.points, self.grid.weights, self.pot_alpha, self.exchange_alpha)
-        if not self.system.wfn.closed_shell and not self.exchange_beta.valid:
-            self.exchange_beta.reset()
-            self.system.compute_grid_one_body(self.grid.points, self.grid.weights, self.pot_beta, self.exchange_beta)
+        def helper(select):
+            # update grid stuff
+            rho = self.update_rho(select)
+            pot, new = self.cache.load('pot_exchange_dirac_%s' % select, newshape=self.grid.size)
+            if new:
+                pot[:] = self.derived_coeff*rho**(1.0/3.0)
+
+            # update operator stuff
+            # TODO: move operators to cache.
+            exchange = self.exchange[select]
+            if not exchange.valid:
+                exchange.reset()
+                self.system.compute_grid_one_body(self.grid.points, self.grid.weights, pot, exchange)
+
+        helper('alpha')
+        if not self.system.wfn.closed_shell:
+            helper('beta')
 
     def compute_energy(self, dm_alpha, dm_beta, dm_full):
         self._update_exchange(dm_alpha, dm_beta, dm_full)
-        energy = self.grid.integrate(self.pot_alpha, self.rho_alpha)
+
+        def helper(select):
+            pot = self.cache.load('pot_exchange_dirac_%s' % select)
+            rho = self.cache.load('rho_%s' % select)
+            return self.grid.integrate(pot, rho)
+
+        energy = helper('alpha')
         if not self.system.wfn.closed_shell:
-            energy += self.grid.integrate(self.pot_beta, self.rho_beta)
+            energy += helper('beta')
         else:
             energy *= 2
         energy *= 3.0/4.0
@@ -322,6 +360,6 @@ class DiracExchange(HamiltonianTerm):
 
     def add_fock_matrix(self, dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta):
         self._update_exchange(dm_alpha, dm_beta, dm_full)
-        fock_alpha.iadd(self.exchange_alpha)
+        fock_alpha.iadd(self.exchange['alpha'])
         if fock_beta is not None:
-            fock_beta.iadd(self.exchange_beta)
+            fock_beta.iadd(self.exchange['beta'])
