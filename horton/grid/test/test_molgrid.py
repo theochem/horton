@@ -28,12 +28,13 @@ from horton import *
 
 def test_integrate_hydrogen_single_1s():
     numbers = np.array([1], int)
-    centers = np.array([[0.0, 0.0, -0.5]], float)
+    coordinates = np.array([[0.0, 0.0, -0.5]], float)
+    sys = System(coordinates, numbers)
     rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
     atspecs = (rtf, 110, 100)
 
-    mg = BeckeMolGrid(numbers, centers, atspecs, random_rotate=False)
-    dist0 = np.sqrt(((centers[0] - mg.points)**2).sum(axis=1))
+    mg = BeckeMolGrid(sys, atspecs, random_rotate=False)
+    dist0 = np.sqrt(((coordinates[0] - mg.points)**2).sum(axis=1))
     fn = np.exp(-2*dist0)/np.pi
     occupation = np.dot(fn, mg.weights)
     assert abs(occupation - 1.0) < 1e-3
@@ -41,13 +42,14 @@ def test_integrate_hydrogen_single_1s():
 
 def test_integrate_hydrogen_pair_1s():
     numbers = np.array([1, 1], int)
-    centers = np.array([[0.0, 0.0, -0.5], [0.0, 0.0, 0.5]], float)
+    coordinates = np.array([[0.0, 0.0, -0.5], [0.0, 0.0, 0.5]], float)
+    sys = System(coordinates, numbers)
     rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
     atspecs = (rtf, 110, 100)
 
-    mg = BeckeMolGrid(numbers, centers, atspecs, random_rotate=False)
-    dist0 = np.sqrt(((centers[0] - mg.points)**2).sum(axis=1))
-    dist1 = np.sqrt(((centers[1] - mg.points)**2).sum(axis=1))
+    mg = BeckeMolGrid(sys, atspecs, random_rotate=False)
+    dist0 = np.sqrt(((coordinates[0] - mg.points)**2).sum(axis=1))
+    dist1 = np.sqrt(((coordinates[1] - mg.points)**2).sum(axis=1))
     fn = np.exp(-2*dist0)/np.pi + np.exp(-2*dist1)/np.pi
     occupation = np.dot(fn, mg.weights)
     assert abs(occupation - 2.0) < 1e-3
@@ -55,14 +57,15 @@ def test_integrate_hydrogen_pair_1s():
 
 def test_integrate_hydrogen_trimer_1s():
     numbers = np.array([1, 1, 1], int)
-    centers = np.array([[0.0, 0.0, -0.5], [0.0, 0.0, 0.5], [0.0, 0.5, 0.0]], float)
+    coordinates = np.array([[0.0, 0.0, -0.5], [0.0, 0.0, 0.5], [0.0, 0.5, 0.0]], float)
+    sys = System(coordinates, numbers)
     rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
     atspecs = (rtf, 110, 100)
 
-    mg = BeckeMolGrid(numbers, centers, atspecs, random_rotate=False)
-    dist0 = np.sqrt(((centers[0] - mg.points)**2).sum(axis=1))
-    dist1 = np.sqrt(((centers[1] - mg.points)**2).sum(axis=1))
-    dist2 = np.sqrt(((centers[2] - mg.points)**2).sum(axis=1))
+    mg = BeckeMolGrid(sys, atspecs, random_rotate=False)
+    dist0 = np.sqrt(((coordinates[0] - mg.points)**2).sum(axis=1))
+    dist1 = np.sqrt(((coordinates[1] - mg.points)**2).sum(axis=1))
+    dist2 = np.sqrt(((coordinates[2] - mg.points)**2).sum(axis=1))
     fn = np.exp(-2*dist0)/np.pi + np.exp(-2*dist1)/np.pi + np.exp(-2*dist2)/np.pi
     occupation = np.dot(fn, mg.weights)
     assert abs(occupation - 3.0) < 1e-3
@@ -71,16 +74,16 @@ def test_integrate_hydrogen_trimer_1s():
 def test_molgrid_attrs_2_subgrid():
     numbers = np.array([6, 8], int)
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
+    sys = System(coordinates, numbers)
     rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
     atspecs = (rtf, 110, 100)
-    mg = BeckeMolGrid(numbers, coordinates, atspecs, keep_subgrids=2)
+    mg = BeckeMolGrid(sys, atspecs, keep_subgrids=2)
 
     assert mg.size == 2*110*100
     assert mg.points.shape == (mg.size, 3)
     assert mg.weights.shape == (mg.size,)
     assert len(mg.subgrids) == 2
-    assert (mg.numbers == numbers).all()
-    assert (mg.coordinates == coordinates).all()
+    assert mg.system == sys
     assert len(mg.atspecs) == 2
     assert mg.k == 3
     assert mg.random_rotate
@@ -120,16 +123,16 @@ def test_molgrid_attrs_2_subgrid():
 def test_molgrid_attrs_1_subgrid():
     numbers = np.array([6, 8], int)
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
+    sys = System(coordinates, numbers)
     rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
     atspecs = (rtf, 110, 100)
-    mg = BeckeMolGrid(numbers, coordinates, atspecs, keep_subgrids=1)
+    mg = BeckeMolGrid(sys, atspecs, keep_subgrids=1)
 
     assert mg.size == 2*110*100
     assert mg.points.shape == (mg.size, 3)
     assert mg.weights.shape == (mg.size,)
     assert len(mg.subgrids) == 2
-    assert (mg.numbers == numbers).all()
-    assert (mg.coordinates == coordinates).all()
+    assert mg.system == sys
     assert len(mg.atspecs) == 2
     assert mg.k == 3
     assert mg.random_rotate
@@ -156,16 +159,16 @@ def test_molgrid_attrs_1_subgrid():
 def test_molgrid_attrs_0_subgrid():
     numbers = np.array([6, 8], int)
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
+    sys = System(coordinates, numbers)
     rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
     atspecs = (rtf, 110, 100)
-    mg = BeckeMolGrid(numbers, coordinates, atspecs, keep_subgrids=0)
+    mg = BeckeMolGrid(sys, atspecs, keep_subgrids=0)
 
     assert mg.size == 2*110*100
     assert mg.points.shape == (mg.size, 3)
     assert mg.weights.shape == (mg.size,)
     assert mg.subgrids is None
-    assert (mg.numbers == numbers).all()
-    assert (mg.coordinates == coordinates).all()
+    assert mg.system == sys
     assert len(mg.atspecs) == 2
     assert mg.k == 3
     assert mg.random_rotate

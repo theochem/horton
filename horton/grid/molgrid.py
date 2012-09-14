@@ -38,16 +38,12 @@ __all__ = [
 
 class BeckeMolGrid(BaseGrid):
     '''Molecular integration grid using Becke weights'''
-    # TODO: replace first two argument by system object, or at least swap order of args
-    def __init__(self, numbers, coordinates, atspecs, k=3, random_rotate=True, keep_subgrids=0):
+    def __init__(self, system, atspecs, k=3, random_rotate=True, keep_subgrids=0):
         '''
            **Arguments:**
 
-           numbers
-                An array with atomic numbers
-
-           coordinates
-                An array with the atomic positions.
+           system
+                The System object for which the molecular grid must be made.
 
            atspecs
                 A specifications of the atomic grids. (See below.)
@@ -82,20 +78,11 @@ class BeckeMolGrid(BaseGrid):
              one for each atom. The length of this list must equal the number of
              atoms.
         '''
-        if len(numbers.shape) != 1 or numbers.dtype != int:
-            raise TypeError('Numbers must be a 1D array of integers.')
-        natom = len(numbers)
-        if numbers.min() < 0 or numbers.max() > len(periodic.elements)-1:
-            raise ValueError('Atomic numbers are out of range.')
-        if len(coordinates.shape) != 2 or coordinates.shape[0] != natom or coordinates.shape[1] != 3:
-            raise TypeError('The array of coordinates is not compatible with the array of atomic numbers.')
-
         # transform atspecs into usable format
-        size, atspecs = get_mol_grid_size(atspecs, natom)
+        size, atspecs = get_mol_grid_size(atspecs, system.natom)
 
         # assign attributes
-        self._numbers = numbers
-        self._coordinates = coordinates
+        self._system = system
         self._atspecs = atspecs
         self._k = k
         self._random_rotate = random_rotate
@@ -110,14 +97,14 @@ class BeckeMolGrid(BaseGrid):
         else:
             atgrids = None
         offset = 0
-        radii = np.array([periodic[n].cov_radius for n in self._numbers])
-        for i in xrange(len(numbers)):
+        radii = np.array([periodic[n].cov_radius for n in system.numbers])
+        for i in xrange(len(radii)):
             rtransform, atnlls, atsize = atspecs[i]
-            atgrid = AtomicGrid(coordinates[i], rtransform, atnlls, atsize,
+            atgrid = AtomicGrid(system.coordinates[i], rtransform, atnlls, atsize,
                                 random_rotate, points[offset:offset+atsize],
                                 keep_subgrids=keep_subgrids-1)
             weights[offset:offset+atsize] = atgrid.weights
-            becke_helper_atom(points[offset:offset+atsize], weights[offset:offset+atsize], radii, self._coordinates, i, self._k)
+            becke_helper_atom(points[offset:offset+atsize], weights[offset:offset+atsize], radii, system.coordinates, i, self._k)
             if keep_subgrids > 0:
                 atgrids.append(atgrid)
             offset += atsize
@@ -125,12 +112,11 @@ class BeckeMolGrid(BaseGrid):
         # finish
         BaseGrid.__init__(self, points, weights, atgrids)
 
+    def _get_system(self):
+        '''The system object for which this grid is made.'''
+        return self._system
 
-    def _get_numbers(self):
-        '''The atomic numbers of the grid.'''
-        return self._numbers
-
-    numbers = property(_get_numbers)
+    system = property(_get_system)
 
     def _get_coordinates(self):
         '''The coordinates of the grid.'''
