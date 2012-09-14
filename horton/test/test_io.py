@@ -90,6 +90,15 @@ def test_load_operators_water_ccpvdz_pure_hf_g03():
     assert abs(electronic_repulsion.get_element(15,2,12,0) - (-0.0000308196281033)) < eps
 
 
+def test_load_fchk_nonexistent():
+    lf = DenseLinalgFactory()
+    try:
+        load_fchk(context.get_fn('test/fubar_crap.fchk'), lf)
+        assert False
+    except IOError:
+        pass
+
+
 def test_load_fchk_hf_sto3g_num():
     lf = DenseLinalgFactory()
     coordinates, numbers, obasis, wfn, permutation, props = load_fchk(context.get_fn('test/hf_sto3g.fchk'), lf)
