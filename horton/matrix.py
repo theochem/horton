@@ -207,6 +207,26 @@ class DenseExpansion(object):
 
     energies = property(_get_energies)
 
+    def check_normalization(self, olp, nocc, eps=1e-4):
+        '''Run an internal test to see if the orbitals are normalized
+
+           **Arguments:**
+
+           olp
+                The overlap one_body operators
+
+           nocc
+                The number of orbitals to check, i.e. those that are occupied.
+
+           **Optional arguments:**
+
+           eps
+                The allowed deviation from unity, very loose by default.
+        '''
+        for i in xrange(nocc):
+            norm = olp.dot(self._coeffs[:,i], self._coeffs[:,i])
+            assert abs(norm-1) < eps, 'The orbitals are not normalized!'
+
     def compute_density_matrix(self, noc, dm, factor=None):
         """Compute the density matrix
 

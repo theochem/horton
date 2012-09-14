@@ -103,6 +103,22 @@ class BaseWFN(object):
         for expansion, nocc, scale in self.iter_expansions(select):
             expansion.compute_density_matrix(nocc, dm, factor=scale)
 
+    def check_normalization(self, olp, eps=1e-4):
+        '''Run an internal test to see if the orbitals are normalized
+
+           **Arguments:**
+
+           olp
+                The overlap one_body operators
+
+           **Optional arguments:**
+
+           eps
+                The allowed deviation from unity, very loose by default.
+        '''
+        for expansion, nocc, scale in self.iter_expansions('full'):
+            expansion.check_normalization(olp, nocc, eps)
+
 
 class ClosedShellWFN(BaseWFN):
     closed_shell = True
