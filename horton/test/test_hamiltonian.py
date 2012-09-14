@@ -171,3 +171,16 @@ def test_fock_h3_hfs_321g():
     assert abs(sys.props['energy_hartree'] + sys.props['energy_exchange_dirac'] - 1.658810998195E+00) < 1e-6
     assert abs(sys.props['energy'] - -1.412556114057104E+00) < 1e-5
     assert abs(sys.props['energy_nn'] - 1.8899186021) < 1e-8
+
+
+def test_hf_water_321g_mistake():
+    fn_xyz = context.get_fn('test/water.xyz')
+    sys = System.from_file(fn_xyz, obasis='3-21G')
+    sys.init_wfn(charge=0)
+    ham = Hamiltonian(sys, [HartreeFock()])
+    try:
+        converge_scf(ham)
+        success = False
+    except AssertionError:
+        success = True
+    assert success

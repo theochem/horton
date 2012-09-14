@@ -35,7 +35,7 @@ setup(
     url='http://molmod.ugent.be/code/',
     package_dir = {'horton': 'horton'},
     packages=['horton', 'horton/test',
-              'horton/dpart', 'horton/dpart/dpart',
+              'horton/dpart', 'horton/dpart/test',
               'horton/grid', 'horton/grid/test',
               'horton/gbasis', 'horton/gbasis/test'],
     cmdclass = {'build_ext': build_ext},
