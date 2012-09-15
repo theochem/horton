@@ -24,10 +24,10 @@
 from horton.wfn import ClosedShellWFN, OpenShellWFN
 
 
-__all__ = ['guess_hamiltionian_core']
+__all__ = ['guess_hamiltonian_core']
 
 
-def guess_hamiltionian_core(system):
+def guess_hamiltonian_core(system):
     if isinstance(system.wfn, ClosedShellWFN):
         guess_hamiltonian_core_cs(system)
     elif isinstance(system.wfn, OpenShellWFN):

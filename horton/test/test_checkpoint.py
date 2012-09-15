@@ -227,7 +227,7 @@ def test_chk_guess_scf_cs():
     fn_fchk = context.get_fn('test/hf_sto3g.fchk')
     sys = System.from_file(fn_fchk, chk=chk)
 
-    guess_hamiltionian_core(sys)
+    guess_hamiltonian_core(sys)
     c = sys.wfn.expansion._coeffs
     e = sys.wfn.expansion._energies
     del sys
@@ -264,7 +264,7 @@ def test_chk_guess_scf_os():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     sys = System.from_file(fn_fchk, chk=chk)
 
-    guess_hamiltionian_core(sys)
+    guess_hamiltonian_core(sys)
     ac = sys.wfn.alpha_expansion._coeffs
     bc = sys.wfn.beta_expansion._coeffs
     ae = sys.wfn.alpha_expansion._energies

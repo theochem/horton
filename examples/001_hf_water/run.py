@@ -9,7 +9,7 @@ print 'Initializing wavefuntion'
 sys.init_wfn(charge=0)
 
 print 'Constructing initial guess'
-guess_hamiltionian_core(sys)
+guess_hamiltonian_core(sys)
 
 print 'Constructing Hamiltonian'
 ham = Hamiltonian(sys, [HartreeFock()])

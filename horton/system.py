@@ -201,7 +201,7 @@ class System(object):
     props = property(_get_props)
 
     def _get_chk(self):
-        '''A ``h5py.File`` instance used as checkpoint file or ``None``'''
+        '''A ``h5.File`` instance used as checkpoint file or ``None``'''
         return self._chk
 
     chk = property(_get_chk)
@@ -353,6 +353,7 @@ class System(object):
             #self.update_chk('operators.er')
         return electron_repulsion
 
+    # TODO: Fix lame method name.
     def compute_density_grid(self, points, use_dm=False, rhos=None, select='full'):
         '''Compute the electron density on a grid
 
@@ -403,6 +404,7 @@ class System(object):
         self._props['energy_nn'] = result
         return result
 
+    # TODO: Fix lame method name.
     def compute_grid_one_body(self, points, weights, pots, one_body):
         '''See documentation self.obasis.compute_grid_one_body'''
         self.obasis.compute_grid_one_body(points, weights, pots, one_body)

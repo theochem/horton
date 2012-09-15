@@ -27,6 +27,8 @@
 
 import numpy as np
 
+from horton.exceptions import ElectronCountError
+
 
 __all__ = ['BaseWFN', 'ClosedShellWFN', 'OpenShellWFN']
 
@@ -146,9 +148,9 @@ class ClosedShellWFN(BaseWFN):
         self._nep = nep
 
         if self.nep <= 0:
-            raise ValueError('At least one pair of electrons is required.')
+            raise ElectronCountError('At least one pair of electrons is required.')
         if self.nbasis < self.nep:
-            raise ValueError('The number of spatial basis functions must not be lower than the number of electron pairs.')
+            raise ElectronCountError('The number of spatial basis functions must not be lower than the number of electron pairs.')
 
         self._expansion = lf.create_expansion(self.nbasis, self.norb, do_energies=True)
 
@@ -246,11 +248,11 @@ class OpenShellWFN(BaseWFN):
         self._nbeta = nbeta
 
         if self.nalpha < 0 or self.nbeta < 0:
-            raise ValueError('Negative number of electrons is not allowed.')
+            raise ElectronCountError('Negative number of electrons is not allowed.')
         if self.nalpha == 0 and self.nbeta == 0:
-            raise ValueError('At least one alpha or beta electron is required.')
+            raise ElectronCountError('At least one alpha or beta electron is required.')
         if self.nbasis < self.nalpha or self.nbasis < self.nbeta:
-            raise ValueError('The number of spatial basis functions must not be lower than the number of alpha or beta electrons.')
+            raise ElectronCountError('The number of spatial basis functions must not be lower than the number of alpha or beta electrons.')
 
         self._alpha_expansion = lf.create_expansion(self.nbasis, self.norb, do_energies=True)
         self._beta_expansion = lf.create_expansion(self.nbasis, self.norb, do_energies=True)

@@ -106,7 +106,7 @@ def test_fock_n2_hfs_sto3g():
     assert convergence_error(ham) < 1e-5
 
     # Converge from scratch
-    guess_hamiltionian_core(sys)
+    guess_hamiltonian_core(sys)
     assert convergence_error(ham) > 1e-8
     assert converge_scf(ham)
     assert convergence_error(ham) < 1e-8
@@ -142,7 +142,7 @@ def test_fock_h3_hfs_321g():
     assert convergence_error(ham) < 1e-6
 
     # Converge from scratch
-    guess_hamiltionian_core(sys)
+    guess_hamiltonian_core(sys)
     assert convergence_error(ham) > 1e-8
     assert converge_scf(ham)
     assert convergence_error(ham) < 1e-8
