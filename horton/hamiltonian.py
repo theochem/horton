@@ -152,7 +152,7 @@ class HamiltonianTerm(object):
 
     # Generic update routines that may be useful to various base classes
     def update_rho(self, select):
-        rho, new = self.cache.load('rho_%s' % select, newshape=self.grid.size)
+        rho, new = self.cache.load('rho_%s' % select, alloc=self.grid.size)
         if new:
             self.system.compute_density_grid(self.grid.points, rhos=rho, select=select)
         return rho
@@ -326,7 +326,7 @@ class DiracExchange(HamiltonianTerm):
         def helper(select):
             # update grid stuff
             rho = self.update_rho(select)
-            pot, new = self.cache.load('pot_exchange_dirac_%s' % select, newshape=self.grid.size)
+            pot, new = self.cache.load('pot_exchange_dirac_%s' % select, alloc=self.grid.size)
             if new:
                 pot[:] = self.derived_coeff*rho**(1.0/3.0)
 
