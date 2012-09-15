@@ -30,7 +30,7 @@ def test_integrate_hydrogen_single_1s():
     numbers = np.array([1], int)
     coordinates = np.array([[0.0, 0.0, -0.5]], float)
     sys = System(coordinates, numbers)
-    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
+    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 1e1, 100)
     atspecs = (rtf, 110, 100)
 
     mg = BeckeMolGrid(sys, atspecs, random_rotate=False)
@@ -44,7 +44,7 @@ def test_integrate_hydrogen_pair_1s():
     numbers = np.array([1, 1], int)
     coordinates = np.array([[0.0, 0.0, -0.5], [0.0, 0.0, 0.5]], float)
     sys = System(coordinates, numbers)
-    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
+    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 1e1, 100)
     atspecs = (rtf, 110, 100)
 
     mg = BeckeMolGrid(sys, atspecs, random_rotate=False)
@@ -59,7 +59,7 @@ def test_integrate_hydrogen_trimer_1s():
     numbers = np.array([1, 1, 1], int)
     coordinates = np.array([[0.0, 0.0, -0.5], [0.0, 0.0, 0.5], [0.0, 0.5, 0.0]], float)
     sys = System(coordinates, numbers)
-    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
+    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 1e1, 100)
     atspecs = (rtf, 110, 100)
 
     mg = BeckeMolGrid(sys, atspecs, random_rotate=False)
@@ -75,7 +75,7 @@ def test_molgrid_attrs_2_subgrid():
     numbers = np.array([6, 8], int)
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
     sys = System(coordinates, numbers)
-    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
+    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 1e1, 100)
     atspecs = (rtf, 110, 100)
     mg = BeckeMolGrid(sys, atspecs, keep_subgrids=2)
 
@@ -124,7 +124,7 @@ def test_molgrid_attrs_1_subgrid():
     numbers = np.array([6, 8], int)
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
     sys = System(coordinates, numbers)
-    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
+    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 1e1, 100)
     atspecs = (rtf, 110, 100)
     mg = BeckeMolGrid(sys, atspecs, keep_subgrids=1)
 
@@ -160,7 +160,7 @@ def test_molgrid_attrs_0_subgrid():
     numbers = np.array([6, 8], int)
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
     sys = System(coordinates, numbers)
-    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
+    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 1e1, 100)
     atspecs = (rtf, 110, 100)
     mg = BeckeMolGrid(sys, atspecs, keep_subgrids=0)
 

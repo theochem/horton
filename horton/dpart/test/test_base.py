@@ -26,7 +26,7 @@ from horton import *
 def test_base_exceptions():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
+    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 1e1, 100)
     grid = BeckeMolGrid(sys, (rtf, 110, 100), random_rotate=False, keep_subgrids=0)
 
     try:
