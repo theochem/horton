@@ -377,9 +377,6 @@ class System(object):
                 The array with the densities. This is the same as the output
                 argument, in case it was provided.
         '''
-        # TODO: Avoid points argument by adding molgrid attribute to system class.
-        #       * Should grid data be stored in chk file? Probably not.
-        #       * after adding grid attribute, rename this to get_density_grid
         if rhos is None:
             rhos = np.zeros(len(points), float)
         elif rhos.shape != (points.shape[0],):
