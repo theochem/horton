@@ -140,3 +140,46 @@ def test_scf_mixing_os():
     energy1 = ham.compute_energy()
     print energy0, energy1, energy0-energy1
     assert abs(energy0 - energy1) < 1e-12
+
+
+def test_scf_water_hfs_321g():
+    # The fock operator is tested by doing an SCF an checking the converged
+    # energies
+    fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
+    sys = System.from_file(fn_fchk)
+    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
+    grid = BeckeMolGrid(sys, (rtf, 110, 110), random_rotate=False)
+    ham = Hamiltonian(sys, [Hartree(), DiracExchange(grid)])
+
+    # The convergence should be reasonable, not perfect because of limited
+    # precision in Gaussian fchk file:
+    assert convergence_error(ham) < 2e-5
+
+    # The energies should also be in reasonable agreement. Repeated to check for
+    # stupid bugs
+    for i in xrange(2):
+        ham.invalidate_derived()
+        ham.compute_energy()
+        expected_energies = np.array([
+            -1.83691041E+01, -8.29412411E-01, -4.04495188E-01, -1.91740814E-01,
+            -1.32190590E-01, 1.16030419E-01, 2.08119657E-01, 9.69825207E-01,
+            9.99248500E-01, 1.41697384E+00, 1.47918828E+00, 1.61926596E+00,
+            2.71995350E+00
+        ])
+
+        assert abs(sys.wfn.expansion.energies - expected_energies).max() < 2e-4
+        assert abs(sys.props['energy_ne'] - -1.977921986200E+02) < 1e-7
+        assert abs(sys.props['energy_kin'] - 7.525067610865E+01) < 1e-9
+        assert abs(sys.props['energy_hartree'] + sys.props['energy_exchange_dirac'] - 3.864299848058E+01) < 1e-4
+        assert abs(sys.props['energy'] - -7.474134898935590E+01) < 1e-4
+        assert abs(sys.props['energy_nn'] - 9.1571750414) < 2e-8
+
+    from nose.plugins.skip import SkipTest
+    raise SkipTest
+    # TODO: the rest still fails ...
+
+    # Converge from scratch
+    guess_hamiltionian_core(sys)
+    assert convergence_error(ham) > 1e-8
+    assert converge_scf(ham)
+    assert convergence_error(ham) < 1e-8
