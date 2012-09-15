@@ -118,10 +118,6 @@ class Hamiltonian(object):
            fock_alpha
                 A One-Body operator output argument for the beta fock matrix.
 
-           The density matrices in ``self.system.dms`` are used for the
-           computations, so make sure they are up to date, i.e. call
-           ``system.update_dms()`` prior to ``compute_energy``.
-
            In the case of a closed-shell computation, the argument fock_beta is
            ``None``.
         '''
@@ -140,12 +136,10 @@ class HamiltonianTerm(object):
     def update_rho(self, select):
         rho, new = self.cache.load('rho_%s' % select, alloc=self.grid.size)
         if new:
-            # TODO: check if rho is properly reset to zero
             self.system.compute_density_grid(self.grid.points, rhos=rho, select=select)
         return rho
 
-    # TODO: rethink update_* naming. it is used more like, get_* or compute_*
-    def update_dm(self, select):
+    def get_dm(self, select):
         dm, new = self.cache.load('dm_%s' % select, alloc=(self.system.lf, 'one_body', self.system.obasis.nbasis))
         if new:
             self.system.wfn.compute_density_matrix(dm, select)
@@ -174,9 +168,9 @@ class FixedTerm(HamiltonianTerm):
 
     def compute_energy(self):
         if self.system.wfn.closed_shell:
-            result = 2*self.operator.expectation_value(self.update_dm('alpha'))
+            result = 2*self.operator.expectation_value(self.get_dm('alpha'))
         else:
-            result = self.operator.expectation_value(self.update_dm('full'))
+            result = self.operator.expectation_value(self.get_dm('full'))
         self.system._props['energy_%s' % self.suffix] = result
         return result
 
@@ -208,18 +202,18 @@ class Hartree(HamiltonianTerm):
         coulomb, new = self.cache.load('op_coulomb', alloc=(self.system.lf, 'one_body', self.system.obasis.nbasis))
         if new:
             if self.system.wfn.closed_shell:
-                self.electron_repulsion.apply_direct(self.update_dm('alpha'), coulomb)
+                self.electron_repulsion.apply_direct(self.get_dm('alpha'), coulomb)
                 coulomb.iscale(2)
             else:
-                self.electron_repulsion.apply_direct(self.update_dm('full'), coulomb)
+                self.electron_repulsion.apply_direct(self.get_dm('full'), coulomb)
 
     def compute_energy(self):
         self._update_coulomb()
         coulomb = self.cache.load('op_coulomb')
         if self.system.wfn.closed_shell:
-            result = coulomb.expectation_value(self.update_dm('alpha'))
+            result = coulomb.expectation_value(self.get_dm('alpha'))
         else:
-            result = 0.5*coulomb.expectation_value(self.update_dm('full'))
+            result = 0.5*coulomb.expectation_value(self.get_dm('full'))
         self.system._props['energy_hartree'] = result
         return result
 
@@ -242,7 +236,7 @@ class HartreeFock(Hartree):
     def _update_exchange(self):
         '''Recompute the Exchange operator(s) if invalid'''
         def helper(select):
-            dm = self.update_dm(select)
+            dm = self.get_dm(select)
             exchange, new = self.cache.load('op_exchange_fock_%s' % select, alloc=(self.system.lf, 'one_body', self.system.obasis.nbasis))
             if new:
                 self.electron_repulsion.apply_exchange(dm, exchange)
@@ -255,10 +249,10 @@ class HartreeFock(Hartree):
         energy_hartree = Hartree.compute_energy(self)
         self._update_exchange()
         if self.system.wfn.closed_shell:
-            energy_fock = -self.cache.load('op_exchange_fock_alpha').expectation_value(self.update_dm('alpha'))
+            energy_fock = -self.cache.load('op_exchange_fock_alpha').expectation_value(self.get_dm('alpha'))
         else:
-            energy_fock = -0.5*self.cache.load('op_exchange_fock_alpha').expectation_value(self.update_dm('alpha')) \
-                          -0.5*self.cache.load('op_exchange_fock_beta').expectation_value(self.update_dm('beta'))
+            energy_fock = -0.5*self.cache.load('op_exchange_fock_alpha').expectation_value(self.get_dm('alpha')) \
+                          -0.5*self.cache.load('op_exchange_fock_beta').expectation_value(self.get_dm('beta'))
         self.system._props['energy_exchange_fock'] = energy_fock
         return energy_hartree + self.fraction_exchange*energy_fock
 
@@ -319,7 +313,9 @@ class DiracExchange(HamiltonianTerm):
             pot = self.cache.load('pot_exchange_dirac_%s' % select)
             rho = self.cache.load('rho_%s' % select)
             # TODO: this integral can also be written as an expectation value
-            # of the Fock operators, which is probably more efficient.
+            # of the Fock operators, which is probably more efficient. However,
+            # as it is now, this functional does not use density matrices at
+            # all, which is also appealing.
             return self.grid.integrate(pot, rho)
 
         energy = helper('alpha')
