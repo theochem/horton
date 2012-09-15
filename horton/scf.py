@@ -106,7 +106,8 @@ def converge_scf_cs(ham, max_iter=128, threshold=1e-8, mixing=0.0):
             break
         # Diagonalize the fock operator
         lf.diagonalize(fock, ham.overlap, wfn.expansion)
-        ham.invalidate_derived()
+        # Let the hamiltonian know that the wavefunction has changed.
+        ham.invalidate()
         # Write intermediate results to checkpoint
         ham.system.update_chk('wfn')
         # Take a backup copy of the Fock matrix
@@ -173,7 +174,8 @@ def converge_scf_os(ham, max_iter=128, threshold=1e-8, mixing=0.0):
         # Diagonalize the fock operators
         lf.diagonalize(fock_alpha, ham.overlap, wfn.alpha_expansion)
         lf.diagonalize(fock_beta, ham.overlap, wfn.beta_expansion)
-        ham.invalidate_derived()
+        # Let the hamiltonian know that the wavefunction has changed.
+        ham.invalidate()
         # Write intermediate results to checkpoint
         ham.system.update_chk('wfn')
         # Take backup copies of the Fock matrices.
