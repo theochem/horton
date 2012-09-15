@@ -197,10 +197,11 @@ def test_load_fchk_lih_321g_hf():
     assert abs(wfn.beta_expansion.coeffs[-1,9] - 0.80875) < 1e-4
     assert abs(wfn.beta_expansion.coeffs[4,-1] - (-0.15503)) < 1e-4
 
-    dm = lf.create_one_body(wfn.nbasis)
-    dms = lf.create_one_body(wfn.nbasis)
-    dma = lf.create_one_body(wfn.nbasis)
-    dmb = lf.create_one_body(wfn.nbasis)
+    lf.set_default_nbasis(wfn.nbasis)
+    dm = lf.create_one_body()
+    dms = lf.create_one_body()
+    dma = lf.create_one_body()
+    dmb = lf.create_one_body()
 
     wfn.compute_density_matrix(dm, 'full')
     wfn.compute_density_matrix(dms, 'spin')

@@ -26,7 +26,7 @@ from horton import *
 def test_dm_water_sto3g_hf():
     fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
     sys = System.from_file(fn_fchk)
-    dm = sys.lf.create_one_body(sys.obasis.nbasis)
+    dm = sys.lf.create_one_body()
 
     sys.wfn.compute_density_matrix(dm)
     assert abs(dm.get_element(0, 0) - 2.10503807) < 1e-7
@@ -37,7 +37,7 @@ def test_dm_water_sto3g_hf():
 def test_dm_lih_sto3g_hf():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     sys = System.from_file(fn_fchk)
-    dm = sys.lf.create_one_body(sys.obasis.nbasis)
+    dm = sys.lf.create_one_body()
 
     sys.wfn.compute_density_matrix(dm)
     assert abs(dm.get_element(0, 0) - 1.96589709) < 1e-7

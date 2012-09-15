@@ -63,13 +63,26 @@ class BaseLinalgFactory(object):
        This is just an abstract base class that serves as a template for
        specific implementations.
     """
-    def create_expansion(self, nbasis):
+    def __init__(self, default_nbasis=None):
+        '''
+           **Optional arguments:**
+
+           default_nbasis
+                The default basis size when constructing new
+                operators/expansions.
+        '''
+        self._default_nbasis = default_nbasis
+
+    def set_default_nbasis(self, nbasis):
+        self._default_nbasis = nbasis
+
+    def create_expansion(self, nbasis=None):
         raise NotImplementedError
 
-    def create_one_body(self, nbasis):
+    def create_one_body(self, nbasis=None):
         raise NotImplementedError
 
-    def create_two_body(self, nbasis):
+    def create_two_body(self, nbasis=None):
         raise NotImplementedError
 
     def error_eigen(self, ham, overlap, expansion, epsilons):
@@ -78,10 +91,10 @@ class BaseLinalgFactory(object):
     def diagonalize(self, ham, overlap, expansion, epsilons):
         raise NotImplementedError
 
-    def get_memory_one_body(self, nbasis):
+    def get_memory_one_body(self, nbasis=None):
         raise NotImplementedError
 
-    def get_memory_two_body(self, nbasis):
+    def get_memory_two_body(self, nbasis=None):
         raise NotImplementedError
 
 
@@ -125,14 +138,16 @@ class BaseOneBody(object):
 
 
 class DenseLinalgFactory(BaseLinalgFactory):
-    # TODO: add configurable default nbasis
-    def create_expansion(self, nbasis, nfn, do_energies=False):
+    def create_expansion(self, nbasis=None, nfn=None, do_energies=False):
+        nbasis = nbasis or self._default_nbasis
         return DenseExpansion(nbasis, nfn, do_energies)
 
-    def create_one_body(self, nbasis):
+    def create_one_body(self, nbasis=None):
+        nbasis = nbasis or self._default_nbasis
         return DenseOneBody(nbasis)
 
-    def create_two_body(self, nbasis):
+    def create_two_body(self, nbasis=None):
+        nbasis = nbasis or self._default_nbasis
         return DenseTwoBody(nbasis)
 
     def error_eigen(self, ham, overlap, expansion):
@@ -174,10 +189,10 @@ class DenseLinalgFactory(BaseLinalgFactory):
         expansion.coeffs[:] = evecs
         expansion.energies[:] = evals
 
-    def get_memory_one_body(self, nbasis):
+    def get_memory_one_body(self, nbasis=None):
         return nbasis**2*8
 
-    def get_memory_two_body(self, nbasis):
+    def get_memory_two_body(self, nbasis=None):
         return nbasis**4*8
 
 
@@ -186,22 +201,24 @@ class DenseExpansion(object):
        coefficients. The implementation is such that the columns of self._array
        contain the orbitals
     """
-    def __init__(self, nbasis, nfn, do_energies=False):
+    def __init__(self, nbasis, nfn=None, do_energies=False):
         """
            **Arguments:**
 
            nbasis
-                The number of basis functions
-
-           nfn
-                The number of functions to store
+                The number of basis functions.
 
            **Optional arguments:**
+
+           nfn
+                The number of functions to store. Defaults to nbasis.
 
            do_energies
                 Also allocate an array to store an energy corresponding to each
                 function.
         """
+        if nfn is None:
+            nfn = nbasis
         self._coeffs = np.zeros((nbasis, nfn), float)
         if do_energies:
             self._energies = np.zeros(nfn, float)
