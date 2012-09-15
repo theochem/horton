@@ -327,6 +327,7 @@ class DenseOneBody(BaseOneBody):
                 The number of basis functions.
         """
         self._array = np.zeros((nbasis, nbasis), float)
+        # TODO: get rid of valid stuff here
         self._valid = False
 
     @classmethod

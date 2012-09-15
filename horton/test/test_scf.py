@@ -40,10 +40,10 @@ def test_scf_cs():
             break
 
     # test operator consistency
-    coulomb = sys.lf.create_one_body(sys.obasis.nbasis)
-    hf_term.electron_repulsion.apply_direct(sys.dms['alpha'], coulomb)
-    coulomb.iscale(2)
-    error = abs(coulomb._array - hf_term.coulomb._array).max()
+    my_coulomb = sys.lf.create_one_body(sys.obasis.nbasis)
+    hf_term.electron_repulsion.apply_direct(sys.dms['alpha'], my_coulomb)
+    my_coulomb.iscale(2)
+    error = abs(my_coulomb._array - ham.cache.load('op_coulomb')._array).max()
     assert error < 1e-5
 
     # test orbital energies
@@ -55,19 +55,6 @@ def test_scf_cs():
 
     ham.compute_energy()
     # compare with g09
-    assert abs(sys.props['energy'] - -9.856961609951867E+01) < 1e-8
-    assert abs(sys.props['energy_kin'] - 9.766140786239E+01) < 2e-7
-    assert abs(sys.props['energy_hartree'] + sys.props['energy_exchange_fock'] - 4.561984106482E+01) < 1e-7
-    assert abs(sys.props['energy_ne'] - -2.465756615329E+02) < 2e-7
-    assert abs(sys.props['energy_nn'] - 4.7247965053) < 1e-8
-
-    # ugly hack:
-    hf_term.exchange_beta = hf_term.exchange_alpha
-    sys.dms['beta'] = sys.dms['alpha']
-    dm_full = sys.lf.create_one_body(sys.obasis.nbasis)
-    dm_full.iadd(sys.dms['alpha'], factor=2)
-    sys.dms['full'] = dm_full
-    ham.compute_energy()
     assert abs(sys.props['energy'] - -9.856961609951867E+01) < 1e-8
     assert abs(sys.props['energy_kin'] - 9.766140786239E+01) < 2e-7
     assert abs(sys.props['energy_hartree'] + sys.props['energy_exchange_fock'] - 4.561984106482E+01) < 1e-7
