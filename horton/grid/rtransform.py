@@ -63,6 +63,8 @@ class LogRTransform(BaseRTransform):
 
        .. math:: r_i = r_0 \\alpha^i
     '''
+
+    # TODO: change to rmin, rmax, npoint
     def __init__(self, int1d, rmin, alpha):
         '''
            **Arguments:**
