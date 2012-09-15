@@ -52,12 +52,12 @@ import numpy as np
 
 
 __all__ = [
-    'LinalgFactory', 'DenseLinalgFactory', 'DenseExpansion', 'DenseOneBody',
-    'DenseTwoBody',
+    'BaseLinalgFactory', 'BaseOneBody',
+    'DenseLinalgFactory', 'DenseExpansion', 'DenseOneBody', 'DenseTwoBody',
 ]
 
 
-class LinalgFactory(object):
+class BaseLinalgFactory(object):
     """A collection of compatible matrix and linear algebra routines.
 
        This is just an abstract base class that serves as a template for
@@ -85,7 +85,47 @@ class LinalgFactory(object):
         raise NotImplementedError
 
 
-class DenseLinalgFactory(LinalgFactory):
+class BaseOneBody(object):
+    def __init__(self, nbasis=None):
+        raise NotImplementedError
+
+    @classmethod
+    def from_hdf5(cls, grp, lf):
+        raise NotImplementedError
+
+    def to_hdf5(self, grp):
+        raise NotImplementedError
+
+    def set_element(self, i, j, value):
+        raise NotImplementedError
+
+    def get_element(self, i, j):
+        raise NotImplementedError
+
+    def reset(self):
+        raise NotImplementedError
+
+    def iadd(self, other, factor=1):
+        raise NotImplementedError
+
+    def expectation_value(self, dm):
+        raise NotImplementedError
+
+    def trace(self):
+        raise NotImplementedError
+
+    def itranspose(self):
+        raise NotImplementedError
+
+    def iscale(self, factor):
+        raise NotImplementedError
+
+    def dot(self, vec0, vec1):
+        raise NotImplementedError
+
+
+class DenseLinalgFactory(BaseLinalgFactory):
+    # TODO: add configurable default nbasis
     def create_expansion(self, nbasis, nfn, do_energies=False):
         return DenseExpansion(nbasis, nfn, do_energies)
 
@@ -266,7 +306,7 @@ class DenseExpansion(object):
             self._energies[:] = other._energies
 
 
-class DenseOneBody(object):
+class DenseOneBody(BaseOneBody):
     """Dense symmetric two-dimensional matrix, also used for density matrices.
 
        This is the most inefficient implementation in terms of memory usage and

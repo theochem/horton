@@ -121,7 +121,58 @@ def test_cache_allocation():
     assert tris is tmp
 
 
-def test_cache_exceptions():
+def test_dense_one_body():
+    from horton.matrix import DenseLinalgFactory, DenseOneBody
+    lf = DenseLinalgFactory()
+    c = Cache()
+    op1, new = c.load('egg', alloc=(lf, 'one_body', 10))
+    assert new
+    assert isinstance(op1, DenseOneBody)
+    assert op1.nbasis == 10
+    op2 = c.load('egg')
+    assert op1 is op2
+    op3, new = c.load('egg', alloc=(lf, 'one_body', 10))
+    assert not new
+    assert op1 is op3
+    # things that should not work
+    try:
+        op4, new = c.load('egg', alloc=(lf, 'one_body', 5))
+        assert False
+    except TypeError:
+        pass
+    try:
+        op4, new = c.load('egg', alloc=5)
+        assert False
+    except TypeError:
+        pass
+    # after invalidation
+    op1.set_element(1, 2, 5.2)
+    c.invalidate()
+    print op1._array[1,2]
+    assert op1._array[1,2] == 0.0
+    try:
+        op4 = c.load('egg')
+        assert False
+    except KeyError:
+        pass
+    try:
+        op4, new = c.load('egg', alloc=(lf, 'one_body', 5))
+        assert False
+    except TypeError:
+        pass
+    try:
+        op4, new = c.load('egg', alloc=5)
+        assert False
+    except TypeError:
+        pass
+    op4, new = c.load('egg', alloc=(lf, 'one_body', 10))
+    assert new
+    assert op1 is op4
+    op5 = c.load('egg')
+    assert op1 is op5
+
+
+def test_cache_basic_exceptions():
     c = Cache()
     try:
         c.load('boo')

@@ -78,15 +78,38 @@ class CacheItem(object):
 
     @classmethod
     def from_alloc(cls, alloc):
-        return cls(np.zeros(alloc, float))
-
-    def check_alloc(self, alloc):
+        from horton.matrix import BaseLinalgFactory
         if not hasattr(alloc, '__len__'):
             alloc = (alloc,)
-        if not (isinstance(self._value, np.ndarray) and
-                self._value.shape == alloc and
-                issubclass(self._value.dtype.type, float)):
-            raise TypeError('The stored item does not match the given alloc.')
+        if isinstance(alloc[0], BaseLinalgFactory):
+            if len(alloc) < 2:
+                raise TypeError('Add least one extra parameter needed to initialize a linalg thing')
+            if alloc[1] == 'one_body':
+                return cls(alloc[0].create_one_body(*alloc[2:]))
+            else:
+                raise TypeError('For the moment, only one_body stuff is supported.')
+        else:
+            # initialize a floating point array
+            return cls(np.zeros(alloc, float))
+
+    def check_alloc(self, alloc):
+        from horton.matrix import BaseLinalgFactory
+        if not hasattr(alloc, '__len__'):
+            alloc = (alloc,)
+        if isinstance(alloc[0], BaseLinalgFactory):
+            if len(alloc) < 2:
+                raise TypeError('Add least one extra parameter needed to initialize a linalg thing')
+            if alloc[1] == 'one_body':
+                if not (len(alloc) == 2 or (len(alloc) == 3 and alloc[2] == self._value.nbasis)):
+                    raise TypeError('The requested one-body operator is not compatible with the cached one.')
+            else:
+                raise TypeError('For the moment, only one_body stuff is supported.')
+        else:
+            # assume a floating point array
+            if not (isinstance(self._value, np.ndarray) and
+                    self._value.shape == alloc and
+                    issubclass(self._value.dtype.type, float)):
+                raise TypeError('The stored item does not match the given alloc.')
 
     def _get_value(self):
         if not self._valid:
@@ -101,7 +124,9 @@ class CacheItem(object):
     valid = property(_get_valid)
 
     def _get_resettable(self):
-        return isinstance(self._value, np.ndarray)
+        from horton.matrix import BaseOneBody
+        return isinstance(self._value, np.ndarray) or \
+               isinstance(self._value, BaseOneBody)
 
     resettable = property(_get_resettable)
 
@@ -110,8 +135,11 @@ class CacheItem(object):
         self.reset()
 
     def reset(self):
+        from horton.matrix import BaseOneBody
         if isinstance(self._value, np.ndarray):
             self._value[:] = 0.0
+        elif isinstance(self._value, BaseOneBody):
+            self._value.reset()
         else:
             raise TypeError('Do not know how to reset %s.' % self._value)
 
