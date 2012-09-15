@@ -81,8 +81,7 @@ class Hamiltonian(object):
         # Compute overlap matrix
         self.overlap = system.get_overlap()
 
-    # TODO: rename to invalidate
-    def invalidate_derived(self):
+    def invalidate(self):
         '''Mark the properties derived from the wfn as outdated.
 
            This method does not recompute anything, but just marks operators

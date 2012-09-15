@@ -146,7 +146,7 @@ def test_scf_water_hfs_321g():
     # The energies should also be in reasonable agreement. Repeated to check for
     # stupid bugs
     for i in xrange(2):
-        ham.invalidate_derived()
+        ham.invalidate()
         ham.compute_energy()
         expected_energies = np.array([
             -1.83691041E+01, -8.29412411E-01, -4.04495188E-01, -1.91740814E-01,
