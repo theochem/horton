@@ -291,7 +291,6 @@ class DenseExpansion(object):
             dm._array[:] = np.dot(occupied, occupied.T)
         else:
             dm._array[:] += factor*np.dot(occupied, occupied.T)
-        dm._valid = True
 
     def apply_basis_permutation(self, permutation):
         '''Reorder the coefficients for a given permutation of basis functions.
@@ -312,12 +311,6 @@ class DenseOneBody(BaseOneBody):
        This is the most inefficient implementation in terms of memory usage and
        computer time. Due to its simplicity, it is trivial to implement. This
        implementation mainly serves as a reference for testing purposes.
-
-       The one-body operators contain a validity logic to help avoiding useless
-       recomputations. When the operators is manipulated, it becomes valid.
-       In order to get information, the operator must be valid. When the
-       operator becomes outdates, e.g. the wavefunction changes, one may call
-       the ``invalidate`` method.
     """
     def __init__(self, nbasis=None):
         """
@@ -327,8 +320,6 @@ class DenseOneBody(BaseOneBody):
                 The number of basis functions.
         """
         self._array = np.zeros((nbasis, nbasis), float)
-        # TODO: get rid of valid stuff here
-        self._valid = False
 
     @classmethod
     def from_hdf5(cls, grp, lf):
@@ -337,11 +328,9 @@ class DenseOneBody(BaseOneBody):
         nbasis = grp['array'].shape[0]
         result = cls(nbasis)
         grp['array'].read_direct(result._array)
-        result._valid = True
         return result
 
     def to_hdf5(self, grp):
-        assert self._valid
         grp['array'] = self._array
 
     def _get_nbasis(self):
@@ -350,23 +339,11 @@ class DenseOneBody(BaseOneBody):
 
     nbasis = property(_get_nbasis)
 
-    def _get_valid(self):
-        '''True if the contents are up-to-date'''
-        return self._valid
-
-    valid = property(_get_valid)
-
-    def invalidate(self):
-        '''Mark this operator as outdated.'''
-        self._valid = False
-
     def set_element(self, i, j, value):
-        self._valid = True
         self._array[i,j] = value
         self._array[j,i] = value
 
     def get_element(self, i, j):
-        assert self._valid
         return self._array[i,j]
 
     def check_symmetry(self):
@@ -374,19 +351,15 @@ class DenseOneBody(BaseOneBody):
         assert abs(self._array - self._array.T).max() == 0.0
 
     def reset(self):
-        self._valid = False
         self._array[:] = 0.0
 
     def iadd(self, other, factor=1):
-        self._valid = True
         self._array += other._array*factor
 
     def expectation_value(self, dm):
-        assert self._valid
         return np.dot(self._array.ravel(), dm._array.ravel())
 
     def trace(self):
-        assert self._valid
         return np.trace(self._array)
 
     def itranspose(self):
@@ -397,13 +370,11 @@ class DenseOneBody(BaseOneBody):
         self._array *= factor
 
     def dot(self, vec0, vec1):
-        assert self._valid
         return np.dot(vec0, np.dot(self._array, vec1))
 
     def apply_basis_permutation(self, permutation):
         '''Reorder the coefficients for a given permutation of basis functions.
         '''
-        assert self._valid
         self._array[:] = self._array[permutation]
         self._array[:] = self._array[:,permutation]
 
@@ -469,23 +440,19 @@ class DenseTwoBody(object):
 
     def apply_direct(self, dm, output):
         """Compute the direct dot product with a density matrix."""
-        assert dm.valid
         if not isinstance(dm, DenseOneBody):
             raise TypeError('The dm argument must be a DenseOneBody class')
         if not isinstance(output, DenseOneBody):
             raise TypeError('The output argument must be a DenseOneBody class')
         output._array[:] = np.tensordot(self._array, dm._array, ([1,3], [0,1]))
-        output._valid = True
 
     def apply_exchange(self, dm, output):
         """Compute the exchange dot product with a density matrix."""
-        assert dm.valid
         if not isinstance(dm, DenseOneBody):
             raise TypeError('The dm argument must be a DenseOneBody class')
         if not isinstance(output, DenseOneBody):
             raise TypeError('The output argument must be a DenseOneBody class')
         output._array[:] = np.tensordot(self._array, dm._array, ([1,2], [0,1]))
-        output._valid = True
 
     def apply_basis_permutation(self, permutation):
         '''Reorder the coefficients for a given permutation of basis functions.

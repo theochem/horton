@@ -217,11 +217,8 @@ def test_dense_one_body_properties():
     lf = DenseLinalgFactory()
     op = lf.create_one_body(3)
     assert op.nbasis == 3
-    assert not op.valid
     op.set_element(0, 1, 1.2)
-    assert op.valid
-    op.invalidate()
-    assert not op.valid
+    assert op.get_element(0, 1) == 1.2
 
 
 def test_dense_two_body_properties():
