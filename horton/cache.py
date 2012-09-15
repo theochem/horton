@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Tools for avoiding recomputation of earlier results
+'''Tools for avoiding recomputation and reallocation of earlier results
 
    In principle, the ``JustOnceClass`` and the ``Cache`` can be used
    independently, but in some cases it makes a lot of sense to combine them.
@@ -70,6 +70,38 @@ def just_once(fn):
     return wrapper
 
 
+
+class CacheItem(object):
+    def __init__(self, value):
+        self._value = value
+        self._valid = True
+
+    def _get_value(self):
+        return self._value
+
+    value = property(_get_value)
+
+    def _get_valid(self):
+        return self._valid
+
+    valid = property(_get_valid)
+
+    def _get_resettable(self):
+        return isinstance(self._value, np.ndarray)
+
+    resettable = property(_get_resettable)
+
+    def invalidate(self):
+        self._valid = False
+        self.reset()
+
+    def reset(self):
+        if isinstance(self._value, np.ndarray):
+            self.value[:] = 0.0
+        else:
+            raise TypeError('Do not know how to reset %s.' % self._value)
+
+
 class Cache(object):
     '''Object that stores previously computed results.
 
@@ -81,8 +113,13 @@ class Cache(object):
         self._store = {}
 
     def invalidate(self):
-        # TODO: do not remove arrays, just mark them as resetted.
-        self._store = {}
+        for key in self._store.keys():
+            item = self._store[key]
+            if item.resettable:
+                # avoid re-allocation
+                item.invalidate()
+            else:
+                del self._store[key]
 
     def load(self, *key, **kwargs):
         # check key
@@ -99,26 +136,34 @@ class Cache(object):
         else:
             raise TypeError('Only one keyword argument is allowed: newshape')
 
-        value = self._store.get(key)
-        if value is None:
+        item = self._store.get(key)
+        if item is None:
             if newshape is None:
                 raise KeyError('Could not find item %s' % repr(key))
             else:
                 value = np.zeros(newshape, float)
-                self._store[key] = value
+                item = CacheItem(value)
+                self._store[key] = item
                 return value, True
         if newshape is None:
-            return value
+            if item.valid:
+                return item.value
+            else:
+                raise KeyError('Item %s is not valid.' % repr(key))
         else:
+            new = not item.valid
             if not hasattr(newshape, '__len__'):
                 newshape = (newshape,)
+            value = item.value
             if not (isinstance(value, np.ndarray) and value.shape == newshape and issubclass(value.dtype.type, float)):
-                raise TypeError('The stored result does not have the excpected type (newshape).')
-            return value, False
+                raise TypeError('The stored item does not match the given newshape.')
+            item._valid = True # as if it is allocated as a new array
+            return value, new
 
     def dump(self, *args):
         if len(args) < 2:
             raise TypeError('At least two arguments are required: key1 and value.')
         key = args[:-1]
         value = args[-1]
-        self._store[key] = value
+        item = CacheItem(value)
+        self._store[key] = item
