@@ -37,6 +37,25 @@ class BaseRTransform(object):
         '''
         self.int1d = int1d
 
+    @classmethod
+    def from_string(cls, s, int1d):
+        '''Construct a BaseRTransform subclass from a string.'''
+        words = s.split()
+        clsname = words[0]
+        args = words[1:]
+        if clsname == 'LogRTransform':
+            if len(args) != 3:
+                raise ValueError('The LogRTransform needs three arguments, got %i.' % len(words))
+            rmin = float(args[0])
+            rmax = float(args[1])
+            npoint = int(args[2])
+            return LogRTransform(int1d, rmin, rmax, npoint)
+        else:
+            raise TypeError('Unkown BaseRTransform subclass: %s' % clsname)
+
+    def to_string(self):
+        raise NotImplementedError
+
     def get_radii(self, npoint, shift=0):
         '''Return an array of radii with the given size
 
@@ -119,6 +138,9 @@ class LogRTransform(BaseRTransform):
         return self._alpha
 
     alpha = property(_get_alpha)
+
+    def to_string(self):
+        return ' '.join(['LogRTransform', repr(self._rmin), repr(self._rmax), repr(self._npoint)])
 
     def get_radii(self, npoint, shift=0):
         '''Return an array of radii with the given size

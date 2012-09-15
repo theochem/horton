@@ -27,7 +27,7 @@ from horton import *
 def test_guess_hamcore_cs():
     fn_fchk = context.get_fn('test/hf_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    guess_hamiltionian_core(sys)
+    guess_hamiltonian_core(sys)
     # just a few simple checks
     assert abs(sys.wfn.expansion.energies[0] - (-2.59083334E+01)) > 1e-5 # values from fchk must be overwritten
     assert (sys.wfn.expansion.energies.argsort() == np.arange(sys.obasis.nbasis)).all()
@@ -36,7 +36,7 @@ def test_guess_hamcore_cs():
 def test_guess_hamcore_os():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     sys = System.from_file(fn_fchk)
-    guess_hamiltionian_core(sys)
+    guess_hamiltonian_core(sys)
     # just a few simple checks
     assert abs(sys.wfn.alpha_expansion.energies[0] - (-2.76116635E+00)) > 1e-5 # values from fchk must be overwritten
     assert abs(sys.wfn.beta_expansion.energies[0] - (-2.76031162E+00)) > 1e-5 # values from fchk must be overwritten

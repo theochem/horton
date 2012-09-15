@@ -27,7 +27,7 @@ from horton import *
 def test_scf_cs():
     fn_fchk = context.get_fn('test/hf_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    guess_hamiltionian_core(sys)
+    guess_hamiltonian_core(sys)
     ham = Hamiltonian(sys, [HartreeFock()])
     assert convergence_error(ham) > 1e-8
     assert converge_scf(ham)
@@ -66,13 +66,13 @@ def test_scf_cs():
 def test_scf_mixing_cs():
     fn_fchk = context.get_fn('test/hf_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    guess_hamiltionian_core(sys)
+    guess_hamiltonian_core(sys)
     ham = Hamiltonian(sys, [HartreeFock()])
     assert convergence_error(ham) > 1e-8
     assert converge_scf(ham)
     assert convergence_error(ham) < 1e-8
     energy0 = ham.compute_energy()
-    guess_hamiltionian_core(sys)
+    guess_hamiltonian_core(sys)
     assert convergence_error(ham) > 1e-8
     assert converge_scf(ham, mixing=0.5)
     assert convergence_error(ham) < 1e-8
@@ -84,7 +84,7 @@ def test_scf_mixing_cs():
 def test_scf_os():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     sys = System.from_file(fn_fchk)
-    guess_hamiltionian_core(sys)
+    guess_hamiltonian_core(sys)
     ham = Hamiltonian(sys, [HartreeFock()])
     assert convergence_error(ham) > 1e-8
     assert converge_scf(ham)
@@ -115,13 +115,13 @@ def test_scf_os():
 def test_scf_mixing_os():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     sys = System.from_file(fn_fchk)
-    guess_hamiltionian_core(sys)
+    guess_hamiltonian_core(sys)
     ham = Hamiltonian(sys, [HartreeFock()])
     assert convergence_error(ham) > 1e-8
     assert converge_scf(ham)
     assert convergence_error(ham) < 1e-8
     energy0 = ham.compute_energy()
-    guess_hamiltionian_core(sys)
+    guess_hamiltonian_core(sys)
     assert convergence_error(ham) > 1e-8
     assert converge_scf(ham, mixing=0.5)
     assert convergence_error(ham) < 1e-8
@@ -167,7 +167,7 @@ def test_scf_water_hfs_321g():
     # TODO: the rest still fails ...
 
     # Converge from scratch
-    guess_hamiltionian_core(sys)
+    guess_hamiltonian_core(sys)
     assert convergence_error(ham) > 1e-8
     assert converge_scf(ham)
     assert convergence_error(ham) < 1e-8

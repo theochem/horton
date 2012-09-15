@@ -42,3 +42,35 @@ def test_volume_elements_log():
     assert rtf.npoint == 100
     assert rtf.alpha > 0
     check_volume_elements(rtf)
+
+def test_string_log_rtransform():
+    rtf1 = LogRTransform(None, np.random.uniform(1e-5, 5e-5), np.random.uniform(1, 5), 111)
+    s = rtf1.to_string()
+    rtf2 = BaseRTransform.from_string(s, None)
+    assert rtf1.rmin == rtf2.rmin
+    assert rtf1.rmax == rtf2.rmax
+    assert rtf1.npoint == rtf2.npoint
+    assert rtf1.alpha == rtf2.alpha
+
+    try:
+        rtf3 = BaseRTransform.from_string('Fubar A 5', None)
+        assert False
+    except TypeError:
+        pass
+
+    try:
+        rtf3 = BaseRTransform.from_string('LogRTransform A 5', None)
+        assert False
+    except ValueError:
+        pass
+
+    try:
+        rtf3 = BaseRTransform.from_string('LogRTransform A 5 .1', None)
+        assert False
+    except ValueError:
+        pass
+
+    rtf3 = BaseRTransform.from_string('LogRTransform 1.0 12.15643216847 5', None)
+    assert rtf3.rmin == 1.0
+    assert rtf3.rmax == 12.15643216847
+    assert rtf3.npoint == 5

@@ -18,8 +18,11 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Package for density-based partitioning (fuzzy atoms)'''
+'''Definition of all excpetions in Horton.'''
 
-from horton.dpart.proatomdb import *
-from horton.dpart.base import *
-from horton.dpart.becke import *
+
+class ElectronCountError(ValueError):
+    '''Exception raised when a negative number of electron is encountered, or
+       when more electrons than basis functions are requested.
+    '''
+    pass
