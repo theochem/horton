@@ -181,7 +181,6 @@ def test_dense_one_body_trace():
     lf = DenseLinalgFactory()
     op1 = lf.create_one_body(3)
     op1._array[:] = np.random.uniform(-1, 1, (3,3))
-    op1._valid = True
     assert op1.trace() == op1._array[0,0] + op1._array[1,1] + op1._array[2,2]
 
 
@@ -202,6 +201,26 @@ def test_dense_one_body_iscale():
     tmp = op._array.copy()
     op.iscale(3.0)
     assert abs(op._array - 3*tmp).max() < 1e-10
+
+
+def test_dense_linalg_factory_properties():
+    lf = DenseLinalgFactory(5)
+    assert lf._default_nbasis == 5
+    lf.set_default_nbasis(6)
+    assert lf._default_nbasis == 6
+    lf = DenseLinalgFactory()
+    assert lf._default_nbasis is None
+    lf.set_default_nbasis(10)
+    ex = lf.create_expansion(do_energies=True)
+    assert ex.nbasis == 10
+    assert ex.nfn == 10
+    assert ex.energies is not None
+    assert ex.energies.shape == (10,)
+    op1 = lf.create_one_body()
+    assert op1.nbasis == 10
+    op2 = lf.create_two_body()
+    assert op2.nbasis == 10
+
 
 
 def test_dense_expansion_properties():

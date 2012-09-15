@@ -79,7 +79,7 @@ def test_energy_n2_hfs_sto3g():
 
     # Test if the grid potential data is properly converted into an operator:
     ev1 = grid.integrate(ham.cache.load('pot_exchange_dirac_alpha'), ham.cache.load('rho_alpha'))
-    dma = sys.lf.create_one_body(sys.obasis.nbasis)
+    dma = sys.lf.create_one_body()
     sys.wfn.compute_density_matrix(dma, 'alpha')
     ev2 = ham.cache.load('op_exchange_dirac_alpha').expectation_value(dma)
     assert abs(ev1 - ev2) < 1e-13

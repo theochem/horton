@@ -170,7 +170,7 @@ def test_grid_lih_321g_hf_some_points():
     assert abs(total - output[0]) < 1e-10
 
     # check density matrix value
-    dm = sys.lf.create_one_body(sys.obasis.nbasis)
+    dm = sys.lf.create_one_body()
     sys.wfn.compute_density_matrix(dm)
     assert abs(dm._array[0,0] - 1.96589709) < 1e-7
 
@@ -187,7 +187,7 @@ def test_gird_one_body_ne():
     dist1 = np.sqrt(((grid.points - sys.coordinates[1])**2).sum(axis=1))
     pot = sys.numbers[0]/dist0 + sys.numbers[1]/dist1
     na_ana = sys.get_nuclear_attraction()
-    na_grid = sys.lf.create_one_body(sys.obasis.nbasis)
+    na_grid = sys.lf.create_one_body()
     sys.compute_grid_one_body(grid.points, grid.weights, pot, na_grid)
     assert abs(na_grid._array).max() > 8.0
     assert abs(na_ana._array-na_grid._array).max() < 2e-3

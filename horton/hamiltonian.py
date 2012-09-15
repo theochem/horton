@@ -139,7 +139,7 @@ class HamiltonianTerm(object):
         return rho
 
     def get_dm(self, select):
-        dm, new = self.cache.load('dm_%s' % select, alloc=(self.system.lf, 'one_body', self.system.obasis.nbasis))
+        dm, new = self.cache.load('dm_%s' % select, alloc=(self.system.lf, 'one_body'))
         if new:
             self.system.wfn.compute_density_matrix(dm, select)
         return dm
@@ -198,7 +198,7 @@ class Hartree(HamiltonianTerm):
 
     def _update_coulomb(self):
         '''Recompute the Coulomb operator if it has become invalid'''
-        coulomb, new = self.cache.load('op_coulomb', alloc=(self.system.lf, 'one_body', self.system.obasis.nbasis))
+        coulomb, new = self.cache.load('op_coulomb', alloc=(self.system.lf, 'one_body'))
         if new:
             if self.system.wfn.closed_shell:
                 self.electron_repulsion.apply_direct(self.get_dm('alpha'), coulomb)
@@ -236,7 +236,7 @@ class HartreeFock(Hartree):
         '''Recompute the Exchange operator(s) if invalid'''
         def helper(select):
             dm = self.get_dm(select)
-            exchange, new = self.cache.load('op_exchange_fock_%s' % select, alloc=(self.system.lf, 'one_body', self.system.obasis.nbasis))
+            exchange, new = self.cache.load('op_exchange_fock_%s' % select, alloc=(self.system.lf, 'one_body'))
             if new:
                 self.electron_repulsion.apply_exchange(dm, exchange)
 
@@ -297,7 +297,7 @@ class DiracExchange(HamiltonianTerm):
                 pot[:] = self.derived_coeff*rho**(1.0/3.0)
 
             # update operator stuff
-            exchange, new = self.cache.load('op_exchange_dirac_%s' % select, alloc=(self.system.lf, 'one_body', self.system.obasis.nbasis))
+            exchange, new = self.cache.load('op_exchange_dirac_%s' % select, alloc=(self.system.lf, 'one_body'))
             if new:
                 self.system.compute_grid_one_body(self.grid.points, self.grid.weights, pot, exchange)
 

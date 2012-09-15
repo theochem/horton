@@ -40,7 +40,7 @@ def test_scf_cs():
             break
 
     # test operator consistency
-    my_coulomb = sys.lf.create_one_body(sys.obasis.nbasis)
+    my_coulomb = sys.lf.create_one_body()
     dm_alpha = ham.cache.load('dm_alpha')
     hf_term.electron_repulsion.apply_direct(dm_alpha, my_coulomb)
     my_coulomb.iscale(2)

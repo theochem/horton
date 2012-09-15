@@ -108,6 +108,8 @@ class System(object):
             self._lf = DenseLinalgFactory()
         else:
             self._lf = lf
+        if self._obasis is not None:
+            self._lf.set_default_nbasis(self._obasis.nbasis)
         #
         if operators is None:
             self._operators = {}
@@ -315,7 +317,7 @@ class System(object):
     def get_overlap(self):
         overlap = self._operators.get('olp')
         if overlap is None:
-            overlap = self.lf.create_one_body(self.obasis.nbasis)
+            overlap = self.lf.create_one_body()
             self.obasis.compute_overlap(overlap)
             self._operators['olp'] = overlap
             self.update_chk('operators.olp')
@@ -324,7 +326,7 @@ class System(object):
     def get_kinetic(self):
         kinetic = self._operators.get('kin')
         if kinetic is None:
-            kinetic = self.lf.create_one_body(self.obasis.nbasis)
+            kinetic = self.lf.create_one_body()
             self.obasis.compute_kinetic(kinetic)
             self._operators['kin'] = kinetic
             self.update_chk('operators.kin')
@@ -333,7 +335,7 @@ class System(object):
     def get_nuclear_attraction(self):
         nuclear_attraction = self._operators.get('na')
         if nuclear_attraction is None:
-            nuclear_attraction = self.lf.create_one_body(self.obasis.nbasis)
+            nuclear_attraction = self.lf.create_one_body()
             # TODO: ghost atoms and extra charges
             self.obasis.compute_nuclear_attraction(self.numbers.astype(float), self.coordinates, nuclear_attraction)
             self._operators['na'] = nuclear_attraction
@@ -343,7 +345,7 @@ class System(object):
     def get_electron_repulsion(self):
         electron_repulsion = self._operators.get('er')
         if electron_repulsion is None:
-            electron_repulsion = self.lf.create_two_body(self.obasis.nbasis)
+            electron_repulsion = self.lf.create_two_body()
             self.obasis.compute_electron_repulsion(electron_repulsion)
             self._operators['er'] = electron_repulsion
             # ER integrals are not checkpointed by default because they are too heavy.
@@ -382,7 +384,7 @@ class System(object):
         elif rhos.shape != (points.shape[0],):
             raise TypeError('The shape of the output array is wrong')
         if use_dm:
-            dm = self.lf.create_one_body(self.obasis.nbasis)
+            dm = self.lf.create_one_body()
             self.wfn.compute_density_matrix(dm, select=select)
             self.obasis.compute_density_grid_dm(dm, points, rhos)
         else:

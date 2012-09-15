@@ -87,8 +87,7 @@ def converge_scf_cs(ham, max_iter=128, threshold=1e-8, mixing=0.0):
         raise ValueError('The mixing argument should be in the range [0,1[.')
     lf = ham.system.lf
     wfn = ham.system.wfn
-    nbasis = ham.system.obasis.nbasis
-    fock = lf.create_one_body(nbasis)
+    fock = lf.create_one_body()
     old_fock = None
     converged = False
     for i in xrange(max_iter):
@@ -147,9 +146,8 @@ def converge_scf_os(ham, max_iter=128, threshold=1e-8, mixing=0.0):
         raise ValueError('The mixing argument should be in the range [0,1[.')
     lf = ham.system.lf
     wfn = ham.system.wfn
-    nbasis = ham.system.obasis.nbasis
-    fock_alpha = lf.create_one_body(nbasis)
-    fock_beta = lf.create_one_body(nbasis)
+    fock_alpha = lf.create_one_body()
+    fock_beta = lf.create_one_body()
     old_fock_alpha = None
     old_fock_beta = None
     converged = False
@@ -228,8 +226,7 @@ def convergence_error_cs(ham):
     '''
     lf = ham.system.lf
     wfn = ham.system.wfn
-    nbasis = ham.system.obasis.nbasis
-    fock = lf.create_one_body(nbasis)
+    fock = lf.create_one_body()
     # Construct the Fock operator
     fock.reset()
     ham.compute_fock(fock, None)
@@ -254,9 +251,8 @@ def convergence_error_os(ham):
     '''
     lf = ham.system.lf
     wfn = ham.system.wfn
-    nbasis = ham.system.obasis.nbasis
-    fock_alpha = lf.create_one_body(nbasis)
-    fock_beta = lf.create_one_body(nbasis)
+    fock_alpha = lf.create_one_body()
+    fock_beta = lf.create_one_body()
     # Construct the Fock operators
     fock_alpha.reset()
     fock_beta.reset()
