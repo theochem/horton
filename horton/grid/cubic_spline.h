@@ -18,11 +18,25 @@
 //
 //--
 
+#ifndef HORTON_GRID_CUBIC_SPLINE_H
+#define HORTON_GRID_CUBIC_SPLINE_H
 
-#ifndef HORTON_GRID_LEBEDEV_LAIKOV_H
-#define HORTON_GRID_LEBEDEV_LAIKOV_H
+void tridiag_solve(double* diag_low, double* diag_mid, double* diag_up, double* right, double* solution, int n);
+void tridiagsym_solve(double* diag_mid, double* diag_up, double* right, double* solution, int n);
 
-int lebedev_laikov_npoint(int lvalue);
-void lebedev_laikov_sphere(int npoint, double* points, double* weights);
+class CubicSpline {
+    public:
+        double* y;
+        double* d;
+        int n;
+
+        CubicSpline(double* y, double* d, int n);
+        ~CubicSpline();
+
+        void eval(double* new_x, double* new_y, int new_n);
+        void eval_deriv(double* new_x, double* new_d, int new_n);
+        void eval_deriv2(double* new_x, double* new_d2, int new_n);
+        double integrate();
+    };
 
 #endif

@@ -275,6 +275,9 @@ cdef class GBasis:
         if (self._alphas.shape[0] != nprim_total):
             raise TypeError('The length of alphas must equal the total number of primitives.')
 
+    def __dealloc__(self):
+        del self._this
+
     def to_hdf5(self, grp):
         raise NotImplementedError
 
@@ -345,7 +348,6 @@ cdef class GBasis:
         assert output.shape[0] == self.nbasis
         assert point.flags['C_CONTIGUOUS']
         assert point.shape[0] == 3
-        #assert isinstance(grid_fn, GB1GridFn)
         self._this.compute_grid(<double*>output.data, <double*>point.data, grid_fn._this)
 
 

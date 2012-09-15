@@ -60,8 +60,10 @@ setup(
             language="c++"),
         Extension("horton.grid.cext",
             sources=['horton/grid/becke.cpp', 'horton/grid/cext.pyx',
+                     'horton/grid/cubic_spline.cpp',
                      'horton/grid/lebedev_laikov.cpp', 'horton/grid/utils.cpp'],
             depends=['horton/grid/becke.h', 'horton/grid/becke.pxd',
+                     'horton/grid/cubic_spline.h', 'horton/grid/cubic_spline.pxd'
                      'horton/grid/lebedev_laikov.h', 'horton/grid/lebedev_laikov.pxd',
                      'horton/grid/utils.h', 'horton/grid/utils.pxd'],
             language="c++"),

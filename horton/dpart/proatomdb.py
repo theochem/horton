@@ -149,6 +149,8 @@ class ProAtomDB(object):
                         for i in xrange(nsphere):
                             llgrid = atgrid.subgrids[i]
                             rhos = sys.compute_density_grid(llgrid.points)
+                            # TODO: also compute the derivatives of the average
+                            #       with respect to r for better splines
                             average_rhos[i] = llgrid.integrate(rhos)/llgrid.weights.sum()
                         cases.append((energy, average_rhos))
                     # TODO: when a screenlogger is implemented, it must show
