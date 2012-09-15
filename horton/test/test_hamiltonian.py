@@ -76,17 +76,12 @@ def test_energy_n2_hfs_sto3g():
     assert abs(sys.props['energy'] - -106.205213597) < 1e-4
     assert abs(sys.props['energy_nn'] - 23.3180604505) < 3e-9
 
-    # Fish up the Dirac Term
-    for term in ham.terms:
-        if isinstance(term, DiracExchange):
-            dterm = term
-            break
 
     # Test if the grid potential data is properly converted into an operator:
     ev1 = grid.integrate(ham.cache.load('pot_exchange_dirac_alpha'), ham.cache.load('rho_alpha'))
     dma = sys.lf.create_one_body(sys.obasis.nbasis)
     sys.wfn.compute_density_matrix(dma, 'alpha')
-    ev2 = dterm.exchange['alpha'].expectation_value(dma)
+    ev2 = ham.cache.load('op_exchange_dirac_alpha').expectation_value(dma)
     assert abs(ev1 - ev2) < 1e-13
 
     # When repeating, we should get the same
@@ -94,7 +89,7 @@ def test_energy_n2_hfs_sto3g():
     assert abs(sys.props['energy'] - -106.205213597) < 1e-4
 
     # check symmetry
-    dterm.exchange['alpha'].check_symmetry()
+    ham.cache.load('op_exchange_dirac_alpha').check_symmetry()
 
 
 def test_fock_n2_hfs_sto3g():

@@ -81,6 +81,7 @@ class Hamiltonian(object):
         # Compute overlap matrix
         self.overlap = system.get_overlap()
 
+    # TODO: rename to invalidate
     def invalidate_derived(self):
         '''Mark the properties derived from the wfn as outdated.
 
@@ -89,10 +90,9 @@ class Hamiltonian(object):
            needed.
         '''
         self.cache.invalidate()
+        # TODO: move density matrices to cache
         for dm in self.system.dms.itervalues():
             dm.invalidate()
-        for term in self.terms:
-            term.invalidate_derived()
 
     def compute_energy(self):
         '''Compute energy.
@@ -147,16 +147,13 @@ class HamiltonianTerm(object):
         self.cache = cache
         self.grid = grid
 
-    def invalidate_derived(self):
-        pass
-
     # Generic update routines that may be useful to various base classes
     def update_rho(self, select):
         rho, new = self.cache.load('rho_%s' % select, alloc=self.grid.size)
         if new:
+            # TODO: check if rho is properly reset to zero
             self.system.compute_density_grid(self.grid.points, rhos=rho, select=select)
         return rho
-
 
     def compute_energy(self, dm_alpha, dm_beta, dm_full):
         raise NotImplementedError
@@ -209,86 +206,75 @@ class Hartree(HamiltonianTerm):
     def prepare_system(self, system, cache, grid):
         HamiltonianTerm.prepare_system(self, system, cache, grid)
         self.electron_repulsion = system.get_electron_repulsion()
-        self.coulomb = system.lf.create_one_body(system.obasis.nbasis)
-
-    def invalidate_derived(self):
-        self.coulomb.invalidate()
 
     def _update_coulomb(self, dm_alpha, dm_beta, dm_full):
         '''Recompute the Coulomb operator if it has become invalid'''
-        if not self.coulomb.valid:
-            if dm_beta is None:
-                self.electron_repulsion.apply_direct(dm_alpha, self.coulomb)
-                self.coulomb.iscale(2)
+        coulomb, new = self.cache.load('op_coulomb', alloc=(self.system.lf, 'one_body', self.system.obasis.nbasis))
+        if new:
+            if self.system.wfn.closed_shell:
+                self.electron_repulsion.apply_direct(dm_alpha, coulomb)
+                coulomb.iscale(2)
             else:
-                self.electron_repulsion.apply_direct(dm_full, self.coulomb)
+                self.electron_repulsion.apply_direct(dm_full, coulomb)
+        return coulomb
 
     def compute_energy(self, dm_alpha, dm_beta, dm_full):
-        self._update_coulomb(dm_alpha, dm_beta, dm_full)
+        coulomb = self._update_coulomb(dm_alpha, dm_beta, dm_full)
         if dm_beta is None:
-            result = self.coulomb.expectation_value(dm_alpha)
+            result = coulomb.expectation_value(dm_alpha)
         else:
-            result = 0.5*self.coulomb.expectation_value(dm_full)
+            result = 0.5*coulomb.expectation_value(dm_full)
         self.system._props['energy_hartree'] = result
         return result
 
     def add_fock_matrix(self, dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta):
-        self._update_coulomb(dm_alpha, dm_beta, dm_full)
+        coulomb = self._update_coulomb(dm_alpha, dm_beta, dm_full)
         if dm_beta is None:
             # closed shell
-            fock_alpha.iadd(self.coulomb, 1)
+            fock_alpha.iadd(coulomb)
         else:
             # open shell
-            fock_alpha.iadd(self.coulomb, 1)
-            fock_beta.iadd(self.coulomb, 1)
+            fock_alpha.iadd(coulomb)
+            fock_beta.iadd(coulomb)
 
 
 class HartreeFock(Hartree):
     def __init__(self, fraction_exchange=1.0):
         self.fraction_exchange = fraction_exchange
 
-    def prepare_system(self, system, cache, grid):
-        Hartree.prepare_system(self, system, cache, grid)
-        self.exchange_alpha = system.lf.create_one_body(system.obasis.nbasis)
-        if not system.wfn.closed_shell:
-            self.exchange_beta = system.lf.create_one_body(system.obasis.nbasis)
-        else:
-            self.exchange_beta = None
-
-    def invalidate_derived(self):
-        Hartree.invalidate_derived(self)
-        self.exchange_alpha.invalidate()
-        if self.exchange_beta is not None:
-            self.exchange_beta.invalidate()
-
     def _update_exchange(self, dm_alpha, dm_beta, dm_full):
         '''Recompute the Exchange operator(s) if invalid'''
-        if not self.exchange_alpha.valid:
-            self.electron_repulsion.apply_exchange(dm_alpha, self.exchange_alpha)
-        if self.exchange_beta is not None and not self.exchange_beta.valid:
-            self.electron_repulsion.apply_exchange(dm_beta, self.exchange_beta)
+        def helper(dm, select):
+            exchange, new = self.cache.load('op_exchange_fock_%s' % select, alloc=(self.system.lf, 'one_body', self.system.obasis.nbasis))
+            if new:
+                self.electron_repulsion.apply_exchange(dm, exchange)
+
+        helper(dm_alpha, 'alpha')
+        if dm_beta is not None:
+            helper(dm_beta, 'beta')
 
     def compute_energy(self, dm_alpha, dm_beta, dm_full):
         energy_hartree = Hartree.compute_energy(self, dm_alpha, dm_beta, dm_full)
         self._update_exchange(dm_alpha, dm_beta, dm_full)
         if dm_beta is None:
-            energy_fock = -self.exchange_alpha.expectation_value(dm_alpha)
+            energy_fock = -self.cache.load('op_exchange_fock_alpha').expectation_value(dm_alpha)
         else:
-            energy_fock = -0.5*self.exchange_alpha.expectation_value(dm_alpha) \
-                          -0.5*self.exchange_beta.expectation_value(dm_beta)
+            energy_fock = -0.5*self.cache.load('op_exchange_fock_alpha').expectation_value(dm_alpha) \
+                          -0.5*self.cache.load('op_exchange_fock_beta').expectation_value(dm_beta)
         self.system._props['energy_exchange_fock'] = energy_fock
         return energy_hartree + self.fraction_exchange*energy_fock
 
     def add_fock_matrix(self, dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta):
         Hartree.add_fock_matrix(self, dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta)
         self._update_exchange(dm_alpha, dm_beta, dm_full)
-        fock_alpha.iadd(self.exchange_alpha, -self.fraction_exchange)
+        fock_alpha.iadd(self.cache.load('op_exchange_fock_alpha'), -self.fraction_exchange)
         if fock_beta is not None:
-            fock_beta.iadd(self.exchange_beta, -self.fraction_exchange)
+            fock_beta.iadd(self.cache.load('op_exchange_fock_beta'), -self.fraction_exchange)
 
 
+# TODO: Make base class for grid functionals where alpha and beta contributions are independent.
 class DiracExchange(HamiltonianTerm):
-    '''A (for now naive) implementation of the Dirac Exchange Functional'''
+    '''An implementation of the Dirac Exchange Functional'''
 
     require_grid = True
     def __init__(self, coeff=None):
@@ -310,17 +296,6 @@ class DiracExchange(HamiltonianTerm):
             self.coeff = coeff
         self.derived_coeff = -self.coeff*(4.0/3.0)*2**(1.0/3.0)
 
-    def prepare_system(self, system, cache, grid):
-        HamiltonianTerm.prepare_system(self, system, cache, grid)
-        self.exchange = {}
-        self.exchange['alpha'] = system.lf.create_one_body(system.obasis.nbasis)
-        if not self.system.wfn.closed_shell:
-            self.exchange['beta'] = system.lf.create_one_body(system.obasis.nbasis)
-
-    def invalidate_derived(self):
-        for exchange in self.exchange.itervalues():
-            exchange.invalidate()
-
     def _update_exchange(self, dm_alpha, dm_beta, dm_full):
         '''Recompute the Exchange operator(s) if invalid'''
         def helper(select):
@@ -331,10 +306,8 @@ class DiracExchange(HamiltonianTerm):
                 pot[:] = self.derived_coeff*rho**(1.0/3.0)
 
             # update operator stuff
-            # TODO: move operators to cache.
-            exchange = self.exchange[select]
-            if not exchange.valid:
-                exchange.reset()
+            exchange, new = self.cache.load('op_exchange_dirac_%s' % select, alloc=(self.system.lf, 'one_body', self.system.obasis.nbasis))
+            if new:
                 self.system.compute_grid_one_body(self.grid.points, self.grid.weights, pot, exchange)
 
         helper('alpha')
@@ -347,6 +320,8 @@ class DiracExchange(HamiltonianTerm):
         def helper(select):
             pot = self.cache.load('pot_exchange_dirac_%s' % select)
             rho = self.cache.load('rho_%s' % select)
+            # TODO: this integral can also be written as an expectation value
+            # of the Fock operators, which is probably more efficient.
             return self.grid.integrate(pot, rho)
 
         energy = helper('alpha')
@@ -360,6 +335,6 @@ class DiracExchange(HamiltonianTerm):
 
     def add_fock_matrix(self, dm_alpha, dm_beta, dm_full, fock_alpha, fock_beta):
         self._update_exchange(dm_alpha, dm_beta, dm_full)
-        fock_alpha.iadd(self.exchange['alpha'])
+        fock_alpha.iadd(self.cache.load('op_exchange_dirac_alpha'))
         if fock_beta is not None:
-            fock_beta.iadd(self.exchange['beta'])
+            fock_beta.iadd(self.cache.load('op_exchange_dirac_beta'))
