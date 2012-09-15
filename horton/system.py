@@ -40,7 +40,7 @@ __all__ = ['System']
 
 
 class System(object):
-    def __init__(self, coordinates, numbers, obasis=None, wfn=None, lf=None, operators=None, dms=None, props=None, chk=None):
+    def __init__(self, coordinates, numbers, obasis=None, wfn=None, lf=None, operators=None, props=None, chk=None):
         """
            **Arguments:**
 
@@ -67,11 +67,6 @@ class System(object):
 
            operators
                 A dictionary with one- and two-body operators.
-
-           dms
-                A dictionary with density matrices. Should be consistent with
-                wfn. Standard keys are 'alpha', 'beta' and 'full'. The last
-                two are absent in case of close-shell computations.
 
            props
                 A dictionary with computed properties.
@@ -118,11 +113,6 @@ class System(object):
             self._operators = {}
         else:
             self._operators = operators
-        #
-        if dms is None:
-            self._dms = {}
-        else:
-            self._dms = dms
         #
         if props is None:
             self._props = {}
@@ -201,12 +191,6 @@ class System(object):
         return self._operators
 
     operators = property(_get_operators)
-
-    def _get_dms(self):
-        '''A dictionary with 'alpha',  'beta' and 'full' density matrices.'''
-        return self._dms
-
-    dms = property(_get_dms)
 
     def _get_props(self):
         '''A dictionary with computed properties.'''
@@ -327,10 +311,6 @@ class System(object):
             nalpha = (nel + (mult-1))/2
             nbeta = (nel - (mult-1))/2
             self._wfn = OpenShellWFN(nalpha, nbeta, self.lf, self.obasis.nbasis)
-
-    def update_dms(self):
-        '''Update the density matrices such that they become consistent with the wfn.'''
-        self._wfn.update_dms(self._dms)
 
     def get_overlap(self):
         overlap = self._operators.get('olp')

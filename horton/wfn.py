@@ -213,16 +213,6 @@ class ClosedShellWFN(BaseWFN):
         else:
             raise ValueError('select has to be one of alpha, beta, full or spin.')
 
-    def update_dms(self, dms):
-        '''Update the dictionary with density matrices, allocate if needed'''
-        # no full or beta because they do not contain useful info.
-        dm_alpha = dms.get('alpha')
-        if dm_alpha is None:
-            dm_alpha = self._lf.create_one_body(self._nbasis)
-            dms['alpha'] = dm_alpha
-        if not dm_alpha.valid:
-            self.compute_density_matrix(dm_alpha, 'alpha')
-
 
 class OpenShellWFN(BaseWFN):
     closed_shell = False
@@ -343,19 +333,3 @@ class OpenShellWFN(BaseWFN):
             yield self._beta_expansion, self._nbeta, -1
         else:
             raise ValueError('select has to be one of alpha, beta, full or spin.')
-
-    def update_dms(self, dms):
-        '''Update the dictionary with density matrices, allocate if needed'''
-        for key in 'alpha', 'beta', 'full':
-            dm = dms.get(key)
-            if dm is None:
-                dm = self._lf.create_one_body(self._nbasis)
-                dms[key] = dm
-        if not dms['alpha'].valid:
-            self.compute_density_matrix(dms['alpha'], 'alpha')
-        if not dms['beta'].valid:
-            self.compute_density_matrix(dms['beta'], 'beta')
-        if not dms['full'].valid:
-            dms['full'].reset()
-            dms['full'].iadd(dms['alpha'])
-            dms['full'].iadd(dms['beta'])
