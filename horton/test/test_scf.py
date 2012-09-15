@@ -41,7 +41,8 @@ def test_scf_cs():
 
     # test operator consistency
     my_coulomb = sys.lf.create_one_body(sys.obasis.nbasis)
-    hf_term.electron_repulsion.apply_direct(sys.dms['alpha'], my_coulomb)
+    dm_alpha = ham.cache.load('dm_alpha')
+    hf_term.electron_repulsion.apply_direct(dm_alpha, my_coulomb)
     my_coulomb.iscale(2)
     error = abs(my_coulomb._array - ham.cache.load('op_coulomb')._array).max()
     assert error < 1e-5
