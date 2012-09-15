@@ -96,6 +96,31 @@ def test_cache_newshape2():
     assert tris is tmp
 
 
+def test_cache_allocation():
+    c = Cache()
+    tmp, new = c.load('egg', newshape=(5,10))
+    assert new
+    assert (tmp == 0).all()
+    assert tmp.shape == (5,10)
+    assert issubclass(tmp.dtype.type, float)
+    tmp[:] = 1.0
+    c.invalidate()
+    assert (tmp[:] == 0.0).all()
+    # try to load it, while it is no longer valid
+    try:
+        bis = c.load('egg')
+        assert False
+    except KeyError:
+        pass
+    # properly load it anew
+    bis, new = c.load('egg', newshape=(5,10))
+    assert new
+    assert bis is tmp # still the same array, just resetted.
+    # simple load should now work
+    tris = c.load('egg')
+    assert tris is tmp
+
+
 def test_cache_exceptions():
     c = Cache()
     try:
