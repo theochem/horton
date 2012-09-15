@@ -135,7 +135,7 @@ def test_scf_water_hfs_321g():
     # energies
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
-    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
+    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 1e1, 100)
     grid = BeckeMolGrid(sys, (rtf, 110, 110), random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
 

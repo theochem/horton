@@ -62,10 +62,13 @@ class LogRTransform(BaseRTransform):
        The grid points are distributed as follows:
 
        .. math:: r_i = r_0 \\alpha^i
+
+       with
+
+       .. math:: alpha = \log(r_{N-1}/r_0)/(N-1).
     '''
 
-    # TODO: change to rmin, rmax, npoint
-    def __init__(self, int1d, rmin, alpha):
+    def __init__(self, int1d, rmin, rmax, npoint):
         '''
            **Arguments:**
 
@@ -76,11 +79,21 @@ class LogRTransform(BaseRTransform):
            rmin
                 The first radial grid point.
 
-           alpha
-                The base of the logarithmic grid.
+           rmax
+                The last radial grid point.
+
+           npoint
+                The number of radial points.
+
+           Note that ``rmax`` and ``npoint`` are not strictly enforced. They are
+           is used as convenient parameters to determine ``alpha``.
         '''
+        if npoint < 2:
+            raise ValueError('At least two points are needed')
         self._rmin = rmin
-        self._alpha = alpha
+        self._rmax = rmax
+        self._npoint = npoint
+        self._alpha = np.log(rmax/rmin)/(npoint-1)
         BaseRTransform.__init__(self, int1d)
 
     def _get_rmin(self):
@@ -88,6 +101,18 @@ class LogRTransform(BaseRTransform):
         return self._rmin
 
     rmin = property(_get_rmin)
+
+    def _get_rmax(self):
+        '''The `last` grid point.'''
+        return self._rmax
+
+    rmax = property(_get_rmax)
+
+    def _get_npoint(self):
+        '''The `number of grid points`.'''
+        return self._npoint
+
+    npoint = property(_get_npoint)
 
     def _get_alpha(self):
         '''The alpha parameter of the grid.'''

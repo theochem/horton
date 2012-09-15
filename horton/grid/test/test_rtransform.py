@@ -36,7 +36,9 @@ def check_volume_elements(rtf):
 
 
 def test_volume_elements_log():
-    rtf = LogRTransform(None, 0.1, 1.1)
+    rtf = LogRTransform(None, 0.1, 1e1, 100)
     assert rtf.rmin == 0.1
-    assert rtf.alpha == 1.1
+    assert rtf.rmax == 1e1
+    assert rtf.npoint == 100
+    assert rtf.alpha > 0
     check_volume_elements(rtf)

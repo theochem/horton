@@ -64,7 +64,7 @@ def test_energy_hydrogen():
 def test_energy_n2_hfs_sto3g():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
+    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 1e1, 100)
     grid = BeckeMolGrid(sys, (rtf, 110, 100), random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
     ham.compute_energy()
@@ -97,7 +97,7 @@ def test_fock_n2_hfs_sto3g():
     # energies
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
+    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 1e1, 100)
     grid = BeckeMolGrid(sys, (rtf, 110, 100), random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
 
@@ -133,7 +133,7 @@ def test_fock_h3_hfs_321g():
     # energies
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
-    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
+    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 1e1, 100)
     grid = BeckeMolGrid(sys, (rtf, 110, 100), random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
 

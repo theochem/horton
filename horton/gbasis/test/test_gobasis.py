@@ -181,7 +181,7 @@ def test_grid_lih_321g_hf_some_points():
 
 def test_gird_one_body_ne():
     sys = System.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
-    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 0.1)
+    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 2e1, 100)
     grid = BeckeMolGrid(sys, (rtf, 110, 100), random_rotate=False)
     dist0 = np.sqrt(((grid.points - sys.coordinates[0])**2).sum(axis=1))
     dist1 = np.sqrt(((grid.points - sys.coordinates[1])**2).sum(axis=1))
