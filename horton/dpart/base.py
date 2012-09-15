@@ -108,7 +108,7 @@ class BaseDPart(JustOnceClass):
     def do_mol_dens(self):
         for i, grid in self.iter_grids():
             if i == 0 or self.local:
-                mol_dens, new = self.cache.load('mol_dens', i, newshape=grid.size)
+                mol_dens, new = self.cache.load('mol_dens', i, alloc=grid.size)
                 if new:
                     self.system.compute_density_grid(grid.points, rhos=mol_dens)
             else:
@@ -117,7 +117,7 @@ class BaseDPart(JustOnceClass):
     @just_once
     def do_populations(self):
         self.do_mol_dens()
-        populations, new = self.cache.load('populations', newshape=self.system.natom)
+        populations, new = self.cache.load('populations', alloc=self.system.natom)
         if new:
             for i, grid in self.iter_grids():
                 at_weights = self.cache.load('at_weights', i)
@@ -127,7 +127,7 @@ class BaseDPart(JustOnceClass):
     @just_once
     def do_charges(self):
         self.do_populations()
-        charges, new = self.cache.load('charges', newshape=self.system.natom)
+        charges, new = self.cache.load('charges', alloc=self.system.natom)
         if new:
             populations = self.cache.load('populations')
             charges[:] = self.system.numbers - populations

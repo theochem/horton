@@ -64,9 +64,9 @@ def test_cache():
     assert len(c._store) == 0
 
 
-def test_cache_newshape1():
+def test_cache_alloc1():
     c = Cache()
-    tmp, new = c.load('bar', newshape=5)
+    tmp, new = c.load('bar', alloc=5)
     assert new
     assert (tmp == 0).all()
     assert tmp.shape == (5,)
@@ -75,14 +75,14 @@ def test_cache_newshape1():
     bis = c.load('bar')
     assert bis is tmp
     assert bis[3] == 1
-    tris, new = c.load('bar', newshape=5)
+    tris, new = c.load('bar', alloc=5)
     assert not new
     assert tris is tmp
 
 
-def test_cache_newshape2():
+def test_cache_alloc2():
     c = Cache()
-    tmp, new = c.load('egg', newshape=(5,10))
+    tmp, new = c.load('egg', alloc=(5,10))
     assert new
     assert (tmp == 0).all()
     assert tmp.shape == (5,10)
@@ -91,14 +91,14 @@ def test_cache_newshape2():
     bis = c.load('egg')
     assert bis is tmp
     assert (bis[3] == 1).all()
-    tris, new = c.load('egg', newshape=(5,10))
+    tris, new = c.load('egg', alloc=(5,10))
     assert not new
     assert tris is tmp
 
 
 def test_cache_allocation():
     c = Cache()
-    tmp, new = c.load('egg', newshape=(5,10))
+    tmp, new = c.load('egg', alloc=(5,10))
     assert new
     assert (tmp == 0).all()
     assert tmp.shape == (5,10)
@@ -113,7 +113,7 @@ def test_cache_allocation():
     except KeyError:
         pass
     # properly load it anew
-    bis, new = c.load('egg', newshape=(5,10))
+    bis, new = c.load('egg', alloc=(5,10))
     assert new
     assert bis is tmp # still the same array, just resetted.
     # simple load should now work
@@ -131,7 +131,7 @@ def test_cache_exceptions():
 
     c.dump('bar', np.zeros(4, float))
     try:
-        c.load('bar', newshape=5)
+        c.load('bar', alloc=5)
         assert False
     except TypeError:
         pass
@@ -149,7 +149,7 @@ def test_cache_exceptions():
         pass
 
     try:
-        c.load('foo', newshape=3, sdasffd=0)
+        c.load('foo', alloc=3, sdasffd=0)
         assert False
     except TypeError:
         pass

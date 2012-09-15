@@ -41,7 +41,7 @@ class BeckeDPart(BaseDPart):
     def _init_at_weights(self):
         radii = np.array([periodic[n].cov_radius for n in self.system.numbers])
         for i, grid in self.iter_grids():
-            at_weights, new = self.cache.load('at_weights', i, newshape=grid.size)
+            at_weights, new = self.cache.load('at_weights', i, alloc=grid.size)
             if new:
                 at_weights[:] = 1
                 becke_helper_atom(grid.points, at_weights, radii, self.system.coordinates, i, self._k)

@@ -76,7 +76,21 @@ class CacheItem(object):
         self._value = value
         self._valid = True
 
+    @classmethod
+    def from_alloc(cls, alloc):
+        return cls(np.zeros(alloc, float))
+
+    def check_alloc(self, alloc):
+        if not hasattr(alloc, '__len__'):
+            alloc = (alloc,)
+        if not (isinstance(self._value, np.ndarray) and
+                self._value.shape == alloc and
+                issubclass(self._value.dtype.type, float)):
+            raise TypeError('The stored item does not match the given alloc.')
+
     def _get_value(self):
+        if not self._valid:
+            raise ValueError('This cached item is not valid.')
         return self._value
 
     value = property(_get_value)
@@ -97,7 +111,7 @@ class CacheItem(object):
 
     def reset(self):
         if isinstance(self._value, np.ndarray):
-            self.value[:] = 0.0
+            self._value[:] = 0.0
         else:
             raise TypeError('Do not know how to reset %s.' % self._value)
 
@@ -128,37 +142,32 @@ class Cache(object):
 
         # parse kwargs
         if len(kwargs) == 0:
-            newshape = None
+            alloc = None
         elif len(kwargs) == 1:
-            name, newshape = kwargs.items()[0]
-            if name != 'newshape':
-                raise TypeError('Only one keyword argument is allowed: newshape')
+            name, alloc = kwargs.items()[0]
+            if name != 'alloc':
+                raise TypeError('Only one keyword argument is allowed: alloc')
         else:
-            raise TypeError('Only one keyword argument is allowed: newshape')
+            raise TypeError('Only one keyword argument is allowed: alloc')
 
         item = self._store.get(key)
         if item is None:
-            if newshape is None:
+            if alloc is None:
                 raise KeyError('Could not find item %s' % repr(key))
             else:
-                value = np.zeros(newshape, float)
-                item = CacheItem(value)
+                item = CacheItem.from_alloc(alloc)
                 self._store[key] = item
-                return value, True
-        if newshape is None:
+                return item.value, True
+        if alloc is None:
             if item.valid:
                 return item.value
             else:
                 raise KeyError('Item %s is not valid.' % repr(key))
         else:
+            item.check_alloc(alloc)
             new = not item.valid
-            if not hasattr(newshape, '__len__'):
-                newshape = (newshape,)
-            value = item.value
-            if not (isinstance(value, np.ndarray) and value.shape == newshape and issubclass(value.dtype.type, float)):
-                raise TypeError('The stored item does not match the given newshape.')
-            item._valid = True # as if it is allocated as a new array
-            return value, new
+            item._valid = True # as if it is newly allocated
+            return item.value, new
 
     def dump(self, *args):
         if len(args) < 2:
