@@ -32,7 +32,7 @@ __all__ = ['BeckeDPart']
 
 
 class BeckeDPart(BaseDPart):
-    '''Base class for Becke partitioning'''
+    '''Class for Becke partitioning'''
     def __init__(self, molgrid, local=True, k=3):
         self._k = 3
         BaseDPart.__init__(self, molgrid, local)
