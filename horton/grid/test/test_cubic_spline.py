@@ -279,9 +279,12 @@ def test_extrapolation_identity():
     y = np.exp(-0.3*x)
     d = -0.3*y
     cs = CubicSpline(y, d)
-    newx = np.array([-2.5, -1.1, 10.5, 11.5])
+    newx = np.array([-2.5, -1.1])
     assert abs(cs(newx) - np.exp(-0.3*newx)).max() < 1e-10
     assert abs(cs.deriv(newx) - -0.3*np.exp(-0.3*newx)).max() < 1e-10
+    newx = np.array([10.5, 11.5])
+    assert abs(cs(newx)).max() < 1e-10
+    assert abs(cs.deriv(newx)).max() < 1e-10
 
 
 def test_extrapolation_log():
@@ -290,6 +293,9 @@ def test_extrapolation_log():
     y = np.exp(-0.3*x)
     d = -0.3*y
     cs = CubicSpline(y, d, rtf)
-    newx = np.array([0.001, 0.01, 1.1, 10.1])
+    newx = np.array([0.001, 0.01])
     assert abs(cs(newx) - np.exp(-0.3*newx)).max() < 1e-10
     assert abs(cs.deriv(newx) - -0.3*np.exp(-0.3*newx)).max() < 1e-10
+    newx = np.array([1.1, 10.1])
+    assert abs(cs(newx)).max() < 1e-10
+    assert abs(cs.deriv(newx)).max() < 1e-10
