@@ -43,7 +43,7 @@ __all__ = [
     # rtransform
     'BaseRTransform', 'IdentityRTransform', 'LinearRTransform', 'LogRTransform',
     # utils
-    'dot_multi',
+    'dot_multi', 'grid_distances',
 ]
 
 
@@ -442,3 +442,17 @@ def dot_multi(*args):
     finally:
         free(pointers)
     return result
+
+
+def grid_distances(np.ndarray[double, ndim=2] points,
+                   np.ndarray[double, ndim=1] center,
+                   np.ndarray[double, ndim=1] distances):
+    assert points.flags['C_CONTIGUOUS']
+    npoint = points.shape[0]
+    assert points.shape[1] == 3
+    assert center.flags['C_CONTIGUOUS']
+    assert center.shape[0] == 3
+    assert distances.flags['C_CONTIGUOUS']
+    assert distances.shape[0] == npoint
+    utils.grid_distances(<double*>points.data, <double*>center.data,
+                         <double*>distances.data, npoint)

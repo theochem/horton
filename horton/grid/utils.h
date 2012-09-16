@@ -22,5 +22,6 @@
 #define HORTON_GRID_UTILS_H
 
 double dot_multi(int npoint, int nvector, double** data);
+void grid_distances(double *points, double *center, double *distances, int n);
 
 #endif

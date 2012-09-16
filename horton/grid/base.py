@@ -20,7 +20,7 @@
 #--
 
 
-from horton.grid.cext import dot_multi
+from horton.grid.cext import dot_multi, grid_distances
 
 
 __all__ = ['BaseGrid']
@@ -87,3 +87,7 @@ class BaseGrid(object):
                 at the grid points, that must be multiplied and integrated.
         '''
         return dot_multi(self.weights, *args)
+
+    def distances(self, center, d):
+        '''Compute distances between all grid points and a center, store result in d.'''
+        grid_distances(self.points, center, d)

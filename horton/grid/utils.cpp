@@ -19,6 +19,10 @@
 //--
 
 
+#include <cmath>
+#include "utils.h"
+
+
 double dot_multi(int npoint, int nvector, double** data) {
     double result = 0.0;
     for (int ipoint=npoint; ipoint>0; ipoint--) {
@@ -31,4 +35,25 @@ double dot_multi(int npoint, int nvector, double** data) {
         result += tmp;
     }
     return result;
+}
+
+
+void grid_distances(double *points, double *center, double *distances, int n) {
+  int i;
+  double d, tmp;
+  for (i=0; i<n; i++) {
+    // x
+    d = *points - center[0];
+    tmp = d*d;
+    points++;
+    // y
+    d = *points - center[1];
+    tmp += d*d;
+    points++;
+    // z
+    d = *points - center[2];
+    *distances = sqrt(tmp + d*d);
+    points++;
+    distances++;
+  }
 }
