@@ -215,3 +215,12 @@ def test_deriv2_case4():
     da = cs.deriv2(x)
     db = (cs.deriv(x+eps) - cs.deriv(x-eps))/(2*eps)
     assert abs(da-db).max() < 1e-6
+
+
+def test_extrapolation():
+    x = np.arange(10, dtype=float)
+    y = np.exp(-0.3*x)
+    d = -0.3*y
+    cs = CubicSpline(y, d)
+    newx = np.array([-2.5, -1.1, 10.5, 11.5])
+    assert abs(cs(newx) - np.exp(-0.3*newx)).max() < 1e-10

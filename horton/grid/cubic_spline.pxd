@@ -25,14 +25,21 @@ cdef extern from "cubic_spline.h":
     void tridiagsym_solve(double* diag_mid, double* diag_up, double* right, double* solution, int n)
 
 
+    cdef cppclass Extrapolation:
+        pass
+
+
     cdef cppclass CubicSpline:
         double* y
         double* d
         int n
 
-        CubicSpline(double* y, double* d, int n) except +
+        CubicSpline(double* y, double* d, Extrapolation* ep, int n) except +
 
         void eval(double* new_x, double* new_y, int new_n)
         void eval_deriv(double* new_x, double* new_d, int new_n)
         void eval_deriv2(double* new_x, double* new_d2, int new_n)
         double integrate()
+
+    cdef cppclass ExponentialExtrapolation:
+        pass
