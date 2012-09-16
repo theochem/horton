@@ -41,5 +41,8 @@ cdef extern from "cubic_spline.h":
         void eval(double* new_x, double* new_y, int new_n)
         void eval_deriv(double* new_x, double* new_d, int new_n)
 
+    cdef cppclass ZeroExtrapolation:
+        pass
+
     cdef cppclass ExponentialExtrapolation:
         pass

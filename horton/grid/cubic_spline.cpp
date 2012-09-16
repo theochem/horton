@@ -153,9 +153,9 @@ CubicSpline::CubicSpline(double* _y, double* _d, Extrapolation* _ep, BaseRTransf
         // Transform the given d's. We get dy/dr, we want dy/dt
         for (int i=0; i<n; i++) {
             d[i] = _d[i]*rtf->deriv(i);
-#ifdef DEBUG
-            printf("TF GIVEN DERIVS d[%i]=%f _d[%i]=%f\n", i, d[i], i, _d[i]);
-#endif
+//#ifdef DEBUG
+//            printf("TF GIVEN DERIVS d[%i]=%f _d[%i]=%f\n", i, d[i], i, _d[i]);
+//#endif
         }
     }
 
@@ -183,9 +183,9 @@ void CubicSpline::eval(double* new_x, double* new_y, int new_n) {
             // Cubic Spline interpolation
             // 1) transform *new_x to t
             double t = rtf->inv(*new_x);
-#ifdef DEBUG
-            printf("X_TO_T x=%f t=%f\n", *new_x, t);
-#endif
+//#ifdef DEBUG
+//            printf("X_TO_T x=%f t=%f\n", *new_x, t);
+//#endif
             // 2) find the index of the interval in which t lies.
             int j = (int)floor(t);
             if (j==n - 1) j = n - 2;
@@ -243,22 +243,21 @@ double ZeroExtrapolation::eval_deriv_right(double x) {return 0.0;}
 
 /*
    ExponentialExtrapolation class
+
+   Only extrapolates for values smaller than lowest grid point. Extrapolation
+   (of atomic densities) at large values is unreliable and waste of time.
 */
 
 void ExponentialExtrapolation::prepare(CubicSpline* cs) {
-    int n = cs->n;
-    if ((cs->d[0] == 0.0) || (cs->d[n-1] == 0.0)) {
-        throw std::domain_error("The exponential extrapolation makes no sense when the derivatives at the end points are zero.");
+    if (cs->d[0] == 0.0) {
+        throw std::domain_error("The exponential extrapolation makes no sense when the derivative at the first point is zero.");
     }
     BaseRTransform* rtf = cs->get_rtransform();
     a0 = cs->y[0];
     b0 = cs->d[0]/cs->y[0]/rtf->deriv(0);
     x0 = cs->get_first_x();
-    a1 = cs->y[n-1];
-    b1 = cs->d[n-1]/cs->y[n-1]/rtf->deriv(n-1);
-    x1 = cs->get_last_x();
 #ifdef DEBUG
-    printf("PARS EXP EXTRAPOL a0=%f b0=%f x0=%f a1=%f b1=%f x1=%f\n", a0, b0, x0, a1, b1, x1);
+    printf("PARS EXP EXTRAPOL a0=%f b0=%f x0=%f\n", a0, b0, x0);
 #endif
 }
 
@@ -267,7 +266,7 @@ double ExponentialExtrapolation::eval_left(double x) {
 }
 
 double ExponentialExtrapolation::eval_right(double x) {
-    return a1*exp(b1*(x-x1));
+    return 0.0;
 }
 
 double ExponentialExtrapolation::eval_deriv_left(double x) {
@@ -275,5 +274,5 @@ double ExponentialExtrapolation::eval_deriv_left(double x) {
 }
 
 double ExponentialExtrapolation::eval_deriv_right(double x) {
-    return a1*b1*exp(b1*(x-x1));
+    return 0.0;
 }

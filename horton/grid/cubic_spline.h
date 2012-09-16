@@ -82,7 +82,7 @@ class ZeroExtrapolation : public Extrapolation {
 
 class ExponentialExtrapolation : public Extrapolation {
     private:
-        double a0, b0, x0, a1, b1, x1;
+        double a0, b0, x0;
 
     public:
         virtual void prepare(CubicSpline* cs);
