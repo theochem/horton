@@ -29,8 +29,8 @@ def test_from_scratch_simple():
     int1d = TrapezoidIntegrator1D()
     rtf = LogRTransform(1e-3, 1e1, 100)
     atgrid = AtomicGrid(np.zeros(3, float), rtf, int1d, 110, keep_subgrids=1)
-    pro_atomdb = ProAtomDB.from_scratch([HartreeFock()], '3-21G', atgrid, [1,6], qmin=-2, qmax=3)
-    keys = sorted(pro_atomdb._records.keys())
+    proatomdb = ProAtomDB.from_scratch([HartreeFock()], '3-21G', atgrid, [1,6], qmin=-2, qmax=3)
+    keys = sorted(proatomdb._records.keys())
     assert keys == [(1, 1), (1, 2), (1, 3), (6, 3), (6, 4), (6, 5), (6, 6), (6, 7), (6, 8)]
 
 
@@ -38,16 +38,16 @@ def test_io_group():
     int1d = TrapezoidIntegrator1D()
     rtf = LogRTransform(1e-3, 1e1, 100)
     atgrid = AtomicGrid(np.zeros(3, float), rtf, int1d, 110, keep_subgrids=1)
-    pro_atomdb = ProAtomDB.from_scratch([HartreeFock()], '3-21G', atgrid, [1,6], qmin=-1, qmax=1)
-    keys = sorted(pro_atomdb._records.keys())
+    proatomdb = ProAtomDB.from_scratch([HartreeFock()], '3-21G', atgrid, [1,6], qmin=-1, qmax=1)
+    keys = sorted(proatomdb._records.keys())
     assert keys == [(1, 1), (1, 2), (6, 5), (6, 6), (6, 7)]
 
     with h5.File('horton.dpart.test.test_proatomdb.test_io_group', driver='core', backing_store=False) as f:
-        pro_atomdb.to_file(f)
+        proatomdb.to_file(f)
         bis = ProAtomDB.from_file(f)
         keys = sorted(bis._records.keys())
         assert keys == [(1, 1), (1, 2), (6, 5), (6, 6), (6, 7)]
-        avr1 = pro_atomdb._records[(1,2)]
+        avr1 = proatomdb._records[(1,2)]
         avr2 = bis._records[(1,2)]
         assert (avr1 == avr2).all()
 
@@ -55,18 +55,18 @@ def test_io_filename():
     int1d = TrapezoidIntegrator1D()
     rtf = LogRTransform(1e-3, 1e1, 100)
     atgrid = AtomicGrid(np.zeros(3, float), rtf, int1d, 110, keep_subgrids=1)
-    pro_atomdb = ProAtomDB.from_scratch([HartreeFock()], '3-21G', atgrid, [1,6], qmin=0, qmax=1)
-    keys = sorted(pro_atomdb._records.keys())
+    proatomdb = ProAtomDB.from_scratch([HartreeFock()], '3-21G', atgrid, [1,6], qmin=0, qmax=1)
+    keys = sorted(proatomdb._records.keys())
     assert keys == [(1, 1), (6, 5), (6, 6)]
 
     tmpdir = tempfile.mkdtemp('horton.dpart.test.test_proatomdb.test_io_filename')
     filename = '%s/test.h5' % tmpdir
     try:
-        pro_atomdb.to_file(filename)
+        proatomdb.to_file(filename)
         bis = ProAtomDB.from_file(filename)
         keys = sorted(bis._records.keys())
         assert keys == [(1, 1), (6, 5), (6, 6)]
-        avr1 = pro_atomdb._records[(6,5)]
+        avr1 = proatomdb._records[(6,5)]
         avr2 = bis._records[(6,5)]
         assert (avr1 == avr2).all()
     finally:
