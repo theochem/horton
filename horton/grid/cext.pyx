@@ -188,6 +188,7 @@ def tridiagsym_solve(np.ndarray[double, ndim=1] diag_mid,
 
 cdef class CubicSpline(object):
     cdef cubic_spline.CubicSpline* _this
+    cdef cubic_spline.Extrapolation* _ep
 
     def __cinit__(self, np.ndarray[double, ndim=1] y not None, np.ndarray[double, ndim=1] d=None):
         cdef double* ddata
@@ -199,10 +200,15 @@ cdef class CubicSpline(object):
             assert d.flags['C_CONTIGUOUS']
             assert d.shape[0] == n
             ddata = <double*>d.data
-        self._this = new cubic_spline.CubicSpline(<double*>y.data, ddata, n)
+        # Only exponential extrapolation is needed for now.
+        self._ep = <cubic_spline.Extrapolation*>(new cubic_spline.ExponentialExtrapolation())
+        self._this = new cubic_spline.CubicSpline(
+            <double*>y.data, ddata, self._ep, n
+        )
 
     def __dealloc__(self):
         del self._this
+        del self._ep
 
     def copy_y(self):
         cdef np.npy_intp shape[1]
