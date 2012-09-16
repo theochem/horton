@@ -121,6 +121,28 @@ def test_cache_allocation():
     assert tris is tmp
 
 
+def test_cache_default():
+    c = Cache()
+    assert c.load('egg', default=5)
+    c.dump('egg', 5)
+    assert c.load('egg') == 5
+    assert c.load('egg', default=6) == 5
+    c.invalidate()
+    assert c.load('egg', default=6) == 6
+    try:
+        c.load('egg')
+        assert False
+    except KeyError:
+        pass
+    c.invalidate()
+    assert c.load('egg', default=None) == None
+    try:
+        c.load('egg')
+        assert False
+    except KeyError:
+        pass
+
+
 def test_dense_one_body():
     from horton.matrix import DenseLinalgFactory, DenseOneBody
     lf = DenseLinalgFactory()
@@ -201,6 +223,18 @@ def test_cache_basic_exceptions():
 
     try:
         c.load('foo', alloc=3, sdasffd=0)
+        assert False
+    except TypeError:
+        pass
+
+    try:
+        c.load('foo', alloc=3, default=0)
+        assert False
+    except TypeError:
+        pass
+
+    try:
+        c.load('foo', jgfjg=3, default=0)
         assert False
     except TypeError:
         pass
