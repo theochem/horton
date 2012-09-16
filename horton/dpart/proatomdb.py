@@ -25,7 +25,7 @@ import h5py as h5, numpy as np
 
 from horton.exceptions import ElectronCountError
 from horton.grid.atgrid import AtomicGrid
-from horton.grid.cext import BaseRTransform
+from horton.grid.cext import BaseRTransform, CubicSpline
 from horton.guess import guess_hamiltonian_core
 from horton.hamiltonian import Hamiltonian
 from horton.scf import converge_scf
@@ -188,3 +188,6 @@ class ProAtomDB(object):
         # close
         if do_close:
             f.close()
+
+    def get_hirshfeld_proatom_fn(self, number):
+        return CubicSpline(self._records[(number,number)], rtf=self._rtransform)
