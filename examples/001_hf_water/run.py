@@ -23,8 +23,9 @@ ham.compute_energy()
 print sys.props
 
 print 'Compute Becke charges'
-rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 1e1, 100)
-grid = BeckeMolGrid(sys, (rtf, 110, 100), random_rotate=False, keep_subgrids=1)
+rtf = LogRTransform(1e-3, 1e1, 100)
+int1d = TrapezoidIntegrator1D()
+grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=1)
 bdp = BeckeDPart(grid)
 bdp.do_charges()
 print bdp['charges']

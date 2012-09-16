@@ -26,16 +26,18 @@ from horton import *
 
 
 def test_from_scratch_simple():
-    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 1e1, 100)
-    atgrid = AtomicGrid(np.zeros(3, float), rtf, 110, 100, keep_subgrids=1)
+    int1d = TrapezoidIntegrator1D()
+    rtf = LogRTransform(1e-3, 1e1, 100)
+    atgrid = AtomicGrid(np.zeros(3, float), rtf, int1d, 110, keep_subgrids=1)
     pro_atomdb = ProAtomDB.from_scratch([HartreeFock()], '3-21G', atgrid, [1,6], qmin=-2, qmax=3)
     keys = sorted(pro_atomdb._records.keys())
     assert keys == [(1, 1), (1, 2), (1, 3), (6, 3), (6, 4), (6, 5), (6, 6), (6, 7), (6, 8)]
 
 
 def test_io_group():
-    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 1e1, 100)
-    atgrid = AtomicGrid(np.zeros(3, float), rtf, 110, 100, keep_subgrids=1)
+    int1d = TrapezoidIntegrator1D()
+    rtf = LogRTransform(1e-3, 1e1, 100)
+    atgrid = AtomicGrid(np.zeros(3, float), rtf, int1d, 110, keep_subgrids=1)
     pro_atomdb = ProAtomDB.from_scratch([HartreeFock()], '3-21G', atgrid, [1,6], qmin=-1, qmax=1)
     keys = sorted(pro_atomdb._records.keys())
     assert keys == [(1, 1), (1, 2), (6, 5), (6, 6), (6, 7)]
@@ -50,8 +52,9 @@ def test_io_group():
         assert (avr1 == avr2).all()
 
 def test_io_filename():
-    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 1e1, 100)
-    atgrid = AtomicGrid(np.zeros(3, float), rtf, 110, 100, keep_subgrids=1)
+    int1d = TrapezoidIntegrator1D()
+    rtf = LogRTransform(1e-3, 1e1, 100)
+    atgrid = AtomicGrid(np.zeros(3, float), rtf, int1d, 110, keep_subgrids=1)
     pro_atomdb = ProAtomDB.from_scratch([HartreeFock()], '3-21G', atgrid, [1,6], qmin=0, qmax=1)
     keys = sorted(pro_atomdb._records.keys())
     assert keys == [(1, 1), (6, 5), (6, 6)]

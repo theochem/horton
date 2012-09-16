@@ -26,8 +26,9 @@ from horton import *
 def test_base_exceptions():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 1e1, 100)
-    grid = BeckeMolGrid(sys, (rtf, 110, 100), random_rotate=False, keep_subgrids=0)
+    int1d = TrapezoidIntegrator1D()
+    rtf = LogRTransform(1e-3, 1e1, 100)
+    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=0)
 
     try:
         bdp = BaseDPart(grid)
@@ -35,7 +36,7 @@ def test_base_exceptions():
     except ValueError:
         pass
 
-    grid = BeckeMolGrid(sys, (rtf, 110, 100), random_rotate=False, keep_subgrids=1)
+    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=1)
 
     try:
         bdp = BaseDPart(grid)
@@ -43,7 +44,7 @@ def test_base_exceptions():
     except NotImplementedError:
         pass
 
-    grid = BeckeMolGrid(sys, (rtf, 110, 100), random_rotate=False, keep_subgrids=2)
+    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=2)
 
     try:
         bdp = BaseDPart(grid)
@@ -51,7 +52,7 @@ def test_base_exceptions():
     except NotImplementedError:
         pass
 
-    grid = BeckeMolGrid(sys, (rtf, 110, 100), random_rotate=False, keep_subgrids=0)
+    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=0)
     try:
         bdp = BaseDPart(grid, local=False)
         assert False

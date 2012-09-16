@@ -25,52 +25,216 @@ import numpy as np
 from horton import *
 
 
-def check_volume_elements(rtf):
-    eps = 1e-4
-    npoint = 10
-    r1 = rtf.get_radii(npoint, -0.5*eps)
-    r2 = rtf.get_radii(npoint, +0.5*eps)
-    g_ana = rtf.get_volume_elements(npoint)
-    g_numer = (r2 - r1)/eps
-    assert abs(g_ana - g_numer).max() < 1e-5
+
+def check_consistency(rtf):
+    ts = np.random.uniform(0, rtf.npoint-1, 200)
+    # consistency between radius and radius_array
+    rs = np.zeros(ts.shape)
+    rtf.radius_array(ts, rs)
+    for i in xrange(ts.shape[0]):
+        assert rs[i] == rtf.radius(ts[i])
+    # consistency between deriv and deriv_array
+    ds = np.zeros(ts.shape)
+    rtf.deriv_array(ts, ds)
+    for i in xrange(ts.shape[0]):
+        assert ds[i] == rtf.deriv(ts[i])
+
+    ts = np.arange(rtf.npoint, dtype=float)
+    # consistency of get_radii
+    radii = rtf.get_radii()
+    assert radii.shape == (rtf.npoint,)
+    rs = np.zeros(ts.shape)
+    rtf.radius_array(ts, rs)
+    assert (rs == radii).all()
+    # consistency of get_volume_elements
+    volume_elements = rtf.get_volume_elements()
+    assert volume_elements.shape == (rtf.npoint,)
+    ds = np.zeros(ts.shape)
+    rtf.deriv_array(ts, ds)
+    assert (ds == volume_elements).all()
 
 
-def test_volume_elements_log():
-    rtf = LogRTransform(None, 0.1, 1e1, 100)
+def check_deriv(rtf):
+    ts = np.random.uniform(0, rtf.npoint-1, 200)
+    eps = 1e-5
+    ts0 = ts-eps/2
+    ts1 = ts+eps/2
+    rs0 = np.zeros(ts.shape)
+    rtf.radius_array(ts0, rs0)
+    rs1 = np.zeros(ts.shape)
+    rtf.radius_array(ts1, rs1)
+    ds = np.zeros(ts.shape)
+    rtf.deriv_array(ts, ds)
+    dns = (rs1-rs0)/eps
+    assert abs(ds-dns).max() < 1e-8
+
+
+def test_identity_basics():
+    rtf = IdentityRTransform(100)
+    assert rtf.radius(0.0) == 0.0
+    assert rtf.radius(99.0) == 99.0
+    check_consistency(rtf)
+    check_deriv(rtf)
+
+
+def test_linear_basics():
+    rtf = LinearRTransform(-0.7, 0.8, 100)
+    assert abs(rtf.radius(0) - -0.7) < 1e-15
+    assert abs(rtf.radius(99) - 0.8) < 1e-10
+    check_consistency(rtf)
+    check_deriv(rtf)
+
+
+def test_log_basics():
+    rtf = LogRTransform(0.1, 1e1, 100)
+    assert abs(rtf.radius(0) - 0.1) < 1e-15
+    assert abs(rtf.radius(99) - 1e1) < 1e-10
+    check_consistency(rtf)
+    check_deriv(rtf)
+
+
+def test_identity_properties():
+    rtf = IdentityRTransform(100)
+    assert rtf.npoint == 100
+
+
+def test_linear_properties():
+    rtf = LinearRTransform(-0.7, 0.8, 100)
+    assert rtf.rmin == -0.7
+    assert rtf.rmax == 0.8
+    assert rtf.npoint == 100
+    assert rtf.alpha > 0
+
+
+def test_log_properties():
+    rtf = LogRTransform(0.1, 1e1, 100)
     assert rtf.rmin == 0.1
     assert rtf.rmax == 1e1
     assert rtf.npoint == 100
     assert rtf.alpha > 0
-    check_volume_elements(rtf)
 
-def test_string_log_rtransform():
-    rtf1 = LogRTransform(None, np.random.uniform(1e-5, 5e-5), np.random.uniform(1, 5), 111)
+
+def test_exception_string():
+    try:
+        BaseRTransform.from_string('Fubar A 5')
+        assert False
+    except TypeError:
+        pass
+
+
+def test_identiy_string():
+    rtf1 = IdentityRTransform(45)
     s = rtf1.to_string()
-    rtf2 = BaseRTransform.from_string(s, None)
+    rtf2 = BaseRTransform.from_string(s)
+    assert rtf1.npoint == rtf2.npoint
+
+    try:
+        rtf3 = BaseRTransform.from_string('IdentityRTransform A')
+        assert False
+    except ValueError:
+        pass
+
+    try:
+        rtf3 = BaseRTransform.from_string('IdentityRTransform A 5 .1')
+        assert False
+    except ValueError:
+        pass
+
+    rtf3 = BaseRTransform.from_string('IdentityRTransform 8')
+    assert rtf3.npoint == 8
+
+
+
+def test_linear_string():
+    rtf1 = LinearRTransform(np.random.uniform(1e-5, 5e-5), np.random.uniform(1, 5), 88)
+    s = rtf1.to_string()
+    rtf2 = BaseRTransform.from_string(s)
     assert rtf1.rmin == rtf2.rmin
     assert rtf1.rmax == rtf2.rmax
     assert rtf1.npoint == rtf2.npoint
     assert rtf1.alpha == rtf2.alpha
 
     try:
-        rtf3 = BaseRTransform.from_string('Fubar A 5', None)
-        assert False
-    except TypeError:
-        pass
-
-    try:
-        rtf3 = BaseRTransform.from_string('LogRTransform A 5', None)
+        rtf3 = BaseRTransform.from_string('LinearRTransform A 5')
         assert False
     except ValueError:
         pass
 
     try:
-        rtf3 = BaseRTransform.from_string('LogRTransform A 5 .1', None)
+        rtf3 = BaseRTransform.from_string('LinearRTransform A 5 .1')
         assert False
     except ValueError:
         pass
 
-    rtf3 = BaseRTransform.from_string('LogRTransform 1.0 12.15643216847 5', None)
+    rtf3 = BaseRTransform.from_string('LinearRTransform -1.0 12.15643216847 77')
+    assert rtf3.rmin == -1.0
+    assert rtf3.rmax == 12.15643216847
+    assert rtf3.npoint == 77
+    assert rtf3.alpha > 0
+
+
+def test_log_string():
+    rtf1 = LogRTransform(np.random.uniform(1e-5, 5e-5), np.random.uniform(1, 5), 111)
+    s = rtf1.to_string()
+    rtf2 = BaseRTransform.from_string(s)
+    assert rtf1.rmin == rtf2.rmin
+    assert rtf1.rmax == rtf2.rmax
+    assert rtf1.npoint == rtf2.npoint
+    assert rtf1.alpha == rtf2.alpha
+
+    try:
+        rtf3 = BaseRTransform.from_string('LogRTransform A 5')
+        assert False
+    except ValueError:
+        pass
+
+    try:
+        rtf3 = BaseRTransform.from_string('LogRTransform A 5 .1')
+        assert False
+    except ValueError:
+        pass
+
+    rtf3 = BaseRTransform.from_string('LogRTransform 1.0 12.15643216847 5')
     assert rtf3.rmin == 1.0
     assert rtf3.rmax == 12.15643216847
     assert rtf3.npoint == 5
+    assert rtf3.alpha > 0
+
+
+def test_identity_bounds():
+    for npoint in -1, 0, 1:
+        try:
+            IdentityRTransform(npoint)
+            assert False
+        except ValueError:
+            pass
+
+
+def test_linear_bounds():
+    for npoint in -1, 0, 1:
+        try:
+            LinearRTransform(-0.5, 0.99, npoint)
+            assert False
+        except ValueError:
+            pass
+
+
+def test_log_bounds():
+    for npoint in -1, 0, 1:
+        try:
+            LogRTransform(0.1, 1.0, npoint)
+            assert False
+        except ValueError:
+            pass
+
+    try:
+        LogRTransform(-0.1, 1.0, 50)
+        assert False
+    except ValueError:
+        pass
+
+    try:
+        LogRTransform(0.1, -1.0, 50)
+        assert False
+    except ValueError:
+        pass

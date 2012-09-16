@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Horton is a Density Functional Theory program.
 # Copyright (C) 2011-2012 Toon Verstraelen <Toon.Verstraelen@UGent.be>
 #
@@ -19,9 +18,33 @@
 #
 #--
 
-from horton.grid.base import *
-from horton.grid.atgrid import *
-from horton.grid.cext import *
-from horton.grid.molgrid import *
-from horton.grid.int1d import *
-from horton.grid.sphere import *
+
+cdef extern from "rtransform.h":
+    cdef cppclass BaseRTransform:
+        BaseRTransform(int npoint) except +
+        double radius(double t)
+        double deriv(double t)
+
+        void radius_array(double* t, double* r, int n)
+        void deriv_array(double* t, double* d, int n)
+        int get_npoint()
+
+
+    cdef cppclass IdentityRTransform:
+        IdentityRTransform(int npoint) except +
+
+
+    cdef cppclass LinearRTransform:
+        LinearRTransform(double rmin, double rmax, int npoint) except +
+
+        double get_rmin()
+        double get_rmax()
+        double get_alpha()
+
+
+    cdef cppclass LogRTransform:
+        LogRTransform(double rmin, double rmax, int npoint) except +
+
+        double get_rmin()
+        double get_rmax()
+        double get_alpha()

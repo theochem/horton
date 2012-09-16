@@ -29,15 +29,19 @@ from libc.stdlib cimport malloc, free
 cimport lebedev_laikov
 cimport becke
 cimport cubic_spline
+cimport rtransform
 cimport utils
+
 
 __all__ = [
     # lebedev_laikov
     'lebedev_laikov_npoint', 'lebedev_laikov_sphere', 'lebedev_laikov_npoints',
-    # cubic_spline
-    'tridiag_solve', 'tridiagsym_solve', 'CubicSpline',
     # becke
     'becke_helper_atom',
+    # cubic_spline
+    'tridiag_solve', 'tridiagsym_solve', 'CubicSpline',
+    # rtransform
+    'BaseRTransform', 'IdentityRTransform', 'LinearRTransform', 'LogRTransform',
     # utils
     'dot_multi',
 ]
@@ -258,6 +262,152 @@ cdef class CubicSpline(object):
     def integrate(self):
         return self._this.integrate()
 
+
+#
+# rtransform
+#
+
+
+cdef class BaseRTransform(object):
+    cdef rtransform.BaseRTransform* _this
+
+    property npoint:
+        def __get__(self):
+            return self._this.get_npoint()
+
+    def radius(self, double t):
+        return self._this.radius(t)
+
+    def deriv(self, double t):
+        return self._this.deriv(t)
+
+    def radius_array(self, np.ndarray[double, ndim=1] t not None,
+                           np.ndarray[double, ndim=1] r not None):
+        assert t.flags['C_CONTIGUOUS']
+        cdef int n = t.shape[0]
+        assert r.flags['C_CONTIGUOUS']
+        assert r.shape[0] == n
+        self._this.radius_array(<double*>t.data, <double*>r.data, n)
+
+    def deriv_array(self, np.ndarray[double, ndim=1] t not None,
+                          np.ndarray[double, ndim=1] d not None):
+        assert t.flags['C_CONTIGUOUS']
+        cdef int n = t.shape[0]
+        assert d.flags['C_CONTIGUOUS']
+        assert d.shape[0] == n
+        self._this.deriv_array(<double*>t.data, <double*>d.data, n)
+
+    def get_radii(self):
+        '''Return an array with radii'''
+        result = np.arange(self.npoint, dtype=float)
+        self.radius_array(result, result)
+        return result
+
+    def get_volume_elements(self):
+        '''Return an array with volume elements associated with the transform'''
+        result = np.arange(self.npoint, dtype=float)
+        self.deriv_array(result, result)
+        return result
+
+    @classmethod
+    def from_string(cls, s):
+        '''Construct a BaseRTransform subclass from a string.'''
+        words = s.split()
+        clsname = words[0]
+        args = words[1:]
+        if clsname == 'IdentityRTransform':
+            if len(args) != 1:
+                raise ValueError('The IdentityRTransform needs one argument, got %i.' % len(words))
+            npoint = int(args[0])
+            return IdentityRTransform(npoint)
+        if clsname == 'LinearRTransform':
+            if len(args) != 3:
+                raise ValueError('The LinearRTransform needs three arguments, got %i.' % len(words))
+            rmin = float(args[0])
+            rmax = float(args[1])
+            npoint = int(args[2])
+            return LinearRTransform(rmin, rmax, npoint)
+        if clsname == 'LogRTransform':
+            if len(args) != 3:
+                raise ValueError('The LogRTransform needs three arguments, got %i.' % len(words))
+            rmin = float(args[0])
+            rmax = float(args[1])
+            npoint = int(args[2])
+            return LogRTransform(rmin, rmax, npoint)
+        else:
+            raise TypeError('Unkown BaseRTransform subclass: %s' % clsname)
+
+    def to_string(self):
+        raise NotImplementedError
+
+
+cdef class IdentityRTransform(BaseRTransform):
+    '''For testing only'''
+    def __cinit__(self, int npoint):
+        self._this = <rtransform.BaseRTransform*>(new rtransform.IdentityRTransform(npoint))
+
+    def to_string(self):
+        return ' '.join(['IdentityRTransform', repr(self.npoint)])
+
+
+cdef class LinearRTransform(BaseRTransform):
+    '''A linear grid.
+
+       The grid points are distributed as follows:
+
+       .. math:: r_i = \\alpha i + r_0
+
+       with
+
+       .. math:: \\alpha = (r_{N-1} -r_0)/(N-1).
+    '''
+    def __cinit__(self, double rmin, double rmax, int npoint):
+        self._this = <rtransform.BaseRTransform*>(new rtransform.LinearRTransform(rmin, rmax, npoint))
+
+    property rmin:
+        def __get__(self):
+            return (<rtransform.LinearRTransform*>self._this).get_rmin()
+
+    property rmax:
+        def __get__(self):
+            return (<rtransform.LinearRTransform*>self._this).get_rmax()
+
+    property alpha:
+        def __get__(self):
+            return (<rtransform.LinearRTransform*>self._this).get_alpha()
+
+    def to_string(self):
+        return ' '.join(['LinearRTransform', repr(self.rmin), repr(self.rmax), repr(self.npoint)])
+
+
+cdef class LogRTransform(BaseRTransform):
+    '''A logarithmic grid.
+
+       The grid points are distributed as follows:
+
+       .. math:: r_i = r_0 \\alpha^i
+
+       with
+
+       .. math:: \\alpha = \log(r_{N-1}/r_0)/(N-1).
+    '''
+    def __cinit__(self, double rmin, double rmax, int npoint):
+        self._this = <rtransform.BaseRTransform*>(new rtransform.LogRTransform(rmin, rmax, npoint))
+
+    property rmin:
+        def __get__(self):
+            return (<rtransform.LogRTransform*>self._this).get_rmin()
+
+    property rmax:
+        def __get__(self):
+            return (<rtransform.LogRTransform*>self._this).get_rmax()
+
+    property alpha:
+        def __get__(self):
+            return (<rtransform.LogRTransform*>self._this).get_alpha()
+
+    def to_string(self):
+        return ' '.join(['LogRTransform', repr(self.rmin), repr(self.rmax), repr(self.npoint)])
 
 #
 # utils
