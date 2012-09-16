@@ -52,6 +52,15 @@ void BaseRTransform::deriv_array(double* t, double* d, int n) {
     }
 }
 
+void BaseRTransform::inv_array(double* r, double* t, int n) {
+    while (n>0) {
+        *t = inv(*r);
+        n--;
+        r++;
+        t++;
+    }
+}
+
 
 /*
    IdentityRTransform
@@ -63,6 +72,10 @@ double IdentityRTransform::radius(double t) {
 
 double IdentityRTransform::deriv(double t) {
     return 1.0;
+}
+
+double IdentityRTransform::inv(double r) {
+    return r;
 }
 
 
@@ -85,6 +98,10 @@ double LinearRTransform::deriv(double t) {
     return alpha;
 }
 
+double LinearRTransform::inv(double r) {
+    return (r-rmin)/alpha;
+}
+
 
 /*
    LogRTransform
@@ -104,4 +121,8 @@ double LogRTransform::radius(double t) {
 
 double LogRTransform::deriv(double t) {
     return rmin*alpha*exp(t*alpha);
+}
+
+double LogRTransform::inv(double r) {
+    return log(r/rmin)/alpha;
 }
