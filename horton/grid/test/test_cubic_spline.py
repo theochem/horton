@@ -75,29 +75,27 @@ def test_tridiag_solve():
         assert(error < 1e-12)
 
 
-def test_basics():
+def test_basics_identity():
     N = 10
     y = np.random.normal(0,1,N)
     d = np.random.normal(0,1,N)
     cs = CubicSpline(y,d)
     assert (cs.copy_y() == y).all()
     assert (cs.copy_d() == d).all()
-    # test blindly function values at random grid points
-    xnew = np.random.uniform(-5, 15, 50)
-    ynew = np.zeros(len(xnew), float)
-    cs(xnew, ynew)
-    cs.integrate()
 
 
-def test_continuity():
+def test_basics_log():
     N = 10
     y = np.random.normal(0,1,N)
-    cs = CubicSpline(y)
-    d = cs.copy_d()
-    # test the function values at the grid points
-    xnew = np.arange(N, dtype=float)
-    ynew = np.zeros(len(xnew), float)
-    cs(xnew, ynew)
+    d = np.random.normal(0,1,N)
+    rtf = LogRTransform(0.1, 1.0, 10)
+    cs = CubicSpline(y, d, rtf)
+    assert (cs.copy_y() == y).all()
+    dp = d*rtf.get_volume_elements()
+    assert (cs.copy_d() == dp).all()
+
+
+def check_continuity(ynew, y, d, N):
     error = abs(y - ynew).max()
     assert(error < 1e-14)
     # test the second order derivative at the first point
@@ -116,7 +114,34 @@ def test_continuity():
         assert(error < 1e-14)
 
 
-def test_accuracy():
+def test_continuity_identity():
+    N = 10
+    y = np.random.normal(0,1,N)
+    cs = CubicSpline(y)
+    d = cs.copy_d()
+    # test the function values at the grid points
+    xnew = np.arange(N, dtype=float)
+    ynew = np.zeros(len(xnew), float)
+    cs(xnew, ynew)
+    check_continuity(ynew, y, d, N)
+
+
+def test_continuity_log():
+    N = 10
+    rtf = LogRTransform(0.1, 1.0, 10)
+    y = np.random.normal(0,1,N)
+    cs = CubicSpline(y,rtf=rtf)
+    d = cs.copy_d()
+    # test the function values at the grid points
+    tnew = np.arange(N, dtype=float)
+    xnew = np.zeros(N, dtype=float)
+    rtf.radius_array(tnew, xnew)
+    ynew = np.zeros(len(xnew), float)
+    cs(xnew, ynew)
+    check_continuity(ynew, y, d, N)
+
+
+def test_accuracy_identity():
     x_high = 2.0*np.pi
     size = 51
     delta = x_high/(size-1)
@@ -132,7 +157,22 @@ def test_accuracy():
     assert(error<1e-6)
 
 
-def test_deriv_case1():
+def test_accuracy_log():
+    size = 51
+    rtf = LogRTransform(0.1, 1.0, size)
+    t = np.arange(size, dtype=float)
+    x = np.zeros(size, float)
+    rtf.radius_array(t, x)
+    y = np.sin(x)
+    cs = CubicSpline(y, rtf=rtf)
+    newx = np.arange(0.1, 1.0, 0.01)
+    newy = np.zeros(len(newx))
+    cs(newx, newy)
+    error = abs(newy - np.sin(newx)).max()
+    assert(error<4e-5)
+
+
+def test_deriv_identity1():
     x = np.arange(10, dtype=float)
     y = np.exp(-0.3*x)
     d = -0.3*y
@@ -144,7 +184,22 @@ def test_deriv_case1():
     assert abs(cs.deriv(x) - d).max() < 1e-5
 
 
-def test_deriv_case2():
+def test_deriv_log1():
+    rtf = LogRTransform(0.1, 1.0, 10)
+    x = rtf.get_radii()
+    y = np.exp(-0.3*x)
+    d = -0.3*y
+    cs = CubicSpline(y, d, rtf)
+    assert abs(cs.deriv(x) - d).max() < 1e-15
+    t = np.arange(9, dtype=float)+0.5
+    x = np.zeros(9, float)
+    rtf.radius_array(t, x)
+    y = np.exp(-0.3*x)
+    d = -0.3*y
+    assert abs(cs.deriv(x) - d).max() < 1e-6
+
+
+def test_deriv_identity2():
     x = np.arange(10, dtype=float)
     y = np.exp(-0.3*x)
     d = -0.3*y
@@ -156,71 +211,85 @@ def test_deriv_case2():
     assert abs(cs.deriv(x) - d).max() < 3e-2
 
 
-def test_deriv_case3():
-    y = np.random.normal(0, 1, 10)
-    cs = CubicSpline(y)
-    x = np.arange(9, dtype=float)+0.5
-    eps = 1e-4
-    d1 = cs.deriv(x)
-    d2 = (cs(x+eps) - cs(x-eps))/(2*eps)
-    assert abs(d1-d2).max() < 1e-6
-
-
-def test_deriv_case4():
-    y = np.random.normal(0, 1, 10)
-    cs = CubicSpline(y)
-    x = np.arange(9, dtype=float)+0.5
-    eps = 1e-4
-    d1 = cs.deriv(x)
-    d2 = (cs(x+eps) - cs(x-eps))/(2*eps)
-    assert abs(d1-d2).max() < 1e-6
-
-
-def test_deriv2_case1():
-    x = np.arange(10, dtype=float)
+def test_deriv_log2():
+    rtf = LogRTransform(0.1, 1.0, 10)
+    x = rtf.get_radii()
     y = np.exp(-0.3*x)
     d = -0.3*y
+    cs = CubicSpline(y, rtf=rtf)
+    assert abs(cs.deriv(x) - d).max() < 3e-2
+    t = np.arange(9, dtype=float)+0.5
+    x = np.zeros(9, float)
+    rtf.radius_array(t, x)
+    y = np.exp(-0.3*x)
+    d = -0.3*y
+    assert abs(cs.deriv(x) - d).max() < 4e-3
+
+
+def test_deriv_identity3():
+    y = np.random.normal(0, 1, 10)
+    cs = CubicSpline(y)
+    x = np.arange(9, dtype=float)+0.5
+    eps = 1e-4
+    d1 = cs.deriv(x)
+    d2 = (cs(x+eps) - cs(x-eps))/(2*eps)
+    assert abs(d1-d2).max() < 1e-6
+
+
+def test_deriv_log3():
+    rtf = LogRTransform(0.1, 1.0, 10)
+    y = np.random.normal(0, 1, 10)
+    cs = CubicSpline(y, rtf=rtf)
+    t = np.arange(9, dtype=float)+0.5
+    x = np.zeros(9, float)
+    rtf.radius_array(t, x)
+    eps = 1e-6
+    d1 = cs.deriv(x)
+    d2 = (cs(x+eps) - cs(x-eps))/(2*eps)
+    assert abs(d1-d2).max() < 1e-6
+
+
+def test_deriv_identity4():
+    y = np.random.normal(0, 1, 10)
+    d = np.random.normal(0, 1, 10)
     cs = CubicSpline(y, d)
-    d2 = 0.09*y
-    assert abs(cs.deriv2(x) - d2).max() < 1e-3
-
-
-def test_deriv2_case2():
-    x = np.arange(10, dtype=float)
-    y = np.exp(-0.3*x)
-    d = -0.3*y
-    cs = CubicSpline(y)
-    assert abs(cs.deriv(x) - d).max() < 3e-2
-    x = np.arange(9, dtype=float)+0.5
-    y = np.exp(-0.3*x)
-    d2 = 0.09*y
-    assert abs(cs.deriv2(x) - d2)[2:-2].max() < 3e-3
-
-
-def test_deriv2_case3():
-    y = np.random.normal(0, 1, 10)
-    cs = CubicSpline(y)
     x = np.arange(9, dtype=float)+0.5
     eps = 1e-4
-    da = cs.deriv2(x)
-    db = (cs.deriv(x+eps) - cs.deriv(x-eps))/(2*eps)
-    assert abs(da-db).max() < 1e-6
+    d1 = cs.deriv(x)
+    d2 = (cs(x+eps) - cs(x-eps))/(2*eps)
+    assert abs(d1-d2).max() < 1e-6
 
 
-def test_deriv2_case4():
+def test_deriv_log4():
+    rtf = LogRTransform(0.1, 1.0, 10)
     y = np.random.normal(0, 1, 10)
-    cs = CubicSpline(y)
-    x = np.arange(9, dtype=float)+0.5
-    eps = 1e-4
-    da = cs.deriv2(x)
-    db = (cs.deriv(x+eps) - cs.deriv(x-eps))/(2*eps)
-    assert abs(da-db).max() < 1e-6
+    d = np.random.normal(0, 1, 10)
+    cs = CubicSpline(y, d, rtf)
+    t = np.arange(9, dtype=float)+0.5
+    x = np.zeros(9, float)
+    rtf.radius_array(t, x)
+    eps = 1e-6
+    d1 = cs.deriv(x)
+    d2 = (cs(x+eps) - cs(x-eps))/(2*eps)
+    assert abs(d1-d2).max() < 1e-6
 
 
-def test_extrapolation():
+def test_extrapolation_identity():
     x = np.arange(10, dtype=float)
     y = np.exp(-0.3*x)
     d = -0.3*y
     cs = CubicSpline(y, d)
     newx = np.array([-2.5, -1.1, 10.5, 11.5])
     assert abs(cs(newx) - np.exp(-0.3*newx)).max() < 1e-10
+    assert abs(cs.deriv(newx) - -0.3*np.exp(-0.3*newx)).max() < 1e-10
+
+
+def test_extrapolation_log():
+    rtf = LogRTransform(0.1, 1.0, 10)
+    x = rtf.get_radii()
+    y = np.exp(-0.3*x)
+    d = -0.3*y
+    cs = CubicSpline(y, d, rtf)
+    newx = np.array([0.001, 0.01, 1.1, 10.1])
+    assert abs(cs(newx) - np.exp(-0.3*newx)).max() < 1e-10
+    assert abs(cs.deriv(newx) - -0.3*np.exp(-0.3*newx)).max() < 1e-10

@@ -192,9 +192,10 @@ def tridiagsym_solve(np.ndarray[double, ndim=1] diag_mid,
 
 cdef class CubicSpline(object):
     cdef cubic_spline.CubicSpline* _this
-    cdef cubic_spline.Extrapolation* _ep
+    cdef cubic_spline.Extrapolation* _c_ep
+    cdef BaseRTransform _rtf
 
-    def __cinit__(self, np.ndarray[double, ndim=1] y not None, np.ndarray[double, ndim=1] d=None):
+    def __cinit__(self, np.ndarray[double, ndim=1] y not None, np.ndarray[double, ndim=1] d=None, BaseRTransform rtf=None):
         cdef double* ddata
         assert y.flags['C_CONTIGUOUS']
         n = y.shape[0]
@@ -204,15 +205,22 @@ cdef class CubicSpline(object):
             assert d.flags['C_CONTIGUOUS']
             assert d.shape[0] == n
             ddata = <double*>d.data
+
+        self._rtf = rtf
+        cdef rtransform.BaseRTransform* _c_rtf
+        if rtf is None:
+            _c_rtf = NULL
+        else:
+            _c_rtf = rtf._this
         # Only exponential extrapolation is needed for now.
-        self._ep = <cubic_spline.Extrapolation*>(new cubic_spline.ExponentialExtrapolation())
+        self._c_ep = <cubic_spline.Extrapolation*>(new cubic_spline.ExponentialExtrapolation())
         self._this = new cubic_spline.CubicSpline(
-            <double*>y.data, ddata, self._ep, n
+            <double*>y.data, ddata, self._c_ep, _c_rtf, n
         )
 
     def __dealloc__(self):
         del self._this
-        del self._ep
+        del self._c_ep
 
     def copy_y(self):
         cdef np.npy_intp shape[1]
@@ -247,20 +255,6 @@ cdef class CubicSpline(object):
             assert new_d.shape[0] == new_n
         self._this.eval_deriv(<double*>new_x.data, <double*>new_d.data, new_n)
         return new_d
-
-    def deriv2(self, np.ndarray[double, ndim=1] new_x not None, np.ndarray[double, ndim=1] new_d2=None):
-        assert new_x.flags['C_CONTIGUOUS']
-        new_n = new_x.shape[0]
-        if new_d2 is None:
-            new_d2 = np.zeros(new_n, float)
-        else:
-            assert new_d2.flags['C_CONTIGUOUS']
-            assert new_d2.shape[0] == new_n
-        self._this.eval_deriv2(<double*>new_x.data, <double*>new_d2.data, new_n)
-        return new_d2
-
-    def integrate(self):
-        return self._this.integrate()
 
 
 #

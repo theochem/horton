@@ -21,6 +21,10 @@
 #ifndef HORTON_GRID_CUBIC_SPLINE_H
 #define HORTON_GRID_CUBIC_SPLINE_H
 
+
+#include "rtransform.h"
+
+
 void tridiag_solve(double* diag_low, double* diag_mid, double* diag_up, double* right, double* solution, int n);
 void tridiagsym_solve(double* diag_mid, double* diag_up, double* right, double* solution, int n);
 
@@ -33,18 +37,24 @@ class CubicSpline {
         Extrapolation* ep;
         bool own_ep;
 
+        BaseRTransform* rtf;
+        bool own_rtf;
+
+        double first_x, last_x;
     public:
         double* y;
         double* d;
         int n;
 
-        CubicSpline(double* y, double* d, Extrapolation* ep, int n);
+        CubicSpline(double* y, double* d, Extrapolation* ep, BaseRTransform* rtf, int n);
         ~CubicSpline();
 
         void eval(double* new_x, double* new_y, int new_n);
         void eval_deriv(double* new_x, double* new_d, int new_n);
-        void eval_deriv2(double* new_x, double* new_d2, int new_n);
-        double integrate();
+
+        BaseRTransform* get_rtransform() {return rtf;}
+        double get_first_x() {return first_x;};
+        double get_last_x() {return last_x;};
     };
 
 
@@ -57,8 +67,6 @@ class Extrapolation {
         virtual double eval_right(double x) = 0;
         virtual double eval_deriv_left(double x) = 0;
         virtual double eval_deriv_right(double x) = 0;
-        virtual double eval_deriv2_left(double x) = 0;
-        virtual double eval_deriv2_right(double x) = 0;
     };
 
 
@@ -69,14 +77,12 @@ class ZeroExtrapolation : public Extrapolation {
         virtual double eval_right(double x);
         virtual double eval_deriv_left(double x);
         virtual double eval_deriv_right(double x);
-        virtual double eval_deriv2_left(double x);
-        virtual double eval_deriv2_right(double x);
     };
 
 
 class ExponentialExtrapolation : public Extrapolation {
     private:
-        double a0, b0, a1, b1, x1;
+        double a0, b0, x0, a1, b1, x1;
 
     public:
         virtual void prepare(CubicSpline* cs);
@@ -84,8 +90,6 @@ class ExponentialExtrapolation : public Extrapolation {
         virtual double eval_right(double x);
         virtual double eval_deriv_left(double x);
         virtual double eval_deriv_right(double x);
-        virtual double eval_deriv2_left(double x);
-        virtual double eval_deriv2_right(double x);
     };
 
 
