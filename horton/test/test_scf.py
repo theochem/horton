@@ -135,8 +135,9 @@ def test_scf_water_hfs_321g():
     # energies
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
-    rtf = LogRTransform(TrapezoidIntegrator1D(), 1e-3, 1e1, 100)
-    grid = BeckeMolGrid(sys, (rtf, 110, 110), random_rotate=False)
+    int1d = TrapezoidIntegrator1D()
+    rtf = LogRTransform(1e-3, 2e1, 110)
+    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
 
     # The convergence should be reasonable, not perfect because of limited

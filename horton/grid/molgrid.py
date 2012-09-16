@@ -65,14 +65,16 @@ class BeckeMolGrid(BaseGrid):
 
            The argument atspecs may have two formats:
 
-           * A single atspec tuple: ``(nll, nsphere, rtransform)`` or ``(nlls,
-             rtransform)``, where ``nll`` is the number of Lebedev-Laikov points
-             on each sphere, ``nsphere`` is the number of spheres,
-             ``rtransform`` is a transformation from a linear grid to some
-             more convenient radial grid for integration and ``nlls`` is a
-             list of numbers of Lebedev-Laikov grid points for the respective
-             spheres of the atomic grid. In this case, each atom gets the
-             same grid
+           * A single atspec tuple: ``(rtransform, integrator1d, nll)``
+             or ``(rtransform, integrator1d, nlls)``, where
+
+             * ``rtransform`` is a transformation from a linear
+               grid to some more convenient radial grid for integration and
+             * ``integrator1d`` is an algorithm to integrate a function whose
+               values are known on an equidistand grid with spacing 1.
+             * ``nll`` is the number of Lebedev-Laikov points on each sphere,
+             * ``nlls`` is a list of numbers of Lebedev-Laikov grid points for
+               the respective spheres of the atomic grid.
 
            * A list of atspec tuples as discussed in the foregoing bullet point,
              one for each atom. The length of this list must equal the number of
@@ -99,9 +101,10 @@ class BeckeMolGrid(BaseGrid):
         offset = 0
         radii = np.array([periodic[n].cov_radius for n in system.numbers])
         for i in xrange(len(radii)):
-            rtransform, atnlls, atsize = atspecs[i]
-            atgrid = AtomicGrid(system.coordinates[i], rtransform, atnlls, atsize,
-                                random_rotate, points[offset:offset+atsize],
+            rtransform, int1d, atnlls, atsize = atspecs[i]
+            atgrid = AtomicGrid(system.coordinates[i], rtransform, int1d,
+                                atnlls, random_rotate,
+                                points[offset:offset+atsize],
                                 keep_subgrids=keep_subgrids-1)
             weights[offset:offset+atsize] = atgrid.weights
             becke_helper_atom(points[offset:offset+atsize], weights[offset:offset+atsize], radii, system.coordinates, i, self._k)
@@ -168,15 +171,13 @@ def get_mol_grid_size(atspecs, natom):
     size = 0
     for i in xrange(len(atspecs)):
         atspec = atspecs[i]
-        if len(atspec) == 3:
-            rtransform, nll, nsphere = atspec
-            nlls = [nll]*nsphere
-        elif len(atspec) == 2:
-            rtransform, nlls = atspec
-        else:
-            raise TypeError('An atomic grid spec must contain two or three elements')
-        atsize = get_atomic_grid_size(nlls)[0]
-        atspecs[i] = rtransform, nlls, atsize
+        if len(atspec) != 3:
+            raise TypeError('An atomic grid spec must contain three elements.')
+        rtransform, int1d, nlls = atspec
+        if not hasattr(nlls, '__len__'):
+            nlls = [nlls]*rtransform.npoint
+        atsize = get_atomic_grid_size(nlls, rtransform.npoint)[0]
+        atspecs[i] = rtransform, int1d, nlls, atsize
         size += atsize
 
     return size, atspecs
