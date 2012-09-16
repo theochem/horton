@@ -18,6 +18,23 @@
 //
 //--
 
+/*
+
+   The cubic splines in Horton are a bit special, hence this dedicated
+   implementation. Unlike, the general cubic splines, Horton only uses splines
+   with a 'standard' equidistant spacing of the grid points, with spacing 1. In
+   order to handle data on other grids, one must provide a transformation object
+   that defines the relation between that other grid and the standard grid.
+
+   Why, oh why, not just do conventional cubic splines? Answer: more accuracy
+   for the same cost. Consider, for example, an exponential decaying function.
+   After transformation to a log grid, this function becomes linear and the
+   spline becomes exact. This can not be acchieved without the transformation
+   trick. Furthermore, cubic splines on equidistant grids can be implemented
+   more efficiently than the general ones.
+
+*/
+
 
 //#define DEBUG
 
@@ -86,7 +103,10 @@ void tridiagsym_solve(double* diag_mid, double* diag_up, double* right,
    CubicSpline class.
 */
 
-CubicSpline::CubicSpline(double* _y, double* _d, Extrapolation* _ep, int _n): ep(_ep), own_ep(false), y(NULL), d(NULL), n(_n) {
+CubicSpline::CubicSpline(double* _y, double* _d, Extrapolation* _ep, BaseRTransform* _rtf, int _n):
+    ep(_ep), own_ep(false), rtf(_rtf), own_rtf(false), first_x(0.0),
+    last_x(0.0), y(NULL), d(NULL), n(_n)
+{
     // Constructs the derivatives (*d) based on the *y values
     // n is the number of nodes, so there are n-1 splines between the nodes.
 
@@ -97,8 +117,17 @@ CubicSpline::CubicSpline(double* _y, double* _d, Extrapolation* _ep, int _n): ep
     // always copy the y values
     memcpy((void*)y, (void*)_y, n*sizeof(double));
 
+    if (rtf == NULL) {
+        rtf = new IdentityRTransform(n);
+        own_rtf = true;
+    } else if (rtf->get_npoint() != _n) {
+        throw std::invalid_argument("The length of the cubic spline array data does not match the given rtransform.");
+    }
+    first_x = rtf->radius(0);
+    last_x = rtf->radius(n-1);
+
     if (_d==NULL) {
-        // Make our own _d's
+        // Make our own d's
         double* diag_mid = new double[n];
         double* diag_up = new double[n-1];
         double* right =  new double[n];
@@ -121,8 +150,13 @@ CubicSpline::CubicSpline(double* _y, double* _d, Extrapolation* _ep, int _n): ep
         delete[] diag_up;
         delete[] right;
     } else {
-        // copy the given d's
-        memcpy(d, _d, n*sizeof(double));
+        // Transform the given d's. We get dy/dr, we want dy/dt
+        for (int i=0; i<n; i++) {
+            d[i] = _d[i]*rtf->deriv(i);
+#ifdef DEBUG
+            printf("TF GIVEN DERIVS d[%i]=%f _d[%i]=%f\n", i, d[i], i, _d[i]);
+#endif
+        }
     }
 
     if (ep == NULL) {
@@ -136,24 +170,28 @@ CubicSpline::~CubicSpline() {
     delete[] y;
     delete[] d;
     if (own_ep) delete ep;
+    if (own_rtf) delete rtf;
 }
 
 
 void CubicSpline::eval(double* new_x, double* new_y, int new_n) {
     for (int i=0; i<new_n; i++) {
-        if (*new_x < 0.0) {
+        if (*new_x < first_x) {
             // Left extrapolation
             *new_y = ep->eval_left(*new_x);
-        } else if (*new_x <= n-1) {
+        } else if (*new_x <= last_x) {
             // Cubic Spline interpolation
-            int j;
-            double u, z;
-            // find the index of the interval in which new_x[i] lies.
-            j = (int)floor(*new_x);
+            // 1) transform *new_x to t
+            double t = rtf->inv(*new_x);
+#ifdef DEBUG
+            printf("X_TO_T x=%f t=%f\n", *new_x, t);
+#endif
+            // 2) find the index of the interval in which t lies.
+            int j = (int)floor(t);
             if (j==n - 1) j = n - 2;
-            // do the interpolation
-            u = *new_x - j;
-            z = y[j+1] - y[j];
+            // 3) do the interpolation
+            double u = t - j;
+            double z = y[j+1] - y[j];
             *new_y = y[j] + u*(d[j] + u*(3*z - 2*d[j] - d[j+1] + u*(-2*z + d[j] + d[j+1])));
         } else {
             // Right extrapolation
@@ -166,20 +204,22 @@ void CubicSpline::eval(double* new_x, double* new_y, int new_n) {
 
 void CubicSpline::eval_deriv(double* new_x, double* new_d, int new_n) {
     for (int i=0; i<new_n; i++) {
-        if (*new_x < 0.0) {
+        if (*new_x < first_x) {
             // Left extrapolation
             *new_d = ep->eval_deriv_left(*new_x);
-        } else if (*new_x <= n-1) {
+        } else if (*new_x <= last_x) {
             // Cubic Spline interpolation
-            int j;
-            double u, z;
-            // find the index of the interval in which new_x[i] lies.
-            j = (int)floor(*new_x);
+            // 1) transform *new_x to t
+            double t = rtf->inv(*new_x);
+            // 2) find the index of the interval in which t lies.
+            int j = (int)floor(t);
             if (j==n - 1) j = n - 2;
-            // do the interpolation
-            u = *new_x - j;
-            z = y[j+1] - y[j];
+            // 3) do the interpolation
+            double u = t - j;
+            double z = y[j+1] - y[j];
             *new_d = d[j] + u*(6*z - 4*d[j] - 2*d[j+1] + u*(-6*z + 3*d[j] + 3*d[j+1]));
+            // 4) transform the derivative, from dy/dt to dy/dr
+            *new_d /= rtf->deriv(t);
         } else {
             // Right extrapolation
             *new_d = ep->eval_deriv_right(*new_x);
@@ -187,47 +227,6 @@ void CubicSpline::eval_deriv(double* new_x, double* new_d, int new_n) {
         new_x++;
         new_d++;
     }
-}
-
-void CubicSpline::eval_deriv2(double* new_x, double* new_d2, int new_n) {
-    for (int i=0; i<new_n; i++) {
-        if (*new_x < 0.0) {
-            // Left extrapolation
-            *new_d2 = ep->eval_deriv2_left(*new_x);
-        } else if (*new_x <= n-1) {
-            // Cubic Spline interpolation
-            int j;
-            double u, z;
-            // find the index of the interval in which new_x[i] lies.
-            j = (int)floor(*new_x);
-            if (j==n - 1) j = n - 2;
-            // do the interpolation
-            u = *new_x - j;
-            z = y[j+1] - y[j];
-            *new_d2 = 6*z - 4*d[j] - 2*d[j+1] + u*(-12*z + 6*d[j] + 6*d[j+1]);
-        } else {
-            // Right extrapolation
-            *new_d2 = ep->eval_deriv2_right(*new_x);
-        }
-        new_x++;
-        new_d2++;
-    }
-}
-
-double CubicSpline::integrate() {
-    double result;
-    double* worky = y;
-    double* workd = d;
-    result = 0.5*(*worky) + (*workd)/12.0;
-    worky++;
-    workd++;
-    for (int i=1; i<n-1; i++) {
-        result += *worky;
-        worky++;
-        workd++;
-    }
-    result += 0.5*(*worky) - (*workd)/12.0;
-    return result;
 }
 
 
@@ -240,8 +239,6 @@ double ZeroExtrapolation::eval_left(double x) {return 0.0;}
 double ZeroExtrapolation::eval_right(double x) {return 0.0;}
 double ZeroExtrapolation::eval_deriv_left(double x) {return 0.0;}
 double ZeroExtrapolation::eval_deriv_right(double x) {return 0.0;}
-double ZeroExtrapolation::eval_deriv2_left(double x) {return 0.0;}
-double ZeroExtrapolation::eval_deriv2_right(double x) {return 0.0;}
 
 
 /*
@@ -250,21 +247,23 @@ double ZeroExtrapolation::eval_deriv2_right(double x) {return 0.0;}
 
 void ExponentialExtrapolation::prepare(CubicSpline* cs) {
     int n = cs->n;
-    if ((cs->d[0] == 0.0) or (cs->d[n-1] == 0.0)) {
+    if ((cs->d[0] == 0.0) || (cs->d[n-1] == 0.0)) {
         throw std::domain_error("The exponential extrapolation makes no sense when the derivatives at the end points are zero.");
     }
+    BaseRTransform* rtf = cs->get_rtransform();
     a0 = cs->y[0];
-    b0 = cs->d[0]/cs->y[0];
+    b0 = cs->d[0]/cs->y[0]/rtf->deriv(0);
+    x0 = cs->get_first_x();
     a1 = cs->y[n-1];
-    b1 = cs->d[n-1]/cs->y[n-1];
-    x1 = n-1;
+    b1 = cs->d[n-1]/cs->y[n-1]/rtf->deriv(n-1);
+    x1 = cs->get_last_x();
 #ifdef DEBUG
-    printf("a0=%f b0=%f a1=%f b1=%f x1=%f\n", a0, b0, a1, b1, x1);
+    printf("PARS EXP EXTRAPOL a0=%f b0=%f x0=%f a1=%f b1=%f x1=%f\n", a0, b0, x0, a1, b1, x1);
 #endif
 }
 
 double ExponentialExtrapolation::eval_left(double x) {
-    return a0*exp(b0*x);
+    return a0*exp(b0*(x-x0));
 }
 
 double ExponentialExtrapolation::eval_right(double x) {
@@ -272,17 +271,9 @@ double ExponentialExtrapolation::eval_right(double x) {
 }
 
 double ExponentialExtrapolation::eval_deriv_left(double x) {
-    return a0*b0*exp(b0*x);
+    return a0*b0*exp(b0*(x-x0));
 }
 
 double ExponentialExtrapolation::eval_deriv_right(double x) {
     return a1*b1*exp(b1*(x-x1));
-}
-
-double ExponentialExtrapolation::eval_deriv2_left(double x) {
-    return a0*b0*b0*exp(b0*x);
-}
-
-double ExponentialExtrapolation::eval_deriv2_right(double x) {
-    return a1*b1*b1*exp(b1*(x-x1));
 }
