@@ -45,7 +45,7 @@ def check_consistency(rtf):
         assert ts[i] == rtf.inv(rs[i])
     # consistency between inv and radius
     for i in xrange(ts.shape[0]):
-        assert ts[i] == rtf.inv(rtf.radius(ts[i]))
+        assert abs(ts[i] - rtf.inv(rtf.radius(ts[i]))) < 1e-10
 
     ts = np.arange(rtf.npoint, dtype=float)
     # consistency of get_radii
