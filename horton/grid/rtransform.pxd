@@ -24,9 +24,11 @@ cdef extern from "rtransform.h":
         BaseRTransform(int npoint) except +
         double radius(double t)
         double deriv(double t)
+        double inv(double t)
 
         void radius_array(double* t, double* r, int n)
         void deriv_array(double* t, double* d, int n)
+        void inv_array(double* r, double* t, int n)
         int get_npoint()
 
 

@@ -30,9 +30,11 @@ class BaseRTransform {
         virtual ~BaseRTransform() {};
         virtual double radius(double t) = 0;
         virtual double deriv(double t) = 0;
+        virtual double inv(double r) = 0;
 
         void radius_array(double* t, double* r, int n);
         void deriv_array(double* t, double* d, int n);
+        void inv_array(double* r, double* t, int n);
         int get_npoint() {return npoint;};
     };
 
@@ -42,6 +44,7 @@ class IdentityRTransform : public BaseRTransform {
         IdentityRTransform(int npoint): BaseRTransform(npoint) {};
         virtual double radius(double t);
         virtual double deriv(double t);
+        virtual double inv(double r);
     };
 
 
@@ -52,6 +55,7 @@ class LinearRTransform : public BaseRTransform {
         LinearRTransform(double rmin, double rmax, int npoint);
         virtual double radius(double t);
         virtual double deriv(double t);
+        virtual double inv(double r);
 
         double get_rmin() {return rmin;};
         double get_rmax() {return rmax;};
@@ -66,6 +70,7 @@ class LogRTransform : public BaseRTransform {
         LogRTransform(double rmin, double rmax, int npoint);
         virtual double radius(double t);
         virtual double deriv(double t);
+        virtual double inv(double r);
 
         double get_rmin() {return rmin;};
         double get_rmax() {return rmax;};

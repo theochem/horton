@@ -281,6 +281,9 @@ cdef class BaseRTransform(object):
     def deriv(self, double t):
         return self._this.deriv(t)
 
+    def inv(self, double r):
+        return self._this.inv(r)
+
     def radius_array(self, np.ndarray[double, ndim=1] t not None,
                            np.ndarray[double, ndim=1] r not None):
         assert t.flags['C_CONTIGUOUS']
@@ -296,6 +299,14 @@ cdef class BaseRTransform(object):
         assert d.flags['C_CONTIGUOUS']
         assert d.shape[0] == n
         self._this.deriv_array(<double*>t.data, <double*>d.data, n)
+
+    def inv_array(self, np.ndarray[double, ndim=1] r not None,
+                        np.ndarray[double, ndim=1] t not None):
+        assert r.flags['C_CONTIGUOUS']
+        cdef int n = r.shape[0]
+        assert t.flags['C_CONTIGUOUS']
+        assert t.shape[0] == n
+        self._this.inv_array(<double*>r.data, <double*>t.data, n)
 
     def get_radii(self):
         '''Return an array with radii'''

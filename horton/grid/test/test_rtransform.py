@@ -38,6 +38,14 @@ def check_consistency(rtf):
     rtf.deriv_array(ts, ds)
     for i in xrange(ts.shape[0]):
         assert ds[i] == rtf.deriv(ts[i])
+    # consistency between inv and inv_array
+    ts[:] = 0.0
+    rtf.inv_array(rs, ts)
+    for i in xrange(ts.shape[0]):
+        assert ts[i] == rtf.inv(rs[i])
+    # consistency between inv and radius
+    for i in xrange(ts.shape[0]):
+        assert ts[i] == rtf.inv(rtf.radius(ts[i]))
 
     ts = np.arange(rtf.npoint, dtype=float)
     # consistency of get_radii
