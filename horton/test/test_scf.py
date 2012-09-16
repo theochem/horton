@@ -172,3 +172,16 @@ def test_scf_water_hfs_321g():
     assert convergence_error(ham) > 1e-8
     assert converge_scf(ham)
     assert convergence_error(ham) < 1e-8
+
+
+def test_hf_water_321g_mistake():
+    fn_xyz = context.get_fn('test/water.xyz')
+    sys = System.from_file(fn_xyz, obasis='3-21G')
+    sys.init_wfn(charge=0)
+    ham = Hamiltonian(sys, [HartreeFock()])
+    try:
+        converge_scf(ham)
+        success = False
+    except AssertionError:
+        success = True
+    assert success
