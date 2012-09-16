@@ -144,6 +144,13 @@ class CacheItem(object):
             raise TypeError('Do not know how to reset %s.' % self._value)
 
 
+class NoDefault(object):
+    pass
+
+
+no_default = NoDefault()
+
+
 class Cache(object):
     '''Object that stores previously computed results.
 
@@ -171,21 +178,30 @@ class Cache(object):
         # parse kwargs
         if len(kwargs) == 0:
             alloc = None
+            default = no_default
         elif len(kwargs) == 1:
-            name, alloc = kwargs.items()[0]
-            if name != 'alloc':
-                raise TypeError('Only one keyword argument is allowed: alloc')
+            name, value = kwargs.items()[0]
+            if name == 'alloc':
+                alloc = value
+                default = no_default
+            elif name == 'default':
+                alloc = None
+                default = value
+            else:
+                raise TypeError('Only one keyword argument is allowed: alloc or default')
         else:
-            raise TypeError('Only one keyword argument is allowed: alloc')
+            raise TypeError('Only one keyword argument is allowed: alloc or default')
 
         item = self._store.get(key)
         if item is None:
-            if alloc is None:
+            if alloc is None and default is no_default:
                 raise KeyError('Could not find item %s' % repr(key))
-            else:
+            elif default is no_default:
                 item = CacheItem.from_alloc(alloc)
                 self._store[key] = item
                 return item.value, True
+            else:
+                return default
         if alloc is None:
             if item.valid:
                 return item.value
