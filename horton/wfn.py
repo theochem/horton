@@ -27,6 +27,7 @@
 
 import numpy as np
 
+from horton.log import log
 from horton.exceptions import ElectronCountError
 
 
@@ -78,6 +79,17 @@ class BaseWFN(object):
         return self._norb
 
     norb = property(_get_norb)
+
+    def log(self):
+        '''Write a summary of the wavefunction to the screen logger'''
+        with log.section('WFN'):
+            log('Wavefunction object: %s' % self)
+            log('Number of electrons: %i' % self.nel)
+            labels = ['alpha', 'beta']
+            for expansion, nocc, scale in self.iter_expansions('full'):
+                log('Expansion for %s electrons:' % labels.pop(0))
+                log('  Number of orbitals:          %i' % expansion.nfn)
+                log('  Number of occupied orbitals: %i' % nocc)
 
     def iter_expansions(self):
         raise NotImplementedError

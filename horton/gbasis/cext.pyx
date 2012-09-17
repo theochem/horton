@@ -35,6 +35,8 @@ cimport iter_pow
 
 import atexit
 
+from horton.log import log
+
 
 __all__ = [
     # boys
@@ -334,6 +336,15 @@ cdef class GBasis:
     property max_shell_type:
         def __get__(self):
             return self._this.get_max_shell_type()
+
+    def log(self):
+        '''Write a summary of the basis to the screen logger'''
+        with log.section('BASIS'):
+            log('Basis set object: %s' % self)
+            log('  Number of basis functions:         %i' % self.nbasis)
+            log('  Number of normalization constants: %i' % self.nscales)
+            log('  Maximum shell type:                %i' % self.max_shell_type)
+            # TODO, add more details
 
     def get_scales(self):
         # A **copy** of the scales is returned.

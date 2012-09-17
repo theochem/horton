@@ -21,6 +21,7 @@
 
 
 from horton.cache import JustOnceClass, just_once, Cache
+from horton.log import log
 
 
 __all__ = ['BaseDPart']
@@ -55,12 +56,23 @@ class BaseDPart(JustOnceClass):
         # Caching stuff, to avoid recomputation of earlier results
         self.cache = Cache()
 
+        # Some screen logging
+        self._init_log()
+
         # Do the essential part of the partitioning. All derived properties
         # are optional.
         self._init_at_weights()
 
     def __getitem__(self, key):
         return self.cache.load(key)
+
+    def _init_log(self):
+        if log.do_medium:
+            with log.section('DPART'):
+                log('Performing a density-based AIM analysis.')
+                log('  Molecular grid:    &%s' % self._molgrid)
+                log('  System:            &%s' % self._system)
+                log('  Using local grids: &%s' % self._local)
 
     @just_once
     def _init_at_weights(self):
@@ -106,6 +118,10 @@ class BaseDPart(JustOnceClass):
 
     @just_once
     def do_mol_dens(self):
+        if log.do_medium:
+            with log.section('DPART'):
+                log('Computing densities on grids.')
+
         for i, grid in self.iter_grids():
             if i == 0 or self.local:
                 mol_dens, new = self.cache.load('mol_dens', i, alloc=grid.size)
@@ -117,6 +133,11 @@ class BaseDPart(JustOnceClass):
     @just_once
     def do_populations(self):
         self.do_mol_dens()
+
+        if log.do_medium:
+            with log.section('DPART'):
+                log('Computing atomic populations.')
+
         populations, new = self.cache.load('populations', alloc=self.system.natom)
         if new:
             for i, grid in self.iter_grids():
@@ -127,6 +148,11 @@ class BaseDPart(JustOnceClass):
     @just_once
     def do_charges(self):
         self.do_populations()
+
+        if log.do_medium:
+            with log.section('DPART'):
+                log('Computing atomic charges.')
+
         charges, new = self.cache.load('charges', alloc=self.system.natom)
         if new:
             populations = self.cache.load('populations')

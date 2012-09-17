@@ -32,7 +32,9 @@ import numpy as np
 import h5py as h5
 
 from horton.io import load_system_args
+from horton.log import log
 from horton.matrix import DenseLinalgFactory
+from horton.periodic import periodic
 from horton.wfn import ClosedShellWFN, OpenShellWFN
 
 
@@ -146,6 +148,8 @@ class System(object):
             raise TypeError('The chk argument, when given, must be a filename or an open h5.File object.')
         self.update_chk()
 
+        self._log_init()
+
     def __del__(self):
         # Close the HD5 checkpoint file. This must be done carefully to avoid
         # spurious error messages when an unrelated exception occurs.
@@ -251,6 +255,34 @@ class System(object):
 
         return cls(**constructor_args)
 
+    def _log_init(self):
+        '''Write some basic information about the system to the screen logger.'''
+        if log.do_medium:
+            with log.section('SYSTEM'):
+                log('Initialized system: %s' % self)
+                log('Number of atoms: %i' % self.natom)
+                uns = np.unique(self._numbers)
+                uns.sort()
+                for n in uns[::-1]:
+                    log('   Number of %2s: %i' % (periodic[n].symbol, (self.numbers==n).sum()))
+
+                if self._obasis is None:
+                    log('No orbital basis was specified.')
+                else:
+                    self._obasis.log()
+
+                if self._wfn is None:
+                    log('No wavefunction was specified.')
+                else:
+                    self._wfn.log()
+
+                if len(self._operators) > 0:
+                    log('The following operators are present: %s' % (', '.join(self._operators.iterkeys())))
+                if len(self._props) > 0:
+                    log('The following properties are present: %s' % (', '.join(self._props.iterkeys())))
+                if self._chk is not None:
+                    log('All numerical output is in the checkpoint file %s, in hdf5 group %s' % (self._chk.filename, self._chk.name))
+
     def update_chk(self, field_name=None):
         """Write (a part of) the system to the checkpoint file.
 
@@ -313,6 +345,13 @@ class System(object):
             nalpha = (nel + (mult-1))/2
             nbeta = (nel - (mult-1))/2
             self._wfn = OpenShellWFN(nalpha, nbeta, self.lf, self.obasis.nbasis)
+
+        if log.do_medium:
+            with log.section('SYSTEM'):
+                log('Succesful wavefunction initialization, without initial guess.')
+                log('  Charge: %i   Multiplicity: %i' % (charge, mult))
+                self._wfn.log()
+
 
     def get_overlap(self):
         overlap = self._operators.get('olp')
