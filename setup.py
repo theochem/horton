@@ -65,7 +65,7 @@ setup(
                      'horton/grid/rtransform.cpp',
                      'horton/grid/utils.cpp'],
             depends=['horton/grid/becke.h', 'horton/grid/becke.pxd',
-                     'horton/grid/cubic_spline.h', 'horton/grid/cubic_spline.pxd'
+                     'horton/grid/cubic_spline.h', 'horton/grid/cubic_spline.pxd',
                      'horton/grid/lebedev_laikov.h', 'horton/grid/lebedev_laikov.pxd',
                      'horton/grid/rtransform.h', 'horton/grid/rtransform.pxd',
                      'horton/grid/utils.h', 'horton/grid/utils.pxd'],
