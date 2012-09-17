@@ -20,6 +20,7 @@
 #--
 
 
+from horton.log import log
 from horton.wfn import ClosedShellWFN, OpenShellWFN
 
 
@@ -85,6 +86,14 @@ def converge_scf_cs(ham, max_iter=128, threshold=1e-8, mixing=0.0):
     '''
     if mixing >= 1 or mixing < 0:
         raise ValueError('The mixing argument should be in the range [0,1[.')
+
+    if log.do_medium:
+        with log.section('SCF'):
+            log('Starting restricted closed-shell SCF with mixing=%.3f' % mixing)
+            log.hline()
+            log('Iter  Error(alpha)')
+            log.hline()
+
     lf = ham.system.lf
     wfn = ham.system.wfn
     fock = lf.create_one_body()
@@ -100,6 +109,11 @@ def converge_scf_cs(ham, max_iter=128, threshold=1e-8, mixing=0.0):
             fock.iadd(old_fock)
         # Check for convergence
         error = lf.error_eigen(fock, ham.overlap, wfn.expansion)
+
+        if log.do_medium:
+            with log.section('SCF'):
+                log('%4i  %12.5e' % (i, error))
+
         if error < threshold:
             converged = True
             break
@@ -115,6 +129,12 @@ def converge_scf_cs(ham, max_iter=128, threshold=1e-8, mixing=0.0):
                 old_fock = lf.create_one_body()
             old_fock.reset()
             old_fock.iadd(fock)
+
+    if log.do_medium:
+        with log.section('SCF'):
+            log.hline()
+            log('SCF converged: %s' % converged)
+
     return converged
 
 
@@ -144,6 +164,14 @@ def converge_scf_os(ham, max_iter=128, threshold=1e-8, mixing=0.0):
     '''
     if mixing >= 1 or mixing < 0:
         raise ValueError('The mixing argument should be in the range [0,1[.')
+
+    if log.do_medium:
+        with log.section('SCF'):
+            log('Starting unrestricted open-shell SCF with mixing=%.3f' % mixing)
+            log.hline()
+            log('Iter  Error(alpha)  Error(beta)')
+            log.hline()
+
     lf = ham.system.lf
     wfn = ham.system.wfn
     fock_alpha = lf.create_one_body()
@@ -166,6 +194,11 @@ def converge_scf_os(ham, max_iter=128, threshold=1e-8, mixing=0.0):
         # Check for convergence
         error_alpha = lf.error_eigen(fock_alpha, ham.overlap, wfn.alpha_expansion)
         error_beta = lf.error_eigen(fock_beta, ham.overlap, wfn.beta_expansion)
+
+        if log.do_medium:
+            with log.section('SCF'):
+                log('%4i  %12.5e  %12.5e' % (i, error_alpha, error_beta))
+
         if error_alpha < threshold and error_beta < threshold:
             converged = True
             break
@@ -185,6 +218,12 @@ def converge_scf_os(ham, max_iter=128, threshold=1e-8, mixing=0.0):
             old_fock_alpha.iadd(fock)
             old_fock_beta.reset()
             old_fock_beta.iadd(fock)
+
+    if log.do_medium:
+        with log.section('SCF'):
+            log.hline()
+            log('SCF converged: %s' % converged)
+
     return converged
 
 

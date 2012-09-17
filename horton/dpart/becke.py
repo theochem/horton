@@ -25,6 +25,7 @@ import numpy as np
 from horton.cache import just_once
 from horton.dpart.base import BaseDPart
 from horton.grid.cext import becke_helper_atom
+from horton.log import log
 from horton.periodic import periodic
 
 
@@ -34,8 +35,15 @@ __all__ = ['BeckeDPart']
 class BeckeDPart(BaseDPart):
     '''Class for Becke partitioning'''
     def __init__(self, molgrid, local=True, k=3):
-        self._k = 3
+        self._k = k
         BaseDPart.__init__(self, molgrid, local)
+
+    def _init_log(self):
+        BaseDPart._init_log(self)
+        if log.do_medium:
+            with log.section('DPART'):
+                log('  Scheme:            &Becke')
+                log('  Switching function:&k=%i' % self._k)
 
     @just_once
     def _init_at_weights(self):

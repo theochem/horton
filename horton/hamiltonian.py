@@ -22,6 +22,7 @@
 
 import numpy as np
 
+from horton.log import log
 from horton.cache import Cache
 
 
@@ -97,13 +98,29 @@ class Hamiltonian(object):
 
            The total energy, including nuclear-nuclear repulsion.
         '''
+        if log.do_medium:
+            with log.section('ENERGY'):
+                log('Computing the energy of the system.')
+                log.hline()
+                log('         Energy term  Value')
+                log.hline()
+
         total = 0.0
         for term in self.terms:
             total += term.compute_energy()
-        total += self.system.compute_nucnuc()
+
+        energy = self.system.compute_nucnuc()
+        total += energy
         # Store result in chk file
         self.system._props['energy'] = total
         self.system.update_chk('props')
+
+        if log.do_medium:
+            with log.section('ENERGY'):
+                log('%20s  %20.10f' % ('nn', energy))
+                log('%20s  %20.10f' % ('total', total))
+                log.hline()
+
         return total
 
     def compute_fock(self, fock_alpha, fock_beta):
@@ -126,6 +143,7 @@ class Hamiltonian(object):
 
 class HamiltonianTerm(object):
     require_grid = False
+
     def prepare_system(self, system, cache, grid):
         self.system = system
         self.cache = cache
@@ -144,6 +162,12 @@ class HamiltonianTerm(object):
             self.system.wfn.compute_density_matrix(dm, select)
         return dm
 
+    def store_energy(self, suffix, energy):
+        self.system._props['energy_%s' % suffix] = energy
+        if log.do_medium:
+            with log.section('ENERGY'):
+                log('%20s  %20.10f' % (suffix, energy))
+
     def compute_energy(self):
         raise NotImplementedError
 
@@ -158,7 +182,7 @@ class FixedTerm(HamiltonianTerm):
        have to be recomputed when the density matrix changes.
     '''
     def get_operator(self, system):
-        # subclasses should return the operator and a suffix for the energy_* property.
+        # subclasses should return the operator and a suffix.
         raise NotImplementedError
 
     def prepare_system(self, system, cache, grid):
@@ -170,7 +194,7 @@ class FixedTerm(HamiltonianTerm):
             result = 2*self.operator.expectation_value(self.get_dm('alpha'))
         else:
             result = self.operator.expectation_value(self.get_dm('full'))
-        self.system._props['energy_%s' % self.suffix] = result
+        self.store_energy(self.suffix, result)
         return result
 
     def add_fock_matrix(self, fock_alpha, fock_beta):
@@ -213,7 +237,7 @@ class Hartree(HamiltonianTerm):
             result = coulomb.expectation_value(self.get_dm('alpha'))
         else:
             result = 0.5*coulomb.expectation_value(self.get_dm('full'))
-        self.system._props['energy_hartree'] = result
+        self.store_energy('hartree', result)
         return result
 
     def add_fock_matrix(self, fock_alpha, fock_beta):
@@ -252,7 +276,7 @@ class HartreeFock(Hartree):
         else:
             energy_fock = -0.5*self.cache.load('op_exchange_fock_alpha').expectation_value(self.get_dm('alpha')) \
                           -0.5*self.cache.load('op_exchange_fock_beta').expectation_value(self.get_dm('beta'))
-        self.system._props['energy_exchange_fock'] = energy_fock
+        self.store_energy('exchange_fock', energy_fock)
         return energy_hartree + self.fraction_exchange*energy_fock
 
     def add_fock_matrix(self, fock_alpha, fock_beta):
@@ -323,7 +347,7 @@ class DiracExchange(HamiltonianTerm):
         else:
             energy *= 2
         energy *= 3.0/4.0
-        self.system._props['energy_exchange_dirac'] = energy
+        self.store_energy('exchange_dirac', energy)
         return energy
 
     def add_fock_matrix(self, fock_alpha, fock_beta):

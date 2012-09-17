@@ -20,6 +20,9 @@
 #--
 
 
+__version__ = '0'
+
+
 from horton.cache import *
 from horton.checkpoint import *
 from horton.constants import *
@@ -31,6 +34,7 @@ from horton.grid import *
 from horton.guess import *
 from horton.hamiltonian import *
 from horton.io import *
+from horton.log import *
 from horton.matrix import *
 from horton.periodic import *
 from horton.scf import *
