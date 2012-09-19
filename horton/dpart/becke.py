@@ -41,9 +41,11 @@ class BeckeDPart(BaseDPart):
     def _init_log(self):
         BaseDPart._init_log(self)
         if log.do_medium:
-            with log.section('DPART'):
-                log('  Scheme:            &Becke')
-                log('  Switching function:&k=%i' % self._k)
+            log.deflist([
+                ('Scheme', 'Becke'),
+                ('Switching function', 'k=%i' % self._k),
+            ])
+            log.cite('becke1988_multicenter', 'the use of Becke partitioning')
 
     @just_once
     def _init_at_weights(self):

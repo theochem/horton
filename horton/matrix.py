@@ -50,6 +50,8 @@
 
 import numpy as np
 
+from horton.log import log
+
 
 __all__ = [
     'BaseLinalgFactory', 'BaseOneBody',
@@ -219,11 +221,15 @@ class DenseExpansion(object):
         """
         if nfn is None:
             nfn = nbasis
+        log.mem.announce(nbasis*nfn*8)
         self._coeffs = np.zeros((nbasis, nfn), float)
         if do_energies:
             self._energies = np.zeros(nfn, float)
         else:
             self._energies = None
+
+    def __del__(self):
+        log.mem.denounce(self.nbasis*self.nfn*8)
 
     def read_from_hdf5(self, grp):
         if grp.attrs['class'] != self.__class__.__name__:
@@ -336,7 +342,11 @@ class DenseOneBody(BaseOneBody):
            nbasis
                 The number of basis functions.
         """
+        log.mem.announce(nbasis**2*8)
         self._array = np.zeros((nbasis, nbasis), float)
+
+    def __del__(self):
+        log.mem.denounce(self.nbasis**2*8)
 
     @classmethod
     def from_hdf5(cls, grp, lf):
@@ -410,7 +420,11 @@ class DenseTwoBody(object):
            nbasis
                 The number of basis functions.
         """
+        log.mem.announce(nbasis**4*8)
         self._array = np.zeros((nbasis, nbasis, nbasis, nbasis), float)
+
+    def __del__(self):
+        log.mem.denounce(self.nbasis**4*8)
 
     @classmethod
     def from_hdf5(cls, grp, lf):

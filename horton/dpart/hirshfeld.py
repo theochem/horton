@@ -39,9 +39,11 @@ class HirshfeldDPart(BaseDPart):
     def _init_log(self):
         BaseDPart._init_log(self)
         if log.do_medium:
-            with log.section('DPART'):
-                log('  Scheme:            &Hirshfeld')
-                log('  Proatomic DB:      &%s' % self._proatomdb)
+            log.deflist([
+                ('Scheme', 'Hirshfeld'),
+                ('Proatomic DB',  self._proatomdb),
+            ])
+            log.cite('hirshfeld1977', 'for the use of Hirshfeld partitioning')
 
     @just_once
     def _init_proatom_fns(self):

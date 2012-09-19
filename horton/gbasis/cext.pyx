@@ -277,6 +277,9 @@ cdef class GBasis:
         if (self._alphas.shape[0] != nprim_total):
             raise TypeError('The length of alphas must equal the total number of primitives.')
 
+    def __init__(self, centers, shell_map, nprims, shell_types, alphas, con_coeffs):
+        self._log_init()
+
     def __dealloc__(self):
         del self._this
 
@@ -311,9 +314,9 @@ cdef class GBasis:
 
     # Array sizes
 
-    property ncenters:
+    property ncenter:
         def __get__(self):
-            return self.center.shape[0]
+            return self.centers.shape[0]
 
     property nshell:
         def __get__(self):
@@ -337,14 +340,30 @@ cdef class GBasis:
         def __get__(self):
             return self._this.get_max_shell_type()
 
-    def log(self):
+    def _log_init(self):
         '''Write a summary of the basis to the screen logger'''
-        with log.section('BASIS'):
-            log('Basis set object: %s' % self)
-            log('  Number of basis functions:         %i' % self.nbasis)
-            log('  Number of normalization constants: %i' % self.nscales)
-            log('  Maximum shell type:                %i' % self.max_shell_type)
-            # TODO, add more details
+        if log.do_medium:
+            log('Initialized: %s' % self)
+            log.deflist([
+                ('Number of basis functions', self.nbasis),
+                ('Number of normalization constants', self.nscales),
+                ('Maximum shell type', self.max_shell_type),
+            ])
+            shell_type_names = {
+                0: 'S', 1: 'P', 2: 'Dc', 3: 'Fc', 4:'Gc', 5: 'Hc', 6: 'Ic',
+                -2: 'Dp', -3: 'Fp', -4:'Gp', -5: 'Hp', -6: 'Ip',
+            }
+            descs = ['']*self.ncenter
+            for i in xrange(self.nshell):
+                icenter = self.shell_map[i]
+                s = descs[icenter]
+                name = shell_type_names[self.shell_types[i]]
+                s += ' %s%i' % (name, self.nprims[i])
+                descs[icenter] = s
+            deflist = []
+            for i in xrange(self.ncenter):
+                deflist.append(('Center % 5i' % i, descs[i]))
+            log.deflist(deflist)
 
     def get_scales(self):
         # A **copy** of the scales is returned.

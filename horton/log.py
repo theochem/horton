@@ -28,13 +28,10 @@
    Horton objects.
 '''
 
-# TODO: - track memory usage
-# TODO: - track references that should be cited
-# TODO: - use timer
 # TODO: - use the logger in all current code
-# TODO: - find more convenient ways of using the logger
 
-import sys, os, datetime, getpass, time, codecs, locale, functools, atexit
+import sys, os, datetime, getpass, time, codecs, locale, atexit, traceback, \
+    resource
 from contextlib import contextmanager
 import horton
 
@@ -51,9 +48,8 @@ class ScreenLog(object):
     high = 4
     debug = 5
 
-    # screen parameters
-    margin = 9
-    width = 71
+    # screen parameter
+    width = 80
 
     def __init__(self, name, version, head_banner, foot_banner, timer, f=None):
         self.name = name
@@ -62,11 +58,11 @@ class ScreenLog(object):
         self.foot_banner = foot_banner
         self.timer = timer
 
+        self._biblio = None
+        self.mem = MemoryLogger()
         self._active = False
         self._level = self.medium
-        self.prefix = ' '*(self.margin-1)
-        self._last_used_prefix = None
-        self.stack = []
+        self._last_used_location = None
         self.add_newline = False
         if f is None:
             _file = sys.stdout
@@ -81,27 +77,6 @@ class ScreenLog(object):
     do_high = property(lambda self: self._level >= self.high)
     do_debug = property(lambda self: self._level >= self.debug)
 
-    def _pass_color_code(self, code):
-        if self._file.isatty():
-            return code
-        else:
-            return ''
-
-    reset =     property(functools.partial(_pass_color_code, code="\033[0m"))
-    bold =      property(functools.partial(_pass_color_code, code="\033[01m"))
-    teal =      property(functools.partial(_pass_color_code, code="\033[36;06m"))
-    turquoise = property(functools.partial(_pass_color_code, code="\033[36;01m"))
-    fuchsia =   property(functools.partial(_pass_color_code, code="\033[35;01m"))
-    purple =    property(functools.partial(_pass_color_code, code="\033[35;06m"))
-    blue =      property(functools.partial(_pass_color_code, code="\033[34;01m"))
-    darkblue =  property(functools.partial(_pass_color_code, code="\033[34;06m"))
-    green =     property(functools.partial(_pass_color_code, code="\033[32;01m"))
-    darkgreen = property(functools.partial(_pass_color_code, code="\033[32;06m"))
-    yellow =    property(functools.partial(_pass_color_code, code="\033[33;01m"))
-    brown =     property(functools.partial(_pass_color_code, code="\033[33;06m"))
-    red =       property(functools.partial(_pass_color_code, code="\033[31;01m"))
-
-
     def set_level(self, level):
         if level < self.silent or level > self.debug:
             raise ValueError('The level must be one of the ScreenLog attributes.')
@@ -112,12 +87,15 @@ class ScreenLog(object):
         if not self.do_warning:
             raise RuntimeError('The runlevel should be at least warning when logging.')
         if not self._active:
-            prefix = self.prefix
             self.print_header()
-            self.prefix = prefix
-        if self.add_newline and self.prefix != self._last_used_prefix:
+
+        # Inform user about current location in the source code
+        location = self._get_location()
+        if location != self._last_used_location:
+            self._last_used_location = location
             print >> self._file
-            self.add_newline = False
+            print >> self._file, ('<<< %s' % location).rjust(self.width)
+
         # Check for alignment code '&'
         pos = s.find(u'&')
         if pos == -1:
@@ -129,7 +107,8 @@ class ScreenLog(object):
         width = self.width - len(lead)
         if width < self.width/2:
             raise ValueError('The lead may not exceed half the width of the terminal.')
-        # break and print the line
+
+        # Break and print the line
         first = True
         while len(rest) > 0:
             if len(rest) > width:
@@ -143,11 +122,10 @@ class ScreenLog(object):
             else:
                 current = rest
                 rest = u''
-            print >> self._file, u'%s %s%s' % (self.prefix, lead, current)
+            print >> self._file, u'%s%s' % (lead, current)
             if first:
                 lead = u' '*len(lead)
                 first = False
-        self._last_used_prefix = self.prefix
 
     def warn(self, *words):
         text = u'WARNING!!&'+u' '.join(unicode(w) for w in words)
@@ -155,7 +133,7 @@ class ScreenLog(object):
         self(text)
 
     def hline(self, char='~'):
-        self(char*self.width)
+        print >> self._file, char*self.width
 
     def center(self, *words, **kwargs):
         if len(kwargs) == 0:
@@ -174,25 +152,16 @@ class ScreenLog(object):
     def blank(self):
         print >> self._file
 
-    def _enter(self, prefix):
-        if len(prefix) > self.margin-1:
-            raise ValueError('The prefix must be at most %s characters wide.' % (self.margin-1))
-        self.stack.append(self.prefix)
-        self.prefix = prefix.upper().rjust(self.margin-1, ' ')
-        self.add_newline = True
+    def deflist(self, l):
+        widest = max(len(item[0]) for item in l)
+        for name, value in l:
+            self('  %s :&%s' % (name.ljust(widest), value))
 
-    def _exit(self):
-        self.prefix = self.stack.pop(-1)
-        if self._active:
-            self.add_newline = True
-
-    @contextmanager
-    def section(self, prefix):
-        self._enter(prefix)
-        try:
-            yield
-        finally:
-            self._exit()
+    def cite(self, key, reason):
+        if self._biblio is None:
+            filename = horton.context.get_fn('references.bib')
+            self._biblio = Biblio(filename)
+        self._biblio.cite(key, reason)
 
     def print_header(self):
         if self.do_warning and not self._active:
@@ -202,21 +171,44 @@ class ScreenLog(object):
 
     def print_footer(self):
         if self.do_warning and self._active:
+            self._print_references()
             self._print_basic_info()
             self.timer._stop('Total')
             self.timer.report(self)
             print >> self._file, self.foot_banner
 
+    def _get_location(self):
+        tb = traceback.extract_stack()
+        hit = False
+        for row in tb[::-1]:
+            in_log = row[0].endswith('horton/log.py')
+            if in_log and row[2] == '__call__':
+                if hit:
+                    result = row[0]
+                    break
+                else:
+                    hit = True
+            elif hit and not in_log:
+                result = row[0]
+                break
+        if 'horton/' not in result:
+            result = tb[-1][0]
+        result = result[result.find('horton/'):]
+        return result
+
+    def _print_references(self):
+        if self._biblio is not None:
+            self._biblio.log()
+
     def _print_basic_info(self):
         if self.do_low:
-            with self.section('ENV'):
-                self('User:          &' + getpass.getuser())
-                self('Machine info:  &' + ' '.join(os.uname()))
-                self('Time:          &' + datetime.datetime.now().isoformat())
-                self('Python version:&' + sys.version.replace('\n', ''))
-                self('%s&%s' % (('%s version:' % self.name).ljust(15), self.version))
-                self('Current Dir:   &' + os.getcwd())
-                self('Command line:  &' + ' '.join(sys.argv))
+            self('User:          &' + getpass.getuser())
+            self('Machine info:  &' + ' '.join(os.uname()))
+            self('Time:          &' + datetime.datetime.now().isoformat())
+            self('Python version:&' + sys.version.replace('\n', ''))
+            self('%s&%s' % (('%s version:' % self.name).ljust(15), self.version))
+            self('Current Dir:   &' + os.getcwd())
+            self('Command line:  &' + ' '.join(sys.argv))
 
 
 class Timer(object):
@@ -275,6 +267,7 @@ class TimerGroup(object):
             self._stop(label)
 
     def _start(self, label):
+        assert len(label) <= 14
         # get the right timer object
         timer = self.parts.get(label)
         if timer is None:
@@ -305,29 +298,140 @@ class TimerGroup(object):
         max_own_cpu = self.get_max_own_cpu()
         #if max_own_cpu == 0.0:
         #    return
-        with log.section('TIMER'):
-            log('Overview of CPU time usage.')
+        log.blank()
+        log('Overview of CPU time usage.')
+        log.hline()
+        log('Label             Total      Own')
+        log.hline()
+        bar_width = log.width-33
+        for label, timer in sorted(self.parts.iteritems()):
+            #if timer.total.cpu == 0.0:
+            #    continue
+            if max_own_cpu > 0:
+                cpu_bar = "W"*int(timer.own.cpu/max_own_cpu*bar_width)
+            else:
+                cpu_bar = ""
+            log('%14s %8.1f %8.1f %s' % (
+                label.ljust(14),
+                timer.total.cpu, timer.own.cpu, cpu_bar.ljust(bar_width),
+            ))
+        log.hline()
+        ru = resource.getrusage(resource.RUSAGE_SELF)
+        log.deflist([
+            ('CPU user time', '% 10.2f' % ru.ru_utime),
+            ('CPU sysem time', '% 10.2f' % ru.ru_stime),
+            ('Page swaps', '% 10i' % ru.ru_nswap),
+        ])
+        log.hline()
+
+
+class Reference(object):
+    def __init__(self, kind, key):
+        self.kind = kind
+        self.key = key
+        self.tags = {}
+
+    def format_str(self):
+        if self.kind == 'article':
+            if 'doi' in self.tags:
+                url = ';http://dx.doi.org/%s' % self.tags['doi']
+            else:
+                url = ''
+            return '%s; %s %s (v. %s pp. %s)%s' % (
+                self.tags['author'].replace(' and', ';'), self.tags['journal'],
+                self.tags['year'], self.tags['volume'], self.tags['pages'], url,
+            )
+        else:
+            raise NotImplementedError
+
+
+class Biblio(object):
+    def __init__(self, filename):
+        self.filename = filename
+        self._records = {}
+        self._cited = {}
+        self._done = set([])
+        self._load(filename)
+
+    def _load(self, filename):
+        with open(filename) as f:
+            current = None
+            for line in f:
+                line = line[:line.find('%')].strip()
+                if len(line) == 0:
+                    continue
+                if line.startswith('@'):
+                    assert current is None
+                    kind = line[line.find('@')+1:line.find('{')]
+                    key = line[line.find('{')+1:line.find(',')]
+                    current = Reference(kind, key)
+                elif line == '}':
+                    assert current is not None
+                    self._records[current.key] = current
+                    current = None
+                elif current is not None:
+                    tag = line[:line.find('=')].strip()
+                    value = line[line.find('=')+1:].strip()
+                    assert value[0] == '{'
+                    assert value[-2:] == '},' or value[-1] == '}'
+                    if value[-1] == '}':
+                        value = value[1:-1]
+                    else:
+                        value = value[1:-2]
+                    current.tags[tag] = value
+
+    def cite(self, key, reason):
+        if (key, reason) not in self._done:
+            self._cited[key] = self._records[key]
+            self._done.add((key, reason))
+            log('Please cite "%s" for %s.' % (key, reason))
+
+    def log(self):
+        if log.do_medium:
+            log('The following references were cited:')
             log.hline()
-            log('Label             Total      Own')
+            log.deflist([
+                (key, reference.format_str()) for key, reference
+                in sorted(self._cited.iteritems())
+            ])
             log.hline()
-            bar_width = log.width-33
-            for label, timer in sorted(self.parts.iteritems()):
-                #if timer.total.cpu == 0.0:
-                #    continue
-                if max_own_cpu > 0:
-                    cpu_bar = "W"*int(timer.own.cpu/max_own_cpu*bar_width)
-                else:
-                    cpu_bar = ""
-                log('%14s %8.1f %8.1f %s' % (
-                    label.ljust(14),
-                    timer.total.cpu, timer.own.cpu, cpu_bar.ljust(bar_width),
-                ))
-            log.hline()
+            log('Details can be found in the file %s' % self.filename)
+            log.blank()
+
+
+class MemoryLogger(object):
+    def __init__(self):
+        self._big = 0
+
+    def announce(self, amount):
+        unit = float(1024*1024)
+        if log.do_high:
+            log('Will allocate: %.1f MB. Current: %.1f MB. RSS: %.1f MB' %(
+                amount/unit, self._big/unit, self.get_rss()/unit
+            ))
+            self._big += amount
+        if log.do_debug:
+            traceback.print_stack()
+            log.blank()
+
+    def denounce(self, amount):
+        unit = float(1024*1024)
+        if log.do_high:
+            log('Will release:  %.1f MB. Current: %.1f MB. RSS: %.1f MB' %(
+                amount/unit, self._big/unit, self.get_rss()/unit
+            ))
+            self._big -= amount
+        if log.do_debug:
+            traceback.print_stack()
+            log.blank()
+
+    def get_rss(self):
+        return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*resource.getpagesize()
 
 
 head_banner = """\
  _ __ _
-/ |..| \ Welcome to Horton, an open source constrained HF/DFT/1RDM program.
+/ (..) \ Welcome to Horton, an open source constrained HF/DFT/1RDM program.
 \/ || \/
  |_''_|  Horton is written by Toon Verstraelen (1) and Matthew Chan (2).
 
@@ -341,13 +445,13 @@ head_banner = """\
          computation. Useful numerical output may be written to a checkpoint
          file and is accessible through the Python scripting interface.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"""
+================================================================================"""
 
 
 foot_banner = """
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+================================================================================
  _    _
-/ >--< \ End of the Horton program.
+/ )--( \ End of the Horton program.
 \|  \ |/
  |_||_|  Thank you for using Horton! See you soon!
 """

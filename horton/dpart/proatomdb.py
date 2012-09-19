@@ -28,6 +28,7 @@ from horton.grid.atgrid import AtomicGrid
 from horton.grid.cext import BaseRTransform, CubicSpline
 from horton.guess import guess_hamiltonian_core
 from horton.hamiltonian import Hamiltonian
+from horton.log import log
 from horton.scf import converge_scf
 from horton.system import System
 
@@ -49,6 +50,7 @@ class ProAtomDB(object):
         '''
         self._rtransform = rtransform
         self._records = records
+        self._log_init()
 
     @classmethod
     def from_file(cls, filename):
@@ -162,6 +164,17 @@ class ProAtomDB(object):
 
         # Create the object.
         return cls(atgrid.rtransform, records)
+
+    # TODO: add @classmethod from_checkpoints
+
+    def _log_init(self):
+        if log.do_medium:
+            log('Initialized: %s' % self)
+            log.deflist([
+                ('Records', self._records.keys()),
+                ('Radial Transform', self._rtransform.to_string()),
+            ])
+            log.blank()
 
     def to_file(self, filename):
         '''Write the database to an HDF5 file

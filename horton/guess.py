@@ -21,7 +21,7 @@
 """Initial guesses for wavefunctions"""
 
 
-from horton.log import log
+from horton.log import log, timer
 from horton.wfn import ClosedShellWFN, OpenShellWFN
 
 
@@ -30,14 +30,14 @@ __all__ = ['guess_hamiltonian_core']
 
 def guess_hamiltonian_core(system):
     if log.do_medium:
-        with log.section('GUESS'):
-            log('Performing a hamiltonian core guess.')
-    if isinstance(system.wfn, ClosedShellWFN):
-        guess_hamiltonian_core_cs(system)
-    elif isinstance(system.wfn, OpenShellWFN):
-        guess_hamiltonian_core_os(system)
-    else:
-        raise NotImplementedError
+        log('Performing a hamiltonian core guess.')
+    with timer.section('Initial Guess'):
+        if isinstance(system.wfn, ClosedShellWFN):
+            guess_hamiltonian_core_cs(system)
+        elif isinstance(system.wfn, OpenShellWFN):
+            guess_hamiltonian_core_os(system)
+        else:
+            raise NotImplementedError
 
 
 def guess_hamiltonian_core_cs(system):

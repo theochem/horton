@@ -21,10 +21,52 @@
 #--
 
 
-import glob
+import os
+from glob import glob
 from distutils.core import setup
 from distutils.extension import Extension
+from distutils.command.install_data import install_data
 from Cython.Distutils import build_ext
+
+
+def get_sources(dirname):
+    # avoid accidental inclusion of in-place build files and inc files
+    result = [fn for fn in glob('%s/*.cpp' % dirname)
+              if not (('ext.cpp' in fn) or ('_inc.cpp' in fn))]
+    result.append('%s/cext.pyx' % dirname)
+    return result
+
+
+def get_depends(dirname):
+    result = glob('%s/*.h' % dirname)
+    result += glob('%s/*.pxd' % dirname)
+    result += glob('%s/*_inc.pxd' % dirname)
+    return result
+
+
+
+
+class my_install_data(install_data):
+    """Add a datadir.txt file that points to the root for the data files. It is
+       otherwise impossible to figure out the location of these data files at
+       runtime.
+    """
+    def run(self):
+        # Do the normal install_data
+        install_data.run(self)
+        # Create the file datadir.txt. It's exact content is only known
+        # at installation time.
+        dist = self.distribution
+        libdir = dist.command_obj["install_lib"].install_dir
+        for name in dist.packages:
+            if '.' not in name:
+                destination = os.path.join(libdir, name, "data_dir.txt")
+                print "Creating %s" % destination
+                if not self.dry_run:
+                    f = file(destination, "w")
+                    print >> f, self.install_dir
+                    f.close()
+
 
 setup(
     name='Horton',
@@ -34,41 +76,26 @@ setup(
     author_email='Toon.Verstraelen@UGent.be',
     url='http://molmod.ugent.be/code/',
     package_dir = {'horton': 'horton'},
-    packages=['horton', 'horton/test',
-              'horton/dpart', 'horton/dpart/test',
-              'horton/grid', 'horton/grid/test',
-              'horton/gbasis', 'horton/gbasis/test'],
-    cmdclass = {'build_ext': build_ext},
+    packages=['horton', 'horton.test',
+              'horton.dpart', 'horton.dpart.test',
+              'horton.grid', 'horton.grid.test',
+              'horton.gbasis', 'horton.gbasis.test'],
+    cmdclass = {'build_ext': build_ext, 'install_data': my_install_data},
+    data_files=[
+        ('share/horton/', glob('data//*.*')),
+        ('share/horton/test', glob('data/test/*.*')),
+        ('share/horton/basis', glob('data/basis/*.*')),
+    ],
     ext_modules=[
         Extension("horton.gbasis.cext",
-            sources=['horton/gbasis/boys.cpp', 'horton/gbasis/calc.cpp',
-                     'horton/gbasis/cartpure.cpp', 'horton/gbasis/cext.pyx',
-                     'horton/gbasis/common.cpp', 'horton/gbasis/fns.cpp',
-                     'horton/gbasis/gbasis.cpp', 'horton/gbasis/ints.cpp',
-                     'horton/gbasis/iter_gb.cpp', 'horton/gbasis/iter_pow.cpp'],
-            depends=['horton/gbasis/boys.h', 'horton/gbasis/boys_inc.cpp', 'horton/gbasis/boys.pxd',
-                     'horton/gbasis/calc.h',
-                     'horton/gbasis/cartpure.h', 'horton/gbasis/cartpure.pxd',
-                     'horton/gbasis/common.h', 'horton/gbasis/common.pxd',
-                     'horton/gbasis/fns.h', 'horton/gbasis/fns.pxd',
-                     'horton/gbasis/gbasis.h', 'horton/gbasis/gbasis.pxd',
-                     'horton/gbasis/ints.h', 'horton/gbasis/ints.pxd',
-                     'horton/gbasis/iter_gb.h', 'horton/gbasis/iter_gb.pxd',
-                     'horton/gbasis/iter_pow.h', 'horton/gbasis/iter_pow.pxd'],
+            sources=get_sources('horton/gbasis'),
+            depends=get_depends('horton/gbasis'),
             extra_objects=['depends/libint-2.0.0-stable/lib/libint2.a'],
             include_dirs=['depends/libint-2.0.0-stable/include'],
             language="c++"),
         Extension("horton.grid.cext",
-            sources=['horton/grid/becke.cpp', 'horton/grid/cext.pyx',
-                     'horton/grid/cubic_spline.cpp',
-                     'horton/grid/lebedev_laikov.cpp',
-                     'horton/grid/rtransform.cpp',
-                     'horton/grid/utils.cpp'],
-            depends=['horton/grid/becke.h', 'horton/grid/becke.pxd',
-                     'horton/grid/cubic_spline.h', 'horton/grid/cubic_spline.pxd',
-                     'horton/grid/lebedev_laikov.h', 'horton/grid/lebedev_laikov.pxd',
-                     'horton/grid/rtransform.h', 'horton/grid/rtransform.pxd',
-                     'horton/grid/utils.h', 'horton/grid/utils.pxd'],
+            sources=get_sources('horton/grid'),
+            depends=get_depends('horton/grid'),
             language="c++"),
     ],
     classifiers=[

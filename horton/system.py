@@ -124,11 +124,6 @@ class System(object):
             self._props = props
 
         # Some consistency checks
-        if len(self.numbers.shape) != 1 or \
-           len(self.coordinates.shape) != 2 or \
-           self.coordinates.shape[1] != 3 or \
-           len(self.numbers) != len(self.coordinates):
-            raise TypeError('Inconsistent or incorrect shapes of numbers and coordinates.')
         if self.obasis is not None:
             if self._wfn is not None and self._obasis.nbasis != self._wfn.nbasis:
                 raise TypeError('The nbasis attributes of obasis and wfn are inconsistent.')
@@ -258,30 +253,20 @@ class System(object):
     def _log_init(self):
         '''Write some basic information about the system to the screen logger.'''
         if log.do_medium:
-            with log.section('SYSTEM'):
-                log('Initialized system: %s' % self)
-                log('Number of atoms: %i' % self.natom)
-                uns = np.unique(self._numbers)
-                uns.sort()
-                for n in uns[::-1]:
-                    log('   Number of %2s: %i' % (periodic[n].symbol, (self.numbers==n).sum()))
-
-                if self._obasis is None:
-                    log('No orbital basis was specified.')
-                else:
-                    self._obasis.log()
-
-                if self._wfn is None:
-                    log('No wavefunction was specified.')
-                else:
-                    self._wfn.log()
-
-                if len(self._operators) > 0:
-                    log('The following operators are present: %s' % (', '.join(self._operators.iterkeys())))
-                if len(self._props) > 0:
-                    log('The following properties are present: %s' % (', '.join(self._props.iterkeys())))
-                if self._chk is not None:
-                    log('All numerical output is in the checkpoint file %s, in hdf5 group %s' % (self._chk.filename, self._chk.name))
+            log('Initialized: %s' % self)
+            log.deflist(
+                [('Number of atoms', self.natom)] +
+                [('Number of %s' % periodic[n].symbol, (self.numbers==n).sum()) for n in sorted(np.unique(self.numbers))] + [
+                ('Linalg Factory', self._lf),
+                ('Orbital basis', self._obasis),
+                ('Wavefunction', self._wfn),
+                ('Checkpoint file', self._chk),
+            ])
+            if len(self._operators) > 0:
+                log('The following operators are present: %s' % (', '.join(self._operators.iterkeys())))
+            if len(self._props) > 0:
+                log('The following properties are present: %s' % (', '.join(self._props.iterkeys())))
+            log.blank()
 
     def update_chk(self, field_name=None):
         """Write (a part of) the system to the checkpoint file.
@@ -339,6 +324,15 @@ class System(object):
             raise ValueError('Restricted==True only works when mult==1. Restricted open shell is not supported yet.')
         if restricted is None:
             restricted = mult==1
+
+        if log.do_medium:
+            log('Wavefunction initialization, without initial guess.')
+            log.deflist([
+                ('Charge', charge),
+                ('Multiplicity', mult),
+                ('Restricted', restricted),
+            ])
+
         if restricted:
             self._wfn = ClosedShellWFN(nel/2, self.lf, self.obasis.nbasis)
         else:
@@ -346,11 +340,6 @@ class System(object):
             nbeta = (nel - (mult-1))/2
             self._wfn = OpenShellWFN(nalpha, nbeta, self.lf, self.obasis.nbasis)
 
-        if log.do_medium:
-            with log.section('SYSTEM'):
-                log('Succesful wavefunction initialization, without initial guess.')
-                log('  Charge: %i   Multiplicity: %i' % (charge, mult))
-                self._wfn.log()
 
 
     def get_overlap(self):

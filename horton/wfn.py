@@ -80,16 +80,19 @@ class BaseWFN(object):
 
     norb = property(_get_norb)
 
-    def log(self):
+    def _log_init(self):
         '''Write a summary of the wavefunction to the screen logger'''
-        with log.section('WFN'):
-            log('Wavefunction object: %s' % self)
-            log('Number of electrons: %i' % self.nel)
+        if log.do_medium:
+            log('Initialized: %s' % self)
+            log.deflist([('Number of electrons',self.nel)])
             labels = ['alpha', 'beta']
             for expansion, nocc, scale in self.iter_expansions('full'):
                 log('Expansion for %s electrons:' % labels.pop(0))
-                log('  Number of orbitals:          %i' % expansion.nfn)
-                log('  Number of occupied orbitals: %i' % nocc)
+                log.deflist([
+                    ('Number of orbitals', expansion.nfn),
+                    ('Number of occupied orbitals', nocc),
+                    ('Number of virtual orbitals', expansion.nfn-nocc),
+                ])
 
     def iter_expansions(self):
         raise NotImplementedError
@@ -156,15 +159,16 @@ class ClosedShellWFN(BaseWFN):
                the number of orbitals (occupied + virtual). When not given,
                it is set to nbasis.
         """
-        BaseWFN.__init__(self, lf, nbasis, norb)
-        self._nep = nep
-
-        if self.nep <= 0:
+        # Argument checks
+        if nep <= 0:
             raise ElectronCountError('At least one pair of electrons is required.')
-        if self.nbasis < self.nep:
+        if nbasis < nep:
             raise ElectronCountError('The number of spatial basis functions must not be lower than the number of electron pairs.')
 
+        self._nep = nep
+        BaseWFN.__init__(self, lf, nbasis, norb)
         self._expansion = lf.create_expansion(self.nbasis, self.norb, do_energies=True)
+        self._log_init()
 
     @classmethod
     def from_hdf5(cls, grp, lf):
@@ -255,19 +259,21 @@ class OpenShellWFN(BaseWFN):
                the number of orbitals (occupied + virtual). When not given,
                it is set to nbasis.
         """
-        BaseWFN.__init__(self, lf, nbasis, norb)
-        self._nalpha = nalpha
-        self._nbeta = nbeta
-
-        if self.nalpha < 0 or self.nbeta < 0:
+        # Argument checks
+        if nalpha < 0 or nbeta < 0:
             raise ElectronCountError('Negative number of electrons is not allowed.')
-        if self.nalpha == 0 and self.nbeta == 0:
+        if nalpha == 0 and nbeta == 0:
             raise ElectronCountError('At least one alpha or beta electron is required.')
-        if self.nbasis < self.nalpha or self.nbasis < self.nbeta:
+        if nbasis < nalpha or nbasis < nbeta:
             raise ElectronCountError('The number of spatial basis functions must not be lower than the number of alpha or beta electrons.')
 
+        self._nalpha = nalpha
+        self._nbeta = nbeta
+        BaseWFN.__init__(self, lf, nbasis, norb)
         self._alpha_expansion = lf.create_expansion(self.nbasis, self.norb, do_energies=True)
         self._beta_expansion = lf.create_expansion(self.nbasis, self.norb, do_energies=True)
+        self._log_init()
+
 
     @classmethod
     def from_hdf5(cls, grp, lf):

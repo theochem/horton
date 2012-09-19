@@ -26,6 +26,7 @@ import numpy as np
 from horton.grid.base import BaseGrid
 from horton.grid.cext import lebedev_laikov_npoints
 from horton.grid.sphere import LebedevLaikovSphereGrid
+from horton.log import log
 
 
 __all__ = [
@@ -44,7 +45,7 @@ class AtomicGrid(BaseGrid):
            rtransform
                 An instance of a subclass of the BaseRTransform class.
 
-           ind1d
+           int1d
                 An instance of a subclass of the BaseIntegrator1D class.
 
            nlls
@@ -100,6 +101,7 @@ class AtomicGrid(BaseGrid):
             counter += 1
 
         BaseGrid.__init__(self, points, weights, llgrids)
+        self._log_init()
 
     def _get_center(self):
         '''The center of the grid.'''
@@ -136,6 +138,21 @@ class AtomicGrid(BaseGrid):
         return self._random_rotate
 
     random_rotate = property(_get_random_rotate)
+
+    def _log_init(self):
+        if log.do_medium:
+            log('Initialized: %s' % self)
+            log.deflist([
+                ('Size', self.size),
+                ('Number of radii', self.nsphere),
+                ('Min LL sphere', self._nlls.min()),
+                ('Max LL sphere', self._nlls.max()),
+                ('Radial Transform', self._rtransform.to_string()),
+                ('1D Integrator', self._int1d),
+            ])
+            # Cite reference
+            log.cite('lebedev1999', 'for the use of Lebedev-Laikov grids (quadrature on a sphere)')
+            log.blank()
 
 
 
