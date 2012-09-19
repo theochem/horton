@@ -42,13 +42,14 @@ def test_hirshfeld_water_hf_sto3g():
     # Create a grid for the partitionign
     int1d = TrapezoidIntegrator1D()
     rtf = LogRTransform(5e-4, 2e1, 120)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=1)
 
-    # do the partitioning
-    hdp = HirshfeldDPart(grid, proatomdb)
-    hdp.do_charges()
-    expecting = np.array([-0.246, 0.123, 0.123]) # From HiPart
-    assert abs(hdp['charges'] - expecting).max() < 1e-3
+    # do the partitioning, both with local and global grids
+    for local in True, False:
+        grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=int(local))
+        hdp = HirshfeldDPart(grid, proatomdb, local)
+        hdp.do_charges()
+        expecting = np.array([-0.246, 0.123, 0.123]) # From HiPart
+        assert abs(hdp['charges'] - expecting).max() < 1e-3
 
 
 def test_hirshfeld_i_water_hf_sto3g():
@@ -60,10 +61,11 @@ def test_hirshfeld_i_water_hf_sto3g():
     # Create a grid for the partitionign
     int1d = TrapezoidIntegrator1D()
     rtf = LogRTransform(5e-4, 2e1, 120)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=1)
 
     # do the partitioning
-    hdp = HirshfeldIDPart(grid, proatomdb, 1e-4)
-    hdp.do_charges()
-    expecting = np.array([-0.4214, 0.2107, 0.2107]) # From HiPart
-    assert abs(hdp['charges'] - expecting).max() < 1e-3
+    for local in True, False:
+        grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=int(local))
+        hdp = HirshfeldIDPart(grid, proatomdb, local, 1e-4)
+        hdp.do_charges()
+        expecting = np.array([-0.4214, 0.2107, 0.2107]) # From HiPart
+        assert abs(hdp['charges'] - expecting).max() < 1e-3
