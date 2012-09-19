@@ -23,17 +23,17 @@
 import numpy as np
 
 
-__all__ = ['BaseIntegrator1D', 'TrapezoidIntegrator1D']
+__all__ = ['Integrator1D', 'TrapezoidIntegrator1D']
 
 
-class BaseIntegrator1D(object):
+class Integrator1D(object):
     '''Base class for integration algorithms'''
     def get_weights(self, npoint):
         '''Return integration weights for linear grid.'''
         raise NotImplementedError
 
 
-class TrapezoidIntegrator1D(object):
+class TrapezoidIntegrator1D(Integrator1D):
     '''Trapezoid rule integration algorithm'''
     def get_weights(self, npoint):
         '''Return integration weights for linear grid.'''

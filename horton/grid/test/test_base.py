@@ -26,7 +26,7 @@ from horton import *
 
 def test_grid_integrate():
     npoint = 10
-    grid = BaseGrid(np.random.normal(0, 1, (npoint,3)), np.random.normal(0, 1, npoint))
+    grid = IntGrid(np.random.normal(0, 1, (npoint,3)), np.random.normal(0, 1, npoint))
     pot = np.random.normal(0, 1, npoint)
     dens = np.random.normal(0, 1, npoint)
 

@@ -25,18 +25,16 @@
 #include "rtransform.h"
 
 
-// TODO: get rid of Base prefix.
-
 /*
-   BaseRTransform
+   RTransform
 */
 
-BaseRTransform::BaseRTransform(int npoint): npoint(npoint) {
+RTransform::RTransform(int npoint): npoint(npoint) {
     if (npoint < 2)
         throw std::domain_error("A radial grid consists of at least two points.");
 }
 
-void BaseRTransform::radius_array(double* t, double* r, int n) {
+void RTransform::radius_array(double* t, double* r, int n) {
     while (n>0) {
         *r = radius(*t);
         n--;
@@ -45,7 +43,7 @@ void BaseRTransform::radius_array(double* t, double* r, int n) {
     }
 }
 
-void BaseRTransform::deriv_array(double* t, double* d, int n) {
+void RTransform::deriv_array(double* t, double* d, int n) {
     while (n>0) {
         *d = deriv(*t);
         n--;
@@ -54,7 +52,7 @@ void BaseRTransform::deriv_array(double* t, double* d, int n) {
     }
 }
 
-void BaseRTransform::inv_array(double* r, double* t, int n) {
+void RTransform::inv_array(double* r, double* t, int n) {
     while (n>0) {
         *t = inv(*r);
         n--;
@@ -87,7 +85,7 @@ double IdentityRTransform::inv(double r) {
 
 
 LinearRTransform::LinearRTransform(double rmin, double rmax, int npoint):
-    BaseRTransform(npoint), rmin(rmin), rmax(rmax)
+    RTransform(npoint), rmin(rmin), rmax(rmax)
 {
     alpha = (rmax-rmin)/(npoint-1);
 }
@@ -110,7 +108,7 @@ double LinearRTransform::inv(double r) {
 */
 
 LogRTransform::LogRTransform(double rmin, double rmax, int npoint):
-    BaseRTransform(npoint), rmin(rmin), rmax(rmax)
+    RTransform(npoint), rmin(rmin), rmax(rmax)
 {
     if ((rmin <= 0.0) || (rmax <= 0.0))
         throw std::domain_error("The minimum and maximum radii of a log grid must be positive.");

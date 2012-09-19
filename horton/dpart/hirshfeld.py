@@ -23,21 +23,21 @@
 import numpy as np
 
 from horton.cache import just_once
-from horton.dpart.base import BaseDPart
+from horton.dpart.base import DPart
 from horton.log import log
 
 
 __all__ = ['HirshfeldDPart']
 
 
-class HirshfeldDPart(BaseDPart):
+class HirshfeldDPart(DPart):
     '''Base class for Hirshfeld partitioning'''
     def __init__(self, molgrid, proatomdb, local=True):
         self._proatomdb = proatomdb
-        BaseDPart.__init__(self, molgrid, local)
+        DPart.__init__(self, molgrid, local)
 
     def _init_log(self):
-        BaseDPart._init_log(self)
+        DPart._init_log(self)
         if log.do_medium:
             log.deflist([
                 ('Scheme', 'Hirshfeld'),

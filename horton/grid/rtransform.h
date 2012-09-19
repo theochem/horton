@@ -21,13 +21,13 @@
 #ifndef HORTON_GRID_RTRANSFORM_H
 #define HORTON_GRID_RTRANSFORM_H
 
-class BaseRTransform {
+class RTransform {
     private:
         int npoint;
 
     public:
-        BaseRTransform(int npoint);
-        virtual ~BaseRTransform() {};
+        RTransform(int npoint);
+        virtual ~RTransform() {};
         virtual double radius(double t) = 0;
         virtual double deriv(double t) = 0;
         virtual double inv(double r) = 0;
@@ -39,16 +39,16 @@ class BaseRTransform {
     };
 
 
-class IdentityRTransform : public BaseRTransform {
+class IdentityRTransform : public RTransform {
     public:
-        IdentityRTransform(int npoint): BaseRTransform(npoint) {};
+        IdentityRTransform(int npoint): RTransform(npoint) {};
         virtual double radius(double t);
         virtual double deriv(double t);
         virtual double inv(double r);
     };
 
 
-class LinearRTransform : public BaseRTransform {
+class LinearRTransform : public RTransform {
     private:
         double rmin, rmax, alpha;
     public:
@@ -63,7 +63,7 @@ class LinearRTransform : public BaseRTransform {
     };
 
 
-class LogRTransform : public BaseRTransform {
+class LogRTransform : public RTransform {
     private:
         double rmin, rmax, alpha;
     public:

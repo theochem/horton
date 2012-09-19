@@ -31,10 +31,10 @@ from horton.log import log
 from horton.exceptions import ElectronCountError
 
 
-__all__ = ['BaseWFN', 'ClosedShellWFN', 'OpenShellWFN']
+__all__ = ['WFN', 'ClosedShellWFN', 'OpenShellWFN']
 
 
-class BaseWFN(object):
+class WFN(object):
     def __init__(self, lf, nbasis, norb=None):
         """
            **Arguments:**
@@ -137,7 +137,7 @@ class BaseWFN(object):
             expansion.check_normalization(olp, nocc, eps)
 
 
-class ClosedShellWFN(BaseWFN):
+class ClosedShellWFN(WFN):
     closed_shell = True
 
     def __init__(self, nep, lf, nbasis, norb=None):
@@ -166,7 +166,7 @@ class ClosedShellWFN(BaseWFN):
             raise ElectronCountError('The number of spatial basis functions must not be lower than the number of electron pairs.')
 
         self._nep = nep
-        BaseWFN.__init__(self, lf, nbasis, norb)
+        WFN.__init__(self, lf, nbasis, norb)
         self._expansion = lf.create_expansion(self.nbasis, self.norb, do_energies=True)
         self._log_init()
 
@@ -232,7 +232,7 @@ class ClosedShellWFN(BaseWFN):
             raise ValueError('select has to be one of alpha, beta, full or spin.')
 
 
-class OpenShellWFN(BaseWFN):
+class OpenShellWFN(WFN):
     closed_shell = False
 
     def __init__(self, nalpha, nbeta, lf, nbasis, norb=None):
@@ -269,7 +269,7 @@ class OpenShellWFN(BaseWFN):
 
         self._nalpha = nalpha
         self._nbeta = nbeta
-        BaseWFN.__init__(self, lf, nbasis, norb)
+        WFN.__init__(self, lf, nbasis, norb)
         self._alpha_expansion = lf.create_expansion(self.nbasis, self.norb, do_energies=True)
         self._beta_expansion = lf.create_expansion(self.nbasis, self.norb, do_energies=True)
         self._log_init()

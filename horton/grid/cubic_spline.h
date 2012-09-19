@@ -37,7 +37,7 @@ class CubicSpline {
         Extrapolation* ep;
         bool own_ep;
 
-        BaseRTransform* rtf;
+        RTransform* rtf;
         bool own_rtf;
 
         double first_x, last_x;
@@ -46,13 +46,13 @@ class CubicSpline {
         double* d;
         int n;
 
-        CubicSpline(double* y, double* d, Extrapolation* ep, BaseRTransform* rtf, int n);
+        CubicSpline(double* y, double* d, Extrapolation* ep, RTransform* rtf, int n);
         ~CubicSpline();
 
         void eval(double* new_x, double* new_y, int new_n);
         void eval_deriv(double* new_x, double* new_d, int new_n);
 
-        BaseRTransform* get_rtransform() {return rtf;}
+        RTransform* get_rtransform() {return rtf;}
         double get_first_x() {return first_x;};
         double get_last_x() {return last_x;};
     };

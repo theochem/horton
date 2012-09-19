@@ -80,10 +80,10 @@ class CacheItem(object):
 
     @classmethod
     def from_alloc(cls, alloc):
-        from horton.matrix import BaseLinalgFactory
+        from horton.matrix import LinalgFactory
         if not hasattr(alloc, '__len__'):
             alloc = (alloc,)
-        if isinstance(alloc[0], BaseLinalgFactory):
+        if isinstance(alloc[0], LinalgFactory):
             if len(alloc) < 2:
                 raise TypeError('Add least one extra parameter needed to initialize a linalg thing')
             if alloc[1] == 'one_body':
@@ -101,10 +101,10 @@ class CacheItem(object):
             log.mem.denounce(self._value.size*8)
 
     def check_alloc(self, alloc):
-        from horton.matrix import BaseLinalgFactory
+        from horton.matrix import LinalgFactory
         if not hasattr(alloc, '__len__'):
             alloc = (alloc,)
-        if isinstance(alloc[0], BaseLinalgFactory):
+        if isinstance(alloc[0], LinalgFactory):
             if len(alloc) < 2:
                 raise TypeError('Add least one extra parameter needed to initialize a linalg thing')
             if alloc[1] == 'one_body':
@@ -132,9 +132,9 @@ class CacheItem(object):
     valid = property(_get_valid)
 
     def _get_resettable(self):
-        from horton.matrix import BaseOneBody
+        from horton.matrix import OneBody
         return isinstance(self._value, np.ndarray) or \
-               isinstance(self._value, BaseOneBody)
+               isinstance(self._value, OneBody)
 
     resettable = property(_get_resettable)
 
@@ -143,10 +143,10 @@ class CacheItem(object):
         self.reset()
 
     def reset(self):
-        from horton.matrix import BaseOneBody
+        from horton.matrix import OneBody
         if isinstance(self._value, np.ndarray):
             self._value[:] = 0.0
-        elif isinstance(self._value, BaseOneBody):
+        elif isinstance(self._value, OneBody):
             self._value.reset()
         else:
             raise TypeError('Do not know how to reset %s.' % self._value)

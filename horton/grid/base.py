@@ -23,10 +23,10 @@
 from horton.grid.cext import dot_multi, grid_distances
 
 
-__all__ = ['BaseGrid']
+__all__ = ['IntGrid']
 
 
-class BaseGrid(object):
+class IntGrid(object):
     '''Base class for real-space atom-centered integration grids in Horton'''
     def __init__(self, points, weights, subgrids=None):
         '''
