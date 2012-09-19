@@ -155,8 +155,8 @@ class ProAtomDB(object):
                             #       with respect to r for better splines
                             average_rhos[i] = llgrid.integrate(rhos)/llgrid.weights.sum()
                         cases.append((energy, average_rhos))
-                    # TODO: when a screenlogger is implemented, it must show
-                    # a warning when one of the cases does not converge.
+                    elif log.do_warning:
+                        log.warn('Convergence faillure when creating proatomdb from scratch. Z=%i Q=%i, M=%i' % (number, charge, mult))
                 if len(cases) > 0:
                     # take the lowest in energy from all tested multiplicites
                     cases.sort()
