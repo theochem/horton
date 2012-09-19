@@ -66,11 +66,13 @@ def test_cache():
 
 def test_cache_alloc1():
     c = Cache()
+    assert not c.has('bar')
     tmp, new = c.load('bar', alloc=5)
     assert new
     assert (tmp == 0).all()
     assert tmp.shape == (5,)
     assert issubclass(tmp.dtype.type, float)
+    assert c.has('bar')
     tmp[3] = 1
     bis = c.load('bar')
     assert bis is tmp
@@ -98,13 +100,17 @@ def test_cache_alloc2():
 
 def test_cache_allocation():
     c = Cache()
+    assert not c.has('egg')
     tmp, new = c.load('egg', alloc=(5,10))
     assert new
     assert (tmp == 0).all()
     assert tmp.shape == (5,10)
     assert issubclass(tmp.dtype.type, float)
+    assert c.has('egg')
+    assert not c.has('bar')
     tmp[:] = 1.0
     c.invalidate()
+    assert not c.has('egg')
     assert (tmp[:] == 0.0).all()
     # try to load it, while it is no longer valid
     try:
@@ -116,6 +122,7 @@ def test_cache_allocation():
     bis, new = c.load('egg', alloc=(5,10))
     assert new
     assert bis is tmp # still the same array, just resetted.
+    assert c.has('egg')
     # simple load should now work
     tris = c.load('egg')
     assert tris is tmp
@@ -250,3 +257,12 @@ def test_cache_basic_exceptions():
         assert False
     except TypeError:
         pass
+
+
+def test_discard():
+    c = Cache()
+    c.dump('foo', 5)
+    c.dump('bar', 6)
+    c.discard('foo')
+    assert not c.has('foo')
+    assert c.has('bar')

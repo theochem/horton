@@ -221,6 +221,13 @@ class Cache(object):
             item._valid = True # as if it is newly allocated
             return item.value, new
 
+    def has(self, *key):
+        item = self._store.get(key)
+        if item is None:
+            return False
+        else:
+            return item.valid
+
     def dump(self, *args):
         if len(args) < 2:
             raise TypeError('At least two arguments are required: key1 and value.')
@@ -228,3 +235,8 @@ class Cache(object):
         value = args[-1]
         item = CacheItem(value)
         self._store[key] = item
+
+    def discard(self, *key):
+        '''Genuinly discards a cached item from the store, no sneaky reset.'''
+        if key in self._store:
+            del self._store[key]
