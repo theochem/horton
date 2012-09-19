@@ -218,7 +218,7 @@ void GOBasis::compute_electron_repulsion(double* output) {
 }
 
 void GOBasis::compute_density_grid_dm(double* dm, long npoint, double* points, double* rhos) {
-    double basis_fns[get_nbasis()]; // TODO: check if this needs to be freed
+    double* basis_fns = new double[get_nbasis()];
     GB1GridFn grid_fn = GB1GridFn(get_max_shell_type());
 
     for (long ipoint=0; ipoint<npoint; ipoint++) {
@@ -253,10 +253,12 @@ void GOBasis::compute_density_grid_dm(double* dm, long npoint, double* points, d
         rhos++;
         points += 3;
     }
+
+    delete[] basis_fns;
 }
 
 void GOBasis::compute_density_grid_orb(double* orbs, long nocc, long norb, double scale, long npoint, double* points, double* rhos) {
-    double basis_fns[get_nbasis()]; // TODO: check if this needs to be freed
+    double* basis_fns = new double[get_nbasis()];
     GB1GridFn grid_fn = GB1GridFn(get_max_shell_type());
 
     for (long ipoint=0; ipoint<npoint; ipoint++) {
@@ -285,10 +287,12 @@ void GOBasis::compute_density_grid_orb(double* orbs, long nocc, long norb, doubl
         rhos++;
         points += 3;
     }
+
+    delete[] basis_fns;
 }
 
 void GOBasis::compute_grid_one_body(long npoint, double* points, double* weights, double* pots, double* output) {
-    double basis_fns[get_nbasis()]; // TODO: check if this needs to be freed
+    double* basis_fns = new double[get_nbasis()];
     GB1GridFn grid_fn = GB1GridFn(get_max_shell_type());
 
     for (long ipoint=0; ipoint<npoint; ipoint++) {
@@ -319,4 +323,6 @@ void GOBasis::compute_grid_one_body(long npoint, double* points, double* weights
         weights++;
         pots++;
     }
+
+    delete[] basis_fns;
 }
