@@ -204,3 +204,29 @@ class ProAtomDB(object):
 
     def get_hirshfeld_proatom_fn(self, number):
         return CubicSpline(self._records[(number,number)], rtf=self._rtransform)
+
+    def get_hirshfeld_i_proatom_fn(self, number, pop):
+        # In case of luck:
+        ipop = int(pop)
+        if pop == int(pop):
+            return  CubicSpline(self._records[(number, ipop)], rtf=self._rtransform)
+        else:
+            del ipop
+
+        # General case
+        cpop = int(np.ceil(pop))
+        fpop = int(np.floor(pop))
+        if fpop == 0:
+            try:
+                yc = self._records[(number,cpop)]
+            except KeyError:
+                raise RuntimeError('No suitable proatoms found for interpolation.')
+            y = pop*yc
+        else:
+            try:
+                yc = self._records[(number,cpop)]
+                yf = self._records[(number,fpop)]
+            except KeyError:
+                raise RuntimeError('No suitable proatoms found for interpolation.')
+            y = yf*(cpop-pop) + yc*(pop-fpop)
+        return CubicSpline(y, rtf=self._rtransform)
