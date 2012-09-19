@@ -36,6 +36,7 @@ class HirshfeldDPart(DPart):
     '''Base class for Hirshfeld partitioning'''
     def __init__(self, molgrid, proatomdb, local=True):
         self._proatomdb = proatomdb
+        self._pro_mol_valid = False
         DPart.__init__(self, molgrid, local)
 
     def _init_log(self):
@@ -49,19 +50,31 @@ class HirshfeldDPart(DPart):
 
     def _at_weights_helper(self, i0, grid, at_weights):
         # Load work arrays from cache for efficiency
-        (work, pro_mol, d), new = self.cache.load('at_weights_work', id(grid.size), alloc=(3, grid.size))
+        (work, pro_mol, d), new = self.cache.load('at_weights_work', grid.size, alloc=(3, grid.size))
         if not new:
             pro_mol[:] = 0.0
-        for i1 in xrange(self.system.natom):
-            grid.distances(self.system.coordinates[i1], d)
-            proatom_fn = self.cache.load('proatom_fn', i1)
+        if self.local or not self._pro_mol_valid:
+            # In case of local grids, the pro-molecule must be recomputed for
+            # every grid. In case of a global grid, this only happens the
+            # first time after the pro-atoms were updated.
+            for i1 in xrange(self.system.natom):
+                grid.distances(self.system.coordinates[i1], d)
+                proatom_fn = self.cache.load('proatom_fn', i1)
+                proatom_fn(d, work)
+                if i1 == i0:
+                    at_weights[:] = work
+                pro_mol[:] += work
+            # The following seems worse than it is. It does nothing to the
+            # relevant numbers. It just avoids troubles in the division.
+            pro_mol[:] += 1e-100
+        else:
+            # In case of a global grid, and when the pro-molecule is up to date,
+            # only the pro-atom needs to be recomputed.
+            grid.distances(self.system.coordinates[i0], d)
+            proatom_fn = self.cache.load('proatom_fn', i0)
             proatom_fn(d, work)
-            if i1 == i0:
-                at_weights[:] = work
-            pro_mol[:] += work
-        # The following seems worse than it is. It does nothing to the
-        # relevant numbers. It just avoids troubles in the division.
-        pro_mol[:] += 1e-100
+            at_weights[:] = work
+        # Finally compute the ratio
         at_weights[:] /= pro_mol
 
     def _at_weights_cleanup(self):
@@ -71,7 +84,6 @@ class HirshfeldDPart(DPart):
 
     @just_once
     def _init_at_weights(self):
-        # TODO: optimize for global grid
         for i in xrange(self.system.natom):
             proatom_fn = self.cache.load('proatom_fn', i, default=None)
             if proatom_fn is None:
@@ -89,11 +101,10 @@ class HirshfeldDPart(DPart):
 
 class HirshfeldIDPart(HirshfeldDPart):
     '''Iterative Hirshfeld partitioning'''
-    def __init__(self, molgrid, proatomdb, threshold=1e-4, maxiter=500, local=True):
-        self._proatomdb = proatomdb
+    def __init__(self, molgrid, proatomdb, local=True, threshold=1e-4, maxiter=500):
         self._threshold = threshold
         self._maxiter = maxiter
-        DPart.__init__(self, molgrid, local)
+        HirshfeldDPart.__init__(self, molgrid, proatomdb, local)
 
     def _init_log(self):
         DPart._init_log(self)
@@ -125,7 +136,6 @@ class HirshfeldIDPart(HirshfeldDPart):
         self.do_mol_dens()
 
         # Iterative Hirshfeld loop
-        # TODO: optimize for global grid
         populations = self.system.numbers.astype(float)
         counter = 0
         if log.do_medium:
@@ -147,6 +157,9 @@ class HirshfeldIDPart(HirshfeldDPart):
                     first_iter = False
                     change += self._proatom_change(old_proatom_fn, proatom_fn)
 
+            # Enforce (single) update of pro-molecule in case of a global grid
+            if not self.local:
+                self._pro_mol_valid = False
             # Compute populations
             for i, grid in self.iter_grids():
                 # Compute weight
