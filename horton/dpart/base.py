@@ -24,10 +24,10 @@ from horton.cache import JustOnceClass, just_once, Cache
 from horton.log import log, timer
 
 
-__all__ = ['BaseDPart']
+__all__ = ['DPart']
 
 
-class BaseDPart(JustOnceClass):
+class DPart(JustOnceClass):
     '''Base class for density partitioning schemes'''
     def __init__(self, molgrid, local=True):
         '''

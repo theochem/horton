@@ -20,8 +20,8 @@
 
 
 cdef extern from "rtransform.h":
-    cdef cppclass BaseRTransform:
-        BaseRTransform(int npoint) except +
+    cdef cppclass RTransform:
+        RTransform(int npoint) except +
         double radius(double t)
         double deriv(double t)
         double inv(double t)

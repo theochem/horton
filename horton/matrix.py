@@ -54,12 +54,12 @@ from horton.log import log
 
 
 __all__ = [
-    'BaseLinalgFactory', 'BaseOneBody',
+    'LinalgFactory', 'OneBody',
     'DenseLinalgFactory', 'DenseExpansion', 'DenseOneBody', 'DenseTwoBody',
 ]
 
 
-class BaseLinalgFactory(object):
+class LinalgFactory(object):
     """A collection of compatible matrix and linear algebra routines.
 
        This is just an abstract base class that serves as a template for
@@ -100,7 +100,7 @@ class BaseLinalgFactory(object):
         raise NotImplementedError
 
 
-class BaseOneBody(object):
+class OneBody(object):
     def __init__(self, nbasis=None):
         raise NotImplementedError
 
@@ -139,7 +139,7 @@ class BaseOneBody(object):
         raise NotImplementedError
 
 
-class DenseLinalgFactory(BaseLinalgFactory):
+class DenseLinalgFactory(LinalgFactory):
     def create_expansion(self, nbasis=None, nfn=None, do_energies=False):
         nbasis = nbasis or self._default_nbasis
         return DenseExpansion(nbasis, nfn, do_energies)
@@ -328,7 +328,7 @@ class DenseExpansion(object):
             self._energies[:] = other._energies
 
 
-class DenseOneBody(BaseOneBody):
+class DenseOneBody(OneBody):
     """Dense symmetric two-dimensional matrix, also used for density matrices.
 
        This is the most inefficient implementation in terms of memory usage and

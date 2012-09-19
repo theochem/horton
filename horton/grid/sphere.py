@@ -22,7 +22,7 @@
 
 import numpy as np
 
-from horton.grid.base import BaseGrid
+from horton.grid.base import IntGrid
 from horton.grid.cext import lebedev_laikov_npoints, lebedev_laikov_sphere
 
 
@@ -31,7 +31,7 @@ __all__ = [
 ]
 
 
-class LebedevLaikovSphereGrid(BaseGrid):
+class LebedevLaikovSphereGrid(IntGrid):
     '''A spherical Lebedev-Laikov grid'''
     def __init__(self, center, radius, nll, random_rotate=True, points=None):
         '''
@@ -76,7 +76,7 @@ class LebedevLaikovSphereGrid(BaseGrid):
         points[:] += center
         weights *= 4*np.pi*radius**2
 
-        BaseGrid.__init__(self, points, weights, None)
+        IntGrid.__init__(self, points, weights, None)
 
     def _get_center(self):
         '''The center of the sphere.'''

@@ -103,7 +103,7 @@ void tridiagsym_solve(double* diag_mid, double* diag_up, double* right,
    CubicSpline class.
 */
 
-CubicSpline::CubicSpline(double* _y, double* _d, Extrapolation* _ep, BaseRTransform* _rtf, int _n):
+CubicSpline::CubicSpline(double* _y, double* _d, Extrapolation* _ep, RTransform* _rtf, int _n):
     ep(_ep), own_ep(false), rtf(_rtf), own_rtf(false), first_x(0.0),
     last_x(0.0), y(NULL), d(NULL), n(_n)
 {
@@ -252,7 +252,7 @@ void ExponentialExtrapolation::prepare(CubicSpline* cs) {
     if (cs->d[0] == 0.0) {
         throw std::domain_error("The exponential extrapolation makes no sense when the derivative at the first point is zero.");
     }
-    BaseRTransform* rtf = cs->get_rtransform();
+    RTransform* rtf = cs->get_rtransform();
     a0 = cs->y[0];
     b0 = cs->d[0]/cs->y[0]/rtf->deriv(0);
     x0 = cs->get_first_x();

@@ -124,7 +124,7 @@ def test_log_properties():
 
 def test_exception_string():
     try:
-        BaseRTransform.from_string('Fubar A 5')
+        RTransform.from_string('Fubar A 5')
         assert False
     except TypeError:
         pass
@@ -133,22 +133,22 @@ def test_exception_string():
 def test_identiy_string():
     rtf1 = IdentityRTransform(45)
     s = rtf1.to_string()
-    rtf2 = BaseRTransform.from_string(s)
+    rtf2 = RTransform.from_string(s)
     assert rtf1.npoint == rtf2.npoint
 
     try:
-        rtf3 = BaseRTransform.from_string('IdentityRTransform A')
+        rtf3 = RTransform.from_string('IdentityRTransform A')
         assert False
     except ValueError:
         pass
 
     try:
-        rtf3 = BaseRTransform.from_string('IdentityRTransform A 5 .1')
+        rtf3 = RTransform.from_string('IdentityRTransform A 5 .1')
         assert False
     except ValueError:
         pass
 
-    rtf3 = BaseRTransform.from_string('IdentityRTransform 8')
+    rtf3 = RTransform.from_string('IdentityRTransform 8')
     assert rtf3.npoint == 8
 
 
@@ -156,25 +156,25 @@ def test_identiy_string():
 def test_linear_string():
     rtf1 = LinearRTransform(np.random.uniform(1e-5, 5e-5), np.random.uniform(1, 5), 88)
     s = rtf1.to_string()
-    rtf2 = BaseRTransform.from_string(s)
+    rtf2 = RTransform.from_string(s)
     assert rtf1.rmin == rtf2.rmin
     assert rtf1.rmax == rtf2.rmax
     assert rtf1.npoint == rtf2.npoint
     assert rtf1.alpha == rtf2.alpha
 
     try:
-        rtf3 = BaseRTransform.from_string('LinearRTransform A 5')
+        rtf3 = RTransform.from_string('LinearRTransform A 5')
         assert False
     except ValueError:
         pass
 
     try:
-        rtf3 = BaseRTransform.from_string('LinearRTransform A 5 .1')
+        rtf3 = RTransform.from_string('LinearRTransform A 5 .1')
         assert False
     except ValueError:
         pass
 
-    rtf3 = BaseRTransform.from_string('LinearRTransform -1.0 12.15643216847 77')
+    rtf3 = RTransform.from_string('LinearRTransform -1.0 12.15643216847 77')
     assert rtf3.rmin == -1.0
     assert rtf3.rmax == 12.15643216847
     assert rtf3.npoint == 77
@@ -184,25 +184,25 @@ def test_linear_string():
 def test_log_string():
     rtf1 = LogRTransform(np.random.uniform(1e-5, 5e-5), np.random.uniform(1, 5), 111)
     s = rtf1.to_string()
-    rtf2 = BaseRTransform.from_string(s)
+    rtf2 = RTransform.from_string(s)
     assert rtf1.rmin == rtf2.rmin
     assert rtf1.rmax == rtf2.rmax
     assert rtf1.npoint == rtf2.npoint
     assert rtf1.alpha == rtf2.alpha
 
     try:
-        rtf3 = BaseRTransform.from_string('LogRTransform A 5')
+        rtf3 = RTransform.from_string('LogRTransform A 5')
         assert False
     except ValueError:
         pass
 
     try:
-        rtf3 = BaseRTransform.from_string('LogRTransform A 5 .1')
+        rtf3 = RTransform.from_string('LogRTransform A 5 .1')
         assert False
     except ValueError:
         pass
 
-    rtf3 = BaseRTransform.from_string('LogRTransform 1.0 12.15643216847 5')
+    rtf3 = RTransform.from_string('LogRTransform 1.0 12.15643216847 5')
     assert rtf3.rmin == 1.0
     assert rtf3.rmax == 12.15643216847
     assert rtf3.npoint == 5

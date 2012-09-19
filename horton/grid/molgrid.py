@@ -24,7 +24,7 @@
 
 import numpy as np
 
-from horton.grid.base import BaseGrid
+from horton.grid.base import IntGrid
 from horton.grid.atgrid import AtomicGrid, get_atomic_grid_size
 from horton.grid.cext import becke_helper_atom
 from horton.log import log
@@ -37,7 +37,7 @@ __all__ = [
 
 
 
-class BeckeMolGrid(BaseGrid):
+class BeckeMolGrid(IntGrid):
     '''Molecular integration grid using Becke weights'''
     def __init__(self, system, atspecs, k=3, random_rotate=True, keep_subgrids=0):
         '''
@@ -116,7 +116,7 @@ class BeckeMolGrid(BaseGrid):
             offset += atsize
 
         # finish
-        BaseGrid.__init__(self, points, weights, atgrids)
+        IntGrid.__init__(self, points, weights, atgrids)
 
         # Some screen info
         self._log_init()

@@ -23,7 +23,7 @@
 import numpy as np
 
 
-from horton.grid.base import BaseGrid
+from horton.grid.base import IntGrid
 from horton.grid.cext import lebedev_laikov_npoints
 from horton.grid.sphere import LebedevLaikovSphereGrid
 from horton.log import log
@@ -34,7 +34,7 @@ __all__ = [
 ]
 
 
-class AtomicGrid(BaseGrid):
+class AtomicGrid(IntGrid):
     def __init__(self, center, rtransform, int1d, nlls, random_rotate=True, points=None, keep_subgrids=0):
         '''
            **Arguments:**
@@ -43,10 +43,10 @@ class AtomicGrid(BaseGrid):
                 The center of the radial grid
 
            rtransform
-                An instance of a subclass of the BaseRTransform class.
+                An instance of a subclass of the RTransform class.
 
            int1d
-                An instance of a subclass of the BaseIntegrator1D class.
+                An instance of a subclass of the Integrator1D class.
 
            nlls
                 The number Lebedev-Laikov grid points for each radial grid
@@ -100,7 +100,7 @@ class AtomicGrid(BaseGrid):
             offset += nll
             counter += 1
 
-        BaseGrid.__init__(self, points, weights, llgrids)
+        IntGrid.__init__(self, points, weights, llgrids)
         self._log_init()
 
     def _get_center(self):

@@ -25,7 +25,7 @@ import h5py as h5, numpy as np
 
 from horton.exceptions import ElectronCountError
 from horton.grid.atgrid import AtomicGrid
-from horton.grid.cext import BaseRTransform, CubicSpline
+from horton.grid.cext import RTransform, CubicSpline
 from horton.guess import guess_hamiltonian_core
 from horton.hamiltonian import Hamiltonian
 from horton.log import log
@@ -42,7 +42,7 @@ class ProAtomDB(object):
            **Arguments:**
 
            rtransform
-                An instance of one of the BaseRTransform subclasses.
+                An instance of one of the RTransform subclasses.
 
            records
                 A dictionary with (number, population) keys and arrays of
@@ -70,7 +70,7 @@ class ProAtomDB(object):
             f = filename
             do_close = False
         # Read
-        rtransform = BaseRTransform.from_string(f.attrs['rtransform'])
+        rtransform = RTransform.from_string(f.attrs['rtransform'])
         records = {}
         for name, dataset in f.iteritems():
             number, population = name.split(':')

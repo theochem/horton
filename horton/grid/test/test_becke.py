@@ -29,7 +29,7 @@ def test_becke_sum2_one():
     npoint = 100
     points = np.random.uniform(-5, 5, (npoint, 3))
     weights = np.random.uniform(0, 1, npoint)
-    grid = BaseGrid(points, weights)
+    grid = IntGrid(points, weights)
 
     weights0 = np.ones(npoint, float)
     weights1 = np.ones(npoint, float)
@@ -46,7 +46,7 @@ def test_becke_sum3_one():
     npoint = 100
     points = np.random.uniform(-5, 5, (npoint, 3))
     weights = np.random.uniform(0, 1, npoint)
-    grid = BaseGrid(points, weights)
+    grid = IntGrid(points, weights)
 
     weights0 = np.ones(npoint, float)
     weights1 = np.ones(npoint, float)

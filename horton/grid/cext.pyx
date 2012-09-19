@@ -41,7 +41,7 @@ __all__ = [
     # cubic_spline
     'tridiag_solve', 'tridiagsym_solve', 'CubicSpline',
     # rtransform
-    'BaseRTransform', 'IdentityRTransform', 'LinearRTransform', 'LogRTransform',
+    'RTransform', 'IdentityRTransform', 'LinearRTransform', 'LogRTransform',
     # utils
     'dot_multi', 'grid_distances',
 ]
@@ -193,9 +193,9 @@ def tridiagsym_solve(np.ndarray[double, ndim=1] diag_mid,
 cdef class CubicSpline(object):
     cdef cubic_spline.CubicSpline* _this
     cdef cubic_spline.Extrapolation* _c_ep
-    cdef BaseRTransform _rtf
+    cdef RTransform _rtf
 
-    def __cinit__(self, np.ndarray[double, ndim=1] y not None, np.ndarray[double, ndim=1] d=None, BaseRTransform rtf=None):
+    def __cinit__(self, np.ndarray[double, ndim=1] y not None, np.ndarray[double, ndim=1] d=None, RTransform rtf=None):
         cdef double* ddata
         assert y.flags['C_CONTIGUOUS']
         n = y.shape[0]
@@ -207,7 +207,7 @@ cdef class CubicSpline(object):
             ddata = <double*>d.data
 
         self._rtf = rtf
-        cdef rtransform.BaseRTransform* _c_rtf
+        cdef rtransform.RTransform* _c_rtf
         if rtf is None:
             _c_rtf = NULL
         else:
@@ -262,8 +262,8 @@ cdef class CubicSpline(object):
 #
 
 
-cdef class BaseRTransform(object):
-    cdef rtransform.BaseRTransform* _this
+cdef class RTransform(object):
+    cdef rtransform.RTransform* _this
 
     property npoint:
         def __get__(self):
@@ -316,7 +316,7 @@ cdef class BaseRTransform(object):
 
     @classmethod
     def from_string(cls, s):
-        '''Construct a BaseRTransform subclass from a string.'''
+        '''Construct a RTransform subclass from a string.'''
         words = s.split()
         clsname = words[0]
         args = words[1:]
@@ -340,22 +340,22 @@ cdef class BaseRTransform(object):
             npoint = int(args[2])
             return LogRTransform(rmin, rmax, npoint)
         else:
-            raise TypeError('Unkown BaseRTransform subclass: %s' % clsname)
+            raise TypeError('Unkown RTransform subclass: %s' % clsname)
 
     def to_string(self):
         raise NotImplementedError
 
 
-cdef class IdentityRTransform(BaseRTransform):
+cdef class IdentityRTransform(RTransform):
     '''For testing only'''
     def __cinit__(self, int npoint):
-        self._this = <rtransform.BaseRTransform*>(new rtransform.IdentityRTransform(npoint))
+        self._this = <rtransform.RTransform*>(new rtransform.IdentityRTransform(npoint))
 
     def to_string(self):
         return ' '.join(['IdentityRTransform', repr(self.npoint)])
 
 
-cdef class LinearRTransform(BaseRTransform):
+cdef class LinearRTransform(RTransform):
     '''A linear grid.
 
        The grid points are distributed as follows:
@@ -367,7 +367,7 @@ cdef class LinearRTransform(BaseRTransform):
        .. math:: \\alpha = (r_{N-1} -r_0)/(N-1).
     '''
     def __cinit__(self, double rmin, double rmax, int npoint):
-        self._this = <rtransform.BaseRTransform*>(new rtransform.LinearRTransform(rmin, rmax, npoint))
+        self._this = <rtransform.RTransform*>(new rtransform.LinearRTransform(rmin, rmax, npoint))
 
     property rmin:
         def __get__(self):
@@ -385,7 +385,7 @@ cdef class LinearRTransform(BaseRTransform):
         return ' '.join(['LinearRTransform', repr(self.rmin), repr(self.rmax), repr(self.npoint)])
 
 
-cdef class LogRTransform(BaseRTransform):
+cdef class LogRTransform(RTransform):
     '''A logarithmic grid.
 
        The grid points are distributed as follows:
@@ -397,7 +397,7 @@ cdef class LogRTransform(BaseRTransform):
        .. math:: \\alpha = \log(r_{N-1}/r_0)/(N-1).
     '''
     def __cinit__(self, double rmin, double rmax, int npoint):
-        self._this = <rtransform.BaseRTransform*>(new rtransform.LogRTransform(rmin, rmax, npoint))
+        self._this = <rtransform.RTransform*>(new rtransform.LogRTransform(rmin, rmax, npoint))
 
     property rmin:
         def __get__(self):
