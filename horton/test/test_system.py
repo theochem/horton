@@ -267,6 +267,10 @@ def check_grid_fn(fn_fchk, use_dm, use_output_arg):
     int1d = TrapezoidIntegrator1D()
     rtf = LogRTransform(1e-3, 1e1, 100)
     grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    if use_dm:
+        dm = sys.lf.create_one_body()
+        sys.wfn.compute_density_matrix(dm, 'full')
+        sys.dms['full'] = dm
     if use_output_arg:
         rhos = np.zeros(grid.size)
         sys.compute_grid_density(grid.points, use_dm, rhos)
