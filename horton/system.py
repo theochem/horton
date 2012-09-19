@@ -411,6 +411,7 @@ class System(object):
 
            use_dm
                 Use C routine based on the density matrix instead of the orbitals.
+                This is done automatically if no wfn attribute is present.
 
            rhos
                 An output array, shape (npoint,). The results are added to this
@@ -429,9 +430,10 @@ class System(object):
             rhos = np.zeros(len(points), float)
         elif rhos.shape != (points.shape[0],):
             raise TypeError('The shape of the output array is wrong')
-        if use_dm:
-            dm = self.lf.create_one_body()
-            self.wfn.compute_density_matrix(dm, select=select)
+        if use_dm or self._wfn is None:
+            dm = self.dms.get(select)
+            if dm is None:
+                raise ValueError('No wavefunction or density matrix available for the computation of the density on a grid.')
             self.obasis.compute_grid_density_dm(dm, points, rhos)
         else:
             for expansion, nocc, scale in self.wfn.iter_expansions(select):
