@@ -465,8 +465,8 @@ cdef class GOBasis(GBasis):
         self.check_matrix_two_body(output)
         (<gbasis.GOBasis*>self._this).compute_electron_repulsion(<double*>output.data)
 
-    def compute_density_grid_dm(self, dm, np.ndarray[double, ndim=2] points, np.ndarray[double, ndim=1] rhos):
-        '''compute_density_grid_dm(dm, points, rho)
+    def compute_grid_density_dm(self, dm, np.ndarray[double, ndim=2] points, np.ndarray[double, ndim=1] rhos):
+        '''compute_grid_density_dm(dm, points, rho)
 
            Compute the electron density on a grid for a given density matrix.
 
@@ -491,11 +491,11 @@ cdef class GOBasis(GBasis):
         assert points.flags['C_CONTIGUOUS']
         assert points.shape[0] == npoint
         assert points.shape[1] == 3
-        (<gbasis.GOBasis*>self._this).compute_density_grid_dm(
+        (<gbasis.GOBasis*>self._this).compute_grid_density_dm(
             <double*>dmar.data, npoint, <double*>points.data, <double*>rhos.data)
 
-    def compute_density_grid_orb(self, expansion, long nocc, double scale, np.ndarray[double, ndim=2] points, np.ndarray[double, ndim=1] rhos):
-        '''compute_density_grid_dm(dm, points, rho)
+    def compute_grid_density_orb(self, expansion, long nocc, double scale, np.ndarray[double, ndim=2] points, np.ndarray[double, ndim=1] rhos):
+        '''compute_grid_density_dm(dm, points, rho)
 
            Compute the electron density on a grid for a given wavefunction
            expansion.
@@ -526,7 +526,7 @@ cdef class GOBasis(GBasis):
         assert points.flags['C_CONTIGUOUS']
         assert points.shape[0] == npoint
         assert points.shape[1] == 3
-        (<gbasis.GOBasis*>self._this).compute_density_grid_orb(
+        (<gbasis.GOBasis*>self._this).compute_grid_density_orb(
             <double*>orbs.data, nocc, norb, scale, npoint, <double*>points.data,
             <double*>rhos.data)
 

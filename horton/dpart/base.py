@@ -125,7 +125,7 @@ class DPart(JustOnceClass):
             if i == 0 or self.local:
                 mol_dens, new = self.cache.load('mol_dens', i, alloc=grid.size)
                 if new:
-                    self.system.compute_density_grid(grid.points, rhos=mol_dens)
+                    self.system.compute_grid_density(grid.points, rhos=mol_dens)
             else:
                 self.cache.dump('mol_dens', i, mol_dens)
 

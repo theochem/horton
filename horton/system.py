@@ -381,8 +381,7 @@ class System(object):
             #self.update_chk('operators.er')
         return electron_repulsion
 
-    # TODO: Fix lame method name.
-    def compute_density_grid(self, points, use_dm=False, rhos=None, select='full'):
+    def compute_grid_density(self, points, use_dm=False, rhos=None, select='full'):
         '''Compute the electron density on a grid
 
            **Arguments:**
@@ -415,10 +414,10 @@ class System(object):
         if use_dm:
             dm = self.lf.create_one_body()
             self.wfn.compute_density_matrix(dm, select=select)
-            self.obasis.compute_density_grid_dm(dm, points, rhos)
+            self.obasis.compute_grid_density_dm(dm, points, rhos)
         else:
             for expansion, nocc, scale in self.wfn.iter_expansions(select):
-                self.obasis.compute_density_grid_orb(expansion, nocc, scale, points, rhos)
+                self.obasis.compute_grid_density_orb(expansion, nocc, scale, points, rhos)
         return rhos
 
     def compute_nucnuc(self):
@@ -432,7 +431,6 @@ class System(object):
         self._props['energy_nn'] = result
         return result
 
-    # TODO: Fix lame method name.
     def compute_grid_one_body(self, points, weights, pots, one_body):
         '''See documentation self.obasis.compute_grid_one_body'''
         self.obasis.compute_grid_one_body(points, weights, pots, one_body)

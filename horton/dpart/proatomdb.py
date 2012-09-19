@@ -150,7 +150,7 @@ class ProAtomDB(object):
                         average_rhos = np.zeros(nsphere)
                         for i in xrange(nsphere):
                             llgrid = atgrid.subgrids[i]
-                            rhos = sys.compute_density_grid(llgrid.points)
+                            rhos = sys.compute_grid_density(llgrid.points)
                             # TODO: also compute the derivatives of the average
                             #       with respect to r for better splines
                             average_rhos[i] = llgrid.integrate(rhos)/llgrid.weights.sum()
