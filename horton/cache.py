@@ -27,6 +27,7 @@
 
 
 import numpy as np
+from horton.log import log
 
 
 __all__ = ['JustOnceClass', 'just_once', 'Cache']
@@ -72,9 +73,10 @@ def just_once(fn):
 
 
 class CacheItem(object):
-    def __init__(self, value):
+    def __init__(self, value, own=False):
         self._value = value
         self._valid = True
+        self._own = own
 
     @classmethod
     def from_alloc(cls, alloc):
@@ -90,7 +92,13 @@ class CacheItem(object):
                 raise TypeError('For the moment, only one_body stuff is supported.')
         else:
             # initialize a floating point array
-            return cls(np.zeros(alloc, float))
+            log.mem.announce(np.product(alloc)*8)
+            return cls(np.zeros(alloc, float), own=True)
+
+    def __del__(self):
+        if self._own:
+            assert isinstance(self._value, np.ndarray)
+            log.mem.denounce(self._value.size*8)
 
     def check_alloc(self, alloc):
         from horton.matrix import BaseLinalgFactory

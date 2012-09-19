@@ -21,7 +21,7 @@
 
 
 from horton.cache import JustOnceClass, just_once, Cache
-from horton.log import log
+from horton.log import log, timer
 
 
 __all__ = ['BaseDPart']
@@ -61,18 +61,20 @@ class BaseDPart(JustOnceClass):
 
         # Do the essential part of the partitioning. All derived properties
         # are optional.
-        self._init_at_weights()
+        with timer.section('DPart weights'):
+            self._init_at_weights()
 
     def __getitem__(self, key):
         return self.cache.load(key)
 
     def _init_log(self):
         if log.do_medium:
-            with log.section('DPART'):
-                log('Performing a density-based AIM analysis.')
-                log('  Molecular grid:    &%s' % self._molgrid)
-                log('  System:            &%s' % self._system)
-                log('  Using local grids: &%s' % self._local)
+            log('Performing a density-based AIM analysis.')
+            log.deflist([
+                ('Molecular grid', self._molgrid),
+                ('System', self._system),
+                ('Using local grids', self._local),
+            ])
 
     @just_once
     def _init_at_weights(self):
@@ -118,10 +120,7 @@ class BaseDPart(JustOnceClass):
 
     @just_once
     def do_mol_dens(self):
-        if log.do_medium:
-            with log.section('DPART'):
-                log('Computing densities on grids.')
-
+        if log.do_medium: log('Computing densities on grids.')
         for i, grid in self.iter_grids():
             if i == 0 or self.local:
                 mol_dens, new = self.cache.load('mol_dens', i, alloc=grid.size)
@@ -133,11 +132,7 @@ class BaseDPart(JustOnceClass):
     @just_once
     def do_populations(self):
         self.do_mol_dens()
-
-        if log.do_medium:
-            with log.section('DPART'):
-                log('Computing atomic populations.')
-
+        if log.do_medium: log('Computing atomic populations.')
         populations, new = self.cache.load('populations', alloc=self.system.natom)
         if new:
             for i, grid in self.iter_grids():
@@ -148,11 +143,7 @@ class BaseDPart(JustOnceClass):
     @just_once
     def do_charges(self):
         self.do_populations()
-
-        if log.do_medium:
-            with log.section('DPART'):
-                log('Computing atomic charges.')
-
+        if log.do_medium: log('Computing atomic charges.')
         charges, new = self.cache.load('charges', alloc=self.system.natom)
         if new:
             populations = self.cache.load('populations')

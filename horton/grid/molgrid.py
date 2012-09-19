@@ -27,6 +27,7 @@ import numpy as np
 from horton.grid.base import BaseGrid
 from horton.grid.atgrid import AtomicGrid, get_atomic_grid_size
 from horton.grid.cext import becke_helper_atom
+from horton.log import log
 from horton.periodic import periodic
 
 
@@ -86,10 +87,12 @@ class BeckeMolGrid(BaseGrid):
         # assign attributes
         self._system = system
         self._atspecs = atspecs
-        self._k = k
+        self._keep_subgrids = keep_subgrids
         self._random_rotate = random_rotate
+        self._k = k
 
         # allocate memory for the grid
+        log.mem.announce(size*(4+keep_subgrids)*8)
         points = np.zeros((size, 3), float)
         weights = np.zeros(size, float)
 
@@ -115,17 +118,17 @@ class BeckeMolGrid(BaseGrid):
         # finish
         BaseGrid.__init__(self, points, weights, atgrids)
 
+        # Some screen info
+        self._log_init()
+
+    def __del__(self):
+        log.mem.denounce(self.size*(4+self._keep_subgrids)*8)
+
     def _get_system(self):
         '''The system object for which this grid is made.'''
         return self._system
 
     system = property(_get_system)
-
-    def _get_coordinates(self):
-        '''The coordinates of the grid.'''
-        return self._coordinates
-
-    coordinates = property(_get_coordinates)
 
     def _get_atspecs(self):
         '''The specifications of the atomic grids.'''
@@ -144,6 +147,18 @@ class BeckeMolGrid(BaseGrid):
         return self._random_rotate
 
     random_rotate = property(_get_random_rotate)
+
+    def _log_init(self):
+        if log.do_medium:
+            log('Initialized: %s' % self)
+            log.deflist([
+                ('Size', self.size),
+                ('System', self._system),
+                ('Switching function', 'k=%i' % self._k),
+            ])
+            # Cite reference
+            log.cite('becke1988_multicenter', 'the multicenter integration scheme used in the molecular grids')
+
 
 
 def get_mol_grid_size(atspecs, natom):

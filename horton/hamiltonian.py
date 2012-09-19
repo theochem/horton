@@ -22,7 +22,7 @@
 
 import numpy as np
 
-from horton.log import log
+from horton.log import log, timer
 from horton.cache import Cache
 
 
@@ -75,12 +75,13 @@ class Hamiltonian(object):
         # Create a cache for shared intermediate results.
         self.cache = Cache()
 
-        # Pre-compute stuff
-        for term in self.terms:
-            term.prepare_system(self.system, self.cache, self.grid)
+        with timer.section('Prep. Ham.'):
+            # Pre-compute stuff
+            for term in self.terms:
+                term.prepare_system(self.system, self.cache, self.grid)
 
-        # Compute overlap matrix
-        self.overlap = system.get_overlap()
+            # Compute overlap matrix
+            self.overlap = system.get_overlap()
 
     def invalidate(self):
         '''Mark the properties derived from the wfn as outdated.
@@ -99,11 +100,10 @@ class Hamiltonian(object):
            The total energy, including nuclear-nuclear repulsion.
         '''
         if log.do_medium:
-            with log.section('ENERGY'):
-                log('Computing the energy of the system.')
-                log.hline()
-                log('         Energy term  Value')
-                log.hline()
+            log('Computing the energy of the system.')
+            log.hline()
+            log('         Energy term  Value')
+            log.hline()
 
         total = 0.0
         for term in self.terms:
@@ -116,10 +116,9 @@ class Hamiltonian(object):
         self.system.update_chk('props')
 
         if log.do_medium:
-            with log.section('ENERGY'):
-                log('%20s  %20.10f' % ('nn', energy))
-                log('%20s  %20.10f' % ('total', total))
-                log.hline()
+            log('%20s  %20.10f' % ('nn', energy))
+            log('%20s  %20.10f' % ('total', total))
+            log.hline()
 
         return total
 
@@ -165,8 +164,7 @@ class HamiltonianTerm(object):
     def store_energy(self, suffix, energy):
         self.system._props['energy_%s' % suffix] = energy
         if log.do_medium:
-            with log.section('ENERGY'):
-                log('%20s  %20.10f' % (suffix, energy))
+            log('%20s  %20.10f' % (suffix, energy))
 
     def compute_energy(self):
         raise NotImplementedError
