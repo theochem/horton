@@ -175,7 +175,7 @@ def test_grid_lih_321g_hf_some_points():
     assert abs(dm._array[0,0] - 1.96589709) < 1e-7
 
     points = ref[:,:3].copy()
-    rhos = sys.compute_density_grid(points)
+    rhos = sys.compute_grid_density(points)
     assert abs(rhos - ref[:,3]).max() < 1e-5
 
 

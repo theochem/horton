@@ -152,7 +152,7 @@ class HamiltonianTerm(object):
     def update_rho(self, select):
         rho, new = self.cache.load('rho_%s' % select, alloc=self.grid.size)
         if new:
-            self.system.compute_density_grid(self.grid.points, rhos=rho, select=select)
+            self.system.compute_grid_density(self.grid.points, rhos=rho, select=select)
         return rho
 
     def get_dm(self, select):

@@ -240,9 +240,9 @@ def check_grid_fn(fn_fchk, use_dm, use_output_arg):
     grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
     if use_output_arg:
         rhos = np.zeros(grid.size)
-        sys.compute_density_grid(grid.points, use_dm, rhos)
+        sys.compute_grid_density(grid.points, use_dm, rhos)
     else:
-        rhos = sys.compute_density_grid(grid.points, use_dm)
+        rhos = sys.compute_grid_density(grid.points, use_dm)
     pop = grid.integrate(rhos)
     assert abs(pop-sys.wfn.nel) < 2e-3
 

@@ -217,7 +217,7 @@ void GOBasis::compute_electron_repulsion(double* output) {
     compute_two_body(output, &integral);
 }
 
-void GOBasis::compute_density_grid_dm(double* dm, long npoint, double* points, double* rhos) {
+void GOBasis::compute_grid_density_dm(double* dm, long npoint, double* points, double* rhos) {
     double* basis_fns = new double[get_nbasis()];
     GB1GridFn grid_fn = GB1GridFn(get_max_shell_type());
 
@@ -257,7 +257,7 @@ void GOBasis::compute_density_grid_dm(double* dm, long npoint, double* points, d
     delete[] basis_fns;
 }
 
-void GOBasis::compute_density_grid_orb(double* orbs, long nocc, long norb, double scale, long npoint, double* points, double* rhos) {
+void GOBasis::compute_grid_density_orb(double* orbs, long nocc, long norb, double scale, long npoint, double* points, double* rhos) {
     double* basis_fns = new double[get_nbasis()];
     GB1GridFn grid_fn = GB1GridFn(get_max_shell_type());
 
