@@ -202,4 +202,8 @@ register = {
     'operators.na': CHKField('operators', 'na', att_class=DenseOneBody),
     'operators.er': CHKField('operators', 'er', att_class=DenseTwoBody),
     'props': CHKField('props'),
+    'dms.alpha': CHKField('dms', 'alpha', att_class=DenseOneBody),
+    'dms.beta': CHKField('dms', 'beta', att_class=DenseOneBody),
+    'dms.full': CHKField('dms', 'full', att_class=DenseOneBody),
+    'dms.spin': CHKField('dms', 'spin', att_class=DenseOneBody),
 }

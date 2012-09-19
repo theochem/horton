@@ -61,9 +61,9 @@ def load_system_args(filename, lf):
         coordinates, numbers = load_geom_xyz(filename)
         return {'coordinates': coordinates, 'numbers': numbers}
     elif filename.endswith('.fchk'):
-        coordinates, numbers, obasis, wfn, permutation, props = load_fchk(filename, lf)
+        coordinates, numbers, obasis, wfn, permutation, props, dms = load_fchk(filename, lf)
         return {'coordinates': coordinates, 'numbers': numbers, 'obasis': obasis,
-                'wfn': wfn, 'permutation': permutation, 'props': props}
+                'wfn': wfn, 'permutation': permutation, 'props': props, 'dms': dms}
     elif filename.endswith('.log'):
         overlap, kinetic, nuclear_attraction, electronic_repulsion = load_operators_g09(filename, lf)
         operators = {}
@@ -350,6 +350,8 @@ def load_fchk(filename, lf):
         "Alpha Orbital Energies", "Alpha MO coefficients",
         "Beta Orbital Energies", "Beta MO coefficients",
         "Total Energy",
+        'Total SCF Density', 'Spin SCF Density',
+        'Total CC Density', 'Spin CC Density',
     ])
 
     # A) Load the geometry
@@ -455,8 +457,28 @@ def load_fchk(filename, lf):
         'energy': fchk.fields['Total Energy'],
     }
 
-    # Note: density matrices are not loaded because these are wrong in some cases
-    return coordinates, numbers, obasis, wfn, permutation, props
+    # E) Load density matrices
+    def load_dm(key, label):
+        if label in fchk.fields:
+            dm = lf.create_one_body(obasis.nbasis)
+            start = 0
+            for i in xrange(obasis.nbasis):
+                stop = start+i+1
+                dm._array[i,:i+1] = fchk.fields[label][start:stop]
+                dm._array[:i+1,i] = fchk.fields[label][start:stop]
+                start = stop
+            dms[key] = dm
+
+    dms = {}
+    # TODO add more
+    load_dm('scf_full', 'Total SCF Density')
+    load_dm('scf_spin', 'Spin SCF Density')
+    load_dm('mp2_full', 'Total MP2 Density')
+    load_dm('mp2_spin', 'Spin MP2 Density')
+    load_dm('cc_full', 'Total CC Density')
+    load_dm('cc_spin', 'Spin CC Density')
+
+    return coordinates, numbers, obasis, wfn, permutation, props, dms
 
 
 def load_checkpoint(filename, lf):

@@ -99,6 +99,30 @@ def test_nucnuc():
     assert abs(sys.compute_nucnuc() - 4.7247965053) < 1e-5
 
 
+def check_scf_dms(fn_fchk):
+    sys = System.from_file(fn_fchk)
+    dm_full = sys.lf.create_one_body()
+    sys.wfn.compute_density_matrix(dm_full, 'full')
+    assert abs(dm_full._array - sys.dms['scf_full']._array).max() < 1e-7
+    if 'scf_spin' in sys.dms:
+        dm_spin = sys.lf.create_one_body()
+        sys.wfn.compute_density_matrix(dm_spin, 'spin')
+        assert abs(dm_spin._array - sys.dms['scf_spin']._array).max() < 1e-7
+
+
+def test_scf_dms_water_sto3g_hf():
+    check_scf_dms(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+
+def test_scf_dms_lih_321g_hf_TT():
+    check_scf_dms(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
+
+def test_scf_dms_water_ccpvdz_pure_hf():
+    check_scf_dms(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'))
+
+def test_scf_dms_water_ccpvdz_cart_hf():
+    check_scf_dms(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'))
+
+
 def check_overlap(fn_fchk):
     fn_log = fn_fchk[:-5] + '.log'
     sys1 = System.from_file(fn_fchk, fn_log)
