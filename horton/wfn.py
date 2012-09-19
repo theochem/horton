@@ -195,6 +195,12 @@ class ClosedShellWFN(WFN):
 
     nep = property(_get_nep)
 
+    def _get_mult(self):
+        '''The spin multiplicity'''
+        return 0
+
+    mult = property(_get_mult)
+
     def _get_expansion(self):
         '''The expansion of the orbitals'''
         return self._expansion
@@ -309,6 +315,12 @@ class OpenShellWFN(WFN):
         return self._nbeta
 
     nbeta = property(_get_nbeta)
+
+    def _get_mult(self):
+        '''The spin multiplicity'''
+        return 1 + abs(self._nalpha - self._nbeta)
+
+    mult = property(_get_mult)
 
     def _get_alpha_expansion(self):
         '''The expansion of the alpha electrons'''
