@@ -33,7 +33,7 @@ import h5py as h5
 
 from horton.io import load_system_args
 from horton.log import log
-from horton.matrix import DenseLinalgFactory
+from horton.matrix import DenseLinalgFactory, LinalgObject
 from horton.periodic import periodic
 from horton.wfn import ClosedShellWFN, OpenShellWFN
 
@@ -42,7 +42,7 @@ __all__ = ['System']
 
 
 class System(object):
-    def __init__(self, coordinates, numbers, obasis=None, wfn=None, lf=None, operators=None, props=None, chk=None):
+    def __init__(self, coordinates, numbers, obasis=None, wfn=None, lf=None, operators=None, props=None, dms=None, chk=None):
         """
            **Arguments:**
 
@@ -72,6 +72,9 @@ class System(object):
 
            props
                 A dictionary with computed properties.
+
+           dms
+                A dictionary with density matrices.
 
            chk
                 A filename for the checkpoint file or an open h5.File object.
@@ -122,6 +125,11 @@ class System(object):
             self._props = {}
         else:
             self._props = props
+        #
+        if dms is None:
+            self._dms = {}
+        else:
+            self._dms = dms
 
         # Some consistency checks
         if self.obasis is not None:
@@ -199,6 +207,12 @@ class System(object):
 
     props = property(_get_props)
 
+    def _get_dms(self):
+        '''A dictionary with density matrices.'''
+        return self._dms
+
+    dms = property(_get_dms)
+
     def _get_chk(self):
         '''A ``h5.File`` instance used as checkpoint file or ``None``'''
         return self._chk
@@ -236,7 +250,7 @@ class System(object):
 
         # If the basis comes from an external code and some operators are
         # loaded, rows and columns may need to be reordered. Similar for the
-        # orbital coefficients.
+        # orbital coefficients and the density matrices.
         permutation = constructor_args.get('permutation')
         if permutation is not None:
             operators = constructor_args.get('operators')
@@ -246,6 +260,10 @@ class System(object):
             wfn = constructor_args.get('wfn')
             if wfn is not None:
                 wfn.apply_basis_permutation(permutation)
+            dms = constructor_args.get('dms')
+            if dms is not None:
+                for dm in dms.itervalues():
+                    dm.apply_basis_permutation(permutation)
             del constructor_args['permutation']
 
         return cls(**constructor_args)

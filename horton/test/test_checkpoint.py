@@ -222,6 +222,23 @@ def test_chk_operators():
     assert (ar_er == sys1.get_electron_repulsion()._array).all()
 
 
+def test_chk_dms():
+    chk = h5.File('horton.test.test_checkpoint.test_chk_dms', driver='core', backing_store=False)
+    sys1 = System.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'), chk=chk)
+    sys1.dms['full'] = sys1.dms['scf_full']
+    sys1.dms['spin'] = sys1.dms['scf_spin']
+    ar_full = sys1.dms['full']._array
+    ar_spin = sys1.dms['spin']._array
+    sys1.update_chk('dms.full')
+    sys1.update_chk('dms.spin')
+    del sys1
+    sys1 = System.from_file(chk)
+    assert 'full' in sys1.dms
+    assert 'spin' in sys1.dms
+    assert (ar_full == sys1.dms['full']._array).all()
+    assert (ar_spin == sys1.dms['spin']._array).all()
+
+
 def test_chk_guess_scf_cs():
     chk = h5.File('horton.test.test_checkpoint.test_chk_guess_scf_cs', driver='core', backing_store=False)
     fn_fchk = context.get_fn('test/hf_sto3g.fchk')

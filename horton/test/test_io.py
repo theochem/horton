@@ -101,7 +101,7 @@ def test_load_fchk_nonexistent():
 
 def test_load_fchk_hf_sto3g_num():
     lf = DenseLinalgFactory()
-    coordinates, numbers, obasis, wfn, permutation, props = load_fchk(context.get_fn('test/hf_sto3g.fchk'), lf)
+    coordinates, numbers, obasis, wfn, permutation, props, dms = load_fchk(context.get_fn('test/hf_sto3g.fchk'), lf)
     assert obasis.nshell == 4
     assert obasis.nbasis == 6
     assert (obasis.nprims == 3).all()
@@ -110,11 +110,12 @@ def test_load_fchk_hf_sto3g_num():
     assert len(numbers) == 2
     assert 'energy' in props
     assert props['energy'] == -9.856961609951867E+01
+    dms['scf_full'].check_symmetry()
 
 
 def test_load_fchk_h_sto3g_num():
     lf = DenseLinalgFactory()
-    coordinates, numbers, obasis, wfn, permutation, props = load_fchk(context.get_fn('test/h_sto3g.fchk'), lf)
+    coordinates, numbers, obasis, wfn, permutation, props, dms = load_fchk(context.get_fn('test/h_sto3g.fchk'), lf)
     assert obasis.nshell == 1
     assert obasis.nbasis == 1
     assert (obasis.nprims == 3).all()
@@ -123,11 +124,13 @@ def test_load_fchk_h_sto3g_num():
     assert len(numbers) == 1
     assert 'energy' in props
     assert props['energy'] == -4.665818503844346E-01
+    dms['scf_full'].check_symmetry()
+    dms['scf_spin'].check_symmetry()
 
 
 def test_load_fchk_o2_cc_pvtz_pure_num():
     lf = DenseLinalgFactory()
-    coordinates, numbers, obasis, wfn, permutation, props = load_fchk(context.get_fn('test/o2_cc_pvtz_pure.fchk'), lf)
+    coordinates, numbers, obasis, wfn, permutation, props, dms = load_fchk(context.get_fn('test/o2_cc_pvtz_pure.fchk'), lf)
     assert obasis.nshell == 20
     assert obasis.nbasis == 60
     assert len(coordinates) == len(numbers)
@@ -135,11 +138,12 @@ def test_load_fchk_o2_cc_pvtz_pure_num():
     assert len(numbers) == 2
     assert 'energy' in props
     assert props['energy'] == -1.495944878699246E+02
+    dms['scf_full'].check_symmetry()
 
 
 def test_load_fchk_o2_cc_pvtz_cart_num():
     lf = DenseLinalgFactory()
-    coordinates, numbers, obasis, wfn, permutation, props = load_fchk(context.get_fn('test/o2_cc_pvtz_cart.fchk'), lf)
+    coordinates, numbers, obasis, wfn, permutation, props, dms = load_fchk(context.get_fn('test/o2_cc_pvtz_cart.fchk'), lf)
     assert obasis.nshell == 20
     assert obasis.nbasis == 70
     assert len(coordinates) == len(numbers)
@@ -147,11 +151,12 @@ def test_load_fchk_o2_cc_pvtz_cart_num():
     assert len(numbers) == 2
     assert 'energy' in props
     assert props['energy'] == -1.495953594545721E+02
+    dms['scf_full'].check_symmetry()
 
 
 def test_load_fchk_water_sto3g_hf():
     lf = DenseLinalgFactory()
-    coordinates, numbers, obasis, wfn, permutation, props = load_fchk(context.get_fn('test/water_sto3g_hf_g03.fchk'), lf)
+    coordinates, numbers, obasis, wfn, permutation, props, dms = load_fchk(context.get_fn('test/water_sto3g_hf_g03.fchk'), lf)
     assert obasis.nshell == 5
     assert obasis.nbasis == 7
     assert len(coordinates) == len(numbers)
@@ -168,12 +173,13 @@ def test_load_fchk_water_sto3g_hf():
     assert abs(wfn.expansion.coeffs[4,-1] - (-0.82381)) < 1e-4
     assert 'energy' in props
     assert props['energy'] == -7.495929232844363E+01
+    dms['scf_full'].check_symmetry()
 
 
 def test_load_fchk_lih_321g_hf():
     lf = DenseLinalgFactory()
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
-    coordinates, numbers, obasis, wfn, permutation, props = load_fchk(fn_fchk, lf)
+    coordinates, numbers, obasis, wfn, permutation, props, dms = load_fchk(fn_fchk, lf)
     assert obasis.nshell == 7
     assert obasis.nbasis == 11
     assert len(coordinates) == len(numbers)
@@ -196,37 +202,24 @@ def test_load_fchk_lih_321g_hf():
     assert abs(wfn.beta_expansion.coeffs[3,2]) < 1e-4
     assert abs(wfn.beta_expansion.coeffs[-1,9] - 0.80875) < 1e-4
     assert abs(wfn.beta_expansion.coeffs[4,-1] - (-0.15503)) < 1e-4
+    dms['scf_full'].check_symmetry()
+    dms['scf_spin'].check_symmetry()
 
     lf.set_default_nbasis(wfn.nbasis)
-    dm = lf.create_one_body()
-    dms = lf.create_one_body()
-    dma = lf.create_one_body()
-    dmb = lf.create_one_body()
+    dm_full = lf.create_one_body()
+    dm_spin = lf.create_one_body()
+    dm_alpha = lf.create_one_body()
+    dm_beta = lf.create_one_body()
 
-    wfn.compute_density_matrix(dm, 'full')
-    wfn.compute_density_matrix(dms, 'spin')
-    wfn.compute_density_matrix(dma, 'alpha')
-    wfn.compute_density_matrix(dmb, 'beta')
+    wfn.compute_density_matrix(dm_full, 'full')
+    wfn.compute_density_matrix(dm_spin, 'spin')
+    wfn.compute_density_matrix(dm_alpha, 'alpha')
+    wfn.compute_density_matrix(dm_beta, 'beta')
 
-    assert abs(dm._array - (dma._array + dmb._array)).max() < 1e-10
-    assert abs(dms._array - (dma._array - dmb._array)).max() < 1e-10
+    assert abs(dm_full._array - (dm_alpha._array + dm_beta._array)).max() < 1e-10
+    assert abs(dm_spin._array - (dm_alpha._array - dm_beta._array)).max() < 1e-10
 
-    # Load some additional matrices from the fchk file and compare
-    fchk = FCHKFile(fn_fchk, ['Total SCF Density', 'Spin SCF Density'])
-    def to_dens(longrow, size):
-        result = np.zeros((size, size), float)
-        i0 = 0
-        i1 = 0
-        for i in xrange(len(longrow)):
-            result[i0, i1] = longrow[i]
-            result[i1, i0] = longrow[i]
-            if i0==i1:
-                i1 += 1
-                i0 = 0
-            else:
-                i0 += 1
-        return result
-    assert abs(dm._array - to_dens(fchk.fields['Total SCF Density'], 11)).max() < 1e-7
-    assert abs(dms._array - to_dens(fchk.fields['Spin SCF Density'], 11)).max() < 1e-7
+    assert abs(dm_full._array - dms['scf_full']._array).max() < 1e-7
+    assert abs(dm_spin._array - dms['scf_spin']._array).max() < 1e-7
     assert 'energy' in props
     assert props['energy'] == -7.687331212191968E+00

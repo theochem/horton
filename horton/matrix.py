@@ -54,7 +54,7 @@ from horton.log import log
 
 
 __all__ = [
-    'LinalgFactory', 'OneBody',
+    'LinalgFactory', 'LinalgObject', 'OneBody',
     'DenseLinalgFactory', 'DenseExpansion', 'DenseOneBody', 'DenseTwoBody',
 ]
 
@@ -100,7 +100,12 @@ class LinalgFactory(object):
         raise NotImplementedError
 
 
-class OneBody(object):
+class LinalgObject(object):
+    def apply_basis_permutation(self, permutation):
+        raise NotImplementedError
+
+
+class OneBody(LinalgObject):
     def __init__(self, nbasis=None):
         raise NotImplementedError
 
@@ -198,7 +203,7 @@ class DenseLinalgFactory(LinalgFactory):
         return nbasis**4*8
 
 
-class DenseExpansion(object):
+class DenseExpansion(LinalgObject):
     """An expansion of several functions in a basis with a dense matrix of
        coefficients. The implementation is such that the columns of self._array
        contain the orbitals
@@ -406,7 +411,7 @@ class DenseOneBody(OneBody):
         self._array[:] = self._array[:,permutation]
 
 
-class DenseTwoBody(object):
+class DenseTwoBody(LinalgObject):
     """Dense symmetric four-dimensional matrix.
 
        This is the most inefficient implementation in terms of memory usage and
