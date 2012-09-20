@@ -1,0 +1,20 @@
+This directory contains a database of reference atomic density matrices. It is
+only populated in the stable/unstable releases of Horton, not in the development
+version. In the later case, one has to download the files manually from the
+following url and unpack the archive:
+
+http://users.ugent.be/~tovrstra/horton_refatoms.tar.bz2
+
+On unix, this can be done as follows:
+
+wget http://users.ugent.be/~tovrstra/horton_refatoms.tar.bz2
+tar -xvjf horton_refatoms.tar.bz2
+
+
+The density matrices are computed at the CCSDT(FULL)/ANO-RCC level of theory.
+All ions are included that are not basis-set bound, i.e. the computed ionization
+potential must be positive. For each ion, all reasonable multiplicities were
+tested and the lowest in energy was selected. The filenames have the following
+format:
+
+"%03i_%2s_N%02i_M%1i.h5" % (number, symbol, population, multiplicity)

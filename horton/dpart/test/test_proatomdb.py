@@ -34,11 +34,16 @@ def test_from_scratch_simple():
     assert keys == [(1, 1), (1, 2), (1, 3), (6, 3), (6, 4), (6, 5), (6, 6), (6, 7), (6, 8)]
 
 
-def test_io_group():
+def get_proatomdb_HC_from_scratch(qmin=-1, qmax=1):
     int1d = TrapezoidIntegrator1D()
     rtf = LogRTransform(1e-3, 1e1, 100)
     atgrid = AtomicGrid(np.zeros(3, float), rtf, int1d, 110, keep_subgrids=1)
-    proatomdb = ProAtomDB.from_scratch([HartreeFock()], '3-21G', atgrid, [1,6], qmin=-1, qmax=1)
+    return ProAtomDB.from_scratch([HartreeFock()], '3-21G', atgrid, [1,6], qmin=qmin, qmax=qmax)
+
+
+
+def test_io_group():
+    proatomdb = get_proatomdb_HC_from_scratch()
     keys = sorted(proatomdb._records.keys())
     assert keys == [(1, 1), (1, 2), (6, 5), (6, 6), (6, 7)]
 
@@ -51,11 +56,9 @@ def test_io_group():
         avr2 = bis._records[(1,2)]
         assert (avr1 == avr2).all()
 
+
 def test_io_filename():
-    int1d = TrapezoidIntegrator1D()
-    rtf = LogRTransform(1e-3, 1e1, 100)
-    atgrid = AtomicGrid(np.zeros(3, float), rtf, int1d, 110, keep_subgrids=1)
-    proatomdb = ProAtomDB.from_scratch([HartreeFock()], '3-21G', atgrid, [1,6], qmin=0, qmax=1)
+    proatomdb = get_proatomdb_HC_from_scratch(qmin=0, qmax=1)
     keys = sorted(proatomdb._records.keys())
     assert keys == [(1, 1), (6, 5), (6, 6)]
 
@@ -73,3 +76,12 @@ def test_io_filename():
         if os.path.isfile(filename):
             os.remove(filename)
         os.rmdir(tmpdir)
+
+
+def test_from_refatoms():
+    int1d = TrapezoidIntegrator1D()
+    rtf = LogRTransform(1e-3, 1e1, 100)
+    atgrid = AtomicGrid(np.zeros(3, float), rtf, int1d, 110, keep_subgrids=1)
+    proatomdb = ProAtomDB.from_refatoms(atgrid, numbers=[1,5], qmax=2)
+    keys = sorted(proatomdb._records.keys())
+    assert keys == [(1, 1), (1, 2), (5, 3), (5, 4), (5, 5), (5, 6)]

@@ -21,11 +21,13 @@
 '''Tools for playing with pro-atomic databases'''
 
 
+import os
 import h5py as h5, numpy as np
 
+from horton.context import context
 from horton.exceptions import ElectronCountError
 from horton.grid.atgrid import AtomicGrid
-from horton.grid.cext import RTransform, CubicSpline
+from horton.grid.cext import RTransform, CubicSpline, dot_multi
 from horton.guess import guess_hamiltonian_core
 from horton.hamiltonian import Hamiltonian
 from horton.log import log
@@ -34,6 +36,40 @@ from horton.system import System
 
 
 __all__ = ['ProAtomDB']
+
+
+def _compute_average_rhos(sys, atgrid, do_population=False):
+    '''Compute the spherical average of an atomic density
+
+       **Arguments:**
+
+       sys
+            The one-atom system.
+
+       atgrid
+            The atomic grid used for computation of the spherical average.
+
+       **Optional arguments:**
+
+    '''
+    nsphere = len(atgrid.subgrids)
+    average_rhos = np.zeros(nsphere)
+    for i in xrange(nsphere):
+        llgrid = atgrid.subgrids[i]
+        rhos = sys.compute_grid_density(llgrid.points)
+        # TODO: also compute the derivatives of the average
+        #       with respect to r for better splines
+        average_rhos[i] = llgrid.integrate(rhos)/llgrid.weights.sum()
+    if do_population:
+        # TODO: ugly
+        population = 4*np.pi*dot_multi(
+            atgrid.rtransform.get_volume_elements(),
+            atgrid.rtransform.get_radii()**2,
+            average_rhos,
+        )
+        return average_rhos, population
+    else:
+        return average_rhos
 
 
 class ProAtomDB(object):
@@ -115,6 +151,7 @@ class ProAtomDB(object):
         # TODO: allow for different grids for each element.
         # TODO long term: make it possible to control the scf code and to update
         #                 an existing db with additional comps.
+        # TODO: add option to filter out atoms with a negative ionization potential
         # check the essentials of the arguments:
         if not isinstance(atgrid, AtomicGrid) or atgrid.subgrids is None:
             raise TypeError('The subgrids of the atomic grid are needed. Use the argument keep_subgrids=1 when creating the atomic grid.')
@@ -146,14 +183,7 @@ class ProAtomDB(object):
                     if converged:
                         # Good one, store it
                         energy = ham.compute_energy()
-                        nsphere = len(atgrid.subgrids)
-                        average_rhos = np.zeros(nsphere)
-                        for i in xrange(nsphere):
-                            llgrid = atgrid.subgrids[i]
-                            rhos = sys.compute_grid_density(llgrid.points)
-                            # TODO: also compute the derivatives of the average
-                            #       with respect to r for better splines
-                            average_rhos[i] = llgrid.integrate(rhos)/llgrid.weights.sum()
+                        average_rhos = _compute_average_rhos(sys, atgrid)
                         cases.append((energy, average_rhos))
                     elif log.do_warning:
                         log.warn('Convergence faillure when creating proatomdb from scratch. Z=%i Q=%i, M=%i' % (number, charge, mult))
@@ -165,7 +195,81 @@ class ProAtomDB(object):
         # Create the object.
         return cls(atgrid.rtransform, records)
 
-    # TODO: add @classmethod from_checkpoints
+    @classmethod
+    def from_checkpoints(cls, fns_chk, atgrid):
+        '''
+           Construct a ProAtomDB from a series of Horton checkpoint files.
+
+           **Arguments:**
+
+           fns_chk
+                A list of Horton checkpoint files.
+
+           atgrid
+                An AtomicGrid object used for computing spherical average.
+        '''
+        records = {}
+        # Compute all caes
+        for fn_chk in fns_chk:
+            # Load system
+            sys = System.from_file(fn_chk, chk=None) # avoid rewriting chk file
+            assert sys.natom == 1
+            # Compute/Get properties
+            energy = sys.props.get('energy', 0.0)
+            average_rhos, population = _compute_average_rhos(sys, atgrid, do_population=True)
+            ipop = int(np.round(population))
+            assert abs(population - ipop) < 1e-1
+            key = (sys.numbers[0], ipop)
+            l = records.setdefault(key, [])
+            l.append((energy, average_rhos))
+
+        # Filter out lowest energies
+        for key in records.keys():
+            l = records[key]
+            l.sort()
+            records[key] = l[0][1]
+
+        # Create the object.
+        return cls(atgrid.rtransform, records)
+
+    @classmethod
+    def from_refatoms(cls, atgrid, numbers=None, qmax=+4):
+        '''
+           Construct a ProAtomDB from reference atoms included in Horton
+
+           **Arguments:**
+
+           fns_chk
+                A list of Horton checkpoint files.
+
+           atgrid
+                An AtomicGrid object used for computing spherical average.
+
+           **Optional Arguments:**
+
+           numbers
+                A list of atom numbers to limit the selection of atoms in the
+                database. When not given, all reference atoms are loaded.
+
+           qmax
+                The charge of the most positive ion allowed in the database
+        '''
+        # Load all the systems
+        fns_chk = []
+        for fn in context.glob('refatoms/*.h5'):
+            name = os.path.basename(fn)
+            number = int(name[:3])
+            if not (numbers is None or number in numbers):
+                continue
+            pop = int(name[8:10])
+            charge = number - pop
+            if charge > qmax:
+                continue
+            fns_chk.append(fn)
+
+        # Hand them over to another constructor
+        return cls.from_checkpoints(fns_chk, atgrid)
+
 
     def _log_init(self):
         if log.do_medium:
@@ -187,7 +291,6 @@ class ProAtomDB(object):
                 h5.Group object.
         '''
         # parse the argument
-
         if isinstance(filename, basestring):
             f = h5.File(filename, 'w')
             do_close = True
