@@ -1,0 +1,11 @@
+# Never check in binary files!
+*.h5
+
+# Ignore (in-place) build results
+cext.cpp
+cext.so
+*.pyc
+build
+
+# Ignore compiled dependencies
+depends/*.*
