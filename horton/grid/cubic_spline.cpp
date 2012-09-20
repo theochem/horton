@@ -99,6 +99,60 @@ void tridiagsym_solve(double* diag_mid, double* diag_up, double* right,
     }
 }
 
+
+void solve_cubic_spline_system(double* y, double *d, int npoint) {
+    double* diag_mid = new double[npoint];
+    double* diag_up = new double[npoint-1];
+    double* right =  new double[npoint];
+
+    // Setup the tri-diagonal system
+    diag_mid[0] = 2.0;
+    diag_up[0] = 1.0;
+    right[0] = 3.0*(y[1]-y[0]);
+    for (int i=1; i<npoint-1; i++) {
+        diag_mid[i] = 4.0;
+        diag_up[i] = 1.0;
+        right[i] = 3.0*(y[i+1]-y[i-1]);
+    }
+    diag_mid[npoint-1] = 2.0;
+    right[npoint-1] = 3.0*(y[npoint-1]-y[npoint-2]);
+
+    tridiagsym_solve(diag_mid, diag_up, right, d, npoint);
+
+    delete[] diag_mid;
+    delete[] diag_up;
+    delete[] right;
+}
+
+
+void compute_cubic_spline_int_weights(double* weights, int npoint) {
+    // Construct a cubic spline for series 0,0,...,0,1,0...,0. One for every
+    // grid point. The integral of such a function is the weight corresponding
+    // to the grid point.
+
+    // allocate arrays for the temporary splines
+    double* y = new double[npoint];
+    double* d = new double[npoint];
+
+    for (int ipoint=0; ipoint<npoint; ipoint++) {
+        // setup the input spline
+        if (ipoint > 0) y[ipoint-1] = 0.0;
+        y[ipoint] = 1.0;
+        // solve for the derivatives
+        solve_cubic_spline_system(y, d, npoint);
+        // compute the integral over the spline, which is heavily simplified...
+        double weight = y[ipoint];
+        if ((ipoint==0) || (ipoint==npoint-1)) {
+            weight *= 0.5;
+        }
+        weight += (d[0] - d[npoint-1])/12.0;
+        weights[ipoint] = weight;
+    }
+
+    delete[] y;
+    delete[] d;
+}
+
 /*
    CubicSpline class.
 */
@@ -128,27 +182,7 @@ CubicSpline::CubicSpline(double* _y, double* _d, Extrapolation* _ep, RTransform*
 
     if (_d==NULL) {
         // Make our own d's
-        double* diag_mid = new double[n];
-        double* diag_up = new double[n-1];
-        double* right =  new double[n];
-
-        // Setup the tri-diagonal system
-        diag_mid[0] = 2.0;
-        diag_up[0] = 1.0;
-        right[0] = 3.0*(y[1]-y[0]);
-        for (int i=1; i<n-1; i++) {
-            diag_mid[i] = 4.0;
-            diag_up[i] = 1.0;
-            right[i] = 3.0*(y[i+1]-y[i-1]);
-        }
-        diag_mid[n-1] = 2.0;
-        right[n-1] = 3.0*(y[n-1]-y[n-2]);
-
-        tridiagsym_solve(diag_mid, diag_up, right, d, n);
-
-        delete[] diag_mid;
-        delete[] diag_up;
-        delete[] right;
+        solve_cubic_spline_system(y, d, n);
     } else {
         // Transform the given d's. We get dy/dr, we want dy/dt
         for (int i=0; i<n; i++) {

@@ -40,6 +40,7 @@ __all__ = [
     'becke_helper_atom',
     # cubic_spline
     'tridiag_solve', 'tridiagsym_solve', 'CubicSpline',
+    'compute_cubic_spline_int_weights',
     # rtransform
     'RTransform', 'IdentityRTransform', 'LinearRTransform', 'LogRTransform',
     # utils
@@ -256,6 +257,11 @@ cdef class CubicSpline(object):
         self._this.eval_deriv(<double*>new_x.data, <double*>new_d.data, new_n)
         return new_d
 
+
+def compute_cubic_spline_int_weights(np.ndarray[double, ndim=1] weights not None):
+    assert weights.flags['C_CONTIGUOUS']
+    npoint = weights.shape[0]
+    cubic_spline.compute_cubic_spline_int_weights(<double*>weights.data, npoint)
 
 #
 # rtransform
