@@ -21,9 +21,12 @@
 
 
 import numpy as np
+from horton.grid.cext import compute_cubic_spline_int_weights
 
 
-__all__ = ['Integrator1D', 'TrapezoidIntegrator1D']
+__all__ = [
+    'Integrator1D', 'TrapezoidIntegrator1D', 'CubicIntegrator1D',
+]
 
 
 class Integrator1D(object):
@@ -40,4 +43,13 @@ class TrapezoidIntegrator1D(Integrator1D):
         result = np.ones(npoint, dtype=float)
         result[0] = 0.5
         result[-1] = 0.5
+        return result
+
+
+class CubicIntegrator1D(Integrator1D):
+    '''Cubic spline integration algorithm'''
+    def get_weights(self, npoint):
+        '''Return integration weights for linear grid.'''
+        result = np.ones(npoint, dtype=float)
+        compute_cubic_spline_int_weights(result)
         return result
