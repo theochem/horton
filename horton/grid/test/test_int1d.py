@@ -41,8 +41,8 @@ def test_trapezoid_intlin():
     int_ana = 0.5*(b + a*3+b)*3
     assert abs(int_numer - int_ana) < 1e-10
 
-def test_sineintegration():
-    # TODO: similar test with cosine
+
+def test_sine_integration1():
     y = np.sin(np.arange(0,100)/99.0*np.pi)
 
     int1d = CubicIntegrator1D()
@@ -58,8 +58,29 @@ def test_sineintegration():
     int3d = SimpsonIntegrator1D()
     weights3 = int3d.get_weights(100)
     int_numer3 = np.dot(weights3, y)*np.pi/99.0
-    print abs(int_numer3 - 2.0)
     assert abs(int_numer3 - 2.0) < 2e-8
 
     assert abs(int_numer2 - 2.0) > abs(int_numer3 - 2.0)
     assert abs(int_numer3 - 2.0) > abs(int_numer1 - 2.0)
+
+
+def test_sine_integration2():
+    y = np.sin(np.arange(0,100)/99.0*np.pi/2)
+
+    int1d = CubicIntegrator1D()
+    weights1 = int1d.get_weights(100)
+    int_numer1 = np.dot(weights1, y)*np.pi/2/99.0
+    assert abs(int_numer1 - 1.0) < 1e-7
+
+    int2d = TrapezoidIntegrator1D()
+    weights2 = int2d.get_weights(100)
+    int_numer2 = np.dot(weights2, y)*np.pi/2/99.0
+    assert abs(int_numer2 - 1.0) < 3e-5
+
+    int3d = SimpsonIntegrator1D()
+    weights3 = int3d.get_weights(100)
+    int_numer3 = np.dot(weights3, y)*np.pi/2/99.0
+    assert abs(int_numer3 - 1.0) < 4e-10
+
+    assert abs(int_numer3 - 1.0) < abs(int_numer1 - 1.0)
+    assert abs(int_numer1 - 1.0) < abs(int_numer2 - 1.0)
