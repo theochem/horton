@@ -25,7 +25,7 @@ from horton.grid.cext import compute_cubic_spline_int_weights
 
 
 __all__ = [
-    'Integrator1D', 'TrapezoidIntegrator1D', 'CubicIntegrator1D',
+    'Integrator1D', 'TrapezoidIntegrator1D', 'CubicIntegrator1D', 'SimpsonIntegrator1D'
 ]
 
 
@@ -40,6 +40,7 @@ class TrapezoidIntegrator1D(Integrator1D):
     '''Trapezoid rule integration algorithm'''
     def get_weights(self, npoint):
         '''Return integration weights for linear grid.'''
+        assert npoint >= 2
         result = np.ones(npoint, dtype=float)
         result[0] = 0.5
         result[-1] = 0.5
@@ -50,6 +51,24 @@ class CubicIntegrator1D(Integrator1D):
     '''Cubic spline integration algorithm'''
     def get_weights(self, npoint):
         '''Return integration weights for linear grid.'''
+        assert npoint >= 2
         result = np.ones(npoint, dtype=float)
         compute_cubic_spline_int_weights(result)
+        return result
+
+
+class SimpsonIntegrator1D(Integrator1D):
+    '''Composite Simpson's rule integration algorithm'''
+    def get_weights(self, npoint):
+        '''Return integration weights for linear grid.'''
+        assert npoint >= 8
+        result = np.ones(npoint, dtype=float)
+        result[0] = 17.0/48.0
+        result[-1] = 17.0/48.0
+        result[1] = 59.0/48.0
+        result[-2] = 59.0/48.0
+        result[2] = 43.0/48.0
+        result[-3] = 43.0/48.0
+        result[3] = 49.0/48.0
+        result[-4] = 49.0/48.0
         return result
