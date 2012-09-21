@@ -134,6 +134,9 @@ void compute_cubic_spline_int_weights(double* weights, int npoint) {
     double* y = new double[npoint];
     double* d = new double[npoint];
 
+    // Set y array to zero. d is initialized in solve_cubic_spline_system.
+    memset(y, 0, sizeof(double)*npoint);
+
     for (int ipoint=0; ipoint<npoint; ipoint++) {
         // setup the input spline
         if (ipoint > 0) y[ipoint-1] = 0.0;
