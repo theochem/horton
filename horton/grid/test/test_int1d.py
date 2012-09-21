@@ -42,10 +42,6 @@ def test_trapezoid_intlin():
     assert abs(int_numer - int_ana) < 1e-10
 
 def test_cubic_sine():
-    from nose.plugins.skip import SkipTest
-    raise SkipTest
-    # TODO; valgrind and friends
-
     # It should correctly integrate a cubic spline. That is a bit too difficult.
     # Let's test with a sine function from 0 to pi.
     y = np.sin(np.arange(0,100)/99.0*np.pi)
