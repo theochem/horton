@@ -41,19 +41,25 @@ def test_trapezoid_intlin():
     int_ana = 0.5*(b + a*3+b)*3
     assert abs(int_numer - int_ana) < 1e-10
 
-def test_cubic_sine():
-    # It should correctly integrate a cubic spline. That is a bit too difficult.
-    # Let's test with a sine function from 0 to pi.
+def test_sineintegration():
+    # TODO: similar test with cosine
     y = np.sin(np.arange(0,100)/99.0*np.pi)
 
     int1d = CubicIntegrator1D()
     weights1 = int1d.get_weights(100)
     int_numer1 = np.dot(weights1, y)*np.pi/99.0
-    print int_numer1, 2.0, abs(int_numer1 - 2.0)
     assert abs(int_numer1 - 2.0) < 3e-9
 
     int2d = TrapezoidIntegrator1D()
     weights2 = int2d.get_weights(100)
     int_numer2 = np.dot(weights2, y)*np.pi/99.0
-    assert abs(int_numer2 - 2.0) > abs(int_numer1 - 2.0)
     assert abs(int_numer2 - 2.0) < 2e-4
+
+    int3d = SimpsonIntegrator1D()
+    weights3 = int3d.get_weights(100)
+    int_numer3 = np.dot(weights3, y)*np.pi/99.0
+    print abs(int_numer3 - 2.0)
+    assert abs(int_numer3 - 2.0) < 2e-8
+
+    assert abs(int_numer2 - 2.0) > abs(int_numer3 - 2.0)
+    assert abs(int_numer3 - 2.0) > abs(int_numer1 - 2.0)
