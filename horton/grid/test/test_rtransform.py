@@ -94,7 +94,7 @@ def test_linear_basics():
 
 
 def test_log_basics():
-    rtf = LogRTransform(0.1, 1e1, 100)
+    rtf = ExpRTransform(0.1, 1e1, 100)
     assert abs(rtf.radius(0) - 0.1) < 1e-15
     assert abs(rtf.radius(99) - 1e1) < 1e-10
     check_consistency(rtf)
@@ -115,7 +115,7 @@ def test_linear_properties():
 
 
 def test_log_properties():
-    rtf = LogRTransform(0.1, 1e1, 100)
+    rtf = ExpRTransform(0.1, 1e1, 100)
     assert rtf.rmin == 0.1
     assert rtf.rmax == 1e1
     assert rtf.npoint == 100
@@ -182,7 +182,7 @@ def test_linear_string():
 
 
 def test_log_string():
-    rtf1 = LogRTransform(np.random.uniform(1e-5, 5e-5), np.random.uniform(1, 5), 111)
+    rtf1 = ExpRTransform(np.random.uniform(1e-5, 5e-5), np.random.uniform(1, 5), 111)
     s = rtf1.to_string()
     rtf2 = RTransform.from_string(s)
     assert rtf1.rmin == rtf2.rmin
@@ -191,18 +191,18 @@ def test_log_string():
     assert rtf1.alpha == rtf2.alpha
 
     try:
-        rtf3 = RTransform.from_string('LogRTransform A 5')
+        rtf3 = RTransform.from_string('ExpRTransform A 5')
         assert False
     except ValueError:
         pass
 
     try:
-        rtf3 = RTransform.from_string('LogRTransform A 5 .1')
+        rtf3 = RTransform.from_string('ExpRTransform A 5 .1')
         assert False
     except ValueError:
         pass
 
-    rtf3 = RTransform.from_string('LogRTransform 1.0 12.15643216847 5')
+    rtf3 = RTransform.from_string('ExpRTransform 1.0 12.15643216847 5')
     assert rtf3.rmin == 1.0
     assert rtf3.rmax == 12.15643216847
     assert rtf3.npoint == 5
@@ -230,19 +230,19 @@ def test_linear_bounds():
 def test_log_bounds():
     for npoint in -1, 0, 1:
         try:
-            LogRTransform(0.1, 1.0, npoint)
+            ExpRTransform(0.1, 1.0, npoint)
             assert False
         except ValueError:
             pass
 
     try:
-        LogRTransform(-0.1, 1.0, 50)
+        ExpRTransform(-0.1, 1.0, 50)
         assert False
     except ValueError:
         pass
 
     try:
-        LogRTransform(0.1, -1.0, 50)
+        ExpRTransform(0.1, -1.0, 50)
         assert False
     except ValueError:
         pass

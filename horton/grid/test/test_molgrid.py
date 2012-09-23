@@ -31,7 +31,7 @@ def test_integrate_hydrogen_single_1s():
     coordinates = np.array([[0.0, 0.0, -0.5]], float)
     sys = System(coordinates, numbers)
     int1d = TrapezoidIntegrator1D()
-    rtf = LogRTransform(1e-3, 1e1, 100)
+    rtf = ExpRTransform(1e-3, 1e1, 100)
     atspecs = (rtf, int1d, 110)
 
     mg = BeckeMolGrid(sys, atspecs, random_rotate=False)
@@ -46,7 +46,7 @@ def test_integrate_hydrogen_pair_1s():
     coordinates = np.array([[0.0, 0.0, -0.5], [0.0, 0.0, 0.5]], float)
     sys = System(coordinates, numbers)
     int1d = TrapezoidIntegrator1D()
-    rtf = LogRTransform(1e-3, 1e1, 100)
+    rtf = ExpRTransform(1e-3, 1e1, 100)
     atspecs = (rtf, int1d, 110)
 
     mg = BeckeMolGrid(sys, atspecs, random_rotate=False)
@@ -62,7 +62,7 @@ def test_integrate_hydrogen_trimer_1s():
     coordinates = np.array([[0.0, 0.0, -0.5], [0.0, 0.0, 0.5], [0.0, 0.5, 0.0]], float)
     sys = System(coordinates, numbers)
     int1d = TrapezoidIntegrator1D()
-    rtf = LogRTransform(1e-3, 1e1, 100)
+    rtf = ExpRTransform(1e-3, 1e1, 100)
     atspecs = (rtf, int1d, 110)
 
     mg = BeckeMolGrid(sys, atspecs, random_rotate=False)
@@ -79,7 +79,7 @@ def test_molgrid_attrs_2_subgrid():
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
     sys = System(coordinates, numbers)
     int1d = TrapezoidIntegrator1D()
-    rtf = LogRTransform(1e-3, 1e1, 100)
+    rtf = ExpRTransform(1e-3, 1e1, 100)
     atspecs = (rtf, int1d, 110)
     mg = BeckeMolGrid(sys, atspecs, keep_subgrids=2)
 
@@ -129,7 +129,7 @@ def test_molgrid_attrs_1_subgrid():
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
     sys = System(coordinates, numbers)
     int1d = TrapezoidIntegrator1D()
-    rtf = LogRTransform(1e-3, 1e1, 100)
+    rtf = ExpRTransform(1e-3, 1e1, 100)
     atspecs = (rtf, int1d, 110)
     mg = BeckeMolGrid(sys, atspecs, keep_subgrids=1)
 
@@ -166,7 +166,7 @@ def test_molgrid_attrs_0_subgrid():
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
     sys = System(coordinates, numbers)
     int1d = TrapezoidIntegrator1D()
-    rtf = LogRTransform(1e-3, 1e1, 100)
+    rtf = ExpRTransform(1e-3, 1e1, 100)
     atspecs = (rtf, int1d, 110)
     mg = BeckeMolGrid(sys, atspecs, keep_subgrids=0)
 

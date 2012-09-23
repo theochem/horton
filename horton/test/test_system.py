@@ -265,7 +265,7 @@ def check_grid_fn(fn_fchk, use_dm, use_output_arg):
     sys = System.from_file(fn_fchk)
     # TODO: standard procedure for constructing recommended coarse, medium and fine grids.
     int1d = TrapezoidIntegrator1D()
-    rtf = LogRTransform(1e-3, 1e1, 100)
+    rtf = ExpRTransform(1e-3, 1e1, 100)
     grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
     if use_dm:
         dm = sys.lf.create_one_body()

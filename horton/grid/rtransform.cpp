@@ -104,10 +104,10 @@ double LinearRTransform::inv(double r) {
 
 
 /*
-   LogRTransform
+   ExpRTransform
 */
 
-LogRTransform::LogRTransform(double rmin, double rmax, int npoint):
+ExpRTransform::ExpRTransform(double rmin, double rmax, int npoint):
     RTransform(npoint), rmin(rmin), rmax(rmax)
 {
     if ((rmin <= 0.0) || (rmax <= 0.0))
@@ -115,14 +115,14 @@ LogRTransform::LogRTransform(double rmin, double rmax, int npoint):
     alpha = log(rmax/rmin)/(npoint-1);
 }
 
-double LogRTransform::radius(double t) {
+double ExpRTransform::radius(double t) {
     return rmin*exp(t*alpha);
 }
 
-double LogRTransform::deriv(double t) {
+double ExpRTransform::deriv(double t) {
     return rmin*alpha*exp(t*alpha);
 }
 
-double LogRTransform::inv(double r) {
+double ExpRTransform::inv(double r) {
     return log(r/rmin)/alpha;
 }
