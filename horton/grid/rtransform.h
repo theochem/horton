@@ -22,7 +22,7 @@
 #define HORTON_GRID_RTRANSFORM_H
 
 class RTransform {
-    private:
+    protected:
         int npoint;
 
     public:
@@ -77,5 +77,18 @@ class ExpRTransform : public RTransform {
         double get_alpha() {return alpha;};
     };
 
+
+class BakerRTransform : public RTransform {
+    private:
+        double rmax, scale;
+    public:
+        BakerRTransform(double rmax, int npoint);
+        virtual double radius(double t);
+        virtual double deriv(double t);
+        virtual double inv(double r);
+
+        double get_rmax() {return rmax;};
+        double get_scale() {return scale;};
+    };
 
 #endif

@@ -93,9 +93,17 @@ def test_linear_basics():
     check_deriv(rtf)
 
 
-def test_log_basics():
+def test_exp_basics():
     rtf = ExpRTransform(0.1, 1e1, 100)
     assert abs(rtf.radius(0) - 0.1) < 1e-15
+    assert abs(rtf.radius(99) - 1e1) < 1e-10
+    check_consistency(rtf)
+    check_deriv(rtf)
+
+
+def test_baker_basics():
+    rtf = BakerRTransform(1e1, 100)
+    assert rtf.radius(0) == 0.0
     assert abs(rtf.radius(99) - 1e1) < 1e-10
     check_consistency(rtf)
     check_deriv(rtf)
@@ -114,12 +122,19 @@ def test_linear_properties():
     assert rtf.alpha > 0
 
 
-def test_log_properties():
+def test_exp_properties():
     rtf = ExpRTransform(0.1, 1e1, 100)
     assert rtf.rmin == 0.1
     assert rtf.rmax == 1e1
     assert rtf.npoint == 100
     assert rtf.alpha > 0
+
+
+def test_baker_properties():
+    rtf = BakerRTransform(1e1, 100)
+    assert rtf.rmax == 1e1
+    assert rtf.npoint == 100
+    assert rtf.scale < 0
 
 
 def test_exception_string():
@@ -181,7 +196,7 @@ def test_linear_string():
     assert rtf3.alpha > 0
 
 
-def test_log_string():
+def test_exp_string():
     rtf1 = ExpRTransform(np.random.uniform(1e-5, 5e-5), np.random.uniform(1, 5), 111)
     s = rtf1.to_string()
     rtf2 = RTransform.from_string(s)
@@ -209,6 +224,32 @@ def test_log_string():
     assert rtf3.alpha > 0
 
 
+def test_baker_string():
+    rtf1 = BakerRTransform(np.random.uniform(1, 5), 123)
+    s = rtf1.to_string()
+    rtf2 = RTransform.from_string(s)
+    assert rtf1.rmax == rtf2.rmax
+    assert rtf1.npoint == rtf2.npoint
+    assert rtf1.scale == rtf2.scale
+
+    try:
+        rtf3 = RTransform.from_string('BakerRTransform A 5 7')
+        assert False
+    except ValueError:
+        pass
+
+    try:
+        rtf3 = RTransform.from_string('ExpRTransform A 5.0')
+        assert False
+    except ValueError:
+        pass
+
+    rtf3 = RTransform.from_string('BakerRTransform 12.15643216847 5')
+    assert rtf3.rmax == 12.15643216847
+    assert rtf3.npoint == 5
+    assert rtf3.scale < 0
+
+
 def test_identity_bounds():
     for npoint in -1, 0, 1:
         try:
@@ -227,7 +268,7 @@ def test_linear_bounds():
             pass
 
 
-def test_log_bounds():
+def test_exp_bounds():
     for npoint in -1, 0, 1:
         try:
             ExpRTransform(0.1, 1.0, npoint)
@@ -243,6 +284,21 @@ def test_log_bounds():
 
     try:
         ExpRTransform(0.1, -1.0, 50)
+        assert False
+    except ValueError:
+        pass
+
+
+def test_baker_bounds():
+    for npoint in -1, 0, 1:
+        try:
+            BakerRTransform(1.0, npoint)
+            assert False
+        except ValueError:
+            pass
+
+    try:
+        BakerRTransform(-1.0, 50)
         assert False
     except ValueError:
         pass
