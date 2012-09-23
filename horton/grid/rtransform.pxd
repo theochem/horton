@@ -44,8 +44,8 @@ cdef extern from "rtransform.h":
         double get_alpha()
 
 
-    cdef cppclass LogRTransform:
-        LogRTransform(double rmin, double rmax, int npoint) except +
+    cdef cppclass ExpRTransform:
+        ExpRTransform(double rmin, double rmax, int npoint) except +
 
         double get_rmin()
         double get_rmax()

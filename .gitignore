@@ -1,5 +1,7 @@
 # Never check in binary files!
 *.h5
+*.bz2
+*.gz
 
 # Ignore (in-place) build results
 cext.cpp

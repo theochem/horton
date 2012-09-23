@@ -27,7 +27,7 @@ from horton import *
 def get_proatomdb_HO_from_scratch(qmin, qmax):
     # TODO: Make and use general-purpose proatomdb (in data directory)
     int1d = TrapezoidIntegrator1D()
-    rtf = LogRTransform(1e-3, 1e1, 100)
+    rtf = ExpRTransform(1e-3, 1e1, 100)
     atgrid = AtomicGrid(np.zeros(3, float), rtf, int1d, 110, random_rotate=False, keep_subgrids=1)
     proatomdb = ProAtomDB.from_scratch([HartreeFock()], 'sto-3g', atgrid, [1,8], qmin=qmin, qmax=qmax)
     return proatomdb
@@ -36,7 +36,7 @@ def get_proatomdb_HO_from_scratch(qmin, qmax):
 def get_proatomdb_HO_from_refatoms(qmax):
     # TODO: Make and use general-purpose proatomdb (in data directory)
     int1d = TrapezoidIntegrator1D()
-    rtf = LogRTransform(1e-3, 1e1, 100)
+    rtf = ExpRTransform(1e-3, 1e1, 100)
     atgrid = AtomicGrid(np.zeros(3, float), rtf, int1d, 110, random_rotate=False, keep_subgrids=1)
     proatomdb = ProAtomDB.from_refatoms(atgrid, [1,8], qmax=qmax)
     return proatomdb
@@ -50,7 +50,7 @@ def test_hirshfeld_water_hf_sto3g_1():
 
     # Create a grid for the partitionign
     int1d = TrapezoidIntegrator1D()
-    rtf = LogRTransform(5e-4, 2e1, 120)
+    rtf = ExpRTransform(5e-4, 2e1, 120)
 
     # do the partitioning, both with local and global grids
     for local in True, False:
@@ -69,7 +69,7 @@ def test_hirshfeld_water_hf_sto3g_2():
 
     # Create a grid for the partitionign
     int1d = TrapezoidIntegrator1D()
-    rtf = LogRTransform(5e-4, 2e1, 120)
+    rtf = ExpRTransform(5e-4, 2e1, 120)
 
     # do the partitioning, both with local and global grids
     for local in True, False:
@@ -88,7 +88,7 @@ def test_hirshfeld_i_water_hf_sto3g():
 
     # Create a grid for the partitionign
     int1d = TrapezoidIntegrator1D()
-    rtf = LogRTransform(5e-4, 2e1, 120)
+    rtf = ExpRTransform(5e-4, 2e1, 120)
 
     # do the partitioning
     for local in True, False:

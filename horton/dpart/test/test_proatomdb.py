@@ -27,7 +27,7 @@ from horton import *
 
 def test_from_scratch_simple():
     int1d = TrapezoidIntegrator1D()
-    rtf = LogRTransform(1e-3, 1e1, 100)
+    rtf = ExpRTransform(1e-3, 1e1, 100)
     atgrid = AtomicGrid(np.zeros(3, float), rtf, int1d, 110, keep_subgrids=1)
     proatomdb = ProAtomDB.from_scratch([HartreeFock()], '3-21G', atgrid, [1,6], qmin=-2, qmax=3)
     keys = sorted(proatomdb._records.keys())
@@ -36,7 +36,7 @@ def test_from_scratch_simple():
 
 def get_proatomdb_HC_from_scratch(qmin=-1, qmax=1):
     int1d = TrapezoidIntegrator1D()
-    rtf = LogRTransform(1e-3, 1e1, 100)
+    rtf = ExpRTransform(1e-3, 1e1, 100)
     atgrid = AtomicGrid(np.zeros(3, float), rtf, int1d, 110, keep_subgrids=1)
     return ProAtomDB.from_scratch([HartreeFock()], '3-21G', atgrid, [1,6], qmin=qmin, qmax=qmax)
 
@@ -80,7 +80,7 @@ def test_io_filename():
 
 def test_from_refatoms():
     int1d = TrapezoidIntegrator1D()
-    rtf = LogRTransform(1e-3, 1e1, 100)
+    rtf = ExpRTransform(1e-3, 1e1, 100)
     atgrid = AtomicGrid(np.zeros(3, float), rtf, int1d, 110, keep_subgrids=1)
     proatomdb = ProAtomDB.from_refatoms(atgrid, numbers=[1,5], qmax=2)
     keys = sorted(proatomdb._records.keys())

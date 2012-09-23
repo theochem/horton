@@ -88,7 +88,7 @@ def test_basics_log():
     N = 10
     y = np.random.normal(0,1,N)
     d = np.random.normal(0,1,N)
-    rtf = LogRTransform(0.1, 1.0, 10)
+    rtf = ExpRTransform(0.1, 1.0, 10)
     cs = CubicSpline(y, d, rtf)
     assert (cs.copy_y() == y).all()
     dp = d*rtf.get_volume_elements()
@@ -128,7 +128,7 @@ def test_continuity_identity():
 
 def test_continuity_log():
     N = 10
-    rtf = LogRTransform(0.1, 1.0, 10)
+    rtf = ExpRTransform(0.1, 1.0, 10)
     y = np.random.normal(0,1,N)
     cs = CubicSpline(y,rtf=rtf)
     d = cs.copy_d()
@@ -159,7 +159,7 @@ def test_accuracy_identity():
 
 def test_accuracy_log():
     size = 51
-    rtf = LogRTransform(0.1, 1.0, size)
+    rtf = ExpRTransform(0.1, 1.0, size)
     t = np.arange(size, dtype=float)
     x = np.zeros(size, float)
     rtf.radius_array(t, x)
@@ -185,7 +185,7 @@ def test_deriv_identity1():
 
 
 def test_deriv_log1():
-    rtf = LogRTransform(0.1, 1.0, 10)
+    rtf = ExpRTransform(0.1, 1.0, 10)
     x = rtf.get_radii()
     y = np.exp(-0.3*x)
     d = -0.3*y
@@ -212,7 +212,7 @@ def test_deriv_identity2():
 
 
 def test_deriv_log2():
-    rtf = LogRTransform(0.1, 1.0, 10)
+    rtf = ExpRTransform(0.1, 1.0, 10)
     x = rtf.get_radii()
     y = np.exp(-0.3*x)
     d = -0.3*y
@@ -237,7 +237,7 @@ def test_deriv_identity3():
 
 
 def test_deriv_log3():
-    rtf = LogRTransform(0.1, 1.0, 10)
+    rtf = ExpRTransform(0.1, 1.0, 10)
     y = np.random.normal(0, 1, 10)
     cs = CubicSpline(y, rtf=rtf)
     t = np.arange(9, dtype=float)+0.5
@@ -261,7 +261,7 @@ def test_deriv_identity4():
 
 
 def test_deriv_log4():
-    rtf = LogRTransform(0.1, 1.0, 10)
+    rtf = ExpRTransform(0.1, 1.0, 10)
     y = np.random.normal(0, 1, 10)
     d = np.random.normal(0, 1, 10)
     cs = CubicSpline(y, d, rtf)
@@ -288,7 +288,7 @@ def test_extrapolation_identity():
 
 
 def test_extrapolation_log():
-    rtf = LogRTransform(0.1, 1.0, 10)
+    rtf = ExpRTransform(0.1, 1.0, 10)
     x = rtf.get_radii()
     y = np.exp(-0.3*x)
     d = -0.3*y

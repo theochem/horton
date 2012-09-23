@@ -63,11 +63,11 @@ class LinearRTransform : public RTransform {
     };
 
 
-class LogRTransform : public RTransform {
+class ExpRTransform : public RTransform {
     private:
         double rmin, rmax, alpha;
     public:
-        LogRTransform(double rmin, double rmax, int npoint);
+        ExpRTransform(double rmin, double rmax, int npoint);
         virtual double radius(double t);
         virtual double deriv(double t);
         virtual double inv(double r);

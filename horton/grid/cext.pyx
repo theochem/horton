@@ -42,7 +42,7 @@ __all__ = [
     'tridiag_solve', 'tridiagsym_solve', 'CubicSpline',
     'compute_cubic_spline_int_weights',
     # rtransform
-    'RTransform', 'IdentityRTransform', 'LinearRTransform', 'LogRTransform',
+    'RTransform', 'IdentityRTransform', 'LinearRTransform', 'ExpRTransform',
     # utils
     'dot_multi', 'grid_distances',
 ]
@@ -338,13 +338,13 @@ cdef class RTransform(object):
             rmax = float(args[1])
             npoint = int(args[2])
             return LinearRTransform(rmin, rmax, npoint)
-        if clsname == 'LogRTransform':
+        if clsname == 'ExpRTransform':
             if len(args) != 3:
-                raise ValueError('The LogRTransform needs three arguments, got %i.' % len(words))
+                raise ValueError('The ExpRTransform needs three arguments, got %i.' % len(words))
             rmin = float(args[0])
             rmax = float(args[1])
             npoint = int(args[2])
-            return LogRTransform(rmin, rmax, npoint)
+            return ExpRTransform(rmin, rmax, npoint)
         else:
             raise TypeError('Unkown RTransform subclass: %s' % clsname)
 
@@ -391,7 +391,7 @@ cdef class LinearRTransform(RTransform):
         return ' '.join(['LinearRTransform', repr(self.rmin), repr(self.rmax), repr(self.npoint)])
 
 
-cdef class LogRTransform(RTransform):
+cdef class ExpRTransform(RTransform):
     '''A logarithmic grid.
 
        The grid points are distributed as follows:
@@ -403,22 +403,22 @@ cdef class LogRTransform(RTransform):
        .. math:: \\alpha = \log(r_{N-1}/r_0)/(N-1).
     '''
     def __cinit__(self, double rmin, double rmax, int npoint):
-        self._this = <rtransform.RTransform*>(new rtransform.LogRTransform(rmin, rmax, npoint))
+        self._this = <rtransform.RTransform*>(new rtransform.ExpRTransform(rmin, rmax, npoint))
 
     property rmin:
         def __get__(self):
-            return (<rtransform.LogRTransform*>self._this).get_rmin()
+            return (<rtransform.ExpRTransform*>self._this).get_rmin()
 
     property rmax:
         def __get__(self):
-            return (<rtransform.LogRTransform*>self._this).get_rmax()
+            return (<rtransform.ExpRTransform*>self._this).get_rmax()
 
     property alpha:
         def __get__(self):
-            return (<rtransform.LogRTransform*>self._this).get_alpha()
+            return (<rtransform.ExpRTransform*>self._this).get_alpha()
 
     def to_string(self):
-        return ' '.join(['LogRTransform', repr(self.rmin), repr(self.rmax), repr(self.npoint)])
+        return ' '.join(['ExpRTransform', repr(self.rmin), repr(self.rmax), repr(self.npoint)])
 
 #
 # utils
