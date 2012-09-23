@@ -126,3 +126,32 @@ double ExpRTransform::deriv(double t) {
 double ExpRTransform::inv(double r) {
     return log(r/rmin)/alpha;
 }
+
+
+
+/*
+   BakerRTransform
+*/
+
+BakerRTransform::BakerRTransform(double rmax, int npoint):
+    RTransform(npoint), rmax(rmax)
+{
+    if (rmax <= 0.0)
+        throw std::domain_error("The minimum and maximum radii of a log grid must be positive.");
+    scale = (npoint-1.0)/npoint;
+    scale = rmax/log(1-scale*scale);
+}
+
+double BakerRTransform::radius(double t) {
+    double tmp = t/npoint;
+    return scale*log(1-tmp*tmp);
+}
+
+double BakerRTransform::deriv(double t) {
+    double tmp = t/npoint;
+    return -scale*2.0*tmp/(1-tmp*tmp)/npoint;
+}
+
+double BakerRTransform::inv(double r) {
+    return npoint*sqrt(1-exp(r/scale));
+}

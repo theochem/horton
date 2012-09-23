@@ -67,13 +67,13 @@ def test_atomic_grid_basics():
 
 def test_integrate_hydrogen_1s():
     center = np.random.uniform(-1,1,3)
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 2e1, 100)
+    int1d = CubicIntegrator1D()
+    rtf = BakerRTransform(2e1, 100)
     ag = AtomicGrid(center, rtf, int1d, 110, 100)
     distances = np.sqrt(((center - ag.points)**2).sum(axis=1))
     fn = np.exp(-2*distances)/np.pi
     occupation = ag.integrate(fn)
-    assert abs(occupation - 1.0) < 1e-8
+    assert abs(occupation - 1.0) < 1e-10
 
 
 def test_atgrid_attrs_1_subgrid():

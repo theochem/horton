@@ -50,3 +50,10 @@ cdef extern from "rtransform.h":
         double get_rmin()
         double get_rmax()
         double get_alpha()
+
+
+    cdef cppclass BakerRTransform:
+        BakerRTransform(double rmax, int npoint) except +
+
+        double get_rmax()
+        double get_scale()

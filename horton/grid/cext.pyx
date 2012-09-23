@@ -21,6 +21,8 @@
 
 
 import numpy as np
+from horton.log import log
+
 cimport numpy as np
 np.import_array()
 
@@ -43,6 +45,7 @@ __all__ = [
     'compute_cubic_spline_int_weights',
     # rtransform
     'RTransform', 'IdentityRTransform', 'LinearRTransform', 'ExpRTransform',
+    'BakerRTransform',
     # utils
     'dot_multi', 'grid_distances',
 ]
@@ -345,6 +348,12 @@ cdef class RTransform(object):
             rmax = float(args[1])
             npoint = int(args[2])
             return ExpRTransform(rmin, rmax, npoint)
+        if clsname == 'BakerRTransform':
+            if len(args) != 2:
+                raise ValueError('The BakerRTransform needs two arguments, got %i.' % len(words))
+            rmax = float(args[0])
+            npoint = int(args[1])
+            return BakerRTransform(rmax, npoint)
         else:
             raise TypeError('Unkown RTransform subclass: %s' % clsname)
 
@@ -392,7 +401,7 @@ cdef class LinearRTransform(RTransform):
 
 
 cdef class ExpRTransform(RTransform):
-    '''A logarithmic grid.
+    '''An exponential grid.
 
        The grid points are distributed as follows:
 
@@ -419,6 +428,35 @@ cdef class ExpRTransform(RTransform):
 
     def to_string(self):
         return ' '.join(['ExpRTransform', repr(self.rmin), repr(self.rmax), repr(self.npoint)])
+
+
+cdef class BakerRTransform(RTransform):
+    r'''A grid introduced by Baker et al.
+
+       The grid points are distributed as follows:
+
+       .. math:: r_i = A*ln\left[1-\left(\frac{i}{npoint}\right)^2\right]
+
+       with
+
+       .. math:: A = \frac{1}{A*ln\left[1-\left(\frac{npoint-1}{npoint}\right)^2\right]}.
+    '''
+    def __cinit__(self, double rmax, int npoint):
+        self._this = <rtransform.RTransform*>(new rtransform.BakerRTransform(rmax, npoint))
+
+    def __init__(self, double rmax, int npoint):
+        log.cite('baker1994', 'using the radial integration grids introduced by Baker et al')
+
+    property rmax:
+        def __get__(self):
+            return (<rtransform.BakerRTransform*>self._this).get_rmax()
+
+    property scale:
+        def __get__(self):
+            return (<rtransform.BakerRTransform*>self._this).get_scale()
+
+    def to_string(self):
+        return ' '.join(['BakerRTransform', repr(self.rmax), repr(self.npoint)])
 
 #
 # utils
