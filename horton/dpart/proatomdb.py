@@ -174,9 +174,9 @@ class ProAtomDB(object):
                     # ... and the initial wavefn
                     try:
                         sys.init_wfn(charge, mult)
+                        guess_hamiltonian_core(sys)
                     except ElectronCountError:
                         continue
-                    guess_hamiltonian_core(sys)
                     # Compute the ground state
                     ham = Hamiltonian(sys, hamiltonian_terms, atgrid)
                     converged = converge_scf(ham)

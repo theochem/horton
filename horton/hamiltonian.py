@@ -87,8 +87,7 @@ class Hamiltonian(object):
         '''Mark the properties derived from the wfn as outdated.
 
            This method does not recompute anything, but just marks operators
-           and density matrices as outdated. They are recomputed as they are
-           needed.
+           as outdated. They are recomputed as they are needed.
         '''
         self.cache.invalidate()
 
@@ -99,7 +98,7 @@ class Hamiltonian(object):
 
            The total energy, including nuclear-nuclear repulsion.
         '''
-        if log.do_medium:
+        if log.do_high:
             log('Computing the energy of the system.')
             log.hline()
             log('         Energy term  Value')
@@ -115,7 +114,7 @@ class Hamiltonian(object):
         self.system._props['energy'] = total
         self.system.update_chk('props')
 
-        if log.do_medium:
+        if log.do_high:
             log('%20s  %20.10f' % ('nn', energy))
             log('%20s  %20.10f' % ('total', total))
             log.hline()
@@ -155,15 +154,12 @@ class HamiltonianTerm(object):
             self.system.compute_grid_density(self.grid.points, rhos=rho, select=select)
         return rho
 
-    def get_dm(self, select):
-        dm, new = self.cache.load('dm_%s' % select, alloc=(self.system.lf, 'one_body'))
-        if new:
-            self.system.wfn.compute_density_matrix(dm, select)
-        return dm
+    def get_dm(self, select='full'):
+        return self.system.wfn.get_dm(select)
 
     def store_energy(self, suffix, energy):
         self.system._props['energy_%s' % suffix] = energy
-        if log.do_medium:
+        if log.do_high:
             log('%20s  %20.10f' % (suffix, energy))
 
     def compute_energy(self):

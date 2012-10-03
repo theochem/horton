@@ -88,8 +88,10 @@ class CacheItem(object):
                 raise TypeError('Add least one extra parameter needed to initialize a linalg thing')
             if alloc[1] == 'one_body':
                 return cls(alloc[0].create_one_body(*alloc[2:]))
+            elif alloc[1] == 'expansion':
+                return cls(alloc[0].create_expansion(*alloc[2:]))
             else:
-                raise TypeError('For the moment, only one_body stuff is supported.')
+                raise TypeError('Not supported: %s.' % alloc[1])
         else:
             # initialize a floating point array
             log.mem.announce(np.product(alloc)*8)
@@ -110,6 +112,10 @@ class CacheItem(object):
             if alloc[1] == 'one_body':
                 if not (len(alloc) == 2 or (len(alloc) == 3 and alloc[2] == self._value.nbasis)):
                     raise TypeError('The requested one-body operator is not compatible with the cached one.')
+            elif alloc[1] == 'expansion':
+                if not (len(alloc) == 2 or (len(alloc) == 3 and alloc[2] == self._value.nbasis) or
+                        (len(alloc) == 4 and alloc[2] == self._value.nbasis and alloc[3] == self._value.nfn)):
+                    raise TypeError('The requested expansion is not compatible with the cached one.')
             else:
                 raise TypeError('For the moment, only one_body stuff is supported.')
         else:
@@ -132,9 +138,10 @@ class CacheItem(object):
     valid = property(_get_valid)
 
     def _get_resettable(self):
-        from horton.matrix import OneBody
+        from horton.matrix import OneBody, Expansion
         return isinstance(self._value, np.ndarray) or \
-               isinstance(self._value, OneBody)
+               isinstance(self._value, OneBody) or \
+               isinstance(self._value, Expansion)
 
     resettable = property(_get_resettable)
 

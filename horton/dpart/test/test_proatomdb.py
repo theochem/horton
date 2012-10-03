@@ -41,7 +41,6 @@ def get_proatomdb_HC_from_scratch(qmin=-1, qmax=1):
     return ProAtomDB.from_scratch([HartreeFock()], '3-21G', atgrid, [1,6], qmin=qmin, qmax=qmax)
 
 
-
 def test_io_group():
     proatomdb = get_proatomdb_HC_from_scratch()
     keys = sorted(proatomdb._records.keys())

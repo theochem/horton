@@ -518,6 +518,7 @@ cdef class GOBasis(GBasis):
            **Warning:** the results are added to the output array! This may
            be useful to combine results from different spin components.
         '''
+        # TODO: this is no longer being tested
         cdef np.ndarray orbs = expansion._coeffs
         self.check_matrix_expansion(orbs, nocc)
         norb = orbs.shape[1]

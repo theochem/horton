@@ -45,7 +45,9 @@ def guess_hamiltonian_core_cs(system):
     hamcore = system.lf.create_one_body()
     hamcore.iadd(system.get_kinetic(), 1)
     hamcore.iadd(system.get_nuclear_attraction(), -1)
-    system.lf.diagonalize(hamcore, overlap, system.wfn.expansion)
+    system.wfn.invalidate()
+    system.wfn.update_exp(hamcore, overlap)
+    system.wfn.update_dm('alpha')
     system.update_chk('wfn')
 
 
@@ -54,6 +56,8 @@ def guess_hamiltonian_core_os(system):
     hamcore = system.lf.create_one_body()
     hamcore.iadd(system.get_kinetic(), 1)
     hamcore.iadd(system.get_nuclear_attraction(), -1)
-    system.lf.diagonalize(hamcore, overlap, system.wfn.alpha_expansion)
-    system.wfn.beta_expansion.assign(system.wfn.alpha_expansion) # clone alpha into beta
+    system.wfn.invalidate()
+    system.wfn.update_exp(hamcore, hamcore, overlap)
+    system.wfn.update_dm('alpha')
+    system.wfn.update_dm('beta')
     system.update_chk('wfn')

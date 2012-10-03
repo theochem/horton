@@ -163,14 +163,16 @@ def test_load_fchk_water_sto3g_hf():
     assert coordinates.shape[1] == 3
     assert len(numbers) == 3
     assert wfn.nbasis == 7
-    assert wfn.nep == 5
-    assert abs(wfn.expansion.energies[0] - (-2.02333942E+01)) < 1e-7
-    assert abs(wfn.expansion.energies[-1] - 7.66134805E-01) < 1e-7
-    assert abs(wfn.expansion.coeffs[0,0] - 0.99410) < 1e-4
-    assert abs(wfn.expansion.coeffs[1,0] - 0.02678) < 1e-4
-    assert abs(wfn.expansion.coeffs[-1,2] - (-0.44154)) < 1e-4
-    assert abs(wfn.expansion.coeffs[3,-1]) < 1e-4
-    assert abs(wfn.expansion.coeffs[4,-1] - (-0.82381)) < 1e-4
+    assert wfn.occ_model.nalpha == 5
+    assert wfn.occ_model.nbeta == 5
+    exp_alpha = wfn.get_exp('alpha')
+    assert abs(exp_alpha.energies[0] - (-2.02333942E+01)) < 1e-7
+    assert abs(exp_alpha.energies[-1] - 7.66134805E-01) < 1e-7
+    assert abs(exp_alpha.coeffs[0,0] - 0.99410) < 1e-4
+    assert abs(exp_alpha.coeffs[1,0] - 0.02678) < 1e-4
+    assert abs(exp_alpha.coeffs[-1,2] - (-0.44154)) < 1e-4
+    assert abs(exp_alpha.coeffs[3,-1]) < 1e-4
+    assert abs(exp_alpha.coeffs[4,-1] - (-0.82381)) < 1e-4
     assert 'energy' in props
     assert props['energy'] == -7.495929232844363E+01
     dms['scf_full'].check_symmetry()
@@ -186,35 +188,34 @@ def test_load_fchk_lih_321g_hf():
     assert coordinates.shape[1] == 3
     assert len(numbers) == 2
     assert wfn.nbasis == 11
-    assert wfn.nalpha == 2
-    assert wfn.nbeta == 1
-    assert abs(wfn.alpha_expansion.energies[0] - (-2.76117)) < 1e-4
-    assert abs(wfn.alpha_expansion.energies[-1] - 0.97089) < 1e-4
-    assert abs(wfn.alpha_expansion.coeffs[0,0] - 0.99105) < 1e-4
-    assert abs(wfn.alpha_expansion.coeffs[1,0] - 0.06311) < 1e-4
-    assert abs(wfn.alpha_expansion.coeffs[3,2]) < 1e-4
-    assert abs(wfn.alpha_expansion.coeffs[-1,9] - 0.13666) < 1e-4
-    assert abs(wfn.alpha_expansion.coeffs[4,-1] - 0.17828) < 1e-4
-    assert abs(wfn.beta_expansion.energies[0] - (-2.76031)) < 1e-4
-    assert abs(wfn.beta_expansion.energies[-1] - 1.13197) < 1e-4
-    assert abs(wfn.beta_expansion.coeffs[0,0] - 0.99108) < 1e-4
-    assert abs(wfn.beta_expansion.coeffs[1,0] - 0.06295) < 1e-4
-    assert abs(wfn.beta_expansion.coeffs[3,2]) < 1e-4
-    assert abs(wfn.beta_expansion.coeffs[-1,9] - 0.80875) < 1e-4
-    assert abs(wfn.beta_expansion.coeffs[4,-1] - (-0.15503)) < 1e-4
+    assert wfn.occ_model.nalpha == 2
+    assert wfn.occ_model.nbeta == 1
+    exp_alpha = wfn.get_exp('alpha')
+    assert abs(exp_alpha.energies[0] - (-2.76117)) < 1e-4
+    assert abs(exp_alpha.energies[-1] - 0.97089) < 1e-4
+    assert abs(exp_alpha.coeffs[0,0] - 0.99105) < 1e-4
+    assert abs(exp_alpha.coeffs[1,0] - 0.06311) < 1e-4
+    assert abs(exp_alpha.coeffs[3,2]) < 1e-4
+    assert abs(exp_alpha.coeffs[-1,9] - 0.13666) < 1e-4
+    assert abs(exp_alpha.coeffs[4,-1] - 0.17828) < 1e-4
+    exp_beta = wfn.get_exp('beta')
+    assert abs(exp_beta.energies[0] - (-2.76031)) < 1e-4
+    assert abs(exp_beta.energies[-1] - 1.13197) < 1e-4
+    assert abs(exp_beta.coeffs[0,0] - 0.99108) < 1e-4
+    assert abs(exp_beta.coeffs[1,0] - 0.06295) < 1e-4
+    assert abs(exp_beta.coeffs[3,2]) < 1e-4
+    assert abs(exp_beta.coeffs[-1,9] - 0.80875) < 1e-4
+    assert abs(exp_beta.coeffs[4,-1] - (-0.15503)) < 1e-4
     dms['scf_full'].check_symmetry()
     dms['scf_spin'].check_symmetry()
 
-    lf.set_default_nbasis(wfn.nbasis)
-    dm_full = lf.create_one_body()
-    dm_spin = lf.create_one_body()
-    dm_alpha = lf.create_one_body()
-    dm_beta = lf.create_one_body()
+    wfn.update_dm('alpha')
+    wfn.update_dm('beta')
 
-    wfn.compute_density_matrix(dm_full, 'full')
-    wfn.compute_density_matrix(dm_spin, 'spin')
-    wfn.compute_density_matrix(dm_alpha, 'alpha')
-    wfn.compute_density_matrix(dm_beta, 'beta')
+    dm_alpha = wfn.get_dm('alpha')
+    dm_beta = wfn.get_dm('beta')
+    dm_full = wfn.get_dm('full')
+    dm_spin = wfn.get_dm('spin')
 
     assert abs(dm_full._array - (dm_alpha._array + dm_beta._array)).max() < 1e-10
     assert abs(dm_spin._array - (dm_alpha._array - dm_beta._array)).max() < 1e-10

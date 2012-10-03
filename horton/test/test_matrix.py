@@ -49,9 +49,15 @@ def get_water_sto3g_hf(lf=None):
         -2.02333942E+01, -1.26583942E+00, -6.29365088E-01, -4.41724988E-01,
         -3.87671783E-01, 6.03082408E-01, 7.66134805E-01
     ])
-    wfn = ClosedShellWFN(nep=5, lf=lf, nbasis=7)
-    wfn.expansion.coeffs[:] = coeffs
-    wfn.expansion.energies[:] = epsilons
+    occ_model = AufbauOccModel(5)
+    wfn = ClosedShellWFN(occ_model, lf, nbasis=7)
+    wfn.init_exp('alpha')
+    exp_alpha = wfn.get_exp('alpha')
+    exp_alpha.coeffs[:] = coeffs
+    exp_alpha.energies[:] = epsilons
+    occ_model.assign(exp_alpha)
+    wfn.update_dm('alpha')
+    assert (exp_alpha.occupations == np.array([1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0])).all()
     return lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn
 
 
@@ -59,10 +65,9 @@ def test_fock_matrix_eigen():
     lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn = get_water_sto3g_hf()
     nbasis = overlap.nbasis
 
-    dm = lf.create_one_body(7)
     coulomb = lf.create_one_body(nbasis)
     exchange = lf.create_one_body(nbasis)
-    wfn.compute_density_matrix(dm, 'alpha')
+    dm = wfn.get_dm('alpha')
     electronic_repulsion.apply_direct(dm, coulomb)
     electronic_repulsion.apply_exchange(dm, exchange)
 
@@ -74,50 +79,48 @@ def test_fock_matrix_eigen():
     fock.iadd(exchange, -1)
 
     # Check for convergence
-    expansion = wfn.expansion
-    error = lf.error_eigen(fock, overlap, expansion)
+    exp_alpha = wfn.get_exp('alpha')
+    error = lf.error_eigen(fock, overlap, exp_alpha)
     assert error > 0
     assert error < 1e-4
 
     # Check self-consistency of the orbital energies
-    old_energies = expansion.energies.copy()
-    lf.diagonalize(fock, overlap, expansion)
-    assert abs(expansion.energies - old_energies).max() < 1e-4
+    old_energies = exp_alpha.energies.copy()
+    exp_alpha.derive_from_fock_matrix(fock, overlap)
+    assert abs(exp_alpha.energies - old_energies).max() < 1e-4
 
 
 
 def test_kinetic_energy_water_sto3g():
     lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn = get_water_sto3g_hf()
-    dm = lf.create_one_body(7)
-    wfn.compute_density_matrix(dm)
+    dm = wfn.get_dm('full')
     ekin = kinetic.expectation_value(dm)
     assert abs(ekin - 74.60736832935) < 1e-4
 
 
 def test_ortho_water_sto3g():
     lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn = get_water_sto3g_hf()
+    exp_alpha = wfn.get_exp('alpha')
     for i0 in xrange(7):
-        orb0 = wfn.expansion.coeffs[:,i0]
+        orb0 = exp_alpha.coeffs[:,i0]
         for i1 in xrange(i0+1):
-            orb1 = wfn.expansion.coeffs[:,i1]
+            orb1 = exp_alpha.coeffs[:,i1]
             check = overlap.dot(orb0, orb1)
             assert abs(check - (i0==i1)) < 1e-4
 
 
 def test_potential_energy_water_sto3g_hf():
     lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn = get_water_sto3g_hf()
-    dm = lf.create_one_body(7)
-    wfn.compute_density_matrix(dm)
+    dm = wfn.get_dm('full')
     epot = -nuclear_attraction.expectation_value(dm)
     assert abs(epot - (-197.1170963957)) < 2e-3
 
 
 def test_electron_electron_water_sto3g_hf():
     lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn = get_water_sto3g_hf()
-    dm = lf.create_one_body(7)
     coulomb = lf.create_one_body(7)
     exchange = lf.create_one_body(7)
-    wfn.compute_density_matrix(dm, 'alpha')
+    dm = wfn.get_dm('alpha')
     electronic_repulsion.apply_direct(dm, coulomb)
     electronic_repulsion.apply_exchange(dm, exchange)
     eee = 2*coulomb.expectation_value(dm) \
@@ -130,42 +133,51 @@ def test_hartree_fock_water():
     nbasis = overlap.nbasis
 
     # Construct a wavefunction
-    wfn = ClosedShellWFN(nep=5, lf=lf, nbasis=nbasis)
+    occ_model = AufbauOccModel(5)
+    wfn = ClosedShellWFN(occ_model, lf=lf, nbasis=nbasis)
 
     # Construct the hamiltonian core guess
     hamcore = lf.create_one_body(nbasis)
     hamcore.iadd(kinetic, 1)
     hamcore.iadd(nuclear_attraction, -1)
-    lf.diagonalize(hamcore, overlap, wfn.expansion)
+    wfn.invalidate()
+    exp_alpha1 = wfn.update_exp(hamcore, overlap)
+    assert (exp_alpha1.energies != 0.0).any()
+    wfn.update_dm('alpha')
+
 
     # The SCF loop
     coulomb = lf.create_one_body(nbasis)
     exchange = lf.create_one_body(nbasis)
     fock = lf.create_one_body(nbasis)
-    dm = lf.create_one_body(nbasis)
+    #dm = lf.create_one_body(nbasis)
     for i in xrange(1000):
         # Construct the Fock operator
         fock.reset()
         fock.iadd(hamcore, 1)
-        wfn.compute_density_matrix(dm, 'alpha')
-        electronic_repulsion.apply_direct(dm, coulomb)
-        electronic_repulsion.apply_exchange(dm, exchange)
+        electronic_repulsion.apply_direct(wfn.get_dm('alpha'), coulomb)
+        electronic_repulsion.apply_exchange(wfn.get_dm('alpha'), exchange)
         fock.iadd(coulomb, 2)
         fock.iadd(exchange, -1)
         # Check for convergence
-        error = lf.error_eigen(fock, overlap, wfn.expansion)
+        error = lf.error_eigen(fock, overlap, wfn.get_exp('alpha'))
         if error < 1e-10:
             break
-        # Diagonalize the fock operator
-        lf.diagonalize(fock, overlap, wfn.expansion)
+        # Derive the expansion and the density matrix from the fock operator
+        wfn.invalidate()
+        wfn.update_exp(fock, overlap)
+        wfn.update_dm('alpha')
 
-    assert abs(wfn.expansion.energies - wfn0.expansion.energies).max() < 1e-4
+    exp_alpha = wfn.get_exp('alpha')
+    exp_alpha0 = wfn0.get_exp('alpha')
+    assert abs(exp_alpha.energies - exp_alpha0.energies).max() < 1e-4
 
     # Check the hartree-fock energy
+    dm = wfn.get_dm('alpha')
     hf1 = sum([
         -2*coulomb.expectation_value(dm),
         +1*exchange.expectation_value(dm),
-    ]) + wfn.expansion.energies[:wfn.nep].sum()*2
+    ]) + exp_alpha.energies[:wfn.nep].sum()*2
     hf2 = sum([
         2*kinetic.expectation_value(dm),
         -2*nuclear_attraction.expectation_value(dm),
@@ -211,25 +223,25 @@ def test_dense_linalg_factory_properties():
     lf = DenseLinalgFactory()
     assert lf._default_nbasis is None
     lf.set_default_nbasis(10)
-    ex = lf.create_expansion(do_energies=True)
+    ex = lf.create_expansion()
     assert ex.nbasis == 10
     assert ex.nfn == 10
-    assert ex.energies is not None
     assert ex.energies.shape == (10,)
+    assert ex.occupations.shape == (10,)
     op1 = lf.create_one_body()
     assert op1.nbasis == 10
     op2 = lf.create_two_body()
     assert op2.nbasis == 10
 
 
-
 def test_dense_expansion_properties():
     lf = DenseLinalgFactory()
-    ex = lf.create_expansion(10, 8, do_energies=False)
+    ex = lf.create_expansion(10, 8)
     assert ex.nbasis == 10
     assert ex.nfn == 8
     assert ex.coeffs.shape == (10,8) # orbitals stored as columns
-    assert ex.energies is None
+    assert ex.energies.shape == (8,)
+    assert ex.occupations.shape == (8,)
 
 
 def test_dense_one_body_properties():
@@ -244,3 +256,20 @@ def test_dense_two_body_properties():
     lf = DenseLinalgFactory()
     op = lf.create_two_body(3)
     assert op.nbasis == 3
+
+
+def test_dense_one_body_assign():
+    lf = DenseLinalgFactory()
+    op1 = lf.create_one_body(3)
+    op2 = lf.create_one_body(3)
+    op1._array[:] = np.random.uniform(0, 1, (3, 3))
+    op2.assign(op1)
+    assert (op1._array == op2._array).all()
+
+
+def test_dense_one_body_copy():
+    lf = DenseLinalgFactory()
+    op1 = lf.create_one_body(3)
+    op1._array[:] = np.random.uniform(0, 1, (3, 3))
+    op2 = op1.copy()
+    assert (op1._array == op2._array).all()

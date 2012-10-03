@@ -25,12 +25,41 @@ import tempfile, os, h5py as h5
 from horton import *
 
 
-def compare_expansions(e1, e2):
-    assert (e1.coeffs == e2.coeffs).all()
-    if e1.energies is None:
-        assert e2.energies is None
-    else:
+def compare_expansions(wfn1, wfn2, spin):
+    if wfn1._cache.has('exp_%s' % spin):
+        assert wfn2._cache.has('exp_%s' % spin)
+        e1 = wfn1.get_exp(spin)
+        e2 = wfn2.get_exp(spin)
+        assert e1.nbasis == e2.nbasis
+        assert e1.nfn == e2.nfn
+        assert (e1.coeffs == e2.coeffs).all()
         assert (e1.energies == e2.energies).all()
+        assert (e1.occupations == e2.occupations).all()
+    else:
+        assert not wfn2._cache.has('exp_%s' % spin)
+
+
+def compare_all_expansions(wfn1, wfn2):
+    compare_expansions(wfn1, wfn2, 'alpha')
+    compare_expansions(wfn1, wfn2, 'beta')
+
+
+def compare_dms(wfn1, wfn2, select):
+    if wfn1._cache.has('dm_%s' % select):
+        assert wfn2._cache.has('dm_%s' % select)
+        dm1 = wfn1.get_dm(select)
+        dm2 = wfn2.get_dm(select)
+        assert dm1.nbasis == dm2.nbasis
+        assert (dm1._array == dm2._array).all()
+    else:
+        assert not wfn2._cache.has('dm_%s' % select)
+
+
+def compare_all_dms(wfn1, wfn2):
+    compare_dms(wfn1, wfn2, 'alpha')
+    compare_dms(wfn1, wfn2, 'beta')
+    compare_dms(wfn1, wfn2, 'full')
+    compare_dms(wfn1, wfn2, 'spin')
 
 
 def compare_one_body(sys1, sys2, key):
@@ -63,6 +92,36 @@ def compare_two_body(sys1, sys2, key):
         assert key not in sys2.operators
 
 
+def compare_occ_model(occ_model1, occ_model2):
+    assert occ_model1.__class__ == occ_model2.__class__
+    if isinstance(occ_model1, AufbauOccModel):
+        assert occ_model1.nalpha == occ_model2.nalpha
+        assert occ_model1.nbeta == occ_model2.nbeta
+    else:
+        raise NotImplementedError
+
+
+def compare_wfns(wfn1, wfn2):
+    if isinstance(wfn1, ClosedShellWFN):
+        assert isinstance(wfn2, ClosedShellWFN)
+        assert wfn1.nbasis == wfn2.nbasis
+        assert wfn1.norb == wfn2.norb
+        compare_all_expansions(wfn1, wfn2)
+        compare_all_dms(wfn1, wfn2)
+        compare_occ_model(wfn1.occ_model, wfn2.occ_model)
+    elif isinstance(wfn1, OpenShellWFN):
+        assert isinstance(wfn2, OpenShellWFN)
+        assert wfn1.nbasis == wfn2.nbasis
+        assert wfn1.norb == wfn2.norb
+        compare_all_expansions(wfn1, wfn2)
+        compare_all_dms(wfn1, wfn2)
+        compare_occ_model(wfn1.occ_model, wfn2.occ_model)
+    elif wfn1 is None:
+        assert wfn2 is None
+    else:
+        raise NotImplementedError
+
+
 def compare_systems(sys1, sys2):
     assert (sys1.numbers == sys2.numbers).all()
     assert (sys1.coordinates == sys2.coordinates).all()
@@ -77,31 +136,14 @@ def compare_systems(sys1, sys2):
     else:
         assert sys2.obasis is None
     # wfn
-    if isinstance(sys1.wfn, ClosedShellWFN):
-        assert isinstance(sys2.wfn, ClosedShellWFN)
-        assert sys1.wfn.nep == sys2.wfn.nep
-        assert sys1.wfn.nbasis == sys2.wfn.nbasis
-        assert sys1.wfn.norb == sys2.wfn.norb
-        assert (sys1.wfn.expansion.coeffs == sys2.wfn.expansion.coeffs).all()
-        compare_expansions(sys1.wfn.expansion, sys2.wfn.expansion)
-    elif isinstance(sys1.wfn, OpenShellWFN):
-        assert isinstance(sys2.wfn, OpenShellWFN)
-        assert sys1.wfn.nalpha == sys2.wfn.nalpha
-        assert sys1.wfn.nbeta == sys2.wfn.nbeta
-        assert sys1.wfn.nbasis == sys2.wfn.nbasis
-        assert sys1.wfn.norb == sys2.wfn.norb
-        compare_expansions(sys1.wfn.alpha_expansion, sys2.wfn.alpha_expansion)
-        compare_expansions(sys1.wfn.beta_expansion, sys2.wfn.beta_expansion)
-    elif sys1.wfn is None:
-        assert sys2.wfn is None
-    else:
-        raise NotImplementedError
+    compare_wfns(sys1.wfn, sys2.wfn)
     # one-body operators
     compare_one_body(sys1, sys2, 'olp')
     compare_one_body(sys1, sys2, 'kin')
     compare_one_body(sys1, sys2, 'na')
     # two-body operators
     compare_two_body(sys1, sys2, 'er')
+
 
 def test_chk_initialization_filename_cs():
     tmpdir = tempfile.mkdtemp('horton.test.test_checkpoint.test_chk_initialization_filename_cs')
@@ -113,7 +155,6 @@ def test_chk_initialization_filename_cs():
         del sys1
         sys1 = System.from_file(fn_fchk, fn_log)
         sys2 = System.from_file(fn_chk)
-        assert sys2.wfn is not None
         compare_systems(sys1, sys2)
     finally:
         if os.path.isfile(fn_chk):
@@ -129,7 +170,6 @@ def test_chk_initialization_filename_os():
         del sys1
         sys1 = System.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
         sys2 = System.from_file(fn_chk)
-        assert sys2.wfn is not None
         compare_systems(sys1, sys2)
     finally:
         if os.path.isfile(fn_chk):
@@ -201,6 +241,19 @@ def test_chk_update2():
     chk.close()
 
 
+def test_chk_update3():
+    chk = h5.File('horton.test.test_checkpoint.test_chk_update2', driver='core', backing_store=False)
+    sys1 = System.from_file(context.get_fn('test/hf_sto3g.fchk'), chk=chk)
+    sys1.numbers[:] = [3, 2]
+    sys1.update_chk()
+    sys1.coordinates[0,2] = 0.25
+    del sys1
+    sys1 = System.from_file(chk)
+    assert (sys1.numbers == [3, 2]).all()
+    assert sys1.coordinates[0,2] != 0.25
+    chk.close()
+
+
 def test_chk_operators():
     chk = h5.File('horton.test.test_checkpoint.test_chk_operators', driver='core', backing_store=False)
     sys1 = System.from_file(context.get_fn('test/hf_sto3g.fchk'), chk=chk)
@@ -222,40 +275,26 @@ def test_chk_operators():
     assert (ar_er == sys1.get_electron_repulsion()._array).all()
 
 
-def test_chk_dms():
-    chk = h5.File('horton.test.test_checkpoint.test_chk_dms', driver='core', backing_store=False)
-    sys1 = System.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'), chk=chk)
-    sys1.dms['full'] = sys1.dms['scf_full']
-    sys1.dms['spin'] = sys1.dms['scf_spin']
-    ar_full = sys1.dms['full']._array
-    ar_spin = sys1.dms['spin']._array
-    sys1.update_chk('dms.full')
-    sys1.update_chk('dms.spin')
-    del sys1
-    sys1 = System.from_file(chk)
-    assert 'full' in sys1.dms
-    assert 'spin' in sys1.dms
-    assert (ar_full == sys1.dms['full']._array).all()
-    assert (ar_spin == sys1.dms['spin']._array).all()
-
-
 def test_chk_guess_scf_cs():
     chk = h5.File('horton.test.test_checkpoint.test_chk_guess_scf_cs', driver='core', backing_store=False)
     fn_fchk = context.get_fn('test/hf_sto3g.fchk')
     sys = System.from_file(fn_fchk, chk=chk)
 
     guess_hamiltonian_core(sys)
-    c = sys.wfn.expansion._coeffs
-    e = sys.wfn.expansion._energies
+    c = sys.wfn.get_exp('alpha')._coeffs
+    e = sys.wfn.get_exp('alpha')._energies
+    dma = sys.wfn.get_dm('alpha')._array
     del sys
     sys = System.from_file(chk)
-    assert (sys.wfn.expansion._coeffs == c).all()
-    assert (sys.wfn.expansion._energies == e).all()
+    assert (sys.wfn.get_exp('alpha')._coeffs == c).all()
+    assert (sys.wfn.get_exp('alpha')._energies == e).all()
+    assert (sys.wfn.get_dm('alpha')._array == dma).all()
 
     ham = Hamiltonian(sys, [HartreeFock()])
     converge_scf(ham, 5)
-    c = sys.wfn.expansion._coeffs
-    e = sys.wfn.expansion._energies
+    c = sys.wfn.get_exp('alpha')._coeffs
+    e = sys.wfn.get_exp('alpha')._energies
+    dma = sys.wfn.get_dm('alpha')._array
     ham.compute_energy()
     energy = sys.props['energy']
     energy_kin = sys.props['energy_kin']
@@ -266,8 +305,9 @@ def test_chk_guess_scf_cs():
     del sys
     del ham
     sys = System.from_file(chk)
-    assert (sys.wfn.expansion._coeffs == c).all()
-    assert (sys.wfn.expansion._energies == e).all()
+    assert (sys.wfn.get_exp('alpha')._coeffs == c).all()
+    assert (sys.wfn.get_exp('alpha')._energies == e).all()
+    assert (sys.wfn.get_dm('alpha')._array == dma).all()
     assert sys.props['energy'] == energy
     assert sys.props['energy_kin'] == energy_kin
     assert sys.props['energy_hartree'] == energy_hartree
@@ -282,23 +322,29 @@ def test_chk_guess_scf_os():
     sys = System.from_file(fn_fchk, chk=chk)
 
     guess_hamiltonian_core(sys)
-    ac = sys.wfn.alpha_expansion._coeffs
-    bc = sys.wfn.beta_expansion._coeffs
-    ae = sys.wfn.alpha_expansion._energies
-    be = sys.wfn.beta_expansion._energies
+    ac = sys.wfn.get_exp('alpha')._coeffs
+    bc = sys.wfn.get_exp('beta')._coeffs
+    ae = sys.wfn.get_exp('alpha')._energies
+    be = sys.wfn.get_exp('beta')._energies
+    dma = sys.wfn.get_dm('alpha')._array
+    dmb = sys.wfn.get_dm('beta')._array
     del sys
     sys = System.from_file(chk)
-    assert (sys.wfn.alpha_expansion._coeffs == ac).all()
-    assert (sys.wfn.beta_expansion._coeffs == bc).all()
-    assert (sys.wfn.alpha_expansion._energies == ae).all()
-    assert (sys.wfn.beta_expansion._energies == be).all()
+    assert (sys.wfn.get_exp('alpha')._coeffs == ac).all()
+    assert (sys.wfn.get_exp('beta')._coeffs == bc).all()
+    assert (sys.wfn.get_exp('alpha')._energies == ae).all()
+    assert (sys.wfn.get_exp('beta')._energies == be).all()
+    assert (sys.wfn.get_dm('alpha')._array == dma).all()
+    assert (sys.wfn.get_dm('beta')._array == dmb).all()
 
     ham = Hamiltonian(sys, [HartreeFock()])
     converge_scf(ham, 5)
-    ac = sys.wfn.alpha_expansion._coeffs
-    bc = sys.wfn.beta_expansion._coeffs
-    ae = sys.wfn.alpha_expansion._energies
-    be = sys.wfn.beta_expansion._energies
+    ac = sys.wfn.get_exp('alpha')._coeffs
+    bc = sys.wfn.get_exp('beta')._coeffs
+    ae = sys.wfn.get_exp('alpha')._energies
+    be = sys.wfn.get_exp('beta')._energies
+    dma = sys.wfn.get_dm('alpha')._array
+    dmb = sys.wfn.get_dm('beta')._array
     ham.compute_energy()
     energy = sys.props['energy']
     energy_kin = sys.props['energy_kin']
@@ -309,10 +355,12 @@ def test_chk_guess_scf_os():
     del sys
     del ham
     sys = System.from_file(chk)
-    assert (sys.wfn.alpha_expansion._coeffs == ac).all()
-    assert (sys.wfn.beta_expansion._coeffs == bc).all()
-    assert (sys.wfn.alpha_expansion._energies == ae).all()
-    assert (sys.wfn.beta_expansion._energies == be).all()
+    assert (sys.wfn.get_exp('alpha')._coeffs == ac).all()
+    assert (sys.wfn.get_exp('beta')._coeffs == bc).all()
+    assert (sys.wfn.get_exp('alpha')._energies == ae).all()
+    assert (sys.wfn.get_exp('beta')._energies == be).all()
+    assert (sys.wfn.get_dm('alpha')._array == dma).all()
+    assert (sys.wfn.get_dm('beta')._array == dmb).all()
     assert sys.props['energy'] == energy
     assert sys.props['energy_kin'] == energy_kin
     assert sys.props['energy_hartree'] == energy_hartree

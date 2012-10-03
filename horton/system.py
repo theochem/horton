@@ -35,14 +35,14 @@ from horton.io import load_system_args
 from horton.log import log
 from horton.matrix import DenseLinalgFactory, LinalgObject
 from horton.periodic import periodic
-from horton.wfn import ClosedShellWFN, OpenShellWFN
+from horton.wfn import AufbauOccModel, ClosedShellWFN, OpenShellWFN
 
 
 __all__ = ['System']
 
 
 class System(object):
-    def __init__(self, coordinates, numbers, obasis=None, wfn=None, lf=None, operators=None, props=None, dms=None, chk=None):
+    def __init__(self, coordinates, numbers, obasis=None, wfn=None, lf=None, operators=None, props=None, chk=None):
         """
            **Arguments:**
 
@@ -72,9 +72,6 @@ class System(object):
 
            props
                 A dictionary with computed properties.
-
-           dms
-                A dictionary with density matrices.
 
            chk
                 A filename for the checkpoint file or an open h5.File object.
@@ -125,11 +122,6 @@ class System(object):
             self._props = {}
         else:
             self._props = props
-        #
-        if dms is None:
-            self._dms = {}
-        else:
-            self._dms = dms
 
         # Some consistency checks
         if self.obasis is not None:
@@ -207,12 +199,6 @@ class System(object):
 
     props = property(_get_props)
 
-    def _get_dms(self):
-        '''A dictionary with density matrices.'''
-        return self._dms
-
-    dms = property(_get_dms)
-
     def _get_chk(self):
         '''A ``h5.File`` instance used as checkpoint file or ``None``'''
         return self._chk
@@ -260,10 +246,6 @@ class System(object):
             wfn = constructor_args.get('wfn')
             if wfn is not None:
                 wfn.apply_basis_permutation(permutation)
-            dms = constructor_args.get('dms')
-            if dms is not None:
-                for dm in dms.itervalues():
-                    dm.apply_basis_permutation(permutation)
             del constructor_args['permutation']
 
         return cls(**constructor_args)
@@ -352,11 +334,11 @@ class System(object):
             ])
 
         if restricted:
-            self._wfn = ClosedShellWFN(nel/2, self.lf, self.obasis.nbasis)
+            occ_model = AufbauOccModel(nel/2)
+            self._wfn = ClosedShellWFN(occ_model, self.lf, self.obasis.nbasis)
         else:
-            nalpha = (nel + (mult-1))/2
-            nbeta = (nel - (mult-1))/2
-            self._wfn = OpenShellWFN(nalpha, nbeta, self.lf, self.obasis.nbasis)
+            occ_model = AufbauOccModel((nel + (mult-1))/2, (nel - (mult-1))/2)
+            self._wfn = OpenShellWFN(occ_model, self.lf, self.obasis.nbasis)
 
 
 
@@ -399,8 +381,8 @@ class System(object):
             #self.update_chk('operators.er')
         return electron_repulsion
 
-    def compute_grid_density(self, points, use_dm=False, rhos=None, select='full'):
-        '''Compute the electron density on a grid
+    def compute_grid_density(self, points, rhos=None, select='full'):
+        '''Compute the electron density on a grid using self.wfn as input
 
            **Arguments:**
 
@@ -408,10 +390,6 @@ class System(object):
                 A Numpy array with grid points, shape (npoint,3)
 
            **Optional arguments:**
-
-           use_dm
-                Use C routine based on the density matrix instead of the orbitals.
-                This is done automatically if no wfn attribute is present.
 
            rhos
                 An output array, shape (npoint,). The results are added to this
@@ -430,14 +408,8 @@ class System(object):
             rhos = np.zeros(len(points), float)
         elif rhos.shape != (points.shape[0],):
             raise TypeError('The shape of the output array is wrong')
-        if use_dm or self._wfn is None:
-            dm = self.dms.get(select)
-            if dm is None:
-                raise ValueError('No wavefunction or density matrix available for the computation of the density on a grid.')
-            self.obasis.compute_grid_density_dm(dm, points, rhos)
-        else:
-            for expansion, nocc, scale in self.wfn.iter_expansions(select):
-                self.obasis.compute_grid_density_orb(expansion, nocc, scale, points, rhos)
+        dm = self.wfn.get_dm(select)
+        self.obasis.compute_grid_density_dm(dm, points, rhos)
         return rhos
 
     def compute_nucnuc(self):
