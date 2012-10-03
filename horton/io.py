@@ -61,9 +61,9 @@ def load_system_args(filename, lf):
         coordinates, numbers = load_geom_xyz(filename)
         return {'coordinates': coordinates, 'numbers': numbers}
     elif filename.endswith('.fchk'):
-        coordinates, numbers, obasis, wfn, permutation, props, dms = load_fchk(filename, lf)
+        coordinates, numbers, obasis, wfn, permutation, props, operators = load_fchk(filename, lf)
         return {'coordinates': coordinates, 'numbers': numbers, 'obasis': obasis,
-                'wfn': wfn, 'permutation': permutation, 'props': props, 'dms': dms}
+                'wfn': wfn, 'permutation': permutation, 'props': props, 'operators': operators}
     elif filename.endswith('.log'):
         overlap, kinetic, nuclear_attraction, electronic_repulsion = load_operators_g09(filename, lf)
         operators = {}
@@ -436,21 +436,28 @@ def load_fchk(filename, lf):
     if nbasis_indep is None:
         nbasis_indep = obasis.nbasis
     if 'Beta Orbital Energies' in fchk.fields:
-        from horton.wfn import OpenShellWFN
+        from horton.wfn import AufbauOccModel, OpenShellWFN
         nalpha = fchk.fields['Number of alpha electrons']
         nbeta = fchk.fields['Number of beta electrons']
-        wfn = OpenShellWFN(nalpha, nbeta, lf, obasis.nbasis, norb=nbasis_indep)
-        wfn.alpha_expansion.coeffs[:] = fchk.fields['Alpha MO coefficients'].reshape(nbasis_indep, obasis.nbasis).T
-        wfn.alpha_expansion.energies[:] = fchk.fields['Alpha Orbital Energies']
-        wfn.beta_expansion.coeffs[:] = fchk.fields['Beta MO coefficients'].reshape(nbasis_indep, obasis.nbasis).T
-        wfn.beta_expansion.energies[:] = fchk.fields['Beta Orbital Energies']
+        occ_model = AufbauOccModel(nalpha, nbeta)
+        wfn = OpenShellWFN(occ_model, lf, obasis.nbasis, norb=nbasis_indep)
+        exp_alpha = wfn.init_exp('alpha')
+        exp_alpha.coeffs[:] = fchk.fields['Alpha MO coefficients'].reshape(nbasis_indep, obasis.nbasis).T
+        exp_alpha.energies[:] = fchk.fields['Alpha Orbital Energies']
+        exp_beta = wfn.init_exp('beta')
+        exp_beta.coeffs[:] = fchk.fields['Beta MO coefficients'].reshape(nbasis_indep, obasis.nbasis).T
+        exp_beta.energies[:] = fchk.fields['Beta Orbital Energies']
+        occ_model.assign(exp_alpha, exp_beta)
     else:
-        from horton.wfn import ClosedShellWFN
+        from horton.wfn import AufbauOccModel, ClosedShellWFN
         nelec = fchk.fields["Number of electrons"]
         assert nelec % 2 == 0
-        wfn = ClosedShellWFN(nelec/2, lf, obasis.nbasis, norb=nbasis_indep)
-        wfn.expansion.coeffs[:] = fchk.fields['Alpha MO coefficients'].reshape(nbasis_indep, obasis.nbasis).T
-        wfn.expansion.energies[:] = fchk.fields['Alpha Orbital Energies']
+        occ_model = AufbauOccModel(nelec/2)
+        wfn = ClosedShellWFN(occ_model, lf, obasis.nbasis, norb=nbasis_indep)
+        exp_alpha = wfn.init_exp('alpha')
+        exp_alpha.coeffs[:] = fchk.fields['Alpha MO coefficients'].reshape(nbasis_indep, obasis.nbasis).T
+        exp_alpha.energies[:] = fchk.fields['Alpha Orbital Energies']
+        occ_model.assign(exp_alpha)
 
     # D) Load properties
     props = {
@@ -467,9 +474,13 @@ def load_fchk(filename, lf):
                 dm._array[i,:i+1] = fchk.fields[label][start:stop]
                 dm._array[:i+1,i] = fchk.fields[label][start:stop]
                 start = stop
-            dms[key] = dm
+            operators[key] = dm
 
-    dms = {}
+    # Note that the density matrices are not directly loaded into the
+    # wavefunction objects. It is up to the user to decide which
+    # density matrix will be used in the wavefunction, by making a few manual
+    # assignments.
+    operators = {}
     # TODO add more
     load_dm('scf_full', 'Total SCF Density')
     load_dm('scf_spin', 'Spin SCF Density')
@@ -478,7 +489,7 @@ def load_fchk(filename, lf):
     load_dm('cc_full', 'Total CC Density')
     load_dm('cc_spin', 'Spin CC Density')
 
-    return coordinates, numbers, obasis, wfn, permutation, props, dms
+    return coordinates, numbers, obasis, wfn, permutation, props, operators
 
 
 def load_checkpoint(filename, lf):

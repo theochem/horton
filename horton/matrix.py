@@ -54,7 +54,7 @@ from horton.log import log
 
 
 __all__ = [
-    'LinalgFactory', 'LinalgObject', 'OneBody',
+    'LinalgFactory', 'LinalgObject', 'Expansion', 'OneBody',
     'DenseLinalgFactory', 'DenseExpansion', 'DenseOneBody', 'DenseTwoBody',
 ]
 
@@ -104,11 +104,6 @@ class LinalgObject(object):
     def apply_basis_permutation(self, permutation):
         raise NotImplementedError
 
-
-class OneBody(LinalgObject):
-    def __init__(self, nbasis=None):
-        raise NotImplementedError
-
     @classmethod
     def from_hdf5(cls, grp, lf):
         raise NotImplementedError
@@ -116,13 +111,29 @@ class OneBody(LinalgObject):
     def to_hdf5(self, grp):
         raise NotImplementedError
 
+    def reset(self):
+        raise NotImplementedError
+
+    def assign(self, other):
+        raise NotImplementedError
+
+
+class Expansion(LinalgObject):
+    def __init__(self, nbasis, nfn=None):
+        raise NotImplementedError
+
+    def check_normalization(self, olp, eps=1e-4):
+        raise NotImplementedError
+
+
+class OneBody(LinalgObject):
+    def __init__(self, nbasis):
+        raise NotImplementedError
+
     def set_element(self, i, j, value):
         raise NotImplementedError
 
     def get_element(self, i, j):
-        raise NotImplementedError
-
-    def reset(self):
         raise NotImplementedError
 
     def iadd(self, other, factor=1):
@@ -145,9 +156,9 @@ class OneBody(LinalgObject):
 
 
 class DenseLinalgFactory(LinalgFactory):
-    def create_expansion(self, nbasis=None, nfn=None, do_energies=False):
+    def create_expansion(self, nbasis=None, nfn=None):
         nbasis = nbasis or self._default_nbasis
-        return DenseExpansion(nbasis, nfn, do_energies)
+        return DenseExpansion(nbasis, nfn)
 
     def create_one_body(self, nbasis=None):
         nbasis = nbasis or self._default_nbasis
@@ -157,12 +168,13 @@ class DenseLinalgFactory(LinalgFactory):
         nbasis = nbasis or self._default_nbasis
         return DenseTwoBody(nbasis)
 
-    def error_eigen(self, ham, overlap, expansion):
+    @staticmethod
+    def error_eigen(fock, overlap, expansion):
         """Compute the error of the orbitals with respect to the eigenproblem
 
            **Arguments:**
 
-           ham
+           fock
                 A DenseOneBody Hamiltonian (or Fock) operator.
 
            overlap
@@ -174,17 +186,18 @@ class DenseLinalgFactory(LinalgFactory):
            epsilons
                 An array with the orbital energies.
         """
-        errors = np.dot(ham._array, expansion.coeffs) \
+        errors = np.dot(fock._array, expansion.coeffs) \
                  - expansion.energies*np.dot(overlap._array, expansion.coeffs)
         return np.sqrt((errors**2).mean())
 
 
-    def diagonalize(self, ham, overlap, expansion):
+    @staticmethod
+    def diagonalize(fock, overlap=None):
         """Generalized eigen solver for the given Hamiltonian and overlap.
 
            **Arguments:**
 
-           ham
+           fock
                 A DenseOneBody Hamiltonian (or Fock) operator.
 
            overlap
@@ -192,9 +205,10 @@ class DenseLinalgFactory(LinalgFactory):
 
         """
         from scipy.linalg import eigh
-        evals, evecs = eigh(ham._array, overlap._array)
-        expansion.coeffs[:] = evecs
-        expansion.energies[:] = evals
+        if overlap is None:
+            return eigh(fock._array)
+        else:
+            return eigh(fock._array, overlap._array)
 
     def get_memory_one_body(self, nbasis=None):
         return nbasis**2*8
@@ -206,9 +220,9 @@ class DenseLinalgFactory(LinalgFactory):
 class DenseExpansion(LinalgObject):
     """An expansion of several functions in a basis with a dense matrix of
        coefficients. The implementation is such that the columns of self._array
-       contain the orbitals
+       contain the orbitals.
     """
-    def __init__(self, nbasis, nfn=None, do_energies=False):
+    def __init__(self, nbasis, nfn=None):
         """
            **Arguments:**
 
@@ -226,30 +240,26 @@ class DenseExpansion(LinalgObject):
         """
         if nfn is None:
             nfn = nbasis
-        log.mem.announce(nbasis*nfn*8)
+        log.mem.announce((nbasis+2)*nfn*8)
         self._coeffs = np.zeros((nbasis, nfn), float)
-        if do_energies:
-            self._energies = np.zeros(nfn, float)
-        else:
-            self._energies = None
+        self._energies = np.zeros(nfn, float)
+        self._occupations = np.zeros(nfn, float)
 
     def __del__(self):
-        log.mem.denounce(self.nbasis*self.nfn*8)
+        log.mem.denounce((self.nbasis+2)*self.nfn*8)
 
     def read_from_hdf5(self, grp):
         if grp.attrs['class'] != self.__class__.__name__:
             raise TypeError('The class of the expansion in the HDF5 file does not match.')
-        grp['coeffs'].read_direct(self.coeffs)
-        if self._energies is not None:
-            if 'energies' not in grp:
-                raise TypeError('The HDF5 file does not contain orbital energies.')
-            grp['energies'].read_direct(self.energies)
+        grp['coeffs'].read_direct(self._coeffs)
+        grp['energies'].read_direct(self._energies)
+        grp['occupations'].read_direct(self._occupations)
 
     def to_hdf5(self, grp):
         grp.attrs['class'] = self.__class__.__name__
         grp['coeffs'] = self._coeffs
-        if self._energies is not None:
-            grp['energies'] = self._energies
+        grp['energies'] = self._energies
+        grp['occupations'] = self._occupations
 
     def _get_nbasis(self):
         '''The number of basis functions'''
@@ -270,12 +280,23 @@ class DenseExpansion(LinalgObject):
     coeffs = property(_get_coeffs)
 
     def _get_energies(self):
-        '''The orbital energies (optional)'''
+        '''The orbital energies'''
         return self._energies
 
     energies = property(_get_energies)
 
-    def check_normalization(self, olp, nocc, eps=1e-4):
+    def _get_occupations(self):
+        '''The orbital occupations'''
+        return self._occupations
+
+    occupations = property(_get_occupations)
+
+    def reset(self):
+        self._coeffs[:] = 0.0
+        self._energies[:] = 0.0
+        self._occupations[:] = 0.0
+
+    def check_normalization(self, olp, eps=1e-4):
         '''Run an internal test to see if the orbitals are normalized
 
            **Arguments:**
@@ -283,25 +304,19 @@ class DenseExpansion(LinalgObject):
            olp
                 The overlap one_body operators
 
-           nocc
-                The number of orbitals to check, i.e. those that are occupied.
-
            **Optional arguments:**
 
            eps
                 The allowed deviation from unity, very loose by default.
         '''
-        for i in xrange(nocc):
+        for i in xrange(self.nfn):
             norm = olp.dot(self._coeffs[:,i], self._coeffs[:,i])
             assert abs(norm-1) < eps, 'The orbitals are not normalized!'
 
-    def compute_density_matrix(self, noc, dm, factor=None):
+    def compute_density_matrix(self, dm, factor=None):
         """Compute the density matrix
 
            **Arguments:**
-
-           noc
-                The number of 'occupied' functions
 
            dm
                 An output density matrix. This must be a DenseOneBody instance.
@@ -313,12 +328,56 @@ class DenseExpansion(LinalgObject):
                 to the output argument. If not given, the original contents of
                 dm are overwritten.
         """
-        result = DenseOneBody(self.nbasis)
-        occupied = self._coeffs[:,:noc]
         if factor is None:
-            dm._array[:] = np.dot(occupied, occupied.T)
+            dm._array[:] = np.dot(self._coeffs*self.occupations, self._coeffs.T)
         else:
-            dm._array[:] += factor*np.dot(occupied, occupied.T)
+            dm._array[:] += factor*np.dot(self._coeffs*self.occupations, self._coeffs.T)
+
+    def derive_from_fock_matrix(self, fock, overlap):
+        '''Diagonalize a Fock matrix to obtain orbitals and energies'''
+        evals, evecs = DenseLinalgFactory.diagonalize(fock, overlap)
+        self._energies[:] = evals[:self.nfn]
+        self._coeffs[:] = evecs[:,:self.nfn]
+
+    def derive_from_density_and_fock_matrix(self, dm, fock, overlap, scale=-0.001):
+        '''
+           **Arguments**:
+
+           dm
+                A DenseOneBody object with the density matrix
+
+           fock
+                A DenseOneBody object with the Fock matrix
+
+           overlap
+                A DenseOneBody object with the overlap matrix
+
+           **Optional arguments:**
+
+           scale
+                The linear coefficient for the density matrix. It is added to
+                the Fock matrix as in level shifting to obtain a set of orbitals
+                that diagonalizes both matrices.
+
+           scale
+
+           This only works well for slater determinants without (fractional)
+           holes below the Fermi level.
+        '''
+        # Construct a level-shifted fock matrix to separate out the degenerate
+        # orbitals with different occupations
+        occ = overlap.copy()
+        occ.idot(dm)
+        occ.idot(overlap)
+        tmp = fock.copy()
+        tmp.iadd(occ, factor=scale)
+        # diagonalize and compute eigenvalues
+        evals, evecs = DenseLinalgFactory.diagonalize(tmp, overlap)
+        self._coeffs[:] = evecs[:,:self.nfn]
+        for i in xrange(self.nfn):
+            orb = evecs[:,i]
+            self._energies[i] = fock.dot(orb, orb)
+            self._occupations[i] = occ.dot(orb, orb)
 
     def apply_basis_permutation(self, permutation):
         '''Reorder the coefficients for a given permutation of basis functions.
@@ -329,8 +388,8 @@ class DenseExpansion(LinalgObject):
         if not isinstance(other, DenseExpansion):
             raise TypeError('The other object must also be DenseExpansion instance.')
         self._coeffs[:] = other._coeffs
-        if self._energies is not None:
-            self._energies[:] = other._energies
+        self._energies[:] = other._energies
+        self._occupations[:] = other._occupations
 
 
 class DenseOneBody(OneBody):
@@ -340,7 +399,7 @@ class DenseOneBody(OneBody):
        computer time. Due to its simplicity, it is trivial to implement. This
        implementation mainly serves as a reference for testing purposes.
     """
-    def __init__(self, nbasis=None):
+    def __init__(self, nbasis):
         """
            **Arguments:**
 
@@ -362,7 +421,13 @@ class DenseOneBody(OneBody):
         grp['array'].read_direct(result._array)
         return result
 
+    def read_from_hdf5(self, grp):
+        if grp.attrs['class'] != self.__class__.__name__:
+            raise TypeError('The class of the one-body operator in the HDF5 file does not match.')
+        grp['array'].read_direct(self._array)
+
     def to_hdf5(self, grp):
+        grp.attrs['class'] = self.__class__.__name__
         grp['array'] = self._array
 
     def _get_nbasis(self):
@@ -377,6 +442,16 @@ class DenseOneBody(OneBody):
 
     def get_element(self, i, j):
         return self._array[i,j]
+
+    def assign(self, other):
+        if not isinstance(other, DenseOneBody):
+            raise TypeError('The other object must also be DenseOneBody instance.')
+        self._array[:] = other._array
+
+    def copy(self):
+        result = DenseOneBody(self.nbasis)
+        result._array[:] = self._array
+        return result
 
     def check_symmetry(self):
         '''Check the symmetry of the array. For testing only.'''
@@ -403,6 +478,12 @@ class DenseOneBody(OneBody):
 
     def dot(self, vec0, vec1):
         return np.dot(vec0, np.dot(self._array, vec1))
+
+    def idot(self, other):
+        self._array[:] = np.dot(self._array, other._array)
+
+    def distance(self, other):
+        return (self._array.ravel() - other._array.ravel()).max()
 
     def apply_basis_permutation(self, permutation):
         '''Reorder the coefficients for a given permutation of basis functions.
@@ -441,6 +522,7 @@ class DenseTwoBody(LinalgObject):
         return result
 
     def to_hdf5(self, grp):
+        grp.attrs['class'] = self.__class__.__name__
         grp['array'] = self._array
 
     def _get_nbasis(self):

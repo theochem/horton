@@ -49,23 +49,20 @@ def test_init_wfn_cs():
     sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
     sys.init_wfn(0, 1)
     assert isinstance(sys.wfn, ClosedShellWFN)
-    assert sys.wfn.nel == 6
-    assert sys.wfn.nep == 3
-    assert sys.wfn.mult == 0
+    assert sys.wfn.occ_model.nalpha == 3
+    assert sys.wfn.occ_model.nbeta == 3
 
     sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
     sys.init_wfn()
     assert isinstance(sys.wfn, ClosedShellWFN)
-    assert sys.wfn.nel == 6
-    assert sys.wfn.nep == 3
-    assert sys.wfn.mult == 0
+    assert sys.wfn.occ_model.nalpha == 3
+    assert sys.wfn.occ_model.nbeta == 3
 
     sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
     sys.init_wfn(2)
     assert isinstance(sys.wfn, ClosedShellWFN)
-    assert sys.wfn.nel == 4
-    assert sys.wfn.nep == 2
-    assert sys.wfn.mult == 0
+    assert sys.wfn.occ_model.nalpha == 2
+    assert sys.wfn.occ_model.nbeta == 2
 
     try:
         sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
@@ -79,16 +76,14 @@ def test_init_wfn_os():
     sys = System(np.zeros((1,3), float), np.array([7]), obasis='3-21g')
     sys.init_wfn(0, 2)
     assert isinstance(sys.wfn, OpenShellWFN)
-    assert sys.wfn.nalpha == 4
-    assert sys.wfn.nbeta == 3
-    assert sys.wfn.mult == 2
+    assert sys.wfn.occ_model.nalpha == 4
+    assert sys.wfn.occ_model.nbeta == 3
 
     sys = System(np.zeros((1,3), float), np.array([8]), obasis='3-21g')
     sys.init_wfn(1)
     assert isinstance(sys.wfn, OpenShellWFN)
-    assert sys.wfn.nalpha == 4
-    assert sys.wfn.nbeta == 3
-    assert sys.wfn.mult == 2
+    assert sys.wfn.occ_model.nalpha == 4
+    assert sys.wfn.occ_model.nbeta == 3
 
     try:
         sys = System(np.zeros((1,3), float), np.array([7]), obasis='3-21g')
@@ -107,12 +102,14 @@ def test_nucnuc():
 def check_scf_dms(fn_fchk):
     sys = System.from_file(fn_fchk)
     dm_full = sys.lf.create_one_body()
-    sys.wfn.compute_density_matrix(dm_full, 'full')
-    assert abs(dm_full._array - sys.dms['scf_full']._array).max() < 1e-7
-    if 'scf_spin' in sys.dms:
-        dm_spin = sys.lf.create_one_body()
-        sys.wfn.compute_density_matrix(dm_spin, 'spin')
-        assert abs(dm_spin._array - sys.dms['scf_spin']._array).max() < 1e-7
+    sys.wfn.update_dm('alpha')
+    if isinstance(sys.wfn, OpenShellWFN):
+        sys.wfn.update_dm('beta')
+    dm_full = sys.wfn.get_dm('full')
+    assert abs(dm_full._array - sys.operators['scf_full']._array).max() < 1e-7
+    if 'scf_spin' in sys.operators:
+        dm_spin = sys.wfn.get_dm('spin')
+        assert abs(dm_spin._array - sys.operators['scf_spin']._array).max() < 1e-7
 
 
 def test_scf_dms_water_sto3g_hf():
@@ -261,75 +258,55 @@ def test_electron_repulsion_water_ccpvdz_cart_hf():
     check_electron_repulsion(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'))
 
 
-def check_grid_fn(fn_fchk, use_dm, use_output_arg):
+def check_grid_fn(fn_fchk, use_output_arg):
     sys = System.from_file(fn_fchk)
     # TODO: standard procedure for constructing recommended coarse, medium and fine grids.
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
     grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
-    if use_dm:
-        dm = sys.lf.create_one_body()
-        sys.wfn.compute_density_matrix(dm, 'full')
-        sys.dms['full'] = dm
+    sys.wfn.update_dm('alpha')
+    if isinstance(sys.wfn, OpenShellWFN):
+        sys.wfn.update_dm('beta')
     if use_output_arg:
         rhos = np.zeros(grid.size)
-        sys.compute_grid_density(grid.points, use_dm, rhos)
+        sys.compute_grid_density(grid.points, rhos)
     else:
-        rhos = sys.compute_grid_density(grid.points, use_dm)
+        rhos = sys.compute_grid_density(grid.points)
     pop = grid.integrate(rhos)
     assert abs(pop-sys.wfn.nel) < 2e-3
 
 
-def test_grid_fn_h_sto3g_TT():
-    check_grid_fn(context.get_fn('test/h_sto3g.fchk'), True, True)
+def test_grid_fn_h_sto3g_T():
+    check_grid_fn(context.get_fn('test/h_sto3g.fchk'), True)
 
-def test_grid_fn_h_sto3g_TF():
-    check_grid_fn(context.get_fn('test/h_sto3g.fchk'), True, False)
-
-def test_grid_fn_h_sto3g_FT():
-    check_grid_fn(context.get_fn('test/h_sto3g.fchk'), False, True)
-
-def test_grid_fn_h_sto3g_FF():
-    check_grid_fn(context.get_fn('test/h_sto3g.fchk'), False, False)
+def test_grid_fn_h_sto3g_F():
+    check_grid_fn(context.get_fn('test/h_sto3g.fchk'), False)
 
 
-def test_grid_fn_lih_321g_hf_TT():
-    check_grid_fn(context.get_fn('test/li_h_3-21G_hf_g09.fchk'), True, True)
+def test_grid_fn_lih_321g_hf_T():
+    check_grid_fn(context.get_fn('test/li_h_3-21G_hf_g09.fchk'), True)
 
 
-def test_grid_fn_water_sto3g_hf_FT():
-    check_grid_fn(context.get_fn('test/water_sto3g_hf_g03.fchk'), False, True)
+def test_grid_fn_water_sto3g_hf_T():
+    check_grid_fn(context.get_fn('test/water_sto3g_hf_g03.fchk'), True)
 
 
-def test_grid_fn_water_ccpvdz_pure_hf_TF():
-    check_grid_fn(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'), True, False)
+def test_grid_fn_water_ccpvdz_pure_hf_F():
+    check_grid_fn(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'), False)
 
 
-def test_grid_fn_water_ccpvdz_cart_hf_FF():
-    check_grid_fn(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'), False, False)
+def test_grid_fn_water_ccpvdz_cart_hf_F():
+    check_grid_fn(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'), False)
 
 
-def test_grid_fn_co_ccpv5z_pure_hf_TT():
-    check_grid_fn(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'), True, True)
+def test_grid_fn_co_ccpv5z_pure_hf_T():
+    check_grid_fn(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'), True)
 
-def test_grid_fn_co_ccpv5z_pure_hf_TF():
-    check_grid_fn(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'), True, False)
+def test_grid_fn_co_ccpv5z_pure_hf_F():
+    check_grid_fn(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'), False)
 
-def test_grid_fn_co_ccpv5z_pure_hf_FT():
-    check_grid_fn(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'), False, True)
+def test_grid_fn_co_ccpv5z_cart_hf_T():
+    check_grid_fn(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'), True)
 
-def test_grid_fn_co_ccpv5z_pure_hf_FF():
-    check_grid_fn(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'), False, False)
-
-
-def test_grid_fn_co_ccpv5z_cart_hf_TT():
-    check_grid_fn(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'), True, True)
-
-def test_grid_fn_co_ccpv5z_cart_hf_TF():
-    check_grid_fn(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'), True, False)
-
-def test_grid_fn_co_ccpv5z_cart_hf_FT():
-    check_grid_fn(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'), False, True)
-
-def test_grid_fn_co_ccpv5z_cart_hf_FF():
-    check_grid_fn(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'), False, False)
+def test_grid_fn_co_ccpv5z_cart_hf_F():
+    check_grid_fn(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'), False)
