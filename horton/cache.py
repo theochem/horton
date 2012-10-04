@@ -210,7 +210,7 @@ class Cache(object):
         item = self._store.get(key)
         if item is None:
             if alloc is None and default is no_default:
-                raise KeyError('Could not find item %s' % repr(key))
+                raise KeyError(key)
             elif default is no_default:
                 item = CacheItem.from_alloc(alloc)
                 self._store[key] = item
@@ -221,7 +221,7 @@ class Cache(object):
             if item.valid:
                 return item.value
             else:
-                raise KeyError('Item %s is not valid.' % repr(key))
+                raise KeyError(key)
         else:
             item.check_alloc(alloc)
             new = not item.valid

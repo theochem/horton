@@ -96,7 +96,7 @@ def converge_scf_cs(ham, max_iter=128, threshold=1e-8):
         fock.reset()
         ham.compute_fock(fock, None)
         # Check for convergence
-        error = lf.error_eigen(fock, ham.overlap, wfn.get_exp('alpha'))
+        error = lf.error_eigen(fock, ham.overlap, wfn.exp_alpha)
 
         if log.do_medium:
             log('%4i  %12.5e' % (i, error))
@@ -158,8 +158,8 @@ def converge_scf_os(ham, max_iter=128, threshold=1e-8):
         fock_beta.reset()
         ham.compute_fock(fock_alpha, fock_beta)
         # Check for convergence
-        error_alpha = lf.error_eigen(fock_alpha, ham.overlap, wfn.get_exp('alpha'))
-        error_beta = lf.error_eigen(fock_beta, ham.overlap, wfn.get_exp('beta'))
+        error_alpha = lf.error_eigen(fock_alpha, ham.overlap, wfn.exp_alpha)
+        error_beta = lf.error_eigen(fock_beta, ham.overlap, wfn.exp_beta)
 
         if log.do_medium:
             log('%4i  %12.5e  %12.5e' % (i, error_alpha, error_beta))
@@ -282,7 +282,7 @@ def converge_scf_oda_cs(ham, max_iter=128, threshold=1e-8):
         fock_old.reset()
         ham.compute_fock(fock_old, None)
         energy_old = ham.compute_energy()
-        dm_old.assign(wfn.get_dm('alpha'))
+        dm_old.assign(wfn.dm_alpha)
 
         if log.do_medium:
             if mixing is None:
@@ -302,7 +302,7 @@ def converge_scf_oda_cs(ham, max_iter=128, threshold=1e-8):
         # Compute energy at new point
         energy = ham.compute_energy()
         # take the density matrix
-        dm = wfn.get_dm('alpha')
+        dm = wfn.dm_alpha
 
         # D) Find the optimal damping
         # Compute the derivatives of the energy towards lambda at edges 0 and 1
@@ -400,7 +400,7 @@ def convergence_error_cs(ham):
     fock.reset()
     ham.compute_fock(fock, None)
     # Compute error
-    return lf.error_eigen(fock, ham.overlap, wfn.get_exp('alpha'))
+    return lf.error_eigen(fock, ham.overlap, wfn.exp_alpha)
 
 
 def convergence_error_os(ham):
@@ -427,6 +427,6 @@ def convergence_error_os(ham):
     fock_beta.reset()
     ham.compute_fock(fock_alpha, fock_beta)
     # Compute errors
-    error_alpha = lf.error_eigen(fock_alpha, ham.overlap, wfn.get_exp('alpha'))
-    error_beta = lf.error_eigen(fock_beta, ham.overlap, wfn.get_exp('beta'))
+    error_alpha = lf.error_eigen(fock_alpha, ham.overlap, wfn.exp_alpha)
+    error_beta = lf.error_eigen(fock_beta, ham.overlap, wfn.exp_beta)
     return max(error_alpha, error_beta)

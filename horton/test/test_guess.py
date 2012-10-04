@@ -29,9 +29,8 @@ def test_guess_hamcore_cs():
     sys = System.from_file(fn_fchk)
     guess_hamiltonian_core(sys)
     # just a few simple checks
-    exp_alpha = sys.wfn.get_exp('alpha')
-    assert abs(exp_alpha.energies[0] - (-2.59083334E+01)) > 1e-5 # values from fchk must be overwritten
-    assert (exp_alpha.energies.argsort() == np.arange(sys.obasis.nbasis)).all()
+    assert abs(sys.wfn.exp_alpha.energies[0] - (-2.59083334E+01)) > 1e-5 # values from fchk must be overwritten
+    assert (sys.wfn.exp_alpha.energies.argsort() == np.arange(sys.obasis.nbasis)).all()
 
 
 def test_guess_hamcore_os():
@@ -39,10 +38,8 @@ def test_guess_hamcore_os():
     sys = System.from_file(fn_fchk)
     guess_hamiltonian_core(sys)
     # just a few simple checks
-    exp_alpha = sys.wfn.get_exp('alpha')
-    exp_beta = sys.wfn.get_exp('beta')
-    assert abs(exp_alpha.energies[0] - (-2.76116635E+00)) > 1e-5 # values from fchk must be overwritten
-    assert abs(exp_beta.energies[0] - (-2.76031162E+00)) > 1e-5 # values from fchk must be overwritten
-    assert (exp_alpha.energies.argsort() == np.arange(sys.obasis.nbasis)).all()
-    assert abs(exp_alpha.energies - exp_beta.energies).max() < 1e-10
-    assert abs(exp_alpha.coeffs - exp_beta.coeffs).max() < 1e-10
+    assert abs(sys.wfn.exp_alpha.energies[0] - (-2.76116635E+00)) > 1e-5 # values from fchk must be overwritten
+    assert abs(sys.wfn.exp_beta.energies[0] - (-2.76031162E+00)) > 1e-5 # values from fchk must be overwritten
+    assert (sys.wfn.exp_alpha.energies.argsort() == np.arange(sys.obasis.nbasis)).all()
+    assert abs(sys.wfn.exp_alpha.energies - sys.wfn.exp_beta.energies).max() < 1e-10
+    assert abs(sys.wfn.exp_alpha.coeffs - sys.wfn.exp_beta.coeffs).max() < 1e-10

@@ -281,20 +281,20 @@ def test_chk_guess_scf_cs():
     sys = System.from_file(fn_fchk, chk=chk)
 
     guess_hamiltonian_core(sys)
-    c = sys.wfn.get_exp('alpha')._coeffs
-    e = sys.wfn.get_exp('alpha')._energies
-    dma = sys.wfn.get_dm('alpha')._array
+    c = sys.wfn.exp_alpha._coeffs
+    e = sys.wfn.exp_alpha._energies
+    dma = sys.wfn.dm_alpha._array
     del sys
     sys = System.from_file(chk)
-    assert (sys.wfn.get_exp('alpha')._coeffs == c).all()
-    assert (sys.wfn.get_exp('alpha')._energies == e).all()
-    assert (sys.wfn.get_dm('alpha')._array == dma).all()
+    assert (sys.wfn.exp_alpha._coeffs == c).all()
+    assert (sys.wfn.exp_alpha._energies == e).all()
+    assert (sys.wfn.dm_alpha._array == dma).all()
 
     ham = Hamiltonian(sys, [HartreeFock()])
     converge_scf(ham, 5)
-    c = sys.wfn.get_exp('alpha')._coeffs
-    e = sys.wfn.get_exp('alpha')._energies
-    dma = sys.wfn.get_dm('alpha')._array
+    c = sys.wfn.exp_alpha._coeffs
+    e = sys.wfn.exp_alpha._energies
+    dma = sys.wfn.dm_alpha._array
     ham.compute_energy()
     energy = sys.props['energy']
     energy_kin = sys.props['energy_kin']
@@ -305,9 +305,9 @@ def test_chk_guess_scf_cs():
     del sys
     del ham
     sys = System.from_file(chk)
-    assert (sys.wfn.get_exp('alpha')._coeffs == c).all()
-    assert (sys.wfn.get_exp('alpha')._energies == e).all()
-    assert (sys.wfn.get_dm('alpha')._array == dma).all()
+    assert (sys.wfn.exp_alpha._coeffs == c).all()
+    assert (sys.wfn.exp_alpha._energies == e).all()
+    assert (sys.wfn.dm_alpha._array == dma).all()
     assert sys.props['energy'] == energy
     assert sys.props['energy_kin'] == energy_kin
     assert sys.props['energy_hartree'] == energy_hartree
@@ -322,29 +322,29 @@ def test_chk_guess_scf_os():
     sys = System.from_file(fn_fchk, chk=chk)
 
     guess_hamiltonian_core(sys)
-    ac = sys.wfn.get_exp('alpha')._coeffs
-    bc = sys.wfn.get_exp('beta')._coeffs
-    ae = sys.wfn.get_exp('alpha')._energies
-    be = sys.wfn.get_exp('beta')._energies
-    dma = sys.wfn.get_dm('alpha')._array
-    dmb = sys.wfn.get_dm('beta')._array
+    ac = sys.wfn.exp_alpha._coeffs
+    bc = sys.wfn.exp_beta._coeffs
+    ae = sys.wfn.exp_alpha._energies
+    be = sys.wfn.exp_beta._energies
+    dma = sys.wfn.dm_alpha._array
+    dmb = sys.wfn.dm_beta._array
     del sys
     sys = System.from_file(chk)
-    assert (sys.wfn.get_exp('alpha')._coeffs == ac).all()
-    assert (sys.wfn.get_exp('beta')._coeffs == bc).all()
-    assert (sys.wfn.get_exp('alpha')._energies == ae).all()
-    assert (sys.wfn.get_exp('beta')._energies == be).all()
-    assert (sys.wfn.get_dm('alpha')._array == dma).all()
-    assert (sys.wfn.get_dm('beta')._array == dmb).all()
+    assert (sys.wfn.exp_alpha._coeffs == ac).all()
+    assert (sys.wfn.exp_beta._coeffs == bc).all()
+    assert (sys.wfn.exp_alpha._energies == ae).all()
+    assert (sys.wfn.exp_beta._energies == be).all()
+    assert (sys.wfn.dm_alpha._array == dma).all()
+    assert (sys.wfn.dm_beta._array == dmb).all()
 
     ham = Hamiltonian(sys, [HartreeFock()])
     converge_scf(ham, 5)
-    ac = sys.wfn.get_exp('alpha')._coeffs
-    bc = sys.wfn.get_exp('beta')._coeffs
-    ae = sys.wfn.get_exp('alpha')._energies
-    be = sys.wfn.get_exp('beta')._energies
-    dma = sys.wfn.get_dm('alpha')._array
-    dmb = sys.wfn.get_dm('beta')._array
+    ac = sys.wfn.exp_alpha._coeffs
+    bc = sys.wfn.exp_beta._coeffs
+    ae = sys.wfn.exp_alpha._energies
+    be = sys.wfn.exp_beta._energies
+    dma = sys.wfn.dm_alpha._array
+    dmb = sys.wfn.dm_beta._array
     ham.compute_energy()
     energy = sys.props['energy']
     energy_kin = sys.props['energy_kin']
@@ -355,12 +355,12 @@ def test_chk_guess_scf_os():
     del sys
     del ham
     sys = System.from_file(chk)
-    assert (sys.wfn.get_exp('alpha')._coeffs == ac).all()
-    assert (sys.wfn.get_exp('beta')._coeffs == bc).all()
-    assert (sys.wfn.get_exp('alpha')._energies == ae).all()
-    assert (sys.wfn.get_exp('beta')._energies == be).all()
-    assert (sys.wfn.get_dm('alpha')._array == dma).all()
-    assert (sys.wfn.get_dm('beta')._array == dmb).all()
+    assert (sys.wfn.exp_alpha._coeffs == ac).all()
+    assert (sys.wfn.exp_beta._coeffs == bc).all()
+    assert (sys.wfn.exp_alpha._energies == ae).all()
+    assert (sys.wfn.exp_beta._energies == be).all()
+    assert (sys.wfn.dm_alpha._array == dma).all()
+    assert (sys.wfn.dm_beta._array == dmb).all()
     assert sys.props['energy'] == energy
     assert sys.props['energy_kin'] == energy_kin
     assert sys.props['energy_hartree'] == energy_hartree

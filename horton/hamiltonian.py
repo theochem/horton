@@ -154,9 +154,6 @@ class HamiltonianTerm(object):
             self.system.compute_grid_density(self.grid.points, rhos=rho, select=select)
         return rho
 
-    def get_dm(self, select='full'):
-        return self.system.wfn.get_dm(select)
-
     def store_energy(self, suffix, energy):
         self.system._props['energy_%s' % suffix] = energy
         if log.do_high:
@@ -185,9 +182,9 @@ class FixedTerm(HamiltonianTerm):
 
     def compute_energy(self):
         if self.system.wfn.closed_shell:
-            result = 2*self.operator.expectation_value(self.get_dm('alpha'))
+            result = 2*self.operator.expectation_value(self.system.wfn.dm_alpha)
         else:
-            result = self.operator.expectation_value(self.get_dm('full'))
+            result = self.operator.expectation_value(self.system.wfn.dm_full)
         self.store_energy(self.suffix, result)
         return result
 
@@ -219,18 +216,18 @@ class Hartree(HamiltonianTerm):
         coulomb, new = self.cache.load('op_coulomb', alloc=(self.system.lf, 'one_body'))
         if new:
             if self.system.wfn.closed_shell:
-                self.electron_repulsion.apply_direct(self.get_dm('alpha'), coulomb)
+                self.electron_repulsion.apply_direct(self.system.wfn.dm_alpha, coulomb)
                 coulomb.iscale(2)
             else:
-                self.electron_repulsion.apply_direct(self.get_dm('full'), coulomb)
+                self.electron_repulsion.apply_direct(self.system.wfn.dm_full, coulomb)
 
     def compute_energy(self):
         self._update_coulomb()
         coulomb = self.cache.load('op_coulomb')
         if self.system.wfn.closed_shell:
-            result = coulomb.expectation_value(self.get_dm('alpha'))
+            result = coulomb.expectation_value(self.system.wfn.dm_alpha)
         else:
-            result = 0.5*coulomb.expectation_value(self.get_dm('full'))
+            result = 0.5*coulomb.expectation_value(self.system.wfn.dm_full)
         self.store_energy('hartree', result)
         return result
 
@@ -253,7 +250,7 @@ class HartreeFock(Hartree):
     def _update_exchange(self):
         '''Recompute the Exchange operator(s) if invalid'''
         def helper(select):
-            dm = self.get_dm(select)
+            dm = self.system.wfn.get_dm(select)
             exchange, new = self.cache.load('op_exchange_fock_%s' % select, alloc=(self.system.lf, 'one_body'))
             if new:
                 self.electron_repulsion.apply_exchange(dm, exchange)
@@ -266,10 +263,10 @@ class HartreeFock(Hartree):
         energy_hartree = Hartree.compute_energy(self)
         self._update_exchange()
         if self.system.wfn.closed_shell:
-            energy_fock = -self.cache.load('op_exchange_fock_alpha').expectation_value(self.get_dm('alpha'))
+            energy_fock = -self.cache.load('op_exchange_fock_alpha').expectation_value(self.system.wfn.dm_alpha)
         else:
-            energy_fock = -0.5*self.cache.load('op_exchange_fock_alpha').expectation_value(self.get_dm('alpha')) \
-                          -0.5*self.cache.load('op_exchange_fock_beta').expectation_value(self.get_dm('beta'))
+            energy_fock = -0.5*self.cache.load('op_exchange_fock_alpha').expectation_value(self.system.wfn.dm_alpha) \
+                          -0.5*self.cache.load('op_exchange_fock_beta').expectation_value(self.system.wfn.dm_beta)
         self.store_energy('exchange_fock', energy_fock)
         return energy_hartree + self.fraction_exchange*energy_fock
 

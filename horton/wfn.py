@@ -41,6 +41,21 @@ from horton.exceptions import ElectronCountError
 __all__ = ['WFN', 'ClosedShellWFN', 'OpenShellWFN', 'AufbauOccModel']
 
 
+
+class PropertyHelper(object):
+    '''Auxiliary class to set up dm_xxx and exp_xxx attributes of WFN class.'''
+    def __init__(self, method, arg):
+        self.method = method
+        self.arg = arg
+
+    def __get__(self, obj, objtype):
+        try:
+            return self.method(obj, self.arg)
+        except KeyError, e:
+            raise AttributeError('The requested attribute (%s) is not available.' % e.args[0])
+
+
+
 class WFN(object):
     def __init__(self, occ_model, lf, nbasis, norb=None):
         """
@@ -208,6 +223,13 @@ class WFN(object):
         '''
         return self._cache.load('exp_%s' % spin)
 
+    dm_alpha = PropertyHelper(get_dm, 'alpha')
+    dm_beta = PropertyHelper(get_dm, 'beta')
+    dm_full = PropertyHelper(get_dm, 'full')
+    dm_spin = PropertyHelper(get_dm, 'spin')
+    exp_alpha = PropertyHelper(get_exp, 'alpha')
+    exp_beta = PropertyHelper(get_exp, 'beta')
+
     def apply_basis_permutation(self, permutation):
         """Reorder the expansion coefficients and the density matrices"""
         for exp in self._iter_expansions():
@@ -236,8 +258,7 @@ class ClosedShellWFN(WFN):
     closed_shell = True
 
     def _assign_dm_full(self, dm):
-        dm_alpha = self.get_dm('alpha')
-        dm.assign(dm_alpha)
+        dm.assign(self.dm_alpha)
         dm.iscale(2)
 
     def _assign_dm_spin(self, dm):
@@ -299,16 +320,12 @@ class OpenShellWFN(WFN):
     closed_shell = False
 
     def _assign_dm_full(self, dm):
-        dm_alpha = self.get_dm('alpha')
-        dm.assign(dm_alpha)
-        dm_beta = self.get_dm('beta')
-        dm.iadd(dm_beta)
+        dm.assign(self.dm_alpha)
+        dm.iadd(self.dm_beta)
 
     def _assign_dm_spin(self, dm):
-        dm_alpha = self.get_dm('alpha')
-        dm.assign(dm_alpha)
-        dm_beta = self.get_dm('beta')
-        dm.iadd(dm_beta, factor=-1)
+        dm.assign(self.dm_alpha)
+        dm.iadd(self.dm_beta, factor=-1)
 
     def update_exp(self, fock_alpha, fock_beta, overlap, dm_alpha=None, dm_beta=None):
         '''Update the expansion based on the given fock matrix
