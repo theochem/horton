@@ -194,6 +194,7 @@ def test_hf_water_321g_mistake():
     except AttributeError:
         pass
 
+
 def test_find_min_cubic():
     from horton.scf import find_min_cubic
     assert find_min_cubic(0.2, 0.5, 3.0, -0.7) == 0.0
@@ -215,4 +216,3 @@ def test_scf_oda_aufbau_spin():
     guess_hamiltonian_core(sys)
     ham = Hamiltonian(sys, [HartreeFock()])
     assert converge_scf_oda(ham)
-    assert False
