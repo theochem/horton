@@ -196,7 +196,7 @@ def check_cubic_cs_wrapper(ham, dm0, dm1):
     ev_11 = fock.expectation_value(dm1)
     g1 = 2*(ev_11 - ev_10)
 
-    check_cubic_cs(ham, dm0, dm1, e0, e1, g0, g1)
+    check_cubic_cs(ham, dm0, dm1, e0, e1, g0, g1, do_plot=False)
 
 
 def test_cubic_interpolation_hfs_cs():
