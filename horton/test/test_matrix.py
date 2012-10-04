@@ -52,7 +52,7 @@ def get_water_sto3g_hf(lf=None):
     occ_model = AufbauOccModel(5)
     wfn = ClosedShellWFN(occ_model, lf, nbasis=7)
     wfn.init_exp('alpha')
-    exp_alpha = wfn.get_exp('alpha')
+    exp_alpha = wfn.exp_alpha
     exp_alpha.coeffs[:] = coeffs
     exp_alpha.energies[:] = epsilons
     occ_model.assign(exp_alpha)
@@ -66,7 +66,7 @@ def test_fock_matrix_eigen():
 
     coulomb = lf.create_one_body(nbasis)
     exchange = lf.create_one_body(nbasis)
-    dm = wfn.get_dm('alpha')
+    dm = wfn.dm_alpha
     electronic_repulsion.apply_direct(dm, coulomb)
     electronic_repulsion.apply_exchange(dm, exchange)
 
@@ -78,7 +78,7 @@ def test_fock_matrix_eigen():
     fock.iadd(exchange, -1)
 
     # Check for convergence
-    exp_alpha = wfn.get_exp('alpha')
+    exp_alpha = wfn.exp_alpha
     error = lf.error_eigen(fock, overlap, exp_alpha)
     assert error > 0
     assert error < 1e-4
@@ -92,14 +92,14 @@ def test_fock_matrix_eigen():
 
 def test_kinetic_energy_water_sto3g():
     lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn = get_water_sto3g_hf()
-    dm = wfn.get_dm('full')
+    dm = wfn.dm_full
     ekin = kinetic.expectation_value(dm)
     assert abs(ekin - 74.60736832935) < 1e-4
 
 
 def test_ortho_water_sto3g():
     lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn = get_water_sto3g_hf()
-    exp_alpha = wfn.get_exp('alpha')
+    exp_alpha = wfn.exp_alpha
     for i0 in xrange(7):
         orb0 = exp_alpha.coeffs[:,i0]
         for i1 in xrange(i0+1):
@@ -110,7 +110,7 @@ def test_ortho_water_sto3g():
 
 def test_potential_energy_water_sto3g_hf():
     lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn = get_water_sto3g_hf()
-    dm = wfn.get_dm('full')
+    dm = wfn.dm_full
     epot = -nuclear_attraction.expectation_value(dm)
     assert abs(epot - (-197.1170963957)) < 2e-3
 
@@ -119,7 +119,7 @@ def test_electron_electron_water_sto3g_hf():
     lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn = get_water_sto3g_hf()
     coulomb = lf.create_one_body(7)
     exchange = lf.create_one_body(7)
-    dm = wfn.get_dm('alpha')
+    dm = wfn.dm_alpha
     electronic_repulsion.apply_direct(dm, coulomb)
     electronic_repulsion.apply_exchange(dm, exchange)
     eee = 2*coulomb.expectation_value(dm) \
@@ -153,24 +153,24 @@ def test_hartree_fock_water():
         # Construct the Fock operator
         fock.reset()
         fock.iadd(hamcore, 1)
-        electronic_repulsion.apply_direct(wfn.get_dm('alpha'), coulomb)
-        electronic_repulsion.apply_exchange(wfn.get_dm('alpha'), exchange)
+        electronic_repulsion.apply_direct(wfn.dm_alpha, coulomb)
+        electronic_repulsion.apply_exchange(wfn.dm_alpha, exchange)
         fock.iadd(coulomb, 2)
         fock.iadd(exchange, -1)
         # Check for convergence
-        error = lf.error_eigen(fock, overlap, wfn.get_exp('alpha'))
+        error = lf.error_eigen(fock, overlap, wfn.exp_alpha)
         if error < 1e-10:
             break
         # Derive the expansion and the density matrix from the fock operator
         wfn.invalidate()
         wfn.update_exp(fock, overlap)
 
-    exp_alpha = wfn.get_exp('alpha')
-    exp_alpha0 = wfn0.get_exp('alpha')
+    exp_alpha = wfn.exp_alpha
+    exp_alpha0 = wfn0.exp_alpha
     assert abs(exp_alpha.energies - exp_alpha0.energies).max() < 1e-4
 
     # Check the hartree-fock energy
-    dm = wfn.get_dm('alpha')
+    dm = wfn.dm_alpha
     hf1 = sum([
         -2*coulomb.expectation_value(dm),
         +1*exchange.expectation_value(dm),

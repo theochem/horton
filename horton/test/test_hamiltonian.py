@@ -81,7 +81,7 @@ def test_energy_n2_hfs_sto3g():
     # Test if the grid potential data is properly converted into an operator:
     ev1 = grid.integrate(ham.cache.load('pot_exchange_dirac_alpha'), ham.cache.load('rho_alpha'))
     dma = sys.lf.create_one_body()
-    ev2 = ham.cache.load('op_exchange_dirac_alpha').expectation_value(sys.wfn.get_dm('alpha'))
+    ev2 = ham.cache.load('op_exchange_dirac_alpha').expectation_value(sys.wfn.dm_alpha)
     assert abs(ev1 - ev2) < 1e-13
 
     # When repeating, we should get the same
@@ -118,7 +118,7 @@ def test_fock_n2_hfs_sto3g():
         -3.16017655E-01, -3.16017655E-01, -2.12998316E-01, 6.84030479E-02,
         6.84030479E-02, 7.50192517E-01,
     ])
-    assert abs(sys.wfn.get_exp('alpha').energies - expected_energies).max() < 3e-5
+    assert abs(sys.wfn.exp_alpha.energies - expected_energies).max() < 3e-5
 
     ham.compute_energy()
     # compare with g09
@@ -154,12 +154,12 @@ def test_fock_h3_hfs_321g():
         -4.93959157E-01, -1.13961330E-01, 2.38730924E-01, 7.44216538E-01,
         8.30143356E-01, 1.46613581E+00
     ])
-    assert abs(sys.wfn.get_exp('alpha').energies - expected_energies).max() < 1e-5
+    assert abs(sys.wfn.exp_alpha.energies - expected_energies).max() < 1e-5
     expected_energies = np.array([
         -4.34824166E-01, 1.84114514E-04, 3.24300545E-01, 7.87622756E-01,
         9.42415831E-01, 1.55175481E+00
     ])
-    assert abs(sys.wfn.get_exp('beta').energies - expected_energies).max() < 1e-5
+    assert abs(sys.wfn.exp_beta.energies - expected_energies).max() < 1e-5
 
     ham.compute_energy()
     # compare with g09
@@ -236,9 +236,9 @@ def test_cubic_interpolation_hfs_cs():
     ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
 
     dm0 = sys.lf.create_one_body()
-    dm0.assign(sys.wfn.get_dm('alpha'))
+    dm0.assign(sys.wfn.dm_alpha)
     guess_hamiltonian_core(sys)
     dm1 = sys.lf.create_one_body()
-    dm1.assign(sys.wfn.get_dm('alpha'))
+    dm1.assign(sys.wfn.dm_alpha)
 
     check_cubic_cs(ham, dm0, dm1)

@@ -101,12 +101,9 @@ def test_nucnuc():
 
 def check_scf_dms(fn_fchk):
     sys = System.from_file(fn_fchk)
-    dm_full = sys.lf.create_one_body()
-    dm_full = sys.wfn.get_dm('full')
-    assert abs(dm_full._array - sys.operators['scf_full']._array).max() < 1e-7
+    assert abs(sys.wfn.dm_full._array - sys.operators['scf_full']._array).max() < 1e-7
     if 'scf_spin' in sys.operators:
-        dm_spin = sys.wfn.get_dm('spin')
-        assert abs(dm_spin._array - sys.operators['scf_spin']._array).max() < 1e-7
+        assert abs(sys.wfn.dm_spin._array - sys.operators['scf_spin']._array).max() < 1e-7
 
 
 def test_scf_dms_water_sto3g_hf():

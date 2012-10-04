@@ -165,14 +165,13 @@ def test_load_fchk_water_sto3g_hf():
     assert wfn.nbasis == 7
     assert wfn.occ_model.nalpha == 5
     assert wfn.occ_model.nbeta == 5
-    exp_alpha = wfn.get_exp('alpha')
-    assert abs(exp_alpha.energies[0] - (-2.02333942E+01)) < 1e-7
-    assert abs(exp_alpha.energies[-1] - 7.66134805E-01) < 1e-7
-    assert abs(exp_alpha.coeffs[0,0] - 0.99410) < 1e-4
-    assert abs(exp_alpha.coeffs[1,0] - 0.02678) < 1e-4
-    assert abs(exp_alpha.coeffs[-1,2] - (-0.44154)) < 1e-4
-    assert abs(exp_alpha.coeffs[3,-1]) < 1e-4
-    assert abs(exp_alpha.coeffs[4,-1] - (-0.82381)) < 1e-4
+    assert abs(wfn.exp_alpha.energies[0] - (-2.02333942E+01)) < 1e-7
+    assert abs(wfn.exp_alpha.energies[-1] - 7.66134805E-01) < 1e-7
+    assert abs(wfn.exp_alpha.coeffs[0,0] - 0.99410) < 1e-4
+    assert abs(wfn.exp_alpha.coeffs[1,0] - 0.02678) < 1e-4
+    assert abs(wfn.exp_alpha.coeffs[-1,2] - (-0.44154)) < 1e-4
+    assert abs(wfn.exp_alpha.coeffs[3,-1]) < 1e-4
+    assert abs(wfn.exp_alpha.coeffs[4,-1] - (-0.82381)) < 1e-4
     assert 'energy' in props
     assert props['energy'] == -7.495929232844363E+01
     dms['scf_full'].check_symmetry()
@@ -190,34 +189,27 @@ def test_load_fchk_lih_321g_hf():
     assert wfn.nbasis == 11
     assert wfn.occ_model.nalpha == 2
     assert wfn.occ_model.nbeta == 1
-    exp_alpha = wfn.get_exp('alpha')
-    assert abs(exp_alpha.energies[0] - (-2.76117)) < 1e-4
-    assert abs(exp_alpha.energies[-1] - 0.97089) < 1e-4
-    assert abs(exp_alpha.coeffs[0,0] - 0.99105) < 1e-4
-    assert abs(exp_alpha.coeffs[1,0] - 0.06311) < 1e-4
-    assert abs(exp_alpha.coeffs[3,2]) < 1e-4
-    assert abs(exp_alpha.coeffs[-1,9] - 0.13666) < 1e-4
-    assert abs(exp_alpha.coeffs[4,-1] - 0.17828) < 1e-4
-    exp_beta = wfn.get_exp('beta')
-    assert abs(exp_beta.energies[0] - (-2.76031)) < 1e-4
-    assert abs(exp_beta.energies[-1] - 1.13197) < 1e-4
-    assert abs(exp_beta.coeffs[0,0] - 0.99108) < 1e-4
-    assert abs(exp_beta.coeffs[1,0] - 0.06295) < 1e-4
-    assert abs(exp_beta.coeffs[3,2]) < 1e-4
-    assert abs(exp_beta.coeffs[-1,9] - 0.80875) < 1e-4
-    assert abs(exp_beta.coeffs[4,-1] - (-0.15503)) < 1e-4
+    assert abs(wfn.exp_alpha.energies[0] - (-2.76117)) < 1e-4
+    assert abs(wfn.exp_alpha.energies[-1] - 0.97089) < 1e-4
+    assert abs(wfn.exp_alpha.coeffs[0,0] - 0.99105) < 1e-4
+    assert abs(wfn.exp_alpha.coeffs[1,0] - 0.06311) < 1e-4
+    assert abs(wfn.exp_alpha.coeffs[3,2]) < 1e-4
+    assert abs(wfn.exp_alpha.coeffs[-1,9] - 0.13666) < 1e-4
+    assert abs(wfn.exp_alpha.coeffs[4,-1] - 0.17828) < 1e-4
+    assert abs(wfn.exp_beta.energies[0] - (-2.76031)) < 1e-4
+    assert abs(wfn.exp_beta.energies[-1] - 1.13197) < 1e-4
+    assert abs(wfn.exp_beta.coeffs[0,0] - 0.99108) < 1e-4
+    assert abs(wfn.exp_beta.coeffs[1,0] - 0.06295) < 1e-4
+    assert abs(wfn.exp_beta.coeffs[3,2]) < 1e-4
+    assert abs(wfn.exp_beta.coeffs[-1,9] - 0.80875) < 1e-4
+    assert abs(wfn.exp_beta.coeffs[4,-1] - (-0.15503)) < 1e-4
     dms['scf_full'].check_symmetry()
     dms['scf_spin'].check_symmetry()
 
-    dm_alpha = wfn.get_dm('alpha')
-    dm_beta = wfn.get_dm('beta')
-    dm_full = wfn.get_dm('full')
-    dm_spin = wfn.get_dm('spin')
+    assert abs(wfn.dm_full._array - (wfn.dm_alpha._array + wfn.dm_beta._array)).max() < 1e-10
+    assert abs(wfn.dm_spin._array - (wfn.dm_alpha._array - wfn.dm_beta._array)).max() < 1e-10
 
-    assert abs(dm_full._array - (dm_alpha._array + dm_beta._array)).max() < 1e-10
-    assert abs(dm_spin._array - (dm_alpha._array - dm_beta._array)).max() < 1e-10
-
-    assert abs(dm_full._array - dms['scf_full']._array).max() < 1e-7
-    assert abs(dm_spin._array - dms['scf_spin']._array).max() < 1e-7
+    assert abs(wfn.dm_full._array - dms['scf_full']._array).max() < 1e-7
+    assert abs(wfn.dm_spin._array - dms['scf_spin']._array).max() < 1e-7
     assert 'energy' in props
     assert props['energy'] == -7.687331212191968E+00

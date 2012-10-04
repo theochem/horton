@@ -42,7 +42,7 @@ def test_scf_cs():
 
     # test operator consistency
     my_coulomb = sys.lf.create_one_body()
-    dm_alpha = sys.wfn.get_dm('alpha')
+    dm_alpha = sys.wfn.dm_alpha
     hf_term.electron_repulsion.apply_direct(dm_alpha, my_coulomb)
     my_coulomb.iscale(2)
     error = abs(my_coulomb._array - ham.cache.load('op_coulomb')._array).max()
@@ -53,7 +53,7 @@ def test_scf_cs():
         -2.59083334E+01, -1.44689996E+00, -5.57467136E-01, -4.62288194E-01,
         -4.62288194E-01, 5.39578910E-01,
     ])
-    assert abs(sys.wfn.get_exp('alpha').energies - expected_energies).max() < 1e-5
+    assert abs(sys.wfn.exp_alpha.energies - expected_energies).max() < 1e-5
 
     ham.compute_energy()
     # compare with g09
@@ -84,8 +84,8 @@ def test_scf_os():
         -1.25264964E-01, -1.24605870E-02, 5.12761388E-03, 7.70499854E-03,
         7.70499854E-03, 2.85176080E-02, 1.13197479E+00,
     ])
-    assert abs(sys.wfn.get_exp('alpha').energies - expected_alpha_energies).max() < 1e-5
-    assert abs(sys.wfn.get_exp('beta').energies - expected_beta_energies).max() < 1e-5
+    assert abs(sys.wfn.exp_alpha.energies - expected_alpha_energies).max() < 1e-5
+    assert abs(sys.wfn.exp_beta.energies - expected_beta_energies).max() < 1e-5
 
     ham.compute_energy()
     # compare with g09
@@ -122,7 +122,7 @@ def test_scf_oda_water_hfs_321g():
                 2.71995350E+00
             ])
 
-            assert abs(sys.wfn.get_exp('alpha').energies - expected_energies).max() < 2e-4
+            assert abs(sys.wfn.exp_alpha.energies - expected_energies).max() < 2e-4
             assert abs(sys.props['energy_ne'] - -1.977921986200E+02) < 1e-7
             assert abs(sys.props['energy_kin'] - 7.525067610865E+01) < 1e-9
             assert abs(sys.props['energy_hartree'] + sys.props['energy_exchange_dirac'] - 3.864299848058E+01) < 1e-4
@@ -166,11 +166,9 @@ def test_hf_water_321g_mistake():
     ham = Hamiltonian(sys, [HartreeFock()])
     try:
         converge_scf(ham)
-        success = False
-    except KeyError:
-        success = True
-    assert success
-
+        assert False
+    except AttributeError:
+        pass
 
 def test_find_min_cubic():
     from horton.scf import find_min_cubic
