@@ -170,7 +170,7 @@ def test_fock_h3_hfs_321g():
     assert abs(sys.props['energy_nn'] - 1.8899186021) < 1e-8
 
 
-def check_cubic_cs(ham, dm0, dm1):
+def check_cubic_cs_wrapper(ham, dm0, dm1):
     wfn = ham.system.wfn
     fock = ham.system.lf.create_one_body()
 
@@ -196,34 +196,7 @@ def check_cubic_cs(ham, dm0, dm1):
     ev_11 = fock.expectation_value(dm1)
     g1 = 2*(ev_11 - ev_10)
 
-    dm_tmp = ham.system.lf.create_one_body()
-    xs = np.arange(0.0, 1.0001, 0.1)
-    energies = []
-    for x in xs:
-        dm_tmp.reset()
-        dm_tmp.iadd(dm1, x)
-        dm_tmp.iadd(dm0, 1-x)
-        ham.invalidate()
-        wfn.invalidate()
-        wfn.update_dm('alpha', dm_tmp)
-        energy = ham.compute_energy()
-        energies.append(energy)
-
-    d = e0
-    c = g0
-    a = g1 - 2*e1 + c + 2*d
-    b = e1 - a - c - d
-
-    interpol = a*xs**3 + b*xs**2 + c*xs + d
-    assert abs(energies-interpol).max() < 0.3
-
-    if False:
-        import matplotlib.pyplot as pt
-        pt.clf()
-        pt.plot(alphas, energies, 'r+')
-        xs = np.arange(0.0, 1.0001, 0.1)
-        pt.plot(xs, interpol, 'k-')
-        pt.savefig('check.png')
+    check_cubic_cs(ham, dm0, dm1, e0, e1, g0, g1)
 
 
 def test_cubic_interpolation_hfs_cs():
@@ -241,4 +214,12 @@ def test_cubic_interpolation_hfs_cs():
     dm1 = sys.lf.create_one_body()
     dm1.assign(sys.wfn.dm_alpha)
 
-    check_cubic_cs(ham, dm0, dm1)
+    check_cubic_cs_wrapper(ham, dm0, dm1)
+
+
+def test_external_potential_copy():
+    fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
+    sys = System.from_file(fn_fchk)
+    ep = ExternalPotential()
+    ep.prepare_system(sys, None, None)
+    assert not (ep.operator is sys.get_nuclear_attraction())

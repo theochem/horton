@@ -11,3 +11,7 @@ build
 
 # Ignore compiled dependencies
 depends/*.*
+
+# Ignore results in the tools directory
+tools/cmp_gaussian/0*
+tools/cmp_gaussian/check_*.png

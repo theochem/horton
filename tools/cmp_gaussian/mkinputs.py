@@ -19,8 +19,9 @@ for z in xrange(1, 18):
             if not os.path.isdir(dirname):
                 os.mkdir(dirname)
             with open('%s/gaussian.com' % dirname, 'w') as f:
+                print >> f, '%nproc=4'
                 print >> f, '%chk=gaussian.chk'
-                print >> f, '# HF/aug-cc-pVDZ scf(tight)'
+                print >> f, '#p HF/aug-cc-pVDZ scf(tight,xqc) IOP(6/7=3)'
                 print >> f
                 print >> f, dirname
                 print >> f

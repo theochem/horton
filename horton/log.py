@@ -384,10 +384,11 @@ class Biblio(object):
         if (key, reason) not in self._done:
             self._cited[key] = self._records[key]
             self._done.add((key, reason))
-            log('Please cite "%s" for %s.' % (key, reason))
+            if log.do_low:
+                log('Please cite "%s" for %s.' % (key, reason))
 
     def log(self):
-        if log.do_medium:
+        if log.do_low:
             log('The following references were cited:')
             log.hline()
             log.deflist([

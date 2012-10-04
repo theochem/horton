@@ -27,7 +27,11 @@ from horton.log import log, timer
 from horton.wfn import ClosedShellWFN, OpenShellWFN
 
 
-__all__ = ['converge_scf', 'converge_scf_oda_cs', 'convergence_error']
+__all__ = [
+    'converge_scf',
+    'check_cubic_cs', 'check_cubic_os', 'converge_scf_oda',
+    'convergence_error'
+]
 
 
 def converge_scf(ham, max_iter=128, threshold=1e-8):
@@ -183,6 +187,39 @@ def converge_scf_os(ham, max_iter=128, threshold=1e-8):
     return converged
 
 
+def converge_scf_oda(ham, max_iter=128, threshold=1e-8, debug=False):
+    '''Minimize the energy of the wavefunction with optinal-damping SCF
+
+       **Arguments:**
+
+       ham
+            A Hamiltonian instance.
+
+       **Optional arguments:**
+
+       max_iter
+            The maximum number of iterations
+
+       threshold
+            The convergence threshold for the wavefunction
+
+       debug
+            Make debug plots with matplotlib of the linear interpolation
+
+       **Returns:**
+
+       converged
+            True of converged, False if not
+    '''
+    with timer.section('SCF'):
+        if isinstance(ham.system.wfn, ClosedShellWFN):
+            return converge_scf_oda_cs(ham, max_iter, threshold, debug)
+        elif isinstance(ham.system.wfn, OpenShellWFN):
+            return converge_scf_oda_os(ham, max_iter, threshold, debug)
+        else:
+            raise NotImplementedError
+
+
 def find_min_cubic(f0, f1, g0, g1):
     '''Find the minimum of a cubic polynomial in the range [0,1]
 
@@ -206,7 +243,7 @@ def find_min_cubic(f0, f1, g0, g1):
     # find the roots of the derivative
     discriminant = b**2 - 3*a*c # simplified expression, not a mistake!
     if discriminant >= 0:
-        if abs(a) > 0:
+        if b*b < abs(3*a*c)*1e5:
             if log.do_high:
                 log('               cubic')
             xa = (-b + np.sqrt(discriminant))/(3*a)
@@ -237,8 +274,53 @@ def find_min_cubic(f0, f1, g0, g1):
         return 1.0
 
 
-def converge_scf_oda_cs(ham, max_iter=128, threshold=1e-8):
-    '''Minimize the energy of the wavefunction with basic closed-shell SCF
+def check_cubic_cs(ham, dm0, dm1, e0, e1, g0, g1, do_plot=True):
+    dm1 = dm1.copy()
+
+    # coefficients of the polynomial a*x**3 + b*x**2 + c*x + d
+    d = e0
+    c = g0
+    a = g1 - 2*e1 + c + 2*d
+    b = e1 - a - c - d
+
+    dm2 = ham.system.lf.create_one_body()
+    wfn = ham.system.wfn
+    xs = np.arange(0, 1.001, 0.1)
+    energies = []
+    for x in xs:
+        dm2.assign(dm0)
+        dm2.iscale(1-x)
+        dm2.iadd(dm1, x)
+
+        wfn.invalidate()
+        wfn.update_dm('alpha', dm2)
+        ham.invalidate()
+        e2 = ham.compute_energy()
+        energies.append(e2)
+    energies = np.array(energies)
+
+    if do_plot:
+        # make a nice figure
+        ys = np.arange(0, 1.00001, 0.001)
+        poly = a*ys**3+b*ys**2+c*ys+d
+        import matplotlib.pyplot as pt
+        pt.clf()
+        pt.plot(ys, poly, 'k-')
+        pt.plot(xs, energies, 'ro')
+        pt.plot([0,1],[e0,e1], 'b--')
+        pt.ylim(min(energies.min(), poly.min()), max(energies.max(), poly.max()))
+        pt.savefig('check_cubic_os_%+024.17f.png' % e0)
+    else:
+        # if not plotting, check that the errors are not too large
+        poly = a*xs**3+b*xs**2+c*xs+d
+        error = abs(poly-energies).max()
+        oom = energies.max() - energies.min()
+        assert error < 0.1*oom
+
+
+
+def converge_scf_oda_cs(ham, max_iter=128, threshold=1e-8, debug=False):
+    '''Minimize the energy of the closed-shell wavefunction with optimal damping
 
        **Arguments:**
 
@@ -253,6 +335,9 @@ def converge_scf_oda_cs(ham, max_iter=128, threshold=1e-8):
        threshold
             The convergence threshold for the wavefunction.
 
+       debug
+            Make debug plots with matplotlib of the linear interpolation
+
        **Returns:**
 
        converged
@@ -263,74 +348,81 @@ def converge_scf_oda_cs(ham, max_iter=128, threshold=1e-8):
     if log.do_medium:
         log('Starting restricted closed-shell SCF with optimal damping')
         log.hline()
-        log('Iter     Energy      Error(alpha)   Mixing')
+        log(' Iter               Energy  Error(alpha)      Mixing')
         log.hline()
 
     # initialization of variables and datastructures
     lf = ham.system.lf
     wfn = ham.system.wfn
-    fock = lf.create_one_body()
-    fock_old = lf.create_one_body()
-    dm_old = lf.create_one_body()
-    dm_new = lf.create_one_body()
+    # suffixes
+    #    0 = current or initial state
+    #    1 = state after conventional SCF step
+    #    2 = state after optimal damping
+    fock0 = lf.create_one_body()
+    fock1 = lf.create_one_body()
+    dm0 = lf.create_one_body()
+    dm2 = lf.create_one_body()
     converged = False
     mixing = None
     error = None
 
     for i in xrange(max_iter):
-        # A) Construct Fock operator, compute energy and keep dm at old point
-        fock_old.reset()
-        ham.compute_fock(fock_old, None)
-        energy_old = ham.compute_energy()
-        dm_old.assign(wfn.dm_alpha)
+        # A) Construct Fock operator, compute energy and keep dm at current/initial point
+        fock0.reset()
+        ham.compute_fock(fock0, None)
+        energy0 = ham.compute_energy()
+        dm0.assign(wfn.dm_alpha)
 
         if log.do_medium:
             if mixing is None:
-                log('%5i %15.10f' % (i, energy_old, ))
+                log('%5i %20.13f' % (i, energy0))
             else:
-                log('%5i %15.10f %10.5e %10.5f' % (i, energy_old, error, mixing))
+                log('%5i %20.13f  %12.5e  %10.5f' % (i, energy0, error, mixing))
 
         # B) Diagonalize fock operator and go to the next point
         wfn.invalidate()
-        wfn.update_exp(fock_old, ham.overlap)
+        wfn.update_exp(fock0, ham.overlap)
         # Let the hamiltonian know that the wavefunction has changed.
         ham.invalidate()
 
         # C) Compute Fock matrix at new point (lambda=1)
-        fock.reset()
-        ham.compute_fock(fock, None)
+        fock1.reset()
+        ham.compute_fock(fock1, None)
         # Compute energy at new point
-        energy = ham.compute_energy()
+        energy1 = ham.compute_energy()
         # take the density matrix
-        dm = wfn.dm_alpha
+        dm1 = wfn.dm_alpha
 
         # D) Find the optimal damping
         # Compute the derivatives of the energy towards lambda at edges 0 and 1
-        ev_11 = fock.expectation_value(dm)
-        ev_01 = fock_old.expectation_value(dm)
-        ev_10 = fock.expectation_value(dm_old)
-        ev_00 = fock_old.expectation_value(dm_old)
-        energy_deriv = 2*(ev_11-ev_10)
-        energy_old_deriv = 2*(ev_01-ev_00)
+        ev_00 = fock0.expectation_value(dm0)
+        ev_10 = fock1.expectation_value(dm0)
+        ev_01 = fock0.expectation_value(dm1)
+        ev_11 = fock1.expectation_value(dm1)
+        energy0_deriv = 2*(ev_01-ev_00)
+        energy1_deriv = 2*(ev_11-ev_10)
 
         # find the lambda that minimizes the cubic polynomial in the range [0,1]
         if log.do_high:
-            log('           E0: % 10.5e     D0: % 10.5e' % (energy_old, energy_old_deriv))
-            log('        E1-E0: % 10.5e     D1: % 10.5e' % (energy-energy_old, energy_deriv))
-        mixing = find_min_cubic(energy_old, energy, energy_old_deriv, energy_deriv)
+            log('           E0: % 10.5e     D0: % 10.5e' % (energy0, energy0_deriv))
+            log('        E1-E0: % 10.5e     D1: % 10.5e' % (energy1-energy0, energy1_deriv))
+        mixing = find_min_cubic(energy0, energy1, energy0_deriv, energy1_deriv)
+
+        if debug:
+            check_cubic_cs(ham, dm0, dm1, energy0, energy1, energy0_deriv, energy1_deriv)
 
         # E) Construct the new dm
         # Put the mixed dm in dm_old, which is local in this routine.
-        dm_new.reset()
-        dm_new.iadd(dm, factor=mixing)
-        dm_new.iadd(dm_old, factor=1-mixing)
+        dm2.reset()
+        dm2.iadd(dm1, factor=mixing)
+        dm2.iadd(dm0, factor=1-mixing)
 
         # Wipe the caches and use the interpolated density matrix
         wfn.invalidate()
-        wfn.update_dm('alpha', dm_new)
+        wfn.update_dm('alpha', dm2)
         ham.invalidate()
 
-        error = dm_new.distance(dm_old)
+        error = dm2.distance(dm0)
         if error < threshold:
             converged = True
             break
@@ -340,15 +432,219 @@ def converge_scf_oda_cs(ham, max_iter=128, threshold=1e-8):
 
     if converged:
         # compute orbitals, energies and occupation numbers
-        fock_old.reset()
-        ham.compute_fock(fock_old, None)
+        # Note: suffix 0 is used for final state here
+        dm0.assign(wfn.dm_alpha)
+        fock0.reset()
+        ham.compute_fock(fock0, None)
         wfn.invalidate()
-        wfn.update_exp(fock_old, ham.overlap, dm_new)
-        energy = ham.compute_energy()
+        wfn.update_exp(fock0, ham.overlap, dm0)
+        energy0 = ham.compute_energy()
         # Write final wfn to checkpoint.
         ham.system.update_chk('wfn')
         if log.do_medium:
-            log('%5i %15.10f %10.5e %10.5f' % (i, energy, error, mixing))
+            log('%5i %20.13f  %12.5e  %10.5f' % (i, energy0, error, mixing))
+
+    if log.do_medium:
+        log.hline()
+        log('SCF converged: %s' % converged)
+
+    return converged
+
+
+def check_cubic_os(ham, dm0a, dm0b, dm1a, dm1b, e0, e1, g0, g1, do_plot=True):
+    dm1a = dm1a.copy()
+    dm1b = dm1b.copy()
+
+    # coefficients of the polynomial a*x**3 + b*x**2 + c*x + d
+    d = e0
+    c = g0
+    a = g1 - 2*e1 + c + 2*d
+    b = e1 - a - c - d
+
+    dm2a = ham.system.lf.create_one_body()
+    dm2b = ham.system.lf.create_one_body()
+    wfn = ham.system.wfn
+    xs = np.arange(0, 1.001, 0.1)
+    energies = []
+    for x in xs:
+        dm2a.assign(dm0a)
+        dm2a.iscale(1-x)
+        dm2a.iadd(dm1a, x)
+        dm2b.assign(dm0b)
+        dm2b.iscale(1-x)
+        dm2b.iadd(dm1b, x)
+
+        wfn.invalidate()
+        wfn.update_dm('alpha', dm2a)
+        wfn.update_dm('beta', dm2b)
+        ham.invalidate()
+        e2 = ham.compute_energy()
+        energies.append(e2)
+    energies = np.array(energies)
+
+    if do_plot:
+        # make a nice figure
+        ys = np.arange(0, 1.00001, 0.001)
+        poly = a*ys**3+b*ys**2+c*ys+d
+        import matplotlib.pyplot as pt
+        pt.clf()
+        pt.plot(ys, poly, 'k-')
+        pt.plot(xs, energies, 'ro')
+        pt.plot([0,1],[e0,e1], 'b--')
+        pt.ylim(min(energies.min(), poly.min()), max(energies.max(), poly.max()))
+        pt.savefig('check_cubic_os_%+024.17f.png' % e0)
+    else:
+        # if not plotting, check that the errors are not too large
+        poly = a*xs**3+b*xs**2+c*xs+d
+        error = abs(poly-energies).max()
+        oom = energies.max() - energies.min()
+        assert error < 0.1*oom
+
+
+def converge_scf_oda_os(ham, max_iter=128, threshold=1e-8, debug=False):
+    '''Minimize the energy of the open-shell wavefunction with optimal damping
+
+       **Arguments:**
+
+       ham
+            A Hamiltonian instance.
+
+       **Optional arguments:**
+
+       max_iter
+            The maximum number of iterations.
+
+       threshold
+            The convergence threshold for the wavefunction.
+
+       debug
+            Make debug plots with matplotlib of the linear interpolation
+
+       **Returns:**
+
+       converged
+            True of converged, False if not.
+    '''
+    log.cite('cances2001', 'using the optimal damping algorithm (ODA)')
+
+    if log.do_medium:
+        log('Starting restricted closed-shell SCF with optimal damping')
+        log.hline()
+        log(' Iter               Energy  Error(alpha)  Error(beta)       Mixing')
+        log.hline()
+
+    # initialization of variables and datastructures
+    lf = ham.system.lf
+    wfn = ham.system.wfn
+    # suffixes
+    #    0 = current or initial state
+    #    1 = state after conventional SCF step
+    #    2 = state after optimal damping
+    #    a = alpha
+    #    b = beta
+    fock0a = lf.create_one_body()
+    fock1a = lf.create_one_body()
+    fock0b = lf.create_one_body()
+    fock1b = lf.create_one_body()
+    dm0a = lf.create_one_body()
+    dm2a = lf.create_one_body()
+    dm0b = lf.create_one_body()
+    dm2b = lf.create_one_body()
+    converged = False
+    mixing = None
+    errora = None
+    errorb = None
+
+    for i in xrange(max_iter):
+        # A) Construct Fock operator, compute energy and keep dm at current/initial point
+        fock0a.reset()
+        fock0b.reset()
+        ham.compute_fock(fock0a, fock0b)
+        energy0 = ham.compute_energy()
+        dm0a.assign(wfn.dm_alpha)
+        dm0b.assign(wfn.dm_beta)
+
+        if log.do_medium:
+            if mixing is None:
+                log('%5i %20.13f' % (i, energy0))
+            else:
+                log('%5i %20.13f  %12.5e  %12.5e  %10.5f' % (i, energy0, errora, errorb, mixing))
+
+        # B) Diagonalize fock operator and go to state 1
+        wfn.invalidate()
+        wfn.update_exp(fock0a, fock0b, ham.overlap)
+        # Let the hamiltonian know that the wavefunction has changed.
+        ham.invalidate()
+
+        # C) Compute Fock matrix at state 1
+        fock1a.reset()
+        fock1b.reset()
+        ham.compute_fock(fock1a, fock1b)
+        # Compute energy at new point
+        energy1 = ham.compute_energy()
+        # take the density matrix
+        dm1a = wfn.dm_alpha
+        dm1b = wfn.dm_beta
+
+        # D) Find the optimal damping
+        # Compute the derivatives of the energy towards lambda at edges 0 and 1
+        ev_00 = fock0a.expectation_value(dm0a) + fock0b.expectation_value(dm0b)
+        ev_01 = fock0a.expectation_value(dm1a) + fock0b.expectation_value(dm1b)
+        ev_10 = fock1a.expectation_value(dm0a) + fock1b.expectation_value(dm0b)
+        ev_11 = fock1a.expectation_value(dm1a) + fock1b.expectation_value(dm1b)
+        energy0_deriv = (ev_01-ev_00)
+        energy1_deriv = (ev_11-ev_10)
+
+        # find the lambda that minimizes the cubic polynomial in the range [0,1]
+        if log.do_high:
+            log('           E0: % 10.5e     D0: % 10.5e' % (energy0, energy0_deriv))
+            log('        E1-E0: % 10.5e     D1: % 10.5e' % (energy1-energy0, energy1_deriv))
+        mixing = find_min_cubic(energy0, energy1, energy0_deriv, energy1_deriv)
+        if log.do_high:
+            log('       mixing: % 10.5f' % mixing)
+
+        if debug:
+            check_cubic_os(ham, dm0a, dm0b, dm1a, dm1b, energy0, energy1, energy0_deriv, energy1_deriv)
+
+        # E) Construct the new dm
+        # Put the mixed dm in dm_old, which is local in this routine.
+        dm2a.reset()
+        dm2a.iadd(dm1a, factor=mixing)
+        dm2a.iadd(dm0a, factor=1-mixing)
+        dm2b.reset()
+        dm2b.iadd(dm1b, factor=mixing)
+        dm2b.iadd(dm0b, factor=1-mixing)
+
+        # Wipe the caches and use the interpolated density matrix
+        wfn.invalidate()
+        wfn.update_dm('alpha', dm2a)
+        wfn.update_dm('beta', dm2b)
+        ham.invalidate()
+
+        errora = dm2a.distance(dm0a)
+        errorb = dm2b.distance(dm0b)
+        if errora < threshold and errorb < threshold:
+            converged = True
+            break
+
+        # Write intermediate wfn to checkpoint.
+        ham.system.update_chk('wfn')
+
+    if converged:
+        # compute orbitals, energies and occupation numbers
+        # Note: suffix 0 is used for final state here
+        dm0a.assign(wfn.dm_alpha)
+        dm0b.assign(wfn.dm_beta)
+        fock0a.reset()
+        fock0b.reset()
+        ham.compute_fock(fock0a, fock0b)
+        wfn.invalidate()
+        wfn.update_exp(fock0a, fock0b, ham.overlap, dm0a, dm0b)
+        energy0 = ham.compute_energy()
+        # Write final wfn to checkpoint.
+        ham.system.update_chk('wfn')
+        if log.do_medium:
+            log('%5i %20.13f  %12.5e  %12.5e  %10.5f' % (i, energy0, errora, errorb, mixing))
 
     if log.do_medium:
         log.hline()

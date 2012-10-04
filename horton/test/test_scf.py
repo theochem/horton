@@ -132,13 +132,14 @@ def test_scf_oda_water_hfs_321g():
     # Converge from scratch
     guess_hamiltonian_core(sys)
     assert convergence_error(ham) > 1e-5
-    assert converge_scf_oda_cs(ham, threshold=1e-5)
+    assert converge_scf_oda(ham, threshold=1e-5)
     assert convergence_error(ham) < 1e-5
 
     assert abs(sys.props['energy_ne'] - -1.977921986200E+02) < 1e-4
     assert abs(sys.props['energy_kin'] - 7.525067610865E+01) < 3e-5
     assert abs(sys.props['energy_hartree'] + sys.props['energy_exchange_dirac'] - 3.864299848058E+01) < 1e-4
     assert abs(sys.props['energy'] - -7.474134898935590E+01) < 1e-4
+
 
 def test_scf_oda_water_hf_321g():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
@@ -149,14 +150,37 @@ def test_scf_oda_water_hf_321g():
     guess_hamiltonian_core(sys)
     e0 = ham.compute_energy()
     assert convergence_error(ham) > 1e-5
-    assert not converge_scf_oda_cs(ham, threshold=1e-2, max_iter=3)
+    assert not converge_scf_oda(ham, threshold=1e-2, max_iter=3)
     assert not sys.wfn._cache.has('exp_alpha')
     e1 = ham.compute_energy()
-    assert converge_scf_oda_cs(ham, threshold=1e-2)
+    assert not converge_scf_oda(ham, threshold=1e-2, max_iter=3)
     e2 = ham.compute_energy()
-    assert convergence_error(ham) < 1e-5
     assert e1 < e0
     assert e2 < e1
+
+
+def test_scf_oda_lih_hfs_321g():
+    fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
+    sys = System.from_file(fn_fchk)
+    int1d = TrapezoidIntegrator1D()
+    rtf = ExpRTransform(1e-3, 2e1, 100)
+    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
+
+    # test continuation of interupted scf_oda
+    guess_hamiltonian_core(sys)
+    e0 = ham.compute_energy()
+    assert convergence_error(ham) > 1e-5
+    assert not converge_scf_oda(ham, threshold=1e-3, max_iter=3)
+    assert not sys.wfn._cache.has('exp_alpha')
+    e1 = ham.compute_energy()
+    assert not converge_scf_oda(ham, threshold=1e-3, max_iter=3)
+    e2 = ham.compute_energy()
+    assert e1 < e0
+    assert e2 < e1
+
+    # continue till convergence
+    assert converge_scf_oda(ham, threshold=1e-3)
 
 
 def test_hf_water_321g_mistake():
@@ -181,3 +205,14 @@ def test_find_min_cubic():
     assert find_min_cubic(1.0, 0.0, -1.0, -1.0) == 1.0
     assert find_min_cubic(0.0, 1.0, 0.0, 0.0) == 0.0
     assert find_min_cubic(0.0, 1.0, 0.1, 0.1) == 0.0
+
+
+def test_scf_oda_aufbau_spin():
+    fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
+    sys = System.from_file(fn_fchk)
+    sys.wfn.occ_model = AufbauSpinOccModel(3)
+
+    guess_hamiltonian_core(sys)
+    ham = Hamiltonian(sys, [HartreeFock()])
+    assert converge_scf_oda(ham)
+    assert False

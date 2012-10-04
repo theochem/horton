@@ -6,4 +6,3 @@ rm -vr dist
 rm -vr build
 rm -v horton/gbasis/cext.cpp
 rm -v horton/grid/cext.cpp
-rm -vr tools/cmp_gaussian/0*
