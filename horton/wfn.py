@@ -154,21 +154,23 @@ class WFN(object):
 
     def init_exp(self, spin):
         exp, new = self._cache.load('exp_%s' % spin, alloc=(self._lf, 'expansion', self._nbasis, self._norb))
-        assert new
+        if not new:
+            raise RuntimeError('The expansion exp_%s already exists. Call wfn.invalidate prior to updating the wfn.' % spin)
         return exp
 
     def init_dm(self, select):
         dm, new = self._cache.load('dm_%s' % select, alloc=(self._lf, 'one_body', self.nbasis))
-        assert new
+        if not new:
+            raise RuntimeError('The density matrix dm_%s already exists. Call wfn.invalidate prior to updating the wfn.' % select)
         return dm
 
-    def update_dm(self, select='full', dm=None):
+    def update_dm(self, select, dm=None):
         """Derive the density matrix from the expansion(s) and store in cache
 
            **Optional arguments:**
 
            select
-                'alpha', 'beta', 'full' or 'spin'. ('full' is the default.)
+                'alpha', 'beta', 'full' or 'spin'.
         """
         cached_dm = self.init_dm(select)
         if dm is None:
@@ -187,16 +189,23 @@ class WFN(object):
         return cached_dm
 
     def get_dm(self, select):
-        # TODO: should .exp_xxx and .dm_xxx properties be added?
-        if select == 'full' or select == 'spin':
-            # these are two special cases, if they are not present yet, they
-            # are constructed on the fly. For 'alpha' and 'beta', explicit
-            # calls to update_dm are required to enforce code clarity.
-            if not self._cache.has('dm_%s' % select):
-                self.update_dm(select)
+        '''Get a density matrix. If not available, it will be created (if possible)
+
+           select
+                'alpha', 'beta', 'full' or 'spin'.
+        '''
+        if not self._cache.has('dm_%s' % select):
+            self.update_dm(select)
         return self._cache.load('dm_%s' % select)
 
     def get_exp(self, spin):
+        '''Return an expansion of the wavefunction, if available.
+
+           **Optional arguments:**
+
+           select
+                the spin component: 'alpha' or 'beta'.
+        '''
         return self._cache.load('exp_%s' % spin)
 
     def apply_basis_permutation(self, permutation):
@@ -227,7 +236,7 @@ class ClosedShellWFN(WFN):
     closed_shell = True
 
     def _assign_dm_full(self, dm):
-        dm_alpha = self._cache.load('dm_alpha')
+        dm_alpha = self.get_dm('alpha')
         dm.assign(dm_alpha)
         dm.iscale(2)
 
@@ -290,15 +299,15 @@ class OpenShellWFN(WFN):
     closed_shell = False
 
     def _assign_dm_full(self, dm):
-        dm_alpha = self._cache.load('dm_alpha')
+        dm_alpha = self.get_dm('alpha')
         dm.assign(dm_alpha)
-        dm_beta = self._cache.load('dm_beta')
+        dm_beta = self.get_dm('beta')
         dm.iadd(dm_beta)
 
     def _assign_dm_spin(self, dm):
-        dm_alpha = self._cache.load('dm_alpha')
+        dm_alpha = self.get_dm('alpha')
         dm.assign(dm_alpha)
-        dm_beta = self._cache.load('dm_beta')
+        dm_beta = self.get_dm('beta')
         dm.iadd(dm_beta, factor=-1)
 
     def update_exp(self, fock_alpha, fock_beta, overlap, dm_alpha=None, dm_beta=None):
@@ -316,7 +325,6 @@ class OpenShellWFN(WFN):
 
            dm_alpha, dm_beta
                 DenseOneBody objects with the density matrices
-
         '''
         if ((dm_alpha is None) ^ (dm_beta is None)):
             raise ValueError('Either no or both density matrices must be given')

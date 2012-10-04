@@ -56,9 +56,6 @@ def test_hamiltonian_init():
 def test_energy_hydrogen():
     fn_fchk = context.get_fn('test/h_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    sys.wfn.update_dm('alpha')
-    sys.wfn.update_dm('beta')
-
     ham = Hamiltonian(sys, [HartreeFock()])
     ham.compute_energy()
     assert abs(sys.props['energy'] - -4.665818503844346E-01) < 1e-8
@@ -67,8 +64,6 @@ def test_energy_hydrogen():
 def test_energy_n2_hfs_sto3g():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    sys.wfn.update_dm('alpha')
-
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
     grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
@@ -102,8 +97,6 @@ def test_fock_n2_hfs_sto3g():
     # energies
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    sys.wfn.update_dm('alpha')
-
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
     grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
@@ -141,9 +134,6 @@ def test_fock_h3_hfs_321g():
     # energies
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
-    sys.wfn.update_dm('alpha')
-    sys.wfn.update_dm('beta')
-
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
     grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
@@ -239,7 +229,6 @@ def check_cubic_cs(ham, dm0, dm1):
 def test_cubic_interpolation_hfs_cs():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
-    sys.wfn.update_dm('alpha')
 
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 2e1, 110)

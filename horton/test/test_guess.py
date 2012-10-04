@@ -32,7 +32,6 @@ def test_guess_hamcore_cs():
     exp_alpha = sys.wfn.get_exp('alpha')
     assert abs(exp_alpha.energies[0] - (-2.59083334E+01)) > 1e-5 # values from fchk must be overwritten
     assert (exp_alpha.energies.argsort() == np.arange(sys.obasis.nbasis)).all()
-    assert sys.wfn._cache.has('dm_alpha')
 
 
 def test_guess_hamcore_os():
@@ -47,5 +46,3 @@ def test_guess_hamcore_os():
     assert (exp_alpha.energies.argsort() == np.arange(sys.obasis.nbasis)).all()
     assert abs(exp_alpha.energies - exp_beta.energies).max() < 1e-10
     assert abs(exp_alpha.coeffs - exp_beta.coeffs).max() < 1e-10
-    assert sys.wfn._cache.has('dm_alpha')
-    assert sys.wfn._cache.has('dm_beta')

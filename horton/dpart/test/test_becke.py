@@ -26,8 +26,6 @@ from horton import *
 def test_becke_n2_hfs_sto3g():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    sys.wfn.update_dm('alpha')
-
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
     grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=1)
@@ -49,9 +47,6 @@ def test_becke_n2_hfs_sto3g():
 def test_becke_nonlocal_lih_hf_321g():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     sys = System.from_file(fn_fchk)
-    sys.wfn.update_dm('alpha')
-    sys.wfn.update_dm('beta')
-
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
 

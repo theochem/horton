@@ -27,7 +27,6 @@ from horton import *
 def test_scf_cs():
     fn_fchk = context.get_fn('test/hf_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    sys.wfn.update_dm('alpha')
 
     guess_hamiltonian_core(sys)
     ham = Hamiltonian(sys, [HartreeFock()])
@@ -68,8 +67,6 @@ def test_scf_cs():
 def test_scf_os():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     sys = System.from_file(fn_fchk)
-    sys.wfn.update_dm('alpha')
-    sys.wfn.update_dm('beta')
 
     guess_hamiltonian_core(sys)
     ham = Hamiltonian(sys, [HartreeFock()])
@@ -102,7 +99,6 @@ def test_scf_os():
 def test_scf_oda_water_hfs_321g():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
-    sys.wfn.update_dm('alpha')
 
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 2e1, 100)
@@ -147,7 +143,6 @@ def test_scf_oda_water_hfs_321g():
 def test_scf_oda_water_hf_321g():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
-    sys.wfn.update_dm('alpha')
     ham = Hamiltonian(sys, [HartreeFock()])
 
     # test continuation of interupted scf_oda

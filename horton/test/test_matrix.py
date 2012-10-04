@@ -56,7 +56,6 @@ def get_water_sto3g_hf(lf=None):
     exp_alpha.coeffs[:] = coeffs
     exp_alpha.energies[:] = epsilons
     occ_model.assign(exp_alpha)
-    wfn.update_dm('alpha')
     assert (exp_alpha.occupations == np.array([1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0])).all()
     return lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn
 
@@ -143,7 +142,6 @@ def test_hartree_fock_water():
     wfn.invalidate()
     exp_alpha1 = wfn.update_exp(hamcore, overlap)
     assert (exp_alpha1.energies != 0.0).any()
-    wfn.update_dm('alpha')
 
 
     # The SCF loop
@@ -166,7 +164,6 @@ def test_hartree_fock_water():
         # Derive the expansion and the density matrix from the fock operator
         wfn.invalidate()
         wfn.update_exp(fock, overlap)
-        wfn.update_dm('alpha')
 
     exp_alpha = wfn.get_exp('alpha')
     exp_alpha0 = wfn0.get_exp('alpha')
