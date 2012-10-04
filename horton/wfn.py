@@ -38,8 +38,15 @@ from horton.log import log
 from horton.exceptions import ElectronCountError
 
 
-__all__ = ['WFN', 'ClosedShellWFN', 'OpenShellWFN', 'AufbauOccModel']
+__all__ = [
+    'WFN', 'ClosedShellWFN', 'OpenShellWFN',
+    'AufbauOccModel', 'AufbauSpinOccModel'
+]
 
+
+
+# TODO: It would be better to use the terms Restricted and Unrestricted, where
+# the former only supports close-shell computations for now.
 
 
 class PropertyHelper(object):
@@ -255,7 +262,7 @@ class WFN(object):
 
 
 class ClosedShellWFN(WFN):
-    closed_shell = True
+    closed_shell = True # TODO: ugly
 
     def _assign_dm_full(self, dm):
         dm.assign(self.dm_alpha)
@@ -317,7 +324,7 @@ class ClosedShellWFN(WFN):
 
 
 class OpenShellWFN(WFN):
-    closed_shell = False
+    closed_shell = False # TODO: ugly
 
     def _assign_dm_full(self, dm):
         dm.assign(self.dm_alpha)
@@ -400,6 +407,17 @@ class OpenShellWFN(WFN):
 
 
 
+class OccModel(object):
+    @classmethod
+    def from_hdf5(cls, grp):
+        if grp.attrs['class'] == 'AufbauOccModel':
+            return AufbauOccModel.from_hdf5(grp)
+        elif grp.attrs['class'] == 'AufbauSpinOccModel':
+            return AufbauSpinOccModel.from_hdf5(grp)
+        else:
+            raise NotImplementedError
+
+
 class AufbauOccModel(object):
     def __init__(self, nalpha, nbeta=None):
         if nbeta is None:
@@ -415,8 +433,6 @@ class AufbauOccModel(object):
 
     @classmethod
     def from_hdf5(cls, grp):
-        if grp.attrs['class'] != cls.__name__:
-            raise TypeError('The class of the occupation model in the HDF5 file does not match.')
         return cls(grp['nalpha'][()], grp['nbeta'][()])
 
     def to_hdf5(self, grp):
@@ -452,3 +468,45 @@ class AufbauOccModel(object):
     def log(self):
         log('Occupation model: %s' % self)
         log.deflist([('nalpha', self.nbeta), ('nbeta', self.nbeta)])
+
+
+class AufbauSpinOccModel(object):
+    '''This Aufbau model only applies to unrestricted wavefunctions'''
+    def __init__(self, nel):
+        if nel <= 0:
+            raise ElectronCountError('The number of electron must be positive.')
+
+        self.nel = nel
+
+    @classmethod
+    def from_hdf5(cls, grp):
+        return cls(grp['nel'][()])
+
+    def to_hdf5(self, grp):
+        grp.attrs['class'] = self.__class__.__name__
+        grp['nel'] = self.nel
+
+    def assign(self, exp_alpha, exp_beta):
+        '''Assign occupation numbers to the expansion objects
+
+           **Arguments:**
+
+           exp_alpha, exp_beta
+                Alpha and beta DenseExpansion object
+        '''
+        nel = self.nel
+        ialpha = 0
+        ibeta = 0
+        while nel > 0:
+            if exp_alpha.energies[ialpha] <= exp_beta.energies[ibeta]:
+                exp_alpha.occupations[ialpha] = 1.0
+                ialpha += 1
+            else:
+                exp_beta.occupations[ibeta] = 1.0
+                ibeta += 1
+            nel -= 1
+        #print 'AufbauSpinOccModel', ialpha, ibeta
+
+    def log(self):
+        log('Occupation model: %s' % self)
+        log.deflist([('nel', self.nbeta)])

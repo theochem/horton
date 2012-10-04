@@ -201,7 +201,7 @@ class KineticEnergy(FixedTerm):
 
 class ExternalPotential(FixedTerm):
     def get_operator(self, system):
-        tmp = system.get_nuclear_attraction()
+        tmp = system.get_nuclear_attraction().copy() # take copy because of next line
         tmp.iscale(-1)
         return tmp, 'ne'
 
