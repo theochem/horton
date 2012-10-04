@@ -170,8 +170,6 @@ def test_grid_lih_321g_hf_some_points():
     assert abs(total - output[0]) < 1e-10
 
     # check density matrix value
-    sys.wfn.update_dm('alpha')
-    sys.wfn.update_dm('beta')
     dm = sys.wfn.get_dm('full')
     assert abs(dm._array[0,0] - 1.96589709) < 1e-7
 

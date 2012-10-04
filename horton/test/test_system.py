@@ -102,9 +102,6 @@ def test_nucnuc():
 def check_scf_dms(fn_fchk):
     sys = System.from_file(fn_fchk)
     dm_full = sys.lf.create_one_body()
-    sys.wfn.update_dm('alpha')
-    if isinstance(sys.wfn, OpenShellWFN):
-        sys.wfn.update_dm('beta')
     dm_full = sys.wfn.get_dm('full')
     assert abs(dm_full._array - sys.operators['scf_full']._array).max() < 1e-7
     if 'scf_spin' in sys.operators:
@@ -264,9 +261,6 @@ def check_grid_fn(fn_fchk, use_output_arg):
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
     grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
-    sys.wfn.update_dm('alpha')
-    if isinstance(sys.wfn, OpenShellWFN):
-        sys.wfn.update_dm('beta')
     if use_output_arg:
         rhos = np.zeros(grid.size)
         sys.compute_grid_density(grid.points, rhos)

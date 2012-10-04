@@ -209,9 +209,6 @@ def test_load_fchk_lih_321g_hf():
     dms['scf_full'].check_symmetry()
     dms['scf_spin'].check_symmetry()
 
-    wfn.update_dm('alpha')
-    wfn.update_dm('beta')
-
     dm_alpha = wfn.get_dm('alpha')
     dm_beta = wfn.get_dm('beta')
     dm_full = wfn.get_dm('full')

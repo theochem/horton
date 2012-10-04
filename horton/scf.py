@@ -107,7 +107,6 @@ def converge_scf_cs(ham, max_iter=128, threshold=1e-8):
         # Diagonalize the fock operator
         wfn.invalidate() # discard previous wfn state
         wfn.update_exp(fock, ham.overlap)
-        wfn.update_dm('alpha')
         # Let the hamiltonian know that the wavefunction has changed.
         ham.invalidate()
         # Write intermediate results to checkpoint
@@ -171,8 +170,6 @@ def converge_scf_os(ham, max_iter=128, threshold=1e-8):
         # Diagonalize the fock operators
         wfn.invalidate()
         wfn.update_exp(fock_alpha, fock_beta, ham.overlap)
-        wfn.update_dm('alpha')
-        wfn.update_dm('beta')
         # Let the hamiltonian know that the wavefunction has changed.
         ham.invalidate()
         # Write intermediate results to checkpoint
@@ -296,7 +293,6 @@ def converge_scf_oda_cs(ham, max_iter=128, threshold=1e-8):
         # B) Diagonalize fock operator and go to the next point
         wfn.invalidate()
         wfn.update_exp(fock_old, ham.overlap)
-        wfn.update_dm('alpha')
         # Let the hamiltonian know that the wavefunction has changed.
         ham.invalidate()
 

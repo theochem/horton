@@ -26,8 +26,6 @@ from horton import *
 def test_dm_water_sto3g_hf():
     fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
     sys = System.from_file(fn_fchk)
-
-    sys.wfn.update_dm('alpha')
     dm = sys.wfn.get_dm('full')
     assert abs(dm.get_element(0, 0) - 2.10503807) < 1e-7
     assert abs(dm.get_element(0, 1) - -0.439115917) < 1e-7
@@ -37,7 +35,6 @@ def test_dm_water_sto3g_hf():
 def test_conversion_dm_exp():
     fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
     sys = System.from_file(fn_fchk)
-    sys.wfn.update_dm('alpha')
     oes = sys.wfn.get_exp('alpha').energies.copy()
     dm = sys.lf.create_one_body()
     dm.assign(sys.wfn.get_dm('alpha'))
@@ -54,24 +51,19 @@ def test_conversion_dm_exp():
     assert (dm._array == sys.wfn.get_dm('alpha')._array).all()
     # ugly hack
     del sys.wfn._cache._store[('dm_alpha',)]
-    sys.wfn.update_dm('alpha')
     assert abs(dm._array - sys.wfn.get_dm('alpha')._array).max() < 1e-9
 
 
 def test_dm_lih_sto3g_hf():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     sys = System.from_file(fn_fchk)
-    dm = sys.lf.create_one_body()
 
-    sys.wfn.update_dm('alpha')
-    sys.wfn.update_dm('beta')
     dm = sys.wfn.get_dm('full')
     assert abs(dm.get_element(0, 0) - 1.96589709) < 1e-7
     assert abs(dm.get_element(0, 1) - 0.122114249) < 1e-7
     assert abs(dm.get_element(1, 1) - 0.0133112081) < 1e-7
     assert abs(dm.get_element(10, 10) - 4.23924688E-01) < 1e-7
 
-    sys.wfn.update_dm('spin')
     dm = sys.wfn.get_dm('spin')
     assert abs(dm.get_element(0, 0) - 1.40210760E-03) < 1e-9
     assert abs(dm.get_element(0, 1) - -2.65370873E-03) < 1e-9
