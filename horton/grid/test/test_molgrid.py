@@ -178,3 +178,43 @@ def test_molgrid_attrs_0_subgrid():
     assert len(mg.atspecs) == 2
     assert mg.k == 3
     assert mg.random_rotate
+
+
+def test_custom_grid_term():
+    fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
+    sys = System.from_file(fn_fchk)
+    int1d = SimpsonIntegrator1D()
+    rtf = ExpRTransform(1e-3, 1e1, 100)
+    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+
+    # Without perturbation
+    ham = Hamiltonian(sys, [HartreeFock()])
+    assert convergence_error(ham) > 1e-8
+    assert converge_scf(ham)
+    assert convergence_error(ham) < 1e-8
+    energy0 = ham.compute_energy()
+
+    # Construct some becke weights for the first atom and use it as a potential.
+    potential = np.ones(grid.size, float)
+    radii = np.ones(sys.natom, float)
+    becke_helper_atom(grid.points, potential, radii, sys.coordinates, 0, 3)
+
+    # Apply the perturbation with oposite signs and check that, because of
+    # symmetry, the energy of the perturbed wavefunction is the same in both
+    # cases, and higher than the unperturbed.
+    energy1_old = None
+    for scale in 0.1, -0.1:
+        # With perturbation
+        perturbation = CustomGridFixedTerm(grid, scale*potential, 'pert')
+        ham = Hamiltonian(sys, [HartreeFock(), perturbation])
+        assert convergence_error(ham) > 1e-8
+        assert converge_scf_oda(ham)
+        assert convergence_error(ham) < 1e-8
+        energy1 = ham.compute_energy()
+        energy1 -= sys.props['energy_pert']
+
+        assert energy1 > energy0
+        if energy1_old is None:
+            energy1_old = energy1
+        else:
+            assert abs(energy1 - energy1_old) < 1e-7

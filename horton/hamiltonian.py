@@ -28,6 +28,7 @@ from horton.cache import Cache
 
 __all__ = [
     'Hamiltonian', 'HamiltonianTerm', 'KineticEnergy', 'ExternalPotential',
+    'CustomFixedTerm', 'CustomGridFixedTerm',
     'Hartree', 'HartreeFock', 'DiracExchange'
 ]
 
@@ -204,6 +205,37 @@ class ExternalPotential(FixedTerm):
         tmp = system.get_nuclear_attraction().copy() # take copy because of next line
         tmp.iscale(-1)
         return tmp, 'ne'
+
+
+class CustomFixedTerm(FixedTerm):
+    '''This is a user-defined term that is linear in the density matrix
+
+       This term can be used to implemented perturbations by finite fields.
+    '''
+    def __init__(self, operator, suffix):
+        self.operator = operator
+        self.suffix = suffix
+
+    def prepare_system(self, system, cache, grid):
+        # override because assignment of self.operator and self.suffix are not needed.
+        HamiltonianTerm.prepare_system(self, system, cache, grid)
+
+
+class CustomGridFixedTerm(FixedTerm):
+    '''This is a user-defined term, through a grid, that is linear in the density matrix
+
+       This term can be used to implemented perturbations by finite potentials
+       defined on a real-space grid.
+    '''
+    def __init__(self, custom_grid, potential, suffix):
+        self.custom_grid = custom_grid
+        self.potential = potential
+        self.suffix = suffix
+
+    def get_operator(self, system):
+        operator = system.lf.create_one_body()
+        self.system.compute_grid_one_body(self.custom_grid.points, self.custom_grid.weights, self.potential, operator)
+        return operator, self.suffix
 
 
 class Hartree(HamiltonianTerm):
