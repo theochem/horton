@@ -100,6 +100,8 @@ class DPart(JustOnceClass):
         JustOnceClass.invalidate(self)
         self.cache.invalidate()
         # immediately recompute the basics
+        # TODO: For some schemes, the weights do not depend on the density
+        # and recomputation of the atomic weights is a waste of time
         self._init_at_weights()
 
     def iter_grids(self):

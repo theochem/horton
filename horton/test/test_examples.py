@@ -51,3 +51,6 @@ def run_example(dirname, fn_py):
 
 def test_example_001_hf_water():
     run_example('001_hf_water', 'run.py')
+
+def test_example_002_hfs_water():
+    run_example('002_hfs_water', 'run.py')
