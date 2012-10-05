@@ -187,7 +187,7 @@ def converge_scf_os(ham, max_iter=128, threshold=1e-8):
     return converged
 
 
-def converge_scf_oda(ham, max_iter=128, threshold=1e-8, debug=False):
+def converge_scf_oda(ham, max_iter=128, threshold=1e-6, debug=False):
     '''Minimize the energy of the wavefunction with optinal-damping SCF
 
        **Arguments:**
@@ -319,7 +319,7 @@ def check_cubic_cs(ham, dm0, dm1, e0, e1, g0, g1, do_plot=True):
 
 
 
-def converge_scf_oda_cs(ham, max_iter=128, threshold=1e-8, debug=False):
+def converge_scf_oda_cs(ham, max_iter=128, threshold=1e-6, debug=False):
     '''Minimize the energy of the closed-shell wavefunction with optimal damping
 
        **Arguments:**
@@ -501,7 +501,7 @@ def check_cubic_os(ham, dm0a, dm0b, dm1a, dm1b, e0, e1, g0, g1, do_plot=True):
         assert error < 0.1*oom
 
 
-def converge_scf_oda_os(ham, max_iter=128, threshold=1e-8, debug=False):
+def converge_scf_oda_os(ham, max_iter=128, threshold=1e-6, debug=False):
     '''Minimize the energy of the open-shell wavefunction with optimal damping
 
        **Arguments:**

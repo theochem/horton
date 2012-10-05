@@ -102,7 +102,7 @@ class Hamiltonian(object):
         if log.do_high:
             log('Computing the energy of the system.')
             log.hline()
-            log('         Energy term  Value')
+            log('         Energy term                 Value')
             log.hline()
 
         total = 0.0
