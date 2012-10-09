@@ -209,6 +209,7 @@ class ScreenLog(object):
             self('%s&%s' % (('%s version:' % self.name).ljust(15), self.version))
             self('Current Dir:   &' + os.getcwd())
             self('Command line:  &' + ' '.join(sys.argv))
+            self('Horton module: &' + __file__)
 
 
 class Timer(object):

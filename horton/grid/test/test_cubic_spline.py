@@ -92,7 +92,7 @@ def test_basics_log():
     cs = CubicSpline(y, d, rtf)
     assert (cs.copy_y() == y).all()
     dp = d*rtf.get_volume_elements()
-    assert (cs.copy_d() == dp).all()
+    assert abs(cs.copy_d() - dp).max() < 1e-15
 
 
 def check_continuity(ynew, y, d, N):
