@@ -30,7 +30,7 @@ def run_example(dirname, fn_py):
     if python_path is None:
         python_path = os.getcwd()
     else:
-        python_path += ':' + os.getcwd()
+        python_path = os.getcwd() + ':' + python_path
     env['PYTHONPATH'] = python_path
     env['HORTONDATA'] = os.path.join(os.getcwd(), 'data')
 
