@@ -52,7 +52,8 @@ void grid_distances(double *points, double *center, double *distances, int n) {
     points++;
     // z
     d = *points - center[2];
-    *distances = sqrt(tmp + d*d);
+    tmp += d*d;
+    *distances = sqrt(tmp);
     points++;
     distances++;
   }

@@ -87,18 +87,17 @@ class AtomicGrid(IntGrid):
         else:
             llgrids = None
         offset = 0
-        counter = 0
         nsphere = len(nlls)
         radii = rtransform.get_radii()
         rweights = int1d.get_weights(nsphere)
         rweights *= rtransform.get_volume_elements()
-        for nll in nlls:
-            llgrid = LebedevLaikovSphereGrid(center, radii[counter], nll, random_rotate, points[offset:offset+nll])
+        for i in xrange(nsphere):
+            nll = nlls[i]
+            llgrid = LebedevLaikovSphereGrid(center, radii[i], nll, random_rotate, points[offset:offset+nll])
             if keep_subgrids > 0:
                 llgrids.append(llgrid)
-            weights[offset:offset+nll] = rweights[counter]*llgrid.weights
+            weights[offset:offset+nll] = rweights[i]*llgrid.weights
             offset += nll
-            counter += 1
 
         IntGrid.__init__(self, points, weights, llgrids)
         self._log_init()
