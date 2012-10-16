@@ -102,15 +102,15 @@ class BeckeMolGrid(IntGrid):
         else:
             atgrids = None
         offset = 0
-        radii = np.array([periodic[n].cov_radius for n in system.numbers])
-        for i in xrange(len(radii)):
+        cov_radii = np.array([periodic[n].cov_radius for n in system.numbers])
+        for i in xrange(system.natom):
             rtransform, int1d, atnlls, atsize = atspecs[i]
             atgrid = AtomicGrid(system.coordinates[i], rtransform, int1d,
                                 atnlls, random_rotate,
                                 points[offset:offset+atsize],
                                 keep_subgrids=keep_subgrids-1)
             weights[offset:offset+atsize] = atgrid.weights
-            becke_helper_atom(points[offset:offset+atsize], weights[offset:offset+atsize], radii, system.coordinates, i, self._k)
+            becke_helper_atom(points[offset:offset+atsize], weights[offset:offset+atsize], cov_radii, system.coordinates, i, self._k)
             if keep_subgrids > 0:
                 atgrids.append(atgrid)
             offset += atsize
