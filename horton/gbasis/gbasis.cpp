@@ -23,13 +23,13 @@
 #ifdef DEBUG
 #include <cstdio>
 #endif
-#include <cstdio>
 #include <cmath>
 #include <stdexcept>
+#include <cstdlib>
 #include "gbasis.h"
 #include "common.h"
 #include "iter_gb.h"
-using namespace std;
+using std::abs;
 
 /*
 

@@ -22,6 +22,7 @@
 
 
 import os
+import numpy as np
 from glob import glob
 from distutils.core import setup
 from distutils.extension import Extension
@@ -91,11 +92,12 @@ setup(
             sources=get_sources('horton/gbasis'),
             depends=get_depends('horton/gbasis'),
             extra_objects=['depends/libint-2.0.0-stable/lib/libint2.a'],
-            include_dirs=['depends/libint-2.0.0-stable/include'],
+            include_dirs=['depends/libint-2.0.0-stable/include', np.get_include()],
             language="c++"),
         Extension("horton.grid.cext",
             sources=get_sources('horton/grid'),
             depends=get_depends('horton/grid'),
+            include_dirs=[np.get_include()],
             language="c++"),
     ],
     classifiers=[

@@ -5,7 +5,7 @@ default:
 libint: libint-2.0.0-stable/lib/libint2.a
 
 libint-2.0.0-stable/lib/libint2.a: libint-2.0.0-stable
-	cd libint-2.0.0-stable && CFLAGS='-fPIC' CPPFLAGS='-fPIC' ./configure && $(MAKE)
+	cd libint-2.0.0-stable && CFLAGS='-fPIC' CPPFLAGS='-fPIC' ./configure --with-cxx-optflags='-O0' && $(MAKE)
 
 libint-2.0.0-stable: libint-2.0.0-stable.tgz
 	tar -xvzf libint-2.0.0-stable.tgz
