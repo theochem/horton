@@ -80,6 +80,7 @@ setup(
     packages=['horton', 'horton.test',
               'horton.dpart', 'horton.dpart.test',
               'horton.grid', 'horton.grid.test',
+              'horton.hamiltonian', 'horton.hamiltonian.test',
               'horton.gbasis', 'horton.gbasis.test'],
     cmdclass = {'build_ext': build_ext, 'install_data': my_install_data},
     data_files=[
