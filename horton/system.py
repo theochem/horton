@@ -340,8 +340,6 @@ class System(object):
             occ_model = AufbauOccModel((nel + (mult-1))/2, (nel - (mult-1))/2)
             self._wfn = OpenShellWFN(occ_model, self.lf, self.obasis.nbasis)
 
-
-
     def get_overlap(self):
         overlap = self._operators.get('olp')
         if overlap is None:
