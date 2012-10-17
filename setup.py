@@ -100,6 +100,12 @@ setup(
             depends=get_depends('horton/grid'),
             include_dirs=[np.get_include()],
             language="c++"),
+        Extension("horton.hamiltonian.cext",
+            sources=get_sources('horton/hamiltonian'),
+            depends=['depends/libxc-1.2.0/src/.libs/libxc.a'],
+            extra_objects=['depends/libxc-1.2.0/src/.libs/libxc.a'],
+            include_dirs=['depends/libxc-1.2.0/src', np.get_include()],
+            language="c++"),
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',

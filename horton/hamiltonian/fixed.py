@@ -20,8 +20,6 @@
 #--
 
 
-import numpy as np
-
 from horton.hamiltonian.core import HamiltonianTerm, FixedTerm
 
 
