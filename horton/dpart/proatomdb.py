@@ -311,12 +311,12 @@ class ProAtomDB(object):
     def get_hirshfeld_i_proatom_fn(self, number, pop):
         # In case of luck:
         ipop = int(pop)
-        if pop == int(pop):
-            return  CubicSpline(self._records[(number, ipop)], rtf=self._rtransform)
+        if pop == ipop:
+            return CubicSpline(self._records[(number, ipop)], rtf=self._rtransform)
         else:
             del ipop
 
-        # General case
+        # General case with interpolation between two integer pro-atoms.
         cpop = int(np.ceil(pop))
         fpop = int(np.floor(pop))
         if fpop == 0:
