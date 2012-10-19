@@ -27,6 +27,7 @@ np.import_array()
 
 cdef extern from "xc.h":
     enum: XC_UNPOLARIZED
+    enum: XC_POLARIZED
 
     ctypedef struct xc_func_type:
         pass
@@ -40,7 +41,8 @@ cdef extern from "xc.h":
 
 
 cdef class LibXCWrapper(object):
-    cdef xc_func_type _func
+    cdef xc_func_type _func_pol
+    cdef xc_func_type _func_unpol
     cdef int _func_id
 
     def __cinit__(self, bytes name):
@@ -54,24 +56,45 @@ cdef class LibXCWrapper(object):
         self._func_id = xc_functional_get_number(name)
         if self._func_id < 0:
             raise ValueError('Unknown LibXC functional name: %s' % name)
-        retcode = xc_func_init(&self._func, self._func_id, XC_UNPOLARIZED)
+        retcode = xc_func_init(&self._func_pol, self._func_id, XC_POLARIZED)
         if retcode != 0:
-            raise ValueError('Could not initialize LibXC functional: %s' % name)
+            raise ValueError('Could not initialize polarized LibXC functional: %s' % name)
+        retcode = xc_func_init(&self._func_unpol, self._func_id, XC_UNPOLARIZED)
+        if retcode != 0:
+            raise ValueError('Could not initialize unpolarized LibXC functional: %s' % name)
 
     def __dealloc__(self):
         if self._func_id >= 0:
-            xc_lda_end(&self._func)
+            xc_lda_end(&self._func_pol)
+            xc_lda_end(&self._func_unpol)
 
-    def compute_exc(self, np.ndarray[double, ndim=1] rho, np.ndarray[double, ndim=1] zk):
+    def compute_exc_unpol(self, np.ndarray[double, ndim=1] rho, np.ndarray[double, ndim=1] zk):
         assert rho.flags['C_CONTIGUOUS']
         npoint = rho.shape[0]
         assert zk.flags['C_CONTIGUOUS']
         assert npoint == zk.shape[0]
-        xc_lda_exc(&self._func, npoint, <double*>rho.data, <double*>zk.data)
+        xc_lda_exc(&self._func_unpol, npoint, <double*>rho.data, <double*>zk.data)
 
-    def compute_vxc(self, np.ndarray[double, ndim=1] rho, np.ndarray[double, ndim=1] vxc):
+    def compute_exc_pol(self, np.ndarray[double, ndim=2] rho, np.ndarray[double, ndim=1] zk):
+        assert rho.flags['C_CONTIGUOUS']
+        npoint = rho.shape[0]
+        assert rho.shape[1] == 2
+        assert zk.flags['C_CONTIGUOUS']
+        assert npoint == zk.shape[0]
+        xc_lda_exc(&self._func_pol, npoint, <double*>rho.data, <double*>zk.data)
+
+    def compute_vxc_unpol(self, np.ndarray[double, ndim=1] rho, np.ndarray[double, ndim=1] vxc):
         assert rho.flags['C_CONTIGUOUS']
         npoint = rho.shape[0]
         assert vxc.flags['C_CONTIGUOUS']
         assert npoint == vxc.shape[0]
-        xc_lda_vxc(&self._func, npoint, <double*>rho.data, <double*>vxc.data)
+        xc_lda_vxc(&self._func_unpol, npoint, <double*>rho.data, <double*>vxc.data)
+
+    def compute_vxc_pol(self, np.ndarray[double, ndim=2] rho, np.ndarray[double, ndim=2] vxc):
+        assert rho.flags['C_CONTIGUOUS']
+        npoint = rho.shape[0]
+        assert rho.shape[1] == 2
+        assert vxc.flags['C_CONTIGUOUS']
+        assert npoint == vxc.shape[0]
+        assert vxc.shape[1] == 2
+        xc_lda_vxc(&self._func_pol, npoint, <double*>rho.data, <double*>vxc.data)
