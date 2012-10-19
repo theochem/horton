@@ -92,7 +92,7 @@ def test_hamiltonian_h3_hfs_321g():
 
     # Compare the potential computed by libxc with the builtin implementation
     libxc_term._update_operator()
-    libxc_pot = libxc_term.cache.load('pot_libxc_lda_x_alpha')
+    libxc_pot = libxc_term.cache.load('pot_libxc_lda_x_both')[:,0]
     builtin_term._update_exchange()
     builtin_pot = builtin_term.cache.load('pot_exchange_dirac_alpha')
     rho = libxc_term.update_rho('alpha')
@@ -105,7 +105,7 @@ def test_hamiltonian_h3_hfs_321g():
     energy2 = ham2.compute_energy()
     ex2 = sys.props['energy_exchange_dirac']
     assert abs(ex1 - ex2) < 1e-10
-    #assert abs(energy1 - energy2) < 1e-10
+    assert abs(energy1 - energy2) < 1e-10
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:

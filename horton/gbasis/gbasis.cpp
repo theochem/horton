@@ -291,7 +291,7 @@ void GOBasis::compute_grid_density_orb(double* orbs, long nocc, long norb, doubl
     delete[] basis_fns;
 }
 
-void GOBasis::compute_grid_one_body(long npoint, double* points, double* weights, double* pots, double* output) {
+void GOBasis::compute_grid_one_body(long npoint, double* points, double* weights, long pot_stride, double* pots, double* output) {
     double* basis_fns = new double[get_nbasis()];
     GB1GridFn grid_fn = GB1GridFn(get_max_shell_type());
 
@@ -321,7 +321,7 @@ void GOBasis::compute_grid_one_body(long npoint, double* points, double* weights
         // D) Prepare for next iteration
         points += 3;
         weights++;
-        pots++;
+        pots += pot_stride;
     }
 
     delete[] basis_fns;

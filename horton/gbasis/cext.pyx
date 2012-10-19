@@ -562,11 +562,12 @@ cdef class GOBasis(GBasis):
         assert points.shape[1] == 3
         assert weights.flags['C_CONTIGUOUS']
         assert npoint == weights.shape[0]
-        assert pots.flags['C_CONTIGUOUS']
+        pot_stride = pots.strides[0]
+        assert pot_stride % 8 == 0
         assert npoint == pots.shape[0]
         (<gbasis.GOBasis*>self._this).compute_grid_one_body(
             npoint, <double*>points.data, <double*>weights.data,
-            <double*>pots.data, <double*>output.data)
+            pot_stride/8, <double*>pots.data, <double*>output.data)
 
 #
 # ints wrappers (for testing only)

@@ -61,29 +61,21 @@ class LibXCTerm(HamiltonianTerm):
         else:
             # In case of spin-polarized computations, alpha and beta densities
             # go in and the alpha and beta potentials come out of  it.
-            pot_alpha, new_alpha = self.cache.load('pot_libxc_%s_alpha' % self._name, alloc=self.grid.size)
-            pot_beta, new_beta = self.cache.load('pot_libxc_%s_beta' % self._name, alloc=self.grid.size)
-            if new_alpha or new_beta:
-                # TODO: rho_both has to be cashed
-                rho_both = np.zeros((len(pot_alpha), 2), float)
-                rho_both[:,0] = self.update_rho('alpha')
-                rho_both[:,1] = self.update_rho('beta')
-                # TODO: pot_both has to be cashed
-                pot_both = np.zeros((len(pot_alpha), 2), float)
+            pot_both, new = self.cache.load('pot_libxc_%s_both' % self._name, alloc=(self.grid.size, 2))
+            if new:
+                rho_both = self.update_rho('both')
                 self._libxc_wrapper.compute_vxc_pol(rho_both, pot_both)
-                pot_alpha[:] = pot_both[:,0]
-                pot_beta[:] = pot_both[:,1]
 
             # TODO: in the Hamiltonian class, all the grids should be added
             # and converted only once to a one-body operator
             # Create/update the one-body operator based on the potential on the grid.
             operator_alpha, new_alpha = self.cache.load('op_libxc_%s_alpha' % self._name, alloc=(self.system.lf, 'one_body'))
             if new_alpha:
-                self.system.compute_grid_one_body(self.grid.points, self.grid.weights, pot_alpha, operator_alpha)
+                self.system.compute_grid_one_body(self.grid.points, self.grid.weights, pot_both[:,0], operator_alpha)
 
             operator_beta, new_beta = self.cache.load('op_libxc_%s_beta' % self._name, alloc=(self.system.lf, 'one_body'))
             if new_beta:
-                self.system.compute_grid_one_body(self.grid.points, self.grid.weights, pot_beta, operator_beta)
+                self.system.compute_grid_one_body(self.grid.points, self.grid.weights, pot_both[:,1], operator_beta)
 
     def compute_energy(self):
         if self.system.wfn.closed_shell:
@@ -99,17 +91,13 @@ class LibXCTerm(HamiltonianTerm):
         else:
             # In case of spin-polarized computations, alpha and beta densities
             # go in and the 'total' energy density comes out.
-            rho_alpha = self.update_rho('alpha')
-            rho_beta = self.update_rho('beta')
             edens, new = self.cache.load('edens_libxc_%s_full' % self._name, alloc=self.grid.size)
             if new:
-                # TODO: rho_both has to be cashed
-                rho_both = np.zeros((len(rho_alpha), 2), float)
-                rho_both[:,0] = rho_alpha
-                rho_both[:,1] = rho_beta
+                rho_both = self.update_rho('both')
                 self._libxc_wrapper.compute_exc_pol(rho_both, edens)
 
-            energy = self.grid.integrate(edens, rho_alpha) + self.grid.integrate(edens, rho_beta)
+            rho = self.update_rho('full')
+            energy = self.grid.integrate(edens, rho)
             self.store_energy('libxc_%s' % self._name, energy)
             return energy
 

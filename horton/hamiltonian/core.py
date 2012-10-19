@@ -149,9 +149,18 @@ class HamiltonianTerm(object):
 
     # Generic update routines that may be useful to various base classes
     def update_rho(self, select):
-        rho, new = self.cache.load('rho_%s' % select, alloc=self.grid.size)
-        if new:
-            self.system.compute_grid_density(self.grid.points, rhos=rho, select=select)
+        if select == 'both':
+            # This is needed for libxc
+            rho, new = self.cache.load('rho_%s' % select, alloc=(self.grid.size, 2))
+            if new:
+                rho_alpha = self.update_rho('alpha')
+                rho_beta = self.update_rho('beta')
+                rho[:,0] = rho_alpha
+                rho[:,1] = rho_beta
+        else:
+            rho, new = self.cache.load('rho_%s' % select, alloc=self.grid.size)
+            if new:
+                self.system.compute_grid_density(self.grid.points, rhos=rho, select=select)
         return rho
 
     def store_energy(self, suffix, energy):
