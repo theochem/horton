@@ -39,6 +39,9 @@ class GB1GridFn : public GBCalculator  {
         void add(double coeff, double alpha0, const double* scales0);
         void cart_to_pure();
         const long get_shell_type0() const {return shell_type0;};
+
+        void compute_point_from_dm(double* basis_fns, double* dm, long nbasis, double* output);
+        void compute_fock_from_dm(double factor, double* basis_fns, long nbasis, double* output);
     };
 
 

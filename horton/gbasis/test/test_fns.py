@@ -168,3 +168,34 @@ def test_grid_fn_d_contraction():
 
     from test_cartpure import tfs
     assert abs(work_pure - np.dot(tfs[2], work_cart)).max() < 1e-10
+
+
+def test_density_functional_deriv():
+    fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
+    sys = System.from_file(fn_fchk)
+    int1d = TrapezoidIntegrator1D()
+    rtf = ExpRTransform(1e-3, 1e1, 5)
+    grid = BeckeMolGrid(sys, (rtf, int1d, 6), random_rotate=False, keep_subgrids=1)
+    pot = grid.points[:,2].copy()
+
+    def fun(x):
+        sys.wfn.dm_full._array[:] = x
+        f = sys.compute_grid_density(grid.points)
+        return 0.5*grid.integrate(f, f, pot)
+
+    def fun_deriv(x):
+        sys.wfn.dm_full._array[:] = x
+        result = sys.wfn.dm_full.copy()
+        result.reset()
+        f = sys.compute_grid_density(grid.points)
+        sys.compute_grid_one_body(grid.points, grid.weights, pot*f, result)
+        return result._array
+
+    eps = 1e-1
+    x = sys.wfn.update_dm('full')._array.copy()
+    dxs = []
+    for i in xrange(100):
+        dxs.append(np.random.uniform(-eps, +eps, x.shape)*x)
+
+    from horton.test.common import check_delta
+    check_delta(fun, fun_deriv, x, dxs)

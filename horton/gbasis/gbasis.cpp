@@ -237,17 +237,9 @@ void GOBasis::compute_grid_density_dm(double* dm, long npoint, double* points, d
         printf("\n");
 #endif
 
-        // C) Make dot product of basis functions with density matrix. This is the
-        // bottle neck. Note that the result is added to the output array!
-        double rho = 0, row;
-        for (long ibasis0=0; ibasis0<get_nbasis(); ibasis0++) {
-            row = 0;
-            for (long ibasis1=0; ibasis1<get_nbasis(); ibasis1++) {
-                row += basis_fns[ibasis1]*dm[ibasis0*get_nbasis()+ibasis1];
-            }
-            rho += row*basis_fns[ibasis0];
-        }
-        *rhos += rho;
+        // C) Use the basis function results and the density matrix to evaluate
+        // the function at the grid point. The result is added to the output.
+        grid_fn.compute_point_from_dm(basis_fns, dm, get_nbasis(), rhos);
 
         // D) Prepare for next iteration
         rhos++;
@@ -257,6 +249,8 @@ void GOBasis::compute_grid_density_dm(double* dm, long npoint, double* points, d
     delete[] basis_fns;
 }
 
+/*
+TODO: uncomment this when it becomes useful
 void GOBasis::compute_grid_density_orb(double* orbs, long nocc, long norb, double scale, long npoint, double* points, double* rhos) {
     double* basis_fns = new double[get_nbasis()];
     GB1GridFn grid_fn = GB1GridFn(get_max_shell_type());
@@ -273,15 +267,7 @@ void GOBasis::compute_grid_density_orb(double* orbs, long nocc, long norb, doubl
 
         // C) Make dot product of basis functions with orbital coefficients,
         // square and add.
-        double rho = 0;
-        for (long ibasis0=0; ibasis0<nocc; ibasis0++) {
-            double orb = 0.0;
-            for (long ibasis1=0; ibasis1<get_nbasis(); ibasis1++) {
-                orb += orbs[ibasis1*norb+ibasis0]*basis_fns[ibasis1];
-            }
-            rho += orb*orb;
-        }
-        *rhos += scale*rho;
+        grid_fn.compute_from_orb(basis_fns, orbs, get_nbasis(), rhos)
 
         // D) Prepare for next iteration
         rhos++;
@@ -290,6 +276,7 @@ void GOBasis::compute_grid_density_orb(double* orbs, long nocc, long norb, doubl
 
     delete[] basis_fns;
 }
+*/
 
 void GOBasis::compute_grid_one_body(long npoint, double* points, double* weights, long pot_stride, double* pots, double* output) {
     double* basis_fns = new double[get_nbasis()];
@@ -306,17 +293,7 @@ void GOBasis::compute_grid_one_body(long npoint, double* points, double* weights
         compute_grid(basis_fns, points, &grid_fn);
 
         // C) Add the contribution from this grid point to the operator
-        double tmp0 = (*weights)*(*pots);
-        for (long ibasis0=0; ibasis0<get_nbasis(); ibasis0++) {
-            double tmp1 = tmp0*basis_fns[ibasis0];
-            for (long ibasis1=0; ibasis1<=ibasis0; ibasis1++) {
-                output[ibasis1*get_nbasis()+ibasis0] += tmp1*basis_fns[ibasis1];
-                if (ibasis1!=ibasis0) {
-                    // Enforce symmetry
-                    output[ibasis0*get_nbasis()+ibasis1] += tmp1*basis_fns[ibasis1];
-                }
-            }
-        }
+        grid_fn.compute_fock_from_dm((*weights)*(*pots), basis_fns, get_nbasis(), output);
 
         // D) Prepare for next iteration
         points += 3;
