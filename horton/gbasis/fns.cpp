@@ -92,3 +92,44 @@ void GB1GridFn::cart_to_pure() {
         swap_work();
     }
 }
+
+void GB1GridFn::compute_point_from_dm(double* basis_fns, double* dm, long nbasis, double* output) {
+    double rho = 0;
+    for (long ibasis0=0; ibasis0<nbasis; ibasis0++) {
+        double row = 0;
+        for (long ibasis1=0; ibasis1<nbasis; ibasis1++) {
+            row += basis_fns[ibasis1]*dm[ibasis0*nbasis+ibasis1];
+        }
+        rho += row*basis_fns[ibasis0];
+    }
+    *output += rho;
+}
+
+/*
+TODO: uncomment this when it becomes useful.
+
+void GB1GridFn::compute_point_from_orb(double* basis_fns, double* orbs, long nbasis, long nocc, double* output) {
+    double rho = 0;
+    for (long ibasis0=0; ibasis0<nocc; ibasis0++) {
+        double orb = 0.0;
+        for (long ibasis1=0; ibasis1<nbasis; ibasis1++) {
+            orb += orbs[ibasis1*norb+ibasis0]*basis_fns[ibasis1];
+        }
+        rho += orb*orb;
+    }
+    *output += scale*rho;
+}
+*/
+
+void GB1GridFn::compute_fock_from_dm(double factor, double* basis_fns, long nbasis, double* output) {
+    for (long ibasis0=0; ibasis0<nbasis; ibasis0++) {
+        double tmp = factor*basis_fns[ibasis0];
+        for (long ibasis1=0; ibasis1<=ibasis0; ibasis1++) {
+            output[ibasis1*nbasis+ibasis0] += tmp*basis_fns[ibasis1];
+            if (ibasis1!=ibasis0) {
+                // Enforce symmetry
+                output[ibasis0*nbasis+ibasis1] += tmp*basis_fns[ibasis1];
+            }
+        }
+    }
+}
