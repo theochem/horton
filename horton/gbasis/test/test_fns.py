@@ -197,14 +197,108 @@ def test_density_functional_deriv():
         result = sys.wfn.dm_full.copy()
         result.reset()
         f = sys.compute_grid_density(grid.points)
-        sys.compute_grid_one_body(grid.points, grid.weights, pot*f, result)
+        sys.compute_grid_density_fock(grid.points, grid.weights, pot*f, result)
         return result._array
 
-    eps = 1e-1
+    eps = 1e-4
     x = sys.wfn.update_dm('full')._array.copy()
     dxs = []
     for i in xrange(100):
         dxs.append(np.random.uniform(-eps, +eps, x.shape)*x)
+
+    from horton.test.common import check_delta
+    check_delta(fun, fun_deriv, x, dxs)
+
+
+def check_density_gradient(sys, p0, p1):
+    points = np.array([p0, p1])
+    d = sys.compute_grid_density(points)
+    g = sys.compute_grid_gradient(points)
+    f1 = d[0] - d[1]
+    f2 = np.dot(p0-p1,g[0]+g[1])/2
+    assert abs(f1 - f2) < 1e-3*abs(f1)
+
+
+def test_density_gradient_n2_sto3g():
+    fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
+    sys = System.from_file(fn_fchk)
+
+    points = np.zeros((1,3), float)
+    g = sys.compute_grid_gradient(points)
+    assert abs(g).max() < 1e-10
+
+    eps = 1e-4
+    check_density_gradient(sys, np.array([0.1, 0.3, 0.2]), np.array([0.1+eps, 0.3, 0.2]))
+    check_density_gradient(sys, np.array([-0.1, 0.3, 0.2]), np.array([-0.1+eps, 0.3, 0.2]))
+    check_density_gradient(sys, np.array([-0.1, 0.4, 0.2]), np.array([-0.1+eps, 0.4, 0.2]))
+    check_density_gradient(sys, np.array([-0.1, 0.4, 1.2]), np.array([-0.1+eps, 0.4, 1.2]))
+
+
+def check_orbital_gradient(sys, p0, p1):
+    grid_fn = GB1GridGradientFn(sys.obasis.max_shell_type)
+
+    gradrhos0 = np.zeros((1,3), float)
+    sys.obasis._compute_grid_dm(sys.wfn.dm_full, p0, grid_fn, gradrhos0)
+    work0 = grid_fn.get_work(grid_fn.max_nbasis)
+
+    gradrhos1 = np.zeros((1,3), float)
+    sys.obasis._compute_grid_dm(sys.wfn.dm_full, p1, grid_fn, gradrhos0)
+    work1 = grid_fn.get_work(grid_fn.max_nbasis)
+
+    for i in xrange(len(work0)):
+        d1 = work0[i,0] - work1[i,0]
+        d2 = np.dot(p0-p1, work0[i,1:]+work1[i,1:])/2
+        assert abs(d1-d2) < abs(d1)*1e-3
+
+
+def test_orbital_gradient_n2_sto3g():
+    fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
+    sys = System.from_file(fn_fchk)
+    eps = 1e-4
+    check_orbital_gradient(sys, np.array([[-0.1, 0.4, 1.2]]), np.array([[-0.1+eps, 0.4, 1.2]]))
+    check_orbital_gradient(sys, np.array([[-0.1, 0.4, 1.2]]), np.array([[-0.1, 0.4+eps, 1.2]]))
+    check_orbital_gradient(sys, np.array([[-0.1, 0.4, 1.2]]), np.array([[-0.1, 0.4, 1.2+eps]]))
+
+
+def test_orbital_gradient_h3_321g():
+    fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
+    sys = System.from_file(fn_fchk)
+    eps = 1e-4
+    check_orbital_gradient(sys, np.array([[-0.1, 0.4, 1.2]]), np.array([[-0.1+eps, 0.4, 1.2]]))
+    check_orbital_gradient(sys, np.array([[-0.1, 0.4, 1.2]]), np.array([[-0.1, 0.4+eps, 1.2]]))
+    check_orbital_gradient(sys, np.array([[-0.1, 0.4, 1.2]]), np.array([[-0.1, 0.4, 1.2+eps]]))
+
+
+def test_gradient_functional_deriv():
+    fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
+    sys = System.from_file(fn_fchk)
+    int1d = TrapezoidIntegrator1D()
+    rtf = ExpRTransform(1e-3, 1e1, 5)
+    grid = BeckeMolGrid(sys, (rtf, int1d, 6), random_rotate=False, keep_subgrids=1)
+    pot = grid.points[:,2].copy()
+
+    def fun(x):
+        sys.wfn.dm_full._array[:] = x
+        f = sys.compute_grid_gradient(grid.points)
+        tmp = (f*f).sum(axis=1)
+        return 0.5*grid.integrate(tmp, pot)
+
+    def fun_deriv(x):
+        sys.wfn.dm_full._array[:] = x
+        result = sys.wfn.dm_full.copy()
+        result.reset()
+        tmp = sys.compute_grid_gradient(grid.points)
+        tmp *= pot.reshape(-1,1)
+        sys.compute_grid_gradient_fock(grid.points, grid.weights, tmp, result)
+        return result._array
+
+    eps = 1e-4
+    x = sys.wfn.update_dm('full')._array.copy()
+    dxs = []
+    for i in xrange(100):
+        tmp = np.random.uniform(-eps, +eps, x.shape)*x
+        tmp = (tmp+tmp.T)/2
+        dxs.append(tmp)
 
     from horton.test.common import check_delta
     check_delta(fun, fun_deriv, x, dxs)

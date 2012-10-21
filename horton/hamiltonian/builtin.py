@@ -136,7 +136,7 @@ class DiracExchange(HamiltonianTerm):
             # update operator stuff
             exchange, new = self.cache.load('op_exchange_dirac_%s' % select, alloc=(self.system.lf, 'one_body'))
             if new:
-                self.system.compute_grid_one_body(self.grid.points, self.grid.weights, pot, exchange)
+                self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, pot, exchange)
 
         helper('alpha')
         if not self.system.wfn.closed_shell:

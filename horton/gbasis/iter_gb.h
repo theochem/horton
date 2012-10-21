@@ -36,7 +36,7 @@ class IterGB1 {
         void update_shell();
         int inc_prim();
         void update_prim();
-        void store(const double *work, double *output);
+        void store(const double *work, double *output, long dim);
 
         // 'public' iterator fields
         long shell_type0;

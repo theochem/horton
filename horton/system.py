@@ -410,6 +410,45 @@ class System(object):
         self.obasis.compute_grid_density_dm(dm, points, rhos)
         return rhos
 
+    def compute_grid_gradient(self, points, gradrhos=None, select='full'):
+        '''Compute the electron density on a grid using self.wfn as input
+
+           **Arguments:**
+
+           points
+                A Numpy array with grid points, shape (npoint,3)
+
+           **Optional arguments:**
+
+           rhos
+                An output array, shape (npoint,). The results are added to this
+                array.
+
+           select
+                'alpha', 'beta', 'full' or 'spin'. ('full' is the default.)
+
+           **Returns:**
+
+           gradrhos
+                The array with the densities. This is the same as the output
+                argument, in case it was provided.
+        '''
+        if gradrhos is None:
+            gradrhos = np.zeros((len(points), 3), float)
+        elif gradrhos.shape != (points.shape[0],3):
+            raise TypeError('The shape of the output array is wrong')
+        dm = self.wfn.get_dm(select)
+        self.obasis.compute_grid_gradient_dm(dm, points, gradrhos)
+        return gradrhos
+
+    def compute_grid_density_fock(self, points, weights, pots, fock):
+        '''See documentation self.obasis.compute_grid_density_fock'''
+        self.obasis.compute_grid_density_fock(points, weights, pots, fock)
+
+    def compute_grid_gradient_fock(self, points, weights, pots, fock):
+        '''See documentation self.obasis.compute_grid_gradient_fock'''
+        self.obasis.compute_grid_gradient_fock(points, weights, pots, fock)
+
     def compute_nucnuc(self):
         '''Compute interaction energy of the nuclei'''
         # TODO: move this to low-level code one day.
@@ -420,7 +459,3 @@ class System(object):
                 result += self.numbers[i]*self.numbers[j]/distance
         self._props['energy_nn'] = result
         return result
-
-    def compute_grid_one_body(self, points, weights, pots, one_body):
-        '''See documentation self.obasis.compute_grid_one_body'''
-        self.obasis.compute_grid_one_body(points, weights, pots, one_body)

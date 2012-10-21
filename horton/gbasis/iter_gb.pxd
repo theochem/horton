@@ -31,7 +31,7 @@ cdef extern from "iter_gb.h":
         void update_shell()
         bint inc_prim()
         void update_prim()
-        void store(double *work, double *output)
+        void store(double *work, double *output, long dim)
 
         # 'public' iterator fields
         long shell_type0

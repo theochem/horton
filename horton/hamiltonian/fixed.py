@@ -53,5 +53,5 @@ class CustomGridFixedTerm(FixedTerm):
 
     def get_operator(self, system):
         operator = system.lf.create_one_body()
-        self.system.compute_grid_one_body(self.custom_grid.points, self.custom_grid.weights, self.potential, operator)
+        self.system.compute_grid_density_fock(self.custom_grid.points, self.custom_grid.weights, self.potential, operator)
         return operator, self.suffix

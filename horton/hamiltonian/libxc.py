@@ -57,7 +57,7 @@ class LibXCTerm(HamiltonianTerm):
             # Create/update the one-body operator based on the potential on the grid.
             operator, new = self.cache.load('op_libxc_%s_alpha' % self._name, alloc=(self.system.lf, 'one_body'))
             if new:
-                self.system.compute_grid_one_body(self.grid.points, self.grid.weights, pot, operator)
+                self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, pot, operator)
         else:
             # In case of spin-polarized computations, alpha and beta densities
             # go in and the alpha and beta potentials come out of  it.
@@ -71,11 +71,11 @@ class LibXCTerm(HamiltonianTerm):
             # Create/update the one-body operator based on the potential on the grid.
             operator_alpha, new_alpha = self.cache.load('op_libxc_%s_alpha' % self._name, alloc=(self.system.lf, 'one_body'))
             if new_alpha:
-                self.system.compute_grid_one_body(self.grid.points, self.grid.weights, pot_both[:,0], operator_alpha)
+                self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, pot_both[:,0], operator_alpha)
 
             operator_beta, new_beta = self.cache.load('op_libxc_%s_beta' % self._name, alloc=(self.system.lf, 'one_body'))
             if new_beta:
-                self.system.compute_grid_one_body(self.grid.points, self.grid.weights, pot_both[:,1], operator_beta)
+                self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, pot_both[:,1], operator_beta)
 
     def compute_energy(self):
         if self.system.wfn.closed_shell:

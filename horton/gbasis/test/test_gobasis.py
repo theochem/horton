@@ -188,7 +188,7 @@ def test_gird_one_body_ne():
     pot = sys.numbers[0]/dist0 + sys.numbers[1]/dist1
     na_ana = sys.get_nuclear_attraction()
     na_grid = sys.lf.create_one_body()
-    sys.compute_grid_one_body(grid.points, grid.weights, pot, na_grid)
+    sys.compute_grid_density_fock(grid.points, grid.weights, pot, na_grid)
     assert abs(na_grid._array).max() > 8.0
     assert abs(na_ana._array-na_grid._array).max() < 2e-3
     # check symmetry
