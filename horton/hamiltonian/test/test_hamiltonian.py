@@ -22,6 +22,7 @@
 
 import numpy as np
 from horton import *
+from horton.hamiltonian.test.common import *
 
 
 def test_hamiltonian_init():
@@ -168,35 +169,6 @@ def test_fock_h3_hfs_321g():
     assert abs(sys.props['energy_hartree'] + sys.props['energy_exchange_dirac'] - 1.658810998195E+00) < 1e-6
     assert abs(sys.props['energy'] - -1.412556114057104E+00) < 1e-5
     assert abs(sys.props['energy_nn'] - 1.8899186021) < 1e-8
-
-
-def check_cubic_cs_wrapper(ham, dm0, dm1):
-    wfn = ham.system.wfn
-    fock = ham.system.lf.create_one_body()
-
-    # evaluate stuff at dm0
-    ham.invalidate()
-    wfn.invalidate()
-    wfn.update_dm('alpha', dm0)
-    e0 = ham.compute_energy()
-    fock.reset()
-    ham.compute_fock(fock, None)
-    ev_00 = fock.expectation_value(dm0)
-    ev_01 = fock.expectation_value(dm1)
-    g0 = 2*(ev_01 - ev_00)
-
-    # evaluate stuff at dm1
-    ham.invalidate()
-    wfn.invalidate()
-    wfn.update_dm('alpha', dm1)
-    e1 = ham.compute_energy()
-    fock.reset()
-    ham.compute_fock(fock, None)
-    ev_10 = fock.expectation_value(dm0)
-    ev_11 = fock.expectation_value(dm1)
-    g1 = 2*(ev_11 - ev_10)
-
-    check_cubic_cs(ham, dm0, dm1, e0, e1, g0, g1, do_plot=False)
 
 
 def test_cubic_interpolation_hfs_cs():

@@ -234,6 +234,17 @@ def test_density_gradient_n2_sto3g():
     check_density_gradient(sys, np.array([-0.1, 0.4, 1.2]), np.array([-0.1+eps, 0.4, 1.2]))
 
 
+def test_density_gradient_h3_321g():
+    fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
+    sys = System.from_file(fn_fchk)
+
+    eps = 1e-4
+    check_density_gradient(sys, np.array([0.1, 0.3, 0.2]), np.array([0.1+eps, 0.3, 0.2]))
+    check_density_gradient(sys, np.array([-0.1, 0.3, 0.2]), np.array([-0.1+eps, 0.3, 0.2]))
+    check_density_gradient(sys, np.array([-0.1, 0.4, 0.2]), np.array([-0.1+eps, 0.4, 0.2]))
+    check_density_gradient(sys, np.array([-0.1, 0.4, 1.2]), np.array([-0.1+eps, 0.4, 1.2]))
+
+
 def check_orbital_gradient(sys, p0, p1):
     grid_fn = GB1GridGradientFn(sys.obasis.max_shell_type)
 

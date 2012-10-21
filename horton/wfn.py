@@ -175,12 +175,16 @@ class WFN(object):
         self._cache.invalidate()
 
     def init_exp(self, spin):
+        if spin not in ['alpha', 'beta']:
+            raise ValueError('The select argument must be alpha or beta')
         exp, new = self._cache.load('exp_%s' % spin, alloc=(self._lf, 'expansion', self._nbasis, self._norb))
         if not new:
             raise RuntimeError('The expansion exp_%s already exists. Call wfn.invalidate prior to updating the wfn.' % spin)
         return exp
 
     def init_dm(self, select):
+        if select not in ['alpha', 'beta', 'full', 'spin']:
+            raise ValueError('The select argument must be one of alpha, beta, full or spin.')
         dm, new = self._cache.load('dm_%s' % select, alloc=(self._lf, 'one_body', self.nbasis))
         if not new:
             raise RuntimeError('The density matrix dm_%s already exists. Call wfn.invalidate prior to updating the wfn.' % select)

@@ -315,7 +315,7 @@ def check_cubic_cs(ham, dm0, dm1, e0, e1, g0, g1, do_plot=True):
         poly = a*xs**3+b*xs**2+c*xs+d
         error = abs(poly-energies).max()
         oom = energies.max() - energies.min()
-        assert error < 0.1*oom
+        assert error < 0.01*oom
 
 
 
@@ -498,7 +498,7 @@ def check_cubic_os(ham, dm0a, dm0b, dm1a, dm1b, e0, e1, g0, g1, do_plot=True):
         poly = a*xs**3+b*xs**2+c*xs+d
         error = abs(poly-energies).max()
         oom = energies.max() - energies.min()
-        assert error < 0.1*oom
+        assert error < 0.01*oom
 
 
 def converge_scf_oda_os(ham, max_iter=128, threshold=1e-6, debug=False):
