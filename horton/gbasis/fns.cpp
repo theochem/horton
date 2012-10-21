@@ -103,26 +103,26 @@ void GB1GridDensityFn::add(double coeff, double alpha0, const double* scales0) {
 #endif
 }
 
-void GB1GridDensityFn::compute_point_from_dm(double* basis_fns, double* dm, long nbasis, double* output) {
+void GB1GridDensityFn::compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output) {
     double rho = 0;
     for (long ibasis0=0; ibasis0<nbasis; ibasis0++) {
         double row = 0;
         for (long ibasis1=0; ibasis1<nbasis; ibasis1++) {
-            row += basis_fns[ibasis1]*dm[ibasis0*nbasis+ibasis1];
+            row += work_basis[ibasis1]*dm[ibasis0*nbasis+ibasis1];
         }
-        rho += row*basis_fns[ibasis0];
+        rho += row*work_basis[ibasis0];
     }
     *output += rho;
 }
 
-void GB1GridDensityFn::compute_fock_from_dm(double factor, double* basis_fns, long nbasis, double* output) {
+void GB1GridDensityFn::compute_fock_from_dm(double factor, double* work_basis, long nbasis, double* output) {
     for (long ibasis0=0; ibasis0<nbasis; ibasis0++) {
-        double tmp = factor*basis_fns[ibasis0];
+        double tmp = factor*work_basis[ibasis0];
         for (long ibasis1=0; ibasis1<=ibasis0; ibasis1++) {
-            output[ibasis1*nbasis+ibasis0] += tmp*basis_fns[ibasis1];
+            output[ibasis1*nbasis+ibasis0] += tmp*work_basis[ibasis1];
             if (ibasis1!=ibasis0) {
                 // Enforce symmetry
-                output[ibasis0*nbasis+ibasis1] += tmp*basis_fns[ibasis1];
+                output[ibasis0*nbasis+ibasis1] += tmp*work_basis[ibasis1];
             }
         }
     }
