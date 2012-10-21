@@ -20,6 +20,8 @@
 #--
 
 
+# TODO: add not None to all array arguments
+
 import numpy as np
 cimport numpy as np
 np.import_array()
@@ -53,7 +55,7 @@ __all__ = [
     'nuclear_attraction_helper', 'GB2NuclearAttractionIntegral',
     'GB4ElectronReuplsionIntegralLibInt',
     # fns
-    'GB1GridDensityFn',
+    'GB1GridDensityFn', 'GB1GridGradientFn',
     # iter_gb
     'IterGB1', 'IterGB2', 'IterGB4',
     # iter_pow
@@ -465,7 +467,44 @@ cdef class GOBasis(GBasis):
         self.check_matrix_two_body(output)
         (<gbasis.GOBasis*>self._this).compute_electron_repulsion(<double*>output.data)
 
-    def compute_grid_density_dm(self, dm, np.ndarray[double, ndim=2] points, np.ndarray[double, ndim=1] rhos):
+    def _compute_grid_dm(self, dm, np.ndarray[double, ndim=2] points not None, GB1GridFn grid_fn not None, np.ndarray output not None):
+        '''_compute_grid_dm(dm, points, output)
+
+           Compute some density function on a grid for a given density matrix.
+
+           **Arguments:**
+
+           dm
+                A density matrix. For now, this must be a DenseOneBody object.
+
+           points
+                A Numpy array with grid points, shape (npoint,3).
+
+           grid_fn
+                A grid function.
+
+           output
+                A Numpy array for the output.
+
+           **Warning:** the results are added to the output array! This may
+           be useful to combine results from different spin components.
+        '''
+        cdef np.ndarray dmar = dm._array
+        self.check_matrix_one_body(dmar)
+        npoint = output.shape[0]
+        if grid_fn.dim_output == 1:
+            assert output.ndim == 1
+        else:
+            assert output.ndim == 2
+            assert output.shape[1] == grid_fn.dim_output
+        assert points.flags['C_CONTIGUOUS']
+        assert points.shape[0] == npoint
+        assert points.shape[1] == 3
+        (<gbasis.GOBasis*>self._this).compute_grid_dm(
+            <double*>dmar.data, npoint, <double*>points.data,
+            grid_fn._this, <double*>output.data)
+
+    def compute_grid_density_dm(self, dm, np.ndarray[double, ndim=2] points not None, np.ndarray[double, ndim=1] rhos not None):
         '''compute_grid_density_dm(dm, points, rho)
 
            Compute the electron density on a grid for a given density matrix.
@@ -484,24 +523,36 @@ cdef class GOBasis(GBasis):
            **Warning:** the results are added to the output array! This may
            be useful to combine results from different spin components.
         '''
-        cdef np.ndarray dmar = dm._array
-        self.check_matrix_one_body(dmar)
-        assert rhos.flags['C_CONTIGUOUS']
-        npoint = rhos.shape[0]
-        assert points.flags['C_CONTIGUOUS']
-        assert points.shape[0] == npoint
-        assert points.shape[1] == 3
-        grid_fn = GB1GridDensityFn(self.max_shell_type)
-        (<gbasis.GOBasis*>self._this).compute_grid_density_dm(
-            <double*>dmar.data, npoint, <double*>points.data,
-            grid_fn._this, <double*>rhos.data)
+        self._compute_grid_dm(dm, points, GB1GridDensityFn(self.max_shell_type), rhos)
 
-    def compute_grid_one_body(self, np.ndarray[double, ndim=2] points,
-                                    np.ndarray[double, ndim=1] weights,
-                                    np.ndarray[double, ndim=1] pots, one_body):
-        '''compute_grid_one_body(points, weights, pots, one_body)
+    def compute_grid_gradient_dm(self, dm, np.ndarray[double, ndim=2] points not None, np.ndarray[double, ndim=2] gradrhos not None):
+        '''compute_grid_gradient_dm(dm, points, gradrho)
 
-           Compute a one-body operator based on potential grid data in real-space
+           Compute the electron density gradient on a grid for a given density matrix.
+
+           **Arguments:**
+
+           dm
+                A density matrix. For now, this must be a DenseOneBody object.
+
+           points
+                A Numpy array with grid points, shape (npoint,3).
+
+           gradrhos
+                A Numpy array for the output, shape (npoint,3).
+
+           **Warning:** the results are added to the output array! This may
+           be useful to combine results from different spin components.
+        '''
+        self._compute_grid_dm(dm, points, GB1GridGradientFn(self.max_shell_type), gradrhos)
+
+    def _compute_grid_fock(self, np.ndarray[double, ndim=2] points not None,
+                           np.ndarray[double, ndim=1] weights not None,
+                           np.ndarray pots not None,
+                           GB1GridFn grid_fn not None, fock):
+        '''_compute_grid_fock(points, weights, pots, grid_fn, fock)
+
+           Compute a one-body operator based on some potential grid in real-space
 
            **Arguments:**
 
@@ -512,29 +563,90 @@ cdef class GOBasis(GBasis):
                 A Numpy array with integration weights, shape (npoint,).
 
            pots
-                A Numpy array with potential data, shape (npoint,).
+                A Numpy array with some data.
 
-           one_body
+           grid_fn
+                A grid function.
+
+           fock
                 A one-body operator. For now, this must be a DenseOneBody
                 object.
 
-           **Warning:** the results are added to the one_body object!
+           **Warning:** the results are added to the fock operator!
         '''
-        cdef np.ndarray output = one_body._array
+        cdef np.ndarray output = fock._array
         self.check_matrix_one_body(output)
         assert points.flags['C_CONTIGUOUS']
         npoint = points.shape[0]
         assert points.shape[1] == 3
         assert weights.flags['C_CONTIGUOUS']
         assert npoint == weights.shape[0]
-        pot_stride = pots.strides[0]
-        assert pot_stride % 8 == 0
+        assert pots.strides[0] % 8 == 0
+        pot_stride = pots.strides[0]/8
         assert npoint == pots.shape[0]
-        grid_fn = GB1GridDensityFn(self.max_shell_type)
-        (<gbasis.GOBasis*>self._this).compute_grid_one_body(
+        if grid_fn.dim_output == 1:
+            assert pots.ndim == 1
+        else:
+            assert pots.ndim == 2
+            assert pots.shape[1] == grid_fn.dim_output
+            assert pots.strides[1] % 8 == 0
+            pot_stride *= (pots.strides[1] / 8)
+        (<gbasis.GOBasis*>self._this).compute_grid_fock(
             npoint, <double*>points.data, <double*>weights.data,
-            pot_stride/8, <double*>pots.data,
+            pot_stride, <double*>pots.data,
             grid_fn._this, <double*>output.data)
+
+    def compute_grid_density_fock(self, np.ndarray[double, ndim=2] points not None,
+                                  np.ndarray[double, ndim=1] weights not None,
+                                  np.ndarray[double, ndim=1] pots not None, fock):
+        '''compute_grid_density_fock(points, weights, pots, fock)
+
+           Compute a one-body operator based on a density potential grid in real-space
+
+           **Arguments:**
+
+           points
+                A Numpy array with grid points, shape (npoint,3).
+
+           weights
+                A Numpy array with integration weights, shape (npoint,).
+
+           pots
+                A Numpy array with density potential data, shape (npoint,).
+
+           fock
+                A one-body operator. For now, this must be a DenseOneBody
+                object.
+
+           **Warning:** the results are added to the fock operator!
+        '''
+        self._compute_grid_fock(points, weights, pots, GB1GridDensityFn(self.max_shell_type), fock)
+
+    def compute_grid_gradient_fock(self, np.ndarray[double, ndim=2] points not None,
+                                   np.ndarray[double, ndim=1] weights not None,
+                                   np.ndarray[double, ndim=2] pots not None, fock):
+        '''compute_grid_density_fock(points, weights, pots, fock)
+
+           Compute a one-body operator based on a density potential grid in real-space
+
+           **Arguments:**
+
+           points
+                A Numpy array with grid points, shape (npoint,3).
+
+           weights
+                A Numpy array with integration weights, shape (npoint,).
+
+           pots
+                A Numpy array with gradient potential data, shape (npoint, 3).
+
+           fock
+                A one-body operator. For now, this must be a DenseOneBody
+                object.
+
+           **Warning:** the results are added to the fock operator!
+        '''
+        self._compute_grid_fock(points, weights, pots, GB1GridGradientFn(self.max_shell_type), fock)
 
 #
 # ints wrappers (for testing only)
@@ -737,7 +849,7 @@ cdef class GB4ElectronReuplsionIntegralLibInt(GB4Integral):
 
 
 #
-# fns wrappers (for testing only)
+# fns wrappers (for testing and use in this module)
 #
 
 
@@ -796,17 +908,26 @@ cdef class GB1GridFn:
            point to the deallocated memory. For that reason, a copy is returned.
            Speed is not an issue as this class is only used for testing.
         '''
-        cdef np.npy_intp shape[1]
+        cdef np.npy_intp shape[2]
         assert shape0 > 0
         assert shape0 <= self.max_nbasis
         shape[0] = shape0
-        tmp = np.PyArray_SimpleNewFromData(1, shape, np.NPY_DOUBLE, <void*> self._this.get_work())
+        if self.dim_work == 1:
+            tmp = np.PyArray_SimpleNewFromData(1, shape, np.NPY_DOUBLE, <void*> self._this.get_work())
+        else:
+            shape[1] = self.dim_work
+            tmp = np.PyArray_SimpleNewFromData(2, shape, np.NPY_DOUBLE, <void*> self._this.get_work())
         return tmp.copy()
 
 
 cdef class GB1GridDensityFn(GB1GridFn):
     def __cinit__(self, long max_nbasis):
         self._this = <fns.GB1GridFn*>(new fns.GB1GridDensityFn(max_nbasis))
+
+
+cdef class GB1GridGradientFn(GB1GridFn):
+    def __cinit__(self, long max_nbasis):
+        self._this = <fns.GB1GridFn*>(new fns.GB1GridGradientFn(max_nbasis))
 
 
 #
@@ -839,13 +960,13 @@ cdef class IterGB1:
         self._this.update_prim()
 
     def store(self, np.ndarray[double, ndim=1] work,
-              np.ndarray[double, ndim=1] output):
+              np.ndarray[double, ndim=1] output, long dim=1):
         max_shell_nbasis = get_shell_nbasis(self._gbasis.max_shell_type)
         assert work.shape[0] == get_shell_nbasis(self._this.shell_type0)
         assert work.flags['C_CONTIGUOUS']
         assert output.shape[0] == self._gbasis.nbasis
         assert output.flags['C_CONTIGUOUS']
-        self._this.store(<double*>work.data, <double*>output.data)
+        self._this.store(<double*>work.data, <double*>output.data, dim)
 
     property public_fields:
         def __get__(self):

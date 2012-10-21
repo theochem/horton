@@ -38,3 +38,6 @@ cdef extern from "fns.h":
 
     cdef cppclass GB1GridDensityFn:
         GB1GridDensityFn(long max_shell_type) except +
+
+    cdef cppclass GB1GridGradientFn:
+        GB1GridGradientFn(long max_shell_type) except +

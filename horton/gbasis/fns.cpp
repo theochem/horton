@@ -36,8 +36,10 @@ using namespace std;
     GB1GridFn
 */
 
-GB1GridFn::GB1GridFn(long max_shell_type): GBCalculator(max_shell_type) {
-    nwork = max_nbasis;
+GB1GridFn::GB1GridFn(long max_shell_type, long dim_work, long dim_output):
+    GBCalculator(max_shell_type), dim_work(dim_work), dim_output(dim_output)
+{
+    nwork = max_nbasis*dim_work;
     work_cart = new double[nwork];
     work_pure = new double[nwork];
 }
@@ -115,14 +117,107 @@ void GB1GridDensityFn::compute_point_from_dm(double* work_basis, double* dm, lon
     *output += rho;
 }
 
-void GB1GridDensityFn::compute_fock_from_dm(double factor, double* work_basis, long nbasis, double* output) {
+void GB1GridDensityFn::compute_fock_from_pot(double* pot, double* work_basis, long nbasis, double* output) {
     for (long ibasis0=0; ibasis0<nbasis; ibasis0++) {
-        double tmp = factor*work_basis[ibasis0];
+        double tmp = (*pot)*work_basis[ibasis0];
         for (long ibasis1=0; ibasis1<=ibasis0; ibasis1++) {
             output[ibasis1*nbasis+ibasis0] += tmp*work_basis[ibasis1];
             if (ibasis1!=ibasis0) {
                 // Enforce symmetry
                 output[ibasis0*nbasis+ibasis1] += tmp*work_basis[ibasis1];
+            }
+        }
+    }
+}
+
+
+
+/*
+    GB1GridGradientFn
+*/
+
+static void poly_helper(double x, long n, double* poly, double* poly1) {
+    for (long i=n; i>0; i--) {
+        *poly *= x;
+        if (i==2) {
+            *poly1 = *poly;
+        }
+    }
+}
+
+
+void GB1GridGradientFn::add(double coeff, double alpha0, const double* scales0) {
+    double x = point[0] - r0[0];
+    double y = point[1] - r0[1];
+    double z = point[2] - r0[2];
+    double pre = coeff*exp(-alpha0*(x*x+y*y+z*z));
+    i1p.reset(abs(shell_type0));
+    do {
+        double pre0 = pre*scales0[i1p.ibasis0];
+
+        // For now, simple and inefficient evaluation of polynomial.
+        // TODO: make more efficient by moving evaluation of poly to reset
+        double poly_x = 1.0;
+        double poly_1x = 1.0;
+        poly_helper(x, i1p.n0[0], &poly_x, &poly_1x);
+        double poly_y = 1.0;
+        double poly_1y = 1.0;
+        poly_helper(y, i1p.n0[1], &poly_y, &poly_1y);
+        double poly_z = 1.0;
+        double poly_1z = 1.0;
+        poly_helper(z, i1p.n0[2], &poly_z, &poly_1z);
+
+        double tmp0 = pre0*poly_x*poly_y*poly_z;
+        double tmp1;
+        // Basis function value
+        work_cart[i1p.ibasis0*4] += tmp0;
+        // Basis function derivative towards x
+        tmp0 *= -2.0*alpha0;
+        tmp1 = x*tmp0;
+        if (i1p.n0[0] > 0) tmp1 += i1p.n0[0]*pre0*poly_1x*poly_y*poly_z;
+        work_cart[i1p.ibasis0*4+1] += tmp1;
+        // Basis function derivative towards y
+        tmp1 = y*tmp0;
+        if (i1p.n0[1] > 0) tmp1 += i1p.n0[1]*pre0*poly_x*poly_1y*poly_z;
+        work_cart[i1p.ibasis0*4+2] += tmp1;
+        // Basis function derivative towards z
+        tmp1 = z*tmp0;
+        if (i1p.n0[2] > 0) tmp1 += i1p.n0[2]*pre0*poly_x*poly_y*poly_1z;
+        work_cart[i1p.ibasis0*4+3] += tmp1;
+    } while (i1p.inc());
+}
+
+void GB1GridGradientFn::compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output) {
+    double rho_x = 0, rho_y = 0, rho_z = 0;
+    for (long ibasis0=0; ibasis0<nbasis; ibasis0++) {
+        double row = 0;
+        for (long ibasis1=0; ibasis1<nbasis; ibasis1++) {
+            row += work_basis[ibasis1*4]*dm[ibasis0*nbasis+ibasis1];
+        }
+        rho_x += row*work_basis[ibasis0*4+1];
+        rho_y += row*work_basis[ibasis0*4+2];
+        rho_z += row*work_basis[ibasis0*4+3];
+    }
+    output[0] += 2*rho_x;
+    output[1] += 2*rho_y;
+    output[2] += 2*rho_z;
+}
+
+void GB1GridGradientFn::compute_fock_from_pot(double* pot, double* work_basis, long nbasis, double* output) {
+    for (long ibasis0=0; ibasis0<nbasis; ibasis0++) {
+        double tmp0 = work_basis[ibasis0*4];
+        double tmp1 = pot[0]*work_basis[ibasis0*4+1] +
+                      pot[1]*work_basis[ibasis0*4+2] +
+                      pot[2]*work_basis[ibasis0*4+3];
+        for (long ibasis1=0; ibasis1<=ibasis0; ibasis1++) {
+            double result = tmp0*(pot[0]*work_basis[ibasis1*4+1] +
+                                  pot[1]*work_basis[ibasis1*4+2] +
+                                  pot[2]*work_basis[ibasis1*4+3]) +
+                            tmp1*work_basis[ibasis1*4];
+            output[ibasis1*nbasis+ibasis0] += result;
+            if (ibasis1!=ibasis0) {
+                // Enforce symmetry
+                output[ibasis0*nbasis+ibasis1] += result;
             }
         }
     }

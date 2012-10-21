@@ -403,7 +403,7 @@ void cart_to_pure_low(double *work_cart, double* work_pure, long shell_type,
             for (i=tf->size-1; i>=0; i--) {
 #ifdef DEBUG
                 printf("pure[%i] += cart[%i]*%f\n", (ca*npure + el->ipure)*npost + cp, (ca*ncart + el->icart)*npost + cp, el->x);
-#endif DEBUG
+#endif
                 work_pure[
                     (ca*npure + el->ipure)*npost + cp
                 ] += el->x*work_cart[

@@ -38,7 +38,7 @@ class GBCalculator {
         void swap_work();
     public:
         GBCalculator(long max_shell_type);
-        ~GBCalculator();
+        virtual ~GBCalculator();
         const long get_nwork() const {return nwork;};
         const long get_max_shell_type() const {return max_shell_type;};
         const long get_max_nbasis() const {return max_nbasis;};

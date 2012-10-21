@@ -94,10 +94,10 @@ void IterGB1::update_prim() {
 }
 
 
-void IterGB1::store(const double *work, double *output) {
+void IterGB1::store(const double *work, double *output, long dim) {
     // This routine is hardwired to work only for the dense storage
     const long n0 = get_shell_nbasis(shell_type0);
-    memcpy(output+ibasis0, work, n0*sizeof(double));
+    memcpy(output+ibasis0*dim, work, n0*dim*sizeof(double));
 }
 
 
