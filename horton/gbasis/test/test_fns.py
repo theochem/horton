@@ -55,6 +55,8 @@ def test_grid_fn_s():
     assert grid_fn.nwork == 1
     assert grid_fn.max_shell_type == 0
     assert grid_fn.max_nbasis == 1
+    assert grid_fn.dim_work == 1
+    assert grid_fn.dim_output == 1
 
     center = np.array([-0.1, 0.6, -0.3])
     point = np.array([0.5, -0.2, 0.7])
@@ -71,11 +73,14 @@ def test_grid_fn_s():
     dsq = np.linalg.norm(center - point)**2
     assert abs(work[0] -  scale0*coeff*np.exp(-alpha*dsq)) < 1e-10
 
+
 def test_grid_fn_p():
     grid_fn = GB1GridDensityFn(1)
     assert grid_fn.nwork == 3
     assert grid_fn.max_shell_type == 1
     assert grid_fn.max_nbasis == 3
+    assert grid_fn.dim_work == 1
+    assert grid_fn.dim_output == 1
 
     center = np.array([-0.1, 0.6, -0.3])
     point = np.array([0.5, -0.2, 0.7])
@@ -100,6 +105,8 @@ def test_grid_fn_p_contraction():
     assert grid_fn.nwork == 3
     assert grid_fn.max_shell_type == 1
     assert grid_fn.max_nbasis == 3
+    assert grid_fn.dim_work == 1
+    assert grid_fn.dim_output == 1
 
     center = np.array([-0.1, 0.6, -0.3])
     point = np.array([0.5, -0.2, 0.7])
@@ -130,6 +137,8 @@ def test_grid_fn_d_contraction():
     assert grid_fn.nwork == 10
     assert grid_fn.max_shell_type == 3
     assert grid_fn.max_nbasis == 10
+    assert grid_fn.dim_work == 1
+    assert grid_fn.dim_output == 1
 
     center = np.array([-0.1, 0.6, -0.3])
     point = np.array([0.5, -0.2, 0.7])

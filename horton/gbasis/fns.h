@@ -39,9 +39,11 @@ class GB1GridFn : public GBCalculator  {
         void cart_to_pure();
         const long get_shell_type0() const {return shell_type0;};
 
+        virtual long get_dim_work() = 0;
+        virtual long get_dim_output() = 0;
         virtual void add(double coeff, double alpha0, const double* scales0) = 0;
-        virtual void compute_point_from_dm(double* basis_fns, double* dm, long nbasis, double* output) = 0;
-        virtual void compute_fock_from_dm(double factor, double* basis_fns, long nbasis, double* output) = 0;
+        virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output) = 0;
+        virtual void compute_fock_from_dm(double factor, double* work_basis, long nbasis, double* output) = 0;
     };
 
 
@@ -49,9 +51,11 @@ class GB1GridDensityFn : public GB1GridFn  {
     public:
         GB1GridDensityFn(long max_shell_type): GB1GridFn(max_shell_type) {};
 
+        long get_dim_work() {return 1;};
+        long get_dim_output() {return 1;};
         void add(double coeff, double alpha0, const double* scales0);
-        void compute_point_from_dm(double* basis_fns, double* dm, long nbasis, double* output);
-        void compute_fock_from_dm(double factor, double* basis_fns, long nbasis, double* output);
+        void compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output);
+        void compute_fock_from_dm(double factor, double* work_basis, long nbasis, double* output);
     };
 
 

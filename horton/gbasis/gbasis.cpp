@@ -26,6 +26,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <cstdlib>
+#include <cstring>
 #include "gbasis.h"
 #include "common.h"
 #include "iter_gb.h"
@@ -218,53 +219,50 @@ void GOBasis::compute_electron_repulsion(double* output) {
 }
 
 void GOBasis::compute_grid_density_dm(double* dm, long npoint, double* points, double* rhos) {
-    double* basis_fns = new double[get_nbasis()];
     GB1GridDensityFn grid_fn = GB1GridDensityFn(get_max_shell_type());
 
-    for (long ipoint=0; ipoint<npoint; ipoint++) {
+    // The work array contains the basis functions evaluated at the grid point,
+    // and optionally some of its derivatives.
+    long nwork = get_nbasis()*grid_fn.get_dim_work();
+    double* work_basis = new double[nwork];
 
+    for (long ipoint=0; ipoint<npoint; ipoint++) {
         // A) clear the basis functions.
-        for (long ibasis=0; ibasis<get_nbasis(); ibasis++) {
-            basis_fns[ibasis] = 0.0;
-        }
+        memset(work_basis, 0, nwork*sizeof(double));
 
         // B) evaluate the basis functions in the current point.
-        compute_grid(basis_fns, points, &grid_fn);
-#ifdef DEBUG
-        for (long ibasis=0; ibasis<get_nbasis(); ibasis++) {
-            printf("basis_fns[%i] = %f\n", ibasis, basis_fns[ibasis]);
-        }
-        printf("\n");
-#endif
+        compute_grid(work_basis, points, &grid_fn);
 
         // C) Use the basis function results and the density matrix to evaluate
         // the function at the grid point. The result is added to the output.
-        grid_fn.compute_point_from_dm(basis_fns, dm, get_nbasis(), rhos);
+        grid_fn.compute_point_from_dm(work_basis, dm, get_nbasis(), rhos);
 
         // D) Prepare for next iteration
         rhos++;
         points += 3;
     }
 
-    delete[] basis_fns;
+    delete[] work_basis;
 }
 
 void GOBasis::compute_grid_one_body(long npoint, double* points, double* weights, long pot_stride, double* pots, double* output) {
-    double* basis_fns = new double[get_nbasis()];
     GB1GridDensityFn grid_fn = GB1GridDensityFn(get_max_shell_type());
 
-    for (long ipoint=0; ipoint<npoint; ipoint++) {
+    // The work array contains the basis functions evaluated at the grid point,
+    // and optionally some of its derivatives.
+    long nwork = get_nbasis()*grid_fn.get_dim_work();
+    double* work_basis = new double[nwork];
+    pot_stride *= grid_fn.get_dim_output();
 
-        // A) clear the basis functions.
-        for (long ibasis=0; ibasis<get_nbasis(); ibasis++) {
-            basis_fns[ibasis] = 0.0;
-        }
+    for (long ipoint=0; ipoint<npoint; ipoint++) {
+        // A) clear the work array.
+        memset(work_basis, 0, nwork*sizeof(double));
 
         // B) evaluate the basis functions in the current point.
-        compute_grid(basis_fns, points, &grid_fn);
+        compute_grid(work_basis, points, &grid_fn);
 
         // C) Add the contribution from this grid point to the operator
-        grid_fn.compute_fock_from_dm((*weights)*(*pots), basis_fns, get_nbasis(), output);
+        grid_fn.compute_fock_from_dm((*weights)*(*pots), work_basis, get_nbasis(), output);
 
         // D) Prepare for next iteration
         points += 3;
@@ -272,5 +270,5 @@ void GOBasis::compute_grid_one_body(long npoint, double* points, double* weights
         pots += pot_stride;
     }
 
-    delete[] basis_fns;
+    delete[] work_basis;
 }

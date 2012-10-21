@@ -760,6 +760,14 @@ cdef class GB1GridFn:
         def __get__(self):
             return self._this.get_shell_type0()
 
+    property dim_work:
+        def __get__(self):
+            return self._this.get_dim_work()
+
+    property dim_output:
+        def __get__(self):
+            return self._this.get_dim_output()
+
     def reset(self, long shell_type0, np.ndarray[double, ndim=1] r0, np.ndarray[double, ndim=1] point):
         assert r0.flags['C_CONTIGUOUS']
         assert r0.shape[0] == 3

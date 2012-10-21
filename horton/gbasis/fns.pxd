@@ -27,6 +27,8 @@ cdef extern from "fns.h":
         long get_nwork()
         long get_max_shell_type()
         long get_max_nbasis()
+        long get_dim_work()
+        long get_dim_output()
         void reset(long shell_type0, double* r0, double* point) except +
         void add(double coeff, double alpha0, double* scales0)
         void cart_to_pure() except +
