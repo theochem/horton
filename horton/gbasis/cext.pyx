@@ -491,8 +491,10 @@ cdef class GOBasis(GBasis):
         assert points.flags['C_CONTIGUOUS']
         assert points.shape[0] == npoint
         assert points.shape[1] == 3
+        grid_fn = GB1GridDensityFn(self.max_shell_type)
         (<gbasis.GOBasis*>self._this).compute_grid_density_dm(
-            <double*>dmar.data, npoint, <double*>points.data, <double*>rhos.data)
+            <double*>dmar.data, npoint, <double*>points.data,
+            grid_fn._this, <double*>rhos.data)
 
     def compute_grid_one_body(self, np.ndarray[double, ndim=2] points,
                                     np.ndarray[double, ndim=1] weights,
@@ -528,9 +530,11 @@ cdef class GOBasis(GBasis):
         pot_stride = pots.strides[0]
         assert pot_stride % 8 == 0
         assert npoint == pots.shape[0]
+        grid_fn = GB1GridDensityFn(self.max_shell_type)
         (<gbasis.GOBasis*>self._this).compute_grid_one_body(
             npoint, <double*>points.data, <double*>weights.data,
-            pot_stride/8, <double*>pots.data, <double*>output.data)
+            pot_stride/8, <double*>pots.data,
+            grid_fn._this, <double*>output.data)
 
 #
 # ints wrappers (for testing only)
