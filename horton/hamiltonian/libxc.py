@@ -26,10 +26,10 @@ from horton.hamiltonian.core import HamiltonianTerm
 from horton.hamiltonian.cext import LibXCWrapper
 
 
-__all__ = ['LibXCTerm']
+__all__ = ['LibXCLDATerm']
 
 
-class LibXCTerm(HamiltonianTerm):
+class LibXCLDATerm(HamiltonianTerm):
     '''Any LDA functional from LibXC'''
 
     require_grid = True
@@ -38,8 +38,9 @@ class LibXCTerm(HamiltonianTerm):
            **Arguments:**
 
            name
-                The name of the functional in LibXC
+                The name of the functional in LibXC, without the 'lda_' prefix.
         '''
+        name = 'lda_' + name.lower()
         self._name = name
         self._libxc_wrapper = LibXCWrapper(name)
 
@@ -50,10 +51,10 @@ class LibXCTerm(HamiltonianTerm):
             pot, new = self.cache.load('pot_libxc_%s_alpha' % self._name, alloc=self.grid.size)
             if new:
                 rho = self.update_rho('full')
-                self._libxc_wrapper.compute_vxc_unpol(rho, pot)
+                self._libxc_wrapper.compute_lda_vxc_unpol(rho, pot)
 
             # TODO: in the Hamiltonian class, all the grids should be added
-            # and converted only once to a one-body operator
+            # and converted only once to a fock operator
             # Create/update the one-body operator based on the potential on the grid.
             operator, new = self.cache.load('op_libxc_%s_alpha' % self._name, alloc=(self.system.lf, 'one_body'))
             if new:
@@ -64,10 +65,10 @@ class LibXCTerm(HamiltonianTerm):
             pot_both, new = self.cache.load('pot_libxc_%s_both' % self._name, alloc=(self.grid.size, 2))
             if new:
                 rho_both = self.update_rho('both')
-                self._libxc_wrapper.compute_vxc_pol(rho_both, pot_both)
+                self._libxc_wrapper.compute_lda_vxc_pol(rho_both, pot_both)
 
             # TODO: in the Hamiltonian class, all the grids should be added
-            # and converted only once to a one-body operator
+            # and converted only once to a fock operator
             # Create/update the one-body operator based on the potential on the grid.
             operator_alpha, new_alpha = self.cache.load('op_libxc_%s_alpha' % self._name, alloc=(self.system.lf, 'one_body'))
             if new_alpha:
@@ -84,7 +85,7 @@ class LibXCTerm(HamiltonianTerm):
             rho = self.update_rho('full')
             edens, new = self.cache.load('edens_libxc_%s_full' % self._name, alloc=self.grid.size)
             if new:
-                self._libxc_wrapper.compute_exc_unpol(rho, edens)
+                self._libxc_wrapper.compute_lda_exc_unpol(rho, edens)
             energy = self.grid.integrate(edens, rho)
             self.store_energy('libxc_%s' % self._name, energy)
             return energy
@@ -94,7 +95,7 @@ class LibXCTerm(HamiltonianTerm):
             edens, new = self.cache.load('edens_libxc_%s_full' % self._name, alloc=self.grid.size)
             if new:
                 rho_both = self.update_rho('both')
-                self._libxc_wrapper.compute_exc_pol(rho_both, edens)
+                self._libxc_wrapper.compute_lda_exc_pol(rho_both, edens)
 
             rho = self.update_rho('full')
             energy = self.grid.integrate(edens, rho)
@@ -102,6 +103,7 @@ class LibXCTerm(HamiltonianTerm):
             return energy
 
     def add_fock_matrix(self, fock_alpha, fock_beta):
+        # TODO: move this above compute_energy, also in all other classes
         self._update_operator()
         fock_alpha.iadd(self.cache.load('op_libxc_%s_alpha' % self._name))
         if not self.system.wfn.closed_shell:

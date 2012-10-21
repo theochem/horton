@@ -68,14 +68,14 @@ cdef class LibXCWrapper(object):
             xc_lda_end(&self._func_pol)
             xc_lda_end(&self._func_unpol)
 
-    def compute_exc_unpol(self, np.ndarray[double, ndim=1] rho, np.ndarray[double, ndim=1] zk):
+    def compute_lda_exc_unpol(self, np.ndarray[double, ndim=1] rho, np.ndarray[double, ndim=1] zk):
         assert rho.flags['C_CONTIGUOUS']
         npoint = rho.shape[0]
         assert zk.flags['C_CONTIGUOUS']
         assert npoint == zk.shape[0]
         xc_lda_exc(&self._func_unpol, npoint, <double*>rho.data, <double*>zk.data)
 
-    def compute_exc_pol(self, np.ndarray[double, ndim=2] rho, np.ndarray[double, ndim=1] zk):
+    def compute_lda_exc_pol(self, np.ndarray[double, ndim=2] rho, np.ndarray[double, ndim=1] zk):
         assert rho.flags['C_CONTIGUOUS']
         npoint = rho.shape[0]
         assert rho.shape[1] == 2
@@ -83,14 +83,14 @@ cdef class LibXCWrapper(object):
         assert npoint == zk.shape[0]
         xc_lda_exc(&self._func_pol, npoint, <double*>rho.data, <double*>zk.data)
 
-    def compute_vxc_unpol(self, np.ndarray[double, ndim=1] rho, np.ndarray[double, ndim=1] vxc):
+    def compute_lda_vxc_unpol(self, np.ndarray[double, ndim=1] rho, np.ndarray[double, ndim=1] vxc):
         assert rho.flags['C_CONTIGUOUS']
         npoint = rho.shape[0]
         assert vxc.flags['C_CONTIGUOUS']
         assert npoint == vxc.shape[0]
         xc_lda_vxc(&self._func_unpol, npoint, <double*>rho.data, <double*>vxc.data)
 
-    def compute_vxc_pol(self, np.ndarray[double, ndim=2] rho, np.ndarray[double, ndim=2] vxc):
+    def compute_lda_vxc_pol(self, np.ndarray[double, ndim=2] rho, np.ndarray[double, ndim=2] vxc):
         assert rho.flags['C_CONTIGUOUS']
         npoint = rho.shape[0]
         assert rho.shape[1] == 2
