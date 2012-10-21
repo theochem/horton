@@ -22,6 +22,7 @@
 
 import numpy as np
 from horton import *
+from horton.hamiltonian.test.common import *
 
 
 def test_fock_n2_hfs_sto3g():
@@ -136,3 +137,175 @@ def test_hamiltonian_h3_hfs_321g():
     assert abs(sys.props['energy_hartree'] + sys.props['energy_libxc_lda_x'] - 1.658810998195E+00) < 1e-6
     assert abs(sys.props['energy'] - -1.412556114057104E+00) < 1e-5
     assert abs(sys.props['energy_nn'] - 1.8899186021) < 1e-8
+
+
+def test_co_pbe_sto3g():
+    fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
+    sys = System.from_file(fn_fchk)
+    int1d = TrapezoidIntegrator1D()
+    rtf = ExpRTransform(1e-3, 1e1, 100)
+    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    libxc_x_term = LibXCGGATerm('x_pbe')
+    libxc_c_term = LibXCGGATerm('c_pbe')
+    ham = Hamiltonian(sys, [Hartree(), libxc_x_term, libxc_c_term], grid)
+
+    # Test energy before scf
+    ham.compute_energy()
+    assert abs(sys.props['energy'] - -1.116465967841901E+02) < 1e-4
+
+    # The convergence should be reasonable, not perfect because of limited
+    # precision in Gaussian fchk file:
+    assert convergence_error(ham) < 1e-5
+
+    # Converge from scratch
+    guess_hamiltonian_core(sys)
+    assert convergence_error(ham) > 1e-5
+    assert converge_scf_oda(ham, threshold=1e-3)
+    assert convergence_error(ham) < 1e-5
+
+    # test orbital energies
+    expected_energies = np.array([
+         -1.86831122E+01, -9.73586915E+00, -1.03946082E+00, -4.09331776E-01,
+         -3.48686522E-01, -3.48686522E-01, -2.06049056E-01, 5.23730418E-02,
+         5.23730418E-02, 6.61093726E-01
+    ])
+    assert abs(sys.wfn.exp_alpha.energies - expected_energies).max() < 1e-2
+
+    ham.compute_energy()
+    # compare with g09
+    assert abs(sys.props['energy_ne'] - -3.072370116827E+02) < 1e-2
+    assert abs(sys.props['energy_kin'] - 1.103410779827E+02) < 1e-2
+    assert abs(sys.props['energy_hartree'] + sys.props['energy_libxc_gga_x_pbe'] + sys.props['energy_libxc_gga_c_pbe'] - 6.273115782683E+01) < 1e-2
+    assert abs(sys.props['energy'] - -1.116465967841901E+02) < 1e-4
+    assert abs(sys.props['energy_nn'] - 22.5181790889) < 1e-7
+
+
+def test_h3_pbe_321g():
+    fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
+    sys = System.from_file(fn_fchk)
+    int1d = TrapezoidIntegrator1D()
+    rtf = ExpRTransform(2e-4, 2e1, 100)
+    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    libxc_x_term = LibXCGGATerm('x_pbe')
+    libxc_c_term = LibXCGGATerm('c_pbe')
+    ham = Hamiltonian(sys, [Hartree(), libxc_x_term, libxc_c_term], grid)
+
+    # compute the energy before converging
+    ham.compute_energy()
+    assert abs(sys.props['energy'] - -1.593208400939354E+00) < 1e-5
+
+    # The convergence should be reasonable, not perfect because of limited
+    # precision in Gaussian fchk file:
+    assert convergence_error(ham) < 2e-6
+
+    # Converge from scratch
+    guess_hamiltonian_core(sys)
+    assert convergence_error(ham) > 1e-5
+    assert converge_scf_oda(ham, threshold=1e-5)
+    assert convergence_error(ham) < 1e-5
+
+    # test orbital energies
+    expected_energies = np.array([
+        -5.41141676E-01, -1.56826691E-01, 2.13089637E-01, 7.13565167E-01,
+        7.86810564E-01, 1.40663544E+00
+    ])
+    assert abs(sys.wfn.exp_alpha.energies - expected_energies).max() < 2e-5
+    expected_energies = np.array([
+        -4.96730336E-01, -5.81411249E-02, 2.73586652E-01, 7.41987185E-01,
+        8.76161160E-01, 1.47488421E+00
+    ])
+    assert abs(sys.wfn.exp_beta.energies - expected_energies).max() < 2e-5
+
+    ham.compute_energy()
+    # compare with g09
+    assert abs(sys.props['energy_ne'] - -6.934705182067E+00) < 1e-5
+    assert abs(sys.props['energy_kin'] - 1.948808793424E+00) < 1e-5
+    assert abs(sys.props['energy_hartree'] + sys.props['energy_libxc_gga_x_pbe'] + sys.props['energy_libxc_gga_c_pbe'] - 1.502769385597E+00) < 1e-5
+    assert abs(sys.props['energy'] - -1.593208400939354E+00) < 1e-5
+    assert abs(sys.props['energy_nn'] - 1.8899186021) < 1e-8
+
+
+def test_cubic_interpolation_c_pbe_cs():
+    fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
+    sys = System.from_file(fn_fchk)
+
+    int1d = TrapezoidIntegrator1D()
+    rtf = ExpRTransform(1e-3, 2e1, 110)
+    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    ham = Hamiltonian(sys, [Hartree(), LibXCGGATerm('c_pbe')], grid)
+
+    dm0 = sys.wfn.dm_alpha.copy()
+    converge_scf_oda(ham, max_iter=1)
+    dm1 = sys.wfn.dm_alpha.copy()
+
+    check_cubic_cs_wrapper(ham, dm0, dm1)
+
+
+def test_cubic_interpolation_x_pbe_cs():
+    fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
+    sys = System.from_file(fn_fchk)
+
+    int1d = TrapezoidIntegrator1D()
+    rtf = ExpRTransform(1e-3, 2e1, 110)
+    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    ham = Hamiltonian(sys, [Hartree(), LibXCGGATerm('x_pbe')], grid)
+
+    dm0 = sys.wfn.dm_alpha.copy()
+    converge_scf_oda(ham, max_iter=1)
+    dm1 = sys.wfn.dm_alpha.copy()
+
+    check_cubic_cs_wrapper(ham, dm0, dm1)
+
+
+def test_cubic_interpolation_c_pbe_os():
+    fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
+    sys = System.from_file(fn_fchk)
+
+    int1d = TrapezoidIntegrator1D()
+    rtf = ExpRTransform(1e-3, 2e1, 110)
+    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    ham = Hamiltonian(sys, [Hartree(), LibXCGGATerm('c_pbe')], grid)
+
+    dma0 = sys.wfn.dm_alpha.copy()
+    dmb0 = sys.wfn.dm_beta.copy()
+    converge_scf_oda(ham, max_iter=1)
+    dma1 = sys.wfn.dm_alpha.copy()
+    dmb1 = sys.wfn.dm_beta.copy()
+
+    check_cubic_os_wrapper(ham, dma0, dmb0, dma1, dmb1)
+
+
+def test_cubic_interpolation_x_pbe_os():
+    fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
+    sys = System.from_file(fn_fchk)
+
+    int1d = TrapezoidIntegrator1D()
+    rtf = ExpRTransform(1e-3, 2e1, 110)
+    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    ham = Hamiltonian(sys, [Hartree(), LibXCGGATerm('x_pbe')], grid)
+
+    dma0 = sys.wfn.dm_alpha.copy()
+    dmb0 = sys.wfn.dm_beta.copy()
+    converge_scf_oda(ham, max_iter=1)
+    dma1 = sys.wfn.dm_alpha.copy()
+    dmb1 = sys.wfn.dm_beta.copy()
+
+    check_cubic_os_wrapper(ham, dma0, dmb0, dma1, dmb1)
+
+
+def test_cubic_interpolation_hfs_os():
+    fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
+    sys = System.from_file(fn_fchk)
+
+    int1d = TrapezoidIntegrator1D()
+    rtf = ExpRTransform(1e-3, 2e1, 110)
+    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    ham = Hamiltonian(sys, [Hartree(), LibXCLDATerm('x')], grid)
+
+    dma0 = sys.wfn.dm_alpha.copy()
+    dmb0 = sys.wfn.dm_beta.copy()
+    guess_hamiltonian_core(sys)
+    dma1 = sys.wfn.dm_alpha.copy()
+    dmb1 = sys.wfn.dm_beta.copy()
+
+    check_cubic_os_wrapper(ham, dma0, dmb0, dma1, dmb1)
