@@ -32,6 +32,10 @@
 using namespace std;
 
 
+/*
+    GB1GridFn
+*/
+
 GB1GridFn::GB1GridFn(long max_shell_type): GBCalculator(max_shell_type) {
     nwork = max_nbasis;
     work_cart = new double[nwork];
@@ -51,7 +55,30 @@ void GB1GridFn::reset(long _shell_type0, const double* _r0, const double* _point
     memset(work_pure, 0, nwork*sizeof(double));
 }
 
-void GB1GridFn::add(double coeff, double alpha0, const double* scales0) {
+void GB1GridFn::cart_to_pure() {
+    /*
+       The initial results are always stored in work_cart. The projection
+       routine always outputs its result in work_pure. Once that is done,
+       the pointers to both blocks are swapped such that the final result is
+       always back in work_cart.
+    */
+
+    if (shell_type0 < -1) {
+        cart_to_pure_low(work_cart, work_pure, -shell_type0,
+            1, // anterior
+            1 // posterior
+        );
+        swap_work();
+    }
+}
+
+
+
+/*
+    GB1GridDensityFn
+*/
+
+void GB1GridDensityFn::add(double coeff, double alpha0, const double* scales0) {
     double pre, poly;
     pre = coeff*exp(-alpha0*dist_sq(r0, point));
     i1p.reset(abs(shell_type0));
@@ -76,24 +103,7 @@ void GB1GridFn::add(double coeff, double alpha0, const double* scales0) {
 #endif
 }
 
-void GB1GridFn::cart_to_pure() {
-    /*
-       The initial results are always stored in work_cart. The projection
-       routine always outputs its result in work_pure. Once that is done,
-       the pointers to both blocks are swapped such that the final result is
-       always back in work_cart.
-    */
-
-    if (shell_type0 < -1) {
-        cart_to_pure_low(work_cart, work_pure, -shell_type0,
-            1, // anterior
-            1 // posterior
-        );
-        swap_work();
-    }
-}
-
-void GB1GridFn::compute_point_from_dm(double* basis_fns, double* dm, long nbasis, double* output) {
+void GB1GridDensityFn::compute_point_from_dm(double* basis_fns, double* dm, long nbasis, double* output) {
     double rho = 0;
     for (long ibasis0=0; ibasis0<nbasis; ibasis0++) {
         double row = 0;
@@ -105,23 +115,7 @@ void GB1GridFn::compute_point_from_dm(double* basis_fns, double* dm, long nbasis
     *output += rho;
 }
 
-/*
-TODO: uncomment this when it becomes useful.
-
-void GB1GridFn::compute_point_from_orb(double* basis_fns, double* orbs, long nbasis, long nocc, double* output) {
-    double rho = 0;
-    for (long ibasis0=0; ibasis0<nocc; ibasis0++) {
-        double orb = 0.0;
-        for (long ibasis1=0; ibasis1<nbasis; ibasis1++) {
-            orb += orbs[ibasis1*norb+ibasis0]*basis_fns[ibasis1];
-        }
-        rho += orb*orb;
-    }
-    *output += scale*rho;
-}
-*/
-
-void GB1GridFn::compute_fock_from_dm(double factor, double* basis_fns, long nbasis, double* output) {
+void GB1GridDensityFn::compute_fock_from_dm(double factor, double* basis_fns, long nbasis, double* output) {
     for (long ibasis0=0; ibasis0<nbasis; ibasis0++) {
         double tmp = factor*basis_fns[ibasis0];
         for (long ibasis1=0; ibasis1<=ibasis0; ibasis1++) {

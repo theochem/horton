@@ -53,7 +53,7 @@ __all__ = [
     'nuclear_attraction_helper', 'GB2NuclearAttractionIntegral',
     'GB4ElectronReuplsionIntegralLibInt',
     # fns
-    'GB1GridFn',
+    'GB1GridDensityFn',
     # iter_gb
     'IterGB1', 'IterGB2', 'IterGB4',
     # iter_pow
@@ -494,43 +494,6 @@ cdef class GOBasis(GBasis):
         (<gbasis.GOBasis*>self._this).compute_grid_density_dm(
             <double*>dmar.data, npoint, <double*>points.data, <double*>rhos.data)
 
-    #def compute_grid_density_orb(self, expansion, long nocc, double scale, np.ndarray[double, ndim=2] points, np.ndarray[double, ndim=1] rhos):
-    #   '''compute_grid_density_dm(dm, points, rho)
-
-    #       Compute the electron density on a grid for a given wavefunction
-    #       expansion.
-
-    #       **Arguments:**
-
-    #       expansion
-    #            A wavefunction expansion. For now, this must be a DenseExpansion
-    #            object.
-
-    #       nocc
-    #            The number of occupied orbitals.
-
-    #       points
-    #            A Numpy array with grid points, shape (npoint,3).
-
-    #       rhos
-    #            A Numpy array for the output, shape (npoint,).
-
-    #       **Warning:** the results are added to the output array! This may
-    #       be useful to combine results from different spin components.
-    #    '''
-    #    # TODO: this is no longer being tested
-    #    cdef np.ndarray orbs = expansion._coeffs
-    #    self.check_matrix_expansion(orbs, nocc)
-    #    norb = orbs.shape[1]
-    #    assert rhos.flags['C_CONTIGUOUS']
-    #    npoint = rhos.shape[0]
-    #    assert points.flags['C_CONTIGUOUS']
-    #    assert points.shape[0] == npoint
-    #    assert points.shape[1] == 3
-    #    (<gbasis.GOBasis*>self._this).compute_grid_density_orb(
-    #        <double*>orbs.data, nocc, norb, scale, npoint, <double*>points.data,
-    #        <double*>rhos.data)
-
     def compute_grid_one_body(self, np.ndarray[double, ndim=2] points,
                                     np.ndarray[double, ndim=1] weights,
                                     np.ndarray[double, ndim=1] pots, one_body):
@@ -778,9 +741,6 @@ cdef class GB1GridFn:
     '''Wrapper for fns.GB1GridFn, for testing only'''
     cdef fns.GB1GridFn* _this
 
-    def __cinit__(self, long max_nbasis):
-        self._this = new fns.GB1GridFn(max_nbasis)
-
     def __dealloc__(self):
         del self._this
 
@@ -830,6 +790,11 @@ cdef class GB1GridFn:
         shape[0] = shape0
         tmp = np.PyArray_SimpleNewFromData(1, shape, np.NPY_DOUBLE, <void*> self._this.get_work())
         return tmp.copy()
+
+
+cdef class GB1GridDensityFn(GB1GridFn):
+    def __cinit__(self, long max_nbasis):
+        self._this = <fns.GB1GridFn*>(new fns.GB1GridDensityFn(max_nbasis))
 
 
 #

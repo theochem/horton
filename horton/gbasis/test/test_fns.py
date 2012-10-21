@@ -27,7 +27,7 @@ from horton import *
 
 def test_exceptions():
     try:
-        grid_fn = GB1GridFn(-1)
+        grid_fn = GB1GridDensityFn(-1)
         assert False
     except ValueError:
         pass
@@ -36,14 +36,14 @@ def test_exceptions():
     point = np.array([0.5, -0.2, 0.7])
 
     try:
-        grid_fn = GB1GridFn(2)
+        grid_fn = GB1GridDensityFn(2)
         grid_fn.reset(-3, center, point)
         assert False
     except ValueError:
         pass
 
     try:
-        grid_fn = GB1GridFn(2)
+        grid_fn = GB1GridDensityFn(2)
         grid_fn.reset(3, center, point)
         assert False
     except ValueError:
@@ -51,7 +51,7 @@ def test_exceptions():
 
 
 def test_grid_fn_s():
-    grid_fn = GB1GridFn(0)
+    grid_fn = GB1GridDensityFn(0)
     assert grid_fn.nwork == 1
     assert grid_fn.max_shell_type == 0
     assert grid_fn.max_nbasis == 1
@@ -72,7 +72,7 @@ def test_grid_fn_s():
     assert abs(work[0] -  scale0*coeff*np.exp(-alpha*dsq)) < 1e-10
 
 def test_grid_fn_p():
-    grid_fn = GB1GridFn(1)
+    grid_fn = GB1GridDensityFn(1)
     assert grid_fn.nwork == 3
     assert grid_fn.max_shell_type == 1
     assert grid_fn.max_nbasis == 3
@@ -96,7 +96,7 @@ def test_grid_fn_p():
 
 
 def test_grid_fn_p_contraction():
-    grid_fn = GB1GridFn(1)
+    grid_fn = GB1GridDensityFn(1)
     assert grid_fn.nwork == 3
     assert grid_fn.max_shell_type == 1
     assert grid_fn.max_nbasis == 3
@@ -126,7 +126,7 @@ def test_grid_fn_p_contraction():
 
 
 def test_grid_fn_d_contraction():
-    grid_fn = GB1GridFn(3)
+    grid_fn = GB1GridDensityFn(3)
     assert grid_fn.nwork == 10
     assert grid_fn.max_shell_type == 3
     assert grid_fn.max_nbasis == 10

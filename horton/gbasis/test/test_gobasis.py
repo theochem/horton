@@ -150,7 +150,7 @@ def test_grid_lih_321g_hf_some_points():
     # check for one point the compute_grid method
     output = np.zeros(sys.obasis.nbasis, float)
     point = np.array([0.0, 0.0, 1.0])*angstrom
-    grid_fn = GB1GridFn(sys.obasis.max_shell_type)
+    grid_fn = GB1GridDensityFn(sys.obasis.max_shell_type)
     sys.obasis.compute_grid(output, point, grid_fn)
     # first basis function is contraction of three s-type gaussians
     assert sys.obasis.nprims[0] == 3
