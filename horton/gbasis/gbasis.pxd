@@ -54,5 +54,4 @@ cdef extern from "gbasis.h":
         void compute_nuclear_attraction(double* charges, double* centers, long ncharge, double* output)
         void compute_electron_repulsion(double* output)
         void compute_grid_density_dm(double* dm, long npoint, double* points, double* rhos)
-        #void compute_grid_density_orb(double* orbs, long nocc, long norb, double scale, long npoint, double* points, double* rhos)
         void compute_grid_one_body(long npoint, double* points, double* weights, long pot_stride, double* pots, double* output)

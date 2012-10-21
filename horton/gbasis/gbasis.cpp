@@ -219,7 +219,7 @@ void GOBasis::compute_electron_repulsion(double* output) {
 
 void GOBasis::compute_grid_density_dm(double* dm, long npoint, double* points, double* rhos) {
     double* basis_fns = new double[get_nbasis()];
-    GB1GridFn grid_fn = GB1GridFn(get_max_shell_type());
+    GB1GridDensityFn grid_fn = GB1GridDensityFn(get_max_shell_type());
 
     for (long ipoint=0; ipoint<npoint; ipoint++) {
 
@@ -249,38 +249,9 @@ void GOBasis::compute_grid_density_dm(double* dm, long npoint, double* points, d
     delete[] basis_fns;
 }
 
-/*
-TODO: uncomment this when it becomes useful
-void GOBasis::compute_grid_density_orb(double* orbs, long nocc, long norb, double scale, long npoint, double* points, double* rhos) {
-    double* basis_fns = new double[get_nbasis()];
-    GB1GridFn grid_fn = GB1GridFn(get_max_shell_type());
-
-    for (long ipoint=0; ipoint<npoint; ipoint++) {
-
-        // A) clear the basis functions.
-        for (long ibasis=0; ibasis<get_nbasis(); ibasis++) {
-            basis_fns[ibasis] = 0.0;
-        }
-
-        // B) evaluate the basis functions in the current point.
-        compute_grid(basis_fns, points, &grid_fn);
-
-        // C) Make dot product of basis functions with orbital coefficients,
-        // square and add.
-        grid_fn.compute_from_orb(basis_fns, orbs, get_nbasis(), rhos)
-
-        // D) Prepare for next iteration
-        rhos++;
-        points += 3;
-    }
-
-    delete[] basis_fns;
-}
-*/
-
 void GOBasis::compute_grid_one_body(long npoint, double* points, double* weights, long pot_stride, double* pots, double* output) {
     double* basis_fns = new double[get_nbasis()];
-    GB1GridFn grid_fn = GB1GridFn(get_max_shell_type());
+    GB1GridDensityFn grid_fn = GB1GridDensityFn(get_max_shell_type());
 
     for (long ipoint=0; ipoint<npoint; ipoint++) {
 

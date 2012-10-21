@@ -27,7 +27,7 @@
 
 
 class GB1GridFn : public GBCalculator  {
-    private:
+    protected:
         long shell_type0;
         const double *r0;
         const double *point;
@@ -36,10 +36,20 @@ class GB1GridFn : public GBCalculator  {
         GB1GridFn(long max_shell_type);
 
         void reset(long shell_type0, const double* r0, const double* point);
-        void add(double coeff, double alpha0, const double* scales0);
         void cart_to_pure();
         const long get_shell_type0() const {return shell_type0;};
 
+        virtual void add(double coeff, double alpha0, const double* scales0) = 0;
+        virtual void compute_point_from_dm(double* basis_fns, double* dm, long nbasis, double* output) = 0;
+        virtual void compute_fock_from_dm(double factor, double* basis_fns, long nbasis, double* output) = 0;
+    };
+
+
+class GB1GridDensityFn : public GB1GridFn  {
+    public:
+        GB1GridDensityFn(long max_shell_type): GB1GridFn(max_shell_type) {};
+
+        void add(double coeff, double alpha0, const double* scales0);
         void compute_point_from_dm(double* basis_fns, double* dm, long nbasis, double* output);
         void compute_fock_from_dm(double factor, double* basis_fns, long nbasis, double* output);
     };
