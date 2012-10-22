@@ -29,8 +29,11 @@ cdef extern from "xc.h":
     enum: XC_UNPOLARIZED
     enum: XC_POLARIZED
 
-    ctypedef struct xc_func_type:
+    ctypedef struct xc_gga_type:
         pass
+
+    ctypedef struct xc_func_type:
+        xc_gga_type* gga
 
     int xc_functional_get_number(char *name)
     bint xc_func_init(xc_func_type *p, int functional, int nspin)
@@ -39,6 +42,7 @@ cdef extern from "xc.h":
     void xc_lda_vxc(xc_func_type *p, int npoint, double *rho, double *vrho)
     void xc_gga_exc(xc_func_type *p, int npoint, double *rho, double *sigma, double *zk)
     void xc_gga_vxc(xc_func_type *p, int npoint, double *rho, double *sigma, double *vrho, double *vsigma)
+    double xc_hyb_gga_exx_coef(xc_gga_type *p)
 
 
 
@@ -164,3 +168,8 @@ cdef class LibXCWrapper(object):
         assert vsigma.shape[0] == npoint
         assert vsigma.shape[1] == 3
         xc_gga_vxc(&self._func_pol, npoint, <double*>rho.data, <double*>sigma.data, <double*>vrho.data, <double*>vsigma.data)
+
+    ## HYB GGA
+
+    def get_hyb_gga_exx_fraction(self):
+        return xc_hyb_gga_exx_coef(self._func_pol.gga)

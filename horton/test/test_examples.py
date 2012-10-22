@@ -54,3 +54,6 @@ def test_example_001_hf_water():
 
 def test_example_002_hfs_water():
     run_example('002_hfs_water', 'run.py')
+
+def test_example_003_o3lyp_water():
+    run_example('003_o3lyp_water', 'run.py')

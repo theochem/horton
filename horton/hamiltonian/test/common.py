@@ -26,7 +26,7 @@ from horton import *
 __all__ = ['check_cubic_cs_wrapper', 'check_cubic_os_wrapper']
 
 
-def check_cubic_cs_wrapper(ham, dm0, dm1):
+def check_cubic_cs_wrapper(ham, dm0, dm1, do_plot=False):
     wfn = ham.system.wfn
     fock = ham.system.lf.create_one_body()
 
@@ -52,10 +52,10 @@ def check_cubic_cs_wrapper(ham, dm0, dm1):
     ev_11 = fock.expectation_value(dm1)
     g1 = 2*(ev_11 - ev_10)
 
-    check_cubic_cs(ham, dm0, dm1, e0, e1, g0, g1, do_plot=False)
+    check_cubic_cs(ham, dm0, dm1, e0, e1, g0, g1, do_plot)
 
 
-def check_cubic_os_wrapper(ham, dma0, dmb0, dma1, dmb1):
+def check_cubic_os_wrapper(ham, dma0, dmb0, dma1, dmb1, do_plot=False):
     wfn = ham.system.wfn
     focka = ham.system.lf.create_one_body()
     fockb = ham.system.lf.create_one_body()
@@ -86,4 +86,4 @@ def check_cubic_os_wrapper(ham, dma0, dmb0, dma1, dmb1):
     ev_11 = focka.expectation_value(dma1) + fockb.expectation_value(dmb1)
     g1 = (ev_11 - ev_10)
 
-    check_cubic_os(ham, dma0, dmb0, dma1, dmb1, e0, e1, g0, g1, do_plot=False)
+    check_cubic_os(ham, dma0, dmb0, dma1, dmb1, e0, e1, g0, g1, do_plot)

@@ -101,7 +101,7 @@ class Hamiltonian(object):
         if log.do_high:
             log('Computing the energy of the system.')
             log.hline()
-            log('         Energy term                 Value')
+            log('                   Energy term                 Value')
             log.hline()
 
         total = 0.0
@@ -115,8 +115,8 @@ class Hamiltonian(object):
         self.system.update_chk('props')
 
         if log.do_high:
-            log('%20s  %20.10f' % ('nn', energy))
-            log('%20s  %20.10f' % ('total', total))
+            log('%30s  %20.10f' % ('nn', energy))
+            log('%30s  %20.10f' % ('total', total))
             log.hline()
 
         return total
@@ -192,7 +192,7 @@ class HamiltonianTerm(object):
     def store_energy(self, suffix, energy):
         self.system._props['energy_%s' % suffix] = energy
         if log.do_high:
-            log('%20s  %20.10f' % (suffix, energy))
+            log('%30s  %20.10f' % (suffix, energy))
 
     def compute_energy(self):
         raise NotImplementedError
