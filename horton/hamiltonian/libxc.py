@@ -26,7 +26,7 @@ from horton.hamiltonian.core import HamiltonianTerm
 from horton.hamiltonian.cext import LibXCWrapper
 
 
-__all__ = ['LibXCLDATerm', 'LibXCGGATerm']
+__all__ = ['LibXCLDATerm', 'LibXCGGATerm', 'LibXCHybridGGATerm']
 
 
 class LibXCLDATerm(HamiltonianTerm):
@@ -116,7 +116,7 @@ class LibXCGGATerm(LibXCLDATerm):
            **Arguments:**
 
            name
-                The name of the functional in LibXC, without the 'lda_' prefix.
+                The name of the functional in LibXC, without the 'gga_' prefix.
         '''
         name = 'gga_' + name.lower()
         self._name = name
@@ -194,3 +194,20 @@ class LibXCGGATerm(LibXCLDATerm):
             energy = self.grid.integrate(edens, rho)
             self.store_energy('libxc_%s' % self._name, energy)
         return energy
+
+
+class LibXCHybridGGATerm(LibXCGGATerm):
+    '''Any Hybrid GGA functional from LibXC'''
+    def __init__(self, name):
+        '''
+           **Arguments:**
+
+           name
+                The name of the functional in LibXC, without the 'hyb_gga_' prefix.
+        '''
+        name = 'hyb_gga_' + name.lower()
+        self._name = name
+        self._libxc_wrapper = LibXCWrapper(name)
+
+    def get_exx_fraction(self):
+        return self._libxc_wrapper.get_hyb_gga_exx_fraction()

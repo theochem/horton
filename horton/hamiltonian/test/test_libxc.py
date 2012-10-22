@@ -257,6 +257,39 @@ def test_cubic_interpolation_x_pbe_cs():
     check_cubic_cs_wrapper(ham, dm0, dm1)
 
 
+def test_cubic_interpolation_hfs_cs():
+    fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
+    sys = System.from_file(fn_fchk)
+
+    int1d = TrapezoidIntegrator1D()
+    rtf = ExpRTransform(1e-3, 2e1, 110)
+    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    ham = Hamiltonian(sys, [Hartree(), LibXCLDATerm('x')], grid)
+
+    dm0 = sys.wfn.dm_alpha.copy()
+    converge_scf_oda(ham, max_iter=1)
+    dm1 = sys.wfn.dm_alpha.copy()
+
+    check_cubic_cs_wrapper(ham, dm0, dm1)
+
+
+def test_cubic_interpolation_o3lyp_cs():
+    fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
+    sys = System.from_file(fn_fchk)
+
+    int1d = TrapezoidIntegrator1D()
+    rtf = ExpRTransform(1e-3, 2e1, 110)
+    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    libxc_term = LibXCHybridGGATerm('xc_o3lyp')
+    ham = Hamiltonian(sys, [HartreeFock(libxc_term.get_exx_fraction()), libxc_term], grid)
+
+    dm0 = sys.wfn.dm_alpha.copy()
+    converge_scf_oda(ham, max_iter=1)
+    dm1 = sys.wfn.dm_alpha.copy()
+
+    check_cubic_cs_wrapper(ham, dm0, dm1)
+
+
 def test_cubic_interpolation_c_pbe_os():
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
     sys = System.from_file(fn_fchk)
@@ -309,3 +342,27 @@ def test_cubic_interpolation_hfs_os():
     dmb1 = sys.wfn.dm_beta.copy()
 
     check_cubic_os_wrapper(ham, dma0, dmb0, dma1, dmb1)
+
+
+def test_cubic_interpolation_o3lyp_os():
+    fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
+    sys = System.from_file(fn_fchk)
+
+    int1d = TrapezoidIntegrator1D()
+    rtf = ExpRTransform(1e-3, 2e1, 110)
+    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    libxc_term = LibXCHybridGGATerm('xc_o3lyp')
+    ham = Hamiltonian(sys, [HartreeFock(libxc_term.get_exx_fraction()), libxc_term], grid)
+
+    dma0 = sys.wfn.dm_alpha.copy()
+    dmb0 = sys.wfn.dm_beta.copy()
+    guess_hamiltonian_core(sys)
+    dma1 = sys.wfn.dm_alpha.copy()
+    dmb1 = sys.wfn.dm_beta.copy()
+
+    check_cubic_os_wrapper(ham, dma0, dmb0, dma1, dmb1)
+
+
+def test_hyb_gga_exx_fraction():
+    t = LibXCHybridGGATerm('xc_pbeh') # The PBE0 functional
+    assert t.get_exx_fraction() == 0.25
