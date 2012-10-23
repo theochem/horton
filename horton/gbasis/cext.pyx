@@ -375,12 +375,12 @@ cdef class GBasis:
         return tmp.copy()
 
     # low-level compute routines
-    def compute_grid(self, np.ndarray[double, ndim=1] output, np.ndarray[double, ndim=1] point, GB1GridFn grid_fn):
+    def compute_grid1(self, np.ndarray[double, ndim=1] output, np.ndarray[double, ndim=1] point, GB1GridFn grid_fn):
         assert output.flags['C_CONTIGUOUS']
         assert output.shape[0] == self.nbasis
         assert point.flags['C_CONTIGUOUS']
         assert point.shape[0] == 3
-        self._this.compute_grid(<double*>output.data, <double*>point.data, grid_fn._this)
+        self._this.compute_grid1(<double*>output.data, <double*>point.data, grid_fn._this)
 
 
 
@@ -467,7 +467,7 @@ cdef class GOBasis(GBasis):
         self.check_matrix_two_body(output)
         (<gbasis.GOBasis*>self._this).compute_electron_repulsion(<double*>output.data)
 
-    def _compute_grid_dm(self, dm, np.ndarray[double, ndim=2] points not None, GB1GridFn grid_fn not None, np.ndarray output not None):
+    def _compute_grid1_dm(self, dm, np.ndarray[double, ndim=2] points not None, GB1GridFn grid_fn not None, np.ndarray output not None):
         '''_compute_grid_dm(dm, points, output)
 
            Compute some density function on a grid for a given density matrix.
@@ -500,7 +500,7 @@ cdef class GOBasis(GBasis):
         assert points.flags['C_CONTIGUOUS']
         assert points.shape[0] == npoint
         assert points.shape[1] == 3
-        (<gbasis.GOBasis*>self._this).compute_grid_dm(
+        (<gbasis.GOBasis*>self._this).compute_grid1_dm(
             <double*>dmar.data, npoint, <double*>points.data,
             grid_fn._this, <double*>output.data)
 
@@ -523,7 +523,7 @@ cdef class GOBasis(GBasis):
            **Warning:** the results are added to the output array! This may
            be useful to combine results from different spin components.
         '''
-        self._compute_grid_dm(dm, points, GB1GridDensityFn(self.max_shell_type), rhos)
+        self._compute_grid1_dm(dm, points, GB1GridDensityFn(self.max_shell_type), rhos)
 
     def compute_grid_gradient_dm(self, dm, np.ndarray[double, ndim=2] points not None, np.ndarray[double, ndim=2] gradrhos not None):
         '''compute_grid_gradient_dm(dm, points, gradrho)
@@ -544,9 +544,9 @@ cdef class GOBasis(GBasis):
            **Warning:** the results are added to the output array! This may
            be useful to combine results from different spin components.
         '''
-        self._compute_grid_dm(dm, points, GB1GridGradientFn(self.max_shell_type), gradrhos)
+        self._compute_grid1_dm(dm, points, GB1GridGradientFn(self.max_shell_type), gradrhos)
 
-    def _compute_grid_fock(self, np.ndarray[double, ndim=2] points not None,
+    def _compute_grid1_fock(self, np.ndarray[double, ndim=2] points not None,
                            np.ndarray[double, ndim=1] weights not None,
                            np.ndarray pots not None,
                            GB1GridFn grid_fn not None, fock):
@@ -591,7 +591,7 @@ cdef class GOBasis(GBasis):
             assert pots.shape[1] == grid_fn.dim_output
             assert pots.strides[1] % 8 == 0
             pot_stride *= (pots.strides[1] / 8)
-        (<gbasis.GOBasis*>self._this).compute_grid_fock(
+        (<gbasis.GOBasis*>self._this).compute_grid1_fock(
             npoint, <double*>points.data, <double*>weights.data,
             pot_stride, <double*>pots.data,
             grid_fn._this, <double*>output.data)
@@ -620,7 +620,7 @@ cdef class GOBasis(GBasis):
 
            **Warning:** the results are added to the fock operator!
         '''
-        self._compute_grid_fock(points, weights, pots, GB1GridDensityFn(self.max_shell_type), fock)
+        self._compute_grid1_fock(points, weights, pots, GB1GridDensityFn(self.max_shell_type), fock)
 
     def compute_grid_gradient_fock(self, np.ndarray[double, ndim=2] points not None,
                                    np.ndarray[double, ndim=1] weights not None,
@@ -646,7 +646,7 @@ cdef class GOBasis(GBasis):
 
            **Warning:** the results are added to the fock operator!
         '''
-        self._compute_grid_fock(points, weights, pots, GB1GridGradientFn(self.max_shell_type), fock)
+        self._compute_grid1_fock(points, weights, pots, GB1GridGradientFn(self.max_shell_type), fock)
 
 #
 # ints wrappers (for testing only)
