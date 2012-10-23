@@ -68,4 +68,38 @@ class GB1GridGradientFn : public GB1GridFn  {
     };
 
 
+class GB2GridFn : public GBCalculator  {
+    protected:
+        long shell_type0, shell_type1;
+        const double *r0, *r1;  // The centers of the basis functions
+        const double *point;    // The grid point at which the fn is evaluated
+        IterPow2 i2p;
+    public:
+        GB2GridFn(long max_shell_type);
+
+        void reset(long shell_type0, long shell_type1, const double* r0, const double* r1, const double* point);
+        void cart_to_pure();
+        const long get_shell_type0() const {return shell_type0;};
+        const long get_shell_type1() const {return shell_type1;};
+
+        virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1) = 0;
+    };
+
+
+class GB2HartreeGridFn : public GB2GridFn  {
+    private:
+        double* work_g0;
+        double* work_g1;
+        double* work_g2;
+        double* work_boys;
+    public:
+        GB2HartreeGridFn(long max_shell_type);
+        ~GB2HartreeGridFn();
+
+        virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
+    };
+
+
+
+
 #endif

@@ -26,9 +26,6 @@
 #include "iter_pow.h"
 #include "libint2.h"
 
-double gpt_coeff(long k, long n0, long n1, double pa, double pb);
-double gb_overlap_int1d(long n0, long n1, double pa, double pb, double gamma_inv);
-
 
 class GB2Integral : public GBCalculator {
     protected:
@@ -58,8 +55,6 @@ class GB2KineticIntegral: public GB2Integral {
         virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
     };
 
-
-void nuclear_attraction_helper(double* work_g, long n0, long n1, double pa, double pb, double cp, double gamma_inv);
 
 class GB2NuclearAttractionIntegral: public GB2Integral {
     private:

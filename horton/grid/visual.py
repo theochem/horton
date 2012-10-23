@@ -36,6 +36,17 @@ class RectangleGrid(IntGrid):
             raise ValueError('l0 should be lower than h0.')
         if h1 <= l1:
             raise ValueError('l1 should be lower than h1.')
+
+        # TODO: make read-only
+        self.center = center
+        self.axis0 = axis0
+        self.axis1 = axis1
+        self.l0 = l0
+        self.h0 = h0
+        self.l1 = l1
+        self.h1 = h1
+        self.shape = (h0-l0+1, h1-l1+1)
+
         npoint = (h0-l0+1)*(h1-l1+1)
         points = np.zeros((npoint, 3), float)
         weights = np.empty(npoint, float)

@@ -204,12 +204,14 @@ void IterGB2::store(const double *work, double *output) {
     const long nbasis = gbasis->get_nbasis();
     const double* tmp;
     tmp = work;
+    // diagonal or first off-diagonal block
     for (i0=0; i0<n0; i0++) {
         for (i1=0; i1<n1; i1++) {
             output[(i0+ibasis0)*nbasis+i1+ibasis1] = *tmp;
             tmp++;
         }
     }
+    // optional second off-diagonal block
     if (ibasis0 != ibasis1) {
         tmp = work;
         for (i0=0; i0<n0; i0++) {
@@ -219,6 +221,35 @@ void IterGB2::store(const double *work, double *output) {
             }
         }
     }
+}
+
+double IterGB2::dot(const double *work, const double *dm) {
+    // This routine is hardwired to work only for the dense storage
+    long i0, i1;
+    const long n0 = get_shell_nbasis(shell_type0);
+    const long n1 = get_shell_nbasis(shell_type1);
+    const long nbasis = gbasis->get_nbasis();
+    const double* tmp;
+    double result = 0.0;
+    tmp = work;
+    // diagonal or first off-diagonal block
+    for (i0=0; i0<n0; i0++) {
+        for (i1=0; i1<n1; i1++) {
+            result += dm[(i0+ibasis0)*nbasis+i1+ibasis1] * (*tmp);
+            tmp++;
+        }
+    }
+    // optional second off-diagonal block
+    if (ibasis0 != ibasis1) {
+        tmp = work;
+        for (i0=0; i0<n0; i0++) {
+            for (i1=0; i1<n1; i1++) {
+                result += dm[(i1+ibasis1)*nbasis+i0+ibasis0] * (*tmp);
+                tmp++;
+            }
+        }
+    }
+    return result;
 }
 
 

@@ -19,6 +19,8 @@
 //--
 
 
+// TODO: check names of guard macros.
+
 #ifndef HORTON_BOYS_INTS_H
 #define HORTON_BOYS_INTS_H
 
@@ -26,6 +28,5 @@
 #define BOYS_MAX_M 4*MAX_SHELL_TYPE
 
 double boys_function(long m, double u);
-
 
 #endif

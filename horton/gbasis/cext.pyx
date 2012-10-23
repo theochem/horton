@@ -47,12 +47,13 @@ __all__ = [
     'cart_to_pure_low',
     # common
     'fac', 'fac2', 'binom', 'get_shell_nbasis', 'get_max_shell_type',
+    'gpt_coeff', 'gb_overlap_int1d', 'nuclear_attraction_helper',
     # gbasis
     'gob_normalization',
     'GOBasis',
     # ints
-    'gpt_coeff', 'gb_overlap_int1d', 'GB2OverlapIntegral', 'GB2KineticIntegral',
-    'nuclear_attraction_helper', 'GB2NuclearAttractionIntegral',
+    'GB2OverlapIntegral', 'GB2KineticIntegral',
+    'GB2NuclearAttractionIntegral',
     'GB4ElectronReuplsionIntegralLibInt',
     # fns
     'GB1GridDensityFn', 'GB1GridGradientFn',
@@ -114,6 +115,23 @@ def get_shell_nbasis(long shell_type):
 
 def get_max_shell_type():
     return common.get_max_shell_type()
+
+
+def gpt_coeff(long k, long n0, long n1, double pa, double pb):
+    return common.gpt_coeff(k, n0, n1, pa, pb)
+
+
+def gb_overlap_int1d(long n0, long n1, double pa, double pb, double inv_gamma):
+    return common.gb_overlap_int1d(n0, n1, pa, pb, inv_gamma)
+
+
+def nuclear_attraction_helper(np.ndarray[double, ndim=1] work_g, long n0,
+                              long n1, double pa, double pb, double cp,
+                              double gamma_inv):
+    assert work_g.flags['C_CONTIGUOUS']
+    assert work_g.shape[0] == n0+n1+1
+    common.nuclear_attraction_helper(<double*>work_g.data, n0, n1, pa, pb, cp, gamma_inv)
+
 
 #
 # gbasis wrappers
@@ -375,12 +393,12 @@ cdef class GBasis:
         return tmp.copy()
 
     # low-level compute routines
-    def compute_grid1(self, np.ndarray[double, ndim=1] output, np.ndarray[double, ndim=1] point, GB1GridFn grid_fn):
+    def compute_grid_point1(self, np.ndarray[double, ndim=1] output, np.ndarray[double, ndim=1] point, GB1GridFn grid_fn):
         assert output.flags['C_CONTIGUOUS']
         assert output.shape[0] == self.nbasis
         assert point.flags['C_CONTIGUOUS']
         assert point.shape[0] == 3
-        self._this.compute_grid1(<double*>output.data, <double*>point.data, grid_fn._this)
+        self._this.compute_grid_point1(<double*>output.data, <double*>point.data, grid_fn._this)
 
 
 
@@ -491,6 +509,7 @@ cdef class GOBasis(GBasis):
         '''
         cdef np.ndarray dmar = dm._array
         self.check_matrix_one_body(dmar)
+        assert output.flags['C_CONTIGUOUS']
         npoint = output.shape[0]
         if grid_fn.dim_output == 1:
             assert output.ndim == 1
@@ -545,6 +564,39 @@ cdef class GOBasis(GBasis):
            be useful to combine results from different spin components.
         '''
         self._compute_grid1_dm(dm, points, GB1GridGradientFn(self.max_shell_type), gradrhos)
+
+    def compute_grid_hartree_dm(self, dm, np.ndarray[double, ndim=2] points not None, np.ndarray[double, ndim=1] output not None):
+        '''compute_grid_hartree_dm(dm, points, output)
+
+           Compute the Hartree potential on a grid for a given density matrix.
+
+           **Arguments:**
+
+           dm
+                A density matrix. For now, this must be a DenseOneBody object.
+
+           points
+                A Numpy array with grid points, shape (npoint,3).
+
+           grid_fn
+                A grid function.
+
+           output
+                A Numpy array for the output.
+
+           **Warning:** the results are added to the output array! This may
+           be useful to combine results from different spin components.
+        '''
+        cdef np.ndarray dmar = dm._array
+        self.check_matrix_one_body(dmar)
+        assert output.flags['C_CONTIGUOUS']
+        npoint = output.shape[0]
+        assert points.flags['C_CONTIGUOUS']
+        assert points.shape[0] == npoint
+        assert points.shape[1] == 3
+        (<gbasis.GOBasis*>self._this).compute_grid2_dm(
+            <double*>dmar.data, npoint, <double*>points.data,
+            <double*>output.data)
 
     def _compute_grid1_fock(self, np.ndarray[double, ndim=2] points not None,
                            np.ndarray[double, ndim=1] weights not None,
@@ -653,14 +705,6 @@ cdef class GOBasis(GBasis):
 #
 
 
-def gpt_coeff(long k, long n0, long n1, double pa, double pb):
-    return ints.gpt_coeff(k, n0, n1, pa, pb)
-
-
-def gb_overlap_int1d(long n0, long n1, double pa, double pb, double inv_gamma):
-    return ints.gb_overlap_int1d(n0, n1, pa, pb, inv_gamma)
-
-
 cdef class GB2Integral:
     '''Wrapper for ints.GB2Integral, for testing only'''
     cdef ints.GB2Integral* _this
@@ -730,14 +774,6 @@ cdef class GB2KineticIntegral(GB2Integral):
 
     def __cinit__(self, long max_nbasis):
         self._this = <ints.GB2Integral*>(new ints.GB2KineticIntegral(max_nbasis))
-
-
-def nuclear_attraction_helper(np.ndarray[double, ndim=1] work_g, long n0,
-                              long n1, double pa, double pb, double cp,
-                              double gamma_inv):
-    assert work_g.flags['C_CONTIGUOUS']
-    assert work_g.shape[0] == n0+n1+1
-    ints.nuclear_attraction_helper(<double*>work_g.data, n0, n1, pa, pb, cp, gamma_inv)
 
 
 cdef class GB2NuclearAttractionIntegral(GB2Integral):

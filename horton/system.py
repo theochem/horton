@@ -31,6 +31,7 @@
 import numpy as np
 import h5py as h5
 
+from horton.cext import compute_grid_nucpot
 from horton.io import load_system_args
 from horton.log import log
 from horton.matrix import DenseLinalgFactory, LinalgObject
@@ -399,7 +400,7 @@ class System(object):
            **Returns:**
 
            rhos
-                The array with the densities. This is the same as the output
+                The array with the result. This is the same as the output
                 argument, in case it was provided.
         '''
         if rhos is None:
@@ -420,9 +421,9 @@ class System(object):
 
            **Optional arguments:**
 
-           rhos
-                An output array, shape (npoint,). The results are added to this
-                array.
+           gradrhos
+                An output array, shape (npoint, 3). The results are added to
+                this array.
 
            select
                 'alpha', 'beta', 'full' or 'spin'. ('full' is the default.)
@@ -430,7 +431,7 @@ class System(object):
            **Returns:**
 
            gradrhos
-                The array with the densities. This is the same as the output
+                The array with the result. This is the same as the output
                 argument, in case it was provided.
         '''
         if gradrhos is None:
@@ -440,6 +441,70 @@ class System(object):
         dm = self.wfn.get_dm(select)
         self.obasis.compute_grid_gradient_dm(dm, points, gradrhos)
         return gradrhos
+
+    def compute_grid_hartree(self, points, hartree=None, select='full'):
+        '''Compute the hartree potential on a grid using self.wfn as input
+
+           **Arguments:**
+
+           points
+                A Numpy array with grid points, shape (npoint,3)
+
+           **Optional arguments:**
+
+           hartree
+                An output array, shape (npoint,). The results are added to this
+                array.
+
+           select
+                'alpha', 'beta', 'full' or 'spin'. ('full' is the default.)
+
+           **Returns:**
+
+           hartree
+                The array with the result. This is the same as the output
+                argument, in case it was provided.
+        '''
+        if hartree is None:
+            hartree = np.zeros(len(points), float)
+        elif hartree.shape != (points.shape[0],):
+            raise TypeError('The shape of the output array is wrong')
+        dm = self.wfn.get_dm(select)
+        self.obasis.compute_grid_hartree_dm(dm, points, hartree)
+        return hartree
+
+    def compute_grid_esp(self, points, esp=None, select='full'):
+        '''Compute the esp on a grid using self.wfn as input
+
+           **Arguments:**
+
+           points
+                A Numpy array with grid points, shape (npoint,3)
+
+           **Optional arguments:**
+
+           esp
+                An output array, shape (npoint,). The results are added to this
+                array.
+
+           select
+                'alpha', 'beta', 'full' or 'spin'. ('full' is the default.)
+
+           **Returns:**
+
+           esp
+                The array with the result. This is the same as the output
+                argument, in case it was provided.
+        '''
+        if esp is None:
+            esp = np.zeros(len(points), float)
+        elif esp.shape != (points.shape[0],):
+            raise TypeError('The shape of the output array is wrong')
+        dm = self.wfn.get_dm(select)
+        self.obasis.compute_grid_hartree_dm(dm, points, esp)
+        esp *= -1
+        compute_grid_nucpot(self.numbers, self.coordinates, points, esp)
+        return esp
 
     def compute_grid_density_fock(self, points, weights, pots, fock):
         '''See documentation self.obasis.compute_grid_density_fock'''

@@ -26,3 +26,7 @@ cdef extern from "common.h":
     long binom(long n, long m)
     long get_shell_nbasis(long shell_type)
     long get_max_shell_type()
+
+    double gpt_coeff(long k, long n0, long n1, double pa, double pb)
+    double gb_overlap_int1d(long n0, long n1, double pa, double pb, double gamma)
+    void nuclear_attraction_helper(double* work_g, long n0, long n1, double pa, double pb, double cp, double gamma_inv)

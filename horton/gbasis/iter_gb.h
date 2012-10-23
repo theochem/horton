@@ -63,7 +63,8 @@ class IterGB2 {
         void update_shell();
         int inc_prim();
         void update_prim();
-        void store(const double *work, double *output);
+        void store(const double* work, double* output);
+        double dot(const double* work, const double* dm);
 
         // 'public' iterator fields
         long shell_type0, shell_type1;

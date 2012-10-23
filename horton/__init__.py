@@ -24,6 +24,7 @@ __version__ = '0.0'
 
 
 from horton.cache import *
+from horton.cext import *
 from horton.checkpoint import *
 from horton.constants import *
 from horton.context import *

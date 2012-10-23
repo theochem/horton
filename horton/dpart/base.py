@@ -27,6 +27,10 @@ from horton.log import log, timer
 __all__ = ['DPart']
 
 
+# TODO: add framework to evaluate AIM weights (and maybe other things) on
+# user-provided grids.
+
+
 class DPart(JustOnceClass):
     '''Base class for density partitioning schemes'''
     def __init__(self, molgrid, local=True):

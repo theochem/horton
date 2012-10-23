@@ -90,6 +90,11 @@ setup(
         ('share/horton/refatoms', glob('data/refatoms/*.h5')),
     ],
     ext_modules=[
+        Extension("horton.cext",
+            sources=get_sources('horton'),
+            depends=get_depends('horton'),
+            include_dirs=[np.get_include()],
+            language="c++"),
         Extension("horton.gbasis.cext",
             sources=get_sources('horton/gbasis'),
             depends=get_depends('horton/gbasis'),

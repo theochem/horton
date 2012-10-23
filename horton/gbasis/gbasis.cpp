@@ -163,7 +163,7 @@ void GBasis::compute_two_body(double* output, GB4Integral* integral) {
     } while (iter.inc_shell());
 }
 
-void GBasis::compute_grid1(double* output, double* point, GB1GridFn* grid_fn) {
+void GBasis::compute_grid_point1(double* output, double* point, GB1GridFn* grid_fn) {
     /*
         TODO
              When multiple different memory storage schemes are implemented for
@@ -184,6 +184,28 @@ void GBasis::compute_grid1(double* output, double* point, GB1GridFn* grid_fn) {
     } while (iter.inc_shell());
 }
 
+double GBasis::compute_grid_point2(double* dm, double* point, GB2GridFn* grid_fn) {
+    /*
+        TODO
+             When multiple different memory storage schemes are implemented for
+             the operators, the iterator must also become an argument for this
+             function
+
+    */
+    double result = 0.0;
+    IterGB2 iter = IterGB2(this);
+    iter.update_shell();
+    do {
+        grid_fn->reset(iter.shell_type0, iter.shell_type1, iter.r0, iter.r1, point);
+        iter.update_prim();
+        do {
+            grid_fn->add(iter.con_coeff, iter.alpha0, iter.alpha1, iter.scales0, iter.scales1);
+        } while (iter.inc_prim());
+        grid_fn->cart_to_pure();
+        result += iter.dot(grid_fn->get_work(), dm);
+    } while (iter.inc_shell());
+    return result;
+}
 
 GOBasis::GOBasis(const double* centers, const long* shell_map, const long* nprims,
                  const long* shell_types, const double* alphas, const double* con_coeffs,
@@ -229,7 +251,7 @@ void GOBasis::compute_grid1_dm(double* dm, long npoint, double* points, GB1GridF
         memset(work_basis, 0, nwork*sizeof(double));
 
         // B) evaluate the basis functions in the current point.
-        compute_grid1(work_basis, points, grid_fn);
+        compute_grid_point1(work_basis, points, grid_fn);
 #ifdef DEBUG
         for (int i=0; i<nwork; i++) printf("%f ", work_basis[i]);
         printf("\n");
@@ -247,6 +269,19 @@ void GOBasis::compute_grid1_dm(double* dm, long npoint, double* points, GB1GridF
     delete[] work_basis;
 }
 
+void GOBasis::compute_grid2_dm(double* dm, long npoint, double* points, double* output) {
+    // For the moment, it is only possible to compute the Hartree potential on
+    // a grid with this routine. Generalizations with electrical field and
+    // other things are for later.
+    GB2HartreeGridFn grid_fn = GB2HartreeGridFn(get_max_shell_type());
+
+    for (long ipoint=0; ipoint<npoint; ipoint++) {
+        *output += compute_grid_point2(dm, points, &grid_fn);
+        output++;
+        points += 3;
+    }
+}
+
 void GOBasis::compute_grid1_fock(long npoint, double* points, double* weights, long pot_stride, double* pots, GB1GridFn* grid_fn, double* output) {
     // The work array contains the basis functions evaluated at the grid point,
     // and optionally some of its derivatives.
@@ -260,7 +295,7 @@ void GOBasis::compute_grid1_fock(long npoint, double* points, double* weights, l
         memset(work_basis, 0, nwork*sizeof(double));
 
         // B) evaluate the basis functions in the current point.
-        compute_grid1(work_basis, points, grid_fn);
+        compute_grid_point1(work_basis, points, grid_fn);
 
         // C) Add the contribution from this grid point to the operator
         for (long i=dim_output-1; i>=0; i--) {
