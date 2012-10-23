@@ -19,10 +19,23 @@
 #
 #--
 
-from horton.grid.base import *
-from horton.grid.atgrid import *
-from horton.grid.cext import *
-from horton.grid.molgrid import *
-from horton.grid.int1d import *
-from horton.grid.sphere import *
-from horton.grid.visual import *
+
+import numpy as np
+from horton import *
+
+
+def test_rectangle_grid():
+    center = np.array([1.0, 0.5, 0.05])
+    axis0 = np.array([0.0, 0.0, 0.1])
+    axis1 = np.array([0.0, 0.1, 0.0])
+    g = RectangleGrid(center, axis0, axis1, -10, 10, -10, 10)
+    assert abs(g.weights - 0.01).max() < 1e-10
+    assert abs(g.points.mean(axis=0) - center).max() < 1e-10
+    assert abs(g.points[0] - np.array([1.0, -0.5, -0.95])).max() < 1e-10
+
+    axis0 = np.array([0.0, 0.0, 0.1])
+    axis1 = np.array([0.0, 0.1, 0.1])
+    g = RectangleGrid(center, axis0, axis1, -10, 10, -10, 10)
+    assert abs(g.weights - 0.01).max() < 1e-10
+
+    # TODO test integration weights with a numerical example
