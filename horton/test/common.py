@@ -23,7 +23,9 @@
 import numpy as np
 
 
-np.seterr(all='raise')
+# All, except underflows, is fine.
+np.seterr(divide='raise', over='raise', invalid='raise')
+
 
 def check_delta(fun, fun_deriv, x, dxs):
     """Check the difference between two function values using the analytical gradient
