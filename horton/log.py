@@ -460,4 +460,5 @@ foot_banner = """
 
 timer = TimerGroup()
 log = ScreenLog('HORTON', horton.__version__, head_banner, foot_banner, timer)
+# TODO: avoid printing footer in case of exception
 atexit.register(log.print_footer)

@@ -26,6 +26,7 @@
 #include <cmath>
 #include <cstring>
 #include <stdexcept>
+#include "boys.h"
 #include "cartpure.h"
 #include "common.h"
 #include "fns.h"
@@ -221,4 +222,132 @@ void GB1GridGradientFn::compute_fock_from_pot(double* pot, double* work_basis, l
             }
         }
     }
+}
+
+
+/*
+    GB2GridFn
+*/
+
+GB2GridFn::GB2GridFn(long max_shell_type):
+    GBCalculator(max_shell_type)
+{
+    nwork = max_nbasis*max_nbasis;
+    work_cart = new double[nwork];
+    work_pure = new double[nwork];
+}
+
+void GB2GridFn::reset(long _shell_type0, long _shell_type1, const double* _r0, const double* _r1, const double* _point) {
+    if ((_shell_type0 < -max_shell_type) || (_shell_type0 > max_shell_type)) {
+      throw domain_error("shell_type0 out of range.");
+    }
+    if ((_shell_type1 < -max_shell_type) || (_shell_type1 > max_shell_type)) {
+      throw domain_error("shell_type0 out of range.");
+    }
+    shell_type0 = _shell_type0;
+    shell_type1 = _shell_type1;
+    r0 = _r0;
+    r1 = _r1;
+    point = _point;
+    // We make use of the fact that a floating point zero consists of
+    // consecutive zero bytes.
+    memset(work_cart, 0, nwork*sizeof(double));
+    memset(work_pure, 0, nwork*sizeof(double));
+}
+
+void GB2GridFn::cart_to_pure() {
+    /*
+       The initial results are always stored in work_cart. The projection
+       routine always outputs its result in work_pure. Once that is done,
+       the pointers to both blocks are swapped such that the final result is
+       always back in work_cart.
+    */
+
+    // For now, this is just a copy from GB2Integral. It must be changed when electrical fields are implemented.
+
+    // Project along index 0 (rows)
+    if (shell_type0 < -1) {
+        cart_to_pure_low(work_cart, work_pure, -shell_type0,
+            1, // anterior
+            get_shell_nbasis(abs(shell_type1)) // posterior
+        );
+        swap_work();
+    }
+
+    // Project along index 1 (cols)
+    if (shell_type1 < -1) {
+        cart_to_pure_low(work_cart, work_pure, -shell_type1,
+            get_shell_nbasis(shell_type0), // anterior
+            1 // posterior
+        );
+        swap_work();
+    }
+}
+
+
+/*
+    GB2HartreeGridFn
+*/
+
+GB2HartreeGridFn::GB2HartreeGridFn(long max_shell_type): GB2GridFn(max_shell_type) {
+    work_g0 = new double[2*max_shell_type+1];
+    work_g1 = new double[2*max_shell_type+1];
+    work_g2 = new double[2*max_shell_type+1];
+    work_boys = new double[2*max_shell_type+1];
+}
+
+
+GB2HartreeGridFn::~GB2HartreeGridFn() {
+    delete[] work_g0;
+    delete[] work_g1;
+    delete[] work_g2;
+    delete[] work_boys;
+}
+
+
+void GB2HartreeGridFn::add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1) {
+    // TODO: this is just copy-pasted from GB2NuclearAttractionIntegral with some minor changes. Very bad idea! Works for now ...
+    double pre, gamma, gamma_inv, arg;
+    double gpt_center[3], pa[3], pb[3], pc[3];
+
+    gamma = alpha0 + alpha1;
+    gamma_inv = 1.0/gamma;
+    pre = 2*M_PI*gamma_inv*coeff*exp(-alpha0*alpha1*gamma_inv*dist_sq(r0, r1));
+    compute_gpt_center(alpha0, r0, alpha1, r1, gamma_inv, gpt_center);
+    pa[0] = gpt_center[0] - r0[0];
+    pa[1] = gpt_center[1] - r0[1];
+    pa[2] = gpt_center[2] - r0[2];
+    pb[0] = gpt_center[0] - r1[0];
+    pb[1] = gpt_center[1] - r1[1];
+    pb[2] = gpt_center[2] - r1[2];
+
+    // thrid center for the current charge
+    pc[0] = gpt_center[0] - point[0];
+    pc[1] = gpt_center[1] - point[1];
+    pc[2] = gpt_center[2] - point[2];
+
+    // Fill the work array with the Boys function values
+    arg = gamma*(pc[0]*pc[0] + pc[1]*pc[1] + pc[2]*pc[2]);
+    for (long nu=abs(shell_type0)+abs(shell_type1); nu>=0; nu--) {
+        work_boys[nu] = boys_function(nu, arg);
+    }
+
+    // Iterate over all combinations of Cartesian exponents
+    i2p.reset(abs(shell_type0), abs(shell_type1));
+    do {
+        // Fill the work arrays with the polynomials
+        nuclear_attraction_helper(work_g0, i2p.n0[0], i2p.n1[0], pa[0], pb[0], pc[0], gamma_inv);
+        nuclear_attraction_helper(work_g1, i2p.n0[1], i2p.n1[1], pa[1], pb[1], pc[1], gamma_inv);
+        nuclear_attraction_helper(work_g2, i2p.n0[2], i2p.n1[2], pa[2], pb[2], pc[2], gamma_inv);
+
+        // Take the product
+        arg = 0;
+        for (long i0=i2p.n0[0]+i2p.n1[0]; i0>=0; i0--)
+            for (long i1=i2p.n0[1]+i2p.n1[1]; i1>=0; i1--)
+                for (long i2=i2p.n0[2]+i2p.n1[2]; i2>=0; i2--)
+                    arg += work_g0[i0]*work_g1[i1]*work_g2[i2]*work_boys[i0+i1+i2];
+
+        // Finally add to the work array
+        work_cart[i2p.offset] += pre*scales0[i2p.ibasis0]*scales1[i2p.ibasis1]*arg;
+    } while (i2p.inc());
 }
