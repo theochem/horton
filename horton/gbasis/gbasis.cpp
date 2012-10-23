@@ -163,7 +163,7 @@ void GBasis::compute_two_body(double* output, GB4Integral* integral) {
     } while (iter.inc_shell());
 }
 
-void GBasis::compute_grid(double* output, double* point, GB1GridFn* grid_fn) {
+void GBasis::compute_grid1(double* output, double* point, GB1GridFn* grid_fn) {
     /*
         TODO
              When multiple different memory storage schemes are implemented for
@@ -183,7 +183,6 @@ void GBasis::compute_grid(double* output, double* point, GB1GridFn* grid_fn) {
         iter.store(grid_fn->get_work(), output, grid_fn->get_dim_work());
     } while (iter.inc_shell());
 }
-
 
 
 GOBasis::GOBasis(const double* centers, const long* shell_map, const long* nprims,
@@ -218,7 +217,7 @@ void GOBasis::compute_electron_repulsion(double* output) {
     compute_two_body(output, &integral);
 }
 
-void GOBasis::compute_grid_dm(double* dm, long npoint, double* points, GB1GridFn* grid_fn, double* output) {
+void GOBasis::compute_grid1_dm(double* dm, long npoint, double* points, GB1GridFn* grid_fn, double* output) {
     // The work array contains the basis functions evaluated at the grid point,
     // and optionally some of its derivatives.
     long nwork = get_nbasis()*grid_fn->get_dim_work();
@@ -230,7 +229,7 @@ void GOBasis::compute_grid_dm(double* dm, long npoint, double* points, GB1GridFn
         memset(work_basis, 0, nwork*sizeof(double));
 
         // B) evaluate the basis functions in the current point.
-        compute_grid(work_basis, points, grid_fn);
+        compute_grid1(work_basis, points, grid_fn);
 #ifdef DEBUG
         for (int i=0; i<nwork; i++) printf("%f ", work_basis[i]);
         printf("\n");
@@ -248,7 +247,7 @@ void GOBasis::compute_grid_dm(double* dm, long npoint, double* points, GB1GridFn
     delete[] work_basis;
 }
 
-void GOBasis::compute_grid_fock(long npoint, double* points, double* weights, long pot_stride, double* pots, GB1GridFn* grid_fn, double* output) {
+void GOBasis::compute_grid1_fock(long npoint, double* points, double* weights, long pot_stride, double* pots, GB1GridFn* grid_fn, double* output) {
     // The work array contains the basis functions evaluated at the grid point,
     // and optionally some of its derivatives.
     long nwork = get_nbasis()*grid_fn->get_dim_work();
@@ -261,7 +260,7 @@ void GOBasis::compute_grid_fock(long npoint, double* points, double* weights, lo
         memset(work_basis, 0, nwork*sizeof(double));
 
         // B) evaluate the basis functions in the current point.
-        compute_grid(work_basis, points, grid_fn);
+        compute_grid1(work_basis, points, grid_fn);
 
         // C) Add the contribution from this grid point to the operator
         for (long i=dim_output-1; i>=0; i--) {

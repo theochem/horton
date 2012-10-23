@@ -30,8 +30,8 @@ class GB1GridFn : public GBCalculator  {
     protected:
         long shell_type0;
         const long dim_work, dim_output;
-        const double *r0;
-        const double *point;
+        const double *r0;    // The center of the basis function
+        const double *point; // The grid point at which the fn is evaluated
         IterPow1 i1p;
     public:
         GB1GridFn(long max_shell_type, long dim_work, long dim_output);

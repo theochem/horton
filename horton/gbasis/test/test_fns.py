@@ -249,11 +249,11 @@ def check_orbital_gradient(sys, p0, p1):
     grid_fn = GB1GridGradientFn(sys.obasis.max_shell_type)
 
     gradrhos0 = np.zeros((1,3), float)
-    sys.obasis._compute_grid_dm(sys.wfn.dm_full, p0, grid_fn, gradrhos0)
+    sys.obasis._compute_grid1_dm(sys.wfn.dm_full, p0, grid_fn, gradrhos0)
     work0 = grid_fn.get_work(grid_fn.max_nbasis)
 
     gradrhos1 = np.zeros((1,3), float)
-    sys.obasis._compute_grid_dm(sys.wfn.dm_full, p1, grid_fn, gradrhos0)
+    sys.obasis._compute_grid1_dm(sys.wfn.dm_full, p1, grid_fn, gradrhos0)
     work1 = grid_fn.get_work(grid_fn.max_nbasis)
 
     for i in xrange(len(work0)):
