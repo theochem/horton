@@ -136,7 +136,7 @@ def test_load_basis():
         go_basis_family.load()
 
 
-def test_grid_lih_321g_hf_some_points():
+def test_grid_lih_321g_hf_density_some_points():
     ref = np.array([ # from cubegen
         [0.0, 0.0, 0.0, 0.037565082428],
         [0.1, 0.0, 0.0, 0.034775306876],
@@ -144,10 +144,10 @@ def test_grid_lih_321g_hf_some_points():
         [0.0, 0.0, 1.0, 0.186234028507],
         [0.4, 0.2, 0.1, 0.018503681370],
     ])
-    ref[:,:3] *= angstrom # convert from angstrom, cubegen docs are wrong. pfff.
+    ref[:,:3] *= angstrom
     sys = System.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
 
-    # check for one point the compute_grid method
+    # check for one point the compute_grid_point1 method
     output = np.zeros(sys.obasis.nbasis, float)
     point = np.array([0.0, 0.0, 1.0])*angstrom
     grid_fn = GB1GridDensityFn(sys.obasis.max_shell_type)
@@ -178,7 +178,49 @@ def test_grid_lih_321g_hf_some_points():
     assert abs(rhos - ref[:,3]).max() < 1e-5
 
 
-def test_gird_one_body_ne():
+def test_grid_lih_321g_hf_gradient_some_points():
+    ref = np.array([ # from cubegen
+        [0.0, 0.0, 0.0,  0.000000000000,  0.000000000000,  0.179349665782],
+        [0.1, 0.0, 0.0, -0.028292898754,  0.000000000000,  0.164582727812],
+        [0.0, 0.1, 0.0,  0.000000000000, -0.028292898754,  0.164582727812],
+        [0.0, 0.0, 1.0,  0.000000000000,  0.000000000000, -0.929962409854],
+        [0.4, 0.2, 0.1, -0.057943497876, -0.028971748938,  0.069569174116],
+    ])
+    ref[:,:3] *= angstrom
+    sys = System.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
+    points = ref[:,:3].copy()
+    gradients = sys.compute_grid_gradient(points)
+    assert abs(gradients - ref[:,3:]).max() < 1e-6
+
+
+def test_grid_lih_321g_hf_potential_some_points():
+    ref = np.array([ # from cubegen
+        [0.0, 0.0, 0.0, 0.906151727538],
+        [0.1, 0.0, 0.0, 0.891755005233],
+        [0.0, 0.1, 0.0, 0.891755005233],
+        [0.0, 0.0, 1.0, 1.422294470114],
+        [0.4, 0.2, 0.1, 0.796490099689],
+    ])
+    ref[:,:3] *= angstrom
+    sys = System.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
+
+    # check for one point the compute_grid_point2 method
+    if False: # TODO Write python interface to GB2GridHartreeFn
+    #for row in ref:
+        point = row[:3]
+        grid_fn = GB2GridHartreeFn(sys.obasis.max_shell_type)
+        esp = sys.obasis.compute_grid_point2(sys.wfn.dm_full, point, grid_fn)
+        hartree = -esp
+        for n, pos in zip(sys.numbers, sys.coordinates):
+            hartree -= n/np.linalg.norm(pos - point)
+        assert abs(row[3] - hartree) < 1e-8
+
+    points = ref[:,:3].copy()
+    esps = sys.compute_grid_esp(points)
+    assert abs(esps - ref[:,3]).max() < 1e-8
+
+
+def test_grid_one_body_ne():
     sys = System.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 2e1, 100)
