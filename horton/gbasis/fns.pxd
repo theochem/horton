@@ -20,7 +20,8 @@
 #--
 
 
-# TODO: Derive GB1GridFn and GB2GridFn from common interface?
+# TODO: Derive GB1GridFn and GB2GridFn from GBCalculator (in its own pxd file)
+#       Use the same class hierarchy in cext.pyx
 
 cdef extern from "fns.h":
     cdef cppclass GB1GridFn:
