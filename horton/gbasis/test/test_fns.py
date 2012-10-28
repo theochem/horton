@@ -25,9 +25,6 @@ import numpy as np
 from horton import *
 
 
-# TODO: add tests for density on grid with large angular momentum. There should be a problem for density gradients in the cart_to_pure conversion.
-
-
 def test_exceptions():
     try:
         grid_fn = GB1GridDensityFn(-1)
