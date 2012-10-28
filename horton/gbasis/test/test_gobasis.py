@@ -178,6 +178,61 @@ def test_grid_lih_321g_hf_density_some_points():
     assert abs(rhos - ref[:,3]).max() < 1e-5
 
 
+# TEMPLATE
+def template_grid_co_ccpv5z_hf_density_some_points():
+    ref = np.array([ # from cubegen
+        [ 0.0,  0.0,  0.0, ],
+        [ 0.1,  0.0,  0.0, ],
+        [ 0.0,  0.1,  0.0, ],
+        [ 0.0,  0.0,  1.0, ],
+        [ 0.4,  0.2,  0.1, ],
+        [-0.4,  0.2,  0.1, ],
+        [ 0.4, -0.2,  0.1, ],
+        [ 0.4,  0.2, -0.1, ],
+    ])
+    ref[:,:3] *= angstrom
+    sys = System.from_file(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
+    points = ref[:,:3].copy()
+    rhos = sys.compute_grid_density(points)
+    assert abs(rhos - ref[:,3]).max() < 1e-5
+
+
+def test_grid_co_ccpv5z_cart_hf_density_some_points():
+    ref = np.array([ # from cubegen
+        [ 0.0,  0.0,  0.0,   4.54392441417],
+        [ 0.1,  0.0,  0.0,   2.87874696902],
+        [ 0.0,  0.1,  0.0,   2.90909931711],
+        [ 0.0,  0.0,  1.0,   0.00563354926],
+        [ 0.4,  0.2,  0.1,   0.15257439924],
+        [-0.4,  0.2,  0.1,   0.14408104500],
+        [ 0.4, -0.2,  0.1,   0.14627065655],
+        [ 0.4,  0.2, -0.1,   0.11912840380],
+    ])
+    ref[:,:3] *= angstrom
+    sys = System.from_file(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
+    points = ref[:,:3].copy()
+    rhos = sys.compute_grid_density(points)
+    assert abs(rhos - ref[:,3]).max() < 3e-3
+
+
+def test_grid_co_ccpv5z_pure_hf_density_some_points():
+    ref = np.array([ # from cubegen
+        [ 0.0,  0.0,  0.0,   4.54338939220],
+        [ 0.1,  0.0,  0.0,   2.87742753163],
+        [ 0.0,  0.1,  0.0,   2.90860415538],
+        [ 0.0,  0.0,  1.0,   0.00285462032],
+        [ 0.4,  0.2,  0.1,   0.15399703660],
+        [-0.4,  0.2,  0.1,   0.14425254494],
+        [ 0.4, -0.2,  0.1,   0.14409038614],
+        [ 0.4,  0.2, -0.1,   0.11750780363],
+    ])
+    ref[:,:3] *= angstrom
+    sys = System.from_file(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'))
+    points = ref[:,:3].copy()
+    rhos = sys.compute_grid_density(points)
+    assert abs(rhos - ref[:,3]).max() < 3e-3
+
+
 def test_grid_lih_321g_hf_gradient_some_points():
     ref = np.array([ # from cubegen
         [0.0, 0.0, 0.0,  0.000000000000,  0.000000000000,  0.179349665782],
@@ -193,7 +248,43 @@ def test_grid_lih_321g_hf_gradient_some_points():
     assert abs(gradients - ref[:,3:]).max() < 1e-6
 
 
-def test_grid_lih_321g_hf_potential_some_points():
+def test_grid_co_ccpv5z_cart_hf_gradient_some_points():
+    ref = np.array([ # from cubegen
+        [ 0.0,  0.0,  0.0,  -0.26805895992,  -0.03725931097,  26.06939895580],
+        [ 0.1,  0.0,  0.0, -11.66097634913,  -0.02427222636,  11.49946087301],
+        [ 0.0,  0.1,  0.0,  -0.18730587145, -11.60371334591,  11.60046471817],
+        [ 0.0,  0.0,  1.0,   0.00350647376,  -0.00151630329,  -0.00944412097],
+        [ 0.4,  0.2,  0.1,  -0.46814335442,  -0.28380627268,  -0.02592227656],
+        [-0.4,  0.2,  0.1,   0.63742782898,  -0.32989678808,   0.00444361306],
+        [ 0.4, -0.2,  0.1,  -0.50464249640,   0.29978538874,  -0.01244489023],
+        [ 0.4,  0.2, -0.1,  -0.21837773815,  -0.16855926400,   0.15518115326],
+    ])
+    ref[:,:3] *= angstrom
+    sys = System.from_file(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
+    points = ref[:,:3].copy()
+    gradrhos = sys.compute_grid_gradient(points)
+    assert abs(gradrhos - ref[:,3:]).max() < 1e-2
+
+
+def test_grid_co_ccpv5z_pure_hf_gradient_some_points():
+    ref = np.array([ # from cubegen
+        [ 0.0,  0.0,  0.0,  -0.27796827654,  -0.03971005800,  26.06788123216],
+        [ 0.1,  0.0,  0.0, -11.65999871789,  -0.02706024561,  11.49763108605],
+        [ 0.0,  0.1,  0.0,  -0.19499030621, -11.60235682832,  11.60235521243],
+        [ 0.0,  0.0,  1.0,   0.00184843964,   0.00026806115,  -0.01003272687],
+        [ 0.4,  0.2,  0.1,  -0.46500454519,  -0.27516942731,  -0.01707049479],
+        [-0.4,  0.2,  0.1,   0.63911725484,  -0.32989616481,   0.00229353087],
+        [ 0.4, -0.2,  0.1,  -0.51099806603,   0.29961935521,  -0.00979594206],
+        [ 0.4,  0.2, -0.1,  -0.21849813344,  -0.16098019809,   0.16093849962],
+    ])
+    ref[:,:3] *= angstrom
+    sys = System.from_file(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'))
+    points = ref[:,:3].copy()
+    gradrhos = sys.compute_grid_gradient(points)
+    assert abs(gradrhos - ref[:,3:]).max() < 2e-2
+
+
+def test_grid_lih_321g_hf_esp_some_points():
     ref = np.array([ # from cubegen
         [0.0, 0.0, 0.0, 0.906151727538],
         [0.1, 0.0, 0.0, 0.891755005233],
@@ -218,6 +309,42 @@ def test_grid_lih_321g_hf_potential_some_points():
     points = ref[:,:3].copy()
     esps = sys.compute_grid_esp(points)
     assert abs(esps - ref[:,3]).max() < 1e-8
+
+
+def test_grid_co_ccpv5z_cart_hf_esp_some_points():
+    ref = np.array([ # from cubegen
+        [ 0.0,  0.0,  0.0,  10.69443507172],
+        [ 0.1,  0.0,  0.0,   6.43122889229],
+        [ 0.0,  0.1,  0.0,   6.43406765938],
+        [ 0.0,  0.0,  1.0,   0.27023448629],
+        [ 0.4,  0.2,  0.1,   0.82646540602],
+        [-0.4,  0.2,  0.1,   0.93595072191],
+        [ 0.4, -0.2,  0.1,   0.83432301119],
+        [ 0.4,  0.2, -0.1,   0.68524674809],
+    ])
+    ref[:,:3] *= angstrom
+    sys = System.from_file(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
+    points = ref[:,:3].copy()
+    esps = sys.compute_grid_esp(points)
+    assert abs(esps - ref[:,3]).max() < 1e-3
+
+
+def test_grid_co_ccpv5z_pure_hf_esp_some_points():
+    ref = np.array([ # from cubegen
+        [ 0.0,  0.0,  0.0,  10.69443507172],
+        [ 0.1,  0.0,  0.0,   6.43122889229],
+        [ 0.0,  0.1,  0.0,   6.43406765938],
+        [ 0.0,  0.0,  1.0,   0.27023448629],
+        [ 0.4,  0.2,  0.1,   0.82646540602],
+        [-0.4,  0.2,  0.1,   0.93595072191],
+        [ 0.4, -0.2,  0.1,   0.83432301119],
+        [ 0.4,  0.2, -0.1,   0.68524674809],
+    ])
+    ref[:,:3] *= angstrom
+    sys = System.from_file(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'))
+    points = ref[:,:3].copy()
+    esps = sys.compute_grid_esp(points)
+    assert abs(esps - ref[:,3]).max() < 1e-5
 
 
 def test_grid_one_body_ne():

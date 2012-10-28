@@ -68,7 +68,7 @@ void GB1GridFn::cart_to_pure() {
 
     if (shell_type0 < -1) {
         cart_to_pure_low(work_cart, work_pure, -shell_type0,
-            1, // anterior
+            dim_work, // anterior
             1 // posterior
         );
         swap_work();
