@@ -178,25 +178,6 @@ def test_grid_lih_321g_hf_density_some_points():
     assert abs(rhos - ref[:,3]).max() < 1e-5
 
 
-# TEMPLATE
-def template_grid_co_ccpv5z_hf_density_some_points():
-    ref = np.array([ # from cubegen
-        [ 0.0,  0.0,  0.0, ],
-        [ 0.1,  0.0,  0.0, ],
-        [ 0.0,  0.1,  0.0, ],
-        [ 0.0,  0.0,  1.0, ],
-        [ 0.4,  0.2,  0.1, ],
-        [-0.4,  0.2,  0.1, ],
-        [ 0.4, -0.2,  0.1, ],
-        [ 0.4,  0.2, -0.1, ],
-    ])
-    ref[:,:3] *= angstrom
-    sys = System.from_file(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
-    points = ref[:,:3].copy()
-    rhos = sys.compute_grid_density(points)
-    assert abs(rhos - ref[:,3]).max() < 1e-5
-
-
 def test_grid_co_ccpv5z_cart_hf_density_some_points():
     ref = np.array([ # from cubegen
         [ 0.0,  0.0,  0.0,   4.54392441417],
@@ -263,7 +244,7 @@ def test_grid_co_ccpv5z_cart_hf_gradient_some_points():
     sys = System.from_file(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
     points = ref[:,:3].copy()
     gradrhos = sys.compute_grid_gradient(points)
-    assert abs(gradrhos - ref[:,3:]).max() < 1e-2
+    assert abs(gradrhos - ref[:,3:]).max() < 1e-2 # cubegen output somehow not reliable
 
 
 def test_grid_co_ccpv5z_pure_hf_gradient_some_points():
@@ -281,7 +262,7 @@ def test_grid_co_ccpv5z_pure_hf_gradient_some_points():
     sys = System.from_file(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'))
     points = ref[:,:3].copy()
     gradrhos = sys.compute_grid_gradient(points)
-    assert abs(gradrhos - ref[:,3:]).max() < 2e-2
+    assert abs(gradrhos - ref[:,3:]).max() < 1e-4
 
 
 def test_grid_lih_321g_hf_esp_some_points():
@@ -326,7 +307,7 @@ def test_grid_co_ccpv5z_cart_hf_esp_some_points():
     sys = System.from_file(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
     points = ref[:,:3].copy()
     esps = sys.compute_grid_esp(points)
-    assert abs(esps - ref[:,3]).max() < 1e-3
+    assert abs(esps - ref[:,3]).max() < 1e-3 # cubegen output somehow not reliable
 
 
 def test_grid_co_ccpv5z_pure_hf_esp_some_points():
