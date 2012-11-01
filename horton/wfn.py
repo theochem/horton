@@ -325,6 +325,10 @@ class ClosedShellWFN(WFN):
 
     mult = property(_get_mult)
 
+    def get_spin(self):
+        '''Returns the expectation values of the projecte and squared spin'''
+        return 0.0, 0.0
+
 
 
 class OpenShellWFN(WFN):
@@ -408,6 +412,37 @@ class OpenShellWFN(WFN):
         return 1 + abs(self.nalpha - self.nbeta)
 
     mult = property(_get_mult)
+
+    def get_spin(self, olp):
+        '''Returns the expectation values of the projected and squared spin
+
+           **Arguments:**
+
+           olp
+                The overlap matrix
+        '''
+        nbeta = self.nbeta
+        sz = (self.nalpha - nbeta)/2
+
+        # The correction due to the mismatch in overlap between alpha and beta
+        # orbitals.
+        correction = 0.0
+        nfn_alpha = self.exp_alpha.nfn
+        nfn_beta = self.exp_beta.nfn
+        occupations_alpha = self.exp_alpha.occupations
+        occupations_beta = self.exp_beta.occupations
+        coeffs_alpha = self.exp_alpha.coeffs
+        coeffs_beta = self.exp_beta.coeffs
+        for ialpha in xrange(nfn_alpha):
+            if occupations_alpha[ialpha] == 0.0:
+                continue
+            for ibeta in xrange(nfn_beta):
+                if occupations_beta[ibeta] == 0.0:
+                    continue
+                correction += olp.dot(coeffs_alpha[:,ialpha], coeffs_beta[:,ibeta])**2
+
+        ssq = sz*(sz+1) + nbeta - correction
+        return sz, ssq
 
 
 
