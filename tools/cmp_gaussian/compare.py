@@ -36,7 +36,3 @@ for fn_fchk in fns_fchk:
     dma1 = sys.wfn.dm_alpha.copy()
     dmb1 = sys.wfn.dm_beta.copy()
     check_cubic_os_wrapper(ham, dma0, dmb0, dma1, dmb1, do_plot=True)
-    
-
-
-

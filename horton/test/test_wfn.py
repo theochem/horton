@@ -68,3 +68,32 @@ def test_dm_lih_sto3g_hf():
     assert abs(dm.get_element(0, 1) - -2.65370873E-03) < 1e-9
     assert abs(dm.get_element(1, 1) - 5.38701212E-03) < 1e-9
     assert abs(dm.get_element(10, 10) - 4.23889148E-01) < 1e-7
+
+
+def test_spin_li_h():
+    fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
+    sys = System.from_file(fn_fchk)
+    sz, ssq = sys.wfn.get_spin(sys.get_overlap())
+    assert sz == 0.5
+    assert abs(ssq - 0.75) < 1e-7
+
+def test_spin_h3_hfs():
+    fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
+    sys = System.from_file(fn_fchk)
+    sz, ssq = sys.wfn.get_spin(sys.get_overlap())
+    assert sz == 0.5
+    assert abs(ssq - 0.7530) < 1e-4
+
+def test_spin_h3_pbe():
+    fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
+    sys = System.from_file(fn_fchk)
+    sz, ssq = sys.wfn.get_spin(sys.get_overlap())
+    assert sz == 0.5
+    assert abs(ssq - 0.7530) < 1e-4
+
+def test_spin_ch3_hf():
+    fn_fchk = context.get_fn('test/ch3_hf_sto3g.fchk')
+    sys = System.from_file(fn_fchk)
+    sz, ssq = sys.wfn.get_spin(sys.get_overlap())
+    assert sz == 0.5
+    assert abs(ssq - 0.7632) < 1e-4
