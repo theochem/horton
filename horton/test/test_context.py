@@ -20,7 +20,7 @@
 #--
 
 
-import os
+import os, subprocess
 
 from horton import context
 
@@ -30,3 +30,9 @@ def test_context():
     assert os.path.isfile(fn)
     fns = context.glob('basis/*.nwchem')
     assert fn in fns
+
+def test_data_test_files():
+    # Find files in data/test that were not checked in.
+    # This test only makes sense if ran inside the source tree.
+    if context.data_dir == './data':
+        assert os.system('[ -z $(git ls-files --others data/test) ]') == 0, 'Some test files are not staged for commit!'
