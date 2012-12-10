@@ -87,6 +87,8 @@ double IdentityRTransform::inv(double r) {
 LinearRTransform::LinearRTransform(double rmin, double rmax, int npoint):
     RTransform(npoint), rmin(rmin), rmax(rmax)
 {
+    if (rmin >= rmax)
+        throw std::domain_error("rmin must be below rmax.");
     alpha = (rmax-rmin)/(npoint-1);
 }
 
@@ -110,6 +112,8 @@ double LinearRTransform::inv(double r) {
 ExpRTransform::ExpRTransform(double rmin, double rmax, int npoint):
     RTransform(npoint), rmin(rmin), rmax(rmax)
 {
+    if (rmin >= rmax)
+        throw std::domain_error("rmin must be below rmax.");
     if ((rmin <= 0.0) || (rmax <= 0.0))
         throw std::domain_error("The minimum and maximum radii of a log grid must be positive.");
     alpha = log(rmax/rmin)/(npoint-1);

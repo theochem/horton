@@ -267,6 +267,12 @@ def test_linear_bounds():
         except ValueError:
             pass
 
+    try:
+        LinearRTransform(1.1, 0.9, 50)
+        assert False
+    except ValueError:
+        pass
+
 
 def test_exp_bounds():
     for npoint in -1, 0, 1:
@@ -284,6 +290,12 @@ def test_exp_bounds():
 
     try:
         ExpRTransform(0.1, -1.0, 50)
+        assert False
+    except ValueError:
+        pass
+
+    try:
+        ExpRTransform(1.1, 0.9, 50)
         assert False
     except ValueError:
         pass
