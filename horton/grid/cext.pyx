@@ -35,6 +35,9 @@ cimport rtransform
 cimport utils
 
 
+# TODO: make extension types (un)picklable
+# See https://groups.google.com/forum/?fromgroups=#!topic/cython-users/vzG58m0Yr2Y
+
 __all__ = [
     # lebedev_laikov
     'lebedev_laikov_npoint', 'lebedev_laikov_sphere', 'lebedev_laikov_npoints',
