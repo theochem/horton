@@ -48,7 +48,7 @@ __all__ = [
     'compute_cubic_spline_int_weights',
     # rtransform
     'RTransform', 'IdentityRTransform', 'LinearRTransform', 'ExpRTransform',
-    'BakerRTransform',
+    'ShiftedExpRTransform', 'BakerRTransform',
     # utils
     'dot_multi', 'grid_distances',
 ]
@@ -269,6 +269,7 @@ def compute_cubic_spline_int_weights(np.ndarray[double, ndim=1] weights not None
     npoint = weights.shape[0]
     cubic_spline.compute_cubic_spline_int_weights(<double*>weights.data, npoint)
 
+
 #
 # rtransform
 #
@@ -351,6 +352,14 @@ cdef class RTransform(object):
             rmax = float(args[1])
             npoint = int(args[2])
             return ExpRTransform(rmin, rmax, npoint)
+        if clsname == 'ShiftedExpRTransform':
+            if len(args) != 4:
+                raise ValueError('The ShiftedExpRTransform needs four arguments, got %i.' % len(words))
+            rmin = float(args[0])
+            rshift = float(args[1])
+            rmax = float(args[2])
+            npoint = int(args[3])
+            return ShiftedExpRTransform(rmin, rshift, rmax, npoint)
         if clsname == 'BakerRTransform':
             if len(args) != 2:
                 raise ValueError('The BakerRTransform needs two arguments, got %i.' % len(words))
@@ -431,6 +440,48 @@ cdef class ExpRTransform(RTransform):
 
     def to_string(self):
         return ' '.join(['ExpRTransform', repr(self.rmin), repr(self.rmax), repr(self.npoint)])
+
+
+cdef class ShiftedExpRTransform(RTransform):
+    r'''A shifted exponential grid.
+
+       The grid points are distributed as follows:
+
+       .. math:: r_i = r_0 \alpha^i - r_s
+
+       with
+
+       .. math::
+            r_0 = r_m + r_s
+
+       .. math::
+            \alpha = \log\left(\frac{r_M+r_s}{r_0}\right)/(N-1).
+    '''
+    def __cinit__(self, double rmin, double rshift, double rmax, int npoint):
+        self._this = <rtransform.RTransform*>(new rtransform.ShiftedExpRTransform(rmin, rshift, rmax, npoint))
+
+    property rmin:
+        def __get__(self):
+            return (<rtransform.ShiftedExpRTransform*>self._this).get_rmin()
+
+    property rshift:
+        def __get__(self):
+            return (<rtransform.ShiftedExpRTransform*>self._this).get_rshift()
+
+    property rmax:
+        def __get__(self):
+            return (<rtransform.ShiftedExpRTransform*>self._this).get_rmax()
+
+    property r0:
+        def __get__(self):
+            return (<rtransform.ShiftedExpRTransform*>self._this).get_r0()
+
+    property alpha:
+        def __get__(self):
+            return (<rtransform.ShiftedExpRTransform*>self._this).get_alpha()
+
+    def to_string(self):
+        return ' '.join(['ShiftedExpRTransform', repr(self.rmin), repr(self.rshift), repr(self.rmax), repr(self.npoint)])
 
 
 cdef class BakerRTransform(RTransform):

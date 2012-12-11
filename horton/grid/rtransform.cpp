@@ -115,7 +115,7 @@ ExpRTransform::ExpRTransform(double rmin, double rmax, int npoint):
     if (rmin >= rmax)
         throw std::domain_error("rmin must be below rmax.");
     if ((rmin <= 0.0) || (rmax <= 0.0))
-        throw std::domain_error("The minimum and maximum radii of a log grid must be positive.");
+        throw std::domain_error("The minimum and maximum radii must be positive.");
     alpha = log(rmax/rmin)/(npoint-1);
 }
 
@@ -132,6 +132,35 @@ double ExpRTransform::inv(double r) {
 }
 
 
+/*
+   ShiftedExpRTransform
+*/
+
+ShiftedExpRTransform::ShiftedExpRTransform(double rmin, double rshift, double rmax, int npoint):
+    RTransform(npoint), rmin(rmin), rshift(rshift), rmax(rmax)
+{
+    if (rmin >= rmax)
+        throw std::domain_error("rmin must be below rmax.");
+    if ((rmin <= 0.0) || (rmax <= 0.0))
+        throw std::domain_error("The minimum and maximum radii must be positive.");
+    r0 = rmin + rshift;
+    if (r0 <= 0.0)
+        throw std::domain_error("The parameter r0 must be positive.");
+    alpha = log((rmax+rshift)/r0)/(npoint-1);
+}
+
+double ShiftedExpRTransform::radius(double t) {
+    return r0*exp(t*alpha) - rshift;
+}
+
+double ShiftedExpRTransform::deriv(double t) {
+    return r0*alpha*exp(t*alpha);
+}
+
+double ShiftedExpRTransform::inv(double r) {
+    return log((r + rshift)/r0)/alpha;
+}
+
 
 /*
    BakerRTransform
@@ -141,7 +170,7 @@ BakerRTransform::BakerRTransform(double rmax, int npoint):
     RTransform(npoint), rmax(rmax)
 {
     if (rmax <= 0.0)
-        throw std::domain_error("The minimum and maximum radii of a log grid must be positive.");
+        throw std::domain_error("The maximum radius must be positive.");
     scale = (npoint-1.0)/npoint;
     scale = rmax/log(1-scale*scale);
 }

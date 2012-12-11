@@ -101,6 +101,14 @@ def test_exp_basics():
     check_deriv(rtf)
 
 
+def test_shifted_exp_basics():
+    rtf = ShiftedExpRTransform(0.1, 0.1, 10.0, 100)
+    assert abs(rtf.radius(0) - 0.1) < 1e-15
+    assert abs(rtf.radius(99) - 10.0) < 1e-10
+    check_consistency(rtf)
+    check_deriv(rtf)
+
+
 def test_baker_basics():
     rtf = BakerRTransform(1e1, 100)
     assert rtf.radius(0) == 0.0
@@ -127,6 +135,16 @@ def test_exp_properties():
     assert rtf.rmin == 0.1
     assert rtf.rmax == 1e1
     assert rtf.npoint == 100
+    assert rtf.alpha > 0
+
+
+def test_shifted_exp_properties():
+    rtf = ShiftedExpRTransform(0.2, 0.1, 1e1, 100)
+    assert rtf.rmin == 0.2
+    assert rtf.rshift == 0.1
+    assert rtf.rmax == 1e1
+    assert rtf.npoint == 100
+    assert abs(rtf.r0 - 0.3) < 1e-10
     assert rtf.alpha > 0
 
 
@@ -224,6 +242,37 @@ def test_exp_string():
     assert rtf3.alpha > 0
 
 
+def test_shifted_exp_string():
+    rtf1 = ShiftedExpRTransform(np.random.uniform(1e-4, 5e-4), np.random.uniform(1e-5, 5e-5), np.random.uniform(1, 5), 781)
+    s = rtf1.to_string()
+    rtf2 = RTransform.from_string(s)
+    assert rtf1.rmin == rtf2.rmin
+    assert rtf1.rshift == rtf2.rshift
+    assert rtf1.rmax == rtf2.rmax
+    assert rtf1.npoint == rtf2.npoint
+    assert rtf1.r0 == rtf2.r0
+    assert rtf1.alpha == rtf2.alpha
+
+    try:
+        rtf3 = RTransform.from_string('ShiftedExpRTransform A 5')
+        assert False
+    except ValueError:
+        pass
+
+    try:
+        rtf3 = RTransform.from_string('ShiftedExpRTransform A 5 .1 14')
+        assert False
+    except ValueError:
+        pass
+
+    rtf3 = RTransform.from_string('ShiftedExpRTransform 1.0 0.5 12.15643216847 5')
+    assert rtf3.rmin == 1.0
+    assert rtf3.rshift == 0.5
+    assert rtf3.rmax == 12.15643216847
+    assert rtf3.npoint == 5
+    assert rtf3.alpha > 0
+
+
 def test_baker_string():
     rtf1 = BakerRTransform(np.random.uniform(1, 5), 123)
     s = rtf1.to_string()
@@ -296,6 +345,39 @@ def test_exp_bounds():
 
     try:
         ExpRTransform(1.1, 0.9, 50)
+        assert False
+    except ValueError:
+        pass
+
+
+def test_shifted_exp_bounds():
+    for npoint in -1, 0, 1:
+        try:
+            ShiftedExpRTransform(0.1, 0.05, 1.0, npoint)
+            assert False
+        except ValueError:
+            pass
+
+    try:
+        ShiftedExpRTransform(-0.1, 0.2, 1.0, 50)
+        assert False
+    except ValueError:
+        pass
+
+    try:
+        ShiftedExpRTransform(0.1, 0.2, -1.0, 50)
+        assert False
+    except ValueError:
+        pass
+
+    try:
+        ShiftedExpRTransform(1.1, 0.2, 0.9, 50)
+        assert False
+    except ValueError:
+        pass
+
+    try:
+        ShiftedExpRTransform(0.1, -0.3, 0.9, 50)
         assert False
     except ValueError:
         pass
