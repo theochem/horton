@@ -52,6 +52,16 @@ cdef extern from "rtransform.h":
         double get_alpha()
 
 
+    cdef cppclass ShiftedExpRTransform:
+        ShiftedExpRTransform(double rmin, double rshift, double rmax, int npoint) except +
+
+        double get_rmin()
+        double get_rshift()
+        double get_rmax()
+        double get_r0()
+        double get_alpha()
+
+
     cdef cppclass BakerRTransform:
         BakerRTransform(double rmax, int npoint) except +
 

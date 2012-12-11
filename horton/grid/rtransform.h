@@ -78,6 +78,23 @@ class ExpRTransform : public RTransform {
     };
 
 
+class ShiftedExpRTransform : public RTransform {
+    private:
+        double rmin, rshift, rmax, r0, alpha;
+    public:
+        ShiftedExpRTransform(double rmin, double rshift, double rmax, int npoint);
+        virtual double radius(double t);
+        virtual double deriv(double t);
+        virtual double inv(double r);
+
+        double get_rmin() {return rmin;};
+        double get_rshift() {return rshift;};
+        double get_rmax() {return rmax;};
+        double get_r0() {return r0;};
+        double get_alpha() {return alpha;};
+    };
+
+
 class BakerRTransform : public RTransform {
     private:
         double rmax, scale;
