@@ -60,6 +60,8 @@ def check_consistency(rtf):
     ds = np.zeros(ts.shape)
     rtf.deriv_array(ts, ds)
     assert (ds == volume_elements).all()
+    # radii must increase strictly
+    assert (radii[1:] > radii[:-1]).all()
 
 
 def check_deriv(rtf):
@@ -111,7 +113,7 @@ def test_shifted_exp_basics():
 
 def test_baker_basics():
     rtf = BakerRTransform(1e1, 100)
-    assert rtf.radius(0) == 0.0
+    assert rtf.radius(0) > 0.0
     assert abs(rtf.radius(99) - 1e1) < 1e-10
     check_consistency(rtf)
     check_deriv(rtf)

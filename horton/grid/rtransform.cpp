@@ -171,20 +171,20 @@ BakerRTransform::BakerRTransform(double rmax, int npoint):
 {
     if (rmax <= 0.0)
         throw std::domain_error("The maximum radius must be positive.");
-    scale = (npoint-1.0)/npoint;
+    scale = npoint/(npoint+1.0);
     scale = rmax/log(1-scale*scale);
 }
 
 double BakerRTransform::radius(double t) {
-    double tmp = t/npoint;
+    double tmp = (t+1)/(npoint+1);
     return scale*log(1-tmp*tmp);
 }
 
 double BakerRTransform::deriv(double t) {
-    double tmp = t/npoint;
-    return -scale*2.0*tmp/(1-tmp*tmp)/npoint;
+    double tmp = (t+1)/(npoint+1);
+    return -scale*2.0*tmp/(1-tmp*tmp)/(npoint+1);
 }
 
 double BakerRTransform::inv(double r) {
-    return npoint*sqrt(1-exp(r/scale));
+    return (npoint+1)*sqrt(1-exp(r/scale))-1;
 }
