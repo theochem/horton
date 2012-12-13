@@ -21,5 +21,6 @@
 
 from horton.hamiltonian.builtin import *
 from horton.hamiltonian.core import *
+from horton.hamiltonian.cext import *
 from horton.hamiltonian.fixed import *
 from horton.hamiltonian.libxc import *

@@ -25,6 +25,9 @@ cimport numpy as np
 np.import_array()
 
 
+__all__ = ['LibXCWrapper']
+
+
 cdef extern from "xc.h":
     enum: XC_UNPOLARIZED
     enum: XC_POLARIZED
