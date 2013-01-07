@@ -108,7 +108,7 @@ class WFN(object):
             raise NotImplementedError
 
         # make the wfn object
-        occ_model = AufbauOccModel.from_hdf5(grp['occ_model'])
+        occ_model = OccModel.from_hdf5(grp['occ_model'])
         result = cls(occ_model, lf, nbasis=grp['nbasis'][()], norb=grp['norb'][()])
         # load stuff into cache
         for spin in 'alpha', 'beta':
@@ -506,7 +506,7 @@ class AufbauOccModel(object):
 
     def log(self):
         log('Occupation model: %s' % self)
-        log.deflist([('nalpha', self.nbeta), ('nbeta', self.nbeta)])
+        log.deflist([('nalpha', self.nalpha), ('nbeta', self.nbeta)])
 
 
 class AufbauSpinOccModel(object):
