@@ -331,6 +331,7 @@ class System(object):
             log.deflist([
                 ('Charge', charge),
                 ('Multiplicity', mult),
+                ('Number of e', nel),
                 ('Restricted', restricted),
             ])
 
