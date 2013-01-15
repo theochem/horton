@@ -38,11 +38,16 @@ using std::abs;
 
 */
 
-const double gob_normalization(const double alpha, const long* n) {
+const double gob_cart_normalization(const double alpha, const long* n) {
     return sqrt(pow(4.0*alpha, n[0]+n[1]+n[2])*pow(2.0*alpha/M_PI, 1.5)
            /(fac2(2*n[0]-1)*fac2(2*n[1]-1)*fac2(2*n[2]-1)));
 }
 
+
+const double gob_pure_normalization(const double alpha, const long l) {
+    return sqrt(pow(4.0*alpha,l)*pow(2.0*alpha/M_PI, 1.5)
+           /fac2(2*l-1));
+}
 
 /*
     GBasis
@@ -216,7 +221,7 @@ GOBasis::GOBasis(const double* centers, const long* shell_map, const long* nprim
 }
 
 const double GOBasis::normalization(const double alpha, const long* n) const {
-    return gob_normalization(alpha, n);
+    return gob_cart_normalization(alpha, n);
 }
 
 void GOBasis::compute_overlap(double* output) {

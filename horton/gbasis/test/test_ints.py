@@ -116,7 +116,7 @@ def test_overlap_norm():
             indexes = np.array([shell_type, 0, 0])
             counter = 0
             while True:
-                check = diag[counter]*gob_normalization(alpha, indexes)**2
+                check = diag[counter]*gob_cart_normalization(alpha, indexes)**2
                 assert abs(check - 1) < 1e-10
                 if not iter_pow1_inc(indexes):
                     break
