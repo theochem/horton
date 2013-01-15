@@ -49,7 +49,7 @@ __all__ = [
     'fac', 'fac2', 'binom', 'get_shell_nbasis', 'get_max_shell_type',
     'gpt_coeff', 'gb_overlap_int1d', 'nuclear_attraction_helper',
     # gbasis
-    'gob_normalization',
+    'gob_cart_normalization', 'gob_pure_normalization',
     'GOBasis',
     # ints
     'GB2OverlapIntegral', 'GB2KineticIntegral',
@@ -138,10 +138,14 @@ def nuclear_attraction_helper(np.ndarray[double, ndim=1] work_g, long n0,
 #
 
 
-def gob_normalization(double alpha, np.ndarray[long, ndim=1] n):
+def gob_cart_normalization(double alpha, np.ndarray[long, ndim=1] n):
     assert n.flags['C_CONTIGUOUS']
     assert n.shape[0] == 3
-    return gbasis.gob_normalization(alpha, <long*>n.data)
+    return gbasis.gob_cart_normalization(alpha, <long*>n.data)
+
+
+def gob_pure_normalization(double alpha, long l):
+    return gbasis.gob_pure_normalization(alpha, l)
 
 
 cdef class GBasis:

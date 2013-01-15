@@ -26,7 +26,8 @@
 #include "fns.h"
 
 
-const double gob_normalization(const double alpha, const long* n);
+const double gob_cart_normalization(const double alpha, const long* n);
+const double gob_pure_normalization(const double alpha, const long l);
 
 
 class GBasis {

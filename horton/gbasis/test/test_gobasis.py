@@ -51,7 +51,7 @@ def test_gobasis_consistency():
     assert gobasis.nbasis == 29
     assert gobasis.max_shell_type == 3
     scales = gobasis.get_scales()
-    assert abs(scales[0] - gob_normalization(alphas[0], np.array([2, 0, 0]))) < 1e-10
+    assert abs(scales[0] - gob_cart_normalization(alphas[0], np.array([2, 0, 0]))) < 1e-10
 
     shell_types = np.array([1, 1, 0, -2, -2, 0, 1])
     gobasis = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
@@ -159,7 +159,7 @@ def test_grid_lih_321g_hf_density_some_points():
     for i in xrange(3):
         alpha = sys.obasis.alphas[i]
         coeff = sys.obasis.con_coeffs[i]
-        nrml = gob_normalization(alpha, np.zeros(3, int))
+        nrml = gob_cart_normalization(alpha, np.zeros(3, int))
         # check scale
         assert abs(scales[i] - nrml) < 1e-10
         # check that we are on the first atom
@@ -343,6 +343,20 @@ def test_grid_one_body_ne():
     assert abs(na_ana._array-na_grid._array).max() < 2e-3
     # check symmetry
     na_grid.check_symmetry()
+
+
+def test_gob_normalization():
+    assert abs(gob_pure_normalization(0.09515, 0) - 0.122100288) < 1e-5
+    assert abs(gob_pure_normalization(0.1687144, 1) - 0.154127551) < 1e-5
+    assert abs(gob_cart_normalization(0.344, np.array([1,1,0])) - 0.440501466) < 1e-8
+    assert abs(gob_cart_normalization(0.246, np.array([1,1,1])) - 0.242998767) < 1e-8
+    assert abs(gob_cart_normalization(0.238, np.array([2,1,1])) - 0.127073818) < 1e-8
+    assert abs(gob_pure_normalization(0.3, 0) - gob_cart_normalization(0.3, np.array([0, 0, 0]))) < 1e-10
+    assert abs(gob_pure_normalization(0.7, 0) - gob_cart_normalization(0.7, np.array([0, 0, 0]))) < 1e-10
+    assert abs(gob_pure_normalization(1.9, 0) - gob_cart_normalization(1.9, np.array([0, 0, 0]))) < 1e-10
+    assert abs(gob_pure_normalization(0.3, 1) - gob_cart_normalization(0.3, np.array([1, 0, 0]))) < 1e-10
+    assert abs(gob_pure_normalization(0.7, 1) - gob_cart_normalization(0.7, np.array([0, 1, 0]))) < 1e-10
+    assert abs(gob_pure_normalization(1.9, 1) - gob_cart_normalization(1.9, np.array([0, 0, 1]))) < 1e-10
 
 
 def test_cart_pure_switch():
