@@ -249,6 +249,19 @@ class System(object):
                 wfn.apply_basis_permutation(permutation)
             del constructor_args['permutation']
 
+        # After the permutation, correct for different sign conventions of the
+        # orbitals
+        signs = constructor_args.get('signs')
+        if signs is not None:
+            operators = constructor_args.get('operators')
+            if operators is not None:
+                for op in operators.itervalues():
+                    op.apply_basis_signs(signs)
+            wfn = constructor_args.get('wfn')
+            if wfn is not None:
+                wfn.apply_basis_signs(signs)
+            del constructor_args['signs']
+
         return cls(**constructor_args)
 
     def _log_init(self):

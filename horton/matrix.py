@@ -311,6 +311,7 @@ class DenseExpansion(LinalgObject):
         '''
         for i in xrange(self.nfn):
             norm = olp.dot(self._coeffs[:,i], self._coeffs[:,i])
+            print i, norm
             assert abs(norm-1) < eps, 'The orbitals are not normalized!'
 
     def compute_density_matrix(self, dm, factor=None):
@@ -383,6 +384,10 @@ class DenseExpansion(LinalgObject):
         '''Reorder the coefficients for a given permutation of basis functions.
         '''
         self._coeffs[:] = self.coeffs[permutation]
+
+    def apply_basis_signs(self, signs):
+        '''Correct for different sign conventions of the basis functions.'''
+        self._coeffs *= signs.reshape(-1,1)
 
     def assign(self, other):
         if not isinstance(other, DenseExpansion):
@@ -491,6 +496,11 @@ class DenseOneBody(OneBody):
         self._array[:] = self._array[permutation]
         self._array[:] = self._array[:,permutation]
 
+    def apply_basis_signs(self, signs):
+        '''Correct for different sign conventions of the basis functions.'''
+        self._coeffs *= signs
+        self._coeffs *= signs.reshape(-1,1)
+
 
 class DenseTwoBody(LinalgObject):
     """Dense symmetric four-dimensional matrix.
@@ -579,3 +589,11 @@ class DenseTwoBody(LinalgObject):
         self._array[:] = self._array[:,permutation]
         self._array[:] = self._array[:,:,permutation]
         self._array[:] = self._array[:,:,:,permutation]
+
+
+    def apply_basis_signs(self, signs):
+        '''Correct for different sign conventions of the basis functions.'''
+        self._coeffs *= signs
+        self._coeffs *= signs.reshape(-1,1)
+        self._coeffs *= signs.reshape(-1,-1,1)
+        self._coeffs *= signs.reshape(-1,-1,-1,1)
