@@ -76,6 +76,18 @@ def load_system_args(filename, lf):
         if electronic_repulsion is not None:
             operators['er'] = electronic_repulsion
         return {'operators': operators}
+    elif filename.endswith('.mkl'):
+        coordinates, numbers, obasis, wfn, signs = load_mkl(filename, lf)
+        return {
+            'coordinates': coordinates, 'numbers': numbers, 'obasis': obasis,
+            'wfn': wfn, 'signs': signs,
+        }
+    elif filename.endswith('.molden.input'):
+        coordinates, numbers, obasis, wfn, signs = load_molden(filename, lf)
+        return {
+            'coordinates': coordinates, 'numbers': numbers, 'obasis': obasis,
+            'wfn': wfn, 'signs': signs,
+        }
     else:
         raise ValueError('Unknown file format: %s' % filename)
 
@@ -492,14 +504,485 @@ def load_fchk(filename, lf):
     return coordinates, numbers, obasis, wfn, permutation, props, operators
 
 
+def renorm_helper(con_coeff, alpha, shell_type):
+    '''Fix an unnormalized contraction coefficient'''
+    from horton.gbasis.cext import gob_cart_normalization
+    if shell_type == 0:
+        return con_coeff/gob_cart_normalization(alpha, np.array([0,0,0]))
+    elif shell_type == 1:
+        return con_coeff/gob_cart_normalization(alpha, np.array([1,0,0]))
+    elif shell_type == -2:
+        return con_coeff/gob_cart_normalization(alpha, np.array([1,1,0]))
+    elif shell_type == -3:
+        return con_coeff/gob_cart_normalization(alpha, np.array([1,1,1]))
+    elif shell_type == -4:
+        return con_coeff/gob_cart_normalization(alpha, np.array([2,1,1]))
+    else:
+        raise NotImplementedError('MKL Normalization conventions beyond G are not know. Please notify Toon.Verstraelen@UGent.be.')
+
+
+def get_orca_signs(obasis):
+    '''Correct for different sign conventions used in ORCA.'''
+    sign_rules = {
+      -4: np.array([1,1,1,1,1,-1,-1,-1,-1]),
+      -3: np.array([1,1,1,1,1,-1,-1]),
+      -2: np.array([1,1,1,1,1]),
+       0: np.array([1]),
+       1: np.array([1,1,1]),
+    }
+    signs = []
+    for shell_type in obasis.shell_types:
+        signs.extend(sign_rules[shell_type])
+    return np.array(signs, dtype=int)
+
+
+def load_molden(filename, lf):
+    '''Load data from a molden input file (with ORCA sign conventions).
+
+       **Arguments:**
+
+       filename
+            The filename of the molden input file.
+
+       lf
+            A LinalgFactory instance.
+    '''
+
+    def helper_coordinates(f):
+        numbers = []
+        coordinates = []
+        while True:
+            last_pos = f.tell()
+            line = f.readline()
+            if len(line) == 0:
+                break
+            words = line.split()
+            if len(words) != 6:
+                # Go back to previous line and stop
+                f.seek(last_pos)
+                break
+            else:
+                numbers.append(int(words[2]))
+                coordinates.append([float(words[3]), float(words[4]), float(words[5])])
+        numbers = np.array(numbers, int)
+        coordinates = np.array(coordinates)
+        return numbers, coordinates
+
+
+    def helper_obasis(f, coordinates):
+        from horton.gbasis.io import str_to_shell_types
+        from horton.gbasis.gobasis import GOBasis
+        shell_types = []
+        shell_map = []
+        nprims = []
+        alphas = []
+        con_coeffs = []
+
+        icenter = 0
+        in_atom = False
+        in_shell = False
+        while True:
+            last_pos = f.tell()
+            line = f.readline()
+            if len(line) == 0:
+                break
+            words = line.split()
+            if len(words) == 0:
+                in_atom = False
+                in_shell = False
+            elif len(words) == 2 and not in_atom:
+                icenter = int(words[0])-1
+                in_atom = True
+                in_shell = False
+            elif len(words) == 3:
+                in_shell = True
+                shell_map.append(icenter)
+                shell_type = str_to_shell_types(words[0])[0]
+                if shell_type >= 2:
+                    # always assume pure basis functions
+                    shell_type *= -1
+                shell_types.append(shell_type)
+                nprims.append(int(words[1]))
+            elif len(words) == 2 and in_atom:
+                assert in_shell
+                alpha = float(words[0])
+                alphas.append(alpha)
+                con_coeff = renorm_helper(float(words[1]), alpha, shell_type)
+                con_coeffs.append(con_coeff)
+            else:
+                # done, go back one line
+                f.seek(last_pos)
+                break
+
+        shell_map = np.array(shell_map)
+        nprims = np.array(nprims)
+        shell_types = np.array(shell_types)
+        alphas = np.array(alphas)
+        con_coeffs = np.array(con_coeffs)
+        return GOBasis(coordinates, shell_map, nprims, shell_types, alphas, con_coeffs)
+
+
+    def helper_coeffs(f, nbasis):
+        coeff_alpha = []
+        ener_alpha = []
+        occ_alpha = []
+        coeff_beta = []
+        ener_beta = []
+        occ_beta = []
+
+        icoeff = -1
+        while True:
+            line = f.readline()
+            if icoeff == nbasis:
+                icoeff = -1
+            if len(line) == 0:
+                break
+            elif icoeff == -1:
+                # read 1a line
+                if line != ' Sym=     1a\n':
+                    raise IOError('Symmetry in wavefunctions is not supported.')
+                # prepare array with orbital coefficients
+                col = np.zeros((nbasis,1), float)
+                icoeff = -2
+            elif icoeff == -2:
+                # read energy
+                assert line.startswith(' Ene=')
+                energy = float(line[5:])
+                icoeff = -3
+            elif icoeff == -3:
+                # read expansion coefficients
+                assert line.startswith(' Spin=')
+                spin = line[6:].strip()
+                if spin == 'Alpha':
+                    coeff_alpha.append(col)
+                    ener_alpha.append(energy)
+                else:
+                    coeff_beta.append(col)
+                    ener_beta.append(energy)
+                icoeff = -4
+            elif icoeff == -4:
+                assert line.startswith(' Occup=')
+                occ = float(line[7:])
+                if spin == 'Alpha':
+                    occ_alpha.append(occ)
+                else:
+                    occ_beta.append(occ)
+                icoeff = 0
+            elif icoeff >= 0:
+                words = line.split()
+                col[icoeff] = float(words[1])
+                icoeff+=1
+                assert int(words[0]) == icoeff
+
+        coeff_alpha = np.hstack(coeff_alpha)
+        ener_alpha = np.array(ener_alpha)
+        occ_alpha = np.array(occ_alpha)
+        if len(coeff_beta) == 0:
+            coeff_beta = None
+            ener_beta = None
+            occ_beta = None
+        else:
+            coeff_beta = np.hstack(coeff_beta)
+            ener_beta = np.array(ener_beta)
+            occ_beta = np.array(occ_beta)
+        return (coeff_alpha, ener_alpha, occ_alpha), (coeff_beta, ener_beta, occ_beta)
+
+    numbers = None
+    coordinates = None
+    obasis = None
+    coeff_alpha = None
+    ener_alpha = None
+    occ_alpha = None
+    coeff_beta = None
+    ener_beta = None
+    occ_beta = None
+    with open(filename) as f:
+        line = f.readline()
+        if line != '[Molden Format]\n':
+            raise IOError('Molden header not found')
+        while True:
+            line = f.readline()
+            if len(line) == 0:
+                break
+            line = line.strip()
+            if line == '[Atoms] AU':
+                numbers, coordinates = helper_coordinates(f)
+            elif line == '[GTO]':
+                obasis = helper_obasis(f, coordinates)
+            elif line == '[MO]':
+                data_alpha, data_beta = helper_coeffs(f, obasis.nbasis)
+                coeff_alpha, ener_alpha, occ_alpha = data_alpha
+                coeff_beta, ener_beta, occ_beta = data_beta
+
+    if coordinates is None:
+        raise IOError('Coordinates not found in mkl file.')
+    if obasis is None:
+        raise IOError('Orbital basis not found in mkl file.')
+    if coeff_alpha is None:
+        raise IOError('Alpha orbitals not found in mkl file.')
+
+    if coeff_beta is None:
+        from horton.wfn import AufbauOccModel, ClosedShellWFN
+        nalpha = int(np.round(occ_alpha.sum()))/2
+        occ_model = AufbauOccModel(nalpha)
+        wfn = ClosedShellWFN(occ_model, lf, obasis.nbasis, norb=coeff_alpha.shape[1])
+        exp_alpha = wfn.init_exp('alpha')
+        exp_alpha.coeffs[:] = coeff_alpha
+        exp_alpha.energies[:] = ener_alpha
+        exp_alpha.occupations[:] = occ_alpha/2
+    else:
+        from horton.wfn import AufbauOccModel, OpenShellWFN
+        nalpha = int(np.round(occ_alpha.sum()))
+        nbeta = int(np.round(occ_beta.sum()))
+        assert coeff_alpha.shape == coeff_beta.shape
+        assert ener_alpha.shape == ener_beta.shape
+        assert occ_alpha.shape == occ_beta.shape
+        occ_model = AufbauOccModel(nalpha, nbeta)
+        wfn = OpenShellWFN(occ_model, lf, obasis.nbasis, norb=coeff_alpha.shape[1])
+        exp_alpha = wfn.init_exp('alpha')
+        exp_alpha.coeffs[:] = coeff_alpha
+        exp_alpha.energies[:] = ener_alpha
+        exp_alpha.occupations[:] = occ_alpha
+        exp_beta = wfn.init_exp('beta')
+        exp_beta.coeffs[:] = coeff_beta
+        exp_beta.energies[:] = ener_beta
+        exp_beta.occupations[:] = occ_beta
+
+    signs = get_orca_signs(obasis)
+
+    return coordinates, numbers, obasis, wfn, signs
+
+
+def load_mkl(filename, lf):
+    '''Load data from a Molekel file (with ORCA sign conventions).
+
+       **Arguments:**
+
+       filename
+            The filename of the mkl file.
+
+       lf
+            A LinalgFactory instance.
+    '''
+
+    def helper_char_mult(f):
+        return [int(word) for word in f.readline().split()]
+
+
+    def helper_coordinates(f):
+        numbers = []
+        coordinates = []
+        while True:
+            line = f.readline()
+            if len(line) == 0 or line.strip() == '$END':
+                break
+            words = line.split()
+            numbers.append(int(words[0]))
+            coordinates.append([float(words[1]), float(words[2]), float(words[3])])
+        numbers = np.array(numbers, int)
+        coordinates = np.array(coordinates)*angstrom
+        return numbers, coordinates
+
+
+    def helper_obasis(f, coordinates):
+        from horton.gbasis.io import str_to_shell_types
+        from horton.gbasis.gobasis import GOBasis
+        shell_types = []
+        shell_map = []
+        nprims = []
+        alphas = []
+        con_coeffs = []
+
+        center_counter = 0
+        in_shell = False
+        nprim = None
+        while True:
+            line = f.readline()
+            lstrip = line.strip()
+            if len(line) == 0 or lstrip == '$END':
+                break
+            if len(lstrip) == 0:
+                continue
+            if lstrip == '$$':
+                center_counter += 1
+                in_shell = False
+            else:
+                words = line.split()
+                if len(words) == 2:
+                    assert in_shell
+                    alpha = float(words[0])
+                    alphas.append(alpha)
+                    con_coeff = renorm_helper(float(words[1]), alpha, shell_type)
+                    con_coeffs.append(con_coeff)
+                    nprim += 1
+                else:
+                    if nprim is not None:
+                        nprims.append(nprim)
+                    shell_map.append(center_counter)
+                    shell_type = str_to_shell_types(words[1])[0]
+                    if shell_type >= 2:
+                        # always assume pure basis functions
+                        shell_type *= -1
+                    shell_types.append(shell_type)
+                    in_shell = True
+                    nprim = 0
+        if nprim is not None:
+            nprims.append(nprim)
+
+        shell_map = np.array(shell_map)
+        nprims = np.array(nprims)
+        shell_types = np.array(shell_types)
+        alphas = np.array(alphas)
+        con_coeffs = np.array(con_coeffs)
+        return GOBasis(coordinates, shell_map, nprims, shell_types, alphas, con_coeffs)
+
+
+    def helper_coeffs(f, nbasis):
+        coeffs = []
+        energies = []
+
+        in_orb = 0
+        while True:
+            line = f.readline()
+            lstrip = line.strip()
+            if len(line) == 0 or lstrip == '$END':
+                break
+            if in_orb == 0:
+                # read a1g line
+                words = lstrip.split()
+                ncol = len(words)
+                assert ncol > 0
+                for word in words:
+                    assert word == 'a1g'
+                cols = [np.zeros((nbasis,1), float) for icol in xrange(ncol)]
+                in_orb = 1
+            elif in_orb == 1:
+                # read energies
+                words = lstrip.split()
+                assert len(words) == ncol
+                for word in words:
+                    energies.append(float(word))
+                in_orb = 2
+                ibasis = 0
+            elif in_orb == 2:
+                # read expansion coefficients
+                words = lstrip.split()
+                assert len(words) == ncol
+                for icol in xrange(ncol):
+                    cols[icol][ibasis] = float(words[icol])
+                ibasis += 1
+                if ibasis == nbasis:
+                    in_orb = 0
+                    coeffs.extend(cols)
+
+        return np.hstack(coeffs), np.array(energies)
+
+
+    def helper_occ(f):
+        occs = []
+        while True:
+            line = f.readline()
+            lstrip = line.strip()
+            if len(line) == 0 or lstrip == '$END':
+                break
+            for word in lstrip.split():
+                occs.append(float(word))
+        return np.array(occs)
+
+
+    charge = None
+    spinmult = None
+    numbers = None
+    coordinates = None
+    obasis = None
+    coeff_alpha = None
+    ener_alpha = None
+    occ_alpha = None
+    coeff_beta = None
+    ener_beta = None
+    occ_beta = None
+    with open(filename) as f:
+        while True:
+            line = f.readline()
+            if len(line) == 0:
+                break
+            line = line.strip()
+            if line == '$CHAR_MULT':
+                charge, spinmult = helper_char_mult(f)
+            elif line == '$COORD':
+                numbers, coordinates = helper_coordinates(f)
+            elif line == '$BASIS':
+                obasis = helper_obasis(f, coordinates)
+            elif line == '$COEFF_ALPHA':
+                coeff_alpha, ener_alpha = helper_coeffs(f, obasis.nbasis)
+            elif line == '$OCC_ALPHA':
+                occ_alpha = helper_occ(f)
+            elif line == '$COEFF_BETA':
+                coeff_beta, ener_beta = helper_coeffs(f, obasis.nbasis)
+            elif line == '$OCC_BETA':
+                occ_beta = helper_occ(f)
+
+    if charge is None:
+        raise IOError('Charge and multiplicity not found in mkl file.')
+    if coordinates is None:
+        raise IOError('Coordinates not found in mkl file.')
+    if obasis is None:
+        raise IOError('Orbital basis not found in mkl file.')
+    if coeff_alpha is None:
+        raise IOError('Alpha orbitals not found in mkl file.')
+    if occ_alpha is None:
+        raise IOError('Alpha occupation numbers not found in mkl file.')
+
+    nelec = numbers.sum() - charge
+    if coeff_beta is None:
+        from horton.wfn import AufbauOccModel, ClosedShellWFN
+        assert nelec % 2 == 0
+        assert abs(occ_alpha.sum() - nelec) < 1e-7
+        occ_model = AufbauOccModel(nelec/2)
+        wfn = ClosedShellWFN(occ_model, lf, obasis.nbasis, norb=coeff_alpha.shape[1])
+        exp_alpha = wfn.init_exp('alpha')
+        exp_alpha.coeffs[:] = coeff_alpha
+        exp_alpha.energies[:] = ener_alpha
+        exp_alpha.occupations[:] = occ_alpha/2
+    else:
+        if occ_beta is None:
+            raise IOError('Beta occupation numbers not found in mkl file while beta orbitals were present.')
+        from horton.wfn import AufbauOccModel, OpenShellWFN
+        nalpha = int(np.round(occ_alpha.sum()))
+        nbeta = int(np.round(occ_beta.sum()))
+        assert nelec == nalpha+nbeta
+        assert coeff_alpha.shape == coeff_beta.shape
+        assert ener_alpha.shape == ener_beta.shape
+        assert occ_alpha.shape == occ_beta.shape
+        occ_model = AufbauOccModel(nalpha, nbeta)
+        wfn = OpenShellWFN(occ_model, lf, obasis.nbasis, norb=coeff_alpha.shape[1])
+        exp_alpha = wfn.init_exp('alpha')
+        exp_alpha.coeffs[:] = coeff_alpha
+        exp_alpha.energies[:] = ener_alpha
+        exp_alpha.occupations[:] = occ_alpha
+        exp_beta = wfn.init_exp('beta')
+        exp_beta.coeffs[:] = coeff_beta
+        exp_beta.energies[:] = ener_beta
+        exp_beta.occupations[:] = occ_beta
+
+        exp_beta.occupations[:] = occ_beta
+
+    signs = get_orca_signs(obasis)
+
+    return coordinates, numbers, obasis, wfn, signs
+
+
 def load_checkpoint(filename, lf):
     """Load constructor arguments from a Horton checkpoint file
 
-       **Argument:**
+       **Arguments:**
 
        filename
             This is the file name of an HDF5 Horton checkpoint file. It may also
             be an open h5.File object.
+
+       lf
+            A LinalgFactory instance.
     """
     result = {}
     if isinstance(filename, basestring):

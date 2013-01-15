@@ -248,6 +248,13 @@ class WFN(object):
         for dm in self._iter_density_matrices():
             dm.apply_basis_permutation(permutation)
 
+    def apply_basis_signs(self, signs):
+        """Fix the signs of the expansion coefficients and the density matrices"""
+        for exp in self._iter_expansions():
+            exp.apply_basis_signs(signs)
+        for dm in self._iter_density_matrices():
+            dm.apply_basis_signs(signs)
+
     def check_normalization(self, olp, eps=1e-4):
         '''Run an internal test to see if the orbitals are normalized
 
