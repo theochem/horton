@@ -343,3 +343,10 @@ def test_grid_one_body_ne():
     assert abs(na_ana._array-na_grid._array).max() < 2e-3
     # check symmetry
     na_grid.check_symmetry()
+
+
+def test_cart_pure_switch():
+    sys = System.from_file(context.get_fn('test/water.xyz'), obasis='aug-cc-pvdz')
+    assert sys.obasis.nbasis == 41
+    sys = System.from_file(context.get_fn('test/water.xyz'), obasis=GOBasisDesc('aug-cc-pvdz', pure=False))
+    assert sys.obasis.nbasis == 43

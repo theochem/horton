@@ -241,10 +241,10 @@ class GOBasisAtom(object):
                 raise ValueError('Generalized contractions are not supported (yet).')
             shell_map.append(i)
             nprims.append(len(bc.alphas))
-            if pure or bc.shell_type < 2:
-                shell_types.append(bc.shell_type)
-            else:
+            if pure and bc.shell_type >= 2:
                 shell_types.append(-bc.shell_type)
+            else:
+                shell_types.append(bc.shell_type)
             alphas.extend(bc.alphas)
             con_coeffs.extend(bc.con_coeffs)
 
