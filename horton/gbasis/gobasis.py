@@ -198,9 +198,12 @@ class GOBasisFamily(object):
 go_basis_families = [
     GOBasisFamily('STO-3G', filename=context.get_fn('basis/sto-3g.nwchem')),
     GOBasisFamily('3-21G', filename=context.get_fn('basis/3-21g.nwchem')),
+    GOBasisFamily('3-21++G*', filename=context.get_fn('basis/3-21++g*.nwchem')),
     GOBasisFamily('6-31++G**', filename=context.get_fn('basis/6-31++g**.nwchem')),
+    GOBasisFamily('6-31+G*', filename=context.get_fn('basis/6-31+g*.nwchem')),
     GOBasisFamily('ANO', filename=context.get_fn('basis/ano-rcc.nwchem')),
     GOBasisFamily('aug-cc-pVDZ', filename=context.get_fn('basis/aug-cc-pvdz.nwchem')),
+    GOBasisFamily('cc-pVQZ', filename=context.get_fn('basis/cc-pvqz.nwchem')),
 ]
 go_basis_families = dict((bf.name.lower(), bf) for bf in go_basis_families)
 
