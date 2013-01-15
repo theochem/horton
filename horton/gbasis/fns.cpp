@@ -24,6 +24,7 @@
 #include <cstdio>
 #endif
 #include <cmath>
+#include <cstdlib>
 #include <cstring>
 #include <stdexcept>
 #include "boys.h"
