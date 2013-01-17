@@ -56,16 +56,22 @@ def test_atgrid_family_load():
         af._load()
 
 
-def test_atgrid_family_contents():
+def test_atgrid_family_contents1():
     rtf, int1d, nlls = atgrid_families['tv_2012_01_l3'].get(1)
     assert rtf.to_string() == 'ExpRTransform 0.008808017113271033 74.98497608817966 25'
-    assert (nlls == np.array([6, 6, 6, 6, 6, 6, 6, 6, 6, 14, 14, 38, 50, 50, 50, 50, 50, 86, 86, 86, 50, 50, 6, 6, 6,])).all()
+    assert (nlls == np.array([6, 6, 6, 6, 6, 6, 6, 6, 6, 14, 14, 38, 50, 50, 50, 50, 50, 86, 86, 86, 50, 50, 6, 6, 6])).all()
+
+
+def test_atgrid_family_contents2():
+    rtf, int1d, nlls = atgrid_families['tv_2012_01_l4'].get(6)
+    assert rtf.to_string() == 'ExpRTransform 0.00015375148910839044 59.32379135135266 65'
+    assert (nlls == np.array([6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 14, 14, 14, 26, 26, 38, 50, 50, 110, 194, 302, 302, 194, 170, 110, 110, 110, 110, 110, 110, 110, 110, 110, 86, 38, 6, 6, 6])).all()
 
 
 def test_interpret_atspec_family():
     rtf, int1d, nlls = interpret_atspec(1, 'tv_2012_01_l3')
     assert rtf.to_string() == 'ExpRTransform 0.008808017113271033 74.98497608817966 25'
-    assert (nlls == np.array([6, 6, 6, 6, 6, 6, 6, 6, 6, 14, 14, 38, 50, 50, 50, 50, 50, 86, 86, 86, 50, 50, 6, 6, 6,])).all()
+    assert (nlls == np.array([6, 6, 6, 6, 6, 6, 6, 6, 6, 14, 14, 38, 50, 50, 50, 50, 50, 86, 86, 86, 50, 50, 6, 6, 6])).all()
 
 
 def test_atomic_grid_basics():
