@@ -87,6 +87,7 @@ setup(
         ('share/horton/', glob('data//*.*')),
         ('share/horton/test', glob('data/test/*.*')),
         ('share/horton/basis', glob('data/basis/*.*')),
+        ('share/horton/grids', glob('data/grids/*.txt')),
         ('share/horton/refatoms', glob('data/refatoms/*.h5')),
     ],
     ext_modules=[

@@ -39,7 +39,7 @@ __all__ = [
 
 class BeckeMolGrid(IntGrid):
     '''Molecular integration grid using Becke weights'''
-    def __init__(self, system, atspecs, k=3, random_rotate=True, keep_subgrids=0):
+    def __init__(self, system, atspecs='tv_2012_01_l3', k=3, random_rotate=True, keep_subgrids=0):
         '''
            **Arguments:**
 
@@ -82,7 +82,7 @@ class BeckeMolGrid(IntGrid):
              atoms.
         '''
         # transform atspecs into usable format
-        size, atspecs = get_mol_grid_size(atspecs, system.natom)
+        size, atspecs = get_mol_grid_size(system.numbers, atspecs, system.natom)
 
         # assign attributes
         self._system = system
@@ -106,8 +106,8 @@ class BeckeMolGrid(IntGrid):
         for i in xrange(system.natom):
             rtransform, int1d, atnlls = atspecs[i]
             atsize = atnlls.sum()
-            atgrid = AtomicGrid(system.coordinates[i], (rtransform, int1d,
-                                atnlls), random_rotate,
+            atgrid = AtomicGrid(system.numbers[i], system.coordinates[i],
+                                (rtransform, int1d, atnlls), random_rotate,
                                 points[offset:offset+atsize],
                                 keep_subgrids=keep_subgrids-1)
             weights[offset:offset+atsize] = atgrid.weights
@@ -162,10 +162,14 @@ class BeckeMolGrid(IntGrid):
 
 
 
-def get_mol_grid_size(atspecs, natom):
+def get_mol_grid_size(numbers, atspecs, natom):
     '''Compute the size of the molecule grid and recreate atspecs with extra info.
 
        **Arguments:**
+
+       numbers
+            An array with element numbers. These are only used when atspecs
+            is or contains string that refer to built-in grids.
 
        atspecs
             A list of specifications for the atomic grids.
@@ -178,7 +182,7 @@ def get_mol_grid_size(atspecs, natom):
     else:
         if len(atspecs) == 0:
             raise TypeError('atspecs must have at least one item.')
-        if not hasattr(atspecs[0], '__len__'):
+        if not hasattr(atspecs[0], '__len__') or isinstance(atspecs, basestring):
             atspecs = [atspecs]*natom
         else:
             if not len(atspecs) == natom:
@@ -186,7 +190,7 @@ def get_mol_grid_size(atspecs, natom):
 
     size = 0
     for i in xrange(len(atspecs)):
-        rtransform, int1d, nlls = interpret_atspec(atspecs[i])
+        rtransform, int1d, nlls = interpret_atspec(numbers[i], atspecs[i])
         atspecs[i] = rtransform, int1d, nlls
         size += nlls.sum()
 

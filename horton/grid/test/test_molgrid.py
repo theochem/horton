@@ -104,6 +104,7 @@ def test_molgrid_attrs_2_subgrid():
         assert atgrid.points.shape == (100*110, 3)
         assert atgrid.weights.shape == (100*110,)
         assert len(atgrid.subgrids) == 100
+        assert atgrid.number == numbers[i]
         assert (atgrid.center == coordinates[i]).all()
         assert atgrid.rtransform == rtf
         assert (atgrid.nlls == [110]*100).all()
@@ -154,6 +155,7 @@ def test_molgrid_attrs_1_subgrid():
         assert atgrid.points.shape == (100*110, 3)
         assert atgrid.weights.shape == (100*110,)
         assert atgrid.subgrids is None
+        assert atgrid.number == numbers[i]
         assert (atgrid.center == coordinates[i]).all()
         assert atgrid.rtransform == rtf
         assert (atgrid.nlls == [110]*100).all()
@@ -218,3 +220,11 @@ def test_custom_grid_term():
             energy1_old = energy1
         else:
             assert abs(energy1 - energy1_old) < 1e-7
+
+
+def test_family():
+    numbers = np.array([6, 8], int)
+    coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
+    sys = System(coordinates, numbers)
+    grid = BeckeMolGrid(sys, random_rotate=False)
+    assert grid.size == 1434+1300
