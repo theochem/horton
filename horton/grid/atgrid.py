@@ -30,7 +30,7 @@ from horton.log import log
 
 
 __all__ = [
-    'AtomicGrid', 'get_atomic_grid_size',
+    'AtomicGrid', 'interpret_atspec',
 ]
 
 
@@ -43,7 +43,8 @@ class AtomicGrid(IntGrid):
                 The center of the radial grid
 
            atspec
-                A specifications of the atomic grid. (See below.)
+                A specifications of the atomic grid. (See interpret_atspec for
+                more details.)
 
            **Optional arguments:**
 
@@ -60,23 +61,12 @@ class AtomicGrid(IntGrid):
                 By default the (Lebedev-Laikov) subgrids are not stored
                 separately. If set to 1, they are kept.
 
-           The atspec argument may be a tuple with three elements:
-           ``(rtransform, integrator1d, nll)`` where:
-
-           * ``rtransform`` is an instance of a subclass of the RTransform class.
-
-           * ``int1d`` is an instance of a subclass of the Integrator1D class.
-
-           * ``nlls`` is a number Lebedev-Laikov grid points for each radial
-             grid point. When this argument is not a list, all radial grid
-             points get the same Lebedev-Laikov grid and the ``nsphere``
-             argument must be given.
         '''
         self._center = center
-        self._rtransform, self._int1d, self._nlls = atspec
+        self._rtransform, self._int1d, self._nlls = interpret_atspec(atspec)
         self._random_rotate = random_rotate
-        size, self._nlls = get_atomic_grid_size(self._nlls, self._rtransform.npoint)
 
+        size = self._nlls.sum()
         if points is None:
             points = np.zeros((size, 3), float)
         else:
@@ -156,40 +146,38 @@ class AtomicGrid(IntGrid):
 
 
 
-def get_atomic_grid_size(nlls, nsphere):
-    '''Returns the size of the atomic grid.
+def interpret_atspec(atspec):
+    '''Convert to (rtransform, int1d, nlls) tuple
 
-       **Arguments:**
+       The atspec argument may be a string refering to a built-in grid file (see
+       data/grid) or a tuple with three elements: ``(rtransform, integrator1d,
+       nll)`` where:
 
-       nlls
-            The number Lebedev-Laikov grid points for each radial grid
-            point. When this argument is not a list, all radial grid
-            points get the same Lebedev-Laikov grid and the nsphere
-            argument must be given.
+       * ``rtransform`` is an instance of a subclass of the RTransform class.
 
-       **Optional arguments:**
+       * ``int1d`` is an instance of a subclass of the Integrator1D class.
 
-       nsphere
-            The number of radial grid points in the atomic grid, i.e. the
-            number of spheres.
-
-       **Returns:**
-
-       size
-            The total size of the atomic grid
-
-       nlls
-            A full list of Lebedev-Laikov grid sizes
+       * ``nlls`` is a number Lebedev-Laikov grid points for each radial
+         grid point. When this argument is not a list, all radial grid
+         points get the same Lebedev-Laikov grid
     '''
+    if isinstance(atspec, basestring):
+        # load
+        raise NotImplementedError
+    elif hasattr(atspec, '__iter__') and len(atspec) == 3:
+        rtransform, int1d, nlls = atspec
+
+    # Make sure nlls is an array
     if hasattr(nlls, '__iter__'):
         nlls = np.array(nlls, dtype=int)
-        if len(nlls) != nsphere:
+        if len(nlls) != rtransform.npoint:
             raise ValueError('The size of the radial grid must match the number of elements in nlls')
     else:
-        nlls = np.array([nlls]*nsphere, dtype=int)
-    size = 0
+        nlls = np.array([nlls]*rtransform.npoint, dtype=int)
+
+    # Finally check the validaty of the nlls
     for nll in nlls:
         if nll not in lebedev_laikov_npoints:
             raise ValueError('A Lebedev-Laikov grid with %i points is not supported.' % nll)
-        size += nll
-    return size, nlls
+
+    return rtransform, int1d, nlls

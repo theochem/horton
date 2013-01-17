@@ -96,7 +96,7 @@ def test_molgrid_attrs_2_subgrid():
         atspec = mg.atspecs[i]
         assert atspec[0] == rtf
         assert atspec[1] == int1d
-        assert atspec[2] == [110]*100
+        assert (atspec[2] == np.array([110]*100)).all()
 
         atgrid = mg.subgrids[i]
         assert isinstance(atgrid, AtomicGrid)
@@ -146,7 +146,7 @@ def test_molgrid_attrs_1_subgrid():
         atspec = mg.atspecs[i]
         assert atspec[0] == rtf
         assert atspec[1] == int1d
-        assert atspec[2] == [110]*100
+        assert (atspec[2] == np.array([110]*100)).all()
 
         atgrid = mg.subgrids[i]
         assert isinstance(atgrid, AtomicGrid)
