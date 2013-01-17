@@ -53,11 +53,11 @@ def test_atomic_grid_basics():
     rtf = ExpRTransform(0.1, 1e1, 4)
     nlls = 6
     for random_rotate in True, False:
-        ag0 = AtomicGrid(center, rtf, int1d, 6, random_rotate)
+        ag0 = AtomicGrid(center, (rtf, int1d, 6), random_rotate)
         assert abs(ag0.points.mean(axis=0) - center).max() < 1e-10
         assert (ag0.nlls == [6, 6, 6, 6]).all()
         assert ag0.nsphere == 4
-        ag1 = AtomicGrid(center, rtf, int1d, [6, 6, 6, 6], random_rotate)
+        ag1 = AtomicGrid(center, (rtf, int1d, [6, 6, 6, 6]), random_rotate)
         assert abs(ag1.points.mean(axis=0) - center).max() < 1e-10
         assert (ag1.nlls == [6, 6, 6, 6]).all()
         assert ag1.nsphere == 4
@@ -69,7 +69,7 @@ def test_integrate_hydrogen_1s():
     center = np.random.uniform(-1,1,3)
     int1d = CubicIntegrator1D()
     rtf = BakerRTransform(2e1, 100)
-    ag = AtomicGrid(center, rtf, int1d, 110, 100)
+    ag = AtomicGrid(center, (rtf, int1d, 110), 100)
     distances = np.sqrt(((center - ag.points)**2).sum(axis=1))
     fn = np.exp(-2*distances)/np.pi
     occupation = ag.integrate(fn)
@@ -80,7 +80,7 @@ def test_atgrid_attrs_1_subgrid():
     center = np.array([0.7, 0.2, -0.5], float)
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 50)
-    ag = AtomicGrid(center, rtf, int1d, 26, keep_subgrids=1)
+    ag = AtomicGrid(center, (rtf, int1d, 26), keep_subgrids=1)
 
     assert ag.size == 50*26
     assert ag.points.shape == (50*26, 3)
@@ -110,7 +110,7 @@ def test_atgrid_attrs_0_subgrid():
     center = np.array([0.7, 0.2, -0.5], float)
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 50)
-    ag = AtomicGrid(center, rtf, int1d, 26, keep_subgrids=0)
+    ag = AtomicGrid(center, (rtf, int1d, 26), keep_subgrids=0)
 
     assert ag.size == 50*26
     assert ag.points.shape == (50*26, 3)

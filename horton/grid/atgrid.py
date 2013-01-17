@@ -35,24 +35,15 @@ __all__ = [
 
 
 class AtomicGrid(IntGrid):
-    def __init__(self, center, rtransform, int1d, nlls, random_rotate=True, points=None, keep_subgrids=0):
+    def __init__(self, center, atspec, random_rotate=True, points=None, keep_subgrids=0):
         '''
            **Arguments:**
 
            center
                 The center of the radial grid
 
-           rtransform
-                An instance of a subclass of the RTransform class.
-
-           int1d
-                An instance of a subclass of the Integrator1D class.
-
-           nlls
-                The number Lebedev-Laikov grid points for each radial grid
-                point. When this argument is not a list, all radial grid
-                points get the same Lebedev-Laikov grid and the ``nsphere``
-                argument must be given.
+           atspec
+                A specifications of the atomic grid. (See below.)
 
            **Optional arguments:**
 
@@ -68,13 +59,23 @@ class AtomicGrid(IntGrid):
            keep_subgrids
                 By default the (Lebedev-Laikov) subgrids are not stored
                 separately. If set to 1, they are kept.
+
+           The atspec argument may be a tuple with three elements:
+           ``(rtransform, integrator1d, nll)`` where:
+
+           * ``rtransform`` is an instance of a subclass of the RTransform class.
+
+           * ``int1d`` is an instance of a subclass of the Integrator1D class.
+
+           * ``nlls`` is a number Lebedev-Laikov grid points for each radial
+             grid point. When this argument is not a list, all radial grid
+             points get the same Lebedev-Laikov grid and the ``nsphere``
+             argument must be given.
         '''
-        size, nlls = get_atomic_grid_size(nlls, rtransform.npoint)
         self._center = center
-        self._rtransform = rtransform
-        self._int1d = int1d
-        self._nlls = nlls
+        self._rtransform, self._int1d, self._nlls = atspec
         self._random_rotate = random_rotate
+        size, self._nlls = get_atomic_grid_size(self._nlls, self._rtransform.npoint)
 
         if points is None:
             points = np.zeros((size, 3), float)
@@ -87,12 +88,12 @@ class AtomicGrid(IntGrid):
         else:
             llgrids = None
         offset = 0
-        nsphere = len(nlls)
-        radii = rtransform.get_radii()
-        rweights = int1d.get_weights(nsphere)
-        rweights *= rtransform.get_volume_elements()
+        nsphere = len(self._nlls)
+        radii = self._rtransform.get_radii()
+        rweights = self._int1d.get_weights(nsphere)
+        rweights *= self._rtransform.get_volume_elements()
         for i in xrange(nsphere):
-            nll = nlls[i]
+            nll = self._nlls[i]
             llgrid = LebedevLaikovSphereGrid(center, radii[i], nll, random_rotate, points[offset:offset+nll])
             if keep_subgrids > 0:
                 llgrids.append(llgrid)
