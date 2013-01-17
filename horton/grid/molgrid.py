@@ -105,8 +105,8 @@ class BeckeMolGrid(IntGrid):
         cov_radii = np.array([periodic[n].cov_radius for n in system.numbers])
         for i in xrange(system.natom):
             rtransform, int1d, atnlls, atsize = atspecs[i]
-            atgrid = AtomicGrid(system.coordinates[i], rtransform, int1d,
-                                atnlls, random_rotate,
+            atgrid = AtomicGrid(system.coordinates[i], (rtransform, int1d,
+                                atnlls), random_rotate,
                                 points[offset:offset+atsize],
                                 keep_subgrids=keep_subgrids-1)
             weights[offset:offset+atsize] = atgrid.weights
