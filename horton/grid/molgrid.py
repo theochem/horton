@@ -25,7 +25,7 @@
 import numpy as np
 
 from horton.grid.base import IntGrid
-from horton.grid.atgrid import AtomicGrid, get_atomic_grid_size
+from horton.grid.atgrid import AtomicGrid, interpret_atspec
 from horton.grid.cext import becke_helper_atom
 from horton.log import log
 from horton.periodic import periodic
@@ -104,7 +104,8 @@ class BeckeMolGrid(IntGrid):
         offset = 0
         cov_radii = np.array([periodic[n].cov_radius for n in system.numbers])
         for i in xrange(system.natom):
-            rtransform, int1d, atnlls, atsize = atspecs[i]
+            rtransform, int1d, atnlls = atspecs[i]
+            atsize = atnlls.sum()
             atgrid = AtomicGrid(system.coordinates[i], (rtransform, int1d,
                                 atnlls), random_rotate,
                                 points[offset:offset+atsize],
@@ -185,14 +186,8 @@ def get_mol_grid_size(atspecs, natom):
 
     size = 0
     for i in xrange(len(atspecs)):
-        atspec = atspecs[i]
-        if len(atspec) != 3:
-            raise TypeError('An atomic grid spec must contain three elements.')
-        rtransform, int1d, nlls = atspec
-        if not hasattr(nlls, '__len__'):
-            nlls = [nlls]*rtransform.npoint
-        atsize = get_atomic_grid_size(nlls, rtransform.npoint)[0]
-        atspecs[i] = rtransform, int1d, nlls, atsize
-        size += atsize
+        rtransform, int1d, nlls = interpret_atspec(atspecs[i])
+        atspecs[i] = rtransform, int1d, nlls
+        size += nlls.sum()
 
     return size, atspecs

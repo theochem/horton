@@ -25,23 +25,27 @@ import numpy as np
 from horton import *
 
 
-def test_get_grid_sizes():
-    size, nlls = get_atomic_grid_size(6, 4)
-    assert size == 24
-    assert (nlls == [6,6,6,6]).all()
-    size, nlls = get_atomic_grid_size([6,6,6,6], 4)
-    assert size == 24
-    assert (nlls == [6,6,6,6]).all()
-    size, nlls = get_atomic_grid_size([6,14,26,6], 4)
-    assert size == 52
-    assert (nlls == [6,14,26,6]).all()
+def test_interpret_atspec():
+    rtf = ExpRTransform(0.1, 1e1, 4)
+    int1d = TrapezoidIntegrator1D()
+
+    rtf0, int1d0, nlls0 = interpret_atspec((rtf, int1d, 6))
+    assert rtf is rtf0
+    assert int1d is int1d0
+    assert (nlls0 == [6,6,6,6]).all()
+
+    rtf1, int1d1, nlls1 = interpret_atspec((rtf, int1d, [6,14,26,6]))
+    assert rtf is rtf1
+    assert int1d is int1d1
+    assert (nlls1 == [6,14,26,6]).all()
+
     try:
-        get_atomic_grid_size([1,2,3,4], 4)
+        rtf2, int1d2, nlls2 = interpret_atspec((rtf, int1d, [1,2,3,4]))
         assert False
     except ValueError:
         pass
     try:
-        get_atomic_grid_size([6,6,6,6], 5)
+        rtf2, int1d2, nlls2 = interpret_atspec((rtf, int1d, [6,6,6,6,14]))
         assert False
     except ValueError:
         pass
