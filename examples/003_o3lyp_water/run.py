@@ -12,10 +12,8 @@ system.init_wfn(charge=0, mult=1)
 # Initial guess
 guess_hamiltonian_core(system)
 
-# Setup integration grids
-int1d = SimpsonIntegrator1D()
-rtf = ExpRTransform(1e-3, 10.0, 100)
-grid = BeckeMolGrid(system, (rtf, int1d, 110), random_rotate=False)
+# Setup integration grids with default settings
+grid = BeckeMolGrid(system)
 
 # Construction of Hamiltonian
 libxc_term = LibXCHybridGGATerm('xc_o3lyp')

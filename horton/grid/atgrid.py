@@ -23,19 +23,21 @@
 import numpy as np
 
 
+from horton.context import context
 from horton.grid.base import IntGrid
-from horton.grid.cext import lebedev_laikov_npoints
+from horton.grid.cext import lebedev_laikov_npoints, RTransform
+from horton.grid.int1d import SimpsonIntegrator1D
 from horton.grid.sphere import LebedevLaikovSphereGrid
 from horton.log import log
 
 
 __all__ = [
-    'AtomicGrid', 'interpret_atspec',
+    'AtomicGrid', 'interpret_atspec', 'ATGridFamily', 'atgrid_families',
 ]
 
 
 class AtomicGrid(IntGrid):
-    def __init__(self, center, atspec, random_rotate=True, points=None, keep_subgrids=0):
+    def __init__(self, number, center, atspec='tv_2012_01_l3', random_rotate=True, points=None, keep_subgrids=0):
         '''
            **Arguments:**
 
@@ -62,8 +64,9 @@ class AtomicGrid(IntGrid):
                 separately. If set to 1, they are kept.
 
         '''
+        self._number = number
         self._center = center
-        self._rtransform, self._int1d, self._nlls = interpret_atspec(atspec)
+        self._rtransform, self._int1d, self._nlls = interpret_atspec(number, atspec)
         self._random_rotate = random_rotate
 
         size = self._nlls.sum()
@@ -92,6 +95,12 @@ class AtomicGrid(IntGrid):
 
         IntGrid.__init__(self, points, weights, llgrids)
         self._log_init()
+
+    def _get_number(self):
+        '''The element number of the grid.'''
+        return self._number
+
+    number = property(_get_number)
 
     def _get_center(self):
         '''The center of the grid.'''
@@ -146,7 +155,7 @@ class AtomicGrid(IntGrid):
 
 
 
-def interpret_atspec(atspec):
+def interpret_atspec(number, atspec):
     '''Convert to (rtransform, int1d, nlls) tuple
 
        The atspec argument may be a string refering to a built-in grid file (see
@@ -160,10 +169,16 @@ def interpret_atspec(atspec):
        * ``nlls`` is a number Lebedev-Laikov grid points for each radial
          grid point. When this argument is not a list, all radial grid
          points get the same Lebedev-Laikov grid
+
+       The number argument is the element number for which the grid is created.
+       It is only used when atspec is a string referring to one of the built-in
+       grids.
     '''
     if isinstance(atspec, basestring):
         # load
-        raise NotImplementedError
+        if atspec not in atgrid_families:
+            raise ValueError('Unknown built-in grid: %s' % atspec)
+        rtransform, int1d, nlls = atgrid_families[atspec].get(number)
     elif hasattr(atspec, '__iter__') and len(atspec) == 3:
         rtransform, int1d, nlls = atspec
 
@@ -181,3 +196,49 @@ def interpret_atspec(atspec):
             raise ValueError('A Lebedev-Laikov grid with %i points is not supported.' % nll)
 
     return rtransform, int1d, nlls
+
+
+class ATGridFamily(object):
+    def __init__(self, name):
+        self.name = name
+        self.members = None
+
+    def get(self, number):
+        if self.members is None:
+            self._load()
+
+        atspec = self.members.get(number)
+        if atspec is None:
+            raise ValueError('The atomic grid family %s does not support element %i' % (self.name, number))
+        return atspec
+
+    def _load(self):
+        fn = context.get_fn('grids/%s.txt' % self.name)
+        int1d = SimpsonIntegrator1D()
+        self.members = {}
+        with open(fn) as f:
+            state = 0
+            for line in f:
+                line = line[:line.find('#')].strip()
+                if len(line) > 0:
+                    if state == 0:
+                        # read element number
+                        number = int(line)
+                        state = 1
+                    elif state == 1:
+                        # read rtf string
+                        rtf = RTransform.from_string(line)
+                        state = 2
+                    elif state == 2:
+                        nlls = np.array([int(w) for w in line.split()])
+                        state = 0
+                        self.members[number] = rtf, int1d, nlls
+
+
+atgrid_families = [
+    ATGridFamily('tv_2012_01_l3'),
+    ATGridFamily('tv_2012_01_l4'),
+    ATGridFamily('tv_2012_01_l5'),
+    ATGridFamily('tv_2012_01_l6'),
+]
+atgrid_families = dict((af.name.lower(), af) for af in atgrid_families)
