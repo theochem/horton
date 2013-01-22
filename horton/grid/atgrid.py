@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Horton is a Density Functional Theory program.
-# Copyright (C) 2011-2012 Toon Verstraelen <Toon.Verstraelen@UGent.be>
+# Copyright (C) 2011-2013 Toon Verstraelen <Toon.Verstraelen@UGent.be>
 #
 # This file is part of Horton.
 #
@@ -37,7 +37,7 @@ __all__ = [
 
 
 class AtomicGrid(IntGrid):
-    def __init__(self, number, center, atspec='tv_2012_01_l3', random_rotate=True, points=None, keep_subgrids=0):
+    def __init__(self, number, center, atspec='tv-13.1-3', random_rotate=True, points=None, keep_subgrids=0):
         '''
            **Arguments:**
 
@@ -236,9 +236,9 @@ class ATGridFamily(object):
 
 
 atgrid_families = [
-    ATGridFamily('tv_2012_01_l3'),
-    ATGridFamily('tv_2012_01_l4'),
-    ATGridFamily('tv_2012_01_l5'),
-    ATGridFamily('tv_2012_01_l6'),
+    ATGridFamily('tv-13.1-3'),
+    ATGridFamily('tv-13.1-4'),
+    ATGridFamily('tv-13.1-5'),
+    ATGridFamily('tv-13.1-6'),
 ]
 atgrid_families = dict((af.name.lower(), af) for af in atgrid_families)

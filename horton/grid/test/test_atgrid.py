@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Horton is a Density Functional Theory program.
-# Copyright (C) 2011-2012 Toon Verstraelen <Toon.Verstraelen@UGent.be>
+# Copyright (C) 2011-2013 Toon Verstraelen <Toon.Verstraelen@UGent.be>
 #
 # This file is part of Horton.
 #
@@ -57,19 +57,19 @@ def test_atgrid_family_load():
 
 
 def test_atgrid_family_contents1():
-    rtf, int1d, nlls = atgrid_families['tv_2012_01_l3'].get(1)
+    rtf, int1d, nlls = atgrid_families['tv-13.1-3'].get(1)
     assert rtf.to_string() == 'ExpRTransform 0.008808017113271033 74.98497608817966 25'
     assert (nlls == np.array([6, 6, 6, 6, 6, 6, 6, 6, 6, 14, 14, 38, 50, 50, 50, 50, 50, 86, 86, 86, 50, 50, 6, 6, 6])).all()
 
 
 def test_atgrid_family_contents2():
-    rtf, int1d, nlls = atgrid_families['tv_2012_01_l4'].get(6)
+    rtf, int1d, nlls = atgrid_families['tv-13.1-4'].get(6)
     assert rtf.to_string() == 'ExpRTransform 0.00015375148910839044 59.32379135135266 65'
     assert (nlls == np.array([6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 14, 14, 14, 26, 26, 38, 50, 50, 110, 194, 302, 302, 194, 170, 110, 110, 110, 110, 110, 110, 110, 110, 110, 86, 38, 6, 6, 6])).all()
 
 
 def test_interpret_atspec_family():
-    rtf, int1d, nlls = interpret_atspec(1, 'tv_2012_01_l3')
+    rtf, int1d, nlls = interpret_atspec(1, 'tv-13.1-3')
     assert rtf.to_string() == 'ExpRTransform 0.008808017113271033 74.98497608817966 25'
     assert (nlls == np.array([6, 6, 6, 6, 6, 6, 6, 6, 6, 14, 14, 38, 50, 50, 50, 50, 50, 86, 86, 86, 50, 50, 6, 6, 6])).all()
 
