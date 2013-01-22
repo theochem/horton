@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Horton is a Density Functional Theory program.
-# Copyright (C) 2011-2012 Toon Verstraelen <Toon.Verstraelen@UGent.be>
+# Copyright (C) 2011-2013 Toon Verstraelen <Toon.Verstraelen@UGent.be>
 #
 # This file is part of Horton.
 #
