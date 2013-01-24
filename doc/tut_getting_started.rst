@@ -57,14 +57,15 @@ Specific dependencies
 =====================
 
 The directory ``depends`` of the Horton source tree is used to build specific
-dependencies from source. For the moment, there is only one such dependency,
-namely `libint2 <http://sourceforge.net/p/libint/>`_. The directory ``depends``
+dependencies from source. For the moment, there are two such dependencies,
+namely `libint2 <http://sourceforge.net/p/libint/>`_ and libxc. The directory ``depends``
 contains a ``Makefile`` that can take care of downloading the right version and
 compiling. The following should take care of everything, assuming that you have
 installed all the libint2 dependencies::
 
     cd depends
     make -j4 libint
+    make -j4 libxc
 
 The option ``-j4`` instructs make to build libint2 in parallel on four cores.
 
