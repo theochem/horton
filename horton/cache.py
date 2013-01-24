@@ -98,7 +98,7 @@ class CacheItem(object):
             return cls(np.zeros(alloc, float), own=True)
 
     def __del__(self):
-        if self._own:
+        if self._own and log is not None:
             assert isinstance(self._value, np.ndarray)
             log.mem.denounce(self._value.size*8)
 

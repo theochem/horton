@@ -246,7 +246,8 @@ class DenseExpansion(LinalgObject):
         self._occupations = np.zeros(nfn, float)
 
     def __del__(self):
-        log.mem.denounce((self.nbasis+2)*self.nfn*8)
+        if log is not None:
+            log.mem.denounce((self.nbasis+2)*self.nfn*8)
 
     def read_from_hdf5(self, grp):
         if grp.attrs['class'] != self.__class__.__name__:
@@ -415,7 +416,8 @@ class DenseOneBody(OneBody):
         self._array = np.zeros((nbasis, nbasis), float)
 
     def __del__(self):
-        log.mem.denounce(self.nbasis**2*8)
+        if log is not None:
+            log.mem.denounce(self.nbasis**2*8)
 
     @classmethod
     def from_hdf5(cls, grp, lf):
@@ -520,7 +522,8 @@ class DenseTwoBody(LinalgObject):
         self._array = np.zeros((nbasis, nbasis, nbasis, nbasis), float)
 
     def __del__(self):
-        log.mem.denounce(self.nbasis**4*8)
+        if log is not None:
+            log.mem.denounce(self.nbasis**4*8)
 
     @classmethod
     def from_hdf5(cls, grp, lf):
