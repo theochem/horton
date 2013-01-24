@@ -123,7 +123,8 @@ class BeckeMolGrid(IntGrid):
         self._log_init()
 
     def __del__(self):
-        log.mem.denounce(self.size*(4+self._keep_subgrids)*8)
+        if log is not None:
+            log.mem.denounce(self.size*(4+self._keep_subgrids)*8)
 
     def _get_system(self):
         '''The system object for which this grid is made.'''

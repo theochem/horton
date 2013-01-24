@@ -59,7 +59,7 @@ class ScreenLog(object):
         self.timer = timer
 
         self._biblio = None
-        self.mem = MemoryLogger()
+        self.mem = MemoryLogger(self)
         self._active = False
         self._level = self.medium
         self._last_used_location = None
@@ -402,30 +402,31 @@ class Biblio(object):
 
 
 class MemoryLogger(object):
-    def __init__(self):
+    def __init__(self, log):
         self._big = 0
+        self.log = log
 
     def announce(self, amount):
         unit = float(1024*1024)
-        if log.do_high:
-            log('Will allocate: %.1f MB. Current: %.1f MB. RSS: %.1f MB' %(
+        if self.log.do_high:
+            self.log('Will allocate: %.1f MB. Current: %.1f MB. RSS: %.1f MB' %(
                 amount/unit, self._big/unit, self.get_rss()/unit
             ))
             self._big += amount
-        if log.do_debug:
+        if self.log.do_debug:
             traceback.print_stack()
-            log.blank()
+            self.log.blank()
 
     def denounce(self, amount):
         unit = float(1024*1024)
-        if log.do_high:
-            log('Will release:  %.1f MB. Current: %.1f MB. RSS: %.1f MB' %(
+        if self.log.do_high:
+            self.log('Will release:  %.1f MB. Current: %.1f MB. RSS: %.1f MB' %(
                 amount/unit, self._big/unit, self.get_rss()/unit
             ))
             self._big -= amount
-        if log.do_debug:
+        if self.log.do_debug:
             traceback.print_stack()
-            log.blank()
+            self.log.blank()
 
     def get_rss(self):
         return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*resource.getpagesize()
