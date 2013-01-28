@@ -45,6 +45,12 @@ def check_water(system):
     assert abs(np.linalg.norm(system.coordinates[2] - system.coordinates[1])/angstrom - 0.96) < 1e-5
 
 
+def test_cell():
+    fn = context.get_fn('test/water_element.xyz')
+    system = System.from_file(fn, rvecs=np.identity(3, float)*10)
+    assert abs(system.cell.rvecs - np.identity(3, float)*10).max() < 1e-10
+
+
 def test_init_wfn_cs():
     sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
     sys.init_wfn(0, 1)
