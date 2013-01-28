@@ -31,7 +31,7 @@
 import numpy as np
 import h5py as h5
 
-from horton.cext import compute_grid_nucpot
+from horton.cext import compute_grid_nucpot, Cell
 from horton.io import load_system_args
 from horton.log import log
 from horton.matrix import DenseLinalgFactory, LinalgObject
@@ -43,7 +43,7 @@ __all__ = ['System']
 
 
 class System(object):
-    def __init__(self, coordinates, numbers, obasis=None, wfn=None, lf=None, operators=None, props=None, chk=None):
+    def __init__(self, coordinates, numbers, obasis=None, wfn=None, lf=None, operators=None, props=None, rvecs=None, chk=None):
         """
            **Arguments:**
 
@@ -73,6 +73,11 @@ class System(object):
 
            props
                 A dictionary with computed properties.
+
+           rvecs
+                A list of up to three real-space vectors that define the
+                (generally triclinic) periodic boundary conditions. So far, this
+                is nearly nowhere supported in Horton, so don't get too excited.
 
            chk
                 A filename for the checkpoint file or an open h5.File object.
@@ -131,6 +136,8 @@ class System(object):
             for key, op in self._operators.iteritems():
                 if op.nbasis != self._obasis.nbasis:
                     raise TypeError('The nbasis attributes of the operator %s and obasis are inconsistent.')
+
+        self._cell = Cell(rvecs)
 
         # The checkpoint file
         if isinstance(chk, basestring):
@@ -199,6 +206,12 @@ class System(object):
         return self._props
 
     props = property(_get_props)
+
+    def _get_cell(self):
+        '''A Cell object describing the periodic boundary conditions.'''
+        return self._cell
+
+    cell = property(_get_cell)
 
     def _get_chk(self):
         '''A ``h5.File`` instance used as checkpoint file or ``None``'''
