@@ -19,11 +19,12 @@
 #
 #--
 
-from horton.grid.base import *
-from horton.grid.atgrid import *
-from horton.grid.cext import *
-from horton.grid.molgrid import *
-from horton.grid.int1d import *
-from horton.grid.sphere import *
-from horton.grid.uniform import *
-from horton.grid.visual import *
+
+__all__ = ['UniformIntGrid']
+
+
+class UniformIntGrid(object):
+    def __init__(self, origin, cell, nrep):
+        self.origin = origin
+        self.cell = cell
+        self.nrep = nrep
