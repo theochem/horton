@@ -54,8 +54,8 @@ class CubicSpline {
         void eval_deriv(double* new_x, double* new_d, int new_n);
 
         RTransform* get_rtransform() {return rtf;}
-        double get_first_x() {return first_x;};
-        double get_last_x() {return last_x;};
+        double get_first_x() {return first_x;}; // position of first (transformed) grid point
+        double get_last_x() {return last_x;}; // position of first (transformed) last point
     };
 
 

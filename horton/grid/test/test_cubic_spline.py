@@ -84,11 +84,23 @@ def test_basics_identity():
     assert (cs.copy_d() == d).all()
 
 
+def test_basics_linear():
+    N = 10
+    y = np.random.normal(0,1,N)
+    d = np.random.normal(0,1,N)
+    rtf = LinearRTransform(-0.3, 0.6, N)
+    cs = CubicSpline(y, d, rtf)
+    assert (cs.copy_y() == y).all()
+    dp = d*rtf.get_volume_elements()
+    assert abs(rtf.get_volume_elements() - 0.1).max() < 1e-10
+    assert abs(cs.copy_d() - dp).max() < 1e-15
+
+
 def test_basics_log():
     N = 10
     y = np.random.normal(0,1,N)
     d = np.random.normal(0,1,N)
-    rtf = ExpRTransform(0.1, 1.0, 10)
+    rtf = ExpRTransform(0.1, 1.0, N)
     cs = CubicSpline(y, d, rtf)
     assert (cs.copy_y() == y).all()
     dp = d*rtf.get_volume_elements()
@@ -128,7 +140,7 @@ def test_continuity_identity():
 
 def test_continuity_log():
     N = 10
-    rtf = ExpRTransform(0.1, 1.0, 10)
+    rtf = ExpRTransform(0.1, 1.0, N)
     y = np.random.normal(0,1,N)
     cs = CubicSpline(y,rtf=rtf)
     d = cs.copy_d()

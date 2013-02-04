@@ -20,17 +20,29 @@
 #--
 
 
-from horton.grid.cext import dot_multi
+import numpy as np
+
+from horton.cext import Cell
+from horton.grid.cext import dot_multi, eval_spline_cube
 
 
 __all__ = ['UniformIntGrid']
 
 
 class UniformIntGrid(object):
-    def __init__(self, origin, cell, nrep):
+    def __init__(self, origin, grid_cell, shape, pbc_active=None):
+        if grid_cell.nvec != 3:
+            raise ValueError('The cell must be a 3D cell.')
         self.origin = origin
-        self.cell = cell
-        self.nrep = nrep
+        self.grid_cell = grid_cell
+        self.shape = shape
+        if pbc_active is None:
+            self.pbc_active = np.ones(3, int)
+        else:
+            self.pbc_active = pbc_active
+
+    def eval_spline(self, spline, center, output):
+        eval_spline_cube(spline, center, output, self.origin, self.grid_cell, self.shape, self.pbc_active)
 
     def integrate(self, *args):
         '''Integrate the product of all arguments
@@ -42,4 +54,7 @@ class UniformIntGrid(object):
                 of grid points. The arrays contain the functions, evaluated
                 at the grid points, that must be multiplied and integrated.
         '''
-        return dot_multi(*args)*self.cell.volume
+        # This is often convenient for cube grid data:
+        args = [arg.ravel() for arg in args]
+        # Similar to conventional integration routine:
+        return dot_multi(*args)*self.grid_cell.volume
