@@ -38,7 +38,6 @@ cdef class Cell:
        0, 1, 2 and 3 dimensional systems are supported. The cell vectors need
        not to be orthogonal.
     '''
-    cdef cell.Cell* _this
 
     def __cinit__(self, *args, **kwargs):
         self._this = new cell.Cell()
@@ -67,10 +66,12 @@ cdef class Cell:
                 rows in a rank-2 matrix. For non-periodic systems, this array
                 must have shape (0,3).
         '''
+        cdef np.ndarray[double, ndim=2] mod_rvecs
         cdef np.ndarray[double, ndim=2] gvecs
         cdef int nvec
         if rvecs is None or rvecs.size == 0:
-            gvecs = np.identity(3, float)
+            mod_rvecs = np.identity(3, float)
+            gvecs = mod_rvecs
             nvec = 0
         else:
             if not rvecs.ndim==2 or not rvecs.flags['C_CONTIGUOUS'] or rvecs.shape[0] > 3 or rvecs.shape[1] != 3:
@@ -81,8 +82,10 @@ cdef class Cell:
             S[:nvec] = Sp
             U = np.identity(3, float)
             U[:nvec,:nvec] = Up
+            mod_rvecs = np.dot(U*S, Vt)
+            mod_rvecs[:nvec] = rvecs
             gvecs = np.dot(U/S, Vt)
-        self._this.update(<double*>rvecs.data, <double*>gvecs.data, nvec)
+        self._this.update(<double*>mod_rvecs.data, <double*>gvecs.data, nvec)
 
     def _get_nvec(self):
         '''The number of cell vectors'''
@@ -136,6 +139,12 @@ cdef class Cell:
 
     gspacings = property(_get_gspacings)
 
+    def get_rspacing(self, int i):
+        return self._this.get_rspacing(i);
+
+    def get_gspacing(self, int i):
+        return self._this.get_gspacing(i);
+
     def _get_parameters(self):
         '''The cell parameters (lengths and angles)'''
         rvecs = self.rvecs
@@ -171,6 +180,28 @@ cdef class Cell:
         cdef np.ndarray[long, ndim=1] result
         result = np.zeros(self.nvec, int)
         self._this.to_center(<double*> pos.data, <long*> result.data)
+        return result
+
+    def to_frac(self, np.ndarray[double, ndim=1] cart):
+        '''to_frac(cart)
+
+           Return the corresponding fractional coordinates
+        '''
+        assert cart.size == 3
+        cdef np.ndarray[double, ndim=1] result
+        result = np.zeros(3, float)
+        self._this.to_frac(<double*> cart.data, <double*> result.data)
+        return result
+
+    def to_cart(self, np.ndarray[double, ndim=1] frac):
+        '''to_cart(frac)
+
+           Return the corresponding Cartesian coordinates
+        '''
+        assert frac.size == 3
+        cdef np.ndarray[double, ndim=1] result
+        result = np.zeros(3, float)
+        self._this.to_cart(<double*> frac.data, <double*> result.data)
         return result
 
     def add_vec(self, np.ndarray[double, ndim=1] delta, np.ndarray[long, ndim=1] r):
