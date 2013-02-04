@@ -47,7 +47,7 @@ def check_water(system):
 
 def test_cell():
     fn = context.get_fn('test/water_element.xyz')
-    system = System.from_file(fn, rvecs=np.identity(3, float)*10)
+    system = System.from_file(fn, cell=Cell(np.identity(3, float)*10))
     assert abs(system.cell.rvecs - np.identity(3, float)*10).max() < 1e-10
 
 

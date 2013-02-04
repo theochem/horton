@@ -43,7 +43,7 @@ __all__ = ['System']
 
 
 class System(object):
-    def __init__(self, coordinates, numbers, obasis=None, wfn=None, lf=None, operators=None, props=None, rvecs=None, chk=None):
+    def __init__(self, coordinates, numbers, obasis=None, wfn=None, lf=None, operators=None, props=None, cell=None, chk=None):
         """
            **Arguments:**
 
@@ -74,10 +74,10 @@ class System(object):
            props
                 A dictionary with computed properties.
 
-           rvecs
-                A list of up to three real-space vectors that define the
-                (generally triclinic) periodic boundary conditions. So far, this
-                is nearly nowhere supported in Horton, so don't get too excited.
+           cell
+                A Cell object that describes the (generally triclinic) periodic
+                boundary conditions. So far, this is nearly nowhere supported in
+                Horton, so don't get too excited.
 
            chk
                 A filename for the checkpoint file or an open h5.File object.
@@ -137,7 +137,7 @@ class System(object):
                 if op.nbasis != self._obasis.nbasis:
                     raise TypeError('The nbasis attributes of the operator %s and obasis are inconsistent.')
 
-        self._cell = Cell(rvecs)
+        self._cell = cell
 
         # The checkpoint file
         if isinstance(chk, basestring):
