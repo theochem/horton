@@ -31,8 +31,11 @@ from libc.stdlib cimport malloc, free
 cimport lebedev_laikov
 cimport becke
 cimport cubic_spline
+cimport evaluate
 cimport rtransform
 cimport utils
+
+cimport horton.cext
 
 
 # TODO: make extension types (un)picklable
@@ -46,6 +49,8 @@ __all__ = [
     # cubic_spline
     'tridiag_solve', 'tridiagsym_solve', 'CubicSpline',
     'compute_cubic_spline_int_weights',
+    # evaluate
+    'index_wrap', 'eval_spline_cube',
     # rtransform
     'RTransform', 'IdentityRTransform', 'LinearRTransform', 'ExpRTransform',
     'ShiftedExpRTransform', 'BakerRTransform',
@@ -199,7 +204,7 @@ def tridiagsym_solve(np.ndarray[double, ndim=1] diag_mid,
 
 cdef class CubicSpline(object):
     cdef cubic_spline.CubicSpline* _this
-    cdef cubic_spline.Extrapolation* _c_ep
+    cdef cubic_spline.Extrapolation* _ep
     cdef RTransform _rtf
 
     def __cinit__(self, np.ndarray[double, ndim=1] y not None, np.ndarray[double, ndim=1] d=None, RTransform rtf=None):
@@ -219,15 +224,18 @@ cdef class CubicSpline(object):
             _c_rtf = NULL
         else:
             _c_rtf = rtf._this
-        # Only exponential extrapolation is needed for now.
-        self._c_ep = <cubic_spline.Extrapolation*>(new cubic_spline.ExponentialExtrapolation())
+        # Only exponential extrapolation is needed for now, except when it does not work
+        if d is not None and d[0] == 0.0:
+            self._ep = <cubic_spline.Extrapolation*>(new cubic_spline.ZeroExtrapolation())
+        else:
+            self._ep = <cubic_spline.Extrapolation*>(new cubic_spline.ExponentialExtrapolation())
         self._this = new cubic_spline.CubicSpline(
-            <double*>y.data, ddata, self._c_ep, _c_rtf, n
+            <double*>y.data, ddata, self._ep, _c_rtf, n
         )
 
     def __dealloc__(self):
         del self._this
-        del self._c_ep
+        del self._ep
 
     def copy_y(self):
         cdef np.npy_intp shape[1]
@@ -268,6 +276,42 @@ def compute_cubic_spline_int_weights(np.ndarray[double, ndim=1] weights not None
     assert weights.flags['C_CONTIGUOUS']
     npoint = weights.shape[0]
     cubic_spline.compute_cubic_spline_int_weights(<double*>weights.data, npoint)
+
+
+#
+# evaluate
+#
+
+
+def index_wrap(long i, long high):
+    return evaluate.index_wrap(i, high)
+
+
+def eval_spline_cube(CubicSpline spline,
+                     np.ndarray[double, ndim=1] center,
+                     np.ndarray[double, ndim=3] output,
+                     np.ndarray[double, ndim=1] origin,
+                     horton.cext.Cell grid_cell,
+                     np.ndarray[long, ndim=1] shape,
+                     np.ndarray[long, ndim=1] pbc_active):
+
+    assert center.flags['C_CONTIGUOUS']
+    assert center.shape[0] == 3
+    assert shape.flags['C_CONTIGUOUS']
+    assert shape.shape[0] == 3
+    assert output.flags['C_CONTIGUOUS']
+    assert output.shape[0] == shape[0]
+    assert output.shape[1] == shape[1]
+    assert output.shape[2] == shape[2]
+    assert origin.flags['C_CONTIGUOUS']
+    assert origin.shape[0] == 3
+    assert pbc_active.flags['C_CONTIGUOUS']
+    assert pbc_active.shape[0] == 3
+
+    evaluate.eval_spline_cube(spline._this, <double*>center.data,
+                              <double*>output.data, <double*>origin.data,
+                              grid_cell._this, <long*>shape.data,
+                              <long*>pbc_active.data,)
 
 
 #
