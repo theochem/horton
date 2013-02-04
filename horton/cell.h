@@ -35,10 +35,15 @@ class Cell {
         void update(double* _rvecs, double* _gvecs, int _nvec);
         void mic(double* delta);
         void to_center(double* car, long* center);
+        void to_frac(double* cart, double* frac);
+        void to_cart(double* frac, double* cart);
         void add_vec(double* delta, long* r);
 
         int get_nvec() {return nvec;};
         double get_volume() {return volume;};
+        double get_rspacing(int i);
+        double get_gspacing(int i);
+
         void copy_rvecs(double* _rvecs);
         void copy_gvecs(double* _gvecs);
         void copy_rspacings(double* _rspacings);

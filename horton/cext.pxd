@@ -20,22 +20,8 @@
 #--
 
 
-cdef extern from "cell.h":
-     cdef cppclass Cell:
-        Cell()
-        void update(double* _rvecs, double* _gvecs, int _nvec)
-        void mic(double* delta)
-        void to_center(double* cart, long* center)
-        void to_frac(double* cart, double* frac)
-        void to_cart(double* frac, double* cart)
-        void add_vec(double* delta, long* r)
+cimport cell
 
-        int get_nvec()
-        double get_volume()
-        double get_rspacing(int i) except +
-        double get_gspacing(int i) except +
 
-        void copy_rvecs(double* _rvecs)
-        void copy_gvecs(double* _gvecs)
-        void copy_rspacings(double* _rspacings)
-        void copy_gspacings(double* _gspacings)
+cdef class Cell:
+    cdef cell.Cell* _this
