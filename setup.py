@@ -76,6 +76,7 @@ setup(
     author='Toon Verstraelen',
     author_email='Toon.Verstraelen@UGent.be',
     url='http://molmod.ugent.be/code/',
+    scripts=glob("scripts/*.py"),
     package_dir = {'horton': 'horton'},
     packages=['horton', 'horton.test',
               'horton.dpart', 'horton.dpart.test',
