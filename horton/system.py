@@ -32,7 +32,7 @@ import numpy as np
 import h5py as h5
 
 from horton.cext import compute_grid_nucpot, Cell
-from horton.io import load_system_args
+from horton.io import load_system_args, dump_system
 from horton.log import log
 from horton.matrix import DenseLinalgFactory, LinalgObject
 from horton.periodic import periodic
@@ -325,6 +325,17 @@ class System(object):
             else:
                 field = register[field_name]
                 field.write(self._chk, self)
+
+    def to_file(self, filename):
+        '''Write the system to a file
+
+           **Arguments:**
+
+           filename
+                The name of the file to write to. The extension of the file
+                is used to determine the file format.
+        '''
+        dump_system(filename, self)
 
     def init_wfn(self, charge=0, mult=None, restricted=None):
         '''Initialize a wavefunction object.
