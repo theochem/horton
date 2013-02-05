@@ -140,16 +140,9 @@ class System(object):
         self._cell = cell
 
         # The checkpoint file
-        if isinstance(chk, basestring):
-            # Suppose a filename is given. Create or open an HDF5 file.
-            self._chk = h5.File(chk)
-            self._close_chk = True
-        elif isinstance(chk, h5.File) or chk is None:
-            self._chk = chk
-            self._close_chk = False
-        else:
-            raise TypeError('The chk argument, when given, must be a filename or an open h5.File object.')
-        self.update_chk()
+        self._chk = None
+        self._close_chk = False
+        self.assign_chk(chk)
 
         self._log_init()
 
@@ -294,6 +287,22 @@ class System(object):
             if len(self._props) > 0:
                 log('The following properties are present: %s' % (', '.join(self._props.iterkeys())))
             log.blank()
+
+    def assign_chk(self, chk):
+        if self.chk is not None and self._close_chk:
+            self.chk.close()
+
+        if isinstance(chk, basestring):
+            # Suppose a filename is given. Create or open an HDF5 file.
+            self._chk = h5.File(chk)
+            self._close_chk = True
+        elif isinstance(chk, h5.File) or chk is None:
+            self._chk = chk
+            self._close_chk = False
+        else:
+            raise TypeError('The chk argument, when not None, must be a filename or an open h5.File object.')
+        self.update_chk()
+
 
     def update_chk(self, field_name=None):
         """Write (a part of) the system to the checkpoint file.
