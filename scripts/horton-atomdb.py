@@ -45,7 +45,8 @@ def iter_elements(elements_str):
 
 
 def parse_args_input(args):
-    parser = argparse.ArgumentParser(prog='horton-atomdb.py input')
+    parser = argparse.ArgumentParser(prog='horton-atomdb.py input',
+        description='Create input files for a database of pro-atoms.')
     parser.add_argument('elements',
         help='The comma-separated list of elements to be computed. One may '
              'also define ranges with the dash sign. No white space is '
@@ -53,7 +54,14 @@ def parse_args_input(args):
              'nitrogen and oxygen.')
     parser.add_argument('template',
         help='A template input file for a single atom in the origin. It must '
-             'contain fields ${charge}, ${mult} and ${element} or ${number}.')
+             'contain fields ${charge}, ${mult} and ${element} or ${number}. '
+             'It may also contain fields like ${include:some.file} which will '
+             'be replaced by the contents of the file "some.file.ZZZ" where '
+             'ZZZ is the element number left-padded with zeros to fix the '
+             'the length at three characters. For example, for oxygen this '
+             'would be 008. Such includes may be useful for custom basis sets. '
+             'The filename of the include files may only contain characters '
+             'from the set [_a-z0-9.-].')
     parser.add_argument('--max-kation', type=int, default=3,
         help='The most positive kation to consider. [default=3]')
     parser.add_argument('--max-anion', type=int, default=2,
@@ -137,14 +145,52 @@ def iter_mults(nel, hund):
             yield mult
 
 
+def _get_include_names(template):
+    import re
+    pattern = '%s{(?P<braced>%s)}' % (re.escape(template.delimiter), template.idpattern)
+    result = set([])
+    for mo in re.finditer(pattern, template.template):
+        braced = mo.group('braced')
+        if braced is not None and braced.startswith('include:'):
+            result.add(braced[8:])
+    return list(result)
+
+
+def _load_includes(include_names, number):
+    result = {}
+    for name in include_names:
+        with open('%s.%03i' % (name, number)) as f:
+            s = f.read()
+        # chop of one final newline if present (mostly the case)
+        if s[-1] == '\n':
+            s = s[:-1]
+        result['include:%s' % name] = s
+    return result
+
+
+class GeneralTemplate(Template):
+    idpattern = r'[_a-z0-9.:-]+'
+    pass
+
+
 def main_input(args):
     # Load the template file
     with open(args.template) as f:
-        template = Template(f.read())
+        template = GeneralTemplate(f.read())
+    include_names = _get_include_names(template)
     base_inp = os.path.basename(args.template)
+
+    # print include names
+    if len(include_names) > 0:
+        print 'The following includes were detected in the template:'
+        for name in include_names:
+            print '   ', name
 
     # Loop over all elements and make input files
     for number in iter_elements(args.elements):
+        # load includes for this element
+        includes = _load_includes(include_names, number)
+        # Loop over all charge states for this element
         for charge in xrange(-args.max_anion, args.max_kation+1):
             nel = number - charge
             if nel <= 0:
@@ -153,6 +199,7 @@ def main_input(args):
                 number, periodic[number].symbol.lower().rjust(2, '_'), nel, charge)
             if not os.path.isdir(dn_state):
                 os.mkdir(dn_state)
+            # loop over multiplicities
             for mult in iter_mults(nel, args.hund):
                 dn_mult = '%s/mult%02i' % (dn_state, mult)
                 if not os.path.isdir(dn_mult):
@@ -161,7 +208,8 @@ def main_input(args):
                 exists = os.path.isfile(fn_inp)
                 if not exists or args.overwrite:
                     with open(fn_inp, 'w') as f:
-                        f.write(template.safe_substitute(
+                        f.write(template.substitute(
+                            includes,
                             charge=str(charge),
                             mult=str(mult),
                             number=str(number),
@@ -176,7 +224,9 @@ def main_input(args):
 
 
 def parse_args_convert(args):
-    parser = argparse.ArgumentParser(prog='horton-atomdb.py convert')
+    parser = argparse.ArgumentParser(prog='horton-atomdb.py convert',
+        description='Convert the output of the atomic computations to horton '
+                    'h5 files.')
     return parser.parse_args(args)
 
 
