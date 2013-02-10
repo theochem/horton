@@ -27,6 +27,7 @@ import h5py as h5, numpy as np
 from horton.context import context
 from horton.exceptions import ElectronCountError
 from horton.grid.atgrid import AtomicGrid
+from horton.grid.int1d import SimpsonIntegrator1D
 from horton.grid.cext import RTransform, CubicSpline, dot_multi
 from horton.guess import guess_hamiltonian_core
 from horton.hamiltonian import Hamiltonian
@@ -66,10 +67,55 @@ def _compute_average_rhos(sys, atgrid, do_population=False):
             atgrid.rtransform.get_volume_elements(),
             atgrid.rtransform.get_radii()**2,
             average_rhos,
+            atgrid.int1d.get_weights(nsphere),
         )
         return average_rhos, population
     else:
         return average_rhos
+
+
+def _compute_radii(avrho, rtransform, populations):
+    '''Compute approximate radii at which the atom contains the given populations
+
+       **Arguments:**
+
+       avrho
+            A radial grid with the (spherically averaged) density of the atom.
+
+       rtransform
+            The radial transform that defines the grid.
+
+       populations
+            A list of populations for which the corresponding radii have to be
+            computed.
+
+       The return value is a list of radii corresponding to the given list of
+       populations.
+    '''
+    # compute the integral of the density (popint)
+    radii = rtransform.get_radii()
+    tmp = (4*np.pi) * radii**2 * avrho * rtransform.get_volume_elements()
+    popint = []
+    int1d = SimpsonIntegrator1D()
+    for i in xrange(len(tmp)):
+        if i >= int1d.npoint_min:
+            popint.append(np.dot(tmp[:i], int1d.get_weights(i)))
+        else:
+            popint.append(tmp[:i].sum())
+    popint = np.array(popint)
+
+    # find the radii
+    indexes = popint.searchsorted(populations)
+    result = []
+    for i in xrange(len(populations)):
+        index = indexes[i]
+        if index == len(popint):
+            result.append(radii[-1])
+        else:
+            # linear interpolation
+            x = (populations[i] - popint[index])/(popint[index+1] - popint[index])
+            result.append(x*radii[index+1]+(1-x)*radii[index])
+    return result
 
 
 class ProAtomDB(object):
@@ -270,7 +316,6 @@ class ProAtomDB(object):
         # Hand them over to another constructor
         return cls.from_checkpoints(fns_chk, atgrid)
 
-
     def _log_init(self):
         if log.do_medium:
             log('Initialized: %s' % self)
@@ -333,3 +378,30 @@ class ProAtomDB(object):
                 raise RuntimeError('No suitable proatoms found for interpolation.')
             y = yf*(cpop-pop) + yc*(pop-fpop)
         return CubicSpline(y, rtf=self._rtransform)
+
+    def compute_radii(self, number, populations, pop=None):
+        '''Compute approximate radii at which the atom contains the given populations
+
+           **Arguments:**
+
+           number
+                The element for which the radii must be computed
+
+           populations
+                A list of populations for which the corresponding radii have to
+                be computed.
+
+           **Optional argument**
+
+           pop
+                The population of the proatom. When not given, this equals
+                number.
+
+           The return value is a list of radii corresponding to the given list of
+           populations.
+        '''
+        if pop is None:
+            pop = number
+        ipop = int(np.round(pop))
+        avrho = self._records[(number, ipop)]
+        return _compute_radii(avrho, self._rtransform, populations)
