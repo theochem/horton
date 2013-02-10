@@ -30,6 +30,7 @@ __all__ = [
 
 
 class Integrator1D(object):
+    npoint_min = None
     '''Base class for integration algorithms'''
     def get_weights(self, npoint):
         '''Return integration weights for linear grid.'''
@@ -37,10 +38,11 @@ class Integrator1D(object):
 
 
 class TrapezoidIntegrator1D(Integrator1D):
+    npoint_min = 2
     '''Trapezoid rule integration algorithm'''
     def get_weights(self, npoint):
         '''Return integration weights for linear grid.'''
-        assert npoint >= 2
+        assert npoint >= self.npoint_min
         result = np.ones(npoint, dtype=float)
         result[0] = 0.5
         result[-1] = 0.5
@@ -48,20 +50,22 @@ class TrapezoidIntegrator1D(Integrator1D):
 
 
 class CubicIntegrator1D(Integrator1D):
+    npoint_min = 2
     '''Cubic spline integration algorithm'''
     def get_weights(self, npoint):
         '''Return integration weights for linear grid.'''
-        assert npoint >= 2
+        assert npoint >= self.npoint_min
         result = np.ones(npoint, dtype=float)
         compute_cubic_spline_int_weights(result)
         return result
 
 
 class SimpsonIntegrator1D(Integrator1D):
+    npoint_min = 8
     '''Composite Simpson's rule integration algorithm'''
     def get_weights(self, npoint):
         '''Return integration weights for linear grid.'''
-        assert npoint >= 8
+        assert npoint >= self.npoint_min
         result = np.ones(npoint, dtype=float)
         result[0] = 17.0/48.0
         result[-1] = 17.0/48.0

@@ -84,3 +84,12 @@ def test_from_refatoms():
     proatomdb = ProAtomDB.from_refatoms(atgrid, numbers=[1,5], qmax=2)
     keys = sorted(proatomdb._records.keys())
     assert keys == [(1, 1), (1, 2), (5, 3), (5, 4), (5, 5), (5, 6)]
+
+
+def test_compute_radii():
+    int1d = TrapezoidIntegrator1D()
+    rtf = ExpRTransform(1e-3, 1e1, 100)
+    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), keep_subgrids=1)
+    padb = ProAtomDB.from_refatoms(atgrid, numbers=[6,8], qmax=0)
+    radii = padb.compute_radii(6, [2.0, 5.9, 5.999])
+    assert abs(radii - np.array([0.599677, 4.037688, 10.0])).max() < 1e-5
