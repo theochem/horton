@@ -22,7 +22,7 @@
 
 import numpy as np
 from horton import *
-
+from horton.grid.test.common import get_cosine_spline
 
 def test_grid_integrate():
     npoint = 10
@@ -45,6 +45,7 @@ def test_grid_integrate():
     int2 = (grid.weights).sum()
     assert abs(int1 - int2) < 1e-10
 
+
 def test_dot_multi():
     npoint = 10
     pot = np.random.normal(0, 1, npoint)
@@ -63,3 +64,105 @@ def test_dot_multi():
     # zero
     dot2 = dot_multi()
     assert dot2 == 0.0
+
+
+def test_eval_spline_grid_simplest():
+    npoint = 10
+    boxsize = 2.0
+    points = np.random.normal(0, boxsize, (npoint,3))
+    #points = np.hstack([np.arange(0.0, 0.9001, 0.1).reshape(-1,1)]*3)
+    g = IntGrid(points, np.random.normal(0, 1.0, npoint))
+    cs = get_cosine_spline()
+    cell = Cell(np.identity(3, float)*boxsize)
+
+    output1 = np.zeros(npoint)
+    g.eval_spline(cs, np.array([0.0, 0.0, 0.0]), output1, cell)
+    output2 = np.zeros(npoint)
+    g.eval_spline(cs, np.array([2.0, 0.0, 0.0]), output2, cell)
+    assert abs(output1 - output2).max() < 1e-10
+
+
+def test_eval_spline_grid_3d_random():
+    npoint = 10
+    for i in xrange(10):
+        while True:
+            rvecs = np.random.uniform(0, 1, (3,3))
+            cell = Cell(rvecs)
+            if cell.volume > 0.1:
+                break
+        points = np.dot(np.random.normal(-2, 3, (npoint,3)), rvecs)
+        g = IntGrid(points, np.random.normal(0, 1.0, npoint))
+        cs = get_cosine_spline()
+
+        output1 = np.zeros(npoint)
+        center1 = np.random.uniform(-10, 10, 3)
+        g.eval_spline(cs, center1, output1, cell)
+        output2 = np.zeros(npoint)
+        center2 = center1 + np.dot(np.random.randint(-3, 3, 3), rvecs)
+        g.eval_spline(cs, center2, output2, cell)
+
+        assert abs(output1 - output2).max() < 1e-10
+
+
+def test_eval_spline_grid_2d_random():
+    npoint = 10
+    for i in xrange(10):
+        while True:
+            rvecs = np.random.uniform(0, 1, (2,3))
+            cell = Cell(rvecs)
+            if cell.volume > 0.1:
+                break
+        points = np.dot(np.random.normal(-2, 3, (npoint,2)), rvecs) + np.random.normal(-3, 3, (npoint,3))
+        g = IntGrid(points, np.random.normal(0, 1.0, npoint))
+        cs = get_cosine_spline()
+
+        output1 = np.zeros(npoint)
+        center1 = np.random.uniform(-3, 3, 3)
+        g.eval_spline(cs, center1, output1, cell)
+        output2 = np.zeros(npoint)
+        center2 = center1 + np.dot(np.random.randint(-3, 3, 2), rvecs)
+        g.eval_spline(cs, center2, output2, cell)
+
+        assert abs(output1 - output2).max() < 1e-10
+
+
+def test_eval_spline_grid_1d_random():
+    npoint = 10
+    for i in xrange(10):
+        while True:
+            rvecs = np.random.uniform(0, 1, (1,3))
+            cell = Cell(rvecs)
+            if cell.volume > 0.1:
+                break
+        points = np.random.normal(-3, 3, (npoint,3))
+        g = IntGrid(points, np.random.normal(0, 1.0, npoint))
+        cs = get_cosine_spline()
+
+        output1 = np.zeros(npoint)
+        center1 = np.random.uniform(-3, 3, 3)
+        g.eval_spline(cs, center1, output1, cell)
+        output2 = np.zeros(npoint)
+        center2 = center1 + np.dot(np.random.randint(-3, 3, 1), rvecs)
+        g.eval_spline(cs, center2, output2, cell)
+
+        assert abs(output1 - output2).max() < 1e-10
+
+
+def test_eval_spline_grid_0d_random():
+    npoint = 10
+    for i in xrange(10):
+        cell = Cell(None)
+        points = np.random.normal(-1, 1, (npoint,3))
+        g = IntGrid(points, np.random.normal(0, 1.0, npoint))
+        cs = get_cosine_spline()
+
+        center = np.random.uniform(-1, 1, 3)
+
+        output1 = np.zeros(npoint)
+        g.eval_spline(cs, center, output1, cell)
+
+        distances = np.zeros(npoint)
+        g.distances(center, distances)
+        output2 = cs(distances)
+
+        assert abs(output1 - output2).max() < 1e-10

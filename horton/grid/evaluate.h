@@ -33,4 +33,7 @@ void eval_spline_cube(CubicSpline* spline, double* center, double* output,
                       double* origin, Cell* grid_cell, long* shape,
                       long* pbc_active);
 
+void eval_spline_grid(CubicSpline* spline, double* center, double* output,
+                      double* points, Cell* cell, long npoint);
+
 #endif

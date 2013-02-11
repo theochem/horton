@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Horton is a Density Functional Theory program.
-# Copyright (C) 2011-2012 Toon Verstraelen <Toon.Verstraelen@UGent.be>
+# Copyright (C) 2011-2013 Toon Verstraelen <Toon.Verstraelen@UGent.be>
 #
 # This file is part of Horton.
 #
@@ -20,16 +20,25 @@
 #--
 
 
-cimport cell
-cimport cubic_spline
+import numpy as np
+from horton import *
 
-cdef extern from "evaluate.h":
-    long index_wrap(long i, long high)
 
-    void eval_spline_cube(cubic_spline.CubicSpline* spline, double* center,
-                          double* output, double* origin, cell.Cell* grid_cell,
-                          long* shape, long* pbc_active)
+__all__ = ['get_cosine_spline', 'get_exp_spline']
 
-    void eval_spline_grid(cubic_spline.CubicSpline* spline, double* center,
-                          double* output, double* points, cell.Cell* cell,
-                          long npoint)
+
+def get_cosine_spline():
+    # Construct a simple spline for the function cos(x)+1 in the range 0,pi
+    rtf = LinearRTransform(0.0, np.pi, 100)
+    x = rtf.get_radii()
+    y = np.cos(x)+1
+    d = -np.sin(x)
+    return CubicSpline(y, d, rtf)
+
+
+def get_exp_spline():
+    rtf = LinearRTransform(0.0, 20.0, 100)
+    x = rtf.get_radii()
+    y = np.exp(-0.2*x)
+    d = -0.2*np.exp(-0.2*x)
+    return CubicSpline(y, d, rtf)

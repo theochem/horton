@@ -109,3 +109,72 @@ void eval_spline_cube(CubicSpline* spline, double* center, double* output,
         }
     }
 }
+
+void eval_spline_grid(CubicSpline* spline, double* center, double* output,
+                      double* points, Cell* cell, long npoint) {
+    double rcut = spline->get_last_x();
+
+    while (npoint > 0) {
+        // Find the ranges for the triple loop
+        long ranges_low[3], ranges_high[3];
+        double cp[3], cp_frac[3];
+
+        for (int i=2; i>=0; i--) {
+            cp[i] = points[i] - center[i];
+        }
+        cell->to_frac(cp, cp_frac);
+#ifdef DEBUG
+        printf("cp_frac [%f,%f,%f]\n", cp_frac[0], cp_frac[1], cp_frac[2]);
+#endif
+
+        for (int i=cell->get_nvec()-1; i>=0; i--) {
+            double steps = rcut/cell->get_rspacing(i);
+            ranges_low[i] = ceil(cp_frac[i] - steps);
+            ranges_high[i] = floor(cp_frac[i] + steps);
+#ifdef DEBUG
+            printf("ranges(%i) [%li,%li] rcut=%f steps=%f spacing=%f\n", i, ranges_low[i], ranges_high[i], rcut, steps, cell->get_rspacing(i));
+#endif
+        }
+        for (int i=cell->get_nvec(); i < 3; i++) {
+            ranges_low[i] = 0;
+            ranges_high[i] = 0;
+        }
+
+        *output = 0.0;
+        // Run the triple loop
+        for (long i0=ranges_low[0]; i0 <= ranges_high[0]; i0++) {
+            for (long i1=ranges_low[1]; i1 <= ranges_high[1]; i1++) {
+                for (long i2=ranges_low[2]; i2 <= ranges_high[2]; i2++) {
+                    // Compute the distance between the point and the image of the center
+                    double frac[3], cart[3];
+                    frac[0] = i0;
+                    frac[1] = i1;
+                    frac[2] = i2;
+                    cell->to_cart(frac, cart);
+                    double x = cart[0] - cp[0];
+                    double y = cart[1] - cp[1];
+                    double z = cart[2] - cp[2];
+                    double d = sqrt(x*x+y*y+z*z);
+
+                    // Evaluate spline if needed
+                    if (d < rcut) {
+                        double s;
+                        spline->eval(&d, &s, 1);
+                        *output += s;
+                    }
+
+                }
+            }
+        }
+
+        // move on
+        points += 3;
+        output++;
+        npoint--;
+    }
+
+#ifdef DEBUG
+    printf("\n");
+#endif
+
+}

@@ -23,6 +23,7 @@
 import numpy as np
 
 from horton import *
+from horton.grid.test.common import *
 
 
 def test_uig_gauss():
@@ -53,23 +54,6 @@ def test_index_wrap():
     assert index_wrap(-5, 10) == 5
     assert index_wrap(5, 10) == 5
     assert index_wrap(15, 10) == 5
-
-
-def get_cosine_spline():
-    # Construct a simple spline for the function cos(x)+1 in the range 0,pi
-    rtf = LinearRTransform(0.0, np.pi, 100)
-    x = rtf.get_radii()
-    y = np.cos(x)+1
-    d = -np.sin(x)
-    return CubicSpline(y, d, rtf)
-
-
-def get_exp_spline():
-    rtf = LinearRTransform(0.0, 20.0, 100)
-    x = rtf.get_radii()
-    y = np.exp(-0.2*x)
-    d = -0.2*np.exp(-0.2*x)
-    return CubicSpline(y, d, rtf)
 
 
 def test_uig_eval_spline_simple1():
