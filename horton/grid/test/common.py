@@ -24,7 +24,7 @@ import numpy as np
 from horton import *
 
 
-__all__ = ['get_cosine_spline', 'get_exp_spline']
+__all__ = ['get_cosine_spline', 'get_exp_spline', 'get_random_cell']
 
 
 def get_cosine_spline():
@@ -42,3 +42,13 @@ def get_exp_spline():
     y = np.exp(-0.2*x)
     d = -0.2*np.exp(-0.2*x)
     return CubicSpline(y, d, rtf)
+
+
+def get_random_cell(a, nvec):
+    if nvec == 0:
+        return Cell(None)
+    while True:
+        rvecs = np.random.uniform(0, a, (nvec,3))
+        cell = Cell(rvecs)
+        if cell.volume > a**3*0.1:
+            return cell
