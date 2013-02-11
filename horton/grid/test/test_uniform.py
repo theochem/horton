@@ -64,6 +64,14 @@ def get_cosine_spline():
     return CubicSpline(y, d, rtf)
 
 
+def get_exp_spline():
+    rtf = LinearRTransform(0.0, 20.0, 100)
+    x = rtf.get_radii()
+    y = np.exp(-0.2*x)
+    d = -0.2*np.exp(-0.2*x)
+    return CubicSpline(y, d, rtf)
+
+
 def test_uig_eval_spline_simple1():
     cs = get_cosine_spline()
     offset = 5.0
@@ -122,3 +130,20 @@ def test_uig_eval_spline_with_integration():
         # test the integral
         expected = 4*np.pi**2*(np.pi**2/3-2)
         assert abs(uig.integrate(data) - expected) < 1e-3
+
+
+def get_simple_test_uig():
+    origin = np.array([0.1, -2.0, 3.1])
+    rvecs = np.array([
+        [1.0, 0.1, 0.2],
+        [0.1, 1.1, 0.2],
+        [0.0, -0.1, 1.0],
+    ])
+    #origin = np.array([0.0, 0.0, 0.0])
+    #rvecs = np.array([
+    #    [1.0, 0.0, 0.0],
+    #    [0.0, 1.0, 0.0],
+    #    [0.0, 0.0, 1.0],
+    #])
+    shape = np.array([40, 40, 40])
+    return UniformIntGrid(origin, Cell(rvecs), shape)

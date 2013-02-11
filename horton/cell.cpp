@@ -32,7 +32,7 @@ void Cell::update(double* _rvecs, double* _gvecs, int _nvec) {
         gvecs[i] = _gvecs[i];
     }
     // compute the spacings
-    for (int i=3; i>=0; i--) {
+    for (int i=2; i>=0; i--) {
         rspacings[i] = 1.0/sqrt(gvecs[3*i]*gvecs[3*i] + gvecs[3*i+1]*gvecs[3*i+1] + gvecs[3*i+2]*gvecs[3*i+2]);
         gspacings[i] = 1.0/sqrt(rvecs[3*i]*rvecs[3*i] + rvecs[3*i+1]*rvecs[3*i+1] + rvecs[3*i+2]*rvecs[3*i+2]);
     }
