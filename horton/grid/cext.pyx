@@ -50,7 +50,7 @@ __all__ = [
     'tridiag_solve', 'tridiagsym_solve', 'CubicSpline',
     'compute_cubic_spline_int_weights',
     # evaluate
-    'index_wrap', 'eval_spline_cube',
+    'index_wrap', 'eval_spline_cube', 'eval_spline_grid',
     # rtransform
     'RTransform', 'IdentityRTransform', 'LinearRTransform', 'ExpRTransform',
     'ShiftedExpRTransform', 'BakerRTransform',
@@ -313,6 +313,21 @@ def eval_spline_cube(CubicSpline spline,
                               grid_cell._this, <long*>shape.data,
                               <long*>pbc_active.data,)
 
+def eval_spline_grid(CubicSpline spline,
+                     np.ndarray[double, ndim=1] center,
+                     np.ndarray[double, ndim=1] output,
+                     np.ndarray[double, ndim=2] points,
+                     horton.cext.Cell cell):
+    assert center.flags['C_CONTIGUOUS']
+    assert center.shape[0] == 3
+    assert output.flags['C_CONTIGUOUS']
+    assert points.flags['C_CONTIGUOUS']
+    assert points.shape[1] == 3
+    assert points.shape[0] == output.shape[0]
+
+    evaluate.eval_spline_grid(spline._this, <double*>center.data,
+                              <double*>output.data, <double*>points.data,
+                              cell._this, output.shape[0])
 
 #
 # rtransform
