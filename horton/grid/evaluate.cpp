@@ -50,8 +50,8 @@ void eval_spline_cube(CubicSpline* spline, double* center, double* output,
     grid_cell->to_frac(oc, oc_frac);
     for (int i=2; i>=0; i--) {
         double steps = rcut/grid_cell->get_rspacing(i);
-        ranges_low[i] = floor(oc_frac[i] - steps);
-        ranges_high[i] = ceil(oc_frac[i] + steps);
+        ranges_low[i] = ceil(oc_frac[i] - steps);
+        ranges_high[i] = floor(oc_frac[i] + steps);
     }
 
 #ifdef DEBUG
@@ -140,7 +140,6 @@ void eval_spline_grid(CubicSpline* spline, double* center, double* output,
             ranges_high[i] = 0;
         }
 
-        *output = 0.0;
         // Run the triple loop
         for (long i0=ranges_low[0]; i0 <= ranges_high[0]; i0++) {
             for (long i1=ranges_low[1]; i1 <= ranges_high[1]; i1++) {

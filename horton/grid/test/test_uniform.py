@@ -26,7 +26,7 @@ from horton import *
 from horton.grid.test.common import *
 
 
-def test_uig_gauss():
+def test_uig_integrate_gauss():
     # grid parameters
     spacing = 0.1
     naxis = 81
@@ -93,7 +93,6 @@ def test_uig_eval_spline_simple2():
     assert abs(data1 - data2).max() < 1e-12
 
 
-
 def test_uig_eval_spline_with_integration():
     cs = get_cosine_spline()
 
@@ -114,6 +113,130 @@ def test_uig_eval_spline_with_integration():
         # test the integral
         expected = 4*np.pi**2*(np.pi**2/3-2)
         assert abs(uig.integrate(data) - expected) < 1e-3
+
+
+def test_uig_eval_spline_3d_random():
+    cs = get_cosine_spline()
+
+    for i in xrange(10):
+        origin = np.random.uniform(-1, 1, 3)
+        grid_cell = get_random_cell(0.3, 3)
+        shape = np.random.randint(10, 20, 3)
+        pbc_active = np.array([1, 1, 1])
+        uig = UniformIntGrid(origin, grid_cell, shape, pbc_active)
+
+        rvecs = grid_cell.rvecs*uig.shape.reshape(-1,1)
+
+        output1 = np.zeros(uig.shape)
+        center1 = np.random.uniform(-3, 3, 3)
+        uig.eval_spline(cs, center1, output1)
+        output2 = np.zeros(uig.shape)
+        center2 = center1 + np.dot(np.random.randint(-3, 3, 3), rvecs)
+        uig.eval_spline(cs, center2, output2)
+
+        assert abs(output1 - output2).max() < 1e-10
+
+
+def test_uig_eval_spline_2d_random():
+    cs = get_cosine_spline()
+
+    for i in xrange(15):
+        origin = np.random.uniform(-1, 1, 3)
+        grid_cell = get_random_cell(0.2, 3)
+        shape = np.random.randint(10, 20, 3)
+        pbc_active = np.array([1, 1, 1])
+        pbc_active[np.random.randint(3)] = 0
+        uig = UniformIntGrid(origin, grid_cell, shape, pbc_active)
+
+        tmp = uig.shape*pbc_active
+        rvecs = grid_cell.rvecs*tmp.reshape(-1,1)
+
+        output1 = np.zeros(uig.shape)
+        center1 = np.random.uniform(0, 1, 3)
+        uig.eval_spline(cs, center1, output1)
+        output2 = np.zeros(uig.shape)
+        center2 = center1 + np.dot(np.random.randint(-3, 3, 3), rvecs)
+        uig.eval_spline(cs, center2, output2)
+
+        assert abs(output1 - output2).max() < 1e-10
+
+
+def test_uig_eval_spline_0d_random():
+    cs = get_cosine_spline()
+
+    for i in xrange(15):
+        origin = np.random.uniform(-1, 1, 3)
+        grid_cell = get_random_cell(0.2, 3)
+        shape = np.random.randint(10, 20, 3)
+        pbc_active = np.array([0, 0, 0])
+        uig = UniformIntGrid(origin, grid_cell, shape, pbc_active)
+
+        center = np.random.uniform(0, 2, 3)
+        output1 = np.zeros(uig.shape)
+        uig.eval_spline(cs, center, output1)
+
+        x, y, z = np.indices(shape)
+        x = x.ravel()
+        y = y.ravel()
+        z = z.ravel()
+        rvecs = grid_cell.rvecs
+        points = np.outer(x, rvecs[0]) + np.outer(y, rvecs[1]) + np.outer(z, rvecs[2])
+        points += origin
+        distances = np.zeros(len(points))
+        grid_distances(points, center, distances)
+        output2 = cs(distances)
+        output2.shape = shape
+
+        assert abs(output1 - output2).max() < 1e-10
+
+
+def test_uig_eval_spline_1d_random():
+    cs = get_cosine_spline()
+
+    for i in xrange(15):
+        origin = np.random.uniform(-1, 1, 3)
+        grid_cell = get_random_cell(0.2, 3)
+        shape = np.random.randint(10, 20, 3)
+        pbc_active = np.array([0, 0, 0])
+        pbc_active[np.random.randint(3)] = 1
+        uig = UniformIntGrid(origin, grid_cell, shape, pbc_active)
+
+        tmp = uig.shape*pbc_active
+        rvecs = grid_cell.rvecs*tmp.reshape(-1,1)
+
+        output1 = np.zeros(uig.shape)
+        center1 = np.random.uniform(0, 1, 3)
+        uig.eval_spline(cs, center1, output1)
+        output2 = np.zeros(uig.shape)
+        center2 = center1 + np.dot(np.random.randint(-3, 3, 3), rvecs)
+        uig.eval_spline(cs, center2, output2)
+
+        assert abs(output1 - output2).max() < 1e-10
+
+
+def test_uig_eval_spline_add_random():
+    cs = get_cosine_spline()
+
+    for i in xrange(20):
+        origin = np.random.uniform(-1, 1, 3)
+        grid_cell = get_random_cell(0.2, 3)
+        shape = np.random.randint(10, 20, 3)
+        pbc_active = np.random.randint(0, 2, 3).astype(int)
+        uig = UniformIntGrid(origin, grid_cell, shape, pbc_active)
+
+        output1 = np.zeros(uig.shape)
+        center1 = np.random.uniform(0, 1, 3)
+        uig.eval_spline(cs, center1, output1)
+
+        output2 = np.zeros(uig.shape)
+        center2 = np.random.uniform(0, 1, 3)
+        uig.eval_spline(cs, center2, output2)
+
+        output3 = np.zeros(uig.shape)
+        uig.eval_spline(cs, center1, output3)
+        uig.eval_spline(cs, center2, output3)
+
+        assert abs(output1 + output2 - output3).max() < 1e-10
 
 
 def get_simple_test_uig():
