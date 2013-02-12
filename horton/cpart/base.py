@@ -20,6 +20,8 @@
 #--
 
 
+import numpy as np
+
 from horton.cache import JustOnceClass, just_once, Cache
 from horton.log import log, timer
 
@@ -96,18 +98,23 @@ class CPart(JustOnceClass):
         # and recomputation of the atomic weights is a waste of time
         self._init_at_weights()
 
+    def _compute_rel_populations(self):
+        '''Compute the atomic populations of the relative density'''
+        result = np.zeros(self._system.natom)
+        rel_mol_dens = self._cache.load('rel_mol_dens')
+        for i in xrange(self._system.natom):
+            at_weights = self._cache.load('at_weights', i)
+            result[i] = self._ui_grid.integrate(at_weights, rel_mol_dens)
+        return result
+
     @just_once
     def do_populations(self):
         if log.do_medium:
             log('Computing atomic populations.')
         populations, new = self._cache.load('populations', alloc=self.system.natom)
-        ref_populations = self._cache.load('ref_populations')
         if new:
-            for i in xrange(self._system.natom):
-                at_weights = self._cache.load('at_weights', i)
-                dens = self._cache.load('rel_mol_dens')
-                populations[i] = self._ui_grid.integrate(at_weights, dens)
-        populations += ref_populations
+            ref_populations = self._cache.load('ref_populations')
+            populations[:] = self._compute_rel_populations() + ref_populations
 
     @just_once
     def do_charges(self):

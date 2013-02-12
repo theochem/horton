@@ -122,7 +122,7 @@ class CacheItem(object):
         else:
             # assume a floating point array
             if not (isinstance(self._value, np.ndarray) and
-                    self._value.shape == alloc and
+                    self._value.shape == tuple(alloc) and
                     issubclass(self._value.dtype.type, float)):
                 raise TypeError('The stored item does not match the given alloc.')
 
