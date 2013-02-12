@@ -92,9 +92,9 @@ class BeckeMolGrid(IntGrid):
         self._k = k
 
         # allocate memory for the grid
-        log.mem.announce(size*(4+keep_subgrids)*8)
         points = np.zeros((size, 3), float)
         weights = np.zeros(size, float)
+        log.mem.announce(points.nbytes + weights.nbytes)
 
         # construct the atomic grids
         if keep_subgrids > 0:
@@ -124,7 +124,7 @@ class BeckeMolGrid(IntGrid):
 
     def __del__(self):
         if log is not None:
-            log.mem.denounce(self.size*(4+self._keep_subgrids)*8)
+            log.mem.denounce(self.points.nbytes + self.weights.nbytes)
 
     def _get_system(self):
         '''The system object for which this grid is made.'''
