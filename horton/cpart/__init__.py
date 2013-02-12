@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Horton is a Density Functional Theory program.
-# Copyright (C) 2011-2013 Toon Verstraelen <Toon.Verstraelen@UGent.be>
+# Copyright (C) 2011-2012 Toon Verstraelen <Toon.Verstraelen@UGent.be>
 #
 # This file is part of Horton.
 #
@@ -20,26 +20,5 @@
 #--
 
 
-__version__ = '0.0'
-
-
-from horton.cache import *
-from horton.cext import *
-from horton.checkpoint import *
-from horton.constants import *
-from horton.context import *
-from horton.cpart import *
-from horton.dpart import *
-from horton.exceptions import *
-from horton.gbasis import *
-from horton.grid import *
-from horton.guess import *
-from horton.hamiltonian import *
-from horton.io import *
-from horton.log import *
-from horton.matrix import *
-from horton.periodic import *
-from horton.scf import *
-from horton.system import *
-from horton.units import *
-from horton.wfn import *
+from horton.cpart.base import *
+from horton.cpart.hirshfeld import *
