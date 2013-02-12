@@ -79,6 +79,7 @@ setup(
     scripts=glob("scripts/*.py"),
     package_dir = {'horton': 'horton'},
     packages=['horton', 'horton.test',
+              'horton.cpart', 'horton.cpart.test',
               'horton.dpart', 'horton.dpart.test',
               'horton.grid', 'horton.grid.test',
               'horton.io', 'horton.io.test',
