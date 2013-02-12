@@ -240,14 +240,14 @@ class DenseExpansion(LinalgObject):
         """
         if nfn is None:
             nfn = nbasis
-        log.mem.announce((nbasis+2)*nfn*8)
         self._coeffs = np.zeros((nbasis, nfn), float)
         self._energies = np.zeros(nfn, float)
         self._occupations = np.zeros(nfn, float)
+        log.mem.announce(self._coeffs.nbytes + self._energies.nbytes + self._occupations.nbytes)
 
     def __del__(self):
         if log is not None:
-            log.mem.denounce((self.nbasis+2)*self.nfn*8)
+            log.mem.denounce(self._coeffs.nbytes + self._energies.nbytes + self._occupations.nbytes)
 
     def read_from_hdf5(self, grp):
         if grp.attrs['class'] != self.__class__.__name__:
@@ -412,12 +412,12 @@ class DenseOneBody(OneBody):
            nbasis
                 The number of basis functions.
         """
-        log.mem.announce(nbasis**2*8)
         self._array = np.zeros((nbasis, nbasis), float)
+        log.mem.announce(self._array.nbytes)
 
     def __del__(self):
         if log is not None:
-            log.mem.denounce(self.nbasis**2*8)
+            log.mem.denounce(self._array.nbytes)
 
     @classmethod
     def from_hdf5(cls, grp, lf):
@@ -518,12 +518,12 @@ class DenseTwoBody(LinalgObject):
            nbasis
                 The number of basis functions.
         """
-        log.mem.announce(nbasis**4*8)
         self._array = np.zeros((nbasis, nbasis, nbasis, nbasis), float)
+        log.mem.announce(self._array.nbytes)
 
     def __del__(self):
         if log is not None:
-            log.mem.denounce(self.nbasis**4*8)
+            log.mem.denounce(self._array.nbytes)
 
     @classmethod
     def from_hdf5(cls, grp, lf):

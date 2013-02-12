@@ -94,13 +94,14 @@ class CacheItem(object):
                 raise TypeError('Not supported: %s.' % alloc[1])
         else:
             # initialize a floating point array
-            log.mem.announce(np.product(alloc)*8)
-            return cls(np.zeros(alloc, float), own=True)
+            array = np.zeros(alloc, float)
+            log.mem.announce(array.nbytes)
+            return cls(array, own=True)
 
     def __del__(self):
         if self._own and log is not None:
             assert isinstance(self._value, np.ndarray)
-            log.mem.denounce(self._value.size*8)
+            log.mem.denounce(self._value.nbytes)
 
     def check_alloc(self, alloc):
         from horton.matrix import LinalgFactory
@@ -235,12 +236,32 @@ class Cache(object):
         else:
             return item.valid
 
-    def dump(self, *args):
+    def dump(self, *args, **kwargs):
+        '''Store an object in the cache.
+
+           **Arguments:**
+
+           key1 [, key2, ...]
+                The positional arguments (except for the last) are used as a key
+                for the object.
+
+           value
+                The object to be stored.
+
+           **Optional argument:**
+
+           own
+                When set to True, the cache will take care of denouncing the
+                memory usage due to this array.
+        '''
+        own = kwargs.pop('own', False)
+        if len(kwargs) > 0:
+            raise TypeError('Unknown optional arguments: %s' % kwargs.keys())
         if len(args) < 2:
             raise TypeError('At least two arguments are required: key1 and value.')
         key = args[:-1]
         value = args[-1]
-        item = CacheItem(value)
+        item = CacheItem(value, own)
         self._store[key] = item
 
     def discard(self, *key):
