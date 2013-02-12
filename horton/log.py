@@ -164,6 +164,12 @@ class ScreenLog(object):
         self._biblio.cite(key, reason)
 
     def print_header(self):
+        # Suppress any logging as soon as an exception is not caught.
+        def excepthook_wrapper(type, value, traceback):
+            self.set_level(self.silent)
+            sys.__excepthook__(type, value, traceback)
+        sys.excepthook = excepthook_wrapper
+
         if self.do_warning and not self._active:
             self._active = True
             print >> self._file, self.head_banner
