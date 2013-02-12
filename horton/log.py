@@ -409,7 +409,7 @@ class MemoryLogger(object):
     def announce(self, amount):
         unit = float(1024*1024)
         if self.log.do_high:
-            self.log('Will allocate: %.1f MB. Current: %.1f MB. RSS: %.1f MB' %(
+            self.log('Allocated:    %.1f MB. Current: %.1f MB. RSS: %.1f MB' %(
                 amount/unit, self._big/unit, self.get_rss()/unit
             ))
             self._big += amount
@@ -420,7 +420,7 @@ class MemoryLogger(object):
     def denounce(self, amount):
         unit = float(1024*1024)
         if self.log.do_high:
-            self.log('Will release:  %.1f MB. Current: %.1f MB. RSS: %.1f MB' %(
+            self.log('Deallocated:  %.1f MB. Current: %.1f MB. RSS: %.1f MB' %(
                 amount/unit, self._big/unit, self.get_rss()/unit
             ))
             self._big -= amount
