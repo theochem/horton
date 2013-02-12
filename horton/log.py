@@ -133,7 +133,7 @@ class ScreenLog(object):
         self(text)
 
     def hline(self, char='~'):
-        print >> self._file, char*self.width
+        self(char*self.width)
 
     def center(self, *words, **kwargs):
         if len(kwargs) == 0:

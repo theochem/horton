@@ -23,11 +23,11 @@
 import numpy as np
 
 from horton.cpart.base import CPart
-from horton.cache import just_once
+from horton.cache import just_once, Cache
 from horton.log import log
 
 
-__all__ = ['HirshfeldCPart']
+__all__ = ['HirshfeldCPart', 'HirshfeldICPart']
 
 
 class HirshfeldCPart(CPart):
@@ -55,37 +55,110 @@ class HirshfeldCPart(CPart):
 
     proatomdb = property(_get_proatomdb)
 
+    def _compute_pro_atom(self, i):
+        if log.do_medium:
+            log('Computing pro-atom %i (%i)' % (i, self._system.natom))
+        # Pro-atoms are (temporarily) stored in at_weights for efficiency.
+        pro_atom, new = self._cache.load('at_weights', i, alloc=self._ui_grid.shape)
+        # Construct the pro-atom
+        assert new
+        number = self._system.numbers[i]
+        center = self._system.coordinates[i]
+        spline = self._proatomdb.get_hirshfeld_proatom_fn(number)
+        self._ui_grid.eval_spline(spline, center, pro_atom)
+        pro_atom += 1e-100 # avoid division by zero
+
+    def _compute_pro_molecule(self):
+        # The pro-molecule is (temporarily) stored in rel_mol_dens for efficiency.
+        pro_molecule, new = self._cache.load('rel_mol_dens', alloc=self._ui_grid.shape)
+        if not new:
+            pro_molecule[:] = 0
+        for i in xrange(self._system.natom):
+            pro_atom = self._cache.load('at_weights', i)
+            pro_molecule += pro_atom
+
+    def _compute_at_weights(self):
+        pro_molecule = self._cache.load('rel_mol_dens')
+        for i in xrange(self._system.natom):
+            pro_atom = self._cache.load('at_weights', i)
+            pro_atom /= pro_molecule
+
+    def _compute_rel_dens(self):
+        rel_mol_dens = self._cache.load('rel_mol_dens')
+        rel_mol_dens *= -1
+        rel_mol_dens += self._cache.load('mol_dens')
+
     @just_once
     def _init_at_weights(self):
         # A) Compute all the pro-atomic densities.
-        pro_atoms = []
         for i in xrange(self._system.natom):
-            if log.do_medium:
-                log('Computing pro-atom %i (%i)' % (i, self._system.natom))
-            pro_atom = np.zeros(self._ui_grid.shape)
-            log.mem.announce(pro_atom.nbytes)
-            spline = self._proatomdb.get_hirshfeld_proatom_fn(self._system.numbers[i])
-            center = self._system.coordinates[i]
-            self._ui_grid.eval_spline(spline, center, pro_atom)
-            pro_atom += 1e-100 # to avoid division by zero
-            pro_atoms.append(pro_atom)
-            del pro_atom
-
-        # Compute the pro-molecule.
-        pro_molecule = np.zeros(self._ui_grid.shape)
-        log.mem.announce(pro_molecule.nbytes)
-        for i in xrange(self._system.natom):
-            pro_molecule += pro_atoms[i]
-
-        # Construct the atomic weights
-        for i in xrange(self._system.natom):
-            pro_atoms[i] /= pro_molecule
-            self._cache.dump('at_weights', i, pro_atoms[i], own=True)
-
-        # Construct the relative molecular density
-        pro_molecule *= -1
-        pro_molecule += self._cache.load('mol_dens')
-        self._cache.dump('rel_mol_dens', pro_molecule, own=True)
-
+            self._compute_pro_atom(i)
+        self._compute_pro_molecule()
+        self._compute_at_weights()
+        self._compute_rel_dens()
         # Store reference populations
         self._cache.dump('ref_populations', self._system.numbers.astype(float))
+
+
+class HirshfeldICPart(HirshfeldCPart):
+    def _get_isolated_atom(self, i, pop):
+        # A local cache is used that only exists during _init_at_weights:
+        isolated_atom, new = self._local_cache.load('isolated_atom', i, pop, alloc=self._ui_grid.shape)
+        if new:
+            number = self._system.numbers[i]
+            center = self._system.coordinates[i]
+            spline = self._proatomdb.get_hirshfeld_i_proatom_fn(number, pop)
+            if log.do_medium:
+                log('Computing isolated atom %i (n=%i, pop=%i)' % (i, number, pop))
+            self._ui_grid.eval_spline(spline, center, isolated_atom)
+        return isolated_atom
+
+    def _compute_pro_atom(self, i, pop):
+        # Pro-atoms are (temporarily) stored in at_weights for efficiency.
+        pro_atom, new = self._cache.load('at_weights', i, alloc=self._ui_grid.shape)
+        # Construct the pro-atom
+        ipop = int(np.floor(pop))
+        pro_atom[:] = self._get_isolated_atom(i, ipop)
+        if float(ipop) != pop:
+            x = pop - ipop
+            pro_atom *= 1-x
+            tmp = self._local_cache.load('tmp', alloc=self._ui_grid.shape)[0]
+            tmp[:] = self._get_isolated_atom(i, ipop+1)
+            tmp *= x
+            pro_atom += tmp
+        pro_atom += 1e-100 # avoid division by zero
+        return pro_atom
+
+    @just_once
+    def _init_at_weights(self):
+        self._local_cache = Cache()
+
+        ref_populations = self._system.numbers.astype(float)
+        if log.medium:
+            log.hline()
+            log('Iteration       Change')
+            log.hline()
+        counter = 0
+        while True:
+            # Construct pro-atoms
+            for i in xrange(self._system.natom):
+                self._compute_pro_atom(i, ref_populations[i])
+            self._compute_pro_molecule()
+            self._compute_at_weights()
+            self._compute_rel_dens()
+            new_populations = self._compute_rel_populations() + ref_populations
+            change = abs(new_populations - ref_populations).max()
+            if log.medium:
+                log('%9i   %10.5e' % (counter, change))
+            if change < 1e-4:
+                break
+
+            ref_populations = new_populations
+            counter += 1
+
+        if log.medium:
+            log.hline()
+
+        self._cache.dump('populations', new_populations)
+        self._cache.dump('ref_populations', ref_populations)
+        del self._local_cache
