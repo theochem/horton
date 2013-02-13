@@ -55,7 +55,6 @@ def test_cpart_hirshfeld_fake():
     hicpart = HirshfeldCPart(sys, ui_grid, mol_dens, proatomdb)
     hicpart.do_charges()
     charges = hicpart['charges']
-    print charges.sum()
     assert charges.sum() < 1e-3
     assert abs(charges[0] - 0.112) < 1e-3
 
@@ -111,6 +110,5 @@ def test_ccpart_hirshfeld_e_fake():
     hicpart = HirshfeldECCPart(sys, ui_grid, mol_dens, proatomdb)
     hicpart.do_charges()
     charges = hicpart['charges']
-    print charges, charges.sum()
     assert charges.sum() < 1e-3
-    assert abs(charges[0] - 0.393) < 1e-3
+    assert abs(charges[0] - 0.399) < 1e-3
