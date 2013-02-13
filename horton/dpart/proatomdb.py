@@ -350,38 +350,60 @@ class ProAtomDB(object):
         if do_close:
             f.close()
 
-    def get_hirshfeld_proatom_fn(self, number):
-        return CubicSpline(self._records[(number,number)], rtf=self._rtransform)
+    def get_spline(self, number, parameters=None, combine='linear'):
+        '''Construct a spline that can be used as pro-atom.
 
-    def get_hirshfeld_i_proatom_fn(self, number, pop):
-        # In case of luck:
-        ipop = int(pop)
-        if pop == ipop:
-            return CubicSpline(self._records[(number, ipop)], rtf=self._rtransform)
+           **Arguments:**
+
+           number
+                The element
+
+           **Optional arguments:**
+
+           parameters
+                This argument may take several forms:
+
+                * None: neutral pro-atom
+
+                * Integer: charged pro-atom
+
+                * Dictionary: a linear or geometric combination of different
+                  charged pro-atoms. The keys are the populations and the values
+                  are the coefficients.
+
+           combine
+                In case parameters is an array, this determines the type of
+                combination: 'linear' or 'geometric'.
+        '''
+        if parameters is None:
+            return CubicSpline(self._records[(number,number)], rtf=self._rtransform)
+        elif isinstance(parameters, int):
+            pop = parameters
+            return CubicSpline(self._records[(number,pop)], rtf=self._rtransform)
+        elif isinstance(parameters, dict):
+            record = 0.0
+            if combine == 'linear':
+                for pop, coeff in parameters.iteritems():
+                    if coeff != 0.0 and pop > 0:
+                        record += coeff*self._records[(number,pop)]
+                return CubicSpline(record, rtf=self._rtransform)
+            elif combine == 'geometric':
+                for pop, coeff in parameters.iteritems():
+                    if coeff != 0.0 and pop > 0:
+                        record += coeff*np.log(self._records[(number,pop)])
+                record = np.exp(record)
+            else:
+                raise ValueError('Combine argument "%s" not supported.' % combine)
+            if not isinstance(record, np.ndarray):
+                raise ValueError('At least some coefficients must be non-zero.')
+            return CubicSpline(record, rtf=self._rtransform)
         else:
-            del ipop
+            raise TypeError('Could not interpret parameters argument')
 
-        # General case with interpolation between two integer pro-atoms.
-        cpop = int(np.ceil(pop))
-        fpop = int(np.floor(pop))
-        if fpop == 0:
-            try:
-                yc = self._records[(number,cpop)]
-            except KeyError:
-                raise RuntimeError('No suitable proatoms found for interpolation.')
-            y = pop*yc
-        else:
-            try:
-                yc = self._records[(number,cpop)]
-                yf = self._records[(number,fpop)]
-            except KeyError:
-                raise RuntimeError('No suitable proatoms found for interpolation.')
-            y = yf*(cpop-pop) + yc*(pop-fpop)
-        return CubicSpline(y, rtf=self._rtransform)
-
-    def get_pop_range(self, number):
-        pops = [p for n, p in self._records if n == number]
-        return min(pops), max(pops)+1
+    def get_pops(self, number):
+        result = [p for n, p in self._records if n == number]
+        result.sort()
+        return result
 
     def compute_radii(self, number, populations, pop=None):
         '''Compute approximate radii at which the atom contains the given populations

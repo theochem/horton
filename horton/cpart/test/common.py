@@ -59,7 +59,7 @@ def get_fake_co():
         n = sys.numbers[i]
         c = sys.coordinates[i]
         # TODO: can be made more efficient by scaling the spline function
-        spline = proatomdb.get_hirshfeld_i_proatom_fn(n, pop)
+        spline = proatomdb.get_spline(n, pop)
         tmp[:] = 0.0
         ui_grid.eval_spline(spline, c, tmp)
         tmp *= frac
