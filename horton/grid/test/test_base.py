@@ -22,7 +22,9 @@
 
 import numpy as np
 from horton import *
-from horton.grid.test.common import get_cosine_spline, get_random_cell
+from horton.grid.test.common import get_cosine_spline
+from horton.test.common import get_random_cell
+
 
 def test_grid_integrate():
     npoint = 10

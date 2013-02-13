@@ -48,6 +48,9 @@ class Cell {
         void copy_gvecs(double* _gvecs);
         void copy_rspacings(double* _rspacings);
         void copy_gspacings(double* _gspacings);
+
+        void set_ranges_rcut(double* origin, double* center, double rcut,
+                             long* ranges_begin, long* ranges_end);
 };
 
 

@@ -168,3 +168,19 @@ void Cell::copy_rspacings(double* _rspacings) {
 void Cell::copy_gspacings(double* _gspacings) {
     for (int i=nvec-1; i>=0; i--) _gspacings[i] = gspacings[i];
 }
+
+void Cell::set_ranges_rcut(double* origin, double* center, double rcut,
+                           long* ranges_begin, long* ranges_end) {
+    double delta[3];
+    delta[0] = center[0] - origin[0];
+    delta[1] = center[1] - origin[1];
+    delta[2] = center[2] - origin[2];
+    double frac[3];
+    to_frac(delta, frac);
+
+    for (int i=nvec-1; i>=0; i--) {
+        double step = rcut/rspacings[i];
+        ranges_begin[i] = ceil(frac[i]-step);
+        ranges_end[i] = ceil(frac[i]+step);
+    }
+}

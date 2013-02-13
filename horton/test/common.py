@@ -21,9 +21,12 @@
 
 
 import numpy as np
+from horton import Cell
 
 
-# All, except underflows, is fine.
+__all__ = ['check_delta', 'get_random_cell']
+
+# All, except underflows, is *not* fine.
 np.seterr(divide='raise', over='raise', invalid='raise')
 
 
@@ -94,3 +97,13 @@ def check_delta(fun, fun_deriv, x, dxs):
             ' '.join('%.1e' % v for v in dn2s[mask]),
             ' '.join('%.1e' % v for v in dnds[mask])
         ))
+
+
+def get_random_cell(a, nvec):
+    if nvec == 0:
+        return Cell(None)
+    while True:
+        rvecs = np.random.uniform(0, a, (nvec,3))
+        cell = Cell(rvecs)
+        if cell.volume > a**nvec*0.1:
+            return cell

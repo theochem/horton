@@ -23,6 +23,8 @@
 import numpy as np
 from horton import *
 
+from horton.test.common import get_random_cell
+
 
 def check_frac_cart(cell):
     cart1 = np.random.uniform(-20, 20, 3)
@@ -178,3 +180,98 @@ def test_cell_0d():
 
     # Test methods (2)
     check_frac_cart(cell)
+
+
+def setup_ranges_rcut(nvec):
+    a = 10**np.random.uniform(-1, 1)
+    cell = get_random_cell(a, nvec)
+
+    origin = np.random.uniform(-3*a, 3*a, 3)
+    center = np.random.uniform(-3*a, 3*a, 3)
+    rcut = np.random.uniform(0.2*a, 5*a)
+
+    ranges_begin, ranges_end = cell.get_ranges_rcut(origin, center, rcut)
+    ranges_low = ranges_begin-2
+    ranges_high = ranges_end+2
+
+    return cell, origin, center, rcut, ranges_begin, ranges_end, ranges_low, ranges_high
+
+
+def test_ranges_rcut_3d():
+    counter = 0
+    while True:
+        cell, origin, center, rcut, ranges_begin, ranges_end, ranges_low, ranges_high = setup_ranges_rcut(3)
+        npoint = np.product(ranges_high-ranges_low)
+        if npoint > 10000:
+            continue
+
+        # test if distances to points outside the ranges are always outside rcut
+        rvecs = cell.rvecs
+        for i0 in xrange(ranges_low[0], ranges_high[0]):
+            for i1 in xrange(ranges_low[1], ranges_high[1]):
+                for i2 in xrange(ranges_low[2], ranges_high[2]):
+                    if (i0 >= ranges_begin[0] and i0 < ranges_end[0] and
+                        i1 >= ranges_begin[1] and i1 < ranges_end[1] and
+                        i2 >= ranges_begin[2] and i2 < ranges_end[2]):
+                        continue
+                    tmp = origin.copy()
+                    cell.add_vec(tmp, np.array([i0, i1, i2]))
+                    assert np.linalg.norm(tmp - center) > rcut
+
+        counter += 1
+        if counter >= 20:
+            break
+
+
+def test_ranges_rcut_2d():
+    counter = 0
+    while True:
+        cell, origin, center, rcut, ranges_begin, ranges_end, ranges_low, ranges_high = setup_ranges_rcut(2)
+
+        # test if distances to points outside the ranges are always outside rcut
+        rvecs = cell.rvecs
+        for i0 in xrange(ranges_low[0], ranges_high[0]):
+            for i1 in xrange(ranges_low[1], ranges_high[1]):
+                if (i0 >= ranges_begin[0] and i0 < ranges_end[0] and
+                    i1 >= ranges_begin[1] and i1 < ranges_end[1]):
+                    continue
+                tmp = origin.copy()
+                cell.add_vec(tmp, np.array([i0, i1]))
+                assert np.linalg.norm(tmp - center) > rcut
+
+        counter += 1
+        if counter >= 50:
+            break
+
+
+def test_ranges_rcut_1d():
+    counter = 0
+    while True:
+        cell, origin, center, rcut, ranges_begin, ranges_end, ranges_low, ranges_high = setup_ranges_rcut(1)
+
+        # test if distances to points outside the ranges are always outside rcut
+        rvecs = cell.rvecs
+        for i0 in xrange(ranges_low[0], ranges_high[0]):
+            if i0 >= ranges_begin[0] and i0 < ranges_end[0]:
+                continue
+            tmp = origin.copy()
+            cell.add_vec(tmp, np.array([i0]))
+            assert np.linalg.norm(tmp - center) > rcut
+
+        counter += 1
+        if counter >= 200:
+            break
+
+
+def test_ranges_rcut_0d():
+    cell = Cell(None)
+    a = 0.25
+    origin = np.random.uniform(-3*a, 3*a, 3)
+    center = np.random.uniform(-3*a, 3*a, 3)
+    rcut = np.random.uniform(0.2*a, 5*a)
+
+    ranges_begin, ranges_end = cell.get_ranges_rcut(origin, center, rcut)
+    assert ranges_begin.size == 0
+    assert ranges_begin.shape == (0,)
+    assert ranges_end.size == 0
+    assert ranges_end.shape == (0,)
