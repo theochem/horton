@@ -70,7 +70,7 @@ class HirshfeldCPart(CPart):
         assert new
         number = self._system.numbers[i]
         center = self._system.coordinates[i]
-        spline = self._proatomdb.get_hirshfeld_proatom_fn(number)
+        spline = self._proatomdb.get_spline(number)
         self._ui_grid.eval_spline(spline, center, pro_atom)
         pro_atom += 1e-100 # avoid division by zero
 
@@ -113,7 +113,7 @@ class HirshfeldICPart(HirshfeldCPart):
         if new:
             number = self._system.numbers[i]
             center = self._system.coordinates[i]
-            spline = self._proatomdb.get_hirshfeld_i_proatom_fn(number, pop)
+            spline = self._proatomdb.get_spline(number, pop)
             if log.do_medium:
                 log('Computing isolated atom %i (n=%i, pop=%i)' % (i, number, pop))
             self._ui_grid.eval_spline(spline, center, isolated_atom)
@@ -182,8 +182,7 @@ def positive_solve(A, B, constraint_pars=None):
         f_eqcons = None
         fprime_eqcons = None
     else:
-        pop, pop_begin, pop_end = constraint_pars
-        pops = np.arange(pop_begin, pop_end)
+        pop, pops = constraint_pars
 
         def f_eqcons(x):
             return np.array([np.dot(x, pops) - pop])
@@ -215,21 +214,21 @@ class HirshfeldECPart(HirshfeldICPart):
             rho_aim *= self._cache.load('mol_dens')
 
             # 2) setup equations
-            pop_begin, pop_end = self._proatomdb.get_pop_range(number)
-            neq = pop_end - pop_begin
+            pops = self._proatomdb.get_pops(number)
+            neq = len(pops)
             B = np.zeros(neq, float)
             for j0 in xrange(neq):
-                pop0 = pop_begin + j0
+                pop0 = pops[j0]
                 rho0_pop0 = self._get_isolated_atom(i, pop0)
                 B[j0] = self._ui_grid.integrate(rho_aim, rho0_pop0)
 
             A, new = self._local_cache.load('fit_A', i, alloc=(neq, neq))
             if new:
                 for j0 in xrange(neq):
-                    pop0 = pop_begin + j0
+                    pop0 = pops[j0]
                     rho0_pop0 = self._get_isolated_atom(i, pop0)
                     for j1 in xrange(j0+1):
-                        pop1 = pop_begin + j1
+                        pop1 = pops[j1]
                         rho0_pop1 = self._get_isolated_atom(i, pop1)
                         A[j0,j1] = self._ui_grid.integrate(rho0_pop0, rho0_pop1)
                         A[j1,j0] = A[j0,j1]
@@ -243,7 +242,7 @@ class HirshfeldECPart(HirshfeldICPart):
             pro_atom[:] = 0
             ref_population = 0
             for j0 in xrange(neq):
-                pop0 = pop_begin + j0
+                pop0 = pops[j0]
                 tmp[:] = self._get_isolated_atom(i, pop0)
                 tmp *= c[j0]
                 pro_atom += tmp
@@ -321,7 +320,7 @@ class HirshfeldCCPart(CCPart):
                 funcs.append((
                     self._system.coordinates[i],
                     1.0, # TODO determine radii in clever way or write new correction algo
-                    [(('isolated_atom', i, n), self._proatomdb.get_hirshfeld_proatom_fn(n), float(n))],
+                    [(('isolated_atom', i, n), self._proatomdb.get_spline(n), float(n))],
                 ))
             self._ui_grid.compute_weight_corrections(funcs, cache=self._cache)
         else:
@@ -329,12 +328,12 @@ class HirshfeldCCPart(CCPart):
             funcs = []
             for i in xrange(self._system.natom):
                 n = self._system.numbers[i]
-                pop_begin, pop_end = self._proatomdb.get_pop_range(n)
-                for pop in xrange(pop_begin, pop_end):
+                pops = self._proatomdb.get_pops(n)
+                for pop in pops:
                     funcs.append((
                         self._system.coordinates[i],
                         ('isolated_atom', i, pop),
-                        self._proatomdb.get_hirshfeld_i_proatom_fn(n, pop),
+                        self._proatomdb.get_spline(n, pop),
                         float(n),
                     ))
             self._ui_grid.compute_weight_corrections_brute(funcs, cache=self._cache)
@@ -377,7 +376,7 @@ class HirshfeldICCPart(HirshfeldCCPart):
         if new:
             number = self._system.numbers[i]
             center = self._system.coordinates[i]
-            spline = self._proatomdb.get_hirshfeld_i_proatom_fn(number, pop)
+            spline = self._proatomdb.get_spline(number, pop)
             if log.do_medium:
                 log('Computing isolated atom %i (n=%i, pop=%i)' % (i, number, pop))
             self._ui_grid.eval_spline(spline, center, isolated_atom)
@@ -477,28 +476,28 @@ class HirshfeldECCPart(HirshfeldICCPart):
             rho_aim *= self._cache.load('mol_dens')
 
             # 2) setup equations
-            pop_begin, pop_end = self._proatomdb.get_pop_range(number)
-            neq = pop_end - pop_begin
+            pops = np.array(self._proatomdb.get_pops(number))
+            neq = len(pops)
             B = np.zeros(neq, float)
             for j0 in xrange(neq):
-                pop0 = pop_begin + j0
+                pop0 = pops[j0]
                 rho0_pop0 = self._get_isolated_atom(i, pop0)
                 B[j0] = self._ui_grid.integrate(rho_aim, rho0_pop0, wcor)
 
             A, new = self._local_cache.load('fit_A', i, alloc=(neq, neq))
             if new:
                 for j0 in xrange(neq):
-                    pop0 = pop_begin + j0
+                    pop0 = pops[j0]
                     rho0_pop0 = self._get_isolated_atom(i, pop0)
                     for j1 in xrange(j0+1):
-                        pop1 = pop_begin + j1
+                        pop1 = pops[j1]
                         rho0_pop1 = self._get_isolated_atom(i, pop1)
                         A[j0,j1] = self._ui_grid.integrate(rho0_pop0, rho0_pop1, wcor)
                         A[j1,j0] = A[j0,j1]
 
             # 3) find positive solution
             constraint_pars = None
-            #constraint_pars = (pop, pop_begin, pop_end)
+            #constraint_pars = (pop, pops)
             c = positive_solve(A, B, constraint_pars)
 
             # 4) construct the pro-atom
@@ -506,7 +505,7 @@ class HirshfeldECCPart(HirshfeldICCPart):
             del rho_aim
             pro_atom[:] = 0
             for j0 in xrange(neq):
-                pop0 = pop_begin + j0
+                pop0 = pop0 = pops[j0]
                 tmp[:] = self._get_isolated_atom(i, pop0)
                 tmp *= c[j0]
                 pro_atom += tmp

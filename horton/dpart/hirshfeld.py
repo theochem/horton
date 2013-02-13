@@ -88,7 +88,7 @@ class HirshfeldDPart(DPart):
             proatom_fn = self.cache.load('proatom_fn', i, default=None)
             if proatom_fn is None:
                 n = self.system.numbers[i]
-                proatom_fn = self._proatomdb.get_hirshfeld_proatom_fn(n)
+                proatom_fn = self._proatomdb.get_spline(n)
                 self.cache.dump('proatom_fn', i, proatom_fn)
 
         for i0, grid in self.iter_grids():
@@ -151,7 +151,8 @@ class HirshfeldIDPart(HirshfeldDPart):
                 old_proatom_fn = self.cache.load('proatom_fn', i, default=None)
                 n = self.system.numbers[i]
                 p = populations[i]
-                proatom_fn = self._proatomdb.get_hirshfeld_i_proatom_fn(n, p)
+                ip = int(np.floor(p))
+                proatom_fn = self._proatomdb.get_spline(n, {ip: 1-(p-ip), ip+1: p-ip})
                 self.cache.dump('proatom_fn', i, proatom_fn)
                 if old_proatom_fn is not None:
                     first_iter = False
