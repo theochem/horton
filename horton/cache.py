@@ -268,3 +268,8 @@ class Cache(object):
         '''Genuinly discards a cached item from the store, no sneaky reset.'''
         if key in self._store:
             del self._store[key]
+
+    def rename(self, old, new):
+        '''Change the name of a cached object.'''
+        self._store[new] = self._store[old]
+        del self._store[old]

@@ -48,18 +48,19 @@ def test_hirshfeld_jbw_coarse():
     assert abs(hcpart['charges'].sum() + ui_grid.integrate(hcpart['rel_mol_dens'])) < 1e-10
 
 
-def test_hirshfeld_fake():
+def test_cpart_hirshfeld_fake():
     sys, ui_grid, mol_dens, proatomdb = get_fake_co()
 
     # Run the partitioning
     hicpart = HirshfeldCPart(sys, ui_grid, mol_dens, proatomdb)
     hicpart.do_charges()
     charges = hicpart['charges']
+    print charges.sum()
     assert charges.sum() < 1e-3
-    assert abs(charges[0] - 0.11229602) < 1e-3
+    assert abs(charges[0] - 0.112) < 1e-3
 
 
-def test_hirshfeld_i_fake():
+def test_cpart_hirshfeld_i_fake():
     sys, ui_grid, mol_dens, proatomdb = get_fake_co()
 
     # Run the partitioning
@@ -70,7 +71,7 @@ def test_hirshfeld_i_fake():
     assert abs(charges[0] - 0.433) < 1e-3
 
 
-def test_hirshfeld_e_fake():
+def test_cpart_hirshfeld_e_fake():
     sys, ui_grid, mol_dens, proatomdb = get_fake_co()
 
     # Run the partitioning
@@ -79,3 +80,37 @@ def test_hirshfeld_e_fake():
     charges = hicpart['charges']
     assert charges.sum() < 1e-3
     assert abs(charges[0] - 0.399) < 1e-3
+
+
+def test_ccpart_hirshfeld_fake():
+    sys, ui_grid, mol_dens, proatomdb = get_fake_co()
+
+    # Run the partitioning
+    hicpart = HirshfeldCCPart(sys, ui_grid, mol_dens, proatomdb)
+    hicpart.do_charges()
+    charges = hicpart['charges']
+    assert charges.sum() < 1e-3
+    assert abs(charges[0] - 0.112) < 1e-3
+
+
+def test_ccpart_hirshfeld_i_fake():
+    sys, ui_grid, mol_dens, proatomdb = get_fake_co()
+
+    # Run the partitioning
+    hicpart = HirshfeldICCPart(sys, ui_grid, mol_dens, proatomdb)
+    hicpart.do_charges()
+    charges = hicpart['charges']
+    assert charges.sum() < 1e-3
+    assert abs(charges[0] - 0.431) < 1e-3
+
+
+def test_ccpart_hirshfeld_e_fake():
+    sys, ui_grid, mol_dens, proatomdb = get_fake_co()
+
+    # Run the partitioning
+    hicpart = HirshfeldECCPart(sys, ui_grid, mol_dens, proatomdb)
+    hicpart.do_charges()
+    charges = hicpart['charges']
+    print charges, charges.sum()
+    assert charges.sum() < 1e-3
+    assert abs(charges[0] - 0.393) < 1e-3
