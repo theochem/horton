@@ -4,5 +4,8 @@ rm -vr doc/_build/
 rm -v MANIFEST
 rm -vr dist
 rm -vr build
+rm -v horton/cext.cpp
 rm -v horton/gbasis/cext.cpp
 rm -v horton/grid/cext.cpp
+rm -v horton/hamiltonian/cext.cpp
+
