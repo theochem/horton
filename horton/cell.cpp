@@ -19,6 +19,12 @@
 //--
 
 
+//#define DEBUG
+
+#ifdef DEBUG
+#include <cstdio>
+#endif
+
 #include <cmath>
 #include <stdexcept>
 #include "cell.h"
@@ -169,6 +175,7 @@ void Cell::copy_gspacings(double* _gspacings) {
     for (int i=nvec-1; i>=0; i--) _gspacings[i] = gspacings[i];
 }
 
+
 void Cell::set_ranges_rcut(double* origin, double* center, double rcut,
                            long* ranges_begin, long* ranges_end) {
     double delta[3];
@@ -183,4 +190,94 @@ void Cell::set_ranges_rcut(double* origin, double* center, double rcut,
         ranges_begin[i] = ceil(frac[i]-step);
         ranges_end[i] = ceil(frac[i]+step);
     }
+}
+
+
+long Cell::select_inside(double* origin, double* center, double rcut,
+    long* ranges_begin, long* ranges_end, long* shape, long* pbc_active,
+    long* indexes) {
+
+    if (nvec == 0)
+        throw std::domain_error("The cell must be at least 1D periodic for select_inside.");
+
+    long my_ranges_begin[3];
+    long my_ranges_end[3];
+    long my_pbc_active[3];
+    long my_shape[3];
+
+    for (int i=nvec-1; i>=0; i--) {
+        my_ranges_begin[i] = ranges_begin[i];
+        my_ranges_end[i] = ranges_end[i];
+        my_shape[i] = shape[i];
+        my_pbc_active[i] = pbc_active[i];
+    }
+    for (int i=nvec; i<3; i++) {
+        my_ranges_begin[i] = 0;
+        my_ranges_end[i] = 1;
+        my_shape[i] = 1;
+        my_pbc_active[i] = 0;
+    }
+
+    long nselect = 0;
+
+#ifdef DEBUG
+    printf("my_ranges_begin={%li,%li,%li}\n", my_ranges_begin[0], my_ranges_begin[1], my_ranges_begin[2]);
+    printf("my_ranges_end={%li,%li,%li}\n", my_ranges_end[0], my_ranges_end[1], my_ranges_end[2]);
+    printf("my_shape={%li,%li,%li}\n", my_shape[0], my_shape[1], my_shape[2]);
+    printf("my_pbc_active={%li,%li,%li}\n", my_pbc_active[0], my_pbc_active[1], my_pbc_active[2]);
+#endif
+
+    for (long i0 = my_ranges_begin[0]; i0 < my_ranges_end[0]; i0++) {
+        long j0 = smart_wrap(i0, my_shape[0], my_pbc_active[0]);
+        if (j0 == -1) continue;
+
+        for (long i1 = my_ranges_begin[1]; i1 < my_ranges_end[1]; i1++) {
+            long j1 = smart_wrap(i1, my_shape[1], my_pbc_active[1]);
+            if (j1 == -1) continue;
+
+            for (long i2 = my_ranges_begin[2]; i2 < my_ranges_end[2]; i2++) {
+                long j2 = smart_wrap(i2, my_shape[2], my_pbc_active[2]);
+                if (j2 == -1) continue;
+
+                // Compute the distance between the point and the image of the center
+                double frac[3], cart[3];
+                frac[0] = i0;
+                frac[1] = i1;
+                frac[2] = i2;
+                to_cart(frac, cart);
+                double x = cart[0] + origin[0] - center[0];
+                double y = cart[1] + origin[1] - center[1];
+                double z = cart[2] + origin[2] - center[2];
+                double d = sqrt(x*x+y*y+z*z);
+
+                // if the distance is below rcut add this grid point.
+                if (d < rcut) {
+#ifdef DEBUG
+                    printf("i={%li,%li,%li} j={%li,%li,%li} d=%e rcut=%e\n", i0, i1, i2, j0, j1, j2, d, rcut);
+#endif
+                    indexes[0] = j0;
+                    if (nvec > 1) indexes[1] = j1;
+                    if (nvec > 2) indexes[2] = j2;
+                    indexes += nvec;
+                    nselect++;
+                }
+            }
+        }
+    }
+
+    return nselect;
+}
+
+
+long smart_wrap(long i, long shape, long pbc_active) {
+    if ((i < 0) || (i >= shape)) {
+        if (pbc_active) {
+            long j = i%shape;
+            if (j < 0) j += shape; // just to make sure that this works on all c++ compilers.
+            return j;
+        } else {
+            return -1;
+        }
+    }
+    return i;
 }
