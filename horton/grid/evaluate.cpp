@@ -25,6 +25,7 @@
 #endif
 
 #include <cmath>
+#include <stdexcept>
 #include "evaluate.h"
 
 
@@ -39,20 +40,14 @@ long index_wrap(long i, long high) {
 void eval_spline_cube(CubicSpline* spline, double* center, double* output,
                       double* origin, Cell* grid_cell, long* shape,
                       long* pbc_active) {
+    // the grid_cell must be 3D
+    if (grid_cell->get_nvec() != 3)
+        throw std::domain_error("eval_spline_cube only works for 3D grid cells.");
+
     // Find the ranges for the triple loop
     double rcut = spline->get_last_x();
-    long ranges_low[3], ranges_high[3];
-    double oc[3], oc_frac[3];
-
-    for (int i=2; i>=0; i--) {
-        oc[i] = center[i] - origin[i];
-    }
-    grid_cell->to_frac(oc, oc_frac);
-    for (int i=2; i>=0; i--) {
-        double steps = rcut/grid_cell->get_rspacing(i);
-        ranges_low[i] = ceil(oc_frac[i] - steps);
-        ranges_high[i] = floor(oc_frac[i] + steps);
-    }
+    long ranges_begin[3], ranges_end[3];
+    grid_cell->set_ranges_rcut(origin, center, rcut, ranges_begin, ranges_end);
 
 #ifdef DEBUG
     printf("shape [%li,%li,%li]\n", shape[0], shape[1], shape[2]);
@@ -65,25 +60,25 @@ void eval_spline_cube(CubicSpline* spline, double* center, double* output,
     // Truncate ranges in case of non-periodic boundary conditions
     for (int i=2; i>=0; i--) {
         if (!pbc_active[i]) {
-            if (ranges_low[i] < 0) {
-                ranges_low[i] = 0;
+            if (ranges_begin[i] < 0) {
+                ranges_begin[i] = 0;
             }
-            if (ranges_high[i] >= shape[i]) {
-                ranges_high[i] = shape[i]-1;
+            if (ranges_end[i] > shape[i]) {
+                ranges_end[i] = shape[i];
             }
         }
     }
 
 #ifdef DEBUG
-    printf("ranges [%li,%li,%li] [%li,%li,%li]\n", ranges_low[0], ranges_low[1], ranges_low[2], ranges_high[0], ranges_high[1], ranges_high[2]);
+    printf("ranges [%li,%li,%li] [%li,%li,%li]\n", ranges_begin[0], ranges_begin[1], ranges_begin[2], ranges_end[0], ranges_end[1], ranges_end[2]);
 #endif
 
     // Run triple loop
-    for (long i0=ranges_low[0]; i0 <= ranges_high[0]; i0++) {
+    for (long i0 = ranges_begin[0]; i0 < ranges_end[0]; i0++) {
         long i0_wrap = index_wrap(i0, shape[0]);
-        for (long i1=ranges_low[1]; i1 <= ranges_high[1]; i1++) {
+        for (long i1 = ranges_begin[1]; i1 < ranges_end[1]; i1++) {
             long i1_wrap = index_wrap(i1, shape[1]);
-            for (long i2=ranges_low[2]; i2 <= ranges_high[2]; i2++) {
+            for (long i2 = ranges_begin[2]; i2 < ranges_end[2]; i2++) {
                 long i2_wrap = index_wrap(i2, shape[2]);
 
                 // Compute the distance to the origin
@@ -92,9 +87,9 @@ void eval_spline_cube(CubicSpline* spline, double* center, double* output,
                 frac[1] = i1;
                 frac[2] = i2;
                 grid_cell->to_cart(frac, cart);
-                double x = cart[0] - oc[0];
-                double y = cart[1] - oc[1];
-                double z = cart[2] - oc[2];
+                double x = cart[0] + origin[0] - center[0];
+                double y = cart[1] + origin[1] - center[1];
+                double z = cart[2] + origin[2] - center[2];
                 double d = sqrt(x*x+y*y+z*z);
 
                 // Evaluate spline if needed
@@ -116,43 +111,27 @@ void eval_spline_grid(CubicSpline* spline, double* center, double* output,
 
     while (npoint > 0) {
         // Find the ranges for the triple loop
-        long ranges_low[3], ranges_high[3];
-        double cp[3], cp_frac[3];
+        long ranges_begin[3], ranges_end[3];
+        cell->set_ranges_rcut(points, center, rcut, ranges_begin, ranges_end);
 
-        for (int i=2; i>=0; i--) {
-            cp[i] = points[i] - center[i];
-        }
-        cell->to_frac(cp, cp_frac);
-#ifdef DEBUG
-        printf("cp_frac [%f,%f,%f]\n", cp_frac[0], cp_frac[1], cp_frac[2]);
-#endif
-
-        for (int i=cell->get_nvec()-1; i>=0; i--) {
-            double steps = rcut/cell->get_rspacing(i);
-            ranges_low[i] = ceil(cp_frac[i] - steps);
-            ranges_high[i] = floor(cp_frac[i] + steps);
-#ifdef DEBUG
-            printf("ranges(%i) [%li,%li] rcut=%f steps=%f spacing=%f\n", i, ranges_low[i], ranges_high[i], rcut, steps, cell->get_rspacing(i));
-#endif
-        }
         for (int i=cell->get_nvec(); i < 3; i++) {
-            ranges_low[i] = 0;
-            ranges_high[i] = 0;
+            ranges_begin[i] = 0;
+            ranges_end[i] = 1;
         }
 
         // Run the triple loop
-        for (long i0=ranges_low[0]; i0 <= ranges_high[0]; i0++) {
-            for (long i1=ranges_low[1]; i1 <= ranges_high[1]; i1++) {
-                for (long i2=ranges_low[2]; i2 <= ranges_high[2]; i2++) {
+        for (long i0 = ranges_begin[0]; i0 < ranges_end[0]; i0++) {
+            for (long i1 = ranges_begin[1]; i1 < ranges_end[1]; i1++) {
+                for (long i2 = ranges_begin[2]; i2 < ranges_end[2]; i2++) {
                     // Compute the distance between the point and the image of the center
                     double frac[3], cart[3];
                     frac[0] = i0;
                     frac[1] = i1;
                     frac[2] = i2;
                     cell->to_cart(frac, cart);
-                    double x = cart[0] - cp[0];
-                    double y = cart[1] - cp[1];
-                    double z = cart[2] - cp[2];
+                    double x = cart[0] + points[0] - center[0];
+                    double y = cart[1] + points[1] - center[1];
+                    double z = cart[2] + points[2] - center[2];
                     double d = sqrt(x*x+y*y+z*z);
 
                     // Evaluate spline if needed
