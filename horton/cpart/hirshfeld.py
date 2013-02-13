@@ -27,7 +27,10 @@ from horton.cache import just_once, Cache
 from horton.log import log
 
 
-__all__ = ['HirshfeldCPart', 'HirshfeldICPart']
+__all__ = ['HirshfeldCPart', 'HirshfeldICPart', 'HirshfeldECPart']
+
+
+# TODO: maxiter, tolerance parameter
 
 
 class HirshfeldCPart(CPart):
@@ -154,6 +157,117 @@ class HirshfeldICPart(HirshfeldCPart):
                 break
 
             ref_populations = new_populations
+            counter += 1
+
+        if log.medium:
+            log.hline()
+
+        self._cache.dump('populations', new_populations)
+        self._cache.dump('ref_populations', ref_populations)
+        del self._local_cache
+
+
+def positive_solve(A, B):
+    from scipy.optimize import fmin_slsqp
+    def cost_fn(x):
+        return np.dot(x, np.dot(A, x)) - 2*np.dot(B, x)
+
+    def cost_fn_gradient(x):
+        return 2*(np.dot(A, x) - B)
+
+    N = len(B)
+    x0 = np.ones(N, float)/N
+    #print cost_fn_gradient(x0)
+    #print A
+    #print B
+    x1 = fmin_slsqp(cost_fn, x0, bounds=[(0, 10)]*N, fprime=cost_fn_gradient, iprint=0, acc=1e-10)
+    #print x1
+    #print cost_fn_gradient(x1)
+    return x1
+
+
+class HirshfeldECPart(HirshfeldICPart):
+    def _compute_pro_atom(self, i):
+        # Pro-atoms are (temporarily) stored in at_weights for efficiency.
+        pro_atom, new = self._cache.load('at_weights', i, alloc=self._ui_grid.shape)
+        number = self._system.numbers[i]
+        if new:
+            # just use the Hirshfeld definition to get started
+            pro_atom[:] = self._get_isolated_atom(i, number)
+            return number
+        else:
+            # do a least-squares fit to the previos AIM
+
+            # 1) construct aim in temporary array
+            rho_aim = self._local_cache.load('rho_aim', alloc=self._ui_grid.shape)[0]
+            rho_aim[:] = pro_atom
+            rho_aim *= self._cache.load('mol_dens')
+
+            # 2) setup equations
+            pop_min, pop_max = self._proatomdb.get_pop_minmax(number)
+            neq = pop_max - pop_min + 1
+            B = np.zeros(neq, float)
+            for j0 in xrange(neq):
+                pop0 = pop_min + j0
+                rho0_pop0 = self._get_isolated_atom(i, pop0)
+                B[j0] = self._ui_grid.integrate(rho_aim, rho0_pop0)
+
+            A, new = self._local_cache.load('fit_A', i, alloc=(neq, neq))
+            if new:
+                for j0 in xrange(neq):
+                    pop0 = pop_min + j0
+                    rho0_pop0 = self._get_isolated_atom(i, pop0)
+                    for j1 in xrange(j0+1):
+                        pop1 = pop_min + j1
+                        rho0_pop1 = self._get_isolated_atom(i, pop1)
+                        A[j0,j1] = self._ui_grid.integrate(rho0_pop0, rho0_pop1)
+                        A[j1,j0] = A[j0,j1]
+
+            # 3) find positive solution
+            c = positive_solve(A, B)
+            #print i, c
+
+            # 4) construct the pro-atom
+            tmp = rho_aim
+            del rho_aim
+            pro_atom[:] = 0
+            ref_population = 0
+            for j0 in xrange(neq):
+                pop0 = pop_min + j0
+                tmp[:] = self._get_isolated_atom(i, pop0)
+                tmp *= c[j0]
+                pro_atom += tmp
+                ref_population += c[j0]*pop0
+
+            return ref_population
+
+    @just_once
+    def _init_at_weights(self):
+        self._local_cache = Cache()
+
+        if log.medium:
+            log.hline()
+            log('Iteration       Change')
+            log.hline()
+        counter = 0
+        ref_populations = np.zeros(self._system.natom)
+        old_populations = self._system.numbers.astype(float)
+        while True:
+            # Construct pro-atoms
+            for i in xrange(self._system.natom):
+                ref_populations[i] = self._compute_pro_atom(i)
+            self._compute_pro_molecule()
+            self._compute_at_weights()
+            self._compute_rel_dens()
+            new_populations = self._compute_rel_populations() + ref_populations
+            print new_populations
+            change = abs(new_populations - old_populations).max()
+            if log.medium:
+                log('%9i   %10.5e' % (counter, change))
+            if change < 1e-4:
+                break
+
+            old_populations = new_populations
             counter += 1
 
         if log.medium:

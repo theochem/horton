@@ -379,6 +379,10 @@ class ProAtomDB(object):
             y = yf*(cpop-pop) + yc*(pop-fpop)
         return CubicSpline(y, rtf=self._rtransform)
 
+    def get_pop_minmax(self, number):
+        pops = [p for n, p in self._records if n == number]
+        return min(pops), max(pops)
+
     def compute_radii(self, number, populations, pop=None):
         '''Compute approximate radii at which the atom contains the given populations
 

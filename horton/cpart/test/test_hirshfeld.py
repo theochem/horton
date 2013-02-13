@@ -108,3 +108,14 @@ def test_hirshfeld_i_fake():
     charges = hicpart['charges']
     assert charges.sum() < 1e-3
     assert abs(charges[0] - 0.433) < 1e-3
+
+
+def test_hirshfeld_e_fake():
+    sys, ui_grid, mol_dens, proatomdb = get_fake_co()
+
+    # Run the partitioning
+    hicpart = HirshfeldECPart(sys, ui_grid, mol_dens, proatomdb)
+    hicpart.do_charges()
+    charges = hicpart['charges']
+    assert charges.sum() < 1e-3
+    assert abs(charges[0] - 0.399) < 1e-3
