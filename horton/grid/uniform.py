@@ -24,6 +24,7 @@ import numpy as np
 
 from horton.cext import Cell
 from horton.grid.cext import dot_multi, eval_spline_cube
+from horton.log import log
 
 
 __all__ = ['UniformIntGrid']
@@ -40,6 +41,10 @@ class UniformIntGrid(object):
             self.pbc_active = np.ones(3, int)
         else:
             self.pbc_active = pbc_active
+
+    def get_cell(self):
+        rvecs = (self.grid_cell.rvecs*self.shape.reshape(-1,1))
+        return Cell(rvecs[self.pbc_active.astype(bool)])
 
     def eval_spline(self, spline, center, output):
         eval_spline_cube(spline, center, output, self.origin, self.grid_cell, self.shape, self.pbc_active)
@@ -58,3 +63,138 @@ class UniformIntGrid(object):
         args = [arg.ravel() for arg in args]
         # Similar to conventional integration routine:
         return dot_multi(*args)*self.grid_cell.volume
+
+    def compute_weight_corrections(self, funcs, cache=None):
+        '''Computes corrections to the integration weights.
+
+           **Arguments:**
+
+           funcs
+                A collection of functions that must integrate exactly with the
+                corrected weights. The format is as follows. ``funcs`` is a
+                list with tuples that contain three items:
+
+                * center: the center for a set of spherically symmetric
+                  functions. In pracice, this will always coincide with th
+                  position of a nucleus.
+
+                * rcut: a cutoff radius that limits the corrections to a
+                  certain distance from the nucleus. Cutoff spheres of
+                  different centers should not overlap.
+
+                * Radial functions specified as a list of tuples. Each tuple
+                  contains the following three items:
+
+                    * key: the key used to store the evaluated function in the
+                      cache if a cache is provided. If no cache is provided,
+                      this may be None.
+
+                    * spline: the radial spline for the spherically symmetric
+                      function
+
+                    * integral: the exact integral of the spherically symmetric
+                      function [=int_0^r 4*pi*x**2*spline(x)].
+
+
+           **Optional arguments:**
+
+           cache
+                A Cache object in which the evaluated splines are stored to
+                avoid their recomputation after the weight corrections are
+                computed
+
+           **Return value:**
+
+           The return value is a data array that can be provided as an
+           additional argument to the ``integrate`` method. This should
+           improve the accuracy of the integration for data that is similar
+           to a linear combination of the provided sphericall functions.
+        '''
+        result = np.ones(self.shape, float)
+        if cache is None:
+            tmp = np.empty(self.shape, float)
+        volume = self.grid_cell.volume
+
+        # A safety check to detect overlap of the cutoff spheres.
+        # TODO: In the long run, this safety check should be done with a correct
+        #       implementation of the MIC.
+        cell = self.get_cell()
+        for i0 in xrange(len(funcs)):
+            center0, rcut0 = funcs[i0][:2]
+            for i1 in xrange(i0):
+                center1, rcut1 = funcs[i1][:2]
+                delta = center1 - center0
+                cell.mic(delta)
+                dist = np.linalg.norm(delta)
+                if dist < rcut0+rcut1:
+                    raise ValueError('The cutoff spheres overlap.')
+
+        # Make sure that the rcut spheres fit within the box
+        threshold = 0.5*cell.rspacings.min()
+        for i0 in xrange(len(funcs)):
+            center0, rcut0 = funcs[i0][:2]
+            if rcut0 >= threshold:
+                raise ValueError('The cutoff spheres have to fit inside the box.')
+
+
+        icenter = 0
+        for center, rcut, rad_funcs in funcs:
+            # A) Determine the points inside the cutoff sphere.
+            ranges_begin, ranges_end = self.grid_cell.get_ranges_rcut(self.origin, center, rcut)
+
+            # B) Construct a set of grid indexes that lie inside the sphere.
+            nselect_max = np.product(ranges_end-ranges_begin)
+            indexes = np.zeros((nselect_max, 3), long)
+            nselect = self.grid_cell.select_inside(self.origin, center, rcut, ranges_begin, ranges_end, self.shape, self.pbc_active, indexes)
+            indexes = indexes[:nselect]
+
+            # C) Allocate the arrays for the least-squares fit of the
+            # corrections.
+            neq = len(rad_funcs)
+            dm = np.zeros((neq+1, nselect), float)
+            ev = np.zeros(neq+1, float)
+
+            # D) Fill in the coefficients. This is the expensive part.
+            irow = 0
+            for key, spline, int_exact in rad_funcs:
+                if cache is not None:
+                    # If a cache is given, the expensive evaluations are stored
+                    # for reuse.
+                    tmp, new = cache.load(*key, alloc=self.shape)
+                if cache is None or new:
+                    tmp[:] = 0.0
+                if log.do_medium:
+                    log("Computing spherical function. icenter=%i irow=%i" % (icenter, irow))
+                self.eval_spline(spline, center, tmp)
+                int_approx = self.integrate(tmp)
+
+                dm[irow] = volume*tmp[indexes[:,0], indexes[:,1], indexes[:,2]]
+                ev[irow] = int_exact - int_approx
+                irow += 1
+
+            # Also integrate the constant function correctly
+            dm[irow] = volume
+            ev[irow] = 0.0
+            irow += 1
+
+            # rescale equations to optimize condition number
+            scales = np.sqrt((dm**2).mean(axis=1))
+            dm /= scales.reshape(-1,1)
+            ev /= scales
+
+            # E) Find the least norm solution. This part may become more
+            # advanced in future.
+            U, S, Vt = np.linalg.svd(dm, full_matrices=False)
+            assert S[0]*1e-6 < S[-1] # lousy safety check
+            corrections = np.dot(Vt.T, np.dot(U.T, ev)/S)
+
+            if log.do_medium:
+                rmsd = np.sqrt((corrections**2).mean())
+                log('icenter=%i CN=%.3e RMSD=%.3e' % (icenter, S[0]/S[-1], rmsd))
+
+            # F) Fill the corrections into the right place:
+            result[indexes[:,0], indexes[:,1], indexes[:,2]] += corrections
+
+            icenter += 1
+
+        return result
