@@ -21,7 +21,7 @@
 
 
 cdef extern from "cell.h":
-     cdef cppclass Cell:
+    cdef cppclass Cell:
         Cell()
         void update(double* _rvecs, double* _gvecs, int _nvec)
         void mic(double* delta)
@@ -41,4 +41,9 @@ cdef extern from "cell.h":
         void copy_gspacings(double* _gspacings)
 
         void set_ranges_rcut(double* origin, double* center, double rcut,
-                             long* ranges_begin, long* ranges_end)
+            long* ranges_begin, long* ranges_end)
+        long select_inside(double* origin, double* center, double rcut,
+            long* ranges_begin, long* ranges_end, long* shape,
+            long* pbc_active, long* indexes) except +
+
+    long smart_wrap(long i, long shape, long pbc_active)

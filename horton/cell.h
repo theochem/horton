@@ -51,7 +51,12 @@ class Cell {
 
         void set_ranges_rcut(double* origin, double* center, double rcut,
                              long* ranges_begin, long* ranges_end);
+
+        long select_inside(double* origin, double* center, double rcut,
+            long* ranges_begin, long* ranges_end, long* shape,
+            long* pbc_active, long* indexes);
 };
 
+long smart_wrap(long i, long shape, long pbc_active);
 
 #endif

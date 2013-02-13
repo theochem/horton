@@ -28,8 +28,16 @@ cimport cell
 cimport nucpot
 
 __all__ = [
-    'Cell', 'compute_grid_nucpot',
+    # cell.cpp
+    'Cell', 'smart_wrap',
+    # nucpot.cpp
+    'compute_grid_nucpot',
 ]
+
+
+#
+# cell.cpp
+#
 
 
 cdef class Cell:
@@ -231,10 +239,52 @@ cdef class Cell:
 
         cdef np.ndarray[long, ndim=1] ranges_begin = np.zeros(self.nvec, int)
         cdef np.ndarray[long, ndim=1] ranges_end = np.zeros(self.nvec, int)
-        self._this.set_ranges_rcut(<double*>origin.data, <double*>center.data,
-                                   rcut, <long*> ranges_begin.data,
-                                   <long*> ranges_end.data)
+        self._this.set_ranges_rcut(
+            <double*>origin.data, <double*>center.data, rcut,
+            <long*> ranges_begin.data, <long*> ranges_end.data)
         return ranges_begin, ranges_end
+
+    def select_inside(self, np.ndarray[double, ndim=1] origin not None,
+                      np.ndarray[double, ndim=1] center not None,
+                      double rcut,
+                      np.ndarray[long, ndim=1] ranges_begin not None,
+                      np.ndarray[long, ndim=1] ranges_end not None,
+                      np.ndarray[long, ndim=1] shape not None,
+                      np.ndarray[long, ndim=1] pbc_active not None,
+                      np.ndarray[long, ndim=2] indexes not None):
+
+        assert origin.flags['C_CONTIGUOUS']
+        assert origin.size == 3
+        assert center.flags['C_CONTIGUOUS']
+        assert center.size == 3
+        assert rcut >= 0
+        assert ranges_begin.flags['C_CONTIGUOUS']
+        assert ranges_begin.size == self.nvec
+        assert ranges_end.flags['C_CONTIGUOUS']
+        assert ranges_end.size == self.nvec
+        assert indexes.flags['C_CONTIGUOUS']
+        nselect_max = np.product(ranges_end - ranges_begin)
+        assert shape.flags['C_CONTIGUOUS']
+        assert shape.shape[0] == self.nvec
+        assert pbc_active.flags['C_CONTIGUOUS']
+        assert pbc_active.shape[0] == self.nvec
+        assert indexes.shape[0] == nselect_max
+        assert indexes.shape[1] == self.nvec
+
+        return self._this.select_inside(
+            <double*>origin.data, <double*>center.data, rcut,
+            <long*>ranges_begin.data, <long*>ranges_end.data,
+            <long*>shape.data, <long*>pbc_active.data,
+            <long*>indexes.data)
+
+
+def smart_wrap(long i, long shape, long pbc_active ):
+    return cell.smart_wrap(i, shape, pbc_active)
+
+
+#
+# nucpot.cpp
+#
 
 
 def compute_grid_nucpot(np.ndarray[long, ndim=1] numbers not None,
