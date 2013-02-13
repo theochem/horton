@@ -24,6 +24,7 @@ import numpy as np
 
 from horton import *
 from horton.grid.test.common import *
+from horton.test.common import get_random_cell
 
 
 def test_uig_integrate_gauss():

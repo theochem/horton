@@ -74,8 +74,8 @@ cdef class Cell:
             gvecs = mod_rvecs
             nvec = 0
         else:
-            if not rvecs.ndim==2 or not rvecs.flags['C_CONTIGUOUS'] or rvecs.shape[0] > 3 or rvecs.shape[1] != 3:
-                raise TypeError('rvecs must be a C contiguous array with three columns and at most three rows.')
+            if not rvecs.ndim==2 or rvecs.shape[0] > 3 or rvecs.shape[1] != 3:
+                raise TypeError('rvecs must be an array with three columns and at most three rows.')
             nvec = len(rvecs)
             Up, Sp, Vt = np.linalg.svd(rvecs, full_matrices=True)
             S = np.ones(3, float)
@@ -129,7 +129,7 @@ cdef class Cell:
 
     rspacings = property(_get_rspacings)
 
-    def _get_gspacings(self, full=False):
+    def _get_gspacings(self):
         '''The (orthogonal) spacing between opposite sides of the reciprocal-space unit cell.'''
         cdef np.ndarray[double, ndim=1] result
         result = np.zeros(self.nvec, float)
@@ -163,41 +163,45 @@ cdef class Cell:
 
     parameters = property(_get_parameters)
 
-    def mic(self, np.ndarray[double, ndim=1] delta):
+    def mic(self, np.ndarray[double, ndim=1] delta not None):
         """mic(delta)
 
            Apply the minimum image convention to delta in-place
         """
+        assert delta.flags['C_CONTIGUOUS']
         assert delta.size == 3
         self._this.mic(<double*> delta.data)
 
-    def to_center(self, np.ndarray[double, ndim=1] pos):
+    def to_center(self, np.ndarray[double, ndim=1] pos not None):
         '''to_center(pos)
 
            Return the corresponding position in the central cell
         '''
+        assert pos.flags['C_CONTIGUOUS']
         assert pos.size == 3
         cdef np.ndarray[long, ndim=1] result
         result = np.zeros(self.nvec, int)
         self._this.to_center(<double*> pos.data, <long*> result.data)
         return result
 
-    def to_frac(self, np.ndarray[double, ndim=1] cart):
+    def to_frac(self, np.ndarray[double, ndim=1] cart not None):
         '''to_frac(cart)
 
            Return the corresponding fractional coordinates
         '''
+        assert cart.flags['C_CONTIGUOUS']
         assert cart.size == 3
         cdef np.ndarray[double, ndim=1] result
         result = np.zeros(3, float)
         self._this.to_frac(<double*> cart.data, <double*> result.data)
         return result
 
-    def to_cart(self, np.ndarray[double, ndim=1] frac):
+    def to_cart(self, np.ndarray[double, ndim=1] frac not None):
         '''to_cart(frac)
 
            Return the corresponding Cartesian coordinates
         '''
+        assert frac.flags['C_CONTIGUOUS']
         assert frac.size == 3
         cdef np.ndarray[double, ndim=1] result
         result = np.zeros(3, float)
@@ -209,10 +213,28 @@ cdef class Cell:
 
            Add a linear combination of cell vectors, ``r``, to ``delta`` in-place
         """
+        assert delta.flags['C_CONTIGUOUS']
         assert delta.size == 3
+        assert r.flags['C_CONTIGUOUS']
         assert r.size == self.nvec
         self._this.add_vec(<double*> delta.data, <long*> r.data)
 
+    def get_ranges_rcut(self, np.ndarray[double, ndim=1] origin not None,
+                        np.ndarray[double, ndim=1] center not None, double rcut):
+        '''Return the integer ranges of the vectors (relative to origin) that
+           may be within a distance rcut from the vector center'''
+        assert origin.flags['C_CONTIGUOUS']
+        assert origin.size == 3
+        assert center.flags['C_CONTIGUOUS']
+        assert center.size == 3
+        assert rcut >= 0
+
+        cdef np.ndarray[long, ndim=1] ranges_begin = np.zeros(self.nvec, int)
+        cdef np.ndarray[long, ndim=1] ranges_end = np.zeros(self.nvec, int)
+        self._this.set_ranges_rcut(<double*>origin.data, <double*>center.data,
+                                   rcut, <long*> ranges_begin.data,
+                                   <long*> ranges_end.data)
+        return ranges_begin, ranges_end
 
 
 def compute_grid_nucpot(np.ndarray[long, ndim=1] numbers not None,
