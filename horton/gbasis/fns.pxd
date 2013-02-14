@@ -20,11 +20,11 @@
 #--
 
 
-# TODO: Derive GB1GridFn and GB2GridFn from GBCalculator (in its own pxd file)
+# TODO: Derive GB1DMGridFn and GB2DMGridFn from GBCalculator (in its own pxd file)
 #       Use the same class hierarchy in cext.pyx
 
 cdef extern from "fns.h":
-    cdef cppclass GB1GridFn:
+    cdef cppclass GB1DMGridFn:
         long get_nwork()
         long get_max_shell_type()
         long get_max_nbasis()
@@ -37,13 +37,13 @@ cdef extern from "fns.h":
         long get_shell_type0()
         double* get_work()
 
-    cdef cppclass GB1GridDensityFn:
-        GB1GridDensityFn(long max_shell_type) except +
+    cdef cppclass GB1DMGridDensityFn:
+        GB1DMGridDensityFn(long max_shell_type) except +
 
-    cdef cppclass GB1GridGradientFn:
-        GB1GridGradientFn(long max_shell_type) except +
+    cdef cppclass GB1DMGridGradientFn:
+        GB1DMGridGradientFn(long max_shell_type) except +
 
-    cdef cppclass GB2GridFn:
+    cdef cppclass GB2DMGridFn:
         long get_nwork()
         long get_max_shell_type()
         long get_max_nbasis()
@@ -56,6 +56,3 @@ cdef extern from "fns.h":
         long get_shell_type0()
         long get_shell_type1()
         double* get_work()
-
-    cdef cppclass GB2GridHartreeFn:
-        GB2GridHartreeFn(long max_shell_type) except +

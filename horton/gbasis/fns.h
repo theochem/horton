@@ -43,14 +43,44 @@ class GB1GridFn : public GBCalculator  {
         long get_dim_work() {return dim_work;};
         long get_dim_output() {return dim_output;};
         virtual void add(double coeff, double alpha0, const double* scales0) = 0;
+    };
+
+
+
+
+class GB1ExpGridFn : public GB1GridFn  {
+    protected:
+        long nfn;
+    public:
+        GB1ExpGridFn(long max_shell_type, long nfn, long dim_work, long dim_output) : GB1GridFn(max_shell_type, dim_work, dim_output), nfn(nfn) {};
+        virtual void compute_point_from_exp(double* work_basis, double* coeffs, long nbasis, double* output) = 0;
+    };
+
+
+class GB1ExpGridOrbitalFn : public GB1ExpGridFn  {
+    protected:
+        long* iorbs;
+        long norb;
+    public:
+        GB1ExpGridOrbitalFn(long max_shell_type, long nfn, long* iorbs, long norb) : GB1ExpGridFn(max_shell_type, nfn, 1, norb), iorbs(iorbs), norb(norb) {};
+        virtual void add(double coeff, double alpha0, const double* scales0);
+        virtual void compute_point_from_exp(double* work_basis, double* coeffs, long nbasis, double* output);
+    };
+
+
+
+
+class GB1DMGridFn : public GB1GridFn  {
+    public:
+        GB1DMGridFn(long max_shell_type, long dim_work, long dim_output) : GB1GridFn(max_shell_type, dim_work, dim_output) {};
         virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output) = 0;
         virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis, double* output) = 0;
     };
 
 
-class GB1GridDensityFn : public GB1GridFn  {
+class GB1DMGridDensityFn : public GB1DMGridFn  {
     public:
-        GB1GridDensityFn(long max_shell_type): GB1GridFn(max_shell_type, 1, 1) {};
+        GB1DMGridDensityFn(long max_shell_type): GB1DMGridFn(max_shell_type, 1, 1) {};
 
         virtual void add(double coeff, double alpha0, const double* scales0);
         virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output);
@@ -58,9 +88,9 @@ class GB1GridDensityFn : public GB1GridFn  {
     };
 
 
-class GB1GridGradientFn : public GB1GridFn  {
+class GB1DMGridGradientFn : public GB1DMGridFn  {
     public:
-        GB1GridGradientFn(long max_shell_type): GB1GridFn(max_shell_type, 4, 3) {};
+        GB1DMGridGradientFn(long max_shell_type): GB1DMGridFn(max_shell_type, 4, 3) {};
 
         virtual void add(double coeff, double alpha0, const double* scales0);
         virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output);
@@ -68,14 +98,16 @@ class GB1GridGradientFn : public GB1GridFn  {
     };
 
 
-class GB2GridFn : public GBCalculator  {
+
+
+class GB2DMGridFn : public GBCalculator  {
     protected:
         long shell_type0, shell_type1;
         const double *r0, *r1;  // The centers of the basis functions
         const double *point;    // The grid point at which the fn is evaluated
         IterPow2 i2p;
     public:
-        GB2GridFn(long max_shell_type);
+        GB2DMGridFn(long max_shell_type);
 
         void reset(long shell_type0, long shell_type1, const double* r0, const double* r1, const double* point);
         void cart_to_pure();
@@ -86,15 +118,15 @@ class GB2GridFn : public GBCalculator  {
     };
 
 
-class GB2HartreeGridFn : public GB2GridFn  {
+class GB2DMGridHartreeFn : public GB2DMGridFn  {
     private:
         double* work_g0;
         double* work_g1;
         double* work_g2;
         double* work_boys;
     public:
-        GB2HartreeGridFn(long max_shell_type);
-        ~GB2HartreeGridFn();
+        GB2DMGridHartreeFn(long max_shell_type);
+        ~GB2DMGridHartreeFn();
 
         virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
     };

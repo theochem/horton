@@ -27,7 +27,7 @@ from horton import *
 
 def test_exceptions():
     try:
-        grid_fn = GB1GridDensityFn(-1)
+        grid_fn = GB1DMGridDensityFn(-1)
         assert False
     except ValueError:
         pass
@@ -36,14 +36,14 @@ def test_exceptions():
     point = np.array([0.5, -0.2, 0.7])
 
     try:
-        grid_fn = GB1GridDensityFn(2)
+        grid_fn = GB1DMGridDensityFn(2)
         grid_fn.reset(-3, center, point)
         assert False
     except ValueError:
         pass
 
     try:
-        grid_fn = GB1GridDensityFn(2)
+        grid_fn = GB1DMGridDensityFn(2)
         grid_fn.reset(3, center, point)
         assert False
     except ValueError:
@@ -51,7 +51,7 @@ def test_exceptions():
 
 
 def test_grid_fn_s():
-    grid_fn = GB1GridDensityFn(0)
+    grid_fn = GB1DMGridDensityFn(0)
     assert grid_fn.nwork == 1
     assert grid_fn.max_shell_type == 0
     assert grid_fn.max_nbasis == 1
@@ -75,7 +75,7 @@ def test_grid_fn_s():
 
 
 def test_grid_fn_p():
-    grid_fn = GB1GridDensityFn(1)
+    grid_fn = GB1DMGridDensityFn(1)
     assert grid_fn.nwork == 3
     assert grid_fn.max_shell_type == 1
     assert grid_fn.max_nbasis == 3
@@ -101,7 +101,7 @@ def test_grid_fn_p():
 
 
 def test_grid_fn_p_contraction():
-    grid_fn = GB1GridDensityFn(1)
+    grid_fn = GB1DMGridDensityFn(1)
     assert grid_fn.nwork == 3
     assert grid_fn.max_shell_type == 1
     assert grid_fn.max_nbasis == 3
@@ -133,7 +133,7 @@ def test_grid_fn_p_contraction():
 
 
 def test_grid_fn_d_contraction():
-    grid_fn = GB1GridDensityFn(3)
+    grid_fn = GB1DMGridDensityFn(3)
     assert grid_fn.nwork == 10
     assert grid_fn.max_shell_type == 3
     assert grid_fn.max_nbasis == 10
@@ -267,8 +267,8 @@ def test_density_gradient_co_ccpv5z_pure():
     check_density_gradient(sys, np.array([-0.1, 0.4, 1.2]), np.array([-0.1+eps, 0.4, 1.2]))
 
 
-def check_orbital_gradient(sys, p0, p1):
-    grid_fn = GB1GridGradientFn(sys.obasis.max_shell_type)
+def check_dm_gradient(sys, p0, p1):
+    grid_fn = GB1DMGridGradientFn(sys.obasis.max_shell_type)
 
     gradrhos0 = np.zeros((1,3), float)
     sys.obasis._compute_grid1_dm(sys.wfn.dm_full, p0, grid_fn, gradrhos0)
@@ -284,22 +284,22 @@ def check_orbital_gradient(sys, p0, p1):
         assert abs(d1-d2) < abs(d1)*1e-3
 
 
-def test_orbital_gradient_n2_sto3g():
+def test_dm_gradient_n2_sto3g():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
     eps = 1e-4
-    check_orbital_gradient(sys, np.array([[-0.1, 0.4, 1.2]]), np.array([[-0.1+eps, 0.4, 1.2]]))
-    check_orbital_gradient(sys, np.array([[-0.1, 0.4, 1.2]]), np.array([[-0.1, 0.4+eps, 1.2]]))
-    check_orbital_gradient(sys, np.array([[-0.1, 0.4, 1.2]]), np.array([[-0.1, 0.4, 1.2+eps]]))
+    check_dm_gradient(sys, np.array([[-0.1, 0.4, 1.2]]), np.array([[-0.1+eps, 0.4, 1.2]]))
+    check_dm_gradient(sys, np.array([[-0.1, 0.4, 1.2]]), np.array([[-0.1, 0.4+eps, 1.2]]))
+    check_dm_gradient(sys, np.array([[-0.1, 0.4, 1.2]]), np.array([[-0.1, 0.4, 1.2+eps]]))
 
 
-def test_orbital_gradient_h3_321g():
+def test_dm_gradient_h3_321g():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
     eps = 1e-4
-    check_orbital_gradient(sys, np.array([[-0.1, 0.4, 1.2]]), np.array([[-0.1+eps, 0.4, 1.2]]))
-    check_orbital_gradient(sys, np.array([[-0.1, 0.4, 1.2]]), np.array([[-0.1, 0.4+eps, 1.2]]))
-    check_orbital_gradient(sys, np.array([[-0.1, 0.4, 1.2]]), np.array([[-0.1, 0.4, 1.2+eps]]))
+    check_dm_gradient(sys, np.array([[-0.1, 0.4, 1.2]]), np.array([[-0.1+eps, 0.4, 1.2]]))
+    check_dm_gradient(sys, np.array([[-0.1, 0.4, 1.2]]), np.array([[-0.1, 0.4+eps, 1.2]]))
+    check_dm_gradient(sys, np.array([[-0.1, 0.4, 1.2]]), np.array([[-0.1, 0.4, 1.2+eps]]))
 
 
 def test_gradient_functional_deriv():
@@ -335,3 +335,72 @@ def test_gradient_functional_deriv():
 
     from horton.test.common import check_delta
     check_delta(fun, fun_deriv, x, dxs)
+
+
+
+
+
+
+
+
+
+def check_orbitals(sys):
+    points = np.array([
+        [0.1, 0.3, 0.2],
+        [-0.1, 0.3, 0.2],
+        [-0.1, 0.4, 0.2],
+        [-0.1, 0.4, 1.2],
+    ])
+
+    # just the standard usage (alpha)
+    ad = sys.compute_grid_density(points, select='alpha')
+    aos = sys.compute_grid_orbitals(points, select='alpha')
+    ad_check = (aos**2).sum(axis=1)
+    assert (abs(ad - ad_check)/abs(ad) < 1e-3).all()
+
+    if isinstance(sys.wfn, OpenShellWFN):
+        # just the standard usage (beta)
+        bd = sys.compute_grid_density(points, select='beta')
+        bos = sys.compute_grid_orbitals(points, select='beta')
+        bd_check = (bos**2).sum(axis=1)
+        assert (abs(bd - bd_check)/abs(bd) < 1e-3).all()
+    else:
+        bos = aos
+        bd_check = ad_check
+
+    # compare with full density
+    fd = sys.compute_grid_density(points, select='full')
+    fd_check = ad_check + bd_check
+    assert (abs(fd - fd_check)/abs(fd) < 1e-3).all()
+
+    # more detailed usage
+    exp_alpha = sys.wfn.get_exp('alpha')
+    assert aos.shape[1] == (exp_alpha.occupations > 0).sum()
+    iorbs_alpha = (exp_alpha.occupations > 0).nonzero()[0]
+    import random
+    iorbs_alpha1 = np.array(random.sample(iorbs_alpha, len(iorbs_alpha)/2))
+    iorbs_alpha2 = np.array([i for i in iorbs_alpha if i not in iorbs_alpha1])
+    aos1 = sys.compute_grid_orbitals(points, iorbs_alpha1, select='alpha')
+    aos2 = sys.compute_grid_orbitals(points, iorbs_alpha2, select='alpha')
+    assert aos1.shape[1] == len(iorbs_alpha1)
+    assert aos2.shape[1] == len(iorbs_alpha2)
+    ad_check1 = (aos1**2).sum(axis=1)
+    ad_check2 = (aos2**2).sum(axis=1)
+    assert (abs(ad - ad_check1 - ad_check2)/abs(ad) < 1e-3).all()
+
+
+def test_orbitals_n2_sto3g():
+    fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
+    check_orbitals(System.from_file(fn_fchk))
+
+def test_orbitals_h3_321g():
+    fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
+    check_orbitals(System.from_file(fn_fchk))
+
+def test_orbitals_co_ccpv5z_cart():
+    fn_fchk = context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk')
+    check_orbitals(System.from_file(fn_fchk))
+
+def test_orbitals_co_ccpv5z_pure():
+    fn_fchk = context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk')
+    check_orbitals(System.from_file(fn_fchk))

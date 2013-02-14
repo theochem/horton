@@ -56,7 +56,7 @@ __all__ = [
     'GB2NuclearAttractionIntegral',
     'GB4ElectronReuplsionIntegralLibInt',
     # fns
-    'GB1GridDensityFn', 'GB1GridGradientFn',
+    'GB1DMGridDensityFn', 'GB1DMGridGradientFn',
     # iter_gb
     'IterGB1', 'IterGB2', 'IterGB4',
     # iter_pow
@@ -397,7 +397,7 @@ cdef class GBasis:
         return tmp.copy()
 
     # low-level compute routines
-    def compute_grid_point1(self, np.ndarray[double, ndim=1] output, np.ndarray[double, ndim=1] point, GB1GridFn grid_fn):
+    def compute_grid_point1(self, np.ndarray[double, ndim=1] output, np.ndarray[double, ndim=1] point, GB1DMGridFn grid_fn):
         assert output.flags['C_CONTIGUOUS']
         assert output.shape[0] == self.nbasis
         assert point.flags['C_CONTIGUOUS']
@@ -434,12 +434,13 @@ cdef class GOBasis(GBasis):
         grp['alphas'] = self.alphas
         grp['con_coeffs'] = self.con_coeffs
 
-    def check_matrix_expansion(self, matrix, nocc):
+    def check_matrix_coeffs(self, matrix, nocc=None):
         assert matrix.ndim == 2
         assert matrix.flags['C_CONTIGUOUS']
         assert matrix.shape[0] == self.nbasis
         assert matrix.shape[1] <= self.nbasis
-        assert matrix.shape[1] >= nocc
+        if nocc is not None:
+            assert matrix.shape[1] >= nocc
 
     def check_matrix_one_body(self, matrix):
         assert matrix.ndim == 2
@@ -489,7 +490,45 @@ cdef class GOBasis(GBasis):
         self.check_matrix_two_body(output)
         (<gbasis.GOBasis*>self._this).compute_electron_repulsion(<double*>output.data)
 
-    def _compute_grid1_dm(self, dm, np.ndarray[double, ndim=2] points not None, GB1GridFn grid_fn not None, np.ndarray output not None):
+    def compute_grid_orbitals_exp(self, exp, np.ndarray[double, ndim=2] points not None, np.ndarray[long, ndim=1] iorbs not None, np.ndarray[double, ndim=2] orbs not None):
+        '''compute_grid_density_dm(exp, points, iorbs, orbs)
+
+           Compute the electron density on a grid for a given density matrix.
+
+           **Arguments:**
+
+           exp
+                An expansion object. For now, this must be a DenseExpansion object.
+
+           points
+                A Numpy array with grid points, shape (npoint,3).
+
+           iorbs
+                The indexes of the orbitals to be computed. If not given, the
+                orbitals with a non-zero occupation number are computed
+
+           orbs
+                An output array, shape (npoint, len(iorbs)). The results are
+                added to this array.
+
+           **Warning:** the results are added to the output array!
+        '''
+        cdef np.ndarray coeffs = exp.coeffs
+        self.check_matrix_coeffs(coeffs)
+        nfn = coeffs.shape[1]
+        assert points.flags['C_CONTIGUOUS']
+        npoint = points.shape[0]
+        assert points.shape[1] == 3
+        assert iorbs.flags['C_CONTIGUOUS']
+        norb = iorbs.shape[0]
+        assert orbs.flags['C_CONTIGUOUS']
+        assert orbs.shape[0] == npoint
+        assert orbs.shape[1] == norb
+        (<gbasis.GOBasis*>self._this).compute_grid1_exp(
+            nfn, <double*>coeffs.data, npoint, <double*>points.data,
+            norb, <long*>iorbs.data, <double*>orbs.data)
+
+    def _compute_grid1_dm(self, dm, np.ndarray[double, ndim=2] points not None, GB1DMGridFn grid_fn not None, np.ndarray output not None):
         '''_compute_grid_dm(dm, points, output)
 
            Compute some density function on a grid for a given density matrix.
@@ -546,7 +585,7 @@ cdef class GOBasis(GBasis):
            **Warning:** the results are added to the output array! This may
            be useful to combine results from different spin components.
         '''
-        self._compute_grid1_dm(dm, points, GB1GridDensityFn(self.max_shell_type), rhos)
+        self._compute_grid1_dm(dm, points, GB1DMGridDensityFn(self.max_shell_type), rhos)
 
     def compute_grid_gradient_dm(self, dm, np.ndarray[double, ndim=2] points not None, np.ndarray[double, ndim=2] gradrhos not None):
         '''compute_grid_gradient_dm(dm, points, gradrho)
@@ -567,7 +606,7 @@ cdef class GOBasis(GBasis):
            **Warning:** the results are added to the output array! This may
            be useful to combine results from different spin components.
         '''
-        self._compute_grid1_dm(dm, points, GB1GridGradientFn(self.max_shell_type), gradrhos)
+        self._compute_grid1_dm(dm, points, GB1DMGridGradientFn(self.max_shell_type), gradrhos)
 
     def compute_grid_hartree_dm(self, dm, np.ndarray[double, ndim=2] points not None, np.ndarray[double, ndim=1] output not None):
         '''compute_grid_hartree_dm(dm, points, output)
@@ -605,7 +644,7 @@ cdef class GOBasis(GBasis):
     def _compute_grid1_fock(self, np.ndarray[double, ndim=2] points not None,
                            np.ndarray[double, ndim=1] weights not None,
                            np.ndarray pots not None,
-                           GB1GridFn grid_fn not None, fock):
+                           GB1DMGridFn grid_fn not None, fock):
         '''_compute_grid_fock(points, weights, pots, grid_fn, fock)
 
            Compute a one-body operator based on some potential grid in real-space
@@ -676,7 +715,7 @@ cdef class GOBasis(GBasis):
 
            **Warning:** the results are added to the fock operator!
         '''
-        self._compute_grid1_fock(points, weights, pots, GB1GridDensityFn(self.max_shell_type), fock)
+        self._compute_grid1_fock(points, weights, pots, GB1DMGridDensityFn(self.max_shell_type), fock)
 
     def compute_grid_gradient_fock(self, np.ndarray[double, ndim=2] points not None,
                                    np.ndarray[double, ndim=1] weights not None,
@@ -702,7 +741,7 @@ cdef class GOBasis(GBasis):
 
            **Warning:** the results are added to the fock operator!
         '''
-        self._compute_grid1_fock(points, weights, pots, GB1GridGradientFn(self.max_shell_type), fock)
+        self._compute_grid1_fock(points, weights, pots, GB1DMGridGradientFn(self.max_shell_type), fock)
 
 #
 # ints wrappers (for testing only)
@@ -893,9 +932,9 @@ cdef class GB4ElectronReuplsionIntegralLibInt(GB4Integral):
 #
 
 
-cdef class GB1GridFn:
-    '''Wrapper for fns.GB1GridFn, for testing only'''
-    cdef fns.GB1GridFn* _this
+cdef class GB1DMGridFn:
+    '''Wrapper for fns.GB1DMGridFn, for testing only'''
+    cdef fns.GB1DMGridFn* _this
 
     def __dealloc__(self):
         del self._this
@@ -960,14 +999,14 @@ cdef class GB1GridFn:
         return tmp.copy()
 
 
-cdef class GB1GridDensityFn(GB1GridFn):
+cdef class GB1DMGridDensityFn(GB1DMGridFn):
     def __cinit__(self, long max_nbasis):
-        self._this = <fns.GB1GridFn*>(new fns.GB1GridDensityFn(max_nbasis))
+        self._this = <fns.GB1DMGridFn*>(new fns.GB1DMGridDensityFn(max_nbasis))
 
 
-cdef class GB1GridGradientFn(GB1GridFn):
+cdef class GB1DMGridGradientFn(GB1DMGridFn):
     def __cinit__(self, long max_nbasis):
-        self._this = <fns.GB1GridFn*>(new fns.GB1GridGradientFn(max_nbasis))
+        self._this = <fns.GB1DMGridFn*>(new fns.GB1DMGridGradientFn(max_nbasis))
 
 
 #

@@ -190,7 +190,7 @@ void GBasis::compute_grid_point1(double* output, double* point, GB1GridFn* grid_
     } while (iter.inc_shell());
 }
 
-double GBasis::compute_grid_point2(double* dm, double* point, GB2GridFn* grid_fn) {
+double GBasis::compute_grid_point2(double* dm, double* point, GB2DMGridFn* grid_fn) {
     /*
         TODO
              When multiple different memory storage schemes are implemented for
@@ -245,7 +245,35 @@ void GOBasis::compute_electron_repulsion(double* output) {
     compute_two_body(output, &integral);
 }
 
-void GOBasis::compute_grid1_dm(double* dm, long npoint, double* points, GB1GridFn* grid_fn, double* output) {
+void GOBasis::compute_grid1_exp(long nfn, double* coeffs, long npoint, double* points, long norb, long* iorbs, double* output) {
+    // The work array contains the basis functions evaluated at the grid point,
+    // and optionally some of its derivatives.
+    GB1ExpGridOrbitalFn grid_fn = GB1ExpGridOrbitalFn(get_max_shell_type(), nfn, iorbs, norb);
+
+    long nwork = get_nbasis()*grid_fn.get_dim_work();
+    long dim_output = grid_fn.get_dim_output();
+    double* work_basis = new double[nwork];
+
+    for (long ipoint=0; ipoint<npoint; ipoint++) {
+        // A) clear the basis functions.
+        memset(work_basis, 0, nwork*sizeof(double));
+
+        // B) evaluate the basis functions in the current point.
+        compute_grid_point1(work_basis, points, &grid_fn);
+
+        // C) Use the basis function results and the density matrix to evaluate
+        // the function at the grid point. The result is added to the output.
+        grid_fn.compute_point_from_exp(work_basis, coeffs, get_nbasis(), output);
+
+        // D) Prepare for next iteration
+        output += dim_output;
+        points += 3;
+    }
+
+    delete[] work_basis;
+}
+
+void GOBasis::compute_grid1_dm(double* dm, long npoint, double* points, GB1DMGridFn* grid_fn, double* output) {
     // The work array contains the basis functions evaluated at the grid point,
     // and optionally some of its derivatives.
     long nwork = get_nbasis()*grid_fn->get_dim_work();
@@ -279,7 +307,7 @@ void GOBasis::compute_grid2_dm(double* dm, long npoint, double* points, double* 
     // For the moment, it is only possible to compute the Hartree potential on
     // a grid with this routine. Generalizations with electrical field and
     // other things are for later.
-    GB2HartreeGridFn grid_fn = GB2HartreeGridFn(get_max_shell_type());
+    GB2DMGridHartreeFn grid_fn = GB2DMGridHartreeFn(get_max_shell_type());
 
     for (long ipoint=0; ipoint<npoint; ipoint++) {
         *output += compute_grid_point2(dm, points, &grid_fn);
@@ -288,7 +316,7 @@ void GOBasis::compute_grid2_dm(double* dm, long npoint, double* points, double* 
     }
 }
 
-void GOBasis::compute_grid1_fock(long npoint, double* points, double* weights, long pot_stride, double* pots, GB1GridFn* grid_fn, double* output) {
+void GOBasis::compute_grid1_fock(long npoint, double* points, double* weights, long pot_stride, double* pots, GB1DMGridFn* grid_fn, double* output) {
     // The work array contains the basis functions evaluated at the grid point,
     // and optionally some of its derivatives.
     long nwork = get_nbasis()*grid_fn->get_dim_work();
