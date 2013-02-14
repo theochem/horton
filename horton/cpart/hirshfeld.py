@@ -144,8 +144,8 @@ class HirshfeldICPart(HirshfeldCPart):
             log.hline()
             log('Iteration       Change')
             log.hline()
-        counter = 0
-        while True:
+
+        for counter in xrange(500):
             # Construct pro-atoms
             for i in xrange(self._system.natom):
                 self._compute_pro_atom(i, ref_populations[i])
@@ -160,7 +160,6 @@ class HirshfeldICPart(HirshfeldCPart):
                 break
 
             ref_populations = new_populations
-            counter += 1
 
         if log.medium:
             log.hline()
@@ -258,10 +257,10 @@ class HirshfeldECPart(HirshfeldICPart):
             log.hline()
             log('Iteration       Change')
             log.hline()
-        counter = 0
+
         ref_populations = np.zeros(self._system.natom)
         old_populations = self._system.numbers.astype(float)
-        while True:
+        for counter in xrange(500):
             # Construct pro-atoms
             for i in xrange(self._system.natom):
                 ref_populations[i] = self._compute_pro_atom(i)
@@ -276,7 +275,6 @@ class HirshfeldECPart(HirshfeldICPart):
                 break
 
             old_populations = new_populations
-            counter += 1
 
         if log.medium:
             log.hline()
@@ -407,8 +405,7 @@ class HirshfeldICCPart(HirshfeldCCPart):
             log.hline()
             log('Iteration       Change')
             log.hline()
-        counter = 0
-        while True:
+        for counter in xrange(500):
             # Construct pro-atoms
             for i in xrange(self._system.natom):
                 self._compute_pro_atom(i, old_populations[i])
@@ -422,7 +419,6 @@ class HirshfeldICCPart(HirshfeldCCPart):
                 break
 
             old_populations = new_populations
-            counter += 1
 
         if log.medium:
             log.hline()
@@ -498,17 +494,20 @@ class HirshfeldECCPart(HirshfeldICCPart):
             # 3) find positive solution
             constraint_pars = None
             #constraint_pars = (pop, pops)
-            c = positive_solve(A, B, constraint_pars)
+            coeffs = positive_solve(A, B, constraint_pars)
+            if log.do_medium:
+                log('                   %10i:&%s' % (i, ' '.join('% 6.3f' % c for c in coeffs)))
 
             # 4) construct the pro-atom
             tmp = rho_aim
             del rho_aim
             pro_atom[:] = 0
             for j0 in xrange(neq):
-                pop0 = pop0 = pops[j0]
+                pop0 = pops[j0]
                 tmp[:] = self._get_isolated_atom(i, pop0)
-                tmp *= c[j0]
+                tmp *= coeffs[j0]
                 pro_atom += tmp
+        pro_atom += 1e-100
 
     @just_once
     def _init_at_weights(self):
@@ -518,9 +517,9 @@ class HirshfeldECCPart(HirshfeldICCPart):
             log.hline()
             log('Iteration       Change')
             log.hline()
-        counter = 0
+
         old_populations = self._system.numbers.astype(float)
-        while True:
+        for counter in xrange(500):
             # Construct pro-atoms
             for i in xrange(self._system.natom):
                 self._compute_pro_atom(i, old_populations[i])
@@ -534,7 +533,6 @@ class HirshfeldECCPart(HirshfeldICCPart):
                 break
 
             old_populations = new_populations
-            counter += 1
 
         if log.medium:
             log.hline()
