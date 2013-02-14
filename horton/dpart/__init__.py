@@ -23,4 +23,5 @@
 from horton.dpart.base import *
 from horton.dpart.becke import *
 from horton.dpart.hirshfeld import *
+from horton.dpart.linalg import *
 from horton.dpart.proatomdb import *
