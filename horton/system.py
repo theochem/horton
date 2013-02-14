@@ -427,6 +427,44 @@ class System(object):
             #self.update_chk('operators.er')
         return electron_repulsion
 
+    def compute_grid_orbitals(self, points, iorbs=None, orbs=None, select='alpha'):
+        '''Compute the electron density on a grid using self.wfn as input
+
+           **Arguments:**
+
+           points
+                A Numpy array with grid points, shape (npoint,3)
+
+           **Optional arguments:**
+
+           iorbs
+                The indexes of the orbitals to be computed. If not given, the
+                orbitals with a non-zero occupation number are computed
+
+           orbs
+                An output array, shape (npoint, len(iorbs)). The results are
+                added to this array.
+
+           select
+                'alpha', 'beta'
+
+           **Returns:**
+
+           orbs
+                The array with the result. This is the same as the output
+                argument, in case it was provided.
+        '''
+        exp = self.wfn.get_exp(select)
+        if iorbs is None:
+            iorbs = (exp.occupations > 0).nonzero()[0]
+        shape = (len(points), len(iorbs))
+        if orbs is None:
+            orbs = np.zeros(shape, float)
+        elif orbs.shape != shape:
+            raise TypeError('The shape of the output array is wrong')
+        self.obasis.compute_grid_orbitals_exp(exp, points, iorbs, orbs)
+        return orbs
+
     def compute_grid_density(self, points, rhos=None, select='full'):
         '''Compute the electron density on a grid using self.wfn as input
 

@@ -43,8 +43,8 @@ cdef extern from "gbasis.h":
         double* get_scales(long iprim)
 
         # low-level compute routines
-        void compute_grid_point1(double* output, double* point, fns.GB1GridFn* grid_fn)
-        double compute_grid_point2(double* dm, double* point, fns.GB2GridFn* grid_fn)
+        void compute_grid_point1(double* output, double* point, fns.GB1DMGridFn* grid_fn)
+        double compute_grid_point2(double* dm, double* point, fns.GB2DMGridFn* grid_fn)
 
     cdef cppclass GOBasis:
         GOBasis(double* centers, long* shell_map, long* nprims,
@@ -55,6 +55,7 @@ cdef extern from "gbasis.h":
         void compute_kinetic(double* output)
         void compute_nuclear_attraction(double* charges, double* centers, long ncharge, double* output)
         void compute_electron_repulsion(double* output)
-        void compute_grid1_dm(double* dm, long npoint, double* points, fns.GB1GridFn* grid_fn, double* rhos)
+        void compute_grid1_exp(long nfn, double* coeffs, long npoint, double* points, long norb, long* iorbs, double* output)
+        void compute_grid1_dm(double* dm, long npoint, double* points, fns.GB1DMGridFn* grid_fn, double* output)
         void compute_grid2_dm(double* dm, long npoint, double* points, double* output)
-        void compute_grid1_fock(long npoint, double* points, double* weights, long pot_stride, double* pots, fns.GB1GridFn* grid_fn, double* output)
+        void compute_grid1_fock(long npoint, double* points, double* weights, long pot_stride, double* pots, fns.GB1DMGridFn* grid_fn, double* output)
