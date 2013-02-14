@@ -23,14 +23,11 @@
 import numpy as np
 
 
-__all__ = ['positive_solve', 'quadratic_solver', 'constrained_solver']
+__all__ = ['solve_positive', 'quadratic_solver', 'constrained_solver']
 
 
-def positive_solve(A, B, rcond=0, lc=None, upper_limits=None):
+def solve_positive(A, B, bindings_eq=[], upper_limits=None, rcond=0):
     npar = A.shape[1]
-    bindings_eq = []
-    if lc is not None:
-        bindings_eq.append(lc)
     bindings_ineq = []
     for i in xrange(npar):
         row = np.zeros(npar, float)
@@ -122,6 +119,9 @@ def quadratic_solver(A, b, binding_eq, binding_ineq, rcond=0):
         s = np.array(s)
         x, l, cn = constrained_solver(A, b, R, s, rcond)
         cn_max = max(cn, cn_max) # condition number
+
+        if ni == 0:
+            return x
 
         # A) Activate the inequality constraints that is most violated.
 

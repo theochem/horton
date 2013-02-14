@@ -25,7 +25,7 @@ import numpy as np
 from horton.cpart.base import CPart, CCPart
 from horton.cache import just_once, Cache
 from horton.log import log
-from horton.dpart.linalg import positive_solve
+from horton.dpart.linalg import solve_positive, quadratic_solver
 
 
 __all__ = [
@@ -210,7 +210,7 @@ class HirshfeldECPart(HirshfeldICPart):
                         A[j1,j0] = A[j0,j1]
 
             # 3) find positive solution
-            c = positive_solve(A, B)
+            c = solve_positive(A, B)
 
             # 4) construct the pro-atom
             tmp = rho_aim
@@ -488,10 +488,10 @@ class HirshfeldECCPart(HirshfeldICCPart):
                     log('                   %10i: CN=%.5e' % (i, cn))
 
 
-            # 3) find positive solution
-            #constraint_pars = None
-            constraint_pars = (pops, pop)
-            coeffs = positive_solve(A, B, lc=constraint_pars)
+            # 3) find solution
+            lc_pop = (pops, pop)
+            lc_cusp = (np.ones(neq), 1.0)
+            coeffs = solve_positive(A, B, [lc_pop])
 
             if log.do_medium:
                 log('                   %10i:&%s' % (i, ' '.join('% 6.3f' % c for c in coeffs)))
