@@ -25,6 +25,7 @@ import numpy as np
 from horton.cpart.base import CPart, CCPart
 from horton.cache import just_once, Cache
 from horton.log import log
+from horton.dpart.linalg import positive_solve
 
 
 __all__ = [
@@ -169,30 +170,6 @@ class HirshfeldICPart(HirshfeldCPart):
         del self._local_cache
 
 
-def positive_solve(A, B, constraint_pars=None):
-    from scipy.optimize import fmin_slsqp
-    def cost_fn(x):
-        return np.dot(x, np.dot(A, x)) - 2*np.dot(B, x)
-
-    def cost_fn_gradient(x):
-        return 2*(np.dot(A, x) - B)
-
-    if constraint_pars is None:
-        f_eqcons = None
-        fprime_eqcons = None
-    else:
-        pop, pops = constraint_pars
-
-        def f_eqcons(x):
-            return np.array([np.dot(x, pops) - pop])
-
-        def fprime_eqcons(x):
-            return np.array([pops])
-
-    N = len(B)
-    x0 = np.ones(N, float)/N
-    x1 = fmin_slsqp(cost_fn, x0, bounds=[(0, 10)]*N, fprime=cost_fn_gradient, f_eqcons=f_eqcons, fprime_eqcons=fprime_eqcons, iprint=0, acc=1e-10)
-    return x1
 
 
 class HirshfeldECPart(HirshfeldICPart):
@@ -450,6 +427,7 @@ class HirshfeldECCPart(HirshfeldICCPart):
                 [
                     (('isolated_atom', i, n), spline1, int_exact1),
                     (('tmp'), spline2, int_exact2),
+                    #(('isolated_atom', i, n), self._proatomdb.get_spline(n), float(n)),
                 ],
             ))
         self._ui_grid.compute_weight_corrections(funcs, cache=self._cache)
@@ -462,7 +440,6 @@ class HirshfeldECCPart(HirshfeldICCPart):
         if new:
             # just use the Hirshfeld definition to get started
             pro_atom[:] = self._get_isolated_atom(i, number)
-            return number
         else:
             # do a least-squares fit to the previos AIM
 
@@ -490,11 +467,17 @@ class HirshfeldECCPart(HirshfeldICCPart):
                         rho0_pop1 = self._get_isolated_atom(i, pop1)
                         A[j0,j1] = self._ui_grid.integrate(rho0_pop0, rho0_pop1, wcor)
                         A[j1,j0] = A[j0,j1]
+                if log.do_medium:
+                    evals = np.linalg.eigvalsh(A)
+                    cn = abs(evals).max()/abs(evals).min()
+                    log('                   %10i: CN=%.5e' % (i, cn))
+
 
             # 3) find positive solution
-            constraint_pars = None
-            #constraint_pars = (pop, pops)
-            coeffs = positive_solve(A, B, constraint_pars)
+            #constraint_pars = None
+            constraint_pars = (pops, pop)
+            coeffs = positive_solve(A, B, lc=constraint_pars)
+
             if log.do_medium:
                 log('                   %10i:&%s' % (i, ' '.join('% 6.3f' % c for c in coeffs)))
 

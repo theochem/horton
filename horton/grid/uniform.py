@@ -134,11 +134,12 @@ class UniformIntGrid(object):
                     raise ValueError('The cutoff spheres overlap.')
 
         # Make sure that the rcut spheres fit within the box
-        threshold = 0.5*cell.rspacings.min()
-        for i0 in xrange(len(funcs)):
-            center0, rcut0 = funcs[i0][:2]
-            if rcut0 >= threshold:
-                raise ValueError('The cutoff spheres have to fit inside the box.')
+        if cell.nvec > 0:
+            threshold = 0.5*cell.rspacings.min()
+            for i0 in xrange(len(funcs)):
+                center0, rcut0 = funcs[i0][:2]
+                if rcut0 >= threshold:
+                    raise ValueError('The cutoff spheres have to fit inside the box.')
 
 
         icenter = 0
