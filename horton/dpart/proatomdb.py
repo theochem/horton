@@ -198,6 +198,7 @@ class ProAtomDB(object):
         # TODO long term: make it possible to control the scf code and to update
         #                 an existing db with additional comps.
         # TODO: add option to filter out atoms with a negative ionization potential
+
         # check the essentials of the arguments:
         if not isinstance(atgrid, AtomicGrid) or atgrid.subgrids is None:
             raise TypeError('The subgrids of the atomic grid are needed. Use the argument keep_subgrids=1 when creating the atomic grid.')
