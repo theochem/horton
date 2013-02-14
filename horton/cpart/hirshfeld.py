@@ -407,7 +407,22 @@ class HirshfeldICCPart(HirshfeldCCPart):
 class HirshfeldECCPart(HirshfeldICCPart):
     @just_once
     def _init_weight_corrections(self):
+        # Corrections for the integration of normal densities
         funcs = []
+        for i in xrange(self._system.natom):
+            n = self._system.numbers[i]
+            funcs.append((
+                self._system.coordinates[i],
+                1.0, # TODO determine radii in clever way or write new correction algo
+                [
+                    (('isolated_atom', i, n), self._proatomdb.get_spline(n), float(n)),
+                ],
+            ))
+        self._ui_grid.compute_weight_corrections(funcs, cache=self._cache)
+
+        # Corrections for the integration of squared densities
+        funcs = []
+
         from horton.grid import SimpsonIntegrator1D, CubicSpline
         int1d = SimpsonIntegrator1D()
         rtf = self._proatomdb._rtransform
@@ -417,24 +432,24 @@ class HirshfeldECCPart(HirshfeldICCPart):
         for i in xrange(self._system.natom):
             n = self._system.numbers[i]
             record = self._proatomdb._records[(n, n)]
-            spline1 = CubicSpline(record, rtf=rtf)
+            #spline1 = CubicSpline(record, rtf=rtf)
             spline2 = CubicSpline(record**2, rtf=rtf)
-            int_exact1 = float(n)
+            #int_exact1 = float(n)
             int_exact2 = np.dot(record**2, weights1d)
             funcs.append((
                 self._system.coordinates[i],
                 1.0, # TODO determine radii in clever way or write new correction algo
                 [
-                    (('isolated_atom', i, n), spline1, int_exact1),
-                    (('tmp'), spline2, int_exact2),
-                    #(('isolated_atom', i, n), self._proatomdb.get_spline(n), float(n)),
+                    #(('isolated_atom', i, n), spline1, int_exact1),
+                    (None, spline2, int_exact2),
                 ],
             ))
-        self._ui_grid.compute_weight_corrections(funcs, cache=self._cache)
+        wcorsq = self._ui_grid.compute_weight_corrections(funcs)
+        self._cache.dump('wcorsq', wcorsq)
 
     def _compute_pro_atom(self, i, pop):
         # Pro-atoms are (temporarily) stored in at_weights for efficiency.
-        wcor = self._cache.load('wcor')
+        wcorsq = self._cache.load('wcorsq')
         pro_atom, new = self._cache.load('at_weights', i, alloc=self._ui_grid.shape)
         number = self._system.numbers[i]
         if new:
@@ -455,7 +470,7 @@ class HirshfeldECCPart(HirshfeldICCPart):
             for j0 in xrange(neq):
                 pop0 = pops[j0]
                 rho0_pop0 = self._get_isolated_atom(i, pop0)
-                B[j0] = self._ui_grid.integrate(rho_aim, rho0_pop0, wcor)
+                B[j0] = self._ui_grid.integrate(rho_aim, rho0_pop0, wcorsq)
 
             A, new = self._local_cache.load('fit_A', i, alloc=(neq, neq))
             if new:
@@ -465,7 +480,7 @@ class HirshfeldECCPart(HirshfeldICCPart):
                     for j1 in xrange(j0+1):
                         pop1 = pops[j1]
                         rho0_pop1 = self._get_isolated_atom(i, pop1)
-                        A[j0,j1] = self._ui_grid.integrate(rho0_pop0, rho0_pop1, wcor)
+                        A[j0,j1] = self._ui_grid.integrate(rho0_pop0, rho0_pop1, wcorsq)
                         A[j1,j0] = A[j0,j1]
                 if log.do_medium:
                     evals = np.linalg.eigvalsh(A)

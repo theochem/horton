@@ -111,4 +111,4 @@ def test_ccpart_hirshfeld_e_fake():
     hicpart.do_charges()
     charges = hicpart['charges']
     assert charges.sum() < 1e-3
-    assert abs(charges[0] - 0.399) < 1e-3
+    assert abs(charges[0] - 0.393) < 1e-3

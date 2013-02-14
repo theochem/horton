@@ -82,12 +82,12 @@ def quadratic_solver(A, b, binding_eq, binding_ineq, rcond=0):
         print (dumps(binding_eq),)
         print (dumps(binding_ineq),)
         print rcond
-    
+
     # The matrix A must be positive definite
     evals = np.linalg.eigvalsh(A)
     if evals.min() < 0:
         raise ValueError('The matrix A must be positive definite.')
-        
+
     # Thresholds, should probably become arguments
     eps_x = 1e-10 # the allowed error on a constraint.
     eps_l = 1e-10 # the allowed error on a Lagrange_multiplier.
@@ -224,4 +224,3 @@ def constrained_solver(A, b, R, s, rcond=0):
     evals, evecs = np.linalg.eigh(big_A)
     big_x = np.dot(evecs, np.dot(evecs.T, big_b)/evals)
     return big_x[:npar], big_x[npar:], abs(evals).max()/abs(evals).min()
-
