@@ -20,7 +20,7 @@
 #--
 
 
-import tempfile, os, h5py as h5
+import tempfile, os, h5py as h5, numpy as np
 
 from horton import *
 
@@ -367,3 +367,23 @@ def test_chk_guess_scf_os():
     assert sys.props['energy_exchange_fock'] == energy_exchange_fock
     assert sys.props['energy_ne'] == energy_ne
     assert sys.props['energy_nn'] == energy_nn
+
+
+def test_hdf5_low():
+    chk = h5.File('horton.test.test_checkpoint.test_hdf5_low', driver='core', backing_store=False)
+
+    fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
+    sys = System.from_file(fn_fchk, chk=chk)
+
+    data1 = {'a': {'b': np.zeros(5), 'c': 5}, 'd': sys.wfn}
+    dump_hdf5_low(chk, 'data', data1)
+    data2 = load_hdf5_low(chk['data'], lf=sys.lf)
+
+    assert 'a' in data2
+    assert 'd' in data2
+    compare_wfns(sys.wfn, data2['d'])
+    assert 'b' in data2['a']
+    assert 'c' in data2['a']
+    assert data2['a']['b'].shape == (5,)
+    assert (data2['a']['b'] == 0.0).all()
+    assert data2['a']['c'] == 5

@@ -99,16 +99,9 @@ class WFN(object):
 
     @classmethod
     def from_hdf5(cls, grp, lf):
-        # Select the proper subclass
-        if grp.attrs['class'] == 'ClosedShellWFN':
-            cls = ClosedShellWFN
-        elif grp.attrs['class'] == 'OpenShellWFN':
-            cls = OpenShellWFN
-        else:
-            raise NotImplementedError
-
         # make the wfn object
-        occ_model = OccModel.from_hdf5(grp['occ_model'])
+        from horton.checkpoint import load_hdf5_low
+        occ_model = load_hdf5_low(grp['occ_model'], lf)
         result = cls(occ_model, lf, nbasis=grp['nbasis'][()], norb=grp['norb'][()])
         # load stuff into cache
         for spin in 'alpha', 'beta':
@@ -452,18 +445,6 @@ class OpenShellWFN(WFN):
         return sz, ssq
 
 
-
-class OccModel(object):
-    @classmethod
-    def from_hdf5(cls, grp):
-        if grp.attrs['class'] == 'AufbauOccModel':
-            return AufbauOccModel.from_hdf5(grp)
-        elif grp.attrs['class'] == 'AufbauSpinOccModel':
-            return AufbauSpinOccModel.from_hdf5(grp)
-        else:
-            raise NotImplementedError
-
-
 class AufbauOccModel(object):
     def __init__(self, nalpha, nbeta=None):
         if nbeta is None:
@@ -478,7 +459,7 @@ class AufbauOccModel(object):
         self.nbeta = nbeta
 
     @classmethod
-    def from_hdf5(cls, grp):
+    def from_hdf5(cls, grp, lf):
         return cls(grp['nalpha'][()], grp['nbeta'][()])
 
     def to_hdf5(self, grp):
@@ -525,7 +506,7 @@ class AufbauSpinOccModel(object):
         self.nel = nel
 
     @classmethod
-    def from_hdf5(cls, grp):
+    def from_hdf5(cls, grp, lf):
         return cls(grp['nel'][()])
 
     def to_hdf5(self, grp):
