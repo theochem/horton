@@ -64,6 +64,17 @@ cdef class Cell:
         '''
         self.update_rvecs(rvecs)
 
+    @classmethod
+    def from_hdf5(cls, grp, lf):
+        if grp['rvecs'].size > 0:
+            rvecs = np.array(grp['rvecs'])
+            return cls(rvecs)
+        else:
+            return cls(None)
+
+    def to_hdf5(self, grp):
+        grp['rvecs'] = self.rvecs
+
     def update_rvecs(self, np.ndarray[double, ndim=2] rvecs):
         '''update_rvecs(rvecs)
 
