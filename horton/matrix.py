@@ -421,8 +421,6 @@ class DenseOneBody(OneBody):
 
     @classmethod
     def from_hdf5(cls, grp, lf):
-        if grp.attrs['class'] != cls.__name__:
-            raise TypeError('The class of the one-body operator in the HDF5 file does not match.')
         nbasis = grp['array'].shape[0]
         result = cls(nbasis)
         grp['array'].read_direct(result._array)
@@ -527,8 +525,6 @@ class DenseTwoBody(LinalgObject):
 
     @classmethod
     def from_hdf5(cls, grp, lf):
-        if grp.attrs['class'] != cls.__name__:
-            raise TypeError('The class of the one-body operator in the HDF5 file does not match.')
         nbasis = grp['array'].shape[0]
         result = cls(nbasis)
         grp['array'].read_direct(result._array)

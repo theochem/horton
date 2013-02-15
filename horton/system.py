@@ -318,12 +318,12 @@ class System(object):
                 module ``horton.checkpoint``.
         """
         if self._chk is not None:
-            from horton.checkpoint import register
+            from horton.checkpoint import attribute_register
             if field_name is None:
-                for field_name, field in register.iteritems():
+                for field_name, field in attribute_register.iteritems():
                     field.write(self._chk, self)
             else:
-                field = register[field_name]
+                field = attribute_register[field_name]
                 field.write(self._chk, self)
 
     def to_file(self, filename):

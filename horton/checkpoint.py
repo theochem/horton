@@ -36,11 +36,11 @@ import h5py as h5, numpy as np
 
 
 
-__all__ = ['register']
+__all__ = ['attribute_register', 'load_hdf5_low', 'dump_hdf5_low']
 
 
 class CHKField(object):
-    def __init__(self, att_name, key=None, att_class=None):
+    def __init__(self, att_name, key=None):
         """
            **Argument:**
 
@@ -53,35 +53,16 @@ class CHKField(object):
                 If the attribute is a dictionary, the key refers to an element
                 in the dictionary. This must be a string
 
-           att_class
-                A class to create the attribute with when it is read from the
-                checkpoint file. If this is an abstract class, the from_hdf5
-                method of the abstract class must be clever enough to construct
-                the right derived class. By default the name of the subclass is
-                stored in the 'class' attribute of the corresponding group in
-                the HDF5 file.
-
            The attribute of the System class may be None, a numpy array or
            an object that has to_hdf5 and from hdf5 methods method. In the last
-           case, the att_classes argument must be given.
+           case, the HDF5 group must have a 'class' attribute.
         """
         if not isinstance(att_name, basestring):
             raise TypeError('att_name must be a string')
         if key is not None and not isinstance(key, basestring):
             raise TypeError('key must be a string, when given')
-        if att_class is not None and not isinstance(att_class, type):
-            raise TypeError('att_class must be a class, when given.')
         self.att_name = att_name
         self.key = key
-        self.att_class = att_class
-
-    def _read_dataset(self, ds):
-        if len(ds.shape) > 0:
-            # convert to a numpy array
-            return np.array(ds)
-        else:
-            # convert to a scalar
-            return ds[()]
 
     def read(self, chk, lf):
         """Read and return an the attribute from the chk file
@@ -111,24 +92,9 @@ class CHKField(object):
             item = item.get(self.key)
             if item is None:
                 return None
-        # B) Construct the corresponding Python object
-        if isinstance(item, h5.Dataset):
-            return self._read_dataset(item)
-        elif isinstance(item, h5.Group):
-            if self.att_class is None:
-                # assuming that an entire dictionary must be read. only
-                # read datasets. raise error when group is encountered.
-                result = {}
-                for key, subitem in item.iteritems():
-                    if isinstance(subitem, h5.Dataset):
-                        result[key] = self._read_dataset(subitem)
-                    else:
-                        raise TypeError('Expecting only datasets when reading dictonary.')
-                return result
-            else:
-                # special constructor
-                return self.att_class.from_hdf5(item, lf)
 
+        # B) Construct the corresponding Python object
+        return load_hdf5_low(item, lf)
 
     def write(self, chk, system):
         """Write an attribute to a Horton checkpoint file.
@@ -158,48 +124,102 @@ class CHKField(object):
             att = att.get(self.key)
             if att is None:
                 return
-        # B) Optionally make a datagroup
+
+        # B) Get the name of the object (and the group)
         grp = chk
         name = self.att_name
         if self.key is not None:
-            grp = chk.require_group(self.att_name)
+            grp = chk.require_group(name)
             name = self.key
-        # C) Dump the data to HDF5
-        if isinstance(att, int) or isinstance(att, float) or isinstance(att, np.ndarray):
-            # Simply overwrite old dataset
-            if name in grp:
-                del grp[name]
-            grp[name] = att
-        elif isinstance(att, dict):
-            # Simply overwrite old datagroup
-            if name in grp:
-                del grp[name]
-            grp = grp.create_group(name)
-            for key, value in att.iteritems():
-                grp[key] = value
-        else:
-            grp = grp.require_group(name)
-            # clear the group if anything was present
-            for key in grp.keys():
-                del grp[key]
-            for key in grp.attrs.keys():
-                del grp.attrs[key]
-            att.to_hdf5(grp)
-            # needed to create object of the right type when reading from
-            # checkpoint:
-            grp.attrs['class'] = att.__class__.__name__
 
-from horton.gbasis.cext import GOBasis
-from horton.wfn import WFN
-from horton.matrix import DenseOneBody, DenseTwoBody
-register = {
-    'coordinates': CHKField('coordinates'),
-    'numbers': CHKField('numbers'),
-    'obasis': CHKField('obasis', att_class=GOBasis),
-    'wfn': CHKField('wfn', att_class=WFN),
-    'operators.olp': CHKField('operators', 'olp', att_class=DenseOneBody),
-    'operators.kin': CHKField('operators', 'kin', att_class=DenseOneBody),
-    'operators.na': CHKField('operators', 'na', att_class=DenseOneBody),
-    'operators.er': CHKField('operators', 'er', att_class=DenseTwoBody),
-    'props': CHKField('props'),
-}
+        # C) Actual write
+        dump_hdf5_low(grp, name, att)
+
+
+def load_hdf5_low(item, lf):
+    '''Load an object from an h5py object from a checkpoint file
+
+       **Arguments:**
+
+       item
+            A HD5 Dataset or group.
+    '''
+    if isinstance(item, h5.Dataset):
+        if len(item.shape) > 0:
+            # convert to a numpy array
+            return np.array(item)
+        else:
+            # convert to a scalar
+            return item[()]
+    elif isinstance(item, h5.Group):
+        class_name = item.attrs.get('class')
+        if class_name is None:
+            # assuming that an entire dictionary must be read. only
+            # read datasets. raise error when group is encountered.
+            result = {}
+            for key, subitem in item.iteritems():
+                result[key] = load_hdf5_low(subitem, lf)
+            return result
+        else:
+            # special constructor. the class is found with the imp module
+            cls = __import__('horton', fromlist=[class_name]).__dict__[class_name]
+            return cls.from_hdf5(item, lf)
+
+
+def dump_hdf5_low(grp, name, att):
+    '''Low-level routine used to dump data to an HDF5 file.
+
+       grp
+            A HDF5 group.
+
+       name
+            The name to be used for this object.
+
+       att
+            The object to be written.
+    '''
+    if isinstance(att, int) or isinstance(att, float) or isinstance(att, np.ndarray):
+        # Simply overwrite old dataset
+        if name in grp:
+            del grp[name]
+        grp[name] = att
+    elif isinstance(att, dict):
+        # Simply overwrite old datagroup
+        if name in grp:
+            del grp[name]
+        grp = grp.create_group(name)
+        for key, value in att.iteritems():
+            dump_hdf5_low(grp, key, value)
+    else:
+        grp = grp.require_group(name)
+        # clear the group if anything was present
+        for key in grp.keys():
+            del grp[key]
+        for key in grp.attrs.keys():
+            del grp.attrs[key]
+        att.to_hdf5(grp)
+        # The following is needed to create object of the right type when
+        # reading from the checkpoint:
+        grp.attrs['class'] = att.__class__.__name__
+
+
+# define attribute_register
+
+_tmp = [
+    ('coordinates',),
+    ('numbers',),
+    ('obasis',),
+    ('wfn',),
+    ('operators', 'olp'),
+    ('operators', 'kin'),
+    ('operators', 'na'),
+    ('operators', 'er'),
+    ('props',),
+]
+
+attribute_register = {}
+for record in _tmp:
+    assert len(record) in [1, 2]
+    chk_field = CHKField(*record)
+    name = '.'.join(record)
+    attribute_register[name] = chk_field
