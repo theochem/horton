@@ -431,31 +431,54 @@ class HirshfeldECCPart(HirshfeldICCPart):
 
         for i in xrange(self._system.natom):
             n = self._system.numbers[i]
-            record = self._proatomdb._records[(n, n)]
-            #spline1 = CubicSpline(record, rtf=rtf)
-            spline2 = CubicSpline(record**2, rtf=rtf)
-            #int_exact1 = float(n)
-            int_exact2 = np.dot(record**2, weights1d)
+            pops = self._proatomdb.get_pops(n)
+            rad_funcs = []
+            for j in xrange(len(pops)):
+                if j == 0:
+                    record = self._proatomdb._records[(n, pops[0])]
+                else:
+                    record = self._proatomdb._records[(n, pops[j])] - \
+                             self._proatomdb._records[(n, pops[j-1])]
+                spline = CubicSpline(record**2, rtf=rtf)
+                int_exact = np.dot(record**2, weights1d)
+                rad_funcs.append((None, spline, int_exact))
             funcs.append((
                 self._system.coordinates[i],
                 1.0, # TODO determine radii in clever way or write new correction algo
-                [
-                    #(('isolated_atom', i, n), spline1, int_exact1),
-                    (None, spline2, int_exact2),
-                ],
+                rad_funcs
             ))
-        wcorsq = self._ui_grid.compute_weight_corrections(funcs)
-        self._cache.dump('wcorsq', wcorsq)
+        wcor_fit = self._ui_grid.compute_weight_corrections(funcs)
+        self._cache.dump('wcor_fit', wcor_fit)
+
+    def _get_basis_fn(self, i, j):
+        # A local cache is used that only exists during _init_at_weights:
+        isolated_atom, new = self._cache.load('basis', i, j, alloc=self._ui_grid.shape)
+        number = self._system.numbers[i]
+        pops = self._proatomdb.get_pops(number)
+        if new:
+            number = self._system.numbers[i]
+            center = self._system.coordinates[i]
+            if j == 0:
+                spline = self._proatomdb.get_spline(number, pops[0])
+            else:
+                spline = self._proatomdb.get_spline(number, {pops[j]: 1, pops[j-1]: -1})
+            if log.do_medium:
+                log('Computing basisfn %i_%i (n=%i, pop=%i)' % (i, j, number, pops[j]))
+            self._ui_grid.eval_spline(spline, center, isolated_atom)
+        return isolated_atom
 
     def _compute_pro_atom(self, i, pop):
         # Pro-atoms are (temporarily) stored in at_weights for efficiency.
-        wcorsq = self._cache.load('wcorsq')
-        pro_atom, new = self._cache.load('at_weights', i, alloc=self._ui_grid.shape)
         number = self._system.numbers[i]
-        if new:
+        if self._cache.has('isolated_atom', i, number):
             # just use the Hirshfeld definition to get started
-            pro_atom[:] = self._get_isolated_atom(i, number)
+            n = self._system.numbers[i]
+            self._cache.rename(('isolated_atom', i, number), ('at_weights', i))
+            pro_atom = self._cache.load('at_weights', i)
+            pro_atom += 1e-100
         else:
+            wcor_fit = self._cache.load('wcor_fit')
+            pro_atom, new = self._cache.load('at_weights', i, alloc=self._ui_grid.shape)
             # do a least-squares fit to the previos AIM
 
             # 1) construct aim in temporary array
@@ -466,32 +489,43 @@ class HirshfeldECCPart(HirshfeldICCPart):
             # 2) setup equations
             pops = np.array(self._proatomdb.get_pops(number))
             neq = len(pops)
-            B = np.zeros(neq, float)
-            for j0 in xrange(neq):
-                pop0 = pops[j0]
-                rho0_pop0 = self._get_isolated_atom(i, pop0)
-                B[j0] = self._ui_grid.integrate(rho_aim, rho0_pop0, wcorsq)
 
             A, new = self._local_cache.load('fit_A', i, alloc=(neq, neq))
             if new:
                 for j0 in xrange(neq):
-                    pop0 = pops[j0]
-                    rho0_pop0 = self._get_isolated_atom(i, pop0)
+                    basis0 = self._get_basis_fn(i, j0)
                     for j1 in xrange(j0+1):
-                        pop1 = pops[j1]
-                        rho0_pop1 = self._get_isolated_atom(i, pop1)
-                        A[j0,j1] = self._ui_grid.integrate(rho0_pop0, rho0_pop1, wcorsq)
+                        basis1 = self._get_basis_fn(i, j1)
+                        A[j0,j1] = self._ui_grid.integrate(basis0, basis1, wcor_fit)
                         A[j1,j0] = A[j0,j1]
+                # precondition the equations
+                scales = np.diag(A)**0.5
+                A /= scales
+                A /= scales.reshape(-1, 1)
+                self._local_cache.dump('fit_scales', i, scales)
                 if log.do_medium:
                     evals = np.linalg.eigvalsh(A)
                     cn = abs(evals).max()/abs(evals).min()
-                    log('                   %10i: CN=%.5e' % (i, cn))
+                    sr = abs(scales).max()/abs(scales).min()
+                    log('                   %10i: CN=%.5e SR=%.5e' % (i, cn, sr))
+            else:
+                scales = self._local_cache.load('fit_scales', i)
+
+            B = np.zeros(neq, float)
+            for j0 in xrange(neq):
+                basis0 = self._get_basis_fn(i, j0)
+                B[j0] = self._ui_grid.integrate(rho_aim, basis0, wcor_fit)
+            B /= scales
 
 
             # 3) find solution
-            lc_pop = (pops, pop)
-            lc_cusp = (np.ones(neq), 1.0)
+            basis_pops = pops.copy()
+            basis_pops[1:] = 1.0
+            lc_pop = (basis_pops/scales, pop)
+            lc_cusp = (np.ones(neq)/scales, 1.0)
             coeffs = solve_positive(A, B, [lc_pop])
+            # correct for scales
+            coeffs /= scales
 
             if log.do_medium:
                 log('                   %10i:&%s' % (i, ' '.join('% 6.3f' % c for c in coeffs)))
@@ -501,8 +535,7 @@ class HirshfeldECCPart(HirshfeldICCPart):
             del rho_aim
             pro_atom[:] = 0
             for j0 in xrange(neq):
-                pop0 = pops[j0]
-                tmp[:] = self._get_isolated_atom(i, pop0)
+                tmp[:] = self._get_basis_fn(i, j0)
                 tmp *= coeffs[j0]
                 pro_atom += tmp
         pro_atom += 1e-100

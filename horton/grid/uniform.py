@@ -76,7 +76,7 @@ class UniformIntGrid(object):
                 at the grid points, that must be multiplied and integrated.
         '''
         # This is often convenient for cube grid data:
-        args = [arg.ravel() for arg in args]
+        args = [arg.ravel() for arg in args if arg is not None]
         # Similar to conventional integration routine:
         return dot_multi(*args)*self.grid_cell.volume
 

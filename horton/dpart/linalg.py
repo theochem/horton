@@ -38,6 +38,7 @@ def solve_positive(A, B, bindings_eq=[], upper_limits=None, rcond=0):
             row = np.zeros(npar, float)
             row[i] = -1
             bindings_ineq.append((row, -upper_limits[i]))
+
     return quadratic_solver(A, B, bindings_eq, bindings_ineq, rcond)
 
 
