@@ -401,3 +401,22 @@ def test_cell():
         sys2 = System.from_file(chk)
         assert (sys2.cell.rvecs == cell1.rvecs).all()
         chk.close()
+
+def test_cube():
+    chk = h5.File('horton.test.test_checkpoint.test_hdf5_low', driver='core', backing_store=False)
+
+    fn_cube = context.get_fn('test/aelta.cube')
+    sys = System.from_file(fn_cube)
+    del sys
+    sys1 = System.from_file(fn_cube, chk=chk)
+    sys2 = System.from_file(chk)
+
+    g1 = sys1.props['ui_grid']
+    g2 = sys2.props['ui_grid']
+    assert (g1.origin == g2.origin).all()
+    assert (g1.grid_cell.rvecs == g2.grid_cell.rvecs).all()
+    assert (g1.shape == g2.shape).all()
+    assert (g1.pbc_active == g2.pbc_active).all()
+
+    assert (sys1.props['cube_data'] == sys2.props['cube_data']).all()
+    assert (sys1.props['nuclear_charges'] == sys2.props['nuclear_charges']).all()

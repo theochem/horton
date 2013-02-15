@@ -40,7 +40,23 @@ class UniformIntGrid(object):
         if pbc_active is None:
             self.pbc_active = np.ones(3, int)
         else:
-            self.pbc_active = pbc_active
+            self.pbc_active = pbc_active.astype(int)
+
+    @classmethod
+    def from_hdf5(cls, grp, lf):
+        return cls(
+            grp['origin'][:],
+            Cell.from_hdf5(grp['grid_cell'], lf),
+            grp['shape'][:],
+            grp['pbc_active'][:],
+        )
+
+    def to_hdf5(self, grp):
+        subgrp = grp.require_group('grid_cell')
+        self.grid_cell.to_hdf5(subgrp)
+        grp['origin'] = self.origin
+        grp['shape'] = self.shape
+        grp['pbc_active'] = self.pbc_active
 
     def get_cell(self):
         rvecs = (self.grid_cell.rvecs*self.shape.reshape(-1,1))
