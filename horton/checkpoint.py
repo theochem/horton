@@ -215,6 +215,7 @@ _tmp = [
     ('operators', 'na'),
     ('operators', 'er'),
     ('props',),
+    ('cell',),
 ]
 
 attribute_register = {}

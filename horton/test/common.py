@@ -103,6 +103,8 @@ def get_random_cell(a, nvec):
     if nvec == 0:
         return Cell(None)
     while True:
+        if a <= 0:
+            raise ValueError('The first argument must be strictly positive.')
         rvecs = np.random.uniform(0, a, (nvec,3))
         cell = Cell(rvecs)
         if cell.volume > a**nvec*0.1:

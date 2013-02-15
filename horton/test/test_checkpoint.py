@@ -23,6 +23,7 @@
 import tempfile, os, h5py as h5, numpy as np
 
 from horton import *
+from horton.test.common import get_random_cell
 
 
 def compare_expansions(wfn1, wfn2, spin):
@@ -387,3 +388,16 @@ def test_hdf5_low():
     assert data2['a']['b'].shape == (5,)
     assert (data2['a']['b'] == 0.0).all()
     assert data2['a']['c'] == 5
+
+
+def test_cell():
+    for i in xrange(12):
+        chk = h5.File('horton.test.test_checkpoint.test_cell_%i' % i, driver='core', backing_store=False)
+        cell1 = get_random_cell(1.0, i%4)
+        coordinates = np.random.uniform(-1, 1, (5, 3))
+        numbers = np.random.randint(1, 11, 5)
+        sys1 = System(coordinates, numbers, cell=cell1, chk=chk)
+        del sys1
+        sys2 = System.from_file(chk)
+        assert (sys2.cell.rvecs == cell1.rvecs).all()
+        chk.close()
