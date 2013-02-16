@@ -129,7 +129,6 @@ class ScreenLog(object):
 
     def warn(self, *words):
         text = u'WARNING!!&'+u' '.join(unicode(w) for w in words)
-        text = '%s%s%s' % (self.red, text, self.reset)
         self(text)
 
     def hline(self, char='~'):
