@@ -23,15 +23,14 @@
 from string import Template as BaseTemplate
 import re, os
 
-from horton import periodic
+from horton import periodic, log
+
 
 __all__ = [
     'iter_elements', 'iter_mults', 'Template', 'add_atomdb_arguments',
     'iter_states', 'write_input'
 ]
 
-
-# TODO: Use logger
 
 def iter_elements(elements_str):
     '''Interpret a string as a list of elements
@@ -161,11 +160,11 @@ class Template(BaseTemplate):
                 result.add(braced[8:])
         self.include_names = list(result)
 
-        # print include names
-        if len(self.include_names) > 0:
-            print 'The following includes were detected in the template:'
+        # log the include names
+        if len(self.include_names) > 0 and log.do_medium:
+            log('The following includes were detected in the template:')
             for name in self.include_names:
-                print '   ', name
+                log('   ', name)
 
     def load_includes(self, number):
         '''Load included files for a given element number'''
@@ -264,11 +263,12 @@ def write_input(number, charge, mult, template, do_overwrite, base_inp):
                 number=str(number),
                 element=periodic[number].symbol,
             ))
-        if exists:
-            print 'Overwritten:      ', fn_inp
-        else:
-            print 'Written new:      ', fn_inp
-    else:
-        print 'Not overwriting:  ', fn_inp
+        if log.do_medium:
+            if exists:
+                log('Overwritten:      ', fn_inp)
+            else:
+                log('Written new:      ', fn_inp)
+    elif log.do_medium:
+        log('Not overwriting:  ', fn_inp)
 
     return dn_mult, do_write

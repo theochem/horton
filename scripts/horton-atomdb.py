@@ -21,13 +21,10 @@
 #--
 
 
-from horton import *
+from horton import log
 from horton.scripts.atomdb import *
 import sys, argparse, os
 from glob import glob
-
-
-log.set_level(log.silent)
 
 
 def parse_args_input(args):
@@ -61,8 +58,8 @@ def get_fn(dn, pattern):
         return None
     elif len(fns) == 1:
         return fns[0]
-    else:
-        print 'Found more than one "%s" file in %s. This is suspicious. Skipping directory.' % (pattern, dn)
+    elif log.do_warning:
+        log.warn('Found more than one "%s" file in %s. This is suspicious. Skipping directory.' % (pattern, dn))
         return False
 
 
@@ -75,7 +72,8 @@ def load_atom_system(dn_mult):
             try:
                 return System.from_file(fn)
             except:
-                print 'Some error occured while loading "%s"' % fn
+                if log.do_warning:
+                    log.warn('Some error occured while loading "%s"' % fn)
                 raise
 
 
@@ -86,17 +84,20 @@ def main_convert(args):
         for dn_mult in sorted(glob('%s/mult??' % dn_state)):
             system = load_atom_system(dn_mult)
             if system is None:
-                print 'No results found:  ', dn_mult
+                if log.do_medium:
+                    log('No results found:  ', dn_mult)
                 continue
             systems.append(system)
 
         if len(systems) == 0:
-            print 'Nothing found in:  ', dn_state
+            if log.do_medium:
+                log('Nothing found in:  ', dn_state)
             continue
 
         # Get the lowest in energy and write to chk file
         systems.sort(key=(lambda s: s.props['energy']))
-        print 'Succesfull:        ', dn_state
+        if log.do_medium:
+            log('Succesfull:        ', dn_state)
         systems[0].assign_chk('%s/horton.h5' % dn_state)
         del systems
 
@@ -105,6 +106,7 @@ def main():
     args = sys.argv[1:]
     if len(args) == 0:
         print >> sys.stderr, 'Expecting at least one argument: "input" or convert"'
+        sys.exit(-1)
     command = args.pop(0)
     if command == 'input':
         parsed = parse_args_input(args)
@@ -114,6 +116,7 @@ def main():
         main_convert(parsed)
     else:
         print >> sys.stderr, 'The first argument must be "input" or "convert"'
+        sys.exit(-1)
 
 
 if __name__ == '__main__':
