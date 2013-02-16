@@ -21,7 +21,7 @@
 #--
 
 
-from horton import log
+from horton import log, System
 from horton.scripts.atomdb import *
 import sys, argparse, os
 from glob import glob
@@ -29,8 +29,9 @@ from glob import glob
 
 def parse_args_input(args):
     parser = argparse.ArgumentParser(prog='horton-atomdb.py input',
-        description='Create input files for a database of pro-atoms.')
-    add_atomdb_arguments(parser)
+        description='Create input files for a database of pro-atoms.',
+        epilog=epilog_input)
+    add_input_arguments(parser)
     return parser.parse_args(args)
 
 
@@ -38,17 +39,17 @@ def main_input(args):
     # Load the template file
     with open(args.template) as f:
         template = Template(f.read())
-    base_inp = os.path.basename(args.template)
 
     # Loop over all atomic states and make input files
     for number, charge, mult in iter_states(args.elements, args.max_kation, args.max_anion, args.hund):
-        write_input(number, charge, mult, template, args.overwrite, base_inp)
+        write_input(number, charge, mult, template, args.overwrite)
 
 
 def parse_args_convert(args):
     parser = argparse.ArgumentParser(prog='horton-atomdb.py convert',
         description='Convert the output of the atomic computations to horton '
                     'h5 files.')
+    add_convert_arguments(parser)
     return parser.parse_args(args)
 
 
@@ -79,7 +80,11 @@ def load_atom_system(dn_mult):
 
 def main_convert(args):
     # Loop over all sensible directories
+    energy_table = EnergyTable()
     for dn_state in sorted(glob("[01]??_??_[01]??_q[+-]??")):
+        number = int(dn_state[:3])
+        pop = int(dn_state[7:10])
+
         systems = []
         for dn_mult in sorted(glob('%s/mult??' % dn_state)):
             system = load_atom_system(dn_mult)
@@ -96,10 +101,28 @@ def main_convert(args):
 
         # Get the lowest in energy and write to chk file
         systems.sort(key=(lambda s: s.props['energy']))
+
+        assert pop == systems[0].wfn.nel
+        energy = systems[0].props['energy']
+        # check for spurious atoms
+        if energy_table.is_spurious(number, pop, energy):
+            if args.include_spurious:
+                if log.do_warning:
+                    log.warn('Spurious atom included.')
+            else:
+                if log.do_medium:
+                    log('Skipping spurious: ', dn_state)
+                continue
+
+        energy_table.add(number, pop, energy)
+
         if log.do_medium:
             log('Succesfull:        ', dn_state)
         systems[0].assign_chk('%s/horton.h5' % dn_state)
         del systems
+
+    if log.do_medium:
+        energy_table.log()
 
 
 def main():

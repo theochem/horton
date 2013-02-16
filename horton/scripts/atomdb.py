@@ -27,8 +27,9 @@ from horton import periodic, log
 
 
 __all__ = [
-    'iter_elements', 'iter_mults', 'Template', 'add_atomdb_arguments',
-    'iter_states', 'write_input'
+    'iter_elements', 'iter_mults', 'Template', 'add_input_arguments',
+    'epilog_input', 'add_convert_arguments', 'iter_states', 'write_input',
+    'EnergyTable',
 ]
 
 
@@ -180,7 +181,7 @@ class Template(BaseTemplate):
         return result
 
 
-def add_atomdb_arguments(parser):
+def add_input_arguments(parser):
     '''Add common arguments for any atomdb script.'''
     parser.add_argument('elements',
         help='The comma-separated list of elements to be computed. One may '
@@ -188,25 +189,35 @@ def add_atomdb_arguments(parser):
              'allowed. For example, 1,6-8 will select hydrogen, carbon, '
              'nitrogen and oxygen.')
     parser.add_argument('template',
-        help='A template input file for a single atom in the origin. It must '
-             'contain fields ${charge}, ${mult} and ${element} or ${number}. '
-             'It may also contain fields like ${include:some.file} which will '
-             'be replaced by the contents of the file "some.file.ZZZ" where '
-             'ZZZ is the element number left-padded with zeros to fix the '
-             'the length at three characters. For example, for oxygen this '
-             'would be 008. Such includes may be useful for custom basis sets. '
-             'The filename of the include files may only contain characters '
-             'from the set [_a-z0-9.-].')
+        help='A template input file for a single atom in the origin. The '
+            'template must contain the fields described below.')
     parser.add_argument('--max-kation', type=int, default=3,
-        help='The most positive kation to consider. [default=3]')
+        help='The most positive kation to consider. [default=%(default)s]')
     parser.add_argument('--max-anion', type=int, default=2,
-        help='The most negative anion to consider. [default=2]')
+        help='The most negative anion to consider. [default=%(default)s]')
     parser.add_argument('--no-hund', dest='hund', default=True, action='store_false',
         help='When this flag is used, the script does not rely on Hund\'s '
              'rule. Several reasonable multiplicities are tested for each '
              'atom-charge combination and the lowest in energy is selected.')
     parser.add_argument('--overwrite', default=False, action='store_true',
         help='Overwrite existing input files.')
+
+
+epilog_input = '''\
+The following fields must be present in the template file: ${charge}, ${mult}
+and ${element} or ${number}. It may also contain fields like
+${include:some.file} which will be replaced by the contents of the file
+"some.file.ZZZ" where ZZZ is the element number left-padded with zeros to fix
+the the length at three characters. For example, for oxygen this would be 008.
+Such includes may be useful for custom basis sets. The filename of the include
+files may only contain characters from the set [_a-z0-9.-].
+'''
+
+def add_convert_arguments(parser):
+    parser.add_argument('--include-spurious', default=False, action='store_true',
+        help='Also convert atoms that are bound by the basis set. These '
+             'situations are normally detected by an increase in energy as an '
+             'electron is added.')
 
 
 def iter_states(elements, max_kation, max_anion, hund):
@@ -240,7 +251,7 @@ def iter_states(elements, max_kation, max_anion, hund):
                 yield number, charge, mult
 
 
-def write_input(number, charge, mult, template, do_overwrite, base_inp):
+def write_input(number, charge, mult, template, do_overwrite):
     # Directory stuff
     nel = number - charge
     dn_mult = '%03i_%s_%03i_q%+03i/mult%02i' % (
@@ -249,7 +260,7 @@ def write_input(number, charge, mult, template, do_overwrite, base_inp):
         os.makedirs(dn_mult)
 
     # Figure out if we want to write
-    fn_inp = '%s/%s' % (dn_mult, base_inp)
+    fn_inp = '%s/atom.in' % dn_mult
     exists = os.path.isfile(fn_inp)
     do_write = not exists or do_overwrite
 
@@ -272,3 +283,42 @@ def write_input(number, charge, mult, template, do_overwrite, base_inp):
         log('Not overwriting:  ', fn_inp)
 
     return dn_mult, do_write
+
+
+class EnergyTable(object):
+    def __init__(self):
+        self.all = {}
+
+    def add(self, number, pop, energy):
+        cases = self.all.setdefault(number, {})
+        cases[pop] = energy
+
+    def is_spurious(self, number, pop, energy):
+        cases = self.all.get(number)
+        if cases is not None:
+            energy_prev = cases.get(pop-1)
+            if energy is not None and energy_prev < energy:
+                return True
+        return False
+
+    def log(self):
+        log(' Nr Pop Chg              Energy          Ionization            Affinity')
+        log.hline()
+        for number, cases in sorted(self.all.iteritems()):
+            for pop, energy in sorted(cases.iteritems()):
+                energy_prev = cases.get(pop-1)
+                if energy_prev is None:
+                    ip_str = ''
+                else:
+                    ip_str = '% 18.10f' % (energy_prev - energy)
+
+                energy_next = cases.get(pop+1)
+                if energy_next is None:
+                    ea_str = ''
+                else:
+                    ea_str = '% 18.10f' % (energy - energy_next)
+
+                log('%3i %3i %+3i  % 18.10f  %18s  %18s' % (
+                    number, pop, number-pop, energy, ip_str, ea_str
+                ))
+            log.blank()

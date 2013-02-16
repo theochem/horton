@@ -156,7 +156,7 @@ class AtomicGrid(IntGrid):
 
 
 def interpret_atspec(number, atspec):
-    '''Convert to (rtransform, int1d, nlls) tuple
+    '''Convert atspec to (rtransform, int1d, nlls) tuple
 
        The atspec argument may be a string refering to a built-in grid file (see
        data/grid) or a tuple with three elements: ``(rtransform, integrator1d,
