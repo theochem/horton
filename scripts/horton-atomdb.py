@@ -22,205 +22,30 @@
 
 
 from horton import *
+from horton.scripts.atomdb import *
 import sys, argparse, os
 from glob import glob
-from string import Template
 
 
 log.set_level(log.silent)
 
 
-def iter_elements(elements_str):
-    for item in elements_str.split(','):
-        if '-' in item:
-            words = item.split("-")
-            if len(words) != 2:
-                raise ValueError("Each item should contain at most one dash.")
-            begin = int(words[0])
-            end = int(words[1])
-            for number in xrange(begin,end+1):
-                yield number
-        else:
-            yield int(item)
-
-
 def parse_args_input(args):
     parser = argparse.ArgumentParser(prog='horton-atomdb.py input',
         description='Create input files for a database of pro-atoms.')
-    parser.add_argument('elements',
-        help='The comma-separated list of elements to be computed. One may '
-             'also define ranges with the dash sign. No white space is '
-             'allowed. For example, 1,6-8 will select hydrogen, carbon, '
-             'nitrogen and oxygen.')
-    parser.add_argument('template',
-        help='A template input file for a single atom in the origin. It must '
-             'contain fields ${charge}, ${mult} and ${element} or ${number}. '
-             'It may also contain fields like ${include:some.file} which will '
-             'be replaced by the contents of the file "some.file.ZZZ" where '
-             'ZZZ is the element number left-padded with zeros to fix the '
-             'the length at three characters. For example, for oxygen this '
-             'would be 008. Such includes may be useful for custom basis sets. '
-             'The filename of the include files may only contain characters '
-             'from the set [_a-z0-9.-].')
-    parser.add_argument('--max-kation', type=int, default=3,
-        help='The most positive kation to consider. [default=3]')
-    parser.add_argument('--max-anion', type=int, default=2,
-        help='The most negative anion to consider. [default=2]')
-    parser.add_argument('--no-hund', dest='hund', default=True, action='store_false',
-        help='When this flag is used, the script does not rely on Hund\'s '
-             'rule. Several reasonable multiplicities are tested for each '
-             'atom-charge combination and the lowest in energy is selected.')
-    parser.add_argument('--overwrite', default=False, action='store_true',
-        help='Overwrite existing input files.')
+    add_atomdb_arguments(parser)
     return parser.parse_args(args)
-
-
-# Presets for spin multiplicites. The first element is according to Hund's rule.
-# Following elements are reasonable.
-mult_presets = {
-    1: [2],
-    2: [1, 3],
-    3: [2, 4],
-    4: [1, 3],
-    5: [2, 4],
-    6: [3, 5, 1],
-    7: [4, 2],
-    8: [3, 1],
-    9: [2],
-    10: [1],
-    11: [2],
-    12: [1, 3],
-    13: [2, 4],
-    14: [3, 5, 1],
-    15: [4, 2],
-    16: [3, 1],
-    17: [2],
-    18: [1],
-    19: [2],
-    20: [1, 3],
-    21: [2, 4],
-    22: [3, 5, 1],
-    23: [4, 6, 2],
-    24: [7, 5, 3, 1],
-    25: [6, 4, 2],
-    26: [5, 3, 1],
-    27: [4, 2],
-    28: [3, 1],
-    29: [2],
-    30: [1],
-    31: [2, 4, 6],
-    32: [3, 1, 5],
-    33: [4, 2],
-    34: [3, 1],
-    35: [2],
-    36: [1],
-    37: [2],
-    38: [1, 3],
-    39: [2, 4],
-    40: [3, 1, 5],
-    41: [6, 4, 2],
-    42: [7, 5, 3, 1],
-    43: [6, 4, 2],
-    44: [5, 3, 1],
-    45: [4, 2],
-    46: [1, 3],
-    47: [2],
-    48: [1],
-    49: [2, 4],
-    50: [3, 1, 5],
-    51: [4, 2],
-    52: [3, 1],
-    53: [2],
-    54: [1],
-    55: [2],
-    56: [1, 3],
-}
-
-
-def iter_mults(nel, hund):
-    if hund:
-        yield mult_presets[nel][0]
-    else:
-        for mult in mult_presets[nel]:
-            yield mult
-
-
-def _get_include_names(template):
-    import re
-    pattern = '%s{(?P<braced>%s)}' % (re.escape(template.delimiter), template.idpattern)
-    result = set([])
-    for mo in re.finditer(pattern, template.template):
-        braced = mo.group('braced')
-        if braced is not None and braced.startswith('include:'):
-            result.add(braced[8:])
-    return list(result)
-
-
-def _load_includes(include_names, number):
-    result = {}
-    for name in include_names:
-        with open('%s.%03i' % (name, number)) as f:
-            s = f.read()
-        # chop of one final newline if present (mostly the case)
-        if s[-1] == '\n':
-            s = s[:-1]
-        result['include:%s' % name] = s
-    return result
-
-
-class GeneralTemplate(Template):
-    idpattern = r'[_a-z0-9.:-]+'
-    pass
 
 
 def main_input(args):
     # Load the template file
     with open(args.template) as f:
-        template = GeneralTemplate(f.read())
-    include_names = _get_include_names(template)
+        template = Template(f.read())
     base_inp = os.path.basename(args.template)
 
-    # print include names
-    if len(include_names) > 0:
-        print 'The following includes were detected in the template:'
-        for name in include_names:
-            print '   ', name
-
-    # Loop over all elements and make input files
-    for number in iter_elements(args.elements):
-        # load includes for this element
-        includes = _load_includes(include_names, number)
-        # Loop over all charge states for this element
-        for charge in xrange(-args.max_anion, args.max_kation+1):
-            nel = number - charge
-            if nel <= 0:
-                continue
-            dn_state = '%03i_%s_%03i_q%+03i' % (
-                number, periodic[number].symbol.lower().rjust(2, '_'), nel, charge)
-            if not os.path.isdir(dn_state):
-                os.mkdir(dn_state)
-            # loop over multiplicities
-            for mult in iter_mults(nel, args.hund):
-                dn_mult = '%s/mult%02i' % (dn_state, mult)
-                if not os.path.isdir(dn_mult):
-                    os.mkdir(dn_mult)
-                fn_inp = '%s/%s' % (dn_mult, base_inp)
-                exists = os.path.isfile(fn_inp)
-                if not exists or args.overwrite:
-                    with open(fn_inp, 'w') as f:
-                        f.write(template.substitute(
-                            includes,
-                            charge=str(charge),
-                            mult=str(mult),
-                            number=str(number),
-                            element=periodic[number].symbol,
-                        ))
-                    if exists:
-                        print 'Overwritten:      ', fn_inp
-                    else:
-                        print 'Written new:      ', fn_inp
-                else:
-                    print 'Not overwriting:  ', fn_inp
+    # Loop over all atomic states and make input files
+    for number, charge, mult in iter_states(args.elements, args.max_kation, args.max_anion, args.hund):
+        write_input(number, charge, mult, template, args.overwrite, base_inp)
 
 
 def parse_args_convert(args):
