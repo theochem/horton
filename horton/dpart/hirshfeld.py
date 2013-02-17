@@ -235,7 +235,6 @@ class HirshfeldEDPart(HirshfeldIDPart):
                             redundant = True
                             break
 
-                    #print index, number, j0, pop, redundant
                     if not redundant:
                         records.append(record)
                         if j0 == 0:
@@ -254,6 +253,9 @@ class HirshfeldEDPart(HirshfeldIDPart):
                     for j1 in xrange(j0+1):
                         A[j0, j1] = dot_multi(weights, records[j0], records[j1])
                         A[j1, j0] = A[j0, j1]
+
+                if (np.diag(A) < 0).any():
+                    raise ValueError('The diagonal of A must be positive.')
 
                 self.cache.dump('A', number, A)
 
