@@ -21,6 +21,7 @@
 
 
 from horton.grid.cext import dot_multi, grid_distances, eval_spline_grid
+from horton.cext import Cell
 
 
 __all__ = ['IntGrid']
@@ -92,5 +93,7 @@ class IntGrid(object):
         '''Compute distances between all grid points and a center, store result in d.'''
         grid_distances(self.points, center, d)
 
-    def eval_spline(self, cubic_spline, center, output, cell):
+    def eval_spline(self, cubic_spline, center, output, cell=None):
+        if cell is None:
+            cell = Cell(None)
         eval_spline_grid(cubic_spline, center, output, self.points, cell)

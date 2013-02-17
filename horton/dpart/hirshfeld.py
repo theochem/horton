@@ -24,12 +24,13 @@ import numpy as np
 
 from horton.cache import just_once
 from horton.dpart.base import DPart
-from horton.grid.int1d import TrapezoidIntegrator1D
-from horton.grid.cext import dot_multi
+from horton.dpart.linalg import solve_positive
+from horton.grid.int1d import SimpsonIntegrator1D
+from horton.grid.cext import CubicSpline, dot_multi
 from horton.log import log
 
 
-__all__ = ['HirshfeldDPart', 'HirshfeldIDPart']
+__all__ = ['HirshfeldDPart', 'HirshfeldIDPart', 'HirshfeldEDPart']
 
 
 class HirshfeldDPart(DPart):
@@ -118,14 +119,16 @@ class HirshfeldIDPart(HirshfeldDPart):
             log.cite('bultinck2007', 'for the use of Hirshfeld-I partitioning')
 
     def _proatom_change(self, old, new):
-        # Note that the dumb TrapezoidIntegrator is fine enough for
-        # the convergence test.
         return (4*np.pi)*dot_multi(
             self._proatomdb._rtransform.get_radii()**2, # TODO: get routines are slow
             self._proatomdb._rtransform.get_volume_elements(),
-            TrapezoidIntegrator1D().get_weights(self._proatomdb._rtransform.npoint),
+            SimpsonIntegrator1D().get_weights(self._proatomdb._rtransform.npoint),
             (old.copy_y() - new.copy_y())**2 # TODO: copy is slow
         )
+
+    def _get_proatom_fn(self, i, n, p, first, grid):
+        ip = int(np.floor(p))
+        return self._proatomdb.get_spline(n, {ip: 1-(p-ip), ip+1: p-ip})
 
     @just_once
     def _init_at_weights(self):
@@ -143,16 +146,17 @@ class HirshfeldIDPart(HirshfeldDPart):
             log.hline()
             log('Counter      Change   Pop.Error')
             log.hline()
+
         while True:
             # Update current pro-atoms
             change = 0.0
             first_iter = True
-            for i in xrange(self.system.natom):
+            for i, grid in self.iter_grids():
                 old_proatom_fn = self.cache.load('proatom_fn', i, default=None)
                 n = self.system.numbers[i]
                 p = populations[i]
-                ip = int(np.floor(p))
-                proatom_fn = self._proatomdb.get_spline(n, {ip: 1-(p-ip), ip+1: p-ip})
+                proatom_fn = self._get_proatom_fn(i, n, p, old_proatom_fn is None, grid)
+
                 self.cache.dump('proatom_fn', i, proatom_fn)
                 if old_proatom_fn is not None:
                     first_iter = False
@@ -161,6 +165,7 @@ class HirshfeldIDPart(HirshfeldDPart):
             # Enforce (single) update of pro-molecule in case of a global grid
             if not self.local:
                 self._pro_mol_valid = False
+
             # Compute populations
             for i, grid in self.iter_grids():
                 # Compute weight
@@ -192,3 +197,102 @@ class HirshfeldIDPart(HirshfeldDPart):
 
         self._at_weights_cleanup()
         self.cache.dump('populations', populations)
+
+
+class HirshfeldEDPart(HirshfeldIDPart):
+    '''Iterative Hirshfeld partitioning'''
+
+    def _get_proatom_fn(self, index, number, population, first, grid):
+        if first:
+            return self._proatomdb.get_spline(number)
+        else:
+            rtf = self._proatomdb._rtransform
+            int1d = SimpsonIntegrator1D()
+            radii = rtf.get_radii()
+            weights = (4*np.pi) * radii**2 * int1d.get_weights(len(radii)) * rtf.get_volume_elements()
+            assert (weights > 0).all()
+
+            if self.cache.has('records', number):
+                records = self.cache.load('records', number)
+                pops = self.cache.load('pops', number)
+                neq = len(pops)
+                A = self.cache.load('A', number)
+            else:
+                # Construct the basis functions
+                records = []
+                pops = []
+                for j0, pop in enumerate(self._proatomdb.get_pops(number)):
+                    if j0 == 0:
+                        record = self._proatomdb.get_record(number, pop)/pop
+                    else:
+                        record = self._proatomdb.get_record(number, pop) - \
+                                 self._proatomdb.get_record(number, pop-1)
+
+                    redundant = False
+                    for j1 in xrange(j0):
+                        delta = record - records[j1]
+                        if dot_multi(weights, delta, delta) < 1e-5:
+                            redundant = True
+                            break
+
+                    #print index, number, j0, pop, redundant
+                    if not redundant:
+                        records.append(record)
+                        if j0 == 0:
+                            pops.append(pop)
+                        else:
+                            pops.append(1.0)
+                records = np.array(records)
+                pops = np.array(pops)
+                self.cache.dump('records', number, records)
+                self.cache.dump('pops', number, pops)
+
+                # Set up system of linear equations:
+                neq = len(pops)
+                A = np.zeros((neq, neq), float)
+                for j0 in xrange(neq):
+                    for j1 in xrange(j0+1):
+                        A[j0, j1] = dot_multi(weights, records[j0], records[j1])
+                        A[j1, j0] = A[j0, j1]
+
+                self.cache.dump('A', number, A)
+
+            B = np.zeros(neq, float)
+            tmp = np.zeros(grid.size)
+            dens = self.cache.load('mol_dens', index)
+            at_weights = self.cache.load('at_weights', index)
+            for j0 in xrange(neq):
+                tmp[:] = 0.0
+                spline = CubicSpline(records[j0], rtf=rtf)
+                grid.eval_spline(spline, self._system.coordinates[index], tmp)
+                B[j0] = grid.integrate(at_weights, dens, tmp)
+
+            # Precondition
+            scales = np.diag(A)**0.5
+            Ap = A/scales/scales.reshape(-1, 1)
+            Bp = B/scales
+
+            # Find solution
+            lc_pop = (np.ones(neq)/scales, population)
+            coeffs = solve_positive(Ap, Bp, [lc_pop])
+            # correct for scales
+            coeffs /= scales
+
+            # Screen output
+            if log.do_medium:
+                log('                   %10i:&%s' % (index, ' '.join('% 6.3f' % c for c in coeffs)))
+
+            # Construct pro-atom
+            record = 0
+            for j0 in xrange(neq):
+                record += coeffs[j0]*records[j0]
+            error = np.dot(record, weights) - population
+            assert abs(error) < 1e-5
+
+            # Check for negative parts
+            if record.min() < 0:
+                record[record<0] = 0.0
+                error = np.dot(record, weights) - population
+                if log.do_medium:
+                    log('                    Pro-atom not positive everywhere. Lost %.5f electrons' % error)
+            return CubicSpline(record, rtf=rtf)
