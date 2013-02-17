@@ -21,15 +21,15 @@
 
 
 from string import Template as BaseTemplate
-import re, os
+from glob import glob
+import re, os, stat, numpy as np, h5py as h5
 
-from horton import periodic, log
+from horton import periodic, log, System, LebedevLaikovSphereGrid
 
 
 __all__ = [
-    'iter_elements', 'iter_mults', 'Template', 'add_input_arguments',
-    'epilog_input', 'add_convert_arguments', 'iter_states', 'write_input',
-    'EnergyTable',
+    'iter_elements', 'iter_mults', 'iter_states',
+    'Template', 'EnergyTable', 'atom_programs',
 ]
 
 
@@ -137,6 +137,37 @@ def iter_mults(nel, hund):
             yield mult
 
 
+def iter_states(elements, max_kation, max_anion, hund):
+    '''Iterate over all requested atomic states
+
+       **Arguments:**
+
+       elements
+            A string that is suitable for ``iter_elements``
+
+       template
+            An instance of the ``atomdb.Template`` class
+
+       max_kation
+            The limit for the most positive kation
+
+       max_anion
+            The limit for the most negative anion
+
+       hund
+            Flag to adhere to hund's rule for the spin multiplicities.
+    '''
+    for number in iter_elements(elements):
+        # Loop over all charge states for this element
+        for charge in xrange(-max_anion, max_kation+1):
+            nel = number - charge
+            if nel <= 0:
+                continue
+            # loop over multiplicities
+            for mult in iter_mults(nel, hund):
+                yield number, charge, mult
+
+
 class Template(BaseTemplate):
     '''A template with modifications to support inclusion of other files.'''
     idpattern = r'[_a-z0-9.:-]+'
@@ -181,110 +212,6 @@ class Template(BaseTemplate):
         return result
 
 
-def add_input_arguments(parser):
-    '''Add common arguments for any atomdb script.'''
-    parser.add_argument('elements',
-        help='The comma-separated list of elements to be computed. One may '
-             'also define ranges with the dash sign. No white space is '
-             'allowed. For example, 1,6-8 will select hydrogen, carbon, '
-             'nitrogen and oxygen.')
-    parser.add_argument('template',
-        help='A template input file for a single atom in the origin. The '
-            'template must contain the fields described below.')
-    parser.add_argument('--max-kation', type=int, default=3,
-        help='The most positive kation to consider. [default=%(default)s]')
-    parser.add_argument('--max-anion', type=int, default=2,
-        help='The most negative anion to consider. [default=%(default)s]')
-    parser.add_argument('--no-hund', dest='hund', default=True, action='store_false',
-        help='When this flag is used, the script does not rely on Hund\'s '
-             'rule. Several reasonable multiplicities are tested for each '
-             'atom-charge combination and the lowest in energy is selected.')
-    parser.add_argument('--overwrite', default=False, action='store_true',
-        help='Overwrite existing input files.')
-
-
-epilog_input = '''\
-The following fields must be present in the template file: ${charge}, ${mult}
-and ${element} or ${number}. It may also contain fields like
-${include:some.file} which will be replaced by the contents of the file
-"some.file.ZZZ" where ZZZ is the element number left-padded with zeros to fix
-the the length at three characters. For example, for oxygen this would be 008.
-Such includes may be useful for custom basis sets. The filename of the include
-files may only contain characters from the set [_a-z0-9.-].
-'''
-
-def add_convert_arguments(parser):
-    parser.add_argument('--include-spurious', default=False, action='store_true',
-        help='Also convert atoms that are bound by the basis set. These '
-             'situations are normally detected by an increase in energy as an '
-             'electron is added.')
-
-
-def iter_states(elements, max_kation, max_anion, hund):
-    '''Iterate over all requested atomic states
-
-       **Arguments:**
-
-       elements
-            A string that is suitable for ``iter_elements``
-
-       template
-            An instance of the ``atomdb.Template`` class
-
-       max_kation
-            The limit for the most positive kation
-
-       max_anion
-            The limit for the most negative anion
-
-       hund
-            Flag to adhere to hund's rule for the spin multiplicities.
-    '''
-    for number in iter_elements(elements):
-        # Loop over all charge states for this element
-        for charge in xrange(-max_anion, max_kation+1):
-            nel = number - charge
-            if nel <= 0:
-                continue
-            # loop over multiplicities
-            for mult in iter_mults(nel, hund):
-                yield number, charge, mult
-
-
-def write_input(number, charge, mult, template, do_overwrite):
-    # Directory stuff
-    nel = number - charge
-    dn_mult = '%03i_%s_%03i_q%+03i/mult%02i' % (
-        number, periodic[number].symbol.lower().rjust(2, '_'), nel, charge, mult)
-    if not os.path.isdir(dn_mult):
-        os.makedirs(dn_mult)
-
-    # Figure out if we want to write
-    fn_inp = '%s/atom.in' % dn_mult
-    exists = os.path.isfile(fn_inp)
-    do_write = not exists or do_overwrite
-
-    if do_write:
-        includes = template.load_includes(number)
-        with open(fn_inp, 'w') as f:
-            f.write(template.substitute(
-                includes,
-                charge=str(charge),
-                mult=str(mult),
-                number=str(number),
-                element=periodic[number].symbol,
-            ))
-        if log.do_medium:
-            if exists:
-                log('Overwritten:      ', fn_inp)
-            else:
-                log('Written new:      ', fn_inp)
-    elif log.do_medium:
-        log('Not overwriting:  ', fn_inp)
-
-    return dn_mult, do_write
-
-
 class EnergyTable(object):
     def __init__(self):
         self.all = {}
@@ -322,3 +249,245 @@ class EnergyTable(object):
                     number, pop, number-pop, energy, ip_str, ea_str
                 ))
             log.blank()
+
+
+class AtomProgram(object):
+    name = None
+    run_script = None
+
+    def write_input(self, number, charge, mult, template, do_overwrite, atgrid):
+        # Directory stuff
+        nel = number - charge
+        dn_mult = '%03i_%s_%03i_q%+03i/mult%02i' % (
+            number, periodic[number].symbol.lower().rjust(2, '_'), nel, charge, mult)
+        if not os.path.isdir(dn_mult):
+            os.makedirs(dn_mult)
+
+        # Figure out if we want to write
+        fn_inp = '%s/atom.in' % dn_mult
+        exists = os.path.isfile(fn_inp)
+        do_write = not exists or do_overwrite
+
+        if do_write:
+            includes = template.load_includes(number)
+            with open(fn_inp, 'w') as f:
+                f.write(template.substitute(
+                    includes,
+                    charge=str(charge),
+                    mult=str(mult),
+                    number=str(number),
+                    element=periodic[number].symbol,
+                ))
+            if log.do_medium:
+                if exists:
+                    log('Overwritten:      ', fn_inp)
+                else:
+                    log('Written new:      ', fn_inp)
+        elif log.do_medium:
+            log('Not overwriting:  ', fn_inp)
+
+        return dn_mult, do_write
+
+    def write_run_script(self):
+        # write the script
+        fn_script = 'run_%s.sh' % self.name
+        with open(fn_script, 'w') as f:
+            print >> f, self.run_script
+            for dn in sorted(glob("[01]??_??_[01]??_q[+-]??/mult??")):
+                print >> f, 'do_atom', dn
+        # make the script executable
+        os.chmod(fn_script, stat.S_IXUSR | os.stat(fn_script).st_mode)
+        if log.do_medium:
+            log('Written', fn_script)
+
+    def _get_energy(self, system, dn_mult):
+        return system.props['energy']
+
+    def load_atom(self, dn_mult, ext):
+        fn = '%s/atom.%s' % (dn_mult, ext)
+        if not os.path.isfile(fn):
+            return None, None
+
+        system = System.from_file(fn)
+        energy = self._get_energy(system, dn_mult)
+        return system, energy
+
+    def create_record(self, system, dn_mult, rtf, nll):
+        if system is None:
+            raise NotImplementedError
+
+        assert system.natom == 1
+
+        result = np.zeros(rtf.npoint)
+        radii = rtf.get_radii()
+        llgrid = LebedevLaikovSphereGrid(system.coordinates[0], 1.0, nll, random_rotate=False)
+        for i in xrange(rtf.npoint):
+            rhos = system.compute_grid_density(llgrid.points*radii[i])
+            # TODO: also compute the derivatives of the average
+            #       with respect to r for better splines
+            result[i] = llgrid.integrate(rhos)/llgrid.weights.sum()
+        return result
+
+
+run_gaussian_script = '''
+#!/bin/bash
+
+# make sure %(name)s is available before running this script.
+
+MISSING=0
+if ! which %(name)s &>/dev/null; then echo "%(name)s binary not found."; MISSING=1; fi
+if [ $MISSING -eq 1 ]; then echo "The required programs are not present on your system. Giving up."; exit -1; fi
+
+function do_atom {
+    echo "Computing in ${1}"
+    cd ${1}
+    if [ -e atom.out ]; then
+        echo "Output file present in ${1}, not recomputing."
+    else
+        %(name)s < atom.in > atom.out
+        formchk atom.chk atom.fchk
+        rm atom.chk
+    fi
+    cd -
+}
+'''
+
+
+class G09AtomProgram(AtomProgram):
+    name = 'g09'
+    run_script = run_gaussian_script % {'name': 'g09'}
+
+    def write_input(self, number, charge, mult, template, do_overwrite, atgrid):
+        if '%chk=atom.chk\n' not in template.template:
+            raise ValueError('The template must contain a line \'%chk=atom.chk\'')
+        return AtomProgram.write_input(self, number, charge, mult, template, do_overwrite, atgrid)
+
+    def load_atom(self, dn_mult):
+        return AtomProgram.load_atom(self, dn_mult, 'fchk')
+
+
+class G03AtomProgram(G09AtomProgram):
+    name = 'g03'
+    run_script = run_gaussian_script % {'name': 'g03'}
+
+
+run_orca_script = '''
+#!/bin/bash
+
+# make sure orca and orca2mkl are available before running this script.
+
+MISSING=0
+if ! which orca &>/dev/null; then echo "orca binary not found."; MISSING=1; fi
+if ! which orca_2mkl &>/dev/null; then echo "orca_2mkl binary not found."; MISSING=1; fi
+if [ $MISSING -eq 1 ]; then echo "The required programs are not present on your system. Giving up."; exit -1; fi
+
+function do_atom {
+    echo "Computing in ${1}"
+    cd ${1}
+    if [ -e atom.out ]; then
+        echo "Output file present in ${1}, not recomputing."
+    else
+        orca atom.in > atom.out
+        orca_2mkl atom -molden
+    fi
+    cd -
+}
+'''
+
+
+class OrcaAtomProgram(AtomProgram):
+    name = 'orca'
+    run_script = run_orca_script
+
+    def _get_energy(self, system, dn_mult):
+        with open('%s/atom.out' % dn_mult) as f:
+            for line in f:
+                if line.startswith('Total Energy       :'):
+                    return float(line[25:43])
+
+    def load_atom(self, dn_mult):
+        return AtomProgram.load_atom(self, dn_mult, 'molden.input')
+
+
+run_adf_script = '''
+#!/bin/bash
+
+# make sure adf and the kf2hdf.py script are available before running this
+# script.
+
+MISSING=0
+if ! which adf &>/dev/null; then echo "adf binary not found."; MISSING=1; fi
+if ! which densf &>/dev/null; then echo "densf binary not found."; MISSING=1; fi
+if ! which kf2hdf.py &>/dev/null; then echo "kf2hdf.py not found."; MISSING=1; fi
+if [ $MISSING -eq 1 ]; then echo "The required programs are not present on your system. Giving up."; exit -1; fi
+
+function do_atom {
+    echo "Computing in ${1}"
+    cd ${1}
+    if [ -e atom.out ]; then
+        echo "Output file present in ${1}, not recomputing."
+    else
+        adf < atom.in > atom.out
+        densf < grid.in > grid.out
+        kf2hdf.py TAPE41 grid.h5
+        rm logfile t21.* TAPE21 TAPE41
+    fi
+    cd -
+}
+'''
+
+adf_grid_prefix = '''\
+INPUTFILE TAPE21
+UNITS
+ Length bohr
+END
+Grid inline
+'''
+
+adf_grid_suffix = '''\
+END
+density scf
+'''
+
+
+class ADFAtomProgram(AtomProgram):
+    name = 'adf'
+    run_script = run_adf_script
+
+    def write_input(self, number, charge, mult, template, do_overwrite, atgrid):
+        dn_mult, do_write = AtomProgram.write_input(self, number, charge, mult, template, do_overwrite, atgrid)
+        if do_write:
+            # Write the grid input
+            with open('%s/grid.in' % dn_mult, 'w') as f:
+                f.write(adf_grid_prefix)
+                for point in atgrid.points:
+                    f.write('    %23.16e  %23.16e  %23.16e\n' % tuple(point))
+                f.write(adf_grid_suffix)
+        return dn_mult, do_write
+
+    def _get_energy(self, system, dn_mult):
+        with open('%s/atom.out' % dn_mult) as f:
+            for line in f:
+                if line.startswith('Total Bonding Energy:'):
+                    return float(line[30:56])
+
+
+    def load_atom(self, dn_mult):
+        system = None
+        return system, self._get_energy(system, dn_mult)
+
+    def create_record(self, system, dn_mult, rtf, nll):
+        with h5.File('%s/grid.h5' % dn_mult) as f:
+            npoint = f['Grid/total nr of points'][()]
+            assert npoint % rtf.npoint == 0
+            nll = npoint / rtf.npoint
+            llgrid = LebedevLaikovSphereGrid(np.zeros(3), 1.0, nll, random_rotate=False)
+            dens = f['SCF/Density'][:].reshape((rtf.npoint,nll))
+            record = np.dot(dens, llgrid.weights)/llgrid.weights.sum()
+            return record
+
+
+atom_programs = {}
+for APC in globals().values():
+    if isinstance(APC, type) and issubclass(APC, AtomProgram) and not APC is AtomProgram:
+        atom_programs[APC.name] = APC()
