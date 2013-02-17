@@ -401,6 +401,10 @@ class ProAtomDB(object):
         else:
             raise TypeError('Could not interpret parameters argument')
 
+    def get_numbers(self):
+        '''Return the element numbers present in the database'''
+        return sorted(set([n for n, p in self._records]))
+
     def get_pops(self, number):
         result = [p for n, p in self._records if n == number]
         result.sort()
