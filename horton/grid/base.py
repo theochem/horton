@@ -87,6 +87,7 @@ class IntGrid(object):
                 of grid points. The arrays contain the functions, evaluated
                 at the grid points, that must be multiplied and integrated.
         '''
+        args = [arg for arg in args if arg is not None]
         return dot_multi(self.weights, *args)
 
     def distances(self, center, d):

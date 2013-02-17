@@ -62,6 +62,11 @@ class UniformIntGrid(object):
         rvecs = (self.grid_cell.rvecs*self.shape.reshape(-1,1))
         return Cell(rvecs[self.pbc_active.astype(bool)])
 
+    def _get_size(self):
+        return np.product(self.shape)
+
+    size = property(_get_size)
+
     def eval_spline(self, spline, center, output):
         eval_spline_cube(spline, center, output, self.origin, self.grid_cell, self.shape, self.pbc_active)
 
