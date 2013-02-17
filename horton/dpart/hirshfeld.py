@@ -40,6 +40,11 @@ class HirshfeldDPart(DPart):
         self._pro_mol_valid = False
         DPart.__init__(self, molgrid, local)
 
+    def _get_proatomdb(self):
+        return self._proatomdb
+
+    proatomdb = property(_get_proatomdb)
+
     def _init_log(self):
         DPart._init_log(self)
         if log.do_medium:
@@ -200,7 +205,7 @@ class HirshfeldIDPart(HirshfeldDPart):
 
 
 class HirshfeldEDPart(HirshfeldIDPart):
-    '''Iterative Hirshfeld partitioning'''
+    '''Extended Hirshfeld partitioning'''
 
     def _get_proatom_fn(self, index, number, population, first, grid):
         if first:
