@@ -134,6 +134,14 @@ class ProAtomDB(object):
         self._records = records
         self._log_init()
 
+    def _get_rtransform(self):
+        return self._rtransform
+
+    rtransform = property(_get_rtransform)
+
+    def get_record(self, number, pop):
+        return self._records[(number, pop)]
+
     @classmethod
     def from_file(cls, filename):
         '''Construct an dabase from an HDF5 file
