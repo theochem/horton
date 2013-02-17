@@ -432,21 +432,16 @@ class HirshfeldECCPart(HirshfeldICCPart):
         for i in xrange(self._system.natom):
             n = self._system.numbers[i]
             pops = self._proatomdb.get_pops(n)
-            rad_funcs = []
-            for j in xrange(len(pops)):
-                if j == 0:
-                    record = self._proatomdb._records[(n, pops[0])]
-                else:
-                    record = self._proatomdb._records[(n, pops[j])] - \
-                             self._proatomdb._records[(n, pops[j-1])]
-                spline = CubicSpline(record**2, rtf=rtf)
-                int_exact = np.dot(record**2, weights1d)
-                rad_funcs.append((None, spline, int_exact))
+            record = self._proatomdb.get_record(n, pops[0])
+            spline = CubicSpline(record**2, rtf=rtf)
+            int_exact = np.dot(record**2, weights1d)
+
             funcs.append((
                 self._system.coordinates[i],
                 1.0, # TODO determine radii in clever way or write new correction algo
-                rad_funcs
+                [(None, spline, int_exact)],
             ))
+
         wcor_fit = self._ui_grid.compute_weight_corrections(funcs)
         self._cache.dump('wcor_fit', wcor_fit)
 
@@ -459,7 +454,7 @@ class HirshfeldECCPart(HirshfeldICCPart):
             number = self._system.numbers[i]
             center = self._system.coordinates[i]
             if j == 0:
-                spline = self._proatomdb.get_spline(number, pops[0])
+                spline = self._proatomdb.get_spline(number, {pops[0]: 1.0/pops[0]})
             else:
                 spline = self._proatomdb.get_spline(number, {pops[j]: 1, pops[j-1]: -1})
             if log.do_medium:
@@ -519,10 +514,7 @@ class HirshfeldECCPart(HirshfeldICCPart):
 
 
             # 3) find solution
-            basis_pops = pops.copy()
-            basis_pops[1:] = 1.0
-            lc_pop = (basis_pops/scales, pop)
-            lc_cusp = (np.ones(neq)/scales, 1.0)
+            lc_pop = (np.ones(neq)/scales, pop)
             coeffs = solve_positive(A, B, [lc_pop])
             # correct for scales
             coeffs /= scales
