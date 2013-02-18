@@ -25,8 +25,6 @@ from horton.cpart.hirshfeld import *
 
 cpart_schemes = {}
 for o in globals().values():
-    if isinstance(o, type) and \
-       (issubclass(o, CPart) or issubclass(o, CCPart)) and \
-       not (o is CPart or o is CCPart):
+    if isinstance(o, type) and issubclass(o, CPart) and not (o is CPart):
         cpart_schemes[o.name] = o
 del o
