@@ -212,6 +212,9 @@ class CCPart(JustOnceClass):
         for i in xrange(self._system.natom):
             at_weights = self._cache.load('at_weights', i)
             result[i] = self._ui_grid.integrate(at_weights, mol_dens, wcor)
+        nuclear_charges = self._systen.props.get('nuclear_charges')
+        if nuclear_charges is not None:
+            result += nuclear_charges
         return result
 
     @just_once
