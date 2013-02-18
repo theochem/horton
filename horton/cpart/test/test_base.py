@@ -20,13 +20,8 @@
 #--
 
 
-from horton.cpart.base import *
-from horton.cpart.hirshfeld import *
+from horton import *
 
-cpart_schemes = {}
-for o in globals().values():
-    if isinstance(o, type) and \
-       (issubclass(o, CPart) or issubclass(o, CCPart)) and \
-       not (o is CPart or o is CCPart):
-        cpart_schemes[o.name] = o
-del o
+def test_cpart_schemes():
+    assert 'hi1' in cpart_schemes
+    assert cpart_schemes['hi1'] is HirshfeldICPart

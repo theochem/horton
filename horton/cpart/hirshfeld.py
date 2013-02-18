@@ -38,6 +38,8 @@ __all__ = [
 
 
 class HirshfeldCPart(CPart):
+    name = 'h1'
+
     def __init__(self, system, ui_grid, mol_dens, proatomdb):
         '''
            **Arguments:**
@@ -108,6 +110,8 @@ class HirshfeldCPart(CPart):
 
 
 class HirshfeldICPart(HirshfeldCPart):
+    name = 'hi1'
+
     def _get_isolated_atom(self, i, pop):
         # A local cache is used that only exists during _init_at_weights:
         isolated_atom, new = self._local_cache.load('isolated_atom', i, pop, alloc=self._ui_grid.shape)
@@ -173,6 +177,8 @@ class HirshfeldICPart(HirshfeldCPart):
 
 
 class HirshfeldECPart(HirshfeldICPart):
+    name = 'he1'
+
     def _compute_pro_atom(self, i):
         # Pro-atoms are (temporarily) stored in at_weights for efficiency.
         pro_atom, new = self._cache.load('at_weights', i, alloc=self._ui_grid.shape)
@@ -262,6 +268,8 @@ class HirshfeldECPart(HirshfeldICPart):
 
 
 class HirshfeldCCPart(CCPart):
+    name = 'h2'
+
     def __init__(self, system, ui_grid, mol_dens, proatomdb):
         '''
            **Arguments:**
@@ -345,6 +353,8 @@ class HirshfeldCCPart(CCPart):
 
 
 class HirshfeldICCPart(HirshfeldCCPart):
+    name = 'hi2'
+
     def _get_isolated_atom(self, i, pop):
         # A local cache is used that only exists during _init_at_weights:
         isolated_atom, new = self._cache.load('isolated_atom', i, pop, alloc=self._ui_grid.shape)
@@ -405,6 +415,8 @@ class HirshfeldICCPart(HirshfeldCCPart):
 
 
 class HirshfeldECCPart(HirshfeldICCPart):
+    name = 'he2'
+
     @just_once
     def _init_weight_corrections(self):
         # Corrections for the integration of normal densities
