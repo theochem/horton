@@ -25,7 +25,7 @@ from horton import *
 from horton.cpart.test.common import get_fake_co
 
 
-def test_hirshfeld_jbw_coarse():
+def test_cpart1_hirshfeld_jbw_coarse():
     # This test is not supposed to generate meaningful numbers. The cube data
     # is too coarse and the reference atoms may have little similarities with
     # the DFT density.
@@ -33,6 +33,7 @@ def test_hirshfeld_jbw_coarse():
     # Load the cube file
     fn_cube = context.get_fn('test/jbw_coarse_aedens.cube')
     sys = System.from_file(fn_cube)
+    del sys.props['nuclear_charges']
     mol_dens = sys.props['cube_data']
     ui_grid = sys.props['ui_grid']
 
@@ -43,71 +44,71 @@ def test_hirshfeld_jbw_coarse():
     proatomdb = ProAtomDB.from_refatoms(atgrid, numbers=[8,14], qmax=0)
 
     # Run the partitioning
-    hcpart = HirshfeldCPart(sys, ui_grid, mol_dens, proatomdb)
+    hcpart = HirshfeldCPart1(sys, ui_grid, mol_dens, proatomdb, False)
     hcpart.do_charges()
-    assert abs(hcpart['charges'].sum() + ui_grid.integrate(hcpart['rel_mol_dens'])) < 1e-10
+    assert abs(hcpart['charges'].sum() + ui_grid.integrate(hcpart['moldens'])) < 1e-10
 
 
-def test_cpart_hirshfeld_fake():
+def test_cpart1_hirshfeld_fake():
     sys, ui_grid, mol_dens, proatomdb = get_fake_co()
 
     # Run the partitioning
-    hicpart = HirshfeldCPart(sys, ui_grid, mol_dens, proatomdb)
-    hicpart.do_charges()
-    charges = hicpart['charges']
+    cpart = HirshfeldCPart1(sys, ui_grid, mol_dens, proatomdb, False)
+    cpart.do_charges()
+    charges = cpart['charges']
     assert charges.sum() < 1e-3
     assert abs(charges[0] - 0.112) < 1e-3
 
 
-def test_cpart_hirshfeld_i_fake():
+def test_cpart1_hirshfeld_i_fake():
     sys, ui_grid, mol_dens, proatomdb = get_fake_co()
 
     # Run the partitioning
-    hicpart = HirshfeldICPart(sys, ui_grid, mol_dens, proatomdb)
-    hicpart.do_charges()
-    charges = hicpart['charges']
+    cpart = HirshfeldICPart1(sys, ui_grid, mol_dens, proatomdb, False)
+    cpart.do_charges()
+    charges = cpart['charges']
     assert charges.sum() < 1e-3
     assert abs(charges[0] - 0.433) < 1e-3
 
 
-def test_cpart_hirshfeld_e_fake():
+def test_cpart1_hirshfeld_e_fake():
     sys, ui_grid, mol_dens, proatomdb = get_fake_co()
 
     # Run the partitioning
-    hicpart = HirshfeldECPart(sys, ui_grid, mol_dens, proatomdb)
-    hicpart.do_charges()
-    charges = hicpart['charges']
+    cpart = HirshfeldECPart1(sys, ui_grid, mol_dens, proatomdb, False)
+    cpart.do_charges()
+    charges = cpart['charges']
     assert charges.sum() < 1e-3
     assert abs(charges[0] - 0.399) < 1e-3
 
 
-def test_ccpart_hirshfeld_fake():
+def test_cpart2_hirshfeld_fake():
     sys, ui_grid, mol_dens, proatomdb = get_fake_co()
 
     # Run the partitioning
-    hicpart = HirshfeldCCPart(sys, ui_grid, mol_dens, proatomdb)
+    hicpart = HirshfeldCPart2(sys, ui_grid, mol_dens, proatomdb, False)
     hicpart.do_charges()
     charges = hicpart['charges']
     assert charges.sum() < 1e-3
     assert abs(charges[0] - 0.112) < 1e-3
 
 
-def test_ccpart_hirshfeld_i_fake():
+def test_cpart2_hirshfeld_i_fake():
     sys, ui_grid, mol_dens, proatomdb = get_fake_co()
 
     # Run the partitioning
-    hicpart = HirshfeldICCPart(sys, ui_grid, mol_dens, proatomdb)
+    hicpart = HirshfeldICPart2(sys, ui_grid, mol_dens, proatomdb, False)
     hicpart.do_charges()
     charges = hicpart['charges']
     assert charges.sum() < 1e-3
     assert abs(charges[0] - 0.431) < 1e-3
 
 
-def test_ccpart_hirshfeld_e_fake():
+def test_cpart2_hirshfeld_e_fake():
     sys, ui_grid, mol_dens, proatomdb = get_fake_co()
 
     # Run the partitioning
-    hicpart = HirshfeldECCPart(sys, ui_grid, mol_dens, proatomdb)
+    hicpart = HirshfeldECPart2(sys, ui_grid, mol_dens, proatomdb, False)
     hicpart.do_charges()
     charges = hicpart['charges']
     assert charges.sum() < 1e-3
