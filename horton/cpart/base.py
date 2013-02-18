@@ -30,6 +30,8 @@ __all__ = ['CPart', 'CCPart']
 
 
 class CPart(JustOnceClass):
+    name = None
+
     '''Base class for density partitioning schemes of cube files'''
     def __init__(self, system, ui_grid, mol_dens):
         '''
@@ -129,6 +131,8 @@ class CPart(JustOnceClass):
 
 
 class CCPart(JustOnceClass):
+    name = None
+
     '''Base class for density partitioning schemes of cube files with weight corrections'''
     def __init__(self, system, ui_grid, mol_dens):
         '''
