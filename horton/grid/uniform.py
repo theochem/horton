@@ -102,7 +102,7 @@ class UniformIntGrid(object):
                 args, self.origin, self.grid_cell, self.shape, self.pbc_active,
                 self.get_cell(), center, mask, powx, powy, powz, powr)*self.grid_cell.volume
 
-    def compute_weight_corrections(self, funcs, cache=None):
+    def compute_weight_corrections(self, funcs, cache=None, rcut_scale=0.9, rcut_max=2.0):
         '''Computes corrections to the integration weights.
 
            **Arguments:**
@@ -115,10 +115,6 @@ class UniformIntGrid(object):
                 * center: the center for a set of spherically symmetric
                   functions. In pracice, this will always coincide with th
                   position of a nucleus.
-
-                * rcut: a cutoff radius that limits the corrections to a
-                  certain distance from the nucleus. Cutoff spheres of
-                  different centers should not overlap.
 
                 * Radial functions specified as a list of tuples. Each tuple
                   contains the following three items:
@@ -141,6 +137,15 @@ class UniformIntGrid(object):
                 avoid their recomputation after the weight corrections are
                 computed
 
+           rcut_scale
+                For center (of a spherical function), radii of non-overlapping
+                spheres are determined by setting the radius of each sphere at
+                0.5*rcut_scale*(distance to nearest atom or periodic image).
+
+           rcut_max
+                To avoid gigantic cutoff spheres, one may use rcut_max to set
+                the maximum radius of the cutoff sphere.
+
            **Return value:**
 
            The return value is a data array that can be provided as an
@@ -157,10 +162,12 @@ class UniformIntGrid(object):
             assert new
         volume = self.grid_cell.volume
 
-        # A safety check to detect overlap of the cutoff spheres.
-        # TODO: In the long run, this safety check should be done with a correct
-        #       implementation of the MIC.
+        # initialize cutoff radii
         cell = self.get_cell()
+        rcut_max = min(rcut_max, 0.5*rcut_scale*cell.rspacings.min())
+        rcuts = np.zeros(len(funcs)) + rcut_max
+
+        # determine safe cutoff radii
         for i0 in xrange(len(funcs)):
             center0, rcut0 = funcs[i0][:2]
             for i1 in xrange(i0):
@@ -168,20 +175,12 @@ class UniformIntGrid(object):
                 delta = center1 - center0
                 cell.mic(delta)
                 dist = np.linalg.norm(delta)
-                if dist < rcut0+rcut1:
-                    raise ValueError('The cutoff spheres overlap.')
-
-        # Make sure that the rcut spheres fit within the box
-        if cell.nvec > 0:
-            threshold = 0.5*cell.rspacings.min()
-            for i0 in xrange(len(funcs)):
-                center0, rcut0 = funcs[i0][:2]
-                if rcut0 >= threshold:
-                    raise ValueError('The cutoff spheres have to fit inside the box.')
-
+                rcut = 0.5*rcut_scale*dist
+                rcuts[i0] = min(rcut, rcuts[i0])
+                rcuts[i1] = min(rcut, rcuts[i1])
 
         icenter = 0
-        for center, rcut, rad_funcs in funcs:
+        for (center, rad_funcs), rcut in zip(funcs, rcuts):
             # A) Determine the points inside the cutoff sphere.
             ranges_begin, ranges_end = self.grid_cell.get_ranges_rcut(self.origin, center, rcut)
 
