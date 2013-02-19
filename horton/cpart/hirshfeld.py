@@ -80,7 +80,6 @@ class HirshfeldCPart(CPart):
                 n = self._system.numbers[i]
                 funcs.append((
                     self._system.coordinates[i],
-                    1.0, # TODO determine radii in clever way or write new correction algo
                     [(('isolated_atom', i, n), self._proatomdb.get_spline(n), float(n))],
                 ))
             self._ui_grid.compute_weight_corrections(funcs, cache=self._cache)
@@ -219,10 +218,7 @@ class HirshfeldECPart(HirshfeldICPart):
             n = self._system.numbers[i]
             funcs.append((
                 self._system.coordinates[i],
-                1.0, # TODO determine radii in clever way or write new correction algo
-                [
-                    (('isolated_atom', i, n), self._proatomdb.get_spline(n), float(n)),
-                ],
+                [(('isolated_atom', i, n), self._proatomdb.get_spline(n), float(n))],
             ))
         self._ui_grid.compute_weight_corrections(funcs, cache=self._cache)
 
@@ -244,7 +240,6 @@ class HirshfeldECPart(HirshfeldICPart):
 
             funcs.append((
                 self._system.coordinates[i],
-                1.0, # TODO determine radii in clever way or write new correction algo
                 [(None, spline, int_exact)],
             ))
 
