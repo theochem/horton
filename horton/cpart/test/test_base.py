@@ -23,5 +23,5 @@
 from horton import *
 
 def test_cpart_schemes():
-    assert 'hi1' in cpart_schemes
-    assert cpart_schemes['hi1'] is HirshfeldICPart1
+    assert 'hi' in cpart_schemes
+    assert cpart_schemes['hi'] is HirshfeldICPart

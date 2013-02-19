@@ -26,7 +26,7 @@ from horton.cache import JustOnceClass, just_once, Cache
 from horton.log import log, timer
 
 
-__all__ = ['CPart', 'CPart1', 'CPart2']
+__all__ = ['CPart']
 
 
 class CPart(JustOnceClass):
@@ -64,6 +64,11 @@ class CPart(JustOnceClass):
         # Some screen logging
         self._init_log()
 
+        with timer.section('CPart wcor'):
+            self._init_weight_corrections()
+        with timer.section('CPart weights'):
+            self._init_at_weights()
+
     def __getitem__(self, key):
         return self._cache.load(key)
 
@@ -84,6 +89,10 @@ class CPart(JustOnceClass):
 
     @just_once
     def _init_at_weights(self):
+        raise NotImplementedError
+
+    @just_once
+    def _init_weight_corrections(self):
         raise NotImplementedError
 
     def _init_log(self):
@@ -107,7 +116,8 @@ class CPart(JustOnceClass):
             self._init_at_weights()
 
     def _integrate(self, *args, **kwargs):
-        return self._ui_grid.integrate(*args, **kwargs)
+        wcor = self._cache.load('wcor')
+        return self._ui_grid.integrate(wcor, *args, **kwargs)
 
     def _compute_populations(self):
         '''Compute the atomic populations'''
@@ -118,8 +128,9 @@ class CPart(JustOnceClass):
             result[i] = self._integrate(at_weights, moldens)
 
         nuclear_charges = self._system.props.get('nuclear_charges')
+        #print result, nuclear_charges
         if nuclear_charges is not None:
-            result += nuclear_charges
+            result += self.system.numbers - nuclear_charges
 
         return result
 
@@ -157,85 +168,14 @@ class CPart(JustOnceClass):
 
     @just_once
     def do_volumes(self):
+        self.do_populations()
         if log.do_medium:
             log('Computing atomic volumes.')
         volumes, new = self._cache.load('volumes', alloc=self.system.natom,)
         if new:
             moldens = self._cache.load('moldens')
+            populations = self._cache.load('populations')
             for index in xrange(self._system.natom):
                 at_weights = self._cache.load('at_weights', index)
                 center = self._system.coordinates[index]
-                volumes[index] = self._integrate(at_weights, moldens, center=center, powr=3)
-
-
-class CPart1(CPart):
-    '''Base class for density partitioning schemes of cube files based on correction scheme1'''
-    def __init__(self, system, ui_grid, moldens, smooth):
-        '''
-           **Arguments:**
-
-           system
-                The system to be partitioned.
-
-           ui_grid
-                The uniform integration grid based on the cube file.
-
-           moldens
-                The all-electron density grid data.
-
-           smooth
-                When set to True, no corrections are included to integrate
-                the cusps.
-        '''
-        CPart.__init__(self, system, ui_grid, moldens, smooth)
-
-        if not self.smooth:
-            # Keep a copy of the original density
-            self._cache.dump('orig_moldens', moldens.copy())
-
-        # Do the essential part of the partitioning.
-        with timer.section('CPart1 weights'):
-            self._init_at_weights()
-
-    def _compute_populations(self):
-        result = CPart._compute_populations(self)
-        if not self.smooth:
-            result += self._cache.load('ref_populations')
-        return result
-
-
-class CPart2(CPart):
-    name = None
-
-    '''Base class for density partitioning schemes of cube files with weight corrections'''
-    def __init__(self, system, ui_grid, moldens, smooth):
-        '''
-           **Arguments:**
-
-           system
-                The system to be partitioned.
-
-           ui_grid
-                The uniform integration grid based on the cube file.
-
-           moldens
-                The all-electron density grid data.
-
-           smooth
-                When set to True, no corrections are included to integrate
-                the cusps.
-        '''
-        CPart.__init__(self, system, ui_grid, moldens, smooth)
-
-        with timer.section('CPart2 wcor'):
-            self._init_weight_corrections()
-        with timer.section('CPart2 weights'):
-            self._init_at_weights()
-
-    def _integrate(self, *args, **kwargs):
-        wcor = self._cache.load('wcor')
-        return self._ui_grid.integrate(wcor, *args, **kwargs)
-
-    @just_once
-    def _init_weight_corrections(self):
-        raise NotImplementedError
+                volumes[index] = self._integrate(at_weights, moldens, center=center, powr=3)/populations[index]

@@ -27,7 +27,7 @@ from horton import *
 __all__ = ['get_fake_co']
 
 
-def get_fake_co():
+def get_fake_co(smooth=False):
     # Define system
     numbers = np.array([6, 8])
     coordinates = np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 2.132]])
@@ -47,14 +47,24 @@ def get_fake_co():
 
     mol_dens = np.zeros(ui_grid.shape)
     tmp = np.zeros(ui_grid.shape)
-    setup = [
-        (0, 5, 0.5),
-        (0, 6, 0.4),
-        (0, 7, 0.1),
-        (1, 7, 0.1),
-        (1, 8, 0.4),
-        (1, 9, 0.5),
-    ]
+    if smooth:
+        setup = [
+            (0, 6, +0.5),
+            (0, 7, -0.5),
+            (1, 7, -0.5),
+            (1, 8, +0.5),
+        ]
+        sys.props['nuclear_charges'] = np.array([0.0, 0.0])
+    else:
+        setup = [
+            (0, 5, 0.5),
+            (0, 6, 0.4),
+            (0, 7, 0.1),
+            (1, 7, 0.1),
+            (1, 8, 0.4),
+            (1, 9, 0.5),
+        ]
+        #sys.props['nuclear_charges'] = np.array([6.0, 8.0])
     for i, pop, frac in setup:
         n = sys.numbers[i]
         c = sys.coordinates[i]
