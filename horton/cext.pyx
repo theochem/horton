@@ -138,6 +138,26 @@ cdef class Cell:
 
     gvecs = property(_get_gvecs)
 
+    def _get_rlengths(self):
+        '''The lengths of the real-space vectors.'''
+        cdef np.ndarray[double, ndim=1] result
+        result = np.zeros(self.nvec, float)
+        self._this.copy_rlengths(<double*>result.data)
+        result.setflags(write=False)
+        return result
+
+    rlengths = property(_get_rlengths)
+
+    def _get_glengths(self):
+        '''The lengths of the reciprocal-space vectors.'''
+        cdef np.ndarray[double, ndim=1] result
+        result = np.zeros(self.nvec, float)
+        self._this.copy_glengths(<double*>result.data)
+        result.setflags(write=False)
+        return result
+
+    glengths = property(_get_glengths)
+
     def _get_rspacings(self):
         '''The (orthogonal) spacing between opposite sides of the real-space unit cell.'''
         cdef np.ndarray[double, ndim=1] result
@@ -158,6 +178,12 @@ cdef class Cell:
 
     gspacings = property(_get_gspacings)
 
+    def get_rlength(self, int i):
+        return self._this.get_rlength(i);
+
+    def get_glength(self, int i):
+        return self._this.get_glength(i);
+
     def get_rspacing(self, int i):
         return self._this.get_rspacing(i);
 
@@ -166,9 +192,10 @@ cdef class Cell:
 
     def _get_parameters(self):
         '''The cell parameters (lengths and angles)'''
+        lengths = self.rlengths
+        # TODO move computation of angles to C code
         rvecs = self.rvecs
         tmp = np.dot(rvecs, rvecs.T)
-        lengths = np.sqrt(np.diag(tmp))
         tmp /= lengths
         tmp /= lengths.reshape((-1,1))
         if len(rvecs) < 2:

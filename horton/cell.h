@@ -26,6 +26,7 @@
 class Cell {
     private:
         double rvecs[9], gvecs[9];
+        double rlengths[3], glengths[3]; // TODO: test these
         double rspacings[3], gspacings[3];
         double volume;
         int nvec;
@@ -37,15 +38,20 @@ class Cell {
         void to_center(double* car, long* center);
         void to_frac(double* cart, double* frac);
         void to_cart(double* frac, double* cart);
+        void dot_cart(double* cart, double* dot_cart);
         void add_vec(double* delta, long* r);
 
         int get_nvec() {return nvec;};
         double get_volume() {return volume;};
         double get_rspacing(int i);
         double get_gspacing(int i);
+        double get_rlength(int i);
+        double get_glength(int i);
 
         void copy_rvecs(double* _rvecs);
         void copy_gvecs(double* _gvecs);
+        void copy_rlengths(double* _rlengths);
+        void copy_glengths(double* _glengths);
         void copy_rspacings(double* _rspacings);
         void copy_gspacings(double* _gspacings);
 

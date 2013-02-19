@@ -403,7 +403,7 @@ def test_cell():
         chk.close()
 
 def test_cube():
-    chk = h5.File('horton.test.test_checkpoint.test_hdf5_low', driver='core', backing_store=False)
+    chk = h5.File('horton.test.test_checkpoint.test_cube', driver='core', backing_store=False)
 
     fn_cube = context.get_fn('test/aelta.cube')
     sys = System.from_file(fn_cube)

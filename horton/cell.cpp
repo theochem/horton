@@ -37,11 +37,14 @@ void Cell::update(double* _rvecs, double* _gvecs, int _nvec) {
         rvecs[i] = _rvecs[i];
         gvecs[i] = _gvecs[i];
     }
-    // compute the spacings
+    // compute the spacings and the lengths of the cell vectors
     for (int i=2; i>=0; i--) {
-        rspacings[i] = 1.0/sqrt(gvecs[3*i]*gvecs[3*i] + gvecs[3*i+1]*gvecs[3*i+1] + gvecs[3*i+2]*gvecs[3*i+2]);
-        gspacings[i] = 1.0/sqrt(rvecs[3*i]*rvecs[3*i] + rvecs[3*i+1]*rvecs[3*i+1] + rvecs[3*i+2]*rvecs[3*i+2]);
+        rlengths[i] = sqrt(rvecs[3*i]*rvecs[3*i] + rvecs[3*i+1]*rvecs[3*i+1] + rvecs[3*i+2]*rvecs[3*i+2]);
+        glengths[i] = sqrt(gvecs[3*i]*gvecs[3*i] + gvecs[3*i+1]*gvecs[3*i+1] + gvecs[3*i+2]*gvecs[3*i+2]);
+        rspacings[i] = 1.0/glengths[i];
+        gspacings[i] = 1.0/rlengths[i];
     }
+
     // compute the volume
     switch(nvec) {
         case 0:
@@ -87,6 +90,20 @@ double Cell::get_gspacing(int i) {
         throw std::domain_error("Index must be 0, 1 or 2.");
     }
     return gspacings[i];
+}
+
+double Cell::get_rlength(int i) {
+    if ((i < 0) || (i > 3)) {
+        throw std::domain_error("Index must be 0, 1 or 2.");
+    }
+    return rlengths[i];
+}
+
+double Cell::get_glength(int i) {
+    if ((i < 0) || (i > 3)) {
+        throw std::domain_error("Index must be 0, 1 or 2.");
+    }
+    return glengths[i];
 }
 
 
@@ -137,6 +154,14 @@ void Cell::to_cart(double* frac, double* cart) {
     cart[2] = rvecs[2]*frac[0] + rvecs[5]*frac[1] + rvecs[8]*frac[2];
 }
 
+void Cell::dot_cart(double* cart, double* dot_cart) {
+    // Take dot produc with cell vectors
+    // TODO: add tests for this
+    dot_cart[0] = rvecs[0]*cart[0] + rvecs[1]*cart[1] + rvecs[2]*cart[2];
+    dot_cart[1] = rvecs[3]*cart[0] + rvecs[4]*cart[1] + rvecs[5]*cart[2];
+    dot_cart[2] = rvecs[6]*cart[0] + rvecs[7]*cart[1] + rvecs[8]*cart[2];
+}
+
 
 void Cell::add_vec(double* delta, long* r) {
     // Simply adds an linear combination of cell vectors to delta.
@@ -163,6 +188,16 @@ void Cell::copy_rvecs(double* _rvecs) {
 
 void Cell::copy_gvecs(double* _gvecs) {
     for (int i=nvec*3-1; i>=0; i--) _gvecs[i] = gvecs[i];
+}
+
+
+void Cell::copy_rlengths(double* _rlengths) {
+    for (int i=nvec-1; i>=0; i--) _rlengths[i] = rlengths[i];
+}
+
+
+void Cell::copy_glengths(double* _glengths) {
+    for (int i=nvec-1; i>=0; i--) _glengths[i] = glengths[i];
 }
 
 

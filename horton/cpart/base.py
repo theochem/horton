@@ -106,16 +106,16 @@ class CPart(JustOnceClass):
         with timer.section('CPart weights'):
             self._init_at_weights()
 
-    def _integrate(self, *args):
-        return self._ui_grid.integrate(*args)
+    def _integrate(self, *args, **kwargs):
+        return self._ui_grid.integrate(*args, **kwargs)
 
     def _compute_populations(self):
         '''Compute the atomic populations'''
         result = np.zeros(self._system.natom)
-        rel_moldens = self._cache.load('moldens')
+        moldens = self._cache.load('moldens')
         for i in xrange(self._system.natom):
             at_weights = self._cache.load('at_weights', i)
-            result[i] = self._integrate(at_weights, rel_moldens)
+            result[i] = self._integrate(at_weights, moldens)
 
         nuclear_charges = self._system.props.get('nuclear_charges')
         if nuclear_charges is not None:
@@ -140,6 +140,32 @@ class CPart(JustOnceClass):
         if new:
             populations = self._cache.load('populations')
             charges[:] = self.system.numbers - populations
+
+    @just_once
+    def do_dipoles(self):
+        if log.do_medium:
+            log('Computing atomic dipoles.')
+        dipoles, new = self._cache.load('dipoles', alloc=(self.system.natom, 3))
+        if new:
+            moldens = self._cache.load('moldens')
+            for index in xrange(self._system.natom):
+                at_weights = self._cache.load('at_weights', index)
+                center = self._system.coordinates[index]
+                dipoles[index,0] = -self._integrate(at_weights, moldens, center=center, powx=1)
+                dipoles[index,1] = -self._integrate(at_weights, moldens, center=center, powy=1)
+                dipoles[index,2] = -self._integrate(at_weights, moldens, center=center, powz=1)
+
+    @just_once
+    def do_volumes(self):
+        if log.do_medium:
+            log('Computing atomic volumes.')
+        volumes, new = self._cache.load('volumes', alloc=self.system.natom,)
+        if new:
+            moldens = self._cache.load('moldens')
+            for index in xrange(self._system.natom):
+                at_weights = self._cache.load('at_weights', index)
+                center = self._system.coordinates[index]
+                volumes[index] = self._integrate(at_weights, moldens, center=center, powr=3)
 
 
 class CPart1(CPart):
@@ -206,9 +232,9 @@ class CPart2(CPart):
         with timer.section('CPart2 weights'):
             self._init_at_weights()
 
-    def _integrate(self, *args):
+    def _integrate(self, *args, **kwargs):
         wcor = self._cache.load('wcor')
-        return self._ui_grid.integrate(wcor, *args)
+        return self._ui_grid.integrate(wcor, *args, **kwargs)
 
     @just_once
     def _init_weight_corrections(self):

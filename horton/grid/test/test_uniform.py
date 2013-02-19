@@ -301,3 +301,113 @@ def test_weight_corrections_brute():
 
     assert abs(ui_grid.integrate(mol_dens, weights)-14.0) < 2e-4
     assert abs(ui_grid.integrate(mol_dens)-14.0) > 5e-2
+
+
+def test_integrate_poly_flat_mask_aperiodic():
+    origin = np.array([-5.0, -5.0, -5.0])
+    grid_cell = Cell(np.identity(3, float)*0.1)
+    shape = np.array([101, 101, 101])
+    pbc_active = np.array([False, False, False])
+    ui_grid = UniformIntGrid(origin, grid_cell, shape, pbc_active)
+
+    data = np.ones(ui_grid.size)/(ui_grid.size*ui_grid.grid_cell.volume)
+
+    assert abs(ui_grid.integrate(data) - 1.0) < 1e-10
+    radius = 0.5*0.95
+    center = np.zeros(3, float)
+    assert abs(ui_grid.integrate(data, center=center) - 4.0/3.0*np.pi*radius**3) < 2e-2
+    assert abs(ui_grid.integrate(data, center=center, powx=1)) < 1e-10
+    assert abs(ui_grid.integrate(data, center=center, powy=1)) < 1e-10
+    assert abs(ui_grid.integrate(data, center=center, powz=1)) < 1e-10
+    assert ui_grid.integrate(data, center=center, powr=1) > 0
+
+
+def test_integrate_poly_flat_mask_periodic():
+    origin = np.array([-5.0, -5.0, -5.0])
+    grid_cell = Cell(np.identity(3, float)*0.1)
+    shape = np.array([100, 100, 100])
+    pbc_active = np.array([True, True, True])
+    ui_grid = UniformIntGrid(origin, grid_cell, shape, pbc_active)
+
+    data = np.ones(ui_grid.size)/(ui_grid.size*ui_grid.grid_cell.volume)
+
+    assert abs(ui_grid.integrate(data) - 1.0) < 1e-10
+    radius = 0.5*0.95
+    center = np.zeros(3, float)
+    assert abs(ui_grid.integrate(data, center=center) - 4.0/3.0*np.pi*radius**3) < 2e-2
+    assert abs(ui_grid.integrate(data, center=center, powx=1)) < 1e-10
+    assert abs(ui_grid.integrate(data, center=center, powy=1)) < 1e-10
+    assert abs(ui_grid.integrate(data, center=center, powz=1)) < 1e-10
+    assert ui_grid.integrate(data, center=center, powr=1) > 0
+
+
+def test_integrate_poly_flat_nomask_aperiodic():
+    origin = np.array([-5.0, -5.0, -5.0])
+    grid_cell = Cell(np.identity(3, float)*0.1)
+    shape = np.array([101, 101, 101])
+    pbc_active = np.array([False, False, False])
+    ui_grid = UniformIntGrid(origin, grid_cell, shape, pbc_active)
+
+    data = np.ones(ui_grid.size)/(ui_grid.size*ui_grid.grid_cell.volume)
+
+    assert abs(ui_grid.integrate(data) - 1.0) < 1e-10
+    center = np.zeros(3, float)
+    assert abs(ui_grid.integrate(data, center=center, mask=0) - 1.0) < 2e-2
+    assert abs(ui_grid.integrate(data, center=center, mask=0, powx=1)) < 1e-10
+    assert abs(ui_grid.integrate(data, center=center, mask=0, powy=1)) < 1e-10
+    assert abs(ui_grid.integrate(data, center=center, mask=0, powz=1)) < 1e-10
+    assert ui_grid.integrate(data, center=center, powr=1) > 0
+
+
+def test_integrate_poly_flat_nomask_periodic():
+    origin = np.array([-4.95, -4.95, -4.95])
+    grid_cell = Cell(np.identity(3, float)*0.1)
+    shape = np.array([100, 100, 100])
+    pbc_active = np.array([True, True, True])
+    ui_grid = UniformIntGrid(origin, grid_cell, shape, pbc_active)
+
+    data = np.ones(ui_grid.size)/(ui_grid.size*ui_grid.grid_cell.volume)
+
+    assert abs(ui_grid.integrate(data) - 1.0) < 1e-10
+    center = np.zeros(3, float)
+    assert abs(ui_grid.integrate(data, center=center, mask=0) - 1.0) < 2e-2
+    assert abs(ui_grid.integrate(data, center=center, mask=0, powx=1)) < 1e-10
+    assert abs(ui_grid.integrate(data, center=center, mask=0, powy=1)) < 1e-10
+    assert abs(ui_grid.integrate(data, center=center, mask=0, powz=1)) < 1e-10
+    assert ui_grid.integrate(data, center=center, powr=1) > 0
+
+
+def test_integrate_poly_exp_mask_aperiodic():
+    origin = np.array([-5.0, -5.0, -5.0])
+    grid_cell = Cell(np.identity(3, float)*0.1)
+    shape = np.array([101, 101, 101])
+    pbc_active = np.array([False, False, False])
+    ui_grid = UniformIntGrid(origin, grid_cell, shape, pbc_active)
+
+    spline = get_exp_spline()
+    center = np.zeros(3, float)
+    data = np.zeros(ui_grid.shape)
+    ui_grid.eval_spline(spline, center, data)
+
+    assert abs(ui_grid.integrate(data, center=center, powx=1)) < 1e-10
+    assert abs(ui_grid.integrate(data, center=center, powy=1)) < 1e-10
+    assert abs(ui_grid.integrate(data, center=center, powz=1)) < 1e-10
+    assert ui_grid.integrate(data, center=center, powr=1) > 0
+
+
+def test_integrate_poly_exp_mask_periodic():
+    origin = np.array([-5.0, -5.0, -5.0])
+    grid_cell = Cell(np.identity(3, float)*0.1)
+    shape = np.array([100, 100, 100])
+    pbc_active = np.array([True, True, True])
+    ui_grid = UniformIntGrid(origin, grid_cell, shape, pbc_active)
+
+    spline = get_exp_spline()
+    center = np.zeros(3, float)
+    data = np.zeros(ui_grid.shape)
+    ui_grid.eval_spline(spline, center, data)
+
+    assert abs(ui_grid.integrate(data, center=center, powx=1)) < 1e-10
+    assert abs(ui_grid.integrate(data, center=center, powy=1)) < 1e-10
+    assert abs(ui_grid.integrate(data, center=center, powz=1)) < 1e-10
+    assert ui_grid.integrate(data, center=center, powr=1) > 0
