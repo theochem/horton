@@ -139,6 +139,8 @@ def main_convert(args):
 
         cases = []
         for dn_mult in sorted(glob('%s/mult??' % dn_state)):
+            if log.do_medium:
+                log('Loading from', dn_mult)
             system, energy = program.load_atom(dn_mult)
             if energy is None:
                 if log.do_medium:
