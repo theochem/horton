@@ -19,6 +19,13 @@
 #
 #--
 
+cimport cell
+
 cdef extern from "utils.h":
-    double dot_multi(int npoint, int nvector, double** data)
-    void grid_distances(double *points, double *center, double *distances, int n)
+    double dot_multi(long npoint, long nvector, double** data)
+    double dot_multi_poly_cube(long npoint, long nvector, double** data,
+        double* origin, cell.Cell* grid_cell, long* shape, long* pbc_active,
+        cell.Cell* cell, double* center, long mask, double powx, double powy,
+        double powz, double powr) except +
+
+    void grid_distances(double *points, double *center, double *distances, long n)

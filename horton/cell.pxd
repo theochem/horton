@@ -32,11 +32,15 @@ cdef extern from "cell.h":
 
         int get_nvec()
         double get_volume()
+        double get_rlength(int i) except +
+        double get_glength(int i) except +
         double get_rspacing(int i) except +
         double get_gspacing(int i) except +
 
         void copy_rvecs(double* _rvecs)
         void copy_gvecs(double* _gvecs)
+        void copy_rlengths(double* _rspacings)
+        void copy_glengths(double* _gspacings)
         void copy_rspacings(double* _rspacings)
         void copy_gspacings(double* _gspacings)
 

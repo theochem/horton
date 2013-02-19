@@ -21,7 +21,14 @@
 #ifndef HORTON_GRID_UTILS_H
 #define HORTON_GRID_UTILS_H
 
-double dot_multi(int npoint, int nvector, double** data);
-void grid_distances(double *points, double *center, double *distances, int n);
+#include "cell.h"
+
+double dot_multi(long npoint, long nvector, double** data);
+double dot_multi_poly_cube(long npoint, long nvector, double** data,
+    double* origin, Cell* grid_cell, long* shape, long* pbc_active,
+    Cell* cell, double* center, long mask, double powx, double powy,
+    double powz, double powr);
+
+void grid_distances(double *points, double *center, double *distances, long n);
 
 #endif

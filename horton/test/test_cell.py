@@ -51,8 +51,12 @@ def test_cell_cubic():
     cell2 = Cell(-cell.rvecs)
     assert abs(cell2.volume - (9.865*angstrom)**3) < 1e-10
     for i in xrange(3):
+        assert cell.get_rlength(i) == cell.rlengths[i]
+        assert cell.get_glength(i) == cell.glengths[i]
         assert cell.get_rspacing(i) == cell.rspacings[i]
         assert cell.get_gspacing(i) == cell.gspacings[i]
+        assert abs(cell.get_rlength(i) - 1.0/cell.get_gspacing(i)) < 1e-10
+        assert abs(cell.get_glength(i) - 1.0/cell.get_rspacing(i)) < 1e-10
 
     # Test methods (1)
     vec1 = np.array([10.0, 0.0, 5.0])*angstrom
@@ -76,8 +80,14 @@ def test_cell_parallellogram2d():
     assert abs(cell.volume - np.linalg.norm(np.cross(cell.rvecs[0], cell.rvecs[1]))) < 1e-10
     assert abs(np.dot(cell.gvecs, cell.rvecs.transpose()) - np.identity(2)).max() < 1e-5
     for i in xrange(2):
+        assert cell.get_rlength(i) == cell.rlengths[i]
+        assert cell.get_glength(i) == cell.glengths[i]
         assert cell.get_rspacing(i) == cell.rspacings[i]
         assert cell.get_gspacing(i) == cell.gspacings[i]
+        assert abs(cell.get_rlength(i) - 1.0/cell.get_gspacing(i)) < 1e-10
+        assert abs(cell.get_glength(i) - 1.0/cell.get_rspacing(i)) < 1e-10
+    assert abs(cell.get_rlength(2) - 1.0) < 1e-10
+    assert abs(cell.get_glength(2) - 1.0) < 1e-10
     assert abs(cell.get_rspacing(2) - 1.0) < 1e-10
     assert abs(cell.get_gspacing(2) - 1.0) < 1e-10
 
@@ -104,9 +114,15 @@ def test_cell_1d():
     assert cell.gvecs.shape == (1, 3)
     assert abs(cell.volume - np.linalg.norm(cell.rvecs[0])) < 1e-10
     assert abs(np.dot(cell.gvecs, cell.rvecs.transpose()) - 1) < 1e-5
+    assert cell.get_rlength(0) == cell.rlengths[0]
+    assert cell.get_glength(0) == cell.glengths[0]
     assert cell.get_rspacing(0) == cell.rspacings[0]
     assert cell.get_gspacing(0) == cell.gspacings[0]
+    assert abs(cell.get_rlength(0) - 1.0/cell.get_gspacing(0)) < 1e-10
+    assert abs(cell.get_glength(0) - 1.0/cell.get_rspacing(0)) < 1e-10
     for i in xrange(1,3):
+        assert abs(cell.get_rlength(i) - 1.0) < 1e-10
+        assert abs(cell.get_glength(i) - 1.0) < 1e-10
         assert abs(cell.get_rspacing(i) - 1.0) < 1e-10
         assert abs(cell.get_gspacing(i) - 1.0) < 1e-10
     assert abs(cell.get_rspacing(0)*cell.get_gspacing(0) - 1.0) < 1e-10
@@ -134,8 +150,12 @@ def test_cell_quartz():
     assert abs(cell.volume - abs(np.linalg.det(cell.rvecs))) < 1e-10
     assert abs(np.dot(cell.gvecs, cell.rvecs.transpose()) - np.identity(3)).max() < 1e-5
     for i in xrange(3):
+        assert cell.get_rlength(i) == cell.rlengths[i]
+        assert cell.get_glength(i) == cell.glengths[i]
         assert cell.get_rspacing(i) == cell.rspacings[i]
         assert cell.get_gspacing(i) == cell.gspacings[i]
+        assert abs(cell.get_rlength(i) - 1.0/cell.get_gspacing(i)) < 1e-10
+        assert abs(cell.get_glength(i) - 1.0/cell.get_rspacing(i)) < 1e-10
 
     # Test methods (2)
     check_frac_cart(cell)
@@ -165,6 +185,8 @@ def test_cell_0d():
     assert cell.rspacings.shape == (0,)
     assert cell.gspacings.shape == (0,)
     for i in xrange(3):
+        assert abs(cell.get_rlength(i) - 1.0) < 1e-10
+        assert abs(cell.get_glength(i) - 1.0) < 1e-10
         assert abs(cell.get_rspacing(i) - 1.0) < 1e-10
         assert abs(cell.get_gspacing(i) - 1.0) < 1e-10
 

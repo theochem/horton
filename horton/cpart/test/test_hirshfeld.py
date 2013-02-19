@@ -44,9 +44,38 @@ def test_cpart1_hirshfeld_jbw_coarse():
     proatomdb = ProAtomDB.from_refatoms(atgrid, numbers=[8,14], qmax=0)
 
     # Run the partitioning
-    hcpart = HirshfeldCPart1(sys, ui_grid, mol_dens, proatomdb, False)
-    hcpart.do_charges()
-    assert abs(hcpart['charges'].sum() + ui_grid.integrate(hcpart['moldens'])) < 1e-10
+    cpart = HirshfeldCPart1(sys, ui_grid, mol_dens, proatomdb, False)
+    cpart.do_charges()
+    cpart.do_dipoles()
+    cpart.do_volumes()
+    assert abs(cpart['charges'].sum() + ui_grid.integrate(cpart['moldens'])) < 1e-10
+
+
+def test_cpart2_hirshfeld_jbw_coarse():
+    # This test is not supposed to generate meaningful numbers. The cube data
+    # is too coarse and the reference atoms may have little similarities with
+    # the DFT density.
+
+    # Load the cube file
+    fn_cube = context.get_fn('test/jbw_coarse_aedens.cube')
+    sys = System.from_file(fn_cube)
+    del sys.props['nuclear_charges']
+    mol_dens = sys.props['cube_data']
+    ui_grid = sys.props['ui_grid']
+
+    # Load some pro-atoms
+    int1d = SimpsonIntegrator1D()
+    rtf = ExpRTransform(1e-3, 1e1, 100)
+    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), keep_subgrids=1)
+    proatomdb = ProAtomDB.from_refatoms(atgrid, numbers=[8,14], qmax=0)
+
+    # Run the partitioning
+    cpart = HirshfeldCPart2(sys, ui_grid, mol_dens, proatomdb, False)
+    cpart.do_charges()
+    cpart.do_dipoles()
+    cpart.do_volumes()
+    assert abs(cpart['populations'].sum() - cpart._integrate(cpart['moldens'])) < 1e-10
+    assert cpart['volumes'].min() > 0
 
 
 def test_cpart1_hirshfeld_fake():
@@ -112,4 +141,4 @@ def test_cpart2_hirshfeld_e_fake():
     hicpart.do_charges()
     charges = hicpart['charges']
     assert charges.sum() < 1e-3
-    assert abs(charges[0] - 0.1644764) < 1e-3
+    assert abs(charges[0] - 0.393) < 1e-3

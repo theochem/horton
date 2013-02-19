@@ -23,7 +23,7 @@
 import numpy as np
 
 from horton.cext import Cell
-from horton.grid.cext import dot_multi, eval_spline_cube
+from horton.grid.cext import dot_multi, dot_multi_poly_cube, eval_spline_cube
 from horton.log import log
 
 
@@ -70,7 +70,7 @@ class UniformIntGrid(object):
     def eval_spline(self, spline, center, output):
         eval_spline_cube(spline, center, output, self.origin, self.grid_cell, self.shape, self.pbc_active)
 
-    def integrate(self, *args):
+    def integrate(self, *args, **kwargs):
         '''Integrate the product of all arguments
 
            **Arguments:**
@@ -79,11 +79,28 @@ class UniformIntGrid(object):
                 All arguments must be arrays with the same size as the number
                 of grid points. The arrays contain the functions, evaluated
                 at the grid points, that must be multiplied and integrated.
+
+           **Optional arguments:**
+
+           TODO
         '''
+        center = kwargs.pop('center', None)
+        mask = kwargs.pop('mask', True)
+        powx = kwargs.pop('powx', 0)
+        powy = kwargs.pop('powy', 0)
+        powz = kwargs.pop('powz', 0)
+        powr = kwargs.pop('powr', 0)
+        if len(kwargs) > 0:
+            raise TypeError('Unexpected arguments: %s' % tuple(kwargs.keys()))
         # This is often convenient for cube grid data:
         args = [arg.ravel() for arg in args if arg is not None]
         # Similar to conventional integration routine:
-        return dot_multi(*args)*self.grid_cell.volume
+        if center is None:
+            return dot_multi(*args)*self.grid_cell.volume
+        else:
+            return dot_multi_poly_cube(
+                args, self.origin, self.grid_cell, self.shape, self.pbc_active,
+                self.get_cell(), center, mask, powx, powy, powz, powr)*self.grid_cell.volume
 
     def compute_weight_corrections(self, funcs, cache=None):
         '''Computes corrections to the integration weights.

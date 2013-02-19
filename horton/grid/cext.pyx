@@ -575,29 +575,77 @@ cdef class BakerRTransform(RTransform):
 # utils
 #
 
+cdef _check_integranda(integranda, npoint=None):
+    for integrandum in integranda:
+        assert integrandum.flags['C_CONTIGUOUS']
+        if npoint is None:
+            npoint = integrandum.shape[0]
+        else:
+            assert npoint == integrandum.shape[0]
+    return npoint
 
-def dot_multi(*args):
-    if len(args) == 0:
+
+def dot_multi(*integranda):
+    if len(integranda) == 0:
         return 0.0
 
-    cdef double** pointers = <double **>malloc(len(args)*sizeof(double*))
+    npoint = _check_integranda(integranda)
+
+    cdef double** pointers = <double **>malloc(len(integranda)*sizeof(double*))
     if pointers == NULL:
         raise MemoryError()
-    cdef np.ndarray[double, ndim=1] arg
 
-    npoint = None
-    try:
-        for i in xrange(len(args)):
-            arg = args[i]
-            assert arg.flags['C_CONTIGUOUS']
-            if npoint is None:
-                npoint = arg.shape[0]
-            else:
-                assert npoint == arg.shape[0]
-            pointers[i] = <double*>arg.data
-        result = utils.dot_multi(npoint, len(args), pointers)
-    finally:
-        free(pointers)
+    cdef np.ndarray[double, ndim=1] integrandum
+    for i in xrange(len(integranda)):
+        integrandum = integranda[i]
+        pointers[i] = <double*>integrandum.data
+    result = utils.dot_multi(npoint, len(integranda), pointers)
+    free(pointers)
+    return result
+
+
+def dot_multi_poly_cube(integranda,
+                        np.ndarray[double, ndim=1] origin not None,
+                        horton.cext.Cell grid_cell not None,
+                        np.ndarray[long, ndim=1] shape not None,
+                        np.ndarray[long, ndim=1] pbc_active not None,
+                        horton.cext.Cell cell not None,
+                        np.ndarray[double, ndim=1] center not None,
+                        long mask=1, double powx=0, double powy=0,
+                        double powz=0, double powr=0):
+    assert origin.flags['C_CONTIGUOUS']
+    assert origin.shape[0] == 3
+    assert shape.flags['C_CONTIGUOUS']
+    assert shape.shape[0] == 3
+    npoint = np.product(shape)
+    assert pbc_active.flags['C_CONTIGUOUS']
+    assert pbc_active.shape[0] == 3
+    assert center.flags['C_CONTIGUOUS']
+    assert center.shape[0] == 3
+    assert powx >= 0;
+    assert powy >= 0;
+    assert powz >= 0;
+
+    if len(integranda) == 0:
+        return 0.0
+
+    _check_integranda(integranda, npoint)
+
+    # TODO: move pointer allocation to function: pointers = _integranda_to_pointers(integranda)
+    cdef double** pointers = <double **>malloc(len(integranda)*sizeof(double*))
+    if pointers == NULL:
+        raise MemoryError()
+
+    cdef np.ndarray[double, ndim=1] integrandum
+    for i in xrange(len(integranda)):
+        integrandum = integranda[i]
+        pointers[i] = <double*>integrandum.data
+    result = utils.dot_multi_poly_cube(
+        npoint, len(integranda), pointers,
+        <double*>origin.data, grid_cell._this, <long*>shape.data,
+        <long*>pbc_active.data, cell._this, <double*>center.data, mask, powx,
+        powy, powz, powr)
+    free(pointers)
     return result
 
 
