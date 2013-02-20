@@ -238,7 +238,7 @@ class Template(BaseTemplate):
             for name, kind, records in self.includes:
                 log('   %s (%s)' % (name, kind))
                 for n, p, m, s in self.includes[name]:
-                    log('      %03i.%03i.%02i' % (n, p, m)) 
+                    log('      %03i.%03i.%02i' % (n, p, m))
 
     def get_subs(self, number, pop, mult):
         subs = {}
@@ -253,7 +253,7 @@ class Template(BaseTemplate):
                 raise KeyError('No matching include found for \'%s\' (%03i.%03i.%02i)' % (name, number, pop, mult))
             subs['%s:%s' % (kind, name)] = s
         return subs
-                    
+
 
 class EnergyTable(object):
     def __init__(self):

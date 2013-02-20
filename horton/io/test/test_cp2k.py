@@ -61,4 +61,3 @@ def test_atom_ne_rks():
     olp = sys.get_overlap()._array
     ca = sys.wfn.exp_alpha.coeffs
     assert abs(np.dot(ca.T, np.dot(olp, ca)) - np.identity(4)).max() < 1e-5
-
