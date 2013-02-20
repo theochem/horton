@@ -54,7 +54,7 @@ def get_fake_co(smooth=False):
             (1, 7, -0.5),
             (1, 8, +0.5),
         ]
-        sys.props['nuclear_charges'] = np.array([0.0, 0.0])
+        sys.props['pseudo_numbers'] = np.array([0.0, 0.0])
     else:
         setup = [
             (0, 5, 0.5),
@@ -64,7 +64,7 @@ def get_fake_co(smooth=False):
             (1, 8, 0.4),
             (1, 9, 0.5),
         ]
-        #sys.props['nuclear_charges'] = np.array([6.0, 8.0])
+        #sys.props['pseudo_numbers'] = np.array([6.0, 8.0])
     for i, pop, frac in setup:
         n = sys.numbers[i]
         c = sys.coordinates[i]

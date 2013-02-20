@@ -33,7 +33,7 @@ def test_cpart_hirshfeld_jbw_coarse():
     # Load the cube file
     fn_cube = context.get_fn('test/jbw_coarse_aedens.cube')
     sys = System.from_file(fn_cube)
-    del sys.props['nuclear_charges']
+    del sys.props['pseudo_numbers']
     mol_dens = sys.props['cube_data']
     ui_grid = sys.props['ui_grid']
 
