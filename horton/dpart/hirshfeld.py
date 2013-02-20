@@ -259,7 +259,7 @@ class HirshfeldEDPart(HirshfeldIDPart):
                                 self._proatomdb.get_record(number, charge+1).rho
 
                     redundant = False
-                    for j1 in xrange(j0):
+                    for j1 in xrange(len(basis)):
                         delta = radrho - basis[j1]
                         if dot_multi(weights, delta, delta) < 1e-5:
                             redundant = True

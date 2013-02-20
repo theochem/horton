@@ -81,7 +81,7 @@ class HirshfeldCPart(CPart):
             assert self._proatomdb.get_record(n, 0).pseudo_number == pn
             funcs.append((
                 self._system.coordinates[i],
-                [(('isolated_atom', i, n), self._proatomdb.get_spline(n), float(pn))],
+                [(('isolated_atom', i, 0), self._proatomdb.get_spline(n), float(pn))],
             ))
         self._ui_grid.compute_weight_corrections(funcs, cache=self._cache)
 
