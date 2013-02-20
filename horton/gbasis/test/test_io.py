@@ -25,12 +25,20 @@ import numpy as np
 from horton import *
 
 
-def test_str_to_shell_types():
+def test_str_to_shell_types_cart():
     assert str_to_shell_types('s') == [0]
     assert str_to_shell_types('S') == [0]
     assert str_to_shell_types('Ss') == [0,0]
     assert str_to_shell_types('SP') == [0,1]
     assert str_to_shell_types('SDD') == [0,2,2]
+
+
+def test_str_to_shell_types_pure():
+    assert str_to_shell_types('s', True) == [0]
+    assert str_to_shell_types('S', True) == [0]
+    assert str_to_shell_types('Ss', True) == [0,0]
+    assert str_to_shell_types('SP', True) == [0,1]
+    assert str_to_shell_types('SDF', True) == [0,-2,-3]
 
 
 def test_go_basis_desc_neon_sto3g():
