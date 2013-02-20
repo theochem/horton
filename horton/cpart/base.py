@@ -127,10 +127,10 @@ class CPart(JustOnceClass):
             at_weights = self._cache.load('at_weights', i)
             result[i] = self._integrate(at_weights, moldens)
 
-        nuclear_charges = self._system.props.get('nuclear_charges')
-        #print result, nuclear_charges
-        if nuclear_charges is not None:
-            result += self.system.numbers - nuclear_charges
+        pseudo_numbers = self._system.props.get('pseudo_numbers')
+        #print result, pseudo_numbers
+        if pseudo_numbers is not None:
+            result += self.system.numbers - pseudo_numbers
 
         return result
 

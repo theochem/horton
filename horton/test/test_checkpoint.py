@@ -419,4 +419,4 @@ def test_cube():
     assert (g1.pbc_active == g2.pbc_active).all()
 
     assert (sys1.props['cube_data'] == sys2.props['cube_data']).all()
-    assert (sys1.props['nuclear_charges'] == sys2.props['nuclear_charges']).all()
+    assert (sys1.props['pseudo_numbers'] == sys2.props['pseudo_numbers']).all()

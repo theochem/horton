@@ -1,11 +1,11 @@
 
-  **** **** ******  **  PROGRAM STARTED AT               2013-02-20 09:06:44.083
+  **** **** ******  **  PROGRAM STARTED AT               2013-02-20 09:14:33.787
  ***** ** ***  *** **   PROGRAM STARTED ON                     molmod49.ugent.be
  **    ****   ******    PROGRAM STARTED BY                                  toon
- ***** **    ** ** **   PROGRAM PROCESS ID                                 15622
+ ***** **    ** ** **   PROGRAM PROCESS ID                                 15982
   **** **  *******  **  PROGRAM STARTED IN /home/toon/unief/research/collaborati
-                                           on/fischer/atoms-cp2k/014_si_014_q+00
-                                           /mult03
+                                           on/fischer/atoms-cp2k/008__o_010_q-02
+                                           /mult01
 
  CP2K| version string:                    CP2K version 2.4 (Development Version)
  CP2K| source code revision number:                                        12719
@@ -29,12 +29,12 @@
  MEMORY| system memory details [Kb]
  MEMORY|                        rank 0           min           max       average
  MEMORY| MemTotal              4049252       4049252       4049252       4049252
- MEMORY| MemFree                275792        275792        275792        275792
- MEMORY| Buffers                579804        579804        579804        579804
- MEMORY| Cached                1323128       1323128       1323128       1323128
- MEMORY| Slab                   684864        684864        684864        684864
- MEMORY| SReclaimable           581736        581736        581736        581736
- MEMORY| MemLikelyFree         2760460       2760460       2760460       2760460
+ MEMORY| MemFree                260280        260280        260280        260280
+ MEMORY| Buffers                579120        579120        579120        579120
+ MEMORY| Cached                1321012       1321012       1321012       1321012
+ MEMORY| Slab                   683544        683544        683544        683544
+ MEMORY| SReclaimable           580532        580532        580532        580532
+ MEMORY| MemLikelyFree         2740944       2740944       2740944       2740944
 
 
  *** Fundamental physical constants (SI units) ***
@@ -97,7 +97,7 @@
                                                                    
 
 
- Atomic Energy Calculation             Silicon [Si]          Atomic number:   14
+ Atomic Energy Calculation             Oxygen [O]            Atomic number:    8
 
 
  All Electron Basis
@@ -273,111 +273,91 @@
 
  ********************** Contracted Gaussian Type Orbitals **********************
  s Functions
-       1.256768       0.682896 -3.076075
-       0.506394      -0.036890  1.052975
-       0.238884      -0.482266  0.050211
-       0.087337      -0.084131 -0.104794
+      10.389228       1.845661  1.011947
+       3.849621       0.971630  0.802909
+       1.388401      -1.403587 -1.043250
+       0.496955      -1.275252 -0.143473
+       0.162492      -0.156705  0.713094
  p Functions
-       1.256768       0.263106  0.387366
-       0.506394      -0.266338 -0.513425
-       0.238884      -0.199705 -0.027860
-       0.087337      -0.049022  0.097000
+      10.389228      -3.335711 -1.461717
+       3.849621      -2.990270 -0.098838
+       1.388401      -1.660757 -0.988553
+       0.496955      -0.552957  0.462951
+       0.162492      -0.077466  0.317253
  d Functions
-       1.256768       0.619007
-       0.506394       0.311198
-       0.238884       0.083723
-       0.087337       0.020149
+      10.389228       4.681931
+       3.849621       1.682331
+       1.388401       3.393379
+       0.496955       0.685820
+       0.162492       0.016598
  *******************************************************************************
 
- METHOD    | Unrestricted Kohn-Sham Calculation
+ METHOD    | Restricted Kohn-Sham Calculation
  METHOD    | Nonrelativistic Calculation
  FUNCTIONAL| ROUTINE=NEW
  FUNCTIONAL| PBE:
  FUNCTIONAL| J.P.Perdew, K.Burke, M.Ernzerhof, Phys. Rev. Letter, vol. 77, n 18,
- FUNCTIONAL|  pp. 3865-3868, (1996){spin polarized}
+ FUNCTIONAL|  pp. 3865-3868, (1996){spin unpolarized}
 
  ***************************** GTH Pseudopotential *****************************
-          Core Charge                                                        4.0
-          Rc                                                            0.440000
-          C1 C2 ...                                                    -6.269288
+          Core Charge                                                        6.0
+          Rc                                                            0.244554
+          C1 C2 ...                                       -16.667215    2.487311
           Angular momentum                                                     0
-          Rcnl                                                          0.435634
-          Nl                                                                   2
-          Hnl                                               8.951742   -2.706271
-                                                                        3.493781
-          Angular momentum                                                     1
-          Rcnl                                                          0.497942
+          Rcnl                                                          0.220956
           Nl                                                                   1
-          Hnl                                                           2.431277
+          Hnl                                                          18.337458
  *******************************************************************************
 
  Electronic structure
     Total number of core electrons                                          0.00
-    Total number of valence electrons                                       4.00
-    Total number of electrons                                               4.00
-    Multiplicity                                                         triplet
-    Alpha Electrons
-    S      1.00
-    P      2.00
-    Beta Electrons
-    S      1.00
-    P      0.00
+    Total number of valence electrons                                       8.00
+    Total number of electrons                                               8.00
+    Multiplicity                                                   not specified
+    S      2.00
+    P      6.00
 
 
  *******************************************************************************
                   Iteration          Convergence                     Energy [au]
  *******************************************************************************
-                          1        0.891497                      -3.516178527532
-                          2        0.139293                      -3.757480126881
-                          3        0.195011E-02                  -3.761586764881
-                          4        0.655109E-03                  -3.761587664802
-                          5        0.437384E-03                  -3.761587683258
-                          6        0.328409E-03                  -3.761587689721
-                          7        0.292918E-03                  -3.761587691433
-                          8        0.164237E-05                  -3.761587698067
-                          9        0.191978E-05                  -3.761587698066
-                         10        0.720366E-06                  -3.761587698067
+                          1         1.38642                     -15.285828176327
+                          2         2.55684                     -14.827663703859
+                          3        0.381302E-01                 -15.464858431439
+                          4        0.510826E-02                 -15.464980570002
+                          5        0.310980E-02                 -15.464981960028
+                          6        0.228963E-02                 -15.464982334906
+                          7        0.167140E-03                 -15.464982776413
+                          8        0.443473E-07                 -15.464982778766
 
- Energy components [Hartree]           Total Energy ::           -3.761587698067
-                                        Band Energy ::           -1.043122452177
-                                     Kinetic Energy ::            1.420264081105
-                                   Potential Energy ::           -5.181851779172
-                                      Virial (-V/T) ::            3.648512870324
-                                        Core Energy ::           -5.736440458809
-                                          XC Energy ::           -1.051071404622
-                                     Coulomb Energy ::            3.025924165364
-                       Total Pseudopotential Energy ::           -7.156704539914
-                       Local Pseudopotential Energy ::           -8.011336700023
-                    Nonlocal Pseudopotential Energy ::            0.854632160109
+ Energy components [Hartree]           Total Energy ::          -15.464982778766
+                                        Band Energy ::            3.844166597771
+                                     Kinetic Energy ::           12.181955986698
+                                   Potential Energy ::          -27.646938765464
+                                      Virial (-V/T) ::            2.269499150683
+                                        Core Energy ::          -31.958051949143
+                                          XC Energy ::           -4.011810569673
+                                     Coulomb Energy ::           20.504879740050
+                       Total Pseudopotential Energy ::          -44.140007935841
+                       Local Pseudopotential Energy ::          -45.401303356893
+                    Nonlocal Pseudopotential Energy ::            1.261295421052
 
- Orbital energies  State     Spin  L     Occupation   Energy[a.u.]    Energy[eV]
+ Orbital energies  State     L     Occupation   Energy[a.u.]          Energy[eV]
 
-                       1    alpha  0          1.000      -0.398762    -10.850855
-                       1     beta  0          1.000      -0.334569     -9.104078
+                       1     0          2.000       0.102709            2.794853
 
-                       1    alpha  1          2.000      -0.154896     -4.214936
-                       1     beta  1          0.000      -0.092238     -2.509922
+                       1     1          6.000       0.606458           16.502564
 
 
- Atomic orbital expansion coefficients [Alpha]
+ Atomic orbital expansion coefficients []
 
     ORBITAL      L = 0      State =   1
-        1.522011166887716E+00
-        5.826783575694383E-02
+        7.113350364691292E-01
+       -1.031351531555806E-01
 
     ORBITAL      L = 1      State =   1
-        1.105690402569389E+00
-       -2.168156687704281E-01
-
- Atomic orbital expansion coefficients [Beta]
-
-    ORBITAL      L = 0      State =   1
-        1.521757206856266E+00
-        6.109107594608343E-02
-
-    ORBITAL      L = 1      State =   1
-        1.096000187325513E+00
-       -2.407297795767154E-01
+        7.704905441399492E-01
+       -1.952153695635500E-01
 
 
                              NORMAL TERMINATION OF     
@@ -416,24 +396,24 @@
  -------------------------------------------------------------------------------
  SUBROUTINE                       CALLS  ASD         SELF TIME        TOTAL TIME
                                               AVERAGE  MAXIMUM  AVERAGE  MAXIMUM
- CP2K                                 1  1.0    0.002    0.002    0.031    0.031
- atom_energy_opt                      1  3.0    0.015    0.015    0.028    0.028
- atom_code                            1  2.0    0.000    0.000    0.028    0.028
- calculate_atom_unrestricted          1  5.0    0.002    0.002    0.010    0.010
- calculate_atom                       1  4.0    0.000    0.000    0.010    0.010
- calculate_atom_vxc_lsd              10  6.0    0.001    0.001    0.008    0.008
- pbe_lsd_eval                        10  8.0    0.007    0.007    0.007    0.007
- xc_functional_eval                  10  7.0    0.000    0.000    0.007    0.007
+ CP2K                                 1  1.0    0.003    0.003    0.027    0.027
+ atom_energy_opt                      1  3.0    0.015    0.015    0.023    0.023
+ atom_code                            1  2.0    0.000    0.000    0.023    0.023
+ calculate_atom_restricted            1  5.0    0.001    0.001    0.005    0.005
+ calculate_atom                       1  4.0    0.000    0.000    0.005    0.005
+ calculate_atom_vxc_lda               8  6.0    0.002    0.002    0.004    0.004
+ pbe_lda_eval                         8  8.0    0.002    0.002    0.002    0.002
+ xc_functional_eval                   8  7.0    0.000    0.000    0.002    0.002
  parser_read_line_low                 2  4.0    0.002    0.002    0.002    0.002
  create_grid_atom                     2  4.0    0.001    0.001    0.001    0.001
  get_fft_scratch                      1  3.0    0.001    0.001    0.001    0.001
  fft3d_s                              1  2.0    0.000    0.000    0.001    0.001
  -------------------------------------------------------------------------------
 
-  **** **** ******  **  PROGRAM ENDED AT                 2013-02-20 09:06:44.173
+  **** **** ******  **  PROGRAM ENDED AT                 2013-02-20 09:14:33.875
  ***** ** ***  *** **   PROGRAM RAN ON                         molmod49.ugent.be
  **    ****   ******    PROGRAM RAN BY                                      toon
- ***** **    ** ** **   PROGRAM PROCESS ID                                 15622
+ ***** **    ** ** **   PROGRAM PROCESS ID                                 15982
   **** **  *******  **  PROGRAM STOPPED IN /home/toon/unief/research/collaborati
-                                           on/fischer/atoms-cp2k/014_si_014_q+00
-                                           /mult03
+                                           on/fischer/atoms-cp2k/008__o_010_q-02
+                                           /mult01
