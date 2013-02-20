@@ -77,12 +77,21 @@ def main():
 
     # Store the results in an HDF5 file
     with h5.File(args.cube + '.h5') as f:
+        # Store essential system info
+        coordinates = f.require_dataset('coordinates', sys.coordinates.shape, float, exact=True)
+        coordinates[:] = sys.coordinates
+        numbers = f.require_dataset('numbers', sys.numbers.shape, long, exact=True)
+        numbers[:] = sys.numbers
+
+        # Store results
         folder = '%s_r%i' % (args.scheme, args.reduce)
         if args.smooth:
             folder += '_s'
         if folder in f:
             del f[folder]
         grp = f.create_group(folder)
+        grid_rvecs = grp.require_dataset('grid_rvecs', (3, 3), float, exact=True)
+        grid_rvecs[:] = ui_grid.grid_cell.rvecs
         grp['charges'] = cpart['charges']
         grp['dipoles'] = cpart['dipoles']
         grp['volumes'] = cpart['volumes']
