@@ -22,74 +22,155 @@
 
 import numpy as np, h5py as h5
 import tempfile, os
+
 from horton import *
+from horton.dpart.test.common import get_proatomdb_ref, get_proatomdb_cp2k
 
 
-def test_from_scratch_simple():
-    int1d = TrapezoidIntegrator1D()
+def test_db_basics():
+    padb = get_proatomdb_ref([8, 1], 1, 1)
+    assert padb.get_numbers() == [1, 8]
+    assert padb.get_charges(8) == [-1, 0, 1]
+    assert padb.get_charges(1) == [-1, 0]
+    r1 = padb.get_record(8, -1)
+    assert r1.number == 8
+    assert r1.charge == -1
+    assert abs(r1.energy - -72.587) < 1e-3
+    assert r1.population == 9
+    assert r1.pseudo_number == 8
+    assert r1.pseudo_population == 9
+    assert r1.safe
+    assert r1.rtransform.npoint == 100
+    r2 = padb.get_record(8, -1)
+    r3 = padb.get_record(8, 0)
+    assert r1 == r2
+    assert r1 != r3
+    assert padb.get_rtransform(8) == r1.rtransform
+
+
+def test_db_basics_pseudo():
+    padb = get_proatomdb_cp2k()
+    assert padb.get_numbers() == [8, 14]
+    assert padb.get_charges(8) == [-2, -1, 0, 1, 2]
+    assert padb.get_charges(8, safe=True) == [-1, 0, 1, 2]
+    assert padb.get_charges(14) == [0]
+    assert padb.get_record(8, -1).safe
+    assert not padb.get_record(8, -2).safe
+    assert padb.get_rtransform(8) == padb.get_record(8, 1).rtransform
+
+
+def test_record_basics_pseudo():
+    fn_out = context.get_fn('test/atom_si.cp2k.out')
+    sys = System.from_file(fn_out)
+
+    int1d = SimpsonIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), keep_subgrids=1)
-    proatomdb = ProAtomDB.from_scratch([HartreeFock()], '3-21G', atgrid, [1,6], qmin=-2, qmax=3)
-    keys = sorted(proatomdb._records.keys())
-    assert keys == [(1, 1), (1, 2), (1, 3), (6, 3), (6, 4), (6, 5), (6, 6), (6, 7), (6, 8)]
+    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), random_rotate=False, keep_subgrids=1)
+
+    r = ProAtomRecord.from_system(sys, atgrid)
+    assert r.number == 14
+    print r.charge
+    assert r.charge == 0
+    assert abs(r.energy - -3.761587698067) < 1e-10
+    assert r.population == 14
+    assert r.pseudo_number == 4
+    assert r.pseudo_population == 4
+    assert r.safe
+    assert r.rtransform is rtf
 
 
-def get_proatomdb_HC_from_scratch(qmin=-1, qmax=1):
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 1e1, 100)
-    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), keep_subgrids=1)
-    return ProAtomDB.from_scratch([HartreeFock()], '3-21G', atgrid, [1,6], qmin=qmin, qmax=qmax)
-
+def compare_padbs(padb1, padb2):
+    assert padb1.size == padb2.size
+    for number in padb1.get_numbers():
+        for charge in padb1.get_charges(number):
+            r1 = padb1.get_record(number, charge)
+            r2 = padb2.get_record(number, charge)
+            assert r1 == r2
 
 def test_io_group():
-    proatomdb = get_proatomdb_HC_from_scratch()
-    keys = sorted(proatomdb._records.keys())
-    assert keys == [(1, 1), (1, 2), (6, 5), (6, 6), (6, 7)]
+    padb1 = get_proatomdb_ref([1, 6], 1, 1)
+    assert padb1.size == 5
+    keys = sorted(padb1._map.keys())
+    assert keys == [(1, -1), (1, 0), (6, -1), (6, 0), (6, +1)]
 
     with h5.File('horton.dpart.test.test_proatomdb.test_io_group', driver='core', backing_store=False) as f:
-        proatomdb.to_file(f)
-        bis = ProAtomDB.from_file(f)
-        keys = sorted(bis._records.keys())
-        assert keys == [(1, 1), (1, 2), (6, 5), (6, 6), (6, 7)]
-        avr1 = proatomdb._records[(1,2)]
-        avr2 = bis._records[(1,2)]
-        assert (avr1 == avr2).all()
+        padb1.to_file(f)
+        padb2 = ProAtomDB.from_file(f)
+        compare_padbs(padb1, padb2)
 
 
 def test_io_filename():
-    proatomdb = get_proatomdb_HC_from_scratch(qmin=0, qmax=1)
-    keys = sorted(proatomdb._records.keys())
-    assert keys == [(1, 1), (6, 5), (6, 6)]
+    padb1 = get_proatomdb_ref([1, 6], 1, 0)
+    keys = sorted(padb1._map.keys())
+    assert keys == [(1, 0), (6, 0), (6, 1)]
 
     tmpdir = tempfile.mkdtemp('horton.dpart.test.test_proatomdb.test_io_filename')
     filename = '%s/test.h5' % tmpdir
     try:
-        proatomdb.to_file(filename)
-        bis = ProAtomDB.from_file(filename)
-        keys = sorted(bis._records.keys())
-        assert keys == [(1, 1), (6, 5), (6, 6)]
-        avr1 = proatomdb._records[(6,5)]
-        avr2 = bis._records[(6,5)]
-        assert (avr1 == avr2).all()
+        padb1.to_file(filename)
+        padb2 = ProAtomDB.from_file(filename)
+        compare_padbs(padb1, padb2)
     finally:
         if os.path.isfile(filename):
             os.remove(filename)
         os.rmdir(tmpdir)
 
 
-def test_from_refatoms():
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 1e1, 100)
-    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), keep_subgrids=1)
-    proatomdb = ProAtomDB.from_refatoms(atgrid, numbers=[1,5], qmax=2)
-    keys = sorted(proatomdb._records.keys())
-    assert keys == [(1, 1), (1, 2), (5, 3), (5, 4), (5, 5), (5, 6)]
-
-
 def test_compute_radii():
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 1e1, 100)
-    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), keep_subgrids=1)
-    padb = ProAtomDB.from_refatoms(atgrid, numbers=[6,8], qmax=0)
-    radii = padb.compute_radii(6, [2.0, 5.9, 5.999])
+    padb = get_proatomdb_ref([6], 0, 0)
+    record = padb.get_record(6, 0)
+    radii = record.compute_radii([2.0, 5.9, 5.999])
     assert abs(radii - np.array([0.599677, 4.037688, 10.0])).max() < 1e-5
+
+
+def check_spline_record(spline, record):
+    assert abs(spline.copy_y() - record.rho).max() < 1e-10
+
+
+def check_spline_pop(spline, pop):
+    int1d = SimpsonIntegrator1D()
+    rtf = spline.rtransform
+    check_pop = 4*np.pi*dot_multi(
+        rtf.get_volume_elements(),
+        rtf.get_radii()**2,
+        spline.copy_y(),
+        int1d.get_weights(rtf.npoint),
+    )
+    assert abs(pop - check_pop) < 1e-2
+
+
+def test_get_spline():
+    padb = get_proatomdb_ref([1, 6], 1, 1)
+
+    spline = padb.get_spline(6)
+    check_spline_pop(spline, 6.0)
+    check_spline_record(spline, padb.get_record(6, 0))
+
+    spline = padb.get_spline(6, -1)
+    check_spline_pop(spline, 7.0)
+    check_spline_record(spline, padb.get_record(6, -1))
+
+    spline = padb.get_spline(6, {0:0.5, -1:0.5})
+    check_spline_pop(spline, 6.5)
+
+    spline = padb.get_spline(1, {0:0.5})
+    check_spline_pop(spline, 0.5)
+
+
+def test_get_spline_pseudo():
+    padb = get_proatomdb_cp2k()
+
+    spline = padb.get_spline(8)
+    check_spline_pop(spline, 6.0)
+    check_spline_record(spline, padb.get_record(8, 0))
+
+    spline = padb.get_spline(8, -1)
+    check_spline_pop(spline, 7.0)
+    check_spline_record(spline, padb.get_record(8, -1))
+
+    spline = padb.get_spline(8, {0:0.5, -1:0.5})
+    check_spline_pop(spline, 6.5)
+
+    spline = padb.get_spline(14)
+    check_spline_pop(spline, 4.0)
+    check_spline_record(spline, padb.get_record(14, 0))
