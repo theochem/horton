@@ -33,6 +33,9 @@ from horton.log import log
 __all__ = ['HirshfeldDPart', 'HirshfeldIDPart', 'HirshfeldEDPart']
 
 
+# TODO: proofread and add tests for pseudo densities
+
+
 class HirshfeldDPart(DPart):
     '''Base class for Hirshfeld partitioning'''
     def __init__(self, molgrid, proatomdb, local=True):
@@ -123,17 +126,37 @@ class HirshfeldIDPart(HirshfeldDPart):
             ])
             log.cite('bultinck2007', 'for the use of Hirshfeld-I partitioning')
 
-    def _proatom_change(self, old, new):
+    def _proatom_change(self, number, old, new):
+        '''Compute the difference between an old and a new spline
+
+           **Arguments:**
+
+           number
+                Element number
+
+           old, new
+                The old and new splines
+        '''
+        rtf = self.proatomdb.get_rtransform(number)
         return (4*np.pi)*dot_multi(
-            self._proatomdb._rtransform.get_radii()**2, # TODO: get routines are slow
-            self._proatomdb._rtransform.get_volume_elements(),
-            SimpsonIntegrator1D().get_weights(self._proatomdb._rtransform.npoint),
+            rtf.get_radii()**2, # TODO: get routines are slow
+            rtf.get_volume_elements(),
+            SimpsonIntegrator1D().get_weights(rtf.npoint),
             (old.copy_y() - new.copy_y())**2 # TODO: copy is slow
         )
 
-    def _get_proatom_fn(self, i, n, p, first, grid):
-        ip = int(np.floor(p))
-        return self._proatomdb.get_spline(n, {ip: 1-(p-ip), ip+1: p-ip})
+    def _get_proatom_fn(self, index, number, charge, first, grid):
+        icharge = int(np.floor(charge))
+        x = charge - icharge
+        # check if icharge record should exist
+        pseudo_pop = self.system.pseudo_numbers[index] - icharge
+        if pseudo_pop == 1:
+            print x, icharge, charge, pseudo_pop
+            return self._proatomdb.get_spline(number, {icharge: 1-x})
+        elif pseudo_pop > 1:
+            return self._proatomdb.get_spline(number, {icharge: 1-x, icharge+1: 1})
+        else:
+            raise ValueError('Requesting a pro-atom with a negative (pseudo) population')
 
     @just_once
     def _init_at_weights(self):
@@ -144,12 +167,12 @@ class HirshfeldIDPart(HirshfeldDPart):
         self.do_mol_dens()
 
         # Iterative Hirshfeld loop
-        populations = self.system.numbers.astype(float)
+        charges = np.zeros(self.system.natom)
         counter = 0
         if log.do_medium:
             log('Iterative Hirshfeld partitioning loop')
             log.hline()
-            log('Counter      Change   Pop.Error')
+            log('Counter      Change   QTot Error')
             log.hline()
 
         while True:
@@ -158,14 +181,14 @@ class HirshfeldIDPart(HirshfeldDPart):
             first_iter = True
             for i, grid in self.iter_grids():
                 old_proatom_fn = self.cache.load('proatom_fn', i, default=None)
-                n = self.system.numbers[i]
-                p = populations[i]
-                proatom_fn = self._get_proatom_fn(i, n, p, old_proatom_fn is None, grid)
+                number = self.system.numbers[i]
+                charge = charges[i]
+                proatom_fn = self._get_proatom_fn(i, number, charge, old_proatom_fn is None, grid)
 
                 self.cache.dump('proatom_fn', i, proatom_fn)
                 if old_proatom_fn is not None:
                     first_iter = False
-                    change += self._proatom_change(old_proatom_fn, proatom_fn)
+                    change += self._proatom_change(number, old_proatom_fn, proatom_fn)
 
             # Enforce (single) update of pro-molecule in case of a global grid
             if not self.local:
@@ -179,11 +202,11 @@ class HirshfeldIDPart(HirshfeldDPart):
 
                 # Compute population
                 dens = self.cache.load('mol_dens', i)
-                populations[i] = grid.integrate(at_weights, dens)
+                charges[i] = self.system.pseudo_numbers[i] - grid.integrate(at_weights, dens)
 
             change = np.sqrt(change/self.system.natom)
             if log.do_medium:
-                pop_error = populations.sum() - self.system.wfn.nel
+                pop_error = charges.sum() - self.system.charge
                 log('%7i  %10.5e  %10.5e' % (counter, change, pop_error))
 
             if not first_iter and change < self._threshold:
@@ -211,7 +234,7 @@ class HirshfeldEDPart(HirshfeldIDPart):
         if first:
             return self._proatomdb.get_spline(number)
         else:
-            rtf = self._proatomdb._rtransform
+            rtf = self._proatomdb.get_rtransform(number)
             int1d = SimpsonIntegrator1D()
             radii = rtf.get_radii()
             weights = (4*np.pi) * radii**2 * int1d.get_weights(len(radii)) * rtf.get_volume_elements()
@@ -224,39 +247,41 @@ class HirshfeldEDPart(HirshfeldIDPart):
                 A = self.cache.load('A', number)
             else:
                 # Construct the basis functions
-                records = []
-                pops = []
-                for j0, pop in enumerate(self._proatomdb.get_pops(number)):
+                basis = []
+                #norms = []
+                for j0, charge in enumerate(self._proatomdb.get_charges(number, True)):
                     if j0 == 0:
-                        record = self._proatomdb.get_record(number, pop)/pop
+                        # TODO: the corresponding coefficient should be constrained unless pseudo_population==1
+                        record = self._proatomdb.get_record(number, charge)
+                        radrho = record.rho/record.pseudo_population
                     else:
-                        record = self._proatomdb.get_record(number, pop) - \
-                                 self._proatomdb.get_record(number, pop-1)
+                        radrho = self._proatomdb.get_record(number, charge).rho - \
+                                self._proatomdb.get_record(number, charge+1).rho
 
                     redundant = False
                     for j1 in xrange(j0):
-                        delta = record - records[j1]
+                        delta = radrho - basis[j1]
                         if dot_multi(weights, delta, delta) < 1e-5:
                             redundant = True
                             break
 
                     if not redundant:
-                        records.append(record)
-                        if j0 == 0:
-                            pops.append(pop)
-                        else:
-                            pops.append(1.0)
-                records = np.array(records)
-                pops = np.array(pops)
-                self.cache.dump('records', number, records)
-                self.cache.dump('pops', number, pops)
+                        basis.append(radrho)
+                        #if j0 == 0:
+                        #    norms.append(record.pseudo_population)
+                        #else:
+                        #    norms.append(1.0)
+                basis = np.array(basis)
+                #norms = np.array(norms)
+                self.cache.dump('basis', number, basis)
+                #self.cache.dump('norms', number, norms)
 
                 # Set up system of linear equations:
-                neq = len(pops)
+                neq = len(basis)
                 A = np.zeros((neq, neq), float)
                 for j0 in xrange(neq):
                     for j1 in xrange(j0+1):
-                        A[j0, j1] = dot_multi(weights, records[j0], records[j1])
+                        A[j0, j1] = dot_multi(weights, basis[j0], basis[j1])
                         A[j1, j0] = A[j0, j1]
 
                 if (np.diag(A) < 0).any():
@@ -270,7 +295,7 @@ class HirshfeldEDPart(HirshfeldIDPart):
             at_weights = self.cache.load('at_weights', index)
             for j0 in xrange(neq):
                 tmp[:] = 0.0
-                spline = CubicSpline(records[j0], rtf=rtf)
+                spline = CubicSpline(basis[j0], rtf=rtf)
                 grid.eval_spline(spline, self._system.coordinates[index], tmp)
                 B[j0] = grid.integrate(at_weights, dens, tmp)
 
@@ -290,16 +315,18 @@ class HirshfeldEDPart(HirshfeldIDPart):
                 log('                   %10i:&%s' % (index, ' '.join('% 6.3f' % c for c in coeffs)))
 
             # Construct pro-atom
-            record = 0
+            proradrho = 0
             for j0 in xrange(neq):
-                record += coeffs[j0]*records[j0]
-            error = np.dot(record, weights) - population
+                proradrho += coeffs[j0]*basis[j0]
+            error = np.dot(proradrho, weights) - population
             assert abs(error) < 1e-5
 
             # Check for negative parts
-            if record.min() < 0:
-                record[record<0] = 0.0
-                error = np.dot(record, weights) - population
+            if proradrho.min() < 0:
+                proradrho[proradrho<0] = 0.0
+                error = np.dot(proradrho, weights) - population
                 if log.do_medium:
                     log('                    Pro-atom not positive everywhere. Lost %.5f electrons' % error)
+
+            # Done
             return CubicSpline(record, rtf=rtf)

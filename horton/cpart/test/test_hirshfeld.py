@@ -22,10 +22,10 @@
 
 import numpy as np
 from horton import *
-from horton.cpart.test.common import get_fake_co
+from horton.cpart.test.common import get_fake_co, get_fake_pseudo_oo
 
 
-def test_cpart_hirshfeld_jbw_coarse():
+def test_hirshfeld_jbw_coarse():
     # This test is not supposed to generate meaningful numbers. The cube data
     # is too coarse and the reference atoms may have little similarities with
     # the DFT density.
@@ -33,7 +33,7 @@ def test_cpart_hirshfeld_jbw_coarse():
     # Load the cube file
     fn_cube = context.get_fn('test/jbw_coarse_aedens.cube')
     sys = System.from_file(fn_cube)
-    del sys.props['pseudo_numbers']
+    sys._pseudo_numbers = None # Why?
     mol_dens = sys.props['cube_data']
     ui_grid = sys.props['ui_grid']
 
@@ -41,7 +41,7 @@ def test_cpart_hirshfeld_jbw_coarse():
     int1d = SimpsonIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
     atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), keep_subgrids=1)
-    proatomdb = ProAtomDB.from_refatoms(atgrid, numbers=[8,14], qmax=0)
+    proatomdb = ProAtomDB.from_refatoms(atgrid, numbers=[8,14], max_kation=0, max_anion=0)
 
     # Run the partitioning
     cpart = HirshfeldCPart(sys, ui_grid, mol_dens, proatomdb, False)
@@ -52,7 +52,7 @@ def test_cpart_hirshfeld_jbw_coarse():
     assert cpart['volumes'].min() > 0
 
 
-def test_cpart_hirshfeld_fake():
+def test_hirshfeld_fake():
     sys, ui_grid, mol_dens, proatomdb = get_fake_co()
 
     # Run the partitioning
@@ -63,18 +63,29 @@ def test_cpart_hirshfeld_fake():
     assert abs(charges[0] - 0.112) < 1e-3
 
 
-def test_cpart_hirshfeld_fake_smooth():
-    sys, ui_grid, mol_dens, proatomdb = get_fake_co(smooth=True)
+def test_hirshfeld_fake_pseudo():
+    sys, ui_grid, mol_dens, proatomdb = get_fake_pseudo_oo()
+
+    # Run the partitioning
+    cpart = HirshfeldCPart(sys, ui_grid, mol_dens, proatomdb, False)
+    cpart.do_charges()
+    charges = cpart['charges']
+    assert charges.sum() < 1e-3
+    assert abs(charges[0] - 0.2119886) < 1e-3
+
+
+def test_hirshfeld_fake_pseudo_smooth():
+    sys, ui_grid, mol_dens, proatomdb = get_fake_pseudo_oo()
 
     # Run the partitioning
     cpart = HirshfeldCPart(sys, ui_grid, mol_dens, proatomdb, True)
     cpart.do_charges()
     charges = cpart['charges']
     assert charges.sum() < 1e-3
-    assert abs(charges[0] - 0.120) < 1e-3
+    assert abs(charges[0] - 0.2119886) < 1e-3
 
 
-def test_cpart_hirshfeld_i_fake():
+def test_hirshfeld_i_fake():
     sys, ui_grid, mol_dens, proatomdb = get_fake_co()
 
     # Run the partitioning
@@ -85,18 +96,29 @@ def test_cpart_hirshfeld_i_fake():
     assert abs(charges[0] - 0.431) < 1e-3
 
 
-def test_cpart_hirshfeld_i_fake_smooth():
-    sys, ui_grid, mol_dens, proatomdb = get_fake_co(smooth=True)
+def test_hirshfeld_i_fake_pseudo():
+    sys, ui_grid, mol_dens, proatomdb = get_fake_pseudo_oo()
+
+    # Run the partitioning
+    cpart = HirshfeldICPart(sys, ui_grid, mol_dens, proatomdb, False)
+    cpart.do_charges()
+    charges = cpart['charges']
+    assert charges.sum() < 1e-3
+    assert abs(charges[0] - 0.40262645) < 1e-3
+
+
+def test_hirshfeld_i_fake_pseudo_smooth():
+    sys, ui_grid, mol_dens, proatomdb = get_fake_pseudo_oo()
 
     # Run the partitioning
     cpart = HirshfeldICPart(sys, ui_grid, mol_dens, proatomdb, True)
     cpart.do_charges()
     charges = cpart['charges']
     assert charges.sum() < 1e-3
-    assert abs(charges[0] - 0.113) < 1e-3
+    assert abs(charges[0] - 0.40262645) < 1e-3
 
 
-def test_cpart_hirshfeld_e_fake():
+def test_hirshfeld_e_fake():
     sys, ui_grid, mol_dens, proatomdb = get_fake_co()
 
     # Run the partitioning
@@ -105,3 +127,14 @@ def test_cpart_hirshfeld_e_fake():
     charges = cpart['charges']
     assert charges.sum() < 1e-3
     assert abs(charges[0] - 0.393) < 1e-3
+
+
+def test_hirshfeld_e_fake_pseudo():
+    sys, ui_grid, mol_dens, proatomdb = get_fake_pseudo_oo()
+
+    # Run the partitioning
+    cpart = HirshfeldECPart(sys, ui_grid, mol_dens, proatomdb, False)
+    cpart.do_charges()
+    charges = cpart['charges']
+    assert charges.sum() < 1e-3
+    assert abs(charges[0] - 0.4001029) < 1e-3

@@ -74,34 +74,20 @@ class HirshfeldCPart(CPart):
             self._cache.dump('wcor', None)
             return
 
-        if True:
-            funcs = []
-            for i in xrange(self._system.natom):
-                n = self._system.numbers[i]
-                funcs.append((
-                    self._system.coordinates[i],
-                    [(('isolated_atom', i, n), self._proatomdb.get_spline(n), float(n))],
-                ))
-            self._ui_grid.compute_weight_corrections(funcs, cache=self._cache)
-        else:
-            # TODO: investigate this option in more detail
-            funcs = []
-            for i in xrange(self._system.natom):
-                n = self._system.numbers[i]
-                pops = self._proatomdb.get_pops(n)
-                for pop in pops:
-                    funcs.append((
-                        self._system.coordinates[i],
-                        ('isolated_atom', i, pop),
-                        self._proatomdb.get_spline(n, pop),
-                        float(n),
-                    ))
-            self._ui_grid.compute_weight_corrections_brute(funcs, cache=self._cache)
+        funcs = []
+        for i in xrange(self._system.natom):
+            n = self._system.numbers[i]
+            pn = self._system.pseudo_numbers[i]
+            assert self._proatomdb.get_record(n, 0).pseudo_number == pn
+            funcs.append((
+                self._system.coordinates[i],
+                [(('isolated_atom', i, n), self._proatomdb.get_spline(n), float(pn))],
+            ))
+        self._ui_grid.compute_weight_corrections(funcs, cache=self._cache)
 
     def _compute_proatom(self, index):
-        number = self._system.numbers[index]
-        if self._cache.has('isolated_atom', index, number):
-            self._cache.rename(('isolated_atom', index, number), ('at_weights', index))
+        if self._cache.has('isolated_atom', index, 0):
+            self._cache.rename(('isolated_atom', index, 0), ('at_weights', index))
             proatom = self._cache.load('at_weights', index)
         else:
             if log.do_medium:
@@ -143,31 +129,33 @@ class HirshfeldCPart(CPart):
 class HirshfeldICPart(HirshfeldCPart):
     name = 'hi'
 
-    def _get_isolated_atom(self, i, pop):
+    def _get_isolated_atom(self, i, charge):
         # A local cache is used that only exists during _init_at_weights:
-        isolated_atom, new = self._cache.load('isolated_atom', i, pop, alloc=self._ui_grid.shape)
+        isolated_atom, new = self._cache.load('isolated_atom', i, charge, alloc=self._ui_grid.shape)
         if new:
             number = self._system.numbers[i]
             center = self._system.coordinates[i]
-            spline = self._proatomdb.get_spline(number, pop)
+            spline = self._proatomdb.get_spline(number, charge)
             if log.do_medium:
-                log('Computing isolated atom %i (n=%i, pop=%i)' % (i, number, pop))
+                log('Computing isolated atom %i (n=%i, q=%+i)' % (i, number, charge))
             self._ui_grid.eval_spline(spline, center, isolated_atom)
         return isolated_atom
 
-    def _compute_proatom(self, i, pop):
+    def _compute_proatom(self, i, target_charge):
         # Pro-atoms are (temporarily) stored in at_weights for efficiency.
         proatom, new = self._cache.load('at_weights', i, alloc=self._ui_grid.shape)
         # Construct the pro-atom
-        ipop = int(np.floor(pop))
-        proatom[:] = self._get_isolated_atom(i, ipop)
-        if float(ipop) != pop:
-            x = pop - ipop
+        icharge = int(np.floor(target_charge))
+        proatom[:] = self._get_isolated_atom(i, icharge)
+        if float(icharge) != target_charge:
+            x = target_charge - icharge
             proatom *= 1-x
-            tmp = self._local_cache.load('tmp', alloc=self._ui_grid.shape)[0]
-            tmp[:] = self._get_isolated_atom(i, ipop+1)
-            tmp *= x
-            proatom += tmp
+            ipseudo_pop = self.system.pseudo_numbers[i] - icharge
+            if ipseudo_pop > 1:
+                tmp = self._local_cache.load('tmp', alloc=self._ui_grid.shape)[0]
+                tmp[:] = self._get_isolated_atom(i, icharge+1)
+                tmp *= x
+                proatom += tmp
         proatom += 1e-100 # avoid division by zero
         return proatom
 
@@ -175,7 +163,7 @@ class HirshfeldICPart(HirshfeldCPart):
     def _init_at_weights(self):
         self._local_cache = Cache()
 
-        old_populations = self._system.numbers.astype(float)
+        old_charges = np.zeros(self._system.natom)
         if log.medium:
             log.hline()
             log('Iteration       Change')
@@ -183,17 +171,18 @@ class HirshfeldICPart(HirshfeldCPart):
         for counter in xrange(500):
             # Construct pro-atoms
             for i in xrange(self._system.natom):
-                self._compute_proatom(i, old_populations[i])
+                self._compute_proatom(i, old_charges[i])
             self._compute_promoldens()
             self._compute_at_weights()
             new_populations = self._compute_populations()
-            change = abs(new_populations - old_populations).max()
+            new_charges = self.system.numbers - new_populations
+            change = abs(new_charges - old_charges).max()
             if log.medium:
                 log('%9i   %10.5e' % (counter, change))
             if change < 1e-4:
                 break
 
-            old_populations = new_populations
+            old_charges = new_charges
 
         if log.medium:
             log.hline()
@@ -212,31 +201,21 @@ class HirshfeldECPart(HirshfeldICPart):
             self._cache.dump('wcor_fit', None)
             return
 
-        # Corrections for the integration of normal densities
-        funcs = []
-        for i in xrange(self._system.natom):
-            n = self._system.numbers[i]
-            funcs.append((
-                self._system.coordinates[i],
-                [(('isolated_atom', i, n), self._proatomdb.get_spline(n), float(n))],
-            ))
-        self._ui_grid.compute_weight_corrections(funcs, cache=self._cache)
-
-        # Corrections for the integration of squared densities
-        funcs = []
+        HirshfeldICPart._init_weight_corrections(self)
 
         from horton.grid import SimpsonIntegrator1D, CubicSpline
         int1d = SimpsonIntegrator1D()
-        rtf = self._proatomdb._rtransform
-        radii = rtf.get_radii()
-        weights1d = (4*np.pi) * radii**2 * rtf.get_volume_elements() * int1d.get_weights(len(radii))
+        funcs = []
+        for i in xrange(self.system.natom):
+            n = self.system.numbers[i]
+            rtf = self.proatomdb.get_rtransform(n)
+            radii = rtf.get_radii()
+            weights1d = (4*np.pi) * radii**2 * rtf.get_volume_elements() * int1d.get_weights(len(radii))
 
-        for i in xrange(self._system.natom):
-            n = self._system.numbers[i]
-            pops = self._proatomdb.get_pops(n)
-            record = self._proatomdb.get_record(n, pops[0])
-            spline = CubicSpline(record**2, rtf=rtf)
-            int_exact = np.dot(record**2, weights1d)
+            charges = self._proatomdb.get_charges(n)
+            rho = self._proatomdb.get_record(n, charges[0]).rho
+            spline = CubicSpline(rho**2, rtf=rtf)
+            int_exact = np.dot(rho**2, weights1d)
 
             funcs.append((
                 self._system.coordinates[i],
@@ -250,26 +229,25 @@ class HirshfeldECPart(HirshfeldICPart):
         # A local cache is used that only exists during _init_at_weights:
         isolated_atom, new = self._cache.load('basis', i, j, alloc=self._ui_grid.shape)
         number = self._system.numbers[i]
-        pops = self._proatomdb.get_pops(number)
+        charges = self._proatomdb.get_charges(number)
         if new:
             number = self._system.numbers[i]
             center = self._system.coordinates[i]
             if j == 0:
-                spline = self._proatomdb.get_spline(number, {pops[0]: 1.0/pops[0]})
+                pop = self.proatomdb.get_record(number, charges[0]).pseudo_population
+                spline = self._proatomdb.get_spline(number, {charges[0]: 1.0/pop})
             else:
-                spline = self._proatomdb.get_spline(number, {pops[j]: 1, pops[j-1]: -1})
+                spline = self._proatomdb.get_spline(number, {charges[j]: 1, charges[j-1]: -1})
             if log.do_medium:
-                log('Computing basisfn %i_%i (n=%i, pop=%i)' % (i, j, number, pops[j]))
+                log('Computing basisfn %i_%i (n=%i, q=%+i)' % (i, j, number, charges[j]))
             self._ui_grid.eval_spline(spline, center, isolated_atom)
         return isolated_atom
 
-    def _compute_proatom(self, i, pop):
+    def _compute_proatom(self, i, target_charge):
         # Pro-atoms are (temporarily) stored in at_weights for efficiency.
-        number = self._system.numbers[i]
-        if self._cache.has('isolated_atom', i, number):
+        if self._cache.has('isolated_atom', i, 0):
             # just use the Hirshfeld definition to get started
-            n = self._system.numbers[i]
-            self._cache.rename(('isolated_atom', i, number), ('at_weights', i))
+            self._cache.rename(('isolated_atom', i, 0), ('at_weights', i))
             proatom = self._cache.load('at_weights', i)
             proatom += 1e-100
         else:
@@ -283,8 +261,9 @@ class HirshfeldECPart(HirshfeldICPart):
             aimdens *= self._cache.load('moldens')
 
             # 2) setup equations
-            pops = np.array(self._proatomdb.get_pops(number))
-            neq = len(pops)
+            number = self._system.numbers[i]
+            charges = np.array(self._proatomdb.get_charges(number))
+            neq = len(charges)
 
             A, new = self._local_cache.load('fit_A', i, alloc=(neq, neq))
             if new:
@@ -315,7 +294,8 @@ class HirshfeldECPart(HirshfeldICPart):
 
 
             # 3) find solution
-            lc_pop = (np.ones(neq)/scales, pop)
+            target_pseudo_pop = self.system.pseudo_numbers[i] - target_charge
+            lc_pop = (np.ones(neq)/scales, target_pseudo_pop)
             coeffs = solve_positive(A, B, [lc_pop])
             # correct for scales
             coeffs /= scales
@@ -332,34 +312,3 @@ class HirshfeldECPart(HirshfeldICPart):
                 tmp *= coeffs[j0]
                 proatom += tmp
         proatom += 1e-100
-
-    @just_once
-    def _init_at_weights(self):
-        self._local_cache = Cache()
-
-        if log.medium:
-            log.hline()
-            log('Iteration       Change')
-            log.hline()
-
-        old_populations = self._system.numbers.astype(float)
-        for counter in xrange(500):
-            # Construct pro-atoms
-            for i in xrange(self._system.natom):
-                self._compute_proatom(i, old_populations[i])
-            self._compute_promoldens()
-            self._compute_at_weights()
-            new_populations = self._compute_populations()
-            change = abs(new_populations - old_populations).max()
-            if log.medium:
-                log('%9i   %10.5e' % (counter, change))
-            if change < 1e-4:
-                break
-
-            old_populations = new_populations
-
-        if log.medium:
-            log.hline()
-
-        self._cache.dump('populations', new_populations)
-        del self._local_cache

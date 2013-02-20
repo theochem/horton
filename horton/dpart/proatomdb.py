@@ -83,11 +83,7 @@ class ProAtomRecord(object):
         # Get all the other information from the atom
         energy = system.props['energy']
         number = system.numbers[0]
-        pseudo_numbers = system.props.get('pseudo_numbers')
-        if pseudo_numbers is None:
-            pseudo_number = number
-        else:
-            pseudo_number = pseudo_numbers[0]
+        pseudo_number = system.pseudo_numbers[0]
         charge = pseudo_number - nel
 
         # Create object
@@ -277,7 +273,7 @@ class ProAtomDB(object):
 
     def get_charges(self, number, safe=False):
         result = [r.charge for r in self._records if r.number == number and (r.safe or (not safe))]
-        result.sort()
+        result.sort(reverse=True)
         return result
 
     def get_rtransform(self, number):

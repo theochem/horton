@@ -215,6 +215,7 @@ _tmp = [
     ('operators', 'na'),
     ('operators', 'er'),
     ('props',),
+    ('pseudo_numbers',),
     ('cell',),
 ]
 

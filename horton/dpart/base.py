@@ -141,10 +141,13 @@ class DPart(JustOnceClass):
         if log.do_medium: log('Computing atomic populations.')
         populations, new = self.cache.load('populations', alloc=self.system.natom)
         if new:
+            pseudo_populations, new = self.cache.load('pseudo_populations', alloc=self.system.natom)
             for i, grid in self.iter_grids():
                 at_weights = self.cache.load('at_weights', i)
                 dens = self.cache.load('mol_dens', i)
-                populations[i] = grid.integrate(at_weights, dens)
+                pseudo_populations[i] = grid.integrate(at_weights, dens)
+            populations[:] = pseudo_populations
+            populations += self.system.numbers - self.system.pseudo_numbers
 
     @just_once
     def do_charges(self):
