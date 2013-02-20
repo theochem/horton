@@ -92,6 +92,7 @@ class IntGrid(object):
 
     def distances(self, center, d):
         '''Compute distances between all grid points and a center, store result in d.'''
+        # TODO: this should no longer be used. may still be useful for testing
         grid_distances(self.points, center, d)
 
     def eval_spline(self, cubic_spline, center, output, cell=None):

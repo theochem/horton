@@ -265,14 +265,14 @@ def test_weight_corrections():
     cache = Cache()
     funcs = [
         (sys.coordinates[0], [
-            #(('isolated_atom', 0, 5), proatomdb.get_spline(6, 5), 5.0),
-            (('isolated_atom', 0, 6), proatomdb.get_spline(6, 6), 6.0),
-            #(('isolated_atom', 0, 7), proatomdb.get_spline(6, 7), 7.0),
+            #(('isolated_atom', 0, +1), proatomdb.get_spline(6, +1), 5.0),
+            (('isolated_atom', 0,  0), proatomdb.get_spline(6,  0), 6.0),
+            #(('isolated_atom', 0, -1), proatomdb.get_spline(6, -1), 7.0),
         ]),
         (sys.coordinates[1], [
-            #(('isolated_atom', 1, 7), proatomdb.get_spline(8, 7), 7.0),
-            (('isolated_atom', 1, 8), proatomdb.get_spline(8, 8), 8.0),
-            #(('isolated_atom', 1, 9), proatomdb.get_spline(8, 9), 9.0),
+            #(('isolated_atom', 1, +1), proatomdb.get_spline(8, +1), 7.0),
+            (('isolated_atom', 1,  0), proatomdb.get_spline(8,  0), 8.0),
+            #(('isolated_atom', 1, -1), proatomdb.get_spline(8, -1), 9.0),
         ]),
     ]
     weights = ui_grid.compute_weight_corrections(funcs, cache)
@@ -290,12 +290,12 @@ def test_weight_corrections_brute():
 
     cache = Cache()
     funcs = [
-        #(sys.coordinates[0], ('isolated_atom', 0, 5), proatomdb.get_spline(6, 5), 5.0),
-        (sys.coordinates[0], ('isolated_atom', 0, 6), proatomdb.get_spline(6, 6), 6.0),
-        #(sys.coordinates[0], ('isolated_atom', 0, 7), proatomdb.get_spline(6, 7), 7.0),
-        #(sys.coordinates[1], ('isolated_atom', 1, 7), proatomdb.get_spline(8, 7), 7.0),
-        (sys.coordinates[1], ('isolated_atom', 1, 8), proatomdb.get_spline(8, 8), 8.0),
-        #(sys.coordinates[1], ('isolated_atom', 1, 9), proatomdb.get_spline(8, 9), 9.0),
+        #(sys.coordinates[0], ('isolated_atom', 0, +1), proatomdb.get_spline(6, +1), 5.0),
+        (sys.coordinates[0], ('isolated_atom', 0,  0), proatomdb.get_spline(6,  0), 6.0),
+        #(sys.coordinates[0], ('isolated_atom', 0, -1), proatomdb.get_spline(6, -1), 7.0),
+        #(sys.coordinates[1], ('isolated_atom', 1, +1), proatomdb.get_spline(8, +1), 7.0),
+        (sys.coordinates[1], ('isolated_atom', 1,  0), proatomdb.get_spline(8,  0), 8.0),
+        #(sys.coordinates[1], ('isolated_atom', 1, -1), proatomdb.get_spline(8, -1), 9.0),
     ]
     weights = ui_grid.compute_weight_corrections_brute(funcs, cache)
 

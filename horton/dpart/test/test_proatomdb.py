@@ -30,8 +30,8 @@ from horton.dpart.test.common import get_proatomdb_ref, get_proatomdb_cp2k
 def test_db_basics():
     padb = get_proatomdb_ref([8, 1], 1, 1)
     assert padb.get_numbers() == [1, 8]
-    assert padb.get_charges(8) == [-1, 0, 1]
-    assert padb.get_charges(1) == [-1, 0]
+    assert padb.get_charges(8) == [1, 0, -1]
+    assert padb.get_charges(1) == [0, -1]
     r1 = padb.get_record(8, -1)
     assert r1.number == 8
     assert r1.charge == -1
@@ -51,8 +51,8 @@ def test_db_basics():
 def test_db_basics_pseudo():
     padb = get_proatomdb_cp2k()
     assert padb.get_numbers() == [8, 14]
-    assert padb.get_charges(8) == [-2, -1, 0, 1, 2]
-    assert padb.get_charges(8, safe=True) == [-1, 0, 1, 2]
+    assert padb.get_charges(8) == [2, 1, 0, -1, -2]
+    assert padb.get_charges(8, safe=True) == [2, 1, 0, -1]
     assert padb.get_charges(14) == [0]
     assert padb.get_record(8, -1).safe
     assert not padb.get_record(8, -2).safe

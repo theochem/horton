@@ -43,7 +43,9 @@ __all__ = ['System']
 
 
 class System(object):
-    def __init__(self, coordinates, numbers, obasis=None, wfn=None, lf=None, operators=None, props=None, cell=None, chk=None):
+    def __init__(self, coordinates, numbers, obasis=None, wfn=None, lf=None,
+                 operators=None, props=None, cell=None, pseudo_numbers=None,
+                 chk=None):
         """
            **Arguments:**
 
@@ -78,6 +80,9 @@ class System(object):
                 A Cell object that describes the (generally triclinic) periodic
                 boundary conditions. So far, this is nearly nowhere supported in
                 Horton, so don't get too excited.
+
+           pseudo_numbers
+                The core charges of the pseudo potential, if applicable
 
            chk
                 A filename for the checkpoint file or an open h5.File object.
@@ -138,6 +143,7 @@ class System(object):
                     raise TypeError('The nbasis attributes of the operator %s and obasis are inconsistent.')
 
         self._cell = cell
+        self._pseudo_numbers = pseudo_numbers
 
         # The checkpoint file
         self._chk = None
@@ -205,6 +211,14 @@ class System(object):
         return self._cell
 
     cell = property(_get_cell)
+
+    def _get_pseudo_numbers(self):
+        result = self._pseudo_numbers
+        if result is None:
+            result = self._numbers
+        return result
+
+    pseudo_numbers = property(_get_pseudo_numbers)
 
     def _get_chk(self):
         '''A ``h5.File`` instance used as checkpoint file or ``None``'''
@@ -387,6 +401,11 @@ class System(object):
         else:
             occ_model = AufbauOccModel((nel + (mult-1))/2, (nel - (mult-1))/2)
             self._wfn = OpenShellWFN(occ_model, self.lf, self.obasis.nbasis)
+
+    def _get_charge(self):
+        return self.pseudo_numbers.sum() - self.wfn.nel
+
+    charge = property(_get_charge)
 
     def get_overlap(self):
         overlap = self._operators.get('olp')
