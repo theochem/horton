@@ -123,6 +123,99 @@ def parse_args_convert(args):
     return parser.parse_args(args)
 
 
+def get_color(index):
+    colors = ["#FF0000", "#FFAA00", "#00AA00", "#00AAFF", "#0000FF", "#FF00FF", "#777777"]
+    return colors[index%len(colors)]
+
+
+def plot_atoms(proatomdb):
+    try:
+        import matplotlib.pyplot as pt
+    except ImportError:
+        if log.do_warning:
+            log.warn('Skipping plots because matplotlib was not found.')
+        return
+
+    r = proatomdb.rtransform.get_radii()
+    for number in proatomdb.get_numbers():
+        symbol = periodic[number].symbol
+        pops = proatomdb.get_pops(number)
+
+        # The density (rho)
+        pt.clf()
+        for i, pop in enumerate(pops):
+            y = proatomdb._records[(number, pop)]
+            color = get_color(i)
+            label = 'q=%+i' % (number-pop)
+            pt.semilogy(r, y, lw=2, label=label, color=color)
+        pt.xlim(0, 6)
+        pt.ylim(ymin=1e-5)
+        pt.xlabel('Distance from the nucleus [Bohr]')
+        pt.ylabel('Spherically averaged density [Bohr**-3]')
+        pt.title('Proatoms for element %s (%i)' % (symbol, number))
+        pt.legend(loc=0)
+        fn_png  = 'dens_%03i_%s.png' % (number, symbol)
+        pt.savefig(fn_png)
+        if log.do_medium:
+            log('Written', fn_png)
+
+        # 4*pi*r**2*rho
+        pt.clf()
+        for i, pop in enumerate(pops):
+            y = proatomdb._records[(number, pop)]
+            color = get_color(i)
+            label = 'q=%+i' % (number-pop)
+            pt.plot(r, 4*np.pi*r**2*y, lw=2, label=label, color=color)
+        pt.xlim(0, 6)
+        pt.ylim(ymin=0.0)
+        pt.xlabel('Distance from the nucleus [Bohr]')
+        pt.ylabel('4*pi*r**2*density [Bohr**-1]')
+        pt.title('Proatoms for element %s (%i)' % (symbol, number))
+        pt.legend(loc=0)
+        fn_png  = 'rdens_%03i_%s.png' % (number, symbol)
+        pt.savefig(fn_png)
+        if log.do_medium:
+            log('Written', fn_png)
+
+        # The Fukui functions
+        pt.clf()
+        for i, pop in enumerate(pops[1:]):
+            f = proatomdb._records[(number, pop)] - \
+                proatomdb._records[(number, pops[i])]
+            color = get_color(i)
+            label = '%i-%i' % (pop, pops[i])
+            pt.semilogy(r, f, lw=2, label=label, color=color)
+            pt.semilogy(r, -f, lw=2, linestyle='--', color=color)
+        pt.xlim(0, 6)
+        pt.ylim(ymin=1e-5)
+        pt.xlabel('Distance from the nucleus [Bohr]')
+        pt.ylabel('Fukui function [Bohr**-3]')
+        pt.title('Proatoms for element %s (%i)' % (symbol, number))
+        pt.legend(loc=0)
+        fn_png  = 'fukui_%03i_%s.png' % (number, symbol)
+        pt.savefig(fn_png)
+        if log.do_medium:
+            log('Written', fn_png)
+
+        # 4*pi*r**2*Fukui
+        pt.clf()
+        for i, pop in enumerate(pops[1:]):
+            f = proatomdb._records[(number, pop)] - \
+                proatomdb._records[(number, pops[i])]
+            color = get_color(i)
+            label = '%i-%i' % (pop, pops[i])
+            pt.plot(r, 4*np.pi*r**2*f, lw=2, label=label, color=color)
+        pt.xlim(0, 6)
+        pt.xlabel('Distance from the nucleus [Bohr]')
+        pt.ylabel('4*pi*r**2*Fukui [Bohr**-1]')
+        pt.title('Proatoms for element %s (%i)' % (symbol, number))
+        pt.legend(loc=0)
+        fn_png  = 'rfukui_%03i_%s.png' % (number, symbol)
+        pt.savefig(fn_png)
+        if log.do_medium:
+            log('Written', fn_png)
+
+
 def main_convert(args):
     # load relevant arguments from input program
     with open('settings.txt') as f:
@@ -195,30 +288,8 @@ def main_convert(args):
     if log.do_medium:
         log('Written atoms.h5')
 
-    try:
-        import matplotlib.pyplot as pt
-    except ImportError:
-        if log.do_warning:
-            log.warn('Skipping plots because matplotlib was not found.')
-        return
-
-    r = rtf.get_radii()
-    for number in proatomdb.get_numbers():
-        symbol = periodic[number].symbol
-        pt.clf()
-        for pop in proatomdb.get_pops(number):
-            y = proatomdb._records[(number, pop)]
-            pt.semilogy(r, y, lw=2, label='q=%+i' % (number-pop))
-        pt.xlim(0, 6)
-        pt.ylim(ymin=1e-5)
-        pt.xlabel('Distance from the nucleus [Bohr]')
-        pt.ylabel('Spherically averaged density [Bohr**-3]')
-        pt.title('Proatom for element %s (%i)' % (symbol, number))
-        pt.legend(loc=0)
-        fn_png  = 'atom_%03i_%s.png' % (number, symbol)
-        pt.savefig(fn_png)
-        if log.do_medium:
-            log('Written', fn_png)
+    # Make nice figures
+    plot_atoms(proatomdb)
 
 
 def main():
