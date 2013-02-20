@@ -30,12 +30,16 @@ from glob import glob
 
 epilog_input = '''\
 The following fields must be present in the template file: ${charge}, ${mult}
-and ${element} or ${number}. It may also contain fields like
-${include:some.file} which will be replaced by the contents of the file
-"some.file.ZZZ" where ZZZ is the element number left-padded with zeros to fix
-the the length at three characters. For example, for oxygen this would be 008.
-Such includes may be useful for custom basis sets. The filename of the include
-files may only contain characters from the set [_a-z0-9.-].
+and ${element} or ${number}. It may also contain include fields like
+${file:some.file} and ${line:some.file}. In the first case, the field will be by
+the contents of the file "some.file.NNN_PPP_MM" where NNN is the element number,
+PPP is the population and MM is the multiplicity. These numbers are left-padded
+with zeros to fix the the length. If a number is zero, it acts as a wildcard.
+For example, an include file for any oxygen atom would have suffix 008_000_00.
+In the second case, the field is replaced by a single line from the file
+"some.file". Each line in this file has a prefix "NNN_PPP_MM ". The same
+matching rules are used to select one line from this file. An include filename
+may only contain characters from the set [_a-z0-9.-].
 '''
 
 
