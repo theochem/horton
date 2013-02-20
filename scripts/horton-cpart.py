@@ -23,7 +23,7 @@
 import sys, argparse
 
 import h5py as h5
-from horton import System, cpart_schemes, Cell, ProAtomDB
+from horton import System, cpart_schemes, Cell, ProAtomDB, log
 
 def parse_args():
     parser = argparse.ArgumentParser(prog='horton-copart.py',
@@ -41,6 +41,8 @@ def parse_args():
     parser.add_argument('--reduce', '-r', default=1, type=int,
         help='Reduce the grid by subsamping with the given stride in all three '
              'directions. Zero and negative values are ignored.')
+    parser.add_argument('--overwrite', default=False, action='store_true',
+        help='Overwrite existing output in the HDF5 file')
 
     # TODO: add argument for periodic boundary conditions
     # TODO: add argument to chop of last slice(s)
@@ -50,6 +52,16 @@ def parse_args():
 
 def main():
     args = parse_args()
+
+    # check if the folder is already present in the output file
+    grp_name = '%s_r%i' % (args.scheme, args.reduce)
+    if args.smooth:
+        grp_name += '_s'
+    with h5.File(args.cube + '.h5', 'r') as f:
+        if grp_name in f and not args.overwrite:
+            if log.do_warning:
+                log.warn('Skipping because "%s" is already present in the output.' % grp_name)
+            return
 
     # Load the system
     sys = System.from_file(args.cube)
@@ -84,12 +96,9 @@ def main():
         numbers[:] = sys.numbers
 
         # Store results
-        folder = '%s_r%i' % (args.scheme, args.reduce)
-        if args.smooth:
-            folder += '_s'
-        if folder in f:
-            del f[folder]
-        grp = f.create_group(folder)
+        if grp_name in f:
+            del f[grp_name]
+        grp = f.create_group(grp_name)
         grid_rvecs = grp.require_dataset('grid_rvecs', (3, 3), float, exact=True)
         grid_rvecs[:] = ui_grid.grid_cell.rvecs
         grp['charges'] = cpart['charges']
