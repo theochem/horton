@@ -36,259 +36,281 @@ from horton.scf import converge_scf
 from horton.system import System
 
 
-__all__ = ['ProAtomDB']
+__all__ = ['ProAtomRecord', 'ProAtomDB']
 
 
-def _compute_average_rhos(sys, atgrid, do_population=False):
-    '''Compute the spherical average of an atomic density
+class ProAtomRecord(object):
+    @classmethod
+    def from_system(cls, system, atgrid):
+        '''Construct a proatom record from a system and an atomic grid
 
-       **Arguments:**
-
-       sys
-            The one-atom system.
-
-       atgrid
-            The atomic grid used for computation of the spherical average.
-
-       **Optional arguments:**
-
-    '''
-    nsphere = len(atgrid.subgrids)
-    average_rhos = np.zeros(nsphere)
-    for i in xrange(nsphere):
-        llgrid = atgrid.subgrids[i]
-        rhos = sys.compute_grid_density(llgrid.points)
-        # TODO: also compute the derivatives of the average
-        #       with respect to r for better splines
-        average_rhos[i] = llgrid.integrate(rhos)/llgrid.weights.sum()
-    if do_population:
-        # TODO: ugly
-        population = 4*np.pi*dot_multi(
-            atgrid.rtransform.get_volume_elements(),
-            atgrid.rtransform.get_radii()**2,
-            average_rhos,
-            atgrid.int1d.get_weights(nsphere),
-        )
-        return average_rhos, population
-    else:
-        return average_rhos
-
-
-def _compute_radii(avrho, rtransform, populations):
-    '''Compute approximate radii at which the atom contains the given populations
-
-       **Arguments:**
-
-       avrho
-            A radial grid with the (spherically averaged) density of the atom.
-
-       rtransform
-            The radial transform that defines the grid.
-
-       populations
-            A list of populations for which the corresponding radii have to be
-            computed.
-
-       The return value is a list of radii corresponding to the given list of
-       populations.
-    '''
-    # compute the integral of the density (popint)
-    radii = rtransform.get_radii()
-    tmp = (4*np.pi) * radii**2 * avrho * rtransform.get_volume_elements()
-    popint = []
-    int1d = SimpsonIntegrator1D()
-    for i in xrange(len(tmp)):
-        if i >= int1d.npoint_min:
-            popint.append(np.dot(tmp[:i], int1d.get_weights(i)))
-        else:
-            popint.append(tmp[:i].sum())
-    popint = np.array(popint)
-
-    # find the radii
-    indexes = popint.searchsorted(populations)
-    result = []
-    for i in xrange(len(populations)):
-        index = indexes[i]
-        if index == len(popint):
-            result.append(radii[-1])
-        else:
-            # linear interpolation
-            x = (populations[i] - popint[index])/(popint[index+1] - popint[index])
-            result.append(x*radii[index+1]+(1-x)*radii[index])
-    return result
-
-
-class ProAtomDB(object):
-    def __init__(self, rtransform, records):
-        '''
            **Arguments:**
 
-           rtransform
-                An instance of one of the RTransform subclasses.
+           sys
+                The one-atom system.
 
-           records
-                A dictionary with (number, population) keys and arrays of
-                spherical averages of atomic densities.
+           atgrid
+                The atomic grid used for computation of the spherical average.
         '''
+        if system.natom != 1:
+            raise ValueError('Can only construct a proatom record from a one-atom system.')
+
+        # Compute the spherically averaged density
+        nsphere = len(atgrid.subgrids)
+        rho = np.zeros(nsphere)
+        for i in xrange(nsphere):
+            llgrid = atgrid.subgrids[i]
+            rho_shell = system.compute_grid_density(llgrid.points)
+            # TODO: also compute the derivatives of the average
+            #       with respect to r for better splines
+            rho[i] = llgrid.integrate(rho_shell)/llgrid.weights.sum()
+
+        # Derive the number of electrions
+        try:
+            nel = system.wfn.nel
+        except NotImplementedError:
+            # TODO: ugly
+            # Compute the population by integration of the spherically averaged
+            # density. This is needed if the expansion of the wavefunction is
+            # not present.
+            nel = int(np.round(4*np.pi*dot_multi(
+                atgrid.rtransform.get_volume_elements(),
+                atgrid.rtransform.get_radii()**2,
+                rho,
+                atgrid.int1d.get_weights(nsphere),
+            )))
+
+        # Get all the other information from the atom
+        energy = system.props['energy']
+        number = system.numbers[0]
+        pseudo_numbers = system.props.get('pseudo_numbers')
+        if pseudo_numbers is None:
+            pseudo_number = number
+        else:
+            pseudo_number = pseudo_numbers[0]
+        charge = pseudo_number - nel
+
+        # Create object
+        return cls(number, charge, energy, atgrid.rtransform, rho, pseudo_number)
+
+    def __init__(self, number, charge, energy, rtransform, rho, pseudo_number=None):
+        self._number = number
+        self._charge = charge
+        self._energy = energy
+        self._rho = rho
         self._rtransform = rtransform
-        self._records = records
-        self._log_init()
+        if pseudo_number is None:
+            self._pseudo_number = number
+        else:
+            self._pseudo_number = pseudo_number
+        self._safe = True
+
+    def _get_number(self):
+        return self._number
+
+    number = property(_get_number)
+
+    def _get_charge(self):
+        return self._charge
+
+    charge = property(_get_charge)
+
+    def _get_energy(self):
+        return self._energy
+
+    energy = property(_get_energy)
+
+    def _get_rho(self):
+        return self._rho
+
+    rho = property(_get_rho)
 
     def _get_rtransform(self):
         return self._rtransform
 
     rtransform = property(_get_rtransform)
 
-    def get_record(self, number, pop):
-        return self._records[(number, pop)]
+    def _get_pseudo_number(self):
+        return self._pseudo_number
 
-    @classmethod
-    def from_file(cls, filename):
-        '''Construct an dabase from an HDF5 file
+    pseudo_number = property(_get_pseudo_number)
+
+    def _get_population(self):
+        return self._number - self._charge
+
+    population = property(_get_population)
+
+    def _get_pseudo_population(self):
+        return self._pseudo_number - self._charge
+
+    pseudo_population = property(_get_pseudo_population)
+
+    def _get_safe(self):
+        '''When safe is True, this pro atom is safe to use, i.e. not know to be basis-set bound'''
+        return self._safe
+
+    safe = property(_get_safe)
+
+    def update_safe(self, other):
+        '''Updates the safe attribute based on a comparison with other records
 
            **Arguments:**
 
-           filename
-                A string with the filename of the hdf5 file, or a h5.File or
-                h5.Group object.
+           other
+                Another instance of ProAtomRecord
         '''
-        # parse the argument
-        if isinstance(filename, basestring):
-            f = h5.File(filename, 'r')
-            do_close = True
-        elif isinstance(filename, h5.Group) or isinstance(filename, h5.File):
-            f = filename
-            do_close = False
-        # Read
-        rtransform = RTransform.from_string(f.attrs['rtransform'])
-        records = {}
-        for name, dataset in f.iteritems():
-            number, population = name.split(':')
-            number = int(number)
-            population = int(population)
-            records[(number, population)] = np.array(dataset)
-        return ProAtomDB(rtransform, records)
-        # close
-        if do_close:
-            f.close()
+        if other.number == self._number and \
+           other.population < self.population and \
+           other.energy < self.energy:
+            self._safe = False
 
-    @classmethod
-    def from_scratch(cls, hamiltonian_terms, obasis, atgrid, numbers, qmin=-2, qmax=3, mult_range=6):
+    def compute_radii(self, populations):
+        '''Compute approximate radii at which the atom contains the given populations
+
+           **Arguments:**
+
+           populations
+                A list of populations for which the corresponding radii have to
+                be computed.
+        '''
+        # compute the integral of the density (popint)
+        radii = self._rtransform.get_radii()
+        tmp = (4*np.pi) * radii**2 * self.rho * self._rtransform.get_volume_elements()
+        popint = []
+        int1d = SimpsonIntegrator1D()
+        for i in xrange(len(tmp)):
+            if i >= int1d.npoint_min:
+                popint.append(np.dot(tmp[:i], int1d.get_weights(i)))
+            else:
+                popint.append(tmp[:i].sum())
+        popint = np.array(popint)
+
+        # find the radii
+        indexes = popint.searchsorted(populations)
+        result = []
+        for i in xrange(len(populations)):
+            index = indexes[i]
+            if index == len(popint):
+                result.append(radii[-1])
+            else:
+                # linear interpolation
+                x = (populations[i] - popint[index])/(popint[index+1] - popint[index])
+                result.append(x*radii[index+1]+(1-x)*radii[index])
+        return result
+
+    def __eq__(self, other):
+        return (self.number == other.number and
+                self.charge == other.charge and
+                self.energy == other.energy and
+                (self.rho == other.rho).all() and
+                self.rtransform.to_string() == other.rtransform.to_string() and
+                self.pseudo_number == other.pseudo_number)
+
+
+class ProAtomDB(object):
+    def __init__(self, records):
         '''
            **Arguments:**
 
-           hamiltonian_terms
-                A list of HamiltonianTerm instances.
+           records
+                A list of ProAtomRecord instances. If two or more records have
+                the same number and charge, only the lowest in energy is
+                retained.
 
-           obasis
-                The orbital basis to use for the atomic computations.
-
-           atgrid
-                An AtomicGrid object used for integration.
-
-           numbers
-                A list of atomic numbers for the database.
-
-           **Optional arguments:**
-
-           qmin
-                The most negative charge to consider.
-
-           qmax
-                The most positive charge to consider.
-
-           mult_range
-                The maximum multiplicity when scanning for the multiplicity
-                with the lowest energy. Hund's rule is not used because it
-                may not be valid for ions and because we are lazy!
+           Based on the records present it is determined which records are
+           safe to use, i.e. apparently not bound by the basis set.
         '''
-        # TODO: allow for different grids for each element.
-        # TODO long term: make it possible to control the scf code and to update
-        #                 an existing db with additional comps.
-        # TODO: add option to filter out atoms with a negative ionization potential
+        # Search for diplicates (same number and charge) and only retain the
+        # lowest in energy for each combination.
+        _map = {}
+        for r in records:
+            l = _map.setdefault((r.number, r.charge), [])
+            l.append(r)
+        for key, l in _map.iteritems():
+            l.sort(key=(lambda r: r.energy))
+        records = [l[0] for l in _map.itervalues()]
 
-        # check the essentials of the arguments:
-        if not isinstance(atgrid, AtomicGrid) or atgrid.subgrids is None:
-            raise TypeError('The subgrids of the atomic grid are needed. Use the argument keep_subgrids=1 when creating the atomic grid.')
+        # Store attribtues
+        self._records = records
+        self._map = dict(((r.number, r.charge), r) for r in records)
 
-        # Compute all records, considering all reasonable multiplicites
-        records = {}
-        for number in numbers:
-            for charge in xrange(qmin, qmax+1):
-                # select the range of multiplicities to consider
-                nel = number-charge
-                if nel%2 == 0:
-                    mults = xrange(1, (mult_range/2+1)*2, 2)
-                else:
-                    mults = xrange(2, (mult_range/2)*2+1, 2)
-                # compute each spin state
-                cases = []
-                for mult in mults:
-                    # setup the system ...
-                    sys = System(np.array([atgrid.center]), np.array([number]), obasis=obasis)
-                    # ... and the initial wavefn
-                    try:
-                        sys.init_wfn(charge, mult)
-                        guess_hamiltonian_core(sys)
-                    except ElectronCountError:
-                        continue
-                    # Compute the ground state
-                    ham = Hamiltonian(sys, hamiltonian_terms, atgrid)
-                    converged = converge_scf(ham)
-                    if converged:
-                        # Good one, store it
-                        energy = ham.compute_energy()
-                        average_rhos = _compute_average_rhos(sys, atgrid)
-                        cases.append((energy, average_rhos))
-                    elif log.do_warning:
-                        log.warn('Convergence faillure when creating proatomdb from scratch. Z=%i Q=%i, M=%i' % (number, charge, mult))
-                if len(cases) > 0:
-                    # take the lowest in energy from all tested multiplicites
-                    cases.sort()
-                    records[(number, nel)] = cases[0][1]
+        # check that all records of a given element of the same rtransform
+        self._rtf_map = {}
+        for r in records:
+            rtf = self._rtf_map.get(r.number)
+            if rtf is None:
+                # store
+                self._rtf_map[r.number] = r.rtransform
+            else:
+                # compare
+                if rtf.to_string() != r.rtransform.to_string():
+                    raise ValueError('All proatoms of a given element must have the same rtransform')
 
-        # Create the object.
-        return cls(atgrid.rtransform, records)
+        # Update the safe flags based on the energies of other pro_atoms
+        for number in self.get_numbers():
+            for charge0 in self.get_charges(number):
+                r0 = self.get_record(number, charge0)
+                for charge1 in self.get_charges(number):
+                    r1 = self.get_record(number, charge1)
+                    r0.update_safe(r1)
+
+        # Screen info
+        self._log_init()
+
+    def _log_init(self):
+        if log.do_medium:
+            log('Initialized: %s' % self)
+            log.deflist([
+                ('Numbers', self._rtf_map.keys()),
+                ('Records', self._map.keys()),
+            ])
+            log.blank()
+
+    def get_record(self, number, charge):
+        return self._map[(number, charge)]
+
+    def get_numbers(self):
+        '''Return the element numbers present in the database'''
+        result = self._rtf_map.keys()
+        result.sort()
+        return result
+
+    def get_charges(self, number, safe=False):
+        result = [r.charge for r in self._records if r.number == number and (r.safe or (not safe))]
+        result.sort()
+        return result
+
+    def get_rtransform(self, number):
+        return self._rtf_map[number]
+
+    def _get_size(self):
+        return len(self._records)
+
+    size = property(_get_size)
 
     @classmethod
-    def from_checkpoints(cls, fns_chk, atgrid):
+    def from_files(cls, fns, atgrid):
         '''
            Construct a ProAtomDB from a series of Horton checkpoint files.
 
            **Arguments:**
 
            fns_chk
-                A list of Horton checkpoint files.
+                A list of system files.
 
            atgrid
                 An AtomicGrid object used for computing spherical average.
         '''
-        records = {}
-        # Compute all caes
-        for fn_chk in fns_chk:
+        # TODO: add option to use standard grids
+        records = []
+        for fn in fns:
             # Load system
-            sys = System.from_file(fn_chk, chk=None) # avoid rewriting chk file
-            assert sys.natom == 1
-            # Compute/Get properties
-            energy = sys.props.get('energy', 0.0)
-            average_rhos, population = _compute_average_rhos(sys, atgrid, do_population=True)
-            ipop = int(np.round(population))
-            assert abs(population - ipop) < 1e-1
-            key = (sys.numbers[0], ipop)
-            l = records.setdefault(key, [])
-            l.append((energy, average_rhos))
-
-        # Filter out lowest energies
-        for key in records.keys():
-            l = records[key]
-            l.sort()
-            records[key] = l[0][1]
-
-        # Create the object.
-        return cls(atgrid.rtransform, records)
+            sys = System.from_file(fn, chk=None) # avoid rewriting in case of chk file
+            records.append(ProAtomRecord.from_system(sys, atgrid))
+        return cls(records)
 
     @classmethod
-    def from_refatoms(cls, atgrid, numbers=None, qmax=+4):
+    def from_refatoms(cls, atgrid, numbers=None, max_kation=3, max_anion=2):
         '''
            Construct a ProAtomDB from reference atoms included in Horton
 
@@ -306,8 +328,12 @@ class ProAtomDB(object):
                 A list of atom numbers to limit the selection of atoms in the
                 database. When not given, all reference atoms are loaded.
 
-           qmax
-                The charge of the most positive ion allowed in the database
+           max_kation
+                The charge of the most positive kation to include
+
+           max_anion
+                Minus the charge of the most negativ anion to include. (This
+                is typically a positive argument.)
         '''
         # Load all the systems
         fns_chk = []
@@ -318,21 +344,50 @@ class ProAtomDB(object):
                 continue
             pop = int(name[8:10])
             charge = number - pop
-            if charge > qmax:
+            if charge > max_kation or charge < -max_anion:
                 continue
             fns_chk.append(fn)
 
         # Hand them over to another constructor
-        return cls.from_checkpoints(fns_chk, atgrid)
+        return cls.from_files(fns_chk, atgrid)
 
-    def _log_init(self):
-        if log.do_medium:
-            log('Initialized: %s' % self)
-            log.deflist([
-                ('Records', self._records.keys()),
-                ('Radial Transform', self._rtransform.to_string()),
-            ])
-            log.blank()
+    @classmethod
+    def from_file(cls, filename):
+        '''Construct an dabase from an HDF5 file
+
+           **Arguments:**
+
+           filename
+                A string with the filename of the hdf5 file, or a h5.File or
+                h5.Group object.
+
+           Note that the records are loaded and given as argument to the
+           constructor, which may weed out duplicates.
+        '''
+        # parse the argument
+        if isinstance(filename, basestring):
+            f = h5.File(filename, 'r')
+            do_close = True
+        elif isinstance(filename, h5.Group):
+            f = filename
+            do_close = False
+        # Read
+        records = []
+        for grp in f.itervalues():
+            assert isinstance(grp, h5.Group)
+            records.append(ProAtomRecord(
+                number=grp.attrs['number'],
+                charge=grp.attrs['charge'],
+                energy=grp.attrs['energy'],
+                rtransform=RTransform.from_string(grp.attrs['rtransform']),
+                rho=grp['rho'][:],
+                pseudo_number=grp.attrs.get('pseudo_number'),
+            ))
+        result = ProAtomDB(records)
+        # close
+        if do_close:
+            f.close()
+        return result
 
     def to_file(self, filename):
         '''Write the database to an HDF5 file
@@ -348,18 +403,26 @@ class ProAtomDB(object):
         if isinstance(filename, basestring):
             f = h5.File(filename, 'w')
             do_close = True
-        elif isinstance(filename, h5.Group) or isinstance(filename, h5.File):
+        elif isinstance(filename, h5.Group):
             f = filename
             do_close = False
         # Write
-        f.attrs['rtransform'] = self._rtransform.to_string()
-        for key, average_rho in self._records.iteritems():
-            f.create_dataset('%i:%i' % key, data=average_rho)
+        for record in self._records:
+            name = 'Z=%i_Q=%+i' % (record.number, record.charge)
+            if name in f:
+                del f[name]
+            grp = f.create_group(name)
+            grp.attrs['number'] = record.number
+            grp.attrs['charge'] = record.charge
+            grp.attrs['energy'] = record.energy
+            grp.attrs['rtransform'] = record.rtransform.to_string()
+            grp['rho'] = record.rho
+            grp.attrs['pseudo_number'] = record.pseudo_number
         # close
         if do_close:
             f.close()
 
-    def get_spline(self, number, parameters=None, combine='linear'):
+    def get_spline(self, number, parameters=0, combine='linear'):
         '''Construct a spline that can be used as pro-atom.
 
            **Arguments:**
@@ -370,77 +433,37 @@ class ProAtomDB(object):
            **Optional arguments:**
 
            parameters
-                This argument may take several forms:
+                This argument may take two forms:
 
-                * None: neutral pro-atom
-
-                * Integer: charged pro-atom
+                * Integer: the charge of the pro-atom
 
                 * Dictionary: a linear or geometric combination of different
-                  charged pro-atoms. The keys are the populations and the values
+                  charged pro-atoms. The keys are the charges and the values
                   are the coefficients.
 
            combine
                 In case parameters is an array, this determines the type of
                 combination: 'linear' or 'geometric'.
         '''
-        if parameters is None:
-            return CubicSpline(self._records[(number,number)], rtf=self._rtransform)
-        elif isinstance(parameters, int):
-            pop = parameters
-            return CubicSpline(self._records[(number,pop)], rtf=self._rtransform)
+        if isinstance(parameters, int):
+            charge = parameters
+            record = self.get_record(number, charge)
+            return CubicSpline(record.rho, rtf=record.rtransform)
         elif isinstance(parameters, dict):
-            record = 0.0
+            rho = 0.0
             if combine == 'linear':
-                for pop, coeff in parameters.iteritems():
-                    if coeff != 0.0 and pop > 0:
-                        record += coeff*self._records[(number,pop)]
-                return CubicSpline(record, rtf=self._rtransform)
+                for charge, coeff in parameters.iteritems():
+                    if coeff != 0.0:
+                        rho += coeff*self.get_record(number,charge).rho
             elif combine == 'geometric':
-                for pop, coeff in parameters.iteritems():
-                    if coeff != 0.0 and pop > 0:
-                        record += coeff*np.log(self._records[(number,pop)])
-                record = np.exp(record)
+                for charge, coeff in parameters.iteritems():
+                    if coeff != 0.0:
+                        rho += coeff*np.log(self.get_record(number,charge).rho)
+                rho = np.exp(rho)
             else:
                 raise ValueError('Combine argument "%s" not supported.' % combine)
-            if not isinstance(record, np.ndarray):
+            if not isinstance(rho, np.ndarray):
                 raise ValueError('At least some coefficients must be non-zero.')
-            return CubicSpline(record, rtf=self._rtransform)
+            return CubicSpline(rho, rtf=self.get_rtransform(number))
         else:
             raise TypeError('Could not interpret parameters argument')
-
-    def get_numbers(self):
-        '''Return the element numbers present in the database'''
-        return sorted(set([n for n, p in self._records]))
-
-    def get_pops(self, number):
-        result = [p for n, p in self._records if n == number]
-        result.sort()
-        return result
-
-    def compute_radii(self, number, populations, pop=None):
-        '''Compute approximate radii at which the atom contains the given populations
-
-           **Arguments:**
-
-           number
-                The element for which the radii must be computed
-
-           populations
-                A list of populations for which the corresponding radii have to
-                be computed.
-
-           **Optional argument**
-
-           pop
-                The population of the proatom. When not given, this equals
-                number.
-
-           The return value is a list of radii corresponding to the given list of
-           populations.
-        '''
-        if pop is None:
-            pop = number
-        ipop = int(np.round(pop))
-        avrho = self._records[(number, ipop)]
-        return _compute_radii(avrho, self._rtransform, populations)

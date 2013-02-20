@@ -25,22 +25,6 @@ import numpy as np
 from horton import *
 
 
-def get_proatomdb_HO_from_scratch(qmin, qmax):
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 1e1, 100)
-    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), random_rotate=False, keep_subgrids=1)
-    proatomdb = ProAtomDB.from_scratch([HartreeFock()], 'sto-3g', atgrid, [1,8], qmin=qmin, qmax=qmax)
-    return proatomdb
-
-
-def get_proatomdb_HO_from_refatoms(qmax):
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 1e1, 100)
-    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), random_rotate=False, keep_subgrids=1)
-    proatomdb = ProAtomDB.from_refatoms(atgrid, [1,8], qmax=qmax)
-    return proatomdb
-
-
 def test_hirshfeld_water_hf_sto3g_1():
     proatomdb = get_proatomdb_HO_from_scratch(0, 0)
     # Compute the molecule
