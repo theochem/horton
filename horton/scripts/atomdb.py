@@ -202,7 +202,7 @@ class Template(BaseTemplate):
         # Load files
         for name in self.file_names:
             records = []
-            for fn in sorted(glob('%s.[0-9][0-9][0-9].[0-9][0-9].[0-9][0-9]'))[:-1]:
+            for fn in sorted(glob('%s.[0-9][0-9][0-9]_[0-9][0-9]_[0-9][0-9]'))[:-1]:
                 with open(fn) as f:
                     s = f.read()
                     # chop of one final newline if present (mostly the case)
@@ -222,9 +222,9 @@ class Template(BaseTemplate):
                     if len(line.strip()) == 0:
                         continue
                     number = int(line[:3])
-                    assert line[3] == '.'
+                    assert line[3] == '_'
                     pop = int(line[4:7])
-                    assert line[7] == '.'
+                    assert line[7] == '_'
                     mult = int(line[8:10])
                     assert line[10] == ' '
                     s = line[11:-1]
@@ -238,7 +238,7 @@ class Template(BaseTemplate):
             for name, kind, records in self.includes:
                 log('   %s (%s)' % (name, kind))
                 for n, p, m, s in self.includes[name]:
-                    log('      %03i.%03i.%02i' % (n, p, m))
+                    log('      %03i_%03i_%02i' % (n, p, m))
 
     def get_subs(self, number, pop, mult):
         subs = {}
@@ -250,7 +250,7 @@ class Template(BaseTemplate):
                     found_s = s
                     break
             if found_s is None:
-                raise KeyError('No matching include found for \'%s\' (%03i.%03i.%02i)' % (name, number, pop, mult))
+                raise KeyError('No matching include found for \'%s\' (%03i_%03i_%02i)' % (name, number, pop, mult))
             subs['%s:%s' % (kind, name)] = s
         return subs
 
