@@ -119,11 +119,6 @@ def parse_args_convert(args):
         description='Convert the output of the atomic computations to horton '
                     'h5 files.')
 
-    parser.add_argument('--include-spurious', default=False, action='store_true',
-        help='Also convert atoms that are bound by the basis set. These '
-             'situations are normally detected by an increase in energy as an '
-             'electron is added.')
-
     return parser.parse_args(args)
 
 
@@ -140,18 +135,21 @@ def plot_atoms(proatomdb):
             log.warn('Skipping plots because matplotlib was not found.')
         return
 
-    r = proatomdb.rtransform.get_radii()
+    lss = {True: '-', False: ':'}
     for number in proatomdb.get_numbers():
+        r = proatomdb.get_rtransform(number).get_radii()
         symbol = periodic[number].symbol
-        pops = proatomdb.get_pops(number)
+        charges = proatomdb.get_charges(number)
 
         # The density (rho)
         pt.clf()
-        for i, pop in enumerate(pops):
-            y = proatomdb._records[(number, pop)]
+        for i, charge in enumerate(charges):
+            record = proatomdb.get_record(number, charge)
+            y = record.rho
+            ls = lss[record.safe]
             color = get_color(i)
-            label = 'q=%+i' % (number-pop)
-            pt.semilogy(r, y, lw=2, label=label, color=color)
+            label = 'q=%+i' % charge
+            pt.semilogy(r, y, lw=2, ls=ls, label=label, color=color)
         pt.xlim(0, 6)
         pt.ylim(ymin=1e-5)
         pt.xlabel('Distance from the nucleus [Bohr]')
@@ -165,11 +163,13 @@ def plot_atoms(proatomdb):
 
         # 4*pi*r**2*rho
         pt.clf()
-        for i, pop in enumerate(pops):
-            y = proatomdb._records[(number, pop)]
+        for i, charge in enumerate(charges):
+            record = proatomdb.get_record(number, charge)
+            y = record.rho
+            ls = lss[record.safe]
             color = get_color(i)
-            label = 'q=%+i' % (number-pop)
-            pt.plot(r, 4*np.pi*r**2*y, lw=2, label=label, color=color)
+            label = 'q=%+i' % charge
+            pt.plot(r, 4*np.pi*r**2*y, lw=2, ls=ls, label=label, color=color)
         pt.xlim(0, 6)
         pt.ylim(ymin=0.0)
         pt.xlabel('Distance from the nucleus [Bohr]')
@@ -183,13 +183,15 @@ def plot_atoms(proatomdb):
 
         # The Fukui functions
         pt.clf()
-        for i, pop in enumerate(pops[1:]):
-            f = proatomdb._records[(number, pop)] - \
-                proatomdb._records[(number, pops[i])]
+        for i, charge in enumerate(charges[1:]):
+            record0 = proatomdb.get_record(number, charge)
+            record1 = proatomdb.get_record(number, charges[i])
+            f = record0.rho - record1.rho
+            ls = lss[record0.safe and record1.safe]
             color = get_color(i)
-            label = '%i-%i' % (pop, pops[i])
-            pt.semilogy(r, f, lw=2, label=label, color=color)
-            pt.semilogy(r, -f, lw=2, linestyle='--', color=color)
+            label = '%+i_%+i' % (charge, charges[i])
+            pt.semilogy(r, f, lw=2, ls=ls, label=label, color=color, alpha=1.0)
+            pt.semilogy(r, -f, lw=2, ls=ls, color=color, alpha=0.2)
         pt.xlim(0, 6)
         pt.ylim(ymin=1e-5)
         pt.xlabel('Distance from the nucleus [Bohr]')
@@ -203,12 +205,14 @@ def plot_atoms(proatomdb):
 
         # 4*pi*r**2*Fukui
         pt.clf()
-        for i, pop in enumerate(pops[1:]):
-            f = proatomdb._records[(number, pop)] - \
-                proatomdb._records[(number, pops[i])]
+        for i, charge in enumerate(charges[1:]):
+            record0 = proatomdb.get_record(number, charge)
+            record1 = proatomdb.get_record(number, charges[i])
+            f = record0.rho - record1.rho
+            ls = lss[record0.safe and record1.safe]
             color = get_color(i)
-            label = '%i-%i' % (pop, pops[i])
-            pt.plot(r, 4*np.pi*r**2*f, lw=2, label=label, color=color)
+            label = '%+i-%+i' % (charge, charges[i])
+            pt.plot(r, 4*np.pi*r**2*f, lw=2, ls=ls, label=label, color=color)
         pt.xlim(0, 6)
         pt.xlabel('Distance from the nucleus [Bohr]')
         pt.ylabel('4*pi*r**2*Fukui [Bohr**-1]')
@@ -224,12 +228,14 @@ def main_convert(args):
     # load relevant arguments from input program
     with open('settings.txt') as f:
         rtf = RTransform.from_string(f.next().strip())
-        lebedev = int(f.next())
+        nll = int(f.next())
         program = atom_programs[f.next().strip()]
+    int1d = SimpsonIntegrator1D()
+    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, nll), random_rotate=False, keep_subgrids=1)
 
     # Loop over all sensible directories
     energy_table = EnergyTable()
-    records = {}
+    records = []
     for dn_state in sorted(glob("[01]??_??_[01]??_q[+-]??")):
         number = int(dn_state[:3])
         pop = int(dn_state[7:10])
@@ -254,16 +260,6 @@ def main_convert(args):
         cases.sort()
         energy, system, dn_mult = cases[0]
 
-        # Check for spurious atoms
-        if energy_table.is_spurious(number, pop, energy):
-            if args.include_spurious:
-                if log.do_warning:
-                    log.warn('Spurious atom included.')
-            else:
-                if log.do_medium:
-                    log('Skipping spurious: ', dn_state)
-                continue
-
         # Add case to energy table
         energy_table.add(number, pop, energy)
 
@@ -272,7 +268,7 @@ def main_convert(args):
             system.assign_chk('%s/horton.h5' % dn_state)
 
         # Construct a record for the proatomdb
-        records[(number, pop)] = program.create_record(system, dn_mult, rtf, lebedev)
+        records.append(program.create_record(system, dn_mult, atgrid))
 
         # Release memory and close h5 files
         system = None
@@ -287,7 +283,7 @@ def main_convert(args):
         energy_table.log()
 
     # Write out atoms file
-    proatomdb = ProAtomDB(rtf, records)
+    proatomdb = ProAtomDB(records)
     proatomdb.to_file('atoms.h5')
     if log.do_medium:
         log('Written atoms.h5')

@@ -24,7 +24,7 @@ from string import Template as BaseTemplate
 from glob import glob
 import re, os, stat, numpy as np, h5py as h5
 
-from horton import periodic, log, System, LebedevLaikovSphereGrid
+from horton import periodic, log, System, ProAtomRecord
 
 
 __all__ = [
@@ -263,14 +263,6 @@ class EnergyTable(object):
         cases = self.all.setdefault(number, {})
         cases[pop] = energy
 
-    def is_spurious(self, number, pop, energy):
-        cases = self.all.get(number)
-        if cases is not None:
-            energy_prev = cases.get(pop-1)
-            if energy is not None and energy_prev < energy:
-                return True
-        return False
-
     def log(self):
         log(' Nr Pop Chg              Energy          Ionization            Affinity')
         log.hline()
@@ -360,21 +352,11 @@ class AtomProgram(object):
         energy = self._get_energy(system, dn_mult)
         return system, energy
 
-    def create_record(self, system, dn_mult, rtf, nll):
+    def create_record(self, system, dn_mult, atgrid):
         if system is None:
             raise NotImplementedError
 
-        assert system.natom == 1
-
-        result = np.zeros(rtf.npoint)
-        radii = rtf.get_radii()
-        llgrid = LebedevLaikovSphereGrid(system.coordinates[0], 1.0, nll, random_rotate=False)
-        for i in xrange(rtf.npoint):
-            rhos = system.compute_grid_density(llgrid.points*radii[i])
-            # TODO: also compute the derivatives of the average
-            #       with respect to r for better splines
-            result[i] = llgrid.integrate(rhos)/llgrid.weights.sum()
-        return result
+        return ProAtomRecord.from_system(system, atgrid)
 
 
 run_gaussian_script = '''
@@ -524,13 +506,12 @@ class ADFAtomProgram(AtomProgram):
         system = None
         return system, self._get_energy(system, dn_mult)
 
-    def create_record(self, system, dn_mult, rtf, nll):
+    def create_record(self, system, dn_mult, atgrid):
         with h5.File('%s/grid.h5' % dn_mult) as f:
             npoint = f['Grid/total nr of points'][()]
-            assert npoint % rtf.npoint == 0
-            nll = npoint / rtf.npoint
-            llgrid = LebedevLaikovSphereGrid(np.zeros(3), 1.0, nll, random_rotate=False)
-            dens = f['SCF/Density'][:].reshape((rtf.npoint,nll))
+            assert npoint == atgrid.npoint
+            llgrid = atgrid.subgrids[0]
+            dens = f['SCF/Density'][:].reshape((-1,nll))
             record = np.dot(dens, llgrid.weights)/llgrid.weights.sum()
             return record
 
