@@ -26,9 +26,12 @@ from horton.periodic import periodic
 __all__ = ['str_to_shell_types', 'load_basis_atom_map_nwchem']
 
 
-def str_to_shell_types(s):
+def str_to_shell_types(s, pure=False):
     """Convert a string into a list of contraction types"""
-    d = {'s': 0, 'p': 1, 'd': 2, 'f': 3, 'g': 4, 'h': 5, 'i': 6}
+    if pure:
+        d = {'s': 0, 'p': 1, 'd': -2, 'f': -3, 'g': -4, 'h': -5, 'i': -6}
+    else:
+        d = {'s': 0, 'p': 1, 'd': 2, 'f': 3, 'g': 4, 'h': 5, 'i': 6}
     return [d[c] for c in s.lower()]
 
 
