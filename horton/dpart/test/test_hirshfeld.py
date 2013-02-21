@@ -129,4 +129,3 @@ def test_hirshfeld_e_water_hf_sto3g():
         dpart.do_charges()
         expecting = np.array([-0.422794483125, 0.211390419810, 0.211404063315]) # From HiPart
         assert abs(dpart['charges'] - expecting).max() < 1e-3
-
