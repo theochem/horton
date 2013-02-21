@@ -55,7 +55,7 @@ class HirshfeldDPart(DPart):
                 ('Scheme', 'Hirshfeld'),
                 ('Proatomic DB',  self._proatomdb),
             ])
-            log.cite('hirshfeld1977', 'for the use of Hirshfeld partitioning')
+            log.cite('hirshfeld1977', 'the use of Hirshfeld partitioning')
 
     def _at_weights_helper(self, i0, grid, at_weights):
         # Load work arrays from cache for efficiency
@@ -124,7 +124,7 @@ class HirshfeldIDPart(HirshfeldDPart):
                 ('Maximum iterations', self._maxiter),
                 ('Proatomic DB',  self._proatomdb),
             ])
-            log.cite('bultinck2007', 'for the use of Hirshfeld-I partitioning')
+            log.cite('bultinck2007', 'the use of Hirshfeld-I partitioning')
 
     def _proatom_change(self, number, old, new):
         '''Compute the difference between an old and a new spline
@@ -145,16 +145,15 @@ class HirshfeldIDPart(HirshfeldDPart):
             (old.copy_y() - new.copy_y())**2 # TODO: copy is slow
         )
 
-    def _get_proatom_fn(self, index, number, charge, first, grid):
-        icharge = int(np.floor(charge))
-        x = charge - icharge
+    def _get_proatom_fn(self, index, number, target_charge, first, grid):
+        icharge = int(np.floor(target_charge))
+        x = target_charge - icharge
         # check if icharge record should exist
         pseudo_pop = self.system.pseudo_numbers[index] - icharge
         if pseudo_pop == 1:
-            print x, icharge, charge, pseudo_pop
             return self._proatomdb.get_spline(number, {icharge: 1-x})
         elif pseudo_pop > 1:
-            return self._proatomdb.get_spline(number, {icharge: 1-x, icharge+1: 1})
+            return self._proatomdb.get_spline(number, {icharge: 1-x, icharge+1: x})
         else:
             raise ValueError('Requesting a pro-atom with a negative (pseudo) population')
 
@@ -168,6 +167,7 @@ class HirshfeldIDPart(HirshfeldDPart):
 
         # Iterative Hirshfeld loop
         charges = np.zeros(self.system.natom)
+        pseudo_populations = np.zeros(self.system.natom)
         counter = 0
         if log.do_medium:
             log('Iterative Hirshfeld partitioning loop')
@@ -202,7 +202,8 @@ class HirshfeldIDPart(HirshfeldDPart):
 
                 # Compute population
                 dens = self.cache.load('mol_dens', i)
-                charges[i] = self.system.pseudo_numbers[i] - grid.integrate(at_weights, dens)
+                pseudo_populations[i] = grid.integrate(at_weights, dens)
+            charges = self.system.pseudo_numbers - pseudo_populations
 
             change = np.sqrt(change/self.system.natom)
             if log.do_medium:
@@ -224,13 +225,16 @@ class HirshfeldIDPart(HirshfeldDPart):
             log.blank()
 
         self._at_weights_cleanup()
+        populations = pseudo_populations - (self.system.pseudo_numbers - self.system.numbers)
+        self.cache.dump('pseudo_populations', pseudo_populations)
         self.cache.dump('populations', populations)
+        self.cache.dump('charges', charges)
 
 
 class HirshfeldEDPart(HirshfeldIDPart):
     '''Extended Hirshfeld partitioning'''
 
-    def _get_proatom_fn(self, index, number, population, first, grid):
+    def _get_proatom_fn(self, index, number, target_charge, first, grid):
         if first:
             return self._proatomdb.get_spline(number)
         else:
@@ -305,7 +309,8 @@ class HirshfeldEDPart(HirshfeldIDPart):
             Bp = B/scales
 
             # Find solution
-            lc_pop = (np.ones(neq)/scales, population)
+            target_pseudo_population = self.system.pseudo_numbers[index] - target_charge
+            lc_pop = (np.ones(neq)/scales, target_pseudo_population)
             coeffs = solve_positive(Ap, Bp, [lc_pop])
             # correct for scales
             coeffs /= scales
@@ -318,15 +323,15 @@ class HirshfeldEDPart(HirshfeldIDPart):
             proradrho = 0
             for j0 in xrange(neq):
                 proradrho += coeffs[j0]*basis[j0]
-            error = np.dot(proradrho, weights) - population
+            error = np.dot(proradrho, weights) - target_pseudo_population
             assert abs(error) < 1e-5
 
             # Check for negative parts
             if proradrho.min() < 0:
                 proradrho[proradrho<0] = 0.0
-                error = np.dot(proradrho, weights) - population
+                error = np.dot(proradrho, weights) - target_pseudo_population
                 if log.do_medium:
                     log('                    Pro-atom not positive everywhere. Lost %.5f electrons' % error)
 
             # Done
-            return CubicSpline(record, rtf=rtf)
+            return CubicSpline(proradrho, rtf=rtf)
