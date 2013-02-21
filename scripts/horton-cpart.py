@@ -20,7 +20,7 @@
 #
 #--
 
-import sys, argparse
+import sys, argparse, os
 
 import h5py as h5
 from horton import System, cpart_schemes, Cell, ProAtomDB, log
@@ -54,14 +54,17 @@ def main():
     args = parse_args()
 
     # check if the folder is already present in the output file
+    fn_h5 = args.cube + '.h5'
     grp_name = '%s_r%i' % (args.scheme, args.reduce)
     if args.smooth:
         grp_name += '_s'
-    with h5.File(args.cube + '.h5', 'r') as f:
-        if grp_name in f and not args.overwrite:
-            if log.do_warning:
-                log.warn('Skipping because "%s" is already present in the output.' % grp_name)
-            return
+
+    if os.path.isfile(fn_h5):
+        with h5.File(fn_h5, 'r') as f:
+            if grp_name in f and not args.overwrite:
+                if log.do_warning:
+                    log.warn('Skipping because "%s" is already present in the output.' % grp_name)
+                return
 
     # Load the system
     sys = System.from_file(args.cube)
@@ -83,12 +86,10 @@ def main():
 
     # Run the partitioning
     cpart = cpart_schemes[args.scheme](sys, ui_grid, moldens, proatomdb, args.smooth)
-    cpart.do_charges()
-    cpart.do_dipoles()
-    cpart.do_volumes()
+    names = cpart.do_all()
 
     # Store the results in an HDF5 file
-    with h5.File(args.cube + '.h5') as f:
+    with h5.File(fn_h5) as f:
         # Store essential system info
         coordinates = f.require_dataset('coordinates', sys.coordinates.shape, float, exact=True)
         coordinates[:] = sys.coordinates
@@ -101,9 +102,8 @@ def main():
         grp = f.create_group(grp_name)
         grid_rvecs = grp.require_dataset('grid_rvecs', (3, 3), float, exact=True)
         grid_rvecs[:] = ui_grid.grid_cell.rvecs
-        grp['charges'] = cpart['charges']
-        grp['dipoles'] = cpart['dipoles']
-        grp['volumes'] = cpart['volumes']
+        for name in names:
+            grp[name] = cpart[name]
 
 
 if __name__ == '__main__':

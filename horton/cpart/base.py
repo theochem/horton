@@ -131,6 +131,14 @@ class CPart(JustOnceClass):
 
         return result
 
+    def do_all(self):
+        '''Computes all reasonable properties and returns a corresponding list of keys'''
+        self.do_populations()
+        self.do_charges()
+        self.do_dipoles()
+        self.do_volumes()
+        return ['populations', 'charges', 'dipoles', 'volumes']
+
     @just_once
     def do_populations(self):
         if log.do_medium:
