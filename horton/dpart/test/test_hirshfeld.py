@@ -23,45 +23,43 @@
 import numpy as np
 
 from horton import *
-from horton.dpart.test.common import get_proatomdb_ref
+from horton.dpart.test.common import get_proatomdb_hf_sto3g
 
 
 def test_hirshfeld_water_hf_sto3g():
-    proatomdb = get_proatomdb_ref([1, 8], 0, 0)
-    # Compute the molecule
+    proatomdb = get_proatomdb_hf_sto3g()
+
+    # Get the molecule
     fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
     sys = System.from_file(fn_fchk)
     sys.wfn.update_dm('alpha')
 
-    # Create a grid for the partitionign
+    # Create a grid for the partitioning
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(5e-4, 2e1, 120)
 
-    # do the partitioning, both with local and global grids
+    # Do the partitioning, both with local and global grids
     for local in True, False:
         grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=int(local))
         hdp = HirshfeldDPart(grid, proatomdb, local)
         hdp.do_charges()
-        expecting = np.array([-0.509,  0.253,  0.254]) # From Horton
+        expecting = np.array([-0.246171541212, 0.123092011074, 0.123079530138]) # from HiPart
         assert abs(hdp['charges'] - expecting).max() < 2e-3
 
 
 def test_hirshfeld_i_water_hf_sto3g():
-    # TODO: find other test case or other pro-atoms
-    from nose.plugins.skip import SkipTest
-    raise SkipTest
+    proatomdb = get_proatomdb_hf_sto3g()
 
-    proatomdb = get_proatomdb_ref([1, 8], 2, 2)
-    # Compute the molecule
+    # Get the molecule
     fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
     sys = System.from_file(fn_fchk)
     sys.wfn.update_dm('alpha')
 
-    # Create a grid for the partitionign
+    # Create a grid for the partitioning
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(5e-4, 2e1, 120)
 
-    # do the partitioning
+    # Do the partitioning, both with local and global grids
     for local in True, False:
         grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=int(local))
         hdp = HirshfeldIDPart(grid, proatomdb, local, 1e-4)
@@ -71,21 +69,18 @@ def test_hirshfeld_i_water_hf_sto3g():
 
 
 def test_hirshfeld_e_water_hf_sto3g():
-    # TODO: find other test case or other pro-atoms
-    from nose.plugins.skip import SkipTest
-    raise SkipTest
+    proatomdb = get_proatomdb_hf_sto3g()
 
-    proatomdb = get_proatomdb_ref([1, 8], 1, 1)
-    # Compute the molecule
+    # Get the molecule
     fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
     sys = System.from_file(fn_fchk)
     sys.wfn.update_dm('alpha')
 
-    # Create a grid for the partitionign
+    # Create a grid for the partitioning
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(5e-4, 2e1, 120)
 
-    # do the partitioning
+    # Do the partitioning, both with local and global grids
     for local in True, False:
         grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=int(local))
         hdp = HirshfeldEDPart(grid, proatomdb, local, 1e-4)

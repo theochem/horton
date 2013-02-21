@@ -72,6 +72,10 @@ def quadratic_solver(A, b, binding_eq, binding_ineq, rcond=0):
        which avoids a lot of trouble.
     """
     if False:
+        print A
+        print b
+        print binding_eq
+        print binding_ineq
         # When this routine fails for a certain system. This printout can be
         # used to add a test_quadratic_solver_hard* to the unit tests.
         from cPickle import dumps
