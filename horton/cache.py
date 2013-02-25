@@ -230,6 +230,7 @@ class Cache(object):
             return item.value, new
 
     def has(self, *key):
+        # TODO: use pythonic "in" instead
         item = self._store.get(key)
         if item is None:
             return False
