@@ -78,7 +78,9 @@ class HirshfeldCPart(CPart):
         for i in xrange(self._system.natom):
             n = self._system.numbers[i]
             pn = self._system.pseudo_numbers[i]
-            assert self._proatomdb.get_record(n, 0).pseudo_number == pn
+            pn_expected = self._proatomdb.get_record(n, 0).pseudo_number
+            if self._proatomdb.get_record(n, 0).pseudo_number != pn:
+                raise ValueError('The pseudo number of atom %i does not match with the proatom database (%i!=%i)' % (i, pn, pn_expected))
             funcs.append((
                 self._system.coordinates[i],
                 [(('isolated_atom', i, 0), self._proatomdb.get_spline(n), float(pn))],
