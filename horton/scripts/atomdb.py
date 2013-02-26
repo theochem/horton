@@ -349,8 +349,8 @@ class AtomProgram(object):
             return None, None
 
         system = System.from_file(fn)
-        energy = self._get_energy(system, dn_mult)
-        return system, energy
+        system.props['energy'] = self._get_energy(system, dn_mult)
+        return system, system.props['energy']
 
     def create_record(self, system, dn_mult, atgrid):
         if system is None:
@@ -507,13 +507,28 @@ class ADFAtomProgram(AtomProgram):
         return system, self._get_energy(system, dn_mult)
 
     def create_record(self, system, dn_mult, atgrid):
+        # get parameters
+        number = int(dn_mult[:3])
+        population = int(dn_mult[7:10])
+        charge = number - population
+        energy = self._get_energy(system, dn_mult)
+
+        # get rho
         with h5.File('%s/grid.h5' % dn_mult) as f:
             npoint = f['Grid/total nr of points'][()]
-            assert npoint == atgrid.npoint
+            assert npoint == atgrid.size
             llgrid = atgrid.subgrids[0]
+            nll = llgrid.size
             dens = f['SCF/Density'][:].reshape((-1,nll))
-            record = np.dot(dens, llgrid.weights)/llgrid.weights.sum()
-            return record
+
+            rho = np.dot(dens, llgrid.weights)/llgrid.weights.sum()
+
+        # get pseudo population
+        pseudo_population = int(np.round(atgrid.integrate(dens.ravel())))
+        pseudo_number = charge + pseudo_population
+
+        # Done
+        return ProAtomRecord(number, charge, energy, atgrid.rtransform, rho, pseudo_number)
 
 
 run_cp2k_script = '''
