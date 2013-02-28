@@ -153,13 +153,8 @@ class UniformIntGrid(object):
            improve the accuracy of the integration for data that is similar
            to a linear combination of the provided sphericall functions.
         '''
-        if cache is None:
-            result = np.ones(self.shape, float)
-            tmp = np.empty(self.shape, float)
-        else:
-            result, new = cache.load('wcor', alloc=self.shape)
-            result[:] = 1.0
-            assert new
+        result = np.ones(self.shape, float)
+        tmp = np.empty(self.shape, float)
         volume = self.grid_cell.volume
 
         # initialize cutoff radii
@@ -186,7 +181,7 @@ class UniformIntGrid(object):
 
             # B) Construct a set of grid indexes that lie inside the sphere.
             nselect_max = np.product(ranges_end-ranges_begin)
-            indexes = np.zeros((nselect_max, 3), long)
+            indexes = np.zeros((nselect_max, 3), int)
             nselect = self.grid_cell.select_inside(self.origin, center, rcut, ranges_begin, ranges_end, self.shape, self.pbc_active, indexes)
             indexes = indexes[:nselect]
 
@@ -199,15 +194,12 @@ class UniformIntGrid(object):
             # D) Fill in the coefficients. This is the expensive part.
             irow = 0
             for key, spline, int_exact in rad_funcs:
-                if cache is not None:
-                    # If a cache is given, the expensive evaluations are stored
-                    # for reuse.
-                    tmp, new = cache.load(*key, alloc=self.shape)
-                if cache is None or not new:
-                    tmp[:] = 0.0
+                tmp[:] = 0.0
                 if log.do_medium:
                     log("Computing spherical function. icenter=%i irow=%i" % (icenter, irow))
                 self.eval_spline(spline, center, tmp)
+                if cache is not None:
+                    cache.dump(*(key + (tmp,)))
                 int_approx = self.integrate(tmp)
 
                 dm[irow] = volume*tmp[indexes[:,0], indexes[:,1], indexes[:,2]]
@@ -240,7 +232,7 @@ class UniformIntGrid(object):
             icenter += 1
 
         if cache is not None:
-            cache.discard('tmp')
+            cache.dump('wcor', result)
         return result
 
     def compute_weight_corrections_brute(self, funcs, cache=None):
