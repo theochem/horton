@@ -142,6 +142,7 @@ class HirshfeldICPart(HirshfeldCPart):
             spline = self._proatomdb.get_spline(number, charge)
             if log.do_medium:
                 log('Computing isolated atom %i (n=%i, q=%+i)' % (i, number, charge))
+            output[:] = 0
             self._ui_grid.eval_spline(spline, center, output)
             self._scratch.dump(*key, data=output)
 
@@ -183,7 +184,7 @@ class HirshfeldICPart(HirshfeldCPart):
             change = abs(new_charges - old_charges).max()
             if log.medium:
                 log('%9i   %10.5e' % (counter, change))
-            if change < 1e-4:
+            if change < 1e-2:
                 break
 
             old_charges = new_charges
@@ -198,109 +199,102 @@ class HirshfeldICPart(HirshfeldCPart):
 class HirshfeldECPart(HirshfeldICPart):
     name = 'he'
 
-    @just_once
-    def _init_weight_corrections(self):
-        if self.smooth:
-            self._cache.dump('wcor', None)
-            self._cache.dump('wcor_fit', None)
-            return
-
-        HirshfeldICPart._init_weight_corrections(self)
-
-        from horton.grid import SimpsonIntegrator1D, CubicSpline
-        int1d = SimpsonIntegrator1D()
-        funcs = []
-        for i in xrange(self.system.natom):
-            n = self.system.numbers[i]
-            rtf = self.proatomdb.get_rtransform(n)
-            radii = rtf.get_radii()
-            weights1d = (4*np.pi) * radii**2 * rtf.get_volume_elements() * int1d.get_weights(len(radii))
-
-            charges = self._proatomdb.get_charges(n)
-            rho = self._proatomdb.get_record(n, charges[0]).rho
-            spline = CubicSpline(rho**2, rtf=rtf)
-            int_exact = np.dot(rho**2, weights1d)
-
-            funcs.append((
-                self._system.coordinates[i],
-                [(None, spline, int_exact)],
-            ))
-
-        wcor_fit = self._ui_grid.compute_weight_corrections(funcs)
-        self._cache.dump('wcor_fit', wcor_fit)
-
-    def _get_basis_fn(self, i, j):
-        # A local cache is used that only exists during _init_at_weights:
-        isolated_atom, new = self._cache.load('basis', i, j, alloc=self._ui_grid.shape)
-        number = self._system.numbers[i]
-        charges = self._proatomdb.get_charges(number)
-        if new:
+    def _get_constant_fn(self, i, output):
+        key = ('isolated_atom', i, 0)
+        if key in self._scratch:
+            self._scratch.load(*key, output=output)
+        else:
             number = self._system.numbers[i]
             center = self._system.coordinates[i]
-            if j == 0:
-                pop = self.proatomdb.get_record(number, charges[0]).pseudo_population
-                spline = self._proatomdb.get_spline(number, {charges[0]: 1.0/pop})
-            else:
-                spline = self._proatomdb.get_spline(number, {charges[j]: 1, charges[j-1]: -1})
+            spline = self._proatomdb.get_spline(number)
             if log.do_medium:
-                log('Computing basisfn %i_%i (n=%i, q=%+i)' % (i, j, number, charges[j]))
-            self._ui_grid.eval_spline(spline, center, isolated_atom)
-        return isolated_atom
+                log('Computing constant fn %i (n=%i)' % (i, number))
+            output[:] = 0
+            self._ui_grid.eval_spline(spline, center, output)
+            self._scratch.dump(*key, data=output)
+
+    def _get_basis_fn(self, i, j, output):
+        # A local cache is used that only exists during _init_at_weights:
+        key = ('basis', i, j)
+        if key in self._scratch:
+            self._scratch.load(*key, output=output)
+        else:
+            number = self._system.numbers[i]
+            charges = self._proatomdb.get_charges(number)
+            center = self._system.coordinates[i]
+            spline = self._proatomdb.get_spline(number, {charges[j+1]: 1, charges[j]: -1})
+            if log.do_medium:
+                log('Computing basis fn %i_%i (n=%i, q: %+i_%+i)' % (i, j, number, charges[j+1], charges[j]))
+            output[:] = 0
+            self._ui_grid.eval_spline(spline, center, output)
+            self._scratch.dump(*key, data=output)
 
     def _compute_proatom(self, i, target_charge):
         # Pro-atoms are (temporarily) stored in at_weights for efficiency.
-        if self._cache.has('isolated_atom', i, 0):
+        if ('at_weights', i) not in self._scratch:
             # just use the Hirshfeld definition to get started
-            self._cache.rename(('isolated_atom', i, 0), ('at_weights', i))
-            proatom = self._cache.load('at_weights', i)
+            proatom = self._zeros()
+            self._get_constant_fn(i, proatom)
             proatom += 1e-100
+            self._scratch.dump('at_weights', i, proatom)
         else:
-            wcor_fit = self._cache.load('wcor_fit')
-            proatom, new = self._cache.load('at_weights', i, alloc=self._ui_grid.shape)
-            # do a least-squares fit to the previos AIM
-
             # 1) construct aim in temporary array
-            aimdens = self._local_cache.load('aimdens', alloc=self._ui_grid.shape)[0]
-            aimdens[:] = proatom
-            aimdens *= self._cache.load('moldens')
+            at_weights = self._scratch.load('at_weights', i)
+            aimdens = self._scratch.load('moldens')
+            aimdens *= at_weights
+
+            #    rename variables for clarity
+            work0 = at_weights
+            del at_weights
+            work1 = self._zeros()
 
             # 2) setup equations
             number = self._system.numbers[i]
-            charges = np.array(self._proatomdb.get_charges(number))
-            neq = len(charges)
+            charges = np.array(self._proatomdb.get_charges(number, safe=True))
+            neq = len(charges)-1
 
-            A, new = self._local_cache.load('fit_A', i, alloc=(neq, neq))
+            #    compute A
+            A, new = self._cache.load('A', i, alloc=(neq, neq))
             if new:
                 for j0 in xrange(neq):
-                    basis0 = self._get_basis_fn(i, j0)
+                    self._get_basis_fn(i, j0, work0)
                     for j1 in xrange(j0+1):
-                        basis1 = self._get_basis_fn(i, j1)
-                        A[j0,j1] = self._ui_grid.integrate(basis0, basis1, wcor_fit)
+                        self._get_basis_fn(i, j1, work1)
+                        A[j0,j1] = self._ui_grid.integrate(work0, work1)
                         A[j1,j0] = A[j0,j1]
-                # precondition the equations
+
+
+                #    precondition the equations
                 scales = np.diag(A)**0.5
                 A /= scales
                 A /= scales.reshape(-1, 1)
-                self._local_cache.dump('fit_scales', i, scales)
                 if log.do_medium:
                     evals = np.linalg.eigvalsh(A)
                     cn = abs(evals).max()/abs(evals).min()
                     sr = abs(scales).max()/abs(scales).min()
                     log('                   %10i: CN=%.5e SR=%.5e' % (i, cn, sr))
+                self._cache.dump('scales', i, scales)
             else:
-                scales = self._local_cache.load('fit_scales', i)
+                scales = self._cache.load('scales', i)
 
+            #    compute B and precondition
+            self._get_constant_fn(i, work1)
+            aimdens -= work1
             B = np.zeros(neq, float)
             for j0 in xrange(neq):
-                basis0 = self._get_basis_fn(i, j0)
-                B[j0] = self._ui_grid.integrate(aimdens, basis0, wcor_fit)
+                self._get_basis_fn(i, j0, work0)
+                B[j0] = self._ui_grid.integrate(aimdens, work0)
             B /= scales
 
-
             # 3) find solution
-            target_pseudo_pop = self.system.pseudo_numbers[i] - target_charge
-            lc_pop = (np.ones(neq)/scales, target_pseudo_pop)
-            coeffs = solve_positive(A, B, [lc_pop])
+            lc_pop = (np.ones(neq)/scales, -target_charge)
+            #coeffs = solve_positive(A, B, [lc_pop])
+            lcs_par = []
+            for j0 in xrange(neq):
+                lc = np.zeros(neq)
+                lc[j0] = 1.0/scales[j0]
+                lcs_par.append((lc, -1))
+            coeffs = quadratic_solver(A, B, [lc_pop], lcs_par, rcond=0)
             # correct for scales
             coeffs /= scales
 
@@ -308,11 +302,14 @@ class HirshfeldECPart(HirshfeldICPart):
                 log('                   %10i:&%s' % (i, ' '.join('% 6.3f' % c for c in coeffs)))
 
             # 4) construct the pro-atom
-            tmp = aimdens
-            del aimdens
-            proatom[:] = 0
+            proatom = work1
+            del work1
+
             for j0 in xrange(neq):
-                tmp[:] = self._get_basis_fn(i, j0)
-                tmp *= coeffs[j0]
-                proatom += tmp
-        proatom += 1e-100
+                work0[:] = 0
+                self._get_basis_fn(i, j0, work0)
+                work0 *= coeffs[j0]
+                proatom += work0
+
+            proatom += 1e-100
+            self._scratch.dump('at_weights', i, proatom)
