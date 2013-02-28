@@ -33,7 +33,6 @@ def test_hirshfeld_jbw_coarse():
     # Load the cube file
     fn_cube = context.get_fn('test/jbw_coarse_aedens.cube')
     sys = System.from_file(fn_cube)
-    sys._pseudo_numbers = None # Why?
     mol_dens = sys.props['cube_data']
     ui_grid = sys.props['ui_grid']
 
@@ -44,78 +43,86 @@ def test_hirshfeld_jbw_coarse():
     proatomdb = ProAtomDB.from_refatoms(atgrid, numbers=[8,14], max_kation=0, max_anion=0)
 
     # Run the partitioning
-    cpart = HirshfeldCPart(sys, ui_grid, mol_dens, proatomdb, False)
-    cpart.do_charges()
-    cpart.do_dipoles()
-    cpart.do_volumes()
-    assert abs(cpart['populations'].sum() - cpart._integrate(cpart['moldens'])) < 1e-10
-    assert cpart['volumes'].min() > 0
+    with Scratch('horton.test.test_hirshfeld.test_hirshfeld_jbw_coarse.h5', fake=True) as scratch:
+        cpart = HirshfeldCPart(sys, ui_grid, mol_dens, proatomdb, False, scratch)
+        cpart.do_charges()
+        cpart.do_dipoles()
+        cpart.do_volumes()
+        wcor = cpart._get_wcor()
+        assert abs(cpart['populations'].sum() - ui_grid.integrate(wcor, mol_dens)) < 1e-10
+        assert cpart['volumes'].min() > 0
 
 
 def test_hirshfeld_fake():
     sys, ui_grid, mol_dens, proatomdb = get_fake_co()
 
     # Run the partitioning
-    cpart = HirshfeldCPart(sys, ui_grid, mol_dens, proatomdb, False)
-    cpart.do_charges()
-    charges = cpart['charges']
-    assert charges.sum() < 1e-3
-    assert abs(charges[0] - 0.112) < 1e-3
+    with Scratch('horton.test.test_hirshfeld.test_hirshfeld_fake.h5', fake=True) as scratch:
+        cpart = HirshfeldCPart(sys, ui_grid, mol_dens, proatomdb, False, scratch)
+        cpart.do_charges()
+        charges = cpart['charges']
+        assert abs(charges.sum()) < 1e-3
+        assert abs(charges[0] - 0.112) < 1e-3
 
 
 def test_hirshfeld_fake_pseudo():
     sys, ui_grid, mol_dens, proatomdb = get_fake_pseudo_oo()
 
     # Run the partitioning
-    cpart = HirshfeldCPart(sys, ui_grid, mol_dens, proatomdb, False)
-    cpart.do_charges()
-    charges = cpart['charges']
-    assert charges.sum() < 1e-3
-    assert abs(charges[0] - 0.2119886) < 1e-3
+    with Scratch('horton.test.test_hirshfeld.test_hirshfeld_fake_pseudo.h5', fake=True) as scratch:
+        cpart = HirshfeldCPart(sys, ui_grid, mol_dens, proatomdb, False, scratch)
+        cpart.do_charges()
+        charges = cpart['charges']
+        assert abs(charges.sum()) < 1e-3
+        assert abs(charges[0] - 0.2119886) < 1e-3
 
 
 def test_hirshfeld_fake_pseudo_smooth():
     sys, ui_grid, mol_dens, proatomdb = get_fake_pseudo_oo()
 
     # Run the partitioning
-    cpart = HirshfeldCPart(sys, ui_grid, mol_dens, proatomdb, True)
-    cpart.do_charges()
-    charges = cpart['charges']
-    assert charges.sum() < 1e-3
-    assert abs(charges[0] - 0.2119886) < 1e-3
+    with Scratch('horton.test.test_hirshfeld.test_hirshfeld_fake_pseudo_smooth.h5', fake=True) as scratch:
+        cpart = HirshfeldCPart(sys, ui_grid, mol_dens, proatomdb, True, scratch)
+        cpart.do_charges()
+        charges = cpart['charges']
+        assert abs(charges.sum()) < 1e-3
+        assert abs(charges[0] - 0.2119886) < 1e-3
 
 
 def test_hirshfeld_i_fake():
     sys, ui_grid, mol_dens, proatomdb = get_fake_co()
 
     # Run the partitioning
-    cpart = HirshfeldICPart(sys, ui_grid, mol_dens, proatomdb, False)
-    cpart.do_charges()
-    charges = cpart['charges']
-    assert charges.sum() < 1e-3
-    assert abs(charges[0] - 0.431) < 1e-3
+    with Scratch('horton.test.test_hirshfeld.test_hirshfeld_i_fake', fake=True) as scratch:
+        cpart = HirshfeldICPart(sys, ui_grid, mol_dens, proatomdb, False, scratch)
+        cpart.do_charges()
+        charges = cpart['charges']
+        assert abs(charges.sum()) < 1e-3
+        assert abs(charges[0] - 0.431) < 1e-3
 
 
 def test_hirshfeld_i_fake_pseudo():
     sys, ui_grid, mol_dens, proatomdb = get_fake_pseudo_oo()
 
     # Run the partitioning
-    cpart = HirshfeldICPart(sys, ui_grid, mol_dens, proatomdb, False)
-    cpart.do_charges()
-    charges = cpart['charges']
-    assert charges.sum() < 1e-3
-    assert abs(charges[0] - 0.40262645) < 1e-3
+    with Scratch('horton.test.test_hirshfeld.test_hirshfeld_i_fake_pseudo', fake=True) as scratch:
+        cpart = HirshfeldICPart(sys, ui_grid, mol_dens, proatomdb, False, scratch)
+        cpart.do_charges()
+        charges = cpart['charges']
+        assert abs(charges.sum()) < 1e-3
+        assert abs(charges[0] - 0.40262645) < 1e-3
 
 
 def test_hirshfeld_i_fake_pseudo_smooth():
     sys, ui_grid, mol_dens, proatomdb = get_fake_pseudo_oo()
 
     # Run the partitioning
-    cpart = HirshfeldICPart(sys, ui_grid, mol_dens, proatomdb, True)
-    cpart.do_charges()
-    charges = cpart['charges']
-    assert charges.sum() < 1e-3
-    assert abs(charges[0] - 0.40262645) < 1e-3
+    with Scratch('horton.test.test_hirshfeld.test_hirshfeld_i_fake_pseudo_smooth', fake=True) as scratch:
+        cpart = HirshfeldICPart(sys, ui_grid, mol_dens, proatomdb, True, scratch)
+        cpart.do_charges()
+        charges = cpart['charges']
+        assert abs(charges.sum()) < 1e-3
+        assert abs(charges[0] - 0.40262645) < 1e-3
 
 
 def test_hirshfeld_e_fake():
@@ -125,7 +132,7 @@ def test_hirshfeld_e_fake():
     cpart = HirshfeldECPart(sys, ui_grid, mol_dens, proatomdb, False)
     cpart.do_charges()
     charges = cpart['charges']
-    assert charges.sum() < 1e-3
+    assert abs(charges.sum()) < 1e-3
     assert abs(charges[0] - 0.393) < 1e-3
 
 
@@ -136,5 +143,5 @@ def test_hirshfeld_e_fake_pseudo():
     cpart = HirshfeldECPart(sys, ui_grid, mol_dens, proatomdb, False)
     cpart.do_charges()
     charges = cpart['charges']
-    assert charges.sum() < 1e-3
+    assert abs(charges.sum()) < 1e-3
     assert abs(charges[0] - 0.4001029) < 1e-3
