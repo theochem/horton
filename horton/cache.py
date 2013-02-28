@@ -22,15 +22,15 @@
 
    In principle, the ``JustOnceClass`` and the ``Cache`` can be used
    independently, but in some cases it makes a lot of sense to combine them.
-   See for example. the density partitioning code in ``horton.dpart``.
+   See for example the density partitioning code in ``horton.dpart``.
 '''
 
 
-import numpy as np
+import numpy as np, h5py as h5, os
 from horton.log import log
 
 
-__all__ = ['JustOnceClass', 'just_once', 'Cache']
+__all__ = ['JustOnceClass', 'just_once', 'Cache', 'Scratch']
 
 
 class JustOnceClass(object):
@@ -274,3 +274,86 @@ class Cache(object):
         '''Change the name of a cached object.'''
         self._store[new] = self._store[old]
         del self._store[old]
+
+
+# TODO: merge Scratch with the Cache class at some point.
+class Scratch(object):
+    '''A disk-based cache to reduce memory usage'''
+    def __init__(self, fn, fake=False):
+        self._open = True
+        self._fake = fake
+        if isinstance(fn, basestring):
+            if fake:
+                self._f = h5.File(fn, driver='core', backing_store=False, libver='latest')
+            else:
+                self._f = h5.File(fn, 'w', libver='latest')
+            self._own = True
+        elif isinstance(fn, h5.File):
+            self._f = fn
+            self._own = False
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
+    def __del__(self):
+        self.close()
+
+    def close(self):
+        if self._open:
+            self._open = False
+            if self._own:
+                # clean up file
+                fn = self._f.filename
+                self._f.close()
+                if not self._fake:
+                    os.remove(fn)
+            else:
+                # clean up everything in file
+                for name in self._f.keys():
+                    del self._f[name]
+
+    def _key_to_name(self, key):
+        return '_'.join(str(item) for item in key)
+
+    def load(self, *args, **kwargs):
+        if len(args) < 1:
+            raise TypeError('Expecting at least one argument')
+        name = self._key_to_name(args)
+        output = kwargs.pop('output', None)
+        if len(kwargs) > 0:
+            raise TypeError('Unexpected keyword argument: %s' % kwargs.popitem()[0])
+        if output is None:
+            return self._f[name][:]
+        else:
+            self._f[name].read_direct(output)
+
+    def dump(self, *args, **kwargs):
+        data = kwargs.pop('data', None)
+        if len(kwargs) > 0:
+            raise TypeError('Unexpected keyword argument: %s' % kwargs.popitem()[0])
+        if data is None:
+            if len(args) < 2:
+                raise TypeError('Expecting at least two arguments')
+            name = self._key_to_name(args[:-1])
+            data = args[-1]
+        else:
+            if len(args) < 1:
+                raise TypeError('Expecting at least one argument')
+            name = self._key_to_name(args)
+        if name in self._f:
+            self._f[name].write_direct(data)
+        else:
+            self._f[name] = data
+
+    def __contains__(self, key):
+        name = self._key_to_name(key)
+        return name in self._f
+
+    def rename(self, key1, key2):
+        name1 = self._key_to_name(key1)
+        name2 = self._key_to_name(key2)
+        self._f[name2] = self._f[name1]
+        del self._f[name1]
