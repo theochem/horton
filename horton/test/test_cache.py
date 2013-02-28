@@ -20,7 +20,7 @@
 #--
 
 
-import numpy as np
+import numpy as np, h5py as h5, tempfile, os
 from horton import *
 
 
@@ -177,7 +177,6 @@ def test_dense_one_body():
     # after invalidation
     op1.set_element(1, 2, 5.2)
     c.invalidate()
-    print op1._array[1,2]
     assert op1._array[1,2] == 0.0
     try:
         op4 = c.load('egg')
@@ -266,3 +265,62 @@ def test_discard():
     c.discard('foo')
     assert not c.has('foo')
     assert c.has('bar')
+
+
+def check_scratch_common(arg, fake=False):
+    with Scratch(arg, fake) as scratch:
+        arr1 = np.random.normal(0, 1, (10, 10))
+        arr2 = np.zeros((10, 10))
+        scratch.dump('aaaa', 5, arr1)
+        scratch.load('aaaa', 5, output=arr2)
+        assert (arr1 == arr2).all()
+        arr3 = np.random.normal(0, 1, (10, 10))
+        scratch.dump('aaaa', 5, arr3)
+        scratch.load('aaaa', 5, output=arr2)
+        assert (arr3 == arr2).all()
+        scratch.dump(*('aaaa', 5), data=arr3)
+        scratch.load('aaaa', 5, output=arr2)
+        assert (arr3 == arr2).all()
+        arr4 = scratch.load('aaaa', 5)
+        assert (arr3 == arr4).all()
+        arr5 = np.random.normal(0, 1, (11, 11))
+        assert ('aaaa', 5) in scratch
+        scratch.rename(('aaaa', 5), ('b', '1'))
+        assert ('b', '1') in scratch
+        assert ('aaaa', 5) not in scratch
+        arr6 = scratch.load('b', 1)
+        assert (arr3 == arr6).all()
+        try:
+            scratch.dump('b', 1, arr5)
+            assert False
+        except TypeError:
+            pass
+        try:
+            scratch.load('b', 1, foobar=None)
+            assert False
+        except TypeError:
+            pass
+
+
+def test_scratch_disk():
+    dn = tempfile.mkdtemp('horton.test.test_cache.test_scratch_disk')
+    fn = '%s/test.h5' % dn
+    try:
+        check_scratch_common(fn)
+        assert not os.path.isfile(fn)
+    finally:
+        if os.path.isfile(fn):
+           os.remove(fn)
+        os.rmdir(dn)
+
+
+def test_scratch_core():
+    f = h5.File('horton.test.test_cache.test_scratch_core', driver='core', backing_store=False)
+    check_scratch_common(f)
+    assert len(f) == 0
+
+
+def test_scratch_fake():
+    fn = 'horton.test.test_cache.test_scratch_fake.h5'
+    check_scratch_common(fn, fake=True)
+    assert not os.path.isfile(fn)
