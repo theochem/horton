@@ -23,7 +23,7 @@
 import sys, argparse, os
 
 import h5py as h5
-from horton import System, cpart_schemes, Cell, ProAtomDB, log
+from horton import System, cpart_schemes, Cell, ProAtomDB, log, Scratch
 
 def parse_args():
     parser = argparse.ArgumentParser(prog='horton-copart.py',
@@ -85,8 +85,9 @@ def main():
     proatomdb = ProAtomDB.from_file(args.atoms)
 
     # Run the partitioning
-    cpart = cpart_schemes[args.scheme](sys, ui_grid, moldens, proatomdb, args.smooth)
-    names = cpart.do_all()
+    with Scratch('_scratch-PID-%i.h5' % os.getpid()) as scratch:
+        cpart = cpart_schemes[args.scheme](sys, ui_grid, moldens, proatomdb, args.smooth, scratch)
+        names = cpart.do_all()
 
     # Store the results in an HDF5 file
     with h5.File(fn_h5) as f:
@@ -104,6 +105,15 @@ def main():
         grid_rvecs[:] = ui_grid.grid_cell.rvecs
         for name in names:
             grp[name] = cpart[name]
+
+        # Store additional data for debugging
+        if 'debug' in grp:
+            del grp['debug']
+        grp_debug = grp.create_group('debug')
+        for debug_key in cpart._cache._store:
+            debug_name = '_'.join(str(x) for x in debug_key)
+            if debug_name not in names:
+                grp_debug[debug_name] = cpart._cache.load(*debug_key)
 
 
 if __name__ == '__main__':
