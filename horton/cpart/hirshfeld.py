@@ -40,7 +40,7 @@ __all__ = [
 class HirshfeldCPart(CPart):
     name = 'h'
 
-    def __init__(self, system, ui_grid, moldens, proatomdb, smooth):
+    def __init__(self, system, ui_grid, moldens, proatomdb, smooth, scratch):
         '''
            **Arguments:**
 
@@ -59,9 +59,12 @@ class HirshfeldCPart(CPart):
            smooth
                 When set to True, no corrections are included to integrate
                 the cusps.
+
+           scratch
+                An instance of the class Scratch to store large working arrays
         '''
         self._proatomdb = proatomdb
-        CPart.__init__(self, system, ui_grid, moldens, smooth)
+        CPart.__init__(self, system, ui_grid, moldens, smooth, scratch)
 
     def _get_proatomdb(self):
         return self._proatomdb
@@ -70,52 +73,52 @@ class HirshfeldCPart(CPart):
 
     @just_once
     def _init_weight_corrections(self):
-        if self.smooth:
-            self._cache.dump('wcor', None)
-            return
-
         funcs = []
         for i in xrange(self._system.natom):
             n = self._system.numbers[i]
             pn = self._system.pseudo_numbers[i]
             pn_expected = self._proatomdb.get_record(n, 0).pseudo_number
+            # TODO: move this check to __init__
             if self._proatomdb.get_record(n, 0).pseudo_number != pn:
                 raise ValueError('The pseudo number of atom %i does not match with the proatom database (%i!=%i)' % (i, pn, pn_expected))
             funcs.append((
                 self._system.coordinates[i],
                 [(('isolated_atom', i, 0), self._proatomdb.get_spline(n), float(pn))],
             ))
-        self._ui_grid.compute_weight_corrections(funcs, cache=self._cache)
+        self._ui_grid.compute_weight_corrections(funcs, cache=self._scratch)
 
     def _compute_proatom(self, index):
-        if self._cache.has('isolated_atom', index, 0):
-            self._cache.rename(('isolated_atom', index, 0), ('at_weights', index))
-            proatom = self._cache.load('at_weights', index)
+        if ('isolated_atom', index, 0) in self._scratch:
+            self._scratch.rename(('isolated_atom', index, 0), ('at_weights', index))
+            proatom = self._scratch.load('at_weights', index)
+            proatom += 1e-100
         else:
             if log.do_medium:
                 log('Computing proatom %i (%i)' % (index, self.system.natom))
-            proatom, new = self._cache.load('at_weights', index, alloc=self._ui_grid.shape)
+            proatom = self._zeros()
             # Construct the pro-atom
-            assert new
             number = self._system.numbers[index]
             center = self._system.coordinates[index]
             spline = self._proatomdb.get_spline(number)
             self._ui_grid.eval_spline(spline, center, proatom)
-        proatom += 1e-100
+            proatom += 1e-100
+            self._scratch.dump('at_weights', index, proatom)
 
     def _compute_promoldens(self):
-        promoldens, new = self._cache.load('promoldens', alloc=self._ui_grid.shape)
-        if not new:
-            promoldens[:] = 0
+        promoldens = self._zeros()
+        proatom = self._zeros()
         for i in xrange(self._system.natom):
-            proatom = self._cache.load('at_weights', i)
+            self._scratch.load('at_weights', i, output=proatom)
             promoldens += proatom
+        self._scratch.dump('promoldens', promoldens)
 
     def _compute_at_weights(self):
-        promoldens = self._cache.load('promoldens')
+        promoldens = self._scratch.load('promoldens')
+        proatom = self._zeros()
         for i in xrange(self._system.natom):
-            proatom = self._cache.load('at_weights', i)
+            self._scratch.load('at_weights', i, output=proatom)
             proatom /= promoldens
+            self._scratch.dump('at_weights', i, proatom)
 
     @just_once
     def _init_at_weights(self):
@@ -124,42 +127,41 @@ class HirshfeldCPart(CPart):
             self._compute_proatom(i)
         self._compute_promoldens()
         self._compute_at_weights()
-        self._cache.discard('promoldens')
-
 
 
 class HirshfeldICPart(HirshfeldCPart):
     name = 'hi'
 
-    def _get_isolated_atom(self, i, charge):
-        # A local cache is used that only exists during _init_at_weights:
-        isolated_atom, new = self._cache.load('isolated_atom', i, charge, alloc=self._ui_grid.shape)
-        if new:
+    def _get_isolated_atom(self, i, charge, output):
+        key = ('isolated_atom', i, charge)
+        if key in self._scratch:
+            self._scratch.load(*key, output=output)
+        else:
             number = self._system.numbers[i]
             center = self._system.coordinates[i]
             spline = self._proatomdb.get_spline(number, charge)
             if log.do_medium:
                 log('Computing isolated atom %i (n=%i, q=%+i)' % (i, number, charge))
-            self._ui_grid.eval_spline(spline, center, isolated_atom)
-        return isolated_atom
+            self._ui_grid.eval_spline(spline, center, output)
+            self._scratch.dump(*key, data=output)
 
     def _compute_proatom(self, i, target_charge):
         # Pro-atoms are (temporarily) stored in at_weights for efficiency.
-        proatom, new = self._cache.load('at_weights', i, alloc=self._ui_grid.shape)
+        proatom = self._zeros()
         # Construct the pro-atom
         icharge = int(np.floor(target_charge))
-        proatom[:] = self._get_isolated_atom(i, icharge)
+        self._get_isolated_atom(i, icharge, proatom)
         if float(icharge) != target_charge:
             x = target_charge - icharge
             proatom *= 1-x
             ipseudo_pop = self.system.pseudo_numbers[i] - icharge
             if ipseudo_pop > 1:
-                tmp = self._local_cache.load('tmp', alloc=self._ui_grid.shape)[0]
-                tmp[:] = self._get_isolated_atom(i, icharge+1)
+                tmp = self._zeros()
+                self._get_isolated_atom(i, icharge+1, tmp)
                 tmp *= x
                 proatom += tmp
         proatom += 1e-100 # avoid division by zero
-        return proatom
+        self._scratch.dump('at_weights', i, proatom)
 
     @just_once
     def _init_at_weights(self):

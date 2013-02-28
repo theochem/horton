@@ -34,7 +34,7 @@ class CPart(JustOnceClass):
 
     name = None
 
-    def __init__(self, system, ui_grid, moldens, smooth):
+    def __init__(self, system, ui_grid, moldens, smooth, scratch):
         '''
            **Arguments:**
 
@@ -50,22 +50,27 @@ class CPart(JustOnceClass):
            smooth
                 When set to True, no corrections are included to integrate
                 the cusps.
+
+           scratch
+                An instance of the class Scratch to store large working arrays
         '''
         JustOnceClass.__init__(self)
 
         self._system = system
         self._ui_grid = ui_grid
         self._smooth = smooth
+        self._scratch = scratch
+        self._scratch.dump('moldens', moldens)
 
         # Caching stuff, to avoid recomputation of earlier results
         self._cache = Cache()
-        self._cache.dump('moldens', moldens)
 
         # Some screen logging
         self._init_log()
 
-        with timer.section('CPart wcor'):
-            self._init_weight_corrections()
+        if not smooth:
+            with timer.section('CPart wcor'):
+                self._init_weight_corrections()
         with timer.section('CPart weights'):
             self._init_at_weights()
 
@@ -115,17 +120,22 @@ class CPart(JustOnceClass):
         with timer.section('CPart weights'):
             self._init_at_weights()
 
-    def _integrate(self, *args, **kwargs):
-        wcor = self._cache.load('wcor')
-        return self._ui_grid.integrate(wcor, *args, **kwargs)
+    def _get_wcor(self):
+        if ('wcor',) in self._scratch:
+            return self._scratch.load('wcor')
+
+    def _zeros(self):
+        return np.zeros(self._ui_grid.shape)
 
     def _compute_populations(self):
         '''Compute the atomic populations'''
         result = np.zeros(self._system.natom)
-        moldens = self._cache.load('moldens')
+        moldens = self._scratch.load('moldens')
+        wcor = self._get_wcor()
+        at_weights = self._zeros()
         for i in xrange(self._system.natom):
-            at_weights = self._cache.load('at_weights', i)
-            result[i] = self._integrate(at_weights, moldens)
+            self._scratch.load('at_weights', i, output=at_weights)
+            result[i] = self._ui_grid.integrate(wcor, at_weights, moldens)
 
         result += self.system.numbers - self.system.pseudo_numbers
 
@@ -163,13 +173,15 @@ class CPart(JustOnceClass):
             log('Computing atomic dipoles.')
         dipoles, new = self._cache.load('dipoles', alloc=(self.system.natom, 3))
         if new:
-            moldens = self._cache.load('moldens')
+            moldens = self._scratch.load('moldens')
+            wcor = self._get_wcor()
+            at_weights = self._zeros()
             for index in xrange(self._system.natom):
-                at_weights = self._cache.load('at_weights', index)
+                self._scratch.load('at_weights', index, output=at_weights)
                 center = self._system.coordinates[index]
-                dipoles[index,0] = -self._integrate(at_weights, moldens, center=center, powx=1)
-                dipoles[index,1] = -self._integrate(at_weights, moldens, center=center, powy=1)
-                dipoles[index,2] = -self._integrate(at_weights, moldens, center=center, powz=1)
+                dipoles[index,0] = -self._ui_grid.integrate(wcor, at_weights, moldens, center=center, powx=1)
+                dipoles[index,1] = -self._ui_grid.integrate(wcor, at_weights, moldens, center=center, powy=1)
+                dipoles[index,2] = -self._ui_grid.integrate(wcor, at_weights, moldens, center=center, powz=1)
 
     @just_once
     def do_volumes(self):
@@ -178,9 +190,11 @@ class CPart(JustOnceClass):
             log('Computing atomic volumes.')
         volumes, new = self._cache.load('volumes', alloc=self.system.natom,)
         if new:
-            moldens = self._cache.load('moldens')
+            moldens = self._scratch.load('moldens')
+            wcor = self._get_wcor()
+            at_weights = self._zeros()
             populations = self._cache.load('populations')
             for index in xrange(self._system.natom):
-                at_weights = self._cache.load('at_weights', index)
+                self._scratch.load('at_weights', index, output=at_weights)
                 center = self._system.coordinates[index]
-                volumes[index] = self._integrate(at_weights, moldens, center=center, powr=3)/populations[index]
+                volumes[index] = self._ui_grid.integrate(wcor, at_weights, moldens, center=center, powr=3)/populations[index]
