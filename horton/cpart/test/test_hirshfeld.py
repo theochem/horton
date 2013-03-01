@@ -134,7 +134,7 @@ def test_hirshfeld_e_fake():
         cpart.do_charges()
         charges = cpart['charges']
         assert abs(charges.sum()) < 1e-3
-        assert abs(charges[0] - 0.307) < 1e-3
+        assert abs(charges[0] - 0.391) < 1e-3
 
 
 def test_hirshfeld_e_fake_pseudo():
@@ -146,7 +146,7 @@ def test_hirshfeld_e_fake_pseudo():
         cpart.do_charges()
         charges = cpart['charges']
         assert abs(charges.sum()) < 1e-3
-        assert abs(charges[0] - 0.391) < 1e-3
+        assert abs(charges[0] - 0.400) < 1e-3
 
 
 def test_hirshfeld_e_fake_pseudo_smooth():
@@ -158,4 +158,4 @@ def test_hirshfeld_e_fake_pseudo_smooth():
         cpart.do_charges()
         charges = cpart['charges']
         assert abs(charges.sum()) < 1e-3
-        assert abs(charges[0] - 0.391) < 1e-3
+        assert abs(charges[0] - 0.400) < 1e-3
