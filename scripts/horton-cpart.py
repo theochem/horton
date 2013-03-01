@@ -35,9 +35,6 @@ def parse_args():
         help='The scheme to be used for the partitioning')
     parser.add_argument('atoms',
         help='An HDF5 file with atomic reference densities.')
-    parser.add_argument('--smooth', '-s', default=False, action='store_true',
-        help='Use this option when no special measures are needed to integrate '
-             'the cusps accurately.')
     parser.add_argument('--reduce', '-r', default=1, type=int,
         help='Reduce the grid by subsamping with the given stride in all three '
              'directions. Zero and negative values are ignored.')
@@ -45,6 +42,19 @@ def parse_args():
         help='Overwrite existing output in the HDF5 file')
     parser.add_argument('--tmp', type=str, default='.',
         help='A directory where the temporary scratch file can be written.')
+    parser.add_argument('--debug', default=False, action='store_true',
+        help='Add additional internal results to a debug subgroup.')
+    parser.add_argument('--suffix', default=None, type=str,
+        help='Add an additional suffix to the HDF5 output group.')
+
+    parser.add_argument('--smooth', '-s', default=False, action='store_true',
+        help='Use this option when no special measures are needed to integrate '
+             'the cusps accurately.')
+    parser.add_argument('--max_iter', '-i', default=100, type=int,
+        help='The maximum allowed number of iterations.')
+    parser.add_argument('--threshold', '-t', default=1e-4, type=float,
+        help='The iterative schemes is converged when the maximum change of '
+             'the charges between two iterations drops below this threshold.')
 
     # TODO: add argument for periodic boundary conditions
     # TODO: add argument to chop of last slice(s)
@@ -60,10 +70,12 @@ def main():
     grp_name = '%s_r%i' % (args.scheme, args.reduce)
     if args.smooth:
         grp_name += '_s'
+    if args.suffix is not None:
+        grp_name += '_'+args.suffix
 
     if os.path.isfile(fn_h5):
         with h5.File(fn_h5, 'r') as f:
-            if grp_name in f and not args.overwrite:
+            if 'cpart/%s' % grp_name in f and not args.overwrite:
                 if log.do_warning:
                     log.warn('Skipping because "%s" is already present in the output.' % grp_name)
                 return
@@ -88,34 +100,42 @@ def main():
 
     # Run the partitioning
     with Scratch('%s/_scratch-PID-%i.h5' % (args.tmp, os.getpid())) as scratch:
-        cpart = cpart_schemes[args.scheme](sys, ui_grid, moldens, proatomdb, args.smooth, scratch)
+        CPartClass = cpart_schemes[args.scheme]
+        kwargs = dict((key, val) for key, val in vars(args).iteritems() if key in CPartClass.options)
+        cpart = cpart_schemes[args.scheme](sys, ui_grid, moldens, proatomdb, scratch, **kwargs)
         names = cpart.do_all()
 
     # Store the results in an HDF5 file
     with h5.File(fn_h5) as f:
         # Store essential system info
-        coordinates = f.require_dataset('coordinates', sys.coordinates.shape, float, exact=True)
+        # TODO: this should be implemented with an improved implementation of System.to_file
+        sys_grp = f.require_group('system')
+        coordinates = sys_grp.require_dataset('coordinates', sys.coordinates.shape, float, exact=True)
         coordinates[:] = sys.coordinates
-        numbers = f.require_dataset('numbers', sys.numbers.shape, long, exact=True)
+        numbers = sys_grp.require_dataset('numbers', sys.numbers.shape, long, exact=True)
         numbers[:] = sys.numbers
+        rvecs = sys_grp.require_dataset('rvecs', (sys.cell.nvec, 3), float, exact=True)
+        rvecs[:] = sys.cell.rvecs
 
         # Store results
-        if grp_name in f:
-            del f[grp_name]
-        grp = f.create_group(grp_name)
+        grp_cpart = f.require_group('cpart')
+        if grp_name in grp_cpart:
+            del grp_cpart[grp_name]
+        grp = grp_cpart.create_group(grp_name)
         grid_rvecs = grp.require_dataset('grid_rvecs', (3, 3), float, exact=True)
         grid_rvecs[:] = ui_grid.grid_cell.rvecs
         for name in names:
             grp[name] = cpart[name]
 
-        # Store additional data for debugging
-        if 'debug' in grp:
-            del grp['debug']
-        grp_debug = grp.create_group('debug')
-        for debug_key in cpart._cache._store:
-            debug_name = '_'.join(str(x) for x in debug_key)
-            if debug_name not in names:
-                grp_debug[debug_name] = cpart._cache.load(*debug_key)
+        if args.debug:
+            # Store additional data for debugging
+            if 'debug' in grp:
+                del grp['debug']
+            grp_debug = grp.create_group('debug')
+            for debug_key in cpart._cache._store:
+                debug_name = '_'.join(str(x) for x in debug_key)
+                if debug_name not in names:
+                    grp_debug[debug_name] = cpart._cache.load(*debug_key)
 
 
 if __name__ == '__main__':
