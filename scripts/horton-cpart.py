@@ -43,6 +43,8 @@ def parse_args():
              'directions. Zero and negative values are ignored.')
     parser.add_argument('--overwrite', default=False, action='store_true',
         help='Overwrite existing output in the HDF5 file')
+    parser.add_argument('--tmp', type=str, default='.',
+        help='A directory where the temporary scratch file can be written.')
 
     # TODO: add argument for periodic boundary conditions
     # TODO: add argument to chop of last slice(s)
@@ -85,7 +87,7 @@ def main():
     proatomdb = ProAtomDB.from_file(args.atoms)
 
     # Run the partitioning
-    with Scratch('_scratch-PID-%i.h5' % os.getpid()) as scratch:
+    with Scratch('%s/_scratch-PID-%i.h5' % (args.tmp, os.getpid())) as scratch:
         cpart = cpart_schemes[args.scheme](sys, ui_grid, moldens, proatomdb, args.smooth, scratch)
         names = cpart.do_all()
 
