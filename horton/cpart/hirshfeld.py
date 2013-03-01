@@ -184,7 +184,7 @@ class HirshfeldICPart(HirshfeldCPart):
             change = abs(new_charges - old_charges).max()
             if log.medium:
                 log('%9i   %10.5e' % (counter, change))
-            if change < 1e-2:
+            if change < 1e-4:
                 break
 
             old_charges = new_charges
