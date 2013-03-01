@@ -40,31 +40,12 @@ __all__ = [
 class HirshfeldCPart(CPart):
     name = 'h'
 
-    def __init__(self, system, ui_grid, moldens, proatomdb, smooth, scratch):
+    def __init__(self, system, ui_grid, moldens, proatomdb, scratch, smooth=False):
         '''
-           **Arguments:**
-
-           system
-                The system to be partitioned.
-
-           ui_grid
-                The uniform integration grid based on the cube file.
-
-           moldens
-                The all-electron molecular density grid data.
-
-           proatomdb
-                The database of proatomic densities.
-
-           smooth
-                When set to True, no corrections are included to integrate
-                the cusps.
-
-           scratch
-                An instance of the class Scratch to store large working arrays
+           See CPart base class for the description of the arguments.
         '''
         self._proatomdb = proatomdb
-        CPart.__init__(self, system, ui_grid, moldens, smooth, scratch)
+        CPart.__init__(self, system, ui_grid, moldens, scratch, smooth)
 
     def _get_proatomdb(self):
         return self._proatomdb
@@ -131,6 +112,24 @@ class HirshfeldCPart(CPart):
 
 class HirshfeldICPart(HirshfeldCPart):
     name = 'hi'
+    options = ['smooth', 'max_iter', 'threshold']
+
+    def __init__(self, system, ui_grid, moldens, proatomdb, scratch, smooth=False, max_iter=100, threshold=1e-4):
+        '''
+           **Optional arguments:** (those not present in the base class)
+
+           max_iter
+                The maximum number of iterations. If no convergence is reached
+                in the end, no warning is given.
+
+           threshold
+                The procedure is considered to be converged when the maximum
+                change of the charges between two iterations drops below this
+                threshold.
+        '''
+        self._max_iter = max_iter
+        self._threshold = threshold
+        HirshfeldCPart.__init__(self, system, ui_grid, moldens, proatomdb, scratch, smooth)
 
     def _get_isolated_atom(self, i, charge, output):
         key = ('isolated_atom', i, charge)
@@ -166,25 +165,30 @@ class HirshfeldICPart(HirshfeldCPart):
 
     @just_once
     def _init_at_weights(self):
-        self._local_cache = Cache()
-
         old_charges = np.zeros(self._system.natom)
         if log.medium:
             log.hline()
             log('Iteration       Change')
             log.hline()
-        for counter in xrange(500):
-            # Construct pro-atoms
+
+        counter = 0
+        change = 1.0
+        while True:
+            counter += 1
+
+            # Update pro-atoms and populations
             for i in xrange(self._system.natom):
                 self._compute_proatom(i, old_charges[i])
             self._compute_promoldens()
             self._compute_at_weights()
             new_populations = self._compute_populations()
             new_charges = self.system.numbers - new_populations
+
+            # Check for convergence
             change = abs(new_charges - old_charges).max()
             if log.medium:
                 log('%9i   %10.5e' % (counter, change))
-            if change < 1e-4:
+            if change < self._threshold or counter >= self._max_iter:
                 break
 
             old_charges = new_charges
@@ -193,7 +197,12 @@ class HirshfeldICPart(HirshfeldCPart):
             log.hline()
 
         self._cache.dump('populations', new_populations)
-        del self._local_cache
+        self._cache.dump('niter', counter)
+        self._cache.dump('change', change)
+
+    def do_all(self):
+        names = HirshfeldCPart.do_all(self)
+        return names + ['niter', 'change']
 
 
 class HirshfeldECPart(HirshfeldICPart):

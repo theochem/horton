@@ -33,8 +33,9 @@ class CPart(JustOnceClass):
     '''Base class for density partitioning schemes of cube files'''
 
     name = None
+    options = ['smooth']
 
-    def __init__(self, system, ui_grid, moldens, smooth, scratch):
+    def __init__(self, system, ui_grid, moldens, scratch, smooth):
         '''
            **Arguments:**
 
@@ -47,12 +48,14 @@ class CPart(JustOnceClass):
            moldens
                 The all-electron density grid data.
 
+           scratch
+                An instance of the class Scratch to store large working arrays
+
+           **Optional arguments:**
+
            smooth
                 When set to True, no corrections are included to integrate
                 the cusps.
-
-           scratch
-                An instance of the class Scratch to store large working arrays
         '''
         JustOnceClass.__init__(self)
 
@@ -147,7 +150,7 @@ class CPart(JustOnceClass):
         self.do_charges()
         self.do_dipoles()
         self.do_volumes()
-        return ['populations', 'charges', 'dipoles', 'volumes']
+        return ['populations', 'charges', 'dipoles', 'dipole_norms', 'volumes']
 
     @just_once
     def do_populations(self):
@@ -182,6 +185,7 @@ class CPart(JustOnceClass):
                 dipoles[index,0] = -self._ui_grid.integrate(wcor, at_weights, moldens, center=center, powx=1)
                 dipoles[index,1] = -self._ui_grid.integrate(wcor, at_weights, moldens, center=center, powy=1)
                 dipoles[index,2] = -self._ui_grid.integrate(wcor, at_weights, moldens, center=center, powz=1)
+            self._cache.dump('dipole_norms', np.sqrt((dipoles**2).sum(axis=1)))
 
     @just_once
     def do_volumes(self):
