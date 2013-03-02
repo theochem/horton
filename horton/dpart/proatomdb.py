@@ -194,6 +194,14 @@ class ProAtomRecord(object):
                 result.append(x*radii[index+1]+(1-x)*radii[index])
         return result
 
+    def get_moment(self, order):
+        '''Return the integral of rho*r**order'''
+        radii = self._rtransform.get_radii()
+        int1d = SimpsonIntegrator1D()
+        int_weights = int1d.get_weights(len(radii))
+        vol_weights = self._rtransform.get_volume_elements()
+        return 4*np.pi*dot_multi(radii**(2+order), self.rho, int_weights, vol_weights)
+
     def __eq__(self, other):
         return (self.number == other.number and
                 self.charge == other.charge and
