@@ -262,24 +262,23 @@ def test_weight_corrections():
 
     sys, ui_grid, mol_dens, proatomdb = get_fake_co()
 
-    cache = Cache()
     funcs = [
         (sys.coordinates[0], [
-            #(('isolated_atom', 0, +1), proatomdb.get_spline(6, +1), 5.0),
-            (('isolated_atom', 0,  0), proatomdb.get_spline(6,  0), 6.0),
-            #(('isolated_atom', 0, -1), proatomdb.get_spline(6, -1), 7.0),
+            #proatomdb.get_spline(6, +1),
+            proatomdb.get_spline(6,  0),
+            #proatomdb.get_spline(6, -1),
         ]),
         (sys.coordinates[1], [
-            #(('isolated_atom', 1, +1), proatomdb.get_spline(8, +1), 7.0),
-            (('isolated_atom', 1,  0), proatomdb.get_spline(8,  0), 8.0),
-            #(('isolated_atom', 1, -1), proatomdb.get_spline(8, -1), 9.0),
+            #proatomdb.get_spline(8, +1),
+            proatomdb.get_spline(8,  0),
+            #proatomdb.get_spline(8, -1),
         ]),
     ]
-    weights = ui_grid.compute_weight_corrections(funcs, cache)
+    weights = ui_grid.compute_weight_corrections(funcs)
     assert (weights != 1.0).any()
     assert (weights == 1.0).any()
 
-    assert abs(ui_grid.integrate(mol_dens, weights)-14.0) < 2e-4
+    assert abs(ui_grid.integrate(mol_dens, weights)-14.0) < 6e-3
     assert abs(ui_grid.integrate(mol_dens)-14.0) > 5e-2
 
 

@@ -66,8 +66,8 @@ def test_hirshfeld_fake():
         names = cpart.do_all()
         check_names(names, cpart)
         charges = cpart['charges']
-        assert abs(charges.sum()) < 1e-3
-        assert abs(charges[0] - 0.112) < 1e-3
+        assert abs(charges.sum()) < 1e-2
+        assert abs(abs(charges).mean() - 0.114) < 1e-3
 
 
 def test_hirshfeld_fake_pseudo():
@@ -79,7 +79,7 @@ def test_hirshfeld_fake_pseudo():
         names = cpart.do_all()
         check_names(names, cpart)
         charges = cpart['charges']
-        assert abs(charges.sum()) < 1e-3
+        assert abs(charges.sum()) < 1e-2
         assert abs(charges[0] - 0.2119886) < 1e-3
 
 
@@ -92,7 +92,7 @@ def test_hirshfeld_fake_pseudo_smooth():
         names = cpart.do_all()
         check_names(names, cpart)
         charges = cpart['charges']
-        assert abs(charges.sum()) < 1e-3
+        assert abs(charges.sum()) < 1e-2
         assert abs(charges[0] - 0.2119886) < 1e-3
 
 
@@ -105,8 +105,8 @@ def test_hirshfeld_i_fake():
         names = cpart.do_all()
         check_names(names, cpart)
         charges = cpart['charges']
-        assert abs(charges.sum()) < 1e-3
-        assert abs(charges[0] - 0.431) < 1e-3
+        assert abs(charges.sum()) < 1e-2
+        assert abs(abs(charges).mean() - 0.438) < 1e-3
 
 
 def test_hirshfeld_i_fake_pseudo():
@@ -118,7 +118,7 @@ def test_hirshfeld_i_fake_pseudo():
         names = cpart.do_all()
         check_names(names, cpart)
         charges = cpart['charges']
-        assert abs(charges.sum()) < 1e-3
+        assert abs(charges.sum()) < 1e-2
         assert abs(charges[0] - 0.40262645) < 1e-3
 
 
@@ -131,7 +131,7 @@ def test_hirshfeld_i_fake_pseudo_smooth():
         names = cpart.do_all()
         check_names(names, cpart)
         charges = cpart['charges']
-        assert abs(charges.sum()) < 1e-3
+        assert abs(charges.sum()) < 1e-2
         assert abs(charges[0] - 0.40262645) < 1e-3
 
 
@@ -144,8 +144,8 @@ def test_hirshfeld_e_fake():
         names = cpart.do_all()
         check_names(names, cpart)
         charges = cpart['charges']
-        assert abs(charges.sum()) < 1e-3
-        assert abs(charges[0] - 0.391) < 1e-3
+        assert abs(charges.sum()) < 1e-2
+        assert abs(abs(charges).mean() - 0.423) < 1e-3
 
 
 def test_hirshfeld_e_fake_pseudo():
@@ -157,7 +157,7 @@ def test_hirshfeld_e_fake_pseudo():
         names = cpart.do_all()
         check_names(names, cpart)
         charges = cpart['charges']
-        assert abs(charges.sum()) < 1e-3
+        assert abs(charges.sum()) < 1e-2
         assert abs(charges[0] - 0.400) < 1e-3
 
 
@@ -170,5 +170,5 @@ def test_hirshfeld_e_fake_pseudo_smooth():
         names = cpart.do_all()
         check_names(names, cpart)
         charges = cpart['charges']
-        assert abs(charges.sum()) < 1e-3
+        assert abs(charges.sum()) < 1e-2
         assert abs(charges[0] - 0.400) < 1e-3

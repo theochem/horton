@@ -23,6 +23,7 @@
 import numpy as np
 
 from horton.cext import Cell
+from horton.grid.int1d import SimpsonIntegrator1D
 from horton.grid.cext import dot_multi, dot_multi_poly_cube, eval_spline_cube
 from horton.log import log
 
@@ -102,7 +103,7 @@ class UniformIntGrid(object):
                 args, self.origin, self.grid_cell, self.shape, self.pbc_active,
                 self.get_cell(), center, mask, powx, powy, powz, powr)*self.grid_cell.volume
 
-    def compute_weight_corrections(self, funcs, cache=None, rcut_scale=0.9, rcut_max=2.0):
+    def compute_weight_corrections(self, funcs, rcut_scale=0.9, rcut_max=2.0):
         '''Computes corrections to the integration weights.
 
            **Arguments:**
@@ -116,26 +117,9 @@ class UniformIntGrid(object):
                   functions. In pracice, this will always coincide with th
                   position of a nucleus.
 
-                * Radial functions specified as a list of tuples. Each tuple
-                  contains the following three items:
-
-                    * key: the key used to store the evaluated function in the
-                      cache if a cache is provided. If no cache is provided,
-                      this may be None.
-
-                    * spline: the radial spline for the spherically symmetric
-                      function
-
-                    * integral: the exact integral of the spherically symmetric
-                      function [=int_0^r 4*pi*x**2*spline(x)].
-
+                * Radial functions specified as a list of splines.
 
            **Optional arguments:**
-
-           cache
-                A Cache object in which the evaluated splines are stored to
-                avoid their recomputation after the weight corrections are
-                computed
 
            rcut_scale
                 For center (of a spherical function), radii of non-overlapping
@@ -154,7 +138,6 @@ class UniformIntGrid(object):
            to a linear combination of the provided sphericall functions.
         '''
         result = np.ones(self.shape, float)
-        tmp = np.empty(self.shape, float)
         volume = self.grid_cell.volume
 
         # initialize cutoff radii
@@ -174,8 +157,49 @@ class UniformIntGrid(object):
                 rcuts[i0] = min(rcut, rcuts[i0])
                 rcuts[i1] = min(rcut, rcuts[i1])
 
+        def get_aux_grid(center, aux_rcut):
+            ranges_begin, ranges_end = self.grid_cell.get_ranges_rcut(self.origin, center, aux_rcut)
+            aux_origin = self.origin.copy()
+            self.grid_cell.add_vec(aux_origin, ranges_begin)
+            aux_shape = ranges_end - ranges_begin
+            aux_grid = UniformIntGrid(aux_origin, self.grid_cell, aux_shape, pbc_active=np.zeros(3, float))
+            return aux_grid, -ranges_begin
+
+        def get_tapered_spline(spline, rcut, aux_rcut):
+            assert rcut < aux_rcut
+            rtf = spline.rtransform
+            r = rtf.get_radii()
+            # Get original spline stuff
+            y = spline.copy_y()
+            d = spline.deriv(r)
+            # adapt cutoffs to indexes of radial grid
+            ibegin = r.searchsorted(rcut)
+            iend = r.searchsorted(aux_rcut)-1
+            rcut = r[ibegin]
+            aux_rcut = r[iend]
+            # define tapering function
+            sy = np.zeros(len(r))
+            sd = np.zeros(len(r))
+            sy[:ibegin] = 1.0
+            scale = np.pi/(aux_rcut-rcut)
+            x = scale*(r[ibegin:iend+1]-rcut)
+            sy[ibegin:iend+1] = 0.5*(np.cos(x)+1)
+            sd[ibegin:iend+1] = -0.5*(np.sin(x))*scale
+            # construct product
+            ty = y*sy
+            td = d*sy+y*sd
+            # construct spline
+            tapered_spline = CubicSpline(ty, td, rtf)
+            # compute integral
+            int1d = SimpsonIntegrator1D()
+            int_exact = 4*np.pi*dot_multi(
+                ty, r, r, int1d.get_weights(len(r)), rtf.get_volume_elements()
+            )
+            # done
+            return tapered_spline, int_exact
+
         icenter = 0
-        for (center, rad_funcs), rcut in zip(funcs, rcuts):
+        for (center, splines), rcut in zip(funcs, rcuts):
             # A) Determine the points inside the cutoff sphere.
             ranges_begin, ranges_end = self.grid_cell.get_ranges_rcut(self.origin, center, rcut)
 
@@ -185,24 +209,30 @@ class UniformIntGrid(object):
             nselect = self.grid_cell.select_inside(self.origin, center, rcut, ranges_begin, ranges_end, self.shape, self.pbc_active, indexes)
             indexes = indexes[:nselect]
 
-            # C) Allocate the arrays for the least-squares fit of the
+            # C) Set up an integration grid for the tapered spline
+            aux_rcut = 2*rcut
+            aux_grid, aux_offset = get_aux_grid(center, aux_rcut)
+            aux_indexes = (indexes + aux_offset) % self.shape
+            print aux_indexes.min(axis=0), aux_indexes.max(axis=0), aux_grid.shape
+
+            # D) Allocate the arrays for the least-squares fit of the
             # corrections.
-            neq = len(rad_funcs)
+            neq = len(splines)
             dm = np.zeros((neq+1, nselect), float)
             ev = np.zeros(neq+1, float)
 
-            # D) Fill in the coefficients. This is the expensive part.
+            # E) Fill in the coefficients. This is the expensive part.
             irow = 0
-            for key, spline, int_exact in rad_funcs:
-                tmp[:] = 0.0
+            tmp = np.zeros(aux_grid.shape)
+            for spline in splines:
                 if log.do_medium:
                     log("Computing spherical function. icenter=%i irow=%i" % (icenter, irow))
-                self.eval_spline(spline, center, tmp)
-                if cache is not None:
-                    cache.dump(*(key + (tmp,)))
+                tapered_spline, int_exact = get_tapered_spline(spline, rcut, aux_rcut)
+                tmp[:] = 0.0
+                aux_grid.eval_spline(tapered_spline, center, tmp)
                 int_approx = self.integrate(tmp)
+                dm[irow] = volume*tmp[aux_indexes[:,0], aux_indexes[:,1], aux_indexes[:,2]]
 
-                dm[irow] = volume*tmp[indexes[:,0], indexes[:,1], indexes[:,2]]
                 ev[irow] = int_exact - int_approx
                 irow += 1
 
@@ -231,8 +261,6 @@ class UniformIntGrid(object):
 
             icenter += 1
 
-        if cache is not None:
-            cache.dump('wcor', result)
         return result
 
     def compute_weight_corrections_brute(self, funcs, cache=None):

@@ -56,33 +56,31 @@ class HirshfeldCPart(CPart):
         funcs = []
         for i in xrange(self._system.natom):
             n = self._system.numbers[i]
+
+            # TODO: move this check to __init__
             pn = self._system.pseudo_numbers[i]
             pn_expected = self._proatomdb.get_record(n, 0).pseudo_number
-            # TODO: move this check to __init__
             if self._proatomdb.get_record(n, 0).pseudo_number != pn:
                 raise ValueError('The pseudo number of atom %i does not match with the proatom database (%i!=%i)' % (i, pn, pn_expected))
+
             funcs.append((
                 self._system.coordinates[i],
-                [(('isolated_atom', i, 0), self._proatomdb.get_spline(n), float(pn))],
+                [self._proatomdb.get_spline(n)],
             ))
-        self._ui_grid.compute_weight_corrections(funcs, cache=self._scratch)
+        wcor = self._ui_grid.compute_weight_corrections(funcs)
+        self._scratch.dump('wcor', wcor)
 
     def _compute_proatom(self, index):
-        if ('isolated_atom', index, 0) in self._scratch:
-            self._scratch.rename(('isolated_atom', index, 0), ('at_weights', index))
-            proatom = self._scratch.load('at_weights', index)
-            proatom += 1e-100
-        else:
-            if log.do_medium:
-                log('Computing proatom %i (%i)' % (index, self.system.natom))
-            proatom = self._zeros()
-            # Construct the pro-atom
-            number = self._system.numbers[index]
-            center = self._system.coordinates[index]
-            spline = self._proatomdb.get_spline(number)
-            self._ui_grid.eval_spline(spline, center, proatom)
-            proatom += 1e-100
-            self._scratch.dump('at_weights', index, proatom)
+        if log.do_medium:
+            log('Computing proatom %i (%i)' % (index, self.system.natom))
+        proatom = self._zeros()
+        # Construct the pro-atom
+        number = self._system.numbers[index]
+        center = self._system.coordinates[index]
+        spline = self._proatomdb.get_spline(number)
+        self._ui_grid.eval_spline(spline, center, proatom)
+        proatom += 1e-100
+        self._scratch.dump('at_weights', index, proatom)
 
     def _compute_promoldens(self):
         promoldens = self._zeros()
