@@ -222,29 +222,31 @@ class UniformIntGrid(object):
             ev = np.zeros(neq+1, float)
 
             # E) Fill in the coefficients. This is the expensive part.
-            irow = 0
+            ieq = 0
             tmp = np.zeros(aux_grid.shape)
+            av = np.zeros(neq)
             for spline in splines:
                 if log.do_medium:
-                    log("Computing spherical function. icenter=%i irow=%i" % (icenter, irow))
+                    log("Computing spherical function. icenter=%i ieq=%i" % (icenter, ieq))
                 tapered_spline, int_exact = get_tapered_spline(spline, rcut, aux_rcut)
                 tmp[:] = 0.0
                 aux_grid.eval_spline(tapered_spline, center, tmp)
                 int_approx = self.integrate(tmp)
-                dm[irow] = volume*tmp[aux_indexes[:,0], aux_indexes[:,1], aux_indexes[:,2]]
-
-                ev[irow] = int_exact - int_approx
-                irow += 1
+                dm[ieq] = volume*tmp[aux_indexes[:,0], aux_indexes[:,1], aux_indexes[:,2]]
+                av[ieq] = int_approx
+                ev[ieq] = int_exact - int_approx
+                ieq += 1
 
             # Also integrate the constant function correctly
-            dm[irow] = volume
-            ev[irow] = 0.0
-            irow += 1
+            dm[ieq] = volume
+            ev[ieq] = 0.0
+            ieq += 1
 
             # rescale equations to optimize condition number
             scales = np.sqrt((dm**2).mean(axis=1))
             dm /= scales.reshape(-1,1)
             ev /= scales
+            av /= scales[:-1]
 
             # E) Find the least norm solution. This part may become more
             # advanced in future.
@@ -255,6 +257,10 @@ class UniformIntGrid(object):
             if log.do_medium:
                 rmsd = np.sqrt((corrections**2).mean())
                 log('icenter=%i NSELECT=%i CN=%.3e RMSD=%.3e' % (icenter, nselect, S[0]/S[-1], rmsd))
+                mv = np.dot(dm, corrections)
+                for ieq in xrange(neq):
+                    log('   spline %3i    approx=%.3e   corr=%.3e  exact=%.3e' % (ieq, av[ieq], mv[ieq]+av[ieq], ev[ieq]+av[ieq]))
+                log('   constant      error=%.3e' % mv[neq])
 
             # F) Fill the corrections into the right place:
             result[indexes[:,0], indexes[:,1], indexes[:,2]] += corrections
