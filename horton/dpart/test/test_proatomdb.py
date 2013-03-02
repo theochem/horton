@@ -87,6 +87,7 @@ def compare_padbs(padb1, padb2):
             r2 = padb2.get_record(number, charge)
             assert r1 == r2
 
+
 def test_io_group():
     padb1 = get_proatomdb_ref([1, 6], 1, 1)
     assert padb1.size == 5
@@ -121,6 +122,17 @@ def test_compute_radii():
     record = padb.get_record(6, 0)
     radii = record.compute_radii([2.0, 5.9, 5.999])
     assert abs(radii - np.array([0.599677, 4.037688, 10.0])).max() < 1e-5
+
+
+def test_moments():
+    padb = get_proatomdb_cp2k()
+    record0 = padb.get_record(8, 0)
+    record1 = padb.get_record(8, 1)
+    m0 = record0.get_moment(3)
+    m1 = record1.get_moment(3)
+    assert m0 > m1
+    assert abs(m0-21.84) < 1e-2
+    assert abs(m1-12.17) < 1e-2
 
 
 def check_spline_record(spline, record):
