@@ -25,6 +25,7 @@ import numpy as np
 from horton.cpart.base import CPart
 from horton.cache import just_once, Cache
 from horton.log import log
+from horton.grid.cext import CubicSpline
 from horton.dpart.linalg import solve_positive, quadratic_solver
 
 
@@ -251,6 +252,29 @@ class HirshfeldICPart(HirshfeldCPart):
 class HirshfeldECPart(HirshfeldICPart):
     name = 'he'
 
+    @just_once
+    def _init_weight_corrections(self):
+        HirshfeldICPart._init_weight_corrections(self)
+
+        funcs = []
+        for i in xrange(self._system.natom):
+            center = self._system.coordinates[i]
+            splines = []
+            number = self._system.numbers[i]
+            charges = self._proatomdb.get_charges(number, safe=True)
+            rtf = self._proatomdb.get_rtransform(number)
+            splines = []
+            for j0 in xrange(len(charges)-1):
+                rad0 = self._proatomdb.get_record(number, charges[j0+1]).rho - \
+                       self._proatomdb.get_record(number, charges[j0]).rho
+                for j1 in xrange(j0+1):
+                    rad1 = self._proatomdb.get_record(number, charges[j1+1]).rho - \
+                           self._proatomdb.get_record(number, charges[j1]).rho
+                    splines.append(CubicSpline(rad0*rad1, rtf=rtf))
+            funcs.append((center, splines))
+        wcor_fit = self._ui_grid.compute_weight_corrections(funcs)
+        self._scratch.dump('wcor_fit', wcor_fit)
+
     def _get_constant_fn(self, i, output):
         key = ('isolated_atom', i, 0)
         if key in self._scratch:
@@ -272,7 +296,7 @@ class HirshfeldECPart(HirshfeldICPart):
             self._scratch.load(*key, output=output)
         else:
             number = self._system.numbers[i]
-            charges = self._proatomdb.get_charges(number)
+            charges = self._proatomdb.get_charges(number, safe=True)
             center = self._system.coordinates[i]
             spline = self._proatomdb.get_spline(number, {charges[j+1]: 1, charges[j]: -1})
             if log.do_medium:
@@ -305,6 +329,13 @@ class HirshfeldECPart(HirshfeldICPart):
             charges = np.array(self._proatomdb.get_charges(number, safe=True))
             neq = len(charges)-1
 
+            #    get the weight corrections for the least squares problem
+            # TODO: default value for load
+            if 'wcor_fit' in self._scratch:
+                wcor_fit = self._scratch.load('wcor_fit')
+            else:
+                wcor_fit = None
+
             #    compute A
             A, new = self._cache.load('A', i, alloc=(neq, neq))
             if new:
@@ -312,7 +343,7 @@ class HirshfeldECPart(HirshfeldICPart):
                     self._get_basis_fn(i, j0, work0)
                     for j1 in xrange(j0+1):
                         self._get_basis_fn(i, j1, work1)
-                        A[j0,j1] = self._ui_grid.integrate(work0, work1)
+                        A[j0,j1] = self._ui_grid.integrate(work0, work1, wcor_fit)
                         A[j1,j0] = A[j0,j1]
 
 
@@ -335,7 +366,7 @@ class HirshfeldECPart(HirshfeldICPart):
             B = np.zeros(neq, float)
             for j0 in xrange(neq):
                 self._get_basis_fn(i, j0, work0)
-                B[j0] = self._ui_grid.integrate(aimdens, work0)
+                B[j0] = self._ui_grid.integrate(aimdens, work0, wcor_fit)
             B /= scales
 
             # 3) find solution

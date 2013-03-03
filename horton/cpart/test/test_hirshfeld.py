@@ -145,7 +145,7 @@ def test_hirshfeld_e_fake():
         check_names(names, cpart)
         charges = cpart['charges']
         assert abs(charges.sum()) < 1e-2
-        assert abs(abs(charges).mean() - 0.423) < 1e-3
+        assert abs(abs(charges).mean() - 0.420) < 1e-3
 
 
 def test_hirshfeld_e_fake_pseudo():

@@ -103,7 +103,7 @@ class UniformIntGrid(object):
                 args, self.origin, self.grid_cell, self.shape, self.pbc_active,
                 self.get_cell(), center, mask, powx, powy, powz, powr)*self.grid_cell.volume
 
-    def compute_weight_corrections(self, funcs, rcut_scale=0.9, rcut_max=2.0):
+    def compute_weight_corrections(self, funcs, rcut_scale=0.9, rcut_max=2.0, rcond=0.1):
         '''Computes corrections to the integration weights.
 
            **Arguments:**
@@ -129,6 +129,11 @@ class UniformIntGrid(object):
            rcut_max
                 To avoid gigantic cutoff spheres, one may use rcut_max to set
                 the maximum radius of the cutoff sphere.
+
+           rcond
+                The regulatization strength for the weight correction equations.
+                This should not be too low. Current value is a compromise
+                between accuracy and transferability of the weight corrections.
 
            **Return value:**
 
@@ -213,7 +218,6 @@ class UniformIntGrid(object):
             aux_rcut = 2*rcut
             aux_grid, aux_offset = get_aux_grid(center, aux_rcut)
             aux_indexes = (indexes + aux_offset) % self.shape
-            print aux_indexes.min(axis=0), aux_indexes.max(axis=0), aux_grid.shape
 
             # D) Allocate the arrays for the least-squares fit of the
             # corrections.
@@ -224,7 +228,7 @@ class UniformIntGrid(object):
             # E) Fill in the coefficients. This is the expensive part.
             ieq = 0
             tmp = np.zeros(aux_grid.shape)
-            av = np.zeros(neq)
+            av = np.zeros(neq+1)
             for spline in splines:
                 if log.do_medium:
                     log("Computing spherical function. icenter=%i ieq=%i" % (icenter, ieq))
@@ -237,30 +241,35 @@ class UniformIntGrid(object):
                 ev[ieq] = int_exact - int_approx
                 ieq += 1
 
-            # Also integrate the constant function correctly
-            dm[ieq] = volume
-            ev[ieq] = 0.0
-            ieq += 1
+            # Add error on constant function
+            dm[neq] = volume
+            av[neq] = 0.0
+            ev[neq] = 0.0
 
             # rescale equations to optimize condition number
             scales = np.sqrt((dm**2).mean(axis=1))
             dm /= scales.reshape(-1,1)
             ev /= scales
-            av /= scales[:-1]
+            av /= scales
 
-            # E) Find the least norm solution. This part may become more
-            # advanced in future.
+            # E) Find a regularized least norm solution.
             U, S, Vt = np.linalg.svd(dm, full_matrices=False)
-            assert S[0]*1e-6 < S[-1] # lousy safety check
-            corrections = np.dot(Vt.T, np.dot(U.T, ev)/S)
+            ridge = rcond*S[0]
+            Sinv = S/(ridge**2+S**2)
+            corrections = np.dot(Vt.T, np.dot(U.T, ev)*Sinv)
+
+            # constrain the solution to integrate constant function exactly
+            HtVSinv = Vt.sum(axis=1)*Sinv
+            mu = corrections.sum()/np.dot(HtVSinv,HtVSinv)
+            corrections -= mu*np.dot(Vt.T, Vt.sum(axis=1)*Sinv**2)
 
             if log.do_medium:
                 rmsd = np.sqrt((corrections**2).mean())
                 log('icenter=%i NSELECT=%i CN=%.3e RMSD=%.3e' % (icenter, nselect, S[0]/S[-1], rmsd))
                 mv = np.dot(dm, corrections)
                 for ieq in xrange(neq):
-                    log('   spline %3i    approx=%.3e   corr=%.3e  exact=%.3e' % (ieq, av[ieq], mv[ieq]+av[ieq], ev[ieq]+av[ieq]))
-                log('   constant      error=%.3e' % mv[neq])
+                    log('   spline %3i    error %+.3e   orig %+.3e  exact %+.3e' % (ieq, ev[ieq]-mv[ieq], ev[ieq], ev[ieq]+av[ieq]))
+                log('   constant      error %+.3e' % corrections.sum())
 
             # F) Fill the corrections into the right place:
             result[indexes[:,0], indexes[:,1], indexes[:,2]] += corrections
