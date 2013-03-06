@@ -366,3 +366,7 @@ def test_cubic_interpolation_o3lyp_os():
 def test_hyb_gga_exx_fraction():
     t = LibXCHybridGGATerm('xc_pbeh') # The PBE0 functional
     assert t.get_exx_fraction() == 0.25
+
+
+def test_lda_c_vwn_present():
+    t = LibXCLDATerm('c_vwn')   # The VWN 5 functional
