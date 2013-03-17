@@ -23,10 +23,11 @@
 import numpy as np
 
 from horton.grid.uniform import UniformIntGrid
-from horton.espfit.cext import setup_esp_cost_cube
+from horton.espfit.cext import setup_esp_cost_cube, multiply_dens_mask, \
+    multiply_near_mask, multiply_far_mask
 
 
-__all__ = ['ESPCost']
+__all__ = ['ESPCost', 'setup_weights']
 
 
 class ESPCost(object):
@@ -36,6 +37,7 @@ class ESPCost(object):
         self._A = np.zeros((system.natom, system.natom), float)
         self._B = np.zeros(system.natom, float)
         self._C = np.zeros((), float)
+        # TODO: turn into MSD
         if isinstance(grid, UniformIntGrid):
             setup_esp_cost_cube(grid.origin, grid.grid_cell, grid.shape,
                 grid.get_cell(), vref, weights, system.coordinates, self._A, self._B, self._C, rcut, alpha, gcut)
@@ -47,3 +49,49 @@ class ESPCost(object):
 
     def gradient(self, charges):
         return np.dot(self._A, charges) + self._B
+
+
+def setup_weights(system, grid, dens=None, near=None, far=None):
+    '''Define a weight function for the ESPCost
+
+       **Arguments:**
+
+       system
+            The system for which the weight function must be defined
+
+       grid
+            A UniformGrid object.
+
+       **Optional arguments:**
+
+       dens
+            The density-based criterion. This is a three-tuple with rho, rho0
+            and alpha.
+
+       near
+            Exclude points near the nuclei. This is a dictionary with as items
+            (number, (R0, gamma)).
+
+       far
+            Exclude points far away. This is a two-tuple: (R0, gamma).
+    '''
+    weights = np.ones(grid.shape)
+
+    # combine three possible mask functions
+    if dens is not None:
+        rho, rho0, alpha = dens
+        assert (rho.shape == grid.shape).all()
+        multiply_dens_mask(rho, rho0, alpha, weights)
+    if near is not None:
+        for i in xrange(system.natom):
+            pair = near.get(system.numbers[i])
+            if pair is None:
+                continue
+            R0, gamma = pair
+            multiply_near_mask(system.coordinates[i], grid.origin, grid.grid_cell, grid.shape, grid.pbc_active, R0, gamma, weights)
+    if far is not None:
+        R0, gamma = far
+        multiply_far_mask(system.coordinates, grid.origin, grid.grid_cell, grid.shape, grid.pbc_active, R0, gamma, weights)
+
+    # double that weight goes to zero at non-periodic edges
+    return weights

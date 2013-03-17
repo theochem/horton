@@ -25,14 +25,23 @@ cimport numpy as np
 np.import_array()
 
 cimport ewald3d
+cimport mask
 
 cimport horton.cext
 
 
 __all__ = [
+    # ewald
     'pair_ewald',
     'setup_esp_cost_cube',
+    # mask
+    'multiply_dens_mask', 'multiply_near_mask', 'multiply_far_mask',
 ]
+
+
+#
+# ewald
+#
 
 
 def setup_esp_cost_cube(np.ndarray[double, ndim=1] origin not None,
@@ -96,3 +105,73 @@ def pair_ewald(np.ndarray[double, ndim=1] delta not None,
         return ewald3d.pair_ewald3d(<double*>delta.data, cell._this, rcut, alpha, gcut)
     else:
         raise NotImplementedError
+
+
+#
+# mask
+#
+
+
+def multiply_dens_mask(np.ndarray[double, ndim=3] rho not None,
+                       double rho0, double alpha,
+                       np.ndarray[double, ndim=3] weights not None):
+    assert rho.flags['C_CONTIGUOUS']
+    assert weights.flags['C_CONTIGUOUS']
+    assert weights.shape[0] == rho.shape[0]
+    assert weights.shape[1] == rho.shape[1]
+    assert weights.shape[2] == rho.shape[2]
+    cdef long npoint = weights.size
+
+    mask.multiply_dens_mask(<double*>rho.data, rho0, alpha, <double*>weights.data, npoint)
+
+
+def multiply_near_mask(np.ndarray[double, ndim=1] center not None,
+                       np.ndarray[double, ndim=1] origin not None,
+                       horton.cext.Cell grid_cell,
+                       np.ndarray[long, ndim=1] shape not None,
+                       horton.cext.Cell cell,
+                       double r0, double gamma,
+                       np.ndarray[double, ndim=3] weights not None):
+    assert center.flags['C_CONTIGUOUS']
+    assert center.shape[0] == 3
+    assert origin.flags['C_CONTIGUOUS']
+    assert origin.shape[0] == 3
+    assert shape.flags['C_CONTIGUOUS']
+    assert shape.shape[0] == 3
+    assert r0 > 0
+    assert gamma > 0
+    assert weights.flags['C_CONTIGUOUS']
+    assert weights.shape[0] == shape[0]
+    assert weights.shape[1] == shape[1]
+    assert weights.shape[2] == shape[2]
+
+    #mask.multiply_near_mask(<double*>center.data, <double*>origin.data,
+    #    grid_cell._this, <long*>shape, cell._this, r0, gamma,
+    #    <double*>weights.data)
+
+
+def multiply_far_mask(np.ndarray[double, ndim=2] centers not None,
+                      np.ndarray[double, ndim=1] origin not None,
+                      horton.cext.Cell grid_cell,
+                      np.ndarray[long, ndim=1] shape not None,
+                      horton.cext.Cell cell,
+                      double r0, double gamma,
+                      np.ndarray[double, ndim=3] weights not None):
+    assert centers.flags['C_CONTIGUOUS']
+    cdef long ncenter = centers.shape[0]
+    assert ncenter > 0
+    assert centers.shape[1] == 3
+    assert origin.flags['C_CONTIGUOUS']
+    assert origin.shape[0] == 3
+    assert shape.flags['C_CONTIGUOUS']
+    assert shape.shape[0] == 3
+    assert r0 > 0
+    assert gamma > 0
+    assert weights.flags['C_CONTIGUOUS']
+    assert weights.shape[0] == shape[0]
+    assert weights.shape[1] == shape[1]
+    assert weights.shape[2] == shape[2]
+
+    #mask.multiply_far_mask(<double*>centers.data, ncenter,
+    #    <double*>origin.data, grid_cell._this, <long*>shape, cell._this, r0,
+    #    gamma, <double*>weights.data)
