@@ -219,24 +219,26 @@ void Cell::copy_gspacings(double* _gspacings) {
 }
 
 
-void Cell::set_ranges_rcut(double* origin, double* center, double rcut,
+void Cell::set_ranges_rcut(double* delta, double rcut, long mode,
                            long* ranges_begin, long* ranges_end) {
-    double delta[3];
-    delta[0] = center[0];
-    delta[1] = center[1];
-    delta[2] = center[2];
-    if (origin!=NULL) {
-        delta[0] -= origin[0];
-        delta[1] -= origin[1];
-        delta[2] -= origin[2];
-    }
+    /*
+        Define the ranges for the linear combinations of cell vectors
+        that:
+            (mode=+1) must be added to the origin, to obtain all periodic images
+                      of delta that lie within the cutoff sphere centered around
+                      delta.
+            (mode=-1) must be added to delta, to obtain all periodic images off
+                      delta that lie within the cutoff sphere centered at the
+                      origin.
+        The ranges are such that some images may fall outside the cutoff sphere
+        but it is assured that not periodic images overlooked.
+    */
     double frac[3];
     to_frac(delta, frac);
-
     for (int i=nvec-1; i>=0; i--) {
         double step = rcut/rspacings[i];
-        ranges_begin[i] = ceil(frac[i]-step);
-        ranges_end[i] = ceil(frac[i]+step);
+        ranges_begin[i] = ceil(mode*frac[i]-step);
+        ranges_end[i] = ceil(mode*frac[i]+step);
     }
 }
 

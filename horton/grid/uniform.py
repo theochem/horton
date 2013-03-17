@@ -163,7 +163,7 @@ class UniformIntGrid(object):
                 rcuts[i1] = min(rcut, rcuts[i1])
 
         def get_aux_grid(center, aux_rcut):
-            ranges_begin, ranges_end = self.grid_cell.get_ranges_rcut(self.origin, center, aux_rcut)
+            ranges_begin, ranges_end = self.grid_cell.get_ranges_rcut(center-self.origin, aux_rcut)
             aux_origin = self.origin.copy()
             self.grid_cell.add_vec(aux_origin, ranges_begin)
             aux_shape = ranges_end - ranges_begin
@@ -206,7 +206,7 @@ class UniformIntGrid(object):
         icenter = 0
         for (center, splines), rcut in zip(funcs, rcuts):
             # A) Determine the points inside the cutoff sphere.
-            ranges_begin, ranges_end = self.grid_cell.get_ranges_rcut(self.origin, center, rcut)
+            ranges_begin, ranges_end = self.grid_cell.get_ranges_rcut(center-self.origin, rcut)
 
             # B) Construct a set of grid indexes that lie inside the sphere.
             nselect_max = np.product(ranges_end-ranges_begin)

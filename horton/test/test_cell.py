@@ -212,7 +212,7 @@ def setup_ranges_rcut(nvec):
     center = np.random.uniform(-3*a, 3*a, 3)
     rcut = np.random.uniform(0.2*a, 5*a)
 
-    ranges_begin, ranges_end = cell.get_ranges_rcut(origin, center, rcut)
+    ranges_begin, ranges_end = cell.get_ranges_rcut(center-origin, rcut)
     ranges_low = ranges_begin-2
     ranges_high = ranges_end+2
 
@@ -289,7 +289,7 @@ def test_ranges_rcut_0d():
     center = np.random.uniform(-3*a, 3*a, 3)
     rcut = np.random.uniform(0.2*a, 5*a)
 
-    ranges_begin, ranges_end = cell.get_ranges_rcut(origin, center, rcut)
+    ranges_begin, ranges_end = cell.get_ranges_rcut(center-origin, rcut)
     assert ranges_begin.size == 0
     assert ranges_begin.shape == (0,)
     assert ranges_end.size == 0
@@ -316,7 +316,7 @@ def setup_select_inside(nvec):
     center = np.random.uniform(0, nrep*a, 3)
     rcut = np.random.uniform(0.1*nrep*a)
 
-    ranges_begin, ranges_end = grid_cell.get_ranges_rcut(origin, center, rcut)
+    ranges_begin, ranges_end = grid_cell.get_ranges_rcut(center-origin, rcut)
 
     return grid_cell, origin, center, rcut, shape, pbc_active, ranges_begin, ranges_end
 
