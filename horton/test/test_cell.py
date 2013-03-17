@@ -63,9 +63,9 @@ def test_cell_cubic():
     cell.mic(vec1)
     assert abs(vec1 - np.array([0.135, 0.0, -4.865])*angstrom).max() < 1e-10
     vec2 = np.array([10.0, 0.0, 5.0])*angstrom
-    cell.add_vec(vec2, cell.to_center(vec2))
+    cell.add_rvec(vec2, cell.to_center(vec2))
     assert abs(vec1 - vec2).max() < 1e-10
-    cell.add_vec(vec1, np.array([1,2,3]))
+    cell.add_rvec(vec1, np.array([1,2,3]))
     assert abs(vec1 - np.array([10.0, 19.73, 24.73])*angstrom).max() < 1e-10
 
     # Test methods (2)
@@ -96,9 +96,9 @@ def test_cell_parallellogram2d():
     cell.mic(vec1)
     assert abs(vec1 - np.array([0.156, 0.0, 105])*angstrom).max() < 1e-3
     vec2 = np.array([10.0, 0.0, 105.0])*angstrom
-    cell.add_vec(vec2, cell.to_center(vec2))
+    cell.add_rvec(vec2, cell.to_center(vec2))
     assert abs(vec1 - vec2).max() < 1e-10
-    cell.add_vec(vec1, np.array([1,2]))
+    cell.add_rvec(vec1, np.array([1,2]))
     assert abs(vec1 - np.array([10.002, 8.524, 105])*angstrom).max() < 1e-3
 
     # Test methods (2)
@@ -132,9 +132,9 @@ def test_cell_1d():
     cell.mic(vec1)
     assert abs(vec1 - np.array([-0.15, -0.374, 104.89])*angstrom).max() < 1e-3
     vec2 = np.array([10.0, 0.0, 105.0])*angstrom
-    cell.add_vec(vec2, cell.to_center(vec2))
+    cell.add_rvec(vec2, cell.to_center(vec2))
     assert abs(vec1 - vec2).max() < 1e-10
-    cell.add_vec(vec1, np.array([1]))
+    cell.add_rvec(vec1, np.array([1]))
     assert abs(vec1 - np.array([4.925, -0.187, 104.945])*angstrom).max() < 1e-3
 
     # Test methods (2)
@@ -195,9 +195,9 @@ def test_cell_0d():
     cell.mic(vec1)
     assert abs(vec1 - np.array([10.0, 0.0, 105.0])*angstrom).max() < 1e-3
     vec2 = np.array([10.0, 0.0, 105.0])*angstrom
-    cell.add_vec(vec2, cell.to_center(vec2))
+    cell.add_rvec(vec2, cell.to_center(vec2))
     assert abs(vec1 - vec2).max() < 1e-10
-    cell.add_vec(vec1, np.array([], dtype=int))
+    cell.add_rvec(vec1, np.array([], dtype=int))
     assert abs(vec1 - np.array([10.0, 0.0, 105.0])*angstrom).max() < 1e-3
 
     # Test methods (2)
@@ -236,7 +236,7 @@ def test_ranges_rcut_3d():
                         i2 >= ranges_begin[2] and i2 < ranges_end[2]):
                         continue
                     tmp = origin.copy()
-                    cell.add_vec(tmp, np.array([i0, i1, i2]))
+                    cell.add_rvec(tmp, np.array([i0, i1, i2]))
                     assert np.linalg.norm(tmp - center) > rcut
 
         counter += 1
@@ -256,7 +256,7 @@ def test_ranges_rcut_2d():
                     i1 >= ranges_begin[1] and i1 < ranges_end[1]):
                     continue
                 tmp = origin.copy()
-                cell.add_vec(tmp, np.array([i0, i1]))
+                cell.add_rvec(tmp, np.array([i0, i1]))
                 assert np.linalg.norm(tmp - center) > rcut
 
         counter += 1
@@ -274,7 +274,7 @@ def test_ranges_rcut_1d():
             if i0 >= ranges_begin[0] and i0 < ranges_end[0]:
                 continue
             tmp = origin.copy()
-            cell.add_vec(tmp, np.array([i0]))
+            cell.add_rvec(tmp, np.array([i0]))
             assert np.linalg.norm(tmp - center) > rcut
 
         counter += 1
@@ -311,14 +311,14 @@ def setup_select_inside(nvec):
 
     nrep = 40
     shape = np.array([nrep]*nvec)
-    pbc_active = np.random.randint(0, 2, nvec)
+    pbc = np.random.randint(0, 2, nvec)
     origin = np.random.uniform(-0.5*nrep*a, 1.5*nrep*a, 3)
     center = np.random.uniform(0, nrep*a, 3)
     rcut = np.random.uniform(0.1*nrep*a)
 
     ranges_begin, ranges_end = grid_cell.get_ranges_rcut(center-origin, rcut)
 
-    return grid_cell, origin, center, rcut, shape, pbc_active, ranges_begin, ranges_end
+    return grid_cell, origin, center, rcut, shape, pbc, ranges_begin, ranges_end
 
 
 def check_select_inside_basic(indexes, shape, origin, center, grid_cell, cell, rcut):
@@ -329,7 +329,7 @@ def check_select_inside_basic(indexes, shape, origin, center, grid_cell, cell, r
     # assert that all distances (with MIC) are below rcut
     for ifrac in indexes:
         tmp = origin - center
-        grid_cell.add_vec(tmp, ifrac)
+        grid_cell.add_rvec(tmp, ifrac)
         cell.mic(tmp)
         assert np.linalg.norm(tmp) < rcut
 
@@ -337,8 +337,8 @@ def check_select_inside_basic(indexes, shape, origin, center, grid_cell, cell, r
 def test_select_inside_3d():
     counter = 0
     while True:
-        grid_cell, origin, center, rcut, shape, pbc_active, ranges_begin, ranges_end = setup_select_inside(3)
-        rvecs = (grid_cell.rvecs*shape.reshape(3,1))[pbc_active.astype(bool)]
+        grid_cell, origin, center, rcut, shape, pbc, ranges_begin, ranges_end = setup_select_inside(3)
+        rvecs = (grid_cell.rvecs*shape.reshape(3,1))[pbc.astype(bool)]
         cell = Cell(rvecs)
         if cell.nvec > 0 and 2*rcut > cell.rspacings.min():
             continue
@@ -348,7 +348,7 @@ def test_select_inside_3d():
 
         # compute the indices inside rcut
         indexes = np.zeros((npoint, 3), int)
-        nselect = grid_cell.select_inside(origin, center, rcut, ranges_begin, ranges_end, shape, pbc_active, indexes)
+        nselect = grid_cell.select_inside(origin, center, rcut, ranges_begin, ranges_end, shape, pbc, indexes)
         indexes = indexes[:nselect]
 
         # elementary tests
@@ -357,16 +357,16 @@ def test_select_inside_3d():
         # count the number of points that fall inside
         ninside = 0
         for i0 in xrange(ranges_begin[0], ranges_end[0]):
-            j0 = smart_wrap(i0, shape[0], pbc_active[0])
+            j0 = smart_wrap(i0, shape[0], pbc[0])
             if j0 == -1: continue
             for i1 in xrange(ranges_begin[1], ranges_end[1]):
-                j1 = smart_wrap(i1, shape[1], pbc_active[1])
+                j1 = smart_wrap(i1, shape[1], pbc[1])
                 if j1 == -1: continue
                 for i2 in xrange(ranges_begin[2], ranges_end[2]):
-                    j2 = smart_wrap(i2, shape[2], pbc_active[2])
+                    j2 = smart_wrap(i2, shape[2], pbc[2])
                     if j2 == -1: continue
                     tmp = origin - center
-                    grid_cell.add_vec(tmp, np.array([i0, i1, i2]))
+                    grid_cell.add_rvec(tmp, np.array([i0, i1, i2]))
                     ninside += np.linalg.norm(tmp) < rcut
 
         # number of points inside must match
@@ -380,8 +380,8 @@ def test_select_inside_3d():
 def test_select_inside_2d():
     counter = 0
     while True:
-        grid_cell, origin, center, rcut, shape, pbc_active, ranges_begin, ranges_end = setup_select_inside(2)
-        rvecs = (grid_cell.rvecs*shape.reshape(2,1))[pbc_active.astype(bool)]
+        grid_cell, origin, center, rcut, shape, pbc, ranges_begin, ranges_end = setup_select_inside(2)
+        rvecs = (grid_cell.rvecs*shape.reshape(2,1))[pbc.astype(bool)]
         cell = Cell(rvecs)
         if cell.nvec > 0 and 2*rcut > cell.rspacings.min():
             continue
@@ -391,7 +391,7 @@ def test_select_inside_2d():
 
         # compute the indices inside rcut
         indexes = np.zeros((npoint, 2), int)
-        nselect = grid_cell.select_inside(origin, center, rcut, ranges_begin, ranges_end, shape, pbc_active, indexes)
+        nselect = grid_cell.select_inside(origin, center, rcut, ranges_begin, ranges_end, shape, pbc, indexes)
         indexes = indexes[:nselect]
 
         # elementary tests
@@ -400,13 +400,13 @@ def test_select_inside_2d():
         # count the number of points that fall inside
         ninside = 0
         for i0 in xrange(ranges_begin[0], ranges_end[0]):
-            j0 = smart_wrap(i0, shape[0], pbc_active[0])
+            j0 = smart_wrap(i0, shape[0], pbc[0])
             if j0 == -1: continue
             for i1 in xrange(ranges_begin[1], ranges_end[1]):
-                j1 = smart_wrap(i1, shape[1], pbc_active[1])
+                j1 = smart_wrap(i1, shape[1], pbc[1])
                 if j1 == -1: continue
                 tmp = origin - center
-                grid_cell.add_vec(tmp, np.array([i0, i1]))
+                grid_cell.add_rvec(tmp, np.array([i0, i1]))
                 ninside += np.linalg.norm(tmp) < rcut
 
         # number of points inside must match
@@ -420,8 +420,8 @@ def test_select_inside_2d():
 def test_select_inside_1d():
     counter = 0
     while True:
-        grid_cell, origin, center, rcut, shape, pbc_active, ranges_begin, ranges_end = setup_select_inside(1)
-        rvecs = (grid_cell.rvecs*shape)[pbc_active.astype(bool)]
+        grid_cell, origin, center, rcut, shape, pbc, ranges_begin, ranges_end = setup_select_inside(1)
+        rvecs = (grid_cell.rvecs*shape)[pbc.astype(bool)]
         cell = Cell(rvecs)
         if cell.nvec > 0 and 2*rcut > cell.rspacings.min():
             continue
@@ -431,7 +431,7 @@ def test_select_inside_1d():
 
         # compute the indices inside rcut
         indexes = np.zeros((npoint, 1), int)
-        nselect = grid_cell.select_inside(origin, center, rcut, ranges_begin, ranges_end, shape, pbc_active, indexes)
+        nselect = grid_cell.select_inside(origin, center, rcut, ranges_begin, ranges_end, shape, pbc, indexes)
         indexes = indexes[:nselect]
 
         # elementary tests
@@ -440,10 +440,10 @@ def test_select_inside_1d():
         # count the number of points that fall inside
         ninside = 0
         for i0 in xrange(ranges_begin[0], ranges_end[0]):
-            j0 = smart_wrap(i0, shape[0], pbc_active[0])
+            j0 = smart_wrap(i0, shape[0], pbc[0])
             if j0 == -1: continue
             tmp = origin - center
-            grid_cell.add_vec(tmp, np.array([i0]))
+            grid_cell.add_rvec(tmp, np.array([i0]))
             ninside += np.linalg.norm(tmp) < rcut
 
         # number of points inside must match
@@ -455,11 +455,11 @@ def test_select_inside_1d():
 
 
 def test_select_inside_0d():
-    grid_cell, origin, center, rcut, shape, pbc_active, ranges_begin, ranges_end = setup_select_inside(0)
+    grid_cell, origin, center, rcut, shape, pbc, ranges_begin, ranges_end = setup_select_inside(0)
     npoint = np.product(ranges_end-ranges_begin)
     indexes = np.zeros((npoint, 0), int)
     try:
-        nselect = grid_cell.select_inside(origin, center, rcut, ranges_begin, ranges_end, shape, pbc_active, indexes)
+        nselect = grid_cell.select_inside(origin, center, rcut, ranges_begin, ranges_end, shape, pbc, indexes)
         assert False
     except ValueError:
         pass

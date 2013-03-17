@@ -24,14 +24,13 @@
 #define HORTON_GRID_EVALUATE_H
 
 
-#include "cubic_spline.h"
 #include "cell.h"
+#include "cubic_spline.h"
+#include "uniform.h"
 
-long index_wrap(long i, long high);
 
 void eval_spline_cube(CubicSpline* spline, double* center, double* output,
-                      double* origin, Cell* grid_cell, long* shape,
-                      long* pbc_active);
+                      UniformIntGrid* ui_grid);
 
 void eval_spline_grid(CubicSpline* spline, double* center, double* output,
                       double* points, Cell* cell, long npoint);

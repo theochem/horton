@@ -64,3 +64,45 @@ void grid_distances(double *points, double *center, double *distances, long n) {
     distances++;
   }
 }
+
+
+long index_wrap(long i, long high) {
+    // Get around compiler weirdness
+    long result = i%high;
+    if (result<0) result += high;
+    return result;
+}
+
+
+Range3Iterator::Range3Iterator(const long* ranges_begin, const long* ranges_end, const long* shape) :
+    first(true), ranges_begin(ranges_begin), ranges_end(ranges_end), shape(shape) {};
+
+
+bool next_one(long* i, long* iwrap, const long* ranges_begin, const long* ranges_end, const long* shape, const int axis) {
+    bool result;
+    i[axis] += 1;
+    result = (i[axis] != ranges_end[axis]);
+    if (not result) i[axis] = ranges_begin[axis];
+    if (iwrap!=NULL) iwrap[axis] = index_wrap(i[axis], shape[axis]);
+    return result;
+}
+
+bool Range3Iterator::next(long* i, long* iwrap) {
+    if (first) {
+        first = false;
+        i[0] = ranges_begin[0];
+        i[1] = ranges_begin[1];
+        i[2] = ranges_begin[2];
+        if (iwrap!=NULL) {
+            iwrap[0] = index_wrap(i[0], shape[0]);
+            iwrap[1] = index_wrap(i[1], shape[1]);
+            iwrap[2] = index_wrap(i[2], shape[2]);
+        }
+        return true;
+    } else {
+        if (next_one(i, iwrap, ranges_begin, ranges_end, shape, 0)) return true;
+        if (next_one(i, iwrap, ranges_begin, ranges_end, shape, 1)) return true;
+        if (next_one(i, iwrap, ranges_begin, ranges_end, shape, 2)) return true;
+        return false;
+    }
+}

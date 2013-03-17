@@ -171,8 +171,8 @@ void Cell::dot_cart(double* cart, double* dot_cart) {
 }
 
 
-void Cell::add_vec(double* delta, long* r) {
-    // Simply adds an linear combination of cell vectors to delta.
+void Cell::add_rvec(double* delta, long* r) {
+    // Simply adds an linear combination of real cell vectors to delta.
     // This function contains an unrolled loop for speed.
     if (nvec == 0) return;
     delta[0] += r[0]*rvecs[0];
@@ -244,7 +244,7 @@ void Cell::set_ranges_rcut(double* delta, double rcut, long mode,
 
 
 long Cell::select_inside(double* origin, double* center, double rcut,
-    long* ranges_begin, long* ranges_end, long* shape, long* pbc_active,
+    long* ranges_begin, long* ranges_end, long* shape, long* pbc,
     long* indexes) {
 
     if (nvec == 0)
@@ -252,20 +252,20 @@ long Cell::select_inside(double* origin, double* center, double rcut,
 
     long my_ranges_begin[3];
     long my_ranges_end[3];
-    long my_pbc_active[3];
+    long my_pbc[3];
     long my_shape[3];
 
     for (int i=nvec-1; i>=0; i--) {
         my_ranges_begin[i] = ranges_begin[i];
         my_ranges_end[i] = ranges_end[i];
         my_shape[i] = shape[i];
-        my_pbc_active[i] = pbc_active[i];
+        my_pbc[i] = pbc[i];
     }
     for (int i=nvec; i<3; i++) {
         my_ranges_begin[i] = 0;
         my_ranges_end[i] = 1;
         my_shape[i] = 1;
-        my_pbc_active[i] = 0;
+        my_pbc[i] = 0;
     }
 
     long nselect = 0;
@@ -274,19 +274,19 @@ long Cell::select_inside(double* origin, double* center, double rcut,
     printf("my_ranges_begin={%li,%li,%li}\n", my_ranges_begin[0], my_ranges_begin[1], my_ranges_begin[2]);
     printf("my_ranges_end={%li,%li,%li}\n", my_ranges_end[0], my_ranges_end[1], my_ranges_end[2]);
     printf("my_shape={%li,%li,%li}\n", my_shape[0], my_shape[1], my_shape[2]);
-    printf("my_pbc_active={%li,%li,%li}\n", my_pbc_active[0], my_pbc_active[1], my_pbc_active[2]);
+    printf("my_pbc={%li,%li,%li}\n", my_pbc[0], my_pbc[1], my_pbc[2]);
 #endif
 
     for (long i0 = my_ranges_begin[0]; i0 < my_ranges_end[0]; i0++) {
-        long j0 = smart_wrap(i0, my_shape[0], my_pbc_active[0]);
+        long j0 = smart_wrap(i0, my_shape[0], my_pbc[0]);
         if (j0 == -1) continue;
 
         for (long i1 = my_ranges_begin[1]; i1 < my_ranges_end[1]; i1++) {
-            long j1 = smart_wrap(i1, my_shape[1], my_pbc_active[1]);
+            long j1 = smart_wrap(i1, my_shape[1], my_pbc[1]);
             if (j1 == -1) continue;
 
             for (long i2 = my_ranges_begin[2]; i2 < my_ranges_end[2]; i2++) {
-                long j2 = smart_wrap(i2, my_shape[2], my_pbc_active[2]);
+                long j2 = smart_wrap(i2, my_shape[2], my_pbc[2]);
                 if (j2 == -1) continue;
 
                 // Compute the distance between the point and the image of the center
@@ -319,9 +319,9 @@ long Cell::select_inside(double* origin, double* center, double rcut,
 }
 
 
-long smart_wrap(long i, long shape, long pbc_active) {
+long smart_wrap(long i, long shape, long pbc) {
     if ((i < 0) || (i >= shape)) {
-        if (pbc_active) {
+        if (pbc) {
             long j = i%shape;
             if (j < 0) j += shape; // just to make sure that this works on all c++ compilers.
             return j;

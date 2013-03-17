@@ -28,7 +28,7 @@ cdef extern from "cell.h":
         void to_center(double* cart, long* center)
         void to_frac(double* cart, double* frac)
         void to_cart(double* frac, double* cart)
-        void add_vec(double* delta, long* r)
+        void add_rvec(double* delta, long* r)
 
         int get_nvec()
         double get_volume()
@@ -48,6 +48,6 @@ cdef extern from "cell.h":
             long* ranges_begin, long* ranges_end)
         long select_inside(double* origin, double* center, double rcut,
             long* ranges_begin, long* ranges_end, long* shape,
-            long* pbc_active, long* indexes) except +
+            long* pbc, long* indexes) except +
 
-    long smart_wrap(long i, long shape, long pbc_active)
+    long smart_wrap(long i, long shape, long pbc)

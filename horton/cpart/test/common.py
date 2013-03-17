@@ -42,7 +42,7 @@ def get_fake_co():
     origin = np.array([-3.0, -3.0, -3.0])
     rvecs = np.identity(3, float)*0.1
     shape = np.array([60, 60, 60+22])
-    ui_grid = UniformIntGrid(origin, Cell(rvecs), shape)
+    ui_grid = UniformIntGrid(origin, rvecs, shape, np.ones(3, int))
 
     mol_dens = np.zeros(ui_grid.shape)
     tmp = np.zeros(ui_grid.shape)
@@ -81,7 +81,7 @@ def get_fake_pseudo_oo(smooth=False):
     origin = np.array([-3.0, -3.0, -3.0])
     rvecs = np.identity(3, float)*0.1
     shape = np.array([60, 60, 60+22])
-    ui_grid = UniformIntGrid(origin, Cell(rvecs), shape)
+    ui_grid = UniformIntGrid(origin, rvecs, shape, np.ones(3, int))
 
     mol_dens = np.zeros(ui_grid.shape)
     tmp = np.zeros(ui_grid.shape)

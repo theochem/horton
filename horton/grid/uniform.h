@@ -18,26 +18,31 @@
 //
 //--
 
-#ifndef HORTON_GRID_UTILS_H
-#define HORTON_GRID_UTILS_H
+
+#ifndef HORTON_GRID_UNIFORM_H
+#define HORTON_GRID_UNIFORM_H
 
 #include "cell.h"
+#include "cubic_spline.h"
 
-double dot_multi(long npoint, long nvector, double** data);
-void grid_distances(double *points, double *center, double *distances, long n);
 
-long index_wrap(long i, long high);
-
-class Range3Iterator {
+class UniformIntGrid {
     private:
-        bool first;
-        const long* ranges_begin;
-        const long* ranges_end;
-        const long* shape;
+        double origin[3];
+        Cell* grid_cell;
+        long shape[3], pbc[3];
     public:
-        Range3Iterator(const long* ranges_begin, const long* ranges_end, const long* shape);
+        UniformIntGrid(double* _origin, Cell* _grid_cell, long* _shape, long* _pbc);
 
-        bool next(long* i, long* iwrap);
+        void copy_origin(double* output);
+        void copy_shape(long* output);
+        void copy_pbc(long* output);
+
+        const long* get_shape() { return shape; };
+
+        void set_ranges_rcut(double* center, double rcut, long* ranges_begin, long* ranges_end);
+        double dist_grid_point(double *center, long* i);
 };
+
 
 #endif

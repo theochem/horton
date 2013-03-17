@@ -35,12 +35,12 @@ def test_uig_integrate_gauss():
     # grid setup
     offset = 0.5*spacing*(naxis-1)
     origin = np.zeros(3, float)-offset
-    cell = Cell(np.identity(3)*spacing)
+    rvecs = np.identity(3)*spacing
     shape = np.array([naxis, naxis, naxis])
-    uig = UniformIntGrid(origin, cell, shape)
+    pbc = np.ones(3, int)
+    uig = UniformIntGrid(origin, rvecs, shape, pbc)
 
     # fill a 3D grid with a gaussian function
-    rvecs = cell.rvecs
     x, y, z = np.indices(shape)
     dsq = (x*spacing-offset)**2 + (y*spacing-offset)**2 + (z*spacing-offset)**2
     data = np.exp(-0.5*dsq)/(2*np.pi)**(1.5)
@@ -61,7 +61,7 @@ def test_uig_eval_spline_simple1():
     cs = get_cosine_spline()
     offset = 5.0
     spacing = 0.5
-    uig = UniformIntGrid(np.array([-offset, -offset, -offset]), Cell(np.identity(3)*spacing), np.array([21,21,21]))
+    uig = UniformIntGrid(np.array([-offset, -offset, -offset]), np.identity(3)*spacing, np.array([21,21,21]), np.array([1, 1, 1]))
 
     x, y, z = np.indices(uig.shape)
     d = np.sqrt((x*spacing-offset)**2 + (y*spacing-offset)**2 + (z*spacing-offset)**2).ravel()
@@ -77,7 +77,7 @@ def test_uig_eval_spline_simple2():
     cs = get_cosine_spline()
     offset = 1.0
     spacing = 0.1
-    uig = UniformIntGrid(np.array([-offset, -offset, -offset]), Cell(np.identity(3)*spacing), np.array([21,21,21]))
+    uig = UniformIntGrid(np.array([-offset, -offset, -offset]), np.identity(3)*spacing, np.array([21,21,21]), np.array([1, 1, 1]))
 
     x, y, z = np.indices(uig.shape)
     data1 = 0
@@ -98,12 +98,13 @@ def test_uig_eval_spline_with_integration():
     cs = get_cosine_spline()
 
     # Different integration grids
+    pbc = np.ones(3, int)
     uigs = [
-        UniformIntGrid(np.array([-1.0, -1.0, -1.0]), Cell(np.identity(3)*0.1), np.array([21,21,21])),
-        UniformIntGrid(np.array([-1.0, -1.0, -1.0]), Cell(np.array([[0.1, 0.1, 0.0], [0.1, 0.0, 0.1], [0.0, 0.1, 0.1]])), np.array([21,21,21])),
-        UniformIntGrid(np.array([0.0, 0.0, 0.0]), Cell(np.identity(3)*0.1), np.array([21,21,21])),
-        UniformIntGrid(np.array([0.0, 0.0, 0.0]), Cell(np.array([[0.1, 0.1, 0.0], [0.1, 0.0, 0.1], [0.0, 0.1, 0.1]])), np.array([21,21,21])),
-        UniformIntGrid(np.array([0.0, 0.0, 0.0]), Cell(np.array([[0.1471, 0.0745, -0.010], [0.0315, -0.1403, 0.1], [0.0014, 0.147, 0.0]])), np.array([21,21,21])),
+        UniformIntGrid(np.array([-1.0, -1.0, -1.0]), np.identity(3)*0.1, np.array([21,21,21]), pbc),
+        UniformIntGrid(np.array([-1.0, -1.0, -1.0]), np.array([[0.1, 0.1, 0.0], [0.1, 0.0, 0.1], [0.0, 0.1, 0.1]]), np.array([21,21,21]), pbc),
+        UniformIntGrid(np.array([0.0, 0.0, 0.0]), np.identity(3)*0.1, np.array([21,21,21]), pbc),
+        UniformIntGrid(np.array([0.0, 0.0, 0.0]), np.array([[0.1, 0.1, 0.0], [0.1, 0.0, 0.1], [0.0, 0.1, 0.1]]), np.array([21,21,21]), pbc),
+        UniformIntGrid(np.array([0.0, 0.0, 0.0]), np.array([[0.1471, 0.0745, -0.010], [0.0315, -0.1403, 0.1], [0.0014, 0.147, 0.0]]), np.array([21,21,21]), pbc),
     ]
 
     for uig in uigs:
@@ -123,8 +124,8 @@ def test_uig_eval_spline_3d_random():
         origin = np.random.uniform(-1, 1, 3)
         grid_cell = get_random_cell(0.3, 3)
         shape = np.random.randint(10, 20, 3)
-        pbc_active = np.array([1, 1, 1])
-        uig = UniformIntGrid(origin, grid_cell, shape, pbc_active)
+        pbc = np.array([1, 1, 1])
+        uig = UniformIntGrid(origin, grid_cell.rvecs, shape, pbc)
 
         rvecs = grid_cell.rvecs*uig.shape.reshape(-1,1)
 
@@ -145,11 +146,11 @@ def test_uig_eval_spline_2d_random():
         origin = np.random.uniform(-1, 1, 3)
         grid_cell = get_random_cell(0.2, 3)
         shape = np.random.randint(10, 20, 3)
-        pbc_active = np.array([1, 1, 1])
-        pbc_active[np.random.randint(3)] = 0
-        uig = UniformIntGrid(origin, grid_cell, shape, pbc_active)
+        pbc = np.array([1, 1, 1])
+        pbc[np.random.randint(3)] = 0
+        uig = UniformIntGrid(origin, grid_cell.rvecs, shape, pbc)
 
-        tmp = uig.shape*pbc_active
+        tmp = uig.shape*pbc
         rvecs = grid_cell.rvecs*tmp.reshape(-1,1)
 
         output1 = np.zeros(uig.shape)
@@ -169,8 +170,8 @@ def test_uig_eval_spline_0d_random():
         origin = np.random.uniform(-1, 1, 3)
         grid_cell = get_random_cell(0.2, 3)
         shape = np.random.randint(10, 20, 3)
-        pbc_active = np.array([0, 0, 0])
-        uig = UniformIntGrid(origin, grid_cell, shape, pbc_active)
+        pbc = np.array([0, 0, 0])
+        uig = UniformIntGrid(origin, grid_cell.rvecs, shape, pbc)
 
         center = np.random.uniform(0, 2, 3)
         output1 = np.zeros(uig.shape)
@@ -198,11 +199,11 @@ def test_uig_eval_spline_1d_random():
         origin = np.random.uniform(-1, 1, 3)
         grid_cell = get_random_cell(0.2, 3)
         shape = np.random.randint(10, 20, 3)
-        pbc_active = np.array([0, 0, 0])
-        pbc_active[np.random.randint(3)] = 1
-        uig = UniformIntGrid(origin, grid_cell, shape, pbc_active)
+        pbc = np.array([0, 0, 0])
+        pbc[np.random.randint(3)] = 1
+        uig = UniformIntGrid(origin, grid_cell.rvecs, shape, pbc)
 
-        tmp = uig.shape*pbc_active
+        tmp = uig.shape*pbc
         rvecs = grid_cell.rvecs*tmp.reshape(-1,1)
 
         output1 = np.zeros(uig.shape)
@@ -222,8 +223,8 @@ def test_uig_eval_spline_add_random():
         origin = np.random.uniform(-1, 1, 3)
         grid_cell = get_random_cell(0.2, 3)
         shape = np.random.randint(10, 20, 3)
-        pbc_active = np.random.randint(0, 2, 3).astype(int)
-        uig = UniformIntGrid(origin, grid_cell, shape, pbc_active)
+        pbc = np.random.randint(0, 2, 3).astype(int)
+        uig = UniformIntGrid(origin, grid_cell.rvecs, shape, pbc)
 
         output1 = np.zeros(uig.shape)
         center1 = np.random.uniform(0, 1, 3)
@@ -254,7 +255,8 @@ def get_simple_test_uig():
     #    [0.0, 0.0, 1.0],
     #])
     shape = np.array([40, 40, 40])
-    return UniformIntGrid(origin, Cell(rvecs), shape)
+    pbc = np.ones(3, int)
+    return UniformIntGrid(origin, rvecs, shape, pbc)
 
 
 def test_weight_corrections():

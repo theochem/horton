@@ -40,7 +40,7 @@ class Cell {
         void to_cart(double* frac, double* cart);
         void g_lincomb(double* frac, double* cart);
         void dot_cart(double* cart, double* dot_cart);
-        void add_vec(double* delta, long* r);
+        void add_rvec(double* delta, long* r);
 
         int get_nvec() {return nvec;};
         double get_volume() {return volume;};
@@ -61,9 +61,9 @@ class Cell {
 
         long select_inside(double* origin, double* center, double rcut,
             long* ranges_begin, long* ranges_end, long* shape,
-            long* pbc_active, long* indexes);
+            long* pbc, long* indexes);
 };
 
-long smart_wrap(long i, long shape, long pbc_active);
+long smart_wrap(long i, long shape, long pbc);
 
 #endif
