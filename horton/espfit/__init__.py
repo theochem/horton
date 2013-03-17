@@ -20,27 +20,5 @@
 #--
 
 
-__version__ = '0.0'
-
-
-from horton.cache import *
-from horton.cext import *
-from horton.checkpoint import *
-from horton.constants import *
-from horton.context import *
-from horton.cpart import *
-from horton.dpart import *
-from horton.espfit import *
-from horton.exceptions import *
-from horton.gbasis import *
-from horton.grid import *
-from horton.guess import *
-from horton.hamiltonian import *
-from horton.io import *
-from horton.log import *
-from horton.matrix import *
-from horton.periodic import *
-from horton.scf import *
-from horton.system import *
-from horton.units import *
-from horton.wfn import *
+from horton.espfit.cext import *
+from horton.espfit.cost import *

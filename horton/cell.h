@@ -38,6 +38,7 @@ class Cell {
         void to_center(double* car, long* center);
         void to_frac(double* cart, double* frac);
         void to_cart(double* frac, double* cart);
+        void g_lincomb(double* frac, double* cart);
         void dot_cart(double* cart, double* dot_cart);
         void add_vec(double* delta, long* r);
 
