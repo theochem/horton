@@ -31,7 +31,7 @@ from horton.log import log
 __all__ = ['UniformIntGrid']
 
 
-class UniformIntGrid(object):
+class UniformIntGrid(object): # TODO: move to C++ (objects of this class are often passed to low level routines.)
     def __init__(self, origin, grid_cell, shape, pbc_active=None):
         if grid_cell.nvec != 3:
             raise ValueError('The cell must be a 3D cell.')
