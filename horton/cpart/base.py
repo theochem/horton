@@ -148,9 +148,7 @@ class CPart(JustOnceClass):
         '''Computes all reasonable properties and returns a corresponding list of keys'''
         self.do_populations()
         self.do_charges()
-        self.do_dipoles()
-        self.do_volumes()
-        return ['populations', 'charges', 'dipoles', 'dipole_norms', 'volumes']
+        return ['populations', 'charges']
 
     @just_once
     def do_populations(self):
@@ -169,36 +167,3 @@ class CPart(JustOnceClass):
         if new:
             populations = self._cache.load('populations')
             charges[:] = self.system.numbers - populations
-
-    @just_once
-    def do_dipoles(self):
-        if log.do_medium:
-            log('Computing atomic dipoles.')
-        dipoles, new = self._cache.load('dipoles', alloc=(self.system.natom, 3))
-        if new:
-            moldens = self._scratch.load('moldens')
-            wcor = self._get_wcor()
-            at_weights = self._zeros()
-            for index in xrange(self._system.natom):
-                self._scratch.load('at_weights', index, output=at_weights)
-                center = self._system.coordinates[index]
-                dipoles[index,0] = -self._ui_grid.integrate(wcor, at_weights, moldens, center=center, powx=1)
-                dipoles[index,1] = -self._ui_grid.integrate(wcor, at_weights, moldens, center=center, powy=1)
-                dipoles[index,2] = -self._ui_grid.integrate(wcor, at_weights, moldens, center=center, powz=1)
-            self._cache.dump('dipole_norms', np.sqrt((dipoles**2).sum(axis=1)))
-
-    @just_once
-    def do_volumes(self):
-        self.do_populations()
-        if log.do_medium:
-            log('Computing atomic volumes.')
-        volumes, new = self._cache.load('volumes', alloc=self.system.natom,)
-        if new:
-            moldens = self._scratch.load('moldens')
-            wcor = self._get_wcor()
-            at_weights = self._zeros()
-            populations = self._cache.load('populations')
-            for index in xrange(self._system.natom):
-                self._scratch.load('at_weights', index, output=at_weights)
-                center = self._system.coordinates[index]
-                volumes[index] = self._ui_grid.integrate(wcor, at_weights, moldens, center=center, powr=3)/populations[index]

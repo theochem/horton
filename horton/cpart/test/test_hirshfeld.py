@@ -54,7 +54,6 @@ def test_hirshfeld_jbw_coarse():
         check_names(names, cpart)
         wcor = cpart._get_wcor()
         assert abs(cpart['populations'].sum() - ui_grid.integrate(wcor, mol_dens)) < 1e-10
-        assert cpart['volumes'].min() > 0
 
 
 def test_hirshfeld_fake():

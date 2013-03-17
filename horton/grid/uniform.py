@@ -24,7 +24,7 @@ import numpy as np
 
 from horton.cext import Cell
 from horton.grid.int1d import SimpsonIntegrator1D
-from horton.grid.cext import dot_multi, dot_multi_poly_cube, eval_spline_cube
+from horton.grid.cext import dot_multi, dot_multi_poly_cube, eval_spline_cube, CubicSpline
 from horton.log import log
 
 
@@ -276,99 +276,4 @@ class UniformIntGrid(object): # TODO: move to C++ (objects of this class are oft
 
             icenter += 1
 
-        return result
-
-    def compute_weight_corrections_brute(self, funcs, cache=None):
-        '''Computes corrections to the integration weights.
-
-           **Arguments:**
-
-           funcs
-                A collection of functions that must integrate exactly with the
-                corrected weights. The format is as follows. ``funcs`` is a
-                list with tuples that contain three items:
-
-                * center: the center for a set of spherically symmetric
-                  functions. In pracice, this will always coincide with th
-                  position of a nucleus.
-
-                * key: the key used to store the evaluated function in the
-                  cache if a cache is provided. If no cache is provided,
-                  this may be None.
-
-                * spline: the radial spline for the spherically symmetric
-                  function
-
-                * integral: the exact integral of the spherically symmetric
-                  function [=int_0^r 4*pi*x**2*spline(x)].
-
-
-           **Optional arguments:**
-
-           cache
-                A Cache object in which the evaluated splines are stored to
-                avoid their recomputation after the weight corrections are
-                computed
-
-           **Return value:**
-
-           The return value is a data array that can be provided as an
-           additional argument to the ``integrate`` method. This should
-           improve the accuracy of the integration for data that is similar
-           to a linear combination of the provided sphericall functions.
-        '''
-        if cache is None:
-            tmp = np.empty(self.shape, float)
-
-        volume = self.grid_cell.volume
-        neq = len(funcs)
-
-        # A) Allocate the arrays for the least-squares fit of the
-        # corrections.
-        npoint = np.product(self.shape)
-        dm = np.zeros((neq+1, npoint), float)
-        ev = np.zeros(neq+1, float)
-
-        # B) Fill in the rows of the least-squares problem
-        for ieq in xrange(neq):
-            center, key, spline, int_exact = funcs[ieq]
-
-            if cache is not None:
-                # If a cache is given, the expensive evaluations are stored
-                # for reuse.
-                tmp, new = cache.load(*key, alloc=self.shape)
-            if cache is None or not new:
-                tmp[:] = 0.0
-            if log.do_medium:
-                log("Computing spherical function. ieq=%i" % ieq)
-            self.eval_spline(spline, center, tmp)
-            int_approx = self.integrate(tmp)
-
-            dm[ieq] = volume*tmp.ravel()
-            ev[ieq] = int_exact - int_approx
-
-        # Also integrate the constant function correctly
-        dm[neq] = 1.0
-        ev[neq] = 0.0
-
-        # rescale equations to optimize condition number
-        scales = np.sqrt((dm**2).mean(axis=1))
-        dm /= scales.reshape(-1,1)
-        ev /= scales
-
-        # E) Find the least norm solution. This part may become more
-        # advanced in future.
-        U, S, Vt = np.linalg.svd(dm, full_matrices=False)
-        assert S[0]*1e-6 < S[-1] # lousy safety check
-        result = np.dot(Vt.T, np.dot(U.T, ev)/S)
-
-        if log.do_medium:
-            rmsd = np.sqrt((result**2).mean())
-            log('CN=%.3e RMSD=%.3e' % (S[0]/S[-1], rmsd))
-
-        result += 1
-
-        if cache is not None:
-            cache.discard('tmp')
-            cache.dump('wcor', result)
         return result
