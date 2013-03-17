@@ -22,7 +22,7 @@
 
 import numpy as np
 from horton import *
-from horton.test.common import get_random_cell
+from horton.test.common import get_random_cell, check_delta
 
 
 def get_random_esp_cost_cube3d_args():
@@ -121,3 +121,16 @@ def test_esp_cost_cube3d_invariance_rcut():
         costs.append(cost)
     # Compare the cost functions
     check_costs(costs)
+
+
+def test_esp_cost_cube3d_gradient():
+    # Some parameters
+    coordinates, numbers, origin, grid_cell, shape, pbc_active, vref, weights = \
+        get_random_esp_cost_cube3d_args()
+    grid = UniformIntGrid(origin, grid_cell, shape, pbc_active)
+    sys = System(coordinates, np.ones(5, int))
+    cost = ESPCost(sys, grid, vref, weights)
+
+    x0 = np.random.uniform(-0.5, 0.5, sys.natom)
+    dxs = np.random.uniform(-1e-5, 1e-5, (100, sys.natom))
+    check_delta(cost.value, cost.gradient, x0, dxs)
