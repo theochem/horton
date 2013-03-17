@@ -22,7 +22,7 @@
 
 import numpy as np
 
-from horton.grid.uniform import UniformIntGrid
+from horton.grid.cext import UniformIntGrid
 from horton.espfit.cext import setup_esp_cost_cube, multiply_dens_mask, \
     multiply_near_mask, multiply_far_mask
 

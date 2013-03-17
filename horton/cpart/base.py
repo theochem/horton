@@ -167,4 +167,3 @@ class CPart(JustOnceClass):
         if new:
             populations = self._cache.load('populations')
             charges[:] = self.system.numbers - populations
-

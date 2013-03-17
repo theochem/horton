@@ -280,4 +280,3 @@ def test_weight_corrections():
 
     assert abs(ui_grid.integrate(mol_dens, weights)-14.0) < 6e-3
     assert abs(ui_grid.integrate(mol_dens)-14.0) > 5e-2
-
