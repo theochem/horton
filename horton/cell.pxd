@@ -44,7 +44,7 @@ cdef extern from "cell.h":
         void copy_rspacings(double* _rspacings)
         void copy_gspacings(double* _gspacings)
 
-        void set_ranges_rcut(double* origin, double* center, double rcut,
+        void set_ranges_rcut(double* delta, double rcut, long mode,
             long* ranges_begin, long* ranges_end)
         long select_inside(double* origin, double* center, double rcut,
             long* ranges_begin, long* ranges_end, long* shape,

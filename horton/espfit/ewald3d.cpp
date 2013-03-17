@@ -31,7 +31,7 @@ double pair_ewald3d(double* delta, Cell* cell, double rcut, double alpha,
 
     // Determine the ranges of the real sum
     long rbegin[3], rend[3];
-    cell->set_ranges_rcut(NULL, delta, rcut, rbegin, rend);
+    cell->set_ranges_rcut(delta, rcut, -1, rbegin, rend);
 
     // the real-space terms
     double j[3];
@@ -43,9 +43,9 @@ double pair_ewald3d(double* delta, Cell* cell, double rcut, double alpha,
                 j[2] = j2;
                 double tmp[3];
                 cell->to_cart(j, tmp);
-                tmp[0] -= delta[0];
-                tmp[1] -= delta[1];
-                tmp[2] -= delta[2];
+                tmp[0] += delta[0];
+                tmp[1] += delta[1];
+                tmp[2] += delta[2];
                 double d = sqrt(tmp[0]*tmp[0] + tmp[1]*tmp[1] + tmp[2]*tmp[2]);
                 result += erfc(alpha*d)/d;
             }

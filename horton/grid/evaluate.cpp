@@ -46,8 +46,12 @@ void eval_spline_cube(CubicSpline* spline, double* center, double* output,
 
     // Find the ranges for the triple loop
     double rcut = spline->get_last_x();
+    double delta[3];
+    delta[0] = center[0] - origin[0];
+    delta[1] = center[1] - origin[1];
+    delta[2] = center[2] - origin[2];
     long ranges_begin[3], ranges_end[3];
-    grid_cell->set_ranges_rcut(origin, center, rcut, ranges_begin, ranges_end);
+    grid_cell->set_ranges_rcut(delta, rcut, 1, ranges_begin, ranges_end);
 
 #ifdef DEBUG
     printf("shape [%li,%li,%li]\n", shape[0], shape[1], shape[2]);
@@ -87,9 +91,9 @@ void eval_spline_cube(CubicSpline* spline, double* center, double* output,
                 frac[1] = i1;
                 frac[2] = i2;
                 grid_cell->to_cart(frac, cart);
-                double x = cart[0] + origin[0] - center[0];
-                double y = cart[1] + origin[1] - center[1];
-                double z = cart[2] + origin[2] - center[2];
+                double x = cart[0] - delta[0];
+                double y = cart[1] - delta[1];
+                double z = cart[2] - delta[2];
                 double d = sqrt(x*x+y*y+z*z);
 
                 // Evaluate spline if needed
@@ -111,8 +115,12 @@ void eval_spline_grid(CubicSpline* spline, double* center, double* output,
 
     while (npoint > 0) {
         // Find the ranges for the triple loop
+        double delta[3];
+        delta[0] = center[0] - points[0];
+        delta[1] = center[1] - points[1];
+        delta[2] = center[2] - points[2];
         long ranges_begin[3], ranges_end[3];
-        cell->set_ranges_rcut(points, center, rcut, ranges_begin, ranges_end);
+        cell->set_ranges_rcut(delta, rcut, 1, ranges_begin, ranges_end);
 
         for (int i=cell->get_nvec(); i < 3; i++) {
             ranges_begin[i] = 0;
@@ -129,9 +137,9 @@ void eval_spline_grid(CubicSpline* spline, double* center, double* output,
                     frac[1] = i1;
                     frac[2] = i2;
                     cell->to_cart(frac, cart);
-                    double x = cart[0] + points[0] - center[0];
-                    double y = cart[1] + points[1] - center[1];
-                    double z = cart[2] + points[2] - center[2];
+                    double x = cart[0] - delta[0];
+                    double y = cart[1] - delta[1];
+                    double z = cart[2] - delta[2];
                     double d = sqrt(x*x+y*y+z*z);
 
                     // Evaluate spline if needed
