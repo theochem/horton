@@ -29,14 +29,13 @@ def get_random_esp_cost_cube3d_args():
     coordinates = np.random.normal(0, 1, (5, 3))
     numbers = np.ones(5, int)
     origin = np.random.uniform(-3, 3, 3)
-    rvecs = np.diag(np.random.uniform(2.0, 3.0, 3))
-    rvecs += np.random.uniform(-0.1, 0.1, (3, 3))
-    grid_cell = Cell(rvecs)
+    grid_rvecs = np.diag(np.random.uniform(2.0, 3.0, 3))
+    grid_rvecs += np.random.uniform(-0.1, 0.1, (3, 3))
     shape = np.array([5, 5, 5])
-    pbc_active = np.array([1, 1, 1])
+    pbc = np.array([1, 1, 1])
     vref = np.random.normal(0, 1, shape)
     weights = np.random.uniform(0, 1, shape)
-    return coordinates, numbers, origin, grid_cell, shape, pbc_active, vref, weights
+    return coordinates, numbers, origin, grid_rvecs, shape, pbc, vref, weights
 
 
 def check_costs(costs):
@@ -50,14 +49,14 @@ def check_costs(costs):
 
 def test_esp_cost_cube3d_invariance_origin():
     # Some parameters
-    coordinates, numbers, origin, grid_cell, shape, pbc_active, vref, weights = \
+    coordinates, numbers, origin, grid_rvecs, shape, pbc, vref, weights = \
         get_random_esp_cost_cube3d_args()
     # Generate costs with displaced origin
     costs = []
     for i in xrange(10):
         shift = np.random.uniform(-3, 3, 3)
         sys = System(coordinates+shift, np.ones(5, int))
-        grid = UniformIntGrid(shift, grid_cell, shape, pbc_active)
+        grid = UniformIntGrid(shift, grid_rvecs, shape, pbc)
         cost = ESPCost(sys, grid, vref, weights)
         costs.append(cost)
     # Compare the cost functions
@@ -66,7 +65,7 @@ def test_esp_cost_cube3d_invariance_origin():
 
 def test_esp_cost_cube3d_invariance_rotation():
     # Some parameters
-    coordinates, numbers, origin, grid_cell, shape, pbc_active, vref, weights = \
+    coordinates, numbers, origin, grid_rvecs, shape, pbc, vref, weights = \
         get_random_esp_cost_cube3d_args()
     # Generate costs with displaced origin
     costs = []
@@ -76,12 +75,11 @@ def test_esp_cost_cube3d_invariance_rotation():
         evals, evecs = np.linalg.eigh(A)
         del A
         del evals
-        rvecs = np.dot(grid_cell.rvecs, evecs)
-        new_grid_cell = Cell(rvecs)
+        new_grid_rvecs = np.dot(grid_rvecs, evecs)
         new_coordinates = np.dot(coordinates-origin, evecs)+origin
 
         sys = System(new_coordinates, np.ones(5, int))
-        grid = UniformIntGrid(origin, new_grid_cell, shape, pbc_active)
+        grid = UniformIntGrid(origin, new_grid_rvecs, shape, pbc)
         cost = ESPCost(sys, grid, vref, weights)
         costs.append(cost)
     # Compare the cost functions
@@ -90,9 +88,9 @@ def test_esp_cost_cube3d_invariance_rotation():
 
 def test_esp_cost_cube3d_invariance_images():
     # Some parameters
-    coordinates, numbers, origin, grid_cell, shape, pbc_active, vref, weights = \
+    coordinates, numbers, origin, grid_rvecs, shape, pbc, vref, weights = \
         get_random_esp_cost_cube3d_args()
-    grid = UniformIntGrid(origin, grid_cell, shape, pbc_active)
+    grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
     # Generate costs with displaced origin
     costs = []
     for i in xrange(10):
@@ -110,9 +108,9 @@ def test_esp_cost_cube3d_invariance_images():
 
 def test_esp_cost_cube3d_invariance_rcut():
     # Some parameters
-    coordinates, numbers, origin, grid_cell, shape, pbc_active, vref, weights = \
+    coordinates, numbers, origin, grid_rvecs, shape, pbc, vref, weights = \
         get_random_esp_cost_cube3d_args()
-    grid = UniformIntGrid(origin, grid_cell, shape, pbc_active)
+    grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
     # Generate costs with displaced origin
     costs = []
     for i in xrange(10):
@@ -125,9 +123,9 @@ def test_esp_cost_cube3d_invariance_rcut():
 
 def test_esp_cost_cube3d_gradient():
     # Some parameters
-    coordinates, numbers, origin, grid_cell, shape, pbc_active, vref, weights = \
+    coordinates, numbers, origin, grid_rvecs, shape, pbc, vref, weights = \
         get_random_esp_cost_cube3d_args()
-    grid = UniformIntGrid(origin, grid_cell, shape, pbc_active)
+    grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
     sys = System(coordinates, np.ones(5, int))
     cost = ESPCost(sys, grid, vref, weights)
 

@@ -416,7 +416,7 @@ def test_cube():
     assert (g1.origin == g2.origin).all()
     assert (g1.grid_cell.rvecs == g2.grid_cell.rvecs).all()
     assert (g1.shape == g2.shape).all()
-    assert (g1.pbc_active == g2.pbc_active).all()
+    assert (g1.pbc == g2.pbc).all()
 
     assert (sys1.props['cube_data'] == sys2.props['cube_data']).all()
     assert (sys1.pseudo_numbers == sys2.pseudo_numbers).all()

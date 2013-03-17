@@ -254,16 +254,16 @@ cdef class Cell:
         self._this.to_cart(<double*> frac.data, <double*> result.data)
         return result
 
-    def add_vec(self, np.ndarray[double, ndim=1] delta, np.ndarray[long, ndim=1] r):
-        """add_vec(delta, r)
+    def add_rvec(self, np.ndarray[double, ndim=1] delta, np.ndarray[long, ndim=1] r):
+        """add_rvec(delta, r)
 
-           Add a linear combination of cell vectors, ``r``, to ``delta`` in-place
+           Add a linear combination of real cell vectors, ``r``, to ``delta`` in-place
         """
         assert delta.flags['C_CONTIGUOUS']
         assert delta.size == 3
         assert r.flags['C_CONTIGUOUS']
         assert r.size == self.nvec
-        self._this.add_vec(<double*> delta.data, <long*> r.data)
+        self._this.add_rvec(<double*> delta.data, <long*> r.data)
 
     def get_ranges_rcut(self, np.ndarray[double, ndim=1] delta not None, double rcut, long mode=+1):
         '''Return the integer ranges for linear combinations of cell vectors.
@@ -307,7 +307,7 @@ cdef class Cell:
                       np.ndarray[long, ndim=1] ranges_begin not None,
                       np.ndarray[long, ndim=1] ranges_end not None,
                       np.ndarray[long, ndim=1] shape not None,
-                      np.ndarray[long, ndim=1] pbc_active not None,
+                      np.ndarray[long, ndim=1] pbc not None,
                       np.ndarray[long, ndim=2] indexes not None):
 
         assert origin.flags['C_CONTIGUOUS']
@@ -323,20 +323,20 @@ cdef class Cell:
         nselect_max = np.product(ranges_end - ranges_begin)
         assert shape.flags['C_CONTIGUOUS']
         assert shape.shape[0] == self.nvec
-        assert pbc_active.flags['C_CONTIGUOUS']
-        assert pbc_active.shape[0] == self.nvec
+        assert pbc.flags['C_CONTIGUOUS']
+        assert pbc.shape[0] == self.nvec
         assert indexes.shape[0] == nselect_max
         assert indexes.shape[1] == self.nvec
 
         return self._this.select_inside(
             <double*>origin.data, <double*>center.data, rcut,
             <long*>ranges_begin.data, <long*>ranges_end.data,
-            <long*>shape.data, <long*>pbc_active.data,
+            <long*>shape.data, <long*>pbc.data,
             <long*>indexes.data)
 
 
-def smart_wrap(long i, long shape, long pbc_active ):
-    return cell.smart_wrap(i, shape, pbc_active)
+def smart_wrap(long i, long shape, long pbc ):
+    return cell.smart_wrap(i, shape, pbc)
 
 
 #

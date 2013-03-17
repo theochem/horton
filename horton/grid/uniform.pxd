@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Horton is a Density Functional Theory program.
-# Copyright (C) 2011-2012 Toon Verstraelen <Toon.Verstraelen@UGent.be>
+# Copyright (C) 2011-2013 Toon Verstraelen <Toon.Verstraelen@UGent.be>
 #
 # This file is part of Horton.
 #
@@ -21,13 +21,11 @@
 
 
 cimport cell
-cimport cubic_spline
-cimport uniform
 
-cdef extern from "evaluate.h":
-    void eval_spline_cube(cubic_spline.CubicSpline* spline, double* center,
-                          double* output, uniform.UniformIntGrid* ui_grid)
+cdef extern from "uniform.h":
+    cdef cppclass UniformIntGrid:
+        UniformIntGrid(double* _origin, cell.Cell* _grid_cell, long* _shape, long* _pbc) except +
 
-    void eval_spline_grid(cubic_spline.CubicSpline* spline, double* center,
-                          double* output, double* points, cell.Cell* cell,
-                          long npoint)
+        void copy_origin(double* output)
+        void copy_shape(long* output)
+        void copy_pbc(long* output)

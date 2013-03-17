@@ -34,6 +34,7 @@ cimport becke
 cimport cubic_spline
 cimport evaluate
 cimport rtransform
+cimport uniform
 cimport utils
 
 cimport horton.cext
@@ -58,7 +59,7 @@ __all__ = [
     # UniformIntGrid
     'UniformIntGrid',
     # utils
-    'dot_multi', 'grid_distances',
+    'dot_multi', 'grid_distances', 'index_wrap',
 ]
 
 
@@ -165,6 +166,7 @@ def becke_helper_atom(np.ndarray[double, ndim=2] points,
 #
 # cubic_spline
 #
+
 
 def tridiag_solve(np.ndarray[double, ndim=1] diag_low,
                   np.ndarray[double, ndim=1] diag_mid,
@@ -297,28 +299,17 @@ def index_wrap(long i, long high):
 def eval_spline_cube(CubicSpline spline,
                      np.ndarray[double, ndim=1] center,
                      np.ndarray[double, ndim=3] output,
-                     np.ndarray[double, ndim=1] origin,
-                     horton.cext.Cell grid_cell,
-                     np.ndarray[long, ndim=1] shape,
-                     np.ndarray[long, ndim=1] pbc_active):
+                     UniformIntGrid ui_grid):
 
     assert center.flags['C_CONTIGUOUS']
     assert center.shape[0] == 3
-    assert shape.flags['C_CONTIGUOUS']
-    assert shape.shape[0] == 3
     assert output.flags['C_CONTIGUOUS']
-    assert output.shape[0] == shape[0]
-    assert output.shape[1] == shape[1]
-    assert output.shape[2] == shape[2]
-    assert origin.flags['C_CONTIGUOUS']
-    assert origin.shape[0] == 3
-    assert pbc_active.flags['C_CONTIGUOUS']
-    assert pbc_active.shape[0] == 3
+    assert output.shape[0] == ui_grid.shape[0]
+    assert output.shape[1] == ui_grid.shape[1]
+    assert output.shape[2] == ui_grid.shape[2]
 
     evaluate.eval_spline_cube(spline._this, <double*>center.data,
-                              <double*>output.data, <double*>origin.data,
-                              grid_cell._this, <long*>shape.data,
-                              <long*>pbc_active.data,)
+                              <double*>output.data, ui_grid._this)
 
 def eval_spline_grid(CubicSpline spline,
                      np.ndarray[double, ndim=1] center,
@@ -581,49 +572,91 @@ cdef class BakerRTransform(RTransform):
 
 
 #
-# UniformIntGrid
+# uniform
 #
 
 
-class UniformIntGrid(object):
-    def __init__(self, origin, grid_cell, shape, pbc_active=None):
-        if grid_cell.nvec != 3:
-            raise ValueError('The cell must be a 3D cell.')
-        self.origin = origin
-        self.grid_cell = grid_cell
-        self.shape = shape
-        if pbc_active is None:
-            self.pbc_active = np.ones(3, int)
-        else:
-            self.pbc_active = pbc_active.astype(int)
+cdef class UniformIntGrid(object):
+    cdef horton.cext.Cell _grid_cell
+    cdef uniform.UniformIntGrid* _this
+
+    def __cinit__(self, np.ndarray[double, ndim=1] origin not None,
+                  np.ndarray[double, ndim=2] grid_rvecs not None,
+                  np.ndarray[long, ndim=1] shape not None,
+                  np.ndarray[long, ndim=1] pbc not None):
+        assert origin.flags['C_CONTIGUOUS']
+        assert origin.shape[0] == 3
+        assert grid_rvecs.flags['C_CONTIGUOUS']
+        assert grid_rvecs.shape[0] == 3
+        assert grid_rvecs.shape[1] == 3
+        assert shape.flags['C_CONTIGUOUS']
+        assert shape.shape[0] == 3
+        assert pbc.flags['C_CONTIGUOUS']
+        assert pbc.shape[0] == 3
+
+        self._grid_cell = horton.cext.Cell(grid_rvecs)
+        self._this = <uniform.UniformIntGrid*>(new uniform.UniformIntGrid(
+            <double*>origin.data,
+            self._grid_cell._this,
+            <long*>shape.data,
+            <long*>pbc.data,
+        ))
+
+    def __dealloc__(self):
+        del self._this
+
+    property origin:
+        def __get__(self):
+            cdef np.ndarray[double, ndim=1] result = np.empty(3, float)
+            self._this.copy_origin(<double*>result.data)
+            return result
+
+    property grid_cell:
+        def __get__(self):
+            return self._grid_cell
+
+    property shape:
+        def __get__(self):
+            cdef np.ndarray[long, ndim=1] result = np.empty(3, int)
+            self._this.copy_shape(<long*>result.data)
+            return result
+
+    property pbc:
+        def __get__(self):
+            cdef np.ndarray[long, ndim=1] result = np.empty(3, int)
+            self._this.copy_pbc(<long*>result.data)
+            return result
 
     @classmethod
     def from_hdf5(cls, grp, lf):
         return cls(
             grp['origin'][:],
-            horton.cext.Cell.from_hdf5(grp['grid_cell'], lf),
+            grp['grid_rvecs'][:],
             grp['shape'][:],
-            grp['pbc_active'][:],
+            grp['pbc'][:],
         )
 
     def to_hdf5(self, grp):
         subgrp = grp.require_group('grid_cell')
-        self.grid_cell.to_hdf5(subgrp)
+        grp['grid_rvecs'] = self._grid_cell.rvecs
         grp['origin'] = self.origin
         grp['shape'] = self.shape
-        grp['pbc_active'] = self.pbc_active
+        grp['pbc'] = self.pbc
 
     def get_cell(self):
-        rvecs = (self.grid_cell.rvecs*self.shape.reshape(-1,1))
-        return horton.cext.Cell(rvecs[self.pbc_active.astype(bool)])
+        rvecs = (self._grid_cell.rvecs*self.shape.reshape(-1,1))
+        return horton.cext.Cell(rvecs[self.pbc.astype(bool)])
 
-    def _get_size(self):
-        return np.product(self.shape)
+    def eval_spline(self, CubicSpline spline, np.ndarray[double, ndim=1] center,
+                    np.ndarray[double, ndim=3] output):
+        assert center.flags['C_CONTIGUOUS']
+        assert center.shape[0] == 3
+        assert output.flags['C_CONTIGUOUS']
+        assert output.shape[0] == self.shape[0]
+        assert output.shape[1] == self.shape[1]
+        assert output.shape[2] == self.shape[2]
 
-    size = property(_get_size)
-
-    def eval_spline(self, spline, center, output):
-        eval_spline_cube(spline, center, output, self.origin, self.grid_cell, self.shape, self.pbc_active)
+        evaluate.eval_spline_cube(spline._this, <double*>center.data, <double*>output.data, self._this)
 
     def integrate(self, *args):
         '''Integrate the product of all arguments
@@ -639,7 +672,7 @@ class UniformIntGrid(object):
         # This is often convenient for cube grid data:
         args = [arg.ravel() for arg in args if arg is not None]
         # Similar to conventional integration routine:
-        return dot_multi(*args)*self.grid_cell.volume
+        return dot_multi(*args)*self._grid_cell.volume
 
     def compute_weight_corrections(self, funcs, rcut_scale=0.9, rcut_max=2.0, rcond=0.1):
         '''Computes corrections to the integration weights.
@@ -683,7 +716,7 @@ class UniformIntGrid(object):
         from horton.grid.int1d import SimpsonIntegrator1D
 
         result = np.ones(self.shape, float)
-        volume = self.grid_cell.volume
+        volume = self._grid_cell.volume
 
         # initialize cutoff radii
         cell = self.get_cell()
@@ -703,11 +736,11 @@ class UniformIntGrid(object):
                 rcuts[i1] = min(rcut, rcuts[i1])
 
         def get_aux_grid(center, aux_rcut):
-            ranges_begin, ranges_end = self.grid_cell.get_ranges_rcut(center-self.origin, aux_rcut)
+            ranges_begin, ranges_end = self._grid_cell.get_ranges_rcut(center-self.origin, aux_rcut)
             aux_origin = self.origin.copy()
-            self.grid_cell.add_vec(aux_origin, ranges_begin)
+            self._grid_cell.add_rvec(aux_origin, ranges_begin)
             aux_shape = ranges_end - ranges_begin
-            aux_grid = UniformIntGrid(aux_origin, self.grid_cell, aux_shape, pbc_active=np.zeros(3, float))
+            aux_grid = UniformIntGrid(aux_origin, self._grid_cell.rvecs, aux_shape, np.zeros(3, int))
             return aux_grid, -ranges_begin
 
         def get_tapered_spline(spline, rcut, aux_rcut):
@@ -746,12 +779,12 @@ class UniformIntGrid(object):
         icenter = 0
         for (center, splines), rcut in zip(funcs, rcuts):
             # A) Determine the points inside the cutoff sphere.
-            ranges_begin, ranges_end = self.grid_cell.get_ranges_rcut(center-self.origin, rcut)
+            ranges_begin, ranges_end = self._grid_cell.get_ranges_rcut(center-self.origin, rcut)
 
             # B) Construct a set of grid indexes that lie inside the sphere.
             nselect_max = np.product(ranges_end-ranges_begin)
             indexes = np.zeros((nselect_max, 3), int)
-            nselect = self.grid_cell.select_inside(self.origin, center, rcut, ranges_begin, ranges_end, self.shape, self.pbc_active, indexes)
+            nselect = self._grid_cell.select_inside(self.origin, center, rcut, ranges_begin, ranges_end, self.shape, self.pbc, indexes)
             indexes = indexes[:nselect]
 
             # C) Set up an integration grid for the tapered spline
@@ -865,3 +898,7 @@ def grid_distances(np.ndarray[double, ndim=2] points,
     assert distances.shape[0] == npoint
     utils.grid_distances(<double*>points.data, <double*>center.data,
                          <double*>distances.data, npoint)
+
+
+def index_wrap(long i, long high):
+    return utils.index_wrap(i, high)
