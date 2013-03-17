@@ -19,28 +19,13 @@
 #
 #--
 
+cimport cell
 
-__version__ = '0.0'
+cdef extern from "ewald3d.h":
+    double pair_ewald3d(double* delta, cell.Cell* cell, double rcut,
+        double alpha, double gcut)
 
-
-from horton.cache import *
-from horton.cext import *
-from horton.checkpoint import *
-from horton.constants import *
-from horton.context import *
-from horton.cpart import *
-from horton.dpart import *
-from horton.espfit import *
-from horton.exceptions import *
-from horton.gbasis import *
-from horton.grid import *
-from horton.guess import *
-from horton.hamiltonian import *
-from horton.io import *
-from horton.log import *
-from horton.matrix import *
-from horton.periodic import *
-from horton.scf import *
-from horton.system import *
-from horton.units import *
-from horton.wfn import *
+    void setup_esp_cost_cube_ewald3d(double* origin, cell.Cell* grid_cell,
+        long* shape, cell.Cell* cell, double* vref, double* weights,
+        double* centers, double* A, double* B, double* C, long ncenter,
+        double rcut, double alpha, double gcut) except +

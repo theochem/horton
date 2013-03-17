@@ -20,27 +20,22 @@
 #--
 
 
-__version__ = '0.0'
+import numpy as np
+from horton import *
+from horton.test.common import get_random_cell
 
 
-from horton.cache import *
-from horton.cext import *
-from horton.checkpoint import *
-from horton.constants import *
-from horton.context import *
-from horton.cpart import *
-from horton.dpart import *
-from horton.espfit import *
-from horton.exceptions import *
-from horton.gbasis import *
-from horton.grid import *
-from horton.guess import *
-from horton.hamiltonian import *
-from horton.io import *
-from horton.log import *
-from horton.matrix import *
-from horton.periodic import *
-from horton.scf import *
-from horton.system import *
-from horton.units import *
-from horton.wfn import *
+def test_pair_ewald3d_invariance_rcut():
+    np.random.seed(0)
+    alpha_scale = 4.5
+    gcut_scale = 1.5
+    delta = np.random.normal(0, 1, 3)
+    delta /= np.linalg.norm(delta)
+    cell = get_random_cell(1.0, 3)
+    results = []
+    for rcut in np.arange(10.0, 20.001, 1.0):
+        alpha = alpha_scale/rcut
+        gcut = gcut_scale*alpha
+        results.append(pair_ewald(delta, cell, rcut, alpha, gcut))
+    results = np.array(results)
+    assert abs(results - results.mean()).max() < 1e-7

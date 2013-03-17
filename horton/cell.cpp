@@ -130,7 +130,7 @@ void Cell::mic(double* delta) {
 
 
 void Cell::to_center(double* cart, long* center) {
-    // Transfroms to fractional coordinates
+    // Translate to the central unit cell
     if (nvec == 0) return;
     center[0] = -ceil(gvecs[0]*cart[0] + gvecs[1]*cart[1] + gvecs[2]*cart[2] - 0.5);
     if (nvec == 1) return;
@@ -154,8 +154,16 @@ void Cell::to_cart(double* frac, double* cart) {
     cart[2] = rvecs[2]*frac[0] + rvecs[5]*frac[1] + rvecs[8]*frac[2];
 }
 
+void Cell::g_lincomb(double* coeffs, double* gvec) {
+    // Make a linear combination of reciprocal cell vectors
+    // TODO: add tests for this
+    gvec[0] = gvecs[0]*coeffs[0] + gvecs[3]*coeffs[1] + gvecs[6]*coeffs[2];
+    gvec[1] = gvecs[1]*coeffs[0] + gvecs[4]*coeffs[1] + gvecs[7]*coeffs[2];
+    gvec[2] = gvecs[2]*coeffs[0] + gvecs[5]*coeffs[1] + gvecs[8]*coeffs[2];
+}
+
 void Cell::dot_cart(double* cart, double* dot_cart) {
-    // Take dot produc with cell vectors
+    // Take dot product with cell vectors
     // TODO: add tests for this
     dot_cart[0] = rvecs[0]*cart[0] + rvecs[1]*cart[1] + rvecs[2]*cart[2];
     dot_cart[1] = rvecs[3]*cart[0] + rvecs[4]*cart[1] + rvecs[5]*cart[2];
@@ -214,9 +222,14 @@ void Cell::copy_gspacings(double* _gspacings) {
 void Cell::set_ranges_rcut(double* origin, double* center, double rcut,
                            long* ranges_begin, long* ranges_end) {
     double delta[3];
-    delta[0] = center[0] - origin[0];
-    delta[1] = center[1] - origin[1];
-    delta[2] = center[2] - origin[2];
+    delta[0] = center[0];
+    delta[1] = center[1];
+    delta[2] = center[2];
+    if (origin!=NULL) {
+        delta[0] -= origin[0];
+        delta[1] -= origin[1];
+        delta[2] -= origin[2];
+    }
     double frac[3];
     to_frac(delta, frac);
 
