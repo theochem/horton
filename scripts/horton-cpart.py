@@ -20,10 +20,13 @@
 #
 #--
 
+
 import sys, argparse, os
 
 import h5py as h5
 from horton import System, cpart_schemes, Cell, ProAtomDB, log, Scratch
+from horton.scripts.common import reduce_data
+
 
 def parse_args():
     parser = argparse.ArgumentParser(prog='horton-copart.py',
@@ -56,7 +59,6 @@ def parse_args():
         help='The iterative schemes is converged when the maximum change of '
              'the charges between two iterations drops below this threshold.')
 
-    # TODO: add argument for periodic boundary conditions
     # TODO: add argument to chop of last slice(s)
 
     return parser.parse_args()
@@ -87,13 +89,7 @@ def main():
 
     # Reduce the grid if required
     if args.reduce > 1:
-        if (ui_grid.shape % args.reduce != 0).any():
-            raise ValueError('The stride is not commensurate with all three grid demsions.')
-
-        ui_grid.shape /= args.reduce
-        moldens = moldens[::args.reduce, ::args.reduce, ::args.reduce].copy()
-        rvecs = ui_grid.grid_cell.rvecs*args.reduce
-        ui_grid.grid_cell = Cell(rvecs)
+        moldens, ui_grid = reduce_data(moldens, ui_grid, args.reduce)
 
     # Load the proatomdb
     proatomdb = ProAtomDB.from_file(args.atoms)
@@ -122,8 +118,7 @@ def main():
         if grp_name in grp_cpart:
             del grp_cpart[grp_name]
         grp = grp_cpart.create_group(grp_name)
-        grid_rvecs = grp.require_dataset('grid_rvecs', (3, 3), float, exact=True)
-        grid_rvecs[:] = ui_grid.grid_cell.rvecs
+        grp['grid_rvecs'] = ui_grid.grid_cell.rvecs
         for name in names:
             grp[name] = cpart[name]
 

@@ -34,7 +34,8 @@ double switch_fn(double x, double a) {
 
 void multiply_dens_mask(double* rho, double rho0, double alpha, double* weights, long npoint) {
     while (npoint > 0) {
-        *weights *= switch_fn(log10(*rho) - log10(rho0), alpha);
+        if ((*rho) > 0.0)
+            *weights *= switch_fn(log10(*rho) - log10(rho0), alpha);
 
         // move on
         npoint --;

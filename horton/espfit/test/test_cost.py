@@ -57,7 +57,7 @@ def test_esp_cost_cube3d_invariance_origin():
         shift = np.random.uniform(-3, 3, 3)
         sys = System(coordinates+shift, np.ones(5, int))
         grid = UniformIntGrid(shift, grid_rvecs, shape, pbc)
-        cost = ESPCost(sys, grid, vref, weights)
+        cost = ESPCost.from_grid_data(sys, grid, vref, weights)
         costs.append(cost)
     # Compare the cost functions
     check_costs(costs)
@@ -80,7 +80,7 @@ def test_esp_cost_cube3d_invariance_rotation():
 
         sys = System(new_coordinates, np.ones(5, int))
         grid = UniformIntGrid(origin, new_grid_rvecs, shape, pbc)
-        cost = ESPCost(sys, grid, vref, weights)
+        cost = ESPCost.from_grid_data(sys, grid, vref, weights)
         costs.append(cost)
     # Compare the cost functions
     check_costs(costs)
@@ -100,7 +100,7 @@ def test_esp_cost_cube3d_invariance_images():
             new_coordinates[j] += np.dot(np.random.randint(-3, 4, 3), rvecs)
 
         sys = System(new_coordinates, np.ones(5, int))
-        cost = ESPCost(sys, grid, vref, weights)
+        cost = ESPCost.from_grid_data(sys, grid, vref, weights)
         costs.append(cost)
     # Compare the cost functions
     check_costs(costs)
@@ -115,7 +115,7 @@ def test_esp_cost_cube3d_invariance_rcut():
     costs = []
     for i in xrange(10):
         sys = System(coordinates, np.ones(5, int))
-        cost = ESPCost(sys, grid, vref, weights, rcut=np.random.uniform(10, 30), alpha_scale=4.5, gcut_scale=1.5)
+        cost = ESPCost.from_grid_data(sys, grid, vref, weights, rcut=np.random.uniform(10, 30), alpha_scale=4.5, gcut_scale=1.5)
         costs.append(cost)
     # Compare the cost functions
     check_costs(costs)
@@ -127,8 +127,32 @@ def test_esp_cost_cube3d_gradient():
         get_random_esp_cost_cube3d_args()
     grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
     sys = System(coordinates, np.ones(5, int))
-    cost = ESPCost(sys, grid, vref, weights)
+    cost = ESPCost.from_grid_data(sys, grid, vref, weights)
 
     x0 = np.random.uniform(-0.5, 0.5, sys.natom)
     dxs = np.random.uniform(-1e-5, 1e-5, (100, sys.natom))
     check_delta(cost.value, cost.gradient, x0, dxs)
+
+
+def test_esp_cost_solve():
+    A = np.random.uniform(-1, 1, (10, 10))
+    A = 0.5*(A+A.T)
+    B = np.random.uniform(-1, 1, 10)
+    C = np.random.uniform(-1, 1, ())
+    cost = ESPCost(A, B, C)
+
+    # test without constraint
+    charges = cost.solve()
+    assert abs(cost.gradient(charges)).max() < 1e-10
+
+    # test with constraint 0.0
+    charges = cost.solve(qtot=0.0)
+    assert abs(charges.sum()) < 1e-10
+    gradient = cost.gradient(charges)
+    assert abs(gradient - gradient.mean()).max() < 1e-10
+
+    # test with constraint 1.0
+    charges = cost.solve(qtot=1.0)
+    assert abs(charges.sum()-1) < 1e-10
+    gradient = cost.gradient(charges)
+    assert abs(gradient - gradient.mean()).max() < 1e-10

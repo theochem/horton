@@ -85,7 +85,8 @@ setup(
               'horton.io', 'horton.io.test',
               'horton.hamiltonian', 'horton.hamiltonian.test',
               'horton.gbasis', 'horton.gbasis.test',
-              'horton.scripts', 'horton.scripts.test'],
+              'horton.scripts', 'horton.scripts.test',
+              'horton.espfit', 'horton.espfit.test'],
     cmdclass = {'build_ext': build_ext, 'install_data': my_install_data},
     data_files=[
         ('share/horton/', glob('data//*.*')),
