@@ -118,9 +118,13 @@ setup(
             include_dirs=['depends/libxc-1.2.0/src', np.get_include()],
             language="c++"),
         Extension("horton.espfit.cext",
-            sources=get_sources('horton/espfit') + ['horton/cell.cpp'],
-            depends=get_depends('horton/espfit') + ['horton/cell.pxd', 'horton/cell.h'],
-            include_dirs=[np.get_include(), 'horton'],
+            sources=get_sources('horton/espfit') + \
+                    ['horton/cell.cpp'] + \
+                    ['horton/grid/uniform.cpp'],
+            depends=get_depends('horton/espfit') + \
+                    ['horton/cell.pxd', 'horton/cell.h'] + \
+                    ['horton/grid/uniform.pxd', 'horton/grid/uniform.h'],
+            include_dirs=[np.get_include(), 'horton', 'horton/grid'],
             language="c++"),
     ],
     classifiers=[

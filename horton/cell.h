@@ -34,34 +34,34 @@ class Cell {
         Cell(): nvec(0) {};
 
         void update(double* _rvecs, double* _gvecs, int _nvec);
-        void mic(double* delta);
-        void to_center(double* car, long* center);
-        void to_frac(double* cart, double* frac);
-        void to_cart(double* frac, double* cart);
-        void g_lincomb(double* frac, double* cart);
-        void dot_cart(double* cart, double* dot_cart);
-        void add_rvec(double* delta, long* r);
+        void mic(double* delta) const;
+        void to_center(double* car, long* center) const;
+        void to_frac(double* cart, double* frac) const;
+        void to_cart(double* frac, double* cart) const;
+        void g_lincomb(double* frac, double* cart) const;
+        void dot_cart(double* cart, double* dot_cart) const;
+        void add_rvec(double* delta, long* r) const;
 
-        int get_nvec() {return nvec;};
-        double get_volume() {return volume;};
-        double get_rspacing(int i);
-        double get_gspacing(int i);
-        double get_rlength(int i);
-        double get_glength(int i);
+        int get_nvec() const {return nvec;};
+        double get_volume() const {return volume;};
+        double get_rspacing(int i) const;
+        double get_gspacing(int i) const;
+        double get_rlength(int i) const;
+        double get_glength(int i) const;
 
-        void copy_rvecs(double* _rvecs);
-        void copy_gvecs(double* _gvecs);
-        void copy_rlengths(double* _rlengths);
-        void copy_glengths(double* _glengths);
-        void copy_rspacings(double* _rspacings);
-        void copy_gspacings(double* _gspacings);
+        void copy_rvecs(double* _rvecs) const;
+        void copy_gvecs(double* _gvecs) const;
+        void copy_rlengths(double* _rlengths) const;
+        void copy_glengths(double* _glengths) const;
+        void copy_rspacings(double* _rspacings) const;
+        void copy_gspacings(double* _gspacings) const;
 
         void set_ranges_rcut(double* delta, double rcut, long mode,
-                             long* ranges_begin, long* ranges_end);
+                             long* ranges_begin, long* ranges_end) const;
 
         long select_inside(double* origin, double* center, double rcut,
             long* ranges_begin, long* ranges_end, long* shape,
-            long* pbc, long* indexes);
+            long* pbc, long* indexes) const;
 };
 
 long smart_wrap(long i, long shape, long pbc);

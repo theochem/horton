@@ -19,9 +19,6 @@
 #
 #--
 
-cimport cell
-
 cdef extern from "utils.h":
     double dot_multi(long npoint, long nvector, double** data)
     void grid_distances(double *points, double *center, double *distances, long n)
-    long index_wrap(long i, long high)

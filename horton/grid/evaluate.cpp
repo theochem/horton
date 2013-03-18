@@ -27,8 +27,6 @@
 #include <cmath>
 #include <stdexcept>
 #include "evaluate.h"
-#include "utils.h"
-
 
 
 void eval_spline_cube(CubicSpline* spline, double* center, double* output,

@@ -30,18 +30,37 @@ class UniformIntGrid {
     private:
         double origin[3];
         Cell* grid_cell;
+        Cell* cell;
         long shape[3], pbc[3];
     public:
-        UniformIntGrid(double* _origin, Cell* _grid_cell, long* _shape, long* _pbc);
+        UniformIntGrid(double* _origin, Cell* _grid_cell, long* _shape, long* _pbc, Cell* _cell);
 
         void copy_origin(double* output);
         void copy_shape(long* output);
         void copy_pbc(long* output);
 
         const long* get_shape() { return shape; };
+        const Cell* get_cell() { return cell; };
 
         void set_ranges_rcut(double* center, double rcut, long* ranges_begin, long* ranges_end);
         double dist_grid_point(double *center, long* i);
+        void delta_grid_point(double* center, long* i);
+};
+
+
+long index_wrap(long i, long high);
+
+
+class Range3Iterator {
+    private:
+        bool first;
+        const long* ranges_begin;
+        const long* ranges_end;
+        const long* shape;
+    public:
+        Range3Iterator(const long* ranges_begin, const long* ranges_end, const long* shape);
+
+        bool next(long* i, long* iwrap);
 };
 
 

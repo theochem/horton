@@ -57,9 +57,9 @@ __all__ = [
     'RTransform', 'IdentityRTransform', 'LinearRTransform', 'ExpRTransform',
     'ShiftedExpRTransform', 'BakerRTransform',
     # UniformIntGrid
-    'UniformIntGrid',
+    'UniformIntGrid', 'index_wrap',
     # utils
-    'dot_multi', 'grid_distances', 'index_wrap',
+    'dot_multi', 'grid_distances',
 ]
 
 
@@ -577,8 +577,9 @@ cdef class BakerRTransform(RTransform):
 
 
 cdef class UniformIntGrid(object):
-    cdef horton.cext.Cell _grid_cell
-    cdef uniform.UniformIntGrid* _this
+    #cdef horton.cext.Cell _grid_cell
+    #cdef horton.cext.Cell _cell
+    #cdef uniform.UniformIntGrid* _this
 
     def __cinit__(self, np.ndarray[double, ndim=1] origin not None,
                   np.ndarray[double, ndim=2] grid_rvecs not None,
@@ -595,11 +596,14 @@ cdef class UniformIntGrid(object):
         assert pbc.shape[0] == 3
 
         self._grid_cell = horton.cext.Cell(grid_rvecs)
+        rvecs = grid_rvecs*shape.reshape(-1,1)
+        self._cell = horton.cext.Cell(rvecs[pbc.astype(bool)])
         self._this = <uniform.UniformIntGrid*>(new uniform.UniformIntGrid(
             <double*>origin.data,
             self._grid_cell._this,
             <long*>shape.data,
             <long*>pbc.data,
+            self._cell._this,
         ))
 
     def __dealloc__(self):
@@ -627,6 +631,10 @@ cdef class UniformIntGrid(object):
             self._this.copy_pbc(<long*>result.data)
             return result
 
+    property cell:
+        def __get__(self):
+            return self._cell
+
     @classmethod
     def from_hdf5(cls, grp, lf):
         return cls(
@@ -642,10 +650,6 @@ cdef class UniformIntGrid(object):
         grp['origin'] = self.origin
         grp['shape'] = self.shape
         grp['pbc'] = self.pbc
-
-    def get_cell(self):
-        rvecs = (self._grid_cell.rvecs*self.shape.reshape(-1,1))
-        return horton.cext.Cell(rvecs[self.pbc.astype(bool)])
 
     def eval_spline(self, CubicSpline spline, np.ndarray[double, ndim=1] center,
                     np.ndarray[double, ndim=3] output):
@@ -674,6 +678,7 @@ cdef class UniformIntGrid(object):
         # Similar to conventional integration routine:
         return dot_multi(*args)*self._grid_cell.volume
 
+    # TODO: move this to cpart
     def compute_weight_corrections(self, funcs, rcut_scale=0.9, rcut_max=2.0, rcond=0.1):
         '''Computes corrections to the integration weights.
 
@@ -719,8 +724,8 @@ cdef class UniformIntGrid(object):
         volume = self._grid_cell.volume
 
         # initialize cutoff radii
-        cell = self.get_cell()
-        rcut_max = min(rcut_max, 0.5*rcut_scale*cell.rspacings.min())
+        if self._cell.nvec > 0:
+            rcut_max = min(rcut_max, 0.5*rcut_scale*self._cell.rspacings.min())
         rcuts = np.zeros(len(funcs)) + rcut_max
 
         # determine safe cutoff radii
@@ -729,7 +734,7 @@ cdef class UniformIntGrid(object):
             for i1 in xrange(i0):
                 center1, rcut1 = funcs[i1][:2]
                 delta = center1 - center0
-                cell.mic(delta)
+                self._cell.mic(delta)
                 dist = np.linalg.norm(delta)
                 rcut = 0.5*rcut_scale*dist
                 rcuts[i0] = min(rcut, rcuts[i0])
@@ -852,6 +857,10 @@ cdef class UniformIntGrid(object):
         return result
 
 
+def index_wrap(long i, long high):
+    return uniform.index_wrap(i, high)
+
+
 #
 # utils
 #
@@ -898,7 +907,3 @@ def grid_distances(np.ndarray[double, ndim=2] points,
     assert distances.shape[0] == npoint
     utils.grid_distances(<double*>points.data, <double*>center.data,
                          <double*>distances.data, npoint)
-
-
-def index_wrap(long i, long high):
-    return utils.index_wrap(i, high)
