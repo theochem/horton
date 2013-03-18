@@ -61,7 +61,7 @@ void UniformIntGrid::set_ranges_rcut(double* center, double rcut, long* ranges_b
     delta[0] = origin[0] - center[0];
     delta[1] = origin[1] - center[1];
     delta[2] = origin[2] - center[2];
-    grid_cell->set_ranges_rcut(delta, rcut, -1, ranges_begin, ranges_end);
+    grid_cell->set_ranges_rcut(delta, rcut, ranges_begin, ranges_end);
 
     // Truncate ranges in case of non-periodic boundary conditions
     for (int i=2; i>=0; i--) {

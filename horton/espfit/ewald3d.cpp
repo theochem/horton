@@ -31,7 +31,7 @@ double pair_ewald3d(double* delta, const Cell* cell, double rcut, double alpha,
 
     // Determine the ranges of the real sum
     long rbegin[3], rend[3];
-    cell->set_ranges_rcut(delta, rcut, -1, rbegin, rend);
+    cell->set_ranges_rcut(delta, rcut, rbegin, rend);
 
     // the real-space terms
     double j[3];
