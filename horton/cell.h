@@ -37,8 +37,8 @@ class Cell {
         void mic(double* delta) const;
         void to_frac(double* cart, double* frac) const;
         void to_cart(double* frac, double* cart) const;
-        void g_lincomb(double* frac, double* cart) const;
-        void dot_cart(double* cart, double* dot_cart) const;
+        void g_lincomb(double* coeffs, double* gvec) const;
+        void dot_rvecs(double* cart, double* dot_rvecs) const;
         void add_rvec(double* delta, long* r) const;
 
         int get_nvec() const {return nvec;};

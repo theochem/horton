@@ -145,18 +145,16 @@ void Cell::to_cart(double* frac, double* cart) const {
 
 void Cell::g_lincomb(double* coeffs, double* gvec) const {
     // Make a linear combination of reciprocal cell vectors
-    // TODO: add tests for this
     gvec[0] = gvecs[0]*coeffs[0] + gvecs[3]*coeffs[1] + gvecs[6]*coeffs[2];
     gvec[1] = gvecs[1]*coeffs[0] + gvecs[4]*coeffs[1] + gvecs[7]*coeffs[2];
     gvec[2] = gvecs[2]*coeffs[0] + gvecs[5]*coeffs[1] + gvecs[8]*coeffs[2];
 }
 
-void Cell::dot_cart(double* cart, double* dot_cart) const {
-    // Take dot product with cell vectors
-    // TODO: add tests for this
-    dot_cart[0] = rvecs[0]*cart[0] + rvecs[1]*cart[1] + rvecs[2]*cart[2];
-    dot_cart[1] = rvecs[3]*cart[0] + rvecs[4]*cart[1] + rvecs[5]*cart[2];
-    dot_cart[2] = rvecs[6]*cart[0] + rvecs[7]*cart[1] + rvecs[8]*cart[2];
+void Cell::dot_rvecs(double* cart, double* dot_rvecs) const {
+    // Take dot product with real cell vectors
+    dot_rvecs[0] = rvecs[0]*cart[0] + rvecs[1]*cart[1] + rvecs[2]*cart[2];
+    dot_rvecs[1] = rvecs[3]*cart[0] + rvecs[4]*cart[1] + rvecs[5]*cart[2];
+    dot_rvecs[2] = rvecs[6]*cart[0] + rvecs[7]*cart[1] + rvecs[8]*cart[2];
 }
 
 
