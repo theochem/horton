@@ -87,10 +87,10 @@ def setup_weights(system, grid, dens=None, near=None, far=None):
             if pair is None:
                 continue
             r0, gamma = pair
-            multiply_near_mask(system.coordinates[i], grid.origin, grid.grid_cell, grid.shape, grid.pbc, r0, gamma, weights)
+            multiply_near_mask(system.coordinates[i], grid, r0, gamma, weights)
     if far is not None:
         r0, gamma = far
-        multiply_far_mask(system.coordinates, grid.origin, grid.grid_cell, grid.shape, grid.pbc, r0, gamma, weights)
+        multiply_far_mask(system.coordinates, grid, r0, gamma, weights)
 
     # double that weight goes to zero at non-periodic edges
     return weights
