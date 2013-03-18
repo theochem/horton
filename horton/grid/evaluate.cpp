@@ -41,7 +41,8 @@ void eval_spline_cube(CubicSpline* spline, double* center, double* output,
     const long* shape = ui_grid->get_shape();
     Range3Iterator r3i = Range3Iterator(ranges_begin, ranges_end, shape);
     long j[3], jwrap[3];
-    while (r3i.next(j, jwrap)) {
+    for (long ipoint=r3i.get_npoint()-1; ipoint >=0; ipoint--) {
+        r3i.set_point(ipoint, j, jwrap);
         double d = ui_grid->dist_grid_point(center, j);
 
         // Evaluate spline if needed

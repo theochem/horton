@@ -53,14 +53,15 @@ long index_wrap(long i, long high);
 
 class Range3Iterator {
     private:
-        bool first;
         const long* ranges_begin;
         const long* ranges_end;
         const long* shape;
+        long loop_shape[3];
     public:
         Range3Iterator(const long* ranges_begin, const long* ranges_end, const long* shape);
 
-        bool next(long* i, long* iwrap);
+        long get_npoint() const;
+        void set_point(long ipoint, long* i, long* iwrap) const;
 };
 
 

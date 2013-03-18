@@ -106,61 +106,35 @@ long index_wrap(long i, long high) {
 
 
 Range3Iterator::Range3Iterator(const long* ranges_begin, const long* ranges_end, const long* shape) :
-    first(true), ranges_begin(ranges_begin), ranges_end(ranges_end), shape(shape) {};
+    ranges_begin(ranges_begin), ranges_end(ranges_end), shape(shape) {
 
+    loop_shape[0] = ranges_end[0];
+    loop_shape[1] = ranges_end[1];
+    loop_shape[2] = ranges_end[2];
+    if (ranges_begin!=NULL) {
+        loop_shape[0] -= ranges_begin[0];
+        loop_shape[1] -= ranges_begin[1];
+        loop_shape[2] -= ranges_begin[2];
+    }
+};
 
-bool next_one(long* i, long* iwrap, const long* ranges_begin, const long* ranges_end, const long* shape, const int axis) {
-    bool result;
-    long end;
-    if (ranges_end!=NULL) {
-        end = ranges_end[axis];
-    } else if (shape!=NULL) {
-        end = shape[axis];
-    } else {
-        end = 1;
-    }
-    i[axis] += 1;
-    result = (i[axis] != end);
-    if (not result) {
-        long begin;
-        if (ranges_begin!=NULL) {
-            begin = ranges_begin[axis];
-        } else {
-            begin = 0;
-        }
-        i[axis] = begin;
-    }
-    if (iwrap!=NULL) iwrap[axis] = index_wrap(i[axis], shape[axis]);
-    return result;
+long Range3Iterator::get_npoint() const {
+    return loop_shape[0] * loop_shape[1] * loop_shape[2];
 }
 
-bool Range3Iterator::next(long* i, long* iwrap) {
-    if (first) {
-        first = false;
-        if (ranges_begin==NULL) {
-            i[0] = 0;
-            i[1] = 0;
-            i[2] = 0;
-            if (iwrap!=NULL) {
-                iwrap[0] = 0;
-                iwrap[1] = 0;
-                iwrap[2] = 0;
-            }
-        } else {
-            i[0] = ranges_begin[0];
-            i[1] = ranges_begin[1];
-            i[2] = ranges_begin[2];
-            if (iwrap!=NULL) {
-                iwrap[0] = index_wrap(i[0], shape[0]);
-                iwrap[1] = index_wrap(i[1], shape[1]);
-                iwrap[2] = index_wrap(i[2], shape[2]);
-            }
-        }
-        return true;
-    } else {
-        if (next_one(i, iwrap, ranges_begin, ranges_end, shape, 0)) return true;
-        if (next_one(i, iwrap, ranges_begin, ranges_end, shape, 1)) return true;
-        if (next_one(i, iwrap, ranges_begin, ranges_end, shape, 2)) return true;
-        return false;
+void Range3Iterator::set_point(long ipoint, long* i, long* iwrap) const {
+    i[2] = ipoint%loop_shape[2];
+    ipoint /= loop_shape[2];
+    i[1] = ipoint%loop_shape[1];
+    i[0] = ipoint/loop_shape[1];
+    if (ranges_begin!=NULL) {
+        i[0] += ranges_begin[0];
+        i[1] += ranges_begin[1];
+        i[2] += ranges_begin[2];
+    }
+    if (iwrap!=NULL) {
+        iwrap[0] = index_wrap(i[0], shape[0]);
+        iwrap[1] = index_wrap(i[1], shape[1]);
+        iwrap[2] = index_wrap(i[2], shape[2]);
     }
 }
