@@ -31,40 +31,60 @@ __all__ = ['ESPCost', 'setup_weights']
 
 
 class ESPCost(object):
-    def __init__(self, A, B, C):
+    def __init__(self, A, B, C, natom):
+        # Set attributes
         self._A = A
         self._B = B
         self._C = C
+        self.natom = natom
+        # Rescale parameters not related to atomic charges
+        oom = np.diag(A)[:natom].mean()
+        for j in xrange(natom, len(A)):
+            scale = (oom/A[j,j])**0.5
+            A[:,j] *= scale
+            A[j,:] *= scale
+            B[j] *= scale
+
 
     @classmethod
     def from_grid_data(cls, system, grid, vref, weights, rcut=20, alpha_scale=3.0, gcut_scale=1.1):
         alpha = alpha_scale / rcut
         gcut = gcut_scale * alpha
-        A = np.zeros((system.natom, system.natom), float)
-        B = np.zeros(system.natom, float)
-        C = np.zeros((), float)
-        # TODO: turn into MSD
         if isinstance(grid, UniformIntGrid):
+            A = np.zeros((system.natom+1, system.natom+1), float)
+            B = np.zeros(system.natom+1, float)
+            C = np.zeros((), float)
             setup_esp_cost_cube(grid, vref, weights, system.coordinates, A, B, C, rcut, alpha, gcut)
+            return cls(A, B, C, system.natom)
         else:
             raise NotImplementedError
-        return cls(A, B, C)
 
-    def value(self, charges):
-        return 0.5*np.dot(charges, np.dot(self._A, charges)) - np.dot(charges, self._B) + 0.5*self._C
+    def value(self, x):
+        return 0.5*np.dot(x, np.dot(self._A, x)) - np.dot(x, self._B) + 0.5*self._C
 
-    def gradient(self, charges):
-        return np.dot(self._A, charges) - self._B
+    def gradient(self, x):
+        return np.dot(self._A, x) - self._B
 
-    def solve(self, qtot=None):
-        charges = np.linalg.solve(self._A, self._B)
+    def solve(self, qtot=None, ridge=0.0):
+        # apply regularization to atomic degrees of freedom
+        A = self._A.copy()
+        A.ravel()[::len(A)+1][:self.natom] += ridge*np.diag(A)[:self.natom].mean()
+        # construct preconditioned matrices
+        norms = np.diag(A)**0.5
+        A = A/norms/norms.reshape(-1,1)
+        B = self._B/norms
+
+        x = np.linalg.solve(A, B)
         if qtot is not None:
             # Fix the total charge with a lagrange multiplier
-            invnorms = np.ones(len(self._A))
-            aid = np.linalg.solve(self._A, invnorms)
-            lagrange = (np.dot(aid, self._B) - qtot)/np.dot(aid, invnorms)
-            charges -= aid*lagrange
-        return charges
+            d = np.zeros(len(A))
+            d[:self.natom] = 1/norms[:self.natom]
+            d[self.natom:] = 0.0
+            aid = np.linalg.solve(A, d)
+            lagrange = (np.dot(aid, B) - qtot)/np.dot(aid, d)
+            x -= aid*lagrange
+        x /= norms
+        return x
 
 
 def setup_weights(system, grid, dens=None, near=None, far=None):

@@ -67,10 +67,10 @@ def setup_esp_cost_cube(horton.grid.cext.UniformIntGrid ui_grid,
     assert ncenter > 0
     assert centers.shape[1] == 3
     assert A.flags['C_CONTIGUOUS']
-    assert A.shape[0] == ncenter
-    assert A.shape[1] == ncenter
+    assert A.shape[0] == ncenter+1
+    assert A.shape[1] == ncenter+1
     assert B.flags['C_CONTIGUOUS']
-    assert B.shape[0] == ncenter
+    assert B.shape[0] == ncenter+1
     assert C.flags['C_CONTIGUOUS']
     assert rcut > 0
     assert alpha > 0

@@ -42,9 +42,9 @@ def check_costs(costs):
     assert abs(costs[0]._A).max() > 1e-3
     assert abs(costs[0]._B).max() > 1e-3
     for i in xrange(9):
-        assert abs(costs[i]._A - costs[i+1]._A).max() < 1e-10
-        assert abs(costs[i]._B - costs[i+1]._B).max() < 1e-10
-        assert abs(costs[i]._C - costs[i+1]._C) < 1e-10
+        assert abs(costs[i]._A - costs[i+1]._A).max() < 1e-9
+        assert abs(costs[i]._B - costs[i+1]._B).max() < 1e-9
+        assert abs(costs[i]._C - costs[i+1]._C) < 1e-9
 
 
 def test_esp_cost_cube3d_invariance_origin():
@@ -129,30 +129,63 @@ def test_esp_cost_cube3d_gradient():
     sys = System(coordinates, np.ones(5, int))
     cost = ESPCost.from_grid_data(sys, grid, vref, weights)
 
-    x0 = np.random.uniform(-0.5, 0.5, sys.natom)
-    dxs = np.random.uniform(-1e-5, 1e-5, (100, sys.natom))
+    x0 = np.random.uniform(-0.5, 0.5, sys.natom+1)
+    dxs = np.random.uniform(-1e-5, 1e-5, (100, sys.natom+1))
     check_delta(cost.value, cost.gradient, x0, dxs)
 
 
 def test_esp_cost_solve():
-    A = np.random.uniform(-1, 1, (10, 10))
-    A = 0.5*(A+A.T)
-    B = np.random.uniform(-1, 1, 10)
+    A = np.random.uniform(-1, 1, (11, 11))
+    A = np.dot(A, A.T)
+    B = np.random.uniform(-1, 1, 11)
     C = np.random.uniform(-1, 1, ())
-    cost = ESPCost(A, B, C)
+    cost = ESPCost(A, B, C, 10)
 
     # test without constraint
-    charges = cost.solve()
-    assert abs(cost.gradient(charges)).max() < 1e-10
+    x = cost.solve()
+    assert abs(cost.gradient(x)).max() < 1e-10
 
     # test with constraint 0.0
-    charges = cost.solve(qtot=0.0)
+    x = cost.solve(qtot=0.0)
+    charges = x[:10]
     assert abs(charges.sum()) < 1e-10
-    gradient = cost.gradient(charges)
-    assert abs(gradient - gradient.mean()).max() < 1e-10
+    gradient = cost.gradient(x)
+    assert abs(gradient[:10] - gradient[:10].mean()).max() < 1e-10
+    assert abs(gradient[10:]).max() < 1e-10
 
     # test with constraint 1.0
-    charges = cost.solve(qtot=1.0)
+    x = cost.solve(qtot=1.0)
+    charges = x[:10]
     assert abs(charges.sum()-1) < 1e-10
-    gradient = cost.gradient(charges)
-    assert abs(gradient - gradient.mean()).max() < 1e-10
+    gradient = cost.gradient(x)
+    assert abs(gradient[:10] - gradient[:10].mean()).max() < 1e-10
+    assert abs(gradient[10:]).max() < 1e-10
+
+
+def test_esp_cost_solve_regularized():
+    A = np.random.uniform(-1, 1, (11, 11))
+    A = np.dot(A, A.T)
+    B = np.random.uniform(-1, 1, 11)
+    C = np.random.uniform(-1, 1, ())
+    cost = ESPCost(A, B, C, 10)
+
+    # test without constraint
+    x = cost.solve(ridge=1e-6)
+    print cost.gradient(x)
+    assert abs(cost.gradient(x)).max() < 1e-3
+
+    # test with constraint 0.0
+    x = cost.solve(qtot=0.0, ridge=1e-6)
+    charges = x[:10]
+    assert abs(charges.sum()) < 1e-10
+    gradient = cost.gradient(x)
+    assert abs(gradient[:10] - gradient[:10].mean()).max() < 1e-3
+    assert abs(gradient[10:]).max() < 1e-3
+
+    # test with constraint 1.0
+    x = cost.solve(qtot=1.0, ridge=1e-6)
+    charges = x[:10]
+    assert abs(charges.sum()-1) < 1e-10
+    gradient = cost.gradient(x)
+    assert abs(gradient[:10] - gradient[:10].mean()).max() < 1e-3
+    assert abs(gradient[10:]).max() < 1e-3

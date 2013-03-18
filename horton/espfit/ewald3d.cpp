@@ -91,7 +91,8 @@ void setup_esp_cost_cube_ewald3d(UniformIntGrid* ui_grid, double* vref,
     double* weights, double* centers, double* A, double* B, double* C,
     long ncenter, double rcut, double alpha, double gcut) {
 
-    double* work = new double[ncenter];
+    long neq = ncenter+1;
+    double* work = new double[neq];
     double grid_cart[3];
 
     Range3Iterator r3i = Range3Iterator(NULL, ui_grid->get_shape(), NULL);
@@ -114,12 +115,13 @@ void setup_esp_cost_cube_ewald3d(UniformIntGrid* ui_grid, double* vref,
 
                 work[icenter] = pair_ewald3d(delta, ui_grid->get_cell(), rcut, alpha, gcut)*(*weights);
             }
+            work[ncenter] = 1;
 
             // Add the the quadratic cost function
             double vrefw = (*vref)*(*weights);
-            for (long ic0=0; ic0<ncenter; ic0++) {
-                for (long ic1=0; ic1<ncenter; ic1++) {
-                    A[ic0+ncenter*ic1] += work[ic0]*work[ic1];
+            for (long ic0=0; ic0<neq; ic0++) {
+                for (long ic1=0; ic1<neq; ic1++) {
+                    A[ic0+neq*ic1] += work[ic0]*work[ic1];
                 }
                 B[ic0] += vrefw*work[ic0];
             }
@@ -130,4 +132,6 @@ void setup_esp_cost_cube_ewald3d(UniformIntGrid* ui_grid, double* vref,
         vref++;
         weights++;
     }
+
+    delete[] work;
 }

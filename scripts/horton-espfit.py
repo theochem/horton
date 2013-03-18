@@ -56,6 +56,10 @@ def parse_args():
     parser.add_argument('--qtot', '-q', default=0.0, type=float,
         help='The total charge of the system.')
 
+    parser.add_argument('--ridge', default=0.0, type=float,
+        help='The thikonov regularization strength used when solving the '
+             'charges.')
+
     parser.add_argument('--wdens', default=None, type=str,
         help='Define weights based on an electron density. The argument has '
              'the following format: "dens.cube:rho0:alpha". The last or the '
@@ -166,26 +170,31 @@ def main():
     if log.do_medium:
         log('Important parameters:')
         log.hline()
-        log('Number of gridpoints:             &%12i' % esp.size)
-        log('Used number of gridpoints:        &%12i' % (weights>0).sum())
-        log('Lowest weight:                    &%12.5e' % wmin)
-        log('Highest weight:                   &%12.5e' % wmax)
-        log('Lowest abs eigen value:           &%12.5e' % abs_evals.min())
-        log('Highest abs eigen value:          &%12.5e' % abs_evals.max())
-        log('Condition number:                 &%12.5e' % results['cn'])
-        log('Maximum RMSD:                     &%12.5e' % results['rmsd_max'])
+        log('Number of gridpoints:         %12i' % esp.size)
+        log('Used number of gridpoints:    %12i' % (weights>0).sum())
+        log('Lowest weight:                %12.5e' % wmin)
+        log('Highest weight:               %12.5e' % wmax)
+        log('Lowest abs eigen value:       %12.5e' % abs_evals.min())
+        log('Highest abs eigen value:      %12.5e' % abs_evals.max())
+        log('Condition number:             %12.5e' % results['cn'])
+        log('Maximum RMSD ESP:             %12.5e' % results['rmsd_max'])
 
     # Report some on-screen info
 
     # Find the optimal charges
-    results['charges'] = cost.solve(args.qtot)
+    results['x'] = cost.solve(args.qtot, args.ridge)
+    results['charges'] = results['x'][:cost.natom]
 
     # Related properties
-    results['cost_min'] = cost.value(results['charges'])
-    results['rmsd_min'] = results['cost_min']**0.5
+    results['cost_min'] = cost.value(results['x'])
+    if results['cost_min'] < 0:
+        results['rmsd_min'] = 0.0
+    else:
+        results['rmsd_min'] = results['cost_min']**0.5
 
     if log.do_medium:
-        log('Mimimum RMSD:                      &%10.5e' % results['rmsd_min'])
+        log('RMSD charges:                  %10.5e' % np.sqrt((results['charges']**2).mean()))
+        log('Mimimum RMSD ESP:              %10.5e' % results['rmsd_min'])
         log.hline()
 
     # Store the results in an HDF5 file
