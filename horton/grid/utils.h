@@ -21,23 +21,7 @@
 #ifndef HORTON_GRID_UTILS_H
 #define HORTON_GRID_UTILS_H
 
-#include "cell.h"
-
 double dot_multi(long npoint, long nvector, double** data);
 void grid_distances(double *points, double *center, double *distances, long n);
-
-long index_wrap(long i, long high);
-
-class Range3Iterator {
-    private:
-        bool first;
-        const long* ranges_begin;
-        const long* ranges_end;
-        const long* shape;
-    public:
-        Range3Iterator(const long* ranges_begin, const long* ranges_end, const long* shape);
-
-        bool next(long* i, long* iwrap);
-};
 
 #endif

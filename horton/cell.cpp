@@ -77,7 +77,7 @@ void Cell::update(double* _rvecs, double* _gvecs, int _nvec) {
 }
 
 
-double Cell::get_rspacing(int i) {
+double Cell::get_rspacing(int i) const {
     if ((i < 0) || (i > 3)) {
         throw std::domain_error("Index must be 0, 1 or 2.");
     }
@@ -85,21 +85,21 @@ double Cell::get_rspacing(int i) {
 }
 
 
-double Cell::get_gspacing(int i) {
+double Cell::get_gspacing(int i) const {
     if ((i < 0) || (i > 3)) {
         throw std::domain_error("Index must be 0, 1 or 2.");
     }
     return gspacings[i];
 }
 
-double Cell::get_rlength(int i) {
+double Cell::get_rlength(int i) const {
     if ((i < 0) || (i > 3)) {
         throw std::domain_error("Index must be 0, 1 or 2.");
     }
     return rlengths[i];
 }
 
-double Cell::get_glength(int i) {
+double Cell::get_glength(int i) const {
     if ((i < 0) || (i > 3)) {
         throw std::domain_error("Index must be 0, 1 or 2.");
     }
@@ -107,7 +107,7 @@ double Cell::get_glength(int i) {
 }
 
 
-void Cell::mic(double* delta) {
+void Cell::mic(double* delta) const {
     // Applies the Minimum Image Convention. Well, sort of. It does not always work like this.
     // This function contains an unrolled loop for speed.
     double x;
@@ -129,7 +129,7 @@ void Cell::mic(double* delta) {
 }
 
 
-void Cell::to_center(double* cart, long* center) {
+void Cell::to_center(double* cart, long* center) const {
     // Translate to the central unit cell
     if (nvec == 0) return;
     center[0] = -ceil(gvecs[0]*cart[0] + gvecs[1]*cart[1] + gvecs[2]*cart[2] - 0.5);
@@ -140,21 +140,21 @@ void Cell::to_center(double* cart, long* center) {
 }
 
 
-void Cell::to_frac(double* cart, double* frac) {
+void Cell::to_frac(double* cart, double* frac) const {
     // Transfroms to fractional coordinates
     frac[0] = gvecs[0]*cart[0] + gvecs[1]*cart[1] + gvecs[2]*cart[2];
     frac[1] = gvecs[3]*cart[0] + gvecs[4]*cart[1] + gvecs[5]*cart[2];
     frac[2] = gvecs[6]*cart[0] + gvecs[7]*cart[1] + gvecs[8]*cart[2];
 }
 
-void Cell::to_cart(double* frac, double* cart) {
+void Cell::to_cart(double* frac, double* cart) const {
     // Transfroms to Cartesian coordinates
     cart[0] = rvecs[0]*frac[0] + rvecs[3]*frac[1] + rvecs[6]*frac[2];
     cart[1] = rvecs[1]*frac[0] + rvecs[4]*frac[1] + rvecs[7]*frac[2];
     cart[2] = rvecs[2]*frac[0] + rvecs[5]*frac[1] + rvecs[8]*frac[2];
 }
 
-void Cell::g_lincomb(double* coeffs, double* gvec) {
+void Cell::g_lincomb(double* coeffs, double* gvec) const {
     // Make a linear combination of reciprocal cell vectors
     // TODO: add tests for this
     gvec[0] = gvecs[0]*coeffs[0] + gvecs[3]*coeffs[1] + gvecs[6]*coeffs[2];
@@ -162,7 +162,7 @@ void Cell::g_lincomb(double* coeffs, double* gvec) {
     gvec[2] = gvecs[2]*coeffs[0] + gvecs[5]*coeffs[1] + gvecs[8]*coeffs[2];
 }
 
-void Cell::dot_cart(double* cart, double* dot_cart) {
+void Cell::dot_cart(double* cart, double* dot_cart) const {
     // Take dot product with cell vectors
     // TODO: add tests for this
     dot_cart[0] = rvecs[0]*cart[0] + rvecs[1]*cart[1] + rvecs[2]*cart[2];
@@ -171,7 +171,7 @@ void Cell::dot_cart(double* cart, double* dot_cart) {
 }
 
 
-void Cell::add_rvec(double* delta, long* r) {
+void Cell::add_rvec(double* delta, long* r) const {
     // Simply adds an linear combination of real cell vectors to delta.
     // This function contains an unrolled loop for speed.
     if (nvec == 0) return;
@@ -189,38 +189,38 @@ void Cell::add_rvec(double* delta, long* r) {
 }
 
 
-void Cell::copy_rvecs(double* _rvecs) {
+void Cell::copy_rvecs(double* _rvecs) const {
     for (int i=nvec*3-1; i>=0; i--) _rvecs[i] = rvecs[i];
 }
 
 
-void Cell::copy_gvecs(double* _gvecs) {
+void Cell::copy_gvecs(double* _gvecs) const {
     for (int i=nvec*3-1; i>=0; i--) _gvecs[i] = gvecs[i];
 }
 
 
-void Cell::copy_rlengths(double* _rlengths) {
+void Cell::copy_rlengths(double* _rlengths) const {
     for (int i=nvec-1; i>=0; i--) _rlengths[i] = rlengths[i];
 }
 
 
-void Cell::copy_glengths(double* _glengths) {
+void Cell::copy_glengths(double* _glengths) const {
     for (int i=nvec-1; i>=0; i--) _glengths[i] = glengths[i];
 }
 
 
-void Cell::copy_rspacings(double* _rspacings) {
+void Cell::copy_rspacings(double* _rspacings) const {
     for (int i=nvec-1; i>=0; i--) _rspacings[i] = rspacings[i];
 }
 
 
-void Cell::copy_gspacings(double* _gspacings) {
+void Cell::copy_gspacings(double* _gspacings) const {
     for (int i=nvec-1; i>=0; i--) _gspacings[i] = gspacings[i];
 }
 
 
 void Cell::set_ranges_rcut(double* delta, double rcut, long mode,
-                           long* ranges_begin, long* ranges_end) {
+                           long* ranges_begin, long* ranges_end) const {
     /*
         Define the ranges for the linear combinations of cell vectors
         that:
@@ -245,7 +245,7 @@ void Cell::set_ranges_rcut(double* delta, double rcut, long mode,
 
 long Cell::select_inside(double* origin, double* center, double rcut,
     long* ranges_begin, long* ranges_end, long* shape, long* pbc,
-    long* indexes) {
+    long* indexes) const {
 
     if (nvec == 0)
         throw std::domain_error("The cell must be at least 1D periodic for select_inside.");

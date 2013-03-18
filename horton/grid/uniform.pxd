@@ -24,8 +24,10 @@ cimport cell
 
 cdef extern from "uniform.h":
     cdef cppclass UniformIntGrid:
-        UniformIntGrid(double* _origin, cell.Cell* _grid_cell, long* _shape, long* _pbc) except +
+        UniformIntGrid(double* _origin, cell.Cell* _grid_cell, long* _shape, long* _pbc, cell.Cell* _cell) except +
 
         void copy_origin(double* output)
         void copy_shape(long* output)
         void copy_pbc(long* output)
+
+    long index_wrap(long i, long high)

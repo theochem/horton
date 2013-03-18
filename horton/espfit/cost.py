@@ -39,8 +39,7 @@ class ESPCost(object):
         self._C = np.zeros((), float)
         # TODO: turn into MSD
         if isinstance(grid, UniformIntGrid):
-            setup_esp_cost_cube(grid.origin, grid.grid_cell, grid.shape,
-                grid.get_cell(), vref, weights, system.coordinates, self._A, self._B, self._C, rcut, alpha, gcut)
+            setup_esp_cost_cube(grid, vref, weights, system.coordinates, self._A, self._B, self._C, rcut, alpha, gcut)
         else:
             raise NotImplementedError
 

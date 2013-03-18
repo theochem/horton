@@ -24,7 +24,7 @@
 #include "ewald3d.h"
 
 
-double pair_ewald3d(double* delta, Cell* cell, double rcut, double alpha,
+double pair_ewald3d(double* delta, const Cell* cell, double rcut, double alpha,
     double gcut) {
 
     double result = 0;
@@ -87,51 +87,45 @@ double pair_ewald3d(double* delta, Cell* cell, double rcut, double alpha,
 }
 
 
-void setup_esp_cost_cube_ewald3d(double* origin, Cell* grid_cell, long* shape,
-    Cell* cell, double* vref, double* weights, double* centers, double* A,
-    double* B, double* C, long ncenter, double rcut, double alpha, double gcut) {
+void setup_esp_cost_cube_ewald3d(UniformIntGrid* ui_grid, double* vref,
+    double* weights, double* centers, double* A, double* B, double* C,
+    long ncenter, double rcut, double alpha, double gcut) {
 
     double* work = new double[ncenter];
-
-    double grid_frac[3];
     double grid_cart[3];
-    for (long i0=0; i0<shape[0]; i0++) {
-        grid_frac[0] = i0;
-        for (long i1=0; i1<shape[1]; i1++) {
-            grid_frac[1] = i1;
-            for (long i2=0; i2<shape[2]; i2++) {
-                grid_frac[2] = i2;
-                grid_cell->to_cart(grid_frac, grid_cart);
-                grid_cart[0] += origin[0];
-                grid_cart[1] += origin[1];
-                grid_cart[2] += origin[2];
 
-                if (*weights > 0) {
-                    // Do some ewald stuff
-                    for (long icenter=0; icenter<ncenter; icenter++) {
-                        double delta[3];
-                        delta[0] = centers[3*icenter]   - grid_cart[0];
-                        delta[1] = centers[3*icenter+1] - grid_cart[1];
-                        delta[2] = centers[3*icenter+2] - grid_cart[2];
+    Range3Iterator r3i = Range3Iterator(NULL, ui_grid->get_shape(), NULL);
+    long i[3];
+    while (r3i.next(i, NULL)) {
+        grid_cart[0] = 0;
+        grid_cart[1] = 0;
+        grid_cart[2] = 0;
+        ui_grid->delta_grid_point(grid_cart, i);
 
-                        work[icenter] = pair_ewald3d(delta, cell, rcut, alpha, gcut)*(*weights);
-                    }
+        if (*weights > 0) {
+            // Do some ewald stuff
+            for (long icenter=0; icenter<ncenter; icenter++) {
+                double delta[3];
+                delta[0] = centers[3*icenter]   - grid_cart[0];
+                delta[1] = centers[3*icenter+1] - grid_cart[1];
+                delta[2] = centers[3*icenter+2] - grid_cart[2];
 
-                    // Add the the quadratic cost function
-                    double vrefw = (*vref)*(*weights);
-                    for (long ic0=0; ic0<ncenter; ic0++) {
-                        for (long ic1=0; ic1<ncenter; ic1++) {
-                            A[ic0+ncenter*ic1] += work[ic0]*work[ic1];
-                        }
-                        B[ic0] += vrefw*work[ic0];
-                    }
-                    *C += vrefw*vrefw;
-                }
-
-                // move on
-                vref++;
-                weights++;
+                work[icenter] = pair_ewald3d(delta, ui_grid->get_cell(), rcut, alpha, gcut)*(*weights);
             }
+
+            // Add the the quadratic cost function
+            double vrefw = (*vref)*(*weights);
+            for (long ic0=0; ic0<ncenter; ic0++) {
+                for (long ic1=0; ic1<ncenter; ic1++) {
+                    A[ic0+ncenter*ic1] += work[ic0]*work[ic1];
+                }
+                B[ic0] += vrefw*work[ic0];
+            }
+            *C += vrefw*vrefw;
         }
+
+        // move on
+        vref++;
+        weights++;
     }
 }

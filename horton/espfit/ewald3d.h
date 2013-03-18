@@ -23,12 +23,13 @@
 #define HORTON_ESPFIT_EWALD3D_H
 
 #include "cell.h"
+#include "uniform.h"
 
-double pair_ewald3d(double* delta, Cell* cell, double rcut, double alpha,
+double pair_ewald3d(double* delta, const Cell* cell, double rcut, double alpha,
     double gcut);
 
-void setup_esp_cost_cube_ewald3d(double* origin, Cell* grid_cell, long* shape,
-    Cell* cell, double* vref, double* weights, double* centers, double* A,
-    double* B, double* C, long ncenter, double rcut, double alpha, double gcut);
+void setup_esp_cost_cube_ewald3d(UniformIntGrid* ui_grid, double* vref,
+    double* weights, double* centers, double* A, double* B, double* C,
+    long ncenter, double rcut, double alpha, double gcut);
 
 #endif

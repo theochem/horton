@@ -20,12 +20,12 @@
 #--
 
 cimport cell
+cimport uniform
 
 cdef extern from "ewald3d.h":
     double pair_ewald3d(double* delta, cell.Cell* cell, double rcut,
         double alpha, double gcut)
 
-    void setup_esp_cost_cube_ewald3d(double* origin, cell.Cell* grid_cell,
-        long* shape, cell.Cell* cell, double* vref, double* weights,
-        double* centers, double* A, double* B, double* C, long ncenter,
-        double rcut, double alpha, double gcut) except +
+    void setup_esp_cost_cube_ewald3d(uniform.UniformIntGrid* ui_grid,
+        double* vref, double* weights, double* centers, double* A, double* B,
+        double* C, long ncenter, double rcut, double alpha, double gcut) except +
