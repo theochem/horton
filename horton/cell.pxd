@@ -28,6 +28,8 @@ cdef extern from "cell.h":
         void to_frac(double* cart, double* frac)
         void to_cart(double* frac, double* cart)
         void add_rvec(double* delta, long* r)
+        void g_lincomb(double* coeffs, double* gvec)
+        void dot_rvecs(double* cart, double* dot_rvecs)
 
         int get_nvec()
         double get_volume()

@@ -31,9 +31,15 @@ def check_frac_cart(cell):
     frac1 = cell.to_frac(cart1)
     cart2 = cell.to_cart(frac1)
     frac2 = cell.to_frac(cart2)
-    print cart1
-    print frac1
-    print cart2
+    assert abs(cart1 - cart2).max() < 1e-10
+    assert abs(frac1 - frac2).max() < 1e-10
+
+
+def check_g_lincomb_dot_rvecs(cell):
+    frac1 = np.random.uniform(-20, 20, 3)
+    cart1 = cell.g_lincomb(frac1)
+    frac2 = cell.dot_rvecs(cart1)
+    cart2 = cell.g_lincomb(frac2)
     assert abs(cart1 - cart2).max() < 1e-10
     assert abs(frac1 - frac2).max() < 1e-10
 
@@ -67,6 +73,7 @@ def test_cell_cubic():
 
     # Test methods (2)
     check_frac_cart(cell)
+    check_g_lincomb_dot_rvecs(cell)
 
 
 def test_cell_parallellogram2d():
@@ -97,6 +104,7 @@ def test_cell_parallellogram2d():
 
     # Test methods (2)
     check_frac_cart(cell)
+    check_g_lincomb_dot_rvecs(cell)
 
 
 def test_cell_1d():
@@ -130,6 +138,7 @@ def test_cell_1d():
 
     # Test methods (2)
     check_frac_cart(cell)
+    check_g_lincomb_dot_rvecs(cell)
 
 
 def test_cell_quartz():
@@ -150,6 +159,7 @@ def test_cell_quartz():
 
     # Test methods (2)
     check_frac_cart(cell)
+    check_g_lincomb_dot_rvecs(cell)
 
     # Test domain errors
     for i in -1, 4, 245:
@@ -190,6 +200,7 @@ def test_cell_0d():
 
     # Test methods (2)
     check_frac_cart(cell)
+    check_g_lincomb_dot_rvecs(cell)
 
 
 def setup_ranges_rcut(nvec):

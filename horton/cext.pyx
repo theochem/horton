@@ -242,6 +242,30 @@ cdef class Cell:
         self._this.to_cart(<double*> frac.data, <double*> result.data)
         return result
 
+    def g_lincomb(self, np.ndarray[double, ndim=1] coeffs not None):
+        '''g_lincomb(coeffs)
+
+           Return a linear combination of reciprocal cell vectors
+        '''
+        assert coeffs.flags['C_CONTIGUOUS']
+        assert coeffs.size == 3
+        cdef np.ndarray[double, ndim=1] result
+        result = np.zeros(3, float)
+        self._this.g_lincomb(<double*> coeffs.data, <double*> result.data)
+        return result
+
+    def dot_rvecs(self, np.ndarray[double, ndim=1] cart not None):
+        '''dot_rvecs(cart)
+
+           Return the corresponding dot product with the rvecs
+        '''
+        assert cart.flags['C_CONTIGUOUS']
+        assert cart.size == 3
+        cdef np.ndarray[double, ndim=1] result
+        result = np.zeros(3, float)
+        self._this.dot_rvecs(<double*> cart.data, <double*> result.data)
+        return result
+
     def add_rvec(self, np.ndarray[double, ndim=1] delta, np.ndarray[long, ndim=1] r):
         """add_rvec(delta, r)
 
