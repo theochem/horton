@@ -30,4 +30,8 @@ cdef extern from "uniform.h":
         void copy_shape(long* output)
         void copy_pbc(long* output)
 
+        void set_ranges_rcut(double* center, double rcut, long* ranges_begin, long* ranges_end)
+        double dist_grid_point(double* center, long* i)
+        void delta_grid_point(double* center, long* i)
+
     long index_wrap(long i, long high)

@@ -241,24 +241,6 @@ def test_uig_eval_spline_add_random():
         assert abs(output1 + output2 - output3).max() < 1e-10
 
 
-def get_simple_test_uig():
-    origin = np.array([0.1, -2.0, 3.1])
-    rvecs = np.array([
-        [1.0, 0.1, 0.2],
-        [0.1, 1.1, 0.2],
-        [0.0, -0.1, 1.0],
-    ])
-    #origin = np.array([0.0, 0.0, 0.0])
-    #rvecs = np.array([
-    #    [1.0, 0.0, 0.0],
-    #    [0.0, 1.0, 0.0],
-    #    [0.0, 0.0, 1.0],
-    #])
-    shape = np.array([40, 40, 40])
-    pbc = np.ones(3, int)
-    return UniformIntGrid(origin, rvecs, shape, pbc)
-
-
 def test_weight_corrections():
     from horton.cpart.test.common import get_fake_co
 
@@ -282,3 +264,67 @@ def test_weight_corrections():
 
     assert abs(ui_grid.integrate(mol_dens, weights)-14.0) < 6e-3
     assert abs(ui_grid.integrate(mol_dens)-14.0) > 5e-2
+
+
+def get_simple_test_uig():
+    origin = np.array([0.1, -2.0, 3.1])
+    rvecs = np.array([
+        [1.0, 0.1, 0.2],
+        [0.1, 1.1, 0.2],
+        [0.0, -0.1, 1.0],
+    ])
+    #origin = np.array([0.0, 0.0, 0.0])
+    #rvecs = np.array([
+    #    [1.0, 0.0, 0.0],
+    #    [0.0, 1.0, 0.0],
+    #    [0.0, 0.0, 1.0],
+    #])
+    shape = np.array([40, 40, 40])
+    pbc = np.array([1, 0, 1])
+    return UniformIntGrid(origin, rvecs, shape, pbc)
+
+
+def test_get_ranges_rcut1():
+    uig = get_simple_test_uig()
+    center = np.array([0.1, -2.5, 3.2])
+    rb1, re1 = uig.get_ranges_rcut(center, 2.0)
+    rb2, re2 = uig.grid_cell.get_ranges_rcut(uig.origin - center, 2.0, -1)
+    assert rb1[0] == rb2[0]
+    assert rb1[1] == 0
+    assert rb1[2] == rb2[2]
+    assert (re1 == re2).all()
+
+
+def test_get_ranges_rcut2():
+    uig = get_simple_test_uig()
+    center = np.array([60.0, 50.0, 60.0])
+    rb1, re1 = uig.get_ranges_rcut(center, 2.0)
+    rb2, re2 = uig.grid_cell.get_ranges_rcut(uig.origin - center, 2.0, -1)
+    assert (rb1 == rb2).all()
+    assert re1[0] == re2[0]
+    assert re1[1] == 40
+    assert re1[2] == re2[2]
+
+
+def test_dist_grid_point():
+    uig = get_simple_test_uig()
+    assert uig.dist_grid_point(uig.origin, np.array([0, 0, 0])) == 0.0
+    assert uig.dist_grid_point(uig.origin, np.array([0, 0, 1])) == (0.1**2+1.0)**0.5
+    assert uig.dist_grid_point(uig.origin, np.array([0, 1, 0])) == (0.1**2+1.1**2+0.2**2)**0.5
+
+    center = np.array([0.9, 2.5, 1.6])
+    indexes = np.array([6, 3, -2])
+    point = uig.origin + uig.grid_cell.to_cart(indexes.astype(float))
+    assert abs(uig.dist_grid_point(center, np.array([6, 3, -2])) - np.linalg.norm(center - point)) < 1e-10
+
+
+def test_delta_grid_point():
+    uig = get_simple_test_uig()
+    assert (uig.delta_grid_point(uig.origin, np.array([0, 0, 0])) == np.array([0.0, 0.0, 0.0])).all()
+    assert (uig.delta_grid_point(uig.origin, np.array([0, 0, 1])) == np.array([0.0, -0.1, 1.0])).all()
+    assert (uig.delta_grid_point(uig.origin, np.array([0, 1, 0])) == np.array([0.1, 1.1, 0.2])).all()
+
+    center = np.array([0.9, 2.5, 1.6])
+    indexes = np.array([6, 3, -2])
+    point = uig.origin + uig.grid_cell.to_cart(indexes.astype(float))
+    assert abs(uig.delta_grid_point(center, np.array([6, 3, -2])) - (point - center)).max() < 1e-10
