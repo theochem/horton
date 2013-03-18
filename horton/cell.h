@@ -35,7 +35,6 @@ class Cell {
 
         void update(double* _rvecs, double* _gvecs, int _nvec);
         void mic(double* delta) const;
-        void to_center(double* car, long* center) const;
         void to_frac(double* cart, double* frac) const;
         void to_cart(double* frac, double* cart) const;
         void g_lincomb(double* frac, double* cart) const;

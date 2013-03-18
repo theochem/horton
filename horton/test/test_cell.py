@@ -62,9 +62,6 @@ def test_cell_cubic():
     vec1 = np.array([10.0, 0.0, 5.0])*angstrom
     cell.mic(vec1)
     assert abs(vec1 - np.array([0.135, 0.0, -4.865])*angstrom).max() < 1e-10
-    vec2 = np.array([10.0, 0.0, 5.0])*angstrom
-    cell.add_rvec(vec2, cell.to_center(vec2))
-    assert abs(vec1 - vec2).max() < 1e-10
     cell.add_rvec(vec1, np.array([1,2,3]))
     assert abs(vec1 - np.array([10.0, 19.73, 24.73])*angstrom).max() < 1e-10
 
@@ -95,9 +92,6 @@ def test_cell_parallellogram2d():
     vec1 = np.array([10.0, 0.0, 105.0])*angstrom
     cell.mic(vec1)
     assert abs(vec1 - np.array([0.156, 0.0, 105])*angstrom).max() < 1e-3
-    vec2 = np.array([10.0, 0.0, 105.0])*angstrom
-    cell.add_rvec(vec2, cell.to_center(vec2))
-    assert abs(vec1 - vec2).max() < 1e-10
     cell.add_rvec(vec1, np.array([1,2]))
     assert abs(vec1 - np.array([10.002, 8.524, 105])*angstrom).max() < 1e-3
 
@@ -131,9 +125,6 @@ def test_cell_1d():
     vec1 = np.array([10.0, 0.0, 105.0])*angstrom
     cell.mic(vec1)
     assert abs(vec1 - np.array([-0.15, -0.374, 104.89])*angstrom).max() < 1e-3
-    vec2 = np.array([10.0, 0.0, 105.0])*angstrom
-    cell.add_rvec(vec2, cell.to_center(vec2))
-    assert abs(vec1 - vec2).max() < 1e-10
     cell.add_rvec(vec1, np.array([1]))
     assert abs(vec1 - np.array([4.925, -0.187, 104.945])*angstrom).max() < 1e-3
 
@@ -194,9 +185,6 @@ def test_cell_0d():
     vec1 = np.array([10.0, 0.0, 105.0])*angstrom
     cell.mic(vec1)
     assert abs(vec1 - np.array([10.0, 0.0, 105.0])*angstrom).max() < 1e-3
-    vec2 = np.array([10.0, 0.0, 105.0])*angstrom
-    cell.add_rvec(vec2, cell.to_center(vec2))
-    assert abs(vec1 - vec2).max() < 1e-10
     cell.add_rvec(vec1, np.array([], dtype=int))
     assert abs(vec1 - np.array([10.0, 0.0, 105.0])*angstrom).max() < 1e-3
 

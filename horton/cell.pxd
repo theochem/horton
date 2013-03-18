@@ -25,7 +25,6 @@ cdef extern from "cell.h":
         Cell()
         void update(double* _rvecs, double* _gvecs, int _nvec)
         void mic(double* delta)
-        void to_center(double* cart, long* center)
         void to_frac(double* cart, double* frac)
         void to_cart(double* frac, double* cart)
         void add_rvec(double* delta, long* r)
