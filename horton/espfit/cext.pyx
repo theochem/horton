@@ -131,9 +131,8 @@ def multiply_near_mask(np.ndarray[double, ndim=1] center not None,
     assert weights.shape[1] == ui_grid.shape[1]
     assert weights.shape[2] == ui_grid.shape[2]
 
-    #mask.multiply_near_mask(<double*>center.data, <double*>origin.data,
-    #    grid_cell._this, <long*>shape, cell._this, r0, gamma,
-    #    <double*>weights.data)
+    mask.multiply_near_mask(<double*>center.data, ui_grid._this, r0, gamma,
+        <double*>weights.data)
 
 
 def multiply_far_mask(np.ndarray[double, ndim=2] centers not None,
@@ -151,6 +150,5 @@ def multiply_far_mask(np.ndarray[double, ndim=2] centers not None,
     assert weights.shape[1] == ui_grid.shape[1]
     assert weights.shape[2] == ui_grid.shape[2]
 
-    #mask.multiply_far_mask(<double*>centers.data, ncenter,
-    #    <double*>origin.data, grid_cell._this, <long*>shape, cell._this, r0,
-    #    gamma, <double*>weights.data)
+    mask.multiply_far_mask(<double*>centers.data, ncenter, ui_grid._this,
+        r0, gamma, <double*>weights.data)

@@ -96,6 +96,10 @@ void UniformIntGrid::delta_grid_point(double* center, long* i) {
     grid_cell->add_rvec(center, i);
 }
 
+double* UniformIntGrid::get_pointer(double* array, long* i) {
+    return array + (i[0]*shape[1] + i[1])*shape[2] + i[2];
+}
+
 
 long index_wrap(long i, long high) {
     // Get around compiler weirdness
@@ -103,7 +107,6 @@ long index_wrap(long i, long high) {
     if (result<0) result += high;
     return result;
 }
-
 
 Range3Iterator::Range3Iterator(const long* ranges_begin, const long* ranges_end, const long* shape) :
     ranges_begin(ranges_begin), ranges_end(ranges_end), shape(shape) {
