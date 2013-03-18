@@ -577,10 +577,6 @@ cdef class BakerRTransform(RTransform):
 
 
 cdef class UniformIntGrid(object):
-    #cdef horton.cext.Cell _grid_cell
-    #cdef horton.cext.Cell _cell
-    #cdef uniform.UniformIntGrid* _this
-
     def __cinit__(self, np.ndarray[double, ndim=1] origin not None,
                   np.ndarray[double, ndim=2] grid_rvecs not None,
                   np.ndarray[long, ndim=1] shape not None,

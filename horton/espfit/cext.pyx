@@ -119,24 +119,17 @@ def multiply_dens_mask(np.ndarray[double, ndim=3] rho not None,
 
 
 def multiply_near_mask(np.ndarray[double, ndim=1] center not None,
-                       np.ndarray[double, ndim=1] origin not None,
-                       horton.cext.Cell grid_cell,
-                       np.ndarray[long, ndim=1] shape not None,
-                       horton.cext.Cell cell,
+                       horton.grid.cext.UniformIntGrid ui_grid,
                        double r0, double gamma,
                        np.ndarray[double, ndim=3] weights not None):
     assert center.flags['C_CONTIGUOUS']
     assert center.shape[0] == 3
-    assert origin.flags['C_CONTIGUOUS']
-    assert origin.shape[0] == 3
-    assert shape.flags['C_CONTIGUOUS']
-    assert shape.shape[0] == 3
     assert r0 > 0
     assert gamma > 0
     assert weights.flags['C_CONTIGUOUS']
-    assert weights.shape[0] == shape[0]
-    assert weights.shape[1] == shape[1]
-    assert weights.shape[2] == shape[2]
+    assert weights.shape[0] == ui_grid.shape[0]
+    assert weights.shape[1] == ui_grid.shape[1]
+    assert weights.shape[2] == ui_grid.shape[2]
 
     #mask.multiply_near_mask(<double*>center.data, <double*>origin.data,
     #    grid_cell._this, <long*>shape, cell._this, r0, gamma,
@@ -144,26 +137,19 @@ def multiply_near_mask(np.ndarray[double, ndim=1] center not None,
 
 
 def multiply_far_mask(np.ndarray[double, ndim=2] centers not None,
-                      np.ndarray[double, ndim=1] origin not None,
-                      horton.cext.Cell grid_cell,
-                      np.ndarray[long, ndim=1] shape not None,
-                      horton.cext.Cell cell,
+                      horton.grid.cext.UniformIntGrid ui_grid,
                       double r0, double gamma,
                       np.ndarray[double, ndim=3] weights not None):
     assert centers.flags['C_CONTIGUOUS']
     cdef long ncenter = centers.shape[0]
     assert ncenter > 0
     assert centers.shape[1] == 3
-    assert origin.flags['C_CONTIGUOUS']
-    assert origin.shape[0] == 3
-    assert shape.flags['C_CONTIGUOUS']
-    assert shape.shape[0] == 3
     assert r0 > 0
     assert gamma > 0
     assert weights.flags['C_CONTIGUOUS']
-    assert weights.shape[0] == shape[0]
-    assert weights.shape[1] == shape[1]
-    assert weights.shape[2] == shape[2]
+    assert weights.shape[0] == ui_grid.shape[0]
+    assert weights.shape[1] == ui_grid.shape[1]
+    assert weights.shape[2] == ui_grid.shape[2]
 
     #mask.multiply_far_mask(<double*>centers.data, ncenter,
     #    <double*>origin.data, grid_cell._this, <long*>shape, cell._this, r0,
