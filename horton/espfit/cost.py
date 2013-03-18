@@ -31,23 +31,40 @@ __all__ = ['ESPCost', 'setup_weights']
 
 
 class ESPCost(object):
-    def __init__(self, system, grid, vref, weights, rcut=20, alpha_scale=3.0, gcut_scale=1.1):
+    def __init__(self, A, B, C):
+        self._A = A
+        self._B = B
+        self._C = C
+
+    @classmethod
+    def from_grid_data(cls, system, grid, vref, weights, rcut=20, alpha_scale=3.0, gcut_scale=1.1):
         alpha = alpha_scale / rcut
         gcut = gcut_scale * alpha
-        self._A = np.zeros((system.natom, system.natom), float)
-        self._B = np.zeros(system.natom, float)
-        self._C = np.zeros((), float)
+        A = np.zeros((system.natom, system.natom), float)
+        B = np.zeros(system.natom, float)
+        C = np.zeros((), float)
         # TODO: turn into MSD
         if isinstance(grid, UniformIntGrid):
-            setup_esp_cost_cube(grid, vref, weights, system.coordinates, self._A, self._B, self._C, rcut, alpha, gcut)
+            setup_esp_cost_cube(grid, vref, weights, system.coordinates, A, B, C, rcut, alpha, gcut)
         else:
             raise NotImplementedError
+        return cls(A, B, C)
 
     def value(self, charges):
-        return 0.5*np.dot(charges, np.dot(self._A, charges)) + np.dot(charges, self._B) + 0.5*self._C
+        return 0.5*np.dot(charges, np.dot(self._A, charges)) - np.dot(charges, self._B) + 0.5*self._C
 
     def gradient(self, charges):
-        return np.dot(self._A, charges) + self._B
+        return np.dot(self._A, charges) - self._B
+
+    def solve(self, qtot=None):
+        charges = np.linalg.solve(self._A, self._B)
+        if qtot is not None:
+            # Fix the total charge with a lagrange multiplier
+            invnorms = np.ones(len(self._A))
+            aid = np.linalg.solve(self._A, invnorms)
+            lagrange = (np.dot(aid, self._B) - qtot)/np.dot(aid, invnorms)
+            charges -= aid*lagrange
+        return charges
 
 
 def setup_weights(system, grid, dens=None, near=None, far=None):
