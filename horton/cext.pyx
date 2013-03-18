@@ -218,18 +218,6 @@ cdef class Cell:
         assert delta.size == 3
         self._this.mic(<double*> delta.data)
 
-    def to_center(self, np.ndarray[double, ndim=1] pos not None):
-        '''to_center(pos)
-
-           Return the corresponding position in the central cell
-        '''
-        assert pos.flags['C_CONTIGUOUS']
-        assert pos.size == 3
-        cdef np.ndarray[long, ndim=1] result
-        result = np.zeros(self.nvec, int)
-        self._this.to_center(<double*> pos.data, <long*> result.data)
-        return result
-
     def to_frac(self, np.ndarray[double, ndim=1] cart not None):
         '''to_frac(cart)
 
