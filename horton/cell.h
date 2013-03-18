@@ -55,8 +55,8 @@ class Cell {
         void copy_rspacings(double* _rspacings) const;
         void copy_gspacings(double* _gspacings) const;
 
-        void set_ranges_rcut(double* delta, double rcut, long mode,
-                             long* ranges_begin, long* ranges_end) const;
+        void set_ranges_rcut(double* delta, double rcut, long* ranges_begin,
+            long* ranges_end) const;
 
         long select_inside(double* origin, double* center, double rcut,
             long* ranges_begin, long* ranges_end, long* shape,

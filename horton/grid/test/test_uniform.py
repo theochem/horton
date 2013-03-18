@@ -288,7 +288,7 @@ def test_get_ranges_rcut1():
     uig = get_simple_test_uig()
     center = np.array([0.1, -2.5, 3.2])
     rb1, re1 = uig.get_ranges_rcut(center, 2.0)
-    rb2, re2 = uig.grid_cell.get_ranges_rcut(uig.origin - center, 2.0, -1)
+    rb2, re2 = uig.grid_cell.get_ranges_rcut(uig.origin - center, 2.0)
     assert rb1[0] == rb2[0]
     assert rb1[1] == 0
     assert rb1[2] == rb2[2]
@@ -299,7 +299,7 @@ def test_get_ranges_rcut2():
     uig = get_simple_test_uig()
     center = np.array([60.0, 50.0, 60.0])
     rb1, re1 = uig.get_ranges_rcut(center, 2.0)
-    rb2, re2 = uig.grid_cell.get_ranges_rcut(uig.origin - center, 2.0, -1)
+    rb2, re2 = uig.grid_cell.get_ranges_rcut(uig.origin - center, 2.0)
     assert (rb1 == rb2).all()
     assert re1[0] == re2[0]
     assert re1[1] == 40

@@ -277,7 +277,7 @@ cdef class Cell:
         assert r.size == self.nvec
         self._this.add_rvec(<double*> delta.data, <long*> r.data)
 
-    def get_ranges_rcut(self, np.ndarray[double, ndim=1] delta not None, double rcut, long mode=+1):
+    def get_ranges_rcut(self, np.ndarray[double, ndim=1] delta not None, double rcut):
         '''Return the integer ranges for linear combinations of cell vectors.
 
            **Arguments:**
@@ -288,29 +288,19 @@ cdef class Cell:
            rcut
                 A cutoff radius
 
-           **Optional arguments:**
-
-           mode
-                The way this routine works, either +1 or -1.
-
-           When mode=+1, the returned ranges span the linear combinations of
-           cell vectors that includes all periodic images of delta within the
-           cutoff sphere.
-
-           When mode=-1, the returned ranges span the linear combination of
-           cell vectors that can be added to delta to obtain all periodic images
-           within the cutoff sphere centered at the origin.
+           The returned ranges span the linear combination of cell vectors that
+           can be added to delta to obtain all periodic images within the cutoff
+           sphere centered at the origin.
         '''
         assert delta.flags['C_CONTIGUOUS']
         assert delta.size == 3
         assert rcut >= 0
-        assert (mode==1) or (mode==-1)
 
         cdef np.ndarray[long, ndim=1] ranges_begin = np.zeros(self.nvec, int)
         cdef np.ndarray[long, ndim=1] ranges_end = np.zeros(self.nvec, int)
         self._this.set_ranges_rcut(
-            <double*>delta.data, rcut, mode,
-            <long*> ranges_begin.data, <long*> ranges_end.data)
+            <double*>delta.data, rcut,  <long*>ranges_begin.data,
+            <long*>ranges_end.data)
         return ranges_begin, ranges_end
 
     def select_inside(self, np.ndarray[double, ndim=1] origin not None,
