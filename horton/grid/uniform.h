@@ -43,7 +43,7 @@ class UniformIntGrid {
         const Cell* get_cell() { return cell; };
 
         void set_ranges_rcut(double* center, double rcut, long* ranges_begin, long* ranges_end);
-        double dist_grid_point(double *center, long* i);
+        double dist_grid_point(double* center, long* i);
         void delta_grid_point(double* center, long* i);
         double* get_pointer(double* array, long* i);
 };

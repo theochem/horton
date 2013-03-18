@@ -674,6 +674,67 @@ cdef class UniformIntGrid(object):
         # Similar to conventional integration routine:
         return dot_multi(*args)*self._grid_cell.volume
 
+    def get_ranges_rcut(self, np.ndarray[double, ndim=1] center, double rcut):
+        '''Return the ranges if indexes that lie within the cutoff sphere.
+
+           **Arguments:**
+
+           center
+                The center of the cutoff sphere
+
+           rcut
+                The radius of the cutoff sphere
+
+           The ranges are trimmed to avoid points that fall of non-periodic
+           boundaries of the grid.
+        '''
+        assert center.flags['C_CONTIGUOUS']
+        assert center.size == 3
+        assert rcut >= 0
+
+        cdef np.ndarray[long, ndim=1] ranges_begin = np.zeros(3, int)
+        cdef np.ndarray[long, ndim=1] ranges_end = np.zeros(3, int)
+        self._this.set_ranges_rcut(
+            <double*>center.data, rcut, <long*> ranges_begin.data,
+            <long*> ranges_end.data)
+        return ranges_begin, ranges_end
+
+    def dist_grid_point(self, np.ndarray[double, ndim=1] center, np.ndarray[long, ndim=1] indexes):
+        '''Return the distance between a center and a grid point
+
+           **Arguments:**
+
+           center
+                The center
+
+           indexes
+                The integer indexes of the grid point (may fall outside of shape)
+        '''
+        assert center.flags['C_CONTIGUOUS']
+        assert center.size == 3
+        assert indexes.flags['C_CONTIGUOUS']
+        assert indexes.size == 3
+        return self._this.dist_grid_point(<double*>center.data, <long*>indexes.data)
+
+    def delta_grid_point(self, np.ndarray[double, ndim=1] center, np.ndarray[long, ndim=1] indexes):
+        '''Return the vector **from** a center **to** a grid point
+
+           **Arguments:**
+
+           center
+                The center
+
+           indexes
+                The integer indexes of the grid point (may fall outside of shape)
+        '''
+        assert center.flags['C_CONTIGUOUS']
+        assert center.size == 3
+        assert indexes.flags['C_CONTIGUOUS']
+        assert indexes.size == 3
+        cdef np.ndarray[double, ndim=1] result = center.copy()
+        self._this.delta_grid_point(<double*>result.data, <long*>indexes.data)
+        return result
+
     # TODO: move this to cpart
     def compute_weight_corrections(self, funcs, rcut_scale=0.9, rcut_max=2.0, rcond=0.1):
         '''Computes corrections to the integration weights.
