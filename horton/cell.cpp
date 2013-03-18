@@ -130,6 +130,7 @@ void Cell::mic(double* delta) const {
 
 
 void Cell::to_center(double* cart, long* center) const {
+    // TODO: is this used and does it make sense?
     // Translate to the central unit cell
     if (nvec == 0) return;
     center[0] = -ceil(gvecs[0]*cart[0] + gvecs[1]*cart[1] + gvecs[2]*cart[2] - 0.5);

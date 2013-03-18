@@ -19,8 +19,8 @@
 //--
 
 
-#include <math.h>
-#include <stddef.h>
+#include <cmath>
+#include <cstddef>
 #include "ewald3d.h"
 
 
