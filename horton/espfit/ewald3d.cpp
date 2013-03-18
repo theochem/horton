@@ -95,9 +95,10 @@ void setup_esp_cost_cube_ewald3d(UniformIntGrid* ui_grid, double* vref,
     double* work = new double[neq];
     double grid_cart[3];
 
-    Range3Iterator r3i = Range3Iterator(NULL, ui_grid->get_shape(), NULL);
+    Range3Iterator r3i = Range3Iterator(NULL, ui_grid->get_shape(), NULL, true);
     long i[3];
     long npoint = r3i.get_npoint();
+
     for (long ipoint=0; ipoint<npoint; ipoint++) {
         r3i.set_point(ipoint, i, NULL);
         grid_cart[0] = 0;
