@@ -59,12 +59,8 @@ class Range3Iterator {
         const long* shape;
         long loop_shape[3];
         long npoint;
-
-        // for progress info
-        const bool progress;
-        long imarker, idot, icall;
     public:
-        Range3Iterator(const long* ranges_begin, const long* ranges_end, const long* shape, const bool progress);
+        Range3Iterator(const long* ranges_begin, const long* ranges_end, const long* shape);
 
         long get_npoint() const { return npoint; };
         void set_point(long ipoint, long* i, long* iwrap);

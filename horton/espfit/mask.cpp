@@ -53,7 +53,7 @@ void multiply_near_mask(double* center, UniformIntGrid* ui_grid, double r0,
     ui_grid->set_ranges_rcut(center, rcut, ranges_begin, ranges_end);
 
     // Run triple loop
-    Range3Iterator r3i = Range3Iterator(ranges_begin, ranges_end, ui_grid->get_shape(), true);
+    Range3Iterator r3i = Range3Iterator(ranges_begin, ranges_end, ui_grid->get_shape());
     long j[3], jwrap[3];
     for (long ipoint=r3i.get_npoint()-1; ipoint >= 0; ipoint--) {
         r3i.set_point(ipoint, j, jwrap);
@@ -76,7 +76,7 @@ void multiply_far_mask(double* centers, long ncenter, UniformIntGrid* ui_grid,
     const Cell* cell = ui_grid->get_cell();
 
     // Run triple loop
-    Range3Iterator r3i = Range3Iterator(NULL, ui_grid->get_shape(), NULL, true);
+    Range3Iterator r3i = Range3Iterator(NULL, ui_grid->get_shape(), NULL);
     long j[3];
     for (long ipoint=r3i.get_npoint()-1; ipoint >= 0; ipoint--) {
         r3i.set_point(ipoint, j, NULL);

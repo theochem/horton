@@ -189,3 +189,37 @@ def test_esp_cost_solve_regularized():
     gradient = cost.gradient(x)
     assert abs(gradient[:10] - gradient[:10].mean()).max() < 1e-3
     assert abs(gradient[10:]).max() < 1e-3
+
+
+def test_compare_cubetools():
+    # Load structure from cube file
+    fn_cube = context.get_fn('test/jbw_coarse_aedens.cube')
+    sys = System.from_file(fn_cube)
+
+    # Use a different grid
+    origin = np.array([0.0, 0.0, 0.0])
+    grid_rvecs = np.diag([0.183933, 0.187713, 0.190349])*3
+    shape = np.array([18, 25, 27])
+    pbc = np.array([1, 1, 1])
+    ui_grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
+
+    # Generate weights
+    weights = setup_weights(sys, ui_grid,
+        near={8: (1.8*angstrom, 0.5*angstrom),
+              14: (1.8*angstrom, 0.5*angstrom)})
+    weights /= weights.sum()
+
+    # Random ref data
+    esp = np.random.uniform(-1, 1, shape)
+
+    # Cost function
+    cost = ESPCost.from_grid_data(sys, ui_grid, esp, weights)
+
+    # Sanity checks
+    assert abs(cost._A[-1, -1] - 1.0) < 1e-8
+    assert abs(cost._A.T - cost._A).max() < 1e-10
+
+    # Compare numbers withreference values obtained with cfit2.cubetools
+    assert abs(cost._A[0, 0] - 0.002211777956341868) < 1e-7
+    assert abs(cost._A[7, 3] - 1.5124537688153498E-4) < 1e-8
+    assert abs(cost._A[18, 2] - -0.028812329600683098) < 1e-6
