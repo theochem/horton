@@ -38,13 +38,6 @@ class ESPCost(object):
         self._C = C
         self.natom = natom
         # Rescale parameters not related to atomic charges
-        oom = np.diag(A)[:natom].mean()
-        for j in xrange(natom, len(A)):
-            scale = (oom/A[j,j])**0.5
-            A[:,j] *= scale
-            A[j,:] *= scale
-            B[j] *= scale
-
 
     @classmethod
     def from_grid_data(cls, system, grid, vref, weights, rcut=20, alpha_scale=3.0, gcut_scale=1.1):

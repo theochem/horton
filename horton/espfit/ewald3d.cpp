@@ -95,7 +95,7 @@ void setup_esp_cost_cube_ewald3d(UniformIntGrid* ui_grid, double* vref,
     double* work = new double[neq];
     double grid_cart[3];
 
-    Range3Iterator r3i = Range3Iterator(NULL, ui_grid->get_shape(), NULL, true);
+    Range3Iterator r3i = Range3Iterator(NULL, ui_grid->get_shape(), NULL);
     long i[3];
     long npoint = r3i.get_npoint();
 
@@ -107,6 +107,8 @@ void setup_esp_cost_cube_ewald3d(UniformIntGrid* ui_grid, double* vref,
         ui_grid->delta_grid_point(grid_cart, i);
 
         if (*weights > 0) {
+            double sqrtw = sqrt(*weights);
+
             // Do some ewald stuff
             for (long icenter=0; icenter<ncenter; icenter++) {
                 double delta[3];
@@ -114,12 +116,12 @@ void setup_esp_cost_cube_ewald3d(UniformIntGrid* ui_grid, double* vref,
                 delta[1] = centers[3*icenter+1] - grid_cart[1];
                 delta[2] = centers[3*icenter+2] - grid_cart[2];
 
-                work[icenter] = pair_ewald3d(delta, ui_grid->get_cell(), rcut, alpha, gcut)*(*weights);
+                work[icenter] = pair_ewald3d(delta, ui_grid->get_cell(), rcut, alpha, gcut)*sqrtw;
             }
-            work[ncenter] = 1;
+            work[ncenter] = sqrtw;
 
             // Add the the quadratic cost function
-            double vrefw = (*vref)*(*weights);
+            double vrefw = (*vref)*sqrtw;
             for (long ic0=0; ic0<neq; ic0++) {
                 for (long ic1=0; ic1<neq; ic1++) {
                     A[ic0+neq*ic1] += work[ic0]*work[ic1];

@@ -20,7 +20,6 @@
 
 #include <stdexcept>
 #include <cmath>
-#include <cstdio>
 #include "uniform.h"
 
 UniformIntGrid::UniformIntGrid(double* _origin, Cell* _grid_cell, long* _shape, long* _pbc, Cell* _cell)
@@ -109,8 +108,8 @@ long index_wrap(long i, long high) {
     return result;
 }
 
-Range3Iterator::Range3Iterator(const long* ranges_begin, const long* ranges_end, const long* shape, const bool progress) :
-    ranges_begin(ranges_begin), ranges_end(ranges_end), shape(shape), progress(progress), idot(0), icall(0) {
+Range3Iterator::Range3Iterator(const long* ranges_begin, const long* ranges_end, const long* shape) :
+    ranges_begin(ranges_begin), ranges_end(ranges_end), shape(shape) {
 
     loop_shape[0] = ranges_end[0];
     loop_shape[1] = ranges_end[1];
@@ -121,23 +120,9 @@ Range3Iterator::Range3Iterator(const long* ranges_begin, const long* ranges_end,
         loop_shape[2] -= ranges_begin[2];
     }
     npoint = loop_shape[0] * loop_shape[1] * loop_shape[2];
-    imarker = 0;
 };
 
 void Range3Iterator::set_point(long ipoint, long* i, long* iwrap) {
-    if (progress) {
-        icall++;
-        while (icall>imarker) {
-            printf(".");
-            fflush(stdout);
-            idot++;
-            imarker = (npoint*idot)/80;
-        }
-        if (icall==npoint) {
-            printf("\n");
-        }
-    }
-
     i[2] = ipoint%loop_shape[2];
     ipoint /= loop_shape[2];
     i[1] = ipoint%loop_shape[1];
