@@ -30,7 +30,7 @@ from horton.scripts.espfit import parse_wdens, parse_wnear, parse_wfar, load_rho
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(prog='horton-espfit.py',
+    parser = argparse.ArgumentParser(prog='horton-esp-cost.py',
         description='Construct a cost function and fit charges to ESP.')
 
     parser.add_argument('cube',
@@ -52,13 +52,6 @@ def parse_args():
     parser.add_argument('--gcut-scale', default=1.1, type=float,
         help='The gcut scale (gcut = gcut_scale*alpha) for the reciprocal '
              'space constribution to the electrostatic interactions.')
-
-    parser.add_argument('--qtot', '-q', default=0.0, type=float,
-        help='The total charge of the system.')
-
-    parser.add_argument('--ridge', default=0.0, type=float,
-        help='The thikonov regularization strength used when solving the '
-             'charges.')
 
     parser.add_argument('--wdens', default=None, type=str,
         help='Define weights based on an electron density. The argument has '
@@ -88,7 +81,6 @@ def parse_args():
         help='Save the weights array to the given cube file.')
 
     # TODO: add argument to chop of last slice(s)
-    # TODO: split this into two scripts: horton-esp-setup.py and horton-esp-fit.py
 
     return parser.parse_args()
 
@@ -164,9 +156,10 @@ def main():
         results['cn'] = 0.0
     else:
         results['cn'] = abs_evals.max()/abs_evals.min()
-    results['cost_max'] = cost._C
+    results['cost_max'] = cost._C # TODO: this is different from cubetools!
     results['rmsd_max'] = results['cost_max']**0.5
 
+    # Report some on-screen info
     if log.do_medium:
         log('Important parameters:')
         log.hline()
@@ -178,24 +171,6 @@ def main():
         log('Highest abs eigen value:      %12.5e' % abs_evals.max())
         log('Condition number:             %12.5e' % results['cn'])
         log('Maximum RMSD ESP:             %12.5e' % results['rmsd_max'])
-
-    # Report some on-screen info
-
-    # Find the optimal charges
-    results['x'] = cost.solve(args.qtot, args.ridge)
-    results['charges'] = results['x'][:cost.natom]
-
-    # Related properties
-    results['cost_min'] = cost.value(results['x'])
-    if results['cost_min'] < 0:
-        results['rmsd_min'] = 0.0
-    else:
-        results['rmsd_min'] = results['cost_min']**0.5
-
-    if log.do_medium:
-        log('RMSD charges:                  %10.5e' % np.sqrt((results['charges']**2).mean()))
-        log('Mimimum RMSD ESP:              %10.5e' % results['rmsd_min'])
-        log.hline()
 
     # Store the results in an HDF5 file
     with h5.File(fn_h5) as f:
@@ -220,6 +195,8 @@ def main():
         for key, value in results.iteritems():
             grp[key] = value
 
+        if log.do_medium:
+            log('Results written to %s:espfit/%s' % (fn_h5, grp_name))
 
 
 if __name__ == '__main__':
