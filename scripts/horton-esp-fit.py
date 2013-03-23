@@ -80,9 +80,18 @@ def main():
     else:
         results['rmsd'] = results['cost']**0.5
 
+    # Worst case stuff
+    results['cost_worst'] = cost.worst(args.qtot)
+    if results['cost_worst'] < 0:
+        results['rmsd_worst'] = 0.0
+    else:
+        results['rmsd_worst'] = results['cost_worst']**0.5
+
+    # Write some things on screen
     if log.do_medium:
         log('RMSD charges:                  %10.5e' % np.sqrt((results['charges']**2).mean()))
         log('RMSD ESP:                      %10.5e' % results['rmsd'])
+        log('Worst RMSD ESP:                %10.5e' % results['rmsd_worst'])
         log.hline()
 
     # Store the results in an HDF5 file

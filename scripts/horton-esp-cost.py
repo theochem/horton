@@ -156,8 +156,6 @@ def main():
         results['cn'] = 0.0
     else:
         results['cn'] = abs_evals.max()/abs_evals.min()
-    results['cost_max'] = cost._C # TODO: this is different from cubetools!
-    results['rmsd_max'] = results['cost_max']**0.5
 
     # Report some on-screen info
     if log.do_medium:
@@ -170,7 +168,6 @@ def main():
         log('Lowest abs eigen value:       %12.5e' % abs_evals.min())
         log('Highest abs eigen value:      %12.5e' % abs_evals.max())
         log('Condition number:             %12.5e' % results['cn'])
-        log('Maximum RMSD ESP:             %12.5e' % results['rmsd_max'])
 
     # Store the results in an HDF5 file
     with h5.File(fn_h5) as f:
