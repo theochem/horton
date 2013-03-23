@@ -223,3 +223,20 @@ def test_compare_cubetools():
     assert abs(cost._A[0, 0] - 0.002211777956341868) < 1e-7
     assert abs(cost._A[7, 3] - 1.5124537688153498E-4) < 1e-8
     assert abs(cost._A[18, 2] - -0.028812329600683098) < 1e-6
+
+
+def test_worst():
+    # Some parameters
+    coordinates, numbers, origin, grid_rvecs, shape, pbc, vref, weights = \
+       get_random_esp_cost_cube3d_args()
+    N = len(numbers)
+    sys = System(coordinates, np.ones(N, int))
+    grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
+    cost = ESPCost.from_grid_data(sys, grid, vref, weights)
+
+    assert cost.worst() < cost._C
+    assert cost.worst(1.0) < cost._C + cost._A[:N,:N].sum()/N**2 - 2*cost._B[:N].sum()/N
+    assert cost.worst(-1.0) < cost._C + cost._A[:N,:N].sum()/N**2 + 2*cost._B[:N].sum()/N
+    assert cost.worst() > 0.0
+    assert cost.worst(1.0) > 0.0
+    assert cost.worst(-1.0) > 0.0

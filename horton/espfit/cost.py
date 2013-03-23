@@ -53,10 +53,36 @@ class ESPCost(object):
             raise NotImplementedError
 
     def value(self, x):
-        return 0.5*np.dot(x, np.dot(self._A, x)) - np.dot(x, self._B) + 0.5*self._C
+        return np.dot(x, np.dot(self._A, x) - 2*self._B) + self._C
 
     def gradient(self, x):
-        return np.dot(self._A, x) - self._B
+        return 2*(np.dot(self._A, x) - self._B)
+
+    def worst(self, qtot=0.0):
+        '''Return a worst-case value for the cost function
+
+           **Optional arguments:**
+
+           qtot
+                The total charge of the system
+
+           Higher values for the cost function are still possible but if that
+           happens, it is better not to use charges at all.
+        '''
+        charges = np.zeros(self.natom)
+        charges[:] = qtot/self.natom
+        if self.natom < len(self._A):
+            # Set up a system where all charges are fixed and the remaning
+            # parameters are solved for.
+            A = self._A[self.natom:,self.natom:]
+            B = self._B[self.natom:] - np.dot(charges, self._A[:self.natom,self.natom:])
+            C = self._C \
+                + np.dot(np.dot(charges, self._A[:self.natom,:self.natom]), charges) \
+                - 2*np.dot(self._B[:self.natom], charges)
+            x = np.linalg.solve(A, B)
+            return C - np.dot(B, x)
+        else:
+            return self.value(charges)
 
     def solve(self, qtot=None, ridge=0.0):
         # apply regularization to atomic degrees of freedom
