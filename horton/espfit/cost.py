@@ -55,6 +55,20 @@ class ESPCost(object):
     def value(self, x):
         return np.dot(x, np.dot(self._A, x) - 2*self._B) + self._C
 
+    def value_charges(self, charges):
+        if self.natom < len(self._A):
+            # Set up a system where all charges are fixed and the remaning
+            # parameters are solved for.
+            A = self._A[self.natom:,self.natom:]
+            B = self._B[self.natom:] - np.dot(charges, self._A[:self.natom,self.natom:])
+            C = self._C \
+                + np.dot(np.dot(charges, self._A[:self.natom,:self.natom]), charges) \
+                - 2*np.dot(self._B[:self.natom], charges)
+            x = np.linalg.solve(A, B)
+            return C - np.dot(B, x)
+        else:
+            return self.value(charges)
+
     def gradient(self, x):
         return 2*(np.dot(self._A, x) - self._B)
 
@@ -71,18 +85,7 @@ class ESPCost(object):
         '''
         charges = np.zeros(self.natom)
         charges[:] = qtot/self.natom
-        if self.natom < len(self._A):
-            # Set up a system where all charges are fixed and the remaning
-            # parameters are solved for.
-            A = self._A[self.natom:,self.natom:]
-            B = self._B[self.natom:] - np.dot(charges, self._A[:self.natom,self.natom:])
-            C = self._C \
-                + np.dot(np.dot(charges, self._A[:self.natom,:self.natom]), charges) \
-                - 2*np.dot(self._B[:self.natom], charges)
-            x = np.linalg.solve(A, B)
-            return C - np.dot(B, x)
-        else:
-            return self.value(charges)
+        return self.value_charges(charges)
 
     def solve(self, qtot=None, ridge=0.0):
         # apply regularization to atomic degrees of freedom

@@ -38,6 +38,15 @@ def get_random_esp_cost_cube3d_args():
     return coordinates, numbers, origin, grid_rvecs, shape, pbc, vref, weights
 
 
+def get_random_esp_cost_cube3d():
+    # Some parameters
+    coordinates, numbers, origin, grid_rvecs, shape, pbc, vref, weights = \
+       get_random_esp_cost_cube3d_args()
+    sys = System(coordinates, numbers)
+    grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
+    return ESPCost.from_grid_data(sys, grid, vref, weights)
+
+
 def check_costs(costs):
     assert abs(costs[0]._A).max() > 1e-3
     assert abs(costs[0]._B).max() > 1e-3
@@ -226,17 +235,26 @@ def test_compare_cubetools():
 
 
 def test_worst():
-    # Some parameters
-    coordinates, numbers, origin, grid_rvecs, shape, pbc, vref, weights = \
-       get_random_esp_cost_cube3d_args()
-    N = len(numbers)
-    sys = System(coordinates, np.ones(N, int))
-    grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
-    cost = ESPCost.from_grid_data(sys, grid, vref, weights)
-
+    cost = get_random_esp_cost_cube3d()
+    N = cost.natom
     assert cost.worst() < cost._C
     assert cost.worst(1.0) < cost._C + cost._A[:N,:N].sum()/N**2 - 2*cost._B[:N].sum()/N
     assert cost.worst(-1.0) < cost._C + cost._A[:N,:N].sum()/N**2 + 2*cost._B[:N].sum()/N
     assert cost.worst() > 0.0
     assert cost.worst(1.0) > 0.0
     assert cost.worst(-1.0) > 0.0
+
+
+def test_value_charges1():
+    cost = get_random_esp_cost_cube3d()
+    x = cost.solve()
+    charges = x[:-1]
+    assert abs(cost.value(x) - cost.value_charges(charges)) < 1e-10
+
+
+def test_value_charges2():
+    cost = get_random_esp_cost_cube3d()
+    for i in xrange(100):
+        x = np.random.normal(0, 1, len(cost._A))
+        x -= x.sum()
+        assert cost.value(x) >= cost.value_charges(x[:-1])
