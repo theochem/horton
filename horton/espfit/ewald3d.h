@@ -32,4 +32,8 @@ void setup_esp_cost_cube_ewald3d(UniformIntGrid* ui_grid, double* vref,
     double* weights, double* centers, double* A, double* B, double* C,
     long ncenter, double rcut, double alpha, double gcut);
 
+void compute_esp_cube_ewald3d(UniformIntGrid* ui_grid, double* esp,
+    double* centers, double* charges, long ncenter, double rcut, double alpha,
+    double gcut);
+
 #endif

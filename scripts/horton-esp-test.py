@@ -70,12 +70,15 @@ def main():
         assert (sys.coordinates == f['system/coordinates'][:]).all()
         assert (sys.numbers == f['system/numbers'][:]).all()
 
-    # Fix charges if needed
+    # Fix total charge if requested
     if args.qtot is not None:
         charges -= (charges.sum() - args.qtot)/len(charges)
 
     # Store parameters in output
     results = {}
+    results['qtot'] = charges.sum()
+
+    # Fitness of the charges
     results['cost'] = cost.value_charges(charges)
     if results['cost'] < 0:
         results['rmsd'] = 0.0

@@ -143,8 +143,14 @@ def main():
         sys, ui_grid, esp, weights, args.rcut*angstrom, args.alpha_scale,
         args.gcut_scale)
 
-    # Store cost function info
+    # Store command line arguments
     results = {}
+    results['reduce'] = args.reduce
+    results['rcut'] = args.rcut
+    results['alpha_scale'] = args.alpha_scale
+    results['gcut_scale'] = args.gcut_scale
+
+    # Store cost function info
     results['A'] = cost._A
     results['B'] = cost._B
     results['C'] = cost._C
@@ -161,13 +167,14 @@ def main():
     if log.do_medium:
         log('Important parameters:')
         log.hline()
-        log('Number of gridpoints:         %12i' % esp.size)
-        log('Used number of gridpoints:    %12i' % (weights>0).sum())
+        log('Number of grid points:        %12i' % esp.size)
+        log('Used number of grid points:   %12i' % (weights>0).sum())
         log('Lowest weight:                %12.5e' % wmin)
         log('Highest weight:               %12.5e' % wmax)
         log('Lowest abs eigen value:       %12.5e' % abs_evals.min())
         log('Highest abs eigen value:      %12.5e' % abs_evals.max())
         log('Condition number:             %12.5e' % results['cn'])
+        log.hline()
 
     # Store the results in an HDF5 file
     with h5.File(fn_h5) as f:

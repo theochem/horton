@@ -110,8 +110,10 @@ def main():
         coordinates[:] = sys.coordinates
         numbers = sys_grp.require_dataset('numbers', sys.numbers.shape, long, exact=True)
         numbers[:] = sys.numbers
-        rvecs = sys_grp.require_dataset('rvecs', (sys.cell.nvec, 3), float, exact=True)
-        rvecs[:] = sys.cell.rvecs
+        if 'cell' in sys_grp:
+            del sys_grp['cell']
+        cell_grp = sys_grp.create_group('cell')
+        sys.cell.to_hdf5(cell_grp)
 
         # Store results
         grp_cpart = f.require_group('cpart')

@@ -35,6 +35,7 @@ __all__ = [
     # ewald
     'pair_ewald',
     'setup_esp_cost_cube',
+    'compute_esp_grid_cube',
     # mask
     'multiply_dens_mask', 'multiply_near_mask', 'multiply_far_mask',
 ]
@@ -83,6 +84,32 @@ def setup_esp_cost_cube(horton.grid.cext.UniformIntGrid ui_grid,
     else:
         raise NotImplementedError
 
+
+def compute_esp_grid_cube(horton.grid.cext.UniformIntGrid ui_grid,
+                          np.ndarray[double, ndim=3] esp,
+                          np.ndarray[double, ndim=2] centers,
+                          np.ndarray[double, ndim=1] charges,
+                          double rcut, double alpha, double gcut):
+    assert centers.flags['C_CONTIGUOUS']
+    ncenter = centers.shape[0]
+    assert ncenter > 0
+    assert centers.shape[1] == 3
+    assert charges.flags['C_CONTIGUOUS']
+    assert charges.shape[0] == ncenter
+    assert esp.flags['C_CONTIGUOUS']
+    assert esp.shape[0] == ui_grid.shape[0]
+    assert esp.shape[1] == ui_grid.shape[1]
+    assert esp.shape[2] == ui_grid.shape[2]
+    assert rcut > 0
+    assert alpha > 0
+    assert gcut > 0
+
+    if ui_grid.cell.nvec == 3:
+        ewald3d.compute_esp_cube_ewald3d(ui_grid._this, <double*>esp.data,
+            <double*>centers.data, <double*>charges.data, ncenter, rcut, alpha,
+            gcut)
+    else:
+        raise NotImplementedError
 
 def pair_ewald(np.ndarray[double, ndim=1] delta not None,
                horton.cext.Cell cell not None,

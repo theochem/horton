@@ -138,3 +138,36 @@ void setup_esp_cost_cube_ewald3d(UniformIntGrid* ui_grid, double* vref,
 
     delete[] work;
 }
+
+void compute_esp_cube_ewald3d(UniformIntGrid* ui_grid, double* esp,
+    double* centers, double* charges, long ncenter, double rcut, double alpha,
+    double gcut) {
+
+    double grid_cart[3];
+    Range3Iterator r3i = Range3Iterator(NULL, ui_grid->get_shape(), NULL);
+    long i[3];
+    long npoint = r3i.get_npoint();
+
+    for (long ipoint=0; ipoint<npoint; ipoint++) {
+        // Compute the position of the grid point
+        r3i.set_point(ipoint, i, NULL);
+        grid_cart[0] = 0;
+        grid_cart[1] = 0;
+        grid_cart[2] = 0;
+        ui_grid->delta_grid_point(grid_cart, i);
+
+        // Do some ewald stuff
+        double tmp = 0;
+        for (long icenter=0; icenter<ncenter; icenter++) {
+            double delta[3];
+            delta[0] = centers[3*icenter]   - grid_cart[0];
+            delta[1] = centers[3*icenter+1] - grid_cart[1];
+            delta[2] = centers[3*icenter+2] - grid_cart[2];
+            tmp += charges[icenter]*pair_ewald3d(delta, ui_grid->get_cell(), rcut, alpha, gcut);
+        }
+        (*esp) = tmp;
+
+        // move on
+        esp++;
+    }
+}

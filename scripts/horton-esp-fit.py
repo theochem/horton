@@ -88,6 +88,8 @@ def main():
 
     # Write some things on screen
     if log.do_medium:
+        log('Important parameters:')
+        log.hline()
         log('RMSD charges:                  %10.5e' % np.sqrt((results['charges']**2).mean()))
         log('RMSD ESP:                      %10.5e' % results['rmsd'])
         log('Worst RMSD ESP:                %10.5e' % results['rmsd_worst'])
