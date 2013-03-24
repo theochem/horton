@@ -21,7 +21,7 @@
 
 
 
-from horton import UniformIntGrid
+from horton import UniformIntGrid, angstrom
 
 
 __all__ = ['reduce_data', 'parse_h5']
@@ -44,3 +44,10 @@ def parse_h5(arg_h5):
     if arg_h5.count(':') != 1:
         raise VallueError('An hdf5 argument must contain one colon.')
     return arg_h5.split(':')
+
+
+def parse_ewald_args(args):
+    rcut = args.rcut*angstrom
+    alpha = args.alpha_scale/rcut
+    gcut = args.gcut_scale*alpha
+    return rcut, alpha, gcut
