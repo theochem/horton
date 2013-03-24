@@ -24,6 +24,9 @@
 from horton import UniformIntGrid
 
 
+__all__ = ['reduce_data', 'parse_h5']
+
+
 def reduce_data(cube_data, ui_grid, factor):
     if (ui_grid.shape % factor != 0).any():
         raise ValueError('The stride is not commensurate with all three grid demsions.')
@@ -35,3 +38,9 @@ def reduce_data(cube_data, ui_grid, factor):
     new_ui_grid = UniformIntGrid(ui_grid.origin, grid_rvecs, new_shape, ui_grid.pbc)
 
     return new_cube_data, new_ui_grid
+
+
+def parse_h5(arg_h5):
+    if arg_h5.count(':') != 1:
+        raise VallueError('An hdf5 argument must contain one colon.')
+    return arg_h5.split(':')

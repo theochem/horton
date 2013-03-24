@@ -29,26 +29,25 @@ from horton.scripts.common import parse_h5
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(prog='horton-esp-fit.py',
-        description='Estimate charges from an ESP cost function.')
+    parser = argparse.ArgumentParser(prog='horton-esp-test.py',
+        description='Test how well charges reproduce the ESP.')
 
-    parser.add_argument('h5',
+    parser.add_argument('h5_esp',
         help='[HDF5 filename]:[HDF5 group] The HDF5 file can be created with '
              'horton-esp-cost.py. The group must contain matrices A, B and C '
              'that define the quadratic cost function. The HDF5 file must also '
              'contain a system group in which the atoms are defined with an '
              'array numbers (for the atom numbers) and an array coordinates.')
-    parser.add_argument('group',
-        help='All results will be stored in this subgroup.')
-    parser.add_argument('--qtot', '-q', default=0.0, type=float,
-        help='The total charge of the system.')
-    parser.add_argument('--ridge', default=0.0, type=float,
-        help='The thikonov regularization strength used when solving the '
-             'charges.')
+    parser.add_argument('h5_charges',
+        help='[HDF5 filename]:[HDF5 group] The HDF5 file with the charges. '
+             'The results of the test will be written in a subgroup "esp". '
+             'The HDF5 file must also contain a system group that matches with '
+             'the system group of the h5_esp argument.')
+    parser.add_argument('--qtot', '-q', default=None, type=float,
+        help='The total charge of the system. When given, the charges from the '
+             'HDF5 file are corrected.')
 
-    # TODO: more constraint and restraint options
-    # TODO: When no group is given in h5 argument, run over all groups that
-    #       contain A, B and C.
+    # TODO: When no group is given in an h5 argument, loop over all relevant groups.
 
     return parser.parse_args()
 
@@ -56,31 +55,35 @@ def parse_args():
 def main():
     args = parse_args()
 
-    # Load the cost function from the HDF5 file
-    fn_h5, grp_name = parse_h5(args.h5)
+    # Load the cost function from the first HDF5 file
+    fn_h5, grp_name = parse_h5(args.h5_esp)
     with h5.File(fn_h5, 'r') as f:
         grp = f[grp_name]
         sys = System(f['system/coordinates'][:], f['system/numbers'][:])
         cost = ESPCost(grp['A'][:], grp['B'][:], grp['C'][()], sys.natom)
 
+    # Load the charges from the second HDF5 file
+    fn_h5, grp_name = parse_h5(args.h5_charges)
+    with h5.File(fn_h5, 'r') as f:
+        grp = f[grp_name]
+        charges = grp['charges'][:]
+        assert (sys.coordinates == f['system/coordinates'][:]).all()
+        assert (sys.numbers == f['system/numbers'][:]).all()
+
+    # Fix charges if needed
+    if args.qtot is not None:
+        charges -= (charges.sum() - args.qtot)/len(charges)
+
     # Store parameters in output
     results = {}
-    results['qtot'] = args.qtot
-    results['ridge'] = args.ridge
-
-    # Find the optimal charges
-    results['x'] = cost.solve(args.qtot, args.ridge)
-    results['charges'] = results['x'][:cost.natom]
-
-    # Related properties
-    results['cost'] = cost.value(results['x'])
+    results['cost'] = cost.value_charges(charges)
     if results['cost'] < 0:
         results['rmsd'] = 0.0
     else:
         results['rmsd'] = results['cost']**0.5
 
     # Worst case stuff
-    results['cost_worst'] = cost.worst(args.qtot)
+    results['cost_worst'] = cost.worst(charges.sum())
     if results['cost_worst'] < 0:
         results['rmsd_worst'] = 0.0
     else:
@@ -88,7 +91,7 @@ def main():
 
     # Write some things on screen
     if log.do_medium:
-        log('RMSD charges:                  %10.5e' % np.sqrt((results['charges']**2).mean()))
+        log('RMSD charges:                  %10.5e' % np.sqrt((charges**2).mean()))
         log('RMSD ESP:                      %10.5e' % results['rmsd'])
         log('Worst RMSD ESP:                %10.5e' % results['rmsd_worst'])
         log.hline()
@@ -97,9 +100,9 @@ def main():
     with h5.File(fn_h5) as f:
         # Get the group for the output
         grp = f[grp_name]
-        if args.group in grp:
-            del grp[args.group]
-        grp = grp.create_group(args.group)
+        if 'esp' in grp:
+            del grp['esp']
+        grp = grp.create_group('esp')
 
         # Store results
         for key, value in results.iteritems():
