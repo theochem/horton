@@ -258,3 +258,41 @@ def test_value_charges2():
         x = np.random.normal(0, 1, len(cost._A))
         x -= x.sum()
         assert cost.value(x) >= cost.value_charges(x[:-1])
+
+
+def test_consistent():
+    # random system
+    natom = 5
+    coordinates = np.random.uniform(0, 10, (natom, 3))
+    numbers = np.ones(natom, int)
+    sys = System(coordinates, numbers)
+    charges = np.random.normal(0, 1, natom)
+    charges -= charges.mean()
+
+    # random grid
+    origin = np.random.uniform(-3, 3, 3)
+    nrep = 10
+    grid_rvecs = np.diag(np.random.uniform(8.0, 10.0, 3))/nrep
+    grid_rvecs += np.random.uniform(-1.0, 1.0, (3, 3))/nrep
+    shape = np.array([nrep, nrep, nrep])
+    pbc = np.array([1, 1, 1])
+    ui_grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
+
+    # compute the ESP
+    rcut = 20.0
+    alpha = 3.0/10.0
+    gcut = 1.1*alpha
+    esp = np.zeros(shape)
+    compute_esp_grid_cube(ui_grid, esp, sys.coordinates, charges, rcut, alpha, gcut)
+
+    # Set up weights
+    weights = np.ones(shape)
+    for i in xrange(sys.natom):
+        multiply_near_mask(sys.coordinates[i], ui_grid, 1.0, 0.5, weights)
+
+    # Fit the charges and test
+    cost = ESPCost.from_grid_data(sys, ui_grid, esp, weights)
+    x = cost.solve()
+    assert cost.value_charges(charges) < 1e-8
+    assert cost.value(x) < 1e-8
+    assert abs(charges - x[:-1]).max() < 1e-5
