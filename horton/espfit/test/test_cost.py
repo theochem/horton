@@ -124,7 +124,10 @@ def test_esp_cost_cube3d_invariance_rcut():
     costs = []
     for i in xrange(10):
         sys = System(coordinates, np.ones(5, int))
-        cost = ESPCost.from_grid_data(sys, grid, vref, weights, rcut=np.random.uniform(10, 30), alpha_scale=4.5, gcut_scale=1.5)
+        rcut = np.random.uniform(10, 30)
+        alpha = 4.5/rcut
+        gcut = 1.5*alpha
+        cost = ESPCost.from_grid_data(sys, grid, vref, weights, rcut=rcut, alpha=alpha, gcut=gcut)
         costs.append(cost)
     # Compare the cost functions
     check_costs(costs)

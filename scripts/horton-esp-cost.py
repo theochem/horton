@@ -24,8 +24,8 @@
 import sys, argparse, os
 
 import h5py as h5, numpy as np
-from horton import System, angstrom, setup_weights, ESPCost, log
-from horton.scripts.common import reduce_data
+from horton import System, angstrom, setup_weights, ESPCost, log, angstrom
+from horton.scripts.common import reduce_data, parse_ewald_args
 from horton.scripts.espfit import parse_wdens, parse_wnear, parse_wfar, load_rho, save_weights
 
 
@@ -108,9 +108,24 @@ def main():
     ui_grid = sys.props['ui_grid']
     esp = sys.props['cube_data']
 
+    # Store command line arguments
+    results = {}
+    results['reduce'] = args.reduce
+    results['rcut'] = args.rcut*angstrom
+    results['alpha_scale'] = args.alpha_scale
+    results['gcut_scale'] = args.gcut_scale
+
     # Reduce the grid if required
     if args.reduce > 1:
         esp, ui_grid = reduce_data(esp, ui_grid, args.reduce)
+
+    # Some screen info
+    if log.do_medium:
+        log('Important parameters:')
+        log.hline()
+        log('Number of grid points:   %12i' % np.product(ui_grid.shape))
+        log('Grid shape:                 [%8i, %8i, %8i]' % tuple(ui_grid.shape))
+        log.hline()
 
     # Construct the weights for the ESP Cost function.
     wdens = parse_wdens(args.wdens)
@@ -127,7 +142,7 @@ def main():
     # write the weights to a cube file if requested
     if args.wsave is not None:
         if log.do_medium:
-            log('Saving weights array')
+            log('   Saving weights array   ')
         save_weights(args.wsave, sys, ui_grid, weights)
     # rescale weights such that the cost function is the mean-square-error
     if weights.max() == 0.0:
@@ -136,19 +151,30 @@ def main():
     wmin = weights.max()
     weights /= weights.sum()
 
+    # Some screen info
+    if log.do_medium:
+        log('Important parameters:')
+        log.hline()
+        log('Used number of grid points:   %12i' % (weights>0).sum())
+        log('Lowest weight:                %12.5e' % wmin)
+        log('Highest weight:               %12.5e' % wmax)
+
+    # Ewald parameters
+    rcut, alpha, gcut = parse_ewald_args(args)
+    results['alpha'] = alpha
+    results['gcut'] = gcut
+
+    # Some screen info
+    if log.do_medium:
+        log('Ewald real cutoff:       %12.5e' % rcut)
+        log('Ewald alpha:             %12.5e' % alpha)
+        log('Ewald reciprocal cutoff: %12.5e' % gcut)
+        log.hline()
+
     # Construct the cost function
     if log.do_medium:
-        log('Setting up cost function (may take a while)')
-    cost = ESPCost.from_grid_data(
-        sys, ui_grid, esp, weights, args.rcut*angstrom, args.alpha_scale,
-        args.gcut_scale)
-
-    # Store command line arguments
-    results = {}
-    results['reduce'] = args.reduce
-    results['rcut'] = args.rcut
-    results['alpha_scale'] = args.alpha_scale
-    results['gcut_scale'] = args.gcut_scale
+        log('Setting up cost function (may take a while)   ')
+    cost = ESPCost.from_grid_data(sys, ui_grid, esp, weights, rcut, alpha, gcut)
 
     # Store cost function info
     results['A'] = cost._A
@@ -167,10 +193,6 @@ def main():
     if log.do_medium:
         log('Important parameters:')
         log.hline()
-        log('Number of grid points:        %12i' % esp.size)
-        log('Used number of grid points:   %12i' % (weights>0).sum())
-        log('Lowest weight:                %12.5e' % wmin)
-        log('Highest weight:               %12.5e' % wmax)
         log('Lowest abs eigen value:       %12.5e' % abs_evals.min())
         log('Highest abs eigen value:      %12.5e' % abs_evals.max())
         log('Condition number:             %12.5e' % results['cn'])

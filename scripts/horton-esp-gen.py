@@ -25,7 +25,7 @@ import sys, argparse, os
 
 import h5py as h5, numpy as np
 from horton import System, UniformIntGrid, log, Cell, angstrom, compute_esp_grid_cube
-from horton.scripts.common import parse_h5
+from horton.scripts.common import parse_h5, parse_ewald_args
 
 
 def parse_args():
@@ -96,9 +96,9 @@ def main():
     ui_grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
 
     # Ewald parameters
-    rcut = args.rcut*angstrom      # <- TODO: three lines into one routine
-    alpha = args.alpha_scale/rcut  # <-
-    gcut = args.gcut_scale*alpha   # <-
+    rcut, alpha, gcut = parse_ewald_args(args)
+    results['alpha'] = alpha
+    results['gcut'] = gcut
 
     # Some screen info
     if log.do_medium:
@@ -106,8 +106,11 @@ def main():
         log.hline()
         log('Number of grid points:   %12i' % np.product(shape))
         log('Grid shape:                 [%8i, %8i, %8i]' % tuple(shape))
+        log('Ewald real cutoff:       %12.5e' % rcut)
+        log('Ewald alpha:             %12.5e' % alpha)
+        log('Ewald reciprocal cutoff: %12.5e' % gcut)
         log.hline()
-        # TODO: add ewald parameters and summation ranges
+        # TODO: add summation ranges
         log('Computing ESP (may take a while)')
 
     # Allocate and compute ESP grid

@@ -40,9 +40,11 @@ class ESPCost(object):
         # Rescale parameters not related to atomic charges
 
     @classmethod
-    def from_grid_data(cls, system, grid, vref, weights, rcut=20, alpha_scale=3.0, gcut_scale=1.1):
-        alpha = alpha_scale / rcut
-        gcut = gcut_scale * alpha
+    def from_grid_data(cls, system, grid, vref, weights, rcut=20, alpha=None, gcut=None):
+        if alpha is None:
+            alpha = 3.0 / rcut
+        if gcut is None:
+            gcut = 1.1 * alpha
         if isinstance(grid, UniformIntGrid):
             A = np.zeros((system.natom+1, system.natom+1), float)
             B = np.zeros(system.natom+1, float)
