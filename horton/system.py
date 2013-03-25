@@ -310,11 +310,11 @@ class System(object):
             # Suppose a filename is given. Create or open an HDF5 file.
             self._chk = h5.File(chk)
             self._close_chk = True
-        elif isinstance(chk, h5.File) or chk is None:
+        elif isinstance(chk, h5.Group) or chk is None:
             self._chk = chk
             self._close_chk = False
         else:
-            raise TypeError('The chk argument, when not None, must be a filename or an open h5.File object.')
+            raise TypeError('The chk argument, when not None, must be a filename or an open h5.Group object.')
         self.update_chk()
 
 
