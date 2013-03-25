@@ -67,7 +67,7 @@ def main():
     with h5.File(fn_h5, 'r') as f:
         grp = f[grp_name]
         charges = grp['charges'][:]
-        assert (sys.coordinates == f['system/coordinates'][:]).all()
+        rmsd_cart = np.sqrt(((sys.coordinates - f['system/coordinates'][:])**2).mean())
         assert (sys.numbers == f['system/numbers'][:]).all()
 
     # Fix total charge if requested
@@ -94,6 +94,7 @@ def main():
 
     # Write some things on screen
     if log.do_medium:
+        log('RMSD coordinates:              %10.5e' % rmsd_cart)
         log('RMSD charges:                  %10.5e' % np.sqrt((charges**2).mean()))
         log('RMSD ESP:                      %10.5e' % results['rmsd'])
         log('Worst RMSD ESP:                %10.5e' % results['rmsd_worst'])
