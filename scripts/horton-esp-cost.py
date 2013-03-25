@@ -35,6 +35,8 @@ def parse_args():
 
     parser.add_argument('cube',
         help='The cube file.')
+    parser.add_argument('--sign', '-s', default=False, action='store_true',
+        help='Change the sign of the ESP data. This is needed for CP2K and VASP.')
     parser.add_argument('--reduce', '-r', default=1, type=int,
         help='Reduce the grid by subsamping with the given stride in all three '
              'directions. Zero and negative values are ignored.')
@@ -118,6 +120,10 @@ def main():
     # Reduce the grid if required
     if args.reduce > 1:
         esp, ui_grid = reduce_data(esp, ui_grid, args.reduce)
+
+    # Fix sign
+    if args.sign:
+        esp *= -1
 
     # Some screen info
     if log.do_medium:
