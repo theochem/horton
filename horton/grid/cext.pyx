@@ -641,7 +641,6 @@ cdef class UniformIntGrid(object):
         )
 
     def to_hdf5(self, grp):
-        subgrp = grp.require_group('grid_cell')
         grp['grid_rvecs'] = self._grid_cell.rvecs
         grp['origin'] = self.origin
         grp['shape'] = self.shape
