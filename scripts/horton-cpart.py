@@ -24,7 +24,7 @@
 import sys, argparse, os
 
 import h5py as h5
-from horton import System, cpart_schemes, Cell, ProAtomDB, log, Scratch
+from horton import System, cpart_schemes, Cell, ProAtomDB, log, ArrayStore
 from horton.scripts.common import reduce_data
 
 
@@ -43,8 +43,13 @@ def parse_args():
              'directions. Zero and negative values are ignored.')
     parser.add_argument('--overwrite', default=False, action='store_true',
         help='Overwrite existing output in the HDF5 file')
+    parser.add_argument('--store', choices=('fake', 'core', 'disk'), default='core',
+        help='Controls the storage of large intermediate arrays. fake: disables '
+             'storage of such intermediate arrays. core: the arrays are kept in '
+             'memory. disk: the arrays are stored in an HDF5 file on disk. For '
+             'the last case, see the --tmp option')
     parser.add_argument('--tmp', type=str, default='.',
-        help='A directory where the temporary scratch file can be written.')
+        help='A directory where the temporary scratch file can be written. This is only relevant with option --store=disk.')
     parser.add_argument('--debug', default=False, action='store_true',
         help='Add additional internal results to a debug subgroup.')
     parser.add_argument('--suffix', default=None, type=str,
@@ -94,11 +99,18 @@ def main():
     # Load the proatomdb
     proatomdb = ProAtomDB.from_file(args.atoms)
 
+    # Pick the ArrayStorage options
+    mode = args.store
+    if mode == 'fake':
+        store_fn = None
+    else:
+        store_fn = '%s/_scratch-PID-%i.h5' % (args.tmp, os.getpid())
+
     # Run the partitioning
-    with Scratch('%s/_scratch-PID-%i.h5' % (args.tmp, os.getpid())) as scratch:
+    with ArrayStore.from_mode(mode, store_fn) as store:
         CPartClass = cpart_schemes[args.scheme]
         kwargs = dict((key, val) for key, val in vars(args).iteritems() if key in CPartClass.options)
-        cpart = cpart_schemes[args.scheme](sys, ui_grid, moldens, proatomdb, scratch, **kwargs)
+        cpart = cpart_schemes[args.scheme](sys, ui_grid, moldens, proatomdb, store, **kwargs)
         names = cpart.do_all()
 
     # Store the results in an HDF5 file

@@ -36,23 +36,43 @@ __all__ = [
 
 # TODO: reduce duplicate code
 
-
-class HirshfeldCPart(CPart):
+class StockholderCPart(CPart):
     name = 'h'
 
-    def __init__(self, system, ui_grid, moldens, proatomdb, scratch, smooth=False):
+    def __init__(self, system, ui_grid, moldens, store, smooth=False):
+        '''
+           See CPart base class for the description of the arguments.
+        '''
+        CPart.__init__(self, system, ui_grid, moldens, store, smooth)
+        assert 'promoldens' in self._cache
+
+    def compute_proatom(self, index, output):
+        # This routine must compute the pro-atom, not from scratch, but based
+        # on the info available after the partitioning. The default behavior
+        # is to load the pro-atom from the store, but in case the store is fake
+        # subclasses must be able to reconstruct the pro-atom on the fly.
+        raise NotImplementedError
+
+    def compute_at_weights(self, index, output):
+        self.compute_proatom(index, output)
+        output /= self._cache.load('promoldens')
+
+
+class HirshfeldCPart(StockholderCPart):
+    name = 'h'
+
+    def __init__(self, system, ui_grid, moldens, proatomdb, store, smooth=False):
         '''
            See CPart base class for the description of the arguments.
         '''
         self._proatomdb = proatomdb
-        CPart.__init__(self, system, ui_grid, moldens, scratch, smooth)
+        CPart.__init__(self, system, ui_grid, moldens, store, smooth)
 
     def _get_proatomdb(self):
         return self._proatomdb
 
     proatomdb = property(_get_proatomdb)
 
-    @just_once
     def _init_weight_corrections(self):
         funcs = []
         for i in xrange(self._system.natom):
@@ -69,50 +89,49 @@ class HirshfeldCPart(CPart):
                 [self._proatomdb.get_spline(n)],
             ))
         wcor = self._ui_grid.compute_weight_corrections(funcs)
-        self._scratch.dump('wcor', wcor)
+        self._cache.dump('wcor', wcor)
 
-    def _compute_proatom(self, index):
+    def compute_proatom(self, index, output):
         if log.do_medium:
             log('Computing proatom %i (%i)' % (index, self.system.natom))
-        proatom = self._zeros()
         # Construct the pro-atom
         number = self._system.numbers[index]
         center = self._system.coordinates[index]
         spline = self._proatomdb.get_spline(number)
-        self._ui_grid.eval_spline(spline, center, proatom)
-        proatom += 1e-100
-        self._scratch.dump('at_weights', index, proatom)
+        output[:] = 0.0
+        self._ui_grid.eval_spline(spline, center, output)
+        output += 1e-100
 
-    def _compute_promoldens(self):
-        promoldens = self._zeros()
-        proatom = self._zeros()
-        for i in xrange(self._system.natom):
-            self._scratch.load('at_weights', i, output=proatom)
-            promoldens += proatom
-        self._scratch.dump('promoldens', promoldens)
+    def _init_partitioning(self):
+        work = self.zeros()
+        self._update_promolecule(work)
+        self._store_at_weights(work)
 
-    def _compute_at_weights(self):
-        promoldens = self._scratch.load('promoldens')
-        proatom = self._zeros()
-        for i in xrange(self._system.natom):
-            self._scratch.load('at_weights', i, output=proatom)
-            proatom /= promoldens
-            self._scratch.dump('at_weights', i, proatom)
+    def _update_promolecule(self, work):
+        promoldens = self._cache.load('promoldens', alloc=self._ui_grid.shape)[0]
+        promoldens[:] = 0.0
+        for index in xrange(self._system.natom):
+            self.compute_proatom(index, work)
+            promoldens += work
+            # Merely for efficiency:
+            self._store.dump(work, 'at_weights', index)
 
-    @just_once
-    def _init_at_weights(self):
-        # A) Compute all the pro-atomic densities.
-        for i in xrange(self._system.natom):
-            self._compute_proatom(i)
-        self._compute_promoldens()
-        self._compute_at_weights()
+    def _store_at_weights(self, work):
+        # Compute the atomic weight functions if this is useful. This is merely
+        # a matter of efficiency.
+        promoldens = self._cache.load('promoldens')
+        for index in xrange(self._system.natom):
+            if ('at_weights', index) in self._store:
+                self._store.load(work, 'at_weights', index)
+                work /= promoldens
+                self._store.dump(work, 'at_weights', index)
 
 
 class HirshfeldICPart(HirshfeldCPart):
     name = 'hi'
     options = ['smooth', 'max_iter', 'threshold']
 
-    def __init__(self, system, ui_grid, moldens, proatomdb, scratch, smooth=False, max_iter=100, threshold=1e-4):
+    def __init__(self, system, ui_grid, moldens, proatomdb, store, smooth=False, max_iter=100, threshold=1e-4):
         '''
            **Optional arguments:** (those not present in the base class)
 
@@ -127,43 +146,43 @@ class HirshfeldICPart(HirshfeldCPart):
         '''
         self._max_iter = max_iter
         self._threshold = threshold
-        HirshfeldCPart.__init__(self, system, ui_grid, moldens, proatomdb, scratch, smooth)
+        HirshfeldCPart.__init__(self, system, ui_grid, moldens, proatomdb, store, smooth)
 
     def _get_isolated_atom(self, i, charge, output):
         key = ('isolated_atom', i, charge)
-        if key in self._scratch:
-            self._scratch.load(*key, output=output)
+        if key in self._store:
+            self._store.load(output, *key)
         else:
             number = self._system.numbers[i]
             center = self._system.coordinates[i]
             spline = self._proatomdb.get_spline(number, charge)
             if log.do_medium:
                 log('Computing isolated atom %i (n=%i, q=%+i)' % (i, number, charge))
-            output[:] = 0
+            output[:] = 0.0
             self._ui_grid.eval_spline(spline, center, output)
-            self._scratch.dump(*key, data=output)
+            self._store.dump(output, *key)
 
-    def _compute_proatom(self, i, target_charge):
-        # Pro-atoms are (temporarily) stored in at_weights for efficiency.
-        proatom = self._zeros()
+    def compute_proatom(self, i, output):
         # Construct the pro-atom
+        target_charge = self._cache.load('charges')[i]
         icharge = int(np.floor(target_charge))
-        self._get_isolated_atom(i, icharge, proatom)
+        self._get_isolated_atom(i, icharge, output)
         if float(icharge) != target_charge:
             x = target_charge - icharge
-            proatom *= 1-x
+            output *= 1-x
             ipseudo_pop = self.system.pseudo_numbers[i] - icharge
             if ipseudo_pop > 1:
-                tmp = self._zeros()
+                tmp = self.zeros()
                 self._get_isolated_atom(i, icharge+1, tmp)
                 tmp *= x
-                proatom += tmp
-        proatom += 1e-100 # avoid division by zero
-        self._scratch.dump('at_weights', i, proatom)
+                output += tmp
+        output += 1e-100 # avoid division by zero
 
-    @just_once
-    def _init_at_weights(self):
-        old_charges = np.zeros(self._system.natom)
+    def _update_proatom_pars(self):
+        pass
+
+    def _init_partitioning(self):
+        charges = self._cache.load('charges', alloc=self._system.natom)[0]
         if log.medium:
             log.hline()
             log('Iteration       Change')
@@ -171,30 +190,38 @@ class HirshfeldICPart(HirshfeldCPart):
 
         counter = 0
         change = 1.0
+        work = self.zeros()
+
         while True:
             counter += 1
 
-            # Update pro-atoms and populations
-            for i in xrange(self._system.natom):
-                self._compute_proatom(i, old_charges[i])
-            self._compute_promoldens()
-            self._compute_at_weights()
-            new_populations = self._compute_populations()
-            new_charges = self.system.numbers - new_populations
+            # Update the pro-molecule density
+            self._update_promolecule(work)
+
+            # Compute the atomic weight functions if this is useful. This is merely
+            # a matter of efficiency.
+            self._store_at_weights(work)
+
+            # Update the parameters that determine the pro-atoms.
+            self._update_proatom_pars()
+
+            # Compute the charges
+            old_charges = charges.copy()
+            for index in xrange(self._system.natom):
+                pseudo_population = self.compute_pseudo_population(index, work)
+                charges[index] = self.system.pseudo_numbers[index] - pseudo_population
 
             # Check for convergence
-            change = abs(new_charges - old_charges).max()
+            change = abs(charges - old_charges).max()
             if log.medium:
                 log('%9i   %10.5e' % (counter, change))
             if change < self._threshold or counter >= self._max_iter:
                 break
 
-            old_charges = new_charges
-
         if log.medium:
             log.hline()
 
-        self._cache.dump('populations', new_populations)
+        self._cache.dump('populations', self.system.numbers - charges)
         self._cache.dump('niter', counter)
         self._cache.dump('change', change)
 
@@ -227,12 +254,12 @@ class HirshfeldECPart(HirshfeldICPart):
                     splines.append(CubicSpline(rad0*rad1, rtf=rtf))
             funcs.append((center, splines))
         wcor_fit = self._ui_grid.compute_weight_corrections(funcs)
-        self._scratch.dump('wcor_fit', wcor_fit)
+        self._cache.dump('wcor_fit', wcor_fit)
 
     def _get_constant_fn(self, i, output):
         key = ('isolated_atom', i, 0)
-        if key in self._scratch:
-            self._scratch.load(*key, output=output)
+        if key in self._store:
+            self._store.load(output, *key)
         else:
             number = self._system.numbers[i]
             center = self._system.coordinates[i]
@@ -241,13 +268,13 @@ class HirshfeldECPart(HirshfeldICPart):
                 log('Computing constant fn %i (n=%i)' % (i, number))
             output[:] = 0
             self._ui_grid.eval_spline(spline, center, output)
-            self._scratch.dump(*key, data=output)
+            self._store.dump(output, *key)
 
     def _get_basis_fn(self, i, j, output):
         # A local cache is used that only exists during _init_at_weights:
         key = ('basis', i, j)
-        if key in self._scratch:
-            self._scratch.load(*key, output=output)
+        if key in self._store:
+            self._store.load(output, *key)
         else:
             number = self._system.numbers[i]
             charges = self._proatomdb.get_charges(number, safe=True)
@@ -257,38 +284,45 @@ class HirshfeldECPart(HirshfeldICPart):
                 log('Computing basis fn %i_%i (n=%i, q: %+i_%+i)' % (i, j, number, charges[j+1], charges[j]))
             output[:] = 0
             self._ui_grid.eval_spline(spline, center, output)
-            self._scratch.dump(*key, data=output)
+            self._store.dump(output, *key)
 
-    def _compute_proatom(self, i, target_charge):
-        # Pro-atoms are (temporarily) stored in at_weights for efficiency.
-        if ('at_weights', i) not in self._scratch:
-            # just use the Hirshfeld definition to get started
-            proatom = self._zeros()
-            self._get_constant_fn(i, proatom)
-            proatom += 1e-100
-            self._scratch.dump('at_weights', i, proatom)
-        else:
-            # 1) construct aim in temporary array
-            at_weights = self._scratch.load('at_weights', i)
-            aimdens = self._scratch.load('moldens')
-            aimdens *= at_weights
+    def compute_proatom(self, i, output):
+        # Get the coefficients for the pro-atom
+        number = self._system.numbers[i]
+        padb_charges = np.array(self._proatomdb.get_charges(number, safe=True))
+        neq = len(padb_charges)-1
+        pro_coeffs, new = self._cache.load('pro_coeffs', i, alloc=neq)
 
-            #    rename variables for clarity
-            work0 = at_weights
-            del at_weights
-            work1 = self._zeros()
+        # Construct the pro-atom
+        work = self.zeros()
+        self._get_constant_fn(i, output)
+        for j in xrange(neq):
+            if pro_coeffs[j] != 0:
+                work[:] = 0
+                self._get_basis_fn(i, j, work)
+                work *= pro_coeffs[j]
+                output += work
+        output += 1e-100
+
+    def _update_proatom_pars(self):
+        aimdens = self.zeros()
+        work0 = self.zeros()
+        work1 = self.zeros()
+        wcor_fit = self._cache.load('wcor_fit', default=None)
+        charges = self._cache.load('charges')
+        for i in xrange(self._system.natom):
+            # Construct the AIM density
+            present = self._store.load(aimdens, 'at_weights', i)
+            if not present:
+                # construct atomic weight function
+                self.compute_proatom(self, i, aimdens)
+                aimdens /= self._cache.load('promoldens')
+            aimdens *= self._cache.load('moldens')
 
             # 2) setup equations
             number = self._system.numbers[i]
-            charges = np.array(self._proatomdb.get_charges(number, safe=True))
-            neq = len(charges)-1
-
-            #    get the weight corrections for the least squares problem
-            # TODO: default value for load
-            if ('wcor_fit',) in self._scratch:
-                wcor_fit = self._scratch.load('wcor_fit')
-            else:
-                wcor_fit = None
+            padb_charges = np.array(self._proatomdb.get_charges(number, safe=True))
+            neq = len(padb_charges)-1
 
             #    compute A
             A, new = self._cache.load('A', i, alloc=(neq, neq))
@@ -299,7 +333,6 @@ class HirshfeldECPart(HirshfeldICPart):
                         self._get_basis_fn(i, j1, work1)
                         A[j0,j1] = self._ui_grid.integrate(work0, work1, wcor_fit)
                         A[j1,j0] = A[j0,j1]
-
 
                 #    precondition the equations
                 scales = np.diag(A)**0.5
@@ -324,29 +357,19 @@ class HirshfeldECPart(HirshfeldICPart):
             B /= scales
 
             # 3) find solution
-            lc_pop = (np.ones(neq)/scales, -target_charge)
-            #coeffs = solve_positive(A, B, [lc_pop])
+            #    constraint for total population of pro-atom
+            lc_pop = (np.ones(neq)/scales, -charges[i])
+            #    inequality constraints to keep coefficients larger than -1.
             lcs_par = []
             for j0 in xrange(neq):
                 lc = np.zeros(neq)
                 lc[j0] = 1.0/scales[j0]
                 lcs_par.append((lc, -1))
-            coeffs = quadratic_solver(A, B, [lc_pop], lcs_par, rcond=0)
+            pro_coeffs = quadratic_solver(A, B, [lc_pop], lcs_par, rcond=0)
             # correct for scales
-            coeffs /= scales
+            pro_coeffs /= scales
 
             if log.do_medium:
-                log('                   %10i:&%s' % (i, ' '.join('% 6.3f' % c for c in coeffs)))
+                log('                   %10i:&%s' % (i, ' '.join('% 6.3f' % c for c in pro_coeffs)))
 
-            # 4) construct the pro-atom
-            proatom = work1
-            del work1
-
-            for j0 in xrange(neq):
-                work0[:] = 0
-                self._get_basis_fn(i, j0, work0)
-                work0 *= coeffs[j0]
-                proatom += work0
-
-            proatom += 1e-100
-            self._scratch.dump('at_weights', i, proatom)
+            self._cache.dump('pro_coeffs', i, pro_coeffs)

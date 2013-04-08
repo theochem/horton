@@ -35,7 +35,7 @@ class CPart(JustOnceClass):
     name = None
     options = ['smooth']
 
-    def __init__(self, system, ui_grid, moldens, scratch, smooth):
+    def __init__(self, system, ui_grid, moldens, store, smooth):
         '''
            **Arguments:**
 
@@ -48,8 +48,8 @@ class CPart(JustOnceClass):
            moldens
                 The all-electron density grid data.
 
-           scratch
-                An instance of the class Scratch to store large working arrays
+           store
+                An instance of the class ArrayStore to store large working arrays
 
            **Optional arguments:**
 
@@ -62,11 +62,20 @@ class CPart(JustOnceClass):
         self._system = system
         self._ui_grid = ui_grid
         self._smooth = smooth
-        self._scratch = scratch
-        self._scratch.dump('moldens', moldens)
+
+        # ArrayStore is used to avoid recomputation of huge arrays. This is not
+        # always desirable due to memory constraints. Therefore the arrays
+        # can be stored in a file or not stored at all. (See ArrayStore for
+        # more details.) The convention is cpart is to use the store for large
+        # arrays whose number scales with the system size, e.g. pro-atoms and
+        # AIM densities. All other arrays are stored in the cache. This means
+        # that after the initial setup of the pro-atoms, the partitioning schemes
+        # must store sufficient details to recreate the proatoms when needed
+        self._store = store
 
         # Caching stuff, to avoid recomputation of earlier results
         self._cache = Cache()
+        self._cache.dump('moldens', moldens)
 
         # Some screen logging
         self._init_log()
@@ -74,8 +83,8 @@ class CPart(JustOnceClass):
         if not smooth:
             with timer.section('CPart wcor'):
                 self._init_weight_corrections()
-        with timer.section('CPart weights'):
-            self._init_at_weights()
+        with timer.section('CPart setup'):
+            self._init_partitioning()
 
     def __getitem__(self, key):
         return self._cache.load(key)
@@ -95,11 +104,12 @@ class CPart(JustOnceClass):
 
     smooth = property(_get_smooth)
 
-    @just_once
-    def _init_at_weights(self):
+    def _init_partitioning(self):
+        # This routine must prepare the partitioning such that the atomic weight
+        # functions can be quickly recomputed if they can not be loaded from
+        # the store.
         raise NotImplementedError
 
-    @just_once
     def _init_weight_corrections(self):
         raise NotImplementedError
 
@@ -113,36 +123,31 @@ class CPart(JustOnceClass):
                 ('Mean spacing', '%10.5e' % (self._ui_grid.grid_cell.volume**(1.0/3.0))),
             ])
 
-    def invalidate(self):
-        '''Discard all cached results, e.g. because density data changed'''
-        JustOnceClass.invalidate(self)
-        self._cache.invalidate()
-        # immediately recompute the basics
-        # TODO: For some schemes, the weights do not depend on the density
-        # and recomputation of the atomic weights is a waste of time
-        with timer.section('CPart weights'):
-            self._init_at_weights()
+    def get_wcor(self):
+        if self._cache.has('wcor'):
+            return self._cache.load('wcor')
 
-    def _get_wcor(self):
-        if ('wcor',) in self._scratch:
-            return self._scratch.load('wcor')
-
-    def _zeros(self):
+    def zeros(self):
         return np.zeros(self._ui_grid.shape)
 
-    def _compute_populations(self):
-        '''Compute the atomic populations'''
-        result = np.zeros(self._system.natom)
-        moldens = self._scratch.load('moldens')
-        wcor = self._get_wcor()
-        at_weights = self._zeros()
-        for i in xrange(self._system.natom):
-            self._scratch.load('at_weights', i, output=at_weights)
-            result[i] = self._ui_grid.integrate(wcor, at_weights, moldens)
+    def get_at_weights(self, index, output):
+        # The default behavior is load the weights from the store. If this fails,
+        # they must be recomputed.
+        present = self._store.load(output, 'at_weights', index)
+        if not present:
+            self.compute_at_weights(index, output)
+            self._store.dump(output, 'at_weights', index)
 
-        result += self.system.numbers - self.system.pseudo_numbers
+    def compute_at_weights(self, index, output):
+        raise NotImplementedError
 
-        return result
+    def compute_pseudo_population(self, index, work=None):
+        if work is None:
+            work = self.zeros()
+        moldens = self._cache.load('moldens')
+        wcor = self.get_wcor()
+        self.get_at_weights(index, work)
+        return self._ui_grid.integrate(wcor, work, moldens)
 
     def do_all(self):
         '''Computes all reasonable properties and returns a corresponding list of keys'''
@@ -156,7 +161,11 @@ class CPart(JustOnceClass):
             log('Computing atomic populations.')
         populations, new = self._cache.load('populations', alloc=self.system.natom)
         if new:
-            populations[:] = self._compute_populations()
+            work = self.zeros()
+            for i in xrange(self._system.natom):
+                populations[i] = self.compute_pseudo_population(i, work)
+            # correct for pseudo-potentials
+            populations += self.system.numbers - self.system.pseudo_numbers
 
     @just_once
     def do_charges(self):

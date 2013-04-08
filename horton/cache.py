@@ -30,7 +30,7 @@ import numpy as np, h5py as h5, os
 from horton.log import log
 
 
-__all__ = ['JustOnceClass', 'just_once', 'Cache', 'Scratch']
+__all__ = ['JustOnceClass', 'just_once', 'Cache', 'ArrayStore']
 
 
 class JustOnceClass(object):
@@ -276,21 +276,50 @@ class Cache(object):
         del self._store[old]
 
 
-# TODO: merge Scratch with the Cache class at some point.
-class Scratch(object):
-    '''A disk-based cache to reduce memory usage'''
-    def __init__(self, fn, fake=False):
+class ArrayStore(object):
+    '''Storage for large arrays'''
+    @classmethod
+    def from_mode(cls, mode, fn):
+        """
+           mode
+                Specifies the implementation. 'fake' means that nothing is
+                stored and every array must be recomputed when needed. 'core'
+                means that all arrays are stored in memory in an in-core HDF5
+                file. 'disk' means that the arrays are written to disk in an
+                HDF5 file.
+
+           fn
+                The filename, must be None when mode=='fake'. It may also be a
+                h5py.File object.
+        """
+        if mode == 'fake':
+            if fn is not None:
+                raise TypeError('In fake mode, the filename must be None.')
+            return cls(None, False)
+        elif mode == 'core':
+            return cls(h5.File(fn, driver='core', backing_store=False, libver='latest'), True)
+        elif mode == 'disk':
+            return cls(h5.File(fn, 'w', libver='latest'), True)
+        else:
+            raise NotImplementedError('Unknown mode: %s' % mode)
+
+    def __init__(self, file, do_close):
+        '''
+           **Arguments:**
+
+           file
+                An h5py.File object or None
+
+           do_close
+                A boolean indicating that the HDF5 file must be closed when the
+                ArrayStore object is deleted. If this is True, the corresponding
+                file is deleted. Otherwise, the arrays added to the file are
+                deleted. The value of this parameter is not relevant when
+                file==None.
+        '''
         self._open = True
-        self._fake = fake
-        if isinstance(fn, basestring):
-            if fake:
-                self._f = h5.File(fn, driver='core', backing_store=False, libver='latest')
-            else:
-                self._f = h5.File(fn, 'w', libver='latest')
-            self._own = True
-        elif isinstance(fn, h5.File):
-            self._f = fn
-            self._own = False
+        self._file = file
+        self._do_close = do_close
 
     def __enter__(self):
         return self
@@ -304,56 +333,79 @@ class Scratch(object):
     def close(self):
         if self._open:
             self._open = False
-            if self._own:
+            if self._file is None:
+                # nothing to do
+                return
+            elif self._do_close:
                 # clean up file
-                fn = self._f.filename
-                self._f.close()
-                if not self._fake:
+                fn = self._file.filename
+                self._file.close()
+                if os.path.isfile(fn):
                     os.remove(fn)
             else:
                 # clean up everything in file
-                for name in self._f.keys():
-                    del self._f[name]
+                for name in self._file.keys():
+                    del self._file[name]
 
     def _key_to_name(self, key):
         return '_'.join(str(item) for item in key)
 
-    def load(self, *args, **kwargs):
-        if len(args) < 1:
-            raise TypeError('Expecting at least one argument')
-        name = self._key_to_name(args)
-        output = kwargs.pop('output', None)
-        if len(kwargs) > 0:
-            raise TypeError('Unexpected keyword argument: %s' % kwargs.popitem()[0])
-        if output is None:
-            return self._f[name][:]
-        else:
-            self._f[name].read_direct(output)
+    def load(self, *args):
+        '''Try to load an array from the store.
 
-    def dump(self, *args, **kwargs):
-        data = kwargs.pop('data', None)
-        if len(kwargs) > 0:
-            raise TypeError('Unexpected keyword argument: %s' % kwargs.popitem()[0])
-        if data is None:
-            if len(args) < 2:
-                raise TypeError('Expecting at least two arguments')
-            name = self._key_to_name(args[:-1])
-            data = args[-1]
+           **Arguments:**
+
+           output
+                The first argument is an output argument in which the data is
+                copied.
+
+           arg1, arg2, arg3, ...
+                The following arguments are used as a key to identify the array.
+
+           When this method returns True, it was able to load the array. When
+           False, the array should be (re)computed.
+        '''
+        if len(args) < 2:
+            raise TypeError('Expecting at least two arguments.')
+        output = args[0]
+        key = args[1:]
+        name = self._key_to_name(key)
+        if self._file is not None and name in self._file:
+            self._file[name].read_direct(output)
+            return True
         else:
-            if len(args) < 1:
-                raise TypeError('Expecting at least one argument')
-            name = self._key_to_name(args)
-        if name in self._f:
-            self._f[name].write_direct(data)
-        else:
-            self._f[name] = data
+            return False
+
+    def dump(self, *args):
+        '''Store an array.
+
+           **Arguments:**
+
+           arg1, arg2, arg3, ...
+                The first N-1 arguments are used as a key to identify the array.
+
+           date
+                The last argument is the array that must be stored.
+        '''
+        if self._file is not None:
+            data = args[0]
+            key = args[1:]
+            name = self._key_to_name(key)
+            if name in self._file:
+                self._file[name].write_direct(data)
+            else:
+                self._file[name] = data
 
     def __contains__(self, key):
-        name = self._key_to_name(key)
-        return name in self._f
+        if self._file is None:
+            return False
+        else:
+            name = self._key_to_name(key)
+            return name in self._file
 
     def rename(self, key1, key2):
-        name1 = self._key_to_name(key1)
-        name2 = self._key_to_name(key2)
-        self._f[name2] = self._f[name1]
-        del self._f[name1]
+        if self._file is not None:
+            name1 = self._key_to_name(key1)
+            name2 = self._key_to_name(key2)
+            self._file[name2] = self._file[name1]
+            del self._file[name1]
