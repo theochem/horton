@@ -267,46 +267,45 @@ def test_discard():
     assert c.has('bar')
 
 
-def check_scratch_common(arg, fake=False):
-    with Scratch(arg, fake) as scratch:
+def check_array_store_common(mode, fn):
+    with ArrayStore.from_mode(mode, fn) as store:
         arr1 = np.random.normal(0, 1, (10, 10))
         arr2 = np.zeros((10, 10))
-        scratch.dump('aaaa', 5, arr1)
-        scratch.load('aaaa', 5, output=arr2)
-        assert (arr1 == arr2).all()
+        store.dump(arr1, 'aaaa', 5)
+        if store.load(arr2, 'aaaa', 5):
+            assert (arr1 == arr2).all()
         arr3 = np.random.normal(0, 1, (10, 10))
-        scratch.dump('aaaa', 5, arr3)
-        scratch.load('aaaa', 5, output=arr2)
-        assert (arr3 == arr2).all()
-        scratch.dump(*('aaaa', 5), data=arr3)
-        scratch.load('aaaa', 5, output=arr2)
-        assert (arr3 == arr2).all()
-        arr4 = scratch.load('aaaa', 5)
-        assert (arr3 == arr4).all()
-        arr5 = np.random.normal(0, 1, (11, 11))
-        assert ('aaaa', 5) in scratch
-        scratch.rename(('aaaa', 5), ('b', '1'))
-        assert ('b', '1') in scratch
-        assert ('aaaa', 5) not in scratch
-        arr6 = scratch.load('b', 1)
-        assert (arr3 == arr6).all()
+        store.dump(arr3, 'aaaa', 5,)
+        if store.load(arr2, 'aaaa', 5):
+            assert (arr3 == arr2).all()
+        store.dump(arr3, *('aaaa', 5))
+        if store.load(arr2, 'aaaa', 5):
+            assert (arr3 == arr2).all()
+            assert ('aaaa', 5) in store
+            store.rename(('aaaa', 5), ('b', '1'))
+            assert ('b', '1') in store
+            assert ('aaaa', 5) not in store
+        arr4 = np.random.normal(0, 1, (10, 10))
+        if store.load(arr4, 'b', 1):
+            assert (arr3 == arr4).all()
+            try:
+                arr5 = np.random.normal(0, 1, (11, 11))
+                store.dump(arr5, 'b', 1)
+                assert False
+            except TypeError:
+                pass
         try:
-            scratch.dump('b', 1, arr5)
-            assert False
-        except TypeError:
-            pass
-        try:
-            scratch.load('b', 1, foobar=None)
+            store.load('b', 1, foobar=None)
             assert False
         except TypeError:
             pass
 
 
-def test_scratch_disk():
-    dn = tempfile.mkdtemp('horton.test.test_cache.test_scratch_disk')
+def test_array_store_disk():
+    dn = tempfile.mkdtemp('horton.test.test_cache.test_array_store_disk')
     fn = '%s/test.h5' % dn
     try:
-        check_scratch_common(fn)
+        check_array_store_common('disk', fn)
         assert not os.path.isfile(fn)
     finally:
         if os.path.isfile(fn):
@@ -314,13 +313,10 @@ def test_scratch_disk():
         os.rmdir(dn)
 
 
-def test_scratch_core():
-    f = h5.File('horton.test.test_cache.test_scratch_core', driver='core', backing_store=False)
-    check_scratch_common(f)
-    assert len(f) == 0
-
-
-def test_scratch_fake():
-    fn = 'horton.test.test_cache.test_scratch_fake.h5'
-    check_scratch_common(fn, fake=True)
+def test_array_store_core():
+    fn = 'horton.test.test_cache.test_array_store_core'
+    check_array_store_common('core', fn)
     assert not os.path.isfile(fn)
+
+def test_array_store_fake():
+    check_array_store_common('fake', None)
