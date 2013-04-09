@@ -230,10 +230,69 @@ class HirshfeldICPart(HirshfeldCPart):
         return names + ['niter', 'change']
 
 
+class HEBasis(object):
+    def __init__(self, numbers, proatomdb):
+        self.numbers = numbers
+        self.proatomdb = proatomdb
+
+        self.nbasis = 0
+        self.basis_specs = []
+
+        for i in xrange(len(numbers)):
+            number = numbers[i]
+            padb_charges = proatomdb.get_charges(number, safe=True)
+            complete = proatomdb.get_record(number, padb_charges[0]).pseudo_population == 1
+            atom_nbasis = len(padb_charges) - 1 + complete
+
+            licos = []
+            self.basis_specs.append([self.nbasis, atom_nbasis, licos])
+            for j in xrange(atom_nbasis):
+                if complete:
+                    if j == 0:
+                        licos.append({padb_charges[j]: 1})
+                    else:
+                        licos.append({padb_charges[j]: 1, padb_charges[j-1]: -1})
+                else:
+                    licos.append({padb_charges[j+1]: 1, padb_charges[j]: -1})
+
+            self.nbasis += atom_nbasis
+
+    def get_nbasis(self):
+        return self.nbasis
+
+    def get_atom_begin(self, i):
+        return self.basis_specs[i][0]
+
+    def get_atom_nbasis(self, i):
+        return self.basis_specs[i][1]
+
+    def get_constant_spline(self, i):
+        return self.proatomdb.get_spline(self.numbers[i])
+
+    def get_basis_spline(self, i, j):
+        licos = self.basis_specs[i][2]
+        return self.proatomdb.get_spline(self.numbers[i], licos[j])
+
+    def get_basis_label(self, i, j):
+        licos = self.basis_specs[i][2]
+        charges = tuple(sorted(licos[j].keys()))
+        if len(charges) == 1:
+            return '%+i' % charges
+        else:
+            return '%+i_%+i' % charges
+
+
 class HirshfeldECPart(HirshfeldICPart):
     name = 'he'
 
-    @just_once
+    def __init__(self, system, ui_grid, moldens, proatomdb, store, smooth=False):
+        '''
+           See CPart base class for the description of the arguments.
+        '''
+        self._hebasis = HEBasis(system.numbers, proatomdb)
+        HirshfeldICPart.__init__(self, system, ui_grid, moldens, proatomdb, store, smooth)
+
+
     def _init_weight_corrections(self):
         HirshfeldICPart._init_weight_corrections(self)
         #return
@@ -242,18 +301,15 @@ class HirshfeldECPart(HirshfeldICPart):
         for i in xrange(self._system.natom):
             center = self._system.coordinates[i]
             splines = []
-            number = self._system.numbers[i]
-            padb_charges = self._proatomdb.get_charges(number, safe=True)
-            rtf = self._proatomdb.get_rtransform(number)
+            atom_nbasis = self._hebasis.get_atom_nbasis(i)
+            rtf = self._proatomdb.get_rtransform(self._system.numbers[i])
             splines = []
-            for j0 in xrange(len(padb_charges)-1):
-                rad0 = self._proatomdb.get_record(number, padb_charges[j0+1]).rho - \
-                       self._proatomdb.get_record(number, padb_charges[j0]).rho
-                splines.append(CubicSpline(rad0, rtf=rtf))
+            for j0 in xrange(atom_nbasis):
+                spline0 = self._hebasis.get_basis_spline(i, j0)
+                splines.append(spline0)
                 for j1 in xrange(j0+1):
-                    rad1 = self._proatomdb.get_record(number, padb_charges[j1+1]).rho - \
-                           self._proatomdb.get_record(number, padb_charges[j1]).rho
-                    splines.append(CubicSpline(rad0*rad1, rtf=rtf))
+                    spline1 = self._hebasis.get_basis_spline(i, j1)
+                    splines.append(CubicSpline(spline0.copy_y()*spline1.copy_y(), rtf=rtf))
             funcs.append((center, splines))
         wcor_fit = self._ui_grid.compute_weight_corrections(funcs, rcond=1.0)
         self._cache.dump('wcor_fit', wcor_fit)
@@ -265,7 +321,7 @@ class HirshfeldECPart(HirshfeldICPart):
         else:
             number = self._system.numbers[i]
             center = self._system.coordinates[i]
-            spline = self._proatomdb.get_spline(number)
+            spline = self._hebasis.get_constant_spline(i)
             if log.do_medium:
                 log('Computing constant fn %i (n=%i)' % (i, number))
             output[:] = 0
@@ -281,44 +337,29 @@ class HirshfeldECPart(HirshfeldICPart):
             number = self._system.numbers[i]
             padb_charges = self._proatomdb.get_charges(number, safe=True)
             center = self._system.coordinates[i]
-
-            if self._proatomdb.get_record(number, padb_charges[0]).pseudo_population == 1:
-                if j == 0:
-                    spline = self._proatomdb.get_spline(number, {padb_charges[j]: 1})
-                    label_q = '%+i' % padb_charges[j]
-                else:
-                    spline = self._proatomdb.get_spline(number, {padb_charges[j]: 1, padb_charges[j-1]: -1})
-                    label_q = '%+i_%+i' % (padb_charges[j], padb_charges[j-1])
-            else:
-                spline = self._proatomdb.get_spline(number, {padb_charges[j+1]: 1, padb_charges[j]: -1})
-                label_q = '%+i_%+i' % (padb_charges[j+1], padb_charges[j])
+            spline = self._hebasis.get_basis_spline(i, j)
+            label = self._hebasis.get_basis_label(i, j)
             if log.do_medium:
-                log('Computing basis fn %i_%i (n=%i, q: %s)' % (i, j, number, label_q))
+                log('Computing basis fn %i_%i (n=%i, %s)' % (i, j, number, label))
             output[:] = 0
             self._ui_grid.eval_spline(spline, center, output)
             self._store.dump(output, *key)
 
-    def _get_nbasis(self, i):
-        number = self._system.numbers[i]
-        padb_charges = self._proatomdb.get_charges(number, safe=True)
-        result = len(padb_charges)-1
-        if self._proatomdb.get_record(number, padb_charges[0]).pseudo_population == 1:
-            result += 1
-        return result
-
     def compute_proatom(self, i, output):
         # Get the coefficients for the pro-atom
-        nbasis = self._get_nbasis(i)
-        pro_coeffs, new = self._cache.load('pro_coeffs', i, alloc=nbasis)
+        nbasis = self._hebasis.get_nbasis()
+        pro_coeffs = self._cache.load('pro_coeffs', alloc=nbasis)[0]
 
         # Construct the pro-atom
+        begin = self._hebasis.get_atom_begin(i)
+        atom_nbasis =  self._hebasis.get_atom_nbasis(i)
         work = self.zeros()
         self._get_constant_fn(i, output)
-        for j in xrange(nbasis):
-            if pro_coeffs[j] != 0:
+        for j in xrange(atom_nbasis):
+            if pro_coeffs[j+begin] != 0:
                 work[:] = 0
                 self._get_basis_fn(i, j, work)
-                work *= pro_coeffs[j]
+                work *= pro_coeffs[j+begin]
                 output += work
         output += 1e-100
 
@@ -328,6 +369,7 @@ class HirshfeldECPart(HirshfeldICPart):
         work1 = self.zeros()
         wcor_fit = self._cache.load('wcor_fit', default=None)
         charges = self._cache.load('charges')
+        pro_coeffs = self._cache.load('pro_coeffs')
         for i in xrange(self._system.natom):
             # Construct the AIM density
             present = self._store.load(aimdens, 'at_weights', i)
@@ -340,7 +382,8 @@ class HirshfeldECPart(HirshfeldICPart):
             aimdens -= work0
 
             # 2) setup equations
-            nbasis = self._get_nbasis(i)
+            begin = self._hebasis.get_atom_begin(i)
+            nbasis = self._hebasis.get_atom_nbasis(i)
 
             # Preliminary check
             if charges[i] > nbasis:
@@ -388,14 +431,18 @@ class HirshfeldECPart(HirshfeldICPart):
                 lc[j0] = 1.0/scales[j0]
                 lcs_par.append((lc, -1))
                 #lcs_par.append((-lc, -1))
-            #pro_coeffs = quadratic_solver(A, B, [lc_pop], lcs_par, rcond=0)
-            pro_coeffs = quadratic_solver(A, B, [], lcs_par, rcond=0)
-            rrmsd = np.sqrt(np.dot(np.dot(A, pro_coeffs) - 2*B, pro_coeffs)/C + 1)
+            #atom_pro_coeffs = quadratic_solver(A, B, [lc_pop], lcs_par, rcond=0)
+            atom_pro_coeffs = quadratic_solver(A, B, [], lcs_par, rcond=0)
+            rrmsd = np.sqrt(np.dot(np.dot(A, atom_pro_coeffs) - 2*B, atom_pro_coeffs)/C + 1)
 
             #    correct for scales
-            pro_coeffs /= scales
+            atom_pro_coeffs /= scales
 
             if log.do_medium:
-                log('            %10i (%.0f%%):&%s' % (i, rrmsd*100, ' '.join('% 6.3f' % c for c in pro_coeffs)))
+                log('            %10i (%.0f%%):&%s' % (i, rrmsd*100, ' '.join('% 6.3f' % c for c in atom_pro_coeffs)))
 
-            self._cache.dump('pro_coeffs', i, pro_coeffs)
+            pro_coeffs[begin:begin+nbasis] = atom_pro_coeffs
+
+    def do_all(self):
+        names = HirshfeldICPart.do_all(self)
+        return names + ['pro_coeffs']
