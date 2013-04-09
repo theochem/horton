@@ -236,24 +236,25 @@ class HirshfeldECPart(HirshfeldICPart):
     @just_once
     def _init_weight_corrections(self):
         HirshfeldICPart._init_weight_corrections(self)
+        #return
 
         funcs = []
         for i in xrange(self._system.natom):
             center = self._system.coordinates[i]
             splines = []
             number = self._system.numbers[i]
-            charges = self._proatomdb.get_charges(number, safe=True)
+            padb_charges = self._proatomdb.get_charges(number, safe=True)
             rtf = self._proatomdb.get_rtransform(number)
             splines = []
-            for j0 in xrange(len(charges)-1):
-                rad0 = self._proatomdb.get_record(number, charges[j0+1]).rho - \
-                       self._proatomdb.get_record(number, charges[j0]).rho
+            for j0 in xrange(len(padb_charges)-1):
+                rad0 = self._proatomdb.get_record(number, padb_charges[j0+1]).rho - \
+                       self._proatomdb.get_record(number, padb_charges[j0]).rho
                 for j1 in xrange(j0+1):
-                    rad1 = self._proatomdb.get_record(number, charges[j1+1]).rho - \
-                           self._proatomdb.get_record(number, charges[j1]).rho
+                    rad1 = self._proatomdb.get_record(number, padb_charges[j1+1]).rho - \
+                           self._proatomdb.get_record(number, padb_charges[j1]).rho
                     splines.append(CubicSpline(rad0*rad1, rtf=rtf))
             funcs.append((center, splines))
-        wcor_fit = self._ui_grid.compute_weight_corrections(funcs)
+        wcor_fit = self._ui_grid.compute_weight_corrections(funcs, rcond=1.0)
         self._cache.dump('wcor_fit', wcor_fit)
 
     def _get_constant_fn(self, i, output):
@@ -277,26 +278,42 @@ class HirshfeldECPart(HirshfeldICPart):
             self._store.load(output, *key)
         else:
             number = self._system.numbers[i]
-            charges = self._proatomdb.get_charges(number, safe=True)
+            padb_charges = self._proatomdb.get_charges(number, safe=True)
             center = self._system.coordinates[i]
-            spline = self._proatomdb.get_spline(number, {charges[j+1]: 1, charges[j]: -1})
+
+            if self._proatomdb.get_record(number, padb_charges[0]).pseudo_population == 1:
+                if j == 0:
+                    spline = self._proatomdb.get_spline(number, {padb_charges[j]: 1})
+                    label_q = '%+i' % padb_charges[j]
+                else:
+                    spline = self._proatomdb.get_spline(number, {padb_charges[j]: 1, padb_charges[j-1]: -1})
+                    label_q = '%+i_%+i' % (padb_charges[j], padb_charges[j-1])
+            else:
+                spline = self._proatomdb.get_spline(number, {padb_charges[j+1]: 1, padb_charges[j]: -1})
+                label_q = '%+i_%+i' % (padb_charges[j+1], padb_charges[j])
             if log.do_medium:
-                log('Computing basis fn %i_%i (n=%i, q: %+i_%+i)' % (i, j, number, charges[j+1], charges[j]))
+                log('Computing basis fn %i_%i (n=%i, q: %s)' % (i, j, number, label_q))
             output[:] = 0
             self._ui_grid.eval_spline(spline, center, output)
             self._store.dump(output, *key)
 
+    def _get_nbasis(self, i):
+        number = self._system.numbers[i]
+        padb_charges = self._proatomdb.get_charges(number, safe=True)
+        result = len(padb_charges)-1
+        if self._proatomdb.get_record(number, padb_charges[0]).pseudo_population == 1:
+            result += 1
+        return result
+
     def compute_proatom(self, i, output):
         # Get the coefficients for the pro-atom
-        number = self._system.numbers[i]
-        padb_charges = np.array(self._proatomdb.get_charges(number, safe=True))
-        neq = len(padb_charges)-1
-        pro_coeffs, new = self._cache.load('pro_coeffs', i, alloc=neq)
+        nbasis = self._get_nbasis(i)
+        pro_coeffs, new = self._cache.load('pro_coeffs', i, alloc=nbasis)
 
         # Construct the pro-atom
         work = self.zeros()
         self._get_constant_fn(i, output)
-        for j in xrange(neq):
+        for j in xrange(nbasis):
             if pro_coeffs[j] != 0:
                 work[:] = 0
                 self._get_basis_fn(i, j, work)
@@ -318,16 +335,20 @@ class HirshfeldECPart(HirshfeldICPart):
                 self.compute_proatom(self, i, aimdens)
                 aimdens /= self._cache.load('promoldens')
             aimdens *= self._cache.load('moldens')
+            self._get_constant_fn(i, work0)
+            aimdens -= work0
 
             # 2) setup equations
-            number = self._system.numbers[i]
-            padb_charges = np.array(self._proatomdb.get_charges(number, safe=True))
-            neq = len(padb_charges)-1
+            nbasis = self._get_nbasis(i)
+
+            # Preliminary check
+            if charges[i] > nbasis:
+                raise RuntimeError('The charge on atom %i becomes too positive: %f > %i. (infeasible)' % (i, charges[i], nbasis))
 
             #    compute A
-            A, new = self._cache.load('A', i, alloc=(neq, neq))
+            A, new = self._cache.load('A', i, alloc=(nbasis, nbasis))
             if new:
-                for j0 in xrange(neq):
+                for j0 in xrange(nbasis):
                     self._get_basis_fn(i, j0, work0)
                     for j1 in xrange(j0+1):
                         self._get_basis_fn(i, j1, work1)
@@ -348,28 +369,31 @@ class HirshfeldECPart(HirshfeldICPart):
                 scales = self._cache.load('scales', i)
 
             #    compute B and precondition
-            self._get_constant_fn(i, work1)
-            aimdens -= work1
-            B = np.zeros(neq, float)
-            for j0 in xrange(neq):
+            B = np.zeros(nbasis, float)
+            for j0 in xrange(nbasis):
                 self._get_basis_fn(i, j0, work0)
                 B[j0] = self._ui_grid.integrate(aimdens, work0, wcor_fit)
             B /= scales
 
+            C = self._ui_grid.integrate(aimdens, aimdens, wcor_fit)
+
             # 3) find solution
             #    constraint for total population of pro-atom
-            lc_pop = (np.ones(neq)/scales, -charges[i])
+            lc_pop = (np.ones(nbasis)/scales, -charges[i])
             #    inequality constraints to keep coefficients larger than -1.
             lcs_par = []
-            for j0 in xrange(neq):
-                lc = np.zeros(neq)
+            for j0 in xrange(nbasis):
+                lc = np.zeros(nbasis)
                 lc[j0] = 1.0/scales[j0]
                 lcs_par.append((lc, -1))
+                #lcs_par.append((-lc, -1))
             pro_coeffs = quadratic_solver(A, B, [lc_pop], lcs_par, rcond=0)
-            # correct for scales
+            rrmsd = np.sqrt(np.dot(np.dot(A, pro_coeffs) - 2*B, pro_coeffs)/C + 1)
+
+            #    correct for scales
             pro_coeffs /= scales
 
             if log.do_medium:
-                log('                   %10i:&%s' % (i, ' '.join('% 6.3f' % c for c in pro_coeffs)))
+                log('            %10i (%.0f%%):&%s' % (i, rrmsd*100, ' '.join('% 6.3f' % c for c in pro_coeffs)))
 
             self._cache.dump('pro_coeffs', i, pro_coeffs)
