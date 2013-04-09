@@ -71,19 +71,6 @@ def quadratic_solver(A, b, binding_eq, binding_ineq, rcond=0):
        things simple. The constraint equations are not inverted separately,
        which avoids a lot of trouble.
     """
-    if False:
-        print A
-        print b
-        print binding_eq
-        print binding_ineq
-        # When this routine fails for a certain system. This printout can be
-        # used to add a test_quadratic_solver_hard* to the unit tests.
-        from cPickle import dumps
-        print (dumps(A),)
-        print (dumps(b),)
-        print (dumps(binding_eq),)
-        print (dumps(binding_ineq),)
-        print rcond
 
     # The matrix A must be positive definite
     evals = np.linalg.eigvalsh(A)
@@ -203,6 +190,20 @@ def quadratic_solver(A, b, binding_eq, binding_ineq, rcond=0):
 
         return x
 
+    print 'Quadratic solver failure'
+    print A
+    print b
+    print binding_eq
+    print binding_ineq
+    print rcond
+    # When this routine fails for a certain system. This printout can be
+    # used to add a test_quadratic_solver_hard* to the unit tests.
+    from cPickle import dumps
+    print (dumps(A),)
+    print (dumps(b),)
+    print (dumps(binding_eq),)
+    print (dumps(binding_ineq),)
+    print (dumps(rcond),)
     raise AssertionError('Qaudratic solver did not converge in %i iterations. Worst condition number was %.1e' % (maxiter, cn))
 
 
