@@ -285,7 +285,7 @@ class HirshfeldECPart(HirshfeldICPart):
 
             #    get the weight corrections for the least squares problem
             # TODO: default value for load
-            if 'wcor_fit' in self._scratch:
+            if ('wcor_fit',) in self._scratch:
                 wcor_fit = self._scratch.load('wcor_fit')
             else:
                 wcor_fit = None
