@@ -249,6 +249,7 @@ class HirshfeldECPart(HirshfeldICPart):
             for j0 in xrange(len(padb_charges)-1):
                 rad0 = self._proatomdb.get_record(number, padb_charges[j0+1]).rho - \
                        self._proatomdb.get_record(number, padb_charges[j0]).rho
+                splines.append(CubicSpline(rad0, rtf=rtf))
                 for j1 in xrange(j0+1):
                     rad1 = self._proatomdb.get_record(number, padb_charges[j1+1]).rho - \
                            self._proatomdb.get_record(number, padb_charges[j1]).rho
@@ -387,7 +388,8 @@ class HirshfeldECPart(HirshfeldICPart):
                 lc[j0] = 1.0/scales[j0]
                 lcs_par.append((lc, -1))
                 #lcs_par.append((-lc, -1))
-            pro_coeffs = quadratic_solver(A, B, [lc_pop], lcs_par, rcond=0)
+            #pro_coeffs = quadratic_solver(A, B, [lc_pop], lcs_par, rcond=0)
+            pro_coeffs = quadratic_solver(A, B, [], lcs_par, rcond=0)
             rrmsd = np.sqrt(np.dot(np.dot(A, pro_coeffs) - 2*B, pro_coeffs)/C + 1)
 
             #    correct for scales
