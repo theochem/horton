@@ -285,12 +285,12 @@ class HEBasis(object):
 class HirshfeldECPart(HirshfeldICPart):
     name = 'he'
 
-    def __init__(self, system, ui_grid, moldens, proatomdb, store, smooth=False):
+    def __init__(self, system, ui_grid, moldens, proatomdb, store, smooth=False, max_iter=100, threshold=1e-4):
         '''
            See CPart base class for the description of the arguments.
         '''
         self._hebasis = HEBasis(system.numbers, proatomdb)
-        HirshfeldICPart.__init__(self, system, ui_grid, moldens, proatomdb, store, smooth)
+        HirshfeldICPart.__init__(self, system, ui_grid, moldens, proatomdb, store, smooth, max_iter, threshold)
 
 
     def _init_weight_corrections(self):
@@ -311,7 +311,7 @@ class HirshfeldECPart(HirshfeldICPart):
                     spline1 = self._hebasis.get_basis_spline(i, j1)
                     splines.append(CubicSpline(spline0.copy_y()*spline1.copy_y(), rtf=rtf))
             funcs.append((center, splines))
-        wcor_fit = self._ui_grid.compute_weight_corrections(funcs, rcond=1.0)
+        wcor_fit = self._ui_grid.compute_weight_corrections(funcs)
         self._cache.dump('wcor_fit', wcor_fit)
 
     def _get_constant_fn(self, i, output):
