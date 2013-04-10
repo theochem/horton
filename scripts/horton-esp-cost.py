@@ -83,6 +83,8 @@ def parse_args():
         help='Save the weights array to the given cube file.')
 
     # TODO: add argument to chop of last slice(s)
+    # TODO: wnear voor alle atomen in 1 keer
+    # TODO: report default values of parameters with --help
 
     return parser.parse_args()
 
