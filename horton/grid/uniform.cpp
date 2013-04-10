@@ -18,6 +18,12 @@
 //
 //--
 
+//#define DEBUG
+
+#ifdef DEBUG
+#include <cstdio>
+#endif
+
 #include <stdexcept>
 #include <cmath>
 #include "uniform.h"
@@ -90,6 +96,7 @@ double UniformIntGrid::dist_grid_point(double* center, long* i) {
 }
 
 void UniformIntGrid::delta_grid_point(double* center, long* i) {
+    // center is used here as a input; the final value is the relative vector;
     center[0] = origin[0] - center[0];
     center[1] = origin[1] - center[1];
     center[2] = origin[2] - center[2];
@@ -99,6 +106,42 @@ void UniformIntGrid::delta_grid_point(double* center, long* i) {
 double* UniformIntGrid::get_pointer(double* array, long* i) {
     return array + (i[0]*shape[1] + i[1])*shape[2] + i[2];
 }
+
+
+UniformIntGridWindow::UniformIntGridWindow(UniformIntGrid* ui_grid, long* _begin, long* _end)
+    : ui_grid(ui_grid) {
+
+    for (int i=0; i<3; i++) {
+        begin[i] = _begin[i];
+        end[i] = _end[i];
+    }
+}
+
+void UniformIntGridWindow::copy_begin(long* output) {
+    output[0] = begin[0];
+    output[1] = begin[1];
+    output[2] = begin[2];
+}
+
+void UniformIntGridWindow::copy_end(long* output) {
+    output[0] = end[0];
+    output[1] = end[1];
+    output[2] = end[2];
+}
+
+void UniformIntGridWindow::extend(double* small, double* output) {
+    Range3Iterator r3i = Range3Iterator(begin, end, ui_grid->get_shape());
+    long j[3], jwrap[3];
+    for (long ipoint=r3i.get_npoint()-1; ipoint >= 0; ipoint--) {
+        r3i.set_point(ipoint, j, jwrap);
+#ifdef DEBUG
+        printf("ipoint=%li  j={%li, %li, %li}  jwrap={%li, %li, %li}\n", ipoint, j[0], j[1], j[2], jwrap[0], jwrap[1], jwrap[2]);
+#endif
+        double* source = ui_grid->get_pointer(small, jwrap);
+        output[ipoint] = *source;
+    }
+}
+
 
 
 long index_wrap(long i, long high) {

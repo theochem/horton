@@ -19,6 +19,10 @@
 #
 #--
 
+cimport uniform
+
 cdef extern from "utils.h":
     double dot_multi(long npoint, long nvector, double** data)
+    double dot_multi_moments_cube(long nvector, double** data, uniform.UniformIntGrid* ui_grid, double* center, long nx, long ny, long nz, long nr) except +
+
     void grid_distances(double *points, double *center, double *distances, long n)

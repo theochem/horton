@@ -57,9 +57,9 @@ __all__ = [
     'RTransform', 'IdentityRTransform', 'LinearRTransform', 'ExpRTransform',
     'ShiftedExpRTransform', 'BakerRTransform',
     # UniformIntGrid
-    'UniformIntGrid', 'index_wrap',
+    'UniformIntGrid', 'UniformIntGridWindow', 'index_wrap',
     # utils
-    'dot_multi', 'grid_distances',
+    'dot_multi', 'dot_multi_moments_cube', 'grid_distances',
 ]
 
 
@@ -621,6 +621,10 @@ cdef class UniformIntGrid(object):
             self._this.copy_shape(<long*>result.data)
             return result
 
+    property size:
+        def __get__(self):
+            return np.product(self.shape)
+
     property pbc:
         def __get__(self):
             cdef np.ndarray[long, ndim=1] result = np.empty(3, int)
@@ -912,6 +916,116 @@ cdef class UniformIntGrid(object):
 
         return result
 
+    def get_window(self, np.ndarray[double, ndim=1] center, double rcut):
+        begin, end = self.get_ranges_rcut(center, rcut)
+        return UniformIntGridWindow(self, begin, end)
+
+
+cdef class UniformIntGridWindow(object):
+    def __cinit__(self, UniformIntGrid ui_grid not None,
+                  np.ndarray[long, ndim=1] begin not None,
+                  np.ndarray[long, ndim=1] end not None):
+        assert begin.flags['C_CONTIGUOUS']
+        assert begin.shape[0] == 3
+        assert end.flags['C_CONTIGUOUS']
+        assert end.shape[0] == 3
+
+        self._ui_grid = ui_grid
+        self._this = new uniform.UniformIntGridWindow(
+            ui_grid._this,
+            <long*>begin.data,
+            <long*>end.data,
+        )
+
+    def __dealloc__(self):
+        del self._this
+
+    property ui_grid:
+        def __get__(self):
+            return self._ui_grid
+
+    property begin:
+        def __get__(self):
+            cdef np.ndarray[long, ndim=1] result = np.empty(3, int)
+            self._this.copy_begin(<long*>result.data)
+            return result
+
+    property end:
+        def __get__(self):
+            cdef np.ndarray[long, ndim=1] result = np.empty(3, int)
+            self._this.copy_end(<long*>result.data)
+            return result
+
+    property shape:
+        def __get__(self):
+            return self.end - self.begin
+
+    def get_window_ui_grid(self):
+        grid_cell = self._ui_grid.grid_cell
+        origin = self._ui_grid.origin.copy()
+        grid_cell.add_rvec(origin, self.begin)
+        return UniformIntGrid(origin, grid_cell.rvecs, self.shape, np.zeros(3, int))
+
+    def zeros(self):
+        return np.zeros(self.shape, float)
+
+    def extend(self, np.ndarray[double, ndim=3] small not None,
+               np.ndarray[double, ndim=3] output not None):
+        assert small.flags['C_CONTIGUOUS']
+        shape = self._ui_grid.shape
+        assert small.shape[0] == shape[0]
+        assert small.shape[1] == shape[1]
+        assert small.shape[2] == shape[2]
+        assert output.flags['C_CONTIGUOUS']
+        shape = self.shape
+        assert output.shape[0] == shape[0]
+        assert output.shape[1] == shape[1]
+        assert output.shape[2] == shape[2]
+
+        self._this.extend(<double*>small.data, <double*>output.data)
+
+    def eval_spline(self, CubicSpline spline, np.ndarray[double, ndim=1] center,
+                    np.ndarray[double, ndim=3] output):
+        assert center.flags['C_CONTIGUOUS']
+        assert center.shape[0] == 3
+        assert output.flags['C_CONTIGUOUS']
+        assert output.shape[0] == self.shape[0]
+        assert output.shape[1] == self.shape[1]
+        assert output.shape[2] == self.shape[2]
+
+        # construct an ui_grid for this window such that we can reuse an existing routine
+        cdef UniformIntGrid window_ui_grid = self.get_window_ui_grid()
+        evaluate.eval_spline_cube(spline._this, <double*>center.data, <double*>output.data, window_ui_grid._this)
+
+    def integrate(self, *args, **kwargs):
+        # process arguments:
+        args = [arg.ravel() for arg in args if arg is not None]
+
+        # process keyword arguments:
+        center = kwargs.pop('center', None)
+        grid_cell = self._ui_grid.grid_cell
+        if center is None:
+            # retgular integration
+            if len(kwargs) > 0:
+                raise TypeError('Unexpected keyword argument: %s' % kwargs.popitem()[0])
+
+            # Similar to conventional integration routine:
+            return dot_multi(*args)*grid_cell.volume
+        else:
+            # integration with some polynomial factor in the integrand
+            nx = kwargs.pop('nx', 0)
+            ny = kwargs.pop('ny', 0)
+            nz = kwargs.pop('nz', 0)
+            nr = kwargs.pop('nr', 0)
+            if len(kwargs) > 0:
+                raise TypeError('Unexpected keyword argument: %s' % kwargs.popitem()[0])
+            assert center.flags['C_CONTIGUOUS']
+            assert center.shape[0] == 3
+
+            # advanced integration routine:
+            window_ui_grid = self.get_window_ui_grid()
+            return dot_multi_moments_cube(args, window_ui_grid, center, nx, ny, nz, nr)*grid_cell.volume
+
 
 def index_wrap(long i, long high):
     return uniform.index_wrap(i, high)
@@ -941,12 +1055,37 @@ def dot_multi(*integranda):
     cdef double** pointers = <double **>malloc(len(integranda)*sizeof(double*))
     if pointers == NULL:
         raise MemoryError()
-
     cdef np.ndarray[double, ndim=1] integrandum
     for i in xrange(len(integranda)):
         integrandum = integranda[i]
         pointers[i] = <double*>integrandum.data
+
     result = utils.dot_multi(npoint, len(integranda), pointers)
+
+    free(pointers)
+    return result
+
+
+def dot_multi_moments_cube(integranda, UniformIntGrid ui_grid, np.ndarray[double, ndim=1] center, long nx, long ny, long nz, long nr):
+    npoint = _check_integranda(integranda, ui_grid.size)
+    # Only non-periodic grids are supported to guarantee an unambiguous definition of the polynomial.
+    assert ui_grid.pbc[0] == 0
+    assert ui_grid.pbc[1] == 0
+    assert ui_grid.pbc[2] == 0
+    #
+    assert center.flags['C_CONTIGUOUS']
+    assert center.shape[0] == 3
+
+    cdef double** pointers = <double **>malloc(len(integranda)*sizeof(double*))
+    if pointers == NULL:
+        raise MemoryError()
+    cdef np.ndarray[double, ndim=1] integrandum
+    for i in xrange(len(integranda)):
+        integrandum = integranda[i]
+        pointers[i] = <double*>integrandum.data
+
+    result = utils.dot_multi_moments_cube(len(integranda), pointers, ui_grid._this, <double*>center.data, nx, ny, nz, nr)
+
     free(pointers)
     return result
 

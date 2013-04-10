@@ -45,6 +45,44 @@ double dot_multi(long npoint, long nvector, double** data) {
 }
 
 
+double dot_multi_moments_cube(long nvector, double** data, UniformIntGrid* ui_grid, double* center, long nx, long ny, long nz, long nr) {
+    if (ui_grid->get_cell()->get_nvec() != 0) {
+        throw std::domain_error("dot_mult_moments only works for non-periodic grids.");
+    }
+
+    double result = 0.0;
+
+    Range3Iterator r3i = Range3Iterator(NULL, ui_grid->get_shape(), NULL);
+    long j[3];
+    for (long ipoint=r3i.get_npoint()-1; ipoint >= 0; ipoint--) {
+        // do the usual product of integranda
+        double term = data[nvector-1][ipoint];
+        for (long ivector=nvector-2; ivector>=0; ivector--)
+           term *= data[ivector][ipoint];
+
+        // multiply with polynomial
+        r3i.set_point(ipoint, j, NULL);
+
+        double delta[3];
+        delta[0] = center[0];
+        delta[1] = center[1];
+        delta[2] = center[2];
+        ui_grid->delta_grid_point(delta, j);
+        if (nr != 0) {
+            double r = sqrt(delta[0]*delta[0] + delta[1]*delta[1] + delta[2]*delta[2]);
+            term *= pow(r, nr);
+        }
+        if (nx != 0) term *= pow(delta[0], nx);
+        if (ny != 0) term *= pow(delta[1], ny);
+        if (nz != 0) term *= pow(delta[2], nz);
+
+        // add to total
+        result += term;
+    }
+
+    return result;
+}
+
 void grid_distances(double *points, double *center, double *distances, long n) {
   double d, tmp;
   for (long i=0; i<n; i++) {

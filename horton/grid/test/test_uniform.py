@@ -328,3 +328,267 @@ def test_delta_grid_point():
     indexes = np.array([6, 3, -2])
     point = uig.origin + uig.grid_cell.to_cart(indexes.astype(float))
     assert abs(uig.delta_grid_point(center, np.array([6, 3, -2])) - (point - center)).max() < 1e-10
+
+
+def test_window3_extend_simple1():
+    origin = np.zeros(3, float)
+    grid_rvecs = np.identity(3, float)*0.1
+    shape = np.array([2, 3, 4])
+    pbc = np.array([1, 1, 1])
+    ui_grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
+
+    # test for get_window
+    window = UniformIntGridWindow(ui_grid, np.array([0, 0, 0]), shape)
+
+    # test for extend method
+    small = np.random.uniform(0, 1, ui_grid.shape)
+    big = window.zeros()
+    assert small.shape == big.shape
+    window.extend(small, big)
+    assert (big == small).all()
+
+
+def test_window3_extend_simple2():
+    origin = np.zeros(3, float)
+    grid_rvecs = np.identity(3, float)*0.1
+    shape = np.array([2, 3, 4])
+    pbc = np.array([1, 1, 1])
+    ui_grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
+
+    # test for get_window
+    window = UniformIntGridWindow(ui_grid, np.array([1, 1, 1]), shape)
+
+    # test for extend method
+    small = np.random.uniform(0, 1, ui_grid.shape)
+    big = window.zeros()
+    for i in xrange(3):
+        assert small.shape[i]-1 == big.shape[i]
+    window.extend(small, big)
+    assert (big == small[1:,1:,1:]).all()
+
+
+def check_window_block(small, big, window, shape, i0, i1, i2):
+    offset = shape*[i0, i1, i2]
+    # without clipping
+    begin = offset.copy()
+    end = begin + shape
+    # apply clipping
+    mask = begin<window.begin
+    begin[mask] = window.begin[mask]
+    mask = end>window.end
+    end[mask] = window.end[mask]
+    # test if this iteration has any grid points to be tested
+    if (end <= begin).any():
+        return
+    # actual comparison
+    begin1 = begin - window.begin
+    end1 = end - window.begin
+    big_block = big[begin1[0]:end1[0], begin1[1]:end1[1], begin1[2]:end1[2]]
+    begin2 = begin - offset
+    end2 = end - offset
+    small_block = small[begin2[0]:end2[0], begin2[1]:end2[1], begin2[2]:end2[2]]
+    assert (big_block == small_block).all()
+
+
+def check_window_ui_grid(window):
+    ui_grid = window.get_window_ui_grid()
+    assert abs(ui_grid.origin - (window.ui_grid.origin + np.dot(window.begin, ui_grid.grid_cell.rvecs))).max() < 1e-10
+    assert ui_grid.grid_cell.nvec == 3
+    assert (ui_grid.grid_cell.rvecs == window.ui_grid.grid_cell.rvecs).all()
+    assert (ui_grid.shape == window.end - window.begin).all()
+    assert (ui_grid.pbc == 0).all()
+
+
+def helper_xyzr_window(window, center):
+    origin = window.ui_grid.origin
+    grid_rvecs = window.ui_grid.grid_cell.rvecs
+    indexes = np.indices(window.shape)
+    indexes += window.begin.reshape(3, 1, 1, 1)
+    x = (origin[0] + indexes[0]*grid_rvecs[0,0] + indexes[1]*grid_rvecs[1,0] + indexes[2]*grid_rvecs[2,0]) - center[0]
+    y = (origin[1] + indexes[0]*grid_rvecs[0,1] + indexes[1]*grid_rvecs[1,1] + indexes[2]*grid_rvecs[2,1]) - center[1]
+    z = (origin[2] + indexes[0]*grid_rvecs[0,2] + indexes[1]*grid_rvecs[1,2] + indexes[2]*grid_rvecs[2,2]) - center[2]
+    r = (x*x + y*y + z*z)**0.5
+    return x, y, z, r
+
+
+def check_integrate_poly(window, center, big):
+    x, y, z, r = helper_xyzr_window(window, center)
+    for i in xrange(10):
+        nx = np.random.randint(5)
+        ny = np.random.randint(5)
+        nz = np.random.randint(5)
+        nr = np.random.randint(5)
+        value = window.integrate(big, center=center, nx=nx, ny=ny, nz=nz, nr=nr)
+        expected = window.integrate(big, x**nx, y**ny, z**nz, r**nr)
+        assert value != 0
+        assert abs(value - expected) < 1e-10
+
+
+def check_window_eval_spline(window, center, radius):
+    # construct a random spline
+    npoint = 5
+    rtf = LinearRTransform(0.001, radius, npoint)
+    spline = CubicSpline(np.random.uniform(0, 1, npoint), rtf=rtf)
+
+    # test the routine
+    x, y, z, r = helper_xyzr_window(window, center)
+    output = window.zeros()
+    window.eval_spline(spline, center, output)
+    values = output.ravel()
+    expected = spline(r.ravel())
+    assert values.max() > 0
+    assert values.min() == 0
+    assert abs(values - expected).max() < 1e-10
+
+
+def test_window3():
+    origin = np.zeros(3, float)
+    grid_rvecs = np.identity(3, float)*0.1
+    shape = np.array([5, 10, 15])
+    pbc = np.array([1, 1, 1])
+    ui_grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
+
+    # test for get_window
+    center = np.array([0.25, 0.0, -0.8])
+    radius = 1.3
+    window = ui_grid.get_window(center, radius)
+
+    assert (window.begin == [-10, -13, -21]).all()
+    assert (window.end == [16, 13, 5]).all()
+
+    # test for extend method
+    small = np.random.uniform(0, 1, ui_grid.shape)
+    big = window.zeros()
+    window.extend(small, big)
+
+    assert (big != 0.0).any()
+    for i0 in xrange(-2, 3):
+        for i1 in xrange(-2, 3):
+            for i2 in xrange(-2, 3):
+                check_window_block(small, big, window, shape, i0, i1, i2)
+
+    # test for get_window_ui_grid
+    check_window_ui_grid(window)
+
+    # test for integrate
+    assert abs(window.integrate(big) - big.sum()*ui_grid.grid_cell.volume) < 1e-10
+
+    # test for integrate with poly
+    check_integrate_poly(window, center, big)
+
+    # test for eval_spline
+    check_window_eval_spline(window, center, radius)
+
+
+def test_window2():
+    origin = np.array([-0.3, 0.22, 0.0])
+    grid_rvecs = np.identity(3, float)*0.1
+    shape = np.array([5, 10, 15])
+    pbc = np.array([1, 1, 0])
+    ui_grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
+
+    # test for get_window
+    center = np.array([0.25, 0.0, -0.8])
+    radius = 1.4
+    window = ui_grid.get_window(center, radius)
+
+    assert (window.begin == [-8, -16, 0]).all()
+    assert (window.end == [20, 12, 6]).all()
+
+    # test for extend method
+    small = np.random.uniform(0, 1, ui_grid.shape)
+    big = window.zeros()
+    window.extend(small, big)
+
+    assert (big[:,:,:6] != 0.0).any()
+    assert (big[:,:,6:] == 0.0).all()
+    for i0 in xrange(-2, 3):
+        for i1 in xrange(-2, 3):
+            check_window_block(small, big, window, shape, i0, i1, 0)
+
+    # test for get_window_ui_grid
+    check_window_ui_grid(window)
+
+    # test for integrate
+    assert abs(window.integrate(big) - big.sum()*ui_grid.grid_cell.volume) < 1e-10
+
+    # test for integrate with poly
+    check_integrate_poly(window, center, big)
+
+    # test for eval_spline
+    check_window_eval_spline(window, center, radius)
+
+
+def test_window1():
+    origin = np.array([-0.3, 0.22, 0.0])
+    grid_rvecs = np.identity(3, float)*0.1
+    shape = np.array([5, 10, 15])
+    pbc = np.array([1, 0, 0])
+    ui_grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
+
+    # test for get_window
+    center = np.array([0.25, 0.0, -0.8])
+    radius = 1.4
+    window = ui_grid.get_window(center, radius)
+
+    assert (window.begin == [-8, 0, 0]).all()
+    assert (window.end == [20, 10, 6]).all()
+
+    # test for extend method
+    small = np.random.uniform(0, 1, ui_grid.shape)
+    big = window.zeros()
+    window.extend(small, big)
+
+    assert (big[:,:,:6] != 0.0).any()
+    assert (big[:,:,6:] == 0.0).all()
+    for i0 in xrange(-2, 3):
+        check_window_block(small, big, window, shape, i0, 0, 0)
+
+    # test for get_window_ui_grid
+    check_window_ui_grid(window)
+
+    # test for integrate
+    assert abs(window.integrate(big) - big.sum()*ui_grid.grid_cell.volume) < 1e-10
+
+    # test for integrate with poly
+    check_integrate_poly(window, center, big)
+
+    # test for eval_spline
+    check_window_eval_spline(window, center, radius)
+
+
+def test_window0():
+    origin = np.array([-0.3, 0.22, 0.0])
+    grid_rvecs = np.identity(3, float)*0.1
+    shape = np.array([5, 10, 15])
+    pbc = np.array([0, 0, 0])
+    ui_grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
+
+    # test for get_window
+    center = np.array([0.25, 0.0, -0.8])
+    radius = 1.4
+    window = ui_grid.get_window(center, radius)
+
+    assert (window.begin == [0, 0, 0]).all()
+    assert (window.end == [5, 10, 6]).all()
+
+    # test for extend method
+    small = np.random.uniform(0, 1, ui_grid.shape)
+    big = window.zeros()
+    window.extend(small, big)
+
+    assert (big[:,:,:6] != 0.0).any()
+    assert (big[:,:,6:] == 0.0).all()
+    check_window_block(small, big, window, shape, 0, 0, 0)
+
+    # test for get_window_ui_grid
+    check_window_ui_grid(window)
+
+    # test for integrate
+    assert abs(window.integrate(big) - big.sum()*ui_grid.grid_cell.volume) < 1e-10
+
+    # test for integrate with poly
+    check_integrate_poly(window, center, big)
+
+    # test for eval_spline
+    check_window_eval_spline(window, center, radius)
