@@ -31,7 +31,8 @@ class UniformIntGrid {
         double origin[3];
         Cell* grid_cell;
         Cell* cell;
-        long shape[3], pbc[3];
+        long shape[3];
+        long pbc[3];
     public:
         UniformIntGrid(double* _origin, Cell* _grid_cell, long* _shape, long* _pbc, Cell* _cell);
 
@@ -46,6 +47,21 @@ class UniformIntGrid {
         double dist_grid_point(double* center, long* i);
         void delta_grid_point(double* center, long* i);
         double* get_pointer(double* array, long* i);
+};
+
+
+class UniformIntGridWindow {
+    private:
+        UniformIntGrid* ui_grid;
+        long begin[3];
+        long end[3];
+    public:
+        UniformIntGridWindow(UniformIntGrid* ui_grid, long* begin, long* end);
+
+        void copy_begin(long* output);
+        void copy_end(long* output);
+
+        void extend(double* small, double* output);
 };
 
 

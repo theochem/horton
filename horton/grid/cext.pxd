@@ -27,3 +27,7 @@ cdef class UniformIntGrid:
     cdef horton.cext.Cell _grid_cell
     cdef horton.cext.Cell _cell
     cdef uniform.UniformIntGrid* _this
+
+cdef class UniformIntGridWindow:
+    cdef UniformIntGrid _ui_grid
+    cdef uniform.UniformIntGridWindow* _this
