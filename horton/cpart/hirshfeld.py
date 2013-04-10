@@ -295,7 +295,6 @@ class HirshfeldECPart(HirshfeldICPart):
 
     def _init_weight_corrections(self):
         HirshfeldICPart._init_weight_corrections(self)
-        #return
 
         funcs = []
         for i in xrange(self._system.natom):
@@ -329,7 +328,6 @@ class HirshfeldECPart(HirshfeldICPart):
             self._store.dump(output, *key)
 
     def _get_basis_fn(self, i, j, output):
-        # A local cache is used that only exists during _init_at_weights:
         key = ('basis', i, j)
         if key in self._store:
             self._store.load(output, *key)
@@ -418,10 +416,14 @@ class HirshfeldECPart(HirshfeldICPart):
                 self._get_basis_fn(i, j0, work0)
                 B[j0] = self._ui_grid.integrate(aimdens, work0, wcor_fit)
             B /= scales
-
             C = self._ui_grid.integrate(aimdens, aimdens, wcor_fit)
 
-            # 3) find solution
+            # 3) Define a penalty to rule out large jumps in the pro-atom coeffs
+            ridge = 0.01*scales.mean()**2
+            A_penalty = ridge*np.diag(1/scales**2)
+            B_penalty = ridge*pro_coeffs[begin:begin+nbasis]/scales
+
+            # 4) find solution
             #    constraint for total population of pro-atom
             lc_pop = (np.ones(nbasis)/scales, -charges[i])
             #    inequality constraints to keep coefficients larger than -1.
@@ -431,8 +433,8 @@ class HirshfeldECPart(HirshfeldICPart):
                 lc[j0] = 1.0/scales[j0]
                 lcs_par.append((lc, -1))
                 #lcs_par.append((-lc, -1))
-            #atom_pro_coeffs = quadratic_solver(A, B, [lc_pop], lcs_par, rcond=0)
-            atom_pro_coeffs = quadratic_solver(A, B, [], lcs_par, rcond=0)
+            atom_pro_coeffs = quadratic_solver(A + A_penalty, B + B_penalty, [lc_pop], lcs_par, rcond=0)
+            #atom_pro_coeffs = quadratic_solver(A, B, [], lcs_par, rcond=0)
             rrmsd = np.sqrt(np.dot(np.dot(A, atom_pro_coeffs) - 2*B, atom_pro_coeffs)/C + 1)
 
             #    correct for scales
