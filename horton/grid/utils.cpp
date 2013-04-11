@@ -32,13 +32,16 @@
 
 double dot_multi(long npoint, long nvector, double** data) {
     double result = 0.0;
-    for (long ipoint=npoint; ipoint>0; ipoint--) {
-        double tmp = *(data[nvector-1]);
-        data[nvector-1]++;
+
+    #pragma omp parallel for reduction(+:result)
+    for (long ipoint=npoint-1; ipoint>=0; ipoint--) {
+        double tmp = data[nvector-1][ipoint];
         for (long ivector=nvector-2; ivector>=0; ivector--) {
-           tmp *= *(data[ivector]);
-           data[ivector]++;
+           tmp *= data[ivector][ipoint];
         }
+#ifdef DEBUG
+        printf("i=%i  tmp=%f\n", ipoint, tmp);
+#endif
         result += tmp;
     }
     return result;
