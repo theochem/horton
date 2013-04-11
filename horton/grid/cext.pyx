@@ -311,11 +311,11 @@ def eval_spline_cube(CubicSpline spline,
     evaluate.eval_spline_cube(spline._this, <double*>center.data,
                               <double*>output.data, ui_grid._this)
 
-def eval_spline_grid(CubicSpline spline,
-                     np.ndarray[double, ndim=1] center,
-                     np.ndarray[double, ndim=1] output,
-                     np.ndarray[double, ndim=2] points,
-                     horton.cext.Cell cell):
+def eval_spline_grid(CubicSpline spline not None,
+                     np.ndarray[double, ndim=1] center not None,
+                     np.ndarray[double, ndim=1] output not None,
+                     np.ndarray[double, ndim=2] points not None,
+                     horton.cext.Cell cell not None):
     assert center.flags['C_CONTIGUOUS']
     assert center.shape[0] == 3
     assert output.flags['C_CONTIGUOUS']
@@ -650,8 +650,9 @@ cdef class UniformIntGrid(object):
         grp['shape'] = self.shape
         grp['pbc'] = self.pbc
 
-    def eval_spline(self, CubicSpline spline, np.ndarray[double, ndim=1] center,
-                    np.ndarray[double, ndim=3] output):
+    def eval_spline(self, CubicSpline spline not None,
+                    np.ndarray[double, ndim=1] center not None,
+                    np.ndarray[double, ndim=3] output not None):
         assert center.flags['C_CONTIGUOUS']
         assert center.shape[0] == 3
         assert output.flags['C_CONTIGUOUS']
@@ -984,8 +985,9 @@ cdef class UniformIntGridWindow(object):
 
         self._this.extend(<double*>small.data, <double*>output.data)
 
-    def eval_spline(self, CubicSpline spline, np.ndarray[double, ndim=1] center,
-                    np.ndarray[double, ndim=3] output):
+    def eval_spline(self, CubicSpline spline not None,
+                    np.ndarray[double, ndim=1] center not None,
+                    np.ndarray[double, ndim=3] output not None):
         assert center.flags['C_CONTIGUOUS']
         assert center.shape[0] == 3
         assert output.flags['C_CONTIGUOUS']
@@ -1075,6 +1077,10 @@ def dot_multi_moments_cube(integranda, UniformIntGrid ui_grid, np.ndarray[double
     #
     assert center.flags['C_CONTIGUOUS']
     assert center.shape[0] == 3
+    assert nx >= 0
+    assert ny >= 0
+    assert nz >= 0
+    assert nr >= 0
 
     cdef double** pointers = <double **>malloc(len(integranda)*sizeof(double*))
     if pointers == NULL:

@@ -45,9 +45,23 @@ double dot_multi(long npoint, long nvector, double** data) {
 }
 
 
+double intexp(double base, long exp) {
+    double result = 1.0;
+    while (exp > 0) {
+        if (exp%2 == 1) result *= base;
+        base *= base;
+        exp /= 2;
+    }
+    return result;
+}
+
+
 double dot_multi_moments_cube(long nvector, double** data, UniformIntGrid* ui_grid, double* center, long nx, long ny, long nz, long nr) {
     if (ui_grid->get_cell()->get_nvec() != 0) {
         throw std::domain_error("dot_mult_moments only works for non-periodic grids.");
+    }
+    if ((nx<0) || (ny<0) || (nz<0) || (nr<0)) {
+        throw std::domain_error("dot_mult_moments can not be used with negative moments.");
     }
 
     double result = 0.0;
@@ -70,11 +84,11 @@ double dot_multi_moments_cube(long nvector, double** data, UniformIntGrid* ui_gr
         ui_grid->delta_grid_point(delta, j);
         if (nr != 0) {
             double r = sqrt(delta[0]*delta[0] + delta[1]*delta[1] + delta[2]*delta[2]);
-            term *= pow(r, nr);
+            term *= intexp(r, nr);
         }
-        if (nx != 0) term *= pow(delta[0], nx);
-        if (ny != 0) term *= pow(delta[1], ny);
-        if (nz != 0) term *= pow(delta[2], nz);
+        if (nx != 0) term *= intexp(delta[0], nx);
+        if (ny != 0) term *= intexp(delta[1], ny);
+        if (nz != 0) term *= intexp(delta[2], nz);
 
         // add to total
         result += term;

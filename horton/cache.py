@@ -350,6 +350,11 @@ class ArrayStore(object):
     def _key_to_name(self, key):
         return '_'.join(str(item) for item in key)
 
+    def _get_fake(self):
+        return self._file is None
+
+    fake = property(_get_fake)
+
     def load(self, *args):
         '''Try to load an array from the store.
 
