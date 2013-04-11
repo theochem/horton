@@ -52,7 +52,7 @@ def test_hirshfeld_jbw_coarse():
         cpart = HirshfeldCPart(sys, ui_grid, mol_dens, proatomdb, store)
         names = cpart.do_all()
         check_names(names, cpart)
-        wcor = cpart.get_wcor()
+        wcor = cpart['wcor']
         assert abs(cpart['populations'].sum() - ui_grid.integrate(wcor, mol_dens)) < 1e-10
 
 
@@ -136,9 +136,8 @@ def test_hirshfeld_e_fake():
         cpart = HirshfeldECPart(sys, ui_grid, mol_dens, proatomdb, store)
         cpart.do_charges()
         charges = cpart['charges']
-        print charges
         assert abs(charges.sum()) < 1e-2
-        assert abs(abs(charges).mean() - 0.401) < 1e-3
+        assert abs(abs(charges).mean() - 0.419) < 1e-3
 
 
 def test_hirshfeld_e_fake_pseudo():
@@ -149,7 +148,6 @@ def test_hirshfeld_e_fake_pseudo():
         cpart = HirshfeldECPart(sys, ui_grid, mol_dens, proatomdb, store)
         cpart.do_charges()
         charges = cpart['charges']
-        print charges
         assert abs(charges.sum()) < 1e-2
         assert abs(charges[0] - 0.400) < 1e-3
 
@@ -162,6 +160,5 @@ def test_hirshfeld_e_fake_pseudo_smooth():
         cpart = HirshfeldECPart(sys, ui_grid, mol_dens, proatomdb, store, smooth=True)
         cpart.do_charges()
         charges = cpart['charges']
-        print charges
         assert abs(charges.sum()) < 1e-2
         assert abs(charges[0] - 0.400) < 1e-3
