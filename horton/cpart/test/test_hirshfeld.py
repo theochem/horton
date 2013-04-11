@@ -92,6 +92,18 @@ def test_hirshfeld_fake_pseudo_smooth():
         assert abs(charges[0] - 0.2119886) < 1e-3
 
 
+def check_proatom_splines(cpart):
+    for index in xrange(cpart.system.natom):
+        center = cpart.system.coordinates[index]
+        spline = cpart.get_proatom_spline(index)
+        array1 = cpart.zeros()
+        cpart.ui_grid.eval_spline(spline, center, array1)
+        array2 = cpart.zeros()
+        cpart.compute_proatom(index, array2)
+        assert abs(array1).max() != 0.0
+        assert abs(array1 - array2).max() < 1e-5
+
+
 def test_hirshfeld_i_fake():
     sys, ui_grid, mol_dens, proatomdb = get_fake_co()
 
@@ -102,6 +114,7 @@ def test_hirshfeld_i_fake():
         charges = cpart['charges']
         assert abs(charges.sum()) < 1e-2
         assert abs(abs(charges).mean() - 0.438) < 1e-3
+        check_proatom_splines(cpart)
 
 
 def test_hirshfeld_i_fake_pseudo():
@@ -114,6 +127,7 @@ def test_hirshfeld_i_fake_pseudo():
         charges = cpart['charges']
         assert abs(charges.sum()) < 1e-2
         assert abs(charges[0] - 0.40262645) < 1e-3
+        check_proatom_splines(cpart)
 
 
 def test_hirshfeld_i_fake_pseudo_smooth():
@@ -126,6 +140,7 @@ def test_hirshfeld_i_fake_pseudo_smooth():
         charges = cpart['charges']
         assert abs(charges.sum()) < 1e-2
         assert abs(charges[0] - 0.40262645) < 1e-3
+        check_proatom_splines(cpart)
 
 
 def test_hirshfeld_e_fake():
@@ -138,6 +153,7 @@ def test_hirshfeld_e_fake():
         charges = cpart['charges']
         assert abs(charges.sum()) < 1e-2
         assert abs(abs(charges).mean() - 0.419) < 1e-3
+        check_proatom_splines(cpart)
 
 
 def test_hirshfeld_e_fake_pseudo():
@@ -150,6 +166,7 @@ def test_hirshfeld_e_fake_pseudo():
         charges = cpart['charges']
         assert abs(charges.sum()) < 1e-2
         assert abs(charges[0] - 0.400) < 1e-3
+        check_proatom_splines(cpart)
 
 
 def test_hirshfeld_e_fake_pseudo_smooth():
@@ -162,3 +179,4 @@ def test_hirshfeld_e_fake_pseudo_smooth():
         charges = cpart['charges']
         assert abs(charges.sum()) < 1e-2
         assert abs(charges[0] - 0.400) < 1e-3
+        check_proatom_splines(cpart)

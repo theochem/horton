@@ -255,8 +255,8 @@ class HirshfeldICPart(HirshfeldCPart):
             output += 1e-100 # avoid division by zero
 
     def get_proatom_spline(self, index):
-        icharge, x = self.get_interpolation_info(i)
-        number = self._system.numbers[i]
+        icharge, x = self.get_interpolation_info(index)
+        number = self._system.numbers[index]
         return self._proatomdb.get_spline(number, {icharge: 1-x, icharge+1: x})
 
     def do_all(self):
@@ -493,10 +493,10 @@ class HirshfeldECPart(HirshfeldICPart):
     def get_proatom_spline(self, index):
         procoeffs = self._cache.load('procoeffs')
         begin = self._hebasis.get_atom_begin(index)
-        atom_nbasis =  self._hebasis.get_atom_nbasis(index)
+        nbasis =  self._hebasis.get_atom_nbasis(index)
 
-        total_lico = {}
-        for j in xrange(atom_nbasis):
+        total_lico = {0: 1}
+        for j in xrange(nbasis):
             coeff = procoeffs[j+begin]
             lico = self._hebasis.get_basis_lico(index, j)
             for icharge, factor in lico.iteritems():
