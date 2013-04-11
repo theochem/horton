@@ -138,7 +138,7 @@ class CPart(JustOnceClass):
             self.compute_at_weights(index, output)
             self._store.dump(output, 'at_weights', index)
 
-    def compute_at_weights(self, index, output):
+    def compute_at_weights(self, index, output, window=None):
         raise NotImplementedError
 
     def compute_pseudo_population(self, index, work=None):
@@ -149,11 +149,17 @@ class CPart(JustOnceClass):
         self.get_at_weights(index, work)
         return self._ui_grid.integrate(wcor, work, moldens)
 
+    def get_cutoff_radius(self, index):
+        # The radius at which the weight function goes to zero
+        raise NotImplementedError
+
     def do_all(self):
         '''Computes all reasonable properties and returns a corresponding list of keys'''
         self.do_populations()
         self.do_charges()
-        return ['populations', 'charges']
+        self.do_moments()
+        return ['populations', 'charges', 'cartesian_powers',
+                'cartesian_moments', 'radial_powers', 'radial_moments']
 
     @just_once
     def do_populations(self):
@@ -176,3 +182,54 @@ class CPart(JustOnceClass):
         if new:
             populations = self._cache.load('populations')
             charges[:] = self.system.numbers - populations
+
+    @just_once
+    def do_moments(self):
+        if log.do_medium:
+            log('Computing all sorts of AIM moments.')
+
+        cartesian_powers = []
+        lmax = 4 # up to hexadecapoles.
+        for l in xrange(1, lmax+1):
+            for nz in xrange(0, l+1):
+                for ny in xrange(0, l-nz+1):
+                    nx = l - ny - nz
+                    print nx, ny, nz
+                    cartesian_powers.append([nx, ny, nz])
+        self._cache.dump('cartesian_powers', np.array(cartesian_powers))
+        cartesian_moments = self._cache.load('cartesian_moments', alloc=(self._system.natom, len(cartesian_powers)))[0]
+
+        radial_powers = np.arange(1, lmax+1)
+        radial_moments = self._cache.load('radial_moments', alloc=(self._system.natom, len(radial_powers)))[0]
+        self._cache.dump('radial_powers', radial_powers)
+
+        for i in xrange(self._system.natom):
+            # 1) Define a 'window' of the integration grid for this atom
+            center = self._system.coordinates[i]
+            radius = self.get_cutoff_radius(i)
+            window = self._ui_grid.get_window(center, radius)
+
+            # 2) Evaluate the non-periodic atomic weight in this window
+            aim = window.zeros()
+            at_weights_window = self.compute_at_weights(i, aim, window)
+
+            # 3) Extend the moldens over the window and multiply to obtain the
+            #    AIM
+            moldens = window.zeros()
+            window.extend(self._cache.load('moldens'), moldens)
+            aim *= moldens
+            del moldens
+
+            # 4) Compute Cartesian multipoles
+            counter = 0
+            for nx, ny, nz in cartesian_powers:
+                if log.do_medium:
+                    log('  moment %s%s%s' % ('x'*nx, 'y'*ny, 'z'*nz))
+                cartesian_moments[i, counter] = window.integrate(aim, center=center, nx=nx, ny=ny, nz=nz, nr=0)
+                counter += 1
+
+            # 5) Compute Radial moments
+            for nr in radial_powers:
+                if log.do_medium:
+                    log('  moment %s' % ('r'*nr))
+                radial_moments[i, nr-1] = window.integrate(aim, center=center, nx=0, ny=0, nz=0, nr=nr)

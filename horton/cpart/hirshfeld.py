@@ -46,16 +46,38 @@ class StockholderCPart(CPart):
         CPart.__init__(self, system, ui_grid, moldens, store, smooth)
         assert 'promoldens' in self._cache
 
-    def compute_proatom(self, index, output):
+    def compute_proatom(self, index, output, window=None):
         # This routine must compute the pro-atom, not from scratch, but based
         # on the info available after the partitioning. The default behavior
-        # is to load the pro-atom from the store, but in case the store is fake
-        # subclasses must be able to reconstruct the pro-atom on the fly.
-        raise NotImplementedError
+        # is to load the pro-atom from the store, but in case the store is fake,
+        # this implementation computes the pro-atom on the fly.
+        if log.do_medium:
+            if window is None:
+                shape = self._ui_grid.shape
+            else:
+                shape = window.shape
+            log('Computing proatom %i (%i) with generic routine [%i %i %i]' % (index, self.system.natom, shape[0], shape[1], shape[2]))
+        # Construct the pro-atom
+        center = self._system.coordinates[index]
+        spline = self.get_proatom_spline(index)
+        output[:] = 0.0
+        if window is None:
+            self._ui_grid.eval_spline(spline, center, output)
+        else:
+            window.eval_spline(spline, center, output)
+        output += 1e-100
 
-    def compute_at_weights(self, index, output):
-        self.compute_proatom(index, output)
-        output /= self._cache.load('promoldens')
+    def compute_at_weights(self, index, output, window=None):
+        self.compute_proatom(index, output, window)
+        if window is None:
+            output /= self._cache.load('promoldens')
+        else:
+            promoldens = window.zeros()
+            window.extend(self._cache.load('promoldens'), promoldens)
+            output /= promoldens
+
+    def get_proatom_spline(self, index):
+        raise NotImplementedError
 
 
 class HirshfeldCPart(StockholderCPart):
@@ -91,17 +113,6 @@ class HirshfeldCPart(StockholderCPart):
         wcor = self._ui_grid.compute_weight_corrections(funcs)
         self._cache.dump('wcor', wcor)
 
-    def compute_proatom(self, index, output):
-        if log.do_medium:
-            log('Computing proatom %i (%i)' % (index, self.system.natom))
-        # Construct the pro-atom
-        number = self._system.numbers[index]
-        center = self._system.coordinates[index]
-        spline = self._proatomdb.get_spline(number)
-        output[:] = 0.0
-        self._ui_grid.eval_spline(spline, center, output)
-        output += 1e-100
-
     def _init_partitioning(self):
         work = self.zeros()
         self._update_promolecule(work)
@@ -125,6 +136,14 @@ class HirshfeldCPart(StockholderCPart):
                 self._store.load(work, 'at_weights', index)
                 work /= promoldens
                 self._store.dump(work, 'at_weights', index)
+
+    def get_cutoff_radius(self, index):
+        '''The radius at which the weight function goes to zero'''
+        rtf = self._proatomdb.get_rtransform(self._system.numbers[index])
+        return rtf.radius(rtf.npoint-1)
+
+    def get_proatom_spline(self, index):
+        return self._proatomdb.get_spline(self._system.numbers[index])
 
 
 class HirshfeldICPart(HirshfeldCPart):
@@ -161,22 +180,6 @@ class HirshfeldICPart(HirshfeldCPart):
             output[:] = 0.0
             self._ui_grid.eval_spline(spline, center, output)
             self._store.dump(output, *key)
-
-    def compute_proatom(self, i, output):
-        # Construct the pro-atom
-        target_charge = self._cache.load('charges')[i]
-        icharge = int(np.floor(target_charge))
-        self._get_isolated_atom(i, icharge, output)
-        if float(icharge) != target_charge:
-            x = target_charge - icharge
-            output *= 1-x
-            ipseudo_pop = self.system.pseudo_numbers[i] - icharge
-            if ipseudo_pop > 1:
-                tmp = self.zeros()
-                self._get_isolated_atom(i, icharge+1, tmp)
-                tmp *= x
-                output += tmp
-        output += 1e-100 # avoid division by zero
 
     def _update_proatom_pars(self):
         pass
@@ -225,6 +228,34 @@ class HirshfeldICPart(HirshfeldCPart):
         self._cache.dump('niter', counter)
         self._cache.dump('change', change)
 
+    def get_interpolation_info(self, i):
+        target_charge = self._cache.load('charges')[i]
+        icharge = int(np.floor(target_charge))
+        x = target_charge - icharge
+        return icharge, x
+
+    def compute_proatom(self, i, output, window=None):
+        if self._store.fake or window is not None:
+            HirshfeldCPart.compute_proatom(self, i, output, window)
+        else:
+            # Construct the pro-atom
+            icharge, x = self.get_interpolation_info(i)
+            self._get_isolated_atom(i, icharge, output)
+            if x != 1:
+                output *= 1-x
+                ipseudo_pop = self.system.pseudo_numbers[i] - icharge
+                if ipseudo_pop > 1:
+                    tmp = self.zeros()
+                    self._get_isolated_atom(i, icharge+1, tmp)
+                    tmp *= x
+                    output += tmp
+            output += 1e-100 # avoid division by zero
+
+    def get_proatom_spline(self, index):
+        icharge, x = self.get_interpolation_info(i)
+        number = self._system.numbers[i]
+        return self._proatomdb.get_spline(number, {icharge: 1-x, icharge+1: x})
+
     def do_all(self):
         names = HirshfeldCPart.do_all(self)
         return names + ['niter', 'change']
@@ -272,6 +303,9 @@ class HEBasis(object):
     def get_basis_spline(self, i, j):
         licos = self.basis_specs[i][2]
         return self.proatomdb.get_spline(self.numbers[i], licos[j])
+
+    def get_basis_lico(self, i, j):
+        return self.basis_specs[i][2][j]
 
     def get_basis_label(self, i, j):
         licos = self.basis_specs[i][2]
@@ -342,24 +376,6 @@ class HirshfeldECPart(HirshfeldICPart):
             output[:] = 0
             self._ui_grid.eval_spline(spline, center, output)
             self._store.dump(output, *key)
-
-    def compute_proatom(self, i, output):
-        # Get the coefficients for the pro-atom
-        nbasis = self._hebasis.get_nbasis()
-        pro_coeffs = self._cache.load('pro_coeffs', alloc=nbasis)[0]
-
-        # Construct the pro-atom
-        begin = self._hebasis.get_atom_begin(i)
-        atom_nbasis =  self._hebasis.get_atom_nbasis(i)
-        work = self.zeros()
-        self._get_constant_fn(i, output)
-        for j in xrange(atom_nbasis):
-            if pro_coeffs[j+begin] != 0:
-                work[:] = 0
-                self._get_basis_fn(i, j, work)
-                work *= pro_coeffs[j+begin]
-                output += work
-        output += 1e-100
 
     def _update_proatom_pars(self):
         aimdens = self.zeros()
@@ -444,6 +460,41 @@ class HirshfeldECPart(HirshfeldICPart):
                 log('            %10i (%.0f%%):&%s' % (i, rrmsd*100, ' '.join('% 6.3f' % c for c in atom_pro_coeffs)))
 
             pro_coeffs[begin:begin+nbasis] = atom_pro_coeffs
+
+    def compute_proatom(self, i, output, window=None):
+        if self._store.fake or window is not None:
+            HirshfeldCPart.compute_proatom(self, i, output, window)
+        else:
+            # Get the coefficients for the pro-atom
+            nbasis = self._hebasis.get_nbasis()
+            pro_coeffs = self._cache.load('pro_coeffs', alloc=nbasis)[0]
+
+            # Construct the pro-atom
+            begin = self._hebasis.get_atom_begin(i)
+            atom_nbasis =  self._hebasis.get_atom_nbasis(i)
+            work = self.zeros()
+            self._get_constant_fn(i, output)
+            for j in xrange(atom_nbasis):
+                if pro_coeffs[j+begin] != 0:
+                    work[:] = 0
+                    self._get_basis_fn(i, j, work)
+                    work *= pro_coeffs[j+begin]
+                    output += work
+            output += 1e-100
+
+    def get_proatom_spline(self, index):
+        pro_coeffs = self._cache.load('pro_coeffs')
+        begin = self._hebasis.get_atom_begin(i)
+        atom_nbasis =  self._hebasis.get_atom_nbasis(i)
+
+        total_lico = {}
+        for j in xrange(atom_nbasis):
+            coeff = pro_coeffs[j+begin]
+            lico = self._hebasis.get_basis_lico(index, j)
+            for icharge, factor in lico.iteritems():
+                total_lico[icharge] = total_lico.get(icharge, 0) + coeff*factor
+
+        return self._proatomdb.get_spline(number, total_lico)
 
     def do_all(self):
         names = HirshfeldICPart.do_all(self)
