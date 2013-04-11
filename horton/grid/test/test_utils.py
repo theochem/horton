@@ -24,6 +24,17 @@ import numpy as np
 from horton import *
 
 
+def test_dot_multi():
+    cases = [
+        (np.arange(10.0), np.arange(10.0, 20.0)),
+        (np.random.uniform(0, 1, 5), np.random.uniform(0, 1, 5)),
+    ]
+    for a, b in cases:
+        d1 = np.dot(a, b)
+        d2 = dot_multi(a, b)
+        assert abs(d1 - d2) < 1e-10
+
+
 def test_grid_distances():
     points = np.random.normal(0,1, (100,3))
     center = np.random.normal(0,1, 3)
