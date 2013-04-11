@@ -34,24 +34,31 @@ void eval_spline_cube(CubicSpline* spline, double* center, double* output,
 
     // Find the ranges for the triple loop
     double rcut = spline->get_last_x();
-    long ranges_begin[3], ranges_end[3];
-    ui_grid->set_ranges_rcut(center, rcut, ranges_begin, ranges_end);
+    long begin[3], end[3];
+    ui_grid->set_ranges_rcut(center, rcut, begin, end);
 
-    // Run triple loop
-    const long* shape = ui_grid->get_shape();
-    Range3Iterator r3i = Range3Iterator(ranges_begin, ranges_end, shape);
-    long j[3], jwrap[3];
-    for (long ipoint=r3i.get_npoint()-1; ipoint >=0; ipoint--) {
-        r3i.set_point(ipoint, j, jwrap);
-        double d = ui_grid->dist_grid_point(center, j);
+    // Run triple loop over blocks (serial)
+    Block3Iterator b3i = Block3Iterator(begin, end, ui_grid->get_shape());
+    for (long iblock=b3i.get_nblock()-1; iblock>=0; iblock--) {
 
-        // Evaluate spline if needed
-        if (d < rcut) {
-            double s;
-            spline->eval(&d, &s, 1);
+        // Run triple loop within one block (parallel)
+        Cube3Iterator c3i = Cube3Iterator(ui_grid->get_shape());
+        #pragma omp parallel for
+        for (long ipoint=c3i.get_npoint()-1; ipoint>=0; ipoint--) {
+            long j[3];
+            long jwrap[3];
+            c3i.set_point(ipoint, jwrap);
+            b3i.translate(iblock, jwrap, j);
 
-            // Add to result
-            *(output + (jwrap[0]*shape[1] + jwrap[1])*shape[2] + jwrap[2]) += s;
+            double d = ui_grid->dist_grid_point(center, j);
+
+            // Evaluate spline if needed
+            if (d < rcut) {
+                double s;
+                spline->eval(&d, &s, 1);
+                *(ui_grid->get_pointer(output, jwrap)) += s;
+            }
+
         }
     }
 }

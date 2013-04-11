@@ -70,6 +70,9 @@ def test_uig_eval_spline_simple1():
     uig.eval_spline(cs, np.zeros(3), data2)
     data2 = data2.ravel()
 
+    print data1.min(), data1.max()
+    print data2.min(), data2.max()
+
     assert abs(data1 - data2).max() == 0.0
 
 
@@ -592,3 +595,41 @@ def test_window0():
 
     # test for eval_spline
     check_window_eval_spline(window, center, radius)
+
+
+def test_block3iterator():
+    b3i = Block3Iterator(np.array([0, 0, 0]), np.array([4, 6, 9]), np.array([4, 6, 9]))
+    assert (b3i.block_begin == [0, 0, 0]).all()
+    assert (b3i.block_end == [1, 1, 1]).all()
+
+    # positive
+
+    b3i = Block3Iterator(np.array([1, 0, 0]), np.array([5, 6, 9]), np.array([4, 6, 9]))
+    assert (b3i.block_begin == [0, 0, 0]).all()
+    assert (b3i.block_end == [2, 1, 1]).all()
+
+    b3i = Block3Iterator(np.array([4, 0, 0]), np.array([8, 6, 9]), np.array([4, 6, 9]))
+    assert (b3i.block_begin == [1, 0, 0]).all()
+    assert (b3i.block_end == [2, 1, 1]).all()
+
+    b3i = Block3Iterator(np.array([5, 0, 0]), np.array([9, 6, 9]), np.array([4, 6, 9]))
+    assert (b3i.block_begin == [1, 0, 0]).all()
+    assert (b3i.block_end == [3, 1, 1]).all()
+
+    # negative
+
+    b3i = Block3Iterator(np.array([-1, 0, 0]), np.array([3, 6, 9]), np.array([4, 6, 9]))
+    assert (b3i.block_begin == [-1, 0, 0]).all()
+    assert (b3i.block_end == [1, 1, 1]).all()
+
+    b3i = Block3Iterator(np.array([-4, 0, 0]), np.array([0, 6, 9]), np.array([4, 6, 9]))
+    assert (b3i.block_begin == [-1, 0, 0]).all()
+    assert (b3i.block_end == [0, 1, 1]).all()
+
+    b3i = Block3Iterator(np.array([-5, 0, 0]), np.array([-1, 6, 9]), np.array([4, 6, 9]))
+    assert (b3i.block_begin == [-2, 0, 0]).all()
+    assert (b3i.block_end == [0, 1, 1]).all()
+
+    b3i = Block3Iterator(np.array([-8, 0, 0]), np.array([-4, 6, 9]), np.array([4, 6, 9]))
+    assert (b3i.block_begin == [-2, 0, 0]).all()
+    assert (b3i.block_end == [-1, 1, 1]).all()

@@ -83,4 +83,38 @@ class Range3Iterator {
 };
 
 
+class Block3Iterator {
+    private:
+        const long* begin;
+        const long* end;
+        const long* shape;
+        long block_begin[3];
+        long block_end[3];
+        long block_shape[3];
+        long nblock;
+    public:
+        Block3Iterator(const long* begin, const long* end, const long* shape);
+
+        long get_nblock() const { return nblock; };
+
+        void copy_block_begin(long* output);
+        void copy_block_end(long* output);
+
+        void set_block(long iblock, long* b);
+        void translate(long iblock, long* jwrap, long* j);
+};
+
+
+class Cube3Iterator {
+    private:
+        const long* shape;
+        long npoint;
+    public:
+        Cube3Iterator(const long* shape);
+
+        long get_npoint() const { return npoint; };
+        void set_point(long ipoint, long* j);
+};
+
+
 #endif

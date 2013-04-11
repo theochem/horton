@@ -69,16 +69,16 @@ double dot_multi_moments_cube(long nvector, double** data, UniformIntGrid* ui_gr
 
     double result = 0.0;
 
-    Range3Iterator r3i = Range3Iterator(NULL, ui_grid->get_shape(), NULL);
+    Cube3Iterator c3i = Cube3Iterator(ui_grid->get_shape());
     long j[3];
-    for (long ipoint=r3i.get_npoint()-1; ipoint >= 0; ipoint--) {
+    for (long ipoint=c3i.get_npoint()-1; ipoint >= 0; ipoint--) {
         // do the usual product of integranda
         double term = data[nvector-1][ipoint];
         for (long ivector=nvector-2; ivector>=0; ivector--)
            term *= data[ivector][ipoint];
 
         // multiply with polynomial
-        r3i.set_point(ipoint, j, NULL);
+        c3i.set_point(ipoint, j);
 
         double delta[3];
         delta[0] = center[0];
