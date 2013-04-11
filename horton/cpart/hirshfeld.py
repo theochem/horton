@@ -114,7 +114,7 @@ class HirshfeldCPart(StockholderCPart):
         self._cache.dump('wcor', wcor)
 
     def _init_partitioning(self):
-        work = self.zeros()
+        work = self._ui_grid.zeros()
         self._update_promolecule(work)
         self._store_at_weights(work)
 
@@ -201,7 +201,7 @@ class HirshfeldICPart(HirshfeldCPart):
 
         counter = 0
         change = 1e100
-        work = self.zeros()
+        work = self._ui_grid.zeros()
 
         while True:
             counter += 1
@@ -248,7 +248,7 @@ class HirshfeldICPart(HirshfeldCPart):
                 output *= 1-x
                 ipseudo_pop = self.system.pseudo_numbers[i] - icharge
                 if ipseudo_pop > 1:
-                    tmp = self.zeros()
+                    tmp = self._ui_grid.zeros()
                     self._get_isolated_atom(i, icharge+1, tmp)
                     tmp *= x
                     output += tmp
@@ -385,8 +385,8 @@ class HirshfeldECPart(HirshfeldICPart):
         return self._cache.load('procoeffs', alloc=nbasis)[0]
 
     def _update_propars(self, procoeffs, work0):
-        aimdens = self.zeros()
-        work1 = self.zeros()
+        aimdens = self._ui_grid.zeros()
+        work1 = self._ui_grid.zeros()
         wcor = self._cache.load('wcor', default=None)
         wcor_fit = self._cache.load('wcor_fit', default=None)
         charges = self._cache.load('charges', alloc=self._system.natom)[0]
@@ -480,7 +480,7 @@ class HirshfeldECPart(HirshfeldICPart):
             # Construct the pro-atom
             begin = self._hebasis.get_atom_begin(i)
             nbasis =  self._hebasis.get_atom_nbasis(i)
-            work = self.zeros()
+            work = self._ui_grid.zeros()
             self._get_constant_fn(i, output)
             for j in xrange(nbasis):
                 if procoeffs[j+begin] != 0:
