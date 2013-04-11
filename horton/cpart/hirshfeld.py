@@ -90,6 +90,16 @@ class HirshfeldCPart(StockholderCPart):
         self._proatomdb = proatomdb
         CPart.__init__(self, system, ui_grid, moldens, store, smooth)
 
+        # Check of the same (or similar) psuedo potentials were used for the
+        # system and the proatoms.
+        for i in xrange(self._system.natom):
+            number = self._system.numbers[i]
+            pseudo_number = self._system.pseudo_numbers[i]
+            pseudo_number_expected = self._proatomdb.get_record(number, 0).pseudo_number
+            if pseudo_number_expected != pseudo_number:
+                raise ValueError('The pseudo number of atom %i does not match with the proatom database (%i!=%i)' % (
+                    i, pseudo_number, pseudo_number_expected))
+
     def _get_proatomdb(self):
         return self._proatomdb
 
@@ -98,17 +108,10 @@ class HirshfeldCPart(StockholderCPart):
     def _init_weight_corrections(self):
         funcs = []
         for i in xrange(self._system.natom):
-            n = self._system.numbers[i]
-
-            # TODO: move this check to __init__
-            pn = self._system.pseudo_numbers[i]
-            pn_expected = self._proatomdb.get_record(n, 0).pseudo_number
-            if self._proatomdb.get_record(n, 0).pseudo_number != pn:
-                raise ValueError('The pseudo number of atom %i does not match with the proatom database (%i!=%i)' % (i, pn, pn_expected))
-
+            number = self._system.numbers[i]
             funcs.append((
                 self._system.coordinates[i],
-                [self._proatomdb.get_spline(n)],
+                [self._proatomdb.get_spline(number)],
             ))
         wcor = self._ui_grid.compute_weight_corrections(funcs)
         self._cache.dump('wcor', wcor)
