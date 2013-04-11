@@ -57,7 +57,7 @@ __all__ = [
     'RTransform', 'IdentityRTransform', 'LinearRTransform', 'ExpRTransform',
     'ShiftedExpRTransform', 'BakerRTransform',
     # UniformIntGrid
-    'UniformIntGrid', 'UniformIntGridWindow', 'index_wrap',
+    'UniformIntGrid', 'UniformIntGridWindow', 'index_wrap', 'Block3Iterator',
     # utils
     'dot_multi', 'dot_multi_moments_cube', 'grid_distances',
 ]
@@ -1035,6 +1035,44 @@ cdef class UniformIntGridWindow(object):
 def index_wrap(long i, long high):
     return uniform.index_wrap(i, high)
 
+
+cdef class Block3Iterator(object):
+    '''Wrapper for testing only'''
+    cdef uniform.Block3Iterator* _this
+    cdef np.ndarray _begin
+    cdef np.ndarray _end
+    cdef np.ndarray _shape
+
+    def __cinit__(self, np.ndarray[long, ndim=1] begin not None,
+                  np.ndarray[long, ndim=1] end not None,
+                  np.ndarray[long, ndim=1] shape not None):
+        assert begin.flags['C_CONTIGUOUS']
+        assert begin.shape[0] == 3
+        assert end.flags['C_CONTIGUOUS']
+        assert end.shape[0] == 3
+        assert shape.flags['C_CONTIGUOUS']
+        assert shape.shape[0] == 3
+
+        self._begin = begin
+        self._end = end
+        self._shape = shape
+        self._this = new uniform.Block3Iterator(
+            <long*>begin.data,
+            <long*>end.data,
+            <long*>shape.data,
+        )
+
+    property block_begin:
+        def __get__(self):
+            cdef np.ndarray[long, ndim=1] result = np.zeros(3, int)
+            self._this.copy_block_begin(<long*>result.data)
+            return result
+
+    property block_end:
+        def __get__(self):
+            cdef np.ndarray[long, ndim=1] result = np.zeros(3, int)
+            self._this.copy_block_end(<long*>result.data)
+            return result
 
 #
 # utils

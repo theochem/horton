@@ -26,6 +26,7 @@
 
 #include <stdexcept>
 #include <cmath>
+#include <cstdlib>
 #include "uniform.h"
 
 UniformIntGrid::UniformIntGrid(double* _origin, Cell* _grid_cell, long* _shape, long* _pbc, Cell* _cell)
@@ -151,6 +152,7 @@ long index_wrap(long i, long high) {
     return result;
 }
 
+
 Range3Iterator::Range3Iterator(const long* ranges_begin, const long* ranges_end, const long* shape) :
     ranges_begin(ranges_begin), ranges_end(ranges_end), shape(shape) {
 
@@ -180,4 +182,69 @@ void Range3Iterator::set_point(long ipoint, long* i, long* iwrap) {
         iwrap[1] = index_wrap(i[1], shape[1]);
         iwrap[2] = index_wrap(i[2], shape[2]);
     }
+}
+
+
+
+Block3Iterator::Block3Iterator(const long* begin, const long* end, const long* shape)
+    : begin(begin), end(end), shape(shape) {
+
+    for (int i=0; i<3; i++) {
+        // Clumsy code to avoid troubles with different standards for integer
+        // division of negative numbers.
+        if (begin[i] >= 0) {
+            block_begin[i] = begin[i] / shape[i];
+        } else {
+            block_begin[i] = -1 - labs(begin[i]+1) / shape[i];
+        }
+        if (end[i] > 0) {
+            block_end[i] = (end[i]-1) / shape[i] + 1;
+        } else {
+            block_end[i] = -labs(end[i]-1) / shape[i];
+        }
+        block_shape[i] = block_end[i] - block_begin[i];
+    }
+#ifdef DEBUG
+    printf("begin=[%li %li %li]\n", begin[0], begin[1], begin[2]);
+    printf("end=[%li %li %li]\n", end[0], end[1], end[2]);
+    printf("shape=[%li %li %li]\n", shape[0], shape[1], shape[2]);
+    printf("block_shape=[%li %li %li]\n", block_shape[0], block_shape[1], block_shape[2]);
+#endif
+    nblock = block_shape[0]*block_shape[1]*block_shape[2];
+}
+
+void Block3Iterator::copy_block_begin(long* output) {
+    for (int i=0; i<3; i++) output[i] = block_begin[i];
+}
+
+void Block3Iterator::copy_block_end(long* output) {
+    for (int i=0; i<3; i++) output[i] = block_end[i];
+}
+
+void Block3Iterator::set_block(long iblock, long* b) {
+    b[2] = block_begin[2] + iblock % block_shape[2];
+    iblock /= block_shape[2];
+    b[1] = block_begin[1] + iblock % block_shape[1];
+    b[0] = block_begin[0] + iblock / block_shape[1];
+}
+
+void Block3Iterator::translate(long iblock, long* jwrap, long* j) {
+    long b[3];
+    set_block(iblock, b);
+    j[0] = jwrap[0] + b[0]*shape[0];
+    j[1] = jwrap[1] + b[1]*shape[1];
+    j[2] = jwrap[2] + b[2]*shape[2];
+}
+
+
+Cube3Iterator::Cube3Iterator(const long* shape)
+    : shape(shape) {
+    npoint = shape[0]*shape[1]*shape[2];
+}
+
+void Cube3Iterator::set_point(long ipoint, long* j) {
+    j[2] = ipoint % shape[2];
+    ipoint /= shape[2];
+    j[1] = ipoint % shape[1];
+    j[0] = ipoint / shape[1];
 }
