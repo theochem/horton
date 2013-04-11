@@ -95,7 +95,7 @@ void setup_esp_cost_cube_ewald3d(UniformIntGrid* ui_grid, double* vref,
     double* work = new double[neq];
     double grid_cart[3];
 
-    Cube3Iterator c3i = Cube3Iterator(ui_grid->get_shape());
+    Cube3Iterator c3i = Cube3Iterator(NULL, ui_grid->get_shape());
     long i[3];
     long npoint = c3i.get_npoint();
 
@@ -144,7 +144,7 @@ void compute_esp_cube_ewald3d(UniformIntGrid* ui_grid, double* esp,
     double gcut) {
 
     double grid_cart[3];
-    Cube3Iterator c3i = Cube3Iterator(ui_grid->get_shape());
+    Cube3Iterator c3i = Cube3Iterator(NULL, ui_grid->get_shape());
     long i[3];
     long npoint = c3i.get_npoint();
 

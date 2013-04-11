@@ -123,14 +123,14 @@ def test_uig_eval_spline_with_integration():
 def test_uig_eval_spline_3d_random():
     cs = get_cosine_spline()
 
-    for i in xrange(10):
+    for i in xrange(30):
         origin = np.random.uniform(-1, 1, 3)
         grid_cell = get_random_cell(0.3, 3)
         shape = np.random.randint(10, 20, 3)
         pbc = np.array([1, 1, 1])
         uig = UniformIntGrid(origin, grid_cell.rvecs, shape, pbc)
 
-        rvecs = grid_cell.rvecs*uig.shape.reshape(-1,1)
+        rvecs = uig.cell.rvecs
 
         output1 = np.zeros(uig.shape)
         center1 = np.random.uniform(-3, 3, 3)
@@ -139,6 +139,7 @@ def test_uig_eval_spline_3d_random():
         center2 = center1 + np.dot(np.random.randint(-3, 3, 3), rvecs)
         uig.eval_spline(cs, center2, output2)
 
+        print abs(output1 - output2).max()
         assert abs(output1 - output2).max() < 1e-10
 
 
@@ -431,7 +432,7 @@ def check_window_eval_spline(window, center, radius):
     # construct a random spline
     npoint = 5
     rtf = LinearRTransform(0.001, radius, npoint)
-    spline = CubicSpline(np.random.uniform(0, 1, npoint), rtf=rtf)
+    spline = CubicSpline(np.random.uniform(3, 4, npoint), rtf=rtf)
 
     # test the routine
     x, y, z, r = helper_xyzr_window(window, center)
@@ -622,11 +623,19 @@ def test_block3iterator():
     assert (b3i.block_begin == [-1, 0, 0]).all()
     assert (b3i.block_end == [1, 1, 1]).all()
 
+    b3i = Block3Iterator(np.array([-3, 0, 0]), np.array([1, 6, 9]), np.array([4, 6, 9]))
+    assert (b3i.block_begin == [-1, 0, 0]).all()
+    assert (b3i.block_end == [1, 1, 1]).all()
+
     b3i = Block3Iterator(np.array([-4, 0, 0]), np.array([0, 6, 9]), np.array([4, 6, 9]))
     assert (b3i.block_begin == [-1, 0, 0]).all()
     assert (b3i.block_end == [0, 1, 1]).all()
 
     b3i = Block3Iterator(np.array([-5, 0, 0]), np.array([-1, 6, 9]), np.array([4, 6, 9]))
+    assert (b3i.block_begin == [-2, 0, 0]).all()
+    assert (b3i.block_end == [0, 1, 1]).all()
+
+    b3i = Block3Iterator(np.array([-7, 0, 0]), np.array([-3, 6, 9]), np.array([4, 6, 9]))
     assert (b3i.block_begin == [-2, 0, 0]).all()
     assert (b3i.block_end == [0, 1, 1]).all()
 

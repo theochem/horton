@@ -200,7 +200,7 @@ Block3Iterator::Block3Iterator(const long* begin, const long* end, const long* s
         if (end[i] > 0) {
             block_end[i] = (end[i]-1) / shape[i] + 1;
         } else {
-            block_end[i] = -labs(end[i]-1) / shape[i];
+            block_end[i] = -labs(end[i]) / shape[i];
         }
         block_shape[i] = block_end[i] - block_begin[i];
     }
@@ -208,6 +208,8 @@ Block3Iterator::Block3Iterator(const long* begin, const long* end, const long* s
     printf("begin=[%li %li %li]\n", begin[0], begin[1], begin[2]);
     printf("end=[%li %li %li]\n", end[0], end[1], end[2]);
     printf("shape=[%li %li %li]\n", shape[0], shape[1], shape[2]);
+    printf("block_begin=[%li %li %li]\n", block_begin[0], block_begin[1], block_begin[2]);
+    printf("block_end=[%li %li %li]\n", block_end[0], block_end[1], block_end[2]);
     printf("block_shape=[%li %li %li]\n", block_shape[0], block_shape[1], block_shape[2]);
 #endif
     nblock = block_shape[0]*block_shape[1]*block_shape[2];
@@ -228,17 +230,36 @@ void Block3Iterator::set_block(long iblock, long* b) {
     b[0] = block_begin[0] + iblock / block_shape[1];
 }
 
-void Block3Iterator::translate(long iblock, long* jwrap, long* j) {
-    long b[3];
-    set_block(iblock, b);
+void Block3Iterator::set_cube_ranges(long* b, long* cube_begin, long* cube_end) {
+    for (int i=0; i<3; i++) {
+        long offset = b[i]*shape[i];
+        cube_begin[i] = offset;
+        if (cube_begin[i] < begin[i]) cube_begin[i] = begin[i];
+        cube_begin[i] -= offset;
+
+        cube_end[i] = offset + shape[i];
+        if (cube_end[i] > end[i]) cube_end[i] = end[i];
+        cube_end[i] -= offset;
+    }
+}
+
+void Block3Iterator::translate(long* b, long* jwrap, long* j) {
     j[0] = jwrap[0] + b[0]*shape[0];
     j[1] = jwrap[1] + b[1]*shape[1];
     j[2] = jwrap[2] + b[2]*shape[2];
 }
 
 
-Cube3Iterator::Cube3Iterator(const long* shape)
-    : shape(shape) {
+Cube3Iterator::Cube3Iterator(const long* begin, const long* end)
+    : begin(begin), end(end) {
+    shape[0] = end[0];
+    shape[1] = end[1];
+    shape[2] = end[2];
+    if (begin!=NULL) {
+        shape[0] -= begin[0];
+        shape[1] -= begin[1];
+        shape[2] -= begin[2];
+    }
     npoint = shape[0]*shape[1]*shape[2];
 }
 
@@ -247,4 +268,9 @@ void Cube3Iterator::set_point(long ipoint, long* j) {
     ipoint /= shape[2];
     j[1] = ipoint % shape[1];
     j[0] = ipoint / shape[1];
+    if (begin!=NULL) {
+        j[0] += begin[0];
+        j[1] += begin[1];
+        j[2] += begin[2];
+    }
 }

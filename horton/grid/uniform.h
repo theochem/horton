@@ -101,16 +101,19 @@ class Block3Iterator {
         void copy_block_end(long* output);
 
         void set_block(long iblock, long* b);
-        void translate(long iblock, long* jwrap, long* j);
+        void set_cube_ranges(long* b, long* cube_begin, long* cube_end);
+        void translate(long* b, long* jwrap, long* j);
 };
 
 
 class Cube3Iterator {
     private:
-        const long* shape;
+        const long* begin;
+        const long* end;
+        long shape[3];
         long npoint;
     public:
-        Cube3Iterator(const long* shape);
+        Cube3Iterator(const long* begin, const long* end);
 
         long get_npoint() const { return npoint; };
         void set_point(long ipoint, long* j);

@@ -69,8 +69,8 @@ double dot_multi_moments_cube(long nvector, double** data, UniformIntGrid* ui_gr
 
     double result = 0.0;
 
-    Cube3Iterator c3i = Cube3Iterator(ui_grid->get_shape());
-    long j[3];
+    Cube3Iterator c3i = Cube3Iterator(NULL, ui_grid->get_shape());
+    #pragma omp parallel for reduction(+:result)
     for (long ipoint=c3i.get_npoint()-1; ipoint >= 0; ipoint--) {
         // do the usual product of integranda
         double term = data[nvector-1][ipoint];
@@ -78,6 +78,7 @@ double dot_multi_moments_cube(long nvector, double** data, UniformIntGrid* ui_gr
            term *= data[ivector][ipoint];
 
         // multiply with polynomial
+        long j[3];
         c3i.set_point(ipoint, j);
 
         double delta[3];
