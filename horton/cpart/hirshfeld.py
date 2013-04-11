@@ -46,25 +46,28 @@ class StockholderCPart(CPart):
         CPart.__init__(self, system, ui_grid, moldens, store, smooth)
         assert 'promoldens' in self._cache
 
-    def compute_proatom(self, index, output, window=None):
-        # This routine must compute the pro-atom, not from scratch, but based
-        # on the info available after the partitioning. The default behavior
-        # is to load the pro-atom from the store, but in case the store is fake,
-        # this implementation computes the pro-atom on the fly.
+    def compute_spline(self, index, spline, output, name='noname', window=None):
         if log.do_medium:
             if window is None:
                 shape = self._ui_grid.shape
             else:
                 shape = window.shape
-            log('Computing proatom %i (%i) with generic routine [%i %i %i]' % (index, self.system.natom, shape[0], shape[1], shape[2]))
-        # Construct the pro-atom
+            log('Computing spline (%s) for atom  %i/%i on grid [%i %i %i]' % (name, index, self.system.natom-1, shape[0], shape[1], shape[2]))
+
         center = self._system.coordinates[index]
-        spline = self.get_proatom_spline(index)
         output[:] = 0.0
         if window is None:
             self._ui_grid.eval_spline(spline, center, output)
         else:
             window.eval_spline(spline, center, output)
+
+    def compute_proatom(self, index, output, window=None):
+        # This routine must compute the pro-atom, not from scratch, but based
+        # on the info available after the partitioning. The default behavior
+        # is to load the pro-atom from the store, but in case the store is fake,
+        # this implementation computes the pro-atom on the fly.
+        spline = self.get_proatom_spline(index)
+        self.compute_spline(index, spline, output, 'proatom', window)
         output += 1e-100
 
     def compute_at_weights(self, index, output, window=None):
@@ -228,12 +231,8 @@ class HirshfeldICPart(HirshfeldCPart):
             self._store.load(output, *key)
         else:
             number = self._system.numbers[i]
-            center = self._system.coordinates[i]
             spline = self._proatomdb.get_spline(number, charge)
-            if log.do_medium:
-                log('Computing isolated atom %i (n=%i, q=%+i)' % (i, number, charge))
-            output[:] = 0.0
-            self._ui_grid.eval_spline(spline, center, output)
+            self.compute_spline(i, spline, output, 'n=%i q=%+i' % (number, charge))
             self._store.dump(output, *key)
 
     def _init_propars(self):
@@ -425,12 +424,8 @@ class HirshfeldECPart(HirshfeldICPart):
             self._store.load(output, *key)
         else:
             number = self._system.numbers[i]
-            center = self._system.coordinates[i]
             spline = self._hebasis.get_constant_spline(i)
-            if log.do_medium:
-                log('Computing constant fn %i (n=%i)' % (i, number))
-            output[:] = 0
-            self._ui_grid.eval_spline(spline, center, output)
+            self.compute_spline(i, spline, output, 'n=%i constant' % number)
             self._store.dump(output, *key)
 
     def _get_basis_fn(self, i, j, output):
@@ -439,14 +434,9 @@ class HirshfeldECPart(HirshfeldICPart):
             self._store.load(output, *key)
         else:
             number = self._system.numbers[i]
-            padb_charges = self._proatomdb.get_charges(number, safe=True)
-            center = self._system.coordinates[i]
             spline = self._hebasis.get_basis_spline(i, j)
             label = self._hebasis.get_basis_label(i, j)
-            if log.do_medium:
-                log('Computing basis fn %i_%i (n=%i, %s)' % (i, j, number, label))
-            output[:] = 0
-            self._ui_grid.eval_spline(spline, center, output)
+            self.compute_spline(i, spline, output, 'n=%i %s' % (number, label))
             self._store.dump(output, *key)
 
     def _init_propars(self):
