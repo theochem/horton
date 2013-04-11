@@ -37,18 +37,25 @@ void eval_spline_cube(CubicSpline* spline, double* center, double* output,
     long begin[3], end[3];
     ui_grid->set_ranges_rcut(center, rcut, begin, end);
 
-    // Run triple loop over blocks (serial)
     Block3Iterator b3i = Block3Iterator(begin, end, ui_grid->get_shape());
+
+    // Run triple loop over blocks (serial)
     for (long iblock=b3i.get_nblock()-1; iblock>=0; iblock--) {
+        long b[3];
+        b3i.set_block(iblock, b);
+
+        long cube_begin[3];
+        long cube_end[3];
+        b3i.set_cube_ranges(b, cube_begin, cube_end);
 
         // Run triple loop within one block (parallel)
-        Cube3Iterator c3i = Cube3Iterator(ui_grid->get_shape());
+        Cube3Iterator c3i = Cube3Iterator(cube_begin, cube_end);
         #pragma omp parallel for
         for (long ipoint=c3i.get_npoint()-1; ipoint>=0; ipoint--) {
             long j[3];
             long jwrap[3];
             c3i.set_point(ipoint, jwrap);
-            b3i.translate(iblock, jwrap, j);
+            b3i.translate(b, jwrap, j);
 
             double d = ui_grid->dist_grid_point(center, j);
 
