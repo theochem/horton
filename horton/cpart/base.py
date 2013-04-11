@@ -124,6 +124,7 @@ class CPart(JustOnceClass):
             ])
 
     def zeros(self):
+        # TODO: move to ui_grid.zeros
         return np.zeros(self._ui_grid.shape)
 
     def get_at_weights(self, index, output):
