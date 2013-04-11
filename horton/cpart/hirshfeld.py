@@ -185,14 +185,18 @@ class HirshfeldICPart(HirshfeldCPart):
             self._store.dump(output, *key)
 
     def _init_propars(self):
+        self.history = []
         return self._cache.load('charges', alloc=self._system.natom)[0]
 
     def _update_propars(self, charges, work):
+        self.history.append(charges.copy())
         for index in xrange(self._system.natom):
             pseudo_population = self.compute_pseudo_population(index, work)
             charges[index] = self.system.pseudo_numbers[index] - pseudo_population
 
     def _finalize_propars(self, charges):
+        self.history.append(charges.copy())
+        self._cache.dump('history_charges', np.array(self.history))
         self._cache.dump('populations', self.system.numbers - charges)
 
     def _init_partitioning(self):
@@ -264,7 +268,7 @@ class HirshfeldICPart(HirshfeldCPart):
 
     def do_all(self):
         names = HirshfeldCPart.do_all(self)
-        return names + ['niter', 'change']
+        return names + ['niter', 'change', 'history_charges']
 
 
 class HEBasis(object):
@@ -394,6 +398,7 @@ class HirshfeldECPart(HirshfeldICPart):
             self._store.dump(output, *key)
 
     def _init_propars(self):
+        self.history = []
         procoeff_map, procoeff_names = self._hebasis.get_basis_info()
         self._cache.dump('procoeff_map', procoeff_map)
         self._cache.dump('procoeff_names', np.array(procoeff_names))
@@ -406,6 +411,7 @@ class HirshfeldECPart(HirshfeldICPart):
         wcor = self._cache.load('wcor', default=None)
         wcor_fit = self._cache.load('wcor_fit', default=None)
         charges = self._cache.load('charges', alloc=self._system.natom)[0]
+        self.history.append([charges.copy(), procoeffs.copy()])
         for i in xrange(self._system.natom):
             # 1) Construct the AIM density
             present = self._store.load(aimdens, 'at_weights', i)
@@ -484,6 +490,9 @@ class HirshfeldECPart(HirshfeldICPart):
 
     def _finalize_propars(self, procoeffs):
         charges = self._cache.load('charges')
+        self.history.append([charges.copy(), procoeffs.copy()])
+        self._cache.dump('history_charges', np.array([row[0] for row in self.history]))
+        self._cache.dump('history_procoeffs', np.array([row[1] for row in self.history]))
         self._cache.dump('populations', self.system.numbers - charges)
 
     def compute_proatom(self, i, output, window=None):
@@ -523,4 +532,4 @@ class HirshfeldECPart(HirshfeldICPart):
 
     def do_all(self):
         names = HirshfeldICPart.do_all(self)
-        return names + ['procoeffs', 'procoeff_map', 'procoeff_names']
+        return names + ['procoeffs', 'procoeff_map', 'procoeff_names', 'history_procoeffs']
