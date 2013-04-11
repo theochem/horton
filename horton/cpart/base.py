@@ -200,8 +200,8 @@ class CPart(JustOnceClass):
         self._cache.dump('radial_powers', radial_powers)
 
         for i in xrange(self._system.natom):
-            # TODO: weight correction tuned for multipoles!!
             # 1) Define a 'window' of the integration grid for this atom
+            number = self._system.numbers[i]
             center = self._system.coordinates[i]
             radius = self.get_cutoff_radius(i)
             window = self._ui_grid.get_window(center, radius)
@@ -217,16 +217,23 @@ class CPart(JustOnceClass):
             aim *= moldens
             del moldens
 
-            # 4) Compute Cartesian multipoles
+            # 4) Compute weight corrections (TODO: needs to be assessed!)
+            funcs = [(self._system.coordinates[i], [self._proatomdb.get_spline(number)])]
+            ui_grid = window.get_window_ui_grid()
+            wcor = ui_grid.compute_weight_corrections(funcs)
+
+            # 5) Compute Cartesian multipoles
             counter = 0
             for nx, ny, nz in cartesian_powers:
                 if log.do_medium:
                     log('  moment %s%s%s' % ('x'*nx, 'y'*ny, 'z'*nz))
-                cartesian_moments[i, counter] = window.integrate(aim, center=center, nx=nx, ny=ny, nz=nz, nr=0)
+                cartesian_moments[i, counter] = window.integrate(aim, wcor, center=center, nx=nx, ny=ny, nz=nz, nr=0)
                 counter += 1
 
-            # 5) Compute Radial moments
+            # 6) Compute Radial moments
             for nr in radial_powers:
                 if log.do_medium:
                     log('  moment %s' % ('r'*nr))
-                radial_moments[i, nr-1] = window.integrate(aim, center=center, nx=0, ny=0, nz=0, nr=nr)
+                radial_moments[i, nr-1] = window.integrate(aim, wcor, center=center, nx=0, ny=0, nz=0, nr=nr)
+
+            del wcor
