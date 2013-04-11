@@ -321,6 +321,16 @@ class HEBasis(object):
         else:
             return '%+i_%+i' % charges
 
+    def get_basis_info(self):
+        basis_map = []
+        basis_names = []
+        for i in xrange(len(self.numbers)):
+            begin, nbasis, licos = self.basis_specs[i]
+            basis_map.append([begin, nbasis])
+            for j in xrange(nbasis):
+                basis_names.append('%i:%s' % (i, self.get_basis_label(i, j)))
+        return np.array(basis_map), basis_names
+
 
 class HirshfeldECPart(HirshfeldICPart):
     name = 'he'
@@ -384,6 +394,9 @@ class HirshfeldECPart(HirshfeldICPart):
             self._store.dump(output, *key)
 
     def _init_propars(self):
+        procoeff_map, procoeff_names = self._hebasis.get_basis_info()
+        self._cache.dump('procoeff_map', procoeff_map)
+        self._cache.dump('procoeff_names', np.array(procoeff_names))
         nbasis = self._hebasis.get_nbasis()
         return self._cache.load('procoeffs', alloc=nbasis)[0]
 
@@ -510,4 +523,4 @@ class HirshfeldECPart(HirshfeldICPart):
 
     def do_all(self):
         names = HirshfeldICPart.do_all(self)
-        return names + ['procoeffs']
+        return names + ['procoeffs', 'procoeff_map', 'procoeff_names']
