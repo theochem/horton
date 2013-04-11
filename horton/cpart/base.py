@@ -123,10 +123,6 @@ class CPart(JustOnceClass):
                 ('Mean spacing', '%10.5e' % (self._ui_grid.grid_cell.volume**(1.0/3.0))),
             ])
 
-    def zeros(self):
-        # TODO: move to ui_grid.zeros
-        return np.zeros(self._ui_grid.shape)
-
     def get_at_weights(self, index, output):
         # The default behavior is load the weights from the store. If this fails,
         # they must be recomputed.
@@ -140,7 +136,7 @@ class CPart(JustOnceClass):
 
     def compute_pseudo_population(self, index, work=None):
         if work is None:
-            work = self.zeros()
+            work = self._ui_grid.zeros()
         moldens = self._cache.load('moldens')
         wcor = self._cache.load('wcor', default=None)
         self.get_at_weights(index, work)
@@ -164,7 +160,7 @@ class CPart(JustOnceClass):
             log('Computing atomic populations.')
         populations, new = self._cache.load('populations', alloc=self.system.natom)
         if new:
-            work = self.zeros()
+            work = self._ui_grid.zeros()
             for i in xrange(self._system.natom):
                 populations[i] = self.compute_pseudo_population(i, work)
             # correct for pseudo-potentials

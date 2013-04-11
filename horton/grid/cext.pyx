@@ -650,6 +650,9 @@ cdef class UniformIntGrid(object):
         grp['shape'] = self.shape
         grp['pbc'] = self.pbc
 
+    def zeros(self):
+        return np.zeros(self.shape, float)
+
     def eval_spline(self, CubicSpline spline not None,
                     np.ndarray[double, ndim=1] center not None,
                     np.ndarray[double, ndim=3] output not None):
