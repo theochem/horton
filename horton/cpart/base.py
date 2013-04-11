@@ -123,10 +123,6 @@ class CPart(JustOnceClass):
                 ('Mean spacing', '%10.5e' % (self._ui_grid.grid_cell.volume**(1.0/3.0))),
             ])
 
-    def get_wcor(self):
-        if self._cache.has('wcor'):
-            return self._cache.load('wcor')
-
     def zeros(self):
         return np.zeros(self._ui_grid.shape)
 
@@ -145,7 +141,7 @@ class CPart(JustOnceClass):
         if work is None:
             work = self.zeros()
         moldens = self._cache.load('moldens')
-        wcor = self.get_wcor()
+        wcor = self._cache.load('wcor', default=None)
         self.get_at_weights(index, work)
         return self._ui_grid.integrate(wcor, work, moldens)
 
@@ -194,7 +190,6 @@ class CPart(JustOnceClass):
             for nz in xrange(0, l+1):
                 for ny in xrange(0, l-nz+1):
                     nx = l - ny - nz
-                    print nx, ny, nz
                     cartesian_powers.append([nx, ny, nz])
         self._cache.dump('cartesian_powers', np.array(cartesian_powers))
         cartesian_moments = self._cache.load('cartesian_moments', alloc=(self._system.natom, len(cartesian_powers)))[0]
@@ -204,6 +199,7 @@ class CPart(JustOnceClass):
         self._cache.dump('radial_powers', radial_powers)
 
         for i in xrange(self._system.natom):
+            # TODO: weight correction tuned for multipoles!!
             # 1) Define a 'window' of the integration grid for this atom
             center = self._system.coordinates[i]
             radius = self.get_cutoff_radius(i)

@@ -181,18 +181,26 @@ class HirshfeldICPart(HirshfeldCPart):
             self._ui_grid.eval_spline(spline, center, output)
             self._store.dump(output, *key)
 
-    def _update_proatom_pars(self):
-        pass
+    def _init_propars(self):
+        return self._cache.load('charges', alloc=self._system.natom)[0]
+
+    def _update_propars(self, charges, work):
+        for index in xrange(self._system.natom):
+            pseudo_population = self.compute_pseudo_population(index, work)
+            charges[index] = self.system.pseudo_numbers[index] - pseudo_population
+
+    def _finalize_propars(self, charges):
+        self._cache.dump('populations', self.system.numbers - charges)
 
     def _init_partitioning(self):
-        charges = self._cache.load('charges', alloc=self._system.natom)[0]
+        propars = self._init_propars()
         if log.medium:
             log.hline()
             log('Iteration       Change')
             log.hline()
 
         counter = 0
-        change = 1.0
+        change = 1e100
         work = self.zeros()
 
         while True:
@@ -206,16 +214,11 @@ class HirshfeldICPart(HirshfeldCPart):
             self._store_at_weights(work)
 
             # Update the parameters that determine the pro-atoms.
-            self._update_proatom_pars()
-
-            # Compute the charges
-            old_charges = charges.copy()
-            for index in xrange(self._system.natom):
-                pseudo_population = self.compute_pseudo_population(index, work)
-                charges[index] = self.system.pseudo_numbers[index] - pseudo_population
+            old_propars = propars.copy()
+            self._update_propars(propars, work)
 
             # Check for convergence
-            change = abs(charges - old_charges).max()
+            change = abs(propars - old_propars).max()
             if log.medium:
                 log('%9i   %10.5e' % (counter, change))
             if change < self._threshold or counter >= self._max_iter:
@@ -224,7 +227,7 @@ class HirshfeldICPart(HirshfeldCPart):
         if log.medium:
             log.hline()
 
-        self._cache.dump('populations', self.system.numbers - charges)
+        self._finalize_propars(propars)
         self._cache.dump('niter', counter)
         self._cache.dump('change', change)
 
@@ -377,23 +380,32 @@ class HirshfeldECPart(HirshfeldICPart):
             self._ui_grid.eval_spline(spline, center, output)
             self._store.dump(output, *key)
 
-    def _update_proatom_pars(self):
+    def _init_propars(self):
+        nbasis = self._hebasis.get_nbasis()
+        return self._cache.load('procoeffs', alloc=nbasis)[0]
+
+    def _update_propars(self, procoeffs, work0):
         aimdens = self.zeros()
-        work0 = self.zeros()
         work1 = self.zeros()
+        wcor = self._cache.load('wcor', default=None)
         wcor_fit = self._cache.load('wcor_fit', default=None)
-        charges = self._cache.load('charges')
-        pro_coeffs = self._cache.load('pro_coeffs')
+        charges = self._cache.load('charges', alloc=self._system.natom)[0]
         for i in xrange(self._system.natom):
-            # Construct the AIM density
+            # 1) Construct the AIM density
             present = self._store.load(aimdens, 'at_weights', i)
             if not present:
                 # construct atomic weight function
                 self.compute_proatom(self, i, aimdens)
                 aimdens /= self._cache.load('promoldens')
             aimdens *= self._cache.load('moldens')
+
+            #    compute the charge
+            charges[i] = self.system.pseudo_numbers[i] - self._ui_grid.integrate(aimdens, wcor)
+
+            #    subtract the constant function
             self._get_constant_fn(i, work0)
             aimdens -= work0
+
 
             # 2) setup equations
             begin = self._hebasis.get_atom_begin(i)
@@ -434,12 +446,7 @@ class HirshfeldECPart(HirshfeldICPart):
             B /= scales
             C = self._ui_grid.integrate(aimdens, aimdens, wcor_fit)
 
-            # 3) Define a penalty to rule out large jumps in the pro-atom coeffs
-            ridge = 0.01*scales.mean()**2
-            A_penalty = ridge*np.diag(1/scales**2)
-            B_penalty = ridge*pro_coeffs[begin:begin+nbasis]/scales
-
-            # 4) find solution
+            # 3) find solution
             #    constraint for total population of pro-atom
             lc_pop = (np.ones(nbasis)/scales, -charges[i])
             #    inequality constraints to keep coefficients larger than -1.
@@ -448,54 +455,56 @@ class HirshfeldECPart(HirshfeldICPart):
                 lc = np.zeros(nbasis)
                 lc[j0] = 1.0/scales[j0]
                 lcs_par.append((lc, -1))
-                #lcs_par.append((-lc, -1))
-            atom_pro_coeffs = quadratic_solver(A + A_penalty, B + B_penalty, [lc_pop], lcs_par, rcond=0)
-            #atom_pro_coeffs = quadratic_solver(A, B, [], lcs_par, rcond=0)
-            rrmsd = np.sqrt(np.dot(np.dot(A, atom_pro_coeffs) - 2*B, atom_pro_coeffs)/C + 1)
+            atom_procoeffs = quadratic_solver(A, B, [lc_pop], lcs_par, rcond=0)
+            rrmsd = np.sqrt(np.dot(np.dot(A, atom_procoeffs) - 2*B, atom_procoeffs)/C + 1)
 
             #    correct for scales
-            atom_pro_coeffs /= scales
+            atom_procoeffs /= scales
 
             if log.do_medium:
-                log('            %10i (%.0f%%):&%s' % (i, rrmsd*100, ' '.join('% 6.3f' % c for c in atom_pro_coeffs)))
+                log('            %10i (%.0f%%):&%s' % (i, rrmsd*100, ' '.join('% 6.3f' % c for c in atom_procoeffs)))
 
-            pro_coeffs[begin:begin+nbasis] = atom_pro_coeffs
+            procoeffs[begin:begin+nbasis] = atom_procoeffs
+
+    def _finalize_propars(self, procoeffs):
+        charges = self._cache.load('charges')
+        self._cache.dump('populations', self.system.numbers - charges)
 
     def compute_proatom(self, i, output, window=None):
         if self._store.fake or window is not None:
             HirshfeldCPart.compute_proatom(self, i, output, window)
         else:
             # Get the coefficients for the pro-atom
-            nbasis = self._hebasis.get_nbasis()
-            pro_coeffs = self._cache.load('pro_coeffs', alloc=nbasis)[0]
+            procoeffs = self._cache.load('procoeffs')
 
             # Construct the pro-atom
             begin = self._hebasis.get_atom_begin(i)
-            atom_nbasis =  self._hebasis.get_atom_nbasis(i)
+            nbasis =  self._hebasis.get_atom_nbasis(i)
             work = self.zeros()
             self._get_constant_fn(i, output)
-            for j in xrange(atom_nbasis):
-                if pro_coeffs[j+begin] != 0:
+            for j in xrange(nbasis):
+                if procoeffs[j+begin] != 0:
                     work[:] = 0
                     self._get_basis_fn(i, j, work)
-                    work *= pro_coeffs[j+begin]
+                    work *= procoeffs[j+begin]
                     output += work
             output += 1e-100
 
     def get_proatom_spline(self, index):
-        pro_coeffs = self._cache.load('pro_coeffs')
-        begin = self._hebasis.get_atom_begin(i)
-        atom_nbasis =  self._hebasis.get_atom_nbasis(i)
+        procoeffs = self._cache.load('procoeffs')
+        begin = self._hebasis.get_atom_begin(index)
+        atom_nbasis =  self._hebasis.get_atom_nbasis(index)
 
         total_lico = {}
         for j in xrange(atom_nbasis):
-            coeff = pro_coeffs[j+begin]
+            coeff = procoeffs[j+begin]
             lico = self._hebasis.get_basis_lico(index, j)
             for icharge, factor in lico.iteritems():
                 total_lico[icharge] = total_lico.get(icharge, 0) + coeff*factor
 
+        number = self._system.numbers[index]
         return self._proatomdb.get_spline(number, total_lico)
 
     def do_all(self):
         names = HirshfeldICPart.do_all(self)
-        return names + ['pro_coeffs']
+        return names + ['procoeffs']
