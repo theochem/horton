@@ -129,3 +129,23 @@ def test_hirshfeld_e_water_hf_sto3g():
         dpart.do_charges()
         expecting = np.array([-0.422794483125, 0.211390419810, 0.211404063315]) # From HiPart
         assert abs(dpart['charges'] - expecting).max() < 1e-3
+
+
+def test_hirshfeld_e_msa_hf_lan():
+    proatomdb = get_proatomdb_hf_lan()
+
+    # Get the molecule
+    fn_fchk = context.get_fn('test/monosilicic_acid_hf_lan.fchk')
+    sys = System.from_file(fn_fchk)
+
+    # Create a grid for the partitioning
+    int1d = SimpsonIntegrator1D()
+    rtf = ExpRTransform(5e-4, 2e1, 120)
+
+    # Do the partitioning, both with local and global grids
+    for local in True, False:
+        grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=int(local))
+        dpart = HirshfeldEDPart(grid, proatomdb, local)
+        dpart.do_charges()
+        expecting = np.array([1.06135407, -0.51795437, -0.50626239, -0.50136175, -0.48867641, 0.22835963, 0.240736, 0.23528162, 0.24816043])
+        assert abs(dpart['charges'] - expecting).max() < 2e-3
