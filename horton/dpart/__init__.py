@@ -23,6 +23,8 @@
 from horton.dpart.base import *
 from horton.dpart.becke import *
 from horton.dpart.hirshfeld import *
+from horton.dpart.hirshfeld_i import *
+from horton.dpart.hirshfeld_e import *
 from horton.dpart.linalg import *
 from horton.dpart.proatomdb import *
 
