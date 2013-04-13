@@ -246,7 +246,7 @@ def test_uig_eval_spline_add_random():
 
 
 def test_weight_corrections():
-    from horton.cpart.test.common import get_fake_co
+    from horton.part.test.common import get_fake_co
 
     sys, ui_grid, mol_dens, proatomdb = get_fake_co()
 

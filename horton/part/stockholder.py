@@ -22,8 +22,8 @@
 
 import numpy as np
 
-from horton.cpart.base import CPart
 from horton.log import log
+from horton.part.base import CPart
 
 __all__ = [
     'StockholderCPart',

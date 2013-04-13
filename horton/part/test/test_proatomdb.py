@@ -24,7 +24,7 @@ import numpy as np, h5py as h5
 import tempfile, os
 
 from horton import *
-from horton.dpart.test.common import get_proatomdb_ref, get_proatomdb_cp2k
+from horton.part.test.common import get_proatomdb_ref, get_proatomdb_cp2k
 
 
 def test_db_basics():

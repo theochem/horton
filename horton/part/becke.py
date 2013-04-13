@@ -23,9 +23,9 @@
 import numpy as np
 
 from horton.cache import just_once
-from horton.dpart.base import DPart
 from horton.grid.cext import becke_helper_atom
 from horton.log import log
+from horton.part.base import DPart
 from horton.periodic import periodic
 
 
@@ -33,6 +33,9 @@ __all__ = ['BeckeDPart']
 
 
 class BeckeDPart(DPart):
+    name = 'becke'
+    options = ['local', 'k']
+
     '''Class for Becke partitioning'''
     def __init__(self, molgrid, local=True, k=3):
         self._k = k
