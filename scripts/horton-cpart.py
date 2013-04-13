@@ -29,8 +29,8 @@ from horton.scripts.common import reduce_data
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(prog='horton-copart.py',
-        description='Partition the density in a cube file.')
+    parser = argparse.ArgumentParser(prog='horton-cpart.py',
+        description='Partition the density from a cube file.')
 
     parser.add_argument('cube',
         help='The cube file.')
