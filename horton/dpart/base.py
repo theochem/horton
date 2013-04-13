@@ -106,7 +106,7 @@ class DPart(JustOnceClass):
     def invalidate(self):
         '''Discard all cached results, e.g. because wfn changed'''
         JustOnceClass.invalidate(self)
-        self.cache.invalidate()
+        self.cache.invalidate_all()
         # immediately recompute the basics
         # TODO: For some schemes, the weights do not depend on the density
         # and recomputation of the atomic weights is a waste of time

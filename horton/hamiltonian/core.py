@@ -89,7 +89,7 @@ class Hamiltonian(object):
            This method does not recompute anything, but just marks operators
            as outdated. They are recomputed as they are needed.
         '''
-        self.cache.invalidate()
+        self.cache.invalidate_all()
 
     def compute_energy(self):
         '''Compute energy.

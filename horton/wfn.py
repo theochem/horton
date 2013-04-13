@@ -165,7 +165,7 @@ class WFN(object):
 
     def invalidate(self):
         '''Must be called when the wavefunction is outdated'''
-        self._cache.invalidate()
+        self._cache.invalidate_all()
 
     def init_exp(self, spin):
         if spin not in ['alpha', 'beta']:

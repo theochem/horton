@@ -323,6 +323,12 @@ class HirshfeldICPart(HirshfeldCPart):
 
 
 class HEBasis(object):
+    '''Defines the basis set for the promolecule in Hirshfeld-E
+
+       This implementation is based on deviations from the neutral atom. This
+       allows one to eliminate basis functions corresponding to very positive
+       kations.
+    '''
     def __init__(self, numbers, proatomdb):
         self.numbers = numbers
         self.proatomdb = proatomdb
