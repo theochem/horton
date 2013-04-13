@@ -35,7 +35,7 @@ install relatively recent versions of the following programs/libraries:
 * Numpy > 1.0: http://www.scipy.org/
 * h5py >= 2.0.0: http://code.google.com/p/h5py/
 * Scipy >= 0.10.0: http://www.scipy.org/
-* Cython >= 0.15.1 : http://www.cython.org/
+* Cython >= 0.18 : http://www.cython.org/
 * Sphinx > 1.0: http://sphinx.pocoo.org/
 * Nosetests >= 1.1.2: http://readthedocs.org/docs/nose/en/latest/
 * Sympy >= 0.7.1: http://code.google.com/p/sympy/
