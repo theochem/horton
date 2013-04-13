@@ -22,6 +22,9 @@
 
 from horton.cpart.base import *
 from horton.cpart.hirshfeld import *
+from horton.cpart.hirshfeld_e import *
+from horton.cpart.hirshfeld_i import *
+from horton.cpart.stockholder import *
 
 cpart_schemes = {}
 for o in globals().values():
