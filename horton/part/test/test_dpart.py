@@ -136,7 +136,7 @@ def test_hirshfeld_e_water_hf_sto3g():
         names = dpart.do_all()
         check_names(names, dpart)
         expecting = np.array([-0.422794483125, 0.211390419810, 0.211404063315]) # From HiPart
-        assert abs(dpart['charges'] - expecting).max() < 1e-3
+        assert abs(dpart['charges'] - expecting).max() < 2e-3
 
 
 def test_hirshfeld_e_msa_hf_lan():
@@ -156,4 +156,4 @@ def test_hirshfeld_e_msa_hf_lan():
         dpart = HirshfeldEDPart(grid, proatomdb, local)
         dpart.do_charges()
         expecting = np.array([1.06135407, -0.51795437, -0.50626239, -0.50136175, -0.48867641, 0.22835963, 0.240736, 0.23528162, 0.24816043])
-        assert abs(dpart['charges'] - expecting).max() < 2e-3
+        assert abs(dpart['charges'] - expecting).max() < 1e-2

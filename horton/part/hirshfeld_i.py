@@ -38,10 +38,11 @@ __all__ = ['HirshfeldIDPart', 'HirshfeldICPart']
 
 
 class HirshfeldIDPart(HirshfeldDPart):
+    '''Iterative Hirshfeld partitioning'''
+
     name = 'hi'
     options = ['local', 'threshold', 'maxiter']
 
-    '''Iterative Hirshfeld partitioning'''
     def __init__(self, molgrid, proatomdb, local=True, threshold=1e-4, maxiter=500):
         self._threshold = threshold
         self._maxiter = maxiter
@@ -172,6 +173,8 @@ class HirshfeldIDPart(HirshfeldDPart):
 
 
 class HirshfeldICPart(HirshfeldCPart):
+    '''Iterative Hirshfeld partitioning'''
+
     name = 'hi'
     options = ['smooth', 'max_iter', 'threshold']
 

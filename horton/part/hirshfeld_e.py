@@ -70,6 +70,17 @@ class HEBasis(object):
 
             self.nbasis += atom_nbasis
 
+        if log.do_medium:
+            log('Hirshfeld-E basis')
+            log.hline()
+            log('   Z   k label')
+            log.hline()
+            for i in xrange(len(numbers)):
+                for j in xrange(self.get_atom_nbasis(i)):
+                    label = self.get_basis_label(i, j)
+                    log('%4i %3i %s' % (i, j, label))
+            log.hline()
+
     def get_nbasis(self):
         return self.nbasis
 
@@ -110,63 +121,40 @@ class HEBasis(object):
 
 class HirshfeldEDPart(HirshfeldIDPart):
     '''Extended Hirshfeld partitioning'''
-    # TODO: use HEBasis
 
     name = 'he'
     options = ['local', 'threshold', 'maxiter']
+
+    def __init__(self, molgrid, proatomdb, local=True, threshold=1e-4, maxiter=500):
+        self._he_basis = HEBasis(molgrid.system.numbers, proatomdb)
+        HirshfeldIDPart.__init__(self, molgrid, proatomdb, local, threshold, maxiter)
 
     def _get_proatom_fn(self, index, number, target_charge, first, grid):
         if first:
             return self._proatomdb.get_spline(number)
         else:
+            # 1) Prepare for radial integrals
             rtf = self._proatomdb.get_rtransform(number)
             int1d = SimpsonIntegrator1D()
             radii = rtf.get_radii()
             weights = (4*np.pi) * radii**2 * int1d.get_weights(len(radii)) * rtf.get_volume_elements()
             assert (weights > 0).all()
 
-            if self.cache.has('records', number):
-                records = self.cache.load('records', number)
-                pops = self.cache.load('pops', number)
-                neq = len(pops)
+            # 2) Define the linear system of equations
+
+            #    Matrix A
+            nbasis = self._he_basis.get_atom_nbasis(index)
+            if self.cache.has('A', number):
                 A = self.cache.load('A', number)
             else:
-                # Construct the basis functions
-                basis = []
-                #norms = []
-                for j0, charge in enumerate(self._proatomdb.get_charges(number, True)):
-                    if j0 == 0:
-                        # TODO: the corresponding coefficient should be constrained unless pseudo_population==1
-                        record = self._proatomdb.get_record(number, charge)
-                        radrho = record.rho/record.pseudo_population
-                    else:
-                        radrho = self._proatomdb.get_record(number, charge).rho - \
-                                self._proatomdb.get_record(number, charge+1).rho
-
-                    redundant = False
-                    for j1 in xrange(len(basis)):
-                        delta = radrho - basis[j1]
-                        if dot_multi(weights, delta, delta) < 1e-5:
-                            redundant = True
-                            break
-
-                    if not redundant:
-                        basis.append(radrho)
-                        #if j0 == 0:
-                        #    norms.append(record.pseudo_population)
-                        #else:
-                        #    norms.append(1.0)
-                basis = np.array(basis)
-                #norms = np.array(norms)
-                self.cache.dump('basis', number, basis)
-                #self.cache.dump('norms', number, norms)
-
                 # Set up system of linear equations:
-                neq = len(basis)
-                A = np.zeros((neq, neq), float)
-                for j0 in xrange(neq):
+                A = np.zeros((nbasis, nbasis), float)
+                for j0 in xrange(nbasis):
+                    # TODO: avoid construction of spline, get y directly
+                    spline0 = self._he_basis.get_basis_spline(index, j0)
                     for j1 in xrange(j0+1):
-                        A[j0, j1] = dot_multi(weights, basis[j0], basis[j1])
+                        spline1 = self._he_basis.get_basis_spline(index, j0)
+                        A[j0, j1] = dot_multi(weights, spline0.copy_y(), spline1.copy_y())
                         A[j1, j0] = A[j0, j1]
 
                 if (np.diag(A) < 0).any():
@@ -174,36 +162,40 @@ class HirshfeldEDPart(HirshfeldIDPart):
 
                 self.cache.dump('A', number, A)
 
-            B = np.zeros(neq, float)
-            tmp = np.zeros(grid.size)
+            #   Matrix B
+            B = np.zeros(nbasis, float)
+            work = np.zeros(grid.size)
             dens = self.cache.load('mol_dens', index)
             at_weights = self.cache.load('at_weights', index)
-            for j0 in xrange(neq):
-                tmp[:] = 0.0
-                spline = CubicSpline(basis[j0], rtf=rtf)
-                grid.eval_spline(spline, self._system.coordinates[index], tmp)
-                B[j0] = grid.integrate(at_weights, dens, tmp)
+            constant_spline = self._he_basis.get_constant_spline(index)
+            for j0 in xrange(nbasis):
+                work[:] = 0.0
+                spline = self._he_basis.get_basis_spline(index, j0)
+                grid.eval_spline(spline, self._system.coordinates[index], work)
+                B[j0] = grid.integrate(at_weights, dens, work)
+                B[j0] -= dot_multi(weights, spline.copy_y(), constant_spline.copy_y())
 
-            # Precondition
-            scales = np.diag(A)**0.5
-            Ap = A/scales/scales.reshape(-1, 1)
-            Bp = B/scales
-
-            # Find solution
-            target_pseudo_population = self.system.pseudo_numbers[index] - target_charge
-            lc_pop = (np.ones(neq)/scales, target_pseudo_population)
-            coeffs = solve_positive(Ap, Bp, [lc_pop])
-            # correct for scales
-            coeffs /= scales
+            # 3) find solution
+            #    constraint for total population of pro-atom
+            lc_pop = (np.ones(nbasis), -target_charge)
+            #    inequality constraints to keep coefficients larger than -1.
+            lcs_par = []
+            for j0 in xrange(nbasis):
+                lc = np.zeros(nbasis)
+                lc[j0] = 1.0
+                lcs_par.append((lc, -1))
+            atom_procoeffs = quadratic_solver(A, B, [lc_pop], lcs_par, rcond=0)
 
             # Screen output
             if log.do_medium:
-                log('                   %10i:&%s' % (index, ' '.join('% 6.3f' % c for c in coeffs)))
+                log('                   %10i:&%s' % (index, ' '.join('% 6.3f' % c for c in atom_procoeffs)))
 
             # Construct pro-atom
-            proradrho = 0
-            for j0 in xrange(neq):
-                proradrho += coeffs[j0]*basis[j0]
+            proradrho = constant_spline.copy_y()
+            for j0 in xrange(nbasis):
+                spline = self._he_basis.get_basis_spline(index, j0)
+                proradrho += atom_procoeffs[j0]*spline.copy_y()
+            target_pseudo_population = self.system.pseudo_numbers[index] - target_charge
             error = np.dot(proradrho, weights) - target_pseudo_population
             assert abs(error) < 1e-5
 
@@ -240,6 +232,7 @@ class HirshfeldECPart(HirshfeldICPart):
             rtf = self._proatomdb.get_rtransform(self._system.numbers[i])
             splines = []
             for j0 in xrange(atom_nbasis):
+                # TODO: avoid construction of spline. get y directly
                 spline0 = self._hebasis.get_basis_spline(i, j0)
                 splines.append(spline0)
                 for j1 in xrange(j0+1):
