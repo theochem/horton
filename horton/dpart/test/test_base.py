@@ -58,3 +58,9 @@ def test_base_exceptions():
         assert False
     except NotImplementedError:
         pass
+
+
+def test_dpart_schemes():
+    assert 'hi' in dpart_schemes
+    assert dpart_schemes['hi'] is HirshfeldIDPart
+    assert dpart_schemes['hi'].options == ['local', 'threshold', 'maxiter']

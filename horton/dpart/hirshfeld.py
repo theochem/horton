@@ -37,6 +37,9 @@ __all__ = ['HirshfeldDPart', 'HirshfeldIDPart', 'HirshfeldEDPart']
 
 
 class HirshfeldDPart(DPart):
+    name = 'h'
+    options = ['local']
+
     '''Base class for Hirshfeld partitioning'''
     def __init__(self, molgrid, proatomdb, local=True):
         self._proatomdb = proatomdb
@@ -108,6 +111,9 @@ class HirshfeldDPart(DPart):
 
 
 class HirshfeldIDPart(HirshfeldDPart):
+    name = 'hi'
+    options = ['local', 'threshold', 'maxiter']
+
     '''Iterative Hirshfeld partitioning'''
     def __init__(self, molgrid, proatomdb, local=True, threshold=1e-4, maxiter=500):
         self._threshold = threshold
@@ -228,10 +234,20 @@ class HirshfeldIDPart(HirshfeldDPart):
         self.cache.dump('pseudo_populations', pseudo_populations)
         self.cache.dump('populations', populations)
         self.cache.dump('charges', charges)
+        self.cache.dump('niter', counter)
+        self.cache.dump('change', change)
+
+    def do_all(self):
+        '''Computes all AIM properties and returns a corresponding list of keys'''
+        names = HirshfeldDPart.do_all(self)
+        return names + ['niter', 'change']
 
 
 class HirshfeldEDPart(HirshfeldIDPart):
     '''Extended Hirshfeld partitioning'''
+
+    name = 'he'
+    options = ['local', 'threshold', 'maxiter']
 
     def _get_proatom_fn(self, index, number, target_charge, first, grid):
         if first:

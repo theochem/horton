@@ -28,6 +28,11 @@ from horton.dpart.test.common import get_proatomdb_hf_sto3g, get_proatomdb_hf_la
 
 # TODO: reduce duplicate code
 
+def check_names(names, dpart):
+    for name in names:
+        assert dpart.cache.has(name)
+
+
 def test_hirshfeld_water_hf_sto3g():
     proatomdb = get_proatomdb_hf_sto3g()
 
@@ -44,7 +49,8 @@ def test_hirshfeld_water_hf_sto3g():
     for local in True, False:
         grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=int(local))
         dpart = HirshfeldDPart(grid, proatomdb, local)
-        dpart.do_charges()
+        names = dpart.do_all()
+        check_names(names, dpart)
         expecting = np.array([-0.246171541212, 0.123092011074, 0.123079530138]) # from HiPart
         assert abs(dpart['charges'] - expecting).max() < 2e-3
 
@@ -85,7 +91,8 @@ def test_hirshfeld_i_water_hf_sto3g():
     for local in True, False:
         grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=int(local))
         dpart = HirshfeldIDPart(grid, proatomdb, local, 1e-4)
-        dpart.do_charges()
+        names = dpart.do_all()
+        check_names(names, dpart)
         expecting = np.array([-0.4214, 0.2107, 0.2107]) # From HiPart
         assert abs(dpart['charges'] - expecting).max() < 1e-3
 
@@ -126,7 +133,8 @@ def test_hirshfeld_e_water_hf_sto3g():
     for local in True, False:
         grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=int(local))
         dpart = HirshfeldEDPart(grid, proatomdb, local, 1e-4)
-        dpart.do_charges()
+        names = dpart.do_all()
+        check_names(names, dpart)
         expecting = np.array([-0.422794483125, 0.211390419810, 0.211404063315]) # From HiPart
         assert abs(dpart['charges'] - expecting).max() < 1e-3
 
