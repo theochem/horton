@@ -60,21 +60,21 @@ class HirshfeldDPart(DPart):
             log.cite('hirshfeld1977', 'the use of Hirshfeld partitioning')
 
     def _compute_at_weights(self, i0, grid, at_weights):
-        pro_mol, new = self.cache.load('pro_mol', grid.size, alloc=grid.size)
+        promol, new = self.cache.load('promol', grid.size, alloc=grid.size)
         if new or self.local:
             # In case of local grids, the pro-molecule must always be recomputed.
-            pro_mol[:] = 0.0 # needed if not new and local.
+            promol[:] = 0.0 # needed if not new and local.
             for i1 in xrange(self.system.natom):
                 proatom_fn = self.cache.load('proatom_fn', i1)
                 if i1 == i0:
                     at_weights[:] = 0.0
                     grid.eval_spline(proatom_fn, self.system.coordinates[i1], at_weights)
-                    pro_mol += at_weights
+                    promol += at_weights
                 else:
-                    grid.eval_spline(proatom_fn, self.system.coordinates[i1], pro_mol)
+                    grid.eval_spline(proatom_fn, self.system.coordinates[i1], promol)
             # The following seems worse than it is. It does nothing to the
             # relevant numbers. It just avoids troubles in the division.
-            pro_mol[:] += 1e-100
+            promol[:] += 1e-100
         else:
             # In case of a global grid and when the pro-molecule is up to date,
             # only the pro-atom needs to be recomputed.
@@ -82,7 +82,7 @@ class HirshfeldDPart(DPart):
             at_weights[:] = 0.0
             grid.eval_spline(proatom_fn, self.system.coordinates[i0], at_weights)
         # Finally compute the ratio
-        at_weights[:] /= pro_mol
+        at_weights[:] /= promol
 
     def _at_weights_cleanup(self):
         # Get rid of cached work arrays
@@ -198,7 +198,7 @@ class HirshfeldIDPart(HirshfeldDPart):
 
             # Enforce (single) update of pro-molecule in case of a global grid
             if not self.local:
-                self.cache.invalidate('pro_mol', self._molgrid.size)
+                self.cache.invalidate('promol', self._molgrid.size)
 
             # Compute populations
             for i, grid in self.iter_grids():
