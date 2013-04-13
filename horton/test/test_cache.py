@@ -60,7 +60,7 @@ def test_cache():
     assert c.load('foo') == 5
     c.dump('foo', 4, 6)
     assert c.load('foo', 4) == 6
-    c.invalidate()
+    c.invalidate_all()
     assert len(c._store) == 0
 
 
@@ -109,7 +109,7 @@ def test_cache_allocation():
     assert c.has('egg')
     assert not c.has('bar')
     tmp[:] = 1.0
-    c.invalidate()
+    c.invalidate_all()
     assert not c.has('egg')
     assert (tmp[:] == 0.0).all()
     # try to load it, while it is no longer valid
@@ -134,14 +134,14 @@ def test_cache_default():
     c.dump('egg', 5)
     assert c.load('egg') == 5
     assert c.load('egg', default=6) == 5
-    c.invalidate()
+    c.invalidate_all()
     assert c.load('egg', default=6) == 6
     try:
         c.load('egg')
         assert False
     except KeyError:
         pass
-    c.invalidate()
+    c.invalidate_all()
     assert c.load('egg', default=None) == None
     try:
         c.load('egg')
@@ -176,7 +176,7 @@ def test_dense_one_body():
         pass
     # after invalidation
     op1.set_element(1, 2, 5.2)
-    c.invalidate()
+    c.invalidate_all()
     assert op1._array[1,2] == 0.0
     try:
         op4 = c.load('egg')

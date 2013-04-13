@@ -177,14 +177,19 @@ class Cache(object):
     def __init__(self):
         self._store = {}
 
-    def invalidate(self):
+    def invalidate_all(self):
         for key in self._store.keys():
-            item = self._store[key]
-            if item.resettable:
-                # avoid re-allocation
-                item.invalidate()
-            else:
-                del self._store[key]
+            self.invalidate(*key)
+
+    def invalidate(self, *key):
+        item = self._store.get(key)
+        if item is None:
+            return
+        if item.resettable:
+            # avoid re-allocation
+            item.invalidate()
+        else:
+            del self._store[key]
 
     def load(self, *key, **kwargs):
         # check key

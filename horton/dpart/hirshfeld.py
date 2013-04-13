@@ -43,7 +43,6 @@ class HirshfeldDPart(DPart):
     '''Base class for Hirshfeld partitioning'''
     def __init__(self, molgrid, proatomdb, local=True):
         self._proatomdb = proatomdb
-        self._pro_mol_valid = False
         DPart.__init__(self, molgrid, local)
 
     def _get_proatomdb(self):
@@ -60,27 +59,24 @@ class HirshfeldDPart(DPart):
             ])
             log.cite('hirshfeld1977', 'the use of Hirshfeld partitioning')
 
-    def _at_weights_helper(self, i0, grid, at_weights):
-        # Load work arrays from cache for efficiency
-        (work, pro_mol), new = self.cache.load('at_weights_work', grid.size, alloc=(2, grid.size))
-        if not new:
-            pro_mol[:] = 0.0
-        if self.local or not self._pro_mol_valid:
-            # In case of local grids, the pro-molecule must be recomputed for
-            # every grid. In case of a global grid, this only happens the
-            # first time after the pro-atoms were updated.
+    def _compute_at_weights(self, i0, grid, at_weights):
+        pro_mol, new = self.cache.load('pro_mol', grid.size, alloc=grid.size)
+        if new or self.local:
+            # In case of local grids, the pro-molecule must always be recomputed.
+            pro_mol[:] = 0.0 # needed if not new and local.
             for i1 in xrange(self.system.natom):
                 proatom_fn = self.cache.load('proatom_fn', i1)
-                work[:] = 0.0
-                grid.eval_spline(proatom_fn, self.system.coordinates[i1], work)
                 if i1 == i0:
-                    at_weights[:] = work
-                pro_mol[:] += work
+                    at_weights[:] = 0.0
+                    grid.eval_spline(proatom_fn, self.system.coordinates[i1], at_weights)
+                    pro_mol += at_weights
+                else:
+                    grid.eval_spline(proatom_fn, self.system.coordinates[i1], pro_mol)
             # The following seems worse than it is. It does nothing to the
             # relevant numbers. It just avoids troubles in the division.
             pro_mol[:] += 1e-100
         else:
-            # In case of a global grid, and when the pro-molecule is up to date,
+            # In case of a global grid and when the pro-molecule is up to date,
             # only the pro-atom needs to be recomputed.
             proatom_fn = self.cache.load('proatom_fn', i0)
             at_weights[:] = 0.0
@@ -95,6 +91,9 @@ class HirshfeldDPart(DPart):
 
     @just_once
     def _init_at_weights(self):
+        # TODO. Splines should not be stored in the cache. Use same structure as
+        # in CPart: get_proatom_spline and _*_propars methods.
+        # Create the splines and store them in the cache
         for i in xrange(self.system.natom):
             proatom_fn = self.cache.load('proatom_fn', i, default=None)
             if proatom_fn is None:
@@ -102,10 +101,11 @@ class HirshfeldDPart(DPart):
                 proatom_fn = self._proatomdb.get_spline(n)
                 self.cache.dump('proatom_fn', i, proatom_fn)
 
+        # Compute the weights
         for i0, grid in self.iter_grids():
             at_weights, new = self.cache.load('at_weights', i0, alloc=grid.size)
             if new:
-                self._at_weights_helper(i0, grid, at_weights)
+                self._compute_at_weights(i0, grid, at_weights)
 
         self._at_weights_cleanup()
 
@@ -142,6 +142,7 @@ class HirshfeldIDPart(HirshfeldDPart):
            old, new
                 The old and new splines
         '''
+        # TODO: use the same criterion in CPart
         rtf = self.proatomdb.get_rtransform(number)
         return (4*np.pi)*dot_multi(
             rtf.get_radii()**2, # TODO: get routines are slow
@@ -197,13 +198,13 @@ class HirshfeldIDPart(HirshfeldDPart):
 
             # Enforce (single) update of pro-molecule in case of a global grid
             if not self.local:
-                self._pro_mol_valid = False
+                self.cache.invalidate('pro_mol', self._molgrid.size)
 
             # Compute populations
             for i, grid in self.iter_grids():
                 # Compute weight
                 at_weights, new = self.cache.load('at_weights', i, alloc=grid.size)
-                self._at_weights_helper(i, grid, at_weights)
+                self._compute_at_weights(i, grid, at_weights)
 
                 # Compute population
                 dens = self.cache.load('mol_dens', i)
@@ -245,6 +246,7 @@ class HirshfeldIDPart(HirshfeldDPart):
 
 class HirshfeldEDPart(HirshfeldIDPart):
     '''Extended Hirshfeld partitioning'''
+    # TODO: use HEBasis
 
     name = 'he'
     options = ['local', 'threshold', 'maxiter']
