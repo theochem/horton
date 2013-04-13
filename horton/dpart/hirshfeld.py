@@ -59,7 +59,7 @@ class HirshfeldDPart(DPart):
 
     def _at_weights_helper(self, i0, grid, at_weights):
         # Load work arrays from cache for efficiency
-        (work, pro_mol, d), new = self.cache.load('at_weights_work', grid.size, alloc=(3, grid.size))
+        (work, pro_mol), new = self.cache.load('at_weights_work', grid.size, alloc=(2, grid.size))
         if not new:
             pro_mol[:] = 0.0
         if self.local or not self._pro_mol_valid:
@@ -67,9 +67,9 @@ class HirshfeldDPart(DPart):
             # every grid. In case of a global grid, this only happens the
             # first time after the pro-atoms were updated.
             for i1 in xrange(self.system.natom):
-                grid.distances(self.system.coordinates[i1], d)
                 proatom_fn = self.cache.load('proatom_fn', i1)
-                proatom_fn(d, work)
+                work[:] = 0.0
+                grid.eval_spline(proatom_fn, self.system.coordinates[i1], work)
                 if i1 == i0:
                     at_weights[:] = work
                 pro_mol[:] += work
@@ -79,10 +79,9 @@ class HirshfeldDPart(DPart):
         else:
             # In case of a global grid, and when the pro-molecule is up to date,
             # only the pro-atom needs to be recomputed.
-            grid.distances(self.system.coordinates[i0], d)
             proatom_fn = self.cache.load('proatom_fn', i0)
-            proatom_fn(d, work)
-            at_weights[:] = work
+            at_weights[:] = 0.0
+            grid.eval_spline(proatom_fn, self.system.coordinates[i0], at_weights)
         # Finally compute the ratio
         at_weights[:] /= pro_mol
 
