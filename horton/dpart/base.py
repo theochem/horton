@@ -32,6 +32,10 @@ __all__ = ['DPart']
 
 
 class DPart(JustOnceClass):
+
+    name = None
+    options = ['local']
+
     '''Base class for density partitioning schemes'''
     def __init__(self, molgrid, local=True):
         '''
@@ -123,6 +127,12 @@ class DPart(JustOnceClass):
                 yield i, self.molgrid.subgrids[i]
             else:
                 yield i, self.molgrid
+
+    def do_all(self):
+        '''Computes all AIM properties and returns a corresponding list of keys'''
+        self.do_populations()
+        self.do_charges()
+        return ['populations', 'pseudo_populations', 'charges']
 
     @just_once
     def do_mol_dens(self):

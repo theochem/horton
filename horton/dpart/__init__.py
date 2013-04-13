@@ -25,3 +25,9 @@ from horton.dpart.becke import *
 from horton.dpart.hirshfeld import *
 from horton.dpart.linalg import *
 from horton.dpart.proatomdb import *
+
+dpart_schemes = {}
+for o in globals().values():
+    if isinstance(o, type) and issubclass(o, DPart) and o.name is not None:
+        dpart_schemes[o.name] = o
+del o
