@@ -64,3 +64,8 @@ def test_dpart_schemes():
     assert 'hi' in dpart_schemes
     assert dpart_schemes['hi'] is HirshfeldIDPart
     assert dpart_schemes['hi'].options == ['local', 'threshold', 'maxiter']
+
+
+def test_cpart_schemes():
+    assert 'hi' in cpart_schemes
+    assert cpart_schemes['hi'] is HirshfeldICPart

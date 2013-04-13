@@ -28,8 +28,7 @@ from horton.cext import *
 from horton.checkpoint import *
 from horton.constants import *
 from horton.context import *
-from horton.cpart import *
-from horton.dpart import *
+from horton.part import *
 from horton.espfit import *
 from horton.exceptions import *
 from horton.gbasis import *

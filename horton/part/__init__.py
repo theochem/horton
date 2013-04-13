@@ -18,16 +18,25 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
+'''Package for density-based partitioning (fuzzy atoms)'''
 
+from horton.part.base import *
+from horton.part.becke import *
+from horton.part.hirshfeld import *
+from horton.part.hirshfeld_i import *
+from horton.part.hirshfeld_e import *
+from horton.part.linalg import *
+from horton.part.proatomdb import *
+from horton.part.stockholder import *
 
-from horton.cpart.base import *
-from horton.cpart.hirshfeld import *
-from horton.cpart.hirshfeld_e import *
-from horton.cpart.hirshfeld_i import *
-from horton.cpart.stockholder import *
+dpart_schemes = {}
+for o in globals().values():
+    if isinstance(o, type) and issubclass(o, DPart) and o.name is not None:
+        dpart_schemes[o.name] = o
 
 cpart_schemes = {}
 for o in globals().values():
     if isinstance(o, type) and issubclass(o, CPart) and o.name is not None:
         cpart_schemes[o.name] = o
+
 del o

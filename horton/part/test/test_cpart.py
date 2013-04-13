@@ -21,8 +21,9 @@
 
 
 import numpy as np
+
 from horton import *
-from horton.cpart.test.common import get_fake_co, get_fake_pseudo_oo
+from horton.part.test.common import get_fake_co, get_fake_pseudo_oo
 
 
 def check_names(names, cpart):

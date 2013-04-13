@@ -23,7 +23,7 @@
 import numpy as np
 
 from horton import *
-from horton.dpart.test.common import get_proatomdb_hf_sto3g, get_proatomdb_hf_lan
+from horton.part.test.common import get_proatomdb_hf_sto3g, get_proatomdb_hf_lan
 
 
 # TODO: reduce duplicate code
