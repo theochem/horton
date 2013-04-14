@@ -23,18 +23,64 @@
 import numpy as np
 
 from horton.log import log
-from horton.part.base import CPart
+from horton.part.base import DPart, CPart
 
 __all__ = [
-    'StockholderCPart',
+    'StockholderDPart', 'StockholderCPart',
 ]
 
 
 # TODO: reduce duplicate code
 
-class StockholderCPart(CPart):
-    name = 'h'
 
+def check_proatom(spline, expected_pop):
+    # TODO: complete this routine and use it whenever a pro-atom spline is generateds
+    proradrho = spline.copy_y()
+
+    target_pseudo_population = self.system.pseudo_numbers[index] - target_charge
+    error = np.dot(proradrho, weights) - target_pseudo_population
+    assert abs(error) < 1e-5
+
+    # Check for negative parts
+    if proradrho.min() < 0:
+        proradrho[proradrho<0] = 0.0
+        error = np.dot(proradrho, weights) - target_pseudo_population
+        if log.do_medium:
+            log('                    Pro-atom not positive everywhere. Lost %.5f electrons' % error)
+
+
+
+class StockholderDPart(DPart):
+    def compute_at_weights(self, i0, grid, at_weights):
+        promol, new = self.cache.load('promol', grid.size, alloc=grid.size)
+        if new or self.local:
+            # In case of local grids, the pro-molecule must always be recomputed.
+            promol[:] = 0.0 # needed if not new and local.
+            for i1 in xrange(self.system.natom):
+                spline = self.get_proatom_spline(i1)
+                if i1 == i0:
+                    at_weights[:] = 0.0
+                    grid.eval_spline(spline, self.system.coordinates[i1], at_weights)
+                    promol += at_weights
+                else:
+                    grid.eval_spline(spline, self.system.coordinates[i1], promol)
+            # The following seems worse than it is. It does nothing to the
+            # relevant numbers. It just avoids troubles in the division.
+            promol[:] += 1e-100
+        else:
+            # In case of a global grid and when the pro-molecule is up to date,
+            # only the pro-atom needs to be recomputed.
+            spline = self.get_proatom_spline(i0)
+            at_weights[:] = 0.0
+            grid.eval_spline(spline, self.system.coordinates[i0], at_weights)
+        # Finally compute the ratio
+        at_weights[:] /= promol
+
+    def get_proatom_spline(self, index):
+        raise NotImplementedError
+
+
+class StockholderCPart(CPart):
     def __init__(self, system, ui_grid, moldens, store, smooth=False):
         '''
            See CPart base class for the description of the arguments.
