@@ -46,7 +46,18 @@ def check_proatomdb(system, proatomdb):
                 i, pseudo_number, pseudo_number_expected))
 
 
-class HirshfeldDPart(StockholderDPart):
+
+class HirshfeldMixin(object):
+    def _get_proatomdb(self):
+        return self._proatomdb
+
+    proatomdb = property(_get_proatomdb)
+
+    def get_proatom_spline(self, index):
+        return self.proatomdb.get_spline(self._system.numbers[index])
+
+
+class HirshfeldDPart(HirshfeldMixin, StockholderDPart):
     name = 'h'
     options = ['local']
 
@@ -56,17 +67,12 @@ class HirshfeldDPart(StockholderDPart):
         self._proatomdb = proatomdb
         StockholderDPart.__init__(self, molgrid, local)
 
-    def _get_proatomdb(self):
-        return self._proatomdb
-
-    proatomdb = property(_get_proatomdb)
-
     def _init_log(self):
         StockholderDPart._init_log(self)
         if log.do_medium:
             log.deflist([
                 ('Scheme', 'Hirshfeld'),
-                ('Proatomic DB',  self._proatomdb),
+                ('Proatomic DB',  self.proatomdb),
             ])
             log.cite('hirshfeld1977', 'the use of Hirshfeld partitioning')
 
@@ -85,12 +91,8 @@ class HirshfeldDPart(StockholderDPart):
 
         self._at_weights_cleanup()
 
-    def get_proatom_spline(self, index):
-        number = self.system.numbers[index]
-        return self._proatomdb.get_spline(number)
 
-
-class HirshfeldCPart(StockholderCPart):
+class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
     name = 'h'
 
     def __init__(self, system, ui_grid, moldens, proatomdb, store, smooth=False):
@@ -101,18 +103,13 @@ class HirshfeldCPart(StockholderCPart):
         self._proatomdb = proatomdb
         StockholderCPart.__init__(self, system, ui_grid, moldens, store, smooth)
 
-    def _get_proatomdb(self):
-        return self._proatomdb
-
-    proatomdb = property(_get_proatomdb)
-
     def _init_weight_corrections(self):
         funcs = []
         for i in xrange(self._system.natom):
             number = self._system.numbers[i]
             funcs.append((
                 self._system.coordinates[i],
-                [self._proatomdb.get_spline(number)],
+                [self.proatomdb.get_spline(number)],
             ))
         wcor = self._ui_grid.compute_weight_corrections(funcs)
         self._cache.dump('wcor', wcor)
@@ -143,11 +140,8 @@ class HirshfeldCPart(StockholderCPart):
 
     def get_cutoff_radius(self, index):
         '''The radius at which the weight function goes to zero'''
-        rtf = self._proatomdb.get_rtransform(self._system.numbers[index])
+        rtf = self.proatomdb.get_rtransform(self._system.numbers[index])
         return rtf.radius(rtf.npoint-1)
-
-    def get_proatom_spline(self, index):
-        return self._proatomdb.get_spline(self._system.numbers[index])
 
     def do_all(self):
         names = StockholderCPart.do_all(self)
