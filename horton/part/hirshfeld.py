@@ -24,8 +24,7 @@ import numpy as np
 
 from horton.cache import just_once
 from horton.log import log
-from horton.part.stockholder import StockholderCPart
-from horton.part.base import DPart
+from horton.part.stockholder import StockholderDPart, StockholderCPart
 
 
 __all__ = ['HirshfeldDPart', 'HirshfeldCPart']
@@ -35,14 +34,27 @@ __all__ = ['HirshfeldDPart', 'HirshfeldCPart']
 # TODO: proofread and add tests for pseudo densities
 
 
-class HirshfeldDPart(DPart):
+def check_proatomdb(system, proatomdb):
+    # Check of the same pseudo numbers (effective core charges) are used for the
+    # system and the proatoms.
+    for i in xrange(system.natom):
+        number = system.numbers[i]
+        pseudo_number = system.pseudo_numbers[i]
+        pseudo_number_expected = proatomdb.get_record(number, 0).pseudo_number
+        if pseudo_number_expected != pseudo_number:
+            raise ValueError('The pseudo number of atom %i does not match with the proatom database (%i!=%i)' % (
+                i, pseudo_number, pseudo_number_expected))
+
+
+class HirshfeldDPart(StockholderDPart):
     name = 'h'
     options = ['local']
 
     '''Base class for Hirshfeld partitioning'''
     def __init__(self, molgrid, proatomdb, local=True):
+        check_proatomdb(molgrid.system, proatomdb)
         self._proatomdb = proatomdb
-        DPart.__init__(self, molgrid, local)
+        StockholderDPart.__init__(self, molgrid, local)
 
     def _get_proatomdb(self):
         return self._proatomdb
@@ -50,7 +62,7 @@ class HirshfeldDPart(DPart):
     proatomdb = property(_get_proatomdb)
 
     def _init_log(self):
-        DPart._init_log(self)
+        StockholderDPart._init_log(self)
         if log.do_medium:
             log.deflist([
                 ('Scheme', 'Hirshfeld'),
@@ -58,55 +70,24 @@ class HirshfeldDPart(DPart):
             ])
             log.cite('hirshfeld1977', 'the use of Hirshfeld partitioning')
 
-    def _compute_at_weights(self, i0, grid, at_weights):
-        promol, new = self.cache.load('promol', grid.size, alloc=grid.size)
-        if new or self.local:
-            # In case of local grids, the pro-molecule must always be recomputed.
-            promol[:] = 0.0 # needed if not new and local.
-            for i1 in xrange(self.system.natom):
-                proatom_fn = self.cache.load('proatom_fn', i1)
-                if i1 == i0:
-                    at_weights[:] = 0.0
-                    grid.eval_spline(proatom_fn, self.system.coordinates[i1], at_weights)
-                    promol += at_weights
-                else:
-                    grid.eval_spline(proatom_fn, self.system.coordinates[i1], promol)
-            # The following seems worse than it is. It does nothing to the
-            # relevant numbers. It just avoids troubles in the division.
-            promol[:] += 1e-100
-        else:
-            # In case of a global grid and when the pro-molecule is up to date,
-            # only the pro-atom needs to be recomputed.
-            proatom_fn = self.cache.load('proatom_fn', i0)
-            at_weights[:] = 0.0
-            grid.eval_spline(proatom_fn, self.system.coordinates[i0], at_weights)
-        # Finally compute the ratio
-        at_weights[:] /= promol
-
     def _at_weights_cleanup(self):
         # Get rid of cached work arrays
         for i, grid in self.iter_grids():
-            self.cache.discard('at_weights_work', id(grid.size))
+            self.cache.discard('promol', grid.size)
 
     @just_once
-    def _init_at_weights(self):
-        # TODO. Splines should not be stored in the cache. Use same structure as
-        # in CPart: get_proatom_spline and _*_propars methods.
-        # Create the splines and store them in the cache
-        for i in xrange(self.system.natom):
-            proatom_fn = self.cache.load('proatom_fn', i, default=None)
-            if proatom_fn is None:
-                n = self.system.numbers[i]
-                proatom_fn = self._proatomdb.get_spline(n)
-                self.cache.dump('proatom_fn', i, proatom_fn)
-
+    def _init_partitioning(self):
         # Compute the weights
         for i0, grid in self.iter_grids():
             at_weights, new = self.cache.load('at_weights', i0, alloc=grid.size)
             if new:
-                self._compute_at_weights(i0, grid, at_weights)
+                self.compute_at_weights(i0, grid, at_weights)
 
         self._at_weights_cleanup()
+
+    def get_proatom_spline(self, index):
+        number = self.system.numbers[index]
+        return self._proatomdb.get_spline(number)
 
 
 class HirshfeldCPart(StockholderCPart):
@@ -116,18 +97,9 @@ class HirshfeldCPart(StockholderCPart):
         '''
            See CPart base class for the description of the arguments.
         '''
+        check_proatomdb(system, proatomdb)
         self._proatomdb = proatomdb
         StockholderCPart.__init__(self, system, ui_grid, moldens, store, smooth)
-
-        # Check of the same (or similar) psuedo potentials were used for the
-        # system and the proatoms.
-        for i in xrange(self._system.natom):
-            number = self._system.numbers[i]
-            pseudo_number = self._system.pseudo_numbers[i]
-            pseudo_number_expected = self._proatomdb.get_record(number, 0).pseudo_number
-            if pseudo_number_expected != pseudo_number:
-                raise ValueError('The pseudo number of atom %i does not match with the proatom database (%i!=%i)' % (
-                    i, pseudo_number, pseudo_number_expected))
 
     def _get_proatomdb(self):
         return self._proatomdb

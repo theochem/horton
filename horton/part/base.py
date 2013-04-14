@@ -65,7 +65,7 @@ class DPart(JustOnceClass):
         self._local = local
 
         # Caching stuff, to avoid recomputation of earlier results
-        self.cache = Cache()
+        self._cache = Cache()
 
         # Some screen logging
         self._init_log()
@@ -73,7 +73,7 @@ class DPart(JustOnceClass):
         # Do the essential part of the partitioning. All derived properties
         # are optional.
         with timer.section('DPart weights'):
-            self._init_at_weights()
+            self._init_partitioning()
 
     def __getitem__(self, key):
         return self.cache.load(key)
@@ -88,7 +88,7 @@ class DPart(JustOnceClass):
             ])
 
     @just_once
-    def _init_at_weights(self):
+    def _init_partitioning(self):
         raise NotImplementedError
 
     def _get_molgrid(self):
@@ -106,6 +106,11 @@ class DPart(JustOnceClass):
 
     local = property(_get_local)
 
+    def _get_cache(self):
+        return self._cache
+
+    cache = property(_get_cache)
+
     def invalidate(self):
         '''Discard all cached results, e.g. because wfn changed'''
         JustOnceClass.invalidate(self)
@@ -113,7 +118,7 @@ class DPart(JustOnceClass):
         # immediately recompute the basics
         # TODO: For some schemes, the weights do not depend on the density
         # and recomputation of the atomic weights is a waste of time
-        self._init_at_weights()
+        self._init_partitioning()
 
     def iter_grids(self):
         '''Iterate over the atomic grids
@@ -246,6 +251,11 @@ class CPart(JustOnceClass):
         return self._smooth
 
     smooth = property(_get_smooth)
+
+    def _get_cache(self):
+        return self._cache
+
+    cache = property(_get_cache)
 
     def _init_partitioning(self):
         # This routine must prepare the partitioning such that the atomic weight
