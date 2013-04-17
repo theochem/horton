@@ -33,12 +33,22 @@ __all__ = [
 # TODO: reduce duplicate code
 
 
-def check_proatom(spline, expected_pop):
-    # TODO: complete this routine and use it whenever a pro-atom spline is generateds
+def check_proatom(spline, pseudo_population):
+    '''Check if the spline for the proatom is correct and fix is needed
+
+       **Arguments:**
+
+       spline
+            The spline for the proatom.
+
+       pseudo_population
+            The population that the proatom should have.
+    '''
+    # TODO: complete this routine and use it whenever a pro-atom spline is generated
     proradrho = spline.copy_y()
 
-    target_pseudo_population = self.system.pseudo_numbers[index] - target_charge
-    error = np.dot(proradrho, weights) - target_pseudo_population
+    pseudo_population = self.system.pseudo_numbers[index] - target_charge
+    error = np.dot(proradrho, weights) - pseudo_population
     assert abs(error) < 1e-5
 
     # Check for negative parts
