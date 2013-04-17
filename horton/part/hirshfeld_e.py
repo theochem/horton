@@ -36,7 +36,6 @@ __all__ = ['HEBasis', 'HirshfeldEDPart', 'HirshfeldECPart']
 
 # TODO: isolate duplicate code in base class
 # TODO: proofread and add tests for pseudo densities
-# TODO: rename procoeffs to propars
 
 
 class HEBasis(object):
@@ -148,15 +147,15 @@ class HEBasis(object):
 
 
 class HirshfeldEMixin(object):
-    def get_proatom_rho(self, index, procoeffs=None):
-        if procoeffs is None:
-            procoeffs = self._cache.load('procoeffs')
+    def get_proatom_rho(self, index, propars=None):
+        if propars is None:
+            propars = self._cache.load('propars')
         begin = self._hebasis.get_atom_begin(index)
         nbasis =  self._hebasis.get_atom_nbasis(index)
 
         total_lico = {0: 1}
         for j in xrange(nbasis):
-            coeff = procoeffs[j+begin]
+            coeff = propars[j+begin]
             lico = self._hebasis.get_basis_lico(index, j)
             for icharge, factor in lico.iteritems():
                 total_lico[icharge] = total_lico.get(icharge, 0) + coeff*factor
@@ -168,11 +167,11 @@ class HirshfeldEMixin(object):
         self.history_propars = []
         self.history_charges = []
         self.cache.load('charges', alloc=self._system.natom)[0]
-        procoeff_map, procoeff_names = self._hebasis.get_basis_info()
-        self._cache.dump('procoeff_map', procoeff_map)
-        self._cache.dump('procoeff_names', np.array(procoeff_names))
+        propar_map, propar_names = self._hebasis.get_basis_info()
+        self._cache.dump('propar_map', propar_map)
+        self._cache.dump('propar_names', np.array(propar_names))
         nbasis = self._hebasis.get_nbasis()
-        return self._cache.load('procoeffs', alloc=nbasis)[0]
+        return self._cache.load('propars', alloc=nbasis)[0]
 
 
 class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
@@ -185,9 +184,9 @@ class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
         self._hebasis = HEBasis(molgrid.system.numbers, proatomdb)
         HirshfeldIDPart.__init__(self, molgrid, proatomdb, local, threshold, maxiter)
 
-    def _update_propars_atom(self, index, grid, procoeffs):
+    def _update_propars_atom(self, index, grid, propars):
         # 0) Compute charge in base class method
-        HirshfeldIDPart._update_propars_atom(self, index, grid, procoeffs)
+        HirshfeldIDPart._update_propars_atom(self, index, grid, propars)
         target_charge = self.cache.load('charges')[index]
 
         # 1) Prepare for radial integrals
@@ -239,18 +238,18 @@ class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
             lc = np.zeros(nbasis)
             lc[j0] = 1.0
             lcs_par.append((lc, -1))
-        atom_procoeffs = quadratic_solver(A, B, [lc_pop], lcs_par, rcond=0)
+        atom_propars = quadratic_solver(A, B, [lc_pop], lcs_par, rcond=0)
 
         # Screen output
         if log.do_medium:
-            log('                   %10i:&%s' % (index, ' '.join('% 6.3f' % c for c in atom_procoeffs)))
+            log('                   %10i:&%s' % (index, ' '.join('% 6.3f' % c for c in atom_propars)))
 
         # Done
-        procoeffs[begin:begin+nbasis] = atom_procoeffs
+        propars[begin:begin+nbasis] = atom_propars
 
     def do_all(self):
         names = HirshfeldIDPart.do_all(self)
-        return names + ['procoeffs', 'procoeff_map', 'procoeff_names']
+        return names + ['propars', 'propar_map', 'propar_names']
 
 
 class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
@@ -304,7 +303,7 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
             self.compute_spline(i, spline, output, 'n=%i %s' % (number, label))
             self._store.dump(output, *key)
 
-    def _update_propars_atom(self, index, procoeffs, work0):
+    def _update_propars_atom(self, index, propars, work0):
         aimdens = self._ui_grid.zeros()
         work1 = self._ui_grid.zeros()
         wcor = self._cache.load('wcor', default=None)
@@ -375,23 +374,23 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
             lc = np.zeros(nbasis)
             lc[j0] = 1.0/scales[j0]
             lcs_par.append((lc, -1))
-        atom_procoeffs = quadratic_solver(A, B, [lc_pop], lcs_par, rcond=0)
-        rrmsd = np.sqrt(np.dot(np.dot(A, atom_procoeffs) - 2*B, atom_procoeffs)/C + 1)
+        atom_propars = quadratic_solver(A, B, [lc_pop], lcs_par, rcond=0)
+        rrmsd = np.sqrt(np.dot(np.dot(A, atom_propars) - 2*B, atom_propars)/C + 1)
 
         #    correct for scales
-        atom_procoeffs /= scales
+        atom_propars /= scales
 
         if log.do_medium:
-            log('            %10i (%.0f%%):&%s' % (index, rrmsd*100, ' '.join('% 6.3f' % c for c in atom_procoeffs)))
+            log('            %10i (%.0f%%):&%s' % (index, rrmsd*100, ' '.join('% 6.3f' % c for c in atom_propars)))
 
-        procoeffs[begin:begin+nbasis] = atom_procoeffs
+        propars[begin:begin+nbasis] = atom_propars
 
     def compute_proatom(self, i, output, window=None):
         if self._store.fake or window is not None:
             HirshfeldCPart.compute_proatom(self, i, output, window)
         else:
             # Get the coefficients for the pro-atom
-            procoeffs = self._cache.load('procoeffs')
+            propars = self._cache.load('propars')
 
             # Construct the pro-atom
             begin = self._hebasis.get_atom_begin(i)
@@ -399,13 +398,13 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
             work = self._ui_grid.zeros()
             self._get_constant_fn(i, output)
             for j in xrange(nbasis):
-                if procoeffs[j+begin] != 0:
+                if propars[j+begin] != 0:
                     work[:] = 0
                     self._get_basis_fn(i, j, work)
-                    work *= procoeffs[j+begin]
+                    work *= propars[j+begin]
                     output += work
             output += 1e-100
 
     def do_all(self):
         names = HirshfeldICPart.do_all(self)
-        return names + ['procoeffs', 'procoeff_map', 'procoeff_names']
+        return names + ['propars', 'propar_map', 'propar_names']
