@@ -30,10 +30,6 @@ from horton.part.stockholder import StockholderDPart, StockholderCPart
 __all__ = ['HirshfeldDPart', 'HirshfeldCPart']
 
 
-# TODO: isolate common code in mixin class
-# TODO: proofread and add tests for pseudo densities
-
-
 def check_proatomdb(system, proatomdb):
     # Check if the same pseudo numbers (effective core charges) are used for the
     # system and the proatoms.
@@ -149,6 +145,7 @@ class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
         self.do_dispersion()
         return names + ['volumes', 'volume_ratios', 'c6s']
 
+    # TODO: Move to mixin class after do_moments is working in DPart
     @just_once
     def do_dispersion(self):
         # Method by Alexandre Tkatchenko and Matthias Scheffler:

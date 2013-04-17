@@ -29,10 +29,6 @@ from horton.log import log, timer
 __all__ = ['DPart', 'CPart']
 
 
-# TODO: isolate duplicate code in base class
-# TODO: implement moments for DPart (in Mixin class, if possible)
-
-
 class Part(JustOnceClass):
     def __init__(self, system, moldens=None):
         '''
@@ -307,6 +303,7 @@ class CPart(Part):
             # correct for pseudo-potentials
             populations += self.system.numbers - self.system.pseudo_numbers
 
+    # TODO: implement moments for DPart (in Mixin class, if possible)
     @just_once
     def do_moments(self):
         if log.do_medium:

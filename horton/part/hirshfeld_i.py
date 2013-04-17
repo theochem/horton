@@ -33,10 +33,6 @@ from horton.part.hirshfeld import HirshfeldDPart, HirshfeldCPart
 __all__ = ['HirshfeldIDPart', 'HirshfeldICPart']
 
 
-# TODO: isolate common code in mixin class
-# TODO: proofread and add tests for pseudo densities
-
-
 class HirshfeldIMixin(object):
     def get_interpolation_info(self, i, charges=None):
         if charges is None:
