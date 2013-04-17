@@ -159,7 +159,7 @@ class DPart(Part):
            The grid may also me the same molecular grid at each iteration. This
            allows most routines to be implemented without being aware of the
            local flag. Some routines may still use the local flag to improve
-           the efficiency, e.g. see do_mol_dens
+           the efficiency, e.g. see do_moldens
         '''
         for i in xrange(self.system.natom):
             if self._local:
@@ -174,26 +174,26 @@ class DPart(Part):
         return ['populations', 'pseudo_populations', 'charges']
 
     @just_once
-    def do_mol_dens(self):
+    def do_moldens(self):
         if log.do_medium: log('Computing densities on grids.')
         for i, grid in self.iter_grids():
             if i == 0 or self.local:
-                mol_dens, new = self.cache.load('mol_dens', i, alloc=grid.size)
+                moldens, new = self.cache.load('moldens', i, alloc=grid.size)
                 if new:
-                    self.system.compute_grid_density(grid.points, rhos=mol_dens)
+                    self.system.compute_grid_density(grid.points, rhos=moldens)
             else:
-                self.cache.dump('mol_dens', i, mol_dens)
+                self.cache.dump('moldens', i, moldens)
 
     @just_once
     def do_populations(self):
-        self.do_mol_dens()
+        self.do_moldens()
         if log.do_medium: log('Computing atomic populations.')
         populations, new = self.cache.load('populations', alloc=self.system.natom)
         if new:
             pseudo_populations, new = self.cache.load('pseudo_populations', alloc=self.system.natom)
             for i, grid in self.iter_grids():
                 at_weights = self.cache.load('at_weights', i)
-                dens = self.cache.load('mol_dens', i)
+                dens = self.cache.load('moldens', i)
                 pseudo_populations[i] = grid.integrate(at_weights, dens)
             populations[:] = pseudo_populations
             populations += self.system.numbers - self.system.pseudo_numbers
