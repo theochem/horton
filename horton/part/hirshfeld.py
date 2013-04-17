@@ -48,6 +48,9 @@ def check_proatomdb(system, proatomdb):
 
 
 class HirshfeldMixin(object):
+    def __init__(self, proatomdb):
+        self._proatomdb = proatomdb
+
     def _get_proatomdb(self):
         return self._proatomdb
 
@@ -64,7 +67,7 @@ class HirshfeldDPart(HirshfeldMixin, StockholderDPart):
     '''Base class for Hirshfeld partitioning'''
     def __init__(self, molgrid, proatomdb, local=True):
         check_proatomdb(molgrid.system, proatomdb)
-        self._proatomdb = proatomdb
+        HirshfeldMixin. __init__(self, proatomdb)
         StockholderDPart.__init__(self, molgrid, local)
 
     def _init_log(self):
@@ -100,7 +103,7 @@ class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
            See CPart base class for the description of the arguments.
         '''
         check_proatomdb(system, proatomdb)
-        self._proatomdb = proatomdb
+        HirshfeldMixin. __init__(self, proatomdb)
         StockholderCPart.__init__(self, system, ui_grid, moldens, store, smooth)
 
     def _init_weight_corrections(self):
