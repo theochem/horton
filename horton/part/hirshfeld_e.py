@@ -303,9 +303,10 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
             self.compute_spline(i, spline, output, 'n=%i %s' % (number, label))
             self._store.dump(output, *key)
 
-    def _update_propars_atom(self, index, propars, work0):
+    def _update_propars_atom(self, index, propars):
         aimdens = self._ui_grid.zeros()
-        work1 = self._ui_grid.zeros()
+        work0 = self.cache.load('work0', alloc=self._ui_grid.shape)[0]
+        work1 = self.cache.load('work1', alloc=self._ui_grid.shape)[0]
         wcor = self._cache.load('wcor', default=None)
         wcor_fit = self._cache.load('wcor_fit', default=None)
         charges = self._cache.load('charges', alloc=self.system.natom)[0]
@@ -395,11 +396,10 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
             # Construct the pro-atom
             begin = self._hebasis.get_atom_begin(i)
             nbasis =  self._hebasis.get_atom_nbasis(i)
-            work = self._ui_grid.zeros()
+            work = self.cache.load('work1', alloc=self._ui_grid.shape)[0]
             self._get_constant_fn(i, output)
             for j in xrange(nbasis):
                 if propars[j+begin] != 0:
-                    work[:] = 0
                     self._get_basis_fn(i, j, work)
                     work *= propars[j+begin]
                     output += work

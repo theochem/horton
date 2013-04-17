@@ -79,11 +79,6 @@ class HirshfeldDPart(HirshfeldMixin, StockholderDPart):
             ])
             log.cite('hirshfeld1977', 'the use of Hirshfeld partitioning')
 
-    def _at_weights_cleanup(self):
-        # Get rid of cached work arrays
-        for i, grid in self.iter_grids():
-            self.cache.discard('promol', grid.size)
-
     @just_once
     def _init_partitioning(self):
         # Compute the weights
@@ -91,8 +86,6 @@ class HirshfeldDPart(HirshfeldMixin, StockholderDPart):
             at_weights, new = self.cache.load('at_weights', i0, alloc=grid.size)
             if new:
                 self.compute_at_weights(i0, grid, at_weights)
-
-        self._at_weights_cleanup()
 
 
 class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
@@ -118,28 +111,33 @@ class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
         self._cache.dump('wcor', wcor)
 
     def _init_partitioning(self):
-        work = self._ui_grid.zeros()
-        self._update_promolecule(work)
-        self._store_at_weights(work)
+        self._update_promolecule()
+        self._store_at_weights()
+        self._work_cleanup()
 
-    def _update_promolecule(self, work):
-        promoldens = self._cache.load('promoldens', alloc=self._ui_grid.shape)[0]
+    def _update_promolecule(self):
+        promoldens = self.cache.load('promoldens', alloc=self._ui_grid.shape)[0]
         promoldens[:] = 0.0
+        work = self.cache.load('work0', alloc=self._ui_grid.shape)[0]
         for index in xrange(self._system.natom):
             self.compute_proatom(index, work)
             promoldens += work
             # Merely for efficiency:
             self._store.dump(work, 'at_weights', index)
 
-    def _store_at_weights(self, work):
+    def _store_at_weights(self):
         # Compute the atomic weight functions if this is useful. This is merely
         # a matter of efficiency.
-        promoldens = self._cache.load('promoldens')
+        promoldens = self.cache.load('promoldens')
+        work = self.cache.load('work0', alloc=self._ui_grid.shape)[0]
         for index in xrange(self._system.natom):
             if ('at_weights', index) in self._store:
                 self._store.load(work, 'at_weights', index)
                 work /= promoldens
                 self._store.dump(work, 'at_weights', index)
+
+    def _work_cleanup(self):
+        self.cache.discard('work0')
 
     def get_cutoff_radius(self, index):
         '''The radius at which the weight function goes to zero'''
