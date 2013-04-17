@@ -218,7 +218,7 @@ class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
         #   Matrix B
         B = np.zeros(nbasis, float)
         work = np.zeros(grid.size)
-        dens = self.cache.load('mol_dens', index)
+        dens = self.cache.load('moldens', index)
         at_weights = self.cache.load('at_weights', index)
         constant_rho = self._hebasis.get_constant_rho(index)
         for j0 in xrange(nbasis):

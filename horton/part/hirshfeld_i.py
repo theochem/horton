@@ -159,7 +159,7 @@ class HirshfeldIDPart(HirshfeldIMixin, HirshfeldDPart):
         self.compute_at_weights(index, grid, at_weights)
 
         # Compute population
-        dens = self.cache.load('mol_dens', index)
+        dens = self.cache.load('moldens', index)
         charges = self._cache.load('charges')
         pseudo_population = grid.integrate(at_weights, dens)
         charges[index] = self.system.pseudo_numbers[index] - pseudo_population
@@ -170,7 +170,7 @@ class HirshfeldIDPart(HirshfeldIMixin, HirshfeldDPart):
         if all(self.cache.has('at_weights', i) for i in xrange(self.system.natom)):
             return
         # Need to compute density
-        self.do_mol_dens()
+        self.do_moldens()
         # Run the generic code
         HirshfeldIMixin._init_partitioning(self)
 
