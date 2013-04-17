@@ -30,9 +30,73 @@ __all__ = ['DPart', 'CPart']
 
 
 # TODO: isolate duplicate code in base class
+# TODO: implement moments for DPart (in Mixin class, if possible)
 
 
-class DPart(JustOnceClass):
+class Part(JustOnceClass):
+    def __init__(self, system, moldens=None):
+        '''
+           **Arguments:**
+
+           system
+                The system to be partitioned.
+
+           **Optional arguments:**
+
+           moldens
+                The all-electron density grid data.
+        '''
+        JustOnceClass.__init__(self)
+        self._system = system
+        # Caching stuff, to avoid recomputation of earlier results
+        self._cache = Cache()
+        if moldens is not None:
+            self._cache.dump('moldens', moldens)
+
+        # Some screen logging
+        self._init_log()
+
+    def __getitem__(self, key):
+        return self.cache.load(key)
+
+    def _get_system(self):
+        return self._system
+
+    system = property(_get_system)
+
+    def _get_cache(self):
+        return self._cache
+
+    cache = property(_get_cache)
+
+    def invalidate(self):
+        '''Discard all cached results, e.g. because wfn changed'''
+        JustOnceClass.invalidate(self)
+        self.cache.invalidate_all()
+        # immediately recompute the basics
+        # TODO: For some schemes, the weights do not depend on the density
+        # and recomputation of the atomic weights is a waste of time
+        self._init_partitioning()
+
+    def _init_log(self):
+        raise NotImplementedError
+
+    @just_once
+    def _init_partitioning(self):
+        raise NotImplementedError
+
+    @just_once
+    def do_charges(self):
+        self.do_populations()
+        if log.do_medium:
+            log('Computing atomic charges.')
+        charges, new = self._cache.load('charges', alloc=self.system.natom)
+        if new:
+            populations = self._cache.load('populations')
+            charges[:] = self.system.numbers - populations
+
+
+class DPart(Part):
     # TODO: add framework to evaluate AIM weights (and maybe other things) on
     # user-provided grids.
 
@@ -58,25 +122,15 @@ class DPart(JustOnceClass):
         if local and molgrid.subgrids is None:
             raise ValueError('Atomic grids are discarded from molecular grid object, but are needed for local integrations.')
 
-        JustOnceClass.__init__(self)
-
         self._molgrid = molgrid
-        self._system = molgrid.system
         self._local = local
 
-        # Caching stuff, to avoid recomputation of earlier results
-        self._cache = Cache()
-
-        # Some screen logging
-        self._init_log()
+        Part.__init__(self, molgrid.system)
 
         # Do the essential part of the partitioning. All derived properties
         # are optional.
         with timer.section('DPart weights'):
             self._init_partitioning()
-
-    def __getitem__(self, key):
-        return self.cache.load(key)
 
     def _init_log(self):
         if log.do_medium:
@@ -87,38 +141,15 @@ class DPart(JustOnceClass):
                 ('Using local grids', self._local),
             ])
 
-    @just_once
-    def _init_partitioning(self):
-        raise NotImplementedError
-
     def _get_molgrid(self):
         return self._molgrid
 
     molgrid = property(_get_molgrid)
 
-    def _get_system(self):
-        return self._system
-
-    system = property(_get_system)
-
     def _get_local(self):
         return self._local
 
     local = property(_get_local)
-
-    def _get_cache(self):
-        return self._cache
-
-    cache = property(_get_cache)
-
-    def invalidate(self):
-        '''Discard all cached results, e.g. because wfn changed'''
-        JustOnceClass.invalidate(self)
-        self.cache.invalidate_all()
-        # immediately recompute the basics
-        # TODO: For some schemes, the weights do not depend on the density
-        # and recomputation of the atomic weights is a waste of time
-        self._init_partitioning()
 
     def iter_grids(self):
         '''Iterate over the atomic grids
@@ -167,17 +198,8 @@ class DPart(JustOnceClass):
             populations[:] = pseudo_populations
             populations += self.system.numbers - self.system.pseudo_numbers
 
-    @just_once
-    def do_charges(self):
-        self.do_populations()
-        if log.do_medium: log('Computing atomic charges.')
-        charges, new = self.cache.load('charges', alloc=self.system.natom)
-        if new:
-            populations = self.cache.load('populations')
-            charges[:] = self.system.numbers - populations
 
-
-class CPart(JustOnceClass):
+class CPart(Part):
     '''Base class for density partitioning schemes of cube files'''
 
     name = None
@@ -205,12 +227,7 @@ class CPart(JustOnceClass):
                 When set to True, no corrections are included to integrate
                 the cusps.
         '''
-        JustOnceClass.__init__(self)
-
-        self._system = system
         self._ui_grid = ui_grid
-        self._smooth = smooth
-
         # ArrayStore is used to avoid recomputation of huge arrays. This is not
         # always desirable due to memory constraints. Therefore the arrays
         # can be stored in a file or not stored at all. (See ArrayStore for
@@ -220,27 +237,19 @@ class CPart(JustOnceClass):
         # that after the initial setup of the pro-atoms, the partitioning schemes
         # must store sufficient details to recreate the proatoms when needed
         self._store = store
+        self._smooth = smooth
 
-        # Caching stuff, to avoid recomputation of earlier results
-        self._cache = Cache()
-        self._cache.dump('moldens', moldens)
+        Part.__init__(self, system, moldens)
 
-        # Some screen logging
-        self._init_log()
-
-        if not smooth:
+        # If needed, prepare weight corrections for the integration on the
+        # uniform grid
+        if not self.smooth:
             with timer.section('CPart wcor'):
                 self._init_weight_corrections()
-        with timer.section('CPart setup'):
+        # Do the essential part of the partitioning. All derived properties
+        # are optional.
+        with timer.section('Part weights'):
             self._init_partitioning()
-
-    def __getitem__(self, key):
-        return self._cache.load(key)
-
-    def _get_system(self):
-        return self._system
-
-    system = property(_get_system)
 
     def _get_ui_grid(self):
         return self._ui_grid
@@ -252,20 +261,6 @@ class CPart(JustOnceClass):
 
     smooth = property(_get_smooth)
 
-    def _get_cache(self):
-        return self._cache
-
-    cache = property(_get_cache)
-
-    def _init_partitioning(self):
-        # This routine must prepare the partitioning such that the atomic weight
-        # functions can be quickly recomputed if they can not be loaded from
-        # the store.
-        raise NotImplementedError
-
-    def _init_weight_corrections(self):
-        raise NotImplementedError
-
     def _init_log(self):
         if log.do_medium:
             log('Performing a density-based AIM analysis of a cube file.')
@@ -275,6 +270,9 @@ class CPart(JustOnceClass):
                 ('Grid shape', self._ui_grid.shape),
                 ('Mean spacing', '%10.5e' % (self._ui_grid.grid_cell.volume**(1.0/3.0))),
             ])
+
+    def _init_weight_corrections(self):
+        raise NotImplementedError
 
     def get_at_weights(self, index, output):
         # The default behavior is load the weights from the store. If this fails,
@@ -299,14 +297,6 @@ class CPart(JustOnceClass):
         # The radius at which the weight function goes to zero
         raise NotImplementedError
 
-    def do_all(self):
-        '''Computes all reasonable properties and returns a corresponding list of keys'''
-        self.do_populations()
-        self.do_charges()
-        self.do_moments()
-        return ['populations', 'charges', 'cartesian_powers',
-                'cartesian_moments', 'radial_powers', 'radial_moments']
-
     @just_once
     def do_populations(self):
         if log.do_medium:
@@ -318,16 +308,6 @@ class CPart(JustOnceClass):
                 populations[i] = self.compute_pseudo_population(i, work)
             # correct for pseudo-potentials
             populations += self.system.numbers - self.system.pseudo_numbers
-
-    @just_once
-    def do_charges(self):
-        self.do_populations()
-        if log.do_medium:
-            log('Computing atomic charges.')
-        charges, new = self._cache.load('charges', alloc=self.system.natom)
-        if new:
-            populations = self._cache.load('populations')
-            charges[:] = self.system.numbers - populations
 
     @just_once
     def do_moments(self):
@@ -386,3 +366,11 @@ class CPart(JustOnceClass):
                 radial_moments[i, nr-1] = window.integrate(aim, wcor, center=center, nx=0, ny=0, nz=0, nr=nr)
 
             del wcor
+
+    def do_all(self):
+        '''Computes all reasonable properties and returns a corresponding list of keys'''
+        self.do_populations()
+        self.do_charges()
+        self.do_moments()
+        return ['populations', 'charges', 'cartesian_powers',
+                'cartesian_moments', 'radial_powers', 'radial_moments']
