@@ -287,6 +287,15 @@ class ProAtomDB(object):
     def get_rtransform(self, number):
         return self._rtf_map[number]
 
+    def get_radial_weights(self, number):
+        '''Return radial integration weights.'''
+        rtf = self.get_rtransform(number)
+        int1d = SimpsonIntegrator1D()
+        radii = rtf.get_radii()
+        weights = (4*np.pi) * radii**2 * int1d.get_weights(len(radii)) * rtf.get_volume_elements()
+        assert (weights > 0).all()
+        return weights
+
     def _get_size(self):
         return len(self._records)
 
