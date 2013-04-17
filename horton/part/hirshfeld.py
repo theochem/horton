@@ -35,7 +35,7 @@ __all__ = ['HirshfeldDPart', 'HirshfeldCPart']
 
 
 def check_proatomdb(system, proatomdb):
-    # Check of the same pseudo numbers (effective core charges) are used for the
+    # Check if the same pseudo numbers (effective core charges) are used for the
     # system and the proatoms.
     for i in xrange(system.natom):
         number = system.numbers[i]
@@ -53,8 +53,8 @@ class HirshfeldMixin(object):
 
     proatomdb = property(_get_proatomdb)
 
-    def get_proatom_spline(self, index):
-        return self.proatomdb.get_spline(self._system.numbers[index])
+    def get_proatom_rho(self, index):
+        return self.proatomdb.get_rho(self._system.numbers[index])
 
 
 class HirshfeldDPart(HirshfeldMixin, StockholderDPart):
