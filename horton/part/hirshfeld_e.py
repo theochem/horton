@@ -36,6 +36,7 @@ __all__ = ['HEBasis', 'HirshfeldEDPart', 'HirshfeldECPart']
 
 # TODO: isolate duplicate code in base class
 # TODO: proofread and add tests for pseudo densities
+# TODO: rename procoeffs to propars
 
 
 class HEBasis(object):
@@ -164,20 +165,14 @@ class HirshfeldEMixin(object):
         return self._proatomdb.get_rho(number, total_lico)
 
     def _init_propars(self):
-        self.history = []
+        self.history_propars = []
+        self.history_charges = []
+        self.cache.load('charges', alloc=self._system.natom)[0]
         procoeff_map, procoeff_names = self._hebasis.get_basis_info()
         self._cache.dump('procoeff_map', procoeff_map)
         self._cache.dump('procoeff_names', np.array(procoeff_names))
         nbasis = self._hebasis.get_nbasis()
         return self._cache.load('procoeffs', alloc=nbasis)[0]
-
-    def _finalize_propars(self, procoeffs):
-        charges = self._cache.load('charges')
-        self.history.append([charges.copy(), procoeffs.copy()])
-        self._cache.dump('history_charges', np.array([row[0] for row in self.history]))
-        self._cache.dump('history_procoeffs', np.array([row[1] for row in self.history]))
-        self._cache.dump('pseudo_populations', self.system.pseudo_numbers - charges)
-        self._cache.dump('populations', self.system.numbers - charges)
 
 
 class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
@@ -190,30 +185,11 @@ class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
         self._hebasis = HEBasis(molgrid.system.numbers, proatomdb)
         HirshfeldIDPart.__init__(self, molgrid, proatomdb, local, threshold, maxiter)
 
-    def _update_propars(self, procoeffs):
-        # Enforce (single) update of pro-molecule in case of a global grid
-        if not self.local:
-            self.cache.invalidate('promol', self._molgrid.size)
+    def _update_propars_atom(self, index, grid, procoeffs):
+        # 0) Compute charge in base class method
+        HirshfeldIDPart._update_propars_atom(self, index, grid, procoeffs)
+        target_charge = self.cache.load('charges')[index]
 
-        # partition with the current procoeffs and derive charges
-        charges = self._cache.load('charges', alloc=self._system.natom)[0]
-        for index, grid in self.iter_grids():
-            # Compute weight
-            at_weights, new = self.cache.load('at_weights', index, alloc=grid.size)
-            self.compute_at_weights(index, grid, at_weights)
-
-            dens = self.cache.load('mol_dens', index)
-            pseudo_population = grid.integrate(at_weights, dens)
-            charges[index] = self.system.pseudo_numbers[index] - pseudo_population
-
-        # Keep track of history
-        self.history.append([charges.copy(), procoeffs.copy()])
-
-        for index, grid in self.iter_grids():
-            # Update proatom
-            self._update_propars_atom(index, grid, procoeffs, charges[index])
-
-    def _update_propars_atom(self, index, grid, procoeffs, target_charge):
         # 1) Prepare for radial integrals
         number = self.system.numbers[index]
         weights = self.proatomdb.get_radial_weights(number)
@@ -274,7 +250,7 @@ class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
 
     def do_all(self):
         names = HirshfeldIDPart.do_all(self)
-        return names + ['procoeffs', 'procoeff_map', 'procoeff_names', 'history_procoeffs']
+        return names + ['procoeffs', 'procoeff_map', 'procoeff_names']
 
 
 class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
@@ -410,45 +386,6 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
 
         procoeffs[begin:begin+nbasis] = atom_procoeffs
 
-    def _update_propars(self, procoeffs):
-        self.history.append([None, procoeffs.copy()])
-
-        # TODO: avoid periodic reallocation of work array
-        work = self._ui_grid.zeros()
-
-        # Update the pro-molecule density
-        self._update_promolecule(work)
-
-        # Compute the atomic weight functions if this is useful. This is merely
-        # a matter of efficiency.
-        self._store_at_weights(work)
-
-        # Update the pro-atom parameters.
-        for index in xrange(self._system.natom):
-            self._update_propars_atom(index, procoeffs, work)
-
-        self.history[-1][0] = self.cache.load('charges').copy()
-
-    def _finalize_propars(self, procoeffs):
-        charges = self.cache.load('charges')
-        aimdens = self._ui_grid.zeros()
-        wcor = self._cache.load('wcor', default=None)
-
-        for index in xrange(self.system.natom):
-            # TODO: duplicate code with _update_propars
-            # construct the AIM density
-            present = self._store.load(aimdens, 'at_weights', index)
-            if not present:
-                # construct atomic weight function
-                self.compute_proatom(index, aimdens)
-                aimdens /= self._cache.load('promoldens')
-            aimdens *= self._cache.load('moldens')
-
-            #    compute the charge
-            charges[index] = self.system.pseudo_numbers[index] - self._ui_grid.integrate(aimdens, wcor)
-
-        HirshfeldEMixin._finalize_propars(self, procoeffs)
-
     def compute_proatom(self, i, output, window=None):
         if self._store.fake or window is not None:
             HirshfeldCPart.compute_proatom(self, i, output, window)
@@ -471,4 +408,4 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
 
     def do_all(self):
         names = HirshfeldICPart.do_all(self)
-        return names + ['procoeffs', 'procoeff_map', 'procoeff_names', 'history_procoeffs']
+        return names + ['procoeffs', 'procoeff_map', 'procoeff_names']
