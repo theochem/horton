@@ -46,15 +46,15 @@ class HirshfeldIMixin(object):
         x = target_charge - icharge
         return icharge, x
 
-    def get_proatom_spline(self, index, charges=None):
+    def get_proatom_rho(self, index, charges=None):
         icharge, x = self.get_interpolation_info(index, charges)
         # check if icharge record should exist
         pseudo_pop = self.system.pseudo_numbers[index] - icharge
         number = self.system.numbers[index]
         if pseudo_pop == 1:
-            return self.proatomdb.get_spline(number, {icharge: 1-x})
+            return self.proatomdb.get_rho(number, {icharge: 1-x})
         elif pseudo_pop > 1:
-            return self.proatomdb.get_spline(number, {icharge: 1-x, icharge+1: x})
+            return self.proatomdb.get_rho(number, {icharge: 1-x, icharge+1: x})
         else:
             raise ValueError('Requesting a pro-atom with a negative (pseudo) population')
 

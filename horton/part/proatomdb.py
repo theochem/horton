@@ -426,8 +426,8 @@ class ProAtomDB(object):
         if do_close:
             f.close()
 
-    def get_spline(self, number, parameters=0, combine='linear'):
-        '''Construct a spline that can be used as pro-atom.
+    def get_rho(self, number, parameters=0, combine='linear'):
+        '''Construct a proatom density on a grid.
 
            **Arguments:**
 
@@ -452,7 +452,7 @@ class ProAtomDB(object):
         if isinstance(parameters, int):
             charge = parameters
             record = self.get_record(number, charge)
-            return CubicSpline(record.rho, rtf=record.rtransform)
+            return record.rho
         elif isinstance(parameters, dict):
             rho = 0.0
             if combine == 'linear':
@@ -468,6 +468,15 @@ class ProAtomDB(object):
                 raise ValueError('Combine argument "%s" not supported.' % combine)
             if not isinstance(rho, np.ndarray):
                 raise ValueError('At least some coefficients must be non-zero.')
-            return CubicSpline(rho, rtf=self.get_rtransform(number))
+            return rho
         else:
             raise TypeError('Could not interpret parameters argument')
+
+
+    def get_spline(self, number, parameters=0, combine='linear'):
+        '''Construct a proatom spline.
+
+           **Arguments:** See ``get_rho.. method.
+        '''
+        rho = self.get_rho(number, parameters, combine)
+        return CubicSpline(rho, rtf=self.get_rtransform(number))

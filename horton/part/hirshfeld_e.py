@@ -121,7 +121,7 @@ class HEBasis(object):
 
 
 class HirshfeldEMixin(object):
-    def get_proatom_spline(self, index, procoeffs=None):
+    def get_proatom_rho(self, index, procoeffs=None):
         if procoeffs is None:
             procoeffs = self._cache.load('procoeffs')
         begin = self._hebasis.get_atom_begin(index)
@@ -135,7 +135,7 @@ class HirshfeldEMixin(object):
                 total_lico[icharge] = total_lico.get(icharge, 0) + coeff*factor
 
         number = self._system.numbers[index]
-        return self._proatomdb.get_spline(number, total_lico)
+        return self._proatomdb.get_rho(number, total_lico)
 
     def _init_propars(self):
         self.history = []

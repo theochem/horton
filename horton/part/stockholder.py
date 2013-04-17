@@ -23,6 +23,7 @@
 import numpy as np
 
 from horton.log import log
+from horton.grid.cext import CubicSpline
 from horton.part.base import DPart, CPart
 
 __all__ = [
@@ -60,7 +61,17 @@ def check_proatom(spline, pseudo_population):
 
 
 
-class StockholderDPart(DPart):
+class StockHolderMixin(object):
+    def get_proatom_rho(self, index, *args, **kwargs):
+        raise NotImplementedError
+
+    def get_proatom_spline(self, index, *args, **kwargs):
+        number = self.system.numbers[index]
+        rho = self.get_proatom_rho(index, *args, **kwargs)
+        return CubicSpline(rho, rtf=self.proatomdb.get_rtransform(number))
+
+
+class StockholderDPart(StockHolderMixin, DPart):
     def compute_at_weights(self, i0, grid, at_weights):
         promol, new = self.cache.load('promol', grid.size, alloc=grid.size)
         if new or self.local:
@@ -86,11 +97,8 @@ class StockholderDPart(DPart):
         # Finally compute the ratio
         at_weights[:] /= promol
 
-    def get_proatom_spline(self, index):
-        raise NotImplementedError
 
-
-class StockholderCPart(CPart):
+class StockholderCPart(StockHolderMixin, CPart):
     def __init__(self, system, ui_grid, moldens, store, smooth=False):
         '''
            See CPart base class for the description of the arguments.
@@ -130,6 +138,3 @@ class StockholderCPart(CPart):
             promoldens = window.zeros()
             window.extend(self._cache.load('promoldens'), promoldens)
             output /= promoldens
-
-    def get_proatom_spline(self, index):
-        raise NotImplementedError
