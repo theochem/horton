@@ -34,10 +34,6 @@ from horton.part.linalg import solve_positive, quadratic_solver
 __all__ = ['HEBasis', 'HirshfeldEDPart', 'HirshfeldECPart']
 
 
-# TODO: isolate duplicate code in base class
-# TODO: proofread and add tests for pseudo densities
-
-
 class HEBasis(object):
     '''Defines the basis set for the promolecule in Hirshfeld-E
 
@@ -184,6 +180,7 @@ class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
         self._hebasis = HEBasis(molgrid.system.numbers, proatomdb)
         HirshfeldIDPart.__init__(self, molgrid, proatomdb, local, threshold, maxiter)
 
+    # TODO: move to mixin class
     def _update_propars_atom(self, index, grid, propars):
         # 0) Compute charge in base class method
         HirshfeldIDPart._update_propars_atom(self, index, grid, propars)
@@ -303,6 +300,7 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
             self.compute_spline(i, spline, output, 'n=%i %s' % (number, label))
             self._store.dump(output, *key)
 
+    # TODO: move to mixin class
     def _update_propars_atom(self, index, propars):
         aimdens = self._ui_grid.zeros()
         work0 = self.cache.load('work0', alloc=self._ui_grid.shape)[0]

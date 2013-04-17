@@ -31,9 +31,6 @@ __all__ = [
 ]
 
 
-# TODO: reduce duplicate code
-
-
 def check_proatom(spline, pseudo_population):
     '''Check if the spline for the proatom is correct and fix is needed
 
