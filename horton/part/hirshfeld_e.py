@@ -54,21 +54,40 @@ class HEBasis(object):
 
         for i in xrange(len(numbers)):
             number = numbers[i]
+            weights = proatomdb.get_radial_weights(number)
             padb_charges = proatomdb.get_charges(number, safe=True)
             complete = proatomdb.get_record(number, padb_charges[0]).pseudo_population == 1
-            atom_nbasis = len(padb_charges) - 1 + complete
 
             licos = []
-            self.basis_specs.append([self.nbasis, atom_nbasis, licos])
-            for j in xrange(atom_nbasis):
+            atom_nbasis = 0
+            for j in xrange(len(padb_charges) - 1 + complete):
+                # construct new linear combination
                 if complete:
                     if j == 0:
-                        licos.append({padb_charges[j]: 1})
+                        lico = {padb_charges[j]: 1}
                     else:
-                        licos.append({padb_charges[j]: 1, padb_charges[j-1]: -1})
+                        lico = {padb_charges[j]: 1, padb_charges[j-1]: -1}
                 else:
-                    licos.append({padb_charges[j+1]: 1, padb_charges[j]: -1})
+                    lico = {padb_charges[j+1]: 1, padb_charges[j]: -1}
+                # test if this new lico is redundant with respect to previous ones
+                redundant = False
+                rho = self.proatomdb.get_rho(number, lico)
+                for old_lico in licos:
+                    old_rho = self.proatomdb.get_rho(number, old_lico)
+                    delta = rho - old_rho
+                    rmsd = np.sqrt(dot_multi(weights, delta, delta))
+                    if rmsd < 1e-8:
+                        redundant = True
+                        break
+                # append if not redundant
+                if not redundant:
+                    licos.append(lico)
+                    atom_nbasis += 1
+                else:
+                    if log.do_medium:
+                        log('Skipping redundant basis function for atom %i: %s' % (i, lico))
 
+            self.basis_specs.append([self.nbasis, atom_nbasis, licos])
             self.nbasis += atom_nbasis
 
         if log.do_medium:
@@ -91,8 +110,15 @@ class HEBasis(object):
     def get_atom_nbasis(self, i):
         return self.basis_specs[i][1]
 
+    def get_constant_rho(self, i):
+        return self.proatomdb.get_rho(self.numbers[i])
+
     def get_constant_spline(self, i):
         return self.proatomdb.get_spline(self.numbers[i])
+
+    def get_basis_rho(self, i, j):
+        licos = self.basis_specs[i][2]
+        return self.proatomdb.get_rho(self.numbers[i], licos[j])
 
     def get_basis_spline(self, i, j):
         licos = self.basis_specs[i][2]
@@ -190,14 +216,9 @@ class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
     def _update_propars_atom(self, index, grid, procoeffs, target_charge):
         # 1) Prepare for radial integrals
         number = self.system.numbers[index]
-        rtf = self._proatomdb.get_rtransform(number)
-        int1d = SimpsonIntegrator1D()
-        radii = rtf.get_radii()
-        weights = (4*np.pi) * radii**2 * int1d.get_weights(len(radii)) * rtf.get_volume_elements()
-        assert (weights > 0).all()
+        weights = self.proatomdb.get_radial_weights(number)
 
         # 2) Define the linear system of equations
-
         begin = self._hebasis.get_atom_begin(index)
         nbasis = self._hebasis.get_atom_nbasis(index)
 
@@ -208,30 +229,30 @@ class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
             # Set up system of linear equations:
             A = np.zeros((nbasis, nbasis), float)
             for j0 in xrange(nbasis):
-                # TODO: avoid construction of spline, get y directly
-                spline0 = self._hebasis.get_basis_spline(index, j0)
+                rho0 = self._hebasis.get_basis_rho(index, j0)
                 for j1 in xrange(j0+1):
-                    spline1 = self._hebasis.get_basis_spline(index, j0)
-                    A[j0, j1] = dot_multi(weights, spline0.copy_y(), spline1.copy_y())
+                    rho1 = self._hebasis.get_basis_rho(index, j0)
+                    A[j0, j1] = dot_multi(weights, rho0, rho1)
                     A[j1, j0] = A[j0, j1]
 
             if (np.diag(A) < 0).any():
                 raise ValueError('The diagonal of A must be positive.')
 
-            self.cache.dump('A', number, A)
+            self.cache.dump('A', index, A)
 
         #   Matrix B
         B = np.zeros(nbasis, float)
         work = np.zeros(grid.size)
         dens = self.cache.load('mol_dens', index)
         at_weights = self.cache.load('at_weights', index)
-        constant_spline = self._hebasis.get_constant_spline(index)
+        constant_rho = self._hebasis.get_constant_rho(index)
         for j0 in xrange(nbasis):
             work[:] = 0.0
+            rho = self._hebasis.get_basis_rho(index, j0)
             spline = self._hebasis.get_basis_spline(index, j0)
             grid.eval_spline(spline, self._system.coordinates[index], work)
             B[j0] = grid.integrate(at_weights, dens, work)
-            B[j0] -= dot_multi(weights, spline.copy_y(), constant_spline.copy_y())
+            B[j0] -= dot_multi(weights, constant_rho, rho)
 
         # 3) find solution
         #    constraint for total population of pro-atom
@@ -277,12 +298,11 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
             rtf = self._proatomdb.get_rtransform(self._system.numbers[i])
             splines = []
             for j0 in xrange(atom_nbasis):
-                # TODO: avoid construction of spline. get y directly
-                spline0 = self._hebasis.get_basis_spline(i, j0)
-                splines.append(spline0)
+                rho0 = self._hebasis.get_basis_rho(i, j0)
+                splines.append(CubicSpline(rho0, rtf=rtf))
                 for j1 in xrange(j0+1):
-                    spline1 = self._hebasis.get_basis_spline(i, j1)
-                    splines.append(CubicSpline(spline0.copy_y()*spline1.copy_y(), rtf=rtf))
+                    rho1 = self._hebasis.get_basis_rho(i, j1)
+                    splines.append(CubicSpline(rho0*rho1, rtf=rtf))
             funcs.append((center, splines))
         wcor_fit = self._ui_grid.compute_weight_corrections(funcs)
         self._cache.dump('wcor_fit', wcor_fit)

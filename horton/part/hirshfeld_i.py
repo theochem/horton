@@ -64,13 +64,13 @@ class HirshfeldIMixin(object):
         for i in xrange(self.system.natom):
             number = self.system.numbers[i]
             rtf = self.proatomdb.get_rtransform(number)
-            spline1 = self.get_proatom_spline(i, propars1)
-            spline2 = self.get_proatom_spline(i, propars2)
+            rho1 = self.get_proatom_rho(i, propars1)
+            rho2 = self.get_proatom_rho(i, propars2)
             msd += (4*np.pi)*dot_multi(
                 rtf.get_radii()**2, # TODO: get routines are slow
                 rtf.get_volume_elements(),
                 SimpsonIntegrator1D().get_weights(rtf.npoint),
-                (spline1.copy_y() - spline2.copy_y())**2 # TODO: copy is slow
+                (rho1 - rho2)**2
             )
         return np.sqrt(msd)
 
