@@ -73,21 +73,21 @@ class StockHolderMixin(object):
 
 class StockholderDPart(StockHolderMixin, DPart):
     def compute_at_weights(self, i0, grid, at_weights):
-        promol, new = self.cache.load('promol', grid.size, alloc=grid.size)
+        promoldens, new = self.cache.load('promoldens', grid.size, alloc=grid.size)
         if new or self.local:
             # In case of local grids, the pro-molecule must always be recomputed.
-            promol[:] = 0.0 # needed if not new and local.
+            promoldens[:] = 0.0 # needed if not new and local.
             for i1 in xrange(self.system.natom):
                 spline = self.get_proatom_spline(i1)
                 if i1 == i0:
                     at_weights[:] = 0.0
                     grid.eval_spline(spline, self.system.coordinates[i1], at_weights)
-                    promol += at_weights
+                    promoldens += at_weights
                 else:
-                    grid.eval_spline(spline, self.system.coordinates[i1], promol)
+                    grid.eval_spline(spline, self.system.coordinates[i1], promoldens)
             # The following seems worse than it is. It does nothing to the
             # relevant numbers. It just avoids troubles in the division.
-            promol[:] += 1e-100
+            promoldens[:] += 1e-100
         else:
             # In case of a global grid and when the pro-molecule is up to date,
             # only the pro-atom needs to be recomputed.
@@ -95,7 +95,7 @@ class StockholderDPart(StockHolderMixin, DPart):
             at_weights[:] = 0.0
             grid.eval_spline(spline, self.system.coordinates[i0], at_weights)
         # Finally compute the ratio
-        at_weights[:] /= promol
+        at_weights[:] /= promoldens
 
 
 class StockholderCPart(StockHolderMixin, CPart):

@@ -114,6 +114,7 @@ class HirshfeldIMixin(object):
         self._finalize_propars(propars)
         self.cache.dump('niter', counter)
         self.cache.dump('change', change)
+        self._work_cleanup()
 
 
 class HirshfeldIDPart(HirshfeldIMixin, HirshfeldDPart):
@@ -144,7 +145,7 @@ class HirshfeldIDPart(HirshfeldIMixin, HirshfeldDPart):
 
         # Enforce (single) update of pro-molecule in case of a global grid
         if not self.local:
-            self.cache.invalidate('promol', self._molgrid.size)
+            self.cache.invalidate('promoldens', self._molgrid.size)
 
         for index, grid in self.iter_grids():# TODO: Get rid of this construct
             # Update proatom
@@ -163,6 +164,9 @@ class HirshfeldIDPart(HirshfeldIMixin, HirshfeldDPart):
         charges = self._cache.load('charges')
         pseudo_population = grid.integrate(at_weights, dens)
         charges[index] = self.system.pseudo_numbers[index] - pseudo_population
+
+    def _work_cleanup(self):
+        pass
 
     @just_once
     def _init_partitioning(self):
@@ -225,34 +229,35 @@ class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
                 output *= 1-x
                 ipseudo_pop = self.system.pseudo_numbers[i] - icharge
                 if ipseudo_pop > 1:
-                    tmp = self._ui_grid.zeros()
+                    tmp = self.cache.load('work1', alloc=self._ui_grid.shape)[0]
                     self._get_isolated_atom(i, icharge+1, tmp)
                     tmp *= x
                     output += tmp
             output += 1e-100 # avoid division by zero
 
-    def _update_propars_atom(self, index, charges, work):
-        pseudo_population = self.compute_pseudo_population(index, work)
+    def _update_propars_atom(self, index, charges):
+        pseudo_population = self.compute_pseudo_population(index)
         charges[index] = self.system.pseudo_numbers[index] - pseudo_population
 
     def _update_propars(self, propars):
         self.history_propars.append(propars.copy())
 
-        # TODO: avoid periodic reallocation of work array
-        work = self._ui_grid.zeros()
-
         # Update the pro-molecule density
-        self._update_promolecule(work)
+        self._update_promolecule()
 
         # Compute the atomic weight functions if this is useful. This is merely
         # a matter of efficiency.
-        self._store_at_weights(work)
+        self._store_at_weights()
 
         # Update the pro-atom parameters.
         for index in xrange(self._system.natom):
-            self._update_propars_atom(index, propars, work)
+            self._update_propars_atom(index, propars)
 
         self.history_charges.append(self.cache.load('charges').copy())
+
+    def _work_cleanup(self):
+        self.cache.discard('work0')
+        self.cache.discard('work1')
 
     def do_all(self):
         names = HirshfeldCPart.do_all(self)

@@ -285,9 +285,8 @@ class CPart(Part):
     def compute_at_weights(self, index, output, window=None):
         raise NotImplementedError
 
-    def compute_pseudo_population(self, index, work=None):
-        if work is None:
-            work = self._ui_grid.zeros()
+    def compute_pseudo_population(self, index):
+        work = self.cache.load('work0', alloc=self._ui_grid.shape)[0]
         moldens = self._cache.load('moldens')
         wcor = self._cache.load('wcor', default=None)
         self.get_at_weights(index, work)
@@ -303,9 +302,8 @@ class CPart(Part):
             log('Computing atomic populations.')
         populations, new = self._cache.load('populations', alloc=self.system.natom)
         if new:
-            work = self._ui_grid.zeros()
             for i in xrange(self._system.natom):
-                populations[i] = self.compute_pseudo_population(i, work)
+                populations[i] = self.compute_pseudo_population(i)
             # correct for pseudo-potentials
             populations += self.system.numbers - self.system.pseudo_numbers
 
