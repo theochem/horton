@@ -289,10 +289,13 @@ class ProAtomDB(object):
 
     def get_radial_weights(self, number):
         '''Return radial integration weights.'''
+        # TODO: isolate this into a RadialIntGrid object
         rtf = self.get_rtransform(number)
         int1d = SimpsonIntegrator1D()
-        radii = rtf.get_radii()
-        weights = (4*np.pi) * radii**2 * int1d.get_weights(len(radii)) * rtf.get_volume_elements()
+        radii = rtf.get_radii() # TODO: slow...
+        volumes = rtf.get_volume_elements()  # TODO: slow...
+        int1d_weights = int1d.get_weights(len(radii)) # TODO: slow...
+        weights = (4*np.pi) * radii**2 * int1d_weights * volumes
         assert (weights > 0).all()
         return weights
 

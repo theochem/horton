@@ -63,15 +63,11 @@ class HirshfeldIMixin(object):
         msd = 0.0 # mean-square deviations
         for i in xrange(self.system.natom):
             number = self.system.numbers[i]
-            rtf = self.proatomdb.get_rtransform(number)
+            weights = self.proatomdb.get_radial_weights(number)
             rho1 = self.get_proatom_rho(i, propars1)
             rho2 = self.get_proatom_rho(i, propars2)
-            msd += (4*np.pi)*dot_multi(
-                rtf.get_radii()**2, # TODO: get routines are slow
-                rtf.get_volume_elements(),
-                SimpsonIntegrator1D().get_weights(rtf.npoint),
-                (rho1 - rho2)**2
-            )
+            delta = rho1 - rho2
+            msd +=  dot_multi(weights, delta, delta)
         return np.sqrt(msd)
 
     def _init_propars(self):
