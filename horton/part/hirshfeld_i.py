@@ -69,9 +69,11 @@ class HirshfeldIMixin(object):
     def _init_propars(self):
         self.history_propars = []
         self.history_charges = []
-        return self.cache.load('charges', alloc=self._system.natom)[0]
+        charges = self.cache.load('charges', alloc=self._system.natom)[0]
+        self.cache.dump('propars', charges)
+        return charges
 
-    def _finalize_propars(self, propars):
+    def _finalize_propars(self):
         charges = self._cache.load('charges')
         self.cache.dump('history_propars', np.array(self.history_propars))
         self.cache.dump('history_charges', np.array(self.history_charges))
@@ -80,7 +82,6 @@ class HirshfeldIMixin(object):
 
     @just_once
     def _init_partitioning(self):
-        # TODO: do not pass around propars array
         propars = self._init_propars()
         if log.medium:
             log.hline()
@@ -95,7 +96,7 @@ class HirshfeldIMixin(object):
 
             # Update the parameters that determine the pro-atoms.
             old_propars = propars.copy()
-            self._update_propars(propars)
+            self._update_propars()
 
             # Check for convergence
             change = self.compute_change(propars, old_propars)
@@ -107,7 +108,7 @@ class HirshfeldIMixin(object):
         if log.medium:
             log.hline()
 
-        self._finalize_propars(propars)
+        self._finalize_propars()
         self.cache.dump('niter', counter)
         self.cache.dump('change', change)
         self._work_cleanup()
@@ -135,9 +136,9 @@ class HirshfeldIDPart(HirshfeldIMixin, HirshfeldDPart):
             ])
             log.cite('bultinck2007', 'the use of Hirshfeld-I partitioning')
 
-    def _update_propars(self, propars):
+    def _update_propars(self):
         # Keep track of history
-        self.history_propars.append(propars.copy())
+        self.history_propars.append(self.cache.load('propars').copy())
 
         # Enforce (single) update of pro-molecule in case of a global grid
         if not self.local:
@@ -145,19 +146,19 @@ class HirshfeldIDPart(HirshfeldIMixin, HirshfeldDPart):
 
         for index, grid in self.iter_grids():# TODO: Get rid of this construct
             # Update proatom
-            self._update_propars_atom(index, grid, propars)
+            self._update_propars_atom(index, grid)
 
         # Keep track of history
         self.history_charges.append(self._cache.load('charges').copy())
 
-    def _update_propars_atom(self, index, grid, propars):
+    def _update_propars_atom(self, index, grid):
         # Compute weight
         at_weights, new = self.cache.load('at_weights', index, alloc=grid.size)
         self.compute_at_weights(index, grid, at_weights)
 
         # Compute population
         dens = self.cache.load('moldens', index)
-        charges = self._cache.load('charges')
+        charges = self.cache.load('charges')
         pseudo_population = grid.integrate(at_weights, dens)
         charges[index] = self.system.pseudo_numbers[index] - pseudo_population
 
@@ -231,12 +232,8 @@ class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
                     output += tmp
             output += 1e-100 # avoid division by zero
 
-    def _update_propars_atom(self, index, charges):
-        pseudo_population = self.compute_pseudo_population(index)
-        charges[index] = self.system.pseudo_numbers[index] - pseudo_population
-
-    def _update_propars(self, propars):
-        self.history_propars.append(propars.copy())
+    def _update_propars(self):
+        self.history_propars.append(self.cache.load('propars').copy())
 
         # Update the pro-molecule density
         self._update_promolecule()
@@ -247,9 +244,14 @@ class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
 
         # Update the pro-atom parameters.
         for index in xrange(self._system.natom):
-            self._update_propars_atom(index, propars)
+            self._update_propars_atom(index)
 
         self.history_charges.append(self.cache.load('charges').copy())
+
+    def _update_propars_atom(self, index):
+        charges = self.cache.load('charges')
+        pseudo_population = self.compute_pseudo_population(index)
+        charges[index] = self.system.pseudo_numbers[index] - pseudo_population
 
     def _work_cleanup(self):
         self.cache.discard('work0')

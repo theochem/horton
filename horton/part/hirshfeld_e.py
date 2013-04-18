@@ -181,9 +181,9 @@ class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
         HirshfeldIDPart.__init__(self, molgrid, proatomdb, local, threshold, maxiter)
 
     # TODO: move to mixin class
-    def _update_propars_atom(self, index, grid, propars):
+    def _update_propars_atom(self, index, grid):
         # 0) Compute charge in base class method
-        HirshfeldIDPart._update_propars_atom(self, index, grid, propars)
+        HirshfeldIDPart._update_propars_atom(self, index, grid)
         target_charge = self.cache.load('charges')[index]
 
         # 1) Prepare for radial integrals
@@ -242,7 +242,7 @@ class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
             log('                   %10i:&%s' % (index, ' '.join('% 6.3f' % c for c in atom_propars)))
 
         # Done
-        propars[begin:begin+nbasis] = atom_propars
+        self.cache.load('propars')[begin:begin+nbasis] = atom_propars
 
     def do_all(self):
         names = HirshfeldIDPart.do_all(self)
@@ -301,7 +301,7 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
             self._store.dump(output, *key)
 
     # TODO: move to mixin class
-    def _update_propars_atom(self, index, propars):
+    def _update_propars_atom(self, index):
         aimdens = self._ui_grid.zeros()
         work0 = self.cache.load('work0', alloc=self._ui_grid.shape)[0]
         work1 = self.cache.load('work1', alloc=self._ui_grid.shape)[0]
@@ -382,7 +382,7 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
         if log.do_medium:
             log('            %10i (%.0f%%):&%s' % (index, rrmsd*100, ' '.join('% 6.3f' % c for c in atom_propars)))
 
-        propars[begin:begin+nbasis] = atom_propars
+        self.cache.load('propars')[begin:begin+nbasis] = atom_propars
 
     def compute_proatom(self, i, output, window=None):
         if self._store.fake or window is not None:
