@@ -176,14 +176,14 @@ class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
     name = 'he'
     options = ['local', 'threshold', 'maxiter']
 
-    def __init__(self, molgrid, proatomdb, local=True, threshold=1e-4, maxiter=500):
-        self._hebasis = HEBasis(molgrid.system.numbers, proatomdb)
-        HirshfeldIDPart.__init__(self, molgrid, proatomdb, local, threshold, maxiter)
+    def __init__(self, system, grid, proatomdb, local=True, threshold=1e-4, maxiter=500):
+        self._hebasis = HEBasis(system.numbers, proatomdb)
+        HirshfeldIDPart.__init__(self, system, grid, proatomdb, local, threshold, maxiter)
 
     # TODO: move to mixin class
-    def _update_propars_atom(self, index, grid):
+    def _update_propars_atom(self, index):
         # 0) Compute charge in base class method
-        HirshfeldIDPart._update_propars_atom(self, index, grid)
+        HirshfeldIDPart._update_propars_atom(self, index)
         target_charge = self.cache.load('charges')[index]
 
         # 1) Prepare for radial integrals
@@ -193,6 +193,7 @@ class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
         # 2) Define the linear system of equations
         begin = self._hebasis.get_atom_begin(index)
         nbasis = self._hebasis.get_atom_nbasis(index)
+        grid = self.get_grid(index)
 
         #    Matrix A
         if self.cache.has('A', number):
@@ -214,7 +215,7 @@ class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
 
         #   Matrix B
         B = np.zeros(nbasis, float)
-        work = np.zeros(grid.size)
+        work = grid.zeros()
         dens = self.cache.load('moldens', index)
         at_weights = self.cache.load('at_weights', index)
         constant_rho = self._hebasis.get_constant_rho(index)
@@ -252,12 +253,12 @@ class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
 class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
     name = 'he'
 
-    def __init__(self, system, ui_grid, moldens, proatomdb, store, smooth=False, maxiter=100, threshold=1e-4):
+    def __init__(self, system, grid, moldens, proatomdb, store, smooth=False, maxiter=100, threshold=1e-4):
         '''
            See CPart base class for the description of the arguments.
         '''
         self._hebasis = HEBasis(system.numbers, proatomdb)
-        HirshfeldICPart.__init__(self, system, ui_grid, moldens, proatomdb, store, smooth, maxiter, threshold)
+        HirshfeldICPart.__init__(self, system, grid, moldens, proatomdb, store, smooth, maxiter, threshold)
 
     def _init_weight_corrections(self):
         HirshfeldICPart._init_weight_corrections(self)
@@ -276,7 +277,7 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
                     rho1 = self._hebasis.get_basis_rho(i, j1)
                     splines.append(CubicSpline(rho0*rho1, rtf=rtf))
             funcs.append((center, splines))
-        wcor_fit = self._ui_grid.compute_weight_corrections(funcs)
+        wcor_fit = self.grid.compute_weight_corrections(funcs)
         self._cache.dump('wcor_fit', wcor_fit)
 
     def _get_constant_fn(self, i, output):
@@ -302,9 +303,9 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
 
     # TODO: move to mixin class
     def _update_propars_atom(self, index):
-        aimdens = self._ui_grid.zeros()
-        work0 = self.cache.load('work0', alloc=self._ui_grid.shape)[0]
-        work1 = self.cache.load('work1', alloc=self._ui_grid.shape)[0]
+        aimdens = self.grid.zeros()
+        work0 = self.cache.load('work0', alloc=self.grid.shape)[0]
+        work1 = self.cache.load('work1', alloc=self.grid.shape)[0]
         wcor = self._cache.load('wcor', default=None)
         wcor_fit = self._cache.load('wcor_fit', default=None)
         charges = self._cache.load('charges', alloc=self.system.natom)[0]
@@ -318,7 +319,7 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
         aimdens *= self._cache.load('moldens')
 
         #    compute the charge
-        charges[index] = self.system.pseudo_numbers[index] - self._ui_grid.integrate(aimdens, wcor)
+        charges[index] = self.system.pseudo_numbers[index] - self.grid.integrate(aimdens, wcor)
 
         #    subtract the constant function
         self._get_constant_fn(index, work0)
@@ -340,7 +341,7 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
                 self._get_basis_fn(index, j0, work0)
                 for j1 in xrange(j0+1):
                     self._get_basis_fn(index, j1, work1)
-                    A[j0,j1] = self._ui_grid.integrate(work0, work1, wcor_fit)
+                    A[j0,j1] = self.grid.integrate(work0, work1, wcor_fit)
                     A[j1,j0] = A[j0,j1]
 
             #    precondition the equations
@@ -360,9 +361,9 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
         B = np.zeros(nbasis, float)
         for j0 in xrange(nbasis):
             self._get_basis_fn(index, j0, work0)
-            B[j0] = self._ui_grid.integrate(aimdens, work0, wcor_fit)
+            B[j0] = self.grid.integrate(aimdens, work0, wcor_fit)
         B /= scales
-        C = self._ui_grid.integrate(aimdens, aimdens, wcor_fit)
+        C = self.grid.integrate(aimdens, aimdens, wcor_fit)
 
         # 3) find solution
         #    constraint for total population of pro-atom
@@ -394,7 +395,7 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
             # Construct the pro-atom
             begin = self._hebasis.get_atom_begin(i)
             nbasis =  self._hebasis.get_atom_nbasis(i)
-            work = self.cache.load('work1', alloc=self._ui_grid.shape)[0]
+            work = self.cache.load('work1', alloc=self.grid.shape)[0]
             self._get_constant_fn(i, output)
             for j in xrange(nbasis):
                 if propars[j+begin] != 0:

@@ -31,7 +31,7 @@ def test_base_exceptions():
     grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=0)
 
     try:
-        dp = DPart(grid)
+        dp = DPart(sys, grid)
         assert False
     except ValueError:
         pass
@@ -39,7 +39,7 @@ def test_base_exceptions():
     grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=1)
 
     try:
-        dp = DPart(grid)
+        dp = DPart(sys, grid)
         assert False
     except NotImplementedError:
         pass
@@ -47,14 +47,14 @@ def test_base_exceptions():
     grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=2)
 
     try:
-        dp = DPart(grid)
+        dp = DPart(sys, grid)
         assert False
     except NotImplementedError:
         pass
 
     grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=0)
     try:
-        dp = DPart(grid, local=False)
+        dp = DPart(sys, grid, local=False)
         assert False
     except NotImplementedError:
         pass

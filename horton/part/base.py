@@ -30,12 +30,15 @@ __all__ = ['DPart', 'CPart']
 
 
 class Part(JustOnceClass):
-    def __init__(self, system, moldens=None):
+    def __init__(self, system, grid, moldens=None):
         '''
            **Arguments:**
 
            system
                 The system to be partitioned.
+
+           grid
+                The integration grid
 
            **Optional arguments:**
 
@@ -44,6 +47,8 @@ class Part(JustOnceClass):
         '''
         JustOnceClass.__init__(self)
         self._system = system
+        self._grid = grid
+
         # Caching stuff, to avoid recomputation of earlier results
         self._cache = Cache()
         if moldens is not None:
@@ -59,6 +64,11 @@ class Part(JustOnceClass):
         return self._system
 
     system = property(_get_system)
+
+    def _get_natom(self):
+        return self.system.natom
+
+    natom = property(_get_natom)
 
     def _get_cache(self):
         return self._cache
@@ -100,11 +110,11 @@ class DPart(Part):
     options = ['local']
 
     '''Base class for density partitioning schemes'''
-    def __init__(self, molgrid, local=True):
+    def __init__(self, system, grid, local=True):
         '''
            **Arguments:**
 
-           molgrid
+           grid
                 A Molecular integration grid
 
            **Optional arguments:**
@@ -115,13 +125,12 @@ class DPart(Part):
                 When set to ``True``, certain pairwise integrals are done with
                 two atomic grids if needed.
         '''
-        if local and molgrid.subgrids is None:
+        if local and grid.subgrids is None:
             raise ValueError('Atomic grids are discarded from molecular grid object, but are needed for local integrations.')
 
-        self._molgrid = molgrid
         self._local = local
 
-        Part.__init__(self, molgrid.system)
+        Part.__init__(self, system, grid)
 
         # Do the essential part of the partitioning. All derived properties
         # are optional.
@@ -132,36 +141,23 @@ class DPart(Part):
         if log.do_medium:
             log('Performing a density-based AIM analysis.')
             log.deflist([
-                ('Molecular grid', self._molgrid),
+                ('Molecular grid', self._grid),
                 ('System', self._system),
                 ('Using local grids', self._local),
             ])
-
-    def _get_molgrid(self):
-        return self._molgrid
-
-    molgrid = property(_get_molgrid)
 
     def _get_local(self):
         return self._local
 
     local = property(_get_local)
 
-    def iter_grids(self):
-        '''Iterate over the atomic grids
+    def get_grid(self, index=None):
+        if index is None or not self.local:
+            return self._grid
+        else:
+            return self._grid.subgrids[index]
 
-           **Yields:** (index, grid) pairs
-
-           The grid may also me the same molecular grid at each iteration. This
-           allows most routines to be implemented without being aware of the
-           local flag. Some routines may still use the local flag to improve
-           the efficiency, e.g. see do_moldens
-        '''
-        for i in xrange(self.system.natom):
-            if self._local:
-                yield i, self.molgrid.subgrids[i]
-            else:
-                yield i, self.molgrid
+    grid = property(get_grid)
 
     def do_all(self):
         '''Computes all AIM properties and returns a corresponding list of keys'''
@@ -171,9 +167,11 @@ class DPart(Part):
 
     @just_once
     def do_moldens(self):
-        if log.do_medium: log('Computing densities on grids.')
-        for i, grid in self.iter_grids():
+        if log.do_medium:
+            log('Computing densities on grids.')
+        for i in xrange(self.natom):
             if i == 0 or self.local:
+                grid = self.get_grid(i)
                 moldens, new = self.cache.load('moldens', i, alloc=grid.size)
                 if new:
                     self.system.compute_grid_density(grid.points, rhos=moldens)
@@ -183,14 +181,15 @@ class DPart(Part):
     @just_once
     def do_populations(self):
         self.do_moldens()
-        if log.do_medium: log('Computing atomic populations.')
+        if log.do_medium:
+            log('Computing atomic populations.')
         populations, new = self.cache.load('populations', alloc=self.system.natom)
         if new:
             pseudo_populations, new = self.cache.load('pseudo_populations', alloc=self.system.natom)
-            for i, grid in self.iter_grids():
+            for i in xrange(self.natom):
                 at_weights = self.cache.load('at_weights', i)
                 dens = self.cache.load('moldens', i)
-                pseudo_populations[i] = grid.integrate(at_weights, dens)
+                pseudo_populations[i] = self.get_grid(i).integrate(at_weights, dens)
             populations[:] = pseudo_populations
             populations += self.system.numbers - self.system.pseudo_numbers
 
@@ -201,14 +200,14 @@ class CPart(Part):
     name = None
     options = ['smooth']
 
-    def __init__(self, system, ui_grid, moldens, store, smooth):
+    def __init__(self, system, grid, moldens, store, smooth):
         '''
            **Arguments:**
 
            system
                 The system to be partitioned.
 
-           ui_grid
+           grid
                 The uniform integration grid based on the cube file.
 
            moldens
@@ -223,7 +222,6 @@ class CPart(Part):
                 When set to True, no corrections are included to integrate
                 the cusps.
         '''
-        self._ui_grid = ui_grid
         # ArrayStore is used to avoid recomputation of huge arrays. This is not
         # always desirable due to memory constraints. Therefore the arrays
         # can be stored in a file or not stored at all. (See ArrayStore for
@@ -235,7 +233,7 @@ class CPart(Part):
         self._store = store
         self._smooth = smooth
 
-        Part.__init__(self, system, moldens)
+        Part.__init__(self, system, grid, moldens)
 
         # If needed, prepare weight corrections for the integration on the
         # uniform grid
@@ -247,10 +245,10 @@ class CPart(Part):
         with timer.section('Part weights'):
             self._init_partitioning()
 
-    def _get_ui_grid(self):
-        return self._ui_grid
+    def get_grid(self, index=None):
+        return self._grid
 
-    ui_grid = property(_get_ui_grid)
+    grid = property(get_grid)
 
     def _get_smooth(self):
         return self._smooth
@@ -261,10 +259,10 @@ class CPart(Part):
         if log.do_medium:
             log('Performing a density-based AIM analysis of a cube file.')
             log.deflist([
-                ('System', self._system),
-                ('Uniform Integration Grid', self._ui_grid),
-                ('Grid shape', self._ui_grid.shape),
-                ('Mean spacing', '%10.5e' % (self._ui_grid.grid_cell.volume**(1.0/3.0))),
+                ('System', self.system),
+                ('Uniform Integration Grid', self.grid),
+                ('Grid shape', self.grid.shape),
+                ('Mean spacing', '%10.5e' % (self.grid.grid_cell.volume**(1.0/3.0))),
             ])
 
     def _init_weight_corrections(self):
@@ -282,11 +280,11 @@ class CPart(Part):
         raise NotImplementedError
 
     def compute_pseudo_population(self, index):
-        work = self.cache.load('work0', alloc=self._ui_grid.shape)[0]
+        work = self.cache.load('work0', alloc=self.grid.shape)[0]
         moldens = self._cache.load('moldens')
         wcor = self._cache.load('wcor', default=None)
         self.get_at_weights(index, work)
-        return self._ui_grid.integrate(wcor, work, moldens)
+        return self.grid.integrate(wcor, work, moldens)
 
     def get_cutoff_radius(self, index):
         # The radius at which the weight function goes to zero
@@ -328,7 +326,7 @@ class CPart(Part):
             number = self._system.numbers[i]
             center = self._system.coordinates[i]
             radius = self.get_cutoff_radius(i)
-            window = self._ui_grid.get_window(center, radius)
+            window = self.grid.get_window(center, radius)
 
             # 2) Evaluate the non-periodic atomic weight in this window
             aim = window.zeros()
@@ -343,8 +341,8 @@ class CPart(Part):
 
             # 4) Compute weight corrections (TODO: needs to be assessed!)
             funcs = [(self._system.coordinates[i], [self._proatomdb.get_spline(number)])]
-            ui_grid = window.get_window_ui_grid()
-            wcor = ui_grid.compute_weight_corrections(funcs)
+            grid = window.get_window_ui_grid()
+            wcor = grid.compute_weight_corrections(funcs)
 
             # 5) Compute Cartesian multipoles
             counter = 0

@@ -61,10 +61,10 @@ class HirshfeldDPart(HirshfeldMixin, StockholderDPart):
     options = ['local']
 
     '''Base class for Hirshfeld partitioning'''
-    def __init__(self, molgrid, proatomdb, local=True):
-        check_proatomdb(molgrid.system, proatomdb)
+    def __init__(self, system, grid, proatomdb, local=True):
+        check_proatomdb(system, proatomdb)
         HirshfeldMixin. __init__(self, proatomdb)
-        StockholderDPart.__init__(self, molgrid, local)
+        StockholderDPart.__init__(self, system, grid, local)
 
     def _init_log(self):
         StockholderDPart._init_log(self)
@@ -78,22 +78,23 @@ class HirshfeldDPart(HirshfeldMixin, StockholderDPart):
     @just_once
     def _init_partitioning(self):
         # Compute the weights
-        for i0, grid in self.iter_grids():
+        for i0 in xrange(self.natom):
+            grid = self.get_grid(i0)
             at_weights, new = self.cache.load('at_weights', i0, alloc=grid.size)
             if new:
-                self.compute_at_weights(i0, grid, at_weights)
+                self.compute_at_weights(i0, at_weights)
 
 
 class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
     name = 'h'
 
-    def __init__(self, system, ui_grid, moldens, proatomdb, store, smooth=False):
+    def __init__(self, system, grid, moldens, proatomdb, store, smooth=False):
         '''
            See CPart base class for the description of the arguments.
         '''
         check_proatomdb(system, proatomdb)
         HirshfeldMixin. __init__(self, proatomdb)
-        StockholderCPart.__init__(self, system, ui_grid, moldens, store, smooth)
+        StockholderCPart.__init__(self, system, grid, moldens, store, smooth)
 
     def _init_weight_corrections(self):
         funcs = []
@@ -103,7 +104,7 @@ class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
                 self._system.coordinates[i],
                 [self.proatomdb.get_spline(number)],
             ))
-        wcor = self._ui_grid.compute_weight_corrections(funcs)
+        wcor = self.grid.compute_weight_corrections(funcs)
         self._cache.dump('wcor', wcor)
 
     def _init_partitioning(self):
@@ -112,9 +113,9 @@ class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
         self._work_cleanup()
 
     def _update_promolecule(self):
-        promoldens = self.cache.load('promoldens', alloc=self._ui_grid.shape)[0]
+        promoldens = self.cache.load('promoldens', alloc=self.grid.shape)[0]
         promoldens[:] = 0.0
-        work = self.cache.load('work0', alloc=self._ui_grid.shape)[0]
+        work = self.cache.load('work0', alloc=self.grid.shape)[0]
         for index in xrange(self._system.natom):
             self.compute_proatom(index, work)
             promoldens += work
@@ -125,7 +126,7 @@ class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
         # Compute the atomic weight functions if this is useful. This is merely
         # a matter of efficiency.
         promoldens = self.cache.load('promoldens')
-        work = self.cache.load('work0', alloc=self._ui_grid.shape)[0]
+        work = self.cache.load('work0', alloc=self.grid.shape)[0]
         for index in xrange(self._system.natom):
             if ('at_weights', index) in self._store:
                 self._store.load(work, 'at_weights', index)

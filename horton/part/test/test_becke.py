@@ -29,7 +29,7 @@ def test_becke_n2_hfs_sto3g():
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
     grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=1)
-    bdp = BeckeDPart(grid)
+    bdp = BeckeDPart(sys, grid)
     bdp.do_populations()
     assert abs(bdp['populations'] - 7).max() < 1e-4
     bdp.do_charges()
@@ -51,10 +51,10 @@ def test_becke_nonlocal_lih_hf_321g():
     rtf = ExpRTransform(1e-3, 1e1, 100)
 
     grid1 = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=1)
-    bdp1 = BeckeDPart(grid1)
+    bdp1 = BeckeDPart(sys, grid1)
 
     grid2 = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=0)
-    bdp2 = BeckeDPart(grid2, local=False)
+    bdp2 = BeckeDPart(sys, grid2, local=False)
 
     bdp1.do_charges()
     bdp2.do_charges()

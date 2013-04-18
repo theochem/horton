@@ -69,7 +69,8 @@ class StockHolderMixin(object):
 
 
 class StockholderDPart(StockHolderMixin, DPart):
-    def compute_at_weights(self, i0, grid, at_weights):
+    def compute_at_weights(self, i0, at_weights):
+        grid = self.get_grid(i0)
         promoldens, new = self.cache.load('promoldens', grid.size, alloc=grid.size)
         if new or self.local:
             # In case of local grids, the pro-molecule must always be recomputed.
@@ -96,17 +97,17 @@ class StockholderDPart(StockHolderMixin, DPart):
 
 
 class StockholderCPart(StockHolderMixin, CPart):
-    def __init__(self, system, ui_grid, moldens, store, smooth=False):
+    def __init__(self, system, grid, moldens, store, smooth=False):
         '''
            See CPart base class for the description of the arguments.
         '''
-        CPart.__init__(self, system, ui_grid, moldens, store, smooth)
+        CPart.__init__(self, system, grid, moldens, store, smooth)
         assert self._cache.has('promoldens')
 
     def compute_spline(self, index, spline, output, name='noname', window=None):
         if log.do_medium:
             if window is None:
-                shape = self._ui_grid.shape
+                shape = self.grid.shape
             else:
                 shape = window.shape
             log('Computing spline (%s) for atom  %i/%i on grid [%i %i %i]' % (name, index, self.system.natom-1, shape[0], shape[1], shape[2]))
@@ -114,7 +115,7 @@ class StockholderCPart(StockHolderMixin, CPart):
         center = self._system.coordinates[index]
         output[:] = 0.0
         if window is None:
-            self._ui_grid.eval_spline(spline, center, output)
+            self.grid.eval_spline(spline, center, output)
         else:
             window.eval_spline(spline, center, output)
 

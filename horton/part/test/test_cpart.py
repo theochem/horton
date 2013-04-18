@@ -97,9 +97,9 @@ def check_proatom_splines(cpart):
     for index in xrange(cpart.system.natom):
         center = cpart.system.coordinates[index]
         spline = cpart.get_proatom_spline(index)
-        array1 = cpart.ui_grid.zeros()
-        cpart.ui_grid.eval_spline(spline, center, array1)
-        array2 = cpart.ui_grid.zeros()
+        array1 = cpart.grid.zeros()
+        cpart.grid.eval_spline(spline, center, array1)
+        array2 = cpart.grid.zeros()
         cpart.compute_proatom(index, array2)
         assert abs(array1).max() != 0.0
         assert abs(array1 - array2).max() < 1e-5
