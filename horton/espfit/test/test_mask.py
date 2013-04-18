@@ -79,6 +79,14 @@ def test_mask_near2():
     assert abs(weights - weights1*weights2).max() < 1e-10
 
 
+def test_mask_near3():
+    sys, ui_grid = get_fake_system()
+    weights = setup_weights(sys, ui_grid, near={0: (0.5, 0.5)})
+    weights1 = setup_weights(sys, ui_grid, near={1: (0.5, 0.5)})
+    weights2 = setup_weights(sys, ui_grid, near={2: (0.5, 0.5)})
+    assert abs(weights - weights1*weights2).max() < 1e-10
+
+
 def test_mask_far():
     sys, ui_grid = get_fake_system()
     weights = setup_weights(sys, ui_grid, far=(1.0, 0.5))
