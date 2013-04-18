@@ -70,7 +70,8 @@ def parse_args():
              'the last two fields define the switching function and are in '
              'Angstrom. The last field is optional and is 0.5*A by default. '
              'The second field is the middle of the switching function. '
-             'The third field is the half width of the switching function.')
+             'The third field is the half width of the switching function. If '
+             'number is zero, the argument applies to all elements.')
     parser.add_argument('--wfar', default=None, type=str,
         help='Define weights that go to zero far from the nuclei. The '
              'argument has the following format: "r0:gamma". '
@@ -83,7 +84,6 @@ def parse_args():
         help='Save the weights array to the given cube file.')
 
     # TODO: add argument to chop of last slice(s)
-    # TODO: wnear voor alle atomen in 1 keer
     # TODO: report default values of parameters with --help
 
     return parser.parse_args()

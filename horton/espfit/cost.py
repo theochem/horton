@@ -146,6 +146,8 @@ def setup_weights(system, grid, dens=None, near=None, far=None):
         for i in xrange(system.natom):
             pair = near.get(system.numbers[i])
             if pair is None:
+                pair = near.get(0)
+            if pair is None:
                 continue
             r0, gamma = pair
             multiply_near_mask(system.coordinates[i], grid, r0, gamma, weights)
