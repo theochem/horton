@@ -48,7 +48,7 @@ def test_hirshfeld_water_hf_sto3g():
     # Do the partitioning, both with local and global grids
     for local in True, False:
         grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=int(local))
-        dpart = HirshfeldDPart(grid, proatomdb, local)
+        dpart = HirshfeldDPart(sys, grid, proatomdb, local)
         names = dpart.do_all()
         check_names(names, dpart)
         expecting = np.array([-0.246171541212, 0.123092011074, 0.123079530138]) # from HiPart
@@ -69,7 +69,7 @@ def test_hirshfeld_msa_hf_lan():
     # Do the partitioning, both with local and global grids
     for local in True, False:
         grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=int(local))
-        dpart = HirshfeldDPart(grid, proatomdb, local)
+        dpart = HirshfeldDPart(sys, grid, proatomdb, local)
         dpart.do_charges()
         expecting = np.array([0.56175431, -0.30002709, -0.28602105, -0.28335086, -0.26832878,  0.13681904,  0.14535691,  0.14206876,  0.15097682])
         assert abs(dpart['charges'] - expecting).max() < 2e-3
@@ -90,7 +90,7 @@ def test_hirshfeld_i_water_hf_sto3g():
     # Do the partitioning, both with local and global grids
     for local in True, False:
         grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=int(local))
-        dpart = HirshfeldIDPart(grid, proatomdb, local, 1e-4)
+        dpart = HirshfeldIDPart(sys, grid, proatomdb, local, 1e-4)
         names = dpart.do_all()
         check_names(names, dpart)
         expecting = np.array([-0.4214, 0.2107, 0.2107]) # From HiPart
@@ -111,7 +111,7 @@ def test_hirshfeld_i_msa_hf_lan():
     # Do the partitioning, both with local and global grids
     for local in True, False:
         grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=int(local))
-        dpart = HirshfeldIDPart(grid, proatomdb, local)
+        dpart = HirshfeldIDPart(sys, grid, proatomdb, local)
         dpart.do_charges()
         expecting = np.array([1.14305602, -0.52958298, -0.51787452, -0.51302759, -0.50033981, 0.21958586, 0.23189187, 0.22657354, 0.23938904])
         assert abs(dpart['charges'] - expecting).max() < 2e-3
@@ -132,7 +132,7 @@ def test_hirshfeld_e_water_hf_sto3g():
     # Do the partitioning, both with local and global grids
     for local in True, False:
         grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=int(local))
-        dpart = HirshfeldEDPart(grid, proatomdb, local, 1e-4)
+        dpart = HirshfeldEDPart(sys, grid, proatomdb, local, 1e-4)
         names = dpart.do_all()
         check_names(names, dpart)
         expecting = np.array([-0.422794483125, 0.211390419810, 0.211404063315]) # From HiPart
@@ -153,7 +153,7 @@ def test_hirshfeld_e_msa_hf_lan():
     # Do the partitioning, both with local and global grids
     for local in True, False:
         grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=int(local))
-        dpart = HirshfeldEDPart(grid, proatomdb, local)
+        dpart = HirshfeldEDPart(sys, grid, proatomdb, local)
         dpart.do_charges()
         expecting = np.array([1.06135407, -0.51795437, -0.50626239, -0.50136175, -0.48867641, 0.22835963, 0.240736, 0.23528162, 0.24816043])
         assert abs(dpart['charges'] - expecting).max() < 1e-2

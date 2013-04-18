@@ -37,9 +37,9 @@ class BeckeDPart(DPart):
     options = ['local', 'k']
 
     '''Class for Becke partitioning'''
-    def __init__(self, molgrid, local=True, k=3):
+    def __init__(self, system, grid, local=True, k=3):
         self._k = k
-        DPart.__init__(self, molgrid, local)
+        DPart.__init__(self, system, grid, local)
 
     def _init_log(self):
         DPart._init_log(self)
@@ -53,7 +53,8 @@ class BeckeDPart(DPart):
     @just_once
     def _init_partitioning(self):
         radii = np.array([periodic[n].cov_radius for n in self.system.numbers])
-        for i, grid in self.iter_grids():
+        for i in xrange(self.natom):
+            grid = self.get_grid(i)
             at_weights, new = self.cache.load('at_weights', i, alloc=grid.size)
             if new:
                 at_weights[:] = 1

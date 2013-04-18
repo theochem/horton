@@ -120,10 +120,10 @@ class HirshfeldIDPart(HirshfeldIMixin, HirshfeldDPart):
     name = 'hi'
     options = ['local', 'threshold', 'maxiter']
 
-    def __init__(self, molgrid, proatomdb, local=True, threshold=1e-4, maxiter=500):
+    def __init__(self, system, grid, proatomdb, local=True, threshold=1e-4, maxiter=500):
         self._threshold = threshold
         self._maxiter = maxiter
-        HirshfeldDPart.__init__(self, molgrid, proatomdb, local)
+        HirshfeldDPart.__init__(self, system, grid, proatomdb, local)
 
     def _init_log(self):
         DPart._init_log(self)
@@ -142,19 +142,20 @@ class HirshfeldIDPart(HirshfeldIMixin, HirshfeldDPart):
 
         # Enforce (single) update of pro-molecule in case of a global grid
         if not self.local:
-            self.cache.invalidate('promoldens', self._molgrid.size)
+            self.cache.invalidate('promoldens', self.grid.size)
 
-        for index, grid in self.iter_grids():# TODO: Get rid of this construct
+        for index in xrange(self.natom):
             # Update proatom
-            self._update_propars_atom(index, grid)
+            self._update_propars_atom(index)
 
         # Keep track of history
         self.history_charges.append(self._cache.load('charges').copy())
 
-    def _update_propars_atom(self, index, grid):
+    def _update_propars_atom(self, index):
         # Compute weight
+        grid = self.get_grid(index)
         at_weights, new = self.cache.load('at_weights', index, alloc=grid.size)
-        self.compute_at_weights(index, grid, at_weights)
+        self.compute_at_weights(index, at_weights)
 
         # Compute population
         dens = self.cache.load('moldens', index)
@@ -188,7 +189,7 @@ class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
     name = 'hi'
     options = ['smooth', 'maxiter', 'threshold']
 
-    def __init__(self, system, ui_grid, moldens, proatomdb, store, smooth=False, maxiter=100, threshold=1e-4):
+    def __init__(self, system, grid, moldens, proatomdb, store, smooth=False, maxiter=100, threshold=1e-4):
         '''
            **Optional arguments:** (those not present in the base class)
 
@@ -203,7 +204,7 @@ class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
         '''
         self._maxiter = maxiter
         self._threshold = threshold
-        HirshfeldCPart.__init__(self, system, ui_grid, moldens, proatomdb, store, smooth)
+        HirshfeldCPart.__init__(self, system, grid, moldens, proatomdb, store, smooth)
 
     def _get_isolated_atom(self, i, charge, output):
         key = ('isolated_atom', i, charge)
@@ -226,7 +227,7 @@ class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
                 output *= 1-x
                 ipseudo_pop = self.system.pseudo_numbers[i] - icharge
                 if ipseudo_pop > 1:
-                    tmp = self.cache.load('work1', alloc=self._ui_grid.shape)[0]
+                    tmp = self.cache.load('work1', alloc=self.grid.shape)[0]
                     self._get_isolated_atom(i, icharge+1, tmp)
                     tmp *= x
                     output += tmp

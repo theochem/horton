@@ -20,6 +20,8 @@
 #--
 
 
+import numpy as np
+
 from horton.grid.cext import dot_multi, grid_distances, eval_spline_grid
 from horton.cext import Cell
 
@@ -76,6 +78,9 @@ class IntGrid(object):
         return self._subgrids
 
     subgrids = property(_get_subgrids)
+
+    def zeros(self):
+        return np.zeros(self.size)
 
     def integrate(self, *args):
         '''Integrate the product of all arguments
