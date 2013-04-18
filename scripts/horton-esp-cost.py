@@ -39,7 +39,8 @@ def parse_args():
         help='Change the sign of the ESP data. This is needed for CP2K and VASP.')
     parser.add_argument('--reduce', '-r', default=1, type=int,
         help='Reduce the grid by subsamping with the given stride in all three '
-             'directions. Zero and negative values are ignored.')
+             'directions. Zero and negative values are ignored. '
+             '[default=%(default)s]')
     parser.add_argument('--overwrite', default=False, action='store_true',
         help='Overwrite existing output in the HDF5 file')
     parser.add_argument('--suffix', default=None, type=str,
@@ -47,13 +48,15 @@ def parse_args():
 
     parser.add_argument('--rcut', default=10.0, type=float,
         help='The real-space cutoff for the electrostatic interactions in '
-             'angstrom.')
+             'angstrom. [default=%(default)s]')
     parser.add_argument('--alpha-scale', default=3.0, type=float,
         help='The alpha scale (alpha = alpha_scale/rcut) for the separation '
-             'between short-range and long-range electrostatic interactions.')
+             'between short-range and long-range electrostatic interactions. '
+             '[default=%(default)s]')
     parser.add_argument('--gcut-scale', default=1.1, type=float,
         help='The gcut scale (gcut = gcut_scale*alpha) for the reciprocal '
-             'space constribution to the electrostatic interactions.')
+             'space constribution to the electrostatic interactions. '
+             '[default=%(default)s]')
 
     parser.add_argument('--wdens', default=None, type=str,
         help='Define weights based on an electron density. The argument has '
