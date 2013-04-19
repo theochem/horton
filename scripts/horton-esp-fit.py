@@ -41,10 +41,10 @@ def parse_args():
     parser.add_argument('group',
         help='All results will be stored in this subgroup.')
     parser.add_argument('--qtot', '-q', default=0.0, type=float,
-        help='The total charge of the system.')
+        help='The total charge of the system. [default=%(default)s]')
     parser.add_argument('--ridge', default=0.0, type=float,
         help='The thikonov regularization strength used when solving the '
-             'charges.')
+             'charges. [default=%(default)s]')
 
     # TODO: more constraint and restraint options
     # TODO: When no group is given in h5 argument, run over all groups that

@@ -40,16 +40,19 @@ def parse_args():
         help='An HDF5 file with atomic reference densities.')
     parser.add_argument('--reduce', '-r', default=1, type=int,
         help='Reduce the grid by subsamping with the given stride in all three '
-             'directions. Zero and negative values are ignored.')
+             'directions. Zero and negative values are ignored. '
+             '[default=%(default)s]')
     parser.add_argument('--overwrite', default=False, action='store_true',
         help='Overwrite existing output in the HDF5 file')
     parser.add_argument('--store', choices=('fake', 'core', 'disk'), default='core',
         help='Controls the storage of large intermediate arrays. fake: disables '
              'storage of such intermediate arrays. core: the arrays are kept in '
              'memory. disk: the arrays are stored in an HDF5 file on disk. For '
-             'the last case, see the --tmp option')
+             'the last case, see the --tmp option. [default=%(default)s]')
     parser.add_argument('--tmp', type=str, default='.',
-        help='A directory where the temporary scratch file can be written. This is only relevant with option --store=disk.')
+        help='A directory where the temporary scratch file can be written. '
+             'This is only relevant with option --store=disk. '
+             '[default=%(default)s]')
     parser.add_argument('--debug', default=False, action='store_true',
         help='Add additional internal results to a debug subgroup.')
     parser.add_argument('--suffix', default=None, type=str,
@@ -59,10 +62,11 @@ def parse_args():
         help='Use this option when no special measures are needed to integrate '
              'the cusps accurately.')
     parser.add_argument('--maxiter', '-i', default=500, type=int,
-        help='The maximum allowed number of iterations.')
+        help='The maximum allowed number of iterations. [default=%(default)s]')
     parser.add_argument('--threshold', '-t', default=1e-6, type=float,
         help='The iterative scheme is converged when the maximum change of '
-             'the charges between two iterations drops below this threshold.')
+             'the charges between two iterations drops below this threshold. '
+             '[default=%(default)s]')
 
     # TODO: add argument to chop of last slice(s)
 
