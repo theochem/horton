@@ -239,7 +239,7 @@ class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
         spline = self._hebasis.get_constant_spline(index)
         center = self.system.coordinates[index]
         grid.eval_spline(spline, center, work)
-        delta_aim = self.cache.load('moldens', index)*at_weights - work
+        delta_aim = self.get_moldens(index)*at_weights - work
         charge = -grid.integrate(delta_aim)
         return charge, delta_aim
 
@@ -349,7 +349,7 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
             # construct atomic weight function
             self.compute_proatom(index, delta_aims)
             delta_aim /= self._cache.load('promoldens')
-        delta_aim *= self._cache.load('moldens')
+        delta_aim *= self.get_moldens()
 
         #    subtract the constant function
         self._get_constant_fn(index, work)

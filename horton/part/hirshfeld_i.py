@@ -173,7 +173,7 @@ class HirshfeldIDPart(HirshfeldIMixin, HirshfeldDPart):
         self.compute_at_weights(index, at_weights)
 
         # Compute population
-        dens = self.cache.load('moldens', index)
+        dens = self.get_moldens(index)
         charges = self.cache.load('charges')
         pseudo_population = grid.integrate(at_weights, dens)
         charges[index] = self.system.pseudo_numbers[index] - pseudo_population
