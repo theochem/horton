@@ -458,10 +458,7 @@ class CPart(Part):
             result = self.cache.load('wcor', default=None)
         else:
             assert index is not None
-            # TODO: move the funcs part to a separate routine. It can only be
-            # implemented for Hirshfeld methods
-            number = self.system.numbers[index]
-            funcs = [(self._system.coordinates[index], [self._proatomdb.get_spline(number)])]
+            funcs = self.get_wcor_funcs(index)
             window = self._windows[index]
             result = window.compute_weight_corrections(funcs)
         if output is not None:
@@ -470,6 +467,9 @@ class CPart(Part):
 
     def get_cutoff_radius(self, index):
         # The radius at which the weight function goes to zero
+        raise NotImplementedError
+
+    def get_wcor_funcs(self, index):
         raise NotImplementedError
 
     def compute_at_weights(self, index, output, window=None):
