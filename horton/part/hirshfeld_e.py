@@ -300,22 +300,23 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
     def _init_weight_corrections(self):
         HirshfeldICPart._init_weight_corrections(self)
 
-        funcs = []
-        for i in xrange(self._system.natom):
-            center = self._system.coordinates[i]
-            splines = []
-            atom_nbasis = self._hebasis.get_atom_nbasis(i)
-            rtf = self._proatomdb.get_rtransform(self._system.numbers[i])
-            splines = []
-            for j0 in xrange(atom_nbasis):
-                rho0 = self._hebasis.get_basis_rho(i, j0)
-                splines.append(CubicSpline(rho0, rtf=rtf))
-                for j1 in xrange(j0+1):
-                    rho1 = self._hebasis.get_basis_rho(i, j1)
-                    splines.append(CubicSpline(rho0*rho1, rtf=rtf))
-            funcs.append((center, splines))
-        wcor_fit = self.grid.compute_weight_corrections(funcs)
-        self._cache.dump('wcor_fit', wcor_fit)
+        if not self.smooth:
+            funcs = []
+            for i in xrange(self._system.natom):
+                center = self._system.coordinates[i]
+                splines = []
+                atom_nbasis = self._hebasis.get_atom_nbasis(i)
+                rtf = self._proatomdb.get_rtransform(self._system.numbers[i])
+                splines = []
+                for j0 in xrange(atom_nbasis):
+                    rho0 = self._hebasis.get_basis_rho(i, j0)
+                    splines.append(CubicSpline(rho0, rtf=rtf))
+                    for j1 in xrange(j0+1):
+                        rho1 = self._hebasis.get_basis_rho(i, j1)
+                        splines.append(CubicSpline(rho0*rho1, rtf=rtf))
+                funcs.append((center, splines))
+            wcor_fit = self.grid.compute_weight_corrections(funcs)
+            self._cache.dump('wcor_fit', wcor_fit)
 
     def _get_constant_fn(self, i, output):
         key = ('isolated_atom', i, 0)

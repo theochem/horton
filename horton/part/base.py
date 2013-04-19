@@ -52,13 +52,28 @@ class Part(JustOnceClass):
         # Caching stuff, to avoid recomputation of earlier results
         self._cache = Cache()
         # Caching of work arrays to avoid reallocation
-        # TODO: delete work cache at some point
         self._work_cache = Cache()
         if moldens is not None:
             self._cache.dump('moldens', moldens)
 
         # Some screen logging
         self._init_log()
+
+        # Initialize the subgrids
+        self._init_subgrids()
+
+        # If needed, prepare weight corrections for the integration on the
+        # uniform grid
+        with timer.section('Part wcor'):
+            self._init_weight_corrections()
+
+        # Do the essential part of the partitioning. All derived properties
+        # are optional.
+        with timer.section('Part weights'):
+            self._init_partitioning()
+
+        # Get rid of the work arrays
+        self._work_cache.invalidate_all()
 
     def __getitem__(self, key):
         return self.cache.load(key)
@@ -135,7 +150,12 @@ class Part(JustOnceClass):
     def _init_log(self):
         raise NotImplementedError
 
-    @just_once
+    def _init_subgrids(self):
+        raise NotImplementedError
+
+    def _init_weight_corrections(self):
+        raise NotImplementedError
+
     def _init_partitioning(self):
         raise NotImplementedError
 
@@ -146,7 +166,7 @@ class Part(JustOnceClass):
     def compute_pseudo_population(self, index):
         grid = self.get_grid(index)
         dens = self.get_moldens(index)
-        at_weights = self._work_cache.load('work0', grid.shape, alloc=grid.shape)[0]
+        at_weights = self._work_cache.load('work0', grid.size, alloc=grid.shape)[0]
         self.get_at_weights(index, output=at_weights)
         wcor = self.get_wcor(index)
         return grid.integrate(at_weights, dens, wcor)
@@ -262,29 +282,29 @@ class WPart(Part):
         '''
         if local and grid.subgrids is None:
             raise ValueError('Atomic grids are discarded from molecular grid object, but are needed for local integrations.')
-
         self._local = local
-
         Part.__init__(self, system, grid)
 
-        # Do the essential part of the partitioning. All derived properties
-        # are optional.
-        with timer.section('WPart weights'):
-            self._init_partitioning()
+
+    def _get_local(self):
+        return self._local
+
+    local = property(_get_local)
 
     def _init_log(self):
         if log.do_medium:
-            log('Performing a density-based AIM analysis.')
+            log('Performing a density-based AIM analysis with a wavefunction as input.')
             log.deflist([
                 ('Molecular grid', self._grid),
                 ('System', self._system),
                 ('Using local grids', self._local),
             ])
 
-    def _get_local(self):
-        return self._local
+    def _init_subgrids(self):
+        pass
 
-    local = property(_get_local)
+    def _init_weight_corrections(self):
+        pass
 
     def get_grid(self, index=None, periodic=True):
         # periodic gets ignored
@@ -369,22 +389,28 @@ class CPart(Part):
 
         Part.__init__(self, system, grid, moldens)
 
+    def _get_smooth(self):
+        return self._smooth
 
+    smooth = property(_get_smooth)
+
+    def _init_log(self):
+        if log.do_medium:
+            log('Performing a density-based AIM analysis with a cube file as input.')
+            log.deflist([
+                ('System', self.system),
+                ('Uniform Integration Grid', self.grid),
+                ('Grid shape', self.grid.shape),
+                ('Mean spacing', '%10.5e' % (self.grid.grid_cell.volume**(1.0/3.0))),
+            ])
+
+    def _init_subgrids(self):
         # Windows for non-periodic integrations
         self._windows = []
         for index in xrange(self.natom):
             center = self.system.coordinates[index]
             radius = self.get_cutoff_radius(index)
             self._windows.append(self.grid.get_window(center, radius))
-        # If needed, prepare weight corrections for the integration on the
-        # uniform grid
-        if not self.smooth:
-            with timer.section('CPart wcor'):
-                self._init_weight_corrections()
-        # Do the essential part of the partitioning. All derived properties
-        # are optional.
-        with timer.section('Part weights'):
-            self._init_partitioning()
 
     def get_grid(self, index=None, periodic=True):
         if periodic:
@@ -444,24 +470,6 @@ class CPart(Part):
 
     def get_cutoff_radius(self, index):
         # The radius at which the weight function goes to zero
-        raise NotImplementedError
-
-    def _get_smooth(self):
-        return self._smooth
-
-    smooth = property(_get_smooth)
-
-    def _init_log(self):
-        if log.do_medium:
-            log('Performing a density-based AIM analysis of a cube file.')
-            log.deflist([
-                ('System', self.system),
-                ('Uniform Integration Grid', self.grid),
-                ('Grid shape', self.grid.shape),
-                ('Mean spacing', '%10.5e' % (self.grid.grid_cell.volume**(1.0/3.0))),
-            ])
-
-    def _init_weight_corrections(self):
         raise NotImplementedError
 
     def compute_at_weights(self, index, output, window=None):

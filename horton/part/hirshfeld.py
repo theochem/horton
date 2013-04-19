@@ -148,15 +148,16 @@ class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
         StockholderCPart.__init__(self, system, grid, moldens, store, smooth)
 
     def _init_weight_corrections(self):
-        funcs = []
-        for i in xrange(self._system.natom):
-            number = self._system.numbers[i]
-            funcs.append((
-                self._system.coordinates[i],
-                [self.proatomdb.get_spline(number)],
-            ))
-        wcor = self.grid.compute_weight_corrections(funcs)
-        self._cache.dump('wcor', wcor)
+        if not self.smooth:
+            funcs = []
+            for i in xrange(self._system.natom):
+                number = self._system.numbers[i]
+                funcs.append((
+                    self._system.coordinates[i],
+                    [self.proatomdb.get_spline(number)],
+                ))
+            wcor = self.grid.compute_weight_corrections(funcs)
+            self._cache.dump('wcor', wcor)
 
     def _init_partitioning(self):
         self._update_promolecule()
