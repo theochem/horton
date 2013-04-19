@@ -224,7 +224,7 @@ class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
     name = 'he'
     options = ['local', 'threshold', 'maxiter']
 
-    def __init__(self, system, grid, proatomdb, local=True, threshold=1e-4, maxiter=500):
+    def __init__(self, system, grid, proatomdb, local=True, threshold=1e-6, maxiter=500):
         self._hebasis = HEBasis(system.numbers, proatomdb)
         HirshfeldIDPart.__init__(self, system, grid, proatomdb, local, threshold, maxiter)
 
@@ -290,12 +290,12 @@ class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
 class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
     name = 'he'
 
-    def __init__(self, system, grid, moldens, proatomdb, store, smooth=False, maxiter=100, threshold=1e-4):
+    def __init__(self, system, grid, moldens, proatomdb, store, smooth=False, threshold=1e-6, maxiter=500):
         '''
            See CPart base class for the description of the arguments.
         '''
         self._hebasis = HEBasis(system.numbers, proatomdb)
-        HirshfeldICPart.__init__(self, system, grid, moldens, proatomdb, store, smooth, maxiter, threshold)
+        HirshfeldICPart.__init__(self, system, grid, moldens, proatomdb, store, smooth, threshold, maxiter)
 
     def _init_weight_corrections(self):
         HirshfeldICPart._init_weight_corrections(self)
