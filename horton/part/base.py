@@ -328,7 +328,10 @@ class WPart(Part):
 
     def get_at_weights(self, index, periodic=True, output=None):
         # periodic gets ignored
-        at_weights = self.cache.load('at_weights', index)
+        grid = self.get_grid(index)
+        at_weights, new = self.cache.load('at_weights', index, alloc=grid.size)
+        if new:
+            self.compute_at_weights(index, at_weights)
         if output is not None:
             output[:] = at_weights
         return at_weights
@@ -338,6 +341,9 @@ class WPart(Part):
         if output is not None:
             raise NotImplementedError
         return None
+
+    def compute_at_weights(self, i0, output=None):
+        raise NotImplementedError
 
     @just_once
     def do_moldens(self):
