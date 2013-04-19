@@ -121,14 +121,8 @@ class HirshfeldWPart(HirshfeldMixin, StockholderWPart):
             ])
             log.cite('hirshfeld1977', 'the use of Hirshfeld partitioning')
 
-    @just_once
     def _init_partitioning(self):
-        # Compute the weights
-        for i0 in xrange(self.natom):
-            grid = self.get_grid(i0)
-            at_weights, new = self.cache.load('at_weights', i0, alloc=grid.size)
-            if new:
-                self.compute_at_weights(i0, at_weights)
+        pass
 
     def do_all(self):
         names = StockholderWPart.do_all(self)
@@ -159,6 +153,11 @@ class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
         self._update_promolecule()
         self._store_at_weights()
 
+    def get_cutoff_radius(self, index):
+        '''The radius at which the weight function goes to zero'''
+        rtf = self.proatomdb.get_rtransform(self._system.numbers[index])
+        return rtf.radius(rtf.npoint-1)
+
     def get_wcor_funcs(self, index):
         number = self.system.numbers[index]
         return [(self._system.coordinates[index], [self._proatomdb.get_spline(number)])]
@@ -183,11 +182,6 @@ class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
                 self._store.load(work, 'at_weights', index)
                 work /= promoldens
                 self._store.dump(work, 'at_weights', index)
-
-    def get_cutoff_radius(self, index):
-        '''The radius at which the weight function goes to zero'''
-        rtf = self.proatomdb.get_rtransform(self._system.numbers[index])
-        return rtf.radius(rtf.npoint-1)
 
     def do_all(self):
         names = StockholderCPart.do_all(self)

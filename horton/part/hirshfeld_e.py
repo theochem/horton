@@ -229,17 +229,14 @@ class HirshfeldEWPart(HirshfeldEMixin, HirshfeldIWPart):
         HirshfeldIWPart.__init__(self, system, grid, proatomdb, local, threshold, maxiter)
 
     def _get_charge_and_delta_aim(self, index):
-        # Compute weight
         grid = self.get_grid(index)
-        at_weights, new = self.cache.load('at_weights', index, alloc=grid.size)
-        self.compute_at_weights(index, at_weights)
-
-        # Compute charge and delta_aim
         work = grid.zeros()
         spline = self._hebasis.get_constant_spline(index)
         center = self.system.coordinates[index]
         grid.eval_spline(spline, center, work)
-        delta_aim = self.get_moldens(index)*at_weights - work
+
+        self.cache.invalidate('at_weights', index)
+        delta_aim = self.get_moldens(index)*self.get_at_weights(index) - work
         charge = -grid.integrate(delta_aim)
         return charge, delta_aim
 
@@ -342,7 +339,7 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
     def _get_charge_and_delta_aim(self, index):
         delta_aim = self.grid.zeros()
         work = self._work_cache.load('work0', alloc=self.grid.shape)[0]
-        wcor = self._cache.load('wcor', default=None)
+        wcor = self.get_wcor()
 
         # 1) Construct the AIM density
         present = self._store.load(delta_aim, 'at_weights', index)

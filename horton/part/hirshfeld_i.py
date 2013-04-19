@@ -166,18 +166,17 @@ class HirshfeldIWPart(HirshfeldIMixin, HirshfeldWPart):
         self.history_charges.append(self._cache.load('charges').copy())
 
     def _update_propars_atom(self, index):
-        # Compute weight
-        grid = self.get_grid(index)
-        at_weights, new = self.cache.load('at_weights', index, alloc=grid.size)
-        self.compute_at_weights(index, at_weights)
-
         # Compute population
+        self.cache.invalidate('at_weights', index)
         dens = self.get_moldens(index)
-        charges = self.cache.load('charges')
+        at_weights = self.get_at_weights(index)
+        grid = self.get_grid(index)
         pseudo_population = grid.integrate(at_weights, dens)
+
+        # Store charge
+        charges = self.cache.load('charges')
         charges[index] = self.system.pseudo_numbers[index] - pseudo_population
 
-    @just_once
     def _init_partitioning(self):
         # Perform one general check in the beginning to keep things simple.
         if all(self.cache.has('at_weights', i) for i in xrange(self.system.natom)):
