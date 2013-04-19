@@ -57,9 +57,15 @@ class IntGrid(object):
 
     def _get_size(self):
         '''The size of the grid.'''
-        return self._weights.shape[0]
+        return self._weights.size
 
     size = property(_get_size)
+
+    def _get_shape(self):
+        '''The shape of the grid.'''
+        return self._weights.shape
+
+    shape = property(_get_shape)
 
     def _get_points(self):
         '''The grid points.'''
@@ -80,7 +86,7 @@ class IntGrid(object):
     subgrids = property(_get_subgrids)
 
     def zeros(self):
-        return np.zeros(self.size)
+        return np.zeros(self.shape)
 
     def integrate(self, *args):
         '''Integrate the product of all arguments

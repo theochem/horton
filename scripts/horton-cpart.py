@@ -58,7 +58,7 @@ def parse_args():
     parser.add_argument('--smooth', '-s', default=False, action='store_true',
         help='Use this option when no special measures are needed to integrate '
              'the cusps accurately.')
-    parser.add_argument('--max-iter', '-i', default=100, type=int,
+    parser.add_argument('--maxiter', '-i', default=100, type=int,
         help='The maximum allowed number of iterations.')
     parser.add_argument('--threshold', '-t', default=1e-4, type=float,
         help='The iterative schemes is converged when the maximum change of '
