@@ -65,6 +65,11 @@ class Part(JustOnceClass):
 
     system = property(_get_system)
 
+    def _get_grid(self):
+        return self.get_grid()
+
+    grid = property(_get_grid)
+
     def _get_natom(self):
         return self.system.natom
 
@@ -83,6 +88,24 @@ class Part(JustOnceClass):
         # TODO: For some schemes, the weights do not depend on the density
         # and recomputation of the atomic weights is a waste of time
         self._init_partitioning()
+
+    def get_grid(self, index=None, periodic=True):
+        '''Return an integration grid
+
+           **Optional arguments:**
+
+           index
+                The index of the atom. If not given, a grid for the entire
+                system is returned. If self.local is False, a full system grid
+                is always returned.
+
+           periodic
+                Only relevant for periodic systems. By default, an integration
+                grid is returned that yields integrals over one unit cell. When
+                this option is set to False, the index must be provided and a
+                grid is returned that covers the entire atom.
+        '''
+        raise NotImplementedError
 
     def _init_log(self):
         raise NotImplementedError
@@ -151,7 +174,7 @@ class DPart(Part):
 
     local = property(_get_local)
 
-    def get_grid(self, index=None):
+    def get_grid(self, index=None, periodic=True):
         if index is None or not self.local:
             return self._grid
         else:
@@ -245,8 +268,18 @@ class CPart(Part):
         with timer.section('Part weights'):
             self._init_partitioning()
 
-    def get_grid(self, index=None):
-        return self._grid
+    def get_grid(self, index=None, periodic=True):
+        if periodic:
+            return self._grid
+        else:
+            assert index is not None
+            center = self.system.coordinates[index]
+            radius = self.get_cutoff_radius(index)
+            return self.grid.get_window(center, radius)
+
+    def get_cutoff_radius(self, index):
+        # The radius at which the weight function goes to zero
+        raise NotImplementedError
 
     grid = property(get_grid)
 
@@ -286,10 +319,6 @@ class CPart(Part):
         self.get_at_weights(index, work)
         return self.grid.integrate(wcor, work, moldens)
 
-    def get_cutoff_radius(self, index):
-        # The radius at which the weight function goes to zero
-        raise NotImplementedError
-
     @just_once
     def do_populations(self):
         if log.do_medium:
@@ -325,8 +354,7 @@ class CPart(Part):
             # 1) Define a 'window' of the integration grid for this atom
             number = self._system.numbers[i]
             center = self._system.coordinates[i]
-            radius = self.get_cutoff_radius(i)
-            window = self.grid.get_window(center, radius)
+            window = self.get_grid(i, periodic=False)
 
             # 2) Evaluate the non-periodic atomic weight in this window
             aim = window.zeros()
