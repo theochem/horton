@@ -1003,6 +1003,25 @@ cdef class UniformIntGridWindow(object):
         evaluate.eval_spline_cube(spline._this, <double*>center.data, <double*>output.data, window_ui_grid._this)
 
     def integrate(self, *args, **kwargs):
+        '''Integrate the product of all arguments
+
+           **Arguments:**
+
+           data1, data2, ...
+                All arguments must be arrays with the same size as the number
+                of grid points. The arrays contain the functions, evaluated
+                at the grid points, that must be multiplied and integrated.
+
+           **Optional arguments:**
+
+           center
+                When given, a multipole moment can be computed with respect to
+                this center instead of a plain integral.
+
+           nx, ny, nz, nr
+                The powers that determine the type of moment computed. These can
+                only be given if center is given.
+        '''
         # process arguments:
         args = [arg.ravel() for arg in args if arg is not None]
 
@@ -1082,6 +1101,7 @@ cdef class Block3Iterator(object):
 # utils
 #
 
+# TODO: eliminate duplicate code in dot routines
 
 cdef _check_integranda(integranda, npoint=None):
     for integrandum in integranda:
@@ -1113,7 +1133,7 @@ def dot_multi(*integranda):
     return result
 
 
-def dot_multi_moments_cube(integranda, UniformIntGrid ui_grid, np.ndarray[double, ndim=1] center, long nx, long ny, long nz, long nr):
+def dot_multi_moments_cube(integranda, UniformIntGrid ui_grid, np.ndarray[double, ndim=1] center not None, long nx, long ny, long nz, long nr):
     npoint = _check_integranda(integranda, ui_grid.size)
     # Only non-periodic grids are supported to guarantee an unambiguous definition of the polynomial.
     assert ui_grid.pbc[0] == 0
@@ -1136,6 +1156,35 @@ def dot_multi_moments_cube(integranda, UniformIntGrid ui_grid, np.ndarray[double
         pointers[i] = <double*>integrandum.data
 
     result = utils.dot_multi_moments_cube(len(integranda), pointers, ui_grid._this, <double*>center.data, nx, ny, nz, nr)
+
+    free(pointers)
+    return result
+
+
+def dot_multi_moments(integranda,
+                      np.ndarray[double, ndim=2] points not None,
+                      np.ndarray[double, ndim=1] center not None,
+                      long nx, long ny, long nz, long nr):
+    assert points.flags['C_CONTIGUOUS']
+    assert points.shape[1] == 3
+    npoint = _check_integranda(integranda, points.shape[0])
+    #
+    assert center.flags['C_CONTIGUOUS']
+    assert center.shape[0] == 3
+    assert nx >= 0
+    assert ny >= 0
+    assert nz >= 0
+    assert nr >= 0
+
+    cdef double** pointers = <double **>malloc(len(integranda)*sizeof(double*))
+    if pointers == NULL:
+        raise MemoryError()
+    cdef np.ndarray[double, ndim=1] integrandum
+    for i in xrange(len(integranda)):
+        integrandum = integranda[i]
+        pointers[i] = <double*>integrandum.data
+
+    result = utils.dot_multi_moments(npoint, len(integranda), pointers, <double*>points.data, <double*>center.data, nx, ny, nz, nr)
 
     free(pointers)
     return result

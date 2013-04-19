@@ -22,7 +22,8 @@
 
 import numpy as np
 
-from horton.grid.cext import dot_multi, grid_distances, eval_spline_grid
+from horton.grid.cext import dot_multi, grid_distances, eval_spline_grid, \
+    dot_multi_moments
 from horton.cext import Cell
 
 
@@ -95,7 +96,7 @@ class IntGrid(object):
     def zeros(self):
         return np.zeros(self.shape)
 
-    def integrate(self, *args):
+    def integrate(self, *args, **kwargs):
         '''Integrate the product of all arguments
 
            **Arguments:**
@@ -104,9 +105,44 @@ class IntGrid(object):
                 All arguments must be arrays with the same size as the number
                 of grid points. The arrays contain the functions, evaluated
                 at the grid points, that must be multiplied and integrated.
+
+           **Optional arguments:**
+
+           center
+                When given, a multipole moment can be computed with respect to
+                this center instead of a plain integral.
+
+           nx, ny, nz, nr
+                The powers that determine the type of moment computed. These can
+                only be given if center is given.
         '''
+        # TODO: eliminate duplicate code with similar routine in uniform integration grid
+        # process arguments:
         args = [arg.ravel() for arg in args if arg is not None]
-        return dot_multi(self.weights, *args)
+        args.append(self.weights)
+
+        # process keyword arguments:
+        center = kwargs.pop('center', None)
+        if center is None:
+            # retgular integration
+            if len(kwargs) > 0:
+                raise TypeError('Unexpected keyword argument: %s' % kwargs.popitem()[0])
+
+            # Similar to conventional integration routine:
+            return dot_multi(*args)
+        else:
+            # integration with some polynomial factor in the integrand
+            nx = kwargs.pop('nx', 0)
+            ny = kwargs.pop('ny', 0)
+            nz = kwargs.pop('nz', 0)
+            nr = kwargs.pop('nr', 0)
+            if len(kwargs) > 0:
+                raise TypeError('Unexpected keyword argument: %s' % kwargs.popitem()[0])
+            assert center.flags['C_CONTIGUOUS']
+            assert center.shape[0] == 3
+
+            # advanced integration routine:
+            return dot_multi_moments(args, self.points, center, nx, ny, nz, nr)
 
     def distances(self, center, d):
         '''Compute distances between all grid points and a center, store result in d.'''
