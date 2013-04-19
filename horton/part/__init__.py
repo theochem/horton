@@ -29,10 +29,10 @@ from horton.part.linalg import *
 from horton.part.proatomdb import *
 from horton.part.stockholder import *
 
-dpart_schemes = {}
+wpart_schemes = {}
 for o in globals().values():
-    if isinstance(o, type) and issubclass(o, DPart) and o.name is not None:
-        dpart_schemes[o.name] = o
+    if isinstance(o, type) and issubclass(o, WPart) and o.name is not None:
+        wpart_schemes[o.name] = o
 
 cpart_schemes = {}
 for o in globals().values():

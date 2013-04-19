@@ -26,11 +26,11 @@ from horton.cache import just_once
 from horton.grid.int1d import SimpsonIntegrator1D
 from horton.grid.cext import dot_multi
 from horton.log import log
-from horton.part.base import DPart
-from horton.part.hirshfeld import HirshfeldDPart, HirshfeldCPart
+from horton.part.base import WPart
+from horton.part.hirshfeld import HirshfeldWPart, HirshfeldCPart
 
 
-__all__ = ['HirshfeldIDPart', 'HirshfeldICPart']
+__all__ = ['HirshfeldIWPart', 'HirshfeldICPart']
 
 
 class HirshfeldIMixin(object):
@@ -115,10 +115,9 @@ class HirshfeldIMixin(object):
         self._finalize_propars()
         self.cache.dump('niter', counter)
         self.cache.dump('change', change)
-        self._work_cleanup()
 
 
-class HirshfeldIDPart(HirshfeldIMixin, HirshfeldDPart):
+class HirshfeldIWPart(HirshfeldIMixin, HirshfeldWPart):
     '''Iterative Hirshfeld partitioning'''
 
     name = 'hi'
@@ -138,10 +137,10 @@ class HirshfeldIDPart(HirshfeldIMixin, HirshfeldDPart):
                 in the end, no warning is given.
         '''
         HirshfeldIMixin.__init__(self, threshold, maxiter)
-        HirshfeldDPart.__init__(self, system, grid, proatomdb, local)
+        HirshfeldWPart.__init__(self, system, grid, proatomdb, local)
 
     def _init_log(self):
-        DPart._init_log(self)
+        WPart._init_log(self)
         if log.do_medium:
             log.deflist([
                 ('Scheme', 'Hirshfeld-I'),
@@ -178,9 +177,6 @@ class HirshfeldIDPart(HirshfeldIMixin, HirshfeldDPart):
         pseudo_population = grid.integrate(at_weights, dens)
         charges[index] = self.system.pseudo_numbers[index] - pseudo_population
 
-    def _work_cleanup(self):
-        pass
-
     @just_once
     def _init_partitioning(self):
         # Perform one general check in the beginning to keep things simple.
@@ -194,7 +190,7 @@ class HirshfeldIDPart(HirshfeldIMixin, HirshfeldDPart):
 
     def do_all(self):
         '''Computes all AIM properties and returns a corresponding list of keys'''
-        names = HirshfeldDPart.do_all(self)
+        names = HirshfeldWPart.do_all(self)
         return names + ['niter', 'change', 'history_charges', 'history_propars']
 
 
@@ -241,7 +237,7 @@ class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
                 output *= 1-x
                 ipseudo_pop = self.system.pseudo_numbers[i] - icharge
                 if ipseudo_pop > 1:
-                    tmp = self.cache.load('work1', alloc=self.grid.shape)[0]
+                    tmp = self._work_cache.load('work1', alloc=self.grid.shape)[0]
                     self._get_isolated_atom(i, icharge+1, tmp)
                     tmp *= x
                     output += tmp
@@ -267,10 +263,6 @@ class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
         charges = self.cache.load('charges')
         pseudo_population = self.compute_pseudo_population(index)
         charges[index] = self.system.pseudo_numbers[index] - pseudo_population
-
-    def _work_cleanup(self):
-        self.cache.discard('work0')
-        self.cache.discard('work1')
 
     def do_all(self):
         names = HirshfeldCPart.do_all(self)

@@ -31,7 +31,7 @@ def test_base_exceptions():
     grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=0)
 
     try:
-        dp = DPart(sys, grid)
+        dp = WPart(sys, grid)
         assert False
     except ValueError:
         pass
@@ -39,7 +39,7 @@ def test_base_exceptions():
     grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=1)
 
     try:
-        dp = DPart(sys, grid)
+        dp = WPart(sys, grid)
         assert False
     except NotImplementedError:
         pass
@@ -47,23 +47,23 @@ def test_base_exceptions():
     grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=2)
 
     try:
-        dp = DPart(sys, grid)
+        dp = WPart(sys, grid)
         assert False
     except NotImplementedError:
         pass
 
     grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=0)
     try:
-        dp = DPart(sys, grid, local=False)
+        dp = WPart(sys, grid, local=False)
         assert False
     except NotImplementedError:
         pass
 
 
-def test_dpart_schemes():
-    assert 'hi' in dpart_schemes
-    assert dpart_schemes['hi'] is HirshfeldIDPart
-    assert dpart_schemes['hi'].options == ['local', 'threshold', 'maxiter']
+def test_wpart_schemes():
+    assert 'hi' in wpart_schemes
+    assert wpart_schemes['hi'] is HirshfeldIWPart
+    assert wpart_schemes['hi'].options == ['local', 'threshold', 'maxiter']
 
 
 def test_cpart_schemes():

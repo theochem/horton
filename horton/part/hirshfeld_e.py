@@ -26,12 +26,12 @@ from horton.cache import just_once
 from horton.grid.int1d import SimpsonIntegrator1D
 from horton.grid.cext import CubicSpline, dot_multi
 from horton.log import log
-from horton.part.base import DPart
-from horton.part.hirshfeld_i import HirshfeldIDPart, HirshfeldICPart
+from horton.part.base import WPart
+from horton.part.hirshfeld_i import HirshfeldIWPart, HirshfeldICPart
 from horton.part.linalg import solve_positive, quadratic_solver
 
 
-__all__ = ['HEBasis', 'HirshfeldEDPart', 'HirshfeldECPart']
+__all__ = ['HEBasis', 'HirshfeldEWPart', 'HirshfeldECPart']
 
 
 class HEBasis(object):
@@ -218,7 +218,7 @@ class HirshfeldEMixin(object):
         raise NotImplementedError
 
 
-class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
+class HirshfeldEWPart(HirshfeldEMixin, HirshfeldIWPart):
     '''Extended Hirshfeld partitioning'''
 
     name = 'he'
@@ -226,7 +226,7 @@ class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
 
     def __init__(self, system, grid, proatomdb, local=True, threshold=1e-6, maxiter=500):
         self._hebasis = HEBasis(system.numbers, proatomdb)
-        HirshfeldIDPart.__init__(self, system, grid, proatomdb, local, threshold, maxiter)
+        HirshfeldIWPart.__init__(self, system, grid, proatomdb, local, threshold, maxiter)
 
     def _get_charge_and_delta_aim(self, index):
         # Compute weight
@@ -283,7 +283,7 @@ class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
         return A, B, C
 
     def do_all(self):
-        names = HirshfeldIDPart.do_all(self)
+        names = HirshfeldIWPart.do_all(self)
         return names + ['propars', 'propar_map', 'propar_names']
 
 
@@ -340,7 +340,7 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
 
     def _get_charge_and_delta_aim(self, index):
         delta_aim = self.grid.zeros()
-        work = self.cache.load('work0', alloc=self.grid.shape)[0]
+        work = self._work_cache.load('work0', alloc=self.grid.shape)[0]
         wcor = self._cache.load('wcor', default=None)
 
         # 1) Construct the AIM density
@@ -361,8 +361,8 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
         return charge, delta_aim
 
     def _get_he_system(self, index, delta_aim):
-        work0 = self.cache.load('work0', alloc=self.grid.shape)[0]
-        work1 = self.cache.load('work1', alloc=self.grid.shape)[0]
+        work0 = self._work_cache.load('work0', alloc=self.grid.shape)[0]
+        work1 = self._work_cache.load('work1', alloc=self.grid.shape)[0]
         wcor_fit = self._cache.load('wcor_fit', default=None)
         nbasis = self._hebasis.get_atom_nbasis(index)
 

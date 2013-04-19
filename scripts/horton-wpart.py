@@ -24,16 +24,16 @@
 import sys, argparse, os
 
 import h5py as h5
-from horton import System, dpart_schemes, Cell, ProAtomDB, log, BeckeMolGrid
+from horton import System, wpart_schemes, Cell, ProAtomDB, log, BeckeMolGrid
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(prog='horton-dpart.py',
+    parser = argparse.ArgumentParser(prog='horton-wpart.py',
         description='Partition the density from a wavefunction file.')
 
     parser.add_argument('wfn',
         help='The wfn file. Supported formats: fchk, mkl, molden.input')
-    parser.add_argument('scheme', choices=dpart_schemes.keys(),
+    parser.add_argument('scheme', choices=wpart_schemes.keys(),
         help='The scheme to be used for the partitioning')
     parser.add_argument('atoms',
         help='An HDF5 file with atomic reference densities.')
@@ -73,7 +73,7 @@ def main():
 
     if os.path.isfile(fn_h5):
         with h5.File(fn_h5, 'r') as f:
-            if 'dpart/%s' % grp_name in f and not args.overwrite:
+            if 'wpart/%s' % grp_name in f and not args.overwrite:
                 if log.do_warning:
                     log.warn('Skipping because "%s" is already present in the output.' % grp_name)
                 return
@@ -85,11 +85,11 @@ def main():
     proatomdb = ProAtomDB.from_file(args.atoms)
 
     # Run the partitioning
-    DPartClass = dpart_schemes[args.scheme]
-    kwargs = dict((key, val) for key, val in vars(args).iteritems() if key in DPartClass.options)
+    WPartClass = wpart_schemes[args.scheme]
+    kwargs = dict((key, val) for key, val in vars(args).iteritems() if key in WPartClass.options)
     molgrid = BeckeMolGrid(sys, keep_subgrids=int(args.local))
-    dpart = dpart_schemes[args.scheme](molgrid, proatomdb, **kwargs)
-    names = dpart.do_all()
+    wpart = wpart_schemes[args.scheme](molgrid, proatomdb, **kwargs)
+    names = wpart.do_all()
 
     # Store the results in an HDF5 file
     with h5.File(fn_h5) as f:
@@ -102,22 +102,22 @@ def main():
         numbers[:] = sys.numbers
 
         # Store results
-        grp_dpart = f.require_group('dpart')
-        if grp_name in grp_dpart:
-            del grp_dpart[grp_name]
-        grp = grp_dpart.create_group(grp_name)
+        grp_wpart = f.require_group('wpart')
+        if grp_name in grp_wpart:
+            del grp_wpart[grp_name]
+        grp = grp_wpart.create_group(grp_name)
         for name in names:
-            grp[name] = dpart[name]
+            grp[name] = wpart[name]
 
         if args.debug:
             # Store additional data for debugging
             if 'debug' in grp:
                 del grp['debug']
             grp_debug = grp.create_group('debug')
-            for debug_key in dpart.cache._store:
+            for debug_key in wpart.cache._store:
                 debug_name = '_'.join(str(x) for x in debug_key)
                 if debug_name not in names:
-                    grp_debug[debug_name] = dpart.cache.load(*debug_key)
+                    grp_debug[debug_name] = wpart.cache.load(*debug_key)
 
 
 if __name__ == '__main__':

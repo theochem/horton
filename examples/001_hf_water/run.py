@@ -24,5 +24,5 @@ log.set_level(log.medium)
 
 # Partition the density with the Becke scheme
 grid = BeckeMolGrid(sys, keep_subgrids=1)
-bdp = BeckeDPart(sys, grid)
-bdp.do_charges()
+bp = BeckeWPart(sys, grid)
+bp.do_charges()

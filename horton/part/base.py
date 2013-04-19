@@ -26,7 +26,7 @@ from horton.cache import JustOnceClass, just_once, Cache
 from horton.log import log, timer
 
 
-__all__ = ['DPart', 'CPart']
+__all__ = ['Part', 'WPart', 'CPart']
 
 
 class Part(JustOnceClass):
@@ -51,6 +51,9 @@ class Part(JustOnceClass):
 
         # Caching stuff, to avoid recomputation of earlier results
         self._cache = Cache()
+        # Caching of work arrays to avoid reallocation
+        # TODO: delete work cache at some point
+        self._work_cache = Cache()
         if moldens is not None:
             self._cache.dump('moldens', moldens)
 
@@ -84,6 +87,7 @@ class Part(JustOnceClass):
         '''Discard all cached results, e.g. because wfn changed'''
         JustOnceClass.invalidate(self)
         self.cache.invalidate_all()
+        self._work_cache.invalidate_all()
         # immediately recompute the basics
         # TODO: For some schemes, the weights do not depend on the density
         # and recomputation of the atomic weights is a waste of time
@@ -142,7 +146,7 @@ class Part(JustOnceClass):
     def compute_pseudo_population(self, index):
         grid = self.get_grid(index)
         dens = self.get_moldens(index)
-        at_weights = self.cache.load('work0', alloc=grid.shape)[0]
+        at_weights = self._work_cache.load('work0', grid.shape, alloc=grid.shape)[0]
         self.get_at_weights(index, output=at_weights)
         wcor = self.get_wcor(index)
         return grid.integrate(at_weights, dens, wcor)
@@ -233,7 +237,7 @@ class Part(JustOnceClass):
                 'cartesian_moments', 'radial_powers', 'radial_moments']
 
 
-class DPart(Part):
+class WPart(Part):
     # TODO: add framework to evaluate AIM weights (and maybe other things) on
     # user-provided grids.
 
@@ -265,7 +269,7 @@ class DPart(Part):
 
         # Do the essential part of the partitioning. All derived properties
         # are optional.
-        with timer.section('DPart weights'):
+        with timer.section('WPart weights'):
             self._init_partitioning()
 
     def _init_log(self):
