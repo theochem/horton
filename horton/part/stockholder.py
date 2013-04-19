@@ -24,10 +24,10 @@ import numpy as np
 
 from horton.log import log
 from horton.grid.cext import CubicSpline
-from horton.part.base import DPart, CPart
+from horton.part.base import WPart, CPart
 
 __all__ = [
-    'StockholderDPart', 'StockholderCPart',
+    'StockholderWPart', 'StockholderCPart',
 ]
 
 
@@ -68,7 +68,7 @@ class StockHolderMixin(object):
         return CubicSpline(rho, rtf=self.proatomdb.get_rtransform(number))
 
 
-class StockholderDPart(StockHolderMixin, DPart):
+class StockholderWPart(StockHolderMixin, WPart):
     def compute_at_weights(self, i0, at_weights):
         grid = self.get_grid(i0)
         promoldens, new = self.cache.load('promoldens', grid.size, alloc=grid.size)

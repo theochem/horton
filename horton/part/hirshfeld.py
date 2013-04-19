@@ -24,10 +24,10 @@ import numpy as np
 
 from horton.cache import just_once
 from horton.log import log
-from horton.part.stockholder import StockholderDPart, StockholderCPart
+from horton.part.stockholder import StockholderWPart, StockholderCPart
 
 
-__all__ = ['HirshfeldDPart', 'HirshfeldCPart']
+__all__ = ['HirshfeldWPart', 'HirshfeldCPart']
 
 
 def check_proatomdb(system, proatomdb):
@@ -102,7 +102,7 @@ class HirshfeldMixin(object):
                 c6s[i] = (volume_ratios[i])**2*ref_c6s[n]
 
 
-class HirshfeldDPart(HirshfeldMixin, StockholderDPart):
+class HirshfeldWPart(HirshfeldMixin, StockholderWPart):
     name = 'h'
     options = ['local']
 
@@ -110,10 +110,10 @@ class HirshfeldDPart(HirshfeldMixin, StockholderDPart):
     def __init__(self, system, grid, proatomdb, local=True):
         check_proatomdb(system, proatomdb)
         HirshfeldMixin. __init__(self, proatomdb)
-        StockholderDPart.__init__(self, system, grid, local)
+        StockholderWPart.__init__(self, system, grid, local)
 
     def _init_log(self):
-        StockholderDPart._init_log(self)
+        StockholderWPart._init_log(self)
         if log.do_medium:
             log.deflist([
                 ('Scheme', 'Hirshfeld'),
@@ -131,7 +131,7 @@ class HirshfeldDPart(HirshfeldMixin, StockholderDPart):
                 self.compute_at_weights(i0, at_weights)
 
     def do_all(self):
-        names = StockholderDPart.do_all(self)
+        names = StockholderWPart.do_all(self)
         self.do_dispersion()
         return names + ['volumes', 'volume_ratios', 'c6s']
 
@@ -161,12 +161,11 @@ class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
     def _init_partitioning(self):
         self._update_promolecule()
         self._store_at_weights()
-        self._work_cleanup()
 
     def _update_promolecule(self):
         promoldens = self.cache.load('promoldens', alloc=self.grid.shape)[0]
         promoldens[:] = 0.0
-        work = self.cache.load('work0', alloc=self.grid.shape)[0]
+        work = self._work_cache.load('work0', alloc=self.grid.shape)[0]
         for index in xrange(self._system.natom):
             self.compute_proatom(index, work)
             promoldens += work
@@ -177,15 +176,12 @@ class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
         # Compute the atomic weight functions if this is useful. This is merely
         # a matter of efficiency.
         promoldens = self.cache.load('promoldens')
-        work = self.cache.load('work0', alloc=self.grid.shape)[0]
+        work = self._work_cache.load('work0', alloc=self.grid.shape)[0]
         for index in xrange(self._system.natom):
             if ('at_weights', index) in self._store:
                 self._store.load(work, 'at_weights', index)
                 work /= promoldens
                 self._store.dump(work, 'at_weights', index)
-
-    def _work_cleanup(self):
-        self.cache.discard('work0')
 
     def get_cutoff_radius(self, index):
         '''The radius at which the weight function goes to zero'''
