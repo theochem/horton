@@ -59,12 +59,14 @@ double intexp(double base, long exp) {
 }
 
 
+// TODO: eliminate duplicate code
+
 double dot_multi_moments_cube(long nvector, double** data, UniformIntGrid* ui_grid, double* center, long nx, long ny, long nz, long nr) {
     if (ui_grid->get_cell()->get_nvec() != 0) {
-        throw std::domain_error("dot_mult_moments only works for non-periodic grids.");
+        throw std::domain_error("dot_multi_moments_cube only works for non-periodic grids.");
     }
     if ((nx<0) || (ny<0) || (nz<0) || (nr<0)) {
-        throw std::domain_error("dot_mult_moments can not be used with negative moments.");
+        throw std::domain_error("dot_multi_moments_cube can not be used with negative moments.");
     }
 
     double result = 0.0;
@@ -86,6 +88,41 @@ double dot_multi_moments_cube(long nvector, double** data, UniformIntGrid* ui_gr
         delta[1] = center[1];
         delta[2] = center[2];
         ui_grid->delta_grid_point(delta, j);
+        if (nr != 0) {
+            double r = sqrt(delta[0]*delta[0] + delta[1]*delta[1] + delta[2]*delta[2]);
+            term *= intexp(r, nr);
+        }
+        if (nx != 0) term *= intexp(delta[0], nx);
+        if (ny != 0) term *= intexp(delta[1], ny);
+        if (nz != 0) term *= intexp(delta[2], nz);
+
+        // add to total
+        result += term;
+    }
+
+    return result;
+}
+
+double dot_multi_moments(long npoint, long nvector, double** data, double* points, double* center, long nx, long ny, long nz, long nr) {
+    if ((nx<0) || (ny<0) || (nz<0) || (nr<0)) {
+        throw std::domain_error("dot_multi_moments can not be used with negative moments.");
+    }
+
+    double result = 0.0;
+
+    #pragma omp parallel for reduction(+:result)
+    for (long ipoint=npoint-1; ipoint >= 0; ipoint--) {
+        // do the usual product of integranda
+        double term = data[nvector-1][ipoint];
+        for (long ivector=nvector-2; ivector>=0; ivector--)
+           term *= data[ivector][ipoint];
+
+        // multiply with polynomial
+
+        double delta[3];
+        delta[0] = points[ipoint*3  ] - center[0];
+        delta[1] = points[ipoint*3+1] - center[1];
+        delta[2] = points[ipoint*3+2] - center[2];
         if (nr != 0) {
             double r = sqrt(delta[0]*delta[0] + delta[1]*delta[1] + delta[2]*delta[2]);
             term *= intexp(r, nr);

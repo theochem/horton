@@ -48,6 +48,38 @@ def test_grid_integrate():
     assert abs(int1 - int2) < 1e-10
 
 
+def test_grid_integrate_moments():
+    npoint = 10
+    grid = IntGrid(np.random.normal(0, 1, (npoint,3)), np.random.normal(0, 1, npoint))
+    dens = np.random.normal(0, 1, npoint)
+
+    center = np.random.normal(0, 1, 3)
+
+    int1 = grid.integrate(dens, center=center, nx=1)
+    x = grid.points[:,0]-center[0]
+    int2 = (grid.weights*dens*x).sum()
+    assert abs(int1 - int2) < 1e-10
+
+    int1 = grid.integrate(dens, center=center, ny=1)
+    y = grid.points[:,1]-center[1]
+    int2 = (grid.weights*dens*y).sum()
+    assert abs(int1 - int2) < 1e-10
+
+    int1 = grid.integrate(dens, center=center, nz=1)
+    z = grid.points[:,2]-center[2]
+    int2 = (grid.weights*dens*z).sum()
+    assert abs(int1 - int2) < 1e-10
+
+    int1 = grid.integrate(dens, center=center, nr=1)
+    r = np.sqrt(sum([(grid.points[:,i]-center[i])**2 for i in xrange(3)]))
+    int2 = (grid.weights*dens*r).sum()
+    assert abs(int1 - int2) < 1e-10
+
+    int1 = grid.integrate(dens, center=center, nx=2, ny=3, nz=4, nr=1)
+    int2 = (grid.weights*dens*x*x*y*y*y*z*z*z*z*r).sum()
+    assert abs(int1 - int2) < 1e-10
+
+
 def test_dot_multi():
     npoint = 10
     pot = np.random.normal(0, 1, npoint)

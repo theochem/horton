@@ -169,6 +169,69 @@ class Part(JustOnceClass):
             populations = self._cache.load('populations')
             charges[:] = self.system.numbers - populations
 
+    @just_once
+    def do_moments(self):
+        if log.do_medium:
+            log('Computing all sorts of AIM moments.')
+
+        cartesian_powers = []
+        lmax = 4 # up to hexadecapoles.
+        for l in xrange(1, lmax+1):
+            for nz in xrange(0, l+1):
+                for ny in xrange(0, l-nz+1):
+                    nx = l - ny - nz
+                    cartesian_powers.append([nx, ny, nz])
+        self._cache.dump('cartesian_powers', np.array(cartesian_powers))
+        cartesian_moments = self._cache.load('cartesian_moments', alloc=(self._system.natom, len(cartesian_powers)))[0]
+
+        radial_powers = np.arange(1, lmax+1)
+        radial_moments = self._cache.load('radial_moments', alloc=(self._system.natom, len(radial_powers)))[0]
+        self._cache.dump('radial_powers', radial_powers)
+
+        for i in xrange(self._system.natom):
+            # 1) Define a 'window' of the integration grid for this atom
+            number = self._system.numbers[i]
+            center = self._system.coordinates[i]
+            grid = self.get_grid(i, periodic=False)
+
+            # 2) Evaluate the non-periodic atomic weight in this window
+            aim = grid.zeros()
+            self.get_at_weights(i, periodic=False, output=aim)
+
+            # 3) Extend the moldens over the window and multiply to obtain the
+            #    AIM
+            moldens = self.get_moldens(i, periodic=False)
+            aim *= moldens
+            del moldens
+
+            # 4) Compute weight corrections (TODO: needs to be assessed!)
+            wcor = self.get_wcor(i, periodic=False)
+
+            # 5) Compute Cartesian multipoles
+            counter = 0
+            for nx, ny, nz in cartesian_powers:
+                if log.do_medium:
+                    log('  moment %s%s%s' % ('x'*nx, 'y'*ny, 'z'*nz))
+                cartesian_moments[i, counter] = grid.integrate(aim, wcor, center=center, nx=nx, ny=ny, nz=nz, nr=0)
+                counter += 1
+
+            # 6) Compute Radial moments
+            for nr in radial_powers:
+                if log.do_medium:
+                    log('  moment %s' % ('r'*nr))
+                radial_moments[i, nr-1] = grid.integrate(aim, wcor, center=center, nx=0, ny=0, nz=0, nr=nr)
+
+            del wcor
+            del aim
+
+    def do_all(self):
+        '''Computes all reasonable properties and returns a corresponding list of keys'''
+        self.do_populations()
+        self.do_charges()
+        self.do_moments()
+        return ['populations', 'charges', 'cartesian_powers',
+                'cartesian_moments', 'radial_powers', 'radial_moments']
+
 
 class DPart(Part):
     # TODO: add framework to evaluate AIM weights (and maybe other things) on
@@ -252,18 +315,13 @@ class DPart(Part):
             raise NotImplementedError
         return None
 
-    def do_all(self):
-        '''Computes all AIM properties and returns a corresponding list of keys'''
-        self.do_populations()
-        self.do_charges()
-        return ['populations', 'pseudo_populations', 'charges']
-
     @just_once
     def do_moldens(self):
         if log.do_medium:
             log('Computing densities on grids.')
         moldens, new = self.cache.load('moldens', alloc=self.grid.size)
-        self.system.compute_grid_density(self.grid.points, rhos=moldens)
+        if new:
+            self.system.compute_grid_density(self.grid.points, rhos=moldens)
 
 
 class CPart(Part):
@@ -407,68 +465,6 @@ class CPart(Part):
 
     @just_once
     def do_moldens(self):
-        pass
-
-    # TODO: implement moments for DPart (in Mixin class, if possible)
-    @just_once
-    def do_moments(self):
-        if log.do_medium:
-            log('Computing all sorts of AIM moments.')
-
-        cartesian_powers = []
-        lmax = 4 # up to hexadecapoles.
-        for l in xrange(1, lmax+1):
-            for nz in xrange(0, l+1):
-                for ny in xrange(0, l-nz+1):
-                    nx = l - ny - nz
-                    cartesian_powers.append([nx, ny, nz])
-        self._cache.dump('cartesian_powers', np.array(cartesian_powers))
-        cartesian_moments = self._cache.load('cartesian_moments', alloc=(self._system.natom, len(cartesian_powers)))[0]
-
-        radial_powers = np.arange(1, lmax+1)
-        radial_moments = self._cache.load('radial_moments', alloc=(self._system.natom, len(radial_powers)))[0]
-        self._cache.dump('radial_powers', radial_powers)
-
-        for i in xrange(self._system.natom):
-            # 1) Define a 'window' of the integration grid for this atom
-            number = self._system.numbers[i]
-            center = self._system.coordinates[i]
-            grid = self.get_grid(i, periodic=False)
-
-            # 2) Evaluate the non-periodic atomic weight in this window
-            aim = grid.zeros()
-            self.get_at_weights(i, periodic=False, output=aim)
-
-            # 3) Extend the moldens over the window and multiply to obtain the
-            #    AIM
-            moldens = self.get_moldens(i, periodic=False)
-            aim *= moldens
-            del moldens
-
-            # 4) Compute weight corrections (TODO: needs to be assessed!)
-            wcor = self.get_wcor(i, periodic=False)
-
-            # 5) Compute Cartesian multipoles
-            counter = 0
-            for nx, ny, nz in cartesian_powers:
-                if log.do_medium:
-                    log('  moment %s%s%s' % ('x'*nx, 'y'*ny, 'z'*nz))
-                cartesian_moments[i, counter] = grid.integrate(aim, wcor, center=center, nx=nx, ny=ny, nz=nz, nr=0)
-                counter += 1
-
-            # 6) Compute Radial moments
-            for nr in radial_powers:
-                if log.do_medium:
-                    log('  moment %s' % ('r'*nr))
-                radial_moments[i, nr-1] = grid.integrate(aim, wcor, center=center, nx=0, ny=0, nz=0, nr=nr)
-
-            del wcor
-            del aim
-
-    def do_all(self):
-        '''Computes all reasonable properties and returns a corresponding list of keys'''
-        self.do_populations()
-        self.do_charges()
-        self.do_moments()
-        return ['populations', 'charges', 'cartesian_powers',
-                'cartesian_moments', 'radial_powers', 'radial_moments']
+        moldens, new = self.cache.load('moldens', alloc=self.grid.size)
+        if new:
+            raise NotImplementedError
