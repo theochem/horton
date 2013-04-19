@@ -34,7 +34,9 @@ __all__ = ['HirshfeldIDPart', 'HirshfeldICPart']
 
 
 class HirshfeldIMixin(object):
-    # TODO: add constructor
+    def __init__(self, threshold=1e-6, maxiter=500):
+        self._threshold = threshold
+        self._maxiter = maxiter
 
     def get_interpolation_info(self, i, charges=None):
         if charges is None:
@@ -123,8 +125,19 @@ class HirshfeldIDPart(HirshfeldIMixin, HirshfeldDPart):
     options = ['local', 'threshold', 'maxiter']
 
     def __init__(self, system, grid, proatomdb, local=True, threshold=1e-6, maxiter=500):
-        self._threshold = threshold
-        self._maxiter = maxiter
+        '''
+           **Optional arguments:** (that are not present in the base class)
+
+           threshold
+                The procedure is considered to be converged when the maximum
+                change of the charges between two iterations drops below this
+                threshold.
+
+           maxiter
+                The maximum number of iterations. If no convergence is reached
+                in the end, no warning is given.
+        '''
+        HirshfeldIMixin.__init__(self, threshold, maxiter)
         HirshfeldDPart.__init__(self, system, grid, proatomdb, local)
 
     def _init_log(self):
@@ -191,21 +204,20 @@ class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
     name = 'hi'
     options = ['smooth', 'maxiter', 'threshold']
 
-    def __init__(self, system, grid, moldens, proatomdb, store, smooth=False, maxiter=100, threshold=1e-6):
+    def __init__(self, system, grid, moldens, proatomdb, store, smooth=False, threshold=1e-6, maxiter=500):
         '''
-           **Optional arguments:** (those not present in the base class)
-
-           maxiter
-                The maximum number of iterations. If no convergence is reached
-                in the end, no warning is given.
+           **Optional arguments:** (that are not present in the base class)
 
            threshold
                 The procedure is considered to be converged when the maximum
                 change of the charges between two iterations drops below this
                 threshold.
+
+           maxiter
+                The maximum number of iterations. If no convergence is reached
+                in the end, no warning is given.
         '''
-        self._maxiter = maxiter
-        self._threshold = threshold
+        HirshfeldIMixin.__init__(self, threshold, maxiter)
         HirshfeldCPart.__init__(self, system, grid, moldens, proatomdb, store, smooth)
 
     def _get_isolated_atom(self, i, charge, output):
