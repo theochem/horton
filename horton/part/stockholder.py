@@ -31,40 +31,45 @@ __all__ = [
 ]
 
 
-def check_proatom(spline, pseudo_population):
-    '''Check if the spline for the proatom is correct and fix is needed
-
-       **Arguments:**
-
-       spline
-            The spline for the proatom.
-
-       pseudo_population
-            The population that the proatom should have.
-    '''
-    # TODO: complete this routine and use it whenever a pro-atom spline is generated
-    proradrho = spline.copy_y()
-
-    pseudo_population = self.system.pseudo_numbers[index] - target_charge
-    error = np.dot(proradrho, weights) - pseudo_population
-    assert abs(error) < 1e-5
-
-    # Check for negative parts
-    if proradrho.min() < 0:
-        proradrho[proradrho<0] = 0.0
-        error = np.dot(proradrho, weights) - target_pseudo_population
-        if log.do_medium:
-            log('                    Pro-atom not positive everywhere. Lost %.5f electrons' % error)
-
-
-
 class StockHolderMixin(object):
     def get_proatom_rho(self, index, *args, **kwargs):
         raise NotImplementedError
 
+    def fix_proatom_rho(self, index, rho):
+        '''Check if the radial density for the proatom is correct and fix as needed.
+
+           **Arguments:**
+
+           index
+                The atom for which this proatom rho is created.
+
+           rho
+                The radial density
+        '''
+        # TODO: should not refer to proatomdb
+        number = self.system.numbers[index]
+        weights = self.proatomdb.get_radial_weights(number)
+
+        # Check for negative parts
+        original = np.dot(rho, weights)
+        if rho.min() < 0:
+            rho[rho<0] = 0.0
+            error = np.dot(rho, weights) - original
+            if log.do_medium:
+                log('                    Pro-atom not positive everywhere. Lost %.5f electrons' % error)
+
+        return rho
+
     def get_proatom_spline(self, index, *args, **kwargs):
+        # TODO: should not refer to proatomdb
+        # Get the radial density
         number = self.system.numbers[index]
         rho = self.get_proatom_rho(index, *args, **kwargs)
+
+        # Double check and fix if needed
+        rho = self.fix_proatom_rho(index, rho)
+
+        # Make a spline
         return CubicSpline(rho, rtf=self.proatomdb.get_rtransform(number))
 
 
