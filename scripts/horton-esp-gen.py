@@ -42,17 +42,19 @@ def parse_args():
              'HDF5 file are corrected.')
 
     parser.add_argument('--spacing', '-s', default=0.1, type=float,
-        help='The target grid spacing in angstrom.')
+        help='The target grid spacing in angstrom. [default=%(default)s]')
 
     parser.add_argument('--rcut', default=10.0, type=float,
         help='The real-space cutoff for the electrostatic interactions in '
-             'angstrom.')
+             'angstrom. [default=%(default)s]')
     parser.add_argument('--alpha-scale', default=3.0, type=float,
         help='The alpha scale (alpha = alpha_scale/rcut) for the separation '
-             'between short-range and long-range electrostatic interactions.')
+             'between short-range and long-range electrostatic interactions. '
+             '[default=%(default)s]')
     parser.add_argument('--gcut-scale', default=1.1, type=float,
         help='The gcut scale (gcut = gcut_scale*alpha) for the reciprocal '
-             'space constribution to the electrostatic interactions.')
+             'space constribution to the electrostatic interactions. '
+             '[default=%(default)s]')
 
     return parser.parse_args()
 

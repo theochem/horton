@@ -50,10 +50,11 @@ def parse_args():
              'behavior is to compute the integral for a given atom on a '
              'atom-centered grid, which is a part of the molecular grid.')
     parser.add_argument('--maxiter', '-i', default=500, type=int,
-        help='The maximum allowed number of iterations.')
+        help='The maximum allowed number of iterations. [default=%(default)s]')
     parser.add_argument('--threshold', '-t', default=1e-6, type=float,
         help='The iterative scheme is converged when the maximum change of '
-             'the charges between two iterations drops below this threshold.')
+             'the charges between two iterations drops below this threshold. '
+             '[default=%(default)s]')
 
     # TODO: isolate common parts with cpart into shared routines.
     # TODO: add options to control the accuracy of the integration grids.
