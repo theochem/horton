@@ -107,12 +107,57 @@ class Part(JustOnceClass):
         '''
         raise NotImplementedError
 
+    def get_moldens(self, index=None, periodic=True, output=None):
+        '''Return the electron density on a grid
+
+           See get_grid for the meaning of the optional arguments.
+        '''
+        raise NotImplementedError
+
+    def get_at_weights(self, index, periodic=True, output=None):
+        '''Return the atomic weight function on a grid
+
+           See get_grid for the meaning of the optional arguments
+        '''
+        raise NotImplementedError
+
+    def get_wcor(self, index, periodic=True, output=None):
+        '''Return the weight corrections on a grid
+
+           See get_grid for the meaning of the optional arguments
+        '''
+        raise NotImplementedError
+
     def _init_log(self):
         raise NotImplementedError
 
     @just_once
     def _init_partitioning(self):
         raise NotImplementedError
+
+    @just_once
+    def do_moldens(self):
+        raise NotImplementedError
+
+    def compute_pseudo_population(self, index):
+        grid = self.get_grid(index)
+        dens = self.get_moldens(index)
+        at_weights = self.cache.load('work0', alloc=grid.shape)[0]
+        self.get_at_weights(index, output=at_weights)
+        wcor = self.get_wcor(index)
+        return grid.integrate(at_weights, dens, wcor)
+
+    @just_once
+    def do_populations(self):
+        if log.do_medium:
+            log('Computing atomic populations.')
+        populations, new = self.cache.load('populations', alloc=self.system.natom)
+        if new:
+            pseudo_populations = self.cache.load('pseudo_populations', alloc=self.system.natom)[0]
+            for i in xrange(self.natom):
+                pseudo_populations[i] = self.compute_pseudo_population(i)
+            populations[:] = pseudo_populations
+            populations += self.system.numbers - self.system.pseudo_numbers
 
     @just_once
     def do_charges(self):
@@ -175,12 +220,37 @@ class DPart(Part):
     local = property(_get_local)
 
     def get_grid(self, index=None, periodic=True):
+        # periodic gets ignored
         if index is None or not self.local:
             return self._grid
         else:
             return self._grid.subgrids[index]
 
-    grid = property(get_grid)
+    def get_moldens(self, index=None, periodic=True, output=None):
+        # periodic gets ignored
+        self.do_moldens()
+        moldens = self.cache.load('moldens')
+        grid = self.get_grid(index, periodic)
+        if index is None or not self.local:
+            result = moldens
+        else:
+            result = moldens[grid.begin:grid.end]
+        if output is not None:
+            output[:] = result
+        return result
+
+    def get_at_weights(self, index, periodic=True, output=None):
+        # periodic gets ignored
+        at_weights = self.cache.load('at_weights', index)
+        if output is not None:
+            output[:] = at_weights
+        return at_weights
+
+    def get_wcor(self, index, periodic=True, output=None):
+        # periodic gets ignored
+        if output is not None:
+            raise NotImplementedError
+        return None
 
     def do_all(self):
         '''Computes all AIM properties and returns a corresponding list of keys'''
@@ -192,29 +262,8 @@ class DPart(Part):
     def do_moldens(self):
         if log.do_medium:
             log('Computing densities on grids.')
-        for i in xrange(self.natom):
-            if i == 0 or self.local:
-                grid = self.get_grid(i)
-                moldens, new = self.cache.load('moldens', i, alloc=grid.size)
-                if new:
-                    self.system.compute_grid_density(grid.points, rhos=moldens)
-            else:
-                self.cache.dump('moldens', i, moldens)
-
-    @just_once
-    def do_populations(self):
-        self.do_moldens()
-        if log.do_medium:
-            log('Computing atomic populations.')
-        populations, new = self.cache.load('populations', alloc=self.system.natom)
-        if new:
-            pseudo_populations, new = self.cache.load('pseudo_populations', alloc=self.system.natom)
-            for i in xrange(self.natom):
-                at_weights = self.cache.load('at_weights', i)
-                dens = self.cache.load('moldens', i)
-                pseudo_populations[i] = self.get_grid(i).integrate(at_weights, dens)
-            populations[:] = pseudo_populations
-            populations += self.system.numbers - self.system.pseudo_numbers
+        moldens, new = self.cache.load('moldens', alloc=self.grid.size)
+        self.system.compute_grid_density(self.grid.points, rhos=moldens)
 
 
 class CPart(Part):
@@ -258,6 +307,13 @@ class CPart(Part):
 
         Part.__init__(self, system, grid, moldens)
 
+
+        # Windows for non-periodic integrations
+        self._windows = []
+        for index in xrange(self.natom):
+            center = self.system.coordinates[index]
+            radius = self.get_cutoff_radius(index)
+            self._windows.append(self.grid.get_window(center, radius))
         # If needed, prepare weight corrections for the integration on the
         # uniform grid
         if not self.smooth:
@@ -273,15 +329,60 @@ class CPart(Part):
             return self._grid
         else:
             assert index is not None
-            center = self.system.coordinates[index]
-            radius = self.get_cutoff_radius(index)
-            return self.grid.get_window(center, radius)
+            return self._windows[index]
+
+    def get_moldens(self, index=None, periodic=True, output=None):
+        if periodic:
+            result = self.cache.load('moldens')
+            if output is not None:
+                output[:] = result
+            return result
+        else:
+            assert index is not None
+            window = self._windows[index]
+            if output is None:
+                output = window.zeros()
+            else:
+                output[:] = 0.0
+            window.extend(self.cache.load('moldens'), output)
+            return output
+
+    def get_at_weights(self, index=None, periodic=True, output=None):
+        if periodic:
+            # The default behavior is load the weights from the store. If this fails,
+            # they must be recomputed.
+            present = self._store.load(output, 'at_weights', index)
+            if output is None:
+                output = self.grid.zeros()
+            if not present:
+                self.compute_at_weights(index, output)
+                self._store.dump(output, 'at_weights', index)
+        else:
+            assert index is not None
+            window = self._windows[index]
+            if output is None:
+                output = window.zeros()
+            self.compute_at_weights(index, output, window)
+        return output
+
+    def get_wcor(self, index=None, periodic=True, output=None):
+        if periodic:
+            result = self.cache.load('wcor', default=None)
+        else:
+            assert index is not None
+            # TODO: move the funcs part to a separate routine. It can only be
+            # implemented for Hirshfeld methods
+            number = self.system.numbers[index]
+            funcs = [(self._system.coordinates[index], [self._proatomdb.get_spline(number)])]
+            window = self._windows[index]
+            result = window.compute_weight_corrections(funcs)
+        if output is not None:
+            output[:] = result
+        return result
 
     def get_cutoff_radius(self, index):
         # The radius at which the weight function goes to zero
         raise NotImplementedError
-
-    grid = property(get_grid)
 
     def _get_smooth(self):
         return self._smooth
@@ -301,34 +402,12 @@ class CPart(Part):
     def _init_weight_corrections(self):
         raise NotImplementedError
 
-    def get_at_weights(self, index, output):
-        # The default behavior is load the weights from the store. If this fails,
-        # they must be recomputed.
-        present = self._store.load(output, 'at_weights', index)
-        if not present:
-            self.compute_at_weights(index, output)
-            self._store.dump(output, 'at_weights', index)
-
     def compute_at_weights(self, index, output, window=None):
         raise NotImplementedError
 
-    def compute_pseudo_population(self, index):
-        work = self.cache.load('work0', alloc=self.grid.shape)[0]
-        moldens = self._cache.load('moldens')
-        wcor = self._cache.load('wcor', default=None)
-        self.get_at_weights(index, work)
-        return self.grid.integrate(wcor, work, moldens)
-
     @just_once
-    def do_populations(self):
-        if log.do_medium:
-            log('Computing atomic populations.')
-        populations, new = self._cache.load('populations', alloc=self.system.natom)
-        if new:
-            for i in xrange(self._system.natom):
-                populations[i] = self.compute_pseudo_population(i)
-            # correct for pseudo-potentials
-            populations += self.system.numbers - self.system.pseudo_numbers
+    def do_moldens(self):
+        pass
 
     # TODO: implement moments for DPart (in Mixin class, if possible)
     @just_once
@@ -354,39 +433,37 @@ class CPart(Part):
             # 1) Define a 'window' of the integration grid for this atom
             number = self._system.numbers[i]
             center = self._system.coordinates[i]
-            window = self.get_grid(i, periodic=False)
+            grid = self.get_grid(i, periodic=False)
 
             # 2) Evaluate the non-periodic atomic weight in this window
-            aim = window.zeros()
-            at_weights_window = self.compute_at_weights(i, aim, window)
+            aim = grid.zeros()
+            self.get_at_weights(i, periodic=False, output=aim)
 
             # 3) Extend the moldens over the window and multiply to obtain the
             #    AIM
-            moldens = window.zeros()
-            window.extend(self._cache.load('moldens'), moldens)
+            moldens = self.get_moldens(i, periodic=False)
             aim *= moldens
             del moldens
 
             # 4) Compute weight corrections (TODO: needs to be assessed!)
-            funcs = [(self._system.coordinates[i], [self._proatomdb.get_spline(number)])]
-            grid = window.get_window_ui_grid()
-            wcor = grid.compute_weight_corrections(funcs)
+            wcor = self.get_wcor(i, periodic=False)
 
             # 5) Compute Cartesian multipoles
             counter = 0
             for nx, ny, nz in cartesian_powers:
                 if log.do_medium:
                     log('  moment %s%s%s' % ('x'*nx, 'y'*ny, 'z'*nz))
-                cartesian_moments[i, counter] = window.integrate(aim, wcor, center=center, nx=nx, ny=ny, nz=nz, nr=0)
+                cartesian_moments[i, counter] = grid.integrate(aim, wcor, center=center, nx=nx, ny=ny, nz=nz, nr=0)
                 counter += 1
 
             # 6) Compute Radial moments
             for nr in radial_powers:
                 if log.do_medium:
                     log('  moment %s' % ('r'*nr))
-                radial_moments[i, nr-1] = window.integrate(aim, wcor, center=center, nx=0, ny=0, nz=0, nr=nr)
+                radial_moments[i, nr-1] = grid.integrate(aim, wcor, center=center, nx=0, ny=0, nz=0, nr=nr)
 
             del wcor
+            del aim
 
     def do_all(self):
         '''Computes all reasonable properties and returns a corresponding list of keys'''

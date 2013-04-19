@@ -1031,6 +1031,10 @@ cdef class UniformIntGridWindow(object):
             window_ui_grid = self.get_window_ui_grid()
             return dot_multi_moments_cube(args, window_ui_grid, center, nx, ny, nz, nr)*grid_cell.volume
 
+    def compute_weight_corrections(self, funcs, rcut_scale=0.9, rcut_max=2.0, rcond=0.1):
+        window_ui_grid = self.get_window_ui_grid()
+        return window_ui_grid.compute_weight_corrections(funcs, rcut_scale, rcut_max, rcond)
+
 
 def index_wrap(long i, long high):
     return uniform.index_wrap(i, high)

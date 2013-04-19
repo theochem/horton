@@ -54,6 +54,13 @@ class IntGrid(object):
         self._points = points
         self._weights = weights
         self._subgrids = subgrids
+        # assign begin and end attributes to the subgrids
+        if subgrids is not None:
+            offset = 0
+            for sg in subgrids:
+                sg.begin = offset
+                offset += sg.size
+                sg.end = offset
 
     def _get_size(self):
         '''The size of the grid.'''
@@ -98,7 +105,7 @@ class IntGrid(object):
                 of grid points. The arrays contain the functions, evaluated
                 at the grid points, that must be multiplied and integrated.
         '''
-        args = [arg for arg in args if arg is not None]
+        args = [arg.ravel() for arg in args if arg is not None]
         return dot_multi(self.weights, *args)
 
     def distances(self, center, d):
