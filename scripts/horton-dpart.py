@@ -51,8 +51,8 @@ def parse_args():
              'atom-centered grid, which is a part of the molecular grid.')
     parser.add_argument('--maxiter', '-i', default=100, type=int,
         help='The maximum allowed number of iterations.')
-    parser.add_argument('--threshold', '-t', default=1e-4, type=float,
-        help='The iterative schemes is converged when the maximum change of '
+    parser.add_argument('--threshold', '-t', default=1e-6, type=float,
+        help='The iterative scheme is converged when the maximum change of '
              'the charges between two iterations drops below this threshold.')
 
     # TODO: isolate common parts with cpart into shared routines.

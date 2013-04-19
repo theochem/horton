@@ -34,6 +34,8 @@ __all__ = ['HirshfeldIDPart', 'HirshfeldICPart']
 
 
 class HirshfeldIMixin(object):
+    # TODO: add constructor
+
     def get_interpolation_info(self, i, charges=None):
         if charges is None:
             charges = self.cache.load('charges')
@@ -120,7 +122,7 @@ class HirshfeldIDPart(HirshfeldIMixin, HirshfeldDPart):
     name = 'hi'
     options = ['local', 'threshold', 'maxiter']
 
-    def __init__(self, system, grid, proatomdb, local=True, threshold=1e-4, maxiter=500):
+    def __init__(self, system, grid, proatomdb, local=True, threshold=1e-6, maxiter=500):
         self._threshold = threshold
         self._maxiter = maxiter
         HirshfeldDPart.__init__(self, system, grid, proatomdb, local)
@@ -189,7 +191,7 @@ class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
     name = 'hi'
     options = ['smooth', 'maxiter', 'threshold']
 
-    def __init__(self, system, grid, moldens, proatomdb, store, smooth=False, maxiter=100, threshold=1e-4):
+    def __init__(self, system, grid, moldens, proatomdb, store, smooth=False, maxiter=100, threshold=1e-6):
         '''
            **Optional arguments:** (those not present in the base class)
 

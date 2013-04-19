@@ -123,7 +123,7 @@ def test_hirshfeld_i_fake_pseudo():
 
     # Run the partitioning
     with ArrayStore.from_mode('core', 'horton.test.test_hirshfeld.test_hirshfeld_i_fake_pseudo') as store:
-        cpart = HirshfeldICPart(sys, ui_grid, mol_dens, proatomdb, store)
+        cpart = HirshfeldICPart(sys, ui_grid, mol_dens, proatomdb, store, threshold=1e-4)
         cpart.do_charges()
         charges = cpart['charges']
         assert abs(charges.sum()) < 1e-2
@@ -136,7 +136,7 @@ def test_hirshfeld_i_fake_pseudo_smooth():
 
     # Run the partitioning
     with ArrayStore.from_mode('core', 'horton.test.test_hirshfeld.test_hirshfeld_i_fake_pseudo_smooth') as store:
-        cpart = HirshfeldICPart(sys, ui_grid, mol_dens, proatomdb, store, smooth=True)
+        cpart = HirshfeldICPart(sys, ui_grid, mol_dens, proatomdb, store, smooth=True, threshold=1e-4)
         cpart.do_charges()
         charges = cpart['charges']
         assert abs(charges.sum()) < 1e-2
@@ -162,7 +162,7 @@ def test_hirshfeld_e_fake_pseudo():
 
     # Run the partitioning
     with ArrayStore.from_mode('core', 'horton.test.test_hirshfeld.test_hirshfeld_e_fake_pseudo') as store:
-        cpart = HirshfeldECPart(sys, ui_grid, mol_dens, proatomdb, store)
+        cpart = HirshfeldECPart(sys, ui_grid, mol_dens, proatomdb, store, threshold=1e-4)
         cpart.do_charges()
         charges = cpart['charges']
         assert abs(charges.sum()) < 1e-2
@@ -175,7 +175,7 @@ def test_hirshfeld_e_fake_pseudo_smooth():
 
     # Run the partitioning
     with ArrayStore.from_mode('core', 'horton.test.test_hirshfeld.test_hirshfeld_e_fake_pseudo_smooth') as store:
-        cpart = HirshfeldECPart(sys, ui_grid, mol_dens, proatomdb, store, smooth=True)
+        cpart = HirshfeldECPart(sys, ui_grid, mol_dens, proatomdb, store, smooth=True, threshold=1e-4)
         cpart.do_charges()
         charges = cpart['charges']
         assert abs(charges.sum()) < 1e-2
