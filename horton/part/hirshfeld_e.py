@@ -169,6 +169,54 @@ class HirshfeldEMixin(object):
         nbasis = self._hebasis.get_nbasis()
         return self._cache.load('propars', alloc=nbasis)[0]
 
+    def _update_propars_atom(self, index):
+        # Prepare some things
+        charges = self._cache.load('charges', alloc=self.system.natom)[0]
+        begin = self._hebasis.get_atom_begin(index)
+        nbasis = self._hebasis.get_atom_nbasis(index)
+
+        # Compute charge and delta aim density
+        charge, delta_aim = self._get_charge_and_delta_aim(index)
+        charges[index] = charge
+
+        # Preliminary check
+        if charges[index] > nbasis:
+            raise RuntimeError('The charge on atom %i becomes too positive: %f > %i. (infeasible)' % (index, charges[index], nbasis))
+
+        # Define the least-squares system
+        A, B, C = self._get_he_system(index, delta_aim)
+
+        # preconditioning
+        scales = np.sqrt(np.diag(A))
+        A = A/scales/scales.reshape(-1,1)
+        B /= scales
+
+        # Find solution
+        #    constraint for total population of pro-atom
+        lc_pop = (np.ones(nbasis)/scales, -charges[index])
+        #    inequality constraints to keep coefficients larger than -1.
+        lcs_par = []
+        for j0 in xrange(nbasis):
+            lc = np.zeros(nbasis)
+            lc[j0] = 1.0/scales[j0]
+            lcs_par.append((lc, -1))
+        atom_propars = quadratic_solver(A, B, [lc_pop], lcs_par, rcond=0)
+        rrmsd = np.sqrt(np.dot(np.dot(A, atom_propars) - 2*B, atom_propars)/C + 1)
+
+        #    correct for scales
+        atom_propars /= scales
+
+        if log.do_medium:
+            log('            %10i (%.0f%%):&%s' % (index, rrmsd*100, ' '.join('% 6.3f' % c for c in atom_propars)))
+
+        self.cache.load('propars')[begin:begin+nbasis] = atom_propars
+
+    def _get_charge_and_delta_aim(self, index):
+        raise NotImplementedError
+
+    def _get_he_system(self, index, delta_aim):
+        raise NotImplementedError
+
 
 class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
     '''Extended Hirshfeld partitioning'''
@@ -180,18 +228,25 @@ class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
         self._hebasis = HEBasis(system.numbers, proatomdb)
         HirshfeldIDPart.__init__(self, system, grid, proatomdb, local, threshold, maxiter)
 
-    # TODO: move to mixin class
-    def _update_propars_atom(self, index):
-        # 0) Compute charge in base class method
-        HirshfeldIDPart._update_propars_atom(self, index)
-        target_charge = self.cache.load('charges')[index]
+    def _get_charge_and_delta_aim(self, index):
+        # Compute weight
+        grid = self.get_grid(index)
+        at_weights, new = self.cache.load('at_weights', index, alloc=grid.size)
+        self.compute_at_weights(index, at_weights)
 
-        # 1) Prepare for radial integrals
+        # Compute charge and delta_aim
+        work = grid.zeros()
+        spline = self._hebasis.get_constant_spline(index)
+        center = self.system.coordinates[index]
+        grid.eval_spline(spline, center, work)
+        delta_aim = self.cache.load('moldens', index)*at_weights - work
+        charge = -grid.integrate(delta_aim)
+        return charge, delta_aim
+
+    def _get_he_system(self, index, delta_aim):
         number = self.system.numbers[index]
+        center = self._system.coordinates[index]
         weights = self.proatomdb.get_radial_weights(number)
-
-        # 2) Define the linear system of equations
-        begin = self._hebasis.get_atom_begin(index)
         nbasis = self._hebasis.get_atom_nbasis(index)
         grid = self.get_grid(index)
 
@@ -204,46 +259,28 @@ class HirshfeldEDPart(HirshfeldEMixin, HirshfeldIDPart):
             for j0 in xrange(nbasis):
                 rho0 = self._hebasis.get_basis_rho(index, j0)
                 for j1 in xrange(j0+1):
-                    rho1 = self._hebasis.get_basis_rho(index, j0)
+                    rho1 = self._hebasis.get_basis_rho(index, j1)
                     A[j0, j1] = dot_multi(weights, rho0, rho1)
                     A[j1, j0] = A[j0, j1]
 
             if (np.diag(A) < 0).any():
                 raise ValueError('The diagonal of A must be positive.')
 
-            self.cache.dump('A', index, A)
+            self.cache.dump('A', number, A)
 
         #   Matrix B
         B = np.zeros(nbasis, float)
-        work = grid.zeros()
-        dens = self.cache.load('moldens', index)
-        at_weights = self.cache.load('at_weights', index)
-        constant_rho = self._hebasis.get_constant_rho(index)
+        basis = grid.zeros()
         for j0 in xrange(nbasis):
-            work[:] = 0.0
-            rho = self._hebasis.get_basis_rho(index, j0)
+            basis[:] = 0.0
             spline = self._hebasis.get_basis_spline(index, j0)
-            grid.eval_spline(spline, self._system.coordinates[index], work)
-            B[j0] = grid.integrate(at_weights, dens, work)
-            B[j0] -= dot_multi(weights, constant_rho, rho)
+            grid.eval_spline(spline, center, basis)
+            B[j0] = grid.integrate(delta_aim, basis)
 
-        # 3) find solution
-        #    constraint for total population of pro-atom
-        lc_pop = (np.ones(nbasis), -target_charge)
-        #    inequality constraints to keep coefficients larger than -1.
-        lcs_par = []
-        for j0 in xrange(nbasis):
-            lc = np.zeros(nbasis)
-            lc[j0] = 1.0
-            lcs_par.append((lc, -1))
-        atom_propars = quadratic_solver(A, B, [lc_pop], lcs_par, rcond=0)
+        #   Constant C
+        C = grid.integrate(delta_aim, delta_aim)
 
-        # Screen output
-        if log.do_medium:
-            log('                   %10i:&%s' % (index, ' '.join('% 6.3f' % c for c in atom_propars)))
-
-        # Done
-        self.cache.load('propars')[begin:begin+nbasis] = atom_propars
+        return A, B, C
 
     def do_all(self):
         names = HirshfeldIDPart.do_all(self)
@@ -301,38 +338,33 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
             self.compute_spline(i, spline, output, 'n=%i %s' % (number, label))
             self._store.dump(output, *key)
 
-    # TODO: move to mixin class
-    def _update_propars_atom(self, index):
-        aimdens = self.grid.zeros()
-        work0 = self.cache.load('work0', alloc=self.grid.shape)[0]
-        work1 = self.cache.load('work1', alloc=self.grid.shape)[0]
+    def _get_charge_and_delta_aim(self, index):
+        delta_aim = self.grid.zeros()
+        work = self.cache.load('work0', alloc=self.grid.shape)[0]
         wcor = self._cache.load('wcor', default=None)
-        wcor_fit = self._cache.load('wcor_fit', default=None)
-        charges = self._cache.load('charges', alloc=self.system.natom)[0]
 
         # 1) Construct the AIM density
-        present = self._store.load(aimdens, 'at_weights', index)
+        present = self._store.load(delta_aim, 'at_weights', index)
         if not present:
             # construct atomic weight function
-            self.compute_proatom(index, aimdens)
-            aimdens /= self._cache.load('promoldens')
-        aimdens *= self._cache.load('moldens')
-
-        #    compute the charge
-        charges[index] = self.system.pseudo_numbers[index] - self.grid.integrate(aimdens, wcor)
+            self.compute_proatom(index, delta_aims)
+            delta_aim /= self._cache.load('promoldens')
+        delta_aim *= self._cache.load('moldens')
 
         #    subtract the constant function
-        self._get_constant_fn(index, work0)
-        aimdens -= work0
+        self._get_constant_fn(index, work)
+        delta_aim -= work
 
+        # compute the charge
+        charge = -self.grid.integrate(delta_aim, wcor)
 
-        # 2) setup equations
-        begin = self._hebasis.get_atom_begin(index)
+        return charge, delta_aim
+
+    def _get_he_system(self, index, delta_aim):
+        work0 = self.cache.load('work0', alloc=self.grid.shape)[0]
+        work1 = self.cache.load('work1', alloc=self.grid.shape)[0]
+        wcor_fit = self._cache.load('wcor_fit', default=None)
         nbasis = self._hebasis.get_atom_nbasis(index)
-
-        # Preliminary check
-        if charges[index] > nbasis:
-            raise RuntimeError('The charge on atom %i becomes too positive: %f > %i. (infeasible)' % (index, charges[index], nbasis))
 
         #    compute A
         A, new = self._cache.load('A', index, alloc=(nbasis, nbasis))
@@ -344,50 +376,20 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
                     A[j0,j1] = self.grid.integrate(work0, work1, wcor_fit)
                     A[j1,j0] = A[j0,j1]
 
-            #    precondition the equations
-            scales = np.diag(A)**0.5
-            A /= scales
-            A /= scales.reshape(-1, 1)
-            if log.do_medium:
-                evals = np.linalg.eigvalsh(A)
-                cn = abs(evals).max()/abs(evals).min()
-                sr = abs(scales).max()/abs(scales).min()
-                log('                   %10i: CN=%.5e SR=%.5e' % (index, cn, sr))
-            self._cache.dump('scales', index, scales)
-        else:
-            scales = self._cache.load('scales', index)
-
-        #    compute B and precondition
+        #    compute B
         B = np.zeros(nbasis, float)
         for j0 in xrange(nbasis):
             self._get_basis_fn(index, j0, work0)
-            B[j0] = self.grid.integrate(aimdens, work0, wcor_fit)
-        B /= scales
-        C = self.grid.integrate(aimdens, aimdens, wcor_fit)
+            B[j0] = self.grid.integrate(delta_aim, work0, wcor_fit)
 
-        # 3) find solution
-        #    constraint for total population of pro-atom
-        lc_pop = (np.ones(nbasis)/scales, -charges[index])
-        #    inequality constraints to keep coefficients larger than -1.
-        lcs_par = []
-        for j0 in xrange(nbasis):
-            lc = np.zeros(nbasis)
-            lc[j0] = 1.0/scales[j0]
-            lcs_par.append((lc, -1))
-        atom_propars = quadratic_solver(A, B, [lc_pop], lcs_par, rcond=0)
-        rrmsd = np.sqrt(np.dot(np.dot(A, atom_propars) - 2*B, atom_propars)/C + 1)
+        #    constant c
+        C = self.grid.integrate(delta_aim, delta_aim, wcor_fit)
 
-        #    correct for scales
-        atom_propars /= scales
-
-        if log.do_medium:
-            log('            %10i (%.0f%%):&%s' % (index, rrmsd*100, ' '.join('% 6.3f' % c for c in atom_propars)))
-
-        self.cache.load('propars')[begin:begin+nbasis] = atom_propars
+        return A, B, C
 
     def compute_proatom(self, i, output, window=None):
         if self._store.fake or window is not None:
-            HirshfeldCPart.compute_proatom(self, i, output, window)
+            HirshfeldICPart.compute_proatom(self, i, output, window)
         else:
             # Get the coefficients for the pro-atom
             propars = self._cache.load('propars')

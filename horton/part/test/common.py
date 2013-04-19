@@ -61,7 +61,7 @@ def get_proatomdb_hf_sto3g():
 def get_proatomdb_hf_lan():
     '''Return a proatomdb of H, O, Si at hf/LANL2MB for testing purposes'''
     int1d = SimpsonIntegrator1D()
-    rtf = ExpRTransform(1e-3, 1e1, 100)
+    rtf = ExpRTransform(5e-4, 2e1, 120)
     atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), random_rotate=False, keep_subgrids=1)
     fns = glob(context.get_fn('test/atom_???_???_hf_lan.fchk'))
     return ProAtomDB.from_files(fns, atgrid)
