@@ -90,6 +90,7 @@ class Periodic(object):
         '''
         result = self._lookup.get(index)
         if result is None and isinstance(index, basestring):
+            index = index.strip()
             result = self._lookup.get(index.lower())
             if result is None and index.isdigit():
                 result = self._lookup.get(int(index))

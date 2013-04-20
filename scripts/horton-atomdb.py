@@ -53,7 +53,7 @@ def parse_args_input(args):
     parser.add_argument('elements',
         help='The comma-separated list of elements to be computed. One may '
              'also define ranges with the dash sign. No white space is '
-             'allowed. For example, 1,6-8 will select hydrogen, carbon, '
+             'allowed. For example, H,6-8 will select hydrogen, carbon, '
              'nitrogen and oxygen.')
     parser.add_argument('template',
         help='A template input file for a single atom in the origin. The '
