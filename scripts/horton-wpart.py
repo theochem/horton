@@ -88,18 +88,14 @@ def main():
     WPartClass = wpart_schemes[args.scheme]
     kwargs = dict((key, val) for key, val in vars(args).iteritems() if key in WPartClass.options)
     molgrid = BeckeMolGrid(sys, keep_subgrids=int(args.local))
-    wpart = wpart_schemes[args.scheme](molgrid, proatomdb, **kwargs)
+    wpart = wpart_schemes[args.scheme](sys, molgrid, proatomdb, **kwargs)
     names = wpart.do_all()
 
     # Store the results in an HDF5 file
     with h5.File(fn_h5) as f:
-        # Store essential system info
-        # TODO: this should be implemented with an improved implementation of System.to_file
+        # Store system
         sys_grp = f.require_group('system')
-        coordinates = sys_grp.require_dataset('coordinates', sys.coordinates.shape, float, exact=True)
-        coordinates[:] = sys.coordinates
-        numbers = sys_grp.require_dataset('numbers', sys.numbers.shape, long, exact=True)
-        numbers[:] = sys.numbers
+        sys.to_file(sys_grp)
 
         # Store results
         grp_wpart = f.require_group('wpart')

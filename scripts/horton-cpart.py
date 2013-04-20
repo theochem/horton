@@ -119,17 +119,10 @@ def main():
 
     # Store the results in an HDF5 file
     with h5.File(fn_h5) as f:
-        # Store essential system info
-        # TODO: this should be implemented with an improved implementation of System.to_file
+        # Store system
         sys_grp = f.require_group('system')
-        coordinates = sys_grp.require_dataset('coordinates', sys.coordinates.shape, float, exact=True)
-        coordinates[:] = sys.coordinates
-        numbers = sys_grp.require_dataset('numbers', sys.numbers.shape, long, exact=True)
-        numbers[:] = sys.numbers
-        if 'cell' in sys_grp:
-            del sys_grp['cell']
-        cell_grp = sys_grp.create_group('cell')
-        sys.cell.to_hdf5(cell_grp)
+        del sys.props['cube_data'] # first drop potentially large array
+        sys.to_file(sys_grp)
 
         # Store results
         grp_cpart = f.require_group('cpart')
