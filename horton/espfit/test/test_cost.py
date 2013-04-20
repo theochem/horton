@@ -298,4 +298,4 @@ def test_consistent():
     x = cost.solve()
     assert cost.value_charges(charges) < 1e-8
     assert cost.value(x) < 1e-8
-    assert abs(charges - x[:-1]).max() < 1e-5
+    assert abs(charges - x[:-1]).max() < 1e-4
