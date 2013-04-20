@@ -94,12 +94,13 @@ class HirshfeldMixin(object):
 
             for i in xrange(self.system.natom):
                 n = self.system.numbers[i]
-                if n not in ref_c6s:
-                    raise NotImplementedError('No reference C6 value available for atom number %i.' % n)
                 volumes[i] = radial_moments[i,k3]/populations[i]
                 ref_volume = self.proatomdb.get_record(n, 0).get_moment(3)/n
                 volume_ratios[i] = volumes[i]/ref_volume
-                c6s[i] = (volume_ratios[i])**2*ref_c6s[n]
+                if n in ref_c6s:
+                    c6s[i] = (volume_ratios[i])**2*ref_c6s[n]
+                else:
+                    c6s[i] = -1 # This is just to indicate that no value is available.
 
 
 class HirshfeldWPart(HirshfeldMixin, StockholderWPart):
