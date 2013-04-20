@@ -45,14 +45,15 @@ def iter_elements(elements_str):
             words = item.split("-")
             if len(words) != 2:
                 raise ValueError("Each item should contain at most one dash.")
-            first = int(words[0])
-            last = int(words[1])
+            print words
+            first = periodic[words[0]].number
+            last = periodic[words[1]].number
             if first > last:
                 raise ValueError('first=%i > last=%i' % (first, last))
             for number in xrange(first,last+1):
                 yield number
         else:
-            yield int(item)
+            yield periodic[item].number
 
 
 # Presets for spin multiplicites. The first element is according to Hund's rule.

@@ -28,3 +28,5 @@ def test_periodic():
     assert periodic['h'].symbol == 'H'
     assert periodic[3].symbol == 'Li'
     assert periodic['5'].symbol == 'B'
+    assert periodic[' 5'].symbol == 'B'
+    assert periodic[' B '].symbol == 'B'
