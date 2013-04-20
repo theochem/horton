@@ -45,7 +45,7 @@ cdef extern from "uniform.h":
     long index_wrap(long i, long high)
 
     cdef cppclass Block3Iterator:
-        Block3Iterator(const long* begin, const long* end, const long* shape)
+        Block3Iterator(long* begin, long* end, long* shape)
 
         void copy_block_begin(long* output)
         void copy_block_end(long* output)
