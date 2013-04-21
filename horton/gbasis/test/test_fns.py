@@ -337,13 +337,6 @@ def test_gradient_functional_deriv():
     check_delta(fun, fun_deriv, x, dxs)
 
 
-
-
-
-
-
-
-
 def check_orbitals(sys):
     points = np.array([
         [0.1, 0.3, 0.2],
