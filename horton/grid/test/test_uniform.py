@@ -453,7 +453,7 @@ def test_window3():
     ui_grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
 
     # test for get_window
-    center = np.array([0.25, 0.0, -0.8])
+    center = np.array([0.25, -0.0001, -0.8001])
     radius = 1.3
     window = ui_grid.get_window(center, radius)
 
