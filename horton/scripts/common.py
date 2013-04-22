@@ -54,14 +54,38 @@ def iter_elements(elements_str):
             yield periodic[item].number
 
 
-def reduce_data(cube_data, ui_grid, factor):
-    if (ui_grid.shape % factor != 0).any():
+def reduce_data(cube_data, ui_grid, stride, chop):
+    '''Reduce the uniform grid data according to stride and chop arguments
+
+       **Arguments:**
+
+       fn_cube
+            The cube file with the electron density.
+
+       ui_grid
+            The uniform integration grid.
+
+       stride
+            The reduction factor.
+
+       chop
+            The number of slices to chop of the grid in each direction.
+
+       Returns: a new array and an updated grid object
+    '''
+    if (chop < 0):
+        raise ValueError('Chop must be positive or zero.')
+    if ((ui_grid.shape - chop) % stride != 0).any():
         raise ValueError('The stride is not commensurate with all three grid demsions.')
 
-    new_cube_data = cube_data[::factor, ::factor, ::factor].copy()
 
-    new_shape = ui_grid.shape/factor
-    grid_rvecs = ui_grid.grid_cell.rvecs*factor
+    if chop == 0:
+        new_cube_data = cube_data[::stride, ::stride, ::stride].copy()
+    else:
+        new_cube_data = cube_data[:-chop:stride, :-chop:stride, :-chop:stride].copy()
+
+    new_shape = (ui_grid.shape-chop)/stride
+    grid_rvecs = ui_grid.grid_cell.rvecs*stride
     new_ui_grid = UniformIntGrid(ui_grid.origin, grid_rvecs, new_shape, ui_grid.pbc)
 
     return new_cube_data, new_ui_grid

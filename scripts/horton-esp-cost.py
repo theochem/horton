@@ -37,10 +37,14 @@ def parse_args():
         help='The cube file.')
     parser.add_argument('--sign', '-s', default=False, action='store_true',
         help='Change the sign of the ESP data. This is needed for CP2K and VASP.')
-    parser.add_argument('--reduce', '-r', default=1, type=int,
+    parser.add_argument('--stride', default=1, type=int,
         help='Reduce the grid by subsamping with the given stride in all three '
              'directions. Zero and negative values are ignored. '
              '[default=%(default)s]')
+    parser.add_argument('--chop', default=0, type=int,
+        help='The number of layers to chop of the end of the grid in each '
+             'direction. For most codes this should be zero. For Crystal, this '
+             'should be 1.')
     parser.add_argument('--overwrite', default=False, action='store_true',
         help='Overwrite existing output in the HDF5 file')
     parser.add_argument('--suffix', default=None, type=str,
@@ -96,7 +100,7 @@ def main():
 
     # check if the folder is already present in the output file
     fn_h5 = args.cube + '.h5'
-    grp_name = 'espfit_r%i' % args.reduce
+    grp_name = 'espfit_r%i' % args.stride
     if args.suffix is not None:
         grp_name += '_'+args.suffix
 
@@ -115,8 +119,8 @@ def main():
     esp = sys.props['cube_data']
 
     # Reduce the grid if required
-    if args.reduce > 1:
-        esp, ui_grid = reduce_data(esp, ui_grid, args.reduce)
+    if args.stride > 1:
+        esp, ui_grid = reduce_data(esp, ui_grid, args.stride, args.chop)
 
     # Fix sign
     if args.sign:
@@ -135,7 +139,7 @@ def main():
     if wdens is not None:
         if log.do_medium:
             log('Loading density array')
-        rho = load_rho(wdens[0], args.reduce, ui_grid)
+        rho = load_rho(wdens[0], ui_grid, args.stride, args.chop)
         wdens = (rho,) + wdens[1:]
     weights = setup_weights(sys, ui_grid,
         dens=wdens,

@@ -20,9 +20,10 @@
 #--
 
 
-import h5py as h5, argparse
+import h5py as h5, argparse, numpy as np
 
 from horton.scripts.common import *
+
 
 def test_iter_elements():
     assert list(iter_elements('1,2')) == [1, 2]
@@ -43,6 +44,52 @@ def test_iter_elements():
         assert False
     except ValueError:
         pass
+
+
+def test_reduce_data0():
+    from horton import UniformIntGrid
+    data = np.random.normal(0, 1, (10, 20, 30))
+    grid_rvecs = np.identity(3, float)*0.1
+    ui_grid = UniformIntGrid(np.array([0.5, 0.3, -0.1]), grid_rvecs, np.array(data.shape), np.array([0, 1, 0]))
+
+    data1, ui_grid1 = reduce_data(data, ui_grid, 10, 0)
+    assert data1.shape == (1, 2, 3)
+    assert (data1 == data[::10,::10,::10]).all()
+    assert (ui_grid1.origin == ui_grid.origin).all()
+    assert abs(ui_grid1.grid_cell.rvecs - ui_grid.grid_cell.rvecs*10).max() < 1e-10
+    assert (ui_grid1.shape == [1, 2, 3]).all()
+    assert (ui_grid1.pbc == ui_grid.pbc).all()
+
+    data2, ui_grid2 = reduce_data(data, ui_grid, 5, 0)
+    assert data2.shape == (2, 4, 6)
+    assert (data2 == data[::5,::5,::5]).all()
+    assert (ui_grid2.origin == ui_grid.origin).all()
+    assert abs(ui_grid2.grid_cell.rvecs - ui_grid.grid_cell.rvecs*5).max() < 1e-10
+    assert (ui_grid2.shape == [2, 4, 6]).all()
+    assert (ui_grid2.pbc == ui_grid.pbc).all()
+
+
+def test_reduce_data1():
+    from horton import UniformIntGrid
+    data = np.random.normal(0, 1, (11, 21, 31))
+    grid_rvecs = np.identity(3, float)*0.1
+    ui_grid = UniformIntGrid(np.array([0.3, 0.2, -0.1]), grid_rvecs, np.array(data.shape), np.array([1, 1, 0]))
+
+    data1, ui_grid1 = reduce_data(data, ui_grid, 10, 1)
+    assert data1.shape == (1, 2, 3)
+    assert (data1 == data[:-1:10,:-1:10,:-1:10]).all()
+    assert (ui_grid1.origin == ui_grid.origin).all()
+    assert abs(ui_grid1.grid_cell.rvecs - ui_grid.grid_cell.rvecs*10).max() < 1e-10
+    assert (ui_grid1.shape == [1, 2, 3]).all()
+    assert (ui_grid1.pbc == ui_grid.pbc).all()
+
+    data2, ui_grid2 = reduce_data(data, ui_grid, 5, 1)
+    assert data2.shape == (2, 4, 6)
+    assert (data2 == data[:-1:5,:-1:5,:-1:5]).all()
+    assert (ui_grid2.origin == ui_grid.origin).all()
+    assert abs(ui_grid2.grid_cell.rvecs - ui_grid.grid_cell.rvecs*5).max() < 1e-10
+    assert (ui_grid2.shape == [2, 4, 6]).all()
+    assert (ui_grid2.pbc == ui_grid.pbc).all()
 
 
 def test_parse_pbc():
