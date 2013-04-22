@@ -107,6 +107,8 @@ def main():
         store_fn = None
     else:
         store_fn = '%s/_scratch-PID-%i.h5' % (args.tmp, os.getpid())
+    if mode == 'disk' and log.do_medium:
+        log('Using scratch file: %s' % store_fn)
 
     # Run the partitioning
     with ArrayStore.from_mode(mode, store_fn) as store:
