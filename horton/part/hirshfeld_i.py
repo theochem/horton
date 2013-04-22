@@ -197,9 +197,9 @@ class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
     '''Iterative Hirshfeld partitioning'''
 
     name = 'hi'
-    options = ['smooth', 'maxiter', 'threshold']
+    options = ['maxiter', 'threshold']
 
-    def __init__(self, system, grid, moldens, proatomdb, store, smooth=False, threshold=1e-6, maxiter=500):
+    def __init__(self, system, grid, moldens, proatomdb, store, wcor_numbers, threshold=1e-6, maxiter=500):
         '''
            **Optional arguments:** (that are not present in the base class)
 
@@ -213,7 +213,7 @@ class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
                 in the end, no warning is given.
         '''
         HirshfeldIMixin.__init__(self, threshold, maxiter)
-        HirshfeldCPart.__init__(self, system, grid, moldens, proatomdb, store, smooth)
+        HirshfeldCPart.__init__(self, system, grid, moldens, proatomdb, store, wcor_numbers)
 
     def _get_isolated_atom(self, i, charge, output):
         key = ('isolated_atom', i, charge)

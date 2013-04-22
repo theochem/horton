@@ -102,11 +102,11 @@ class StockholderWPart(StockHolderMixin, WPart):
 
 
 class StockholderCPart(StockHolderMixin, CPart):
-    def __init__(self, system, grid, moldens, store, smooth=False):
+    def __init__(self, system, grid, moldens, store, wcor_numbers):
         '''
            See CPart base class for the description of the arguments.
         '''
-        CPart.__init__(self, system, grid, moldens, store, smooth)
+        CPart.__init__(self, system, grid, moldens, store, wcor_numbers)
         assert self._cache.has('promoldens')
 
     def compute_spline(self, index, spline, output, name='noname', window=None):
