@@ -21,10 +21,12 @@
 
 
 
+import os, sys, datetime
+
 from horton import UniformIntGrid, angstrom
 
 
-__all__ = ['reduce_data', 'parse_h5']
+__all__ = ['reduce_data', 'parse_h5', 'parse_ewald_args', 'store_args']
 
 
 def reduce_data(cube_data, ui_grid, factor):
@@ -51,3 +53,13 @@ def parse_ewald_args(args):
     alpha = args.alpha_scale/rcut
     gcut = args.gcut_scale*alpha
     return rcut, alpha, gcut
+
+
+def store_args(args, grp):
+    '''Convert the command line arguments to hdf5 attributes'''
+    grp.attrs['cmdline'] =  ' '.join(sys.argv)
+    grp.attrs['pwd'] = os.getcwd()
+    grp.attrs['datetime'] = datetime.datetime.now().isoformat()
+    for key, val in vars(args).iteritems():
+        if val is not None:
+            grp.attrs['arg_%s' % key] = val
