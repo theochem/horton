@@ -86,8 +86,7 @@ def parse_args():
     parser.add_argument('--wsave', default=None, type=str,
         help='Save the weights array to the given cube file.')
 
-    # TODO: add argument to chop of last slice(s)
-    # TODO: report default values of parameters with --help
+    # TODO: hang when wnear radius is too large.
 
     return parser.parse_args()
 
@@ -212,21 +211,16 @@ def main():
     # Store the results in an HDF5 file
     with h5.File(fn_h5) as f:
         # Store essential system info
-        # TODO: this should be implemented with an improved implementation of System.to_file
         sys_grp = f.require_group('system')
-        coordinates = sys_grp.require_dataset('coordinates', sys.coordinates.shape, float, exact=True)
-        coordinates[:] = sys.coordinates
-        numbers = sys_grp.require_dataset('numbers', sys.numbers.shape, long, exact=True)
-        numbers[:] = sys.numbers
-        rvecs = sys_grp.require_dataset('rvecs', (sys.cell.nvec, 3), float, exact=True)
-        rvecs[:] = sys.cell.rvecs
+        del sys.props['cube_data'] # first drop potentially large array
+        sys.to_file(sys_grp)
 
-        # Store grid rvecs
+        # Store grid rvecs.
         grp_espfit = f.require_group('espfit')
         if grp_name in grp_espfit:
             del grp_espfit[grp_name]
         grp = grp_espfit.create_group(grp_name)
-        grp['grid_rvecs'] = ui_grid.grid_cell.rvecs
+        grp['grid_rvecs'] = ui_grid.grid_cell.rvecs  # TODO: drop this and store --reduce option in output
 
         # Store results
         for key, value in results.iteritems():
