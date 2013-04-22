@@ -25,7 +25,7 @@ import sys, argparse, os
 
 import h5py as h5, numpy as np
 from horton import System, angstrom, setup_weights, ESPCost, log, angstrom
-from horton.scripts.common import reduce_data, parse_ewald_args
+from horton.scripts.common import reduce_data, parse_ewald_args, store_args
 from horton.scripts.espfit import parse_wdens, parse_wnear, parse_wfar, load_rho, save_weights
 
 
@@ -114,13 +114,6 @@ def main():
     ui_grid = sys.props['ui_grid']
     esp = sys.props['cube_data']
 
-    # Store command line arguments
-    results = {}
-    results['reduce'] = args.reduce
-    results['rcut'] = args.rcut*angstrom
-    results['alpha_scale'] = args.alpha_scale
-    results['gcut_scale'] = args.gcut_scale
-
     # Reduce the grid if required
     if args.reduce > 1:
         esp, ui_grid = reduce_data(esp, ui_grid, args.reduce)
@@ -171,8 +164,6 @@ def main():
 
     # Ewald parameters
     rcut, alpha, gcut = parse_ewald_args(args)
-    results['alpha'] = alpha
-    results['gcut'] = gcut
 
     # Some screen info
     if log.do_medium:
@@ -187,6 +178,7 @@ def main():
     cost = ESPCost.from_grid_data(sys, ui_grid, esp, weights, rcut, alpha, gcut)
 
     # Store cost function info
+    results = {}
     results['A'] = cost._A
     results['B'] = cost._B
     results['C'] = cost._C
@@ -220,7 +212,9 @@ def main():
         if grp_name in grp_espfit:
             del grp_espfit[grp_name]
         grp = grp_espfit.create_group(grp_name)
-        grp['grid_rvecs'] = ui_grid.grid_cell.rvecs  # TODO: drop this and store --reduce option in output
+
+        # Store arguments
+        store_args(args, grp)
 
         # Store results
         for key, value in results.iteritems():

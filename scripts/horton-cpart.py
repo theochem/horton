@@ -25,7 +25,7 @@ import sys, argparse, os
 
 import h5py as h5
 from horton import System, cpart_schemes, Cell, ProAtomDB, log, ArrayStore
-from horton.scripts.common import reduce_data
+from horton.scripts.common import reduce_data, store_args
 
 
 def parse_args():
@@ -127,9 +127,11 @@ def main():
         if grp_name in grp_cpart:
             del grp_cpart[grp_name]
         grp = grp_cpart.create_group(grp_name)
-        grp['grid_rvecs'] = ui_grid.grid_cell.rvecs  # TODO: drop this and store --reduce option in output
         for name in names:
             grp[name] = cpart[name]
+
+        # Store command line arguments
+        store_args(args, grp)
 
         if args.debug:
             # Store additional data for debugging

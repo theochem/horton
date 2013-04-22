@@ -25,7 +25,7 @@ import sys, argparse, os
 
 import h5py as h5, numpy as np
 from horton import System, ESPCost, log
-from horton.scripts.common import parse_h5
+from horton.scripts.common import parse_h5, store_args
 
 
 def parse_args():
@@ -63,12 +63,8 @@ def main():
         sys = System(f['system/coordinates'][:], f['system/numbers'][:])
         cost = ESPCost(grp['A'][:], grp['B'][:], grp['C'][()], sys.natom)
 
-    # Store parameters in output
-    results = {}
-    results['qtot'] = args.qtot
-    results['ridge'] = args.ridge
-
     # Find the optimal charges
+    results = {}
     results['x'] = cost.solve(args.qtot, args.ridge)
     results['charges'] = results['x'][:cost.natom]
 
@@ -102,6 +98,9 @@ def main():
         if args.group in grp:
             del grp[args.group]
         grp = grp.create_group(args.group)
+
+        # Store command line arguments
+        store_args(args, grp)
 
         # Store results
         for key, value in results.iteritems():

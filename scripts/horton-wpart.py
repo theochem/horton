@@ -25,6 +25,7 @@ import sys, argparse, os
 
 import h5py as h5
 from horton import System, wpart_schemes, Cell, ProAtomDB, log, BeckeMolGrid
+from horton.scripts.common import store_args
 
 
 def parse_args():
@@ -104,6 +105,9 @@ def main():
         grp = grp_wpart.create_group(grp_name)
         for name in names:
             grp[name] = wpart[name]
+
+        # Store command line arguments
+        store_args(args, grp)
 
         if args.debug:
             # Store additional data for debugging

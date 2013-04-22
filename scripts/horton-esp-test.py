@@ -25,7 +25,7 @@ import sys, argparse, os
 
 import h5py as h5, numpy as np
 from horton import System, ESPCost, log
-from horton.scripts.common import parse_h5
+from horton.scripts.common import parse_h5, store_args
 
 
 def parse_args():
@@ -107,6 +107,9 @@ def main():
         if 'esp' in grp:
             del grp['esp']
         grp = grp.create_group('esp')
+
+        # Store command line arguments
+        store_args(args, grp)
 
         # Store results
         for key, value in results.iteritems():

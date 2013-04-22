@@ -293,6 +293,8 @@ def main_convert(args):
 
 
 def main():
+    # TODO: work with sub-commands support of argparse.
+
     args = sys.argv[1:]
     if len(args) == 0:
         print >> sys.stderr, 'Expecting at least one argument: "input" or convert"'

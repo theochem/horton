@@ -25,7 +25,7 @@ import sys, argparse, os
 
 import h5py as h5, numpy as np
 from horton import System, UniformIntGrid, log, Cell, angstrom, compute_esp_grid_cube
-from horton.scripts.common import parse_h5, parse_ewald_args
+from horton.scripts.common import parse_h5, parse_ewald_args, store_args
 
 
 def parse_args():
@@ -80,10 +80,6 @@ def main():
     # Store parameters in output
     results = {}
     results['qtot'] = charges.sum()
-    results['spacing'] = args.spacing*angstrom
-    results['rcut'] = args.rcut*angstrom
-    results['alpha_scale'] = args.alpha_scale
-    results['gcut_scale'] = args.gcut_scale
 
     # Determine the grid specification
     grid_rvecs = cell.rvecs.copy()
@@ -99,8 +95,6 @@ def main():
 
     # Ewald parameters
     rcut, alpha, gcut = parse_ewald_args(args)
-    results['alpha'] = alpha
-    results['gcut'] = gcut
 
     # Some screen info
     if log.do_medium:
@@ -127,6 +121,9 @@ def main():
         if 'espgrid' in grp:
             del grp['espgrid']
         grp = grp.create_group('espgrid')
+
+        # Store command line arguments
+        store_args(args, grp)
 
         # Store results
         for key, value in results.iteritems():
