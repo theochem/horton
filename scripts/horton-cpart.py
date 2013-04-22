@@ -38,10 +38,14 @@ def parse_args():
         help='The scheme to be used for the partitioning')
     parser.add_argument('atoms',
         help='An HDF5 file with atomic reference densities.')
-    parser.add_argument('--reduce', '-r', default=1, type=int,
+    parser.add_argument('--stride', default=1, type=int,
         help='Reduce the grid by subsamping with the given stride in all three '
              'directions. Zero and negative values are ignored. '
              '[default=%(default)s]')
+    parser.add_argument('--chop', default=0, type=int,
+        help='The number of layers to chop of the end of the grid in each '
+             'direction. For most codes this should be zero. For Crystal, this '
+             'should be 1.')
     parser.add_argument('--overwrite', default=False, action='store_true',
         help='Overwrite existing output in the HDF5 file')
     parser.add_argument('--store', choices=('fake', 'core', 'disk'), default='core',
@@ -86,7 +90,7 @@ def main():
 
     # check if the folder is already present in the output file
     fn_h5 = args.cube + '.h5'
-    grp_name = '%s_r%i' % (args.scheme, args.reduce)
+    grp_name = '%s_r%i' % (args.scheme, args.stride)
     if args.suffix is not None:
         grp_name += '_'+args.suffix
 
@@ -104,8 +108,8 @@ def main():
     moldens = sys.props['cube_data']
 
     # Reduce the grid if required
-    if args.reduce > 1:
-        moldens, ui_grid = reduce_data(moldens, ui_grid, args.reduce)
+    if args.stride > 1 or args.chop > 0:
+        moldens, ui_grid = reduce_data(moldens, ui_grid, args.stride, args.chop)
 
     # Load the proatomdb
     proatomdb = ProAtomDB.from_file(args.atoms)

@@ -96,28 +96,31 @@ def parse_wfar(arg):
     return r0, gamma
 
 
-def load_rho(fn_cube, factor, ref_ui_grid):
-    '''Load densities from a file, reduce by factor and check ui_grid
+def load_rho(fn_cube, ref_ui_grid, stride, chop):
+    '''Load densities from a file, reduce by stride, chop and check ui_grid
 
        **Arguments:**
 
        fn_cube
             The cube file with the electron density.
 
-       factor
-            The reduction factor.
-
        ref_ui_grid
             A reference ui_grid that must match the one from the density cube
             file (after reduction).
+
+       stride
+            The reduction factor.
+
+       chop
+            The number of slices to chop of the grid in each direction.
     '''
     # Load cube
     sys = System.from_file(fn_cube)
     rho = sys.props['cube_data']
     ui_grid = sys.props['ui_grid']
     # Reduce grid size
-    if factor > 1:
-        rho, ui_grid = reduce_data(rho, ui_grid, factor)
+    if stride > 1:
+        rho, ui_grid = reduce_data(rho, ui_grid, stride, chop)
     # Compare with ref_ui_grid (only shape)
     if (ui_grid.shape != ref_ui_grid.shape).any():
         raise ValueError('The densities file does not contain the same amount if information as the potential file.')
