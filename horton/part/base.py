@@ -359,7 +359,7 @@ class CPart(Part):
 
     name = None
 
-    def __init__(self, system, grid, moldens, store, wcor_numbers):
+    def __init__(self, system, grid, moldens, store, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1):
         '''
            **Arguments:**
 
@@ -379,6 +379,12 @@ class CPart(Part):
            wcor_numbers
                 The list of element numbers for which weight corrections are
                 needed.
+
+           wcor_rcut_max
+                The maximum cutoff sphere used for the weight corrections.
+
+           wcor_rcond
+                The regulatization strength for the weight correction equations.
         '''
         # ArrayStore is used to avoid recomputation of huge arrays. This is not
         # always desirable due to memory constraints. Therefore the arrays
@@ -390,6 +396,9 @@ class CPart(Part):
         # must store sufficient details to recreate the proatoms when needed
         self._store = store
         self._wcor_numbers = wcor_numbers
+        self._wcor_rcut_max = wcor_rcut_max
+        self._wcor_rcond = wcor_rcond
+
 
         Part.__init__(self, system, grid, moldens)
 

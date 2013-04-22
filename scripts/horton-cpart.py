@@ -67,6 +67,10 @@ def parse_args():
              'includes ranges. For example, "B,7-9" corresponds to boron, '
              'nitrogen, oxygen and fluorine. The argument 0 will disable '
              'weight corrections entirely.')
+    parser.add_argument('--wcor-rcut-max', default=2.0, type=float,
+        help='Maximum cutoff radious for weight corrections in Bohr')
+    parser.add_argument('--wcor-rcond', default=0.1, type=float,
+        help='The regularization strength used for the weight corrections')
     parser.add_argument('--maxiter', '-i', default=500, type=int,
         help='The maximum allowed number of iterations. [default=%(default)s]')
     parser.add_argument('--threshold', '-t', default=1e-6, type=float,
@@ -122,7 +126,9 @@ def main():
     with ArrayStore.from_mode(mode, store_fn) as store:
         CPartClass = cpart_schemes[args.scheme]
         kwargs = dict((key, val) for key, val in vars(args).iteritems() if key in CPartClass.options)
-        cpart = cpart_schemes[args.scheme](sys, ui_grid, moldens, proatomdb, store, wcor_numbers, **kwargs)
+        cpart = cpart_schemes[args.scheme](
+            sys, ui_grid, moldens, proatomdb, store, wcor_numbers,
+            args.wcor_rcut_max, args.wcor_rcond, **kwargs)
         names = cpart.do_all()
 
     # Store the results in an HDF5 file

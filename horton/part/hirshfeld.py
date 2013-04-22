@@ -134,20 +134,21 @@ class HirshfeldWPart(HirshfeldMixin, StockholderWPart):
 class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
     name = 'h'
 
-    def __init__(self, system, grid, moldens, proatomdb, store, wcor_numbers):
+    def __init__(self, system, grid, moldens, proatomdb, store, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1):
         '''
            See CPart base class for the description of the arguments.
         '''
         check_proatomdb(system, proatomdb)
         HirshfeldMixin. __init__(self, proatomdb)
-        StockholderCPart.__init__(self, system, grid, moldens, store, wcor_numbers)
+        StockholderCPart.__init__(self, system, grid, moldens, store, wcor_numbers, wcor_rcut_max, wcor_rcond)
 
     def _init_weight_corrections(self):
         funcs = []
         for index in xrange(self.system.natom):
             funcs.extend(self.get_wcor_funcs(index))
         if len(funcs) > 0:
-            wcor = self.grid.compute_weight_corrections(funcs)
+            print self._wcor_rcut_max, self._wcor_rcond
+            wcor = self.grid.compute_weight_corrections(funcs, rcut_max=self._wcor_rcut_max, rcond=self._wcor_rcond)
             self._cache.dump('wcor', wcor)
 
     def _init_partitioning(self):
