@@ -22,7 +22,15 @@
 
 import h5py as h5, argparse
 
-from horton.scripts.common import store_args
+from horton.scripts.common import *
+
+
+def test_parse_pbc():
+    assert (parse_pbc('111') == [1, 1, 1]).all()
+    assert (parse_pbc('000') == [0, 0, 0]).all()
+    assert (parse_pbc('101') == [1, 0, 1]).all()
+    assert (parse_pbc('001') == [0, 0, 1]).all()
+
 
 def test_store_args():
     with h5.File('horton.scripts.test.test_common.test_store_args.h5', driver='core', backing_store=False) as f:

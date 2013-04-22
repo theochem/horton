@@ -25,7 +25,7 @@ import sys, argparse, os
 
 import h5py as h5
 from horton import System, cpart_schemes, Cell, ProAtomDB, log, ArrayStore
-from horton.scripts.common import reduce_data, store_args
+from horton.scripts.common import reduce_data, store_args, parse_pbc
 
 
 def parse_args():
@@ -57,6 +57,9 @@ def parse_args():
         help='Add additional internal results to a debug subgroup.')
     parser.add_argument('--suffix', default=None, type=str,
         help='Add an additional suffix to the HDF5 output group.')
+    parser.add_argument('--pbc', default='111', type=str,
+        help='Specify the periodicity. The three digits refer to a, b and c '
+             'cell vectors. 1=periodic, 0=aperiodic.')
 
     parser.add_argument('--smooth', '-s', default=False, action='store_true',
         help='Use this option when no special measures are needed to integrate '
@@ -92,6 +95,7 @@ def main():
     # Load the system
     sys = System.from_file(args.cube)
     ui_grid = sys.props['ui_grid']
+    ui_grid.pbc[:] = parse_pbc(args.pbc)
     moldens = sys.props['cube_data']
 
     # Reduce the grid if required
