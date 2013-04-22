@@ -89,12 +89,12 @@ class HEBasis(object):
         if log.do_medium:
             log('Hirshfeld-E basis')
             log.hline()
-            log('   Z   k label')
+            log('Atom   Z   k label')
             log.hline()
             for i in xrange(len(numbers)):
                 for j in xrange(self.get_atom_nbasis(i)):
                     label = self.get_basis_label(i, j)
-                    log('%4i %3i %s' % (i, j, label))
+                    log('%4i %3i %3i %s' % (i, numbers[i], j, label))
             log.hline()
 
     def get_nbasis(self):
