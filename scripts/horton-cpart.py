@@ -25,7 +25,7 @@ import sys, argparse, os
 
 import h5py as h5
 from horton import System, cpart_schemes, Cell, ProAtomDB, log, ArrayStore
-from horton.scripts.common import reduce_data, store_args, parse_pbc
+from horton.scripts.common import reduce_data, store_args, parse_pbc, iter_elements
 
 
 def parse_args():
@@ -61,9 +61,12 @@ def parse_args():
         help='Specify the periodicity. The three digits refer to a, b and c '
              'cell vectors. 1=periodic, 0=aperiodic.')
 
-    parser.add_argument('--smooth', '-s', default=False, action='store_true',
-        help='Use this option when no special measures are needed to integrate '
-             'the cusps accurately.')
+    parser.add_argument('--wcor', default='1-118', type=str,
+        help='The elements for which weight corrections are used. This can be '
+             'a comma-separated list of element symbols and/or numbers that '
+             'includes ranges. For example, "B,7-9" corresponds to boron, '
+             'nitrogen, oxygen and fluorine. The argument 0 will disable '
+             'weight corrections entirely.')
     parser.add_argument('--maxiter', '-i', default=500, type=int,
         help='The maximum allowed number of iterations. [default=%(default)s]')
     parser.add_argument('--threshold', '-t', default=1e-6, type=float,
@@ -80,8 +83,6 @@ def main():
     # check if the folder is already present in the output file
     fn_h5 = args.cube + '.h5'
     grp_name = '%s_r%i' % (args.scheme, args.reduce)
-    if args.smooth:
-        grp_name += '_s'
     if args.suffix is not None:
         grp_name += '_'+args.suffix
 
@@ -114,11 +115,14 @@ def main():
     if mode == 'disk' and log.do_medium:
         log('Using scratch file: %s' % store_fn)
 
+    # List of element numbers for which weight corrections are needed:
+    wcor_numbers = list(iter_elements(args.wcor))
+
     # Run the partitioning
     with ArrayStore.from_mode(mode, store_fn) as store:
         CPartClass = cpart_schemes[args.scheme]
         kwargs = dict((key, val) for key, val in vars(args).iteritems() if key in CPartClass.options)
-        cpart = cpart_schemes[args.scheme](sys, ui_grid, moldens, proatomdb, store, **kwargs)
+        cpart = cpart_schemes[args.scheme](sys, ui_grid, moldens, proatomdb, store, wcor_numbers, **kwargs)
         names = cpart.do_all()
 
     # Store the results in an HDF5 file

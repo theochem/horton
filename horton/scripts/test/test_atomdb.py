@@ -23,27 +23,6 @@
 from horton.scripts.atomdb import *
 
 
-def test_iter_elements():
-    assert list(iter_elements('1,2')) == [1, 2]
-    assert list(iter_elements('H,2')) == [1, 2]
-    assert list(iter_elements('H,He')) == [1, 2]
-    assert list(iter_elements('1,He')) == [1, 2]
-    assert list(iter_elements('1-6')) == [1, 2, 3, 4, 5, 6]
-    assert list(iter_elements('1-C')) == [1, 2, 3, 4, 5, 6]
-    assert list(iter_elements('H-C')) == [1, 2, 3, 4, 5, 6]
-    assert list(iter_elements('H-6')) == [1, 2, 3, 4, 5, 6]
-    assert list(iter_elements('6-8')) == [6, 7, 8]
-    assert list(iter_elements('2,6-8')) == [2,6, 7, 8]
-    assert list(iter_elements('2,6-8,10')) == [2, 6, 7, 8, 10]
-    assert list(iter_elements('10,6-8,2')) == [10 ,6, 7, 8, 2]
-    assert list(iter_elements('6-8,2')) == [6, 7, 8, 2]
-    try:
-        list(iter_elements('8-6,2')) == [2]
-        assert False
-    except ValueError:
-        pass
-
-
 def test_iter_mults():
     assert list(iter_mults(4, True)) == [1]
     assert list(iter_mults(4, False)) == [1, 3]

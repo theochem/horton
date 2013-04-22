@@ -287,31 +287,34 @@ class HirshfeldEWPart(HirshfeldEMixin, HirshfeldIWPart):
 class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
     name = 'he'
 
-    def __init__(self, system, grid, moldens, proatomdb, store, smooth=False, threshold=1e-6, maxiter=500):
+    def __init__(self, system, grid, moldens, proatomdb, store, wcor_numbers, threshold=1e-6, maxiter=500):
         '''
            See CPart base class for the description of the arguments.
         '''
         self._hebasis = HEBasis(system.numbers, proatomdb)
-        HirshfeldICPart.__init__(self, system, grid, moldens, proatomdb, store, smooth, threshold, maxiter)
+        HirshfeldICPart.__init__(self, system, grid, moldens, proatomdb, store, wcor_numbers, threshold, maxiter)
 
     def _init_weight_corrections(self):
         HirshfeldICPart._init_weight_corrections(self)
 
-        if not self.smooth:
-            funcs = []
-            for i in xrange(self._system.natom):
-                center = self._system.coordinates[i]
-                splines = []
-                atom_nbasis = self._hebasis.get_atom_nbasis(i)
-                rtf = self._proatomdb.get_rtransform(self._system.numbers[i])
-                splines = []
-                for j0 in xrange(atom_nbasis):
-                    rho0 = self._hebasis.get_basis_rho(i, j0)
-                    splines.append(CubicSpline(rho0, rtf=rtf))
-                    for j1 in xrange(j0+1):
-                        rho1 = self._hebasis.get_basis_rho(i, j1)
-                        splines.append(CubicSpline(rho0*rho1, rtf=rtf))
-                funcs.append((center, splines))
+        funcs = []
+        for i in xrange(self._system.natom):
+            number = self._system.numbers[i]
+            if number not in self.wcor_numbers:
+                continue
+            center = self._system.coordinates[i]
+            splines = []
+            atom_nbasis = self._hebasis.get_atom_nbasis(i)
+            rtf = self._proatomdb.get_rtransform(self._system.numbers[i])
+            splines = []
+            for j0 in xrange(atom_nbasis):
+                rho0 = self._hebasis.get_basis_rho(i, j0)
+                splines.append(CubicSpline(rho0, rtf=rtf))
+                for j1 in xrange(j0+1):
+                    rho1 = self._hebasis.get_basis_rho(i, j1)
+                    splines.append(CubicSpline(rho0*rho1, rtf=rtf))
+            funcs.append((center, splines))
+        if len(funcs) > 0:
             wcor_fit = self.grid.compute_weight_corrections(funcs)
             self._cache.dump('wcor_fit', wcor_fit)
 

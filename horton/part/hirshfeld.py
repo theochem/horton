@@ -134,19 +134,19 @@ class HirshfeldWPart(HirshfeldMixin, StockholderWPart):
 class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
     name = 'h'
 
-    def __init__(self, system, grid, moldens, proatomdb, store, smooth=False):
+    def __init__(self, system, grid, moldens, proatomdb, store, wcor_numbers):
         '''
            See CPart base class for the description of the arguments.
         '''
         check_proatomdb(system, proatomdb)
         HirshfeldMixin. __init__(self, proatomdb)
-        StockholderCPart.__init__(self, system, grid, moldens, store, smooth)
+        StockholderCPart.__init__(self, system, grid, moldens, store, wcor_numbers)
 
     def _init_weight_corrections(self):
-        if not self.smooth:
-            funcs = []
-            for index in xrange(self.system.natom):
-                funcs.extend(self.get_wcor_funcs(index))
+        funcs = []
+        for index in xrange(self.system.natom):
+            funcs.extend(self.get_wcor_funcs(index))
+        if len(funcs) > 0:
             wcor = self.grid.compute_weight_corrections(funcs)
             self._cache.dump('wcor', wcor)
 
@@ -161,7 +161,10 @@ class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
 
     def get_wcor_funcs(self, index):
         number = self.system.numbers[index]
-        return [(self._system.coordinates[index], [self._proatomdb.get_spline(number)])]
+        if number in self.wcor_numbers:
+            return [(self._system.coordinates[index], [self._proatomdb.get_spline(number)])]
+        else:
+            return []
 
     def _update_promolecule(self):
         promoldens = self.cache.load('promoldens', alloc=self.grid.shape)[0]

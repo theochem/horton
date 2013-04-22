@@ -358,9 +358,8 @@ class CPart(Part):
     '''Base class for density partitioning schemes of cube files'''
 
     name = None
-    options = ['smooth']
 
-    def __init__(self, system, grid, moldens, store, smooth):
+    def __init__(self, system, grid, moldens, store, wcor_numbers):
         '''
            **Arguments:**
 
@@ -374,13 +373,12 @@ class CPart(Part):
                 The all-electron density grid data.
 
            store
-                An instance of the class ArrayStore to store large working arrays
+                An instance of the class ArrayStore to store large working
+                arrays.
 
-           **Optional arguments:**
-
-           smooth
-                When set to True, no corrections are included to integrate
-                the cusps.
+           wcor_numbers
+                The list of element numbers for which weight corrections are
+                needed.
         '''
         # ArrayStore is used to avoid recomputation of huge arrays. This is not
         # always desirable due to memory constraints. Therefore the arrays
@@ -391,14 +389,14 @@ class CPart(Part):
         # that after the initial setup of the pro-atoms, the partitioning schemes
         # must store sufficient details to recreate the proatoms when needed
         self._store = store
-        self._smooth = smooth
+        self._wcor_numbers = wcor_numbers
 
         Part.__init__(self, system, grid, moldens)
 
-    def _get_smooth(self):
-        return self._smooth
+    def _get_wcor_numbers(self):
+        return self._wcor_numbers
 
-    smooth = property(_get_smooth)
+    wcor_numbers = property(_get_wcor_numbers)
 
     def _init_log(self):
         if log.do_medium:

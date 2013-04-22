@@ -23,11 +23,35 @@
 
 import os, sys, datetime, numpy as np
 
-from horton import UniformIntGrid, angstrom
+from horton import UniformIntGrid, angstrom, periodic
 
 
-__all__ = ['reduce_data', 'parse_h5', 'parse_ewald_args', 'parse_pbc',
-           'store_args']
+__all__ = [
+    'iter_elements', 'reduce_data', 'parse_h5', 'parse_ewald_args', 'parse_pbc',
+    'store_args'
+]
+
+
+def iter_elements(elements_str):
+    '''Interpret a string as a list of elements
+
+       elements_str
+            A string with comma-separated element numbers. One may add ranges
+            with the format 'N-M' where M>N.
+    '''
+    for item in elements_str.split(','):
+        if '-' in item:
+            words = item.split("-")
+            if len(words) != 2:
+                raise ValueError("Each item should contain at most one dash.")
+            first = periodic[words[0]].number
+            last = periodic[words[1]].number
+            if first > last:
+                raise ValueError('first=%i > last=%i' % (first, last))
+            for number in xrange(first,last+1):
+                yield number
+        else:
+            yield periodic[item].number
 
 
 def reduce_data(cube_data, ui_grid, factor):

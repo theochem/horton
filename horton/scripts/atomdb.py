@@ -25,35 +25,13 @@ from glob import glob
 import re, os, stat, numpy as np, h5py as h5
 
 from horton import periodic, log, System, ProAtomRecord
+from horton.scripts.common import iter_elements
 
 
 __all__ = [
-    'iter_elements', 'iter_mults', 'iter_states',
+    'iter_mults', 'iter_states',
     'Template', 'EnergyTable', 'atom_programs',
 ]
-
-
-def iter_elements(elements_str):
-    '''Interpret a string as a list of elements
-
-       elements_str
-            A string with comma-separated element numbers. One may add ranges
-            with the format 'N-M' where M>N.
-    '''
-    for item in elements_str.split(','):
-        if '-' in item:
-            words = item.split("-")
-            if len(words) != 2:
-                raise ValueError("Each item should contain at most one dash.")
-            print words
-            first = periodic[words[0]].number
-            last = periodic[words[1]].number
-            if first > last:
-                raise ValueError('first=%i > last=%i' % (first, last))
-            for number in xrange(first,last+1):
-                yield number
-        else:
-            yield periodic[item].number
 
 
 # Presets for spin multiplicites. The first element is according to Hund's rule.
