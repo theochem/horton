@@ -21,12 +21,13 @@
 
 
 
-import os, sys, datetime
+import os, sys, datetime, numpy as np
 
 from horton import UniformIntGrid, angstrom
 
 
-__all__ = ['reduce_data', 'parse_h5', 'parse_ewald_args', 'store_args']
+__all__ = ['reduce_data', 'parse_h5', 'parse_ewald_args', 'parse_pbc',
+           'store_args']
 
 
 def reduce_data(cube_data, ui_grid, factor):
@@ -53,6 +54,17 @@ def parse_ewald_args(args):
     alpha = args.alpha_scale/rcut
     gcut = args.gcut_scale*alpha
     return rcut, alpha, gcut
+
+
+def parse_pbc(spbc):
+    if len(spbc) != 3:
+        raise ValueError('The pbc argument must consist of three characters, 0 or 1.')
+    result = np.zeros(3, int)
+    for i in xrange(3):
+        if spbc[i] not in '01':
+            raise ValueError('The pbc argument must consist of three characters, 0 or 1.')
+        result[i] = int(spbc[i])
+    return result
 
 
 def store_args(args, grp):
