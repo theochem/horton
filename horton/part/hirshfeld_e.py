@@ -287,12 +287,12 @@ class HirshfeldEWPart(HirshfeldEMixin, HirshfeldIWPart):
 class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
     name = 'he'
 
-    def __init__(self, system, grid, moldens, proatomdb, store, wcor_numbers, threshold=1e-6, maxiter=500):
+    def __init__(self, system, grid, moldens, proatomdb, store, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1, threshold=1e-6, maxiter=500):
         '''
            See CPart base class for the description of the arguments.
         '''
         self._hebasis = HEBasis(system.numbers, proatomdb)
-        HirshfeldICPart.__init__(self, system, grid, moldens, proatomdb, store, wcor_numbers, threshold, maxiter)
+        HirshfeldICPart.__init__(self, system, grid, moldens, proatomdb, store, wcor_numbers, wcor_rcut_max, wcor_rcond, threshold, maxiter)
 
     def _init_weight_corrections(self):
         HirshfeldICPart._init_weight_corrections(self)
@@ -315,7 +315,7 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
                     splines.append(CubicSpline(rho0*rho1, rtf=rtf))
             funcs.append((center, splines))
         if len(funcs) > 0:
-            wcor_fit = self.grid.compute_weight_corrections(funcs)
+            wcor_fit = self.grid.compute_weight_corrections(funcs, rcut_max=self._wcor_rcut_max, rcond=self._wcor_rcond)
             self._cache.dump('wcor_fit', wcor_fit)
 
     def _get_constant_fn(self, i, output):
