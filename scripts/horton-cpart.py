@@ -68,8 +68,6 @@ def parse_args():
              'the charges between two iterations drops below this threshold. '
              '[default=%(default)s]')
 
-    # TODO: add argument to chop of last slice(s)
-
     return parser.parse_args()
 
 
@@ -129,7 +127,7 @@ def main():
         if grp_name in grp_cpart:
             del grp_cpart[grp_name]
         grp = grp_cpart.create_group(grp_name)
-        grp['grid_rvecs'] = ui_grid.grid_cell.rvecs
+        grp['grid_rvecs'] = ui_grid.grid_cell.rvecs  # TODO: drop this and store --reduce option in output
         for name in names:
             grp[name] = cpart[name]
 
