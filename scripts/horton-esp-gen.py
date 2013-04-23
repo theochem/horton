@@ -24,8 +24,10 @@
 import sys, argparse, os
 
 import h5py as h5, numpy as np
-from horton import System, UniformIntGrid, log, Cell, angstrom, compute_esp_grid_cube
-from horton.scripts.common import parse_h5, parse_ewald_args, store_args
+from horton import System, UniformIntGrid, log, Cell, angstrom, \
+    compute_esp_grid_cube
+from horton.scripts.common import parse_h5, parse_ewald_args, store_args, \
+    safe_open_h5
 
 
 def parse_args():
@@ -114,7 +116,7 @@ def main():
     results['esp'] = esp
 
     # Store the results in an HDF5 file
-    with h5.File(fn_h5) as f:
+    with safe_open_h5(fn_h5) as f:
         # Get the group for the output
         grp = f[grp_name]
         if 'espgrid' in grp:

@@ -25,7 +25,8 @@ import sys, argparse, os
 
 import h5py as h5
 from horton import System, cpart_schemes, Cell, ProAtomDB, log, ArrayStore
-from horton.scripts.common import reduce_data, store_args, parse_pbc, iter_elements
+from horton.scripts.common import reduce_data, store_args, parse_pbc, \
+    iter_elements, safe_open_h5
 
 
 def parse_args():
@@ -181,7 +182,7 @@ def main():
         names = cpart.do_all()
 
     # Store the results in an HDF5 file
-    with h5.File(fn_h5) as f:
+    with safe_open_h5(fn_h5) as f:
         # Store system
         sys_grp = f.require_group('system')
         del sys.props['cube_data'] # first drop potentially large array
