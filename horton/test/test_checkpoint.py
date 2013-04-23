@@ -282,6 +282,7 @@ def test_cell():
         assert (sys2.cell.rvecs == cell1.rvecs).all()
         chk.close()
 
+
 def test_cube():
     chk = h5.File('horton.test.test_checkpoint.test_cube', driver='core', backing_store=False)
 

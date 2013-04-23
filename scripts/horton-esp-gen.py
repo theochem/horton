@@ -41,9 +41,13 @@ def parse_args():
         help='The total charge of the system. When given, the charges from the '
              'HDF5 file are corrected.')
 
-    parser.add_argument('--spacing', '-s', default=0.1, type=float,
-        help='The target grid spacing in angstrom. [default=%(default)s]')
-
+    parser.add_argument('--grid', default='0.1', type=str,
+        help='If only one number is given, this is the target grid spacing in '
+             'angstrom. [default=%(default)s] In this case, the cell vectors '
+             'from the system group are divided by integer numbers to obtain '
+             'grid spacings as close as possible to the target. Alternatively '
+             'one may refer to an existing grid with the following argument: '
+             'file.h5:group/with/grid.')
     parser.add_argument('--rcut', default=10.0, type=float,
         help='The real-space cutoff for the electrostatic interactions in '
              'angstrom. [default=%(default)s]')
@@ -82,16 +86,11 @@ def main():
     results['qtot'] = charges.sum()
 
     # Determine the grid specification
-    grid_rvecs = cell.rvecs.copy()
-    shape = np.zeros(3, int)
-    lengths, angles = cell.parameters
-    for i in xrange(3):
-        shape[i] = int(np.round(lengths[i]/(args.spacing*angstrom)))
-        grid_rvecs[i] /= shape[i]
-    grid_cell = Cell(grid_rvecs)
-    origin = np.zeros(3, float)
-    pbc = np.ones(3, int)
-    ui_grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
+    ui_grid = parse_ui_grid(args.grid, rvecs)
+    results['ui_grid'] = ui_grid
+
+    if ui_grid.pbc.sum() != 3:
+        raise NotImplementedError('Only 3D periodic cells are suppported.')
 
     # Ewald parameters
     rcut, alpha, gcut = parse_ewald_args(args)
