@@ -247,7 +247,7 @@ def main_convert(args):
             system, energy = program.load_atom(dn_mult)
             if energy is None:
                 if log.do_medium:
-                    log('No results found:  ', dn_mult)
+                    log('No (sensible) results found:  ', dn_mult)
                 continue
             cases.append((energy, system, dn_mult))
 
