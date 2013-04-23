@@ -253,8 +253,9 @@ class Part(JustOnceClass):
         self.do_populations()
         self.do_charges()
         self.do_moments()
-        return ['populations', 'charges', 'cartesian_powers',
-                'cartesian_moments', 'radial_powers', 'radial_moments']
+        return ['populations', 'pseudo_populations', 'charges',
+                'cartesian_powers', 'cartesian_moments', 'radial_powers',
+                'radial_moments']
 
 
 class WPart(Part):
