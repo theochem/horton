@@ -286,17 +286,15 @@ double ZeroExtrapolation::eval_deriv_right(double x) {return 0.0;}
 */
 
 void ExponentialExtrapolation::prepare(CubicSpline* cs) {
-    if (cs->d[0] == 0.0) {
-        throw std::domain_error("The exponential extrapolation makes no sense when the derivative at the first point is zero.");
-    }
-    RTransform* rtf = cs->get_rtransform();
-    a0 = cs->y[0];
-    if (a0 <= 0.0) {
-        b0 = 0.0;
+    x0 = cs->get_first_x();
+    if (cs->y[0] == 0.0) {
+        a0 = 0;
+        b0 = 0;
     } else {
+        RTransform* rtf = cs->get_rtransform();
+        a0 = cs->y[0];
         b0 = cs->d[0]/cs->y[0]/rtf->deriv(0);
     }
-    x0 = cs->get_first_x();
 #ifdef DEBUG
     printf("PARS EXP EXTRAPOL a0=%f b0=%f x0=%f\n", a0, b0, x0);
 #endif
