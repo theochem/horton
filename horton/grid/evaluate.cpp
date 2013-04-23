@@ -107,6 +107,9 @@ void eval_spline_grid(CubicSpline* spline, double* center, double* output,
                     if (d < rcut) {
                         double s;
                         spline->eval(&d, &s, 1);
+#ifdef DEBUG
+                        printf("i=[%li,%li,%li] d=%f s=%f ||", i0, i1, i2, d, s);
+#endif
                         *output += s;
                     }
 
