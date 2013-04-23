@@ -242,7 +242,7 @@ cdef class CubicSpline(object):
         del self._this
         del self._ep
 
-    property rtransform:
+    property rtransform: # TODO: rename to rtf
         def __get__(self):
             return self._rtf
 

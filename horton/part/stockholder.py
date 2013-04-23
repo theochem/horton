@@ -55,7 +55,7 @@ class StockHolderMixin(object):
         if rho.min() < 0:
             rho[rho<0] = 0.0
             error = np.dot(rho, weights) - original
-            if log.do_medium:
+            if log.do_high:
                 log('                    Pro-atom not positive everywhere. Lost %.5f electrons' % error)
 
         return rho

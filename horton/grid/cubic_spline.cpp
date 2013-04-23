@@ -291,7 +291,11 @@ void ExponentialExtrapolation::prepare(CubicSpline* cs) {
     }
     RTransform* rtf = cs->get_rtransform();
     a0 = cs->y[0];
-    b0 = cs->d[0]/cs->y[0]/rtf->deriv(0);
+    if (a0 <= 0.0) {
+        b0 = 0.0;
+    } else {
+        b0 = cs->d[0]/cs->y[0]/rtf->deriv(0);
+    }
     x0 = cs->get_first_x();
 #ifdef DEBUG
     printf("PARS EXP EXTRAPOL a0=%f b0=%f x0=%f\n", a0, b0, x0);
