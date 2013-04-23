@@ -69,7 +69,6 @@ def test_record_basics_pseudo():
 
     r = ProAtomRecord.from_system(sys, atgrid)
     assert r.number == 14
-    print r.charge
     assert r.charge == 0
     assert abs(r.energy - -3.761587698067) < 1e-10
     assert r.population == 14

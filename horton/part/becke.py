@@ -41,8 +41,7 @@ class BeckeWPart(WPart):
         self._k = k
         WPart.__init__(self, system, grid, local)
 
-    def _init_log(self):
-        WPart._init_log(self)
+    def _init_log_scheme(self):
         if log.do_medium:
             log.deflist([
                 ('Scheme', 'Becke'),

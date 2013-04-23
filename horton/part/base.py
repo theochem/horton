@@ -57,7 +57,8 @@ class Part(JustOnceClass):
             self._cache.dump('moldens', moldens)
 
         # Some screen logging
-        self._init_log()
+        self._init_log_base()
+        self._init_log_scheme()
 
         # Initialize the subgrids
         self._init_subgrids()
@@ -147,7 +148,10 @@ class Part(JustOnceClass):
         '''
         raise NotImplementedError
 
-    def _init_log(self):
+    def _init_log_base(self):
+        raise NotImplementedError
+
+    def _init_log_scheme(self):
         raise NotImplementedError
 
     def _init_subgrids(self):
@@ -292,7 +296,7 @@ class WPart(Part):
 
     local = property(_get_local)
 
-    def _init_log(self):
+    def _init_log_base(self):
         if log.do_medium:
             log('Performing a density-based AIM analysis with a wavefunction as input.')
             log.deflist([
@@ -408,7 +412,7 @@ class CPart(Part):
 
     wcor_numbers = property(_get_wcor_numbers)
 
-    def _init_log(self):
+    def _init_log_base(self):
         if log.do_medium:
             log('Performing a density-based AIM analysis with a cube file as input.')
             log.deflist([
@@ -416,6 +420,9 @@ class CPart(Part):
                 ('Uniform Integration Grid', self.grid),
                 ('Grid shape', self.grid.shape),
                 ('Mean spacing', '%10.5e' % (self.grid.grid_cell.volume**(1.0/3.0))),
+                ('Weight corr. numbers', ' '.join(str(n) for n in self.wcor_numbers)),
+                ('Weight corr. max rcut', '%10.5f' % self._wcor_rcut_max),
+                ('Weight corr. rcond', '%10.5e' % self._wcor_rcond),
             ])
 
     def _init_subgrids(self):

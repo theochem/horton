@@ -143,6 +143,16 @@ class HEBasis(object):
 
 
 class HirshfeldEMixin(object):
+    def _init_log_scheme(self):
+        if log.do_medium:
+            log.deflist([
+                ('Scheme', 'Hirshfeld-E'),
+                ('Convergence threshold', '%.1e' % self._threshold),
+                ('Maximum iterations', self._maxiter),
+                ('Proatomic DB',  self._proatomdb),
+            ])
+            log.cite('verstraelen2013', 'the use of Hirshfeld-E partitioning')
+
     def get_proatom_rho(self, index, propars=None):
         if propars is None:
             propars = self._cache.load('propars')
