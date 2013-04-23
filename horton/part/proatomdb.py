@@ -161,7 +161,7 @@ class ProAtomRecord(object):
             self._safe = False
 
     def compute_radii(self, populations):
-        '''Compute approximate radii at which the atom contains the given populations
+        '''Compute approximate radii and grid points at which the atom contains the given populations
 
            **Arguments:**
 
@@ -192,7 +192,7 @@ class ProAtomRecord(object):
                 # linear interpolation
                 x = (populations[i] - popint[index])/(popint[index+1] - popint[index])
                 result.append(x*radii[index+1]+(1-x)*radii[index])
-        return result
+        return indexes, result
 
     def get_moment(self, order):
         '''Return the integral of rho*r**order'''
@@ -201,6 +201,11 @@ class ProAtomRecord(object):
         int_weights = int1d.get_weights(len(radii))
         vol_weights = self._rtransform.get_volume_elements()
         return 4*np.pi*dot_multi(radii**(2+order), self.rho, int_weights, vol_weights)
+
+    def chop(self, npoint):
+        '''Reduce the proatom to the given number of radial grid points.'''
+        self._rho = self._rho[:npoint]
+        self._rtransform = self._rtransform.chop(npoint)
 
     def __eq__(self, other):
         return (self.number == other.number and
@@ -257,6 +262,8 @@ class ProAtomDB(object):
                 for charge1 in self.get_charges(number):
                     r1 = self.get_record(number, charge1)
                     r0.update_safe(r1)
+
+        # TODO: renormalize proatoms?
 
         # Screen info
         self._log_init()
@@ -492,3 +499,39 @@ class ProAtomDB(object):
         '''
         rho = self.get_rho(number, parameters, combine)
         return CubicSpline(rho, rtf=self.get_rtransform(number))
+
+    def compact(self, nel_lost):
+        '''Make the pro-atoms more compact
+
+           **Argument:**
+
+           nel_lost
+                This parameter controls the part of the tail that gets
+                neglected. This is the (maximym) number of electrons in the part
+                that gets discarded.
+
+           Note that only 'safe' atoms are considered to determine the cutoff
+           radius.
+        '''
+        if log.do_medium:
+            log('Reducing extents of the pro-atoms')
+            log('   Z     npiont     radius')
+            log.hline()
+        for number in self.get_numbers():
+            rtf = self._rtf_map[number]
+            npoint = 0
+            for charge in self.get_charges(number, safe=True):
+                r = self.get_record(number, charge)
+                nel = r.pseudo_number-charge
+                npoint = max(npoint, r.compute_radii([nel-nel_lost])[0][0])
+            for charge in self.get_charges(number):
+                r = self.get_record(number, charge)
+                r.chop(npoint)
+            self._rtf_map[number] = self._rtf_map[number].chop(npoint)
+            if log.do_medium:
+                log('%4i   %5i -> %5i    %10.3e -> %10.3e' % (
+                    number, rtf.npoint, npoint, rtf.radius(rtf.npoint-1),
+                    rtf.radius(npoint-1)
+                ))
+        if log.do_medium:
+            log.hline()

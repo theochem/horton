@@ -430,6 +430,9 @@ cdef class RTransform(object):
     def to_string(self):
         raise NotImplementedError
 
+    def chop(self, npoint):
+        raise NotImplementedError
+
 
 cdef class IdentityRTransform(RTransform):
     '''For testing only'''
@@ -438,6 +441,9 @@ cdef class IdentityRTransform(RTransform):
 
     def to_string(self):
         return ' '.join(['IdentityRTransform', repr(self.npoint)])
+
+    def chop(self, npoint):
+        return IdentityRTransform(npoint)
 
 
 cdef class LinearRTransform(RTransform):
@@ -469,6 +475,10 @@ cdef class LinearRTransform(RTransform):
     def to_string(self):
         return ' '.join(['LinearRTransform', repr(self.rmin), repr(self.rmax), repr(self.npoint)])
 
+    def chop(self, npoint):
+        rmax = self.radius(npoint-1)
+        return LinearRTransform(self.rmin, rmax, npoint)
+
 
 cdef class ExpRTransform(RTransform):
     '''An exponential grid.
@@ -498,6 +508,10 @@ cdef class ExpRTransform(RTransform):
 
     def to_string(self):
         return ' '.join(['ExpRTransform', repr(self.rmin), repr(self.rmax), repr(self.npoint)])
+
+    def chop(self, npoint):
+        rmax = self.radius(npoint-1)
+        return ExpRTransform(self.rmin, rmax, npoint)
 
 
 cdef class ShiftedExpRTransform(RTransform):
@@ -541,6 +555,10 @@ cdef class ShiftedExpRTransform(RTransform):
     def to_string(self):
         return ' '.join(['ShiftedExpRTransform', repr(self.rmin), repr(self.rshift), repr(self.rmax), repr(self.npoint)])
 
+    def chop(self, npoint):
+        rmax = self.radius(npoint-1)
+        return ShiftedExpRTransform(self.rmin, self.rshift, rmax, npoint)
+
 
 cdef class BakerRTransform(RTransform):
     r'''A grid introduced by Baker et al.
@@ -551,7 +569,7 @@ cdef class BakerRTransform(RTransform):
 
        with
 
-       .. math:: A = \frac{1}{A*ln\left[1-\left(\frac{npoint-1}{npoint}\right)^2\right]}.
+       .. math:: A = \frac{1}{ln\left[1-\left(\frac{npoint-1}{npoint}\right)^2\right]}.
     '''
     def __cinit__(self, double rmax, int npoint):
         self._this = <rtransform.RTransform*>(new rtransform.BakerRTransform(rmax, npoint))
@@ -569,6 +587,10 @@ cdef class BakerRTransform(RTransform):
 
     def to_string(self):
         return ' '.join(['BakerRTransform', repr(self.rmax), repr(self.npoint)])
+
+    def chop(self, npoint):
+        # This just can't work. :(
+        raise NotImplementedError
 
 
 #

@@ -79,12 +79,21 @@ def check_deriv(rtf):
     assert abs(ds-dns).max() < 1e-8
 
 
+def check_chop(rtf1):
+    assert rtf1.npoint == 100
+    rtf2 = rtf1.chop(50)
+    assert rtf1.__class__ == rtf2.__class__
+    assert rtf2.npoint == 50
+    assert abs(rtf1.get_radii()[:50] - rtf2.get_radii()).max() < 1e-8
+
+
 def test_identity_basics():
     rtf = IdentityRTransform(100)
     assert rtf.radius(0.0) == 0.0
     assert rtf.radius(99.0) == 99.0
     check_consistency(rtf)
     check_deriv(rtf)
+    check_chop(rtf)
 
 
 def test_linear_basics():
@@ -93,6 +102,7 @@ def test_linear_basics():
     assert abs(rtf.radius(99) - 0.8) < 1e-10
     check_consistency(rtf)
     check_deriv(rtf)
+    check_chop(rtf)
 
 
 def test_exp_basics():
@@ -101,6 +111,7 @@ def test_exp_basics():
     assert abs(rtf.radius(99) - 1e1) < 1e-10
     check_consistency(rtf)
     check_deriv(rtf)
+    check_chop(rtf)
 
 
 def test_shifted_exp_basics():
@@ -109,6 +120,7 @@ def test_shifted_exp_basics():
     assert abs(rtf.radius(99) - 10.0) < 1e-10
     check_consistency(rtf)
     check_deriv(rtf)
+    check_chop(rtf)
 
 
 def test_baker_basics():
