@@ -20,8 +20,9 @@
 #--
 
 
-import h5py as h5, argparse, numpy as np
+import h5py as h5, argparse, numpy as np, tempfile, os
 
+from horton import *
 from horton.scripts.common import *
 
 
@@ -98,6 +99,41 @@ def test_parse_pbc():
     assert (parse_pbc('101') == [1, 0, 1]).all()
     assert (parse_pbc('001') == [0, 0, 1]).all()
 
+
+def test_parse_ui_grid_1():
+    rvecs = np.diag([3.0, 2.0, 1.0])*angstrom
+    cell = Cell(rvecs)
+    ui_grid = parse_ui_grid('0.1', cell)
+
+    assert (ui_grid.origin == [0, 0, 0]).all()
+    assert abs(ui_grid.grid_cell.rvecs - np.identity(3, float)*0.1*angstrom).max() < 1e-10
+    assert (ui_grid.shape == [30, 20, 10]).all()
+    assert (ui_grid.pbc == 1).all()
+
+
+def test_parse_ui_grid_2():
+    tmpdir = tempfile.mkdtemp('horton.scripts.test.test_common.test_parse_ui_grid_2')
+    fn_h5 = os.path.join(tmpdir, 'test.h5')
+    try:
+        origin = np.random.uniform(0, 1, 3)
+        grid_rvecs = np.random.uniform(0, 1, (3, 3))
+        shape = np.random.randint(10, 20, 3)
+        pbc = np.random.randint(0, 2, 3)
+        ui_grid1 = UniformIntGrid(origin, grid_rvecs, shape, pbc)
+
+        with h5.File(fn_h5) as f:
+            ui_grid1.to_hdf5(f)
+
+        ui_grid2 = parse_ui_grid('%s:/' % fn_h5, None)
+
+        assert (ui_grid2.origin == origin).all()
+        assert (ui_grid2.grid_cell.rvecs == grid_rvecs).all()
+        assert (ui_grid2.shape == shape).all()
+        assert (ui_grid2.pbc == pbc).all()
+    finally:
+        if os.path.isfile(fn_h5):
+            os.remove(fn_h5)
+        os.rmdir(tmpdir)
 
 def test_store_args():
     with h5.File('horton.scripts.test.test_common.test_store_args.h5', driver='core', backing_store=False) as f:

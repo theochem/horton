@@ -21,14 +21,14 @@
 
 
 
-import os, sys, datetime, numpy as np
+import os, sys, datetime, numpy as np, h5py as h5
 
-from horton import UniformIntGrid, angstrom, periodic
+from horton import UniformIntGrid, angstrom, periodic, Cell
 
 
 __all__ = [
     'iter_elements', 'reduce_data', 'parse_h5', 'parse_ewald_args', 'parse_pbc',
-    'store_args'
+    'parse_ui_grid', 'store_args'
 ]
 
 
@@ -113,6 +113,40 @@ def parse_pbc(spbc):
             raise ValueError('The pbc argument must consist of three characters, 0 or 1.')
         result[i] = int(spbc[i])
     return result
+
+
+def parse_ui_grid(sgrid, cell):
+    '''Create a uniform integration grid based on the sgrid argument
+
+       **Arguments:**
+
+       sgrid
+            A string obtained from the command line
+
+       rvecs
+            The 3D cell vectors
+    '''
+    try:
+        spacing = float(sgrid)*angstrom
+    except ValueError:
+        spacing = None
+
+    if spacing is None:
+        fn_h5, path = sgrid.split(':')
+        with h5.File(fn_h5, 'r') as f:
+            return UniformIntGrid.from_hdf5(f[path], None)
+    else:
+        grid_rvecs = cell.rvecs.copy()
+        shape = np.zeros(3, int)
+        lengths, angles = cell.parameters
+        for i in xrange(3):
+            shape[i] = int(np.round(lengths[i]/spacing))
+            grid_rvecs[i] /= shape[i]
+        grid_cell = Cell(grid_rvecs)
+        origin = np.zeros(3, float)
+        pbc = np.ones(3, int)
+        return UniformIntGrid(origin, grid_rvecs, shape, pbc)
+
 
 
 def store_args(args, grp):
