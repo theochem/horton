@@ -22,6 +22,7 @@
 
 import numpy as np
 
+from horton.units import angstrom
 from horton.grid.cext import UniformIntGrid
 from horton.espfit.cext import setup_esp_cost_cube, multiply_dens_mask, \
     multiply_near_mask, multiply_far_mask
@@ -150,6 +151,8 @@ def setup_weights(system, grid, dens=None, near=None, far=None):
             if pair is None:
                 continue
             r0, gamma = pair
+            if r0 > 5*angstrom:
+                raise ValueError('The wnear radius is excessive. Please keep it below 5 angstrom.')
             multiply_near_mask(system.coordinates[i], grid, r0, gamma, weights)
     if far is not None:
         r0, gamma = far
