@@ -149,11 +149,11 @@ def test_hirshfeld_e_fake():
 
     # Run the partitioning
     with ArrayStore.from_mode('core', 'horton.test.test_hirshfeld.test_hirshfeld_e_fake') as store:
-        cpart = HirshfeldECPart(sys, ui_grid, mol_dens, proatomdb, store, range(119), threshold=1e-5)
+        cpart = HirshfeldECPart(sys, ui_grid, mol_dens, proatomdb, store, range(119), threshold=1e-6)
         cpart.do_charges()
         charges = cpart['charges']
         assert abs(charges.sum()) < 1e-2
-        assert abs(abs(charges).mean() - 0.391) < 1e-3
+        assert abs(abs(charges).mean() - 0.392) < 1e-3
         check_proatom_splines(cpart)
 
 

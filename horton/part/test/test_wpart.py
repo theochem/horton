@@ -138,6 +138,7 @@ def test_hirshfeld_e_water_hf_sto3g():
         expecting = np.array([-0.422794483125, 0.211390419810, 0.211404063315]) # From HiPart
         assert abs(wpart['charges'] - expecting).max() < 2e-3
 
+
 def test_hirshfeld_e_msa_hf_lan():
     proatomdb = get_proatomdb_hf_lan()
 
