@@ -24,6 +24,7 @@ import numpy as np
 
 from horton.cache import just_once
 from horton.log import log
+from horton.part.base import storage_estimate_report
 from horton.part.stockholder import StockholderWPart, StockholderCPart
 
 
@@ -190,3 +191,8 @@ class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
         names = StockholderCPart.do_all(self)
         self.do_dispersion()
         return names + ['volumes', 'volume_ratios', 'c6s']
+
+    @classmethod
+    def estimate_storage(cls, numbers, ui_grid, proatomdb):
+        contribs = [('Atomic weights', len(numbers))]
+        return storage_estimate_report(ui_grid.size, contribs)

@@ -48,11 +48,13 @@ def parse_args():
              'should be 1. [default=%(default)s]')
     parser.add_argument('--overwrite', default=False, action='store_true',
         help='Overwrite existing output in the HDF5 file')
-    parser.add_argument('--store', choices=('fake', 'core', 'disk'), default='core',
+    parser.add_argument('--store', choices=('fake', 'core', 'disk', 'test'), default='core',
         help='Controls the storage of large intermediate arrays. fake: disables '
              'storage of such intermediate arrays. core: the arrays are kept in '
              'memory. disk: the arrays are stored in an HDF5 file on disk. For '
-             'the last case, see the --tmp option. [default=%(default)s]')
+             'the this case, see also the --tmp option. test: estimate roughly '
+             'the amount of storage needed for large intermediate arrays. '
+             '[default=%(default)s]')
     parser.add_argument('--tmp', type=str, default='.',
         help='A directory where the temporary scratch file can be written. '
              'This is only relevant with option --store=disk. '
@@ -114,6 +116,9 @@ def main():
     # Load the proatomdb
     proatomdb = ProAtomDB.from_file(args.atoms)
 
+    # Select the partitioning scheme
+    CPartClass = cpart_schemes[args.scheme]
+
     # Pick the ArrayStorage options
     mode = args.store
     if mode == 'fake':
@@ -122,13 +127,15 @@ def main():
         store_fn = '%s/_scratch-PID-%i.h5' % (args.tmp, os.getpid())
     if mode == 'disk' and log.do_medium:
         log('Using scratch file: %s' % store_fn)
+    if mode == 'test':
+        CPartClass.estimate_storage(sys.numbers, ui_grid, proatomdb)
+        return
 
     # List of element numbers for which weight corrections are needed:
     wcor_numbers = list(iter_elements(args.wcor))
 
     # Run the partitioning
     with ArrayStore.from_mode(mode, store_fn) as store:
-        CPartClass = cpart_schemes[args.scheme]
         kwargs = dict((key, val) for key, val in vars(args).iteritems() if key in CPartClass.options)
         cpart = cpart_schemes[args.scheme](
             sys, ui_grid, moldens, proatomdb, store, wcor_numbers,

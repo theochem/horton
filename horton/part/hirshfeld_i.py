@@ -26,7 +26,7 @@ from horton.cache import just_once
 from horton.grid.int1d import SimpsonIntegrator1D
 from horton.grid.cext import dot_multi
 from horton.log import log
-from horton.part.base import WPart
+from horton.part.base import storage_estimate_report
 from horton.part.hirshfeld import HirshfeldWPart, HirshfeldCPart
 
 
@@ -265,3 +265,11 @@ class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
     def do_all(self):
         names = HirshfeldCPart.do_all(self)
         return names + ['niter', 'change', 'history_charges', 'history_propars']
+
+    @classmethod
+    def estimate_storage(cls, numbers, ui_grid, proatomdb):
+        contribs = [
+            ('Atomic weights', len(numbers)),
+            ('Pro-atoms', sum([min(3, len(proatomdb.get_charges(n))) for n in numbers])),
+        ]
+        return storage_estimate_report(ui_grid.size, contribs)
