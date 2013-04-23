@@ -24,8 +24,9 @@
 import sys, argparse, os
 
 import h5py as h5
-from horton import System, wpart_schemes, Cell, ProAtomDB, log, BeckeMolGrid
+from horton import System, wpart_schemes, Cell, ProAtomDB, log, BeckeMolGrid, lebedev_laikov_npoints
 from horton.scripts.common import store_args
+from horton.scripts.wpart import parse_grid
 
 
 def parse_args():
@@ -46,6 +47,15 @@ def parse_args():
     parser.add_argument('--suffix', default=None, type=str,
         help='Add an additional suffix to the HDF5 output group.')
 
+    parser.add_argument('--grid', type=str, default='coarse',
+        help='Choose the accuracy of the integration grid. Four built-in tuned '
+             'grids are available: coarse, medium, fine, veryfine. '
+             '[default=%%(default)s] These are applicable when the system '
+             'contains only elements up to argon. In other cases, an integer '
+             'can be provided that sets the number of angular (Lebedev-Laikov) '
+             'grid points. Choose a number from %s. The radial grid is then '
+             'take identical to the one used in the proatom database.' %
+             (" ".join(str(i) for i in lebedev_laikov_npoints)))
     parser.add_argument('--global', dest='local', default=True, action='store_false',
         help='Use the entire molecular grid for all integrations. The default '
              'behavior is to compute the integral for a given atom on a '
@@ -56,9 +66,6 @@ def parse_args():
         help='The iterative scheme is converged when the maximum change of '
              'the charges between two iterations drops below this threshold. '
              '[default=%(default)s]')
-
-    # TODO: isolate common parts with cpart into shared routines.
-    # TODO: add options to control the accuracy of the integration grids.
 
     return parser.parse_args()
 
@@ -88,7 +95,8 @@ def main():
     # Run the partitioning
     WPartClass = wpart_schemes[args.scheme]
     kwargs = dict((key, val) for key, val in vars(args).iteritems() if key in WPartClass.options)
-    molgrid = BeckeMolGrid(sys, keep_subgrids=int(args.local))
+    atspecs = parse_grid(args.grid, sys, proatomdb)
+    molgrid = BeckeMolGrid(sys, atspecs, keep_subgrids=int(args.local))
     wpart = wpart_schemes[args.scheme](sys, molgrid, proatomdb, **kwargs)
     names = wpart.do_all()
 
