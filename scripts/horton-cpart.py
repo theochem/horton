@@ -45,7 +45,7 @@ def parse_args():
     parser.add_argument('--chop', default=0, type=int,
         help='The number of layers to chop of the end of the grid in each '
              'direction. For most codes this should be zero. For Crystal, this '
-             'should be 1.')
+             'should be 1. [default=%(default)s]')
     parser.add_argument('--overwrite', default=False, action='store_true',
         help='Overwrite existing output in the HDF5 file')
     parser.add_argument('--store', choices=('fake', 'core', 'disk'), default='core',
