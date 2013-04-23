@@ -26,7 +26,7 @@ from horton.cache import JustOnceClass, just_once, Cache
 from horton.log import log, timer
 
 
-__all__ = ['Part', 'WPart', 'CPart']
+__all__ = ['Part', 'WPart', 'CPart', 'storage_estimate_report']
 
 
 class Part(JustOnceClass):
@@ -496,8 +496,29 @@ class CPart(Part):
     def compute_at_weights(self, index, output, window=None):
         raise NotImplementedError
 
+    @classmethod
+    def estimate_storage(cls, numbers, ui_grid, proatomdb):
+        raise NotImplementedError
+
     @just_once
     def do_moldens(self):
         moldens, new = self.cache.load('moldens', alloc=self.grid.size)
         if new:
             raise NotImplementedError
+
+
+def storage_estimate_report(array_size, contribs):
+    if log.do_medium:
+        log('Estimate of storage requirements for large intermediate arrays')
+        log.hline()
+        rows = [('Size of one array [GB]', array_size*8/1024.0**3)]
+        num_arrays = 0
+        for name, count in contribs:
+            rows.append((name, count))
+            num_arrays += count
+        rows.append(('Total number of arrays', num_arrays))
+        total = num_arrays*array_size*8
+        rows.append(('Total storage needed [GB]',  total/1024.0**3))
+        log.deflist(rows)
+        log.hline()
+        return total

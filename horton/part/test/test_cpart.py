@@ -48,6 +48,9 @@ def test_hirshfeld_jbw_coarse():
     atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), keep_subgrids=1)
     proatomdb = ProAtomDB.from_refatoms(atgrid, numbers=[8,14], max_kation=0, max_anion=0)
 
+    size = HirshfeldCPart.estimate_storage(sys.numbers, ui_grid, proatomdb)
+    assert size == ui_grid.size*sys.natom*8
+
     # Run the partitioning
     with ArrayStore.from_mode('core', 'horton.test.test_hirshfeld.test_hirshfeld_jbw_coarse.h5') as store:
         cpart = HirshfeldCPart(sys, ui_grid, mol_dens, proatomdb, store, range(119))
@@ -108,6 +111,8 @@ def check_proatom_splines(cpart):
 def test_hirshfeld_i_fake():
     sys, ui_grid, mol_dens, proatomdb = get_fake_co()
 
+    assert HirshfeldICPart.estimate_storage(sys.numbers, ui_grid, proatomdb) == 8*8*ui_grid.size
+
     # Run the partitioning
     with ArrayStore.from_mode('core', 'horton.test.test_hirshfeld.test_hirshfeld_i_fake') as store:
         cpart = HirshfeldICPart(sys, ui_grid, mol_dens, proatomdb, store, range(119), threshold=1e-5)
@@ -146,6 +151,8 @@ def test_hirshfeld_i_fake_pseudo_nowcor():
 
 def test_hirshfeld_e_fake():
     sys, ui_grid, mol_dens, proatomdb = get_fake_co()
+
+    assert HirshfeldICPart.estimate_storage(sys.numbers, ui_grid, proatomdb) == 8*8*ui_grid.size
 
     # Run the partitioning
     with ArrayStore.from_mode('core', 'horton.test.test_hirshfeld.test_hirshfeld_e_fake') as store:
