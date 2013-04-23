@@ -415,6 +415,10 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
                     self._get_basis_fn(i, j, work)
                     work *= propars[j+begin]
                     output += work
+
+            # eliminate negative parts
+            np.clip(output, 0, 1e100, output)
+
             output += 1e-100
 
     def do_all(self):
