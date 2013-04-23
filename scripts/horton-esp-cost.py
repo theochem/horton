@@ -92,8 +92,6 @@ def parse_args():
     parser.add_argument('--wsave', default=None, type=str,
         help='Save the weights array to the given cube file.')
 
-    # TODO: hang when wnear radius is too large.
-
     return parser.parse_args()
 
 
@@ -143,6 +141,8 @@ def main():
             log('Loading density array')
         rho = load_rho(wdens[0], ui_grid, args.stride, args.chop)
         wdens = (rho,) + wdens[1:]
+    if log.do_medium:
+        log('Constructing weight function')
     weights = setup_weights(sys, ui_grid,
         dens=wdens,
         near=parse_wnear(args.wnear),
