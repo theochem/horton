@@ -38,6 +38,16 @@ class HirshfeldIMixin(object):
         self._threshold = threshold
         self._maxiter = maxiter
 
+    def _init_log_scheme(self):
+        if log.do_medium:
+            log.deflist([
+                ('Scheme', 'Hirshfeld-I'),
+                ('Convergence threshold', '%.1e' % self._threshold),
+                ('Maximum iterations', self._maxiter),
+                ('Proatomic DB',  self._proatomdb),
+            ])
+            log.cite('bultinck2007', 'the use of Hirshfeld-I partitioning')
+
     def get_interpolation_info(self, i, charges=None):
         if charges is None:
             charges = self.cache.load('charges')
@@ -138,17 +148,6 @@ class HirshfeldIWPart(HirshfeldIMixin, HirshfeldWPart):
         '''
         HirshfeldIMixin.__init__(self, threshold, maxiter)
         HirshfeldWPart.__init__(self, system, grid, proatomdb, local)
-
-    def _init_log(self):
-        WPart._init_log(self)
-        if log.do_medium:
-            log.deflist([
-                ('Scheme', 'Hirshfeld-I'),
-                ('Convergence threshold', '%.1e' % self._threshold),
-                ('Maximum iterations', self._maxiter),
-                ('Proatomic DB',  self._proatomdb),
-            ])
-            log.cite('bultinck2007', 'the use of Hirshfeld-I partitioning')
 
     def _update_propars(self):
         # Keep track of history

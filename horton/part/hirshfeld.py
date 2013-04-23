@@ -46,6 +46,14 @@ class HirshfeldMixin(object):
     def __init__(self, proatomdb):
         self._proatomdb = proatomdb
 
+    def _init_log_scheme(self):
+        if log.do_medium:
+            log.deflist([
+                ('Scheme', 'Hirshfeld'),
+                ('Proatomic DB',  self.proatomdb),
+            ])
+            log.cite('hirshfeld1977', 'the use of Hirshfeld partitioning')
+
     def _get_proatomdb(self):
         return self._proatomdb
 
@@ -113,15 +121,6 @@ class HirshfeldWPart(HirshfeldMixin, StockholderWPart):
         HirshfeldMixin. __init__(self, proatomdb)
         StockholderWPart.__init__(self, system, grid, local)
 
-    def _init_log(self):
-        StockholderWPart._init_log(self)
-        if log.do_medium:
-            log.deflist([
-                ('Scheme', 'Hirshfeld'),
-                ('Proatomic DB',  self.proatomdb),
-            ])
-            log.cite('hirshfeld1977', 'the use of Hirshfeld partitioning')
-
     def _init_partitioning(self):
         pass
 
@@ -147,7 +146,6 @@ class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
         for index in xrange(self.system.natom):
             funcs.extend(self.get_wcor_funcs(index))
         if len(funcs) > 0:
-            print self._wcor_rcut_max, self._wcor_rcond
             wcor = self.grid.compute_weight_corrections(funcs, rcut_max=self._wcor_rcut_max, rcond=self._wcor_rcond)
             self._cache.dump('wcor', wcor)
 
