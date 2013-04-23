@@ -135,6 +135,7 @@ def test_parse_ui_grid_2():
             os.remove(fn_h5)
         os.rmdir(tmpdir)
 
+
 def test_store_args():
     with h5.File('horton.scripts.test.test_common.test_store_args.h5', driver='core', backing_store=False) as f:
         namespace = argparse.Namespace()
@@ -150,3 +151,9 @@ def test_store_args():
         assert 'pwd' in f.attrs
         assert 'cmdline' in f.attrs
         assert 'datetime' in f.attrs
+
+
+def test_safe_open():
+    # just a silly test
+    with safe_open_h5('horton.scripts.test.test_common.test_safe_open.h5', driver='core', backing_store=False) as f:
+        pass

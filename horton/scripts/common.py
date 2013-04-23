@@ -21,14 +21,14 @@
 
 
 
-import os, sys, datetime, numpy as np, h5py as h5
+import os, sys, datetime, numpy as np, h5py as h5, time, contextlib
 
 from horton import UniformIntGrid, angstrom, periodic, Cell
 
 
 __all__ = [
     'iter_elements', 'reduce_data', 'parse_h5', 'parse_ewald_args', 'parse_pbc',
-    'parse_ui_grid', 'store_args'
+    'parse_ui_grid', 'store_args', 'safe_open_h5',
 ]
 
 
@@ -148,7 +148,6 @@ def parse_ui_grid(sgrid, cell):
         return UniformIntGrid(origin, grid_rvecs, shape, pbc)
 
 
-
 def store_args(args, grp):
     '''Convert the command line arguments to hdf5 attributes'''
     grp.attrs['cmdline'] =  ' '.join(sys.argv)
@@ -157,3 +156,21 @@ def store_args(args, grp):
     for key, val in vars(args).iteritems():
         if val is not None:
             grp.attrs['arg_%s' % key] = val
+
+
+@contextlib.contextmanager
+def safe_open_h5(*args, **kwargs):
+    '''Try to open a file and 10 times wait a random time up to seconds between each attempt.
+
+       **Arguments:** the same as those of the h5py.File constructor.
+    '''
+    counter = 10
+    while True:
+        try:
+            yield h5.File(*args, **kwargs)
+            return
+        except:
+            counter -= 1
+            if counter <= 0:
+                raise
+            time.sleep(np.random.uniform(0, 10))

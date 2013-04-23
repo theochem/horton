@@ -25,8 +25,10 @@ import sys, argparse, os
 
 import h5py as h5, numpy as np
 from horton import System, angstrom, setup_weights, ESPCost, log, angstrom
-from horton.scripts.common import reduce_data, parse_ewald_args, store_args
-from horton.scripts.espfit import parse_wdens, parse_wnear, parse_wfar, load_rho, save_weights
+from horton.scripts.common import reduce_data, parse_ewald_args, store_args, \
+    safe_open_h5
+from horton.scripts.espfit import parse_wdens, parse_wnear, parse_wfar, \
+    load_rho, save_weights
 
 
 def parse_args():
@@ -205,7 +207,7 @@ def main():
         log.hline()
 
     # Store the results in an HDF5 file
-    with h5.File(fn_h5) as f:
+    with safe_open_h5(fn_h5) as f:
         # Store essential system info
         sys_grp = f.require_group('system')
         del sys.props['cube_data'] # first drop potentially large array
