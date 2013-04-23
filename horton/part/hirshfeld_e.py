@@ -123,6 +123,13 @@ class HEBasis(object):
     def get_basis_lico(self, i, j):
         return self.basis_specs[i][2][j]
 
+    def get_lower_bound(self, i, j):
+        lico = self.basis_specs[i][2][j]
+        for charge in lico.iterkeys():
+            if charge < 0:
+                return 0
+        return -1
+
     def get_basis_label(self, i, j):
         licos = self.basis_specs[i][2]
         charges = tuple(sorted(licos[j].keys()))
@@ -209,7 +216,7 @@ class HirshfeldEMixin(object):
         for j0 in xrange(nbasis):
             lc = np.zeros(nbasis)
             lc[j0] = 1.0/scales[j0]
-            lcs_par.append((lc, -1))
+            lcs_par.append((lc, self._hebasis.get_lower_bound(index, j0)))
         atom_propars = quadratic_solver(A, B, [lc_pop], lcs_par, rcond=0)
         rrmsd = np.sqrt(np.dot(np.dot(A, atom_propars) - 2*B, atom_propars)/C + 1)
 
