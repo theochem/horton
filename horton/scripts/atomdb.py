@@ -327,7 +327,10 @@ class AtomProgram(object):
         if not os.path.isfile(fn):
             return None, None
 
-        system = System.from_file(fn)
+        try:
+            system = System.from_file(fn)
+        except:
+            return None, None
         system.props['energy'] = self._get_energy(system, dn_mult)
         return system, system.props['energy']
 
