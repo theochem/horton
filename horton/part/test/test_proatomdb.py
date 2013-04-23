@@ -119,7 +119,8 @@ def test_io_filename():
 def test_compute_radii():
     padb = get_proatomdb_ref([6], 0, 0)
     record = padb.get_record(6, 0)
-    radii = record.compute_radii([2.0, 5.9, 5.999])
+    indexes, radii = record.compute_radii([2.0, 5.9, 5.999])
+    assert (indexes == [69, 90, 100]).all()
     assert abs(radii - np.array([0.599677, 4.037688, 10.0])).max() < 1e-5
 
 
@@ -185,3 +186,10 @@ def test_get_spline_pseudo():
     spline = padb.get_spline(14)
     check_spline_pop(spline, 4.0)
     check_spline_record(spline, padb.get_record(14, 0))
+
+
+def test_compact():
+    padb = get_proatomdb_cp2k()
+    padb.compact(0.1)
+    assert padb.get_rtransform(8).npoint < 100
+    assert padb.get_rtransform(14).npoint < 100

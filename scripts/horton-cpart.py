@@ -82,6 +82,11 @@ def parse_args():
              '--store=disk will be used. [default=%(default)s] When possible '
              '--store=core has priority over --store=disk.')
 
+    parser.add_argument('--compact', default=None, type=float,
+        help='Reduce the cutoff radius of the proatoms such that the tail with '
+             'the given number of electrons is neglected. The purpose of this '
+             'option is to improve the computational efficiency with a minimal '
+             'effect on the results. A typical value is 0.01.')
 
     parser.add_argument('--wcor', default='1-118', type=str,
         help='The elements for which weight corrections are used. This can be '
@@ -129,8 +134,10 @@ def main():
     if args.stride > 1 or args.chop > 0:
         moldens, ui_grid = reduce_data(moldens, ui_grid, args.stride, args.chop)
 
-    # Load the proatomdb
+    # Load the proatomdb and make pro-atoms more compact if that is requested
     proatomdb = ProAtomDB.from_file(args.atoms)
+    if args.compact is not None:
+        proatomdb.compact(args.compact)
 
     # Select the partitioning scheme
     CPartClass = cpart_schemes[args.scheme]
