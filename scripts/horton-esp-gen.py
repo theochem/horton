@@ -25,7 +25,7 @@ import sys, argparse, os
 
 import h5py as h5, numpy as np
 from horton import System, UniformIntGrid, log, Cell, angstrom, \
-    compute_esp_grid_cube
+    compute_esp_grid_cube, dump_hdf5_low
 from horton.scripts.common import parse_h5, parse_ewald_args, store_args, \
     safe_open_h5, parse_ui_grid
 
@@ -117,19 +117,11 @@ def main():
 
     # Store the results in an HDF5 file
     with safe_open_h5(fn_h5) as f:
-        # Get the group for the output
-        grp = f[grp_name]
-        if 'espgrid' in grp:
-            del grp['espgrid']
-        grp = grp.create_group('espgrid')
+        # Store results
+        dump_hdf5_low(f[grp_name], 'espgrid', results)
 
         # Store command line arguments
-        store_args(args, grp)
-
-        # Store results
-        for key, value in results.iteritems():
-            grp[key] = value
-        ui_grid.to_hdf5(grp.create_group('ui_grid'))
+        store_args(args, f[grp_name]['espgrid'])
 
 
 if __name__ == '__main__':
