@@ -93,7 +93,7 @@ def reduce_data(cube_data, ui_grid, stride, chop):
 
 def parse_h5(arg_h5):
     if arg_h5.count(':') != 1:
-        raise VallueError('An hdf5 argument must contain one colon.')
+        raise ValueError('An hdf5 argument must contain one colon.')
     return arg_h5.split(':')
 
 

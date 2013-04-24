@@ -128,6 +128,9 @@ def main():
                 if debug_name not in names:
                     grp_debug[debug_name] = wpart.cache.load(*debug_key)
 
+        if log.do_medium:
+            log('Results written to %s:wpart/%s' % (fn_h5, grp_name))
+
 
 if __name__ == '__main__':
     main()
