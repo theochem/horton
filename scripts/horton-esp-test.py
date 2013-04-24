@@ -24,7 +24,7 @@
 import sys, argparse, os
 
 import h5py as h5, numpy as np
-from horton import System, ESPCost, log
+from horton import System, ESPCost, log, dump_hdf5_low
 from horton.scripts.common import parse_h5, store_args, safe_open_h5
 
 
@@ -102,18 +102,14 @@ def main():
 
     # Store the results in an HDF5 file
     with safe_open_h5(fn_h5) as f:
-        # Get the group for the output
-        grp = f[grp_name]
-        if 'esp' in grp:
-            del grp['esp']
-        grp = grp.create_group('esp')
+        # Store results
+        dump_hdf5_low(f[grp_name], 'esp', results)
 
         # Store command line arguments
-        store_args(args, grp)
+        store_args(args, f[grp_name]['esp'])
 
-        # Store results
-        for key, value in results.iteritems():
-            grp[key] = value
+        if log.do_medium:
+            log('Results written to %s:%s/esp' % (fn_h5, grp_name))
 
 
 if __name__ == '__main__':

@@ -123,6 +123,9 @@ def main():
         # Store command line arguments
         store_args(args, f[grp_name]['espgrid'])
 
+        if log.do_medium:
+            log('Results written to %s:%s/espgrid' % (fn_h5, grp_name))
+
 
 if __name__ == '__main__':
     main()

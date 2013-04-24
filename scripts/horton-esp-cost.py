@@ -24,7 +24,8 @@
 import sys, argparse, os
 
 import h5py as h5, numpy as np
-from horton import System, angstrom, setup_weights, ESPCost, log, angstrom
+from horton import System, angstrom, setup_weights, ESPCost, log, angstrom, \
+    dump_hdf5_low
 from horton.scripts.common import reduce_data, parse_ewald_args, store_args, \
     safe_open_h5
 from horton.scripts.espfit import parse_wdens, parse_wnear, parse_wfar, \
@@ -213,18 +214,12 @@ def main():
         del sys.props['cube_data'] # first drop potentially large array
         sys.to_file(sys_grp)
 
-        # Store grid rvecs.
-        grp_espfit = f.require_group('espfit')
-        if grp_name in grp_espfit:
-            del grp_espfit[grp_name]
-        grp = grp_espfit.create_group(grp_name)
+        # Store results
+        out_grp = f.require_group('espfit')
+        dump_hdf5_low(out_grp, grp_name, results)
 
         # Store arguments
-        store_args(args, grp)
-
-        # Store results
-        for key, value in results.iteritems():
-            grp[key] = value
+        store_args(args, out_grp[grp_name])
 
         if log.do_medium:
             log('Results written to %s:espfit/%s' % (fn_h5, grp_name))
