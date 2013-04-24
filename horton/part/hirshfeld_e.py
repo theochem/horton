@@ -365,7 +365,7 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
         present = self._store.load(delta_aim, 'at_weights', index)
         if not present:
             # construct atomic weight function
-            self.compute_proatom(index, delta_aims)
+            self.compute_proatom(index, delta_aim)
             delta_aim /= self._cache.load('promoldens')
         delta_aim *= self.get_moldens()
 
