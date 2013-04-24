@@ -134,13 +134,13 @@ class HirshfeldWPart(HirshfeldMixin, StockholderWPart):
 class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
     name = 'h'
 
-    def __init__(self, system, grid, moldens, proatomdb, store, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1):
+    def __init__(self, system, grid, local, moldens, proatomdb, store, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1):
         '''
            See CPart base class for the description of the arguments.
         '''
         check_proatomdb(system, proatomdb)
         HirshfeldMixin. __init__(self, proatomdb)
-        StockholderCPart.__init__(self, system, grid, moldens, store, wcor_numbers, wcor_rcut_max, wcor_rcond)
+        StockholderCPart.__init__(self, system, grid, local, moldens, store, wcor_numbers, wcor_rcut_max, wcor_rcond)
 
     def _init_weight_corrections(self):
         funcs = []

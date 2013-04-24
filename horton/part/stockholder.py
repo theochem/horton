@@ -102,42 +102,38 @@ class StockholderWPart(StockHolderMixin, WPart):
 
 
 class StockholderCPart(StockHolderMixin, CPart):
-    def __init__(self, system, grid, moldens, store, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1):
+    def __init__(self, system, grid, local, moldens, store, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1):
         '''
            See CPart base class for the description of the arguments.
         '''
-        CPart.__init__(self, system, grid, moldens, store, wcor_numbers, wcor_rcut_max, wcor_rcond)
+        CPart.__init__(self, system, grid, local, moldens, store, wcor_numbers, wcor_rcut_max, wcor_rcond)
         assert self._cache.has('promoldens')
 
-    def compute_spline(self, index, spline, output, name='noname', window=None):
+    def compute_spline(self, index, spline, output, name='noname', grid=None):
+        if grid is None:
+            grid = self.grid
         if log.do_medium:
-            if window is None:
-                shape = self.grid.shape
-            else:
-                shape = window.shape
-            log('Computing spline (%s) for atom  %i/%i on grid [%i %i %i]' % (name, index, self.system.natom-1, shape[0], shape[1], shape[2]))
+            log('Computing spline (%s) for atom  %i/%i on grid [%i %i %i]' %
+                (name, index, self.system.natom-1, grid.shape[0], grid.shape[1], grid.shape[2]))
 
         center = self._system.coordinates[index]
         output[:] = 0.0
-        if window is None:
-            self.grid.eval_spline(spline, center, output)
-        else:
-            window.eval_spline(spline, center, output)
+        grid.eval_spline(spline, center, output)
 
-    def compute_proatom(self, index, output, window=None):
+    def compute_proatom(self, index, output, grid=None):
         # This routine must compute the pro-atom, not from scratch, but based
         # on the info available after the partitioning. The default behavior
         # is to load the pro-atom from the store, but in case the store is fake,
         # this implementation computes the pro-atom on the fly.
         spline = self.get_proatom_spline(index)
-        self.compute_spline(index, spline, output, 'proatom', window)
+        self.compute_spline(index, spline, output, 'proatom', grid)
         output += 1e-100
 
-    def compute_at_weights(self, index, output, window=None):
-        self.compute_proatom(index, output, window)
-        if window is None:
+    def compute_at_weights(self, index, output, grid=None):
+        self.compute_proatom(index, output, grid)
+        if grid is None:
             output /= self._cache.load('promoldens')
         else:
-            promoldens = window.zeros()
-            window.extend(self._cache.load('promoldens'), promoldens)
+            promoldens = grid.zeros()
+            grid.extend(self._cache.load('promoldens'), promoldens)
             output /= promoldens

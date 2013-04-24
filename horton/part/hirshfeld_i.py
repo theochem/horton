@@ -198,7 +198,7 @@ class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
     name = 'hi'
     options = ['maxiter', 'threshold']
 
-    def __init__(self, system, grid, moldens, proatomdb, store, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1, threshold=1e-6, maxiter=500):
+    def __init__(self, system, grid, local, moldens, proatomdb, store, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1, threshold=1e-6, maxiter=500):
         '''
            **Optional arguments:** (that are not present in the base class)
 
@@ -212,7 +212,7 @@ class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
                 in the end, no warning is given.
         '''
         HirshfeldIMixin.__init__(self, threshold, maxiter)
-        HirshfeldCPart.__init__(self, system, grid, moldens, proatomdb, store, wcor_numbers, wcor_rcut_max, wcor_rcond)
+        HirshfeldCPart.__init__(self, system, grid, local, moldens, proatomdb, store, wcor_numbers, wcor_rcut_max, wcor_rcond)
 
     def _get_isolated_atom(self, i, charge, output):
         key = ('isolated_atom', i, charge)
@@ -224,9 +224,9 @@ class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
             self.compute_spline(i, spline, output, 'n=%i q=%+i' % (number, charge))
             self._store.dump(output, *key)
 
-    def compute_proatom(self, i, output, window=None):
-        if self._store.fake or window is not None:
-            HirshfeldCPart.compute_proatom(self, i, output, window)
+    def compute_proatom(self, i, output, grid=None):
+        if self._store.fake or grid is not None:
+            HirshfeldCPart.compute_proatom(self, i, output, grid)
         else:
             # Construct the pro-atom
             icharge, x = self.get_interpolation_info(i)
