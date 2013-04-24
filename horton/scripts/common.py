@@ -163,14 +163,29 @@ def safe_open_h5(*args, **kwargs):
     '''Try to open a file and 10 times wait a random time up to seconds between each attempt.
 
        **Arguments:** the same as those of the h5py.File constructor.
+
+       **Optional keyword arguments:**
+
+       wait
+            The maximum number of seconds to wait between two attempts to open
+            the file. [default=10]
+
+       count
+            The number of attempts to open the file.
     '''
-    counter = 10
+    wait = kwargs.pop('wait', 10.0)
+    counter = kwargs.pop('count', 10)
     while True:
         try:
-            yield h5.File(*args, **kwargs)
-            return
+            f = h5.File(*args, **kwargs)
+            break
         except:
             counter -= 1
             if counter <= 0:
                 raise
-            time.sleep(np.random.uniform(0, 10))
+            time.sleep(np.random.uniform(0, wait))
+            continue
+    try:
+        yield f
+    finally:
+        f.close()
