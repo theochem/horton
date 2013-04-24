@@ -765,7 +765,7 @@ cdef class UniformIntGrid(object):
         return result
 
     # TODO: move this to cpart
-    def compute_weight_corrections(self, funcs, rcut_scale=0.9, rcut_max=2.0, rcond=0.1):
+    def compute_weight_corrections(self, funcs, rcut_scale=0.9, rcut_max=2.0, rcond=0.1, output=None):
         '''Computes corrections to the integration weights.
 
            **Arguments:**
@@ -806,7 +806,10 @@ cdef class UniformIntGrid(object):
         '''
         from horton.grid.int1d import SimpsonIntegrator1D
 
-        result = np.ones(self.shape, float)
+        if output is None:
+            output = np.ones(self.shape, float)
+        else:
+            output[:] = 1.0
         volume = self._grid_cell.volume
 
         # initialize cutoff radii
@@ -936,11 +939,11 @@ cdef class UniformIntGrid(object):
                 log('   constant      error %+.3e' % corrections.sum())
 
             # F) Fill the corrections into the right place:
-            result[indexes[:,0], indexes[:,1], indexes[:,2]] += corrections
+            output[indexes[:,0], indexes[:,1], indexes[:,2]] += corrections
 
             icenter += 1
 
-        return result
+        return output
 
     def get_window(self, np.ndarray[double, ndim=1] center, double rcut):
         begin, end = self.get_ranges_rcut(center, rcut)
@@ -1072,9 +1075,9 @@ cdef class UniformIntGridWindow(object):
             window_ui_grid = self.get_window_ui_grid()
             return dot_multi_moments_cube(args, window_ui_grid, center, nx, ny, nz, nr)*grid_cell.volume
 
-    def compute_weight_corrections(self, funcs, rcut_scale=0.9, rcut_max=2.0, rcond=0.1):
+    def compute_weight_corrections(self, funcs, rcut_scale=0.9, rcut_max=2.0, rcond=0.1, output=None):
         window_ui_grid = self.get_window_ui_grid()
-        return window_ui_grid.compute_weight_corrections(funcs, rcut_scale, rcut_max, rcond)
+        return window_ui_grid.compute_weight_corrections(funcs, rcut_scale, rcut_max, rcond, output)
 
 
 def index_wrap(long i, long high):

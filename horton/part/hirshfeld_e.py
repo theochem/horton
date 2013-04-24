@@ -26,7 +26,6 @@ from horton.cache import just_once
 from horton.grid.int1d import SimpsonIntegrator1D
 from horton.grid.cext import CubicSpline, dot_multi
 from horton.log import log
-from horton.part.base import storage_estimate_report
 from horton.part.hirshfeld_i import HirshfeldIWPart, HirshfeldICPart
 from horton.part.linalg import solve_positive, quadratic_solver
 
@@ -218,7 +217,11 @@ class HirshfeldEMixin(object):
             lc[j0] = 1.0/scales[j0]
             lcs_par.append((lc, self._hebasis.get_lower_bound(index, j0)))
         atom_propars = quadratic_solver(A, B, [lc_pop], lcs_par, rcond=0)
-        rrmsd = np.sqrt(np.dot(np.dot(A, atom_propars) - 2*B, atom_propars)/C + 1)
+        rrms = np.dot(np.dot(A, atom_propars) - 2*B, atom_propars)/C + 1
+        if rrms > 0:
+            rrmsd = np.sqrt(rrms)
+        else:
+            rrmsd = -0.01
 
         #    correct for scales
         atom_propars /= scales
@@ -229,32 +232,16 @@ class HirshfeldEMixin(object):
         self.cache.load('propars')[begin:begin+nbasis] = atom_propars
 
     def _get_charge_and_delta_aim(self, index):
-        raise NotImplementedError
-
-    def _get_he_system(self, index, delta_aim):
-        raise NotImplementedError
-
-
-class HirshfeldEWPart(HirshfeldEMixin, HirshfeldIWPart):
-    '''Extended Hirshfeld partitioning'''
-
-    name = 'he'
-    options = ['local', 'threshold', 'maxiter']
-
-    def __init__(self, system, grid, proatomdb, local=True, threshold=1e-6, maxiter=500):
-        self._hebasis = HEBasis(system.numbers, proatomdb)
-        HirshfeldIWPart.__init__(self, system, grid, proatomdb, local, threshold, maxiter)
-
-    def _get_charge_and_delta_aim(self, index):
         grid = self.get_grid(index)
         work = grid.zeros()
         spline = self._hebasis.get_constant_spline(index)
         center = self.system.coordinates[index]
         grid.eval_spline(spline, center, work)
+        wcor = self.get_wcor(index)
 
         self.cache.invalidate('at_weights', index)
         delta_aim = self.get_moldens(index)*self.get_at_weights(index) - work
-        charge = -grid.integrate(delta_aim)
+        charge = -grid.integrate(delta_aim, wcor)
         return charge, delta_aim
 
     def _get_he_system(self, index, delta_aim):
@@ -263,6 +250,7 @@ class HirshfeldEWPart(HirshfeldEMixin, HirshfeldIWPart):
         weights = self.proatomdb.get_radial_weights(number)
         nbasis = self._hebasis.get_atom_nbasis(index)
         grid = self.get_grid(index)
+        wcor_fit = self.get_wcor_fit(index)
 
         #    Matrix A
         if self.cache.has('A', number):
@@ -270,12 +258,26 @@ class HirshfeldEWPart(HirshfeldEMixin, HirshfeldIWPart):
         else:
             # Set up system of linear equations:
             A = np.zeros((nbasis, nbasis), float)
-            for j0 in xrange(nbasis):
-                rho0 = self._hebasis.get_basis_rho(index, j0)
-                for j1 in xrange(j0+1):
-                    rho1 = self._hebasis.get_basis_rho(index, j1)
-                    A[j0, j1] = dot_multi(weights, rho0, rho1)
-                    A[j1, j0] = A[j0, j1]
+            if self.local:
+                for j0 in xrange(nbasis):
+                    rho0 = self._hebasis.get_basis_rho(index, j0)
+                    for j1 in xrange(j0+1):
+                        rho1 = self._hebasis.get_basis_rho(index, j1)
+                        A[j0, j1] = dot_multi(weights, rho0, rho1)
+                        A[j1, j0] = A[j0, j1]
+            else:
+                basis0 = grid.zeros()
+                basis1 = grid.zeros()
+                for j0 in xrange(nbasis):
+                    basis0[:] = 0.0
+                    spline0 = self._hebasis.get_basis_spline(index, j0)
+                    grid.eval_spline(spline0, center, basis0)
+                    for j1 in xrange(j0+1):
+                        basis1[:] = 0.0
+                        spline1 = self._hebasis.get_basis_spline(index, j1)
+                        grid.eval_spline(spline1, center, basis1)
+                        A[j0, j1] = grid.integrate(basis0, basis1, wcor_fit)
+                        A[j1, j0] = A[j0, j1]
 
             if (np.diag(A) < 0).any():
                 raise ValueError('The diagonal of A must be positive.')
@@ -289,12 +291,29 @@ class HirshfeldEWPart(HirshfeldEMixin, HirshfeldIWPart):
             basis[:] = 0.0
             spline = self._hebasis.get_basis_spline(index, j0)
             grid.eval_spline(spline, center, basis)
-            B[j0] = grid.integrate(delta_aim, basis)
+            B[j0] = grid.integrate(delta_aim, basis, wcor_fit)
 
         #   Constant C
-        C = grid.integrate(delta_aim, delta_aim)
+        C = grid.integrate(delta_aim, delta_aim, wcor_fit)
 
         return A, B, C
+
+    def get_wcor_fit(self, index):
+        raise NotImplementedError
+
+
+class HirshfeldEWPart(HirshfeldEMixin, HirshfeldIWPart):
+    '''Extended Hirshfeld partitioning'''
+
+    name = 'he'
+    options = ['local', 'threshold', 'maxiter']
+
+    def __init__(self, system, grid, proatomdb, local=True, threshold=1e-6, maxiter=500):
+        self._hebasis = HEBasis(system.numbers, proatomdb)
+        HirshfeldIWPart.__init__(self, system, grid, proatomdb, local, threshold, maxiter)
+
+    def get_wcor_fit(self, index):
+        return None
 
     def do_all(self):
         names = HirshfeldIWPart.do_all(self)
@@ -304,138 +323,55 @@ class HirshfeldEWPart(HirshfeldEMixin, HirshfeldIWPart):
 class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
     name = 'he'
 
-    def __init__(self, system, grid, local, moldens, proatomdb, store, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1, threshold=1e-6, maxiter=500):
+    def __init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1, threshold=1e-6, maxiter=500):
         '''
            See CPart base class for the description of the arguments.
         '''
         self._hebasis = HEBasis(system.numbers, proatomdb)
-        HirshfeldICPart.__init__(self, system, grid, local, moldens, proatomdb, store, wcor_numbers, wcor_rcut_max, wcor_rcond, threshold, maxiter)
+        HirshfeldICPart.__init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max, wcor_rcond, threshold, maxiter)
 
-    def _init_weight_corrections(self):
+    def get_wcor_fit_funcs(self, index):
         HirshfeldICPart._init_weight_corrections(self)
 
-        funcs = []
-        for i in xrange(self._system.natom):
-            number = self._system.numbers[i]
-            if number not in self.wcor_numbers:
-                continue
-            center = self._system.coordinates[i]
-            splines = []
-            atom_nbasis = self._hebasis.get_atom_nbasis(i)
-            rtf = self._proatomdb.get_rtransform(self._system.numbers[i])
-            splines = []
-            for j0 in xrange(atom_nbasis):
-                rho0 = self._hebasis.get_basis_rho(i, j0)
-                splines.append(CubicSpline(rho0, rtf=rtf))
-                for j1 in xrange(j0+1):
-                    rho1 = self._hebasis.get_basis_rho(i, j1)
-                    splines.append(CubicSpline(rho0*rho1, rtf=rtf))
-            funcs.append((center, splines))
-        if len(funcs) > 0:
-            wcor_fit = self.grid.compute_weight_corrections(funcs, rcut_max=self._wcor_rcut_max, rcond=self._wcor_rcond)
-            self._cache.dump('wcor_fit', wcor_fit)
+        number = self._system.numbers[index]
+        if number not in self.wcor_numbers:
+            return []
 
-    def _get_constant_fn(self, i, output):
-        key = ('isolated_atom', i, 0)
-        if key in self._store:
-            self._store.load(output, *key)
+        center = self._system.coordinates[index]
+        atom_nbasis = self._hebasis.get_atom_nbasis(index)
+        rtf = self._proatomdb.get_rtransform(self._system.numbers[index])
+        splines = []
+        for j0 in xrange(atom_nbasis):
+            rho0 = self._hebasis.get_basis_rho(index, j0)
+            splines.append(CubicSpline(rho0, rtf=rtf))
+            for j1 in xrange(j0+1):
+                rho1 = self._hebasis.get_basis_rho(index, j1)
+                splines.append(CubicSpline(rho0*rho1, rtf=rtf))
+        return [(center, splines)]
+
+    def get_wcor_fit(self, index=None):
+        # TODO: eliminate duplicate code with get_wcor
+        # Get the functions
+        if index is None or not self.local:
+            funcs = []
+            for i in xrange(self.natom):
+                funcs.extend(self.get_wcor_fit_funcs(i))
         else:
-            number = self._system.numbers[i]
-            spline = self._hebasis.get_constant_spline(i)
-            self.compute_spline(i, spline, output, 'n=%i constant' % number)
-            self._store.dump(output, *key)
+            funcs = self.get_wcor_funcs(index)
 
-    def _get_basis_fn(self, i, j, output):
-        key = ('basis', i, j)
-        if key in self._store:
-            self._store.load(output, *key)
-        else:
-            number = self._system.numbers[i]
-            spline = self._hebasis.get_basis_spline(i, j)
-            label = self._hebasis.get_basis_label(i, j)
-            self.compute_spline(i, spline, output, 'n=%i %s' % (number, label))
-            self._store.dump(output, *key)
+        # If no functions are collected, bork
+        if len(funcs) == 0:
+            return None
 
-    def _get_charge_and_delta_aim(self, index):
-        delta_aim = self.grid.zeros()
-        work = self._work_cache.load('work0', alloc=self.grid.shape)[0]
-        wcor = self.get_wcor()
+        grid = self.get_grid(index)
 
-        # 1) Construct the AIM density
-        present = self._store.load(delta_aim, 'at_weights', index)
-        if not present:
-            # construct atomic weight function
-            self.compute_proatom(index, delta_aim)
-            delta_aim /= self._cache.load('promoldens')
-        delta_aim *= self.get_moldens()
-
-        #    subtract the constant function
-        self._get_constant_fn(index, work)
-        delta_aim -= work
-
-        # compute the charge
-        charge = -self.grid.integrate(delta_aim, wcor)
-
-        return charge, delta_aim
-
-    def _get_he_system(self, index, delta_aim):
-        work0 = self._work_cache.load('work0', alloc=self.grid.shape)[0]
-        work1 = self._work_cache.load('work1', alloc=self.grid.shape)[0]
-        wcor_fit = self._cache.load('wcor_fit', default=None)
-        nbasis = self._hebasis.get_atom_nbasis(index)
-
-        #    compute A
-        A, new = self._cache.load('A', index, alloc=(nbasis, nbasis))
+        if not self.local:
+            index = None
+        wcor, new = self.cache.load('wcor_fit', index, alloc=grid.shape)
         if new:
-            for j0 in xrange(nbasis):
-                self._get_basis_fn(index, j0, work0)
-                for j1 in xrange(j0+1):
-                    self._get_basis_fn(index, j1, work1)
-                    A[j0,j1] = self.grid.integrate(work0, work1, wcor_fit)
-                    A[j1,j0] = A[j0,j1]
-
-        #    compute B
-        B = np.zeros(nbasis, float)
-        for j0 in xrange(nbasis):
-            self._get_basis_fn(index, j0, work0)
-            B[j0] = self.grid.integrate(delta_aim, work0, wcor_fit)
-
-        #    constant c
-        C = self.grid.integrate(delta_aim, delta_aim, wcor_fit)
-
-        return A, B, C
-
-    def compute_proatom(self, i, output, grid=None):
-        if self._store.fake or grid is not None:
-            HirshfeldICPart.compute_proatom(self, i, output, grid)
-        else:
-            # Get the coefficients for the pro-atom
-            propars = self._cache.load('propars')
-
-            # Construct the pro-atom
-            begin = self._hebasis.get_atom_begin(i)
-            nbasis =  self._hebasis.get_atom_nbasis(i)
-            work = self.cache.load('work1', alloc=self.grid.shape)[0]
-            self._get_constant_fn(i, output)
-            for j in xrange(nbasis):
-                if propars[j+begin] != 0:
-                    self._get_basis_fn(i, j, work)
-                    work *= propars[j+begin]
-                    output += work
-
-            # eliminate negative parts
-            np.clip(output, 0, 1e100, output)
-
-            output += 1e-100
+            grid.compute_weight_corrections(funcs, output=wcor)
+        return wcor
 
     def do_all(self):
         names = HirshfeldICPart.do_all(self)
         return names + ['propars', 'propar_map', 'propar_names']
-
-    @classmethod
-    def estimate_storage(cls, numbers, ui_grid, proatomdb):
-        contribs = [
-            ('Atomic weights', len(numbers)),
-            ('Pro-atoms', sum([len(proatomdb.get_charges(n, safe=True)) for n in numbers])),
-        ]
-        return storage_estimate_report(ui_grid.size, contribs)

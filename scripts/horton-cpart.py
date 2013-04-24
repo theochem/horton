@@ -24,7 +24,7 @@
 import sys, argparse, os
 
 import h5py as h5
-from horton import System, cpart_schemes, Cell, ProAtomDB, log, ArrayStore
+from horton import System, cpart_schemes, Cell, ProAtomDB, log
 from horton.scripts.common import reduce_data, store_args, parse_pbc, \
     iter_elements, safe_open_h5, write_part_output
 
@@ -57,15 +57,6 @@ def parse_args():
         help='Specify the periodicity. The three digits refer to a, b and c '
              'cell vectors. 1=periodic, 0=aperiodic.')
 
-    parser.add_argument('--store', choices=('fake', 'core', 'disk', 'test', 'auto'), default='core',
-        help='Controls the storage of large intermediate arrays. fake: disables '
-             'storage of such intermediate arrays. core: the arrays are kept in '
-             'memory. disk: the arrays are stored in an HDF5 file on disk. For '
-             'the this case, see also the --tmp option. test: estimate roughly '
-             'the amount of storage needed for large intermediate arrays. '
-             'auto: estimate the amount of storage required and select based '
-             'on --max-core and --max-disk which option (fake, core or disk) '
-             'is most suitable. [default=%(default)s]')
     parser.add_argument('--tmp', type=str, default='.',
         help='A directory where the temporary scratch file can be written. '
              'This is only relevant with option --store=disk. '
@@ -142,51 +133,15 @@ def main():
     # Select the partitioning scheme
     CPartClass = cpart_schemes[args.scheme]
 
-    # Pick the ArrayStorage options
-    mode = args.store
-    if mode == 'fake':
-        store_fn = None
-    else:
-        store_fn = '%s/_scratch-PID-%i.h5' % (args.tmp, os.getpid())
-
-    # Handle special cases
-    if mode == 'test':
-        CPartClass.estimate_storage(sys.numbers, ui_grid, proatomdb)
-        return
-    elif mode == 'auto':
-        # compute storage needed in GB
-        size = CPartClass.estimate_storage(sys.numbers, ui_grid, proatomdb)/1024.0**3
-        if size < args.max_core:
-            # most efficient case: use memory
-            mode = 'core'
-        elif size < args.max_disk:
-            mode = 'disk'
-        else:
-            mode = 'fake'
-            store_fn = None
-
-    # Report storage method
-    if log.do_medium:
-        log('Storage strategy:')
-        if mode == 'disk':
-            log('  Using scratch file: %s' % store_fn)
-        elif mode == 'core':
-            log('  Keeping intermediate results in memory.')
-        elif mode == 'fake':
-            log('  Recomputing intermediate results when needed.')
-        else:
-            raise NotImplementedError
-
     # List of element numbers for which weight corrections are needed:
     wcor_numbers = list(iter_elements(args.wcor))
 
     # Run the partitioning
-    with ArrayStore.from_mode(mode, store_fn) as store:
-        kwargs = dict((key, val) for key, val in vars(args).iteritems() if key in CPartClass.options)
-        cpart = cpart_schemes[args.scheme](
-            sys, ui_grid, False, moldens, proatomdb, store, wcor_numbers,
-            args.wcor_rcut_max, args.wcor_rcond, **kwargs)
-        names = cpart.do_all()
+    kwargs = dict((key, val) for key, val in vars(args).iteritems() if key in CPartClass.options)
+    cpart = cpart_schemes[args.scheme](
+        sys, ui_grid, True, moldens, proatomdb, wcor_numbers,
+        args.wcor_rcut_max, args.wcor_rcond, **kwargs)
+    names = cpart.do_all()
 
     write_part_output(fn_h5, 'cpart', cpart, grp_name, names, args)
 

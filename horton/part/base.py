@@ -26,7 +26,7 @@ from horton.cache import JustOnceClass, just_once, Cache
 from horton.log import log, timer
 
 
-__all__ = ['Part', 'WPart', 'CPart', 'storage_estimate_report']
+__all__ = ['Part', 'WPart', 'CPart']
 
 
 class Part(JustOnceClass):
@@ -118,7 +118,7 @@ class Part(JustOnceClass):
         # and recomputation of the atomic weights is a waste of time
         self._init_partitioning()
 
-    def get_grid(self, index=None, local=True):
+    def get_grid(self, index=None):
         '''Return an integration grid
 
            **Optional arguments:**
@@ -127,30 +127,25 @@ class Part(JustOnceClass):
                 The index of the atom. If not given, a grid for the entire
                 system is returned. If self.local is False, a full system grid
                 is always returned.
-
-           periodic
-                Only relevant for periodic systems. By default, an integration
-                grid is returned that yields integrals over one unit cell. When
-                this option is set to False, the index must be provided and a
-                grid is returned that covers a single non-periodic atom.
         '''
         raise NotImplementedError
 
-    def get_moldens(self, index=None, periodic=True, output=None):
-        '''Return the electron density on a grid
+    def get_moldens(self, index=None, output=None):
+        self.do_moldens()
+        moldens = self.cache.load('moldens')
+        result = self.to_atomic_grid(index, moldens)
+        if output is not None:
+            output[:] = result
+        return result
 
-           See get_grid for the meaning of the optional arguments.
-        '''
-        raise NotImplementedError
-
-    def get_at_weights(self, index, periodic=True, output=None):
+    def get_at_weights(self, index, output=None):
         '''Return the atomic weight function on a grid
 
            See get_grid for the meaning of the optional arguments
         '''
         raise NotImplementedError
 
-    def get_wcor(self, index, periodic=True, output=None):
+    def get_wcor(self, index):
         '''Return the weight corrections on a grid
 
            See get_grid for the meaning of the optional arguments
@@ -176,11 +171,13 @@ class Part(JustOnceClass):
     def do_moldens(self):
         raise NotImplementedError
 
+    def to_atomic_grid(self, index, data):
+        raise NotImplementedError
+
     def compute_pseudo_population(self, index):
         grid = self.get_grid(index)
         dens = self.get_moldens(index)
-        at_weights = self._work_cache.load('work0', grid.size, alloc=grid.shape)[0]
-        self.get_at_weights(index, output=at_weights)
+        at_weights = self.get_at_weights(index)
         wcor = self.get_wcor(index)
         return grid.integrate(at_weights, dens, wcor)
 
@@ -229,20 +226,20 @@ class Part(JustOnceClass):
             # 1) Define a 'window' of the integration grid for this atom
             number = self._system.numbers[i]
             center = self._system.coordinates[i]
-            grid = self.get_grid(i, periodic=False)
+            grid = self.get_grid(i)
 
             # 2) Evaluate the non-periodic atomic weight in this window
             aim = grid.zeros()
-            self.get_at_weights(i, periodic=False, output=aim)
+            self.get_at_weights(i, output=aim)
 
             # 3) Extend the moldens over the window and multiply to obtain the
             #    AIM
-            moldens = self.get_moldens(i, periodic=False)
+            moldens = self.get_moldens(i)
             aim *= moldens
             del moldens
 
             # 4) Compute weight corrections (TODO: needs to be assessed!)
-            wcor = self.get_wcor(i, periodic=False)
+            wcor = self.get_wcor(i)
 
             # 5) Compute Cartesian multipoles
             counter = 0
@@ -314,28 +311,13 @@ class WPart(Part):
     def _init_weight_corrections(self):
         pass
 
-    def get_grid(self, index=None, periodic=True):
-        # periodic gets ignored
+    def get_grid(self, index=None):
         if index is None or not self.local:
             return self._grid
         else:
             return self._grid.subgrids[index]
 
-    def get_moldens(self, index=None, periodic=True, output=None):
-        # periodic gets ignored
-        self.do_moldens()
-        moldens = self.cache.load('moldens')
-        grid = self.get_grid(index, periodic)
-        if index is None or not self.local:
-            result = moldens
-        else:
-            result = moldens[grid.begin:grid.end]
-        if output is not None:
-            output[:] = result
-        return result
-
-    def get_at_weights(self, index, periodic=True, output=None):
-        # periodic gets ignored
+    def get_at_weights(self, index, output=None):
         grid = self.get_grid(index)
         at_weights, new = self.cache.load('at_weights', index, alloc=grid.size)
         if new:
@@ -344,10 +326,7 @@ class WPart(Part):
             output[:] = at_weights
         return at_weights
 
-    def get_wcor(self, index, periodic=True, output=None):
-        # periodic gets ignored
-        if output is not None:
-            raise NotImplementedError
+    def get_wcor(self, index):
         return None
 
     def compute_at_weights(self, i0, output=None):
@@ -361,13 +340,21 @@ class WPart(Part):
         if new:
             self.system.compute_grid_density(self.grid.points, rhos=moldens)
 
+    def to_atomic_grid(self, index, data):
+        if index is None or not self.local:
+            return data
+        else:
+            grid = self.get_grid(index)
+            return data[grid.begin:grid.end]
+
+
 
 class CPart(Part):
     '''Base class for density partitioning schemes of cube files'''
 
     name = None
 
-    def __init__(self, system, grid, local, moldens, store, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1):
+    def __init__(self, system, grid, local, moldens, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1):
         '''
            **Arguments:**
 
@@ -383,10 +370,6 @@ class CPart(Part):
            moldens
                 The all-electron density grid data.
 
-           store
-                An instance of the class ArrayStore to store large working
-                arrays.
-
            wcor_numbers
                 The list of element numbers for which weight corrections are
                 needed.
@@ -397,19 +380,9 @@ class CPart(Part):
            wcor_rcond
                 The regulatization strength for the weight correction equations.
         '''
-        # ArrayStore is used to avoid recomputation of huge arrays. This is not
-        # always desirable due to memory constraints. Therefore the arrays
-        # can be stored in a file or not stored at all. (See ArrayStore for
-        # more details.) The convention is cpart is to use the store for large
-        # arrays whose number scales with the system size, e.g. pro-atoms and
-        # AIM densities. All other arrays are stored in the cache. This means
-        # that after the initial setup of the pro-atoms, the partitioning schemes
-        # must store sufficient details to recreate the proatoms when needed
-        self._store = store
         self._wcor_numbers = wcor_numbers
         self._wcor_rcut_max = wcor_rcut_max
         self._wcor_rcond = wcor_rcond
-
         Part.__init__(self, system, grid, local, moldens)
 
     def _get_wcor_numbers(self):
@@ -438,58 +411,42 @@ class CPart(Part):
             radius = self.get_cutoff_radius(index)
             self._subgrids.append(self.grid.get_window(center, radius))
 
-    def get_grid(self, index=None, periodic=True):
-        if periodic:
+    def get_grid(self, index=None):
+        if index is None or not self.local:
             return self._grid
         else:
-            assert index is not None
             return self._subgrids[index]
 
-    def get_moldens(self, index=None, periodic=True, output=None):
-        if periodic:
-            result = self.cache.load('moldens')
-            if output is not None:
-                output[:] = result
-            return result
-        else:
-            assert index is not None
-            grid = self._subgrids[index]
-            if output is None:
-                output = grid.zeros()
-            else:
-                output[:] = 0.0
-            grid.extend(self.cache.load('moldens'), output)
-            return output
-
-    def get_at_weights(self, index=None, periodic=True, output=None):
-        if periodic:
-            # The default behavior is load the weights from the store. If this fails,
-            # they must be recomputed.
-            present = self._store.load(output, 'at_weights', index)
-            if output is None:
-                output = self.grid.zeros()
-            if not present:
-                self.compute_at_weights(index, output)
-                self._store.dump(output, 'at_weights', index)
-        else:
-            assert index is not None
-            grid = self._subgrids[index]
-            if output is None:
-                output = grid.zeros()
-            self.compute_at_weights(index, output, grid)
-        return output
-
-    def get_wcor(self, index=None, periodic=True, output=None):
-        if periodic:
-            result = self.cache.load('wcor', default=None)
-        else:
-            assert index is not None
-            funcs = self.get_wcor_funcs(index)
-            grid = self._subgrids[index]
-            result = grid.compute_weight_corrections(funcs)
+    def get_at_weights(self, index=None, output=None):
+        grid = self.get_grid(index)
+        at_weights, new = self.cache.load('at_weights', index, alloc=grid.shape)
+        if new:
+            self.compute_at_weights(index, at_weights)
         if output is not None:
-            output[:] = result
-        return result
+            output[:] = at_weights
+        return at_weights
+
+    def get_wcor(self, index=None):
+        # Get the functions
+        if index is None or not self.local:
+            funcs = []
+            for i in xrange(self.natom):
+                funcs.extend(self.get_wcor_funcs(i))
+        else:
+            funcs = self.get_wcor_funcs(index)
+
+        # If no functions are collected, bork
+        if len(funcs) == 0:
+            return None
+
+        grid = self.get_grid(index)
+
+        if not self.local:
+            index = None
+        wcor, new = self.cache.load('wcor', index, alloc=grid.shape)
+        if new:
+            grid.compute_weight_corrections(funcs, output=wcor)
+        return wcor
 
     def get_cutoff_radius(self, index):
         # The radius at which the weight function goes to zero
@@ -498,32 +455,20 @@ class CPart(Part):
     def get_wcor_funcs(self, index):
         raise NotImplementedError
 
-    def compute_at_weights(self, index, output, grid=None):
-        raise NotImplementedError
-
-    @classmethod
-    def estimate_storage(cls, numbers, ui_grid, proatomdb):
+    def compute_at_weights(self, index, output):
         raise NotImplementedError
 
     @just_once
     def do_moldens(self):
-        moldens, new = self.cache.load('moldens', alloc=self.grid.size)
+        moldens, new = self.cache.load('moldens', alloc=self.grid.shape)
         if new:
             raise NotImplementedError
 
-
-def storage_estimate_report(array_size, contribs):
-    if log.do_medium:
-        log('Estimate of storage requirements for large intermediate arrays')
-        log.hline()
-        rows = [('Size of one array [GB]', array_size*8/1024.0**3)]
-        num_arrays = 0
-        for name, count in contribs:
-            rows.append((name, count))
-            num_arrays += count
-        rows.append(('Total number of arrays', num_arrays))
-        total = num_arrays*array_size*8
-        rows.append(('Total storage needed [GB]',  total/1024.0**3))
-        log.deflist(rows)
-        log.hline()
-        return total
+    def to_atomic_grid(self, index, data):
+        if index is None or not self.local:
+            return data
+        else:
+            grid = self.get_grid(index)
+            result = grid.zeros()
+            grid.extend(data, result)
+            return result

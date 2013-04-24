@@ -26,7 +26,6 @@ from horton.cache import just_once
 from horton.grid.int1d import SimpsonIntegrator1D
 from horton.grid.cext import dot_multi
 from horton.log import log
-from horton.part.base import storage_estimate_report
 from horton.part.hirshfeld import HirshfeldWPart, HirshfeldCPart
 
 
@@ -87,6 +86,29 @@ class HirshfeldIMixin(object):
         self.cache.dump('propars', charges)
         return charges
 
+    def _update_propars(self):
+        # Keep track of history
+        self.history_propars.append(self.cache.load('propars').copy())
+
+        # Enforce (single) update of pro-molecule in case of a global grid
+        self.cache.invalidate('promoldens')
+
+        for index in xrange(self.natom):
+            # Update proatom
+            self._update_propars_atom(index)
+
+        # Keep track of history
+        self.history_charges.append(self.cache.load('charges').copy())
+
+    def _update_propars_atom(self, index):
+        # Compute population
+        self.cache.invalidate('at_weights', index)
+        pseudo_population = self.compute_pseudo_population(index)
+
+        # Store charge
+        charges = self.cache.load('charges')
+        charges[index] = self.system.pseudo_numbers[index] - pseudo_population
+
     def _finalize_propars(self):
         charges = self._cache.load('charges')
         self.cache.dump('history_propars', np.array(self.history_propars))
@@ -96,6 +118,12 @@ class HirshfeldIMixin(object):
 
     @just_once
     def _init_partitioning(self):
+        # Perform one general check in the beginning to keep things simple.
+        if all(self.cache.has('at_weights', i) for i in xrange(self.system.natom)):
+            return
+        # Need to compute density
+        self.do_moldens()
+
         propars = self._init_propars()
         if log.medium:
             log.hline()
@@ -149,43 +177,6 @@ class HirshfeldIWPart(HirshfeldIMixin, HirshfeldWPart):
         HirshfeldIMixin.__init__(self, threshold, maxiter)
         HirshfeldWPart.__init__(self, system, grid, proatomdb, local)
 
-    def _update_propars(self):
-        # Keep track of history
-        self.history_propars.append(self.cache.load('propars').copy())
-
-        # Enforce (single) update of pro-molecule in case of a global grid
-        if not self.local:
-            self.cache.invalidate('promoldens', self.grid.size)
-
-        for index in xrange(self.natom):
-            # Update proatom
-            self._update_propars_atom(index)
-
-        # Keep track of history
-        self.history_charges.append(self._cache.load('charges').copy())
-
-    def _update_propars_atom(self, index):
-        # Compute population
-        self.cache.invalidate('at_weights', index)
-        dens = self.get_moldens(index)
-        at_weights = self.get_at_weights(index)
-        grid = self.get_grid(index)
-        pseudo_population = grid.integrate(at_weights, dens)
-
-        # Store charge
-        charges = self.cache.load('charges')
-        charges[index] = self.system.pseudo_numbers[index] - pseudo_population
-
-    def _init_partitioning(self):
-        # Perform one general check in the beginning to keep things simple.
-        if all(self.cache.has('at_weights', i) for i in xrange(self.system.natom)):
-            return
-        # Need to compute density
-        self.do_moldens()
-        # Run the generic code
-        HirshfeldIMixin._init_partitioning(self)
-
-
     def do_all(self):
         '''Computes all AIM properties and returns a corresponding list of keys'''
         names = HirshfeldWPart.do_all(self)
@@ -198,7 +189,7 @@ class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
     name = 'hi'
     options = ['maxiter', 'threshold']
 
-    def __init__(self, system, grid, local, moldens, proatomdb, store, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1, threshold=1e-6, maxiter=500):
+    def __init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1, threshold=1e-6, maxiter=500):
         '''
            **Optional arguments:** (that are not present in the base class)
 
@@ -212,64 +203,8 @@ class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
                 in the end, no warning is given.
         '''
         HirshfeldIMixin.__init__(self, threshold, maxiter)
-        HirshfeldCPart.__init__(self, system, grid, local, moldens, proatomdb, store, wcor_numbers, wcor_rcut_max, wcor_rcond)
-
-    def _get_isolated_atom(self, i, charge, output):
-        key = ('isolated_atom', i, charge)
-        if key in self._store:
-            self._store.load(output, *key)
-        else:
-            number = self._system.numbers[i]
-            spline = self._proatomdb.get_spline(number, charge)
-            self.compute_spline(i, spline, output, 'n=%i q=%+i' % (number, charge))
-            self._store.dump(output, *key)
-
-    def compute_proatom(self, i, output, grid=None):
-        if self._store.fake or grid is not None:
-            HirshfeldCPart.compute_proatom(self, i, output, grid)
-        else:
-            # Construct the pro-atom
-            icharge, x = self.get_interpolation_info(i)
-            self._get_isolated_atom(i, icharge, output)
-            if x != 1:
-                output *= 1-x
-                ipseudo_pop = self.system.pseudo_numbers[i] - icharge
-                if ipseudo_pop > 1:
-                    tmp = self._work_cache.load('work1', alloc=self.grid.shape)[0]
-                    self._get_isolated_atom(i, icharge+1, tmp)
-                    tmp *= x
-                    output += tmp
-            output += 1e-100 # avoid division by zero
-
-    def _update_propars(self):
-        self.history_propars.append(self.cache.load('propars').copy())
-
-        # Update the pro-molecule density
-        self._update_promolecule()
-
-        # Compute the atomic weight functions if this is useful. This is merely
-        # a matter of efficiency.
-        self._store_at_weights()
-
-        # Update the pro-atom parameters.
-        for index in xrange(self._system.natom):
-            self._update_propars_atom(index)
-
-        self.history_charges.append(self.cache.load('charges').copy())
-
-    def _update_propars_atom(self, index):
-        charges = self.cache.load('charges')
-        pseudo_population = self.compute_pseudo_population(index)
-        charges[index] = self.system.pseudo_numbers[index] - pseudo_population
+        HirshfeldCPart.__init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max, wcor_rcond)
 
     def do_all(self):
         names = HirshfeldCPart.do_all(self)
         return names + ['niter', 'change', 'history_charges', 'history_propars']
-
-    @classmethod
-    def estimate_storage(cls, numbers, ui_grid, proatomdb):
-        contribs = [
-            ('Atomic weights', len(numbers)),
-            ('Pro-atoms', sum([min(3, len(proatomdb.get_charges(n))) for n in numbers])),
-        ]
-        return storage_estimate_report(ui_grid.size, contribs)
