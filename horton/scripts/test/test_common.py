@@ -153,7 +153,25 @@ def test_store_args():
         assert 'datetime' in f.attrs
 
 
-def test_safe_open():
+def test_safe_open1():
     # just a silly test
-    with safe_open_h5('horton.scripts.test.test_common.test_safe_open.h5', driver='core', backing_store=False) as f:
+    with safe_open_h5('horton.scripts.test.test_common.test_safe_open1.h5', driver='core', backing_store=False) as f:
+        pass
+
+
+def test_safe_open2():
+    # test error handling in with clause
+    try:
+        with safe_open_h5('horton.scripts.test.test_common.test_safe_open2.h5', driver='core', backing_store=False) as f:
+            raise ValueError
+    except ValueError:
+        pass
+
+
+def test_safe_open3():
+    # test error handling in file opening
+    try:
+        with safe_open_h5('horton.scripts.test.test_common.test_safe_open3.h5', driver='fubar', wait=0.1, count=3) as f:
+            raise ValueError
+    except ValueError:
         pass
