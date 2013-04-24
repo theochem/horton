@@ -184,7 +184,7 @@ def main():
     with ArrayStore.from_mode(mode, store_fn) as store:
         kwargs = dict((key, val) for key, val in vars(args).iteritems() if key in CPartClass.options)
         cpart = cpart_schemes[args.scheme](
-            sys, ui_grid, moldens, proatomdb, store, wcor_numbers,
+            sys, ui_grid, False, moldens, proatomdb, store, wcor_numbers,
             args.wcor_rcut_max, args.wcor_rcond, **kwargs)
         names = cpart.do_all()
 

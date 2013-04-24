@@ -304,12 +304,12 @@ class HirshfeldEWPart(HirshfeldEMixin, HirshfeldIWPart):
 class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
     name = 'he'
 
-    def __init__(self, system, grid, moldens, proatomdb, store, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1, threshold=1e-6, maxiter=500):
+    def __init__(self, system, grid, local, moldens, proatomdb, store, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1, threshold=1e-6, maxiter=500):
         '''
            See CPart base class for the description of the arguments.
         '''
         self._hebasis = HEBasis(system.numbers, proatomdb)
-        HirshfeldICPart.__init__(self, system, grid, moldens, proatomdb, store, wcor_numbers, wcor_rcut_max, wcor_rcond, threshold, maxiter)
+        HirshfeldICPart.__init__(self, system, grid, local, moldens, proatomdb, store, wcor_numbers, wcor_rcut_max, wcor_rcond, threshold, maxiter)
 
     def _init_weight_corrections(self):
         HirshfeldICPart._init_weight_corrections(self)
@@ -405,9 +405,9 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
 
         return A, B, C
 
-    def compute_proatom(self, i, output, window=None):
-        if self._store.fake or window is not None:
-            HirshfeldICPart.compute_proatom(self, i, output, window)
+    def compute_proatom(self, i, output, grid=None):
+        if self._store.fake or grid is not None:
+            HirshfeldICPart.compute_proatom(self, i, output, grid)
         else:
             # Get the coefficients for the pro-atom
             propars = self._cache.load('propars')

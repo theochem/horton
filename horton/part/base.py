@@ -30,7 +30,7 @@ __all__ = ['Part', 'WPart', 'CPart', 'storage_estimate_report']
 
 
 class Part(JustOnceClass):
-    def __init__(self, system, grid, moldens=None):
+    def __init__(self, system, grid, local, moldens=None):
         '''
            **Arguments:**
 
@@ -40,6 +40,9 @@ class Part(JustOnceClass):
            grid
                 The integration grid
 
+           local
+                Whether or not to use local (non-periodic) grids.
+
            **Optional arguments:**
 
            moldens
@@ -48,6 +51,7 @@ class Part(JustOnceClass):
         JustOnceClass.__init__(self)
         self._system = system
         self._grid = grid
+        self._local = local
 
         # Caching stuff, to avoid recomputation of earlier results
         self._cache = Cache()
@@ -89,6 +93,11 @@ class Part(JustOnceClass):
 
     grid = property(_get_grid)
 
+    def _get_local(self):
+        return self._local
+
+    local = property(_get_local)
+
     def _get_natom(self):
         return self.system.natom
 
@@ -109,7 +118,7 @@ class Part(JustOnceClass):
         # and recomputation of the atomic weights is a waste of time
         self._init_partitioning()
 
-    def get_grid(self, index=None, periodic=True):
+    def get_grid(self, index=None, local=True):
         '''Return an integration grid
 
            **Optional arguments:**
@@ -123,7 +132,7 @@ class Part(JustOnceClass):
                 Only relevant for periodic systems. By default, an integration
                 grid is returned that yields integrals over one unit cell. When
                 this option is set to False, the index must be provided and a
-                grid is returned that covers the entire atom.
+                grid is returned that covers a single non-periodic atom.
         '''
         raise NotImplementedError
 
@@ -287,14 +296,8 @@ class WPart(Part):
         '''
         if local and grid.subgrids is None:
             raise ValueError('Atomic grids are discarded from molecular grid object, but are needed for local integrations.')
-        self._local = local
-        Part.__init__(self, system, grid)
+        Part.__init__(self, system, grid, local)
 
-
-    def _get_local(self):
-        return self._local
-
-    local = property(_get_local)
 
     def _init_log_base(self):
         if log.do_medium:
@@ -364,7 +367,7 @@ class CPart(Part):
 
     name = None
 
-    def __init__(self, system, grid, moldens, store, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1):
+    def __init__(self, system, grid, local, moldens, store, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1):
         '''
            **Arguments:**
 
@@ -373,6 +376,9 @@ class CPart(Part):
 
            grid
                 The uniform integration grid based on the cube file.
+
+           local
+                Whether or not to use local (non-periodic) grids.
 
            moldens
                 The all-electron density grid data.
@@ -404,8 +410,7 @@ class CPart(Part):
         self._wcor_rcut_max = wcor_rcut_max
         self._wcor_rcond = wcor_rcond
 
-
-        Part.__init__(self, system, grid, moldens)
+        Part.__init__(self, system, grid, local, moldens)
 
     def _get_wcor_numbers(self):
         return self._wcor_numbers
@@ -426,19 +431,19 @@ class CPart(Part):
             ])
 
     def _init_subgrids(self):
-        # Windows for non-periodic integrations
-        self._windows = []
+        # grids for non-periodic integrations
+        self._subgrids = []
         for index in xrange(self.natom):
             center = self.system.coordinates[index]
             radius = self.get_cutoff_radius(index)
-            self._windows.append(self.grid.get_window(center, radius))
+            self._subgrids.append(self.grid.get_window(center, radius))
 
     def get_grid(self, index=None, periodic=True):
         if periodic:
             return self._grid
         else:
             assert index is not None
-            return self._windows[index]
+            return self._subgrids[index]
 
     def get_moldens(self, index=None, periodic=True, output=None):
         if periodic:
@@ -448,12 +453,12 @@ class CPart(Part):
             return result
         else:
             assert index is not None
-            window = self._windows[index]
+            grid = self._subgrids[index]
             if output is None:
-                output = window.zeros()
+                output = grid.zeros()
             else:
                 output[:] = 0.0
-            window.extend(self.cache.load('moldens'), output)
+            grid.extend(self.cache.load('moldens'), output)
             return output
 
     def get_at_weights(self, index=None, periodic=True, output=None):
@@ -468,10 +473,10 @@ class CPart(Part):
                 self._store.dump(output, 'at_weights', index)
         else:
             assert index is not None
-            window = self._windows[index]
+            grid = self._subgrids[index]
             if output is None:
-                output = window.zeros()
-            self.compute_at_weights(index, output, window)
+                output = grid.zeros()
+            self.compute_at_weights(index, output, grid)
         return output
 
     def get_wcor(self, index=None, periodic=True, output=None):
@@ -480,8 +485,8 @@ class CPart(Part):
         else:
             assert index is not None
             funcs = self.get_wcor_funcs(index)
-            window = self._windows[index]
-            result = window.compute_weight_corrections(funcs)
+            grid = self._subgrids[index]
+            result = grid.compute_weight_corrections(funcs)
         if output is not None:
             output[:] = result
         return result
@@ -493,7 +498,7 @@ class CPart(Part):
     def get_wcor_funcs(self, index):
         raise NotImplementedError
 
-    def compute_at_weights(self, index, output, window=None):
+    def compute_at_weights(self, index, output, grid=None):
         raise NotImplementedError
 
     @classmethod
