@@ -23,12 +23,12 @@
 
 import os, sys, datetime, numpy as np, h5py as h5, time, contextlib
 
-from horton import UniformIntGrid, angstrom, periodic, Cell
+from horton import UniformIntGrid, angstrom, periodic, Cell, log
 
 
 __all__ = [
     'iter_elements', 'reduce_data', 'parse_h5', 'parse_ewald_args', 'parse_pbc',
-    'parse_ui_grid', 'store_args', 'safe_open_h5',
+    'parse_ui_grid', 'store_args', 'safe_open_h5', 'write_part_output',
 ]
 
 
@@ -189,3 +189,37 @@ def safe_open_h5(*args, **kwargs):
         yield f
     finally:
         f.close()
+
+
+def write_part_output(fn_h5, label, part, grp_name, names, args):
+    # Store the results in an HDF5 file
+    with safe_open_h5(fn_h5) as f:
+        # Store system
+        sys_grp = f.require_group('system')
+        if 'cube_data' in part.system.props:
+            del part.system.props['cube_data'] # drop potentially large array
+        part.system.to_file(sys_grp)
+
+        # Store results
+        grp_part = f.require_group(label)
+        if grp_name in grp_part:
+            del grp_part[grp_name]
+        grp = grp_part.create_group(grp_name)
+        for name in names:
+            grp[name] = part[name]
+
+        # Store command line arguments
+        store_args(args, grp)
+
+        if args.debug:
+            # Store additional data for debugging
+            if 'debug' in grp:
+                del grp['debug']
+            grp_debug = grp.create_group('debug')
+            for debug_key in part.cache._store:
+                debug_name = '_'.join(str(x) for x in debug_key)
+                if debug_name not in names:
+                    grp_debug[debug_name] = part.cache.load(*debug_key)
+
+        if log.do_medium:
+            log('Results written to %s:%s/%s' % (fn_h5, label, grp_name))

@@ -26,7 +26,7 @@ import sys, argparse, os
 import h5py as h5
 from horton import System, wpart_schemes, Cell, ProAtomDB, log, BeckeMolGrid, \
     lebedev_laikov_npoints
-from horton.scripts.common import store_args, safe_open_h5
+from horton.scripts.common import store_args, safe_open_h5, write_part_output
 from horton.scripts.wpart import parse_grid
 
 
@@ -101,35 +101,7 @@ def main():
     wpart = wpart_schemes[args.scheme](sys, molgrid, proatomdb, **kwargs)
     names = wpart.do_all()
 
-    # Store the results in an HDF5 file
-    with safe_open_h5(fn_h5) as f:
-        # Store system
-        sys_grp = f.require_group('system')
-        sys.to_file(sys_grp)
-
-        # Store results
-        grp_wpart = f.require_group('wpart')
-        if grp_name in grp_wpart:
-            del grp_wpart[grp_name]
-        grp = grp_wpart.create_group(grp_name)
-        for name in names:
-            grp[name] = wpart[name]
-
-        # Store command line arguments
-        store_args(args, grp)
-
-        if args.debug:
-            # Store additional data for debugging
-            if 'debug' in grp:
-                del grp['debug']
-            grp_debug = grp.create_group('debug')
-            for debug_key in wpart.cache._store:
-                debug_name = '_'.join(str(x) for x in debug_key)
-                if debug_name not in names:
-                    grp_debug[debug_name] = wpart.cache.load(*debug_key)
-
-        if log.do_medium:
-            log('Results written to %s:wpart/%s' % (fn_h5, grp_name))
+    write_part_output(fn_h5, 'wpart', wpart, grp_name, names, args)
 
 
 if __name__ == '__main__':
