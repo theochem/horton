@@ -24,7 +24,6 @@ import numpy as np
 
 from horton.cache import just_once
 from horton.log import log
-from horton.part.base import storage_estimate_report
 from horton.part.stockholder import StockholderWPart, StockholderCPart
 
 
@@ -133,26 +132,21 @@ class HirshfeldWPart(HirshfeldMixin, StockholderWPart):
 
 class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
     name = 'h'
+    options = ['local']
 
-    def __init__(self, system, grid, local, moldens, proatomdb, store, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1):
+    def __init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1):
         '''
            See CPart base class for the description of the arguments.
         '''
         check_proatomdb(system, proatomdb)
         HirshfeldMixin. __init__(self, proatomdb)
-        StockholderCPart.__init__(self, system, grid, local, moldens, store, wcor_numbers, wcor_rcut_max, wcor_rcond)
+        StockholderCPart.__init__(self, system, grid, local, moldens, wcor_numbers, wcor_rcut_max, wcor_rcond)
 
     def _init_weight_corrections(self):
-        funcs = []
-        for index in xrange(self.system.natom):
-            funcs.extend(self.get_wcor_funcs(index))
-        if len(funcs) > 0:
-            wcor = self.grid.compute_weight_corrections(funcs, rcut_max=self._wcor_rcut_max, rcond=self._wcor_rcond)
-            self._cache.dump('wcor', wcor)
+        pass # TODO: remove this method
 
     def _init_partitioning(self):
-        self._update_promolecule()
-        self._store_at_weights()
+        pass
 
     def get_cutoff_radius(self, index):
         '''The radius at which the weight function goes to zero'''
@@ -166,33 +160,7 @@ class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
         else:
             return []
 
-    def _update_promolecule(self):
-        promoldens = self.cache.load('promoldens', alloc=self.grid.shape)[0]
-        promoldens[:] = 0.0
-        work = self._work_cache.load('work0', alloc=self.grid.shape)[0]
-        for index in xrange(self._system.natom):
-            self.compute_proatom(index, work)
-            promoldens += work
-            # Merely for efficiency:
-            self._store.dump(work, 'at_weights', index)
-
-    def _store_at_weights(self):
-        # Compute the atomic weight functions if this is useful. This is merely
-        # a matter of efficiency.
-        promoldens = self.cache.load('promoldens')
-        work = self._work_cache.load('work0', alloc=self.grid.shape)[0]
-        for index in xrange(self._system.natom):
-            if ('at_weights', index) in self._store:
-                self._store.load(work, 'at_weights', index)
-                work /= promoldens
-                self._store.dump(work, 'at_weights', index)
-
     def do_all(self):
         names = StockholderCPart.do_all(self)
         self.do_dispersion()
         return names + ['volumes', 'volume_ratios', 'c6s']
-
-    @classmethod
-    def estimate_storage(cls, numbers, ui_grid, proatomdb):
-        contribs = [('Atomic weights', len(numbers))]
-        return storage_estimate_report(ui_grid.size, contribs)

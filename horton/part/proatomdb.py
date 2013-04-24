@@ -190,8 +190,8 @@ class ProAtomRecord(object):
                 result.append(radii[-1])
             else:
                 # linear interpolation
-                x = (populations[i] - popint[index])/(popint[index+1] - popint[index])
-                result.append(x*radii[index+1]+(1-x)*radii[index])
+                x = (populations[i] - popint[index])/(popint[index-1] - popint[index])
+                result.append(x*radii[index-1]+(1-x)*radii[index])
         return indexes, result
 
     def get_moment(self, order):
@@ -515,7 +515,7 @@ class ProAtomDB(object):
         '''
         if log.do_medium:
             log('Reducing extents of the pro-atoms')
-            log('   Z     npiont     radius')
+            log('   Z     npiont           radius')
             log.hline()
         for number in self.get_numbers():
             rtf = self._rtf_map[number]

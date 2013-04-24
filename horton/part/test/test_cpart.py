@@ -31,7 +31,7 @@ def check_names(names, cpart):
         assert cpart._cache.has(name)
 
 
-def test_hirshfeld_jbw_coarse():
+def check_jbw_coarse(local):
     # This test is not supposed to generate meaningful numbers. The cube data
     # is too coarse and the reference atoms may have little similarities with
     # the DFT density.
@@ -48,143 +48,116 @@ def test_hirshfeld_jbw_coarse():
     atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), keep_subgrids=1)
     proatomdb = ProAtomDB.from_refatoms(atgrid, numbers=[8,14], max_kation=0, max_anion=0)
 
-    size = HirshfeldCPart.estimate_storage(sys.numbers, ui_grid, proatomdb)
-    assert size == ui_grid.size*sys.natom*8
-
     # Run the partitioning
-    with ArrayStore.from_mode('core', 'horton.test.test_hirshfeld.test_hirshfeld_jbw_coarse.h5') as store:
-        cpart = HirshfeldCPart(sys, ui_grid, False, mol_dens, proatomdb, store, range(119))
+    cpart = HirshfeldCPart(sys, ui_grid, local, mol_dens, proatomdb, range(119))
+
+    # Do some testing
+    if local:
         names = cpart.do_all()
         check_names(names, cpart)
-        wcor = cpart['wcor']
+    else:
+        cpart.do_charges()
+        wcor = cpart.get_wcor()
         assert abs(cpart['populations'].sum() - ui_grid.integrate(wcor, mol_dens)) < 1e-10
 
 
-def test_hirshfeld_fake():
-    sys, ui_grid, mol_dens, proatomdb = get_fake_co()
-
-    # Run the partitioning
-    with ArrayStore.from_mode('core', 'horton.test.test_hirshfeld.test_hirshfeld_fake.h5') as store:
-        cpart = HirshfeldCPart(sys, ui_grid, False, mol_dens, proatomdb, store, range(119))
-        cpart.do_charges()
-        charges = cpart['charges']
-        assert abs(charges.sum()) < 1e-2
-        assert abs(abs(charges).mean() - 0.114) < 1e-3
+def test_hirshfeld_jbw_coarse_local():
+    check_jbw_coarse(True)
 
 
-def test_hirshfeld_fake_pseudo():
-    sys, ui_grid, mol_dens, proatomdb = get_fake_pseudo_oo()
-
-    # Run the partitioning
-    with ArrayStore.from_mode('core', 'horton.test.test_hirshfeld.test_hirshfeld_fake_pseudo.h5') as store:
-        cpart = HirshfeldCPart(sys, ui_grid, False, mol_dens, proatomdb, store, range(119))
-        cpart.do_charges()
-        charges = cpart['charges']
-        assert abs(charges.sum()) < 1e-2
-        assert abs(charges[0] - 0.2119886) < 1e-3
+def test_hirshfeld_jbw_coarse_global():
+    check_jbw_coarse(False)
 
 
-def test_hirshfeld_fake_pseudo_nowcor():
-    sys, ui_grid, mol_dens, proatomdb = get_fake_pseudo_oo()
+def check_fake(scheme, pseudo, dowcor, local, absmean, **kwargs):
+    if pseudo:
+        sys, ui_grid, mol_dens, proatomdb = get_fake_pseudo_oo()
+    else:
+        sys, ui_grid, mol_dens, proatomdb = get_fake_co()
 
-    # Run the partitioning
-    with ArrayStore.from_mode('core', 'horton.test.test_hirshfeld.test_hirshfeld_fake_pseudo_nowcor.h5') as store:
-        cpart = HirshfeldCPart(sys, ui_grid, False, mol_dens, proatomdb, store, [])
-        cpart.do_charges()
-        charges = cpart['charges']
-        assert abs(charges.sum()) < 1e-2
-        assert abs(charges[0] - 0.2119886) < 1e-3
+    if dowcor:
+        wcor_numbers = range(119)
+    else:
+        wcor_numbers = []
 
+    CPartClass = cpart_schemes[scheme]
+    cpart = CPartClass(sys, ui_grid, local, mol_dens, proatomdb, wcor_numbers, **kwargs)
 
-def check_proatom_splines(cpart):
-    for index in xrange(cpart.system.natom):
-        center = cpart.system.coordinates[index]
-        spline = cpart.get_proatom_spline(index)
-        array1 = cpart.grid.zeros()
-        cpart.grid.eval_spline(spline, center, array1)
-        array2 = cpart.grid.zeros()
-        cpart.compute_proatom(index, array2)
-        assert abs(array1).max() != 0.0
-        assert abs(array1 - array2).max() < 1e-5
+    cpart.do_charges()
+    charges = cpart['charges']
+    assert abs(charges.sum()) < 2e-2
+    assert abs(abs(charges).mean() - absmean) < 1e-3
 
 
-def test_hirshfeld_i_fake():
-    sys, ui_grid, mol_dens, proatomdb = get_fake_co()
-
-    assert HirshfeldICPart.estimate_storage(sys.numbers, ui_grid, proatomdb) == 8*8*ui_grid.size
-
-    # Run the partitioning
-    with ArrayStore.from_mode('core', 'horton.test.test_hirshfeld.test_hirshfeld_i_fake') as store:
-        cpart = HirshfeldICPart(sys, ui_grid, False, mol_dens, proatomdb, store, range(119), threshold=1e-5)
-        cpart.do_charges()
-        charges = cpart['charges']
-        assert abs(charges.sum()) < 1e-2
-        assert abs(abs(charges).mean() - 0.438) < 1e-3
-        check_proatom_splines(cpart)
+def test_hirshfeld_fake_local():
+    check_fake('h', pseudo=False, dowcor=True, local=True, absmean=0.115)
 
 
-def test_hirshfeld_i_fake_pseudo():
-    sys, ui_grid, mol_dens, proatomdb = get_fake_pseudo_oo()
-
-    # Run the partitioning
-    with ArrayStore.from_mode('core', 'horton.test.test_hirshfeld.test_hirshfeld_i_fake_pseudo') as store:
-        cpart = HirshfeldICPart(sys, ui_grid, False, mol_dens, proatomdb, store, range(119), threshold=1e-4)
-        cpart.do_charges()
-        charges = cpart['charges']
-        assert abs(charges.sum()) < 1e-2
-        assert abs(charges[0] - 0.40262645) < 1e-3
-        check_proatom_splines(cpart)
+def test_hirshfeld_fake_global():
+    check_fake('h', pseudo=False, dowcor=True, local=False, absmean=0.115)
 
 
-def test_hirshfeld_i_fake_pseudo_nowcor():
-    sys, ui_grid, mol_dens, proatomdb = get_fake_pseudo_oo()
-
-    # Run the partitioning
-    with ArrayStore.from_mode('core', 'horton.test.test_hirshfeld.test_hirshfeld_i_fake_pseudo_nowcor') as store:
-        cpart = HirshfeldICPart(sys, ui_grid, False, mol_dens, proatomdb, store, [], threshold=1e-4)
-        cpart.do_charges()
-        charges = cpart['charges']
-        assert abs(charges.sum()) < 1e-2
-        assert abs(charges[0] - 0.40262645) < 1e-3
-        check_proatom_splines(cpart)
+def test_hirshfeld_fake_pseudo_local():
+    check_fake('h', pseudo=True, dowcor=True, local=True, absmean=0.214)
 
 
-def test_hirshfeld_e_fake():
-    sys, ui_grid, mol_dens, proatomdb = get_fake_co()
-
-    assert HirshfeldICPart.estimate_storage(sys.numbers, ui_grid, proatomdb) == 8*8*ui_grid.size
-
-    # Run the partitioning
-    with ArrayStore.from_mode('core', 'horton.test.test_hirshfeld.test_hirshfeld_e_fake') as store:
-        cpart = HirshfeldECPart(sys, ui_grid, False, mol_dens, proatomdb, store, range(119), threshold=1e-6)
-        cpart.do_charges()
-        charges = cpart['charges']
-        assert abs(charges.sum()) < 1e-2
-        assert abs(abs(charges).mean() - 0.392) < 1e-3
-        check_proatom_splines(cpart)
+def test_hirshfeld_fake_pseudo_global():
+    check_fake('h', pseudo=True, dowcor=True, local=False, absmean=0.214)
 
 
-def test_hirshfeld_e_fake_pseudo():
-    sys, ui_grid, mol_dens, proatomdb = get_fake_pseudo_oo()
-
-    # Run the partitioning
-    with ArrayStore.from_mode('core', 'horton.test.test_hirshfeld.test_hirshfeld_e_fake_pseudo') as store:
-        cpart = HirshfeldECPart(sys, ui_grid, False, mol_dens, proatomdb, store, range(119), threshold=1e-4)
-        cpart.do_charges()
-        charges = cpart['charges']
-        assert abs(charges.sum()) < 1e-2
-        assert abs(charges[0] - 0.400) < 1e-3
-        check_proatom_splines(cpart)
+def test_hirshfeld_fake_pseudo_nowcor_local():
+    check_fake('h', pseudo=True, dowcor=True, local=True, absmean=0.214)
 
 
-def test_hirshfeld_e_fake_pseudo_nowcor():
-    sys, ui_grid, mol_dens, proatomdb = get_fake_pseudo_oo()
+def test_hirshfeld_fake_pseudo_nowcor_global():
+    check_fake('h', pseudo=True, dowcor=True, local=False, absmean=0.214)
 
-    # Run the partitioning
-    with ArrayStore.from_mode('core', 'horton.test.test_hirshfeld.test_hirshfeld_e_fake_pseudo_nowcor') as store:
-        cpart = HirshfeldECPart(sys, ui_grid, False, mol_dens, proatomdb, store, [], threshold=1e-4)
-        cpart.do_charges()
-        charges = cpart['charges']
-        assert abs(charges.sum()) < 1e-2
-        assert abs(charges[0] - 0.400) < 1e-3
-        check_proatom_splines(cpart)
+
+
+def test_hirshfeld_i_fake_local():
+    check_fake('hi', pseudo=False, dowcor=True, local=True, absmean=0.435, threshold=1e-5)
+
+
+def test_hirshfeld_i_fake_global():
+    check_fake('hi', pseudo=False, dowcor=True, local=False, absmean=0.434, threshold=1e-5)
+
+
+def test_hirshfeld_i_fake_pseudo_local():
+    check_fake('hi', pseudo=True, dowcor=True, local=True, absmean=0.396, threshold=1e-4)
+
+
+def test_hirshfeld_i_fake_pseudo_global():
+    check_fake('hi', pseudo=True, dowcor=True, local=False, absmean=0.396, threshold=1e-4)
+
+
+def test_hirshfeld_i_fake_pseudo_nowcor_local():
+    check_fake('hi', pseudo=True, dowcor=True, local=True, absmean=0.396, threshold=1e-4)
+
+
+def test_hirshfeld_i_fake_pseudo_nowcor_global():
+    check_fake('hi', pseudo=True, dowcor=True, local=False, absmean=0.396, threshold=1e-4)
+
+
+
+def test_hirshfeld_e_fake_local():
+    check_fake('he', pseudo=False, dowcor=True, local=True, absmean=0.173, threshold=1e-5)
+
+
+def test_hirshfeld_e_fake_global():
+    check_fake('he', pseudo=False, dowcor=True, local=False, absmean=0.377, threshold=1e-5)
+
+
+def test_hirshfeld_e_fake_pseudo_local():
+    check_fake('he', pseudo=True, dowcor=True, local=True, absmean=0.392, threshold=1e-4)
+
+
+def test_hirshfeld_e_fake_pseudo_global():
+    check_fake('he', pseudo=True, dowcor=True, local=False, absmean=0.392, threshold=1e-4)
+
+
+def test_hirshfeld_e_fake_pseudo_nowcor_local():
+    check_fake('he', pseudo=True, dowcor=True, local=True, absmean=0.392, threshold=1e-4)
+
+
+def test_hirshfeld_e_fake_pseudo_nowcor_global():
+    check_fake('he', pseudo=True, dowcor=True, local=False, absmean=0.392, threshold=1e-4)

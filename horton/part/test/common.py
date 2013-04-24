@@ -75,11 +75,12 @@ def get_fake_co():
 
     # Load some pro-atoms
     proatomdb = get_proatomdb_ref([6, 8], max_kation=1, max_anion=1)
+    proatomdb.compact(0.02)
 
     # Make fake cube data
     origin = np.array([-3.0, -3.0, -3.0])
-    rvecs = np.identity(3, float)*0.1
-    shape = np.array([60, 60, 60+22])
+    rvecs = np.identity(3, float)*0.2
+    shape = np.array([30, 30, 30+11])
     ui_grid = UniformIntGrid(origin, rvecs, shape, np.ones(3, int))
 
     mol_dens = np.zeros(ui_grid.shape)
@@ -114,11 +115,12 @@ def get_fake_pseudo_oo(smooth=False):
 
     # Load some pro-atoms
     proatomdb = get_proatomdb_cp2k()
+    proatomdb.compact(0.02)
 
     # Make fake cube data
     origin = np.array([-3.0, -3.0, -3.0])
-    rvecs = np.identity(3, float)*0.1
-    shape = np.array([60, 60, 60+22])
+    rvecs = np.identity(3, float)*0.2
+    shape = np.array([30, 30, 30+11])
     ui_grid = UniformIntGrid(origin, rvecs, shape, np.ones(3, int))
 
     mol_dens = np.zeros(ui_grid.shape)
