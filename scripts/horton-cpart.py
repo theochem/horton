@@ -26,7 +26,7 @@ import sys, argparse, os
 import h5py as h5
 from horton import System, cpart_schemes, Cell, ProAtomDB, log, ArrayStore
 from horton.scripts.common import reduce_data, store_args, parse_pbc, \
-    iter_elements, safe_open_h5
+    iter_elements, safe_open_h5, write_part_output
 
 
 def parse_args():
@@ -188,37 +188,7 @@ def main():
             args.wcor_rcut_max, args.wcor_rcond, **kwargs)
         names = cpart.do_all()
 
-    # Store the results in an HDF5 file
-    with safe_open_h5(fn_h5) as f:
-        # Store system
-        sys_grp = f.require_group('system')
-        del sys.props['cube_data'] # first drop potentially large array
-        sys.to_file(sys_grp)
-
-        # Store results
-        grp_cpart = f.require_group('cpart')
-        if grp_name in grp_cpart:
-            del grp_cpart[grp_name]
-        grp = grp_cpart.create_group(grp_name)
-        for name in names:
-            grp[name] = cpart[name]
-
-        # Store command line arguments
-        store_args(args, grp)
-
-        if args.debug:
-            # Store additional data for debugging
-            if 'debug' in grp:
-                del grp['debug']
-            grp_debug = grp.create_group('debug')
-            for debug_key in cpart._cache._store:
-                debug_name = '_'.join(str(x) for x in debug_key)
-                if debug_name not in names:
-                    grp_debug[debug_name] = cpart._cache.load(*debug_key)
-
-        if log.do_medium:
-            log('Results written to %s:cpart/%s' % (fn_h5, grp_name))
-
+    write_part_output(fn_h5, 'cpart', cpart, grp_name, names, args)
 
 if __name__ == '__main__':
     main()
