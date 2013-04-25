@@ -195,4 +195,3 @@ class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
         '''
         HirshfeldIMixin.__init__(self, threshold, maxiter)
         HirshfeldCPart.__init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max, wcor_rcond)
-

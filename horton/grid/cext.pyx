@@ -989,6 +989,10 @@ cdef class UniformIntGridWindow(object):
         def __get__(self):
             return self.end - self.begin
 
+    property size:
+        def __get__(self):
+            return np.product(self.shape)
+
     def get_window_ui_grid(self):
         grid_cell = self._ui_grid.grid_cell
         origin = self._ui_grid.origin.copy()

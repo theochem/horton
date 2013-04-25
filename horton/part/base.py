@@ -249,7 +249,7 @@ class Part(JustOnceClass):
 
                 del wcor
                 del aim
-        
+
     do_moments.names = ['cartesian_powers', 'cartesian_moments', 'radial_powers', 'radial_moments']
 
     def do_all(self):

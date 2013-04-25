@@ -72,12 +72,19 @@ class StockHolderMixin(object):
         # Make a spline
         return CubicSpline(rho, rtf=self.proatomdb.get_rtransform(number))
 
+    def eval_spline(self, index, spline, output, grid=None):
+        center = self.system.coordinates[index]
+        if grid is None:
+            grid = self.get_grid(index)
+        if log.do_medium:
+            log('  Evaluating spline for atom %i on %i grid points' % (index, grid.size))
+        grid.eval_spline(spline, center, output)
+
     def compute_at_weights(self, i0, at_weights):
         promoldens = self.get_promoldens(i0)
         spline = self.get_proatom_spline(i0)
         at_weights[:] = 0.0
-        grid = self.get_grid(i0)
-        grid.eval_spline(spline, self.system.coordinates[i0], at_weights)
+        self.eval_spline(i0, spline, at_weights)
         at_weights[:] /= promoldens
         #np.clip(at_weights, 0, 1, at_weights) # TODO: would this help?
 
@@ -85,9 +92,11 @@ class StockHolderMixin(object):
         # Get/Construct the promolecule on the entire grid if needed
         promoldens, new = self.cache.load('promoldens', alloc=self.grid.shape)
         if new:
+            # Note that the promolecule is always evaluated on the entire
+            # grid.
             for i in xrange(self.system.natom):
                 spline = self.get_proatom_spline(i)
-                self.grid.eval_spline(spline, self.system.coordinates[i], promoldens)
+                self.eval_spline(i, spline, promoldens, self.grid)
             # The following seems worse than it is. It does nothing to the
             # relevant numbers. It just avoids troubles in the division.
             promoldens[:] += 1e-100
