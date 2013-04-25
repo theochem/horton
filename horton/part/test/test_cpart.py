@@ -141,11 +141,11 @@ def test_hirshfeld_i_fake_pseudo_nowcor_global():
 
 
 def test_hirshfeld_e_fake_local():
-    check_fake('he', pseudo=False, dowcor=True, local=True, absmean=0.173, threshold=1e-5)
+    check_fake('he', pseudo=False, dowcor=True, local=True, absmean=0.170, threshold=1e-4)
 
 
 def test_hirshfeld_e_fake_global():
-    check_fake('he', pseudo=False, dowcor=True, local=False, absmean=0.388, threshold=1e-5)
+    check_fake('he', pseudo=False, dowcor=True, local=False, absmean=0.375, threshold=1e-4)
 
 
 def test_hirshfeld_e_fake_pseudo_local():
