@@ -121,7 +121,7 @@ def test_compute_radii():
     record = padb.get_record(6, 0)
     indexes, radii = record.compute_radii([2.0, 5.9, 5.999])
     assert (indexes == [69, 90, 100]).all()
-    assert abs(radii - np.array([0.599677, 4.037688, 10.0])).max() < 1e-5
+    assert abs(radii - np.array([0.600577, 4.168655, 10.0])).max() < 1e-5
 
 
 def test_moments():

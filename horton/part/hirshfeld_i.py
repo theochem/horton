@@ -33,6 +33,9 @@ __all__ = ['HirshfeldIWPart', 'HirshfeldICPart']
 
 
 class HirshfeldIMixin(object):
+    name = 'hi'
+    options = ['threshold', 'maxiter']
+
     def __init__(self, threshold=1e-6, maxiter=500):
         self._threshold = threshold
         self._maxiter = maxiter
@@ -156,11 +159,6 @@ class HirshfeldIMixin(object):
 
 
 class HirshfeldIWPart(HirshfeldIMixin, HirshfeldWPart):
-    '''Iterative Hirshfeld partitioning'''
-
-    name = 'hi'
-    options = ['local', 'threshold', 'maxiter']
-
     def __init__(self, system, grid, proatomdb, local=True, threshold=1e-6, maxiter=500):
         '''
            **Optional arguments:** (that are not present in the base class)
@@ -184,11 +182,6 @@ class HirshfeldIWPart(HirshfeldIMixin, HirshfeldWPart):
 
 
 class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
-    '''Iterative Hirshfeld partitioning'''
-
-    name = 'hi'
-    options = ['maxiter', 'threshold']
-
     def __init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1, threshold=1e-6, maxiter=500):
         '''
            **Optional arguments:** (that are not present in the base class)

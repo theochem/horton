@@ -30,6 +30,8 @@ __all__ = ['Part', 'WPart', 'CPart']
 
 
 class Part(JustOnceClass):
+    name = None
+
     def __init__(self, system, grid, local, moldens=None):
         '''
            **Arguments:**
@@ -65,12 +67,8 @@ class Part(JustOnceClass):
         self._init_log_scheme()
 
         # Initialize the subgrids
-        self._init_subgrids()
-
-        # If needed, prepare weight corrections for the integration on the
-        # uniform grid
-        with timer.section('Part wcor'):
-            self._init_weight_corrections()
+        if local:
+            self._init_subgrids()
 
         # Do the essential part of the partitioning. All derived properties
         # are optional.
@@ -128,7 +126,10 @@ class Part(JustOnceClass):
                 system is returned. If self.local is False, a full system grid
                 is always returned.
         '''
-        raise NotImplementedError
+        if index is None or not self.local:
+            return self._grid
+        else:
+            return self._subgrids[index]
 
     def get_moldens(self, index=None, output=None):
         self.do_moldens()
@@ -159,9 +160,6 @@ class Part(JustOnceClass):
         raise NotImplementedError
 
     def _init_subgrids(self):
-        raise NotImplementedError
-
-    def _init_weight_corrections(self):
         raise NotImplementedError
 
     def _init_partitioning(self):
@@ -272,9 +270,6 @@ class WPart(Part):
     # TODO: add framework to evaluate AIM weights (and maybe other things) on
     # user-provided grids.
 
-    name = None
-    options = ['local']
-
     '''Base class for density partitioning schemes'''
     def __init__(self, system, grid, local=True):
         '''
@@ -306,16 +301,7 @@ class WPart(Part):
             ])
 
     def _init_subgrids(self):
-        pass
-
-    def _init_weight_corrections(self):
-        pass
-
-    def get_grid(self, index=None):
-        if index is None or not self.local:
-            return self._grid
-        else:
-            return self._grid.subgrids[index]
+        self._subgrids = self._grid.subgrids
 
     def get_at_weights(self, index, output=None):
         grid = self.get_grid(index)
@@ -351,9 +337,6 @@ class WPart(Part):
 
 class CPart(Part):
     '''Base class for density partitioning schemes of cube files'''
-
-    name = None
-
     def __init__(self, system, grid, local, moldens, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1):
         '''
            **Arguments:**
@@ -410,12 +393,6 @@ class CPart(Part):
             center = self.system.coordinates[index]
             radius = self.get_cutoff_radius(index)
             self._subgrids.append(self.grid.get_window(center, radius))
-
-    def get_grid(self, index=None):
-        if index is None or not self.local:
-            return self._grid
-        else:
-            return self._subgrids[index]
 
     def get_at_weights(self, index=None, output=None):
         grid = self.get_grid(index)

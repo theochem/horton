@@ -34,7 +34,7 @@ __all__ = ['BeckeWPart']
 
 class BeckeWPart(WPart):
     name = 'becke'
-    options = ['local', 'k']
+    options = ['k']
 
     '''Class for Becke partitioning'''
     def __init__(self, system, grid, local=True, k=3):
