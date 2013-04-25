@@ -523,7 +523,7 @@ class ProAtomDB(object):
             for charge in self.get_charges(number, safe=True):
                 r = self.get_record(number, charge)
                 nel = r.pseudo_number-charge
-                npoint = max(npoint, r.compute_radii([nel-nel_lost])[0][0])
+                npoint = max(npoint, r.compute_radii([nel-nel_lost])[0][0]+1)
             for charge in self.get_charges(number):
                 r = self.get_record(number, charge)
                 r.chop(npoint)
