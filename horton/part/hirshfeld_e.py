@@ -312,10 +312,6 @@ class HirshfeldEWPart(HirshfeldEMixin, HirshfeldIWPart):
     def get_wcor_fit(self, index):
         return None
 
-    def do_all(self):
-        names = HirshfeldIWPart.do_all(self)
-        return names + ['propars', 'propar_map', 'propar_names']
-
 
 class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
     def __init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1, threshold=1e-6, maxiter=500):
@@ -364,7 +360,3 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
         if new:
             grid.compute_weight_corrections(funcs, output=wcor)
         return wcor
-
-    def do_all(self):
-        names = HirshfeldICPart.do_all(self)
-        return names + ['propars', 'propar_map', 'propar_names']

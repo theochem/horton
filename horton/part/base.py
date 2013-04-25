@@ -58,25 +58,17 @@ class Part(JustOnceClass):
         # Caching stuff, to avoid recomputation of earlier results
         self._cache = Cache()
         # Caching of work arrays to avoid reallocation
-        self._work_cache = Cache()
         if moldens is not None:
             self._cache.dump('moldens', moldens)
-
-        # Some screen logging
-        self._init_log_base()
-        self._init_log_scheme()
 
         # Initialize the subgrids
         if local:
             self._init_subgrids()
 
-        # Do the essential part of the partitioning. All derived properties
-        # are optional.
-        with timer.section('Part weights'):
-            self._init_partitioning()
+        # Some screen logging
+        self._init_log_base()
+        self._init_log_scheme()
 
-        # Get rid of the work arrays
-        self._work_cache.invalidate_all()
 
     def __getitem__(self, key):
         return self.cache.load(key)
@@ -110,11 +102,6 @@ class Part(JustOnceClass):
         '''Discard all cached results, e.g. because wfn changed'''
         JustOnceClass.invalidate(self)
         self.cache.invalidate_all()
-        self._work_cache.invalidate_all()
-        # immediately recompute the basics
-        # TODO: For some schemes, the weights do not depend on the density
-        # and recomputation of the atomic weights is a waste of time
-        self._init_partitioning()
 
     def get_grid(self, index=None):
         '''Return an integration grid
@@ -162,13 +149,6 @@ class Part(JustOnceClass):
     def _init_subgrids(self):
         raise NotImplementedError
 
-    def _init_partitioning(self):
-        raise NotImplementedError
-
-    @just_once
-    def do_moldens(self):
-        raise NotImplementedError
-
     def to_atomic_grid(self, index, data):
         raise NotImplementedError
 
@@ -180,26 +160,38 @@ class Part(JustOnceClass):
         return grid.integrate(at_weights, dens, wcor)
 
     @just_once
+    def do_moldens(self):
+        raise NotImplementedError
+
+    @just_once
+    def do_partitioning(self):
+        pass
+    do_partitioning.names = []
+
+    @just_once
     def do_populations(self):
         if log.do_medium:
             log('Computing atomic populations.')
         populations, new = self.cache.load('populations', alloc=self.system.natom)
         if new:
+            self.do_partitioning()
             pseudo_populations = self.cache.load('pseudo_populations', alloc=self.system.natom)[0]
             for i in xrange(self.natom):
                 pseudo_populations[i] = self.compute_pseudo_population(i)
             populations[:] = pseudo_populations
             populations += self.system.numbers - self.system.pseudo_numbers
+    do_populations.names = ['populations', 'pseudo_populations']
 
     @just_once
     def do_charges(self):
-        self.do_populations()
         if log.do_medium:
             log('Computing atomic charges.')
         charges, new = self._cache.load('charges', alloc=self.system.natom)
         if new:
+            self.do_populations()
             populations = self._cache.load('populations')
             charges[:] = self.system.numbers - populations
+    do_charges.names = ['charges']
 
     @just_once
     def do_moments(self):
@@ -214,56 +206,62 @@ class Part(JustOnceClass):
                     nx = l - ny - nz
                     cartesian_powers.append([nx, ny, nz])
         self._cache.dump('cartesian_powers', np.array(cartesian_powers))
-        cartesian_moments = self._cache.load('cartesian_moments', alloc=(self._system.natom, len(cartesian_powers)))[0]
+        cartesian_moments, new1 = self._cache.load('cartesian_moments', alloc=(self._system.natom, len(cartesian_powers)))
 
         radial_powers = np.arange(1, lmax+1)
-        radial_moments = self._cache.load('radial_moments', alloc=(self._system.natom, len(radial_powers)))[0]
+        radial_moments, new2 = self._cache.load('radial_moments', alloc=(self._system.natom, len(radial_powers)))
         self._cache.dump('radial_powers', radial_powers)
 
-        for i in xrange(self._system.natom):
-            # 1) Define a 'window' of the integration grid for this atom
-            number = self._system.numbers[i]
-            center = self._system.coordinates[i]
-            grid = self.get_grid(i)
+        if new1 or new2:
+            self.do_partitioning()
+            for i in xrange(self._system.natom):
+                # 1) Define a 'window' of the integration grid for this atom
+                number = self._system.numbers[i]
+                center = self._system.coordinates[i]
+                grid = self.get_grid(i)
 
-            # 2) Evaluate the non-periodic atomic weight in this window
-            aim = grid.zeros()
-            self.get_at_weights(i, output=aim)
+                # 2) Evaluate the non-periodic atomic weight in this window
+                aim = grid.zeros()
+                self.get_at_weights(i, output=aim)
 
-            # 3) Extend the moldens over the window and multiply to obtain the
-            #    AIM
-            moldens = self.get_moldens(i)
-            aim *= moldens
-            del moldens
+                # 3) Extend the moldens over the window and multiply to obtain the
+                #    AIM
+                moldens = self.get_moldens(i)
+                aim *= moldens
+                del moldens
 
-            # 4) Compute weight corrections (TODO: needs to be assessed!)
-            wcor = self.get_wcor(i)
+                # 4) Compute weight corrections (TODO: needs to be assessed!)
+                wcor = self.get_wcor(i)
 
-            # 5) Compute Cartesian multipoles
-            counter = 0
-            for nx, ny, nz in cartesian_powers:
-                if log.do_medium:
-                    log('  moment %s%s%s' % ('x'*nx, 'y'*ny, 'z'*nz))
-                cartesian_moments[i, counter] = grid.integrate(aim, wcor, center=center, nx=nx, ny=ny, nz=nz, nr=0)
-                counter += 1
+                # 5) Compute Cartesian multipoles
+                counter = 0
+                for nx, ny, nz in cartesian_powers:
+                    if log.do_medium:
+                        log('  moment %s%s%s' % ('x'*nx, 'y'*ny, 'z'*nz))
+                    cartesian_moments[i, counter] = grid.integrate(aim, wcor, center=center, nx=nx, ny=ny, nz=nz, nr=0)
+                    counter += 1
 
-            # 6) Compute Radial moments
-            for nr in radial_powers:
-                if log.do_medium:
-                    log('  moment %s' % ('r'*nr))
-                radial_moments[i, nr-1] = grid.integrate(aim, wcor, center=center, nx=0, ny=0, nz=0, nr=nr)
+                # 6) Compute Radial moments
+                for nr in radial_powers:
+                    if log.do_medium:
+                        log('  moment %s' % ('r'*nr))
+                    radial_moments[i, nr-1] = grid.integrate(aim, wcor, center=center, nx=0, ny=0, nz=0, nr=nr)
 
-            del wcor
-            del aim
+                del wcor
+                del aim
+
+    do_moments.names = ['cartesian_powers', 'cartesian_moments', 'radial_powers', 'radial_moments']
 
     def do_all(self):
         '''Computes all reasonable properties and returns a corresponding list of keys'''
-        self.do_populations()
-        self.do_charges()
-        self.do_moments()
-        return ['populations', 'pseudo_populations', 'charges',
-                'cartesian_powers', 'cartesian_moments', 'radial_powers',
-                'radial_moments']
+        names = []
+        for attr_name in dir(self):
+            attr = getattr(self, attr_name)
+            if callable(attr) and attr_name.startswith('do_') and attr_name != 'do_all':
+                print attr_name
+                attr()
+                names.extend(attr.names)
+        return names
 
 
 class WPart(Part):
@@ -325,6 +323,7 @@ class WPart(Part):
         moldens, new = self.cache.load('moldens', alloc=self.grid.size)
         if new:
             self.system.compute_grid_density(self.grid.points, rhos=moldens)
+    do_moldens.names = []
 
     def to_atomic_grid(self, index, data):
         if index is None or not self.local:
@@ -440,6 +439,7 @@ class CPart(Part):
         moldens, new = self.cache.load('moldens', alloc=self.grid.shape)
         if new:
             raise NotImplementedError
+    do_moldens.names = []
 
     def to_atomic_grid(self, index, data):
         if index is None or not self.local:

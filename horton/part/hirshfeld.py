@@ -112,6 +112,8 @@ class HirshfeldMixin(object):
                 else:
                     c6s[i] = -1 # This is just to indicate that no value is available.
 
+    do_dispersion.names = ['volumes', 'volume_ratios', 'c6s']
+
 
 class HirshfeldWPart(HirshfeldMixin, StockholderWPart):
     '''Base class for Hirshfeld partitioning'''
@@ -119,14 +121,6 @@ class HirshfeldWPart(HirshfeldMixin, StockholderWPart):
         check_proatomdb(system, proatomdb)
         HirshfeldMixin. __init__(self, proatomdb)
         StockholderWPart.__init__(self, system, grid, local)
-
-    def _init_partitioning(self):
-        pass
-
-    def do_all(self):
-        names = StockholderWPart.do_all(self)
-        self.do_dispersion()
-        return names + ['volumes', 'volume_ratios', 'c6s']
 
 
 class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
@@ -137,9 +131,6 @@ class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
         check_proatomdb(system, proatomdb)
         HirshfeldMixin. __init__(self, proatomdb)
         StockholderCPart.__init__(self, system, grid, local, moldens, wcor_numbers, wcor_rcut_max, wcor_rcond)
-
-    def _init_partitioning(self):
-        pass
 
     def get_cutoff_radius(self, index):
         '''The radius at which the weight function goes to zero'''
@@ -152,8 +143,3 @@ class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
             return [(self._system.coordinates[index], [self._proatomdb.get_spline(number)])]
         else:
             return []
-
-    def do_all(self):
-        names = StockholderCPart.do_all(self)
-        self.do_dispersion()
-        return names + ['volumes', 'volume_ratios', 'c6s']
