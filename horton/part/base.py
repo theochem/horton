@@ -68,7 +68,7 @@ class Part(JustOnceClass):
         # Some screen logging
         self._init_log_base()
         self._init_log_scheme()
-
+        self._init_log_memory()
 
     def __getitem__(self, key):
         return self.cache.load(key)
@@ -140,14 +140,40 @@ class Part(JustOnceClass):
         '''
         raise NotImplementedError
 
+    def _init_subgrids(self):
+        raise NotImplementedError
+
     def _init_log_base(self):
         raise NotImplementedError
 
     def _init_log_scheme(self):
         raise NotImplementedError
 
-    def _init_subgrids(self):
-        raise NotImplementedError
+    def _init_log_memory(self):
+        if log.do_medium:
+            # precompute arrays sizes for certain grids
+            nbyte_global = self.grid.size*8
+            nbyte_locals = np.array([self.get_grid(i).size*8 for i in xrange(self.natom)])
+
+            # compute and report usage
+            estimates = self.get_memory_estimates()
+            nbyte_total = 0
+            log('Coarse estimate of memory usage:')
+            log('                         Label  Memory[GB]')
+            log.hline()
+            for label, nlocals, nglobal in estimates:
+                nbyte = np.dot(nlocals, nbyte_locals) + nglobal*nbyte_global
+                log('%30s  %10.3f' % (label, nbyte/1024.0**3))
+                nbyte_total += nbyte
+            log('%30s  %10.3f' % ('Total', nbyte_total/1024.0**3))
+            log.hline()
+
+    def get_memory_estimates(self):
+        return [
+            ('Atomic weights', np.ones(self.natom), 0),
+            ('Promolecule', np.zeros(self.natom), 1),
+            ('Working arrays', np.zeros(self.natom), 2),
+        ]
 
     def to_atomic_grid(self, index, data):
         raise NotImplementedError
@@ -372,19 +398,6 @@ class CPart(Part):
 
     wcor_numbers = property(_get_wcor_numbers)
 
-    def _init_log_base(self):
-        if log.do_medium:
-            log('Performing a density-based AIM analysis with a cube file as input.')
-            log.deflist([
-                ('System', self.system),
-                ('Uniform Integration Grid', self.grid),
-                ('Grid shape', self.grid.shape),
-                ('Mean spacing', '%10.5e' % (self.grid.grid_cell.volume**(1.0/3.0))),
-                ('Weight corr. numbers', ' '.join(str(n) for n in self.wcor_numbers)),
-                ('Weight corr. max rcut', '%10.5f' % self._wcor_rcut_max),
-                ('Weight corr. rcond', '%10.5e' % self._wcor_rcond),
-            ])
-
     def _init_subgrids(self):
         # grids for non-periodic integrations
         self._subgrids = []
@@ -392,6 +405,25 @@ class CPart(Part):
             center = self.system.coordinates[index]
             radius = self.get_cutoff_radius(index)
             self._subgrids.append(self.grid.get_window(center, radius))
+
+    def _init_log_base(self):
+        if log.do_medium:
+            log('Performing a density-based AIM analysis with a cube file as input.')
+            log.deflist([
+                ('System', self.system),
+                ('Uniform Integration Grid', self.grid),
+                ('Grid shape', self.grid.shape),
+                ('Using local grids', self._local),
+                ('Mean spacing', '%10.5e' % (self.grid.grid_cell.volume**(1.0/3.0))),
+                ('Weight corr. numbers', ' '.join(str(n) for n in self.wcor_numbers)),
+                ('Weight corr. max rcut', '%10.5f' % self._wcor_rcut_max),
+                ('Weight corr. rcond', '%10.5e' % self._wcor_rcond),
+            ])
+
+    def get_memory_estimates(self):
+        return [
+            ('Weight corrections', np.array([n in self._wcor_numbers for n in self.system.numbers]), 0),
+        ] + Part.get_memory_estimates(self)
 
     def get_at_weights(self, index=None, output=None):
         grid = self.get_grid(index)
