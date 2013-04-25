@@ -85,7 +85,8 @@ def check_fake(scheme, pseudo, dowcor, local, absmean, **kwargs):
 
     cpart.do_charges()
     charges = cpart['charges']
-    assert abs(charges.sum()) < 2e-2
+    #print abs(charges.sum()), abs(charges).mean()
+    assert abs(charges.sum()) < 1e-2
     assert abs(abs(charges).mean() - absmean) < 1e-3
 
 
@@ -98,19 +99,19 @@ def test_hirshfeld_fake_global():
 
 
 def test_hirshfeld_fake_pseudo_local():
-    check_fake('h', pseudo=True, dowcor=True, local=True, absmean=0.214)
+    check_fake('h', pseudo=True, dowcor=True, local=True, absmean=0.213)
 
 
 def test_hirshfeld_fake_pseudo_global():
-    check_fake('h', pseudo=True, dowcor=True, local=False, absmean=0.214)
+    check_fake('h', pseudo=True, dowcor=True, local=False, absmean=0.213)
 
 
 def test_hirshfeld_fake_pseudo_nowcor_local():
-    check_fake('h', pseudo=True, dowcor=True, local=True, absmean=0.214)
+    check_fake('h', pseudo=True, dowcor=True, local=True, absmean=0.213)
 
 
 def test_hirshfeld_fake_pseudo_nowcor_global():
-    check_fake('h', pseudo=True, dowcor=True, local=False, absmean=0.214)
+    check_fake('h', pseudo=True, dowcor=True, local=False, absmean=0.213)
 
 
 
@@ -123,19 +124,19 @@ def test_hirshfeld_i_fake_global():
 
 
 def test_hirshfeld_i_fake_pseudo_local():
-    check_fake('hi', pseudo=True, dowcor=True, local=True, absmean=0.396, threshold=1e-4)
+    check_fake('hi', pseudo=True, dowcor=True, local=True, absmean=0.400, threshold=1e-4)
 
 
 def test_hirshfeld_i_fake_pseudo_global():
-    check_fake('hi', pseudo=True, dowcor=True, local=False, absmean=0.396, threshold=1e-4)
+    check_fake('hi', pseudo=True, dowcor=True, local=False, absmean=0.400, threshold=1e-4)
 
 
 def test_hirshfeld_i_fake_pseudo_nowcor_local():
-    check_fake('hi', pseudo=True, dowcor=True, local=True, absmean=0.396, threshold=1e-4)
+    check_fake('hi', pseudo=True, dowcor=True, local=True, absmean=0.400, threshold=1e-4)
 
 
 def test_hirshfeld_i_fake_pseudo_nowcor_global():
-    check_fake('hi', pseudo=True, dowcor=True, local=False, absmean=0.396, threshold=1e-4)
+    check_fake('hi', pseudo=True, dowcor=True, local=False, absmean=0.400, threshold=1e-4)
 
 
 
@@ -144,20 +145,20 @@ def test_hirshfeld_e_fake_local():
 
 
 def test_hirshfeld_e_fake_global():
-    check_fake('he', pseudo=False, dowcor=True, local=False, absmean=0.377, threshold=1e-5)
+    check_fake('he', pseudo=False, dowcor=True, local=False, absmean=0.388, threshold=1e-5)
 
 
 def test_hirshfeld_e_fake_pseudo_local():
-    check_fake('he', pseudo=True, dowcor=True, local=True, absmean=0.392, threshold=1e-4)
+    check_fake('he', pseudo=True, dowcor=True, local=True, absmean=0.396, threshold=1e-4)
 
 
 def test_hirshfeld_e_fake_pseudo_global():
-    check_fake('he', pseudo=True, dowcor=True, local=False, absmean=0.392, threshold=1e-4)
+    check_fake('he', pseudo=True, dowcor=True, local=False, absmean=0.396, threshold=1e-4)
 
 
 def test_hirshfeld_e_fake_pseudo_nowcor_local():
-    check_fake('he', pseudo=True, dowcor=True, local=True, absmean=0.392, threshold=1e-4)
+    check_fake('he', pseudo=True, dowcor=True, local=True, absmean=0.396, threshold=1e-4)
 
 
 def test_hirshfeld_e_fake_pseudo_nowcor_global():
-    check_fake('he', pseudo=True, dowcor=True, local=False, absmean=0.392, threshold=1e-4)
+    check_fake('he', pseudo=True, dowcor=True, local=False, absmean=0.396, threshold=1e-4)
