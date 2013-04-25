@@ -43,6 +43,8 @@ def check_proatomdb(system, proatomdb):
 
 
 class HirshfeldMixin(object):
+    name = 'h'
+
     def __init__(self, proatomdb):
         self._proatomdb = proatomdb
 
@@ -112,9 +114,6 @@ class HirshfeldMixin(object):
 
 
 class HirshfeldWPart(HirshfeldMixin, StockholderWPart):
-    name = 'h'
-    options = ['local']
-
     '''Base class for Hirshfeld partitioning'''
     def __init__(self, system, grid, proatomdb, local=True):
         check_proatomdb(system, proatomdb)
@@ -131,9 +130,6 @@ class HirshfeldWPart(HirshfeldMixin, StockholderWPart):
 
 
 class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
-    name = 'h'
-    options = ['local']
-
     def __init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1):
         '''
            See CPart base class for the description of the arguments.
@@ -141,9 +137,6 @@ class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
         check_proatomdb(system, proatomdb)
         HirshfeldMixin. __init__(self, proatomdb)
         StockholderCPart.__init__(self, system, grid, local, moldens, wcor_numbers, wcor_rcut_max, wcor_rcond)
-
-    def _init_weight_corrections(self):
-        pass # TODO: remove this method
 
     def _init_partitioning(self):
         pass

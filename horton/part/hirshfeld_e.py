@@ -149,6 +149,8 @@ class HEBasis(object):
 
 
 class HirshfeldEMixin(object):
+    name = 'he'
+
     def _init_log_scheme(self):
         if log.do_medium:
             log.deflist([
@@ -303,11 +305,6 @@ class HirshfeldEMixin(object):
 
 
 class HirshfeldEWPart(HirshfeldEMixin, HirshfeldIWPart):
-    '''Extended Hirshfeld partitioning'''
-
-    name = 'he'
-    options = ['local', 'threshold', 'maxiter']
-
     def __init__(self, system, grid, proatomdb, local=True, threshold=1e-6, maxiter=500):
         self._hebasis = HEBasis(system.numbers, proatomdb)
         HirshfeldIWPart.__init__(self, system, grid, proatomdb, local, threshold, maxiter)
@@ -321,8 +318,6 @@ class HirshfeldEWPart(HirshfeldEMixin, HirshfeldIWPart):
 
 
 class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
-    name = 'he'
-
     def __init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1, threshold=1e-6, maxiter=500):
         '''
            See CPart base class for the description of the arguments.
@@ -331,8 +326,6 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
         HirshfeldICPart.__init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max, wcor_rcond, threshold, maxiter)
 
     def get_wcor_fit_funcs(self, index):
-        HirshfeldICPart._init_weight_corrections(self)
-
         number = self._system.numbers[index]
         if number not in self.wcor_numbers:
             return []
