@@ -234,21 +234,23 @@ class HirshfeldEMixin(object):
         self.cache.load('propars')[begin:begin+nbasis] = atom_propars
 
     def _get_charge_and_delta_aim(self, index):
+        # evaluate the constant function, to subtract it from the AIM
         grid = self.get_grid(index)
         work = grid.zeros()
         spline = self._hebasis.get_constant_spline(index)
-        center = self.system.coordinates[index]
-        grid.eval_spline(spline, center, work)
-        wcor = self.get_wcor(index)
+        self.eval_spline(index, spline, work)
 
+        # Recompute the AIM and subtract constant fn
         self.cache.invalidate('at_weights', index)
         delta_aim = self.get_moldens(index)*self.get_at_weights(index) - work
+
+        # Integrate out
+        wcor = self.get_wcor(index)
         charge = -grid.integrate(delta_aim, wcor)
         return charge, delta_aim
 
     def _get_he_system(self, index, delta_aim):
         number = self.system.numbers[index]
-        center = self._system.coordinates[index]
         weights = self.proatomdb.get_radial_weights(number)
         nbasis = self._hebasis.get_atom_nbasis(index)
         grid = self.get_grid(index)
@@ -261,6 +263,8 @@ class HirshfeldEMixin(object):
             # Set up system of linear equations:
             A = np.zeros((nbasis, nbasis), float)
             if self.local:
+                # In case of local grids, the integration is carried out on
+                # a radial grid for efficiency.
                 for j0 in xrange(nbasis):
                     rho0 = self._hebasis.get_basis_rho(index, j0)
                     for j1 in xrange(j0+1):
@@ -268,16 +272,19 @@ class HirshfeldEMixin(object):
                         A[j0, j1] = dot_multi(weights, rho0, rho1)
                         A[j1, j0] = A[j0, j1]
             else:
+                # In the case of a global grid, the radial integration is not
+                # suitable as it does not account for periodic boundary
+                # conditions
                 basis0 = grid.zeros()
                 basis1 = grid.zeros()
                 for j0 in xrange(nbasis):
                     basis0[:] = 0.0
                     spline0 = self._hebasis.get_basis_spline(index, j0)
-                    grid.eval_spline(spline0, center, basis0)
+                    self.eval_spline(index, spline0, basis0)
                     for j1 in xrange(j0+1):
                         basis1[:] = 0.0
                         spline1 = self._hebasis.get_basis_spline(index, j1)
-                        grid.eval_spline(spline1, center, basis1)
+                        self.eval_spline(index, spline1, basis1)
                         A[j0, j1] = grid.integrate(basis0, basis1, wcor_fit)
                         A[j1, j0] = A[j0, j1]
 
@@ -292,7 +299,7 @@ class HirshfeldEMixin(object):
         for j0 in xrange(nbasis):
             basis[:] = 0.0
             spline = self._hebasis.get_basis_spline(index, j0)
-            grid.eval_spline(spline, center, basis)
+            self.eval_spline(index, spline, basis)
             B[j0] = grid.integrate(delta_aim, basis, wcor_fit)
 
         #   Constant C
