@@ -40,7 +40,8 @@ cdef extern from "uniform.h":
         void copy_begin(long* output)
         void copy_end(long* output)
 
-        void extend(double* small, double* output)
+        void extend(double* cell, double* local)
+        void wrap(double* local, double* cell)
 
     long index_wrap(long i, long high)
 
