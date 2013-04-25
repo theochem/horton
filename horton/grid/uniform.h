@@ -55,13 +55,16 @@ class UniformIntGridWindow {
         UniformIntGrid* ui_grid;
         long begin[3];
         long end[3];
+        long shape[3];
     public:
         UniformIntGridWindow(UniformIntGrid* ui_grid, long* begin, long* end);
 
         void copy_begin(long* output);
         void copy_end(long* output);
+        double* get_pointer(double* array, long* j);
 
-        void extend(double* small, double* output);
+        void extend(double* cell, double* local);
+        void wrap(double* local, double* cell);
 };
 
 

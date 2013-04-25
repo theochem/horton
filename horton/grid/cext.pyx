@@ -1002,20 +1002,35 @@ cdef class UniformIntGridWindow(object):
     def zeros(self):
         return np.zeros(self.shape, float)
 
-    def extend(self, np.ndarray[double, ndim=3] small not None,
-               np.ndarray[double, ndim=3] output not None):
-        assert small.flags['C_CONTIGUOUS']
+    def extend(self, np.ndarray[double, ndim=3] cell not None,
+               np.ndarray[double, ndim=3] local not None):
+        '''Copy a periodic repetation of the cell function to the local grid'''
+        assert cell.flags['C_CONTIGUOUS']
         shape = self._ui_grid.shape
-        assert small.shape[0] == shape[0]
-        assert small.shape[1] == shape[1]
-        assert small.shape[2] == shape[2]
-        assert output.flags['C_CONTIGUOUS']
+        assert cell.shape[0] == shape[0]
+        assert cell.shape[1] == shape[1]
+        assert cell.shape[2] == shape[2]
+        assert local.flags['C_CONTIGUOUS']
         shape = self.shape
-        assert output.shape[0] == shape[0]
-        assert output.shape[1] == shape[1]
-        assert output.shape[2] == shape[2]
+        assert local.shape[0] == shape[0]
+        assert local.shape[1] == shape[1]
+        assert local.shape[2] == shape[2]
+        self._this.extend(<double*>cell.data, <double*>local.data)
 
-        self._this.extend(<double*>small.data, <double*>output.data)
+    def wrap(self, np.ndarray[double, ndim=3] local not None,
+                   np.ndarray[double, ndim=3] cell not None):
+        '''Write the local function to the periodic array, wrapping around the edges'''
+        assert local.flags['C_CONTIGUOUS']
+        shape = self.shape
+        assert local.shape[0] == shape[0]
+        assert local.shape[1] == shape[1]
+        assert local.shape[2] == shape[2]
+        assert cell.flags['C_CONTIGUOUS']
+        shape = self._ui_grid.shape
+        assert cell.shape[0] == shape[0]
+        assert cell.shape[1] == shape[1]
+        assert cell.shape[2] == shape[2]
+        self._this.wrap(<double*>local.data, <double*>cell.data)
 
     def eval_spline(self, CubicSpline spline not None,
                     np.ndarray[double, ndim=1] center not None,

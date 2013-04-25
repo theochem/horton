@@ -115,6 +115,7 @@ UniformIntGridWindow::UniformIntGridWindow(UniformIntGrid* ui_grid, long* _begin
     for (int i=0; i<3; i++) {
         begin[i] = _begin[i];
         end[i] = _end[i];
+        shape[i] = end[i] - begin[i];
     }
 }
 
@@ -130,7 +131,7 @@ void UniformIntGridWindow::copy_end(long* output) {
     output[2] = end[2];
 }
 
-void UniformIntGridWindow::extend(double* small, double* output) {
+void UniformIntGridWindow::extend(double* cell, double* local) {
     Range3Iterator r3i = Range3Iterator(begin, end, ui_grid->get_shape());
     long j[3], jwrap[3];
     for (long ipoint=r3i.get_npoint()-1; ipoint >= 0; ipoint--) {
@@ -138,11 +139,38 @@ void UniformIntGridWindow::extend(double* small, double* output) {
 #ifdef DEBUG
         printf("ipoint=%li  j={%li, %li, %li}  jwrap={%li, %li, %li}\n", ipoint, j[0], j[1], j[2], jwrap[0], jwrap[1], jwrap[2]);
 #endif
-        double* source = ui_grid->get_pointer(small, jwrap);
-        output[ipoint] = *source;
+        double* source = ui_grid->get_pointer(cell, jwrap);
+        local[ipoint] = *source;
     }
 }
 
+void UniformIntGridWindow::wrap(double* local, double* cell) {
+    // Run triple loop over blocks
+    Block3Iterator b3i = Block3Iterator(begin, end, ui_grid->get_shape());
+    for (long iblock=b3i.get_nblock()-1; iblock>=0; iblock--) {
+        long b[3];
+        b3i.set_block(iblock, b);
+
+        long cube_begin[3];
+        long cube_end[3];
+        b3i.set_cube_ranges(b, cube_begin, cube_end);
+
+        // Run triple loop within one block
+        Cube3Iterator c3i = Cube3Iterator(cube_begin, cube_end);
+        for (long ipoint=c3i.get_npoint()-1; ipoint>=0; ipoint--) {
+            long j[3];
+            long jwrap[3];
+            c3i.set_point(ipoint, jwrap);
+            b3i.translate(b, jwrap, j);
+            *(ui_grid->get_pointer(cell, jwrap)) += *get_pointer(local, j);
+
+        }
+    }
+}
+
+double* UniformIntGridWindow::get_pointer(double* array, long* i) {
+    return array + ((i[0]-begin[0])*shape[1] + (i[1]-begin[1]))*shape[2] + (i[2]-begin[2]);
+}
 
 
 long index_wrap(long i, long high) {
@@ -183,7 +211,6 @@ void Range3Iterator::set_point(long ipoint, long* i, long* iwrap) {
         iwrap[2] = index_wrap(i[2], shape[2]);
     }
 }
-
 
 
 Block3Iterator::Block3Iterator(const long* begin, const long* end, const long* shape)

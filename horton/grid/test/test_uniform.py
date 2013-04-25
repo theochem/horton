@@ -428,11 +428,15 @@ def check_integrate_poly(window, center, big):
         assert abs(value - expected) < 1e-10
 
 
-def check_window_eval_spline(window, center, radius):
+def get_random_spline(radius):
     # construct a random spline
     npoint = 5
     rtf = LinearRTransform(0.001, radius, npoint)
-    spline = CubicSpline(np.random.uniform(3, 4, npoint), rtf=rtf)
+    return CubicSpline(np.random.uniform(3, 4, npoint), rtf=rtf)
+
+
+def check_window_eval_spline(window, center, radius):
+    spline = get_random_spline(radius)
 
     # test the routine
     x, y, z, r = helper_xyzr_window(window, center)
@@ -443,6 +447,25 @@ def check_window_eval_spline(window, center, radius):
     assert values.max() > 0
     assert values.min() == 0
     assert abs(values - expected).max() < 1e-10
+
+
+def check_window_wrap(window, center, radius):
+    spline = get_random_spline(radius)
+
+    # compute the spline directly on the periodic grid
+    ui_grid = window.ui_grid
+    cell1 = ui_grid.zeros()
+    ui_grid.eval_spline(spline, center, cell1)
+
+    # compute the spline on the local grid and then wrap
+    local = window.zeros()
+    window.eval_spline(spline, center, local)
+    cell2 = ui_grid.zeros()
+    window.wrap(local, cell2)
+
+    # compare
+    assert abs(cell1).max() > 1e-10
+    assert abs(cell1 - cell2).max() < 1e-10
 
 
 def test_window3():
@@ -483,6 +506,9 @@ def test_window3():
     # test for eval_spline
     check_window_eval_spline(window, center, radius)
 
+    # test for wrap
+    check_window_wrap(window, center, radius)
+
 
 def test_window2():
     origin = np.array([-0.3, 0.22, 0.0])
@@ -522,6 +548,9 @@ def test_window2():
     # test for eval_spline
     check_window_eval_spline(window, center, radius)
 
+    # test for wrap
+    check_window_wrap(window, center, radius)
+
 
 def test_window1():
     origin = np.array([-0.3, 0.22, 0.0])
@@ -560,6 +589,9 @@ def test_window1():
     # test for eval_spline
     check_window_eval_spline(window, center, radius)
 
+    # test for wrap
+    check_window_wrap(window, center, radius)
+
 
 def test_window0():
     origin = np.array([-0.3, 0.22, 0.0])
@@ -596,6 +628,9 @@ def test_window0():
 
     # test for eval_spline
     check_window_eval_spline(window, center, radius)
+
+    # test for wrap
+    check_window_wrap(window, center, radius)
 
 
 def test_block3iterator():
