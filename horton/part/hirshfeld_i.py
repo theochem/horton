@@ -120,42 +120,45 @@ class HirshfeldIMixin(object):
         self.cache.dump('pseudo_populations', self.system.pseudo_numbers - charges)
 
     @just_once
-    def _init_partitioning(self):
-        # Perform one general check in the beginning to keep things simple.
-        if all(self.cache.has('at_weights', i) for i in xrange(self.system.natom)):
-            return
-        # Need to compute density
-        self.do_moldens()
+    def do_partitioning(self):
+        # Perform one general check in the beginning to avoid recomputation
+        new = any(not self.cache.has('at_weights', i) for i in xrange(self.system.natom))
+        new |= not self.cache.has('niter')
+        new |= not self.cache.has('change')
+        if new:
+            # Need to compute density
+            self.do_moldens()
 
-        propars = self._init_propars()
-        if log.medium:
-            log.hline()
-            log('Iteration       Change')
-            log.hline()
-
-        counter = 0
-        change = 1e100
-
-        while True:
-            counter += 1
-
-            # Update the parameters that determine the pro-atoms.
-            old_propars = propars.copy()
-            self._update_propars()
-
-            # Check for convergence
-            change = self.compute_change(propars, old_propars)
+            propars = self._init_propars()
             if log.medium:
-                log('%9i   %10.5e' % (counter, change))
-            if change < self._threshold or counter >= self._maxiter:
-                break
+                log.hline()
+                log('Iteration       Change')
+                log.hline()
 
-        if log.medium:
-            log.hline()
+            counter = 0
+            change = 1e100
 
-        self._finalize_propars()
-        self.cache.dump('niter', counter)
-        self.cache.dump('change', change)
+            while True:
+                counter += 1
+
+                # Update the parameters that determine the pro-atoms.
+                old_propars = propars.copy()
+                self._update_propars()
+
+                # Check for convergence
+                change = self.compute_change(propars, old_propars)
+                if log.medium:
+                    log('%9i   %10.5e' % (counter, change))
+                if change < self._threshold or counter >= self._maxiter:
+                    break
+
+            if log.medium:
+                log.hline()
+
+            self._finalize_propars()
+            self.cache.dump('niter', counter)
+            self.cache.dump('change', change)
+    do_partitioning.names = ['niter', 'change', 'history_charges', 'history_propars']
 
 
 class HirshfeldIWPart(HirshfeldIMixin, HirshfeldWPart):
@@ -175,11 +178,6 @@ class HirshfeldIWPart(HirshfeldIMixin, HirshfeldWPart):
         HirshfeldIMixin.__init__(self, threshold, maxiter)
         HirshfeldWPart.__init__(self, system, grid, proatomdb, local)
 
-    def do_all(self):
-        '''Computes all AIM properties and returns a corresponding list of keys'''
-        names = HirshfeldWPart.do_all(self)
-        return names + ['niter', 'change', 'history_charges', 'history_propars']
-
 
 class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
     def __init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1, threshold=1e-6, maxiter=500):
@@ -198,6 +196,3 @@ class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
         HirshfeldIMixin.__init__(self, threshold, maxiter)
         HirshfeldCPart.__init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max, wcor_rcond)
 
-    def do_all(self):
-        names = HirshfeldCPart.do_all(self)
-        return names + ['niter', 'change', 'history_charges', 'history_propars']

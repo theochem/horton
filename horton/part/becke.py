@@ -49,9 +49,6 @@ class BeckeWPart(WPart):
             ])
             log.cite('becke1988_multicenter', 'the use of Becke partitioning')
 
-    def _init_partitioning(self):
-        pass
-
     def compute_at_weights(self, index, output):
         radii = np.array([periodic[n].cov_radius for n in self.system.numbers])
         grid = self.get_grid(index)
