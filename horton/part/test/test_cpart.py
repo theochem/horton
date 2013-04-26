@@ -23,12 +23,8 @@
 import numpy as np
 
 from horton import *
-from horton.part.test.common import get_fake_co, get_fake_pseudo_oo
-
-
-def check_names(names, cpart):
-    for name in names:
-        assert cpart._cache.has(name)
+from horton.part.test.common import check_names, check_proatom_splines, \
+    get_fake_co, get_fake_pseudo_oo
 
 
 def check_jbw_coarse(local):
@@ -89,6 +85,12 @@ def check_fake(scheme, pseudo, dowcor, local, absmean, **kwargs):
     assert abs(charges.sum()) < 1e-2
     assert abs(abs(charges).mean() - absmean) < 1e-3
 
+    if kwargs.get('greedy', False):
+        # In case of a greedy algorithm, one should compare the proatoms
+        # in the partitioning object with proatoms directly evaluate with the
+        # proatom splines
+        check_proatom_splines(cpart)
+
 
 def test_hirshfeld_fake_local():
     check_fake('h', pseudo=False, dowcor=True, local=True, absmean=0.115)
@@ -139,6 +141,31 @@ def test_hirshfeld_i_fake_pseudo_nowcor_global():
     check_fake('hi', pseudo=True, dowcor=True, local=False, absmean=0.400, threshold=1e-4)
 
 
+def test_hirshfeld_i_fake_local_greedy():
+    check_fake('hi', pseudo=False, dowcor=True, local=True, absmean=0.435, threshold=1e-5, greedy=True)
+
+
+def test_hirshfeld_i_fake_global_greedy():
+    check_fake('hi', pseudo=False, dowcor=True, local=False, absmean=0.434, threshold=1e-5, greedy=True)
+
+
+def test_hirshfeld_i_fake_pseudo_local_greedy():
+    check_fake('hi', pseudo=True, dowcor=True, local=True, absmean=0.400, threshold=1e-4, greedy=True)
+
+
+def test_hirshfeld_i_fake_pseudo_global_greedy():
+    check_fake('hi', pseudo=True, dowcor=True, local=False, absmean=0.400, threshold=1e-4, greedy=True)
+
+
+def test_hirshfeld_i_fake_pseudo_nowcor_local_greedy():
+    check_fake('hi', pseudo=True, dowcor=True, local=True, absmean=0.400, threshold=1e-4, greedy=True)
+
+
+def test_hirshfeld_i_fake_pseudo_nowcor_global_greedy():
+    check_fake('hi', pseudo=True, dowcor=True, local=False, absmean=0.400, threshold=1e-4, greedy=True)
+
+
+
 
 def test_hirshfeld_e_fake_local():
     check_fake('he', pseudo=False, dowcor=True, local=True, absmean=0.170, threshold=1e-4)
@@ -162,3 +189,27 @@ def test_hirshfeld_e_fake_pseudo_nowcor_local():
 
 def test_hirshfeld_e_fake_pseudo_nowcor_global():
     check_fake('he', pseudo=True, dowcor=True, local=False, absmean=0.396, threshold=1e-4)
+
+
+def test_hirshfeld_e_fake_local_greedy():
+    check_fake('he', pseudo=False, dowcor=True, local=True, absmean=0.170, threshold=1e-4, greedy=True)
+
+
+def test_hirshfeld_e_fake_global_greedy():
+    check_fake('he', pseudo=False, dowcor=True, local=False, absmean=0.375, threshold=1e-4, greedy=True)
+
+
+def test_hirshfeld_e_fake_pseudo_local_greedy():
+    check_fake('he', pseudo=True, dowcor=True, local=True, absmean=0.396, threshold=1e-4, greedy=True)
+
+
+def test_hirshfeld_e_fake_pseudo_global_greedy():
+    check_fake('he', pseudo=True, dowcor=True, local=False, absmean=0.396, threshold=1e-4, greedy=True)
+
+
+def test_hirshfeld_e_fake_pseudo_nowcor_local_greedy():
+    check_fake('he', pseudo=True, dowcor=True, local=True, absmean=0.396, threshold=1e-4, greedy=True)
+
+
+def test_hirshfeld_e_fake_pseudo_nowcor_global_greedy():
+    check_fake('he', pseudo=True, dowcor=True, local=False, absmean=0.396, threshold=1e-4, greedy=True)

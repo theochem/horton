@@ -77,7 +77,8 @@ class StockHolderMixin(object):
         if grid is None:
             grid = self.get_grid(index)
         if log.do_medium:
-            log('  Evaluating spline (%s) for atom %i on %i grid points' % (label, index, grid.size))
+            number = self.system.numbers[index]
+            log('  Evaluating spline (%s) for atom %i (n=%i) on %i grid points' % (label, index, number, grid.size))
         grid.eval_spline(spline, center, output)
 
     def eval_proatom(self, index, output, grid=None):

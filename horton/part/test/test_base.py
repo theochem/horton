@@ -63,7 +63,7 @@ def test_base_exceptions():
 def test_wpart_schemes():
     assert 'hi' in wpart_schemes
     assert wpart_schemes['hi'] is HirshfeldIWPart
-    assert wpart_schemes['hi'].options == ['threshold', 'maxiter']
+    assert wpart_schemes['hi'].options == ['threshold', 'maxiter', 'greedy']
 
 
 def test_cpart_schemes():
