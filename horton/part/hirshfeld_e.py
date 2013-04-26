@@ -240,9 +240,8 @@ class HirshfeldEMixin(object):
         spline = self._hebasis.get_constant_spline(index)
         self.eval_spline(index, spline, work)
 
-        # Recompute the AIM and subtract constant fn
-        self.cache.invalidate('at_weights', index)
-        delta_aim = self.get_moldens(index)*self.get_at_weights(index) - work
+        # compute delta_aim
+        delta_aim = self.get_moldens(index)*self.cache.load('at_weights', index) - work
 
         # Integrate out
         wcor = self.get_wcor(index)

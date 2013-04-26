@@ -93,11 +93,11 @@ class HirshfeldIMixin(object):
         # Keep track of history
         self.history_propars.append(self.cache.load('propars').copy())
 
-        # Enforce (single) update of pro-molecule in case of a global grid
-        self.cache.invalidate('promoldens')
+        # Update the partitioning based on the latest proatoms
+        self.update_at_weights()
 
+        # Update the proatoms
         for index in xrange(self.natom):
-            # Update proatom
             self._update_propars_atom(index)
 
         # Keep track of history
@@ -105,7 +105,6 @@ class HirshfeldIMixin(object):
 
     def _update_propars_atom(self, index):
         # Compute population
-        self.cache.invalidate('at_weights', index)
         pseudo_population = self.compute_pseudo_population(index)
 
         # Store charge
