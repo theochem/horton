@@ -80,6 +80,12 @@ class StockHolderMixin(object):
             log('  Evaluating spline (%s) for atom %i on %i grid points' % (label, index, grid.size))
         grid.eval_spline(spline, center, output)
 
+    def eval_proatom(self, index, output, grid=None):
+        spline = self.get_proatom_spline(index)
+        output[:] = 0.0
+        self.eval_spline(index, spline, output, grid, label='proatom')
+        output += 1e-100
+
     def update_at_weights(self):
         # This will reconstruct the promolecular density and atomic weights
         # based on the current proatomic splines.
@@ -107,19 +113,14 @@ class StockHolderMixin(object):
 class StockholderWPart(StockHolderMixin, WPart):
     def update_pro(self, index, proatdens, promoldens):
         work = self.grid.zeros()
-        spline = self.get_proatom_spline(index)
-        self.eval_spline(index, spline, work, self.grid, label='proatom')
-        work += 1e-100
+        self.eval_proatom(index, work, self.grid)
         promoldens += work
         proatdens[:] = self.to_atomic_grid(index, work)
 
 
 class StockholderCPart(StockHolderMixin, CPart):
     def update_pro(self, index, proatdens, promoldens):
-        spline = self.get_proatom_spline(index)
-        proatdens[:] = 0.0
-        self.eval_spline(index, spline, proatdens, label='proatom')
-        proatdens += 1e-100
+        self.eval_proatom(index, proatdens)
         promoldens += self.to_sys_grid(index, proatdens)
 
     def to_sys_grid(self, index, data):
