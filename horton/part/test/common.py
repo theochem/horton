@@ -29,6 +29,7 @@ from horton import *
 __all__ = [
     'get_proatomdb_ref', 'get_proatomdb_cp2k', 'get_proatomdb_hf_sto3g',
     'get_proatomdb_hf_lan', 'get_fake_co', 'get_fake_pseudo_oo',
+    'check_names', 'check_proatom_splines',
 ]
 
 
@@ -144,3 +145,20 @@ def get_fake_pseudo_oo(smooth=False):
         mol_dens += tmp
 
     return sys, ui_grid, mol_dens, proatomdb
+
+
+def check_names(names, part):
+    for name in names:
+        assert part.cache.has(name)
+
+
+def check_proatom_splines(part):
+    for index in xrange(part.system.natom):
+        spline = part.get_proatom_spline(index)
+        grid = part.get_grid(index)
+        array1 = grid.zeros()
+        part.eval_spline(index, spline, array1)
+        array2 = grid.zeros()
+        part.eval_proatom(index, array2)
+        assert abs(array1).max() != 0.0
+        assert abs(array1 - array2).max() < 1e-5

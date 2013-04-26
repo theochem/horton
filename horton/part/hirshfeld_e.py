@@ -26,6 +26,7 @@ from horton.cache import just_once
 from horton.grid.int1d import SimpsonIntegrator1D
 from horton.grid.cext import CubicSpline, dot_multi
 from horton.log import log
+from horton.part.hirshfeld import HirshfeldWPart, HirshfeldCPart
 from horton.part.hirshfeld_i import HirshfeldIWPart, HirshfeldICPart
 from horton.part.linalg import solve_positive, quadratic_solver
 
@@ -161,6 +162,15 @@ class HirshfeldEMixin(object):
             ])
             log.cite('verstraelen2013', 'the use of Hirshfeld-E partitioning')
 
+    def get_memory_estimates(self):
+        if self._greedy:
+            return [
+                ('Constant', np.ones(self.natom), 0),
+                ('Basis', np.array([self._hebasis.get_atom_nbasis(i) for i in xrange(self.natom)]), 0),
+            ]
+        else:
+            return []
+
     def get_proatom_rho(self, index, propars=None):
         if propars is None:
             propars = self._cache.load('propars')
@@ -176,6 +186,32 @@ class HirshfeldEMixin(object):
 
         number = self._system.numbers[index]
         return self._proatomdb.get_rho(number, total_lico)
+
+    def get_constant(self, index, grid=None):
+        spline = self._hebasis.get_constant_spline(index)
+        return self.get_somefn(index, spline, ('constant',), 'constant', grid)
+
+    def get_basis(self, index, j, grid=None):
+        spline = self._hebasis.get_basis_spline(index, j)
+        label = self._hebasis.get_basis_label(index, j)
+        return self.get_somefn(index, spline, ('basis', j), 'basis %s' % label, grid)
+
+    def eval_proatom(self, index, output, grid=None):
+        # Greedy version of eval_proatom
+        output[:] = self.get_constant(index, grid)
+
+        #
+        propars = self._cache.load('propars')
+        begin = self._hebasis.get_atom_begin(index)
+        nbasis =  self._hebasis.get_atom_nbasis(index)
+
+        for j in xrange(nbasis):
+            coeff = propars[j+begin]
+            if coeff != 0.0:
+                output += coeff*self.get_basis(index, j, grid)
+
+        # TODO: check for negative values
+        output += 1e-100
 
     def _init_propars(self):
         self.history_propars = []
@@ -235,15 +271,13 @@ class HirshfeldEMixin(object):
 
     def _get_charge_and_delta_aim(self, index):
         # evaluate the constant function, to subtract it from the AIM
-        grid = self.get_grid(index)
-        work = grid.zeros()
-        spline = self._hebasis.get_constant_spline(index)
-        self.eval_spline(index, spline, work, label='constant')
+        constant = self.get_constant(index)
 
         # compute delta_aim
-        delta_aim = self.get_moldens(index)*self.cache.load('at_weights', index) - work
+        delta_aim = self.get_moldens(index)*self.cache.load('at_weights', index) - constant
 
         # Integrate out
+        grid = self.get_grid(index)
         wcor = self.get_wcor(index)
         charge = -grid.integrate(delta_aim, wcor)
         return charge, delta_aim
@@ -294,11 +328,8 @@ class HirshfeldEMixin(object):
 
         #   Matrix B
         B = np.zeros(nbasis, float)
-        basis = grid.zeros()
         for j0 in xrange(nbasis):
-            basis[:] = 0.0
-            spline = self._hebasis.get_basis_spline(index, j0)
-            self.eval_spline(index, spline, basis, label='basis %i' % j0)
+            basis = self.get_basis(index, j0)
             B[j0] = grid.integrate(delta_aim, basis, wcor_fit)
 
         #   Constant C
@@ -311,21 +342,39 @@ class HirshfeldEMixin(object):
 
 
 class HirshfeldEWPart(HirshfeldEMixin, HirshfeldIWPart):
-    def __init__(self, system, grid, proatomdb, local=True, threshold=1e-6, maxiter=500):
+    def __init__(self, system, grid, proatomdb, local=True, threshold=1e-6, maxiter=500, greedy=False):
         self._hebasis = HEBasis(system.numbers, proatomdb)
-        HirshfeldIWPart.__init__(self, system, grid, proatomdb, local, threshold, maxiter)
+        HirshfeldIWPart.__init__(self, system, grid, proatomdb, local, threshold, maxiter, greedy)
 
     def get_wcor_fit(self, index):
         return None
 
+    def get_memory_estimates(self):
+        return (
+            HirshfeldWPart.get_memory_estimates(self) +
+            HirshfeldEMixin.get_memory_estimates(self)
+        )
+
+    def eval_proatom(self, index, output, grid=None):
+        if self._greedy:
+            HirshfeldEMixin.eval_proatom(self, index, output, grid)
+        else:
+            HirshfeldWPart.eval_proatom(self, index, output, grid)
+
 
 class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
-    def __init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1, threshold=1e-6, maxiter=500):
+    def __init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1, threshold=1e-6, maxiter=500, greedy=False):
         '''
            See CPart base class for the description of the arguments.
         '''
         self._hebasis = HEBasis(system.numbers, proatomdb)
-        HirshfeldICPart.__init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max, wcor_rcond, threshold, maxiter)
+        HirshfeldICPart.__init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max, wcor_rcond, threshold, maxiter, greedy)
+
+    def get_memory_estimates(self):
+        return (
+            HirshfeldCPart.get_memory_estimates(self) +
+            HirshfeldEMixin.get_memory_estimates(self)
+        )
 
     def get_wcor_fit_funcs(self, index):
         number = self._system.numbers[index]
@@ -366,3 +415,9 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
         if new:
             grid.compute_weight_corrections(funcs, output=wcor)
         return wcor
+
+    def eval_proatom(self, index, output, grid=None):
+        if self._greedy:
+            HirshfeldEMixin.eval_proatom(self, index, output, grid)
+        else:
+            HirshfeldCPart.eval_proatom(self, index, output, grid)

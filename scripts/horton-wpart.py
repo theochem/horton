@@ -67,6 +67,10 @@ def parse_args():
         help='The iterative scheme is converged when the maximum change of '
              'the charges between two iterations drops below this threshold. '
              '[default=%(default)s]')
+    parser.add_argument('--greedy', default=False, action='store_true',
+        help='Keep more precomputed results in memory. This speeds up the '
+             'partitioning but consumes more memory. It is only applicable to '
+             'the Hirshfeld-I (hi) and Hirhfeld-E (he) schemes.')
 
     return parser.parse_args()
 
