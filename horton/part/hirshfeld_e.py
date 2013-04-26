@@ -238,7 +238,7 @@ class HirshfeldEMixin(object):
         grid = self.get_grid(index)
         work = grid.zeros()
         spline = self._hebasis.get_constant_spline(index)
-        self.eval_spline(index, spline, work)
+        self.eval_spline(index, spline, work, label='constant')
 
         # compute delta_aim
         delta_aim = self.get_moldens(index)*self.cache.load('at_weights', index) - work
@@ -279,11 +279,11 @@ class HirshfeldEMixin(object):
                 for j0 in xrange(nbasis):
                     basis0[:] = 0.0
                     spline0 = self._hebasis.get_basis_spline(index, j0)
-                    self.eval_spline(index, spline0, basis0)
+                    self.eval_spline(index, spline0, basis0, label='basis %i' % j0)
                     for j1 in xrange(j0+1):
                         basis1[:] = 0.0
                         spline1 = self._hebasis.get_basis_spline(index, j1)
-                        self.eval_spline(index, spline1, basis1)
+                        self.eval_spline(index, spline1, basis1, label='basis %i' % j1)
                         A[j0, j1] = grid.integrate(basis0, basis1, wcor_fit)
                         A[j1, j0] = A[j0, j1]
 
@@ -298,7 +298,7 @@ class HirshfeldEMixin(object):
         for j0 in xrange(nbasis):
             basis[:] = 0.0
             spline = self._hebasis.get_basis_spline(index, j0)
-            self.eval_spline(index, spline, basis)
+            self.eval_spline(index, spline, basis, label='basis %i' % j0)
             B[j0] = grid.integrate(delta_aim, basis, wcor_fit)
 
         #   Constant C
