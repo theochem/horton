@@ -55,8 +55,8 @@ class StockHolderMixin(object):
         if rho.min() < 0:
             rho[rho<0] = 0.0
             error = np.dot(rho, weights) - original
-            if log.do_high:
-                log('                    Pro-atom not positive everywhere. Lost %.5f electrons' % error)
+            if log.do_medium:
+                log('                    Pro-atom not positive everywhere. Lost %.1e electrons' % error)
 
         return rho
 
@@ -72,12 +72,12 @@ class StockHolderMixin(object):
         # Make a spline
         return CubicSpline(rho, rtf=self.proatomdb.get_rtransform(number))
 
-    def eval_spline(self, index, spline, output, grid=None):
+    def eval_spline(self, index, spline, output, grid=None, label='noname'):
         center = self.system.coordinates[index]
         if grid is None:
             grid = self.get_grid(index)
         if log.do_medium:
-            log('  Evaluating spline for atom %i on %i grid points' % (index, grid.size))
+            log('  Evaluating spline (%s) for atom %i on %i grid points' % (label, index, grid.size))
         grid.eval_spline(spline, center, output)
 
     def update_at_weights(self):
@@ -108,7 +108,7 @@ class StockholderWPart(StockHolderMixin, WPart):
     def update_pro(self, index, proatdens, promoldens):
         work = self.grid.zeros()
         spline = self.get_proatom_spline(index)
-        self.eval_spline(index, spline, work, self.grid)
+        self.eval_spline(index, spline, work, self.grid, label='proatom')
         work += 1e-100
         promoldens += work
         proatdens[:] = self.to_atomic_grid(index, work)
@@ -118,7 +118,7 @@ class StockholderCPart(StockHolderMixin, CPart):
     def update_pro(self, index, proatdens, promoldens):
         spline = self.get_proatom_spline(index)
         proatdens[:] = 0.0
-        self.eval_spline(index, spline, proatdens)
+        self.eval_spline(index, spline, proatdens, label='proatom')
         proatdens += 1e-100
         promoldens += self.to_sys_grid(index, proatdens)
 
