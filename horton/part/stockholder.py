@@ -80,34 +80,53 @@ class StockHolderMixin(object):
             log('  Evaluating spline for atom %i on %i grid points' % (index, grid.size))
         grid.eval_spline(spline, center, output)
 
-    def compute_at_weights(self, i0, at_weights):
-        promoldens = self.get_promoldens(i0)
-        spline = self.get_proatom_spline(i0)
-        at_weights[:] = 0.0
-        self.eval_spline(i0, spline, at_weights)
-        at_weights[:] /= promoldens
-        #np.clip(at_weights, 0, 1, at_weights) # TODO: would this help?
+    def update_at_weights(self):
+        # This will reconstruct the promolecular density and atomic weights
+        # based on the current proatomic splines.
+        promoldens = self.cache.load('promoldens', alloc=self.grid.shape)[0]
+        promoldens[:] = 0
 
-    def get_promoldens(self, index):
-        # Get/Construct the promolecule on the entire grid if needed
-        promoldens, new = self.cache.load('promoldens', alloc=self.grid.shape)
-        if new:
-            # Note that the promolecule is always evaluated on the entire
-            # grid.
-            for i in xrange(self.system.natom):
-                spline = self.get_proatom_spline(i)
-                self.eval_spline(i, spline, promoldens, self.grid)
-            # The following seems worse than it is. It does nothing to the
-            # relevant numbers. It just avoids troubles in the division.
-            promoldens[:] += 1e-100
+        # update the promolecule density and store the proatoms in the at_weights
+        # arrays for later.
+        for index in xrange(self.system.natom):
+            grid = self.get_grid(index)
+            at_weights = self.cache.load('at_weights', index, alloc=grid.shape)[0]
+            self.update_pro(index, at_weights, promoldens)
 
-        # Take the relevant part
-        return self.to_atomic_grid(index, promoldens)
+        # Compute the atomic weights by taking the ratios between proatoms and
+        # promolecules.
+        for index in xrange(self.system.natom):
+            at_weights = self.cache.load('at_weights', index)
+            at_weights /= self.to_atomic_grid(index, promoldens)
+            #np.clip(at_weights, 0, 1, at_weights) # TODO: would this help?
+
+    def update_pro(self, index, proatdens, promoldens):
+        raise NotImplementedError
 
 
 class StockholderWPart(StockHolderMixin, WPart):
-    pass
+    def update_pro(self, index, proatdens, promoldens):
+        work = self.grid.zeros()
+        spline = self.get_proatom_spline(index)
+        self.eval_spline(index, spline, work, self.grid)
+        work += 1e-100
+        promoldens += work
+        proatdens[:] = self.to_atomic_grid(index, work)
 
 
 class StockholderCPart(StockHolderMixin, CPart):
-    pass
+    def update_pro(self, index, proatdens, promoldens):
+        spline = self.get_proatom_spline(index)
+        proatdens[:] = 0.0
+        self.eval_spline(index, spline, proatdens)
+        proatdens += 1e-100
+        promoldens += self.to_sys_grid(index, proatdens)
+
+    def to_sys_grid(self, index, data):
+        if self.local:
+            result = self.grid.zeros()
+            grid = self.get_grid(index)
+            grid.wrap(data, result)
+            return result
+        else:
+            return data

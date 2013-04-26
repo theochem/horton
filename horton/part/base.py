@@ -126,13 +126,6 @@ class Part(JustOnceClass):
             output[:] = result
         return result
 
-    def get_at_weights(self, index, output=None):
-        '''Return the atomic weight function on a grid
-
-           See get_grid for the meaning of the optional arguments
-        '''
-        raise NotImplementedError
-
     def get_wcor(self, index):
         '''Return the weight corrections on a grid
 
@@ -181,7 +174,7 @@ class Part(JustOnceClass):
     def compute_pseudo_population(self, index):
         grid = self.get_grid(index)
         dens = self.get_moldens(index)
-        at_weights = self.get_at_weights(index)
+        at_weights = self.cache.load('at_weights', index)
         wcor = self.get_wcor(index)
         return grid.integrate(at_weights, dens, wcor)
 
@@ -191,8 +184,12 @@ class Part(JustOnceClass):
 
     @just_once
     def do_partitioning(self):
-        pass
+        self.update_at_weights()
     do_partitioning.names = []
+
+    def update_at_weights(self):
+        '''Updates the at_weights arrays in the case (and all related arrays)'''
+        raise NotImplementedError
 
     @just_once
     def do_populations(self):
@@ -246,20 +243,13 @@ class Part(JustOnceClass):
                 center = self._system.coordinates[i]
                 grid = self.get_grid(i)
 
-                # 2) Evaluate the non-periodic atomic weight in this window
-                aim = grid.zeros()
-                self.get_at_weights(i, output=aim)
+                # 2) Compute the AIM
+                aim = self.get_moldens(i)*self.cache.load('at_weights', i)
 
-                # 3) Extend the moldens over the window and multiply to obtain the
-                #    AIM
-                moldens = self.get_moldens(i)
-                aim *= moldens
-                del moldens
-
-                # 4) Compute weight corrections (TODO: needs to be assessed!)
+                # 3) Compute weight corrections (TODO: needs to be assessed!)
                 wcor = self.get_wcor(i)
 
-                # 5) Compute Cartesian multipoles
+                # 4) Compute Cartesian multipoles
                 counter = 0
                 for nx, ny, nz in cartesian_powers:
                     if log.do_medium:
@@ -267,14 +257,11 @@ class Part(JustOnceClass):
                     cartesian_moments[i, counter] = grid.integrate(aim, wcor, center=center, nx=nx, ny=ny, nz=nz, nr=0)
                     counter += 1
 
-                # 6) Compute Radial moments
+                # 5) Compute Radial moments
                 for nr in radial_powers:
                     if log.do_medium:
                         log('  moment %s' % ('r'*nr))
                     radial_moments[i, nr-1] = grid.integrate(aim, wcor, center=center, nx=0, ny=0, nz=0, nr=nr)
-
-                del wcor
-                del aim
 
     do_moments.names = ['cartesian_powers', 'cartesian_moments', 'radial_powers', 'radial_moments']
 
@@ -284,7 +271,6 @@ class Part(JustOnceClass):
         for attr_name in dir(self):
             attr = getattr(self, attr_name)
             if callable(attr) and attr_name.startswith('do_') and attr_name != 'do_all':
-                print attr_name
                 attr()
                 names.extend(attr.names)
         return names
@@ -327,20 +313,8 @@ class WPart(Part):
     def _init_subgrids(self):
         self._subgrids = self._grid.subgrids
 
-    def get_at_weights(self, index, output=None):
-        grid = self.get_grid(index)
-        at_weights, new = self.cache.load('at_weights', index, alloc=grid.size)
-        if new:
-            self.compute_at_weights(index, at_weights)
-        if output is not None:
-            output[:] = at_weights
-        return at_weights
-
     def get_wcor(self, index):
         return None
-
-    def compute_at_weights(self, i0, output=None):
-        raise NotImplementedError
 
     @just_once
     def do_moldens(self):
@@ -425,15 +399,6 @@ class CPart(Part):
             ('Weight corrections', np.array([n in self._wcor_numbers for n in self.system.numbers]), 0),
         ] + Part.get_memory_estimates(self)
 
-    def get_at_weights(self, index=None, output=None):
-        grid = self.get_grid(index)
-        at_weights, new = self.cache.load('at_weights', index, alloc=grid.shape)
-        if new:
-            self.compute_at_weights(index, at_weights)
-        if output is not None:
-            output[:] = at_weights
-        return at_weights
-
     def get_wcor(self, index=None):
         # Get the functions
         if index is None or not self.local:
@@ -461,9 +426,6 @@ class CPart(Part):
         raise NotImplementedError
 
     def get_wcor_funcs(self, index):
-        raise NotImplementedError
-
-    def compute_at_weights(self, index, output):
         raise NotImplementedError
 
     @just_once

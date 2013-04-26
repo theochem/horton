@@ -49,11 +49,13 @@ class BeckeWPart(WPart):
             ])
             log.cite('becke1988_multicenter', 'the use of Becke partitioning')
 
-    def compute_at_weights(self, index, output):
+    def update_at_weights(self):
         radii = np.array([periodic[n].cov_radius for n in self.system.numbers])
-        grid = self.get_grid(index)
-        output[:] = 1
-        becke_helper_atom(grid.points, output, radii, self.system.coordinates, index, self._k)
+        for index in xrange(self.natom):
+            grid = self.get_grid(index)
+            at_weights = self.cache.load('at_weights', index, alloc=grid.shape)[0]
+            at_weights[:] = 1
+            becke_helper_atom(grid.points, at_weights, radii, self.system.coordinates, index, self._k)
 
     def _get_k(self):
         '''The order of the Becke switching function.'''
