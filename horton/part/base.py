@@ -395,18 +395,20 @@ class CPart(Part):
             ])
 
     def get_memory_estimates(self):
-        return [
-            ('Weight corrections', np.array([n in self._wcor_numbers for n in self.system.numbers]), 0),
-        ] + Part.get_memory_estimates(self)
+        if self.local:
+            row = [('Weight corrections', np.array([n in self._wcor_numbers for n in self.system.numbers]), 0)]
+        else:
+            row = [('Weight corrections', np.zeros(self.natom), 1)]
+        return Part.get_memory_estimates(self) + row
 
-    def get_wcor(self, index=None):
+    def _get_wcor_low(self, label, get_funcs, index=None):
         # Get the functions
         if index is None or not self.local:
             funcs = []
             for i in xrange(self.natom):
-                funcs.extend(self.get_wcor_funcs(i))
+                funcs.extend(get_funcs(i))
         else:
-            funcs = self.get_wcor_funcs(index)
+            funcs = get_funcs(index)
 
         # If no functions are collected, bork
         if len(funcs) == 0:
@@ -416,10 +418,13 @@ class CPart(Part):
 
         if not self.local:
             index = None
-        wcor, new = self.cache.load('wcor', index, alloc=grid.shape)
+        wcor, new = self.cache.load(label, index, alloc=grid.shape)
         if new:
             grid.compute_weight_corrections(funcs, output=wcor)
         return wcor
+
+    def get_wcor(self, index=None):
+        return self._get_wcor_low('wcor', self.get_wcor_funcs, index)
 
     def get_cutoff_radius(self, index):
         # The radius at which the weight function goes to zero

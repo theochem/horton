@@ -371,9 +371,14 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
         HirshfeldICPart.__init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max, wcor_rcond, threshold, maxiter, greedy)
 
     def get_memory_estimates(self):
+        if self.local:
+            row = [('Weight corrections (fit)', np.array([n in self._wcor_numbers for n in self.system.numbers]), 0)]
+        else:
+            row = [('Weight corrections (fit)', np.zeros(self.natom), 1)]
         return (
             HirshfeldCPart.get_memory_estimates(self) +
-            HirshfeldEMixin.get_memory_estimates(self)
+            HirshfeldEMixin.get_memory_estimates(self) +
+            row
         )
 
     def get_wcor_fit_funcs(self, index):
@@ -394,27 +399,7 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
         return [(center, splines)]
 
     def get_wcor_fit(self, index=None):
-        # TODO: eliminate duplicate code with get_wcor
-        # Get the functions
-        if index is None or not self.local:
-            funcs = []
-            for i in xrange(self.natom):
-                funcs.extend(self.get_wcor_fit_funcs(i))
-        else:
-            funcs = self.get_wcor_funcs(index)
-
-        # If no functions are collected, bork
-        if len(funcs) == 0:
-            return None
-
-        grid = self.get_grid(index)
-
-        if not self.local:
-            index = None
-        wcor, new = self.cache.load('wcor_fit', index, alloc=grid.shape)
-        if new:
-            grid.compute_weight_corrections(funcs, output=wcor)
-        return wcor
+        return self._get_wcor_low('wcor_fit', self.get_wcor_fit_funcs, index)
 
     def eval_proatom(self, index, output, grid=None):
         if self._greedy:
