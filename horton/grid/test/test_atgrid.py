@@ -89,60 +89,47 @@ def test_atomic_grid_basics():
         assert (ag1.nlls == [6, 6, 6, 6]).all()
         assert ag1.nsphere == 4
         assert abs(ag0.weights - ag1.weights).max() < 1e-10
+        assert abs(ag0.av_weights - ag1.av_weights).max() < 1e-10
         assert (abs(ag0.points - ag1.points).max() < 1e-10) ^ random_rotate
 
 
-def test_integrate_hydrogen_1s():
+def get_hydrogen_1s():
     center = np.random.uniform(-1,1,3)
     int1d = CubicIntegrator1D()
     rtf = BakerRTransform(2e1, 100)
     ag = AtomicGrid(1, center, (rtf, int1d, 110), 100)
     distances = np.sqrt(((center - ag.points)**2).sum(axis=1))
     fn = np.exp(-2*distances)/np.pi
+    return ag, fn
+
+
+def test_integrate_hydrogen_1s():
+    ag, fn = get_hydrogen_1s()
     occupation = ag.integrate(fn)
     assert abs(occupation - 1.0) < 1e-10
 
 
-def test_atgrid_attrs_1_subgrid():
+def test_spherical_average_hydrogen_1s():
+    ag, fn = get_hydrogen_1s()
+    x = ag.points[:,0] - ag.center[0]
+    y = ag.points[:,1] - ag.center[1]
+    z = ag.points[:,2] - ag.center[2]
+    sa_check = np.exp(-2*ag.rgrid.radii)/np.pi
+    for cx, cy, cz, cxxx in (0, 0, 0, 0), (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1), (1, 1, 0, 0), (0, 1, 0, 1):
+        sa_fn = ag.get_spherical_average([fn + cx*x + cy*y + cz*z + cxxx*x*x*x])
+        assert abs(sa_fn - sa_check).max() < 1e-10
+
+
+def test_atgrid_attrs():
     center = np.array([0.7, 0.2, -0.5], float)
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 50)
-    ag = AtomicGrid(2, center, (rtf, int1d, 26), keep_subgrids=1)
+    ag = AtomicGrid(3, center, (rtf, int1d, 26))
 
     assert ag.size == 50*26
     assert ag.points.shape == (50*26, 3)
     assert ag.weights.shape == (50*26,)
-    assert len(ag.subgrids) == 50
-    assert ag.number == 2
-    assert (ag.center == center).all()
-    assert ag.rtransform == rtf
-    assert (ag.nlls == [26]*50).all()
-    assert ag.nsphere == 50
-    assert ag.random_rotate
-
-    radii = rtf.get_radii()
-    for j in xrange(50):
-        llgrid = ag.subgrids[j]
-        assert isinstance(llgrid, LebedevLaikovSphereGrid)
-        assert llgrid.size == 26
-        assert llgrid.points.shape == (26, 3)
-        assert llgrid.weights.shape == (26,)
-        assert llgrid.subgrids is None
-        assert (llgrid.center == center).all()
-        assert llgrid.radius == radii[j]
-        assert llgrid.nll == 26
-        assert llgrid.random_rotate
-
-
-def test_atgrid_attrs_0_subgrid():
-    center = np.array([0.7, 0.2, -0.5], float)
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 1e1, 50)
-    ag = AtomicGrid(3, center, (rtf, int1d, 26), keep_subgrids=0)
-
-    assert ag.size == 50*26
-    assert ag.points.shape == (50*26, 3)
-    assert ag.weights.shape == (50*26,)
+    assert ag.av_weights.shape == (50*26,)
     assert ag.subgrids is None
     assert ag.number == 3
     assert (ag.center == center).all()
@@ -150,3 +137,10 @@ def test_atgrid_attrs_0_subgrid():
     assert (ag.nlls == [26]*50).all()
     assert ag.nsphere == 50
     assert ag.random_rotate
+
+
+def test_random_rotation():
+    for i in xrange(10):
+        rotmat = get_random_rotation()
+        assert abs(np.dot(rotmat, rotmat.T) - np.identity(3)).max() < 1e-10
+        assert abs(np.dot(rotmat.T, rotmat) - np.identity(3)).max() < 1e-10

@@ -39,7 +39,7 @@ __all__ = [
 
 class BeckeMolGrid(IntGrid):
     '''Molecular integration grid using Becke weights'''
-    def __init__(self, system, atspecs='tv-13.1-3', k=3, random_rotate=True, keep_subgrids=0):
+    def __init__(self, system, atspecs='tv-13.1-3', k=3, random_rotate=True, keep_subgrids=False):
         '''
            **Arguments:**
 
@@ -58,10 +58,8 @@ class BeckeMolGrid(IntGrid):
                 Flag to control random rotation of spherical grids.
 
            keep_subgrids
-                By default, not (atomic) subgrids are stored. When set to 1,
-                atomic subgrids will be stored, but their (Lebedev-Laikov)
-                subgrids are discarded. When set to 2, the Lebedev-Laikov
-                subgrids are also stored internally. This option is mainly of
+                By default, no (atomic) subgrids are stored. When set to True,
+                atomic subgrids will be stored. This option is mainly of
                 interest for AIM analysis.
 
            The argument atspecs may have two formats:
@@ -97,7 +95,7 @@ class BeckeMolGrid(IntGrid):
         log.mem.announce(points.nbytes + weights.nbytes)
 
         # construct the atomic grids
-        if keep_subgrids > 0:
+        if keep_subgrids:
             atgrids = []
         else:
             atgrids = None
@@ -108,11 +106,10 @@ class BeckeMolGrid(IntGrid):
             atsize = atnlls.sum()
             atgrid = AtomicGrid(system.numbers[i], system.coordinates[i],
                                 (rtransform, int1d, atnlls), random_rotate,
-                                points[offset:offset+atsize],
-                                keep_subgrids=keep_subgrids-1)
+                                points[offset:offset+atsize])
             weights[offset:offset+atsize] = atgrid.weights
             becke_helper_atom(points[offset:offset+atsize], weights[offset:offset+atsize], cov_radii, system.coordinates, i, self._k)
-            if keep_subgrids > 0:
+            if keep_subgrids:
                 atgrids.append(atgrid)
             offset += atsize
 

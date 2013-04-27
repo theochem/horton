@@ -41,7 +41,7 @@ def check_jbw_coarse(local):
     # Load some pro-atoms
     int1d = SimpsonIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), keep_subgrids=1)
+    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110))
     proatomdb = ProAtomDB.from_refatoms(atgrid, numbers=[8,14], max_kation=0, max_anion=0)
 
     # Run the partitioning

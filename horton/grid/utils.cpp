@@ -138,6 +138,25 @@ double dot_multi_moments(long npoint, long nvector, double** data, double* point
     return result;
 }
 
+void dot_multi_parts(long npoint, long nvector, long noutput, double** data, long* sizes, double* output) {
+    long begin=0;
+    for (long ioutput=0; ioutput<noutput; ioutput++) {
+        double total = 0.0;
+        long end = begin + sizes[ioutput];
+
+        for (long ipoint=begin; ipoint<end; ipoint++) {
+            double tmp = data[nvector-1][ipoint];
+            for (long ivector=nvector-2; ivector>=0; ivector--) {
+                tmp *= data[ivector][ipoint];
+            }
+            total += tmp;
+        }
+        output[ioutput] = total;
+
+        begin = end;
+    }
+}
+
 void grid_distances(double *points, double *center, double *distances, long n) {
   double d, tmp;
   for (long i=0; i<n; i++) {

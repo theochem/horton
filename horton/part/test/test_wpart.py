@@ -40,7 +40,7 @@ def check_water_hf_sto3g(scheme, local, expecting, **kwargs):
     rtf = ExpRTransform(5e-4, 2e1, 120)
 
     # Do the partitioning, both with local and global grids
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=int(local))
+    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=local)
     WPartClass = wpart_schemes[scheme]
     wpart = WPartClass(sys, grid, proatomdb, local, **kwargs)
     names = wpart.do_all()

@@ -25,19 +25,20 @@ import numpy as np
 
 from horton.context import context
 from horton.grid.base import IntGrid
-from horton.grid.cext import lebedev_laikov_npoints, RTransform
+from horton.grid.cext import lebedev_laikov_npoints, lebedev_laikov_sphere, RTransform, dot_multi_parts
 from horton.grid.int1d import SimpsonIntegrator1D
-from horton.grid.sphere import LebedevLaikovSphereGrid
+from horton.grid.radial import RadialIntGrid
 from horton.log import log
 
 
 __all__ = [
-    'AtomicGrid', 'interpret_atspec', 'ATGridFamily', 'atgrid_families',
+    'AtomicGrid', 'interpret_atspec', 'get_random_rotation', 'ATGridFamily',
+    'atgrid_families',
 ]
 
 
 class AtomicGrid(IntGrid):
-    def __init__(self, number, center, atspec='tv-13.1-3', random_rotate=True, points=None, keep_subgrids=0):
+    def __init__(self, number, center, atspec='tv-13.1-3', random_rotate=True, points=None):
         '''
            **Arguments:**
 
@@ -58,16 +59,12 @@ class AtomicGrid(IntGrid):
 
            points
                 Array to store the grid points
-
-           keep_subgrids
-                By default the (Lebedev-Laikov) subgrids are not stored
-                separately. If set to 1, they are kept.
-
         '''
         self._number = number
         self._center = center
         self._rtransform, self._int1d, self._nlls = interpret_atspec(number, atspec)
         self._random_rotate = random_rotate
+        self._rgrid = RadialIntGrid(self._rtransform, self._int1d)
 
         size = self._nlls.sum()
         if points is None:
@@ -75,25 +72,33 @@ class AtomicGrid(IntGrid):
         else:
             assert len(points) == size
         weights = np.zeros(size, float)
+        self._av_weights = np.zeros(size, float)
 
-        if keep_subgrids > 0:
-            llgrids = []
-        else:
-            llgrids = None
         offset = 0
         nsphere = len(self._nlls)
-        radii = self._rtransform.get_radii()
-        rweights = self._int1d.get_weights(nsphere)
-        rweights *= self._rtransform.get_volume_elements()
+
+        radii = self._rgrid.radii
+        rweights = self._rgrid.weights
+
         for i in xrange(nsphere):
             nll = self._nlls[i]
-            llgrid = LebedevLaikovSphereGrid(center, radii[i], nll, random_rotate, points[offset:offset+nll])
-            if keep_subgrids > 0:
-                llgrids.append(llgrid)
-            weights[offset:offset+nll] = rweights[i]*llgrid.weights
+            my_points = points[offset:offset+nll]
+            my_av_weights = self._av_weights[offset:offset+nll]
+            my_weights = weights[offset:offset+nll]
+
+            lebedev_laikov_sphere(my_points, my_av_weights)
+            my_points *= radii[i]
+            if random_rotate:
+                rotmat = get_random_rotation()
+                my_points[:] = np.dot(my_points, rotmat)
+            my_weights[:] = my_av_weights
+            my_weights *= rweights[i]
+
             offset += nll
 
-        IntGrid.__init__(self, points, weights, llgrids)
+        points[:] += center
+
+        IntGrid.__init__(self, points, weights)
         self._log_init()
 
     def _get_number(self):
@@ -126,6 +131,12 @@ class AtomicGrid(IntGrid):
 
     nlls = property(_get_nlls)
 
+    def _get_rgrid(self):
+        '''The radial integration grid'''
+        return self._rgrid
+
+    rgrid = property(_get_rgrid)
+
     def _get_nsphere(self):
         '''The number of spheres in the grid.'''
         return len(self._nlls)
@@ -137,6 +148,12 @@ class AtomicGrid(IntGrid):
         return self._random_rotate
 
     random_rotate = property(_get_random_rotate)
+
+    def _get_av_weights(self):
+        '''The weights needed to compute spherical averages.'''
+        return self._av_weights
+
+    av_weights = property(_get_av_weights)
 
     def _log_init(self):
         if log.do_medium:
@@ -152,6 +169,20 @@ class AtomicGrid(IntGrid):
             # Cite reference
             log.cite('lebedev1999', 'for the use of Lebedev-Laikov grids (quadrature on a sphere)')
             log.blank()
+
+    def get_spherical_average(self, args, output=None):
+        '''Returns the spherical average on the radial grid of the product of the given functions'''
+        if isinstance(args, np.ndarray) and args.shape == self.shape:
+            args = [args]
+        args = [arg.ravel() for arg in args if arg is not None]
+        args.append(self.av_weights)
+        if output is None:
+            output = self._rgrid.zeros()
+        else:
+            assert output.shape == self._rgrid.shape
+        # TODO: merge all dot_multi variants in one general-purpose implementation
+        dot_multi_parts(args, self._nlls, output)
+        return output
 
 
 
@@ -196,6 +227,30 @@ def interpret_atspec(number, atspec):
             raise ValueError('A Lebedev-Laikov grid with %i points is not supported.' % nll)
 
     return rtransform, int1d, nlls
+
+
+def get_random_rotation():
+    '''Return a random rotation matrix'''
+    # Get a random unit vector for the axis
+    while True:
+        axis = np.random.uniform(-1, 1, 3)
+        norm = np.linalg.norm(axis)
+        if norm < 1.0 and norm > 0.1:
+            axis /= norm
+            break
+    x, y, z = axis
+
+    # Get a random rotation angle
+    angle = np.random.uniform(0, 2*np.pi)
+    c = np.cos(angle)
+    s = np.sin(angle)
+
+    # Rodrigues' rotation formula
+    return np.array([
+        [x*x*(1-c)+c  , x*y*(1-c)-z*s, x*z*(1-c)+y*s],
+        [x*y*(1-c)+z*s, y*y*(1-c)+c  , y*z*(1-c)-x*s],
+        [x*z*(1-c)-y*s, y*z*(1-c)+x*s, z*z*(1-c)+c  ],
+    ])
 
 
 class ATGridFamily(object):
