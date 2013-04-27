@@ -137,7 +137,7 @@ def plot_atoms(proatomdb):
 
     lss = {True: '-', False: ':'}
     for number in proatomdb.get_numbers():
-        r = proatomdb.get_rtransform(number).get_radii()
+        r = proatomdb.get_rgrid(number).radii
         symbol = periodic[number].symbol
         charges = proatomdb.get_charges(number)
 

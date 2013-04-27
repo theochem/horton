@@ -40,12 +40,12 @@ def test_db_basics():
     assert r1.pseudo_number == 8
     assert r1.pseudo_population == 9
     assert r1.safe
-    assert r1.rtransform.npoint == 100
+    assert r1.rgrid.size == 100
     r2 = padb.get_record(8, -1)
     r3 = padb.get_record(8, 0)
     assert r1 == r2
     assert r1 != r3
-    assert padb.get_rtransform(8) == r1.rtransform
+    assert padb.get_rgrid(8) is r1.rgrid
 
 
 def test_db_basics_pseudo():
@@ -56,7 +56,7 @@ def test_db_basics_pseudo():
     assert padb.get_charges(14) == [0]
     assert padb.get_record(8, -1).safe
     assert not padb.get_record(8, -2).safe
-    assert padb.get_rtransform(8) == padb.get_record(8, 1).rtransform
+    assert padb.get_rgrid(8) is padb.get_record(8, 1).rgrid
 
 
 def test_record_basics_pseudo():
@@ -75,7 +75,7 @@ def test_record_basics_pseudo():
     assert r.pseudo_number == 4
     assert r.pseudo_population == 4
     assert r.safe
-    assert r.rtransform is rtf
+    assert r.rgrid.rtransform is rtf
 
 
 def compare_padbs(padb1, padb2):
@@ -191,5 +191,5 @@ def test_get_spline_pseudo():
 def test_compact():
     padb = get_proatomdb_cp2k()
     padb.compact(0.1)
-    assert padb.get_rtransform(8).npoint < 100
-    assert padb.get_rtransform(14).npoint < 100
+    assert padb.get_rgrid(8).size < 100
+    assert padb.get_rgrid(14).size < 100

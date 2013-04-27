@@ -50,7 +50,7 @@ class HEBasis(object):
 
         for i in xrange(len(numbers)):
             number = numbers[i]
-            weights = proatomdb.get_radial_weights(number)
+            rgrid = proatomdb.get_rgrid(number)
             padb_charges = proatomdb.get_charges(number, safe=True)
             complete = proatomdb.get_record(number, padb_charges[0]).pseudo_population == 1
 
@@ -71,7 +71,7 @@ class HEBasis(object):
                 for old_lico in licos:
                     old_rho = self.proatomdb.get_rho(number, old_lico)
                     delta = rho - old_rho
-                    rmsd = np.sqrt(dot_multi(weights, delta, delta))
+                    rmsd = np.sqrt(rgrid.integrate(delta, delta))
                     if rmsd < 1e-8:
                         redundant = True
                         break
@@ -284,7 +284,6 @@ class HirshfeldEMixin(object):
 
     def _get_he_system(self, index, delta_aim):
         number = self.system.numbers[index]
-        weights = self.proatomdb.get_radial_weights(number)
         nbasis = self._hebasis.get_atom_nbasis(index)
         grid = self.get_grid(index)
         wcor_fit = self.get_wcor_fit(index)
@@ -298,11 +297,12 @@ class HirshfeldEMixin(object):
             if self.local:
                 # In case of local grids, the integration is carried out on
                 # a radial grid for efficiency.
+                rgrid = self.proatomdb.get_rgrid(number)
                 for j0 in xrange(nbasis):
                     rho0 = self._hebasis.get_basis_rho(index, j0)
                     for j1 in xrange(j0+1):
                         rho1 = self._hebasis.get_basis_rho(index, j1)
-                        A[j0, j1] = dot_multi(weights, rho0, rho1)
+                        A[j0, j1] = rgrid.integrate(rho0, rho1)
                         A[j1, j0] = A[j0, j1]
             else:
                 # In the case of a global grid, the radial integration is not
@@ -388,7 +388,7 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
 
         center = self._system.coordinates[index]
         atom_nbasis = self._hebasis.get_atom_nbasis(index)
-        rtf = self._proatomdb.get_rtransform(self._system.numbers[index])
+        rtf = self._proatomdb.get_rgrid(self._system.numbers[index]).rtransform
         splines = []
         for j0 in xrange(atom_nbasis):
             rho0 = self._hebasis.get_basis_rho(index, j0)

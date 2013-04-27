@@ -29,6 +29,7 @@ from horton.exceptions import ElectronCountError
 from horton.grid.atgrid import AtomicGrid
 from horton.grid.int1d import SimpsonIntegrator1D
 from horton.grid.cext import RTransform, CubicSpline, dot_multi
+from horton.grid.radial import RadialIntGrid
 from horton.guess import guess_hamiltonian_core
 from horton.hamiltonian import Hamiltonian
 from horton.log import log
@@ -74,14 +75,14 @@ class ProAtomRecord(object):
         charge = pseudo_number - nel
 
         # Create object
-        return cls(number, charge, energy, atgrid.rtransform, rho, pseudo_number)
+        return cls(number, charge, energy, atgrid.rgrid, rho, pseudo_number)
 
-    def __init__(self, number, charge, energy, rtransform, rho, pseudo_number=None):
+    def __init__(self, number, charge, energy, rgrid, rho, pseudo_number=None):
         self._number = number
         self._charge = charge
         self._energy = energy
         self._rho = rho
-        self._rtransform = rtransform
+        self._rgrid = rgrid
         if pseudo_number is None:
             self._pseudo_number = number
         else:
@@ -108,10 +109,10 @@ class ProAtomRecord(object):
 
     rho = property(_get_rho)
 
-    def _get_rtransform(self):
-        return self._rtransform
+    def _get_rgrid(self):
+        return self._rgrid
 
-    rtransform = property(_get_rtransform)
+    rgrid = property(_get_rgrid)
 
     def _get_pseudo_number(self):
         return self._pseudo_number
@@ -156,9 +157,9 @@ class ProAtomRecord(object):
                 A list of populations for which the corresponding radii have to
                 be computed.
         '''
-        # compute the integral of the density (popint)
-        radii = self._rtransform.get_radii()
-        tmp = (4*np.pi) * radii**2 * self.rho * self._rtransform.get_volume_elements()
+        # compute the running integral of the density (popint)
+        radii = self.rgrid.radii
+        tmp = (4*np.pi) * radii**2 * self.rho * self.rgrid.rtransform.get_volume_elements()
         popint = []
         int1d = SimpsonIntegrator1D()
         for i in xrange(len(tmp)):
@@ -183,24 +184,23 @@ class ProAtomRecord(object):
 
     def get_moment(self, order):
         '''Return the integral of rho*r**order'''
-        radii = self._rtransform.get_radii()
-        int1d = SimpsonIntegrator1D()
-        int_weights = int1d.get_weights(len(radii))
-        vol_weights = self._rtransform.get_volume_elements()
-        return 4*np.pi*dot_multi(radii**(2+order), self.rho, int_weights, vol_weights)
+        return self.rgrid.integrate(self.rho, self.rgrid.radii**order)
 
     def chop(self, npoint):
         '''Reduce the proatom to the given number of radial grid points.'''
         self._rho = self._rho[:npoint]
-        self._rtransform = self._rtransform.chop(npoint)
+        self._rgrid = self._rgrid.chop(npoint)
 
     def __eq__(self, other):
         return (self.number == other.number and
                 self.charge == other.charge and
                 self.energy == other.energy and
                 (self.rho == other.rho).all() and
-                self.rtransform.to_string() == other.rtransform.to_string() and
+                self.rgrid == other.rgrid and
                 self.pseudo_number == other.pseudo_number)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 
 class ProAtomDB(object):
@@ -230,17 +230,17 @@ class ProAtomDB(object):
         self._records = records
         self._map = dict(((r.number, r.charge), r) for r in records)
 
-        # check that all records of a given element of the same rtransform
-        self._rtf_map = {}
+        # check that all records of a given element have the same rgrid
+        self._rgrid_map = {}
         for r in records:
-            rtf = self._rtf_map.get(r.number)
-            if rtf is None:
+            rgrid = self._rgrid_map.get(r.number)
+            if rgrid is None:
                 # store
-                self._rtf_map[r.number] = r.rtransform
+                self._rgrid_map[r.number] = r.rgrid
             else:
                 # compare
-                if rtf.to_string() != r.rtransform.to_string():
-                    raise ValueError('All proatoms of a given element must have the same rtransform')
+                if rgrid != r.rgrid:
+                    raise ValueError('All proatoms of a given element must have the same radial grid')
 
         # Update the safe flags based on the energies of other pro_atoms
         for number in self.get_numbers():
@@ -259,7 +259,7 @@ class ProAtomDB(object):
         if log.do_medium:
             log('Initialized: %s' % self)
             log.deflist([
-                ('Numbers', self._rtf_map.keys()),
+                ('Numbers', self._rgrid_map.keys()),
                 ('Records', self._map.keys()),
             ])
             log.blank()
@@ -269,7 +269,7 @@ class ProAtomDB(object):
 
     def get_numbers(self):
         '''Return the element numbers present in the database'''
-        result = self._rtf_map.keys()
+        result = self._rgrid_map.keys()
         result.sort()
         return result
 
@@ -278,20 +278,8 @@ class ProAtomDB(object):
         result.sort(reverse=True)
         return result
 
-    def get_rtransform(self, number):
-        return self._rtf_map[number]
-
-    def get_radial_weights(self, number):
-        '''Return radial integration weights.'''
-        # TODO: isolate this into a RadialIntGrid object
-        rtf = self.get_rtransform(number)
-        int1d = SimpsonIntegrator1D()
-        radii = rtf.get_radii() # TODO: slow...
-        volumes = rtf.get_volume_elements()  # TODO: slow...
-        int1d_weights = int1d.get_weights(len(radii)) # TODO: slow...
-        weights = (4*np.pi) * radii**2 * int1d_weights * volumes
-        assert (weights > 0).all()
-        return weights
+    def get_rgrid(self, number):
+        return self._rgrid_map[number]
 
     def _get_size(self):
         return len(self._records)
@@ -389,7 +377,7 @@ class ProAtomDB(object):
                 number=grp.attrs['number'],
                 charge=grp.attrs['charge'],
                 energy=grp.attrs['energy'],
-                rtransform=RTransform.from_string(grp.attrs['rtransform']),
+                rgrid=RadialIntGrid(RTransform.from_string(grp.attrs['rtransform'])),
                 rho=grp['rho'][:],
                 pseudo_number=grp.attrs.get('pseudo_number'),
             ))
@@ -425,7 +413,7 @@ class ProAtomDB(object):
             grp.attrs['number'] = record.number
             grp.attrs['charge'] = record.charge
             grp.attrs['energy'] = record.energy
-            grp.attrs['rtransform'] = record.rtransform.to_string()
+            grp.attrs['rtransform'] = record.rgrid.rtransform.to_string()
             grp['rho'] = record.rho
             grp.attrs['pseudo_number'] = record.pseudo_number
         # close
@@ -485,7 +473,7 @@ class ProAtomDB(object):
            **Arguments:** See ``get_rho.. method.
         '''
         rho = self.get_rho(number, parameters, combine)
-        return CubicSpline(rho, rtf=self.get_rtransform(number))
+        return CubicSpline(rho, rtf=self.get_rgrid(number).rtransform)
 
     def compact(self, nel_lost):
         '''Make the pro-atoms more compact
@@ -505,7 +493,7 @@ class ProAtomDB(object):
             log('   Z     npiont           radius')
             log.hline()
         for number in self.get_numbers():
-            rtf = self._rtf_map[number]
+            rgrid = self._rgrid_map[number]
             npoint = 0
             for charge in self.get_charges(number, safe=True):
                 r = self.get_record(number, charge)
@@ -514,11 +502,12 @@ class ProAtomDB(object):
             for charge in self.get_charges(number):
                 r = self.get_record(number, charge)
                 r.chop(npoint)
-            self._rtf_map[number] = self._rtf_map[number].chop(npoint)
+            new_rgrid = self._rgrid_map[number].chop(npoint)
+            self._rgrid_map[number] = new_rgrid
             if log.do_medium:
                 log('%4i   %5i -> %5i    %10.3e -> %10.3e' % (
-                    number, rtf.npoint, npoint, rtf.radius(rtf.npoint-1),
-                    rtf.radius(npoint-1)
+                    number, rgrid.size, new_rgrid.size, rgrid.radii[-1],
+                    new_rgrid.radii[-1]
                 ))
         if log.do_medium:
             log.hline()

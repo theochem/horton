@@ -186,6 +186,7 @@ class AtomicGrid(IntGrid):
 
 
 
+# TODO: change this to use the RadialIntGrid object instead of RTransform and Int1D separately.
 def interpret_atspec(number, atspec):
     '''Convert atspec to (rtransform, int1d, nlls) tuple
 
