@@ -42,5 +42,5 @@ def test_parse_grid_2():
         atspecs = parse_grid(sgrid, sys, padb)
         for i in xrange(sys.natom):
             assert len(atspecs[i]) == 3
-            assert atspecs[i][0] == padb.get_rtransform(sys.numbers[i])
+            assert atspecs[i][0] == padb.get_rgrid(sys.numbers[i]).rtransform
             assert atspecs[i][2] == nll

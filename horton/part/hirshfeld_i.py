@@ -79,14 +79,14 @@ class HirshfeldIMixin(object):
 
     def compute_change(self, propars1, propars2):
         '''Compute the difference between an old and a new proatoms'''
-        msd = 0.0 # mean-square deviations
+        msd = 0.0 # mean-square deviation
         for i in xrange(self.system.natom):
             number = self.system.numbers[i]
-            weights = self.proatomdb.get_radial_weights(number)
+            rgrid = self.proatomdb.get_rgrid(number)
             rho1 = self.get_proatom_rho(i, propars1)
             rho2 = self.get_proatom_rho(i, propars2)
             delta = rho1 - rho2
-            msd +=  dot_multi(weights, delta, delta)
+            msd +=  rgrid.integrate(delta, delta)
         return np.sqrt(msd)
 
     def get_somefn(self, index, spline, key, label, grid=None):

@@ -42,6 +42,13 @@ class RadialIntGrid(object):
             self._int1d.get_weights(rtransform.npoint)
         )
 
+    def __eq__(self, other):
+        return (self.int1d.__class__ == other.int1d.__class__ and
+                self.rtransform.to_string() == other.rtransform.to_string())
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def _get_size(self):
         '''The size of the grid.'''
         return self._weights.size
@@ -97,3 +104,16 @@ class RadialIntGrid(object):
         args = [arg.ravel() for arg in args if arg is not None]
         args.append(self.weights)
         return dot_multi(*args)
+
+    def chop(self, new_size):
+        '''Return a radial grid with a different number of points.
+
+            **Arguments:**
+
+            new_size
+                The new number of radii.
+
+           The corresponding radii remain the same.
+        '''
+        rtf = self._rtransform.chop(new_size)
+        return RadialIntGrid(rtf, self._int1d)

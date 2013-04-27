@@ -47,7 +47,7 @@ def parse_grid(sgrid, system, proatomdb):
         atspecs = []
         for n in system.numbers:
             atspecs.append((
-                proatomdb.get_rtransform(n),
+                proatomdb.get_rgrid(n).rtransform,
                 SimpsonIntegrator1D(),
                 nll,
             ))

@@ -48,13 +48,13 @@ class StockHolderMixin(object):
         '''
         # TODO: should not refer to proatomdb
         number = self.system.numbers[index]
-        weights = self.proatomdb.get_radial_weights(number)
+        rgrid = self.proatomdb.get_rgrid(number)
 
         # Check for negative parts
-        original = np.dot(rho, weights)
+        original = rgrid.integrate(rho)
         if rho.min() < 0:
             rho[rho<0] = 0.0
-            error = np.dot(rho, weights) - original
+            error = rgrid.integrate(rho) - original
             if log.do_medium:
                 log('                    Pro-atom not positive everywhere. Lost %.1e electrons' % error)
 
@@ -70,7 +70,7 @@ class StockHolderMixin(object):
         rho = self.fix_proatom_rho(index, rho)
 
         # Make a spline
-        return CubicSpline(rho, rtf=self.proatomdb.get_rtransform(number))
+        return CubicSpline(rho, rtf=self.proatomdb.get_rgrid(number).rtransform)
 
     def eval_spline(self, index, spline, output, grid=None, label='noname'):
         center = self.system.coordinates[index]

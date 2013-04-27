@@ -134,7 +134,7 @@ class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
 
     def get_cutoff_radius(self, index):
         '''The radius at which the weight function goes to zero'''
-        rtf = self.proatomdb.get_rtransform(self._system.numbers[index])
+        rtf = self.proatomdb.get_rgrid(self._system.numbers[index]).rtransform
         return rtf.radius(rtf.npoint-1)
 
     def get_wcor_funcs(self, index):
