@@ -25,5 +25,4 @@ from horton.grid.cext import *
 from horton.grid.int1d import *
 from horton.grid.molgrid import *
 from horton.grid.radial import *
-from horton.grid.sphere import *
 from horton.grid.visual import *

@@ -231,7 +231,7 @@ def main_convert(args):
         nll = int(f.next())
         program = atom_programs[f.next().strip()]
     int1d = SimpsonIntegrator1D()
-    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, nll), random_rotate=False, keep_subgrids=1)
+    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, nll), random_rotate=False)
 
     # Loop over all sensible directories
     energy_table = EnergyTable()

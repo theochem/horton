@@ -59,7 +59,7 @@ __all__ = [
     # UniformIntGrid
     'UniformIntGrid', 'UniformIntGridWindow', 'index_wrap', 'Block3Iterator',
     # utils
-    'dot_multi', 'dot_multi_moments_cube', 'grid_distances',
+    'dot_multi', 'dot_multi_moments_cube', 'dot_multi_moments', 'dot_multi_parts', 'grid_distances',
 ]
 
 
@@ -1145,7 +1145,7 @@ cdef class Block3Iterator(object):
 # utils
 #
 
-# TODO: eliminate duplicate code in dot routines
+# TODO: eliminate duplicate code in dot routines -> one general-purpose dot_multi
 
 cdef _check_integranda(integranda, npoint=None):
     for integrandum in integranda:
@@ -1232,6 +1232,25 @@ def dot_multi_moments(integranda,
 
     free(pointers)
     return result
+
+
+def dot_multi_parts(integranda, np.ndarray[long, ndim=1] sizes not None, np.ndarray[double, ndim=1] output not None):
+    npoint = _check_integranda(integranda)
+    assert sizes.flags['C_CONTIGUOUS']
+    noutput = sizes.shape[0]
+    assert output.flags['C_CONTIGUOUS']
+    assert output.shape[0] == noutput
+
+    cdef double** pointers = <double **>malloc(len(integranda)*sizeof(double*))
+    if pointers == NULL:
+        raise MemoryError()
+    cdef np.ndarray[double, ndim=1] integrandum
+    for i in xrange(len(integranda)):
+        integrandum = integranda[i]
+        pointers[i] = <double*>integrandum.data
+
+    utils.dot_multi_parts(npoint, len(integranda), noutput, pointers, <long*>sizes.data, <double*>output.data)
+    free(pointers)
 
 
 def grid_distances(np.ndarray[double, ndim=2] points,

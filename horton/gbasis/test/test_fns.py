@@ -184,7 +184,7 @@ def test_density_functional_deriv():
     sys = System.from_file(fn_fchk)
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 5)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 6), random_rotate=False, keep_subgrids=1)
+    grid = BeckeMolGrid(sys, (rtf, int1d, 6), random_rotate=False, keep_subgrids=True)
     pot = grid.points[:,2].copy()
 
     def fun(x):
@@ -307,7 +307,7 @@ def test_gradient_functional_deriv():
     sys = System.from_file(fn_fchk)
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 5)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 6), random_rotate=False, keep_subgrids=1)
+    grid = BeckeMolGrid(sys, (rtf, int1d, 6), random_rotate=False, keep_subgrids=True)
     pot = grid.points[:,2].copy()
 
     def fun(x):

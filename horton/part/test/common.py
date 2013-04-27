@@ -37,7 +37,7 @@ def get_proatomdb_ref(numbers, max_kation, max_anion):
     '''Return a proatomdb for testing purposes'''
     int1d = SimpsonIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), random_rotate=False, keep_subgrids=1)
+    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), random_rotate=False)
     return ProAtomDB.from_refatoms(atgrid, numbers, max_kation, max_anion)
 
 
@@ -45,7 +45,7 @@ def get_proatomdb_cp2k():
     '''Return a proatomdb of pseudo oxygens and one silicon for testing purposes'''
     int1d = SimpsonIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), random_rotate=False, keep_subgrids=1)
+    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), random_rotate=False)
     fns = glob(context.get_fn('test/atom_*.cp2k.out'))
     return ProAtomDB.from_files(fns, atgrid)
 
@@ -54,7 +54,7 @@ def get_proatomdb_hf_sto3g():
     '''Return a proatomdb of H and O at hf/sto-3g for testing purposes'''
     int1d = SimpsonIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), random_rotate=False, keep_subgrids=1)
+    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), random_rotate=False)
     fns = glob(context.get_fn('test/atom_???_???_hf_sto3g.fchk'))
     return ProAtomDB.from_files(fns, atgrid)
 
@@ -63,7 +63,7 @@ def get_proatomdb_hf_lan():
     '''Return a proatomdb of H, O, Si at hf/LANL2MB for testing purposes'''
     int1d = SimpsonIntegrator1D()
     rtf = ExpRTransform(5e-4, 2e1, 120)
-    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), random_rotate=False, keep_subgrids=1)
+    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), random_rotate=False)
     fns = glob(context.get_fn('test/atom_???_???_hf_lan.fchk'))
     return ProAtomDB.from_files(fns, atgrid)
 

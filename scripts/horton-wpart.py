@@ -101,7 +101,7 @@ def main():
     WPartClass = wpart_schemes[args.scheme]
     kwargs = dict((key, val) for key, val in vars(args).iteritems() if key in WPartClass.options)
     atspecs = parse_grid(args.grid, sys, proatomdb)
-    molgrid = BeckeMolGrid(sys, atspecs, keep_subgrids=int(args.local))
+    molgrid = BeckeMolGrid(sys, atspecs, keep_subgrids=args.local)
     wpart = wpart_schemes[args.scheme](sys, molgrid, proatomdb, **kwargs)
     names = wpart.do_all()
 

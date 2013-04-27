@@ -65,7 +65,7 @@ def test_record_basics_pseudo():
 
     int1d = SimpsonIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), random_rotate=False, keep_subgrids=1)
+    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), random_rotate=False)
 
     r = ProAtomRecord.from_system(sys, atgrid)
     assert r.number == 14

@@ -56,29 +56,16 @@ class ProAtomRecord(object):
             raise ValueError('Can only construct a proatom record from a one-atom system.')
 
         # Compute the spherically averaged density
-        nsphere = len(atgrid.subgrids)
-        rho = np.zeros(nsphere)
-        for i in xrange(nsphere):
-            llgrid = atgrid.subgrids[i]
-            rho_shell = system.compute_grid_density(llgrid.points)
-            # TODO: also compute the derivatives of the average
-            #       with respect to r for better splines
-            rho[i] = llgrid.integrate(rho_shell)/llgrid.weights.sum()
+        rho_full = system.compute_grid_density(atgrid.points)
+        rho = atgrid.get_spherical_average(rho_full)
 
         # Derive the number of electrions
         try:
             nel = system.wfn.nel
         except NotImplementedError:
-            # TODO: ugly
-            # Compute the population by integration of the spherically averaged
-            # density. This is needed if the expansion of the wavefunction is
-            # not present.
-            nel = int(np.round(4*np.pi*dot_multi(
-                atgrid.rtransform.get_volume_elements(),
-                atgrid.rtransform.get_radii()**2,
-                rho,
-                atgrid.int1d.get_weights(nsphere),
-            )))
+            nel = int(np.round(atgrid.rgrid.integrate(rho)))
+
+        # TODO: report norms and number of electrons
 
         # Get all the other information from the atom
         energy = system.props['energy']
