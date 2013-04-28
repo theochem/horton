@@ -24,7 +24,7 @@ import tempfile, shutil, os
 from horton.context import context
 from horton.periodic import periodic
 from horton.part.proatomdb import ProAtomDB
-from horton.scripts.test.common import check_script
+from horton.test.common import check_script
 
 from horton.scripts.atomdb import *
 

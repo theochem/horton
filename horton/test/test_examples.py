@@ -20,40 +20,16 @@
 #--
 
 
-import os, subprocess, sys
-
-
-def run_example(dirname, fn_py):
-    # fix python path
-    env = dict(os.environ)
-    python_path = env.get('PYTHONPATH')
-    if python_path is None:
-        python_path = os.getcwd()
-    else:
-        python_path = os.getcwd() + ':' + python_path
-    env['PYTHONPATH'] = python_path
-    env['HORTONDATA'] = os.path.join(os.getcwd(), 'data')
-
-    # prepare Popen arguments
-    root = os.path.join("examples", dirname)
-    assert os.path.isdir(root)
-    assert os.path.isfile(os.path.join(root, fn_py))
-
-    # run example and pass through the output
-    p = subprocess.Popen(['./%s' % fn_py], cwd=root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env)
-    p.wait()
-    sys.stdout.write(p.stdout.read())
-    sys.stderr.write(p.stderr.read())
-
-    # final check
-    assert p.returncode == 0
+from horton.test.common import check_script
 
 
 def test_example_001_hf_water():
-    run_example('001_hf_water', 'run.py')
+    check_script('./run.py', 'examples/001_hf_water')
+
 
 def test_example_002_hfs_water():
-    run_example('002_hfs_water', 'run.py')
+    check_script('./run.py', 'examples/002_hfs_water')
+
 
 def test_example_003_o3lyp_water():
-    run_example('003_o3lyp_water', 'run.py')
+    check_script('./run.py', 'examples/003_o3lyp_water')
