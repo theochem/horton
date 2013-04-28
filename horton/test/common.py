@@ -21,19 +21,40 @@
 
 
 import numpy as np
+import subprocess, sys, os, shlex
 
 from horton import *
 
 
 __all__ = [
-    'check_delta', 'get_random_cell',
+    'check_script', 'check_delta', 'get_random_cell',
     'compare_expansions', 'compare_all_expansions', 'compare_dms',
     'compare_all_dms', 'compare_one_body', 'compare_two_body',
     'compare_occ_model', 'compare_wfns', 'compare_systems'
 ]
 
+
 # All, except underflows, is *not* fine.
 np.seterr(divide='raise', over='raise', invalid='raise')
+
+
+def check_script(command, workdir):
+    env = dict(os.environ)
+    root_dir = os.getcwd()
+    env['PYTHONPATH'] = root_dir + ':' + env['PYTHONPATH']
+    env['HORTONDATA'] = os.path.join(root_dir, 'data')
+    env['PATH'] = os.path.join(root_dir, 'scripts') + ':' + env['PATH']
+    proc = subprocess.Popen(shlex.split(command), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=workdir, env=env)
+    outdata, errdata = proc.communicate()
+    print 'Standard output'
+    print '+'*80
+    print outdata
+    print '+'*80
+    print 'Standard error'
+    print '+'*80
+    print errdata
+    print '+'*80
+    assert proc.returncode == 0
 
 
 def check_delta(fun, fun_deriv, x, dxs):
