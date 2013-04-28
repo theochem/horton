@@ -31,15 +31,15 @@ from glob import glob
 epilog_input = '''\
 The following fields must be present in the template file: ${charge}, ${mult}
 and ${element} or ${number}. It may also contain include fields like
-${file:some.file} and ${line:some.file}. In the first case, the field will be by
-the contents of the file "some.file.NNN_PPP_MM" where NNN is the element number,
-PPP is the population and MM is the multiplicity. These numbers are left-padded
-with zeros to fix the the length. If a number is zero, it acts as a wildcard.
-For example, an include file for any oxygen atom would have suffix 008_000_00.
-In the second case, the field is replaced by a single line from the file
-"some.file". Each line in this file has a prefix "NNN_PPP_MM ". The same
-matching rules are used to select one line from this file. An include filename
-may only contain characters from the set [_a-z0-9.-].
+${file:some.file} and ${line:some.file}. In the first case, the field will be
+replaced by the contents of the file "some.file.NNN_PPP_MM" where NNN is the
+element number, PPP is the population and MM is the multiplicity. These numbers
+are left-padded with zeros to fix the the length. If a number is zero, it acts
+as a wildcard. For example, an include file for any oxygen atom would have
+suffix 008_000_00. In the second case, the field is replaced by a single line
+from the file "some.file". Each line in this file has a prefix "NNN_PPP_MM ".
+The same matching rules are used to select one line from this file. An include
+filename may only contain characters from the set [_a-z0-9.-].
 '''
 
 
@@ -48,7 +48,7 @@ def parse_args_input(args):
         description='Create input files for a database of pro-atoms.',
         epilog=epilog_input)
 
-    parser.add_argument('program', choices=atom_programs.keys(),
+    parser.add_argument('program', choices=sorted(atom_programs.keys()),
         help='The name of the program for which input files must be created.')
     parser.add_argument('elements',
         help='The comma-separated list of elements to be computed. One may '
@@ -140,6 +140,7 @@ def plot_atoms(proatomdb):
         r = proatomdb.get_rgrid(number).radii
         symbol = periodic[number].symbol
         charges = proatomdb.get_charges(number)
+        suffix = '%03i_%s' % (number, symbol.lower().rjust(2, '_'))
 
         # The density (rho)
         pt.clf()
@@ -156,7 +157,7 @@ def plot_atoms(proatomdb):
         pt.ylabel('Spherically averaged density [Bohr**-3]')
         pt.title('Proatoms for element %s (%i)' % (symbol, number))
         pt.legend(loc=0)
-        fn_png  = 'dens_%03i_%s.png' % (number, symbol)
+        fn_png  = 'dens_%s.png' % suffix
         pt.savefig(fn_png)
         if log.do_medium:
             log('Written', fn_png)
@@ -176,7 +177,7 @@ def plot_atoms(proatomdb):
         pt.ylabel('4*pi*r**2*density [Bohr**-1]')
         pt.title('Proatoms for element %s (%i)' % (symbol, number))
         pt.legend(loc=0)
-        fn_png  = 'rdens_%03i_%s.png' % (number, symbol)
+        fn_png  = 'rdens_%s.png' % suffix
         pt.savefig(fn_png)
         if log.do_medium:
             log('Written', fn_png)
@@ -198,7 +199,7 @@ def plot_atoms(proatomdb):
         pt.ylabel('Fukui function [Bohr**-3]')
         pt.title('Proatoms for element %s (%i)' % (symbol, number))
         pt.legend(loc=0)
-        fn_png  = 'fukui_%03i_%s.png' % (number, symbol)
+        fn_png  = 'fukui_%s.png' % suffix
         pt.savefig(fn_png)
         if log.do_medium:
             log('Written', fn_png)
@@ -218,7 +219,7 @@ def plot_atoms(proatomdb):
         pt.ylabel('4*pi*r**2*Fukui [Bohr**-1]')
         pt.title('Proatoms for element %s (%i)' % (symbol, number))
         pt.legend(loc=0)
-        fn_png  = 'rfukui_%03i_%s.png' % (number, symbol)
+        fn_png  = 'rfukui_%s.png' % suffix
         pt.savefig(fn_png)
         if log.do_medium:
             log('Written', fn_png)

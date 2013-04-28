@@ -181,7 +181,7 @@ class Template(BaseTemplate):
         # Load files
         for name in self.file_names:
             records = []
-            for fn in sorted(glob('%s.[0-9][0-9][0-9]_[0-9][0-9]_[0-9][0-9]'))[:-1]:
+            for fn in sorted(glob('%s.[0-9][0-9][0-9]_[0-9][0-9][0-9]_[0-9][0-9]' % name)):
                 with open(fn) as f:
                     s = f.read()
                     # chop of one final newline if present (mostly the case)

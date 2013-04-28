@@ -55,6 +55,7 @@ class Context(object):
                     self.data_dir = os.path.join(f.read().strip(), 'share/horton')
         if self.data_dir is None:
             self.data_dir = './data'
+        self.data_dir = os.path.abspath(self.data_dir)
         if not os.path.isdir(self.data_dir):
             raise IOError('Can not find the data files. The directory %s does not exist.' % self.data_dir)
 
