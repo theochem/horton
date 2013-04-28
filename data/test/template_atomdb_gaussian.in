@@ -1,0 +1,9 @@
+%chk=atom.chk
+#p HF/Gen
+
+Foo Bar
+
+${charge} ${mult}
+${element} 0.000000     0.000000     0.000000
+
+${file:include_atomdb_gaussian_basis}

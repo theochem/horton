@@ -1,0 +1,29 @@
+Title atomic PBE/DZP (all-electron) single point calculation
+
+ATOMS
+  ${element}        0.00000        0.00000        0.00000
+END
+
+CHARGE  ${charge}
+
+SYMMETRY tol=1e-2
+
+BASIS
+  Type DZP
+  Core None
+END
+
+XC
+  GGA PBE
+END
+
+INTEGRATION
+  accint  6.0
+END
+
+SCF
+  iterations  100
+  converge 1.0e-06 1.0e-06
+END
+
+EXACTDENSITY
