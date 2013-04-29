@@ -54,12 +54,12 @@ def write_atomdb_sto3g(tmpdir):
 
 
 def check_script_water_sto3g(scheme):
-    tmpdir = tempfile.mkdtemp('horton.scripts.test.test_wpart.test_script_water_sto3g')
+    tmpdir = tempfile.mkdtemp('horton.scripts.test.test_wpart.test_script_water_sto3g_%s' % scheme)
     try:
         fn_fchk = 'water_sto3g_hf_g03.fchk'
         copy_files(tmpdir, [fn_fchk])
         write_atomdb_sto3g(tmpdir)
-        check_script('horton-wpart.py water_sto3g_hf_g03.fchk %s atoms.h5' % scheme, tmpdir)
+        check_script('horton-wpart.py %s %s atoms.h5' % (fn_fchk, scheme), tmpdir)
         fn_h5 = 'water_sto3g_hf_g03.fchk.h5'
         check_files(tmpdir, [fn_h5])
         with h5.File(os.path.join(tmpdir, fn_h5)) as f:
