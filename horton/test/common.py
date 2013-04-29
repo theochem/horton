@@ -46,15 +46,16 @@ def check_script(command, workdir):
     env['PATH'] = os.path.join(root_dir, 'scripts') + ':' + env['PATH']
     proc = subprocess.Popen(shlex.split(command), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=workdir, env=env)
     outdata, errdata = proc.communicate()
-    print 'Standard output'
-    print '+'*80
-    print outdata
-    print '+'*80
-    print 'Standard error'
-    print '+'*80
-    print errdata
-    print '+'*80
-    assert proc.returncode == 0
+    if proc.returncode != 0:
+        print 'Standard output'
+        print '+'*80
+        print outdata
+        print '+'*80
+        print 'Standard error'
+        print '+'*80
+        print errdata
+        print '+'*80
+        assert False
 
 
 def check_delta(fun, fun_deriv, x, dxs):
