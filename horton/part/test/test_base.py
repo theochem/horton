@@ -57,7 +57,14 @@ def test_wpart_schemes():
     assert wpart_schemes['hi'] is HirshfeldIWPart
     assert wpart_schemes['hi'].options == ['threshold', 'maxiter', 'greedy']
 
+    for WPartClass in wpart_schemes.itervalues():
+        assert hasattr(WPartClass, 'options')
+
 
 def test_cpart_schemes():
     assert 'hi' in cpart_schemes
     assert cpart_schemes['hi'] is HirshfeldICPart
+
+    for CPartClass in cpart_schemes.itervalues():
+        print CPartClass
+        assert hasattr(CPartClass, 'options')
