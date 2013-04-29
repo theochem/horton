@@ -25,6 +25,7 @@ from horton.context import context
 from horton.periodic import periodic
 from horton.part.proatomdb import ProAtomDB
 from horton.test.common import check_script
+from horton.scripts.test.common import copy_files, check_files
 
 from horton.scripts.atomdb import *
 
@@ -51,16 +52,6 @@ def test_iter_states():
                  (7, 1, 1), (7, 2, 2), (7, 2, 4), (7, 3, 1), (7, 3, 3),
                  (8, -1, 2), (8, 0, 3), (8, 0, 1), (8, 1, 4), (8, 1, 2),
                  (8, 2, 3), (8, 2, 5), (8, 2, 1), (8, 3, 2), (8, 3, 4)]
-
-
-def copy_files(tmpdir, fns):
-    for fn in fns:
-        shutil.copy(context.get_fn(os.path.join('test', fn)), os.path.join(tmpdir, fn))
-
-
-def check_files(tmpdir, fns):
-    for fn in fns:
-        assert os.path.isfile(os.path.join(tmpdir, fn))
 
 
 def test_script_input_adf():

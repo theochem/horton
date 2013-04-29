@@ -20,11 +20,13 @@
 #--
 
 
-import os
+import tempfile, shutil, os, h5py as h5
 
 from horton import System, context
 from horton.scripts.wpart import *
-from horton.part.test.common import get_proatomdb_ref
+from horton.test.common import check_script
+from horton.scripts.test.common import copy_files, check_files
+from horton.part.test.common import get_proatomdb_ref, get_proatomdb_hf_sto3g
 
 
 def test_parse_grid_1():
@@ -44,3 +46,36 @@ def test_parse_grid_2():
             assert len(atspecs[i]) == 3
             assert atspecs[i][0] == padb.get_rgrid(sys.numbers[i]).rtransform
             assert atspecs[i][2] == nll
+
+
+def write_atomdb_sto3g(tmpdir):
+    padb = get_proatomdb_hf_sto3g()
+    padb.to_file(os.path.join(tmpdir, 'atoms.h5'))
+
+
+def check_script_water_sto3g(scheme):
+    tmpdir = tempfile.mkdtemp('horton.scripts.test.test_wpart.test_script_water_sto3g')
+    try:
+        fn_fchk = 'water_sto3g_hf_g03.fchk'
+        copy_files(tmpdir, [fn_fchk])
+        write_atomdb_sto3g(tmpdir)
+        check_script('horton-wpart.py water_sto3g_hf_g03.fchk %s atoms.h5' % scheme, tmpdir)
+        fn_h5 = 'water_sto3g_hf_g03.fchk.h5'
+        check_files(tmpdir, [fn_h5])
+        with h5.File(os.path.join(tmpdir, fn_h5)) as f:
+            assert 'wpart' in f
+            assert scheme in f['wpart']
+    finally:
+        shutil.rmtree(tmpdir)
+
+
+def test_script_water_sto3g_h():
+    check_script_water_sto3g('h')
+
+
+def test_script_water_sto3g_hi():
+    check_script_water_sto3g('hi')
+
+
+def test_script_water_sto3g_he():
+    check_script_water_sto3g('he')
