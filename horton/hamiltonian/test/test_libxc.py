@@ -28,9 +28,7 @@ from horton.hamiltonian.test.common import *
 def test_fock_n2_hfs_sto3g():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 1e1, 100)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    grid = get_some_grid(sys)
     libxc_term = LibXCLDATerm('x')
     ham1 = Hamiltonian(sys, [Hartree(), libxc_term], grid)
     builtin_term = DiracExchange()
@@ -83,9 +81,7 @@ def test_fock_n2_hfs_sto3g():
 def test_hamiltonian_h3_hfs_321g():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 1e1, 100)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    grid = get_some_grid(sys)
     libxc_term = LibXCLDATerm('x')
     ham1 = Hamiltonian(sys, [Hartree(), libxc_term], grid)
     builtin_term = DiracExchange()
@@ -142,9 +138,7 @@ def test_hamiltonian_h3_hfs_321g():
 def test_co_pbe_sto3g():
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 1e1, 100)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    grid = get_some_grid(sys)
     libxc_x_term = LibXCGGATerm('x_pbe')
     libxc_c_term = LibXCGGATerm('c_pbe')
     ham = Hamiltonian(sys, [Hartree(), libxc_x_term, libxc_c_term], grid)
@@ -183,9 +177,7 @@ def test_co_pbe_sto3g():
 def test_h3_pbe_321g():
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
     sys = System.from_file(fn_fchk)
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(2e-4, 2e1, 100)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    grid = get_some_grid(sys)
     libxc_x_term = LibXCGGATerm('x_pbe')
     libxc_c_term = LibXCGGATerm('c_pbe')
     ham = Hamiltonian(sys, [Hartree(), libxc_x_term, libxc_c_term], grid)
@@ -229,9 +221,7 @@ def test_cubic_interpolation_c_pbe_cs():
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
     sys = System.from_file(fn_fchk)
 
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 2e1, 110)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    grid = get_some_grid(sys)
     ham = Hamiltonian(sys, [Hartree(), LibXCGGATerm('c_pbe')], grid)
 
     dm0 = sys.wfn.dm_alpha.copy()
@@ -245,9 +235,7 @@ def test_cubic_interpolation_x_pbe_cs():
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
     sys = System.from_file(fn_fchk)
 
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 2e1, 110)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    grid = get_some_grid(sys)
     ham = Hamiltonian(sys, [Hartree(), LibXCGGATerm('x_pbe')], grid)
 
     dm0 = sys.wfn.dm_alpha.copy()
@@ -261,9 +249,7 @@ def test_cubic_interpolation_hfs_cs():
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
     sys = System.from_file(fn_fchk)
 
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 2e1, 110)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    grid = get_some_grid(sys)
     ham = Hamiltonian(sys, [Hartree(), LibXCLDATerm('x')], grid)
 
     dm0 = sys.wfn.dm_alpha.copy()
@@ -277,9 +263,7 @@ def test_cubic_interpolation_o3lyp_cs():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
 
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 2e1, 110)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    grid = get_some_grid(sys)
     libxc_term = LibXCHybridGGATerm('xc_o3lyp')
     ham = Hamiltonian(sys, [HartreeFock(libxc_term.get_exx_fraction()), libxc_term], grid)
 
@@ -294,9 +278,7 @@ def test_cubic_interpolation_c_pbe_os():
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
     sys = System.from_file(fn_fchk)
 
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 2e1, 110)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    grid = get_some_grid(sys)
     ham = Hamiltonian(sys, [Hartree(), LibXCGGATerm('c_pbe')], grid)
 
     dma0 = sys.wfn.dm_alpha.copy()
@@ -312,9 +294,7 @@ def test_cubic_interpolation_x_pbe_os():
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
     sys = System.from_file(fn_fchk)
 
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 2e1, 110)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    grid = get_some_grid(sys)
     ham = Hamiltonian(sys, [Hartree(), LibXCGGATerm('x_pbe')], grid)
 
     dma0 = sys.wfn.dm_alpha.copy()
@@ -330,9 +310,7 @@ def test_cubic_interpolation_hfs_os():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
 
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 2e1, 110)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    grid = get_some_grid(sys)
     ham = Hamiltonian(sys, [Hartree(), LibXCLDATerm('x')], grid)
 
     dma0 = sys.wfn.dm_alpha.copy()
@@ -348,9 +326,7 @@ def test_cubic_interpolation_o3lyp_os():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
 
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 2e1, 110)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    grid = get_some_grid(sys)
     libxc_term = LibXCHybridGGATerm('xc_o3lyp')
     ham = Hamiltonian(sys, [HartreeFock(libxc_term.get_exx_fraction()), libxc_term], grid)
 

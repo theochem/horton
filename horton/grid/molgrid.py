@@ -64,13 +64,9 @@ class BeckeMolGrid(IntGrid):
 
            The argument atspecs may have two formats:
 
-           * A single atspec tuple: ``(rtransform, integrator1d, nll)``
-             or ``(rtransform, integrator1d, nlls)``, where
+           * A single atspec tuple: ``(rgrid, nll)`` or ``(rgrid, nlls)``, where
 
-             * ``rtransform`` is a transformation from a linear
-               grid to some more convenient radial grid for integration and
-             * ``integrator1d`` is an algorithm to integrate a function whose
-               values are known on an equidistand grid with spacing 1.
+             * ``rgrid`` is an instance of the RadialIntGrid
              * ``nll`` is the number of Lebedev-Laikov points on each sphere,
              * ``nlls`` is a list of numbers of Lebedev-Laikov grid points for
                the respective spheres of the atomic grid.
@@ -102,10 +98,10 @@ class BeckeMolGrid(IntGrid):
         offset = 0
         cov_radii = np.array([periodic[n].cov_radius for n in system.numbers])
         for i in xrange(system.natom):
-            rtransform, int1d, atnlls = atspecs[i]
+            rgrid, atnlls = atspecs[i]
             atsize = atnlls.sum()
             atgrid = AtomicGrid(system.numbers[i], system.coordinates[i],
-                                (rtransform, int1d, atnlls), random_rotate,
+                                (rgrid, atnlls), random_rotate,
                                 points[offset:offset+atsize])
             weights[offset:offset+atsize] = atgrid.weights
             becke_helper_atom(points[offset:offset+atsize], weights[offset:offset+atsize], cov_radii, system.coordinates, i, self._k)
@@ -120,7 +116,7 @@ class BeckeMolGrid(IntGrid):
         self._log_init()
 
     def __del__(self):
-        if log is not None:
+        if log is not None and hasattr(self, 'weights'):
             log.mem.denounce(self.points.nbytes + self.weights.nbytes)
 
     def _get_system(self):
@@ -188,8 +184,8 @@ def get_mol_grid_size(numbers, atspecs, natom):
 
     size = 0
     for i in xrange(len(atspecs)):
-        rtransform, int1d, nlls = interpret_atspec(numbers[i], atspecs[i])
-        atspecs[i] = rtransform, int1d, nlls
+        rgrid, nlls = interpret_atspec(numbers[i], atspecs[i])
+        atspecs[i] = rgrid, nlls
         size += nlls.sum()
 
     return size, atspecs

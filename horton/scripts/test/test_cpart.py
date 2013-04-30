@@ -28,9 +28,9 @@ from horton.scripts.test.common import copy_files, check_files
 
 
 def write_atomdb_refatoms(tmpdir):
-    int1d = SimpsonIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 30)
-    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 26))
+    rgrid = RadialIntGrid(rtf)
+    atgrid = AtomicGrid(0, np.zeros(3, float), (rgrid, 26))
     padb = ProAtomDB.from_refatoms(atgrid, numbers=[8,14], max_kation=3, max_anion=3)
     padb.to_file(os.path.join(tmpdir, 'atoms.h5'))
 

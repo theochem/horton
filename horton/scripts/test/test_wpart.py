@@ -43,9 +43,9 @@ def test_parse_grid_2():
         nll = int(sgrid)
         atspecs = parse_grid(sgrid, sys, padb)
         for i in xrange(sys.natom):
-            assert len(atspecs[i]) == 3
-            assert atspecs[i][0] == padb.get_rgrid(sys.numbers[i]).rtransform
-            assert atspecs[i][2] == nll
+            assert len(atspecs[i]) == 2
+            assert atspecs[i][0] == padb.get_rgrid(sys.numbers[i])
+            assert atspecs[i][1] == nll
 
 
 def write_atomdb_sto3g(tmpdir):

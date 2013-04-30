@@ -26,7 +26,6 @@ import numpy as np
 from horton.context import context
 from horton.grid.base import IntGrid
 from horton.grid.cext import lebedev_laikov_npoints, lebedev_laikov_sphere, RTransform, dot_multi_parts
-from horton.grid.int1d import SimpsonIntegrator1D
 from horton.grid.radial import RadialIntGrid
 from horton.log import log
 
@@ -62,9 +61,8 @@ class AtomicGrid(IntGrid):
         '''
         self._number = number
         self._center = center
-        self._rtransform, self._int1d, self._nlls = interpret_atspec(number, atspec)
+        self._rgrid, self._nlls = interpret_atspec(number, atspec)
         self._random_rotate = random_rotate
-        self._rgrid = RadialIntGrid(self._rtransform, self._int1d)
 
         size = self._nlls.sum()
         if points is None:
@@ -113,29 +111,17 @@ class AtomicGrid(IntGrid):
 
     center = property(_get_center)
 
-    def _get_rtransform(self):
-        '''The RTransform object of the grid.'''
-        return self._rtransform
+    def _get_rgrid(self):
+        '''The radial integration grid'''
+        return self._rgrid
 
-    rtransform = property(_get_rtransform)
-
-    def _get_int1d(self):
-        '''The 1D radial integrator object of the grid.'''
-        return self._int1d
-
-    int1d = property(_get_int1d)
+    rgrid = property(_get_rgrid)
 
     def _get_nlls(self):
         '''The number of Lebedev-Laikov grid points at each sphere.'''
         return self._nlls
 
     nlls = property(_get_nlls)
-
-    def _get_rgrid(self):
-        '''The radial integration grid'''
-        return self._rgrid
-
-    rgrid = property(_get_rgrid)
 
     def _get_nsphere(self):
         '''The number of spheres in the grid.'''
@@ -163,8 +149,8 @@ class AtomicGrid(IntGrid):
                 ('Number of radii', self.nsphere),
                 ('Min LL sphere', self._nlls.min()),
                 ('Max LL sphere', self._nlls.max()),
-                ('Radial Transform', self._rtransform.to_string()),
-                ('1D Integrator', self._int1d),
+                ('Radial Transform', self._rgrid.rtransform.to_string()),
+                ('1D Integrator', self._rgrid.int1d),
             ])
             # Cite reference
             log.cite('lebedev1999', 'for the use of Lebedev-Laikov grids (quadrature on a sphere)')
@@ -186,17 +172,13 @@ class AtomicGrid(IntGrid):
 
 
 
-# TODO: change this to use the RadialIntGrid object instead of RTransform and Int1D separately.
 def interpret_atspec(number, atspec):
-    '''Convert atspec to (rtransform, int1d, nlls) tuple
+    '''Convert atspec to (rgrid, nlls) tuple
 
        The atspec argument may be a string refering to a built-in grid file (see
-       data/grid) or a tuple with three elements: ``(rtransform, integrator1d,
-       nll)`` where:
+       data/grid) or a tuple with two elements: ``(rgrid, nll)`` where:
 
-       * ``rtransform`` is an instance of a subclass of the RTransform class.
-
-       * ``int1d`` is an instance of a subclass of the Integrator1D class.
+       * ``rgrid`` is an instance of RadialIntGrid.
 
        * ``nlls`` is a number Lebedev-Laikov grid points for each radial
          grid point. When this argument is not a list, all radial grid
@@ -210,24 +192,26 @@ def interpret_atspec(number, atspec):
         # load
         if atspec not in atgrid_families:
             raise ValueError('Unknown built-in grid: %s' % atspec)
-        rtransform, int1d, nlls = atgrid_families[atspec].get(number)
-    elif hasattr(atspec, '__iter__') and len(atspec) == 3:
-        rtransform, int1d, nlls = atspec
+        rgrid, nlls = atgrid_families[atspec].get(number)
+    elif hasattr(atspec, '__iter__') and len(atspec) == 2:
+        rgrid, nlls = atspec
+    else:
+        raise ValueError('Could not interpret the atspec argument.')
 
     # Make sure nlls is an array
     if hasattr(nlls, '__iter__'):
         nlls = np.array(nlls, dtype=int)
-        if len(nlls) != rtransform.npoint:
+        if len(nlls) != rgrid.size:
             raise ValueError('The size of the radial grid must match the number of elements in nlls')
     else:
-        nlls = np.array([nlls]*rtransform.npoint, dtype=int)
+        nlls = np.array([nlls]*rgrid.size, dtype=int)
 
     # Finally check the validaty of the nlls
     for nll in nlls:
         if nll not in lebedev_laikov_npoints:
             raise ValueError('A Lebedev-Laikov grid with %i points is not supported.' % nll)
 
-    return rtransform, int1d, nlls
+    return rgrid, nlls
 
 
 def get_random_rotation():
@@ -270,7 +254,6 @@ class ATGridFamily(object):
 
     def _load(self):
         fn = context.get_fn('grids/%s.txt' % self.name)
-        int1d = SimpsonIntegrator1D()
         self.members = {}
         with open(fn) as f:
             state = 0
@@ -288,7 +271,7 @@ class ATGridFamily(object):
                     elif state == 2:
                         nlls = np.array([int(w) for w in line.split()])
                         state = 0
-                        self.members[number] = rtf, int1d, nlls
+                        self.members[number] = RadialIntGrid(rtf), nlls
 
 
 atgrid_families = [

@@ -100,9 +100,7 @@ def test_scf_oda_water_hfs_321g():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
 
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 2e1, 100)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    grid = BeckeMolGrid(sys, 'tv-13.1-4', random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
 
     if True:
@@ -162,9 +160,7 @@ def test_scf_oda_water_hf_321g():
 def test_scf_oda_lih_hfs_321g():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     sys = System.from_file(fn_fchk)
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 2e1, 100)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    grid = BeckeMolGrid(sys, random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
 
     # test continuation of interupted scf_oda
