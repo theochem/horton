@@ -133,6 +133,7 @@ def main():
     proatomdb = ProAtomDB.from_file(args.atoms)
     if args.compact is not None:
         proatomdb.compact(args.compact)
+    proatomdb.normalize()
 
     # Select the partitioning scheme
     CPartClass = cpart_schemes[args.scheme]

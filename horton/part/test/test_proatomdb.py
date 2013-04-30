@@ -193,3 +193,16 @@ def test_compact():
     padb.compact(0.1)
     assert padb.get_rgrid(8).size < 100
     assert padb.get_rgrid(14).size < 100
+
+
+def test_normalize():
+    padb = get_proatomdb_cp2k()
+    padb.compact(0.1)
+    padb.normalize()
+    for number in padb.get_numbers():
+        rgrid = padb.get_rgrid(number)
+        for charge in padb.get_charges(number):
+            r = padb.get_record(number, charge)
+            nel = rgrid.integrate(r.rho)
+            nel_integer = r.pseudo_number - charge
+            assert abs(nel - nel_integer) < 1e-10

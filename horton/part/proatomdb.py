@@ -250,8 +250,6 @@ class ProAtomDB(object):
                     r1 = self.get_record(number, charge1)
                     r0.update_safe(r1)
 
-        # TODO: renormalize proatoms?
-
         # Screen info
         self._log_init()
 
@@ -493,7 +491,7 @@ class ProAtomDB(object):
             log('   Z     npiont           radius')
             log.hline()
         for number in self.get_numbers():
-            rgrid = self._rgrid_map[number]
+            rgrid = self.get_rgrid(number)
             npoint = 0
             for charge in self.get_charges(number, safe=True):
                 r = self.get_record(number, charge)
@@ -511,3 +509,21 @@ class ProAtomDB(object):
                 ))
         if log.do_medium:
             log.hline()
+
+    def normalize(self):
+        if log.do_medium:
+            log('Normalizing proatoms to integer populations')
+            log('   Z  charge             before             after')
+            log.hline()
+        for number in self.get_numbers():
+            rgrid = self.get_rgrid(number)
+            for charge in self.get_charges(number):
+                r = self.get_record(number, charge)
+                nel_before = rgrid.integrate(r.rho)
+                nel_integer = r.pseudo_number - charge
+                r.rho[:] *= nel_integer/nel_before
+                nel_after = rgrid.integrate(r.rho)
+                if log.do_medium:
+                    log('%4i     %+3i    %15.8e   %15.8e' % (
+                        number, charge, nel_before, nel_after
+                    ))
