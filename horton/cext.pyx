@@ -75,6 +75,79 @@ cdef class Cell:
     def to_hdf5(self, grp):
         grp['rvecs'] = self.rvecs
 
+    @classmethod
+    def from_parameters(cls, lengths, angles):
+        """Construct a cell with the given parameters
+
+           The a vector is always parallel with the x-axis and they point in the
+           same direction. The b vector is always in the xy plane and points
+           towards the positive y-direction. The c vector points towards the
+           positive z-direction.
+
+           The number of elements in the lengths and angles arrays determines
+           the number of cell vectors. There are four cases:
+
+           * len(lengths) == 0 and len(angles) == 0: 0 rvecs
+
+           * len(lengths) == 1 and len(angles) == 0: 1 rvecs
+
+           * len(lengths) == 2 and len(angles) == 1: 2 rvecs
+
+           * len(lengths) == 3 and len(angles) == 3: 3 rvecs
+        """
+        if len(lengths) == 0 and len(angles) != 0:
+            raise TypeError('When no lengths are given, no angles are expected.')
+        elif len(lengths) == 1 and len(angles) != 0:
+            raise TypeError('When one length is given, no angles are expected.')
+        elif len(lengths) == 2 and len(angles) != 1:
+            raise TypeError('When two lengths are given, one angle is expected.')
+        elif len(lengths) == 3 and len(angles) != 3:
+            raise TypeError('When three lengths are given, three angles are expected.')
+        elif len(lengths) > 3:
+            raise ValueError('More than three lengths are given.')
+
+        for length in lengths:
+            if length <= 0:
+                raise ValueError("The length parameters must be strictly positive.")
+        for angle in angles:
+            if angle <= 0 or angle >= np.pi:
+                raise ValueError("The angle parameters must lie in the range ]0 deg, 180 deg[.")
+
+        if len(lengths) == 0:
+            return Cell(None)
+
+        rvecs = np.zeros((len(lengths), 3), float)
+
+        if len(lengths) > 0:
+            # first cell vector along x-axis
+            rvecs[0, 0] = lengths[0]
+
+        if len(lengths) > 1:
+            # second cell vector in x-y plane
+            if len(lengths) == 2:
+                angle = angles[0]
+            else:
+                angle = angles[2]
+            rvecs[1, 0] = np.cos(angle)*lengths[1]
+            rvecs[1, 1] = np.sin(angle)*lengths[1]
+
+        if len(lengths) > 2:
+            # Finding the third cell vector is slightly more difficult. :-)
+            # It works like this:
+            # The dot products of a with c, b with c and c with c are known. the
+            # vector a has only an x component, b has no z component. This results
+            # in the following equations:
+            u_a = lengths[0]*lengths[2]*np.cos(angles[1])
+            u_b = lengths[1]*lengths[2]*np.cos(angles[0])
+            rvecs[2, 0] = u_a/rvecs[0, 0]
+            rvecs[2, 1] = (u_b - rvecs[1, 0]*rvecs[2, 0])/rvecs[1, 1]
+            u_c = lengths[2]**2 - rvecs[2, 0]**2 - rvecs[2, 1]**2
+            if u_c < 0:
+                raise ValueError("The given cell parameters do not correspond to a unit cell.")
+            rvecs[2, 2] = np.sqrt(u_c)
+
+        return cls(rvecs)
+
     def update_rvecs(self, np.ndarray[double, ndim=2] rvecs):
         '''update_rvecs(rvecs)
 
@@ -199,7 +272,7 @@ cdef class Cell:
         tmp /= lengths
         tmp /= lengths.reshape((-1,1))
         if len(rvecs) < 2:
-            cosines = np.arrays([])
+            cosines = np.array([])
         elif len(rvecs) == 2:
             cosines = np.array([tmp[0,1]])
         else:
