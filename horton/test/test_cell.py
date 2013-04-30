@@ -462,3 +462,37 @@ def test_select_inside_0d():
         assert False
     except ValueError:
         pass
+
+
+def test_from_parameters0():
+    assert Cell.from_parameters([], []).nvec == 0
+
+
+def check_from_parameters(cell0):
+    lengths0, angles0 = cell0.parameters
+    print lengths0, angles0
+    cell1 = Cell.from_parameters(lengths0, angles0)
+    lengths1, angles1 = cell1.parameters
+    print lengths1, angles1
+    assert lengths0.shape == lengths1.shape
+    assert abs(lengths0 - lengths1).max() < 1e-10
+    assert angles0.shape == angles1.shape
+    if angles0.size > 0:
+        assert abs(angles0 - angles1).max() < 1e-10
+
+def test_from_parameters1():
+    for i in xrange(10):
+        cell0 = get_random_cell(1.0, 1)
+        check_from_parameters(cell0)
+
+
+def test_from_parameters2():
+    for i in xrange(10):
+        cell0 = get_random_cell(1.0, 2)
+        check_from_parameters(cell0)
+
+
+def test_from_parameters3():
+    for i in xrange(10):
+        cell0 = get_random_cell(1.0, 3)
+        check_from_parameters(cell0)
