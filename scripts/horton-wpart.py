@@ -96,6 +96,7 @@ def main():
 
     # Load the proatomdb
     proatomdb = ProAtomDB.from_file(args.atoms)
+    proatomdb.normalize()
 
     # Run the partitioning
     WPartClass = wpart_schemes[args.scheme]
