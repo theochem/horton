@@ -26,9 +26,9 @@ from horton import *
 def test_becke_n2_hfs_sto3g():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=True)
+    rgrid = RadialIntGrid(rtf)
+    grid = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False, keep_subgrids=True)
     bp = BeckeWPart(sys, grid)
     bp.do_populations()
     assert abs(bp['populations'] - 7).max() < 1e-4
@@ -48,13 +48,13 @@ def test_becke_n2_hfs_sto3g():
 def test_becke_nonlocal_lih_hf_321g():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     sys = System.from_file(fn_fchk)
-    int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
+    rgrid = RadialIntGrid(rtf)
 
-    grid1 = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=True)
+    grid1 = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False, keep_subgrids=True)
     bp1 = BeckeWPart(sys, grid1)
 
-    grid2 = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=False)
+    grid2 = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False, keep_subgrids=False)
     bp2 = BeckeWPart(sys, grid2, local=False)
 
     bp1.do_charges()

@@ -36,11 +36,11 @@ def check_water_hf_sto3g(scheme, local, expecting, **kwargs):
     sys.wfn.update_dm('alpha')
 
     # Create a grid for the partitioning
-    int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(5e-4, 2e1, 120)
+    rgrid = RadialIntGrid(rtf)
 
     # Do the partitioning, both with local and global grids
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=local)
+    grid = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False, keep_subgrids=local)
     WPartClass = wpart_schemes[scheme]
     wpart = WPartClass(sys, grid, proatomdb, local, **kwargs)
     names = wpart.do_all()
@@ -109,11 +109,11 @@ def check_msa_hf_lan(scheme, local, expecting, **kwargs):
     sys = System.from_file(fn_fchk)
 
     # Create a grid for the partitioning
-    int1d = SimpsonIntegrator1D()
     rtf = ExpRTransform(5e-4, 2e1, 120)
+    rgrid = RadialIntGrid(rtf)
 
     # Do the partitioning, both with local and global grids
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False, keep_subgrids=int(local))
+    grid = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False, keep_subgrids=int(local))
     WPartClass = wpart_schemes[scheme]
     wpart = WPartClass(sys, grid, proatomdb, local, **kwargs)
     wpart.do_charges()

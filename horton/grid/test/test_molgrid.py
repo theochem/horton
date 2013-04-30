@@ -32,7 +32,8 @@ def test_integrate_hydrogen_single_1s():
     sys = System(coordinates, numbers)
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    atspecs = (rtf, int1d, 110)
+    rgrid = RadialIntGrid(rtf)
+    atspecs = (rgrid, 110)
 
     mg = BeckeMolGrid(sys, atspecs, random_rotate=False)
     dist0 = np.sqrt(((coordinates[0] - mg.points)**2).sum(axis=1))
@@ -47,7 +48,8 @@ def test_integrate_hydrogen_pair_1s():
     sys = System(coordinates, numbers)
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    atspecs = (rtf, int1d, 110)
+    rgrid = RadialIntGrid(rtf)
+    atspecs = (rgrid, 110)
 
     mg = BeckeMolGrid(sys, atspecs, random_rotate=False)
     dist0 = np.sqrt(((coordinates[0] - mg.points)**2).sum(axis=1))
@@ -61,9 +63,9 @@ def test_integrate_hydrogen_trimer_1s():
     numbers = np.array([1, 1, 1], int)
     coordinates = np.array([[0.0, 0.0, -0.5], [0.0, 0.0, 0.5], [0.0, 0.5, 0.0]], float)
     sys = System(coordinates, numbers)
-    int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    atspecs = (rtf, int1d, 110)
+    rgrid = RadialIntGrid(rtf)
+    atspecs = (rgrid, 110)
 
     mg = BeckeMolGrid(sys, atspecs, random_rotate=False)
     dist0 = np.sqrt(((coordinates[0] - mg.points)**2).sum(axis=1))
@@ -78,9 +80,9 @@ def test_molgrid_attrs_subgrid():
     numbers = np.array([6, 8], int)
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
     sys = System(coordinates, numbers)
-    int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    atspecs = (rtf, int1d, 110)
+    rgrid = RadialIntGrid(rtf, TrapezoidIntegrator1D())
+    atspecs = (rgrid, 110)
     mg = BeckeMolGrid(sys, atspecs, keep_subgrids=True)
 
     assert mg.size == 2*110*100
@@ -94,9 +96,8 @@ def test_molgrid_attrs_subgrid():
 
     for i in xrange(2):
         atspec = mg.atspecs[i]
-        assert atspec[0] == rtf
-        assert atspec[1] == int1d
-        assert (atspec[2] == np.array([110]*100)).all()
+        assert atspec[0] == rgrid
+        assert (atspec[1] == np.array([110]*100)).all()
 
         atgrid = mg.subgrids[i]
         assert isinstance(atgrid, AtomicGrid)
@@ -107,7 +108,7 @@ def test_molgrid_attrs_subgrid():
         assert atgrid.subgrids is None
         assert atgrid.number == numbers[i]
         assert (atgrid.center == coordinates[i]).all()
-        assert atgrid.rtransform == rtf
+        assert atgrid.rgrid.rtransform == rtf
         assert (atgrid.nlls == [110]*100).all()
         assert atgrid.nsphere == 100
         assert atgrid.random_rotate
@@ -117,9 +118,9 @@ def test_molgrid_attrs():
     numbers = np.array([6, 8], int)
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
     sys = System(coordinates, numbers)
-    int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    atspecs = (rtf, int1d, 110)
+    rgrid = RadialIntGrid(rtf, TrapezoidIntegrator1D())
+    atspecs = (rgrid, 110)
     mg = BeckeMolGrid(sys, atspecs, keep_subgrids=False)
 
     assert mg.size == 2*110*100
@@ -137,7 +138,8 @@ def test_custom_grid_term():
     sys = System.from_file(fn_fchk)
     int1d = SimpsonIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    rgrid = RadialIntGrid(rtf)
+    grid = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False)
 
     # Without perturbation
     ham = Hamiltonian(sys, [HartreeFock()])

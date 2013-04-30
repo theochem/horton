@@ -182,9 +182,9 @@ def test_grid_fn_d_contraction():
 def test_density_functional_deriv():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 1e1, 5)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 6), random_rotate=False, keep_subgrids=True)
+    rtf = ExpRTransform(1e-3, 1e1, 10)
+    rgrid = RadialIntGrid(rtf)
+    grid = BeckeMolGrid(sys, (rgrid, 6), random_rotate=False, keep_subgrids=True)
     pot = grid.points[:,2].copy()
 
     def fun(x):
@@ -305,9 +305,9 @@ def test_dm_gradient_h3_321g():
 def test_gradient_functional_deriv():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 1e1, 5)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 6), random_rotate=False, keep_subgrids=True)
+    rtf = ExpRTransform(1e-3, 1e1, 10)
+    rgrid = RadialIntGrid(rtf)
+    grid = BeckeMolGrid(sys, (rgrid, 6), random_rotate=False, keep_subgrids=True)
     pot = grid.points[:,2].copy()
 
     def fun(x):

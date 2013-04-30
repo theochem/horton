@@ -63,9 +63,9 @@ def test_record_basics_pseudo():
     fn_out = context.get_fn('test/atom_si.cp2k.out')
     sys = System.from_file(fn_out)
 
-    int1d = SimpsonIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    atgrid = AtomicGrid(0, np.zeros(3, float), (rtf, int1d, 110), random_rotate=False)
+    rgrid = RadialIntGrid(rtf)
+    atgrid = AtomicGrid(0, np.zeros(3, float), (rgrid, 110), random_rotate=False)
 
     r = ProAtomRecord.from_system(sys, atgrid)
     assert r.number == 14

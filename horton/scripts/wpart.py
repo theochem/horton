@@ -20,7 +20,6 @@
 #--
 
 
-from horton.grid.int1d import SimpsonIntegrator1D
 from horton.grid.cext import lebedev_laikov_npoints
 
 __all__ = ['parse_grid']
@@ -47,8 +46,7 @@ def parse_grid(sgrid, system, proatomdb):
         atspecs = []
         for n in system.numbers:
             atspecs.append((
-                proatomdb.get_rgrid(n).rtransform,
-                SimpsonIntegrator1D(),
+                proatomdb.get_rgrid(n),
                 nll,
             ))
         return atspecs

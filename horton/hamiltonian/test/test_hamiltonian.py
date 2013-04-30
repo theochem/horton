@@ -65,9 +65,7 @@ def test_energy_hydrogen():
 def test_energy_n2_hfs_sto3g():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 1e1, 100)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    grid = get_some_grid(sys)
     ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
     ham.compute_energy()
 
@@ -83,7 +81,7 @@ def test_energy_n2_hfs_sto3g():
     ev1 = grid.integrate(ham.cache.load('pot_exchange_dirac_alpha'), ham.cache.load('rho_alpha'))
     dma = sys.lf.create_one_body()
     ev2 = ham.cache.load('op_exchange_dirac_alpha').expectation_value(sys.wfn.dm_alpha)
-    assert abs(ev1 - ev2) < 1e-13
+    assert abs(ev1 - ev2) < 1e-10
 
     # When repeating, we should get the same
     ham.compute_energy()
@@ -98,9 +96,7 @@ def test_fock_n2_hfs_sto3g():
     # energies
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 1e1, 100)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    grid = get_some_grid(sys)
     ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
 
     # The convergence should be reasonable, not perfect because of limited
@@ -135,9 +131,7 @@ def test_fock_h3_hfs_321g():
     # energies
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 1e1, 100)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    grid = get_some_grid(sys)
     ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
 
     # The convergence should be reasonable, not perfect because of limited
@@ -175,9 +169,7 @@ def test_cubic_interpolation_hfs_cs():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
 
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 2e1, 110)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    grid = get_some_grid(sys)
     ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
 
     dm0 = sys.lf.create_one_body()

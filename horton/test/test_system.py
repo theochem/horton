@@ -260,10 +260,7 @@ def test_electron_repulsion_water_ccpvdz_cart_hf():
 
 def check_grid_fn(fn_fchk, use_output_arg):
     sys = System.from_file(fn_fchk)
-    # TODO: standard procedure for constructing recommended coarse, medium and fine grids.
-    int1d = TrapezoidIntegrator1D()
-    rtf = ExpRTransform(1e-3, 1e1, 100)
-    grid = BeckeMolGrid(sys, (rtf, int1d, 110), random_rotate=False)
+    grid = BeckeMolGrid(sys, random_rotate=False)
     if use_output_arg:
         rhos = np.zeros(grid.size)
         sys.compute_grid_density(grid.points, rhos)
