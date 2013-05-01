@@ -307,8 +307,49 @@ cdef class GBasis:
     def __dealloc__(self):
         del self._this
 
+    @classmethod
+    def concatenate(cls, *gbs):
+        '''Concatenate multiple basis objects into a new one.
+
+           **Arguments:** each argument is an instance of the same subclass of
+           GBasis.
+        '''
+        # check if the classes match
+        for gb in gbs:
+            assert isinstance(gb, cls)
+
+        # do the concatenation of each array properly
+        centers = np.concatenate([gb.centers for gb in gbs])
+        shell_map = []
+        offset = 0
+        for gb in gbs:
+            shell_map.append(gb.shell_map + offset)
+            offset += gb.ncenter
+        shell_map = np.concatenate(shell_map)
+        nprims = np.concatenate([gb.nprims for gb in gbs])
+        shell_types = np.concatenate([gb.shell_types for gb in gbs])
+        alphas = np.concatenate([gb.alphas for gb in gbs])
+        con_coeffs = np.concatenate([gb.con_coeffs for gb in gbs])
+        return cls(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
+
+    @classmethod
+    def from_hdf5(cls, grp, lf):
+        return cls(
+            np.array(grp['centers']),
+            np.array(grp['shell_map']),
+            np.array(grp['nprims']),
+            np.array(grp['shell_types']),
+            np.array(grp['alphas']),
+            np.array(grp['con_coeffs'])
+        )
+
     def to_hdf5(self, grp):
-        raise NotImplementedError
+        grp['centers'] = self.centers
+        grp['shell_map'] = self.shell_map
+        grp['nprims'] = self.nprims
+        grp['shell_types'] = self.shell_types
+        grp['alphas'] = self.alphas
+        grp['con_coeffs'] = self.con_coeffs
 
     # Array properties
 
@@ -413,25 +454,6 @@ cdef class GOBasis(GBasis):
             <double*>self._alphas.data, <double*>self._con_coeffs.data,
             self._centers.shape[0], self._shell_types.shape[0], self._alphas.shape[0]
         )
-
-    @classmethod
-    def from_hdf5(cls, grp, lf):
-        return GOBasis(
-            np.array(grp['centers']),
-            np.array(grp['shell_map']),
-            np.array(grp['nprims']),
-            np.array(grp['shell_types']),
-            np.array(grp['alphas']),
-            np.array(grp['con_coeffs'])
-        )
-
-    def to_hdf5(self, grp):
-        grp['centers'] = self.centers
-        grp['shell_map'] = self.shell_map
-        grp['nprims'] = self.nprims
-        grp['shell_types'] = self.shell_types
-        grp['alphas'] = self.alphas
-        grp['con_coeffs'] = self.con_coeffs
 
     def check_matrix_coeffs(self, matrix, nocc=None):
         assert matrix.ndim == 2
