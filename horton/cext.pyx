@@ -266,7 +266,6 @@ cdef class Cell:
     def _get_parameters(self):
         '''The cell parameters (lengths and angles)'''
         lengths = self.rlengths
-        # TODO move computation of angles to C code
         rvecs = self.rvecs
         tmp = np.dot(rvecs, rvecs.T)
         tmp /= lengths

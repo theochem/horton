@@ -45,6 +45,7 @@ class RectangleGrid(IntGrid):
         self.h0 = h0
         self.l1 = l1
         self.h1 = h1
+        # TODO: do not work with flat array, needs changes in base class
         #self.shape = (h0-l0+1, h1-l1+1)
 
         npoint = (h0-l0+1)*(h1-l1+1)

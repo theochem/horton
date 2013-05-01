@@ -66,8 +66,6 @@ class ProAtomRecord(object):
         except NotImplementedError:
             nel = int(np.round(atgrid.rgrid.integrate(rho)))
 
-        # TODO: report norms and number of electrons
-
         # Get all the other information from the atom
         energy = system.props['energy']
         number = system.numbers[0]
