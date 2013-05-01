@@ -405,7 +405,6 @@ cdef class GBasis:
         self._this.compute_grid_point1(<double*>output.data, <double*>point.data, grid_fn._this)
 
 
-
 cdef class GOBasis(GBasis):
     def __cinit__(self, centers, shell_map, nprims, shell_types, alphas, con_coeffs):
         self._this = <gbasis.GBasis*> new gbasis.GOBasis(
@@ -491,9 +490,9 @@ cdef class GOBasis(GBasis):
         (<gbasis.GOBasis*>self._this).compute_electron_repulsion(<double*>output.data)
 
     def compute_grid_orbitals_exp(self, exp, np.ndarray[double, ndim=2] points not None, np.ndarray[long, ndim=1] iorbs not None, np.ndarray[double, ndim=2] orbs not None):
-        '''compute_grid_density_dm(exp, points, iorbs, orbs)
+        '''compute_grid_density_exp(exp, points, iorbs, orbs)
 
-           Compute the electron density on a grid for a given density matrix.
+           Compute the orbtials on a grid for a given set of expansion coefficients.
 
            **Arguments:**
 
