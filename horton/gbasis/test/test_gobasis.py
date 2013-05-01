@@ -364,3 +364,35 @@ def test_cart_pure_switch():
     assert sys.obasis.nbasis == 41
     sys = System.from_file(context.get_fn('test/water.xyz'), obasis=GOBasisDesc('aug-cc-pvdz', pure=False))
     assert sys.obasis.nbasis == 43
+
+
+def get_olp(ob):
+    lf = DenseLinalgFactory(ob.nbasis)
+    olp = lf.create_one_body()
+    ob.compute_overlap(olp)
+    return olp._array
+
+def test_concatenate1():
+    sys = System.from_file(context.get_fn('test/water.xyz'), obasis='3-21g')
+    ob = GOBasis.concatenate(sys.obasis, sys.obasis)
+    assert ob.ncenter == 3*2
+    assert ob.nbasis == 13*2
+    a = get_olp(ob)
+    assert abs(a[:13,:13] - a[:13,13:]).max() < 1e-15
+    assert (a[:13,:13] == a[13:,13:]).all()
+    assert abs(a[:13,:13] - a[13:,:13]).max() < 1e-15
+
+
+def test_concatenate2():
+    sys1 = System.from_file(context.get_fn('test/water.xyz'), obasis='3-21g')
+    sys2 = System.from_file(context.get_fn('test/water.xyz'), obasis='sto-3g')
+    obasis = GOBasis.concatenate(sys1.obasis, sys2.obasis)
+    assert obasis.ncenter == 3*2
+    assert obasis.nbasis == sys1.obasis.nbasis+sys2.obasis.nbasis
+
+    a = get_olp(obasis)
+    a11 = get_olp(sys1.obasis)
+    a22 = get_olp(sys2.obasis)
+    N = sys1.obasis.nbasis
+    assert (a[:N,:N] == a11).all()
+    assert (a[N:,N:] == a22).all()
