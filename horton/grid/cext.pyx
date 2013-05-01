@@ -242,9 +242,9 @@ cdef class CubicSpline(object):
         del self._this
         del self._ep
 
-    property rtransform: # TODO: rename to rtf
+    property rtransform:
         def __get__(self):
-            return self._rtf
+            return self._rtf # TODO: rename to rtransform
 
     def copy_y(self):
         cdef np.npy_intp shape[1]

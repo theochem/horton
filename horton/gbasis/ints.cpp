@@ -193,7 +193,6 @@ void GB2KineticIntegral::add(double coeff, double alpha0, double alpha1, const d
 
 GB2NuclearAttractionIntegral::GB2NuclearAttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge) :
             GB2Integral(max_shell_type), charges(charges), centers(centers), ncharge(ncharge) {
-    // TODO: run tests with bounds checking
     work_g0 = new double[2*max_shell_type+1];
     work_g1 = new double[2*max_shell_type+1];
     work_g2 = new double[2*max_shell_type+1];
