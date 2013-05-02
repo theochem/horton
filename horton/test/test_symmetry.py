@@ -20,27 +20,22 @@
 #--
 
 
-__version__ = '0.0'
+import numpy as np
+
+from horton import *
+from horton.test.common import get_random_cell
 
 
-from horton.cache import *
-from horton.cext import *
-from horton.checkpoint import *
-from horton.constants import *
-from horton.context import *
-from horton.part import *
-from horton.espfit import *
-from horton.exceptions import *
-from horton.gbasis import *
-from horton.grid import *
-from horton.guess import *
-from horton.hamiltonian import *
-from horton.io import *
-from horton.log import *
-from horton.matrix import *
-from horton.periodic import *
-from horton.scf import *
-from horton.symmetry import *
-from horton.system import *
-from horton.units import *
-from horton.wfn import *
+def test_symmetry_attrs():
+    generators = np.random.uniform(-1, 1, (5, 3, 4))
+    fracs = np.random.uniform(0, 1, (4, 3))
+    numbers = np.array([1, 6, 6, 1])
+    cell = get_random_cell(10.0, 3)
+    s = Symmetry('boo', generators, fracs, numbers, cell)
+    assert s.labels == ['H0', 'C1', 'C2', 'H3']
+    s = Symmetry('boo', generators, fracs, numbers, cell, ['q', 'w', 'e', 'r'])
+    assert s.name == 'boo'
+    assert s.generators is generators
+    assert s.fracs is s.fracs
+    assert s.numbers is numbers
+    assert s.cell is cell
