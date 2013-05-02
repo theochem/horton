@@ -36,6 +36,38 @@ def test_symmetry_attrs():
     s = Symmetry('boo', generators, fracs, numbers, cell, ['q', 'w', 'e', 'r'])
     assert s.name == 'boo'
     assert s.generators is generators
+    assert s.natom == 4
     assert s.fracs is s.fracs
     assert s.numbers is numbers
     assert s.cell is cell
+
+
+def get_fake_symmetry():
+    g1 = np.array([
+        [1, 0, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, 1, 0],
+    ])
+    g2 = np.array([
+        [0, 1, 0, 0],
+        [1, 0, 0, 0],
+        [0, 0, 1, 0],
+    ], dtype=float)
+    generators = [g1, g2]
+    fracs = np.array([[0.0, 0.0, 0.0], [0.5, 0.0, 0.0], [0.0, 0.0, 0.5]])
+    numbers = np.array([6, 1, 8])
+    cell = Cell(np.diag([10.0, 12.0, 14.0]))
+    return Symmetry('fried eggs', generators, fracs, numbers, cell)
+
+def test_generate():
+    s = get_fake_symmetry()
+    coordinates, numbers, links = s.generate()
+    assert coordinates.shape == (4, 3)
+    assert numbers.shape == (4,)
+    assert links.shape == (4, 2)
+    assert abs(coordinates[0] - [0.0, 0.0, 0.0]).max() < 1e-10
+    assert abs(coordinates[1] - [5.0, 0.0, 0.0]).max() < 1e-10
+    assert abs(coordinates[2] - [0.0, 6.0, 0.0]).max() < 1e-10
+    assert abs(coordinates[3] - [0.0, 0.0, 7.0]).max() < 1e-10
+    assert (numbers == [6, 1, 1, 8]).all()
+    assert (links == [[0, 0], [1, 0], [1, 1], [2, 0]]).all()
