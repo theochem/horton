@@ -138,9 +138,10 @@ class Symmetry(object):
            **Optional arguments:**
 
            threshold
-                When, after transformation and conversion to Cartesian
-                coordinates, two (or more) symmetry atoms overlap within this
-                threshold, they will be merged into one.
+                When, after transformation with the generators, two (or more)
+                symmetry atoms overlap within this threshold, they will be
+                merged into one. The distance is measured in Cartesian
+                coordinates.
 
            **Returns:**
 
@@ -167,7 +168,9 @@ class Symmetry(object):
                 # test if it is already present
                 duplicate = False
                 for ocart in coordinates:
-                    if np.linalg.norm(ocart - cart) < threshold:
+                    delta = ocart - cart
+                    self.cell.mic(delta)
+                    if np.linalg.norm(delta) < threshold:
                         duplicate = True
                         break
                 if duplicate:
