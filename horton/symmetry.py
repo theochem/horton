@@ -106,6 +106,12 @@ class Symmetry(object):
 
     generators = property(_get_generators)
 
+    def _get_natom(self):
+        '''The number of atoms in the primitive unit'''
+        return self.numbers.shape[0]
+
+    natom = property(_get_natom)
+
     def _get_fracs(self):
         return self._fracs
 
@@ -126,10 +132,17 @@ class Symmetry(object):
 
     labels = property(_get_labels)
 
-    def generate(self):
+    def generate(self, threshold=0.001):
         '''Returns a system object
 
-           The following three values are returned
+           **Optional arguments:**
+
+           threshold
+                When, after transformation and conversion to Cartesian
+                coordinates, two (or more) symmetry atoms overlap within this
+                threshold, they will be merged into one.
+
+           **Returns:**
 
            coordinates
                 Cartesian coordinates for all atoms.
@@ -141,7 +154,30 @@ class Symmetry(object):
                 An array of indexes to connect each atom back with an atom in
                 the primitive cell.
         '''
-        raise NotImplementedError
+        coordinates = []
+        numbers = []
+        links = []
+        for i in xrange(self.natom):
+            for j in xrange(len(self.generators)):
+                # make the Cartesian coordinate.
+                g = self.generators[j]
+                frac = np.dot(g[:,:3], self.fracs[i]) + g[:,3]
+                cart = self.cell.to_cart(frac)
+
+                # test if it is already present
+                duplicate = False
+                for ocart in coordinates:
+                    if np.linalg.norm(ocart - cart) < threshold:
+                        duplicate = True
+                        break
+                if duplicate:
+                    continue
+
+                coordinates.append(cart)
+                numbers.append(self.numbers[i])
+                links.append([i, j])
+
+        return np.array(coordinates), np.array(numbers), np.array(links)
 
     def identity(self, system, threshold=0.1):
         '''Connect atoms in the primitive unit with atoms in the system object
