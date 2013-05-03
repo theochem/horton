@@ -71,3 +71,14 @@ def test_generate():
     assert abs(coordinates[3] - [0.0, 0.0, 7.0]).max() < 1e-10
     assert (numbers == [6, 1, 1, 8]).all()
     assert (links == [[0, 0], [1, 0], [1, 1], [2, 0]]).all()
+
+
+def test_identify():
+    sys1 = System.from_file(context.get_fn('test/lta_gulp.cif'))
+    sys2 = System.from_file(context.get_fn('test/aelta.cube'))
+    sys2._cell = sys1.cell # The cell parameters in aelta.cube are rubbish.
+    sym = sys1.props['symmetry']
+    links = sym.identify(sys2)
+    for i in xrange(sys2.natom):
+        if sys2.numbers[i] == 14:
+            assert links[i,0] == 0

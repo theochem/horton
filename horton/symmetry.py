@@ -132,6 +132,21 @@ class Symmetry(object):
 
     labels = property(_get_labels)
 
+    def _iter_images(self, cell=None):
+        '''Loops over all periodic images of all atoms in the primitive cell
+
+           This loop may include atoms whose symmetric images coincide.
+        '''
+        if cell is None:
+            cell = self.cell
+        for i in xrange(self.natom):
+            for j in xrange(len(self.generators)):
+                g = self.generators[j]
+                frac = np.dot(g[:,:3], self.fracs[i]) + g[:,3]
+                cart = cell.to_cart(frac)
+                yield i, j, g, frac, cart
+
+
     def generate(self, threshold=0.001):
         '''Returns a system object
 
@@ -153,36 +168,31 @@ class Symmetry(object):
 
            links
                 An array of indexes to connect each atom back with an atom in
-                the primitive cell.
+                the primitive cell (first column) and a generator (second
+                column).
         '''
         coordinates = []
         numbers = []
         links = []
-        for i in xrange(self.natom):
-            for j in xrange(len(self.generators)):
-                # make the Cartesian coordinate.
-                g = self.generators[j]
-                frac = np.dot(g[:,:3], self.fracs[i]) + g[:,3]
-                cart = self.cell.to_cart(frac)
+        for i, j, g, frac, cart in self._iter_images():
+            # test if it is already present
+            duplicate = False
+            for ocart in coordinates:
+                delta = ocart - cart
+                self.cell.mic(delta)
+                if np.linalg.norm(delta) < threshold:
+                    duplicate = True
+                    break
+            if duplicate:
+                continue
 
-                # test if it is already present
-                duplicate = False
-                for ocart in coordinates:
-                    delta = ocart - cart
-                    self.cell.mic(delta)
-                    if np.linalg.norm(delta) < threshold:
-                        duplicate = True
-                        break
-                if duplicate:
-                    continue
-
-                coordinates.append(cart)
-                numbers.append(self.numbers[i])
-                links.append([i, j])
+            coordinates.append(cart)
+            numbers.append(self.numbers[i])
+            links.append([i, j])
 
         return np.array(coordinates), np.array(numbers), np.array(links)
 
-    def identity(self, system, threshold=0.1):
+    def identify(self, system, threshold=0.1):
         '''Connect atoms in the primitive unit with atoms in the system object
 
            **Arguments:**
@@ -201,9 +211,26 @@ class Symmetry(object):
 
            links
                 An array of indexes to connect each atom back with an atom in
-                the primitive cell.
+                the primitive cell (first column) and a generator (second
+                column).
 
            If an atom in the System object can not be linked with an atom in
-           the primitive unit, a SymmetryError is raised.
+           the primitive unit, a SymmetryError is raised. If the system contains
+           less atoms (e.g. a vacancy) than the perfect crystal, this method
+           will not complain.
         '''
-        raise NotImplementedError
+        links = []
+        for k in xrange(system.natom):
+            match = False
+            for i, j, g, frac, cart in self._iter_images(system.cell):
+                delta = system.coordinates[k] - cart
+                system.cell.mic(delta)
+                #print i, j, np.linalg.norm(delta)
+                if np.linalg.norm(delta) < threshold:
+                    match = True
+                    break
+            if not match:
+                raise SymmetryError('Could not find atom in primitive unit corresponding to atom %i' % k)
+
+            links.append([i, j])
+        return np.array(links)
