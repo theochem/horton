@@ -24,6 +24,7 @@ import numpy as np
 
 from horton.cache import JustOnceClass, just_once, Cache
 from horton.log import log, timer
+from horton.moments import get_cartesian_powers
 
 
 __all__ = ['Part', 'WPart', 'CPart']
@@ -221,19 +222,12 @@ class Part(JustOnceClass):
         if log.do_medium:
             log('Computing all sorts of AIM moments.')
 
-        cartesian_powers = []
-        lmax = 4 # up to hexadecapoles.
-        for l in xrange(1, lmax+1):
-            for nz in xrange(0, l+1):
-                for ny in xrange(0, l-nz+1):
-                    nx = l - ny - nz
-                    cartesian_powers.append([nx, ny, nz])
-        self._cache.dump('cartesian_powers', np.array(cartesian_powers))
+        lmax = 4 # up to hexadecapoles
+        cartesian_powers = get_cartesian_powers(lmax)
         cartesian_moments, new1 = self._cache.load('cartesian_moments', alloc=(self._system.natom, len(cartesian_powers)))
 
         radial_powers = np.arange(1, lmax+1)
         radial_moments, new2 = self._cache.load('radial_moments', alloc=(self._system.natom, len(radial_powers)))
-        self._cache.dump('radial_powers', radial_powers)
 
         if new1 or new2:
             self.do_partitioning()
@@ -263,7 +257,7 @@ class Part(JustOnceClass):
                         log('  moment %s' % ('r'*nr))
                     radial_moments[i, nr-1] = grid.integrate(aim, wcor, center=center, nx=0, ny=0, nz=0, nr=nr)
 
-    do_moments.names = ['cartesian_powers', 'cartesian_moments', 'radial_powers', 'radial_moments']
+    do_moments.names = ['cartesian_moments', 'radial_moments']
 
     def do_all(self):
         '''Computes all reasonable properties and returns a corresponding list of keys'''

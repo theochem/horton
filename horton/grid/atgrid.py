@@ -31,8 +31,8 @@ from horton.log import log
 
 
 __all__ = [
-    'AtomicGrid', 'interpret_atspec', 'get_random_rotation', 'ATGridFamily',
-    'atgrid_families',
+    'AtomicGrid', 'interpret_atspec', 'get_rotation_matrix',
+    'get_random_rotation', 'ATGridFamily', 'atgrid_families',
 ]
 
 
@@ -214,6 +214,18 @@ def interpret_atspec(number, atspec):
     return rgrid, nlls
 
 
+def get_rotation_matrix(axis, angle):
+    '''Rodrigues' rotation formula'''
+    x, y, z = axis/np.linalg.norm(axis)
+    c = np.cos(angle)
+    s = np.sin(angle)
+    return np.array([
+        [x*x*(1-c)+c  , x*y*(1-c)-z*s, x*z*(1-c)+y*s],
+        [x*y*(1-c)+z*s, y*y*(1-c)+c  , y*z*(1-c)-x*s],
+        [x*z*(1-c)-y*s, y*z*(1-c)+x*s, z*z*(1-c)+c  ],
+    ])
+
+
 def get_random_rotation():
     '''Return a random rotation matrix'''
     # Get a random unit vector for the axis
@@ -221,21 +233,12 @@ def get_random_rotation():
         axis = np.random.uniform(-1, 1, 3)
         norm = np.linalg.norm(axis)
         if norm < 1.0 and norm > 0.1:
-            axis /= norm
             break
-    x, y, z = axis
 
     # Get a random rotation angle
     angle = np.random.uniform(0, 2*np.pi)
-    c = np.cos(angle)
-    s = np.sin(angle)
 
-    # Rodrigues' rotation formula
-    return np.array([
-        [x*x*(1-c)+c  , x*y*(1-c)-z*s, x*z*(1-c)+y*s],
-        [x*y*(1-c)+z*s, y*y*(1-c)+c  , y*z*(1-c)-x*s],
-        [x*z*(1-c)-y*s, y*z*(1-c)+x*s, z*z*(1-c)+c  ],
-    ])
+    return get_rotation_matrix(axis, angle)
 
 
 class ATGridFamily(object):
