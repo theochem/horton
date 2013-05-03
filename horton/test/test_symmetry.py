@@ -20,10 +20,10 @@
 #--
 
 
-import numpy as np
+import numpy as np, h5py as h5
 
 from horton import *
-from horton.test.common import get_random_cell
+from horton.test.common import get_random_cell, compare_symmetries
 
 
 def test_symmetry_attrs():
@@ -32,10 +32,10 @@ def test_symmetry_attrs():
     numbers = np.array([1, 6, 6, 1])
     cell = get_random_cell(10.0, 3)
     s = Symmetry('boo', generators, fracs, numbers, cell)
-    assert s.labels == ['H0', 'C1', 'C2', 'H3']
+    assert (s.labels == ['H0', 'C1', 'C2', 'H3']).all()
     s = Symmetry('boo', generators, fracs, numbers, cell, ['q', 'w', 'e', 'r'])
     assert s.name == 'boo'
-    assert s.generators is generators
+    assert (s.generators == generators).all()
     assert s.natom == 4
     assert s.fracs is s.fracs
     assert s.numbers is numbers
@@ -82,3 +82,11 @@ def test_identify():
     for i in xrange(sys2.natom):
         if sys2.numbers[i] == 14:
             assert links[i,0] == 0
+
+
+def test_hdf5():
+    s0 = get_fake_symmetry()
+    with h5.File('horton.test.test_symmetry.test_hdf5.h5', driver='core', backing_store=False) as f:
+        s0.to_hdf5(f)
+        s1 = Symmetry.from_hdf5(f, lf=None)
+        compare_symmetries(s0, s1)
