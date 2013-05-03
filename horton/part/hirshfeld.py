@@ -90,9 +90,6 @@ class HirshfeldMixin(object):
         if new_volumes or new_volume_ratios or new_c6s:
             self.do_populations()
             self.do_moments()
-            k3 = 2
-            radial_powers = self._cache.load('radial_powers')
-            assert radial_powers[k3] == 3
             radial_moments = self._cache.load('radial_moments')
             populations = self._cache.load('populations')
 
@@ -101,7 +98,7 @@ class HirshfeldMixin(object):
 
             for i in xrange(self.system.natom):
                 n = self.system.numbers[i]
-                volumes[i] = radial_moments[i,k3]/populations[i]
+                volumes[i] = radial_moments[i,2]/populations[i]
                 ref_volume = self.proatomdb.get_record(n, 0).get_moment(3)/n
                 volume_ratios[i] = volumes[i]/ref_volume
                 if n in ref_c6s:

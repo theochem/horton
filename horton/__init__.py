@@ -38,6 +38,7 @@ from horton.hamiltonian import *
 from horton.io import *
 from horton.log import *
 from horton.matrix import *
+from horton.moments import *
 from horton.periodic import *
 from horton.scf import *
 from horton.symmetry import *
