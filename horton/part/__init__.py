@@ -28,6 +28,8 @@ from horton.part.hirshfeld_e import *
 from horton.part.linalg import *
 from horton.part.proatomdb import *
 from horton.part.stockholder import *
+from horton.part.symmetry import *
+
 
 wpart_schemes = {}
 for o in globals().values():

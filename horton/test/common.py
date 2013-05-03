@@ -27,7 +27,8 @@ from horton import *
 
 
 __all__ = [
-    'check_script', 'check_delta', 'get_random_cell',
+    'check_script', 'check_delta',
+    'get_random_cell', 'get_pentagon_moments',
     'compare_expansions', 'compare_all_expansions', 'compare_dms',
     'compare_all_dms', 'compare_one_body', 'compare_two_body',
     'compare_occ_model', 'compare_wfns', 'compare_systems',
@@ -138,6 +139,23 @@ def get_random_cell(a, nvec):
         cell = Cell(rvecs)
         if cell.volume > a**nvec*0.1:
             return cell
+
+
+def get_pentagon_moments(rmat=None, lmax=4):
+    if rmat is None:
+        rmat = np.identity(3, float)
+
+    cartesian_powers = get_cartesian_powers(lmax)
+    ncart = cartesian_powers.shape[0]
+    result = np.zeros(ncart)
+    for i in xrange(6):
+        alpha = 2.0*np.pi/5.0
+        vec = np.array([1+np.cos(alpha), np.sin(alpha), 0])
+        vec = np.dot(rmat, vec)
+        for i in xrange(ncart):
+            px, py, pz = cartesian_powers[i]
+            result[i] = vec[0]**px + vec[1]**py + vec[2]**pz
+    return result
 
 
 def compare_expansions(wfn1, wfn2, spin):
