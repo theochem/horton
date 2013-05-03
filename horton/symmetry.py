@@ -90,11 +90,34 @@ class Symmetry(object):
                 raise ValueError('Not all labels are unique.')
 
         self._name = str(name)
-        self._generators = generators
+        self._generators = np.array(generators)
         self._fracs = fracs
         self._numbers = numbers
         self._cell = cell
-        self._labels = labels
+        self._labels = np.array(labels)
+
+    @classmethod
+    def from_hdf5(cls, grp, lf):
+        from horton.checkpoint import load_hdf5_low
+        return cls(
+            grp['name'][()],
+            grp['generators'][:],
+            grp['fracs'][:],
+            grp['numbers'][:],
+            Cell.from_hdf5(grp['cell'], lf),
+            grp['labels'][:],
+        )
+
+    def to_hdf5(self, grp):
+        grp.attrs['class'] = self.__class__.__name__
+        grp['name'] = self.name
+        grp['generators'] = self.generators
+        grp['fracs'] = self.fracs
+        grp['numbers'] = self.numbers
+        tmp = grp.create_group('cell')
+        self.cell.to_hdf5(tmp)
+        grp['labels'] = self.labels
+
 
     def _get_name(self):
         return self._name

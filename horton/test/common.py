@@ -30,7 +30,8 @@ __all__ = [
     'check_script', 'check_delta', 'get_random_cell',
     'compare_expansions', 'compare_all_expansions', 'compare_dms',
     'compare_all_dms', 'compare_one_body', 'compare_two_body',
-    'compare_occ_model', 'compare_wfns', 'compare_systems'
+    'compare_occ_model', 'compare_wfns', 'compare_systems',
+    'compare_symmetries',
 ]
 
 
@@ -257,3 +258,13 @@ def compare_systems(sys1, sys2):
     compare_one_body(sys1, sys2, 'na')
     # two-body operators
     compare_two_body(sys1, sys2, 'er')
+
+
+def compare_symmetries(s0, s1):
+    assert s0.name == s1.name
+    assert (s0.generators == s1.generators).all()
+    assert (s0.fracs == s1.fracs).all()
+    assert (s0.numbers == s1.numbers).all()
+    assert s0.cell.nvec == s1.cell.nvec
+    assert (s0.cell.rvecs == s1.cell.rvecs).all()
+    assert (s0.labels == s1.labels).all()
