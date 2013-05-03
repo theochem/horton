@@ -21,6 +21,7 @@
 
 
 from horton import *
+from horton.test.common import get_pentagon_moments
 
 
 def test_get_ncart():
@@ -56,23 +57,6 @@ def test_get_cartesian_powers():
         tmp = get_cartesian_powers(lmax)
         assert tmp.shape == (get_ncart_cumul(lmax), 3)
         assert (tmp == cartesian_powers[:len(tmp)]).all()
-
-
-def get_pentagon_moments(rmat=None, lmax=4):
-    if rmat is None:
-        rmat = np.identity(3, float)
-
-    cartesian_powers = get_cartesian_powers(lmax)
-    ncart = cartesian_powers.shape[0]
-    result = np.zeros(ncart)
-    for i in xrange(6):
-        alpha = 2.0*np.pi/5.0
-        vec = np.array([1+np.cos(alpha), np.sin(alpha), 0])
-        vec = np.dot(rmat, vec)
-        for i in xrange(ncart):
-            px, py, pz = cartesian_powers[i]
-            result[i] = vec[0]**px + vec[1]**py + vec[2]**pz
-    return result
 
 
 def test_rotate_cartesian_multipoles_mult():

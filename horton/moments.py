@@ -74,7 +74,7 @@ def get_ncart_cumul(lmax):
 
 
 # Each item in the following list:
-#  - defines how a cartesian multipole is transformed. 
+#  - defines how a cartesian multipole is transformed.
 #  - corresponds to the multipoles defined by get_cartesian_multipoles.
 #  - consists of a list of rules.
 # Each rule contains at least two integer and corresponds to a single term:
