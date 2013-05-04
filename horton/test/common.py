@@ -41,9 +41,9 @@ np.seterr(divide='raise', over='raise', invalid='raise')
 def check_script(command, workdir):
     env = dict(os.environ)
     root_dir = os.getcwd()
-    env['PYTHONPATH'] = root_dir + ':' + env['PYTHONPATH']
+    env['PYTHONPATH'] = root_dir + ':' + env.get('PYTHONPATH', '')
     env['HORTONDATA'] = os.path.join(root_dir, 'data')
-    env['PATH'] = os.path.join(root_dir, 'scripts') + ':' + env['PATH']
+    env['PATH'] = os.path.join(root_dir, 'scripts') + ':' + env.get('PATH', '')
     proc = subprocess.Popen(shlex.split(command), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=workdir, env=env)
     outdata, errdata = proc.communicate()
     if proc.returncode != 0:
