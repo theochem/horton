@@ -24,7 +24,6 @@ Development
    :maxdepth: 2
 
    dev_get_coding
-   dev_milestones
 
 
 Reference
