@@ -210,7 +210,7 @@ def tridiagsym_solve(np.ndarray[double, ndim=1] diag_mid,
 cdef class CubicSpline(object):
     cdef cubic_spline.CubicSpline* _this
     cdef cubic_spline.Extrapolation* _ep
-    cdef RTransform _rtf
+    cdef RTransform _rtransform
 
     def __cinit__(self, np.ndarray[double, ndim=1] y not None, np.ndarray[double, ndim=1] d=None, RTransform rtf=None):
         cdef double* ddata
@@ -223,19 +223,19 @@ cdef class CubicSpline(object):
             assert d.shape[0] == n
             ddata = <double*>d.data
 
-        self._rtf = rtf
-        cdef rtransform.RTransform* _c_rtf
+        self._rtransform = rtf
+        cdef rtransform.RTransform* _c_rtransform
         if rtf is None:
-            _c_rtf = NULL
+            _c_rtransform = NULL
         else:
-            _c_rtf = rtf._this
+            _c_rtransform = rtf._this
         # Only exponential extrapolation is needed for now, except when it does not work
         if d is not None and d[0] == 0.0:
             self._ep = <cubic_spline.Extrapolation*>(new cubic_spline.ZeroExtrapolation())
         else:
             self._ep = <cubic_spline.Extrapolation*>(new cubic_spline.ExponentialExtrapolation())
         self._this = new cubic_spline.CubicSpline(
-            <double*>y.data, ddata, self._ep, _c_rtf, n
+            <double*>y.data, ddata, self._ep, _c_rtransform, n
         )
 
     def __dealloc__(self):
@@ -244,7 +244,7 @@ cdef class CubicSpline(object):
 
     property rtransform:
         def __get__(self):
-            return self._rtf # TODO: rename to rtransform
+            return self._rtransform
 
     def copy_y(self):
         cdef np.npy_intp shape[1]
