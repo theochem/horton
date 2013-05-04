@@ -73,7 +73,7 @@ cdef class Cell:
             return cls(None)
 
     def to_hdf5(self, grp):
-        grp['rvecs'] = self.rvecs
+        grp.create_dataset('rvecs', data=self.rvecs, maxshape=(None,None))
 
     @classmethod
     def from_parameters(cls, lengths, angles):
