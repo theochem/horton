@@ -29,7 +29,7 @@ def get_water_sto3g_hf(lf=None):
     if lf is None:
         lf = DenseLinalgFactory()
     fn = context.get_fn('test/water_sto3g_hf_g03.log')
-    overlap, kinetic, nuclear_attraction, electronic_repulsion = load_operators_g09(fn, lf)
+    results = load_operators_g09(fn, lf)
     coeffs = np.array([
         9.94099882E-01, 2.67799213E-02, 3.46630004E-03, -1.54676269E-15,
         2.45105601E-03, -6.08393842E-03, -6.08393693E-03, -2.32889095E-01,
@@ -57,79 +57,80 @@ def get_water_sto3g_hf(lf=None):
     exp_alpha.energies[:] = epsilons
     occ_model.assign(exp_alpha)
     assert (exp_alpha.occupations == np.array([1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0])).all()
-    return lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn
+    return lf, results['operators'], wfn
 
 
 def test_fock_matrix_eigen():
-    lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn = get_water_sto3g_hf()
-    nbasis = overlap.nbasis
+    lf, operators, wfn = get_water_sto3g_hf()
+    nbasis = operators['olp'].nbasis
 
     coulomb = lf.create_one_body(nbasis)
     exchange = lf.create_one_body(nbasis)
     dm = wfn.dm_alpha
-    electronic_repulsion.apply_direct(dm, coulomb)
-    electronic_repulsion.apply_exchange(dm, exchange)
+    operators['er'].apply_direct(dm, coulomb)
+    operators['er'].apply_exchange(dm, exchange)
 
     # Construct the Fock operator
     fock = lf.create_one_body(nbasis)
-    fock.iadd(kinetic, 1)
-    fock.iadd(nuclear_attraction, -1)
+    fock.iadd(operators['kin'], 1)
+    fock.iadd(operators['na'], -1)
     fock.iadd(coulomb, 2)
     fock.iadd(exchange, -1)
 
     # Check for convergence
     exp_alpha = wfn.exp_alpha
-    error = lf.error_eigen(fock, overlap, exp_alpha)
+    error = lf.error_eigen(fock, operators['olp'], exp_alpha)
     assert error > 0
     assert error < 1e-4
 
     # Check self-consistency of the orbital energies
     old_energies = exp_alpha.energies.copy()
-    exp_alpha.derive_from_fock_matrix(fock, overlap)
+    exp_alpha.derive_from_fock_matrix(fock, operators['olp'])
     assert abs(exp_alpha.energies - old_energies).max() < 1e-4
 
 
 
 def test_kinetic_energy_water_sto3g():
-    lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn = get_water_sto3g_hf()
+    lf, operators, wfn = get_water_sto3g_hf()
     dm = wfn.dm_full
-    ekin = kinetic.expectation_value(dm)
+    ekin = operators['kin'].expectation_value(dm)
     assert abs(ekin - 74.60736832935) < 1e-4
 
 
 def test_ortho_water_sto3g():
-    lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn = get_water_sto3g_hf()
+    lf, operators, wfn = get_water_sto3g_hf()
     exp_alpha = wfn.exp_alpha
     for i0 in xrange(7):
         orb0 = exp_alpha.coeffs[:,i0]
         for i1 in xrange(i0+1):
             orb1 = exp_alpha.coeffs[:,i1]
-            check = overlap.dot(orb0, orb1)
+            check = operators['olp'].dot(orb0, orb1)
             assert abs(check - (i0==i1)) < 1e-4
 
 
 def test_potential_energy_water_sto3g_hf():
-    lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn = get_water_sto3g_hf()
+    lf, operators, wfn = get_water_sto3g_hf()
     dm = wfn.dm_full
-    epot = -nuclear_attraction.expectation_value(dm)
+    #epot = -nuclear_attraction.expectation_value(dm)
+    epot = -operators['na'].expectation_value(dm)
     assert abs(epot - (-197.1170963957)) < 2e-3
 
 
 def test_electron_electron_water_sto3g_hf():
-    lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn = get_water_sto3g_hf()
+    lf, operators, wfn = get_water_sto3g_hf()
     coulomb = lf.create_one_body(7)
     exchange = lf.create_one_body(7)
     dm = wfn.dm_alpha
-    electronic_repulsion.apply_direct(dm, coulomb)
-    electronic_repulsion.apply_exchange(dm, exchange)
+    operators['er'].apply_direct(dm, coulomb)
+    operators['er'].apply_exchange(dm, exchange)
     eee = 2*coulomb.expectation_value(dm) \
           - exchange.expectation_value(dm)
     assert abs(eee - 38.29686853319) < 1e-4
 
 
 def test_hartree_fock_water():
-    lf, overlap, kinetic, nuclear_attraction, electronic_repulsion, wfn0 = get_water_sto3g_hf()
-    nbasis = overlap.nbasis
+    lf, operators, wfn0 = get_water_sto3g_hf()
+    nbasis = operators['olp'].nbasis
 
     # Construct a wavefunction
     occ_model = AufbauOccModel(5)
@@ -137,10 +138,10 @@ def test_hartree_fock_water():
 
     # Construct the hamiltonian core guess
     hamcore = lf.create_one_body(nbasis)
-    hamcore.iadd(kinetic, 1)
-    hamcore.iadd(nuclear_attraction, -1)
+    hamcore.iadd(operators['kin'], 1)
+    hamcore.iadd(operators['na'], -1)
     wfn.invalidate()
-    exp_alpha1 = wfn.update_exp(hamcore, overlap)
+    exp_alpha1 = wfn.update_exp(hamcore, operators['olp'])
     assert (exp_alpha1.energies != 0.0).any()
 
 
@@ -153,17 +154,17 @@ def test_hartree_fock_water():
         # Construct the Fock operator
         fock.reset()
         fock.iadd(hamcore, 1)
-        electronic_repulsion.apply_direct(wfn.dm_alpha, coulomb)
-        electronic_repulsion.apply_exchange(wfn.dm_alpha, exchange)
+        operators['er'].apply_direct(wfn.dm_alpha, coulomb)
+        operators['er'].apply_exchange(wfn.dm_alpha, exchange)
         fock.iadd(coulomb, 2)
         fock.iadd(exchange, -1)
         # Check for convergence
-        error = lf.error_eigen(fock, overlap, wfn.exp_alpha)
+        error = lf.error_eigen(fock, operators['olp'], wfn.exp_alpha)
         if error < 1e-10:
             break
         # Derive the expansion and the density matrix from the fock operator
         wfn.invalidate()
-        wfn.update_exp(fock, overlap)
+        wfn.update_exp(fock, operators['olp'])
 
     exp_alpha = wfn.exp_alpha
     exp_alpha0 = wfn0.exp_alpha
@@ -176,8 +177,8 @@ def test_hartree_fock_water():
         +1*exchange.expectation_value(dm),
     ]) + exp_alpha.energies[:wfn.nep].sum()*2
     hf2 = sum([
-        2*kinetic.expectation_value(dm),
-        -2*nuclear_attraction.expectation_value(dm),
+        2*operators['kin'].expectation_value(dm),
+        -2*operators['na'].expectation_value(dm),
         +2*coulomb.expectation_value(dm),
         -exchange.expectation_value(dm),
     ])
