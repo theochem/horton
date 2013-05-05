@@ -1,4 +1,0 @@
-Theoretical background
-######################
-
-Paul, help!
