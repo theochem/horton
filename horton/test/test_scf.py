@@ -149,7 +149,7 @@ def test_scf_oda_water_hf_321g():
     e0 = ham.compute_energy()
     assert convergence_error(ham) > 1e-5
     assert not converge_scf_oda(ham, threshold=1e-2, max_iter=3)
-    assert not sys.wfn._cache.has('exp_alpha')
+    assert 'exp_alpha' not in sys.wfn._cache
     e1 = ham.compute_energy()
     assert not converge_scf_oda(ham, threshold=1e-2, max_iter=3)
     e2 = ham.compute_energy()
@@ -168,7 +168,7 @@ def test_scf_oda_lih_hfs_321g():
     e0 = ham.compute_energy()
     assert convergence_error(ham) > 1e-5
     assert not converge_scf_oda(ham, threshold=1e-8, max_iter=3)
-    assert not sys.wfn._cache.has('exp_alpha')
+    assert 'exp_alpha' not in sys.wfn._cache
     e1 = ham.compute_energy()
     assert not converge_scf_oda(ham, threshold=1e-8, max_iter=3)
     e2 = ham.compute_energy()

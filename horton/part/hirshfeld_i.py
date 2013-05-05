@@ -158,9 +158,9 @@ class HirshfeldIMixin(object):
     @just_once
     def do_partitioning(self):
         # Perform one general check in the beginning to avoid recomputation
-        new = any(not self.cache.has('at_weights', i) for i in xrange(self.system.natom))
-        new |= not self.cache.has('niter')
-        new |= not self.cache.has('change')
+        new = any(('at_weights', i) not in self.cache for i in xrange(self.system.natom))
+        new |= 'niter' not in self.cache
+        new |= 'change'not in self.cache
         if new:
             # Need to compute density
             self.do_moldens()

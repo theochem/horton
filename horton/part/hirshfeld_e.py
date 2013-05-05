@@ -289,7 +289,7 @@ class HirshfeldEMixin(object):
         wcor_fit = self.get_wcor_fit(index)
 
         #    Matrix A
-        if self.cache.has('A', number):
+        if ('A', number) in self.cache:
             A = self.cache.load('A', number)
         else:
             # Set up system of linear equations:

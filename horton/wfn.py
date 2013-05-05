@@ -120,10 +120,10 @@ class WFN(object):
         tmp = grp.create_group('occ_model')
         self.occ_model.to_hdf5(tmp)
         for spin in 'alpha', 'beta':
-            if self._cache.has('exp_%s' % spin):
+            if 'exp_%s' % spin in self._cache:
                 tmp = grp.create_group('exp_%s' % spin)
                 self._cache.load('exp_%s' % spin).to_hdf5(tmp)
-            if self._cache.has('dm_%s' % spin):
+            if 'dm_%s' % spin in self._cache:
                 tmp = grp.create_group('dm_%s' % spin)
                 self._cache.load('dm_%s' % spin).to_hdf5(tmp)
 
@@ -148,13 +148,13 @@ class WFN(object):
     def _iter_expansions(self):
         '''Iterate over all expansion in the cache'''
         for spin in 'alpha', 'beta':
-            if self._cache.has('exp_%s' % spin):
+            if 'exp_%s' % spin in self._cache:
                 yield self._cache.load('exp_%s' % spin)
 
     def _iter_density_matrices(self):
         '''Iterate over all density matrices in the cache'''
         for select in 'alpha', 'beta', 'full', 'spin':
-            if self._cache.has('dm_%s' % select):
+            if 'dm_%s' % select in self._cache:
                 yield self._cache.load('dm_%s' % select)
 
     def _assign_dm_full(self, dm):
@@ -213,7 +213,7 @@ class WFN(object):
            select
                 'alpha', 'beta', 'full' or 'spin'.
         '''
-        if not self._cache.has('dm_%s' % select):
+        if not 'dm_%s' % select in self._cache:
             self.update_dm(select)
         return self._cache.load('dm_%s' % select)
 
@@ -313,7 +313,7 @@ class ClosedShellWFN(WFN):
     nel = property(_get_nel)
 
     def _get_nep(self):
-        if self._cache.has('exp_alpha'):
+        if 'exp_alpha' in self._cache:
             return self._cache.load('exp_alpha').occupations.sum()
         else:
             raise NotImplementedError
@@ -393,7 +393,7 @@ class OpenShellWFN(WFN):
     nel = property(_get_nel)
 
     def _get_nalpha(self):
-        if self._cache.has('exp_alpha'):
+        if 'exp_alpha' in self._cache:
             return self._cache.load('exp_alpha').occupations.sum()
         else:
             raise NotImplementedError
@@ -401,7 +401,7 @@ class OpenShellWFN(WFN):
     nalpha = property(_get_nalpha)
 
     def _get_nbeta(self):
-        if self._cache.has('exp_beta'):
+        if 'exp_beta' in self._cache:
             return self._cache.load('exp_beta').occupations.sum()
         else:
             raise NotImplementedError

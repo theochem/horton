@@ -140,8 +140,8 @@ def get_random_cell(a, nvec):
 
 
 def compare_expansions(wfn1, wfn2, spin):
-    if wfn1._cache.has('exp_%s' % spin):
-        assert wfn2._cache.has('exp_%s' % spin)
+    if 'exp_%s' % spin in wfn1._cache:
+        assert 'exp_%s' % spin in wfn2._cache
         e1 = wfn1.get_exp(spin)
         e2 = wfn2.get_exp(spin)
         assert e1.nbasis == e2.nbasis
@@ -150,7 +150,7 @@ def compare_expansions(wfn1, wfn2, spin):
         assert (e1.energies == e2.energies).all()
         assert (e1.occupations == e2.occupations).all()
     else:
-        assert not wfn2._cache.has('exp_%s' % spin)
+        assert 'exp_%s' % spin not in wfn2._cache
 
 
 def compare_all_expansions(wfn1, wfn2):
@@ -159,14 +159,14 @@ def compare_all_expansions(wfn1, wfn2):
 
 
 def compare_dms(wfn1, wfn2, select):
-    if wfn1._cache.has('dm_%s' % select):
-        assert wfn2._cache.has('dm_%s' % select)
+    if 'dm_%s' % select in wfn1._cache:
+        assert 'dm_%s' % select in wfn2._cache
         dm1 = wfn1.get_dm(select)
         dm2 = wfn2.get_dm(select)
         assert dm1.nbasis == dm2.nbasis
         assert (dm1._array == dm2._array).all()
     else:
-        assert not wfn2._cache.has('dm_%s' % select)
+        assert 'dm_%s' % select not in wfn2._cache
 
 
 def compare_all_dms(wfn1, wfn2):

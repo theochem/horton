@@ -66,13 +66,13 @@ def test_cache():
 
 def test_cache_alloc1():
     c = Cache()
-    assert not c.has('bar')
+    assert 'bar' not in c
     tmp, new = c.load('bar', alloc=5)
     assert new
     assert (tmp == 0).all()
     assert tmp.shape == (5,)
     assert issubclass(tmp.dtype.type, float)
-    assert c.has('bar')
+    assert 'bar' in c
     tmp[3] = 1
     bis = c.load('bar')
     assert bis is tmp
@@ -98,19 +98,27 @@ def test_cache_alloc2():
     assert tris is tmp
 
 
+def test_multiple():
+    c = Cache()
+    assert ('a', 1) not in c
+    c.dump('a', 1, 2)
+    assert ('a', 1) in c
+    assert c.load('a', 1) == 2
+
+
 def test_cache_allocation():
     c = Cache()
-    assert not c.has('egg')
+    assert 'egg' not in c
     tmp, new = c.load('egg', alloc=(5,10))
     assert new
     assert (tmp == 0).all()
     assert tmp.shape == (5,10)
     assert issubclass(tmp.dtype.type, float)
-    assert c.has('egg')
-    assert not c.has('bar')
+    assert 'egg' in c
+    assert 'bar' not in c
     tmp[:] = 1.0
     c.invalidate_all()
-    assert not c.has('egg')
+    assert 'egg' not in c
     assert (tmp[:] == 0.0).all()
     # try to load it, while it is no longer valid
     try:
@@ -122,7 +130,7 @@ def test_cache_allocation():
     bis, new = c.load('egg', alloc=(5,10))
     assert new
     assert bis is tmp # still the same array, just resetted.
-    assert c.has('egg')
+    assert 'egg' in c
     # simple load should now work
     tris = c.load('egg')
     assert tris is tmp
@@ -263,8 +271,8 @@ def test_discard():
     c.dump('foo', 5)
     c.dump('bar', 6)
     c.discard('foo')
-    assert not c.has('foo')
-    assert c.has('bar')
+    assert 'foo' not in c
+    assert 'bar' in c
 
 
 def check_array_store_common(mode, fn):

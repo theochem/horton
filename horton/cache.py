@@ -234,8 +234,9 @@ class Cache(object):
             item._valid = True # as if it is newly allocated
             return item.value, new
 
-    def has(self, *key):
-        # TODO: use pythonic "in" instead
+    def __contains__(self, key):
+        if not isinstance(key, tuple):
+            key = (key,)
         item = self._store.get(key)
         if item is None:
             return False
