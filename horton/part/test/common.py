@@ -149,7 +149,7 @@ def get_fake_pseudo_oo(smooth=False):
 
 def check_names(names, part):
     for name in names:
-        assert part.cache.has(name)
+        assert name in part.cache
 
 
 def check_proatom_splines(part):
