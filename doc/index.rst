@@ -32,6 +32,7 @@ Reference
 
    ref_features
    ref_acronyms
+   ref_literature
    lib_horton
    lib_horton_espfit
    lib_horton_gbasis

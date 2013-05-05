@@ -337,13 +337,32 @@ class Reference(object):
         self.key = key
         self.tags = {}
 
-    def format_str(self):
+    def get_url(self):
+        if 'doi' in self.tags:
+            return 'http://dx.doi.org/%s' % self.tags['doi']
+        elif 'url' in self.tags:
+            return self.tags['url']
+        else:
+            return ''
+
+    def format_text(self):
         if self.kind == 'article':
-            if 'doi' in self.tags:
-                url = ';http://dx.doi.org/%s' % self.tags['doi']
-            else:
-                url = ''
+            url = self.get_url()
+            if len(url) > 0:
+                url = '; %s' % url
             return '%s; %s %s (v. %s pp. %s)%s' % (
+                self.tags['author'].replace(' and', ';'), self.tags['journal'],
+                self.tags['year'], self.tags['volume'], self.tags['pages'], url,
+            )
+        else:
+            raise NotImplementedError
+
+    def format_rst(self):
+        if self.kind == 'article':
+            url = self.get_url()
+            if len(url) > 0:
+                url = '; `%s <%s>`_' % (url, url)
+            return '%s; *%s* **%s** (v. %s pp. %s)%s' % (
                 self.tags['author'].replace(' and', ';'), self.tags['journal'],
                 self.tags['year'], self.tags['volume'], self.tags['pages'], url,
             )
@@ -398,7 +417,7 @@ class Biblio(object):
             log('The following references were cited:')
             log.hline()
             log.deflist([
-                (key, reference.format_str()) for key, reference
+                (key, reference.format_text()) for key, reference
                 in sorted(self._cited.iteritems())
             ])
             log.hline()
