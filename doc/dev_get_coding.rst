@@ -46,9 +46,9 @@ system, with Python in general, and know how to test to code. (vide infra)
    branch.**
 
    It is perfectly OK to work in your own branch and do there whatever you like.
-   It is also OK to upload these branches to the central repository, such that
-   others can see and review your code. As soon as one of your branches is
-   mature enough, use ``git rebase`` to apply your patches to the master branch.
+   It is also OK to upload these branches, such that others can see and review
+   your code. As soon as one of your branches is mature enough, use ``git
+   rebase`` to apply your patches to the master branch.
 
 4. **When you find a bug, first write a test that fails because of the bug. Then
    fix the bug. Commit both test and fix in one patch.**
@@ -96,6 +96,7 @@ system, with Python in general, and know how to test to code. (vide infra)
    Specific conventions for Horton
 
    * Import the Numpy package as follows: ``import numpy as np``.
+   * Import the H5Py package as follows: ``import h5py as h5``.
 
 
 Git: the fast version control system
@@ -146,22 +147,18 @@ Make a file ~/.gitconfig as follows::
 
 Replace my name and email by yours. If you are also working on other projects
 that use git, it may be useful to move some of these options to the file
-``.git/config`` in the Horton source tree. Add the following to your
-``.bashrc``, and modify to your taste::
+``.git/config`` in the Horton source tree.
 
-    GITPS1='$(__git_ps1 ":%s")'
-    SILVER="\[\033[0;37m\]"
-    GRAY="\[\033[1;30m\]"
-    GREEN="\[\033[1;32m\]"
-    BLUE="\[\033[1;34m\]"
-    YELLOW="\[\033[1;33m\]"
-    RS="\[\033[00m\]"
 
-    export PROMPT_DIRTRIM=3
-    export PS1="${GREEN}\u@\h${RS} ${BLUE}\w${RS}${YELLOW}${GITPS1}${BLUE}>${RS} "
+Furthermore, it is useful to include the current branch in your shell promt. Put
+one of the following in your ``~/.bashrc`` file:
 
-With these settings, the bash prompt will show what `branch` you are working on.
-It will become clear later what that means.
+* For terminals with a dark background: ``export PS1="\[\033[1;32m\]\u@\h\[\033[00m\] \[\033[1;34m\]\w\[\033[00m\]\[\033[1;33m\]$(__git_ps1 ":%s")\[\033[1;34m\]>\[\033[00m\] "``
+
+* For terminals with a light background: ``export PS1="\[\033[2;32m\]\u@\h\[\033[00m\]:\[\033[2;34m\]\w\[\033[3;31m\]$(__git_ps1 ":%s")\[\033[00m\]$ "``
+
+Add salt and pepper to taste. You may also want to add a line ``export
+PROMPT_DIRTRIM=3`` to keep the shell prompt short.
 
 
 Some terminology
@@ -250,8 +247,8 @@ Only the basic work flow is discussed, so things may become more complicated.
 
 In practice, you'll make a few commits before a new feature is finished. After
 adding a few commits, testing them thoroughly and having them reviewed by a
-peer, you may want to transfer your commits from your working branch ``bar`` to
-the master branch. This is done as follows:
+peer, make your changes available through an on-line or private repository to
+one of the Horton developers, such that it can be include in the public version.
 
 1. Switch to the master branch::
 
@@ -280,57 +277,12 @@ the master branch. This is done as follows:
 
 5. Run all tests again once the rebase procedure is completed.
 
-6. Upload the commits::
+6. Upload the commits to a repository that you have write access to::
 
-    toony@poony ~/.../horton:bar> git push origin bar:master
+    toony@poony ~/.../horton:bar> git push your_repo bar:bar
 
-   This may fail when someone has uploaded yet a few more patches in the
-   meantime. Start again at step 1 to update your patches.
-
-The last step will only work if you have write access to the main Horton
-repository. If this is not the case, there are a few other ways to get your
-contributions into the master branch. The best option is to upload your patches
-to a personal git repository and notify one of the authors with write access
-about your contributions. They should take care of reviewing and committing your
-patches.
-
-
-Git shortcuts
--------------
-
-The above procedures are rather lengthly, and for small changes there are
-shortcuts that are more convenient.
-
-1. One may commit all changed files (not new ones) without using ``git add`` first::
-
-    git commit -a -m 'Short description'
-
-2. One does not have to switch to a working branch to commit a few patches. This
-   can also be done in the master branch with less commands:
-
-   a. Get the latest official patches (in the master branch)::
-
-        toony@poony ~/.../horton:master> git pull
-
-   b. Make some changes, test and commit::
-
-        toony@poony ~/.../horton:master> git commit -a -m 'Short description'
-
-   c. Do a combined rebase and pull::
-
-        toony@poony ~/.../horton:master> git pull --rebase
-
-      If someone has added patches to the master branch in the meantime, they
-      will be downloaded. Your patches are then applied afterwards with ``git
-      rebase`` automatically.
-
-   d. Upload your commits::
-
-        toony@poony ~/.../horton:master> git push
-
-   The downside of this approach is that one may accidentally make merges if
-   one does not carefully follow the instructions. Merges make the history
-   of the master branch non-linear, which is messy and hard to follow.
+Now you can get in touch with one of the Horton developers to transfer these new
+patches to the public master branch of Horton.
 
 
 Writing tests
@@ -341,7 +293,7 @@ program to run all validation routines. Use one of the existing tests as an
 example, or go through the Nosetests documentation to learn how to write tests
 from scratch.
 
-All tests in Horton are located in the directory ``horton/test``. All module
+All tests in Horton are located in the directories ``horton/test`` and  ``horton/*/test``. All module
 files containing tests have a filename that starts with ``test_``. In these
 modules, all functions with a name that starts with ``test_`` are picked up
 by Nosetests. Tests that do not follow this convention, are simply ignored.
@@ -354,6 +306,17 @@ The tests are run as follows (including preparation steps)::
 
 There are some cases where the first two commands are not needed. You will
 figure out.
+
+When working on a specific part of the code, it is often convenient to limit the
+number of tests that are checked. The following runs only the tests in ``horton/test/test_cell.py``::
+
+    toony@poony ~/.../horton:master> nosetests -v horton/test/test_cell.py
+
+Within one file, one may also select one test function::
+
+    toony@poony ~/.../horton:master> nosetests -v horton/test/test_cell.py:test_from_parameters3
+
+
 
 
 Writing documentation
@@ -376,21 +339,3 @@ There is a makefile to generate the documentation based in the source code::
     toony@poony ~/.../horton:master> cd doc
     toony@poony ~/.../horton/doc:master> make html
     toony@poony ~/.../horton/doc:master> make pdf
-
-
-Add yourself as an author
-=========================
-
-The authors of Horton are listed in a few places. This matters for the
-open-source license. (In the long run, it would be better to have a small
-consortium that can hold the copyrights, but it is too early for that.)
-
-* If you are going to write source code, update the source headers and commit a
-  patch as follows:
-
-  1. Edit HEADER and add your name and email
-  2. Run the script ``./updateheaders.py``
-  3. ``git commit -a -m 'Hello horton source code!'``
-
-* If you are going to write documentation, update the file ``doc/conf.py`` and
-  commit that change. There is no need to run some update script.
