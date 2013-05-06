@@ -116,8 +116,8 @@ setup(
         Extension("horton.hamiltonian.cext",
             sources=get_sources('horton/hamiltonian'),
             depends=get_depends('horton/hamiltonian'),
-            extra_objects=['depends/libxc-1.2.0/src/.libs/libxc.a'],
-            include_dirs=['depends/libxc-1.2.0/src', np.get_include()],
+            extra_objects=['depends/libxc-2.0.1/src/.libs/libxc.a'],
+            include_dirs=['depends/libxc-2.0.1/src','depends/libxc-2.0.1', np.get_include()],
             language="c++"),
         Extension("horton.espfit.cext",
             sources=get_sources('horton/espfit') + \
