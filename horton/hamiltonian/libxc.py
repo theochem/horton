@@ -210,4 +210,4 @@ class LibXCHybridGGATerm(LibXCGGATerm):
         self._libxc_wrapper = LibXCWrapper(name)
 
     def get_exx_fraction(self):
-        return self._libxc_wrapper.get_hyb_gga_exx_fraction()
+        return self._libxc_wrapper.get_hyb_exx_fraction()
