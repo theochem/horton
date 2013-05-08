@@ -82,7 +82,7 @@ def symmetry_analysis(system, symmetry, aim_results):
          ['charges', 'populations', 'pseudo_populations',
           'radial_moments', 'volumes', 'volume_ratios', 'c6s']),
         (cartesian_multipole_analysis,
-         ['cartesian_multipoles']),
+         ['cartesian_moments']),
     ]
 
     # process everything

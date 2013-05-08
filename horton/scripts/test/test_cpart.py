@@ -54,3 +54,52 @@ def check_script_jbw_coarse(scheme):
 def test_script_jbw_coarse_h():
     # other schemes don't work because the cube file is too crappy.
     check_script_jbw_coarse('h')
+
+
+def check_script_lta(fn_sym, suffix):
+    tmpdir = tempfile.mkdtemp('horton.scripts.test.test_cpart.test_script_lta_coarse_h_%s' % suffix)
+    try:
+        # prepare files
+        if fn_sym is not None:
+            copy_files(tmpdir, [fn_sym])
+        write_atomdb_refatoms(tmpdir)
+
+        # write a random cube file
+        sys = System.from_file(context.get_fn('test/lta_gulp.cif'))
+        ui_grid = UniformIntGrid(np.zeros(3, float), sys.cell.rvecs*0.1, np.array([10, 10, 10]), np.array([1, 1, 1]))
+        cube_data = np.random.uniform(0, 1, ui_grid.shape)
+        sys.props['ui_grid'] = ui_grid
+        sys.props['cube_data'] = cube_data
+        fn_cube = 'dens.cube'
+        sys.to_file(os.path.join(tmpdir, fn_cube))
+
+        # run the script
+        if fn_sym is None:
+            check_script('horton-cpart.py %s h atoms.h5' % (fn_cube), tmpdir)
+        else:
+            check_script('horton-cpart.py %s h atoms.h5 --symmetry=%s' % (fn_cube, fn_sym), tmpdir)
+
+        # check the output
+        fn_h5 = '%s.h5' % fn_cube
+        check_files(tmpdir, [fn_h5])
+        with h5.File(os.path.join(tmpdir, fn_h5)) as f:
+            assert 'cpart' in f
+            assert 'h_r1' in f['cpart']
+            if fn_sym is not None:
+                assert 'symmetry' in f['system/props']
+                assert 'symmetry' in f['cpart/h_r1']
+                assert 'charges' in f['cpart/h_r1/symmetry']
+                assert 'cartesian_moments' in f['cpart/h_r1/symmetry']
+                for name, ds in f['cpart/h_r1/symmetry'].iteritems():
+                    assert ds.shape[0] == sys.props['symmetry'].natom
+                    assert ds.shape[1] == 2
+    finally:
+        shutil.rmtree(tmpdir)
+
+
+def test_script_lta():
+    check_script_lta(None, 'nosym')
+
+
+def test_script_lta_sym():
+    check_script_lta('lta_gulp.cif', 'sym')
