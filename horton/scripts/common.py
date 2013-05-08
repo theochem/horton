@@ -23,7 +23,7 @@
 
 import os, sys, datetime, numpy as np, h5py as h5, time, contextlib
 
-from horton import UniformIntGrid, angstrom, periodic, Cell, log
+from horton import UniformIntGrid, angstrom, periodic, Cell, log, dump_hdf5_low
 
 
 __all__ = [
@@ -206,7 +206,7 @@ def write_part_output(fn_h5, label, part, grp_name, names, args):
             del grp_part[grp_name]
         grp = grp_part.create_group(grp_name)
         for name in names:
-            grp[name] = part[name]
+            dump_hdf5_low(grp, name, part[name])
 
         # Store command line arguments
         store_args(args, grp)

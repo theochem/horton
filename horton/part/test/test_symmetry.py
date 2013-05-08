@@ -58,7 +58,7 @@ def test_symmetry_scalar():
     assert abs(stats[:,1] - [np.std([1.2, 1.4]), 0.0]).max() < 1e-10
 
 
-def test_symmetry_multipoles():
+def test_symmetry_moments():
     system, symmetry = get_fake_example()
 
     # setup rotate multipoles
@@ -75,13 +75,13 @@ def test_symmetry_multipoles():
 
     # run analysis
     aim_results = {
-        'cartesian_multipoles': np.array([m00, m01, m1]),
+        'cartesian_moments': np.array([m00, m01, m1]),
     }
     sym_results = symmetry_analysis(system, symmetry, aim_results)
 
     # check results
     assert len(sym_results) == 1
-    stats = sym_results['cartesian_multipoles']
+    stats = sym_results['cartesian_moments']
     assert abs(stats[:,0] - [m0, m1]).max() < 1e-10
     assert abs(stats[1,1]).max() < 1e-10
     assert abs(stats[0,1,:2] - np.std([-0.1, 0.1])).max() < 1e-10

@@ -24,7 +24,7 @@
 import sys, argparse, os
 
 import h5py as h5
-from horton import System, cpart_schemes, Cell, ProAtomDB, log
+from horton import System, cpart_schemes, Cell, ProAtomDB, log, symmetry_analysis
 from horton.scripts.common import reduce_data, store_args, parse_pbc, \
     iter_elements, safe_open_h5, write_part_output
 
@@ -56,6 +56,10 @@ def parse_args():
     parser.add_argument('--pbc', default='111', type=str,
         help='Specify the periodicity. The three digits refer to a, b and c '
              'cell vectors. 1=periodic, 0=aperiodic.')
+    parser.add_argument('--symmetry', default=None, type=str,
+        help='Perform a symmetry analysis on the AIM results. This option '
+             'requires one argument: a CIF file with the generators of the '
+             'symmetry of this system and a primitive unit cell.')
 
     parser.add_argument('--tmp', type=str, default='.',
         help='A directory where the temporary scratch file can be written. '
@@ -147,6 +151,18 @@ def main():
         sys, ui_grid, True, moldens, proatomdb, wcor_numbers,
         args.wcor_rcut_max, args.wcor_rcond, **kwargs)
     names = cpart.do_all()
+
+    # Do a symmetry analysis if requested.
+    if args.symmetry is not None:
+        sys_sym = System.from_file(args.symmetry)
+        sym = sys_sym.props.get('symmetry')
+        if sym is None:
+            raise ValueError('No symmetry information found in %s.' % args.symmetry)
+        sys_results = dict((name, cpart[name]) for name in names)
+        sym_results = symmetry_analysis(sys, sym, sys_results)
+        cpart.cache.dump('symmetry', sym_results)
+        names.append('symmetry')
+        sys.props['symmetry'] = sym
 
     write_part_output(fn_h5, 'cpart', cpart, grp_name, names, args)
 
