@@ -23,6 +23,7 @@
 #define HORTON_GBASIS_COMMON_H
 
 #define MAX_SHELL_TYPE 7
+#define MAX_NCART_CUMUL ((MAX_SHELL_TYPE+1)*(MAX_SHELL_TYPE+2)*(MAX_SHELL_TYPE+3))/6
 
 // Simple math stuff
 long fac(long n);
