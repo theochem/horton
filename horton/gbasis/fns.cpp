@@ -147,11 +147,11 @@ void GB1DMGridDensityFn::add(double coeff, double alpha0, const double* scales0)
 void GB1DMGridDensityFn::compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output) {
     double rho = 0;
     for (long ibasis0=0; ibasis0<nbasis; ibasis0++) {
-        double row = 0;
-        for (long ibasis1=0; ibasis1<nbasis; ibasis1++) {
-            row += work_basis[ibasis1]*dm[ibasis0*nbasis+ibasis1];
+        double tmp = 0;
+        for (long ibasis1=ibasis0-1; ibasis1>=0; ibasis1--) {
+            tmp += work_basis[ibasis1]*dm[ibasis0*nbasis+ibasis1];
         }
-        rho += row*work_basis[ibasis0];
+        rho += (2*tmp+dm[ibasis0*(nbasis+1)]*work_basis[ibasis0])*work_basis[ibasis0];
     }
     *output += rho;
 }
