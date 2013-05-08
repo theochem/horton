@@ -23,6 +23,7 @@
 #define HORTON_GBASIS_FNS_H
 
 #include "calc.h"
+#include "common.h"
 #include "iter_pow.h"
 
 
@@ -36,7 +37,7 @@ class GB1GridFn : public GBCalculator  {
     public:
         GB1GridFn(long max_shell_type, long dim_work, long dim_output);
 
-        void reset(long shell_type0, const double* r0, const double* point);
+        virtual void reset(long shell_type0, const double* r0, const double* point);
         void cart_to_pure();
         const long get_shell_type0() const {return shell_type0;};
 
@@ -79,9 +80,13 @@ class GB1DMGridFn : public GB1GridFn  {
 
 
 class GB1DMGridDensityFn : public GB1DMGridFn  {
+    private:
+        double poly_work[MAX_NCART_CUMUL-1];
+        long offset;
     public:
         GB1DMGridDensityFn(long max_shell_type): GB1DMGridFn(max_shell_type, 1, 1) {};
 
+        virtual void reset(long _shell_type0, const double* _r0, const double* _point);
         virtual void add(double coeff, double alpha0, const double* scales0);
         virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output);
         virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis, double* output);
