@@ -133,7 +133,7 @@ void GB1DMGridDensityFn::reset(long _shell_type0, const double* _r0, const doubl
 }
 
 void GB1DMGridDensityFn::add(double coeff, double alpha0, const double* scales0) {
-    double pre, poly;
+    double pre;
     pre = coeff*exp(-alpha0*dist_sq(r0, point));
     if (shell_type0==0) {
         work_cart[0] += pre*scales0[0];
@@ -158,13 +158,11 @@ void GB1DMGridDensityFn::compute_point_from_dm(double* work_basis, double* dm, l
 
 void GB1DMGridDensityFn::compute_fock_from_pot(double* pot, double* work_basis, long nbasis, double* output) {
     for (long ibasis0=0; ibasis0<nbasis; ibasis0++) {
-        double tmp = (*pot)*work_basis[ibasis0];
+        double tmp1 = (*pot)*work_basis[ibasis0];
         for (long ibasis1=0; ibasis1<=ibasis0; ibasis1++) {
-            output[ibasis1*nbasis+ibasis0] += tmp*work_basis[ibasis1];
-            if (ibasis1!=ibasis0) {
-                // Enforce symmetry
-                output[ibasis0*nbasis+ibasis1] += tmp*work_basis[ibasis1];
-            }
+            double tmp2 = tmp1*work_basis[ibasis1];
+            output[ibasis0*nbasis+ibasis1] += tmp2;
+            if (ibasis0 != ibasis1) output[ibasis1*nbasis+ibasis0] += tmp2;
         }
     }
 }
