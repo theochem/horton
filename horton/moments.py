@@ -34,7 +34,7 @@ import numpy as np
 
 
 __all__ = ['get_cartesian_powers', 'get_ncart', 'get_ncart_cumul',
-           'rotate_cartesian_multipoles']
+           'rotate_cartesian_moments']
 
 
 def get_cartesian_powers(lmax):
@@ -75,7 +75,7 @@ def get_ncart_cumul(lmax):
 
 # Each item in the following list:
 #  - defines how a cartesian multipole is transformed.
-#  - corresponds to the multipoles defined by get_cartesian_multipoles.
+#  - corresponds to the multipole moments defined by get_cartesian_powers.
 #  - consists of a list of rules.
 # Each rule contains at least two integer and corresponds to a single term:
 #  - that accounts for the contrubution of the rotation of a multipole
@@ -803,34 +803,34 @@ cartesian_transforms = [
 ]
 
 
-def rotate_cartesian_multipoles(multipoles, rmat):
-    '''Rotate cartesian multipoles
+def rotate_cartesian_moments(moments, rmat):
+    '''Rotate cartesian moments
 
        **Arguments:**
 
-       multipoles
-            A row vector with a series of cartesian multipoles. Items in this
-            vector should follow the same order as defined by the function
+       moments
+            A row vector with a series of cartesian multipole moments. Items in
+            this vector should follow the same order as defined by the function
             ``get_cartesian_powers``.
 
        rmat
             A (3,3) rotation matrix.
     '''
-    ncart = multipoles.shape[0]
+    ncart = moments.shape[0]
     result = np.zeros(ncart)
     for i in xrange(ncart):
-        result[i] = rotate_multipoles_low(cartesian_transforms[i], rmat, multipoles)
+        result[i] = rotate_moments_low(cartesian_transforms[i], rmat, moments)
     return result
 
 
-def rotate_multipoles_low(rules, rmat, multipoles):
+def rotate_moments_low(rules, rmat, moments):
     '''Return rotated a multipole based on the given rules
 
        **Arguments:**
 
-       multipoles
-            A row vector with a series of cartesian multipoles. Items in this
-            vector should follow the same order as defined by the function
+       moments
+            A row vector with a series of cartesian multipole moments. Items in
+            this vector should follow the same order as defined by the function
             ``get_cartesian_powers``.
 
        rules
@@ -846,5 +846,5 @@ def rotate_multipoles_low(rules, rmat, multipoles):
         factor = rule[1]
         for j in rule[2:]:
            factor *= rcoeffs[j]
-        result += multipoles[i]*factor
+        result += moments[i]*factor
     return result

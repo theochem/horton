@@ -23,7 +23,7 @@
 
 import numpy as np
 
-from horton.moments import rotate_cartesian_multipoles
+from horton.moments import rotate_cartesian_moments
 
 
 
@@ -71,9 +71,9 @@ def symmetry_analysis(system, symmetry, aim_results):
     def cartesian_multipole_analysis(equiv_values, equiv_generators):
         rotated = []
         for i, generator in enumerate(equiv_generators):
-            # The multipoles are rotated back to the primitive unit,
+            # The multipole moments are rotated back to the primitive unit,
             # so we need to take the transpose.
-            rotated.append(rotate_cartesian_multipoles(equiv_values[i], generator[:,:3].T))
+            rotated.append(rotate_cartesian_moments(equiv_values[i], generator[:,:3].T))
         return np.mean(rotated, axis=0), np.std(rotated, axis=0)
 
     # associate analysis functions with certain fields
