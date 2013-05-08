@@ -23,6 +23,7 @@ libxc-2.0.1.tar.gz:
 
 libxc-2.0.1: libxc-2.0.1.tar.gz
 	tar -xvzf libxc-2.0.1.tar.gz
+	patch -d libxc-2.0.1/src < libxc-2.0.1-fix-initialization.patch
 
 libxc-2.0.1/src/.libs/libxc.a: libxc-2.0.1
 	cd libxc-2.0.1 && CFLAGS='-fPIC' CPPFLAGS='-fPIC' ./configure && $(MAKE)
