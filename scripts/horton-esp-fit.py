@@ -24,7 +24,7 @@
 import sys, argparse, os
 
 import h5py as h5, numpy as np
-from horton import System, ESPCost, log, dump_hdf5_low
+from horton import System, ESPCost, log, dump_hdf5_low, symmetry_analysis
 from horton.scripts.common import parse_h5, store_args, safe_open_h5
 
 
@@ -45,6 +45,10 @@ def parse_args():
     parser.add_argument('--ridge', default=0.0, type=float,
         help='The thikonov regularization strength used when solving the '
              'charges. [default=%(default)s]')
+    parser.add_argument('--symmetry', default=None, type=str,
+        help='Perform a symmetry analysis on the charges. This option '
+             'requires one argument: a CIF file with the generators of the '
+             'symmetry of this system and a primitive unit cell.')
 
     # TODO: more constraint and restraint options
     # TODO: When no group is given in h5 argument, run over all groups that
@@ -60,7 +64,7 @@ def main():
     fn_h5, grp_name = parse_h5(args.h5)
     with h5.File(fn_h5, 'r') as f:
         grp = f[grp_name]
-        sys = System(f['system/coordinates'][:], f['system/numbers'][:])
+        sys = System.from_file(f['system'], chk=None)
         cost = ESPCost(grp['A'][:], grp['B'][:], grp['C'][()], sys.natom)
 
     # Find the optimal charges
@@ -91,8 +95,24 @@ def main():
         log('Worst RMSD ESP:                %10.5e' % results['rmsd_worst'])
         log.hline()
 
+    # Perform a symmetry analysis if requested
+    if args.symmetry is not None:
+        sys_sym = System.from_file(args.symmetry)
+        sym = sys_sym.props.get('symmetry')
+        if sym is None:
+            raise ValueError('No symmetry information found in %s.' % args.symmetry)
+        sys_results = {'charges': results['charges']}
+        sym_results = symmetry_analysis(sys, sym, sys_results)
+        results['symmetry'] = sym_results
+        sys.props['symmetry'] = sym
+
     # Store the results in an HDF5 file
     with safe_open_h5(fn_h5) as f:
+        # rewrite system in case of symmetry analysis
+        if args.symmetry is not None:
+            del f['system']
+            sys.to_file(f.create_group('system'))
+
         # Store results
         dump_hdf5_low(f[grp_name], args.group, results)
 
