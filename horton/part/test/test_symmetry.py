@@ -61,10 +61,10 @@ def test_symmetry_scalar():
 def test_symmetry_moments():
     system, symmetry = get_fake_example()
 
-    # setup rotate multipoles
+    # setup rotated multipole moments
     m0 = get_pentagon_moments()
     m00 = m0.copy()
-    m01 = rotate_cartesian_multipoles(m0, symmetry.generators[1][:,:3])
+    m01 = rotate_cartesian_moments(m0, symmetry.generators[1][:,:3])
     m1 = get_pentagon_moments(get_random_rotation())
 
     # perturb them in a controlled way

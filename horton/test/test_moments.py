@@ -59,21 +59,21 @@ def test_get_cartesian_powers():
         assert (tmp == cartesian_powers[:len(tmp)]).all()
 
 
-def test_rotate_cartesian_multipoles_mult():
+def test_rotate_cartesian_moments_mult():
     for mult in 2, 3, 4, 5, 6, 7:
         axis = np.random.normal(0, 1, 3)
         rmat = get_rotation_matrix(axis, 2.0*np.pi/mult)
         m0 = get_pentagon_moments()
         m1 = get_pentagon_moments()
         for i in xrange(mult):
-            m1 = rotate_cartesian_multipoles(m1, rmat)
+            m1 = rotate_cartesian_moments(m1, rmat)
         assert abs(m0 - m1).max() < 1e-10
 
 
-def test_rotate_cartesian_multipoles_general():
+def test_rotate_cartesian_moments_general():
     for i in xrange(10):
         rmat = get_rotation_matrix(np.array([1,1,1]), 2.0*np.pi/3)
         m0 = get_pentagon_moments()
         m1 = get_pentagon_moments(rmat)
-        m2 = rotate_cartesian_multipoles(m0, rmat)
+        m2 = rotate_cartesian_moments(m0, rmat)
         assert abs(m1 - m2).max() < 1e-10

@@ -243,7 +243,7 @@ class Part(JustOnceClass):
                 # 3) Compute weight corrections (TODO: needs to be assessed!)
                 wcor = self.get_wcor(i)
 
-                # 4) Compute Cartesian multipoles
+                # 4) Compute Cartesian multipole moments
                 counter = 0
                 for nx, ny, nz in cartesian_powers:
                     if log.do_medium:
