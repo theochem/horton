@@ -804,6 +804,18 @@ cartesian_transforms = [
 
 
 def rotate_cartesian_multipoles(multipoles, rmat):
+    '''Rotate cartesian multipoles
+
+       **Arguments:**
+
+       multipoles
+            A row vector with a series of cartesian multipoles. Items in this
+            vector should follow the same order as defined by the function
+            ``get_cartesian_powers``.
+
+       rmat
+            A (3,3) rotation matrix.
+    '''
     ncart = multipoles.shape[0]
     result = np.zeros(ncart)
     for i in xrange(ncart):
@@ -812,6 +824,21 @@ def rotate_cartesian_multipoles(multipoles, rmat):
 
 
 def rotate_multipoles_low(rules, rmat, multipoles):
+    '''Return rotated a multipole based on the given rules
+
+       **Arguments:**
+
+       multipoles
+            A row vector with a series of cartesian multipoles. Items in this
+            vector should follow the same order as defined by the function
+            ``get_cartesian_powers``.
+
+       rules
+            An item from the list cartesian_transforms.
+
+       rmat
+            A (3,3) rotation matrix.
+    '''
     rcoeffs = rmat.ravel()
     result = 0
     for rule in rules:
