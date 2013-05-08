@@ -20,11 +20,11 @@
 #--
 
 
-import shutil, os
-from horton import context
+import shutil, os, numpy as np
+from horton import context, UniformIntGrid, System
 
 
-__all__ = ['copy_files', 'check_files']
+__all__ = ['copy_files', 'check_files', 'write_random_lta_cube']
 
 
 def copy_files(tmpdir, fns):
@@ -35,3 +35,13 @@ def copy_files(tmpdir, fns):
 def check_files(tmpdir, fns):
     for fn in fns:
         assert os.path.isfile(os.path.join(tmpdir, fn))
+
+
+def write_random_lta_cube(tmpdir, fn_cube):
+    sys = System.from_file(context.get_fn('test/lta_gulp.cif'))
+    ui_grid = UniformIntGrid(np.zeros(3, float), sys.cell.rvecs*0.1, np.array([10, 10, 10]), np.array([1, 1, 1]))
+    cube_data = np.random.uniform(0, 1, ui_grid.shape)
+    sys.props['ui_grid'] = ui_grid
+    sys.props['cube_data'] = cube_data
+    sys.to_file(os.path.join(tmpdir, fn_cube))
+    return sys

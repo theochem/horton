@@ -24,7 +24,7 @@ import tempfile, shutil, os, h5py as h5
 
 from horton import *
 from horton.test.common import check_script
-from horton.scripts.test.common import copy_files, check_files
+from horton.scripts.test.common import copy_files, check_files, write_random_lta_cube
 
 
 def write_atomdb_refatoms(tmpdir):
@@ -65,13 +65,8 @@ def check_script_lta(fn_sym, suffix):
         write_atomdb_refatoms(tmpdir)
 
         # write a random cube file
-        sys = System.from_file(context.get_fn('test/lta_gulp.cif'))
-        ui_grid = UniformIntGrid(np.zeros(3, float), sys.cell.rvecs*0.1, np.array([10, 10, 10]), np.array([1, 1, 1]))
-        cube_data = np.random.uniform(0, 1, ui_grid.shape)
-        sys.props['ui_grid'] = ui_grid
-        sys.props['cube_data'] = cube_data
         fn_cube = 'dens.cube'
-        sys.to_file(os.path.join(tmpdir, fn_cube))
+        sys = write_random_lta_cube(tmpdir, fn_cube)
 
         # run the script
         if fn_sym is None:
