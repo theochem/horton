@@ -95,6 +95,7 @@ class Symmetry(object):
 
     @classmethod
     def from_hdf5(cls, grp, lf):
+        '''Construct a Symmetry object from a HDF5 group'''
         from horton.checkpoint import load_hdf5_low
         return cls(
             grp['name'][()],
@@ -106,6 +107,7 @@ class Symmetry(object):
         )
 
     def to_hdf5(self, grp):
+        '''Write a symmetry object to an HDF5 group'''
         grp.attrs['class'] = self.__class__.__name__
         grp['name'] = self.name
         grp['generators'] = self.generators

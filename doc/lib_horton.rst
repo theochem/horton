@@ -65,6 +65,13 @@
    :members:
 
 
+:mod:`horton.moments` -- Conventions and utilities for multipole moments
+------------------------------------------------------------------------
+
+.. automodule:: horton.moments
+   :members:
+
+
 :mod:`horton.periodic` -- Periodic Table
 ----------------------------------------
 
@@ -76,6 +83,13 @@
 -----------------------------------------------------
 
 .. automodule:: horton.scf
+   :members:
+
+
+:mod:`horton.symmetry` -- Description of symmetries
+---------------------------------------------------
+
+.. automodule:: horton.symmetry
    :members:
 
 
