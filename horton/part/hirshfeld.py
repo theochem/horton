@@ -67,16 +67,12 @@ class HirshfeldMixin(object):
 
     @just_once
     def do_dispersion(self):
-        # Method by Alexandre Tkatchenko and Matthias Scheffler:
-        #   PhysRevLett-v102-p073005-y2009.pdf
-        #   http://dx.doi.org/10.1103/PhysRevLett.102.073005
-        # Reference C6 values taken from X. Chu and A. Dalgarno:
-        #   JChemPhys-v121-p4083-y2004.pdf
-        #   http://dx.doi.org/10.1063/1.1779576
-        #   (Corrected values from tables VII to XII)
-        # C6 value for Hydrogen taken from Zong-Chao Yan, James F. Babb, A. Dalgarno and G. W. F. Drake
-        #   PhysRevA-v54-p2824-y1996.pdf
-        #   http://dx.doi.org/10.1103/PhysRevA.54.2824
+
+        if log.do_medium:
+            log.cite('tkatchenko2009', 'use method to evaluate molecular Van del Waals interactions')
+            log.cite('chu2004', 'the use of C6 values')
+            log.cite('yan1996', 'the use of Hydrogen C6 value')
+
         ref_c6s = { # reference C6 values in atomic units
             1: 6.499, 2: 1.42, 3: 1392.0, 4: 227.0, 5: 99.5, 6: 46.6, 7: 24.2,
             8: 15.6, 9: 9.52, 10: 6.20, 11: 1518.0, 12: 626.0, 13: 528.0, 14:
