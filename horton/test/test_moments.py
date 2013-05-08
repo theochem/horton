@@ -77,3 +77,31 @@ def test_rotate_cartesian_moments_general():
         m1 = get_pentagon_moments(rmat)
         m2 = rotate_cartesian_moments(m0, rmat)
         assert abs(m1 - m2).max() < 1e-10
+
+
+def test_fill_cartesian_polynomials():
+    cps = get_cartesian_powers(4)
+    output = np.zeros(get_ncart_cumul(4)-1)
+    output[:3] = np.random.normal(0, 1, 3)
+    assert fill_cartesian_polynomials(output, 0) == -1
+    for l in xrange(1, 5):
+        assert fill_cartesian_polynomials(output, l) == get_ncart_cumul(l-1)-1
+        nrow = get_ncart_cumul(l)-1
+        for irow in xrange(nrow):
+            px, py, pz = cps[irow+1]
+            check = output[0]**px * output[1]**py * output[2]**pz
+            print irow, output[irow], check
+            assert abs(output[irow] - check) < 1e-10
+        assert (output[nrow:] == 0).all()
+
+    try:
+        fill_cartesian_polynomials(output, 5)
+        assert False
+    except ValueError:
+        pass
+
+    try:
+        fill_cartesian_polynomials(output[:get_ncart_cumul(4)-2], 4)
+        assert False
+    except ValueError:
+        pass

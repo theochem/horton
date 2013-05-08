@@ -25,11 +25,14 @@ cimport numpy as np
 np.import_array()
 
 cimport cell
+cimport moments
 cimport nucpot
 
 __all__ = [
     # cell.cpp
     'Cell', 'smart_wrap',
+    # moments.cpp
+    'fill_cartesian_polynomials',
     # nucpot.cpp
     'compute_grid_nucpot',
 ]
@@ -411,6 +414,19 @@ cdef class Cell:
 
 def smart_wrap(long i, long shape, long pbc ):
     return cell.smart_wrap(i, shape, pbc)
+
+
+
+#
+# moments.cpp
+#
+
+
+def fill_cartesian_polynomials(np.ndarray[double, ndim=1] output not None, long lmax):
+    assert output.flags['C_CONTIGUOUS']
+    if output.shape[0] < ((lmax+1)*(lmax+2)*(lmax+3))/6-1:
+        raise ValueError('The size of the output array is not sufficient to store the polynomials.')
+    return moments.fill_cartesian_polynomials(<double*>output.data, lmax)
 
 
 #
