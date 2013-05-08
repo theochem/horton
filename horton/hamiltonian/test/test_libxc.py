@@ -347,4 +347,3 @@ def test_hyb_gga_exx_fraction():
 def test_lda_c_vwn_present():
     t = LibXCLDATerm('c_vwn')     # The VWN 5 functional
     t = LibXCLDATerm('c_vwn_4')   # The VWN 4 functional
-    
