@@ -26,14 +26,11 @@
 import numpy as np
 
 from horton.cext import Cell
+from horton.exceptions import SymmetryError
 from horton.periodic import periodic
 
 
-__all__ = ['SymmetryError', 'Symmetry']
-
-
-class SymmetryError(Exception):
-    pass
+__all__ = ['Symmetry']
 
 
 class Symmetry(object):

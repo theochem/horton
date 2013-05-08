@@ -90,3 +90,13 @@ def test_hdf5():
         s0.to_hdf5(f)
         s1 = Symmetry.from_hdf5(f, lf=None)
         compare_symmetries(s0, s1)
+
+
+def test_symmetry_error():
+    sys1 = System.from_file(context.get_fn('test/lta_gulp.cif'))
+    sys2 = System.from_file(context.get_fn('test/lta_iza.cif'))
+    try:
+        sys1.props['symmetry'].identify(sys2)
+        assert False
+    except SymmetryError:
+        pass

@@ -21,6 +21,11 @@
 '''Definition of all excpetions in Horton.'''
 
 
+class SymmetryError(Exception):
+    '''Exception raised when some symmetry algorithm fails'''
+    pass
+
+
 class ElectronCountError(ValueError):
     '''Exception raised when a negative number of electron is encountered, or
        when more electrons than basis functions are requested.
