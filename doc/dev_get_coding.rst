@@ -153,9 +153,15 @@ that use git, it may be useful to move some of these options to the file
 Furthermore, it is useful to include the current branch in your shell promt. Put
 one of the following in your ``~/.bashrc`` file:
 
-* For terminals with a dark background: ``export PS1="\[\033[1;32m\]\u@\h\[\033[00m\] \[\033[1;34m\]\w\[\033[00m\]\[\033[1;33m\]$(__git_ps1 ":%s")\[\033[1;34m\]>\[\033[00m\] "``
+* For terminals with a dark background::
 
-* For terminals with a light background: ``export PS1="\[\033[2;32m\]\u@\h\[\033[00m\]:\[\033[2;34m\]\w\[\033[3;31m\]$(__git_ps1 ":%s")\[\033[00m\]$ "``
+    GIT_PS='$(__git_ps1 ":%s")'
+    export PS1="\[\033[1;32m\]\u@\h\[\033[00m\] \[\033[1;34m\]\w\[\033[00m\]\[\033[1;33m\]${GIT_PS}\[\033[1;34m\]>\[\033[00m\] "
+
+* For terminals with a light background::
+
+    GIT_PS='$(__git_ps1 ":%s")'
+    export PS1="\[\033[2;32m\]\u@\h\[\033[00m\]:\[\033[2;34m\]\w\[\033[3;31m\]${GIT_PS}\[\033[00m\]$ "
 
 Add salt and pepper to taste. You may also want to add a line ``export
 PROMPT_DIRTRIM=3`` to keep the shell prompt short.
