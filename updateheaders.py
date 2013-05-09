@@ -71,10 +71,20 @@ def main():
         '.',
         'horton',
         'horton/test',
+        'horton/espfit',
+        'horton/espfit/test',
         'horton/grid',
         'horton/grid/test',
         'horton/gbasis',
         'horton/gbasis/test',
+        'horton/hamiltonian',
+        'horton/hamiltonian/test',
+        'horton/io',
+        'horton/io/test',
+        'horton/part',
+        'horton/part/test',
+        'horton/scripts',
+        'horton/scripts/test',
     ]
 
     fixers = [
