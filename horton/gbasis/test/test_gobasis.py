@@ -396,3 +396,18 @@ def test_concatenate2():
     N = sys1.obasis.nbasis
     assert (a[:N,:N] == a11).all()
     assert (a[N:,N:] == a22).all()
+
+
+def test_abstract():
+    try:
+        centers = np.zeros((1,3), float)
+        shell_map = np.zeros(2, int)
+        nprims = np.array([1, 2])
+        shell_types = np.array([0, 1])
+        alphas = np.array([1.0, 1.1, 1.2])
+        con_coeffs = np.array([0.1, 0.2, 0.3])
+        from horton.gbasis.cext import GBasis
+        gb = GBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
+        assert False
+    except NotImplementedError:
+        pass
