@@ -302,6 +302,8 @@ cdef class GBasis:
             raise TypeError('The length of alphas must equal the total number of primitives.')
 
     def __init__(self, centers, shell_map, nprims, shell_types, alphas, con_coeffs):
+        if self.__class__ == GBasis:
+            raise NotImplementedError('GBasis is an abstract base class')
         self._log_init()
 
     def __dealloc__(self):
