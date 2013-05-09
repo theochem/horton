@@ -46,7 +46,7 @@ __all__ = [
 #
 
 
-def setup_esp_cost_cube(horton.grid.cext.UniformIntGrid ui_grid,
+def setup_esp_cost_cube(horton.grid.cext.UniformGrid ugrid,
                         np.ndarray[double, ndim=3] vref not None,
                         np.ndarray[double, ndim=3] weights not None,
                         np.ndarray[double, ndim=2] centers not None,
@@ -56,13 +56,13 @@ def setup_esp_cost_cube(horton.grid.cext.UniformIntGrid ui_grid,
                         double rcut, double alpha, double gcut):
 
     assert vref.flags['C_CONTIGUOUS']
-    assert vref.shape[0] == ui_grid.shape[0]
-    assert vref.shape[1] == ui_grid.shape[1]
-    assert vref.shape[2] == ui_grid.shape[2]
+    assert vref.shape[0] == ugrid.shape[0]
+    assert vref.shape[1] == ugrid.shape[1]
+    assert vref.shape[2] == ugrid.shape[2]
     assert weights.flags['C_CONTIGUOUS']
-    assert weights.shape[0] == ui_grid.shape[0]
-    assert weights.shape[1] == ui_grid.shape[1]
-    assert weights.shape[2] == ui_grid.shape[2]
+    assert weights.shape[0] == ugrid.shape[0]
+    assert weights.shape[1] == ugrid.shape[1]
+    assert weights.shape[2] == ugrid.shape[2]
     assert centers.flags['C_CONTIGUOUS']
     ncenter = centers.shape[0]
     assert ncenter > 0
@@ -77,15 +77,15 @@ def setup_esp_cost_cube(horton.grid.cext.UniformIntGrid ui_grid,
     assert alpha > 0
     assert gcut > 0
 
-    if ui_grid.cell.nvec == 3:
-        ewald3d.setup_esp_cost_cube_ewald3d(ui_grid._this, <double*>vref.data,
+    if ugrid.cell.nvec == 3:
+        ewald3d.setup_esp_cost_cube_ewald3d(ugrid._this, <double*>vref.data,
             <double*>weights.data, <double*>centers.data, <double*>A.data,
             <double*>B.data, <double*>C.data, ncenter, rcut, alpha, gcut)
     else:
         raise NotImplementedError
 
 
-def compute_esp_grid_cube(horton.grid.cext.UniformIntGrid ui_grid,
+def compute_esp_grid_cube(horton.grid.cext.UniformGrid ugrid,
                           np.ndarray[double, ndim=3] esp,
                           np.ndarray[double, ndim=2] centers,
                           np.ndarray[double, ndim=1] charges,
@@ -97,15 +97,15 @@ def compute_esp_grid_cube(horton.grid.cext.UniformIntGrid ui_grid,
     assert charges.flags['C_CONTIGUOUS']
     assert charges.shape[0] == ncenter
     assert esp.flags['C_CONTIGUOUS']
-    assert esp.shape[0] == ui_grid.shape[0]
-    assert esp.shape[1] == ui_grid.shape[1]
-    assert esp.shape[2] == ui_grid.shape[2]
+    assert esp.shape[0] == ugrid.shape[0]
+    assert esp.shape[1] == ugrid.shape[1]
+    assert esp.shape[2] == ugrid.shape[2]
     assert rcut > 0
     assert alpha > 0
     assert gcut > 0
 
-    if ui_grid.cell.nvec == 3:
-        ewald3d.compute_esp_cube_ewald3d(ui_grid._this, <double*>esp.data,
+    if ugrid.cell.nvec == 3:
+        ewald3d.compute_esp_cube_ewald3d(ugrid._this, <double*>esp.data,
             <double*>centers.data, <double*>charges.data, ncenter, rcut, alpha,
             gcut)
     else:
@@ -146,7 +146,7 @@ def multiply_dens_mask(np.ndarray[double, ndim=3] rho not None,
 
 
 def multiply_near_mask(np.ndarray[double, ndim=1] center not None,
-                       horton.grid.cext.UniformIntGrid ui_grid,
+                       horton.grid.cext.UniformGrid ugrid,
                        double r0, double gamma,
                        np.ndarray[double, ndim=3] weights not None):
     assert center.flags['C_CONTIGUOUS']
@@ -154,16 +154,16 @@ def multiply_near_mask(np.ndarray[double, ndim=1] center not None,
     assert r0 > 0
     assert gamma > 0
     assert weights.flags['C_CONTIGUOUS']
-    assert weights.shape[0] == ui_grid.shape[0]
-    assert weights.shape[1] == ui_grid.shape[1]
-    assert weights.shape[2] == ui_grid.shape[2]
+    assert weights.shape[0] == ugrid.shape[0]
+    assert weights.shape[1] == ugrid.shape[1]
+    assert weights.shape[2] == ugrid.shape[2]
 
-    mask.multiply_near_mask(<double*>center.data, ui_grid._this, r0, gamma,
+    mask.multiply_near_mask(<double*>center.data, ugrid._this, r0, gamma,
         <double*>weights.data)
 
 
 def multiply_far_mask(np.ndarray[double, ndim=2] centers not None,
-                      horton.grid.cext.UniformIntGrid ui_grid,
+                      horton.grid.cext.UniformGrid ugrid,
                       double r0, double gamma,
                       np.ndarray[double, ndim=3] weights not None):
     assert centers.flags['C_CONTIGUOUS']
@@ -173,9 +173,9 @@ def multiply_far_mask(np.ndarray[double, ndim=2] centers not None,
     assert r0 > 0
     assert gamma > 0
     assert weights.flags['C_CONTIGUOUS']
-    assert weights.shape[0] == ui_grid.shape[0]
-    assert weights.shape[1] == ui_grid.shape[1]
-    assert weights.shape[2] == ui_grid.shape[2]
+    assert weights.shape[0] == ugrid.shape[0]
+    assert weights.shape[1] == ugrid.shape[1]
+    assert weights.shape[2] == ugrid.shape[2]
 
-    mask.multiply_far_mask(<double*>centers.data, ncenter, ui_grid._this,
+    mask.multiply_far_mask(<double*>centers.data, ncenter, ugrid._this,
         r0, gamma, <double*>weights.data)

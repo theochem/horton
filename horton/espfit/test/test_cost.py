@@ -43,7 +43,7 @@ def get_random_esp_cost_cube3d():
     coordinates, numbers, origin, grid_rvecs, shape, pbc, vref, weights = \
        get_random_esp_cost_cube3d_args()
     sys = System(coordinates, numbers)
-    grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
+    grid = UniformGrid(origin, grid_rvecs, shape, pbc)
     return ESPCost.from_grid_data(sys, grid, vref, weights)
 
 
@@ -65,7 +65,7 @@ def test_esp_cost_cube3d_invariance_origin():
     for i in xrange(10):
         shift = np.random.uniform(-3, 3, 3)
         sys = System(coordinates+shift, np.ones(5, int))
-        grid = UniformIntGrid(shift, grid_rvecs, shape, pbc)
+        grid = UniformGrid(shift, grid_rvecs, shape, pbc)
         cost = ESPCost.from_grid_data(sys, grid, vref, weights)
         costs.append(cost)
     # Compare the cost functions
@@ -88,7 +88,7 @@ def test_esp_cost_cube3d_invariance_rotation():
         new_coordinates = np.dot(coordinates-origin, evecs)+origin
 
         sys = System(new_coordinates, np.ones(5, int))
-        grid = UniformIntGrid(origin, new_grid_rvecs, shape, pbc)
+        grid = UniformGrid(origin, new_grid_rvecs, shape, pbc)
         cost = ESPCost.from_grid_data(sys, grid, vref, weights)
         costs.append(cost)
     # Compare the cost functions
@@ -99,7 +99,7 @@ def test_esp_cost_cube3d_invariance_images():
     # Some parameters
     coordinates, numbers, origin, grid_rvecs, shape, pbc, vref, weights = \
         get_random_esp_cost_cube3d_args()
-    grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
+    grid = UniformGrid(origin, grid_rvecs, shape, pbc)
     # Generate costs with displaced origin
     costs = []
     for i in xrange(10):
@@ -119,7 +119,7 @@ def test_esp_cost_cube3d_invariance_rcut():
     # Some parameters
     coordinates, numbers, origin, grid_rvecs, shape, pbc, vref, weights = \
         get_random_esp_cost_cube3d_args()
-    grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
+    grid = UniformGrid(origin, grid_rvecs, shape, pbc)
     # Generate costs with displaced origin
     costs = []
     for i in xrange(10):
@@ -137,7 +137,7 @@ def test_esp_cost_cube3d_gradient():
     # Some parameters
     coordinates, numbers, origin, grid_rvecs, shape, pbc, vref, weights = \
         get_random_esp_cost_cube3d_args()
-    grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
+    grid = UniformGrid(origin, grid_rvecs, shape, pbc)
     sys = System(coordinates, np.ones(5, int))
     cost = ESPCost.from_grid_data(sys, grid, vref, weights)
 
@@ -216,10 +216,10 @@ def test_compare_cubetools():
     grid_rvecs = np.diag([0.183933, 0.187713, 0.190349])*3
     shape = np.array([18, 25, 27])
     pbc = np.array([1, 1, 1])
-    ui_grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
+    ugrid = UniformGrid(origin, grid_rvecs, shape, pbc)
 
     # Generate weights
-    weights = setup_weights(sys, ui_grid,
+    weights = setup_weights(sys, ugrid,
         near={8: (1.8*angstrom, 0.5*angstrom),
               14: (1.8*angstrom, 0.5*angstrom)})
     weights /= weights.sum()
@@ -228,7 +228,7 @@ def test_compare_cubetools():
     esp = np.random.uniform(-1, 1, shape)
 
     # Cost function
-    cost = ESPCost.from_grid_data(sys, ui_grid, esp, weights)
+    cost = ESPCost.from_grid_data(sys, ugrid, esp, weights)
 
     # Sanity checks
     assert abs(cost._A[-1, -1] - 1.0) < 1e-8
@@ -282,22 +282,22 @@ def test_consistent():
     grid_rvecs += np.random.uniform(-1.0, 1.0, (3, 3))/nrep
     shape = np.array([nrep, nrep, nrep])
     pbc = np.array([1, 1, 1])
-    ui_grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
+    ugrid = UniformGrid(origin, grid_rvecs, shape, pbc)
 
     # compute the ESP
     rcut = 20.0
     alpha = 3.0/10.0
     gcut = 1.1*alpha
     esp = np.zeros(shape)
-    compute_esp_grid_cube(ui_grid, esp, sys.coordinates, charges, rcut, alpha, gcut)
+    compute_esp_grid_cube(ugrid, esp, sys.coordinates, charges, rcut, alpha, gcut)
 
     # Set up weights
     weights = np.ones(shape)
     for i in xrange(sys.natom):
-        multiply_near_mask(sys.coordinates[i], ui_grid, 1.0, 0.5, weights)
+        multiply_near_mask(sys.coordinates[i], ugrid, 1.0, 0.5, weights)
 
     # Fit the charges and test
-    cost = ESPCost.from_grid_data(sys, ui_grid, esp, weights)
+    cost = ESPCost.from_grid_data(sys, ugrid, esp, weights)
     x = cost.solve()
     assert cost.value_charges(charges) < 1e-8
     assert cost.value(x) < 1e-8

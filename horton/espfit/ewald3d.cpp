@@ -87,7 +87,7 @@ double pair_ewald3d(double* delta, const Cell* cell, double rcut, double alpha,
 }
 
 
-void setup_esp_cost_cube_ewald3d(UniformIntGrid* ui_grid, double* vref,
+void setup_esp_cost_cube_ewald3d(UniformGrid* ugrid, double* vref,
     double* weights, double* centers, double* A, double* B, double* C,
     long ncenter, double rcut, double alpha, double gcut) {
 
@@ -95,7 +95,7 @@ void setup_esp_cost_cube_ewald3d(UniformIntGrid* ui_grid, double* vref,
     double* work = new double[neq];
     double grid_cart[3];
 
-    Cube3Iterator c3i = Cube3Iterator(NULL, ui_grid->get_shape());
+    Cube3Iterator c3i = Cube3Iterator(NULL, ugrid->get_shape());
     long i[3];
     long npoint = c3i.get_npoint();
 
@@ -104,7 +104,7 @@ void setup_esp_cost_cube_ewald3d(UniformIntGrid* ui_grid, double* vref,
         grid_cart[0] = 0;
         grid_cart[1] = 0;
         grid_cart[2] = 0;
-        ui_grid->delta_grid_point(grid_cart, i);
+        ugrid->delta_grid_point(grid_cart, i);
 
         if (*weights > 0) {
             double sqrtw = sqrt(*weights);
@@ -116,7 +116,7 @@ void setup_esp_cost_cube_ewald3d(UniformIntGrid* ui_grid, double* vref,
                 delta[1] = centers[3*icenter+1] - grid_cart[1];
                 delta[2] = centers[3*icenter+2] - grid_cart[2];
 
-                work[icenter] = pair_ewald3d(delta, ui_grid->get_cell(), rcut, alpha, gcut)*sqrtw;
+                work[icenter] = pair_ewald3d(delta, ugrid->get_cell(), rcut, alpha, gcut)*sqrtw;
             }
             work[ncenter] = sqrtw;
 
@@ -139,12 +139,12 @@ void setup_esp_cost_cube_ewald3d(UniformIntGrid* ui_grid, double* vref,
     delete[] work;
 }
 
-void compute_esp_cube_ewald3d(UniformIntGrid* ui_grid, double* esp,
+void compute_esp_cube_ewald3d(UniformGrid* ugrid, double* esp,
     double* centers, double* charges, long ncenter, double rcut, double alpha,
     double gcut) {
 
     double grid_cart[3];
-    Cube3Iterator c3i = Cube3Iterator(NULL, ui_grid->get_shape());
+    Cube3Iterator c3i = Cube3Iterator(NULL, ugrid->get_shape());
     long i[3];
     long npoint = c3i.get_npoint();
 
@@ -154,7 +154,7 @@ void compute_esp_cube_ewald3d(UniformIntGrid* ui_grid, double* esp,
         grid_cart[0] = 0;
         grid_cart[1] = 0;
         grid_cart[2] = 0;
-        ui_grid->delta_grid_point(grid_cart, i);
+        ugrid->delta_grid_point(grid_cart, i);
 
         // Do some ewald stuff
         double tmp = 0;
@@ -163,7 +163,7 @@ void compute_esp_cube_ewald3d(UniformIntGrid* ui_grid, double* esp,
             delta[0] = centers[3*icenter]   - grid_cart[0];
             delta[1] = centers[3*icenter+1] - grid_cart[1];
             delta[2] = centers[3*icenter+2] - grid_cart[2];
-            tmp += charges[icenter]*pair_ewald3d(delta, ui_grid->get_cell(), rcut, alpha, gcut);
+            tmp += charges[icenter]*pair_ewald3d(delta, ugrid->get_cell(), rcut, alpha, gcut);
         }
         (*esp) = tmp;
 

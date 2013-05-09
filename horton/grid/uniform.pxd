@@ -23,8 +23,8 @@
 cimport cell
 
 cdef extern from "uniform.h":
-    cdef cppclass UniformIntGrid:
-        UniformIntGrid(double* _origin, cell.Cell* _grid_cell, long* _shape, long* _pbc, cell.Cell* _cell) except +
+    cdef cppclass UniformGrid:
+        UniformGrid(double* _origin, cell.Cell* _grid_cell, long* _shape, long* _pbc, cell.Cell* _cell) except +
 
         void copy_origin(double* output)
         void copy_shape(long* output)
@@ -34,8 +34,8 @@ cdef extern from "uniform.h":
         double dist_grid_point(double* center, long* i)
         void delta_grid_point(double* center, long* i)
 
-    cdef cppclass UniformIntGridWindow:
-        UniformIntGridWindow(UniformIntGrid* ui_grid, long* begin, long* end)
+    cdef cppclass UniformGridWindow:
+        UniformGridWindow(UniformGrid* ugrid, long* begin, long* end)
 
         void copy_begin(long* output)
         void copy_end(long* output)

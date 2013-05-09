@@ -56,8 +56,8 @@ __all__ = [
     # rtransform
     'RTransform', 'IdentityRTransform', 'LinearRTransform', 'ExpRTransform',
     'ShiftedExpRTransform', 'BakerRTransform',
-    # UniformIntGrid
-    'UniformIntGrid', 'UniformIntGridWindow', 'index_wrap', 'Block3Iterator',
+    # UniformGrid
+    'UniformGrid', 'UniformGridWindow', 'index_wrap', 'Block3Iterator',
     # utils
     'dot_multi', 'dot_multi_moments_cube', 'dot_multi_moments', 'dot_multi_parts', 'grid_distances',
 ]
@@ -299,17 +299,17 @@ def index_wrap(long i, long high):
 def eval_spline_cube(CubicSpline spline,
                      np.ndarray[double, ndim=1] center,
                      np.ndarray[double, ndim=3] output,
-                     UniformIntGrid ui_grid):
+                     UniformGrid ugrid):
 
     assert center.flags['C_CONTIGUOUS']
     assert center.shape[0] == 3
     assert output.flags['C_CONTIGUOUS']
-    assert output.shape[0] == ui_grid.shape[0]
-    assert output.shape[1] == ui_grid.shape[1]
-    assert output.shape[2] == ui_grid.shape[2]
+    assert output.shape[0] == ugrid.shape[0]
+    assert output.shape[1] == ugrid.shape[1]
+    assert output.shape[2] == ugrid.shape[2]
 
     evaluate.eval_spline_cube(spline._this, <double*>center.data,
-                              <double*>output.data, ui_grid._this)
+                              <double*>output.data, ugrid._this)
 
 def eval_spline_grid(CubicSpline spline not None,
                      np.ndarray[double, ndim=1] center not None,
@@ -598,7 +598,7 @@ cdef class BakerRTransform(RTransform):
 #
 
 
-cdef class UniformIntGrid(object):
+cdef class UniformGrid(object):
     def __cinit__(self, np.ndarray[double, ndim=1] origin not None,
                   np.ndarray[double, ndim=2] grid_rvecs not None,
                   np.ndarray[long, ndim=1] shape not None,
@@ -616,7 +616,7 @@ cdef class UniformIntGrid(object):
         self._grid_cell = horton.cext.Cell(grid_rvecs)
         rvecs = grid_rvecs*shape.reshape(-1,1)
         self._cell = horton.cext.Cell(rvecs[pbc.astype(bool)])
-        self._this = <uniform.UniformIntGrid*>(new uniform.UniformIntGrid(
+        self._this = <uniform.UniformGrid*>(new uniform.UniformGrid(
             <double*>origin.data,
             self._grid_cell._this,
             <long*>shape.data,
@@ -834,7 +834,7 @@ cdef class UniformIntGrid(object):
             aux_origin = self.origin.copy()
             self._grid_cell.add_rvec(aux_origin, ranges_begin)
             aux_shape = ranges_end - ranges_begin
-            aux_grid = UniformIntGrid(aux_origin, self._grid_cell.rvecs, aux_shape, np.zeros(3, int))
+            aux_grid = UniformGrid(aux_origin, self._grid_cell.rvecs, aux_shape, np.zeros(3, int))
             return aux_grid, -ranges_begin
 
         def get_tapered_spline(spline, rcut, aux_rcut):
@@ -947,11 +947,11 @@ cdef class UniformIntGrid(object):
 
     def get_window(self, np.ndarray[double, ndim=1] center, double rcut):
         begin, end = self.get_ranges_rcut(center, rcut)
-        return UniformIntGridWindow(self, begin, end)
+        return UniformGridWindow(self, begin, end)
 
 
-cdef class UniformIntGridWindow(object):
-    def __cinit__(self, UniformIntGrid ui_grid not None,
+cdef class UniformGridWindow(object):
+    def __cinit__(self, UniformGrid ugrid not None,
                   np.ndarray[long, ndim=1] begin not None,
                   np.ndarray[long, ndim=1] end not None):
         assert begin.flags['C_CONTIGUOUS']
@@ -959,9 +959,9 @@ cdef class UniformIntGridWindow(object):
         assert end.flags['C_CONTIGUOUS']
         assert end.shape[0] == 3
 
-        self._ui_grid = ui_grid
-        self._this = new uniform.UniformIntGridWindow(
-            ui_grid._this,
+        self._ugrid = ugrid
+        self._this = new uniform.UniformGridWindow(
+            ugrid._this,
             <long*>begin.data,
             <long*>end.data,
         )
@@ -969,9 +969,9 @@ cdef class UniformIntGridWindow(object):
     def __dealloc__(self):
         del self._this
 
-    property ui_grid:
+    property ugrid:
         def __get__(self):
-            return self._ui_grid
+            return self._ugrid
 
     property begin:
         def __get__(self):
@@ -993,11 +993,11 @@ cdef class UniformIntGridWindow(object):
         def __get__(self):
             return np.product(self.shape)
 
-    def get_window_ui_grid(self):
-        grid_cell = self._ui_grid.grid_cell
-        origin = self._ui_grid.origin.copy()
+    def get_window_ugrid(self):
+        grid_cell = self._ugrid.grid_cell
+        origin = self._ugrid.origin.copy()
         grid_cell.add_rvec(origin, self.begin)
-        return UniformIntGrid(origin, grid_cell.rvecs, self.shape, np.zeros(3, int))
+        return UniformGrid(origin, grid_cell.rvecs, self.shape, np.zeros(3, int))
 
     def zeros(self):
         return np.zeros(self.shape, float)
@@ -1006,7 +1006,7 @@ cdef class UniformIntGridWindow(object):
                np.ndarray[double, ndim=3] local not None):
         '''Copy a periodic repetation of the cell function to the local grid'''
         assert cell.flags['C_CONTIGUOUS']
-        shape = self._ui_grid.shape
+        shape = self._ugrid.shape
         assert cell.shape[0] == shape[0]
         assert cell.shape[1] == shape[1]
         assert cell.shape[2] == shape[2]
@@ -1026,7 +1026,7 @@ cdef class UniformIntGridWindow(object):
         assert local.shape[1] == shape[1]
         assert local.shape[2] == shape[2]
         assert cell.flags['C_CONTIGUOUS']
-        shape = self._ui_grid.shape
+        shape = self._ugrid.shape
         assert cell.shape[0] == shape[0]
         assert cell.shape[1] == shape[1]
         assert cell.shape[2] == shape[2]
@@ -1042,9 +1042,9 @@ cdef class UniformIntGridWindow(object):
         assert output.shape[1] == self.shape[1]
         assert output.shape[2] == self.shape[2]
 
-        # construct an ui_grid for this window such that we can reuse an existing routine
-        cdef UniformIntGrid window_ui_grid = self.get_window_ui_grid()
-        evaluate.eval_spline_cube(spline._this, <double*>center.data, <double*>output.data, window_ui_grid._this)
+        # construct an ugrid for this window such that we can reuse an existing routine
+        cdef UniformGrid window_ugrid = self.get_window_ugrid()
+        evaluate.eval_spline_cube(spline._this, <double*>center.data, <double*>output.data, window_ugrid._this)
 
     def integrate(self, *args, **kwargs):
         '''Integrate the product of all arguments
@@ -1071,7 +1071,7 @@ cdef class UniformIntGridWindow(object):
 
         # process keyword arguments:
         center = kwargs.pop('center', None)
-        grid_cell = self._ui_grid.grid_cell
+        grid_cell = self._ugrid.grid_cell
         if center is None:
             # retgular integration
             if len(kwargs) > 0:
@@ -1091,12 +1091,12 @@ cdef class UniformIntGridWindow(object):
             assert center.shape[0] == 3
 
             # advanced integration routine:
-            window_ui_grid = self.get_window_ui_grid()
-            return dot_multi_moments_cube(args, window_ui_grid, center, nx, ny, nz, nr)*grid_cell.volume
+            window_ugrid = self.get_window_ugrid()
+            return dot_multi_moments_cube(args, window_ugrid, center, nx, ny, nz, nr)*grid_cell.volume
 
     def compute_weight_corrections(self, funcs, rcut_scale=0.9, rcut_max=2.0, rcond=0.1, output=None):
-        window_ui_grid = self.get_window_ui_grid()
-        return window_ui_grid.compute_weight_corrections(funcs, rcut_scale, rcut_max, rcond, output)
+        window_ugrid = self.get_window_ugrid()
+        return window_ugrid.compute_weight_corrections(funcs, rcut_scale, rcut_max, rcond, output)
 
 
 def index_wrap(long i, long high):
@@ -1177,12 +1177,12 @@ def dot_multi(*integranda):
     return result
 
 
-def dot_multi_moments_cube(integranda, UniformIntGrid ui_grid, np.ndarray[double, ndim=1] center not None, long nx, long ny, long nz, long nr):
-    npoint = _check_integranda(integranda, ui_grid.size)
+def dot_multi_moments_cube(integranda, UniformGrid ugrid, np.ndarray[double, ndim=1] center not None, long nx, long ny, long nz, long nr):
+    npoint = _check_integranda(integranda, ugrid.size)
     # Only non-periodic grids are supported to guarantee an unambiguous definition of the polynomial.
-    assert ui_grid.pbc[0] == 0
-    assert ui_grid.pbc[1] == 0
-    assert ui_grid.pbc[2] == 0
+    assert ugrid.pbc[0] == 0
+    assert ugrid.pbc[1] == 0
+    assert ugrid.pbc[2] == 0
     #
     assert center.flags['C_CONTIGUOUS']
     assert center.shape[0] == 3
@@ -1199,7 +1199,7 @@ def dot_multi_moments_cube(integranda, UniformIntGrid ui_grid, np.ndarray[double
         integrandum = integranda[i]
         pointers[i] = <double*>integrandum.data
 
-    result = utils.dot_multi_moments_cube(len(integranda), pointers, ui_grid._this, <double*>center.data, nx, ny, nz, nr)
+    result = utils.dot_multi_moments_cube(len(integranda), pointers, ugrid._this, <double*>center.data, nx, ny, nz, nr)
 
     free(pointers)
     return result

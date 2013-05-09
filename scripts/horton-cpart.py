@@ -109,13 +109,13 @@ def main():
 
     # Load the system
     sys = System.from_file(args.cube)
-    ui_grid = sys.props['ui_grid']
-    ui_grid.pbc[:] = parse_pbc(args.pbc)
+    ugrid = sys.props['ugrid']
+    ugrid.pbc[:] = parse_pbc(args.pbc)
     moldens = sys.props['cube_data']
 
     # Reduce the grid if required
     if args.stride > 1 or args.chop > 0:
-        moldens, ui_grid = reduce_data(moldens, ui_grid, args.stride, args.chop)
+        moldens, ugrid = reduce_data(moldens, ugrid, args.stride, args.chop)
 
     # Load the proatomdb and make pro-atoms more compact if that is requested
     proatomdb = ProAtomDB.from_file(args.atoms)
@@ -132,7 +132,7 @@ def main():
     # Run the partitioning
     kwargs = dict((key, val) for key, val in vars(args).iteritems() if key in CPartClass.options)
     cpart = cpart_schemes[args.scheme](
-        sys, ui_grid, True, moldens, proatomdb, wcor_numbers,
+        sys, ugrid, True, moldens, proatomdb, wcor_numbers,
         args.wcor_rcut_max, args.wcor_rcond, **kwargs)
     names = cpart.do_all()
 

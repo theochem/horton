@@ -23,12 +23,12 @@
 
 import os, sys, datetime, numpy as np, h5py as h5, time, contextlib
 
-from horton import UniformIntGrid, angstrom, periodic, Cell, log, dump_hdf5_low
+from horton import UniformGrid, angstrom, periodic, Cell, log, dump_hdf5_low
 
 
 __all__ = [
     'iter_elements', 'reduce_data', 'parse_h5', 'parse_ewald_args', 'parse_pbc',
-    'parse_ui_grid', 'store_args', 'safe_open_h5', 'write_part_output',
+    'parse_ugrid', 'store_args', 'safe_open_h5', 'write_part_output',
 ]
 
 
@@ -54,7 +54,7 @@ def iter_elements(elements_str):
             yield periodic[item].number
 
 
-def reduce_data(cube_data, ui_grid, stride, chop):
+def reduce_data(cube_data, ugrid, stride, chop):
     '''Reduce the uniform grid data according to stride and chop arguments
 
        **Arguments:**
@@ -62,7 +62,7 @@ def reduce_data(cube_data, ui_grid, stride, chop):
        fn_cube
             The cube file with the electron density.
 
-       ui_grid
+       ugrid
             The uniform integration grid.
 
        stride
@@ -75,7 +75,7 @@ def reduce_data(cube_data, ui_grid, stride, chop):
     '''
     if (chop < 0):
         raise ValueError('Chop must be positive or zero.')
-    if ((ui_grid.shape - chop) % stride != 0).any():
+    if ((ugrid.shape - chop) % stride != 0).any():
         raise ValueError('The stride is not commensurate with all three grid demsions.')
 
 
@@ -84,11 +84,11 @@ def reduce_data(cube_data, ui_grid, stride, chop):
     else:
         new_cube_data = cube_data[:-chop:stride, :-chop:stride, :-chop:stride].copy()
 
-    new_shape = (ui_grid.shape-chop)/stride
-    grid_rvecs = ui_grid.grid_cell.rvecs*stride
-    new_ui_grid = UniformIntGrid(ui_grid.origin, grid_rvecs, new_shape, ui_grid.pbc)
+    new_shape = (ugrid.shape-chop)/stride
+    grid_rvecs = ugrid.grid_cell.rvecs*stride
+    new_ugrid = UniformGrid(ugrid.origin, grid_rvecs, new_shape, ugrid.pbc)
 
-    return new_cube_data, new_ui_grid
+    return new_cube_data, new_ugrid
 
 
 def parse_h5(arg_h5):
@@ -115,7 +115,7 @@ def parse_pbc(spbc):
     return result
 
 
-def parse_ui_grid(sgrid, cell):
+def parse_ugrid(sgrid, cell):
     '''Create a uniform integration grid based on the sgrid argument
 
        **Arguments:**
@@ -134,7 +134,7 @@ def parse_ui_grid(sgrid, cell):
     if spacing is None:
         fn_h5, path = sgrid.split(':')
         with h5.File(fn_h5, 'r') as f:
-            return UniformIntGrid.from_hdf5(f[path], None)
+            return UniformGrid.from_hdf5(f[path], None)
     else:
         grid_rvecs = cell.rvecs.copy()
         shape = np.zeros(3, int)
@@ -145,7 +145,7 @@ def parse_ui_grid(sgrid, cell):
         grid_cell = Cell(grid_rvecs)
         origin = np.zeros(3, float)
         pbc = np.ones(3, int)
-        return UniformIntGrid(origin, grid_rvecs, shape, pbc)
+        return UniformGrid(origin, grid_rvecs, shape, pbc)
 
 
 def store_args(args, grp):

@@ -29,11 +29,11 @@
 #include <cstdlib>
 #include "uniform.h"
 
-UniformIntGrid::UniformIntGrid(double* _origin, Cell* _grid_cell, long* _shape, long* _pbc, Cell* _cell)
+UniformGrid::UniformGrid(double* _origin, Cell* _grid_cell, long* _shape, long* _pbc, Cell* _cell)
     : grid_cell(_grid_cell), cell(_cell) {
 
     if (_grid_cell->get_nvec() != 3) {
-        throw std::domain_error("The grid_cell of a UniformIntGrid must be 3D.");
+        throw std::domain_error("The grid_cell of a UniformGrid must be 3D.");
     }
 
     for (int i=0; i<3; i++) {
@@ -43,19 +43,19 @@ UniformIntGrid::UniformIntGrid(double* _origin, Cell* _grid_cell, long* _shape, 
     }
 }
 
-void UniformIntGrid::copy_origin(double* output) {
+void UniformGrid::copy_origin(double* output) {
     output[0] = origin[0];
     output[1] = origin[1];
     output[2] = origin[2];
 }
 
-void UniformIntGrid::copy_shape(long* output) {
+void UniformGrid::copy_shape(long* output) {
     output[0] = shape[0];
     output[1] = shape[1];
     output[2] = shape[2];
 }
 
-void UniformIntGrid::copy_pbc(long* output) {
+void UniformGrid::copy_pbc(long* output) {
     output[0] = pbc[0];
     output[1] = pbc[1];
     output[2] = pbc[2];
@@ -63,7 +63,7 @@ void UniformIntGrid::copy_pbc(long* output) {
 
 
 
-void UniformIntGrid::set_ranges_rcut(double* center, double rcut, long* ranges_begin, long* ranges_end) {
+void UniformGrid::set_ranges_rcut(double* center, double rcut, long* ranges_begin, long* ranges_end) {
     double delta[3];
     delta[0] = origin[0] - center[0];
     delta[1] = origin[1] - center[1];
@@ -87,7 +87,7 @@ void UniformIntGrid::set_ranges_rcut(double* center, double rcut, long* ranges_b
 #endif
 }
 
-double UniformIntGrid::dist_grid_point(double* center, long* i) {
+double UniformGrid::dist_grid_point(double* center, long* i) {
     double delta[3];
     delta[0] = origin[0] - center[0];
     delta[1] = origin[1] - center[1];
@@ -96,7 +96,7 @@ double UniformIntGrid::dist_grid_point(double* center, long* i) {
     return sqrt(delta[0]*delta[0]+delta[1]*delta[1]+delta[2]*delta[2]);
 }
 
-void UniformIntGrid::delta_grid_point(double* center, long* i) {
+void UniformGrid::delta_grid_point(double* center, long* i) {
     // center is used here as a input; the final value is the relative vector;
     center[0] = origin[0] - center[0];
     center[1] = origin[1] - center[1];
@@ -104,13 +104,13 @@ void UniformIntGrid::delta_grid_point(double* center, long* i) {
     grid_cell->add_rvec(center, i);
 }
 
-double* UniformIntGrid::get_pointer(double* array, long* i) {
+double* UniformGrid::get_pointer(double* array, long* i) {
     return array + (i[0]*shape[1] + i[1])*shape[2] + i[2];
 }
 
 
-UniformIntGridWindow::UniformIntGridWindow(UniformIntGrid* ui_grid, long* _begin, long* _end)
-    : ui_grid(ui_grid) {
+UniformGridWindow::UniformGridWindow(UniformGrid* ugrid, long* _begin, long* _end)
+    : ugrid(ugrid) {
 
     for (int i=0; i<3; i++) {
         begin[i] = _begin[i];
@@ -119,34 +119,34 @@ UniformIntGridWindow::UniformIntGridWindow(UniformIntGrid* ui_grid, long* _begin
     }
 }
 
-void UniformIntGridWindow::copy_begin(long* output) {
+void UniformGridWindow::copy_begin(long* output) {
     output[0] = begin[0];
     output[1] = begin[1];
     output[2] = begin[2];
 }
 
-void UniformIntGridWindow::copy_end(long* output) {
+void UniformGridWindow::copy_end(long* output) {
     output[0] = end[0];
     output[1] = end[1];
     output[2] = end[2];
 }
 
-void UniformIntGridWindow::extend(double* cell, double* local) {
-    Range3Iterator r3i = Range3Iterator(begin, end, ui_grid->get_shape());
+void UniformGridWindow::extend(double* cell, double* local) {
+    Range3Iterator r3i = Range3Iterator(begin, end, ugrid->get_shape());
     long j[3], jwrap[3];
     for (long ipoint=r3i.get_npoint()-1; ipoint >= 0; ipoint--) {
         r3i.set_point(ipoint, j, jwrap);
 #ifdef DEBUG
         printf("ipoint=%li  j={%li, %li, %li}  jwrap={%li, %li, %li}\n", ipoint, j[0], j[1], j[2], jwrap[0], jwrap[1], jwrap[2]);
 #endif
-        double* source = ui_grid->get_pointer(cell, jwrap);
+        double* source = ugrid->get_pointer(cell, jwrap);
         local[ipoint] = *source;
     }
 }
 
-void UniformIntGridWindow::wrap(double* local, double* cell) {
+void UniformGridWindow::wrap(double* local, double* cell) {
     // Run triple loop over blocks
-    Block3Iterator b3i = Block3Iterator(begin, end, ui_grid->get_shape());
+    Block3Iterator b3i = Block3Iterator(begin, end, ugrid->get_shape());
     for (long iblock=b3i.get_nblock()-1; iblock>=0; iblock--) {
         long b[3];
         b3i.set_block(iblock, b);
@@ -162,13 +162,13 @@ void UniformIntGridWindow::wrap(double* local, double* cell) {
             long jwrap[3];
             c3i.set_point(ipoint, jwrap);
             b3i.translate(b, jwrap, j);
-            *(ui_grid->get_pointer(cell, jwrap)) += *get_pointer(local, j);
+            *(ugrid->get_pointer(cell, jwrap)) += *get_pointer(local, j);
 
         }
     }
 }
 
-double* UniformIntGridWindow::get_pointer(double* array, long* i) {
+double* UniformGridWindow::get_pointer(double* array, long* i) {
     return array + ((i[0]-begin[0])*shape[1] + (i[1]-begin[1]))*shape[2] + (i[2]-begin[2]);
 }
 

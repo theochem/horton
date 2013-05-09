@@ -61,8 +61,8 @@ double intexp(double base, long exp) {
 
 // TODO: eliminate duplicate code
 
-double dot_multi_moments_cube(long nvector, double** data, UniformIntGrid* ui_grid, double* center, long nx, long ny, long nz, long nr) {
-    if (ui_grid->get_cell()->get_nvec() != 0) {
+double dot_multi_moments_cube(long nvector, double** data, UniformGrid* ugrid, double* center, long nx, long ny, long nz, long nr) {
+    if (ugrid->get_cell()->get_nvec() != 0) {
         throw std::domain_error("dot_multi_moments_cube only works for non-periodic grids.");
     }
     if ((nx<0) || (ny<0) || (nz<0) || (nr<0)) {
@@ -71,7 +71,7 @@ double dot_multi_moments_cube(long nvector, double** data, UniformIntGrid* ui_gr
 
     double result = 0.0;
 
-    Cube3Iterator c3i = Cube3Iterator(NULL, ui_grid->get_shape());
+    Cube3Iterator c3i = Cube3Iterator(NULL, ugrid->get_shape());
     #pragma omp parallel for reduction(+:result)
     for (long ipoint=c3i.get_npoint()-1; ipoint >= 0; ipoint--) {
         // do the usual product of integranda
@@ -87,7 +87,7 @@ double dot_multi_moments_cube(long nvector, double** data, UniformIntGrid* ui_gr
         delta[0] = center[0];
         delta[1] = center[1];
         delta[2] = center[2];
-        ui_grid->delta_grid_point(delta, j);
+        ugrid->delta_grid_point(delta, j);
         if (nr != 0) {
             double r = sqrt(delta[0]*delta[0] + delta[1]*delta[1] + delta[2]*delta[2]);
             term *= intexp(r, nr);

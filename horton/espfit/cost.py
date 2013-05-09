@@ -23,7 +23,7 @@
 import numpy as np
 
 from horton.units import angstrom
-from horton.grid.cext import UniformIntGrid
+from horton.grid.cext import UniformGrid
 from horton.espfit.cext import setup_esp_cost_cube, multiply_dens_mask, \
     multiply_near_mask, multiply_far_mask
 
@@ -46,7 +46,7 @@ class ESPCost(object):
             alpha = 3.0 / rcut
         if gcut is None:
             gcut = 1.1 * alpha
-        if isinstance(grid, UniformIntGrid):
+        if isinstance(grid, UniformGrid):
             A = np.zeros((system.natom+1, system.natom+1), float)
             B = np.zeros(system.natom+1, float)
             C = np.zeros((), float)

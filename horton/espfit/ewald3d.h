@@ -28,11 +28,11 @@
 double pair_ewald3d(double* delta, const Cell* cell, double rcut, double alpha,
     double gcut);
 
-void setup_esp_cost_cube_ewald3d(UniformIntGrid* ui_grid, double* vref,
+void setup_esp_cost_cube_ewald3d(UniformGrid* ugrid, double* vref,
     double* weights, double* centers, double* A, double* B, double* C,
     long ncenter, double rcut, double alpha, double gcut);
 
-void compute_esp_cube_ewald3d(UniformIntGrid* ui_grid, double* esp,
+void compute_esp_cube_ewald3d(UniformGrid* ugrid, double* esp,
     double* centers, double* charges, long ncenter, double rcut, double alpha,
     double gcut);
 

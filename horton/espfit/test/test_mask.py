@@ -32,14 +32,14 @@ def get_fake_system():
     grid_rvecs = np.array([[0.15, 0.0, 0.0], [0.0, 0.20, 0.01], [0.01, 0.01, 0.15]])
     shape = np.array([10, 10, 20])
     pbc = np.array([1, 0, 1])
-    ui_grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
-    return sys, ui_grid
+    ugrid = UniformGrid(origin, grid_rvecs, shape, pbc)
+    return sys, ugrid
 
 
 def test_mask_dens1():
-    sys, ui_grid = get_fake_system()
-    rho = 10**np.random.uniform(-3, 3, ui_grid.shape)
-    weights = setup_weights(sys, ui_grid, dens=(rho, 1e-1, 1.0))
+    sys, ugrid = get_fake_system()
+    rho = 10**np.random.uniform(-3, 3, ugrid.shape)
+    weights = setup_weights(sys, ugrid, dens=(rho, 1e-1, 1.0))
     mask1 = rho<1e-2
     assert (weights[mask1] == 1.0).all()
     mask2 = rho>1e0
@@ -50,50 +50,50 @@ def test_mask_dens1():
 
 
 def test_mask_dens2():
-    sys, ui_grid = get_fake_system()
-    rho = np.zeros(ui_grid.shape)
+    sys, ugrid = get_fake_system()
+    rho = np.zeros(ugrid.shape)
     scan = np.arange(-2.0, -0.0001, 0.1)
     rho[0,0,:] = 10**scan
-    weights = setup_weights(sys, ui_grid, dens=(rho, 1e-1, 1.0))
+    weights = setup_weights(sys, ugrid, dens=(rho, 1e-1, 1.0))
     scan += 1
     assert abs(weights[0,0,:] - (0.25*scan*(scan*scan-3)+0.5)).max() < 1e-10
 
 
 def test_mask_near1():
-    sys, ui_grid = get_fake_system()
-    weights = setup_weights(sys, ui_grid, near={1: (0.5, 0.5), 2: (1.0, 0.2)})
+    sys, ugrid = get_fake_system()
+    weights = setup_weights(sys, ugrid, near={1: (0.5, 0.5), 2: (1.0, 0.2)})
     assert (weights >= 0.0).all()
     assert (weights <= 1.0).all()
     # find the point close to atom 2 and check that the weight is zero
-    i = np.round(ui_grid.grid_cell.to_frac(sys.coordinates[2] - ui_grid.origin)).astype(int)
+    i = np.round(ugrid.grid_cell.to_frac(sys.coordinates[2] - ugrid.origin)).astype(int)
     i[0] = i[0]%10
     i[2] = i[2]%20
     assert weights[i[0], i[1], i[2]] == 0.0
 
 
 def test_mask_near2():
-    sys, ui_grid = get_fake_system()
-    weights = setup_weights(sys, ui_grid, near={1: (0.5, 0.5), 2: (1.0, 0.2)})
-    weights1 = setup_weights(sys, ui_grid, near={1: (0.5, 0.5)})
-    weights2 = setup_weights(sys, ui_grid, near={2: (1.0, 0.2)})
+    sys, ugrid = get_fake_system()
+    weights = setup_weights(sys, ugrid, near={1: (0.5, 0.5), 2: (1.0, 0.2)})
+    weights1 = setup_weights(sys, ugrid, near={1: (0.5, 0.5)})
+    weights2 = setup_weights(sys, ugrid, near={2: (1.0, 0.2)})
     assert abs(weights - weights1*weights2).max() < 1e-10
 
 
 def test_mask_near3():
-    sys, ui_grid = get_fake_system()
-    weights = setup_weights(sys, ui_grid, near={0: (0.5, 0.5)})
-    weights1 = setup_weights(sys, ui_grid, near={1: (0.5, 0.5)})
-    weights2 = setup_weights(sys, ui_grid, near={2: (0.5, 0.5)})
+    sys, ugrid = get_fake_system()
+    weights = setup_weights(sys, ugrid, near={0: (0.5, 0.5)})
+    weights1 = setup_weights(sys, ugrid, near={1: (0.5, 0.5)})
+    weights2 = setup_weights(sys, ugrid, near={2: (0.5, 0.5)})
     assert abs(weights - weights1*weights2).max() < 1e-10
 
 
 def test_mask_far():
-    sys, ui_grid = get_fake_system()
-    weights = setup_weights(sys, ui_grid, far=(1.0, 0.5))
+    sys, ugrid = get_fake_system()
+    weights = setup_weights(sys, ugrid, far=(1.0, 0.5))
     assert (weights >= 0.0).all()
     assert (weights <= 1.0).all()
     # find the point close to atom 2 and check that the weight is one
-    i = np.round(ui_grid.grid_cell.to_frac(sys.coordinates[2] - ui_grid.origin)).astype(int)
+    i = np.round(ugrid.grid_cell.to_frac(sys.coordinates[2] - ugrid.origin)).astype(int)
     i[0] = i[0]%10
     i[2] = i[2]%20
     assert weights[i[0], i[1], i[2]] == 1.0

@@ -96,16 +96,16 @@ def parse_wfar(arg):
     return r0, gamma
 
 
-def load_rho(fn_cube, ref_ui_grid, stride, chop):
-    '''Load densities from a file, reduce by stride, chop and check ui_grid
+def load_rho(fn_cube, ref_ugrid, stride, chop):
+    '''Load densities from a file, reduce by stride, chop and check ugrid
 
        **Arguments:**
 
        fn_cube
             The cube file with the electron density.
 
-       ref_ui_grid
-            A reference ui_grid that must match the one from the density cube
+       ref_ugrid
+            A reference ugrid that must match the one from the density cube
             file (after reduction).
 
        stride
@@ -117,17 +117,17 @@ def load_rho(fn_cube, ref_ui_grid, stride, chop):
     # Load cube
     sys = System.from_file(fn_cube)
     rho = sys.props['cube_data']
-    ui_grid = sys.props['ui_grid']
+    ugrid = sys.props['ugrid']
     # Reduce grid size
     if stride > 1:
-        rho, ui_grid = reduce_data(rho, ui_grid, stride, chop)
-    # Compare with ref_ui_grid (only shape)
-    if (ui_grid.shape != ref_ui_grid.shape).any():
+        rho, ugrid = reduce_data(rho, ugrid, stride, chop)
+    # Compare with ref_ugrid (only shape)
+    if (ugrid.shape != ref_ugrid.shape).any():
         raise ValueError('The densities file does not contain the same amount if information as the potential file.')
     return rho
 
 
-def save_weights(fn_cube, sys, ui_grid, weights):
+def save_weights(fn_cube, sys, ugrid, weights):
     '''Save the weights used for the ESP cost function to a cube file
 
        **Arguments:**
@@ -138,7 +138,7 @@ def save_weights(fn_cube, sys, ui_grid, weights):
        sys
             A System instance.
 
-       ui_grid
+       ugrid
             The uniform integration grid.
 
        weights
@@ -146,7 +146,7 @@ def save_weights(fn_cube, sys, ui_grid, weights):
     '''
     # construct a new system that contains all info for the cube file
     my_sys = System(sys.coordinates, sys.numbers, pseudo_numbers=sys.pseudo_numbers)
-    my_sys.props['ui_grid'] = ui_grid
+    my_sys.props['ugrid'] = ugrid
     my_sys.props['cube_data'] = weights
     # save to file
     my_sys.to_file(fn_cube)

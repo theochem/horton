@@ -27,10 +27,10 @@
 
 void multiply_dens_mask(double* rho, double rho0, double alpha, double* weights, long npoint);
 
-void multiply_near_mask(double* center, UniformIntGrid* ui_grid, double r0,
+void multiply_near_mask(double* center, UniformGrid* ugrid, double r0,
     double gamma, double* weights);
 
-void multiply_far_mask(double* centers, long ncenter, UniformIntGrid* ui_grid,
+void multiply_far_mask(double* centers, long ncenter, UniformGrid* ugrid,
     double r0, double gamma, double* weights);
 
 #endif

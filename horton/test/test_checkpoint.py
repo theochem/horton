@@ -292,8 +292,8 @@ def test_cube():
     sys1 = System.from_file(fn_cube, chk=chk)
     sys2 = System.from_file(chk)
 
-    g1 = sys1.props['ui_grid']
-    g2 = sys2.props['ui_grid']
+    g1 = sys1.props['ugrid']
+    g2 = sys2.props['ugrid']
     assert (g1.origin == g2.origin).all()
     assert (g1.grid_cell.rvecs == g2.grid_cell.rvecs).all()
     assert (g1.shape == g2.shape).all()

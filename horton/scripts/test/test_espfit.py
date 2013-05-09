@@ -53,9 +53,9 @@ def test_scripts():
     grid_rvecs = np.identity(3, float)*1.0
     shape = np.array([10, 10, 10])
     pbc = np.ones(3, int)
-    ui_grid = UniformIntGrid(origin, grid_rvecs, shape, pbc)
+    ugrid = UniformGrid(origin, grid_rvecs, shape, pbc)
     cube_data = np.random.uniform(-1, 1, shape)
-    props = {'ui_grid': ui_grid, 'cube_data': cube_data}
+    props = {'ugrid': ugrid, 'cube_data': cube_data}
     sys = System(coordinates, numbers, props=props)
 
     # Write the cube file to the tmpdir and run scripts

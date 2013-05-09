@@ -116,12 +116,12 @@ def main():
     if log.do_medium:
         log('Loading potential array')
     sys = System.from_file(args.cube)
-    ui_grid = sys.props['ui_grid']
+    ugrid = sys.props['ugrid']
     esp = sys.props['cube_data']
 
     # Reduce the grid if required
     if args.stride > 1:
-        esp, ui_grid = reduce_data(esp, ui_grid, args.stride, args.chop)
+        esp, ugrid = reduce_data(esp, ugrid, args.stride, args.chop)
 
     # Fix sign
     if args.sign:
@@ -131,8 +131,8 @@ def main():
     if log.do_medium:
         log('Important parameters:')
         log.hline()
-        log('Number of grid points:   %12i' % np.product(ui_grid.shape))
-        log('Grid shape:                 [%8i, %8i, %8i]' % tuple(ui_grid.shape))
+        log('Number of grid points:   %12i' % np.product(ugrid.shape))
+        log('Grid shape:                 [%8i, %8i, %8i]' % tuple(ugrid.shape))
         log.hline()
 
     # Construct the weights for the ESP Cost function.
@@ -140,11 +140,11 @@ def main():
     if wdens is not None:
         if log.do_medium:
             log('Loading density array')
-        rho = load_rho(wdens[0], ui_grid, args.stride, args.chop)
+        rho = load_rho(wdens[0], ugrid, args.stride, args.chop)
         wdens = (rho,) + wdens[1:]
     if log.do_medium:
         log('Constructing weight function')
-    weights = setup_weights(sys, ui_grid,
+    weights = setup_weights(sys, ugrid,
         dens=wdens,
         near=parse_wnear(args.wnear),
         far=parse_wnear(args.wfar),
@@ -153,7 +153,7 @@ def main():
     if args.wsave is not None:
         if log.do_medium:
             log('   Saving weights array   ')
-        save_weights(args.wsave, sys, ui_grid, weights)
+        save_weights(args.wsave, sys, ugrid, weights)
     # rescale weights such that the cost function is the mean-square-error
     if weights.max() == 0.0:
         raise ValueError('No points with a non-zero weight were found')
@@ -182,7 +182,7 @@ def main():
     # Construct the cost function
     if log.do_medium:
         log('Setting up cost function (may take a while)   ')
-    cost = ESPCost.from_grid_data(sys, ui_grid, esp, weights, rcut, alpha, gcut)
+    cost = ESPCost.from_grid_data(sys, ugrid, esp, weights, rcut, alpha, gcut)
 
     # Store cost function info
     results = {}

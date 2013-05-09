@@ -26,7 +26,7 @@
 #include "cubic_spline.h"
 
 
-class UniformIntGrid {
+class UniformGrid {
     private:
         double origin[3];
         Cell* grid_cell;
@@ -34,7 +34,7 @@ class UniformIntGrid {
         long shape[3];
         long pbc[3];
     public:
-        UniformIntGrid(double* _origin, Cell* _grid_cell, long* _shape, long* _pbc, Cell* _cell);
+        UniformGrid(double* _origin, Cell* _grid_cell, long* _shape, long* _pbc, Cell* _cell);
 
         void copy_origin(double* output);
         void copy_shape(long* output);
@@ -50,14 +50,14 @@ class UniformIntGrid {
 };
 
 
-class UniformIntGridWindow {
+class UniformGridWindow {
     private:
-        UniformIntGrid* ui_grid;
+        UniformGrid* ugrid;
         long begin[3];
         long end[3];
         long shape[3];
     public:
-        UniformIntGridWindow(UniformIntGrid* ui_grid, long* begin, long* end);
+        UniformGridWindow(UniformGrid* ugrid, long* begin, long* end);
 
         void copy_begin(long* output);
         void copy_end(long* output);
