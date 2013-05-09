@@ -27,7 +27,7 @@ from horton.grid.cext import dot_multi
 from horton.grid.int1d import SimpsonIntegrator1D
 
 
-class RadialIntGrid(object):
+class RadialGrid(object):
     '''An integration grid for the radial component of a spherical coordinate system'''
 
     def __init__(self, rtransform, int1d=None):
@@ -116,4 +116,4 @@ class RadialIntGrid(object):
            The corresponding radii remain the same.
         '''
         rtf = self._rtransform.chop(new_size)
-        return RadialIntGrid(rtf, self._int1d)
+        return RadialGrid(rtf, self._int1d)

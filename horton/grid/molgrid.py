@@ -66,7 +66,7 @@ class BeckeMolGrid(IntGrid):
 
            * A single atspec tuple: ``(rgrid, nll)`` or ``(rgrid, nlls)``, where
 
-             * ``rgrid`` is an instance of the RadialIntGrid
+             * ``rgrid`` is an instance of the RadialGrid
              * ``nll`` is the number of Lebedev-Laikov points on each sphere,
              * ``nlls`` is a list of numbers of Lebedev-Laikov grid points for
                the respective spheres of the atomic grid.

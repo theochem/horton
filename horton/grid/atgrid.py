@@ -26,7 +26,7 @@ import numpy as np
 from horton.context import context
 from horton.grid.base import IntGrid
 from horton.grid.cext import lebedev_laikov_npoints, lebedev_laikov_sphere, RTransform, dot_multi_parts
-from horton.grid.radial import RadialIntGrid
+from horton.grid.radial import RadialGrid
 from horton.log import log
 
 
@@ -178,7 +178,7 @@ def interpret_atspec(number, atspec):
        The atspec argument may be a string refering to a built-in grid file (see
        data/grid) or a tuple with two elements: ``(rgrid, nll)`` where:
 
-       * ``rgrid`` is an instance of RadialIntGrid.
+       * ``rgrid`` is an instance of RadialGrid.
 
        * ``nlls`` is a number Lebedev-Laikov grid points for each radial
          grid point. When this argument is not a list, all radial grid
@@ -274,7 +274,7 @@ class ATGridFamily(object):
                     elif state == 2:
                         nlls = np.array([int(w) for w in line.split()])
                         state = 0
-                        self.members[number] = RadialIntGrid(rtf), nlls
+                        self.members[number] = RadialGrid(rtf), nlls
 
 
 atgrid_families = [

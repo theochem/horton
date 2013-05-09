@@ -28,7 +28,7 @@ def test_base_exceptions():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    rgrid = RadialIntGrid(rtf)
+    rgrid = RadialGrid(rtf)
     grid = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False, keep_subgrids=False)
 
     try:

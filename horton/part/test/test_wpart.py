@@ -37,7 +37,7 @@ def check_water_hf_sto3g(scheme, local, expecting, **kwargs):
 
     # Create a grid for the partitioning
     rtf = ExpRTransform(5e-4, 2e1, 120)
-    rgrid = RadialIntGrid(rtf)
+    rgrid = RadialGrid(rtf)
 
     # Do the partitioning, both with local and global grids
     grid = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False, keep_subgrids=local)
@@ -110,7 +110,7 @@ def check_msa_hf_lan(scheme, local, expecting, **kwargs):
 
     # Create a grid for the partitioning
     rtf = ExpRTransform(5e-4, 2e1, 120)
-    rgrid = RadialIntGrid(rtf)
+    rgrid = RadialGrid(rtf)
 
     # Do the partitioning, both with local and global grids
     grid = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False, keep_subgrids=int(local))
