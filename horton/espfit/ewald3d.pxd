@@ -26,10 +26,10 @@ cdef extern from "ewald3d.h":
     double pair_ewald3d(double* delta, cell.Cell* cell, double rcut,
         double alpha, double gcut)
 
-    void setup_esp_cost_cube_ewald3d(uniform.UniformIntGrid* ui_grid,
+    void setup_esp_cost_cube_ewald3d(uniform.UniformGrid* ugrid,
         double* vref, double* weights, double* centers, double* A, double* B,
         double* C, long ncenter, double rcut, double alpha, double gcut) except +
 
-    void compute_esp_cube_ewald3d(uniform.UniformIntGrid* ui_grid, double* esp,
+    void compute_esp_cube_ewald3d(uniform.UniformGrid* ugrid, double* esp,
         double* centers, double* charges, long ncenter, double rcut,
         double alpha, double gcut)

@@ -48,49 +48,49 @@ def test_iter_elements():
 
 
 def test_reduce_data0():
-    from horton import UniformIntGrid
+    from horton import UniformGrid
     data = np.random.normal(0, 1, (10, 20, 30))
     grid_rvecs = np.identity(3, float)*0.1
-    ui_grid = UniformIntGrid(np.array([0.5, 0.3, -0.1]), grid_rvecs, np.array(data.shape), np.array([0, 1, 0]))
+    ugrid = UniformGrid(np.array([0.5, 0.3, -0.1]), grid_rvecs, np.array(data.shape), np.array([0, 1, 0]))
 
-    data1, ui_grid1 = reduce_data(data, ui_grid, 10, 0)
+    data1, ugrid1 = reduce_data(data, ugrid, 10, 0)
     assert data1.shape == (1, 2, 3)
     assert (data1 == data[::10,::10,::10]).all()
-    assert (ui_grid1.origin == ui_grid.origin).all()
-    assert abs(ui_grid1.grid_cell.rvecs - ui_grid.grid_cell.rvecs*10).max() < 1e-10
-    assert (ui_grid1.shape == [1, 2, 3]).all()
-    assert (ui_grid1.pbc == ui_grid.pbc).all()
+    assert (ugrid1.origin == ugrid.origin).all()
+    assert abs(ugrid1.grid_cell.rvecs - ugrid.grid_cell.rvecs*10).max() < 1e-10
+    assert (ugrid1.shape == [1, 2, 3]).all()
+    assert (ugrid1.pbc == ugrid.pbc).all()
 
-    data2, ui_grid2 = reduce_data(data, ui_grid, 5, 0)
+    data2, ugrid2 = reduce_data(data, ugrid, 5, 0)
     assert data2.shape == (2, 4, 6)
     assert (data2 == data[::5,::5,::5]).all()
-    assert (ui_grid2.origin == ui_grid.origin).all()
-    assert abs(ui_grid2.grid_cell.rvecs - ui_grid.grid_cell.rvecs*5).max() < 1e-10
-    assert (ui_grid2.shape == [2, 4, 6]).all()
-    assert (ui_grid2.pbc == ui_grid.pbc).all()
+    assert (ugrid2.origin == ugrid.origin).all()
+    assert abs(ugrid2.grid_cell.rvecs - ugrid.grid_cell.rvecs*5).max() < 1e-10
+    assert (ugrid2.shape == [2, 4, 6]).all()
+    assert (ugrid2.pbc == ugrid.pbc).all()
 
 
 def test_reduce_data1():
-    from horton import UniformIntGrid
+    from horton import UniformGrid
     data = np.random.normal(0, 1, (11, 21, 31))
     grid_rvecs = np.identity(3, float)*0.1
-    ui_grid = UniformIntGrid(np.array([0.3, 0.2, -0.1]), grid_rvecs, np.array(data.shape), np.array([1, 1, 0]))
+    ugrid = UniformGrid(np.array([0.3, 0.2, -0.1]), grid_rvecs, np.array(data.shape), np.array([1, 1, 0]))
 
-    data1, ui_grid1 = reduce_data(data, ui_grid, 10, 1)
+    data1, ugrid1 = reduce_data(data, ugrid, 10, 1)
     assert data1.shape == (1, 2, 3)
     assert (data1 == data[:-1:10,:-1:10,:-1:10]).all()
-    assert (ui_grid1.origin == ui_grid.origin).all()
-    assert abs(ui_grid1.grid_cell.rvecs - ui_grid.grid_cell.rvecs*10).max() < 1e-10
-    assert (ui_grid1.shape == [1, 2, 3]).all()
-    assert (ui_grid1.pbc == ui_grid.pbc).all()
+    assert (ugrid1.origin == ugrid.origin).all()
+    assert abs(ugrid1.grid_cell.rvecs - ugrid.grid_cell.rvecs*10).max() < 1e-10
+    assert (ugrid1.shape == [1, 2, 3]).all()
+    assert (ugrid1.pbc == ugrid.pbc).all()
 
-    data2, ui_grid2 = reduce_data(data, ui_grid, 5, 1)
+    data2, ugrid2 = reduce_data(data, ugrid, 5, 1)
     assert data2.shape == (2, 4, 6)
     assert (data2 == data[:-1:5,:-1:5,:-1:5]).all()
-    assert (ui_grid2.origin == ui_grid.origin).all()
-    assert abs(ui_grid2.grid_cell.rvecs - ui_grid.grid_cell.rvecs*5).max() < 1e-10
-    assert (ui_grid2.shape == [2, 4, 6]).all()
-    assert (ui_grid2.pbc == ui_grid.pbc).all()
+    assert (ugrid2.origin == ugrid.origin).all()
+    assert abs(ugrid2.grid_cell.rvecs - ugrid.grid_cell.rvecs*5).max() < 1e-10
+    assert (ugrid2.shape == [2, 4, 6]).all()
+    assert (ugrid2.pbc == ugrid.pbc).all()
 
 
 def test_parse_pbc():
@@ -100,36 +100,36 @@ def test_parse_pbc():
     assert (parse_pbc('001') == [0, 0, 1]).all()
 
 
-def test_parse_ui_grid_1():
+def test_parse_ugrid_1():
     rvecs = np.diag([3.0, 2.0, 1.0])*angstrom
     cell = Cell(rvecs)
-    ui_grid = parse_ui_grid('0.1', cell)
+    ugrid = parse_ugrid('0.1', cell)
 
-    assert (ui_grid.origin == [0, 0, 0]).all()
-    assert abs(ui_grid.grid_cell.rvecs - np.identity(3, float)*0.1*angstrom).max() < 1e-10
-    assert (ui_grid.shape == [30, 20, 10]).all()
-    assert (ui_grid.pbc == 1).all()
+    assert (ugrid.origin == [0, 0, 0]).all()
+    assert abs(ugrid.grid_cell.rvecs - np.identity(3, float)*0.1*angstrom).max() < 1e-10
+    assert (ugrid.shape == [30, 20, 10]).all()
+    assert (ugrid.pbc == 1).all()
 
 
-def test_parse_ui_grid_2():
-    tmpdir = tempfile.mkdtemp('horton.scripts.test.test_common.test_parse_ui_grid_2')
+def test_parse_ugrid_2():
+    tmpdir = tempfile.mkdtemp('horton.scripts.test.test_common.test_parse_ugrid_2')
     fn_h5 = os.path.join(tmpdir, 'test.h5')
     try:
         origin = np.random.uniform(0, 1, 3)
         grid_rvecs = np.random.uniform(0, 1, (3, 3))
         shape = np.random.randint(10, 20, 3)
         pbc = np.random.randint(0, 2, 3)
-        ui_grid1 = UniformIntGrid(origin, grid_rvecs, shape, pbc)
+        ugrid1 = UniformGrid(origin, grid_rvecs, shape, pbc)
 
         with h5.File(fn_h5) as f:
-            ui_grid1.to_hdf5(f)
+            ugrid1.to_hdf5(f)
 
-        ui_grid2 = parse_ui_grid('%s:/' % fn_h5, None)
+        ugrid2 = parse_ugrid('%s:/' % fn_h5, None)
 
-        assert (ui_grid2.origin == origin).all()
-        assert (ui_grid2.grid_cell.rvecs == grid_rvecs).all()
-        assert (ui_grid2.shape == shape).all()
-        assert (ui_grid2.pbc == pbc).all()
+        assert (ugrid2.origin == origin).all()
+        assert (ugrid2.grid_cell.rvecs == grid_rvecs).all()
+        assert (ugrid2.shape == shape).all()
+        assert (ugrid2.pbc == pbc).all()
     finally:
         if os.path.isfile(fn_h5):
             os.remove(fn_h5)

@@ -82,10 +82,10 @@ def get_fake_co():
     origin = np.array([-3.0, -3.0, -3.0])
     rvecs = np.identity(3, float)*0.2
     shape = np.array([30, 30, 30+11])
-    ui_grid = UniformIntGrid(origin, rvecs, shape, np.ones(3, int))
+    ugrid = UniformGrid(origin, rvecs, shape, np.ones(3, int))
 
-    mol_dens = np.zeros(ui_grid.shape)
-    tmp = np.zeros(ui_grid.shape)
+    mol_dens = np.zeros(ugrid.shape)
+    tmp = np.zeros(ugrid.shape)
     setup = [
         (0, +1, 0.5),
         (0,  0, 0.4),
@@ -100,11 +100,11 @@ def get_fake_co():
         # TODO: can be made more efficient by scaling the spline function
         spline = proatomdb.get_spline(n, charge)
         tmp[:] = 0.0
-        ui_grid.eval_spline(spline, c, tmp)
+        ugrid.eval_spline(spline, c, tmp)
         tmp *= frac
         mol_dens += tmp
 
-    return sys, ui_grid, mol_dens, proatomdb
+    return sys, ugrid, mol_dens, proatomdb
 
 
 def get_fake_pseudo_oo(smooth=False):
@@ -122,10 +122,10 @@ def get_fake_pseudo_oo(smooth=False):
     origin = np.array([-3.0, -3.0, -3.0])
     rvecs = np.identity(3, float)*0.2
     shape = np.array([30, 30, 30+11])
-    ui_grid = UniformIntGrid(origin, rvecs, shape, np.ones(3, int))
+    ugrid = UniformGrid(origin, rvecs, shape, np.ones(3, int))
 
-    mol_dens = np.zeros(ui_grid.shape)
-    tmp = np.zeros(ui_grid.shape)
+    mol_dens = np.zeros(ugrid.shape)
+    tmp = np.zeros(ugrid.shape)
     setup = [
         (0, +1, 0.5),
         (0,  0, 0.4),
@@ -140,11 +140,11 @@ def get_fake_pseudo_oo(smooth=False):
         # TODO: can be made more efficient by scaling the spline function
         spline = proatomdb.get_spline(n, charge)
         tmp[:] = 0.0
-        ui_grid.eval_spline(spline, c, tmp)
+        ugrid.eval_spline(spline, c, tmp)
         tmp *= frac
         mol_dens += tmp
 
-    return sys, ui_grid, mol_dens, proatomdb
+    return sys, ugrid, mol_dens, proatomdb
 
 
 def check_names(names, part):

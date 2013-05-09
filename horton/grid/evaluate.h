@@ -30,7 +30,7 @@
 
 
 void eval_spline_cube(CubicSpline* spline, double* center, double* output,
-                      UniformIntGrid* ui_grid);
+                      UniformGrid* ugrid);
 
 void eval_spline_grid(CubicSpline* spline, double* center, double* output,
                       double* points, Cell* cell, long npoint);

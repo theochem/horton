@@ -24,10 +24,10 @@
 import sys, argparse, os
 
 import h5py as h5, numpy as np
-from horton import System, UniformIntGrid, log, Cell, angstrom, \
+from horton import System, UniformGrid, log, Cell, angstrom, \
     compute_esp_grid_cube, dump_hdf5_low
 from horton.scripts.common import parse_h5, parse_ewald_args, store_args, \
-    safe_open_h5, parse_ui_grid
+    safe_open_h5, parse_ugrid
 
 
 def parse_args():
@@ -88,10 +88,10 @@ def main():
     results['qtot'] = charges.sum()
 
     # Determine the grid specification
-    ui_grid = parse_ui_grid(args.grid, cell)
-    results['ui_grid'] = ui_grid
+    ugrid = parse_ugrid(args.grid, cell)
+    results['ugrid'] = ugrid
 
-    if ui_grid.pbc.sum() != 3:
+    if ugrid.pbc.sum() != 3:
         raise NotImplementedError('Only 3D periodic cells are suppported.')
 
     # Ewald parameters
@@ -101,8 +101,8 @@ def main():
     if log.do_medium:
         log('Important parameters:')
         log.hline()
-        log('Number of grid points:   %12i' % ui_grid.size)
-        log('Grid shape:                 [%8i, %8i, %8i]' % tuple(ui_grid.shape))
+        log('Number of grid points:   %12i' % ugrid.size)
+        log('Grid shape:                 [%8i, %8i, %8i]' % tuple(ugrid.shape))
         log('Ewald real cutoff:       %12.5e' % rcut)
         log('Ewald alpha:             %12.5e' % alpha)
         log('Ewald reciprocal cutoff: %12.5e' % gcut)
@@ -111,8 +111,8 @@ def main():
         log('Computing ESP (may take a while)')
 
     # Allocate and compute ESP grid
-    esp = np.zeros(ui_grid.shape, float)
-    compute_esp_grid_cube(ui_grid, esp, sys.coordinates, charges, rcut, alpha, gcut)
+    esp = np.zeros(ugrid.shape, float)
+    compute_esp_grid_cube(ugrid, esp, sys.coordinates, charges, rcut, alpha, gcut)
     results['esp'] = esp
 
     # Store the results in an HDF5 file

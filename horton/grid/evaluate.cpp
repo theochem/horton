@@ -30,14 +30,14 @@
 
 
 void eval_spline_cube(CubicSpline* spline, double* center, double* output,
-                      UniformIntGrid* ui_grid) {
+                      UniformGrid* ugrid) {
 
     // Find the ranges for the triple loop
     double rcut = spline->get_last_x();
     long begin[3], end[3];
-    ui_grid->set_ranges_rcut(center, rcut, begin, end);
+    ugrid->set_ranges_rcut(center, rcut, begin, end);
 
-    Block3Iterator b3i = Block3Iterator(begin, end, ui_grid->get_shape());
+    Block3Iterator b3i = Block3Iterator(begin, end, ugrid->get_shape());
 
     // Run triple loop over blocks (serial)
     for (long iblock=b3i.get_nblock()-1; iblock>=0; iblock--) {
@@ -57,13 +57,13 @@ void eval_spline_cube(CubicSpline* spline, double* center, double* output,
             c3i.set_point(ipoint, jwrap);
             b3i.translate(b, jwrap, j);
 
-            double d = ui_grid->dist_grid_point(center, j);
+            double d = ugrid->dist_grid_point(center, j);
 
             // Evaluate spline if needed
             if (d < rcut) {
                 double s;
                 spline->eval(&d, &s, 1);
-                *(ui_grid->get_pointer(output, jwrap)) += s;
+                *(ugrid->get_pointer(output, jwrap)) += s;
             }
 
         }

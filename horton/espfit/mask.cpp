@@ -44,39 +44,39 @@ void multiply_dens_mask(double* rho, double rho0, double alpha, double* weights,
     }
 }
 
-void multiply_near_mask(double* center, UniformIntGrid* ui_grid, double r0,
+void multiply_near_mask(double* center, UniformGrid* ugrid, double r0,
     double gamma, double* weights) {
 
     // Find the ranges for the triple loop
     long ranges_begin[3], ranges_end[3];
     double rcut = r0+gamma;
-    ui_grid->set_ranges_rcut(center, rcut, ranges_begin, ranges_end);
+    ugrid->set_ranges_rcut(center, rcut, ranges_begin, ranges_end);
 
     // Run triple loop
-    Range3Iterator r3i = Range3Iterator(ranges_begin, ranges_end, ui_grid->get_shape());
+    Range3Iterator r3i = Range3Iterator(ranges_begin, ranges_end, ugrid->get_shape());
     long j[3], jwrap[3];
     for (long ipoint=r3i.get_npoint()-1; ipoint >= 0; ipoint--) {
         r3i.set_point(ipoint, j, jwrap);
-        double d = ui_grid->dist_grid_point(center, j);
+        double d = ugrid->dist_grid_point(center, j);
         // mask if needed
         if (d < rcut) {
             // Add to result
-            double* dest = ui_grid->get_pointer(weights, jwrap);
+            double* dest = ugrid->get_pointer(weights, jwrap);
             *dest *= switch_fn(r0-d, gamma);
         }
     }
 
 }
 
-void multiply_far_mask(double* centers, long ncenter, UniformIntGrid* ui_grid,
+void multiply_far_mask(double* centers, long ncenter, UniformGrid* ugrid,
     double r0, double gamma, double* weights) {
 
     // prepare some variables needed in the loop
     const double rcut = r0 - gamma;
-    const Cell* cell = ui_grid->get_cell();
+    const Cell* cell = ugrid->get_cell();
 
     // Run triple loop
-    Range3Iterator r3i = Range3Iterator(NULL, ui_grid->get_shape(), NULL);
+    Range3Iterator r3i = Range3Iterator(NULL, ugrid->get_shape(), NULL);
     long j[3];
     for (long ipoint=r3i.get_npoint()-1; ipoint >= 0; ipoint--) {
         r3i.set_point(ipoint, j, NULL);
@@ -86,13 +86,13 @@ void multiply_far_mask(double* centers, long ncenter, UniformIntGrid* ui_grid,
             delta[0] = centers[3*icenter];
             delta[1] = centers[3*icenter+1];
             delta[2] = centers[3*icenter+2];
-            ui_grid->dist_grid_point(delta, j);
+            ugrid->dist_grid_point(delta, j);
             cell->mic(delta);
             expsum += exp(-sqrt(delta[0]*delta[0] + delta[1]*delta[1] + delta[2]*delta[2]));
         }
         const double d = -log(expsum);
         if (d > rcut) {
-            double* dest = ui_grid->get_pointer(weights, j);
+            double* dest = ugrid->get_pointer(weights, j);
             *dest *= switch_fn(d-r0, gamma);
         }
     }

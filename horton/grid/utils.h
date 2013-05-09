@@ -24,7 +24,7 @@
 #include "uniform.h"
 
 double dot_multi(long npoint, long nvector, double** data);
-double dot_multi_moments_cube(long nvector, double** data, UniformIntGrid* ui_grid, double* center, long nx, long ny, long nz, long nr);
+double dot_multi_moments_cube(long nvector, double** data, UniformGrid* ugrid, double* center, long nx, long ny, long nz, long nr);
 double dot_multi_moments(long npoint, long nvector, double** data, double* points, double* center, long nx, long ny, long nz, long nr);
 void dot_multi_parts(long npoint, long nvector, long noutput, double** data, long* sizes, double* output);
 

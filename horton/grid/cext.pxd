@@ -23,11 +23,11 @@
 cimport uniform
 cimport horton.cext
 
-cdef class UniformIntGrid:
+cdef class UniformGrid:
     cdef horton.cext.Cell _grid_cell
     cdef horton.cext.Cell _cell
-    cdef uniform.UniformIntGrid* _this
+    cdef uniform.UniformGrid* _this
 
-cdef class UniformIntGridWindow:
-    cdef UniformIntGrid _ui_grid
-    cdef uniform.UniformIntGridWindow* _this
+cdef class UniformGridWindow:
+    cdef UniformGrid _ugrid
+    cdef uniform.UniformGridWindow* _this

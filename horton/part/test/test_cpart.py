@@ -36,7 +36,7 @@ def check_jbw_coarse(local):
     fn_cube = context.get_fn('test/jbw_coarse_aedens.cube')
     sys = System.from_file(fn_cube)
     mol_dens = sys.props['cube_data']
-    ui_grid = sys.props['ui_grid']
+    ugrid = sys.props['ugrid']
 
     # Load some pro-atoms
     rtf = ExpRTransform(1e-3, 1e1, 100)
@@ -45,7 +45,7 @@ def check_jbw_coarse(local):
     proatomdb = ProAtomDB.from_refatoms(atgrid, numbers=[8,14], max_kation=0, max_anion=0)
 
     # Run the partitioning
-    cpart = HirshfeldCPart(sys, ui_grid, local, mol_dens, proatomdb, range(119))
+    cpart = HirshfeldCPart(sys, ugrid, local, mol_dens, proatomdb, range(119))
 
     # Do some testing
     if local:
@@ -54,7 +54,7 @@ def check_jbw_coarse(local):
     else:
         cpart.do_charges()
         wcor = cpart.get_wcor()
-        assert abs(cpart['populations'].sum() - ui_grid.integrate(wcor, mol_dens)) < 1e-10
+        assert abs(cpart['populations'].sum() - ugrid.integrate(wcor, mol_dens)) < 1e-10
 
 
 def test_hirshfeld_jbw_coarse_local():
@@ -67,9 +67,9 @@ def test_hirshfeld_jbw_coarse_global():
 
 def check_fake(scheme, pseudo, dowcor, local, absmean, **kwargs):
     if pseudo:
-        sys, ui_grid, mol_dens, proatomdb = get_fake_pseudo_oo()
+        sys, ugrid, mol_dens, proatomdb = get_fake_pseudo_oo()
     else:
-        sys, ui_grid, mol_dens, proatomdb = get_fake_co()
+        sys, ugrid, mol_dens, proatomdb = get_fake_co()
 
     if dowcor:
         wcor_numbers = range(119)
@@ -77,7 +77,7 @@ def check_fake(scheme, pseudo, dowcor, local, absmean, **kwargs):
         wcor_numbers = []
 
     CPartClass = cpart_schemes[scheme]
-    cpart = CPartClass(sys, ui_grid, local, mol_dens, proatomdb, wcor_numbers, **kwargs)
+    cpart = CPartClass(sys, ugrid, local, mol_dens, proatomdb, wcor_numbers, **kwargs)
 
     cpart.do_charges()
     charges = cpart['charges']
