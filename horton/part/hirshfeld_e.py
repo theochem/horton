@@ -158,6 +158,9 @@ class HEBasis(object):
 class HirshfeldEMixin(object):
     name = 'he'
 
+    def __init__(self, hebasis):
+        self._hebasis = hebasis
+
     def _init_log_scheme(self):
         if log.do_medium:
             log.deflist([
@@ -168,11 +171,16 @@ class HirshfeldEMixin(object):
             ])
             log.cite('verstraelen2013', 'the use of Hirshfeld-E partitioning')
 
+    def _get_hebasis(self):
+        return self._hebasis
+
+    hebasis = property(_get_hebasis)
+
     def get_memory_estimates(self):
         if self._greedy:
             return [
                 ('Constant', np.ones(self.natom), 0),
-                ('Basis', np.array([self._hebasis.get_atom_nbasis(i) for i in xrange(self.natom)]), 0),
+                ('Basis', np.array([self.hebasis.get_atom_nbasis(i) for i in xrange(self.natom)]), 0),
             ]
         else:
             return []
@@ -180,13 +188,13 @@ class HirshfeldEMixin(object):
     def get_proatom_rho(self, index, propars=None):
         if propars is None:
             propars = self._cache.load('propars')
-        begin = self._hebasis.get_atom_begin(index)
-        nbasis =  self._hebasis.get_atom_nbasis(index)
+        begin = self.hebasis.get_atom_begin(index)
+        nbasis =  self.hebasis.get_atom_nbasis(index)
 
         total_lico = {0: 1}
         for j in xrange(nbasis):
             coeff = propars[j+begin]
-            lico = self._hebasis.get_basis_lico(index, j)
+            lico = self.hebasis.get_basis_lico(index, j)
             for icharge, factor in lico.iteritems():
                 total_lico[icharge] = total_lico.get(icharge, 0) + coeff*factor
 
@@ -194,12 +202,12 @@ class HirshfeldEMixin(object):
         return self._proatomdb.get_rho(number, total_lico)
 
     def get_constant(self, index, grid=None):
-        spline = self._hebasis.get_constant_spline(index)
+        spline = self.hebasis.get_constant_spline(index)
         return self.get_somefn(index, spline, ('constant',), 'constant', grid)
 
     def get_basis(self, index, j, grid=None):
-        spline = self._hebasis.get_basis_spline(index, j)
-        label = self._hebasis.get_basis_label(index, j)
+        spline = self.hebasis.get_basis_spline(index, j)
+        label = self.hebasis.get_basis_label(index, j)
         return self.get_somefn(index, spline, ('basis', j), 'basis %s' % label, grid)
 
     def eval_proatom(self, index, output, grid=None):
@@ -208,8 +216,8 @@ class HirshfeldEMixin(object):
 
         #
         propars = self._cache.load('propars')
-        begin = self._hebasis.get_atom_begin(index)
-        nbasis =  self._hebasis.get_atom_nbasis(index)
+        begin = self.hebasis.get_atom_begin(index)
+        nbasis =  self.hebasis.get_atom_nbasis(index)
 
         for j in xrange(nbasis):
             coeff = propars[j+begin]
@@ -223,19 +231,19 @@ class HirshfeldEMixin(object):
         self.history_propars = []
         self.history_charges = []
         self.cache.load('charges', alloc=self._system.natom)[0]
-        propar_map, propar_names = self._hebasis.get_basis_info()
+        propar_map, propar_names = self.hebasis.get_basis_info()
         self._cache.dump('propar_map', propar_map)
         self._cache.dump('propar_names', np.array(propar_names))
-        nbasis = self._hebasis.get_nbasis()
-        propars = self._hebasis.get_initial_propars()
+        nbasis = self.hebasis.get_nbasis()
+        propars = self.hebasis.get_initial_propars()
         self._cache.dump('propars', propars)
         return propars
 
     def _update_propars_atom(self, index):
         # Prepare some things
         charges = self._cache.load('charges', alloc=self.system.natom)[0]
-        begin = self._hebasis.get_atom_begin(index)
-        nbasis = self._hebasis.get_atom_nbasis(index)
+        begin = self.hebasis.get_atom_begin(index)
+        nbasis = self.hebasis.get_atom_nbasis(index)
 
         # Compute charge and delta aim density
         charge, delta_aim = self._get_charge_and_delta_aim(index)
@@ -261,7 +269,7 @@ class HirshfeldEMixin(object):
         for j0 in xrange(nbasis):
             lc = np.zeros(nbasis)
             lc[j0] = 1.0/scales[j0]
-            lcs_par.append((lc, self._hebasis.get_lower_bound(index, j0)))
+            lcs_par.append((lc, self.hebasis.get_lower_bound(index, j0)))
         atom_propars = quadratic_solver(A, B, [lc_pop], lcs_par, rcond=0)
         rrms = np.dot(np.dot(A, atom_propars) - 2*B, atom_propars)/C + 1
         if rrms > 0:
@@ -292,7 +300,7 @@ class HirshfeldEMixin(object):
 
     def _get_he_system(self, index, delta_aim):
         number = self.system.numbers[index]
-        nbasis = self._hebasis.get_atom_nbasis(index)
+        nbasis = self.hebasis.get_atom_nbasis(index)
         grid = self.get_grid(index)
         wcor_fit = self.get_wcor_fit(index)
 
@@ -307,9 +315,9 @@ class HirshfeldEMixin(object):
                 # a radial grid for efficiency.
                 rgrid = self.proatomdb.get_rgrid(number)
                 for j0 in xrange(nbasis):
-                    rho0 = self._hebasis.get_basis_rho(index, j0)
+                    rho0 = self.hebasis.get_basis_rho(index, j0)
                     for j1 in xrange(j0+1):
-                        rho1 = self._hebasis.get_basis_rho(index, j1)
+                        rho1 = self.hebasis.get_basis_rho(index, j1)
                         A[j0, j1] = rgrid.integrate(rho0, rho1)
                         A[j1, j0] = A[j0, j1]
             else:
@@ -320,11 +328,11 @@ class HirshfeldEMixin(object):
                 basis1 = grid.zeros()
                 for j0 in xrange(nbasis):
                     basis0[:] = 0.0
-                    spline0 = self._hebasis.get_basis_spline(index, j0)
+                    spline0 = self.hebasis.get_basis_spline(index, j0)
                     self.eval_spline(index, spline0, basis0, label='basis %i' % j0)
                     for j1 in xrange(j0+1):
                         basis1[:] = 0.0
-                        spline1 = self._hebasis.get_basis_spline(index, j1)
+                        spline1 = self.hebasis.get_basis_spline(index, j1)
                         self.eval_spline(index, spline1, basis1, label='basis %i' % j1)
                         A[j0, j1] = grid.integrate(basis0, basis1, wcor_fit)
                         A[j1, j0] = A[j0, j1]
@@ -351,7 +359,8 @@ class HirshfeldEMixin(object):
 
 class HirshfeldEWPart(HirshfeldEMixin, HirshfeldIWPart):
     def __init__(self, system, grid, proatomdb, local=True, threshold=1e-6, maxiter=500, greedy=False):
-        self._hebasis = HEBasis(system.numbers, proatomdb)
+        hebasis = HEBasis(system.numbers, proatomdb)
+        HirshfeldEMixin.__init__(self, hebasis)
         HirshfeldIWPart.__init__(self, system, grid, proatomdb, local, threshold, maxiter, greedy)
 
     def get_wcor_fit(self, index):
@@ -375,7 +384,8 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
         '''
            See CPart base class for the description of the arguments.
         '''
-        self._hebasis = HEBasis(system.numbers, proatomdb)
+        hebasis = HEBasis(system.numbers, proatomdb)
+        HirshfeldEMixin.__init__(self, hebasis)
         HirshfeldICPart.__init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max, wcor_rcond, threshold, maxiter, greedy)
 
     def get_memory_estimates(self):
@@ -395,14 +405,14 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
             return []
 
         center = self._system.coordinates[index]
-        atom_nbasis = self._hebasis.get_atom_nbasis(index)
+        atom_nbasis = self.hebasis.get_atom_nbasis(index)
         rtf = self._proatomdb.get_rgrid(self._system.numbers[index]).rtransform
         splines = []
         for j0 in xrange(atom_nbasis):
-            rho0 = self._hebasis.get_basis_rho(index, j0)
+            rho0 = self.hebasis.get_basis_rho(index, j0)
             splines.append(CubicSpline(rho0, rtf=rtf))
             for j1 in xrange(j0+1):
-                rho1 = self._hebasis.get_basis_rho(index, j1)
+                rho1 = self.hebasis.get_basis_rho(index, j1)
                 splines.append(CubicSpline(rho0*rho1, rtf=rtf))
         return [(center, splines)]
 
