@@ -26,4 +26,3 @@ converged = converge_scf_oda(ham)
 log.set_level(log.high)
 ham.compute_energy()
 log.set_level(log.medium)
-
