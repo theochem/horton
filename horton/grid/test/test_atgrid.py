@@ -27,7 +27,7 @@ from horton import *
 
 def test_interpret_atspec():
     rtf = ExpRTransform(0.1, 1e1, 4)
-    rgrid = RadialIntGrid(rtf, TrapezoidIntegrator1D())
+    rgrid = RadialGrid(rtf, TrapezoidIntegrator1D())
 
     rgrid0, nlls0 = interpret_atspec(1, (rgrid, 6))
     assert rgrid is rgrid0
@@ -75,7 +75,7 @@ def test_interpret_atspec_family():
 def test_atomic_grid_basics():
     center = np.random.uniform(-1,1,3)
     rtf = ExpRTransform(0.1, 1e1, 4)
-    rgrid = RadialIntGrid(rtf, TrapezoidIntegrator1D())
+    rgrid = RadialGrid(rtf, TrapezoidIntegrator1D())
     nlls = 6
     for random_rotate in True, False:
         ag0 = AtomicGrid(1, center, (rgrid, 6), random_rotate)
@@ -94,7 +94,7 @@ def test_atomic_grid_basics():
 def get_hydrogen_1s():
     center = np.random.uniform(-1,1,3)
     rtf = BakerRTransform(2e1, 100)
-    rgrid = RadialIntGrid(rtf, CubicIntegrator1D())
+    rgrid = RadialGrid(rtf, CubicIntegrator1D())
     ag = AtomicGrid(1, center, (rgrid, 110), 100)
     distances = np.sqrt(((center - ag.points)**2).sum(axis=1))
     fn = np.exp(-2*distances)/np.pi
@@ -121,7 +121,7 @@ def test_spherical_average_hydrogen_1s():
 def test_atgrid_attrs():
     center = np.array([0.7, 0.2, -0.5], float)
     rtf = ExpRTransform(1e-3, 1e1, 50)
-    rgrid = RadialIntGrid(rtf)
+    rgrid = RadialGrid(rtf)
     ag = AtomicGrid(3, center, (rgrid, 26))
 
     assert ag.size == 50*26

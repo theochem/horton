@@ -25,7 +25,7 @@ from horton import *
 def test_basics1():
     rtf = ExpRTransform(0.1, 1e1, 4)
     int1d = TrapezoidIntegrator1D()
-    grid = RadialIntGrid(rtf, int1d)
+    grid = RadialGrid(rtf, int1d)
 
     assert grid.size == 4
     assert grid.shape == (4,)
@@ -38,7 +38,7 @@ def test_basics1():
 
 def test_basics2():
     rtf = BakerRTransform(1e1, 100)
-    grid = RadialIntGrid(rtf)
+    grid = RadialGrid(rtf)
 
     assert grid.size == 100
     assert grid.shape == (100,)
@@ -51,7 +51,7 @@ def test_basics2():
 
 def test_integrate_gauss():
     rtf = ExpRTransform(0.01, 1e1, 100)
-    grid = RadialIntGrid(rtf)
+    grid = RadialGrid(rtf)
 
     y = np.exp(-0.5*grid.radii**2)
     print grid.integrate(y), (2*np.pi)**1.5

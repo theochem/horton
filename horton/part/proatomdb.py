@@ -29,7 +29,7 @@ from horton.exceptions import ElectronCountError
 from horton.grid.atgrid import AtomicGrid
 from horton.grid.int1d import SimpsonIntegrator1D
 from horton.grid.cext import RTransform, CubicSpline, dot_multi
-from horton.grid.radial import RadialIntGrid
+from horton.grid.radial import RadialGrid
 from horton.guess import guess_hamiltonian_core
 from horton.hamiltonian import Hamiltonian
 from horton.log import log
@@ -373,7 +373,7 @@ class ProAtomDB(object):
                 number=grp.attrs['number'],
                 charge=grp.attrs['charge'],
                 energy=grp.attrs['energy'],
-                rgrid=RadialIntGrid(RTransform.from_string(grp.attrs['rtransform'])),
+                rgrid=RadialGrid(RTransform.from_string(grp.attrs['rtransform'])),
                 rho=grp['rho'][:],
                 pseudo_number=grp.attrs.get('pseudo_number'),
             ))

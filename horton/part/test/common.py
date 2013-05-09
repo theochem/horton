@@ -36,7 +36,7 @@ __all__ = [
 def get_proatomdb_ref(numbers, max_kation, max_anion):
     '''Return a proatomdb for testing purposes'''
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    rgrid = RadialIntGrid(rtf)
+    rgrid = RadialGrid(rtf)
     atgrid = AtomicGrid(0, np.zeros(3, float), (rgrid, 110), random_rotate=False)
     return ProAtomDB.from_refatoms(atgrid, numbers, max_kation, max_anion)
 
@@ -44,7 +44,7 @@ def get_proatomdb_ref(numbers, max_kation, max_anion):
 def get_proatomdb_cp2k():
     '''Return a proatomdb of pseudo oxygens and one silicon for testing purposes'''
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    rgrid = RadialIntGrid(rtf)
+    rgrid = RadialGrid(rtf)
     atgrid = AtomicGrid(0, np.zeros(3, float), (rgrid, 110), random_rotate=False)
     fns = glob(context.get_fn('test/atom_*.cp2k.out'))
     return ProAtomDB.from_files(fns, atgrid)
@@ -53,7 +53,7 @@ def get_proatomdb_cp2k():
 def get_proatomdb_hf_sto3g():
     '''Return a proatomdb of H and O at hf/sto-3g for testing purposes'''
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    rgrid = RadialIntGrid(rtf)
+    rgrid = RadialGrid(rtf)
     atgrid = AtomicGrid(0, np.zeros(3, float), (rgrid, 110), random_rotate=False)
     fns = glob(context.get_fn('test/atom_???_???_hf_sto3g.fchk'))
     return ProAtomDB.from_files(fns, atgrid)
@@ -62,7 +62,7 @@ def get_proatomdb_hf_sto3g():
 def get_proatomdb_hf_lan():
     '''Return a proatomdb of H, O, Si at hf/LANL2MB for testing purposes'''
     rtf = ExpRTransform(5e-4, 2e1, 120)
-    rgrid = RadialIntGrid(rtf)
+    rgrid = RadialGrid(rtf)
     atgrid = AtomicGrid(0, np.zeros(3, float), (rgrid, 110), random_rotate=False)
     fns = glob(context.get_fn('test/atom_???_???_hf_lan.fchk'))
     return ProAtomDB.from_files(fns, atgrid)

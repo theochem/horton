@@ -32,7 +32,7 @@ def test_integrate_hydrogen_single_1s():
     sys = System(coordinates, numbers)
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    rgrid = RadialIntGrid(rtf)
+    rgrid = RadialGrid(rtf)
     atspecs = (rgrid, 110)
 
     mg = BeckeMolGrid(sys, atspecs, random_rotate=False)
@@ -48,7 +48,7 @@ def test_integrate_hydrogen_pair_1s():
     sys = System(coordinates, numbers)
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    rgrid = RadialIntGrid(rtf)
+    rgrid = RadialGrid(rtf)
     atspecs = (rgrid, 110)
 
     mg = BeckeMolGrid(sys, atspecs, random_rotate=False)
@@ -64,7 +64,7 @@ def test_integrate_hydrogen_trimer_1s():
     coordinates = np.array([[0.0, 0.0, -0.5], [0.0, 0.0, 0.5], [0.0, 0.5, 0.0]], float)
     sys = System(coordinates, numbers)
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    rgrid = RadialIntGrid(rtf)
+    rgrid = RadialGrid(rtf)
     atspecs = (rgrid, 110)
 
     mg = BeckeMolGrid(sys, atspecs, random_rotate=False)
@@ -81,7 +81,7 @@ def test_molgrid_attrs_subgrid():
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
     sys = System(coordinates, numbers)
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    rgrid = RadialIntGrid(rtf, TrapezoidIntegrator1D())
+    rgrid = RadialGrid(rtf, TrapezoidIntegrator1D())
     atspecs = (rgrid, 110)
     mg = BeckeMolGrid(sys, atspecs, keep_subgrids=True)
 
@@ -119,7 +119,7 @@ def test_molgrid_attrs():
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
     sys = System(coordinates, numbers)
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    rgrid = RadialIntGrid(rtf, TrapezoidIntegrator1D())
+    rgrid = RadialGrid(rtf, TrapezoidIntegrator1D())
     atspecs = (rgrid, 110)
     mg = BeckeMolGrid(sys, atspecs, keep_subgrids=False)
 
@@ -138,7 +138,7 @@ def test_custom_grid_term():
     sys = System.from_file(fn_fchk)
     int1d = SimpsonIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    rgrid = RadialIntGrid(rtf)
+    rgrid = RadialGrid(rtf)
     grid = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False)
 
     # Without perturbation
