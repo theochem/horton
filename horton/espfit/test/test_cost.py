@@ -182,25 +182,28 @@ def test_esp_cost_solve_regularized():
     cost = ESPCost(A, B, C, 10)
 
     # test without constraint
-    x = cost.solve(ridge=1e-6)
-    print cost.gradient(x)
-    assert abs(cost.gradient(x)).max() < 1e-3
+    ridge = 1e-6
+    x = cost.solve(ridge=ridge)
+    l = ridge*np.diag(cost._A)[:cost.natom].mean()
+    ls = np.ones(cost._B.shape)*l
+    ls[-1] = 0
+    assert abs(cost.gradient(x) + 2*ls*x).max() < 1e-10
 
     # test with constraint 0.0
-    x = cost.solve(qtot=0.0, ridge=1e-6)
+    x = cost.solve(qtot=0.0, ridge=ridge)
     charges = x[:10]
     assert abs(charges.sum()) < 1e-10
-    gradient = cost.gradient(x)
-    assert abs(gradient[:10] - gradient[:10].mean()).max() < 1e-3
-    assert abs(gradient[10:]).max() < 1e-3
+    gradient = cost.gradient(x) + 2*ls*x
+    assert abs(gradient[:10] - gradient[:10].mean()).max() < 1e-10
+    assert abs(gradient[10:]).max() < 1e-10
 
     # test with constraint 1.0
-    x = cost.solve(qtot=1.0, ridge=1e-6)
+    x = cost.solve(qtot=1.0, ridge=ridge)
     charges = x[:10]
     assert abs(charges.sum()-1) < 1e-10
-    gradient = cost.gradient(x)
-    assert abs(gradient[:10] - gradient[:10].mean()).max() < 1e-3
-    assert abs(gradient[10:]).max() < 1e-3
+    gradient = cost.gradient(x) + 2*ls*x
+    assert abs(gradient[:10] - gradient[:10].mean()).max() < 1e-10
+    assert abs(gradient[10:]).max() < 1e-10
 
 
 def test_compare_cubetools():
