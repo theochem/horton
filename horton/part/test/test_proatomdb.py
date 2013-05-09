@@ -206,3 +206,8 @@ def test_normalize():
             nel = rgrid.integrate(r.rho)
             nel_integer = r.pseudo_number - charge
             assert abs(nel - nel_integer) < 1e-10
+
+
+def test_empty_proatom():
+    padb = get_proatomdb_cp2k()
+    assert (padb.get_rho(8, {}) == 0.0).all()

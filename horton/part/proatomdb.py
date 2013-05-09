@@ -457,7 +457,7 @@ class ProAtomDB(object):
             else:
                 raise ValueError('Combine argument "%s" not supported.' % combine)
             if not isinstance(rho, np.ndarray):
-                raise ValueError('At least some coefficients must be non-zero.')
+                rho = self.get_rgrid(number).zeros()
             return rho
         else:
             raise TypeError('Could not interpret parameters argument')

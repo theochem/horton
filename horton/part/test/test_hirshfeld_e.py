@@ -34,3 +34,5 @@ def test_hebasis_bound():
         assert hebasis.get_lower_bound(i, 0) == -1
         assert hebasis.get_lower_bound(i, 1) == -1
         assert hebasis.get_lower_bound(i, 2) == 0
+        assert hebasis.get_constant_lico(i) == {0: 1}
+    assert (hebasis.get_initial_propars() == 0).all()

@@ -182,6 +182,8 @@ class Cache(object):
             self.invalidate(*key)
 
     def invalidate(self, *key):
+        if len(key) == 0:
+            raise TypeError('At least on argument needed for invalidate method')
         item = self._store.get(key)
         if item is None:
             return
