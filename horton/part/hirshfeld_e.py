@@ -112,6 +112,9 @@ class HEBasis(object):
     def get_constant_spline(self, i):
         return self.proatomdb.get_spline(self.numbers[i])
 
+    def get_constant_lico(self, i):
+        return {0: 1}
+
     def get_basis_rho(self, i, j):
         licos = self.basis_specs[i][2]
         return self.proatomdb.get_rho(self.numbers[i], licos[j])
@@ -137,6 +140,9 @@ class HEBasis(object):
             return '%+i' % charges
         else:
             return '%+i_%+i' % charges
+
+    def get_initial_propars(self):
+        return np.zeros(self.nbasis)
 
     def get_basis_info(self):
         basis_map = []
@@ -221,7 +227,9 @@ class HirshfeldEMixin(object):
         self._cache.dump('propar_map', propar_map)
         self._cache.dump('propar_names', np.array(propar_names))
         nbasis = self._hebasis.get_nbasis()
-        return self._cache.load('propars', alloc=nbasis)[0]
+        propars = self._hebasis.get_initial_propars()
+        self._cache.dump('propars', propars)
+        return propars
 
     def _update_propars_atom(self, index):
         # Prepare some things

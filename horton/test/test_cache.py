@@ -265,6 +265,12 @@ def test_cache_basic_exceptions():
     except TypeError:
         pass
 
+    try:
+        c.invalidate()
+        assert False
+    except TypeError:
+        pass
+
 
 def test_discard():
     c = Cache()
