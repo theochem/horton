@@ -31,7 +31,7 @@ Common dependencies
 In order to compile and test Horton and its documentation, one needs to
 install relatively recent versions of the following programs/libraries:
 
-* Python < 3.0: http://www.python.org/ (also install `development files`)
+* Python >= 2.7, < 3.0: http://www.python.org/ (also install `development files`)
 * Numpy > 1.0: http://www.scipy.org/
 * h5py >= 2.1.1: http://code.google.com/p/h5py/
 * Scipy >= 0.10.0: http://www.scipy.org/
