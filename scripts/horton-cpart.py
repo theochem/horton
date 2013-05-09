@@ -61,22 +61,6 @@ def parse_args():
              'requires one argument: a CIF file with the generators of the '
              'symmetry of this system and a primitive unit cell.')
 
-    parser.add_argument('--tmp', type=str, default='.',
-        help='A directory where the temporary scratch file can be written. '
-             'This is only relevant with option --store=disk. '
-             '[default=%(default)s]')
-    parser.add_argument('--max-core', type=float, default=0.0,
-        help='Only relevant when --store=auto. This is the maximum amount of '
-             'memory (in GB) available to keep intermediate results. If cpart '
-             'estimates that less storage is needed than this threshold, '
-             '--store=core will be used. [default=%(default)s]')
-    parser.add_argument('--max-disk', type=float, default=0.0,
-        help='Only relevant when --store=auto. This is the maximum amount of '
-             'disk (in GB) available to keep intermediate results. If cpart '
-             'estimates that less storage is needed than this threshold, '
-             '--store=disk will be used. [default=%(default)s] When possible '
-             '--store=core has priority over --store=disk.')
-
     parser.add_argument('--compact', default=None, type=float,
         help='Reduce the cutoff radius of the proatoms such that the tail with '
              'the given number of electrons is neglected. The purpose of this '
