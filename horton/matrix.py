@@ -397,6 +397,54 @@ class DenseExpansion(LinalgObject):
         self._energies[:] = other._energies
         self._occupations[:] = other._occupations
 
+    def get_homo_index(self, offset=0):
+        '''Return the index of a HOMO orbital.'''
+        if offset < 0:
+            raise ValueError('Offset must be zero or positive.')
+        homo_indexes = self.occupations.nonzero()[0]
+        if len(homo_indexes) > offset:
+            return homo_indexes[len(homo_indexes)-offset-1]
+
+    def get_homo_energy(self, offset=0):
+        '''Return a homo energy
+
+           **Optional arguments**:
+
+           offset
+                By default, the (highest) homo energy is returned. When this
+                index is above zero, the corresponding lower homo energy is
+                returned.
+        '''
+        index = self.get_homo_index(offset)
+        if index is not None:
+            return self.energies[index]
+
+    homo_energy = property(get_homo_energy)
+
+    def get_lumo_index(self, offset=0):
+        '''Return the index of a LUMO orbital.'''
+        if offset < 0:
+            raise ValueError('Offset must be zero or positive.')
+        lumo_indexes = (self.occupations==0.0).nonzero()[0]
+        if len(lumo_indexes) > offset:
+            return lumo_indexes[offset]
+
+    def get_lumo_energy(self, offset=0):
+        '''Return a lumo energy
+
+           **Optional arguments**:
+
+           offset
+                By default, the (lowest) lumo energy is returned. When this
+                index is above zero, the corresponding higher homo energy is
+                returned.
+        '''
+        index = self.get_lumo_index(offset)
+        if index is not None:
+            return self.energies[index]
+
+    lumo_energy = property(get_lumo_energy)
+
 
 class DenseOneBody(OneBody):
     """Dense symmetric two-dimensional matrix, also used for density matrices.

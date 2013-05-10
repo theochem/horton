@@ -109,3 +109,31 @@ def test_spin_ch3_hf():
     sz, ssq = sys.wfn.get_spin(sys.get_overlap())
     assert sz == 0.5
     assert abs(ssq - 0.7632) < 1e-4
+
+
+def test_homo_lumo_water_hf():
+    fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
+    sys = System.from_file(fn_fchk)
+    assert abs(sys.wfn.homo_energy - -3.87671783E-01) < 1e-8
+    assert abs(sys.wfn.lumo_energy - 6.03082408E-01) < 1e-8
+
+
+def test_homo_lumo_ch3_hf():
+    fn_fchk = context.get_fn('test/ch3_hf_sto3g.fchk')
+    sys = System.from_file(fn_fchk)
+    assert abs(sys.wfn.homo_energy - -3.63936540E-01) < 1e-8
+    assert abs(sys.wfn.lumo_energy - 3.28562907E-01) < 1e-8
+
+
+def test_homo_lumo_h():
+    fn_fchk = context.get_fn('test/atom_001_001_hf_sto3g.fchk')
+    sys = System.from_file(fn_fchk)
+    assert abs(sys.wfn.homo_energy - -4.66581850E-01) < 1e-8
+    assert abs(sys.wfn.lumo_energy - 3.08024094E-01) < 1e-8
+
+
+def test_homo_lumo_he():
+    fn_fchk = context.get_fn('test/helium_hf_sto3g.fchk')
+    sys = System.from_file(fn_fchk)
+    assert abs(sys.wfn.homo_energy - -8.76035508E-01) < 1e-8
+    assert sys.wfn.lumo_energy is None # All orbitals are occupied

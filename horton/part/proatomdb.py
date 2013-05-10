@@ -68,17 +68,22 @@ class ProAtomRecord(object):
 
         # Get all the other information from the atom
         energy = system.props['energy']
+        try:
+            homo_energy = system.wfn.homo_energy
+        except AttributeError:
+            homo_energy = None
         number = system.numbers[0]
         pseudo_number = system.pseudo_numbers[0]
         charge = pseudo_number - nel
 
         # Create object
-        return cls(number, charge, energy, atgrid.rgrid, rho, pseudo_number)
+        return cls(number, charge, energy, homo_energy, atgrid.rgrid, rho, pseudo_number)
 
-    def __init__(self, number, charge, energy, rgrid, rho, pseudo_number=None):
+    def __init__(self, number, charge, energy, homo_energy, rgrid, rho, pseudo_number=None):
         self._number = number
         self._charge = charge
         self._energy = energy
+        self._homo_energy = homo_energy
         self._rho = rho
         self._rgrid = rgrid
         if pseudo_number is None:
@@ -101,6 +106,11 @@ class ProAtomRecord(object):
         return self._energy
 
     energy = property(_get_energy)
+
+    def _get_homo_energy(self):
+        return self._homo_energy
+
+    homo_energy = property(_get_homo_energy)
 
     def _get_rho(self):
         return self._rho
@@ -193,6 +203,7 @@ class ProAtomRecord(object):
         return (self.number == other.number and
                 self.charge == other.charge and
                 self.energy == other.energy and
+                self.homo_energy == other.homo_energy and
                 (self.rho == other.rho).all() and
                 self.rgrid == other.rgrid and
                 self.pseudo_number == other.pseudo_number)
@@ -373,6 +384,7 @@ class ProAtomDB(object):
                 number=grp.attrs['number'],
                 charge=grp.attrs['charge'],
                 energy=grp.attrs['energy'],
+                homo_energy=grp.attrs.get('homo_energy'),
                 rgrid=RadialGrid(RTransform.from_string(grp.attrs['rtransform'])),
                 rho=grp['rho'][:],
                 pseudo_number=grp.attrs.get('pseudo_number'),
@@ -409,6 +421,8 @@ class ProAtomDB(object):
             grp.attrs['number'] = record.number
             grp.attrs['charge'] = record.charge
             grp.attrs['energy'] = record.energy
+            if record.homo_energy is not None:
+                grp.attrs['homo_energy'] = record.homo_energy
             grp.attrs['rtransform'] = record.rgrid.rtransform.to_string()
             grp['rho'] = record.rho
             grp.attrs['pseudo_number'] = record.pseudo_number
