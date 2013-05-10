@@ -30,9 +30,12 @@ def test_hebasis_bound():
     padb = get_proatomdb_cp2k()
     numbers = np.array([8, 14, 14, 8, 8])
     hebasis = HEBasis(numbers, padb)
+    assert hebasis.get_nbasis() == 9 # 3 for every oxygen atom
     for i in 0, 3, 4:
         assert hebasis.get_lower_bound(i, 0) == -1
         assert hebasis.get_lower_bound(i, 1) == -1
         assert hebasis.get_lower_bound(i, 2) == 0
         assert hebasis.get_constant_lico(i) == {0: 1}
     assert (hebasis.get_initial_propars() == 0).all()
+    propars = np.array([0.1, 0.5, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9])
+    assert hebasis.get_total_lico(0, propars) == {+2: -0.1, +1: -0.4, 0: 1.2, -1: 0.3}
