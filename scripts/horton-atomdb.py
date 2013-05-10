@@ -183,15 +183,24 @@ def plot_atoms(proatomdb):
         if log.do_medium:
             log('Written', fn_png)
 
-        # The Fukui functions
-        pt.clf()
+        fukui_data = []
+        if number - charges[0] == 1:
+            record0 = proatomdb.get_record(number, charges[0])
+            fukui_data.append((record0.rho, record0.safe, '%+i' % charges[0]))
         for i, charge in enumerate(charges[1:]):
             record0 = proatomdb.get_record(number, charge)
             record1 = proatomdb.get_record(number, charges[i])
-            f = record0.rho - record1.rho
-            ls = lss[record0.safe and record1.safe]
+            fukui_data.append((
+                record0.rho - record1.rho,
+                record0.safe and record1.safe,
+                '%+i-%+i' % (charge, charges[i])
+            ))
+
+        # The Fukui functions
+        pt.clf()
+        for i, (f, safe, label) in enumerate(fukui_data):
+            ls = lss[safe]
             color = get_color(i)
-            label = '%+i_%+i' % (charge, charges[i])
             pt.semilogy(r/angstrom, f, lw=2, ls=ls, label=label, color=color, alpha=1.0)
             pt.semilogy(r/angstrom, -f, lw=2, ls=ls, color=color, alpha=0.2)
         pt.xlim(0, 3)
@@ -207,13 +216,9 @@ def plot_atoms(proatomdb):
 
         # 4*pi*r**2*Fukui
         pt.clf()
-        for i, charge in enumerate(charges[1:]):
-            record0 = proatomdb.get_record(number, charge)
-            record1 = proatomdb.get_record(number, charges[i])
-            f = record0.rho - record1.rho
-            ls = lss[record0.safe and record1.safe]
+        for i, (f, safe, label) in enumerate(fukui_data):
+            ls = lss[safe]
             color = get_color(i)
-            label = '%+i-%+i' % (charge, charges[i])
             pt.plot(r/angstrom, 4*np.pi*r**2*f, lw=2, ls=ls, label=label, color=color)
         pt.xlim(0, 3)
         pt.xlabel('Distance from the nucleus [A]')
