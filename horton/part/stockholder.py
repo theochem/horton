@@ -105,7 +105,7 @@ class StockHolderMixin(object):
         for index in xrange(self.system.natom):
             at_weights = self.cache.load('at_weights', index)
             at_weights /= self.to_atomic_grid(index, promoldens)
-            #np.clip(at_weights, 0, 1, at_weights) # TODO: would this help?
+            np.clip(at_weights, 0, 1, out=at_weights)
 
     def update_pro(self, index, proatdens, promoldens):
         raise NotImplementedError
