@@ -329,6 +329,18 @@ class ClosedShellWFN(WFN):
         '''Returns the expectation values of the projecte and squared spin'''
         return 0.0, 0.0
 
+    def _get_homo_energy(self):
+        '''The HOMO of the wavefunction'''
+        return self.exp_alpha.get_homo_energy()
+
+    homo_energy = property(_get_homo_energy)
+
+    def _get_lumo_energy(self):
+        '''The LUMO of the wavefunction'''
+        return self.exp_alpha.get_lumo_energy()
+
+    lumo_energy = property(_get_lumo_energy)
+
 
 
 class OpenShellWFN(WFN):
@@ -443,6 +455,21 @@ class OpenShellWFN(WFN):
 
         ssq = sz*(sz+1) + nbeta - correction
         return sz, ssq
+
+    def _get_homo_energy(self):
+        '''The HOMO of the wavefunction'''
+        return max(self.exp_alpha.get_homo_energy(), self.exp_beta.get_homo_energy())
+
+    homo_energy = property(_get_homo_energy)
+
+    def _get_lumo_energy(self):
+        '''The LUMO of the wavefunction'''
+        es = [self.exp_alpha.get_lumo_energy(), self.exp_beta.get_lumo_energy()]
+        es = [e for e in es if e is not None]
+        if len(es) > 0:
+            return min(es)
+
+    lumo_energy = property(_get_lumo_energy)
 
 
 class AufbauOccModel(object):

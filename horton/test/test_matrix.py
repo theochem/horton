@@ -271,3 +271,26 @@ def test_dense_one_body_copy():
     op1._array[:] = np.random.uniform(0, 1, (3, 3))
     op2 = op1.copy()
     assert (op1._array == op2._array).all()
+
+
+def test_homo_lumo_ch3_hf():
+    fn_fchk = context.get_fn('test/ch3_hf_sto3g.fchk')
+    sys = System.from_file(fn_fchk)
+    assert sys.wfn.exp_alpha.get_homo_index() == 4
+    assert sys.wfn.exp_beta.get_homo_index() == 3
+    assert sys.wfn.exp_alpha.get_lumo_index() == 5
+    assert sys.wfn.exp_beta.get_lumo_index() == 4
+    assert sys.wfn.exp_alpha.get_homo_index(1) == 3
+    assert sys.wfn.exp_beta.get_homo_index(1) == 2
+    assert sys.wfn.exp_alpha.get_lumo_index(1) == 6
+    assert sys.wfn.exp_beta.get_lumo_index(1) == 5
+    assert abs(sys.wfn.exp_alpha.get_homo_energy() - -3.63936540E-01) < 1e-8
+    assert abs(sys.wfn.exp_alpha.get_homo_energy(1) - -5.37273275E-01) < 1e-8
+    assert abs(sys.wfn.exp_alpha.get_lumo_energy() - 6.48361367E-01) < 1e-8
+    assert abs(sys.wfn.exp_beta.get_homo_energy() - -5.18988806E-01) < 1e-8
+    assert abs(sys.wfn.exp_beta.get_homo_energy(1) - -5.19454722E-01) < 1e-8
+    assert abs(sys.wfn.exp_beta.get_lumo_energy() - 3.28562907E-01) < 1e-8
+    assert abs(sys.wfn.exp_alpha.homo_energy - -3.63936540E-01) < 1e-8
+    assert abs(sys.wfn.exp_alpha.lumo_energy - 6.48361367E-01) < 1e-8
+    assert abs(sys.wfn.exp_beta.homo_energy - -5.18988806E-01) < 1e-8
+    assert abs(sys.wfn.exp_beta.lumo_energy - 3.28562907E-01) < 1e-8
