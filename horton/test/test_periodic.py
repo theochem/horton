@@ -21,6 +21,7 @@
 
 
 from horton import periodic
+from horton.units import angstrom
 
 def test_periodic():
     assert periodic['si'].number == 14
@@ -30,3 +31,7 @@ def test_periodic():
     assert periodic['5'].symbol == 'B'
     assert periodic[' 5'].symbol == 'B'
     assert periodic[' B '].symbol == 'B'
+    assert periodic[' Li '].atomic_radius == 1.45*angstrom
+    assert periodic[' Be '].bs_radius == 1.050000076*angstrom
+    assert periodic[' He '].wc_radius == 0.291*angstrom
+    assert periodic[' C '].vdWaals_radius == 1.947372276

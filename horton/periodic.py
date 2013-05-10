@@ -60,10 +60,14 @@ class Element(object):
        cov_radius
             The covalent radius
     '''
-    def __init__(self, number= None, symbol= None, cov_radius=None):
+    def __init__(self, number= None, symbol= None, cov_radius=None, atomic_radius=None, vdWaals_radius=None, bs_radius=None,wc_radius=None):
         self.number = number
         self.symbol = symbol
         self.cov_radius = cov_radius
+        self.atomic_radius = atomic_radius
+        self.vdWaals_radius = vdWaals_radius
+        self.bs_radius = bs_radius
+        self.wc_radius = wc_radius
 
 
 class Periodic(object):
@@ -105,6 +109,7 @@ def load_periodic():
 
     convertors = {
         'int': (lambda s: int(s)),
+        'float': (lambda s : float(s)),
         'str': (lambda s: s.strip()),
         'angstrom': (lambda s: float(s)*angstrom),
     }
@@ -131,8 +136,14 @@ def load_periodic():
                     step = 1
 
     elements=[]
+    args=[]
     for i in xrange(nelement):
-        kwargs = dict((name, values[i]) for name, values in rows.iteritems())
+        for name, values in rows.iteritems():
+            if len(values) < nelement :
+                for j in range(nelement-len(values)):
+                    values.append(None)
+            args.append((name,values[i]))
+        kwargs = dict(args)
         elements.append(Element(**kwargs))
 
 
