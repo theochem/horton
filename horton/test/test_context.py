@@ -31,8 +31,14 @@ def test_context():
     fns = context.glob('basis/*.nwchem')
     assert fn in fns
 
-def test_data_test_files():
-    # Find files in data/test that were not checked in.
-    # This test only makes sense if ran inside the source tree.
-    if context.data_dir == './data':
-        assert os.system('[ -z $(git ls-files --others data/test) ]') == 0, 'Some test files are not staged for commit!'
+
+def test_data_files():
+    # Find files in data that were not checked in.
+    # This test only makes sense if ran inside the source tree. The purpose is
+    # to detect mistakes in the development process.
+    if context.data_dir == os.path.abspath('data/'):
+        lines = subprocess.check_output(['git', 'ls-files', '--others', '--exclude-standard', 'data']).split('\n')
+        for line in lines:
+            line = line.strip()
+            if len(line) != 0:
+                raise ValueError('The following file is not checked in: %s' % line)
