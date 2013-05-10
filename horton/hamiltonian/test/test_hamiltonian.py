@@ -229,3 +229,25 @@ def test_custom_term():
             energy1_old = energy1
         else:
             assert abs(energy1 - energy1_old) < 1e-7
+
+
+def test_auto_complete():
+    fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
+    sys = System.from_file(fn_fchk)
+
+    # HF case
+    ham = Hamiltonian(sys, [HartreeFock()])
+    assert any(isinstance(term, KineticEnergy) for term in ham.terms)
+    assert any(isinstance(term, ExternalPotential) for term in ham.terms)
+
+    # DFT case
+    grid = BeckeMolGrid(sys)
+    ham = Hamiltonian(sys, [DiracExchange()], grid)
+    assert any(isinstance(term, KineticEnergy) for term in ham.terms)
+    assert any(isinstance(term, ExternalPotential) for term in ham.terms)
+    assert any(isinstance(term, Hartree) for term in ham.terms)
+
+    # special behavior
+    ham = Hamiltonian(sys, [HartreeFock()], auto_complete=False)
+    assert not any(isinstance(term, KineticEnergy) for term in ham.terms)
+    assert not any(isinstance(term, ExternalPotential) for term in ham.terms)
