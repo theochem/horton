@@ -19,10 +19,8 @@
 //--
 
 
-// TODO: check names of guard macros.
-
-#ifndef HORTON_BOYS_INTS_H
-#define HORTON_BOYS_INTS_H
+#ifndef HORTON_GBASIS_BOYS_H
+#define HORTON_GBASIS_BOYS_H
 
 #include "common.h"
 #define BOYS_MAX_M 4*MAX_SHELL_TYPE

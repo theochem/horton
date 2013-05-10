@@ -19,8 +19,8 @@
 //--
 
 
-#ifndef HORTON_GBASIS_ITERGB_H
-#define HORTON_GBASIS_ITERGB_H
+#ifndef HORTON_GBASIS_ITER_GB_H
+#define HORTON_GBASIS_ITER_GB_H
 
 #include "gbasis.h"
 
