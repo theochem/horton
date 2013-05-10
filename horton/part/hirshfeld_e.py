@@ -126,6 +126,17 @@ class HEBasis(object):
     def get_basis_lico(self, i, j):
         return self.basis_specs[i][2][j]
 
+    def get_total_lico(self, i, propars):
+        total_lico = self.get_constant_lico(i)
+        begin = self.get_atom_begin(i)
+        nbasis = self.get_atom_nbasis(i)
+        for j in xrange(nbasis):
+            coeff = propars[j+begin]
+            lico = self.get_basis_lico(i, j)
+            for icharge, factor in lico.iteritems():
+                total_lico[icharge] = total_lico.get(icharge, 0) + coeff*factor
+        return total_lico
+
     def get_lower_bound(self, i, j):
         lico = self.basis_specs[i][2][j]
         for charge in lico.iterkeys():
@@ -188,18 +199,9 @@ class HirshfeldEMixin(object):
     def get_proatom_rho(self, index, propars=None):
         if propars is None:
             propars = self._cache.load('propars')
-        begin = self.hebasis.get_atom_begin(index)
-        nbasis =  self.hebasis.get_atom_nbasis(index)
-
-        total_lico = {0: 1}
-        for j in xrange(nbasis):
-            coeff = propars[j+begin]
-            lico = self.hebasis.get_basis_lico(index, j)
-            for icharge, factor in lico.iteritems():
-                total_lico[icharge] = total_lico.get(icharge, 0) + coeff*factor
-
+        lico = self.hebasis.get_total_lico(index, propars)
         number = self._system.numbers[index]
-        return self._proatomdb.get_rho(number, total_lico)
+        return self._proatomdb.get_rho(number, lico)
 
     def get_constant(self, index, grid=None):
         spline = self.hebasis.get_constant_spline(index)
