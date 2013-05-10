@@ -224,7 +224,16 @@ class HirshfeldEMixin(object):
             if coeff != 0.0:
                 output += coeff*self.get_basis(index, j, grid)
 
-        # TODO: check for negative values
+        if output.min() < 0:
+            if grid is None:
+                grid = self.get_grid(index)
+            pop_before = grid.integrate(output)
+            np.clip(output, 1e-100, np.inf, out=output)
+            pop_after = grid.integrate(output)
+            error = pop_before - pop_after
+            if abs(error) > 1e-5:
+                if log.do_medium:
+                    log('Lost %.1e electrons in proatom %i' % (error, index))
         output += 1e-100
 
     def _init_propars(self):
