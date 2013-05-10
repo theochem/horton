@@ -78,9 +78,9 @@ def boys_function(long m, double t):
 #
 
 
-def cart_to_pure_low(np.ndarray[double] work_cart,
-                     np.ndarray[double] work_pure, long shell_type,
-                     long nant, long npost):
+def cart_to_pure_low(np.ndarray[double] work_cart not None,
+                     np.ndarray[double] work_pure not None,
+                     long shell_type, long nant, long npost):
     assert work_cart.flags['C_CONTIGUOUS']
     assert work_pure.flags['C_CONTIGUOUS']
     cartpure.cart_to_pure_low(
@@ -125,8 +125,8 @@ def gb_overlap_int1d(long n0, long n1, double pa, double pb, double inv_gamma):
     return common.gb_overlap_int1d(n0, n1, pa, pb, inv_gamma)
 
 
-def nuclear_attraction_helper(np.ndarray[double, ndim=1] work_g, long n0,
-                              long n1, double pa, double pb, double cp,
+def nuclear_attraction_helper(np.ndarray[double, ndim=1] work_g not None,
+                              long n0, long n1, double pa, double pb, double cp,
                               double gamma_inv):
     assert work_g.flags['C_CONTIGUOUS']
     assert work_g.shape[0] == n0+n1+1
@@ -138,7 +138,7 @@ def nuclear_attraction_helper(np.ndarray[double, ndim=1] work_g, long n0,
 #
 
 
-def gob_cart_normalization(double alpha, np.ndarray[long, ndim=1] n):
+def gob_cart_normalization(double alpha, np.ndarray[long, ndim=1] n not None):
     assert n.flags['C_CONTIGUOUS']
     assert n.shape[0] == 3
     return gbasis.gob_cart_normalization(alpha, <long*>n.data)
@@ -440,7 +440,9 @@ cdef class GBasis:
         return tmp.copy()
 
     # low-level compute routines
-    def compute_grid_point1(self, np.ndarray[double, ndim=1] output, np.ndarray[double, ndim=1] point, GB1DMGridFn grid_fn):
+    def compute_grid_point1(self, np.ndarray[double, ndim=1] output not None,
+                            np.ndarray[double, ndim=1] point not None,
+                            GB1DMGridFn grid_fn not None):
         assert output.flags['C_CONTIGUOUS']
         assert output.shape[0] == self.nbasis
         assert point.flags['C_CONTIGUOUS']
@@ -492,8 +494,9 @@ cdef class GOBasis(GBasis):
         self.check_matrix_one_body(output)
         (<gbasis.GOBasis*>self._this).compute_kinetic(<double*>output.data)
 
-    def compute_nuclear_attraction(self, np.ndarray[double, ndim=1] charges,
-                                   np.ndarray[double, ndim=2] centers,
+    def compute_nuclear_attraction(self,
+                                   np.ndarray[double, ndim=1] charges not None,
+                                   np.ndarray[double, ndim=2] centers not None,
                                    nuclear_attraction):
         """Compute the kintic energy matrix in a Gaussian orbital basis."""
         cdef np.ndarray output = nuclear_attraction._array
@@ -513,7 +516,10 @@ cdef class GOBasis(GBasis):
         self.check_matrix_two_body(output)
         (<gbasis.GOBasis*>self._this).compute_electron_repulsion(<double*>output.data)
 
-    def compute_grid_orbitals_exp(self, exp, np.ndarray[double, ndim=2] points not None, np.ndarray[long, ndim=1] iorbs not None, np.ndarray[double, ndim=2] orbs not None):
+    def compute_grid_orbitals_exp(self, exp,
+                                  np.ndarray[double, ndim=2] points not None,
+                                  np.ndarray[long, ndim=1] iorbs not None,
+                                  np.ndarray[double, ndim=2] orbs not None):
         '''compute_grid_density_exp(exp, points, iorbs, orbs)
 
            Compute the orbtials on a grid for a given set of expansion coefficients.
@@ -551,7 +557,8 @@ cdef class GOBasis(GBasis):
             nfn, <double*>coeffs.data, npoint, <double*>points.data,
             norb, <long*>iorbs.data, <double*>orbs.data)
 
-    def _compute_grid1_dm(self, dm, np.ndarray[double, ndim=2] points not None, GB1DMGridFn grid_fn not None, np.ndarray output not None):
+    def _compute_grid1_dm(self, dm, np.ndarray[double, ndim=2] points not None,
+                          GB1DMGridFn grid_fn not None, np.ndarray output not None):
         '''_compute_grid_dm(dm, points, output)
 
            Compute some density function on a grid for a given density matrix.
@@ -589,7 +596,9 @@ cdef class GOBasis(GBasis):
             <double*>dmar.data, npoint, <double*>points.data,
             grid_fn._this, <double*>output.data)
 
-    def compute_grid_density_dm(self, dm, np.ndarray[double, ndim=2] points not None, np.ndarray[double, ndim=1] rhos not None):
+    def compute_grid_density_dm(self, dm,
+                                np.ndarray[double, ndim=2] points not None,
+                                np.ndarray[double, ndim=1] rhos not None):
         '''compute_grid_density_dm(dm, points, rho)
 
            Compute the electron density on a grid for a given density matrix.
@@ -610,7 +619,9 @@ cdef class GOBasis(GBasis):
         '''
         self._compute_grid1_dm(dm, points, GB1DMGridDensityFn(self.max_shell_type), rhos)
 
-    def compute_grid_gradient_dm(self, dm, np.ndarray[double, ndim=2] points not None, np.ndarray[double, ndim=2] gradrhos not None):
+    def compute_grid_gradient_dm(self, dm,
+                                 np.ndarray[double, ndim=2] points not None,
+                                 np.ndarray[double, ndim=2] gradrhos not None):
         '''compute_grid_gradient_dm(dm, points, gradrho)
 
            Compute the electron density gradient on a grid for a given density matrix.
@@ -631,7 +642,9 @@ cdef class GOBasis(GBasis):
         '''
         self._compute_grid1_dm(dm, points, GB1DMGridGradientFn(self.max_shell_type), gradrhos)
 
-    def compute_grid_hartree_dm(self, dm, np.ndarray[double, ndim=2] points not None, np.ndarray[double, ndim=1] output not None):
+    def compute_grid_hartree_dm(self, dm,
+                                np.ndarray[double, ndim=2] points not None,
+                                np.ndarray[double, ndim=1] output not None):
         '''compute_grid_hartree_dm(dm, points, output)
 
            Compute the Hartree potential on a grid for a given density matrix.
@@ -791,7 +804,8 @@ cdef class GB2Integral:
             return self._this.get_max_nbasis()
 
     def reset(self, long shell_type0, long shell_type1,
-              np.ndarray[double, ndim=1] r0, np.ndarray[double, ndim=1] r1):
+              np.ndarray[double, ndim=1] r0 not None,
+              np.ndarray[double, ndim=1] r1 not None):
         assert r0.flags['C_CONTIGUOUS']
         assert r0.shape[0] == 3
         assert r1.flags['C_CONTIGUOUS']
@@ -799,7 +813,8 @@ cdef class GB2Integral:
         self._this.reset(shell_type0, shell_type1, <double*>r0.data, <double*>r1.data)
 
     def add(self, double coeff, double alpha0, double alpha1,
-            np.ndarray[double, ndim=1] scales0, np.ndarray[double, ndim=1] scales1):
+            np.ndarray[double, ndim=1] scales0 not None,
+            np.ndarray[double, ndim=1] scales1 not None):
         assert scales0.flags['C_CONTIGUOUS']
         assert scales0.shape[0] == get_shell_nbasis(abs(self._this.get_shell_type0()))
         assert scales1.flags['C_CONTIGUOUS']
@@ -848,7 +863,9 @@ cdef class GB2NuclearAttractionIntegral(GB2Integral):
     cdef np.ndarray _charges
     cdef np.ndarray _centers
 
-    def __cinit__(self, long max_nbasis, np.ndarray[double, ndim=1] charges, np.ndarray[double, ndim=2] centers):
+    def __cinit__(self, long max_nbasis,
+                  np.ndarray[double, ndim=1] charges not None,
+                  np.ndarray[double, ndim=2] centers not None):
         assert charges.flags['C_CONTIGUOUS']
         cdef long ncharge = charges.shape[0]
         assert centers.flags['C_CONTIGUOUS']
@@ -886,8 +903,8 @@ cdef class GB4Integral:
             return self._this.get_max_nbasis()
 
     def reset(self, long shell_type0, long shell_type1, long shell_type2, long shell_type3,
-              np.ndarray[double, ndim=1] r0, np.ndarray[double, ndim=1] r1,
-              np.ndarray[double, ndim=1] r2, np.ndarray[double, ndim=1] r3):
+              np.ndarray[double, ndim=1] r0 not None, np.ndarray[double, ndim=1] r1 not None,
+              np.ndarray[double, ndim=1] r2 not None, np.ndarray[double, ndim=1] r3 not None):
         assert r0.flags['C_CONTIGUOUS']
         assert r0.shape[0] == 3
         assert r1.flags['C_CONTIGUOUS']
@@ -900,8 +917,8 @@ cdef class GB4Integral:
                          <double*>r0.data, <double*>r1.data, <double*>r2.data, <double*>r3.data)
 
     def add(self, double coeff, double alpha0, double alpha1, double alpha2, double alpha3,
-            np.ndarray[double, ndim=1] scales0, np.ndarray[double, ndim=1] scales1,
-            np.ndarray[double, ndim=1] scales2, np.ndarray[double, ndim=1] scales3):
+            np.ndarray[double, ndim=1] scales0 not None, np.ndarray[double, ndim=1] scales1 not None,
+            np.ndarray[double, ndim=1] scales2 not None, np.ndarray[double, ndim=1] scales3 not None):
         assert scales0.flags['C_CONTIGUOUS']
         assert scales0.shape[0] == get_shell_nbasis(abs(self._this.get_shell_type0()))
         assert scales1.flags['C_CONTIGUOUS']
@@ -986,7 +1003,7 @@ cdef class GB1DMGridFn:
         def __get__(self):
             return self._this.get_dim_output()
 
-    def reset(self, long shell_type0, np.ndarray[double, ndim=1] r0, np.ndarray[double, ndim=1] point):
+    def reset(self, long shell_type0, np.ndarray[double, ndim=1] r0 not None, np.ndarray[double, ndim=1] point not None):
         assert r0.flags['C_CONTIGUOUS']
         assert r0.shape[0] == 3
         assert point.flags['C_CONTIGUOUS']
@@ -994,7 +1011,7 @@ cdef class GB1DMGridFn:
         self._this.reset(shell_type0, <double*>r0.data, <double*>point.data)
 
     def add(self, double coeff, double alpha0,
-            np.ndarray[double, ndim=1] scales0):
+            np.ndarray[double, ndim=1] scales0 not None):
         assert scales0.flags['C_CONTIGUOUS']
         assert scales0.shape[0] == get_shell_nbasis(abs(self._this.get_shell_type0()))
         self._this.add(coeff, alpha0, <double*>scales0.data)
@@ -1042,7 +1059,7 @@ cdef class IterGB1:
     cdef iter_gb.IterGB1* _this
     cdef GBasis _gbasis
 
-    def __cinit__(self, GBasis gbasis):
+    def __cinit__(self, GBasis gbasis not None):
         self._this = new iter_gb.IterGB1(gbasis._this)
         self._gbasis = gbasis
 
@@ -1061,8 +1078,8 @@ cdef class IterGB1:
     def update_prim(self):
         self._this.update_prim()
 
-    def store(self, np.ndarray[double, ndim=1] work,
-              np.ndarray[double, ndim=1] output, long dim=1):
+    def store(self, np.ndarray[double, ndim=1] work not None,
+              np.ndarray[double, ndim=1] output not None, long dim=1):
         max_shell_nbasis = get_shell_nbasis(self._gbasis.max_shell_type)
         assert work.shape[0] == get_shell_nbasis(self._this.shell_type0)
         assert work.flags['C_CONTIGUOUS']
@@ -1095,7 +1112,7 @@ cdef class IterGB2:
     cdef iter_gb.IterGB2* _this
     cdef GBasis _gbasis
 
-    def __cinit__(self, GBasis gbasis):
+    def __cinit__(self, GBasis gbasis not None):
         self._this = new iter_gb.IterGB2(gbasis._this)
         self._gbasis = gbasis
 
@@ -1114,8 +1131,8 @@ cdef class IterGB2:
     def update_prim(self):
         self._this.update_prim()
 
-    def store(self, np.ndarray[double, ndim=2] work,
-              np.ndarray[double, ndim=2] output):
+    def store(self, np.ndarray[double, ndim=2] work not None,
+              np.ndarray[double, ndim=2] output not None):
         max_shell_nbasis = get_shell_nbasis(self._gbasis.max_shell_type)
         assert work.shape[0] == get_shell_nbasis(self._this.shell_type0)
         assert work.shape[1] == get_shell_nbasis(self._this.shell_type1)
@@ -1151,7 +1168,7 @@ cdef class IterGB4:
     cdef iter_gb.IterGB4* _this
     cdef GBasis _gbasis
 
-    def __cinit__(self, GBasis gbasis):
+    def __cinit__(self, GBasis gbasis not None):
         self._this = new iter_gb.IterGB4(gbasis._this)
         self._gbasis = gbasis
 
@@ -1170,8 +1187,8 @@ cdef class IterGB4:
     def update_prim(self):
         self._this.update_prim()
 
-    def store(self, np.ndarray[double, ndim=4] work,
-              np.ndarray[double, ndim=4] output):
+    def store(self, np.ndarray[double, ndim=4] work not None,
+              np.ndarray[double, ndim=4] output not None):
         max_shell_nbasis = get_shell_nbasis(self._gbasis.max_shell_type)
         assert work.shape[0] == get_shell_nbasis(self._this.shell_type0)
         assert work.shape[1] == get_shell_nbasis(self._this.shell_type1)
@@ -1213,7 +1230,7 @@ cdef class IterGB4:
 #
 
 
-def iter_pow1_inc(np.ndarray[long, ndim=1] n):
+def iter_pow1_inc(np.ndarray[long, ndim=1] n not None):
     assert n.flags['C_CONTIGUOUS']
     assert n.shape[0] == 3
     return iter_pow.iter_pow1_inc(<long*>n.data)

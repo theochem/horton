@@ -151,7 +151,7 @@ cdef class Cell:
 
         return cls(rvecs)
 
-    def update_rvecs(self, np.ndarray[double, ndim=2] rvecs):
+    def update_rvecs(self, np.ndarray[double, ndim=2] rvecs=None):
         '''update_rvecs(rvecs)
 
            Change the cell vectors and recompute the reciprocal cell vectors.
@@ -341,7 +341,8 @@ cdef class Cell:
         self._this.dot_rvecs(<double*> cart.data, <double*> result.data)
         return result
 
-    def add_rvec(self, np.ndarray[double, ndim=1] delta, np.ndarray[long, ndim=1] r):
+    def add_rvec(self, np.ndarray[double, ndim=1] delta not None,
+                 np.ndarray[long, ndim=1] r not None):
         """add_rvec(delta, r)
 
            Add a linear combination of real cell vectors, ``r``, to ``delta`` in-place

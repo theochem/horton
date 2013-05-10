@@ -46,7 +46,7 @@ __all__ = [
 #
 
 
-def setup_esp_cost_cube(horton.grid.cext.UniformGrid ugrid,
+def setup_esp_cost_cube(horton.grid.cext.UniformGrid ugrid not None,
                         np.ndarray[double, ndim=3] vref not None,
                         np.ndarray[double, ndim=3] weights not None,
                         np.ndarray[double, ndim=2] centers not None,
@@ -85,10 +85,10 @@ def setup_esp_cost_cube(horton.grid.cext.UniformGrid ugrid,
         raise NotImplementedError
 
 
-def compute_esp_grid_cube(horton.grid.cext.UniformGrid ugrid,
-                          np.ndarray[double, ndim=3] esp,
-                          np.ndarray[double, ndim=2] centers,
-                          np.ndarray[double, ndim=1] charges,
+def compute_esp_grid_cube(horton.grid.cext.UniformGrid ugrid not None,
+                          np.ndarray[double, ndim=3] esp not None,
+                          np.ndarray[double, ndim=2] centers not None,
+                          np.ndarray[double, ndim=1] charges not None,
                           double rcut, double alpha, double gcut):
     assert centers.flags['C_CONTIGUOUS']
     ncenter = centers.shape[0]
@@ -146,7 +146,7 @@ def multiply_dens_mask(np.ndarray[double, ndim=3] rho not None,
 
 
 def multiply_near_mask(np.ndarray[double, ndim=1] center not None,
-                       horton.grid.cext.UniformGrid ugrid,
+                       horton.grid.cext.UniformGrid ugrid not None,
                        double r0, double gamma,
                        np.ndarray[double, ndim=3] weights not None):
     assert center.flags['C_CONTIGUOUS']
@@ -163,7 +163,7 @@ def multiply_near_mask(np.ndarray[double, ndim=1] center not None,
 
 
 def multiply_far_mask(np.ndarray[double, ndim=2] centers not None,
-                      horton.grid.cext.UniformGrid ugrid,
+                      horton.grid.cext.UniformGrid ugrid not None,
                       double r0, double gamma,
                       np.ndarray[double, ndim=3] weights not None):
     assert centers.flags['C_CONTIGUOUS']

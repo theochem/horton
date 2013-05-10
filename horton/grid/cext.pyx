@@ -83,8 +83,8 @@ def lebedev_laikov_npoint(int lvalue):
     return lebedev_laikov.lebedev_laikov_npoint(lvalue)
 
 
-def lebedev_laikov_sphere(np.ndarray[double, ndim=2] points,
-                          np.ndarray[double, ndim=1] weights):
+def lebedev_laikov_sphere(np.ndarray[double, ndim=2] points not None,
+                          np.ndarray[double, ndim=1] weights not None):
     '''lebedev_laikov_sphere(grid)
 
        Fill the grid with a Lebedev Laikov grid points of a given size.
@@ -111,10 +111,10 @@ def lebedev_laikov_sphere(np.ndarray[double, ndim=2] points,
 #
 
 
-def becke_helper_atom(np.ndarray[double, ndim=2] points,
-                      np.ndarray[double, ndim=1] weights,
-                      np.ndarray[double, ndim=1] radii,
-                      np.ndarray[double, ndim=2] centers,
+def becke_helper_atom(np.ndarray[double, ndim=2] points not None,
+                      np.ndarray[double, ndim=1] weights not None,
+                      np.ndarray[double, ndim=1] radii not None,
+                      np.ndarray[double, ndim=2] centers not None,
                       int select, int order):
     '''beck_helper_atom(points, weights, radii, centers, i, k)
 
@@ -168,11 +168,11 @@ def becke_helper_atom(np.ndarray[double, ndim=2] points,
 #
 
 
-def tridiag_solve(np.ndarray[double, ndim=1] diag_low,
-                  np.ndarray[double, ndim=1] diag_mid,
-                  np.ndarray[double, ndim=1] diag_up,
-                  np.ndarray[double, ndim=1] right,
-                  np.ndarray[double, ndim=1] solution):
+def tridiag_solve(np.ndarray[double, ndim=1] diag_low not None,
+                  np.ndarray[double, ndim=1] diag_mid not None,
+                  np.ndarray[double, ndim=1] diag_up not None,
+                  np.ndarray[double, ndim=1] right not None,
+                  np.ndarray[double, ndim=1] solution not None):
     assert diag_mid.flags['C_CONTIGUOUS']
     n = diag_mid.shape[0]
     assert n > 1
@@ -189,10 +189,10 @@ def tridiag_solve(np.ndarray[double, ndim=1] diag_low,
                                <double*>solution.data, n)
 
 
-def tridiagsym_solve(np.ndarray[double, ndim=1] diag_mid,
-                     np.ndarray[double, ndim=1] diag_up,
-                     np.ndarray[double, ndim=1] right,
-                     np.ndarray[double, ndim=1] solution):
+def tridiagsym_solve(np.ndarray[double, ndim=1] diag_mid not None,
+                     np.ndarray[double, ndim=1] diag_up not None,
+                     np.ndarray[double, ndim=1] right not None,
+                     np.ndarray[double, ndim=1] solution not None):
     assert diag_mid.flags['C_CONTIGUOUS']
     n = diag_mid.shape[0]
     assert n > 1
@@ -212,7 +212,8 @@ cdef class CubicSpline(object):
     cdef cubic_spline.Extrapolation* _ep
     cdef RTransform _rtransform
 
-    def __cinit__(self, np.ndarray[double, ndim=1] y not None, np.ndarray[double, ndim=1] d=None, RTransform rtf=None):
+    def __cinit__(self, np.ndarray[double, ndim=1] y not None,
+                  np.ndarray[double, ndim=1] d=None, RTransform rtf=None):
         cdef double* ddata
         assert y.flags['C_CONTIGUOUS']
         n = y.shape[0]
@@ -296,10 +297,10 @@ def index_wrap(long i, long high):
     return evaluate.index_wrap(i, high)
 
 
-def eval_spline_cube(CubicSpline spline,
-                     np.ndarray[double, ndim=1] center,
-                     np.ndarray[double, ndim=3] output,
-                     UniformGrid ugrid):
+def eval_spline_cube(CubicSpline spline not None,
+                     np.ndarray[double, ndim=1] center not None,
+                     np.ndarray[double, ndim=3] output not None,
+                     UniformGrid ugrid not None):
 
     assert center.flags['C_CONTIGUOUS']
     assert center.shape[0] == 3
@@ -703,7 +704,7 @@ cdef class UniformGrid(object):
         # Similar to conventional integration routine:
         return dot_multi(*args)*self._grid_cell.volume
 
-    def get_ranges_rcut(self, np.ndarray[double, ndim=1] center, double rcut):
+    def get_ranges_rcut(self, np.ndarray[double, ndim=1] center not None, double rcut):
         '''Return the ranges if indexes that lie within the cutoff sphere.
 
            **Arguments:**
@@ -728,7 +729,8 @@ cdef class UniformGrid(object):
             <long*> ranges_end.data)
         return ranges_begin, ranges_end
 
-    def dist_grid_point(self, np.ndarray[double, ndim=1] center, np.ndarray[long, ndim=1] indexes):
+    def dist_grid_point(self, np.ndarray[double, ndim=1] center not None,
+                        np.ndarray[long, ndim=1] indexes not None):
         '''Return the distance between a center and a grid point
 
            **Arguments:**
@@ -745,7 +747,8 @@ cdef class UniformGrid(object):
         assert indexes.size == 3
         return self._this.dist_grid_point(<double*>center.data, <long*>indexes.data)
 
-    def delta_grid_point(self, np.ndarray[double, ndim=1] center, np.ndarray[long, ndim=1] indexes):
+    def delta_grid_point(self, np.ndarray[double, ndim=1] center not None,
+                         np.ndarray[long, ndim=1] indexes not None):
         '''Return the vector **from** a center **to** a grid point
 
            **Arguments:**
@@ -945,7 +948,7 @@ cdef class UniformGrid(object):
 
         return output
 
-    def get_window(self, np.ndarray[double, ndim=1] center, double rcut):
+    def get_window(self, np.ndarray[double, ndim=1] center not None, double rcut):
         begin, end = self.get_ranges_rcut(center, rcut)
         return UniformGridWindow(self, begin, end)
 
@@ -1177,7 +1180,9 @@ def dot_multi(*integranda):
     return result
 
 
-def dot_multi_moments_cube(integranda, UniformGrid ugrid, np.ndarray[double, ndim=1] center not None, long nx, long ny, long nz, long nr):
+def dot_multi_moments_cube(integranda, UniformGrid ugrid not None,
+                           np.ndarray[double, ndim=1] center not None,
+                           long nx, long ny, long nz, long nr):
     npoint = _check_integranda(integranda, ugrid.size)
     # Only non-periodic grids are supported to guarantee an unambiguous definition of the polynomial.
     assert ugrid.pbc[0] == 0
@@ -1253,9 +1258,9 @@ def dot_multi_parts(integranda, np.ndarray[long, ndim=1] sizes not None, np.ndar
     free(pointers)
 
 
-def grid_distances(np.ndarray[double, ndim=2] points,
-                   np.ndarray[double, ndim=1] center,
-                   np.ndarray[double, ndim=1] distances):
+def grid_distances(np.ndarray[double, ndim=2] points not None,
+                   np.ndarray[double, ndim=1] center not None,
+                   np.ndarray[double, ndim=1] distances not None):
     assert points.flags['C_CONTIGUOUS']
     npoint = points.shape[0]
     assert points.shape[1] == 3
