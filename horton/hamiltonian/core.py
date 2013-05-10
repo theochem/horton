@@ -32,7 +32,7 @@ __all__ = [
 
 
 class Hamiltonian(object):
-    def __init__(self, system, terms, grid=None):
+    def __init__(self, system, terms, grid=None, auto_complete=True):
         '''
            **Arguments:**
 
@@ -40,13 +40,17 @@ class Hamiltonian(object):
                 The System object for which the energy must be computed.
 
            terms
-                The terms in the Hamiltonian. Kinetic energy and external
-                potential (nuclei) are added automatically.
+                The terms in the Hamiltonian. Kinetic energy, external
+                potential (nuclei), and Hartree are added automatically.
 
            **Optional arguments:**
 
            grid
                 The integration grid, in case some terms need one.
+
+           auto_complete
+                When set to False, the kinetic energy, external potential and
+                Hartree terms are not added automatically.
         '''
         # check arguments:
         if len(terms) == 0:
@@ -60,17 +64,18 @@ class Hamiltonian(object):
         self.terms = list(terms)
         self.grid = grid
 
-        # Add standard terms if missing
-        #  1) Kinetic energy
-        if sum(isinstance(term, KineticEnergy) for term in terms) == 0:
-            self.terms.append(KineticEnergy())
-        #  2) Hartree (or HatreeFock, which is a subclass of Hartree)
-        from horton.hamiltonian.builtin import Hartree
-        if sum(isinstance(term, Hartree) for term in terms) == 0:
-            self.terms.append(Hartree())
-        #  3) External Potential
-        if sum(isinstance(term, ExternalPotential) for term in terms) == 0:
-            self.terms.append(ExternalPotential())
+        if auto_complete:
+            # Add standard terms if missing
+            #  1) Kinetic energy
+            if sum(isinstance(term, KineticEnergy) for term in terms) == 0:
+                self.terms.append(KineticEnergy())
+            #  2) Hartree (or HatreeFock, which is a subclass of Hartree)
+            from horton.hamiltonian.builtin import Hartree
+            if sum(isinstance(term, Hartree) for term in terms) == 0:
+                self.terms.append(Hartree())
+            #  3) External Potential
+            if sum(isinstance(term, ExternalPotential) for term in terms) == 0:
+                self.terms.append(ExternalPotential())
 
         # Create a cache for shared intermediate results.
         self.cache = Cache()
