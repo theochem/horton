@@ -84,27 +84,19 @@ def get_fake_co():
     shape = np.array([30, 30, 30+11])
     ugrid = UniformGrid(origin, rvecs, shape, np.ones(3, int))
 
-    mol_dens = np.zeros(ugrid.shape)
+    moldens = np.zeros(ugrid.shape)
     tmp = np.zeros(ugrid.shape)
     setup = [
-        (0, +1, 0.5),
-        (0,  0, 0.4),
-        (0, -1, 0.1),
-        (1, +1, 0.1),
-        (1,  0, 0.4),
-        (1, -1, 0.5),
+        (0, {+1: 0.5, 0: 0.4, -1: 0.1}),
+        (1, {+1: 0.1, 0: 0.4, -1: 0.5}),
     ]
-    for i, charge, frac in setup:
+    for i, lico in setup:
         n = sys.numbers[i]
         c = sys.coordinates[i]
-        # TODO: can be made more efficient by scaling the spline function
-        spline = proatomdb.get_spline(n, charge)
-        tmp[:] = 0.0
-        ugrid.eval_spline(spline, c, tmp)
-        tmp *= frac
-        mol_dens += tmp
+        spline = proatomdb.get_spline(n, lico)
+        ugrid.eval_spline(spline, c, moldens)
 
-    return sys, ugrid, mol_dens, proatomdb
+    return sys, ugrid, moldens, proatomdb
 
 
 def get_fake_pseudo_oo(smooth=False):
@@ -124,27 +116,19 @@ def get_fake_pseudo_oo(smooth=False):
     shape = np.array([30, 30, 30+11])
     ugrid = UniformGrid(origin, rvecs, shape, np.ones(3, int))
 
-    mol_dens = np.zeros(ugrid.shape)
+    moldens = np.zeros(ugrid.shape)
     tmp = np.zeros(ugrid.shape)
     setup = [
-        (0, +1, 0.5),
-        (0,  0, 0.4),
-        (0, -1, 0.1),
-        (1, +1, 0.1),
-        (1,  0, 0.4),
-        (1, -1, 0.5),
+        (0, {+1: 0.5, 0: 0.4, -1: 0.1}),
+        (1, {+1: 0.1, 0: 0.4, -1: 0.5}),
     ]
-    for i, charge, frac in setup:
+    for i, lico in setup:
         n = sys.numbers[i]
         c = sys.coordinates[i]
-        # TODO: can be made more efficient by scaling the spline function
-        spline = proatomdb.get_spline(n, charge)
-        tmp[:] = 0.0
-        ugrid.eval_spline(spline, c, tmp)
-        tmp *= frac
-        mol_dens += tmp
+        spline = proatomdb.get_spline(n, lico)
+        ugrid.eval_spline(spline, c, moldens)
 
-    return sys, ugrid, mol_dens, proatomdb
+    return sys, ugrid, moldens, proatomdb
 
 
 def check_names(names, part):
