@@ -79,7 +79,7 @@ class ProAtomRecord(object):
         # Create object
         return cls(number, charge, energy, homo_energy, atgrid.rgrid, rho, pseudo_number)
 
-    def __init__(self, number, charge, energy, homo_energy, rgrid, rho, pseudo_number=None):
+    def __init__(self, number, charge, energy, homo_energy, rgrid, rho, pseudo_number=None, ipot_energy=None):
         self._number = number
         self._charge = charge
         self._energy = energy
@@ -90,49 +90,68 @@ class ProAtomRecord(object):
             self._pseudo_number = number
         else:
             self._pseudo_number = pseudo_number
+        if self._pseudo_number == 1:
+            self._ipot_energy = -self._energy
+        else:
+            self._ipot_energy = ipot_energy
         self._safe = True
 
     def _get_number(self):
+        '''The element number'''
         return self._number
 
     number = property(_get_number)
 
     def _get_charge(self):
+        '''The charge'''
         return self._charge
 
     charge = property(_get_charge)
 
     def _get_energy(self):
+        '''The total electronic energy'''
         return self._energy
 
     energy = property(_get_energy)
 
     def _get_homo_energy(self):
+        '''The HOMO energy'''
         return self._homo_energy
 
     homo_energy = property(_get_homo_energy)
 
+    def _get_ipot_energy(self):
+        '''The ionization potential'''
+        return self._ipot_energy
+
+    ipot_energy = property(_get_ipot_energy)
+
     def _get_rho(self):
+        '''The density on a radial grid'''
         return self._rho
 
     rho = property(_get_rho)
 
     def _get_rgrid(self):
+        '''The radial grid'''
         return self._rgrid
 
     rgrid = property(_get_rgrid)
 
     def _get_pseudo_number(self):
+        '''The pseudo element number (effective core charge)'''
         return self._pseudo_number
 
     pseudo_number = property(_get_pseudo_number)
 
     def _get_population(self):
+        '''The total number of electrons'''
         return self._number - self._charge
 
     population = property(_get_population)
 
     def _get_pseudo_population(self):
+        '''The total effective number of electrons'''
         return self._pseudo_number - self._charge
 
     pseudo_population = property(_get_pseudo_population)
@@ -151,10 +170,12 @@ class ProAtomRecord(object):
            other
                 Another instance of ProAtomRecord
         '''
-        if other.number == self._number and \
-           other.population < self.population and \
-           other.energy < self.energy:
-            self._safe = False
+        if other.number == self._number:
+            if other.population < self.population and \
+               other.energy < self.energy:
+                self._safe = False
+            if other.population == self.population-1:
+                self._ipot_energy = other.energy - self.energy
 
     def compute_radii(self, populations):
         '''Compute approximate radii and grid points at which the atom contains the given populations
@@ -206,7 +227,8 @@ class ProAtomRecord(object):
                 self.homo_energy == other.homo_energy and
                 (self.rho == other.rho).all() and
                 self.rgrid == other.rgrid and
-                self.pseudo_number == other.pseudo_number)
+                self.pseudo_number == other.pseudo_number and
+                self.ipot_energy == other.ipot_energy)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -388,6 +410,7 @@ class ProAtomDB(object):
                 rgrid=RadialGrid(RTransform.from_string(grp.attrs['rtransform'])),
                 rho=grp['rho'][:],
                 pseudo_number=grp.attrs.get('pseudo_number'),
+                ipot_energy=grp.attrs.get('ipot_energy'),
             ))
         result = ProAtomDB(records)
         # close
@@ -426,6 +449,8 @@ class ProAtomDB(object):
             grp.attrs['rtransform'] = record.rgrid.rtransform.to_string()
             grp['rho'] = record.rho
             grp.attrs['pseudo_number'] = record.pseudo_number
+            if record.ipot_energy is not None:
+                grp.attrs['ipot_energy'] = record.ipot_energy
         # close
         if do_close:
             f.close()
