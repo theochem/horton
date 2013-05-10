@@ -19,8 +19,8 @@
 //--
 
 
-#ifndef HORTON_GBASIS_ITERPOW_H
-#define HORTON_GBASIS_ITERPOW_H
+#ifndef HORTON_GBASIS_ITER_POW_H
+#define HORTON_GBASIS_ITER_POW_H
 
 int iter_pow1_inc(long* n);
 
