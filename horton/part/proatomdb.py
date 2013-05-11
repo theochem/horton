@@ -32,7 +32,7 @@ from horton.grid.cext import RTransform, CubicSpline, dot_multi
 from horton.grid.radial import RadialGrid
 from horton.guess import guess_hamiltonian_core
 from horton.hamiltonian import Hamiltonian
-from horton.log import log
+from horton.log import log, timer
 from horton.scf import converge_scf
 from horton.system import System
 
@@ -332,8 +332,10 @@ class ProAtomDB(object):
         records = []
         for fn in fns:
             # Load system
-            sys = System.from_file(fn, chk=None) # avoid rewriting in case of chk file
-            records.append(ProAtomRecord.from_system(sys, atgrid))
+            with timer.section('Load proatom'):
+                sys = System.from_file(fn, chk=None) # avoid rewriting in case of chk file
+            with timer.section('Proatom grid'):
+                records.append(ProAtomRecord.from_system(sys, atgrid))
         return cls(records)
 
     @classmethod
