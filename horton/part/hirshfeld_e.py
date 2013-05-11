@@ -51,40 +51,31 @@ class HEBasis(object):
         for i in xrange(len(numbers)):
             number = numbers[i]
             rgrid = proatomdb.get_rgrid(number)
-            padb_charges = proatomdb.get_charges(number, safe=True)
-            complete = proatomdb.get_record(number, padb_charges[0]).pseudo_population == 1
+            licos = self._init_atom_licos(number, proatomdb)
 
-            licos = []
-            atom_nbasis = 0
-            for j in xrange(len(padb_charges) - 1 + complete):
-                # construct new linear combination
-                if complete:
-                    if j == 0:
-                        lico = {padb_charges[j]: 1}
-                    else:
-                        lico = {padb_charges[j]: 1, padb_charges[j-1]: -1}
-                else:
-                    lico = {padb_charges[j+1]: 1, padb_charges[j]: -1}
-                # test if this new lico is redundant with respect to previous ones
+            #padb_charges = proatomdb.get_charges(number, safe=True)
+            #complete = proatomdb.get_record(number, padb_charges[0]).pseudo_population == 1
+
+            # remove redundant basis functions
+            for j in xrange(len(licos)-1, -1, -1):
+                # test if this lico is redundant with respect to earlier ones
                 redundant = False
-                rho = self.proatomdb.get_rho(number, lico)
-                for old_lico in licos:
-                    old_rho = self.proatomdb.get_rho(number, old_lico)
-                    delta = rho - old_rho
+                rho = self.proatomdb.get_rho(number, licos[j])
+                for earlier_lico in licos[:j]:
+                    earlier_rho = self.proatomdb.get_rho(number, earlier_lico)
+                    delta = rho - earlier_rho
                     rmsd = np.sqrt(rgrid.integrate(delta, delta))
                     if rmsd < 1e-8:
                         redundant = True
                         break
-                # append if not redundant
-                if not redundant:
-                    licos.append(lico)
-                    atom_nbasis += 1
-                else:
+                # remove if redundant
+                if redundant:
                     if log.do_medium:
-                        log('Skipping redundant basis function for atom %i: %s' % (i, lico))
+                        log('Skipping redundant basis function for atom %i: %s' % (i, licos[j]))
+                    licos.pop(j)
 
-            self.basis_specs.append([self.nbasis, atom_nbasis, licos])
-            self.nbasis += atom_nbasis
+            self.basis_specs.append([self.nbasis, licos])
+            self.nbasis += len(licos)
 
         if log.do_medium:
             log('Hirshfeld-E basis')
@@ -97,6 +88,23 @@ class HEBasis(object):
                     log('%4i %3i %3i %s' % (i, numbers[i], j, label))
             log.hline()
 
+    def _init_atom_licos(self, number, proatomdb):
+        '''Initialize linear combinations that define basis functions for one atom'''
+        padb_charges = proatomdb.get_charges(number, safe=True)
+        complete = proatomdb.get_record(number, padb_charges[0]).pseudo_population == 1
+        licos = []
+        for j in xrange(len(padb_charges) - 1 + complete):
+            # construct new linear combination
+            if complete:
+                if j == 0:
+                    lico = {padb_charges[j]: 1}
+                else:
+                    lico = {padb_charges[j]: 1, padb_charges[j-1]: -1}
+            else:
+                lico = {padb_charges[j+1]: 1, padb_charges[j]: -1}
+            licos.append(lico)
+        return licos
+
     def get_nbasis(self):
         return self.nbasis
 
@@ -104,7 +112,7 @@ class HEBasis(object):
         return self.basis_specs[i][0]
 
     def get_atom_nbasis(self, i):
-        return self.basis_specs[i][1]
+        return len(self.basis_specs[i][1])
 
     def get_constant_rho(self, i):
         return self.proatomdb.get_rho(self.numbers[i])
@@ -116,15 +124,15 @@ class HEBasis(object):
         return {0: 1}
 
     def get_basis_rho(self, i, j):
-        licos = self.basis_specs[i][2]
+        licos = self.basis_specs[i][1]
         return self.proatomdb.get_rho(self.numbers[i], licos[j])
 
     def get_basis_spline(self, i, j):
-        licos = self.basis_specs[i][2]
+        licos = self.basis_specs[i][1]
         return self.proatomdb.get_spline(self.numbers[i], licos[j])
 
     def get_basis_lico(self, i, j):
-        return self.basis_specs[i][2][j]
+        return self.basis_specs[i][1][j]
 
     def get_total_lico(self, i, propars):
         total_lico = self.get_constant_lico(i)
@@ -138,14 +146,14 @@ class HEBasis(object):
         return total_lico
 
     def get_lower_bound(self, i, j):
-        lico = self.basis_specs[i][2][j]
+        lico = self.basis_specs[i][1][j]
         for charge in lico.iterkeys():
             if charge < 0:
                 return 0
         return -1
 
     def get_basis_label(self, i, j):
-        licos = self.basis_specs[i][2]
+        licos = self.basis_specs[i][1]
         charges = tuple(sorted(licos[j].keys()))
         if len(charges) == 1:
             return '%+i' % charges
@@ -159,9 +167,9 @@ class HEBasis(object):
         basis_map = []
         basis_names = []
         for i in xrange(len(self.numbers)):
-            begin, nbasis, licos = self.basis_specs[i]
-            basis_map.append([begin, nbasis])
-            for j in xrange(nbasis):
+            begin, licos = self.basis_specs[i]
+            basis_map.append([begin, len(licos)])
+            for j in xrange(len(licos)):
                 basis_names.append('%i:%s' % (i, self.get_basis_label(i, j)))
         return np.array(basis_map), basis_names
 

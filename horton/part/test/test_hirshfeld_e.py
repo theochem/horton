@@ -26,11 +26,16 @@ from horton import *
 from horton.part.test.common import get_proatomdb_cp2k
 
 
-def test_hebasis_bound():
+def test_hebasis():
     padb = get_proatomdb_cp2k()
     numbers = np.array([8, 14, 14, 8, 8])
     hebasis = HEBasis(numbers, padb)
     assert hebasis.get_nbasis() == 9 # 3 for every oxygen atom
+    assert hebasis.get_atom_nbasis(0) == 3
+    assert hebasis.get_atom_nbasis(1) == 0
+    assert hebasis.get_atom_nbasis(2) == 0
+    assert hebasis.get_atom_nbasis(3) == 3
+    assert hebasis.get_atom_nbasis(4) == 3
     for i in 0, 3, 4:
         assert hebasis.get_lower_bound(i, 0) == -1
         assert hebasis.get_lower_bound(i, 1) == -1
