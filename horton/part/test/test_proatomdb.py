@@ -48,6 +48,9 @@ def test_db_basics():
     assert r1 == r2
     assert r1 != r3
     assert padb.get_rgrid(8) is r1.rgrid
+    assert padb.get_record(8, +1).ipot_energy is None
+    assert padb.get_record(8, -1).ipot_energy == padb.get_record(8, 0).energy - padb.get_record(8, -1).energy
+    assert padb.get_record(1, 0).ipot_energy == -padb.get_record(1, 0).energy
 
 
 def test_db_basics_pseudo():
@@ -68,6 +71,7 @@ def test_db_basics_pseudo():
     assert abs(r2.energy - -15.464982778766) < 1e-8
     assert abs(r2.homo_energy - 0.606458) < 1e-5
     assert abs(r2.ipot_energy - (r1.energy - r2.energy)) < 1e-5
+    assert padb.get_record(8, +2).ipot_energy is None
 
 
 def test_record_basics_pseudo():
@@ -82,6 +86,8 @@ def test_record_basics_pseudo():
     assert r.number == 14
     assert r.charge == 0
     assert abs(r.energy - -3.761587698067) < 1e-10
+    assert abs(r.homo_energy - -0.154896) < 1e-10
+    assert r.ipot_energy is None
     assert r.population == 14
     assert r.pseudo_number == 4
     assert r.pseudo_population == 4

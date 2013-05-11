@@ -90,7 +90,7 @@ class ProAtomRecord(object):
             self._pseudo_number = number
         else:
             self._pseudo_number = pseudo_number
-        if self._pseudo_number == 1:
+        if self.pseudo_population == 1:
             self._ipot_energy = -self._energy
         else:
             self._ipot_energy = ipot_energy
@@ -174,7 +174,7 @@ class ProAtomRecord(object):
             if other.population < self.population and \
                other.energy < self.energy:
                 self._safe = False
-            if other.population == self.population-1:
+            if other.population == self.population - 1:
                 self._ipot_energy = other.energy - self.energy
 
     def compute_radii(self, populations):
