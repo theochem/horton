@@ -19,7 +19,12 @@
 #
 #--
 
-from harmonics import *
+
+try:
+    from harmonics import *
+except ImportError:
+    from nose.plugins.skip import SkipTest
+    raise SkipTest
 
 
 # Comparison with some results from:
