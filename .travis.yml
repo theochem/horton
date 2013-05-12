@@ -3,7 +3,7 @@ python:
  - "2.6"
  - "2.7"
 before_install:
- - "sudo apt-get install cython python-h5py python-numpy python-scipy python-matplotlib python-sympt"
+ - "sudo apt-get install cython python-h5py python-numpy python-scipy python-matplotlib python-sympy"
 install: 
  - "cd depends; make libint"
  - "cd depends; make libxc"
