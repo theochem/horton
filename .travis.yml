@@ -8,5 +8,5 @@ install:
  - "pip install sympy"
  - "cd depends; make libint"
  - "cd depends; make libxc"
- - "cd data/refatoms; wget http://users.ugent.be/~tovrstra/horton_refatoms.tar.bz2; tar -xvjf horton_refatoms.tar.bz2"
+ - "cd data/refatoms; wget http://users.ugent.be/~tovrstra/horton_refatoms.tar.bz2; tar -xjf horton_refatoms.tar.bz2"
 script: nosetests
