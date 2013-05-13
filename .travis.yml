@@ -1,12 +1,15 @@
 language: python
 python:
- - "2.6"
  - "2.7"
-before_install:
- - "sudo apt-get --no-install-recommends install cython python-h5py python-numpy python-scipy"
-install: 
- - "pip install sympy"
- - "cd depends; make libint"
- - "cd depends; make libxc"
- - "cd data/refatoms; wget http://users.ugent.be/~tovrstra/horton_refatoms.tar.bz2; tar -xjf horton_refatoms.tar.bz2"
-script: nosetests
+virtualenv:
+  system_site_packages: true
+install:
+ - "sudo apt-get --no-install-recommends install python-sympy libhdf5-serial-dev python-numpy python-scipy python-matplotlib gfortran"
+ - "mkdir -p ~/.matplotlib/; echo 'backend : Agg' > ~/.matplotlib/matplotlibrc"
+ - "pip install h5py cython --use-mirrors"
+ - "ls; cd depends; make libint-linux-x86_64-gcc-4.7.2; cd .."
+ - "ls; cd depends; make libxc 2>&1 > make_libxc.out; cd .."
+ - "cd data/refatoms; wget http://users.ugent.be/~tovrstra/horton_refatoms.tar.bz2; tar -xjf horton_refatoms.tar.bz2; cd ../.."
+ - "./setup.py build_ext -i"
+script:
+ - "nosetests -v horton"
