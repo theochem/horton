@@ -304,7 +304,7 @@ def main():
 
     args = sys.argv[1:]
     if len(args) == 0:
-        print >> sys.stderr, 'Expecting at least one argument: "input" or convert"'
+        print >> sys.stderr, 'Expecting at least one argument: "input" or "convert"'
         sys.exit(-1)
     command = args.pop(0)
     if command == 'input':
