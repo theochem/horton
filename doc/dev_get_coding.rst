@@ -143,7 +143,7 @@ Make a file ~/.gitconfig as follows::
         merge = master
 
     [push]
-        default = matching
+        default = simple
 
 Replace my name and email by yours. If you are also working on other projects
 that use git, it may be useful to move some of these options to the file

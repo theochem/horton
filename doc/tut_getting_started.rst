@@ -32,6 +32,7 @@ In order to compile and test Horton and its documentation, one needs to
 install relatively recent versions of the following programs/libraries:
 
 * Python >= 2.7, < 3.0: http://www.python.org/ (also install `development files`)
+* GCC, G++ and GFortran >= 4.5: http://gcc.gnu.org/ (In principle the Intel compilers or any other of your favorite compilers should work. The GNU compilers are used for development and testing.)
 * Numpy > 1.0: http://www.scipy.org/
 * h5py >= 2.1.1: http://code.google.com/p/h5py/
 * Scipy >= 0.10.0: http://www.scipy.org/
@@ -39,19 +40,23 @@ install relatively recent versions of the following programs/libraries:
 * Sphinx > 1.0: http://sphinx.pocoo.org/
 * Nosetests >= 1.1.2: http://readthedocs.org/docs/nose/en/latest/
 * Sympy >= 0.7.1: http://code.google.com/p/sympy/
+* The ``patch`` program >= 2.0: http://savannah.gnu.org/projects/patch/ (or any of its equivalents)
+
+Optionally, one may also install Matplotlib:
+
 * Matplotlib >= 1.0: http://matplotlib.org/
 
 On a decent operating system, these programs/libraries can be easily installed
-with a package manager. First check that option before manually installing this
-software.
+with a package manager. First check this possibility before manually installing
+the dependencies.
 
 On Ubuntu Linux::
 
-    sudo apt-get install python-dev python-numpy python-h5py python-scipy cython python-sphinx python-nose python-sympy python-matplotlib
+    sudo apt-get install python-dev gcc g++ gfortran python-numpy python-h5py python-scipy cython python-sphinx python-nose python-sympy patch python-matplotlib
 
 On Fedora Linux::
 
-    sudo apt-get install python-devel numpy h5py scipy Cython python-sphinx python-nose sympy python-matplotlib
+    sudo yum install python-devel gcc gcc-c++ gcc-gfortran numpy h5py scipy Cython python-sphinx python-nose sympy patch python-matplotlib
 
 
 Specific dependencies
@@ -65,11 +70,9 @@ compiling. The following should take care of everything, assuming that you have
 installed all the libint2 dependencies::
 
     cd depends
-    make -j4 libint
-    make -j4 libxc
+    make libint
+    make libxc
     cd ..
-
-The option ``-j4`` instructs make to build code in parallel on four cores.
 
 
 Reference atoms
@@ -95,9 +98,9 @@ The **regular build+install** is as done follows::
 
     ./setup.py install --user
 
-This will put a `compiled` version of Horton in the ``build`` directory. Then a
-copy of this directory is placed under
-``~/.local/lib/python2.*/site-packages/horton``.
+The ``horton-*.py`` scripts are installed in ``~/.local/bin`` and you have to
+add this directory to your ``PATH`` environment variable to make them accessible
+from any directory.
 
 The **in-place build** is useful for testing purposes, and is done as follows::
 
