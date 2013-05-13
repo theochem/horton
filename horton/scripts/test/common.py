@@ -34,7 +34,7 @@ def copy_files(tmpdir, fns):
 
 def check_files(tmpdir, fns):
     for fn in fns:
-        assert os.path.isfile(os.path.join(tmpdir, fn))
+        assert os.path.isfile(os.path.join(tmpdir, fn)), "Missing %s" % fn
 
 
 def write_random_lta_cube(tmpdir, fn_cube):
