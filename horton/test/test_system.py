@@ -25,26 +25,6 @@ import numpy as np
 from horton import *
 
 
-def test_load_water_number():
-    fn = context.get_fn('test/water_number.xyz')
-    system = System.from_file(fn)
-    check_water(system)
-
-
-def test_load_water_element():
-    fn = context.get_fn('test/water_element.xyz')
-    system = System.from_file(fn)
-    check_water(system)
-
-
-def check_water(system):
-    assert system.numbers[0] == 1
-    assert system.numbers[1] == 8
-    assert system.numbers[2] == 1
-    assert abs(np.linalg.norm(system.coordinates[0] - system.coordinates[1])/angstrom - 0.96) < 1e-5
-    assert abs(np.linalg.norm(system.coordinates[2] - system.coordinates[1])/angstrom - 0.96) < 1e-5
-
-
 def test_cell():
     fn = context.get_fn('test/water_element.xyz')
     system = System.from_file(fn, cell=Cell(np.identity(3, float)*10))
