@@ -10,6 +10,7 @@ Tutorials
 
 .. toctree::
    :maxdepth: 2
+   :numbered:
 
    tut_getting_started
    tut_gaussian_basis
@@ -20,6 +21,7 @@ Development
 
 .. toctree::
    :maxdepth: 2
+   :numbered:
 
    dev_get_coding
 
@@ -29,6 +31,7 @@ Reference
 
 .. toctree::
    :maxdepth: 2
+   :numbered:
 
    ref_features
    ref_acronyms

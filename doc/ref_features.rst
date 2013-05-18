@@ -74,7 +74,8 @@ Gaussian format checkpoint files                   ``*.fchk``         X
 Molden input files (wavefunction)                  ``*.molden.input`` X
 Molekel file                                       ``*.mkl``          X
 VASP CHGCAR and LOCPOT files                                          X
-XYZ format                                         ``*.xyz``          X
+VASP POSCAR and LOCPOT files                                          X    X
+XYZ format                                         ``*.xyz``          X    X
 ================================================== ================== ==== =====
 
 
