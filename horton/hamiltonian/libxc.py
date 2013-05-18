@@ -22,6 +22,7 @@
 
 import numpy as np
 
+from horton.log import log
 from horton.hamiltonian.core import HamiltonianTerm
 from horton.hamiltonian.cext import LibXCWrapper
 
@@ -29,7 +30,25 @@ from horton.hamiltonian.cext import LibXCWrapper
 __all__ = ['LibXCLDATerm', 'LibXCGGATerm', 'LibXCHybridGGATerm']
 
 
-class LibXCLDATerm(HamiltonianTerm):
+
+class LibXCTerm(HamiltonianTerm):
+    def __init__(self, name):
+        self._name = name
+        self._libxc_wrapper = LibXCWrapper(name)
+        log.cite('marques2012', 'using LibXC, the library of exchange and correlation functionals')
+
+    def _update_operator(self):
+        raise NotImplementedError
+
+    def add_fock_matrix(self, fock_alpha, fock_beta):
+        # TODO: move this above compute_energy, also in all other classes
+        self._update_operator()
+        fock_alpha.iadd(self.cache.load('op_libxc_%s_alpha' % self._name))
+        if not self.system.wfn.closed_shell:
+            fock_beta.iadd(self.cache.load('op_libxc_%s_beta' % self._name, ))
+
+
+class LibXCLDATerm(LibXCTerm):
     '''Any LDA functional from LibXC'''
 
     require_grid = True
@@ -40,9 +59,7 @@ class LibXCLDATerm(HamiltonianTerm):
            name
                 The name of the functional in LibXC, without the 'lda_' prefix.
         '''
-        name = 'lda_' + name.lower()
-        self._name = name
-        self._libxc_wrapper = LibXCWrapper(name)
+        LibXCTerm.__init__(self, 'lda_' + name.lower())
 
     def _update_operator(self):
         if self.system.wfn.closed_shell:
@@ -101,15 +118,8 @@ class LibXCLDATerm(HamiltonianTerm):
             self.store_energy('libxc_%s' % self._name, energy)
         return energy
 
-    def add_fock_matrix(self, fock_alpha, fock_beta):
-        # TODO: move this above compute_energy, also in all other classes
-        self._update_operator()
-        fock_alpha.iadd(self.cache.load('op_libxc_%s_alpha' % self._name))
-        if not self.system.wfn.closed_shell:
-            fock_beta.iadd(self.cache.load('op_libxc_%s_beta' % self._name, ))
 
-
-class LibXCGGATerm(LibXCLDATerm):
+class LibXCGGATerm(LibXCTerm):
     '''Any GGA functional from LibXC'''
     def __init__(self, name):
         '''
@@ -118,9 +128,7 @@ class LibXCGGATerm(LibXCLDATerm):
            name
                 The name of the functional in LibXC, without the 'gga_' prefix.
         '''
-        name = 'gga_' + name.lower()
-        self._name = name
-        self._libxc_wrapper = LibXCWrapper(name)
+        LibXCTerm.__init__(self, 'gga_' + name.lower())
 
     def _update_operator(self):
         if self.system.wfn.closed_shell:
@@ -205,9 +213,7 @@ class LibXCHybridGGATerm(LibXCGGATerm):
            name
                 The name of the functional in LibXC, without the 'hyb_gga_' prefix.
         '''
-        name = 'hyb_gga_' + name.lower()
-        self._name = name
-        self._libxc_wrapper = LibXCWrapper(name)
+        LibXCTerm.__init__(self, 'hyb_gga_' + name.lower())
 
     def get_exx_fraction(self):
         return self._libxc_wrapper.get_hyb_exx_fraction()

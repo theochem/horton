@@ -58,4 +58,3 @@ def test_load_dump_consistency():
     assert sys0.natom == sys1.natom
     assert (sys0.numbers == sys1.numbers).all()
     assert abs(sys0.coordinates - sys1.coordinates).max() < 1e-5
-
