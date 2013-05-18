@@ -356,7 +356,7 @@ function do_atom {
     if [ -e atom.out ]; then
         echo "Output file present in ${1}, not recomputing."
     else
-        %(name)s < atom.in > atom.out
+        %(name)s atom.in > atom.out
         formchk atom.chk atom.fchk
         rm atom.chk
     fi
