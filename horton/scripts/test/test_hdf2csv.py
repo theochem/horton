@@ -58,7 +58,6 @@ def test_script():
             fill_hdf5(f)
         check_script('horton-hdf2csv.py test.h5:/ test.csv', tmpdir)
         check_files(tmpdir, ['test.h5', 'test.csv'])
-        os.system('cat %s/test.csv' % tmpdir)
         with open('%s/test.csv' % tmpdir) as f:
             r = csv.reader(f)
             rows = [row for row in r]
