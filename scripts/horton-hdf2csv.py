@@ -61,14 +61,13 @@ def main():
         w.writerow(['Converted data from %s' % args.h5])
         w.writerow([])
         for name, dset in iter_datasets(fin[grp_name]):
-            if len(dset.shape) > 2:
+            if len(dset.shape) > 3:
                 if log.do_warning:
-                    log.warn('Skipping %s because it has more than two axes.' % name)
-                continue
+                    log.warn('Skipping %s because it has more than three axes.' % name)
             else:
                 log('Converting %s' % name)
 
-            w.writerow(['Dataset', name])
+            w.writerow(['Dataset', name, 'Shape:'] + list(dset.shape))
             if len(dset.shape) == 0:
                 w.writerow([dset[()]])
             elif len(dset.shape) == 1:
@@ -77,6 +76,17 @@ def main():
             elif len(dset.shape) == 2:
                 for row in dset:
                     w.writerow([value for value in row])
+            elif len(dset.shape) == 3:
+                for array in dset:
+                    l = []
+                    for col in array.T:
+                        for value in col:
+                            l.append(value)
+                        l.append('')
+                    del l[-1]
+                    w.writerow(l)
+            else:
+                w.writerow(['Skipped because ndim=%i>3' % len(dset.shape)])
             w.writerow([])
 
 
