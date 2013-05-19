@@ -26,6 +26,16 @@ __all__ = ['iter_datasets']
 
 
 def iter_datasets(grp):
+    '''Iterate recursively over all datasets in the given group
+
+       **Arguments:**
+
+       grp
+            The h5.Group instance to parse.
+
+       This function iterators over all (name,dset) pairs it can find. The name
+       is the full path of the dataset relative to the given group object.
+    '''
     for name, item in sorted(grp.iteritems()):
         if isinstance(item, h5.Dataset):
             yield name, item

@@ -34,13 +34,14 @@ def fill_hdf5(f):
     f['test0'] = np.random.uniform(-1, 1)
     g = f.create_group('bar')
     g['foo'] = np.random.uniform(-1, 1, (5, 2))
+    f['zzz'] = np.random.uniform(-1, 1, (5, 2, 5))
 
 
 def test_iter_datasets():
     with h5.File('horton.scripts.test.test_hdf2csv.test_iter_datasets', driver='core', backing_store=False) as f:
         fill_hdf5(f)
         l = list(iter_datasets(f))
-        assert len(l) == 4
+        assert len(l) == 5
         assert l[0][0] == 'bar/foo'
         assert l[0][1] == f['bar/foo']
         assert l[1][0] == 'test0'
@@ -49,6 +50,8 @@ def test_iter_datasets():
         assert l[2][1] == f['test1']
         assert l[3][0] == 'test2'
         assert l[3][1] == f['test2']
+        assert l[4][0] == 'zzz'
+        assert l[4][1] == f['zzz']
 
 
 def test_script():
@@ -64,15 +67,40 @@ def test_script():
         with h5.File('%s/test.h5' % tmpdir) as f:
             assert rows[0][0] == 'Converted data from test.h5:/'
             assert len(rows[1]) == 0
+            assert len(rows[2]) == 5
             assert rows[2][0] == 'Dataset'
             assert rows[2][1] == 'bar/foo'
+            assert rows[2][2] == 'Shape:'
+            assert rows[2][3] == '5'
+            assert rows[2][4] == '2'
             assert float(rows[3][0]) == f['bar/foo'][0,0]
             assert float(rows[7][1]) == f['bar/foo'][4,1]
             assert len(rows[8]) == 0
+            assert len(rows[19]) == 5
             assert rows[19][0] == 'Dataset'
             assert rows[19][1] == 'test2'
+            assert rows[19][2] == 'Shape:'
+            assert rows[19][3] == '5'
+            assert rows[19][4] == '2'
             assert float(rows[20][0]) == f['test2'][0,0]
             assert float(rows[24][1]) == f['test2'][4,1]
+            assert rows[25] == []
+            assert len(rows[26]) == 6
+            assert rows[26][0] == 'Dataset'
+            assert rows[26][1] == 'zzz'
+            assert rows[26][2] == 'Shape:'
+            assert rows[26][3] == '5'
+            assert rows[26][4] == '2'
+            assert rows[26][5] == '5'
+            assert float(rows[27][0]) == f['zzz'][0,0,0]
+            assert float(rows[27][1]) == f['zzz'][0,1,0]
+            assert rows[27][2] == ''
+            assert float(rows[27][3]) == f['zzz'][0,0,1]
+            assert float(rows[27][4]) == f['zzz'][0,1,1]
+            assert rows[27][5] == ''
+            assert len(rows[27]) == 3*5-1
+            assert float(rows[31][1]) == f['zzz'][4,1,0]
+            assert float(rows[31][3*5-2]) == f['zzz'][4,1,4]
             assert rows[-1] == []
     finally:
         shutil.rmtree(tmpdir)
