@@ -67,40 +67,43 @@ def test_script():
         with h5.File('%s/test.h5' % tmpdir) as f:
             assert rows[0][0] == 'Converted data from test.h5:/'
             assert len(rows[1]) == 0
-            assert len(rows[2]) == 5
+            assert len(rows[2]) == 2
             assert rows[2][0] == 'Dataset'
             assert rows[2][1] == 'bar/foo'
-            assert rows[2][2] == 'Shape:'
-            assert rows[2][3] == '5'
-            assert rows[2][4] == '2'
-            assert float(rows[3][0]) == f['bar/foo'][0,0]
-            assert float(rows[7][1]) == f['bar/foo'][4,1]
-            assert len(rows[8]) == 0
-            assert len(rows[19]) == 5
-            assert rows[19][0] == 'Dataset'
-            assert rows[19][1] == 'test2'
-            assert rows[19][2] == 'Shape:'
-            assert rows[19][3] == '5'
-            assert rows[19][4] == '2'
-            assert float(rows[20][0]) == f['test2'][0,0]
-            assert float(rows[24][1]) == f['test2'][4,1]
-            assert rows[25] == []
-            assert len(rows[26]) == 6
-            assert rows[26][0] == 'Dataset'
-            assert rows[26][1] == 'zzz'
-            assert rows[26][2] == 'Shape:'
-            assert rows[26][3] == '5'
-            assert rows[26][4] == '2'
-            assert rows[26][5] == '5'
-            assert float(rows[27][0]) == f['zzz'][0,0,0]
-            assert float(rows[27][1]) == f['zzz'][0,1,0]
-            assert rows[27][2] == ''
-            assert float(rows[27][3]) == f['zzz'][0,0,1]
-            assert float(rows[27][4]) == f['zzz'][0,1,1]
-            assert rows[27][5] == ''
-            assert len(rows[27]) == 3*5-1
-            assert float(rows[31][1]) == f['zzz'][4,1,0]
-            assert float(rows[31][3*5-2]) == f['zzz'][4,1,4]
+            assert len(rows[3]) == 3
+            assert rows[3][0] == 'Shape'
+            assert rows[3][1] == '5'
+            assert rows[3][2] == '2'
+            assert float(rows[4][0]) == f['bar/foo'][0,0]
+            assert float(rows[8][1]) == f['bar/foo'][4,1]
+            assert len(rows[9]) == 0
+            assert len(rows[22]) == 2
+            assert rows[22][0] == 'Dataset'
+            assert rows[22][1] == 'test2'
+            assert len(rows[23]) == 3
+            assert rows[23][0] == 'Shape'
+            assert rows[23][1] == '5'
+            assert rows[23][2] == '2'
+            assert float(rows[24][0]) == f['test2'][0,0]
+            assert float(rows[28][1]) == f['test2'][4,1]
+            assert rows[29] == []
+            assert len(rows[30]) == 2
+            assert rows[30][0] == 'Dataset'
+            assert rows[30][1] == 'zzz'
+            assert len(rows[31]) == 4
+            assert rows[31][0] == 'Shape'
+            assert rows[31][1] == '5'
+            assert rows[31][2] == '2'
+            assert rows[31][3] == '5'
+            assert float(rows[32][0]) == f['zzz'][0,0,0]
+            assert float(rows[32][1]) == f['zzz'][0,1,0]
+            assert rows[32][2] == ''
+            assert float(rows[32][3]) == f['zzz'][0,0,1]
+            assert float(rows[32][4]) == f['zzz'][0,1,1]
+            assert rows[32][5] == ''
+            assert len(rows[32]) == 3*5-1
+            assert float(rows[36][1]) == f['zzz'][4,1,0]
+            assert float(rows[36][3*5-2]) == f['zzz'][4,1,4]
             assert rows[-1] == []
     finally:
         shutil.rmtree(tmpdir)

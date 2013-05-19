@@ -67,7 +67,8 @@ def main():
             else:
                 log('Converting %s' % name)
 
-            w.writerow(['Dataset', name, 'Shape:'] + list(dset.shape))
+            w.writerow(['Dataset', name])
+            w.writerow(['Shape'] + list(dset.shape))
             if len(dset.shape) == 0:
                 w.writerow([dset[()]])
             elif len(dset.shape) == 1:
