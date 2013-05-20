@@ -25,6 +25,7 @@ command::
 There is also a web interface to Horton's git repository:
 https://github.com/theochem/horton
 
+
 Common dependencies
 ===================
 
@@ -58,16 +59,29 @@ On Fedora Linux::
 
     sudo yum install python-devel gcc gcc-c++ gcc-gfortran numpy h5py scipy Cython python-sphinx python-nose sympy patch python-matplotlib
 
+If the package manager of your operating system does not have the desired
+packages (or the right versions), one has to install them manually, e.g.
+download and execute an installer, or download and unpack a binary package. On
+HPC environments a compilation from scratch is recommended. In some cases, Pip,
+the Python package manager, may be a good choice to install the most recent
+versions of the Python packages in the list of dependencies. Assuming that you
+have some compilers, the Python development files and HDF5 development files
+installed, the following command installs the remaining dependencies in your
+home directory::
+
+    pip install --user numpy scipy cython h5py sphinx nose sympy
+
 
 Specific dependencies
 =====================
 
 The directory ``depends`` of the Horton source tree is used to build specific
 dependencies from source. For the moment, there are two such dependencies,
-namely `libint2 <http://sourceforge.net/p/libint/>`_ and libxc. The directory ``depends``
-contains a ``Makefile`` that can take care of downloading the right version and
-compiling. The following should take care of everything, assuming that you have
-installed all the libint2 dependencies::
+namely `libint2 <http://sourceforge.net/p/libint/>`_ and `libxc
+<http://www.tddft.org/programs/octopus/wiki/index.php/Libxc>`_
+[marques2012]_. The directory ``depends``
+contains a ``Makefile`` that takes care of downloading the right version and
+compiling it. The following should get you both libint and libxc::
 
     cd depends
     make libint
@@ -85,7 +99,7 @@ downloaded separately as follows::
     cd data/refatoms
     wget http://users.ugent.be/~tovrstra/horton_refatoms.tar.bz2
     tar -xvjf horton_refatoms.tar.bz2
-    cd ..
+    cd ../..
 
 
 Compilation and installation
@@ -126,21 +140,3 @@ perform an **in-place build** and run ``nosetests`` afterwards::
 If all tests pass, the screen output should end with ``OK``. If at some point,
 something during the build process fails, clean up the source tree with the
 ``cleanfiles.sh`` script and try again.
-
-
-Basic example
-=============
-
-This is a basic example computation in Horton. The input file is just
-a small Python main program that uses the Horton library. The script
-``examples/001_hf_water/run.py`` performs a HF/3-21G computation on water and
-partitions the density with the Becke scheme:
-
-.. literalinclude:: ../examples/001_hf_water/run.py
-
-The molecular geometry is loaded from an XYZ file. It is also possible (yet less
-convenient) to directly type the atomic coordinates in the python script.
-
-In addition to this Python interface of Horton, several Python scripts were also
-developed (``horton-*.py``) that are easier to use but only have a limited
-functionality compared to the Python interface
