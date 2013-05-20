@@ -23,7 +23,7 @@
 
 import sys, argparse, os
 
-import h5py as h5, numpy as np
+import numpy as np
 from horton import System, UniformGrid, log, Cell, angstrom, \
     compute_esp_grid_cube, dump_hdf5_low
 from horton.scripts.common import parse_h5, parse_ewald_args, store_args, \
@@ -70,7 +70,7 @@ def main():
 
     # Load the charges from the HDF5 file
     fn_h5, grp_name = parse_h5(args.h5_charges)
-    with h5.File(fn_h5, 'r') as f:
+    with safe_open_h5(fn_h5, 'r') as f:
         grp = f[grp_name]
         charges = grp['charges'][:]
         cell = Cell.from_hdf5(f['system/cell'], None)
