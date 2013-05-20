@@ -26,10 +26,15 @@ from horton.context import context
 
 biblio = Biblio(context.get_fn('references.bib'))
 
+def key(item):
+    return int(item[1].tags['year']), item[0]
+
 with open('doc/ref_literature.rst', 'w') as f:
     print >> f, 'Literature'
     print >> f, '##########'
     print >> f
-    for key, reference in sorted(biblio._records.iteritems()):
+    items = biblio._records.items()
+    items.sort(key=key)
+    for key, reference in items:
         print >> f, '.. [%s] %s' % (key, reference.format_rst())
         print >> f

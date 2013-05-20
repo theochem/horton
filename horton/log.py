@@ -362,7 +362,8 @@ class Reference(object):
             url = self.get_url()
             if len(url) > 0:
                 url = '; `%s <%s>`_' % (url, url)
-            return '%s; *%s* **%s** (v. %s pp. %s)%s' % (
+            return '"%s", %s; *%s* **%s** (v. %s pp. %s)%s' % (
+                self.tags['title'],
                 self.tags['author'].replace(' and', ';'), self.tags['journal'],
                 self.tags['year'], self.tags['volume'], self.tags['pages'], url,
             )
