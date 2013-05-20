@@ -52,8 +52,9 @@ Package ``horton.hamiltonian``
 ------------------------------
 
 * Definition of HF and DFT Hamiltonians.
-* LibXC is used to provide a large number of exchange and correlation
-  functionals.
+* `LibXC <http://www.tddft.org/programs/octopus/wiki/index.php/Libxc>`_ is used
+  to provide a large number of exchange and correlation functionals.
+  [marques2012]_
 * Custom terms can be added as external potential
 
 
@@ -74,7 +75,7 @@ Gaussian format checkpoint files                   ``*.fchk``         X
 Molden input files (wavefunction)                  ``*.molden.input`` X
 Molekel file                                       ``*.mkl``          X
 VASP CHGCAR and LOCPOT files                                          X
-VASP POSCAR and LOCPOT files                                          X    X
+VASP POSCAR                                                           X    X
 XYZ format                                         ``*.xyz``          X    X
 ================================================== ================== ==== =====
 
@@ -84,10 +85,10 @@ Package ``horton.part``
 
 The following density partitioning schemes are implemented:
 
-* ``becke``: Becke partitioning
-* ``h``: Hirshfeld partitioning
-* ``hi``: Iterative Hirshfeld partitioning
-* ``he``: Extended Hirshfeld partitioning
+* ``becke``: Becke partitioning [becke1988_multicenter]_
+* ``h``: Hirshfeld partitioning [hirshfeld1977]_
+* ``hi``: Iterative Hirshfeld partitioning [bultinck2007]_
+* ``he``: Extended Hirshfeld partitioning [verstraelen2013]_
 
 Partitioning can be carried on isolated and periodic systems. Both all-electron (AE)
 and pseudo-potential (PP) densities are supported. The following AIM properties can
@@ -95,7 +96,7 @@ be computed:
 
 * Atomic charges, population, pseudo_population
 * Cartesian atomic multipoles
-* Tkatchenko-Scheffler dispersion coefficients
+* Tkatchenko-Scheffler dispersion coefficients [tkatchenko2009]_
 
 Note that not all AIM properties work for any combination partitioning scheme
 and boundary condition for technical reasons.

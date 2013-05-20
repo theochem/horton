@@ -14,6 +14,7 @@ Tutorials
 
    tut_getting_started
    tut_scf
+   tut_part
    tut_gaussian_basis
 
 
