@@ -23,7 +23,6 @@
 
 import sys, argparse, os
 
-import h5py as h5
 from horton import System, wpart_schemes, Cell, ProAtomDB, log, BeckeMolGrid, \
     lebedev_laikov_npoints
 from horton.scripts.common import store_args, safe_open_h5, write_part_output
@@ -85,7 +84,7 @@ def main():
         grp_name += '_' + args.suffix
 
     if os.path.isfile(fn_h5):
-        with h5.File(fn_h5, 'r') as f:
+        with safe_open_h5(fn_h5, 'r') as f:
             if 'wpart/%s' % grp_name in f and not args.overwrite:
                 if log.do_warning:
                     log.warn('Skipping because "%s" is already present in the output.' % grp_name)

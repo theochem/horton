@@ -23,9 +23,9 @@
 
 import sys, argparse, os, csv
 
-import h5py as h5, numpy as np
+import numpy as np
 from horton.log import log
-from horton.scripts.common import parse_h5
+from horton.scripts.common import parse_h5, safe_open_h5
 from horton.scripts.hdf2csv import iter_datasets
 
 
@@ -56,7 +56,7 @@ def main():
     args = parse_args()
 
     fn_h5, grp_name = parse_h5(args.h5)
-    with h5.File(fn_h5, 'r') as fin, open(args.csv, 'w') as fout:
+    with safe_open_h5(fn_h5, 'r') as fin, open(args.csv, 'w') as fout:
         w = csv.writer(fout)
         w.writerow(['Converted data from %s' % args.h5])
         w.writerow([])

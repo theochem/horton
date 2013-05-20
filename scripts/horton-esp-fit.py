@@ -23,7 +23,7 @@
 
 import sys, argparse, os
 
-import h5py as h5, numpy as np
+import numpy as np
 from horton import System, ESPCost, log, dump_hdf5_low, symmetry_analysis
 from horton.scripts.common import parse_h5, store_args, safe_open_h5
 
@@ -62,7 +62,7 @@ def main():
 
     # Load the cost function from the HDF5 file
     fn_h5, grp_name = parse_h5(args.h5)
-    with h5.File(fn_h5, 'r') as f:
+    with safe_open_h5(fn_h5, 'r') as f:
         grp = f[grp_name]
         sys = System.from_file(f['system'], chk=None)
         cost = ESPCost(grp['A'][:], grp['B'][:], grp['C'][()], sys.natom)
