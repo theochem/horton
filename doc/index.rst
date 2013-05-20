@@ -13,6 +13,7 @@ Tutorials
    :numbered:
 
    tut_getting_started
+   tut_scf
    tut_gaussian_basis
 
 
