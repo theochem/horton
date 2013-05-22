@@ -31,7 +31,7 @@ def test_periodic():
     assert periodic['5'].symbol == 'B'
     assert periodic[' 5'].symbol == 'B'
     assert periodic[' B '].symbol == 'B'
-    assert periodic[' Li '].atomic_radius == 1.45*angstrom
-    assert periodic[' Be '].bs_radius == 1.050000076*angstrom
+    assert periodic[2].bs_radius is None
+    assert periodic[' Be '].bs_radius == 1.05*angstrom
     assert periodic[' He '].wc_radius == 0.291*angstrom
-    assert periodic[' C '].vdWaals_radius == 1.947372276
+    assert periodic[' C '].vdw_radius == 1.75*angstrom

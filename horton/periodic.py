@@ -58,15 +58,30 @@ class Element(object):
             A string with the symbol of the element.
 
        cov_radius
-            The covalent radius
+            The covalent radius. B. Cordero, V. Gomez, A. E. Platero-Prats, M.
+            Reves, J. Echeverria, E. Cremades, F. Barragan, and S. Alvarez,
+            Dalton Trans. pp. 2832--2838 (2008), URL
+            http://dx.doi.org/10.1039/b801115j
+
+       bs_radius
+            The Bragg-Slater radius. J. C. Slater, J. Chem. Phys. 41, 3199
+            (1964), URL http://dx.doi.org/10.1063/1.1725697
+
+       vdw_radius
+            van der Waals radius. R. S. Rowland and R. Taylor, J. Phys. Chem.
+            100, 7384 (1996), URL http://dx.doi.org/10.1021/jp953141+
+
+       wc_radius
+            Waber-Cromer radius of the outermost orbital maximum. J. T. Waber
+            and D. T. Cromer, J. Chem. Phys. 42, 4116 (1965), URL
+            http://dx.doi.org/10.1063/1.1695904
     '''
-    def __init__(self, number= None, symbol= None, cov_radius=None, atomic_radius=None, vdWaals_radius=None, bs_radius=None,wc_radius=None):
+    def __init__(self, number=None, symbol=None, cov_radius=None, bs_radius=None, vdw_radius=None, wc_radius=None):
         self.number = number
         self.symbol = symbol
         self.cov_radius = cov_radius
-        self.atomic_radius = atomic_radius
-        self.vdWaals_radius = vdWaals_radius
         self.bs_radius = bs_radius
+        self.vdw_radius = vdw_radius
         self.wc_radius = wc_radius
 
 
@@ -114,23 +129,24 @@ def load_periodic():
         'angstrom': (lambda s: float(s)*angstrom),
     }
 
-    filename = 'elements'
-    fn = context.get_fn('%s.txt' % filename)
+    fn = context.get_fn('elements.txt')
     nelement = 0
     with open(fn,'r') as infile:
-        line1= infile.readline()
-        number = int(line1.split(':')[1])
         rows = {}
         step = 1
         for line in infile:
             line = line[:line.find('#')].strip()
             if len(line) > 0:
                 if step == 1:
-                    name = line.split(',')[0]
-                    convert = line.split(',')[1]
+                    name, convert = line.split()
                     step = 2
-                elif step == 2 :
-                    row = [convertors[convert](l) for l in line.split(",")]
+                elif step == 2:
+                    row = []
+                    for word in line.split():
+                        if word == 'None':
+                            row.append(None)
+                        else:
+                            row.append(convertors[convert](word))
                     nelement = max(nelement, len(row))
                     rows[name] = row
                     step = 1
