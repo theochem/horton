@@ -43,6 +43,9 @@ def parse_grid(sgrid, system, proatomdb):
         if nll not in lebedev_laikov_npoints:
             raise ValueError('If the grid argument is an integer, it should be one of the following: %s.' % lebedev_laikov_npoints)
 
+        if proatomdb is None:
+            raise ValueError('When no proatomdb is specified, one can only use the coarse, medium, fine or veryfine grids.')
+
         atspecs = []
         for n in system.numbers:
             atspecs.append((

@@ -58,8 +58,11 @@ def check_script_water_sto3g(scheme):
     try:
         fn_fchk = 'water_sto3g_hf_g03.fchk'
         copy_files(tmpdir, [fn_fchk])
-        write_atomdb_sto3g(tmpdir)
-        check_script('horton-wpart.py %s %s atoms.h5' % (fn_fchk, scheme), tmpdir)
+        if scheme == 'b':
+            check_script('horton-wpart.py %s %s' % (fn_fchk, scheme), tmpdir)
+        else:
+            write_atomdb_sto3g(tmpdir)
+            check_script('horton-wpart.py %s %s atoms.h5' % (fn_fchk, scheme), tmpdir)
         fn_h5 = 'water_sto3g_hf_g03.fchk.h5'
         check_files(tmpdir, [fn_h5])
         with h5.File(os.path.join(tmpdir, fn_h5)) as f:
@@ -67,6 +70,10 @@ def check_script_water_sto3g(scheme):
             assert scheme in f['wpart']
     finally:
         shutil.rmtree(tmpdir)
+
+
+def test_script_water_sto3g_b():
+    check_script_water_sto3g('b')
 
 
 def test_script_water_sto3g_h():

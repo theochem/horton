@@ -37,7 +37,7 @@ def parse_args():
         help='The wfn file. Supported formats: fchk, mkl, molden.input')
     parser.add_argument('scheme', choices=sorted(wpart_schemes.keys()),
         help='The scheme to be used for the partitioning')
-    parser.add_argument('atoms',
+    parser.add_argument('atoms', default=None, nargs='?',
         help='An HDF5 file with atomic reference densities.')
 
     parser.add_argument('--overwrite', default=False, action='store_true',
@@ -93,16 +93,22 @@ def main():
     # Load the system
     sys = System.from_file(args.wfn)
 
-    # Load the proatomdb
-    proatomdb = ProAtomDB.from_file(args.atoms)
-    proatomdb.normalize()
-
-    # Run the partitioning
+    # Define a list of optional arguments for the WPartClass:
     WPartClass = wpart_schemes[args.scheme]
     kwargs = dict((key, val) for key, val in vars(args).iteritems() if key in WPartClass.options)
+
+    # Load the proatomdb
+    if args.atoms is not None:
+        proatomdb = ProAtomDB.from_file(args.atoms)
+        proatomdb.normalize()
+        kwargs['proatomdb'] = proatomdb
+    else:
+        proatomdb = None
+
+    # Run the partitioning
     atspecs = parse_grid(args.grid, sys, proatomdb)
     molgrid = BeckeMolGrid(sys, atspecs, keep_subgrids=args.local)
-    wpart = wpart_schemes[args.scheme](sys, molgrid, proatomdb, **kwargs)
+    wpart = wpart_schemes[args.scheme](sys, molgrid, **kwargs)
     names = wpart.do_all()
 
     write_part_output(fn_h5, 'wpart', wpart, grp_name, names, args)
