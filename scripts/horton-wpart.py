@@ -35,7 +35,7 @@ def parse_args():
 
     parser.add_argument('wfn',
         help='The wfn file. Supported formats: fchk, mkl, molden.input')
-    parser.add_argument('scheme', choices=wpart_schemes.keys(),
+    parser.add_argument('scheme', choices=sorted(wpart_schemes.keys()),
         help='The scheme to be used for the partitioning')
     parser.add_argument('atoms',
         help='An HDF5 file with atomic reference densities.')

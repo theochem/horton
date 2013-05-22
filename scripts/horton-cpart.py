@@ -34,7 +34,7 @@ def parse_args():
 
     parser.add_argument('cube',
         help='The cube file.')
-    parser.add_argument('scheme', choices=cpart_schemes.keys(),
+    parser.add_argument('scheme', choices=sorted(cpart_schemes.keys()),
         help='The scheme to be used for the partitioning')
     parser.add_argument('atoms',
         help='An HDF5 file with atomic reference densities.')
