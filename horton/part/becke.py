@@ -33,7 +33,7 @@ __all__ = ['BeckeWPart']
 
 
 class BeckeWPart(WPart):
-    name = 'becke'
+    name = 'b'
     options = ['k']
 
     '''Class for Becke partitioning'''
