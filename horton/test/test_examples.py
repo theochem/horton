@@ -33,3 +33,7 @@ def test_example_002_hfs_water():
 
 def test_example_003_o3lyp_water():
     check_script('./run.py', 'examples/003_o3lyp_water')
+
+
+def test_example_004_wpart():
+    check_script('./run.py', 'examples/004_wpart')
