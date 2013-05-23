@@ -1,5 +1,9 @@
-Getting Started with Coding
+How to contribute to Horton
 ###########################
+
+
+.. contents::
+
 
 This chapter discusses all the technology and conventions that make it fun to
 work on Horton with a small team, and to make sure things remain manageable
@@ -288,10 +292,12 @@ available by pushing it to a remote server. One may use `Github
     git push remote bar:bar
 
 Now send the URL of your remote server and the name of the branch to a peer for
-review. Unless, you have written spotless code, you will make some further
-modifications to the code, commit these and push them to the remote server
-for review. Once this iterative process has converged, it is time to move to the
-next step.
+review. If you are looking for someone to review your code, post a request on
+the `Horton mailing list <https://groups.google.com/d/forum/horton-discuss>`_
+
+Unless, you have written spotless code, you will make some further modifications
+to the code, commit these and push them to the remote server for review. Once
+this iterative process has converged, it is time to move to the next step.
 
 
 Rebase your branch on top of the master branch
@@ -341,12 +347,13 @@ branch to the new HEAD of the master branch with the program ``git rebase``
 
     toony@poony ~/.../horton:bar-1> git push review bar-1:bar-1
 
-Now you can get in touch with one of the Horton developers to transfer these new
-patches to the public master branch of Horton.
+Now you can get in touch with one of the Horton developers (at the `Horton
+mailing list <https://groups.google.com/d/forum/horton-discuss>`_) to transfer
+these new patches to the public master branch of Horton.
 
 
-Writing tests
-=============
+Unit tests
+==========
 
 Horton uses the `Nosetests <http://somethingaboutorange.com/mrl/projects/nose/0.11.2/>`_
 program to run all the unit tests. The goal of a unit test is to check whether
@@ -395,7 +402,7 @@ Horton currently contains many examples that can be used as a starting point
 for new tests. The easiest way to write new tests is to just copy an existing
 test (similar to what you have in mind) and start modifying it.
 
-Most test packages in horton contain a ``common`` module that contains useful
+Most test packages in ``horton`` contain a ``common`` module that contains useful
 functions that facilitate the development of tests. An important example is the
 ``check_delta`` function to test of analytical derivatives are properly
 implemented. This is a simple example::
@@ -425,8 +432,8 @@ implemented. This is a simple example::
         check_delta(fun, deriv, x0, dxs)
 
 
-Writing documentation
-=====================
+Documentation
+=============
 
 All the documentation is located in the ``doc`` directory. We use the `Sphinx
 <http://sphinx.pocoo.org/>`_ formatting engine to compile the `documentation
@@ -453,8 +460,8 @@ effectively. If you added a significant feature, also update the file
 ``ref_features.rst``.
 
 
-Writing examples
-================
+Examples
+========
 
 The examples are located in the ``examples`` directory. Each example is located
 in a subdirectory ``XXX_some_name``, where ``XXX`` is a counter. In each

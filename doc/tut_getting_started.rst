@@ -1,21 +1,47 @@
 Getting started
 ###############
 
-Downloading the code
-====================
 
-In order to get the latest version of the source code, and to upload your own
-changes, you need to work with git. Git is a version control system that
-makes life easy when a group of people are working on a common source code. It
-also makes sense to use it for personal projects. All information about git
-(including downloads and tutorials) can be found here: http://git-scm.com/. The
-official git URL of Horton is::
+.. contents::
 
-    git://github.com/theochem/horton.git
 
-In order to `clone` the public Horton repository, run this command::
+Disclaimer
+==========
+
+Horton is mainly developed and tested on Linux systems. If you run any other
+operating system, some of the instructions below may not work.
+
+
+Download the code
+=================
+
+Stable release (recommended)
+----------------------------
+
+The latest stable source code release of Horton can be downloaded here:
+http://users.ugent.be/~tovrstra/horton/horton-1.0.tar.gz. Choose a suitable
+directory, e.g. ``~/build``, download and unpack the archive::
+
+    mkdir -p ~/build
+    cd ~/build
+    wget http://users.ugent.be/~tovrstra/horton/horton-1.0.tar.gz
+    tar -xvzf horton-1.0.tar.gz
+    cd horton-1.0
+
+
+Latest development code (experts only)
+--------------------------------------
+
+In order to get the latest development version of the source code, and to upload
+your own changes, you need to work with git. Git is a version control system
+that makes life easy when a group of people are working on a common source code.
+All information about git (including downloads and tutorials) can be found here:
+http://git-scm.com/. The official git URL of Horton is:
+git://github.com/theochem/horton.git. In order to `clone` the public Horton
+repository, run this command::
 
     git clone git://github.com/theochem/horton.git
+    cd horton
 
 The version history can be updated with the latest patches with the following
 command::
@@ -29,7 +55,7 @@ https://github.com/theochem/horton
 Common dependencies
 ===================
 
-In order to compile and test Horton and its documentation, one needs to
+In order to compile and test Horton, one needs to
 install relatively recent versions of the following programs/libraries:
 
 * Python >= 2.7, < 3.0: http://www.python.org/ (also install `development files`)
@@ -65,9 +91,9 @@ download and execute an installer, or download and unpack a binary package. On
 HPC environments a compilation from scratch is recommended. In some cases, Pip,
 the Python package manager, may be a good choice to install the most recent
 versions of the Python packages in the list of dependencies. Assuming that you
-have some compilers, the Python development files and HDF5 development files
-installed, the following command installs the remaining dependencies in your
-home directory::
+have installed some compilers, the Python development files and HDF5 development
+files, the following command installs the remaining dependencies in your home
+directory::
 
     pip install --user numpy scipy cython h5py sphinx nose sympy
 
@@ -87,6 +113,8 @@ compiling it. The following should get you both libint and libxc::
     make libint
     make libxc
     cd ..
+
+The compilation of libint takes a few minutes.
 
 
 Reference atoms
@@ -139,4 +167,6 @@ perform an **in-place build** and run ``nosetests`` afterwards::
 
 If all tests pass, the screen output should end with ``OK``. If at some point,
 something during the build process fails, clean up the source tree with the
-``cleanfiles.sh`` script and try again.
+``cleanfiles.sh`` script and try again. If you then still have problems,
+please report them on the `Horton mailing list
+<https://groups.google.com/d/forum/horton-discuss>`_.

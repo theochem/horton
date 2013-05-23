@@ -1,6 +1,10 @@
 Atoms-in-Molecules (AIM) analysis
 #################################
 
+
+.. contents::
+
+
 Introduction
 ============
 
@@ -421,12 +425,12 @@ The ``horton-cpart.py`` script is somewhat experimental. Always make sure that t
 numbers have converged with an increasing number of grid points. One may need to
 following options to control the efficiency of the program
 
-* ``--chop CHOP``. Automatically determine cutoff radii for the pro-atoms, where
-  ``CHOP`` is the maximum number of electrons lost in the tail after the cutoff
-  radius. 0.001 is typically a reasonable value for ``CHOP``. The pro-atoms are
-  renormalized after setting the cutoff radii. One cutoff radius is defined per
-  element. This implies that the tail of the most diffuse anion determines the
-  cutoff radius when the ``--chop`` option is used.
+* ``--compact COMPACT``. Automatically determine cutoff radii for the pro-atoms,
+  where ``COMPACT`` is the maximum number of electrons lost in the tail after
+  the cutoff radius. 0.001 is typically a reasonable value for ``COMPACT``. The
+  pro-atoms are renormalized after setting the cutoff radii. One cutoff radius
+  is defined per element. This implies that the tail of the most diffuse anion
+  determines the cutoff radius when the ``--compact`` option is used.
 
 * ``--greedy``. This enables a more memory-hungry version of the Iterative and
   Extended Hirshfeld algorithms that runs considerably faster. This becomes

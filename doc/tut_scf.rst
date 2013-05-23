@@ -1,5 +1,5 @@
-HOWTO use Horton as an SCF program
-##################################
+How to use Horton as an SCF program
+###################################
 
 Note that this part of Horton is very experimental and will undergo a
 serious redesign in the near future.

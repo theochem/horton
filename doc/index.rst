@@ -2,7 +2,9 @@ Horton's Website
 ################
 
 Horton is a development platform for electronic structure methods. An overview
-of the current features can be found in :ref:`ref_features`.
+of the current features can be found in :ref:`ref_features`. If you have
+questions about Horton (not covered on this website) post them on the `Horton
+mailing list <https://groups.google.com/d/forum/horton-discuss>`_.
 
 
 Tutorials
@@ -13,8 +15,9 @@ Tutorials
    :numbered:
 
    tut_getting_started
-   tut_scf
+   tut_cite
    tut_part
+   tut_scf
    tut_gaussian_basis
 
 
@@ -25,7 +28,9 @@ Development
    :maxdepth: 2
    :numbered:
 
-   dev_get_coding
+   dev_contributors
+   dev_releases
+   dev_contribute
 
 
 Reference
