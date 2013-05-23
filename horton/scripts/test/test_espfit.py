@@ -64,9 +64,9 @@ def test_scripts():
         sys.to_file(os.path.join(tmpdir, 'esp.cube'))
         check_script('horton-esp-cost.py esp.cube --wnear=0:1.0:0.5', tmpdir)
         check_files(tmpdir, ['esp.cube.h5'])
-        check_script('horton-esp-fit.py esp.cube.h5:espfit/espfit_r1 default', tmpdir)
-        check_script('horton-esp-test.py esp.cube.h5:espfit/espfit_r1 esp.cube.h5:espfit/espfit_r1/default', tmpdir)
-        check_script('horton-esp-gen.py esp.cube.h5:espfit/espfit_r1/default --grid=1.2', tmpdir)
+        check_script('horton-esp-fit.py esp.cube.h5:espfit/cost_r1 default', tmpdir)
+        check_script('horton-esp-test.py esp.cube.h5:espfit/cost_r1 esp.cube.h5:espfit/cost_r1/default', tmpdir)
+        check_script('horton-esp-gen.py esp.cube.h5:espfit/cost_r1/default --grid=1.2', tmpdir)
     finally:
         shutil.rmtree(tmpdir)
 
@@ -81,10 +81,10 @@ def test_scripts_symmetry():
         # run scripts
         check_script('horton-esp-cost.py esp.cube --wnear=0:1.0:0.5 --rcut=4 --alpha-scale=0.1', tmpdir)
         check_files(tmpdir, ['esp.cube.h5'])
-        check_script('horton-esp-fit.py esp.cube.h5:espfit/espfit_r1 default --symmetry=lta_gulp.cif', tmpdir)
+        check_script('horton-esp-fit.py esp.cube.h5:espfit/cost_r1 default --symmetry=lta_gulp.cif', tmpdir)
         with h5.File(os.path.join(tmpdir, 'esp.cube.h5')) as f:
             assert 'symmetry' in f['system/props']
-            assert 'symmetry' in f['espfit/espfit_r1/default']
-            assert f['espfit/espfit_r1/default/symmetry/charges'].shape == (sys.props['symmetry'].natom, 2)
+            assert 'symmetry' in f['espfit/cost_r1/default']
+            assert f['espfit/cost_r1/default/symmetry/charges'].shape == (sys.props['symmetry'].natom, 2)
     finally:
         shutil.rmtree(tmpdir)
