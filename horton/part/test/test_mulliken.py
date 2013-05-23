@@ -21,13 +21,17 @@
 
 
 import numpy as np
+
 from horton import *
 
 
-__all__ = ['compute_mulliken_charges']
-
-
-def compute_mulliken_charges(sys):
+def test_mulliken_operators_water_sto3g():
+    fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
+    sys = System.from_file(fn_fchk)
     operators = get_mulliken_operators(sys)
+    for operator in operators:
+        operator.check_symmetry()
     populations = np.array([operator.expectation_value(sys.wfn.dm_full) for operator in operators])
-    return sys.numbers - np.array(populations)
+    charges = sys.numbers - populations
+    assert charges[0] < 0 # oxygen atom
+    assert abs(charges.sum()) < 1e-3

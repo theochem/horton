@@ -21,13 +21,26 @@
 
 
 import numpy as np
-from horton import *
+
+from horton.gbasis.cext import get_shell_nbasis
 
 
-__all__ = ['compute_mulliken_charges']
+__all__ = ['get_mulliken_operators']
 
 
-def compute_mulliken_charges(sys):
-    operators = get_mulliken_operators(sys)
-    populations = np.array([operator.expectation_value(sys.wfn.dm_full) for operator in operators])
-    return sys.numbers - np.array(populations)
+def get_mulliken_operators(sys):
+    '''Return a list of mulliken operators for the given system.'''
+    operators = []
+    for icenter in xrange(sys.obasis.ncenter):
+        mask = np.zeros(sys.obasis.nbasis, dtype=bool)
+        begin = 0
+        for ishell in xrange(sys.obasis.nshell):
+            end = begin + get_shell_nbasis(sys.obasis.shell_types[ishell])
+            if sys.obasis.shell_map[ishell] != icenter:
+                mask[begin:end] = True
+            begin = end
+        pop = sys.get_overlap().copy()
+        pop._array[mask] = 0.0
+        pop._array[:] = 0.5*(pop._array + pop._array.T)
+        operators.append(pop)
+    return operators
