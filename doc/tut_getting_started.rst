@@ -97,8 +97,8 @@ are too large to be included in the revision system. Therefore they must be
 downloaded separately as follows::
 
     cd data/refatoms
-    wget http://users.ugent.be/~tovrstra/horton_refatoms.tar.bz2
-    tar -xvjf horton_refatoms.tar.bz2
+    wget http://users.ugent.be/~tovrstra/horton/refatoms.tar.bz2
+    tar -xvjf refatoms.tar.bz2
     cd ../..
 
 
