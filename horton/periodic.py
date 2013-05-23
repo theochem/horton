@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Horton is a Density Functional Theory program.
+# Horton is a development platform for electronic structure methods.
 # Copyright (C) 2011-2013 Toon Verstraelen <Toon.Verstraelen@UGent.be>
 #
 # This file is part of Horton.
@@ -16,6 +16,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>
+#
+#--
+
 
 from horton.context import *
 import numpy as np

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Horton is a Density Functional Theory program.
+# Horton is a development platform for electronic structure methods.
 # Copyright (C) 2011-2013 Toon Verstraelen <Toon.Verstraelen@UGent.be>
 #
 # This file is part of Horton.
@@ -72,7 +72,7 @@ class my_install_data(install_data):
 setup(
     name='horton',
     version='0.0',
-    description='Horton is a Density Functional Theory program.',
+    description='Horton is a development platform for electronic structure methods.',
     author='Toon Verstraelen',
     author_email='Toon.Verstraelen@UGent.be',
     url='http://theochem.github.com/horton/',
