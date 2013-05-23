@@ -75,7 +75,9 @@ static double dist(double* p0, double* p1) {
    order
         The order of the switching function in the Becke scheme.
 
-   return value
+   See Becke's paper for the details:
+   A. D. Becke, The Journal of Chemical Physics 88, 2547 (1988)
+   URL http://dx.doi.org/10.1063/1.454033.
 */
 void becke_helper_atom(int npoint, double* points, double* weights, int natom,
                        double* radii, double* centers, int select, int order)
@@ -92,8 +94,11 @@ void becke_helper_atom(int npoint, double* points, double* weights, int natom,
                 if (iatom0 == iatom1) continue;
 
                 // TODO: move the following block out of the loops
-                alpha = (radii[iatom0] - radii[iatom1])/(radii[iatom0] + radii[iatom1]);
-                alpha = alpha/(alpha*alpha-1);
+                // Heteronuclear assignment of the boundary. (Appendix in Becke's paper.)
+                alpha = (radii[iatom0] - radii[iatom1])/(radii[iatom0] + radii[iatom1]); // Eq. (A6)
+                alpha = alpha/(alpha*alpha-1); // Eq. (A5)
+                // Eq. (A3), except that we use some safe margin (0.45 instead of 0.5)
+                // to stay away from a ridiculous imbalance.
                 if (alpha > 0.45) {
                     alpha = 0.45;
                 } else if (alpha < -0.45) {
@@ -101,28 +106,32 @@ void becke_helper_atom(int npoint, double* points, double* weights, int natom,
                 }
 
                 // TODO: move the constant parts, independent of grid point, out of the loops
-                s = (dist(points, &centers[3*iatom0]) - dist(points, &centers[3*iatom1]))/dist(&centers[3*iatom0], &centers[3*iatom1]);
-                s = s + alpha*(1-s*s);
+                // Diatomic switching function
+                s = (dist(points, &centers[3*iatom0])
+                     -dist(points, &centers[3*iatom1]))
+                    /dist(&centers[3*iatom0], &centers[3*iatom1]); // Eq. (11)
+                s = s + alpha*(1-s*s); // Eq. (A2)
 
-                for (int k=1; k <= order; k++) {
+                for (int k=1; k <= order; k++) { // Eq. (19) and (20)
                     s = 0.5*s*(3-s*s);
                 }
-                s = 0.5*(1-s);
+                s = 0.5*(1-s); // Eq. (18)
 
-                p *= s;
+                p *= s; // Eq. (13)
 #ifdef DEBUG
                 printf("iatom0=%i  iatom1=%i s=%f p=%f\n", iatom0, iatom1, s, p);
 #endif
             }
 
             if (iatom0 == select) nom = p;
-            denom += p;
+            denom += p; // Eq. (22)
         }
 #ifdef DEBUG
         printf("nom=%f  denom=%f\n", nom, denom);
 #endif
 
-        *weights *= nom/denom;
+        // Weight function at this grid point:
+        *weights *= nom/denom; // Eq. (22)
 
         // go to next point
         points += 3;
