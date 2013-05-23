@@ -96,6 +96,7 @@ class BeckeMolGrid(IntGrid):
         else:
             atgrids = None
         offset = 0
+        # More recent covalent radii are used than in the original work of Becke.
         cov_radii = np.array([periodic[n].cov_radius for n in system.numbers])
         for i in xrange(system.natom):
             rgrid, atnlls = atspecs[i]
@@ -152,7 +153,8 @@ class BeckeMolGrid(IntGrid):
                 ('Switching function', 'k=%i' % self._k),
             ])
             # Cite reference
-            log.cite('becke1988_multicenter', 'the multicenter integration scheme used in the molecular grids')
+            log.cite('becke1988_multicenter', 'the multicenter integration scheme used for the molecular integration grid')
+            log.cite('cordero2008', 'the covalent radii used for the Becke-Lebedev molecular integration grid')
 
 
 

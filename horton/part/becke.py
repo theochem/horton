@@ -27,6 +27,7 @@ from horton.grid.cext import becke_helper_atom
 from horton.log import log
 from horton.part.base import WPart
 from horton.periodic import periodic
+from horton.units import angstrom
 
 
 __all__ = ['BeckeWPart']
@@ -48,9 +49,23 @@ class BeckeWPart(WPart):
                 ('Switching function', 'k=%i' % self._k),
             ])
             log.cite('becke1988_multicenter', 'the use of Becke partitioning')
+            log.cite('slater1964', 'the Brag-Slater radii used in the Becke partitioning')
 
     def update_at_weights(self):
-        radii = np.array([periodic[n].cov_radius for n in self.system.numbers])
+        # The list of radii is constructed to be as close as possible to
+        # the original values used by Becke.
+        radii = []
+        for number in self.system.numbers:
+            if number == 1:
+                radius = 0.35*angstrom # exception defined in Becke's paper
+            else:
+                radius = periodic[number].bs_radius
+                if radius is None: # for cases not covered by Brag-Slater
+                    radius = periodic[number].cov_radius
+            radii.append(radius)
+        radii = np.array(radii)
+
+        # Actual weights
         for index in xrange(self.natom):
             grid = self.get_grid(index)
             at_weights = self.cache.load('at_weights', index, alloc=grid.shape)[0]

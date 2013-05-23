@@ -1,6 +1,8 @@
 Literature
 ##########
 
+.. [slater1964] "Atomic Radii in Crystals", Slater, J. C.; *J. Chem. Phys.* **1964** (v. 41 pp. 3199--3204); `http://dx.doi.org/10.1063/1.1725697 <http://dx.doi.org/10.1063/1.1725697>`_
+
 .. [hirshfeld1977] "Bonded-atom fragments for describing molecular charge densities", Hirshfeld, F. L.; *Theoret. Chem. Acc.* **1977** (v. 44 pp. 129--138); `http://dx.doi.org/10.1007/BF00549096 <http://dx.doi.org/10.1007/BF00549096>`_
 
 .. [yan1996] "Variational calculations of dispersion coefficients for interactions among H, He, and Li atoms", Zhong-Chao Yan, James F. Babb; A. Dalgarno; *Phys. Rev. A* **1977** (v. 54 pp. 2824--2833); `http://dx.doi.org/10.1103/PhysRevA.54.2824 <http://dx.doi.org/10.1103/PhysRevA.54.2824>`_
@@ -17,9 +19,10 @@ Literature
 
 .. [bultinck2007] "Critical analysis and extension of the Hirshfeld atoms in molecules", Bultinck, Patrick; Van Alsenoy, Christian; Ayers, Paul W.; Carbo-Dorca, Ramon; *J. Chem. Phys.* **2007** (v. 126 pp. 144111); `http://dx.doi.org/10.1063/1.2715563 <http://dx.doi.org/10.1063/1.2715563>`_
 
+.. [cordero2008] "Covalent radii revisited", Cordero, Beatriz; Gomez, Veronica; Platero-Prats, Ana E.; Reves, Marc; Echeverria, Jorge; Cremades, Eduard; Barragan, Flavia; Alvarez, Santiago; *Dalton Trans.* **2008** (v.  pp. 2832--2838); `http://dx.doi.org/10.1039/b801115j <http://dx.doi.org/10.1039/b801115j>`_
+
 .. [tkatchenko2009] "Accurate Molecular Van der Waals Interactions from Ground-State Electron Density and Free-Atom Reference Data", Alexandre Tkatchenko; Matthias Scheffler; *Phys. Rev. Lett.* **2009** (v. 102 pp. 073005); `http://dx.doi.org/10.1103/PhysRevLett.102.073005 <http://dx.doi.org/10.1103/PhysRevLett.102.073005>`_
 
 .. [marques2012] "Libxc: A library of exchange and correlation functionals for density functional theory", Miguel A.L. Marques; Micael J.T. Oliveira; Tobias Burnus; *Computer Physics Communications* **2012** (v. 183 pp. 2272--2281); `http://dx.doi.org/10.1016/j.cpc.2012.05.007 <http://dx.doi.org/10.1016/j.cpc.2012.05.007>`_
 
 .. [verstraelen2013] "Hirshfeld-E Partitioning: AIM Charges with an Improved Trade-off between Robustness and Accurate Electrostatics", Verstraelen, T.; Ayers, P. W.; Van Speybroeck, V.; Waroquier, M.; *J. Chem. Theory Comput.* **2013** (v. 0 pp. null); `http://dx.doi.org/10.1021/ct4000923 <http://dx.doi.org/10.1021/ct4000923>`_
-
