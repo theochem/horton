@@ -220,11 +220,11 @@ class Part(JustOnceClass):
     @just_once
     def do_moments(self):
         if log.do_medium:
-            log('Computing all sorts of AIM moments.')
+            log('Computing cartesian AIM multipoles and radial AIM moments.')
 
         lmax = 4 # up to hexadecapoles
         cartesian_powers = get_cartesian_powers(lmax)
-        cartesian_moments, new1 = self._cache.load('cartesian_moments', alloc=(self._system.natom, len(cartesian_powers)))
+        cartesian_multipoles, new1 = self._cache.load('cartesian_multipoles', alloc=(self._system.natom, len(cartesian_powers)))
 
         radial_powers = np.arange(1, lmax+1)
         radial_moments, new2 = self._cache.load('radial_moments', alloc=(self._system.natom, len(radial_powers)))
@@ -243,13 +243,14 @@ class Part(JustOnceClass):
                 # 3) Compute weight corrections (TODO: needs to be assessed!)
                 wcor = self.get_wcor(i)
 
-                # 4) Compute Cartesian multipole moments
+                # 4) Compute Cartesian multipole multipoles
                 counter = 0
                 for nx, ny, nz in cartesian_powers:
                     if log.do_medium:
                         log('  moment %s%s%s' % ('x'*nx, 'y'*ny, 'z'*nz))
-                    cartesian_moments[i, counter] = grid.integrate(aim, wcor, center=center, nx=nx, ny=ny, nz=nz, nr=0)
+                    cartesian_multipoles[i, counter] = -grid.integrate(aim, wcor, center=center, nx=nx, ny=ny, nz=nz, nr=0)
                     counter += 1
+                cartesian_multipoles[i, 0] += self.system.pseudo_numbers[i]
 
                 # 5) Compute Radial moments
                 for nr in radial_powers:
@@ -257,7 +258,7 @@ class Part(JustOnceClass):
                         log('  moment %s' % ('r'*nr))
                     radial_moments[i, nr-1] = grid.integrate(aim, wcor, center=center, nx=0, ny=0, nz=0, nr=nr)
 
-    do_moments.names = ['cartesian_moments', 'radial_moments']
+    do_moments.names = ['cartesian_multipoles', 'radial_moments']
 
     def do_all(self):
         '''Computes all reasonable properties and returns a corresponding list of keys'''

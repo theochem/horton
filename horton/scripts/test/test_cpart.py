@@ -84,7 +84,7 @@ def check_script_lta(fn_sym, suffix):
                 assert 'symmetry' in f['system/props']
                 assert 'symmetry' in f['cpart/h_r1']
                 assert 'charges' in f['cpart/h_r1/symmetry']
-                assert 'cartesian_moments' in f['cpart/h_r1/symmetry']
+                assert 'cartesian_multipoles' in f['cpart/h_r1/symmetry']
                 for name, ds in f['cpart/h_r1/symmetry'].iteritems():
                     assert ds.shape[0] == sys.props['symmetry'].natom
                     assert ds.shape[1] == 2

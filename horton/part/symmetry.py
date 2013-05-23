@@ -41,7 +41,7 @@ def symmetry_analysis(system, symmetry, aim_results):
        aim_results
             A dictionary with AIM results. The following fields are supported
             (and the rest gets ignored): 'charges', 'populations',
-            'pseudo_populations', 'cartesian_moments', 'radial_moments',
+            'pseudo_populations', 'cartesian_multipoles', 'radial_moments',
             'volumes', 'volume_ratios', 'c6s'. (See partitioning schemes for
             more details about these fields.)
 
@@ -82,7 +82,7 @@ def symmetry_analysis(system, symmetry, aim_results):
          ['charges', 'populations', 'pseudo_populations',
           'radial_moments', 'volumes', 'volume_ratios', 'c6s']),
         (cartesian_multipole_analysis,
-         ['cartesian_moments']),
+         ['cartesian_multipoles']),
     ]
 
     # process everything
