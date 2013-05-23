@@ -18,24 +18,32 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Mean-field electronic structure code'''
 
 
-from horton.meanfield.builtin import *
-from horton.meanfield.convergence import *
-from horton.meanfield.cext import *
-from horton.meanfield.gridgroup import *
-from horton.meanfield.guess import *
-from horton.meanfield.hamiltonian import *
-from horton.meanfield.libxc import *
-from horton.meanfield.observable import *
-from horton.meanfield.occ import *
-from horton.meanfield.project import *
-from horton.meanfield.rotate import *
-from horton.meanfield.response import *
-from horton.meanfield.scf import *
-from horton.meanfield.scf_oda import *
-from horton.meanfield.scf_cdiis import *
-from horton.meanfield.scf_ediis import *
-from horton.meanfield.scf_ediis2 import *
-from horton.meanfield.utils import *
+import numpy as np
+
+from horton import *
+
+
+def check_response(fn):
+    mol = Molecule.from_file(fn)
+    operators = get_mulliken_operators(mol.obasis, mol.lf)
+    exps = [mol.exp_alpha]
+    if hasattr(mol, 'exp_beta'):
+        exps.append(mol.exp_beta)
+    for exp in exps:
+        response = compute_noninteracting_response(mol.exp_alpha, operators)
+        assert abs(response.sum(axis=0)).max() < 1e-3
+        evals = np.linalg.eigvalsh(response)
+        assert (evals[:2] < 0).all()
+        assert abs(evals[-1]) < 1e-10
+
+
+def test_response_water_sto3g():
+    fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
+    check_response(fn_fchk)
+
+
+def test_response_h3_321g():
+    fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
+    check_response(fn_fchk)
