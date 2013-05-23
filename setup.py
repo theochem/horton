@@ -71,7 +71,7 @@ class my_install_data(install_data):
 
 setup(
     name='horton',
-    version='0.0',
+    version='1.0',
     description='Horton is a development platform for electronic structure methods.',
     author='Toon Verstraelen',
     author_email='Toon.Verstraelen@UGent.be',
