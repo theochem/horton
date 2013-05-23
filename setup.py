@@ -70,12 +70,12 @@ class my_install_data(install_data):
 
 
 setup(
-    name='Horton',
+    name='horton',
     version='0.0',
     description='Horton is a Density Functional Theory program.',
     author='Toon Verstraelen',
     author_email='Toon.Verstraelen@UGent.be',
-    url='http://molmod.ugent.be/code/',
+    url='http://theochem.github.com/horton/',
     scripts=glob("scripts/*.py"),
     package_dir = {'horton': 'horton'},
     packages=['horton', 'horton.test',
@@ -88,7 +88,7 @@ setup(
               'horton.scripts', 'horton.scripts.test'],
     cmdclass = {'build_ext': build_ext, 'install_data': my_install_data},
     data_files=[
-        ('share/horton/', glob('data//*.*')),
+        ('share/horton/', glob('data/*.*')),
         ('share/horton/test', glob('data/test/*.*')),
         ('share/horton/basis', glob('data/basis/*.*')),
         ('share/horton/grids', glob('data/grids/*.txt')),
@@ -135,7 +135,9 @@ setup(
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: GNU General Public License (GPL)',
         'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Cython',
+        'Programming Language :: C++',
         'Topic :: Science/Engineering :: Molecular Science'
     ],
 )
