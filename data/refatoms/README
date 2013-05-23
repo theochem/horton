@@ -3,12 +3,12 @@ only populated in the stable/unstable releases of Horton, not in the development
 version. In the later case, one has to download the files manually from the
 following url and unpack the archive:
 
-http://users.ugent.be/~tovrstra/horton_refatoms.tar.bz2
+http://users.ugent.be/~tovrstra/horton/refatoms.tar.bz2
 
 On unix, this can be done as follows:
 
-wget http://users.ugent.be/~tovrstra/horton_refatoms.tar.bz2
-tar -xvjf horton_refatoms.tar.bz2
+wget http://users.ugent.be/~tovrstra/horton/refatoms.tar.bz2
+tar -xvjf refatoms.tar.bz2
 
 
 The density matrices are computed at the CCSDT(FULL)/ANO-RCC level of theory.
