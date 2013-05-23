@@ -36,7 +36,7 @@ def test_data_files():
     # Find files in data that were not checked in.
     # This test only makes sense if ran inside the source tree. The purpose is
     # to detect mistakes in the development process.
-    if context.data_dir == os.path.abspath('data/'):
+    if context.data_dir == os.path.abspath('data/') and os.path.isdir('.git'):
         lines = subprocess.check_output(['git', 'ls-files', '--others', '--exclude-standard', 'data']).split('\n')
         for line in lines:
             line = line.strip()
