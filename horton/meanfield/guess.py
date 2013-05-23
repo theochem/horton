@@ -22,7 +22,7 @@
 
 
 from horton.log import log, timer
-from horton.wfn import ClosedShellWFN, OpenShellWFN
+from horton.meanfield.wfn import ClosedShellWFN, OpenShellWFN
 
 
 __all__ = ['guess_hamiltonian_core']

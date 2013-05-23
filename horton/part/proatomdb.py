@@ -30,10 +30,7 @@ from horton.grid.atgrid import AtomicGrid
 from horton.grid.int1d import SimpsonIntegrator1D
 from horton.grid.cext import RTransform, CubicSpline, dot_multi
 from horton.grid.radial import RadialGrid
-from horton.guess import guess_hamiltonian_core
-from horton.hamiltonian import Hamiltonian
 from horton.log import log, timer
-from horton.scf import converge_scf
 from horton.system import System
 
 

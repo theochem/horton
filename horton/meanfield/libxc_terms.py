@@ -23,8 +23,8 @@
 import numpy as np
 
 from horton.log import log
-from horton.hamiltonian.core import HamiltonianTerm
-from horton.hamiltonian.cext import LibXCWrapper
+from horton.meanfield.term import HamiltonianTerm
+from horton.meanfield.cext import LibXCWrapper
 
 
 __all__ = ['LibXCLDATerm', 'LibXCGGATerm', 'LibXCHybridGGATerm']
