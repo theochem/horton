@@ -1,0 +1,11 @@
+recursive-include horton *.pxd *.h *.cpp
+recursive-exclude horton cext.cpp
+include examples/*/run.py
+include examples/*/*.xyz
+include doc/*.rst
+include doc/conf.py
+include doc/Makefile
+include depends/Makefile
+include depends/*.patch
+include README
+include tools/*.py
