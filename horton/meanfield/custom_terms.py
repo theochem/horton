@@ -20,7 +20,8 @@
 #--
 
 
-from horton.hamiltonian.core import HamiltonianTerm, FixedTerm
+from horton.meanfield.term import HamiltonianTerm
+from horton.meanfield.core_terms import FixedTerm
 
 
 __all__ = ['CustomFixedTerm', 'CustomGridFixedTerm']

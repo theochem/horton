@@ -24,10 +24,12 @@ import numpy as np
 
 from horton.log import log, timer
 from horton.cache import Cache
+from horton.meanfield.core_terms import KineticEnergy, ExternalPotential
+from horton.meanfield.builtin_terms import Hartree
 
 
 __all__ = [
-    'Hamiltonian', 'HamiltonianTerm', 'KineticEnergy', 'ExternalPotential',
+    'Hamiltonian',
 ]
 
 
@@ -70,7 +72,6 @@ class Hamiltonian(object):
             if sum(isinstance(term, KineticEnergy) for term in terms) == 0:
                 self.terms.append(KineticEnergy())
             #  2) Hartree (or HatreeFock, which is a subclass of Hartree)
-            from horton.hamiltonian.builtin import Hartree
             if sum(isinstance(term, Hartree) for term in terms) == 0:
                 self.terms.append(Hartree())
             #  3) External Potential
@@ -142,105 +143,3 @@ class Hamiltonian(object):
         '''
         for term in self.terms:
             term.add_fock_matrix(fock_alpha, fock_beta)
-
-
-class HamiltonianTerm(object):
-    require_grid = False
-
-    def prepare_system(self, system, cache, grid):
-        self.system = system
-        self.cache = cache
-        self.grid = grid
-
-    # Generic update routines that may be useful to various base classes
-    def update_rho(self, select):
-        if select == 'both':
-            # This is needed for libxc
-            rho, new = self.cache.load('rho_both', alloc=(self.grid.size, 2))
-            if new:
-                rho_alpha = self.update_rho('alpha')
-                rho_beta = self.update_rho('beta')
-                rho[:,0] = rho_alpha
-                rho[:,1] = rho_beta
-        else:
-            rho, new = self.cache.load('rho_%s' % select, alloc=self.grid.size)
-            if new:
-                self.system.compute_grid_density(self.grid.points, rhos=rho, select=select)
-        return rho
-
-    def update_grad_rho(self, select):
-        grad_rho, new = self.cache.load('grad_rho_%s' % select, alloc=(self.grid.size, 3))
-        if new:
-            self.system.compute_grid_gradient(self.grid.points, gradrhos=grad_rho, select=select)
-        return grad_rho
-
-    def update_sigma(self, select):
-        if select == 'all':
-            sigma, new = self.cache.load('sigma_all', alloc=(self.grid.size, 3))
-            sigma[:,0] = self.update_sigma('alpha')
-            sigma[:,1] = self.update_sigma('cross')
-            sigma[:,2] = self.update_sigma('beta')
-        else:
-            sigma, new = self.cache.load('sigma_%s' % select, alloc=self.grid.size)
-            if new:
-                if select == 'cross':
-                    grad_rho_alpha = self.update_grad_rho('alpha')
-                    grad_rho_beta = self.update_grad_rho('beta')
-                    # TODO: make more efficient (with output arguments)
-                    sigma[:] = (grad_rho_alpha*grad_rho_beta).sum(axis=1)
-                else:
-                    grad_rho = self.update_grad_rho(select)
-                    # TODO: make more efficient (with output arguments)
-                    sigma[:] = (grad_rho**2).sum(axis=1)
-        return sigma
-
-    def store_energy(self, suffix, energy):
-        self.system._props['energy_%s' % suffix] = energy
-        if log.do_high:
-            log('%30s  %20.10f' % (suffix, energy))
-
-    def compute_energy(self):
-        raise NotImplementedError
-
-    def add_fock_matrix(self, fock_alpha, fock_beta):
-        raise NotImplementedError
-
-
-class FixedTerm(HamiltonianTerm):
-    '''Base class for all terms that are linear in the density matrix
-
-       This is (technically) a special class because the Fock operator does not
-       have to be recomputed when the density matrix changes.
-    '''
-    def get_operator(self, system):
-        # subclasses should return the operator and a suffix.
-        raise NotImplementedError
-
-    def prepare_system(self, system, cache, grid):
-        HamiltonianTerm.prepare_system(self, system, cache, grid)
-        self.operator, self.suffix = self.get_operator(system)
-
-    def compute_energy(self):
-        if self.system.wfn.closed_shell:
-            result = 2*self.operator.expectation_value(self.system.wfn.dm_alpha)
-        else:
-            result = self.operator.expectation_value(self.system.wfn.dm_full)
-        self.store_energy(self.suffix, result)
-        return result
-
-    def add_fock_matrix(self, fock_alpha, fock_beta):
-        for fock in fock_alpha, fock_beta:
-            if fock is not None:
-                fock.iadd(self.operator, 1)
-
-
-class KineticEnergy(FixedTerm):
-    def get_operator(self, system):
-        return system.get_kinetic(), 'kin'
-
-
-class ExternalPotential(FixedTerm):
-    def get_operator(self, system):
-        tmp = system.get_nuclear_attraction().copy() # take copy because of next line
-        tmp.iscale(-1)
-        return tmp, 'ne'

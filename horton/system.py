@@ -36,7 +36,7 @@ from horton.io import load_system_args, dump_system
 from horton.log import log
 from horton.matrix import DenseLinalgFactory, LinalgObject
 from horton.periodic import periodic
-from horton.wfn import AufbauOccModel, ClosedShellWFN, OpenShellWFN
+from horton.meanfield.wfn import AufbauOccModel, ClosedShellWFN, OpenShellWFN
 
 
 __all__ = ['System']

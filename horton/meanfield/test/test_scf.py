@@ -192,7 +192,7 @@ def test_hf_water_321g_mistake():
 
 
 def test_find_min_cubic():
-    from horton.scf import find_min_cubic
+    from horton.meanfield.scf import find_min_cubic
     assert find_min_cubic(0.2, 0.5, 3.0, -0.7) == 0.0
     assert abs(find_min_cubic(2.1, -5.2, -3.0, 2.8) - 0.939645667705) < 1e-8
     assert abs(find_min_cubic(0.0, 1.0, -0.1, -0.1) - 0.0153883154024) < 1e-8

@@ -24,7 +24,7 @@
 import numpy as np
 
 from horton.log import log, timer
-from horton.wfn import ClosedShellWFN, OpenShellWFN
+from horton.meanfield.wfn import ClosedShellWFN, OpenShellWFN
 
 
 __all__ = [

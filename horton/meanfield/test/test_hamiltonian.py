@@ -22,7 +22,7 @@
 
 import numpy as np
 from horton import *
-from horton.hamiltonian.test.common import *
+from horton.meanfield.test.common import *
 
 
 def test_hamiltonian_init():

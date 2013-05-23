@@ -22,7 +22,7 @@
 
 import numpy as np
 
-from horton.hamiltonian.core import HamiltonianTerm
+from horton.meanfield.term import HamiltonianTerm
 
 
 __all__ = ['Hartree', 'HartreeFock', 'DiracExchange']

@@ -19,8 +19,14 @@
 #
 #--
 
-from horton.hamiltonian.builtin import *
-from horton.hamiltonian.core import *
-from horton.hamiltonian.cext import *
-from horton.hamiltonian.fixed import *
-from horton.hamiltonian.libxc import *
+
+from horton.meanfield.builtin_terms import *
+from horton.meanfield.core_terms import *
+from horton.meanfield.cext import *
+from horton.meanfield.custom_terms import *
+from horton.meanfield.guess import *
+from horton.meanfield.hamiltonian import *
+from horton.meanfield.term import *
+from horton.meanfield.libxc_terms import *
+from horton.meanfield.scf import *
+from horton.meanfield.wfn import *
