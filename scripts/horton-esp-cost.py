@@ -101,7 +101,7 @@ def main():
 
     # check if the folder is already present in the output file
     fn_h5 = args.cube + '.h5'
-    grp_name = 'espfit_r%i' % args.stride
+    grp_name = 'cost_r%i' % args.stride
     if args.suffix is not None:
         grp_name += '_'+args.suffix
 
