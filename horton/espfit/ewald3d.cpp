@@ -139,6 +139,58 @@ void setup_esp_cost_cube_ewald3d(UniformGrid* ugrid, double* vref,
     delete[] work;
 }
 
+void setup_esp_cost_cube_0d(UniformGrid* ugrid, double* vref,
+    double* weights, double* centers, double* A, double* B, double* C,
+    long ncenter) {
+    long neq = ncenter+1;
+    double* work = new double[neq];
+    double grid_cart[3];
+
+    Cube3Iterator c3i = Cube3Iterator(NULL, ugrid->get_shape());
+    long i[3];
+    long npoint = c3i.get_npoint();
+
+    for (long ipoint=0; ipoint<npoint; ipoint++) {
+        c3i.set_point(ipoint, i);
+        grid_cart[0] = 0;
+        grid_cart[1] = 0;
+        grid_cart[2] = 0;
+        ugrid->delta_grid_point(grid_cart, i);
+
+        if (*weights > 0) {
+            double sqrtw = sqrt(*weights);
+
+            // Get ESP contribution from all centers
+            for (long icenter=0; icenter<ncenter; icenter++) {
+                double delta[3];
+                delta[0] = centers[3*icenter]   - grid_cart[0];
+                delta[1] = centers[3*icenter+1] - grid_cart[1];
+                delta[2] = centers[3*icenter+2] - grid_cart[2];
+                work[icenter] = sqrtw/sqrt(delta[0]*delta[0] + delta[1]*delta[1] + delta[2]*delta[2]);
+            }
+            work[ncenter] = sqrtw;
+
+            // Add the the quadratic cost function
+            double vrefw = (*vref)*sqrtw;
+            for (long ic0=0; ic0<neq; ic0++) {
+                for (long ic1=0; ic1<neq; ic1++) {
+                    A[ic0+neq*ic1] += work[ic0]*work[ic1];
+                }
+                B[ic0] += vrefw*work[ic0];
+            }
+            *C += vrefw*vrefw;
+        }
+
+        // move on
+        vref++;
+        weights++;
+    }
+
+    delete[] work;
+
+}
+
+
 void compute_esp_cube_ewald3d(UniformGrid* ugrid, double* esp,
     double* centers, double* charges, long ncenter, double rcut, double alpha,
     double gcut) {
@@ -164,6 +216,38 @@ void compute_esp_cube_ewald3d(UniformGrid* ugrid, double* esp,
             delta[1] = centers[3*icenter+1] - grid_cart[1];
             delta[2] = centers[3*icenter+2] - grid_cart[2];
             tmp += charges[icenter]*pair_ewald3d(delta, ugrid->get_cell(), rcut, alpha, gcut);
+        }
+        (*esp) = tmp;
+
+        // move on
+        esp++;
+    }
+}
+
+void compute_esp_cube_0d(UniformGrid* ugrid, double* esp,
+    double* centers, double* charges, long ncenter) {
+
+    double grid_cart[3];
+    Cube3Iterator c3i = Cube3Iterator(NULL, ugrid->get_shape());
+    long i[3];
+    long npoint = c3i.get_npoint();
+
+    for (long ipoint=0; ipoint<npoint; ipoint++) {
+        // Compute the position of the grid point
+        c3i.set_point(ipoint, i);
+        grid_cart[0] = 0;
+        grid_cart[1] = 0;
+        grid_cart[2] = 0;
+        ugrid->delta_grid_point(grid_cart, i);
+
+        // Get ESP contribution from all centers
+        double tmp = 0;
+        for (long icenter=0; icenter<ncenter; icenter++) {
+            double delta[3];
+            delta[0] = centers[3*icenter]   - grid_cart[0];
+            delta[1] = centers[3*icenter+1] - grid_cart[1];
+            delta[2] = centers[3*icenter+2] - grid_cart[2];
+            tmp += charges[icenter]/sqrt(delta[0]*delta[0] + delta[1]*delta[1] + delta[2]*delta[2]);
         }
         (*esp) = tmp;
 

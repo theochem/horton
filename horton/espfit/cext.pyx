@@ -81,9 +81,12 @@ def setup_esp_cost_cube(horton.grid.cext.UniformGrid ugrid not None,
         ewald3d.setup_esp_cost_cube_ewald3d(ugrid._this, <double*>vref.data,
             <double*>weights.data, <double*>centers.data, <double*>A.data,
             <double*>B.data, <double*>C.data, ncenter, rcut, alpha, gcut)
+    elif ugrid.cell.nvec == 0:
+        ewald3d.setup_esp_cost_cube_0d(ugrid._this, <double*>vref.data,
+            <double*>weights.data, <double*>centers.data, <double*>A.data,
+            <double*>B.data, <double*>C.data, ncenter)
     else:
         raise NotImplementedError
-
 
 def compute_esp_grid_cube(horton.grid.cext.UniformGrid ugrid not None,
                           np.ndarray[double, ndim=3] esp not None,
@@ -108,6 +111,10 @@ def compute_esp_grid_cube(horton.grid.cext.UniformGrid ugrid not None,
         ewald3d.compute_esp_cube_ewald3d(ugrid._this, <double*>esp.data,
             <double*>centers.data, <double*>charges.data, ncenter, rcut, alpha,
             gcut)
+
+    elif ugrid.cell.nvec == 0:
+        ewald3d.compute_esp_cube_0d(ugrid._this, <double*>esp.data,
+            <double*>centers.data, <double*>charges.data, ncenter)
     else:
         raise NotImplementedError
 
