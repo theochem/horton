@@ -26,10 +26,11 @@ import sys, argparse, os
 import numpy as np
 from horton import System, angstrom, setup_weights, ESPCost, log, angstrom, \
     dump_hdf5_low
-from horton.scripts.common import reduce_data, parse_ewald_args, store_args, \
-    safe_open_h5
+from horton.scripts.common import reduce_data, parse_ewald_args, parse_pbc, \
+    store_args, safe_open_h5
 from horton.scripts.espfit import parse_wdens, parse_wnear, parse_wfar, \
     load_rho, save_weights
+from horton.grid.cext import UniformGrid
 
 
 def parse_args():
@@ -92,6 +93,9 @@ def parse_args():
              'field is optional and has 1.0 as default value')
     parser.add_argument('--wsave', default=None, type=str,
         help='Save the weights array to the given cube file.')
+    parser.add_argument('--pbc', default='111', type=str,
+        help='Specify the periodicity. The three digits refer to a, b and c '
+             'cell vectors. 1=periodic, 0=aperiodic.')
 
     return parser.parse_args()
 
@@ -116,8 +120,10 @@ def main():
     if log.do_medium:
         log('Loading potential array')
     sys = System.from_file(args.cube)
-    ugrid = sys.props['ugrid']
     esp = sys.props['cube_data']
+    # Make grid with correct pbc
+    ugrid = UniformGrid( sys.props['ugrid'].origin, sys.props['ugrid'].grid_cell.rvecs , 
+                                    sys.props['ugrid'].shape, parse_pbc(args.pbc) )
 
     # Reduce the grid if required
     if args.stride > 1:
