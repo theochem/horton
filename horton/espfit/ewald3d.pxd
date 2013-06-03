@@ -30,6 +30,13 @@ cdef extern from "ewald3d.h":
         double* vref, double* weights, double* centers, double* A, double* B,
         double* C, long ncenter, double rcut, double alpha, double gcut) except +
 
+    void setup_esp_cost_cube_0d(uniform.UniformGrid* ugrid,
+        double* vref, double* weights, double* centers, double* A, double* B,
+        double* C, long ncenter) except +
+
     void compute_esp_cube_ewald3d(uniform.UniformGrid* ugrid, double* esp,
         double* centers, double* charges, long ncenter, double rcut,
         double alpha, double gcut)
+
+    void compute_esp_cube_0d(uniform.UniformGrid* ugrid, double* esp,
+        double* centers, double* charges, long ncenter)
