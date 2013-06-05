@@ -122,7 +122,7 @@ def main():
     sys = System.from_file(args.cube)
     esp = sys.props['cube_data']
     # Make grid with correct pbc
-    ugrid = UniformGrid( sys.props['ugrid'].origin, sys.props['ugrid'].grid_cell.rvecs , 
+    ugrid = UniformGrid( sys.props['ugrid'].origin, sys.props['ugrid'].grid_cell.rvecs ,
                                     sys.props['ugrid'].shape, parse_pbc(args.pbc) )
 
     # Reduce the grid if required

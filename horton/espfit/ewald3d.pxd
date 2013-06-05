@@ -23,20 +23,16 @@ cimport cell
 cimport uniform
 
 cdef extern from "ewald3d.h":
+    double pair_electrostatics(double* delta, cell.Cell* cell, double rcut,
+        double alpha, double gcut)
+
     double pair_ewald3d(double* delta, cell.Cell* cell, double rcut,
         double alpha, double gcut)
 
-    void setup_esp_cost_cube_ewald3d(uniform.UniformGrid* ugrid,
+    void setup_esp_cost_cube(uniform.UniformGrid* ugrid,
         double* vref, double* weights, double* centers, double* A, double* B,
         double* C, long ncenter, double rcut, double alpha, double gcut) except +
 
-    void setup_esp_cost_cube_0d(uniform.UniformGrid* ugrid,
-        double* vref, double* weights, double* centers, double* A, double* B,
-        double* C, long ncenter) except +
-
-    void compute_esp_cube_ewald3d(uniform.UniformGrid* ugrid, double* esp,
+    void compute_esp_cube(uniform.UniformGrid* ugrid, double* esp,
         double* centers, double* charges, long ncenter, double rcut,
         double alpha, double gcut)
-
-    void compute_esp_cube_0d(uniform.UniformGrid* ugrid, double* esp,
-        double* centers, double* charges, long ncenter)
