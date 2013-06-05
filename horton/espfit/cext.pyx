@@ -24,7 +24,7 @@ import numpy as np
 cimport numpy as np
 np.import_array()
 
-cimport ewald3d
+cimport electrostatics
 cimport mask
 
 cimport horton.cext
@@ -32,7 +32,7 @@ cimport horton.grid.cext
 
 
 __all__ = [
-    # ewald
+    # electrostatics
     'pair_ewald',
     'setup_esp_cost_cube',
     'compute_esp_grid_cube',
@@ -42,7 +42,7 @@ __all__ = [
 
 
 #
-# ewald
+# electrostatics
 #
 
 
@@ -78,7 +78,7 @@ def setup_esp_cost_cube(horton.grid.cext.UniformGrid ugrid not None,
     assert gcut > 0
 
     if ugrid.cell.nvec in [0,3]:
-        ewald3d.setup_esp_cost_cube(ugrid._this, <double*>vref.data,
+        electrostatics.setup_esp_cost_cube(ugrid._this, <double*>vref.data,
             <double*>weights.data, <double*>centers.data, <double*>A.data,
             <double*>B.data, <double*>C.data, ncenter, rcut, alpha, gcut)
     else:
@@ -104,7 +104,7 @@ def compute_esp_grid_cube(horton.grid.cext.UniformGrid ugrid not None,
     assert gcut > 0
 
     if ugrid.cell.nvec in [0,3]:
-        ewald3d.compute_esp_cube(ugrid._this, <double*>esp.data,
+        electrostatics.compute_esp_cube(ugrid._this, <double*>esp.data,
             <double*>centers.data, <double*>charges.data, ncenter, rcut, alpha,
             gcut)
     else:
@@ -121,7 +121,7 @@ def pair_ewald(np.ndarray[double, ndim=1] delta not None,
     assert gcut > 0
 
     if cell.nvec == 3:
-        return ewald3d.pair_ewald3d(<double*>delta.data, cell._this, rcut, alpha, gcut)
+        return electrostatics.pair_ewald3d(<double*>delta.data, cell._this, rcut, alpha, gcut)
     else:
         raise NotImplementedError
 
