@@ -19,7 +19,7 @@ converged = converge_scf(ham)
 
 # Compute the energy
 log.set_level(log.high)
-ham.compute_energy()
+ham.compute()
 log.set_level(log.medium)
 
 # Partition the density with the Becke scheme

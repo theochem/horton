@@ -295,7 +295,7 @@ def check_cubic_cs(ham, dm0, dm1, e0, e1, g0, g1, do_plot=True):
         wfn.invalidate()
         wfn.update_dm('alpha', dm2)
         ham.invalidate()
-        e2 = ham.compute_energy()
+        e2 = ham.compute()
         energies.append(e2)
     energies = np.array(energies)
 
@@ -370,7 +370,7 @@ def converge_scf_oda_cs(ham, max_iter=128, threshold=1e-6, debug=False):
         # A) Construct Fock operator, compute energy and keep dm at current/initial point
         fock0.reset()
         ham.compute_fock(fock0, None)
-        energy0 = ham.compute_energy()
+        energy0 = ham.compute()
         dm0.assign(wfn.dm_alpha)
 
         if log.do_medium:
@@ -389,7 +389,7 @@ def converge_scf_oda_cs(ham, max_iter=128, threshold=1e-6, debug=False):
         fock1.reset()
         ham.compute_fock(fock1, None)
         # Compute energy at new point
-        energy1 = ham.compute_energy()
+        energy1 = ham.compute()
         # take the density matrix
         dm1 = wfn.dm_alpha
 
@@ -438,7 +438,7 @@ def converge_scf_oda_cs(ham, max_iter=128, threshold=1e-6, debug=False):
         ham.compute_fock(fock0, None)
         wfn.invalidate()
         wfn.update_exp(fock0, ham.overlap, dm0)
-        energy0 = ham.compute_energy()
+        energy0 = ham.compute()
         # Write final wfn to checkpoint.
         ham.system.update_chk('wfn')
         if log.do_medium:
@@ -478,7 +478,7 @@ def check_cubic_os(ham, dm0a, dm0b, dm1a, dm1b, e0, e1, g0, g1, do_plot=True):
         wfn.update_dm('alpha', dm2a)
         wfn.update_dm('beta', dm2b)
         ham.invalidate()
-        e2 = ham.compute_energy()
+        e2 = ham.compute()
         energies.append(e2)
     energies = np.array(energies)
 
@@ -560,7 +560,7 @@ def converge_scf_oda_os(ham, max_iter=128, threshold=1e-6, debug=False):
         fock0a.reset()
         fock0b.reset()
         ham.compute_fock(fock0a, fock0b)
-        energy0 = ham.compute_energy()
+        energy0 = ham.compute()
         dm0a.assign(wfn.dm_alpha)
         dm0b.assign(wfn.dm_beta)
 
@@ -581,7 +581,7 @@ def converge_scf_oda_os(ham, max_iter=128, threshold=1e-6, debug=False):
         fock1b.reset()
         ham.compute_fock(fock1a, fock1b)
         # Compute energy at new point
-        energy1 = ham.compute_energy()
+        energy1 = ham.compute()
         # take the density matrix
         dm1a = wfn.dm_alpha
         dm1b = wfn.dm_beta
@@ -640,7 +640,7 @@ def converge_scf_oda_os(ham, max_iter=128, threshold=1e-6, debug=False):
         ham.compute_fock(fock0a, fock0b)
         wfn.invalidate()
         wfn.update_exp(fock0a, fock0b, ham.overlap, dm0a, dm0b)
-        energy0 = ham.compute_energy()
+        energy0 = ham.compute()
         # Write final wfn to checkpoint.
         ham.system.update_chk('wfn')
         if log.do_medium:

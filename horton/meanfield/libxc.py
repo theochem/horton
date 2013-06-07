@@ -41,7 +41,7 @@ class LibXCEnergy(Observable):
         raise NotImplementedError
 
     def add_fock_matrix(self, fock_alpha, fock_beta):
-        # TODO: move this above compute_energy, also in all other classes
+        # TODO: move this above compute, also in all other classes
         self._update_operator()
         fock_alpha.iadd(self.cache.load('op_libxc_%s_alpha' % self._name))
         if not self.system.wfn.closed_shell:
@@ -95,7 +95,7 @@ class LibXCLDA(LibXCEnergy):
             if new_beta:
                 self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, pot_both[:,1], operator_beta)
 
-    def compute_energy(self):
+    def compute(self):
         if self.system.wfn.closed_shell:
             # In the unpolarized case, libxc expects the total density as input
             # and returns the energy density per particle.
@@ -183,7 +183,7 @@ class LibXCGGA(LibXCEnergy):
                 self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, dpot_both[:,1], operator_beta)
                 self.system.compute_grid_gradient_fock(self.grid.points, self.grid.weights, gpot_beta, operator_beta)
 
-    def compute_energy(self):
+    def compute(self):
         if self.system.wfn.closed_shell:
             rho = self.update_rho('full')
             sigma = self.update_sigma('full')

@@ -146,7 +146,7 @@ def test_custom_grid_linear_observable():
     assert convergence_error(ham) > 1e-8
     assert converge_scf(ham)
     assert convergence_error(ham) < 1e-8
-    energy0 = ham.compute_energy()
+    energy0 = ham.compute()
 
     # Construct some becke weights for the first atom and use it as a potential.
     potential = np.ones(grid.size, float)
@@ -164,7 +164,7 @@ def test_custom_grid_linear_observable():
         assert convergence_error(ham) > 1e-8
         assert converge_scf_oda(ham)
         assert convergence_error(ham) < 1e-8
-        energy1 = ham.compute_energy()
+        energy1 = ham.compute()
         energy1 -= sys.props['energy_pert']
 
         assert energy1 > energy0

@@ -24,5 +24,5 @@ converged = converge_scf_oda(ham)
 
 # Energy computation
 log.set_level(log.high)
-ham.compute_energy()
+ham.compute()
 log.set_level(log.medium)
