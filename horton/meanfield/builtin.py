@@ -43,7 +43,7 @@ class Hartree(Observable):
             else:
                 self.electron_repulsion.apply_direct(self.system.wfn.dm_full, coulomb)
 
-    def compute_energy(self):
+    def compute(self):
         self._update_coulomb()
         coulomb = self.cache.load('op_coulomb')
         if self.system.wfn.closed_shell:
@@ -85,7 +85,7 @@ class HartreeFockExchange(Observable):
         if not self.system.wfn.closed_shell:
             helper('beta')
 
-    def compute_energy(self):
+    def compute(self):
         self._update_exchange()
         if self.system.wfn.closed_shell:
             energy_fock = -self.cache.load('op_exchange_hartree_fock_alpha').expectation_value(self.system.wfn.dm_alpha)
@@ -144,7 +144,7 @@ class DiracExchange(Observable):
         if not self.system.wfn.closed_shell:
             helper('beta')
 
-    def compute_energy(self):
+    def compute(self):
         self._update_exchange()
 
         def helper(select):

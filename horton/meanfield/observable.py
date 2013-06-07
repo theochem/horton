@@ -85,7 +85,7 @@ class Observable(object):
         if log.do_high:
             log('%30s  %20.10f' % (suffix, energy))
 
-    def compute_energy(self):
+    def compute(self):
         raise NotImplementedError
 
     def add_fock_matrix(self, fock_alpha, fock_beta):

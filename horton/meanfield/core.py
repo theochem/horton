@@ -46,7 +46,7 @@ class LinearObservable(Observable):
         Observable.prepare_system(self, system, cache, grid)
         self.operator, self.suffix = self.get_operator(system)
 
-    def compute_energy(self):
+    def compute(self):
         if self.system.wfn.closed_shell:
             result = 2*self.operator.expectation_value(self.system.wfn.dm_alpha)
         else:

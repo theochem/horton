@@ -55,7 +55,7 @@ def test_scf_cs():
     ])
     assert abs(sys.wfn.exp_alpha.energies - expected_energies).max() < 1e-5
 
-    ham.compute_energy()
+    ham.compute()
     # compare with g09
     assert abs(sys.props['energy'] - -9.856961609951867E+01) < 1e-8
     assert abs(sys.props['energy_kin'] - 9.766140786239E+01) < 2e-7
@@ -87,7 +87,7 @@ def test_scf_os():
     assert abs(sys.wfn.exp_alpha.energies - expected_alpha_energies).max() < 1e-5
     assert abs(sys.wfn.exp_beta.energies - expected_beta_energies).max() < 1e-5
 
-    ham.compute_energy()
+    ham.compute()
     # compare with g09
     assert abs(sys.props['energy'] - -7.687331212191962E+00) < 1e-8
     assert abs(sys.props['energy_kin'] - 7.640603924034E+00) < 2e-7
@@ -112,7 +112,7 @@ def test_scf_oda_water_hfs_321g():
         # stupid bugs
         for i in xrange(2):
             ham.invalidate()
-            ham.compute_energy()
+            ham.compute()
             expected_energies = np.array([
                 -1.83691041E+01, -8.29412411E-01, -4.04495188E-01, -1.91740814E-01,
                 -1.32190590E-01, 1.16030419E-01, 2.08119657E-01, 9.69825207E-01,
@@ -146,13 +146,13 @@ def test_scf_oda_water_hf_321g():
 
     # test continuation of interupted scf_oda
     guess_hamiltonian_core(sys)
-    e0 = ham.compute_energy()
+    e0 = ham.compute()
     assert convergence_error(ham) > 1e-5
     assert not converge_scf_oda(ham, threshold=1e-2, max_iter=3)
     assert 'exp_alpha' not in sys.wfn._cache
-    e1 = ham.compute_energy()
+    e1 = ham.compute()
     assert not converge_scf_oda(ham, threshold=1e-2, max_iter=3)
-    e2 = ham.compute_energy()
+    e2 = ham.compute()
     assert e1 < e0
     assert e2 < e1
 
@@ -165,13 +165,13 @@ def test_scf_oda_lih_hfs_321g():
 
     # test continuation of interupted scf_oda
     guess_hamiltonian_core(sys)
-    e0 = ham.compute_energy()
+    e0 = ham.compute()
     assert convergence_error(ham) > 1e-5
     assert not converge_scf_oda(ham, threshold=1e-8, max_iter=3)
     assert 'exp_alpha' not in sys.wfn._cache
-    e1 = ham.compute_energy()
+    e1 = ham.compute()
     assert not converge_scf_oda(ham, threshold=1e-8, max_iter=3)
-    e2 = ham.compute_energy()
+    e2 = ham.compute()
     assert e1 < e0
     assert e2 < e1
 

@@ -58,7 +58,7 @@ def test_energy_hydrogen():
     fn_fchk = context.get_fn('test/h_sto3g.fchk')
     sys = System.from_file(fn_fchk)
     ham = Hamiltonian(sys, [HartreeFockExchange()])
-    ham.compute_energy()
+    ham.compute()
     assert abs(sys.props['energy'] - -4.665818503844346E-01) < 1e-8
 
 
@@ -67,7 +67,7 @@ def test_energy_n2_hfs_sto3g():
     sys = System.from_file(fn_fchk)
     grid = get_some_grid(sys)
     ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
-    ham.compute_energy()
+    ham.compute()
 
     # Compare energies
     assert abs(sys.props['energy_ne'] - -2.981579553570E+02) < 1e-6
@@ -84,7 +84,7 @@ def test_energy_n2_hfs_sto3g():
     assert abs(ev1 - ev2) < 1e-10
 
     # When repeating, we should get the same
-    ham.compute_energy()
+    ham.compute()
     assert abs(sys.props['energy'] - -106.205213597) < 1e-4
 
     # check symmetry
@@ -117,7 +117,7 @@ def test_fock_n2_hfs_sto3g():
     ])
     assert abs(sys.wfn.exp_alpha.energies - expected_energies).max() < 3e-5
 
-    ham.compute_energy()
+    ham.compute()
     # compare with g09
     assert abs(sys.props['energy_ne'] - -2.981579553570E+02) < 1e-5
     assert abs(sys.props['energy_kin'] - 1.061620887711E+02) < 1e-5
@@ -156,7 +156,7 @@ def test_fock_h3_hfs_321g():
     ])
     assert abs(sys.wfn.exp_beta.energies - expected_energies).max() < 1e-5
 
-    ham.compute_energy()
+    ham.compute()
     # compare with g09
     assert abs(sys.props['energy_ne'] - -6.832069993374E+00) < 1e-5
     assert abs(sys.props['energy_kin'] - 1.870784279014E+00) < 1e-5
@@ -198,7 +198,7 @@ def test_custom_observable():
     assert convergence_error(ham) > 1e-8
     assert converge_scf(ham)
     assert convergence_error(ham) < 1e-8
-    energy0 = ham.compute_energy()
+    energy0 = ham.compute()
 
     # Construct a perturbation baed on the Mulliken AIM operator
     assert sys.obasis.nbasis % 2 == 0
@@ -221,7 +221,7 @@ def test_custom_observable():
         assert convergence_error(ham) > 1e-8
         assert converge_scf_oda(ham)
         assert convergence_error(ham) < 1e-8
-        energy1 = ham.compute_energy()
+        energy1 = ham.compute()
         energy1 -= sys.props['energy_pert']
 
         assert energy1 > energy0

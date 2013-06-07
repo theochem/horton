@@ -44,9 +44,9 @@ def test_fock_n2_hfs_sto3g():
     assert abs(libxc_pot - builtin_pot).max() < 1e-4
 
     # Check of the libxc energy matches our implementation
-    energy1 = ham1.compute_energy()
+    energy1 = ham1.compute()
     ex1 = sys.props['energy_libxc_lda_x']
-    energy2 = ham2.compute_energy()
+    energy2 = ham2.compute()
     ex2 = sys.props['energy_exchange_dirac']
     assert abs(ex1 - ex2) < 1e-10
     assert abs(energy1 - energy2) < 1e-10
@@ -69,7 +69,7 @@ def test_fock_n2_hfs_sto3g():
     ])
     assert abs(sys.wfn.exp_alpha.energies - expected_energies).max() < 3e-5
 
-    ham1.compute_energy()
+    ham1.compute()
     # compare with g09
     assert abs(sys.props['energy_ne'] - -2.981579553570E+02) < 1e-5
     assert abs(sys.props['energy_kin'] - 1.061620887711E+02) < 1e-5
@@ -97,9 +97,9 @@ def test_hamiltonian_h3_hfs_321g():
     assert abs(libxc_pot - builtin_pot).max() < 1e-4
 
     # Check of the libxc energy matches our implementation
-    energy1 = ham1.compute_energy()
+    energy1 = ham1.compute()
     ex1 = sys.props['energy_libxc_lda_x']
-    energy2 = ham2.compute_energy()
+    energy2 = ham2.compute()
     ex2 = sys.props['energy_exchange_dirac']
     assert abs(ex1 - ex2) < 1e-10
     assert abs(energy1 - energy2) < 1e-10
@@ -126,7 +126,7 @@ def test_hamiltonian_h3_hfs_321g():
     ])
     assert abs(sys.wfn.exp_beta.energies - expected_energies).max() < 1e-5
 
-    ham1.compute_energy()
+    ham1.compute()
     # compare with g09
     assert abs(sys.props['energy_ne'] - -6.832069993374E+00) < 1e-5
     assert abs(sys.props['energy_kin'] - 1.870784279014E+00) < 1e-5
@@ -144,7 +144,7 @@ def test_co_pbe_sto3g():
     ham = Hamiltonian(sys, [Hartree(), libxc_x_term, libxc_c_term], grid)
 
     # Test energy before scf
-    ham.compute_energy()
+    ham.compute()
     assert abs(sys.props['energy'] - -1.116465967841901E+02) < 1e-4
 
     # The convergence should be reasonable, not perfect because of limited
@@ -165,7 +165,7 @@ def test_co_pbe_sto3g():
     ])
     assert abs(sys.wfn.exp_alpha.energies - expected_energies).max() < 1e-2
 
-    ham.compute_energy()
+    ham.compute()
     # compare with g09
     assert abs(sys.props['energy_ne'] - -3.072370116827E+02) < 1e-2
     assert abs(sys.props['energy_kin'] - 1.103410779827E+02) < 1e-2
@@ -183,7 +183,7 @@ def test_h3_pbe_321g():
     ham = Hamiltonian(sys, [Hartree(), libxc_x_term, libxc_c_term], grid)
 
     # compute the energy before converging
-    ham.compute_energy()
+    ham.compute()
     assert abs(sys.props['energy'] - -1.593208400939354E+00) < 1e-5
 
     # The convergence should be reasonable, not perfect because of limited
@@ -208,7 +208,7 @@ def test_h3_pbe_321g():
     ])
     assert abs(sys.wfn.exp_beta.energies - expected_energies).max() < 2e-5
 
-    ham.compute_energy()
+    ham.compute()
     # compare with g09
     assert abs(sys.props['energy_ne'] - -6.934705182067E+00) < 1e-5
     assert abs(sys.props['energy_kin'] - 1.948808793424E+00) < 1e-5

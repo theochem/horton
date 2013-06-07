@@ -176,7 +176,7 @@ def test_chk_guess_scf_cs():
     c = sys.wfn.exp_alpha._coeffs
     e = sys.wfn.exp_alpha._energies
     dma = sys.wfn.dm_alpha._array
-    ham.compute_energy()
+    ham.compute()
     energy = sys.props['energy']
     energy_kin = sys.props['energy_kin']
     energy_hartree = sys.props['energy_hartree']
@@ -226,7 +226,7 @@ def test_chk_guess_scf_os():
     be = sys.wfn.exp_beta._energies
     dma = sys.wfn.dm_alpha._array
     dmb = sys.wfn.dm_beta._array
-    ham.compute_energy()
+    ham.compute()
     energy = sys.props['energy']
     energy_kin = sys.props['energy_kin']
     energy_hartree = sys.props['energy_hartree']
