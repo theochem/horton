@@ -52,10 +52,10 @@ class LinearObservable(Observable):
         else:
             return self.operator.expectation_value(self.system.wfn.dm_full)
 
-    def add_fock_matrix(self, fock_alpha, fock_beta):
+    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1):
         for fock in fock_alpha, fock_beta:
             if fock is not None:
-                fock.iadd(self.operator, 1)
+                fock.iadd(self.operator, scale)
 
 
 class KineticEnergy(LinearObservable):

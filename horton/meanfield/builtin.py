@@ -54,16 +54,16 @@ class Hartree(Observable):
         else:
             return 0.5*coulomb.expectation_value(self.system.wfn.dm_full)
 
-    def add_fock_matrix(self, fock_alpha, fock_beta):
+    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1):
         self._update_coulomb()
         coulomb = self.cache.load('op_coulomb')
         if fock_beta is None:
             # closed shell
-            fock_alpha.iadd(coulomb)
+            fock_alpha.iadd(coulomb, scale)
         else:
             # open shell
-            fock_alpha.iadd(coulomb)
-            fock_beta.iadd(coulomb)
+            fock_alpha.iadd(coulomb, scale)
+            fock_beta.iadd(coulomb, scale)
 
 
 class HartreeFockExchange(Observable):
@@ -95,11 +95,11 @@ class HartreeFockExchange(Observable):
             return -0.5*self.cache.load('op_exchange_hartree_fock_alpha').expectation_value(self.system.wfn.dm_alpha) \
                    -0.5*self.cache.load('op_exchange_hartree_fock_beta').expectation_value(self.system.wfn.dm_beta)
 
-    def add_fock_matrix(self, fock_alpha, fock_beta):
+    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1):
         self._update_exchange()
-        fock_alpha.iadd(self.cache.load('op_exchange_hartree_fock_alpha'), -self.fraction_exchange)
+        fock_alpha.iadd(self.cache.load('op_exchange_hartree_fock_alpha'), -self.fraction_exchange*scale)
         if fock_beta is not None:
-            fock_beta.iadd(self.cache.load('op_exchange_hartree_fock_beta'), -self.fraction_exchange)
+            fock_beta.iadd(self.cache.load('op_exchange_hartree_fock_beta'), -self.fraction_exchange*scale)
 
 
 # TODO: Make base class for grid functionals where alpha and beta contributions are independent.
@@ -165,8 +165,8 @@ class DiracExchange(Observable):
         energy *= 3.0/4.0
         return energy
 
-    def add_fock_matrix(self, fock_alpha, fock_beta):
+    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1):
         self._update_exchange()
-        fock_alpha.iadd(self.cache.load('op_exchange_dirac_alpha'))
+        fock_alpha.iadd(self.cache.load('op_exchange_dirac_alpha'), scale)
         if fock_beta is not None:
-            fock_beta.iadd(self.cache.load('op_exchange_dirac_beta'))
+            fock_beta.iadd(self.cache.load('op_exchange_dirac_beta'), scale)

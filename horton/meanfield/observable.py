@@ -86,5 +86,5 @@ class Observable(object):
     def compute(self):
         raise NotImplementedError
 
-    def add_fock_matrix(self, fock_alpha, fock_beta):
+    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1):
         raise NotImplementedError
