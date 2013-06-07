@@ -33,6 +33,9 @@ __all__ = [
 class Observable(object):
     require_grid = False
 
+    def __init__(self, label):
+        self.label = label
+
     def prepare_system(self, system, cache, grid):
         self.system = system
         self.cache = cache
@@ -79,11 +82,6 @@ class Observable(object):
                     # TODO: make more efficient (with output arguments)
                     sigma[:] = (grad_rho**2).sum(axis=1)
         return sigma
-
-    def store_energy(self, suffix, energy):
-        self.system._props['energy_%s' % suffix] = energy
-        if log.do_high:
-            log('%30s  %20.10f' % (suffix, energy))
 
     def compute(self):
         raise NotImplementedError

@@ -32,12 +32,12 @@ class CustomLinearObservable(LinearObservable):
 
        This term can be used to implemented perturbations by finite fields.
     '''
-    def __init__(self, operator, suffix):
+    def __init__(self, label, operator):
         self.operator = operator
-        self.suffix = suffix
+        LinearObservable.__init__(self, label)
 
     def prepare_system(self, system, cache, grid):
-        # override because assignment of self.operator and self.suffix are not needed.
+        # override because assignment of self.operator is not needed.
         Observable.prepare_system(self, system, cache, grid)
 
 
@@ -47,12 +47,12 @@ class CustomGridLinearObservable(LinearObservable):
        This term can be used to implemented perturbations by finite potentials
        defined on a real-space grid.
     '''
-    def __init__(self, custom_grid, potential, suffix):
+    def __init__(self, label, custom_grid, potential):
+        LinearObservable.__init__(self, label)
         self.custom_grid = custom_grid
         self.potential = potential
-        self.suffix = suffix
 
     def get_operator(self, system):
         operator = system.lf.create_one_body()
         self.system.compute_grid_density_fock(self.custom_grid.points, self.custom_grid.weights, self.potential, operator)
-        return operator, self.suffix
+        return operator

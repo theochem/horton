@@ -44,15 +44,13 @@ class LinearObservable(Observable):
 
     def prepare_system(self, system, cache, grid):
         Observable.prepare_system(self, system, cache, grid)
-        self.operator, self.suffix = self.get_operator(system)
+        self.operator = self.get_operator(system)
 
     def compute(self):
         if self.system.wfn.closed_shell:
-            result = 2*self.operator.expectation_value(self.system.wfn.dm_alpha)
+            return 2*self.operator.expectation_value(self.system.wfn.dm_alpha)
         else:
-            result = self.operator.expectation_value(self.system.wfn.dm_full)
-        self.store_energy(self.suffix, result)
-        return result
+            return self.operator.expectation_value(self.system.wfn.dm_full)
 
     def add_fock_matrix(self, fock_alpha, fock_beta):
         for fock in fock_alpha, fock_beta:
@@ -61,12 +59,18 @@ class LinearObservable(Observable):
 
 
 class KineticEnergy(LinearObservable):
+    def __init__(self, label='kin'):
+        LinearObservable.__init__(self, label)
+
     def get_operator(self, system):
-        return system.get_kinetic(), 'kin'
+        return system.get_kinetic()
 
 
 class ExternalPotential(LinearObservable):
+    def __init__(self, label='ne'):
+        LinearObservable.__init__(self, label)
+
     def get_operator(self, system):
         tmp = system.get_nuclear_attraction().copy() # take copy because of next line
         tmp.iscale(-1)
-        return tmp, 'ne'
+        return tmp
