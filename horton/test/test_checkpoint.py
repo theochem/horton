@@ -180,7 +180,7 @@ def test_chk_guess_scf_cs():
     energy = sys.props['energy']
     energy_kin = sys.props['energy_kin']
     energy_hartree = sys.props['energy_hartree']
-    energy_exchange_fock = sys.props['energy_exchange_fock']
+    energy_exchange_hartree_fock = sys.props['energy_exchange_hartree_fock']
     energy_ne = sys.props['energy_ne']
     energy_nn = sys.props['energy_nn']
     del sys
@@ -192,7 +192,7 @@ def test_chk_guess_scf_cs():
     assert sys.props['energy'] == energy
     assert sys.props['energy_kin'] == energy_kin
     assert sys.props['energy_hartree'] == energy_hartree
-    assert sys.props['energy_exchange_fock'] == energy_exchange_fock
+    assert sys.props['energy_exchange_hartree_fock'] == energy_exchange_hartree_fock
     assert sys.props['energy_ne'] == energy_ne
     assert sys.props['energy_nn'] == energy_nn
 
@@ -230,7 +230,7 @@ def test_chk_guess_scf_os():
     energy = sys.props['energy']
     energy_kin = sys.props['energy_kin']
     energy_hartree = sys.props['energy_hartree']
-    energy_exchange_fock = sys.props['energy_exchange_fock']
+    energy_exchange_hartree_fock = sys.props['energy_exchange_hartree_fock']
     energy_ne = sys.props['energy_ne']
     energy_nn = sys.props['energy_nn']
     del sys
@@ -245,7 +245,7 @@ def test_chk_guess_scf_os():
     assert sys.props['energy'] == energy
     assert sys.props['energy_kin'] == energy_kin
     assert sys.props['energy_hartree'] == energy_hartree
-    assert sys.props['energy_exchange_fock'] == energy_exchange_fock
+    assert sys.props['energy_exchange_hartree_fock'] == energy_exchange_hartree_fock
     assert sys.props['energy_ne'] == energy_ne
     assert sys.props['energy_nn'] == energy_nn
 
