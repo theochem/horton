@@ -41,12 +41,12 @@ class LibXCEnergy(Observable):
     def _update_operator(self):
         raise NotImplementedError
 
-    def add_fock_matrix(self, fock_alpha, fock_beta):
+    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1):
         # TODO: move this above compute, also in all other classes
         self._update_operator()
-        fock_alpha.iadd(self.cache.load('op_libxc_%s_alpha' % self._name))
+        fock_alpha.iadd(self.cache.load('op_libxc_%s_alpha' % self._name), scale)
         if not self.system.wfn.closed_shell:
-            fock_beta.iadd(self.cache.load('op_libxc_%s_beta' % self._name, ))
+            fock_beta.iadd(self.cache.load('op_libxc_%s_beta' % self._name, ), scale)
 
 
 class LibXCLDA(LibXCEnergy):
