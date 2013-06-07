@@ -133,7 +133,7 @@ def test_molgrid_attrs():
     assert mg.random_rotate
 
 
-def test_custom_grid_term():
+def test_custom_grid_linear_observable():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
     int1d = SimpsonIntegrator1D()
@@ -159,7 +159,7 @@ def test_custom_grid_term():
     energy1_old = None
     for scale in 0.1, -0.1:
         # With perturbation
-        perturbation = CustomGridFixedTerm(grid, scale*potential, 'pert')
+        perturbation = CustomGridLinearObservable(grid, scale*potential, 'pert')
         ham = Hamiltonian(sys, [HartreeFockExchange(), perturbation])
         assert convergence_error(ham) > 1e-8
         assert converge_scf_oda(ham)

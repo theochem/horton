@@ -24,8 +24,8 @@ import numpy as np
 
 from horton.log import log, timer
 from horton.cache import Cache
-from horton.meanfield.core_terms import KineticEnergy, ExternalPotential
-from horton.meanfield.builtin_terms import Hartree
+from horton.meanfield.core import KineticEnergy, ExternalPotential
+from horton.meanfield.builtin import Hartree
 
 
 __all__ = [

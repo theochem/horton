@@ -26,11 +26,11 @@ from horton.log import log
 
 
 __all__ = [
-    'HamiltonianTerm',
+    'Observable',
 ]
 
 
-class HamiltonianTerm(object):
+class Observable(object):
     require_grid = False
 
     def prepare_system(self, system, cache, grid):

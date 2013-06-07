@@ -23,15 +23,15 @@
 import numpy as np
 
 from horton.log import log
-from horton.meanfield.term import HamiltonianTerm
+from horton.meanfield.observable import Observable
 from horton.meanfield.cext import LibXCWrapper
 
 
-__all__ = ['LibXCLDATerm', 'LibXCGGATerm', 'LibXCHybridGGATerm']
+__all__ = ['LibXCLDA', 'LibXCGGA', 'LibXCHybridGGA']
 
 
 
-class LibXCTerm(HamiltonianTerm):
+class LibXCEnergy(Observable):
     def __init__(self, name):
         self._name = name
         self._libxc_wrapper = LibXCWrapper(name)
@@ -48,7 +48,7 @@ class LibXCTerm(HamiltonianTerm):
             fock_beta.iadd(self.cache.load('op_libxc_%s_beta' % self._name, ))
 
 
-class LibXCLDATerm(LibXCTerm):
+class LibXCLDA(LibXCEnergy):
     '''Any LDA functional from LibXC'''
 
     require_grid = True
@@ -59,7 +59,7 @@ class LibXCLDATerm(LibXCTerm):
            name
                 The name of the functional in LibXC, without the 'lda_' prefix.
         '''
-        LibXCTerm.__init__(self, 'lda_' + name.lower())
+        LibXCEnergy.__init__(self, 'lda_' + name.lower())
 
     def _update_operator(self):
         if self.system.wfn.closed_shell:
@@ -119,7 +119,7 @@ class LibXCLDATerm(LibXCTerm):
         return energy
 
 
-class LibXCGGATerm(LibXCTerm):
+class LibXCGGA(LibXCEnergy):
     '''Any GGA functional from LibXC'''
     def __init__(self, name):
         '''
@@ -128,7 +128,7 @@ class LibXCGGATerm(LibXCTerm):
            name
                 The name of the functional in LibXC, without the 'gga_' prefix.
         '''
-        LibXCTerm.__init__(self, 'gga_' + name.lower())
+        LibXCEnergy.__init__(self, 'gga_' + name.lower())
 
     def _update_operator(self):
         if self.system.wfn.closed_shell:
@@ -204,7 +204,7 @@ class LibXCGGATerm(LibXCTerm):
         return energy
 
 
-class LibXCHybridGGATerm(LibXCGGATerm):
+class LibXCHybridGGA(LibXCGGA):
     '''Any Hybrid GGA functional from LibXC'''
     def __init__(self, name):
         '''
@@ -213,7 +213,7 @@ class LibXCHybridGGATerm(LibXCGGATerm):
            name
                 The name of the functional in LibXC, without the 'hyb_gga_' prefix.
         '''
-        LibXCTerm.__init__(self, 'hyb_gga_' + name.lower())
+        LibXCEnergy.__init__(self, 'hyb_gga_' + name.lower())
 
     def get_exx_fraction(self):
         return self._libxc_wrapper.get_hyb_exx_fraction()

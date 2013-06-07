@@ -20,14 +20,14 @@
 #--
 
 
-from horton.meanfield.term import HamiltonianTerm
-from horton.meanfield.core_terms import FixedTerm
+from horton.meanfield.observable import Observable
+from horton.meanfield.core import LinearObservable
 
 
-__all__ = ['CustomFixedTerm', 'CustomGridFixedTerm']
+__all__ = ['CustomLinearObservable', 'CustomGridLinearObservable']
 
 
-class CustomFixedTerm(FixedTerm):
+class CustomLinearObservable(LinearObservable):
     '''This is a user-defined term that is linear in the density matrix
 
        This term can be used to implemented perturbations by finite fields.
@@ -38,10 +38,10 @@ class CustomFixedTerm(FixedTerm):
 
     def prepare_system(self, system, cache, grid):
         # override because assignment of self.operator and self.suffix are not needed.
-        HamiltonianTerm.prepare_system(self, system, cache, grid)
+        Observable.prepare_system(self, system, cache, grid)
 
 
-class CustomGridFixedTerm(FixedTerm):
+class CustomGridLinearObservable(LinearObservable):
     '''This is a user-defined term, through a grid, that is linear in the density matrix
 
        This term can be used to implemented perturbations by finite potentials
