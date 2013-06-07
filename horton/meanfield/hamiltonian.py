@@ -98,7 +98,7 @@ class Hamiltonian(object):
         self.cache.invalidate_all()
 
     def compute(self):
-        '''Compute energy.
+        '''Compute the energy.
 
            **Returns:**
 
@@ -112,7 +112,11 @@ class Hamiltonian(object):
 
         total = 0.0
         for term in self.terms:
-            total += term.compute()
+            energy = term.compute()
+            if log.do_high:
+                log('%30s  %20.10f' % (term.label, energy))
+            self.system._props['energy_%s' % term.label] = energy
+            total += energy
 
         energy = self.system.compute_nucnuc()
         total += energy

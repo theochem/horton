@@ -36,6 +36,7 @@ class LibXCEnergy(Observable):
         self._name = name
         self._libxc_wrapper = LibXCWrapper(name)
         log.cite('marques2012', 'using LibXC, the library of exchange and correlation functionals')
+        Observable.__init__(self, 'libxc_%s' % name)
 
     def _update_operator(self):
         raise NotImplementedError
@@ -103,8 +104,7 @@ class LibXCLDA(LibXCEnergy):
             edens, new = self.cache.load('edens_libxc_%s_full' % self._name, alloc=self.grid.size)
             if new:
                 self._libxc_wrapper.compute_lda_exc_unpol(rho, edens)
-            energy = self.grid.integrate(edens, rho)
-            self.store_energy('libxc_%s' % self._name, energy)
+            return self.grid.integrate(edens, rho)
         else:
             # In case of spin-polarized computations, alpha and beta densities
             # go in and the 'total' energy density comes out.
@@ -114,9 +114,7 @@ class LibXCLDA(LibXCEnergy):
                 self._libxc_wrapper.compute_lda_exc_pol(rho_both, edens)
 
             rho = self.update_rho('full')
-            energy = self.grid.integrate(edens, rho)
-            self.store_energy('libxc_%s' % self._name, energy)
-        return energy
+            return self.grid.integrate(edens, rho)
 
 
 class LibXCGGA(LibXCEnergy):
@@ -190,8 +188,7 @@ class LibXCGGA(LibXCEnergy):
             edens, new = self.cache.load('edens_libxc_%s_full' % self._name, alloc=self.grid.size)
             if new:
                 self._libxc_wrapper.compute_gga_exc_unpol(rho, sigma, edens)
-            energy = self.grid.integrate(edens, rho)
-            self.store_energy('libxc_%s' % self._name, energy)
+            return self.grid.integrate(edens, rho)
         else:
             rho_both = self.update_rho('both')
             sigma_all = self.update_sigma('all')
@@ -199,9 +196,7 @@ class LibXCGGA(LibXCEnergy):
             if new:
                 self._libxc_wrapper.compute_gga_exc_pol(rho_both, sigma_all, edens)
             rho = self.update_rho('full')
-            energy = self.grid.integrate(edens, rho)
-            self.store_energy('libxc_%s' % self._name, energy)
-        return energy
+            return self.grid.integrate(edens, rho)
 
 
 class LibXCHybridGGA(LibXCGGA):

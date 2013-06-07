@@ -29,6 +29,9 @@ __all__ = ['Hartree', 'HartreeFockExchange', 'DiracExchange']
 
 
 class Hartree(Observable):
+    def __init__(self, label='hartree'):
+        Observable.__init__(self, label)
+
     def prepare_system(self, system, cache, grid):
         Observable.prepare_system(self, system, cache, grid)
         self.electron_repulsion = system.get_electron_repulsion()
@@ -47,11 +50,9 @@ class Hartree(Observable):
         self._update_coulomb()
         coulomb = self.cache.load('op_coulomb')
         if self.system.wfn.closed_shell:
-            result = coulomb.expectation_value(self.system.wfn.dm_alpha)
+            return coulomb.expectation_value(self.system.wfn.dm_alpha)
         else:
-            result = 0.5*coulomb.expectation_value(self.system.wfn.dm_full)
-        self.store_energy('hartree', result)
-        return result
+            return 0.5*coulomb.expectation_value(self.system.wfn.dm_full)
 
     def add_fock_matrix(self, fock_alpha, fock_beta):
         self._update_coulomb()
@@ -66,8 +67,9 @@ class Hartree(Observable):
 
 
 class HartreeFockExchange(Observable):
-    def __init__(self, fraction_exchange=1.0):
+    def __init__(self, label='exchange_hartree_fock', fraction_exchange=1.0):
         self.fraction_exchange = fraction_exchange
+        Observable.__init__(self, label)
 
     def prepare_system(self, system, cache, grid):
         Observable.prepare_system(self, system, cache, grid)
@@ -88,12 +90,10 @@ class HartreeFockExchange(Observable):
     def compute(self):
         self._update_exchange()
         if self.system.wfn.closed_shell:
-            energy_fock = -self.cache.load('op_exchange_hartree_fock_alpha').expectation_value(self.system.wfn.dm_alpha)
+            return -self.cache.load('op_exchange_hartree_fock_alpha').expectation_value(self.system.wfn.dm_alpha)
         else:
-            energy_fock = -0.5*self.cache.load('op_exchange_hartree_fock_alpha').expectation_value(self.system.wfn.dm_alpha) \
-                          -0.5*self.cache.load('op_exchange_hartree_fock_beta').expectation_value(self.system.wfn.dm_beta)
-        self.store_energy('exchange_hartree_fock', energy_fock)
-        return self.fraction_exchange*energy_fock
+            return -0.5*self.cache.load('op_exchange_hartree_fock_alpha').expectation_value(self.system.wfn.dm_alpha) \
+                   -0.5*self.cache.load('op_exchange_hartree_fock_beta').expectation_value(self.system.wfn.dm_beta)
 
     def add_fock_matrix(self, fock_alpha, fock_beta):
         self._update_exchange()
@@ -107,7 +107,7 @@ class DiracExchange(Observable):
     '''An implementation of the Dirac Exchange Functional'''
 
     require_grid = True
-    def __init__(self, coeff=None):
+    def __init__(self, label='exchange_dirac', coeff=None):
         '''
            **Arguments:**
 
@@ -125,6 +125,7 @@ class DiracExchange(Observable):
         else:
             self.coeff = coeff
         self.derived_coeff = -self.coeff*(4.0/3.0)*2**(1.0/3.0)
+        Observable.__init__(self, label)
 
     def _update_exchange(self):
         '''Recompute the Exchange operator(s) if invalid'''
@@ -162,7 +163,6 @@ class DiracExchange(Observable):
         else:
             energy *= 2
         energy *= 3.0/4.0
-        self.store_energy('exchange_dirac', energy)
         return energy
 
     def add_fock_matrix(self, fock_alpha, fock_beta):
