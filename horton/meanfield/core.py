@@ -24,15 +24,15 @@ import numpy as np
 
 from horton.log import log, timer
 from horton.cache import Cache
-from horton.meanfield.term import HamiltonianTerm
+from horton.meanfield.observable import Observable
 
 
 __all__ = [
-    'FixedTerm', 'KineticEnergy', 'ExternalPotential',
+    'LinearObservable', 'KineticEnergy', 'ExternalPotential',
 ]
 
 
-class FixedTerm(HamiltonianTerm):
+class LinearObservable(Observable):
     '''Base class for all terms that are linear in the density matrix
 
        This is (technically) a special class because the Fock operator does not
@@ -43,7 +43,7 @@ class FixedTerm(HamiltonianTerm):
         raise NotImplementedError
 
     def prepare_system(self, system, cache, grid):
-        HamiltonianTerm.prepare_system(self, system, cache, grid)
+        Observable.prepare_system(self, system, cache, grid)
         self.operator, self.suffix = self.get_operator(system)
 
     def compute_energy(self):
@@ -60,12 +60,12 @@ class FixedTerm(HamiltonianTerm):
                 fock.iadd(self.operator, 1)
 
 
-class KineticEnergy(FixedTerm):
+class KineticEnergy(LinearObservable):
     def get_operator(self, system):
         return system.get_kinetic(), 'kin'
 
 
-class ExternalPotential(FixedTerm):
+class ExternalPotential(LinearObservable):
     def get_operator(self, system):
         tmp = system.get_nuclear_attraction().copy() # take copy because of next line
         tmp.iscale(-1)

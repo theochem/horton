@@ -189,7 +189,7 @@ def test_external_potential_copy():
     assert not (ep.operator is sys.get_nuclear_attraction())
 
 
-def test_custom_term():
+def test_custom_observable():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
 
@@ -216,7 +216,7 @@ def test_custom_term():
         # With perturbation
         tmp = operator.copy()
         tmp.iscale(scale)
-        perturbation = CustomFixedTerm(tmp, 'pert')
+        perturbation = CustomLinearObservable(tmp, 'pert')
         ham = Hamiltonian(sys, [HartreeFockExchange(), perturbation])
         assert convergence_error(ham) > 1e-8
         assert converge_scf_oda(ham)

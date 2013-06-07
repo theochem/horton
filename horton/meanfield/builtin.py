@@ -22,15 +22,15 @@
 
 import numpy as np
 
-from horton.meanfield.term import HamiltonianTerm
+from horton.meanfield.observable import Observable
 
 
 __all__ = ['Hartree', 'HartreeFockExchange', 'DiracExchange']
 
 
-class Hartree(HamiltonianTerm):
+class Hartree(Observable):
     def prepare_system(self, system, cache, grid):
-        HamiltonianTerm.prepare_system(self, system, cache, grid)
+        Observable.prepare_system(self, system, cache, grid)
         self.electron_repulsion = system.get_electron_repulsion()
 
     def _update_coulomb(self):
@@ -65,12 +65,12 @@ class Hartree(HamiltonianTerm):
             fock_beta.iadd(coulomb)
 
 
-class HartreeFockExchange(HamiltonianTerm):
+class HartreeFockExchange(Observable):
     def __init__(self, fraction_exchange=1.0):
         self.fraction_exchange = fraction_exchange
 
     def prepare_system(self, system, cache, grid):
-        HamiltonianTerm.prepare_system(self, system, cache, grid)
+        Observable.prepare_system(self, system, cache, grid)
         self.electron_repulsion = system.get_electron_repulsion()
 
     def _update_exchange(self):
@@ -103,7 +103,7 @@ class HartreeFockExchange(HamiltonianTerm):
 
 
 # TODO: Make base class for grid functionals where alpha and beta contributions are independent.
-class DiracExchange(HamiltonianTerm):
+class DiracExchange(Observable):
     '''An implementation of the Dirac Exchange Functional'''
 
     require_grid = True
