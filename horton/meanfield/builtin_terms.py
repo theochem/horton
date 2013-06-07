@@ -77,7 +77,7 @@ class HartreeFockExchange(HamiltonianTerm):
         '''Recompute the Exchange operator(s) if invalid'''
         def helper(select):
             dm = self.system.wfn.get_dm(select)
-            exchange, new = self.cache.load('op_exchange_fock_%s' % select, alloc=(self.system.lf, 'one_body'))
+            exchange, new = self.cache.load('op_exchange_hartree_fock_%s' % select, alloc=(self.system.lf, 'one_body'))
             if new:
                 self.electron_repulsion.apply_exchange(dm, exchange)
 
@@ -88,18 +88,18 @@ class HartreeFockExchange(HamiltonianTerm):
     def compute_energy(self):
         self._update_exchange()
         if self.system.wfn.closed_shell:
-            energy_fock = -self.cache.load('op_exchange_fock_alpha').expectation_value(self.system.wfn.dm_alpha)
+            energy_fock = -self.cache.load('op_exchange_hartree_fock_alpha').expectation_value(self.system.wfn.dm_alpha)
         else:
-            energy_fock = -0.5*self.cache.load('op_exchange_fock_alpha').expectation_value(self.system.wfn.dm_alpha) \
-                          -0.5*self.cache.load('op_exchange_fock_beta').expectation_value(self.system.wfn.dm_beta)
-        self.store_energy('exchange_fock', energy_fock)
+            energy_fock = -0.5*self.cache.load('op_exchange_hartree_fock_alpha').expectation_value(self.system.wfn.dm_alpha) \
+                          -0.5*self.cache.load('op_exchange_hartree_fock_beta').expectation_value(self.system.wfn.dm_beta)
+        self.store_energy('exchange_hartree_fock', energy_fock)
         return self.fraction_exchange*energy_fock
 
     def add_fock_matrix(self, fock_alpha, fock_beta):
         self._update_exchange()
-        fock_alpha.iadd(self.cache.load('op_exchange_fock_alpha'), -self.fraction_exchange)
+        fock_alpha.iadd(self.cache.load('op_exchange_hartree_fock_alpha'), -self.fraction_exchange)
         if fock_beta is not None:
-            fock_beta.iadd(self.cache.load('op_exchange_fock_beta'), -self.fraction_exchange)
+            fock_beta.iadd(self.cache.load('op_exchange_hartree_fock_beta'), -self.fraction_exchange)
 
 
 # TODO: Make base class for grid functionals where alpha and beta contributions are independent.
