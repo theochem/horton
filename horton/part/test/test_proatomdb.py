@@ -228,3 +228,19 @@ def test_normalize():
 def test_empty_proatom():
     padb = get_proatomdb_cp2k()
     assert (padb.get_rho(8, {}) == 0.0).all()
+
+
+def test_io_atdens():
+    padb = ProAtomDB.from_file(context.get_fn('test/pro.atdens'))
+    assert padb.get_numbers() == [16]
+    assert padb.get_charges(16) == [3, 2]
+    r = padb.get_record(16, 3)
+    assert abs(r.rho[0] - 0.2628105459E+04) < 1e-5
+    assert abs(r.rho[-1] - 0.1998952826E-16) < 1e-5
+    s = padb.get_spline(16, 3)
+    assert abs(s(np.array([0.0])) - 2661.68659449) < 1e-5
+    radii = r.rgrid.rtransform.get_radii()
+    assert radii[0] == 0.5216488380E-03
+    assert abs(radii[-1] - 20) < 1e-14
+    assert abs(radii[1] - 0.5442350204E-03) < 1e-8
+    assert abs(r.rgrid.integrate(r.rho) - 13) < 1e-3
