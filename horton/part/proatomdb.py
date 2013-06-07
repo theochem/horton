@@ -390,32 +390,19 @@ class ProAtomDB(object):
            Note that the records are loaded and given as argument to the
            constructor, which may weed out duplicates.
         '''
-        # parse the argument
-        if isinstance(filename, basestring):
-            f = h5.File(filename, 'r')
-            do_close = True
-        elif isinstance(filename, h5.Group):
-            f = filename
-            do_close = False
-        # Read
-        records = []
-        for grp in f.itervalues():
-            assert isinstance(grp, h5.Group)
-            records.append(ProAtomRecord(
-                number=grp.attrs['number'],
-                charge=grp.attrs['charge'],
-                energy=grp.attrs['energy'],
-                homo_energy=grp.attrs.get('homo_energy'),
-                rgrid=RadialGrid(RTransform.from_string(grp.attrs['rtransform'])),
-                rho=grp['rho'][:],
-                pseudo_number=grp.attrs.get('pseudo_number'),
-                ipot_energy=grp.attrs.get('ipot_energy'),
-            ))
-        result = ProAtomDB(records)
-        # close
-        if do_close:
-            f.close()
-        return result
+        if isinstance(filename, h5.Group):
+            records = load_proatom_records_h5_group(filename)
+        elif isinstance(filename, basestring):
+            if filename.endswith('.h5'):
+                records = load_proatom_records_h5_file(filename)
+            elif filename.endswith('.atdens'):
+                records = load_proatom_records_atdens(filename)
+            else:
+                raise ValueError('Proatomdb file type not supported')
+        else:
+            raise NotImplementedError
+
+        return ProAtomDB(records)
 
     def to_file(self, filename):
         '''Write the database to an HDF5 file
@@ -563,3 +550,65 @@ class ProAtomDB(object):
                     log('%4i     %+3i    %15.8e   %15.8e' % (
                         number, charge, nel_before, nel_after
                     ))
+
+
+def load_proatom_records_h5_group(f):
+    '''Load proatom records from the given HDF5 group'''
+    records = []
+    for grp in f.itervalues():
+        assert isinstance(grp, h5.Group)
+        records.append(ProAtomRecord(
+            number=grp.attrs['number'],
+            charge=grp.attrs['charge'],
+            energy=grp.attrs['energy'],
+            homo_energy=grp.attrs.get('homo_energy'),
+            rgrid=RadialGrid(RTransform.from_string(grp.attrs['rtransform'])),
+            rho=grp['rho'][:],
+            pseudo_number=grp.attrs.get('pseudo_number'),
+            ipot_energy=grp.attrs.get('ipot_energy'),
+        ))
+    return records
+
+
+def load_proatom_records_h5_file(filename):
+    '''Load proatom records from the given HDF5 file'''
+    with h5.File(filename) as f:
+        return load_proatom_records_h5_group(f)
+
+
+def load_proatom_records_atdens(filename):
+    '''Load proatom records from the given atdens file file'''
+    def read_numbers(f, npoint):
+        numbers = []
+        while len(numbers) < npoint:
+            words = f.next().replace('D', 'E').split()
+            for word in words:
+                numbers.append(float(word))
+        return np.array(numbers)
+
+    from horton.grid.cext import ExpRTransform
+    records = []
+    with open(filename) as f:
+        # load the radii
+        words = f.next().split()
+        assert words[0] == 'RADII'
+        npoint = int(words[1])
+        radii = read_numbers(f, npoint)
+        # Construct a radial grid
+        r1 = radii[1]
+        r2 = radii[-1]
+        rtf = ExpRTransform(r1, r2, npoint-1)
+        rgrid = RadialGrid(rtf)
+        # load the proatoms
+        while True:
+            try:
+                words = f.next().split()
+                number = int(words[0])
+                population = int(words[1])
+                charge = number - population
+                rho = read_numbers(f, npoint)[1:]
+                record = ProAtomRecord(number, charge, 0.0, 0.0, rgrid, rho)
+                records.append(record)
+            except StopIteration:
+                break
+    return records
