@@ -265,7 +265,7 @@ def test_cubic_interpolation_o3lyp_cs():
 
     grid = get_some_grid(sys)
     libxc_term = LibXCHybridGGATerm('xc_o3lyp')
-    ham = Hamiltonian(sys, [HartreeFock(libxc_term.get_exx_fraction()), libxc_term], grid)
+    ham = Hamiltonian(sys, [HartreeFockExchange(libxc_term.get_exx_fraction()), libxc_term], grid)
 
     dm0 = sys.wfn.dm_alpha.copy()
     converge_scf_oda(ham, max_iter=1)
@@ -328,7 +328,7 @@ def test_cubic_interpolation_o3lyp_os():
 
     grid = get_some_grid(sys)
     libxc_term = LibXCHybridGGATerm('xc_o3lyp')
-    ham = Hamiltonian(sys, [HartreeFock(libxc_term.get_exx_fraction()), libxc_term], grid)
+    ham = Hamiltonian(sys, [HartreeFockExchange(libxc_term.get_exx_fraction()), libxc_term], grid)
 
     dma0 = sys.wfn.dm_alpha.copy()
     dmb0 = sys.wfn.dm_beta.copy()

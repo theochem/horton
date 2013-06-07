@@ -171,7 +171,7 @@ def test_chk_guess_scf_cs():
     assert (sys.wfn.exp_alpha._energies == e).all()
     assert (sys.wfn.dm_alpha._array == dma).all()
 
-    ham = Hamiltonian(sys, [HartreeFock()])
+    ham = Hamiltonian(sys, [HartreeFockExchange()])
     converge_scf(ham, 5)
     c = sys.wfn.exp_alpha._coeffs
     e = sys.wfn.exp_alpha._energies
@@ -218,7 +218,7 @@ def test_chk_guess_scf_os():
     assert (sys.wfn.dm_alpha._array == dma).all()
     assert (sys.wfn.dm_beta._array == dmb).all()
 
-    ham = Hamiltonian(sys, [HartreeFock()])
+    ham = Hamiltonian(sys, [HartreeFockExchange()])
     converge_scf(ham, 5)
     ac = sys.wfn.exp_alpha._coeffs
     bc = sys.wfn.exp_beta._coeffs

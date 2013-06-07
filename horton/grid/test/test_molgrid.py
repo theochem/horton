@@ -142,7 +142,7 @@ def test_custom_grid_term():
     grid = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False)
 
     # Without perturbation
-    ham = Hamiltonian(sys, [HartreeFock()])
+    ham = Hamiltonian(sys, [HartreeFockExchange()])
     assert convergence_error(ham) > 1e-8
     assert converge_scf(ham)
     assert convergence_error(ham) < 1e-8
@@ -160,7 +160,7 @@ def test_custom_grid_term():
     for scale in 0.1, -0.1:
         # With perturbation
         perturbation = CustomGridFixedTerm(grid, scale*potential, 'pert')
-        ham = Hamiltonian(sys, [HartreeFock(), perturbation])
+        ham = Hamiltonian(sys, [HartreeFockExchange(), perturbation])
         assert convergence_error(ham) > 1e-8
         assert converge_scf_oda(ham)
         assert convergence_error(ham) < 1e-8

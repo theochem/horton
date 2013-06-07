@@ -29,21 +29,21 @@ def test_scf_cs():
     sys = System.from_file(fn_fchk)
 
     guess_hamiltonian_core(sys)
-    ham = Hamiltonian(sys, [HartreeFock()])
+    ham = Hamiltonian(sys, [HartreeFockExchange()])
     assert convergence_error(ham) > 1e-8
     assert converge_scf(ham)
     assert convergence_error(ham) < 1e-8
 
     # get the hatreefock term
     for term in ham.terms:
-        if isinstance(term, HartreeFock):
-            hf_term = term
+        if isinstance(term, Hartree):
+            hartree_term = term
             break
 
     # test operator consistency
     my_coulomb = sys.lf.create_one_body()
     dm_alpha = sys.wfn.dm_alpha
-    hf_term.electron_repulsion.apply_direct(dm_alpha, my_coulomb)
+    hartree_term.electron_repulsion.apply_direct(dm_alpha, my_coulomb)
     my_coulomb.iscale(2)
     error = abs(my_coulomb._array - ham.cache.load('op_coulomb')._array).max()
     assert error < 1e-5
@@ -69,7 +69,7 @@ def test_scf_os():
     sys = System.from_file(fn_fchk)
 
     guess_hamiltonian_core(sys)
-    ham = Hamiltonian(sys, [HartreeFock()])
+    ham = Hamiltonian(sys, [HartreeFockExchange()])
     assert convergence_error(ham) > 1e-8
     assert converge_scf(ham)
     assert convergence_error(ham) < 1e-8
@@ -142,7 +142,7 @@ def test_scf_oda_water_hfs_321g():
 def test_scf_oda_water_hf_321g():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
-    ham = Hamiltonian(sys, [HartreeFock()])
+    ham = Hamiltonian(sys, [HartreeFockExchange()])
 
     # test continuation of interupted scf_oda
     guess_hamiltonian_core(sys)
@@ -183,11 +183,11 @@ def test_hf_water_321g_mistake():
     fn_xyz = context.get_fn('test/water.xyz')
     sys = System.from_file(fn_xyz, obasis='3-21G')
     sys.init_wfn(charge=0)
-    ham = Hamiltonian(sys, [HartreeFock()])
+    ham = Hamiltonian(sys, [HartreeFockExchange()])
     try:
         converge_scf(ham)
         assert False
-    except AttributeError:
+    except (AttributeError, KeyError):
         pass
 
 
@@ -210,5 +210,5 @@ def test_scf_oda_aufbau_spin():
     sys.wfn.occ_model = AufbauSpinOccModel(3)
 
     guess_hamiltonian_core(sys)
-    ham = Hamiltonian(sys, [HartreeFock()])
+    ham = Hamiltonian(sys, [HartreeFockExchange()])
     assert converge_scf_oda(ham)

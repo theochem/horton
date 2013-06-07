@@ -17,7 +17,7 @@ grid = BeckeMolGrid(system)
 
 # Construction of Hamiltonian
 libxc_term = LibXCHybridGGATerm('xc_o3lyp')
-ham = Hamiltonian(system, [HartreeFock(libxc_term.get_exx_fraction()), libxc_term], grid)
+ham = Hamiltonian(system, [HartreeFockExchange(libxc_term.get_exx_fraction()), libxc_term], grid)
 
 # Optimal damping SCF cycle
 converged = converge_scf_oda(ham)
