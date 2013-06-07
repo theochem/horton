@@ -12,7 +12,7 @@ sys.init_wfn(charge=0)
 guess_hamiltonian_core(sys)
 
 # Construct a Hamiltonian
-ham = Hamiltonian(sys, [HartreeFock()])
+ham = Hamiltonian(sys, [HartreeFockExchange()])
 
 # Converge WFN with SCF
 converged = converge_scf(ham)

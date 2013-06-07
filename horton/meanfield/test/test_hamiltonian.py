@@ -39,7 +39,7 @@ def test_hamiltonian_init():
         pass
 
     # test if terms are added automagically
-    ham = Hamiltonian(sys, [HartreeFock()])
+    ham = Hamiltonian(sys, [HartreeFockExchange()])
     assert sum(isinstance(term, KineticEnergy) for term in ham.terms) == 1
     assert sum(isinstance(term, ExternalPotential) for term in ham.terms) == 1
     assert sum(isinstance(term, Hartree) for term in ham.terms) == 1
@@ -57,7 +57,7 @@ def test_hamiltonian_init():
 def test_energy_hydrogen():
     fn_fchk = context.get_fn('test/h_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    ham = Hamiltonian(sys, [HartreeFock()])
+    ham = Hamiltonian(sys, [HartreeFockExchange()])
     ham.compute_energy()
     assert abs(sys.props['energy'] - -4.665818503844346E-01) < 1e-8
 
@@ -194,7 +194,7 @@ def test_custom_term():
     sys = System.from_file(fn_fchk)
 
     # Without perturbation
-    ham = Hamiltonian(sys, [HartreeFock()])
+    ham = Hamiltonian(sys, [HartreeFockExchange()])
     assert convergence_error(ham) > 1e-8
     assert converge_scf(ham)
     assert convergence_error(ham) < 1e-8
@@ -217,7 +217,7 @@ def test_custom_term():
         tmp = operator.copy()
         tmp.iscale(scale)
         perturbation = CustomFixedTerm(tmp, 'pert')
-        ham = Hamiltonian(sys, [HartreeFock(), perturbation])
+        ham = Hamiltonian(sys, [HartreeFockExchange(), perturbation])
         assert convergence_error(ham) > 1e-8
         assert converge_scf_oda(ham)
         assert convergence_error(ham) < 1e-8
@@ -236,8 +236,9 @@ def test_auto_complete():
     sys = System.from_file(fn_fchk)
 
     # HF case
-    ham = Hamiltonian(sys, [HartreeFock()])
+    ham = Hamiltonian(sys, [HartreeFockExchange()])
     assert any(isinstance(term, KineticEnergy) for term in ham.terms)
+    assert any(isinstance(term, Hartree) for term in ham.terms)
     assert any(isinstance(term, ExternalPotential) for term in ham.terms)
 
     # DFT case
@@ -248,6 +249,7 @@ def test_auto_complete():
     assert any(isinstance(term, Hartree) for term in ham.terms)
 
     # special behavior
-    ham = Hamiltonian(sys, [HartreeFock()], auto_complete=False)
+    ham = Hamiltonian(sys, [HartreeFockExchange()], auto_complete=False)
     assert not any(isinstance(term, KineticEnergy) for term in ham.terms)
+    assert not any(isinstance(term, Hartree) for term in ham.terms)
     assert not any(isinstance(term, ExternalPotential) for term in ham.terms)

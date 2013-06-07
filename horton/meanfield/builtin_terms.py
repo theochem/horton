@@ -25,7 +25,7 @@ import numpy as np
 from horton.meanfield.term import HamiltonianTerm
 
 
-__all__ = ['Hartree', 'HartreeFock', 'DiracExchange']
+__all__ = ['Hartree', 'HartreeFockExchange', 'DiracExchange']
 
 
 class Hartree(HamiltonianTerm):
@@ -65,9 +65,13 @@ class Hartree(HamiltonianTerm):
             fock_beta.iadd(coulomb)
 
 
-class HartreeFock(Hartree):
+class HartreeFockExchange(HamiltonianTerm):
     def __init__(self, fraction_exchange=1.0):
         self.fraction_exchange = fraction_exchange
+
+    def prepare_system(self, system, cache, grid):
+        HamiltonianTerm.prepare_system(self, system, cache, grid)
+        self.electron_repulsion = system.get_electron_repulsion()
 
     def _update_exchange(self):
         '''Recompute the Exchange operator(s) if invalid'''
@@ -82,7 +86,6 @@ class HartreeFock(Hartree):
             helper('beta')
 
     def compute_energy(self):
-        energy_hartree = Hartree.compute_energy(self)
         self._update_exchange()
         if self.system.wfn.closed_shell:
             energy_fock = -self.cache.load('op_exchange_fock_alpha').expectation_value(self.system.wfn.dm_alpha)
@@ -90,10 +93,9 @@ class HartreeFock(Hartree):
             energy_fock = -0.5*self.cache.load('op_exchange_fock_alpha').expectation_value(self.system.wfn.dm_alpha) \
                           -0.5*self.cache.load('op_exchange_fock_beta').expectation_value(self.system.wfn.dm_beta)
         self.store_energy('exchange_fock', energy_fock)
-        return energy_hartree + self.fraction_exchange*energy_fock
+        return self.fraction_exchange*energy_fock
 
     def add_fock_matrix(self, fock_alpha, fock_beta):
-        Hartree.add_fock_matrix(self, fock_alpha, fock_beta)
         self._update_exchange()
         fock_alpha.iadd(self.cache.load('op_exchange_fock_alpha'), -self.fraction_exchange)
         if fock_beta is not None:
