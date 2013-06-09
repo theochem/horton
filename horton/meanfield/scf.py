@@ -93,6 +93,7 @@ def converge_scf_cs(ham, max_iter=128, threshold=1e-8):
 
     lf = ham.system.lf
     wfn = ham.system.wfn
+    overlap = ham.system.get_overlap()
     fock = lf.create_one_body()
     converged = False
     for i in xrange(max_iter):
@@ -100,7 +101,7 @@ def converge_scf_cs(ham, max_iter=128, threshold=1e-8):
         fock.reset()
         ham.compute_fock(fock, None)
         # Check for convergence
-        error = lf.error_eigen(fock, ham.overlap, wfn.exp_alpha)
+        error = lf.error_eigen(fock, overlap, wfn.exp_alpha)
 
         if log.do_medium:
             log('%4i  %12.5e' % (i, error))
@@ -110,7 +111,7 @@ def converge_scf_cs(ham, max_iter=128, threshold=1e-8):
             break
         # Diagonalize the fock operator
         wfn.invalidate() # discard previous wfn state
-        wfn.update_exp(fock, ham.overlap)
+        wfn.update_exp(fock, overlap)
         # Let the hamiltonian know that the wavefunction has changed.
         ham.invalidate()
         # Write intermediate results to checkpoint
@@ -153,6 +154,7 @@ def converge_scf_os(ham, max_iter=128, threshold=1e-8):
 
     lf = ham.system.lf
     wfn = ham.system.wfn
+    overlap = ham.system.get_overlap()
     fock_alpha = lf.create_one_body()
     fock_beta = lf.create_one_body()
     converged = False
@@ -162,8 +164,8 @@ def converge_scf_os(ham, max_iter=128, threshold=1e-8):
         fock_beta.reset()
         ham.compute_fock(fock_alpha, fock_beta)
         # Check for convergence
-        error_alpha = lf.error_eigen(fock_alpha, ham.overlap, wfn.exp_alpha)
-        error_beta = lf.error_eigen(fock_beta, ham.overlap, wfn.exp_beta)
+        error_alpha = lf.error_eigen(fock_alpha, overlap, wfn.exp_alpha)
+        error_beta = lf.error_eigen(fock_beta, overlap, wfn.exp_beta)
 
         if log.do_medium:
             log('%4i  %12.5e  %12.5e' % (i, error_alpha, error_beta))
@@ -173,7 +175,7 @@ def converge_scf_os(ham, max_iter=128, threshold=1e-8):
             break
         # Diagonalize the fock operators
         wfn.invalidate()
-        wfn.update_exp(fock_alpha, fock_beta, ham.overlap)
+        wfn.update_exp(fock_alpha, fock_beta, overlap)
         # Let the hamiltonian know that the wavefunction has changed.
         ham.invalidate()
         # Write intermediate results to checkpoint
@@ -354,6 +356,7 @@ def converge_scf_oda_cs(ham, max_iter=128, threshold=1e-6, debug=False):
     # initialization of variables and datastructures
     lf = ham.system.lf
     wfn = ham.system.wfn
+    overlap = ham.system.get_overlap()
     # suffixes
     #    0 = current or initial state
     #    1 = state after conventional SCF step
@@ -381,7 +384,7 @@ def converge_scf_oda_cs(ham, max_iter=128, threshold=1e-6, debug=False):
 
         # B) Diagonalize fock operator and go to the next point
         wfn.invalidate()
-        wfn.update_exp(fock0, ham.overlap)
+        wfn.update_exp(fock0, overlap)
         # Let the hamiltonian know that the wavefunction has changed.
         ham.invalidate()
 
@@ -437,7 +440,7 @@ def converge_scf_oda_cs(ham, max_iter=128, threshold=1e-6, debug=False):
         fock0.reset()
         ham.compute_fock(fock0, None)
         wfn.invalidate()
-        wfn.update_exp(fock0, ham.overlap, dm0)
+        wfn.update_exp(fock0, overlap, dm0)
         energy0 = ham.compute()
         # Write final wfn to checkpoint.
         ham.system.update_chk('wfn')
@@ -536,6 +539,7 @@ def converge_scf_oda_os(ham, max_iter=128, threshold=1e-6, debug=False):
     # initialization of variables and datastructures
     lf = ham.system.lf
     wfn = ham.system.wfn
+    overlap = ham.system.get_overlap()
     # suffixes
     #    0 = current or initial state
     #    1 = state after conventional SCF step
@@ -572,7 +576,7 @@ def converge_scf_oda_os(ham, max_iter=128, threshold=1e-6, debug=False):
 
         # B) Diagonalize fock operator and go to state 1
         wfn.invalidate()
-        wfn.update_exp(fock0a, fock0b, ham.overlap)
+        wfn.update_exp(fock0a, fock0b, overlap)
         # Let the hamiltonian know that the wavefunction has changed.
         ham.invalidate()
 
@@ -639,7 +643,7 @@ def converge_scf_oda_os(ham, max_iter=128, threshold=1e-6, debug=False):
         fock0b.reset()
         ham.compute_fock(fock0a, fock0b)
         wfn.invalidate()
-        wfn.update_exp(fock0a, fock0b, ham.overlap, dm0a, dm0b)
+        wfn.update_exp(fock0a, fock0b, overlap, dm0a, dm0b)
         energy0 = ham.compute()
         # Write final wfn to checkpoint.
         ham.system.update_chk('wfn')
@@ -691,12 +695,13 @@ def convergence_error_cs(ham):
     '''
     lf = ham.system.lf
     wfn = ham.system.wfn
+    overlap = ham.system.get_overlap()
     fock = lf.create_one_body()
     # Construct the Fock operator
     fock.reset()
     ham.compute_fock(fock, None)
     # Compute error
-    return lf.error_eigen(fock, ham.overlap, wfn.exp_alpha)
+    return lf.error_eigen(fock, overlap, wfn.exp_alpha)
 
 
 def convergence_error_os(ham):
@@ -716,6 +721,7 @@ def convergence_error_os(ham):
     '''
     lf = ham.system.lf
     wfn = ham.system.wfn
+    overlap = ham.system.get_overlap()
     fock_alpha = lf.create_one_body()
     fock_beta = lf.create_one_body()
     # Construct the Fock operators
@@ -723,6 +729,6 @@ def convergence_error_os(ham):
     fock_beta.reset()
     ham.compute_fock(fock_alpha, fock_beta)
     # Compute errors
-    error_alpha = lf.error_eigen(fock_alpha, ham.overlap, wfn.exp_alpha)
-    error_beta = lf.error_eigen(fock_beta, ham.overlap, wfn.exp_beta)
+    error_alpha = lf.error_eigen(fock_alpha, overlap, wfn.exp_alpha)
+    error_beta = lf.error_eigen(fock_beta, overlap, wfn.exp_beta)
     return max(error_alpha, error_beta)

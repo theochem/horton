@@ -31,54 +31,6 @@ def test_cell():
     assert abs(system.cell.rvecs - np.identity(3, float)*10).max() < 1e-10
 
 
-def test_init_wfn_cs():
-    sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
-    sys.init_wfn(0, 1)
-    assert isinstance(sys.wfn, ClosedShellWFN)
-    assert sys.wfn.occ_model.nalpha == 3
-    assert sys.wfn.occ_model.nbeta == 3
-
-    sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
-    sys.init_wfn()
-    assert isinstance(sys.wfn, ClosedShellWFN)
-    assert sys.wfn.occ_model.nalpha == 3
-    assert sys.wfn.occ_model.nbeta == 3
-
-    sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
-    sys.init_wfn(2)
-    assert isinstance(sys.wfn, ClosedShellWFN)
-    assert sys.wfn.occ_model.nalpha == 2
-    assert sys.wfn.occ_model.nbeta == 2
-
-    try:
-        sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
-        sys.init_wfn(0, 2)
-        assert False
-    except ValueError:
-        pass
-
-
-def test_init_wfn_os():
-    sys = System(np.zeros((1,3), float), np.array([7]), obasis='3-21g')
-    sys.init_wfn(0, 2)
-    assert isinstance(sys.wfn, OpenShellWFN)
-    assert sys.wfn.occ_model.nalpha == 4
-    assert sys.wfn.occ_model.nbeta == 3
-
-    sys = System(np.zeros((1,3), float), np.array([8]), obasis='3-21g')
-    sys.init_wfn(1)
-    assert isinstance(sys.wfn, OpenShellWFN)
-    assert sys.wfn.occ_model.nalpha == 4
-    assert sys.wfn.occ_model.nbeta == 3
-
-    try:
-        sys = System(np.zeros((1,3), float), np.array([7]), obasis='3-21g')
-        sys.init_wfn(0, 1)
-        assert False
-    except ValueError:
-        pass
-
-
 def test_nucnuc():
     fn_fchk = context.get_fn('test/hf_sto3g.fchk')
     sys = System.from_file(fn_fchk)

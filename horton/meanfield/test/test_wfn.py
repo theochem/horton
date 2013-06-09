@@ -137,3 +137,51 @@ def test_homo_lumo_he():
     sys = System.from_file(fn_fchk)
     assert abs(sys.wfn.homo_energy - -8.76035508E-01) < 1e-8
     assert sys.wfn.lumo_energy is None # All orbitals are occupied
+
+
+def test_setup_wfn_cs():
+    sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
+    setup_mean_field_wfn(sys, 0, 1)
+    assert isinstance(sys.wfn, ClosedShellWFN)
+    assert sys.wfn.occ_model.nalpha == 3
+    assert sys.wfn.occ_model.nbeta == 3
+
+    sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
+    setup_mean_field_wfn(sys)
+    assert isinstance(sys.wfn, ClosedShellWFN)
+    assert sys.wfn.occ_model.nalpha == 3
+    assert sys.wfn.occ_model.nbeta == 3
+
+    sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
+    setup_mean_field_wfn(sys, 2)
+    assert isinstance(sys.wfn, ClosedShellWFN)
+    assert sys.wfn.occ_model.nalpha == 2
+    assert sys.wfn.occ_model.nbeta == 2
+
+    try:
+        sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
+        setup_mean_field_wfn(sys, 0, 2)
+        assert False
+    except ValueError:
+        pass
+
+
+def test_setup_wfn_os():
+    sys = System(np.zeros((1,3), float), np.array([7]), obasis='3-21g')
+    setup_mean_field_wfn(sys, 0, 2)
+    assert isinstance(sys.wfn, OpenShellWFN)
+    assert sys.wfn.occ_model.nalpha == 4
+    assert sys.wfn.occ_model.nbeta == 3
+
+    sys = System(np.zeros((1,3), float), np.array([8]), obasis='3-21g')
+    setup_mean_field_wfn(sys, 1)
+    assert isinstance(sys.wfn, OpenShellWFN)
+    assert sys.wfn.occ_model.nalpha == 4
+    assert sys.wfn.occ_model.nbeta == 3
+
+    try:
+        sys = System(np.zeros((1,3), float), np.array([7]), obasis='3-21g')
+        setup_mean_field_wfn(sys, 0, 1)
+        assert False
+    except ValueError:
+        pass

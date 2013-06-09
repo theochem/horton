@@ -7,7 +7,7 @@ from horton import *
 system = System.from_file('water.xyz', obasis='3-21G')
 
 # Allocate wavefuntion
-system.init_wfn(charge=0, mult=1)
+setup_mean_field_wfn(system, charge=0, mult=1)
 
 # Initial guess
 guess_hamiltonian_core(system)

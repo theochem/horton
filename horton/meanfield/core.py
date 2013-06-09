@@ -29,6 +29,7 @@ from horton.meanfield.observable import Observable
 
 __all__ = [
     'LinearObservable', 'KineticEnergy', 'ExternalPotential',
+    'CustomLinearObservable',
 ]
 
 
@@ -38,39 +39,48 @@ class LinearObservable(Observable):
        This is (technically) a special class because the Fock operator does not
        have to be recomputed when the density matrix changes.
     '''
-    def get_operator(self, system):
-        # subclasses should return the operator and a suffix.
+    def get_operator(self):
+        # subclasses should return the operator
         raise NotImplementedError
 
-    def prepare_system(self, system, cache, grid):
-        Observable.prepare_system(self, system, cache, grid)
-        self.operator = self.get_operator(system)
-
     def compute(self):
+        operator = self.get_operator()
         if self.system.wfn.closed_shell:
-            return 2*self.operator.expectation_value(self.system.wfn.dm_alpha)
+            return 2*operator.expectation_value(self.system.wfn.dm_alpha)
         else:
-            return self.operator.expectation_value(self.system.wfn.dm_full)
+            return operator.expectation_value(self.system.wfn.dm_full)
 
     def add_fock_matrix(self, fock_alpha, fock_beta, scale=1):
+        operator = self.get_operator()
         for fock in fock_alpha, fock_beta:
             if fock is not None:
-                fock.iadd(self.operator, scale)
+                fock.iadd(operator, scale)
 
 
 class KineticEnergy(LinearObservable):
     def __init__(self, label='kin'):
         LinearObservable.__init__(self, label)
 
-    def get_operator(self, system):
-        return system.get_kinetic()
+    def get_operator(self):
+        return self.system.get_kinetic()
 
 
 class ExternalPotential(LinearObservable):
     def __init__(self, label='ne'):
         LinearObservable.__init__(self, label)
 
-    def get_operator(self, system):
-        tmp = system.get_nuclear_attraction().copy() # take copy because of next line
+    def get_operator(self):
+        # TODO: change sign convention in nai code
+        tmp = self.system.get_nuclear_attraction().copy() # take copy because of next line
         tmp.iscale(-1)
         return tmp
+
+
+class CustomLinearObservable(LinearObservable):
+    '''This is a user-defined term that is linear in the density matrix
+
+       This term can be used to implemented perturbations by finite fields.
+    '''
+    def __init__(self, label, get_operator):
+        self.get_operator = get_operator
+        LinearObservable.__init__(self, label)

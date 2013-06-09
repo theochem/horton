@@ -23,7 +23,6 @@
 from horton.meanfield.builtin import *
 from horton.meanfield.core import *
 from horton.meanfield.cext import *
-from horton.meanfield.custom import *
 from horton.meanfield.guess import *
 from horton.meanfield.hamiltonian import *
 from horton.meanfield.libxc import *

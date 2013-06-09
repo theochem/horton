@@ -29,7 +29,7 @@ def test_hamiltonian_init():
     coordinates = np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 1.0]])
     numbers = np.array([1, 1])
     sys = System(coordinates, numbers, obasis='STO-3G')
-    sys.init_wfn(0, 1)
+    setup_mean_field_wfn(sys, 0, 1)
 
     # test if no terms gives a ValueError
     try:
@@ -43,12 +43,6 @@ def test_hamiltonian_init():
     assert sum(isinstance(term, KineticEnergy) for term in ham.terms) == 1
     assert sum(isinstance(term, ExternalPotential) for term in ham.terms) == 1
     assert sum(isinstance(term, Hartree) for term in ham.terms) == 1
-
-    # test if the necessary operators are constructed in the system object
-    assert 'kin' in sys.operators
-    assert 'na' in sys.operators
-    assert 'er' in sys.operators
-    assert 'olp' in sys.operators
 
     # check attribute of HartreeFock term
     assert ham.terms[0].fraction_exchange == 1.0
@@ -181,14 +175,6 @@ def test_cubic_interpolation_hfs_cs():
     check_cubic_cs_wrapper(ham, dm0, dm1)
 
 
-def test_external_potential_copy():
-    fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
-    sys = System.from_file(fn_fchk)
-    ep = ExternalPotential()
-    ep.prepare_system(sys, None, None)
-    assert not (ep.operator is sys.get_nuclear_attraction())
-
-
 def test_custom_observable():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
@@ -200,10 +186,10 @@ def test_custom_observable():
     assert convergence_error(ham) < 1e-8
     energy0 = ham.compute()
 
-    # Construct a perturbation baed on the Mulliken AIM operator
+    # Construct a perturbation based on the Mulliken AIM operator
     assert sys.obasis.nbasis % 2 == 0
     nfirst = sys.obasis.nbasis / 2
-    operator = ham.overlap.copy()
+    operator = sys.get_overlap().copy()
     operator._array[:nfirst,nfirst:] *= 0.5
     operator._array[nfirst:,:nfirst] *= 0.5
     operator._array[nfirst:,nfirst:] = 0.0
@@ -213,10 +199,13 @@ def test_custom_observable():
     # cases, and higher than the unperturbed.
     energy1_old = None
     for scale in 0.1, -0.1:
-        # With perturbation
+        # Perturbation
         tmp = operator.copy()
         tmp.iscale(scale)
-        perturbation = CustomLinearObservable('pert', tmp)
+        def get_operator():
+            return tmp
+        perturbation = CustomLinearObservable('pert', get_operator)
+        # Hamiltonian
         ham = Hamiltonian(sys, [HartreeFockExchange(), perturbation])
         assert convergence_error(ham) > 1e-8
         assert converge_scf_oda(ham)

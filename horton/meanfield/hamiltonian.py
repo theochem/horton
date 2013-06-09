@@ -78,16 +78,15 @@ class Hamiltonian(object):
             if sum(isinstance(term, ExternalPotential) for term in terms) == 0:
                 self.terms.append(ExternalPotential())
 
-        # Create a cache for shared intermediate results.
+        # Create a cache for shared intermediate results. This cache should only
+        # be used for derived quantities that depend on the wavefunction and
+        # need to be updated at each SCF cycle.
         self.cache = Cache()
 
         with timer.section('Prep. Ham.'):
             # Pre-compute stuff
             for term in self.terms:
                 term.prepare_system(self.system, self.cache, self.grid)
-
-            # Compute overlap matrix
-            self.overlap = system.get_overlap()
 
     def invalidate(self):
         '''Mark the properties derived from the wfn as outdated.
