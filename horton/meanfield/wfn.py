@@ -39,18 +39,90 @@ from horton.exceptions import ElectronCountError
 
 
 __all__ = [
-    'WFN', 'ClosedShellWFN', 'OpenShellWFN',
+    'setup_mean_field_wfn',
+    'MeanFieldWFN', 'ClosedShellWFN', 'OpenShellWFN',
     'AufbauOccModel', 'AufbauSpinOccModel'
 ]
 
 
 
 # TODO: It would be better to use the terms Restricted and Unrestricted, where
-# the former only supports close-shell computations for now.
+# the former only supports closed-shell computations for now.
+
+
+def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None):
+    '''Initialize a mean-field wavefunction and assign it to the given system.
+
+       **Arguments:**
+
+       system
+            A System instance.
+
+       **Optional Arguments:**
+
+       charge
+            The total charge of the system. Defaults to zero.
+
+       mult
+            The spin multiplicity. Defaults to lowest possible.
+
+       restricted
+            Set to True or False to enforce a restricted or unrestricted
+            wavefunction. Note that restricted open shell is not yet
+            supported. When not set, restricted is used when mult==1 and
+            unrestricted otherwise.
+
+       If a wavefunction of the correct type is already present, it will be
+       configured with the requested charge and multiplicity.
+    '''
+    if system._obasis is None:
+        raise RuntimeError('A wavefunction can only be initialized when a basis is specified.')
+    if charge is None:
+        charge = 0
+    nel = system.numbers.sum() - charge
+    if mult is None:
+        mult = nel%2+1
+    elif ((nel%2 == 0) ^ (mult%2 != 0)):
+        raise ValueError('Not compatible: number of electrons = %i and spin multiplicity = %i' % (nel, mult))
+    if mult < 1:
+        raise ValueError('mult must be strictly positive.')
+    if restricted is True and mult != 1:
+        raise ValueError('Restricted==True only works when mult==1. Restricted open shell is not supported yet.')
+    if restricted is None:
+        restricted = mult==1
+
+    if log.do_medium:
+        log('Wavefunction initialization, without initial guess.')
+        log.deflist([
+            ('Charge', charge),
+            ('Multiplicity', mult),
+            ('Number of e', nel),
+            ('Restricted', restricted),
+        ])
+
+    if system._wfn is not None:
+        if not instance(self.system.wfn, MeanFieldWFN):
+            raise ValueError('A wavefunction is already present and it is not a mean-field wavefunction.')
+        elif self.system.wfn.nbasis != self.system.obasis.nbasis:
+            raise ValueError('The number of basis functions in the wfn is incorrect.')
+        elif self.restricted ^ self.system.wfn.closed_shell:
+            raise ValueError('The wfn does not match the restricted argument.')
+        if restricted:
+            system.wfn.occ_model.nalpha = nel/2
+        else:
+            system.wfn.occ_model.nalpha = (nel + (mult-1))/2
+            system.wfn.occ_model.nbeta = (nel - (mult-1))/2
+    else:
+        if restricted:
+            occ_model = AufbauOccModel(nel/2)
+            system._wfn = ClosedShellWFN(occ_model, system.lf, system.obasis.nbasis)
+        else:
+            occ_model = AufbauOccModel((nel + (mult-1))/2, (nel - (mult-1))/2)
+            system._wfn = OpenShellWFN(occ_model, system.lf, system.obasis.nbasis)
 
 
 class PropertyHelper(object):
-    '''Auxiliary class to set up dm_xxx and exp_xxx attributes of WFN class.'''
+    '''Auxiliary class to set up dm_xxx and exp_xxx attributes of MeanFieldWFN class.'''
     def __init__(self, method, arg):
         self.method = method
         self.arg = arg
@@ -63,7 +135,7 @@ class PropertyHelper(object):
 
 
 
-class WFN(object):
+class MeanFieldWFN(object):
     def __init__(self, occ_model, lf, nbasis, norb=None):
         """
            **Arguments:**
@@ -265,7 +337,7 @@ class WFN(object):
             exp.check_normalization(olp, eps)
 
 
-class ClosedShellWFN(WFN):
+class ClosedShellWFN(MeanFieldWFN):
     closed_shell = True # TODO: ugly
 
     def _assign_dm_full(self, dm):
@@ -343,7 +415,7 @@ class ClosedShellWFN(WFN):
 
 
 
-class OpenShellWFN(WFN):
+class OpenShellWFN(MeanFieldWFN):
     closed_shell = False # TODO: ugly
 
     def _assign_dm_full(self, dm):

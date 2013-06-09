@@ -34,16 +34,10 @@ def test_scf_cs():
     assert converge_scf(ham)
     assert convergence_error(ham) < 1e-8
 
-    # get the hatreefock term
-    for term in ham.terms:
-        if isinstance(term, Hartree):
-            hartree_term = term
-            break
-
     # test operator consistency
     my_coulomb = sys.lf.create_one_body()
     dm_alpha = sys.wfn.dm_alpha
-    hartree_term.electron_repulsion.apply_direct(dm_alpha, my_coulomb)
+    sys.get_electron_repulsion().apply_direct(dm_alpha, my_coulomb)
     my_coulomb.iscale(2)
     error = abs(my_coulomb._array - ham.cache.load('op_coulomb')._array).max()
     assert error < 1e-5
@@ -182,7 +176,7 @@ def test_scf_oda_lih_hfs_321g():
 def test_hf_water_321g_mistake():
     fn_xyz = context.get_fn('test/water.xyz')
     sys = System.from_file(fn_xyz, obasis='3-21G')
-    sys.init_wfn(charge=0)
+    setup_mean_field_wfn(sys, charge=0)
     ham = Hamiltonian(sys, [HartreeFockExchange()])
     try:
         converge_scf(ham)

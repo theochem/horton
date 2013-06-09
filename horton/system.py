@@ -36,11 +36,13 @@ from horton.io import load_system_args, dump_system
 from horton.log import log
 from horton.matrix import DenseLinalgFactory, LinalgObject
 from horton.periodic import periodic
-from horton.meanfield.wfn import AufbauOccModel, ClosedShellWFN, OpenShellWFN
 
 
 __all__ = ['System']
 
+
+# TODO: props and operators should be converted to a cache object that contains
+# all the stuff derived from the other attributes
 
 class System(object):
     def __init__(self, coordinates, numbers, obasis=None, wfn=None, lf=None,
@@ -350,57 +352,6 @@ class System(object):
                 is used to determine the file format.
         '''
         dump_system(filename, self)
-
-    def init_wfn(self, charge=0, mult=None, restricted=None):
-        '''Initialize a wavefunction object.
-
-           **Optional Arguments:**
-
-           charge
-                The total charge of the system. Defaults to zero.
-
-           mult
-                The spin multiplicity. Defaults to lowest possible.
-
-           restricted
-                Set to True or False to enforce a restricted or unrestricted
-                wavefunction. Note that restricted open shell is not yet
-                supported. When not set, restricted is used when mult==1 and
-                unrestricted otherwise.
-        '''
-        if self._wfn is not None:
-            raise RuntimeError('A wavefunction is already present.')
-        if self._obasis is None:
-            raise RuntimeError('A wavefunction can only be initialized when a basis is specified.')
-        if charge is None:
-            charge = 0
-        nel = self.numbers.sum() - charge
-        if mult is None:
-            mult = nel%2+1
-        elif ((nel%2 == 0) ^ (mult%2 != 0)):
-            raise ValueError('Not compatible: number of electrons = %i and spin multiplicity = %i' % (nel, mult))
-        if mult < 1:
-            raise ValueError('mult must be strictly positive.')
-        if restricted is True and mult != 1:
-            raise ValueError('Restricted==True only works when mult==1. Restricted open shell is not supported yet.')
-        if restricted is None:
-            restricted = mult==1
-
-        if log.do_medium:
-            log('Wavefunction initialization, without initial guess.')
-            log.deflist([
-                ('Charge', charge),
-                ('Multiplicity', mult),
-                ('Number of e', nel),
-                ('Restricted', restricted),
-            ])
-
-        if restricted:
-            occ_model = AufbauOccModel(nel/2)
-            self._wfn = ClosedShellWFN(occ_model, self.lf, self.obasis.nbasis)
-        else:
-            occ_model = AufbauOccModel((nel + (mult-1))/2, (nel - (mult-1))/2)
-            self._wfn = OpenShellWFN(occ_model, self.lf, self.obasis.nbasis)
 
     def _get_charge(self):
         return self.pseudo_numbers.sum() - self.wfn.nel

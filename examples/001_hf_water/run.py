@@ -6,7 +6,7 @@ from horton import *
 sys = System.from_file('water.xyz', obasis='3-21G')
 
 # Initialize the closed-shell wfn
-sys.init_wfn(charge=0)
+setup_mean_field_wfn(sys, charge=0)
 
 # Initial WFN guess
 guess_hamiltonian_core(sys)

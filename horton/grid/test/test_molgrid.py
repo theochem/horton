@@ -159,7 +159,11 @@ def test_custom_grid_linear_observable():
     energy1_old = None
     for scale in 0.1, -0.1:
         # With perturbation
-        perturbation = CustomGridLinearObservable('pert', grid, scale*potential)
+        operator = sys.lf.create_one_body()
+        sys.compute_grid_density_fock(grid.points, grid.weights, scale*potential, operator)
+        def get_operator():
+            return operator
+        perturbation = CustomLinearObservable('pert', get_operator)
         ham = Hamiltonian(sys, [HartreeFockExchange(), perturbation])
         assert convergence_error(ham) > 1e-8
         assert converge_scf_oda(ham)
