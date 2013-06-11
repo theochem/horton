@@ -136,7 +136,7 @@ def check_nuclear_attraction(fn_fchk):
     mask = abs(na1._array) > 1e-5
     expect = na1._array
     result = na2._array
-    delta = expect - result
+    delta = -expect - result
     error = (delta[mask]/expect[mask]).max()
     assert error < 4e-5
 
