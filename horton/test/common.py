@@ -235,15 +235,15 @@ def compare_occ_model(occ_model1, occ_model2):
 
 
 def compare_wfns(wfn1, wfn2):
-    if isinstance(wfn1, ClosedShellWFN):
-        assert isinstance(wfn2, ClosedShellWFN)
+    if isinstance(wfn1, RestrictedWFN):
+        assert isinstance(wfn2, RestrictedWFN)
         assert wfn1.nbasis == wfn2.nbasis
         assert wfn1.norb == wfn2.norb
         compare_all_expansions(wfn1, wfn2)
         compare_all_dms(wfn1, wfn2)
         compare_occ_model(wfn1.occ_model, wfn2.occ_model)
-    elif isinstance(wfn1, OpenShellWFN):
-        assert isinstance(wfn2, OpenShellWFN)
+    elif isinstance(wfn1, UnrestrictedWFN):
+        assert isinstance(wfn2, UnrestrictedWFN)
         assert wfn1.nbasis == wfn2.nbasis
         assert wfn1.norb == wfn2.norb
         compare_all_expansions(wfn1, wfn2)

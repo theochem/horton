@@ -5,11 +5,11 @@ following url and unpack the archive:
 
 http://users.ugent.be/~tovrstra/horton/refatoms.tar.bz2
 
-On unix, this can be done as follows:
+Then run the script fixnames.py to fix some name conventions in these files
 
-wget http://users.ugent.be/~tovrstra/horton/refatoms.tar.bz2
-tar -xvjf refatoms.tar.bz2
+On unix, all this can be done through the Makefile:
 
+make all
 
 The density matrices are computed at the CCSDT(FULL)/ANO-RCC level of theory.
 All ions are included that are not basis-set bound, i.e. the computed ionization
