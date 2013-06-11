@@ -26,7 +26,7 @@
 class Cell {
     private:
         double rvecs[9], gvecs[9];
-        double rlengths[3], glengths[3]; // TODO: test these
+        double rlengths[3], glengths[3];
         double rspacings[3], gspacings[3];
         double volume;
         int nvec;
