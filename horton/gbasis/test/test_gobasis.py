@@ -335,7 +335,7 @@ def test_grid_one_body_ne():
     grid = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False)
     dist0 = np.sqrt(((grid.points - sys.coordinates[0])**2).sum(axis=1))
     dist1 = np.sqrt(((grid.points - sys.coordinates[1])**2).sum(axis=1))
-    pot = sys.numbers[0]/dist0 + sys.numbers[1]/dist1
+    pot = -sys.numbers[0]/dist0 - sys.numbers[1]/dist1
     na_ana = sys.get_nuclear_attraction()
     na_grid = sys.lf.create_one_body()
     sys.compute_grid_density_fock(grid.points, grid.weights, pot, na_grid)

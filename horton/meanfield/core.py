@@ -71,10 +71,7 @@ class ExternalPotential(LinearObservable):
         LinearObservable.__init__(self, label)
 
     def get_operator(self):
-        # TODO: change sign convention in nai code
-        tmp = self.system.get_nuclear_attraction().copy() # take copy because of next line
-        tmp.iscale(-1)
-        return tmp
+        return self.system.get_nuclear_attraction()
 
 
 class CustomLinearObservable(LinearObservable):

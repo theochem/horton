@@ -811,7 +811,7 @@ def check_nuclear_attraction(alphas0, alphas1, r0, r1, scales0, scales1, charges
     for alpha0, alpha1 in zip(alphas0, alphas1):
         gb2i.add(1.0, alpha0, alpha1, scales0, scales1)
     result1 = gb2i.get_work(nbasis0, nbasis1)
-    error = abs(result1 - result0).max()
+    error = abs(result1 - -result0).max()
     assert error < 1e-6
 
 

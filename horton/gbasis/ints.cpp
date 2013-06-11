@@ -250,8 +250,8 @@ void GB2NuclearAttractionIntegral::add(double coeff, double alpha0, double alpha
                     for (long i2=i2p.n0[2]+i2p.n1[2]; i2>=0; i2--)
                         arg += work_g0[i0]*work_g1[i1]*work_g2[i2]*work_boys[i0+i1+i2];
 
-            // Finally add to the work array
-            work_cart[i2p.offset] += pre*scales0[i2p.ibasis0]*scales1[i2p.ibasis1]*arg*charges[icharge];
+            // Finally add to the work array, accounting for opposite charge of electron and nucleus
+            work_cart[i2p.offset] -= pre*scales0[i2p.ibasis0]*scales1[i2p.ibasis1]*arg*charges[icharge];
         } while (i2p.inc());
     }
 }
