@@ -77,7 +77,7 @@ def test_spin_li_h():
     assert sz == 0.5
     assert abs(ssq - 0.75) < 1e-7
     # swap the spins and test again
-    wfn = OpenShellWFN(sys.wfn.occ_model, sys.lf, sys.wfn.nbasis, sys.wfn.norb)
+    wfn = UnrestrictedWFN(sys.wfn.occ_model, sys.lf, sys.wfn.nbasis, sys.wfn.norb)
     exp_alpha = wfn.init_exp('alpha')
     exp_beta = wfn.init_exp('beta')
     exp_alpha.assign(sys.wfn.exp_beta)
@@ -142,19 +142,19 @@ def test_homo_lumo_he():
 def test_setup_wfn_cs():
     sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
     setup_mean_field_wfn(sys, 0, 1)
-    assert isinstance(sys.wfn, ClosedShellWFN)
+    assert isinstance(sys.wfn, RestrictedWFN)
     assert sys.wfn.occ_model.nalpha == 3
     assert sys.wfn.occ_model.nbeta == 3
 
     sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
     setup_mean_field_wfn(sys)
-    assert isinstance(sys.wfn, ClosedShellWFN)
+    assert isinstance(sys.wfn, RestrictedWFN)
     assert sys.wfn.occ_model.nalpha == 3
     assert sys.wfn.occ_model.nbeta == 3
 
     sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
     setup_mean_field_wfn(sys, 2)
-    assert isinstance(sys.wfn, ClosedShellWFN)
+    assert isinstance(sys.wfn, RestrictedWFN)
     assert sys.wfn.occ_model.nalpha == 2
     assert sys.wfn.occ_model.nbeta == 2
 
@@ -169,15 +169,16 @@ def test_setup_wfn_cs():
 def test_setup_wfn_os():
     sys = System(np.zeros((1,3), float), np.array([7]), obasis='3-21g')
     setup_mean_field_wfn(sys, 0, 2)
-    assert isinstance(sys.wfn, OpenShellWFN)
+    assert isinstance(sys.wfn, UnrestrictedWFN)
     assert sys.wfn.occ_model.nalpha == 4
     assert sys.wfn.occ_model.nbeta == 3
 
     sys = System(np.zeros((1,3), float), np.array([8]), obasis='3-21g')
     setup_mean_field_wfn(sys, 1)
-    assert isinstance(sys.wfn, OpenShellWFN)
+    assert isinstance(sys.wfn, UnrestrictedWFN)
     assert sys.wfn.occ_model.nalpha == 4
     assert sys.wfn.occ_model.nbeta == 3
+    setup_mean_field_wfn(sys, 1)
 
     try:
         sys = System(np.zeros((1,3), float), np.array([7]), obasis='3-21g')

@@ -25,6 +25,7 @@ import numpy as np
 from horton.log import log
 from horton.meanfield.observable import Observable
 from horton.meanfield.cext import LibXCWrapper
+from horton.meanfield.wfn import RestrictedWFN, UnrestrictedWFN
 
 
 __all__ = ['LibXCLDA', 'LibXCGGA', 'LibXCHybridGGA']
@@ -45,7 +46,7 @@ class LibXCEnergy(Observable):
         # TODO: move this above compute, also in all other classes
         self._update_operator()
         fock_alpha.iadd(self.cache.load('op_libxc_%s_alpha' % self._name), scale)
-        if not self.system.wfn.closed_shell:
+        if isinstance(self.system.wfn, UnrestrictedWFN):
             fock_beta.iadd(self.cache.load('op_libxc_%s_beta' % self._name, ), scale)
 
 
@@ -63,7 +64,7 @@ class LibXCLDA(LibXCEnergy):
         LibXCEnergy.__init__(self, 'lda_' + name.lower())
 
     def _update_operator(self):
-        if self.system.wfn.closed_shell:
+        if isinstance(self.system.wfn, RestrictedWFN):
             # In the closed-shell case, libxc expects the total density as input
             # and returns the potential for the alpha electrons.
             pot, new = self.cache.load('pot_libxc_%s_alpha' % self._name, alloc=self.grid.size)
@@ -97,7 +98,7 @@ class LibXCLDA(LibXCEnergy):
                 self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, pot_both[:,1], operator_beta)
 
     def compute(self):
-        if self.system.wfn.closed_shell:
+        if isinstance(self.system.wfn, RestrictedWFN):
             # In the unpolarized case, libxc expects the total density as input
             # and returns the energy density per particle.
             rho = self.update_rho('full')
@@ -129,7 +130,7 @@ class LibXCGGA(LibXCEnergy):
         LibXCEnergy.__init__(self, 'gga_' + name.lower())
 
     def _update_operator(self):
-        if self.system.wfn.closed_shell:
+        if isinstance(self.system.wfn, RestrictedWFN):
             dpot, newd = self.cache.load('dpot_libxc_%s_alpha' % self._name, alloc=self.grid.size)
             spot, newt = self.cache.load('spot_libxc_%s_alpha' % self._name, alloc=self.grid.size)
             if newd or newt:
@@ -182,7 +183,7 @@ class LibXCGGA(LibXCEnergy):
                 self.system.compute_grid_gradient_fock(self.grid.points, self.grid.weights, gpot_beta, operator_beta)
 
     def compute(self):
-        if self.system.wfn.closed_shell:
+        if isinstance(self.system.wfn, RestrictedWFN):
             rho = self.update_rho('full')
             sigma = self.update_sigma('full')
             edens, new = self.cache.load('edens_libxc_%s_full' % self._name, alloc=self.grid.size)

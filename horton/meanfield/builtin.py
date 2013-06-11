@@ -23,6 +23,7 @@
 import numpy as np
 
 from horton.meanfield.observable import Observable
+from horton.meanfield.wfn import RestrictedWFN, UnrestrictedWFN
 
 
 __all__ = ['Hartree', 'HartreeFockExchange', 'DiracExchange']
@@ -37,7 +38,7 @@ class Hartree(Observable):
         coulomb, new = self.cache.load('op_coulomb', alloc=(self.system.lf, 'one_body'))
         if new:
             electron_repulsion = self.system.get_electron_repulsion()
-            if self.system.wfn.closed_shell:
+            if isinstance(self.system.wfn, RestrictedWFN):
                 electron_repulsion.apply_direct(self.system.wfn.dm_alpha, coulomb)
                 coulomb.iscale(2)
             else:
@@ -46,7 +47,7 @@ class Hartree(Observable):
     def compute(self):
         self._update_coulomb()
         coulomb = self.cache.load('op_coulomb')
-        if self.system.wfn.closed_shell:
+        if isinstance(self.system.wfn, RestrictedWFN):
             return coulomb.expectation_value(self.system.wfn.dm_alpha)
         else:
             return 0.5*coulomb.expectation_value(self.system.wfn.dm_full)
@@ -81,12 +82,12 @@ class HartreeFockExchange(Observable):
                 electron_repulsion.apply_exchange(dm, exchange)
 
         helper('alpha')
-        if not self.system.wfn.closed_shell:
+        if isinstance(self.system.wfn, UnrestrictedWFN):
             helper('beta')
 
     def compute(self):
         self._update_exchange()
-        if self.system.wfn.closed_shell:
+        if isinstance(self.system.wfn, RestrictedWFN):
             return -self.cache.load('op_exchange_hartree_fock_alpha').expectation_value(self.system.wfn.dm_alpha)
         else:
             return -0.5*self.cache.load('op_exchange_hartree_fock_alpha').expectation_value(self.system.wfn.dm_alpha) \
@@ -139,7 +140,7 @@ class DiracExchange(Observable):
                 self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, pot, exchange)
 
         helper('alpha')
-        if not self.system.wfn.closed_shell:
+        if isinstance(self.system.wfn, UnrestrictedWFN):
             helper('beta')
 
     def compute(self):
@@ -155,10 +156,10 @@ class DiracExchange(Observable):
             return self.grid.integrate(pot, rho)
 
         energy = helper('alpha')
-        if not self.system.wfn.closed_shell:
-            energy += helper('beta')
-        else:
+        if isinstance(self.system.wfn, RestrictedWFN):
             energy *= 2
+        else:
+            energy += helper('beta')
         energy *= 3.0/4.0
         return energy
 

@@ -24,7 +24,7 @@
 import numpy as np
 
 from horton.log import log, timer
-from horton.meanfield.wfn import ClosedShellWFN, OpenShellWFN
+from horton.meanfield.wfn import RestrictedWFN, UnrestrictedWFN
 
 
 __all__ = [
@@ -56,9 +56,9 @@ def converge_scf(ham, max_iter=128, threshold=1e-8):
             True of converged, False if not
     '''
     with timer.section('SCF'):
-        if isinstance(ham.system.wfn, ClosedShellWFN):
+        if isinstance(ham.system.wfn, RestrictedWFN):
             return converge_scf_cs(ham, max_iter, threshold)
-        elif isinstance(ham.system.wfn, OpenShellWFN):
+        elif isinstance(ham.system.wfn, UnrestrictedWFN):
             return converge_scf_os(ham, max_iter, threshold)
         else:
             raise NotImplementedError
@@ -214,9 +214,9 @@ def converge_scf_oda(ham, max_iter=128, threshold=1e-6, debug=False):
             True of converged, False if not
     '''
     with timer.section('SCF'):
-        if isinstance(ham.system.wfn, ClosedShellWFN):
+        if isinstance(ham.system.wfn, RestrictedWFN):
             return converge_scf_oda_cs(ham, max_iter, threshold, debug)
-        elif isinstance(ham.system.wfn, OpenShellWFN):
+        elif isinstance(ham.system.wfn, UnrestrictedWFN):
             return converge_scf_oda_os(ham, max_iter, threshold, debug)
         else:
             raise NotImplementedError
@@ -671,9 +671,9 @@ def convergence_error(ham):
             The SCF error. This measure (not this function) is also used
             in the SCF algorithm to check for convergence.
     '''
-    if isinstance(ham.system.wfn, ClosedShellWFN):
+    if isinstance(ham.system.wfn, RestrictedWFN):
         return convergence_error_cs(ham)
-    elif isinstance(ham.system.wfn, OpenShellWFN):
+    elif isinstance(ham.system.wfn, UnrestrictedWFN):
         return convergence_error_os(ham)
     else:
         raise NotImplementedError

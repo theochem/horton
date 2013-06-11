@@ -351,7 +351,7 @@ def check_orbitals(sys):
     ad_check = (aos**2).sum(axis=1)
     assert (abs(ad - ad_check)/abs(ad) < 1e-3).all()
 
-    if isinstance(sys.wfn, OpenShellWFN):
+    if isinstance(sys.wfn, UnrestrictedWFN):
         # just the standard usage (beta)
         bd = sys.compute_grid_density(points, select='beta')
         bos = sys.compute_grid_orbitals(points, select='beta')

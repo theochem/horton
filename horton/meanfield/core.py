@@ -25,6 +25,7 @@ import numpy as np
 from horton.log import log, timer
 from horton.cache import Cache
 from horton.meanfield.observable import Observable
+from horton.meanfield.wfn import RestrictedWFN
 
 
 __all__ = [
@@ -45,7 +46,7 @@ class LinearObservable(Observable):
 
     def compute(self):
         operator = self.get_operator()
-        if self.system.wfn.closed_shell:
+        if isinstance(self.system.wfn, RestrictedWFN):
             return 2*operator.expectation_value(self.system.wfn.dm_alpha)
         else:
             return operator.expectation_value(self.system.wfn.dm_full)

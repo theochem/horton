@@ -40,14 +40,10 @@ from horton.exceptions import ElectronCountError
 
 __all__ = [
     'setup_mean_field_wfn',
-    'MeanFieldWFN', 'ClosedShellWFN', 'OpenShellWFN',
+    'MeanFieldWFN', 'RestrictedWFN', 'UnrestrictedWFN',
     'AufbauOccModel', 'AufbauSpinOccModel'
 ]
 
-
-
-# TODO: It would be better to use the terms Restricted and Unrestricted, where
-# the former only supports closed-shell computations for now.
 
 
 def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None):
@@ -101,11 +97,11 @@ def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None):
         ])
 
     if system._wfn is not None:
-        if not instance(self.system.wfn, MeanFieldWFN):
+        if not isinstance(system.wfn, MeanFieldWFN):
             raise ValueError('A wavefunction is already present and it is not a mean-field wavefunction.')
-        elif self.system.wfn.nbasis != self.system.obasis.nbasis:
+        elif system.wfn.nbasis != system.obasis.nbasis:
             raise ValueError('The number of basis functions in the wfn is incorrect.')
-        elif self.restricted ^ self.system.wfn.closed_shell:
+        elif restricted ^ isinstance(system.wfn, RestrictedWFN):
             raise ValueError('The wfn does not match the restricted argument.')
         if restricted:
             system.wfn.occ_model.nalpha = nel/2
@@ -115,10 +111,10 @@ def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None):
     else:
         if restricted:
             occ_model = AufbauOccModel(nel/2)
-            system._wfn = ClosedShellWFN(occ_model, system.lf, system.obasis.nbasis)
+            system._wfn = RestrictedWFN(occ_model, system.lf, system.obasis.nbasis)
         else:
             occ_model = AufbauOccModel((nel + (mult-1))/2, (nel - (mult-1))/2)
-            system._wfn = OpenShellWFN(occ_model, system.lf, system.obasis.nbasis)
+            system._wfn = UnrestrictedWFN(occ_model, system.lf, system.obasis.nbasis)
 
 
 class PropertyHelper(object):
@@ -337,9 +333,7 @@ class MeanFieldWFN(object):
             exp.check_normalization(olp, eps)
 
 
-class ClosedShellWFN(MeanFieldWFN):
-    closed_shell = True # TODO: ugly
-
+class RestrictedWFN(MeanFieldWFN):
     def _assign_dm_full(self, dm):
         dm.assign(self.dm_alpha)
         dm.iscale(2)
@@ -415,9 +409,7 @@ class ClosedShellWFN(MeanFieldWFN):
 
 
 
-class OpenShellWFN(MeanFieldWFN):
-    closed_shell = False # TODO: ugly
-
+class UnrestrictedWFN(MeanFieldWFN):
     def _assign_dm_full(self, dm):
         dm.assign(self.dm_alpha)
         dm.iadd(self.dm_beta)
