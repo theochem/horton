@@ -167,6 +167,15 @@ class NoDefault(object):
 no_default = NoDefault()
 
 
+def normalize_key(key):
+    if hasattr(key, '__len__') and  len(key) == 0:
+        raise TypeError('At least on argument needed for invalidate method')
+    # upack the key if needed
+    while len(key) == 1 and isinstance(key, tuple):
+        key = key[0]
+    return key
+
+
 class Cache(object):
     '''Object that stores previously computed results.
 
@@ -179,11 +188,10 @@ class Cache(object):
 
     def invalidate_all(self):
         for key in self._store.keys():
-            self.invalidate(*key)
+            self.invalidate(key)
 
     def invalidate(self, *key):
-        if len(key) == 0:
-            raise TypeError('At least on argument needed for invalidate method')
+        key = normalize_key(key)
         item = self._store.get(key)
         if item is None:
             return
@@ -194,9 +202,7 @@ class Cache(object):
             del self._store[key]
 
     def load(self, *key, **kwargs):
-        # check key
-        if len(key) == 0:
-            raise TypeError('At least one non-keyword argument is required')
+        key = normalize_key(key)
 
         # parse kwargs
         if len(kwargs) == 0:
@@ -237,8 +243,7 @@ class Cache(object):
             return item.value, new
 
     def __contains__(self, key):
-        if not isinstance(key, tuple):
-            key = (key,)
+        key = normalize_key(key)
         item = self._store.get(key)
         if item is None:
             return False
@@ -268,18 +273,21 @@ class Cache(object):
             raise TypeError('Unknown optional arguments: %s' % kwargs.keys())
         if len(args) < 2:
             raise TypeError('At least two arguments are required: key1 and value.')
-        key = args[:-1]
+        key = normalize_key(args[:-1])
         value = args[-1]
         item = CacheItem(value, own)
         self._store[key] = item
 
     def discard(self, *key):
         '''Genuinly discards a cached item from the store, no sneaky reset.'''
+        key = normalize_key(key)
         if key in self._store:
             del self._store[key]
 
     def rename(self, old, new):
         '''Change the name of a cached object.'''
+        new = normalize_key(new)
+        old = normalize_key(old)
         self._store[new] = self._store[old]
         del self._store[old]
 

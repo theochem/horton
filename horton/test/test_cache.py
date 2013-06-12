@@ -281,6 +281,12 @@ def test_discard():
     assert 'bar' in c
 
 
+def test_cache_dump_unpack():
+    c = Cache()
+    c.dump(('foo',), 5)
+    assert 'foo' in c
+
+
 def check_array_store_common(mode, fn):
     with ArrayStore.from_mode(mode, fn) as store:
         arr1 = np.random.normal(0, 1, (10, 10))
@@ -331,6 +337,7 @@ def test_array_store_core():
     fn = 'horton.test.test_cache.test_array_store_core'
     check_array_store_common('core', fn)
     assert not os.path.isfile(fn)
+
 
 def test_array_store_fake():
     check_array_store_common('fake', None)

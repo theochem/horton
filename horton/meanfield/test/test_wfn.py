@@ -49,7 +49,7 @@ def test_conversion_dm_exp():
     assert abs(oes - sys.wfn.exp_alpha.energies).max() < 3e-8
     assert (dm._array == sys.wfn.dm_alpha._array).all()
     # ugly hack
-    del sys.wfn._cache._store[('dm_alpha',)]
+    sys.wfn._cache.invalidate('dm_alpha')
     assert abs(dm._array - sys.wfn.dm_alpha._array).max() < 1e-9
 
 
