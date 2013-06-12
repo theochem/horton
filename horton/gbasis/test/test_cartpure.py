@@ -189,14 +189,14 @@ def test_cart_pure_water_ccpvdz_hf():
     sys_pure = System.from_file(fn_fchk_pure, fn_log_pure)
     sys_cart = System.from_file(fn_fchk_cart, fn_log_cart)
     for key in 'olp', 'kin', 'na':
-        block_pure = sys_pure.operators[key]._array[9:14,9:14]
-        block_cart = sys_cart.operators[key]._array[9:15,9:15]
+        block_pure = sys_pure.cache[key]._array[9:14,9:14]
+        block_cart = sys_cart.cache[key]._array[9:15,9:15]
         check_pure = np.dot(np.dot(tfs[2], block_cart), tfs[2].T)
         error = abs(block_pure - check_pure).max()
         assert error < 2e-5
 
-        block_pure = sys_pure.operators[key]._array[0,9:14]
-        block_cart = sys_cart.operators[key]._array[0,9:15]
+        block_pure = sys_pure.cache[key]._array[0,9:14]
+        block_cart = sys_cart.cache[key]._array[0,9:15]
         check_pure = np.dot(block_cart, tfs[2].T)
         error = abs(block_pure - check_pure).max()
         assert error < 1e-5

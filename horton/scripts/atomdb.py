@@ -320,7 +320,7 @@ class AtomProgram(object):
             log('Written', fn_script)
 
     def _get_energy(self, system, dn_mult):
-        return system.props['energy']
+        return system.extra['energy']
 
     def load_atom(self, dn_mult, ext):
         fn = '%s/atom.%s' % (dn_mult, ext)
@@ -331,8 +331,8 @@ class AtomProgram(object):
             system = System.from_file(fn)
         except:
             return None, None
-        system.props['energy'] = self._get_energy(system, dn_mult)
-        return system, system.props['energy']
+        system.extra['energy'] = self._get_energy(system, dn_mult)
+        return system, system.extra['energy']
 
     def create_record(self, system, dn_mult, atgrid):
         if system is None:

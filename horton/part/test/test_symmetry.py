@@ -37,7 +37,7 @@ def get_fake_example():
     cell = Cell(None)
     symmetry = Symmetry('fake', generators, fracs, numbers, cell)
     coordinates, numbers, links = symmetry.generate()
-    system = System(coordinates, numbers, props={'links': links}, cell=cell)
+    system = System(coordinates, numbers, extra={'links': links}, cell=cell)
     assert system.natom == 3
     return system, symmetry
 

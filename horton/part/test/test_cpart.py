@@ -35,8 +35,8 @@ def check_jbw_coarse(local):
     # Load the cube file
     fn_cube = context.get_fn('test/jbw_coarse_aedens.cube')
     sys = System.from_file(fn_cube)
-    mol_dens = sys.props['cube_data']
-    ugrid = sys.props['ugrid']
+    mol_dens = sys.extra['cube_data']
+    ugrid = sys.extra['ugrid']
 
     # Load some pro-atoms
     rtf = ExpRTransform(1e-3, 1e1, 100)

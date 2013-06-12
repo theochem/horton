@@ -135,21 +135,21 @@ def test_chk_update3():
     chk.close()
 
 
-def test_chk_operators():
-    chk = h5.File('horton.test.test_checkpoint.test_chk_operators', driver='core', backing_store=False)
+def test_chk_cache():
+    chk = h5.File('horton.test.test_checkpoint.test_chk_cache', driver='core', backing_store=False)
     sys1 = System.from_file(context.get_fn('test/hf_sto3g.fchk'), chk=chk)
     ar_olp = sys1.get_overlap()._array
     ar_kin = sys1.get_kinetic()._array
     ar_na = sys1.get_nuclear_attraction()._array
     ar_er = sys1.get_electron_repulsion()._array
     # manually put er integrals in checkpoint, not done by default
-    sys1.update_chk('operators.er')
+    sys1.update_chk('cache.er')
     del sys1
     sys1 = System.from_file(chk)
-    assert 'olp' in sys1.operators
-    assert 'kin' in sys1.operators
-    assert 'na' in sys1.operators
-    assert 'er' in sys1.operators
+    assert 'olp' in sys1.cache
+    assert 'kin' in sys1.cache
+    assert 'na' in sys1.cache
+    assert 'er' in sys1.cache
     assert (ar_olp == sys1.get_overlap()._array).all()
     assert (ar_kin == sys1.get_kinetic()._array).all()
     assert (ar_na == sys1.get_nuclear_attraction()._array).all()
@@ -177,24 +177,24 @@ def test_chk_guess_scf_cs():
     e = sys.wfn.exp_alpha._energies
     dma = sys.wfn.dm_alpha._array
     ham.compute()
-    energy = sys.props['energy']
-    energy_kin = sys.props['energy_kin']
-    energy_hartree = sys.props['energy_hartree']
-    energy_exchange_hartree_fock = sys.props['energy_exchange_hartree_fock']
-    energy_ne = sys.props['energy_ne']
-    energy_nn = sys.props['energy_nn']
+    energy = sys.extra['energy']
+    energy_kin = sys.extra['energy_kin']
+    energy_hartree = sys.extra['energy_hartree']
+    energy_exchange_hartree_fock = sys.extra['energy_exchange_hartree_fock']
+    energy_ne = sys.extra['energy_ne']
+    energy_nn = sys.extra['energy_nn']
     del sys
     del ham
     sys = System.from_file(chk)
     assert (sys.wfn.exp_alpha._coeffs == c).all()
     assert (sys.wfn.exp_alpha._energies == e).all()
     assert (sys.wfn.dm_alpha._array == dma).all()
-    assert sys.props['energy'] == energy
-    assert sys.props['energy_kin'] == energy_kin
-    assert sys.props['energy_hartree'] == energy_hartree
-    assert sys.props['energy_exchange_hartree_fock'] == energy_exchange_hartree_fock
-    assert sys.props['energy_ne'] == energy_ne
-    assert sys.props['energy_nn'] == energy_nn
+    assert sys.extra['energy'] == energy
+    assert sys.extra['energy_kin'] == energy_kin
+    assert sys.extra['energy_hartree'] == energy_hartree
+    assert sys.extra['energy_exchange_hartree_fock'] == energy_exchange_hartree_fock
+    assert sys.extra['energy_ne'] == energy_ne
+    assert sys.extra['energy_nn'] == energy_nn
 
 
 def test_chk_guess_scf_os():
@@ -227,12 +227,12 @@ def test_chk_guess_scf_os():
     dma = sys.wfn.dm_alpha._array
     dmb = sys.wfn.dm_beta._array
     ham.compute()
-    energy = sys.props['energy']
-    energy_kin = sys.props['energy_kin']
-    energy_hartree = sys.props['energy_hartree']
-    energy_exchange_hartree_fock = sys.props['energy_exchange_hartree_fock']
-    energy_ne = sys.props['energy_ne']
-    energy_nn = sys.props['energy_nn']
+    energy = sys.extra['energy']
+    energy_kin = sys.extra['energy_kin']
+    energy_hartree = sys.extra['energy_hartree']
+    energy_exchange_hartree_fock = sys.extra['energy_exchange_hartree_fock']
+    energy_ne = sys.extra['energy_ne']
+    energy_nn = sys.extra['energy_nn']
     del sys
     del ham
     sys = System.from_file(chk)
@@ -242,12 +242,12 @@ def test_chk_guess_scf_os():
     assert (sys.wfn.exp_beta._energies == be).all()
     assert (sys.wfn.dm_alpha._array == dma).all()
     assert (sys.wfn.dm_beta._array == dmb).all()
-    assert sys.props['energy'] == energy
-    assert sys.props['energy_kin'] == energy_kin
-    assert sys.props['energy_hartree'] == energy_hartree
-    assert sys.props['energy_exchange_hartree_fock'] == energy_exchange_hartree_fock
-    assert sys.props['energy_ne'] == energy_ne
-    assert sys.props['energy_nn'] == energy_nn
+    assert sys.extra['energy'] == energy
+    assert sys.extra['energy_kin'] == energy_kin
+    assert sys.extra['energy_hartree'] == energy_hartree
+    assert sys.extra['energy_exchange_hartree_fock'] == energy_exchange_hartree_fock
+    assert sys.extra['energy_ne'] == energy_ne
+    assert sys.extra['energy_nn'] == energy_nn
 
 
 def test_hdf5_low():
@@ -292,12 +292,12 @@ def test_cube():
     sys1 = System.from_file(fn_cube, chk=chk)
     sys2 = System.from_file(chk)
 
-    g1 = sys1.props['ugrid']
-    g2 = sys2.props['ugrid']
+    g1 = sys1.extra['ugrid']
+    g2 = sys2.extra['ugrid']
     assert (g1.origin == g2.origin).all()
     assert (g1.grid_cell.rvecs == g2.grid_cell.rvecs).all()
     assert (g1.shape == g2.shape).all()
     assert (g1.pbc == g2.pbc).all()
 
-    assert (sys1.props['cube_data'] == sys2.props['cube_data']).all()
+    assert (sys1.extra['cube_data'] == sys2.extra['cube_data']).all()
     assert (sys1.pseudo_numbers == sys2.pseudo_numbers).all()

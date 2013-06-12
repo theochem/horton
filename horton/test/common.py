@@ -196,10 +196,10 @@ def compare_all_dms(wfn1, wfn2):
 
 
 def compare_one_body(sys1, sys2, key):
-    if key in sys1.operators:
-        assert key in sys2.operators
-        op1 = sys1.operators[key]
-        op2 = sys2.operators[key]
+    if key in sys1.cache:
+        assert key in sys2.cache
+        op1 = sys1.cache[key]
+        op2 = sys2.cache[key]
         if isinstance(op1, DenseOneBody):
             assert isinstance(op2, DenseOneBody)
             assert op1.nbasis == op2.nbasis
@@ -207,14 +207,14 @@ def compare_one_body(sys1, sys2, key):
         else:
             raise NotImplementedError
     else:
-        assert key not in sys2.operators
+        assert key not in sys2.cache
 
 
 def compare_two_body(sys1, sys2, key):
-    if key in sys1.operators:
-        assert key in sys2.operators
-        op1 = sys1.operators[key]
-        op2 = sys2.operators[key]
+    if key in sys1.cache:
+        assert key in sys2.cache
+        op1 = sys1.cache[key]
+        op2 = sys2.cache[key]
         if isinstance(op1, DenseTwoBody):
             assert isinstance(op2, DenseTwoBody)
             assert op1.nbasis == op2.nbasis
@@ -222,7 +222,7 @@ def compare_two_body(sys1, sys2, key):
         else:
             raise NotImplementedError
     else:
-        assert key not in sys2.operators
+        assert key not in sys2.cache
 
 
 def compare_occ_model(occ_model1, occ_model2):

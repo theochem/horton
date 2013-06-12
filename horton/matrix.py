@@ -104,6 +104,9 @@ class LinalgObject(object):
     def apply_basis_permutation(self, permutation):
         raise NotImplementedError
 
+    def apply_basis_signs(self, signs):
+        raise NotImplementedError
+
     @classmethod
     def from_hdf5(cls, grp, lf):
         raise NotImplementedError
@@ -628,6 +631,9 @@ class DenseTwoBody(LinalgObject):
         if not isinstance(output, DenseOneBody):
             raise TypeError('The output argument must be a DenseOneBody class')
         output._array[:] = np.tensordot(self._array, dm._array, ([1,2], [0,1]))
+
+    def reset(self):
+        self._array[:] = 0.0
 
     def apply_basis_permutation(self, permutation):
         '''Reorder the coefficients for a given permutation of basis functions.

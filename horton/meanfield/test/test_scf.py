@@ -51,11 +51,11 @@ def test_scf_cs():
 
     ham.compute()
     # compare with g09
-    assert abs(sys.props['energy'] - -9.856961609951867E+01) < 1e-8
-    assert abs(sys.props['energy_kin'] - 9.766140786239E+01) < 2e-7
-    assert abs(sys.props['energy_hartree'] + sys.props['energy_exchange_hartree_fock'] - 4.561984106482E+01) < 1e-7
-    assert abs(sys.props['energy_ne'] - -2.465756615329E+02) < 2e-7
-    assert abs(sys.props['energy_nn'] - 4.7247965053) < 1e-8
+    assert abs(sys.extra['energy'] - -9.856961609951867E+01) < 1e-8
+    assert abs(sys.extra['energy_kin'] - 9.766140786239E+01) < 2e-7
+    assert abs(sys.extra['energy_hartree'] + sys.extra['energy_exchange_hartree_fock'] - 4.561984106482E+01) < 1e-7
+    assert abs(sys.extra['energy_ne'] - -2.465756615329E+02) < 2e-7
+    assert abs(sys.extra['energy_nn'] - 4.7247965053) < 1e-8
 
 
 def test_scf_os():
@@ -83,11 +83,11 @@ def test_scf_os():
 
     ham.compute()
     # compare with g09
-    assert abs(sys.props['energy'] - -7.687331212191962E+00) < 1e-8
-    assert abs(sys.props['energy_kin'] - 7.640603924034E+00) < 2e-7
-    assert abs(sys.props['energy_hartree'] + sys.props['energy_exchange_hartree_fock'] - 2.114420907894E+00) < 1e-7
-    assert abs(sys.props['energy_ne'] - -1.811548789281E+01) < 2e-7
-    assert abs(sys.props['energy_nn'] - 0.6731318487) < 1e-8
+    assert abs(sys.extra['energy'] - -7.687331212191962E+00) < 1e-8
+    assert abs(sys.extra['energy_kin'] - 7.640603924034E+00) < 2e-7
+    assert abs(sys.extra['energy_hartree'] + sys.extra['energy_exchange_hartree_fock'] - 2.114420907894E+00) < 1e-7
+    assert abs(sys.extra['energy_ne'] - -1.811548789281E+01) < 2e-7
+    assert abs(sys.extra['energy_nn'] - 0.6731318487) < 1e-8
 
 
 def test_scf_oda_water_hfs_321g():
@@ -115,11 +115,11 @@ def test_scf_oda_water_hfs_321g():
             ])
 
             assert abs(sys.wfn.exp_alpha.energies - expected_energies).max() < 2e-4
-            assert abs(sys.props['energy_ne'] - -1.977921986200E+02) < 1e-7
-            assert abs(sys.props['energy_kin'] - 7.525067610865E+01) < 1e-9
-            assert abs(sys.props['energy_hartree'] + sys.props['energy_exchange_dirac'] - 3.864299848058E+01) < 1e-4
-            assert abs(sys.props['energy'] - -7.474134898935590E+01) < 1e-4
-            assert abs(sys.props['energy_nn'] - 9.1571750414) < 2e-8
+            assert abs(sys.extra['energy_ne'] - -1.977921986200E+02) < 1e-7
+            assert abs(sys.extra['energy_kin'] - 7.525067610865E+01) < 1e-9
+            assert abs(sys.extra['energy_hartree'] + sys.extra['energy_exchange_dirac'] - 3.864299848058E+01) < 1e-4
+            assert abs(sys.extra['energy'] - -7.474134898935590E+01) < 1e-4
+            assert abs(sys.extra['energy_nn'] - 9.1571750414) < 2e-8
 
     # Converge from scratch
     guess_hamiltonian_core(sys)
@@ -127,10 +127,10 @@ def test_scf_oda_water_hfs_321g():
     assert converge_scf_oda(ham, threshold=1e-6)
     assert convergence_error(ham) < 1e-5
 
-    assert abs(sys.props['energy_ne'] - -1.977921986200E+02) < 1e-4
-    assert abs(sys.props['energy_kin'] - 7.525067610865E+01) < 3e-5
-    assert abs(sys.props['energy_hartree'] + sys.props['energy_exchange_dirac'] - 3.864299848058E+01) < 1e-4
-    assert abs(sys.props['energy'] - -7.474134898935590E+01) < 1e-4
+    assert abs(sys.extra['energy_ne'] - -1.977921986200E+02) < 1e-4
+    assert abs(sys.extra['energy_kin'] - 7.525067610865E+01) < 3e-5
+    assert abs(sys.extra['energy_hartree'] + sys.extra['energy_exchange_dirac'] - 3.864299848058E+01) < 1e-4
+    assert abs(sys.extra['energy'] - -7.474134898935590E+01) < 1e-4
 
 
 def test_scf_oda_water_hf_321g():

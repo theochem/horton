@@ -120,10 +120,9 @@ def main():
     if log.do_medium:
         log('Loading potential array')
     sys = System.from_file(args.cube)
-    esp = sys.props['cube_data']
-    # Make grid with correct pbc
-    ugrid = UniformGrid( sys.props['ugrid'].origin, sys.props['ugrid'].grid_cell.rvecs ,
-                                    sys.props['ugrid'].shape, parse_pbc(args.pbc) )
+    ugrid = sys.extra['ugrid']
+    ugrid.pbc[:] = parse_pbc(args.pbc) # correct pbc
+    esp = sys.extra['cube_data']
 
     # Reduce the grid if required
     if args.stride > 1:
@@ -217,7 +216,7 @@ def main():
     with safe_open_h5(fn_h5) as f:
         # Store essential system info
         sys_grp = f.require_group('system')
-        del sys.props['cube_data'] # first drop potentially large array
+        del sys.extra['cube_data'] # first drop potentially large array
         sys.to_file(sys_grp)
 
         # Store results
