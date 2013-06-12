@@ -29,6 +29,8 @@
 import numpy as np, h5py as h5, os
 from horton.log import log
 
+from horton.matrix import LinalgObject
+
 
 __all__ = ['JustOnceClass', 'just_once', 'Cache', 'ArrayStore']
 
@@ -88,6 +90,8 @@ class CacheItem(object):
                 raise TypeError('Add least one extra parameter needed to initialize a linalg thing')
             if alloc[1] == 'one_body':
                 return cls(alloc[0].create_one_body(*alloc[2:]))
+            elif alloc[1] == 'two_body':
+                return cls(alloc[0].create_two_body(*alloc[2:]))
             elif alloc[1] == 'expansion':
                 return cls(alloc[0].create_expansion(*alloc[2:]))
             else:
@@ -113,12 +117,15 @@ class CacheItem(object):
             if alloc[1] == 'one_body':
                 if not (len(alloc) == 2 or (len(alloc) == 3 and alloc[2] == self._value.nbasis)):
                     raise TypeError('The requested one-body operator is not compatible with the cached one.')
+            elif alloc[1] == 'two_body':
+                if not (len(alloc) == 2 or (len(alloc) == 3 and alloc[2] == self._value.nbasis)):
+                    raise TypeError('The requested two-body operator is not compatible with the cached one.')
             elif alloc[1] == 'expansion':
                 if not (len(alloc) == 2 or (len(alloc) == 3 and alloc[2] == self._value.nbasis) or
                         (len(alloc) == 4 and alloc[2] == self._value.nbasis and alloc[3] == self._value.nfn)):
                     raise TypeError('The requested expansion is not compatible with the cached one.')
             else:
-                raise TypeError('For the moment, only one_body stuff is supported.')
+                raise TypeError('Not supported: %s.' % alloc[1])
         else:
             # assume a floating point array
             if not (isinstance(self._value, np.ndarray) and
@@ -139,10 +146,8 @@ class CacheItem(object):
     valid = property(_get_valid)
 
     def _get_resettable(self):
-        from horton.matrix import OneBody, Expansion
         return isinstance(self._value, np.ndarray) or \
-               isinstance(self._value, OneBody) or \
-               isinstance(self._value, Expansion)
+               isinstance(self._value, LinalgObject)
 
     resettable = property(_get_resettable)
 
@@ -151,10 +156,9 @@ class CacheItem(object):
         self.reset()
 
     def reset(self):
-        from horton.matrix import OneBody
         if isinstance(self._value, np.ndarray):
             self._value[:] = 0.0
-        elif isinstance(self._value, OneBody):
+        elif isinstance(self._value, LinalgObject):
             self._value.reset()
         else:
             raise TypeError('Do not know how to reset %s.' % self._value)
@@ -242,6 +246,12 @@ class Cache(object):
             item._valid = True # as if it is newly allocated
             return item.value, new
 
+    def get(self, *key, **kwargs):
+        default = kwargs.pop('default', None)
+        if len(kwargs) > 0:
+            raise TypeError('Unexpected argument: %s' % kwargs.popkey())
+        return self.load(*key, default=default)
+
     def __contains__(self, key):
         key = normalize_key(key)
         item = self._store.get(key)
@@ -290,6 +300,33 @@ class Cache(object):
         old = normalize_key(old)
         self._store[new] = self._store[old]
         del self._store[old]
+
+    def __len__(self):
+        return sum(item.valid for item in self._store.itervalues())
+
+    def __getitem__(self, key):
+        return self.get(key)
+
+    def __setitem__(self, key, value):
+        return self.dump(key, value)
+
+    def __iter__(self):
+        return self.iterkeys()
+
+    def iterkeys(self):
+        for key, item in self._store.iteritems():
+            if item.valid:
+                yield key
+
+    def itervalues(self):
+        for item in self._store.itervalues():
+            if item.valid:
+                yield item.value
+
+    def iteritems(self):
+        for key, item in self._store.iteritems():
+            if item.valid:
+                yield key, item.value
 
 
 class ArrayStore(object):

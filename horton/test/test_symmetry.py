@@ -77,7 +77,7 @@ def test_identify():
     sys1 = System.from_file(context.get_fn('test/lta_gulp.cif'))
     sys2 = System.from_file(context.get_fn('test/aelta.cube'))
     sys2._cell = sys1.cell # The cell parameters in aelta.cube are rubbish.
-    sym = sys1.props['symmetry']
+    sym = sys1.extra['symmetry']
     links = sym.identify(sys2)
     for i in xrange(sys2.natom):
         if sys2.numbers[i] == 14:
@@ -96,7 +96,7 @@ def test_symmetry_error():
     sys1 = System.from_file(context.get_fn('test/lta_gulp.cif'))
     sys2 = System.from_file(context.get_fn('test/lta_iza.cif'))
     try:
-        sys1.props['symmetry'].identify(sys2)
+        sys1.extra['symmetry'].identify(sys2)
         assert False
     except SymmetryError:
         pass

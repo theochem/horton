@@ -9,3 +9,6 @@ for fn_h5 in glob('*.h5'):
             f['wfn'].attrs['class'] = 'UnrestrictedWFN'
         elif f['wfn'].attrs['class'] == 'ClosedShellWFN':
             f['wfn'].attrs['class'] = 'RestrictedWFN'
+        if 'props' in f:
+            f['extra'] = f['props']
+            del f['props']

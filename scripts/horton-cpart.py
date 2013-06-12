@@ -108,9 +108,9 @@ def main():
 
     # Load the system
     sys = System.from_file(args.cube)
-    ugrid = sys.props['ugrid']
+    ugrid = sys.extra['ugrid']
     ugrid.pbc[:] = parse_pbc(args.pbc)
-    moldens = sys.props['cube_data']
+    moldens = sys.extra['cube_data']
 
     # Reduce the grid if required
     if args.stride > 1 or args.chop > 0:
@@ -138,14 +138,14 @@ def main():
     # Do a symmetry analysis if requested.
     if args.symmetry is not None:
         sys_sym = System.from_file(args.symmetry)
-        sym = sys_sym.props.get('symmetry')
+        sym = sys_sym.extra.get('symmetry')
         if sym is None:
             raise ValueError('No symmetry information found in %s.' % args.symmetry)
         sys_results = dict((name, cpart[name]) for name in names)
         sym_results = symmetry_analysis(sys, sym, sys_results)
         cpart.cache.dump('symmetry', sym_results)
         names.append('symmetry')
-        sys.props['symmetry'] = sym
+        sys.extra['symmetry'] = sym
 
     write_part_output(fn_h5, 'cpart', cpart, grp_name, names, args)
 

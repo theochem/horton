@@ -196,8 +196,8 @@ def write_part_output(fn_h5, label, part, grp_name, names, args):
     with safe_open_h5(fn_h5) as f:
         # Store system
         sys_grp = f.require_group('system')
-        if 'cube_data' in part.system.props:
-            del part.system.props['cube_data'] # drop potentially large array
+        if 'cube_data' in part.system.extra:
+            del part.system.extra['cube_data'] # drop potentially large array
         part.system.to_file(sys_grp)
 
         # Store results

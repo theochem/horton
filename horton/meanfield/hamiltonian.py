@@ -114,14 +114,14 @@ class Hamiltonian(object):
             energy = term.compute()
             if log.do_high:
                 log('%30s  %20.10f' % (term.label, energy))
-            self.system._props['energy_%s' % term.label] = energy
+            self.system.extra['energy_%s' % term.label] = energy
             total += energy
 
         energy = self.system.compute_nucnuc()
         total += energy
         # Store result in chk file
-        self.system._props['energy'] = total
-        self.system.update_chk('props')
+        self.system.extra['energy'] = total
+        self.system.update_chk('extra')
 
         if log.do_high:
             log('%30s  %20.10f' % ('nn', energy))

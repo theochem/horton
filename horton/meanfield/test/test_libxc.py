@@ -45,9 +45,9 @@ def test_fock_n2_hfs_sto3g():
 
     # Check of the libxc energy matches our implementation
     energy1 = ham1.compute()
-    ex1 = sys.props['energy_libxc_lda_x']
+    ex1 = sys.extra['energy_libxc_lda_x']
     energy2 = ham2.compute()
-    ex2 = sys.props['energy_exchange_dirac']
+    ex2 = sys.extra['energy_exchange_dirac']
     assert abs(ex1 - ex2) < 1e-10
     assert abs(energy1 - energy2) < 1e-10
 
@@ -71,11 +71,11 @@ def test_fock_n2_hfs_sto3g():
 
     ham1.compute()
     # compare with g09
-    assert abs(sys.props['energy_ne'] - -2.981579553570E+02) < 1e-5
-    assert abs(sys.props['energy_kin'] - 1.061620887711E+02) < 1e-5
-    assert abs(sys.props['energy_hartree'] + sys.props['energy_libxc_lda_x'] - 6.247259253877E+01) < 1e-4
-    assert abs(sys.props['energy'] - -106.205213597) < 1e-4
-    assert abs(sys.props['energy_nn'] - 23.3180604505) < 1e-8
+    assert abs(sys.extra['energy_ne'] - -2.981579553570E+02) < 1e-5
+    assert abs(sys.extra['energy_kin'] - 1.061620887711E+02) < 1e-5
+    assert abs(sys.extra['energy_hartree'] + sys.extra['energy_libxc_lda_x'] - 6.247259253877E+01) < 1e-4
+    assert abs(sys.extra['energy'] - -106.205213597) < 1e-4
+    assert abs(sys.extra['energy_nn'] - 23.3180604505) < 1e-8
 
 
 def test_hamiltonian_h3_hfs_321g():
@@ -98,9 +98,9 @@ def test_hamiltonian_h3_hfs_321g():
 
     # Check of the libxc energy matches our implementation
     energy1 = ham1.compute()
-    ex1 = sys.props['energy_libxc_lda_x']
+    ex1 = sys.extra['energy_libxc_lda_x']
     energy2 = ham2.compute()
-    ex2 = sys.props['energy_exchange_dirac']
+    ex2 = sys.extra['energy_exchange_dirac']
     assert abs(ex1 - ex2) < 1e-10
     assert abs(energy1 - energy2) < 1e-10
 
@@ -128,11 +128,11 @@ def test_hamiltonian_h3_hfs_321g():
 
     ham1.compute()
     # compare with g09
-    assert abs(sys.props['energy_ne'] - -6.832069993374E+00) < 1e-5
-    assert abs(sys.props['energy_kin'] - 1.870784279014E+00) < 1e-5
-    assert abs(sys.props['energy_hartree'] + sys.props['energy_libxc_lda_x'] - 1.658810998195E+00) < 1e-6
-    assert abs(sys.props['energy'] - -1.412556114057104E+00) < 1e-5
-    assert abs(sys.props['energy_nn'] - 1.8899186021) < 1e-8
+    assert abs(sys.extra['energy_ne'] - -6.832069993374E+00) < 1e-5
+    assert abs(sys.extra['energy_kin'] - 1.870784279014E+00) < 1e-5
+    assert abs(sys.extra['energy_hartree'] + sys.extra['energy_libxc_lda_x'] - 1.658810998195E+00) < 1e-6
+    assert abs(sys.extra['energy'] - -1.412556114057104E+00) < 1e-5
+    assert abs(sys.extra['energy_nn'] - 1.8899186021) < 1e-8
 
 
 def test_co_pbe_sto3g():
@@ -145,7 +145,7 @@ def test_co_pbe_sto3g():
 
     # Test energy before scf
     ham.compute()
-    assert abs(sys.props['energy'] - -1.116465967841901E+02) < 1e-4
+    assert abs(sys.extra['energy'] - -1.116465967841901E+02) < 1e-4
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
@@ -167,11 +167,11 @@ def test_co_pbe_sto3g():
 
     ham.compute()
     # compare with g09
-    assert abs(sys.props['energy_ne'] - -3.072370116827E+02) < 1e-2
-    assert abs(sys.props['energy_kin'] - 1.103410779827E+02) < 1e-2
-    assert abs(sys.props['energy_hartree'] + sys.props['energy_libxc_gga_x_pbe'] + sys.props['energy_libxc_gga_c_pbe'] - 6.273115782683E+01) < 1e-2
-    assert abs(sys.props['energy'] - -1.116465967841901E+02) < 1e-4
-    assert abs(sys.props['energy_nn'] - 22.5181790889) < 1e-7
+    assert abs(sys.extra['energy_ne'] - -3.072370116827E+02) < 1e-2
+    assert abs(sys.extra['energy_kin'] - 1.103410779827E+02) < 1e-2
+    assert abs(sys.extra['energy_hartree'] + sys.extra['energy_libxc_gga_x_pbe'] + sys.extra['energy_libxc_gga_c_pbe'] - 6.273115782683E+01) < 1e-2
+    assert abs(sys.extra['energy'] - -1.116465967841901E+02) < 1e-4
+    assert abs(sys.extra['energy_nn'] - 22.5181790889) < 1e-7
 
 
 def test_h3_pbe_321g():
@@ -184,7 +184,7 @@ def test_h3_pbe_321g():
 
     # compute the energy before converging
     ham.compute()
-    assert abs(sys.props['energy'] - -1.593208400939354E+00) < 1e-5
+    assert abs(sys.extra['energy'] - -1.593208400939354E+00) < 1e-5
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
@@ -210,11 +210,11 @@ def test_h3_pbe_321g():
 
     ham.compute()
     # compare with g09
-    assert abs(sys.props['energy_ne'] - -6.934705182067E+00) < 1e-5
-    assert abs(sys.props['energy_kin'] - 1.948808793424E+00) < 1e-5
-    assert abs(sys.props['energy_hartree'] + sys.props['energy_libxc_gga_x_pbe'] + sys.props['energy_libxc_gga_c_pbe'] - 1.502769385597E+00) < 1e-5
-    assert abs(sys.props['energy'] - -1.593208400939354E+00) < 1e-5
-    assert abs(sys.props['energy_nn'] - 1.8899186021) < 1e-8
+    assert abs(sys.extra['energy_ne'] - -6.934705182067E+00) < 1e-5
+    assert abs(sys.extra['energy_kin'] - 1.948808793424E+00) < 1e-5
+    assert abs(sys.extra['energy_hartree'] + sys.extra['energy_libxc_gga_x_pbe'] + sys.extra['energy_libxc_gga_c_pbe'] - 1.502769385597E+00) < 1e-5
+    assert abs(sys.extra['energy'] - -1.593208400939354E+00) < 1e-5
+    assert abs(sys.extra['energy_nn'] - 1.8899186021) < 1e-8
 
 
 def test_cubic_interpolation_c_pbe_cs():

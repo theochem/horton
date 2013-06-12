@@ -169,7 +169,7 @@ def test_custom_grid_linear_observable():
         assert converge_scf_oda(ham)
         assert convergence_error(ham) < 1e-8
         energy1 = ham.compute()
-        energy1 -= sys.props['energy_pert']
+        energy1 -= sys.extra['energy_pert']
 
         assert energy1 > energy0
         if energy1_old is None:

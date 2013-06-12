@@ -116,8 +116,8 @@ def load_rho(fn_cube, ref_ugrid, stride, chop):
     '''
     # Load cube
     sys = System.from_file(fn_cube)
-    rho = sys.props['cube_data']
-    ugrid = sys.props['ugrid']
+    rho = sys.extra['cube_data']
+    ugrid = sys.extra['ugrid']
     # Reduce grid size
     if stride > 1:
         rho, ugrid = reduce_data(rho, ugrid, stride, chop)
@@ -146,7 +146,7 @@ def save_weights(fn_cube, sys, ugrid, weights):
     '''
     # construct a new system that contains all info for the cube file
     my_sys = System(sys.coordinates, sys.numbers, pseudo_numbers=sys.pseudo_numbers)
-    my_sys.props['ugrid'] = ugrid
-    my_sys.props['cube_data'] = weights
+    my_sys.extra['ugrid'] = ugrid
+    my_sys.extra['cube_data'] = weights
     # save to file
     my_sys.to_file(fn_cube)

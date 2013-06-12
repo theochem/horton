@@ -64,7 +64,7 @@ class ProAtomRecord(object):
             nel = int(np.round(atgrid.rgrid.integrate(rho)))
 
         # Get all the other information from the atom
-        energy = system.props['energy']
+        energy = system.extra['energy']
         try:
             homo_energy = system.wfn.homo_energy
         except AttributeError:

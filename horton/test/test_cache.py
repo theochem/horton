@@ -54,14 +54,40 @@ def test_just_once():
     assert e.counter == 3
 
 
-def test_cache():
+def test_cache_basics1():
     c = Cache()
     c.dump('foo', 5)
+    assert c['foo'] == 5
+    assert c[('foo',)] == 5
     assert c.load('foo') == 5
+    assert c.load(('foo',)) == 5
     c.dump('foo', 4, 6)
+    assert c['foo', 4] == 6
+    assert c[('foo', 4)] == 6
     assert c.load('foo', 4) == 6
+    assert c.load(('foo', 4)) == 6
+    assert len(c) == 2
     c.invalidate_all()
     assert len(c._store) == 0
+    assert len(c) == 0
+
+
+def test_cache_basics2():
+    c = Cache()
+    c['foo'] = 5
+    assert c['foo'] == 5
+    assert c[('foo',)] == 5
+    assert c.load('foo') == 5
+    assert c.load(('foo',)) == 5
+    c['foo', 4] = 6
+    assert c['foo', 4] == 6
+    assert c[('foo', 4)] == 6
+    assert c.load('foo', 4) == 6
+    assert c.load(('foo', 4)) == 6
+    assert len(c) == 2
+    c.invalidate_all()
+    assert len(c._store) == 0
+    assert len(c) == 0
 
 
 def test_cache_alloc1():
@@ -158,6 +184,66 @@ def test_cache_default():
         pass
 
 
+def test_dense_expansion():
+    from horton.matrix import DenseLinalgFactory, DenseExpansion
+    lf = DenseLinalgFactory()
+    c = Cache()
+    op1, new = c.load('egg', alloc=(lf, 'expansion', 10, 9))
+    assert new
+    assert isinstance(op1, DenseExpansion)
+    assert op1.nbasis == 10
+    op2 = c.load('egg')
+    assert op1 is op2
+    op3, new = c.load('egg', alloc=(lf, 'expansion', 10, 9))
+    assert not new
+    assert op1 is op3
+    # things that should not work
+    try:
+        op4, new = c.load('egg', alloc=(lf, 'expansion', 5))
+        assert False
+    except TypeError:
+        pass
+    try:
+        op4, new = c.load('egg', alloc=(lf, 'expansion', 10, 5))
+        assert False
+    except TypeError:
+        pass
+    try:
+        op4, new = c.load('egg', alloc=5)
+        assert False
+    except TypeError:
+        pass
+    # after invalidation
+    op1.coeffs[1, 2] = 5.2
+    c.invalidate_all()
+    assert op1.coeffs[1,2] == 0.0
+    try:
+        op4 = c.load('egg')
+        assert False
+    except KeyError:
+        pass
+    try:
+        op4, new = c.load('egg', alloc=(lf, 'expansion', 5))
+        assert False
+    except TypeError:
+        pass
+    try:
+        op4, new = c.load('egg', alloc=(lf, 'expansion', 10, 5))
+        assert False
+    except TypeError:
+        pass
+    try:
+        op4, new = c.load('egg', alloc=5)
+        assert False
+    except TypeError:
+        pass
+    op4, new = c.load('egg', alloc=(lf, 'expansion', 10))
+    assert new
+    assert op1 is op4
+    op5 = c.load('egg')
+    assert op1 is op5
+
+
 def test_dense_one_body():
     from horton.matrix import DenseLinalgFactory, DenseOneBody
     lf = DenseLinalgFactory()
@@ -202,6 +288,56 @@ def test_dense_one_body():
     except TypeError:
         pass
     op4, new = c.load('egg', alloc=(lf, 'one_body', 10))
+    assert new
+    assert op1 is op4
+    op5 = c.load('egg')
+    assert op1 is op5
+
+
+def test_dense_two_body():
+    from horton.matrix import DenseLinalgFactory, DenseTwoBody
+    lf = DenseLinalgFactory()
+    c = Cache()
+    op1, new = c.load('egg', alloc=(lf, 'two_body', 10))
+    assert new
+    assert isinstance(op1, DenseTwoBody)
+    assert op1.nbasis == 10
+    op2 = c.load('egg')
+    assert op1 is op2
+    op3, new = c.load('egg', alloc=(lf, 'two_body', 10))
+    assert not new
+    assert op1 is op3
+    # things that should not work
+    try:
+        op4, new = c.load('egg', alloc=(lf, 'two_body', 5))
+        assert False
+    except TypeError:
+        pass
+    try:
+        op4, new = c.load('egg', alloc=5)
+        assert False
+    except TypeError:
+        pass
+    # after invalidation
+    op1.set_element(1, 2, 1, 2, 5.2)
+    c.invalidate_all()
+    assert op1._array[1,2,1,2] == 0.0
+    try:
+        op4 = c.load('egg')
+        assert False
+    except KeyError:
+        pass
+    try:
+        op4, new = c.load('egg', alloc=(lf, 'two_body', 5))
+        assert False
+    except TypeError:
+        pass
+    try:
+        op4, new = c.load('egg', alloc=5)
+        assert False
+    except TypeError:
+        pass
+    op4, new = c.load('egg', alloc=(lf, 'two_body', 10))
     assert new
     assert op1 is op4
     op5 = c.load('egg')
@@ -285,6 +421,17 @@ def test_cache_dump_unpack():
     c = Cache()
     c.dump(('foo',), 5)
     assert 'foo' in c
+
+
+def test_cache_iter():
+    c = Cache()
+    c.dump('foo', 5)
+    c.dump('bar', 6)
+    assert sorted(c.iterkeys()) == ['bar', 'foo']
+    assert sorted(c.itervalues()) == [5, 6]
+    assert sorted(c.iteritems()) == [('bar', 6), ('foo', 5)]
+    assert len(c) == 2
+    assert sorted(c) == ['bar', 'foo']
 
 
 def check_array_store_common(mode, fn):

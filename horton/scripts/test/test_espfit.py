@@ -55,8 +55,8 @@ def test_scripts():
     pbc = np.ones(3, int)
     ugrid = UniformGrid(origin, grid_rvecs, shape, pbc)
     cube_data = np.random.uniform(-1, 1, shape)
-    props = {'ugrid': ugrid, 'cube_data': cube_data}
-    sys = System(coordinates, numbers, props=props)
+    extra = {'ugrid': ugrid, 'cube_data': cube_data}
+    sys = System(coordinates, numbers, extra=extra)
 
     # Write the cube file to the tmpdir and run scripts
     tmpdir = tempfile.mkdtemp('horton.scripts.test.test_espfit.test_scripts')
@@ -83,8 +83,8 @@ def test_scripts_symmetry():
         check_files(tmpdir, ['esp.cube.h5'])
         check_script('horton-esp-fit.py esp.cube.h5:espfit/cost_r1 default --symmetry=lta_gulp.cif', tmpdir)
         with h5.File(os.path.join(tmpdir, 'esp.cube.h5')) as f:
-            assert 'symmetry' in f['system/props']
+            assert 'symmetry' in f['system/extra']
             assert 'symmetry' in f['espfit/cost_r1/default']
-            assert f['espfit/cost_r1/default/symmetry/charges'].shape == (sys.props['symmetry'].natom, 2)
+            assert f['espfit/cost_r1/default/symmetry/charges'].shape == (sys.extra['symmetry'].natom, 2)
     finally:
         shutil.rmtree(tmpdir)

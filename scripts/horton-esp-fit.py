@@ -98,13 +98,13 @@ def main():
     # Perform a symmetry analysis if requested
     if args.symmetry is not None:
         sys_sym = System.from_file(args.symmetry)
-        sym = sys_sym.props.get('symmetry')
+        sym = sys_sym.extra.get('symmetry')
         if sym is None:
             raise ValueError('No symmetry information found in %s.' % args.symmetry)
         sys_results = {'charges': results['charges']}
         sym_results = symmetry_analysis(sys, sym, sys_results)
         results['symmetry'] = sym_results
-        sys.props['symmetry'] = sym
+        sys.extra['symmetry'] = sym
 
     # Store the results in an HDF5 file
     with safe_open_h5(fn_h5) as f:

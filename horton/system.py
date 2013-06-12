@@ -31,6 +31,7 @@
 import numpy as np
 import h5py as h5
 
+from horton.cache import Cache
 from horton.cext import compute_grid_nucpot, Cell
 from horton.io import load_system_args, dump_system
 from horton.log import log
@@ -41,12 +42,9 @@ from horton.periodic import periodic
 __all__ = ['System']
 
 
-# TODO: props and operators should be converted to a cache object that contains
-# all the stuff derived from the other attributes
-
 class System(object):
     def __init__(self, coordinates, numbers, obasis=None, wfn=None, lf=None,
-                 operators=None, props=None, cell=None, pseudo_numbers=None,
+                 cache=None, extra=None, cell=None, pseudo_numbers=None,
                  chk=None):
         """
            **Arguments:**
@@ -72,11 +70,16 @@ class System(object):
                 A LinalgFactory instance. When not given, a DenseLinalgFactory
                 is used by default.
 
-           operators
-                A dictionary with one- and two-body operators.
+           cache
+                A cache object with results obtained for the current cartesian
+                coordinates. When coordinates are updated, this cache must be
+                cleared with the invalidate_all method. This can be instance
+                of the Cache class or a dictionary. If a dictionary is given,
+                it is converted to a cache object.
 
-           props
-                A dictionary with computed properties.
+           extra
+                A dictionary with additional information about the system. The
+                keys must be strings.
 
            cell
                 A Cell object that describes the (generally triclinic) periodic
@@ -126,23 +129,29 @@ class System(object):
         if self._obasis is not None:
             self._lf.set_default_nbasis(self._obasis.nbasis)
         #
-        if operators is None:
-            self._operators = {}
+        if cache is None:
+            self._cache = Cache()
+        elif isinstance(cache, Cache):
+            self._cache = cache
+        elif isinstance(cache, dict):
+            self._cache = Cache()
+            for key, value in cache.iteritems():
+                self._cache.dump(key, value)
         else:
-            self._operators = operators
+            raise TypeError('Could not interpret the cache argument.')
         #
-        if props is None:
-            self._props = {}
+        if extra is None:
+            self._extra = {}
         else:
-            self._props = props
+            self._extra = extra
 
         # Some consistency checks
         if self.obasis is not None:
             if self._wfn is not None and self._obasis.nbasis != self._wfn.nbasis:
                 raise TypeError('The nbasis attributes of obasis and wfn are inconsistent.')
-            for key, op in self._operators.iteritems():
-                if op.nbasis != self._obasis.nbasis:
-                    raise TypeError('The nbasis attributes of the operator %s and obasis are inconsistent.')
+            for key, value in self._cache.iteritems():
+                if isinstance(value, LinalgObject) and value.nbasis != self._obasis.nbasis:
+                    raise TypeError('The nbasis attributes of the cached object \'%s\' and obasis are inconsistent.' % key)
 
         self._cell = cell
         self._pseudo_numbers = pseudo_numbers
@@ -196,17 +205,17 @@ class System(object):
 
     lf = property(_get_lf)
 
-    def _get_operators(self):
-        '''A dictionary with operators'''
-        return self._operators
+    def _get_cache(self):
+        '''A cache of intermediate results that depend on the coordinates'''
+        return self._cache
 
-    operators = property(_get_operators)
+    cache = property(_get_cache)
 
-    def _get_props(self):
-        '''A dictionary with computed properties.'''
-        return self._props
+    def _get_extra(self):
+        '''A dictionary with extra properties of the system.'''
+        return self._extra
 
-    props = property(_get_props)
+    extra = property(_get_extra)
 
     def _get_cell(self):
         '''A Cell object describing the periodic boundary conditions.'''
@@ -262,10 +271,11 @@ class System(object):
         # orbital coefficients and the density matrices.
         permutation = constructor_args.get('permutation')
         if permutation is not None:
-            operators = constructor_args.get('operators')
-            if operators is not None:
-                for op in operators.itervalues():
-                    op.apply_basis_permutation(permutation)
+            cache = constructor_args.get('cache')
+            if cache is not None:
+                for value in cache.itervalues():
+                    if isinstance(value, LinalgObject):
+                        value.apply_basis_permutation(permutation)
             wfn = constructor_args.get('wfn')
             if wfn is not None:
                 wfn.apply_basis_permutation(permutation)
@@ -275,10 +285,11 @@ class System(object):
         # orbitals
         signs = constructor_args.get('signs')
         if signs is not None:
-            operators = constructor_args.get('operators')
-            if operators is not None:
-                for op in operators.itervalues():
-                    op.apply_basis_signs(signs)
+            cache = constructor_args.get('cache')
+            if cache is not None:
+                for value in cache.itervalues():
+                    if isinstance(value, LinalgObject):
+                        value.apply_basis_signs(signs)
             wfn = constructor_args.get('wfn')
             if wfn is not None:
                 wfn.apply_basis_signs(signs)
@@ -298,10 +309,10 @@ class System(object):
                 ('Wavefunction', self._wfn),
                 ('Checkpoint file', self._chk),
             ])
-            if len(self._operators) > 0:
-                log('The following operators are present: %s' % (', '.join(self._operators.iterkeys())))
-            if len(self._props) > 0:
-                log('The following properties are present: %s' % (', '.join(self._props.iterkeys())))
+            if len(self._cache) > 0:
+                log('The following cached items are present: %s' % (', '.join(self._cache.iterkeys())))
+            if len(self._extra) > 0:
+                log('The following extra attributes are present: %s' % (', '.join(self._extra.iterkeys())))
             log.blank()
 
     def assign_chk(self, chk):
@@ -359,42 +370,34 @@ class System(object):
     charge = property(_get_charge)
 
     def get_overlap(self):
-        overlap = self._operators.get('olp')
-        if overlap is None:
-            overlap = self.lf.create_one_body()
+        overlap, new = self.cache.load('olp', alloc=(self.lf, 'one_body'))
+        if new:
             self.obasis.compute_overlap(overlap)
-            self._operators['olp'] = overlap
-            self.update_chk('operators.olp')
+            self.update_chk('cache.olp')
         return overlap
 
     def get_kinetic(self):
-        kinetic = self._operators.get('kin')
-        if kinetic is None:
-            kinetic = self.lf.create_one_body()
+        kinetic, new = self.cache.load('kin', alloc=(self.lf, 'one_body'))
+        if new:
             self.obasis.compute_kinetic(kinetic)
-            self._operators['kin'] = kinetic
-            self.update_chk('operators.kin')
+            self.update_chk('cache.kin')
         return kinetic
 
     def get_nuclear_attraction(self):
-        nuclear_attraction = self._operators.get('na')
-        if nuclear_attraction is None:
-            nuclear_attraction = self.lf.create_one_body()
+        nuclear_attraction, new = self.cache.load('na', alloc=(self.lf, 'one_body'))
+        if new:
             # TODO: ghost atoms and extra charges
             self.obasis.compute_nuclear_attraction(self.numbers.astype(float), self.coordinates, nuclear_attraction)
-            self._operators['na'] = nuclear_attraction
-            self.update_chk('operators.na')
+            self.update_chk('cache.na')
         return nuclear_attraction
 
     def get_electron_repulsion(self):
-        electron_repulsion = self._operators.get('er')
-        if electron_repulsion is None:
-            electron_repulsion = self.lf.create_two_body()
+        electron_repulsion, new = self.cache.load('er', alloc=(self.lf, 'two_body'))
+        if new:
             self.obasis.compute_electron_repulsion(electron_repulsion)
-            self._operators['er'] = electron_repulsion
             # ER integrals are not checkpointed by default because they are too heavy.
-            # Can be done manually by user if needed: ``system.update_chk('operators.er')``
-            #self.update_chk('operators.er')
+            # Can be done manually by user if needed: ``system.update_chk('cache.er')``
+            #self.update_chk('cache.er')
         return electron_repulsion
 
     def compute_grid_orbitals(self, points, iorbs=None, orbs=None, select='alpha'):
@@ -577,5 +580,5 @@ class System(object):
             for j in xrange(i):
                 distance = np.linalg.norm(self.coordinates[i]-self.coordinates[j])
                 result += self.numbers[i]*self.numbers[j]/distance
-        self._props['energy_nn'] = result
+        self._extra['energy_nn'] = result
         return result
