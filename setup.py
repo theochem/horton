@@ -30,6 +30,12 @@ from distutils.command.install_data import install_data
 from Cython.Distutils import build_ext
 
 
+
+libintdir = 'depends/libint-2.0.0-stable'
+libxcdir = 'depends/libxc-2.0.1'
+execfile('customize.py')
+
+
 def get_sources(dirname):
     # avoid accidental inclusion of in-place build files and inc files
     result = [fn for fn in glob('%s/*.cpp' % dirname)
@@ -103,8 +109,8 @@ setup(
         Extension("horton.gbasis.cext",
             sources=get_sources('horton/gbasis') + ['horton/moments.cpp'],
             depends=get_depends('horton/gbasis') + ['horton/moments.pxd', 'horton/moments.h'],
-            extra_objects=['depends/libint-2.0.0-stable/lib/libint2.a'],
-            include_dirs=['depends/libint-2.0.0-stable/include', np.get_include(), 'horton'],
+            extra_objects=['%s/lib/libint2.a' % libintdir],
+            include_dirs=['%s/include' % libintdir, np.get_include(), 'horton'],
             language="c++"),
         Extension("horton.grid.cext",
             sources=get_sources('horton/grid') + ['horton/cell.cpp'],
@@ -116,8 +122,8 @@ setup(
         Extension("horton.hamiltonian.cext",
             sources=get_sources('horton/hamiltonian'),
             depends=get_depends('horton/hamiltonian'),
-            extra_objects=['depends/libxc-2.0.1/src/.libs/libxc.a'],
-            include_dirs=['depends/libxc-2.0.1/src','depends/libxc-2.0.1', np.get_include()],
+            extra_objects=['%s/src/.libs/libxc.a' % libxcdir],
+            include_dirs=['%s/src' % libxcdir, libxcdir, np.get_include()],
             language="c++"),
         Extension("horton.espfit.cext",
             sources=get_sources('horton/espfit') + \
