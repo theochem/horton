@@ -412,9 +412,15 @@ def test_discard():
     c = Cache()
     c.dump('foo', 5)
     c.dump('bar', 6)
-    c.discard('foo')
+    c.invalidate('foo', discard=True)
     assert 'foo' not in c
     assert 'bar' in c
+    assert len(c._store) == 1
+    c.dump('foo', 5)
+    c.invalidate_all(discard=True)
+    assert 'foo' not in c
+    assert 'bar' not in c
+    assert len(c._store) == 0
 
 
 def test_cache_dump_unpack():
