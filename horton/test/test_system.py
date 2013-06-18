@@ -236,3 +236,13 @@ def test_grid_fn_co_ccpv5z_cart_hf_T():
 
 def test_grid_fn_co_ccpv5z_cart_hf_F():
     check_grid_fn(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'), False)
+
+
+def test_update_obasis():
+    sys = System.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+    olp = sys.get_overlap()
+    assert olp.nbasis == 7
+    sys.update_obasis('3-21G')
+    assert 'olp' not in sys.cache
+    olp = sys.get_overlap()
+    assert olp.nbasis == 13

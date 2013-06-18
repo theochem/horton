@@ -71,11 +71,11 @@ class System(object):
                 is used by default.
 
            cache
-                A cache object with results obtained for the current cartesian
-                coordinates. When coordinates are updated, this cache must be
-                cleared with the invalidate_all method. This can be instance
-                of the Cache class or a dictionary. If a dictionary is given,
-                it is converted to a cache object.
+                A cache object with results obtained for the current orbital
+                basis set. This argument can be instance of the Cache class or a
+                dictionary. If a dictionary is given, it is converted to a cache
+                object. When the orbital basis is updated, this cache must be
+                cleared with the invalidate_all method.
 
            extra
                 A dictionary with additional information about the system. The
@@ -109,25 +109,7 @@ class System(object):
         if self._numbers.shape[0] != self._coordinates.shape[0]:
             raise TypeError('numbers and coordinates must have compatible array shapes.')
         #
-        from horton.gbasis import GOBasisDesc, GOBasis
-        if isinstance(obasis, str):
-            obasis_desc = GOBasisDesc(obasis)
-            self._obasis = obasis_desc.apply_to(self)
-        elif isinstance(obasis, GOBasisDesc):
-            self._obasis = obasis.apply_to(self)
-        elif isinstance(obasis, GOBasis) or obasis is None:
-            self._obasis = obasis
-        else:
-            raise TypeError('Can not interpret %s as an orbital basis.' % obasis)
-        #
         self._wfn = wfn
-        #
-        if lf is None:
-            self._lf = DenseLinalgFactory()
-        else:
-            self._lf = lf
-        if self._obasis is not None:
-            self._lf.set_default_nbasis(self._obasis.nbasis)
         #
         if cache is None:
             self._cache = Cache()
@@ -140,18 +122,20 @@ class System(object):
         else:
             raise TypeError('Could not interpret the cache argument.')
         #
+        if lf is None:
+            self._lf = DenseLinalgFactory()
+        else:
+            self._lf = lf
+        #
+        self._obasis = None
+        self._obasis_desc = None
+        if obasis is not None:
+            self.update_obasis(obasis)
+        #
         if extra is None:
             self._extra = {}
         else:
             self._extra = extra
-
-        # Some consistency checks
-        if self.obasis is not None:
-            if self._wfn is not None and self._obasis.nbasis != self._wfn.nbasis:
-                raise TypeError('The nbasis attributes of obasis and wfn are inconsistent.')
-            for key, value in self._cache.iteritems():
-                if isinstance(value, LinalgObject) and value.nbasis != self._obasis.nbasis:
-                    raise TypeError('The nbasis attributes of the cached object \'%s\' and obasis are inconsistent.' % key)
 
         self._cell = cell
         self._pseudo_numbers = pseudo_numbers
@@ -368,6 +352,61 @@ class System(object):
         return self.pseudo_numbers.sum() - self.wfn.nel
 
     charge = property(_get_charge)
+
+    def update_obasis(self, obasis=None):
+        '''Regenerate the orbital basis and clear all attributes that depend on it.
+
+           **Optional arguments:**
+
+           obasis
+                The new basis. This may be a string or an instance of GOBasis or
+                GOBasisDesc. When not given, the orbital basis description
+                stored in the system object (_obasis_desc attribute) will be
+                used.
+
+           This method must be called after the attributes coordinates or
+           numbers were changed.
+        '''
+        # Get the orbital basis and if possible the orbital basis description.
+        from horton.gbasis import GOBasisDesc, GOBasis
+        if isinstance(obasis, str):
+            obasis_desc = GOBasisDesc(obasis)
+        elif isinstance(obasis, GOBasisDesc):
+            obasis_desc = obasis
+        elif isinstance(obasis, GOBasis):
+            obasis_desc = None
+        elif obasis is None:
+            if self.obasis_desc is None:
+                raise TypeError('No orbital basis description (obasis_desc) available to update obasis.')
+            obasis_desc = self.obasis_desc
+        else:
+            raise TypeError('Could not interpret the obasis argument.')
+        if obasis_desc is not None:
+            obasis = obasis_desc.apply_to(self)
+
+        # Discard or reset results that depend on orbital basis
+        if self.obasis is not None:
+            discard = self.obasis.nbasis != obasis.nbasis
+            print discard
+            self._cache.invalidate_all(discard)
+            if discard:
+                # There is no way that the wavefunction can still be useful.
+                # It may be wise to clear the wfn even if the number of basis
+                # functions did not change. Ideally, the user of the system
+                # object does some sort of projection of the wavefunction on
+                # the new basis.
+                self._wfn = None
+        self._lf.set_default_nbasis(obasis.nbasis)
+        self._obasis = obasis
+        self._obasis_desc = obasis_desc
+
+        # Some consistency checks. These are needed when the initial value of
+        # obasis was None. This may occur when the system object is initialized.
+        if self._wfn is not None and self._obasis.nbasis != self._wfn.nbasis:
+            raise TypeError('The nbasis attribute of obasis and wfn are inconsistent.')
+        for key, value in self._cache.iteritems():
+            if isinstance(value, LinalgObject) and value.nbasis != self._obasis.nbasis:
+                raise TypeError('The nbasis attribute of the cached object \'%s\' and obasis are inconsistent.' % key)
 
     def get_overlap(self):
         overlap, new = self.cache.load('olp', alloc=(self.lf, 'one_body'))

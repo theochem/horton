@@ -643,7 +643,6 @@ class DenseTwoBody(LinalgObject):
         self._array[:] = self._array[:,:,permutation]
         self._array[:] = self._array[:,:,:,permutation]
 
-
     def apply_basis_signs(self, signs):
         '''Correct for different sign conventions of the basis functions.'''
         self._coeffs *= signs
