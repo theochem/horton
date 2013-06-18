@@ -74,8 +74,7 @@ class System(object):
                 A cache object with results obtained for the current orbital
                 basis set. This argument can be instance of the Cache class or a
                 dictionary. If a dictionary is given, it is converted to a cache
-                object. When the orbital basis is updated, this cache must be
-                cleared with the invalidate_all method.
+                object.
 
            extra
                 A dictionary with additional information about the system. The
@@ -386,10 +385,9 @@ class System(object):
 
         # Discard or reset results that depend on orbital basis
         if self.obasis is not None:
-            discard = self.obasis.nbasis != obasis.nbasis
-            print discard
-            self._cache.invalidate_all(discard)
-            if discard:
+            dealloc = self.obasis.nbasis != obasis.nbasis
+            self._cache.clear(dealloc)
+            if dealloc:
                 # There is no way that the wavefunction can still be useful.
                 # It may be wise to clear the wfn even if the number of basis
                 # functions did not change. Ideally, the user of the system

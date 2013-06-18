@@ -233,7 +233,7 @@ class MeanFieldWFN(object):
 
     def invalidate(self):
         '''Must be called when the wavefunction is outdated'''
-        self._cache.invalidate_all()
+        self._cache.clear()
 
     def init_exp(self, spin):
         if spin not in ['alpha', 'beta']:
