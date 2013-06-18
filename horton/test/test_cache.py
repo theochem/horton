@@ -54,7 +54,7 @@ def test_just_once():
     assert e.counter == 3
 
 
-def test_cache_basics1():
+def test_basics1():
     c = Cache()
     c.dump('foo', 5)
     assert c['foo'] == 5
@@ -72,7 +72,7 @@ def test_cache_basics1():
     assert len(c) == 0
 
 
-def test_cache_basics2():
+def test_basics2():
     c = Cache()
     c['foo'] = 5
     assert c['foo'] == 5
@@ -90,7 +90,7 @@ def test_cache_basics2():
     assert len(c) == 0
 
 
-def test_cache_alloc1():
+def test_alloc1():
     c = Cache()
     assert 'bar' not in c
     tmp, new = c.load('bar', alloc=5)
@@ -108,7 +108,7 @@ def test_cache_alloc1():
     assert tris is tmp
 
 
-def test_cache_alloc2():
+def test_alloc2():
     c = Cache()
     tmp, new = c.load('egg', alloc=(5,10))
     assert new
@@ -132,7 +132,7 @@ def test_multiple():
     assert c.load('a', 1) == 2
 
 
-def test_cache_allocation():
+def test_allocation():
     c = Cache()
     assert 'egg' not in c
     tmp, new = c.load('egg', alloc=(5,10))
@@ -162,7 +162,7 @@ def test_cache_allocation():
     assert tris is tmp
 
 
-def test_cache_default():
+def test_default():
     c = Cache()
     assert c.load('egg', default=5)
     c.dump('egg', 5)
@@ -344,7 +344,7 @@ def test_dense_two_body():
     assert op1 is op5
 
 
-def test_cache_basic_exceptions():
+def test_basic_exceptions():
     c = Cache()
     try:
         c.load('boo')
@@ -423,13 +423,13 @@ def test_discard():
     assert len(c._store) == 0
 
 
-def test_cache_dump_unpack():
+def test_dump_unpack():
     c = Cache()
     c.dump(('foo',), 5)
     assert 'foo' in c
 
 
-def test_cache_iter():
+def test_iter():
     c = Cache()
     c.dump('foo', 5)
     c.dump('bar', 6)
@@ -438,59 +438,3 @@ def test_cache_iter():
     assert sorted(c.iteritems()) == [('bar', 6), ('foo', 5)]
     assert len(c) == 2
     assert sorted(c) == ['bar', 'foo']
-
-
-def check_array_store_common(mode, fn):
-    with ArrayStore.from_mode(mode, fn) as store:
-        arr1 = np.random.normal(0, 1, (10, 10))
-        arr2 = np.zeros((10, 10))
-        store.dump(arr1, 'aaaa', 5)
-        if store.load(arr2, 'aaaa', 5):
-            assert (arr1 == arr2).all()
-        arr3 = np.random.normal(0, 1, (10, 10))
-        store.dump(arr3, 'aaaa', 5,)
-        if store.load(arr2, 'aaaa', 5):
-            assert (arr3 == arr2).all()
-        store.dump(arr3, *('aaaa', 5))
-        if store.load(arr2, 'aaaa', 5):
-            assert (arr3 == arr2).all()
-            assert ('aaaa', 5) in store
-            store.rename(('aaaa', 5), ('b', '1'))
-            assert ('b', '1') in store
-            assert ('aaaa', 5) not in store
-        arr4 = np.random.normal(0, 1, (10, 10))
-        if store.load(arr4, 'b', 1):
-            assert (arr3 == arr4).all()
-            try:
-                arr5 = np.random.normal(0, 1, (11, 11))
-                store.dump(arr5, 'b', 1)
-                assert False
-            except TypeError:
-                pass
-        try:
-            store.load('b', 1, foobar=None)
-            assert False
-        except TypeError:
-            pass
-
-
-def test_array_store_disk():
-    dn = tempfile.mkdtemp('horton.test.test_cache.test_array_store_disk')
-    fn = '%s/test.h5' % dn
-    try:
-        check_array_store_common('disk', fn)
-        assert not os.path.isfile(fn)
-    finally:
-        if os.path.isfile(fn):
-           os.remove(fn)
-        os.rmdir(dn)
-
-
-def test_array_store_core():
-    fn = 'horton.test.test_cache.test_array_store_core'
-    check_array_store_common('core', fn)
-    assert not os.path.isfile(fn)
-
-
-def test_array_store_fake():
-    check_array_store_common('fake', None)
