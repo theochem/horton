@@ -190,16 +190,20 @@ class Cache(object):
     def __init__(self):
         self._store = {}
 
-    def invalidate_all(self):
+    def invalidate_all(self, discard=False):
+        '''Clear all items in the cache'''
         for key in self._store.keys():
-            self.invalidate(key)
+            self.invalidate(key, discard=discard)
 
-    def invalidate(self, *key):
+    def invalidate(self, *key, **kwargs):
         key = normalize_key(key)
+        discard = kwargs.pop('discard', False)
+        if len(kwargs) > 0:
+            raise TypeError('Unexpected argument: %s' % kwargs.pop())
         item = self._store.get(key)
         if item is None:
             return
-        if item.resettable:
+        if item.resettable and not discard:
             # avoid re-allocation
             item.invalidate()
         else:
@@ -287,12 +291,6 @@ class Cache(object):
         value = args[-1]
         item = CacheItem(value, own)
         self._store[key] = item
-
-    def discard(self, *key):
-        '''Genuinly discards a cached item from the store, no sneaky reset.'''
-        key = normalize_key(key)
-        if key in self._store:
-            del self._store[key]
 
     def rename(self, old, new):
         '''Change the name of a cached object.'''
