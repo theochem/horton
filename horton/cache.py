@@ -51,7 +51,7 @@ class JustOnceClass(object):
                def do_something():
                    self.foo = self.bar
 
-       When all results are outdate, one can call the ``invalidate`` method
+       When all results are outdated, one can call the ``invalidate`` method
        to forget which methods were called already.
     '''
     def __init__(self):
@@ -190,26 +190,65 @@ class Cache(object):
     def __init__(self):
         self._store = {}
 
-    def invalidate_all(self, discard=False):
-        '''Clear all items in the cache'''
-        for key in self._store.keys():
-            self.invalidate(key, discard=discard)
+    def clear(self, dealloc=False):
+        '''Clear all items in the cache
 
-    def invalidate(self, *key, **kwargs):
+           **Optional arguments:**
+
+           dealloc
+                When set to True, the items are really removed from memory.
+        '''
+        for key in self._store.keys():
+            self.clear_item(key, dealloc=dealloc)
+
+    def clear_item(self, *key, **kwargs):
+        '''Clear a selected item from the cache
+
+           **Optional arguments:**
+
+           dealloc
+                When set to True, the item is really removed from memory.
+        '''
         key = normalize_key(key)
-        discard = kwargs.pop('discard', False)
+        dealloc = kwargs.pop('dealloc', False)
         if len(kwargs) > 0:
-            raise TypeError('Unexpected argument: %s' % kwargs.pop())
+            raise TypeError('Unexpected arguments: %s' % kwargs.keys())
         item = self._store.get(key)
         if item is None:
             return
-        if item.resettable and not discard:
+        if item.resettable and not dealloc:
             # avoid re-allocation
             item.invalidate()
         else:
             del self._store[key]
 
+    # TODO: the alloc argument is just too ugly to be useful. (Add this to
+    # Trello in the card with the new classes for the matrix module.)
     def load(self, *key, **kwargs):
+        '''Get a value from the cache
+
+           **Arguments:**
+
+           key0 [key1 ...]
+                All positional arguments are used as keys to identify the cached
+                value.
+
+           **Optional arguments:** (at most one is accepted)
+
+           alloc
+                Parameters used to allocated a cached value if it is not present
+                yet. This argument can take several forms. When integer or a
+                tuple of integers is given, an array is allocated.
+                Alternatively, a tuple may be given whose first element is a
+                linalg factory, the second is 'expansion', 'one_body' or
+                'two_body'. Further (optional) elements correspond to arguments
+                of the corresponding create_* methods of the linalg factory
+                object.
+
+           default
+                A default value that is returned when the key does not exist in
+                the cache.
+        '''
         key = normalize_key(key)
 
         # parse kwargs
@@ -249,12 +288,6 @@ class Cache(object):
             new = not item.valid
             item._valid = True # as if it is newly allocated
             return item.value, new
-
-    def get(self, *key, **kwargs):
-        default = kwargs.pop('default', None)
-        if len(kwargs) > 0:
-            raise TypeError('Unexpected argument: %s' % kwargs.popkey())
-        return self.load(*key, default=default)
 
     def __contains__(self, key):
         key = normalize_key(key)
@@ -303,7 +336,7 @@ class Cache(object):
         return sum(item.valid for item in self._store.itervalues())
 
     def __getitem__(self, key):
-        return self.get(key)
+        return self.load(key)
 
     def __setitem__(self, key, value):
         return self.dump(key, value)
@@ -312,16 +345,19 @@ class Cache(object):
         return self.iterkeys()
 
     def iterkeys(self):
+        '''Iterate over the keys of all valid items in the cache.'''
         for key, item in self._store.iteritems():
             if item.valid:
                 yield key
 
     def itervalues(self):
+        '''Iterate over the values of all valid items in the cache.'''
         for item in self._store.itervalues():
             if item.valid:
                 yield item.value
 
     def iteritems(self):
+        '''Iterate over all valid items in the cache.'''
         for key, item in self._store.iteritems():
             if item.valid:
                 yield key, item.value

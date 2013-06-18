@@ -67,7 +67,7 @@ def test_basics1():
     assert c.load('foo', 4) == 6
     assert c.load(('foo', 4)) == 6
     assert len(c) == 2
-    c.invalidate_all()
+    c.clear()
     assert len(c._store) == 0
     assert len(c) == 0
 
@@ -85,7 +85,7 @@ def test_basics2():
     assert c.load('foo', 4) == 6
     assert c.load(('foo', 4)) == 6
     assert len(c) == 2
-    c.invalidate_all()
+    c.clear()
     assert len(c._store) == 0
     assert len(c) == 0
 
@@ -143,7 +143,7 @@ def test_allocation():
     assert 'egg' in c
     assert 'bar' not in c
     tmp[:] = 1.0
-    c.invalidate_all()
+    c.clear()
     assert 'egg' not in c
     assert (tmp[:] == 0.0).all()
     # try to load it, while it is no longer valid
@@ -168,14 +168,14 @@ def test_default():
     c.dump('egg', 5)
     assert c.load('egg') == 5
     assert c.load('egg', default=6) == 5
-    c.invalidate_all()
+    c.clear()
     assert c.load('egg', default=6) == 6
     try:
         c.load('egg')
         assert False
     except KeyError:
         pass
-    c.invalidate_all()
+    c.clear()
     assert c.load('egg', default=None) == None
     try:
         c.load('egg')
@@ -215,7 +215,7 @@ def test_dense_expansion():
         pass
     # after invalidation
     op1.coeffs[1, 2] = 5.2
-    c.invalidate_all()
+    c.clear()
     assert op1.coeffs[1,2] == 0.0
     try:
         op4 = c.load('egg')
@@ -270,7 +270,7 @@ def test_dense_one_body():
         pass
     # after invalidation
     op1.set_element(1, 2, 5.2)
-    c.invalidate_all()
+    c.clear()
     assert op1._array[1,2] == 0.0
     try:
         op4 = c.load('egg')
@@ -320,7 +320,7 @@ def test_dense_two_body():
         pass
     # after invalidation
     op1.set_element(1, 2, 1, 2, 5.2)
-    c.invalidate_all()
+    c.clear()
     assert op1._array[1,2,1,2] == 0.0
     try:
         op4 = c.load('egg')
@@ -402,22 +402,22 @@ def test_basic_exceptions():
         pass
 
     try:
-        c.invalidate()
+        c.clear_item()
         assert False
     except TypeError:
         pass
 
 
-def test_discard():
+def test_dealloc():
     c = Cache()
     c.dump('foo', 5)
     c.dump('bar', 6)
-    c.invalidate('foo', discard=True)
+    c.clear_item('foo', dealloc=True)
     assert 'foo' not in c
     assert 'bar' in c
     assert len(c._store) == 1
     c.dump('foo', 5)
-    c.invalidate_all(discard=True)
+    c.clear(dealloc=True)
     assert 'foo' not in c
     assert 'bar' not in c
     assert len(c._store) == 0

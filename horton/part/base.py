@@ -102,7 +102,7 @@ class Part(JustOnceClass):
     def invalidate(self):
         '''Discard all cached results, e.g. because wfn changed'''
         JustOnceClass.invalidate(self)
-        self.cache.invalidate_all()
+        self.cache.clear()
 
     def get_grid(self, index=None):
         '''Return an integration grid

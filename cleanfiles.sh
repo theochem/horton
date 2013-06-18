@@ -11,4 +11,3 @@ rm -v horton/gbasis/cext.cpp
 rm -v horton/grid/cext.cpp
 rm -v horton/hamiltonian/cext.cpp
 rm -v horton/espfit/cext.cpp
-

@@ -34,6 +34,7 @@
 
 import h5py as h5, numpy as np
 
+from horton.cache import Cache
 
 
 __all__ = ['attribute_register', 'load_hdf5_low', 'dump_hdf5_low']
@@ -121,7 +122,10 @@ class CHKField(object):
         if att is None:
             return
         if self.key is not None:
-            att = att.get(self.key)
+            if isinstance(att, dict):
+                att = att.get(self.key)
+            elif isinstance(att, Cache):
+                att = att.load(self.key, default=None)
             if att is None:
                 return
 
