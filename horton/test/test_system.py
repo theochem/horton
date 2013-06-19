@@ -240,9 +240,13 @@ def test_grid_fn_co_ccpv5z_cart_hf_F():
 
 def test_update_obasis():
     sys = System.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+    assert sys.obasis_desc is None
+    assert 'energy' in sys.extra
     olp = sys.get_overlap()
     assert olp.nbasis == 7
     sys.update_obasis('3-21G')
+    assert sys.obasis_desc.default == '3-21G'
     assert 'olp' not in sys.cache
+    assert len(sys.extra) == 0
     olp = sys.get_overlap()
     assert olp.nbasis == 13
