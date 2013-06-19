@@ -73,6 +73,8 @@ def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None):
     '''
     if system._obasis is None:
         raise RuntimeError('A wavefunction can only be initialized when a basis is specified.')
+
+    # Determine charge, spin, mult and restricted
     if charge is None:
         charge = 0
     nel = system.numbers.sum() - charge
@@ -83,7 +85,10 @@ def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None):
             raise ValueError('Not compatible: number of electrons = %i and spin multiplicity = %i' % (nel, mult))
     else:
         if mult is None:
-            raise ValueError('In case of a fractional number of electrons, mult must be given explicitly')
+            if restricted is True:
+                mult = 1.0
+            else:
+                raise ValueError('In case of an unrestricted wfn and a fractional number of electrons, mult must be given explicitly')
     if mult < 1:
         raise ValueError('mult must be strictly positive.')
     if restricted is True and mult != 1:
@@ -91,6 +96,7 @@ def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None):
     if restricted is None:
         restricted = mult==1
 
+    # Show some thing on screen.
     if log.do_medium:
         log('Wavefunction initialization, without initial guess.')
         log.deflist([
@@ -100,24 +106,40 @@ def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None):
             ('Restricted', restricted),
         ])
 
+    # Create a model for the occupation numbers
+    if restricted:
+        occ_model = AufbauOccModel(nel/2)
+    else:
+        occ_model = AufbauOccModel((nel + (mult-1))/2, (nel - (mult-1))/2)
+
+
     if system._wfn is not None:
+        # Check if the existing wfn is consistent with the arguments
         if not isinstance(system.wfn, MeanFieldWFN):
             raise ValueError('A wavefunction is already present and it is not a mean-field wavefunction.')
         elif system.wfn.nbasis != system.obasis.nbasis:
             raise ValueError('The number of basis functions in the wfn is incorrect.')
         elif restricted ^ isinstance(system.wfn, RestrictedWFN):
             raise ValueError('The wfn does not match the restricted argument.')
-        if restricted:
-            system.wfn.occ_model.nalpha = nel/2
+
+        # Assign occ_model
+        system.wfn.occ_model = occ_model
+
+        # If the wfn contains an expansion, update the occupations and remove density matrices. Otherwise clean up
+        if 'exp_alpha' in system.wfn._cache:
+            if restricted:
+                system.wfn.occ_model.assign(system.wfn.exp_alpha)
+            else:
+                system.wfn.occ_model.assign(system.wfn.exp_alpha, system.wfn.exp_beta)
+            for select in 'alpha', 'beta', 'full', 'spin':
+                system.wfn._cache.clear_item('dm_%s' % select)
         else:
-            system.wfn.occ_model.nalpha = (nel + (mult-1))/2
-            system.wfn.occ_model.nbeta = (nel - (mult-1))/2
+            system.wfn.invalidate()
     else:
+        # if the wfn does not exist yet, create a proper one.
         if restricted:
-            occ_model = AufbauOccModel(nel/2)
             system._wfn = RestrictedWFN(occ_model, system.lf, system.obasis.nbasis)
         else:
-            occ_model = AufbauOccModel((nel + (mult-1))/2, (nel - (mult-1))/2)
             system._wfn = UnrestrictedWFN(occ_model, system.lf, system.obasis.nbasis)
 
 
