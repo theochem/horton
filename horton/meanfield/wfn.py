@@ -76,10 +76,14 @@ def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None):
     if charge is None:
         charge = 0
     nel = system.numbers.sum() - charge
-    if mult is None:
-        mult = nel%2+1
-    elif ((nel%2 == 0) ^ (mult%2 != 0)):
-        raise ValueError('Not compatible: number of electrons = %i and spin multiplicity = %i' % (nel, mult))
+    if isinstance(nel, int):
+        if mult is None:
+            mult = nel%2+1
+        elif ((nel%2 == 0) ^ (mult%2 != 0)):
+            raise ValueError('Not compatible: number of electrons = %i and spin multiplicity = %i' % (nel, mult))
+    else:
+        if mult is None:
+            raise ValueError('In case of a fractional number of electrons, mult must be given explicitly')
     if mult < 1:
         raise ValueError('mult must be strictly positive.')
     if restricted is True and mult != 1:
@@ -580,8 +584,13 @@ class AufbauOccModel(object):
             if nfn < nocc:
                 raise ElectronCountError('The number of orbitals must not be lower than the number of alpha or beta electrons.')
             assert (exp.energies[1:] >= exp.energies[:-1]).all()
-            exp.occupations[:nocc] = 1.0
-            exp.occupations[nocc:] = 0.0
+            if nocc == int(nocc):
+                exp.occupations[:nocc] = 1.0
+                exp.occupations[nocc:] = 0.0
+            else:
+                exp.occupations[:int(np.floor(nocc))] = 1.0
+                exp.occupations[int(np.floor(nocc))] = nocc - np.floor(nocc)
+                exp.occupations[int(np.ceil(nocc)):] = 0.0
 
     def log(self):
         log('Occupation model: %s' % self)
