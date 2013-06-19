@@ -221,3 +221,7 @@ def test_setup_wfn_os_fractional():
     assert abs(sys.wfn.occ_model.nbeta - (7.0-0.4-2.0+1)/2) < 1e-10
     assert abs(sys.wfn.exp_alpha.occupations[:6] - [1.0, 1.0, 1.0, 0.8, 0.0, 0.0]).max() < 1e-10
     assert abs(sys.wfn.exp_beta.occupations[:6] - [1.0, 1.0, 0.8, 0.0, 0.0, 0.0]).max() < 1e-10
+    setup_mean_field_wfn(sys, 0.4, 'free')
+    assert isinstance(sys.wfn, UnrestrictedWFN)
+    assert isinstance(sys.wfn.occ_model, AufbauSpinOccModel)
+    assert abs(sys.wfn.occ_model.nel - (7.0-0.4)) < 1e-10

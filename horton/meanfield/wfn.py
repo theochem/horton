@@ -60,7 +60,9 @@ def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None):
             The total charge of the system. Defaults to zero.
 
        mult
-            The spin multiplicity. Defaults to lowest possible.
+            The spin multiplicity. Defaults to lowest possible. Use 'free' to
+            let the SCF algorithm find the spin multiplicity with the lowest
+            energy. (Beware of local minima.)
 
        restricted
             Set to True or False to enforce a restricted or unrestricted
@@ -81,15 +83,15 @@ def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None):
     if isinstance(nel, int):
         if mult is None:
             mult = nel%2+1
-        elif ((nel%2 == 0) ^ (mult%2 != 0)):
+        elif mult != 'free' and ((nel%2 == 0) ^ (mult%2 != 0)):
             raise ValueError('Not compatible: number of electrons = %i and spin multiplicity = %i' % (nel, mult))
     else:
         if mult is None:
             if restricted is True:
                 mult = 1.0
             else:
-                raise ValueError('In case of an unrestricted wfn and a fractional number of electrons, mult must be given explicitly')
-    if mult < 1:
+                raise ValueError('In case of an unrestricted wfn and a fractional number of electrons, mult must be given explicitly or must be set to \'free\'.')
+    if mult != 'free' and mult < 1:
         raise ValueError('mult must be strictly positive.')
     if restricted is True and mult != 1:
         raise ValueError('Restricted==True only works when mult==1. Restricted open shell is not supported yet.')
@@ -109,6 +111,8 @@ def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None):
     # Create a model for the occupation numbers
     if restricted:
         occ_model = AufbauOccModel(nel/2)
+    elif mult=='free':
+        occ_model = AufbauSpinOccModel(nel)
     else:
         occ_model = AufbauOccModel((nel + (mult-1))/2, (nel - (mult-1))/2)
 
@@ -624,7 +628,6 @@ class AufbauSpinOccModel(object):
     def __init__(self, nel):
         if nel <= 0:
             raise ElectronCountError('The number of electron must be positive.')
-
         self.nel = nel
 
     @classmethod
@@ -648,13 +651,12 @@ class AufbauSpinOccModel(object):
         ibeta = 0
         while nel > 0:
             if exp_alpha.energies[ialpha] <= exp_beta.energies[ibeta]:
-                exp_alpha.occupations[ialpha] = 1.0
+                exp_alpha.occupations[ialpha] = min(1.0, nel)
                 ialpha += 1
             else:
-                exp_beta.occupations[ibeta] = 1.0
+                exp_beta.occupations[ibeta] = min(1.0, nel)
                 ibeta += 1
             nel -= 1
-        #print 'AufbauSpinOccModel', ialpha, ibeta
 
     def log(self):
         log('Occupation model: %s' % self)
