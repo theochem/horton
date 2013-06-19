@@ -126,15 +126,15 @@ class System(object):
         else:
             self._lf = lf
         #
-        self._obasis = None
-        self._obasis_desc = None
-        if obasis is not None:
-            self.update_obasis(obasis)
-        #
         if extra is None:
             self._extra = {}
         else:
             self._extra = extra
+        #
+        self._obasis = None
+        self._obasis_desc = None
+        if obasis is not None:
+            self.update_obasis(obasis)
 
         self._cell = cell
         self._pseudo_numbers = pseudo_numbers
@@ -175,6 +175,12 @@ class System(object):
         return self._obasis
 
     obasis = property(_get_obasis)
+
+    def _get_obasis_desc(self):
+        '''The orbital basis description'''
+        return self._obasis_desc
+
+    obasis_desc = property(_get_obasis_desc)
 
     def _get_wfn(self):
         '''The wavefunction'''
@@ -394,6 +400,9 @@ class System(object):
                 # object does some sort of projection of the wavefunction on
                 # the new basis.
                 self._wfn = None
+            self._extra = {}
+
+        # Assign new obasis
         self._lf.set_default_nbasis(obasis.nbasis)
         self._obasis = obasis
         self._obasis_desc = obasis_desc
