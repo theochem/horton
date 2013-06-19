@@ -186,3 +186,27 @@ def test_setup_wfn_os():
         assert False
     except ValueError:
         pass
+
+
+def test_setup_wfn_cs_fractional():
+    sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
+    setup_mean_field_wfn(sys, 0.2, 1.0)
+    assert isinstance(sys.wfn, RestrictedWFN)
+    assert sys.wfn.occ_model.nalpha == 2.9
+    assert sys.wfn.occ_model.nbeta == 2.9
+    sys.wfn.init_exp('alpha')
+    sys.wfn.occ_model.assign(sys.wfn.exp_alpha)
+    assert abs(sys.wfn.exp_alpha.occupations[:4] - [1.0, 1.0, 0.9, 0.0]).max() < 1e-10
+
+
+def test_setup_wfn_os_fractional():
+    sys = System(np.zeros((1,3), float), np.array([7]), obasis='3-21g')
+    setup_mean_field_wfn(sys, 0.4, 2.5)
+    assert isinstance(sys.wfn, UnrestrictedWFN)
+    assert abs(sys.wfn.occ_model.nalpha - (7.0-0.4+2.5-1)/2) < 1e-10
+    assert abs(sys.wfn.occ_model.nbeta - (7.0-0.4-2.5+1)/2) < 1e-10
+    sys.wfn.init_exp('alpha')
+    sys.wfn.init_exp('beta')
+    sys.wfn.occ_model.assign(sys.wfn.exp_alpha, sys.wfn.exp_beta)
+    assert abs(sys.wfn.exp_alpha.occupations[:6] - [1.0, 1.0, 1.0, 1.0, 0.05, 0.0]).max() < 1e-10
+    assert abs(sys.wfn.exp_beta.occupations[:6] - [1.0, 1.0, 0.55, 0.0, 0.0, 0.0]).max() < 1e-10
