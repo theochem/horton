@@ -45,6 +45,7 @@ def check_proatomdb(system, proatomdb):
 class HirshfeldMixin(object):
     name = 'h'
     options = []
+    linear = True
 
     def __init__(self, proatomdb):
         self._proatomdb = proatomdb
