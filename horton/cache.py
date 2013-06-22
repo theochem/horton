@@ -281,8 +281,10 @@ class Cache(object):
         if alloc is None:
             if item.valid:
                 return item.value
-            else:
+            elif default is no_default:
                 raise KeyError(key)
+            else:
+                return default
         else:
             item.check_alloc(alloc)
             new = not item.valid
