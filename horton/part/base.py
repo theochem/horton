@@ -32,6 +32,7 @@ __all__ = ['Part', 'WPart', 'CPart']
 
 class Part(JustOnceClass):
     name = None
+    linear = False # whether the populations are linear in the density matrix.
 
     def __init__(self, system, grid, local, moldens=None):
         '''

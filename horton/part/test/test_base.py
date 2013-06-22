@@ -60,6 +60,9 @@ def test_wpart_schemes():
     assert 'he' in wpart_schemes
     assert wpart_schemes['hi'] is HirshfeldIWPart
     assert wpart_schemes['hi'].options == ['threshold', 'maxiter', 'greedy']
+    assert not wpart_schemes['hi'].linear
+    assert wpart_schemes['h'].linear
+    assert wpart_schemes['b'].linear
 
     for WPartClass in wpart_schemes.itervalues():
         assert hasattr(WPartClass, 'options')

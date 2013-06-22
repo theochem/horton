@@ -35,6 +35,7 @@ __all__ = ['HirshfeldIWPart', 'HirshfeldICPart']
 class HirshfeldIMixin(object):
     name = 'hi'
     options = ['threshold', 'maxiter', 'greedy']
+    linear = False
 
     def __init__(self, threshold=1e-6, maxiter=500, greedy=False):
         self._threshold = threshold

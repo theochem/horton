@@ -36,6 +36,7 @@ __all__ = ['BeckeWPart']
 class BeckeWPart(WPart):
     name = 'b'
     options = ['k']
+    linear = True
 
     '''Class for Becke partitioning'''
     def __init__(self, system, grid, local=True, k=3):
