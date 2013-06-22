@@ -35,11 +35,32 @@ class Observable(object):
 
     def __init__(self, label):
         self.label = label
+        self._hamiltonian = None
 
-    def prepare_system(self, system, cache, grid):
-        self.system = system
-        self.cache = cache
-        self.grid = grid
+    def set_hamiltonian(self, hamiltonian):
+        if not self._hamiltonian is None:
+            raise ValueError('This term is already assigned to a Hamiltonian.')
+        self._hamiltonian = hamiltonian
+
+    # The following four properties are added for convenience:
+
+    def _get_system(self):
+        '''The system for which the hamiltonian is defined.'''
+        return self._hamiltonian.system
+
+    system = property(_get_system)
+
+    def _get_cache(self):
+        '''The cache of the hamiltonian object, cleared after a change in wfn.'''
+        return self._hamiltonian.cache
+
+    cache = property(_get_cache)
+
+    def _get_grid(self):
+        '''The numerical integration grid for this hamiltonian.'''
+        return self._hamiltonian.grid
+
+    grid = property(_get_grid)
 
     # Generic update routines that may be useful to various base classes
     def update_rho(self, select):

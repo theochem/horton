@@ -83,10 +83,10 @@ class Hamiltonian(object):
         # need to be updated at each SCF cycle.
         self.cache = Cache()
 
-        with timer.section('Prep. Ham.'):
-            # Pre-compute stuff
-            for term in self.terms:
-                term.prepare_system(self.system, self.cache, self.grid)
+        # bind the terms to this hamiltonian such that certain shared
+        # intermediated results can be reused for the sake of efficiency.
+        for term in self.terms:
+            term.set_hamiltonian(self)
 
     def invalidate(self):
         '''Mark the properties derived from the wfn as outdated.
