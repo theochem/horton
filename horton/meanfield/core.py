@@ -35,7 +35,7 @@ __all__ = [
 
 
 class LinearObservable(Observable):
-    '''Base class for all terms that are linear in the density matrix
+    '''Base class for all observables that are linear in the density matrix
 
        This is (technically) a special class because the Fock operator does not
        have to be recomputed when the density matrix changes.
