@@ -88,6 +88,11 @@ class Hamiltonian(object):
         for term in self.terms:
             term.set_hamiltonian(self)
 
+    def add_term(self, term):
+        '''Add a new term to the hamiltonian'''
+        self.terms.append(term)
+        term.set_hamiltonian(self)
+
     def invalidate(self):
         '''Mark the properties derived from the wfn as outdated.
 
