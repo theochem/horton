@@ -120,3 +120,37 @@ def test_project_smaller():
     ham.invalidate()
     energy3 = ham.compute()
     assert energy3 > energy2 # the core guess should be worse than the converged
+
+
+def test_inplace():
+    # Create initial system
+    sys = System.from_file(context.get_fn('test/water.xyz'), obasis='sto-3g')
+    setup_mean_field_wfn(sys, restricted=True)
+    guess_hamiltonian_core(sys)
+
+    old_obasis = sys.obasis
+    old_wfn = sys.wfn
+
+    # Change geometry
+    sys.coordinates[1,2] += 0.1
+    sys.update_obasis('sto-3g')
+
+    # Force new wfn object
+    sys._wfn = None
+    setup_mean_field_wfn(sys, restricted=True)
+
+    # Project from one to other:
+    project_orbitals_mgs(sys, old_wfn, old_obasis)
+    exp0 = sys.wfn.exp_alpha
+    assert (exp0.energies == 0.0).all()
+    assert (exp0.occupations == old_wfn.exp_alpha.occupations).all()
+    assert abs(exp0.coeffs[:,:5] - old_wfn.exp_alpha.coeffs[:,:5]).max() > 1e-3 # something should change
+    assert (exp0.coeffs[:,5:] == 0.0).all()
+
+    # Project in-place:
+    sys._wfn = old_wfn
+    project_orbitals_mgs(sys, old_wfn, old_obasis)
+    exp1 = sys.wfn.exp_alpha
+    assert (exp1.energies == 0.0).all()
+    assert (exp0.occupations == exp1.occupations).all()
+    assert (exp0.coeffs == exp1.coeffs).all()
