@@ -242,3 +242,12 @@ def test_auto_complete():
     assert not any(isinstance(term, KineticEnergy) for term in ham.terms)
     assert not any(isinstance(term, Hartree) for term in ham.terms)
     assert not any(isinstance(term, ExternalPotential) for term in ham.terms)
+
+
+def test_add_term():
+    fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
+    sys = System.from_file(fn_fchk)
+    ham = Hamiltonian(sys, [HartreeFockExchange()], auto_complete=False)
+    term = KineticEnergy()
+    ham.add_term(term)
+    assert term._hamiltonian is ham
