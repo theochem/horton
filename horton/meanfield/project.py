@@ -23,16 +23,54 @@
 import numpy as np
 from horton.matrix import DenseLinalgFactory
 from horton.gbasis.cext import GOBasis
+from horton.meanfield.wfn import RestrictedWFN, UnrestrictedWFN
 
 
-__all__ = ['ProjectionError', 'project_orbitals_mgs']
+__all__ = ['ProjectionError', 'project_orbitals_mgs', 'project_orbitals_mgs_low']
 
 
 class ProjectionError(Exception):
     pass
 
 
-def project_orbitals_mgs(obasis0, obasis1, exp0, exp1, eps=1e-10):
+def project_orbitals_mgs(system, old_wfn, old_obasis, eps=1e-10):
+    '''Project orbitals from the ``old_wfn`` (wrt ``old_basis``) on the wfn of the ``system`` object with the modified Gram-Schmidt algorithm.
+
+       **Arguments:**
+
+       system
+            The system with the new orbital basis. It must have a
+            wavefunction object compatible with the old wavefunction (restricted
+            versus unrestricted).
+
+       old_wfn
+            The old (mean-field) wavefunction object
+
+       old_obasis
+            The orbital basis for the old wavefunction
+
+       **Optional arguments:**
+
+       eps
+            A threshold for the renormalization in the Gram-Schmidt procedure.
+
+       See ``project_orbitals_mgs_low`` for details.
+    '''
+    if isinstance(old_wfn, RestrictedWFN):
+        assert isinstance(system.wfn, RestrictedWFN)
+        if 'exp_alpha' not in system.wfn._cache:
+            system.wfn.init_exp('alpha')
+        project_orbitals_mgs_low(old_obasis, system.obasis, old_wfn.exp_alpha, system.wfn.exp_alpha, eps)
+    else:
+        assert isinstance(system.wfn, UnrestrictedWFN)
+        if 'exp_alpha' not in system.wfn._cache:
+            system.wfn.init_exp('alpha')
+            system.wfn.init_exp('beta')
+        project_orbitals_mgs_low(old_obasis, system.obasis, old_wfn.exp_alpha, system.wfn.exp_alpha, eps)
+        project_orbitals_mgs_low(old_obasis, system.obasis, old_wfn.exp_beta, system.wfn.exp_beta, eps)
+
+
+def project_orbitals_mgs_low(obasis0, obasis1, exp0, exp1, eps=1e-10):
     '''Project the orbitals in ``exp0`` (wrt ``obasis0``) on ``obasis1`` and store in ``exp1`` with the modified Gram-Schmidt algorithm.
 
        **Arguments:**
@@ -46,7 +84,7 @@ def project_orbitals_mgs(obasis0, obasis1, exp0, exp1, eps=1e-10):
        exp0
             The expansion of the original orbitals.
 
-       exp1
+       exp1 (output)
             An output argument in which the projected orbitals will be stored.
 
        **Optional arguments:**

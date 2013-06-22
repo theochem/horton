@@ -395,10 +395,8 @@ class System(object):
             self._cache.clear(dealloc)
             if dealloc:
                 # There is no way that the wavefunction can still be useful.
-                # It may be wise to clear the wfn even if the number of basis
-                # functions did not change. Ideally, the user of the system
-                # object does some sort of projection of the wavefunction on
-                # the new basis.
+                # Ideally, the user of the system object does some sort of
+                # projection of the wavefunction on the new basis.
                 self._wfn = None
             self._extra = {}
 
