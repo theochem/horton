@@ -69,9 +69,6 @@ class HartreeFockExchange(Observable):
         self.fraction_exchange = fraction_exchange
         Observable.__init__(self, label)
 
-    def prepare_system(self, system, cache, grid):
-        Observable.prepare_system(self, system, cache, grid)
-
     def _update_exchange(self):
         '''Recompute the Exchange operator(s) if invalid'''
         def helper(select):
