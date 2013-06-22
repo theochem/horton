@@ -164,6 +164,7 @@ def test_allocation():
 
 def test_default():
     c = Cache()
+    # with scalars
     assert c.load('egg', default=5)
     c.dump('egg', 5)
     assert c.load('egg') == 5
@@ -179,6 +180,16 @@ def test_default():
     assert c.load('egg', default=None) == None
     try:
         c.load('egg')
+        assert False
+    except KeyError:
+        pass
+    # with arrays
+    c.dump('floep', np.array([3.1, 5.1]))
+    assert (c.load('floep', default=3) == np.array([3.1, 5.1])).all()
+    c.clear()
+    assert c.load('floep', default=3) == 3
+    try:
+        c.load('floep')
         assert False
     except KeyError:
         pass
