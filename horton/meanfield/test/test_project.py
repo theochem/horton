@@ -26,7 +26,7 @@ from horton import *
 def test_project_identical():
     sys = System.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
     exp = sys.lf.create_expansion()
-    project_orbitals_mgs(sys.obasis, sys.obasis, sys.wfn.exp_alpha, exp)
+    project_orbitals_mgs_low(sys.obasis, sys.obasis, sys.wfn.exp_alpha, exp)
     assert (exp.energies == 0.0).all()
     assert (exp.occupations == sys.wfn.exp_alpha.occupations).all()
     assert abs(exp.coeffs[:,:-2] - sys.wfn.exp_alpha.coeffs[:,:-2]).max() < 1e-9
@@ -44,8 +44,8 @@ def test_project_larger():
     sys.update_obasis('3-21G')
     obasis1 = sys.obasis
     setup_mean_field_wfn(sys, restricted=True)
-    exp1 = sys.wfn.init_exp('alpha')
-    project_orbitals_mgs(obasis0, obasis1, exp0, exp1)
+    project_orbitals_mgs(sys, wfn0, obasis0)
+    exp1 = sys.wfn.exp_alpha
     assert (exp1.energies == 0.0).all()
     assert exp0.occupations.sum() == exp1.occupations.sum()
     assert (exp1.coeffs[:,5:] == 0.0).all()
@@ -86,11 +86,8 @@ def test_project_smaller():
     sys.update_obasis('sto-3g')
     obasis1 = sys.obasis
     setup_mean_field_wfn(sys, restricted=False)
+    project_orbitals_mgs(sys, wfn0, obasis0)
     wfn1 = sys.wfn
-    wfn1.init_exp('alpha')
-    wfn1.init_exp('beta')
-    project_orbitals_mgs(obasis0, obasis1, wfn0.exp_alpha, wfn1.exp_alpha)
-    project_orbitals_mgs(obasis0, obasis1, wfn0.exp_beta, wfn1.exp_beta)
     assert (wfn1.exp_alpha.energies == 0.0).all()
     assert (wfn1.exp_beta.energies == 0.0).all()
     assert wfn1.exp_alpha.occupations.sum() == 2
