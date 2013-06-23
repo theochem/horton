@@ -21,6 +21,7 @@
 
 
 import numpy as np
+from nose.tools import assert_raises
 
 from horton import *
 
@@ -155,29 +156,14 @@ def test_gb2_overlap_integral_class():
 def test_cart_pure_domain():
     work_cart = np.random.normal(0, 1, (3,70))
     work_pure = np.random.normal(0, 1, (3,70))
-    try:
+    with assert_raises(ValueError):
         cart_to_pure_low(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=get_max_shell_type()+1, nant=1, npost=1)
-        assert False
-    except ValueError:
-        pass
-
-    try:
+    with assert_raises(ValueError):
         cart_to_pure_low(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=-1, nant=1, npost=1)
-        assert False
-    except ValueError:
-        pass
-
-    try:
+    with assert_raises(ValueError):
         cart_to_pure_low(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=3, nant=0, npost=1)
-        assert False
-    except ValueError:
-        pass
-
-    try:
+    with assert_raises(ValueError):
         cart_to_pure_low(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=3, nant=1, npost=0)
-        assert False
-    except ValueError:
-        pass
 
 
 def test_cart_pure_water_ccpvdz_hf():

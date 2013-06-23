@@ -20,6 +20,7 @@
 #--
 
 
+from nose.tools import assert_raises
 from horton import *
 
 
@@ -158,12 +159,9 @@ def test_setup_wfn_cs():
     assert sys.wfn.occ_model.nalpha == 2
     assert sys.wfn.occ_model.nbeta == 2
 
-    try:
+    with assert_raises(ValueError):
         sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
         setup_mean_field_wfn(sys, 0, 2)
-        assert False
-    except ValueError:
-        pass
 
 
 def test_setup_wfn_os():
@@ -180,12 +178,9 @@ def test_setup_wfn_os():
     assert sys.wfn.occ_model.nbeta == 3
     setup_mean_field_wfn(sys, 1)
 
-    try:
+    with assert_raises(ValueError):
         sys = System(np.zeros((1,3), float), np.array([7]), obasis='3-21g')
         setup_mean_field_wfn(sys, 0, 1)
-        assert False
-    except ValueError:
-        pass
 
 
 def test_setup_wfn_cs_fractional():

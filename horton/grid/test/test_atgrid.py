@@ -21,6 +21,7 @@
 
 
 import numpy as np
+from nose.tools import assert_raises
 
 from horton import *
 
@@ -37,16 +38,10 @@ def test_interpret_atspec():
     assert rgrid is rgrid1
     assert (nlls1 == [6,14,26,6]).all()
 
-    try:
+    with assert_raises(ValueError):
         rgrid2, nlls2 = interpret_atspec(1, (rgrid, [1,2,3,4]))
-        assert False
-    except ValueError:
-        pass
-    try:
+    with assert_raises(ValueError):
         rgrid2, nlls2 = interpret_atspec(1, (rgrid, [6,6,6,6,14]))
-        assert False
-    except ValueError:
-        pass
 
 
 def test_atgrid_family_load():

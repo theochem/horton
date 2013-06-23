@@ -21,6 +21,7 @@
 
 
 import numpy as np
+from nose.tools import assert_raises
 
 from horton import *
 
@@ -32,11 +33,8 @@ def test_shell_nbasis():
     assert get_shell_nbasis( 1) == 3
     assert get_shell_nbasis( 2) == 6
     assert get_shell_nbasis( 3) == 10
-    try:
+    with assert_raises(ValueError):
         get_shell_nbasis(-1)
-        assert False
-    except ValueError:
-        pass
 
 
 def test_gobasis_consistency():
@@ -60,74 +58,50 @@ def test_gobasis_consistency():
 
     # The center indexes in the shell_map are out of range.
     shell_map[0] = 2
-    try:
+    with assert_raises(ValueError):
         i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
-        assert False
-    except ValueError:
-        pass
     shell_map[0] = 0
 
     # The size of the array shell_types does not match the sum of nprims.
     shell_types = np.array([1, 1])
-    try:
+    with assert_raises(TypeError):
         i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
-        assert False
-    except TypeError:
-        pass
     shell_types = np.array([1, 1, 0, -2, -2, 0, 1])
 
     # The elements of nprims should be at least 1.
     nprims[1] = 0
-    try:
+    with assert_raises(ValueError):
         i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
-        assert False
-    except ValueError:
-        pass
     nprims[1] = 3
 
     # The size of the array alphas does not match the sum of nprims.
     alphas = np.random.uniform(-1, 1, 2)
-    try:
+    with assert_raises(TypeError):
         i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
-        assert False
-    except TypeError:
-        pass
     alphas = np.random.uniform(-1, 1, nprims.sum())
 
     # Encountered the nonexistent shell_type -1.
     shell_types[1] = -1
-    try:
+    with assert_raises(ValueError):
         i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
-        assert False
-    except ValueError:
-        pass
     shell_types[1] = 1
 
     # The size of con_coeffs does not match nprims.
     con_coeffs = np.random.uniform(-1, 1, 3)
-    try:
+    with assert_raises(TypeError):
         i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
-        assert False
-    except TypeError:
-        pass
     con_coeffs = np.random.uniform(-1, 1, nprims.sum())
 
     # Exceeding the maximym shell type (above):
     shell_types[0] = get_max_shell_type()+1
-    try:
+    with assert_raises(ValueError):
         i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
-        assert False
-    except ValueError:
-        pass
     shell_types[0] = 2
 
     # Exceeding the maximym shell type (below):
     shell_types[0] = -get_max_shell_type()-1
-    try:
+    with assert_raises(ValueError):
         i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
-        assert False
-    except ValueError:
-        pass
     shell_types[0] = 2
 
 
@@ -399,7 +373,7 @@ def test_concatenate2():
 
 
 def test_abstract():
-    try:
+    with assert_raises(NotImplementedError):
         centers = np.zeros((1,3), float)
         shell_map = np.zeros(2, int)
         nprims = np.array([1, 2])
@@ -408,6 +382,3 @@ def test_abstract():
         con_coeffs = np.array([0.1, 0.2, 0.3])
         from horton.gbasis.cext import GBasis
         gb = GBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
-        assert False
-    except NotImplementedError:
-        pass

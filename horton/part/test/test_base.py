@@ -21,6 +21,7 @@
 #--
 
 
+from nose.tools import assert_raises
 from horton import *
 
 
@@ -30,27 +31,16 @@ def test_base_exceptions():
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf)
     grid = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False, keep_subgrids=False)
-
-    try:
+    with assert_raises(ValueError):
         dp = WPart(sys, grid)
-        assert False
-    except ValueError:
-        pass
 
     grid = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False, keep_subgrids=True)
-
-    try:
+    with assert_raises(NotImplementedError):
         dp = WPart(sys, grid)
-        assert False
-    except NotImplementedError:
-        pass
 
     grid = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False, keep_subgrids=False)
-    try:
+    with assert_raises(NotImplementedError):
         dp = WPart(sys, grid, local=False)
-        assert False
-    except NotImplementedError:
-        pass
 
 
 def test_wpart_schemes():

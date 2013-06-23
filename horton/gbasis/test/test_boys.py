@@ -21,6 +21,7 @@
 
 
 import numpy as np
+from nose.tools import assert_raises
 from horton import *
 
 
@@ -512,8 +513,5 @@ def test_boys_functions():
 
 def test_boys_domain_error():
     for m, t in (-1, 0.0), (get_max_shell_type()*4+1, 0.0), (5, -1):
-        try:
+        with assert_raises(ValueError):
             boys_function(m, t)
-            assert False
-        except ValueError:
-            pass

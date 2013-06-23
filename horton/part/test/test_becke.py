@@ -21,6 +21,7 @@
 #--
 
 
+from nose.tools import assert_raises
 from horton import *
 
 
@@ -36,11 +37,8 @@ def test_becke_n2_hfs_sto3g():
     bp.do_charges()
     assert abs(bp['charges']).max() < 1e-4
     bp.invalidate()
-    try:
+    with assert_raises(KeyError):
         bp['charges']
-        assert False
-    except KeyError:
-        pass
     bp.do_charges()
     assert abs(bp['populations'] - 7).max() < 1e-4
     assert abs(bp['charges']).max() < 1e-4

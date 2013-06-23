@@ -21,6 +21,7 @@
 
 
 import numpy as np, h5py as h5
+from nose.tools import assert_raises
 
 from horton import *
 from horton.test.common import get_random_cell, compare_symmetries
@@ -95,8 +96,5 @@ def test_hdf5():
 def test_symmetry_error():
     sys1 = System.from_file(context.get_fn('test/lta_gulp.cif'))
     sys2 = System.from_file(context.get_fn('test/lta_iza.cif'))
-    try:
+    with assert_raises(SymmetryError):
         sys1.extra['symmetry'].identify(sys2)
-        assert False
-    except SymmetryError:
-        pass

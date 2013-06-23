@@ -21,6 +21,7 @@
 
 
 import numpy as np, h5py as h5, tempfile, os
+from nose.tools import assert_raises
 from horton import *
 
 
@@ -147,11 +148,8 @@ def test_allocation():
     assert 'egg' not in c
     assert (tmp[:] == 0.0).all()
     # try to load it, while it is no longer valid
-    try:
+    with assert_raises(KeyError):
         bis = c.load('egg')
-        assert False
-    except KeyError:
-        pass
     # properly load it anew
     bis, new = c.load('egg', alloc=(5,10))
     assert new
@@ -171,28 +169,19 @@ def test_default():
     assert c.load('egg', default=6) == 5
     c.clear()
     assert c.load('egg', default=6) == 6
-    try:
+    with assert_raises(KeyError):
         c.load('egg')
-        assert False
-    except KeyError:
-        pass
     c.clear()
     assert c.load('egg', default=None) == None
-    try:
+    with assert_raises(KeyError):
         c.load('egg')
-        assert False
-    except KeyError:
-        pass
     # with arrays
     c.dump('floep', np.array([3.1, 5.1]))
     assert (c.load('floep', default=3) == np.array([3.1, 5.1])).all()
     c.clear()
     assert c.load('floep', default=3) == 3
-    try:
+    with assert_raises(KeyError):
         c.load('floep')
-        assert False
-    except KeyError:
-        pass
 
 
 def test_dense_expansion():
@@ -209,45 +198,24 @@ def test_dense_expansion():
     assert not new
     assert op1 is op3
     # things that should not work
-    try:
+    with assert_raises(TypeError):
         op4, new = c.load('egg', alloc=(lf, 'expansion', 5))
-        assert False
-    except TypeError:
-        pass
-    try:
+    with assert_raises(TypeError):
         op4, new = c.load('egg', alloc=(lf, 'expansion', 10, 5))
-        assert False
-    except TypeError:
-        pass
-    try:
+    with assert_raises(TypeError):
         op4, new = c.load('egg', alloc=5)
-        assert False
-    except TypeError:
-        pass
     # after invalidation
     op1.coeffs[1, 2] = 5.2
     c.clear()
     assert op1.coeffs[1,2] == 0.0
-    try:
+    with assert_raises(KeyError):
         op4 = c.load('egg')
-        assert False
-    except KeyError:
-        pass
-    try:
+    with assert_raises(TypeError):
         op4, new = c.load('egg', alloc=(lf, 'expansion', 5))
-        assert False
-    except TypeError:
-        pass
-    try:
+    with assert_raises(TypeError):
         op4, new = c.load('egg', alloc=(lf, 'expansion', 10, 5))
-        assert False
-    except TypeError:
-        pass
-    try:
+    with assert_raises(TypeError):
         op4, new = c.load('egg', alloc=5)
-        assert False
-    except TypeError:
-        pass
     op4, new = c.load('egg', alloc=(lf, 'expansion', 10))
     assert new
     assert op1 is op4
@@ -269,35 +237,20 @@ def test_dense_one_body():
     assert not new
     assert op1 is op3
     # things that should not work
-    try:
+    with assert_raises(TypeError):
         op4, new = c.load('egg', alloc=(lf, 'one_body', 5))
-        assert False
-    except TypeError:
-        pass
-    try:
+    with assert_raises(TypeError):
         op4, new = c.load('egg', alloc=5)
-        assert False
-    except TypeError:
-        pass
     # after invalidation
     op1.set_element(1, 2, 5.2)
     c.clear()
     assert op1._array[1,2] == 0.0
-    try:
+    with assert_raises(KeyError):
         op4 = c.load('egg')
-        assert False
-    except KeyError:
-        pass
-    try:
+    with assert_raises(TypeError):
         op4, new = c.load('egg', alloc=(lf, 'one_body', 5))
-        assert False
-    except TypeError:
-        pass
-    try:
+    with assert_raises(TypeError):
         op4, new = c.load('egg', alloc=5)
-        assert False
-    except TypeError:
-        pass
     op4, new = c.load('egg', alloc=(lf, 'one_body', 10))
     assert new
     assert op1 is op4
@@ -319,35 +272,20 @@ def test_dense_two_body():
     assert not new
     assert op1 is op3
     # things that should not work
-    try:
+    with assert_raises(TypeError):
         op4, new = c.load('egg', alloc=(lf, 'two_body', 5))
-        assert False
-    except TypeError:
-        pass
-    try:
+    with assert_raises(TypeError):
         op4, new = c.load('egg', alloc=5)
-        assert False
-    except TypeError:
-        pass
     # after invalidation
     op1.set_element(1, 2, 1, 2, 5.2)
     c.clear()
     assert op1._array[1,2,1,2] == 0.0
-    try:
+    with assert_raises(KeyError):
         op4 = c.load('egg')
-        assert False
-    except KeyError:
-        pass
-    try:
+    with assert_raises(TypeError):
         op4, new = c.load('egg', alloc=(lf, 'two_body', 5))
-        assert False
-    except TypeError:
-        pass
-    try:
+    with assert_raises(TypeError):
         op4, new = c.load('egg', alloc=5)
-        assert False
-    except TypeError:
-        pass
     op4, new = c.load('egg', alloc=(lf, 'two_body', 10))
     assert new
     assert op1 is op4
@@ -357,66 +295,27 @@ def test_dense_two_body():
 
 def test_basic_exceptions():
     c = Cache()
-    try:
+    with assert_raises(KeyError):
         c.load('boo')
-        assert False
-    except KeyError:
-        pass
-
     c.dump('bar', np.zeros(4, float))
-    try:
+    with assert_raises(TypeError):
         c.load('bar', alloc=5)
-        assert False
-    except TypeError:
-        pass
-
-    try:
+    with assert_raises(TypeError):
         c.load()
-        assert False
-    except TypeError:
-        pass
-
-    try:
+    with assert_raises(TypeError):
         c.load('foo', sadfj=4)
-        assert False
-    except TypeError:
-        pass
-
-    try:
+    with assert_raises(TypeError):
         c.load('foo', alloc=3, sdasffd=0)
-        assert False
-    except TypeError:
-        pass
-
-    try:
+    with assert_raises(TypeError):
         c.load('foo', alloc=3, default=0)
-        assert False
-    except TypeError:
-        pass
-
-    try:
+    with assert_raises(TypeError):
         c.load('foo', jgfjg=3, default=0)
-        assert False
-    except TypeError:
-        pass
-
-    try:
+    with assert_raises(TypeError):
         c.dump()
-        assert False
-    except TypeError:
-        pass
-
-    try:
+    with assert_raises(TypeError):
         c.dump('one')
-        assert False
-    except TypeError:
-        pass
-
-    try:
+    with assert_raises(TypeError):
         c.clear_item()
-        assert False
-    except TypeError:
-        pass
 
 
 def test_dealloc():
