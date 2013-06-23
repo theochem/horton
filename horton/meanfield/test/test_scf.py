@@ -21,6 +21,7 @@
 
 
 import numpy as np
+from nose.tools import assert_raises
 from horton import *
 
 
@@ -31,7 +32,7 @@ def test_scf_cs():
     guess_hamiltonian_core(sys)
     ham = Hamiltonian(sys, [HartreeFockExchange()])
     assert convergence_error(ham) > 1e-8
-    assert converge_scf(ham)
+    converge_scf(ham)
     assert convergence_error(ham) < 1e-8
 
     # test operator consistency
@@ -65,7 +66,7 @@ def test_scf_os():
     guess_hamiltonian_core(sys)
     ham = Hamiltonian(sys, [HartreeFockExchange()])
     assert convergence_error(ham) > 1e-8
-    assert converge_scf(ham)
+    converge_scf(ham)
     assert convergence_error(ham) < 1e-8
 
     expected_alpha_energies = np.array([
@@ -124,7 +125,7 @@ def test_scf_oda_water_hfs_321g():
     # Converge from scratch
     guess_hamiltonian_core(sys)
     assert convergence_error(ham) > 1e-5
-    assert converge_scf_oda(ham, threshold=1e-6)
+    converge_scf_oda(ham, threshold=1e-6)
     assert convergence_error(ham) < 1e-5
 
     assert abs(sys.extra['energy_ne'] - -1.977921986200E+02) < 1e-4
@@ -142,10 +143,12 @@ def test_scf_oda_water_hf_321g():
     guess_hamiltonian_core(sys)
     e0 = ham.compute()
     assert convergence_error(ham) > 1e-5
-    assert not converge_scf_oda(ham, threshold=1e-2, maxiter=3)
-    assert 'exp_alpha' not in sys.wfn._cache
+    with assert_raises(NoSCFConvergence):
+        converge_scf_oda(ham, threshold=1e-2, maxiter=3)
+    assert 'exp_alpha' in sys.wfn._cache
     e1 = ham.compute()
-    assert not converge_scf_oda(ham, threshold=1e-2, maxiter=3)
+    with assert_raises(NoSCFConvergence):
+        converge_scf_oda(ham, threshold=1e-2, maxiter=3)
     e2 = ham.compute()
     assert e1 < e0
     assert e2 < e1
@@ -161,16 +164,18 @@ def test_scf_oda_lih_hfs_321g():
     guess_hamiltonian_core(sys)
     e0 = ham.compute()
     assert convergence_error(ham) > 1e-5
-    assert not converge_scf_oda(ham, threshold=1e-8, maxiter=3)
-    assert 'exp_alpha' not in sys.wfn._cache
+    with assert_raises(NoSCFConvergence):
+        converge_scf_oda(ham, threshold=1e-8, maxiter=3)
+    assert 'exp_alpha' in sys.wfn._cache
     e1 = ham.compute()
-    assert not converge_scf_oda(ham, threshold=1e-8, maxiter=3)
+    with assert_raises(NoSCFConvergence):
+        converge_scf_oda(ham, threshold=1e-8, maxiter=3)
     e2 = ham.compute()
     assert e1 < e0
     assert e2 < e1
 
     # continue till convergence
-    assert converge_scf_oda(ham, threshold=1e-8)
+    converge_scf_oda(ham, threshold=1e-8)
 
 
 def test_hf_water_321g_mistake():
@@ -205,4 +210,4 @@ def test_scf_oda_aufbau_spin():
 
     guess_hamiltonian_core(sys)
     ham = Hamiltonian(sys, [HartreeFockExchange()])
-    assert converge_scf_oda(ham)
+    converge_scf_oda(ham)

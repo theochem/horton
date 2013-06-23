@@ -21,6 +21,7 @@
 
 
 import tempfile, os, h5py as h5, numpy as np
+from nose.tools import assert_raises
 
 from horton import *
 from horton.test.common import get_random_cell, compare_systems, compare_wfns
@@ -172,7 +173,8 @@ def test_chk_guess_scf_cs():
     assert (sys.wfn.dm_alpha._array == dma).all()
 
     ham = Hamiltonian(sys, [HartreeFockExchange()])
-    converge_scf(ham, 5)
+    with assert_raises(NoSCFConvergence):
+        converge_scf(ham, 5)
     c = sys.wfn.exp_alpha._coeffs
     e = sys.wfn.exp_alpha._energies
     dma = sys.wfn.dm_alpha._array
@@ -219,7 +221,8 @@ def test_chk_guess_scf_os():
     assert (sys.wfn.dm_beta._array == dmb).all()
 
     ham = Hamiltonian(sys, [HartreeFockExchange()])
-    converge_scf(ham, 5)
+    with assert_raises(NoSCFConvergence):
+        converge_scf(ham, 5)
     ac = sys.wfn.exp_alpha._coeffs
     bc = sys.wfn.exp_beta._coeffs
     ae = sys.wfn.exp_alpha._energies
