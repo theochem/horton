@@ -142,10 +142,10 @@ def test_scf_oda_water_hf_321g():
     guess_hamiltonian_core(sys)
     e0 = ham.compute()
     assert convergence_error(ham) > 1e-5
-    assert not converge_scf_oda(ham, threshold=1e-2, max_iter=3)
+    assert not converge_scf_oda(ham, threshold=1e-2, maxiter=3)
     assert 'exp_alpha' not in sys.wfn._cache
     e1 = ham.compute()
-    assert not converge_scf_oda(ham, threshold=1e-2, max_iter=3)
+    assert not converge_scf_oda(ham, threshold=1e-2, maxiter=3)
     e2 = ham.compute()
     assert e1 < e0
     assert e2 < e1
@@ -161,10 +161,10 @@ def test_scf_oda_lih_hfs_321g():
     guess_hamiltonian_core(sys)
     e0 = ham.compute()
     assert convergence_error(ham) > 1e-5
-    assert not converge_scf_oda(ham, threshold=1e-8, max_iter=3)
+    assert not converge_scf_oda(ham, threshold=1e-8, maxiter=3)
     assert 'exp_alpha' not in sys.wfn._cache
     e1 = ham.compute()
-    assert not converge_scf_oda(ham, threshold=1e-8, max_iter=3)
+    assert not converge_scf_oda(ham, threshold=1e-8, maxiter=3)
     e2 = ham.compute()
     assert e1 < e0
     assert e2 < e1

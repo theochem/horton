@@ -34,7 +34,7 @@ __all__ = [
 ]
 
 
-def converge_scf(ham, max_iter=128, threshold=1e-8):
+def converge_scf(ham, maxiter=128, threshold=1e-8):
     '''Minimize the energy of the wavefunction with basic SCF
 
        **Arguments:**
@@ -44,7 +44,7 @@ def converge_scf(ham, max_iter=128, threshold=1e-8):
 
        **Optional arguments:**
 
-       max_iter
+       maxiter
             The maximum number of iterations
 
        threshold
@@ -57,14 +57,14 @@ def converge_scf(ham, max_iter=128, threshold=1e-8):
     '''
     with timer.section('SCF'):
         if isinstance(ham.system.wfn, RestrictedWFN):
-            return converge_scf_cs(ham, max_iter, threshold)
+            return converge_scf_cs(ham, maxiter, threshold)
         elif isinstance(ham.system.wfn, UnrestrictedWFN):
-            return converge_scf_os(ham, max_iter, threshold)
+            return converge_scf_os(ham, maxiter, threshold)
         else:
             raise NotImplementedError
 
 
-def converge_scf_cs(ham, max_iter=128, threshold=1e-8):
+def converge_scf_cs(ham, maxiter=128, threshold=1e-8):
     '''Minimize the energy of the wavefunction with basic closed-shell SCF
 
        **Arguments:**
@@ -74,7 +74,7 @@ def converge_scf_cs(ham, max_iter=128, threshold=1e-8):
 
        **Optional arguments:**
 
-       max_iter
+       maxiter
             The maximum number of iterations.
 
        threshold
@@ -96,7 +96,7 @@ def converge_scf_cs(ham, max_iter=128, threshold=1e-8):
     overlap = ham.system.get_overlap()
     fock = lf.create_one_body()
     converged = False
-    for i in xrange(max_iter):
+    for i in xrange(maxiter):
         # Construct the Fock operator
         fock.reset()
         ham.compute_fock(fock, None)
@@ -125,7 +125,7 @@ def converge_scf_cs(ham, max_iter=128, threshold=1e-8):
     return converged
 
 
-def converge_scf_os(ham, max_iter=128, threshold=1e-8):
+def converge_scf_os(ham, maxiter=128, threshold=1e-8):
     '''Minimize the energy of the wavefunction with basic open-shell SCF
 
        **Arguments:**
@@ -135,7 +135,7 @@ def converge_scf_os(ham, max_iter=128, threshold=1e-8):
 
        **Optional arguments:**
 
-       max_iter
+       maxiter
             The maximum number of iterations.
 
        threshold
@@ -158,7 +158,7 @@ def converge_scf_os(ham, max_iter=128, threshold=1e-8):
     fock_alpha = lf.create_one_body()
     fock_beta = lf.create_one_body()
     converged = False
-    for i in xrange(max_iter):
+    for i in xrange(maxiter):
         # Construct the Fock operators
         fock_alpha.reset()
         fock_beta.reset()
@@ -189,7 +189,7 @@ def converge_scf_os(ham, max_iter=128, threshold=1e-8):
     return converged
 
 
-def converge_scf_oda(ham, max_iter=128, threshold=1e-6, debug=False):
+def converge_scf_oda(ham, maxiter=128, threshold=1e-6, debug=False):
     '''Minimize the energy of the wavefunction with optinal-damping SCF
 
        **Arguments:**
@@ -199,7 +199,7 @@ def converge_scf_oda(ham, max_iter=128, threshold=1e-6, debug=False):
 
        **Optional arguments:**
 
-       max_iter
+       maxiter
             The maximum number of iterations
 
        threshold
@@ -215,9 +215,9 @@ def converge_scf_oda(ham, max_iter=128, threshold=1e-6, debug=False):
     '''
     with timer.section('SCF'):
         if isinstance(ham.system.wfn, RestrictedWFN):
-            return converge_scf_oda_cs(ham, max_iter, threshold, debug)
+            return converge_scf_oda_cs(ham, maxiter, threshold, debug)
         elif isinstance(ham.system.wfn, UnrestrictedWFN):
-            return converge_scf_oda_os(ham, max_iter, threshold, debug)
+            return converge_scf_oda_os(ham, maxiter, threshold, debug)
         else:
             raise NotImplementedError
 
@@ -321,7 +321,7 @@ def check_cubic_cs(ham, dm0, dm1, e0, e1, g0, g1, do_plot=True):
 
 
 
-def converge_scf_oda_cs(ham, max_iter=128, threshold=1e-6, debug=False):
+def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):
     '''Minimize the energy of the closed-shell wavefunction with optimal damping
 
        **Arguments:**
@@ -331,7 +331,7 @@ def converge_scf_oda_cs(ham, max_iter=128, threshold=1e-6, debug=False):
 
        **Optional arguments:**
 
-       max_iter
+       maxiter
             The maximum number of iterations.
 
        threshold
@@ -369,7 +369,7 @@ def converge_scf_oda_cs(ham, max_iter=128, threshold=1e-6, debug=False):
     mixing = None
     error = None
 
-    for i in xrange(max_iter):
+    for i in xrange(maxiter):
         # A) Construct Fock operator, compute energy and keep dm at current/initial point
         fock0.reset()
         ham.compute_fock(fock0, None)
@@ -504,7 +504,7 @@ def check_cubic_os(ham, dm0a, dm0b, dm1a, dm1b, e0, e1, g0, g1, do_plot=True):
         assert error < 0.01*oom
 
 
-def converge_scf_oda_os(ham, max_iter=128, threshold=1e-6, debug=False):
+def converge_scf_oda_os(ham, maxiter=128, threshold=1e-6, debug=False):
     '''Minimize the energy of the open-shell wavefunction with optimal damping
 
        **Arguments:**
@@ -514,7 +514,7 @@ def converge_scf_oda_os(ham, max_iter=128, threshold=1e-6, debug=False):
 
        **Optional arguments:**
 
-       max_iter
+       maxiter
             The maximum number of iterations.
 
        threshold
@@ -559,7 +559,7 @@ def converge_scf_oda_os(ham, max_iter=128, threshold=1e-6, debug=False):
     errora = None
     errorb = None
 
-    for i in xrange(max_iter):
+    for i in xrange(maxiter):
         # A) Construct Fock operator, compute energy and keep dm at current/initial point
         fock0a.reset()
         fock0b.reset()

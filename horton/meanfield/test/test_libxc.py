@@ -225,7 +225,7 @@ def test_cubic_interpolation_c_pbe_cs():
     ham = Hamiltonian(sys, [Hartree(), LibXCGGA('c_pbe')], grid)
 
     dm0 = sys.wfn.dm_alpha.copy()
-    converge_scf_oda(ham, max_iter=1)
+    converge_scf_oda(ham, maxiter=1)
     dm1 = sys.wfn.dm_alpha.copy()
 
     check_cubic_cs_wrapper(ham, dm0, dm1)
@@ -239,7 +239,7 @@ def test_cubic_interpolation_x_pbe_cs():
     ham = Hamiltonian(sys, [Hartree(), LibXCGGA('x_pbe')], grid)
 
     dm0 = sys.wfn.dm_alpha.copy()
-    converge_scf_oda(ham, max_iter=1)
+    converge_scf_oda(ham, maxiter=1)
     dm1 = sys.wfn.dm_alpha.copy()
 
     check_cubic_cs_wrapper(ham, dm0, dm1)
@@ -253,7 +253,7 @@ def test_cubic_interpolation_hfs_cs():
     ham = Hamiltonian(sys, [Hartree(), LibXCLDA('x')], grid)
 
     dm0 = sys.wfn.dm_alpha.copy()
-    converge_scf_oda(ham, max_iter=1)
+    converge_scf_oda(ham, maxiter=1)
     dm1 = sys.wfn.dm_alpha.copy()
 
     check_cubic_cs_wrapper(ham, dm0, dm1)
@@ -268,7 +268,7 @@ def test_cubic_interpolation_o3lyp_cs():
     ham = Hamiltonian(sys, [HartreeFockExchange(libxc_term.get_exx_fraction()), libxc_term], grid)
 
     dm0 = sys.wfn.dm_alpha.copy()
-    converge_scf_oda(ham, max_iter=1)
+    converge_scf_oda(ham, maxiter=1)
     dm1 = sys.wfn.dm_alpha.copy()
 
     check_cubic_cs_wrapper(ham, dm0, dm1)
@@ -283,7 +283,7 @@ def test_cubic_interpolation_c_pbe_os():
 
     dma0 = sys.wfn.dm_alpha.copy()
     dmb0 = sys.wfn.dm_beta.copy()
-    converge_scf_oda(ham, max_iter=1)
+    converge_scf_oda(ham, maxiter=1)
     dma1 = sys.wfn.dm_alpha.copy()
     dmb1 = sys.wfn.dm_beta.copy()
 
@@ -299,7 +299,7 @@ def test_cubic_interpolation_x_pbe_os():
 
     dma0 = sys.wfn.dm_alpha.copy()
     dmb0 = sys.wfn.dm_beta.copy()
-    converge_scf_oda(ham, max_iter=1)
+    converge_scf_oda(ham, maxiter=1)
     dma1 = sys.wfn.dm_alpha.copy()
     dmb1 = sys.wfn.dm_beta.copy()
 
