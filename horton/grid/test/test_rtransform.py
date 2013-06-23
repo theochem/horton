@@ -21,6 +21,7 @@
 
 
 import numpy as np
+from nose.tools import assert_raises
 
 from horton import *
 
@@ -170,11 +171,8 @@ def test_baker_properties():
 
 
 def test_exception_string():
-    try:
+    with assert_raises(TypeError):
         RTransform.from_string('Fubar A 5')
-        assert False
-    except TypeError:
-        pass
 
 
 def test_identiy_string():
@@ -183,17 +181,10 @@ def test_identiy_string():
     rtf2 = RTransform.from_string(s)
     assert rtf1.npoint == rtf2.npoint
 
-    try:
+    with assert_raises(ValueError):
         rtf3 = RTransform.from_string('IdentityRTransform A')
-        assert False
-    except ValueError:
-        pass
-
-    try:
+    with assert_raises(ValueError):
         rtf3 = RTransform.from_string('IdentityRTransform A 5 .1')
-        assert False
-    except ValueError:
-        pass
 
     rtf3 = RTransform.from_string('IdentityRTransform 8')
     assert rtf3.npoint == 8
@@ -209,17 +200,10 @@ def test_linear_string():
     assert rtf1.npoint == rtf2.npoint
     assert rtf1.alpha == rtf2.alpha
 
-    try:
+    with assert_raises(ValueError):
         rtf3 = RTransform.from_string('LinearRTransform A 5')
-        assert False
-    except ValueError:
-        pass
-
-    try:
+    with assert_raises(ValueError):
         rtf3 = RTransform.from_string('LinearRTransform A 5 .1')
-        assert False
-    except ValueError:
-        pass
 
     rtf3 = RTransform.from_string('LinearRTransform -1.0 12.15643216847 77')
     assert rtf3.rmin == -1.0
@@ -237,17 +221,10 @@ def test_exp_string():
     assert rtf1.npoint == rtf2.npoint
     assert rtf1.alpha == rtf2.alpha
 
-    try:
+    with assert_raises(ValueError):
         rtf3 = RTransform.from_string('ExpRTransform A 5')
-        assert False
-    except ValueError:
-        pass
-
-    try:
+    with assert_raises(ValueError):
         rtf3 = RTransform.from_string('ExpRTransform A 5 .1')
-        assert False
-    except ValueError:
-        pass
 
     rtf3 = RTransform.from_string('ExpRTransform 1.0 12.15643216847 5')
     assert rtf3.rmin == 1.0
@@ -267,17 +244,10 @@ def test_shifted_exp_string():
     assert rtf1.r0 == rtf2.r0
     assert rtf1.alpha == rtf2.alpha
 
-    try:
+    with assert_raises(ValueError):
         rtf3 = RTransform.from_string('ShiftedExpRTransform A 5')
-        assert False
-    except ValueError:
-        pass
-
-    try:
+    with assert_raises(ValueError):
         rtf3 = RTransform.from_string('ShiftedExpRTransform A 5 .1 14')
-        assert False
-    except ValueError:
-        pass
 
     rtf3 = RTransform.from_string('ShiftedExpRTransform 1.0 0.5 12.15643216847 5')
     assert rtf3.rmin == 1.0
@@ -295,17 +265,10 @@ def test_baker_string():
     assert rtf1.npoint == rtf2.npoint
     assert rtf1.scale == rtf2.scale
 
-    try:
+    with assert_raises(ValueError):
         rtf3 = RTransform.from_string('BakerRTransform A 5 7')
-        assert False
-    except ValueError:
-        pass
-
-    try:
+    with assert_raises(ValueError):
         rtf3 = RTransform.from_string('ExpRTransform A 5.0')
-        assert False
-    except ValueError:
-        pass
 
     rtf3 = RTransform.from_string('BakerRTransform 12.15643216847 5')
     assert rtf3.rmax == 12.15643216847
@@ -315,98 +278,47 @@ def test_baker_string():
 
 def test_identity_bounds():
     for npoint in -1, 0, 1:
-        try:
+        with assert_raises(ValueError):
             IdentityRTransform(npoint)
-            assert False
-        except ValueError:
-            pass
 
 
 def test_linear_bounds():
     for npoint in -1, 0, 1:
-        try:
+        with assert_raises(ValueError):
             LinearRTransform(-0.5, 0.99, npoint)
-            assert False
-        except ValueError:
-            pass
-
-    try:
+    with assert_raises(ValueError):
         LinearRTransform(1.1, 0.9, 50)
-        assert False
-    except ValueError:
-        pass
 
 
 def test_exp_bounds():
     for npoint in -1, 0, 1:
-        try:
+        with assert_raises(ValueError):
             ExpRTransform(0.1, 1.0, npoint)
-            assert False
-        except ValueError:
-            pass
-
-    try:
+    with assert_raises(ValueError):
         ExpRTransform(-0.1, 1.0, 50)
-        assert False
-    except ValueError:
-        pass
-
-    try:
+    with assert_raises(ValueError):
         ExpRTransform(0.1, -1.0, 50)
-        assert False
-    except ValueError:
-        pass
-
-    try:
+    with assert_raises(ValueError):
         ExpRTransform(1.1, 0.9, 50)
-        assert False
-    except ValueError:
-        pass
 
 
 def test_shifted_exp_bounds():
     for npoint in -1, 0, 1:
-        try:
+        with assert_raises(ValueError):
             ShiftedExpRTransform(0.1, 0.05, 1.0, npoint)
-            assert False
-        except ValueError:
-            pass
-
-    try:
+    with assert_raises(ValueError):
         ShiftedExpRTransform(-0.1, 0.2, 1.0, 50)
-        assert False
-    except ValueError:
-        pass
-
-    try:
+    with assert_raises(ValueError):
         ShiftedExpRTransform(0.1, 0.2, -1.0, 50)
-        assert False
-    except ValueError:
-        pass
-
-    try:
+    with assert_raises(ValueError):
         ShiftedExpRTransform(1.1, 0.2, 0.9, 50)
-        assert False
-    except ValueError:
-        pass
-
-    try:
+    with assert_raises(ValueError):
         ShiftedExpRTransform(0.1, -0.3, 0.9, 50)
-        assert False
-    except ValueError:
-        pass
 
 
 def test_baker_bounds():
     for npoint in -1, 0, 1:
-        try:
+        with assert_raises(ValueError):
             BakerRTransform(1.0, npoint)
-            assert False
-        except ValueError:
-            pass
-
-    try:
+    with assert_raises(ValueError):
         BakerRTransform(-1.0, 50)
-        assert False
-    except ValueError:
-        pass

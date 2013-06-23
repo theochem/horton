@@ -183,11 +183,8 @@ def test_hf_water_321g_mistake():
     sys = System.from_file(fn_xyz, obasis='3-21G')
     setup_mean_field_wfn(sys, charge=0)
     ham = Hamiltonian(sys, [HartreeFockExchange()])
-    try:
+    with assert_raises(KeyError):
         converge_scf(ham)
-        assert False
-    except (AttributeError, KeyError):
-        pass
 
 
 def test_find_min_cubic():

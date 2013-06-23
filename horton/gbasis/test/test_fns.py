@@ -21,33 +21,24 @@
 
 
 import numpy as np
+from nose.tools import assert_raises
 
 from horton import *
 
 
 def test_exceptions():
-    try:
+    with assert_raises(ValueError):
         grid_fn = GB1DMGridDensityFn(-1)
-        assert False
-    except ValueError:
-        pass
 
     center = np.array([-0.1, 0.6, -0.3])
     point = np.array([0.5, -0.2, 0.7])
 
-    try:
+    with assert_raises(ValueError):
         grid_fn = GB1DMGridDensityFn(2)
         grid_fn.reset(-3, center, point)
-        assert False
-    except ValueError:
-        pass
-
-    try:
+    with assert_raises(ValueError):
         grid_fn = GB1DMGridDensityFn(2)
         grid_fn.reset(3, center, point)
-        assert False
-    except ValueError:
-        pass
 
 
 def test_grid_fn_s():

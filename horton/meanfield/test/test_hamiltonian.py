@@ -21,6 +21,8 @@
 
 
 import numpy as np
+from nose.tools import assert_raises
+
 from horton import *
 from horton.meanfield.test.common import *
 
@@ -32,11 +34,8 @@ def test_hamiltonian_init():
     setup_mean_field_wfn(sys, 0, 1)
 
     # test if no terms gives a ValueError
-    try:
+    with assert_raises(ValueError):
         ham = Hamiltonian(sys, [])
-        assert False
-    except ValueError:
-        pass
 
     # test if terms are added automagically
     ham = Hamiltonian(sys, [HartreeFockExchange()])

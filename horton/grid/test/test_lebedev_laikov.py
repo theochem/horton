@@ -21,6 +21,7 @@
 
 
 from horton import *
+from nose.tools import assert_raises
 
 import numpy as np
 
@@ -49,11 +50,8 @@ def test_lebedev_laikov_npoint():
     assert lebedev_laikov_npoint(130) == 5810
     assert lebedev_laikov_npoint(131) == 5810
     for lvalue in -1, 132, 200, 2000:
-        try:
+        with assert_raises(ValueError):
             lebedev_laikov_npoint(lvalue)
-            assert False
-        except ValueError:
-            pass
 
 
 def test_lebedev_laikov_sphere():

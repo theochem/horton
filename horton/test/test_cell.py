@@ -21,6 +21,7 @@
 
 
 import numpy as np
+from nose.tools import assert_raises
 from horton import *
 
 from horton.test.common import get_random_cell
@@ -163,17 +164,10 @@ def test_cell_quartz():
 
     # Test domain errors
     for i in -1, 4, 245:
-        try:
+        with assert_raises(ValueError):
             cell.get_rspacing(i)
-            assert False
-        except ValueError:
-            pass
-
-        try:
+        with assert_raises(ValueError):
             cell.get_gspacing(i)
-            assert False
-        except ValueError:
-            pass
 
 
 def test_cell_0d():
@@ -457,11 +451,8 @@ def test_select_inside_0d():
     grid_cell, origin, center, rcut, shape, pbc, ranges_begin, ranges_end = setup_select_inside(0)
     npoint = np.product(ranges_end-ranges_begin)
     indexes = np.zeros((npoint, 0), int)
-    try:
+    with assert_raises(ValueError):
         nselect = grid_cell.select_inside(origin, center, rcut, ranges_begin, ranges_end, shape, pbc, indexes)
-        assert False
-    except ValueError:
-        pass
 
 
 def test_from_parameters0():

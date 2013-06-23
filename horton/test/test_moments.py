@@ -20,6 +20,7 @@
 #--
 
 
+from nose.tools import assert_raises
 from horton import *
 from horton.test.common import get_pentagon_moments
 
@@ -94,14 +95,7 @@ def test_fill_cartesian_polynomials():
             assert abs(output[irow] - check) < 1e-10
         assert (output[nrow:] == 0).all()
 
-    try:
+    with assert_raises(ValueError):
         fill_cartesian_polynomials(output, 5)
-        assert False
-    except ValueError:
-        pass
-
-    try:
+    with assert_raises(ValueError):
         fill_cartesian_polynomials(output[:get_ncart_cumul(4)-2], 4)
-        assert False
-    except ValueError:
-        pass

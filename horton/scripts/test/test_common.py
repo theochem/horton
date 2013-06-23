@@ -21,6 +21,7 @@
 
 
 import h5py as h5, argparse, numpy as np, tempfile, os
+from nose.tools import assert_raises
 
 from horton import *
 from horton.scripts.common import *
@@ -40,11 +41,8 @@ def test_iter_elements():
     assert list(iter_elements('2,6-8,10')) == [2, 6, 7, 8, 10]
     assert list(iter_elements('10,6-8,2')) == [10 ,6, 7, 8, 2]
     assert list(iter_elements('6-8,2')) == [6, 7, 8, 2]
-    try:
+    with assert_raises(ValueError):
         list(iter_elements('8-6,2')) == [2]
-        assert False
-    except ValueError:
-        pass
 
 
 def test_reduce_data0():
@@ -161,17 +159,13 @@ def test_safe_open1():
 
 def test_safe_open2():
     # test error handling in with clause
-    try:
+    with assert_raises(ValueError):
         with safe_open_h5('horton.scripts.test.test_common.test_safe_open2.h5', driver='core', backing_store=False) as f:
             raise ValueError
-    except ValueError:
-        pass
 
 
 def test_safe_open3():
     # test error handling in file opening
-    try:
+    with assert_raises(ValueError):
         with safe_open_h5('horton.scripts.test.test_common.test_safe_open3.h5', driver='fubar', wait=0.1, count=3) as f:
             raise ValueError
-    except ValueError:
-        pass

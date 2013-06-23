@@ -21,6 +21,7 @@
 
 
 import numpy as np
+from nose.tools import assert_raises
 
 from horton import *
 
@@ -140,17 +141,10 @@ def test_iter_pow2_l2l1():
 
 
 def test_iter_pow2_raise():
-    try:
+    with assert_raises(ValueError):
         ip2 = IterPow2(-1,1)
-        assert False
-    except ValueError:
-        pass
-
-    try:
+    with assert_raises(ValueError):
         ip2 = IterPow2(1,-1)
-        assert False
-    except ValueError:
-        pass
 
 
 def get_itergb1():
