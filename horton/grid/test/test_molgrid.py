@@ -144,7 +144,7 @@ def test_custom_grid_linear_observable():
     # Without perturbation
     ham = Hamiltonian(sys, [HartreeFockExchange()])
     assert convergence_error(ham) > 1e-8
-    assert converge_scf(ham)
+    converge_scf(ham)
     assert convergence_error(ham) < 1e-8
     energy0 = ham.compute()
 
@@ -166,7 +166,7 @@ def test_custom_grid_linear_observable():
         perturbation = CustomLinearObservable('pert', get_operator)
         ham = Hamiltonian(sys, [HartreeFockExchange(), perturbation])
         assert convergence_error(ham) > 1e-8
-        assert converge_scf_oda(ham)
+        converge_scf_oda(ham)
         assert convergence_error(ham) < 1e-8
         energy1 = ham.compute()
         energy1 -= sys.extra['energy_pert']

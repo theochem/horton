@@ -21,6 +21,7 @@
 
 
 import numpy as np
+from nose.tools import assert_raises
 from horton import *
 from horton.meanfield.test.common import *
 
@@ -58,7 +59,7 @@ def test_fock_n2_hfs_sto3g():
     # Converge from scratch
     guess_hamiltonian_core(sys)
     assert convergence_error(ham1) > 1e-8
-    assert converge_scf(ham1)
+    converge_scf(ham1)
     assert convergence_error(ham1) < 1e-8
 
     # test orbital energies
@@ -111,7 +112,7 @@ def test_hamiltonian_h3_hfs_321g():
     # Converge from scratch
     guess_hamiltonian_core(sys)
     assert convergence_error(ham1) > 1e-8
-    assert converge_scf_oda(ham1)
+    converge_scf_oda(ham1)
     assert convergence_error(ham1) < 1e-8
 
     # test orbital energies
@@ -154,7 +155,7 @@ def test_co_pbe_sto3g():
     # Converge from scratch
     guess_hamiltonian_core(sys)
     assert convergence_error(ham) > 1e-5
-    assert converge_scf_oda(ham, threshold=1e-3)
+    converge_scf_oda(ham, threshold=1e-3)
     assert convergence_error(ham) < 1e-5
 
     # test orbital energies
@@ -193,7 +194,7 @@ def test_h3_pbe_321g():
     # Converge from scratch
     guess_hamiltonian_core(sys)
     assert convergence_error(ham) > 1e-5
-    assert converge_scf_oda(ham, threshold=1e-5)
+    converge_scf_oda(ham, threshold=1e-5)
     assert convergence_error(ham) < 1e-5
 
     # test orbital energies
@@ -225,7 +226,8 @@ def test_cubic_interpolation_c_pbe_cs():
     ham = Hamiltonian(sys, [Hartree(), LibXCGGA('c_pbe')], grid)
 
     dm0 = sys.wfn.dm_alpha.copy()
-    converge_scf_oda(ham, maxiter=1)
+    with assert_raises(NoSCFConvergence):
+        converge_scf_oda(ham, maxiter=1)
     dm1 = sys.wfn.dm_alpha.copy()
 
     check_cubic_cs_wrapper(ham, dm0, dm1)
@@ -239,7 +241,8 @@ def test_cubic_interpolation_x_pbe_cs():
     ham = Hamiltonian(sys, [Hartree(), LibXCGGA('x_pbe')], grid)
 
     dm0 = sys.wfn.dm_alpha.copy()
-    converge_scf_oda(ham, maxiter=1)
+    with assert_raises(NoSCFConvergence):
+        converge_scf_oda(ham, maxiter=1)
     dm1 = sys.wfn.dm_alpha.copy()
 
     check_cubic_cs_wrapper(ham, dm0, dm1)
@@ -253,7 +256,8 @@ def test_cubic_interpolation_hfs_cs():
     ham = Hamiltonian(sys, [Hartree(), LibXCLDA('x')], grid)
 
     dm0 = sys.wfn.dm_alpha.copy()
-    converge_scf_oda(ham, maxiter=1)
+    with assert_raises(NoSCFConvergence):
+        converge_scf_oda(ham, maxiter=1)
     dm1 = sys.wfn.dm_alpha.copy()
 
     check_cubic_cs_wrapper(ham, dm0, dm1)
@@ -268,7 +272,8 @@ def test_cubic_interpolation_o3lyp_cs():
     ham = Hamiltonian(sys, [HartreeFockExchange(libxc_term.get_exx_fraction()), libxc_term], grid)
 
     dm0 = sys.wfn.dm_alpha.copy()
-    converge_scf_oda(ham, maxiter=1)
+    with assert_raises(NoSCFConvergence):
+        converge_scf_oda(ham, maxiter=1)
     dm1 = sys.wfn.dm_alpha.copy()
 
     check_cubic_cs_wrapper(ham, dm0, dm1)
@@ -283,7 +288,8 @@ def test_cubic_interpolation_c_pbe_os():
 
     dma0 = sys.wfn.dm_alpha.copy()
     dmb0 = sys.wfn.dm_beta.copy()
-    converge_scf_oda(ham, maxiter=1)
+    with assert_raises(NoSCFConvergence):
+        converge_scf_oda(ham, maxiter=1)
     dma1 = sys.wfn.dm_alpha.copy()
     dmb1 = sys.wfn.dm_beta.copy()
 
@@ -299,7 +305,8 @@ def test_cubic_interpolation_x_pbe_os():
 
     dma0 = sys.wfn.dm_alpha.copy()
     dmb0 = sys.wfn.dm_beta.copy()
-    converge_scf_oda(ham, maxiter=1)
+    with assert_raises(NoSCFConvergence):
+        converge_scf_oda(ham, maxiter=1)
     dma1 = sys.wfn.dm_alpha.copy()
     dmb1 = sys.wfn.dm_beta.copy()
 

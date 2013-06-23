@@ -28,10 +28,15 @@ from horton.meanfield.wfn import RestrictedWFN, UnrestrictedWFN
 
 
 __all__ = [
+    'NoSCFConvergence',
     'converge_scf',
     'check_cubic_cs', 'check_cubic_os', 'converge_scf_oda',
     'convergence_error'
 ]
+
+
+class NoSCFConvergence(Exception):
+    pass
 
 
 def converge_scf(ham, maxiter=128, threshold=1e-8):
@@ -45,21 +50,23 @@ def converge_scf(ham, maxiter=128, threshold=1e-8):
        **Optional arguments:**
 
        maxiter
-            The maximum number of iterations
+            The maximum number of iterations. When set to None, the SCF loop
+            will go one until convergence is reached.
 
        threshold
             The convergence threshold for the wavefunction
 
-       **Returns:**
+       **Raises:**
 
-       converged
-            True of converged, False if not
+       NoSCFConvergence
+            if the convergence criteria are not met within the specified number
+            of iterations.
     '''
     with timer.section('SCF'):
         if isinstance(ham.system.wfn, RestrictedWFN):
-            return converge_scf_cs(ham, maxiter, threshold)
+            converge_scf_cs(ham, maxiter, threshold)
         elif isinstance(ham.system.wfn, UnrestrictedWFN):
-            return converge_scf_os(ham, maxiter, threshold)
+            converge_scf_os(ham, maxiter, threshold)
         else:
             raise NotImplementedError
 
@@ -75,15 +82,17 @@ def converge_scf_cs(ham, maxiter=128, threshold=1e-8):
        **Optional arguments:**
 
        maxiter
-            The maximum number of iterations.
+            The maximum number of iterations. When set to None, the SCF loop
+            will go one until convergence is reached.
 
        threshold
             The convergence threshold for the wavefunction.
 
-       **Returns:**
+       **Raises:**
 
-       converged
-            True of converged, False if not.
+       NoSCFConvergence
+            if the convergence criteria are not met within the specified number
+            of iterations.
     '''
     if log.do_medium:
         log('Starting restricted closed-shell SCF')
@@ -96,7 +105,8 @@ def converge_scf_cs(ham, maxiter=128, threshold=1e-8):
     overlap = ham.system.get_overlap()
     fock = lf.create_one_body()
     converged = False
-    for i in xrange(maxiter):
+    i = 0
+    while maxiter is None or i < maxiter:
         # Construct the Fock operator
         fock.reset()
         ham.compute_fock(fock, None)
@@ -116,13 +126,11 @@ def converge_scf_cs(ham, maxiter=128, threshold=1e-8):
         ham.invalidate()
         # Write intermediate results to checkpoint
         ham.system.update_chk('wfn')
-        # Take a backup copy of the Fock matrix
+        # counter
+        i += 1
 
-    if log.do_medium:
-        log.hline()
-        log('SCF converged: %s' % converged)
-
-    return converged
+    if not converged:
+        raise NoSCFConvergence
 
 
 def converge_scf_os(ham, maxiter=128, threshold=1e-8):
@@ -136,15 +144,17 @@ def converge_scf_os(ham, maxiter=128, threshold=1e-8):
        **Optional arguments:**
 
        maxiter
-            The maximum number of iterations.
+            The maximum number of iterations. When set to None, the SCF loop
+            will go one until convergence is reached.
 
        threshold
             The convergence threshold for the wavefunction.
 
-       **Returns:**
+       **Raises:**
 
-       converged
-            True of converged, False if not.
+       NoSCFConvergence
+            if the convergence criteria are not met within the specified number
+            of iterations.
     '''
     if log.do_medium:
         log('Starting unrestricted open-shell SCF')
@@ -158,7 +168,8 @@ def converge_scf_os(ham, maxiter=128, threshold=1e-8):
     fock_alpha = lf.create_one_body()
     fock_beta = lf.create_one_body()
     converged = False
-    for i in xrange(maxiter):
+    i = 0
+    while maxiter is None or i < maxiter:
         # Construct the Fock operators
         fock_alpha.reset()
         fock_beta.reset()
@@ -180,13 +191,11 @@ def converge_scf_os(ham, maxiter=128, threshold=1e-8):
         ham.invalidate()
         # Write intermediate results to checkpoint
         ham.system.update_chk('wfn')
-        # Take backup copies of the Fock matrices.
+        # counter
+        i += 1
 
-    if log.do_medium:
-        log.hline()
-        log('SCF converged: %s' % converged)
-
-    return converged
+    if not converged:
+        raise NoSCFConvergence
 
 
 def converge_scf_oda(ham, maxiter=128, threshold=1e-6, debug=False):
@@ -200,7 +209,8 @@ def converge_scf_oda(ham, maxiter=128, threshold=1e-6, debug=False):
        **Optional arguments:**
 
        maxiter
-            The maximum number of iterations
+            The maximum number of iterations. When set to None, the SCF loop
+            will go one until convergence is reached.
 
        threshold
             The convergence threshold for the wavefunction
@@ -208,16 +218,17 @@ def converge_scf_oda(ham, maxiter=128, threshold=1e-6, debug=False):
        debug
             Make debug plots with matplotlib of the linear interpolation
 
-       **Returns:**
+       **Raises:**
 
-       converged
-            True of converged, False if not
+       NoSCFConvergence
+            if the convergence criteria are not met within the specified number
+            of iterations.
     '''
     with timer.section('SCF'):
         if isinstance(ham.system.wfn, RestrictedWFN):
-            return converge_scf_oda_cs(ham, maxiter, threshold, debug)
+            converge_scf_oda_cs(ham, maxiter, threshold, debug)
         elif isinstance(ham.system.wfn, UnrestrictedWFN):
-            return converge_scf_oda_os(ham, maxiter, threshold, debug)
+            converge_scf_oda_os(ham, maxiter, threshold, debug)
         else:
             raise NotImplementedError
 
@@ -332,7 +343,8 @@ def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):
        **Optional arguments:**
 
        maxiter
-            The maximum number of iterations.
+            The maximum number of iterations. When set to None, the SCF loop
+            will go one until convergence is reached.
 
        threshold
             The convergence threshold for the wavefunction.
@@ -340,10 +352,11 @@ def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):
        debug
             Make debug plots with matplotlib of the linear interpolation
 
-       **Returns:**
+       **Raises:**
 
-       converged
-            True of converged, False if not.
+       NoSCFConvergence
+            if the convergence criteria are not met within the specified number
+            of iterations.
     '''
     log.cite('cances2001', 'using the optimal damping algorithm (ODA)')
 
@@ -369,7 +382,8 @@ def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):
     mixing = None
     error = None
 
-    for i in xrange(maxiter):
+    i = 0
+    while maxiter is None or i < maxiter:
         # A) Construct Fock operator, compute energy and keep dm at current/initial point
         fock0.reset()
         ham.compute_fock(fock0, None)
@@ -432,26 +446,24 @@ def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):
 
         # Write intermediate wfn to checkpoint.
         ham.system.update_chk('wfn')
+        # counter
+        i += 1
 
-    if converged:
-        # compute orbitals, energies and occupation numbers
-        # Note: suffix 0 is used for final state here
-        dm0.assign(wfn.dm_alpha)
-        fock0.reset()
-        ham.compute_fock(fock0, None)
-        wfn.invalidate()
-        wfn.update_exp(fock0, overlap, dm0)
-        energy0 = ham.compute()
-        # Write final wfn to checkpoint.
-        ham.system.update_chk('wfn')
-        if log.do_medium:
-            log('%5i %20.13f  %12.5e  %10.5f' % (i+1, energy0, error, mixing))
-
+    # compute orbitals, energies and occupation numbers
+    # Note: suffix 0 is used for final state here
+    dm0.assign(wfn.dm_alpha)
+    fock0.reset()
+    ham.compute_fock(fock0, None)
+    wfn.invalidate()
+    wfn.update_exp(fock0, overlap, dm0)
+    energy0 = ham.compute()
+    # Write final wfn to checkpoint.
+    ham.system.update_chk('wfn')
     if log.do_medium:
-        log.hline()
-        log('SCF converged: %s' % converged)
+        log('%5i %20.13f  %12.5e  %10.5f' % (i+1, energy0, error, mixing))
 
-    return converged
+    if not converged:
+        raise NoSCFConvergence
 
 
 def check_cubic_os(ham, dm0a, dm0b, dm1a, dm1b, e0, e1, g0, g1, do_plot=True):
@@ -515,7 +527,8 @@ def converge_scf_oda_os(ham, maxiter=128, threshold=1e-6, debug=False):
        **Optional arguments:**
 
        maxiter
-            The maximum number of iterations.
+            The maximum number of iterations. When set to None, the SCF loop
+            will go one until convergence is reached.
 
        threshold
             The convergence threshold for the wavefunction.
@@ -523,10 +536,11 @@ def converge_scf_oda_os(ham, maxiter=128, threshold=1e-6, debug=False):
        debug
             Make debug plots with matplotlib of the linear interpolation
 
-       **Returns:**
+       **Raises:**
 
-       converged
-            True of converged, False if not.
+       NoSCFConvergence
+            if the convergence criteria are not met within the specified number
+            of iterations.
     '''
     log.cite('cances2001', 'using the optimal damping algorithm (ODA)')
 
@@ -559,7 +573,8 @@ def converge_scf_oda_os(ham, maxiter=128, threshold=1e-6, debug=False):
     errora = None
     errorb = None
 
-    for i in xrange(maxiter):
+    i = 0
+    while maxiter is None or i < maxiter:
         # A) Construct Fock operator, compute energy and keep dm at current/initial point
         fock0a.reset()
         fock0b.reset()
@@ -633,28 +648,26 @@ def converge_scf_oda_os(ham, maxiter=128, threshold=1e-6, debug=False):
 
         # Write intermediate wfn to checkpoint.
         ham.system.update_chk('wfn')
+        # counter
+        i += 1
 
-    if converged:
-        # compute orbitals, energies and occupation numbers
-        # Note: suffix 0 is used for final state here
-        dm0a.assign(wfn.dm_alpha)
-        dm0b.assign(wfn.dm_beta)
-        fock0a.reset()
-        fock0b.reset()
-        ham.compute_fock(fock0a, fock0b)
-        wfn.invalidate()
-        wfn.update_exp(fock0a, fock0b, overlap, dm0a, dm0b)
-        energy0 = ham.compute()
-        # Write final wfn to checkpoint.
-        ham.system.update_chk('wfn')
-        if log.do_medium:
-            log('%5i %20.13f  %12.5e  %12.5e  %10.5f' % (i+1, energy0, errora, errorb, mixing))
-
+    # compute orbitals, energies and occupation numbers
+    # Note: suffix 0 is used for final state here
+    dm0a.assign(wfn.dm_alpha)
+    dm0b.assign(wfn.dm_beta)
+    fock0a.reset()
+    fock0b.reset()
+    ham.compute_fock(fock0a, fock0b)
+    wfn.invalidate()
+    wfn.update_exp(fock0a, fock0b, overlap, dm0a, dm0b)
+    energy0 = ham.compute()
+    # Write final wfn to checkpoint.
+    ham.system.update_chk('wfn')
     if log.do_medium:
-        log.hline()
-        log('SCF converged: %s' % converged)
+        log('%5i %20.13f  %12.5e  %12.5e  %10.5f' % (i+1, energy0, errora, errorb, mixing))
 
-    return converged
+    if not converged:
+        raise NoSCFConvergence
 
 
 def convergence_error(ham):
