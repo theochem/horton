@@ -124,7 +124,7 @@ def test_chk_update2():
 
 
 def test_chk_update3():
-    chk = h5.File('horton.test.test_checkpoint.test_chk_update2', driver='core', backing_store=False)
+    chk = h5.File('horton.test.test_checkpoint.test_chk_update3', driver='core', backing_store=False)
     sys1 = System.from_file(context.get_fn('test/hf_sto3g.fchk'), chk=chk)
     sys1.numbers[:] = [3, 2]
     sys1.update_chk()
