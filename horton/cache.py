@@ -327,13 +327,6 @@ class Cache(object):
         item = CacheItem(value, own)
         self._store[key] = item
 
-    def rename(self, old, new):
-        '''Change the name of a cached object.'''
-        new = normalize_key(new)
-        old = normalize_key(old)
-        self._store[new] = self._store[old]
-        del self._store[old]
-
     def __len__(self):
         return sum(item.valid for item in self._store.itervalues())
 
