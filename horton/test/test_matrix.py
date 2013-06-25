@@ -57,7 +57,11 @@ def get_water_sto3g_hf(lf=None):
     exp_alpha.energies[:] = epsilons
     occ_model.assign(exp_alpha)
     assert (exp_alpha.occupations == np.array([1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0])).all()
-    return lf, results['cache'], wfn
+    # convert the cache dictionary to a real cache object
+    cache = Cache()
+    for key, (value, tags) in results['cache'].iteritems():
+        cache.dump(key, value, tags=tags)
+    return lf, cache, wfn
 
 
 def test_fock_matrix_eigen():
