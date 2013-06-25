@@ -414,21 +414,21 @@ class System(object):
                 raise TypeError('The nbasis attribute of the cached object \'%s\' and obasis are inconsistent.' % key)
 
     def get_overlap(self):
-        overlap, new = self.cache.load('olp', alloc=(self.lf, 'one_body'))
+        overlap, new = self.cache.load('olp', alloc=self.lf.create_one_body)
         if new:
             self.obasis.compute_overlap(overlap)
             self.update_chk('cache.olp')
         return overlap
 
     def get_kinetic(self):
-        kinetic, new = self.cache.load('kin', alloc=(self.lf, 'one_body'))
+        kinetic, new = self.cache.load('kin', alloc=self.lf.create_one_body)
         if new:
             self.obasis.compute_kinetic(kinetic)
             self.update_chk('cache.kin')
         return kinetic
 
     def get_nuclear_attraction(self):
-        nuclear_attraction, new = self.cache.load('na', alloc=(self.lf, 'one_body'))
+        nuclear_attraction, new = self.cache.load('na', alloc=self.lf.create_one_body)
         if new:
             # TODO: ghost atoms and extra charges
             self.obasis.compute_nuclear_attraction(self.numbers.astype(float), self.coordinates, nuclear_attraction)
@@ -436,7 +436,7 @@ class System(object):
         return nuclear_attraction
 
     def get_electron_repulsion(self):
-        electron_repulsion, new = self.cache.load('er', alloc=(self.lf, 'two_body'))
+        electron_repulsion, new = self.cache.load('er', alloc=self.lf.create_two_body)
         if new:
             self.obasis.compute_electron_repulsion(electron_repulsion)
             # ER integrals are not checkpointed by default because they are too heavy.

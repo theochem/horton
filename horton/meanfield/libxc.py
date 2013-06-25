@@ -75,7 +75,7 @@ class LibXCLDA(LibXCEnergy):
             # TODO: in the Hamiltonian class, all the grids should be added
             # and converted only once to a fock operator
             # Create/update the one-body operator based on the potential on the grid.
-            operator, new = self.cache.load('op_libxc_%s_alpha' % self._name, alloc=(self.system.lf, 'one_body'))
+            operator, new = self.cache.load('op_libxc_%s_alpha' % self._name, alloc=self.system.lf.create_one_body)
             if new:
                 self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, pot, operator)
         else:
@@ -89,11 +89,11 @@ class LibXCLDA(LibXCEnergy):
             # TODO: in the Hamiltonian class, all the grids should be added
             # and converted only once to a fock operator
             # Create/update the one-body operator based on the potential on the grid.
-            operator_alpha, new_alpha = self.cache.load('op_libxc_%s_alpha' % self._name, alloc=(self.system.lf, 'one_body'))
+            operator_alpha, new_alpha = self.cache.load('op_libxc_%s_alpha' % self._name, alloc=self.system.lf.create_one_body)
             if new_alpha:
                 self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, pot_both[:,0], operator_alpha)
 
-            operator_beta, new_beta = self.cache.load('op_libxc_%s_beta' % self._name, alloc=(self.system.lf, 'one_body'))
+            operator_beta, new_beta = self.cache.load('op_libxc_%s_beta' % self._name, alloc=self.system.lf.create_one_body)
             if new_beta:
                 self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, pot_both[:,1], operator_beta)
 
@@ -146,7 +146,7 @@ class LibXCGGA(LibXCEnergy):
 
 
             # TODO: in the Hamiltonian class, all the grids should be added
-            operator, new = self.cache.load('op_libxc_%s_alpha' % self._name, alloc=(self.system.lf, 'one_body'))
+            operator, new = self.cache.load('op_libxc_%s_alpha' % self._name, alloc=self.system.lf.create_one_body)
             if new:
                 self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, dpot, operator)
                 self.system.compute_grid_gradient_fock(self.grid.points, self.grid.weights, gpot, operator)
@@ -172,12 +172,12 @@ class LibXCGGA(LibXCEnergy):
 
 
             # TODO: in the Hamiltonian class, all the grids should be added
-            operator_alpha, new = self.cache.load('op_libxc_%s_alpha' % self._name, alloc=(self.system.lf, 'one_body'))
+            operator_alpha, new = self.cache.load('op_libxc_%s_alpha' % self._name, alloc=self.system.lf.create_one_body)
             if new:
                 self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, dpot_both[:,0], operator_alpha)
                 self.system.compute_grid_gradient_fock(self.grid.points, self.grid.weights, gpot_alpha, operator_alpha)
 
-            operator_beta, new = self.cache.load('op_libxc_%s_beta' % self._name, alloc=(self.system.lf, 'one_body'))
+            operator_beta, new = self.cache.load('op_libxc_%s_beta' % self._name, alloc=self.system.lf.create_one_body)
             if new:
                 self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, dpot_both[:,1], operator_beta)
                 self.system.compute_grid_gradient_fock(self.grid.points, self.grid.weights, gpot_beta, operator_beta)

@@ -166,13 +166,34 @@ class DenseLinalgFactory(LinalgFactory):
         nbasis = nbasis or self._default_nbasis
         return DenseExpansion(nbasis, nfn)
 
+    def _check_expansion_init_args(self, expansion, nbasis=None, nfn=None):
+        nbasis = nbasis or self._default_nbasis
+        expansion.__check_init_args__(nbasis, nfn)
+
+    create_expansion.__check_init_args__ = _check_expansion_init_args
+
+
     def create_one_body(self, nbasis=None):
         nbasis = nbasis or self._default_nbasis
         return DenseOneBody(nbasis)
 
+    def _check_one_body_init_args(self, one_body, nbasis=None):
+        nbasis = nbasis or self._default_nbasis
+        one_body.__check_init_args__(nbasis)
+
+    create_one_body.__check_init_args__ = _check_one_body_init_args
+
+
     def create_two_body(self, nbasis=None):
         nbasis = nbasis or self._default_nbasis
         return DenseTwoBody(nbasis)
+
+    def _check_two_body_init_args(self, two_body, nbasis=None):
+        nbasis = nbasis or self._default_nbasis
+        two_body.__check_init_args__(nbasis)
+
+    create_two_body.__check_init_args__ = _check_two_body_init_args
+
 
     @staticmethod
     def error_eigen(fock, overlap, expansion):
@@ -254,6 +275,12 @@ class DenseExpansion(LinalgObject):
     def __del__(self):
         if log is not None:
             log.mem.denounce(self._coeffs.nbytes + self._energies.nbytes + self._occupations.nbytes)
+
+    def __check_init_args__(self, nbasis, nfn=None):
+        if nfn is None:
+            nfn = nbasis
+        assert nbasis == self.nbasis
+        assert nfn == self.nfn
 
     def read_from_hdf5(self, grp):
         if grp.attrs['class'] != self.__class__.__name__:
@@ -473,6 +500,9 @@ class DenseOneBody(OneBody):
         if log is not None:
             log.mem.denounce(self._array.nbytes)
 
+    def __check_init_args__(self, nbasis):
+        assert nbasis == self.nbasis
+
     @classmethod
     def from_hdf5(cls, grp, lf):
         nbasis = grp['array'].shape[0]
@@ -576,6 +606,9 @@ class DenseTwoBody(LinalgObject):
     def __del__(self):
         if log is not None:
             log.mem.denounce(self._array.nbytes)
+
+    def __check_init_args__(self, nbasis):
+        assert nbasis == self.nbasis
 
     @classmethod
     def from_hdf5(cls, grp, lf):
