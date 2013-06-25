@@ -86,23 +86,45 @@ def _normalize_alloc(alloc):
     return alloc
 
 
+def _normalize_tags(tags):
+    '''Normalize the tags argument of the CacheItem constructor'''
+    if tags is None:
+        return set([])
+    else:
+        return set(tags)
+
+
 class CacheItem(object):
-    def __init__(self, value, own=False):
+    '''A container for an object stored in a Cache instance'''
+    def __init__(self, value, own=False, tags=None):
+        '''
+           **Arguments:**
+
+           value
+                The object stored in this container
+
+           **Optional arguments:**
+
+           own
+                If True, this container will denounce the memory allocated for
+                the contained object. This can only be True for a numpy array.
+        '''
         self._value = value
         self._valid = True
         self._own = own
+        self._tags = _normalize_tags(tags)
 
     @classmethod
-    def from_alloc(cls, alloc):
+    def from_alloc(cls, alloc, tags):
         alloc = _normalize_alloc(alloc)
         if all(isinstance(i, int) for i in alloc):
             # initialize a floating point array
             array = np.zeros(alloc, float)
             log.mem.announce(array.nbytes)
-            return cls(array, own=True)
+            return cls(array, own=True, tags=tags)
         else:
             # initialize a new object
-            return cls(alloc[0](*alloc[1:]))
+            return cls(alloc[0](*alloc[1:]), tags=tags)
 
     def __del__(self):
         if self._own and log is not None:
@@ -132,6 +154,11 @@ class CacheItem(object):
             except AssertionError:
                 raise TypeError('The stored item does not match the given alloc.')
 
+    def check_tags(self, tags):
+        tags = _normalize_tags(tags)
+        if tags != self._tags:
+            raise ValueError('Tags do not match.')
+
     def _get_value(self):
         if not self._valid:
             raise ValueError('This cached item is not valid.')
@@ -143,6 +170,11 @@ class CacheItem(object):
         return self._valid
 
     valid = property(_get_valid)
+
+    def _get_tags(self):
+        return self._tags
+
+    tags = property(_get_tags)
 
     def _get_clearable(self):
         return isinstance(self._value, np.ndarray) or \
@@ -187,16 +219,24 @@ class Cache(object):
     def __init__(self):
         self._store = {}
 
-    def clear(self, dealloc=False):
+    def clear(self, dealloc=False, tags=None):
         '''Clear all items in the cache
 
            **Optional arguments:**
 
            dealloc
                 When set to True, the items are really removed from memory.
+
+           tags
+                Limit the items cleared to those who have at least one tag
+                that matches one of the given tags. When this argument is used
+                and it contains at least one tag, items with no tags are not
+                cleared.
         '''
-        for key in self._store.keys():
-            self.clear_item(key, dealloc=dealloc)
+        tags = _normalize_tags(tags)
+        for key, item in self._store.items():
+            if len(tags) == 0 or len(item.tags & tags) > 0:
+                self.clear_item(key, dealloc=dealloc)
 
     def clear_item(self, *key, **kwargs):
         '''Clear a selected item from the cache
@@ -227,7 +267,7 @@ class Cache(object):
                 All positional arguments are used as keys to identify the cached
                 value.
 
-           **Optional arguments:** (at most one is accepted)
+           **Optional arguments:**
 
            alloc
                 Parameters used to allocate a cached value if it is not present
@@ -240,25 +280,29 @@ class Cache(object):
            default
                 A default value that is returned when the key does not exist in
                 the cache. This default value is not stored in the cache.
+
+           tags
+                When alloc is used and a new object is thereby created or
+                reused, it will get these tags. This argument is only allowed if
+                the alloc argument is present. In case no new object is
+                allocated, the given tags must match those already present.
+
+           The optional argument alloc and default are both meant to handle
+           situations when the key has not associated value. Hence they can not
+           be both present.
         '''
         key = _normalize_key(key)
 
         # parse kwargs
-        if len(kwargs) == 0:
-            alloc = None
-            default = no_default
-        elif len(kwargs) == 1:
-            name, value = kwargs.items()[0]
-            if name == 'alloc':
-                alloc = value
-                default = no_default
-            elif name == 'default':
-                alloc = None
-                default = value
-            else:
-                raise TypeError('Only one keyword argument is allowed: alloc or default')
-        else:
-            raise TypeError('Only one keyword argument is allowed: alloc or default')
+        alloc = kwargs.pop('alloc', None)
+        default = kwargs.pop('default', no_default)
+        tags = kwargs.pop('tags', None)
+        if not (alloc is None or default is no_default):
+            raise TypeError('The optional arguments alloc and default can not be used at the same time.')
+        if tags is not None and alloc is None:
+            raise TypeError('The tags argument is only allowed when the alloc argument is present.')
+        if len(kwargs) > 0:
+            raise TypeError('Unknown optional arguments: %s' % kwargs.keys())
 
         # get the item from the store and decide what to do
         item = self._store.get(key)
@@ -266,16 +310,18 @@ class Cache(object):
         if alloc is not None:
             # alloc is given. hence two return values: value, new
             if item is None:
-                # allocate a new item, s
-                item = CacheItem.from_alloc(alloc)
+                # allocate a new item and store it
+                item = CacheItem.from_alloc(alloc, tags)
                 self._store[key] = item
                 return item.value, True
             elif not item.valid:
                 item.check_alloc(alloc)
+                item.check_tags(tags)
                 item._valid = True # as if it is newly allocated
                 return item.value, True
             else:
                 item.check_alloc(alloc)
+                item.check_tags(tags)
                 return item.value, False
         elif default is not no_default:
             # a default value is given, it is not stored
@@ -315,15 +361,19 @@ class Cache(object):
            own
                 When set to True, the cache will take care of denouncing the
                 memory usage due to this array.
+
+           tags
+                Tags to be associated with the object
         '''
         own = kwargs.pop('own', False)
+        tags = kwargs.pop('tags', None)
         if len(kwargs) > 0:
             raise TypeError('Unknown optional arguments: %s' % kwargs.keys())
         if len(args) < 2:
             raise TypeError('At least two arguments are required: key1 and value.')
         key = _normalize_key(args[:-1])
         value = args[-1]
-        item = CacheItem(value, own)
+        item = CacheItem(value, own, tags)
         self._store[key] = item
 
     def __len__(self):
