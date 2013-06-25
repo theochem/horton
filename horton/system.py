@@ -71,10 +71,15 @@ class System(object):
                 is used by default.
 
            cache
-                A cache object with results obtained for the current orbital
-                basis set. This argument can be instance of the Cache class or a
-                dictionary. If a dictionary is given, it is converted to a cache
-                object.
+                A cache object with computed results that depend on other
+                attributes of the system class. Cached items should be tagged
+                according to the attributes they depend on:
+
+                    - ``o``: orbital basis (obasis)
+                    - ``c``: coordinates
+
+                When given as a dictionary, each value must consist of two
+                items: the object to be cached and the tags.
 
            extra
                 A dictionary with additional information about the system. The
@@ -116,8 +121,8 @@ class System(object):
             self._cache = cache
         elif isinstance(cache, dict):
             self._cache = Cache()
-            for key, value in cache.iteritems():
-                self._cache.dump(key, value)
+            for key, (value, tags) in cache.iteritems():
+                self._cache.dump(key, value, tags=tags)
         else:
             raise TypeError('Could not interpret the cache argument.')
         #
@@ -262,7 +267,7 @@ class System(object):
         if permutation is not None:
             cache = constructor_args.get('cache')
             if cache is not None:
-                for value in cache.itervalues():
+                for value, tags in cache.itervalues():
                     if isinstance(value, LinalgObject):
                         value.apply_basis_permutation(permutation)
             wfn = constructor_args.get('wfn')
@@ -276,7 +281,7 @@ class System(object):
         if signs is not None:
             cache = constructor_args.get('cache')
             if cache is not None:
-                for value in cache.itervalues():
+                for value, tags in cache.itervalues():
                     if isinstance(value, LinalgObject):
                         value.apply_basis_signs(signs)
             wfn = constructor_args.get('wfn')
@@ -392,7 +397,7 @@ class System(object):
         # Discard or reset results that depend on orbital basis
         if self.obasis is not None:
             dealloc = self.obasis.nbasis != obasis.nbasis
-            self._cache.clear(dealloc)
+            self._cache.clear(dealloc, tags='o')
             if dealloc:
                 # There is no way that the wavefunction can still be useful.
                 # Ideally, the user of the system object does some sort of
@@ -414,21 +419,21 @@ class System(object):
                 raise TypeError('The nbasis attribute of the cached object \'%s\' and obasis are inconsistent.' % key)
 
     def get_overlap(self):
-        overlap, new = self.cache.load('olp', alloc=self.lf.create_one_body)
+        overlap, new = self.cache.load('olp', alloc=self.lf.create_one_body, tags='co')
         if new:
             self.obasis.compute_overlap(overlap)
             self.update_chk('cache.olp')
         return overlap
 
     def get_kinetic(self):
-        kinetic, new = self.cache.load('kin', alloc=self.lf.create_one_body)
+        kinetic, new = self.cache.load('kin', alloc=self.lf.create_one_body, tags='co')
         if new:
             self.obasis.compute_kinetic(kinetic)
             self.update_chk('cache.kin')
         return kinetic
 
     def get_nuclear_attraction(self):
-        nuclear_attraction, new = self.cache.load('na', alloc=self.lf.create_one_body)
+        nuclear_attraction, new = self.cache.load('na', alloc=self.lf.create_one_body, tags='co')
         if new:
             # TODO: ghost atoms and extra charges
             self.obasis.compute_nuclear_attraction(self.numbers.astype(float), self.coordinates, nuclear_attraction)
@@ -436,7 +441,7 @@ class System(object):
         return nuclear_attraction
 
     def get_electron_repulsion(self):
-        electron_repulsion, new = self.cache.load('er', alloc=self.lf.create_two_body)
+        electron_repulsion, new = self.cache.load('er', alloc=self.lf.create_two_body, tags='co')
         if new:
             self.obasis.compute_electron_repulsion(electron_repulsion)
             # ER integrals are not checkpointed by default because they are too heavy.

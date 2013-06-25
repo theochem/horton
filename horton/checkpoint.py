@@ -41,7 +41,7 @@ __all__ = ['attribute_register', 'load_hdf5_low', 'dump_hdf5_low']
 
 
 class CHKField(object):
-    def __init__(self, att_name, key=None):
+    def __init__(self, att_name, key=None, tags=None):
         """
            **Argument:**
 
@@ -54,6 +54,9 @@ class CHKField(object):
                 If the attribute is a dictionary, the key refers to an element
                 in the dictionary. This must be a string
 
+           tags
+                These may be provided for items in a Cache object.
+
            The attribute of the System class may be None, a numpy array or
            an object that has to_hdf5 and from hdf5 methods method. In the last
            case, the HDF5 group must have a 'class' attribute.
@@ -64,6 +67,7 @@ class CHKField(object):
             raise TypeError('key must be a string, when given')
         self.att_name = att_name
         self.key = key
+        self.tags = tags
 
     def read(self, chk, lf):
         """Read and return an the attribute from the chk file
@@ -214,10 +218,10 @@ _tmp = [
     ('numbers',),
     ('obasis',),
     ('wfn',),
-    ('cache', 'olp'),
-    ('cache', 'kin'),
-    ('cache', 'na'),
-    ('cache', 'er'),
+    ('cache', 'olp', 'co'),
+    ('cache', 'kin', 'co'),
+    ('cache', 'na', 'co'),
+    ('cache', 'er', 'co'),
     ('extra',),
     ('pseudo_numbers',),
     ('cell',),
@@ -225,7 +229,6 @@ _tmp = [
 
 attribute_register = {}
 for record in _tmp:
-    assert len(record) in [1, 2]
     chk_field = CHKField(*record)
-    name = '.'.join(record)
+    name = '.'.join(record[:2])
     attribute_register[name] = chk_field
