@@ -250,3 +250,28 @@ def test_update_obasis():
     assert len(sys.extra) == 0
     olp = sys.get_overlap()
     assert olp.nbasis == 13
+
+
+def test_update_coordinates1():
+    sys = System.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+    olp = sys.get_overlap()
+    assert len(sys.extra) > 0
+    assert len(sys.cache) > 0
+    sys.update_coordinates(np.array([[0.0, 0.1, 0.2], [0.3, 0.4, 0.5], [0.6, 0.7, 0.8]]))
+    assert sys.coordinates[1,2] == 0.5
+    assert len(sys.extra) == 0
+    assert len(sys.cache) == 0
+    assert sys.obasis.centers[1,2] == 0.5
+
+
+def test_update_coordinates2():
+    sys = System.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+    olp = sys.get_overlap()
+    assert len(sys.extra) > 0
+    assert len(sys.cache) > 0
+    sys.coordinates[:] = [[0.0, 0.1, 0.2], [0.3, 0.4, 0.5], [0.6, 0.7, 0.8]]
+    sys.update_coordinates()
+    assert sys.coordinates[1,2] == 0.5
+    assert len(sys.extra) == 0
+    assert len(sys.cache) == 0
+    assert sys.obasis.centers[1,2] == 0.5
