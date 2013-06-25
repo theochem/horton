@@ -217,6 +217,7 @@ _tmp = [
     ('coordinates',),
     ('numbers',),
     ('obasis',),
+    ('grid',),
     ('wfn',),
     ('cache', 'olp', 'o'),
     ('cache', 'kin', 'o'),

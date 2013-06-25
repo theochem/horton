@@ -120,7 +120,9 @@ def main():
     if log.do_medium:
         log('Loading potential array')
     sys = System.from_file(args.cube)
-    ugrid = sys.extra['ugrid']
+    ugrid = sys.grid
+    if not isinstance(ugrid, UniformGrid):
+        raise TypeError('The specified file does not contain data on a rectangular grid.')
     ugrid.pbc[:] = parse_pbc(args.pbc) # correct pbc
     esp = sys.extra['cube_data']
 
