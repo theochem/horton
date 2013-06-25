@@ -660,4 +660,4 @@ class AufbauSpinOccModel(object):
 
     def log(self):
         log('Occupation model: %s' % self)
-        log.deflist([('nel', self.nbeta)])
+        log.deflist([('nel', self.nel)])
