@@ -609,7 +609,7 @@ class AufbauOccModel(object):
             assert nfn == len(exp.occupations)
             if nfn < nocc:
                 raise ElectronCountError('The number of orbitals must not be lower than the number of alpha or beta electrons.')
-            assert (exp.energies[1:] >= exp.energies[:-1]).all()
+            # It is assumed that the orbitals are sorted from low to high energy.
             if nocc == int(nocc):
                 exp.occupations[:nocc] = 1.0
                 exp.occupations[nocc:] = 0.0
