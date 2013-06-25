@@ -108,7 +108,7 @@ def converge_scf_cs(ham, maxiter=128, threshold=1e-8):
     i = 0
     while maxiter is None or i < maxiter:
         # Construct the Fock operator
-        fock.reset()
+        fock.clear()
         ham.compute_fock(fock, None)
         # Check for convergence
         error = lf.error_eigen(fock, overlap, wfn.exp_alpha)
@@ -120,10 +120,10 @@ def converge_scf_cs(ham, maxiter=128, threshold=1e-8):
             converged = True
             break
         # Diagonalize the fock operator
-        wfn.invalidate() # discard previous wfn state
+        wfn.clear() # discard previous wfn state
         wfn.update_exp(fock, overlap)
         # Let the hamiltonian know that the wavefunction has changed.
-        ham.invalidate()
+        ham.clear()
         # Write intermediate results to checkpoint
         ham.system.update_chk('wfn')
         # counter
@@ -171,8 +171,8 @@ def converge_scf_os(ham, maxiter=128, threshold=1e-8):
     i = 0
     while maxiter is None or i < maxiter:
         # Construct the Fock operators
-        fock_alpha.reset()
-        fock_beta.reset()
+        fock_alpha.clear()
+        fock_beta.clear()
         ham.compute_fock(fock_alpha, fock_beta)
         # Check for convergence
         error_alpha = lf.error_eigen(fock_alpha, overlap, wfn.exp_alpha)
@@ -185,10 +185,10 @@ def converge_scf_os(ham, maxiter=128, threshold=1e-8):
             converged = True
             break
         # Diagonalize the fock operators
-        wfn.invalidate()
+        wfn.clear()
         wfn.update_exp(fock_alpha, fock_beta, overlap)
         # Let the hamiltonian know that the wavefunction has changed.
-        ham.invalidate()
+        ham.clear()
         # Write intermediate results to checkpoint
         ham.system.update_chk('wfn')
         # counter
@@ -305,9 +305,9 @@ def check_cubic_cs(ham, dm0, dm1, e0, e1, g0, g1, do_plot=True):
         dm2.iscale(1-x)
         dm2.iadd(dm1, x)
 
-        wfn.invalidate()
+        wfn.clear()
         wfn.update_dm('alpha', dm2)
-        ham.invalidate()
+        ham.clear()
         e2 = ham.compute()
         energies.append(e2)
     energies = np.array(energies)
@@ -385,7 +385,7 @@ def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):
     i = 0
     while maxiter is None or i < maxiter:
         # A) Construct Fock operator, compute energy and keep dm at current/initial point
-        fock0.reset()
+        fock0.clear()
         ham.compute_fock(fock0, None)
         energy0 = ham.compute()
         dm0.assign(wfn.dm_alpha)
@@ -397,13 +397,13 @@ def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):
                 log('%5i %20.13f  %12.5e  %10.5f' % (i, energy0, error, mixing))
 
         # B) Diagonalize fock operator and go to the next point
-        wfn.invalidate()
+        wfn.clear()
         wfn.update_exp(fock0, overlap)
         # Let the hamiltonian know that the wavefunction has changed.
-        ham.invalidate()
+        ham.clear()
 
         # C) Compute Fock matrix at new point (lambda=1)
-        fock1.reset()
+        fock1.clear()
         ham.compute_fock(fock1, None)
         # Compute energy at new point
         energy1 = ham.compute()
@@ -430,14 +430,14 @@ def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):
 
         # E) Construct the new dm
         # Put the mixed dm in dm_old, which is local in this routine.
-        dm2.reset()
+        dm2.clear()
         dm2.iadd(dm1, factor=mixing)
         dm2.iadd(dm0, factor=1-mixing)
 
         # Wipe the caches and use the interpolated density matrix
-        wfn.invalidate()
+        wfn.clear()
         wfn.update_dm('alpha', dm2)
-        ham.invalidate()
+        ham.clear()
 
         error = dm2.distance(dm0)
         if error < threshold:
@@ -452,9 +452,9 @@ def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):
     # compute orbitals, energies and occupation numbers
     # Note: suffix 0 is used for final state here
     dm0.assign(wfn.dm_alpha)
-    fock0.reset()
+    fock0.clear()
     ham.compute_fock(fock0, None)
-    wfn.invalidate()
+    wfn.clear()
     wfn.update_exp(fock0, overlap, dm0)
     energy0 = ham.compute()
     # Write final wfn to checkpoint.
@@ -489,10 +489,10 @@ def check_cubic_os(ham, dm0a, dm0b, dm1a, dm1b, e0, e1, g0, g1, do_plot=True):
         dm2b.iscale(1-x)
         dm2b.iadd(dm1b, x)
 
-        wfn.invalidate()
+        wfn.clear()
         wfn.update_dm('alpha', dm2a)
         wfn.update_dm('beta', dm2b)
-        ham.invalidate()
+        ham.clear()
         e2 = ham.compute()
         energies.append(e2)
     energies = np.array(energies)
@@ -576,8 +576,8 @@ def converge_scf_oda_os(ham, maxiter=128, threshold=1e-6, debug=False):
     i = 0
     while maxiter is None or i < maxiter:
         # A) Construct Fock operator, compute energy and keep dm at current/initial point
-        fock0a.reset()
-        fock0b.reset()
+        fock0a.clear()
+        fock0b.clear()
         ham.compute_fock(fock0a, fock0b)
         energy0 = ham.compute()
         dm0a.assign(wfn.dm_alpha)
@@ -590,14 +590,14 @@ def converge_scf_oda_os(ham, maxiter=128, threshold=1e-6, debug=False):
                 log('%5i %20.13f  %12.5e  %12.5e  %10.5f' % (i, energy0, errora, errorb, mixing))
 
         # B) Diagonalize fock operator and go to state 1
-        wfn.invalidate()
+        wfn.clear()
         wfn.update_exp(fock0a, fock0b, overlap)
         # Let the hamiltonian know that the wavefunction has changed.
-        ham.invalidate()
+        ham.clear()
 
         # C) Compute Fock matrix at state 1
-        fock1a.reset()
-        fock1b.reset()
+        fock1a.clear()
+        fock1b.clear()
         ham.compute_fock(fock1a, fock1b)
         # Compute energy at new point
         energy1 = ham.compute()
@@ -627,18 +627,18 @@ def converge_scf_oda_os(ham, maxiter=128, threshold=1e-6, debug=False):
 
         # E) Construct the new dm
         # Put the mixed dm in dm_old, which is local in this routine.
-        dm2a.reset()
+        dm2a.clear()
         dm2a.iadd(dm1a, factor=mixing)
         dm2a.iadd(dm0a, factor=1-mixing)
-        dm2b.reset()
+        dm2b.clear()
         dm2b.iadd(dm1b, factor=mixing)
         dm2b.iadd(dm0b, factor=1-mixing)
 
         # Wipe the caches and use the interpolated density matrix
-        wfn.invalidate()
+        wfn.clear()
         wfn.update_dm('alpha', dm2a)
         wfn.update_dm('beta', dm2b)
-        ham.invalidate()
+        ham.clear()
 
         errora = dm2a.distance(dm0a)
         errorb = dm2b.distance(dm0b)
@@ -655,10 +655,10 @@ def converge_scf_oda_os(ham, maxiter=128, threshold=1e-6, debug=False):
     # Note: suffix 0 is used for final state here
     dm0a.assign(wfn.dm_alpha)
     dm0b.assign(wfn.dm_beta)
-    fock0a.reset()
-    fock0b.reset()
+    fock0a.clear()
+    fock0b.clear()
     ham.compute_fock(fock0a, fock0b)
-    wfn.invalidate()
+    wfn.clear()
     wfn.update_exp(fock0a, fock0b, overlap, dm0a, dm0b)
     energy0 = ham.compute()
     # Write final wfn to checkpoint.
@@ -711,7 +711,7 @@ def convergence_error_cs(ham):
     overlap = ham.system.get_overlap()
     fock = lf.create_one_body()
     # Construct the Fock operator
-    fock.reset()
+    fock.clear()
     ham.compute_fock(fock, None)
     # Compute error
     return lf.error_eigen(fock, overlap, wfn.exp_alpha)
@@ -738,8 +738,8 @@ def convergence_error_os(ham):
     fock_alpha = lf.create_one_body()
     fock_beta = lf.create_one_body()
     # Construct the Fock operators
-    fock_alpha.reset()
-    fock_beta.reset()
+    fock_alpha.clear()
+    fock_beta.clear()
     ham.compute_fock(fock_alpha, fock_beta)
     # Compute errors
     error_alpha = lf.error_eigen(fock_alpha, overlap, wfn.exp_alpha)

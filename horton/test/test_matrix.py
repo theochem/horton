@@ -140,7 +140,7 @@ def test_hartree_fock_water():
     hamcore = lf.create_one_body(nbasis)
     hamcore.iadd(cache['kin'], 1)
     hamcore.iadd(cache['na'], -1)
-    wfn.invalidate()
+    wfn.clear()
     exp_alpha1 = wfn.update_exp(hamcore, cache['olp'])
     assert (exp_alpha1.energies != 0.0).any()
 
@@ -152,7 +152,7 @@ def test_hartree_fock_water():
     #dm = lf.create_one_body(nbasis)
     for i in xrange(1000):
         # Construct the Fock operator
-        fock.reset()
+        fock.clear()
         fock.iadd(hamcore, 1)
         cache['er'].apply_direct(wfn.dm_alpha, coulomb)
         cache['er'].apply_exchange(wfn.dm_alpha, exchange)
@@ -163,7 +163,7 @@ def test_hartree_fock_water():
         if error < 1e-10:
             break
         # Derive the expansion and the density matrix from the fock operator
-        wfn.invalidate()
+        wfn.clear()
         wfn.update_exp(fock, cache['olp'])
 
     exp_alpha = wfn.exp_alpha
