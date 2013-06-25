@@ -360,3 +360,45 @@ def test_iter():
     assert sorted(c.iteritems()) == [('bar', 6), ('foo', 5)]
     assert len(c) == 2
     assert sorted(c) == ['bar', 'foo']
+
+
+def test_tags():
+    c = Cache()
+    c.dump('a', 5, tags='ab')
+    # In a normal load call, the tags should not be allowed
+    with assert_raises(TypeError):
+        assert c.load('a', tags='a') == 5
+    with assert_raises(TypeError):
+        assert c.load('a', tags='ab') == 5
+    with assert_raises(TypeError):
+        assert c.load('a', tags='abc') == 5
+    with assert_raises(TypeError):
+        assert c.load('b', default=5, tags='abc') == 5
+    # clear with other tags
+    c.clear(tags='cd')
+    assert len(c) == 1
+    # clear with correct tag
+    c.clear(tags='a')
+    assert len(c) == 0
+    # use in combination with alloc
+    tmp1, new = c.load('tmp', alloc=5, tags='qw')
+    assert new
+    tmp2, new = c.load('tmp', alloc=5, tags='qw')
+    assert not new
+    assert tmp1 is tmp2
+    with assert_raises(ValueError):
+        c.load('tmp', alloc=5, tags='w')
+    with assert_raises(ValueError):
+        c.load('tmp', alloc=5, tags='aw')
+    with assert_raises(ValueError):
+        c.load('tmp', alloc=5, tags='ab')
+    c.clear()
+    tmp3, new = c.load('tmp', alloc=5, tags='qw')
+    assert new
+    assert tmp1 is tmp3
+    with assert_raises(ValueError):
+        c.load('tmp', alloc=5, tags='w')
+    with assert_raises(ValueError):
+        c.load('tmp', alloc=5, tags='aw')
+    with assert_raises(ValueError):
+        c.load('tmp', alloc=5, tags='ab')
