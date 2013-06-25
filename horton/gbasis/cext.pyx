@@ -250,6 +250,7 @@ cdef class GBasis:
         self._alphas = np.array(alphas, dtype=float)
         self._con_coeffs = np.array(con_coeffs, dtype=float)
 
+        self._centers.flags.writeable = True
         # Set arrays unwritable because:
         #   (i) derived properties will be stored
         #   (ii) consistency tests below are only performed once (below)
@@ -257,7 +258,6 @@ cdef class GBasis:
         # is deliberately taking risks. A strict read-only buffer would be
         # ideal but is not possible. One can always pass a pointer to a
         # C library and start messing things up.
-        self._centers.flags.writeable = False
         self._shell_map.flags.writeable = False
         self._nprims.flags.writeable = False
         self._shell_types.flags.writeable = False
@@ -357,7 +357,7 @@ cdef class GBasis:
 
     property centers:
         def __get__(self):
-            return self._centers.view()
+            return self._centers
 
     property shell_map:
         def __get__(self):

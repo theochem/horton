@@ -363,6 +363,25 @@ class System(object):
 
     charge = property(_get_charge)
 
+    def update_coordinates(self, coordinates=None):
+        '''Update all attributes that depend on coodinates and clear related parts of cache
+
+           **Optional arguments:**
+
+           coordinates
+                The new atomic coordinates
+
+           When one wants to set new coordintes, one may also edit the
+           system.coordinates array in-place and then call this method without
+           any arguments.
+        '''
+        if coordinates is not None:
+            self._coordinates[:] = coordinates
+        if self._obasis is not None:
+            self._obasis.centers[:] = self._coordinates
+        self.cache.clear('c')
+        self._extra = {}
+
     def update_obasis(self, obasis=None):
         '''Regenerate the orbital basis and clear all attributes that depend on it.
 
@@ -373,9 +392,6 @@ class System(object):
                 GOBasisDesc. When not given, the orbital basis description
                 stored in the system object (_obasis_desc attribute) will be
                 used.
-
-           This method must be called after the attributes coordinates or
-           numbers were changed.
         '''
         # Get the orbital basis and if possible the orbital basis description.
         from horton.gbasis import GOBasisDesc, GOBasis
