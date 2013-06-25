@@ -247,7 +247,7 @@ class Cache(object):
 
            default
                 A default value that is returned when the key does not exist in
-                the cache.
+                the cache. This default value is not stored in the cache.
         '''
         key = normalize_key(key)
 
@@ -268,28 +268,35 @@ class Cache(object):
         else:
             raise TypeError('Only one keyword argument is allowed: alloc or default')
 
+        # get the item from the store and decide what to do
         item = self._store.get(key)
-        if item is None:
-            if alloc is None and default is no_default:
-                raise KeyError(key)
-            elif default is no_default:
+        # there are three behaviors, depending on the keyword argumentsL
+        if alloc is not None:
+            # alloc is given. hence two return values: value, new
+            if item is None:
+                # allocate a new item, s
                 item = CacheItem.from_alloc(alloc)
                 self._store[key] = item
                 return item.value, True
+            elif not item.valid:
+                item.check_alloc(alloc)
+                item._valid = True # as if it is newly allocated
+                return item.value, True
             else:
+                item.check_alloc(alloc)
+                return item.value, False
+        elif default is not no_default:
+            # a default value is given, it is not stored
+            if item is None or not item.valid:
                 return default
-        if alloc is None:
-            if item.valid:
+            else:
                 return item.value
-            elif default is no_default:
+        else:
+            # no optional arguments are given
+            if item is None or not item.valid:
                 raise KeyError(key)
             else:
-                return default
-        else:
-            item.check_alloc(alloc)
-            new = not item.valid
-            item._valid = True # as if it is newly allocated
-            return item.value, new
+                return item.value
 
     def __contains__(self, key):
         key = normalize_key(key)
