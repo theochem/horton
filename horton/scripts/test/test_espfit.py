@@ -55,8 +55,8 @@ def test_scripts():
     pbc = np.ones(3, int)
     ugrid = UniformGrid(origin, grid_rvecs, shape, pbc)
     cube_data = np.random.uniform(-1, 1, shape)
-    extra = {'ugrid': ugrid, 'cube_data': cube_data}
-    sys = System(coordinates, numbers, extra=extra)
+    extra = {'cube_data': cube_data}
+    sys = System(coordinates, numbers, grid=ugrid, extra=extra)
 
     # Write the cube file to the tmpdir and run scripts
     tmpdir = tempfile.mkdtemp('horton.scripts.test.test_espfit.test_scripts')

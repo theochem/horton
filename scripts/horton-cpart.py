@@ -23,7 +23,8 @@
 
 import sys, argparse, os
 
-from horton import System, cpart_schemes, Cell, ProAtomDB, log, symmetry_analysis
+from horton import System, cpart_schemes, Cell, ProAtomDB, log, \
+    symmetry_analysis, UniformGrid
 from horton.scripts.common import reduce_data, store_args, parse_pbc, \
     iter_elements, safe_open_h5, write_part_output
 
@@ -108,7 +109,9 @@ def main():
 
     # Load the system
     sys = System.from_file(args.cube)
-    ugrid = sys.extra['ugrid']
+    ugrid = sys.grid
+    if not isinstance(ugrid, UniformGrid):
+        raise TypeError('The specified file does not contain data on a rectangular grid.')
     ugrid.pbc[:] = parse_pbc(args.pbc)
     moldens = sys.extra['cube_data']
 

@@ -193,6 +193,12 @@ class System(object):
 
     obasis_desc = property(_get_obasis_desc)
 
+    def _get_grid(self):
+        '''The integration grid'''
+        return self._grid
+
+    grid = property(_get_grid)
+
     def _get_wfn(self):
         '''The wavefunction'''
         return self._wfn

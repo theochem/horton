@@ -41,7 +41,7 @@ def write_random_lta_cube(tmpdir, fn_cube):
     sys = System.from_file(context.get_fn('test/lta_gulp.cif'))
     ugrid = UniformGrid(np.zeros(3, float), sys.cell.rvecs*0.1, np.array([10, 10, 10]), np.array([1, 1, 1]))
     cube_data = np.random.uniform(0, 1, ugrid.shape)
-    sys.extra['ugrid'] = ugrid
+    sys.update_grid(ugrid)
     sys.extra['cube_data'] = cube_data
     sys.to_file(os.path.join(tmpdir, fn_cube))
     return sys
