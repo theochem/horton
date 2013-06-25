@@ -188,20 +188,20 @@ def test_dense_expansion():
     from horton.matrix import DenseLinalgFactory, DenseExpansion
     lf = DenseLinalgFactory()
     c = Cache()
-    op1, new = c.load('egg', alloc=(lf, 'expansion', 10, 9))
+    op1, new = c.load('egg', alloc=(lf.create_expansion, 10, 9))
     assert new
     assert isinstance(op1, DenseExpansion)
     assert op1.nbasis == 10
     op2 = c.load('egg')
     assert op1 is op2
-    op3, new = c.load('egg', alloc=(lf, 'expansion', 10, 9))
+    op3, new = c.load('egg', alloc=(lf.create_expansion, 10, 9))
     assert not new
     assert op1 is op3
     # things that should not work
     with assert_raises(TypeError):
-        op4, new = c.load('egg', alloc=(lf, 'expansion', 5))
+        op4, new = c.load('egg', alloc=(lf.create_expansion, 5))
     with assert_raises(TypeError):
-        op4, new = c.load('egg', alloc=(lf, 'expansion', 10, 5))
+        op4, new = c.load('egg', alloc=(lf.create_expansion, 10, 5))
     with assert_raises(TypeError):
         op4, new = c.load('egg', alloc=5)
     # after clearing
@@ -211,34 +211,38 @@ def test_dense_expansion():
     with assert_raises(KeyError):
         op4 = c.load('egg')
     with assert_raises(TypeError):
-        op4, new = c.load('egg', alloc=(lf, 'expansion', 5))
+        op4, new = c.load('egg', alloc=(lf.create_expansion, 5))
     with assert_raises(TypeError):
-        op4, new = c.load('egg', alloc=(lf, 'expansion', 10, 5))
+        op4, new = c.load('egg', alloc=(lf.create_expansion, 10, 5))
     with assert_raises(TypeError):
         op4, new = c.load('egg', alloc=5)
-    op4, new = c.load('egg', alloc=(lf, 'expansion', 10))
+    op4, new = c.load('egg', alloc=(lf.create_expansion, 10, 9))
     assert new
     assert op1 is op4
     op5 = c.load('egg')
     assert op1 is op5
+    # default_nbasis
+    lf.set_default_nbasis(5)
+    with assert_raises(TypeError):
+        c.load('egg', alloc=lf.create_expansion)
 
 
 def test_dense_one_body():
     from horton.matrix import DenseLinalgFactory, DenseOneBody
     lf = DenseLinalgFactory()
     c = Cache()
-    op1, new = c.load('egg', alloc=(lf, 'one_body', 10))
+    op1, new = c.load('egg', alloc=(lf.create_one_body, 10))
     assert new
     assert isinstance(op1, DenseOneBody)
     assert op1.nbasis == 10
     op2 = c.load('egg')
     assert op1 is op2
-    op3, new = c.load('egg', alloc=(lf, 'one_body', 10))
+    op3, new = c.load('egg', alloc=(lf.create_one_body, 10))
     assert not new
     assert op1 is op3
     # things that should not work
     with assert_raises(TypeError):
-        op4, new = c.load('egg', alloc=(lf, 'one_body', 5))
+        op4, new = c.load('egg', alloc=(lf.create_one_body, 5))
     with assert_raises(TypeError):
         op4, new = c.load('egg', alloc=5)
     # after clearing
@@ -248,32 +252,36 @@ def test_dense_one_body():
     with assert_raises(KeyError):
         op4 = c.load('egg')
     with assert_raises(TypeError):
-        op4, new = c.load('egg', alloc=(lf, 'one_body', 5))
+        op4, new = c.load('egg', alloc=(lf.create_one_body, 5))
     with assert_raises(TypeError):
         op4, new = c.load('egg', alloc=5)
-    op4, new = c.load('egg', alloc=(lf, 'one_body', 10))
+    op4, new = c.load('egg', alloc=(lf.create_one_body, 10))
     assert new
     assert op1 is op4
     op5 = c.load('egg')
     assert op1 is op5
+    # default_nbasis
+    lf.set_default_nbasis(5)
+    with assert_raises(TypeError):
+        c.load('egg', alloc=lf.create_one_body)
 
 
 def test_dense_two_body():
     from horton.matrix import DenseLinalgFactory, DenseTwoBody
     lf = DenseLinalgFactory()
     c = Cache()
-    op1, new = c.load('egg', alloc=(lf, 'two_body', 10))
+    op1, new = c.load('egg', alloc=(lf.create_two_body, 10))
     assert new
     assert isinstance(op1, DenseTwoBody)
     assert op1.nbasis == 10
     op2 = c.load('egg')
     assert op1 is op2
-    op3, new = c.load('egg', alloc=(lf, 'two_body', 10))
+    op3, new = c.load('egg', alloc=(lf.create_two_body, 10))
     assert not new
     assert op1 is op3
     # things that should not work
     with assert_raises(TypeError):
-        op4, new = c.load('egg', alloc=(lf, 'two_body', 5))
+        op4, new = c.load('egg', alloc=(lf.create_two_body, 5))
     with assert_raises(TypeError):
         op4, new = c.load('egg', alloc=5)
     # after clearing
@@ -283,14 +291,18 @@ def test_dense_two_body():
     with assert_raises(KeyError):
         op4 = c.load('egg')
     with assert_raises(TypeError):
-        op4, new = c.load('egg', alloc=(lf, 'two_body', 5))
+        op4, new = c.load('egg', alloc=(lf.create_two_body, 5))
     with assert_raises(TypeError):
         op4, new = c.load('egg', alloc=5)
-    op4, new = c.load('egg', alloc=(lf, 'two_body', 10))
+    op4, new = c.load('egg', alloc=(lf.create_two_body, 10))
     assert new
     assert op1 is op4
     op5 = c.load('egg')
     assert op1 is op5
+    # default_nbasis
+    lf.set_default_nbasis(5)
+    with assert_raises(TypeError):
+        c.load('egg', alloc=lf.create_two_body)
 
 
 def test_basic_exceptions():

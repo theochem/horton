@@ -27,7 +27,7 @@
 '''
 
 
-import numpy as np, h5py as h5, os
+import numpy as np, h5py as h5, os, types
 from horton.log import log
 
 from horton.matrix import LinalgObject
@@ -77,6 +77,14 @@ def just_once(fn):
     return wrapper
 
 
+def _normalize_alloc(alloc):
+    '''Normalize the alloc argument of the from_alloc and check_alloc methods'''
+    if not hasattr(alloc, '__len__'):
+        alloc = (alloc,)
+    if len(alloc) == 0:
+        raise TypeError('Alloc can not be an empty list')
+    return alloc
+
 
 class CacheItem(object):
     def __init__(self, value, own=False):
@@ -86,25 +94,15 @@ class CacheItem(object):
 
     @classmethod
     def from_alloc(cls, alloc):
-        from horton.matrix import LinalgFactory
-        if not hasattr(alloc, '__len__'):
-            alloc = (alloc,)
-        if isinstance(alloc[0], LinalgFactory):
-            if len(alloc) < 2:
-                raise TypeError('Add least one extra parameter needed to initialize a linalg thing')
-            if alloc[1] == 'one_body':
-                return cls(alloc[0].create_one_body(*alloc[2:]))
-            elif alloc[1] == 'two_body':
-                return cls(alloc[0].create_two_body(*alloc[2:]))
-            elif alloc[1] == 'expansion':
-                return cls(alloc[0].create_expansion(*alloc[2:]))
-            else:
-                raise TypeError('Not supported: %s.' % alloc[1])
-        else:
+        alloc = _normalize_alloc(alloc)
+        if all(isinstance(i, int) for i in alloc):
             # initialize a floating point array
             array = np.zeros(alloc, float)
             log.mem.announce(array.nbytes)
             return cls(array, own=True)
+        else:
+            # initialize a new object
+            return cls(alloc[0](*alloc[1:]))
 
     def __del__(self):
         if self._own and log is not None:
@@ -112,29 +110,26 @@ class CacheItem(object):
             log.mem.denounce(self._value.nbytes)
 
     def check_alloc(self, alloc):
-        from horton.matrix import LinalgFactory
-        if not hasattr(alloc, '__len__'):
-            alloc = (alloc,)
-        if isinstance(alloc[0], LinalgFactory):
-            if len(alloc) < 2:
-                raise TypeError('Add least one extra parameter needed to initialize a linalg thing')
-            if alloc[1] == 'one_body':
-                if not (len(alloc) == 2 or (len(alloc) == 3 and alloc[2] == self._value.nbasis)):
-                    raise TypeError('The requested one-body operator is not compatible with the cached one.')
-            elif alloc[1] == 'two_body':
-                if not (len(alloc) == 2 or (len(alloc) == 3 and alloc[2] == self._value.nbasis)):
-                    raise TypeError('The requested two-body operator is not compatible with the cached one.')
-            elif alloc[1] == 'expansion':
-                if not (len(alloc) == 2 or (len(alloc) == 3 and alloc[2] == self._value.nbasis) or
-                        (len(alloc) == 4 and alloc[2] == self._value.nbasis and alloc[3] == self._value.nfn)):
-                    raise TypeError('The requested expansion is not compatible with the cached one.')
-            else:
-                raise TypeError('Not supported: %s.' % alloc[1])
-        else:
-            # assume a floating point array
+        alloc = _normalize_alloc(alloc)
+        if all(isinstance(i, int) for i in alloc):
+            # check if the array has the correct shape and dtype
             if not (isinstance(self._value, np.ndarray) and
                     self._value.shape == tuple(alloc) and
                     issubclass(self._value.dtype.type, float)):
+                raise TypeError('The stored item does not match the given alloc.')
+        else:
+            # check if the object was initialized with compatible arguments
+            try:
+                if isinstance(alloc[0], type):
+                    # first argument is a class
+                    alloc[0].__check_init_args__(self._value, *alloc[1:])
+                elif isinstance(alloc[0], types.MethodType):
+                    # first argument is something else, assuming a method of a factory class
+                    factory = alloc[0].__self__
+                    alloc[0].__check_init_args__(factory, self._value, *alloc[1:])
+                else:
+                    raise NotImplementedError
+            except AssertionError:
                 raise TypeError('The stored item does not match the given alloc.')
 
     def _get_value(self):
@@ -173,7 +168,8 @@ class NoDefault(object):
 no_default = NoDefault()
 
 
-def normalize_key(key):
+def _normalize_key(key):
+    '''Normalize the key argument(s) of the load and dump methods'''
     if hasattr(key, '__len__') and  len(key) == 0:
         raise TypeError('At least one argument needed to specify a key.')
     # upack the key if needed
@@ -210,7 +206,7 @@ class Cache(object):
            dealloc
                 When set to True, the item is really removed from memory.
         '''
-        key = normalize_key(key)
+        key = _normalize_key(key)
         dealloc = kwargs.pop('dealloc', False)
         if len(kwargs) > 0:
             raise TypeError('Unexpected arguments: %s' % kwargs.keys())
@@ -222,8 +218,6 @@ class Cache(object):
         else:
             del self._store[key]
 
-    # TODO: the alloc argument is just too ugly to be useful. (Add this to
-    # Trello in the card with the new classes for the matrix module.)
     def load(self, *key, **kwargs):
         '''Get a value from the cache
 
@@ -236,20 +230,18 @@ class Cache(object):
            **Optional arguments:** (at most one is accepted)
 
            alloc
-                Parameters used to allocated a cached value if it is not present
-                yet. This argument can take several forms. When integer or a
+                Parameters used to allocate a cached value if it is not present
+                yet. This argument can take two forms. When integer or a
                 tuple of integers is given, an array is allocated.
                 Alternatively, a tuple may be given whose first element is a
-                linalg factory, the second is 'expansion', 'one_body' or
-                'two_body'. Further (optional) elements correspond to arguments
-                of the corresponding create_* methods of the linalg factory
-                object.
+                constructor, and further elements are arguments for that
+                constructor.
 
            default
                 A default value that is returned when the key does not exist in
                 the cache. This default value is not stored in the cache.
         '''
-        key = normalize_key(key)
+        key = _normalize_key(key)
 
         # parse kwargs
         if len(kwargs) == 0:
@@ -299,7 +291,7 @@ class Cache(object):
                 return item.value
 
     def __contains__(self, key):
-        key = normalize_key(key)
+        key = _normalize_key(key)
         item = self._store.get(key)
         if item is None:
             return False
@@ -329,7 +321,7 @@ class Cache(object):
             raise TypeError('Unknown optional arguments: %s' % kwargs.keys())
         if len(args) < 2:
             raise TypeError('At least two arguments are required: key1 and value.')
-        key = normalize_key(args[:-1])
+        key = _normalize_key(args[:-1])
         value = args[-1]
         item = CacheItem(value, own)
         self._store[key] = item

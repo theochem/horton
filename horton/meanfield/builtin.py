@@ -35,7 +35,7 @@ class Hartree(Observable):
 
     def _update_coulomb(self):
         '''Recompute the Coulomb operator if it has become invalid'''
-        coulomb, new = self.cache.load('op_coulomb', alloc=(self.system.lf, 'one_body'))
+        coulomb, new = self.cache.load('op_coulomb', alloc=self.system.lf.create_one_body)
         if new:
             electron_repulsion = self.system.get_electron_repulsion()
             if isinstance(self.system.wfn, RestrictedWFN):
@@ -73,7 +73,7 @@ class HartreeFockExchange(Observable):
         '''Recompute the Exchange operator(s) if invalid'''
         def helper(select):
             dm = self.system.wfn.get_dm(select)
-            exchange, new = self.cache.load('op_exchange_hartree_fock_%s' % select, alloc=(self.system.lf, 'one_body'))
+            exchange, new = self.cache.load('op_exchange_hartree_fock_%s' % select, alloc=self.system.lf.create_one_body)
             if new:
                 electron_repulsion = self.system.get_electron_repulsion()
                 electron_repulsion.apply_exchange(dm, exchange)
@@ -132,7 +132,7 @@ class DiracExchange(Observable):
                 pot[:] = self.derived_coeff*rho**(1.0/3.0)
 
             # update operator stuff
-            exchange, new = self.cache.load('op_exchange_dirac_%s' % select, alloc=(self.system.lf, 'one_body'))
+            exchange, new = self.cache.load('op_exchange_dirac_%s' % select, alloc=self.system.lf.create_one_body)
             if new:
                 self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, pot, exchange)
 
