@@ -89,7 +89,6 @@ def test_molgrid_attrs_subgrid():
     assert mg.points.shape == (mg.size, 3)
     assert mg.weights.shape == (mg.size,)
     assert len(mg.subgrids) == 2
-    assert mg.system == sys
     assert len(mg.atspecs) == 2
     assert mg.k == 3
     assert mg.random_rotate
@@ -127,7 +126,6 @@ def test_molgrid_attrs():
     assert mg.points.shape == (mg.size, 3)
     assert mg.weights.shape == (mg.size,)
     assert mg.subgrids is None
-    assert mg.system == sys
     assert len(mg.atspecs) == 2
     assert mg.k == 3
     assert mg.random_rotate
@@ -184,3 +182,24 @@ def test_family():
     sys = System(coordinates, numbers)
     grid = BeckeMolGrid(sys, random_rotate=False)
     assert grid.size == 1434+1300
+
+
+def test_update_centers():
+    numbers = np.array([6, 8], int)
+    coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
+    sys = System(coordinates, numbers)
+    grid = BeckeMolGrid(sys, keep_subgrids=True)
+    sys.update_grid(grid)
+
+    def helper():
+        assert (grid.points[:1434] == grid.subgrids[0].points).all()
+        assert (grid.points[1434:] == grid.subgrids[1].points).all()
+        for subgrid in grid.subgrids:
+            assert abs(np.dot(subgrid.weights, subgrid.points)/subgrid.weights.sum() - subgrid.center).max() < 1e-10
+
+    helper()
+    coordinates = np.array([[0.3, 0.0, 0.1], [-0.1, -0.2, 0.3]], float)
+    sys.update_coordinates(coordinates)
+    assert (grid.subgrids[0].center == coordinates[0]).all()
+    assert (grid.subgrids[1].center == coordinates[1]).all()
+    helper()
