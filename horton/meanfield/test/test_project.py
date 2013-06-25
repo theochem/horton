@@ -71,7 +71,7 @@ def test_project_larger():
 
     # Construct a core initial guess
     guess_hamiltonian_core(sys)
-    ham.invalidate()
+    ham.clear()
     energy3 = ham.compute()
     assert energy3 > energy1 # the projected guess should be better than the core guess
 
@@ -117,7 +117,7 @@ def test_project_smaller():
 
     # Construct a core initial guess
     guess_hamiltonian_core(sys)
-    ham.invalidate()
+    ham.clear()
     energy3 = ham.compute()
     assert energy3 > energy2 # the core guess should be worse than the converged
 

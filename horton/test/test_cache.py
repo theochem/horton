@@ -45,7 +45,7 @@ def test_just_once():
     assert e.counter == 1
     e.inc()
     assert e.counter == 1
-    e.invalidate()
+    e.clear()
     assert e.counter == 1
     e.inc()
     assert e.counter == 2
@@ -153,7 +153,7 @@ def test_allocation():
     # properly load it anew
     bis, new = c.load('egg', alloc=(5,10))
     assert new
-    assert bis is tmp # still the same array, just resetted.
+    assert bis is tmp # still the same array, just cleared.
     assert 'egg' in c
     # simple load should now work
     tris = c.load('egg')
@@ -204,7 +204,7 @@ def test_dense_expansion():
         op4, new = c.load('egg', alloc=(lf, 'expansion', 10, 5))
     with assert_raises(TypeError):
         op4, new = c.load('egg', alloc=5)
-    # after invalidation
+    # after clearing
     op1.coeffs[1, 2] = 5.2
     c.clear()
     assert op1.coeffs[1,2] == 0.0
@@ -241,7 +241,7 @@ def test_dense_one_body():
         op4, new = c.load('egg', alloc=(lf, 'one_body', 5))
     with assert_raises(TypeError):
         op4, new = c.load('egg', alloc=5)
-    # after invalidation
+    # after clearing
     op1.set_element(1, 2, 5.2)
     c.clear()
     assert op1._array[1,2] == 0.0
@@ -276,7 +276,7 @@ def test_dense_two_body():
         op4, new = c.load('egg', alloc=(lf, 'two_body', 5))
     with assert_raises(TypeError):
         op4, new = c.load('egg', alloc=5)
-    # after invalidation
+    # after clearing
     op1.set_element(1, 2, 1, 2, 5.2)
     c.clear()
     assert op1._array[1,2,1,2] == 0.0

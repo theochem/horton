@@ -186,7 +186,7 @@ def test_density_functional_deriv():
     def fun_deriv(x):
         sys.wfn.dm_full._array[:] = x
         result = sys.wfn.dm_full.copy()
-        result.reset()
+        result.clear()
         f = sys.compute_grid_density(grid.points)
         sys.compute_grid_density_fock(grid.points, grid.weights, pot*f, result)
         return result._array
@@ -310,7 +310,7 @@ def test_gradient_functional_deriv():
     def fun_deriv(x):
         sys.wfn.dm_full._array[:] = x
         result = sys.wfn.dm_full.copy()
-        result.reset()
+        result.clear()
         tmp = sys.compute_grid_gradient(grid.points)
         tmp *= pot.reshape(-1,1)
         sys.compute_grid_gradient_fock(grid.points, grid.weights, tmp, result)

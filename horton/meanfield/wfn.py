@@ -138,7 +138,7 @@ def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None):
             for select in 'alpha', 'beta', 'full', 'spin':
                 system.wfn._cache.clear_item('dm_%s' % select)
         else:
-            system.wfn.invalidate()
+            system.wfn.clear()
     else:
         # if the wfn does not exist yet, create a proper one.
         if restricted:
@@ -261,7 +261,10 @@ class MeanFieldWFN(object):
     def _assign_dm_spin(self, dm):
         raise NotImplementedError
 
-    def invalidate(self):
+    def __clear__(self):
+        self.clear()
+
+    def clear(self):
         '''Must be called when the wavefunction is outdated'''
         self._cache.clear()
 
@@ -270,7 +273,7 @@ class MeanFieldWFN(object):
             raise ValueError('The select argument must be alpha or beta')
         exp, new = self._cache.load('exp_%s' % spin, alloc=(self._lf, 'expansion', self._nbasis, self._norb))
         if not new:
-            raise RuntimeError('The expansion exp_%s already exists. Call wfn.invalidate prior to updating the wfn.' % spin)
+            raise RuntimeError('The expansion exp_%s already exists. Call wfn.clear prior to updating the wfn.' % spin)
         return exp
 
     def init_dm(self, select):
@@ -278,7 +281,7 @@ class MeanFieldWFN(object):
             raise ValueError('The select argument must be one of alpha, beta, full or spin.')
         dm, new = self._cache.load('dm_%s' % select, alloc=(self._lf, 'one_body', self.nbasis))
         if not new:
-            raise RuntimeError('The density matrix dm_%s already exists. Call wfn.invalidate prior to updating the wfn.' % select)
+            raise RuntimeError('The density matrix dm_%s already exists. Call wfn.clear prior to updating the wfn.' % select)
         return dm
 
     def update_dm(self, select, dm=None):
@@ -369,7 +372,7 @@ class RestrictedWFN(MeanFieldWFN):
         dm.iscale(2)
 
     def _assign_dm_spin(self, dm):
-        dm.reset()
+        dm.clear()
 
     def update_exp(self, fock_alpha, overlap, dm_alpha=None):
         '''Update the expansion based on the given fock matrix

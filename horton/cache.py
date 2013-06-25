@@ -18,11 +18,12 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Tools for avoiding recomputation and reallocation of earlier results
+'''Tools for avoiding recomputation of earlier results and reallocation of
+   existing arrays.
 
    In principle, the ``JustOnceClass`` and the ``Cache`` can be used
    independently, but in some cases it makes a lot of sense to combine them.
-   See for example the density partitioning code in ``horton.dpart``.
+   See for example the density partitioning code in ``horton.part``.
 '''
 
 
@@ -51,13 +52,16 @@ class JustOnceClass(object):
                def do_something():
                    self.foo = self.bar
 
-       When all results are outdated, one can call the ``invalidate`` method
+       When all results are outdated, one can call the ``clear`` method
        to forget which methods were called already.
     '''
     def __init__(self):
         self._done_just_once = set([])
 
-    def invalidate(self):
+    def __clear__(self):
+        self.clear()
+
+    def clear(self):
         self._done_just_once = set([])
 
 
@@ -145,23 +149,21 @@ class CacheItem(object):
 
     valid = property(_get_valid)
 
-    def _get_resettable(self):
+    def _get_clearable(self):
         return isinstance(self._value, np.ndarray) or \
-               isinstance(self._value, LinalgObject)
+               (hasattr(self._value, '__clear__') and callable(self._value.__clear__))
 
-    resettable = property(_get_resettable)
+    clearable = property(_get_clearable)
 
-    def invalidate(self):
+    def clear(self):
+        '''Mark the item as invalid and clear the contents of the object.'''
         self._valid = False
-        self.reset()
-
-    def reset(self):
         if isinstance(self._value, np.ndarray):
             self._value[:] = 0.0
-        elif isinstance(self._value, LinalgObject):
-            self._value.reset()
+        elif hasattr(self._value, '__clear__') and callable(self._value.__clear__):
+            self._value.__clear__()
         else:
-            raise TypeError('Do not know how to reset %s.' % self._value)
+            raise TypeError('Do not know how to clear %s.' % self._value)
 
 
 class NoDefault(object):
@@ -173,7 +175,7 @@ no_default = NoDefault()
 
 def normalize_key(key):
     if hasattr(key, '__len__') and  len(key) == 0:
-        raise TypeError('At least on argument needed for invalidate method')
+        raise TypeError('At least one argument needed to specify a key.')
     # upack the key if needed
     while len(key) == 1 and isinstance(key, tuple):
         key = key[0]
@@ -183,9 +185,8 @@ def normalize_key(key):
 class Cache(object):
     '''Object that stores previously computed results.
 
-       This is geared towards storing numerical results. The load method
-       may be used to initialize new floating point arrays if they are not
-       cached yet.
+       The cache behaves like a dictionary with some extra features that can be
+       used to avoid recomputation or reallocation.
     '''
     def __init__(self):
         self._store = {}
@@ -216,9 +217,8 @@ class Cache(object):
         item = self._store.get(key)
         if item is None:
             return
-        if item.resettable and not dealloc:
-            # avoid re-allocation
-            item.invalidate()
+        if item.clearable and not dealloc:
+            item.clear()
         else:
             del self._store[key]
 

@@ -43,7 +43,7 @@ def test_conversion_dm_exp():
     ham = Hamiltonian(sys, [HartreeFockExchange()])
     fock = sys.lf.create_one_body()
     ham.compute_fock(fock, None)
-    sys.wfn.invalidate()
+    sys.wfn.clear()
     sys.wfn.update_exp(fock, sys.get_overlap(), dm)
 
     assert abs(sys.wfn.exp_alpha.occupations.sum() - 5) < 1e-8

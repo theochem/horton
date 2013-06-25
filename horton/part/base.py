@@ -100,9 +100,12 @@ class Part(JustOnceClass):
 
     cache = property(_get_cache)
 
-    def invalidate(self):
+    def __clear__(self):
+        self.clear()
+
+    def clear(self):
         '''Discard all cached results, e.g. because wfn changed'''
-        JustOnceClass.invalidate(self)
+        JustOnceClass.clear(self)
         self.cache.clear()
 
     def get_grid(self, index=None):

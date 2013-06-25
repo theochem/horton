@@ -114,7 +114,10 @@ class LinalgObject(object):
     def to_hdf5(self, grp):
         raise NotImplementedError
 
-    def reset(self):
+    def __clear__(self):
+        self.clear()
+
+    def clear(self):
         raise NotImplementedError
 
     def assign(self, other):
@@ -295,7 +298,7 @@ class DenseExpansion(LinalgObject):
 
     occupations = property(_get_occupations)
 
-    def reset(self):
+    def clear(self):
         self._coeffs[:] = 0.0
         self._energies[:] = 0.0
         self._occupations[:] = 0.0
@@ -513,7 +516,7 @@ class DenseOneBody(OneBody):
         '''Check the symmetry of the array. For testing only.'''
         assert abs(self._array - self._array.T).max() == 0.0
 
-    def reset(self):
+    def clear(self):
         self._array[:] = 0.0
 
     def iadd(self, other, factor=1):
@@ -632,7 +635,7 @@ class DenseTwoBody(LinalgObject):
             raise TypeError('The output argument must be a DenseOneBody class')
         output._array[:] = np.tensordot(self._array, dm._array, ([1,2], [0,1]))
 
-    def reset(self):
+    def clear(self):
         self._array[:] = 0.0
 
     def apply_basis_permutation(self, permutation):

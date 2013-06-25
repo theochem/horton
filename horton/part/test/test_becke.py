@@ -36,7 +36,7 @@ def test_becke_n2_hfs_sto3g():
     assert abs(bp['populations'] - 7).max() < 1e-4
     bp.do_charges()
     assert abs(bp['charges']).max() < 1e-4
-    bp.invalidate()
+    bp.clear()
     with assert_raises(KeyError):
         bp['charges']
     bp.do_charges()
