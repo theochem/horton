@@ -43,9 +43,9 @@ __all__ = ['System']
 
 
 class System(object):
-    def __init__(self, coordinates, numbers, obasis=None, wfn=None, lf=None,
-                 cache=None, extra=None, cell=None, pseudo_numbers=None,
-                 chk=None):
+    def __init__(self, coordinates, numbers, obasis=None, grid=None, wfn=None,
+                 lf=None, cache=None, extra=None, cell=None,
+                 pseudo_numbers=None, chk=None):
         """
            **Arguments:**
 
@@ -56,12 +56,15 @@ class System(object):
            numbers
                 A (N,) int numpy vector with the atomic numbers.
 
+           **Optional arguments:**
+
            obasis
                 A string or an instance of either the basis set or basis set
                 description classes, e.g. 'STO-3G', GOBasisDesc('STO-3G'), ...
                 for the orbitals.
 
-           **Optional arguments:**
+           grid
+                A grid object used for molecular integration.
 
            wfn
                 A wavefunction object.
@@ -75,8 +78,9 @@ class System(object):
                 attributes of the system class. Cached items should be tagged
                 according to the attributes they depend on:
 
-                    - ``o``: orbital basis (obasis)
+                    - ``o``: obasis
                     - ``c``: coordinates
+                    - ``g``: grid
 
                 When given as a dictionary, each value must consist of two
                 items: the object to be cached and the tags.
@@ -112,6 +116,8 @@ class System(object):
             raise TypeError('numbers must a vector of integers.')
         if self._numbers.shape[0] != self._coordinates.shape[0]:
             raise TypeError('numbers and coordinates must have compatible array shapes.')
+        #
+        self._grid = grid
         #
         self._wfn = wfn
         #
@@ -379,8 +385,24 @@ class System(object):
             self._coordinates[:] = coordinates
         if self._obasis is not None:
             self._obasis.centers[:] = self._coordinates
-        self.cache.clear('c')
+        if self._grid is not None:
+            self._grid.update_centers(self)
+        self.cache.clear('cog')
         self._extra = {}
+
+    def update_grid(self, grid=None):
+        '''Define a new integration grid and clear related parts of the cache
+
+           **Optional arguments:**
+
+           grid
+                The new integration grid. When not given, it is assumed that
+                the grid was modified in-place and that only derived results in
+                the cache need to be pruned.
+        '''
+        if grid is not None:
+            self._grid = grid
+        self.cache.clear('g')
 
     def update_obasis(self, obasis=None):
         '''Regenerate the orbital basis and clear all attributes that depend on it.
@@ -435,21 +457,21 @@ class System(object):
                 raise TypeError('The nbasis attribute of the cached object \'%s\' and obasis are inconsistent.' % key)
 
     def get_overlap(self):
-        overlap, new = self.cache.load('olp', alloc=self.lf.create_one_body, tags='co')
+        overlap, new = self.cache.load('olp', alloc=self.lf.create_one_body, tags='o')
         if new:
             self.obasis.compute_overlap(overlap)
             self.update_chk('cache.olp')
         return overlap
 
     def get_kinetic(self):
-        kinetic, new = self.cache.load('kin', alloc=self.lf.create_one_body, tags='co')
+        kinetic, new = self.cache.load('kin', alloc=self.lf.create_one_body, tags='o')
         if new:
             self.obasis.compute_kinetic(kinetic)
             self.update_chk('cache.kin')
         return kinetic
 
     def get_nuclear_attraction(self):
-        nuclear_attraction, new = self.cache.load('na', alloc=self.lf.create_one_body, tags='co')
+        nuclear_attraction, new = self.cache.load('na', alloc=self.lf.create_one_body, tags='o')
         if new:
             # TODO: ghost atoms and extra charges
             self.obasis.compute_nuclear_attraction(self.numbers.astype(float), self.coordinates, nuclear_attraction)
@@ -457,7 +479,7 @@ class System(object):
         return nuclear_attraction
 
     def get_electron_repulsion(self):
-        electron_repulsion, new = self.cache.load('er', alloc=self.lf.create_two_body, tags='co')
+        electron_repulsion, new = self.cache.load('er', alloc=self.lf.create_two_body, tags='o')
         if new:
             self.obasis.compute_electron_repulsion(electron_repulsion)
             # ER integrals are not checkpointed by default because they are too heavy.

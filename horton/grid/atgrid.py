@@ -72,9 +72,13 @@ class AtomicGrid(IntGrid):
         weights = np.zeros(size, float)
         self._av_weights = np.zeros(size, float)
 
+        self._init_low(points, weights)
+        IntGrid.__init__(self, points, weights)
+        self._log_init()
+
+    def _init_low(self, points, weights):
         offset = 0
         nsphere = len(self._nlls)
-
         radii = self._rgrid.radii
         rweights = self._rgrid.weights
 
@@ -86,7 +90,7 @@ class AtomicGrid(IntGrid):
 
             lebedev_laikov_sphere(my_points, my_av_weights)
             my_points *= radii[i]
-            if random_rotate:
+            if self.random_rotate:
                 rotmat = get_random_rotation()
                 my_points[:] = np.dot(my_points, rotmat)
             my_weights[:] = my_av_weights
@@ -94,10 +98,7 @@ class AtomicGrid(IntGrid):
 
             offset += nll
 
-        points[:] += center
-
-        IntGrid.__init__(self, points, weights)
-        self._log_init()
+        points[:] += self.center
 
     def _get_number(self):
         '''The element number of the grid.'''
@@ -169,6 +170,10 @@ class AtomicGrid(IntGrid):
         # TODO: merge all dot_multi variants in one general-purpose implementation
         dot_multi_parts(args, self._nlls, output)
         return output
+
+    def update_center(self, center):
+        self._center[:] = center
+        self._init_low(self.points, self.weights)
 
 
 

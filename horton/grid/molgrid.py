@@ -79,7 +79,6 @@ class BeckeMolGrid(IntGrid):
         size, atspecs = get_mol_grid_size(system.numbers, atspecs, system.natom)
 
         # assign attributes
-        self._system = system
         self._atspecs = atspecs
         self._keep_subgrids = keep_subgrids
         self._random_rotate = random_rotate
@@ -120,12 +119,6 @@ class BeckeMolGrid(IntGrid):
         if log is not None and hasattr(self, 'weights'):
             log.mem.denounce(self.points.nbytes + self.weights.nbytes)
 
-    def _get_system(self):
-        '''The system object for which this grid is made.'''
-        return self._system
-
-    system = property(_get_system)
-
     def _get_atspecs(self):
         '''The specifications of the atomic grids.'''
         return self._atspecs
@@ -149,13 +142,27 @@ class BeckeMolGrid(IntGrid):
             log('Initialized: %s' % self)
             log.deflist([
                 ('Size', self.size),
-                ('System', self._system),
                 ('Switching function', 'k=%i' % self._k),
             ])
             # Cite reference
             log.cite('becke1988_multicenter', 'the multicenter integration scheme used for the molecular integration grid')
             log.cite('cordero2008', 'the covalent radii used for the Becke-Lebedev molecular integration grid')
 
+    def update_centers(self, system):
+        if self.subgrids is None:
+            raise RuntimeError('It is only possible to update the centers of a molecular grid when the subgrids are kept.')
+        if len(self.subgrids) != system.natom:
+            raise ValueError('The number of grid centers and the number of atoms does not match.')
+        offset = 0
+        # More recent covalent radii are used than in the original work of Becke.
+        cov_radii = np.array([periodic[n].cov_radius for n in system.numbers])
+        for i in xrange(system.natom):
+            atgrid = self.subgrids[i]
+            atsize = atgrid.size
+            atgrid.update_center(system.coordinates[i])
+            self.weights[offset:offset+atsize] = atgrid.weights
+            becke_helper_atom(self.points[offset:offset+atsize], self.weights[offset:offset+atsize], cov_radii, system.coordinates, i, self._k)
+            offset += atgrid.size
 
 
 def get_mol_grid_size(numbers, atspecs, natom):
