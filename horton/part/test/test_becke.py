@@ -59,3 +59,23 @@ def test_becke_nonlocal_lih_hf_321g():
     bp1.do_charges()
     bp2.do_charges()
     assert abs(bp1['charges'] - bp2['charges']).max() < 5e-4
+
+
+def test_becke_update_grid_lih_hf_321g():
+    fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
+    sys = System.from_file(fn_fchk)
+
+    grid = BeckeMolGrid(sys, 'tv-13.1-3', random_rotate=True, keep_subgrids=True)
+    bp = BeckeWPart(sys, grid)
+    bp.do_charges()
+    c1 = bp['charges']
+    bp.update_grid(grid)
+    assert c1 is bp['charges']
+
+    grid = BeckeMolGrid(sys, 'tv-13.1-4', random_rotate=True, keep_subgrids=True)
+    bp.update_grid(grid)
+    assert len(bp.cache) == 0
+    bp.do_charges()
+    c2 = bp['charges']
+
+    assert abs(c1 - c2).max() > 0
