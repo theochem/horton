@@ -103,10 +103,36 @@ class Part(JustOnceClass):
     def __clear__(self):
         self.clear()
 
-    def clear(self):
-        '''Discard all cached results, e.g. because wfn changed'''
+    def clear(self, dealloc=False):
+        '''Discard all cached results, e.g. because wfn changed
+
+           **Optional arguments:**
+
+           dealloc
+                When set to True, the contents of the cache are really removed
+                from memory.
+        '''
         JustOnceClass.clear(self)
-        self.cache.clear()
+        self.cache.clear(dealloc=dealloc)
+
+    def update_grid(self, grid):
+        '''Specify a new grid
+
+           **Arguments:**
+
+           grid
+                The new grid
+
+           When the new and old grid are the same, no action is taken. When
+           a really new grid is provided, the subgrids are updated and the
+           cache is cleared.
+        '''
+        if not (grid is self._grid):
+            dealloc = self._grid.size != grid.size
+            self._grid = grid
+            if self.local:
+                self._init_subgrids()
+            self.clear(dealloc=dealloc)
 
     def get_grid(self, index=None):
         '''Return an integration grid
