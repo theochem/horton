@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Tools for playing with pro-atomic databases'''
+'''Pro-atom databases'''
 
 
 import os
@@ -491,7 +491,7 @@ class ProAtomDB(object):
     def get_spline(self, number, parameters=0, combine='linear'):
         '''Construct a proatom spline.
 
-           **Arguments:** See ``get_rho.. method.
+           **Arguments:** See ``get_rho`` method.
         '''
         rho = self.get_rho(number, parameters, combine)
         return CubicSpline(rho, rtf=self.get_rgrid(number).rtransform)

@@ -18,6 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
+'''Linear energy terms (Core Hamiltonian)'''
 
 
 import numpy as np

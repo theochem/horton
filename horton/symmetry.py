@@ -18,7 +18,9 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''The symmetry tools in Horton are just meant to provide optional additional
+'''Geometric symmetries
+
+   The symmetry tools in Horton are just meant to provide optional additional
    information on top of a System instance.
 '''
 

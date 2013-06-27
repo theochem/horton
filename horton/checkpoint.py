@@ -18,8 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-"""This field defines all the parts of the System class than can be written
-   to a checkpoint file, and how that should be done in each case.
+"""Store (parts of) a system object in a checkpoint file
 
    The philosophy of this module is to take away as much of the checkpointing
    machinery out of the rest of Horton. The only (somewhat unavoidable)

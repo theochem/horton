@@ -20,6 +20,7 @@
 #--
 '''Package for density-based partitioning (fuzzy atoms)'''
 
+
 from horton.part.base import *
 from horton.part.becke import *
 from horton.part.hirshfeld import *

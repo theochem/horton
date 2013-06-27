@@ -18,6 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
+'''ESP Cost functions for estimating and testing charges'''
 
 
 import numpy as np

@@ -18,6 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
+'''Projection of 1-electron orbitals to a new basis set'''
 
 
 import numpy as np

@@ -18,6 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
+'''Input/Output routines for gaussian basis sets'''
 
 
 from horton.periodic import periodic

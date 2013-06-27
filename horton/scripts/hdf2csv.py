@@ -18,6 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
+'''Code used by ``horton-hdf2csv.py``'''
 
 
 import h5py as h5

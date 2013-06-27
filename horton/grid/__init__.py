@@ -18,6 +18,8 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
+'''Numerical integraton grids'''
+
 
 from horton.grid.base import *
 from horton.grid.atgrid import *

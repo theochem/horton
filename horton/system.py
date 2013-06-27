@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Define a molecular system and all aspects relevant for a computation.
+'''Molecular system and all aspects relevant for a computation
 
    Objects of the System class specify the geometry (and atomic elements) of the
    molecule on which Horton will perform a computation. Also other parameters

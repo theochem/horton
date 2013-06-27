@@ -18,13 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-
-
-from horton.context import *
-import numpy as np
-
-
-'''Periodic table of elements.
+'''Periodic table of elements
 
    This module contains an object ``periodic`` that can be used as a Pythonic
    periodic table. It can be used as follows::
@@ -43,10 +37,14 @@ import numpy as np
 '''
 
 
+import numpy as np
+
+from horton.context import context
+from horton.units import angstrom
+
+
 __all__ = ['periodic', 'Element', 'Periodic']
 
-
-from horton.units import angstrom
 
 
 class Element(object):

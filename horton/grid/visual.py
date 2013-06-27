@@ -18,6 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
+'''Grids suitable for visualization'''
 
 
 import numpy as np

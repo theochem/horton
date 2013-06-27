@@ -20,9 +20,6 @@
 #--
 """Wavefunction implementations
 
-   The essential part of the wavefunction consists of the expansion coefficients
-   in a certain basis.
-
    Abbreviations used in this module:
 
    * wfn = wavefunction
@@ -148,11 +145,16 @@ def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None):
 
 class PropertyHelper(object):
     '''Auxiliary class to set up dm_xxx and exp_xxx attributes of MeanFieldWFN class.'''
-    def __init__(self, method, arg):
+    def __init__(self, method, arg, doc):
         self.method = method
         self.arg = arg
+        self.__doc__ = doc
 
     def __get__(self, obj, objtype):
+        # For doc strings:
+        if obj is None:
+            return self
+        # For actual use
         try:
             return self.method(obj, self.arg)
         except KeyError, e:
@@ -333,12 +335,12 @@ class MeanFieldWFN(object):
         '''
         return self._cache.load('exp_%s' % spin)
 
-    dm_alpha = PropertyHelper(get_dm, 'alpha')
-    dm_beta = PropertyHelper(get_dm, 'beta')
-    dm_full = PropertyHelper(get_dm, 'full')
-    dm_spin = PropertyHelper(get_dm, 'spin')
-    exp_alpha = PropertyHelper(get_exp, 'alpha')
-    exp_beta = PropertyHelper(get_exp, 'beta')
+    dm_alpha = PropertyHelper(get_dm, 'alpha', 'Alpha density matrix')
+    dm_beta = PropertyHelper(get_dm, 'beta', 'Beta density matrix')
+    dm_full = PropertyHelper(get_dm, 'full', 'Full density matrix')
+    dm_spin = PropertyHelper(get_dm, 'spin', 'Spin density matrix')
+    exp_alpha = PropertyHelper(get_exp, 'alpha', 'Alpha orbital expansion')
+    exp_beta = PropertyHelper(get_exp, 'beta', 'Beta orbital expansion')
 
     def apply_basis_permutation(self, permutation):
         """Reorder the expansion coefficients and the density matrices"""

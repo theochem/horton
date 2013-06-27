@@ -18,6 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
+'''Mean-field electronic structure code'''
 
 
 from horton.meanfield.builtin import *

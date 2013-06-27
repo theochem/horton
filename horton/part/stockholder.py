@@ -18,6 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
+'''Base classes for all stockholder partitioning schemes'''
 
 
 import numpy as np
