@@ -208,3 +208,28 @@ def test_scf_oda_aufbau_spin():
     guess_hamiltonian_core(sys)
     ham = Hamiltonian(sys, [HartreeFockExchange()])
     converge_scf_oda(ham)
+
+
+def test_check_dm():
+    # create random orthogonal vectors
+    v1 = np.random.uniform(1, 2, 2)
+    v1 /= np.linalg.norm(v1)
+    v2 = np.array([-v1[1], v1[0]])
+    v = np.array([v1, v2]).T
+
+    lf = DenseLinalgFactory(2)
+    olp = lf.create_one_body()
+    olp._array = np.identity(2)
+
+    op1 = lf.create_one_body()
+    op1._array = np.dot(v*[-0.1, 0.5], v.T)
+    with assert_raises(ValueError):
+        check_dm(op1, olp, lf, 'foo')
+    op1._array = np.dot(v*[0.1, 1.5], v.T)
+    with assert_raises(ValueError):
+        check_dm(op1, olp, lf, 'foo')
+    op1._array = np.dot(v*[-0.1, 1.5], v.T)
+    with assert_raises(ValueError):
+        check_dm(op1, olp, lf, 'foo')
+    op1._array = np.dot(v*[0.1, 0.5], v.T)
+    check_dm(op1, olp, lf, 'foo')

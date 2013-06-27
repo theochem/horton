@@ -30,7 +30,7 @@ from horton.meanfield.wfn import RestrictedWFN, UnrestrictedWFN
 __all__ = [
     'NoSCFConvergence',
     'converge_scf',
-    'check_cubic_cs', 'check_cubic_os', 'converge_scf_oda',
+    'check_cubic_cs', 'check_cubic_os', 'check_dm', 'converge_scf_oda',
     'convergence_error'
 ]
 
@@ -331,6 +331,35 @@ def check_cubic_cs(ham, dm0, dm1, e0, e1, g0, g1, do_plot=True):
         assert error < 0.01*oom
 
 
+def check_dm(dm, overlap, lf, name, eps=1e-4):
+    '''Check if the density matrix has eigenvalues in the proper range.
+
+       **Arguments:**
+
+       dm
+            The density matrix
+
+       overlap
+            The overlap matrix
+
+       lf
+            The LinalgFactory instance used for the diagonalization of the
+            density matrix.
+
+       **Optional arguments:**
+
+       eps
+            The threshold on the eigenvalue inequalities.
+    '''
+    tmp = overlap.copy()
+    tmp.idot(dm)
+    tmp.idot(overlap)
+    evals = lf.diagonalize(tmp, overlap)[0]
+    if evals.min() < -eps:
+        raise ValueError('The %s density matrix has eigenvalues considerably smaller than zero. error=%e' % (name, evals.min()))
+    if evals.max() > 1+eps:
+        raise ValueError('The %s density matrix has eigenvalues considerably larger than one. error=%e' % (name, evals.max()-1))
+
 
 def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):
     '''Minimize the energy of the closed-shell wavefunction with optimal damping
@@ -381,6 +410,12 @@ def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):
     converged = False
     mixing = None
     error = None
+
+    # If an input density matrix is present, check if it sensible. This avoids
+    # redundant testing of a density matrix that is derived here from the
+    # orbitals.
+    if 'dm_alpha' in wfn._cache:
+        check_dm(wfn.dm_alpha, overlap, lf, 'alpha')
 
     i = 0
     while maxiter is None or i < maxiter:
@@ -441,6 +476,8 @@ def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):
 
         error = dm2.distance(dm0)
         if error < threshold:
+            if abs(energy0_deriv) > threshold:
+                raise RuntimeError('The ODA algorithm stopped a point with non-zero gradient.')
             converged = True
             break
 
@@ -573,6 +610,14 @@ def converge_scf_oda_os(ham, maxiter=128, threshold=1e-6, debug=False):
     errora = None
     errorb = None
 
+    # If an input density matrix is present, check if it sensible. This avoids
+    # redundant testing of a density matrix that is derived here from the
+    # orbitals.
+    if 'dm_alpha' in wfn._cache:
+        check_dm(wfn.dm_alpha, overlap, lf, 'alpha')
+    if 'dm_beta' in wfn._cache:
+        check_dm(wfn.dm_beta, overlap, lf, 'beta')
+
     i = 0
     while maxiter is None or i < maxiter:
         # A) Construct Fock operator, compute energy and keep dm at current/initial point
@@ -643,6 +688,8 @@ def converge_scf_oda_os(ham, maxiter=128, threshold=1e-6, debug=False):
         errora = dm2a.distance(dm0a)
         errorb = dm2b.distance(dm0b)
         if errora < threshold and errorb < threshold:
+            if abs(energy0_deriv) > threshold:
+                raise RuntimeError('The ODA algorithm stopped a point with non-zero gradient.')
             converged = True
             break
 
