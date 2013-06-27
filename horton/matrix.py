@@ -120,6 +120,9 @@ class LinalgObject(object):
     def clear(self):
         raise NotImplementedError
 
+    def copy(self):
+        raise NotImplementedError
+
     def assign(self, other):
         raise NotImplementedError
 
@@ -329,6 +332,13 @@ class DenseExpansion(LinalgObject):
         self._coeffs[:] = 0.0
         self._energies[:] = 0.0
         self._occupations[:] = 0.0
+
+    def copy(self):
+        result = DenseExpansion(self.nbasis, self.nfn)
+        result._coeffs[:] = self._coeffs
+        result._energies[:] = self._energies
+        result._occupations[:] = self._occupations
+        return result
 
     def check_normalization(self, olp, eps=1e-4):
         '''Run an internal test to see if the orbitals are normalized
