@@ -39,18 +39,12 @@ Reference
 .. toctree::
    :maxdepth: 2
    :numbered:
+   :glob:
 
    ref_features
    ref_acronyms
    ref_literature
-   lib_horton
-   lib_horton_espfit
-   lib_horton_gbasis
-   lib_horton_grid
-   lib_horton_hamiltonian
-   lib_horton_io
-   lib_horton_part
-   lib_horton_scripts
+   lib/*
 
 
 Indices and tables
