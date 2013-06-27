@@ -68,8 +68,7 @@ def project_orbitals_mgs(system, old_wfn, old_obasis, eps=1e-10):
             system.wfn.init_exp('beta')
         project_orbitals_mgs_low(old_obasis, system.obasis, old_wfn.exp_alpha, system.wfn.exp_alpha, eps)
         project_orbitals_mgs_low(old_obasis, system.obasis, old_wfn.exp_beta, system.wfn.exp_beta, eps)
-    for select in 'alpha', 'beta', 'spin', 'full':
-        system.wfn._cache.clear_item('dm_%s' % select)
+    system.wfn.clear_dm()
 
 
 def project_orbitals_mgs_low(obasis0, obasis1, exp0, exp1, eps=1e-10):

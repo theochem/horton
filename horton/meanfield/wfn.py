@@ -135,8 +135,7 @@ def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None):
                 system.wfn.occ_model.assign(system.wfn.exp_alpha)
             else:
                 system.wfn.occ_model.assign(system.wfn.exp_alpha, system.wfn.exp_beta)
-            for select in 'alpha', 'beta', 'full', 'spin':
-                system.wfn._cache.clear_item('dm_%s' % select)
+            system.wfn.clear_dm()
         else:
             system.wfn.clear()
     else:
@@ -265,13 +264,21 @@ class MeanFieldWFN(object):
         self.clear()
 
     def clear(self):
-        '''Must be called when the wavefunction is outdated'''
+        '''Clear all wavefunction information'''
         self._cache.clear()
+
+    def clear_exp(self):
+        '''Clear the wavefunction expansions'''
+        self._cache.clear(tags='e')
+
+    def clear_dm(self):
+        '''Clear the density matrices'''
+        self._cache.clear(tags='d')
 
     def init_exp(self, spin):
         if spin not in ['alpha', 'beta']:
             raise ValueError('The select argument must be alpha or beta')
-        exp, new = self._cache.load('exp_%s' % spin, alloc=(self._lf.create_expansion, self._nbasis, self._norb))
+        exp, new = self._cache.load('exp_%s' % spin, alloc=(self._lf.create_expansion, self._nbasis, self._norb), tags='e')
         if not new:
             raise RuntimeError('The expansion exp_%s already exists. Call wfn.clear prior to updating the wfn.' % spin)
         return exp
@@ -279,7 +286,7 @@ class MeanFieldWFN(object):
     def init_dm(self, select):
         if select not in ['alpha', 'beta', 'full', 'spin']:
             raise ValueError('The select argument must be one of alpha, beta, full or spin.')
-        dm, new = self._cache.load('dm_%s' % select, alloc=(self._lf.create_one_body, self.nbasis))
+        dm, new = self._cache.load('dm_%s' % select, alloc=(self._lf.create_one_body, self.nbasis), tags='d')
         if not new:
             raise RuntimeError('The density matrix dm_%s already exists. Call wfn.clear prior to updating the wfn.' % select)
         return dm
@@ -295,11 +302,9 @@ class MeanFieldWFN(object):
         cached_dm = self.init_dm(select)
         if dm is None:
             if select == 'alpha':
-                exp_alpha = self._cache.load('exp_alpha')
-                exp_alpha.compute_density_matrix(cached_dm)
+                self.exp_alpha.compute_density_matrix(cached_dm)
             elif select == 'beta':
-                exp_beta = self._cache.load('exp_beta')
-                exp_beta.compute_density_matrix(cached_dm)
+                self.exp_beta.compute_density_matrix(cached_dm)
             elif select == 'full':
                 self._assign_dm_full(cached_dm)
             elif select == 'spin':
@@ -393,6 +398,7 @@ class RestrictedWFN(MeanFieldWFN):
         '''
         # Load the orbital expansion of the alpha density.
         exp_alpha = self.init_exp('alpha')
+        self.clear_dm()
         if dm_alpha is None:
             # Diagonalize the Fock matrix and
             # use simple rules to derive the occupations
@@ -473,6 +479,7 @@ class UnrestrictedWFN(MeanFieldWFN):
         # Load the orbital expansions.
         exp_alpha = self.init_exp('alpha')
         exp_beta = self.init_exp('beta')
+        self.clear_dm()
         if dm_alpha is None:
             # Diagonalize the Fock matrix and
             # use simple rules to derive the occupations

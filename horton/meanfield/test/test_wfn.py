@@ -33,6 +33,26 @@ def test_dm_water_sto3g_hf():
     assert abs(dm.get_element(1, 1) - 1.93312061) < 1e-7
 
 
+def test_clear_exp():
+    fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
+    sys = System.from_file(fn_fchk)
+    assert 'exp_alpha' in sys.wfn._cache
+    sys.wfn.dm_alpha
+    sys.wfn.clear_exp()
+    assert 'exp_alpha' not in sys.wfn._cache
+    assert 'dm_alpha' in sys.wfn._cache
+
+
+def test_clear_dm():
+    fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
+    sys = System.from_file(fn_fchk)
+    assert 'exp_alpha' in sys.wfn._cache
+    sys.wfn.dm_alpha
+    sys.wfn.clear_dm()
+    assert 'exp_alpha' in sys.wfn._cache
+    assert 'dm_alpha' not in sys.wfn._cache
+
+
 def test_conversion_dm_exp():
     fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
     sys = System.from_file(fn_fchk)
@@ -50,7 +70,7 @@ def test_conversion_dm_exp():
     assert abs(oes - sys.wfn.exp_alpha.energies).max() < 3e-8
     assert (dm._array == sys.wfn.dm_alpha._array).all()
     # ugly hack
-    sys.wfn._cache.clear_item('dm_alpha')
+    sys.wfn.clear_dm()
     assert abs(dm._array - sys.wfn.dm_alpha._array).max() < 1e-9
 
 
