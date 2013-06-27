@@ -315,9 +315,15 @@ class Cache(object):
                 self._store[key] = item
                 return item.value, True
             elif not item.valid:
-                item.check_alloc(alloc)
-                item.check_tags(tags)
-                item._valid = True # as if it is newly allocated
+                try:
+                    # try to reuse the same memroy
+                    item.check_alloc(alloc)
+                    item._valid = True # as if it is newly allocated
+                    item.check_tags(tags)
+                except TypeError:
+                    # if reuse fails, reallocate
+                    item = CacheItem.from_alloc(alloc, tags)
+                    self._store[key] = item
                 return item.value, True
             else:
                 item.check_alloc(alloc)

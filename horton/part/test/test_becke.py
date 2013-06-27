@@ -69,13 +69,20 @@ def test_becke_update_grid_lih_hf_321g():
     bp = BeckeWPart(sys, grid)
     bp.do_charges()
     c1 = bp['charges']
+    md1 = bp['moldens']
     bp.update_grid(grid)
     assert c1 is bp['charges']
+    assert md1 is bp['moldens']
+    c1 = c1.copy() # c1 will be reused otherwise
 
     grid = BeckeMolGrid(sys, 'tv-13.1-4', random_rotate=True, keep_subgrids=True)
     bp.update_grid(grid)
     assert len(bp.cache) == 0
+    assert bp.grid is grid
     bp.do_charges()
     c2 = bp['charges']
+    md2 = bp['moldens']
 
+    assert not md1 is md2
+    assert not c1 is c2
     assert abs(c1 - c2).max() > 0

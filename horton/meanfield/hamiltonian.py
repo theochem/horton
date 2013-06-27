@@ -93,19 +93,13 @@ class Hamiltonian(object):
         self.terms.append(term)
         term.set_hamiltonian(self)
 
-    def clear(self, dealloc=False):
+    def clear(self):
         '''Mark the properties derived from the wfn as outdated.
-
-           **Optional arguments:**
-
-           dealloc
-                When True, arrays are really deallocated instead of keeping the
-                memory for later use.
 
            This method does not recompute anything, but just marks operators
            as outdated. They are recomputed as they are needed.
         '''
-        self.cache.clear(dealloc=dealloc)
+        self.cache.clear()
 
     def compute(self):
         '''Compute the energy.
