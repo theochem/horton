@@ -277,6 +277,18 @@ def test_dense_one_body_copy():
     assert (op1._array == op2._array).all()
 
 
+def test_dense_expansion_copy():
+    lf = DenseLinalgFactory()
+    exp1 = lf.create_expansion(3, 2)
+    exp1._coeffs[:] = np.random.uniform(0, 1, (3, 2))
+    exp1._energies[:] = np.random.uniform(0, 1, 2)
+    exp1._occupations[:] = np.random.uniform(0, 1, 2)
+    exp2 = exp1.copy()
+    assert (exp1._coeffs == exp2._coeffs).all()
+    assert (exp1._energies == exp2._energies).all()
+    assert (exp1._occupations == exp2._occupations).all()
+
+
 def test_homo_lumo_ch3_hf():
     fn_fchk = context.get_fn('test/ch3_hf_sto3g.fchk')
     sys = System.from_file(fn_fchk)
