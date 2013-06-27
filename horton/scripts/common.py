@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-
+'''Code shared by several scripts'''
 
 
 import os, sys, datetime, numpy as np, h5py as h5, time, contextlib

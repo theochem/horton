@@ -18,6 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
+'''1D Radial integration grid'''
 
 
 import numpy as np

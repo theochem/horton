@@ -18,6 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
+'''Interface to LDA, GGA and Hybrid functionals from LibXC'''
 
 
 import numpy as np
@@ -56,10 +57,11 @@ class LibXCLDA(LibXCEnergy):
     require_grid = True
     def __init__(self, name):
         '''
-           **Arguments:*
+           **Arguments:**
 
            name
-                The name of the functional in LibXC, without the 'lda_' prefix.
+                The name of the functional in LibXC, without the ``lda_``
+                prefix.
         '''
         LibXCEnergy.__init__(self, 'lda_' + name.lower())
 
@@ -125,7 +127,8 @@ class LibXCGGA(LibXCEnergy):
            **Arguments:**
 
            name
-                The name of the functional in LibXC, without the 'gga_' prefix.
+                The name of the functional in LibXC, without the ``gga_``
+                prefix.
         '''
         LibXCEnergy.__init__(self, 'gga_' + name.lower())
 
@@ -207,7 +210,8 @@ class LibXCHybridGGA(LibXCGGA):
            **Arguments:**
 
            name
-                The name of the functional in LibXC, without the 'hyb_gga_' prefix.
+                The name of the functional in LibXC, without the ``hyb_gga_``
+                prefix.
         '''
         LibXCEnergy.__init__(self, 'hyb_gga_' + name.lower())
 

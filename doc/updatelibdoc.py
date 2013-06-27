@@ -19,7 +19,7 @@ def discover():
             if module == '__init__':
                 continue
             modules.append(module)
-    
+
     return packages
 
 
@@ -49,7 +49,7 @@ def main():
             print >> f
             underline('``%s`` -- %s' % (package, get_first_docline(package)), '#', f)
             print >> f
-            
+
             for module in sorted(modules):
                 full = package + '.' + module
                 underline('``%s`` -- %s' % (full, get_first_docline(full)), '=', f)

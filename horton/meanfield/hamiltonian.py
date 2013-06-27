@@ -18,6 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
+'''Mean-field DFT/HF Hamiltonian data structures'''
 
 
 import numpy as np

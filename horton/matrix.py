@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-"""Two- and four-dimensional matrix implementations.
+"""Two- and four-dimensional matrix implementations
 
    The purpose of this module is to provide a generic API for different
    implementations of real-valued double precision matrix storage and
@@ -27,9 +27,11 @@
    Two-dimensional matrices are supposed to be symmetric and are used to
    represent one-body operators and 1DRDMs. Four-dimensional matrices are used
    to represent two-body operators, which are invariant under the following
-   interchanges of indexes:
+   interchanges of indexes::
+
             <ij|kl> = <ji|lk> = <kl|ij> = <lk|ji> =
             <il|kj> = <jk|li> = <kj|il> = <li|jk>
+
    This module assumes physicists notation for the two-particle operators. It is
    up to the specific implementations of the matrices to make use of these
    symmetries.

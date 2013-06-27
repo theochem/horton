@@ -18,6 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
+'''The main Horton Package'''
 
 
 __version__ = '1.0'

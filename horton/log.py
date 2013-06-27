@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Screen logging, timing and citation management.
+'''Screen logging, timing and citation management
 
    The goal of the screen logger is to track the progress of a computation in
    a convenient human-readable way, possibly higlighting problematic situations.

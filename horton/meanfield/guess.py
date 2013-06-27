@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-"""Initial guesses for wavefunctions"""
+'''Initial guesses for wavefunctions'''
 
 
 from horton.log import log, timer

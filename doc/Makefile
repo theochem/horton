@@ -36,6 +36,7 @@ help:
 autolibdoc:
 	cd ..; python setup.py build_ext -i
 	mkdir -p lib
+	rm -fv lib/horton*.rst
 	HORTONDATA=../data PYTHONPATH=../ python updatelibdoc.py
 
 clean:

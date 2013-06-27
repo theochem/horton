@@ -18,8 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Tools for avoiding recomputation of earlier results and reallocation of
-   existing arrays.
+'''Avoid recomputation of earlier results and reallocation of existing arrays
 
    In principle, the ``JustOnceClass`` and the ``Cache`` can be used
    independently, but in some cases it makes a lot of sense to combine them.

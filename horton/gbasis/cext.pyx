@@ -18,9 +18,8 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
+'''C++ extensions'''
 
-
-# TODO: add not None to all array arguments
 
 import numpy as np
 cimport numpy as np
