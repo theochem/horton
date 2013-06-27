@@ -354,6 +354,8 @@ class DenseExpansion(LinalgObject):
                 The allowed deviation from unity, very loose by default.
         '''
         for i in xrange(self.nfn):
+            if self.occupations[i] == 0:
+                continue
             norm = olp.dot(self._coeffs[:,i], self._coeffs[:,i])
             print i, norm
             assert abs(norm-1) < eps, 'The orbitals are not normalized!'
@@ -582,7 +584,7 @@ class DenseOneBody(OneBody):
         self._array[:] = np.dot(self._array, other._array)
 
     def distance(self, other):
-        return (self._array.ravel() - other._array.ravel()).max()
+        return abs(self._array.ravel() - other._array.ravel()).max()
 
     def apply_basis_permutation(self, permutation):
         '''Reorder the coefficients for a given permutation of basis functions.
