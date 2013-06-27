@@ -440,13 +440,13 @@ class System(object):
 
         # Discard or reset results that depend on orbital basis
         if self.obasis is not None:
-            dealloc = self.obasis.nbasis != obasis.nbasis
-            self._cache.clear(dealloc, tags='o')
-            if dealloc:
-                # There is no way that the wavefunction can still be useful.
-                # Ideally, the user of the system object does some sort of
-                # projection of the wavefunction on the new basis.
-                self._wfn = None
+            self._cache.clear(tags='o')
+            # Ideally, the user of the system object does some sort of
+            # projection of the wavefunction on the new basis. This should be
+            # done outside the system class as their are too many different ways
+            # to handle this. Here, we set the wfn to None, just to force the
+            # user to do something.
+            self._wfn = None
             self._extra = {}
 
         # Assign new obasis

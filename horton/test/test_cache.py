@@ -136,28 +136,38 @@ def test_multiple():
 def test_allocation():
     c = Cache()
     assert 'egg' not in c
-    tmp, new = c.load('egg', alloc=(5,10))
+    ar1, new = c.load('egg', alloc=(5,10))
     assert new
-    assert (tmp == 0).all()
-    assert tmp.shape == (5,10)
-    assert issubclass(tmp.dtype.type, float)
+    assert (ar1 == 0).all()
+    assert ar1.shape == (5,10)
+    assert issubclass(ar1.dtype.type, float)
     assert 'egg' in c
     assert 'bar' not in c
-    tmp[:] = 1.0
+    with assert_raises(TypeError):
+        c.load('egg', alloc=10)
+    with assert_raises(TypeError):
+        c.load('egg', alloc=(10,5))
+    ar1[:] = 1.0
     c.clear()
     assert 'egg' not in c
-    assert (tmp[:] == 0.0).all()
+    assert (ar1[:] == 0.0).all()
     # try to load it, while it is no longer valid
     with assert_raises(KeyError):
-        bis = c.load('egg')
+        ar2 = c.load('egg')
     # properly load it anew
-    bis, new = c.load('egg', alloc=(5,10))
+    ar2, new = c.load('egg', alloc=(5,10))
     assert new
-    assert bis is tmp # still the same array, just cleared.
+    assert ar2 is ar1 # still the same array, just cleared.
     assert 'egg' in c
     # simple load should now work
-    tris = c.load('egg')
-    assert tris is tmp
+    ar3 = c.load('egg')
+    assert ar3 is ar1
+    # clear again and use different alloc
+    c.clear()
+    ar4, new = c.load('egg', alloc=(5,1,2))
+    assert new
+    assert ar4.shape == (5,1,2)
+    assert not ar4 is ar1
 
 
 def test_default():
@@ -188,43 +198,44 @@ def test_dense_expansion():
     from horton.matrix import DenseLinalgFactory, DenseExpansion
     lf = DenseLinalgFactory()
     c = Cache()
-    op1, new = c.load('egg', alloc=(lf.create_expansion, 10, 9))
+    exp1, new = c.load('egg', alloc=(lf.create_expansion, 10, 9))
     assert new
-    assert isinstance(op1, DenseExpansion)
-    assert op1.nbasis == 10
-    op2 = c.load('egg')
-    assert op1 is op2
-    op3, new = c.load('egg', alloc=(lf.create_expansion, 10, 9))
+    assert isinstance(exp1, DenseExpansion)
+    assert exp1.nbasis == 10
+    assert exp1.nfn == 9
+    exp2 = c.load('egg')
+    assert exp1 is exp2
+    exp3, new = c.load('egg', alloc=(lf.create_expansion, 10, 9))
     assert not new
-    assert op1 is op3
+    assert exp1 is exp3
     # things that should not work
     with assert_raises(TypeError):
-        op4, new = c.load('egg', alloc=(lf.create_expansion, 5))
+        exp4, new = c.load('egg', alloc=(lf.create_expansion, 5))
     with assert_raises(TypeError):
-        op4, new = c.load('egg', alloc=(lf.create_expansion, 10, 5))
+        exp4, new = c.load('egg', alloc=(lf.create_expansion, 10, 5))
     with assert_raises(TypeError):
-        op4, new = c.load('egg', alloc=5)
+        exp4, new = c.load('egg', alloc=5)
     # after clearing
-    op1.coeffs[1, 2] = 5.2
+    exp1.coeffs[1, 2] = 5.2
     c.clear()
-    assert op1.coeffs[1,2] == 0.0
+    assert exp1.coeffs[1,2] == 0.0
     with assert_raises(KeyError):
-        op4 = c.load('egg')
-    with assert_raises(TypeError):
-        op4, new = c.load('egg', alloc=(lf.create_expansion, 5))
-    with assert_raises(TypeError):
-        op4, new = c.load('egg', alloc=(lf.create_expansion, 10, 5))
-    with assert_raises(TypeError):
-        op4, new = c.load('egg', alloc=5)
-    op4, new = c.load('egg', alloc=(lf.create_expansion, 10, 9))
+        exp4 = c.load('egg')
+    exp4, new = c.load('egg', alloc=(lf.create_expansion, 10, 9))
     assert new
-    assert op1 is op4
-    op5 = c.load('egg')
-    assert op1 is op5
+    assert exp1 is exp4
+    exp5 = c.load('egg')
+    assert exp1 is exp5
     # default_nbasis
     lf.set_default_nbasis(5)
     with assert_raises(TypeError):
         c.load('egg', alloc=lf.create_expansion)
+    c.clear()
+    exp6, new = c.load('egg', alloc=lf.create_expansion)
+    assert new
+    assert not exp5 is exp6
+    assert exp6.nbasis == 5
+    assert exp6.nfn == 5
 
 
 def test_dense_one_body():
@@ -251,10 +262,6 @@ def test_dense_one_body():
     assert op1._array[1,2] == 0.0
     with assert_raises(KeyError):
         op4 = c.load('egg')
-    with assert_raises(TypeError):
-        op4, new = c.load('egg', alloc=(lf.create_one_body, 5))
-    with assert_raises(TypeError):
-        op4, new = c.load('egg', alloc=5)
     op4, new = c.load('egg', alloc=(lf.create_one_body, 10))
     assert new
     assert op1 is op4
@@ -264,6 +271,11 @@ def test_dense_one_body():
     lf.set_default_nbasis(5)
     with assert_raises(TypeError):
         c.load('egg', alloc=lf.create_one_body)
+    c.clear()
+    op6, new = c.load('egg', alloc=lf.create_one_body)
+    assert new
+    assert not op5 is op6
+    assert op6.nbasis == 5
 
 
 def test_dense_two_body():
@@ -290,10 +302,6 @@ def test_dense_two_body():
     assert op1._array[1,2,1,2] == 0.0
     with assert_raises(KeyError):
         op4 = c.load('egg')
-    with assert_raises(TypeError):
-        op4, new = c.load('egg', alloc=(lf.create_two_body, 5))
-    with assert_raises(TypeError):
-        op4, new = c.load('egg', alloc=5)
     op4, new = c.load('egg', alloc=(lf.create_two_body, 10))
     assert new
     assert op1 is op4
@@ -303,6 +311,11 @@ def test_dense_two_body():
     lf.set_default_nbasis(5)
     with assert_raises(TypeError):
         c.load('egg', alloc=lf.create_two_body)
+    c.clear()
+    op6, new = c.load('egg', alloc=lf.create_one_body)
+    assert new
+    assert not op5 is op6
+    assert op6.nbasis == 5
 
 
 def test_basic_exceptions():
