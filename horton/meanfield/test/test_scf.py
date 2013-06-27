@@ -183,7 +183,7 @@ def test_hf_water_321g_mistake():
     sys = System.from_file(fn_xyz, obasis='3-21G')
     setup_mean_field_wfn(sys, charge=0)
     ham = Hamiltonian(sys, [HartreeFockExchange()])
-    with assert_raises(KeyError):
+    with assert_raises(AttributeError):
         converge_scf(ham)
 
 
