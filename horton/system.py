@@ -393,7 +393,7 @@ class System(object):
             self._obasis.centers[:] = self._coordinates
         if self._grid is not None:
             self._grid.update_centers(self)
-        self.cache.clear('cog')
+        self.cache.clear(tags='cog')
         self._extra = {}
 
     def update_grid(self, grid=None):
@@ -408,7 +408,7 @@ class System(object):
         '''
         if grid is not None:
             self._grid = grid
-        self.cache.clear('g')
+        self.cache.clear(tags='g')
 
     def update_obasis(self, obasis=None):
         '''Regenerate the orbital basis and clear all attributes that depend on it.

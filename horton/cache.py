@@ -176,21 +176,19 @@ class CacheItem(object):
 
     tags = property(_get_tags)
 
-    def _get_clearable(self):
-        return isinstance(self._value, np.ndarray) or \
-               (hasattr(self._value, '__clear__') and callable(self._value.__clear__))
-
-    clearable = property(_get_clearable)
-
     def clear(self):
-        '''Mark the item as invalid and clear the contents of the object.'''
+        '''Mark the item as invalid and clear the contents of the object.
+
+           **Returns:** A boolean indicating that clearing was successful
+        '''
         self._valid = False
         if isinstance(self._value, np.ndarray):
             self._value[:] = 0.0
         elif hasattr(self._value, '__clear__') and callable(self._value.__clear__):
             self._value.__clear__()
         else:
-            raise TypeError('Do not know how to clear %s.' % self._value)
+            return False
+        return True
 
 
 class NoDefault(object):
@@ -219,7 +217,7 @@ class Cache(object):
     def __init__(self):
         self._store = {}
 
-    def clear(self, dealloc=False, tags=None):
+    def clear(self, **kwargs):
         '''Clear all items in the cache
 
            **Optional arguments:**
@@ -233,6 +231,13 @@ class Cache(object):
                 and it contains at least one tag, items with no tags are not
                 cleared.
         '''
+        # Parse kwargs. This forces the caller to use keywords in order to avoid
+        # confusion.
+        dealloc = kwargs.pop('dealloc', False)
+        tags = kwargs.pop('tags', None)
+        if len(kwargs) > 0:
+            raise TypeError('Unexpected arguments: %s' % kwargs.keys())
+        # actual work
         tags = _normalize_tags(tags)
         for key, item in self._store.items():
             if len(tags) == 0 or len(item.tags & tags) > 0:
@@ -253,9 +258,10 @@ class Cache(object):
         item = self._store.get(key)
         if item is None:
             return
-        if item.clearable and not dealloc:
-            item.clear()
-        else:
+        cleared = False
+        if not dealloc:
+            cleared = item.clear()
+        if not cleared:
             del self._store[key]
 
     def load(self, *key, **kwargs):
