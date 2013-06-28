@@ -86,3 +86,31 @@ def test_becke_update_grid_lih_hf_321g():
     assert not md1 is md2
     assert not c1 is c2
     assert abs(c1 - c2).max() > 0
+
+
+def check_becke_azirine(key, expected):
+    fn_fchk = context.get_fn('test/2h-azirine-%s.fchk' % key)
+    sys = System.from_file(fn_fchk)
+    grid = BeckeMolGrid(sys, 'tv-13.1-3', random_rotate=False, keep_subgrids=True)
+    bp = BeckeWPart(sys, grid)
+    bp.do_charges()
+    c = bp['charges']
+    assert abs(c[0] - expected[0]) < 1e-4
+    assert abs(c[2] - expected[1]) < 1e-4
+    assert abs(c[5] - expected[2]) < 1e-4
+
+
+def test_becke_azirine_ccd():
+    check_becke_azirine('ccd', [-0.06575295, -0.07704414, 0.12352347])
+
+
+def test_becke_azirine_cis():
+    check_becke_azirine('cis', [-0.12298398, -0.26669825, 0.13695143])
+
+
+def test_becke_azirine_mp2():
+    check_becke_azirine('mp2', [-0.06575942, -0.07611121, 0.12691563])
+
+
+def test_becke_azirine_mp3():
+    check_becke_azirine('mp3', [-0.06669121, -0.07695576, 0.12560819])
