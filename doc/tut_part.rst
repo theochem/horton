@@ -388,7 +388,7 @@ partitioning scheme:
 * ``hi``: Iterative Hirshfeld partitioning. [bultinck2007]_
 * ``he``: Extended Hirshfeld partitioning. [verstraelen2013]_
 
-The last argument is only needed for the Hirshfeld variants. This script
+The ``atoms.h5`` argument is only needed for the Hirshfeld variants. This script
 computes atomic weight functions and then derives all AIM observables that are
 implemented for that scheme. These results are stored in a HDF5 file with
 the same name as the ``wfn`` file but with a ``.h5`` extension appended. In this
@@ -397,6 +397,16 @@ HDF5 file, the results are written in the group ``wpart/${SCHEME}`` where
 
 Run ``horton-wpart.py --help`` to get a complete list of all command-line
 options.
+
+.. note::
+
+    When a post Hartree-Fock level is used in Gaussian 03/09 (MP2, MP3, CC or
+    CI), one must add the keyword ``Density=current`` to the commands in the
+    input file. This is needed to have the corresponding density matrix in the
+    formatted checkpoint file. When such a post HF density matrix is present,
+    Horton will load that density matrix instead of the SCF density matrix. Also
+    note that for some levels of theory, no 1RDM is constructed, including MP4,
+    MP5, ZINDO and QCISD(T).
 
 
 ``horton-cpart.py`` -- AIM analysis based on a cube file

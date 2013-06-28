@@ -24,13 +24,13 @@
 import numpy as np
 
 from horton.log import log, timer
-from horton.meanfield.wfn import RestrictedWFN, UnrestrictedWFN
+from horton.meanfield.wfn import RestrictedWFN, UnrestrictedWFN, check_dm
 
 
 __all__ = [
     'NoSCFConvergence',
     'converge_scf',
-    'check_cubic_cs', 'check_cubic_os', 'check_dm', 'converge_scf_oda',
+    'check_cubic_cs', 'check_cubic_os', 'converge_scf_oda',
     'convergence_error'
 ]
 
@@ -329,36 +329,6 @@ def check_cubic_cs(ham, dm0, dm1, e0, e1, g0, g1, do_plot=True):
         error = abs(poly-energies).max()
         oom = energies.max() - energies.min()
         assert error < 0.01*oom
-
-
-def check_dm(dm, overlap, lf, name, eps=1e-4):
-    '''Check if the density matrix has eigenvalues in the proper range.
-
-       **Arguments:**
-
-       dm
-            The density matrix
-
-       overlap
-            The overlap matrix
-
-       lf
-            The LinalgFactory instance used for the diagonalization of the
-            density matrix.
-
-       **Optional arguments:**
-
-       eps
-            The threshold on the eigenvalue inequalities.
-    '''
-    tmp = overlap.copy()
-    tmp.idot(dm)
-    tmp.idot(overlap)
-    evals = lf.diagonalize(tmp, overlap)[0]
-    if evals.min() < -eps:
-        raise ValueError('The %s density matrix has eigenvalues considerably smaller than zero. error=%e' % (name, evals.min()))
-    if evals.max() > 1+eps:
-        raise ValueError('The %s density matrix has eigenvalues considerably larger than one. error=%e' % (name, evals.max()-1))
 
 
 def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):

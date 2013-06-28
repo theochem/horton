@@ -36,7 +36,7 @@ from horton.exceptions import ElectronCountError
 
 
 __all__ = [
-    'setup_mean_field_wfn',
+    'setup_mean_field_wfn', 'check_dm',
     'MeanFieldWFN', 'RestrictedWFN', 'UnrestrictedWFN',
     'AufbauOccModel', 'AufbauSpinOccModel'
 ]
@@ -141,6 +141,39 @@ def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None):
             system._wfn = RestrictedWFN(occ_model, system.lf, system.obasis.nbasis)
         else:
             system._wfn = UnrestrictedWFN(occ_model, system.lf, system.obasis.nbasis)
+
+
+def check_dm(dm, overlap, lf, name, eps=1e-4, occ_max=1.0):
+    '''Check if the density matrix has eigenvalues in the proper range.
+
+       **Arguments:**
+
+       dm
+            The density matrix
+
+       overlap
+            The overlap matrix
+
+       lf
+            The LinalgFactory instance used for the diagonalization of the
+            density matrix.
+
+       **Optional arguments:**
+
+       eps
+            The threshold on the eigenvalue inequalities.
+
+       occ_max
+            The maximum occupation.
+    '''
+    tmp = overlap.copy()
+    tmp.idot(dm)
+    tmp.idot(overlap)
+    evals = lf.diagonalize(tmp, overlap)[0]
+    if evals.min() < -eps:
+        raise ValueError('The %s density matrix has eigenvalues considerably smaller than zero. error=%e' % (name, evals.min()))
+    if evals.max() > occ_max+eps:
+        raise ValueError('The %s density matrix has eigenvalues considerably larger than one. error=%e' % (name, evals.max()-1))
 
 
 class PropertyHelper(object):
@@ -296,10 +329,16 @@ class MeanFieldWFN(object):
     def update_dm(self, select, dm=None):
         """Derive the density matrix from the expansion(s) and store in cache
 
-           **Optional arguments:**
+           **Arguments:**
 
            select
                 'alpha', 'beta', 'full' or 'spin'.
+
+           **Optional arguments:**
+
+           dm
+                When provided, this density matrix is stored instead of one
+                derived from the orbitals.
         """
         cached_dm = self.init_dm(select)
         if dm is None:

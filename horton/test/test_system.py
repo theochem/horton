@@ -39,9 +39,9 @@ def test_nucnuc():
 
 def check_scf_dms(fn_fchk):
     sys = System.from_file(fn_fchk)
-    assert abs(sys.wfn.dm_full._array - sys.cache['scf_full']._array).max() < 1e-7
-    if 'scf_spin' in sys.cache:
-        assert abs(sys.wfn.dm_spin._array - sys.cache['scf_spin']._array).max() < 1e-7
+    assert abs(sys.wfn.dm_full._array - sys.cache['dm_scf_full']._array).max() < 1e-7
+    if 'dm_scf_spin' in sys.cache:
+        assert abs(sys.wfn.dm_spin._array - sys.cache['dm_scf_spin']._array).max() < 1e-7
 
 
 def test_scf_dms_water_sto3g_hf():
@@ -236,6 +236,30 @@ def test_grid_fn_co_ccpv5z_cart_hf_T():
 
 def test_grid_fn_co_ccpv5z_cart_hf_F():
     check_grid_fn(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'), False)
+
+
+def check_normalization_dm_full_azirine(fn_fchk):
+    system = System.from_file(fn_fchk)
+    olp = system.get_overlap()
+    dm = system.wfn.dm_full
+    check_dm(dm, olp, system.lf, 'full', eps=1e-2, occ_max=2)
+    assert abs(olp.expectation_value(dm) - 22.0) < 1e-3
+
+
+def test_normalization_dm_full_azirine_ccd():
+    check_normalization_dm_full_azirine(context.get_fn('test/2h-azirine-ccd.fchk'))
+
+
+def test_normalization_dm_full_azirine_cis():
+    check_normalization_dm_full_azirine(context.get_fn('test/2h-azirine-cis.fchk'))
+
+
+def test_normalization_dm_full_azirine_mp2():
+    check_normalization_dm_full_azirine(context.get_fn('test/2h-azirine-mp2.fchk'))
+
+
+def test_normalization_dm_full_azirine_mp3():
+    check_normalization_dm_full_azirine(context.get_fn('test/2h-azirine-mp3.fchk'))
 
 
 def test_update_obasis():
