@@ -19,8 +19,10 @@ Stable release (recommended)
 ----------------------------
 
 The latest stable source code release of Horton can be downloaded here:
-http://users.ugent.be/~tovrstra/horton/horton-1.0.tar.gz. Choose a suitable
-directory, e.g. ``~/build``, download and unpack the archive::
+
+    http://users.ugent.be/~tovrstra/horton/horton-1.0.tar.gz.
+
+Choose a suitable directory, e.g. ``~/build``, download and unpack the archive::
 
     mkdir -p ~/build
     cd ~/build
@@ -120,9 +122,12 @@ The compilation of libint takes a few minutes.
 Reference atoms
 ===============
 
+This step can be skipped when compiling a stable release because each stable
+release already contains reference atoms.
+
 Several parts of Horton make use of reference atomic computations. These files
-are too large to be included in the revision system. Therefore they must be
-downloaded separately as follows::
+are too large to be included in the git revision system. Therefore, they must be
+downloaded separately when compiling a development version of Horton::
 
     cd data/refatoms
     make all

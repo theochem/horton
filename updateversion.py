@@ -9,6 +9,10 @@ rules = [
     ('horton/__init__.py', '^__version__ = \'(...+)\'$'),
     ('doc/conf.py', '^version = \'(...+)\'$'),
     ('doc/conf.py', '^release = \'(...+)\'$'),
+    ('doc/tut_getting_started.rst', '^    http://users.ugent.be/~tovrstra/horton/horton-(...+).tar.gz.$'),
+    ('doc/tut_getting_started.rst', '^    wget http://users.ugent.be/~tovrstra/horton/horton-(...+).tar.gz$'),
+    ('doc/tut_getting_started.rst', '^    tar -xvzf horton-(...+).tar.gz$'),
+    ('doc/tut_getting_started.rst', '^    cd horton-(...+)$'),
 ]
 
 
