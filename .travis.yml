@@ -9,7 +9,7 @@ install:
  - "pip install h5py cython --use-mirrors"
  - "ls; cd depends; make libint-linux-x86_64-gcc-4.7.2; cd .."
  - "ls; cd depends; make libxc 2>&1 > make_libxc.out; cd .."
- - "cd data/refatoms; wget http://users.ugent.be/~tovrstra/horton_refatoms.tar.bz2; tar -xjf horton_refatoms.tar.bz2; cd ../.."
+ - "cd data/refatoms; make all; cd ../.."
  - "./setup.py build_ext -i"
 script:
  - "nosetests -v horton"
