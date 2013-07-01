@@ -9,3 +9,4 @@ include depends/Makefile
 include depends/*.patch
 include README
 include tools/*.py
+include customize.py
