@@ -75,6 +75,33 @@ class my_install_data(install_data):
                     f.close()
 
 
+
+# Configure the linkage of the extension that use libint and libxc. If the
+# libararies are compiled in the depends directory, these are used for
+# static linking. The user may also change the directories in which the
+# hand-compiled libraries are found, i.e. by making the necessary changes
+# in customize.py Otherwhise, dynamic linking is attempted.
+
+if os.path.isfile('%s/src/.libs/libxc.a' % libxcdir):
+    libxc_extra_objects = ['%s/src/.libs/libxc.a' % libxcdir]
+    libxc_include_dirs = ['%s/src' % libxcdir, libxcdir]
+    libcx_libraries = []
+else:
+    libxc_extra_objects = []
+    libxc_include_dirs = []
+    libcx_libraries = ['xc']
+
+if os.path.isfile('%s/lib/libint2.a' % libintdir):
+    libint_extra_objects = ['%s/lib/libint2.a' % libintdir]
+    libint_include_dirs = ['%s/include' % libintdir]
+    libint_libraries = []
+else:
+    libint_extra_objects = []
+    libint_include_dirs = []
+    libint_libraries = ['int2']
+
+
+
 setup(
     name='horton',
     version='1.0.1',
@@ -109,8 +136,9 @@ setup(
         Extension("horton.gbasis.cext",
             sources=get_sources('horton/gbasis') + ['horton/moments.cpp'],
             depends=get_depends('horton/gbasis') + ['horton/moments.pxd', 'horton/moments.h'],
-            extra_objects=['%s/lib/libint2.a' % libintdir],
-            include_dirs=['%s/include' % libintdir, np.get_include(), 'horton'],
+            extra_objects=libint_extra_objects,
+            libraries=libint_libraries,
+            include_dirs=[np.get_include(), 'horton'] + libint_include_dirs,
             language="c++"),
         Extension("horton.grid.cext",
             sources=get_sources('horton/grid') + ['horton/cell.cpp'],
@@ -122,8 +150,9 @@ setup(
         Extension("horton.meanfield.cext",
             sources=get_sources('horton/meanfield'),
             depends=get_depends('horton/meanfield'),
-            extra_objects=['depends/libxc-2.0.1/src/.libs/libxc.a'],
-            include_dirs=['%s/src' % libxcdir, libxcdir, np.get_include()],
+            extra_objects=libxc_extra_objects,
+            libraries=libcx_libraries,
+            include_dirs=[np.get_include()] + libxc_include_dirs,
             language="c++"),
         Extension("horton.espfit.cext",
             sources=get_sources('horton/espfit') + \

@@ -109,14 +109,30 @@ namely `libint2 <http://sourceforge.net/p/libint/>`_ and `libxc
 <http://www.tddft.org/programs/octopus/wiki/index.php/Libxc>`_
 [marques2012]_. The directory ``depends``
 contains a ``Makefile`` that takes care of downloading the right version and
-compiling it. The following should get you both libint and libxc::
+compiling it. The following should get you the proper versions of libint and
+libxc::
 
     cd depends
     make libint
     make libxc
     cd ..
 
-The compilation of libint takes a few minutes.
+The compilation of libint takes a few minutes. These commands will build
+libraries suitable for static linking.
+
+.. note::
+
+    Alternatively, it is also possible to link libint and libxc dynamically. This
+    requires some familiarity with software compilation on Unix systems. Make
+    sure you have the following versions installed:
+
+    * libint (for mpqc) >= 2.0.3-stable
+    * libxc >= 2.0.1.
+
+    In case of libxc-2.0.1, also apply the patch
+    ``libxc-2.0.1-fix-initialization.patch`` that is located in the ``depends``
+    directory. This patch fixes a sever bug that should no longer be present
+    in newer versions of libxc.
 
 
 Reference atoms
@@ -151,6 +167,13 @@ from any directory.
 The **in-place build** is useful for testing purposes, and is done as follows::
 
     ./setup.py build_ext -i
+
+.. note::
+
+    When libint and libxc are compiled for static linking (as explained above),
+    these libraries are found automatically. In case of dynamic linking,
+    it may be necessary to specify explicitly the location of the shared objects
+    and the header files with the options ``-I`` and ``-L`` of the setup script.
 
 The documentation is compiled and viewed as follows::
 
