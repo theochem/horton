@@ -1,6 +1,12 @@
 Release history
 ###############
 
+* **June 5, 2013. Version 1.0.2**
+
+   - Also support dynamic linking of libint and libx.
+   - Various cleanups.
+
+
 * **June 1, 2013. Version 1.0.1**
 
    - Two bug fixes related to reading Gaussian formatted checkpoint files.
