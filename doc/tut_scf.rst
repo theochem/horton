@@ -9,10 +9,10 @@ Basic example
 
 This is a basic example of a Hartree-Fock computation in Horton. The input file
 is just a small Python main program that uses the Horton library. The script
-``examples/001_hf_water/run.py`` performs a HF/3-21G computation on water and
-partitions the density with the Becke scheme:
+``data/examples/001_hf_water/run.py`` performs a HF/3-21G computation on water
+and partitions the density with the Becke scheme:
 
-.. literalinclude:: ../examples/001_hf_water/run.py
+.. literalinclude:: ../data/examples/001_hf_water/run.py
 
 The molecular geometry is loaded from an XYZ file. It is also possible (yet less
 convenient) to directly type the atomic coordinates in the python script.

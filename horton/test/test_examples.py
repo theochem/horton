@@ -21,19 +21,20 @@
 
 
 from horton.test.common import check_script
+from horton import context
 
 
 def test_example_001_hf_water():
-    check_script('./run.py', 'examples/001_hf_water')
+    check_script('./run.py', context.get_fn('examples/001_hf_water'))
 
 
 def test_example_002_hfs_water():
-    check_script('./run.py', 'examples/002_hfs_water')
+    check_script('./run.py', context.get_fn('examples/002_hfs_water'))
 
 
 def test_example_003_o3lyp_water():
-    check_script('./run.py', 'examples/003_o3lyp_water')
+    check_script('./run.py', context.get_fn('examples/003_o3lyp_water'))
 
 
 def test_example_004_wpart():
-    check_script('./run.py', 'examples/004_wpart')
+    check_script('./run.py', context.get_fn('examples/004_wpart'))

@@ -355,7 +355,7 @@ these new patches to the public master branch of Horton.
 Unit tests
 ==========
 
-Horton uses the `Nosetests <http://somethingaboutorange.com/mrl/projects/nose/0.11.2/>`_
+Horton uses the `Nosetests <https://nose.readthedocs.org/en/latest/>`_
 program to run all the unit tests. The goal of a unit test is to check whether
 as small piece of code works as expected.
 
@@ -369,8 +369,9 @@ The tests are run as follows (including preparation steps)::
     toony@poony ~/.../horton:master> ./setup.py build_ext -i
     toony@poony ~/.../horton:master> nosetests -v
 
-There are some cases where the first two commands are not needed. You will
-figure out.
+This will run the tests with the version of Horton in the source tree, i.e. not
+the one that is installed with ``python setup.py install``. There are some cases
+where the first two commands are not needed. You will figure out.
 
 When working on a specific part of the code, it is often convenient to limit the
 number of tests that are checked. The following runs only the tests in ``horton/test/test_cell.py``::

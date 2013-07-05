@@ -125,6 +125,9 @@ setup(
         ('share/horton/basis', glob('data/basis/*.*')),
         ('share/horton/grids', glob('data/grids/*.txt')),
         ('share/horton/refatoms', glob('data/refatoms/*.h5')),
+    ] + [
+        ('share/horton/examples/%s' % os.path.basename(dn[:-1]), glob('%s/*.py' % dn) + glob('%s/*.xyz' % dn))
+        for dn in glob('data/examples/*/')
     ],
     ext_modules=[
         Extension("horton.cext",
