@@ -44,7 +44,7 @@ def check_script(command, workdir):
     env = dict(os.environ)
     root_dir = os.getcwd()
     env['PYTHONPATH'] = root_dir + ':' + env.get('PYTHONPATH', '')
-    if os.path.isdir('setup.py') and os.path.isdir('horton') and os.path.isdir('data'):
+    if os.path.isfile('setup.py') and os.path.isdir('horton') and os.path.isdir('data'):
         # This is only needed when running the tests from the source tree.
         env['HORTONDATA'] = os.path.join(root_dir, 'data')
     env['PATH'] = os.path.join(root_dir, 'scripts') + ':' + env.get('PATH', '')
