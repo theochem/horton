@@ -7,6 +7,7 @@ import re, sys
 rules = [
     ('setup.py', '^    version=\'(...+)\',$'),
     ('horton/__init__.py', '^__version__ = \'(...+)\'$'),
+    ('horton/log.py', '^.* Welcome to Horton (...+)!$'),
     ('doc/conf.py', '^version = \'(...+)\'$'),
     ('doc/conf.py', '^release = \'(...+)\'$'),
     ('doc/tut_getting_started.rst', '^    http://users.ugent.be/~tovrstra/horton/horton-(...+).tar.gz.$'),
