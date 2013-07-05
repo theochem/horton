@@ -2,5 +2,5 @@
 # the lines below. Note that only static linking is supported. Header files
 # must also be present.
 
-#libintdir = 'depends/libint-2.0.0-stable'
+#libintdir = 'depends/libint-2.0.3-stable'
 #libxcdir = 'depends/libxc-2.0.1'
