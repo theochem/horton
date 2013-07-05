@@ -459,9 +459,13 @@ class MemoryLogger(object):
 
 head_banner = """\
  _ __ _
-/ (..) \ Welcome to Horton, an open source constrained HF/DFT/1RDM program.
+/ (..) \ Welcome to Horton 1.0.1!
 \/ || \/
- |_''_|  Horton is written by Toon Verstraelen (1) and Matthew Chan (2).
+ |_''_|  Horton is written and maintained by by Toon Verstraelen (1).
+
+         This version contains contributions from Ali Malek (2),
+         Cristina Gonzalez (2), Farnaz H. Zadeh (2), Matthew Chan (2), Peter A.
+         Limacher (2) and Steven Vandenrbande (1).
 
          (1) Center for Molecular Modeling, Ghent University, Belgium.
          (2) The Ayers Group at McMaster University, Ontario, Canada.
