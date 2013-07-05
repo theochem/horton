@@ -31,7 +31,7 @@ from Cython.Distutils import build_ext
 
 
 
-libintdir = 'depends/libint-2.0.0-stable'
+libintdir = 'depends/libint-2.0.3-stable'
 libxcdir = 'depends/libxc-2.0.1'
 execfile('customize.py')
 
@@ -91,15 +91,14 @@ else:
     libxc_include_dirs = []
     libcx_libraries = ['xc']
 
-if os.path.isfile('%s/lib/libint2.a' % libintdir):
-    libint_extra_objects = ['%s/lib/libint2.a' % libintdir]
+if os.path.isfile('%s/lib/.libs/libint2.a' % libintdir):
+    libint_extra_objects = ['%s/lib/.libs/libint2.a' % libintdir]
     libint_include_dirs = ['%s/include' % libintdir]
     libint_libraries = []
 else:
     libint_extra_objects = []
     libint_include_dirs = []
     libint_libraries = ['int2']
-
 
 
 setup(
