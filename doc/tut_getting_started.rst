@@ -153,20 +153,13 @@ downloaded separately when compiling a development version of Horton::
 Compilation and installation
 ============================
 
-One may either install Horton in the home directory, or perform an in-pace build
-in the source tree.
-
-The **regular build+install** is as done follows::
+The regular build and install is as done follows::
 
     ./setup.py install --user
 
 The ``horton-*.py`` scripts are installed in ``~/.local/bin`` and you have to
 add this directory to your ``PATH`` environment variable to make them accessible
 from any directory.
-
-The **in-place build** is useful for testing purposes, and is done as follows::
-
-    ./setup.py build_ext -i
 
 .. note::
 
@@ -186,14 +179,7 @@ The documentation is compiled and viewed as follows::
 Testing
 =======
 
-A bunch of validation routines are included in Horton. To run the tests, first
-perform an **in-place build** and run ``nosetests`` afterwards::
+Move to a directory outside the source tree and call nosetests as follows::
 
-    ./setup.py build_ext -i
-    nosetests -v
-
-If all tests pass, the screen output should end with ``OK``. If at some point,
-something during the build process fails, clean up the source tree with the
-``cleanfiles.sh`` script and try again. If you then still have problems,
-please report them on the `Horton mailing list
-<https://groups.google.com/d/forum/horton-discuss>`_.
+    cd ~
+    nosetests -v horton
