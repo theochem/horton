@@ -23,6 +23,7 @@
 
 import numpy as np
 
+from horton.grid.utils import parse_args_integrate
 from horton.grid.cext import dot_multi, grid_distances, eval_spline_grid, \
     dot_multi_moments
 from horton.cext import Cell
@@ -111,41 +112,34 @@ class IntGrid(object):
 
            **Optional arguments:**
 
-           center
-                When given, a multipole moment can be computed with respect to
+           center=None
+                When given, multipole moments are computed with respect to
                 this center instead of a plain integral.
 
-           nx, ny, nz, nr
-                The powers that determine the type of moment computed. These can
-                only be given if center is given.
+           lmax=0
+                The maximum angular momentum to consider when computing multipole
+                moments
+
+           mtype=1
+                The type of multipole moments: 1=``cartesian``, 2=``pure``,
+                3=``radial``.
+
+           segments=None
+                This argument can be used to divide the grid in segments. When
+                given, the integration is turned into a series of averages of the
+                integrand, over each segment. This is mainly used to compute
+                spherical averages etc.
         '''
-        # TODO: eliminate duplicate code with similar routine in uniform integration grid
-        # process arguments:
-        args = [arg.ravel() for arg in args if arg is not None]
+        args, multipole_args = parse_args_integrate(*args, **kwargs)
         args.append(self.weights)
 
-        # process keyword arguments:
-        center = kwargs.pop('center', None)
-        if center is None:
-            # retgular integration
-            if len(kwargs) > 0:
-                raise TypeError('Unexpected keyword argument: %s' % kwargs.popitem()[0])
-
-            # Similar to conventional integration routine:
+        if multipole_args is None:
+            # regular integration
             return dot_multi(*args)
         else:
-            # integration with some polynomial factor in the integrand
-            nx = kwargs.pop('nx', 0)
-            ny = kwargs.pop('ny', 0)
-            nz = kwargs.pop('nz', 0)
-            nr = kwargs.pop('nr', 0)
-            if len(kwargs) > 0:
-                raise TypeError('Unexpected keyword argument: %s' % kwargs.popitem()[0])
-            assert center.flags['C_CONTIGUOUS']
-            assert center.shape[0] == 3
-
-            # advanced integration routine:
-            return dot_multi_moments(args, self.points, center, nx, ny, nz, nr)
+            # computation of multipole expansion of the integrand
+            center, lmax, mtype, segments = multipole_args
+            return dot_multi_moments(args, self.points, center, lmax, mtype, segments)
 
     def distances(self, center, d):
         '''Compute distances between all grid points and a center, store result in d.'''

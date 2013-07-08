@@ -22,3 +22,4 @@
 
 cdef extern from "moments.h":
     long fill_cartesian_polynomials(double* output, long lmax)
+    void fill_radial_polynomials(double* output, long lmax)

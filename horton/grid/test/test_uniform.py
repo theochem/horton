@@ -415,17 +415,26 @@ def helper_xyzr_window(window, center):
     return x, y, z, r
 
 
-def check_integrate_poly(window, center, big):
+def check_integrate_cartesian_moments(window, center, big):
     x, y, z, r = helper_xyzr_window(window, center)
-    for i in xrange(10):
-        nx = np.random.randint(5)
-        ny = np.random.randint(5)
-        nz = np.random.randint(5)
-        nr = np.random.randint(5)
-        value = window.integrate(big, center=center, nx=nx, ny=ny, nz=nz, nr=nr)
-        expected = window.integrate(big, x**nx, y**ny, z**nz, r**nr)
-        assert value != 0
-        assert abs(value - expected) < 1e-10
+    ints = window.integrate(big, center=center, lmax=2, mtype=1)
+    assert abs(ints[0] - window.integrate(big)) < 1e-10
+    assert abs(ints[1] - window.integrate(big, x)) < 1e-10
+    assert abs(ints[2] - window.integrate(big, y)) < 1e-10
+    assert abs(ints[3] - window.integrate(big, z)) < 1e-10
+    assert abs(ints[4] - window.integrate(big, x, x)) < 1e-10
+    assert abs(ints[5] - window.integrate(big, x, y)) < 1e-10
+    assert abs(ints[9] - window.integrate(big, z, z)) < 1e-10
+    assert abs(ints).min() != 0
+
+
+def check_integrate_radial_moments(window, center, big):
+    x, y, z, r = helper_xyzr_window(window, center)
+    ints = window.integrate(big, center=center, lmax=2, mtype=3)
+    assert abs(ints[0] - window.integrate(big)) < 1e-10
+    assert abs(ints[1] - window.integrate(big, r)) < 1e-10
+    assert abs(ints[2] - window.integrate(big, r, r)) < 1e-10
+    assert abs(ints).min() != 0
 
 
 def get_random_spline(radius):
@@ -500,8 +509,11 @@ def test_window3():
     # test for integrate
     assert abs(window.integrate(big) - big.sum()*ugrid.grid_cell.volume) < 1e-10
 
-    # test for integrate with poly
-    check_integrate_poly(window, center, big)
+    # test for integrate with cartesian moments
+    check_integrate_cartesian_moments(window, center, big)
+
+    # test for integrate with radial moments
+    check_integrate_radial_moments(window, center, big)
 
     # test for eval_spline
     check_window_eval_spline(window, center, radius)
@@ -542,8 +554,11 @@ def test_window2():
     # test for integrate
     assert abs(window.integrate(big) - big.sum()*ugrid.grid_cell.volume) < 1e-10
 
-    # test for integrate with poly
-    check_integrate_poly(window, center, big)
+    # test for integrate with cartesian moments
+    check_integrate_cartesian_moments(window, center, big)
+
+    # test for integrate with radial moments
+    check_integrate_radial_moments(window, center, big)
 
     # test for eval_spline
     check_window_eval_spline(window, center, radius)
@@ -583,8 +598,11 @@ def test_window1():
     # test for integrate
     assert abs(window.integrate(big) - big.sum()*ugrid.grid_cell.volume) < 1e-10
 
-    # test for integrate with poly
-    check_integrate_poly(window, center, big)
+    # test for integrate with cartesian moments
+    check_integrate_cartesian_moments(window, center, big)
+
+    # test for integrate with radial moments
+    check_integrate_radial_moments(window, center, big)
 
     # test for eval_spline
     check_window_eval_spline(window, center, radius)
@@ -623,8 +641,11 @@ def test_window0():
     # test for integrate
     assert abs(window.integrate(big) - big.sum()*ugrid.grid_cell.volume) < 1e-10
 
-    # test for integrate with poly
-    check_integrate_poly(window, center, big)
+    # test for integrate with cartesian moments
+    check_integrate_cartesian_moments(window, center, big)
+
+    # test for integrate with radial moments
+    check_integrate_radial_moments(window, center, big)
 
     # test for eval_spline
     check_window_eval_spline(window, center, radius)

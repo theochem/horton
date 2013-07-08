@@ -165,3 +165,20 @@ long fill_cartesian_polynomials(double* output, long lmax) {
 
     throw std::domain_error("Encountered lmax > 7.");
 }
+
+
+void fill_radial_polynomials(double* output, long lmax) {
+    // Shell l=0
+    if (lmax <= 0) return;
+
+    // Shell l=1
+    if (lmax <= 1) return;
+
+    // Shell l>1
+    int counter = 0;
+    while (lmax > 1) {
+        output[counter+1] = output[0]*output[counter];
+        lmax -= 1;
+        counter += 1;
+    }
+}

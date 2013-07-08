@@ -22,5 +22,6 @@
 #define HORTON_MOMENTS_H
 
 long fill_cartesian_polynomials(double* output, long lmax);
+void fill_radial_polynomials(double* output, long lmax);
 
 #endif

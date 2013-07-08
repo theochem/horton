@@ -78,7 +78,7 @@ class my_install_data(install_data):
 
 # Configure the linkage of the extension that use libint and libxc. If the
 # libararies are compiled in the depends directory, these are used for
-# static linking. The user may also change the directories in which the 
+# static linking. The user may also change the directories in which the
 # hand-compiled libraries are found, i.e. by making the necessary changes
 # in customize.py Otherwhise, dynamic linking is attempted.
 
@@ -143,8 +143,12 @@ setup(
             include_dirs=[np.get_include(), 'horton'] + libint_include_dirs,
             language="c++"),
         Extension("horton.grid.cext",
-            sources=get_sources('horton/grid') + ['horton/cell.cpp'],
-            depends=get_depends('horton/grid') + ['horton/cell.pxd', 'horton/cell.h'],
+            sources=get_sources('horton/grid') + [
+                'horton/cell.cpp',
+                'horton/moments.cpp'],
+            depends=get_depends('horton/grid') + [
+                'horton/cell.pxd', 'horton/cell.h',
+                'horton/moments.pxd', 'horton/moments.h'],
             include_dirs=[np.get_include(), 'horton'],
             #extra_compile_args=["-fopenmp"],
             #extra_link_args=["-fopenmp"],
@@ -157,12 +161,12 @@ setup(
             include_dirs=[np.get_include()] + libxc_include_dirs,
             language="c++"),
         Extension("horton.espfit.cext",
-            sources=get_sources('horton/espfit') + \
-                    ['horton/cell.cpp'] + \
-                    ['horton/grid/uniform.cpp'],
-            depends=get_depends('horton/espfit') + \
-                    ['horton/cell.pxd', 'horton/cell.h'] + \
-                    ['horton/grid/uniform.pxd', 'horton/grid/uniform.h'],
+            sources=get_sources('horton/espfit') + [
+                'horton/cell.cpp',
+                'horton/grid/uniform.cpp'],
+            depends=get_depends('horton/espfit') + [
+                'horton/cell.pxd', 'horton/cell.h',
+                'horton/grid/uniform.pxd', 'horton/grid/uniform.h'],
             include_dirs=[np.get_include(), 'horton', 'horton/grid'],
             language="c++"),
     ],
