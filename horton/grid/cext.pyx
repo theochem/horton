@@ -23,6 +23,7 @@
 
 import numpy as np
 from horton.log import log
+from horton.grid.utils import parse_args_integrate
 
 
 cimport numpy as np
@@ -1062,41 +1063,31 @@ cdef class UniformGridWindow(object):
 
            **Optional arguments:**
 
-           center
-                When given, a multipole moment can be computed with respect to
+           center=None
+                When given, multipole moments are computed with respect to
                 this center instead of a plain integral.
 
-           nx, ny, nz, nr
-                The powers that determine the type of moment computed. These can
-                only be given if center is given.
+           lmax=0
+                The maximum angular momentum to consider when computing multipole
+                moments
+
+           mtype=1
+                The type of multipole moments: 1=``cartesian``, 2=``pure``,
+                3=``radial``.
         '''
-        # process arguments:
-        args = [arg.ravel() for arg in args if arg is not None]
+        args, multipole_args = parse_args_integrate(*args, **kwargs)
 
-        # process keyword arguments:
-        center = kwargs.pop('center', None)
         grid_cell = self._ugrid.grid_cell
-        if center is None:
-            # retgular integration
-            if len(kwargs) > 0:
-                raise TypeError('Unexpected keyword argument: %s' % kwargs.popitem()[0])
-
-            # Similar to conventional integration routine:
+        if multipole_args is None:
+            # regular integration
             return dot_multi(*args)*grid_cell.volume
         else:
-            # integration with some polynomial factor in the integrand
-            nx = kwargs.pop('nx', 0)
-            ny = kwargs.pop('ny', 0)
-            nz = kwargs.pop('nz', 0)
-            nr = kwargs.pop('nr', 0)
-            if len(kwargs) > 0:
-                raise TypeError('Unexpected keyword argument: %s' % kwargs.popitem()[0])
-            assert center.flags['C_CONTIGUOUS']
-            assert center.shape[0] == 3
-
-            # advanced integration routine:
+            # computation of multipole expansion of the integrand
+            center, lmax, mtype, segments = multipole_args
+            if segments is not None:
+                raise TypeError('Unexpected argument: segments')
             window_ugrid = self.get_window_ugrid()
-            return dot_multi_moments_cube(args, window_ugrid, center, nx, ny, nz, nr)*grid_cell.volume
+            return dot_multi_moments_cube(args, window_ugrid, center, lmax, mtype)*grid_cell.volume
 
     def compute_weight_corrections(self, funcs, rcut_scale=0.9, rcut_max=2.0, rcond=0.1, output=None):
         window_ugrid = self.get_window_ugrid()
@@ -1183,7 +1174,7 @@ def dot_multi(*integranda):
 
 def dot_multi_moments_cube(integranda, UniformGrid ugrid not None,
                            np.ndarray[double, ndim=1] center not None,
-                           long nx, long ny, long nz, long nr):
+                           long lmax, long mtype):
     npoint = _check_integranda(integranda, ugrid.size)
     # Only non-periodic grids are supported to guarantee an unambiguous definition of the polynomial.
     assert ugrid.pbc[0] == 0
@@ -1192,10 +1183,6 @@ def dot_multi_moments_cube(integranda, UniformGrid ugrid not None,
     #
     assert center.flags['C_CONTIGUOUS']
     assert center.shape[0] == 3
-    assert nx >= 0
-    assert ny >= 0
-    assert nz >= 0
-    assert nr >= 0
 
     cdef double** pointers = <double **>malloc(len(integranda)*sizeof(double*))
     if pointers == NULL:
@@ -1205,26 +1192,36 @@ def dot_multi_moments_cube(integranda, UniformGrid ugrid not None,
         integrandum = integranda[i]
         pointers[i] = <double*>integrandum.data
 
-    result = utils.dot_multi_moments_cube(len(integranda), pointers, ugrid._this, <double*>center.data, nx, ny, nz, nr)
+    if mtype==1:
+        # cartesian moments
+        nmoment = ((lmax+1)*(lmax+2)*(lmax+3))/6
+    elif mtype==3:
+        # radial moments
+        nmoment = lmax+1
+    else:
+        raise ValueError('Unsupported mtype.')
+
+    cdef np.ndarray output = np.zeros(nmoment)
+
+    utils.dot_multi_moments_cube(len(integranda), pointers, ugrid._this, <double*>center.data, lmax, mtype, <double*>output.data, nmoment)
 
     free(pointers)
-    return result
+    return output
 
 
 def dot_multi_moments(integranda,
                       np.ndarray[double, ndim=2] points not None,
                       np.ndarray[double, ndim=1] center not None,
-                      long nx, long ny, long nz, long nr):
+                      long lmax, long mtype,
+                      np.ndarray[long, ndim=1] segments):
     assert points.flags['C_CONTIGUOUS']
     assert points.shape[1] == 3
     npoint = _check_integranda(integranda, points.shape[0])
     #
     assert center.flags['C_CONTIGUOUS']
     assert center.shape[0] == 3
-    assert nx >= 0
-    assert ny >= 0
-    assert nz >= 0
-    assert nr >= 0
+    # TODO
+    assert segments is None
 
     cdef double** pointers = <double **>malloc(len(integranda)*sizeof(double*))
     if pointers == NULL:
@@ -1234,10 +1231,21 @@ def dot_multi_moments(integranda,
         integrandum = integranda[i]
         pointers[i] = <double*>integrandum.data
 
-    result = utils.dot_multi_moments(npoint, len(integranda), pointers, <double*>points.data, <double*>center.data, nx, ny, nz, nr)
+    if mtype==1:
+        # cartesian moments
+        nmoment = ((lmax+1)*(lmax+2)*(lmax+3))/6
+    elif mtype==3:
+        # radial moments
+        nmoment = lmax+1
+    else:
+        raise ValueError('Unsupported mtype.')
+
+    cdef np.ndarray output = np.zeros(nmoment)
+
+    utils.dot_multi_moments(npoint, len(integranda), pointers, <double*>points.data, <double*>center.data, lmax, mtype, <double*>output.data, nmoment)
 
     free(pointers)
-    return result
+    return output
 
 
 def dot_multi_parts(integranda, np.ndarray[long, ndim=1] sizes not None, np.ndarray[double, ndim=1] output not None):

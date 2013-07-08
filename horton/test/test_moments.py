@@ -99,3 +99,13 @@ def test_fill_cartesian_polynomials():
         fill_cartesian_polynomials(output, 5)
     with assert_raises(ValueError):
         fill_cartesian_polynomials(output[:get_ncart_cumul(4)-2], 4)
+
+
+def test_fill_radial_polynomials():
+    lmax = 4
+    output = np.zeros(lmax)
+    output[0] = 1.13
+    assert fill_radial_polynomials(output, lmax) is None
+    assert abs(output[1] - output[0]**2) < 1e-10
+    assert abs(output[2] - output[0]**3) < 1e-10
+    assert abs(output[3] - output[0]**4) < 1e-10

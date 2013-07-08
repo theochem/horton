@@ -25,7 +25,7 @@ import numpy as np
 
 from horton.cache import JustOnceClass, just_once, Cache
 from horton.log import log, timer
-from horton.moments import get_cartesian_powers
+from horton.moments import get_ncart_cumul
 
 
 __all__ = ['Part', 'WPart', 'CPart']
@@ -246,11 +246,11 @@ class Part(JustOnceClass):
             log('Computing cartesian AIM multipoles and radial AIM moments.')
 
         lmax = 4 # up to hexadecapoles
-        cartesian_powers = get_cartesian_powers(lmax)
-        cartesian_multipoles, new1 = self._cache.load('cartesian_multipoles', alloc=(self._system.natom, len(cartesian_powers)))
+        ncart = get_ncart_cumul(lmax)
+        cartesian_multipoles, new1 = self._cache.load('cartesian_multipoles', alloc=(self._system.natom, ncart))
 
-        radial_powers = np.arange(1, lmax+1)
-        radial_moments, new2 = self._cache.load('radial_moments', alloc=(self._system.natom, len(radial_powers)))
+        nrad = lmax+1
+        radial_moments, new2 = self._cache.load('radial_moments', alloc=(self._system.natom, nrad))
 
         if new1 or new2:
             self.do_partitioning()
@@ -267,19 +267,19 @@ class Part(JustOnceClass):
                 wcor = self.get_wcor(i)
 
                 # 4) Compute Cartesian multipole multipoles
-                counter = 0
-                for nx, ny, nz in cartesian_powers:
-                    if log.do_medium:
-                        log('  moment %s%s%s' % ('x'*nx, 'y'*ny, 'z'*nz))
-                    cartesian_multipoles[i, counter] = -grid.integrate(aim, wcor, center=center, nx=nx, ny=ny, nz=nz, nr=0)
-                    counter += 1
+                if log.do_medium:
+                    log('  cartesian multipole moments')
+                # The minus sign is present to account for the negative electron
+                # charge.
+                cartesian_multipoles[i] = -grid.integrate(aim, wcor, center=center, lmax=lmax, mtype=1)
                 cartesian_multipoles[i, 0] += self.system.pseudo_numbers[i]
 
                 # 5) Compute Radial moments
-                for nr in radial_powers:
-                    if log.do_medium:
-                        log('  moment %s' % ('r'*nr))
-                    radial_moments[i, nr-1] = grid.integrate(aim, wcor, center=center, nx=0, ny=0, nz=0, nr=nr)
+                if log.do_medium:
+                    log('  radial moments')
+                # For the radial moments, it is not common to put a minus sign
+                # for the negative electron charge.
+                radial_moments[i] = grid.integrate(aim, wcor, center=center, lmax=lmax, mtype=3)
 
     do_moments.names = ['cartesian_multipoles', 'radial_moments']
 
