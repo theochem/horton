@@ -91,7 +91,6 @@ def test_fill_cartesian_polynomials():
         for irow in xrange(nrow):
             px, py, pz = cps[irow+1]
             check = output[0]**px * output[1]**py * output[2]**pz
-            print irow, output[irow], check
             assert abs(output[irow] - check) < 1e-10
         assert (output[nrow:] == 0).all()
 
