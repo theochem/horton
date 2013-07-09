@@ -183,16 +183,18 @@ For the :math:`(x,y)`-dependence one has to following polynomials for the
 cosine and sine-like functions, respectively:
 
 .. math::
-    A_m(x,y) & = r^m \sin^m \theta \cos(m \varphi) \\
+    A_m(x,y) & = \mathrm{Re}[(x+iy)^m] \\
+             & = r^m \sin^m \theta \cos(m \varphi) \\
              & = \frac{1}{2}\biggl( (r \sin \theta e^{i \varphi})^m + (r \sin \theta e^{-i \varphi})^m \biggr) \\
              & = \frac{1}{2}\biggl( (x + iy)^m + (x - iy)^m \biggr) \\
-             & = \sum_p \binom{m}{p} x^p y^m-p \cos \bigl( (m-p) \pi/2 \bigl)
+             & = \sum_p \binom{m}{p} x^p y^{m-p} \cos \bigl( (m-p) \pi/2 \bigl)
 
 .. math::
-    B_m(x,y) & = r^m \sin^m \theta \sin(m \varphi) \\
+    B_m(x,y) & = \mathrm{Im}[(x+iy)^m] \\
+             & = r^m \sin^m \theta \sin(m \varphi) \\
              & = \frac{1}{2}\biggl( (r \sin \theta e^{i \varphi})^m - (r \sin \theta e^{-i \varphi})^m \biggr) \\
              & = \frac{1}{2}\biggl( (x + iy)^m - (x - iy)^m \biggr) \\
-             & = \sum_p \binom{m}{p} x^p y^m-p \sin \bigl( (m-p) \pi/2 \bigl)
+             & = \sum_p \binom{m}{p} x^p y^{m-p} \sin \bigl( (m-p) \pi/2 \bigl)
 
 where we made use of :math:`i^k+(-i)^k = e^{k\pi/2} + e^{-k\pi/2} = \cos(k\pi/2)`
 and :math:`i^k-(-i)^k = e^{k\pi/2} - e^{-k\pi/2} = \sin(k\pi/2)`. Putting it
@@ -327,3 +329,50 @@ normalization.
 
 These transformations are implemented in ``horton/cartpure.c`` with sparse
 matrix products for angular momenta up to :math:`\ell=9`.
+
+
+Recursion relations for real regular solid harmonics
+====================================================
+
+Recurrence relations for :math:`\Pi_\ell^m(z,r^2)` can be derived from the
+recurrence relations for the associated Legendre polynomials:
+
+    Initialization
+
+    .. math::
+        \Pi_0^0(z,r^2) & = 1
+
+    For :math:`\ell \ge 1`
+
+    .. math::
+        \Pi_\ell^\ell(z,r^2) & = (2\ell-1)\Pi_{\ell-1}^{\ell-1}(z,r^2) \\
+        \Pi_\ell^{\ell-1}(z,r^2) & = z\Pi_\ell^\ell(z,r^2)
+
+    For :math:`\ell \ge 2` and :math:`0 \le m \le \ell-2`
+
+    .. math::
+        \Pi_\ell^m(z,r^2) = z \frac{2\ell-1}{\ell-m} \Pi_{\ell-1}^m(z,r^2)
+                            - r^2 \frac{\ell+m-1}{\ell-m} \Pi_{\ell-2}^m(z,r^2)
+
+
+Recurrence relations for the functions :math:`A_m(x,y)` and :math:`B_m(x,y)` are
+easily derived from scratch:
+
+.. math::
+    A_m(x,y) + i B_m(x,y) & = (x + iy)^m \\
+                          & = (x + iy) (x + iy)^{m-1}\\
+                          & = (x + iy) (A_{m-1}(x,y) + iB_{m-1}(x,y))
+
+Hence, one gets:
+
+    Initialization
+
+        .. math::
+            A_1(x,y) & = x \\
+            B_1(x,y) & = y
+
+    For :math:`m \ge 2`
+
+        .. math::
+            A_m(x,y) & = x A_{m-1}(x,y) - y B_{m-1}(x,y) \\
+            B_m(x,y) & = y A_{m-1}(x,y) + x B_{m-1}(x,y)

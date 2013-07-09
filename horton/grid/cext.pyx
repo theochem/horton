@@ -1195,6 +1195,9 @@ def dot_multi_moments_cube(integranda, UniformGrid ugrid not None,
     if mtype==1:
         # cartesian moments
         nmoment = ((lmax+1)*(lmax+2)*(lmax+3))/6
+    elif mtype==2:
+        # pure moments
+        nmoment = (lmax+1)**2
     elif mtype==3:
         # radial moments
         nmoment = lmax+1
@@ -1234,6 +1237,9 @@ def dot_multi_moments(integranda,
     if mtype==1:
         # cartesian moments
         nmoment = ((lmax+1)*(lmax+2)*(lmax+3))/6
+    elif mtype==2:
+        # pure moments
+        nmoment = (lmax+1)**2
     elif mtype==3:
         # radial moments
         nmoment = lmax+1

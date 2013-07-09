@@ -418,6 +418,7 @@ def helper_xyzr_window(window, center):
 def check_integrate_cartesian_moments(window, center, big):
     x, y, z, r = helper_xyzr_window(window, center)
     ints = window.integrate(big, center=center, lmax=2, mtype=1)
+    assert ints.shape == (10,)
     assert abs(ints[0] - window.integrate(big)) < 1e-10
     assert abs(ints[1] - window.integrate(big, x)) < 1e-10
     assert abs(ints[2] - window.integrate(big, y)) < 1e-10
@@ -428,9 +429,24 @@ def check_integrate_cartesian_moments(window, center, big):
     assert abs(ints).min() != 0
 
 
+def check_integrate_pure_moments(window, center, big):
+    x, y, z, r = helper_xyzr_window(window, center)
+    ints = window.integrate(big, center=center, lmax=2, mtype=2)
+    assert ints.shape == (9,)
+    assert abs(ints[0] - window.integrate(big)) < 1e-10
+    assert abs(ints[1] - window.integrate(big, z)) < 1e-10
+    assert abs(ints[2] - window.integrate(big, x)) < 1e-10
+    assert abs(ints[3] - window.integrate(big, y)) < 1e-10
+    assert abs(ints[4] - window.integrate(big, 1.5*z*z-0.5*r*r)) < 1e-10
+    assert abs(ints[5] - window.integrate(big, 3.0**0.5*x*z)) < 1e-10
+    assert abs(ints[8] - window.integrate(big, 3.0**0.5*x*y)) < 1e-10
+    assert abs(ints).min() != 0
+
+
 def check_integrate_radial_moments(window, center, big):
     x, y, z, r = helper_xyzr_window(window, center)
     ints = window.integrate(big, center=center, lmax=2, mtype=3)
+    assert ints.shape == (3,)
     assert abs(ints[0] - window.integrate(big)) < 1e-10
     assert abs(ints[1] - window.integrate(big, r)) < 1e-10
     assert abs(ints[2] - window.integrate(big, r, r)) < 1e-10
@@ -512,6 +528,9 @@ def test_window3():
     # test for integrate with cartesian moments
     check_integrate_cartesian_moments(window, center, big)
 
+    # test for integrate with pure moments
+    check_integrate_pure_moments(window, center, big)
+
     # test for integrate with radial moments
     check_integrate_radial_moments(window, center, big)
 
@@ -557,6 +576,9 @@ def test_window2():
     # test for integrate with cartesian moments
     check_integrate_cartesian_moments(window, center, big)
 
+    # test for integrate with pure moments
+    check_integrate_pure_moments(window, center, big)
+
     # test for integrate with radial moments
     check_integrate_radial_moments(window, center, big)
 
@@ -601,6 +623,9 @@ def test_window1():
     # test for integrate with cartesian moments
     check_integrate_cartesian_moments(window, center, big)
 
+    # test for integrate with pure moments
+    check_integrate_pure_moments(window, center, big)
+
     # test for integrate with radial moments
     check_integrate_radial_moments(window, center, big)
 
@@ -643,6 +668,9 @@ def test_window0():
 
     # test for integrate with cartesian moments
     check_integrate_cartesian_moments(window, center, big)
+
+    # test for integrate with pure moments
+    check_integrate_pure_moments(window, center, big)
 
     # test for integrate with radial moments
     check_integrate_radial_moments(window, center, big)

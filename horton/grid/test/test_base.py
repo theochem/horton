@@ -70,6 +70,29 @@ def test_grid_integrate_cartesian_moments():
     assert abs(ints[9] - (grid.weights*dens*z*z).sum()) < 1e-10
 
 
+def test_grid_integrate_pure_moments():
+    npoint = 10
+    grid = IntGrid(np.random.normal(0, 1, (npoint,3)), np.random.normal(0, 1, npoint))
+    dens = np.random.normal(0, 1, npoint)
+
+    center = np.random.normal(0, 1, 3)
+    x = grid.points[:,0]-center[0]
+    y = grid.points[:,1]-center[1]
+    z = grid.points[:,2]-center[2]
+    r2 = x*x+y*y+z*z
+
+    ints = grid.integrate(dens, center=center, lmax=2, mtype=2)
+    assert ints.shape == (9,)
+    int2 = (grid.weights*dens*x).sum()
+    assert abs(ints[0] - (grid.weights*dens).sum()) < 1e-10
+    assert abs(ints[1] - (grid.weights*dens*z).sum()) < 1e-10
+    assert abs(ints[2] - (grid.weights*dens*x).sum()) < 1e-10
+    assert abs(ints[3] - (grid.weights*dens*y).sum()) < 1e-10
+    assert abs(ints[4] - (grid.weights*dens*(1.5*z**2-0.5*r2)).sum()) < 1e-10
+    assert abs(ints[5] - (grid.weights*dens*(3.0**0.5*x*z)).sum()) < 1e-10
+    assert abs(ints[8] - (grid.weights*dens*(3.0**0.5*x*y)).sum()) < 1e-10
+
+
 def test_grid_integrate_radial_moments():
     npoint = 10
     grid = IntGrid(np.random.normal(0, 1, (npoint,3)), np.random.normal(0, 1, npoint))

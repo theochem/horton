@@ -34,7 +34,7 @@ import numpy as np
 
 
 __all__ = ['get_cartesian_powers', 'get_ncart', 'get_ncart_cumul',
-           'rotate_cartesian_moments']
+           'rotate_cartesian_moments', 'get_npure', 'get_npure_cumul']
 
 
 def get_cartesian_powers(lmax):
@@ -848,3 +848,13 @@ def rotate_moments_low(rules, rmat, moments):
            factor *= rcoeffs[j]
         result += moments[i]*factor
     return result
+
+
+def get_npure(l):
+    '''The number of pure functions for a given angular momentum, l'''
+    return 2*l+1
+
+
+def get_npure_cumul(lmax):
+    '''The number of pure functions up to a given angular momentum, lmax.'''
+    return (lmax+1)**2
