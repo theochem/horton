@@ -14,6 +14,7 @@ rules = [
     ('doc/tut_getting_started.rst', '^    wget http://users.ugent.be/~tovrstra/horton/horton-(...+).tar.gz$'),
     ('doc/tut_getting_started.rst', '^    tar -xvzf horton-(...+).tar.gz$'),
     ('doc/tut_getting_started.rst', '^    cd horton-(...+)$'),
+    ('doc/tut_cite.rst', '^    Horton (...+), http://theochem.github.com/horton/,$'),
 ]
 
 
