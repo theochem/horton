@@ -28,12 +28,13 @@ from horton.grid.int1d import SimpsonIntegrator1D
 from horton.grid.cext import dot_multi
 from horton.log import log
 from horton.part.hirshfeld import HirshfeldWPart, HirshfeldCPart
+from horton.part.iterstock import IterativeProatomMixin
 
 
 __all__ = ['HirshfeldIWPart', 'HirshfeldICPart']
 
 
-class HirshfeldIMixin(object):
+class HirshfeldIMixin(IterativeProatomMixin):
     name = 'hi'
     options = ['threshold', 'maxiter', 'greedy']
     linear = False
@@ -79,17 +80,6 @@ class HirshfeldIMixin(object):
         elif psuedo_pop <= 0:
             raise ValueError('Requesting a pro-atom with a negative (pseudo) population')
 
-    def compute_change(self, propars1, propars2):
-        '''Compute the difference between an old and a new proatoms'''
-        msd = 0.0 # mean-square deviation
-        for index in xrange(self.system.natom):
-            rgrid = self.get_rgrid(index)
-            rho1 = self.get_proatom_rho(index, propars1)
-            rho2 = self.get_proatom_rho(index, propars2)
-            delta = rho1 - rho2
-            msd +=  rgrid.integrate(delta, delta)
-        return np.sqrt(msd)
-
     def get_somefn(self, index, spline, key, label, grid=None):
         if grid is None:
             grid = self.get_grid(index)
@@ -121,25 +111,10 @@ class HirshfeldIMixin(object):
         output += 1e-100
 
     def _init_propars(self):
-        self.history_propars = []
-        self.history_charges = []
+        IterativeProatomMixin._init_propars(self)
         charges = self.cache.load('charges', alloc=self._system.natom)[0]
         self.cache.dump('propars', charges)
         return charges
-
-    def _update_propars(self):
-        # Keep track of history
-        self.history_propars.append(self.cache.load('propars').copy())
-
-        # Update the partitioning based on the latest proatoms
-        self.update_at_weights()
-
-        # Update the proatoms
-        for index in xrange(self.natom):
-            self._update_propars_atom(index)
-
-        # Keep track of history
-        self.history_charges.append(self.cache.load('charges').copy())
 
     def _update_propars_atom(self, index):
         # Compute population
@@ -148,54 +123,6 @@ class HirshfeldIMixin(object):
         # Store charge
         charges = self.cache.load('charges')
         charges[index] = self.system.pseudo_numbers[index] - pseudo_population
-
-    def _finalize_propars(self):
-        charges = self._cache.load('charges')
-        self.cache.dump('history_propars', np.array(self.history_propars))
-        self.cache.dump('history_charges', np.array(self.history_charges))
-        self.cache.dump('populations', self.system.numbers - charges)
-        self.cache.dump('pseudo_populations', self.system.pseudo_numbers - charges)
-
-    @just_once
-    def do_partitioning(self):
-        # Perform one general check in the beginning to avoid recomputation
-        new = any(('at_weights', i) not in self.cache for i in xrange(self.system.natom))
-        new |= 'niter' not in self.cache
-        new |= 'change'not in self.cache
-        if new:
-            # Need to compute density
-            self.do_moldens()
-
-            propars = self._init_propars()
-            if log.medium:
-                log.hline()
-                log('Iteration       Change')
-                log.hline()
-
-            counter = 0
-            change = 1e100
-
-            while True:
-                counter += 1
-
-                # Update the parameters that determine the pro-atoms.
-                old_propars = propars.copy()
-                self._update_propars()
-
-                # Check for convergence
-                change = self.compute_change(propars, old_propars)
-                if log.medium:
-                    log('%9i   %10.5e' % (counter, change))
-                if change < self._threshold or counter >= self._maxiter:
-                    break
-
-            if log.medium:
-                log.hline()
-
-            self._finalize_propars()
-            self.cache.dump('niter', counter)
-            self.cache.dump('change', change)
-    do_partitioning.names = ['niter', 'change', 'history_charges', 'history_propars']
 
 
 class HirshfeldIWPart(HirshfeldIMixin, HirshfeldWPart):
