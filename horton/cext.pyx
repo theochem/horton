@@ -33,7 +33,7 @@ __all__ = [
     # cell.cpp
     'Cell', 'smart_wrap',
     # moments.cpp
-    'fill_cartesian_polynomials', 'fill_radial_polynomials',
+    'fill_cartesian_polynomials', 'fill_pure_polynomials', 'fill_radial_polynomials',
     # nucpot.cpp
     'compute_grid_nucpot',
 ]
@@ -441,13 +441,39 @@ def fill_cartesian_polynomials(np.ndarray[double, ndim=1] output not None, long 
 
        **Returns:**
 
-       The first element of the array that contains the polynomials of the
-       outermost shell.
+       The index of the first element of the array that contains the polynomials
+       of the outermost shell.
     '''
     assert output.flags['C_CONTIGUOUS']
     if output.shape[0] < ((lmax+1)*(lmax+2)*(lmax+3))/6-1:
         raise ValueError('The size of the output array is not sufficient to store the polynomials.')
     return moments.fill_cartesian_polynomials(<double*>output.data, lmax)
+
+
+def fill_pure_polynomials(np.ndarray[double, ndim=1] output not None, long lmax):
+    '''Fill the output vector with pure polynomials
+
+       **Arguments:**
+
+       output
+            A double precision numpy array where the first three values are
+            z, x, and y coordinates.
+
+       lmax
+            The maximum angular momentum to compute.
+
+       The polynomials are stored according to the conventions set in
+       ``get_cartesian_powers``.
+
+       **Returns:**
+
+       The index of the first element of the array that contains the polynomials
+       of the outermost shell.
+    '''
+    assert output.flags['C_CONTIGUOUS']
+    if output.shape[0] < (lmax+1)**2-1:
+        raise ValueError('The size of the output array is not sufficient to store the polynomials.')
+    return moments.fill_pure_polynomials(<double*>output.data, lmax)
 
 
 def fill_radial_polynomials(np.ndarray[double, ndim=1] output not None, long lmax):

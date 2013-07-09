@@ -20,6 +20,7 @@
 
 
 #include <stdexcept>
+#include <math.h>
 
 
 long fill_cartesian_polynomials(double* output, long lmax) {
@@ -30,7 +31,7 @@ long fill_cartesian_polynomials(double* output, long lmax) {
     if (lmax <= 1) return 0;
 
     // Shell l>1
-    int old_offset = 0; // first array index of the moments of the previous shell 
+    int old_offset = 0; // first array index of the moments of the previous shell
     int old_ncart = 3;  // number of moments in previous shell
     for (int l = 2; l <= lmax; l++) {
         // numbers for current iteration
@@ -48,6 +49,73 @@ long fill_cartesian_polynomials(double* output, long lmax) {
         output[new_offset+new_ncart-1] = output[2]*output[new_offset-1];
         // translate new to old numbers
         old_ncart = new_ncart;
+        old_offset = new_offset;
+    }
+    return old_offset;
+}
+
+
+long fill_pure_polynomials(double* output, long lmax) {
+    // Shell l=0
+    if (lmax <= 0) return -1;
+
+    // Shell l=1
+    if (lmax <= 1) return 0;
+
+    // Shell l>1
+
+    // auxiliary variables
+    double z = output[0];
+    double x = output[1];
+    double y = output[2];
+    double r2 = x*x + y*y + z*z;
+
+    // work arrays in which the PI(z,r) polynomials are stored.
+    double pi_old[lmax+1];
+    double pi_new[lmax+1];
+    double a[lmax+1];
+    double b[lmax+1];
+
+    // initialize work arrays
+    pi_old[0] = 1;
+    pi_new[0] = z;
+    pi_new[1] = 1;
+    a[1] = x;
+    b[1] = y;
+
+    int old_offset = 0; // first array index of the moments of the previous shell
+    int old_npure = 3;  // number of moments in previous shell
+    for (int l = 2; l <= lmax; l++) {
+        // numbers for current iteration
+        int new_npure = old_npure + 2;
+        int new_offset = old_offset + old_npure;
+
+        // construct polynomials PI(z,r) for current l
+        double factor = (2*l-1);
+        for (int m=0; m<=l-2; m++) {
+            double tmp = pi_old[m];
+            pi_old[m] = pi_new[m];
+            pi_new[m] = (z*factor*pi_old[m] - r2*(l+m-1)*tmp)/(l-m);
+        }
+        pi_old[l-1] = pi_new[l-1];
+        pi_new[l] = factor*pi_old[l-1];
+        pi_new[l-1] = z*pi_new[l];
+
+        // construct new polynomials A(x,y) and B(x,y)
+        a[l] = x*a[l-1] - y*b[l-1];
+        b[l] = x*b[l-1] + y*a[l-1];
+
+        // construct solid harmonics
+        output[new_offset] = pi_new[0];
+        factor = M_SQRT2;
+        for (int m=1; m<=l; m++) {
+            factor /= sqrt((l+m)*(l-m+1));
+            output[new_offset+2*m-1] = factor*a[m]*pi_new[m];
+            output[new_offset+2*m] = factor*b[m]*pi_new[m];
+        }
+
+        // translate new to old numbers
+        old_npure = new_npure;
         old_offset = new_offset;
     }
     return old_offset;

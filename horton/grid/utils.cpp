@@ -69,8 +69,8 @@ void dot_multi_moments_cube(long nvector, double** data, UniformGrid* ugrid, dou
     if (lmax<0) {
         throw std::domain_error("lmax can not be negative.");
     }
-    if ((mtype != 1) && (mtype != 3)) {
-        throw std::domain_error("mtype should be 1 or 3.");
+    if ((mtype < 1) || (mtype > 3)) {
+        throw std::domain_error("mtype should be 1, 2 or 3.");
     }
 
     // reset the output to zero
@@ -100,6 +100,11 @@ void dot_multi_moments_cube(long nvector, double** data, UniformGrid* ugrid, dou
                 work[1] = delta[1];
                 work[2] = delta[2];
                 fill_cartesian_polynomials(work, lmax);
+            } else if (mtype==2) {
+                work[0] = delta[2];
+                work[1] = delta[0];
+                work[2] = delta[1];
+                fill_pure_polynomials(work, lmax);
             } else if (mtype==3) {
                 work[0] = sqrt(delta[0]*delta[0] + delta[1]*delta[1] + delta[2]*delta[2]);
                 fill_radial_polynomials(work, lmax);
@@ -117,8 +122,8 @@ void dot_multi_moments(long npoint, long nvector, double** data, double* points,
     if (lmax<0) {
         throw std::domain_error("lmax can not be negative.");
     }
-    if ((mtype != 1) && (mtype != 3)) {
-        throw std::domain_error("mtype should be 1 or 3.");
+    if ((mtype < 1) || (mtype > 3)) {
+        throw std::domain_error("mtype should be 1, 2 or 3.");
     }
 
     for (long ipoint=npoint-1; ipoint >= 0; ipoint--) {
@@ -143,6 +148,11 @@ void dot_multi_moments(long npoint, long nvector, double** data, double* points,
                 work[1] = delta[1];
                 work[2] = delta[2];
                 fill_cartesian_polynomials(work, lmax);
+            } else if (mtype==2) {
+                work[0] = delta[2];
+                work[1] = delta[0];
+                work[2] = delta[1];
+                fill_pure_polynomials(work, lmax);
             } else if (mtype==3) {
                 work[0] = sqrt(delta[0]*delta[0] + delta[1]*delta[1] + delta[2]*delta[2]);
                 fill_radial_polynomials(work, lmax);

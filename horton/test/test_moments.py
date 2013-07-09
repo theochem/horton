@@ -100,6 +100,73 @@ def test_fill_cartesian_polynomials():
         fill_cartesian_polynomials(output[:get_ncart_cumul(4)-2], 4)
 
 
+def test_get_npure():
+    assert get_npure(0) == 1
+    assert get_npure(1) == 3
+    assert get_npure(2) == 5
+    assert get_npure(3) == 7
+
+
+def test_get_npure_cumul():
+    assert get_npure_cumul(0) == 1
+    assert get_npure_cumul(1) == 4
+    assert get_npure_cumul(2) == 9
+    assert get_npure_cumul(3) == 16
+
+
+def test_fill_pure_polynomials():
+    output = np.zeros(get_npure_cumul(4)-1)
+    #output[:3] = np.random.normal(0, 1, 3)
+    output[:3] = [0.35, 0.12, 0.55]
+    z = output[0]
+    x = output[1]
+    y = output[2]
+    r = np.linalg.norm(output[:3])
+    expected = np.array([
+        # l = 1
+        z, x, y,
+        # l = 2
+        (3.0*z**2 - r**2)/2.0,
+        3.0**0.5*x*z,
+        3.0**0.5*y*z,
+        3.0**0.5*(x*x-y*y)/2.0,
+        3.0**0.5*x*y,
+        # l = 3
+        (5.0*z**3 - 3.0*r**2.0*z)/2,
+        x*(15.0*z**2 - 3.0*r**2)/2.0/6.0**0.5,
+        y*(15.0*z**2 - 3.0*r**2)/2.0/6.0**0.5,
+        z*(x**2-y**2)*15.0**0.5/2,
+        x*y*z*15.0**0.5,
+        10.0**0.5/4*x*(x**2-3.0*y**2),
+        10.0**0.5/4*y*(3.0*x**2-y**2),
+        # l = 4
+        (3.0*r**4 - 30.0*r**2*z**2 + 35.0*z**4)/8,
+        x*(35*z**3 - 15.0*r**2*z)/2.0/10.0**0.5,
+        y*(35*z**3 - 15.0*r**2*z)/2.0/10.0**0.5,
+        (105.0*z**2-15.0*r**2)*(x**2-y**2)/2.0/30.0*5.0**0.5,
+        x*y*(105.0*z**2-15.0*r**2)/2.0/15.0*5**0.5,
+        z*x*(x**2 - 3*y**2)*70**0.5/4.0,
+        z*y*(3*x**2 - y**2)*70**0.5/4.0,
+        (x**4 - 6.0*x**2*y**2 + y**4)*35**0.5/8,
+        x*y*(x**2-y**2)*35**0.5/2,
+    ])
+    assert fill_pure_polynomials(output, 0) == -1
+    for l in xrange(1, 5):
+        assert fill_pure_polynomials(output, l) == get_npure_cumul(l-1)-1
+        nrow = get_npure_cumul(l)-1
+        print l, nrow
+        for irow in xrange(nrow):
+            print irow, output[irow], expected[irow]
+            assert abs(output[irow] - expected[irow]) < 1e-10
+        print
+        assert (output[nrow:] == 0).all()
+
+    with assert_raises(ValueError):
+        fill_cartesian_polynomials(output, 5)
+    with assert_raises(ValueError):
+        fill_cartesian_polynomials(output[:get_ncart_cumul(4)-2], 4)
+
+
 def test_fill_radial_polynomials():
     lmax = 4
     output = np.zeros(lmax)
