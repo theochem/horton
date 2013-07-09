@@ -66,8 +66,8 @@ void dot_multi_moments_cube(long nvector, double** data, UniformGrid* ugrid, dou
     if (ugrid->get_cell()->get_nvec() != 0) {
         throw std::domain_error("dot_multi_moments_cube only works for non-periodic grids.");
     }
-    if ((lmax<0) || (lmax>7)) { // TODO: refer to some constant for maximum lmax
-        throw std::domain_error("lmax should be in the range [0,7].");
+    if (lmax<0) {
+        throw std::domain_error("lmax can not be negative.");
     }
     if ((mtype != 1) && (mtype != 3)) {
         throw std::domain_error("mtype should be 1 or 3.");
@@ -114,8 +114,8 @@ void dot_multi_moments_cube(long nvector, double** data, UniformGrid* ugrid, dou
 }
 
 void dot_multi_moments(long npoint, long nvector, double** data, double* points, double* center, long lmax, long mtype, double* output, long nmoment) {
-    if ((lmax<0) || (lmax>7)) { // TODO: refer to some constant for maximum lmax
-        throw std::domain_error("lmax should be in the range [0,7].");
+    if (lmax<0) {
+        throw std::domain_error("lmax can not be negative.");
     }
     if ((mtype != 1) && (mtype != 3)) {
         throw std::domain_error("mtype should be 1 or 3.");
