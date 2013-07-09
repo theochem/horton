@@ -479,10 +479,10 @@ Python interface to the partitioning code
 
 The ``horton-wpart.py`` and ``horton-cpart.py`` scripts have a rather intuitive
 Python interface that allows one to run a more customized analysis. The script
-``examples/004_wpart/run.py`` is a simple example that runs a Becke partitioning
+``data/examples/004_wpart/run.py`` is a simple example that runs a Becke partitioning
 where only the charges are computed and written to a simple text file.
 
-.. literalinclude:: ../examples/004_wpart/run.py
+.. literalinclude:: ../data/examples/004_wpart/run.py
 
 The unit tests in the source code contain many small examples that can be used
 as a starting point for similar scripts. These unit tests can be found in
