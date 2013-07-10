@@ -26,6 +26,7 @@ import numpy as np
 from horton.cache import JustOnceClass, just_once, Cache
 from horton.log import log, timer
 from horton.moments import get_ncart_cumul, get_npure_cumul
+from horton.meanfield.wfn import RestrictedWFN
 
 
 __all__ = ['Part', 'WPart', 'CPart']
@@ -150,6 +151,14 @@ class Part(JustOnceClass):
             output[:] = result
         return result
 
+    def get_spindens(self, index=None, output=None):
+        self.do_spindens()
+        spindens = self.cache.load('spindens')
+        result = self.to_atomic_grid(index, spindens)
+        if output is not None:
+            output[:] = result
+        return result
+
     def get_wcor(self, index):
         '''Return the weight corrections on a grid
 
@@ -207,6 +216,10 @@ class Part(JustOnceClass):
         raise NotImplementedError
 
     @just_once
+    def do_spindens(self):
+        raise NotImplementedError
+
+    @just_once
     def do_partitioning(self):
         self.update_at_weights()
     do_partitioning.names = []
@@ -237,6 +250,28 @@ class Part(JustOnceClass):
             self.do_populations()
             populations = self._cache.load('populations')
             charges[:] = self.system.numbers - populations
+
+    @just_once
+    def do_spin_charges(self):
+        if log.do_medium:
+            log('Computing atomic spin charges.')
+        spin_charges, new = self._cache.load('spin_charges', alloc=self.system.natom, tags='o')
+        if new:
+            if isinstance(self.system.wfn, RestrictedWFN):
+                spin_charges[:] = 0.0
+            else:
+                try:
+                    self.do_spindens()
+                except NotImplementedError:
+                    self.cache.clear_item('spin_charges')
+                    return
+                self.do_partitioning()
+                for index in xrange(self.system.natom):
+                    grid = self.get_grid(index)
+                    spindens = self.get_spindens(index)
+                    at_weights = self.cache.load('at_weights', index)
+                    wcor = self.get_wcor(index)
+                    spin_charges[index] = grid.integrate(at_weights, spindens, wcor)
 
     @just_once
     def do_moments(self):
@@ -342,11 +377,20 @@ class WPart(Part):
 
     @just_once
     def do_moldens(self):
-        if log.do_medium:
-            log('Computing densities on grids.')
         moldens, new = self.cache.load('moldens', alloc=self.grid.size)
         if new:
+            if log.do_medium:
+                log('Computing total densitiy on grids.')
             self.system.compute_grid_density(self.grid.points, rhos=moldens)
+
+    @just_once
+    def do_spindens(self):
+        spindens, new = self.cache.load('spindens', alloc=self.grid.size)
+        if new:
+            if log.do_medium:
+                log('Computing spin densitiy on grids.')
+            self.system.compute_grid_density(self.grid.points, rhos=spindens, select='spin')
+    do_spindens.names = []
 
     def to_atomic_grid(self, index, data):
         if index is None or not self.local:
@@ -461,6 +505,13 @@ class CPart(Part):
         moldens, new = self.cache.load('moldens', alloc=self.grid.shape)
         if new:
             raise NotImplementedError
+
+    @just_once
+    def do_spindens(self):
+        spindens, new = self.cache.load('spindens', alloc=self.grid.shape)
+        if new:
+            raise NotImplementedError
+    do_spindens.names = []
 
     def to_atomic_grid(self, index, data):
         if index is None or not self.local:
