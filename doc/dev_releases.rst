@@ -1,6 +1,13 @@
 Release history
 ###############
 
+* **June X, 2013. Version 1.1**
+
+   - Iterative Stockholder partitioning [lillestolen2008]_
+   - Pure (harmonic) multipoles in the AIM analysis
+   - Spin charges in the AIM analysis
+
+
 * **June 5, 2013. Version 1.0.2**
 
    - Also support dynamic linking of libint and libx.
