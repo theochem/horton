@@ -53,6 +53,24 @@ void shift_segment(long ipoint, long* &segments, long &segment_end, double* &out
 }
 
 
+void fill_polynomials_wrapper(double* work, double* delta, long lmax, long mtype) {
+    if (mtype==1) {
+        work[0] = delta[0];
+        work[1] = delta[1];
+        work[2] = delta[2];
+        fill_cartesian_polynomials(work, lmax);
+    } else if (mtype==2) {
+        work[0] = delta[2];
+        work[1] = delta[0];
+        work[2] = delta[1];
+        fill_pure_polynomials(work, lmax);
+    } else if (mtype==3) {
+        work[0] = sqrt(delta[0]*delta[0] + delta[1]*delta[1] + delta[2]*delta[2]);
+        fill_radial_polynomials(work, lmax);
+    }
+}
+
+
 /*
     Public stuff
 */
@@ -117,20 +135,7 @@ void dot_multi_moments_cube(long nvector, double** data, UniformGrid* ugrid, dou
 
             // evaluate polynomials in work array
             double work[nmoment-1];
-            if (mtype==1) {
-                work[0] = delta[0];
-                work[1] = delta[1];
-                work[2] = delta[2];
-                fill_cartesian_polynomials(work, lmax);
-            } else if (mtype==2) {
-                work[0] = delta[2];
-                work[1] = delta[0];
-                work[2] = delta[1];
-                fill_pure_polynomials(work, lmax);
-            } else if (mtype==3) {
-                work[0] = sqrt(delta[0]*delta[0] + delta[1]*delta[1] + delta[2]*delta[2]);
-                fill_radial_polynomials(work, lmax);
-            }
+            fill_polynomials_wrapper(work, delta, lmax, mtype);
 
             // add product of polynomial and integrand to output
             for (long imoment=1; imoment < nmoment; imoment++) {
@@ -170,20 +175,7 @@ void dot_multi_moments(long npoint, long nvector, double** data, double* points,
 
             // evaluate polynomials in work array
             double work[nmoment-1];
-            if (mtype==1) {
-                work[0] = delta[0];
-                work[1] = delta[1];
-                work[2] = delta[2];
-                fill_cartesian_polynomials(work, lmax);
-            } else if (mtype==2) {
-                work[0] = delta[2];
-                work[1] = delta[0];
-                work[2] = delta[1];
-                fill_pure_polynomials(work, lmax);
-            } else if (mtype==3) {
-                work[0] = sqrt(delta[0]*delta[0] + delta[1]*delta[1] + delta[2]*delta[2]);
-                fill_radial_polynomials(work, lmax);
-            }
+            fill_polynomials_wrapper(work, delta, lmax, mtype);
 
             // add product of polynomial and integrand to output
             for (long imoment=1; imoment < nmoment; imoment++) {
