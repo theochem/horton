@@ -26,7 +26,7 @@ import numpy as np
 
 from horton.context import context
 from horton.grid.base import IntGrid
-from horton.grid.cext import lebedev_laikov_npoints, lebedev_laikov_sphere, RTransform, dot_multi_parts
+from horton.grid.cext import lebedev_laikov_npoints, lebedev_laikov_sphere, RTransform
 from horton.grid.radial import RadialGrid
 from horton.log import log
 
@@ -158,19 +158,19 @@ class AtomicGrid(IntGrid):
             log.cite('lebedev1999', 'for the use of Lebedev-Laikov grids (quadrature on a sphere)')
             log.blank()
 
-    def get_spherical_average(self, args, output=None):
+    def get_spherical_average(self, *args, **kwargs):
         '''Returns the spherical average on the radial grid of the product of the given functions'''
-        if isinstance(args, np.ndarray) and args.shape == self.shape:
-            args = [args]
-        args = [arg.ravel() for arg in args if arg is not None]
-        args.append(self.av_weights)
-        if output is None:
-            output = self._rgrid.zeros()
+        mtype = kwargs.pop('mtype', None)
+        lmax = kwargs.pop('lmax', 4)
+        if len(kwargs) > 0:
+            raise TypeError('Unexpected keyword argument: %s' % kwargs.popitem()[0])
+        if mtype is None:
+            result = self.integrate(*args, segments=self.nlls)
+            result /= self.integrate(segments=self.nlls)
         else:
-            assert output.shape == self._rgrid.shape
-        # TODO: merge all dot_multi variants in one general-purpose implementation
-        dot_multi_parts(args, self._nlls, output)
-        return output
+            result = self.integrate(*args, center=self.center, mtype=mtype, lmax=lmax, segments=self.nlls)
+            result /= self.integrate(segments=self.nlls).reshape(-1, 1)
+        return result
 
     def update_center(self, center):
         self._center[:] = center

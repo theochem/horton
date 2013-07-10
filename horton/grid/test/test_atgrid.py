@@ -87,12 +87,25 @@ def test_atomic_grid_basics():
 
 
 def get_hydrogen_1s():
+    # density of the 1s orbital
     center = np.random.uniform(-1,1,3)
     rtf = BakerRTransform(2e1, 100)
     rgrid = RadialGrid(rtf, CubicIntegrator1D())
     ag = AtomicGrid(1, center, (rgrid, 110), 100)
     distances = np.sqrt(((center - ag.points)**2).sum(axis=1))
     fn = np.exp(-2*distances)/np.pi
+    return ag, fn
+
+
+def get_hydrogen_1pz():
+    # density of the 1pz orbital
+    center = np.random.uniform(-1,1,3)
+    rtf = BakerRTransform(2e1, 100)
+    rgrid = RadialGrid(rtf, SimpsonIntegrator1D())
+    ag = AtomicGrid(1, center, (rgrid, 110), 100)
+    z = ag.points[:,2] - center[2]
+    distances = np.sqrt(((center - ag.points)**2).sum(axis=1))
+    fn = np.exp(-distances)/(32.0*np.pi)*z**2
     return ag, fn
 
 
@@ -109,8 +122,30 @@ def test_spherical_average_hydrogen_1s():
     z = ag.points[:,2] - ag.center[2]
     sa_check = np.exp(-2*ag.rgrid.radii)/np.pi
     for cx, cy, cz, cxxx in (0, 0, 0, 0), (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1), (1, 1, 0, 0), (0, 1, 0, 1):
-        sa_fn = ag.get_spherical_average([fn + cx*x + cy*y + cz*z + cxxx*x*x*x])
+        sa_fn = ag.get_spherical_average(fn + cx*x + cy*y + cz*z + cxxx*x*x*x)
         assert abs(sa_fn - sa_check).max() < 1e-10
+
+
+def test_spherical_decomposition_hydrogen_1s():
+    ag, fn = get_hydrogen_1s()
+    sa_fns = ag.get_spherical_average(fn, mtype=2)
+    sa_check = np.exp(-2*ag.rgrid.radii)/np.pi
+    assert abs(sa_fns[:,0] - sa_check).max() < 1e-10
+    assert abs(sa_fns[:,1:]).max() < 1e-10
+
+
+def test_spherical_decomposition_hydrogen_1pz():
+    ag, fn = get_hydrogen_1pz()
+    sa_fns = ag.get_spherical_average(fn, mtype=2)
+    # s
+    sa_check = np.exp(-ag.rgrid.radii)/(32.0*np.pi)*(1.0/3.0)*ag.rgrid.radii**2
+    assert abs(ag.rgrid.integrate(sa_check) - 1.0) < 1e-3
+    assert abs(sa_fns[:,0] - sa_check).max() < 1e-10
+    # p
+    assert abs(sa_fns[:,1:4]).max() < 1e-10
+    # d
+    sa_check = np.exp(-ag.rgrid.radii)/(32.0*np.pi)*(2.0/15.0)*ag.rgrid.radii**4
+    assert abs(sa_fns[:,4] - sa_check).max() < 1e-10
 
 
 def test_atgrid_attrs():

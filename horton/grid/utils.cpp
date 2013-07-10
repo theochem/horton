@@ -31,21 +31,27 @@
 #include "moments.h"
 
 
-double dot_multi(long npoint, long nvector, double** data) {
-    double result = 0.0;
-
-    #pragma omp parallel for reduction(+:result)
-    for (long ipoint=npoint-1; ipoint>=0; ipoint--) {
-        double tmp = data[nvector-1][ipoint];
-        for (long ivector=nvector-2; ivector>=0; ivector--) {
-           tmp *= data[ivector][ipoint];
+void dot_multi(long npoint, long nvector, double** data, long* segments, double* output) {
+    long segment_end = *segments;
+    for (long ipoint=0; ipoint < npoint; ipoint++) {
+        // shift the output array if needed
+        if (ipoint == segment_end) {
+            segments++;
+            segment_end += *segments;
+            output++;
         }
+
+        // product of data
+        double tmp = data[nvector-1][ipoint];
+        for (long ivector=nvector-2; ivector>=0; ivector--)
+            tmp *= data[ivector][ipoint];
+
+        // add to output
+        *output += tmp;
 #ifdef DEBUG
-        printf("i=%i  tmp=%f\n", ipoint, tmp);
+        printf("*output=%f; ipoint=%i; segment_end=%i\n", *output, ipoint, segment_end);
 #endif
-        result += tmp;
     }
-    return result;
 }
 
 
@@ -118,7 +124,10 @@ void dot_multi_moments_cube(long nvector, double** data, UniformGrid* ugrid, dou
     }
 }
 
-void dot_multi_moments(long npoint, long nvector, double** data, double* points, double* center, long lmax, long mtype, double* output, long nmoment) {
+void dot_multi_moments(long npoint, long nvector, double** data, double* points,
+    double* center, long lmax, long mtype, long* segments, double* output,
+    long nmoment) {
+
     if (lmax<0) {
         throw std::domain_error("lmax can not be negative.");
     }
@@ -126,7 +135,15 @@ void dot_multi_moments(long npoint, long nvector, double** data, double* points,
         throw std::domain_error("mtype should be 1, 2 or 3.");
     }
 
-    for (long ipoint=npoint-1; ipoint >= 0; ipoint--) {
+    long segment_end = *segments;
+    for (long ipoint=0; ipoint < npoint; ipoint++) {
+        // shift the output array if needed
+        if (ipoint == segment_end) {
+            segments++;
+            segment_end += *segments;
+            output += nmoment;
+        }
+
         // do the usual product of integranda
         double term = data[nvector-1][ipoint];
         for (long ivector=nvector-2; ivector>=0; ivector--)
@@ -166,24 +183,6 @@ void dot_multi_moments(long npoint, long nvector, double** data, double* points,
     }
 }
 
-void dot_multi_parts(long npoint, long nvector, long noutput, double** data, long* sizes, double* output) {
-    long begin=0;
-    for (long ioutput=0; ioutput<noutput; ioutput++) {
-        double total = 0.0;
-        long end = begin + sizes[ioutput];
-
-        for (long ipoint=begin; ipoint<end; ipoint++) {
-            double tmp = data[nvector-1][ipoint];
-            for (long ivector=nvector-2; ivector>=0; ivector--) {
-                tmp *= data[ivector][ipoint];
-            }
-            total += tmp;
-        }
-        output[ioutput] = total;
-
-        begin = end;
-    }
-}
 
 void grid_distances(double *points, double *center, double *distances, long n) {
   double d, tmp;
