@@ -1153,6 +1153,17 @@ cdef long _check_integranda(integranda, npoint=None):
     return npoint
 
 
+cdef double** _parse_integranda(integranda):
+    cdef double** result = <double **>malloc(len(integranda)*sizeof(double*))
+    if result == NULL:
+        raise MemoryError()
+    cdef np.ndarray[double, ndim=1] integrandum
+    for i in xrange(len(integranda)):
+        integrandum = integranda[i]
+        result[i] = <double*>integrandum.data
+    return result
+
+
 def _parse_segments(segments, npoint):
     if segments is None:
         segments = np.array([npoint])
@@ -1163,16 +1174,7 @@ def _parse_segments(segments, npoint):
 
 def dot_multi(*integranda, np.ndarray[long, ndim=1] segments=None):
     cdef long npoint = _check_integranda(integranda)
-
-    cdef double** pointers = <double **>malloc(len(integranda)*sizeof(double*))
-    if pointers == NULL:
-        raise MemoryError()
-    cdef np.ndarray[double, ndim=1] integrandum
-    for i in xrange(len(integranda)):
-        integrandum = integranda[i]
-        pointers[i] = <double*>integrandum.data
-
-    cdef long nsegment = 0
+    cdef double** pointers = _parse_integranda(integranda)
     segments, nsegment = _parse_segments(segments, npoint)
     cdef np.ndarray output = np.zeros(nsegment)
 
@@ -1212,14 +1214,7 @@ def dot_multi_moments_cube(integranda, UniformGrid ugrid not None,
     assert center.flags['C_CONTIGUOUS']
     assert center.shape[0] == 3
 
-    cdef double** pointers = <double **>malloc(len(integranda)*sizeof(double*))
-    if pointers == NULL:
-        raise MemoryError()
-    cdef np.ndarray[double, ndim=1] integrandum
-    for i in xrange(len(integranda)):
-        integrandum = integranda[i]
-        pointers[i] = <double*>integrandum.data
-
+    cdef double** pointers = _parse_integranda(integranda)
     cdef long nmoment = _get_nmoment(lmax, mtype)
     cdef np.ndarray output = np.zeros(nmoment)
 
@@ -1241,16 +1236,8 @@ def dot_multi_moments(integranda,
     assert center.flags['C_CONTIGUOUS']
     assert center.shape[0] == 3
 
-    cdef double** pointers = <double **>malloc(len(integranda)*sizeof(double*))
-    if pointers == NULL:
-        raise MemoryError()
-    cdef np.ndarray[double, ndim=1] integrandum
-    for i in xrange(len(integranda)):
-        integrandum = integranda[i]
-        pointers[i] = <double*>integrandum.data
-
+    cdef double** pointers = _parse_integranda(integranda)
     cdef long nmoment = _get_nmoment(lmax, mtype)
-    cdef long nsegment = 0
     segments, nsegment = _parse_segments(segments, npoint)
     cdef np.ndarray output = np.zeros((nsegment, nmoment))
 
