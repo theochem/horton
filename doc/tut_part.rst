@@ -42,6 +42,7 @@ Iterative Stockholder    X                                                      
 Extended Hirshfeld       X                           X                           [verstraelen2013]_
 **AIM properties**
 Charges                  X                           X
+Spin charges             X
 Cartesian multipoles     X                           X
 Pure/harmonic multipoles X                           X
 Radial moments           X                           X

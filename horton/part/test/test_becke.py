@@ -114,3 +114,13 @@ def test_becke_azirine_mp2():
 
 def test_becke_azirine_mp3():
     check_becke_azirine('mp3', [-0.06669121, -0.07695576, 0.12560819])
+
+
+def test_becke_ch3_hf_sto3g():
+    fn_fchk = context.get_fn('test/ch3_hf_sto3g.fchk')
+    sys = System.from_file(fn_fchk)
+    grid = BeckeMolGrid(sys, random_rotate=False, keep_subgrids=True)
+    bp = BeckeWPart(sys, grid)
+    bp.do_all()
+    sc = bp['spin_charges']
+    assert abs(sc - [1.08458698, -0.02813376, -0.02813376, -0.02815979]).max() < 1e-3
