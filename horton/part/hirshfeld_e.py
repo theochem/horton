@@ -333,7 +333,7 @@ class HirshfeldEMixin(object):
             if self.local:
                 # In case of local grids, the integration is carried out on
                 # a radial grid for efficiency.
-                rgrid = self.proatomdb.get_rgrid(number)
+                rgrid = self.get_rgrid(index)
                 for j0 in xrange(nbasis):
                     rho0 = self.hebasis.get_basis_rho(index, j0)
                     for j1 in xrange(j0+1):
@@ -420,13 +420,13 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
         )
 
     def get_wcor_fit_funcs(self, index):
-        number = self._system.numbers[index]
-        if number not in self.wcor_numbers:
+        # skip wcor if the element is not listed among those who need a correction:
+        if self._system.numbers[index] not in self.wcor_numbers:
             return []
 
         center = self._system.coordinates[index]
         atom_nbasis = self.hebasis.get_atom_nbasis(index)
-        rtf = self._proatomdb.get_rgrid(self._system.numbers[index]).rtransform
+        rtf = self.get_rgrid(index).rtransform
         splines = []
         for j0 in xrange(atom_nbasis):
             rho0 = self.hebasis.get_basis_rho(index, j0)

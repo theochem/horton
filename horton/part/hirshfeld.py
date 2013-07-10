@@ -64,6 +64,10 @@ class HirshfeldMixin(object):
 
     proatomdb = property(_get_proatomdb)
 
+    def get_rgrid(self, index):
+        number = self.system.numbers[index]
+        return self.proatomdb.get_rgrid(number)
+
     def get_proatom_rho(self, index):
         return self.proatomdb.get_rho(self._system.numbers[index])
 
@@ -130,7 +134,7 @@ class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
 
     def get_cutoff_radius(self, index):
         '''The radius at which the weight function goes to zero'''
-        rtf = self.proatomdb.get_rgrid(self._system.numbers[index]).rtransform
+        rtf = self.get_rgrid(index).rtransform
         return rtf.radius(rtf.npoint-1)
 
     def get_wcor_funcs(self, index):

@@ -33,6 +33,9 @@ __all__ = [
 
 
 class StockHolderMixin(object):
+    def get_rgrid(self, index):
+        raise NotImplementedError
+
     def get_proatom_rho(self, index, *args, **kwargs):
         raise NotImplementedError
 
@@ -47,9 +50,7 @@ class StockHolderMixin(object):
            rho
                 The radial density
         '''
-        # TODO: should not refer to proatomdb
-        number = self.system.numbers[index]
-        rgrid = self.proatomdb.get_rgrid(number)
+        rgrid = self.get_rgrid(index)
 
         # Check for negative parts
         original = rgrid.integrate(rho)
@@ -62,7 +63,6 @@ class StockHolderMixin(object):
         return rho
 
     def get_proatom_spline(self, index, *args, **kwargs):
-        # TODO: should not refer to proatomdb
         # Get the radial density
         number = self.system.numbers[index]
         rho = self.get_proatom_rho(index, *args, **kwargs)
@@ -71,7 +71,8 @@ class StockHolderMixin(object):
         rho = self.fix_proatom_rho(index, rho)
 
         # Make a spline
-        return CubicSpline(rho, rtf=self.proatomdb.get_rgrid(number).rtransform)
+        rtf = self.get_rgrid(index).rtransform
+        return CubicSpline(rho, rtf=rtf)
 
     def eval_spline(self, index, spline, output, grid=None, label='noname'):
         center = self.system.coordinates[index]
