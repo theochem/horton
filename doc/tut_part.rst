@@ -38,10 +38,12 @@ Vasp CHGCAR                                          X                          
 Becke                    X                                                       [becke1988_multicenter]_
 Hirshfeld                X                           X                           [hirshfeld1977]_
 Iterative Hirshfeld      X                           X                           [bultinck2007]_
+Iterative Stockholder    X                                                       [lillestolen2008]_
 Extended Hirshfeld       X                           X                           [verstraelen2013]_
 **AIM properties**
 Charges                  X                           X
-Multipoles               X                           X
+Cartesian multipoles     X                           X
+Pure/harmonic multipoles X                           X
 Radial moments           X                           X
 Dispersion coefficients  X                           X                           [tkatchenko2009]_
 **Extra options**
@@ -386,14 +388,16 @@ partitioning scheme:
 * ``b``: Becke partitioning. [becke1988_multicenter]_
 * ``h``: Hirshfeld partitioning. [hirshfeld1977]_
 * ``hi``: Iterative Hirshfeld partitioning. [bultinck2007]_
+* ``is``: Iterative Stockholder partitioning. [lillestolen2008]_
 * ``he``: Extended Hirshfeld partitioning. [verstraelen2013]_
 
-The ``atoms.h5`` argument is only needed for the Hirshfeld variants. This script
-computes atomic weight functions and then derives all AIM observables that are
-implemented for that scheme. These results are stored in a HDF5 file with
-the same name as the ``wfn`` file but with a ``.h5`` extension appended. In this
-HDF5 file, the results are written in the group ``wpart/${SCHEME}`` where
-``${SCHEME}`` is any of ``b``, ``h``, ``hi``, ``he``.
+The ``atoms.h5`` argument is only needed for the Hirshfeld variants, not for
+``b`` and ``is``. This script computes atomic weight functions and then derives
+all AIM observables that are implemented for that scheme. These results are
+stored in a HDF5 file with the same name as the ``wfn`` file but with a ``.h5``
+extension appended. In this HDF5 file, the results are written in the group
+``wpart/${SCHEME}`` where ``${SCHEME}`` is any of ``b``, ``h``, ``hi``, ``is``,
+``he``.
 
 Run ``horton-wpart.py --help`` to get a complete list of all command-line
 options.
