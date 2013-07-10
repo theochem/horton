@@ -1142,7 +1142,7 @@ cdef class Block3Iterator(object):
 
 # TODO: eliminate duplicate code in dot routines -> one general-purpose dot_multi
 
-cdef _check_integranda(integranda, npoint=None):
+cdef long _check_integranda(integranda, npoint=None):
     assert len(integranda) > 0
     for integrandum in integranda:
         assert integrandum.flags['C_CONTIGUOUS']
@@ -1154,7 +1154,7 @@ cdef _check_integranda(integranda, npoint=None):
 
 
 def dot_multi(*integranda, np.ndarray[long, ndim=1] segments=None):
-    npoint = _check_integranda(integranda)
+    cdef long npoint = _check_integranda(integranda)
 
     cdef double** pointers = <double **>malloc(len(integranda)*sizeof(double*))
     if pointers == NULL:
@@ -1180,10 +1180,25 @@ def dot_multi(*integranda, np.ndarray[long, ndim=1] segments=None):
         return output
 
 
+cdef long _get_nmoment(long lmax, long mtype):
+    if mtype==1:
+        # cartesian moments
+        return ((lmax+1)*(lmax+2)*(lmax+3))/6
+    elif mtype==2:
+        # pure moments
+        return (lmax+1)**2
+    elif mtype==3:
+        # radial moments
+        return lmax+1
+    else:
+        raise ValueError('Unsupported mtype.')
+
+
+
 def dot_multi_moments_cube(integranda, UniformGrid ugrid not None,
                            np.ndarray[double, ndim=1] center not None,
                            long lmax, long mtype):
-    npoint = _check_integranda(integranda, ugrid.size)
+    cdef long npoint = _check_integranda(integranda, ugrid.size)
     # Only non-periodic grids are supported to guarantee an unambiguous definition of the polynomial.
     assert ugrid.pbc[0] == 0
     assert ugrid.pbc[1] == 0
@@ -1200,18 +1215,7 @@ def dot_multi_moments_cube(integranda, UniformGrid ugrid not None,
         integrandum = integranda[i]
         pointers[i] = <double*>integrandum.data
 
-    if mtype==1:
-        # cartesian moments
-        nmoment = ((lmax+1)*(lmax+2)*(lmax+3))/6
-    elif mtype==2:
-        # pure moments
-        nmoment = (lmax+1)**2
-    elif mtype==3:
-        # radial moments
-        nmoment = lmax+1
-    else:
-        raise ValueError('Unsupported mtype.')
-
+    cdef long nmoment = _get_nmoment(lmax, mtype)
     cdef np.ndarray output = np.zeros(nmoment)
 
     utils.dot_multi_moments_cube(len(integranda), pointers, ugrid._this, <double*>center.data, lmax, mtype, <double*>output.data, nmoment)
@@ -1227,7 +1231,7 @@ def dot_multi_moments(integranda,
                       np.ndarray[long, ndim=1] segments):
     assert points.flags['C_CONTIGUOUS']
     assert points.shape[1] == 3
-    npoint = _check_integranda(integranda, points.shape[0])
+    cdef long npoint = _check_integranda(integranda, points.shape[0])
     #
     assert center.flags['C_CONTIGUOUS']
     assert center.shape[0] == 3
@@ -1240,17 +1244,7 @@ def dot_multi_moments(integranda,
         integrandum = integranda[i]
         pointers[i] = <double*>integrandum.data
 
-    if mtype==1:
-        # cartesian moments
-        nmoment = ((lmax+1)*(lmax+2)*(lmax+3))/6
-    elif mtype==2:
-        # pure moments
-        nmoment = (lmax+1)**2
-    elif mtype==3:
-        # radial moments
-        nmoment = lmax+1
-    else:
-        raise ValueError('Unsupported mtype.')
+    cdef long nmoment = _get_nmoment(lmax, mtype)
 
     if segments is None:
         segments = np.array([npoint])
