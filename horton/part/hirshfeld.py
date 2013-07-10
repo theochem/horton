@@ -89,9 +89,9 @@ class HirshfeldMixin(object):
             3175.0, 49: 779.0, 50: 659.0, 51: 492.0, 52: 445.0, 53: 385.0,
         }
 
-        volumes, new_volumes = self._cache.load('volumes', alloc=self.system.natom)
-        volume_ratios, new_volume_ratios = self._cache.load('volume_ratios', alloc=self.system.natom)
-        c6s, new_c6s = self._cache.load('c6s', alloc=self.system.natom)
+        volumes, new_volumes = self._cache.load('volumes', alloc=self.system.natom, tags='o')
+        volume_ratios, new_volume_ratios = self._cache.load('volume_ratios', alloc=self.system.natom, tags='o')
+        c6s, new_c6s = self._cache.load('c6s', alloc=self.system.natom, tags='o')
 
         if new_volumes or new_volume_ratios or new_c6s:
             self.do_populations()
@@ -111,8 +111,6 @@ class HirshfeldMixin(object):
                     c6s[i] = (volume_ratios[i])**2*ref_c6s[n]
                 else:
                     c6s[i] = -1 # This is just to indicate that no value is available.
-
-    do_dispersion.names = ['volumes', 'volume_ratios', 'c6s']
 
 
 class HirshfeldWPart(HirshfeldMixin, StockholderWPart):

@@ -219,26 +219,24 @@ class Part(JustOnceClass):
     def do_populations(self):
         if log.do_medium:
             log('Computing atomic populations.')
-        populations, new = self.cache.load('populations', alloc=self.system.natom)
+        populations, new = self.cache.load('populations', alloc=self.system.natom, tags='o')
         if new:
             self.do_partitioning()
-            pseudo_populations = self.cache.load('pseudo_populations', alloc=self.system.natom)[0]
+            pseudo_populations = self.cache.load('pseudo_populations', alloc=self.system.natom, tags='o')[0]
             for i in xrange(self.natom):
                 pseudo_populations[i] = self.compute_pseudo_population(i)
             populations[:] = pseudo_populations
             populations += self.system.numbers - self.system.pseudo_numbers
-    do_populations.names = ['populations', 'pseudo_populations']
 
     @just_once
     def do_charges(self):
         if log.do_medium:
             log('Computing atomic charges.')
-        charges, new = self._cache.load('charges', alloc=self.system.natom)
+        charges, new = self._cache.load('charges', alloc=self.system.natom, tags='o')
         if new:
             self.do_populations()
             populations = self._cache.load('populations')
             charges[:] = self.system.numbers - populations
-    do_charges.names = ['charges']
 
     @just_once
     def do_moments(self):
@@ -248,13 +246,13 @@ class Part(JustOnceClass):
         lmax = 4 # up to hexadecapoles
 
         ncart = get_ncart_cumul(lmax)
-        cartesian_multipoles, new1 = self._cache.load('cartesian_multipoles', alloc=(self._system.natom, ncart))
+        cartesian_multipoles, new1 = self._cache.load('cartesian_multipoles', alloc=(self._system.natom, ncart), tags='o')
 
         npure = get_npure_cumul(lmax)
-        pure_multipoles, new1 = self._cache.load('pure_multipoles', alloc=(self._system.natom, npure))
+        pure_multipoles, new1 = self._cache.load('pure_multipoles', alloc=(self._system.natom, npure), tags='o')
 
         nrad = lmax+1
-        radial_moments, new2 = self._cache.load('radial_moments', alloc=(self._system.natom, nrad))
+        radial_moments, new2 = self._cache.load('radial_moments', alloc=(self._system.natom, nrad), tags='o')
 
         if new1 or new2:
             self.do_partitioning()
@@ -293,17 +291,13 @@ class Part(JustOnceClass):
                 # for the negative electron charge.
                 radial_moments[i] = grid.integrate(aim, wcor, center=center, lmax=lmax, mtype=3)
 
-    do_moments.names = ['cartesian_multipoles', 'pure_multipoles', 'radial_moments']
-
     def do_all(self):
-        '''Computes all reasonable properties and returns a corresponding list of keys'''
-        names = []
+        '''Computes all properties and return a list of their names.'''
         for attr_name in dir(self):
             attr = getattr(self, attr_name)
             if callable(attr) and attr_name.startswith('do_') and attr_name != 'do_all':
                 attr()
-                names.extend(attr.names)
-        return names
+        return list(self.cache.iterkeys(tags='o'))
 
 
 class WPart(Part):
@@ -353,7 +347,6 @@ class WPart(Part):
         moldens, new = self.cache.load('moldens', alloc=self.grid.size)
         if new:
             self.system.compute_grid_density(self.grid.points, rhos=moldens)
-    do_moldens.names = []
 
     def to_atomic_grid(self, index, data):
         if index is None or not self.local:
@@ -468,7 +461,6 @@ class CPart(Part):
         moldens, new = self.cache.load('moldens', alloc=self.grid.shape)
         if new:
             raise NotImplementedError
-    do_moldens.names = []
 
     def to_atomic_grid(self, index, data):
         if index is None or not self.local:
