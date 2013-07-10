@@ -126,19 +126,21 @@ class IntGrid(object):
 
            segments=None
                 This argument can be used to divide the grid in segments. When
-                given, the integration is turned into a series of averages of the
-                integrand, over each segment. This is mainly used to compute
-                spherical averages etc.
+                given, it must be an array with the number of grid points in
+                each consecutive segment. The integration is then carried out
+                over each segment separately and an array of results is
+                returned. The sum over all elements gives back the total
+                integral.
         '''
-        args, multipole_args = parse_args_integrate(*args, **kwargs)
+        args, multipole_args, segments = parse_args_integrate(*args, **kwargs)
         args.append(self.weights)
 
         if multipole_args is None:
             # regular integration
-            return dot_multi(*args)
+            return dot_multi(*args, segments=segments)
         else:
             # computation of multipole expansion of the integrand
-            center, lmax, mtype, segments = multipole_args
+            center, lmax, mtype = multipole_args
             return dot_multi_moments(args, self.points, center, lmax, mtype, segments)
 
     def distances(self, center, d):

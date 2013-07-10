@@ -23,10 +23,13 @@
 
 #include "uniform.h"
 
-double dot_multi(long npoint, long nvector, double** data);
-void dot_multi_moments_cube(long nvector, double** data, UniformGrid* ugrid, double* center, long lmax, long mtype, double* output, long nmoment);
-void dot_multi_moments(long npoint, long nvector, double** data, double* points, double* center, long lmax, long mtype, double* output, long nmoment);
-void dot_multi_parts(long npoint, long nvector, long noutput, double** data, long* sizes, double* output);
+void dot_multi(long npoint, long nvector, double** data, long* segments,
+    double* output);
+void dot_multi_moments_cube(long nvector, double** data, UniformGrid* ugrid,
+    double* center, long lmax, long mtype, double* output, long nmoment);
+void dot_multi_moments(long npoint, long nvector, double** data, double* points,
+    double* center, long lmax, long mtype, long* segments, double* output,
+    long nmoment);
 
 void grid_distances(double *points, double *center, double *distances, long n);
 

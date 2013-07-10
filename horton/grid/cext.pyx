@@ -61,7 +61,7 @@ __all__ = [
     # UniformGrid
     'UniformGrid', 'UniformGridWindow', 'index_wrap', 'Block3Iterator',
     # utils
-    'dot_multi', 'dot_multi_moments_cube', 'dot_multi_moments', 'dot_multi_parts', 'grid_distances',
+    'dot_multi', 'dot_multi_moments_cube', 'dot_multi_moments', 'grid_distances',
 ]
 
 
@@ -1075,7 +1075,9 @@ cdef class UniformGridWindow(object):
                 The type of multipole moments: 1=``cartesian``, 2=``pure``,
                 3=``radial``.
         '''
-        args, multipole_args = parse_args_integrate(*args, **kwargs)
+        args, multipole_args, segments = parse_args_integrate(*args, **kwargs)
+        if segments is not None:
+            raise TypeError('Unexpected argument: segments')
 
         grid_cell = self._ugrid.grid_cell
         if multipole_args is None:
@@ -1083,9 +1085,7 @@ cdef class UniformGridWindow(object):
             return dot_multi(*args)*grid_cell.volume
         else:
             # computation of multipole expansion of the integrand
-            center, lmax, mtype, segments = multipole_args
-            if segments is not None:
-                raise TypeError('Unexpected argument: segments')
+            center, lmax, mtype = multipole_args
             window_ugrid = self.get_window_ugrid()
             return dot_multi_moments_cube(args, window_ugrid, center, lmax, mtype)*grid_cell.volume
 
@@ -1143,6 +1143,7 @@ cdef class Block3Iterator(object):
 # TODO: eliminate duplicate code in dot routines -> one general-purpose dot_multi
 
 cdef _check_integranda(integranda, npoint=None):
+    assert len(integranda) > 0
     for integrandum in integranda:
         assert integrandum.flags['C_CONTIGUOUS']
         if npoint is None:
@@ -1152,10 +1153,7 @@ cdef _check_integranda(integranda, npoint=None):
     return npoint
 
 
-def dot_multi(*integranda):
-    if len(integranda) == 0:
-        return 0.0
-
+def dot_multi(*integranda, np.ndarray[long, ndim=1] segments=None):
     npoint = _check_integranda(integranda)
 
     cdef double** pointers = <double **>malloc(len(integranda)*sizeof(double*))
@@ -1166,10 +1164,20 @@ def dot_multi(*integranda):
         integrandum = integranda[i]
         pointers[i] = <double*>integrandum.data
 
-    result = utils.dot_multi(npoint, len(integranda), pointers)
+    if segments is None:
+        segments = np.array([npoint])
+    assert segments.flags['C_CONTIGUOUS']
+    nsegment = segments.shape[0]
+
+    cdef np.ndarray output = np.zeros(nsegment)
+
+    utils.dot_multi(npoint, len(integranda), pointers, <long*>segments.data, <double*>output.data)
 
     free(pointers)
-    return result
+    if nsegment == 1:
+        return output[0]
+    else:
+        return output
 
 
 def dot_multi_moments_cube(integranda, UniformGrid ugrid not None,
@@ -1223,8 +1231,6 @@ def dot_multi_moments(integranda,
     #
     assert center.flags['C_CONTIGUOUS']
     assert center.shape[0] == 3
-    # TODO
-    assert segments is None
 
     cdef double** pointers = <double **>malloc(len(integranda)*sizeof(double*))
     if pointers == NULL:
@@ -1246,31 +1252,22 @@ def dot_multi_moments(integranda,
     else:
         raise ValueError('Unsupported mtype.')
 
-    cdef np.ndarray output = np.zeros(nmoment)
+    if segments is None:
+        segments = np.array([npoint])
+    assert segments.flags['C_CONTIGUOUS']
+    nsegment = segments.shape[0]
 
-    utils.dot_multi_moments(npoint, len(integranda), pointers, <double*>points.data, <double*>center.data, lmax, mtype, <double*>output.data, nmoment)
+    cdef np.ndarray output = np.zeros((nsegment, nmoment))
+
+    utils.dot_multi_moments(npoint, len(integranda), pointers,
+        <double*>points.data, <double*>center.data, lmax, mtype,
+        <long*>segments.data, <double*>output.data, nmoment)
 
     free(pointers)
-    return output
-
-
-def dot_multi_parts(integranda, np.ndarray[long, ndim=1] sizes not None, np.ndarray[double, ndim=1] output not None):
-    npoint = _check_integranda(integranda)
-    assert sizes.flags['C_CONTIGUOUS']
-    noutput = sizes.shape[0]
-    assert output.flags['C_CONTIGUOUS']
-    assert output.shape[0] == noutput
-
-    cdef double** pointers = <double **>malloc(len(integranda)*sizeof(double*))
-    if pointers == NULL:
-        raise MemoryError()
-    cdef np.ndarray[double, ndim=1] integrandum
-    for i in xrange(len(integranda)):
-        integrandum = integranda[i]
-        pointers[i] = <double*>integrandum.data
-
-    utils.dot_multi_parts(npoint, len(integranda), noutput, pointers, <long*>sizes.data, <double*>output.data)
-    free(pointers)
+    if nsegment == 1:
+        return output[0]
+    else:
+        return output
 
 
 def grid_distances(np.ndarray[double, ndim=2] points not None,
