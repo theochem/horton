@@ -91,17 +91,6 @@ void dot_multi(long npoint, long nvector, double** data, long* segments, double*
 }
 
 
-double intexp(double base, long exp) {
-    double result = 1.0;
-    while (exp > 0) {
-        if (exp%2 == 1) result *= base;
-        base *= base;
-        exp /= 2;
-    }
-    return result;
-}
-
-
 // TODO: eliminate duplicate code
 
 void dot_multi_moments_cube(long nvector, double** data, UniformGrid* ugrid, double* center, long lmax, long mtype, double* output, long nmoment) {
