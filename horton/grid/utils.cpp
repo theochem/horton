@@ -31,6 +31,24 @@
 #include "moments.h"
 
 
+/*
+    Internal functions
+*/
+
+
+double data_product(long ipoint, long nvector, double** data) {
+    double result = data[nvector-1][ipoint];
+    for (long ivector=nvector-2; ivector>=0; ivector--)
+        result *= data[ivector][ipoint];
+    return result;
+}
+
+
+/*
+    Public stuff
+*/
+
+
 void dot_multi(long npoint, long nvector, double** data, long* segments, double* output) {
     long segment_end = *segments;
     for (long ipoint=0; ipoint < npoint; ipoint++) {
@@ -41,13 +59,8 @@ void dot_multi(long npoint, long nvector, double** data, long* segments, double*
             output++;
         }
 
-        // product of data
-        double tmp = data[nvector-1][ipoint];
-        for (long ivector=nvector-2; ivector>=0; ivector--)
-            tmp *= data[ivector][ipoint];
-
-        // add to output
-        *output += tmp;
+        // add product to output
+        *output += data_product(ipoint, nvector, data);
 #ifdef DEBUG
         printf("*output=%f; ipoint=%i; segment_end=%i\n", *output, ipoint, segment_end);
 #endif
@@ -84,9 +97,7 @@ void dot_multi_moments_cube(long nvector, double** data, UniformGrid* ugrid, dou
     Cube3Iterator c3i = Cube3Iterator(NULL, ugrid->get_shape());
     for (long ipoint=c3i.get_npoint()-1; ipoint >= 0; ipoint--) {
         // do the usual product of integranda
-        double term = data[nvector-1][ipoint];
-        for (long ivector=nvector-2; ivector>=0; ivector--)
-           term *= data[ivector][ipoint];
+        double term = data_product(ipoint, nvector, data);
         output[0] += term;
 
         if (lmax > 0) {
@@ -145,9 +156,7 @@ void dot_multi_moments(long npoint, long nvector, double** data, double* points,
         }
 
         // do the usual product of integranda
-        double term = data[nvector-1][ipoint];
-        for (long ivector=nvector-2; ivector>=0; ivector--)
-           term *= data[ivector][ipoint];
+        double term = data_product(ipoint, nvector, data);
 
         output[0] += term;
 
