@@ -12,10 +12,9 @@ Each package below has a ``test`` subpackage that contains unit tests.
 Package ``horton``
 ------------------
 
-* Datastructures for molecular systems, wavefunctions, unit cell and symmetry.
+* Datastructures for molecular systems, unit cell and symmetry.
 * Checkpointing.
 * Unit conversion and physical constants.
-* Initial wavefunction guess, SCF (regular and optimal damping).
 * Periodic table.
 * Linear algebra abstraction layer.
 * Caching tools to avoid recomputation of earlier results.
@@ -48,14 +47,16 @@ Package ``horton.grid``
 * Uniform grids (cube files).
 
 
-Package ``horton.hamiltonian``
+Package ``horton.meanfield``
 ------------------------------
 
 * Definition of HF and DFT Hamiltonians.
 * `LibXC <http://www.tddft.org/programs/octopus/wiki/index.php/Libxc>`_ is used
   to provide a large number of exchange and correlation functionals.
   [marques2012]_
-* Custom terms can be added as external potential
+* Custom terms that can be added as external potential.
+* Wavefunction classes, initial guess and projection.
+* SCF algorithms (regular and optimal damping).
 
 
 Package ``horton.io``
@@ -88,6 +89,7 @@ The following density partitioning schemes are implemented:
 * ``becke``: Becke partitioning [becke1988_multicenter]_
 * ``h``: Hirshfeld partitioning [hirshfeld1977]_
 * ``hi``: Iterative Hirshfeld partitioning [bultinck2007]_
+* ``is``: Iterative Stockholder partitioning [lillestolen2008]_
 * ``he``: Extended Hirshfeld partitioning [verstraelen2013]_
 
 Partitioning can be carried on isolated and periodic systems. Both all-electron (AE)
@@ -95,7 +97,7 @@ and pseudo-potential (PP) densities are supported. The following AIM properties 
 be computed:
 
 * Atomic charges, population, pseudo_population
-* Cartesian atomic multipoles
+* Cartesian, pure (harmonic) and radial atomic moments
 * Tkatchenko-Scheffler dispersion coefficients [tkatchenko2009]_
 
 Note that not all AIM properties work for any combination partitioning scheme

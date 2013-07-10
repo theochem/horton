@@ -32,9 +32,8 @@ def key(item):
 with open('doc/ref_literature.rst', 'w') as f:
     print >> f, 'Literature'
     print >> f, '##########'
-    print >> f
     items = biblio._records.items()
     items.sort(key=key)
     for key, reference in items:
-        print >> f, '.. [%s] %s' % (key, reference.format_rst())
         print >> f
+        print >> f, '.. [%s] %s' % (key, reference.format_rst())
