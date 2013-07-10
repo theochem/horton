@@ -292,8 +292,7 @@ def test_eval_spline_grid_0d_random():
         output1 = np.zeros(npoint)
         g.eval_spline(cs, center, output1, cell)
 
-        distances = np.zeros(npoint)
-        g.distances(center, distances)
+        distances = np.sqrt(((center - g.points)**2).sum(axis=1))
         output2 = cs(distances)
 
         assert abs(output1 - output2).max() < 1e-10
