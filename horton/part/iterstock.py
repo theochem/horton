@@ -65,10 +65,10 @@ class IterativeProatomMixin():
 
     def _finalize_propars(self):
         charges = self._cache.load('charges')
-        self.cache.dump('history_propars', np.array(self.history_propars))
-        self.cache.dump('history_charges', np.array(self.history_charges))
-        self.cache.dump('populations', self.system.numbers - charges)
-        self.cache.dump('pseudo_populations', self.system.pseudo_numbers - charges)
+        self.cache.dump('history_propars', np.array(self.history_propars), tags='o')
+        self.cache.dump('history_charges', np.array(self.history_charges), tags='o')
+        self.cache.dump('populations', self.system.numbers - charges, tags='o')
+        self.cache.dump('pseudo_populations', self.system.pseudo_numbers - charges, tags='o')
 
     @just_once
     def do_partitioning(self):
@@ -107,9 +107,8 @@ class IterativeProatomMixin():
                 log.hline()
 
             self._finalize_propars()
-            self.cache.dump('niter', counter)
-            self.cache.dump('change', change)
-    do_partitioning.names = ['niter', 'change', 'history_charges', 'history_propars']
+            self.cache.dump('niter', counter, tags='o')
+            self.cache.dump('change', change, tags='o')
 
 
 class IterativeStockholderWPart(IterativeProatomMixin, StockholderWPart):
@@ -147,7 +146,7 @@ class IterativeStockholderWPart(IterativeProatomMixin, StockholderWPart):
             npoint = self.get_rgrid(index).size
             self._ranges.append(self._ranges[-1]+npoint)
         ntotal = self._ranges[-1]
-        return self.cache.load('propars', alloc=ntotal)[0]
+        return self.cache.load('propars', alloc=ntotal, tags='o')[0]
 
     def _update_propars_atom(self, index):
         # compute spherical average

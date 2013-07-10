@@ -112,8 +112,8 @@ class HirshfeldIMixin(IterativeProatomMixin):
 
     def _init_propars(self):
         IterativeProatomMixin._init_propars(self)
-        charges = self.cache.load('charges', alloc=self._system.natom)[0]
-        self.cache.dump('propars', charges)
+        charges = self.cache.load('charges', alloc=self._system.natom, tags='o')[0]
+        self.cache.dump('propars', charges, tags='o')
         return charges
 
     def _update_propars_atom(self, index):

@@ -250,18 +250,18 @@ class HirshfeldEMixin(object):
     def _init_propars(self):
         self.history_propars = []
         self.history_charges = []
-        self.cache.load('charges', alloc=self._system.natom)[0]
+        self.cache.load('charges', alloc=self._system.natom, tags='o')[0]
         propar_map, propar_names = self.hebasis.get_basis_info()
-        self._cache.dump('propar_map', propar_map)
-        self._cache.dump('propar_names', np.array(propar_names))
+        self._cache.dump('propar_map', propar_map, tags='o')
+        self._cache.dump('propar_names', np.array(propar_names), tags='o')
         nbasis = self.hebasis.get_nbasis()
         propars = self.hebasis.get_initial_propars()
-        self._cache.dump('propars', propars)
+        self._cache.dump('propars', propars, tags='o')
         return propars
 
     def _update_propars_atom(self, index):
         # Prepare some things
-        charges = self._cache.load('charges', alloc=self.system.natom)[0]
+        charges = self._cache.load('charges', alloc=self.system.natom, tags='o')[0]
         begin = self.hebasis.get_atom_begin(index)
         nbasis = self.hebasis.get_atom_nbasis(index)
 
