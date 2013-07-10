@@ -216,7 +216,7 @@ def write_part_output(fn_h5, label, part, grp_name, names, args):
             if 'debug' in grp:
                 del grp['debug']
             grp_debug = grp.create_group('debug')
-            for debug_key in part.cache._store:
+            for debug_key in part.cache.iterkeys():
                 debug_name = '_'.join(str(x) for x in debug_key)
                 if debug_name not in names:
                     grp_debug[debug_name] = part.cache.load(*debug_key)

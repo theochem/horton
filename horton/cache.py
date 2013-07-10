@@ -399,20 +399,23 @@ class Cache(object):
     def __iter__(self):
         return self.iterkeys()
 
-    def iterkeys(self):
+    def iterkeys(self, tags=None):
         '''Iterate over the keys of all valid items in the cache.'''
+        tags = _normalize_tags(tags)
         for key, item in self._store.iteritems():
-            if item.valid:
+            if item.valid and (len(tags) == 0 or len(item.tags & tags) > 0):
                 yield key
 
-    def itervalues(self):
+    def itervalues(self, tags=None):
         '''Iterate over the values of all valid items in the cache.'''
+        tags = _normalize_tags(tags)
         for item in self._store.itervalues():
-            if item.valid:
+            if item.valid and (len(tags) == 0 or len(item.tags & tags) > 0):
                 yield item.value
 
-    def iteritems(self):
+    def iteritems(self, tags=None):
         '''Iterate over all valid items in the cache.'''
+        tags = _normalize_tags(tags)
         for key, item in self._store.iteritems():
-            if item.valid:
+            if item.valid and (len(tags) == 0 or len(item.tags & tags) > 0):
                 yield key, item.value

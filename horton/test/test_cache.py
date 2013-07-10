@@ -375,6 +375,25 @@ def test_iter():
     assert sorted(c) == ['bar', 'foo']
 
 
+def test_iter_tags():
+    c = Cache()
+    c.dump('foo', 5, tags='c')
+    c.dump('bar', 6)
+    c.dump('egg', 7, tags='op')
+    c.dump('spam', 8, tags='co')
+    assert sorted(c.iterkeys()) == ['bar', 'egg', 'foo', 'spam']
+    assert sorted(c.itervalues()) == [5, 6, 7, 8]
+    assert sorted(c.iteritems()) == [('bar', 6), ('egg', 7), ('foo', 5), ('spam', 8)]
+    assert sorted(c.iterkeys(tags='c')) == ['foo', 'spam']
+    assert sorted(c.itervalues(tags='c')) == [5, 8]
+    assert sorted(c.iteritems(tags='c')) == [('foo', 5), ('spam', 8)]
+    assert sorted(c.iterkeys(tags='a')) == []
+    assert sorted(c.itervalues(tags='a')) == []
+    assert sorted(c.iteritems(tags='a')) == []
+    assert len(c) == 4
+    assert sorted(c) == ['bar', 'egg', 'foo', 'spam']
+
+
 def test_tags():
     c = Cache()
     c.dump('a', 5, tags='ab')
