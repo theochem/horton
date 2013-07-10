@@ -1153,6 +1153,14 @@ cdef long _check_integranda(integranda, npoint=None):
     return npoint
 
 
+def _parse_segments(segments, npoint):
+    if segments is None:
+        segments = np.array([npoint])
+    assert segments.flags['C_CONTIGUOUS']
+    nsegment = segments.shape[0]
+    return segments, nsegment
+
+
 def dot_multi(*integranda, np.ndarray[long, ndim=1] segments=None):
     cdef long npoint = _check_integranda(integranda)
 
@@ -1164,11 +1172,8 @@ def dot_multi(*integranda, np.ndarray[long, ndim=1] segments=None):
         integrandum = integranda[i]
         pointers[i] = <double*>integrandum.data
 
-    if segments is None:
-        segments = np.array([npoint])
-    assert segments.flags['C_CONTIGUOUS']
-    nsegment = segments.shape[0]
-
+    cdef long nsegment = 0
+    segments, nsegment = _parse_segments(segments, npoint)
     cdef np.ndarray output = np.zeros(nsegment)
 
     utils.dot_multi(npoint, len(integranda), pointers, <long*>segments.data, <double*>output.data)
@@ -1245,12 +1250,8 @@ def dot_multi_moments(integranda,
         pointers[i] = <double*>integrandum.data
 
     cdef long nmoment = _get_nmoment(lmax, mtype)
-
-    if segments is None:
-        segments = np.array([npoint])
-    assert segments.flags['C_CONTIGUOUS']
-    nsegment = segments.shape[0]
-
+    cdef long nsegment = 0
+    segments, nsegment = _parse_segments(segments, npoint)
     cdef np.ndarray output = np.zeros((nsegment, nmoment))
 
     utils.dot_multi_moments(npoint, len(integranda), pointers,
