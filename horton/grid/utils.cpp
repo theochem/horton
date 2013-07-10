@@ -44,6 +44,15 @@ double data_product(long ipoint, long nvector, double** data) {
 }
 
 
+void shift_segment(long ipoint, long* &segments, long &segment_end, double* &output, long increment) {
+    if (ipoint == segment_end) {
+        segments++;
+        segment_end += *segments;
+        output += increment;
+    }
+}
+
+
 /*
     Public stuff
 */
@@ -53,11 +62,7 @@ void dot_multi(long npoint, long nvector, double** data, long* segments, double*
     long segment_end = *segments;
     for (long ipoint=0; ipoint < npoint; ipoint++) {
         // shift the output array if needed
-        if (ipoint == segment_end) {
-            segments++;
-            segment_end += *segments;
-            output++;
-        }
+        shift_segment(ipoint, segments, segment_end, output, 1);
 
         // add product to output
         *output += data_product(ipoint, nvector, data);
@@ -149,11 +154,7 @@ void dot_multi_moments(long npoint, long nvector, double** data, double* points,
     long segment_end = *segments;
     for (long ipoint=0; ipoint < npoint; ipoint++) {
         // shift the output array if needed
-        if (ipoint == segment_end) {
-            segments++;
-            segment_end += *segments;
-            output += nmoment;
-        }
+        shift_segment(ipoint, segments, segment_end, output, nmoment);
 
         // do the usual product of integranda
         double term = data_product(ipoint, nvector, data);
