@@ -20,6 +20,7 @@
 #--
 
 
+from nose.tools import assert_raises
 import numpy as np
 from horton import *
 
@@ -33,6 +34,9 @@ def test_dot_multi():
         d1 = np.dot(a, b)
         d2 = dot_multi(a, b)
         assert abs(d1 - d2) < 1e-10
+
+    with assert_raises(AssertionError):
+        dot_multi(np.arange(5.0), np.arange(10.0))
 
 
 def test_grid_distances():
