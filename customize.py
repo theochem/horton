@@ -3,4 +3,4 @@
 # must also be present.
 
 #libintdir = 'depends/libint-2.0.3-stable'
-#libxcdir = 'depends/libxc-2.0.1'
+#libxcdir = 'depends/libxc-2.0.2'
