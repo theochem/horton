@@ -127,12 +127,7 @@ libraries suitable for static linking.
     sure you have the following versions installed:
 
     * libint (for mpqc) >= 2.0.3-stable
-    * libxc >= 2.0.1.
-
-    In case of libxc-2.0.1, also apply the patch
-    ``libxc-2.0.1-fix-initialization.patch`` that is located in the ``depends``
-    directory. This patch fixes a sever bug that should no longer be present
-    in newer versions of libxc.
+    * libxc >= 2.0.2.
 
 
 Reference atoms

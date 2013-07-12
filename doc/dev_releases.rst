@@ -3,9 +3,10 @@ Release history
 
 * **June X, 2013. Version 1.1**
 
-   - Iterative Stockholder partitioning [lillestolen2008]_
-   - Pure (harmonic) multipoles in the AIM analysis
-   - Spin charges in the AIM analysis
+   - Iterative Stockholder partitioning [lillestolen2008]_.
+   - Pure (harmonic) multipoles in the AIM analysis.
+   - Spin charges in the AIM analysis.
+   - Switch to libxc-2.0.2.
 
 
 * **June 5, 2013. Version 1.0.2**
