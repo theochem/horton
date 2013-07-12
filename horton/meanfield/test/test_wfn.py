@@ -132,6 +132,17 @@ def test_spin_ch3_hf():
     assert abs(ssq - 0.7632) < 1e-4
 
 
+def test_spin_water_hf():
+    fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
+    sys = System.from_file(fn_fchk)
+    sz, ssq = sys.wfn.get_spin(sys.get_overlap())
+    assert sz == 0.0
+    assert ssq == 0.0
+    sz, ssq = sys.wfn.get_spin()
+    assert sz == 0.0
+    assert ssq == 0.0
+
+
 def test_homo_lumo_water_hf():
     fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
     sys = System.from_file(fn_fchk)
