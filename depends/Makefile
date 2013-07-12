@@ -12,7 +12,7 @@ libxc: libxc-2.0.2/src/.libs/libxc.a
 # Build libint from scratch
 
 libint-2.0.3-stable/lib/libint2.a: libint-2.0.3-stable
-	cd libint-2.0.3-stable && CFLAGS='-fPIC' CPPFLAGS='-fPIC' ./configure --with-cxx-optflags='-O1'
+	cd libint-2.0.3-stable && CONFIG_SHELL=/bin/sh CFLAGS='-fPIC' CPPFLAGS='-fPIC' ./configure --with-cxx-optflags='-O1'
 	cd libint-2.0.3-stable && $(MAKE)
 
 libint-2.0.3-stable: libint-2.0.3-stable.tgz
