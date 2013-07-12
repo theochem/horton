@@ -471,8 +471,15 @@ class RestrictedWFN(MeanFieldWFN):
 
     mult = property(_get_mult)
 
-    def get_spin(self):
-        '''Returns the expectation values of the projecte and squared spin'''
+    def get_spin(self, olp=None):
+        '''Returns the expectation values of the projecte and squared spin
+
+           **Optional arguments:**
+
+           olp
+                The overlap matrix. (completely ignored but present for the
+                sake of compatibility.)
+        '''
         return 0.0, 0.0
 
     def _get_homo_energy(self):
