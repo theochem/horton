@@ -1142,7 +1142,7 @@ cdef class Block3Iterator(object):
 
 # TODO: eliminate duplicate code in dot routines -> one general-purpose dot_multi
 
-cdef long _check_integranda(integranda, npoint=None):
+def _check_integranda(integranda, npoint=None):
     assert len(integranda) > 0
     for integrandum in integranda:
         assert integrandum.flags['C_CONTIGUOUS']
