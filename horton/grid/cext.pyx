@@ -57,7 +57,7 @@ __all__ = [
     'index_wrap', 'eval_spline_cube', 'eval_spline_grid',
     # rtransform
     'RTransform', 'IdentityRTransform', 'LinearRTransform', 'ExpRTransform',
-    'ShiftedExpRTransform', 'BakerRTransform',
+    'ShiftedExpRTransform', 'PowerExpRTransform', 'BakerRTransform',
     # UniformGrid
     'UniformGrid', 'UniformGridWindow', 'index_wrap', 'Block3Iterator',
     # utils
@@ -421,6 +421,14 @@ cdef class RTransform(object):
             rmax = float(args[2])
             npoint = int(args[3])
             return ShiftedExpRTransform(rmin, rshift, rmax, npoint)
+        if clsname == 'PowerExpRTransform':
+            if len(args) != 4:
+                raise ValueError('The PowerExpRTransform needs three arguments, got %i.' % len(words))
+            rmin = float(args[0])
+            rmax = float(args[1])
+            power = float(args[2])
+            npoint = int(args[3])
+            return PowerExpRTransform(rmin, rmax, power, npoint)
         if clsname == 'BakerRTransform':
             if len(args) != 2:
                 raise ValueError('The BakerRTransform needs two arguments, got %i.' % len(words))
@@ -484,15 +492,15 @@ cdef class LinearRTransform(RTransform):
 
 
 cdef class ExpRTransform(RTransform):
-    '''An exponential grid.
+    r'''An exponential grid.
 
        The grid points are distributed as follows:
 
-       .. math:: r_i = r_0 \\alpha^i
+       .. math:: r_i = r_0 \exp(\alpha i)
 
        with
 
-       .. math:: \\alpha = \log(r_{N-1}/r_0)/(N-1).
+       .. math:: \alpha = \log(r_{N-1}/r_0)/(N-1).
     '''
     def __cinit__(self, double rmin, double rmax, int npoint):
         self._this = <rtransform.RTransform*>(new rtransform.ExpRTransform(rmin, rmax, npoint))
@@ -561,6 +569,35 @@ cdef class ShiftedExpRTransform(RTransform):
     def chop(self, npoint):
         rmax = self.radius(npoint-1)
         return ShiftedExpRTransform(self.rmin, self.rshift, rmax, npoint)
+
+
+cdef class PowerExpRTransform(RTransform):
+    r'''An power exponential grid.'''
+    def __cinit__(self, double alpha, double rmax, double power, int npoint):
+        self._this = <rtransform.RTransform*>(new rtransform.PowerExpRTransform(alpha, rmax, power, npoint))
+
+    property alpha:
+        def __get__(self):
+            return (<rtransform.PowerExpRTransform*>self._this).get_alpha()
+
+    property rmax:
+        def __get__(self):
+            return (<rtransform.PowerExpRTransform*>self._this).get_rmax()
+
+    property power:
+        def __get__(self):
+            return (<rtransform.PowerExpRTransform*>self._this).get_power()
+
+    property amp:
+        def __get__(self):
+            return (<rtransform.PowerExpRTransform*>self._this).get_amp()
+
+    def to_string(self):
+        return ' '.join(['PowerExpRTransform', repr(self.alpha), repr(self.rmax), repr(self.power), repr(self.npoint)])
+
+    def chop(self, npoint):
+        rmax = self.radius(npoint-1)
+        return PowerExpRTransform(self.alpha, rmax, self.power, npoint)
 
 
 cdef class BakerRTransform(RTransform):

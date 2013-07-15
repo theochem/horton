@@ -26,7 +26,8 @@ from horton.grid.cext import compute_cubic_spline_int_weights
 
 
 __all__ = [
-    'Integrator1D', 'TrapezoidIntegrator1D', 'CubicIntegrator1D', 'SimpsonIntegrator1D'
+    'Integrator1D', 'StubIntegrator1D', 'TrapezoidIntegrator1D',
+    'CubicIntegrator1D', 'SimpsonIntegrator1D'
 ]
 
 
@@ -36,6 +37,15 @@ class Integrator1D(object):
     def get_weights(self, npoint):
         '''Return integration weights for linear grid.'''
         raise NotImplementedError
+
+
+class StubIntegrator1D(Integrator1D):
+    npoint_min = 0
+    '''Ordinary integration algorithm'''
+    def get_weights(self, npoint):
+        '''Return integration weights for linear grid.'''
+        assert npoint >= self.npoint_min
+        return np.ones(npoint, dtype=float)
 
 
 class TrapezoidIntegrator1D(Integrator1D):

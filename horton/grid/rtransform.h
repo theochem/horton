@@ -96,6 +96,23 @@ class ShiftedExpRTransform : public RTransform {
     };
 
 
+class PowerExpRTransform : public RTransform {
+    private:
+        double alpha, rmax, power;
+        double amp;
+    public:
+        PowerExpRTransform(double alpha, double rmax, double power, int npoint);
+        virtual double radius(double t);
+        virtual double deriv(double t);
+        virtual double inv(double r);
+
+        double get_alpha() {return alpha;};
+        double get_rmax() {return rmax;};
+        double get_power() {return power;};
+        double get_amp() {return amp;};
+    };
+
+
 class BakerRTransform : public RTransform {
     private:
         double rmax, scale;
