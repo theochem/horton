@@ -77,7 +77,7 @@ def check_deriv(rtf):
     ds = np.zeros(ts.shape)
     rtf.deriv_array(ts, ds)
     dns = (rs1-rs0)/eps
-    assert abs(ds-dns).max() < 1e-8
+    assert abs(ds-dns).max() < 1e-5
 
 
 def check_chop(rtf1):
@@ -124,6 +124,33 @@ def test_shifted_exp_basics():
     check_chop(rtf)
 
 
+def get_power_exp_cases():
+    return [
+        (-0.1, 1e1, 2.0),
+        (-0.1, 1e1, 3.0),
+        (-0.1, 1e1, 4.0),
+        (-0.1, 1e1, 5.0),
+        (0.0, 1e2, 2.0),
+        (0.0, 1e3, 3.0),
+        (0.0, 1e4, 4.0),
+        (0.0, 1e5, 5.0),
+        (0.1, 1e0, 2.0),
+        (0.1, 1e0, 3.0),
+        (0.1, 1e0, 4.0),
+        (0.1, 1e0, 5.0),
+    ]
+
+
+def test_power_exp_basics():
+    cases = get_power_exp_cases()
+    for alpha, rmax, power in cases:
+        rtf = PowerExpRTransform(alpha, rmax, power, 100)
+        assert abs(rtf.radius(99) - rmax) < 1e-10
+        check_consistency(rtf)
+        check_deriv(rtf)
+        check_chop(rtf)
+
+
 def test_baker_basics():
     rtf = BakerRTransform(1e1, 100)
     assert rtf.radius(0) > 0.0
@@ -161,6 +188,16 @@ def test_shifted_exp_properties():
     assert rtf.npoint == 100
     assert abs(rtf.r0 - 0.3) < 1e-10
     assert rtf.alpha > 0
+
+
+def test_power_exp_properties():
+    cases = get_power_exp_cases()
+    for alpha, rmax, power in cases:
+        rtf = PowerExpRTransform(alpha, rmax, power, 100)
+        assert rtf.alpha == alpha
+        assert rtf.rmax == rmax
+        assert rtf.npoint == 100
+        assert rtf.amp > 0
 
 
 def test_baker_properties():
@@ -257,6 +294,29 @@ def test_shifted_exp_string():
     assert rtf3.alpha > 0
 
 
+def test_power_exp_string():
+    rtf1 = PowerExpRTransform(np.random.uniform(-0.01, 0.01), np.random.uniform(1, 5), np.random.uniform(2.0, 5.0), 111)
+    s = rtf1.to_string()
+    rtf2 = RTransform.from_string(s)
+    assert rtf1.alpha == rtf2.alpha
+    assert rtf1.rmax == rtf2.rmax
+    assert rtf1.power == rtf2.power
+    assert rtf1.npoint == rtf2.npoint
+    assert rtf1.amp == rtf2.amp
+
+    with assert_raises(ValueError):
+        rtf3 = RTransform.from_string('PowerExpRTransform A 5')
+    with assert_raises(ValueError):
+        rtf3 = RTransform.from_string('PowerExpRTransform A 5 .1')
+
+    rtf3 = RTransform.from_string('PowerExpRTransform 0.1 12.15643216847 2.154 5')
+    assert rtf3.alpha == 0.1
+    assert rtf3.rmax == 12.15643216847
+    assert rtf3.power == 2.154
+    assert rtf3.npoint == 5
+    assert rtf3.amp > 0
+
+
 def test_baker_string():
     rtf1 = BakerRTransform(np.random.uniform(1, 5), 123)
     s = rtf1.to_string()
@@ -314,6 +374,18 @@ def test_shifted_exp_bounds():
         ShiftedExpRTransform(1.1, 0.2, 0.9, 50)
     with assert_raises(ValueError):
         ShiftedExpRTransform(0.1, -0.3, 0.9, 50)
+
+
+def test_power_exp_bounds():
+    for npoint in -1, 0, 1:
+        with assert_raises(ValueError):
+            PowerExpRTransform(0.1, 1.0, 2.0, npoint)
+    with assert_raises(ValueError):
+        PowerExpRTransform(0.1, -1.0, 2.0, 50)
+    with assert_raises(ValueError):
+        PowerExpRTransform(0.1, 0.0, 2.0, 50)
+    with assert_raises(ValueError):
+        PowerExpRTransform(0.1, 1.0, 1.1, 50)
 
 
 def test_baker_bounds():

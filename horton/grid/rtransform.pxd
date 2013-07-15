@@ -63,6 +63,15 @@ cdef extern from "rtransform.h":
         double get_alpha()
 
 
+    cdef cppclass PowerExpRTransform:
+        PowerExpRTransform(double alpha, double rmax, double power, int npoint) except +
+
+        double get_alpha()
+        double get_rmax()
+        double get_power()
+        double get_amp()
+
+
     cdef cppclass BakerRTransform:
         BakerRTransform(double rmax, int npoint) except +
 

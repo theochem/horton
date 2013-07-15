@@ -19,6 +19,12 @@
 //--
 
 
+//#define DEBUG
+
+#ifdef DEBUG
+#include <cstdio>
+#endif
+
 #include <cmath>
 #include <stdexcept>
 #include "cubic_spline.h"
@@ -159,6 +165,52 @@ double ShiftedExpRTransform::deriv(double t) {
 
 double ShiftedExpRTransform::inv(double r) {
     return log((r + rshift)/r0)/alpha;
+}
+
+
+/*
+   PowerExpRTransform
+*/
+
+PowerExpRTransform::PowerExpRTransform(double alpha, double rmax, double power, int npoint):
+    RTransform(npoint), alpha(alpha), rmax(rmax), power(power)
+{
+    if (rmax <= 0.0)
+        throw std::domain_error("The maximum radius must be positive.");
+    if (power < 2.0)
+        throw std::domain_error("Power must be at least two for a decent intgration.");
+    if (alpha != 0) {
+        amp = rmax/pow(fabs(expm1(alpha*npoint)), power);
+    } else {
+        amp = rmax/pow(npoint, power);
+    }
+}
+
+double PowerExpRTransform::radius(double t) {
+    if (fabs(alpha) < 1e-15) {
+        return amp*pow(t+1, power);
+    } else {
+        return amp*pow(fabs(expm1(alpha*(t+1))), power);
+    }
+}
+
+#define sign(x) ((x>0)-(x<0))
+
+double PowerExpRTransform::deriv(double t) {
+    if (fabs(alpha) < 1e-15) {
+        return power*amp*pow(t+1, power-1);
+    } else {
+        double tmp = expm1(alpha*(t+1));
+        return power*amp*pow(fabs(tmp), power-1)*sign(tmp)*exp(alpha*(t+1))*alpha;
+    }
+}
+
+double PowerExpRTransform::inv(double r) {
+    if (fabs(alpha) < 1e-15) {
+        return pow(r/amp, 1.0/power)-1;
+    } else {
+        return log1p(pow(r/amp, 1.0/power))/alpha-1;
+    }
 }
 
 

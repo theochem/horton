@@ -25,6 +25,12 @@ import numpy as np
 from horton import *
 
 
+def test_stub_weights():
+    int1d = StubIntegrator1D()
+    assert (int1d.get_weights(4) == np.array([1.0, 1.0, 1.0, 1.0])).all()
+    assert len(int1d.get_weights(0)) == 0
+
+
 def test_trapezoid_weights():
     int1d = TrapezoidIntegrator1D()
     assert (int1d.get_weights(4) == np.array([0.5, 1.0, 1.0, 0.5])).all()
