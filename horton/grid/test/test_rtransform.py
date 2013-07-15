@@ -88,6 +88,15 @@ def check_chop(rtf1):
     assert abs(rtf1.get_radii()[:50] - rtf2.get_radii()).max() < 1e-8
 
 
+def check_half(rtf1):
+    radii1 = rtf1.get_radii()
+    rtf2 = rtf1.half()
+    radii2 = rtf2.get_radii()
+    print radii1[1::2]
+    print radii2
+    assert abs(radii1[1::2] - radii2).max() < 1e-10
+
+
 def test_identity_basics():
     rtf = IdentityRTransform(100)
     assert rtf.radius(0.0) == 0.0
@@ -104,6 +113,7 @@ def test_linear_basics():
     check_consistency(rtf)
     check_deriv(rtf)
     check_chop(rtf)
+    check_half(rtf)
 
 
 def test_exp_basics():
@@ -113,6 +123,7 @@ def test_exp_basics():
     check_consistency(rtf)
     check_deriv(rtf)
     check_chop(rtf)
+    check_half(rtf)
 
 
 def test_shifted_exp_basics():
@@ -149,6 +160,7 @@ def test_power_exp_basics():
         check_consistency(rtf)
         check_deriv(rtf)
         check_chop(rtf)
+        check_half(rtf)
 
 
 def test_baker_basics():

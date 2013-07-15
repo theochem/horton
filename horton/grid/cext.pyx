@@ -444,6 +444,10 @@ cdef class RTransform(object):
     def chop(self, npoint):
         raise NotImplementedError
 
+    def half(self):
+        raise NotImplementedError
+
+
 
 cdef class IdentityRTransform(RTransform):
     '''For testing only'''
@@ -490,6 +494,12 @@ cdef class LinearRTransform(RTransform):
         rmax = self.radius(npoint-1)
         return LinearRTransform(self.rmin, rmax, npoint)
 
+    def half(self):
+        if self.npoint %2 != 0:
+            raise ValueError('Half method can only be called on a rtransform with an even number of points.')
+        rmin = self.radius(1)
+        return LinearRTransform(rmin, self.rmax, self.npoint/2)
+
 
 cdef class ExpRTransform(RTransform):
     r'''An exponential grid.
@@ -523,6 +533,12 @@ cdef class ExpRTransform(RTransform):
     def chop(self, npoint):
         rmax = self.radius(npoint-1)
         return ExpRTransform(self.rmin, rmax, npoint)
+
+    def half(self):
+        if self.npoint %2 != 0:
+            raise ValueError('Half method can only be called on a rtransform with an even number of points.')
+        rmin = self.radius(1)
+        return ExpRTransform(rmin, self.rmax, self.npoint/2)
 
 
 cdef class ShiftedExpRTransform(RTransform):
@@ -598,6 +614,11 @@ cdef class PowerExpRTransform(RTransform):
     def chop(self, npoint):
         rmax = self.radius(npoint-1)
         return PowerExpRTransform(self.alpha, rmax, self.power, npoint)
+
+    def half(self):
+        if self.npoint %2 != 0:
+            raise ValueError('Half method can only be called on a rtransform with an even number of points.')
+        return PowerExpRTransform(self.alpha*2, self.rmax, self.power, self.npoint/2)
 
 
 cdef class BakerRTransform(RTransform):
