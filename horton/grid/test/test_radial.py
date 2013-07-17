@@ -39,6 +39,7 @@ def test_basics1():
 def test_basics2():
     rtf = BakerRTransform(1e1, 100)
     grid = RadialGrid(rtf)
+    assert isinstance(grid.int1d, SimpsonIntegrator1D)
 
     assert grid.size == 100
     assert grid.shape == (100,)
@@ -50,9 +51,9 @@ def test_basics2():
 
 
 def test_integrate_gauss():
-    rtf = ExpRTransform(0.01, 1e1, 100)
+    rtf = PowerRTransform(0.001, 1e1, 100)
     grid = RadialGrid(rtf)
+    assert isinstance(grid.int1d, StubIntegrator1D)
 
     y = np.exp(-0.5*grid.radii**2)
-    print grid.integrate(y), (2*np.pi)**1.5
-    assert abs(grid.integrate(y) - (2*np.pi)**1.5) < 1e-3
+    assert abs(grid.integrate(y) - (2*np.pi)**1.5) < 1e-9

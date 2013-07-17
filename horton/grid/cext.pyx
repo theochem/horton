@@ -446,6 +446,10 @@ cdef class RTransform(object):
     def half(self):
         raise NotImplementedError
 
+    def get_default_int1d(self):
+        from horton.grid.int1d import SimpsonIntegrator1D
+        return SimpsonIntegrator1D()
+
 
 
 cdef class IdentityRTransform(RTransform):
@@ -615,6 +619,10 @@ cdef class PowerRTransform(RTransform):
             raise ValueError('Half method can only be called on a rtransform with an even number of points.')
         rmin = self.radius(1)
         return PowerRTransform(rmin, self.rmax, self.npoint/2)
+
+    def get_default_int1d(self):
+        from horton.grid.int1d import StubIntegrator1D
+        return StubIntegrator1D()
 
 
 cdef class BakerRTransform(RTransform):
