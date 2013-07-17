@@ -34,7 +34,7 @@ class RadialGrid(object):
     def __init__(self, rtransform, int1d=None):
         self._rtransform = rtransform
         if int1d is None:
-            self._int1d = SimpsonIntegrator1D()
+            self._int1d = rtransform.get_default_int1d()
         else:
             self._int1d = int1d
         self._weights = (4*np.pi)*(
