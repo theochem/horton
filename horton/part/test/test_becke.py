@@ -65,7 +65,7 @@ def test_becke_update_grid_lih_hf_321g():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     sys = System.from_file(fn_fchk)
 
-    grid = BeckeMolGrid(sys, 'tv-13.1-3', random_rotate=True, keep_subgrids=True)
+    grid = BeckeMolGrid(sys, 'tv-13.7-3', random_rotate=True, keep_subgrids=True)
     bp = BeckeWPart(sys, grid)
     bp.do_charges()
     c1 = bp['charges']
@@ -75,7 +75,7 @@ def test_becke_update_grid_lih_hf_321g():
     assert md1 is bp['moldens']
     c1 = c1.copy() # c1 will be reused otherwise
 
-    grid = BeckeMolGrid(sys, 'tv-13.1-4', random_rotate=True, keep_subgrids=True)
+    grid = BeckeMolGrid(sys, 'tv-13.7-4', random_rotate=True, keep_subgrids=True)
     bp.update_grid(grid)
     assert len(bp.cache) == 0
     assert bp.grid is grid
@@ -91,29 +91,29 @@ def test_becke_update_grid_lih_hf_321g():
 def check_becke_azirine(key, expected):
     fn_fchk = context.get_fn('test/2h-azirine-%s.fchk' % key)
     sys = System.from_file(fn_fchk)
-    grid = BeckeMolGrid(sys, 'tv-13.1-3', random_rotate=False, keep_subgrids=True)
+    grid = BeckeMolGrid(sys, random_rotate=False, keep_subgrids=True)
     bp = BeckeWPart(sys, grid)
     bp.do_charges()
     c = bp['charges']
-    assert abs(c[0] - expected[0]) < 1e-4
-    assert abs(c[2] - expected[1]) < 1e-4
-    assert abs(c[5] - expected[2]) < 1e-4
+    assert abs(c[0] - expected[0]) < 1e-3
+    assert abs(c[2] - expected[1]) < 1e-3
+    assert abs(c[5] - expected[2]) < 1e-3
 
 
 def test_becke_azirine_ccd():
-    check_becke_azirine('ccd', [-0.06575295, -0.07704414, 0.12352347])
+    check_becke_azirine('ccd', [-0.0656538087277, -0.0770555290299, 0.123503410725])
 
 
 def test_becke_azirine_cis():
-    check_becke_azirine('cis', [-0.12298398, -0.26669825, 0.13695143])
+    check_becke_azirine('cis', [-0.122893896731, -0.266685240737, 0.137147967309])
 
 
 def test_becke_azirine_mp2():
-    check_becke_azirine('mp2', [-0.06575942, -0.07611121, 0.12691563])
+    check_becke_azirine('mp2', [-0.0656579068849, -0.0761190062373, 0.126890127581])
 
 
 def test_becke_azirine_mp3():
-    check_becke_azirine('mp3', [-0.06669121, -0.07695576, 0.12560819])
+    check_becke_azirine('mp3', [-0.0665919182085, -0.0769654765789, 0.125587673579])
 
 
 def test_becke_ch3_hf_sto3g():

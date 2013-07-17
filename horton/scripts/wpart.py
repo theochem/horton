@@ -28,24 +28,28 @@ __all__ = ['parse_grid']
 
 def parse_grid(sgrid, system, proatomdb):
     if sgrid == 'coarse':
-        return 'tv-13.1-3'
+        return 'tv-13.7-3'
     elif sgrid == 'medium':
-        return 'tv-13.1-4'
+        return 'tv-13.7-4'
     elif sgrid == 'fine':
-        return 'tv-13.1-5'
+        return 'tv-13.7-5'
     elif sgrid == 'veryfine':
-        return 'tv-13.1-6'
+        return 'tv-13.7-6'
+    elif sgrid == 'ultrafine':
+        return 'tv-13.7-7'
+    elif sgrid == 'insane':
+        return 'tv-13.7-8'
     else:
         try:
             nll = int(sgrid)
         except ValueError:
-            raise ValueError('If the grid argument is not coarse, medium, fine or veryfine, it should be an integer.')
+            raise ValueError('If the grid argument is not coarse, medium, fine, veryfine, ultrafine or insane, it should be an integer.')
 
         if nll not in lebedev_laikov_npoints:
             raise ValueError('If the grid argument is an integer, it should be one of the following: %s.' % lebedev_laikov_npoints)
 
         if proatomdb is None:
-            raise ValueError('When no proatomdb is specified, one can only use the coarse, medium, fine or veryfine grids.')
+            raise ValueError('When no proatomdb is specified, one can only use the coarse, medium, fine, veryfine, ultrafine or insane grids.')
 
         atspecs = []
         for n in system.numbers:

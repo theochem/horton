@@ -30,18 +30,18 @@ def test_interpret_atspec():
     rtf = ExpRTransform(0.1, 1e1, 4)
     rgrid = RadialGrid(rtf, TrapezoidIntegrator1D())
 
-    rgrid0, nlls0 = interpret_atspec(1, (rgrid, 6))
+    rgrid0, nlls0 = interpret_atspec(1, 1, (rgrid, 6))
     assert rgrid is rgrid0
     assert (nlls0 == [6,6,6,6]).all()
 
-    rgrid1, nlls1 = interpret_atspec(1, (rgrid, [6,14,26,6]))
+    rgrid1, nlls1 = interpret_atspec(1, 1, (rgrid, [6,14,26,6]))
     assert rgrid is rgrid1
     assert (nlls1 == [6,14,26,6]).all()
 
     with assert_raises(ValueError):
-        rgrid2, nlls2 = interpret_atspec(1, (rgrid, [1,2,3,4]))
+        rgrid2, nlls2 = interpret_atspec(1, 1, (rgrid, [1,2,3,4]))
     with assert_raises(ValueError):
-        rgrid2, nlls2 = interpret_atspec(1, (rgrid, [6,6,6,6,14]))
+        rgrid2, nlls2 = interpret_atspec(1, 1, (rgrid, [6,6,6,6,14]))
 
 
 def test_atgrid_family_load():
@@ -50,21 +50,21 @@ def test_atgrid_family_load():
 
 
 def test_atgrid_family_contents1():
-    rgrid, nlls = atgrid_families['tv-13.1-3'].get(1)
-    assert rgrid.rtransform.to_string() == 'ExpRTransform 0.008808017113271033 74.98497608817966 25'
-    assert (nlls == np.array([6, 6, 6, 6, 6, 6, 6, 6, 6, 14, 14, 38, 50, 50, 50, 50, 50, 86, 86, 86, 50, 50, 6, 6, 6])).all()
+    rgrid, nlls = atgrid_families['tv-13.7-3'].get(1, 1)
+    assert rgrid.rtransform.to_string() == 'PowerRTransform 7.0879993828935345e-06 16.05937640019924 20'
+    assert (nlls == np.array([6, 6, 6, 6, 6, 6, 6, 14, 14, 26, 38, 50, 86, 86, 86, 86, 50, 14, 6, 6])).all()
 
 
 def test_atgrid_family_contents2():
-    rgrid, nlls = atgrid_families['tv-13.1-4'].get(6)
-    assert rgrid.rtransform.to_string() == 'ExpRTransform 0.00015375148910839044 59.32379135135266 65'
-    assert (nlls == np.array([6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 14, 14, 14, 26, 26, 38, 50, 50, 110, 194, 302, 302, 194, 170, 110, 110, 110, 110, 110, 110, 110, 110, 110, 86, 38, 6, 6, 6])).all()
+    rgrid, nlls = atgrid_families['tv-13.7-4'].get(6, 6)
+    assert rgrid.rtransform.to_string() == 'PowerRTransform 1.3457673140534789e-07 22.920122695678042 41'
+    assert (nlls == np.array([6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 14, 14, 14, 14, 14, 26, 26, 38, 50, 50, 50, 74, 86, 110, 170, 194, 302, 170, 110, 110, 110, 110, 110, 86, 86, 86, 86, 50, 50, 14])).all()
 
 
 def test_interpret_atspec_family():
-    rgrid, nlls = interpret_atspec(1, 'tv-13.1-3')
-    assert rgrid.rtransform.to_string() == 'ExpRTransform 0.008808017113271033 74.98497608817966 25'
-    assert (nlls == np.array([6, 6, 6, 6, 6, 6, 6, 6, 6, 14, 14, 38, 50, 50, 50, 50, 50, 86, 86, 86, 50, 50, 6, 6, 6])).all()
+    rgrid, nlls = interpret_atspec(1, 1, 'tv-13.7-3')
+    assert rgrid.rtransform.to_string() == 'PowerRTransform 7.0879993828935345e-06 16.05937640019924 20'
+    assert (nlls == np.array([6, 6, 6, 6, 6, 6, 6, 14, 14, 26, 38, 50, 86, 86, 86, 86, 50, 14, 6, 6])).all()
 
 
 def test_atomic_grid_basics():
@@ -73,11 +73,11 @@ def test_atomic_grid_basics():
     rgrid = RadialGrid(rtf, TrapezoidIntegrator1D())
     nlls = 6
     for random_rotate in True, False:
-        ag0 = AtomicGrid(1, center, (rgrid, 6), random_rotate)
+        ag0 = AtomicGrid(1, 1, center, (rgrid, 6), random_rotate)
         assert abs(ag0.points.mean(axis=0) - center).max() < 1e-10
         assert (ag0.nlls == [6, 6, 6, 6]).all()
         assert ag0.nsphere == 4
-        ag1 = AtomicGrid(1, center, (rgrid, [6, 6, 6, 6]), random_rotate)
+        ag1 = AtomicGrid(1, 1, center, (rgrid, [6, 6, 6, 6]), random_rotate)
         assert abs(ag1.points.mean(axis=0) - center).max() < 1e-10
         assert (ag1.nlls == [6, 6, 6, 6]).all()
         assert ag1.nsphere == 4
@@ -91,7 +91,7 @@ def get_hydrogen_1s():
     center = np.random.uniform(-1,1,3)
     rtf = BakerRTransform(2e1, 100)
     rgrid = RadialGrid(rtf, CubicIntegrator1D())
-    ag = AtomicGrid(1, center, (rgrid, 110), 100)
+    ag = AtomicGrid(1, 1, center, (rgrid, 110), 100)
     distances = np.sqrt(((center - ag.points)**2).sum(axis=1))
     fn = np.exp(-2*distances)/np.pi
     return ag, fn
@@ -102,7 +102,7 @@ def get_hydrogen_1pz():
     center = np.random.uniform(-1,1,3)
     rtf = BakerRTransform(2e1, 100)
     rgrid = RadialGrid(rtf, SimpsonIntegrator1D())
-    ag = AtomicGrid(1, center, (rgrid, 110), 100)
+    ag = AtomicGrid(1, 1, center, (rgrid, 110), 100)
     z = ag.points[:,2] - center[2]
     distances = np.sqrt(((center - ag.points)**2).sum(axis=1))
     fn = np.exp(-distances)/(32.0*np.pi)*z**2
@@ -152,7 +152,7 @@ def test_atgrid_attrs():
     center = np.array([0.7, 0.2, -0.5], float)
     rtf = ExpRTransform(1e-3, 1e1, 50)
     rgrid = RadialGrid(rtf)
-    ag = AtomicGrid(3, center, (rgrid, 26))
+    ag = AtomicGrid(3, 3, center, (rgrid, 26))
 
     assert ag.size == 50*26
     assert ag.points.shape == (50*26, 3)

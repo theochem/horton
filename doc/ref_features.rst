@@ -41,7 +41,7 @@ Package ``horton.grid``
 
 * Molecular integration grids (Becke partitioning with Lebedev Laikov atom
   centered grids).
-* Pruned grids for elements H-Ar.
+* Pruned grids for elements H-La, Hf-Rn.
 * 1D integration grids.
 * 1D Cubic splines.
 * Uniform grids (cube files).

@@ -47,14 +47,15 @@ def parse_args():
     parser.add_argument('--suffix', default=None, type=str,
         help='Add an additional suffix to the HDF5 output group.')
 
-    parser.add_argument('--grid', type=str, default='coarse',
+    parser.add_argument('--grid', type=str, default='medium',
         help='Choose the accuracy of the integration grid. Four built-in tuned '
-             'grids are available: coarse, medium, fine, veryfine. '
-             '[default=%%(default)s] These are applicable when the system '
-             'contains only elements up to argon. In other cases, an integer '
-             'can be provided that sets the number of angular (Lebedev-Laikov) '
-             'grid points. Choose a number from %s. The radial grid is then '
-             'take identical to the one used in the proatom database.' %
+             'grids are available: coarse, medium, fine, veryfine, ultrafine, '
+             'insane. [default=%%(default)s] Not all elements are supported '
+             'for each grid type. (See documentation.) In other cases, an '
+             'integer can be provided that sets the number of angular '
+             '(Lebedev-Laikov) grid points. Choose a number from %s. The '
+             'radial grid is then take identical to the one used in the '
+             'proatom database.' %
              (" ".join(str(i) for i in lebedev_laikov_npoints)))
     parser.add_argument('--global', dest='local', default=True, action='store_false',
         help='Use the entire molecular grid for all integrations. The default '
