@@ -98,17 +98,17 @@ class ShiftedExpRTransform : public RTransform {
 
 class PowerRTransform : public RTransform {
     private:
-        double rmax, power;
-        double amp;
+        double rmin, rmax;
+        double power;
     public:
-        PowerRTransform(double rmax, double power, int npoint);
+        PowerRTransform(double rmin, double rmax, int npoint);
         virtual double radius(double t);
         virtual double deriv(double t);
         virtual double inv(double r);
 
+        double get_rmin() {return rmin;};
         double get_rmax() {return rmax;};
         double get_power() {return power;};
-        double get_amp() {return amp;};
     };
 
 
