@@ -180,20 +180,20 @@ def test_family():
     numbers = np.array([6, 8], int)
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
     sys = System(coordinates, numbers)
-    grid = BeckeMolGrid(sys, random_rotate=False)
-    assert grid.size == 1434+1300
+    grid = BeckeMolGrid(sys, 'tv-13.7-3', random_rotate=False)
+    assert grid.size == 1536+1612
 
 
 def test_update_centers():
     numbers = np.array([6, 8], int)
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
     sys = System(coordinates, numbers)
-    grid = BeckeMolGrid(sys, keep_subgrids=True)
+    grid = BeckeMolGrid(sys, 'tv-13.7-3', keep_subgrids=True)
     sys.update_grid(grid)
 
     def helper():
-        assert (grid.points[:1434] == grid.subgrids[0].points).all()
-        assert (grid.points[1434:] == grid.subgrids[1].points).all()
+        assert (grid.points[:1536] == grid.subgrids[0].points).all()
+        assert (grid.points[1536:] == grid.subgrids[1].points).all()
         for subgrid in grid.subgrids:
             assert abs(np.dot(subgrid.weights, subgrid.points)/subgrid.weights.sum() - subgrid.center).max() < 1e-10
 

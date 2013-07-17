@@ -38,7 +38,7 @@ __all__ = [
 
 
 class AtomicGrid(IntGrid):
-    def __init__(self, number, center, atspec='tv-13.1-3', random_rotate=True, points=None):
+    def __init__(self, number, pseudo_number, center, atspec='tv-13.7-4', random_rotate=True, points=None):
         '''
            **Arguments:**
 
@@ -62,7 +62,7 @@ class AtomicGrid(IntGrid):
         '''
         self._number = number
         self._center = center
-        self._rgrid, self._nlls = interpret_atspec(number, atspec)
+        self._rgrid, self._nlls = interpret_atspec(number, pseudo_number, atspec)
         self._random_rotate = random_rotate
 
         size = self._nlls.sum()
@@ -178,7 +178,7 @@ class AtomicGrid(IntGrid):
 
 
 
-def interpret_atspec(number, atspec):
+def interpret_atspec(number, pseudo_number, atspec):
     '''Convert atspec to (rgrid, nlls) tuple
 
        The atspec argument may be a string refering to a built-in grid file (see
@@ -198,7 +198,7 @@ def interpret_atspec(number, atspec):
         # load
         if atspec not in atgrid_families:
             raise ValueError('Unknown built-in grid: %s' % atspec)
-        rgrid, nlls = atgrid_families[atspec].get(number)
+        rgrid, nlls = atgrid_families[atspec].get(number, pseudo_number)
     elif hasattr(atspec, '__iter__') and len(atspec) == 2:
         rgrid, nlls = atspec
     else:
@@ -252,14 +252,15 @@ class ATGridFamily(object):
         self.name = name
         self.members = None
 
-    def get(self, number):
+    def get(self, number, pseudo_number):
         if self.members is None:
             self._load()
 
-        atspec = self.members.get(number)
-        if atspec is None:
-            raise ValueError('The atomic grid family %s does not support element %i' % (self.name, number))
-        return atspec
+        for pn, rgrid, nlls in self.members.get(number, []):
+            if pn >= pseudo_number:
+                return rgrid, nlls
+
+        raise ValueError('The atomic grid family %s does not support element %i with effecive core %i' % (self.name, number, pseudo_number))
 
     def _load(self):
         fn = context.get_fn('grids/%s.txt' % self.name)
@@ -271,7 +272,12 @@ class ATGridFamily(object):
                 if len(line) > 0:
                     if state == 0:
                         # read element number
-                        number = int(line)
+                        words = line.split()
+                        number = int(words[0])
+                        if len(words) > 1:
+                            pseudo_number = int(words[1])
+                        else:
+                            pseudo_number = number
                         state = 1
                     elif state == 1:
                         # read rtf string
@@ -280,13 +286,19 @@ class ATGridFamily(object):
                     elif state == 2:
                         nlls = np.array([int(w) for w in line.split()])
                         state = 0
-                        self.members[number] = RadialGrid(rtf), nlls
+                        l = self.members.setdefault(number, [])
+                        l.append((pseudo_number, RadialGrid(rtf), nlls))
+
+        for l in self.members.itervalues():
+            l.sort()
 
 
 atgrid_families = [
-    ATGridFamily('tv-13.1-3'),
-    ATGridFamily('tv-13.1-4'),
-    ATGridFamily('tv-13.1-5'),
-    ATGridFamily('tv-13.1-6'),
+    ATGridFamily('tv-13.7-3'),
+    ATGridFamily('tv-13.7-4'),
+    ATGridFamily('tv-13.7-5'),
+    ATGridFamily('tv-13.7-6'),
+    ATGridFamily('tv-13.7-7'),
+    ATGridFamily('tv-13.7-8'),
 ]
 atgrid_families = dict((af.name.lower(), af) for af in atgrid_families)

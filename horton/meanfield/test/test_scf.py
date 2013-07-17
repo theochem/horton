@@ -95,13 +95,13 @@ def test_scf_oda_water_hfs_321g():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
 
-    grid = BeckeMolGrid(sys, 'tv-13.1-4', random_rotate=False)
+    grid = BeckeMolGrid(sys, random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
 
     if True:
         # The convergence should be reasonable, not perfect because of limited
-        # precision in Gaussian fchk file:
-        assert convergence_error(ham) < 2e-5
+        # precision in Gaussian fchk file and different integration grids:
+        assert convergence_error(ham) < 3e-5
 
         # The energies should also be in reasonable agreement. Repeated to check for
         # stupid bugs
@@ -118,8 +118,8 @@ def test_scf_oda_water_hfs_321g():
             assert abs(sys.wfn.exp_alpha.energies - expected_energies).max() < 2e-4
             assert abs(sys.extra['energy_ne'] - -1.977921986200E+02) < 1e-7
             assert abs(sys.extra['energy_kin'] - 7.525067610865E+01) < 1e-9
-            assert abs(sys.extra['energy_hartree'] + sys.extra['energy_exchange_dirac'] - 3.864299848058E+01) < 1e-4
-            assert abs(sys.extra['energy'] - -7.474134898935590E+01) < 1e-4
+            assert abs(sys.extra['energy_hartree'] + sys.extra['energy_exchange_dirac'] - 3.864299848058E+01) < 2e-4
+            assert abs(sys.extra['energy'] - -7.474134898935590E+01) < 2e-4
             assert abs(sys.extra['energy_nn'] - 9.1571750414) < 2e-8
 
     # Converge from scratch
@@ -129,9 +129,9 @@ def test_scf_oda_water_hfs_321g():
     assert convergence_error(ham) < 1e-5
 
     assert abs(sys.extra['energy_ne'] - -1.977921986200E+02) < 1e-4
-    assert abs(sys.extra['energy_kin'] - 7.525067610865E+01) < 3e-5
-    assert abs(sys.extra['energy_hartree'] + sys.extra['energy_exchange_dirac'] - 3.864299848058E+01) < 1e-4
-    assert abs(sys.extra['energy'] - -7.474134898935590E+01) < 1e-4
+    assert abs(sys.extra['energy_kin'] - 7.525067610865E+01) < 1e-4
+    assert abs(sys.extra['energy_hartree'] + sys.extra['energy_exchange_dirac'] - 3.864299848058E+01) < 2e-4
+    assert abs(sys.extra['energy'] - -7.474134898935590E+01) < 2e-4
 
 
 def test_scf_oda_water_hf_321g():

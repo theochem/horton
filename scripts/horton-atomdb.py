@@ -101,7 +101,7 @@ def main_input(args):
     rtf = ExpRTransform(args.rmin*angstrom, args.rmax*angstrom, args.grid_size)
     rgrid = RadialGrid(rtf)
     atspec = (rgrid, args.lebedev)
-    atgrid = AtomicGrid(0, np.zeros(3), atspec, random_rotate=False)
+    atgrid = AtomicGrid(0, 0, np.zeros(3), atspec, random_rotate=False)
     with open('settings.txt', 'w') as f:
         print >> f, rtf.to_string()
         print >> f, args.lebedev
@@ -238,7 +238,7 @@ def main_convert(args):
         nll = int(f.next())
         program = atom_programs[f.next().strip()]
     rgrid = RadialGrid(rtf)
-    atgrid = AtomicGrid(0, np.zeros(3, float), (rgrid, nll), random_rotate=False)
+    atgrid = AtomicGrid(0, 0, np.zeros(3, float), (rgrid, nll), random_rotate=False)
 
     # Loop over all sensible directories
     energy_table = EnergyTable()

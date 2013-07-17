@@ -42,6 +42,7 @@ Reference
    :glob:
 
    ref_features
+   ref_grids
    ref_acronyms
    ref_literature
    lib/*

@@ -39,7 +39,7 @@ __all__ = [
 
 class BeckeMolGrid(IntGrid):
     '''Molecular integration grid using Becke weights'''
-    def __init__(self, system, atspecs='tv-13.1-3', k=3, random_rotate=True, keep_subgrids=False):
+    def __init__(self, system, atspecs='tv-13.7-4', k=3, random_rotate=True, keep_subgrids=False):
         '''
            **Arguments:**
 
@@ -76,7 +76,7 @@ class BeckeMolGrid(IntGrid):
              atoms.
         '''
         # transform atspecs into usable format
-        size, atspecs = get_mol_grid_size(system.numbers, atspecs, system.natom)
+        size, atspecs = get_mol_grid_size(system.numbers, system.pseudo_numbers, atspecs, system.natom)
 
         # assign attributes
         self._atspecs = atspecs
@@ -100,9 +100,10 @@ class BeckeMolGrid(IntGrid):
         for i in xrange(system.natom):
             rgrid, atnlls = atspecs[i]
             atsize = atnlls.sum()
-            atgrid = AtomicGrid(system.numbers[i], system.coordinates[i],
-                                (rgrid, atnlls), random_rotate,
-                                points[offset:offset+atsize])
+            atgrid = AtomicGrid(
+                system.numbers[i], system.pseudo_numbers[i],
+                system.coordinates[i], (rgrid, atnlls), random_rotate,
+                points[offset:offset+atsize])
             weights[offset:offset+atsize] = atgrid.weights
             becke_helper_atom(points[offset:offset+atsize], weights[offset:offset+atsize], cov_radii, system.coordinates, i, self._k)
             if keep_subgrids:
@@ -165,7 +166,7 @@ class BeckeMolGrid(IntGrid):
             offset += atgrid.size
 
 
-def get_mol_grid_size(numbers, atspecs, natom):
+def get_mol_grid_size(numbers, pseudo_numbers, atspecs, natom):
     '''Compute the size of the molecule grid and recreate atspecs with extra info.
 
        **Arguments:**
@@ -193,7 +194,7 @@ def get_mol_grid_size(numbers, atspecs, natom):
 
     size = 0
     for i in xrange(len(atspecs)):
-        rgrid, nlls = interpret_atspec(numbers[i], atspecs[i])
+        rgrid, nlls = interpret_atspec(numbers[i], pseudo_numbers[i], atspecs[i])
         atspecs[i] = rgrid, nlls
         size += nlls.sum()
 

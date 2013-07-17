@@ -192,7 +192,7 @@ def test_electron_repulsion_water_ccpvdz_cart_hf():
 
 def check_grid_fn(fn_fchk, use_output_arg):
     sys = System.from_file(fn_fchk)
-    grid = BeckeMolGrid(sys, random_rotate=False)
+    grid = BeckeMolGrid(sys, 'tv-13.7-4', random_rotate=False)
     if use_output_arg:
         rhos = np.zeros(grid.size)
         sys.compute_grid_density(grid.points, rhos)
