@@ -92,9 +92,7 @@ def check_half(rtf1):
     radii1 = rtf1.get_radii()
     rtf2 = rtf1.half()
     radii2 = rtf2.get_radii()
-    print radii1[1::2]
-    print radii2
-    assert abs(radii1[1::2] - radii2).max() < 1e-10
+    assert abs(radii1[1::2] - radii2).max() < 1e-9
 
 
 def test_identity_basics():
@@ -135,19 +133,19 @@ def test_shifted_exp_basics():
     check_chop(rtf)
 
 
-def get_power_exp_cases():
+def get_power_cases():
     return [
-        (1e2, 2.0),
-        (1e3, 3.0),
-        (1e4, 4.0),
-        (1e5, 5.0),
+        (1e-3, 1e2),
+        (1e-3, 1e3),
+        (1e-3, 1e4),
+        (1e-3, 1e5),
     ]
 
 
-def test_power_exp_basics():
-    cases = get_power_exp_cases()
-    for rmax, power in cases:
-        rtf = PowerRTransform(rmax, power, 100)
+def test_power_basics():
+    cases = get_power_cases()
+    for rmin, rmax in cases:
+        rtf = PowerRTransform(rmin, rmax, 100)
         assert abs(rtf.radius(99) - rmax) < 1e-10
         check_consistency(rtf)
         check_deriv(rtf)
@@ -194,13 +192,14 @@ def test_shifted_exp_properties():
     assert rtf.alpha > 0
 
 
-def test_power_exp_properties():
-    cases = get_power_exp_cases()
-    for rmax, power in cases:
-        rtf = PowerRTransform(rmax, power, 100)
+def test_power_properties():
+    cases = get_power_cases()
+    for rmin, rmax in cases:
+        rtf = PowerRTransform(rmin, rmax, 100)
+        assert rtf.rmin == rmin
         assert rtf.rmax == rmax
         assert rtf.npoint == 100
-        assert rtf.amp > 0
+        assert rtf.power >= 2
 
 
 def test_baker_properties():
@@ -297,25 +296,25 @@ def test_shifted_exp_string():
     assert rtf3.alpha > 0
 
 
-def test_power_exp_string():
-    rtf1 = PowerRTransform(np.random.uniform(1, 5), np.random.uniform(2.0, 5.0), 111)
+def test_power_string():
+    rtf1 = PowerRTransform(np.random.uniform(1e-3, 5e-3), np.random.uniform(2.0, 5.0), 11)
     s = rtf1.to_string()
     rtf2 = RTransform.from_string(s)
+    assert rtf1.rmin == rtf2.rmin
     assert rtf1.rmax == rtf2.rmax
     assert rtf1.power == rtf2.power
     assert rtf1.npoint == rtf2.npoint
-    assert rtf1.amp == rtf2.amp
 
     with assert_raises(ValueError):
         rtf3 = RTransform.from_string('PowerRTransform A 5')
     with assert_raises(ValueError):
         rtf3 = RTransform.from_string('PowerRTransform A 5 .1')
 
-    rtf3 = RTransform.from_string('PowerRTransform 12.15643216847 2.154 5')
+    rtf3 = RTransform.from_string('PowerRTransform 0.02154 12.15643216847 5')
+    assert rtf3.rmin == 0.02154
     assert rtf3.rmax == 12.15643216847
-    assert rtf3.power == 2.154
+    assert rtf3.power > 2
     assert rtf3.npoint == 5
-    assert rtf3.amp > 0
 
 
 def test_baker_string():
@@ -377,16 +376,18 @@ def test_shifted_exp_bounds():
         ShiftedExpRTransform(0.1, -0.3, 0.9, 50)
 
 
-def test_power_exp_bounds():
+def test_power_bounds():
     for npoint in -1, 0, 1:
         with assert_raises(ValueError):
             PowerRTransform(1.0, 2.0, npoint)
     with assert_raises(ValueError):
         PowerRTransform(-1.0, 2.0, 50)
     with assert_raises(ValueError):
-        PowerRTransform(0.0, 2.0, 50)
+        PowerRTransform(0.1, -2.0, 50)
     with assert_raises(ValueError):
         PowerRTransform(1.0, 1.1, 50)
+    with assert_raises(ValueError):
+        PowerRTransform(1.1, 1.0, 50)
 
 
 def test_baker_bounds():

@@ -172,26 +172,28 @@ double ShiftedExpRTransform::inv(double r) {
    PowerRTransform
 */
 
-PowerRTransform::PowerRTransform(double rmax, double power, int npoint):
-    RTransform(npoint), rmax(rmax), power(power)
+PowerRTransform::PowerRTransform(double rmin, double rmax, int npoint):
+    RTransform(npoint), rmin(rmin), rmax(rmax)
 {
-    if (rmax <= 0.0)
-        throw std::domain_error("The maximum radius must be positive.");
+    if (rmin >= rmax)
+        throw std::domain_error("rmin must be below rmax.");
+    if ((rmin <= 0.0) || (rmax <= 0.0))
+        throw std::domain_error("The minimum and maximum radii must be positive.");
+    power = (log(rmax) - log(rmin))/log(npoint);
     if (power < 2.0)
         throw std::domain_error("Power must be at least two for a decent intgration.");
-    amp = rmax/pow(npoint, power);
 }
 
 double PowerRTransform::radius(double t) {
-    return amp*pow(t+1, power);
+    return rmin*pow(t+1, power);
 }
 
 double PowerRTransform::deriv(double t) {
-    return power*amp*pow(t+1, power-1);
+    return power*rmin*pow(t+1, power-1);
 }
 
 double PowerRTransform::inv(double r) {
-    return pow(r/amp, 1.0/power)-1;
+    return pow(r/rmin, 1.0/power)-1;
 }
 
 

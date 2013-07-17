@@ -64,11 +64,11 @@ cdef extern from "rtransform.h":
 
 
     cdef cppclass PowerRTransform:
-        PowerRTransform(double rmax, double power, int npoint) except +
+        PowerRTransform(double rmin, double rmax, int npoint) except +
 
+        double get_rmin()
         double get_rmax()
         double get_power()
-        double get_amp()
 
 
     cdef cppclass BakerRTransform:
