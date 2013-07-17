@@ -54,6 +54,9 @@ class BeckeWPart(WPart):
             log.cite('slater1964', 'the Brag-Slater radii used in the Becke partitioning')
 
     def update_at_weights(self):
+        if log.do_medium:
+            log('Computing Becke weights.')
+
         # The list of radii is constructed to be as close as possible to
         # the original values used by Becke.
         radii = []

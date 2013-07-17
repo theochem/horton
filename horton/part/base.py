@@ -230,12 +230,13 @@ class Part(JustOnceClass):
 
     @just_once
     def do_populations(self):
-        if log.do_medium:
-            log('Computing atomic populations.')
         populations, new = self.cache.load('populations', alloc=self.system.natom, tags='o')
         if new:
             self.do_partitioning()
+            self.do_moldens()
             pseudo_populations = self.cache.load('pseudo_populations', alloc=self.system.natom, tags='o')[0]
+            if log.do_medium:
+                log('Computing atomic populations.')
             for i in xrange(self.natom):
                 pseudo_populations[i] = self.compute_pseudo_population(i)
             populations[:] = pseudo_populations
@@ -243,18 +244,16 @@ class Part(JustOnceClass):
 
     @just_once
     def do_charges(self):
-        if log.do_medium:
-            log('Computing atomic charges.')
         charges, new = self._cache.load('charges', alloc=self.system.natom, tags='o')
         if new:
             self.do_populations()
             populations = self._cache.load('populations')
+            if log.do_medium:
+                log('Computing atomic charges.')
             charges[:] = self.system.numbers - populations
 
     @just_once
     def do_spin_charges(self):
-        if log.do_medium:
-            log('Computing atomic spin charges.')
         spin_charges, new = self._cache.load('spin_charges', alloc=self.system.natom, tags='o')
         if new:
             if isinstance(self.system.wfn, RestrictedWFN):
@@ -266,6 +265,8 @@ class Part(JustOnceClass):
                     self.cache.clear_item('spin_charges')
                     return
                 self.do_partitioning()
+                if log.do_medium:
+                    log('Computing atomic spin charges.')
                 for index in xrange(self.system.natom):
                     grid = self.get_grid(index)
                     spindens = self.get_spindens(index)
