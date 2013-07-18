@@ -20,10 +20,10 @@
 #--
 
 
-import tempfile, shutil, os, csv
+import os, csv
 import h5py as h5, numpy as np
 
-from horton.test.common import check_script
+from horton.test.common import check_script, tmpdir
 from horton.scripts.test.common import check_files
 from horton.scripts.hdf2csv import iter_datasets
 
@@ -55,16 +55,15 @@ def test_iter_datasets():
 
 
 def test_script():
-    tmpdir = tempfile.mkdtemp('horton.scripts.test.test_hdf2csv.test_script')
-    try:
-        with h5.File('%s/test.h5' % tmpdir) as f:
+    with tmpdir('horton.scripts.test.test_hdf2csv.test_script') as dn:
+        with h5.File('%s/test.h5' % dn) as f:
             fill_hdf5(f)
-        check_script('horton-hdf2csv.py test.h5:/ test.csv', tmpdir)
-        check_files(tmpdir, ['test.h5', 'test.csv'])
-        with open('%s/test.csv' % tmpdir) as f:
+        check_script('horton-hdf2csv.py test.h5:/ test.csv', dn)
+        check_files(dn, ['test.h5', 'test.csv'])
+        with open('%s/test.csv' % dn) as f:
             r = csv.reader(f)
             rows = [row for row in r]
-        with h5.File('%s/test.h5' % tmpdir) as f:
+        with h5.File('%s/test.h5' % dn) as f:
             assert rows[0][0] == 'Converted data from test.h5:/'
             assert len(rows[1]) == 0
             assert len(rows[2]) == 2
@@ -105,5 +104,3 @@ def test_script():
             assert float(rows[36][1]) == f['zzz'][4,1,0]
             assert float(rows[36][3*5-2]) == f['zzz'][4,1,4]
             assert rows[-1] == []
-    finally:
-        shutil.rmtree(tmpdir)

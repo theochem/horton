@@ -21,27 +21,28 @@
 
 
 import shutil, os, numpy as np
+
 from horton import context, UniformGrid, System
 
 
 __all__ = ['copy_files', 'check_files', 'write_random_lta_cube']
 
 
-def copy_files(tmpdir, fns):
+def copy_files(dn, fns):
     for fn in fns:
-        shutil.copy(context.get_fn(os.path.join('test', fn)), os.path.join(tmpdir, fn))
+        shutil.copy(context.get_fn(os.path.join('test', fn)), os.path.join(dn, fn))
 
 
-def check_files(tmpdir, fns):
+def check_files(dn, fns):
     for fn in fns:
-        assert os.path.isfile(os.path.join(tmpdir, fn)), "Missing %s" % fn
+        assert os.path.isfile(os.path.join(dn, fn)), "Missing %s" % fn
 
 
-def write_random_lta_cube(tmpdir, fn_cube):
+def write_random_lta_cube(dn, fn_cube):
     sys = System.from_file(context.get_fn('test/lta_gulp.cif'))
     ugrid = UniformGrid(np.zeros(3, float), sys.cell.rvecs*0.1, np.array([10, 10, 10]), np.array([1, 1, 1]))
     cube_data = np.random.uniform(0, 1, ugrid.shape)
     sys.update_grid(ugrid)
     sys.extra['cube_data'] = cube_data
-    sys.to_file(os.path.join(tmpdir, fn_cube))
+    sys.to_file(os.path.join(dn, fn_cube))
     return sys

@@ -20,10 +20,10 @@
 #--
 
 
-import tempfile, shutil, os, h5py as h5
+import os, h5py as h5
 
 from horton import *
-from horton.test.common import check_script
+from horton.test.common import check_script, tmpdir
 from horton.scripts.test.common import copy_files, check_files, write_random_lta_cube
 from horton.scripts.espfit import *
 
@@ -59,32 +59,26 @@ def test_scripts():
     sys = System(coordinates, numbers, grid=ugrid, extra=extra)
 
     # Write the cube file to the tmpdir and run scripts
-    tmpdir = tempfile.mkdtemp('horton.scripts.test.test_espfit.test_scripts')
-    try:
-        sys.to_file(os.path.join(tmpdir, 'esp.cube'))
-        check_script('horton-esp-cost.py esp.cube --wnear=0:1.0:0.5', tmpdir)
-        check_files(tmpdir, ['esp.cube.h5'])
-        check_script('horton-esp-fit.py esp.cube.h5:espfit/cost_r1 default', tmpdir)
-        check_script('horton-esp-test.py esp.cube.h5:espfit/cost_r1 esp.cube.h5:espfit/cost_r1/default', tmpdir)
-        check_script('horton-esp-gen.py esp.cube.h5:espfit/cost_r1/default --grid=1.2', tmpdir)
-    finally:
-        shutil.rmtree(tmpdir)
+    with tmpdir('horton.scripts.test.test_espfit.test_scripts') as dn:
+        sys.to_file(os.path.join(dn, 'esp.cube'))
+        check_script('horton-esp-cost.py esp.cube --wnear=0:1.0:0.5', dn)
+        check_files(dn, ['esp.cube.h5'])
+        check_script('horton-esp-fit.py esp.cube.h5:espfit/cost_r1 default', dn)
+        check_script('horton-esp-test.py esp.cube.h5:espfit/cost_r1 esp.cube.h5:espfit/cost_r1/default', dn)
+        check_script('horton-esp-gen.py esp.cube.h5:espfit/cost_r1/default --grid=1.2', dn)
 
 
 def test_scripts_symmetry():
     # Write the cube file to the tmpdir and run scripts
-    tmpdir = tempfile.mkdtemp('horton.scripts.test.test_espfit.test_scripts_symmetry')
-    try:
+    with tmpdir('horton.scripts.test.test_espfit.test_scripts_symmetry') as dn:
         # prepare files
-        sys = write_random_lta_cube(tmpdir, 'esp.cube')
-        copy_files(tmpdir, ['lta_gulp.cif'])
+        sys = write_random_lta_cube(dn, 'esp.cube')
+        copy_files(dn, ['lta_gulp.cif'])
         # run scripts
-        check_script('horton-esp-cost.py esp.cube --wnear=0:1.0:0.5 --rcut=4 --alpha-scale=0.1', tmpdir)
-        check_files(tmpdir, ['esp.cube.h5'])
-        check_script('horton-esp-fit.py esp.cube.h5:espfit/cost_r1 default --symmetry=lta_gulp.cif', tmpdir)
-        with h5.File(os.path.join(tmpdir, 'esp.cube.h5')) as f:
+        check_script('horton-esp-cost.py esp.cube --wnear=0:1.0:0.5 --rcut=4 --alpha-scale=0.1', dn)
+        check_files(dn, ['esp.cube.h5'])
+        check_script('horton-esp-fit.py esp.cube.h5:espfit/cost_r1 default --symmetry=lta_gulp.cif', dn)
+        with h5.File(os.path.join(dn, 'esp.cube.h5')) as f:
             assert 'symmetry' in f['system/extra']
             assert 'symmetry' in f['espfit/cost_r1/default']
             assert f['espfit/cost_r1/default/symmetry/charges'].shape == (sys.extra['symmetry'].natom, 2)
-    finally:
-        shutil.rmtree(tmpdir)

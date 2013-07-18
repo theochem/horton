@@ -20,7 +20,7 @@
 #--
 
 
-import numpy as np, h5py as h5, tempfile, os
+import numpy as np
 from nose.tools import assert_raises
 from horton import *
 

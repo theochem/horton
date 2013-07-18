@@ -20,7 +20,8 @@
 #--
 
 
-import numpy as np
+import numpy as np, tempfile, shutil
+from contextlib import contextmanager
 import subprocess, sys, os, shlex
 
 from horton import *
@@ -33,6 +34,7 @@ __all__ = [
     'compare_all_dms', 'compare_one_body', 'compare_two_body',
     'compare_occ_model', 'compare_wfns', 'compare_systems',
     'compare_symmetries',
+    'tmpdir',
 ]
 
 
@@ -288,3 +290,12 @@ def compare_symmetries(s0, s1):
     assert s0.cell.nvec == s1.cell.nvec
     assert (s0.cell.rvecs == s1.cell.rvecs).all()
     assert (s0.labels == s1.labels).all()
+
+
+@contextmanager
+def tmpdir(name):
+    dn = tempfile.mkdtemp(name)
+    try:
+        yield dn
+    finally:
+        shutil.rmtree(dn)

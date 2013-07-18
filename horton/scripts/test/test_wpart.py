@@ -20,36 +20,33 @@
 #--
 
 
-import tempfile, shutil, os, h5py as h5
+import os, h5py as h5
 
 from horton import System, context
-from horton.test.common import check_script
+from horton.test.common import check_script, tmpdir
 from horton.scripts.test.common import copy_files, check_files
 from horton.part.test.common import get_proatomdb_hf_sto3g
 
 
-def write_atomdb_sto3g(tmpdir):
+def write_atomdb_sto3g(dn):
     padb = get_proatomdb_hf_sto3g()
-    padb.to_file(os.path.join(tmpdir, 'atoms.h5'))
+    padb.to_file(os.path.join(dn, 'atoms.h5'))
 
 
 def check_script_water_sto3g(scheme):
-    tmpdir = tempfile.mkdtemp('horton.scripts.test.test_wpart.test_script_water_sto3g_%s' % scheme)
-    try:
+    with tmpdir('horton.scripts.test.test_wpart.test_script_water_sto3g_%s' % scheme) as dn:
         fn_fchk = 'water_sto3g_hf_g03.fchk'
-        copy_files(tmpdir, [fn_fchk])
+        copy_files(dn, [fn_fchk])
         if scheme == 'b':
-            check_script('horton-wpart.py %s %s' % (fn_fchk, scheme), tmpdir)
+            check_script('horton-wpart.py %s %s' % (fn_fchk, scheme), dn)
         else:
-            write_atomdb_sto3g(tmpdir)
-            check_script('horton-wpart.py %s %s atoms.h5' % (fn_fchk, scheme), tmpdir)
+            write_atomdb_sto3g(dn)
+            check_script('horton-wpart.py %s %s atoms.h5' % (fn_fchk, scheme), dn)
         fn_h5 = 'water_sto3g_hf_g03.fchk.h5'
-        check_files(tmpdir, [fn_h5])
-        with h5.File(os.path.join(tmpdir, fn_h5)) as f:
+        check_files(dn, [fn_h5])
+        with h5.File(os.path.join(dn, fn_h5)) as f:
             assert 'wpart' in f
             assert scheme in f['wpart']
-    finally:
-        shutil.rmtree(tmpdir)
 
 
 def test_script_water_sto3g_b():
