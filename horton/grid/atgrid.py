@@ -157,7 +157,7 @@ class AtomicGrid(IntGrid):
     av_weights = property(_get_av_weights)
 
     def _log_init(self):
-        if log.do_medium:
+        if log.do_high:
             log('Initialized: %s' % self)
             log.deflist([
                 ('Size', self.size),
@@ -167,9 +167,8 @@ class AtomicGrid(IntGrid):
                 ('Radial Transform', self._rgrid.rtransform.to_string()),
                 ('1D Integrator', self._rgrid.int1d),
             ])
-            # Cite reference
-            log.cite('lebedev1999', 'for the use of Lebedev-Laikov grids (quadrature on a sphere)')
-            log.blank()
+        # Cite reference
+        log.cite('lebedev1999', 'for the use of Lebedev-Laikov grids (quadrature on a sphere)')
 
     def get_spherical_average(self, *args, **kwargs):
         '''Returns the spherical average on the radial grid of the product of the given functions'''

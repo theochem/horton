@@ -27,7 +27,7 @@ import numpy as np
 from horton.grid.base import IntGrid
 from horton.grid.atgrid import AtomicGrid, AtomicGridSpec
 from horton.grid.cext import becke_helper_atom
-from horton.log import log
+from horton.log import log, timer
 from horton.periodic import periodic
 
 
@@ -88,17 +88,24 @@ class BeckeMolGrid(IntGrid):
         offset = 0
         # More recent covalent radii are used than in the original work of Becke.
         cov_radii = np.array([periodic[n].cov_radius for n in system.numbers])
-        for i in xrange(system.natom):
-            atsize = agspec.get_size(system, i)
-            atgrid = AtomicGrid(
-                system.numbers[i], system.pseudo_numbers[i],
-                system.coordinates[i], agspec, random_rotate,
-                points[offset:offset+atsize])
-            weights[offset:offset+atsize] = atgrid.weights
-            becke_helper_atom(points[offset:offset+atsize], weights[offset:offset+atsize], cov_radii, system.coordinates, i, self._k)
-            if keep_subgrids:
-                atgrids.append(atgrid)
-            offset += atsize
+
+        # The actual work:
+        with timer.section('Becke-Lebedev'):
+            if log.do_medium:
+                log('Preparing Becke-Lebedev molecular integration grid.')
+            pb = log.progress(system.natom)
+            for i in xrange(system.natom):
+                atsize = agspec.get_size(system, i)
+                atgrid = AtomicGrid(
+                    system.numbers[i], system.pseudo_numbers[i],
+                    system.coordinates[i], agspec, random_rotate,
+                    points[offset:offset+atsize])
+                weights[offset:offset+atsize] = atgrid.weights
+                becke_helper_atom(points[offset:offset+atsize], weights[offset:offset+atsize], cov_radii, system.coordinates, i, self._k)
+                if keep_subgrids:
+                    atgrids.append(atgrid)
+                offset += atsize
+                pb()
 
         # finish
         IntGrid.__init__(self, points, weights, atgrids)
@@ -135,9 +142,9 @@ class BeckeMolGrid(IntGrid):
                 ('Size', self.size),
                 ('Switching function', 'k=%i' % self._k),
             ])
-            # Cite reference
-            log.cite('becke1988_multicenter', 'the multicenter integration scheme used for the molecular integration grid')
-            log.cite('cordero2008', 'the covalent radii used for the Becke-Lebedev molecular integration grid')
+        # Cite reference
+        log.cite('becke1988_multicenter', 'the multicenter integration scheme used for the molecular integration grid')
+        log.cite('cordero2008', 'the covalent radii used for the Becke-Lebedev molecular integration grid')
 
     def update_centers(self, system):
         if self.subgrids is None:

@@ -25,7 +25,7 @@ import numpy as np
 
 from horton.cache import just_once
 from horton.grid.cext import becke_helper_atom
-from horton.log import log
+from horton.log import log, timer
 from horton.part.base import WPart
 from horton.periodic import periodic
 from horton.units import angstrom
@@ -70,12 +70,15 @@ class BeckeWPart(WPart):
             radii.append(radius)
         radii = np.array(radii)
 
-        # Actual weights
-        for index in xrange(self.natom):
-            grid = self.get_grid(index)
-            at_weights = self.cache.load('at_weights', index, alloc=grid.shape)[0]
-            at_weights[:] = 1
-            becke_helper_atom(grid.points, at_weights, radii, self.system.coordinates, index, self._k)
+        # Actual work
+        with timer.section('Becke part'):
+            pb = log.progress(self.natom)
+            for index in xrange(self.natom):
+                grid = self.get_grid(index)
+                at_weights = self.cache.load('at_weights', index, alloc=grid.shape)[0]
+                at_weights[:] = 1
+                becke_helper_atom(grid.points, at_weights, radii, self.system.coordinates, index, self._k)
+                pb()
 
     def _get_k(self):
         '''The order of the Becke switching function.'''
