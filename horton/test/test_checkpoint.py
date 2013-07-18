@@ -20,17 +20,16 @@
 #--
 
 
-import tempfile, os, h5py as h5, numpy as np
+import os, h5py as h5, numpy as np
 from nose.tools import assert_raises
 
 from horton import *
-from horton.test.common import get_random_cell, compare_systems, compare_wfns
+from horton.test.common import get_random_cell, compare_systems, compare_wfns, tmpdir
 
 
 def test_chk_initialization_filename_cs():
-    tmpdir = tempfile.mkdtemp('horton.test.test_checkpoint.test_chk_initialization_filename_cs')
-    try:
-        fn_chk = '%s/chk.h5' % tmpdir
+    with tmpdir('horton.test.test_checkpoint.test_chk_initialization_filename_cs') as dn:
+        fn_chk = '%s/chk.h5' % dn
         fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
         fn_log = context.get_fn('test/water_sto3g_hf_g03.log')
         sys1 = System.from_file(fn_fchk, fn_log, chk=fn_chk)
@@ -38,25 +37,16 @@ def test_chk_initialization_filename_cs():
         sys1 = System.from_file(fn_fchk, fn_log)
         sys2 = System.from_file(fn_chk)
         compare_systems(sys1, sys2)
-    finally:
-        if os.path.isfile(fn_chk):
-            os.remove(fn_chk)
-        os.rmdir(tmpdir)
 
 
 def test_chk_initialization_filename_os():
-    tmpdir = tempfile.mkdtemp('horton.test.test_checkpoint.test_chk_initialization_filename_os')
-    try:
-        fn_chk = '%s/chk.h5' % tmpdir
+    with tmpdir('horton.test.test_checkpoint.test_chk_initialization_filename_os') as dn:
+        fn_chk = '%s/chk.h5' % dn
         sys1 = System.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'), chk=fn_chk)
         del sys1
         sys1 = System.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
         sys2 = System.from_file(fn_chk)
         compare_systems(sys1, sys2)
-    finally:
-        if os.path.isfile(fn_chk):
-            os.remove(fn_chk)
-        os.rmdir(tmpdir)
 
 
 def test_chk_initialization_file():
@@ -70,10 +60,9 @@ def test_chk_initialization_file():
 
 
 def test_chk_initialization_override():
-    tmpdir = tempfile.mkdtemp('horton.test.test_checkpoint.test_chk_override')
-    try:
-        fn_chk1 = '%s/chk1.h5' % tmpdir
-        fn_chk2 = '%s/chk2.h5' % tmpdir
+    with tmpdir('horton.test.test_checkpoint.test_chk_override') as dn:
+        fn_chk1 = '%s/chk1.h5' % dn
+        fn_chk2 = '%s/chk2.h5' % dn
         sys1 = System.from_file(context.get_fn('test/hf_sto3g.fchk'), chk=fn_chk1)
         del sys1
         sys1 = System.from_file(context.get_fn('test/hf_sto3g.fchk'))
@@ -89,12 +78,6 @@ def test_chk_initialization_override():
 
         sys4 = System.from_file(fn_chk2, chk=None)
         compare_systems(sys1, sys4)
-    finally:
-        if os.path.isfile(fn_chk1):
-            os.remove(fn_chk1)
-        if os.path.isfile(fn_chk2):
-            os.remove(fn_chk2)
-        os.rmdir(tmpdir)
 
 
 def test_chk_update1():

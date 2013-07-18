@@ -21,10 +21,11 @@
 
 
 import numpy as np, h5py as h5
-import tempfile, os
+import os
 
 from horton import *
 from horton.part.test.common import get_proatomdb_cp2k
+from horton.test.common import tmpdir
 
 
 def test_db_basics():
@@ -115,16 +116,11 @@ def test_io_filename():
     keys = sorted(padb1._map.keys())
     assert keys == [(1, 0), (6, 0), (6, 1)]
 
-    tmpdir = tempfile.mkdtemp('horton.dpart.test.test_proatomdb.test_io_filename')
-    filename = '%s/test.h5' % tmpdir
-    try:
+    with tmpdir('horton.dpart.test.test_proatomdb.test_io_filename') as dn:
+        filename = '%s/test.h5' % dn
         padb1.to_file(filename)
         padb2 = ProAtomDB.from_file(filename)
         compare_padbs(padb1, padb2)
-    finally:
-        if os.path.isfile(filename):
-            os.remove(filename)
-        os.rmdir(tmpdir)
 
 
 def test_compute_radii():

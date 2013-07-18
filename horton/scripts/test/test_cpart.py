@@ -20,32 +20,29 @@
 #--
 
 
-import tempfile, shutil, os, h5py as h5
+import os, h5py as h5
 
 from horton import *
-from horton.test.common import check_script
+from horton.test.common import check_script, tmpdir
 from horton.scripts.test.common import copy_files, check_files, write_random_lta_cube
 
 
-def write_atomdb_refatoms(tmpdir):
+def write_atomdb_refatoms(dn):
     padb = ProAtomDB.from_refatoms(numbers=[8,14], max_kation=3, max_anion=3)
-    padb.to_file(os.path.join(tmpdir, 'atoms.h5'))
+    padb.to_file(os.path.join(dn, 'atoms.h5'))
 
 
 def check_script_jbw_coarse(scheme):
-    tmpdir = tempfile.mkdtemp('horton.scripts.test.test_cpart.test_script_jbw_coarse_%s' % scheme)
-    try:
+    with tmpdir('horton.scripts.test.test_cpart.test_script_jbw_coarse_%s' % scheme) as dn:
         fn_cube = 'jbw_coarse_aedens.cube'
-        copy_files(tmpdir, [fn_cube])
-        write_atomdb_refatoms(tmpdir)
-        check_script('horton-cpart.py %s %s atoms.h5' % (fn_cube, scheme), tmpdir)
+        copy_files(dn, [fn_cube])
+        write_atomdb_refatoms(dn)
+        check_script('horton-cpart.py %s %s atoms.h5' % (fn_cube, scheme), dn)
         fn_h5 = '%s.h5' % fn_cube
-        check_files(tmpdir, [fn_h5])
-        with h5.File(os.path.join(tmpdir, fn_h5)) as f:
+        check_files(dn, [fn_h5])
+        with h5.File(os.path.join(dn, fn_h5)) as f:
             assert 'cpart' in f
             assert scheme + '_r1' in f['cpart']
-    finally:
-        shutil.rmtree(tmpdir)
 
 
 def test_script_jbw_coarse_h():
@@ -54,27 +51,26 @@ def test_script_jbw_coarse_h():
 
 
 def check_script_lta(fn_sym, suffix):
-    tmpdir = tempfile.mkdtemp('horton.scripts.test.test_cpart.test_script_lta_coarse_h_%s' % suffix)
-    try:
+    with tmpdir('horton.scripts.test.test_cpart.test_script_lta_coarse_h_%s' % suffix) as dn:
         # prepare files
         if fn_sym is not None:
-            copy_files(tmpdir, [fn_sym])
-        write_atomdb_refatoms(tmpdir)
+            copy_files(dn, [fn_sym])
+        write_atomdb_refatoms(dn)
 
         # write a random cube file
         fn_cube = 'dens.cube'
-        sys = write_random_lta_cube(tmpdir, fn_cube)
+        sys = write_random_lta_cube(dn, fn_cube)
 
         # run the script
         if fn_sym is None:
-            check_script('horton-cpart.py %s h atoms.h5' % (fn_cube), tmpdir)
+            check_script('horton-cpart.py %s h atoms.h5' % (fn_cube), dn)
         else:
-            check_script('horton-cpart.py %s h atoms.h5 --symmetry=%s' % (fn_cube, fn_sym), tmpdir)
+            check_script('horton-cpart.py %s h atoms.h5 --symmetry=%s' % (fn_cube, fn_sym), dn)
 
         # check the output
         fn_h5 = '%s.h5' % fn_cube
-        check_files(tmpdir, [fn_h5])
-        with h5.File(os.path.join(tmpdir, fn_h5)) as f:
+        check_files(dn, [fn_h5])
+        with h5.File(os.path.join(dn, fn_h5)) as f:
             assert 'cpart' in f
             assert 'h_r1' in f['cpart']
             if fn_sym is not None:
@@ -85,8 +81,6 @@ def check_script_lta(fn_sym, suffix):
                 for name, ds in f['cpart/h_r1/symmetry'].iteritems():
                     assert ds.shape[0] == sys.extra['symmetry'].natom
                     assert ds.shape[1] == 2
-    finally:
-        shutil.rmtree(tmpdir)
 
 
 def test_script_lta():

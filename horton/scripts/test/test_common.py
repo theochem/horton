@@ -20,11 +20,12 @@
 #--
 
 
-import h5py as h5, argparse, numpy as np, tempfile, os
+import h5py as h5, argparse, numpy as np, os
 from nose.tools import assert_raises
 
 from horton import *
 from horton.scripts.common import *
+from horton.test.common import tmpdir
 
 
 def test_iter_elements():
@@ -110,9 +111,8 @@ def test_parse_ugrid_1():
 
 
 def test_parse_ugrid_2():
-    tmpdir = tempfile.mkdtemp('horton.scripts.test.test_common.test_parse_ugrid_2')
-    fn_h5 = os.path.join(tmpdir, 'test.h5')
-    try:
+    with tmpdir('horton.scripts.test.test_common.test_parse_ugrid_2') as dn:
+        fn_h5 = os.path.join(dn, 'test.h5')
         origin = np.random.uniform(0, 1, 3)
         grid_rvecs = np.random.uniform(0, 1, (3, 3))
         shape = np.random.randint(10, 20, 3)
@@ -128,10 +128,6 @@ def test_parse_ugrid_2():
         assert (ugrid2.grid_cell.rvecs == grid_rvecs).all()
         assert (ugrid2.shape == shape).all()
         assert (ugrid2.pbc == pbc).all()
-    finally:
-        if os.path.isfile(fn_h5):
-            os.remove(fn_h5)
-        os.rmdir(tmpdir)
 
 
 def test_store_args():

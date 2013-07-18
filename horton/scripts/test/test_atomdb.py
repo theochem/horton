@@ -20,11 +20,11 @@
 #--
 
 
-import tempfile, shutil, os
+import os, shutil
 from horton.context import context
 from horton.periodic import periodic
 from horton.part.proatomdb import ProAtomDB
-from horton.test.common import check_script
+from horton.test.common import check_script, tmpdir
 from horton.scripts.test.common import copy_files, check_files
 
 from horton.scripts.atomdb import *
@@ -55,13 +55,12 @@ def test_iter_states():
 
 
 def test_script_input_cp2k():
-    tmpdir = tempfile.mkdtemp('horton.scripts.test.test_atomdb.test_script_input_cp2k')
-    try:
+    with tmpdir('horton.scripts.test.test_atomdb.test_script_input_cp2k') as dn:
         fn_template = 'template_atomdb_cp2k.in'
         fn_valence = 'include_atomdb_cp2k_valence.inc'
         fn_ppot = 'include_atomdb_cp2k_ppot.inc'
-        copy_files(tmpdir, [fn_template, fn_valence, fn_ppot])
-        check_script('horton-atomdb.py input cp2k Ca,F %s' % fn_template, tmpdir)
+        copy_files(dn, [fn_template, fn_valence, fn_ppot])
+        check_script('horton-atomdb.py input cp2k Ca,F %s' % fn_template, dn)
         fns = [
             '020_ca_021_q-01/mult02/atom.in', '020_ca_020_q+00/mult01/atom.in',
             '020_ca_019_q+01/mult02/atom.in', '020_ca_018_q+02/mult01/atom.in',
@@ -70,19 +69,16 @@ def test_script_input_cp2k():
             '009__f_007_q+02/mult04/atom.in',
             'run_cp2k.sh',
         ]
-        check_files(tmpdir, fns)
-    finally:
-        shutil.rmtree(tmpdir)
+        check_files(dn, fns)
 
 
 def check_script_input_gaussian(binary):
-    tmpdir = tempfile.mkdtemp('horton.scripts.test.test_atomdb.test_script_input_%s' % binary)
-    try:
+    with tmpdir('horton.scripts.test.test_atomdb.test_script_input_%s' % binary) as dn:
         fn_template = 'template_atomdb_gaussian.in'
         fn_basis1 = 'include_atomdb_gaussian_basis.001_000_00'
         fn_basis8 = 'include_atomdb_gaussian_basis.008_000_00'
-        copy_files(tmpdir, [fn_template, fn_basis1, fn_basis8])
-        check_script('horton-atomdb.py input %s 1,O %s' % (binary, fn_template), tmpdir)
+        copy_files(dn, [fn_template, fn_basis1, fn_basis8])
+        check_script('horton-atomdb.py input %s 1,O %s' % (binary, fn_template), dn)
         fns = [
             '001__h_003_q-02/mult02/atom.in', '001__h_002_q-01/mult01/atom.in',
             '001__h_001_q+00/mult02/atom.in', '008__o_010_q-02/mult01/atom.in',
@@ -91,9 +87,7 @@ def check_script_input_gaussian(binary):
             '008__o_005_q+03/mult02/atom.in',
             'run_%s.sh' % binary,
         ]
-        check_files(tmpdir, fns)
-    finally:
-        shutil.rmtree(tmpdir)
+        check_files(dn, fns)
 
 
 def test_script_input_g03():
@@ -105,11 +99,10 @@ def test_script_input_g09():
 
 
 def test_script_input_orca():
-    tmpdir = tempfile.mkdtemp('horton.scripts.test.test_atomdb.test_script_input_orca')
-    try:
+    with tmpdir('horton.scripts.test.test_atomdb.test_script_input_orca') as dn:
         fn_template = 'template_atomdb_orca.in'
-        copy_files(tmpdir, [fn_template])
-        check_script('horton-atomdb.py input orca H,13 %s --no-hund' % fn_template, tmpdir)
+        copy_files(dn, [fn_template])
+        check_script('horton-atomdb.py input orca H,13 %s --no-hund' % fn_template, dn)
         fns = [
             '001__h_003_q-02/mult02/atom.in', '001__h_003_q-02/mult04/atom.in',
             '001__h_002_q-01/mult01/atom.in', '001__h_002_q-01/mult03/atom.in',
@@ -121,16 +114,14 @@ def test_script_input_orca():
             '013_al_011_q+02/mult02/atom.in', '013_al_010_q+03/mult01/atom.in',
             'run_orca.sh',
         ]
-        check_files(tmpdir, fns)
-    finally:
-        shutil.rmtree(tmpdir)
+        check_files(dn, fns)
 
 
-def copy_atom_output(fn, number, charge, mult, tmpdir, fn_out):
+def copy_atom_output(fn, number, charge, mult, dn, fn_out):
     pop = number - charge
     symbol = periodic[number].symbol.lower().rjust(2, '_')
     destination = os.path.join(
-        tmpdir, '%03i_%s_%03i_q%+03i' % (number, symbol, pop, charge),
+        dn, '%03i_%s_%03i_q%+03i' % (number, symbol, pop, charge),
         'mult%02i' % mult
     )
     os.makedirs(destination)
@@ -138,74 +129,65 @@ def copy_atom_output(fn, number, charge, mult, tmpdir, fn_out):
     shutil.copy(context.get_fn(os.path.join('test', fn)), destination)
 
 
-def make_fake_run_script(program, tmpdir):
-    with open(os.path.join(tmpdir, 'run_%s.sh' % program), 'w') as f:
+def make_fake_run_script(program, dn):
+    with open(os.path.join(dn, 'run_%s.sh' % program), 'w') as f:
         print >> f, '#!/bin/bash'
         print >> f, 'echo "Foo"'
 
 
 def test_script_convert_cp2k():
-    tmpdir = tempfile.mkdtemp('horton.scripts.test.test_atomdb.test_script_convert_cp2k')
-    try:
-        copy_atom_output('atom_op2.cp2k.out', 8, +2, 3, tmpdir, 'atom.cp2k.out')
-        copy_atom_output('atom_op1.cp2k.out', 8, +1, 4, tmpdir, 'atom.cp2k.out')
-        copy_atom_output('atom_o.cp2k.out',   8,  0, 2, tmpdir, 'atom.cp2k.out')
-        copy_atom_output('atom_om1.cp2k.out', 8, -1, 1, tmpdir, 'atom.cp2k.out')
-        copy_atom_output('atom_om2.cp2k.out', 8, -2, 0, tmpdir, 'atom.cp2k.out')
-        make_fake_run_script('cp2k', tmpdir)
-        check_script('horton-atomdb.py convert', tmpdir)
+    with tmpdir('horton.scripts.test.test_atomdb.test_script_convert_cp2k') as dn:
+        copy_atom_output('atom_op2.cp2k.out', 8, +2, 3, dn, 'atom.cp2k.out')
+        copy_atom_output('atom_op1.cp2k.out', 8, +1, 4, dn, 'atom.cp2k.out')
+        copy_atom_output('atom_o.cp2k.out',   8,  0, 2, dn, 'atom.cp2k.out')
+        copy_atom_output('atom_om1.cp2k.out', 8, -1, 1, dn, 'atom.cp2k.out')
+        copy_atom_output('atom_om2.cp2k.out', 8, -2, 0, dn, 'atom.cp2k.out')
+        make_fake_run_script('cp2k', dn)
+        check_script('horton-atomdb.py convert', dn)
         # check presence of files
         fns = ['atoms.h5', 'dens_008__o.png', 'rdens_008__o.png', 'fukui_008__o.png', 'rfukui_008__o.png']
-        check_files(tmpdir, fns)
+        check_files(dn, fns)
         # load proatomdb file and check some contents
-        padb = ProAtomDB.from_file(os.path.join(tmpdir, 'atoms.h5'))
+        padb = ProAtomDB.from_file(os.path.join(dn, 'atoms.h5'))
         assert padb.get_numbers() == [8]
         assert padb.get_charges(8) == [+2, +1, 0, -1, -2]
         assert not padb.get_record(8, -2).safe
         assert padb.get_rgrid(8).size == 71
-    finally:
-        shutil.rmtree(tmpdir)
 
 
 def test_script_convert_g09():
-    tmpdir = tempfile.mkdtemp('horton.scripts.test.test_atomdb.test_script_convert_g09')
-    try:
-        copy_atom_output('atom_014_013_hf_lan.fchk', 14, +1, 2, tmpdir, 'atom.fchk')
-        make_fake_run_script('g09', tmpdir)
-        check_script('horton-atomdb.py convert --grid medium', tmpdir)
+    with tmpdir('horton.scripts.test.test_atomdb.test_script_convert_g09') as dn:
+        copy_atom_output('atom_014_013_hf_lan.fchk', 14, +1, 2, dn, 'atom.fchk')
+        make_fake_run_script('g09', dn)
+        check_script('horton-atomdb.py convert --grid medium', dn)
         # check presence of files
         fns = ['atoms.h5', 'dens_014_si.png', 'rdens_014_si.png', 'fukui_014_si.png', 'rfukui_014_si.png']
-        check_files(tmpdir, fns)
+        check_files(dn, fns)
         # load proatomdb file and check some contents
-        padb = ProAtomDB.from_file(os.path.join(tmpdir, 'atoms.h5'))
+        padb = ProAtomDB.from_file(os.path.join(dn, 'atoms.h5'))
         assert padb.get_numbers() == [14]
         assert padb.get_charges(14) == [+1]
         assert padb.get_rgrid(14).size == 49
-    finally:
-        shutil.rmtree(tmpdir)
 
 
 def test_script_convert_g03():
-    tmpdir = tempfile.mkdtemp('horton.scripts.test.test_atomdb.test_script_convert_g03')
-    try:
-        copy_atom_output('atom_001_001_hf_sto3g.fchk', 1,  0, 2, tmpdir, 'atom.fchk')
-        copy_atom_output('atom_001_002_hf_sto3g.fchk', 1, -1, 1, tmpdir, 'atom.fchk')
-        copy_atom_output('atom_008_007_hf_sto3g.fchk', 8, +1, 4, tmpdir, 'atom.fchk')
-        copy_atom_output('atom_008_008_hf_sto3g.fchk', 8,  0, 3, tmpdir, 'atom.fchk')
-        copy_atom_output('atom_008_009_hf_sto3g.fchk', 8, -1, 2, tmpdir, 'atom.fchk')
-        make_fake_run_script('g03', tmpdir)
-        check_script('horton-atomdb.py convert', tmpdir)
+    with tmpdir('horton.scripts.test.test_atomdb.test_script_convert_g03') as dn:
+        copy_atom_output('atom_001_001_hf_sto3g.fchk', 1,  0, 2, dn, 'atom.fchk')
+        copy_atom_output('atom_001_002_hf_sto3g.fchk', 1, -1, 1, dn, 'atom.fchk')
+        copy_atom_output('atom_008_007_hf_sto3g.fchk', 8, +1, 4, dn, 'atom.fchk')
+        copy_atom_output('atom_008_008_hf_sto3g.fchk', 8,  0, 3, dn, 'atom.fchk')
+        copy_atom_output('atom_008_009_hf_sto3g.fchk', 8, -1, 2, dn, 'atom.fchk')
+        make_fake_run_script('g03', dn)
+        check_script('horton-atomdb.py convert', dn)
         # check presence of files
         fns = [
             'atoms.h5',
             'dens_001__h.png', 'rdens_001__h.png', 'fukui_001__h.png', 'rfukui_001__h.png',
             'dens_008__o.png', 'rdens_008__o.png', 'fukui_008__o.png', 'rfukui_008__o.png',
         ]
-        check_files(tmpdir, fns)
+        check_files(dn, fns)
         # load proatomdb file and check some contents
-        padb = ProAtomDB.from_file(os.path.join(tmpdir, 'atoms.h5'))
+        padb = ProAtomDB.from_file(os.path.join(dn, 'atoms.h5'))
         assert padb.get_numbers() == [1, 8]
         assert padb.get_charges(1) == [0, -1]
         assert padb.get_charges(8) == [+1, 0, -1]
-    finally:
-        shutil.rmtree(tmpdir)
