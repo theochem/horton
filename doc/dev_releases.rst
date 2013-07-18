@@ -7,6 +7,11 @@ Release history
    - Pure (harmonic) multipoles in the AIM analysis.
    - Spin charges in the AIM analysis.
    - Switch to libxc-2.0.2.
+   - New pruned atomic integration grids for elements H-La, Hf-Rn, with more
+     levels of accuracy.
+   - New radial integration grids with improved accuracy.
+   - Speedups in density evaluation and Becke weights.
+   - Screen output and timer improvements
 
 
 * **June 5, 2013. Version 1.0.2**

@@ -433,6 +433,24 @@ implemented. This is a simple example::
         check_delta(fun, deriv, x0, dxs)
 
 
+Writing tests that need a temporary directory
+---------------------------------------------
+
+A context manager is implemented in ``horton.test.common`` to simplify tests
+that need a temporary working directory. It can be used as follows::
+
+    from horton.test.common import tmpdir
+
+    def test_something():
+        with tmpdir('horton.somemodule.test.test_something') as dn:
+            # dn is a string with the temporary directory name.
+            # put here the part of the test that operates in the temporary directory.
+
+On most systems, this temporary directory is a subdirectory of ``/tmp``. The
+argument ``'horton.somemodule.test.test_something'`` will occur in the directory
+name, such that it can be easily recognized if needed.
+
+
 Documentation
 =============
 

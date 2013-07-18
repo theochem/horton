@@ -71,8 +71,9 @@ supported by most spreadsheet software.
 The usage of the four scripts (``horton-atomdb.py``, ``horton-wpart.py``,
 ``horton-cpart.py`` and ``horton-hdf2csv.py``) will be discussed in the
 following sections. All scripts have a ``--help`` option that prints out a
-complete list of all options. The last section shows how one can use the
-partitioning code through the Python interface.
+complete list of all options. The penultimate section shows how one can use the
+partitioning code through the Python interface. The last section answers some
+frequently asked questions about partitioning with Horton.
 
 
 ``horton-atomdb.py`` -- Set up a database of proatoms
@@ -453,3 +454,96 @@ where only the charges are computed and written to a simple text file.
 The unit tests in the source code contain many small examples that can be used
 as a starting point for similar scripts. These unit tests can be found in
 ``horton/part/test/test_wpart.py`` and ``horton/part/test/test_cpart.py``.
+
+
+Frequently asked questions
+==========================
+
+**Which atoms-in-molecules (AIM or partitioning) scheme should I use?**
+
+    There is no single partitioning scheme that is most suitable for any
+    application. Nevertheless, some people claim that only one AIM scheme should
+    be used above all others, especially in the QTAIM and electron density
+    communities. Try to stay away from such fanboyism as it has little to do
+    with good science.
+
+    In practice, the choice depends on the purposes one has in mind. One should
+    try to select a scheme that shows some desirable behavior.
+    Typically, one would like to have a compromise between some of the following
+    features:
+
+    * Numerical stability.
+    * Robustness with respect to conformational changes.
+    * Uniqueness of the result.
+    * Computational efficiency.
+    * Mathematical elegance.
+    * Simplicity.
+    * Linearity in the density (matrix).
+    * Chemical transferability.
+    * Applicable to a broad range of systems.
+    * Applicable to periodic/isolated systems.
+    * Applicable to a broad range of electronic structure methods/implementations.
+    * Accuracy of electrostatic interactions with a limited multipole expansion
+      of the atoms.
+    * Good (empirical) correlations between some AIM property with some experimental
+      observable.
+    * ...
+
+    It goes beyond the scope of this FAQ to describe how each partitioning scheme
+    (implemented in Horton or not) performs for these criteria. Some of these
+    features are also very hard to assess and subject of intense debate in the
+    literature.
+
+    Regarding our own work, the following papers are directly related to this
+    question:
+
+    * [verstraelen2011a]_ "Assessment of Atomic Charge Models for {Gas-Phase} Computations on Polypeptides"
+    * [verstraelen2012a]_ "The conformational sensitivity of iterative stockholder partitioning schemes"
+    * [verstraelen2013]_ "Hirshfeld-E Partitioning: AIM Charges with an Improved Trade-off between Robustness and Accurate Electrostatics"
+
+    The following are also related to this question, but the list is far from
+    complete:
+
+    * [bultinck2007]_ "Critical analysis and extension of the Hirshfeld atoms in molecules"
+    * [bultinck2007b]_ "Uniqueness and basis set dependence of iterative Hirshfeld charges"
+
+    If you have more suggestions, please drop me a note: Toon.Verstraelen@UGent.be.
+
+
+**What is the recommended level of theory for the computation of the database of proatoms?**
+
+    This question is relevant the following methods implemented in Horton:
+    Hirshfeld, Hirshfeld-I and Hirshfeld-E. They are referred to in this answer
+    as Hirshfeld-like schemes.
+
+    In principle, one is free to choose any level of theory one prefers. In
+    practice, several papers tend to be consistent in the level of theory (and
+    basis set) that is used for the molecular and proatomic computations.
+    See for example: [bultinck2007]_, [verstraelen2009]_, [verstraelen2011a]_,
+    [verstraelen2011b]_, [vanduyfhuys2012]_, [verstraelen2012a]_,
+    [verstraelen2012b]_, [verstraelen2013]_.
+
+    One motivation for this consistency is that Hirshfeld-like partitioning
+    schemes yield atoms-in-molecules that are maximally similar to the
+    pro-atoms. [nalewajski2000]_ (Technically speaking, the sum over all atoms
+    of the `Kullback-Leibler divergence
+    <https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence>`_
+    between the atom-in-molecule and proatom is minimized.)
+    This principle is (or should be) one of the reasons that Hirhsfeld-like
+    charges are somewhat transferable between chemically similar atoms. One
+    could hope that the Kullback-Leibler divergence is easier to minimize when
+    the molecular and proatomic densities are computed as consistently as
+    possible, hence with the same level of theory and basis set.
+
+    Another motivation is that such consistency may lead to a degree of error
+    cancellation when comparing Hirshfeld-like charges computed at different
+    levels of theory. For example, it is found that Hirshfeld-I charges have
+    only a small basis set dependence. [bultinck2007b]_ In this work, the
+    molecular and proatomic densities were computed consistently.
+
+    At last, one could also argue that without the consistency in level of
+    theory, there are some many possible combinations that it becomes impossible
+    to make a well-motivated choice. Then again, this is a problem that
+    computational chemist usually embrace with open arms in the hope that they
+    will find a weird combination of levels of theory that turns out to be
+    useful.

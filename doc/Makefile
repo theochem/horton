@@ -38,7 +38,8 @@ autogendoc:
 	mkdir -p lib
 	rm -fv lib/horton*.rst
 	HORTONDATA=../data PYTHONPATH=../ python updatelibdoc.py
-	python updategrids.py
+	HORTONDATA=../data PYTHONPATH=../ python updategrids.py
+	HORTONDATA=../data PYTHONPATH=../ python updateliterature.py
 
 clean:
 	-rm -rf $(BUILDDIR)/*
