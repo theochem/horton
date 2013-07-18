@@ -261,7 +261,7 @@ def test_esp_cost_solve_regularized():
     # test with constraint 1.0
     x = cost.solve(qtot=1.0, ridge=ridge)
     charges = x[:10]
-    assert abs(charges.sum()-1) < 1e-10
+    assert abs(charges.sum()-1) < 1e-9
     gradient = cost.gradient(x) + 2*ls*x
     assert abs(gradient[:10] - gradient[:10].mean()).max() < 1e-10
     assert abs(gradient[10:]).max() < 1e-10
