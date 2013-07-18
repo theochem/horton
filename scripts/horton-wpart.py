@@ -24,9 +24,8 @@
 import sys, argparse, os
 
 from horton import System, wpart_schemes, Cell, ProAtomDB, log, BeckeMolGrid, \
-    lebedev_laikov_npoints
+    lebedev_laikov_npoints, AtomicGridSpec
 from horton.scripts.common import store_args, safe_open_h5, write_part_output
-from horton.scripts.wpart import parse_grid
 
 
 def parse_args():
@@ -48,15 +47,12 @@ def parse_args():
         help='Add an additional suffix to the HDF5 output group.')
 
     parser.add_argument('--grid', type=str, default='medium',
-        help='Choose the accuracy of the integration grid. Four built-in tuned '
+        help='Specify the atomic integration grids. Six built-in pruned '
              'grids are available: coarse, medium, fine, veryfine, ultrafine, '
              'insane. [default=%%(default)s] Not all elements are supported '
-             'for each grid type. (See documentation.) In other cases, an '
-             'integer can be provided that sets the number of angular '
-             '(Lebedev-Laikov) grid points. Choose a number from %s. The '
-             'radial grid is then take identical to the one used in the '
-             'proatom database.' %
-             (" ".join(str(i) for i in lebedev_laikov_npoints)))
+             'for each grid type. See documentation for more details and other '
+             'possible arguments for this option that allow a more '
+             'fine-grained control of the atomic integration grid.')
     parser.add_argument('--global', dest='local', default=True, action='store_false',
         help='Use the entire molecular grid for all integrations. The default '
              'behavior is to compute the integral for a given atom on a '
@@ -107,8 +103,8 @@ def main():
         proatomdb = None
 
     # Run the partitioning
-    atspecs = parse_grid(args.grid, sys, proatomdb)
-    molgrid = BeckeMolGrid(sys, atspecs, keep_subgrids=args.local)
+    agspec = AtomicGridSpec(args.grid)
+    molgrid = BeckeMolGrid(sys, agspec, keep_subgrids=args.local)
     wpart = wpart_schemes[args.scheme](sys, molgrid, **kwargs)
     names = wpart.do_all()
 

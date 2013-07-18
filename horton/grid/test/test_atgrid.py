@@ -20,57 +20,138 @@
 #--
 
 
-import numpy as np
+import tempfile, shutil, os, numpy as np
 from nose.tools import assert_raises
 
 from horton import *
 
 
-def test_interpret_atspec():
-    rtf = ExpRTransform(0.1, 1e1, 4)
-    rgrid = RadialGrid(rtf, TrapezoidIntegrator1D())
+def test_normalize_nlls():
+    from horton.grid.atgrid import _normalize_nlls
+    assert (_normalize_nlls(6, 10) == np.array([6]*10)).all()
+    assert (_normalize_nlls([6], 10) == np.array([6]*10)).all()
+    assert (_normalize_nlls([6, 6, 6], 3) == np.array([6]*3)).all()
+    with assert_raises(ValueError):
+        _normalize_nlls([6, 6, 6], 4)
 
-    rgrid0, nlls0 = interpret_atspec(1, 1, (rgrid, 6))
+
+def test_agspec_tuple1():
+    rtf = ExpRTransform(0.1, 1e1, 4)
+    rgrid = RadialGrid(rtf, StubIntegrator1D())
+
+    agspec = AtomicGridSpec((rgrid, 6))
+    rgrid0, nlls0 = agspec.get(1, 1)
+    assert rgrid is rgrid0
+    assert (nlls0 == [6,6,6,6]).all()
+    rgrid0, nlls0 = agspec.get(2, 2)
     assert rgrid is rgrid0
     assert (nlls0 == [6,6,6,6]).all()
 
-    rgrid1, nlls1 = interpret_atspec(1, 1, (rgrid, [6,14,26,6]))
-    assert rgrid is rgrid1
-    assert (nlls1 == [6,14,26,6]).all()
+
+def test_agspec_tuple2():
+    rtf = ExpRTransform(0.1, 1e1, 4)
+    rgrid = RadialGrid(rtf, StubIntegrator1D())
+
+    agspec = AtomicGridSpec((rgrid, [6,14,26,6]))
+    rgrid0, nlls0 = agspec.get(1, 1)
+    assert rgrid is rgrid0
+    assert (nlls0 == [6,14,26,6]).all()
 
     with assert_raises(ValueError):
-        rgrid2, nlls2 = interpret_atspec(1, 1, (rgrid, [1,2,3,4]))
-    with assert_raises(ValueError):
-        rgrid2, nlls2 = interpret_atspec(1, 1, (rgrid, [6,6,6,6,14]))
+        agspec = AtomicGridSpec((rgrid, [6,14,26,6,6]))
 
 
-def test_atgrid_family_load():
-    for af in atgrid_families.itervalues():
-        af._load()
+def test_agspec_list():
+    agspec = AtomicGridSpec([
+        (1, 1, RadialGrid(ExpRTransform(0.1, 1e1, 4), StubIntegrator1D()), [6,14,26,6]),
+        (2, 2, RadialGrid(ExpRTransform(0.2, 1e1, 4), StubIntegrator1D()), [6,14,26,14]),
+        (10, 8, RadialGrid(ExpRTransform(0.3, 1e1, 4), StubIntegrator1D()), [6,14,26,26]),
+        (10, 10, RadialGrid(ExpRTransform(0.4, 1e1, 4), StubIntegrator1D()), [6,14,26,38]),
+    ])
+    rgrid, nlls = agspec.get(1, 1)
+    assert rgrid.rtransform.rmin == 0.1
+    assert (nlls == [6,14,26,6]).all()
+    rgrid, nlls = agspec.get(2, 2)
+    assert rgrid.rtransform.rmin == 0.2
+    assert (nlls == [6,14,26,14]).all()
+    rgrid, nlls = agspec.get(10, 8)
+    assert rgrid.rtransform.rmin == 0.3
+    assert (nlls == [6,14,26,26]).all()
+    rgrid, nlls = agspec.get(10, 10)
+    assert rgrid.rtransform.rmin == 0.4
+    assert (nlls == [6,14,26,38]).all()
+    rgrid, nlls = agspec.get(10, 6)
+    assert rgrid.rtransform.rmin == 0.3
+    assert (nlls == [6,14,26,26]).all()
+    rgrid, nlls = agspec.get(2, 1)
+    assert rgrid.rtransform.rmin == 0.2
+    assert (nlls == [6,14,26,14]).all()
 
 
-def test_atgrid_family_contents1():
-    rgrid, nlls = atgrid_families['tv-13.7-3'].get(1, 1)
+def test_agspec_string():
+    agspec = AtomicGridSpec('power:0.001:10.0:20:26')
+    for number in 1, 4, 10:
+        rgrid, nlls = agspec.get(number, number)
+        assert isinstance(rgrid.rtransform, PowerRTransform)
+        assert rgrid.rtransform.rmin == 0.001*angstrom
+        assert rgrid.rtransform.rmax == 10.0*angstrom
+        assert rgrid.size == 20
+        assert (nlls == [26]*20).all()
+
+
+def test_agspec_local_file():
+    tmpdir = tempfile.mkdtemp('horton.scripts.test.test_espfit.test_scripts_symmetry')
+    try:
+        fn_dest = os.path.join(tmpdir, 'mygrid.txt')
+        shutil.copy(context.get_fn('grids/tv-13.7-4.txt'), fn_dest)
+        agspec = AtomicGridSpec(fn_dest)
+        rgrid, nlls = agspec.get(1, 1)
+        assert rgrid.rtransform.to_string() == 'PowerRTransform 3.69705074304963e-06 19.279558946793685 24'
+        assert (nlls == np.array([6, 6, 6, 6, 6, 6, 6, 6, 14, 14, 26, 38, 50, 86, 110, 110, 110, 110, 86, 50, 50, 14, 6, 6])).all()
+    finally:
+        shutil.rmtree(tmpdir)
+
+
+def test_agspec_load_simple_names():
+    nrads = [20, 24, 34, 41, 49, 59]
+    for name in 'coarse', 'medium', 'fine', 'veryfine', 'ultrafine', 'insane':
+        agspec = AtomicGridSpec(name)
+        assert len(agspec.get(1, 1)[1]) == nrads.pop(0)
+
+
+def test_agspec_load_names():
+    nrads = [20, 24, 34, 41, 49, 59]
+    for name in 'tv-13.7-3', 'tv-13.7-4', 'tv-13.7-5', 'tv-13.7-6', 'tv-13.7-7', 'tv-13.7-8':
+        agspec = AtomicGridSpec(name)
+        assert len(agspec.get(1, 1)[1]) == nrads.pop(0)
+
+
+def test_agspec_coarse_contents():
+    rgrid, nlls = AtomicGridSpec('coarse').get(1, 1)
     assert rgrid.rtransform.to_string() == 'PowerRTransform 7.0879993828935345e-06 16.05937640019924 20'
     assert (nlls == np.array([6, 6, 6, 6, 6, 6, 6, 14, 14, 26, 38, 50, 86, 86, 86, 86, 50, 14, 6, 6])).all()
 
 
-def test_atgrid_family_contents2():
-    rgrid, nlls = atgrid_families['tv-13.7-4'].get(6, 6)
-    assert rgrid.rtransform.to_string() == 'PowerRTransform 1.3457673140534789e-07 22.920122695678042 41'
-    assert (nlls == np.array([6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 14, 14, 14, 14, 14, 26, 26, 38, 50, 50, 50, 74, 86, 110, 170, 194, 302, 170, 110, 110, 110, 110, 110, 86, 86, 86, 86, 50, 50, 14])).all()
+def test_atgrid_medium_contents():
+    for agspec in AtomicGridSpec('medium'), AtomicGridSpec():
+        rgrid, nlls = agspec.get(1, 1)
+        assert rgrid.rtransform.to_string() == 'PowerRTransform 3.69705074304963e-06 19.279558946793685 24'
+        assert (nlls == np.array([6, 6, 6, 6, 6, 6, 6, 6, 14, 14, 26, 38, 50, 86, 110, 110, 110, 110, 86, 50, 50, 14, 6, 6])).all()
 
 
-def test_interpret_atspec_family():
-    rgrid, nlls = interpret_atspec(1, 1, 'tv-13.7-3')
-    assert rgrid.rtransform.to_string() == 'PowerRTransform 7.0879993828935345e-06 16.05937640019924 20'
-    assert (nlls == np.array([6, 6, 6, 6, 6, 6, 6, 14, 14, 26, 38, 50, 86, 86, 86, 86, 50, 14, 6, 6])).all()
+def test_agspec_get_size():
+    sys = System.from_file(context.get_fn('test/water.xyz'))
+    agspec = AtomicGridSpec()
+    assert agspec.get_size(sys) == 2*928 + 3754
+    assert agspec.get_size(sys, 0) == 928
+    assert agspec.get_size(sys, 1) == 3754
+    assert agspec.get_size(sys, 2) == 928
 
 
 def test_atomic_grid_basics():
     center = np.random.uniform(-1,1,3)
     rtf = ExpRTransform(0.1, 1e1, 4)
-    rgrid = RadialGrid(rtf, TrapezoidIntegrator1D())
+    rgrid = RadialGrid(rtf, StubIntegrator1D())
     nlls = 6
     for random_rotate in True, False:
         ag0 = AtomicGrid(1, 1, center, (rgrid, 6), random_rotate)

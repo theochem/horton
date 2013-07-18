@@ -24,6 +24,7 @@ for fn_txt in glob('../data/grids/*.txt'):
 
 
 grids = sorted(grids)
+alts = ['coarse', 'medium', 'fine', 'veryfine', 'ultrafine', 'insane']
 elements = sorted(elements)
 
 with open('grids.rst.inc', 'w') as f:
@@ -33,6 +34,7 @@ with open('grids.rst.inc', 'w') as f:
 
     print_markers()
     print >> f, 'Element   Z Zeff', ' '.join([grid.ljust(9) for grid in grids])
+    print >> f, '\         \ \   ', ' '.join([alt.ljust(9) for alt in alts])
     print_markers()
 
     for z, zeff in elements:

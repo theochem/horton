@@ -23,29 +23,9 @@
 import tempfile, shutil, os, h5py as h5
 
 from horton import System, context
-from horton.scripts.wpart import *
 from horton.test.common import check_script
 from horton.scripts.test.common import copy_files, check_files
-from horton.part.test.common import get_proatomdb_ref, get_proatomdb_hf_sto3g
-
-
-def test_parse_grid_1():
-    for sgrid in 'coarse', 'medium', 'fine', 'veryfine':
-        atspecs = parse_grid(sgrid, None, None)
-        fn = context.get_fn('grids/%s.txt' % atspecs)
-        assert os.path.isfile(fn)
-
-
-def test_parse_grid_2():
-    sys = System.from_file(context.get_fn('test/water_number.xyz'))
-    padb = get_proatomdb_ref([1, 8], 1, 1)
-    for sgrid in '6', '38', '110':
-        nll = int(sgrid)
-        atspecs = parse_grid(sgrid, sys, padb)
-        for i in xrange(sys.natom):
-            assert len(atspecs[i]) == 2
-            assert atspecs[i][0] == padb.get_rgrid(sys.numbers[i])
-            assert atspecs[i][1] == nll
+from horton.part.test.common import get_proatomdb_hf_sto3g
 
 
 def write_atomdb_sto3g(tmpdir):

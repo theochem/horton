@@ -26,7 +26,7 @@ import h5py as h5, numpy as np
 
 from horton.context import context
 from horton.exceptions import ElectronCountError
-from horton.grid.atgrid import AtomicGrid
+from horton.grid.atgrid import AtomicGrid, AtomicGridSpec
 from horton.grid.int1d import SimpsonIntegrator1D
 from horton.grid.cext import RTransform, CubicSpline, dot_multi
 from horton.grid.radial import RadialGrid
@@ -39,7 +39,7 @@ __all__ = ['ProAtomRecord', 'ProAtomDB']
 
 class ProAtomRecord(object):
     @classmethod
-    def from_system(cls, system, atgrid):
+    def from_system(cls, system, agspec='fine'):
         '''Construct a proatom record from a system and an atomic grid
 
            **Arguments:**
@@ -47,13 +47,20 @@ class ProAtomRecord(object):
            sys
                 The one-atom system.
 
-           atgrid
-                The atomic grid used for computation of the spherical average.
+           **Optional arguments:**
+
+           agspec
+                A specifications of the atomic grid. This can either be an
+                instance of the AtomicGridSpec object, or the first argument
+                of its constructor.
         '''
         if system.natom != 1:
             raise ValueError('Can only construct a proatom record from a one-atom system.')
+        if not isinstance(agspec, AtomicGridSpec):
+            agspec = AtomicGridSpec(agspec)
 
         # Compute the spherically averaged density
+        atgrid = AtomicGrid(system.numbers[0], system.pseudo_numbers[0], system.coordinates[0], agspec)
         rho_full = system.compute_grid_density(atgrid.points)
         rho = atgrid.get_spherical_average(rho_full)
 
@@ -313,7 +320,7 @@ class ProAtomDB(object):
     size = property(_get_size)
 
     @classmethod
-    def from_files(cls, fns, atgrid):
+    def from_files(cls, fns, agspec='fine'):
         '''
            Construct a ProAtomDB from a series of Horton checkpoint files.
 
@@ -322,21 +329,26 @@ class ProAtomDB(object):
            fns_chk
                 A list of system files.
 
-           atgrid
-                An AtomicGrid object used for computing spherical average.
+           **Optional arguments:**
+
+           agspec
+                A specifications of the atomic grid. This can either be an
+                instance of the AtomicGridSpec object, or the first argument
+                of its constructor.
         '''
-        # TODO: add option to use standard grids
+        if not isinstance(agspec, AtomicGridSpec):
+            agspec = AtomicGridSpec(agspec)
         records = []
         for fn in fns:
             # Load system
             with timer.section('Load proatom'):
                 sys = System.from_file(fn, chk=None) # avoid rewriting in case of chk file
             with timer.section('Proatom grid'):
-                records.append(ProAtomRecord.from_system(sys, atgrid))
+                records.append(ProAtomRecord.from_system(sys, agspec))
         return cls(records)
 
     @classmethod
-    def from_refatoms(cls, atgrid, numbers=None, max_kation=3, max_anion=2):
+    def from_refatoms(cls, numbers=None, max_kation=3, max_anion=2, agspec='fine'):
         '''
            Construct a ProAtomDB from reference atoms included in Horton
 
@@ -344,9 +356,6 @@ class ProAtomDB(object):
 
            fns_chk
                 A list of Horton checkpoint files.
-
-           atgrid
-                An AtomicGrid object used for computing spherical average.
 
            **Optional Arguments:**
 
@@ -360,6 +369,11 @@ class ProAtomDB(object):
            max_anion
                 Minus the charge of the most negativ anion to include. (This
                 is typically a positive argument.)
+
+           agspec
+                A specifications of the atomic grid. This can either be an
+                instance of the AtomicGridSpec object, or the first argument
+                of its constructor.
         '''
         # Load all the systems
         fns_chk = []
@@ -375,7 +389,7 @@ class ProAtomDB(object):
             fns_chk.append(fn)
 
         # Hand them over to another constructor
-        return cls.from_files(fns_chk, atgrid)
+        return cls.from_files(fns_chk, agspec)
 
     @classmethod
     def from_file(cls, filename):

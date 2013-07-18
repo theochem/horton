@@ -21,35 +21,44 @@
 '''Atomic grids'''
 
 
-import numpy as np
+import numpy as np, os
 
 
 from horton.context import context
 from horton.grid.base import IntGrid
-from horton.grid.cext import lebedev_laikov_npoints, lebedev_laikov_sphere, RTransform
+from horton.grid.cext import lebedev_laikov_npoints, lebedev_laikov_sphere, \
+    RTransform, LinearRTransform, ExpRTransform, PowerRTransform
 from horton.grid.radial import RadialGrid
 from horton.log import log
+from horton.units import angstrom
 
 
 __all__ = [
-    'AtomicGrid', 'interpret_atspec', 'get_rotation_matrix',
-    'get_random_rotation', 'ATGridFamily', 'atgrid_families',
+    'AtomicGrid', 'get_rotation_matrix',
+    'get_random_rotation', 'AtomicGridSpec',
 ]
 
 
 class AtomicGrid(IntGrid):
-    def __init__(self, number, pseudo_number, center, atspec='tv-13.7-4', random_rotate=True, points=None):
+    def __init__(self, number, pseudo_number, center, agspec='medium', random_rotate=True, points=None):
         '''
            **Arguments:**
+
+           number
+                The element number for which this grid will be used.
+
+           pseudo_number
+                The effective core charge for which this grid will be used.
 
            center
                 The center of the radial grid
 
-           atspec
-                A specifications of the atomic grid. (See interpret_atspec for
-                more details.)
-
            **Optional arguments:**
+
+           agspec
+                A specifications of the atomic grid. This can either be an
+                instance of the AtomicGridSpec object, or the first argument
+                of its constructor.
 
            random_rotate
                 When set to False, the random rotation of the grid points is
@@ -61,8 +70,12 @@ class AtomicGrid(IntGrid):
                 Array to store the grid points
         '''
         self._number = number
+        self._pseudo_number = pseudo_number
         self._center = center
-        self._rgrid, self._nlls = interpret_atspec(number, pseudo_number, atspec)
+        if not isinstance(agspec, AtomicGridSpec):
+            agspec = AtomicGridSpec(agspec)
+        self._agspec = agspec
+        self._rgrid, self._nlls = self._agspec.get(number, pseudo_number)
         self._random_rotate = random_rotate
 
         size = self._nlls.sum()
@@ -177,49 +190,6 @@ class AtomicGrid(IntGrid):
         self._init_low(self.points, self.weights)
 
 
-
-def interpret_atspec(number, pseudo_number, atspec):
-    '''Convert atspec to (rgrid, nlls) tuple
-
-       The atspec argument may be a string refering to a built-in grid file (see
-       data/grid) or a tuple with two elements: ``(rgrid, nll)`` where:
-
-       * ``rgrid`` is an instance of RadialGrid.
-
-       * ``nlls`` is a number Lebedev-Laikov grid points for each radial
-         grid point. When this argument is not a list, all radial grid
-         points get the same Lebedev-Laikov grid
-
-       The number argument is the element number for which the grid is created.
-       It is only used when atspec is a string referring to one of the built-in
-       grids.
-    '''
-    if isinstance(atspec, basestring):
-        # load
-        if atspec not in atgrid_families:
-            raise ValueError('Unknown built-in grid: %s' % atspec)
-        rgrid, nlls = atgrid_families[atspec].get(number, pseudo_number)
-    elif hasattr(atspec, '__iter__') and len(atspec) == 2:
-        rgrid, nlls = atspec
-    else:
-        raise ValueError('Could not interpret the atspec argument.')
-
-    # Make sure nlls is an array
-    if hasattr(nlls, '__iter__'):
-        nlls = np.array(nlls, dtype=int)
-        if len(nlls) != rgrid.size:
-            raise ValueError('The size of the radial grid must match the number of elements in nlls')
-    else:
-        nlls = np.array([nlls]*rgrid.size, dtype=int)
-
-    # Finally check the validaty of the nlls
-    for nll in nlls:
-        if nll not in lebedev_laikov_npoints:
-            raise ValueError('A Lebedev-Laikov grid with %i points is not supported.' % nll)
-
-    return rgrid, nlls
-
-
 def get_rotation_matrix(axis, angle):
     '''Rodrigues' rotation formula'''
     x, y, z = axis/np.linalg.norm(axis)
@@ -247,24 +217,164 @@ def get_random_rotation():
     return get_rotation_matrix(axis, angle)
 
 
-class ATGridFamily(object):
-    def __init__(self, name):
-        self.name = name
-        self.members = None
+def _normalize_nlls(nlls, size):
+    '''Make sure nlls is an array of the proper size'''
+    if hasattr(nlls, '__iter__'):
+        if len(nlls) == 1:
+            nlls = np.array(list(nlls)*size, dtype=int)
+        else:
+            nlls = np.array(nlls, dtype=int)
+            if len(nlls) != size:
+                raise ValueError('The size of the radial grid must match the number of elements in nlls')
+    else:
+        nlls = np.array([nlls]*size, dtype=int)
+    return nlls
+
+
+class AtomicGridSpec(object):
+    '''A specification of atomic integration grids for multiple elements.'''
+    def __init__(self, definition='medium'):
+        '''
+           **Optional argument:**
+
+           definition
+                A definition of the grid.
+                This can be a string that can be interpreted in several ways to define
+                the grids. Attempts to interpret the string are done in the
+                following order:
+
+                1. A local file that has the same format as the files in
+                   ${HORTONDATA}/grids.
+                2. It can be any of 'coarse', 'medium', 'fine', 'veryfine',
+                   'ultrafine', 'insane'. These have a straightforward
+                   one-to-one mapping with the files in ${HORTONDATA}/grids.
+                3. It can be the name of a file in ${HORTONDATA}/grids (without
+                   the extension ``.txt``
+                4. A string of the format: ``rname:rmin:rmax:nrad:nll``, with
+                   the following meaning for the keywords. ``rname`` specifies
+                   the type of radial grid. It can be ``linear``, ``exp`` or
+                   ``power``. ``rmin`` and ``rmax`` specify the first and the
+                   last radial grid point in angstroms. ``nrad`` is the number
+                   of radial grid points. ``nll`` is the number of points for
+                   the angular Lebedev-Laikov grid.
+
+                Instead of a s string, a Pythonic grid specification is also
+                supported:
+
+                * A tuple ``(rgrid, nll)``, where ``rgrid`` is an instance of
+                  ``RadialGrid`` and ``nll`` is an integer or a list of
+                  integers. The same grid is then used for each element.
+                * A list where each element is a tuple of the form ``(number,
+                  pseudo_number, rgrid, nll)``, where ``number`` is the element
+                  number, ``pseudo_number`` is the effective core charge,
+                  ``rgrid`` is an instance of ``RadialGrid`` and ``nll`` is an
+                  integer or a list of integers. In this case, each element has
+                  its own grid specification. When using pseudo potentials,
+                  the most appropriate grid can be selected, depending on the
+                  effective core charge.
+        '''
+        if isinstance(definition, basestring):
+            self.name = definition
+            self._init_members_from_string(definition)
+        elif isinstance(definition, tuple):
+            self.name = 'custom'
+            self._init_members_from_tuple(definition)
+        elif isinstance(definition, list):
+            self.name = 'custom'
+            self._init_members_from_list(definition)
+        else:
+            raise ValueError('Could not parse the definition of the atomic grid specification.')
+
 
     def get(self, number, pseudo_number):
-        if self.members is None:
-            self._load()
-
         for pn, rgrid, nlls in self.members.get(number, []):
             if pn >= pseudo_number:
                 return rgrid, nlls
 
-        raise ValueError('The atomic grid family %s does not support element %i with effecive core %i' % (self.name, number, pseudo_number))
+        raise ValueError('The atomic grid specification "%s" does not support element %i with effective core %i' % (self.name, number, pseudo_number))
 
-    def _load(self):
-        fn = context.get_fn('grids/%s.txt' % self.name)
+    def get_size(self, system, i=None):
+        '''Get the size of a molecular grid for a given system
+
+           **Arguments:**
+
+           system
+                An instance of the System class.
+
+           **Optional arguments:**
+
+           i
+                When given, only the size of the grid for that atom is computed.
+        '''
+        if i is None:
+            npoint = 0
+            for i in xrange(system.natom):
+                rgrid, nlls = self.get(system.numbers[i], system.pseudo_numbers[i])
+                npoint += nlls.sum()
+            return npoint
+        else:
+            rgrid, nlls = self.get(system.numbers[i], system.pseudo_numbers[i])
+            return nlls.sum()
+
+    def _init_members_from_tuple(self, members):
+        assert len(members) == 2
+        rgrid, nlls = members
+        nlls = _normalize_nlls(nlls, rgrid.size)
+        # Assign this grid specification or each element
+        self.members = dict((number, [(number, rgrid, nlls)]) for number in xrange(1, 119))
+
+    def _init_members_from_list(self, members):
         self.members = {}
+        for number, pseudo_number, rgrid, nlls in members:
+            nlls = _normalize_nlls(nlls, rgrid.size)
+            l = self.members.setdefault(number, [])
+            l.append((pseudo_number, rgrid, nlls))
+        for l in self.members.itervalues():
+            l.sort()
+
+    _simple_names = {
+        'coarse':    'tv-13.7-3',
+        'medium':    'tv-13.7-4',
+        'fine':      'tv-13.7-5',
+        'veryfine':  'tv-13.7-6',
+        'ultrafine': 'tv-13.7-7',
+        'insane':    'tv-13.7-8',
+    }
+
+    _simple_rtfs = {
+        'linear': LinearRTransform,
+        'exp': ExpRTransform,
+        'power': PowerRTransform,
+    }
+
+    def _init_members_from_string(self, definition):
+        if os.path.isfile(definition):
+            self._load(definition)
+            return
+        filename = context.get_fn('grids/%s.txt' % definition)
+        if os.path.isfile(filename):
+            self._load(filename)
+            return
+        name = self._simple_names.get(definition)
+        if name is not None:
+            filename = context.get_fn('grids/%s.txt' % name)
+            self._load(filename)
+            return
+        if definition.count(':') == 4:
+            words = self.name.split(':')
+            RTransformClass = self._simple_rtfs.get(words[0])
+            if RTransformClass is None:
+                raise ValueError('Unknown radial grid type: %s' % words[0])
+            rmin = float(words[1])*angstrom
+            rmax = float(words[2])*angstrom
+            nrad = int(words[3])
+            rgrid = RadialGrid(RTransformClass(rmin, rmax, nrad))
+            nll = int(words[4])
+            self._init_members_from_tuple((rgrid, nll))
+
+    def _load(self, filename):
+        fn = context.get_fn(filename)
+        members = []
         with open(fn) as f:
             state = 0
             for line in f:
@@ -286,19 +396,6 @@ class ATGridFamily(object):
                     elif state == 2:
                         nlls = np.array([int(w) for w in line.split()])
                         state = 0
-                        l = self.members.setdefault(number, [])
-                        l.append((pseudo_number, RadialGrid(rtf), nlls))
+                        members.append((number, pseudo_number, RadialGrid(rtf), nlls))
 
-        for l in self.members.itervalues():
-            l.sort()
-
-
-atgrid_families = [
-    ATGridFamily('tv-13.7-3'),
-    ATGridFamily('tv-13.7-4'),
-    ATGridFamily('tv-13.7-5'),
-    ATGridFamily('tv-13.7-6'),
-    ATGridFamily('tv-13.7-7'),
-    ATGridFamily('tv-13.7-8'),
-]
-atgrid_families = dict((af.name.lower(), af) for af in atgrid_families)
+        self._init_members_from_list(members)
