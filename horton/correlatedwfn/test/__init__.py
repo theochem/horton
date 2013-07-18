@@ -18,30 +18,3 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''The main Horton Package'''
-
-
-__version__ = '1.2.1'
-
-
-from horton.cache import *
-from horton.cext import *
-from horton.constants import *
-from horton.context import *
-from horton.part import *
-from horton.espfit import *
-from horton.exceptions import *
-from horton.gbasis import *
-from horton.grid import *
-from horton.io import *
-from horton.log import *
-from horton.matrix import *
-from horton.meanfield import *
-from horton.moments import *
-from horton.periodic import *
-from horton.symmetry import *
-from horton.quadprog import *
-from horton.units import *
-from horton.utils import *
-from horton.modelhamiltonians import *
-from horton.correlatedwfn import *
