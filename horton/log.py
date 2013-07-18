@@ -30,8 +30,7 @@
 
 # TODO: - use the logger in all current code
 
-import sys, os, datetime, getpass, time, codecs, locale, atexit, traceback, \
-    resource
+import sys, os, datetime, getpass, time, atexit, traceback, resource
 from contextlib import contextmanager
 import horton
 
@@ -62,14 +61,13 @@ class ScreenLog(object):
         self.mem = MemoryLogger(self)
         self._active = False
         self._level = self.medium
-        self._last_used_location = None
+        self._last_blank = False
         self.add_newline = False
         if f is None:
             _file = sys.stdout
         else:
             _file = f
-        # Wrap sys.stdout into a StreamWriter to allow writing unicode.
-        self._file = codecs.getwriter(locale.getpreferredencoding())(_file)
+        self._file = _file
 
     do_warning = property(lambda self: self._level >= self.warning)
     do_low = property(lambda self: self._level >= self.low)
@@ -83,18 +81,11 @@ class ScreenLog(object):
         self._level = level
 
     def __call__(self, *words):
-        s = u' '.join(unicode(w) for w in words)
+        s = ' '.join(w for w in words)
         if not self.do_warning:
             raise RuntimeError('The runlevel should be at least warning when logging.')
         if not self._active:
             self.print_header()
-
-        # Inform user about current location in the source code
-        location = self._get_location()
-        if location != self._last_used_location:
-            self._last_used_location = location
-            print >> self._file
-            print >> self._file, ('<<< %s' % location).rjust(self.width)
 
         # Check for alignment code '&'
         pos = s.find(u'&')
@@ -127,9 +118,13 @@ class ScreenLog(object):
                 lead = u' '*len(lead)
                 first = False
 
+        self._last_blank = False
+
     def warn(self, *words):
-        text = u'WARNING!!&'+u' '.join(unicode(w) for w in words)
+        self.blank()
+        text = '!WARNING!&'+' '.join(w for w in words)
         self(text)
+        self.blank()
 
     def hline(self, char='~'):
         self(char*self.width)
@@ -143,13 +138,15 @@ class ScreenLog(object):
             edge = kwargs['edge']
         else:
             raise TypeError('Too many keyword arguments. Should be at most one.')
-        s = u' '.join(unicode(w) for w in words)
+        s = ' '.join(w for w in words)
         if len(s) + 2*len(edge) > self.width:
             raise ValueError('Line too long. center method does not support wrapping.')
         self('%s%s%s' % (edge, s.center(self.width-2*len(edge)), edge))
 
     def blank(self):
-        print >> self._file
+        if not self._last_blank:
+            print >> self._file
+            self._last_blank = True
 
     def deflist(self, l):
         widest = max(len(item[0]) for item in l)
@@ -161,6 +158,10 @@ class ScreenLog(object):
             filename = horton.context.get_fn('references.bib')
             self._biblio = Biblio(filename)
         self._biblio.cite(key, reason)
+
+    def progress(self, niter):
+        # Only make the progress bar active at the medium level
+        return ProgressBar(niter, self._file, self.width, silent=self._level != self.medium)
 
     def print_header(self):
         # Suppress any logging as soon as an exception is not caught.
@@ -182,31 +183,13 @@ class ScreenLog(object):
             self.timer.report(self)
             print >> self._file, self.foot_banner
 
-    def _get_location(self):
-        tb = traceback.extract_stack()
-        hit = False
-        for row in tb[::-1]:
-            in_log = row[0].endswith('horton/log.py')
-            if in_log and row[2] == '__call__':
-                if hit:
-                    result = row[0]
-                    break
-                else:
-                    hit = True
-            elif hit and not in_log:
-                result = row[0]
-                break
-        if 'horton/' not in result:
-            result = tb[-1][0]
-        result = result[result.find('horton/'):]
-        return result
-
     def _print_references(self):
         if self._biblio is not None:
             self._biblio.log()
 
     def _print_basic_info(self):
         if self.do_low:
+            self.blank()
             self('User:          &' + getpass.getuser())
             self('Machine info:  &' + ' '.join(os.uname()))
             self('Time:          &' + datetime.datetime.now().isoformat())
@@ -215,6 +198,31 @@ class ScreenLog(object):
             self('Current Dir:   &' + os.getcwd())
             self('Command line:  &' + ' '.join(sys.argv))
             self('Horton module: &' + __file__)
+            self.blank()
+
+
+class ProgressBar(object):
+    def __init__(self, niter, f, width, silent):
+        self.niter = niter
+        self.f = f
+        self.width = width
+        self.silent = silent
+        self.count = 0
+        self.nchar = 0
+
+    def __call__(self, inc=1):
+        self.count += inc
+        if not self.silent:
+            new_nchar = (self.count*self.width)/self.niter
+            if new_nchar > self.nchar:
+                self.f.write('>'*(new_nchar - self.nchar))
+                self.f.flush()
+                self.nchar = new_nchar
+            if self.count == self.niter:
+                self.f.write('\n')
+        elif self.count > self.niter:
+            raise ValueError('Progress bar overflow.')
+
 
 
 class Timer(object):
@@ -411,10 +419,13 @@ class Biblio(object):
             self._cited[key] = self._records[key]
             self._done.add((key, reason))
             if log.do_low:
-                log('Please cite "%s" for %s.' % (key, reason))
+                log.blank()
+                log('  Please cite:& "%s" for %s.' % (key, reason))
+                log.blank()
 
     def log(self):
         if log.do_low:
+            log.blank()
             log('The following references were cited:')
             log.hline()
             log.deflist([
@@ -458,6 +469,7 @@ class MemoryLogger(object):
 
 
 head_banner = """\
+================================================================================
  _ __ _
 / (..) \ Welcome to Horton 1.0.2!
 \/ || \/
@@ -486,7 +498,7 @@ foot_banner = """
 / )--( \ End of the Horton program.
 \|  \ |/
  |_||_|  Thank you for using Horton! See you soon!
-"""
+================================================================================"""
 
 timer = TimerGroup()
 log = ScreenLog('HORTON', horton.__version__, head_banner, foot_banner, timer)

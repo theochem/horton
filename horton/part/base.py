@@ -305,24 +305,18 @@ class Part(JustOnceClass):
                 wcor = self.get_wcor(i)
 
                 # 4) Compute Cartesian multipole moments
-                if log.do_medium:
-                    log('  cartesian multipole moments')
                 # The minus sign is present to account for the negative electron
                 # charge.
                 cartesian_multipoles[i] = -grid.integrate(aim, wcor, center=center, lmax=lmax, mtype=1)
                 cartesian_multipoles[i, 0] += self.system.pseudo_numbers[i]
 
                 # 5) Compute Pure multipole moments
-                if log.do_medium:
-                    log('  pure multipole moments')
                 # The minus sign is present to account for the negative electron
                 # charge.
                 pure_multipoles[i] = -grid.integrate(aim, wcor, center=center, lmax=lmax, mtype=2)
                 pure_multipoles[i, 0] += self.system.pseudo_numbers[i]
 
                 # 6) Compute Radial moments
-                if log.do_medium:
-                    log('  radial moments')
                 # For the radial moments, it is not common to put a minus sign
                 # for the negative electron charge.
                 radial_moments[i] = grid.integrate(aim, wcor, center=center, lmax=lmax, mtype=3)
@@ -376,13 +370,26 @@ class WPart(Part):
     def get_wcor(self, index):
         return None
 
+    def _dens_helper(self, output, select='full'):
+        if self.local:
+            begin = 0
+            pb = log.progress(self.system.natom)
+            for i in xrange(self.system.natom):
+                grid = self.get_grid(i)
+                end = begin + grid.size
+                self.system.compute_grid_density(grid.points, rhos=output[begin:end], select=select)
+                begin = end
+                pb()
+        else:
+            self.system.compute_grid_density(self.grid.points, rhos=output)
+
     @just_once
     def do_moldens(self):
         moldens, new = self.cache.load('moldens', alloc=self.grid.size)
         if new:
             if log.do_medium:
                 log('Computing total densitiy on grids.')
-            self.system.compute_grid_density(self.grid.points, rhos=moldens)
+            self._dens_helper(moldens)
 
     @just_once
     def do_spindens(self):
@@ -390,8 +397,7 @@ class WPart(Part):
         if new:
             if log.do_medium:
                 log('Computing spin densitiy on grids.')
-            self.system.compute_grid_density(self.grid.points, rhos=spindens, select='spin')
-    do_spindens.names = []
+            self._dens_helper(spindens, select='spin')
 
     def to_atomic_grid(self, index, data):
         if index is None or not self.local:
