@@ -27,45 +27,28 @@ from horton import *
 
 
 __all__ = [
-    'get_proatomdb_ref', 'get_proatomdb_cp2k', 'get_proatomdb_hf_sto3g',
+    'get_proatomdb_cp2k', 'get_proatomdb_hf_sto3g',
     'get_proatomdb_hf_lan', 'get_fake_co', 'get_fake_pseudo_oo',
     'check_names', 'check_proatom_splines',
 ]
 
 
-def get_proatomdb_ref(numbers, max_kation, max_anion):
-    '''Return a proatomdb for testing purposes'''
-    rtf = ExpRTransform(1e-3, 1e1, 100)
-    rgrid = RadialGrid(rtf)
-    atgrid = AtomicGrid(0, 0, np.zeros(3, float), (rgrid, 110), random_rotate=False)
-    return ProAtomDB.from_refatoms(atgrid, numbers, max_kation, max_anion)
-
-
 def get_proatomdb_cp2k():
     '''Return a proatomdb of pseudo oxygens and one silicon for testing purposes'''
-    rtf = ExpRTransform(1e-3, 1e1, 100)
-    rgrid = RadialGrid(rtf)
-    atgrid = AtomicGrid(0, 0, np.zeros(3, float), (rgrid, 110), random_rotate=False)
     fns = glob(context.get_fn('test/atom_*.cp2k.out'))
-    return ProAtomDB.from_files(fns, atgrid)
+    return ProAtomDB.from_files(fns)
 
 
 def get_proatomdb_hf_sto3g():
     '''Return a proatomdb of H and O at hf/sto-3g for testing purposes'''
-    rtf = ExpRTransform(1e-3, 1e1, 100)
-    rgrid = RadialGrid(rtf)
-    atgrid = AtomicGrid(0, 0, np.zeros(3, float), (rgrid, 110), random_rotate=False)
     fns = glob(context.get_fn('test/atom_???_???_hf_sto3g.fchk'))
-    return ProAtomDB.from_files(fns, atgrid)
+    return ProAtomDB.from_files(fns)
 
 
 def get_proatomdb_hf_lan():
     '''Return a proatomdb of H, O, Si at hf/LANL2MB for testing purposes'''
-    rtf = ExpRTransform(5e-4, 2e1, 120)
-    rgrid = RadialGrid(rtf)
-    atgrid = AtomicGrid(0, 0, np.zeros(3, float), (rgrid, 110), random_rotate=False)
     fns = glob(context.get_fn('test/atom_???_???_hf_lan.fchk'))
-    return ProAtomDB.from_files(fns, atgrid)
+    return ProAtomDB.from_files(fns)
 
 
 def get_fake_co():
@@ -75,7 +58,7 @@ def get_fake_co():
     sys = System(coordinates, numbers)
 
     # Load some pro-atoms
-    proatomdb = get_proatomdb_ref([6, 8], max_kation=1, max_anion=1)
+    proatomdb = ProAtomDB.from_refatoms(numbers=[6, 8], max_kation=1, max_anion=1)
     proatomdb.compact(0.02)
 
     # Make fake cube data

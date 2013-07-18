@@ -81,7 +81,7 @@ partitioning code through the Python interface.
 The usage of the script ``horton-atomdb.py`` consists of three steps:
 
 1) **Generate input files** for isolated atom computations for one of the following
-   codes: Gaussian03/09, Orca, ADF or CP2K. The following example generates
+   codes: Gaussian03/09, Orca or CP2K. The following example generates
    Gaussian09 inputs for hydrogen, carbon, nitrogen and oxygen::
 
     horton-atomdb.py input g09 1,6-8 template.com
@@ -106,8 +106,10 @@ The usage of the script ``horton-atomdb.py`` consists of three steps:
 
     ./horton-atomdb.py convert
 
-   This script also generates figures of the radial densities and Fukui functions
-   if ``matplotlib`` is installed.
+   This script also generates figures of the radial densities and Fukui
+   functions if ``matplotlib`` is installed. In this step, one may use
+   :ref:`ref_grid_option`, although the default setting should be fine for
+   nearly all cases.
 
 One may remove some directories with atomic computations before or after
 executing the ``run_PROGRAM.sh`` script. The corresponding atoms will not be
@@ -242,47 +244,6 @@ The following template file use the built-in ``cc_pVQZ`` basis set of ORCA::
     *xyz ${charge} ${mult}
     ${element} 0.0 0.0 0.0
     *
-
-
-Simple template file for ADF
-----------------------------
-
-This is a simple template for ADF::
-
-    Title atomic PBE/DZP (all-electron) single point calculation
-
-    ATOMS
-      ${element}        0.00000        0.00000        0.00000
-    END
-
-    CHARGE  ${charge}
-
-    SYMMETRY tol=1e-2
-
-    BASIS
-      Type DZP
-      Core None
-    END
-
-    XC
-      GGA PBE
-    END
-
-    INTEGRATION
-      accint  6.0
-    END
-
-    SCF
-      iterations  100
-      converge 1.0e-06 1.0e-06
-    END
-
-    EXACTDENSITY
-
-Since Horton supports (for now) only Gaussian-type basis sets, the atomic
-density is computed on a grid with the auxiliary tools of ADF. These grid data are
-loaded in the ``convert`` step of ``horton-atomdb.py`` to compute the
-spherically averaged isolate atom densities.
 
 
 Template file for CP2K

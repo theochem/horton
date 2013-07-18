@@ -24,11 +24,11 @@ import numpy as np, h5py as h5
 import tempfile, os
 
 from horton import *
-from horton.part.test.common import get_proatomdb_ref, get_proatomdb_cp2k
+from horton.part.test.common import get_proatomdb_cp2k
 
 
 def test_db_basics():
-    padb = get_proatomdb_ref([8, 1], 1, 1)
+    padb = ProAtomDB.from_refatoms(numbers=[8, 1], max_kation=1, max_anion=1)
     assert padb.get_numbers() == [1, 8]
     assert padb.get_charges(8) == [1, 0, -1]
     assert padb.get_charges(1) == [0, -1]
@@ -42,7 +42,7 @@ def test_db_basics():
     assert r1.pseudo_number == 8
     assert r1.pseudo_population == 9
     assert r1.safe
-    assert r1.rgrid.size == 100
+    assert r1.rgrid.size == 59
     r2 = padb.get_record(8, -1)
     r3 = padb.get_record(8, 0)
     assert r1 == r2
@@ -77,12 +77,7 @@ def test_db_basics_pseudo():
 def test_record_basics_pseudo():
     fn_out = context.get_fn('test/atom_si.cp2k.out')
     sys = System.from_file(fn_out)
-
-    rtf = ExpRTransform(1e-3, 1e1, 100)
-    rgrid = RadialGrid(rtf)
-    atgrid = AtomicGrid(0, 0, np.zeros(3, float), (rgrid, 110), random_rotate=False)
-
-    r = ProAtomRecord.from_system(sys, atgrid)
+    r = ProAtomRecord.from_system(sys)
     assert r.number == 14
     assert r.charge == 0
     assert abs(r.energy - -3.761587698067) < 1e-10
@@ -92,7 +87,6 @@ def test_record_basics_pseudo():
     assert r.pseudo_number == 4
     assert r.pseudo_population == 4
     assert r.safe
-    assert r.rgrid.rtransform is rtf
 
 
 def compare_padbs(padb1, padb2):
@@ -105,7 +99,7 @@ def compare_padbs(padb1, padb2):
 
 
 def test_io_group():
-    padb1 = get_proatomdb_ref([1, 6], 1, 1)
+    padb1 = ProAtomDB.from_refatoms(numbers=[1, 6], max_kation=1, max_anion=1)
     assert padb1.size == 5
     keys = sorted(padb1._map.keys())
     assert keys == [(1, -1), (1, 0), (6, -1), (6, 0), (6, +1)]
@@ -117,7 +111,7 @@ def test_io_group():
 
 
 def test_io_filename():
-    padb1 = get_proatomdb_ref([1, 6], 1, 0)
+    padb1 = ProAtomDB.from_refatoms(numbers=[1, 6], max_kation=1, max_anion=0)
     keys = sorted(padb1._map.keys())
     assert keys == [(1, 0), (6, 0), (6, 1)]
 
@@ -134,7 +128,8 @@ def test_io_filename():
 
 
 def test_compute_radii():
-    padb = get_proatomdb_ref([6], 0, 0)
+    rgrid = RadialGrid(ExpRTransform(1e-3, 1e1, 100))
+    padb = ProAtomDB.from_refatoms([1, 6], 0, 0, (rgrid, 110))
     record = padb.get_record(6, 0)
     indexes, radii = record.compute_radii([2.0, 5.9, 5.999])
     assert (indexes == [69, 90, 100]).all()
@@ -169,7 +164,7 @@ def check_spline_pop(spline, pop):
 
 
 def test_get_spline():
-    padb = get_proatomdb_ref([1, 6], 1, 1)
+    padb = ProAtomDB.from_refatoms(numbers=[1, 6], max_kation=1, max_anion=1)
 
     spline = padb.get_spline(6)
     check_spline_pop(spline, 6.0)

@@ -21,8 +21,8 @@
 #--
 
 
-from horton import log, lebedev_laikov_npoints, ExpRTransform, \
-    RTransform, RadialGrid, AtomicGrid, ProAtomDB, angstrom, periodic
+from horton import log, lebedev_laikov_npoints, ProAtomDB, angstrom, periodic, \
+    AtomicGridSpec, ProAtomRecord
 from horton.scripts.atomdb import *
 import sys, argparse, numpy as np
 from glob import glob
@@ -68,23 +68,6 @@ def parse_args_input(args):
              'atom-charge combination and the lowest in energy is selected.')
     parser.add_argument('--overwrite', default=False, action='store_true',
         help='Overwrite existing input files.')
-    parser.add_argument(
-        "-l", "--lebedev", default=350, type=int,
-        help="The number of grid points for the spherical averaging. "
-        "[default=%%(default)s]. Select from: %s." % (" ".join(str(i) for i in lebedev_laikov_npoints))
-    )
-    parser.add_argument(
-        "--rmin", default=2e-4, type=float,
-        help="The smalest radius for the radial grid (in angstroms). [default=%(default)s]"
-    )
-    parser.add_argument(
-        "--rmax", default=20.0, type=float,
-        help="The largest radius for the radial grid (in angstroms). [default=%(default)s]"
-    )
-    parser.add_argument(
-        '-s', "--grid-size", default=100, type=int,
-        help="The number of points in the radial grid. [default=%(default)s]"
-    )
 
     parsed = parser.parse_args(args)
     parsed.program = atom_programs[parsed.program]
@@ -96,20 +79,9 @@ def main_input(args):
     with open(args.template) as f:
         template = Template(f.read())
 
-    # create a grid based on the arguments and write certain arguments to file
-    # for convert call
-    rtf = ExpRTransform(args.rmin*angstrom, args.rmax*angstrom, args.grid_size)
-    rgrid = RadialGrid(rtf)
-    atspec = (rgrid, args.lebedev)
-    atgrid = AtomicGrid(0, 0, np.zeros(3), atspec, random_rotate=False)
-    with open('settings.txt', 'w') as f:
-        print >> f, rtf.to_string()
-        print >> f, args.lebedev
-        print >> f, args.program.name
-
     # Loop over all atomic states and make input files
     for number, charge, mult in iter_states(args.elements, args.max_kation, args.max_anion, args.hund):
-        args.program.write_input(number, charge, mult, template, args.overwrite, atgrid)
+        args.program.write_input(number, charge, mult, template, args.overwrite)
 
     # Write a script that will run all computations (also those created previously)
     args.program.write_run_script()
@@ -119,6 +91,15 @@ def parse_args_convert(args):
     parser = argparse.ArgumentParser(prog='horton-atomdb.py convert',
         description='Convert the output of the atomic computations to horton '
                     'h5 files.')
+    parser.add_argument('--grid', type=str, default='veryfine',
+        help='Specify the atomic grid used to construct spherical averages. '
+             'Six built-in pruned grids are available: coarse, medium, fine, '
+             'veryfine, ultrafine, insane. [default=%%(default)s] Not all '
+             'elements are supported for each grid type. See documentation for '
+             'more details and other possible arguments for this option that '
+             'allow a more fine-grained control of the atomic integration '
+             'grid. Note that the radial part of this grid is also used for '
+             'interpolation in horton-wpart.py')
 
     return parser.parse_args(args)
 
@@ -232,13 +213,14 @@ def plot_atoms(proatomdb):
 
 
 def main_convert(args):
-    # load relevant arguments from input program
-    with open('settings.txt') as f:
-        rtf = RTransform.from_string(f.next().strip())
-        nll = int(f.next())
-        program = atom_programs[f.next().strip()]
-    rgrid = RadialGrid(rtf)
-    atgrid = AtomicGrid(0, 0, np.zeros(3, float), (rgrid, nll), random_rotate=False)
+    # The atomic grid specification
+    agspec = AtomicGridSpec(args.grid)
+
+    # The program is detected based on the run script that is present
+    run_scripts = glob("run_*.sh")
+    if len(run_scripts) != 1:
+        raise RuntimeError('Found %i run_*.sh scripts while exactly one is needed to know which program was used to run the atomic computations.' % len(run_scripts))
+    program = atom_programs[run_scripts[0][4:-3]]
 
     # Loop over all sensible directories
     energy_table = EnergyTable()
@@ -256,7 +238,7 @@ def main_convert(args):
                 if log.do_medium:
                     log('No (sensible) results found:  ', dn_mult)
                 continue
-            cases.append((energy, system, dn_mult))
+            cases.append((energy, system))
 
         if len(cases) == 0:
             if log.do_medium:
@@ -265,7 +247,7 @@ def main_convert(args):
 
         # Get the lowest in energy and write to chk file
         cases.sort()
-        energy, system, dn_mult = cases[0]
+        energy, system = cases[0]
 
         # Add case to energy table
         energy_table.add(number, pop, energy)
@@ -275,7 +257,7 @@ def main_convert(args):
             system.assign_chk('%s/horton.h5' % dn_state)
 
         # Construct a record for the proatomdb
-        records.append(program.create_record(system, dn_mult, atgrid))
+        records.append(ProAtomRecord.from_system(system, agspec))
 
         # Release memory and close h5 files
         system = None

@@ -128,7 +128,7 @@ def check_msa_hf_lan(scheme, expecting, needs_padb=True, **kwargs):
     WPartClass = wpart_schemes[scheme]
     wpart = WPartClass(sys, grid, **kwargs)
     wpart.do_charges()
-    assert abs(wpart['charges'] - expecting).max() < 3e-3
+    assert abs(wpart['charges'] - expecting).max() < 4e-3
 
     if kwargs.get('greedy', False):
         check_proatom_splines(wpart)

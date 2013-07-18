@@ -25,7 +25,7 @@ from string import Template as BaseTemplate
 from glob import glob
 import re, os, stat, numpy as np, h5py as h5
 
-from horton import periodic, log, System, ProAtomRecord
+from horton import periodic, log, System
 from horton.scripts.common import iter_elements
 
 
@@ -270,7 +270,7 @@ class AtomProgram(object):
     name = None
     run_script = None
 
-    def write_input(self, number, charge, mult, template, do_overwrite, atgrid):
+    def write_input(self, number, charge, mult, template, do_overwrite):
         # Directory stuff
         nel = number - charge
         dn_mult = '%03i_%s_%03i_q%+03i/mult%02i' % (
@@ -335,12 +335,6 @@ class AtomProgram(object):
         system.extra['energy'] = self._get_energy(system, dn_mult)
         return system, system.extra['energy']
 
-    def create_record(self, system, dn_mult, atgrid):
-        if system is None:
-            raise NotImplementedError
-
-        return ProAtomRecord.from_system(system, atgrid)
-
 
 run_gaussian_script = '''
 #!/bin/bash
@@ -370,10 +364,10 @@ class G09AtomProgram(AtomProgram):
     name = 'g09'
     run_script = run_gaussian_script % {'name': 'g09'}
 
-    def write_input(self, number, charge, mult, template, do_overwrite, atgrid):
+    def write_input(self, number, charge, mult, template, do_overwrite):
         if '%chk=atom.chk\n' not in template.template:
             raise ValueError('The template must contain a line \'%chk=atom.chk\'')
-        return AtomProgram.write_input(self, number, charge, mult, template, do_overwrite, atgrid)
+        return AtomProgram.write_input(self, number, charge, mult, template, do_overwrite)
 
     def load_atom(self, dn_mult):
         return AtomProgram.load_atom(self, dn_mult, 'fchk')
@@ -422,98 +416,6 @@ class OrcaAtomProgram(AtomProgram):
         return AtomProgram.load_atom(self, dn_mult, 'molden.input')
 
 
-run_adf_script = '''
-#!/bin/bash
-
-# make sure adf and the kf2hdf.py script are available before running this
-# script.
-
-MISSING=0
-if ! which adf &>/dev/null; then echo "adf binary not found."; MISSING=1; fi
-if ! which densf &>/dev/null; then echo "densf binary not found."; MISSING=1; fi
-if ! which kf2hdf.py &>/dev/null; then echo "kf2hdf.py not found."; MISSING=1; fi
-if [ $MISSING -eq 1 ]; then echo "The required programs are not present on your system. Giving up."; exit -1; fi
-
-function do_atom {
-    echo "Computing in ${1}"
-    cd ${1}
-    if [ -e atom.out ]; then
-        echo "Output file present in ${1}, not recomputing."
-    else
-        adf < atom.in > atom.out
-        densf < grid.in > grid.out
-        kf2hdf.py TAPE41 grid.h5
-        rm logfile t21.* TAPE21 TAPE41
-    fi
-    cd -
-}
-'''
-
-adf_grid_prefix = '''\
-INPUTFILE TAPE21
-UNITS
- Length bohr
-END
-Grid inline
-'''
-
-adf_grid_suffix = '''\
-END
-density scf
-'''
-
-
-class ADFAtomProgram(AtomProgram):
-    name = 'adf'
-    run_script = run_adf_script
-
-    def write_input(self, number, charge, mult, template, do_overwrite, atgrid):
-        dn_mult, do_write = AtomProgram.write_input(self, number, charge, mult, template, do_overwrite, atgrid)
-        if do_write:
-            # Write the grid input
-            with open('%s/grid.in' % dn_mult, 'w') as f:
-                f.write(adf_grid_prefix)
-                for point in atgrid.points:
-                    f.write('    %23.16e  %23.16e  %23.16e\n' % tuple(point))
-                f.write(adf_grid_suffix)
-        return dn_mult, do_write
-
-    def _get_energy(self, system, dn_mult):
-        with open('%s/atom.out' % dn_mult) as f:
-            for line in f:
-                if line.startswith('Total Bonding Energy:'):
-                    return float(line[30:56])
-
-
-    def load_atom(self, dn_mult):
-        system = None
-        return system, self._get_energy(system, dn_mult)
-
-    def create_record(self, system, dn_mult, atgrid):
-        # get parameters
-        number = int(dn_mult[:3])
-        population = int(dn_mult[7:10])
-        charge = number - population
-        energy = self._get_energy(system, dn_mult)
-
-        # get rho
-        with h5.File('%s/grid.h5' % dn_mult) as f:
-            npoint = f['Grid/total nr of points'][()]
-            assert npoint == atgrid.size
-            llgrid = atgrid.subgrids[0]
-            nll = llgrid.size
-            dens = f['SCF/Density'][:].reshape((-1,nll))
-
-            rho = np.dot(dens, llgrid.weights)/llgrid.weights.sum()
-
-        # get pseudo population
-        pseudo_population = int(np.round(atgrid.integrate(dens.ravel())))
-        pseudo_number = charge + pseudo_population
-
-        # Done
-        return ProAtomRecord(number, charge, energy, atgrid.rtransform, rho, pseudo_number)
-
-
 run_cp2k_script = '''
 #!/bin/bash
 
@@ -539,10 +441,10 @@ class CP2KAtomProgram(AtomProgram):
     name = 'cp2k'
     run_script = run_cp2k_script
 
-    def write_input(self, number, charge, mult, template, do_overwrite, atgrid):
+    def write_input(self, number, charge, mult, template, do_overwrite):
         if '&ATOM' not in template.template:
             raise ValueError('The template must be a CP2K atom input. (\'&ATOM\' not found.)')
-        return AtomProgram.write_input(self, number, charge, mult, template, do_overwrite, atgrid)
+        return AtomProgram.write_input(self, number, charge, mult, template, do_overwrite)
 
     def load_atom(self, dn_mult):
         return AtomProgram.load_atom(self, dn_mult, 'cp2k.out')
