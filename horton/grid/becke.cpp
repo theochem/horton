@@ -83,8 +83,39 @@ void becke_helper_atom(int npoint, double* points, double* weights, int natom,
                        double* radii, double* centers, int select, int order)
 {
     double nom, denom; // The nominator and the denominator in the weight definition
-    double alpha, p, s; // Used to build up the value of the switching function
+    double p, s; // Used to build up the value of the switching function
 
+    // precompute the the alpha parameters for each atom pair
+    double alphas[(natom*(natom+1))/2];
+    long offset = 0;
+    for (int iatom0 = 0; iatom0 < natom; iatom0++) {
+        for (int iatom1 = 0; iatom1 <= iatom0; iatom1++) {
+            // Heteronuclear assignment of the boundary. (Appendix in Becke's paper.)
+            double alpha = (radii[iatom0] - radii[iatom1])/(radii[iatom0] + radii[iatom1]); // Eq. (A6)
+            alpha = alpha/(alpha*alpha-1); // Eq. (A5)
+            // Eq. (A3), except that we use some safe margin (0.45 instead of 0.5)
+            // to stay away from a ridiculous imbalance.
+            if (alpha > 0.45) {
+                alpha = 0.45;
+            } else if (alpha < -0.45) {
+                alpha = -0.45;
+            }
+            alphas[offset] = alpha;
+            offset += 1;
+        }
+    }
+
+    // precompute interatomic distances
+    double atomic_dists[(natom*(natom+1))/2];
+    offset = 0;
+    for (int iatom0 = 0; iatom0 < natom; iatom0++) {
+        for (int iatom1 = 0; iatom1 <= iatom0; iatom1++) {
+            atomic_dists[offset] = dist(&centers[3*iatom0], &centers[3*iatom1]);
+            offset += 1;
+        }
+    }
+
+    // actual computations of Becke weights
     for (int ipoint = npoint-1; ipoint>=0; ipoint--) {
         nom = 0;
         denom = 0;
@@ -93,24 +124,18 @@ void becke_helper_atom(int npoint, double* points, double* weights, int natom,
             for (int iatom1 = 0; iatom1 < natom; iatom1++) {
                 if (iatom0 == iatom1) continue;
 
-                // TODO: move the following block out of the loops
-                // Heteronuclear assignment of the boundary. (Appendix in Becke's paper.)
-                alpha = (radii[iatom0] - radii[iatom1])/(radii[iatom0] + radii[iatom1]); // Eq. (A6)
-                alpha = alpha/(alpha*alpha-1); // Eq. (A5)
-                // Eq. (A3), except that we use some safe margin (0.45 instead of 0.5)
-                // to stay away from a ridiculous imbalance.
-                if (alpha > 0.45) {
-                    alpha = 0.45;
-                } else if (alpha < -0.45) {
-                    alpha = -0.45;
+                // compute offset for alpha and interatomic distance
+                if (iatom0 < iatom1) {
+                    offset = (iatom1*(iatom1+1))/2+iatom0;
+                } else {
+                    offset = (iatom0*(iatom0+1))/2+iatom1;
                 }
 
-                // TODO: move the constant parts, independent of grid point, out of the loops
                 // Diatomic switching function
                 s = (dist(points, &centers[3*iatom0])
                      -dist(points, &centers[3*iatom1]))
-                    /dist(&centers[3*iatom0], &centers[3*iatom1]); // Eq. (11)
-                s = s + alpha*(1-s*s); // Eq. (A2)
+                    /atomic_dists[offset]; // Eq. (11)
+                s = s + alphas[offset]*(1 - 2*(iatom0<iatom1))*(1-s*s); // Eq. (A2)
 
                 for (int k=1; k <= order; k++) { // Eq. (19) and (20)
                     s = 0.5*s*(3-s*s);
