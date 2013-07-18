@@ -126,7 +126,9 @@ class HirshfeldIMixin(IterativeProatomMixin):
 
 
 class HirshfeldIWPart(HirshfeldIMixin, HirshfeldWPart):
-    def __init__(self, system, grid, proatomdb, local=True, threshold=1e-6, maxiter=500, greedy=False):
+    options = HirshfeldIMixin.options + ['epsilon']
+
+    def __init__(self, system, grid, proatomdb, local=True, epsilon=0, threshold=1e-6, maxiter=500, greedy=False):
         '''
            **Optional arguments:** (that are not present in the base class)
 
@@ -140,7 +142,7 @@ class HirshfeldIWPart(HirshfeldIMixin, HirshfeldWPart):
                 in the end, no warning is given.
         '''
         HirshfeldIMixin.__init__(self, threshold, maxiter, greedy)
-        HirshfeldWPart.__init__(self, system, grid, proatomdb, local)
+        HirshfeldWPart.__init__(self, system, grid, proatomdb, local, epsilon)
 
     def get_memory_estimates(self):
         return (

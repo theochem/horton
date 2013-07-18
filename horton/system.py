@@ -536,7 +536,7 @@ class System(object):
             self.obasis.compute_grid_orbitals_exp(exp, points, iorbs, orbs)
         return orbs
 
-    def compute_grid_density(self, points, rhos=None, select='full'):
+    def compute_grid_density(self, points, rhos=None, select='full', basis_eps=0):
         '''Compute the electron density on a grid using self.wfn as input
 
            **Arguments:**
@@ -553,6 +553,10 @@ class System(object):
            select
                 'alpha', 'beta', 'full' or 'spin'. ('full' is the default.)
 
+           basis_eps
+                When basis functions at a grid point are lower in absolute value
+                than this threshold, they are neglected.
+
            **Returns:**
 
            rhos
@@ -565,7 +569,7 @@ class System(object):
             raise TypeError('The shape of the output array is wrong')
         with timer.section('Density grid'):
             dm = self.wfn.get_dm(select)
-            self.obasis.compute_grid_density_dm(dm, points, rhos)
+            self.obasis.compute_grid_density_dm(dm, points, rhos, basis_eps)
         return rhos
 
     def compute_grid_gradient(self, points, gradrhos=None, select='full'):
