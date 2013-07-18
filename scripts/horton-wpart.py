@@ -57,6 +57,9 @@ def parse_args():
         help='Use the entire molecular grid for all integrations. The default '
              'behavior is to compute the integral for a given atom on a '
              'atom-centered grid, which is a part of the molecular grid.')
+    parser.add_argument('-e', '--epsilon', default=0, type=float,
+        help='A threshold for the approximate evaluation of the density on the '
+             'integration grids.')
     parser.add_argument('--maxiter', '-i', default=500, type=int,
         help='The maximum allowed number of iterations. [default=%(default)s]')
     parser.add_argument('--threshold', '-t', default=1e-6, type=float,

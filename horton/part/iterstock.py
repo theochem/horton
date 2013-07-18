@@ -114,13 +114,13 @@ class IterativeProatomMixin():
 class IterativeStockholderWPart(IterativeProatomMixin, StockholderWPart):
     '''Class for Iterative Stockholder Partitioning'''
     name = 'is'
-    options = ['threshold', 'maxiter']
+    options = ['threshold', 'maxiter', 'epsilon']
     linear = False
 
-    def __init__(self, system, grid, threshold=1e-6, maxiter=500):
+    def __init__(self, system, grid, epsilon=0, threshold=1e-6, maxiter=500):
         self._threshold = threshold
         self._maxiter = maxiter
-        StockholderWPart.__init__(self, system, grid, local=True)
+        StockholderWPart.__init__(self, system, grid, local=True, epsilon=epsilon)
 
     def _init_log_scheme(self):
         if log.do_medium:

@@ -335,7 +335,7 @@ class WPart(Part):
     # user-provided grids.
 
     '''Base class for density partitioning schemes'''
-    def __init__(self, system, grid, local=True):
+    def __init__(self, system, grid, local=True, epsilon=0):
         '''
            **Arguments:**
 
@@ -349,11 +349,21 @@ class WPart(Part):
                 If ``False``: use the entire molecular grid for each AIM integral.
                 When set to ``True``, certain pairwise integrals are done with
                 two atomic grids if needed.
+
+           epsilon
+                When set to a positive value, it is used to set various
+                thresholds that will increasy the speed of the code at the
+                expense of some accuracy.
         '''
         if local and grid.subgrids is None:
             raise ValueError('Atomic grids are discarded from molecular grid object, but are needed for local integrations.')
+        self._epsilon = epsilon
         Part.__init__(self, system, grid, local)
 
+    def _get_epsilon(self):
+        return self._epsilon
+
+    epsilon = property(_get_epsilon)
 
     def _init_log_base(self):
         if log.do_medium:
@@ -377,7 +387,7 @@ class WPart(Part):
             for i in xrange(self.system.natom):
                 grid = self.get_grid(i)
                 end = begin + grid.size
-                self.system.compute_grid_density(grid.points, rhos=output[begin:end], select=select)
+                self.system.compute_grid_density(grid.points, rhos=output[begin:end], select=select, basis_eps=self.epsilon)
                 begin = end
                 pb()
         else:

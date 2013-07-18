@@ -114,11 +114,12 @@ class HirshfeldMixin(object):
 
 
 class HirshfeldWPart(HirshfeldMixin, StockholderWPart):
-    '''Base class for Hirshfeld partitioning'''
-    def __init__(self, system, grid, proatomdb, local=True):
+    options = HirshfeldMixin.options + ['epsilon']
+
+    def __init__(self, system, grid, proatomdb, local=True, epsilon=0):
         check_proatomdb(system, proatomdb)
         HirshfeldMixin. __init__(self, proatomdb)
-        StockholderWPart.__init__(self, system, grid, local)
+        StockholderWPart.__init__(self, system, grid, local, epsilon)
 
 
 class HirshfeldCPart(HirshfeldMixin, StockholderCPart):

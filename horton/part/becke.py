@@ -36,13 +36,13 @@ __all__ = ['BeckeWPart']
 
 class BeckeWPart(WPart):
     name = 'b'
-    options = ['k']
+    options = ['epsilon', 'k']
     linear = True
 
     '''Class for Becke partitioning'''
-    def __init__(self, system, grid, local=True, k=3):
+    def __init__(self, system, grid, local=True, epsilon=0, k=3):
         self._k = k
-        WPart.__init__(self, system, grid, local)
+        WPart.__init__(self, system, grid, local, epsilon)
 
     def _init_log_scheme(self):
         if log.do_medium:
