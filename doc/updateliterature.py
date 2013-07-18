@@ -29,7 +29,7 @@ biblio = Biblio(context.get_fn('references.bib'))
 def key(item):
     return int(item[1].tags['year']), item[0]
 
-with open('doc/ref_literature.rst', 'w') as f:
+with open('ref_literature.rst', 'w') as f:
     print >> f, 'Literature'
     print >> f, '##########'
     items = biblio._records.items()
