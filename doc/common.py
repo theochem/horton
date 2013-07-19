@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Horton is a development platform for electronic structure methods.
 # Copyright (C) 2011-2013 Toon Verstraelen <Toon.Verstraelen@UGent.be>
@@ -21,26 +20,22 @@
 #--
 
 
-from cStringIO import StringIO
-
-from horton.log import Biblio
-from horton.context import context
-
-from common import write_if_changed
+import os
 
 
-biblio = Biblio(context.get_fn('references.bib'))
+__all__ = ['write_if_changed']
 
-def key(item):
-    return int(item[1].tags['year']), item[0]
 
-f = StringIO()
-print >> f, 'Literature'
-print >> f, '##########'
-items = biblio._records.items()
-items.sort(key=key)
-for key, reference in items:
-    print >> f
-    print >> f, '.. [%s] %s' % (key, reference.format_rst())
-s = f.getvalue()
-write_if_changed('ref_literature.rst', s)
+def write_if_changed(fn, s_new):
+    if os.path.isfile(fn):
+        # read the entire file
+        with open(fn) as f:
+            s_old = f.read()
+        if s_new == s_old:
+            print 'File %s needs no update. Skipping.' % fn
+            return
+
+    # write the new file to dis
+    print 'Writing new or updated %s' % fn
+    with open(fn, 'w') as f:
+        f.write(s_new)

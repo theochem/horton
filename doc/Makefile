@@ -36,14 +36,15 @@ help:
 autogendoc:
 	cd ..; python setup.py build_ext -i
 	mkdir -p lib
-	rm -fv lib/horton*.rst
 	HORTONDATA=../data PYTHONPATH=../ python updatelibdoc.py
 	HORTONDATA=../data PYTHONPATH=../ python updategrids.py
 	HORTONDATA=../data PYTHONPATH=../ python updateliterature.py
 
 clean:
 	-rm -rf $(BUILDDIR)/*
-	rm lib/horton*.rst
+	rm -f lib/horton*.rst
+	rm -f grids.rst.inc
+	rm -f ref_literature.rst
 
 html: autogendoc
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
