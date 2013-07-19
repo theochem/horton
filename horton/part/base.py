@@ -277,7 +277,7 @@ class Part(JustOnceClass):
     @just_once
     def do_moments(self):
         if log.do_medium:
-            log('Computing cartesian AIM multipoles and radial AIM moments.')
+            log('Computing cartesian and pure AIM multipoles and radial AIM moments.')
 
         lmax = 4 # up to hexadecapoles
 

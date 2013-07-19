@@ -363,7 +363,7 @@ extension appended. In this HDF5 file, the results are written in the group
 ``he``.
 
 Run ``horton-wpart.py --help`` to get a complete list of all command-line
-options.
+options. The integration grid can be tuned with :ref:`ref_grid_option`.
 
 .. note::
 
