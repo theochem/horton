@@ -580,8 +580,8 @@ cdef class GOBasis(GBasis):
            **Optional arguments:**
 
            epsilon
-                Some contributions to the grid data smaller than epsilon are
-                neglected for the sake of efficiency.
+                Allow errors on the density of this magnitude for the sake of
+                efficiency.
 
            **Warning:** the results are added to the output array! This may
            be useful to combine results from different spin components.
@@ -634,8 +634,8 @@ cdef class GOBasis(GBasis):
            **Optional arguments:**
 
            epsilon
-                Some contributions to the grid data smaller than epsilon are
-                neglected for the sake of efficiency.
+                Allow errors on the density of this magnitude for the sake of
+                efficiency.
 
            **Warning:** the results are added to the output array! This may
            be useful to combine results from different spin components.
@@ -664,8 +664,8 @@ cdef class GOBasis(GBasis):
            **Optional arguments:**
 
            epsilon
-                Some contributions to the grid data smaller than epsilon are
-                neglected for the sake of efficiency.
+                Allow errors on the density of this magnitude for the sake of
+                efficiency.
 
            **Warning:** the results are added to the output array! This may
            be useful to combine results from different spin components.

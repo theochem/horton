@@ -178,8 +178,8 @@ def test_density_epsilon():
     for epsilon in 1e-10, 1e-5, 1e-3, 1e-1:
         rho2 = sys.compute_grid_density(grid.points, epsilon=epsilon)
         mask = (rho1 != rho2)
-        assert rho1[mask].max() < epsilon
-        assert rho2[mask].max() == 0.0
+        assert ((rho1[mask] < epsilon) | (abs(rho1[mask]-rho2[mask]) < epsilon)).all()
+        assert ((rho2[mask] == 0.0) | (abs(rho1[mask]-rho2[mask]) < epsilon)).all()
 
 
 def test_density_functional_deriv():
