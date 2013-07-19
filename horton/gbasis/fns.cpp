@@ -158,12 +158,22 @@ void GB1DMGridDensityFn::compute_point_from_dm(double* work_basis, double* dm, l
             rho_upper += fabs(work_basis[ibasis])*dmmaxrow[ibasis];
         }
         rho_upper *= nbasis*absmax_basis;
+
+        // if the upper bound is too low, do not compute density.
         if (rho_upper < epsilon) return;
+
+        // modify epsilon to avoid recomputation
+        epsilon /= absmax_basis*nbasis*nbasis;
     }
 
     // Loop over all basis functions and add significant contributions
     double rho = 0.0;
     for (long ibasis0=0; ibasis0<nbasis; ibasis0++) {
+        // if the contribution of this loop is smaller than epsilon/nbasis, skipt it.
+        if (epsilon>0) {
+            if (fabs(work_basis[ibasis0])*dmmaxrow[ibasis0] < epsilon)
+                continue;
+        }
         double tmp = 0;
         for (long ibasis1=ibasis0-1; ibasis1>=0; ibasis1--) {
             tmp += work_basis[ibasis1]*dm[ibasis0*nbasis+ibasis1];

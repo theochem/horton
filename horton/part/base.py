@@ -351,9 +351,8 @@ class WPart(Part):
                 two atomic grids if needed.
 
            epsilon
-                When set to a positive value, it is used to set various
-                thresholds that will increasy the speed of the code at the
-                expense of some accuracy.
+                Allow errors on the computed electron density of this magnitude
+                for the sake of efficiency.
         '''
         if local and grid.subgrids is None:
             raise ValueError('Atomic grids are discarded from molecular grid object, but are needed for local integrations.')

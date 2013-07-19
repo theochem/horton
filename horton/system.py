@@ -554,8 +554,8 @@ class System(object):
                 'alpha', 'beta', 'full' or 'spin'. ('full' is the default.)
 
            epsilon
-                Some contributions to the grid data smaller than epsilon are
-                neglected for the sake of efficiency.
+                Allow errors on the density of this magnitude for the sake of
+                efficiency.
 
            **Returns:**
 
