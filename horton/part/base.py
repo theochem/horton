@@ -387,7 +387,7 @@ class WPart(Part):
             for i in xrange(self.system.natom):
                 grid = self.get_grid(i)
                 end = begin + grid.size
-                self.system.compute_grid_density(grid.points, rhos=output[begin:end], select=select, basis_eps=self.epsilon)
+                self.system.compute_grid_density(grid.points, rhos=output[begin:end], select=select, epsilon=self.epsilon)
                 begin = end
                 pb()
         else:

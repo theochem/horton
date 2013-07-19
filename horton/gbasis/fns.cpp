@@ -144,13 +144,26 @@ void GB1DMGridDensityFn::add(double coeff, double alpha0, const double* scales0)
     }
 }
 
-void GB1DMGridDensityFn::compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output, double basis_eps) {
-    double rho = 0;
+void GB1DMGridDensityFn::compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output, double epsilon, double* dmmaxrow) {
+    double absmax_basis = 0.0;
+    if (epsilon > 0) {
+        // compute the maximum basis function
+        for (long ibasis=0; ibasis<nbasis; ibasis++) {
+            double tmp = fabs(work_basis[ibasis]);
+            if (tmp > absmax_basis) absmax_basis = tmp;
+        }
+        // upper estimate of the density
+        double rho_upper = 0.0;
+        for (long ibasis=0; ibasis<nbasis; ibasis++) {
+            rho_upper += fabs(work_basis[ibasis])*dmmaxrow[ibasis];
+        }
+        rho_upper *= nbasis*absmax_basis;
+        if (rho_upper < epsilon) return;
+    }
 
     // Loop over all basis functions and add significant contributions
+    double rho = 0.0;
     for (long ibasis0=0; ibasis0<nbasis; ibasis0++) {
-        if (fabs(work_basis[ibasis0]) < basis_eps)
-            continue;
         double tmp = 0;
         for (long ibasis1=ibasis0-1; ibasis1>=0; ibasis1--) {
             tmp += work_basis[ibasis1]*dm[ibasis0*nbasis+ibasis1];
@@ -228,7 +241,7 @@ void GB1DMGridGradientFn::add(double coeff, double alpha0, const double* scales0
     } while (i1p.inc());
 }
 
-void GB1DMGridGradientFn::compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output, double basis_eps) {
+void GB1DMGridGradientFn::compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output, double epsilon, double* dmmaxrow) {
     double rho_x = 0, rho_y = 0, rho_z = 0;
     for (long ibasis0=0; ibasis0<nbasis; ibasis0++) {
         double row = 0;

@@ -170,6 +170,18 @@ def test_grid_fn_d_contraction():
     assert abs(work_pure - np.dot(tfs[2], work_cart)).max() < 1e-10
 
 
+def test_density_epsilon():
+    fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
+    sys = System.from_file(fn_fchk)
+    grid = BeckeMolGrid(sys, random_rotate=False)
+    rho1 = sys.compute_grid_density(grid.points)
+    for epsilon in 1e-10, 1e-5, 1e-3, 1e-1:
+        rho2 = sys.compute_grid_density(grid.points, epsilon=epsilon)
+        mask = (rho1 != rho2)
+        assert rho1[mask].max() < epsilon
+        assert rho2[mask].max() == 0.0
+
+
 def test_density_functional_deriv():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
