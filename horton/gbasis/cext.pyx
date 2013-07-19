@@ -558,7 +558,7 @@ cdef class GOBasis(GBasis):
 
     def _compute_grid1_dm(self, dm, np.ndarray[double, ndim=2] points not None,
                           GB1DMGridFn grid_fn not None, np.ndarray output not None,
-                          double basis_eps=0):
+                          double epsilon=0):
         '''_compute_grid_dm(dm, points, output)
 
            Compute some density function on a grid for a given density matrix.
@@ -579,15 +579,21 @@ cdef class GOBasis(GBasis):
 
            **Optional arguments:**
 
-           basis_eps
-                When basis functions at a grid point are lower in absolute value
-                than this threshold, they are neglected.
+           epsilon
+                Some contributions to the grid data smaller than epsilon are
+                neglected for the sake of efficiency.
 
            **Warning:** the results are added to the output array! This may
            be useful to combine results from different spin components.
         '''
+        # Get the array of the density matrix
         cdef np.ndarray dmar = dm._array
         self.check_matrix_one_body(dmar)
+
+        # Get the maximum of the absolute value over the rows
+        cdef np.ndarray dmmaxrow = np.abs(dmar).max(axis=0)
+
+        # Check the output array
         assert output.flags['C_CONTIGUOUS']
         npoint = output.shape[0]
         if grid_fn.dim_output == 1:
@@ -595,17 +601,21 @@ cdef class GOBasis(GBasis):
         else:
             assert output.ndim == 2
             assert output.shape[1] == grid_fn.dim_output
+
+        # Check the points array
         assert points.flags['C_CONTIGUOUS']
         assert points.shape[0] == npoint
         assert points.shape[1] == 3
+
+        # Go!
         (<gbasis.GOBasis*>self._this).compute_grid1_dm(
             <double*>dmar.data, npoint, <double*>points.data,
-            grid_fn._this, <double*>output.data, basis_eps)
+            grid_fn._this, <double*>output.data, epsilon, <double*>dmmaxrow.data)
 
     def compute_grid_density_dm(self, dm,
                                 np.ndarray[double, ndim=2] points not None,
                                 np.ndarray[double, ndim=1] rhos not None,
-                                double basis_eps=0):
+                                double epsilon=0):
         '''compute_grid_density_dm(dm, points, rho)
 
            Compute the electron density on a grid for a given density matrix.
@@ -623,19 +633,19 @@ cdef class GOBasis(GBasis):
 
            **Optional arguments:**
 
-           basis_eps
-                When basis functions at a grid point are lower in absolute value
-                than this threshold, they are neglected.
+           epsilon
+                Some contributions to the grid data smaller than epsilon are
+                neglected for the sake of efficiency.
 
            **Warning:** the results are added to the output array! This may
            be useful to combine results from different spin components.
         '''
-        self._compute_grid1_dm(dm, points, GB1DMGridDensityFn(self.max_shell_type), rhos, basis_eps)
+        self._compute_grid1_dm(dm, points, GB1DMGridDensityFn(self.max_shell_type), rhos, epsilon)
 
     def compute_grid_gradient_dm(self, dm,
                                  np.ndarray[double, ndim=2] points not None,
                                  np.ndarray[double, ndim=2] gradrhos not None,
-                                 double basis_eps=0):
+                                 double epsilon=0):
         '''compute_grid_gradient_dm(dm, points, gradrho)
 
            Compute the electron density gradient on a grid for a given density matrix.
@@ -653,14 +663,14 @@ cdef class GOBasis(GBasis):
 
            **Optional arguments:**
 
-           basis_eps
-                When basis functions at a grid point are lower in absolute value
-                than this threshold, they are neglected.
+           epsilon
+                Some contributions to the grid data smaller than epsilon are
+                neglected for the sake of efficiency.
 
            **Warning:** the results are added to the output array! This may
            be useful to combine results from different spin components.
         '''
-        self._compute_grid1_dm(dm, points, GB1DMGridGradientFn(self.max_shell_type), gradrhos, basis_eps)
+        self._compute_grid1_dm(dm, points, GB1DMGridGradientFn(self.max_shell_type), gradrhos, epsilon)
 
     def compute_grid_hartree_dm(self, dm,
                                 np.ndarray[double, ndim=2] points not None,

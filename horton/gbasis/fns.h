@@ -74,7 +74,7 @@ class GB1ExpGridOrbitalFn : public GB1ExpGridFn  {
 class GB1DMGridFn : public GB1GridFn  {
     public:
         GB1DMGridFn(long max_shell_type, long dim_work, long dim_output) : GB1GridFn(max_shell_type, dim_work, dim_output) {};
-        virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output, double basis_eps) = 0;
+        virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output, double epsilon, double* dmmaxrow) = 0;
         virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis, double* output) = 0;
     };
 
@@ -88,7 +88,7 @@ class GB1DMGridDensityFn : public GB1DMGridFn  {
 
         virtual void reset(long _shell_type0, const double* _r0, const double* _point);
         virtual void add(double coeff, double alpha0, const double* scales0);
-        virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output, double basis_eps);
+        virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output, double epsilon, double* dmmaxrow);
         virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis, double* output);
     };
 
@@ -98,7 +98,7 @@ class GB1DMGridGradientFn : public GB1DMGridFn  {
         GB1DMGridGradientFn(long max_shell_type): GB1DMGridFn(max_shell_type, 4, 3) {};
 
         virtual void add(double coeff, double alpha0, const double* scales0);
-        virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output, double basis_eps);
+        virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output, double epsilon, double* dmmaxrow);
         virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis, double* output);
     };
 
