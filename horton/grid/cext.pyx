@@ -1202,7 +1202,6 @@ cdef class Block3Iterator(object):
 # utils
 #
 
-# TODO: eliminate duplicate code in dot routines -> one general-purpose dot_multi
 
 def _check_integranda(integranda, npoint=None):
     assert len(integranda) > 0
