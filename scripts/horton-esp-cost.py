@@ -25,7 +25,7 @@ import sys, argparse, os
 
 import numpy as np
 from horton import System, angstrom, setup_weights, ESPCost, log, angstrom, \
-    dump_hdf5_low
+    dump_hdf5_low, __version__
 from horton.scripts.common import reduce_data, parse_ewald_args, parse_pbc, \
     store_args, safe_open_h5
 from horton.scripts.espfit import parse_wdens, parse_wnear, parse_wfar, \
@@ -36,6 +36,8 @@ from horton.grid.cext import UniformGrid
 def parse_args():
     parser = argparse.ArgumentParser(prog='horton-esp-cost.py',
         description='Construct a cost function and fit charges to ESP.')
+    parser.add_argument('-V', '--version', action='version',
+        version="%%(prog)s (horton version %s)" % __version__)
 
     parser.add_argument('cube',
         help='The cube file.')

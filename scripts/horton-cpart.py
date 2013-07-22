@@ -24,7 +24,7 @@
 import sys, argparse, os
 
 from horton import System, cpart_schemes, Cell, ProAtomDB, log, \
-    symmetry_analysis, UniformGrid
+    symmetry_analysis, UniformGrid, __version__
 from horton.scripts.common import reduce_data, store_args, parse_pbc, \
     iter_elements, safe_open_h5, write_part_output
 
@@ -32,6 +32,8 @@ from horton.scripts.common import reduce_data, store_args, parse_pbc, \
 def parse_args():
     parser = argparse.ArgumentParser(prog='horton-cpart.py',
         description='Partition the density from a cube file.')
+    parser.add_argument('-V', '--version', action='version',
+        version="%%(prog)s (horton version %s)" % __version__)
 
     parser.add_argument('cube',
         help='The cube file.')

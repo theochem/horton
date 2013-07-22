@@ -24,13 +24,15 @@
 import sys, argparse, os
 
 import numpy as np
-from horton import System, ESPCost, log, dump_hdf5_low
+from horton import System, ESPCost, log, dump_hdf5_low, __version__
 from horton.scripts.common import parse_h5, store_args, safe_open_h5
 
 
 def parse_args():
     parser = argparse.ArgumentParser(prog='horton-esp-test.py',
         description='Test how well charges reproduce the ESP.')
+    parser.add_argument('-V', '--version', action='version',
+        version="%%(prog)s (horton version %s)" % __version__)
 
     parser.add_argument('h5_esp',
         help='[HDF5 filename]:[HDF5 group] The HDF5 file can be created with '

@@ -1,7 +1,7 @@
 Release history
 ###############
 
-* **June X, 2013. Version 1.1**
+* **June 22, 2013. Version 1.1.0**
 
    - Iterative Stockholder partitioning [lillestolen2008]_.
    - Pure (harmonic) multipoles in the AIM analysis.
@@ -10,13 +10,18 @@ Release history
    - New pruned atomic integration grids for elements H-La, Hf-Rn, with more
      levels of accuracy.
    - New radial integration grids with improved accuracy.
-   - Speedups in density evaluation and Becke weights.
-   - Screen output and timer improvements
+   - ADF is no longer supported in ``horton-atomdb.py``.
+   - More efficient Becke weights.
+   - Screen output and timer improvements.
+   - A fast (approximate) evaluation of the electron density in
+     ``horton-wpart.py``.
+   - Many cleanups.
 
 
 * **June 5, 2013. Version 1.0.2**
 
    - Also support dynamic linking of libint and libx.
+   - Switch to libint-2.0.3-stable.
    - Various cleanups.
 
 

@@ -24,7 +24,7 @@
 import sys, argparse, os, csv
 
 import numpy as np
-from horton.log import log
+from horton import log, __version__
 from horton.scripts.common import parse_h5, safe_open_h5
 from horton.scripts.hdf2csv import iter_datasets
 
@@ -41,6 +41,8 @@ def parse_args():
     parser = argparse.ArgumentParser(prog='horton-hdf2csv.py',
         description='Convert part of a HDF5 file to a CSV file, suitable for spreadsheets.',
         epilog=epilog)
+    parser.add_argument('-V', '--version', action='version',
+        version="%%(prog)s (horton version %s)" % __version__)
 
     parser.add_argument('h5',
         help='[HDF5 filename]:[HDF5 group] Specifies the part of the HDF5 file '
