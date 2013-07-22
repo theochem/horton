@@ -26,8 +26,8 @@ import numpy as np, os
 
 from horton.context import context
 from horton.grid.base import IntGrid
-from horton.grid.cext import lebedev_laikov_npoints, lebedev_laikov_sphere, \
-    RTransform, LinearRTransform, ExpRTransform, PowerRTransform
+from horton.grid.cext import lebedev_laikov_sphere, RTransform, \
+    LinearRTransform, ExpRTransform, PowerRTransform
 from horton.grid.radial import RadialGrid
 from horton.log import log
 from horton.units import angstrom

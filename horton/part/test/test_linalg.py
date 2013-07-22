@@ -20,7 +20,6 @@
 #--
 
 
-import numpy as np
 from cPickle import loads
 from nose.tools import assert_raises
 

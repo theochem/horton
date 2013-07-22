@@ -23,9 +23,7 @@
 
 import numpy as np
 
-
 from horton.grid.base import IntGrid
-from horton.log import log
 
 
 __all__ = ['RectangleGrid']

@@ -21,9 +21,7 @@
 '''Mean-field DFT/HF Hamiltonian data structures'''
 
 
-import numpy as np
-
-from horton.log import log, timer
+from horton.log import log
 from horton.cache import Cache
 from horton.meanfield.core import KineticEnergy, ExternalPotential
 from horton.meanfield.builtin import Hartree

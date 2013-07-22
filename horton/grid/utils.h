@@ -31,6 +31,4 @@ void dot_multi_moments(long npoint, long nvector, double** data, double* points,
     double* center, long lmax, long mtype, long* segments, double* output,
     long nmoment);
 
-void grid_distances(double *points, double *center, double *distances, long n);
-
 #endif

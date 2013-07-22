@@ -23,9 +23,6 @@
 
 import numpy as np
 
-from horton.cache import just_once
-from horton.grid.int1d import SimpsonIntegrator1D
-from horton.grid.cext import dot_multi
 from horton.log import log
 from horton.part.hirshfeld import HirshfeldWPart, HirshfeldCPart
 from horton.part.iterstock import IterativeProatomMixin
@@ -77,7 +74,7 @@ class HirshfeldIMixin(IterativeProatomMixin):
             return self.proatomdb.get_rho(number, {icharge: 1-x})
         elif pseudo_pop > 1:
             return self.proatomdb.get_rho(number, {icharge: 1-x, icharge+1: x})
-        elif psuedo_pop <= 0:
+        elif pseudo_pop <= 0:
             raise ValueError('Requesting a pro-atom with a negative (pseudo) population')
 
     def get_somefn(self, index, spline, key, label, grid=None):

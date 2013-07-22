@@ -25,10 +25,9 @@ import os
 import h5py as h5, numpy as np
 
 from horton.context import context
-from horton.exceptions import ElectronCountError
 from horton.grid.atgrid import AtomicGrid, AtomicGridSpec
 from horton.grid.int1d import SimpsonIntegrator1D
-from horton.grid.cext import RTransform, CubicSpline, dot_multi
+from horton.grid.cext import RTransform, CubicSpline
 from horton.grid.radial import RadialGrid
 from horton.log import log, timer
 from horton.system import System

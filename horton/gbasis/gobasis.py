@@ -24,8 +24,9 @@
 import numpy as np
 
 from horton.context import context
-from horton.gbasis.cext import get_shell_nbasis, GOBasis
+from horton.gbasis.cext import GOBasis
 from horton.gbasis.io import load_basis_atom_map_nwchem
+from horton.periodic import periodic
 
 
 __all__ = [
@@ -113,7 +114,7 @@ class GOBasisDesc(object):
             elif isinstance(basis_x, GOBasisFamily):
                 basis_atom = basis_x.get(n)
                 if basis_atom is None:
-                    raise ValueError('The basis family %s does not contain element %n.' % (basis_x.name, n))
+                    raise ValueError('The basis family %s does not contain element %i.' % (basis_x.name, n))
                 return basis_atom
             elif isinstance(basis_x, GOBasisAtom):
                 return basis_x

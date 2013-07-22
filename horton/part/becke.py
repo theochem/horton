@@ -23,7 +23,6 @@
 
 import numpy as np
 
-from horton.cache import just_once
 from horton.grid.cext import becke_helper_atom
 from horton.log import log, timer
 from horton.part.base import WPart

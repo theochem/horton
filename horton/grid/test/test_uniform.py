@@ -188,8 +188,7 @@ def test_uig_eval_spline_0d_random():
         rvecs = grid_cell.rvecs
         points = np.outer(x, rvecs[0]) + np.outer(y, rvecs[1]) + np.outer(z, rvecs[2])
         points += origin
-        distances = np.zeros(len(points))
-        grid_distances(points, center, distances)
+        distances = np.sqrt(((points-center)**2).sum(axis=1))
         output2 = cs(distances)
         output2.shape = shape
 

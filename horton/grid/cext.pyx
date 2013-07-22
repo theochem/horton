@@ -61,7 +61,7 @@ __all__ = [
     # UniformGrid
     'UniformGrid', 'UniformGridWindow', 'index_wrap', 'Block3Iterator',
     # utils
-    'dot_multi', 'dot_multi_moments_cube', 'dot_multi_moments', 'grid_distances',
+    'dot_multi', 'dot_multi_moments_cube', 'dot_multi_moments',
 ]
 
 
@@ -1311,17 +1311,3 @@ def dot_multi_moments(integranda,
         return output[0]
     else:
         return output
-
-
-def grid_distances(np.ndarray[double, ndim=2] points not None,
-                   np.ndarray[double, ndim=1] center not None,
-                   np.ndarray[double, ndim=1] distances not None):
-    assert points.flags['C_CONTIGUOUS']
-    npoint = points.shape[0]
-    assert points.shape[1] == 3
-    assert center.flags['C_CONTIGUOUS']
-    assert center.shape[0] == 3
-    assert distances.flags['C_CONTIGUOUS']
-    assert distances.shape[0] == npoint
-    utils.grid_distances(<double*>points.data, <double*>center.data,
-                         <double*>distances.data, npoint)

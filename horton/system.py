@@ -32,7 +32,7 @@ import numpy as np
 import h5py as h5
 
 from horton.cache import Cache
-from horton.cext import compute_grid_nucpot, Cell
+from horton.cext import compute_grid_nucpot
 from horton.io import load_system_args, dump_system
 from horton.log import log, timer
 from horton.matrix import DenseLinalgFactory, LinalgObject

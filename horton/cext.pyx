@@ -183,77 +183,69 @@ cdef class Cell:
             gvecs = np.dot(U/S, Vt)
         self._this.update(<double*>mod_rvecs.data, <double*>gvecs.data, nvec)
 
-    def _get_nvec(self):
+    property nvec:
         '''The number of cell vectors'''
-        return self._this.get_nvec()
+        def __get__(self):
+            return self._this.get_nvec()
 
-    nvec = property(_get_nvec)
-
-    def _get_volume(self):
+    property volume:
         '''The generalized volume of the unit cell (length, area or volume)'''
-        return self._this.get_volume()
+        def __get__(self):
+            return self._this.get_volume()
 
-    volume = property(_get_volume)
-
-    def _get_rvecs(self):
+    property rvecs:
         '''The real-space cell vectors, layed out as rows.'''
-        cdef np.ndarray[double, ndim=2] result
-        result = np.zeros((self.nvec, 3), float)
-        self._this.copy_rvecs(<double*>result.data)
-        result.setflags(write=False)
-        return result
+        def __get__(self):
+            cdef np.ndarray[double, ndim=2] result
+            result = np.zeros((self.nvec, 3), float)
+            self._this.copy_rvecs(<double*>result.data)
+            result.setflags(write=False)
+            return result
 
-    rvecs = property(_get_rvecs)
-
-    def _get_gvecs(self):
+    property gvecs:
         '''The reciporcal-space cell vectors, layed out as rows.'''
-        cdef np.ndarray[double, ndim=2] result
-        result = np.zeros((self.nvec, 3), float)
-        self._this.copy_gvecs(<double*>result.data)
-        result.setflags(write=False)
-        return result
+        def __get__(self):
+            cdef np.ndarray[double, ndim=2] result
+            result = np.zeros((self.nvec, 3), float)
+            self._this.copy_gvecs(<double*>result.data)
+            result.setflags(write=False)
+            return result
 
-    gvecs = property(_get_gvecs)
-
-    def _get_rlengths(self):
+    property rlengths:
         '''The lengths of the real-space vectors.'''
-        cdef np.ndarray[double, ndim=1] result
-        result = np.zeros(self.nvec, float)
-        self._this.copy_rlengths(<double*>result.data)
-        result.setflags(write=False)
-        return result
+        def __get__(self):
+            cdef np.ndarray[double, ndim=1] result
+            result = np.zeros(self.nvec, float)
+            self._this.copy_rlengths(<double*>result.data)
+            result.setflags(write=False)
+            return result
 
-    rlengths = property(_get_rlengths)
-
-    def _get_glengths(self):
+    property glengths:
         '''The lengths of the reciprocal-space vectors.'''
-        cdef np.ndarray[double, ndim=1] result
-        result = np.zeros(self.nvec, float)
-        self._this.copy_glengths(<double*>result.data)
-        result.setflags(write=False)
-        return result
+        def __get__(self):
+            cdef np.ndarray[double, ndim=1] result
+            result = np.zeros(self.nvec, float)
+            self._this.copy_glengths(<double*>result.data)
+            result.setflags(write=False)
+            return result
 
-    glengths = property(_get_glengths)
-
-    def _get_rspacings(self):
+    property rspacings:
         '''The (orthogonal) spacing between opposite sides of the real-space unit cell.'''
-        cdef np.ndarray[double, ndim=1] result
-        result = np.zeros(self.nvec, float)
-        self._this.copy_rspacings(<double*>result.data)
-        result.setflags(write=False)
-        return result
+        def __get__(self):
+            cdef np.ndarray[double, ndim=1] result
+            result = np.zeros(self.nvec, float)
+            self._this.copy_rspacings(<double*>result.data)
+            result.setflags(write=False)
+            return result
 
-    rspacings = property(_get_rspacings)
-
-    def _get_gspacings(self):
+    property gspacings:
         '''The (orthogonal) spacing between opposite sides of the reciprocal-space unit cell.'''
-        cdef np.ndarray[double, ndim=1] result
-        result = np.zeros(self.nvec, float)
-        self._this.copy_gspacings(<double*>result.data)
-        result.setflags(write=False)
-        return result
-
-    gspacings = property(_get_gspacings)
+        def __get__(self):
+            cdef np.ndarray[double, ndim=1] result
+            result = np.zeros(self.nvec, float)
+            self._this.copy_gspacings(<double*>result.data)
+            result.setflags(write=False)
+            return result
 
     def get_rlength(self, int i):
         return self._this.get_rlength(i);
@@ -267,23 +259,22 @@ cdef class Cell:
     def get_gspacing(self, int i):
         return self._this.get_gspacing(i);
 
-    def _get_parameters(self):
+    property parameters:
         '''The cell parameters (lengths and angles)'''
-        lengths = self.rlengths
-        rvecs = self.rvecs
-        tmp = np.dot(rvecs, rvecs.T)
-        tmp /= lengths
-        tmp /= lengths.reshape((-1,1))
-        if len(rvecs) < 2:
-            cosines = np.array([])
-        elif len(rvecs) == 2:
-            cosines = np.array([tmp[0,1]])
-        else:
-            cosines = np.array([tmp[1,2], tmp[2,0], tmp[0,1]])
-        angles = np.arccos(np.clip(cosines, -1, 1))
-        return lengths, angles
-
-    parameters = property(_get_parameters)
+        def __get__(self):
+            lengths = self.rlengths
+            rvecs = self.rvecs
+            tmp = np.dot(rvecs, rvecs.T)
+            tmp /= lengths
+            tmp /= lengths.reshape((-1,1))
+            if len(rvecs) < 2:
+                cosines = np.array([])
+            elif len(rvecs) == 2:
+                cosines = np.array([tmp[0,1]])
+            else:
+                cosines = np.array([tmp[1,2], tmp[2,0], tmp[0,1]])
+            angles = np.arccos(np.clip(cosines, -1, 1))
+            return lengths, angles
 
     def mic(self, np.ndarray[double, ndim=1] delta not None):
         """mic(delta)

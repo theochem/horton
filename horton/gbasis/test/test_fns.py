@@ -166,7 +166,7 @@ def test_grid_fn_d_contraction():
     work_pure = grid_fn.get_work(5)
     assert work_pure.shape == (5,)
 
-    from test_cartpure import tfs
+    from horton.gbasis.test.test_cartpure import tfs
     assert abs(work_pure - np.dot(tfs[2], work_cart)).max() < 1e-10
 
 

@@ -37,12 +37,3 @@ def test_dot_multi():
 
     with assert_raises(AssertionError):
         dot_multi(np.arange(5.0), np.arange(10.0))
-
-
-def test_grid_distances():
-    points = np.random.normal(0,1, (100,3))
-    center = np.random.normal(0,1, 3)
-    distances1 = np.zeros(100)
-    grid_distances(points, center, distances1)
-    distances2 = np.sqrt(((points-center)**2).sum(axis=1))
-    assert abs(distances1-distances2).max() < 1e-10

@@ -23,9 +23,7 @@
 
 import numpy as np
 
-from horton.grid.base import IntGrid
 from horton.grid.cext import dot_multi
-from horton.grid.int1d import SimpsonIntegrator1D
 
 
 class RadialGrid(object):

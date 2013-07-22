@@ -171,24 +171,3 @@ void dot_multi_moments(long npoint, long nvector, double** data, double* points,
         }
     }
 }
-
-
-void grid_distances(double *points, double *center, double *distances, long n) {
-  double d, tmp;
-  for (long i=0; i<n; i++) {
-    // x
-    d = *points - center[0];
-    tmp = d*d;
-    points++;
-    // y
-    d = *points - center[1];
-    tmp += d*d;
-    points++;
-    // z
-    d = *points - center[2];
-    tmp += d*d;
-    *distances = sqrt(tmp);
-    points++;
-    distances++;
-  }
-}

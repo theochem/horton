@@ -21,7 +21,6 @@
 
 
 import numpy as np, h5py as h5
-import os
 
 from horton import *
 from horton.part.test.common import get_proatomdb_cp2k

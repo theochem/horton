@@ -23,13 +23,11 @@
 
 import numpy as np
 
-from horton.cache import just_once
-from horton.grid.int1d import SimpsonIntegrator1D
-from horton.grid.cext import CubicSpline, dot_multi
+from horton.grid.cext import CubicSpline
 from horton.log import log
 from horton.part.hirshfeld import HirshfeldWPart, HirshfeldCPart
 from horton.part.hirshfeld_i import HirshfeldIWPart, HirshfeldICPart
-from horton.part.linalg import solve_positive, quadratic_solver
+from horton.part.linalg import quadratic_solver
 
 
 __all__ = ['HEBasis', 'HirshfeldEWPart', 'HirshfeldECPart']
