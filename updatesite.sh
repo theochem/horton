@@ -1,5 +1,5 @@
 #!/bin/bash
-git checkout public && (
+git checkout master && (
   ./cleanfiles.sh
   (
     cd doc
@@ -14,7 +14,7 @@ git checkout public && (
       echo Adding $f
       git add $f
     done
-    git commit -a -m 'Automatic documentation update'
-    git push github gh-pages:gh-pages
+    git commit -a --amend -m 'Automatic documentation update'
+    git push -f origin gh-pages:gh-pages
   )
-) && git checkout public
+) && git checkout master
