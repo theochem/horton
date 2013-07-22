@@ -24,13 +24,15 @@
 import sys, argparse, os
 
 from horton import System, wpart_schemes, Cell, ProAtomDB, log, BeckeMolGrid, \
-    lebedev_laikov_npoints, AtomicGridSpec
+    lebedev_laikov_npoints, AtomicGridSpec, __version__
 from horton.scripts.common import store_args, safe_open_h5, write_part_output
 
 
 def parse_args():
     parser = argparse.ArgumentParser(prog='horton-wpart.py',
         description='Partition the density from a wavefunction file.')
+    parser.add_argument('-V', '--version', action='version',
+        version="%%(prog)s (horton version %s)" % __version__)
 
     parser.add_argument('wfn',
         help='The wfn file. Supported formats: fchk, mkl, molden.input')

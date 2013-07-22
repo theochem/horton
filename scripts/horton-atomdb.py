@@ -22,7 +22,7 @@
 
 
 from horton import log, lebedev_laikov_npoints, ProAtomDB, angstrom, periodic, \
-    AtomicGridSpec, ProAtomRecord
+    AtomicGridSpec, ProAtomRecord, __version__
 from horton.scripts.atomdb import *
 import sys, argparse, numpy as np
 from glob import glob
@@ -47,6 +47,8 @@ def parse_args_input(args):
     parser = argparse.ArgumentParser(prog='horton-atomdb.py input',
         description='Create input files for a database of pro-atoms.',
         epilog=epilog_input)
+    parser.add_argument('-V', '--version', action='version',
+        version="%%(prog)s (horton version %s)" % __version__)
 
     parser.add_argument('program', choices=sorted(atom_programs.keys()),
         help='The name of the program for which input files must be created.')
@@ -91,6 +93,9 @@ def parse_args_convert(args):
     parser = argparse.ArgumentParser(prog='horton-atomdb.py convert',
         description='Convert the output of the atomic computations to horton '
                     'h5 files.')
+    parser.add_argument('-V', '--version', action='version',
+        version="%%(prog)s (horton version %s)" % __version__)
+
     parser.add_argument('--grid', type=str, default='veryfine',
         help='Specify the atomic grid used to construct spherical averages. '
              'Six built-in pruned grids are available: coarse, medium, fine, '

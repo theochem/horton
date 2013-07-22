@@ -25,7 +25,7 @@ import sys, argparse, os
 
 import numpy as np
 from horton import System, UniformGrid, log, Cell, angstrom, \
-    compute_esp_grid_cube, dump_hdf5_low
+    compute_esp_grid_cube, dump_hdf5_low, __version__
 from horton.scripts.common import parse_h5, parse_ewald_args, store_args, \
     safe_open_h5, parse_ugrid
 
@@ -33,6 +33,8 @@ from horton.scripts.common import parse_h5, parse_ewald_args, store_args, \
 def parse_args():
     parser = argparse.ArgumentParser(prog='horton-esp-gen.py',
         description='Generate electrostatic potential grid data from charges.')
+    parser.add_argument('-V', '--version', action='version',
+        version="%%(prog)s (horton version %s)" % __version__)
 
     parser.add_argument('h5_charges',
         help='[HDF5 filename]:[HDF5 group] The HDF5 file with the charges. '
