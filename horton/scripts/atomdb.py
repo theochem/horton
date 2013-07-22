@@ -23,7 +23,7 @@
 
 from string import Template as BaseTemplate
 from glob import glob
-import re, os, stat, numpy as np, h5py as h5
+import re, os, stat
 
 from horton import periodic, log, System
 from horton.scripts.common import iter_elements

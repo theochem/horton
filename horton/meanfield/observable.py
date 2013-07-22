@@ -21,11 +21,6 @@
 '''Base class for energy terms and other observables of the wavefunction'''
 
 
-import numpy as np
-
-from horton.log import log
-
-
 __all__ = [
     'Observable',
 ]

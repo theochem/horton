@@ -22,7 +22,7 @@
 
 import numpy as np
 from horton import *
-from horton.test.common import get_random_cell, check_delta
+from horton.test.common import check_delta
 
 
 def get_random_esp_cost_cube3d_args():

@@ -382,3 +382,35 @@ def test_abstract():
         con_coeffs = np.array([0.1, 0.2, 0.3])
         from horton.gbasis.cext import GBasis
         gb = GBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
+
+
+def test_gobasis_desc_element_map():
+    gobd = GOBasisDesc('3-21G', {'H': 'sto-3g', 2: 'cc-pVQZ'})
+    system = System(np.zeros([3, 3]), np.array([1, 2, 3]))
+    obasis = gobd.apply_to(system)
+    assert obasis.centers.shape == (3, 3)
+    # H
+    assert obasis.shell_map[0] == 0
+    assert obasis.nprims[0] == 3
+    # He
+    assert (obasis.shell_map[1:11] == 1).all()
+    assert (obasis.nprims[1:11] == [4, 1, 1, 1, 1, 1, 1, 1, 1, 1]).all()
+    # Li
+    assert (obasis.shell_map[11:] == 2).all()
+    assert (obasis.nprims[11:] == [3, 2, 2, 1, 1]).all()
+
+
+def test_gobasis_desc_index_map():
+    gobd = GOBasisDesc('3-21G', index_map={1: 'sto-3g', 2: 'cc-pVQZ'})
+    system = System(np.zeros([3, 3]), np.array([1, 1, 1]))
+    obasis = gobd.apply_to(system)
+    assert obasis.centers.shape == (3, 3)
+    # H
+    assert (obasis.shell_map[:2] == 0).all()
+    assert (obasis.nprims[:2] == [2, 1]).all()
+    # He
+    assert (obasis.shell_map[2:3] == 1).all()
+    assert (obasis.nprims[2:3] == 3).all()
+    # Li
+    assert (obasis.shell_map[3:] == 2).all()
+    assert (obasis.nprims[3:] == [3, 1, 1, 1, 1, 1, 1, 1, 1, 1]).all()

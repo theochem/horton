@@ -50,16 +50,6 @@ def test_go_basis_desc_neon_sto3g():
     assert abs(system.obasis.con_coeffs - np.array([0.15432897, 0.53532814, 0.44463454])).all() < 1e-10
 
 
-def test_go_basis_desc_neon_sto3g():
-    system = System(np.array([[0.0,0.0,0.0]]), np.array([2]), 'STO-3G')
-    assert (system.obasis.shell_map == np.array([0])).all()
-    assert (system.obasis.nprims == np.array([3])).all()
-    assert (system.obasis.shell_types == np.array([0])).all()
-    assert abs(system.obasis.alphas - np.array([6.36242139, 1.15892300, 0.31364979])).all() < 1e-10
-    assert abs(system.obasis.con_coeffs - np.array([0.15432897, 0.53532814, 0.44463454])).all() < 1e-10
-    assert system.obasis.nbasis == 1
-
-
 def test_go_basis_desc_hydrogen_321g():
     system = System(np.array([[0.0,0.0,0.0]]), np.array([1]), '3-21G')
     assert (system.obasis.shell_map == np.array([0,0])).all()

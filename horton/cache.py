@@ -26,10 +26,8 @@
 '''
 
 
-import numpy as np, h5py as h5, os, types
+import numpy as np, types
 from horton.log import log
-
-from horton.matrix import LinalgObject
 
 
 __all__ = ['JustOnceClass', 'just_once', 'Cache']

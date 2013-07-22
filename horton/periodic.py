@@ -37,8 +37,6 @@
 '''
 
 
-import numpy as np
-
 from horton.context import context
 from horton.units import angstrom
 

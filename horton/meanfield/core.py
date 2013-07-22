@@ -21,10 +21,6 @@
 '''Linear energy terms (Core Hamiltonian)'''
 
 
-import numpy as np
-
-from horton.log import log, timer
-from horton.cache import Cache
 from horton.meanfield.observable import Observable
 from horton.meanfield.wfn import RestrictedWFN
 

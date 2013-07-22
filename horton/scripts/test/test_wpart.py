@@ -22,7 +22,6 @@
 
 import os, h5py as h5
 
-from horton import System, context
 from horton.test.common import check_script, tmpdir
 from horton.scripts.test.common import copy_files, check_files
 from horton.part.test.common import get_proatomdb_hf_sto3g

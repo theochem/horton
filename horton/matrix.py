@@ -596,8 +596,8 @@ class DenseOneBody(OneBody):
 
     def apply_basis_signs(self, signs):
         '''Correct for different sign conventions of the basis functions.'''
-        self._coeffs *= signs
-        self._coeffs *= signs.reshape(-1,1)
+        self._array *= signs
+        self._array *= signs.reshape(-1,1)
 
 
 class DenseTwoBody(LinalgObject):
@@ -695,7 +695,7 @@ class DenseTwoBody(LinalgObject):
 
     def apply_basis_signs(self, signs):
         '''Correct for different sign conventions of the basis functions.'''
-        self._coeffs *= signs
-        self._coeffs *= signs.reshape(-1,1)
-        self._coeffs *= signs.reshape(-1,-1,1)
-        self._coeffs *= signs.reshape(-1,-1,-1,1)
+        self._array *= signs
+        self._array *= signs.reshape(-1,1)
+        self._array *= signs.reshape(-1,-1,1)
+        self._array *= signs.reshape(-1,-1,-1,1)

@@ -145,7 +145,7 @@ def test_grid_integrate_pure_moments():
     assert abs(ints[8] - (grid.weights*dens*(3.0**0.5*x*y)).sum()) < 1e-10
 
 
-def test_grid_integrate_pure_moments():
+def test_grid_integrate_pure_moments_segments():
     npoint = 10
     segments = np.array([2, 5, 3])
     grid = IntGrid(np.random.normal(0, 1, (npoint,3)), np.random.normal(0, 1, npoint))

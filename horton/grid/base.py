@@ -24,7 +24,7 @@
 import numpy as np
 
 from horton.grid.utils import parse_args_integrate
-from horton.grid.cext import dot_multi, grid_distances, eval_spline_grid, \
+from horton.grid.cext import dot_multi, eval_spline_grid, \
     dot_multi_moments
 from horton.cext import Cell
 

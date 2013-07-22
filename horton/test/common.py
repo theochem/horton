@@ -22,7 +22,7 @@
 
 import numpy as np, tempfile, shutil
 from contextlib import contextmanager
-import subprocess, sys, os, shlex
+import subprocess, os, shlex
 
 from horton import *
 

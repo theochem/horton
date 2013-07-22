@@ -21,8 +21,6 @@
 '''Hirshfeld Partitioning'''
 
 
-import numpy as np
-
 from horton.cache import just_once
 from horton.log import log
 from horton.part.stockholder import StockholderWPart, StockholderCPart

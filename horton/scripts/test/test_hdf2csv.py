@@ -20,7 +20,7 @@
 #--
 
 
-import os, csv
+import csv
 import h5py as h5, numpy as np
 
 from horton.test.common import check_script, tmpdir
