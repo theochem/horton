@@ -31,10 +31,14 @@ class RTransform {
         virtual ~RTransform() {};
         virtual double radius(double t) = 0;
         virtual double deriv(double t) = 0;
+        virtual double deriv2(double t) = 0;
+        virtual double deriv3(double t) = 0;
         virtual double inv(double r) = 0;
 
         void radius_array(double* t, double* r, int n);
         void deriv_array(double* t, double* d, int n);
+        void deriv2_array(double* t, double* d, int n);
+        void deriv3_array(double* t, double* d, int n);
         void inv_array(double* r, double* t, int n);
         int get_npoint() {return npoint;};
     };
@@ -45,6 +49,8 @@ class IdentityRTransform : public RTransform {
         IdentityRTransform(int npoint): RTransform(npoint) {};
         virtual double radius(double t);
         virtual double deriv(double t);
+        virtual double deriv2(double t);
+        virtual double deriv3(double t);
         virtual double inv(double r);
     };
 
@@ -56,6 +62,8 @@ class LinearRTransform : public RTransform {
         LinearRTransform(double rmin, double rmax, int npoint);
         virtual double radius(double t);
         virtual double deriv(double t);
+        virtual double deriv2(double t);
+        virtual double deriv3(double t);
         virtual double inv(double r);
 
         double get_rmin() {return rmin;};
@@ -71,6 +79,8 @@ class ExpRTransform : public RTransform {
         ExpRTransform(double rmin, double rmax, int npoint);
         virtual double radius(double t);
         virtual double deriv(double t);
+        virtual double deriv2(double t);
+        virtual double deriv3(double t);
         virtual double inv(double r);
 
         double get_rmin() {return rmin;};
@@ -86,6 +96,8 @@ class ShiftedExpRTransform : public RTransform {
         ShiftedExpRTransform(double rmin, double rshift, double rmax, int npoint);
         virtual double radius(double t);
         virtual double deriv(double t);
+        virtual double deriv2(double t);
+        virtual double deriv3(double t);
         virtual double inv(double r);
 
         double get_rmin() {return rmin;};
@@ -104,25 +116,13 @@ class PowerRTransform : public RTransform {
         PowerRTransform(double rmin, double rmax, int npoint);
         virtual double radius(double t);
         virtual double deriv(double t);
+        virtual double deriv2(double t);
+        virtual double deriv3(double t);
         virtual double inv(double r);
 
         double get_rmin() {return rmin;};
         double get_rmax() {return rmax;};
         double get_power() {return power;};
-    };
-
-
-class BakerRTransform : public RTransform {
-    private:
-        double rmax, scale;
-    public:
-        BakerRTransform(double rmax, int npoint);
-        virtual double radius(double t);
-        virtual double deriv(double t);
-        virtual double inv(double r);
-
-        double get_rmax() {return rmax;};
-        double get_scale() {return scale;};
     };
 
 #endif

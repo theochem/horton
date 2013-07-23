@@ -58,6 +58,24 @@ void RTransform::deriv_array(double* t, double* d, int n) {
     }
 }
 
+void RTransform::deriv2_array(double* t, double* d, int n) {
+    while (n>0) {
+        *d = deriv2(*t);
+        n--;
+        t++;
+        d++;
+    }
+}
+
+void RTransform::deriv3_array(double* t, double* d, int n) {
+    while (n>0) {
+        *d = deriv3(*t);
+        n--;
+        t++;
+        d++;
+    }
+}
+
 void RTransform::inv_array(double* r, double* t, int n) {
     while (n>0) {
         *t = inv(*r);
@@ -78,6 +96,14 @@ double IdentityRTransform::radius(double t) {
 
 double IdentityRTransform::deriv(double t) {
     return 1.0;
+}
+
+double IdentityRTransform::deriv2(double t) {
+    return 0.0;
+}
+
+double IdentityRTransform::deriv3(double t) {
+    return 0.0;
 }
 
 double IdentityRTransform::inv(double r) {
@@ -106,6 +132,14 @@ double LinearRTransform::deriv(double t) {
     return alpha;
 }
 
+double LinearRTransform::deriv2(double t) {
+    return 0.0;
+}
+
+double LinearRTransform::deriv3(double t) {
+    return 0.0;
+}
+
 double LinearRTransform::inv(double r) {
     return (r-rmin)/alpha;
 }
@@ -131,6 +165,14 @@ double ExpRTransform::radius(double t) {
 
 double ExpRTransform::deriv(double t) {
     return rmin*alpha*exp(t*alpha);
+}
+
+double ExpRTransform::deriv2(double t) {
+    return rmin*alpha*alpha*exp(t*alpha);
+}
+
+double ExpRTransform::deriv3(double t) {
+    return rmin*alpha*alpha*alpha*exp(t*alpha);
 }
 
 double ExpRTransform::inv(double r) {
@@ -163,6 +205,14 @@ double ShiftedExpRTransform::deriv(double t) {
     return r0*alpha*exp(t*alpha);
 }
 
+double ShiftedExpRTransform::deriv2(double t) {
+    return r0*alpha*alpha*exp(t*alpha);
+}
+
+double ShiftedExpRTransform::deriv3(double t) {
+    return r0*alpha*alpha*alpha*exp(t*alpha);
+}
+
 double ShiftedExpRTransform::inv(double r) {
     return log((r + rshift)/r0)/alpha;
 }
@@ -192,34 +242,14 @@ double PowerRTransform::deriv(double t) {
     return power*rmin*pow(t+1, power-1);
 }
 
+double PowerRTransform::deriv2(double t) {
+    return power*(power-1)*rmin*pow(t+1, power-2);
+}
+
+double PowerRTransform::deriv3(double t) {
+    return power*(power-1)*(power-2)*rmin*pow(t+1, power-3);
+}
+
 double PowerRTransform::inv(double r) {
     return pow(r/rmin, 1.0/power)-1;
-}
-
-
-/*
-   BakerRTransform
-*/
-
-BakerRTransform::BakerRTransform(double rmax, int npoint):
-    RTransform(npoint), rmax(rmax)
-{
-    if (rmax <= 0.0)
-        throw std::domain_error("The maximum radius must be positive.");
-    scale = npoint/(npoint+1.0);
-    scale = rmax/log(1-scale*scale);
-}
-
-double BakerRTransform::radius(double t) {
-    double tmp = (t+1)/(npoint+1);
-    return scale*log(1-tmp*tmp);
-}
-
-double BakerRTransform::deriv(double t) {
-    double tmp = (t+1)/(npoint+1);
-    return -scale*2.0*tmp/(1-tmp*tmp)/(npoint+1);
-}
-
-double BakerRTransform::inv(double r) {
-    return (npoint+1)*sqrt(1-exp(r/scale))-1;
 }

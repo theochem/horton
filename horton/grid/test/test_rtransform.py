@@ -70,14 +70,20 @@ def check_deriv(rtf):
     eps = 1e-5
     ts0 = ts-eps/2
     ts1 = ts+eps/2
-    rs0 = np.zeros(ts.shape)
-    rtf.radius_array(ts0, rs0)
-    rs1 = np.zeros(ts.shape)
-    rtf.radius_array(ts1, rs1)
-    ds = np.zeros(ts.shape)
-    rtf.deriv_array(ts, ds)
-    dns = (rs1-rs0)/eps
-    assert abs(ds-dns).max() < 1e-5
+    fns = [(rtf.radius_array, rtf.deriv_array),
+           (rtf.deriv_array, rtf.deriv2_array),
+           (rtf.deriv2_array, rtf.deriv3_array)]
+    for fnr, fnd in fns:
+        print 'A'
+        rs0 = np.zeros(ts.shape)
+        fnr(ts0, rs0)
+        rs1 = np.zeros(ts.shape)
+        fnr(ts1, rs1)
+        ds = np.zeros(ts.shape)
+        fnd(ts, ds)
+        dns = (rs1-rs0)/eps
+        print ds-dns
+        assert abs(ds-dns).max() < 1e-5
 
 
 def check_chop(rtf1):
@@ -153,14 +159,6 @@ def test_power_basics():
         check_half(rtf)
 
 
-def test_baker_basics():
-    rtf = BakerRTransform(1e1, 100)
-    assert rtf.radius(0) > 0.0
-    assert abs(rtf.radius(99) - 1e1) < 1e-10
-    check_consistency(rtf)
-    check_deriv(rtf)
-
-
 def test_identity_properties():
     rtf = IdentityRTransform(100)
     assert rtf.npoint == 100
@@ -205,14 +203,6 @@ def test_power_properties():
         assert rtf.npoint == 100
         assert rtf.power >= 2
         assert isinstance(rtf.get_default_int1d(), StubIntegrator1D)
-
-
-def test_baker_properties():
-    rtf = BakerRTransform(1e1, 100)
-    assert rtf.rmax == 1e1
-    assert rtf.npoint == 100
-    assert rtf.scale < 0
-    assert isinstance(rtf.get_default_int1d(), SimpsonIntegrator1D)
 
 
 def test_exception_string():
@@ -323,25 +313,6 @@ def test_power_string():
     assert rtf3.npoint == 5
 
 
-def test_baker_string():
-    rtf1 = BakerRTransform(np.random.uniform(1, 5), 123)
-    s = rtf1.to_string()
-    rtf2 = RTransform.from_string(s)
-    assert rtf1.rmax == rtf2.rmax
-    assert rtf1.npoint == rtf2.npoint
-    assert rtf1.scale == rtf2.scale
-
-    with assert_raises(ValueError):
-        rtf3 = RTransform.from_string('BakerRTransform A 5 7')
-    with assert_raises(ValueError):
-        rtf3 = RTransform.from_string('ExpRTransform A 5.0')
-
-    rtf3 = RTransform.from_string('BakerRTransform 12.15643216847 5')
-    assert rtf3.rmax == 12.15643216847
-    assert rtf3.npoint == 5
-    assert rtf3.scale < 0
-
-
 def test_identity_bounds():
     for npoint in -1, 0, 1:
         with assert_raises(ValueError):
@@ -394,11 +365,3 @@ def test_power_bounds():
         PowerRTransform(1.0, 1.1, 50)
     with assert_raises(ValueError):
         PowerRTransform(1.1, 1.0, 50)
-
-
-def test_baker_bounds():
-    for npoint in -1, 0, 1:
-        with assert_raises(ValueError):
-            BakerRTransform(1.0, npoint)
-    with assert_raises(ValueError):
-        BakerRTransform(-1.0, 50)

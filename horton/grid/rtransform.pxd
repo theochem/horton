@@ -25,10 +25,14 @@ cdef extern from "rtransform.h":
         RTransform(int npoint) except +
         double radius(double t)
         double deriv(double t)
+        double deriv2(double t)
+        double deriv3(double t)
         double inv(double t)
 
         void radius_array(double* t, double* r, int n)
         void deriv_array(double* t, double* d, int n)
+        void deriv2_array(double* t, double* d, int n)
+        void deriv3_array(double* t, double* d, int n)
         void inv_array(double* r, double* t, int n)
         int get_npoint()
 
@@ -69,10 +73,3 @@ cdef extern from "rtransform.h":
         double get_rmin()
         double get_rmax()
         double get_power()
-
-
-    cdef cppclass BakerRTransform:
-        BakerRTransform(double rmax, int npoint) except +
-
-        double get_rmax()
-        double get_scale()

@@ -37,9 +37,8 @@ def test_basics1():
 
 
 def test_basics2():
-    rtf = BakerRTransform(1e1, 100)
+    rtf = ExpRTransform(1e-3, 1e1, 100)
     grid = RadialGrid(rtf)
-    assert isinstance(grid.int1d, SimpsonIntegrator1D)
 
     assert grid.size == 100
     assert grid.shape == (100,)
