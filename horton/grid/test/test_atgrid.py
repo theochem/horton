@@ -165,7 +165,7 @@ def test_atomic_grid_basics():
 def get_hydrogen_1s():
     # density of the 1s orbital
     center = np.random.uniform(-1,1,3)
-    rtf = BakerRTransform(2e1, 100)
+    rtf = PowerRTransform(1e-3, 2e1, 100)
     rgrid = RadialGrid(rtf, CubicIntegrator1D())
     ag = AtomicGrid(1, 1, center, (rgrid, 110), 100)
     distances = np.sqrt(((center - ag.points)**2).sum(axis=1))
@@ -176,7 +176,7 @@ def get_hydrogen_1s():
 def get_hydrogen_1pz():
     # density of the 1pz orbital
     center = np.random.uniform(-1,1,3)
-    rtf = BakerRTransform(2e1, 100)
+    rtf = PowerRTransform(1e-3, 2e1, 100)
     rgrid = RadialGrid(rtf, SimpsonIntegrator1D())
     ag = AtomicGrid(1, 1, center, (rgrid, 110), 100)
     z = ag.points[:,2] - center[2]

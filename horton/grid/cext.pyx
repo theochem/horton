@@ -57,7 +57,7 @@ __all__ = [
     'index_wrap', 'eval_spline_cube', 'eval_spline_grid',
     # rtransform
     'RTransform', 'IdentityRTransform', 'LinearRTransform', 'ExpRTransform',
-    'ShiftedExpRTransform', 'PowerRTransform', 'BakerRTransform',
+    'ShiftedExpRTransform', 'PowerRTransform',
     # UniformGrid
     'UniformGrid', 'UniformGridWindow', 'index_wrap', 'Block3Iterator',
     # utils
@@ -327,6 +327,12 @@ cdef class RTransform(object):
     def deriv(self, double t):
         return self._this.deriv(t)
 
+    def deriv2(self, double t):
+        return self._this.deriv2(t)
+
+    def deriv3(self, double t):
+        return self._this.deriv3(t)
+
     def inv(self, double r):
         return self._this.inv(r)
 
@@ -345,6 +351,22 @@ cdef class RTransform(object):
         assert d.flags['C_CONTIGUOUS']
         assert d.shape[0] == n
         self._this.deriv_array(<double*>t.data, <double*>d.data, n)
+
+    def deriv2_array(self, np.ndarray[double, ndim=1] t not None,
+                          np.ndarray[double, ndim=1] d not None):
+        assert t.flags['C_CONTIGUOUS']
+        cdef int n = t.shape[0]
+        assert d.flags['C_CONTIGUOUS']
+        assert d.shape[0] == n
+        self._this.deriv2_array(<double*>t.data, <double*>d.data, n)
+
+    def deriv3_array(self, np.ndarray[double, ndim=1] t not None,
+                          np.ndarray[double, ndim=1] d not None):
+        assert t.flags['C_CONTIGUOUS']
+        cdef int n = t.shape[0]
+        assert d.flags['C_CONTIGUOUS']
+        assert d.shape[0] == n
+        self._this.deriv3_array(<double*>t.data, <double*>d.data, n)
 
     def inv_array(self, np.ndarray[double, ndim=1] r not None,
                         np.ndarray[double, ndim=1] t not None):
@@ -377,21 +399,21 @@ cdef class RTransform(object):
                 raise ValueError('The IdentityRTransform needs one argument, got %i.' % len(words))
             npoint = int(args[0])
             return IdentityRTransform(npoint)
-        if clsname == 'LinearRTransform':
+        elif clsname == 'LinearRTransform':
             if len(args) != 3:
                 raise ValueError('The LinearRTransform needs three arguments, got %i.' % len(words))
             rmin = float(args[0])
             rmax = float(args[1])
             npoint = int(args[2])
             return LinearRTransform(rmin, rmax, npoint)
-        if clsname == 'ExpRTransform':
+        elif clsname == 'ExpRTransform':
             if len(args) != 3:
                 raise ValueError('The ExpRTransform needs three arguments, got %i.' % len(words))
             rmin = float(args[0])
             rmax = float(args[1])
             npoint = int(args[2])
             return ExpRTransform(rmin, rmax, npoint)
-        if clsname == 'ShiftedExpRTransform':
+        elif clsname == 'ShiftedExpRTransform':
             if len(args) != 4:
                 raise ValueError('The ShiftedExpRTransform needs four arguments, got %i.' % len(words))
             rmin = float(args[0])
@@ -399,19 +421,13 @@ cdef class RTransform(object):
             rmax = float(args[2])
             npoint = int(args[3])
             return ShiftedExpRTransform(rmin, rshift, rmax, npoint)
-        if clsname == 'PowerRTransform':
+        elif clsname == 'PowerRTransform':
             if len(args) != 3:
                 raise ValueError('The PowerRTransform needs three arguments, got %i.' % len(words))
             rmin = float(args[0])
             rmax = float(args[1])
             npoint = int(args[2])
             return PowerRTransform(rmin, rmax, npoint)
-        if clsname == 'BakerRTransform':
-            if len(args) != 2:
-                raise ValueError('The BakerRTransform needs two arguments, got %i.' % len(words))
-            rmax = float(args[0])
-            npoint = int(args[1])
-            return BakerRTransform(rmax, npoint)
         else:
             raise TypeError('Unkown RTransform subclass: %s' % clsname)
 
@@ -601,39 +617,6 @@ cdef class PowerRTransform(RTransform):
     def get_default_int1d(self):
         from horton.grid.int1d import StubIntegrator1D
         return StubIntegrator1D()
-
-
-cdef class BakerRTransform(RTransform):
-    r'''A grid introduced by Baker et al.
-
-       The grid points are distributed as follows:
-
-       .. math:: r_i = A*ln\left[1-\left(\frac{i}{npoint}\right)^2\right]
-
-       with
-
-       .. math:: A = \frac{1}{ln\left[1-\left(\frac{npoint-1}{npoint}\right)^2\right]}.
-    '''
-    def __cinit__(self, double rmax, int npoint):
-        self._this = <rtransform.RTransform*>(new rtransform.BakerRTransform(rmax, npoint))
-
-    def __init__(self, double rmax, int npoint):
-        log.cite('baker1994', 'using the radial integration grids introduced by Baker et al')
-
-    property rmax:
-        def __get__(self):
-            return (<rtransform.BakerRTransform*>self._this).get_rmax()
-
-    property scale:
-        def __get__(self):
-            return (<rtransform.BakerRTransform*>self._this).get_scale()
-
-    def to_string(self):
-        return ' '.join(['BakerRTransform', repr(self.rmax), repr(self.npoint)])
-
-    def chop(self, npoint):
-        # This just can't work. :(
-        raise NotImplementedError
 
 
 #
