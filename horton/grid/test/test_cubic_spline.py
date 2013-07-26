@@ -48,33 +48,6 @@ def test_tridiagsym_solve():
         assert(error < 1e-12)
 
 
-def test_tridiag_solve():
-    N = 4
-    A = np.zeros((N,N), float)
-    # randomize the lower diagonal
-    A.ravel()[N::N+1] = np.random.uniform(-1,1,N-1)
-    # randomize the diagonal
-    A.ravel()[::N+1] = np.random.uniform(1,2,N)
-    # randomize the upper diagonal
-    A.ravel()[1::N+1] = np.random.uniform(-1,1,N-1)
-    # test the inverse for all possible basis vectors
-    for i in xrange(N):
-        right = np.zeros(N, float)
-        right[i] = 1.0
-        solution1 = np.zeros(N, float)
-        tridiag_solve(
-            A.ravel()[N::N+1].copy(),
-            A.ravel()[::N+1].copy(),
-            A.ravel()[1::N+1].copy(),
-            right, solution1
-        )
-        right = np.zeros(N, float)
-        right[i] = 1.0
-        solution2 = np.linalg.solve(A, right)
-        error = abs(solution1 - solution2).max()
-        assert(error < 1e-12)
-
-
 def test_basics_identity():
     N = 10
     y = np.random.normal(0,1,N)

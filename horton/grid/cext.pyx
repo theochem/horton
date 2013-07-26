@@ -51,7 +51,7 @@ __all__ = [
     # becke
     'becke_helper_atom',
     # cubic_spline
-    'tridiag_solve', 'tridiagsym_solve', 'CubicSpline',
+    'tridiagsym_solve', 'CubicSpline',
     'compute_cubic_spline_int_weights',
     # evaluate
     'index_wrap', 'eval_spline_cube', 'eval_spline_grid',
@@ -168,28 +168,6 @@ def becke_helper_atom(np.ndarray[double, ndim=2] points not None,
 #
 # cubic_spline
 #
-
-
-def tridiag_solve(np.ndarray[double, ndim=1] diag_low not None,
-                  np.ndarray[double, ndim=1] diag_mid not None,
-                  np.ndarray[double, ndim=1] diag_up not None,
-                  np.ndarray[double, ndim=1] right not None,
-                  np.ndarray[double, ndim=1] solution not None):
-    assert diag_mid.flags['C_CONTIGUOUS']
-    n = diag_mid.shape[0]
-    assert n > 1
-    assert diag_low.flags['C_CONTIGUOUS']
-    assert diag_low.shape[0] == n-1
-    assert diag_up.flags['C_CONTIGUOUS']
-    assert diag_up.shape[0] == n-1
-    assert right.flags['C_CONTIGUOUS']
-    assert right.shape[0] == n
-    assert solution.flags['C_CONTIGUOUS']
-    assert solution.shape[0] == n
-    cubic_spline.tridiag_solve(<double*>diag_low.data, <double*>diag_mid.data,
-                               <double*>diag_up.data, <double*>right.data,
-                               <double*>solution.data, n)
-
 
 def tridiagsym_solve(np.ndarray[double, ndim=1] diag_mid not None,
                      np.ndarray[double, ndim=1] diag_up not None,

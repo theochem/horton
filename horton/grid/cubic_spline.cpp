@@ -49,29 +49,8 @@
 
 
 /*
-   Solvers for symmetric and general tridiagonal systems of equations.
+   Solver for symmetric tridiagonal systems of equations.
 */
-
-void tridiag_solve(double* diag_low, double* diag_mid, double* diag_up,
-                   double* right, double* solution, int n) {
-    // Simple solver for generic tridiagonal system. The right hand side and the
-    // upper diagonal get screwed during the operation.
-    double denominator;
-    int i;
-
-    diag_up[0] /= diag_mid[0];
-    right[0] /= diag_mid[0];
-    for(i = 1; i < n; i++){
-        denominator = diag_mid[i] - diag_up[i - 1]*diag_low[i-1];
-        if (i < n-1) diag_up[i] /= denominator;
-        right[i] = (right[i] - right[i - 1]*diag_low[i-1])/denominator;
-    }
-
-    solution[n - 1] = right[n - 1];
-    for(i = n - 2; i >= 0; i--) {
-        solution[i] = right[i] - diag_up[i]*solution[i + 1];
-    }
-}
 
 void tridiagsym_solve(double* diag_mid, double* diag_up, double* right,
                       double* solution, int n) {
