@@ -121,19 +121,19 @@ def test_hirshfeld_i_fake_global():
 
 
 def test_hirshfeld_i_fake_pseudo_local():
-    check_fake('hi', pseudo=True, dowcor=True, local=True, absmean=0.402, threshold=1e-4)
+    check_fake('hi', pseudo=True, dowcor=True, local=True, absmean=0.400, threshold=1e-4)
 
 
 def test_hirshfeld_i_fake_pseudo_global():
-    check_fake('hi', pseudo=True, dowcor=True, local=False, absmean=0.402, threshold=1e-4)
+    check_fake('hi', pseudo=True, dowcor=True, local=False, absmean=0.400, threshold=1e-4)
 
 
 def test_hirshfeld_i_fake_pseudo_nowcor_local():
-    check_fake('hi', pseudo=True, dowcor=True, local=True, absmean=0.402, threshold=1e-4)
+    check_fake('hi', pseudo=True, dowcor=True, local=True, absmean=0.400, threshold=1e-4)
 
 
 def test_hirshfeld_i_fake_pseudo_nowcor_global():
-    check_fake('hi', pseudo=True, dowcor=True, local=False, absmean=0.402, threshold=1e-4)
+    check_fake('hi', pseudo=True, dowcor=True, local=False, absmean=0.400, threshold=1e-4)
 
 
 def test_hirshfeld_i_fake_local_greedy():
@@ -145,19 +145,19 @@ def test_hirshfeld_i_fake_global_greedy():
 
 
 def test_hirshfeld_i_fake_pseudo_local_greedy():
-    check_fake('hi', pseudo=True, dowcor=True, local=True, absmean=0.402, threshold=1e-4, greedy=True)
+    check_fake('hi', pseudo=True, dowcor=True, local=True, absmean=0.400, threshold=1e-4, greedy=True)
 
 
 def test_hirshfeld_i_fake_pseudo_global_greedy():
-    check_fake('hi', pseudo=True, dowcor=True, local=False, absmean=0.402, threshold=1e-4, greedy=True)
+    check_fake('hi', pseudo=True, dowcor=True, local=False, absmean=0.400, threshold=1e-4, greedy=True)
 
 
 def test_hirshfeld_i_fake_pseudo_nowcor_local_greedy():
-    check_fake('hi', pseudo=True, dowcor=True, local=True, absmean=0.402, threshold=1e-4, greedy=True)
+    check_fake('hi', pseudo=True, dowcor=True, local=True, absmean=0.400, threshold=1e-4, greedy=True)
 
 
 def test_hirshfeld_i_fake_pseudo_nowcor_global_greedy():
-    check_fake('hi', pseudo=True, dowcor=True, local=False, absmean=0.402, threshold=1e-4, greedy=True)
+    check_fake('hi', pseudo=True, dowcor=True, local=False, absmean=0.400, threshold=1e-4, greedy=True)
 
 
 
@@ -171,19 +171,19 @@ def test_hirshfeld_e_fake_global():
 
 
 def test_hirshfeld_e_fake_pseudo_local():
-    check_fake('he', pseudo=True, dowcor=True, local=True, absmean=0.398, threshold=1e-4)
+    check_fake('he', pseudo=True, dowcor=True, local=True, absmean=0.396, threshold=1e-4)
 
 
 def test_hirshfeld_e_fake_pseudo_global():
-    check_fake('he', pseudo=True, dowcor=True, local=False, absmean=0.398, threshold=1e-4)
+    check_fake('he', pseudo=True, dowcor=True, local=False, absmean=0.396, threshold=1e-4)
 
 
 def test_hirshfeld_e_fake_pseudo_nowcor_local():
-    check_fake('he', pseudo=True, dowcor=True, local=True, absmean=0.398, threshold=1e-4)
+    check_fake('he', pseudo=True, dowcor=True, local=True, absmean=0.396, threshold=1e-4)
 
 
 def test_hirshfeld_e_fake_pseudo_nowcor_global():
-    check_fake('he', pseudo=True, dowcor=True, local=False, absmean=0.398, threshold=1e-4)
+    check_fake('he', pseudo=True, dowcor=True, local=False, absmean=0.396, threshold=1e-4)
 
 
 def test_hirshfeld_e_fake_local_greedy():
@@ -195,16 +195,16 @@ def test_hirshfeld_e_fake_global_greedy():
 
 
 def test_hirshfeld_e_fake_pseudo_local_greedy():
-    check_fake('he', pseudo=True, dowcor=True, local=True, absmean=0.398, threshold=1e-4, greedy=True)
+    check_fake('he', pseudo=True, dowcor=True, local=True, absmean=0.396, threshold=1e-4, greedy=True)
 
 
 def test_hirshfeld_e_fake_pseudo_global_greedy():
-    check_fake('he', pseudo=True, dowcor=True, local=False, absmean=0.398, threshold=1e-4, greedy=True)
+    check_fake('he', pseudo=True, dowcor=True, local=False, absmean=0.396, threshold=1e-4, greedy=True)
 
 
 def test_hirshfeld_e_fake_pseudo_nowcor_local_greedy():
-    check_fake('he', pseudo=True, dowcor=True, local=True, absmean=0.398, threshold=1e-4, greedy=True)
+    check_fake('he', pseudo=True, dowcor=True, local=True, absmean=0.396, threshold=1e-4, greedy=True)
 
 
 def test_hirshfeld_e_fake_pseudo_nowcor_global_greedy():
-    check_fake('he', pseudo=True, dowcor=True, local=False, absmean=0.398, threshold=1e-4, greedy=True)
+    check_fake('he', pseudo=True, dowcor=True, local=False, absmean=0.396, threshold=1e-4, greedy=True)

@@ -36,8 +36,8 @@ class IterativeProatomMixin():
         msd = 0.0 # mean-square deviation
         for index in xrange(self.system.natom):
             rgrid = self.get_rgrid(index)
-            rho1 = self.get_proatom_rho(index, propars1)
-            rho2 = self.get_proatom_rho(index, propars2)
+            rho1, deriv1 = self.get_proatom_rho(index, propars1)
+            rho2, deriv2 = self.get_proatom_rho(index, propars2)
             delta = rho1 - rho2
             msd +=  rgrid.integrate(delta, delta)
         return np.sqrt(msd)
@@ -137,7 +137,7 @@ class IterativeStockholderWPart(IterativeProatomMixin, StockholderWPart):
     def get_proatom_rho(self, index, propars=None):
         if propars is None:
             propars = self.cache.load('propars')
-        return propars[self._ranges[index]:self._ranges[index+1]]
+        return propars[self._ranges[index]:self._ranges[index+1]], None
 
     def _init_propars(self):
         IterativeProatomMixin._init_propars(self)

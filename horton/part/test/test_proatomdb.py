@@ -144,11 +144,12 @@ def test_moments():
 
 def check_spline_record(spline, record):
     assert abs(spline.y - record.rho).max() < 1e-10
+    assert abs(spline.dx - record.deriv).max() < 1e-10
 
 
 def check_spline_pop(spline, pop):
-    int1d = SimpsonIntegrator1D()
     rtf = spline.rtransform
+    int1d = spline.rtransform.get_default_int1d()
     check_pop = 4*np.pi*dot_multi(
         rtf.get_volume_elements(),
         rtf.get_radii()**2,
@@ -157,6 +158,15 @@ def check_spline_pop(spline, pop):
     )
     assert abs(pop - check_pop) < 1e-2
 
+def check_spline_mono_decr(spline):
+    t = np.arange(0, spline.rtransform.npoint, 0.1)
+    x = np.zeros(t.shape)
+    spline.rtransform.radius_array(t, x)
+    y = spline(x)
+    i = (abs(y) < 1e-10).nonzero()[0][0]
+    y = y[:i]
+    assert ((y[1:] - y[:-1])/y[:-1]).min() < 1e-9
+
 
 def test_get_spline():
     padb = ProAtomDB.from_refatoms(numbers=[1, 6], max_kation=1, max_anion=1)
@@ -164,16 +174,20 @@ def test_get_spline():
     spline = padb.get_spline(6)
     check_spline_pop(spline, 6.0)
     check_spline_record(spline, padb.get_record(6, 0))
+    check_spline_mono_decr(spline)
 
     spline = padb.get_spline(6, -1)
     check_spline_pop(spline, 7.0)
     check_spline_record(spline, padb.get_record(6, -1))
+    check_spline_mono_decr(spline)
 
     spline = padb.get_spline(6, {0:0.5, -1:0.5})
     check_spline_pop(spline, 6.5)
+    check_spline_mono_decr(spline)
 
     spline = padb.get_spline(1, {0:0.5})
     check_spline_pop(spline, 0.5)
+    check_spline_mono_decr(spline)
 
 
 def test_get_spline_pseudo():

@@ -67,7 +67,7 @@ class HirshfeldMixin(object):
         return self.proatomdb.get_rgrid(number)
 
     def get_proatom_rho(self, index):
-        return self.proatomdb.get_rho(self._system.numbers[index])
+        return self.proatomdb.get_rho(self._system.numbers[index], do_deriv=True)
 
     @just_once
     def do_dispersion(self):

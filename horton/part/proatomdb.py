@@ -26,7 +26,6 @@ import h5py as h5, numpy as np
 
 from horton.context import context
 from horton.grid.atgrid import AtomicGrid, AtomicGridSpec
-from horton.grid.int1d import SimpsonIntegrator1D
 from horton.grid.cext import RTransform, CubicSpline
 from horton.grid.radial import RadialGrid
 from horton.log import log, timer
@@ -58,10 +57,14 @@ class ProAtomRecord(object):
         if not isinstance(agspec, AtomicGridSpec):
             agspec = AtomicGridSpec(agspec)
 
-        # Compute the spherically averaged density
+        # Compute the density and the gradient on a grid
         atgrid = AtomicGrid(system.numbers[0], system.pseudo_numbers[0], system.coordinates[0], agspec)
-        rho_full = system.compute_grid_density(atgrid.points)
-        rho = atgrid.get_spherical_average(rho_full)
+        rho_all = system.compute_grid_density(atgrid.points)
+        grad_all = system.compute_grid_gradient(atgrid.points)
+        rrgrad_all = ((atgrid.points-atgrid.center)*grad_all).sum(axis=1)
+        # Compute spherical averages
+        rho = atgrid.get_spherical_average(rho_all)
+        deriv = atgrid.get_spherical_average(rrgrad_all)/atgrid.rgrid.rtransform.get_radii()
 
         # Derive the number of electrions
         try:
@@ -80,14 +83,15 @@ class ProAtomRecord(object):
         charge = pseudo_number - nel
 
         # Create object
-        return cls(number, charge, energy, homo_energy, atgrid.rgrid, rho, pseudo_number)
+        return cls(number, charge, energy, homo_energy, atgrid.rgrid, rho, deriv, pseudo_number)
 
-    def __init__(self, number, charge, energy, homo_energy, rgrid, rho, pseudo_number=None, ipot_energy=None):
+    def __init__(self, number, charge, energy, homo_energy, rgrid, rho, deriv=None, pseudo_number=None, ipot_energy=None):
         self._number = number
         self._charge = charge
         self._energy = energy
         self._homo_energy = homo_energy
         self._rho = rho
+        self._deriv = deriv
         self._rgrid = rgrid
         if pseudo_number is None:
             self._pseudo_number = number
@@ -134,6 +138,12 @@ class ProAtomRecord(object):
         return self._rho
 
     rho = property(_get_rho)
+
+    def _get_deriv(self):
+        '''The radial derivative of the density on a radial grid'''
+        return self._deriv
+
+    deriv = property(_get_deriv)
 
     def _get_rgrid(self):
         '''The radial grid'''
@@ -193,10 +203,9 @@ class ProAtomRecord(object):
         radii = self.rgrid.radii
         tmp = (4*np.pi) * radii**2 * self.rho * self.rgrid.rtransform.get_volume_elements()
         popint = []
-        int1d = SimpsonIntegrator1D()
         for i in xrange(len(tmp)):
-            if i >= int1d.npoint_min:
-                popint.append(np.dot(tmp[:i], int1d.get_weights(i)))
+            if i >= self.rgrid.int1d.npoint_min:
+                popint.append(np.dot(tmp[:i], self.rgrid.int1d.get_weights(i)))
             else:
                 popint.append(tmp[:i].sum())
         popint = np.array(popint)
@@ -221,6 +230,8 @@ class ProAtomRecord(object):
     def chop(self, npoint):
         '''Reduce the proatom to the given number of radial grid points.'''
         self._rho = self._rho[:npoint]
+        if self._deriv is not None:
+            self._deriv = self._deriv[:npoint]
         self._rgrid = self._rgrid.chop(npoint)
 
     def __eq__(self, other):
@@ -229,6 +240,7 @@ class ProAtomRecord(object):
                 self.energy == other.energy and
                 self.homo_energy == other.homo_energy and
                 (self.rho == other.rho).all() and
+                ((self.deriv is None and other.deriv is None) or (self.deriv is not None and other.deriv is not None and self.deriv == other.deriv).all()) and
                 self.rgrid == other.rgrid and
                 self.pseudo_number == other.pseudo_number and
                 self.ipot_energy == other.ipot_energy)
@@ -447,6 +459,8 @@ class ProAtomDB(object):
                 grp.attrs['homo_energy'] = record.homo_energy
             grp.attrs['rtransform'] = record.rgrid.rtransform.to_string()
             grp['rho'] = record.rho
+            if record.deriv is not None:
+                grp['deriv'] = record.deriv
             grp.attrs['pseudo_number'] = record.pseudo_number
             if record.ipot_energy is not None:
                 grp.attrs['ipot_energy'] = record.ipot_energy
@@ -454,7 +468,7 @@ class ProAtomDB(object):
         if do_close:
             f.close()
 
-    def get_rho(self, number, parameters=0, combine='linear'):
+    def get_rho(self, number, parameters=0, combine='linear', do_deriv=False):
         '''Construct a proatom density on a grid.
 
            **Arguments:**
@@ -476,27 +490,54 @@ class ProAtomDB(object):
            combine
                 In case parameters is an array, this determines the type of
                 combination: 'linear' or 'geometric'.
+
+           do_deriv
+                When set to True, the derivative of rho is also returned. In
+                case the derivative is not available, the second return value is
+                None.
         '''
         if isinstance(parameters, int):
             charge = parameters
             record = self.get_record(number, charge)
-            return record.rho
+            if do_deriv:
+                return record.rho, record.deriv
+            else:
+                return record.rho
         elif isinstance(parameters, dict):
             rho = 0.0
+            if do_deriv:
+                deriv = 0.0
             if combine == 'linear':
                 for charge, coeff in parameters.iteritems():
                     if coeff != 0.0:
-                        rho += coeff*self.get_record(number,charge).rho
+                        record = self.get_record(number, charge)
+                        rho += coeff*record.rho
+                        if do_deriv and record.deriv is not None:
+                            deriv += coeff*record.deriv
+                        else:
+                            do_deriv = False
             elif combine == 'geometric':
                 for charge, coeff in parameters.iteritems():
                     if coeff != 0.0:
-                        rho += coeff*np.log(self.get_record(number,charge).rho)
+                        record = self.get_record(number, charge)
+                        rho += coeff*np.log(record.rho)
+                        if do_deriv:
+                            deriv += coeff*record.deriv/record.rho
+                        else:
+                            do_deriv = False
                 rho = np.exp(rho)
+                if do_deriv:
+                    deriv = rho*deriv
             else:
                 raise ValueError('Combine argument "%s" not supported.' % combine)
             if not isinstance(rho, np.ndarray):
                 rho = self.get_rgrid(number).zeros()
-            return rho
+                if do_deriv:
+                    deriv = self.get_rgrid(number).zeros()
+            if do_deriv:
+                return rho, deriv
+            else:
+                return rho
         else:
             raise TypeError('Could not interpret parameters argument')
 
@@ -506,8 +547,8 @@ class ProAtomDB(object):
 
            **Arguments:** See ``get_rho`` method.
         '''
-        rho = self.get_rho(number, parameters, combine)
-        return CubicSpline(rho, rtf=self.get_rgrid(number).rtransform)
+        rho, deriv = self.get_rho(number, parameters, combine, do_deriv=True)
+        return CubicSpline(rho, deriv, rtf=self.get_rgrid(number).rtransform)
 
     def compact(self, nel_lost):
         '''Make the pro-atoms more compact
@@ -570,6 +611,10 @@ def load_proatom_records_h5_group(f):
     records = []
     for grp in f.itervalues():
         assert isinstance(grp, h5.Group)
+        if 'deriv' in grp:
+            deriv = grp['deriv'][:]
+        else:
+            deriv = None
         records.append(ProAtomRecord(
             number=grp.attrs['number'],
             charge=grp.attrs['charge'],
@@ -577,6 +622,7 @@ def load_proatom_records_h5_group(f):
             homo_energy=grp.attrs.get('homo_energy'),
             rgrid=RadialGrid(RTransform.from_string(grp.attrs['rtransform'])),
             rho=grp['rho'][:],
+            deriv=deriv,
             pseudo_number=grp.attrs.get('pseudo_number'),
             ipot_energy=grp.attrs.get('ipot_energy'),
         ))

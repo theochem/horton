@@ -39,7 +39,7 @@ class StockHolderMixin(object):
     def get_proatom_rho(self, index, *args, **kwargs):
         raise NotImplementedError
 
-    def fix_proatom_rho(self, index, rho):
+    def fix_proatom_rho(self, index, rho, deriv):
         '''Check if the radial density for the proatom is correct and fix as needed.
 
            **Arguments:**
@@ -49,6 +49,9 @@ class StockHolderMixin(object):
 
            rho
                 The radial density
+
+           deriv
+                the derivative of the radial density or None.
         '''
         rgrid = self.get_rgrid(index)
 
@@ -56,22 +59,23 @@ class StockHolderMixin(object):
         original = rgrid.integrate(rho)
         if rho.min() < 0:
             rho[rho<0] = 0.0
+            deriv = None
             error = rgrid.integrate(rho) - original
             if log.do_medium:
                 log('                    Pro-atom not positive everywhere. Lost %.1e electrons' % error)
 
-        return rho
+        return rho, deriv
 
     def get_proatom_spline(self, index, *args, **kwargs):
         # Get the radial density
-        rho = self.get_proatom_rho(index, *args, **kwargs)
+        rho, deriv = self.get_proatom_rho(index, *args, **kwargs)
 
         # Double check and fix if needed
-        rho = self.fix_proatom_rho(index, rho)
+        rho, deriv = self.fix_proatom_rho(index, rho, deriv)
 
         # Make a spline
         rtf = self.get_rgrid(index).rtransform
-        return CubicSpline(rho, rtf=rtf)
+        return CubicSpline(rho, deriv, rtf=rtf)
 
     def eval_spline(self, index, spline, output, grid=None, label='noname'):
         center = self.system.coordinates[index]

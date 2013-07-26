@@ -71,9 +71,9 @@ class HirshfeldIMixin(IterativeProatomMixin):
         pseudo_pop = self.system.pseudo_numbers[index] - icharge
         number = self.system.numbers[index]
         if pseudo_pop == 1 or x == 0.0:
-            return self.proatomdb.get_rho(number, {icharge: 1-x})
+            return self.proatomdb.get_rho(number, {icharge: 1-x}, do_deriv=True)
         elif pseudo_pop > 1:
-            return self.proatomdb.get_rho(number, {icharge: 1-x, icharge+1: x})
+            return self.proatomdb.get_rho(number, {icharge: 1-x, icharge+1: x}, do_deriv=True)
         elif pseudo_pop <= 0:
             raise ValueError('Requesting a pro-atom with a negative (pseudo) population')
 
