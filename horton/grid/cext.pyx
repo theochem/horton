@@ -51,6 +51,7 @@ __all__ = [
     # becke
     'becke_helper_atom',
     # cubic_spline
+    'ZeroExtrapolation', 'CuspExtrapolation', 'PowerExtrapolation',
     'tridiagsym_solve', 'CubicSpline',
     'compute_cubic_spline_int_weights',
     # evaluate
@@ -187,29 +188,53 @@ def tridiagsym_solve(np.ndarray[double, ndim=1] diag_mid not None,
                                   n)
 
 
+
+cdef class Extrapolation(object):
+    cdef cubic_spline.Extrapolation* _this
+
+    def __dealloc__(self):
+        del self._this
+
+
+cdef class ZeroExtrapolation(Extrapolation):
+    def __cinit__(self):
+        self._this = <cubic_spline.Extrapolation*>(new cubic_spline.ZeroExtrapolation())
+
+
+cdef class CuspExtrapolation(Extrapolation):
+    def __cinit__(self):
+        self._this = <cubic_spline.Extrapolation*>(new cubic_spline.CuspExtrapolation())
+
+
+cdef class PowerExtrapolation(Extrapolation):
+    def __cinit__(self, double power):
+        self._this = <cubic_spline.Extrapolation*>(new cubic_spline.PowerExtrapolation(power))
+
+
 cdef class CubicSpline(object):
     cdef cubic_spline.CubicSpline* _this
-    cdef cubic_spline.Extrapolation* _ep
+    cdef Extrapolation _ep
     cdef RTransform _rtransform
     cdef np.ndarray _y
     cdef np.ndarray _dx
     cdef np.ndarray _dt
 
     def __cinit__(self, np.ndarray[double, ndim=1] y not None,
-                  np.ndarray[double, ndim=1] dx=None, RTransform rtf=None):
+                  np.ndarray[double, ndim=1] dx=None, RTransform rtf=None,
+                  Extrapolation ep=None):
         assert y.flags['C_CONTIGUOUS']
         self._y = y
         n = y.shape[0]
 
         # Set the rtransform
         if rtf is None:
-            rtf = IdentityRTransform(n)
+            self._rtransform = IdentityRTransform(n)
         else:
+            self._rtransform = rtf
             assert rtf.npoint == n
-        self._rtransform = rtf
 
         # use given derivatives or construct new ones.
-        v = rtf.get_volume_elements()
+        v = self._rtransform.get_volume_elements()
         if dx is None:
             self._dt = np.zeros(n, float)
             cubic_spline.solve_cubic_spline_system(<double*>y.data, <double*>self._dt.data, n)
@@ -221,15 +246,18 @@ cdef class CubicSpline(object):
             self._dt = dx*v
 
         # Only exponential extrapolation is needed for now
-        self._ep = <cubic_spline.Extrapolation*>(new cubic_spline.CuspExtrapolation())
+        if ep is None:
+            self._ep = CuspExtrapolation()
+        else:
+            self._ep = ep
 
         self._this = new cubic_spline.CubicSpline(
-            <double*>self._y.data, <double*>self._dt.data, self._ep, rtf._this, n
+            <double*>self._y.data, <double*>self._dt.data, self._ep._this,
+            self._rtransform._this, n
         )
 
     def __dealloc__(self):
         del self._this
-        del self._ep
 
     property rtransform:
         def __get__(self):
