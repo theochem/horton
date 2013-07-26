@@ -79,7 +79,7 @@ void tridiagsym_solve(double* diag_mid, double* diag_up, double* right,
 }
 
 
-void solve_cubic_spline_system(double* y, double *d, int npoint) {
+void solve_cubic_spline_system(double* y, double *dt, int npoint) {
     double* diag_mid = new double[npoint];
     double* diag_up = new double[npoint-1];
     double* right =  new double[npoint];
@@ -96,7 +96,7 @@ void solve_cubic_spline_system(double* y, double *d, int npoint) {
     diag_mid[npoint-1] = 2.0;
     right[npoint-1] = 3.0*(y[npoint-1]-y[npoint-2]);
 
-    tridiagsym_solve(diag_mid, diag_up, right, d, npoint);
+    tridiagsym_solve(diag_mid, diag_up, right, dt, npoint);
 
     delete[] diag_mid;
     delete[] diag_up;
@@ -110,8 +110,8 @@ void compute_cubic_spline_int_weights(double* weights, int npoint) {
     // to the grid point.
 
     // allocate arrays for the temporary splines
-    double* y = new double[npoint];
-    double* d = new double[npoint];
+    double y[npoint];
+    double dt[npoint];
 
     // Set y array to zero. d is initialized in solve_cubic_spline_system.
     memset(y, 0, sizeof(double)*npoint);
@@ -121,72 +121,27 @@ void compute_cubic_spline_int_weights(double* weights, int npoint) {
         if (ipoint > 0) y[ipoint-1] = 0.0;
         y[ipoint] = 1.0;
         // solve for the derivatives
-        solve_cubic_spline_system(y, d, npoint);
+        solve_cubic_spline_system(y, dt, npoint);
         // compute the integral over the spline, which is heavily simplified...
         double weight = y[ipoint];
         if ((ipoint==0) || (ipoint==npoint-1)) {
             weight *= 0.5;
         }
-        weight += (d[0] - d[npoint-1])/12.0;
+        weight += (dt[0] - dt[npoint-1])/12.0;
         weights[ipoint] = weight;
     }
-
-    delete[] y;
-    delete[] d;
 }
 
 /*
    CubicSpline class.
 */
 
-CubicSpline::CubicSpline(double* _y, double* _d, Extrapolation* _ep, RTransform* _rtf, int _n):
-    ep(_ep), own_ep(false), rtf(_rtf), own_rtf(false), first_x(0.0),
-    last_x(0.0), y(NULL), d(NULL), n(_n)
+CubicSpline::CubicSpline(double* y, double* dt, Extrapolation* ep, RTransform* rtf, int n):
+    ep(ep), rtf(rtf), first_x(0.0), last_x(0.0), y(y), dt(dt), n(n)
 {
-    // Constructs the derivatives (*d) based on the *y values
-    // n is the number of nodes, so there are n-1 splines between the nodes.
-
-    // allocate arrays for our own copy of the data
-    y = new double[n];
-    d = new double[n];
-
-    // always copy the y values
-    memcpy((void*)y, (void*)_y, n*sizeof(double));
-
-    if (rtf == NULL) {
-        rtf = new IdentityRTransform(n);
-        own_rtf = true;
-    } else if (rtf->get_npoint() != _n) {
-        throw std::invalid_argument("The length of the cubic spline array data does not match the given rtransform.");
-    }
     first_x = rtf->radius(0);
     last_x = rtf->radius(n-1);
-
-    if (_d==NULL) {
-        // Make our own d's
-        solve_cubic_spline_system(y, d, n);
-    } else {
-        // Transform the given d's. We get dy/dr, we want dy/dt
-        for (int i=0; i<n; i++) {
-            d[i] = _d[i]*rtf->deriv(i);
-//#ifdef DEBUG
-//            printf("TF GIVEN DERIVS d[%i]=%f _d[%i]=%f\n", i, d[i], i, _d[i]);
-//#endif
-        }
-    }
-
-    if (ep == NULL) {
-        ep = new ZeroExtrapolation();
-        own_ep = true;
-    }
     ep->prepare(this);
-}
-
-CubicSpline::~CubicSpline() {
-    delete[] y;
-    delete[] d;
-    if (own_ep) delete ep;
-    if (own_rtf) delete rtf;
 }
 
 
@@ -208,7 +163,7 @@ void CubicSpline::eval(double* new_x, double* new_y, int new_n) {
             // 3) do the interpolation
             double u = t - j;
             double z = y[j+1] - y[j];
-            *new_y = y[j] + u*(d[j] + u*(3*z - 2*d[j] - d[j+1] + u*(-2*z + d[j] + d[j+1])));
+            *new_y = y[j] + u*(dt[j] + u*(3*z - 2*dt[j] - dt[j+1] + u*(-2*z + dt[j] + dt[j+1])));
         } else {
             // Right extrapolation
             *new_y = ep->eval_right(*new_x);
@@ -218,11 +173,11 @@ void CubicSpline::eval(double* new_x, double* new_y, int new_n) {
     }
 }
 
-void CubicSpline::eval_deriv(double* new_x, double* new_d, int new_n) {
+void CubicSpline::eval_deriv(double* new_x, double* new_dx, int new_n) {
     for (int i=0; i<new_n; i++) {
         if (*new_x < first_x) {
             // Left extrapolation
-            *new_d = ep->eval_deriv_left(*new_x);
+            *new_dx = ep->eval_deriv_left(*new_x);
         } else if (*new_x <= last_x) {
             // Cubic Spline interpolation
             // 1) transform *new_x to t
@@ -233,15 +188,15 @@ void CubicSpline::eval_deriv(double* new_x, double* new_d, int new_n) {
             // 3) do the interpolation
             double u = t - j;
             double z = y[j+1] - y[j];
-            *new_d = d[j] + u*(6*z - 4*d[j] - 2*d[j+1] + u*(-6*z + 3*d[j] + 3*d[j+1]));
+            *new_dx = dt[j] + u*(6*z - 4*dt[j] - 2*dt[j+1] + u*(-6*z + 3*dt[j] + 3*dt[j+1]));
             // 4) transform the derivative, from dy/dt to dy/dr
-            *new_d /= rtf->deriv(t);
+            *new_dx /= rtf->deriv(t);
         } else {
             // Right extrapolation
-            *new_d = ep->eval_deriv_right(*new_x);
+            *new_dx = ep->eval_deriv_right(*new_x);
         }
         new_x++;
-        new_d++;
+        new_dx++;
     }
 }
 
@@ -258,13 +213,13 @@ double ZeroExtrapolation::eval_deriv_right(double x) {return 0.0;}
 
 
 /*
-   ExponentialExtrapolation class
+   CuspExtrapolation class
 
    Only extrapolates for values smaller than lowest grid point. Extrapolation
    (of atomic densities) at large values is unreliable and waste of time.
 */
 
-void ExponentialExtrapolation::prepare(CubicSpline* cs) {
+void CuspExtrapolation::prepare(CubicSpline* cs) {
     x0 = cs->get_first_x();
     if (fabs(cs->y[0]) < 0.00001) {
         // If there is no real cusp, don't care
@@ -273,25 +228,25 @@ void ExponentialExtrapolation::prepare(CubicSpline* cs) {
     } else {
         RTransform* rtf = cs->get_rtransform();
         a0 = cs->y[0];
-        b0 = cs->d[0]/cs->y[0]/rtf->deriv(0);
+        b0 = cs->dt[0]/cs->y[0]/rtf->deriv(0);
     }
 #ifdef DEBUG
     printf("PARS EXP EXTRAPOL a0=%f b0=%f x0=%f\n", a0, b0, x0);
 #endif
 }
 
-double ExponentialExtrapolation::eval_left(double x) {
+double CuspExtrapolation::eval_left(double x) {
     return a0*exp(b0*(x-x0));
 }
 
-double ExponentialExtrapolation::eval_right(double x) {
+double CuspExtrapolation::eval_right(double x) {
     return 0.0;
 }
 
-double ExponentialExtrapolation::eval_deriv_left(double x) {
+double CuspExtrapolation::eval_deriv_left(double x) {
     return a0*b0*exp(b0*(x-x0));
 }
 
-double ExponentialExtrapolation::eval_deriv_right(double x) {
+double CuspExtrapolation::eval_deriv_right(double x) {
     return 0.0;
 }

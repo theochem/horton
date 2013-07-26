@@ -27,6 +27,7 @@
 
 
 void tridiagsym_solve(double* diag_mid, double* diag_up, double* right, double* solution, int n);
+void solve_cubic_spline_system(double* y, double *d, int npoint);
 void compute_cubic_spline_int_weights(double* weights, int npoint);
 
 
@@ -36,22 +37,17 @@ class Extrapolation;
 class CubicSpline {
     private:
         Extrapolation* ep;
-        bool own_ep;
-
         RTransform* rtf;
-        bool own_rtf;
-
         double first_x, last_x;
     public:
         double* y;
-        double* d;
+        double* dt;
         int n;
 
-        CubicSpline(double* y, double* d, Extrapolation* ep, RTransform* rtf, int n);
-        ~CubicSpline();
+        CubicSpline(double* y, double* dt, Extrapolation* ep, RTransform* rtf, int n);
 
         void eval(double* new_x, double* new_y, int new_n);
-        void eval_deriv(double* new_x, double* new_d, int new_n);
+        void eval_deriv(double* new_x, double* new_dx, int new_n);
 
         RTransform* get_rtransform() {return rtf;}
         double get_first_x() {return first_x;}; // position of first (transformed) grid point
@@ -81,7 +77,7 @@ class ZeroExtrapolation : public Extrapolation {
     };
 
 
-class ExponentialExtrapolation : public Extrapolation {
+class CuspExtrapolation : public Extrapolation {
     private:
         double a0, b0, x0;
 
