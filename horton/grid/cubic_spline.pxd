@@ -23,7 +23,6 @@
 cimport rtransform
 
 cdef extern from "cubic_spline.h":
-    void tridiag_solve(double* diag_low, double* diag_mid, double* diag_up, double* right, double* solution, int n)
     void tridiagsym_solve(double* diag_mid, double* diag_up, double* right, double* solution, int n)
     void compute_cubic_spline_int_weights(double* weights, int npoint)
 
