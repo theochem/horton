@@ -266,7 +266,6 @@ def test_extrapolation1_identity():
     d = -0.3*y
     cs = CubicSpline(y, d)
     newx = np.array([-2.5, -1.1])
-    print cs(newx), np.exp(-0.3*newx)
     assert abs(cs(newx) - np.exp(-0.3*newx)).max() < 1e-10
     assert abs(cs.deriv(newx) - -0.3*np.exp(-0.3*newx)).max() < 1e-10
     newx = np.array([10.5, 11.5])
@@ -304,5 +303,31 @@ def test_bug_steven():
     cs = CubicSpline(y, rtf=rtf)
     d = np.array([0.000141, 0.00141, 0.0141, 0.141, 1.41])
     s = cs(d)
-    print s
     assert not np.isnan(s).any()
+
+
+def test_extrapolation_identity_power():
+    x = np.arange(10, dtype=float)
+    y = 1/(np.exp(-2*x)+x**2)
+    d = -y**2*(np.exp(-2*x)*(-2) + 2*x)
+    cs = CubicSpline(y, d, ep=PowerExtrapolation(-2.0))
+    newx = np.array([-2.5, -1.1])
+    assert abs(cs(newx)).max() == 0.0
+    assert abs(cs.deriv(newx)).max() == 0.0
+    newx = np.array([10.5, 11.5])
+    assert abs(cs(newx) - 1/newx**2).max() < 1e-10
+    assert abs(cs.deriv(newx) - -2/newx**3).max() < 1e-10
+
+
+def test_extrapolation_exp_power():
+    rtf = ExpRTransform(0.1, 1.0, 10)
+    x = rtf.get_radii()
+    y = x**2
+    d = 2*x
+    cs = CubicSpline(y, d, rtf, PowerExtrapolation(2))
+    newx = np.array([0.001, 0.01])
+    assert abs(cs(newx)).max() == 0.0
+    assert abs(cs.deriv(newx)).max() == 0.0
+    newx = np.array([1.1, 10.1])
+    assert abs(cs(newx) - newx**2).max() < 1e-10
+    assert abs(cs.deriv(newx) - 2*newx).max() < 1e-10

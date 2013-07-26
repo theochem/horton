@@ -250,3 +250,34 @@ double CuspExtrapolation::eval_deriv_left(double x) {
 double CuspExtrapolation::eval_deriv_right(double x) {
     return 0.0;
 }
+
+/*
+   PowerExtrapolation class
+
+   This is used for potentials that obey some power law at large distances.
+*/
+
+void PowerExtrapolation::prepare(CubicSpline* cs) {
+    double x = cs->get_last_x();
+    if (cs->y[cs->n-1] == 0.0) {
+        amp = 0;
+    } else {
+        amp = cs->y[cs->n-1]*pow(x, -power);
+    }
+}
+
+double PowerExtrapolation::eval_left(double x) {
+    return 0.0;
+}
+
+double PowerExtrapolation::eval_right(double x) {
+    return amp*pow(x, power);
+}
+
+double PowerExtrapolation::eval_deriv_left(double x) {
+    return 0.0;
+}
+
+double PowerExtrapolation::eval_deriv_right(double x) {
+    return amp*power*pow(x, power-1);
+}

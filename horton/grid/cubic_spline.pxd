@@ -32,7 +32,7 @@ cdef extern from "cubic_spline.h":
 
 
     cdef cppclass CubicSpline:
-        CubicSpline(double* y, double* dt, Extrapolation* ep, rtransform.RTransform* rtf, int n) except +
+        CubicSpline(double* y, double* dt, Extrapolation* ep, rtransform.RTransform* rtf, int n)
         void eval(double* new_x, double* new_y, int new_n)
         void eval_deriv(double* new_x, double* new_dx, int new_n)
 
@@ -41,3 +41,6 @@ cdef extern from "cubic_spline.h":
 
     cdef cppclass CuspExtrapolation:
         pass
+
+    cdef cppclass PowerExtrapolation:
+        PowerExtrapolation(double power)

@@ -90,4 +90,18 @@ class CuspExtrapolation : public Extrapolation {
     };
 
 
+class PowerExtrapolation : public Extrapolation {
+    private:
+        double amp, power;
+
+    public:
+        PowerExtrapolation(double power): amp(0), power(power) {};
+        virtual void prepare(CubicSpline* cs);
+        virtual double eval_left(double x);
+        virtual double eval_right(double x);
+        virtual double eval_deriv_left(double x);
+        virtual double eval_deriv_right(double x);
+    };
+
+
 #endif
