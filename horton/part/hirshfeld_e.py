@@ -208,7 +208,7 @@ class HirshfeldEMixin(object):
             propars = self._cache.load('propars')
         lico = self.hebasis.get_total_lico(index, propars)
         number = self._system.numbers[index]
-        return self._proatomdb.get_rho(number, lico)
+        return self._proatomdb.get_rho(number, lico, do_deriv=True)
 
     def get_constant(self, index, grid=None):
         spline = self.hebasis.get_constant_spline(index)
