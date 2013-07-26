@@ -143,7 +143,7 @@ def test_moments():
 
 
 def check_spline_record(spline, record):
-    assert abs(spline.copy_y() - record.rho).max() < 1e-10
+    assert abs(spline.y - record.rho).max() < 1e-10
 
 
 def check_spline_pop(spline, pop):
@@ -152,7 +152,7 @@ def check_spline_pop(spline, pop):
     check_pop = 4*np.pi*dot_multi(
         rtf.get_volume_elements(),
         rtf.get_radii()**2,
-        spline.copy_y(),
+        spline.y,
         int1d.get_weights(rtf.npoint),
     )
     assert abs(pop - check_pop) < 1e-2

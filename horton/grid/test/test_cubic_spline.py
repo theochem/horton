@@ -53,8 +53,9 @@ def test_basics_identity():
     y = np.random.normal(0,1,N)
     d = np.random.normal(0,1,N)
     cs = CubicSpline(y,d)
-    assert (cs.copy_y() == y).all()
-    assert (cs.copy_d() == d).all()
+    assert (cs.y == y).all()
+    assert (cs.dx == d).all()
+    assert (cs.dt == d).all()
 
 
 def test_basics_linear():
@@ -63,21 +64,23 @@ def test_basics_linear():
     d = np.random.normal(0,1,N)
     rtf = LinearRTransform(-0.3, 0.6, N)
     cs = CubicSpline(y, d, rtf)
-    assert (cs.copy_y() == y).all()
-    dp = d*rtf.get_volume_elements()
+    assert (cs.y == y).all()
+    assert (cs.dx == d).all()
+    dt = d*rtf.get_volume_elements()
     assert abs(rtf.get_volume_elements() - 0.1).max() < 1e-10
-    assert abs(cs.copy_d() - dp).max() < 1e-15
+    assert abs(cs.dt - dt).max() < 1e-15
 
 
-def test_basics_log():
+def test_basics_exp():
     N = 10
     y = np.random.normal(0,1,N)
     d = np.random.normal(0,1,N)
     rtf = ExpRTransform(0.1, 1.0, N)
     cs = CubicSpline(y, d, rtf)
-    assert (cs.copy_y() == y).all()
-    dp = d*rtf.get_volume_elements()
-    assert abs(cs.copy_d() - dp).max() < 1e-15
+    assert (cs.y == y).all()
+    assert (cs.dx == d).all()
+    dt = d*rtf.get_volume_elements()
+    assert abs(cs.dt - dt).max() < 1e-15
 
 
 def check_continuity(ynew, y, d, N):
@@ -103,27 +106,25 @@ def test_continuity_identity():
     N = 10
     y = np.random.normal(0,1,N)
     cs = CubicSpline(y)
-    d = cs.copy_d()
     # test the function values at the grid points
     xnew = np.arange(N, dtype=float)
     ynew = np.zeros(len(xnew), float)
     cs(xnew, ynew)
-    check_continuity(ynew, y, d, N)
+    check_continuity(ynew, y, cs.dt, N)
 
 
-def test_continuity_log():
+def test_continuity_exp():
     N = 10
     rtf = ExpRTransform(0.1, 1.0, N)
     y = np.random.normal(0,1,N)
     cs = CubicSpline(y,rtf=rtf)
-    d = cs.copy_d()
     # test the function values at the grid points
     tnew = np.arange(N, dtype=float)
     xnew = np.zeros(N, dtype=float)
     rtf.radius_array(tnew, xnew)
     ynew = np.zeros(len(xnew), float)
     cs(xnew, ynew)
-    check_continuity(ynew, y, d, N)
+    check_continuity(ynew, y, cs.dt, N)
 
 
 def test_accuracy_identity():
@@ -142,7 +143,7 @@ def test_accuracy_identity():
     assert(error<1e-6)
 
 
-def test_accuracy_log():
+def test_accuracy_exp():
     size = 51
     rtf = ExpRTransform(0.1, 1.0, size)
     t = np.arange(size, dtype=float)
@@ -169,7 +170,7 @@ def test_deriv_identity1():
     assert abs(cs.deriv(x) - d).max() < 1e-5
 
 
-def test_deriv_log1():
+def test_deriv_exp1():
     rtf = ExpRTransform(0.1, 1.0, 10)
     x = rtf.get_radii()
     y = np.exp(-0.3*x)
@@ -196,7 +197,7 @@ def test_deriv_identity2():
     assert abs(cs.deriv(x) - d).max() < 3e-2
 
 
-def test_deriv_log2():
+def test_deriv_exp2():
     rtf = ExpRTransform(0.1, 1.0, 10)
     x = rtf.get_radii()
     y = np.exp(-0.3*x)
@@ -221,7 +222,7 @@ def test_deriv_identity3():
     assert abs(d1-d2).max() < 1e-6
 
 
-def test_deriv_log3():
+def test_deriv_exp3():
     rtf = ExpRTransform(0.1, 1.0, 10)
     y = np.random.normal(0, 1, 10)
     cs = CubicSpline(y, rtf=rtf)
@@ -245,7 +246,7 @@ def test_deriv_identity4():
     assert abs(d1-d2).max() < 1e-6
 
 
-def test_deriv_log4():
+def test_deriv_exp4():
     rtf = ExpRTransform(0.1, 1.0, 10)
     y = np.random.normal(0, 1, 10)
     d = np.random.normal(0, 1, 10)
@@ -259,12 +260,13 @@ def test_deriv_log4():
     assert abs(d1-d2).max() < 1e-6
 
 
-def test_extrapolation_identity():
+def test_extrapolation1_identity():
     x = np.arange(10, dtype=float)
     y = np.exp(-0.3*x)
     d = -0.3*y
     cs = CubicSpline(y, d)
     newx = np.array([-2.5, -1.1])
+    print cs(newx), np.exp(-0.3*newx)
     assert abs(cs(newx) - np.exp(-0.3*newx)).max() < 1e-10
     assert abs(cs.deriv(newx) - -0.3*np.exp(-0.3*newx)).max() < 1e-10
     newx = np.array([10.5, 11.5])
@@ -272,7 +274,17 @@ def test_extrapolation_identity():
     assert abs(cs.deriv(newx)).max() < 1e-10
 
 
-def test_extrapolation_log():
+def test_extrapolation2_identity():
+    x = np.arange(10, dtype=float)
+    y = x**2 + 1
+    d = 2*x
+    cs = CubicSpline(y, d)
+    newx = np.array([-2.5, -1.1])
+    assert abs(cs(newx) - 1.0).max() < 1e-10
+    assert abs(cs.deriv(newx)).max() < 1e-10
+
+
+def test_extrapolation1_exp():
     rtf = ExpRTransform(0.1, 1.0, 10)
     x = rtf.get_radii()
     y = np.exp(-0.3*x)

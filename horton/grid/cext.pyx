@@ -191,32 +191,40 @@ cdef class CubicSpline(object):
     cdef cubic_spline.CubicSpline* _this
     cdef cubic_spline.Extrapolation* _ep
     cdef RTransform _rtransform
+    cdef np.ndarray _y
+    cdef np.ndarray _dx
+    cdef np.ndarray _dt
 
     def __cinit__(self, np.ndarray[double, ndim=1] y not None,
-                  np.ndarray[double, ndim=1] d=None, RTransform rtf=None):
-        cdef double* ddata
+                  np.ndarray[double, ndim=1] dx=None, RTransform rtf=None):
         assert y.flags['C_CONTIGUOUS']
+        self._y = y
         n = y.shape[0]
-        if d is None:
-            ddata = <double*>NULL
-        else:
-            assert d.flags['C_CONTIGUOUS']
-            assert d.shape[0] == n
-            ddata = <double*>d.data
 
-        self._rtransform = rtf
-        cdef rtransform.RTransform* _c_rtransform
+        # Set the rtransform
         if rtf is None:
-            _c_rtransform = NULL
+            rtf = IdentityRTransform(n)
         else:
-            _c_rtransform = rtf._this
-        # Only exponential extrapolation is needed for now, except when it does not work
-        if d is not None and d[0] == 0.0:
-            self._ep = <cubic_spline.Extrapolation*>(new cubic_spline.ZeroExtrapolation())
+            assert rtf.npoint == n
+        self._rtransform = rtf
+
+        # use given derivatives or construct new ones.
+        v = rtf.get_volume_elements()
+        if dx is None:
+            self._dt = np.zeros(n, float)
+            cubic_spline.solve_cubic_spline_system(<double*>y.data, <double*>self._dt.data, n)
+            self._dx = self._dt/v
         else:
-            self._ep = <cubic_spline.Extrapolation*>(new cubic_spline.ExponentialExtrapolation())
+            assert dx.flags['C_CONTIGUOUS']
+            assert dx.shape[0] == n
+            self._dx = dx
+            self._dt = dx*v
+
+        # Only exponential extrapolation is needed for now
+        self._ep = <cubic_spline.Extrapolation*>(new cubic_spline.CuspExtrapolation())
+
         self._this = new cubic_spline.CubicSpline(
-            <double*>y.data, ddata, self._ep, _c_rtransform, n
+            <double*>self._y.data, <double*>self._dt.data, self._ep, rtf._this, n
         )
 
     def __dealloc__(self):
@@ -227,19 +235,23 @@ cdef class CubicSpline(object):
         def __get__(self):
             return self._rtransform
 
-    def copy_y(self):
-        cdef np.npy_intp shape[1]
-        shape[0] = self._this.n
-        tmp = np.PyArray_SimpleNewFromData(1, shape, np.NPY_DOUBLE, <void*> self._this.y)
-        return tmp.copy()
+    property y:
+        '''Array with function values at the grid points'''
+        def __get__(self):
+            return self._y.view()
 
-    def copy_d(self):
-        cdef np.npy_intp shape[1]
-        shape[0] = self._this.n
-        tmp = np.PyArray_SimpleNewFromData(1, shape, np.NPY_DOUBLE, <void*> self._this.d)
-        return tmp.copy()
+    property dx:
+        '''Array with derivatives (towards x) at the grid points'''
+        def __get__(self):
+            return self._dx.view()
+
+    property dt:
+        '''Array with derivatives (towards t) at the grid points'''
+        def __get__(self):
+            return self._dt.view()
 
     def __call__(self, np.ndarray[double, ndim=1] new_x not None, np.ndarray[double, ndim=1] new_y=None):
+        '''evaluate the spline on a grid'''
         assert new_x.flags['C_CONTIGUOUS']
         new_n = new_x.shape[0]
         if new_y is None:
@@ -250,16 +262,17 @@ cdef class CubicSpline(object):
         self._this.eval(<double*>new_x.data, <double*>new_y.data, new_n)
         return new_y
 
-    def deriv(self, np.ndarray[double, ndim=1] new_x not None, np.ndarray[double, ndim=1] new_d=None):
+    def deriv(self, np.ndarray[double, ndim=1] new_x not None, np.ndarray[double, ndim=1] new_dx=None):
+        '''Evaluate the derivative of the spline (towards x) on a grid'''
         assert new_x.flags['C_CONTIGUOUS']
         new_n = new_x.shape[0]
-        if new_d is None:
-            new_d = np.zeros(new_n, float)
+        if new_dx is None:
+            new_dx = np.zeros(new_n, float)
         else:
-            assert new_d.flags['C_CONTIGUOUS']
-            assert new_d.shape[0] == new_n
-        self._this.eval_deriv(<double*>new_x.data, <double*>new_d.data, new_n)
-        return new_d
+            assert new_dx.flags['C_CONTIGUOUS']
+            assert new_dx.shape[0] == new_n
+        self._this.eval_deriv(<double*>new_x.data, <double*>new_dx.data, new_n)
+        return new_dx
 
 
 def compute_cubic_spline_int_weights(np.ndarray[double, ndim=1] weights not None):
@@ -870,8 +883,8 @@ cdef class UniformGrid(object):
             rtf = spline.rtransform
             r = rtf.get_radii()
             # Get original spline stuff
-            y = spline.copy_y()
-            d = spline.deriv(r)
+            y = spline.y
+            d = spline.dx
             # adapt cutoffs to indexes of radial grid
             ibegin = r.searchsorted(rcut)
             iend = r.searchsorted(aux_rcut)-1

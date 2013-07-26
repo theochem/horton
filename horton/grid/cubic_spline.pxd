@@ -24,6 +24,7 @@ cimport rtransform
 
 cdef extern from "cubic_spline.h":
     void tridiagsym_solve(double* diag_mid, double* diag_up, double* right, double* solution, int n)
+    void solve_cubic_spline_system(double* y, double *d, int npoint)
     void compute_cubic_spline_int_weights(double* weights, int npoint)
 
     cdef cppclass Extrapolation:
@@ -31,17 +32,12 @@ cdef extern from "cubic_spline.h":
 
 
     cdef cppclass CubicSpline:
-        double* y
-        double* d
-        int n
-
-        CubicSpline(double* y, double* d, Extrapolation* ep, rtransform.RTransform* rtf, int n) except +
-
+        CubicSpline(double* y, double* dt, Extrapolation* ep, rtransform.RTransform* rtf, int n) except +
         void eval(double* new_x, double* new_y, int new_n)
-        void eval_deriv(double* new_x, double* new_d, int new_n)
+        void eval_deriv(double* new_x, double* new_dx, int new_n)
 
     cdef cppclass ZeroExtrapolation:
         pass
 
-    cdef cppclass ExponentialExtrapolation:
+    cdef cppclass CuspExtrapolation:
         pass
