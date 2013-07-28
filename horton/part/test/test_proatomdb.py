@@ -151,7 +151,7 @@ def check_spline_pop(spline, pop):
     rtf = spline.rtransform
     int1d = spline.rtransform.get_default_int1d()
     check_pop = 4*np.pi*dot_multi(
-        rtf.get_volume_elements(),
+        rtf.get_deriv(),
         rtf.get_radii()**2,
         spline.y,
         int1d.get_weights(rtf.npoint),
@@ -160,8 +160,7 @@ def check_spline_pop(spline, pop):
 
 def check_spline_mono_decr(spline):
     t = np.arange(0, spline.rtransform.npoint, 0.1)
-    x = np.zeros(t.shape)
-    spline.rtransform.radius_array(t, x)
+    x = spline.rtransform.radius(t)
     y = spline(x)
     i = (abs(y) < 1e-10).nonzero()[0][0]
     y = y[:i]

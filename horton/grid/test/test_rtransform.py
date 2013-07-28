@@ -31,17 +31,47 @@ def check_consistency(rtf):
     ts = np.random.uniform(0, rtf.npoint-1, 200)
     # consistency between radius and radius_array
     rs = np.zeros(ts.shape)
-    rtf.radius_array(ts, rs)
+    rtf.radius(ts, rs)
+    for i in xrange(ts.shape[0]):
+        assert rs[i] == rtf.radius(ts[i])
+    # consistency between radius and radius_array
+    rs = rtf.radius(ts)
     for i in xrange(ts.shape[0]):
         assert rs[i] == rtf.radius(ts[i])
     # consistency between deriv and deriv_array
     ds = np.zeros(ts.shape)
-    rtf.deriv_array(ts, ds)
+    rtf.deriv(ts, ds)
     for i in xrange(ts.shape[0]):
         assert ds[i] == rtf.deriv(ts[i])
+    # consistency between deriv and deriv_array
+    ds = rtf.deriv(ts)
+    for i in xrange(ts.shape[0]):
+        assert ds[i] == rtf.deriv(ts[i])
+    # consistency between deriv2 and deriv2_array
+    d2s = np.zeros(ts.shape)
+    rtf.deriv2(ts, d2s)
+    for i in xrange(ts.shape[0]):
+        assert d2s[i] == rtf.deriv2(ts[i])
+    # consistency between deriv2 and deriv2_array
+    d2s = rtf.deriv2(ts)
+    for i in xrange(ts.shape[0]):
+        assert d2s[i] == rtf.deriv2(ts[i])
+    # consistency between deriv3 and deriv3_array
+    d3s = np.zeros(ts.shape)
+    rtf.deriv3(ts, d3s)
+    for i in xrange(ts.shape[0]):
+        assert d3s[i] == rtf.deriv3(ts[i])
+    # consistency between deriv3 and deriv3_array
+    d3s = rtf.deriv3(ts)
+    for i in xrange(ts.shape[0]):
+        assert d3s[i] == rtf.deriv3(ts[i])
     # consistency between inv and inv_array
     ts[:] = 0.0
-    rtf.inv_array(rs, ts)
+    rtf.inv(rs, ts)
+    for i in xrange(ts.shape[0]):
+        assert ts[i] == rtf.inv(rs[i])
+    # consistency between inv and inv_array
+    ts = rtf.inv(rs)
     for i in xrange(ts.shape[0]):
         assert ts[i] == rtf.inv(rs[i])
     # consistency between inv and radius
@@ -50,18 +80,16 @@ def check_consistency(rtf):
 
     ts = np.arange(rtf.npoint, dtype=float)
     # consistency of get_radii
-    radii = rtf.get_radii()
-    assert radii.shape == (rtf.npoint,)
-    rs = np.zeros(ts.shape)
-    rtf.radius_array(ts, rs)
-    assert (rs == radii).all()
-    # consistency of get_volume_elements
-    volume_elements = rtf.get_volume_elements()
-    assert volume_elements.shape == (rtf.npoint,)
-    ds = np.zeros(ts.shape)
-    rtf.deriv_array(ts, ds)
-    assert (ds == volume_elements).all()
+    assert (rtf.get_radii() == rtf.radius(ts)).all()
+    # consistency of get_deriv
+    assert (rtf.get_deriv() == rtf.deriv(ts)).all()
+    # consistency of get_deriv2
+    assert (rtf.get_deriv2() == rtf.deriv2(ts)).all()
+    # consistency of get_deriv3
+    assert (rtf.get_deriv3() == rtf.deriv3(ts)).all()
+
     # radii must increase strictly
+    radii = rtf.get_radii()
     assert (radii[1:] > radii[:-1]).all()
 
 
@@ -70,19 +98,12 @@ def check_deriv(rtf):
     eps = 1e-5
     ts0 = ts-eps/2
     ts1 = ts+eps/2
-    fns = [(rtf.radius_array, rtf.deriv_array),
-           (rtf.deriv_array, rtf.deriv2_array),
-           (rtf.deriv2_array, rtf.deriv3_array)]
+    fns = [(rtf.radius, rtf.deriv),
+           (rtf.deriv, rtf.deriv2),
+           (rtf.deriv2, rtf.deriv3)]
     for fnr, fnd in fns:
-        print 'A'
-        rs0 = np.zeros(ts.shape)
-        fnr(ts0, rs0)
-        rs1 = np.zeros(ts.shape)
-        fnr(ts1, rs1)
-        ds = np.zeros(ts.shape)
-        fnd(ts, ds)
-        dns = (rs1-rs0)/eps
-        print ds-dns
+        ds = fnd(ts)
+        dns = (fnr(ts1)-fnr(ts0))/eps
         assert abs(ds-dns).max() < 1e-5
 
 

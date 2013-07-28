@@ -66,8 +66,8 @@ def test_basics_linear():
     cs = CubicSpline(y, d, rtf)
     assert (cs.y == y).all()
     assert (cs.dx == d).all()
-    dt = d*rtf.get_volume_elements()
-    assert abs(rtf.get_volume_elements() - 0.1).max() < 1e-10
+    dt = d*rtf.get_deriv()
+    assert abs(rtf.get_deriv() - 0.1).max() < 1e-10
     assert abs(cs.dt - dt).max() < 1e-15
 
 
@@ -79,7 +79,7 @@ def test_basics_exp():
     cs = CubicSpline(y, d, rtf)
     assert (cs.y == y).all()
     assert (cs.dx == d).all()
-    dt = d*rtf.get_volume_elements()
+    dt = d*rtf.get_deriv()
     assert abs(cs.dt - dt).max() < 1e-15
 
 
@@ -120,8 +120,7 @@ def test_continuity_exp():
     cs = CubicSpline(y,rtf=rtf)
     # test the function values at the grid points
     tnew = np.arange(N, dtype=float)
-    xnew = np.zeros(N, dtype=float)
-    rtf.radius_array(tnew, xnew)
+    xnew = rtf.radius(tnew)
     ynew = np.zeros(len(xnew), float)
     cs(xnew, ynew)
     check_continuity(ynew, y, cs.dt, N)
@@ -146,9 +145,7 @@ def test_accuracy_identity():
 def test_accuracy_exp():
     size = 51
     rtf = ExpRTransform(0.1, 1.0, size)
-    t = np.arange(size, dtype=float)
-    x = np.zeros(size, float)
-    rtf.radius_array(t, x)
+    x = rtf.get_radii()
     y = np.sin(x)
     cs = CubicSpline(y, rtf=rtf)
     newx = np.arange(0.1, 1.0, 0.01)
@@ -178,8 +175,7 @@ def test_deriv_exp1():
     cs = CubicSpline(y, d, rtf)
     assert abs(cs.deriv(x) - d).max() < 1e-15
     t = np.arange(9, dtype=float)+0.5
-    x = np.zeros(9, float)
-    rtf.radius_array(t, x)
+    x = rtf.radius(t)
     y = np.exp(-0.3*x)
     d = -0.3*y
     assert abs(cs.deriv(x) - d).max() < 1e-6
@@ -205,8 +201,7 @@ def test_deriv_exp2():
     cs = CubicSpline(y, rtf=rtf)
     assert abs(cs.deriv(x) - d).max() < 3e-2
     t = np.arange(9, dtype=float)+0.5
-    x = np.zeros(9, float)
-    rtf.radius_array(t, x)
+    x = rtf.radius(t)
     y = np.exp(-0.3*x)
     d = -0.3*y
     assert abs(cs.deriv(x) - d).max() < 4e-3
@@ -227,8 +222,7 @@ def test_deriv_exp3():
     y = np.random.normal(0, 1, 10)
     cs = CubicSpline(y, rtf=rtf)
     t = np.arange(9, dtype=float)+0.5
-    x = np.zeros(9, float)
-    rtf.radius_array(t, x)
+    x = rtf.radius(t)
     eps = 1e-6
     d1 = cs.deriv(x)
     d2 = (cs(x+eps) - cs(x-eps))/(2*eps)
@@ -252,8 +246,7 @@ def test_deriv_exp4():
     d = np.random.normal(0, 1, 10)
     cs = CubicSpline(y, d, rtf)
     t = np.arange(9, dtype=float)+0.5
-    x = np.zeros(9, float)
-    rtf.radius_array(t, x)
+    x = rtf.radius(t)
     eps = 1e-6
     d1 = cs.deriv(x)
     d2 = (cs(x+eps) - cs(x-eps))/(2*eps)

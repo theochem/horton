@@ -36,7 +36,7 @@ class RadialGrid(object):
         else:
             self._int1d = int1d
         self._weights = (4*np.pi)*(
-            self._rtransform.get_volume_elements()*
+            self._rtransform.get_deriv()*
             self._rtransform.get_radii()**2*
             self._int1d.get_weights(rtransform.npoint)
         )
