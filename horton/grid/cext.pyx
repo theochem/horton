@@ -24,6 +24,7 @@
 import numpy as np
 from horton.log import log
 from horton.grid.utils import parse_args_integrate
+import numbers
 
 
 cimport numpy as np
@@ -234,7 +235,7 @@ cdef class CubicSpline(object):
             assert rtf.npoint == n
 
         # use given derivatives or construct new ones.
-        v = self._rtransform.get_volume_elements()
+        v = self._rtransform.get_deriv()
         if dx is None:
             self._dt = np.zeros(n, float)
             cubic_spline.solve_cubic_spline_system(<double*>y.data, <double*>self._dt.data, n)
@@ -355,6 +356,10 @@ def eval_spline_grid(CubicSpline spline not None,
 #
 
 
+# The following class contains a lot of duplicate code because Cython can not do this (yet):
+# ctypedef double (rtransform.RTransform::*fn_ptr)(double)
+# ctypedef void (rtransform.RTransform::*fn_array_ptr)(double*, double*,int)
+
 cdef class RTransform(object):
     cdef rtransform.RTransform* _this
 
@@ -362,71 +367,133 @@ cdef class RTransform(object):
         def __get__(self):
             return self._this.get_npoint()
 
-    def radius(self, double t):
-        return self._this.radius(t)
+    def radius(self, t, output=None):
+        if isinstance(t, numbers.Number):
+            assert output is None
+            return self._this.radius(t)
+        elif isinstance(t, np.ndarray):
+            return self._radius_array(t, output)
+        else:
+            raise NotImplementedError
 
-    def deriv(self, double t):
-        return self._this.deriv(t)
-
-    def deriv2(self, double t):
-        return self._this.deriv2(t)
-
-    def deriv3(self, double t):
-        return self._this.deriv3(t)
-
-    def inv(self, double r):
-        return self._this.inv(r)
-
-    def radius_array(self, np.ndarray[double, ndim=1] t not None,
-                           np.ndarray[double, ndim=1] r not None):
+    def _radius_array(self, np.ndarray[double, ndim=1] t not None,
+                            np.ndarray[double, ndim=1] output=None):
         assert t.flags['C_CONTIGUOUS']
         cdef int n = t.shape[0]
-        assert r.flags['C_CONTIGUOUS']
-        assert r.shape[0] == n
-        self._this.radius_array(<double*>t.data, <double*>r.data, n)
+        if output is None:
+            output = np.zeros(n, float)
+        else:
+            assert output.flags['C_CONTIGUOUS']
+            assert output.shape[0] == n
+        self._this.radius_array(<double*>t.data, <double*>output.data, n)
+        return output
 
-    def deriv_array(self, np.ndarray[double, ndim=1] t not None,
-                          np.ndarray[double, ndim=1] d not None):
+    def deriv(self, t, output=None):
+        if isinstance(t, numbers.Number):
+            assert output is None
+            return self._this.deriv(t)
+        elif isinstance(t, np.ndarray):
+            return self._deriv_array(t, output)
+        else:
+            raise NotImplementedError
+
+    def _deriv_array(self, np.ndarray[double, ndim=1] t not None,
+                            np.ndarray[double, ndim=1] output=None):
         assert t.flags['C_CONTIGUOUS']
         cdef int n = t.shape[0]
-        assert d.flags['C_CONTIGUOUS']
-        assert d.shape[0] == n
-        self._this.deriv_array(<double*>t.data, <double*>d.data, n)
+        if output is None:
+            output = np.zeros(n, float)
+        else:
+            assert output.flags['C_CONTIGUOUS']
+            assert output.shape[0] == n
+        self._this.deriv_array(<double*>t.data, <double*>output.data, n)
+        return output
 
-    def deriv2_array(self, np.ndarray[double, ndim=1] t not None,
-                          np.ndarray[double, ndim=1] d not None):
+    def deriv2(self, t, output=None):
+        if isinstance(t, numbers.Number):
+            assert output is None
+            return self._this.deriv2(t)
+        elif isinstance(t, np.ndarray):
+            return self._deriv2_array(t, output)
+        else:
+            raise NotImplementedError
+
+    def _deriv2_array(self, np.ndarray[double, ndim=1] t not None,
+                            np.ndarray[double, ndim=1] output=None):
         assert t.flags['C_CONTIGUOUS']
         cdef int n = t.shape[0]
-        assert d.flags['C_CONTIGUOUS']
-        assert d.shape[0] == n
-        self._this.deriv2_array(<double*>t.data, <double*>d.data, n)
+        if output is None:
+            output = np.zeros(n, float)
+        else:
+            assert output.flags['C_CONTIGUOUS']
+            assert output.shape[0] == n
+        self._this.deriv2_array(<double*>t.data, <double*>output.data, n)
+        return output
 
-    def deriv3_array(self, np.ndarray[double, ndim=1] t not None,
-                          np.ndarray[double, ndim=1] d not None):
+    def deriv3(self, t, output=None):
+        if isinstance(t, numbers.Number):
+            assert output is None
+            return self._this.deriv3(t)
+        elif isinstance(t, np.ndarray):
+            return self._deriv3_array(t, output)
+        else:
+            raise NotImplementedError
+
+    def _deriv3_array(self, np.ndarray[double, ndim=1] t not None,
+                            np.ndarray[double, ndim=1] output=None):
         assert t.flags['C_CONTIGUOUS']
         cdef int n = t.shape[0]
-        assert d.flags['C_CONTIGUOUS']
-        assert d.shape[0] == n
-        self._this.deriv3_array(<double*>t.data, <double*>d.data, n)
+        if output is None:
+            output = np.zeros(n, float)
+        else:
+            assert output.flags['C_CONTIGUOUS']
+            assert output.shape[0] == n
+        self._this.deriv3_array(<double*>t.data, <double*>output.data, n)
+        return output
 
-    def inv_array(self, np.ndarray[double, ndim=1] r not None,
-                        np.ndarray[double, ndim=1] t not None):
+    def inv(self, r, output=None):
+        if isinstance(r, numbers.Number):
+            assert output is None
+            return self._this.inv(r)
+        elif isinstance(r, np.ndarray):
+            return self._inv_array(r, output)
+        else:
+            raise NotImplementedError
+
+    def _inv_array(self, np.ndarray[double, ndim=1] r not None,
+                         np.ndarray[double, ndim=1] output=None):
         assert r.flags['C_CONTIGUOUS']
         cdef int n = r.shape[0]
-        assert t.flags['C_CONTIGUOUS']
-        assert t.shape[0] == n
-        self._this.inv_array(<double*>r.data, <double*>t.data, n)
+        if output is None:
+            output = np.zeros(n, float)
+        else:
+            assert output.flags['C_CONTIGUOUS']
+            assert output.shape[0] == n
+        self._this.inv_array(<double*>r.data, <double*>output.data, n)
+        return output
 
     def get_radii(self):
         '''Return an array with radii'''
         result = np.arange(self.npoint, dtype=float)
-        self.radius_array(result, result)
+        self._radius_array(result, result)
         return result
 
-    def get_volume_elements(self):
-        '''Return an array with volume elements associated with the transform'''
+    def get_deriv(self):
+        '''Return an array with derivatives at the grid points'''
         result = np.arange(self.npoint, dtype=float)
-        self.deriv_array(result, result)
+        self._deriv_array(result, result)
+        return result
+
+    def get_deriv2(self):
+        '''Return an array with second derivatives at the grid points'''
+        result = np.arange(self.npoint, dtype=float)
+        self._deriv2_array(result, result)
+        return result
+
+    def get_deriv3(self):
+        '''Return an array with third derivatives at the grid points'''
+        result = np.arange(self.npoint, dtype=float)
+        self._deriv3_array(result, result)
         return result
 
     @classmethod
@@ -934,7 +1001,7 @@ cdef class UniformGrid(object):
             # compute integral
             int1d = SimpsonIntegrator1D()
             int_exact = 4*np.pi*dot_multi(
-                ty, r, r, int1d.get_weights(len(r)), rtf.get_volume_elements()
+                ty, r, r, int1d.get_weights(len(r)), rtf.get_deriv()
             )
             # done
             return tapered_spline, int_exact

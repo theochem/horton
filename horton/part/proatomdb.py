@@ -201,7 +201,7 @@ class ProAtomRecord(object):
         '''
         # compute the running integral of the density (popint)
         radii = self.rgrid.radii
-        tmp = (4*np.pi) * radii**2 * self.rho * self.rgrid.rtransform.get_volume_elements()
+        tmp = (4*np.pi) * radii**2 * self.rho * self.rgrid.rtransform.get_deriv()
         popint = []
         for i in xrange(len(tmp)):
             if i >= self.rgrid.int1d.npoint_min:
