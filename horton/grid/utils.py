@@ -46,7 +46,7 @@ def parse_args_integrate(*args, **kwargs):
 
        mtype=1
             The type of multipole moments: 1=``cartesian``, 2=``pure``,
-            3=``radial``.
+            3=``radial``, 4=``surface``.
 
        segments=None
             This argument can be used to divide the grid in segments. When

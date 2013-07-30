@@ -35,4 +35,7 @@ void eval_spline_cube(CubicSpline* spline, double* center, double* output,
 void eval_spline_grid(CubicSpline* spline, double* center, double* output,
                       double* points, Cell* cell, long npoint);
 
+void eval_decomposition_grid(CubicSpline** splines, double* center,
+                             double* output, double* points, Cell* cell,
+                             long nspline, long npoint);
 #endif

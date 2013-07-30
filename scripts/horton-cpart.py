@@ -167,19 +167,19 @@ def main():
         mol.coordinates, mol.numbers, mol.pseudo_numbers, ugrid, moldens,
         proatomdb, spindens=spindens, local=True, wcor_numbers=wcor_numbers,
         wcor_rcut_max=args.wcor_rcut_max, wcor_rcond=args.wcor_rcond, **kwargs)
-    names = cpart.do_all()
+    keys = cpart.do_all()
 
     # Do a symmetry analysis if requested.
     if args.symmetry is not None:
         mol_sym = Molecule.from_file(args.symmetry)
         if not hasattr(mol_sym, 'symmetry'):
             raise ValueError('No symmetry information found in %s.' % args.symmetry)
-        aim_results = dict((name, cpart[name]) for name in names)
+        aim_results = dict((key, cpart[key]) for key in keys)
         sym_results = symmetry_analysis(mol.coordinates, ugrid.get_cell(), mol_sym.symmetry, aim_results)
         cpart.cache.dump('symmetry', sym_results)
-        names.append('symmetry')
+        keys.append('symmetry')
 
-    write_part_output(fn_h5, grp_name, cpart, names, args)
+    write_part_output(fn_h5, grp_name, cpart, keys, args)
 
 if __name__ == '__main__':
     main()

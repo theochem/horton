@@ -31,3 +31,7 @@ cdef extern from "evaluate.h":
     void eval_spline_grid(cubic_spline.CubicSpline* spline, double* center,
                           double* output, double* points, cell.Cell* cell,
                           long npoint)
+
+    void eval_decomposition_grid(cubic_spline.CubicSpline** splines, double* center,
+                             double* output, double* points, cell.Cell* cell,
+                             long nspline, long npoint)

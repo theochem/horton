@@ -144,7 +144,7 @@ def test_agspec_get_size():
     assert agspec.get_size(8, 8) == 3754
 
 
-def test_atomic_grid_basics():
+def test_atomic_grid_basics1():
     center = np.random.uniform(-1,1,3)
     rtf = ExpRTransform(0.1, 1e1, 4)
     rgrid = RadialGrid(rtf, StubIntegrator1D())
@@ -152,15 +152,28 @@ def test_atomic_grid_basics():
     for random_rotate in True, False:
         ag0 = AtomicGrid(1, 1, center, (rgrid, 6), random_rotate)
         assert abs(ag0.points.mean(axis=0) - center).max() < 1e-10
-        assert (ag0.nlls == [6, 6, 6, 6]).all()
+        assert (ag0.nlls == 6).all()
         assert ag0.nsphere == 4
+        assert (ag0.lmaxs == 3).all()
         ag1 = AtomicGrid(1, 1, center, (rgrid, [6, 6, 6, 6]), random_rotate)
         assert abs(ag1.points.mean(axis=0) - center).max() < 1e-10
-        assert (ag1.nlls == [6, 6, 6, 6]).all()
-        assert ag1.nsphere == 4
+        assert (ag0.nlls == 6).all()
+        assert ag0.nsphere == 4
+        assert (ag0.lmaxs == 3).all()
         assert abs(ag0.weights - ag1.weights).max() < 1e-10
         assert abs(ag0.av_weights - ag1.av_weights).max() < 1e-10
         assert (abs(ag0.points - ag1.points).max() < 1e-10) ^ random_rotate
+
+
+def test_atomic_grid_basics2():
+    center = np.random.uniform(-1,1,3)
+    rtf = ExpRTransform(0.1, 1e1, 3)
+    rgrid = RadialGrid(rtf, StubIntegrator1D())
+    ag2 = AtomicGrid(1, 1, center, (rgrid, [6, 14, 26]))
+    assert abs(ag2.points.mean(axis=0) - center).max() < 1e-10
+    assert (ag2.nlls == [6, 14, 26]).all()
+    assert ag2.nsphere == 3
+    assert (ag2.lmaxs == [3, 5, 7]).all()
 
 
 def get_hydrogen_1s():
@@ -203,26 +216,83 @@ def test_spherical_average_hydrogen_1s():
         assert abs(sa_fn - sa_check).max() < 1e-10
 
 
+def test_spherical_average_grads1():
+    center = np.random.uniform(-1,1,3)
+    rtf = PowerRTransform(1e-3, 2e1, 100)
+    rgrid = RadialGrid(rtf, CubicIntegrator1D())
+    ag = AtomicGrid(1, 1, center, (rgrid, 110), 100)
+
+    delta = ag.points - ag.center
+    d = np.sqrt(delta[:,0]**2 + delta[:,1]**2 + delta[:,2]**2)
+
+    fy1 = np.exp(-d**2)
+    fg1 = -2*delta*(np.exp(-d**2)).reshape(-1,1)
+
+    r = ag.rgrid.rtransform.get_radii()
+    say, sad = ag.get_spherical_average(fy1, grads=[fg1])
+    say_check = np.exp(-r**2)
+    sad_check = -2*r*np.exp(-r**2)
+    assert abs(say - say_check).max() < 1e-10
+    assert abs(sad - sad_check).max() < 1e-10
+
+
+def test_spherical_average_grads2():
+    center = np.random.uniform(-1,1,3)
+    rtf = PowerRTransform(1e-3, 2e1, 100)
+    rgrid = RadialGrid(rtf, CubicIntegrator1D())
+    ag = AtomicGrid(1, 1, center, (rgrid, 110), 100)
+
+    delta = ag.points - ag.center
+    d = np.sqrt(delta[:,0]**2 + delta[:,1]**2 + delta[:,2]**2)
+
+    fy1 = np.exp(-d**2)
+    fg1 = -2*delta*(np.exp(-d**2)).reshape(-1,1)
+    fy2 = np.exp(-d)
+    fg2 = -delta*(np.exp(-d)/d).reshape(-1,1)
+
+    r = ag.rgrid.rtransform.get_radii()
+    say, sad = ag.get_spherical_average(fy1, fy2, grads=[fg1, fg2])
+    say_check = np.exp(-r**2 - r)
+    sad_check = (-2*r - 1)*np.exp(-r**2 - r)
+    assert abs(say - say_check).max() < 1e-10
+    assert abs(sad - sad_check).max() < 1e-10
+
+
 def test_spherical_decomposition_hydrogen_1s():
     ag, fn = get_hydrogen_1s()
-    sa_fns = ag.get_spherical_average(fn, mtype=2)
-    sa_check = np.exp(-2*ag.rgrid.radii)/np.pi
-    assert abs(sa_fns[:,0] - sa_check).max() < 1e-10
-    assert abs(sa_fns[:,1:]).max() < 1e-10
+    sa_fns = ag.get_spherical_decomposition(fn, lmax=4)
+    sa_check = np.exp(-2*ag.rgrid.radii)/np.pi*np.sqrt(4*np.pi)
+    assert abs(sa_fns[0].y - sa_check).max() < 1e-10
+    for sa_fn in sa_fns[1:]:
+        assert abs(sa_fn.y).max() < 1e-10
 
 
 def test_spherical_decomposition_hydrogen_1pz():
     ag, fn = get_hydrogen_1pz()
-    sa_fns = ag.get_spherical_average(fn, mtype=2)
+    sa_fns = ag.get_spherical_decomposition(fn, lmax=4)
     # s
-    sa_check = np.exp(-ag.rgrid.radii)/(32.0*np.pi)*(1.0/3.0)*ag.rgrid.radii**2
-    assert abs(ag.rgrid.integrate(sa_check) - 1.0) < 1e-3
-    assert abs(sa_fns[:,0] - sa_check).max() < 1e-10
+    sa_check = np.exp(-ag.rgrid.radii)/(32.0*np.pi)*(1.0/3.0)*ag.rgrid.radii**2*np.sqrt(4*np.pi)
+    assert abs(sa_fns[0].y - sa_check).max() < 1e-10
     # p
-    assert abs(sa_fns[:,1:4]).max() < 1e-10
+    for sa_fn in sa_fns[1:4]:
+        assert abs(sa_fn.y).max() < 1e-10
     # d
-    sa_check = np.exp(-ag.rgrid.radii)/(32.0*np.pi)*(2.0/15.0)*ag.rgrid.radii**4
-    assert abs(sa_fns[:,4] - sa_check).max() < 1e-10
+    sa_check = np.exp(-ag.rgrid.radii)/(32.0*np.pi)*(2.0/15.0)*ag.rgrid.radii**2*np.sqrt(5*4*np.pi)
+    assert abs(sa_fns[4].y - sa_check).max() < 1e-10
+
+
+def test_spherical_decomposition_hydrogen_1pz_conventions():
+    ag, fn = get_hydrogen_1pz()
+    sa_fns = ag.get_spherical_decomposition(fn, lmax=4)
+    multipoles = ag.integrate(fn, center=ag.center, mtype=2, lmax=4)
+    # s
+    assert abs(ag.rgrid.integrate(sa_fns[0].y) - np.sqrt(4*np.pi)) < 1e-3
+    assert abs(multipoles[0] - 1.0) < 1e-3
+    # d
+    r = ag.rgrid.rtransform.get_radii()
+    qzz = ag.rgrid.integrate(sa_fns[4].y, r, r)/np.sqrt(5*4*np.pi)
+    print multipoles[4], qzz
+    assert abs(multipoles[4] - qzz) < 1e-10
 
 
 def test_atgrid_attrs():

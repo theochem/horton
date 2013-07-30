@@ -27,6 +27,7 @@ from horton.cache import JustOnceClass, just_once, Cache
 from horton.log import log
 from horton.moments import get_ncart_cumul, get_npure_cumul
 from horton.utils import typecheck_geo
+from horton.grid.atgrid import AtomicGrid
 
 
 __all__ = ['Part', 'WPart', 'CPart']
@@ -277,9 +278,6 @@ class Part(JustOnceClass):
 
     @just_once
     def do_moments(self):
-        if log.do_medium:
-            log('Computing cartesian and pure AIM multipoles and radial AIM moments.')
-
         ncart = get_ncart_cumul(self.lmax)
         cartesian_multipoles, new1 = self._cache.load('cartesian_multipoles', alloc=(self.natom, ncart), tags='o')
 
@@ -291,6 +289,9 @@ class Part(JustOnceClass):
 
         if new1 or new2:
             self.do_partitioning()
+            if log.do_medium:
+                log('Computing cartesian and pure AIM multipoles and radial AIM moments.')
+
             for i in xrange(self.natom):
                 # 1) Define a 'window' of the integration grid for this atom
                 center = self.coordinates[i]
@@ -320,7 +321,7 @@ class Part(JustOnceClass):
                 radial_moments[i] = grid.integrate(aim, wcor, center=center, lmax=self.lmax, mtype=3)
 
     def do_all(self):
-        '''Computes all properties and return a list of their names.'''
+        '''Computes all properties and return a list of their keys.'''
         for attr_name in dir(self):
             attr = getattr(self, attr_name)
             if callable(attr) and attr_name.startswith('do_') and attr_name != 'do_all':
@@ -389,6 +390,26 @@ class WPart(Part):
             grid = self.get_grid(index)
             return data[grid.begin:grid.end]
 
+    @just_once
+    def do_density_decomposition(self):
+        if not self.local:
+            if log.do_warning:
+                log.warn('Skipping density decomposition because no local grids were found.')
+            return
+
+        for index in xrange(self.natom):
+            atgrid = self.get_grid(index)
+            assert isinstance(atgrid, AtomicGrid)
+            key = ('density_decomposition', index)
+            if key not in self.cache:
+                moldens = self.get_moldens(index)
+                self.do_partitioning()
+                if log.do_medium:
+                    log('Computing density decomposition for atom %i' % index)
+                at_weights = self.cache.load('at_weights', index)
+                splines = atgrid.get_spherical_decomposition(moldens, at_weights, lmax=self.lmax)
+                density_decomposition = dict(('spline_%05i' % j, spline) for j, spline in enumerate(splines))
+                self.cache.dump(key, density_decomposition, tags='o')
 
 
 class CPart(Part):

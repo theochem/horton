@@ -23,9 +23,10 @@
 
 import numpy as np
 
+from horton.log import timer
 from horton.grid.utils import parse_args_integrate
 from horton.grid.cext import dot_multi, eval_spline_grid, \
-    dot_multi_moments
+    dot_multi_moments, eval_decomposition_grid
 from horton.cext import Cell
 
 
@@ -120,7 +121,7 @@ class IntGrid(object):
 
            mtype=1
                 The type of multipole moments: 1=``cartesian``, 2=``pure``,
-                3=``radial``.
+                3=``radial``, 4=``surface``.
 
            segments=None
                 This argument can be used to divide the grid in segments. When
@@ -141,7 +142,52 @@ class IntGrid(object):
             center, lmax, mtype = multipole_args
             return dot_multi_moments(args, self.points, center, lmax, mtype, segments)
 
+
+    @timer.with_section('Eval spher')
     def eval_spline(self, cubic_spline, center, output, cell=None):
+        '''Evaluate a spherically symmetric function
+
+           **Arguments:**
+
+           cubic_spline
+                A cubic spline with the radial dependence
+
+           center
+                The center of the spherically symmetric function
+
+           output
+                The output array
+
+           **Optional arguments:**
+
+           cell
+                A unit cell when periodic boundary conditions are used.
+        '''
         if cell is None:
             cell = Cell(None)
         eval_spline_grid(cubic_spline, center, output, self.points, cell)
+
+    @timer.with_section('Eval decomp')
+    def eval_decomposition(self, cubic_splines, center, output, cell=None):
+        '''Evaluate a spherical decomposition
+
+           **Arguments:**
+
+           cubic_splines
+                A list cubic splines, where each item is a radial function
+                that is associated with a corresponding real spherical harmonic.
+
+           center
+                The center of the spherically symmetric function
+
+           output
+                The output array
+
+           **Optional arguments:**
+
+           cell
+                A unit cell when periodic boundary conditions are used.
+        '''
+        if cell is None:
+            cell = Cell(None)
+        eval_decomposition_grid(cubic_splines, center, output, self.points, cell)

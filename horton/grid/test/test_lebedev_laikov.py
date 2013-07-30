@@ -27,38 +27,15 @@ from nose.tools import assert_raises
 import numpy as np
 
 
-def test_lebedev_laikov_npoint():
-    assert lebedev_laikov_npoint(0) == 6
-    assert lebedev_laikov_npoint(1) == 6
-    assert lebedev_laikov_npoint(2) == 6
-    assert lebedev_laikov_npoint(3) == 6
-    assert lebedev_laikov_npoint(4) == 14
-    assert lebedev_laikov_npoint(5) == 14
-    assert lebedev_laikov_npoint(6) == 26
-    assert lebedev_laikov_npoint(7) == 26
-    assert lebedev_laikov_npoint(30) == 350
-    assert lebedev_laikov_npoint(31) == 350
-    assert lebedev_laikov_npoint(32) == 434
-    assert lebedev_laikov_npoint(33) == 434
-    assert lebedev_laikov_npoint(34) == 434
-    assert lebedev_laikov_npoint(35) == 434
-    assert lebedev_laikov_npoint(36) == 590
-    assert lebedev_laikov_npoint(120) == 5294
-    assert lebedev_laikov_npoint(126) == 5810
-    assert lebedev_laikov_npoint(127) == 5810
-    assert lebedev_laikov_npoint(128) == 5810
-    assert lebedev_laikov_npoint(129) == 5810
-    assert lebedev_laikov_npoint(130) == 5810
-    assert lebedev_laikov_npoint(131) == 5810
-    for lvalue in -1, 132, 200, 2000:
-        with assert_raises(ValueError):
-            lebedev_laikov_npoint(lvalue)
+def test_consistency():
+    for npoint, lmax in lebedev_laikov_npoints.iteritems():
+        assert lebedev_laikov_lmaxs[lmax] == npoint
 
 
 def test_lebedev_laikov_sphere():
     previous_npoint = None
-    for i in xrange(132):
-        npoint = lebedev_laikov_npoint(i)
+    for i in xrange(1, 132):
+        npoint = lebedev_laikov_lmaxs[i]
         if npoint > previous_npoint:
             points = np.zeros((npoint, 3), float)
             weights = np.zeros(npoint, float)

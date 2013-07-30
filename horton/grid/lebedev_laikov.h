@@ -22,7 +22,6 @@
 #ifndef HORTON_GRID_LEBEDEV_LAIKOV_H
 #define HORTON_GRID_LEBEDEV_LAIKOV_H
 
-int lebedev_laikov_npoint(int lvalue);
 void lebedev_laikov_sphere(int npoint, double* points, double* weights);
 
 #endif

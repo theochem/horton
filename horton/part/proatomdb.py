@@ -104,10 +104,7 @@ class ProAtomRecord(object):
         atgrid = AtomicGrid(number, pseudo_number, center, agspec)
         rho_all = obasis.compute_grid_density_dm(dm_full, atgrid.points)
         grad_all = obasis.compute_grid_gradient_dm(dm_full, atgrid.points)
-        rrgrad_all = ((atgrid.points-atgrid.center)*grad_all).sum(axis=1)
-        # Compute spherical averages
-        rho = atgrid.get_spherical_average(rho_all)
-        deriv = atgrid.get_spherical_average(rrgrad_all)/atgrid.rgrid.rtransform.get_radii()
+        rho, deriv = atgrid.get_spherical_average(rho_all, grads=[grad_all])
 
         # Derive the number of electrions and the charge
         overlap = dm_full.new()

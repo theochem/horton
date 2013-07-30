@@ -67,6 +67,12 @@ void fill_polynomials_wrapper(double* work, double* delta, long lmax, long mtype
     } else if (mtype==3) {
         work[0] = sqrt(delta[0]*delta[0] + delta[1]*delta[1] + delta[2]*delta[2]);
         fill_radial_polynomials(work, lmax);
+    } else if (mtype==4) {
+        double r = sqrt(delta[0]*delta[0] + delta[1]*delta[1] + delta[2]*delta[2]);
+        work[0] = delta[2]/r;
+        work[1] = delta[0]/r;
+        work[2] = delta[1]/r;
+        fill_pure_polynomials(work, lmax);
     }
 }
 
@@ -101,8 +107,8 @@ void dot_multi_moments_cube(long nvector, double** data, UniformGrid* ugrid, dou
     if (lmax<0) {
         throw std::domain_error("lmax can not be negative.");
     }
-    if ((mtype < 1) || (mtype > 3)) {
-        throw std::domain_error("mtype should be 1, 2 or 3.");
+    if ((mtype < 1) || (mtype > 4)) {
+        throw std::domain_error("mtype should be 1, 2, 3 or 4.");
     }
 
     // reset the output to zero
@@ -142,8 +148,8 @@ void dot_multi_moments(long npoint, long nvector, double** data, double* points,
     if (lmax<0) {
         throw std::domain_error("lmax can not be negative.");
     }
-    if ((mtype < 1) || (mtype > 3)) {
-        throw std::domain_error("mtype should be 1, 2 or 3.");
+    if ((mtype < 1) || (mtype > 4)) {
+        throw std::domain_error("mtype should be 1, 2, 3 or 4.");
     }
 
     long segment_end = *segments;

@@ -122,9 +122,9 @@ def main():
     if dm_spin is not None:
         kwargs['spindens'] = mol.obasis.compute_grid_density_dm(dm_spin, grid.points, epsilon=args.epsilon)
     wpart = wpart_schemes[args.scheme](mol.coordinates, mol.numbers, mol.pseudo_numbers,grid, moldens, **kwargs)
-    names = wpart.do_all()
+    keys = wpart.do_all()
 
-    write_part_output(fn_h5, grp_name, wpart, names, args)
+    write_part_output(fn_h5, grp_name, wpart, keys, args)
 
 
 if __name__ == '__main__':

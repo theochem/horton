@@ -321,3 +321,61 @@ def test_eval_spline_grid_add_random():
         g.eval_spline(cs, center2, output3, cell)
 
         assert abs(output1 + output2 - output3).max() < 1e-10
+
+
+def test_density_decomposition_n2():
+    # compute reference density and becke_weights for the first atom
+    mol = Molecule.from_file(context.get_fn('test/n2_hfs_sto3g.fchk'))
+    molgrid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'veryfine', random_rotate=False, mode='only')
+    atgrid = molgrid.subgrids[0]
+    dm_full = mol.get_dm_full()
+    rho = mol.obasis.compute_grid_density_dm(dm_full, atgrid.points)
+    becke_weights = np.ones(atgrid.size)
+    becke_helper_atom(atgrid.points, becke_weights, np.ones(2), mol.coordinates, 0, 3)
+    rho_ref = rho*becke_weights
+
+    # generate real regular solid harmonics
+    lmaxmax = 10
+    delta = atgrid.points - atgrid.center
+    x, y, z = delta.T
+    r = np.sqrt(x*x + y*y + z*z)
+    checks = {}
+
+    work = np.zeros((atgrid.size, (lmaxmax+1)**2), float)
+    work[:,0] = z/r
+    work[:,1] = x/r
+    work[:,2] = y/r
+    fill_pure_polynomials(work, lmaxmax)
+
+    # create decompositions of the Becke AIM density of the first atom
+    splines = atgrid.get_spherical_decomposition(rho_ref[:atgrid.size], lmax=lmaxmax)
+
+    # manual reconstruction for differen lmax
+    tmp = np.zeros(atgrid.size)
+    atgrid.eval_spline(splines[0], mol.coordinates[0], tmp)
+    tmp /= np.sqrt(4*np.pi)
+    checks[0] = tmp.copy()
+    counter = 0
+    for l in xrange(1, lmaxmax+1):
+        for m in xrange(-l, l+1):
+            output = np.zeros(atgrid.size)
+            atgrid.eval_spline(splines[counter+1], mol.coordinates[0], output)
+            output *= work[:,counter]/np.sqrt(4*np.pi)*np.sqrt(2*l+1)
+            tmp += output
+            counter += 1
+        checks[l] = tmp.copy()
+    assert counter == (lmaxmax+1)**2-1
+
+    # reconstruct the atom at different levels of accuarcy
+    last_error = None
+    for lmax in xrange(0, lmaxmax+1):
+        output = np.zeros(atgrid.size)
+        atgrid.eval_decomposition(splines[:(lmax+1)**2], mol.coordinates[0], output)
+        if lmax in checks:
+            error = np.sqrt(atgrid.integrate((output - checks[lmax])**2))
+            assert abs(error) < 1e-12
+        error = np.sqrt(atgrid.integrate((output - rho_ref)**2))
+        if last_error is not None:
+            assert last_error > error
+        last_error = error
+    assert error < 1e-3

@@ -45,7 +45,7 @@ cimport horton.cext
 
 __all__ = [
     # lebedev_laikov
-    'lebedev_laikov_npoint', 'lebedev_laikov_sphere', 'lebedev_laikov_npoints',
+    'lebedev_laikov_npoints', 'lebedev_laikov_lmaxs', 'lebedev_laikov_sphere',
     # becke
     'becke_helper_atom',
     # cubic_spline
@@ -54,6 +54,7 @@ __all__ = [
     'compute_cubic_spline_int_weights',
     # evaluate
     'index_wrap', 'eval_spline_cube', 'eval_spline_grid',
+    'eval_decomposition_grid',
     # rtransform
     'RTransform', 'IdentityRTransform', 'LinearRTransform', 'ExpRTransform',
     'ShiftedExpRTransform', 'PowerRTransform',
@@ -69,19 +70,32 @@ __all__ = [
 #
 
 
-lebedev_laikov_npoints = [6, 14, 26, 38, 50, 74, 86, 110, 146, 170, 194, 230,
-                          266, 302, 350, 434, 590, 770, 974, 1202, 1454, 1730,
-                          2030, 2354, 2702, 3074, 3470, 3890, 4334, 4802, 5294,
-                          5810]
+lebedev_laikov_npoints = {
+    6: 3, 14: 5, 26: 7, 38: 9, 50: 11, 74: 13, 86: 15, 110: 17, 146: 19, 170:
+    21, 194: 23, 230: 25, 266: 27, 302: 29, 350: 31, 434: 35, 590: 41, 770: 47,
+    974: 53, 1202: 59, 1454: 65, 1730: 71, 2030: 77, 2354: 83, 2702: 89, 3074:
+    95, 3470: 101, 3890: 107, 4334: 113, 4802: 119, 5294: 125, 5810: 131,
+}
 
-
-def lebedev_laikov_npoint(int lvalue):
-    '''lebedev_laikov_npoint(lvalue)
-
-       Return the number of Lebedev-Laikov grid points for a given angular
-       momentum.
-    '''
-    return lebedev_laikov.lebedev_laikov_npoint(lvalue)
+lebedev_laikov_lmaxs = {
+    0: 6, 1: 6, 2: 6, 3: 6, 4: 14, 5: 14, 6: 26, 7: 26, 8: 38, 9: 38, 10: 50,
+    11: 50, 12: 74, 13: 74, 14: 86, 15: 86, 16: 110, 17: 110, 18: 146, 19: 146,
+    20: 170, 21: 170, 22: 194, 23: 194, 24: 230, 25: 230, 26: 266, 27: 266, 28:
+    302, 29: 302, 30: 350, 31: 350, 32: 434, 33: 434, 34: 434, 35: 434, 36: 590,
+    37: 590, 38: 590, 39: 590, 40: 590, 41: 590, 42: 770, 43: 770, 44: 770, 45:
+    770, 46: 770, 47: 770, 48: 974, 49: 974, 50: 974, 51: 974, 52: 974, 53: 974,
+    54: 1202, 55: 1202, 56: 1202, 57: 1202, 58: 1202, 59: 1202, 60: 1454, 61:
+    1454, 62: 1454, 63: 1454, 64: 1454, 65: 1454, 66: 1730, 67: 1730, 68: 1730,
+    69: 1730, 70: 1730, 71: 1730, 72: 2030, 73: 2030, 74: 2030, 75: 2030, 76:
+    2030, 77: 2030, 78: 2354, 79: 2354, 80: 2354, 81: 2354, 82: 2354, 83: 2354,
+    84: 2702, 85: 2702, 86: 2702, 87: 2702, 88: 2702, 89: 2702, 90: 3074, 91:
+    3074, 92: 3074, 93: 3074, 94: 3074, 95: 3074, 96: 3470, 97: 3470, 98: 3470,
+    99: 3470, 100: 3470, 101: 3470, 102: 3890, 103: 3890, 104: 3890, 105: 3890,
+    106: 3890, 107: 3890, 108: 4334, 109: 4334, 110: 4334, 111: 4334, 112: 4334,
+    113: 4334, 114: 4802, 115: 4802, 116: 4802, 117: 4802, 118: 4802, 119: 4802,
+    120: 5294, 121: 5294, 122: 5294, 123: 5294, 124: 5294, 125: 5294, 126: 5810,
+    127: 5810, 128: 5810, 129: 5810, 130: 5810, 131: 5810,
+}
 
 
 def lebedev_laikov_sphere(np.ndarray[double, ndim=2] points not None,
@@ -512,6 +526,57 @@ def eval_spline_grid(CubicSpline spline not None,
     evaluate.eval_spline_grid(spline._this, &center[0], &output[0],
                               &points[0, 0], cell._this, output.shape[0])
 
+
+def eval_decomposition_grid(splines not None,
+                     np.ndarray[double, ndim=1] center not None,
+                     np.ndarray[double, ndim=1] output not None,
+                     np.ndarray[double, ndim=2] points not None,
+                     horton.cext.Cell cell not None):
+    '''Evaluate a sphericall decomposition on a general grid
+
+       **Arguments:**
+
+       splines
+            The splines with the spherical decomposition. These are usually
+            generated with AtomicGrid.get_spherical_decomposition.
+
+       center
+            The center of the spherically symmetric function.
+
+       points
+            An array with grid points, with shape (N, 3)
+
+       output
+            The output array in which the result is stored.
+
+       cell
+            A specification of the periodic boundary conditions.
+    '''
+
+    # parse the splines argument and construct an array of c++ cubic spline objects
+    assert len(splines) > 0
+    cdef CubicSpline spline
+    cdef cubic_spline.CubicSpline** cpp_splines = <cubic_spline.CubicSpline**>malloc(len(splines)*sizeof(cubic_spline.CubicSpline*))
+    if cpp_splines == NULL:
+        raise MemoryError()
+
+    try:
+        for i in xrange(len(splines)):
+            spline = splines[i]
+            cpp_splines[i] = spline._this
+
+        assert center.flags['C_CONTIGUOUS']
+        assert center.shape[0] == 3
+        assert output.flags['C_CONTIGUOUS']
+        assert points.flags['C_CONTIGUOUS']
+        assert points.shape[1] == 3
+        assert points.shape[0] == output.shape[0]
+
+        evaluate.eval_decomposition_grid(cpp_splines, <double*>center.data,
+            <double*>output.data, <double*>points.data, cell._this, len(splines),
+            output.shape[0])
+    finally:
+        free(cpp_splines)
 
 #
 # rtransform
@@ -1448,7 +1513,7 @@ cdef class UniformGridWindow(object):
 
            mtype=1
                 The type of multipole moments: 1=``cartesian``, 2=``pure``,
-                3=``radial``.
+                3=``radial``, 4=``surface``.
         '''
         args, multipole_args, segments = parse_args_integrate(*args, **kwargs)
         if segments is not None:
@@ -1576,7 +1641,7 @@ def dot_multi(*integranda, np.ndarray[long, ndim=1] segments=None):
         return output
 
 
-cdef long _get_nmoment(long lmax, long mtype):
+def _get_nmoment(long lmax, long mtype):
     if mtype==1:
         # cartesian moments
         return ((lmax+1)*(lmax+2)*(lmax+3))/6
@@ -1586,6 +1651,9 @@ cdef long _get_nmoment(long lmax, long mtype):
     elif mtype==3:
         # radial moments
         return lmax+1
+    elif mtype==4:
+        # surface moments
+        return (lmax+1)**2
     else:
         raise ValueError('Unsupported mtype.')
 
