@@ -31,11 +31,13 @@ cimport numpy as np
 np.import_array()
 
 from libc.stdlib cimport malloc, free
+cimport libcpp
 
 cimport lebedev_laikov
 cimport becke
 cimport cubic_spline
 cimport evaluate
+cimport ode2
 cimport rtransform
 cimport uniform
 cimport utils
@@ -55,6 +57,9 @@ __all__ = [
     # evaluate
     'index_wrap', 'eval_spline_cube', 'eval_spline_grid',
     'eval_decomposition_grid',
+    # ode2
+    'hermite_overlap2', 'hermite_overlap3', 'hermite_node', 'hermite_product2',
+    'build_ode2',
     # rtransform
     'RTransform', 'IdentityRTransform', 'LinearRTransform', 'ExpRTransform',
     'ShiftedExpRTransform', 'PowerRTransform',
@@ -577,6 +582,117 @@ def eval_decomposition_grid(splines not None,
             output.shape[0])
     finally:
         free(cpp_splines)
+
+
+#
+# ode2
+#
+
+# Except for build_ode2, all functions wrapped below are only used for testing
+# purposes.
+
+def hermite_overlap2(long xmax, long i0, libcpp.bool deriv0, long i1, libcpp.bool deriv1):
+    return ode2.hermite_overlap2(xmax, i0, deriv0, i1, deriv1)
+
+def hermite_overlap3(long xmax, long i0, libcpp.bool deriv0, long i1, libcpp.bool deriv1, long i2, libcpp.bool deriv2):
+    return ode2.hermite_overlap3(xmax, i0, deriv0, i1, deriv1, i2, deriv2)
+
+def hermite_node(long x, long center, libcpp.bool kind, libcpp.bool deriv):
+    return ode2.hermite_node(x, center, kind, deriv)
+
+def hermite_product2(long x, long i0, libcpp.bool deriv0, long i1, libcpp.bool deriv1):
+    return ode2.hermite_product2(x, i0, deriv0, i1, deriv1)
+
+
+def build_ode2(np.ndarray[double, ndim=1] by not None,
+               np.ndarray[double, ndim=1] bd not None,
+               np.ndarray[double, ndim=1] ay not None,
+               np.ndarray[double, ndim=1] ad not None,
+               np.ndarray[double, ndim=1] fy not None,
+               np.ndarray[double, ndim=1] fd not None,
+               bcs):
+    '''Build set of equations for a second order ODE problem
+
+       The ODE has the following form:
+
+       .. math::
+           u''(x) + b(x) u'(x) + a(x) u(x) = f(x)
+
+       A linear system is constructed to approximate the solution for this
+       equation on an equidistant grid with spacing 1. The function values
+       and the derivatives of the known functions must be given, together with
+       the boundary conditions, i.e. the function value of u(x) at the first and
+       last grid point.
+
+       **Arguments:**
+
+       by
+            An array with function values of b(x) at the grid points.
+
+       bd
+            An array with the first derivatives of b(x) at the grid points.
+
+       ay
+            An array with function values of a(x) at the grid points.
+
+       ad
+            An array with the first derivatives of a(x) at the grid points.
+
+       fy
+            An array with function values of f(x) at the grid points.
+
+       fd
+            An array with the first derivatives of f(x) at the grid points.
+
+       bcs
+            A four-tuple with boundary condition specifications: (uyfirst,
+            udfirst, uylast, ydlast). Excatly two of these four values must
+            be None, with the two other ones fixing the boundary conditions.
+
+       The arrays by, bd, ay, ad, fy and fd must have the same length.
+    '''
+
+    def merge(np.ndarray[double, ndim=1] y not None, np.ndarray[double, ndim=1] d not None):
+        '''Put y and d in one vector'''
+        return np.array([y, d]).T.ravel()
+
+    # parse array arguments
+    npoint = by.shape[0]
+    assert bd.shape[0] == npoint
+    assert ay.shape[0] == npoint
+    assert ad.shape[0] == npoint
+    assert fy.shape[0] == npoint
+    assert fd.shape[0] == npoint
+    cdef np.ndarray[double] b = merge(by, bd)
+    cdef np.ndarray[double] a = merge(ay, ad)
+    cdef np.ndarray[double] f = merge(fy, fd)
+
+    # parse boundary conditions argument
+    if len(bcs) != 4:
+        raise ValueError('bcs must have four elements.')
+    if sum([bc is None for bc in bcs]) != 2:
+        raise ValueError('bcs must contain two None elements.')
+
+    cdef double c_bcs[4]
+    for i in xrange(4):
+        c_bcs[i] = 0.0 if bcs[i] is None else bcs[i]
+
+    cdef double* p_bcs[4]
+    for i in xrange(4):
+        if bcs[i] is None:
+            p_bcs[i] = NULL
+        else:
+            p_bcs[i] = &c_bcs[i]
+
+    # prepare output
+    cdef np.ndarray[double, ndim=2] coeffs = np.zeros((2*npoint, 2*npoint), float)
+    cdef np.ndarray[double] rhs = np.zeros(2*npoint, float)
+
+    # call c routine
+    ode2.build_ode2(&b[0], &a[0], &f[0], p_bcs, &coeffs[0,0], &rhs[0], npoint)
+
+    # done
+    return coeffs, rhs
 
 #
 # rtransform

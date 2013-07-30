@@ -18,15 +18,13 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Numerical integraton grids'''
 
+cimport libcpp
 
-from horton.grid.base import *
-from horton.grid.atgrid import *
-from horton.grid.cext import *
-from horton.grid.int1d import *
-from horton.grid.molgrid import *
-from horton.grid.ode2 import *
-from horton.grid.poisson import *
-from horton.grid.radial import *
-from horton.grid.visual import *
+cdef extern from "ode2.h":
+    double hermite_overlap2(long xmax, long i0, libcpp.bool deriv0, long i1, libcpp.bool deriv1)
+    double hermite_overlap3(long xmax, long i0, libcpp.bool deriv0, long i1, libcpp.bool deriv1, long i2, libcpp.bool deriv2)
+    double hermite_node(long x, long center, libcpp.bool kind, libcpp.bool deriv)
+    double hermite_product2(long x, long i0, libcpp.bool deriv0, long i1, libcpp.bool deriv1)
+    void build_ode2(double* b, double* a, double *f, double** bcs, double* coeffs,
+                    double* rhs, long npoint)
