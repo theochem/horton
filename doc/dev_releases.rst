@@ -1,7 +1,7 @@
 Release history
 ###############
 
-* **June 22, 2013. Version 1.1.0**
+* **July 22, 2013. Version 1.1.0**
 
    - Iterative Stockholder partitioning [lillestolen2008]_.
    - Pure (harmonic) multipoles in the AIM analysis.
@@ -18,14 +18,14 @@ Release history
    - Many cleanups.
 
 
-* **June 5, 2013. Version 1.0.2**
+* **July 5, 2013. Version 1.0.2**
 
    - Also support dynamic linking of libint and libx.
    - Switch to libint-2.0.3-stable.
    - Various cleanups.
 
 
-* **June 1, 2013. Version 1.0.1**
+* **July 1, 2013. Version 1.0.1**
 
    - Two bug fixes related to reading Gaussian formatted checkpoint files.
 
