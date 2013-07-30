@@ -36,7 +36,7 @@ class Part(JustOnceClass):
     name = None
     linear = False # whether the populations are linear in the density matrix.
 
-    def __init__(self, system, grid, local, moldens=None):
+    def __init__(self, system, grid, local, lmax, moldens=None):
         '''
            **Arguments:**
 
@@ -49,6 +49,9 @@ class Part(JustOnceClass):
            local
                 Whether or not to use local (non-periodic) grids.
 
+           lmax
+                The maximum angular momentum in multipole expansions.
+
            **Optional arguments:**
 
            moldens
@@ -58,6 +61,7 @@ class Part(JustOnceClass):
         self._system = system
         self._grid = grid
         self._local = local
+        self._lmax = lmax
 
         # Caching stuff, to avoid recomputation of earlier results
         self._cache = Cache()
@@ -93,6 +97,11 @@ class Part(JustOnceClass):
         return self._local
 
     local = property(_get_local)
+
+    def _get_lmax(self):
+        return self._lmax
+
+    lmax = property(_get_lmax)
 
     def _get_cache(self):
         return self._cache
@@ -277,15 +286,13 @@ class Part(JustOnceClass):
         if log.do_medium:
             log('Computing cartesian and pure AIM multipoles and radial AIM moments.')
 
-        lmax = 4 # up to hexadecapoles
-
-        ncart = get_ncart_cumul(lmax)
+        ncart = get_ncart_cumul(self.lmax)
         cartesian_multipoles, new1 = self._cache.load('cartesian_multipoles', alloc=(self._system.natom, ncart), tags='o')
 
-        npure = get_npure_cumul(lmax)
+        npure = get_npure_cumul(self.lmax)
         pure_multipoles, new1 = self._cache.load('pure_multipoles', alloc=(self._system.natom, npure), tags='o')
 
-        nrad = lmax+1
+        nrad = self.lmax+1
         radial_moments, new2 = self._cache.load('radial_moments', alloc=(self._system.natom, nrad), tags='o')
 
         if new1 or new2:
@@ -304,19 +311,19 @@ class Part(JustOnceClass):
                 # 4) Compute Cartesian multipole moments
                 # The minus sign is present to account for the negative electron
                 # charge.
-                cartesian_multipoles[i] = -grid.integrate(aim, wcor, center=center, lmax=lmax, mtype=1)
+                cartesian_multipoles[i] = -grid.integrate(aim, wcor, center=center, lmax=self.lmax, mtype=1)
                 cartesian_multipoles[i, 0] += self.system.pseudo_numbers[i]
 
                 # 5) Compute Pure multipole moments
                 # The minus sign is present to account for the negative electron
                 # charge.
-                pure_multipoles[i] = -grid.integrate(aim, wcor, center=center, lmax=lmax, mtype=2)
+                pure_multipoles[i] = -grid.integrate(aim, wcor, center=center, lmax=self.lmax, mtype=2)
                 pure_multipoles[i, 0] += self.system.pseudo_numbers[i]
 
                 # 6) Compute Radial moments
                 # For the radial moments, it is not common to put a minus sign
                 # for the negative electron charge.
-                radial_moments[i] = grid.integrate(aim, wcor, center=center, lmax=lmax, mtype=3)
+                radial_moments[i] = grid.integrate(aim, wcor, center=center, lmax=self.lmax, mtype=3)
 
     def do_all(self):
         '''Computes all properties and return a list of their names.'''
@@ -332,7 +339,7 @@ class WPart(Part):
     # user-provided grids.
 
     '''Base class for density partitioning schemes'''
-    def __init__(self, system, grid, local=True, epsilon=0):
+    def __init__(self, system, grid, local=True, lmax=3, epsilon=0):
         '''
            **Arguments:**
 
@@ -345,6 +352,9 @@ class WPart(Part):
                 If ``True``: use the proper atomic grid for each AIM integral.
                 If ``False``: use the entire molecular grid for each AIM integral.
 
+           lmax
+                The maximum angular momentum in multipole expansions.
+
            epsilon
                 Allow errors on the computed electron density of this magnitude
                 for the sake of efficiency.
@@ -352,7 +362,7 @@ class WPart(Part):
         if local and grid.subgrids is None:
             raise ValueError('Atomic grids are discarded from molecular grid object, but are needed for local integrations.')
         self._epsilon = epsilon
-        Part.__init__(self, system, grid, local)
+        Part.__init__(self, system, grid, local, lmax)
 
     def _get_epsilon(self):
         return self._epsilon
@@ -414,7 +424,7 @@ class WPart(Part):
 
 class CPart(Part):
     '''Base class for density partitioning schemes of cube files'''
-    def __init__(self, system, grid, local, moldens, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1):
+    def __init__(self, system, grid, local, moldens, wcor_numbers=None, wcor_rcut_max=2.0, wcor_rcond=0.1, lmax=3):
         '''
            **Arguments:**
 
@@ -430,6 +440,8 @@ class CPart(Part):
            moldens
                 The all-electron density grid data.
 
+           **Optional arguments:**
+
            wcor_numbers
                 The list of element numbers for which weight corrections are
                 needed.
@@ -439,11 +451,17 @@ class CPart(Part):
 
            wcor_rcond
                 The regulatization strength for the weight correction equations.
+
+           lmax
+                The maximum angular momentum in multipole expansions.
         '''
-        self._wcor_numbers = wcor_numbers
+        if wcor_numbers is None:
+            self._wcor_numbers = range(1, 119)
+        else:
+            self._wcor_numbers = wcor_numbers
         self._wcor_rcut_max = wcor_rcut_max
         self._wcor_rcond = wcor_rcond
-        Part.__init__(self, system, grid, local, moldens)
+        Part.__init__(self, system, grid, local, lmax, moldens)
 
     def _get_wcor_numbers(self):
         return self._wcor_numbers

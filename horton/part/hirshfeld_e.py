@@ -394,10 +394,10 @@ class HirshfeldEMixin(object):
 
 
 class HirshfeldEWPart(HirshfeldEMixin, HirshfeldIWPart):
-    def __init__(self, system, grid, proatomdb, local=True, epsilon=0, threshold=1e-6, maxiter=500, greedy=False):
+    def __init__(self, system, grid, proatomdb, local=True, lmax=3, epsilon=0, threshold=1e-6, maxiter=500, greedy=False):
         hebasis = HEBasis(system.numbers, proatomdb)
         HirshfeldEMixin.__init__(self, hebasis)
-        HirshfeldIWPart.__init__(self, system, grid, proatomdb, local, epsilon, threshold, maxiter, greedy)
+        HirshfeldIWPart.__init__(self, system, grid, proatomdb, local, lmax, epsilon, threshold, maxiter, greedy)
 
     def get_wcor_fit(self, index):
         return None
@@ -416,13 +416,13 @@ class HirshfeldEWPart(HirshfeldEMixin, HirshfeldIWPart):
 
 
 class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
-    def __init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1, threshold=1e-6, maxiter=500, greedy=False):
+    def __init__(self, system, grid, local, moldens, proatomdb, wcor_numbers=None, wcor_rcut_max=2.0, wcor_rcond=0.1, lmax=3, threshold=1e-6, maxiter=500, greedy=False):
         '''
            See CPart base class for the description of the arguments.
         '''
         hebasis = HEBasis(system.numbers, proatomdb)
         HirshfeldEMixin.__init__(self, hebasis)
-        HirshfeldICPart.__init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max, wcor_rcond, threshold, maxiter, greedy)
+        HirshfeldICPart.__init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max, wcor_rcond, lmax, threshold, maxiter, greedy)
 
     def get_memory_estimates(self):
         if self.local:

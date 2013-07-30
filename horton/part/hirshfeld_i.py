@@ -33,7 +33,7 @@ __all__ = ['HirshfeldIWPart', 'HirshfeldICPart']
 
 class HirshfeldIMixin(IterativeProatomMixin):
     name = 'hi'
-    options = ['threshold', 'maxiter', 'greedy']
+    options = ['lmax', 'threshold', 'maxiter', 'greedy']
     linear = False
 
     def __init__(self, threshold=1e-6, maxiter=500, greedy=False):
@@ -125,7 +125,7 @@ class HirshfeldIMixin(IterativeProatomMixin):
 class HirshfeldIWPart(HirshfeldIMixin, HirshfeldWPart):
     options = HirshfeldIMixin.options + ['epsilon']
 
-    def __init__(self, system, grid, proatomdb, local=True, epsilon=0, threshold=1e-6, maxiter=500, greedy=False):
+    def __init__(self, system, grid, proatomdb, local=True, lmax=3, epsilon=0, threshold=1e-6, maxiter=500, greedy=False):
         '''
            **Optional arguments:** (that are not present in the base class)
 
@@ -139,7 +139,7 @@ class HirshfeldIWPart(HirshfeldIMixin, HirshfeldWPart):
                 in the end, no warning is given.
         '''
         HirshfeldIMixin.__init__(self, threshold, maxiter, greedy)
-        HirshfeldWPart.__init__(self, system, grid, proatomdb, local, epsilon)
+        HirshfeldWPart.__init__(self, system, grid, proatomdb, local, lmax, epsilon)
 
     def get_memory_estimates(self):
         return (
@@ -155,7 +155,7 @@ class HirshfeldIWPart(HirshfeldIMixin, HirshfeldWPart):
 
 
 class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
-    def __init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1, threshold=1e-6, maxiter=500, greedy=False):
+    def __init__(self, system, grid, local, moldens, proatomdb, wcor_numbers=None, wcor_rcut_max=2.0, wcor_rcond=0.1, lmax=3, threshold=1e-6, maxiter=500, greedy=False):
         '''
            **Optional arguments:** (that are not present in the base class)
 
@@ -169,7 +169,7 @@ class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
                 in the end, no warning is given.
         '''
         HirshfeldIMixin.__init__(self, threshold, maxiter, greedy)
-        HirshfeldCPart.__init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max, wcor_rcond)
+        HirshfeldCPart.__init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max, wcor_rcond, lmax)
 
     def get_memory_estimates(self):
         return (

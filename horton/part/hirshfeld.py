@@ -43,7 +43,7 @@ def check_proatomdb(system, proatomdb):
 
 class HirshfeldMixin(object):
     name = 'h'
-    options = []
+    options = ['lmax']
     linear = True
 
     def __init__(self, proatomdb):
@@ -71,6 +71,10 @@ class HirshfeldMixin(object):
 
     @just_once
     def do_dispersion(self):
+        if self.lmax < 3:
+            if log.do_warning:
+                log.warn('Skipping the computation of dispersion coefficients because lmax=%i<3' % self.lmax)
+            return
 
         if log.do_medium:
             log.cite('tkatchenko2009', 'the method to evaluate atoms-in-molecules C6 parameters')
@@ -114,20 +118,20 @@ class HirshfeldMixin(object):
 class HirshfeldWPart(HirshfeldMixin, StockholderWPart):
     options = HirshfeldMixin.options + ['epsilon']
 
-    def __init__(self, system, grid, proatomdb, local=True, epsilon=0):
+    def __init__(self, system, grid, proatomdb, local=True, lmax=3, epsilon=0):
         check_proatomdb(system, proatomdb)
         HirshfeldMixin. __init__(self, proatomdb)
-        StockholderWPart.__init__(self, system, grid, local, epsilon)
+        StockholderWPart.__init__(self, system, grid, local, lmax, epsilon)
 
 
 class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
-    def __init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max=2.0, wcor_rcond=0.1):
+    def __init__(self, system, grid, local, moldens, proatomdb, wcor_numbers=None, wcor_rcut_max=2.0, wcor_rcond=0.1, lmax=3):
         '''
            See CPart base class for the description of the arguments.
         '''
         check_proatomdb(system, proatomdb)
         HirshfeldMixin. __init__(self, proatomdb)
-        StockholderCPart.__init__(self, system, grid, local, moldens, wcor_numbers, wcor_rcut_max, wcor_rcond)
+        StockholderCPart.__init__(self, system, grid, local, moldens, wcor_numbers, wcor_rcut_max, wcor_rcond, lmax)
 
     def get_cutoff_radius(self, index):
         '''The radius at which the weight function goes to zero'''
