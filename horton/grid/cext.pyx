@@ -1213,13 +1213,13 @@ def _parse_segments(segments, npoint):
 
 def dot_multi(*integranda, np.ndarray[long, ndim=1] segments=None):
     cdef long npoint = _check_integranda(integranda)
-    cdef double** pointers = _parse_integranda(integranda)
     segments, nsegment = _parse_segments(segments, npoint)
     cdef np.ndarray output = np.zeros(nsegment)
-
-    utils.dot_multi(npoint, len(integranda), pointers, <long*>segments.data, <double*>output.data)
-
-    free(pointers)
+    cdef double** pointers = _parse_integranda(integranda)
+    try:
+        utils.dot_multi(npoint, len(integranda), pointers, <long*>segments.data, <double*>output.data)
+    finally:
+        free(pointers)
     if nsegment == 1:
         return output[0]
     else:
@@ -1253,13 +1253,13 @@ def dot_multi_moments_cube(integranda, UniformGrid ugrid not None,
     assert center.flags['C_CONTIGUOUS']
     assert center.shape[0] == 3
 
-    cdef double** pointers = _parse_integranda(integranda)
     cdef long nmoment = _get_nmoment(lmax, mtype)
     cdef np.ndarray output = np.zeros(nmoment)
-
-    utils.dot_multi_moments_cube(len(integranda), pointers, ugrid._this, <double*>center.data, lmax, mtype, <double*>output.data, nmoment)
-
-    free(pointers)
+    cdef double** pointers = _parse_integranda(integranda)
+    try:
+        utils.dot_multi_moments_cube(len(integranda), pointers, ugrid._this, <double*>center.data, lmax, mtype, <double*>output.data, nmoment)
+    finally:
+        free(pointers)
     return output
 
 
@@ -1275,16 +1275,16 @@ def dot_multi_moments(integranda,
     assert center.flags['C_CONTIGUOUS']
     assert center.shape[0] == 3
 
-    cdef double** pointers = _parse_integranda(integranda)
     cdef long nmoment = _get_nmoment(lmax, mtype)
     segments, nsegment = _parse_segments(segments, npoint)
     cdef np.ndarray output = np.zeros((nsegment, nmoment))
-
-    utils.dot_multi_moments(npoint, len(integranda), pointers,
-        <double*>points.data, <double*>center.data, lmax, mtype,
-        <long*>segments.data, <double*>output.data, nmoment)
-
-    free(pointers)
+    cdef double** pointers = _parse_integranda(integranda)
+    try:
+        utils.dot_multi_moments(npoint, len(integranda), pointers,
+            <double*>points.data, <double*>center.data, lmax, mtype,
+            <long*>segments.data, <double*>output.data, nmoment)
+    finally:
+        free(pointers)
     if nsegment == 1:
         return output[0]
     else:
