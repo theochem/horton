@@ -23,6 +23,7 @@
 
 long fill_cartesian_polynomials(double* output, long lmax);
 long fill_pure_polynomials(double* output, long lmax);
+long fill_pure_polynomials_array(double* output, long lmax, long nrep, long stride);
 void fill_radial_polynomials(double* output, long lmax);
 
 #endif

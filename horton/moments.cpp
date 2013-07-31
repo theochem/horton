@@ -122,6 +122,16 @@ long fill_pure_polynomials(double* output, long lmax) {
 }
 
 
+long fill_pure_polynomials_array(double* output, long lmax, long nrep, long stride) {
+    long result = 0;
+    for (long irep=0; irep<nrep; irep++) {
+        result = fill_pure_polynomials(output, lmax);
+        output += stride;
+    }
+    return result;
+}
+
+
 void fill_radial_polynomials(double* output, long lmax) {
     // Shell l=0
     if (lmax <= 0) return;

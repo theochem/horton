@@ -167,6 +167,51 @@ def test_fill_pure_polynomials():
         fill_cartesian_polynomials(output[:get_ncart_cumul(4)-2], 4)
 
 
+def test_fill_pure_polynomials_array():
+    lmax = 4
+    npoint = 10
+    work = np.zeros( (npoint, (lmax+1)**2-1) )
+    work[:,:3] = np.random.normal(0, 1, (npoint, 3))
+    fill_pure_polynomials(work, lmax)
+    for row in work:
+        tmp = row.copy()
+        tmp[3:] = 0.0
+        fill_pure_polynomials(tmp, lmax)
+        assert abs(row[3:] - tmp[3:]).max() < 1e-15
+
+
+def test_ortho_and_norm_pure():
+    for radius in 0.5, 1.0, 1.8797:
+        nll = 170
+        points = np.zeros((nll, 3))
+        weights = np.zeros(nll)
+        lebedev_laikov_sphere(points, weights)
+        points *= radius
+        weights *= 4*np.pi
+
+        lmax = 5
+        work = np.zeros((nll, (lmax+1)**2-1))
+        work[:,0] = points[:,2]
+        work[:,1] = points[:,0]
+        work[:,2] = points[:,1]
+        fill_pure_polynomials(work, lmax)
+
+        # see if we reproduce racah's norm with the pure polynomials
+        counter = 0
+        for l in xrange(1, lmax+1):
+            for m in xrange(-l, l+1):
+                num_norm = np.dot(weights, work[:,counter]*work[:,counter])
+                norm = 4*np.pi/(2*l+1)*radius**(2*l)
+                assert abs(num_norm - norm) < 1e-10
+                counter += 1
+
+        # also test orthogonality
+        for counter0 in xrange(counter):
+            for counter1 in xrange(counter0):
+                tmp = np.dot(weights, work[:,counter0]*work[:,counter1])
+                assert abs(tmp) < 1e-10
+
+
 def test_fill_radial_polynomials():
     lmax = 4
     output = np.zeros(lmax)
