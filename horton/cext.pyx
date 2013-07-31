@@ -422,30 +422,37 @@ def fill_cartesian_polynomials(np.ndarray[double, ndim=1] output not None, long 
     return moments.fill_cartesian_polynomials(<double*>output.data, lmax)
 
 
-def fill_pure_polynomials(np.ndarray[double, ndim=1] output not None, long lmax):
+def fill_pure_polynomials(output not None, long lmax):
     '''Fill the output vector with pure polynomials
 
        **Arguments:**
 
        output
-            A double precision numpy array where the first three values are
-            z, x, and y coordinates.
+            This can either be a double precission Numpy vector or 2D array. In
+            the first case, the first three values are z, x, and y coordinates.
+            In the second case, the first three columns contain z, x and y
+            coordinates.
 
        lmax
             The maximum angular momentum to compute.
-
-       The polynomials are stored according to the conventions set in
-       ``get_cartesian_powers``.
 
        **Returns:**
 
        The index of the first element of the array that contains the polynomials
        of the outermost shell.
     '''
-    assert output.flags['C_CONTIGUOUS']
-    if output.shape[0] < (lmax+1)**2-1:
-        raise ValueError('The size of the output array is not sufficient to store the polynomials.')
-    return moments.fill_pure_polynomials(<double*>output.data, lmax)
+    cdef np.ndarray tmp = output
+    assert tmp.flags['C_CONTIGUOUS']
+    if tmp.ndim == 1:
+        if tmp.shape[0] < (lmax+1)**2-1:
+            raise ValueError('The size of the output array is not sufficient to store the polynomials.')
+        return moments.fill_pure_polynomials(<double*>tmp.data, lmax)
+    elif tmp.ndim == 2:
+        if tmp.shape[1] < (lmax+1)**2-1:
+            raise ValueError('The size of the output array is not sufficient to store the polynomials.')
+        return moments.fill_pure_polynomials_array(<double*>tmp.data, lmax, tmp.shape[0], tmp.shape[1])
+    else:
+        raise NotImplementedError
 
 
 def fill_radial_polynomials(np.ndarray[double, ndim=1] output not None, long lmax):
