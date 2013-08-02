@@ -60,6 +60,9 @@ def check_script_water_sto3g(scheme, do_deriv=True):
                 assert 'extrapolation' in f['wpart']['atom_00000'][s]['spline_00000'].attrs
                 assert 'y' in f['wpart']['atom_00000'][s]['spline_00000']
                 assert 'd' in f['wpart']['atom_00000'][s]['spline_00000']
+            if scheme != 'b':
+                assert 'spline_prodensity' in f['wpart']['atom_00000']
+                assert 'spline_prohartree' in f['wpart']['atom_00000']
 
 
 def test_script_water_sto3g_b():

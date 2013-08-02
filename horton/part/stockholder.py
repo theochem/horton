@@ -26,6 +26,8 @@ import numpy as np
 from horton.log import log
 from horton.grid.cext import CubicSpline
 from horton.part.base import WPart, CPart
+from horton.grid.poisson import solve_poisson_becke
+
 
 __all__ = [
     'StockholderWPart', 'StockholderCPart',
@@ -115,6 +117,24 @@ class StockHolderMixin(object):
 
     def update_pro(self, index, proatdens, promoldens):
         raise NotImplementedError
+
+    def do_prosplines(self):
+        for index in xrange(self.natom):
+            # density
+            key = ('spline_prodensity', index)
+            if key not in self.cache:
+                if log.medium:
+                    log('Storing proatom density spline for atom %i.' % index)
+                spline = self.get_proatom_spline(index)
+                self.cache.dump(key, spline, tags='o')
+            # hartree potential
+            key = ('spline_prohartree', index)
+            if key not in self.cache:
+                if log.medium:
+                    log('Computing proatom hartree potential spline for atom %i.' % index)
+                rho_spline = self.cache.load('spline_prodensity', index)
+                v_spline = solve_poisson_becke([rho_spline])[0]
+                self.cache.dump(key, v_spline, tags='o')
 
 
 class StockholderWPart(StockHolderMixin, WPart):
