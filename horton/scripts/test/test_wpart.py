@@ -53,11 +53,13 @@ def check_script_water_sto3g(scheme, do_deriv=True):
             assert abs(f['wpart/charges'][:].sum()) < 1e-2
             assert 'wpart/spin_charges' not in f
             assert 'atom_00000' in f['wpart']
-            assert 'density_decomposition' in f['wpart']['atom_00000']
-            assert 'spline_00000' in f['wpart']['atom_00000']['density_decomposition']
-            assert 'rtransform' in f['wpart']['atom_00000']['density_decomposition']['spline_00000'].attrs
-            assert 'y' in f['wpart']['atom_00000']['density_decomposition']['spline_00000']
-            assert 'd' in f['wpart']['atom_00000']['density_decomposition']['spline_00000']
+            for s in 'density_decomposition', 'hartree_decomposition':
+                assert s in f['wpart']['atom_00000']
+                assert 'spline_00000' in f['wpart']['atom_00000'][s]
+                assert 'rtransform' in f['wpart']['atom_00000'][s]['spline_00000'].attrs
+                assert 'extrapolation' in f['wpart']['atom_00000'][s]['spline_00000'].attrs
+                assert 'y' in f['wpart']['atom_00000'][s]['spline_00000']
+                assert 'd' in f['wpart']['atom_00000'][s]['spline_00000']
 
 
 def test_script_water_sto3g_b():

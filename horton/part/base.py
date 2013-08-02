@@ -28,6 +28,7 @@ from horton.log import log
 from horton.moments import get_ncart_cumul, get_npure_cumul
 from horton.utils import typecheck_geo
 from horton.grid.atgrid import AtomicGrid
+from horton.grid.poisson import solve_poisson_becke
 
 
 __all__ = ['Part', 'WPart', 'CPart']
@@ -410,6 +411,25 @@ class WPart(Part):
                 splines = atgrid.get_spherical_decomposition(moldens, at_weights, lmax=self.lmax)
                 density_decomposition = dict(('spline_%05i' % j, spline) for j, spline in enumerate(splines))
                 self.cache.dump(key, density_decomposition, tags='o')
+
+    @just_once
+    def do_hartree_decomposition(self):
+        if not self.local:
+            if log.do_warning:
+                log.warn('Skipping hartree decomposition because no local grids were found.')
+            return
+
+        for index in xrange(self.natom):
+            key = ('hartree_decomposition', index)
+            if key not in self.cache:
+                self.do_density_decomposition()
+                if log.do_medium:
+                    log('Computing hartree decomposition for atom %i' % index)
+                density_decomposition = self.cache.load('density_decomposition', index)
+                rho_splines = [spline for foo, spline in sorted(density_decomposition.iteritems())]
+                v_splines = solve_poisson_becke(rho_splines)
+                hartree_decomposition = dict(('spline_%05i' % j, spline) for j, spline in enumerate(v_splines))
+                self.cache.dump(key, hartree_decomposition, tags='o')
 
 
 class CPart(Part):
