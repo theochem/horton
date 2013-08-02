@@ -52,8 +52,8 @@ __all__ = [
     # becke
     'becke_helper_atom',
     # cubic_spline
-    'ZeroExtrapolation', 'CuspExtrapolation', 'PowerExtrapolation',
-    'tridiagsym_solve', 'CubicSpline',
+    'Extrapolation', 'ZeroExtrapolation', 'CuspExtrapolation',
+    'PowerExtrapolation', 'tridiagsym_solve', 'CubicSpline',
     'compute_cubic_spline_int_weights',
     # evaluate
     'index_wrap', 'eval_spline_cube', 'eval_spline_grid',
@@ -195,6 +195,46 @@ cdef class Extrapolation(object):
     def __dealloc__(self):
         del self._this
 
+    def eval_left(self, double x):
+        '''Evaluate the extrapolation function at the left of the cubic spline interval'''
+        return self._this.eval_left(x)
+
+    def eval_right(self, double x):
+        '''Evaluate the extrapolation function at the right of the cubic spline interval'''
+        return self._this.eval_right(x)
+
+    def deriv_left(self, double x):
+        '''Evaluate the extrapolation function derivative at the left of the cubic spline interval'''
+        return self._this.deriv_left(x)
+
+    def deriv_right(self, double x):
+        '''Evaluate the extrapolation function derivative at the right of the cubic spline interval'''
+        return self._this.deriv_right(x)
+
+    def to_string(self):
+        '''Return an extrapolation object in string respresentation'''
+        return self.__class__.__name__
+
+    @classmethod
+    def from_string(cls, s):
+        '''Create an extrpolation object from a string description'''
+        words = s.split()
+        if words[0] == 'ZeroExtrapolation':
+            if len(words) != 1:
+                raise ValueError('ZeroExtrapolation takes not arguments.')
+            return ZeroExtrapolation()
+        elif words[0] == 'CuspExtrapolation':
+            if len(words) != 1:
+                raise ValueError('CuspExtrapolation takes not arguments.')
+            return CuspExtrapolation()
+        elif words[0] == 'PowerExtrapolation':
+            if len(words) != 2:
+                raise ValueError('PowerExtrapolation takes one argument.')
+            power = float(words[1])
+            return PowerExtrapolation(power)
+        else:
+            raise NotImplementedError
+
 
 cdef class ZeroExtrapolation(Extrapolation):
     '''Zero left and right of the cubic spline interval'''
@@ -212,6 +252,14 @@ cdef class PowerExtrapolation(Extrapolation):
     '''Zero at the right side, power law at the left side'''
     def __cinit__(self, double power):
         self._this = <cubic_spline.Extrapolation*>(new cubic_spline.PowerExtrapolation(power))
+
+    property power:
+        '''The power parameters'''
+        def __get__(self):
+            return (<cubic_spline.PowerExtrapolation*>self._this).get_power()
+
+    def to_string(self):
+        return 'PowerExtrapolation %s' % repr(self.power)
 
 
 cdef class CubicSpline(object):
@@ -233,13 +281,13 @@ cdef class CubicSpline(object):
             The transformation object that specifies the 1D grid. If not given,
             an identity transform is used
 
-       ep
+       extrapolation
             The extrapolation object that specifies the spline function outside
             the interval determined by the 1D grid. By default,
             CuspExtrapolation() is used.
     '''
     cdef cubic_spline.CubicSpline* _this
-    cdef Extrapolation _ep
+    cdef Extrapolation _extrapolation
     cdef RTransform _rtransform
     cdef np.ndarray _y
     cdef np.ndarray _dx
@@ -249,7 +297,7 @@ cdef class CubicSpline(object):
                   np.ndarray[double, ndim=1] y not None,
                   np.ndarray[double, ndim=1] dx=None,
                   RTransform rtransform=None,
-                  Extrapolation ep=None):
+                  Extrapolation extrapolation=None):
         assert y.flags['C_CONTIGUOUS']
         self._y = y
         n = y.shape[0]
@@ -274,28 +322,43 @@ cdef class CubicSpline(object):
             self._dt = dx*v
 
         # Only exponential extrapolation is needed for now
-        if ep is None:
-            self._ep = CuspExtrapolation()
+        if extrapolation is None:
+            self._extrapolation = CuspExtrapolation()
         else:
-            self._ep = ep
+            self._extrapolation = extrapolation
 
         self._this = new cubic_spline.CubicSpline(
-            <double*>self._y.data, <double*>self._dt.data, self._ep._this,
+            <double*>self._y.data, <double*>self._dt.data, self._extrapolation._this,
             self._rtransform._this, n
         )
 
     def __dealloc__(self):
         del self._this
 
+    @classmethod
+    def from_hdf5(cls, grp, lf):
+        return cls(
+            grp['y'][:],
+            grp['d'][:],
+            RTransform.from_string(grp.attrs['rtransform']),
+            Extrapolation.from_string(grp.attrs['extrapolation']),
+        )
+
+    def to_hdf5(self, grp):
+        grp['y'] = self.y
+        grp['d'] = self.dx
+        grp.attrs['rtransform'] = self.rtransform.to_string()
+        grp.attrs['extrapolation'] = self.extrapolation.to_string()
+
     property rtransform:
         '''The RTransform object used for this spline'''
         def __get__(self):
             return self._rtransform
 
-    property ep:
+    property extrapolation:
         '''The extrapolation object used for this spline'''
         def __get__(self):
-            return self._ep
+            return self._extrapolation
 
     property y:
         '''Array with function values at the grid points'''

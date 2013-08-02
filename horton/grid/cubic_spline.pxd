@@ -28,11 +28,13 @@ cdef extern from "cubic_spline.h":
     void compute_cubic_spline_int_weights(double* weights, int npoint)
 
     cdef cppclass Extrapolation:
-        pass
-
+        double eval_left(double x)
+        double eval_right(double x)
+        double deriv_left(double x)
+        double deriv_right(double x)
 
     cdef cppclass CubicSpline:
-        CubicSpline(double* y, double* dt, Extrapolation* ep, rtransform.RTransform* rtf, int n)
+        CubicSpline(double* y, double* dt, Extrapolation* extrapolation, rtransform.RTransform* rtf, int n)
         void eval(double* new_x, double* new_y, int new_n)
         void eval_deriv(double* new_x, double* new_dx, int new_n)
 
@@ -44,3 +46,4 @@ cdef extern from "cubic_spline.h":
 
     cdef cppclass PowerExtrapolation:
         PowerExtrapolation(double power)
+        double get_power()

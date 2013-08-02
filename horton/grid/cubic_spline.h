@@ -36,7 +36,7 @@ class Extrapolation;
 
 class CubicSpline {
     private:
-        Extrapolation* ep;
+        Extrapolation* extrapolation;
         RTransform* rtf;
         double first_x, last_x;
     public:
@@ -44,7 +44,7 @@ class CubicSpline {
         double* dt;
         int n;
 
-        CubicSpline(double* y, double* dt, Extrapolation* ep, RTransform* rtf, int n);
+        CubicSpline(double* y, double* dt, Extrapolation* extrapolation, RTransform* rtf, int n);
 
         void eval(double* new_x, double* new_y, int new_n);
         void eval_deriv(double* new_x, double* new_dx, int new_n);
@@ -52,6 +52,7 @@ class CubicSpline {
         RTransform* get_rtransform() {return rtf;}
         double get_first_x() {return first_x;}; // position of first (transformed) grid point
         double get_last_x() {return last_x;}; // position of first (transformed) last point
+        Extrapolation* get_extrapolation() {return extrapolation;};
     };
 
 
@@ -62,8 +63,9 @@ class Extrapolation {
         virtual void prepare(CubicSpline* cs) = 0;
         virtual double eval_left(double x) = 0;
         virtual double eval_right(double x) = 0;
-        virtual double eval_deriv_left(double x) = 0;
-        virtual double eval_deriv_right(double x) = 0;
+        virtual double deriv_left(double x) = 0;
+        virtual double deriv_right(double x) = 0;
+        virtual bool has_tail() = 0;
     };
 
 
@@ -72,8 +74,9 @@ class ZeroExtrapolation : public Extrapolation {
         virtual void prepare(CubicSpline* cs);
         virtual double eval_left(double x);
         virtual double eval_right(double x);
-        virtual double eval_deriv_left(double x);
-        virtual double eval_deriv_right(double x);
+        virtual double deriv_left(double x);
+        virtual double deriv_right(double x);
+        virtual bool has_tail() {return false;};
     };
 
 
@@ -85,8 +88,9 @@ class CuspExtrapolation : public Extrapolation {
         virtual void prepare(CubicSpline* cs);
         virtual double eval_left(double x);
         virtual double eval_right(double x);
-        virtual double eval_deriv_left(double x);
-        virtual double eval_deriv_right(double x);
+        virtual double deriv_left(double x);
+        virtual double deriv_right(double x);
+        virtual bool has_tail() {return false;};
     };
 
 
@@ -99,8 +103,10 @@ class PowerExtrapolation : public Extrapolation {
         virtual void prepare(CubicSpline* cs);
         virtual double eval_left(double x);
         virtual double eval_right(double x);
-        virtual double eval_deriv_left(double x);
-        virtual double eval_deriv_right(double x);
+        virtual double deriv_left(double x);
+        virtual double deriv_right(double x);
+        virtual bool has_tail() {return true;};
+        double get_power() {return power;};
     };
 
 
