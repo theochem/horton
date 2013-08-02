@@ -18,6 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
+#cython: embedsignature=True
 '''C++ extensions'''
 
 
@@ -153,9 +154,7 @@ cdef class Cell:
         return cls(rvecs)
 
     def update_rvecs(self, np.ndarray[double, ndim=2] rvecs=None):
-        '''update_rvecs(rvecs)
-
-           Change the cell vectors and recompute the reciprocal cell vectors.
+        '''Change the cell vectors and recompute the reciprocal cell vectors.
 
            rvecs
                 A numpy array with at most three cell vectors, layed out as
@@ -277,19 +276,13 @@ cdef class Cell:
             return lengths, angles
 
     def mic(self, np.ndarray[double, ndim=1] delta not None):
-        """mic(delta)
-
-           Apply the minimum image convention to delta in-place
-        """
+        '''Apply the minimum image convention to delta in-place'''
         assert delta.flags['C_CONTIGUOUS']
         assert delta.size == 3
         self._this.mic(<double*> delta.data)
 
     def to_frac(self, np.ndarray[double, ndim=1] cart not None):
-        '''to_frac(cart)
-
-           Return the corresponding fractional coordinates
-        '''
+        '''Return the corresponding fractional coordinates'''
         assert cart.flags['C_CONTIGUOUS']
         assert cart.size == 3
         cdef np.ndarray[double, ndim=1] result
@@ -298,10 +291,7 @@ cdef class Cell:
         return result
 
     def to_cart(self, np.ndarray[double, ndim=1] frac not None):
-        '''to_cart(frac)
-
-           Return the corresponding Cartesian coordinates
-        '''
+        '''Return the corresponding Cartesian coordinates'''
         assert frac.flags['C_CONTIGUOUS']
         assert frac.size == 3
         cdef np.ndarray[double, ndim=1] result
@@ -310,10 +300,7 @@ cdef class Cell:
         return result
 
     def g_lincomb(self, np.ndarray[double, ndim=1] coeffs not None):
-        '''g_lincomb(coeffs)
-
-           Return a linear combination of reciprocal cell vectors
-        '''
+        '''Return a linear combination of reciprocal cell vectors'''
         assert coeffs.flags['C_CONTIGUOUS']
         assert coeffs.size == 3
         cdef np.ndarray[double, ndim=1] result
@@ -322,10 +309,7 @@ cdef class Cell:
         return result
 
     def dot_rvecs(self, np.ndarray[double, ndim=1] cart not None):
-        '''dot_rvecs(cart)
-
-           Return the corresponding dot product with the rvecs
-        '''
+        '''Return the corresponding dot product with the rvecs'''
         assert cart.flags['C_CONTIGUOUS']
         assert cart.size == 3
         cdef np.ndarray[double, ndim=1] result
@@ -335,10 +319,7 @@ cdef class Cell:
 
     def add_rvec(self, np.ndarray[double, ndim=1] delta not None,
                  np.ndarray[long, ndim=1] r not None):
-        """add_rvec(delta, r)
-
-           Add a linear combination of real cell vectors, ``r``, to ``delta`` in-place
-        """
+        """Add a linear combination of real cell vectors, ``r``, to ``delta`` in-place"""
         assert delta.flags['C_CONTIGUOUS']
         assert delta.size == 3
         assert r.flags['C_CONTIGUOUS']

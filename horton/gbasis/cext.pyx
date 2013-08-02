@@ -18,6 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
+#cython: embedsignature=True
 '''C++ extensions'''
 
 
@@ -519,9 +520,7 @@ cdef class GOBasis(GBasis):
                                   np.ndarray[double, ndim=2] points not None,
                                   np.ndarray[long, ndim=1] iorbs not None,
                                   np.ndarray[double, ndim=2] orbs not None):
-        '''compute_grid_density_exp(exp, points, iorbs, orbs)
-
-           Compute the orbtials on a grid for a given set of expansion coefficients.
+        '''Compute the orbtials on a grid for a given set of expansion coefficients.
 
            **Arguments:**
 
@@ -559,9 +558,7 @@ cdef class GOBasis(GBasis):
     def _compute_grid1_dm(self, dm, np.ndarray[double, ndim=2] points not None,
                           GB1DMGridFn grid_fn not None, np.ndarray output not None,
                           double epsilon=0):
-        '''_compute_grid_dm(dm, points, output)
-
-           Compute some density function on a grid for a given density matrix.
+        '''Compute some density function on a grid for a given density matrix.
 
            **Arguments:**
 
@@ -616,9 +613,7 @@ cdef class GOBasis(GBasis):
                                 np.ndarray[double, ndim=2] points not None,
                                 np.ndarray[double, ndim=1] rhos not None,
                                 double epsilon=0):
-        '''compute_grid_density_dm(dm, points, rho)
-
-           Compute the electron density on a grid for a given density matrix.
+        '''Compute the electron density on a grid for a given density matrix.
 
            **Arguments:**
 
@@ -646,9 +641,7 @@ cdef class GOBasis(GBasis):
                                  np.ndarray[double, ndim=2] points not None,
                                  np.ndarray[double, ndim=2] gradrhos not None,
                                  double epsilon=0):
-        '''compute_grid_gradient_dm(dm, points, gradrho)
-
-           Compute the electron density gradient on a grid for a given density matrix.
+        '''Compute the electron density gradient on a grid for a given density matrix.
 
            **Arguments:**
 
@@ -675,9 +668,7 @@ cdef class GOBasis(GBasis):
     def compute_grid_hartree_dm(self, dm,
                                 np.ndarray[double, ndim=2] points not None,
                                 np.ndarray[double, ndim=1] output not None):
-        '''compute_grid_hartree_dm(dm, points, output)
-
-           Compute the Hartree potential on a grid for a given density matrix.
+        '''Compute the Hartree potential on a grid for a given density matrix.
 
            **Arguments:**
 
@@ -711,9 +702,7 @@ cdef class GOBasis(GBasis):
                            np.ndarray[double, ndim=1] weights not None,
                            np.ndarray pots not None,
                            GB1DMGridFn grid_fn not None, fock):
-        '''_compute_grid_fock(points, weights, pots, grid_fn, fock)
-
-           Compute a one-body operator based on some potential grid in real-space
+        '''Compute a one-body operator based on some potential grid in real-space
 
            **Arguments:**
 
@@ -760,9 +749,7 @@ cdef class GOBasis(GBasis):
     def compute_grid_density_fock(self, np.ndarray[double, ndim=2] points not None,
                                   np.ndarray[double, ndim=1] weights not None,
                                   np.ndarray[double, ndim=1] pots not None, fock):
-        '''compute_grid_density_fock(points, weights, pots, fock)
-
-           Compute a one-body operator based on a density potential grid in real-space
+        '''Compute a one-body operator based on a density potential grid in real-space
 
            **Arguments:**
 
@@ -786,9 +773,7 @@ cdef class GOBasis(GBasis):
     def compute_grid_gradient_fock(self, np.ndarray[double, ndim=2] points not None,
                                    np.ndarray[double, ndim=1] weights not None,
                                    np.ndarray[double, ndim=2] pots not None, fock):
-        '''compute_grid_density_fock(points, weights, pots, fock)
-
-           Compute a one-body operator based on a density potential grid in real-space
+        '''Compute a one-body operator based on a density potential grid in real-space
 
            **Arguments:**
 
