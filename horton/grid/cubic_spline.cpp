@@ -136,12 +136,12 @@ void compute_cubic_spline_int_weights(double* weights, int npoint) {
    CubicSpline class.
 */
 
-CubicSpline::CubicSpline(double* y, double* dt, Extrapolation* ep, RTransform* rtf, int n):
-    ep(ep), rtf(rtf), first_x(0.0), last_x(0.0), y(y), dt(dt), n(n)
+CubicSpline::CubicSpline(double* y, double* dt, Extrapolation* extrapolation, RTransform* rtf, int n):
+    extrapolation(extrapolation), rtf(rtf), first_x(0.0), last_x(0.0), y(y), dt(dt), n(n)
 {
     first_x = rtf->radius(0);
     last_x = rtf->radius(n-1);
-    ep->prepare(this);
+    extrapolation->prepare(this);
 }
 
 
@@ -149,7 +149,7 @@ void CubicSpline::eval(double* new_x, double* new_y, int new_n) {
     for (int i=0; i<new_n; i++) {
         if (*new_x < first_x) {
             // Left extrapolation
-            *new_y = ep->eval_left(*new_x);
+            *new_y = extrapolation->eval_left(*new_x);
         } else if (*new_x <= last_x) {
             // Cubic Spline interpolation
             // 1) transform *new_x to t
@@ -166,7 +166,7 @@ void CubicSpline::eval(double* new_x, double* new_y, int new_n) {
             *new_y = y[j] + u*(dt[j] + u*(3*z - 2*dt[j] - dt[j+1] + u*(-2*z + dt[j] + dt[j+1])));
         } else {
             // Right extrapolation
-            *new_y = ep->eval_right(*new_x);
+            *new_y = extrapolation->eval_right(*new_x);
         }
         new_x++;
         new_y++;
@@ -177,7 +177,7 @@ void CubicSpline::eval_deriv(double* new_x, double* new_dx, int new_n) {
     for (int i=0; i<new_n; i++) {
         if (*new_x < first_x) {
             // Left extrapolation
-            *new_dx = ep->eval_deriv_left(*new_x);
+            *new_dx = extrapolation->deriv_left(*new_x);
         } else if (*new_x <= last_x) {
             // Cubic Spline interpolation
             // 1) transform *new_x to t
@@ -193,7 +193,7 @@ void CubicSpline::eval_deriv(double* new_x, double* new_dx, int new_n) {
             *new_dx /= rtf->deriv(t);
         } else {
             // Right extrapolation
-            *new_dx = ep->eval_deriv_right(*new_x);
+            *new_dx = extrapolation->deriv_right(*new_x);
         }
         new_x++;
         new_dx++;
@@ -208,8 +208,8 @@ void CubicSpline::eval_deriv(double* new_x, double* new_dx, int new_n) {
 void ZeroExtrapolation::prepare(CubicSpline* cs) {}
 double ZeroExtrapolation::eval_left(double x) {return 0.0;}
 double ZeroExtrapolation::eval_right(double x) {return 0.0;}
-double ZeroExtrapolation::eval_deriv_left(double x) {return 0.0;}
-double ZeroExtrapolation::eval_deriv_right(double x) {return 0.0;}
+double ZeroExtrapolation::deriv_left(double x) {return 0.0;}
+double ZeroExtrapolation::deriv_right(double x) {return 0.0;}
 
 
 /*
@@ -243,11 +243,11 @@ double CuspExtrapolation::eval_right(double x) {
     return 0.0;
 }
 
-double CuspExtrapolation::eval_deriv_left(double x) {
+double CuspExtrapolation::deriv_left(double x) {
     return a0*b0*exp(b0*(x-x0));
 }
 
-double CuspExtrapolation::eval_deriv_right(double x) {
+double CuspExtrapolation::deriv_right(double x) {
     return 0.0;
 }
 
@@ -259,11 +259,7 @@ double CuspExtrapolation::eval_deriv_right(double x) {
 
 void PowerExtrapolation::prepare(CubicSpline* cs) {
     double x = cs->get_last_x();
-    if (cs->y[cs->n-1] == 0.0) {
-        amp = 0;
-    } else {
-        amp = cs->y[cs->n-1]*pow(x, -power);
-    }
+    amp = cs->y[cs->n-1]*pow(x, -power);
 }
 
 double PowerExtrapolation::eval_left(double x) {
@@ -274,10 +270,10 @@ double PowerExtrapolation::eval_right(double x) {
     return amp*pow(x, power);
 }
 
-double PowerExtrapolation::eval_deriv_left(double x) {
+double PowerExtrapolation::deriv_left(double x) {
     return 0.0;
 }
 
-double PowerExtrapolation::eval_deriv_right(double x) {
+double PowerExtrapolation::deriv_right(double x) {
     return amp*power*pow(x, power-1);
 }

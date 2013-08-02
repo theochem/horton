@@ -60,7 +60,7 @@ void eval_spline_cube(CubicSpline* spline, double* center, double* output,
             double d = ugrid->dist_grid_point(center, j);
 
             // Evaluate spline if needed
-            if (d < rcut) {
+            if ((d < rcut) || spline->get_extrapolation()->has_tail()) {
                 double s;
                 spline->eval(&d, &s, 1);
                 *(ugrid->get_pointer(output, jwrap)) += s;
@@ -104,7 +104,7 @@ void eval_spline_grid(CubicSpline* spline, double* center, double* output,
                     double d = sqrt(x*x+y*y+z*z);
 
                     // Evaluate spline if needed
-                    if (d < rcut) {
+                    if ((d < rcut) || spline->get_extrapolation()->has_tail()) {
                         double s;
                         spline->eval(&d, &s, 1);
 #ifdef DEBUG

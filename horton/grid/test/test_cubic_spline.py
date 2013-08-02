@@ -20,7 +20,7 @@
 #--
 
 
-import numpy as np
+import numpy as np, h5py as h5
 from horton import *
 
 
@@ -284,7 +284,9 @@ def test_extrapolation1_exp():
     cs = CubicSpline(y, d, rtf)
     newx = np.array([0.001, 0.01])
     assert abs(cs(newx) - np.exp(-0.3*newx)).max() < 1e-10
+    assert abs(cs.extrapolation.eval_left(newx[0]) - np.exp(-0.3*newx[0])).max() < 1e-10
     assert abs(cs.deriv(newx) - -0.3*np.exp(-0.3*newx)).max() < 1e-10
+    assert abs(cs.extrapolation.deriv_left(newx[0]) - -0.3*np.exp(-0.3*newx[0])).max() < 1e-10
     newx = np.array([1.1, 10.1])
     assert abs(cs(newx)).max() < 1e-10
     assert abs(cs.deriv(newx)).max() < 1e-10
@@ -303,13 +305,16 @@ def test_extrapolation_identity_power():
     x = np.arange(10, dtype=float)
     y = 1/(np.exp(-2*x)+x**2)
     d = -y**2*(np.exp(-2*x)*(-2) + 2*x)
-    cs = CubicSpline(y, d, ep=PowerExtrapolation(-2.0))
+    cs = CubicSpline(y, d, extrapolation=PowerExtrapolation(-2.0))
+    assert cs.extrapolation.power == -2.0
     newx = np.array([-2.5, -1.1])
     assert abs(cs(newx)).max() == 0.0
     assert abs(cs.deriv(newx)).max() == 0.0
     newx = np.array([10.5, 11.5])
     assert abs(cs(newx) - 1/newx**2).max() < 1e-10
+    assert abs(cs.extrapolation.eval_right(newx[0]) - 1/newx[0]**2).max() < 1e-10
     assert abs(cs.deriv(newx) - -2/newx**3).max() < 1e-10
+    assert abs(cs.extrapolation.deriv_right(newx[0]) - -2/newx[0]**3) < 1e-10
 
 
 def test_extrapolation_exp_power():
@@ -318,9 +323,44 @@ def test_extrapolation_exp_power():
     y = x**2
     d = 2*x
     cs = CubicSpline(y, d, rtf, PowerExtrapolation(2))
+    assert cs.extrapolation.power == 2.0
     newx = np.array([0.001, 0.01])
     assert abs(cs(newx)).max() == 0.0
     assert abs(cs.deriv(newx)).max() == 0.0
     newx = np.array([1.1, 10.1])
     assert abs(cs(newx) - newx**2).max() < 1e-10
+    assert abs(cs.extrapolation.eval_right(newx[0]) - newx[0]**2).max() < 1e-10
     assert abs(cs.deriv(newx) - 2*newx).max() < 1e-10
+    assert abs(cs.extrapolation.deriv_right(newx[0]) - 2*newx[0]) < 1e-10
+
+
+def test_consistency_h5():
+    with h5.File('horton.grid.test.test_cubic_spline.test_consistency_h5', driver='core', backing_store=False) as chk:
+        rtf = ExpRTransform(0.1, 1.0, 10)
+        y = np.random.normal(0, 1, 10)
+        d = np.random.normal(0, 1, 10)
+        cs1 = CubicSpline(y, d, rtf, PowerExtrapolation(2))
+        cs1.to_hdf5(chk)
+        cs2 = CubicSpline.from_hdf5(chk, None)
+        assert (cs1.y == cs2.y).all()
+        assert (cs1.dx == cs2.dx).all()
+        assert (cs1.dt == cs2.dt).all()
+        assert cs1.rtransform.to_string() == cs2.rtransform.to_string()
+        assert cs1.extrapolation.to_string() == cs2.extrapolation.to_string()
+
+
+def test_zero_extrapolation_string():
+    assert ZeroExtrapolation().to_string() == 'ZeroExtrapolation'
+    assert isinstance(Extrapolation.from_string('ZeroExtrapolation'), ZeroExtrapolation)
+
+
+def test_cusp_extrapolation_string():
+    assert CuspExtrapolation().to_string() == 'CuspExtrapolation'
+    assert isinstance(Extrapolation.from_string('CuspExtrapolation'), CuspExtrapolation)
+
+
+def test_power_extrapolation_string():
+    assert PowerExtrapolation(2.0).to_string() == 'PowerExtrapolation 2.0'
+    ep = Extrapolation.from_string(PowerExtrapolation(5.1247953315476).to_string())
+    assert isinstance(ep, PowerExtrapolation)
+    assert ep.power == 5.1247953315476
