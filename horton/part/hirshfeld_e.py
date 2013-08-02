@@ -197,8 +197,8 @@ class HirshfeldEMixin(object):
     def get_memory_estimates(self):
         if self._greedy:
             return [
-                ('Constant', np.ones(self.natom), 0),
-                ('Basis', np.array([self.hebasis.get_atom_nbasis(i) for i in xrange(self.natom)]), 0),
+                ('Constant', np.ones(self.system.natom), 0),
+                ('Basis', np.array([self.hebasis.get_atom_nbasis(i) for i in xrange(self.system.natom)]), 0),
             ]
         else:
             return []
@@ -417,7 +417,7 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
         if self.local:
             row = [('Weight corrections (fit)', np.array([n in self._wcor_numbers for n in self.system.numbers]), 0)]
         else:
-            row = [('Weight corrections (fit)', np.zeros(self.natom), 1)]
+            row = [('Weight corrections (fit)', np.zeros(self.system.natom), 1)]
         return (
             HirshfeldCPart.get_memory_estimates(self) +
             HirshfeldEMixin.get_memory_estimates(self) +
