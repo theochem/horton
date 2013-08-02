@@ -53,7 +53,7 @@ class HirshfeldIMixin(IterativeProatomMixin):
 
     def get_memory_estimates(self):
         if self._greedy:
-            return [('Isolated atoms', np.ones(self.natom)*3, 0),] # This is a conservative estimate.
+            return [('Isolated atoms', np.ones(self.system.natom)*3, 0),] # This is a conservative estimate.
         else:
             return []
 

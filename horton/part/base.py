@@ -92,11 +92,6 @@ class Part(JustOnceClass):
 
     local = property(_get_local)
 
-    def _get_natom(self):
-        return self.system.natom
-
-    natom = property(_get_natom)
-
     def _get_cache(self):
         return self._cache
 
@@ -179,7 +174,7 @@ class Part(JustOnceClass):
         if log.do_medium:
             # precompute arrays sizes for certain grids
             nbyte_global = self.grid.size*8
-            nbyte_locals = np.array([self.get_grid(i).size*8 for i in xrange(self.natom)])
+            nbyte_locals = np.array([self.get_grid(i).size*8 for i in xrange(self.system.natom)])
 
             # compute and report usage
             estimates = self.get_memory_estimates()
@@ -196,9 +191,9 @@ class Part(JustOnceClass):
 
     def get_memory_estimates(self):
         return [
-            ('Atomic weights', np.ones(self.natom), 0),
-            ('Promolecule', np.zeros(self.natom), 1),
-            ('Working arrays', np.zeros(self.natom), 2),
+            ('Atomic weights', np.ones(self.system.natom), 0),
+            ('Promolecule', np.zeros(self.system.natom), 1),
+            ('Working arrays', np.zeros(self.system.natom), 2),
         ]
 
     def to_atomic_grid(self, index, data):
@@ -237,7 +232,7 @@ class Part(JustOnceClass):
             pseudo_populations = self.cache.load('pseudo_populations', alloc=self.system.natom, tags='o')[0]
             if log.do_medium:
                 log('Computing atomic populations.')
-            for i in xrange(self.natom):
+            for i in xrange(self.system.natom):
                 pseudo_populations[i] = self.compute_pseudo_population(i)
             populations[:] = pseudo_populations
             populations += self.system.numbers - self.system.pseudo_numbers
@@ -456,7 +451,7 @@ class CPart(Part):
     def _init_subgrids(self):
         # grids for non-periodic integrations
         self._subgrids = []
-        for index in xrange(self.natom):
+        for index in xrange(self.system.natom):
             center = self.system.coordinates[index]
             radius = self.get_cutoff_radius(index)
             self._subgrids.append(self.grid.get_window(center, radius))
@@ -479,14 +474,14 @@ class CPart(Part):
         if self.local:
             row = [('Weight corrections', np.array([n in self._wcor_numbers for n in self.system.numbers]), 0)]
         else:
-            row = [('Weight corrections', np.zeros(self.natom), 1)]
+            row = [('Weight corrections', np.zeros(self.system.natom), 1)]
         return Part.get_memory_estimates(self) + row
 
     def _get_wcor_low(self, label, get_funcs, index=None):
         # Get the functions
         if index is None or not self.local:
             funcs = []
-            for i in xrange(self.natom):
+            for i in xrange(self.system.natom):
                 funcs.extend(get_funcs(i))
         else:
             funcs = get_funcs(index)

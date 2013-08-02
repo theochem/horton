@@ -54,7 +54,7 @@ class IterativeProatomMixin():
         self.update_at_weights()
 
         # Update the proatoms
-        for index in xrange(self.natom):
+        for index in xrange(self.system.natom):
             self._update_propars_atom(index)
 
         # Keep track of history

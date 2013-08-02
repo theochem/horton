@@ -71,8 +71,8 @@ class BeckeWPart(WPart):
 
         # Actual work
         with timer.section('Becke part'):
-            pb = log.progress(self.natom)
-            for index in xrange(self.natom):
+            pb = log.progress(self.system.natom)
+            for index in xrange(self.system.natom):
                 grid = self.get_grid(index)
                 at_weights = self.cache.load('at_weights', index, alloc=grid.shape)[0]
                 at_weights[:] = 1
