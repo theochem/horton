@@ -231,7 +231,9 @@ def compare_two_body(sys1, sys2, key):
 
 def compare_occ_model(occ_model1, occ_model2):
     assert occ_model1.__class__ == occ_model2.__class__
-    if isinstance(occ_model1, AufbauOccModel):
+    if occ_model1 is None:
+        assert occ_model2 is None
+    elif isinstance(occ_model1, AufbauOccModel):
         assert occ_model1.nalpha == occ_model2.nalpha
         assert occ_model1.nbeta == occ_model2.nbeta
     else:
