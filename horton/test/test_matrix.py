@@ -50,7 +50,7 @@ def get_water_sto3g_hf(lf=None):
         -3.87671783E-01, 6.03082408E-01, 7.66134805E-01
     ])
     occ_model = AufbauOccModel(5)
-    wfn = RestrictedWFN(occ_model, lf, nbasis=7)
+    wfn = RestrictedWFN(lf, 7, occ_model)
     wfn.init_exp('alpha')
     exp_alpha = wfn.exp_alpha
     exp_alpha.coeffs[:] = coeffs
@@ -138,7 +138,7 @@ def test_hartree_fock_water():
 
     # Construct a wavefunction
     occ_model = AufbauOccModel(5)
-    wfn = RestrictedWFN(occ_model, lf=lf, nbasis=nbasis)
+    wfn = RestrictedWFN(lf, nbasis, occ_model)
 
     # Construct the hamiltonian core guess
     hamcore = lf.create_one_body(nbasis)

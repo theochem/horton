@@ -98,7 +98,7 @@ def test_spin_li_h():
     assert sz == 0.5
     assert abs(ssq - 0.75) < 1e-7
     # swap the spins and test again
-    wfn = UnrestrictedWFN(sys.wfn.occ_model, sys.lf, sys.wfn.nbasis, sys.wfn.norb)
+    wfn = UnrestrictedWFN(sys.lf, sys.wfn.nbasis, sys.wfn.occ_model, sys.wfn.norb)
     exp_alpha = wfn.init_exp('alpha')
     exp_beta = wfn.init_exp('beta')
     exp_alpha.assign(sys.wfn.exp_beta)

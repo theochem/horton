@@ -113,7 +113,6 @@ def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None):
     else:
         occ_model = AufbauOccModel((nel + (mult-1))/2, (nel - (mult-1))/2)
 
-
     if system._wfn is not None:
         # Check if the existing wfn is consistent with the arguments
         if not isinstance(system.wfn, MeanFieldWFN):
@@ -138,9 +137,9 @@ def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None):
     else:
         # if the wfn does not exist yet, create a proper one.
         if restricted:
-            system._wfn = RestrictedWFN(occ_model, system.lf, system.obasis.nbasis)
+            system._wfn = RestrictedWFN(system.lf, system.obasis.nbasis, occ_model)
         else:
-            system._wfn = UnrestrictedWFN(occ_model, system.lf, system.obasis.nbasis)
+            system._wfn = UnrestrictedWFN(system.lf, system.obasis.nbasis, occ_model)
 
 
 def check_dm(dm, overlap, lf, name, eps=1e-4, occ_max=1.0):
@@ -196,13 +195,9 @@ class PropertyHelper(object):
 
 
 class MeanFieldWFN(object):
-    def __init__(self, occ_model, lf, nbasis, norb=None):
+    def __init__(self, lf, nbasis, occ_model=None, norb=None):
         """
            **Arguments:**
-
-           occ_model
-                A model for the occupation numbers to be assigned after
-                diagonalization of the Fock matrix.
 
            lf
                 A LinalgFactory instance.
@@ -212,13 +207,17 @@ class MeanFieldWFN(object):
 
            **Optional arguments:**
 
+           occ_model
+                A model to assign new occupation numbers when the orbitals are
+                updated by a diagonalization of a Fock matrix.
+
            norb
                the number of orbitals (occupied + virtual). When not given,
                it is set to nbasis.
         """
         self._lf = lf
         self._nbasis = nbasis
-        self.occ_model = occ_model
+        self._occ_model = occ_model
         if norb is None:
             self._norb = nbasis
         else:
@@ -233,8 +232,8 @@ class MeanFieldWFN(object):
     def from_hdf5(cls, grp, lf):
         # make the wfn object
         from horton.checkpoint import load_hdf5_low
-        occ_model = load_hdf5_low(grp['occ_model'], lf)
-        result = cls(occ_model, lf, nbasis=grp['nbasis'][()], norb=grp['norb'][()])
+        occ_model = load_hdf5_low(grp['occ_model'], lf) if 'occ_model' in grp else None
+        result = cls(lf, grp['nbasis'][()], occ_model, grp['norb'][()])
         # load stuff into cache
         for spin in 'alpha', 'beta':
             if 'exp_%s' % spin in grp:
@@ -249,8 +248,9 @@ class MeanFieldWFN(object):
         grp.attrs['class'] = self.__class__.__name__
         grp['nbasis'] = self._nbasis
         grp['norb'] = self._norb
-        tmp = grp.create_group('occ_model')
-        self.occ_model.to_hdf5(tmp)
+        if self.occ_model is not None:
+            tmp = grp.create_group('occ_model')
+            self.occ_model.to_hdf5(tmp)
         for spin in 'alpha', 'beta':
             if 'exp_%s' % spin in self._cache:
                 tmp = grp.create_group('exp_%s' % spin)
@@ -271,11 +271,21 @@ class MeanFieldWFN(object):
 
     norb = property(_get_norb)
 
+    def _get_occ_model(self):
+        '''The model for the orbital occupations'''
+        return self._occ_model
+
+    def _set_occ_model(self, occ_model):
+        self._occ_model = occ_model
+
+    occ_model = property(_get_occ_model, _set_occ_model)
+
     def _log_init(self):
         '''Write a summary of the wavefunction to the screen logger'''
         if log.do_medium:
             log('Initialized: %s' % self)
-            self.occ_model.log()
+            if self.occ_model is not None:
+                self.occ_model.log()
 
     def _iter_expansions(self):
         '''Iterate over all expansion in the cache'''
@@ -441,6 +451,8 @@ class RestrictedWFN(MeanFieldWFN):
         exp_alpha = self.init_exp('alpha')
         self.clear_dm()
         if dm_alpha is None:
+            if self.occ_model is None:
+                raise TypeError('Can not assign orbital occupations due to missing occupation model')
             # Diagonalize the Fock matrix and
             # use simple rules to derive the occupations
             exp_alpha.derive_from_fock_matrix(fock_alpha, overlap)
@@ -529,6 +541,8 @@ class UnrestrictedWFN(MeanFieldWFN):
         exp_beta = self.init_exp('beta')
         self.clear_dm()
         if dm_alpha is None:
+            if self.occ_model is None:
+                raise TypeError('Can not assign orbital occupations due to missing occupation model')
             # Diagonalize the Fock matrix and
             # use simple rules to derive the occupations
             exp_alpha.derive_from_fock_matrix(fock_alpha, overlap)
