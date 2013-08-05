@@ -326,3 +326,15 @@ def test_linalg_objects_del():
         op1 = lf.create_one_body()
     with assert_raises(TypeError):
         op2 = lf.create_two_body()
+
+
+def test_trace_product():
+    lf = DenseLinalgFactory()
+    op1 = lf.create_one_body(3)
+    op2 = lf.create_one_body(3)
+    op1._array[:] = np.random.uniform(0, 1, (3, 3))
+    op2._array[:] = np.random.uniform(0, 1, (3, 3))
+
+    value = op1.trace_product(op2)
+    op1.idot(op2)
+    assert abs(op1.trace() - value) < 1e-10

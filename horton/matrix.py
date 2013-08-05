@@ -572,6 +572,10 @@ class DenseOneBody(OneBody):
     def trace(self):
         return np.trace(self._array)
 
+    def trace_product(self, other):
+        '''Return the trace of the product of this operator and of the given operator'''
+        return np.dot(self._array.ravel(), other._array.T.ravel())
+
     def itranspose(self):
         '''In-place transpose'''
         self._array = self._array.T
