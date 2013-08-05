@@ -73,9 +73,9 @@ class HirshfeldMixin(object):
     def do_dispersion(self):
 
         if log.do_medium:
-            log.cite('tkatchenko2009', 'use method to evaluate molecular Van del Waals interactions')
-            log.cite('chu2004', 'the use of C6 values')
-            log.cite('yan1996', 'the use of Hydrogen C6 value')
+            log.cite('tkatchenko2009', 'the method to evaluate atoms-in-molecules C6 parameters')
+            log.cite('chu2004', 'the reference C6 parameters of isolated atoms')
+            log.cite('yan1996', 'the isolated hydrogen C6 parameter')
 
         ref_c6s = { # reference C6 values in atomic units
             1: 6.499, 2: 1.42, 3: 1392.0, 4: 227.0, 5: 99.5, 6: 46.6, 7: 24.2,
