@@ -21,6 +21,7 @@
 '''Mean-field electronic structure code'''
 
 
+from horton.meanfield.bond_order import *
 from horton.meanfield.builtin import *
 from horton.meanfield.convergence import *
 from horton.meanfield.cext import *
