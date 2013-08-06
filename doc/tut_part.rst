@@ -51,6 +51,8 @@ Dispersion coefficients  X                           X                          
 spherical decomposition  X
 ESP due to each AIM      X                                                       [becke1988_poisson]_
 ESP due to proatom       X                           X                           [becke1988_poisson]_
+Wiberg bond order        X
+Kohn-Sham response       X
 **Extra options**
 Symmetry analysis                                    X
 ======================== =========================== =========================== ============

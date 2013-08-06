@@ -102,6 +102,8 @@ be computed:
 * Tkatchenko-Scheffler dispersion coefficients. [tkatchenko2009]_
 * Decomposition of each AIM in spherical harmonics and the derivation of the
   hartree potential for each component. [becke1988_poisson]_
+* Wiberg bond orders.
+* Non-interacting (Kohn-Sham) response matrices.
 
 Note that not all AIM properties work for any combination partitioning scheme
 and boundary condition for technical reasons.
