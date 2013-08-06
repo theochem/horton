@@ -55,10 +55,6 @@ def parse_args():
              'for each grid type. See documentation for more details and other '
              'possible arguments for this option that allow a more '
              'fine-grained control of the atomic integration grid.')
-    parser.add_argument('--global', dest='local', default=True, action='store_false',
-        help='Use the entire molecular grid for all integrations. The default '
-             'behavior is to compute the integral for a given atom on a '
-             'atom-centered grid, which is a part of the molecular grid.')
     parser.add_argument('-e', '--epsilon', default=1e-8, type=float,
         help='Allow errors on the computed electron density of this magnitude '
              'for the sake of efficiency.')
