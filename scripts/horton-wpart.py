@@ -51,7 +51,7 @@ def parse_args():
     parser.add_argument('--grid', type=str, default='medium',
         help='Specify the atomic integration grids. Six built-in pruned '
              'grids are available: coarse, medium, fine, veryfine, ultrafine, '
-             'insane. [default=%%(default)s] Not all elements are supported '
+             'insane. [default=%(default)s] Not all elements are supported '
              'for each grid type. See documentation for more details and other '
              'possible arguments for this option that allow a more '
              'fine-grained control of the atomic integration grid.')
