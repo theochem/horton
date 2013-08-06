@@ -34,35 +34,35 @@ class Hartree(Observable):
     def __init__(self, label='hartree'):
         Observable.__init__(self, label)
 
-    def _update_coulomb(self):
-        '''Recompute the Coulomb operator if it has become invalid'''
-        coulomb, new = self.cache.load('op_coulomb', alloc=self.system.lf.create_one_body)
+    def _update_hartree(self):
+        '''Recompute the Hartree operator if it has become invalid'''
+        hartree, new = self.cache.load('op_hartree', alloc=self.system.lf.create_one_body)
         if new:
             electron_repulsion = self.system.get_electron_repulsion()
             if isinstance(self.system.wfn, RestrictedWFN):
-                electron_repulsion.apply_direct(self.system.wfn.dm_alpha, coulomb)
-                coulomb.iscale(2)
+                electron_repulsion.apply_direct(self.system.wfn.dm_alpha, hartree)
+                hartree.iscale(2)
             else:
-                electron_repulsion.apply_direct(self.system.wfn.dm_full, coulomb)
+                electron_repulsion.apply_direct(self.system.wfn.dm_full, hartree)
 
     def compute(self):
-        self._update_coulomb()
-        coulomb = self.cache.load('op_coulomb')
+        self._update_hartree()
+        hartree = self.cache.load('op_hartree')
         if isinstance(self.system.wfn, RestrictedWFN):
-            return coulomb.expectation_value(self.system.wfn.dm_alpha)
+            return hartree.expectation_value(self.system.wfn.dm_alpha)
         else:
-            return 0.5*coulomb.expectation_value(self.system.wfn.dm_full)
+            return 0.5*hartree.expectation_value(self.system.wfn.dm_full)
 
     def add_fock_matrix(self, fock_alpha, fock_beta, scale=1):
-        self._update_coulomb()
-        coulomb = self.cache.load('op_coulomb')
+        self._update_hartree()
+        hartree = self.cache.load('op_hartree')
         if fock_beta is None:
             # closed shell
-            fock_alpha.iadd(coulomb, scale)
+            fock_alpha.iadd(hartree, scale)
         else:
             # open shell
-            fock_alpha.iadd(coulomb, scale)
-            fock_beta.iadd(coulomb, scale)
+            fock_alpha.iadd(hartree, scale)
+            fock_beta.iadd(hartree, scale)
 
 
 class HartreeFockExchange(Observable):
