@@ -23,7 +23,7 @@
 
 import numpy as np
 
-from horton.log import log
+from horton.log import log, timer
 from horton.meanfield.observable import Observable
 from horton.meanfield.cext import LibXCWrapper
 from horton.meanfield.wfn import RestrictedWFN, UnrestrictedWFN
@@ -65,6 +65,7 @@ class LibXCLDA(LibXCEnergy):
         '''
         LibXCEnergy.__init__(self, 'lda_' + name.lower())
 
+    @timer.with_section('LDA pot')
     def _update_operator(self):
         if isinstance(self.system.wfn, RestrictedWFN):
             # In the closed-shell case, libxc expects the total density as input
@@ -99,6 +100,7 @@ class LibXCLDA(LibXCEnergy):
             if new_beta:
                 self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, pot_both[:,1], operator_beta)
 
+    @timer.with_section('LDA edens')
     def compute(self):
         if isinstance(self.system.wfn, RestrictedWFN):
             # In the unpolarized case, libxc expects the total density as input
@@ -132,6 +134,7 @@ class LibXCGGA(LibXCEnergy):
         '''
         LibXCEnergy.__init__(self, 'gga_' + name.lower())
 
+    @timer.with_section('GGA pot')
     def _update_operator(self):
         if isinstance(self.system.wfn, RestrictedWFN):
             dpot, newd = self.cache.load('dpot_libxc_%s_alpha' % self._name, alloc=self.grid.size)
@@ -146,7 +149,6 @@ class LibXCGGA(LibXCEnergy):
                 grad_rho = self.update_grad_rho('full')
                 np.multiply(grad_rho, spot.reshape(-1,1), out=gpot)
                 gpot *= 2
-
 
             # TODO: in the Hamiltonian class, all the grids should be added
             operator, new = self.cache.load('op_libxc_%s_alpha' % self._name, alloc=self.system.lf.create_one_body)
@@ -173,7 +175,6 @@ class LibXCGGA(LibXCEnergy):
                 gpot_beta[:] = (2*spot_all[:,2].reshape(-1,1))*self.update_grad_rho('beta')
                 gpot_beta[:] += (spot_all[:,1].reshape(-1,1))*self.update_grad_rho('alpha')
 
-
             # TODO: in the Hamiltonian class, all the grids should be added
             operator_alpha, new = self.cache.load('op_libxc_%s_alpha' % self._name, alloc=self.system.lf.create_one_body)
             if new:
@@ -185,6 +186,7 @@ class LibXCGGA(LibXCEnergy):
                 self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, dpot_both[:,1], operator_beta)
                 self.system.compute_grid_gradient_fock(self.grid.points, self.grid.weights, gpot_beta, operator_beta)
 
+    @timer.with_section('GGA edens')
     def compute(self):
         if isinstance(self.system.wfn, RestrictedWFN):
             rho = self.update_rho('full')
