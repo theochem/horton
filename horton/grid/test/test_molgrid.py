@@ -79,7 +79,7 @@ def test_molgrid_attrs_subgrid():
     sys = System(coordinates, numbers)
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf, TrapezoidIntegrator1D())
-    mg = BeckeMolGrid(sys, (rgrid, 110), keep_subgrids=True)
+    mg = BeckeMolGrid(sys, (rgrid, 110), mode='keep')
 
     assert mg.size == 2*110*100
     assert mg.points.shape == (mg.size, 3)
@@ -110,7 +110,7 @@ def test_molgrid_attrs():
     sys = System(coordinates, numbers)
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf, TrapezoidIntegrator1D())
-    mg = BeckeMolGrid(sys, (rgrid, 110), keep_subgrids=False)
+    mg = BeckeMolGrid(sys, (rgrid, 110))
 
     assert mg.size == 2*110*100
     assert mg.points.shape == (mg.size, 3)
@@ -177,7 +177,7 @@ def test_update_centers():
     numbers = np.array([6, 8], int)
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
     sys = System(coordinates, numbers)
-    grid = BeckeMolGrid(sys, 'tv-13.7-3', keep_subgrids=True)
+    grid = BeckeMolGrid(sys, 'tv-13.7-3', mode='keep')
     sys.update_grid(grid)
 
     def helper():

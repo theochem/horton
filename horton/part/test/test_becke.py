@@ -30,7 +30,7 @@ def test_becke_n2_hfs_sto3g():
     sys = System.from_file(fn_fchk)
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf)
-    grid = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False, keep_subgrids=True)
+    grid = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False, mode='only')
     bp = BeckeWPart(sys, grid)
     bp.do_populations()
     assert abs(bp['populations'] - 7).max() < 1e-4
@@ -50,10 +50,10 @@ def test_becke_nonlocal_lih_hf_321g():
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf)
 
-    grid1 = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False, keep_subgrids=True)
+    grid1 = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False, mode='only')
     bp1 = BeckeWPart(sys, grid1)
 
-    grid2 = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False, keep_subgrids=False)
+    grid2 = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False, mode='discard')
     bp2 = BeckeWPart(sys, grid2, local=False)
 
     bp1.do_charges()
@@ -65,7 +65,7 @@ def test_becke_update_grid_lih_hf_321g():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     sys = System.from_file(fn_fchk)
 
-    grid = BeckeMolGrid(sys, 'tv-13.7-3', random_rotate=True, keep_subgrids=True)
+    grid = BeckeMolGrid(sys, 'tv-13.7-3', random_rotate=True, mode='only')
     bp = BeckeWPart(sys, grid)
     bp.do_charges()
     c1 = bp['charges']
@@ -75,7 +75,7 @@ def test_becke_update_grid_lih_hf_321g():
     assert md1 is bp['moldens']
     c1 = c1.copy() # c1 will be reused otherwise
 
-    grid = BeckeMolGrid(sys, 'tv-13.7-4', random_rotate=True, keep_subgrids=True)
+    grid = BeckeMolGrid(sys, 'tv-13.7-4', random_rotate=True, mode='only')
     bp.update_grid(grid)
     assert len(bp.cache) == 0
     assert bp.grid is grid
@@ -91,7 +91,7 @@ def test_becke_update_grid_lih_hf_321g():
 def check_becke_azirine(key, expected):
     fn_fchk = context.get_fn('test/2h-azirine-%s.fchk' % key)
     sys = System.from_file(fn_fchk)
-    grid = BeckeMolGrid(sys, random_rotate=False, keep_subgrids=True)
+    grid = BeckeMolGrid(sys, random_rotate=False, mode='only')
     bp = BeckeWPart(sys, grid)
     bp.do_charges()
     c = bp['charges']
@@ -119,7 +119,7 @@ def test_becke_azirine_mp3():
 def test_becke_ch3_hf_sto3g():
     fn_fchk = context.get_fn('test/ch3_hf_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    grid = BeckeMolGrid(sys, random_rotate=False, keep_subgrids=True)
+    grid = BeckeMolGrid(sys, random_rotate=False, mode='only')
     bp = BeckeWPart(sys, grid)
     bp.do_all()
     sc = bp['spin_charges']

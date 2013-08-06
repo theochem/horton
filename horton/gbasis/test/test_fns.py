@@ -187,7 +187,7 @@ def test_density_functional_deriv():
     sys = System.from_file(fn_fchk)
     rtf = ExpRTransform(1e-3, 1e1, 10)
     rgrid = RadialGrid(rtf)
-    grid = BeckeMolGrid(sys, (rgrid, 6), random_rotate=False, keep_subgrids=True)
+    grid = BeckeMolGrid(sys, (rgrid, 6), random_rotate=False, mode='keep')
     pot = grid.points[:,2].copy()
 
     def fun(x):
@@ -310,7 +310,7 @@ def test_gradient_functional_deriv():
     sys = System.from_file(fn_fchk)
     rtf = ExpRTransform(1e-3, 1e1, 10)
     rgrid = RadialGrid(rtf)
-    grid = BeckeMolGrid(sys, (rgrid, 6), random_rotate=False, keep_subgrids=True)
+    grid = BeckeMolGrid(sys, (rgrid, 6), random_rotate=False, mode='keep')
     pot = grid.points[:,2].copy()
 
     def fun(x):
