@@ -36,11 +36,11 @@ def test_scf_cs():
     assert convergence_error(ham) < 1e-8
 
     # test operator consistency
-    my_coulomb = sys.lf.create_one_body()
+    my_hartree = sys.lf.create_one_body()
     dm_alpha = sys.wfn.dm_alpha
-    sys.get_electron_repulsion().apply_direct(dm_alpha, my_coulomb)
-    my_coulomb.iscale(2)
-    error = abs(my_coulomb._array - ham.cache.load('op_coulomb')._array).max()
+    sys.get_electron_repulsion().apply_direct(dm_alpha, my_hartree)
+    my_hartree.iscale(2)
+    error = abs(my_hartree._array - ham.cache.load('op_hartree')._array).max()
     assert error < 1e-5
 
     # test orbital energies

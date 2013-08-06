@@ -68,17 +68,17 @@ def test_fock_matrix_eigen():
     lf, cache, wfn = get_water_sto3g_hf()
     nbasis = cache['olp'].nbasis
 
-    coulomb = lf.create_one_body(nbasis)
+    hartree = lf.create_one_body(nbasis)
     exchange = lf.create_one_body(nbasis)
     dm = wfn.dm_alpha
-    cache['er'].apply_direct(dm, coulomb)
+    cache['er'].apply_direct(dm, hartree)
     cache['er'].apply_exchange(dm, exchange)
 
     # Construct the Fock operator
     fock = lf.create_one_body(nbasis)
     fock.iadd(cache['kin'], 1)
     fock.iadd(cache['na'], -1)
-    fock.iadd(coulomb, 2)
+    fock.iadd(hartree, 2)
     fock.iadd(exchange, -1)
 
     # Check for convergence
@@ -122,12 +122,12 @@ def test_potential_energy_water_sto3g_hf():
 
 def test_electron_electron_water_sto3g_hf():
     lf, cache, wfn = get_water_sto3g_hf()
-    coulomb = lf.create_one_body(7)
+    hartree = lf.create_one_body(7)
     exchange = lf.create_one_body(7)
     dm = wfn.dm_alpha
-    cache['er'].apply_direct(dm, coulomb)
+    cache['er'].apply_direct(dm, hartree)
     cache['er'].apply_exchange(dm, exchange)
-    eee = 2*coulomb.expectation_value(dm) \
+    eee = 2*hartree.expectation_value(dm) \
           - exchange.expectation_value(dm)
     assert abs(eee - 38.29686853319) < 1e-4
 
@@ -150,7 +150,7 @@ def test_hartree_fock_water():
 
 
     # The SCF loop
-    coulomb = lf.create_one_body(nbasis)
+    hartree = lf.create_one_body(nbasis)
     exchange = lf.create_one_body(nbasis)
     fock = lf.create_one_body(nbasis)
     #dm = lf.create_one_body(nbasis)
@@ -158,9 +158,9 @@ def test_hartree_fock_water():
         # Construct the Fock operator
         fock.clear()
         fock.iadd(hamcore, 1)
-        cache['er'].apply_direct(wfn.dm_alpha, coulomb)
+        cache['er'].apply_direct(wfn.dm_alpha, hartree)
         cache['er'].apply_exchange(wfn.dm_alpha, exchange)
-        fock.iadd(coulomb, 2)
+        fock.iadd(hartree, 2)
         fock.iadd(exchange, -1)
         # Check for convergence
         error = lf.error_eigen(fock, cache['olp'], wfn.exp_alpha)
@@ -177,13 +177,13 @@ def test_hartree_fock_water():
     # Check the hartree-fock energy
     dm = wfn.dm_alpha
     hf1 = sum([
-        -2*coulomb.expectation_value(dm),
+        -2*hartree.expectation_value(dm),
         +1*exchange.expectation_value(dm),
     ]) + exp_alpha.energies[:wfn.nep].sum()*2
     hf2 = sum([
         2*cache['kin'].expectation_value(dm),
         -2*cache['na'].expectation_value(dm),
-        +2*coulomb.expectation_value(dm),
+        +2*hartree.expectation_value(dm),
         -exchange.expectation_value(dm),
     ])
     enn = 9.2535672047 # nucleus-nucleus interaction
