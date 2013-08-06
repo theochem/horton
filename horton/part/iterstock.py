@@ -163,5 +163,5 @@ class IterativeStockholderWPart(IterativeProatomMixin, StockholderWPart):
 
         # compute the new charge
         pseudo_population = radial_results.sum()
-        charges = self.cache.load('charges')
+        charges = self.cache.load('charges', alloc=self.system.natom, tags='o')[0]
         charges[index] = self.system.pseudo_numbers[index] - pseudo_population
