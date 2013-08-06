@@ -233,12 +233,19 @@ class HirshfeldEMixin(object):
             if coeff != 0.0:
                 output += coeff*self.get_basis(index, j, grid)
 
+        # correct if the proatom is negative in some parts
         if output.min() < 0:
-            if grid is None:
-                grid = self.get_grid(index)
-            pop_before = grid.integrate(output)
+            # use a dedicated grid for this part, which is needed in case of local+greedy.
+            pop_grid = self.get_grid(index)
+            if grid is None or pop_grid == grid:
+                pop_output = output
+            else:
+                assert grid is self.grid
+                pop_output = self.to_atomic_grid(index, output)
+            pop_before = pop_grid.integrate(pop_output)
+            # clipping is done on the original array
             np.clip(output, 1e-100, np.inf, out=output)
-            pop_after = grid.integrate(output)
+            pop_after = pop_grid.integrate(pop_output)
             error = pop_before - pop_after
             if abs(error) > 1e-5:
                 if log.do_medium:

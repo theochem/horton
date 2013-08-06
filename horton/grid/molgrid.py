@@ -39,7 +39,7 @@ __all__ = [
 
 class BeckeMolGrid(IntGrid):
     '''Molecular integration grid using Becke weights'''
-    def __init__(self, system, agspec='medium', k=3, random_rotate=True, keep_subgrids=False):
+    def __init__(self, system, agspec='medium', k=3, random_rotate=True, mode='discard'):
         '''
            **Arguments:**
 
@@ -59,20 +59,32 @@ class BeckeMolGrid(IntGrid):
            random_rotate
                 Flag to control random rotation of spherical grids.
 
-           keep_subgrids
-                By default, no (atomic) subgrids are stored. When set to True,
-                atomic subgrids will be stored. This option is mainly of
-                interest for AIM analysis.
+           mode
+                Select one of the following options regarding atomic subgrids:
+
+                * ``'discard'`` (the default) means that all information about
+                  subgrids gets discarded.
+
+                * ``'keep'`` means that a list of subgrids is kept, including
+                  the integration weights of the local grids.
+
+                * ``'only'`` means that only the subgrids are constructed and
+                  that the computation of the molecular integration weights
+                  (based on the Becke partitioning) is skipped.
         '''
+        # check if the mode argument is valid
+        if mode not in ['discard', 'keep', 'only']:
+            raise ValueError('The mode argument must be \'discard\', \'keep\' or \'only\'.')
+
         # transform agspec into a usable format
         if not isinstance(agspec, AtomicGridSpec):
             agspec = AtomicGridSpec(agspec)
         self._agspec = agspec
 
         # assign attributes
-        self._keep_subgrids = keep_subgrids
         self._random_rotate = random_rotate
         self._k = k
+        self._mode = mode
 
         # allocate memory for the grid
         size = self.agspec.get_size(system)
@@ -81,13 +93,15 @@ class BeckeMolGrid(IntGrid):
         log.mem.announce(points.nbytes + weights.nbytes)
 
         # construct the atomic grids
-        if keep_subgrids:
+        if mode != 'discard':
             atgrids = []
         else:
             atgrids = None
         offset = 0
-        # More recent covalent radii are used than in the original work of Becke.
-        cov_radii = np.array([periodic[n].cov_radius for n in system.numbers])
+
+        if mode != 'only':
+            # More recent covalent radii are used than in the original work of Becke.
+            cov_radii = np.array([periodic[n].cov_radius for n in system.numbers])
 
         # The actual work:
         with timer.section('Becke-Lebedev'):
@@ -100,9 +114,10 @@ class BeckeMolGrid(IntGrid):
                     system.numbers[i], system.pseudo_numbers[i],
                     system.coordinates[i], agspec, random_rotate,
                     points[offset:offset+atsize])
-                weights[offset:offset+atsize] = atgrid.weights
-                becke_helper_atom(points[offset:offset+atsize], weights[offset:offset+atsize], cov_radii, system.coordinates, i, self._k)
-                if keep_subgrids:
+                if mode != 'only':
+                    weights[offset:offset+atsize] = atgrid.weights
+                    becke_helper_atom(points[offset:offset+atsize], weights[offset:offset+atsize], cov_radii, system.coordinates, i, self._k)
+                if mode != 'discard':
                     atgrids.append(atgrid)
                 offset += atsize
                 pb()
@@ -135,6 +150,12 @@ class BeckeMolGrid(IntGrid):
 
     random_rotate = property(_get_random_rotate)
 
+    def _get_mode(self):
+        '''The MO of this molecular grid'''
+        return self._mode
+
+    mode = property(_get_mode)
+
     def _log_init(self):
         if log.do_medium:
             log('Initialized: %s' % self)
@@ -145,6 +166,11 @@ class BeckeMolGrid(IntGrid):
         # Cite reference
         log.cite('becke1988_multicenter', 'the multicenter integration scheme used for the molecular integration grid')
         log.cite('cordero2008', 'the covalent radii used for the Becke-Lebedev molecular integration grid')
+
+    def integrate(self, *args, **kwargs):
+        if self.mode == 'only':
+            raise NotImplementedError('When mode==\'only\', only the subgrids can be used for integration.')
+        return IntGrid.integrate(self, *args, **kwargs)
 
     def update_centers(self, system):
         if self.subgrids is None:

@@ -42,7 +42,8 @@ def check_water_hf_sto3g(scheme, expecting, needs_padb=True, **kwargs):
     rgrid = RadialGrid(rtf)
 
     # Do the partitioning
-    grid = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False, keep_subgrids=kwargs.get('greedy', True))
+    mode = 'only' if kwargs.get('local', True) else 'discard'
+    grid = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False, mode=mode)
     WPartClass = wpart_schemes[scheme]
     wpart = WPartClass(sys, grid,  **kwargs)
     names = wpart.do_all()
@@ -124,7 +125,8 @@ def check_msa_hf_lan(scheme, expecting, needs_padb=True, **kwargs):
     rgrid = RadialGrid(rtf)
 
     # Do the partitioning, both with local and global grids
-    grid = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False, keep_subgrids=kwargs.get('greedy', True))
+    mode = 'only' if kwargs.get('local', True) else 'discard'
+    grid = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False, mode=mode)
     WPartClass = wpart_schemes[scheme]
     wpart = WPartClass(sys, grid, **kwargs)
     wpart.do_charges()
