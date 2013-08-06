@@ -42,8 +42,7 @@ def test_solve_poisson_becke_n2():
     for i in xrange(mol.natom):
         atgrid = molgrid.subgrids[i]
         end = begin + atgrid.size
-        becke_weights = np.ones(atgrid.size)
-        becke_helper_atom(molgrid.points[begin:end], becke_weights, np.ones(2), mol.coordinates, i, 3)
+        becke_weights = molgrid.becke_weights[begin:end]
         density_decomposition = atgrid.get_spherical_decomposition(rho[begin:end], becke_weights, lmax=lmaxmax)
         hartree_decomposition = solve_poisson_becke(density_decomposition)
         hds.append(hartree_decomposition)

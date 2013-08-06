@@ -105,6 +105,7 @@ class BeckeMolGrid(IntGrid):
         size = sum(agspec.get_size(self.numbers[i], self.pseudo_numbers[i]) for i in xrange(natom))
         points = np.zeros((size, 3), float)
         weights = np.zeros(size, float)
+        self._becke_weights = np.ones(size, float)
         log.mem.announce(points.nbytes + weights.nbytes)
 
         # construct the atomic grids
@@ -129,10 +130,9 @@ class BeckeMolGrid(IntGrid):
                 self.centers[i], agspec, random_rotate,
                 points[offset:offset+atsize])
             if mode != 'only':
-                weights[offset:offset+atsize] = atgrid.weights
-                becke_helper_atom(
-                    points[offset:offset+atsize], weights[offset:offset+atsize],
-                    cov_radii, self.centers, i, self._k)
+                atbecke_weights = self._becke_weights[offset:offset+atsize]
+                becke_helper_atom(points[offset:offset+atsize], atbecke_weights, cov_radii, self.centers, i, self._k)
+                weights[offset:offset+atsize] = atgrid.weights*atbecke_weights
             if mode != 'discard':
                 atgrids.append(atgrid)
             offset += atsize
@@ -212,6 +212,12 @@ class BeckeMolGrid(IntGrid):
         return self._mode
 
     mode = property(_get_mode)
+
+    def _get_becke_weights(self):
+        '''The becke weights of the grid points'''
+        return self._becke_weights
+
+    becke_weights = property(_get_becke_weights)
 
     def _log_init(self):
         if log.do_medium:

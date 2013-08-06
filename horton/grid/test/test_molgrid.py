@@ -81,6 +81,7 @@ def test_molgrid_attrs_subgrid():
     assert mg.size == 2*110*100
     assert mg.points.shape == (mg.size, 3)
     assert mg.weights.shape == (mg.size,)
+    assert mg.becke_weights.shape == (mg.size,)
     assert len(mg.subgrids) == 2
     assert mg.k == 3
     assert mg.random_rotate
@@ -111,6 +112,7 @@ def test_molgrid_attrs():
     assert mg.size == 2*110*100
     assert mg.points.shape == (mg.size, 3)
     assert mg.weights.shape == (mg.size,)
+    assert mg.becke_weights.shape == (mg.size,)
     assert mg.subgrids is None
     assert mg.k == 3
     assert mg.random_rotate

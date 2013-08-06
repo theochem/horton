@@ -24,9 +24,66 @@
 import numpy as np
 
 from horton.meanfield.gridgroup import GridObservable
+from horton.grid.molgrid import BeckeMolGrid
+from horton.grid.poisson import solve_poisson_becke
 
 
-__all__ = ['RDiracExchange', 'UDiracExchange']
+__all__ = ['RBeckeHartree', 'UBeckeHartree', 'RDiracExchange', 'UDiracExchange']
+
+
+class BeckeHartree(GridObservable):
+    def __init__(self, lmax, label='hartree_becke'):
+        self.lmax = lmax
+        GridObservable.__init__(self, label)
+
+    def _update_pot(self, cache, grid):
+        '''Recompute an Hartree potential if invalid
+
+           cache
+                A cache instance in which the potential is stored.
+
+           grid
+                The integration grid.
+        '''
+        # This only works under a few circumstances
+        if not isinstance(grid, BeckeMolGrid):
+            raise TypeError('The BeckeHatree term only works for Becke-Lebedev molecular integration grids')
+        if grid.mode != 'keep':
+            raise TypeError('The mode option of the molecular grid must be \'keep\'.')
+
+        pot, new = cache.load('pot_%s' % self.label, alloc=grid.size)
+        if new:
+            rho = cache['rho_full']
+            # Construct spherical decompositions of atomic densities, derive
+            # hartree potentials and evaluate
+            begin = 0
+            pot[:] = 0
+            for atgrid in grid.subgrids:
+                end = begin + atgrid.size
+                becke_weights = grid.becke_weights[begin:end]
+                density_decomposition = atgrid.get_spherical_decomposition(rho[begin:end], becke_weights, lmax=self.lmax)
+                hartree_decomposition = solve_poisson_becke(density_decomposition)
+                grid.eval_decomposition(hartree_decomposition, atgrid.center, pot)
+                begin = end
+        return pot
+
+    def compute(self, cache, grid):
+        pot = self._update_pot(cache, grid)
+        rho = cache['rho_full']
+        return 0.5*grid.integrate(pot, rho)
+
+
+class RBeckeHartree(BeckeHartree):
+    def add_pot(self, cache, grid, dpot_alpha):
+        pot = self._update_pot(cache, grid)
+        dpot_alpha += pot
+
+
+class UBeckeHartree(BeckeHartree):
+    def add_pot(self, cache, grid, dpot_alpha, dpot_beta):
+        pot = self._update_pot(cache, grid)
+        dpot_alpha += pot
+        dpot_beta += pot
 
 
 class DiracExchange(GridObservable):
