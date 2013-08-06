@@ -347,8 +347,6 @@ class WPart(Part):
            local
                 If ``True``: use the proper atomic grid for each AIM integral.
                 If ``False``: use the entire molecular grid for each AIM integral.
-                When set to ``True``, certain pairwise integrals are done with
-                two atomic grids if needed.
 
            epsilon
                 Allow errors on the computed electron density of this magnitude
