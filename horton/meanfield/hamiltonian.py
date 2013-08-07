@@ -132,6 +132,7 @@ class Hamiltonian(object):
         log('%50s  %20.12f' % ('nn', self.system.extra['energy_nn']))
         log('%50s  %20.12f' % ('total', self.system.extra['energy']))
         log.hline()
+        log.blank()
 
     def compute_fock(self, fock_alpha, fock_beta):
         '''Compute alpha (and beta) Fock matrix(es).

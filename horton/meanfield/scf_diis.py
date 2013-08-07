@@ -1,0 +1,357 @@
+# -*- coding: utf-8 -*-
+# Horton is a development platform for electronic structure methods.
+# Copyright (C) 2011-2013 Toon Verstraelen <Toon.Verstraelen@UGent.be>
+#
+# This file is part of Horton.
+#
+# Horton is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 3
+# of the License, or (at your option) any later version.
+#
+# Horton is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>
+#
+#--
+'''Abstract DIIS code used by the different DIIS implementations'''
+
+
+import numpy as np
+
+from horton.log import log
+from horton.exceptions import NoSCFConvergence
+from horton.meanfield.convergence import compute_commutator
+
+
+__all__ = []
+
+
+def converge_scf_diis_cs(ham, DIISHistoryClass, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=True, skip_energy=False):
+    '''Minimize the energy of the closed-shell wavefunction with EDIIS
+
+       **Arguments:**
+
+       ham
+            A Hamiltonian instance.
+
+       DIISHistoryClass
+            A DIIS history class.
+
+       **Optional arguments:**
+
+       maxiter
+            The maximum number of iterations. When set to None, the SCF loop
+            will go one until convergence is reached.
+
+       threshold
+            The convergence threshold for the wavefunction
+
+       prune_old_states
+            When set to True, old states are pruned from the history when their
+            coefficient is zero. Pruning starts at the oldest state and stops
+            as soon as a state is encountered with a non-zero coefficient. Even
+            if some newer states have a zero coefficient.
+
+       skip_energy
+            When set to True, the final energy is not computed. Note that some
+            DIIS variants need to compute the energy anyway. for these methods
+            this option is irrelevant.
+
+       **Raises:**
+
+       NoSCFConvergence
+            if the convergence criteria are not met within the specified number
+            of iterations.
+    '''
+    # allocated and define some one body operators
+    lf = ham.system.lf
+    wfn = ham.system.wfn
+    overlap = ham.system.get_overlap()
+    history = DIISHistoryClass(lf, nvector, overlap)
+    fock = lf.create_one_body()
+    dm = lf.create_one_body()
+
+    # Get rid of outdated stuff
+    ham.clear()
+
+    if log.do_medium:
+        log('Starting restricted closed-shell %s-SCF' % history.name)
+        log.hline()
+        log('Iter  Error(alpha) CN(alpha)  Last(alpha) nv Method          Energy       Change')
+        log.hline()
+
+    converged = False
+    counter = 0
+    while maxiter is None or counter < maxiter:
+        # Construct the Fock operator from scratch:
+        if history.nused == 0:
+            # Update the Fock matrix
+            fock.clear()
+            ham.compute_fock(fock, None)
+            # Put this state also in the history
+            energy = ham.compute() if history.need_energy else None
+            # Add the current fock+dm pair to the history
+            error = history.add(energy, wfn.dm_alpha, fock)
+            if log.do_high:
+                log('          DIIS add')
+            if error < threshold:
+                converged = True
+                break
+            if log.do_high:
+                log.blank()
+            if log.do_medium:
+                energy_str = ' '*20 if energy is None else '% 20.13f' % energy
+                log('%4i %12.5e                         %2i   %20s' % (
+                    counter, error, history.nused, energy_str
+                ))
+            if log.do_high:
+                log.blank()
+
+        # Construct the new DM (regular SCF step)
+        wfn.clear()
+        wfn.update_exp(fock, overlap)
+        ham.clear()
+
+        # Construct the Fock operator for the new DM
+        fock.clear()
+        energy = ham.compute() if history.need_energy else None
+        ham.compute_fock(fock, None)
+
+        # Write intermediate results to checkpoint
+        ham.system.update_chk('wfn')
+
+        # Add the current (dm, fock) pair to the history
+        if log.do_high:
+            log('          DIIS add')
+        error = history.add(energy, wfn.dm_alpha, fock)
+
+        # break when converged
+        if error < threshold:
+            converged = True
+            break
+
+        if log.do_high:
+            log.blank()
+        if log.do_medium:
+            energy_str = ' '*20 if energy is None else '% 20.13f' % energy
+            log('%4i %12.5e                         %2i   %20s' % (
+                counter, error, history.nused, energy_str
+            ))
+        if log.do_high:
+            log.blank()
+
+        # get extra/intra-polated Fock matrix
+        energy_approx, coeffs, cn, method = history.solve(dm, fock)
+        if energy_approx is not None:
+            energy_change = energy_approx - min(state.energy for state in history.stack)
+        else:
+            energy_change = None
+
+        # log
+        if log.do_high:
+            log('          DIIS history            fn         coeff         id')
+            fns = history.get_fns()
+            for i in xrange(history.nused):
+                log('          DIIS history  %12.7f  %12.7f   %8i' % (fns[i], coeffs[i], history.stack[i].identity))
+            log.blank()
+
+        if log.do_medium:
+            change_str = ' '*10 if energy_change is None else '% 12.7f' % energy_change
+            log('%4i              %10.3e %12.7f %2i %s                      %12s' % (
+                counter, cn, coeffs[-1], history.nused, method,
+                change_str
+            ))
+
+        if log.do_high:
+            log.blank()
+
+        # shrink in case of an ill conditioned history
+        if (energy_change is not None and energy_change > 0) or coeffs[-1] < 1e-3 or cn > 1e8:
+            if log.do_high:
+                log('          DIIS ill history -> drop %i' % history.stack[0].identity)
+            history.shrink()
+            if history.nused > 0:
+                history.shrink()
+        elif prune_old_states:
+            # get rid of old states with zero coeff
+            for i in xrange(history.nused):
+                if coeffs[i] == 0.0:
+                    if log.do_high:
+                        log('          DIIS insignificant -> drop %i' % history.stack[i].identity)
+                    history.shrink()
+                else:
+                    break
+
+        # counter
+        counter += 1
+
+    if log.do_medium:
+        if converged:
+            log('%4i %12.5e (converged)' % (counter, error))
+        log.blank()
+
+    if not skip_energy or history.need_energy:
+        if not history.need_energy:
+            ham.compute()
+        if log.do_medium:
+            ham.log_energy()
+
+    if not converged:
+        raise NoSCFConvergence
+
+
+class DIISState(object):
+    '''A single record (vector) in a DIIS history object.'''
+    def __init__(self, lf, work, overlap):
+        '''
+           **Arguments:**
+
+           lf
+                The LinalgFactor used to create the one-body operators.
+
+           work
+                A one body operator to be used as a temporary variable. This
+                object is allocated by the history object.
+
+           overlap
+                The overlap matrix.
+        '''
+        # Not all of these need to be used.
+        self.work = work
+        self.overlap = overlap
+        self.energy = np.nan
+        self.norm = np.nan
+        self.dm = lf.create_one_body()
+        self.fock = lf.create_one_body()
+        self.commutator = lf.create_one_body()
+        self.identity = None # every state has a different id.
+
+    def clear(self):
+        '''Reset this record.'''
+        self.energy = np.nan
+        self.norm = np.nan
+        self.dm.clear()
+        self.fock.clear()
+        self.commutator.clear()
+
+    def assign(self, identity, energy, dm, fock):
+        '''Assign a new state.
+
+           **Arguments:**
+
+           identity
+                A unique id for the new state.
+
+           energy
+                The energy of the new state.
+
+           dm
+                The density matrix of the new state.
+
+           fock
+                The Fock matrix of the new state.
+        '''
+        self.identity = identity
+        self.energy = energy
+        self.dm.assign(dm)
+        self.fock.assign(fock)
+        compute_commutator(dm, fock, self.overlap, self.work, self.commutator)
+        self.norm = self.commutator.expectation_value(self.commutator)
+
+
+class DIISHistory(object):
+    '''A base class of DIIS histories'''
+    name = None
+    need_energy = None
+
+    def __init__(self, lf, nvector, overlap, dots_matrices):
+        '''
+           **Arguments:**
+
+           lf
+                The LinalgFactor used to create the one-body operators.
+
+           nvector
+                The maximum size of the history.
+
+           overlap
+                The overlap matrix of the system.
+
+           dots_matrices
+                Matrices in which dot products will be stored
+
+           **Useful attributes:**
+
+           used
+                The actual number of vectors in the history.
+        '''
+        self.work = lf.create_one_body()
+        self.stack = [DIISState(lf, self.work, overlap) for i in xrange(nvector)]
+        self.overlap = overlap
+        self.dots_matrices = dots_matrices
+        self.nused = 0
+        self.idcounter = 0
+        self.commutator = lf.create_one_body()
+
+    def _get_nvector(self):
+        '''The maximum size of the history'''
+        return len(self.stack)
+
+    nvector = property(_get_nvector)
+
+    def shrink(self):
+        '''Remove the oldest item from the history'''
+        self.nused -= 1
+        state = self.stack.pop(0)
+        state.clear()
+        self.stack.append(state)
+        for dots in self.dots_matrices:
+            dots[:-1] = dots[1:]
+            dots[:,:-1] = dots[:,1:]
+            dots[-1] = np.nan
+            dots[:,-1] = np.nan
+
+    def add(self, energy, dm, fock):
+        '''Add new state to the history.
+
+           **Arguments:**
+
+           energy
+                The energy of the new state.
+
+           dm
+                The density matrix of the new state.
+
+           fock
+                The Fock matrix of the new state.
+        '''
+        # There must be a free spot
+        if self.nused == self.nvector:
+            self.shrink()
+
+        # assign dm and fock
+        state = self.stack[self.nused]
+        state.assign(self.idcounter, energy, dm, fock)
+        self.idcounter += 1
+
+        # prepare for next iteration
+        self.nused += 1
+        return np.sqrt(state.norm)
+
+    def _build_combinations(self, coeffs, dm_output, fock_output):
+        '''Construct a linear combination of density/fock matrices'''
+        if dm_output is not None:
+            self._linear_combination(coeffs, [self.stack[i].dm for i in xrange(self.nused)], dm_output)
+        if fock_output is not None:
+            self._linear_combination(coeffs, [self.stack[i].fock for i in xrange(self.nused)], fock_output)
+
+    def _linear_combination(self, coeffs, ops, output):
+        '''Make a linear combination of one-body objects'''
+        output.clear()
+        for i in xrange(self.nused):
+            output.iadd(ops[i], factor=coeffs[i])

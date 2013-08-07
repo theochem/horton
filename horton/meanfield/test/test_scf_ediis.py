@@ -18,22 +18,16 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Definition of all excpetions in Horton'''
 
 
-class SymmetryError(Exception):
-    '''Exception raised when some symmetry algorithm fails'''
-    pass
+import numpy as np
+from horton import *
+from horton.meanfield.test.common import check_scf_hf_cs_hf, check_scf_water_cs_hfs
 
 
-class ElectronCountError(ValueError):
-    '''Exception raised when a negative number of electron is encountered, or
-       when more electrons than basis functions are requested.
-    '''
-    pass
+def test_scf_ediis_cs_hf():
+    check_scf_hf_cs_hf(SCFWrapper('ediis', threshold=1e-7, nvector=20))
 
 
-class NoSCFConvergence(Exception):
-    '''Exception raised when an SCF algorithm does not reach the convergence
-       threshold in the specified number of iterations'''
-    pass
+def test_scf_ediis_cs_hfs():
+    check_scf_water_cs_hfs(SCFWrapper('ediis', threshold=1e-6, nvector=20))

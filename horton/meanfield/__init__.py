@@ -22,6 +22,7 @@
 
 
 from horton.meanfield.builtin import *
+from horton.meanfield.convergence import *
 from horton.meanfield.core import *
 from horton.meanfield.cext import *
 from horton.meanfield.guess import *
@@ -31,4 +32,9 @@ from horton.meanfield.linear import *
 from horton.meanfield.observable import *
 from horton.meanfield.project import *
 from horton.meanfield.scf import *
+from horton.meanfield.scf_oda import *
+from horton.meanfield.scf_cdiis import *
+from horton.meanfield.scf_ediis import *
+from horton.meanfield.scf_ediis2 import *
+from horton.meanfield.scf_wrapper import *
 from horton.meanfield.wfn import *

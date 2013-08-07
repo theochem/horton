@@ -130,9 +130,9 @@ def test_custom_grid_linear_observable():
 
     # Without perturbation
     ham = Hamiltonian(sys, [HartreeFockExchange()])
-    assert convergence_error(ham) > 1e-8
+    assert convergence_error_eigen(ham) > 1e-8
     converge_scf(ham)
-    assert convergence_error(ham) < 1e-8
+    assert convergence_error_eigen(ham) < 1e-8
     energy0 = ham.compute()
 
     # Construct some becke weights for the first atom and use it as a potential.
@@ -152,9 +152,9 @@ def test_custom_grid_linear_observable():
             return operator
         perturbation = CustomLinearObservable('pert', get_operator)
         ham = Hamiltonian(sys, [HartreeFockExchange(), perturbation])
-        assert convergence_error(ham) > 1e-8
+        assert convergence_error_eigen(ham) > 1e-8
         converge_scf_oda(ham)
-        assert convergence_error(ham) < 1e-8
+        assert convergence_error_eigen(ham) < 1e-8
         energy1 = ham.compute()
         energy1 -= sys.extra['energy_pert']
 

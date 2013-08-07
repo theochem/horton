@@ -23,7 +23,10 @@
 from horton import *
 
 
-__all__ = ['check_cubic_cs_wrapper', 'check_cubic_os_wrapper']
+__all__ = [
+    'check_cubic_cs_wrapper', 'check_cubic_os_wrapper',
+    'check_scf_hf_cs_hf', 'check_scf_water_cs_hfs',
+]
 
 
 def check_cubic_cs_wrapper(ham, dm0, dm1, do_plot=False):
@@ -87,3 +90,73 @@ def check_cubic_os_wrapper(ham, dma0, dmb0, dma1, dmb1, do_plot=False):
     g1 = (ev_11 - ev_10)
 
     check_cubic_os(ham, dma0, dmb0, dma1, dmb1, e0, e1, g0, g1, do_plot)
+
+
+@log.with_level(log.high)
+def check_scf_hf_cs_hf(scf_wrapper):
+    fn_fchk = context.get_fn('test/hf_sto3g.fchk')
+    sys = System.from_file(fn_fchk)
+
+    guess_hamiltonian_core(sys)
+    ham = Hamiltonian(sys, [HartreeFockExchange()])
+    assert scf_wrapper.convergence_error(ham) > scf_wrapper.kwargs['threshold']
+    scf_wrapper(ham)
+    assert scf_wrapper.convergence_error(ham) < scf_wrapper.kwargs['threshold']
+
+    # test orbital energies
+    expected_energies = np.array([
+        -2.59083334E+01, -1.44689996E+00, -5.57467136E-01, -4.62288194E-01,
+        -4.62288194E-01, 5.39578910E-01,
+    ])
+    assert abs(sys.wfn.exp_alpha.energies - expected_energies).max() < 1e-5
+
+    ham.compute()
+    # compare with g09
+    assert abs(sys.extra['energy'] - -9.856961609951867E+01) < 1e-8
+    assert abs(sys.extra['energy_kin'] - 9.766140786239E+01) < 2e-7
+    assert abs(sys.extra['energy_hartree'] + sys.extra['energy_exchange_hartree_fock'] - 4.561984106482E+01) < 1e-7
+    assert abs(sys.extra['energy_ne'] - -2.465756615329E+02) < 1e-6
+    assert abs(sys.extra['energy_nn'] - 4.7247965053) < 1e-8
+
+
+@log.with_level(log.high)
+def check_scf_water_cs_hfs(scf_wrapper):
+    fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
+    sys = System.from_file(fn_fchk)
+
+    grid = BeckeMolGrid(sys, random_rotate=False)
+    ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
+
+    # The convergence should be reasonable, not perfect because of limited
+    # precision in Gaussian fchk file and different integration grids:
+    assert convergence_error_eigen(ham) < 3e-5
+
+    # The energies should also be in reasonable agreement. Repeated to check for
+    # stupid bugs
+    for i in xrange(2):
+        ham.clear()
+        ham.compute()
+        expected_energies = np.array([
+            -1.83691041E+01, -8.29412411E-01, -4.04495188E-01, -1.91740814E-01,
+            -1.32190590E-01, 1.16030419E-01, 2.08119657E-01, 9.69825207E-01,
+            9.99248500E-01, 1.41697384E+00, 1.47918828E+00, 1.61926596E+00,
+            2.71995350E+00
+        ])
+
+        assert abs(sys.wfn.exp_alpha.energies - expected_energies).max() < 2e-4
+        assert abs(sys.extra['energy_ne'] - -1.977921986200E+02) < 1e-7
+        assert abs(sys.extra['energy_kin'] - 7.525067610865E+01) < 1e-9
+        assert abs(sys.extra['energy_hartree'] + sys.extra['energy_exchange_dirac'] - 3.864299848058E+01) < 2e-4
+        assert abs(sys.extra['energy'] - -7.474134898935590E+01) < 2e-4
+        assert abs(sys.extra['energy_nn'] - 9.1571750414) < 2e-8
+
+    # Converge from scratch
+    guess_hamiltonian_core(sys)
+    assert scf_wrapper.convergence_error(ham) > scf_wrapper.kwargs['threshold']
+    scf_wrapper(ham)
+    assert scf_wrapper.convergence_error(ham) < scf_wrapper.kwargs['threshold']
+
+    assert abs(sys.extra['energy_ne'] - -1.977921986200E+02) < 1e-4
+    assert abs(sys.extra['energy_kin'] - 7.525067610865E+01) < 1e-4
+    assert abs(sys.extra['energy_hartree'] + sys.extra['energy_exchange_dirac'] - 3.864299848058E+01) < 2e-4
+    assert abs(sys.extra['energy'] - -7.474134898935590E+01) < 2e-4
