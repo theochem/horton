@@ -40,15 +40,15 @@ class LibXCEnergy(Observable):
         log.cite('marques2012', 'using LibXC, the library of exchange and correlation functionals')
         Observable.__init__(self, 'libxc_%s' % name)
 
-    def _update_operator(self):
+    def _update_operator(self, postpone_grid=False):
         raise NotImplementedError
 
-    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1):
-        # TODO: move this above compute, also in all other classes
-        self._update_operator()
-        fock_alpha.iadd(self.cache.load('op_libxc_%s_alpha' % self._name), scale)
-        if isinstance(self.system.wfn, UnrestrictedWFN):
-            fock_beta.iadd(self.cache.load('op_libxc_%s_beta' % self._name, ), scale)
+    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1, postpone_grid=False):
+        self._update_operator(postpone_grid)
+        if not postpone_grid:
+            fock_alpha.iadd(self.cache.load('op_libxc_%s_alpha' % self._name), scale)
+            if isinstance(self.system.wfn, UnrestrictedWFN):
+                fock_beta.iadd(self.cache.load('op_libxc_%s_beta' % self._name, ), scale)
 
 
 class LibXCLDA(LibXCEnergy):
@@ -66,7 +66,7 @@ class LibXCLDA(LibXCEnergy):
         LibXCEnergy.__init__(self, 'lda_' + name.lower())
 
     @timer.with_section('LDA pot')
-    def _update_operator(self):
+    def _update_operator(self, postpone_grid=False):
         if isinstance(self.system.wfn, RestrictedWFN):
             # In the closed-shell case, libxc expects the total density as input
             # and returns the potential for the alpha electrons.
@@ -75,12 +75,7 @@ class LibXCLDA(LibXCEnergy):
                 rho = self.update_rho('full')
                 self._libxc_wrapper.compute_lda_vxc_unpol(rho, pot)
 
-            # TODO: in the Hamiltonian class, all the grids should be added
-            # and converted only once to a fock operator
-            # Create/update the one-body operator based on the potential on the grid.
-            operator, new = self.cache.load('op_libxc_%s_alpha' % self._name, alloc=self.system.lf.create_one_body)
-            if new:
-                self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, pot, operator)
+            self._handle_dpot(pot, postpone_grid, 'op_libxc_%s_alpha' % self._name, 'alpha')
         else:
             # In case of spin-polarized computations, alpha and beta densities
             # go in and the alpha and beta potentials come out of  it.
@@ -89,16 +84,8 @@ class LibXCLDA(LibXCEnergy):
                 rho_both = self.update_rho('both')
                 self._libxc_wrapper.compute_lda_vxc_pol(rho_both, pot_both)
 
-            # TODO: in the Hamiltonian class, all the grids should be added
-            # and converted only once to a fock operator
-            # Create/update the one-body operator based on the potential on the grid.
-            operator_alpha, new_alpha = self.cache.load('op_libxc_%s_alpha' % self._name, alloc=self.system.lf.create_one_body)
-            if new_alpha:
-                self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, pot_both[:,0], operator_alpha)
-
-            operator_beta, new_beta = self.cache.load('op_libxc_%s_beta' % self._name, alloc=self.system.lf.create_one_body)
-            if new_beta:
-                self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, pot_both[:,1], operator_beta)
+            self._handle_dpot(pot_both[:,0], postpone_grid, 'op_libxc_%s_alpha' % self._name, 'alpha')
+            self._handle_dpot(pot_both[:,1], postpone_grid, 'op_libxc_%s_beta' % self._name, 'beta')
 
     @timer.with_section('LDA edens')
     def compute(self):
@@ -135,11 +122,11 @@ class LibXCGGA(LibXCEnergy):
         LibXCEnergy.__init__(self, 'gga_' + name.lower())
 
     @timer.with_section('GGA pot')
-    def _update_operator(self):
+    def _update_operator(self, postpone_grid=False):
         if isinstance(self.system.wfn, RestrictedWFN):
             dpot, newd = self.cache.load('dpot_libxc_%s_alpha' % self._name, alloc=self.grid.size)
-            spot, newt = self.cache.load('spot_libxc_%s_alpha' % self._name, alloc=self.grid.size)
-            if newd or newt:
+            spot, news = self.cache.load('spot_libxc_%s_alpha' % self._name, alloc=self.grid.size)
+            if newd or news:
                 rho = self.update_rho('full')
                 sigma = self.update_sigma('full')
                 self._libxc_wrapper.compute_gga_vxc_unpol(rho, sigma, dpot, spot)
@@ -150,11 +137,8 @@ class LibXCGGA(LibXCEnergy):
                 np.multiply(grad_rho, spot.reshape(-1,1), out=gpot)
                 gpot *= 2
 
-            # TODO: in the Hamiltonian class, all the grids should be added
-            operator, new = self.cache.load('op_libxc_%s_alpha' % self._name, alloc=self.system.lf.create_one_body)
-            if new:
-                self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, dpot, operator)
-                self.system.compute_grid_gradient_fock(self.grid.points, self.grid.weights, gpot, operator)
+            self._handle_dpot(dpot, postpone_grid, 'op_libxc_%s_alpha' % self._name, 'alpha')
+            self._handle_gpot(gpot, postpone_grid, 'op_libxc_%s_alpha' % self._name, 'alpha')
         else:
             dpot_both, newd = self.cache.load('dpot_libxc_%s_both' % self._name, alloc=(self.grid.size, 2))
             spot_all, newt = self.cache.load('spot_libxc_%s_all' % self._name, alloc=(self.grid.size, 3))
@@ -175,16 +159,10 @@ class LibXCGGA(LibXCEnergy):
                 gpot_beta[:] = (2*spot_all[:,2].reshape(-1,1))*self.update_grad_rho('beta')
                 gpot_beta[:] += (spot_all[:,1].reshape(-1,1))*self.update_grad_rho('alpha')
 
-            # TODO: in the Hamiltonian class, all the grids should be added
-            operator_alpha, new = self.cache.load('op_libxc_%s_alpha' % self._name, alloc=self.system.lf.create_one_body)
-            if new:
-                self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, dpot_both[:,0], operator_alpha)
-                self.system.compute_grid_gradient_fock(self.grid.points, self.grid.weights, gpot_alpha, operator_alpha)
-
-            operator_beta, new = self.cache.load('op_libxc_%s_beta' % self._name, alloc=self.system.lf.create_one_body)
-            if new:
-                self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, dpot_both[:,1], operator_beta)
-                self.system.compute_grid_gradient_fock(self.grid.points, self.grid.weights, gpot_beta, operator_beta)
+            self._handle_dpot(dpot_both[:,0], postpone_grid, 'op_libxc_%s_alpha' % self._name, 'alpha')
+            self._handle_dpot(dpot_both[:,1], postpone_grid, 'op_libxc_%s_beta' % self._name, 'beta')
+            self._handle_gpot(gpot_alpha, postpone_grid, 'op_libxc_%s_alpha' % self._name, 'alpha')
+            self._handle_gpot(gpot_beta, postpone_grid, 'op_libxc_%s_beta' % self._name, 'beta')
 
     @timer.with_section('GGA edens')
     def compute(self):

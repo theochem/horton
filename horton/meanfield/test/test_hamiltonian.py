@@ -70,18 +70,19 @@ def test_energy_n2_hfs_sto3g():
     assert abs(sys.extra['energy_nn'] - 23.3180604505) < 3e-9
 
 
-    # Test if the grid potential data is properly converted into an operator:
-    ev1 = grid.integrate(ham.cache.load('pot_exchange_dirac_alpha'), ham.cache.load('rho_alpha'))
-    dma = sys.lf.create_one_body()
-    ev2 = ham.cache.load('op_exchange_dirac_alpha').expectation_value(sys.wfn.dm_alpha)
+    # Test if the grid potential data can be properly converted into an operator:
+    pot = ham.cache.load('pot_exchange_dirac_alpha')
+    ev1 = grid.integrate(pot, ham.cache.load('rho_alpha'))
+    op = sys.lf.create_one_body()
+    sys.compute_grid_density_fock(grid.points, grid.weights, pot, op)
+    ev2 = op.expectation_value(sys.wfn.dm_alpha)
     assert abs(ev1 - ev2) < 1e-10
+    # check symmetry
+    op.check_symmetry()
 
     # When repeating, we should get the same
     ham.compute()
     assert abs(sys.extra['energy'] - -106.205213597) < 1e-4
-
-    # check symmetry
-    ham.cache.load('op_exchange_dirac_alpha').check_symmetry()
 
 
 def test_fock_n2_hfs_sto3g():
