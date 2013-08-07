@@ -64,7 +64,6 @@ class StockHolderMixin(object):
 
     def get_proatom_spline(self, index, *args, **kwargs):
         # Get the radial density
-        number = self.system.numbers[index]
         rho = self.get_proatom_rho(index, *args, **kwargs)
 
         # Double check and fix if needed

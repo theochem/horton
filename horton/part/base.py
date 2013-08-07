@@ -292,7 +292,6 @@ class Part(JustOnceClass):
             self.do_partitioning()
             for i in xrange(self._system.natom):
                 # 1) Define a 'window' of the integration grid for this atom
-                number = self._system.numbers[i]
                 center = self._system.coordinates[i]
                 grid = self.get_grid(i)
 

@@ -68,7 +68,6 @@ def get_fake_co():
     ugrid = UniformGrid(origin, rvecs, shape, np.ones(3, int))
 
     moldens = np.zeros(ugrid.shape)
-    tmp = np.zeros(ugrid.shape)
     setup = [
         (0, {+1: 0.5, 0: 0.4, -1: 0.1}),
         (1, {+1: 0.1, 0: 0.4, -1: 0.5}),
@@ -82,7 +81,7 @@ def get_fake_co():
     return sys, ugrid, moldens, proatomdb
 
 
-def get_fake_pseudo_oo(smooth=False):
+def get_fake_pseudo_oo():
     # Define system
     numbers = np.array([8, 8])
     coordinates = np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 2.132]])
@@ -100,7 +99,6 @@ def get_fake_pseudo_oo(smooth=False):
     ugrid = UniformGrid(origin, rvecs, shape, np.ones(3, int))
 
     moldens = np.zeros(ugrid.shape)
-    tmp = np.zeros(ugrid.shape)
     setup = [
         (0, {+1: 0.5, 0: 0.4, -1: 0.1}),
         (1, {+1: 0.1, 0: 0.4, -1: 0.5}),
