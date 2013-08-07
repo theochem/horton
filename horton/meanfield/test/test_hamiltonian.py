@@ -94,13 +94,13 @@ def test_fock_n2_hfs_sto3g():
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
-    assert convergence_error(ham) < 1e-5
+    assert convergence_error_eigen(ham) < 1e-5
 
     # Converge from scratch
     guess_hamiltonian_core(sys)
-    assert convergence_error(ham) > 1e-8
+    assert convergence_error_eigen(ham) > 1e-8
     converge_scf(ham)
-    assert convergence_error(ham) < 1e-8
+    assert convergence_error_eigen(ham) < 1e-8
 
     # test orbital energies
     expected_energies = np.array([
@@ -129,13 +129,13 @@ def test_fock_h3_hfs_321g():
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
-    assert convergence_error(ham) < 1e-6
+    assert convergence_error_eigen(ham) < 1e-6
 
     # Converge from scratch
     guess_hamiltonian_core(sys)
-    assert convergence_error(ham) > 1e-8
+    assert convergence_error_eigen(ham) > 1e-8
     converge_scf(ham)
-    assert convergence_error(ham) < 1e-8
+    assert convergence_error_eigen(ham) < 1e-8
 
     # test orbital energies
     expected_energies = np.array([
@@ -180,9 +180,9 @@ def test_custom_observable():
 
     # Without perturbation
     ham = Hamiltonian(sys, [HartreeFockExchange()])
-    assert convergence_error(ham) > 1e-8
+    assert convergence_error_eigen(ham) > 1e-8
     converge_scf(ham)
-    assert convergence_error(ham) < 1e-8
+    assert convergence_error_eigen(ham) < 1e-8
     energy0 = ham.compute()
 
     # Construct a perturbation based on the Mulliken AIM operator
@@ -204,9 +204,9 @@ def test_custom_observable():
         perturbation = CustomLinearObservable('pert', tmp)
         # Hamiltonian
         ham = Hamiltonian(sys, [HartreeFockExchange(), perturbation])
-        assert convergence_error(ham) > 1e-8
+        assert convergence_error_eigen(ham) > 1e-8
         converge_scf_oda(ham)
-        assert convergence_error(ham) < 1e-8
+        assert convergence_error_eigen(ham) < 1e-8
         energy1 = ham.compute()
         energy1 -= sys.extra['energy_pert']
 

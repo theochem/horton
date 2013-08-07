@@ -54,13 +54,13 @@ def test_fock_n2_hfs_sto3g():
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
-    assert convergence_error(ham1) < 1e-5
+    assert convergence_error_eigen(ham1) < 1e-5
 
     # Converge from scratch
     guess_hamiltonian_core(sys)
-    assert convergence_error(ham1) > 1e-8
-    converge_scf(ham1)
-    assert convergence_error(ham1) < 1e-8
+    assert convergence_error_commutator(ham1) > 1e-8
+    converge_scf_ediis2(ham1, threshold=1e-8)
+    assert convergence_error_commutator(ham1) < 1e-8
 
     # test orbital energies
     expected_energies = np.array([
@@ -107,13 +107,13 @@ def test_hamiltonian_h3_hfs_321g():
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
-    assert convergence_error(ham1) < 1e-5
+    assert convergence_error_eigen(ham1) < 1e-5
 
     # Converge from scratch
     guess_hamiltonian_core(sys)
-    assert convergence_error(ham1) > 1e-8
+    assert convergence_error_eigen(ham1) > 1e-8
     converge_scf_oda(ham1)
-    assert convergence_error(ham1) < 1e-8
+    assert convergence_error_eigen(ham1) < 1e-8
 
     # test orbital energies
     expected_energies = np.array([
@@ -150,13 +150,13 @@ def test_co_pbe_sto3g():
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
-    assert convergence_error(ham) < 1e-5
+    assert convergence_error_eigen(ham) < 1e-5
 
     # Converge from scratch
     guess_hamiltonian_core(sys)
-    assert convergence_error(ham) > 1e-5
+    assert convergence_error_eigen(ham) > 1e-5
     converge_scf_oda(ham, threshold=1e-3)
-    assert convergence_error(ham) < 1e-5
+    assert convergence_error_eigen(ham) < 1e-5
 
     # test orbital energies
     expected_energies = np.array([
@@ -189,13 +189,13 @@ def test_h3_pbe_321g():
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
-    assert convergence_error(ham) < 2e-6
+    assert convergence_error_eigen(ham) < 2e-6
 
     # Converge from scratch
     guess_hamiltonian_core(sys)
-    assert convergence_error(ham) > 1e-5
+    assert convergence_error_eigen(ham) > 1e-5
     converge_scf_oda(ham, threshold=1e-5)
-    assert convergence_error(ham) < 1e-5
+    assert convergence_error_eigen(ham) < 1e-5
 
     # test orbital energies
     expected_energies = np.array([
