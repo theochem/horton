@@ -25,6 +25,7 @@ from horton.log import log
 from horton.cache import Cache
 from horton.meanfield.core import KineticEnergy, ExternalPotential
 from horton.meanfield.builtin import Hartree
+from horton.meanfield.wfn import UnrestrictedWFN
 
 
 __all__ = [
@@ -148,5 +149,31 @@ class Hamiltonian(object):
            In the case of a closed-shell computation, the argument fock_beta is
            ``None``.
         '''
+        # Loop over all terms and add contributions to the Fock matrix. Some
+        # terms will actually only evaluate potentials on grids and add these
+        # results to the total potential on a grid.
         for term in self.terms:
-            term.add_fock_matrix(fock_alpha, fock_beta)
+            term.add_fock_matrix(fock_alpha, fock_beta, postpone_grid=True)
+        # Collect all the total potentials and turn them into contributions
+        # for the fock matrix/matrices.
+
+        # Collect potentials for alpha electrons
+        # d = density
+        if 'dpot_total_alpha' in self.cache:
+            dpot = self.cache.load('dpot_total_alpha')
+            self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, dpot, fock_alpha)
+        # g = gradient
+        if 'gpot_total_alpha' in self.cache:
+            gpot = self.cache.load('gpot_total_alpha')
+            self.system.compute_grid_gradient_fock(self.grid.points, self.grid.weights, gpot, fock_alpha)
+
+        if isinstance(self.system.wfn, UnrestrictedWFN):
+            # Colect potentials for beta electrons
+            # d = density
+            if 'dpot_total_beta' in self.cache:
+                dpot = self.cache.load('dpot_total_beta')
+                self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, dpot, fock_beta)
+            # g = gradient
+            if 'gpot_total_beta' in self.cache:
+                gpot = self.cache.load('gpot_total_beta')
+                self.system.compute_grid_gradient_fock(self.grid.points, self.grid.weights, gpot, fock_beta)

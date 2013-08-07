@@ -53,15 +53,11 @@ class Hartree(Observable):
         else:
             return 0.5*hartree.expectation_value(self.system.wfn.dm_full)
 
-    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1):
+    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1, postpone_grid=False):
         self._update_hartree()
         hartree = self.cache.load('op_hartree')
-        if fock_beta is None:
-            # closed shell
-            fock_alpha.iadd(hartree, scale)
-        else:
-            # open shell
-            fock_alpha.iadd(hartree, scale)
+        fock_alpha.iadd(hartree, scale)
+        if isinstance(self.system.wfn, UnrestrictedWFN):
             fock_beta.iadd(hartree, scale)
 
 
@@ -91,7 +87,7 @@ class HartreeFockExchange(Observable):
             return -0.5*self.cache.load('op_exchange_hartree_fock_alpha').expectation_value(self.system.wfn.dm_alpha) \
                    -0.5*self.cache.load('op_exchange_hartree_fock_beta').expectation_value(self.system.wfn.dm_beta)
 
-    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1):
+    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1, postpone_grid=False):
         self._update_exchange()
         fock_alpha.iadd(self.cache.load('op_exchange_hartree_fock_alpha'), -self.fraction_exchange*scale)
         if fock_beta is not None:
@@ -123,7 +119,7 @@ class DiracExchange(Observable):
         self.derived_coeff = -self.coeff*(4.0/3.0)*2**(1.0/3.0)
         Observable.__init__(self, label)
 
-    def _update_exchange(self):
+    def _update_exchange(self, postpone_grid=False):
         '''Recompute the Exchange operator(s) if invalid'''
         def helper(select):
             # update grid stuff
@@ -133,24 +129,18 @@ class DiracExchange(Observable):
                 pot[:] = self.derived_coeff*rho**(1.0/3.0)
 
             # update operator stuff
-            exchange, new = self.cache.load('op_exchange_dirac_%s' % select, alloc=self.system.lf.create_one_body)
-            if new:
-                self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, pot, exchange)
+            self._handle_dpot(pot, postpone_grid, 'op_exchange_dirac_%s' % select, select)
 
         helper('alpha')
         if isinstance(self.system.wfn, UnrestrictedWFN):
             helper('beta')
 
     def compute(self):
-        self._update_exchange()
+        self._update_exchange(postpone_grid=None)
 
         def helper(select):
             pot = self.cache.load('pot_exchange_dirac_%s' % select)
             rho = self.cache.load('rho_%s' % select)
-            # TODO: this integral can also be written as an expectation value
-            # of the Fock operators, which is probably more efficient. However,
-            # as it is now, this functional does not use density matrices at
-            # all, which is also appealing.
             return self.grid.integrate(pot, rho)
 
         energy = helper('alpha')
@@ -161,8 +151,9 @@ class DiracExchange(Observable):
         energy *= 3.0/4.0
         return energy
 
-    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1):
-        self._update_exchange()
-        fock_alpha.iadd(self.cache.load('op_exchange_dirac_alpha'), scale)
-        if fock_beta is not None:
-            fock_beta.iadd(self.cache.load('op_exchange_dirac_beta'), scale)
+    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1, postpone_grid=False):
+        self._update_exchange(postpone_grid)
+        if not postpone_grid:
+            fock_alpha.iadd(self.cache.load('op_exchange_dirac_alpha'), scale)
+            if fock_beta is not None:
+                fock_beta.iadd(self.cache.load('op_exchange_dirac_beta'), scale)
