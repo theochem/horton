@@ -23,7 +23,7 @@
 
 #ifdef DEBUG
 #include <cstdio>
-#endif DEBUG
+#endif
 #include <cstring>
 #include <stdexcept>
 #include "common.h"

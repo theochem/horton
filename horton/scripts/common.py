@@ -142,7 +142,6 @@ def parse_ugrid(sgrid, cell):
         for i in xrange(3):
             shape[i] = int(np.round(lengths[i]/spacing))
             grid_rvecs[i] /= shape[i]
-        grid_cell = Cell(grid_rvecs)
         origin = np.zeros(3, float)
         pbc = np.ones(3, int)
         return UniformGrid(origin, grid_rvecs, shape, pbc)

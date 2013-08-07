@@ -129,8 +129,6 @@ def check_nuclear_attraction(fn_fchk):
     fn_log = fn_fchk[:-5] + '.log'
     sys1 = System.from_file(fn_fchk, fn_log)
     sys2 = System.from_file(fn_fchk)
-    charges = sys2.numbers.astype(float)
-    centers = sys2.coordinates
     na1 = sys1.get_nuclear_attraction()
     na2 = sys2.get_nuclear_attraction()
     mask = abs(na1._array) > 1e-5
