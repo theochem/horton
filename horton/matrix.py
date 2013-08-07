@@ -214,9 +214,6 @@ class DenseLinalgFactory(LinalgFactory):
 
            expansion
                 An expansion object containing the current orbitals/eginvectors.
-
-           epsilons
-                An array with the orbital energies.
         """
         errors = np.dot(fock._array, expansion.coeffs) \
                  - expansion.energies*np.dot(overlap._array, expansion.coeffs)

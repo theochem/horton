@@ -199,7 +199,7 @@ def converge_scf_os(ham, maxiter=128, threshold=1e-8):
 
 
 def converge_scf_oda(ham, maxiter=128, threshold=1e-6, debug=False):
-    '''Minimize the energy of the wavefunction with optinal-damping SCF
+    '''Minimize the energy of the wavefunction with optimal-damping SCF
 
        **Arguments:**
 
@@ -728,7 +728,6 @@ def convergence_error_cs(ham):
     overlap = ham.system.get_overlap()
     fock = lf.create_one_body()
     # Construct the Fock operator
-    fock.clear()
     ham.compute_fock(fock, None)
     # Compute error
     return lf.error_eigen(fock, overlap, wfn.exp_alpha)
@@ -755,8 +754,6 @@ def convergence_error_os(ham):
     fock_alpha = lf.create_one_body()
     fock_beta = lf.create_one_body()
     # Construct the Fock operators
-    fock_alpha.clear()
-    fock_beta.clear()
     ham.compute_fock(fock_alpha, fock_beta)
     # Compute errors
     error_alpha = lf.error_eigen(fock_alpha, overlap, wfn.exp_alpha)
