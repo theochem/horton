@@ -42,4 +42,5 @@ from horton.moments import *
 from horton.periodic import *
 from horton.symmetry import *
 from horton.system import *
+from horton.quadprog import *
 from horton.units import *
