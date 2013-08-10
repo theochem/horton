@@ -27,7 +27,6 @@ from horton.part.hirshfeld import *
 from horton.part.hirshfeld_i import *
 from horton.part.hirshfeld_e import *
 from horton.part.iterstock import *
-from horton.part.linalg import *
 from horton.part.mulliken import *
 from horton.part.proatomdb import *
 from horton.part.stockholder import *

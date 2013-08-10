@@ -27,7 +27,7 @@ from horton.grid.cext import CubicSpline
 from horton.log import log
 from horton.part.hirshfeld import HirshfeldWPart, HirshfeldCPart
 from horton.part.hirshfeld_i import HirshfeldIWPart, HirshfeldICPart
-from horton.part.linalg import quadratic_solver
+from horton.quadprog import QPSolver
 
 
 __all__ = ['HEBasis', 'HirshfeldEWPart', 'HirshfeldECPart']
@@ -286,16 +286,27 @@ class HirshfeldEMixin(object):
         A = A/scales/scales.reshape(-1,1)
         B /= scales
 
+        # resymmetrize A due to potential round-off errors after rescaling
+        # (minor thing)
+        A = 0.5*(A + A.T)
+
         # Find solution
         #    constraint for total population of pro-atom
-        lc_pop = (np.ones(nbasis)/scales, -charges[index])
-        #    inequality constraints to keep coefficients larger than -1.
-        lcs_par = []
+        qp_r = np.array([np.ones(nbasis)/scales])
+        qp_s = np.array([-charges[index]])
+        #    inequality constraints to keep coefficients larger than -1 or 0.
+        lower_bounds = np.zeros(nbasis)
         for j0 in xrange(nbasis):
-            lc = np.zeros(nbasis)
-            lc[j0] = 1.0/scales[j0]
-            lcs_par.append((lc, self.hebasis.get_lower_bound(index, j0)))
-        atom_propars = quadratic_solver(A, B, [lc_pop], lcs_par, rcond=0)
+            lower_bounds[j0] = self.hebasis.get_lower_bound(index, j0)*scales[j0]
+        #    call the quadratic solver with modified b due to non-zero lower bound
+        qp_a = A
+        qp_b = B - np.dot(A, lower_bounds)
+        qp_s -= np.dot(qp_r, lower_bounds)
+        qps = QPSolver(qp_a, qp_b, qp_r, qp_s)
+        qp_x = qps.find_brute()[1]
+        # convert back to atom_pars
+        atom_propars = qp_x + lower_bounds
+
         rrms = np.dot(np.dot(A, atom_propars) - 2*B, atom_propars)/C + 1
         if rrms > 0:
             rrmsd = np.sqrt(rrms)
