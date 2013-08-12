@@ -163,6 +163,7 @@ class BeckeMolGrid(IntGrid):
                 ('Size', self.size),
                 ('Switching function', 'k=%i' % self._k),
             ])
+            log.blank()
         # Cite reference
         log.cite('becke1988_multicenter', 'the multicenter integration scheme used for the molecular integration grid')
         log.cite('cordero2008', 'the covalent radii used for the Becke-Lebedev molecular integration grid')

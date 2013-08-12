@@ -431,6 +431,7 @@ cdef class GBasis:
             for i in xrange(self.ncenter):
                 deflist.append(('Center % 5i' % i, descs[i]))
             log.deflist(deflist)
+            log.blank()
 
     def get_scales(self):
         # A **copy** of the scales is returned.

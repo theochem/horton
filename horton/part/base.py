@@ -73,6 +73,8 @@ class Part(JustOnceClass):
         self._init_log_base()
         self._init_log_scheme()
         self._init_log_memory()
+        if log.do_medium:
+            log.blank()
 
     def __getitem__(self, key):
         return self.cache.load(key)
@@ -179,7 +181,7 @@ class Part(JustOnceClass):
             # compute and report usage
             estimates = self.get_memory_estimates()
             nbyte_total = 0
-            log('Coarse estimate of memory usage:')
+            log('Coarse estimate of memory usage for the partitioning:')
             log('                         Label  Memory[GB]')
             log.hline()
             for label, nlocals, nglobal in estimates:
@@ -188,6 +190,7 @@ class Part(JustOnceClass):
                 nbyte_total += nbyte
             log('%30s  %10.3f' % ('Total', nbyte_total/1024.0**3))
             log.hline()
+            log.blank()
 
     def get_memory_estimates(self):
         return [

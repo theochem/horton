@@ -31,6 +31,7 @@ __all__ = ['guess_hamiltonian_core']
 def guess_hamiltonian_core(system):
     if log.do_medium:
         log('Performing a hamiltonian core guess.')
+        log.blank()
     with timer.section('Initial Guess'):
         if isinstance(system.wfn, RestrictedWFN):
             guess_hamiltonian_core_cs(system)

@@ -415,23 +415,19 @@ class Biblio(object):
                     current.tags[tag] = value
 
     def cite(self, key, reason):
-        if (key, reason) not in self._done:
-            self._cited[key] = self._records[key]
-            self._done.add((key, reason))
-            if log.do_low:
-                log.blank()
-                log('  Please cite:& "%s" for %s.' % (key, reason))
-                log.blank()
+        reasons = self._cited.setdefault(key, set([]))
+        reasons.add(reason)
 
     def log(self):
         if log.do_low:
-            log.blank()
-            log('The following references were cited:')
+            log('When you use this computation for the preparation of a scientific pulication, cite the following references:')
             log.hline()
-            log.deflist([
-                (key, reference.format_text()) for key, reference
-                in sorted(self._cited.iteritems())
-            ])
+            for key, reasons in sorted(self._cited.iteritems()):
+                log(self._records[key].format_text())
+                log.blank()
+                for reason in reasons:
+                    log('    *&For %s.' % reason)
+                log.blank()
             log.hline()
             log('Details can be found in the file %s' % self.filename)
             log.blank()
