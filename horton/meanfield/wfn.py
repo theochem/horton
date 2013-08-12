@@ -104,6 +104,7 @@ def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None):
             ('Number of e', nel),
             ('Restricted', restricted),
         ])
+        log.blank()
 
     # Create a model for the occupation numbers
     if restricted:
@@ -286,6 +287,7 @@ class MeanFieldWFN(object):
             log('Initialized: %s' % self)
             if self.occ_model is not None:
                 self.occ_model.log()
+            log.blank()
 
     def _iter_expansions(self):
         '''Iterate over all expansion in the cache'''
