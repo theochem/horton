@@ -23,13 +23,7 @@
 from horton import *
 
 
-__all__ = ['get_some_grid', 'check_cubic_cs_wrapper', 'check_cubic_os_wrapper']
-
-
-def get_some_grid(sys):
-    rtf = ExpRTransform(2e-4, 2e1, 100)
-    rgrid = RadialGrid(rtf)
-    return BeckeMolGrid(sys, (rgrid, 110), random_rotate=False)
+__all__ = ['check_cubic_cs_wrapper', 'check_cubic_os_wrapper']
 
 
 def check_cubic_cs_wrapper(ham, dm0, dm1, do_plot=False):
