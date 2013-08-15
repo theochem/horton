@@ -39,6 +39,8 @@ __all__ = [
 
 class BeckeMolGrid(IntGrid):
     '''Molecular integration grid using Becke weights'''
+
+    @timer.with_section('Becke-Lebedev')
     def __init__(self, system, agspec='medium', k=3, random_rotate=True, mode='discard'):
         '''
            **Arguments:**
@@ -104,23 +106,22 @@ class BeckeMolGrid(IntGrid):
             cov_radii = np.array([periodic[n].cov_radius for n in system.numbers])
 
         # The actual work:
-        with timer.section('Becke-Lebedev'):
-            if log.do_medium:
-                log('Preparing Becke-Lebedev molecular integration grid.')
-            pb = log.progress(system.natom)
-            for i in xrange(system.natom):
-                atsize = agspec.get_size(system, i)
-                atgrid = AtomicGrid(
-                    system.numbers[i], system.pseudo_numbers[i],
-                    system.coordinates[i], agspec, random_rotate,
-                    points[offset:offset+atsize])
-                if mode != 'only':
-                    weights[offset:offset+atsize] = atgrid.weights
-                    becke_helper_atom(points[offset:offset+atsize], weights[offset:offset+atsize], cov_radii, system.coordinates, i, self._k)
-                if mode != 'discard':
-                    atgrids.append(atgrid)
-                offset += atsize
-                pb()
+        if log.do_medium:
+            log('Preparing Becke-Lebedev molecular integration grid.')
+        pb = log.progress(system.natom)
+        for i in xrange(system.natom):
+            atsize = agspec.get_size(system, i)
+            atgrid = AtomicGrid(
+                system.numbers[i], system.pseudo_numbers[i],
+                system.coordinates[i], agspec, random_rotate,
+                points[offset:offset+atsize])
+            if mode != 'only':
+                weights[offset:offset+atsize] = atgrid.weights
+                becke_helper_atom(points[offset:offset+atsize], weights[offset:offset+atsize], cov_radii, system.coordinates, i, self._k)
+            if mode != 'discard':
+                atgrids.append(atgrid)
+            offset += atsize
+            pb()
 
         # finish
         IntGrid.__init__(self, points, weights, atgrids)

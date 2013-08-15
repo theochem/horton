@@ -39,6 +39,7 @@ class NoSCFConvergence(Exception):
     pass
 
 
+@timer.with_section('SCF')
 def converge_scf(ham, maxiter=128, threshold=1e-8):
     '''Minimize the energy of the wavefunction with basic SCF
 
@@ -62,13 +63,12 @@ def converge_scf(ham, maxiter=128, threshold=1e-8):
             if the convergence criteria are not met within the specified number
             of iterations.
     '''
-    with timer.section('SCF'):
-        if isinstance(ham.system.wfn, RestrictedWFN):
-            converge_scf_cs(ham, maxiter, threshold)
-        elif isinstance(ham.system.wfn, UnrestrictedWFN):
-            converge_scf_os(ham, maxiter, threshold)
-        else:
-            raise NotImplementedError
+    if isinstance(ham.system.wfn, RestrictedWFN):
+        converge_scf_cs(ham, maxiter, threshold)
+    elif isinstance(ham.system.wfn, UnrestrictedWFN):
+        converge_scf_os(ham, maxiter, threshold)
+    else:
+        raise NotImplementedError
 
 
 def converge_scf_cs(ham, maxiter=128, threshold=1e-8):
@@ -198,6 +198,7 @@ def converge_scf_os(ham, maxiter=128, threshold=1e-8):
         raise NoSCFConvergence
 
 
+@timer.with_section('SCF')
 def converge_scf_oda(ham, maxiter=128, threshold=1e-6, debug=False):
     '''Minimize the energy of the wavefunction with optimal-damping SCF
 
@@ -224,13 +225,12 @@ def converge_scf_oda(ham, maxiter=128, threshold=1e-6, debug=False):
             if the convergence criteria are not met within the specified number
             of iterations.
     '''
-    with timer.section('SCF'):
-        if isinstance(ham.system.wfn, RestrictedWFN):
-            converge_scf_oda_cs(ham, maxiter, threshold, debug)
-        elif isinstance(ham.system.wfn, UnrestrictedWFN):
-            converge_scf_oda_os(ham, maxiter, threshold, debug)
-        else:
-            raise NotImplementedError
+    if isinstance(ham.system.wfn, RestrictedWFN):
+        converge_scf_oda_cs(ham, maxiter, threshold, debug)
+    elif isinstance(ham.system.wfn, UnrestrictedWFN):
+        converge_scf_oda_os(ham, maxiter, threshold, debug)
+    else:
+        raise NotImplementedError
 
 
 def find_min_cubic(f0, f1, g0, g1):
