@@ -20,7 +20,7 @@
 #--
 
 
-import os, shutil, numpy as np
+import os, shutil, numpy as np, h5py as h5
 from nose.tools import assert_raises
 
 from horton.test.common import tmpdir
@@ -138,12 +138,9 @@ def test_atgrid_medium_contents():
 
 
 def test_agspec_get_size():
-    sys = System.from_file(context.get_fn('test/water.xyz'))
     agspec = AtomicGridSpec()
-    assert agspec.get_size(sys) == 2*928 + 3754
-    assert agspec.get_size(sys, 0) == 928
-    assert agspec.get_size(sys, 1) == 3754
-    assert agspec.get_size(sys, 2) == 928
+    assert agspec.get_size(1, 1) == 928
+    assert agspec.get_size(8, 8) == 3754
 
 
 def test_atomic_grid_basics():
@@ -251,3 +248,18 @@ def test_random_rotation():
         rotmat = get_random_rotation()
         assert abs(np.dot(rotmat, rotmat.T) - np.identity(3)).max() < 1e-10
         assert abs(np.dot(rotmat.T, rotmat) - np.identity(3)).max() < 1e-10
+
+
+def test_agspec_hdf5_coarse():
+    agspec1 = AtomicGridSpec('coarse')
+    with h5.File('horton.grid.test.test_atgrid.test_agspec_hdf5_coarse', driver='core', backing_store=False) as f:
+        agspec1.to_hdf5(f)
+        agspec2 = AtomicGridSpec.from_hdf5(f, None)
+    assert sorted(agspec1.members.keys()) == sorted(agspec2.members.keys())
+    for number, cases1 in agspec1.members.iteritems():
+        cases2 = agspec2.members[number]
+        assert len(cases1) == len(cases2)
+        for case1, case2 in zip(cases1, cases2):
+            assert case1[0] == case2[0]
+            assert case1[1].rtransform.to_string() == case2[1].rtransform.to_string()
+            assert (case1[2] == case2[2]).all()
