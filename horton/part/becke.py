@@ -52,6 +52,7 @@ class BeckeWPart(WPart):
             log.cite('becke1988_multicenter', 'the use of Becke partitioning')
             log.cite('slater1964', 'the Brag-Slater radii used in the Becke partitioning')
 
+    @timer.with_section('Becke part')
     def update_at_weights(self):
         if log.do_medium:
             log('Computing Becke weights.')
@@ -70,14 +71,13 @@ class BeckeWPart(WPart):
         radii = np.array(radii)
 
         # Actual work
-        with timer.section('Becke part'):
-            pb = log.progress(self.system.natom)
-            for index in xrange(self.system.natom):
-                grid = self.get_grid(index)
-                at_weights = self.cache.load('at_weights', index, alloc=grid.shape)[0]
-                at_weights[:] = 1
-                becke_helper_atom(grid.points, at_weights, radii, self.system.coordinates, index, self._k)
-                pb()
+        pb = log.progress(self.system.natom)
+        for index in xrange(self.system.natom):
+            grid = self.get_grid(index)
+            at_weights = self.cache.load('at_weights', index, alloc=grid.shape)[0]
+            at_weights[:] = 1
+            becke_helper_atom(grid.points, at_weights, radii, self.system.coordinates, index, self._k)
+            pb()
 
     def _get_k(self):
         '''The order of the Becke switching function.'''

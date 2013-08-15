@@ -28,17 +28,17 @@ from horton.meanfield.wfn import RestrictedWFN, UnrestrictedWFN
 __all__ = ['guess_hamiltonian_core']
 
 
+@timer.with_section('Initial Guess')
 def guess_hamiltonian_core(system):
     if log.do_medium:
         log('Performing a hamiltonian core guess.')
         log.blank()
-    with timer.section('Initial Guess'):
-        if isinstance(system.wfn, RestrictedWFN):
-            guess_hamiltonian_core_cs(system)
-        elif isinstance(system.wfn, UnrestrictedWFN):
-            guess_hamiltonian_core_os(system)
-        else:
-            raise NotImplementedError
+    if isinstance(system.wfn, RestrictedWFN):
+        guess_hamiltonian_core_cs(system)
+    elif isinstance(system.wfn, UnrestrictedWFN):
+        guess_hamiltonian_core_os(system)
+    else:
+        raise NotImplementedError
 
 
 def guess_hamiltonian_core_cs(system):

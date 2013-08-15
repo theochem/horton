@@ -462,41 +462,42 @@ class System(object):
             if isinstance(value, LinalgObject) and value.nbasis != self._obasis.nbasis:
                 raise TypeError('The nbasis attribute of the cached object \'%s\' and obasis are inconsistent.' % key)
 
+    @timer.with_section('OLP integrals')
     def get_overlap(self):
         overlap, new = self.cache.load('olp', alloc=self.lf.create_one_body, tags='o')
         if new:
-            with timer.section('OLP integrals'):
-                self.obasis.compute_overlap(overlap)
-                self.update_chk('cache.olp')
+            self.obasis.compute_overlap(overlap)
+            self.update_chk('cache.olp')
         return overlap
 
+    @timer.with_section('KIN integrals')
     def get_kinetic(self):
         kinetic, new = self.cache.load('kin', alloc=self.lf.create_one_body, tags='o')
         if new:
-            with timer.section('KIN integrals'):
-                self.obasis.compute_kinetic(kinetic)
-                self.update_chk('cache.kin')
+            self.obasis.compute_kinetic(kinetic)
+            self.update_chk('cache.kin')
         return kinetic
 
+    @timer.with_section('NAI integrals')
     def get_nuclear_attraction(self):
         nuclear_attraction, new = self.cache.load('na', alloc=self.lf.create_one_body, tags='o')
         if new:
             # TODO: ghost atoms and extra charges
-            with timer.section('NAI integrals'):
-                self.obasis.compute_nuclear_attraction(self.numbers.astype(float), self.coordinates, nuclear_attraction)
-                self.update_chk('cache.na')
+            self.obasis.compute_nuclear_attraction(self.numbers.astype(float), self.coordinates, nuclear_attraction)
+            self.update_chk('cache.na')
         return nuclear_attraction
 
+    @timer.with_section('ER integrals')
     def get_electron_repulsion(self):
         electron_repulsion, new = self.cache.load('er', alloc=self.lf.create_two_body, tags='o')
         if new:
-            with timer.section('ER integrals'):
-                self.obasis.compute_electron_repulsion(electron_repulsion)
+            self.obasis.compute_electron_repulsion(electron_repulsion)
             # ER integrals are not checkpointed by default because they are too heavy.
             # Can be done manually by user if needed: ``system.update_chk('cache.er')``
             #self.update_chk('cache.er')
         return electron_repulsion
 
+    @timer.with_section('Orbitals grid')
     def compute_grid_orbitals(self, points, iorbs=None, orbs=None, select='alpha'):
         '''Compute the electron density on a grid using self.wfn as input
 
@@ -532,10 +533,10 @@ class System(object):
             orbs = np.zeros(shape, float)
         elif orbs.shape != shape:
             raise TypeError('The shape of the output array is wrong')
-        with timer.section('Orbitals grid'):
-            self.obasis.compute_grid_orbitals_exp(exp, points, iorbs, orbs)
+        self.obasis.compute_grid_orbitals_exp(exp, points, iorbs, orbs)
         return orbs
 
+    @timer.with_section('Density grid')
     def compute_grid_density(self, points, rhos=None, select='full', epsilon=0):
         '''Compute the electron density on a grid using self.wfn as input
 
@@ -567,11 +568,11 @@ class System(object):
             rhos = np.zeros(len(points), float)
         elif rhos.shape != (points.shape[0],):
             raise TypeError('The shape of the output array is wrong')
-        with timer.section('Density grid'):
-            dm = self.wfn.get_dm(select)
-            self.obasis.compute_grid_density_dm(dm, points, rhos, epsilon)
+        dm = self.wfn.get_dm(select)
+        self.obasis.compute_grid_density_dm(dm, points, rhos, epsilon)
         return rhos
 
+    @timer.with_section('Gradient grid')
     def compute_grid_gradient(self, points, gradrhos=None, select='full'):
         '''Compute the electron density on a grid using self.wfn as input
 
@@ -599,11 +600,11 @@ class System(object):
             gradrhos = np.zeros((len(points), 3), float)
         elif gradrhos.shape != (points.shape[0],3):
             raise TypeError('The shape of the output array is wrong')
-        with timer.section('Gradient grid'):
-            dm = self.wfn.get_dm(select)
-            self.obasis.compute_grid_gradient_dm(dm, points, gradrhos)
+        dm = self.wfn.get_dm(select)
+        self.obasis.compute_grid_gradient_dm(dm, points, gradrhos)
         return gradrhos
 
+    @timer.with_section('Hartree grid')
     def compute_grid_hartree(self, points, hartree=None, select='full'):
         '''Compute the hartree potential on a grid using self.wfn as input
 
@@ -631,11 +632,11 @@ class System(object):
             hartree = np.zeros(len(points), float)
         elif hartree.shape != (points.shape[0],):
             raise TypeError('The shape of the output array is wrong')
-        with timer.section('Hartree grid'):
-            dm = self.wfn.get_dm(select)
-            self.obasis.compute_grid_hartree_dm(dm, points, hartree)
+        dm = self.wfn.get_dm(select)
+        self.obasis.compute_grid_hartree_dm(dm, points, hartree)
         return hartree
 
+    @timer.with_section('ESP grid')
     def compute_grid_esp(self, points, esp=None, select='full'):
         '''Compute the esp on a grid using self.wfn as input
 
@@ -663,22 +664,21 @@ class System(object):
             esp = np.zeros(len(points), float)
         elif esp.shape != (points.shape[0],):
             raise TypeError('The shape of the output array is wrong')
-        with timer.section('ESP grid'):
-            dm = self.wfn.get_dm(select)
-            self.obasis.compute_grid_hartree_dm(dm, points, esp)
-            esp *= -1
-            compute_grid_nucpot(self.numbers, self.coordinates, points, esp)
+        dm = self.wfn.get_dm(select)
+        self.obasis.compute_grid_hartree_dm(dm, points, esp)
+        esp *= -1
+        compute_grid_nucpot(self.numbers, self.coordinates, points, esp)
         return esp
 
+    @timer.with_section('Fock grid dens')
     def compute_grid_density_fock(self, points, weights, pots, fock):
         '''See documentation self.obasis.compute_grid_density_fock'''
-        with timer.section('Fock grid dens'):
-            self.obasis.compute_grid_density_fock(points, weights, pots, fock)
+        self.obasis.compute_grid_density_fock(points, weights, pots, fock)
 
+    @timer.with_section('Fock grid grad')
     def compute_grid_gradient_fock(self, points, weights, pots, fock):
         '''See documentation self.obasis.compute_grid_gradient_fock'''
-        with timer.section('Fock grid grad'):
-            self.obasis.compute_grid_gradient_fock(points, weights, pots, fock)
+        self.obasis.compute_grid_gradient_fock(points, weights, pots, fock)
 
     def compute_nucnuc(self):
         '''Compute interaction energy of the nuclei'''
