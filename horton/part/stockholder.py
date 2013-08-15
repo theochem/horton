@@ -87,6 +87,7 @@ class StockHolderMixin(object):
         output[:] = 0.0
         self.eval_spline(index, spline, output, grid, label='proatom')
         output += 1e-100
+        assert np.isfinite(output).all()
 
     def update_at_weights(self):
         # This will reconstruct the promolecular density and atomic weights

@@ -21,13 +21,16 @@
 #--
 
 
-import sys, argparse, os
+import sys, argparse, os, numpy as np
 
-import numpy as np
 from horton import System, UniformGrid, log, Cell, angstrom, \
     compute_esp_grid_cube, dump_hdf5_low, __version__
 from horton.scripts.common import parse_h5, parse_ewald_args, store_args, \
     safe_open_h5, parse_ugrid
+
+
+# All, except underflows, is *not* fine.
+np.seterr(divide='raise', over='raise', invalid='raise')
 
 
 def parse_args():

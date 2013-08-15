@@ -21,12 +21,15 @@
 #--
 
 
-import sys, argparse, os
+import sys, argparse, os, numpy as np
 
-import numpy as np
 from horton import System, ESPCost, log, dump_hdf5_low, symmetry_analysis, \
     __version__
 from horton.scripts.common import parse_h5, store_args, safe_open_h5
+
+
+# All, except underflows, is *not* fine.
+np.seterr(divide='raise', over='raise', invalid='raise')
 
 
 def parse_args():

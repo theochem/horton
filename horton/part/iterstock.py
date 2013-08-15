@@ -155,7 +155,7 @@ class IterativeStockholderWPart(IterativeProatomMixin, StockholderWPart):
         at_weights = self.cache.load('at_weights', index)
         radial_results = atgrid.integrate(at_weights, dens, segments=atgrid.nlls)
         radial_weights = atgrid.integrate(segments=atgrid.nlls)
-        spherical_average = radial_results/radial_weights
+        spherical_average = np.clip(radial_results/radial_weights, 1e-100, np.inf)
 
         # assign as new propars
         propars = self.cache.load('propars')
