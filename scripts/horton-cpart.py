@@ -21,12 +21,16 @@
 #--
 
 
-import sys, argparse, os
+import sys, argparse, os, numpy as np
 
 from horton import System, cpart_schemes, Cell, ProAtomDB, log, \
     symmetry_analysis, UniformGrid, __version__
 from horton.scripts.common import reduce_data, store_args, parse_pbc, \
     iter_elements, safe_open_h5, write_part_output
+
+
+# All, except underflows, is *not* fine.
+np.seterr(divide='raise', over='raise', invalid='raise')
 
 
 def parse_args():

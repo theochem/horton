@@ -21,11 +21,16 @@
 #--
 
 
+import sys, argparse, numpy as np
+from glob import glob
+
 from horton import log, lebedev_laikov_npoints, ProAtomDB, angstrom, periodic, \
     AtomicGridSpec, ProAtomRecord, __version__
 from horton.scripts.atomdb import *
-import sys, argparse, numpy as np
-from glob import glob
+
+
+# All, except underflows, is *not* fine.
+np.seterr(divide='raise', over='raise', invalid='raise')
 
 
 epilog_input = '''\

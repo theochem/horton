@@ -21,9 +21,8 @@
 #--
 
 
-import sys, argparse, os
+import sys, argparse, os, numpy as np
 
-import numpy as np
 from horton import System, angstrom, setup_weights, ESPCost, log, angstrom, \
     dump_hdf5_low, __version__
 from horton.scripts.common import reduce_data, parse_ewald_args, parse_pbc, \
@@ -31,6 +30,10 @@ from horton.scripts.common import reduce_data, parse_ewald_args, parse_pbc, \
 from horton.scripts.espfit import parse_wdens, parse_wnear, parse_wfar, \
     load_rho, save_weights
 from horton.grid.cext import UniformGrid
+
+
+# All, except underflows, is *not* fine.
+np.seterr(divide='raise', over='raise', invalid='raise')
 
 
 def parse_args():

@@ -21,12 +21,15 @@
 #--
 
 
-import sys, argparse, os, csv
+import sys, argparse, os, csv, numpy as np
 
-import numpy as np
 from horton import log, __version__
 from horton.scripts.common import parse_h5, safe_open_h5
 from horton.scripts.hdf2csv import iter_datasets
+
+
+# All, except underflows, is *not* fine.
+np.seterr(divide='raise', over='raise', invalid='raise')
 
 
 epilog = '''\

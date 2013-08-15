@@ -266,7 +266,8 @@ double ZeroExtrapolation::eval_deriv_right(double x) {return 0.0;}
 
 void ExponentialExtrapolation::prepare(CubicSpline* cs) {
     x0 = cs->get_first_x();
-    if (cs->y[0] == 0.0) {
+    if (fabs(cs->y[0]) < 0.00001) {
+        // If there is no real cusp, don't care
         a0 = 0;
         b0 = 0;
     } else {
