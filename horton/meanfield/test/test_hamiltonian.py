@@ -201,9 +201,7 @@ def test_custom_observable():
         # Perturbation
         tmp = operator.copy()
         tmp.iscale(scale)
-        def get_operator():
-            return tmp
-        perturbation = CustomLinearObservable('pert', get_operator)
+        perturbation = CustomLinearObservable('pert', tmp)
         # Hamiltonian
         ham = Hamiltonian(sys, [HartreeFockExchange(), perturbation])
         assert convergence_error(ham) > 1e-8

@@ -21,38 +21,12 @@
 '''Linear energy terms (Core Hamiltonian)'''
 
 
-from horton.meanfield.observable import Observable
-from horton.meanfield.wfn import RestrictedWFN
+from horton.meanfield.linear import LinearObservable
 
 
 __all__ = [
-    'LinearObservable', 'KineticEnergy', 'ExternalPotential',
-    'CustomLinearObservable',
+    'KineticEnergy', 'ExternalPotential',
 ]
-
-
-class LinearObservable(Observable):
-    '''Base class for all observables that are linear in the density matrix
-
-       This is (technically) a special class because the Fock operator does not
-       have to be recomputed when the density matrix changes.
-    '''
-    def get_operator(self):
-        # subclasses should return the operator
-        raise NotImplementedError
-
-    def compute(self):
-        operator = self.get_operator()
-        if isinstance(self.system.wfn, RestrictedWFN):
-            return 2*operator.expectation_value(self.system.wfn.dm_alpha)
-        else:
-            return operator.expectation_value(self.system.wfn.dm_full)
-
-    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1):
-        operator = self.get_operator()
-        for fock in fock_alpha, fock_beta:
-            if fock is not None:
-                fock.iadd(operator, scale)
 
 
 class KineticEnergy(LinearObservable):
@@ -69,13 +43,3 @@ class ExternalPotential(LinearObservable):
 
     def get_operator(self):
         return self.system.get_nuclear_attraction()
-
-
-class CustomLinearObservable(LinearObservable):
-    '''This is a user-defined term that is linear in the density matrix
-
-       This term can be used to implemented perturbations by finite fields.
-    '''
-    def __init__(self, label, get_operator):
-        self.get_operator = get_operator
-        LinearObservable.__init__(self, label)
