@@ -291,6 +291,14 @@ class TimerGroup(object):
         finally:
             self._stop(label)
 
+    def with_section(self, label):
+        def decorator(fn):
+            def wrapper(*args, **kwargs):
+                with self.section(label):
+                    return fn(*args, **kwargs)
+            return wrapper
+        return decorator
+
     def _start(self, label):
         assert len(label) <= 14
         # get the right timer object
