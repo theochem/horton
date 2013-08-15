@@ -238,9 +238,10 @@ class AtomicGridSpec(object):
 
            definition
                 A definition of the grid.
-                This can be a string that can be interpreted in several ways to define
-                the grids. Attempts to interpret the string are done in the
-                following order:
+
+                This can be a string that can be interpreted in several ways to
+                define the grids. Attempts to interpret the string are done in
+                the following order:
 
                 1. A local file that has the same format as the files in
                    ${HORTONDATA}/grids.
@@ -257,7 +258,7 @@ class AtomicGridSpec(object):
                    of radial grid points. ``nll`` is the number of points for
                    the angular Lebedev-Laikov grid.
 
-                Instead of a s string, a Pythonic grid specification is also
+                Instead of a string, a Pythonic grid specification is also
                 supported:
 
                 * A tuple ``(rgrid, nll)``, where ``rgrid`` is an instance of
@@ -284,36 +285,47 @@ class AtomicGridSpec(object):
         else:
             raise ValueError('Could not parse the definition of the atomic grid specification.')
 
+    @classmethod
+    def from_hdf5(cls, grp, lf):
+        records = []
+        for ds in grp.itervalues():
+            rtransform = RTransform.from_string(ds.attrs['rtransform'])
+            records.append((
+                ds.attrs['number'], ds.attrs['pseudo_number'],
+                RadialGrid(rtransform), ds[:]
+            ))
+        return AtomicGridSpec(records)
+
+    def to_hdf5(self, grp, selection=None):
+        if selection is not None:
+            selection = set(zip(*selection))
+        for number in self.members:
+            for pseudo_number, rgrid, nlls in self.members.get(number):
+                if selection is None or (number, pseudo_number) in selection:
+                    ds = grp.create_dataset('%03i_%03i' % (number, pseudo_number), data=nlls)
+                    ds.attrs['number'] = number
+                    ds.attrs['pseudo_number'] = pseudo_number
+                    ds.attrs['rtransform'] = rgrid.rtransform.to_string()
 
     def get(self, number, pseudo_number):
         for pn, rgrid, nlls in self.members.get(number, []):
             if pn >= pseudo_number:
                 return rgrid, nlls
-
         raise ValueError('The atomic grid specification "%s" does not support element %i with effective core %i' % (self.name, number, pseudo_number))
 
-    def get_size(self, system, i=None):
-        '''Get the size of a molecular grid for a given system
+    def get_size(self, number, pseudo_number):
+        '''Get the size of an atomic grid for a given element
 
            **Arguments:**
 
-           system
-                An instance of the System class.
+           number
+                The element number
 
-           **Optional arguments:**
-
-           i
-                When given, only the size of the grid for that atom is computed.
+           pseudo_number
+                The effective core charge
         '''
-        if i is None:
-            npoint = 0
-            for i in xrange(system.natom):
-                rgrid, nlls = self.get(system.numbers[i], system.pseudo_numbers[i])
-                npoint += nlls.sum()
-            return npoint
-        else:
-            rgrid, nlls = self.get(system.numbers[i], system.pseudo_numbers[i])
-            return nlls.sum()
+        rgrid, nlls = self.get(number, pseudo_number)
+        return nlls.sum()
 
     def _init_members_from_tuple(self, members):
         assert len(members) == 2

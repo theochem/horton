@@ -20,7 +20,7 @@
 #--
 
 
-import numpy as np
+import numpy as np, h5py as h5
 
 from horton import *
 
@@ -192,3 +192,28 @@ def test_update_centers():
     assert (grid.subgrids[0].center == coordinates[0]).all()
     assert (grid.subgrids[1].center == coordinates[1]).all()
     helper()
+
+
+def test_molgrid_hdf5():
+    # prepare a molgrid
+    numbers = np.array([6, 8], int)
+    coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
+    sys = System(coordinates, numbers)
+    rtf = ExpRTransform(1e-3, 1e1, 100)
+    rgrid = RadialGrid(rtf)
+    mg1 = BeckeMolGrid(sys, (rgrid, 110), k=2, random_rotate=False, mode='keep')
+
+    # run the routines that need testing
+    with h5.File('horton.grid.test.test_molgrid.test_molgrid_hdf5', driver='core', backing_store=False) as f:
+        mg1.to_hdf5(f)
+        mg2 = BeckeMolGrid.from_hdf5(f, None)
+
+    assert (mg1.centers == mg2.centers).all()
+    assert (mg1.numbers == mg2.numbers).all()
+    assert (mg1.pseudo_numbers == mg2.pseudo_numbers).all()
+    assert sorted(mg2.agspec.members.keys()) == [6, 8]
+    assert mg1.k == mg2.k
+    assert mg1.random_rotate == mg2.random_rotate
+    assert mg1.mode == mg2.mode
+    assert (mg1.points == mg2.points).all()
+    assert (mg1.weights == mg2.weights).all()
