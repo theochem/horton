@@ -80,6 +80,17 @@ class ScreenLog(object):
             raise ValueError('The level must be one of the ScreenLog attributes.')
         self._level = level
 
+    def with_level(self, level):
+        def decorator(fn):
+            def wrapper(*args, **kwargs):
+                old_level = self._level
+                self.set_level(level)
+                result = fn(*args, **kwargs)
+                self.set_level(old_level)
+                return result
+            return wrapper
+        return decorator
+
     def __call__(self, *words):
         s = ' '.join(w for w in words)
         if not self.do_warning:
