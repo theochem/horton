@@ -107,32 +107,31 @@ class Hamiltonian(object):
 
            The total energy, including nuclear-nuclear repulsion.
         '''
-        if log.do_high:
-            log('Computing the energy of the system.')
-            log.hline()
-            log('                   Energy term                 Value')
-            log.hline()
-
         total = 0.0
         for term in self.terms:
             energy = term.compute()
-            if log.do_high:
-                log('%30s  %20.10f' % (term.label, energy))
             self.system.extra['energy_%s' % term.label] = energy
             total += energy
-
         energy = self.system.compute_nucnuc()
+        self.system.extra['energy_nn'] = energy
         total += energy
-        # Store result in chk file
         self.system.extra['energy'] = total
+        # Store result in chk file
         self.system.update_chk('extra')
-
-        if log.do_high:
-            log('%30s  %20.10f' % ('nn', energy))
-            log('%30s  %20.10f' % ('total', total))
-            log.hline()
-
         return total
+
+    def log_energy(self):
+        '''Write an overview of the last energy computation on screen'''
+        log('Contributions to the energy:')
+        log.hline()
+        log('                                       Energy term                 Value')
+        log.hline()
+        for term in self.terms:
+            energy = self.system.extra['energy_%s' % term.label]
+            log('%50s  %20.12f' % (term.label, energy))
+        log('%50s  %20.12f' % ('nn', self.system.extra['energy_nn']))
+        log('%50s  %20.12f' % ('total', self.system.extra['energy']))
+        log.hline()
 
     def compute_fock(self, fock_alpha, fock_beta):
         '''Compute alpha (and beta) Fock matrix(es).
