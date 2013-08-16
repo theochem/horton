@@ -25,7 +25,8 @@ import sys, argparse, os, numpy as np
 
 from horton import System, wpart_schemes, Cell, ProAtomDB, log, BeckeMolGrid, \
     lebedev_laikov_npoints, AtomicGridSpec, __version__
-from horton.scripts.common import store_args, safe_open_h5, write_part_output
+from horton.scripts.common import get_output_filename, store_args, \
+    safe_open_h5, write_part_output
 
 
 # All, except underflows, is *not* fine.
@@ -45,6 +46,9 @@ def parse_args():
     parser.add_argument('atoms', default=None, nargs='?',
         help='An HDF5 file with atomic reference densities.')
 
+    parser.add_argument('-o', '--output', default=None,
+        help='The HDF5 output filename. The default is to remove the extension '
+             'from the input file (if any) and to append \'_wpart.h5\'.')
     parser.add_argument('--overwrite', default=False, action='store_true',
         help='Overwrite existing output in the HDF5 file')
     parser.add_argument('--debug', default=False, action='store_true',
@@ -80,7 +84,7 @@ def main():
     args = parse_args()
 
     # check if the folder is already present in the output file
-    fn_h5 = args.wfn + '.h5'
+    fn_h5 = get_output_filename(args.wfn, 'wpart', args.output)
     grp_name = args.scheme
     if args.suffix is not None:
         grp_name += '_' + args.suffix
@@ -110,6 +114,7 @@ def main():
     # Run the partitioning
     agspec = AtomicGridSpec(args.grid)
     molgrid = BeckeMolGrid(sys, agspec, mode='only')
+    sys.update_grid(molgrid) # for the grid to be written to the output
     wpart = wpart_schemes[args.scheme](sys, molgrid, **kwargs)
     names = wpart.do_all()
 

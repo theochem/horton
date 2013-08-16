@@ -25,8 +25,8 @@ import sys, argparse, os, numpy as np
 
 from horton import System, angstrom, setup_weights, ESPCost, log, angstrom, \
     dump_hdf5_low, __version__
-from horton.scripts.common import reduce_data, parse_ewald_args, parse_pbc, \
-    store_args, safe_open_h5
+from horton.scripts.common import get_output_filename, reduce_data, \
+    parse_ewald_args, parse_pbc, store_args, safe_open_h5
 from horton.scripts.espfit import parse_wdens, parse_wnear, parse_wfar, \
     load_rho, save_weights
 from horton.grid.cext import UniformGrid
@@ -46,6 +46,7 @@ def parse_args():
         help='The cube file.')
     parser.add_argument('--sign', '-s', default=False, action='store_true',
         help='Change the sign of the ESP data. This is needed for CP2K and VASP.')
+
     parser.add_argument('--stride', default=1, type=int,
         help='Reduce the grid by subsamping with the given stride in all three '
              'directions. Zero and negative values are ignored. '
@@ -54,6 +55,10 @@ def parse_args():
         help='The number of layers to chop of the end of the grid in each '
              'direction. For most codes this should be zero. For Crystal, this '
              'should be 1.')
+
+    parser.add_argument('-o', '--output', default=None,
+        help='The HDF5 output filename. The default is to remove the extension '
+             'from the input file (if any) and to append \'_espfit.h5\'.')
     parser.add_argument('--overwrite', default=False, action='store_true',
         help='Overwrite existing output in the HDF5 file')
     parser.add_argument('--suffix', default=None, type=str,
@@ -109,7 +114,7 @@ def main():
     args = parse_args()
 
     # check if the folder is already present in the output file
-    fn_h5 = args.cube + '.h5'
+    fn_h5 = get_output_filename(args.cube, 'espfit', args.output)
     grp_name = 'cost_r%i' % args.stride
     if args.suffix is not None:
         grp_name += '_'+args.suffix

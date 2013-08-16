@@ -38,7 +38,7 @@ def check_script_jbw_coarse(scheme):
         copy_files(dn, [fn_cube])
         write_atomdb_refatoms(dn)
         check_script('horton-cpart.py %s %s atoms.h5' % (fn_cube, scheme), dn)
-        fn_h5 = '%s.h5' % fn_cube
+        fn_h5 = '%s_cpart.h5' % fn_cube[:-5]
         check_files(dn, [fn_h5])
         with h5.File(os.path.join(dn, fn_h5)) as f:
             assert 'cpart' in f
@@ -68,7 +68,7 @@ def check_script_lta(fn_sym, suffix):
             check_script('horton-cpart.py %s h atoms.h5 --symmetry=%s' % (fn_cube, fn_sym), dn)
 
         # check the output
-        fn_h5 = '%s.h5' % fn_cube
+        fn_h5 = '%s_cpart.h5' % fn_cube[:-5]
         check_files(dn, [fn_h5])
         with h5.File(os.path.join(dn, fn_h5)) as f:
             assert 'cpart' in f
