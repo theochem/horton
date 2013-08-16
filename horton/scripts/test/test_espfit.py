@@ -62,10 +62,10 @@ def test_scripts():
     with tmpdir('horton.scripts.test.test_espfit.test_scripts') as dn:
         sys.to_file(os.path.join(dn, 'esp.cube'))
         check_script('horton-esp-cost.py esp.cube --wnear=0:1.0:0.5', dn)
-        check_files(dn, ['esp.cube.h5'])
-        check_script('horton-esp-fit.py esp.cube.h5:espfit/cost_r1 default', dn)
-        check_script('horton-esp-test.py esp.cube.h5:espfit/cost_r1 esp.cube.h5:espfit/cost_r1/default', dn)
-        check_script('horton-esp-gen.py esp.cube.h5:espfit/cost_r1/default --grid=1.2', dn)
+        check_files(dn, ['esp_espfit.h5'])
+        check_script('horton-esp-fit.py esp_espfit.h5:espfit/cost_r1 default', dn)
+        check_script('horton-esp-test.py esp_espfit.h5:espfit/cost_r1 esp_espfit.h5:espfit/cost_r1/default', dn)
+        check_script('horton-esp-gen.py esp_espfit.h5:espfit/cost_r1/default --grid=1.2', dn)
 
 
 def test_scripts_symmetry():
@@ -76,9 +76,9 @@ def test_scripts_symmetry():
         copy_files(dn, ['lta_gulp.cif'])
         # run scripts
         check_script('horton-esp-cost.py esp.cube --wnear=0:1.0:0.5 --rcut=4 --alpha-scale=0.1', dn)
-        check_files(dn, ['esp.cube.h5'])
-        check_script('horton-esp-fit.py esp.cube.h5:espfit/cost_r1 default --symmetry=lta_gulp.cif', dn)
-        with h5.File(os.path.join(dn, 'esp.cube.h5')) as f:
+        check_files(dn, ['esp_espfit.h5'])
+        check_script('horton-esp-fit.py esp_espfit.h5:espfit/cost_r1 default --symmetry=lta_gulp.cif', dn)
+        with h5.File(os.path.join(dn, 'esp_espfit.h5')) as f:
             assert 'symmetry' in f['system/extra']
             assert 'symmetry' in f['espfit/cost_r1/default']
             assert f['espfit/cost_r1/default/symmetry/charges'].shape == (sys.extra['symmetry'].natom, 2)

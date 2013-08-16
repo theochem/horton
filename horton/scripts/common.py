@@ -27,9 +27,37 @@ from horton import UniformGrid, angstrom, periodic, Cell, log, dump_hdf5_low
 
 
 __all__ = [
-    'iter_elements', 'reduce_data', 'parse_h5', 'parse_ewald_args', 'parse_pbc',
-    'parse_ugrid', 'store_args', 'safe_open_h5', 'write_part_output',
+    'get_output_filename', 'iter_elements', 'reduce_data', 'parse_h5',
+    'parse_ewald_args', 'parse_pbc', 'parse_ugrid', 'store_args',
+    'safe_open_h5', 'write_part_output',
 ]
+
+
+def get_output_filename(fn_input, suffix, fn_output=None):
+    '''Routine to generate an output filename in case it is not specified
+
+       **Arguments:**
+
+       fn_input
+            The input filename.
+
+       suffix
+            A suffix specific for the script that calls this function.
+
+       **Optional arguments:**
+
+       fn_output
+            A user-specified output filename.
+    '''
+    if fn_output is not None:
+        return fn_output
+    else:
+        pos = fn_input.rfind('.')
+        if pos == -1:
+            prefix = fn_input
+        else:
+            prefix = fn_input[:pos]
+        return '%s_%s.h5' % (prefix, suffix)
 
 
 def iter_elements(elements_str):

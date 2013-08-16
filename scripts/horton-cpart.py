@@ -25,8 +25,8 @@ import sys, argparse, os, numpy as np
 
 from horton import System, cpart_schemes, Cell, ProAtomDB, log, \
     symmetry_analysis, UniformGrid, __version__
-from horton.scripts.common import reduce_data, store_args, parse_pbc, \
-    iter_elements, safe_open_h5, write_part_output
+from horton.scripts.common import get_output_filename, reduce_data, \
+    store_args, parse_pbc, iter_elements, safe_open_h5, write_part_output
 
 
 # All, except underflows, is *not* fine.
@@ -45,6 +45,7 @@ def parse_args():
         help='The scheme to be used for the partitioning')
     parser.add_argument('atoms',
         help='An HDF5 file with atomic reference densities.')
+
     parser.add_argument('--stride', default=1, type=int,
         help='Reduce the grid by subsamping with the given stride in all three '
              'directions. Zero and negative values are ignored. '
@@ -53,12 +54,17 @@ def parse_args():
         help='The number of layers to chop of the end of the grid in each '
              'direction. For most codes this should be zero. For Crystal, this '
              'should be 1. [default=%(default)s]')
+
+    parser.add_argument('-o', '--output', default=None,
+        help='The HDF5 output filename. The default is to remove the extension '
+             'from the input file (if any) and to append \'_cpart.h5\'.')
     parser.add_argument('--overwrite', default=False, action='store_true',
         help='Overwrite existing output in the HDF5 file')
     parser.add_argument('--debug', default=False, action='store_true',
         help='Add additional internal results to a debug subgroup.')
     parser.add_argument('--suffix', default=None, type=str,
         help='Add an additional suffix to the HDF5 output group.')
+
     parser.add_argument('--pbc', default='111', type=str,
         help='Specify the periodicity. The three digits refer to a, b and c '
              'cell vectors. 1=periodic, 0=aperiodic.')
@@ -101,7 +107,7 @@ def main():
     args = parse_args()
 
     # check if the folder is already present in the output file
-    fn_h5 = args.cube + '.h5'
+    fn_h5 = get_output_filename(args.cube, 'cpart', args.output)
     grp_name = '%s_r%i' % (args.scheme, args.stride)
     if args.suffix is not None:
         grp_name += '_'+args.suffix

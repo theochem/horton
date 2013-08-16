@@ -357,8 +357,8 @@ partitioning scheme:
 The ``atoms.h5`` argument is only needed for the Hirshfeld variants, not for
 ``b`` and ``is``. This script computes atomic weight functions and then derives
 all AIM observables that are implemented for that scheme. These results are
-stored in a HDF5 file with the same name as the ``wfn`` file but with a ``.h5``
-extension appended. In this HDF5 file, the results are written in the group
+stored in a HDF5 file with the same name as the ``wfn`` file but with a suffix
+``_wpart.h5``. In this HDF5 file, the results are written in the group
 ``wpart/${SCHEME}`` where ``${SCHEME}`` is any of ``b``, ``h``, ``hi``, ``is``,
 ``he``.
 
@@ -393,8 +393,8 @@ The second argument refers to the partitioning scheme:
 This script
 computes atomic weight functions and then derives all AIM observables that are
 implemented for that scheme. These results are stored in a HDF5 file with
-the same name as the ``cube`` file but with a ``.h5`` extension appended. In this
-HDF5 file, the results are written in the group ``cpart/${SCHEME}_r${STRIDE}`` where
+the same name as the ``cube`` file but with a ``_cpart.h5`` suffix. In this HDF5
+file, the results are written in the group ``cpart/${SCHEME}_r${STRIDE}`` where
 ``${SCHEME}`` is any of ``h``, ``hi``, ``he`` and ``${STRIDE}`` is an optional
 argument of the script ``horton-cpart.py`` that is discussed below.
 

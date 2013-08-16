@@ -28,6 +28,13 @@ from horton.scripts.common import *
 from horton.test.common import tmpdir
 
 
+def test_get_output_filename():
+    assert get_output_filename('some.file', 'boo') == 'some_boo.h5'
+    assert get_output_filename('some_file', 'boo') == 'some_file_boo.h5'
+    assert get_output_filename('some.file', 'boo', 'bar') == 'bar'
+    assert get_output_filename('some_file', 'boo', 'bar.h5') == 'bar.h5'
+
+
 def test_iter_elements():
     assert list(iter_elements('1,2')) == [1, 2]
     assert list(iter_elements('H,2')) == [1, 2]
