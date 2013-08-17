@@ -77,7 +77,7 @@ class StockHolderMixin(object):
         center = self.system.coordinates[index]
         if grid is None:
             grid = self.get_grid(index)
-        if log.do_medium:
+        if log.do_debug:
             number = self.system.numbers[index]
             log('  Evaluating spline (%s) for atom %i (n=%i) on %i grid points' % (label, index, number, grid.size))
         grid.eval_spline(spline, center, output)
