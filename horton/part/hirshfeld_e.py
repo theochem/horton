@@ -76,7 +76,7 @@ class HEBasis(object):
             self.basis_specs.append([self.nbasis, licos])
             self.nbasis += len(licos)
 
-        if log.do_medium:
+        if log.do_high:
             log('Hirshfeld-E basis')
             log.hline()
             log('Atom   Z   k label')
@@ -305,7 +305,7 @@ class HirshfeldEMixin(object):
         #    correct for scales
         atom_propars /= scales
 
-        if log.do_medium:
+        if log.do_high:
             log('            %10i (%.0f%%):&%s' % (index, rrmsd*100, ' '.join('% 6.3f' % c for c in atom_propars)))
 
         self.cache.load('propars')[begin:begin+nbasis] = atom_propars
