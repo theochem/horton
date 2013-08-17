@@ -21,6 +21,7 @@
 
 
 from nose.tools import assert_raises
+import h5py as h5
 from horton import *
 
 
@@ -251,3 +252,47 @@ def test_setup_wfn_os_fractional():
     assert isinstance(sys.wfn, UnrestrictedWFN)
     assert isinstance(sys.wfn.occ_model, AufbauSpinOccModel)
     assert abs(sys.wfn.occ_model.nel - (7.0-0.4)) < 1e-10
+
+
+def test_fermi_occ_model_cs_helium():
+    fn_fchk = context.get_fn('test/helium_hf_sto3g.fchk')
+    sys = System.from_file(fn_fchk)
+    sys.wfn.occ_model = FermiOccModel(1.0)
+    sys.wfn.occ_model.assign(sys.wfn.exp_alpha)
+    assert (sys.wfn.exp_alpha.occupations == [1.0]).all()
+
+
+def test_fermi_occ_model_cs():
+    fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
+    sys = System.from_file(fn_fchk)
+    for temperature in 300, 3000, 10000, 30000:
+        sys.wfn.occ_model = FermiOccModel(5.0, temperature=temperature)
+        sys.wfn.occ_model.assign(sys.wfn.exp_alpha)
+        occ = sys.wfn.exp_alpha.occupations
+        assert abs(occ.sum() - 5.0) < 1e-8
+        assert (occ[1:] <= occ[:-1]).all()
+
+
+def test_fermi_occ_model_os():
+    fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
+    sys = System.from_file(fn_fchk)
+    for temperature in 300, 3000, 10000, 30000:
+        sys.wfn.occ_model = FermiOccModel(2.0, 1.0, temperature=temperature)
+        sys.wfn.occ_model.assign(sys.wfn.exp_alpha)
+        occ_a = sys.wfn.exp_alpha.occupations
+        assert abs(occ_a.sum() - 2) < 1e-8
+        assert (occ_a[1:] <= occ_a[:-1]).all()
+        occ_b = sys.wfn.exp_beta.occupations
+        assert abs(occ_b.sum() - 1) < 1e-8
+        assert (occ_b[1:] <= occ_b[:-1]).all()
+
+
+def test_fermi_occ_model_hdf5():
+    with h5.File('horton.meanfield.test.test_wfn.test_fermi_occ_model_hdf5', driver='core', backing_store=False) as f:
+        om1 = FermiOccModel(2.0, 1.0, temperature=1025, eps=1e-10)
+        om1.to_hdf5(f)
+        om2 = FermiOccModel.from_hdf5(f, None)
+        assert om1.nalpha == om2.nalpha
+        assert om1.nbeta == om2.nbeta
+        assert om1.temperature == om2.temperature
+        assert om1.eps == om2.eps

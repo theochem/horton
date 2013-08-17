@@ -33,17 +33,19 @@ import numpy as np
 from horton.cache import Cache
 from horton.log import log
 from horton.exceptions import ElectronCountError
+from horton.quadprog import find_1d_root
+from horton.constants import boltzmann
 
 
 __all__ = [
     'setup_mean_field_wfn', 'check_dm',
     'MeanFieldWFN', 'RestrictedWFN', 'UnrestrictedWFN',
-    'AufbauOccModel', 'AufbauSpinOccModel'
+    'AufbauOccModel', 'AufbauSpinOccModel', 'FermiOccModel',
 ]
 
 
 
-def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None):
+def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None, temperature=0):
     '''Initialize a mean-field wavefunction and assign it to the given system.
 
        **Arguments:**
@@ -60,6 +62,9 @@ def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None):
             The spin multiplicity. Defaults to lowest possible. Use 'free' to
             let the SCF algorithm find the spin multiplicity with the lowest
             energy. (Beware of local minima.)
+
+       temperature
+            The electronic temperature used for the Fermi smearing.
 
        restricted
             Set to True or False to enforce a restricted or unrestricted
@@ -107,12 +112,22 @@ def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None):
         log.blank()
 
     # Create a model for the occupation numbers
-    if restricted:
-        occ_model = AufbauOccModel(nel/2)
-    elif mult=='free':
-        occ_model = AufbauSpinOccModel(nel)
+    if temperature == 0:
+        if restricted:
+            occ_model = AufbauOccModel(nel/2, nel/2)
+        elif mult=='free':
+            occ_model = AufbauSpinOccModel(nel)
+        else:
+            occ_model = AufbauOccModel((nel + (mult-1))/2, (nel - (mult-1))/2)
     else:
-        occ_model = AufbauOccModel((nel + (mult-1))/2, (nel - (mult-1))/2)
+        if restricted:
+            occ_model = FermiOccModel(nel/2, nel/2, temperature)
+        elif mult=='free':
+            raise NotImplementedError
+            #occ_model = FermiSpinOccModel(nel)
+        else:
+            occ_model = FermiOccModel((nel + (mult-1))/2, (nel - (mult-1))/2, temperature)
+
 
     if system._wfn is not None:
         # Check if the existing wfn is consistent with the arguments
@@ -126,7 +141,8 @@ def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None):
         # Assign occ_model
         system.wfn.occ_model = occ_model
 
-        # If the wfn contains an expansion, update the occupations and remove density matrices. Otherwise clean up
+        # If the wfn contains an expansion, update the occupations and remove
+        # density matrices. Otherwise clean up
         if 'exp_alpha' in system.wfn._cache:
             if restricted:
                 system.wfn.occ_model.assign(system.wfn.exp_alpha)
@@ -280,6 +296,15 @@ class MeanFieldWFN(object):
         self._occ_model = occ_model
 
     occ_model = property(_get_occ_model, _set_occ_model)
+
+    def _get_temperature(self):
+        '''The electronic temperature used for the Fermi smearing'''
+        if self._occ_model is None:
+            return 0
+        else:
+            return self._occ_model.temperature
+
+    temperature = property(_get_temperature)
 
     def _log_init(self):
         '''Write a summary of the wavefunction to the screen logger'''
@@ -640,8 +665,27 @@ class UnrestrictedWFN(MeanFieldWFN):
     lumo_energy = property(_get_lumo_energy)
 
 
-class AufbauOccModel(object):
+
+class AufbauBase(object):
+    def _get_temperature(self):
+        return 0.0
+
+    temperature = property(_get_temperature)
+
+
+class AufbauOccModel(AufbauBase):
     def __init__(self, nalpha, nbeta=None):
+        '''
+           **Arguments:**
+
+           nalpha
+                The number of alpha electrons
+
+           **Optional arguments:**
+
+           nbeta
+                The number of beta electrons. Default is equal to nalpha.
+        '''
         if nbeta is None:
             nbeta = nalpha
 
@@ -679,9 +723,7 @@ class AufbauOccModel(object):
         if exp_beta is not None:
             exps.append((exp_beta, self.nbeta))
         for exp, nocc in exps:
-            nfn = len(exp.energies)
-            assert nfn == len(exp.occupations)
-            if nfn < nocc:
+            if exp.nfn < nocc:
                 raise ElectronCountError('The number of orbitals must not be lower than the number of alpha or beta electrons.')
             # It is assumed that the orbitals are sorted from low to high energy.
             if nocc == int(nocc):
@@ -697,9 +739,15 @@ class AufbauOccModel(object):
         log.deflist([('nalpha', self.nalpha), ('nbeta', self.nbeta)])
 
 
-class AufbauSpinOccModel(object):
+class AufbauSpinOccModel(AufbauBase):
     '''This Aufbau model only applies to unrestricted wavefunctions'''
     def __init__(self, nel):
+        '''
+           **Arguments:**
+
+           nel
+                The total number of electrons (alpha + beta)
+        '''
         if nel <= 0:
             raise ElectronCountError('The number of electron must be positive.')
         self.nel = nel
@@ -735,3 +783,130 @@ class AufbauSpinOccModel(object):
     def log(self):
         log('Occupation model: %s' % self)
         log.deflist([('nel', self.nel)])
+
+
+class FermiBase(object):
+    '''Base class for Fermi smearing occupation models'''
+    def __init__(self, temperature=300, eps=1e-8):
+        '''
+           **Optional arguments:**
+
+           temperature
+                Controls the width of the distribution (derivative)
+
+           eps
+                The error on the sum of the occupation number when searching for
+                the right Fermi level.
+        '''
+        if temperature <= 0:
+            raise ValueError('The temperature must be strictly positive')
+        if eps <= 0:
+            raise ValueError('The root-finder threshold (eps) must be strictly positive.')
+        self.temperature = float(temperature)
+        self.eps = eps
+
+
+class FermiOccModel(FermiBase):
+    '''Fermi smearing electron occupation model'''
+    def __init__(self, nalpha, nbeta=None, temperature=300, eps=1e-8):
+        '''
+           **Arguments:**
+
+           nalpha
+                The number of alpha electrons
+
+           **Optional arguments:**
+
+           nbeta
+                The number of beta electrons. Default is equal to nalpha.
+
+           temperature
+                Controls the width of the distribution (derivative)
+
+           eps
+                The error on the sum of the occupation number when searching for
+                the right Fermi level.
+        '''
+        FermiBase.__init__(self, temperature, eps)
+
+        if nbeta is None:
+            nbeta = nalpha
+
+        if nalpha < 0 or nbeta < 0:
+            raise ElectronCountError('Negative number of electrons is not allowed.')
+        if nalpha == 0 and nbeta == 0:
+            raise ElectronCountError('At least one alpha or beta electron is required.')
+
+        self.nalpha = nalpha
+        self.nbeta = nbeta
+
+    @classmethod
+    def from_hdf5(cls, grp, lf):
+        return cls(
+            grp['nalpha'][()], grp['nbeta'][()],
+            grp['temperature'][()], grp['eps'][()],
+        )
+
+    def to_hdf5(self, grp):
+        grp.attrs['class'] = self.__class__.__name__
+        grp['nalpha'] = self.nalpha
+        grp['nbeta'] = self.nbeta
+        grp['temperature'] = self.temperature
+        grp['eps'] = self.eps
+
+    def assign(self, exp_alpha, exp_beta=None):
+        '''Assign occupation numbers to the expansion objects
+
+           **Arguments:**
+
+           exp_alpha
+                An alpha DenseExpansion object
+
+           **Optional arguments:**
+
+           exp_beta
+                A beta DenseExpansion object
+        '''
+        exps = [(exp_alpha, self.nalpha)]
+        if exp_beta is not None:
+            exps.append((exp_beta, self.nbeta))
+
+        beta = 1.0/self.temperature/boltzmann
+        for exp, nocc in exps:
+            def get_occ(mu):
+                occ = np.zeros(exp.nfn)
+                mask = exp.energies < mu
+                e = np.exp(beta*(exp.energies[mask] - mu))
+                occ[mask] = 1.0/(e + 1.0)
+                mask = ~mask
+                e = np.exp(-beta*(exp.energies[mask] - mu))
+                occ[mask] = e/(1.0 + e)
+                return occ
+
+            def error(mu):
+                return nocc - get_occ(mu).sum()
+
+            mu0 = exp.energies[exp.nfn/2]
+            error0 = error(mu0)
+            delta = 0.1*(1 - 2*(error0 < 0))
+            for i in xrange(100):
+                mu1 = mu0 + delta
+                error1 = error(mu1)
+                if error1 == 0 or ((error0 > 0) ^ (error1 > 0)):
+                    break
+                delta *= 2
+
+            if error1 == 0:
+                exp.occupations[:] = get_occ(mu1)
+            else:
+                mu, error = find_1d_root(error, (mu0, error0), (mu1, error1), eps=self.eps)
+                exp.occupations[:] = get_occ(mu)
+
+    def log(self):
+        log('Occupation model: %s' % self)
+        log.deflist([
+            ('nalpha', self.nalpha),
+            ('nbeta', self.nbeta),
+            ('temperature', self.temperature),
+            ('eps', self.eps),
+        ])
