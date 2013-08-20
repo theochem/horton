@@ -353,10 +353,12 @@ class MeanFieldWFN(object):
         '''Clear the density matrices'''
         self._cache.clear(tags='d')
 
-    def init_exp(self, spin):
+    def init_exp(self, spin, norb=None):
         if spin not in ['alpha', 'beta']:
             raise ValueError('The select argument must be alpha or beta')
-        exp, new = self._cache.load('exp_%s' % spin, alloc=(self._lf.create_expansion, self._nbasis, self._norb), tags='e')
+        if norb is None:
+            norb = self._norb 
+        exp, new = self._cache.load('exp_%s' % spin, alloc=(self._lf.create_expansion, self._nbasis, norb), tags='e')
         if not new:
             raise RuntimeError('The expansion exp_%s already exists. Call wfn.clear prior to updating the wfn.' % spin)
         return exp

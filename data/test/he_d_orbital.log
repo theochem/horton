@@ -1,0 +1,36 @@
+
+
+           ---===### Stripped irrelevant parts for the test. ###===---
+
+
+ One-electron integrals computed using PRISM.
+ Entering OneElI...
+ OneElI was handed    33554315 working-precision words.
+ Calculate overlap and kinetic energy integrals
+    NBasis =   6  MinDer = 0  MaxDer = 0
+ Requested accuracy = 0.1000D-12
+ Overlap and Kinetic Integrals          
+
+
+           ---===### Stripped irrelevant parts for the test. ###===---
+
+
+                   C37 =       0
+                   C38 =       0
+ Prsmar:  KBra=    1 KKet=    1 PsmPth=29 Kost=        3774 NPerS4=       714 nW0=       373 nW1=       151 nW2=       373 nW0X=         0 NPS4B=       180 jEnd=      163503 LenV=    33553788 MaxCom=         183
+ IPart=  0 NShTot=           1 NBatch=           1 AvBLen=         1.0
+ PrSmSu:  NxtVal=              2.
+ *** Overlap *** 
+                1             2             3             4             5 
+      1  0.100000D+01
+      2  0.333333D+00  0.100000D+01
+      3  0.333333D+00  0.333333D+00  0.100000D+01
+      4  0.000000D+00  0.000000D+00  0.000000D+00  0.100000D+01
+      5  0.000000D+00  0.000000D+00  0.000000D+00  0.000000D+00  0.100000D+01
+      6  0.000000D+00  0.000000D+00  0.000000D+00  0.000000D+00  0.000000D+00
+                6 
+      6  0.100000D+01
+
+           ---===### Stripped irrelevant parts for the test. ###===---
+
+
