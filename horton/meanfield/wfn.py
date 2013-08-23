@@ -394,6 +394,8 @@ class MeanFieldWFN(object):
     def get_dm(self, select):
         '''Get a density matrix. If not available, it will be created (if possible)
 
+           **Arguments:**
+
            select
                 'alpha', 'beta', 'full' or 'spin'.
         '''
@@ -404,12 +406,27 @@ class MeanFieldWFN(object):
     def get_exp(self, spin):
         '''Return an expansion of the wavefunction, if available.
 
-           **Optional arguments:**
+           **Arguments:**
 
            select
                 the spin component: 'alpha' or 'beta'.
         '''
         return self._cache.load('exp_%s' % spin)
+
+    def get_level_shift(self, spin, overlap):
+        '''Return a level shift operator for the given spin component.
+
+           **Arguments:**
+
+           select
+                the spin component: 'alpha' or 'beta'.
+        '''
+        level_shift, new = self._cache.load('level_shift_%s' % spin, alloc=(self._lf.create_one_body, self.nbasis))
+        if not new:
+            level_shift.assign(overlap)
+            level_shift.idot(self.get_dm(spin))
+            level_shift.idot(overlap)
+        return level_shift
 
     dm_alpha = PropertyHelper(get_dm, 'alpha', 'Alpha density matrix')
     dm_beta = PropertyHelper(get_dm, 'beta', 'Beta density matrix')
@@ -532,7 +549,6 @@ class RestrictedWFN(MeanFieldWFN):
         return self.exp_alpha.get_lumo_energy()
 
     lumo_energy = property(_get_lumo_energy)
-
 
 
 class UnrestrictedWFN(MeanFieldWFN):
