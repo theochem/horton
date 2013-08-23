@@ -296,3 +296,15 @@ def test_fermi_occ_model_hdf5():
         assert om1.nbeta == om2.nbeta
         assert om1.temperature == om2.temperature
         assert om1.eps == om2.eps
+
+
+def test_level_shift():
+    fn_fchk = context.get_fn('test/helium_hf_sto3g.fchk')
+    sys = System.from_file(fn_fchk)
+    overlap = sys.get_overlap()
+    dm_alpha1 = sys.wfn.dm_alpha.copy()
+    ls_alpha = sys.wfn.get_level_shift('alpha', overlap)
+    sys.wfn.clear()
+    sys.wfn.update_exp(ls_alpha, overlap)
+    dm_alpha2 = sys.wfn.dm_alpha.copy()
+    assert abs(dm_alpha1._array - dm_alpha2._array) < 1e-5
