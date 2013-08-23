@@ -40,7 +40,7 @@ libxc-2.0.2: libxc-2.0.2.tar.gz
 	tar -xzvf libxc-2.0.2.tar.gz
 
 libxc-2.0.2/src/.libs/libxc.a: libxc-2.0.2
-	cd libxc-2.0.2 && CFLAGS='-fPIC' CPPFLAGS='-fPIC' ./configure
+	cd libxc-2.0.2 && CFLAGS='-fPIC' CPPFLAGS='-fPIC' FCCPP=-ffreestanding ./configure
 	cd libxc-2.0.2 && $(MAKE)
 
 
