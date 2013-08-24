@@ -26,12 +26,181 @@ import numpy as np
 from horton.log import log
 from horton.exceptions import NoSCFConvergence
 from horton.meanfield.convergence import compute_commutator
+from horton.meanfield.scf_oda import find_min_cubic, find_min_quadratic, check_cubic_cs
 
 
-__all__ = []
+__all__ = [
+    'CSSCFStep', 'CSCubicODAStep', 'CSQuadraticODAStep'
+]
 
 
-def converge_scf_diis_cs(ham, DIISHistoryClass, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=True, skip_energy=False):
+
+class CSSCFStep(object):
+    def __init__(self, ham):
+        self.ham = ham
+
+    def __call__(self, energy0, fock, fock_interpolated=False, debug=False):
+        '''
+           Note that ``fock`` is also used as output argument.
+        '''
+        wfn = self.ham.system.wfn
+
+        # TODO, avoid reallocation by putting this in a class
+        overlap = self.ham.system.get_overlap()
+
+        #if fock_interpolated:
+        #    # Construct the Fock operator for the new DM
+        #    fock.clear()
+        #    self.ham.compute_fock(fock, None)
+
+        # Construct the new DM (regular SCF step)
+        wfn.clear()
+        wfn.update_exp(fock, overlap)
+        self.ham.clear()
+
+        # Construct the Fock operator for the new DM
+        fock.clear()
+        self.ham.compute_fock(fock, None)
+
+        # the mixing coefficient
+        return 1.0
+
+
+
+class CSCubicODAStep(CSSCFStep):
+    def __call__(self, energy0, fock, fock_interpolated=False, debug=False):
+        wfn = self.ham.system.wfn
+
+        # TODO, avoid reallocation by putting this in a class
+        overlap = self.ham.system.get_overlap()
+
+        # keep copies of current state:
+        dm0 = wfn.dm_alpha.copy()
+        fock0 = fock.copy()
+        if fock_interpolated:
+            # if the fock matrix was interpolated, recompute it from the
+            # interpolated density matrix.
+            fock0.clear()
+            self.ham.compute_fock(fock0, None)
+        if energy0 is None:
+            energy0 = self.ham.compute()
+
+        wfn.clear()
+        wfn.update_exp(fock0, overlap)
+        # Let the hamiltonian know that the wavefunction has changed.
+        self.ham.clear()
+
+        # second point
+        fock1 = fock0.copy()
+        fock1.clear()
+        self.ham.compute_fock(fock1, None)
+        # Compute energy at new point
+        energy1 = self.ham.compute()
+        # take the density matrix
+        dm1 = wfn.dm_alpha.copy()
+
+        # Compute the derivatives of the energy towards lambda at edges 0 and 1
+        ev_00 = fock0.expectation_value(dm0)
+        ev_10 = fock1.expectation_value(dm0)
+        ev_01 = fock0.expectation_value(dm1)
+        ev_11 = fock1.expectation_value(dm1)
+        energy0_deriv = 2*(ev_01-ev_00)
+        energy1_deriv = 2*(ev_11-ev_10)
+
+        # find the lambda that minimizes the cubic polynomial in the range [0,1]
+        if log.do_high:
+            log('           E0: % 10.3e     D0: % 10.3e' % (energy0, energy0_deriv))
+            log('        E1-E0: % 10.3e     D1: % 10.3e' % (energy1-energy0, energy1_deriv))
+        mixing = find_min_cubic(energy0, energy1, energy0_deriv, energy1_deriv)
+        if mixing == 0:
+            mixing = 0.1
+        if log.do_high:
+            log('       mixing: % 10.7f' % mixing)
+
+        if debug:
+            check_cubic_cs(self.ham, dm0, dm1, energy0, energy1, energy0_deriv, energy1_deriv)
+
+        # E) Construct the new dm
+        # Put the mixed dm in dm_old, which is local in this routine.
+        dm1.iscale(mixing)
+        dm1.iadd(dm0, factor=1-mixing)
+
+        wfn.clear()
+        wfn.update_dm('alpha', dm1)
+        self.ham.clear()
+
+        fock.clear()
+        self.ham.compute_fock(fock, None)
+        wfn.update_exp(fock, overlap, dm1)
+
+        # the mixing coefficient
+        return mixing
+
+
+class CSQuadraticODAStep(CSSCFStep):
+    def __call__(self, energy0, fock, fock_interpolated=False, debug=False):
+        wfn = self.ham.system.wfn
+
+        # TODO, avoid reallocation by putting this in a class
+        overlap = self.ham.system.get_overlap()
+
+        # keep copies of current state:
+        dm0 = wfn.dm_alpha.copy()
+        fock0 = fock.copy()
+        if fock_interpolated:
+            # if the fock matrix was interpolated, recompute it from the
+            # interpolated density matrix.
+            fock0.clear()
+            self.ham.compute_fock(fock0, None)
+
+        wfn.clear()
+        wfn.update_exp(fock0, overlap)
+        # Let the hamiltonian know that the wavefunction has changed.
+        self.ham.clear()
+
+        # second point
+        fock1 = fock0.copy()
+        fock1.clear()
+        self.ham.compute_fock(fock1, None)
+        # take the density matrix
+        dm1 = wfn.dm_alpha.copy()
+
+        # Compute the derivatives of the energy towards lambda at edges 0 and 1
+        ev_00 = fock0.expectation_value(dm0)
+        ev_10 = fock1.expectation_value(dm0)
+        ev_01 = fock0.expectation_value(dm1)
+        ev_11 = fock1.expectation_value(dm1)
+        energy0_deriv = 2*(ev_01-ev_00)
+        energy1_deriv = 2*(ev_11-ev_10)
+
+        # find the lambda that minimizes the cubic polynomial in the range [0,1]
+        if log.do_high:
+            log('           D0: % 10.3e' % (energy0_deriv))
+            log('           D1: % 10.3e' % (energy1_deriv))
+        mixing = find_min_quadratic(energy0_deriv, energy1_deriv)
+        if mixing == 0:
+            mixing = 0.1
+        if log.do_high:
+            log('       mixing: % 10.7f' % mixing)
+
+        # E) Construct the new dm
+        # Put the mixed dm in dm_old, which is local in this routine.
+        dm1.iscale(mixing)
+        dm1.iadd(dm0, factor=1-mixing)
+
+        wfn.clear()
+        wfn.update_dm('alpha', dm1)
+        self.ham.clear()
+
+        fock.clear()
+        self.ham.compute_fock(fock, None)
+        wfn.update_exp(fock, overlap, dm1)
+
+        # the mixing coefficient
+        return mixing
+
+
+def converge_scf_diis_cs(ham, DIISHistoryClass, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, skip_energy=False, scf_step='regular'):
     '''Minimize the energy of the closed-shell wavefunction with EDIIS
 
        **Arguments:**
@@ -62,6 +231,11 @@ def converge_scf_diis_cs(ham, DIISHistoryClass, maxiter=128, threshold=1e-6, nve
             DIIS variants need to compute the energy anyway. for these methods
             this option is irrelevant.
 
+       scf_step
+            The type of SCF step to take after the interpolated states was
+            create from the DIIS history. This can be 'regular', 'oda2' or
+            'oda3'.
+
        **Raises:**
 
        NoSCFConvergence
@@ -75,6 +249,16 @@ def converge_scf_diis_cs(ham, DIISHistoryClass, maxiter=128, threshold=1e-6, nve
     history = DIISHistoryClass(lf, nvector, overlap)
     fock = lf.create_one_body()
     dm = lf.create_one_body()
+
+    # The scf step
+    if scf_step == 'regular':
+        cs_scf_step = CSSCFStep(ham)
+    elif scf_step == 'oda2':
+        cs_scf_step = CSQuadraticODAStep(ham)
+    elif scf_step == 'oda3':
+        cs_scf_step = CSCubicODAStep(ham)
+    else:
+        raise ValueError('scf_step argument not recognized: %s' % scf_step)
 
     # Get rid of outdated stuff
     ham.clear()
@@ -111,16 +295,20 @@ def converge_scf_diis_cs(ham, DIISHistoryClass, maxiter=128, threshold=1e-6, nve
                 ))
             if log.do_high:
                 log.blank()
+            fock_interpolated = False
+        else:
+            energy = None
+            fock_interpolated = True
 
-        # Construct the new DM (regular SCF step)
-        wfn.clear()
-        wfn.update_exp(fock, overlap)
-        ham.clear()
+        # Construct a new density matrix and fock matrix (based on the current
+        # density matrix or fock matrix). The fock matrix is modified in-place
+        # while the density matrix is stored in ham.system.wfn
+        mixing = cs_scf_step(energy, fock, fock_interpolated)
+        if mixing == 0.0:
+            converged = True
+            break
 
-        # Construct the Fock operator for the new DM
-        fock.clear()
         energy = ham.compute() if history.need_energy else None
-        ham.compute_fock(fock, None)
 
         # Write intermediate results to checkpoint
         ham.system.update_chk('wfn')
@@ -146,7 +334,48 @@ def converge_scf_diis_cs(ham, DIISHistoryClass, maxiter=128, threshold=1e-6, nve
             log.blank()
 
         # get extra/intra-polated Fock matrix
-        energy_approx, coeffs, cn, method = history.solve(dm, fock)
+        while True:
+            energy_approx, coeffs, cn, method = history.solve(dm, fock)
+            #if coeffs[coeffs<0].sum() < -1:
+            #    if log.do_high:
+            #        log('          DIIS (coeffs too negative) -> drop %i and retry' % history.stack[0].identity)
+            #    history.shrink()
+            if history.nused <= 2:
+                break
+            if coeffs[-1] == 0.0:
+                if log.do_high:
+                    log('          DIIS (last coeff zero) -> drop %i and retry' % history.stack[0].identity)
+                history.shrink()
+            else:
+                break
+        
+        if False and len(coeffs) == 2:
+            tmp = dm.copy()
+            import matplotlib.pyplot as pt
+            xs = np.linspace(0.0, 1.0, 25)
+            a, b = history._setup_equations()
+            energies1 = []
+            energies2 = []
+            for x in xs:
+                x_coeffs = np.array([1-x, x])
+                energies1.append(np.dot(x_coeffs, 0.5*np.dot(a, x_coeffs) - b))
+                history._build_combinations(x_coeffs, tmp, None)
+                wfn.clear()
+                wfn.update_dm('alpha', tmp)
+                ham.clear()
+                energies2.append(ham.compute())
+                print x, energies1[-1], energies2[-1]
+            pt.clf()
+            pt.plot(xs, energies1, label='est')
+            pt.plot(xs, energies2, label='ref')
+            pt.axvline(coeffs[1], color='k')
+            pt.legend(loc=0)
+            pt.savefig('ediis2_test_%05i.png' % counter)
+
+        wfn.clear()
+        wfn.update_dm('alpha', dm)
+        ham.clear()
+
         if energy_approx is not None:
             energy_change = energy_approx - min(state.energy for state in history.stack)
         else:
@@ -154,11 +383,7 @@ def converge_scf_diis_cs(ham, DIISHistoryClass, maxiter=128, threshold=1e-6, nve
 
         # log
         if log.do_high:
-            log('          DIIS history            fn         coeff         id')
-            fns = history.get_fns()
-            for i in xrange(history.nused):
-                log('          DIIS history  %12.7f  %12.7f   %8i' % (fns[i], coeffs[i], history.stack[i].identity))
-            log.blank()
+            history.log(coeffs)
 
         if log.do_medium:
             change_str = ' '*10 if energy_change is None else '% 12.7f' % energy_change
@@ -170,19 +395,12 @@ def converge_scf_diis_cs(ham, DIISHistoryClass, maxiter=128, threshold=1e-6, nve
         if log.do_high:
             log.blank()
 
-        # shrink in case of an ill conditioned history
-        if (energy_change is not None and energy_change > 0) or coeffs[-1] < 1e-3 or cn > 1e8:
-            if log.do_high:
-                log('          DIIS ill history -> drop %i' % history.stack[0].identity)
-            history.shrink()
-            if history.nused > 0:
-                history.shrink()
-        elif prune_old_states:
+        if prune_old_states:
             # get rid of old states with zero coeff
             for i in xrange(history.nused):
                 if coeffs[i] == 0.0:
                     if log.do_high:
-                        log('          DIIS insignificant -> drop %i' % history.stack[i].identity)
+                        log('          DIIS insignificant -> drop %i' % history.stack[0].identity)
                     history.shrink()
                 else:
                     break
@@ -303,6 +521,20 @@ class DIISHistory(object):
         return len(self.stack)
 
     nvector = property(_get_nvector)
+
+    def log(self, coeffs):
+        eref = min(state.energy for state in self.stack[:self.nused])
+        if eref is None:
+            log('          DIIS history          norm         coeff         id')
+            for i in xrange(self.nused):
+                state = self.stack[i]
+                log('          DIIS history  %12.5e  %12.7f   %8i' % (state.norm, coeffs[i], state.identity))
+        else:
+            log('          DIIS history          norm        energy         coeff         id')
+            for i in xrange(self.nused):
+                state = self.stack[i]
+                log('          DIIS history  %12.5e  %12.5e  %12.7f   %8i' % (state.norm, state.energy-eref, coeffs[i], state.identity))
+        log.blank()
 
     def shrink(self):
         '''Remove the oldest item from the history'''

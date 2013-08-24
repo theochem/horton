@@ -121,6 +121,29 @@ def find_min_cubic(f0, f1, g0, g1):
         return 1.0
 
 
+def find_min_quadratic(g0, g1):
+    '''Find the minimum of a cubic polynomial in the range [0,1]
+
+       **Arguments:**
+
+       g0
+            The derivative at argument 0
+       g1
+            The derivative at argument 1
+    '''
+    if g0 > 0:
+        if g1 < -g0:
+            return 1.0
+        else:
+            return 0.0
+    else:
+        if g1 > 0:
+            # the regular case:
+            return g0 / (g0 - g1)
+        else:
+            return 1.0
+
+
 def check_cubic_cs(ham, dm0, dm1, e0, e1, g0, g1, do_plot=True):
     dm1 = dm1.copy()
 

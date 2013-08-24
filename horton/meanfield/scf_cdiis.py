@@ -33,7 +33,7 @@ __all__ = ['converge_scf_cdiis']
 
 
 @timer.with_section('SCF')
-def converge_scf_cdiis(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=True, skip_energy=False):
+def converge_scf_cdiis(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, skip_energy=False, scf_step='regular'):
     '''Minimize the energy of the wavefunction with the CDIIS algorithm
 
        **Arguments:**
@@ -59,6 +59,11 @@ def converge_scf_cdiis(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_st
        skip_energy
             When set to True, the final energy is not computed.
 
+       scf_step
+            The type of SCF step to take after the interpolated states was
+            create from the DIIS history. This can be 'regular', 'oda2' or
+            'oda3'.
+
        **Raises:**
 
        NoSCFConvergence
@@ -67,12 +72,12 @@ def converge_scf_cdiis(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_st
     '''
     log.cite('pulay1980', 'using the commutator DIIS SCF algorithm')
     if isinstance(ham.system.wfn, RestrictedWFN):
-        converge_scf_cdiis_cs(ham, maxiter, threshold, nvector, prune_old_states, skip_energy)
+        converge_scf_cdiis_cs(ham, maxiter, threshold, nvector, prune_old_states, skip_energy, scf_step)
     else:
         raise NotImplementedError
 
 
-def converge_scf_cdiis_cs(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=True, skip_energy=False):
+def converge_scf_cdiis_cs(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, skip_energy=False, scf_step='regular'):
     '''Minimize the energy of the closed-shell wavefunction with CDIIS
 
        **Arguments:**
@@ -98,6 +103,11 @@ def converge_scf_cdiis_cs(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old
        skip_energy
             When set to True, the final energy is not computed.
 
+       scf_step
+            The type of SCF step to take after the interpolated states was
+            create from the DIIS history. This can be 'regular', 'oda2' or
+            'oda3'.
+
        **Raises:**
 
        NoSCFConvergence
@@ -105,7 +115,7 @@ def converge_scf_cdiis_cs(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old
             of iterations.
     '''
     log.cite('pulay1980', 'the use of the commutator DIIS method')
-    converge_scf_diis_cs(ham, PulayDIISHistory, maxiter, threshold, nvector, prune_old_states, skip_energy)
+    converge_scf_diis_cs(ham, PulayDIISHistory, maxiter, threshold, nvector, prune_old_states, skip_energy, scf_step)
 
 
 class PulayDIISHistory(DIISHistory):
@@ -132,17 +142,6 @@ class PulayDIISHistory(DIISHistory):
         self.cdots = np.empty((nvector, nvector))
         self.cdots.fill(np.nan)
         DIISHistory.__init__(self, lf, nvector, overlap, [self.cdots])
-
-    def get_fns(self):
-        '''Rescaled function values assiociated with each state in the stack.
-
-           For CDIIS, these are the commutator norms of the states, rescaled
-           such that the lowest becomes zero and the highest becomes one.
-        '''
-        norms = np.diag(self.cdots)[:self.nused].copy()
-        norms -= norms.min()
-        norms /= norms.max()
-        return norms
 
     def _complete_cdots_matrix(self):
         '''Complete the matrix of dot products between commutators

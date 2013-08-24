@@ -35,7 +35,7 @@ __all__ = ['converge_scf_ediis2']
 
 
 @timer.with_section('SCF')
-def converge_scf_ediis2(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=True):
+def converge_scf_ediis2(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, scf_step='regular'):
     '''Minimize the energy of the wavefunction with the EDIIS+DIIS algorithm
 
        **Arguments:**
@@ -58,6 +58,11 @@ def converge_scf_ediis2(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_s
             as soon as a state is encountered with a non-zero coefficient. Even
             if some newer states have a zero coefficient.
 
+       scf_step
+            The type of SCF step to take after the interpolated states was
+            create from the DIIS history. This can be 'regular', 'oda2' or
+            'oda3'.
+
        **Raises:**
 
        NoSCFConvergence
@@ -66,12 +71,12 @@ def converge_scf_ediis2(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_s
     '''
     log.cite('kudin2002', 'using the EDIIS+DIIS SCF algorithm')
     if isinstance(ham.system.wfn, RestrictedWFN):
-        converge_scf_ediis2_cs(ham, maxiter, threshold, nvector, prune_old_states)
+        converge_scf_ediis2_cs(ham, maxiter, threshold, nvector, prune_old_states, scf_step)
     else:
         raise NotImplementedError
 
 
-def converge_scf_ediis2_cs(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=True):
+def converge_scf_ediis2_cs(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, scf_step='regular'):
     '''Minimize the energy of the closed-shell wavefunction with EDIIS+DIIS
 
        **Arguments:**
@@ -94,6 +99,11 @@ def converge_scf_ediis2_cs(ham, maxiter=128, threshold=1e-6, nvector=6, prune_ol
             as soon as a state is encountered with a non-zero coefficient. Even
             if some newer states have a zero coefficient.
 
+       scf_step
+            The type of SCF step to take after the interpolated states was
+            create from the DIIS history. This can be 'regular', 'oda2' or
+            'oda3'.
+
        **Raises:**
 
        NoSCFConvergence
@@ -101,7 +111,7 @@ def converge_scf_ediis2_cs(ham, maxiter=128, threshold=1e-6, nvector=6, prune_ol
             of iterations.
     '''
     log.cite('kudin2002', 'For the use of the EDIIS+DIIS method.')
-    converge_scf_diis_cs(ham, EnergyDIIS2History, maxiter, threshold, nvector, prune_old_states)
+    converge_scf_diis_cs(ham, EnergyDIIS2History, maxiter, threshold, nvector, prune_old_states, scf_step)
 
 
 class EnergyDIIS2History(EnergyDIISHistory, PulayDIISHistory):
@@ -134,13 +144,6 @@ class EnergyDIIS2History(EnergyDIISHistory, PulayDIISHistory):
         self.cdots.fill(np.nan)
         DIISHistory.__init__(self, lf, nvector, overlap, [self.edots, self.cdots])
 
-    def get_fns(self):
-        '''Rescaled function values assiociated with each state in the stack.'''
-        if self.stack[self.nused-1].norm < 1e-2:
-            return PulayDIISHistory.get_fns(self)
-        else:
-            return EnergyDIISHistory.get_fns(self)
-
     def solve(self, dm_output, fock_output):
         '''Extrapolate a new density and/or fock matrix that should have the smallest commutator norm.
 
@@ -154,7 +157,14 @@ class EnergyDIIS2History(EnergyDIISHistory, PulayDIISHistory):
                 The output for the Fock matrix. If set to None, this is
                 argument is ignored.
         '''
-        if self.stack[self.nused-1].norm < 1e-2:
+        errmax = max(state.norm for state in self.stack)
+        if errmax > 1e-1:
+            return EnergyDIISHistory.solve(self, dm_output, fock_output)
+        elif errmax < 1e-4:
             return PulayDIISHistory.solve(self, dm_output, fock_output)
         else:
-            return EnergyDIISHistory.solve(self, dm_output, fock_output)
+            energy1, coeffs1, cn1, method1 = PulayDIISHistory.solve(self, None, None)
+            energy2, coeffs2, cn2, method2 = EnergyDIISHistory.solve(self, None, None)
+            coeffs = 10*errmax*coeffs2 + (1-10*errmax)*coeffs1
+            self._build_combinations(coeffs, dm_output, fock_output)
+            return None, coeffs, max(cn1, cn2), 'M'
