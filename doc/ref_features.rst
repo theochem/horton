@@ -97,9 +97,11 @@ Partitioning can be carried on isolated and periodic systems. Both all-electron 
 and pseudo-potential (PP) densities are supported. The following AIM properties can
 be computed:
 
-* Atomic charges, population, pseudo_population, spin charges
-* Cartesian, pure (harmonic) and radial atomic moments
-* Tkatchenko-Scheffler dispersion coefficients [tkatchenko2009]_
+* Atomic charges, population, pseudo_population, spin charges.
+* Cartesian, pure (harmonic) and radial atomic moments.
+* Tkatchenko-Scheffler dispersion coefficients. [tkatchenko2009]_
+* Decomposition of each AIM in spherical harmonics and the derivation of the
+  hartree potential for each component. [becke1988_poisson]_
 
 Note that not all AIM properties work for any combination partitioning scheme
 and boundary condition for technical reasons.

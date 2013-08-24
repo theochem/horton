@@ -48,6 +48,9 @@ Cartesian multipoles     X                           X
 Pure/harmonic multipoles X                           X
 Radial moments           X                           X
 Dispersion coefficients  X                           X                           [tkatchenko2009]_
+spherical decomposition  X
+ESP due to each AIM      X                                                       [becke1988_poisson]_
+ESP due to proatom       X                           X                           [becke1988_poisson]_
 **Extra options**
 Symmetry analysis                                    X
 ======================== =========================== =========================== ============
