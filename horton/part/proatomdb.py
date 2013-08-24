@@ -36,6 +36,7 @@ __all__ = ['ProAtomRecord', 'ProAtomDB']
 
 
 class ProAtomRecord(object):
+    '''A single proatomic density record'''
     @classmethod
     def from_system(cls, system, agspec='fine'):
         '''Construct a proatom record from a system and an atomic grid
@@ -86,6 +87,36 @@ class ProAtomRecord(object):
         return cls(number, charge, energy, homo_energy, atgrid.rgrid, rho, deriv, pseudo_number)
 
     def __init__(self, number, charge, energy, homo_energy, rgrid, rho, deriv=None, pseudo_number=None, ipot_energy=None):
+        '''
+           **Arguments:**
+
+           number
+                The element number of the proatom.
+
+           charge
+                The net charge of the proatom. (integer)
+
+           energy
+                The total energy of the proatom.
+
+           rgrid
+                The radial grid on which the density (and optional radial
+                density derivatives) are tabulated.
+
+           rho
+                The electron density on the grid.
+
+           **Optional arguments:**
+
+           deriv
+                The radial derivative of the electron density.
+
+           pseudo_number
+                The effective core charge (defaults to number).
+
+           ipot_energy
+                The ionization potential.
+        '''
         self._number = number
         self._charge = charge
         self._energy = energy
@@ -548,7 +579,7 @@ class ProAtomDB(object):
            **Arguments:** See ``get_rho`` method.
         '''
         rho, deriv = self.get_rho(number, parameters, combine, do_deriv=True)
-        return CubicSpline(rho, deriv, rtf=self.get_rgrid(number).rtransform)
+        return CubicSpline(rho, deriv, self.get_rgrid(number).rtransform)
 
     def compact(self, nel_lost):
         '''Make the pro-atoms more compact

@@ -219,6 +219,31 @@ def safe_open_h5(*args, **kwargs):
 
 
 def write_part_output(fn_h5, label, part, grp_name, names, args):
+    '''Write the output of horton-wpart.py or horton-cpart.py
+
+       **Arguments:**
+
+       fn_h5
+            The filename for the HDF5 output file.
+
+       label
+            A label used for the partitioning method, which may be modified
+            by from the command line.
+
+       part
+            The partitioning object (instance of subclass of
+            horton.part.base.Part)
+
+       grp_name
+            'wpart' or 'cpart'.
+
+       names
+            The names of the cached items that must go in the HDF5 outut file.
+
+       args
+            The results of the command line parser. All arguments are stored
+            as attributes in the HDF5 output file.
+    '''
     # Store the results in an HDF5 file
     with safe_open_h5(fn_h5) as f:
         # Store system

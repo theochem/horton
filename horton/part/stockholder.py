@@ -75,7 +75,7 @@ class StockHolderMixin(object):
 
         # Make a spline
         rtf = self.get_rgrid(index).rtransform
-        return CubicSpline(rho, deriv, rtf=rtf)
+        return CubicSpline(rho, deriv, rtf)
 
     def eval_spline(self, index, spline, output, grid=None, label='noname'):
         center = self.system.coordinates[index]

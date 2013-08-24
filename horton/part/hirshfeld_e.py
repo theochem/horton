@@ -446,10 +446,10 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
         splines = []
         for j0 in xrange(atom_nbasis):
             rho0 = self.hebasis.get_basis_rho(index, j0)
-            splines.append(CubicSpline(rho0, rtf=rtf))
+            splines.append(CubicSpline(rho0, rtransform=rtf))
             for j1 in xrange(j0+1):
                 rho1 = self.hebasis.get_basis_rho(index, j1)
-                splines.append(CubicSpline(rho0*rho1, rtf=rtf))
+                splines.append(CubicSpline(rho0*rho1, rtransform=rtf))
         return [(center, splines)]
 
     def get_wcor_fit(self, index=None):
