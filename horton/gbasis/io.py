@@ -24,7 +24,9 @@
 from horton.periodic import periodic
 
 
-__all__ = ['str_to_shell_types', 'load_basis_atom_map_nwchem']
+__all__ = [
+    'str_to_shell_types', 'shell_type_to_str', 'load_basis_atom_map_nwchem',
+]
 
 
 def str_to_shell_types(s, pure=False):
@@ -34,6 +36,11 @@ def str_to_shell_types(s, pure=False):
     else:
         d = {'s': 0, 'p': 1, 'd': 2, 'f': 3, 'g': 4, 'h': 5, 'i': 6}
     return [d[c] for c in s.lower()]
+
+
+def shell_type_to_str(shell_type):
+    """Convert a shell type into a character"""
+    return {0: 's', 1: 'p', 2: 'd', 3: 'f', 4: 'g', 5: 'h', 6: 'i'}[abs(shell_type)]
 
 
 def load_basis_atom_map_nwchem(filename):

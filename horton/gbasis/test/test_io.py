@@ -41,6 +41,14 @@ def test_str_to_shell_types_pure():
     assert str_to_shell_types('SDF', True) == [0,-2,-3]
 
 
+def test_shell_type_to_str():
+    assert shell_type_to_str(0) == 's'
+    assert shell_type_to_str(-1) == 'p'
+    assert shell_type_to_str(1) == 'p'
+    assert shell_type_to_str(-3) == 'f'
+    assert shell_type_to_str(4) == 'g'
+
+
 def test_go_basis_desc_neon_sto3g():
     system = System(np.array([[0.0,0.0,0.0]]), np.array([2]), 'STO-3G')
     assert (system.obasis.shell_map == np.array([0])).all()
