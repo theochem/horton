@@ -306,6 +306,12 @@ class MeanFieldWFN(object):
 
     temperature = property(_get_temperature)
 
+    def _get_cache(self):
+        '''The cache object in which the main attributes are stored'''
+        return self._cache
+
+    cache = property(_get_cache)
+
     def _log_init(self):
         '''Write a summary of the wavefunction to the screen logger'''
         if log.do_medium:
