@@ -216,23 +216,23 @@ def test_esp_cost_solve():
 
     # test without constraint
     x = cost.solve()
-    assert abs(cost.gradient(x)).max() < 1e-10
+    assert abs(cost.gradient(x)).max() < 1e-8
 
     # test with constraint 0.0
     x = cost.solve(qtot=0.0)
     charges = x[:10]
-    assert abs(charges.sum()) < 1e-10
+    assert abs(charges.sum()) < 1e-8
     gradient = cost.gradient(x)
-    assert abs(gradient[:10] - gradient[:10].mean()).max() < 1e-10
-    assert abs(gradient[10:]).max() < 1e-10
+    assert abs(gradient[:10] - gradient[:10].mean()).max() < 1e-9
+    assert abs(gradient[10:]).max() < 1e-9
 
     # test with constraint 1.0
     x = cost.solve(qtot=1.0)
     charges = x[:10]
-    assert abs(charges.sum()-1) < 1e-10
+    assert abs(charges.sum()-1) < 1e-9
     gradient = cost.gradient(x)
-    assert abs(gradient[:10] - gradient[:10].mean()).max() < 1e-10
-    assert abs(gradient[10:]).max() < 1e-10
+    assert abs(gradient[:10] - gradient[:10].mean()).max() < 1e-9
+    assert abs(gradient[10:]).max() < 1e-9
 
 
 def test_esp_cost_solve_regularized():
@@ -248,12 +248,12 @@ def test_esp_cost_solve_regularized():
     l = ridge*np.diag(cost._A)[:cost.natom].mean()
     ls = np.ones(cost._B.shape)*l
     ls[-1] = 0
-    assert abs(cost.gradient(x) + 2*ls*x).max() < 1e-10
+    assert abs(cost.gradient(x) + 2*ls*x).max() < 1e-9
 
     # test with constraint 0.0
     x = cost.solve(qtot=0.0, ridge=ridge)
     charges = x[:10]
-    assert abs(charges.sum()) < 1e-10
+    assert abs(charges.sum()) < 1e-9
     gradient = cost.gradient(x) + 2*ls*x
     assert abs(gradient[:10] - gradient[:10].mean()).max() < 1e-10
     assert abs(gradient[10:]).max() < 1e-10
@@ -361,5 +361,5 @@ def test_consistent():
     cost = ESPCost.from_grid_data(sys, ugrid, esp, weights)
     x = cost.solve()
     assert cost.value_charges(charges) < 1e-7
-    assert cost.value(x) < 1e-8
+    assert cost.value(x) < 1e-7
     assert abs(charges - x[:-1]).max() < 1e-4
