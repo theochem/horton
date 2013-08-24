@@ -33,7 +33,7 @@ __all__ = ['converge_scf_ediis']
 
 
 @timer.with_section('SCF')
-def converge_scf_ediis(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=True):
+def converge_scf_ediis(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, scf_step='regular'):
     '''Minimize the energy of the wavefunction with the EDIIS algorithm
 
        **Arguments:**
@@ -56,6 +56,11 @@ def converge_scf_ediis(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_st
             as soon as a state is encountered with a non-zero coefficient. Even
             if some newer states have a zero coefficient.
 
+       scf_step
+            The type of SCF step to take after the interpolated states was
+            create from the DIIS history. This can be 'regular', 'oda2' or
+            'oda3'.
+
        **Raises:**
 
        NoSCFConvergence
@@ -64,12 +69,12 @@ def converge_scf_ediis(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_st
     '''
     log.cite('kudin2002', 'using the energy DIIS SCF algorithm')
     if isinstance(ham.system.wfn, RestrictedWFN):
-        converge_scf_ediis_cs(ham, maxiter, threshold, nvector, prune_old_states)
+        converge_scf_ediis_cs(ham, maxiter, threshold, nvector, prune_old_states, scf_step)
     else:
         raise NotImplementedError
 
 
-def converge_scf_ediis_cs(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=True):
+def converge_scf_ediis_cs(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, scf_step='regular'):
     '''Minimize the energy of the closed-shell wavefunction with EDIIS
 
        **Arguments:**
@@ -92,6 +97,11 @@ def converge_scf_ediis_cs(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old
             as soon as a state is encountered with a non-zero coefficient. Even
             if some newer states have a zero coefficient.
 
+       scf_step
+            The type of SCF step to take after the interpolated states was
+            create from the DIIS history. This can be 'regular', 'oda2' or
+            'oda3'.
+
        **Raises:**
 
        NoSCFConvergence
@@ -99,7 +109,7 @@ def converge_scf_ediis_cs(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old
             of iterations.
     '''
     log.cite('kudin2002', 'For the use of the EDIIS method.')
-    converge_scf_diis_cs(ham, EnergyDIISHistory, maxiter, threshold, nvector, prune_old_states)
+    converge_scf_diis_cs(ham, EnergyDIISHistory, maxiter, threshold, nvector, prune_old_states, scf_step)
 
 
 class EnergyDIISHistory(DIISHistory):
@@ -126,17 +136,6 @@ class EnergyDIISHistory(DIISHistory):
         self.edots.fill(np.nan)
         DIISHistory.__init__(self, lf, nvector, overlap, [self.edots])
 
-    def get_fns(self):
-        '''Rescaled function values assiociated with each state in the stack.
-
-           For EDIIS, these are the energies of the states, rescaled such that
-           the lowest becomes zero and the highest becomes one.
-        '''
-        energies = np.array([state.energy for state in self.stack[:self.nused]])
-        energies -= energies.min()
-        energies /= energies.max()
-        return energies
-
     def _complete_edots_matrix(self):
         '''Complete the matrix of dot products between density and fock matrices
 
@@ -155,6 +154,17 @@ class EnergyDIISHistory(DIISHistory):
                 if i0 != i1:
                     # Note that this matrix is not symmetric!
                     self.edots[i1,i0] = state0.dm.expectation_value(state1.fock)
+
+    def _setup_equations(self):
+        b = np.zeros((self.nused, self.nused), float)
+        e = np.zeros(self.nused, float)
+        for i0 in xrange(self.nused):
+            e[i0] = -self.stack[i0].energy
+            for i1 in xrange(i0+1):
+                b[i0, i1] = -(self.edots[i0,i0] + self.edots[i1,i1] - self.edots[i0,i1] - self.edots[i1,i0])
+                if i0 != i1:
+                    b[i1, i0] = b[i0, i1]
+        return b, e
 
     def solve(self, dm_output, fock_output):
         '''Extrapolate a new density and/or fock matrix that should have the smallest commutator norm.
@@ -175,19 +185,12 @@ class EnergyDIISHistory(DIISHistory):
         self._complete_edots_matrix()
         assert not np.isnan(self.edots[:self.nused,:self.nused]).any()
         # Setup the equations
-        b = np.zeros((self.nused, self.nused), float)
-        e = np.zeros(self.nused, float)
-        for i0 in xrange(self.nused):
-            e[i0] = -self.stack[i0].energy
-            for i1 in xrange(i0+1):
-                b[i0, i1] = -(self.edots[i0,i0] + self.edots[i1,i1] - self.edots[i0,i1] - self.edots[i1,i0])
-                if i0 != i1:
-                    b[i1, i0] = b[i0, i1]
+        b, e = self._setup_equations()
         # Check if solving these equations makes sense.
         if b.max() - b.min() == 0 and e.max() - e.min() == 0:
             raise NoSCFConvergence('Convergence criteria too tight for EDIIS')
         # solve the quadratic programming problem
-        qps = QPSolver(b, e, np.ones((1,self.nused)), np.array([1.0]))
+        qps = QPSolver(b, e, np.ones((1,self.nused)), np.array([1.0]), eps=1e-6)
         if self.nused < 10:
             energy, coeffs = qps.find_brute()
             guess = None

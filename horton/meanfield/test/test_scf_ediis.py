@@ -26,8 +26,24 @@ from horton.meanfield.test.common import check_scf_hf_cs_hf, check_scf_water_cs_
 
 
 def test_scf_ediis_cs_hf():
-    check_scf_hf_cs_hf(SCFWrapper('ediis', threshold=1e-7, nvector=20))
+    check_scf_hf_cs_hf(SCFWrapper('ediis', threshold=1e-6, nvector=20))
+
+
+def test_scf_ediis_cs_hf_oda2():
+    check_scf_hf_cs_hf(SCFWrapper('ediis', threshold=1e-6, nvector=20, scf_step='oda2'))
+
+
+def test_scf_ediis_cs_hf_oda3():
+    check_scf_hf_cs_hf(SCFWrapper('ediis', threshold=1e-6, nvector=20, scf_step='oda3'))
 
 
 def test_scf_ediis_cs_hfs():
     check_scf_water_cs_hfs(SCFWrapper('ediis', threshold=1e-6, nvector=20))
+
+
+def test_scf_ediis_cs_hfs_oda2():
+    check_scf_water_cs_hfs(SCFWrapper('ediis', threshold=1e-6, nvector=20, scf_step='oda3'))
+
+
+def test_scf_ediis_cs_hfs_oda3():
+    check_scf_water_cs_hfs(SCFWrapper('ediis', threshold=1e-6, nvector=20, scf_step='oda3'))

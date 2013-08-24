@@ -91,6 +91,18 @@ def test_find_min_cubic():
     assert find_min_cubic(0.0, 1.0, 0.1, 0.1) == 0.0
 
 
+def test_find_min_quadratic():
+    from horton.meanfield.scf_oda import find_min_quadratic
+    assert find_min_quadratic(0.0, -0.7) == 1.0
+    assert abs(find_min_quadratic(-3.0, 2.8) - 0.51724137931) < 1e-8
+    assert abs(find_min_quadratic(-0.2, 0.1) - 0.666666666667) < 1e-8
+    assert find_min_quadratic(-1.0, 1.0) == 0.5
+    assert find_min_quadratic(-1.0, -1.0) == 1.0
+    assert find_min_quadratic(1.0, 1.0) == 0.0
+    assert find_min_quadratic(1.0, -0.5) == 0.0
+    assert find_min_quadratic(1.0, -1.5) == 1.0
+
+
 def test_scf_oda_aufbau_spin():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     sys = System.from_file(fn_fchk)
