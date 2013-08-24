@@ -189,7 +189,6 @@ def tridiagsym_solve(np.ndarray[double, ndim=1] diag_mid not None,
                                   n)
 
 
-
 cdef class Extrapolation(object):
     cdef cubic_spline.Extrapolation* _this
 
@@ -198,21 +197,47 @@ cdef class Extrapolation(object):
 
 
 cdef class ZeroExtrapolation(Extrapolation):
+    '''Zero left and right of the cubic spline interval'''
     def __cinit__(self):
         self._this = <cubic_spline.Extrapolation*>(new cubic_spline.ZeroExtrapolation())
 
 
 cdef class CuspExtrapolation(Extrapolation):
+    '''Exponential extrapolation at the left side, zero at the right size'''
     def __cinit__(self):
         self._this = <cubic_spline.Extrapolation*>(new cubic_spline.CuspExtrapolation())
 
 
 cdef class PowerExtrapolation(Extrapolation):
+    '''Zero at the right side, power law at the left side'''
     def __cinit__(self, double power):
         self._this = <cubic_spline.Extrapolation*>(new cubic_spline.PowerExtrapolation(power))
 
 
 cdef class CubicSpline(object):
+    '''A cubic spline object
+
+       **Arguments:**
+
+       y
+            The function values at the 1D grid.
+
+       **Optional arguments:**
+
+       dx
+            The derivative of the function values at the 1D grid. If not given,
+            they are determined such that the second derivative of the cubic
+            spline is continuous at the grid points.
+
+       rtransform
+            The transformation object that specifies the 1D grid. If not given,
+            an identity transform is used
+
+       ep
+            The extrapolation object that specifies the spline function outside
+            the interval determined by the 1D grid. By default,
+            CuspExtrapolation() is used.
+    '''
     cdef cubic_spline.CubicSpline* _this
     cdef Extrapolation _ep
     cdef RTransform _rtransform
@@ -220,19 +245,21 @@ cdef class CubicSpline(object):
     cdef np.ndarray _dx
     cdef np.ndarray _dt
 
-    def __cinit__(self, np.ndarray[double, ndim=1] y not None,
-                  np.ndarray[double, ndim=1] dx=None, RTransform rtf=None,
+    def __cinit__(self,
+                  np.ndarray[double, ndim=1] y not None,
+                  np.ndarray[double, ndim=1] dx=None,
+                  RTransform rtransform=None,
                   Extrapolation ep=None):
         assert y.flags['C_CONTIGUOUS']
         self._y = y
         n = y.shape[0]
 
         # Set the rtransform
-        if rtf is None:
+        if rtransform is None:
             self._rtransform = IdentityRTransform(n)
         else:
-            self._rtransform = rtf
-            assert rtf.npoint == n
+            self._rtransform = rtransform
+            assert rtransform.npoint == n
 
         # use given derivatives or construct new ones.
         v = self._rtransform.get_deriv()
@@ -261,8 +288,14 @@ cdef class CubicSpline(object):
         del self._this
 
     property rtransform:
+        '''The RTransform object used for this spline'''
         def __get__(self):
             return self._rtransform
+
+    property ep:
+        '''The extrapolation object used for this spline'''
+        def __get__(self):
+            return self._ep
 
     property y:
         '''Array with function values at the grid points'''
@@ -279,8 +312,24 @@ cdef class CubicSpline(object):
         def __get__(self):
             return self._dt.view()
 
-    def __call__(self, np.ndarray[double, ndim=1] new_x not None, np.ndarray[double, ndim=1] new_y=None):
-        '''evaluate the spline on a grid'''
+    def __call__(self, np.ndarray[double, ndim=1] new_x not None,
+                 np.ndarray[double, ndim=1] new_y=None):
+        '''evaluate the spline on a grid
+
+           **Arguments:**
+
+           new_x
+                A numpy array with the x-values at which the spline must be
+                evaluated.
+
+           **Optional arguments:**
+
+           new_y
+                When given, it is used as output argument. This array must have
+                the same size of new_x.
+
+           **Returns:** new_y
+        '''
         assert new_x.flags['C_CONTIGUOUS']
         new_n = new_x.shape[0]
         if new_y is None:
@@ -291,8 +340,24 @@ cdef class CubicSpline(object):
         self._this.eval(<double*>new_x.data, <double*>new_y.data, new_n)
         return new_y
 
-    def deriv(self, np.ndarray[double, ndim=1] new_x not None, np.ndarray[double, ndim=1] new_dx=None):
-        '''Evaluate the derivative of the spline (towards x) on a grid'''
+    def deriv(self, np.ndarray[double, ndim=1] new_x not None,
+              np.ndarray[double, ndim=1] new_dx=None):
+        '''Evaluate the derivative of the spline (towards x) on a grid
+
+           **Arguments:**
+
+           new_x
+                A numpy array with the x-values at which the spline must be
+                evaluated.
+
+           **Optional arguments:**
+
+           new_dx
+                When given, it is used as output argument. This array must have
+                the same size of new_x.
+
+           **Returns:** new_dx
+        '''
         assert new_x.flags['C_CONTIGUOUS']
         new_n = new_x.shape[0]
         if new_dx is None:
@@ -323,7 +388,27 @@ def eval_spline_cube(CubicSpline spline not None,
                      np.ndarray[double, ndim=1] center not None,
                      np.ndarray[double, ndim=3] output not None,
                      UniformGrid ugrid not None):
+    '''Evaluate a spherically symmetric function on a uniform grid
 
+       **Arguments:**
+
+       spline
+            The cubic spline that contains the radial dependence of the
+            spherically symmetric function.
+
+       center
+            The center of the spherically symmetric function.
+
+       output
+            The output array in which the result is stored.
+
+       ugrid
+            An instance of UniformGrid that specifies the grid points.
+
+       Note that, in case of periodic boundary conditions in the ugrid object,
+       and when the spline as a non-zero tail, this routine may give
+       inaccurate/incorrect results.
+    '''
     assert center.flags['C_CONTIGUOUS']
     assert center.shape[0] == 3
     assert output.flags['C_CONTIGUOUS']
@@ -339,6 +424,26 @@ def eval_spline_grid(CubicSpline spline not None,
                      np.ndarray[double, ndim=1] output not None,
                      np.ndarray[double, ndim=2] points not None,
                      horton.cext.Cell cell not None):
+    '''Evaluate a spherically symmetric function on a general grid
+
+       **Arguments:**
+
+       spline
+            The cubic spline that contains the radial dependence of the
+            spherically symmetric function.
+
+       center
+            The center of the spherically symmetric function.
+
+       points
+            An array with grid points, with shape (N, 3)
+
+       output
+            The output array in which the result is stored.
+
+       cell
+            A specification of the periodic boundary conditions.
+    '''
     assert center.flags['C_CONTIGUOUS']
     assert center.shape[0] == 3
     assert output.flags['C_CONTIGUOUS']
@@ -361,6 +466,14 @@ def eval_spline_grid(CubicSpline spline not None,
 # ctypedef void (rtransform.RTransform::*fn_array_ptr)(double*, double*,int)
 
 cdef class RTransform(object):
+    '''A definition of (radial) grid points by means of a transformation.
+
+       The definition starts from a uniform 1D grid with spacing 1 and starting
+       point 0: 0, 1, 2, 3, ... npoint-1. These values are defined on the
+       so-called t-axis. The transformation is a function r=f(t) that defines
+       the actual grid points on the r-axis: f(0), f(1), f(2), ... f(npoint-1).
+       Different implementation for the function f are available.
+    '''
     cdef rtransform.RTransform* _this
 
     property npoint:
@@ -368,11 +481,19 @@ cdef class RTransform(object):
             return self._this.get_npoint()
 
     def radius(self, t, output=None):
+        '''Return the 1D grid points for the given index(es)
+
+           **Arguments:**
+
+           t
+                A number or an array of numbers for the indexes. t may be
+                fractional or integer.
+        '''
         if isinstance(t, numbers.Number):
             assert output is None
             return self._this.radius(t)
         elif isinstance(t, np.ndarray):
-            return self._radius_array(t, output)
+            return self._radius_array(t.astype(float), output)
         else:
             raise NotImplementedError
 
@@ -389,9 +510,17 @@ cdef class RTransform(object):
         return output
 
     def deriv(self, t, output=None):
+        '''Return the derivative of the transformation for the given index(es)
+
+           **Arguments:**
+
+           t
+                A number or an array of numbers for the indexes. t may be
+                fractional or integer.
+        '''
         if isinstance(t, numbers.Number):
             assert output is None
-            return self._this.deriv(t)
+            return self._this.deriv(t.astype(float))
         elif isinstance(t, np.ndarray):
             return self._deriv_array(t, output)
         else:
@@ -410,9 +539,17 @@ cdef class RTransform(object):
         return output
 
     def deriv2(self, t, output=None):
+        '''Return the second derivative of the transformation for the given index(es)
+
+           **Arguments:**
+
+           t
+                A number or an array of numbers for the indexes. t may be
+                fractional or integer.
+        '''
         if isinstance(t, numbers.Number):
             assert output is None
-            return self._this.deriv2(t)
+            return self._this.deriv2(t.astype(float))
         elif isinstance(t, np.ndarray):
             return self._deriv2_array(t, output)
         else:
@@ -431,9 +568,17 @@ cdef class RTransform(object):
         return output
 
     def deriv3(self, t, output=None):
+        '''Return the third of the transformation for the given index(es)
+
+           **Arguments:**
+
+           t
+                A number or an array of numbers for the indexes. t may be
+                fractional or integer.
+        '''
         if isinstance(t, numbers.Number):
             assert output is None
-            return self._this.deriv3(t)
+            return self._this.deriv3(t.astype(float))
         elif isinstance(t, np.ndarray):
             return self._deriv3_array(t, output)
         else:
@@ -452,11 +597,18 @@ cdef class RTransform(object):
         return output
 
     def inv(self, r, output=None):
+        '''Return the indexes for given radial grid points
+
+           **Arguments:**
+
+           r
+                A number or an array of numbers for the radial grid points.
+        '''
         if isinstance(r, numbers.Number):
             assert output is None
             return self._this.inv(r)
         elif isinstance(r, np.ndarray):
-            return self._inv_array(r, output)
+            return self._inv_array(r.astype(float), output)
         else:
             raise NotImplementedError
 
@@ -540,15 +692,26 @@ cdef class RTransform(object):
             raise TypeError('Unkown RTransform subclass: %s' % clsname)
 
     def to_string(self):
+        '''Represent the rtransform object as a string'''
         raise NotImplementedError
 
     def chop(self, npoint):
+        '''Return an rtransform with ``npoint`` number of grid points
+
+           The remaining grid points are such that they coincide with those from
+           the old rtransform.
+        '''
         raise NotImplementedError
 
     def half(self):
+        '''Return an rtransform with half the number of grid points
+
+           The returned rtransform is such that old(2t+1) = new(t).
+        '''
         raise NotImplementedError
 
     def get_default_int1d(self):
+        '''Return the recommended 1D integrator for this rtransform'''
         from horton.grid.int1d import SimpsonIntegrator1D
         return SimpsonIntegrator1D()
 
@@ -656,10 +819,10 @@ cdef class ShiftedExpRTransform(RTransform):
        with
 
        .. math::
-            r_0 = r_m + r_s
+            r_0 = r_{N-1} + r_s
 
        .. math::
-            \alpha = \log\left(\frac{r_M+r_s}{r_0}\right)/(N-1).
+            \alpha = \log\left(\frac{r_{N-1}+r_s}{r_0}\right)/(N-1).
     '''
     def __cinit__(self, double rmin, double rshift, double rmax, int npoint):
         self._this = <rtransform.RTransform*>(new rtransform.ShiftedExpRTransform(rmin, rshift, rmax, npoint))
@@ -693,7 +856,17 @@ cdef class ShiftedExpRTransform(RTransform):
 
 
 cdef class PowerRTransform(RTransform):
-    r'''An power exponential grid.'''
+    r'''A power grid.
+
+       The grid points are distributed as follows:
+
+       .. math:: r_i = r_0 i^{\alpha}
+
+       with
+
+       .. math::
+            \alpha = \frac{\ln r_{N-1} - \ln r_0}{\ln N-1}
+    '''
     def __cinit__(self, double rmin, double rmax, int npoint):
         self._this = <rtransform.RTransform*>(new rtransform.PowerRTransform(rmin, rmax, npoint))
 
@@ -1303,6 +1476,21 @@ def _parse_segments(segments, npoint):
 
 
 def dot_multi(*integranda, np.ndarray[long, ndim=1] segments=None):
+    '''Multiply the arguments piecewise and sum up the products
+
+       **Arguments:**
+
+       data1, data2, ...
+            Arrays of the same size, whose elements will be multiplied piecewise
+            and then added.
+
+       **Optional arguments:**
+
+       segments
+            An array with segment sizes (integer). If given, the summation is
+            carried out in segments of the given sizes and the return value is
+            an array with the same size as segments.
+    '''
     cdef long npoint = _check_integranda(integranda)
     segments, nsegment = _parse_segments(segments, npoint)
     cdef np.ndarray output = np.zeros(nsegment)
@@ -1335,6 +1523,29 @@ cdef long _get_nmoment(long lmax, long mtype):
 def dot_multi_moments_cube(integranda, UniformGrid ugrid not None,
                            np.ndarray[double, ndim=1] center not None,
                            long lmax, long mtype):
+    '''Multiply the arguments piecewise, including one of a series of multipole functions at a time, and sum up the products.
+
+       **Arguments:**
+
+       data1, data2, ...
+            Arrays of the same size, whose elements will be multiplied piecewise
+            and then added.
+
+       center
+            The origin for the multipole functions
+
+       lmax
+            The maximum angular momentum for the moments
+
+       mtype
+            The type of moments: 1=``cartesian``, 2=``pure``,
+            3=``radial``, 4=``surface``.
+
+       **Returns:** an array where the number of elements matches the number of
+       multipole moments for the given combiantion of lmax and mtype.
+    '''
+
+
     cdef long npoint = _check_integranda(integranda, ugrid.size)
     # Only non-periodic grids are supported to guarantee an unambiguous definition of the polynomial.
     assert ugrid.pbc[0] == 0
@@ -1359,6 +1570,34 @@ def dot_multi_moments(integranda,
                       np.ndarray[double, ndim=1] center not None,
                       long lmax, long mtype,
                       np.ndarray[long, ndim=1] segments):
+    '''Multiply the arguments piecewise, including one of a series of multipole functions at a time, and sum up the products.
+
+       **Arguments:**
+
+       data1, data2, ...
+            Arrays of the same size, whose elements will be multiplied piecewise
+            and then added.
+
+       center
+            The origin for the multipole functions
+
+       lmax
+            The maximum angular momentum for the moments
+
+       mtype
+            The type of moments: 1=``cartesian``, 2=``pure``,
+            3=``radial``, 4=``surface``.
+
+       segments
+            An array with segment sizes (integer). If given, the summation is
+            carried out in segments of the given sizes.
+
+       **Returns:** an array where the number of elements matches the number of
+       multipole moments for the given combiantion of lmax and mtype. If
+       ``segments`` is given, the return array has two indices, the first one
+       running over the segments and the second one running over the moments.
+    '''
+
     assert points.flags['C_CONTIGUOUS']
     assert points.shape[1] == 3
     cdef long npoint = _check_integranda(integranda, points.shape[0])

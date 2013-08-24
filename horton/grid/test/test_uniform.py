@@ -456,7 +456,7 @@ def get_random_spline(radius):
     # construct a random spline
     npoint = 5
     rtf = LinearRTransform(0.001, radius, npoint)
-    return CubicSpline(np.random.uniform(3, 4, npoint), rtf=rtf)
+    return CubicSpline(np.random.uniform(3, 4, npoint), rtransform=rtf)
 
 
 def check_window_eval_spline(window, center, radius):

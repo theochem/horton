@@ -117,7 +117,7 @@ def test_continuity_exp():
     N = 10
     rtf = ExpRTransform(0.1, 1.0, N)
     y = np.random.normal(0,1,N)
-    cs = CubicSpline(y,rtf=rtf)
+    cs = CubicSpline(y, rtransform=rtf)
     # test the function values at the grid points
     tnew = np.arange(N, dtype=float)
     xnew = rtf.radius(tnew)
@@ -147,7 +147,7 @@ def test_accuracy_exp():
     rtf = ExpRTransform(0.1, 1.0, size)
     x = rtf.get_radii()
     y = np.sin(x)
-    cs = CubicSpline(y, rtf=rtf)
+    cs = CubicSpline(y, rtransform=rtf)
     newx = np.arange(0.1, 1.0, 0.01)
     newy = np.zeros(len(newx))
     cs(newx, newy)
@@ -198,7 +198,7 @@ def test_deriv_exp2():
     x = rtf.get_radii()
     y = np.exp(-0.3*x)
     d = -0.3*y
-    cs = CubicSpline(y, rtf=rtf)
+    cs = CubicSpline(y, rtransform=rtf)
     assert abs(cs.deriv(x) - d).max() < 3e-2
     t = np.arange(9, dtype=float)+0.5
     x = rtf.radius(t)
@@ -220,7 +220,7 @@ def test_deriv_identity3():
 def test_deriv_exp3():
     rtf = ExpRTransform(0.1, 1.0, 10)
     y = np.random.normal(0, 1, 10)
-    cs = CubicSpline(y, rtf=rtf)
+    cs = CubicSpline(y, rtransform=rtf)
     t = np.arange(9, dtype=float)+0.5
     x = rtf.radius(t)
     eps = 1e-6
@@ -293,7 +293,7 @@ def test_extrapolation1_exp():
 def test_bug_steven():
     y = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 8.95307674e-005, 2.64520014e-004, 4.86536423e-004, 7.72847240e-004, 1.15087885e-003, 1.66508373e-003, 2.38709713e-003, 3.42860950e-003, 4.95314131e-003, 7.17684800e-003, 1.03407874e-002, 1.46341247e-002, 2.00627694e-002, 2.63026157e-002, 3.26349709e-002, 3.80678816e-002, 4.16324963e-002, 4.26735205e-002, 4.09493929e-002, 3.65937608e-002, 3.01384965e-002, 2.25802551e-002, 1.52220562e-002, 9.20415761e-003, 5.04355509e-003, 2.56723646e-003, 1.24504774e-003, 5.72945090e-004, 2.36808736e-004, 8.00848384e-005, 1.99672917e-005, 3.30308018e-006, 3.22840493e-007, 1.62065171e-008, 3.50644056e-010, 2.62139812e-012, 5.12409163e-015, 1.84238101e-018, 7.81842741e-023, 2.23721221e-028, 2.12999970e-035, 2.76742060e-044, 1.59368870e-055, 9.84245631e-070, 1.08780738e-087, 2.24648735e-110])
     rtf = ExpRTransform(0.0003779452267842504, 37.79452267842504, 100)
-    cs = CubicSpline(y, rtf=rtf)
+    cs = CubicSpline(y, rtransform=rtf)
     d = np.array([0.000141, 0.00141, 0.0141, 0.141, 1.41])
     s = cs(d)
     assert not np.isnan(s).any()
