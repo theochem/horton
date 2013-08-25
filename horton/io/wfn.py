@@ -88,7 +88,7 @@ def load_wfn_low(filename):
         type_assignment = np.array([int(i) for i in type_assignment])
         exponents = helper_section(f, 'EXPONENTS', 1)
         #Making arrays to store the wfn data
-        exponents = np.array([float(i.replace('D', 'E')) for i in exponents]) 
+        exponents = np.array([float(i.replace('D', 'E')) for i in exponents])
         mo_count = np.empty(num_mo, int)
         mo_occ = np.empty(num_mo, float)
         mo_energy = np.empty(num_mo, float)
@@ -125,25 +125,28 @@ def setup_permutation1(type_assignment):
 
 def setup_permutation2(type_assignment):
     '''Permnutes the basis functions to get the proper order for Horton
-    d orbitals:
-        wfn:     [5, 6, 7, 8, 9, 10]
-        horton:  [5, 8, 9, 6, 10, 7]
-        permute: [0, 3, 4, 1, 5, 2]
 
-    f orbitals:
-        wfn:     [11, 12, 13, 17, 14, 15, 18, 19, 16, 20]
-        horton:  [11, 14, 15, 17, 20, 18, 12, 16, 19, 13]
-        permute: [0, 4, 5, 3, 9, 6, 1, 8, 7, 2]
-    
-    g orbital:
-        wfn:     [23, 29, 32, 27, 22, 28, 35, 34, 26, 31, 33, 30, 25, 24, 21]
-        horton:  [21, 24, 25, 30, 33, 31, 26, 34, 35, 28, 22, 27, 32, 29, 23]
-        permute: [14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+       Permutation conventions are as follows::
 
-    h orbital:
-        wfn:     [36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56]
-        horton:  [56, 55, 54, 53, 52, 51, 50, 49, 48, 47, 46, 45, 44, 43, 42, 41, 40, 39, 38, 37, 36]
-        permute: [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+           d orbitals:
+               wfn:     [5, 6, 7, 8, 9, 10]
+               horton:  [5, 8, 9, 6, 10, 7]
+               permute: [0, 3, 4, 1, 5, 2]
+
+           f orbitals:
+               wfn:     [11, 12, 13, 17, 14, 15, 18, 19, 16, 20]
+               horton:  [11, 14, 15, 17, 20, 18, 12, 16, 19, 13]
+               permute: [0, 4, 5, 3, 9, 6, 1, 8, 7, 2]
+
+           g orbital:
+               wfn:     [23, 29, 32, 27, 22, 28, 35, 34, 26, 31, 33, 30, 25, 24, 21]
+               horton:  [21, 24, 25, 30, 33, 31, 26, 34, 35, 28, 22, 27, 32, 29, 23]
+               permute: [14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+
+           h orbital:
+               wfn:     [36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56]
+               horton:  [56, 55, 54, 53, 52, 51, 50, 49, 48, 47, 46, 45, 44, 43, 42, 41, 40, 39, 38, 37, 36]
+               permute: [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
     '''
     num_primitives = type_assignment.size
     permutation = setup_permutation1(type_assignment)
@@ -210,7 +213,7 @@ def load_wfn(filename, lf):
         exp_alpha.coeffs[:] = coefficients
         exp_alpha.energies[:] = mo_energy
         exp_alpha.occupations[:] = mo_occ/2
-    else:   
+    else:
         #open shell system
         #counting the number of alpha and beta orbitals
         index = 1
@@ -225,7 +228,7 @@ def load_wfn(filename, lf):
         exp_beta.coeffs[:] = coefficients[:,index:]
         exp_beta.energies[:] = mo_energy[index:]
         exp_beta.occupations[:] = mo_occ[index:]
-        
+
     return {
         'coordinates': coordinates,
         'numbers': numbers,

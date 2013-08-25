@@ -73,8 +73,9 @@ Atomic wavefunctions from CP2K (2.4-r12857)        ``*.cp2k.out``     X
 Gaussian cube files                                ``*.cube``         X    X
 Gaussian log files (operators)                     ``*.log``          X
 Gaussian format checkpoint files                   ``*.fchk``         X
-Molden input files (wavefunction)                  ``*.molden.input`` X
+Molden input files (wavefunction)                  ``*.molden.input`` X    X
 Molekel file                                       ``*.mkl``          X
+Gaussian / GAMESS WFN file                         ``*.wfn``          X
 VASP CHGCAR and LOCPOT files                                          X
 VASP POSCAR                                                           X    X
 XYZ format                                         ``*.xyz``          X    X

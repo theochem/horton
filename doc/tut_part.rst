@@ -32,6 +32,7 @@ Command-line script      ``horton-wpart.py``         ``horton-cpart.py``
 Gaussian03/09 fchk       X                                                       http://www.gaussian.com/
 Molekel (Orca)           X                                                       http://cec.mpg.de/forum/
 Molden input (Orca)      X                                                       http://cec.mpg.de/forum/
+Gaussian/GAMESS wfn      X                                                       http://www.gaussian.com/ http://www.msg.ameslab.gov/gamess/
 Gaussian03/09 cube                                   X                           http://www.gaussian.com/
 Vasp CHGCAR                                          X                           https://www.vasp.at/
 **AIM schemes**

@@ -54,15 +54,15 @@ def test_load_wfn_low_h2O():
     fn_wfn = context.get_fn('test/h2o_sto3g.wfn')
     numbers, coordinates, centers, type_assignment, exponents, mo_count, occ_num, mo_energy, coefficients = load_wfn_low(fn_wfn)
     assert numbers.shape == (3,)
-    assert (numbers == np.array([8, 1, 1])).all()    
+    assert (numbers == np.array([8, 1, 1])).all()
     assert coordinates.shape == (3, 3)
     assert (coordinates[0] == [-4.44734101, 3.39697999, 0.00000000]).all()
     assert (coordinates[1] == [-2.58401495, 3.55136194, 0.00000000]).all()
-    assert (coordinates[2] == [-4.92380519, 5.20496220, 0.00000000]).all()    
+    assert (coordinates[2] == [-4.92380519, 5.20496220, 0.00000000]).all()
     assert centers.shape == (21,)
     assert (centers[:15] == np.zeros(15, int)).all()
     assert (centers[15:] == np.array([1, 1, 1, 2, 2, 2])).all()
-    assert type_assignment.shape == (21,)    
+    assert type_assignment.shape == (21,)
     assert (type_assignment[:6] == np.ones(6)).all()
     assert (type_assignment[6:15] == np.array([2, 2, 2, 3, 3, 3, 4, 4, 4])).all()
     assert (type_assignment[15:] == np.ones(6)).all()
@@ -84,7 +84,7 @@ def test_load_wfn_low_h2O():
     assert (coefficients[0] == [0.42273517E+01, -0.99395832E+00, 0.19183487E-11, 0.44235381E+00, -0.57941668E-14]).all()
     assert coefficients[ 6, 2] ==  0.83831599E+00
     assert coefficients[10, 3] ==  0.65034846E+00
-    assert coefficients[17, 1] ==  0.12988055E-01 
+    assert coefficients[17, 1] ==  0.12988055E-01
     assert coefficients[-1, 0] == -0.46610858E-03
     assert coefficients[-1,-1] == -0.33277355E-15
 
@@ -98,7 +98,7 @@ def test_setup_permutation1():
     assert (setup_permutation1(np.array([1, 5, 6, 7, 8, 9, 10, 1])) == [0, 1, 2, 3, 4, 5, 6, 7]).all()
     assert (setup_permutation1(np.array([5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10])) == [0, 2, 4, 6, 8, 10, 1, 3, 5, 7, 9, 11]).all()
     assert (setup_permutation1(np.array([1, 2, 2, 3, 3, 4, 4, 5, 6, 7, 8, 9, 10])) == [0, 1, 3, 5, 2, 4, 6, 7, 8, 9, 10, 11, 12]).all()
-    assert (setup_permutation1(np.array([11, 12, 13, 17, 14, 15, 18, 19, 16, 20])) == range(10)).all() # f orbitals    
+    assert (setup_permutation1(np.array([11, 12, 13, 17, 14, 15, 18, 19, 16, 20])) == range(10)).all() # f orbitals
     assert (setup_permutation1(np.array([23, 29, 32, 27, 22, 28, 35, 34, 26, 31, 33, 30, 25, 24, 21])) == range(15)).all() # g orbitals
     assert (setup_permutation1(np.array([23, 29, 32, 27, 22, 28, 35, 34, 26, 31, 33, 30, 25, 24, 21])) == range(15)).all() # g orbitals
     assert (setup_permutation1(np.arange(36, 57)) == range(21)).all() # h orbitals
@@ -142,8 +142,8 @@ def check_load_wfn(name):
     #system out of *.log and *.fchk files
     sys2 = System.from_file(context.get_fn('test/%s.log' % name), context.get_fn('test/%s.fchk' % name))
     ham2 = Hamiltonian(sys2, [HartreeFockExchange()])
-    energy2 = ham2.compute()    
-    #System check:    
+    energy2 = ham2.compute()
+    #System check:
     assert sys1.natom == sys2.natom
     assert (abs(sys1.coordinates - sys2.coordinates) < 1e-6).all()
     assert (sys1.numbers == sys2.numbers).all()
@@ -155,11 +155,11 @@ def check_load_wfn(name):
     assert (abs(sys1.obasis.alphas - sys2.obasis.alphas) < 1.e-4).all()
     #Comparing MOs (*.wfn might not contain virtual orbitals):
     n_mo = sys1.wfn.exp_alpha.nfn
-    assert (abs(sys1.wfn.exp_alpha.energies - sys2.wfn.exp_alpha.energies[:n_mo]) < 1.e-5).all()     
-    assert (sys1.wfn.exp_alpha.occupations == sys2.wfn.exp_alpha.occupations[:n_mo]).all() 
-    assert (abs(sys1.wfn.exp_alpha.coeffs   - sys2.wfn.exp_alpha.coeffs[:,:n_mo]) < 1.e-7).all()        
+    assert (abs(sys1.wfn.exp_alpha.energies - sys2.wfn.exp_alpha.energies[:n_mo]) < 1.e-5).all()
+    assert (sys1.wfn.exp_alpha.occupations == sys2.wfn.exp_alpha.occupations[:n_mo]).all()
+    assert (abs(sys1.wfn.exp_alpha.coeffs   - sys2.wfn.exp_alpha.coeffs[:,:n_mo]) < 1.e-7).all()
     assert (abs(sys1.get_overlap()._array[:] - sys2.get_overlap()._array[:]) < 1e-6).all()
-    assert abs(energy1 - energy2) < 1e-5    
+    assert abs(energy1 - energy2) < 1e-5
     # Check normalization
     sys1.wfn.exp_alpha.check_normalization(sys1.get_overlap(), 1e-5)
     return sys1, energy1
@@ -228,7 +228,7 @@ def test_load_wfn_he_spdfgh_virtual():
     assert (abs(charges - expected_charge) < 1e-5).all()
 
 
-def test_load_wfn_h2o_sto3g_decontracted(): 
+def test_load_wfn_h2o_sto3g_decontracted():
     fn_wfn = context.get_fn('test/h2o_sto3g_decontracted.wfn')
     sys = System.from_file(fn_wfn)
     assert isinstance(sys.wfn, RestrictedWFN)
@@ -242,7 +242,7 @@ def test_load_wfn_h2o_sto3g_decontracted():
     assert (abs(charges - expected_charge) < 1e-5).all()
 
 
-def test_load_wfn_h2_ccpvqz_virtual(): 
+def test_load_wfn_h2_ccpvqz_virtual():
     fn_wfn = context.get_fn('test/h2_ccpvqz.wfn')
     sys = System.from_file(fn_wfn)
     assert isinstance(sys.wfn, RestrictedWFN)
@@ -329,9 +329,9 @@ def test_load_wfn_o2_virtual():
     assert sys.wfn.exp_alpha.occupations.shape == (44,)
     assert sys.wfn.exp_beta.occupations.shape  == (44,)
     assert (sys.wfn.exp_alpha.occupations[:9] == np.ones(9)).all()
-    assert (sys.wfn.exp_beta.occupations[:7]  == np.ones(7)).all()    
+    assert (sys.wfn.exp_beta.occupations[:7]  == np.ones(7)).all()
     assert (sys.wfn.exp_alpha.occupations[9:] == np.zeros(35)).all()
-    assert (sys.wfn.exp_beta.occupations[7:]  == np.zeros(37)).all()        
+    assert (sys.wfn.exp_beta.occupations[7:]  == np.zeros(37)).all()
     assert sys.wfn.exp_alpha.energies.shape == (44,)
     assert sys.wfn.exp_beta.energies.shape  == (44,)
     assert sys.wfn.exp_alpha.energies[0]  == -20.752000
@@ -346,7 +346,7 @@ def test_load_wfn_o2_virtual():
     energy = ham.compute()
     assert abs(energy - (-149.664140769678)) < 1.e-6   #Compare to the energy printed in wfn file
 
-    
+
 def test_load_wfn_lif_fci():
     fn_wfn = context.get_fn('test/lif_fci.wfn')
     sys = System.from_file(fn_wfn)
@@ -356,7 +356,7 @@ def test_load_wfn_lif_fci():
     sys.wfn.exp_alpha.check_normalization(sys.get_overlap(), 1e-5) #Check normalization
     assert sys.wfn.exp_alpha.occupations.shape == (18,)
     assert abs(sys.wfn.exp_alpha.occupations.sum() - 6.0) < 1.e-6
-    assert sys.wfn.exp_alpha.occupations[0] == 2.00000000/2   
+    assert sys.wfn.exp_alpha.occupations[0] == 2.00000000/2
     assert sys.wfn.exp_alpha.occupations[10] == 0.00128021/2
     assert sys.wfn.exp_alpha.occupations[-1] == 0.00000054/2
     assert sys.wfn.exp_alpha.energies.shape == (18,)
@@ -369,13 +369,13 @@ def test_load_wfn_lif_fci():
     kin = sys.extra['energy_kin']
     nn = sys.extra['energy_nn']
     expected_kin = 106.9326884815  #FCI kinetic energy
-    expected_nn = 9.1130265227 
+    expected_nn = 9.1130265227
     assert (kin - expected_kin) < 1.e-6
     assert (nn - expected_nn) < 1.e-6
     charges = compute_mulliken_charges(sys)   #Check charges
     expected_charge = np.array([-0.645282, 0.645282])
-    assert (abs(charges - expected_charge) < 1e-5).all()    
-    points = np.array([[0.0, 0.0,-0.17008], [0.0, 0.0, 0.0], [0.0, 0.0, 0.03779]])    
+    assert (abs(charges - expected_charge) < 1e-5).all()
+    points = np.array([[0.0, 0.0,-0.17008], [0.0, 0.0, 0.0], [0.0, 0.0, 0.03779]])
     density = sys.compute_grid_density(points)
     assert (abs(density - [0.492787, 0.784545, 0.867723]) < 1.e-4).all()
 
@@ -390,40 +390,14 @@ def test_load_wfn_lih_cation_fci():
     ham = Hamiltonian(sys, [HartreeFockExchange()])
     energy = ham.compute() #cannot be compared!
     kin = sys.extra['energy_kin']
-    nn = sys.extra['energy_nn']    
+    nn = sys.extra['energy_nn']
     expected_kin = 7.7989675958  #FCI kinetic energy
     expected_nn = 0.9766607347
     assert (kin - expected_kin) < 1.e-6
-    assert (nn - expected_nn) < 1.e-6    
+    assert (nn - expected_nn) < 1.e-6
     assert sys.wfn.exp_alpha.occupations.shape == (11,)
     assert abs(sys.wfn.exp_alpha.occupations.sum() - 1.5) < 1.e-6
     charges = compute_mulliken_charges(sys)   #Check charges
     expected_charge = np.array([0.913206, 0.086794])
-    assert (abs(charges - expected_charge) < 1e-5).all()    
+    assert (abs(charges - expected_charge) < 1e-5).all()
     point = np.array([])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
