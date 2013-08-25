@@ -114,7 +114,7 @@ def check_scf_hf_cs_hf(scf_wrapper):
     # compare with g09
     assert abs(sys.extra['energy'] - -9.856961609951867E+01) < 1e-8
     assert abs(sys.extra['energy_kin'] - 9.766140786239E+01) < 2e-7
-    assert abs(sys.extra['energy_hartree'] + sys.extra['energy_exchange_hartree_fock'] - 4.561984106482E+01) < 1e-7
+    assert abs(sys.extra['energy_hartree'] + sys.extra['energy_exchange_hartree_fock'] - 4.561984106482E+01) < 1e-6
     assert abs(sys.extra['energy_ne'] - -2.465756615329E+02) < 1e-6
     assert abs(sys.extra['energy_nn'] - 4.7247965053) < 1e-8
 
