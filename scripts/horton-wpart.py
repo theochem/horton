@@ -40,7 +40,7 @@ def parse_args():
         version="%%(prog)s (horton version %s)" % __version__)
 
     parser.add_argument('wfn',
-        help='The wfn file. Supported formats: fchk, mkl, molden.input')
+        help='The wfn file. Supported formats: fchk, mkl, molden.input, wfn')
     parser.add_argument('scheme', choices=sorted(wpart_schemes.keys()),
         help='The scheme to be used for the partitioning')
     parser.add_argument('atoms', default=None, nargs='?',

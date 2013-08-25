@@ -1,6 +1,29 @@
 Release history
 ###############
 
+* **August 24, 2013. Version 1.2.0**
+
+   - Gaussian/GAMESS wfn file reader. WFN files are now supported in
+     ``horton-wpart.sh``. (Thanks to Farnaz!)
+   - Molden input file format can used for writing Horton wavefunctions.
+   - The efficiency of ``horton-wpart.sh`` has improved.
+   - ``--lmax`` option for ``horton-wpart.sh`` and ``horton-cpart.sh`` to
+     control the maximum angular momentum for the multipole analysis.
+   - Fixed a division-by-zero-bug and a caching bug in the Iterative
+     Stockholder scheme.
+   - DIIS algorithms in ``horton.meanfield`` package: CDIIS [pulay1980]_, EDIIS
+     and EDIIS+DIIS [kudin2002]_.
+   - Improved efficiency of numerical integration in DFT hamiltonians.
+   - A robust quadratic programming solver with linear (in)equality constraints.
+     (This is used by EDIIS and Hirshfeld-E.)
+   - Fix for compilation of libxc-2.0.2 with gfortran 4.8.1 and newer.
+   - More detailed timer output. (Simplified usage of timer in source code.)
+   - Improved screen output.
+   - More documentation of the source code.
+   - Several mistakes were fixed in the Gaussian basis set tutorial.
+   - LineGrid and RectangleGrid for visualization purposes.
+   - Various cleanups.
+
 * **July 22, 2013. Version 1.1.0**
 
    - Iterative Stockholder partitioning [lillestolen2008]_.
