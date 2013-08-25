@@ -1,13 +1,13 @@
 Release history
 ###############
 
-* **August 24, 2013. Version 1.2.0**
+* **August 25, 2013. Version 1.2.0**
 
    - Gaussian/GAMESS wfn file reader. WFN files are now supported in
      ``horton-wpart.sh``. (Thanks to Farnaz!)
-   - Molden input file format can used for writing Horton wavefunctions.
+   - Horton wavefunctions can now be written to the molden file format.
    - The efficiency of ``horton-wpart.sh`` has improved.
-   - ``--lmax`` option for ``horton-wpart.sh`` and ``horton-cpart.sh`` to
+   - Added ``--lmax`` option to ``horton-wpart.sh`` and ``horton-cpart.sh`` to
      control the maximum angular momentum for the multipole analysis.
    - Fixed a division-by-zero-bug and a caching bug in the Iterative
      Stockholder scheme.
