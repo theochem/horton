@@ -62,6 +62,8 @@ class Hartree(Observable):
 
 
 class HartreeFockExchange(Observable):
+    exchange = True
+
     def __init__(self, label='exchange_hartree_fock', fraction_exchange=1.0):
         self.fraction_exchange = fraction_exchange
         Observable.__init__(self, label)
@@ -97,8 +99,9 @@ class HartreeFockExchange(Observable):
 # TODO: Make base class for grid functionals where alpha and beta contributions are independent.
 class DiracExchange(Observable):
     '''An implementation of the Dirac Exchange Functional'''
-
     require_grid = True
+    exchange = True
+
     def __init__(self, label='exchange_dirac', coeff=None):
         '''
            **Arguments:**
