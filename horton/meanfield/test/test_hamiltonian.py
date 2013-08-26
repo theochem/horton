@@ -236,16 +236,27 @@ def test_auto_complete():
     assert any(isinstance(term, Hartree) for term in ham.terms)
 
     # special behavior
-    ham = Hamiltonian(sys, [HartreeFockExchange()], auto_complete=False)
+    ham = Hamiltonian(sys, [HartreeFockExchange()], idiot_proof=False)
     assert not any(isinstance(term, KineticEnergy) for term in ham.terms)
     assert not any(isinstance(term, Hartree) for term in ham.terms)
     assert not any(isinstance(term, ExternalPotential) for term in ham.terms)
 
 
+def test_exchange_missing():
+    fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
+    sys = System.from_file(fn_fchk)
+    grid = BeckeMolGrid(sys)
+
+    # Hartree model
+    with assert_raises(ValueError):
+        ham = Hamiltonian(sys, [Hartree(), LibXCLDA('c_vwn')], grid)
+    ham = Hamiltonian(sys, [Hartree()], idiot_proof=False)
+
+
 def test_add_term():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
-    ham = Hamiltonian(sys, [HartreeFockExchange()], auto_complete=False)
+    ham = Hamiltonian(sys, [HartreeFockExchange()], idiot_proof=False)
     term = KineticEnergy()
     ham.add_term(term)
     assert term._hamiltonian is ham

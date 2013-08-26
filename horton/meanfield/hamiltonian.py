@@ -34,7 +34,7 @@ __all__ = [
 
 
 class Hamiltonian(object):
-    def __init__(self, system, terms, grid=None, auto_complete=True):
+    def __init__(self, system, terms, grid=None, idiot_proof=True):
         '''
            **Arguments:**
 
@@ -42,17 +42,17 @@ class Hamiltonian(object):
                 The System object for which the energy must be computed.
 
            terms
-                The terms in the Hamiltonian. Kinetic energy, external
-                potential (nuclei), and Hartree are added automatically.
+                The terms in the Hamiltonian.
 
            **Optional arguments:**
 
            grid
                 The integration grid, in case some terms need one.
 
-           auto_complete
+           idiot_proof
                 When set to False, the kinetic energy, external potential and
-                Hartree terms are not added automatically.
+                Hartree terms are not added automatically and a error is raised
+                when no exchange is present.
         '''
         # check arguments:
         if len(terms) == 0:
@@ -66,7 +66,10 @@ class Hamiltonian(object):
         self.terms = list(terms)
         self.grid = grid
 
-        if auto_complete:
+        if idiot_proof:
+            # Check if an exchange term is present
+            if not any(term.exchange for term in self.terms):
+                raise ValueError('No exchange term is given and idiot_proof option is set to True.')
             # Add standard terms if missing
             #  1) Kinetic energy
             if sum(isinstance(term, KineticEnergy) for term in terms) == 0:
@@ -77,6 +80,7 @@ class Hamiltonian(object):
             #  3) External Potential
             if sum(isinstance(term, ExternalPotential) for term in terms) == 0:
                 self.terms.append(ExternalPotential())
+
 
         # Create a cache for shared intermediate results. This cache should only
         # be used for derived quantities that depend on the wavefunction and

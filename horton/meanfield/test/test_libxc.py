@@ -223,7 +223,7 @@ def test_cubic_interpolation_c_pbe_cs():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys, random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(), LibXCGGA('c_pbe')], grid)
+    ham = Hamiltonian(sys, [Hartree(), LibXCGGA('c_pbe')], grid, idiot_proof=False)
 
     dm0 = sys.wfn.dm_alpha.copy()
     with assert_raises(NoSCFConvergence):
@@ -284,7 +284,7 @@ def test_cubic_interpolation_c_pbe_os():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys, random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(), LibXCGGA('c_pbe')], grid)
+    ham = Hamiltonian(sys, [Hartree(), LibXCGGA('c_pbe')], grid, idiot_proof=False)
 
     dma0 = sys.wfn.dm_alpha.copy()
     dmb0 = sys.wfn.dm_beta.copy()
