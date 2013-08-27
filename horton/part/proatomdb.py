@@ -538,26 +538,28 @@ class ProAtomDB(object):
             rho = 0.0
             if do_deriv:
                 deriv = 0.0
+            else:
+                deriv = None
             if combine == 'linear':
                 for charge, coeff in parameters.iteritems():
                     if coeff != 0.0:
                         record = self.get_record(number, charge)
                         rho += coeff*record.rho
-                        if do_deriv and record.deriv is not None:
+                        if do_deriv and record.deriv is not None and deriv is not None:
                             deriv += coeff*record.deriv
                         else:
-                            do_deriv = False
+                            deriv = None
             elif combine == 'geometric':
                 for charge, coeff in parameters.iteritems():
                     if coeff != 0.0:
                         record = self.get_record(number, charge)
                         rho += coeff*np.log(record.rho)
-                        if do_deriv:
+                        if do_deriv and record.deriv is not None and deriv is not None:
                             deriv += coeff*record.deriv/record.rho
                         else:
-                            do_deriv = False
+                            deriv = None
                 rho = np.exp(rho)
-                if do_deriv:
+                if do_deriv and deriv is not None:
                     deriv = rho*deriv
             else:
                 raise ValueError('Combine argument "%s" not supported.' % combine)

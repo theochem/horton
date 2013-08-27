@@ -158,6 +158,7 @@ def check_spline_pop(spline, pop):
     )
     assert abs(pop - check_pop) < 1e-2
 
+
 def check_spline_mono_decr(spline):
     t = np.arange(0, spline.rtransform.npoint, 0.1)
     x = spline.rtransform.radius(t)
@@ -247,3 +248,13 @@ def test_io_atdens():
     assert abs(radii[-1] - 20) < 1e-14
     assert abs(radii[1] - 0.5442350204E-03) < 1e-8
     assert abs(r.rgrid.integrate(r.rho) - 13) < 1e-3
+    # check the basics of the get_rho method (charge)
+    rho1 = padb.get_rho(16, 3)
+    rho2, deriv = padb.get_rho(16, 3, do_deriv=True)
+    assert (rho1 == rho2).all()
+    assert deriv is None
+    # check the basics of the get_rho method (dict)
+    rho1 = padb.get_rho(16, {3:1})
+    rho2, deriv = padb.get_rho(16, {3:1}, do_deriv=True)
+    assert (rho1 == rho2).all()
+    assert deriv is None
