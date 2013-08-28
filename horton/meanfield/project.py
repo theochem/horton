@@ -22,6 +22,7 @@
 
 
 import numpy as np
+from horton.log import log
 from horton.matrix import DenseLinalgFactory
 from horton.gbasis.cext import GOBasis
 from horton.meanfield.wfn import RestrictedWFN, UnrestrictedWFN
@@ -57,6 +58,9 @@ def project_orbitals_mgs(system, old_wfn, old_obasis, eps=1e-10):
 
        See ``project_orbitals_mgs_low`` for details.
     '''
+    if log.do_medium:
+        log('Projecting the wavefunction on a new basis.')
+        log.blank()
     if isinstance(old_wfn, RestrictedWFN):
         assert isinstance(system.wfn, RestrictedWFN)
         if 'exp_alpha' not in system.wfn._cache:
