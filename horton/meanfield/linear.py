@@ -71,18 +71,22 @@ class CustomLinearObservable(LinearObservable):
            **Arguments:**
 
            get_operator
-                A function that returns an operator.
+                A function takes a system object as argument and that returns an
+                operator.
 
                 For the sake of convenience, this argument may also be a OneBody
                 object. However, this is an error prone practice, e.g. the
                 operator won't get updated when the basis set changes.
         '''
         if isinstance(get_operator, OneBody):
-            def my_get_operator():
+            def my_get_operator(system):
                 return get_operator
         elif callable(get_operator):
             my_get_operator = get_operator
         else:
             TypeError('Could not interpret get_operator argument.')
-        self.get_operator = my_get_operator
+        self.my_get_operator = my_get_operator
         LinearObservable.__init__(self, label)
+
+    def get_operator(self):
+        return self.my_get_operator(self.system)
