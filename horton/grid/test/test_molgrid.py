@@ -148,7 +148,7 @@ def test_custom_grid_linear_observable():
         # With perturbation
         operator = sys.lf.create_one_body()
         sys.compute_grid_density_fock(grid.points, grid.weights, scale*potential, operator)
-        def get_operator():
+        def get_operator(sys):
             return operator
         perturbation = CustomLinearObservable('pert', get_operator)
         ham = Hamiltonian(sys, [HartreeFockExchange(), perturbation])
