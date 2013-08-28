@@ -735,7 +735,7 @@ class QPSolver(object):
         # Check if the solution is valid
         gradient, rmsd_free, rmsd_frozen, rmsd_neg = self.get_rmsds(x)
         assert rmsd_neg < self.eps
-        if rmsd_frozen > self.eps or rmsd_frozen > self.eps:
+        if rmsd_frozen > self.eps or rmsd_free > self.eps:
             raise BoundedError('No bounded solution could be found.')
 
         # Check if the solution is not a saddle point
