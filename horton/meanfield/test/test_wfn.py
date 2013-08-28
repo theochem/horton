@@ -176,8 +176,11 @@ def test_setup_wfn_cs():
     sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
     setup_mean_field_wfn(sys, 0, 1)
     assert isinstance(sys.wfn, RestrictedWFN)
+    assert sys.wfn.nel == 6
     assert sys.wfn.occ_model.nalpha == 3
     assert sys.wfn.occ_model.nbeta == 3
+    guess_hamiltonian_core(sys)
+    assert sys.wfn.nel == 6
 
     sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
     setup_mean_field_wfn(sys)
@@ -200,8 +203,13 @@ def test_setup_wfn_os():
     sys = System(np.zeros((1,3), float), np.array([7]), obasis='3-21g')
     setup_mean_field_wfn(sys, 0, 2)
     assert isinstance(sys.wfn, UnrestrictedWFN)
+    assert sys.wfn.nalpha == 4
+    assert sys.wfn.nbeta == 3
     assert sys.wfn.occ_model.nalpha == 4
     assert sys.wfn.occ_model.nbeta == 3
+    guess_hamiltonian_core(sys)
+    assert sys.wfn.nalpha == 4
+    assert sys.wfn.nbeta == 3
 
     sys = System(np.zeros((1,3), float), np.array([8]), obasis='3-21g')
     setup_mean_field_wfn(sys, 1)

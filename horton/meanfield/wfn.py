@@ -128,7 +128,6 @@ def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None, temperatu
         else:
             occ_model = FermiOccModel((nel + (mult-1))/2, (nel - (mult-1))/2, temperature)
 
-
     if system._wfn is not None:
         # Check if the existing wfn is consistent with the arguments
         if not isinstance(system.wfn, MeanFieldWFN):
@@ -525,6 +524,8 @@ class RestrictedWFN(MeanFieldWFN):
     def _get_nep(self):
         if 'exp_alpha' in self._cache:
             return self._cache.load('exp_alpha').occupations.sum()
+        elif self._occ_model is not None:
+            return self._occ_model.nalpha
         else:
             raise NotImplementedError
 
@@ -624,6 +625,8 @@ class UnrestrictedWFN(MeanFieldWFN):
     def _get_nalpha(self):
         if 'exp_alpha' in self._cache:
             return self._cache.load('exp_alpha').occupations.sum()
+        elif self._occ_model is not None:
+            return self._occ_model.nalpha
         else:
             raise NotImplementedError
 
@@ -632,6 +635,8 @@ class UnrestrictedWFN(MeanFieldWFN):
     def _get_nbeta(self):
         if 'exp_beta' in self._cache:
             return self._cache.load('exp_beta').occupations.sum()
+        elif self._occ_model is not None:
+            return self._occ_model.nbeta
         else:
             raise NotImplementedError
 
