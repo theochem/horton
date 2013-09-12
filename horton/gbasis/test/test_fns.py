@@ -192,20 +192,20 @@ def test_density_functional_deriv():
     pot = grid.points[:,2].copy()
 
     def fun(x):
-        sys.wfn.dm_full._array[:] = x
+        sys.wfn.dm_full._array[:] = x.reshape(sys.obasis.nbasis, -1)
         f = sys.compute_grid_density(grid.points)
         return 0.5*grid.integrate(f, f, pot)
 
     def fun_deriv(x):
-        sys.wfn.dm_full._array[:] = x
+        sys.wfn.dm_full._array[:] = x.reshape(sys.obasis.nbasis, -1)
         result = sys.wfn.dm_full.copy()
         result.clear()
         f = sys.compute_grid_density(grid.points)
         sys.compute_grid_density_fock(grid.points, grid.weights, pot*f, result)
-        return result._array
+        return result._array.ravel()
 
     eps = 1e-4
-    x = sys.wfn.update_dm('full')._array.copy()
+    x = sys.wfn.update_dm('full')._array.copy().ravel()
     dxs = []
     for i in xrange(100):
         dxs.append(np.random.uniform(-eps, +eps, x.shape)*x)
@@ -315,22 +315,22 @@ def test_gradient_functional_deriv():
     pot = grid.points[:,2].copy()
 
     def fun(x):
-        sys.wfn.dm_full._array[:] = x
+        sys.wfn.dm_full._array[:] = x.reshape(sys.obasis.nbasis, -1)
         f = sys.compute_grid_gradient(grid.points)
         tmp = (f*f).sum(axis=1)
         return 0.5*grid.integrate(tmp, pot)
 
     def fun_deriv(x):
-        sys.wfn.dm_full._array[:] = x
+        sys.wfn.dm_full._array[:] = x.reshape(sys.obasis.nbasis, -1)
         result = sys.wfn.dm_full.copy()
         result.clear()
         tmp = sys.compute_grid_gradient(grid.points)
         tmp *= pot.reshape(-1,1)
         sys.compute_grid_gradient_fock(grid.points, grid.weights, tmp, result)
-        return result._array
+        return result._array.ravel()
 
     eps = 1e-4
-    x = sys.wfn.update_dm('full')._array.copy()
+    x = sys.wfn.update_dm('full')._array.copy().ravel()
     dxs = []
     for i in xrange(100):
         tmp = np.random.uniform(-eps, +eps, x.shape)*x

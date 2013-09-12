@@ -91,6 +91,7 @@ def check_delta(fun, fun_deriv, x, dxs):
        is larger than the threshold, |D1 - D2|, should be smaller than the
        threshold.
     """
+    assert len(x.shape) == 1
     if len(dxs) < 20:
         raise ValueError('At least 20 displacements are needed for good statistics.')
 
@@ -108,7 +109,7 @@ def check_delta(fun, fun_deriv, x, dxs):
             norm = np.linalg.norm
         else:
             norm = abs
-        d2 = np.dot(grad.ravel(), dx.ravel())
+        d2 = np.dot(grad, dx)
 
         dn1s.append(norm(d1))
         dn2s.append(norm(d2))
