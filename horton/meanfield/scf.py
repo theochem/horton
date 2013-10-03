@@ -55,11 +55,13 @@ def converge_scf(ham, maxiter=128, threshold=1e-8, skip_energy=False):
        NoSCFConvergence
             if the convergence criteria are not met within the specified number
             of iterations.
+
+       **Returns:** the number of iterations
     '''
     if isinstance(ham.system.wfn, RestrictedWFN):
-        converge_scf_cs(ham, maxiter, threshold)
+        return converge_scf_cs(ham, maxiter, threshold)
     elif isinstance(ham.system.wfn, UnrestrictedWFN):
-        converge_scf_os(ham, maxiter, threshold)
+        return converge_scf_os(ham, maxiter, threshold)
     else:
         raise NotImplementedError
 
@@ -89,6 +91,8 @@ def converge_scf_cs(ham, maxiter=128, threshold=1e-8, skip_energy=False):
        NoSCFConvergence
             if the convergence criteria are not met within the specified number
             of iterations.
+
+       **Returns:** the number of iterations
     '''
     if log.do_medium:
         log('Starting restricted closed-shell SCF')
@@ -104,8 +108,8 @@ def converge_scf_cs(ham, maxiter=128, threshold=1e-8, skip_energy=False):
     overlap = ham.system.get_overlap()
     fock = lf.create_one_body()
     converged = False
-    i = 0
-    while maxiter is None or i < maxiter:
+    counter = 0
+    while maxiter is None or counter < maxiter:
         # Construct the Fock operator
         fock.clear()
         ham.compute_fock(fock, None)
@@ -113,7 +117,7 @@ def converge_scf_cs(ham, maxiter=128, threshold=1e-8, skip_energy=False):
         error = lf.error_eigen(fock, overlap, wfn.exp_alpha)
 
         if log.do_medium:
-            log('%4i  %12.5e' % (i, error))
+            log('%4i  %12.5e' % (counter, error))
 
         if error < threshold:
             converged = True
@@ -126,7 +130,7 @@ def converge_scf_cs(ham, maxiter=128, threshold=1e-8, skip_energy=False):
         # Write intermediate results to checkpoint
         ham.system.update_chk('wfn')
         # counter
-        i += 1
+        counter += 1
 
     if log.do_medium:
         log.blank()
@@ -138,6 +142,8 @@ def converge_scf_cs(ham, maxiter=128, threshold=1e-8, skip_energy=False):
 
     if not converged:
         raise NoSCFConvergence
+    
+    return counter
 
 
 def converge_scf_os(ham, maxiter=128, threshold=1e-8, skip_energy=False):
@@ -181,8 +187,8 @@ def converge_scf_os(ham, maxiter=128, threshold=1e-8, skip_energy=False):
     fock_alpha = lf.create_one_body()
     fock_beta = lf.create_one_body()
     converged = False
-    i = 0
-    while maxiter is None or i < maxiter:
+    counter = 0
+    while maxiter is None or counter < maxiter:
         # Construct the Fock operators
         fock_alpha.clear()
         fock_beta.clear()
@@ -192,7 +198,7 @@ def converge_scf_os(ham, maxiter=128, threshold=1e-8, skip_energy=False):
         error_beta = lf.error_eigen(fock_beta, overlap, wfn.exp_beta)
 
         if log.do_medium:
-            log('%4i  %12.5e  %12.5e' % (i, error_alpha, error_beta))
+            log('%4i  %12.5e  %12.5e' % (counter, error_alpha, error_beta))
 
         if error_alpha < threshold and error_beta < threshold:
             converged = True
@@ -205,7 +211,7 @@ def converge_scf_os(ham, maxiter=128, threshold=1e-8, skip_energy=False):
         # Write intermediate results to checkpoint
         ham.system.update_chk('wfn')
         # counter
-        i += 1
+        counter += 1
 
     if log.do_medium:
         log.blank()
@@ -217,3 +223,5 @@ def converge_scf_os(ham, maxiter=128, threshold=1e-8, skip_energy=False):
 
     if not converged:
         raise NoSCFConvergence
+    
+    return counter

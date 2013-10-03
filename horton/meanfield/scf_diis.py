@@ -241,6 +241,8 @@ def converge_scf_diis_cs(ham, DIISHistoryClass, maxiter=128, threshold=1e-6, nve
        NoSCFConvergence
             if the convergence criteria are not met within the specified number
             of iterations.
+
+       **Returns:** the number of iterations
     '''
     # allocated and define some one body operators
     lf = ham.system.lf
@@ -421,6 +423,8 @@ def converge_scf_diis_cs(ham, DIISHistoryClass, maxiter=128, threshold=1e-6, nve
 
     if not converged:
         raise NoSCFConvergence
+
+    return counter
 
 
 class DIISState(object):

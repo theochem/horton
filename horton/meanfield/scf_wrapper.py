@@ -69,7 +69,14 @@ class SCFWrapper(object):
         self.kwargs = kwargs
 
     def __call__(self, ham):
-        self.available_methods[self.method](ham, **self.kwargs)
+        '''Converge the SCF for the given Hamiltonian
+        
+           ham
+                A Hamiltonian instance
+
+           **Returns:** the number of iterations
+        '''
+        return self.available_methods[self.method](ham, **self.kwargs)
 
     def convergence_error(self, ham):
         return self.error_measures[self.method](ham)
