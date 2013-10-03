@@ -66,10 +66,12 @@ def converge_scf_ediis(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_st
        NoSCFConvergence
             if the convergence criteria are not met within the specified number
             of iterations.
+
+       **Returns:** the number of iterations
     '''
     log.cite('kudin2002', 'using the energy DIIS SCF algorithm')
     if isinstance(ham.system.wfn, RestrictedWFN):
-        converge_scf_ediis_cs(ham, maxiter, threshold, nvector, prune_old_states, scf_step)
+        return converge_scf_ediis_cs(ham, maxiter, threshold, nvector, prune_old_states, scf_step)
     else:
         raise NotImplementedError
 
@@ -107,9 +109,11 @@ def converge_scf_ediis_cs(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old
        NoSCFConvergence
             if the convergence criteria are not met within the specified number
             of iterations.
+
+       **Returns:** the number of iterations
     '''
     log.cite('kudin2002', 'For the use of the EDIIS method.')
-    converge_scf_diis_cs(ham, EnergyDIISHistory, maxiter, threshold, nvector, prune_old_states, scf_step)
+    return converge_scf_diis_cs(ham, EnergyDIISHistory, maxiter, threshold, nvector, prune_old_states, scf_step)
 
 
 class EnergyDIISHistory(DIISHistory):

@@ -69,10 +69,12 @@ def converge_scf_cdiis(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_st
        NoSCFConvergence
             if the convergence criteria are not met within the specified number
             of iterations.
+
+       **Returns:** the number of iterations
     '''
     log.cite('pulay1980', 'using the commutator DIIS SCF algorithm')
     if isinstance(ham.system.wfn, RestrictedWFN):
-        converge_scf_cdiis_cs(ham, maxiter, threshold, nvector, prune_old_states, skip_energy, scf_step)
+        return converge_scf_cdiis_cs(ham, maxiter, threshold, nvector, prune_old_states, skip_energy, scf_step)
     else:
         raise NotImplementedError
 
@@ -113,9 +115,11 @@ def converge_scf_cdiis_cs(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old
        NoSCFConvergence
             if the convergence criteria are not met within the specified number
             of iterations.
+
+       **Returns:** the number of iterations
     '''
     log.cite('pulay1980', 'the use of the commutator DIIS method')
-    converge_scf_diis_cs(ham, PulayDIISHistory, maxiter, threshold, nvector, prune_old_states, skip_energy, scf_step)
+    return converge_scf_diis_cs(ham, PulayDIISHistory, maxiter, threshold, nvector, prune_old_states, skip_energy, scf_step)
 
 
 class PulayDIISHistory(DIISHistory):

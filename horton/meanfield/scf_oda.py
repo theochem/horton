@@ -60,9 +60,9 @@ def converge_scf_oda(ham, maxiter=128, threshold=1e-6, debug=False):
     '''
     log.cite('cances2001', 'using the optimal damping algorithm (ODA) SCF')
     if isinstance(ham.system.wfn, RestrictedWFN):
-        converge_scf_oda_cs(ham, maxiter, threshold, debug)
+        return converge_scf_oda_cs(ham, maxiter, threshold, debug)
     elif isinstance(ham.system.wfn, UnrestrictedWFN):
-        converge_scf_oda_os(ham, maxiter, threshold, debug)
+        return converge_scf_oda_os(ham, maxiter, threshold, debug)
     else:
         raise NotImplementedError
 
@@ -247,8 +247,8 @@ def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):
     if 'dm_alpha' in wfn._cache:
         check_dm(wfn.dm_alpha, overlap, lf, 'alpha')
 
-    i = 0
-    while maxiter is None or i < maxiter:
+    counter = 0
+    while maxiter is None or counter < maxiter:
         # A) Construct Fock operator, compute energy and keep dm at current/initial point
         fock0.clear()
         ham.compute_fock(fock0, None)
@@ -257,9 +257,9 @@ def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):
 
         if log.do_medium:
             if mixing is None:
-                log('%5i %20.13f' % (i, energy0))
+                log('%5i %20.13f' % (counter, energy0))
             else:
-                log('%5i %20.13f  %12.5e  %10.5f' % (i, energy0, error, mixing))
+                log('%5i %20.13f  %12.5e  %10.5f' % (counter, energy0, error, mixing))
 
         # B) Diagonalize fock operator and go to the next point
         wfn.clear()
@@ -314,7 +314,7 @@ def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):
         # Write intermediate wfn to checkpoint.
         ham.system.update_chk('wfn')
         # counter
-        i += 1
+        counter += 1
 
     # compute orbitals, energies and occupation numbers
     # Note: suffix 0 is used for final state here
@@ -327,7 +327,7 @@ def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):
     # Write final wfn to checkpoint.
     ham.system.update_chk('wfn')
     if log.do_medium:
-        log('%5i %20.13f  %12.5e  %10.5f' % (i+1, energy0, error, mixing))
+        log('%5i %20.13f  %12.5e  %10.5f' % (counter+1, energy0, error, mixing))
         log.blank()
 
     if log.do_medium:
@@ -335,6 +335,8 @@ def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):
 
     if not converged:
         raise NoSCFConvergence
+
+    return counter
 
 
 def check_cubic_os(ham, dm0a, dm0b, dm1a, dm1b, e0, e1, g0, g1, do_plot=True):
@@ -413,6 +415,8 @@ def converge_scf_oda_os(ham, maxiter=128, threshold=1e-6, debug=False):
        NoSCFConvergence
             if the convergence criteria are not met within the specified number
             of iterations.
+
+       **Returns:** the number of iterations
     '''
 
     if log.do_medium:
@@ -455,8 +459,8 @@ def converge_scf_oda_os(ham, maxiter=128, threshold=1e-6, debug=False):
     if 'dm_beta' in wfn._cache:
         check_dm(wfn.dm_beta, overlap, lf, 'beta')
 
-    i = 0
-    while maxiter is None or i < maxiter:
+    counter = 0
+    while maxiter is None or counter < maxiter:
         # A) Construct Fock operator, compute energy and keep dm at current/initial point
         fock0a.clear()
         fock0b.clear()
@@ -467,9 +471,9 @@ def converge_scf_oda_os(ham, maxiter=128, threshold=1e-6, debug=False):
 
         if log.do_medium:
             if mixing is None:
-                log('%5i %20.13f' % (i, energy0))
+                log('%5i %20.13f' % (counter, energy0))
             else:
-                log('%5i %20.13f  %12.5e  %12.5e  %10.5f' % (i, energy0, errora, errorb, mixing))
+                log('%5i %20.13f  %12.5e  %12.5e  %10.5f' % (counter, energy0, errora, errorb, mixing))
 
         # B) Diagonalize fock operator and go to state 1
         wfn.clear()
@@ -533,7 +537,7 @@ def converge_scf_oda_os(ham, maxiter=128, threshold=1e-6, debug=False):
         # Write intermediate wfn to checkpoint.
         ham.system.update_chk('wfn')
         # counter
-        i += 1
+        counter += 1
 
     # compute orbitals, energies and occupation numbers
     # Note: suffix 0 is used for final state here
@@ -548,7 +552,7 @@ def converge_scf_oda_os(ham, maxiter=128, threshold=1e-6, debug=False):
     # Write final wfn to checkpoint.
     ham.system.update_chk('wfn')
     if log.do_medium:
-        log('%5i %20.13f  %12.5e  %12.5e  %10.5f' % (i+1, energy0, errora, errorb, mixing))
+        log('%5i %20.13f  %12.5e  %12.5e  %10.5f' % (counter+1, energy0, errora, errorb, mixing))
         log.blank()
 
     if log.do_medium:
@@ -556,3 +560,5 @@ def converge_scf_oda_os(ham, maxiter=128, threshold=1e-6, debug=False):
 
     if not converged:
         raise NoSCFConvergence
+
+    return counter
