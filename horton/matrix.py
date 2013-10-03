@@ -405,8 +405,6 @@ class DenseExpansion(LinalgObject):
                 the Fock matrix as in level shifting to obtain a set of orbitals
                 that diagonalizes both matrices.
 
-           scale
-
            This only works well for slater determinants without (fractional)
            holes below the Fermi level.
         '''
@@ -424,6 +422,28 @@ class DenseExpansion(LinalgObject):
             orb = evecs[:,i]
             self._energies[i] = fock.dot(orb, orb)
             self._occupations[i] = occ.dot(orb, orb)
+
+    def derive_naturals(self, dm, overlap):
+        '''
+           **Arguments**:
+
+           dm
+                A DenseOneBody object with the density matrix
+
+           overlap
+                A DenseOneBody object with the overlap matrix
+
+           **Optional arguments:**
+        '''
+        # Construct a level-shifted operator
+        occ = overlap.copy()
+        occ.idot(dm)
+        occ.idot(overlap)
+        # diagonalize and compute eigenvalues
+        evals, evecs = DenseLinalgFactory.diagonalize(occ, overlap)
+        self._coeffs[:] = evecs[:,:self.nfn]
+        self._occupations[:] = evals
+        self._energies[:] = 0.0
 
     def apply_basis_permutation(self, permutation):
         '''Reorder the coefficients for a given permutation of basis functions.

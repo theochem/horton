@@ -310,3 +310,14 @@ def test_homo_lumo_ch3_hf():
     assert abs(sys.wfn.exp_alpha.lumo_energy - 6.48361367E-01) < 1e-8
     assert abs(sys.wfn.exp_beta.homo_energy - -5.18988806E-01) < 1e-8
     assert abs(sys.wfn.exp_beta.lumo_energy - 3.28562907E-01) < 1e-8
+
+
+def test_naturals():
+    fn_fchk = context.get_fn('test/ch3_hf_sto3g.fchk')
+    sys = System.from_file(fn_fchk)
+    sys.wfn.clear_exp()
+    exp_alpha = sys.wfn.init_exp('alpha')
+    exp_alpha.derive_naturals(sys.wfn.dm_alpha, sys.get_overlap())
+    assert exp_alpha.occupations.min() > -1e-6
+    assert exp_alpha.occupations.max() < 1+1e-6
+    exp_alpha.check_normalization(sys.get_overlap())
