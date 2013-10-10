@@ -76,14 +76,15 @@ def parse_args():
              'space constribution to the electrostatic interactions. '
              '[default=%(default)s]')
 
-    parser.add_argument('--wdens', default=None, type=str,
+    parser.add_argument('--wdens', default=None, type=str, nargs='?', const=':-9:0.8',
         help='Define weights based on an electron density. The argument has '
-             'the following format: "dens.cube:rho0:alpha". The last or the '
-             'last two fields are optional and have as default values 2e-4 and '
-             '1.0 respectively. The density is loaded from the file in the '
-             'first field. The second field is the density at which the weight '
-             'function switches and the third field is the half width of the '
-             'switching function in log10(bohr**-3) units.')
+             'the following format: "dens.cube:lnrho0:sigma". All arguments '
+             'are optional. The density is loaded from the file in the '
+             'first field or a prodensity is constructed if the file is not '
+             'given. The cube file must have the same header is the potential '
+             'data file. The second and third field are parameters of the '
+             'wieght function and are defined in DOI:10.1021/ct600295n. '
+             'The default is \':-9:0.8\'.')
     parser.add_argument('--wnear', default=None, type=str, nargs='+',
         help='Define weights that go to zero near the nuclei. Multiple '
              'arguments are allowed and have the following format: '
@@ -158,7 +159,7 @@ def main():
     if wdens is not None:
         if log.do_medium:
             log('Loading density array')
-        rho = load_rho(wdens[0], ugrid, args.stride, args.chop)
+        rho = load_rho(sys, wdens[0], ugrid, args.stride, args.chop)
         wdens = (rho,) + wdens[1:]
     if log.do_medium:
         log('Constructing weight function')

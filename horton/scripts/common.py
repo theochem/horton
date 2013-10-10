@@ -27,9 +27,9 @@ from horton import UniformGrid, angstrom, periodic, Cell, log, dump_hdf5_low
 
 
 __all__ = [
-    'get_output_filename', 'iter_elements', 'reduce_data', 'parse_h5',
-    'parse_ewald_args', 'parse_pbc', 'parse_ugrid', 'store_args',
-    'safe_open_h5', 'write_part_output',
+    'get_output_filename', 'iter_elements', 'reduce_ugrid', 'reduce_data',
+    'parse_h5', 'parse_ewald_args', 'parse_pbc', 'parse_ugrid', 'store_args',
+    'safe_open_h5', 'write_part_output'
 ]
 
 
@@ -82,6 +82,34 @@ def iter_elements(elements_str):
             yield periodic[item].number
 
 
+def reduce_ugrid(ugrid, stride, chop):
+    '''Reduce the uniform grid
+
+       **Arguments:**
+
+       ugrid
+            The uniform integration grid.
+
+       stride
+            The reduction factor.
+
+       chop
+            The number of slices to chop of the grid in each direction.
+
+       Returns: a reduced ugrid object
+    '''
+    if (chop < 0):
+        raise ValueError('Chop must be positive or zero.')
+    if ((ugrid.shape - chop) % stride != 0).any():
+        raise ValueError('The stride is not commensurate with all three grid demsions.')
+
+    new_shape = (ugrid.shape-chop)/stride
+    grid_rvecs = ugrid.grid_cell.rvecs*stride
+    new_ugrid = UniformGrid(ugrid.origin, grid_rvecs, new_shape, ugrid.pbc)
+
+    return new_ugrid
+
+
 def reduce_data(cube_data, ugrid, stride, chop):
     '''Reduce the uniform grid data according to stride and chop arguments
 
@@ -101,20 +129,12 @@ def reduce_data(cube_data, ugrid, stride, chop):
 
        Returns: a new array and an updated grid object
     '''
-    if (chop < 0):
-        raise ValueError('Chop must be positive or zero.')
-    if ((ugrid.shape - chop) % stride != 0).any():
-        raise ValueError('The stride is not commensurate with all three grid demsions.')
-
+    new_ugrid = reduce_ugrid(ugrid, stride, chop)
 
     if chop == 0:
         new_cube_data = cube_data[::stride, ::stride, ::stride].copy()
     else:
         new_cube_data = cube_data[:-chop:stride, :-chop:stride, :-chop:stride].copy()
-
-    new_shape = (ugrid.shape-chop)/stride
-    grid_rvecs = ugrid.grid_rvecs*stride
-    new_ugrid = UniformGrid(ugrid.origin, grid_rvecs, new_shape, ugrid.pbc)
 
     return new_cube_data, new_ugrid
 

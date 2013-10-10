@@ -21,8 +21,11 @@
 '''Code used by ESP fitting scripts'''
 
 
+import numpy as np
+
 from horton import System, angstrom
-from horton.scripts.common import reduce_data
+from horton.scripts.common import reduce_data, reduce_ugrid
+from horton.part.proatomdb import ProAtomDB
 
 
 __all__ = [
@@ -36,22 +39,24 @@ def parse_wdens(arg):
     if arg is None:
         return
     words = arg.split(':')
-    rho0 = 2e-4
-    alpha = 1.0
+    lnrho0 = -9
+    sigma = 0.8
     if len(words) == 0:
-        raise ValueError('No argument is given to the --wdens option')
+        fn_cube = None
     elif len(words) == 1:
         fn_cube = words[0]
     elif len(words) == 2:
         fn_cube = words[0]
-        rho0 = float(words[1])
+        lnrho0 = float(words[1])
     elif len(words) == 3:
         fn_cube = words[0]
-        rho0 = float(words[1])
-        alpha = float(words[2])
+        lnrho0 = float(words[1])
+        sigma = float(words[2])
     else:
         raise ValueError('The argument to --wdens may at most contain three fields separated by a colon.')
-    return fn_cube, rho0, alpha
+    if len(fn_cube) == 0:
+        fn_cube = None
+    return fn_cube, lnrho0, sigma
 
 
 def parse_wnear(args):
@@ -97,10 +102,14 @@ def parse_wfar(arg):
     return r0, gamma
 
 
-def load_rho(fn_cube, ref_ugrid, stride, chop):
+def load_rho(system, fn_cube, ref_ugrid, stride, chop):
     '''Load densities from a file, reduce by stride, chop and check ugrid
 
        **Arguments:**
+
+       system
+            A Horton system object for the current system. This is only used
+            to construct the pro-density.
 
        fn_cube
             The cube file with the electron density.
@@ -115,16 +124,26 @@ def load_rho(fn_cube, ref_ugrid, stride, chop):
        chop
             The number of slices to chop of the grid in each direction.
     '''
-    # Load cube
-    sys = System.from_file(fn_cube)
-    rho = sys.extra['cube_data']
-    ugrid = sys.grid
-    # Reduce grid size
-    if stride > 1:
-        rho, ugrid = reduce_data(rho, ugrid, stride, chop)
-    # Compare with ref_ugrid (only shape)
-    if (ugrid.shape != ref_ugrid.shape).any():
-        raise ValueError('The densities file does not contain the same amount if information as the potential file.')
+    if fn_cube is None:
+        # Load the built-in database of proatoms
+        numbers = np.unique(system.numbers)
+        proatomdb = ProAtomDB.from_refatoms(numbers, max_kation=0, max_anion=0, agspec='fine')
+        # Construct the pro-density
+        rho = np.zeros(ref_ugrid.shape)
+        for i in xrange(system.natom):
+            spline = proatomdb.get_spline(system.numbers[i])
+            ref_ugrid.eval_spline(spline, system.coordinates[i], rho)
+    else:
+        # Load cube
+        sys = System.from_file(fn_cube)
+        rho = sys.extra['cube_data']
+        ugrid = sys.grid
+        # Reduce grid size
+        if stride > 1:
+            rho, ugrid = reduce_data(rho, ugrid, stride, chop)
+        # Compare with ref_ugrid (only shape)
+        if (ugrid.shape != ref_ugrid.shape).any():
+            raise ValueError('The densities file does not contain the same amount if information as the potential file.')
     return rho
 
 

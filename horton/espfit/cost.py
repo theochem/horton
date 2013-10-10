@@ -23,6 +23,7 @@
 
 import numpy as np
 
+from horton.log import log
 from horton.units import angstrom
 from horton.grid.cext import UniformGrid
 from horton.espfit.cext import setup_esp_cost_cube, multiply_dens_mask, \
@@ -127,8 +128,18 @@ def setup_weights(system, grid, dens=None, near=None, far=None):
        **Optional arguments:**
 
        dens
-            The density-based criterion. This is a three-tuple with rho, rho0
-            and alpha.
+            The density-based criterion. This is a three-tuple with rho, lnrho0
+            and sigma. rho is the atomic or the pro-atomic electron density on
+            the same grid as the ESP data. lnrho0 and sigma are parameters
+            defined in JCTC, 3, 1004 (2007), DOI:10.1021/ct600295n. The weight
+            function takes the form::
+
+                exp(-sigma*(ln(rho) - lnrho0)**2)
+
+            Note that the density, rho, should not contain depletions in the
+            atomic cores, as is often encountered with pseudo-potential
+            computations. In that case it is recommended to construct a
+            promolecular density as input for this option.
 
        near
             Exclude points near the nuclei. This is a dictionary with as items
@@ -141,9 +152,10 @@ def setup_weights(system, grid, dens=None, near=None, far=None):
 
     # combine three possible mask functions
     if dens is not None:
-        rho, rho0, alpha = dens
+        log.cite('hu2007', 'for the ESP fitting weight function')
+        rho, lnrho0, sigma = dens
         assert (rho.shape == grid.shape).all()
-        multiply_dens_mask(rho, rho0, alpha, weights)
+        multiply_dens_mask(rho, lnrho0, sigma, weights)
     if near is not None:
         for i in xrange(system.natom):
             pair = near.get(system.numbers[i])

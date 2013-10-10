@@ -37,27 +37,14 @@ def get_fake_system():
     return sys, ugrid
 
 
-def test_mask_dens1():
-    sys, ugrid = get_fake_system()
-    rho = 10**np.random.uniform(-3, 3, ugrid.shape)
-    weights = setup_weights(sys, ugrid, dens=(rho, 1e-1, 1.0))
-    mask1 = rho<1e-2
-    assert (weights[mask1] == 1.0).all()
-    mask2 = rho>1e0
-    assert (weights[mask2] == 0.0).all()
-    mask3 = ~ (mask1 | mask2)
-    assert (weights[mask3] < 1.0).all()
-    assert (weights[mask3] > 0.0).all()
-
-
-def test_mask_dens2():
+def test_mask_dens():
     sys, ugrid = get_fake_system()
     rho = np.zeros(ugrid.shape)
     scan = np.arange(-2.0, -0.0001, 0.1)
     rho[0,0,:] = 10**scan
-    weights = setup_weights(sys, ugrid, dens=(rho, 1e-1, 1.0))
-    scan += 1
-    assert abs(weights[0,0,:] - (0.25*scan*(scan*scan-3)+0.5)).max() < 1e-10
+    weights = setup_weights(sys, ugrid, dens=(rho, -9, 0.8))
+    assert (weights[1,:,:] == 0.0).all()
+    assert abs(weights[0,0,:] - np.exp(-0.8*(np.log(rho[0,0,:])-(-9))**2)).max() < 1e-10
 
 
 def test_mask_near1():
