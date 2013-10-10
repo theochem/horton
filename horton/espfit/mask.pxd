@@ -23,7 +23,7 @@ cimport cell
 cimport uniform
 
 cdef extern from "mask.h":
-    void multiply_dens_mask(double* rho, double rho0, double alpha,
+    void multiply_dens_mask(double* rho, double lnrho0, double sigma,
         double* weights, long npoint)
 
     void multiply_near_mask(double* center, uniform.UniformGrid* ugrid,

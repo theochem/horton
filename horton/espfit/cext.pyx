@@ -136,7 +136,7 @@ def pair_ewald(np.ndarray[double, ndim=1] delta not None,
 
 
 def multiply_dens_mask(np.ndarray[double, ndim=3] rho not None,
-                       double rho0, double alpha,
+                       double lnrho0, double sigma,
                        np.ndarray[double, ndim=3] weights not None):
     assert rho.flags['C_CONTIGUOUS']
     assert weights.flags['C_CONTIGUOUS']
@@ -146,7 +146,7 @@ def multiply_dens_mask(np.ndarray[double, ndim=3] rho not None,
     cdef long npoint = weights.size
 
     log.cite('hu2007', 'the density-based weight function for ESP fitting')
-    mask.multiply_dens_mask(<double*>rho.data, rho0, alpha, <double*>weights.data, npoint)
+    mask.multiply_dens_mask(<double*>rho.data, lnrho0, sigma, <double*>weights.data, npoint)
 
 
 def multiply_near_mask(np.ndarray[double, ndim=1] center not None,

@@ -574,7 +574,6 @@ class ProAtomDB(object):
         else:
             raise TypeError('Could not interpret parameters argument')
 
-
     def get_spline(self, number, parameters=0, combine='linear'):
         '''Construct a proatom spline.
 

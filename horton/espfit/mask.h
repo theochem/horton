@@ -25,7 +25,7 @@
 #include "cell.h"
 #include "uniform.h"
 
-void multiply_dens_mask(double* rho, double rho0, double alpha, double* weights, long npoint);
+void multiply_dens_mask(double* rho, double lnrho0, double sigma, double* weights, long npoint);
 
 void multiply_near_mask(double* center, UniformGrid* ugrid, double r0,
     double gamma, double* weights);

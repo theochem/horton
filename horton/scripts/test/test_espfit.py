@@ -30,9 +30,9 @@ from horton.scripts.espfit import *
 
 
 def test_wdens():
-    assert parse_wdens('fubar.cube') == ('fubar.cube', 2e-4, 1.0)
-    assert parse_wdens('fubar.cube:2e-3') == ('fubar.cube', 2e-3, 1.0)
-    assert parse_wdens('fubar.cube:2e-2:0.5') == ('fubar.cube', 2e-2, 0.5)
+    assert parse_wdens('fubar.cube') == ('fubar.cube', -9, 0.8)
+    assert parse_wdens('fubar.cube:-6') == ('fubar.cube', -6, 0.8)
+    assert parse_wdens('fubar.cube:-6:0.5') == ('fubar.cube', -6, 0.5)
 
 def test_wnear():
     assert parse_wnear('1:1.0') == {1: (1.0*angstrom, 0.5*angstrom)}

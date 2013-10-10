@@ -32,13 +32,16 @@ double switch_fn(double x, double a) {
 }
 
 
-void multiply_dens_mask(double* rho, double rho0, double alpha, double* weights, long npoint) {
+void multiply_dens_mask(double* rho, double lnrho0, double sigma, double* weights, long npoint) {
     while (npoint > 0) {
-        if ((*rho) > 0.0)
-            *weights *= switch_fn(log10(*rho) - log10(rho0), alpha);
-
+        if ((*rho) > 0.0) {
+            double tmp = log(*rho) - lnrho0;
+            *weights *= exp(-sigma*tmp*tmp);
+        } else {
+            *weights = 0.0;
+        }
         // move on
-        npoint --;
+        npoint--;
         rho++;
         weights++;
     }
