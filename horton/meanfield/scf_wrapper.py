@@ -70,7 +70,7 @@ class SCFWrapper(object):
 
     def __call__(self, ham):
         '''Converge the SCF for the given Hamiltonian
-        
+
            ham
                 A Hamiltonian instance
 

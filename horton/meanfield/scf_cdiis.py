@@ -69,7 +69,7 @@ def converge_scf_cdiis(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_st
        NoSCFConvergence
             if the convergence criteria are not met within the specified number
             of iterations.
-       
+
        **Returns:** the number of iterations
     '''
     log.cite('pulay1980', 'using the commutator DIIS SCF algorithm')

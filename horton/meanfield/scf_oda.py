@@ -560,5 +560,5 @@ def converge_scf_oda_os(ham, maxiter=128, threshold=1e-6, debug=False):
 
     if not converged:
         raise NoSCFConvergence
-    
+
     return counter

@@ -350,7 +350,7 @@ def converge_scf_diis_cs(ham, DIISHistoryClass, maxiter=128, threshold=1e-6, nve
                 history.shrink()
             else:
                 break
-        
+
         if False and len(coeffs) == 2:
             tmp = dm.copy()
             import matplotlib.pyplot as pt

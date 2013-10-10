@@ -142,7 +142,7 @@ def converge_scf_cs(ham, maxiter=128, threshold=1e-8, skip_energy=False):
 
     if not converged:
         raise NoSCFConvergence
-    
+
     return counter
 
 
@@ -223,5 +223,5 @@ def converge_scf_os(ham, maxiter=128, threshold=1e-8, skip_energy=False):
 
     if not converged:
         raise NoSCFConvergence
-    
+
     return counter
