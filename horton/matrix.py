@@ -600,7 +600,8 @@ class DenseOneBody(OneBody):
         return np.dot(vec0, np.dot(self._array, vec1))
 
     def idot(self, other):
-        self._array[:] = np.dot(self._array, other._array)
+        '''Inplace dot operator'''
+	self._array[:] = np.dot(self._array, other._array)
 
     def distance(self, other):
         '''Maximum difference between self and other one body object'''
