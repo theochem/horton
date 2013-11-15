@@ -603,7 +603,8 @@ class DenseOneBody(OneBody):
         self._array[:] = np.dot(self._array, other._array)
 
     def distance(self, other):
-        return abs(self._array.ravel() - other._array.ravel()).max()
+        '''Maximum difference between self and other one body object'''
+    return abs(self._array.ravel() - other._array.ravel()).max()
 
     def apply_basis_permutation(self, permutation):
         '''Reorder the coefficients for a given permutation of basis functions.
