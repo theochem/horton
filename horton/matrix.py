@@ -578,6 +578,7 @@ class DenseOneBody(OneBody):
         assert abs(self._array - self._array.T).max() == 0.0
 
     def clear(self):
+	'''Resets array to zeros element-wise.'''
         self._array[:] = 0.0
 
     def iadd(self, other, factor=1):
