@@ -69,7 +69,13 @@ def solve_poisson_becke(density_decomposition):
             f = CubicSpline(fy, fd, rtf)
             b = CubicSpline(2/radii, -2/radii**2, rtf)
             a = CubicSpline(-l*(l+1)*radii**-2, 2*l*(l+1)*radii**-3, rtf)
-            bcs = (None, 0.0, rgrid.integrate(rho.y)/radii[-1]**(l+1), None)
+            # Derivation of boundary condition at rmax:
+            # Multiply differential equation with r**l and integrate. Using
+            # partial integration and the fact that V(r)=A/r**(l+1) for large
+            # r, we find -(2l+1)A=-4pi*int_0^infty r**2 r**l rho(r) and so
+            # V(rmax) = A/rmax**(l+1) = integrate(r**l rho(r))/(2l+1)/rmax**(l+1)
+            V_rmax = rgrid.integrate(rho.y*radii**l)/radii[-1]**(l+1)/(2*l+1)
+            bcs = (None, 0.0, V_rmax, None)
             v = solve_ode2(b, a, f, bcs, PowerExtrapolation(-l-1))
             result.append(v)
             counter += 1
