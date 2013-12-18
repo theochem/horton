@@ -113,3 +113,37 @@ def test_solve_poisson_becke_sa():
 
     assert abs(v.y - soly).max()/abs(soly).max() < 1e-6
     assert abs(v.dx - sold).max()/abs(sold).max() < 1e-4
+
+
+def test_solve_poisson_becke_gaussian_dipole():
+    sigma = 8.0
+    rtf = ExpRTransform(1e-4, 8e1, 200)
+    r = rtf.get_radii()
+    # By deriving a Gaussian charge distribution with respect to z, we get
+    # rho(\mathbf{r})=Y_1^0(\Omega) rhoy, with rhoy as given below
+    # Note that rhoy is simply the derivative of a Gaussian charge distribution
+    # with respect to r.
+    rhoy = -r/sigma**2*np.exp(-0.5*(r/sigma)**2)/sigma**3/(2*np.pi)**1.5
+    rhod = (-1.0+r**2/sigma**2)/sigma**2*np.exp(-0.5*(r/sigma)**2)/sigma**3/(2*np.pi)**1.5
+    rho = CubicSpline(rhoy, rhod, rtf)
+    v = solve_poisson_becke([rho]*4)[1] #Not interested in first spline
+
+    s2s = np.sqrt(2)*sigma
+    # The potential corresponding to Y_1^0(\Omega), can be found by deriving
+    # the potential of a Gaussian charge distribution with respect to r
+    soly = np.exp(-(r/s2s)**2)*2/np.sqrt(np.pi)/s2s/r - erf(r/s2s)/r**2
+    sold = 2.0*erf(r/s2s)/r**3 - 2*2/np.sqrt(np.pi)*np.exp(-(r/s2s)**2)/s2s/r**2 - 2*2/np.sqrt(np.pi)/s2s**3*np.exp(-(r/s2s)**2)
+
+    if False:
+        import matplotlib.pyplot as pt
+        n = 200
+        pt.clf()
+        pt.plot(r[:n], -soly[:n], label='exact',marker='*')
+        pt.plot(r[:n], -v.y[:n], label='spline',marker='*')
+        pt.xscale('log')
+        pt.yscale('log')
+        pt.legend(loc=0)
+        pt.savefig('poisson_gdipole.png')
+
+    assert abs(v.y - soly).max()/abs(soly).max() < 1e-6
+    assert abs(v.dx - sold).max()/abs(sold).max() < 1e-4

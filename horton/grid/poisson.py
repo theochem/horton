@@ -75,7 +75,11 @@ def solve_poisson_becke(density_decomposition):
             # r, we find -(2l+1)A=-4pi*int_0^infty r**2 r**l rho(r) and so
             # V(rmax) = A/rmax**(l+1) = integrate(r**l rho(r))/(2l+1)/rmax**(l+1)
             V_rmax = rgrid.integrate(rho.y*radii**l)/radii[-1]**(l+1)/(2*l+1)
-            bcs = (None, 0.0, V_rmax, None)
+            # Derivation of boundary condition at rmin:
+            # Same as for rmax, but multiply differential equation with r**(-l-1)
+            # and assume that V(r)=B*r**l for small r.
+            V_rmin = rgrid.integrate(rho.y*radii**(-l-1))*radii[0]**(l)/(2*l+1)
+            bcs = (V_rmin, None, V_rmax, None)
             v = solve_ode2(b, a, f, bcs, PowerExtrapolation(-l-1))
             result.append(v)
             counter += 1
