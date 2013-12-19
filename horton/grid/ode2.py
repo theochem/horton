@@ -22,6 +22,8 @@
 
 
 import numpy as np
+from scipy.sparse.linalg import spsolve
+from scipy.sparse import csc_matrix
 
 from horton.grid.cext import CubicSpline, build_ode2
 
@@ -77,7 +79,7 @@ def solve_ode2(b, a, f, bcs, extrapolation=None):
 
     # Call the equation builder.
     coeffs, rhs = build_ode2(by_new, bd_new, ay_new, ad_new, fy_new, fd_new, new_bcs)
-    solution = np.linalg.solve(coeffs, rhs)
+    solution = spsolve(csc_matrix(coeffs), rhs)
     uy_new = solution[::2]
     ud_new = solution[1::2]
 
