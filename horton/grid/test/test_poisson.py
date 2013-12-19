@@ -91,7 +91,7 @@ def test_solve_poisson_becke_n2():
 
 def test_solve_poisson_becke_sa():
     sigma = 8.0
-    rtf = ExpRTransform(4e-4, 4e1, 100)
+    rtf = ExpRTransform(1e-4, 1e2, 500)
     r = rtf.get_radii()
     rhoy = np.exp(-0.5*(r/sigma)**2)/sigma**3/(2*np.pi)**1.5
     rhod = np.exp(-0.5*(r/sigma)**2)/sigma**3/(2*np.pi)**1.5*(-r/sigma)/sigma
