@@ -150,6 +150,7 @@ def main():
         log.hline()
         log('Number of grid points:   %12i' % np.product(ugrid.shape))
         log('Grid shape:                 [%8i, %8i, %8i]' % tuple(ugrid.shape))
+        log('PBC:                   [%2d, %2d, %2d]' % tuple(ugrid.pbc))
         log.hline()
 
     # Construct the weights for the ESP Cost function.
