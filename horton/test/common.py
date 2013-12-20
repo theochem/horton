@@ -51,8 +51,12 @@ def check_script(command, workdir):
         # This is only needed when running the tests from the source tree.
         env['HORTONDATA'] = os.path.join(root_dir, 'data')
     env['PATH'] = os.path.join(root_dir, 'scripts') + ':' + env.get('PATH', '')
-    proc = subprocess.Popen(shlex.split(command), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=workdir, env=env)
-    outdata, errdata = proc.communicate()
+    command = shlex.split(command)
+    try:
+        proc = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=workdir, env=env)
+        outdata, errdata = proc.communicate()
+    except OSError:
+        raise AssertionError('The script %s could not be found for testing. Is your PATH variable set correctly? (See documentation.)' % command[0])
     if proc.returncode != 0:
         print 'Standard output'
         print '+'*80
