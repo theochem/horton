@@ -178,3 +178,8 @@ Move to a directory outside the source tree and call nosetests as follows::
 
     cd ~
     nosetests -v horton
+
+In case one is testing horton on a system without an X Server, one has to
+configure matplotlib to use a backend that does not rely on an X Server. This
+can be done by adding a line ``backend: agg`` to the file
+``~/.matplotlib/matplotlibrc``.
