@@ -31,9 +31,8 @@ class Cell {
         double volume;
         int nvec;
     public:
-        Cell(): nvec(0) {};
+        Cell(double* _rvecs, int _nvec);
 
-        void update(double* _rvecs, double* _gvecs, int _nvec);
         void mic(double* delta) const;
         void to_frac(double* cart, double* frac) const;
         void to_cart(double* frac, double* cart) const;

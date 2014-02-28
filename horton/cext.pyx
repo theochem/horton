@@ -52,22 +52,18 @@ cdef class Cell:
        not to be orthogonal.
     '''
 
-    def __cinit__(self, *args, **kwargs):
-        self._this = new cell.Cell()
+    def __cinit__(self, np.ndarray[double, ndim=2] rvecs=None):
+        if rvecs is None:
+            self._this = new cell.Cell(NULL, 0)
+        else:
+            assert rvecs.flags['C_CONTIGUOUS']
+            assert rvecs.shape[0] <= 3
+            assert rvecs.shape[1] == 3
+            nvec = rvecs.shape[0]
+            self._this = new cell.Cell(<double*>rvecs.data, nvec)
 
     def __dealloc__(self):
         del self._this
-
-    def __init__(self, np.ndarray[double, ndim=2] rvecs=None):
-        '''
-           **Arguments:**
-
-           rvecs
-                A numpy array with at most three cell vectors, layed out as
-                rows in a rank-2 matrix. For non-periodic systems, this array
-                must have shape (0,3).
-        '''
-        self.update_rvecs(rvecs)
 
     @classmethod
     def from_hdf5(cls, grp, lf):
@@ -152,35 +148,6 @@ cdef class Cell:
             rvecs[2, 2] = np.sqrt(u_c)
 
         return cls(rvecs)
-
-    def update_rvecs(self, np.ndarray[double, ndim=2] rvecs=None):
-        '''Change the cell vectors and recompute the reciprocal cell vectors.
-
-           rvecs
-                A numpy array with at most three cell vectors, layed out as
-                rows in a rank-2 matrix. For non-periodic systems, this array
-                must have shape (0,3).
-        '''
-        cdef np.ndarray[double, ndim=2] mod_rvecs
-        cdef np.ndarray[double, ndim=2] gvecs
-        cdef int nvec
-        if rvecs is None or rvecs.size == 0:
-            mod_rvecs = np.identity(3, float)
-            gvecs = mod_rvecs
-            nvec = 0
-        else:
-            if not rvecs.ndim==2 or rvecs.shape[0] > 3 or rvecs.shape[1] != 3:
-                raise TypeError('rvecs must be an array with three columns and at most three rows.')
-            nvec = len(rvecs)
-            Up, Sp, Vt = np.linalg.svd(rvecs, full_matrices=True)
-            S = np.ones(3, float)
-            S[:nvec] = Sp
-            U = np.identity(3, float)
-            U[:nvec,:nvec] = Up
-            mod_rvecs = np.dot(U*S, Vt)
-            mod_rvecs[:nvec] = rvecs
-            gvecs = np.dot(U/S, Vt)
-        self._this.update(<double*>mod_rvecs.data, <double*>gvecs.data, nvec)
 
     property nvec:
         '''The number of cell vectors'''
