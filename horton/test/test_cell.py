@@ -47,10 +47,12 @@ def check_g_lincomb_dot_rvecs(cell):
 
 
 def test_cell_cubic():
-    cell = Cell(np.array([[9.865, 0.0, 0.0], [0.0, 9.865, 0.0], [0.0, 0.0, 9.865]])*angstrom)
+    rvecs = np.array([[9.865, 0.0, 0.0], [0.0, 9.865, 0.0], [0.0, 0.0, 9.865]])*angstrom
+    cell = Cell(rvecs)
 
     # Test attributes
     assert cell.nvec == 3
+    assert (cell.rvecs == rvecs).all()
     assert (cell.rspacings == 9.865*angstrom).all()
     assert (cell.gspacings == 1/(9.865*angstrom)).all()
     assert abs(cell.volume - (9.865*angstrom)**3) < 1e-10
@@ -78,11 +80,46 @@ def test_cell_cubic():
     check_g_lincomb_dot_rvecs(cell)
 
 
+def test_cell_triclinic():
+    while True:
+        rvecs = np.random.uniform(-1, 1, (3, 3))
+        if abs(np.linalg.det(rvecs)) > 0.1:
+            break
+    cell = Cell(rvecs)
+
+    # Test attributes
+    assert cell.nvec == 3
+    assert (cell.rvecs == rvecs).all()
+    assert abs(cell.volume - abs(np.linalg.det(rvecs))) < 1e-10
+    assert abs(np.dot(cell.gvecs, cell.rvecs.transpose()) - np.identity(3)).max() < 1e-5
+    assert abs(np.dot(cell.gvecs.transpose(), cell.rvecs) - np.identity(3)).max() < 1e-5
+    cell2 = Cell(-cell.rvecs)
+    assert abs(cell2.volume - abs(np.linalg.det(rvecs))) < 1e-10
+    for i in xrange(3):
+        assert cell.get_rlength(i) == cell.rlengths[i]
+        assert cell.get_glength(i) == cell.glengths[i]
+        assert cell.get_rspacing(i) == cell.rspacings[i]
+        assert cell.get_gspacing(i) == cell.gspacings[i]
+        assert abs(cell.get_rlength(i) - 1.0/cell.get_gspacing(i)) < 1e-10
+        assert abs(cell.get_glength(i) - 1.0/cell.get_rspacing(i)) < 1e-10
+
+    # Test methods (1)
+    vec1 = np.array([10.0, 0.0, 5.0])*angstrom
+    cell.mic(vec1)
+    cell.add_rvec(vec1, np.array([1,2,3]))
+
+    # Test methods (2)
+    check_frac_cart(cell)
+    check_g_lincomb_dot_rvecs(cell)
+
+
 def test_cell_parallellogram2d():
-    cell = Cell(np.array([[4.922, 0.0, 0.0], [2.462, 4.262, 0.0]])*angstrom)
+    rvecs = np.array([[4.922, 0.0, 0.0], [2.462, 4.262, 0.0]])*angstrom
+    cell = Cell(rvecs)
 
     # Test attributes
     assert cell.nvec == 2
+    assert (cell.rvecs == rvecs).all()
     assert abs(cell.volume - np.linalg.norm(np.cross(cell.rvecs[0], cell.rvecs[1]))) < 1e-10
     assert abs(np.dot(cell.gvecs, cell.rvecs.transpose()) - np.identity(2)).max() < 1e-5
     for i in xrange(2):
@@ -110,10 +147,12 @@ def test_cell_parallellogram2d():
 
 
 def test_cell_1d():
-    cell = Cell(np.array([[5.075, 0.187, 0.055]])*angstrom)
+    rvecs = np.array([[5.075, 0.187, 0.055]])*angstrom
+    cell = Cell(rvecs)
 
     # Test attributes
     assert cell.nvec == 1
+    assert (cell.rvecs == rvecs).all()
     assert cell.rvecs.shape == (1, 3)
     assert cell.gvecs.shape == (1, 3)
     assert abs(cell.volume - np.linalg.norm(cell.rvecs[0])) < 1e-10
@@ -462,10 +501,8 @@ def test_from_parameters0():
 
 def check_from_parameters(cell0):
     lengths0, angles0 = cell0.parameters
-    print lengths0, angles0
     cell1 = Cell.from_parameters(lengths0, angles0)
     lengths1, angles1 = cell1.parameters
-    print lengths1, angles1
     assert lengths0.shape == lengths1.shape
     assert abs(lengths0 - lengths1).max() < 1e-10
     assert angles0.shape == angles1.shape

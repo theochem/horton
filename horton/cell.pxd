@@ -22,8 +22,7 @@
 
 cdef extern from "cell.h":
     cdef cppclass Cell:
-        Cell()
-        void update(double* _rvecs, double* _gvecs, int _nvec)
+        Cell(double* _rvecs, int _nvec) except +
         void mic(double* delta)
         void to_frac(double* cart, double* frac)
         void to_cart(double* frac, double* cart)

@@ -30,19 +30,16 @@
 #include "cell.h"
 
 
-void Cell::update(double* _rvecs, double* _gvecs, int _nvec) {
-    // just copy everything
-    nvec = _nvec;
-    for (int i=8; i>=0; i--) {
-        rvecs[i] = _rvecs[i];
-        gvecs[i] = _gvecs[i];
+Cell::Cell(double* _rvecs, int _nvec) {
+    // check if nvec is sensible
+    if ((_nvec < 0) || (_nvec > 3)) {
+        throw std::domain_error("The number of cell vectors must be 0, 1, 2 or 3.");
     }
-    // compute the spacings and the lengths of the cell vectors
-    for (int i=2; i>=0; i--) {
-        rlengths[i] = sqrt(rvecs[3*i]*rvecs[3*i] + rvecs[3*i+1]*rvecs[3*i+1] + rvecs[3*i+2]*rvecs[3*i+2]);
-        glengths[i] = sqrt(gvecs[3*i]*gvecs[3*i] + gvecs[3*i+1]*gvecs[3*i+1] + gvecs[3*i+2]*gvecs[3*i+2]);
-        rspacings[i] = 1.0/glengths[i];
-        gspacings[i] = 1.0/rlengths[i];
+
+    // copy the given _rvecs and _nvec:
+    nvec = _nvec;
+    for (int i=nvec*3-1; i>=0; i--) {
+        rvecs[i] = _rvecs[i];
     }
 
     // compute the volume
@@ -73,7 +70,106 @@ void Cell::update(double* _rvecs, double* _gvecs, int _nvec) {
                 rvecs[2]*(rvecs[3]*rvecs[7]-rvecs[4]*rvecs[6])
             );
             break;
-  }
+    }
+
+    // If the volume is zero and nvec > 0, raise an error. In this case, the
+    // reciprocal cell vectors can not be computed.
+    if ((volume == 0.0) && (nvec > 0)) {
+        throw std::domain_error("The cell vectors are degenerate");
+    }
+
+    // complete the list of rvecs in case nvec < 3
+    switch(nvec) {
+        case 0:
+            // Just put in the identity matrix.
+            rvecs[0] = 1.0;
+            rvecs[1] = 0.0;
+            rvecs[2] = 0.0;
+            rvecs[3] = 0.0;
+            rvecs[4] = 1.0;
+            rvecs[5] = 0.0;
+            rvecs[6] = 0.0;
+            rvecs[7] = 0.0;
+            rvecs[8] = 1.0;
+            break;
+        case 1: {
+            // Add two rvecs that are orthogonal to the given rvec, orthogonal
+            // to each other and normalized. The three vectors will be
+            // right-handed.
+            // 1) find the component of the given vector with the smallest
+            // absolute value
+            int ismall = 0;
+            if (fabs(rvecs[1]) < fabs(rvecs[0])) {
+                ismall = 1;
+                if (fabs(rvecs[2]) < fabs(rvecs[1])) {
+                    ismall = 2;
+                }
+            } else if (fabs(rvecs[2]) < fabs(rvecs[0])) {
+                ismall = 2;
+            }
+            // 2) store a temporary vector in position 3
+            rvecs[6] = 0.0;
+            rvecs[7] = 0.0;
+            rvecs[8] = 0.0;
+            rvecs[ismall+6] = 1.0;
+            // 3) compute the cross product of vector 1 and 3
+            rvecs[3] = rvecs[1]*rvecs[8] - rvecs[2]*rvecs[7];
+            rvecs[4] = rvecs[2]*rvecs[6] - rvecs[0]*rvecs[8];
+            rvecs[5] = rvecs[0]*rvecs[7] - rvecs[1]*rvecs[6];
+            // 4) normalize
+            double norm = sqrt(rvecs[3]*rvecs[3] + rvecs[4]*rvecs[4] + rvecs[5]*rvecs[5]);
+            rvecs[3] /= norm;
+            rvecs[4] /= norm;
+            rvecs[5] /= norm;
+            // the rest is done in case 2, so no break here!
+        }
+        case 2:
+            // Add one rvec that is normalized and orthogonal to the two given
+            // rvecs. The three vectors will be right-handed.
+            // 1) compute the cross product of vector 1 and 2
+            rvecs[6] = rvecs[1]*rvecs[5] - rvecs[2]*rvecs[4];
+            rvecs[7] = rvecs[2]*rvecs[3] - rvecs[0]*rvecs[5];
+            rvecs[8] = rvecs[0]*rvecs[4] - rvecs[1]*rvecs[3];
+            // 2) normalize
+            double norm = sqrt(rvecs[6]*rvecs[6] + rvecs[7]*rvecs[7] + rvecs[8]*rvecs[8]);
+            rvecs[6] /= norm;
+            rvecs[7] /= norm;
+            rvecs[8] /= norm;
+    }
+
+    // Now we assume that rvecs contains a set of three well-behaved
+    // non-degenerate vectors. Cramer's rule is used to compute the reciprocal
+    // space vectors. This is fairly ugly in terms of numerical stability but
+    // it keeps things simple.
+    gvecs[0] = rvecs[4]*rvecs[8] - rvecs[5]*rvecs[7];
+    gvecs[1] = rvecs[5]*rvecs[6] - rvecs[3]*rvecs[8];
+    gvecs[2] = rvecs[3]*rvecs[7] - rvecs[4]*rvecs[6];
+    gvecs[3] = rvecs[7]*rvecs[2] - rvecs[8]*rvecs[1];
+    gvecs[4] = rvecs[8]*rvecs[0] - rvecs[6]*rvecs[2];
+    gvecs[5] = rvecs[6]*rvecs[1] - rvecs[7]*rvecs[0];
+    gvecs[6] = rvecs[1]*rvecs[5] - rvecs[2]*rvecs[4];
+    gvecs[7] = rvecs[2]*rvecs[3] - rvecs[0]*rvecs[5];
+    gvecs[8] = rvecs[0]*rvecs[4] - rvecs[1]*rvecs[3];
+    // determinant
+    double det = gvecs[0]*rvecs[0] + gvecs[1]*rvecs[1] + gvecs[2]*rvecs[2];
+    // inverse
+    gvecs[0] /= det;
+    gvecs[1] /= det;
+    gvecs[2] /= det;
+    gvecs[3] /= det;
+    gvecs[4] /= det;
+    gvecs[5] /= det;
+    gvecs[6] /= det;
+    gvecs[7] /= det;
+    gvecs[8] /= det;
+
+    // compute the spacings and the lengths of the cell vectors
+    for (int i=2; i>=0; i--) {
+        rlengths[i] = sqrt(rvecs[3*i]*rvecs[3*i] + rvecs[3*i+1]*rvecs[3*i+1] + rvecs[3*i+2]*rvecs[3*i+2]);
+        glengths[i] = sqrt(gvecs[3*i]*gvecs[3*i] + gvecs[3*i+1]*gvecs[3*i+1] + gvecs[3*i+2]*gvecs[3*i+2]);
+        rspacings[i] = 1.0/glengths[i];
+        gspacings[i] = 1.0/rlengths[i];
+    }
 }
 
 
