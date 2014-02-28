@@ -578,7 +578,7 @@ class DenseOneBody(OneBody):
         assert abs(self._array - self._array.T).max() == 0.0
 
     def clear(self):
-	'''Resets array to zeros element-wise.'''
+        '''Resets array to zeros element-wise.'''
         self._array[:] = 0.0
 
     def iadd(self, other, factor=1):
@@ -602,11 +602,11 @@ class DenseOneBody(OneBody):
 
     def idot(self, other):
         '''Inplace dot operator'''
-	self._array[:] = np.dot(self._array, other._array)
+        self._array[:] = np.dot(self._array, other._array)
 
     def distance(self, other):
         '''Maximum difference between self and other one body object'''
-	return abs(self._array.ravel() - other._array.ravel()).max()
+        return abs(self._array.ravel() - other._array.ravel()).max()
 
     def apply_basis_permutation(self, permutation):
         '''Reorder the coefficients for a given permutation of basis functions.
