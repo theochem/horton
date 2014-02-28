@@ -52,8 +52,10 @@ cdef class Cell:
        not to be orthogonal.
     '''
 
-    def __cinit__(self, np.ndarray[double, ndim=2] rvecs=None):
-        if rvecs is None:
+    def __cinit__(self, np.ndarray[double, ndim=2] rvecs=None, initvoid=False):
+        if initvoid:
+            self._this = NULL
+        elif rvecs is None:
             self._this = new cell.Cell(NULL, 0)
         else:
             assert rvecs.flags['C_CONTIGUOUS']
@@ -62,8 +64,12 @@ cdef class Cell:
             nvec = rvecs.shape[0]
             self._this = new cell.Cell(<double*>rvecs.data, nvec)
 
+    def __init__(self, np.ndarray[double, ndim=2] rvecs=None):
+        pass
+
     def __dealloc__(self):
-        del self._this
+        if self._this != NULL:
+            del self._this
 
     @classmethod
     def from_hdf5(cls, grp, lf):

@@ -24,11 +24,15 @@ cimport cell
 
 cdef extern from "uniform.h":
     cdef cppclass UniformGrid:
-        UniformGrid(double* _origin, cell.Cell* _grid_cell, long* _shape, long* _pbc, cell.Cell* _cell) except +
+        double origin[3]
+        double grid_rvecs[9]
+        long shape[3]
+        long pbc[3]
 
-        void copy_origin(double* output)
-        void copy_shape(long* output)
-        void copy_pbc(long* output)
+        UniformGrid(double* _origin, double* _grid_rvecs, long* _shape, long* _pbc)
+
+        cell.Cell* get_cell()
+        cell.Cell* get_grid_cell()
 
         void set_ranges_rcut(double* center, double rcut, long* ranges_begin, long* ranges_end)
         double dist_grid_point(double* center, long* i)

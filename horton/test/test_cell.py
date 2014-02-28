@@ -525,3 +525,8 @@ def test_from_parameters3():
     for i in xrange(10):
         cell0 = get_random_cell(1.0, 3)
         check_from_parameters(cell0)
+
+
+def test_no_initvoid():
+    with assert_raises(TypeError):
+        cell = Cell(initvoid=True)

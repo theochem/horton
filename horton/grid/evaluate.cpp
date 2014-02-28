@@ -37,7 +37,7 @@ void eval_spline_cube(CubicSpline* spline, double* center, double* output,
     long begin[3], end[3];
     ugrid->set_ranges_rcut(center, rcut, begin, end);
 
-    Block3Iterator b3i = Block3Iterator(begin, end, ugrid->get_shape());
+    Block3Iterator b3i = Block3Iterator(begin, end, ugrid->shape);
 
     // Run triple loop over blocks (serial)
     for (long iblock=b3i.get_nblock()-1; iblock>=0; iblock--) {

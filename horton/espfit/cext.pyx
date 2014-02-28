@@ -79,7 +79,7 @@ def setup_esp_cost_cube(horton.grid.cext.UniformGrid ugrid not None,
     assert alpha > 0
     assert gcut > 0
 
-    if ugrid.cell.nvec in [0,3]:
+    if ugrid.pbc.sum() in [0,3]:
         electrostatics.setup_esp_cost_cube(ugrid._this, <double*>vref.data,
             <double*>weights.data, <double*>centers.data, <double*>A.data,
             <double*>B.data, <double*>C.data, ncenter, rcut, alpha, gcut)
@@ -105,7 +105,7 @@ def compute_esp_grid_cube(horton.grid.cext.UniformGrid ugrid not None,
     assert alpha > 0
     assert gcut > 0
 
-    if ugrid.cell.nvec in [0,3]:
+    if ugrid.pbc.sum() in [0,3]:
         electrostatics.compute_esp_cube(ugrid._this, <double*>esp.data,
             <double*>centers.data, <double*>charges.data, ncenter, rcut, alpha,
             gcut)

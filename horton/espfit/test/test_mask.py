@@ -66,7 +66,8 @@ def test_mask_near1():
     assert (weights >= 0.0).all()
     assert (weights <= 1.0).all()
     # find the point close to atom 2 and check that the weight is zero
-    i = np.round(ugrid.grid_cell.to_frac(sys.coordinates[2] - ugrid.origin)).astype(int)
+    grid_cell = ugrid.get_grid_cell()
+    i = np.round(grid_cell.to_frac(sys.coordinates[2] - ugrid.origin)).astype(int)
     i[0] = i[0]%10
     i[2] = i[2]%20
     assert weights[i[0], i[1], i[2]] == 0.0
@@ -94,7 +95,8 @@ def test_mask_far():
     assert (weights >= 0.0).all()
     assert (weights <= 1.0).all()
     # find the point close to atom 2 and check that the weight is one
-    i = np.round(ugrid.grid_cell.to_frac(sys.coordinates[2] - ugrid.origin)).astype(int)
+    grid_cell = ugrid.get_grid_cell()
+    i = np.round(grid_cell.to_frac(sys.coordinates[2] - ugrid.origin)).astype(int)
     i[0] = i[0]%10
     i[2] = i[2]%20
     assert weights[i[0], i[1], i[2]] == 1.0

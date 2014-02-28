@@ -131,7 +131,7 @@ def test_uig_eval_spline_3d_random():
         pbc = np.array([1, 1, 1])
         uig = UniformGrid(origin, grid_cell.rvecs, shape, pbc)
 
-        rvecs = uig.cell.rvecs
+        rvecs = uig.get_cell().rvecs
 
         output1 = np.zeros(uig.shape)
         center1 = np.random.uniform(-3, 3, 3)
@@ -292,7 +292,7 @@ def test_get_ranges_rcut1():
     uig = get_simple_test_uig()
     center = np.array([0.1, -2.5, 3.2])
     rb1, re1 = uig.get_ranges_rcut(center, 2.0)
-    rb2, re2 = uig.grid_cell.get_ranges_rcut(uig.origin - center, 2.0)
+    rb2, re2 = uig.get_grid_cell().get_ranges_rcut(uig.origin - center, 2.0)
     assert rb1[0] == rb2[0]
     assert rb1[1] == 0
     assert rb1[2] == rb2[2]
@@ -303,7 +303,7 @@ def test_get_ranges_rcut2():
     uig = get_simple_test_uig()
     center = np.array([60.0, 50.0, 60.0])
     rb1, re1 = uig.get_ranges_rcut(center, 2.0)
-    rb2, re2 = uig.grid_cell.get_ranges_rcut(uig.origin - center, 2.0)
+    rb2, re2 = uig.get_grid_cell().get_ranges_rcut(uig.origin - center, 2.0)
     assert (rb1 == rb2).all()
     assert re1[0] == re2[0]
     assert re1[1] == 40
@@ -318,7 +318,7 @@ def test_dist_grid_point():
 
     center = np.array([0.9, 2.5, 1.6])
     indexes = np.array([6, 3, -2])
-    point = uig.origin + uig.grid_cell.to_cart(indexes.astype(float))
+    point = uig.origin + uig.get_grid_cell().to_cart(indexes.astype(float))
     assert abs(uig.dist_grid_point(center, np.array([6, 3, -2])) - np.linalg.norm(center - point)) < 1e-10
 
 
@@ -330,7 +330,7 @@ def test_delta_grid_point():
 
     center = np.array([0.9, 2.5, 1.6])
     indexes = np.array([6, 3, -2])
-    point = uig.origin + uig.grid_cell.to_cart(indexes.astype(float))
+    point = uig.origin + uig.get_grid_cell().to_cart(indexes.astype(float))
     assert abs(uig.delta_grid_point(center, np.array([6, 3, -2])) - (point - center)).max() < 1e-10
 
 
@@ -396,16 +396,17 @@ def check_window_block(small, big, window, shape, i0, i1, i2):
 
 def check_window_ugrid(window):
     ugrid = window.get_window_ugrid()
-    assert abs(ugrid.origin - (window.ugrid.origin + np.dot(window.begin, ugrid.grid_cell.rvecs))).max() < 1e-10
-    assert ugrid.grid_cell.nvec == 3
-    assert (ugrid.grid_cell.rvecs == window.ugrid.grid_cell.rvecs).all()
+    grid_cell = ugrid.get_grid_cell()
+    assert abs(ugrid.origin - (window.ugrid.origin + np.dot(window.begin, grid_cell.rvecs))).max() < 1e-10
+    assert grid_cell.nvec == 3
+    assert (grid_cell.rvecs == window.ugrid.get_grid_cell().rvecs).all()
     assert (ugrid.shape == window.end - window.begin).all()
     assert (ugrid.pbc == 0).all()
 
 
 def helper_xyzr_window(window, center):
     origin = window.ugrid.origin
-    grid_rvecs = window.ugrid.grid_cell.rvecs
+    grid_rvecs = window.ugrid.get_grid_cell().rvecs
     indexes = np.indices(window.shape)
     indexes += window.begin.reshape(3, 1, 1, 1)
     x = (origin[0] + indexes[0]*grid_rvecs[0,0] + indexes[1]*grid_rvecs[1,0] + indexes[2]*grid_rvecs[2,0]) - center[0]
@@ -523,7 +524,7 @@ def test_window3():
     check_window_ugrid(window)
 
     # test for integrate
-    assert abs(window.integrate(big) - big.sum()*ugrid.grid_cell.volume) < 1e-10
+    assert abs(window.integrate(big) - big.sum()*ugrid.get_grid_cell().volume) < 1e-10
 
     # test for integrate with cartesian moments
     check_integrate_cartesian_moments(window, center, big)
@@ -571,7 +572,7 @@ def test_window2():
     check_window_ugrid(window)
 
     # test for integrate
-    assert abs(window.integrate(big) - big.sum()*ugrid.grid_cell.volume) < 1e-10
+    assert abs(window.integrate(big) - big.sum()*ugrid.get_grid_cell().volume) < 1e-10
 
     # test for integrate with cartesian moments
     check_integrate_cartesian_moments(window, center, big)
@@ -618,7 +619,7 @@ def test_window1():
     check_window_ugrid(window)
 
     # test for integrate
-    assert abs(window.integrate(big) - big.sum()*ugrid.grid_cell.volume) < 1e-10
+    assert abs(window.integrate(big) - big.sum()*ugrid.get_grid_cell().volume) < 1e-10
 
     # test for integrate with cartesian moments
     check_integrate_cartesian_moments(window, center, big)
@@ -664,7 +665,7 @@ def test_window0():
     check_window_ugrid(window)
 
     # test for integrate
-    assert abs(window.integrate(big) - big.sum()*ugrid.grid_cell.volume) < 1e-10
+    assert abs(window.integrate(big) - big.sum()*ugrid.get_grid_cell().volume) < 1e-10
 
     # test for integrate with cartesian moments
     check_integrate_cartesian_moments(window, center, big)
