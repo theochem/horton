@@ -27,21 +27,16 @@
 
 
 class UniformGrid {
-    private:
+    public:
         double origin[3];
-        Cell* grid_cell;
-        Cell* cell;
+        double grid_rvecs[9];
         long shape[3];
         long pbc[3];
-    public:
-        UniformGrid(double* _origin, Cell* _grid_cell, long* _shape, long* _pbc, Cell* _cell);
 
-        void copy_origin(double* output);
-        void copy_shape(long* output);
-        void copy_pbc(long* output);
+        UniformGrid(double* _origin, double* _grid_rvecs, long* _shape, long* _pbc);
 
-        const long* get_shape() { return shape; };
-        const Cell* get_cell() { return cell; };
+        Cell* get_cell();
+        Cell* get_grid_cell();
 
         void set_ranges_rcut(double* center, double rcut, long* ranges_begin, long* ranges_end);
         double dist_grid_point(double* center, long* i);

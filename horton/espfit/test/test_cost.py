@@ -164,8 +164,8 @@ def test_esp_cost_cube3d_invariance_images():
     grid = UniformGrid(origin, grid_rvecs, shape, pbc)
     # Generate costs with displaced origin
     costs = []
+    rvecs = grid.get_cell().rvecs
     for i in xrange(10):
-        rvecs = grid.cell.rvecs
         new_coordinates = coordinates.copy()
         for j in xrange(len(coordinates)):
             new_coordinates[j] += np.dot(np.random.randint(-3, 4, 3), rvecs)

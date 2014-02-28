@@ -29,36 +29,41 @@
 #include <cstdlib>
 #include "uniform.h"
 
-UniformGrid::UniformGrid(double* _origin, Cell* _grid_cell, long* _shape, long* _pbc, Cell* _cell)
-    : grid_cell(_grid_cell), cell(_cell) {
 
-    if (_grid_cell->get_nvec() != 3) {
-        throw std::domain_error("The grid_cell of a UniformGrid must be 3D.");
-    }
-
+UniformGrid::UniformGrid(double* _origin, double* _grid_rvecs, long* _shape, long* _pbc)
+{
     for (int i=0; i<3; i++) {
         origin[i] = _origin[i];
         shape[i] = _shape[i];
         pbc[i] = _pbc[i];
     }
+    for (int i=0; i<9; i++) {
+        grid_rvecs[i] = _grid_rvecs[i];
+    }
 }
 
-void UniformGrid::copy_origin(double* output) {
-    output[0] = origin[0];
-    output[1] = origin[1];
-    output[2] = origin[2];
+
+Cell* UniformGrid::get_cell() {
+    int nvec = 0;
+    for (int i=0; i<3; i++) {
+        nvec += pbc[i];
+    }
+    double rvecs[3*nvec];
+    int j = 0;
+    for (int i=0; i<3; i++) {
+        if (pbc[i]) {
+            rvecs[3*j  ] = grid_rvecs[3*i  ]*shape[i];
+            rvecs[3*j+1] = grid_rvecs[3*i+1]*shape[i];
+            rvecs[3*j+2] = grid_rvecs[3*i+2]*shape[i];
+            j++;
+        }
+    }
+    return new Cell(rvecs, nvec);
 }
 
-void UniformGrid::copy_shape(long* output) {
-    output[0] = shape[0];
-    output[1] = shape[1];
-    output[2] = shape[2];
-}
 
-void UniformGrid::copy_pbc(long* output) {
-    output[0] = pbc[0];
-    output[1] = pbc[1];
-    output[2] = pbc[2];
+Cell* UniformGrid::get_grid_cell() {
+    return new Cell(grid_rvecs, 3);
 }
 
 
@@ -68,7 +73,9 @@ void UniformGrid::set_ranges_rcut(double* center, double rcut, long* ranges_begi
     delta[0] = origin[0] - center[0];
     delta[1] = origin[1] - center[1];
     delta[2] = origin[2] - center[2];
+    Cell* grid_cell = get_grid_cell();
     grid_cell->set_ranges_rcut(delta, rcut, ranges_begin, ranges_end);
+    delete grid_cell;
 
     // Truncate ranges in case of non-periodic boundary conditions
     for (int i=2; i>=0; i--) {
@@ -89,19 +96,17 @@ void UniformGrid::set_ranges_rcut(double* center, double rcut, long* ranges_begi
 
 double UniformGrid::dist_grid_point(double* center, long* i) {
     double delta[3];
-    delta[0] = origin[0] - center[0];
-    delta[1] = origin[1] - center[1];
-    delta[2] = origin[2] - center[2];
-    grid_cell->add_rvec(delta, i);
+    delta[0] = origin[0] - center[0] + i[0]*grid_rvecs[0] + i[1]*grid_rvecs[3] + i[2]*grid_rvecs[6];
+    delta[1] = origin[1] - center[1] + i[0]*grid_rvecs[1] + i[1]*grid_rvecs[4] + i[2]*grid_rvecs[7];
+    delta[2] = origin[2] - center[2] + i[0]*grid_rvecs[2] + i[1]*grid_rvecs[5] + i[2]*grid_rvecs[8];
     return sqrt(delta[0]*delta[0]+delta[1]*delta[1]+delta[2]*delta[2]);
 }
 
 void UniformGrid::delta_grid_point(double* center, long* i) {
     // center is used here as a input; the final value is the relative vector;
-    center[0] = origin[0] - center[0];
-    center[1] = origin[1] - center[1];
-    center[2] = origin[2] - center[2];
-    grid_cell->add_rvec(center, i);
+    center[0] = origin[0] - center[0] + i[0]*grid_rvecs[0] + i[1]*grid_rvecs[3] + i[2]*grid_rvecs[6];
+    center[1] = origin[1] - center[1] + i[0]*grid_rvecs[1] + i[1]*grid_rvecs[4] + i[2]*grid_rvecs[7];
+    center[2] = origin[2] - center[2] + i[0]*grid_rvecs[2] + i[1]*grid_rvecs[5] + i[2]*grid_rvecs[8];
 }
 
 double* UniformGrid::get_pointer(double* array, long* i) {
@@ -132,7 +137,7 @@ void UniformGridWindow::copy_end(long* output) {
 }
 
 void UniformGridWindow::extend(double* cell, double* local) {
-    Range3Iterator r3i = Range3Iterator(begin, end, ugrid->get_shape());
+    Range3Iterator r3i = Range3Iterator(begin, end, ugrid->shape);
     long j[3], jwrap[3];
     for (long ipoint=r3i.get_npoint()-1; ipoint >= 0; ipoint--) {
         r3i.set_point(ipoint, j, jwrap);
@@ -146,7 +151,7 @@ void UniformGridWindow::extend(double* cell, double* local) {
 
 void UniformGridWindow::wrap(double* local, double* cell) {
     // Run triple loop over blocks
-    Block3Iterator b3i = Block3Iterator(begin, end, ugrid->get_shape());
+    Block3Iterator b3i = Block3Iterator(begin, end, ugrid->shape);
     for (long iblock=b3i.get_nblock()-1; iblock>=0; iblock--) {
         long b[3];
         b3i.set_block(iblock, b);

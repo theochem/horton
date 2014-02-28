@@ -282,7 +282,7 @@ def test_cube():
     g1 = sys1.grid
     g2 = sys2.grid
     assert (g1.origin == g2.origin).all()
-    assert (g1.grid_cell.rvecs == g2.grid_cell.rvecs).all()
+    assert (g1.grid_rvecs == g2.grid_rvecs).all()
     assert (g1.shape == g2.shape).all()
     assert (g1.pbc == g2.pbc).all()
 

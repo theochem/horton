@@ -104,7 +104,7 @@ void dot_multi_moments_cube(long nvector, double** data, UniformGrid* ugrid, dou
 
     // reset the output to zero
 
-    Cube3Iterator c3i = Cube3Iterator(NULL, ugrid->get_shape());
+    Cube3Iterator c3i = Cube3Iterator(NULL, ugrid->shape);
     for (long ipoint=c3i.get_npoint()-1; ipoint >= 0; ipoint--) {
         // do the usual product of integranda
         double term = data_product(ipoint, nvector, data);

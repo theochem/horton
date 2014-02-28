@@ -24,8 +24,6 @@ cimport uniform
 cimport horton.cext
 
 cdef class UniformGrid:
-    cdef horton.cext.Cell _grid_cell
-    cdef horton.cext.Cell _cell
     cdef uniform.UniformGrid* _this
 
 cdef class UniformGridWindow:

@@ -484,7 +484,7 @@ class CPart(Part):
                 ('Uniform Integration Grid', self.grid),
                 ('Grid shape', self.grid.shape),
                 ('Using local grids', self._local),
-                ('Mean spacing', '%10.5e' % (self.grid.grid_cell.volume**(1.0/3.0))),
+                ('Mean spacing', '%10.5e' % (self.grid.get_grid_cell().volume**(1.0/3.0))),
                 ('Weight corr. numbers', ' '.join(str(n) for n in self.wcor_numbers)),
                 ('Weight corr. max rcut', '%10.5f' % self._wcor_rcut_max),
                 ('Weight corr. rcond', '%10.5e' % self._wcor_rcond),

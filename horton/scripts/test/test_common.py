@@ -64,7 +64,7 @@ def test_reduce_data0():
     assert data1.shape == (1, 2, 3)
     assert (data1 == data[::10,::10,::10]).all()
     assert (ugrid1.origin == ugrid.origin).all()
-    assert abs(ugrid1.grid_cell.rvecs - ugrid.grid_cell.rvecs*10).max() < 1e-10
+    assert abs(ugrid1.grid_rvecs - ugrid.grid_rvecs*10).max() < 1e-10
     assert (ugrid1.shape == [1, 2, 3]).all()
     assert (ugrid1.pbc == ugrid.pbc).all()
 
@@ -72,7 +72,7 @@ def test_reduce_data0():
     assert data2.shape == (2, 4, 6)
     assert (data2 == data[::5,::5,::5]).all()
     assert (ugrid2.origin == ugrid.origin).all()
-    assert abs(ugrid2.grid_cell.rvecs - ugrid.grid_cell.rvecs*5).max() < 1e-10
+    assert abs(ugrid2.grid_rvecs - ugrid.grid_rvecs*5).max() < 1e-10
     assert (ugrid2.shape == [2, 4, 6]).all()
     assert (ugrid2.pbc == ugrid.pbc).all()
 
@@ -87,7 +87,7 @@ def test_reduce_data1():
     assert data1.shape == (1, 2, 3)
     assert (data1 == data[:-1:10,:-1:10,:-1:10]).all()
     assert (ugrid1.origin == ugrid.origin).all()
-    assert abs(ugrid1.grid_cell.rvecs - ugrid.grid_cell.rvecs*10).max() < 1e-10
+    assert abs(ugrid1.grid_rvecs - ugrid.grid_rvecs*10).max() < 1e-10
     assert (ugrid1.shape == [1, 2, 3]).all()
     assert (ugrid1.pbc == ugrid.pbc).all()
 
@@ -95,7 +95,7 @@ def test_reduce_data1():
     assert data2.shape == (2, 4, 6)
     assert (data2 == data[:-1:5,:-1:5,:-1:5]).all()
     assert (ugrid2.origin == ugrid.origin).all()
-    assert abs(ugrid2.grid_cell.rvecs - ugrid.grid_cell.rvecs*5).max() < 1e-10
+    assert abs(ugrid2.grid_rvecs - ugrid.grid_rvecs*5).max() < 1e-10
     assert (ugrid2.shape == [2, 4, 6]).all()
     assert (ugrid2.pbc == ugrid.pbc).all()
 
@@ -113,7 +113,7 @@ def test_parse_ugrid_1():
     ugrid = parse_ugrid('0.1', cell)
 
     assert (ugrid.origin == [0, 0, 0]).all()
-    assert abs(ugrid.grid_cell.rvecs - np.identity(3, float)*0.1*angstrom).max() < 1e-10
+    assert abs(ugrid.grid_rvecs - np.identity(3, float)*0.1*angstrom).max() < 1e-10
     assert (ugrid.shape == [30, 20, 10]).all()
     assert (ugrid.pbc == 1).all()
 
@@ -133,7 +133,7 @@ def test_parse_ugrid_2():
         ugrid2 = parse_ugrid('%s:/' % fn_h5, None)
 
         assert (ugrid2.origin == origin).all()
-        assert (ugrid2.grid_cell.rvecs == grid_rvecs).all()
+        assert (ugrid2.grid_rvecs == grid_rvecs).all()
         assert (ugrid2.shape == shape).all()
         assert (ugrid2.pbc == pbc).all()
 

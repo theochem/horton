@@ -113,7 +113,7 @@ def reduce_data(cube_data, ugrid, stride, chop):
         new_cube_data = cube_data[:-chop:stride, :-chop:stride, :-chop:stride].copy()
 
     new_shape = (ugrid.shape-chop)/stride
-    grid_rvecs = ugrid.grid_cell.rvecs*stride
+    grid_rvecs = ugrid.grid_rvecs*stride
     new_ugrid = UniformGrid(ugrid.origin, grid_rvecs, new_shape, ugrid.pbc)
 
     return new_cube_data, new_ugrid

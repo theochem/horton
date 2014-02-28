@@ -983,15 +983,11 @@ cdef class UniformGrid(object):
         assert pbc.flags['C_CONTIGUOUS']
         assert pbc.shape[0] == 3
 
-        self._grid_cell = horton.cext.Cell(grid_rvecs)
-        rvecs = grid_rvecs*shape.reshape(-1,1)
-        self._cell = horton.cext.Cell(rvecs[pbc.astype(bool)])
         self._this = <uniform.UniformGrid*>(new uniform.UniformGrid(
             <double*>origin.data,
-            self._grid_cell._this,
+            <double*>grid_rvecs.data,
             <long*>shape.data,
             <long*>pbc.data,
-            self._cell._this,
         ))
 
     def __dealloc__(self):
@@ -999,33 +995,50 @@ cdef class UniformGrid(object):
 
     property origin:
         def __get__(self):
-            cdef np.ndarray[double, ndim=1] result = np.empty(3, float)
-            self._this.copy_origin(<double*>result.data)
+            cdef np.npy_intp dims[1]
+            dims[0] = 3
+            cdef np.ndarray result = np.PyArray_SimpleNewFromData(1, dims, np.NPY_DOUBLE, self._this.origin)
+            np.set_array_base(result, self)
             return result
 
-    property grid_cell:
+    property grid_rvecs:
         def __get__(self):
-            return self._grid_cell
+            cdef np.npy_intp dims[2]
+            dims[0] = 3
+            dims[1] = 3
+            cdef np.ndarray result = np.PyArray_SimpleNewFromData(2, dims, np.NPY_DOUBLE, self._this.grid_rvecs)
+            np.set_array_base(result, self)
+            return result
 
     property shape:
         def __get__(self):
-            cdef np.ndarray[long, ndim=1] result = np.empty(3, int)
-            self._this.copy_shape(<long*>result.data)
+            cdef np.npy_intp dims[1]
+            dims[0] = 3
+            cdef np.ndarray result = np.PyArray_SimpleNewFromData(1, dims, np.NPY_LONG, self._this.shape)
+            np.set_array_base(result, self)
+            return result
+
+    property pbc:
+        def __get__(self):
+            cdef np.npy_intp dims[1]
+            dims[0] = 3
+            cdef np.ndarray result = np.PyArray_SimpleNewFromData(1, dims, np.NPY_LONG, self._this.pbc)
+            np.set_array_base(result, self)
             return result
 
     property size:
         def __get__(self):
             return np.product(self.shape)
 
-    property pbc:
-        def __get__(self):
-            cdef np.ndarray[long, ndim=1] result = np.empty(3, int)
-            self._this.copy_pbc(<long*>result.data)
-            return result
+    def get_cell(self):
+        cdef horton.cext.Cell result = horton.cext.Cell.__new__(horton.cext.Cell, initvoid=True)
+        result._this = self._this.get_cell()
+        return result
 
-    property cell:
-        def __get__(self):
-            return self._cell
+    def get_grid_cell(self):
+        cdef horton.cext.Cell result = horton.cext.Cell.__new__(horton.cext.Cell, initvoid=True)
+        result._this = self._this.get_grid_cell()
+        return result
 
     @classmethod
     def from_hdf5(cls, grp, lf):
@@ -1037,7 +1050,7 @@ cdef class UniformGrid(object):
         )
 
     def to_hdf5(self, grp):
-        grp['grid_rvecs'] = self._grid_cell.rvecs
+        grp['grid_rvecs'] = self.grid_rvecs
         grp['origin'] = self.origin
         grp['shape'] = self.shape
         grp['pbc'] = self.pbc
@@ -1071,7 +1084,7 @@ cdef class UniformGrid(object):
         # This is often convenient for cube grid data:
         args = [arg.ravel() for arg in args if arg is not None]
         # Similar to conventional integration routine:
-        return dot_multi(*args)*self._grid_cell.volume
+        return dot_multi(*args)*abs(np.linalg.det(self.grid_rvecs))
 
     def get_ranges_rcut(self, np.ndarray[double, ndim=1] center not None, double rcut):
         '''Return the ranges if indexes that lie within the cutoff sphere.
@@ -1182,11 +1195,13 @@ cdef class UniformGrid(object):
             output = np.ones(self.shape, float)
         else:
             output[:] = 1.0
-        volume = self._grid_cell.volume
+        cell = self.get_cell()
+        grid_cell = self.get_grid_cell()
+        volume = grid_cell.volume
 
         # initialize cutoff radii
-        if self._cell.nvec > 0:
-            rcut_max = min(rcut_max, 0.5*rcut_scale*self._cell.rspacings.min())
+        if cell.nvec > 0:
+            rcut_max = min(rcut_max, 0.5*rcut_scale*cell.rspacings.min())
         rcuts = np.zeros(len(funcs)) + rcut_max
 
         # determine safe cutoff radii
@@ -1195,18 +1210,18 @@ cdef class UniformGrid(object):
             for i1 in xrange(i0):
                 center1, rcut1 = funcs[i1][:2]
                 delta = center1 - center0
-                self._cell.mic(delta)
+                cell.mic(delta)
                 dist = np.linalg.norm(delta)
                 rcut = 0.5*rcut_scale*dist
                 rcuts[i0] = min(rcut, rcuts[i0])
                 rcuts[i1] = min(rcut, rcuts[i1])
 
         def get_aux_grid(center, aux_rcut):
-            ranges_begin, ranges_end = self._grid_cell.get_ranges_rcut(self.origin-center, aux_rcut)
+            ranges_begin, ranges_end = grid_cell.get_ranges_rcut(self.origin-center, aux_rcut)
             aux_origin = self.origin.copy()
-            self._grid_cell.add_rvec(aux_origin, ranges_begin)
+            grid_cell.add_rvec(aux_origin, ranges_begin)
             aux_shape = ranges_end - ranges_begin
-            aux_grid = UniformGrid(aux_origin, self._grid_cell.rvecs, aux_shape, np.zeros(3, int))
+            aux_grid = UniformGrid(aux_origin, grid_cell.rvecs, aux_shape, np.zeros(3, int))
             return aux_grid, -ranges_begin
 
         def get_tapered_spline(spline, rcut, aux_rcut):
@@ -1245,12 +1260,12 @@ cdef class UniformGrid(object):
         icenter = 0
         for (center, splines), rcut in zip(funcs, rcuts):
             # A) Determine the points inside the cutoff sphere.
-            ranges_begin, ranges_end = self._grid_cell.get_ranges_rcut(self.origin-center, rcut)
+            ranges_begin, ranges_end = grid_cell.get_ranges_rcut(self.origin-center, rcut)
 
             # B) Construct a set of grid indexes that lie inside the sphere.
             nselect_max = np.product(ranges_end-ranges_begin)
             indexes = np.zeros((nselect_max, 3), int)
-            nselect = self._grid_cell.select_inside(self.origin, center, rcut, ranges_begin, ranges_end, self.shape, self.pbc, indexes)
+            nselect = grid_cell.select_inside(self.origin, center, rcut, ranges_begin, ranges_end, self.shape, self.pbc, indexes)
             indexes = indexes[:nselect]
 
             # C) Set up an integration grid for the tapered spline
@@ -1366,10 +1381,9 @@ cdef class UniformGridWindow(object):
             return np.product(self.shape)
 
     def get_window_ugrid(self):
-        grid_cell = self._ugrid.grid_cell
-        origin = self._ugrid.origin.copy()
-        grid_cell.add_rvec(origin, self.begin)
-        return UniformGrid(origin, grid_cell.rvecs, self.shape, np.zeros(3, int))
+        grid_rvecs = self._ugrid.grid_rvecs
+        origin = self._ugrid.origin.copy() + np.dot(self.begin, grid_rvecs)
+        return UniformGrid(origin, grid_rvecs, self.shape, np.zeros(3, int))
 
     def zeros(self):
         return np.zeros(self.shape, float)
@@ -1446,15 +1460,15 @@ cdef class UniformGridWindow(object):
         if segments is not None:
             raise TypeError('Unexpected argument: segments')
 
-        grid_cell = self._ugrid.grid_cell
+        volume = abs(np.linalg.det(self._ugrid.grid_rvecs))
         if multipole_args is None:
             # regular integration
-            return dot_multi(*args)*grid_cell.volume
+            return dot_multi(*args)*volume
         else:
             # computation of multipole expansion of the integrand
             center, lmax, mtype = multipole_args
             window_ugrid = self.get_window_ugrid()
-            return dot_multi_moments_cube(args, window_ugrid, center, lmax, mtype)*grid_cell.volume
+            return dot_multi_moments_cube(args, window_ugrid, center, lmax, mtype)*volume
 
     def compute_weight_corrections(self, funcs, rcut_scale=0.9, rcut_max=2.0, rcond=0.1, output=None):
         window_ugrid = self.get_window_ugrid()
