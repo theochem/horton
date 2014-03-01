@@ -51,6 +51,28 @@ def test_uig_integrate_gauss():
     assert abs(num_result - 1.0) < 1e-3
 
 
+def test_ugrid_writable():
+    origin = np.random.normal(0, 1, 3)
+    grid_rvecs = np.random.normal(0, 1, (3, 3))
+    shape = np.random.randint(10, 20, 3)
+    pbc = np.random.randint(0, 2, 3)
+    ugrid = UniformGrid(origin, grid_rvecs, shape, pbc)
+    # write to attributes and check value
+    for i in xrange(10):
+        value = np.random.normal(0, 1)
+        i, j = np.random.randint(0, 3, 2)
+        ugrid.origin[i] = value
+        assert ugrid.origin[i] == value
+        ugrid.grid_rvecs[i,j] = value
+        assert ugrid.grid_rvecs[i,j] == value
+        k = np.random.randint(10, 20)
+        ugrid.shape[i] = k
+        assert ugrid.shape[i] == k
+        l = np.random.randint(0, 2)
+        ugrid.pbc[j] = l
+        assert ugrid.pbc[j] == l
+
+
 def test_index_wrap():
     assert index_wrap(2, 3) == 2
     assert index_wrap(-5, 10) == 5
@@ -332,6 +354,24 @@ def test_delta_grid_point():
     indexes = np.array([6, 3, -2])
     point = uig.origin + uig.get_grid_cell().to_cart(indexes.astype(float))
     assert abs(uig.delta_grid_point(center, np.array([6, 3, -2])) - (point - center)).max() < 1e-10
+
+
+def test_window_writable():
+    origin = np.random.normal(0, 1, 3)
+    grid_rvecs = np.random.normal(0, 1, (3, 3))
+    shape = np.random.randint(10, 20, 3)
+    pbc = np.random.randint(0, 2, 3)
+    ugrid = UniformGrid(origin, grid_rvecs, shape, pbc)
+    window = ugrid.get_window(np.random.normal(0, 1, 3), 20.0)
+    # write to attributes and check value
+    for i in xrange(10):
+        i = np.random.randint(0, 3, 1)
+        j, k = np.random.randint(10, 20, 2)
+        window.begin[i] = j
+        assert window.begin[i] == j
+        window.end[i] = k
+        assert window.end[i] == k
+        assert window.shape[i] == k-j
 
 
 def test_window3_extend_simple1():
