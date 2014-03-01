@@ -55,15 +55,26 @@ def test_scripts():
     shape = np.array([10, 10, 10])
     pbc = np.ones(3, int)
     ugrid = UniformGrid(origin, grid_rvecs, shape, pbc)
-    cube_data = np.random.uniform(-1, 1, shape)
-    extra = {'cube_data': cube_data}
-    sys = System(coordinates, numbers, grid=ugrid, extra=extra)
+    esp_cube_data = np.random.uniform(-1, 1, shape)
+    rho_cube_data = np.random.uniform(-1, 1, shape)
+    sys_esp = System(coordinates, numbers, grid=ugrid, extra={'cube_data': esp_cube_data})
+    sys_rho = System(coordinates, numbers, grid=ugrid, extra={'cube_data': rho_cube_data})
 
-    # Write the cube file to the tmpdir and run scripts
+    # Write the cube file to the tmpdir and run scripts (run 1)
     with tmpdir('horton.scripts.test.test_espfit.test_scripts') as dn:
-        sys.to_file(os.path.join(dn, 'esp.cube'))
+        sys_esp.to_file(os.path.join(dn, 'esp.cube'))
         check_script('horton-esp-cost.py esp.cube --wnear=0:1.0:0.5', dn)
         check_files(dn, ['esp_espfit.h5'])
+        check_script('horton-esp-fit.py esp_espfit.h5:espfit/cost_r1 default', dn)
+        check_script('horton-esp-test.py esp_espfit.h5:espfit/cost_r1 esp_espfit.h5:espfit/cost_r1/default', dn)
+        check_script('horton-esp-gen.py esp_espfit.h5:espfit/cost_r1/default --grid=1.2', dn)
+
+    # Write the cube file to the tmpdir and run scripts (run 2)
+    with tmpdir('horton.scripts.test.test_espfit.test_scripts') as dn:
+        sys_esp.to_file(os.path.join(dn, 'esp.cube'))
+        sys_rho.to_file(os.path.join(dn, 'rho.cube'))
+        check_script('horton-esp-cost.py esp.cube --wnear=0:1.0:0.5 --wdens=rho.cube --wsave=weight.cube', dn)
+        check_files(dn, ['esp_espfit.h5', 'weight.cube'])
         check_script('horton-esp-fit.py esp_espfit.h5:espfit/cost_r1 default', dn)
         check_script('horton-esp-test.py esp_espfit.h5:espfit/cost_r1 esp_espfit.h5:espfit/cost_r1/default', dn)
         check_script('horton-esp-gen.py esp_espfit.h5:espfit/cost_r1/default --grid=1.2', dn)
