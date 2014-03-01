@@ -120,20 +120,7 @@ UniformGridWindow::UniformGridWindow(UniformGrid* ugrid, long* _begin, long* _en
     for (int i=0; i<3; i++) {
         begin[i] = _begin[i];
         end[i] = _end[i];
-        shape[i] = end[i] - begin[i];
     }
-}
-
-void UniformGridWindow::copy_begin(long* output) {
-    output[0] = begin[0];
-    output[1] = begin[1];
-    output[2] = begin[2];
-}
-
-void UniformGridWindow::copy_end(long* output) {
-    output[0] = end[0];
-    output[1] = end[1];
-    output[2] = end[2];
 }
 
 void UniformGridWindow::extend(double* cell, double* local) {
@@ -168,13 +155,12 @@ void UniformGridWindow::wrap(double* local, double* cell) {
             c3i.set_point(ipoint, jwrap);
             b3i.translate(b, jwrap, j);
             *(ugrid->get_pointer(cell, jwrap)) += *get_pointer(local, j);
-
         }
     }
 }
 
 double* UniformGridWindow::get_pointer(double* array, long* i) {
-    return array + ((i[0]-begin[0])*shape[1] + (i[1]-begin[1]))*shape[2] + (i[2]-begin[2]);
+    return array + ((i[0]-begin[0])*(end[1]-begin[1]) + (i[1]-begin[1]))*(end[2]-begin[2]) + (i[2]-begin[2]);
 }
 
 

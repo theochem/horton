@@ -39,10 +39,10 @@ cdef extern from "uniform.h":
         void delta_grid_point(double* center, long* i)
 
     cdef cppclass UniformGridWindow:
-        UniformGridWindow(UniformGrid* ugrid, long* begin, long* end)
+        long begin[3]
+        long end[3]
 
-        void copy_begin(long* output)
-        void copy_end(long* output)
+        UniformGridWindow(UniformGrid* ugrid, long* begin, long* end)
 
         void extend(double* cell, double* local)
         void wrap(double* local, double* cell)
