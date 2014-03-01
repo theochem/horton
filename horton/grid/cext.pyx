@@ -1362,14 +1362,18 @@ cdef class UniformGridWindow(object):
 
     property begin:
         def __get__(self):
-            cdef np.ndarray[long, ndim=1] result = np.empty(3, int)
-            self._this.copy_begin(<long*>result.data)
+            cdef np.npy_intp dims[1]
+            dims[0] = 3
+            cdef np.ndarray result = np.PyArray_SimpleNewFromData(1, dims, np.NPY_LONG, self._this.begin)
+            np.set_array_base(result, self)
             return result
 
     property end:
         def __get__(self):
-            cdef np.ndarray[long, ndim=1] result = np.empty(3, int)
-            self._this.copy_end(<long*>result.data)
+            cdef np.npy_intp dims[1]
+            dims[0] = 3
+            cdef np.ndarray result = np.PyArray_SimpleNewFromData(1, dims, np.NPY_LONG, self._this.end)
+            np.set_array_base(result, self)
             return result
 
     property shape:

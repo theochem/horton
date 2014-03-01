@@ -48,14 +48,12 @@ class UniformGrid {
 class UniformGridWindow {
     private:
         UniformGrid* ugrid;
+    public:
         long begin[3];
         long end[3];
-        long shape[3];
-    public:
-        UniformGridWindow(UniformGrid* ugrid, long* begin, long* end);
 
-        void copy_begin(long* output);
-        void copy_end(long* output);
+        UniformGridWindow(UniformGrid* ugrid, long* _begin, long* _end);
+
         double* get_pointer(double* array, long* j);
 
         void extend(double* cell, double* local);
