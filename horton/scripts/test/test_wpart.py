@@ -28,19 +28,23 @@ from horton.scripts.test.common import copy_files, check_files
 from horton.part.test.common import get_proatomdb_hf_sto3g
 
 
-def write_atomdb_sto3g(dn):
+def write_atomdb_sto3g(dn, do_deriv=True):
     padb = get_proatomdb_hf_sto3g()
+    if not do_deriv:
+        # remove the derivatives of the pro-atoms (ugly hack to test backward compatibility).
+        for record in padb._records:
+            record._deriv = None
     padb.to_file(os.path.join(dn, 'atoms.h5'))
 
 
-def check_script_water_sto3g(scheme):
+def check_script_water_sto3g(scheme, do_deriv=True):
     with tmpdir('horton.scripts.test.test_wpart.test_script_water_sto3g_%s' % scheme) as dn:
         fn_fchk = 'water_sto3g_hf_g03.fchk'
         copy_files(dn, [fn_fchk])
         if scheme == 'b':
             check_script('horton-wpart.py %s %s' % (fn_fchk, scheme), dn)
         else:
-            write_atomdb_sto3g(dn)
+            write_atomdb_sto3g(dn, do_deriv)
             check_script('horton-wpart.py %s %s atoms.h5' % (fn_fchk, scheme), dn)
         fn_h5 = 'water_sto3g_hf_g03_wpart.h5'
         check_files(dn, [fn_h5])
@@ -57,9 +61,21 @@ def test_script_water_sto3g_h():
     check_script_water_sto3g('h')
 
 
+def test_script_water_sto3g_h_noderiv():
+    check_script_water_sto3g('h', do_deriv=False)
+
+
 def test_script_water_sto3g_hi():
     check_script_water_sto3g('hi')
 
 
+def test_script_water_sto3g_hi_noderiv():
+    check_script_water_sto3g('hi', do_deriv=False)
+
+
 def test_script_water_sto3g_he():
     check_script_water_sto3g('he')
+
+
+def test_script_water_sto3g_he_noderiv():
+    check_script_water_sto3g('he', do_deriv=False)
