@@ -32,6 +32,8 @@ cimport mask
 cimport horton.cext
 cimport horton.grid.cext
 
+from horton.log import log
+
 
 __all__ = [
     # electrostatics
@@ -143,6 +145,7 @@ def multiply_dens_mask(np.ndarray[double, ndim=3] rho not None,
     assert weights.shape[2] == rho.shape[2]
     cdef long npoint = weights.size
 
+    log.cite('hu2007', 'the density-based weight function for ESP fitting')
     mask.multiply_dens_mask(<double*>rho.data, rho0, alpha, <double*>weights.data, npoint)
 
 

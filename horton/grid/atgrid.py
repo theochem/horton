@@ -168,7 +168,7 @@ class AtomicGrid(IntGrid):
                 ('1D Integrator', self._rgrid.int1d),
             ])
         # Cite reference
-        log.cite('lebedev1999', 'for the use of Lebedev-Laikov grids (quadrature on a sphere)')
+        log.cite('lebedev1999', 'the use of Lebedev-Laikov grids (quadrature on a sphere)')
 
     def get_spherical_average(self, *args, **kwargs):
         '''Returns the spherical average on the radial grid of the product of the given functions'''
