@@ -112,7 +112,7 @@ def converge_scf_ediis_cs(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old
 
        **Returns:** the number of iterations
     '''
-    log.cite('kudin2002', 'For the use of the EDIIS method.')
+    log.cite('kudin2002', 'the use of the EDIIS method.')
     return converge_scf_diis_cs(ham, EnergyDIISHistory, maxiter, threshold, nvector, prune_old_states, scf_step)
 
 
