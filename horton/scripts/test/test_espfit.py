@@ -94,3 +94,14 @@ def test_scripts_symmetry():
             assert 'symmetry' in f['system/extra']
             assert 'symmetry' in f['espfit/cost_r1/default']
             assert f['espfit/cost_r1/default/symmetry/charges'].shape == (sys.extra['symmetry'].natom, 2)
+
+
+def test_max_at_edge():
+    weights = np.array([[[0.0, 1.0], [2.0, 3.0]], [[4.0, 5.0], [6.0, 7.0]]])
+    assert max_at_edge(weights, [1,1,1]) == 0.0
+    assert max_at_edge(weights, [1,1,0]) == 7.0
+    weights = np.array([[[0.0, 1.0, 2.0], [2.0, 3.0, 4.0]], [[4.0, 5.0, 6.0], [6.0, 9.0, 8.0]]])
+    assert max_at_edge(weights, [1,1,1]) == 0.0
+    assert max_at_edge(weights, [1,1,0]) == 8.0
+    assert max_at_edge(weights, [1,0,1]) == 9.0
+    assert max_at_edge(weights, [0,1,1]) == 9.0

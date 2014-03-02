@@ -27,7 +27,7 @@ from horton.scripts.common import reduce_data
 
 __all__ = [
     'parse_wdens', 'parse_wnear', 'parse_wfar',
-    'load_rho', 'save_weights'
+    'load_rho', 'save_weights', 'max_at_edge',
 ]
 
 
@@ -150,3 +150,28 @@ def save_weights(fn_cube, sys, ugrid, weights):
     my_sys.extra['cube_data'] = weights
     # save to file
     my_sys.to_file(fn_cube)
+
+
+def max_at_edge(weights, pbc):
+    '''Compute the maximum value of the weight function at the non-periodic
+       edges of the grid.
+
+       **Arguments:**
+
+       weights
+            A 3D array with ESP fitting weights
+
+       pbc
+            A vector of length three with periodicity flags.
+    '''
+    result = 0.0
+    if pbc[0] == 0:
+        result = max(result, weights[0,:,:].max())
+        result = max(result, weights[-1,:,:].max())
+    if pbc[1] == 0:
+        result = max(result, weights[:,0,:].max())
+        result = max(result, weights[:,-1,:].max())
+    if pbc[2] == 0:
+        result = max(result, weights[:,:,0].max())
+        result = max(result, weights[:,:,-1].max())
+    return result

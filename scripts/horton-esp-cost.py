@@ -28,7 +28,7 @@ from horton import System, angstrom, setup_weights, ESPCost, log, angstrom, \
 from horton.scripts.common import get_output_filename, reduce_data, \
     parse_ewald_args, parse_pbc, store_args, safe_open_h5
 from horton.scripts.espfit import parse_wdens, parse_wnear, parse_wfar, \
-    load_rho, save_weights
+    load_rho, save_weights, max_at_edge
 from horton.grid.cext import UniformGrid
 
 
@@ -150,7 +150,7 @@ def main():
         log.hline()
         log('Number of grid points:   %12i' % np.product(ugrid.shape))
         log('Grid shape:                 [%8i, %8i, %8i]' % tuple(ugrid.shape))
-        log('PBC:                   [%2d, %2d, %2d]' % tuple(ugrid.pbc))
+        log('PBC:                        [%8i, %8i, %8i]' % tuple(ugrid.pbc))
         log.hline()
 
     # Construct the weights for the ESP Cost function.
@@ -167,11 +167,19 @@ def main():
         near=parse_wnear(args.wnear),
         far=parse_wnear(args.wfar),
     )
+    # Some screen info
+    if log.do_medium:
+        log('Properties of the weight function:')
+        log.hline()
+        log.hline()
+
+
     # write the weights to a cube file if requested
     if args.wsave is not None:
         if log.do_medium:
             log('   Saving weights array   ')
         save_weights(args.wsave, sys, ugrid, weights)
+
     # rescale weights such that the cost function is the mean-square-error
     if weights.max() == 0.0:
         raise ValueError('No points with a non-zero weight were found')
@@ -184,8 +192,12 @@ def main():
         log('Important parameters:')
         log.hline()
         log('Used number of grid points:   %12i' % (weights>0).sum())
+        volume = ugrid.integrate(weights)
+        log('Used volume:                      %12.5f' % volume)
+        log('Used volume/atom:                 %12.5f' % (volume/sys.natom))
         log('Lowest weight:                %12.5e' % wmin)
         log('Highest weight:               %12.5e' % wmax)
+        log('Max weight at edge:           %12.5f' % max_at_edge(weights, ugrid.pbc))
 
     # Ewald parameters
     rcut, alpha, gcut = parse_ewald_args(args)
