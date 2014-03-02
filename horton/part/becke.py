@@ -64,7 +64,7 @@ class BeckeWPart(WPart):
             if number == 1:
                 radius = 0.35*angstrom # exception defined in Becke's paper
             else:
-                radius = periodic[number].bs_radius
+                radius = periodic[number].becke_radius
                 if radius is None: # for cases not covered by Brag-Slater
                     radius = periodic[number].cov_radius
             radii.append(radius)
