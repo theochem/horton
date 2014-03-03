@@ -106,8 +106,7 @@ def lebedev_laikov_sphere(np.ndarray[double, ndim=2] points not None,
     npoint = points.shape[0]
     assert weights.flags['C_CONTIGUOUS']
     assert weights.shape[0] == npoint
-    lebedev_laikov.lebedev_laikov_sphere(npoint, <double*>points.data,
-                                         <double*>weights.data)
+    lebedev_laikov.lebedev_laikov_sphere(npoint, &points[0, 0], &weights[0])
 
 
 #
@@ -162,9 +161,8 @@ def becke_helper_atom(np.ndarray[double, ndim=2] points not None,
     assert select >= 0 and select < natom
     assert order > 0
 
-    becke.becke_helper_atom(points.shape[0], <double*>points.data,
-                            <double*>weights.data, natom, <double*>radii.data,
-                            <double*>centers.data, select, order)
+    becke.becke_helper_atom(points.shape[0], &points[0, 0], &weights[0], natom,
+                            &radii[0], &centers[0, 0], select, order)
 
 
 #
@@ -184,8 +182,8 @@ def tridiagsym_solve(np.ndarray[double, ndim=1] diag_mid not None,
     assert right.shape[0] == n
     assert solution.flags['C_CONTIGUOUS']
     assert solution.shape[0] == n
-    cubic_spline.tridiagsym_solve(<double*>diag_mid.data, <double*>diag_up.data,
-                                  <double*>right.data, <double*>solution.data,
+    cubic_spline.tridiagsym_solve(&diag_mid[0], &diag_up[0],
+                                  &right[0], &solution[0],
                                   n)
 
 
@@ -313,7 +311,7 @@ cdef class CubicSpline(object):
         v = self._rtransform.get_deriv()
         if dx is None:
             self._dt = np.zeros(n, float)
-            cubic_spline.solve_cubic_spline_system(<double*>y.data, <double*>self._dt.data, n)
+            cubic_spline.solve_cubic_spline_system(&y[0], <double*>self._dt.data, n)
             self._dx = self._dt/v
         else:
             assert dx.flags['C_CONTIGUOUS']
@@ -400,7 +398,7 @@ cdef class CubicSpline(object):
         else:
             assert new_y.flags['C_CONTIGUOUS']
             assert new_y.shape[0] == new_n
-        self._this.eval(<double*>new_x.data, <double*>new_y.data, new_n)
+        self._this.eval(&new_x[0], &new_y[0], new_n)
         return new_y
 
     def deriv(self, np.ndarray[double, ndim=1] new_x not None,
@@ -428,14 +426,14 @@ cdef class CubicSpline(object):
         else:
             assert new_dx.flags['C_CONTIGUOUS']
             assert new_dx.shape[0] == new_n
-        self._this.eval_deriv(<double*>new_x.data, <double*>new_dx.data, new_n)
+        self._this.eval_deriv(&new_x[0], &new_dx[0], new_n)
         return new_dx
 
 
 def compute_cubic_spline_int_weights(np.ndarray[double, ndim=1] weights not None):
     assert weights.flags['C_CONTIGUOUS']
     npoint = weights.shape[0]
-    cubic_spline.compute_cubic_spline_int_weights(<double*>weights.data, npoint)
+    cubic_spline.compute_cubic_spline_int_weights(&weights[0], npoint)
 
 
 #
@@ -479,8 +477,8 @@ def eval_spline_cube(CubicSpline spline not None,
     assert output.shape[1] == ugrid.shape[1]
     assert output.shape[2] == ugrid.shape[2]
 
-    evaluate.eval_spline_cube(spline._this, <double*>center.data,
-                              <double*>output.data, ugrid._this)
+    evaluate.eval_spline_cube(spline._this, &center[0], &output[0, 0, 0],
+                              ugrid._this)
 
 def eval_spline_grid(CubicSpline spline not None,
                      np.ndarray[double, ndim=1] center not None,
@@ -514,9 +512,8 @@ def eval_spline_grid(CubicSpline spline not None,
     assert points.shape[1] == 3
     assert points.shape[0] == output.shape[0]
 
-    evaluate.eval_spline_grid(spline._this, <double*>center.data,
-                              <double*>output.data, <double*>points.data,
-                              cell._this, output.shape[0])
+    evaluate.eval_spline_grid(spline._this, &center[0], &output[0],
+                              &points[0, 0], cell._this, output.shape[0])
 
 
 #
@@ -569,7 +566,7 @@ cdef class RTransform(object):
         else:
             assert output.flags['C_CONTIGUOUS']
             assert output.shape[0] == n
-        self._this.radius_array(<double*>t.data, <double*>output.data, n)
+        self._this.radius_array(&t[0], &output[0], n)
         return output
 
     def deriv(self, t, output=None):
@@ -598,7 +595,7 @@ cdef class RTransform(object):
         else:
             assert output.flags['C_CONTIGUOUS']
             assert output.shape[0] == n
-        self._this.deriv_array(<double*>t.data, <double*>output.data, n)
+        self._this.deriv_array(&t[0], &output[0], n)
         return output
 
     def deriv2(self, t, output=None):
@@ -627,7 +624,7 @@ cdef class RTransform(object):
         else:
             assert output.flags['C_CONTIGUOUS']
             assert output.shape[0] == n
-        self._this.deriv2_array(<double*>t.data, <double*>output.data, n)
+        self._this.deriv2_array(&t[0], &output[0], n)
         return output
 
     def deriv3(self, t, output=None):
@@ -656,7 +653,7 @@ cdef class RTransform(object):
         else:
             assert output.flags['C_CONTIGUOUS']
             assert output.shape[0] == n
-        self._this.deriv3_array(<double*>t.data, <double*>output.data, n)
+        self._this.deriv3_array(&t[0], &output[0], n)
         return output
 
     def inv(self, r, output=None):
@@ -684,7 +681,7 @@ cdef class RTransform(object):
         else:
             assert output.flags['C_CONTIGUOUS']
             assert output.shape[0] == n
-        self._this.inv_array(<double*>r.data, <double*>output.data, n)
+        self._this.inv_array(&r[0], &output[0], n)
         return output
 
     def get_radii(self):
@@ -984,10 +981,7 @@ cdef class UniformGrid(object):
         assert pbc.shape[0] == 3
 
         self._this = <uniform.UniformGrid*>(new uniform.UniformGrid(
-            <double*>origin.data,
-            <double*>grid_rvecs.data,
-            <long*>shape.data,
-            <long*>pbc.data,
+            &origin[0], &grid_rvecs[0, 0], &shape[0], &pbc[0],
         ))
 
     def __dealloc__(self):
@@ -1068,7 +1062,7 @@ cdef class UniformGrid(object):
         assert output.shape[1] == self.shape[1]
         assert output.shape[2] == self.shape[2]
 
-        evaluate.eval_spline_cube(spline._this, <double*>center.data, <double*>output.data, self._this)
+        evaluate.eval_spline_cube(spline._this, &center[0], &output[0, 0, 0], self._this)
 
     def integrate(self, *args):
         '''Integrate the product of all arguments
@@ -1107,8 +1101,8 @@ cdef class UniformGrid(object):
         cdef np.ndarray[long, ndim=1] ranges_begin = np.zeros(3, int)
         cdef np.ndarray[long, ndim=1] ranges_end = np.zeros(3, int)
         self._this.set_ranges_rcut(
-            <double*>center.data, rcut, <long*> ranges_begin.data,
-            <long*> ranges_end.data)
+            &center[0], rcut, &ranges_begin[0],
+            &ranges_end[0])
         return ranges_begin, ranges_end
 
     def dist_grid_point(self, np.ndarray[double, ndim=1] center not None,
@@ -1127,7 +1121,7 @@ cdef class UniformGrid(object):
         assert center.size == 3
         assert indexes.flags['C_CONTIGUOUS']
         assert indexes.size == 3
-        return self._this.dist_grid_point(<double*>center.data, <long*>indexes.data)
+        return self._this.dist_grid_point(&center[0], &indexes[0])
 
     def delta_grid_point(self, np.ndarray[double, ndim=1] center not None,
                          np.ndarray[long, ndim=1] indexes not None):
@@ -1146,7 +1140,7 @@ cdef class UniformGrid(object):
         assert indexes.flags['C_CONTIGUOUS']
         assert indexes.size == 3
         cdef np.ndarray[double, ndim=1] result = center.copy()
-        self._this.delta_grid_point(<double*>result.data, <long*>indexes.data)
+        self._this.delta_grid_point(&result[0], &indexes[0])
         return result
 
     # TODO: move this to cpart
@@ -1349,8 +1343,8 @@ cdef class UniformGridWindow(object):
         self._ugrid = ugrid
         self._this = new uniform.UniformGridWindow(
             ugrid._this,
-            <long*>begin.data,
-            <long*>end.data,
+            &begin[0],
+            &end[0],
         )
 
     def __dealloc__(self):
@@ -1405,7 +1399,7 @@ cdef class UniformGridWindow(object):
         assert local.shape[0] == shape[0]
         assert local.shape[1] == shape[1]
         assert local.shape[2] == shape[2]
-        self._this.extend(<double*>cell.data, <double*>local.data)
+        self._this.extend(&cell[0, 0, 0], &local[0, 0, 0])
 
     def wrap(self, np.ndarray[double, ndim=3] local not None,
                    np.ndarray[double, ndim=3] cell not None):
@@ -1420,7 +1414,7 @@ cdef class UniformGridWindow(object):
         assert cell.shape[0] == shape[0]
         assert cell.shape[1] == shape[1]
         assert cell.shape[2] == shape[2]
-        self._this.wrap(<double*>local.data, <double*>cell.data)
+        self._this.wrap(&local[0, 0, 0], &cell[0, 0, 0])
 
     def eval_spline(self, CubicSpline spline not None,
                     np.ndarray[double, ndim=1] center not None,
@@ -1434,7 +1428,7 @@ cdef class UniformGridWindow(object):
 
         # construct an ugrid for this window such that we can reuse an existing routine
         cdef UniformGrid window_ugrid = self.get_window_ugrid()
-        evaluate.eval_spline_cube(spline._this, <double*>center.data, <double*>output.data, window_ugrid._this)
+        evaluate.eval_spline_cube(spline._this, &center[0], &output[0, 0, 0], window_ugrid._this)
 
     def integrate(self, *args, **kwargs):
         '''Integrate the product of all arguments
@@ -1504,21 +1498,21 @@ cdef class Block3Iterator(object):
         self._end = end
         self._shape = shape
         self._this = new uniform.Block3Iterator(
-            <long*>begin.data,
-            <long*>end.data,
-            <long*>shape.data,
+            &begin[0],
+            &end[0],
+            &shape[0],
         )
 
     property block_begin:
         def __get__(self):
             cdef np.ndarray[long, ndim=1] result = np.zeros(3, int)
-            self._this.copy_block_begin(<long*>result.data)
+            self._this.copy_block_begin(&result[0])
             return result
 
     property block_end:
         def __get__(self):
             cdef np.ndarray[long, ndim=1] result = np.zeros(3, int)
-            self._this.copy_block_end(<long*>result.data)
+            self._this.copy_block_end(&result[0])
             return result
 
 #
@@ -1544,7 +1538,7 @@ cdef double** _parse_integranda(integranda):
     cdef np.ndarray[double, ndim=1] integrandum
     for i in xrange(len(integranda)):
         integrandum = integranda[i]
-        result[i] = <double*>integrandum.data
+        result[i] = &integrandum[0]
     return result
 
 
@@ -1574,10 +1568,10 @@ def dot_multi(*integranda, np.ndarray[long, ndim=1] segments=None):
     '''
     cdef long npoint = _check_integranda(integranda)
     segments, nsegment = _parse_segments(segments, npoint)
-    cdef np.ndarray output = np.zeros(nsegment)
+    cdef np.ndarray[double, ndim=1] output = np.zeros(nsegment)
     cdef double** pointers = _parse_integranda(integranda)
     try:
-        utils.dot_multi(npoint, len(integranda), pointers, <long*>segments.data, <double*>output.data)
+        utils.dot_multi(npoint, len(integranda), pointers, &segments[0], &output[0])
     finally:
         free(pointers)
     if nsegment == 1:
@@ -1637,10 +1631,10 @@ def dot_multi_moments_cube(integranda, UniformGrid ugrid not None,
     assert center.shape[0] == 3
 
     cdef long nmoment = _get_nmoment(lmax, mtype)
-    cdef np.ndarray output = np.zeros(nmoment)
+    cdef np.ndarray[double, ndim=1] output = np.zeros(nmoment)
     cdef double** pointers = _parse_integranda(integranda)
     try:
-        utils.dot_multi_moments_cube(len(integranda), pointers, ugrid._this, <double*>center.data, lmax, mtype, <double*>output.data, nmoment)
+        utils.dot_multi_moments_cube(len(integranda), pointers, ugrid._this, &center[0], lmax, mtype, &output[0], nmoment)
     finally:
         free(pointers)
     return output
@@ -1688,12 +1682,12 @@ def dot_multi_moments(integranda,
 
     cdef long nmoment = _get_nmoment(lmax, mtype)
     segments, nsegment = _parse_segments(segments, npoint)
-    cdef np.ndarray output = np.zeros((nsegment, nmoment))
+    cdef np.ndarray[double, ndim=2] output = np.zeros((nsegment, nmoment))
     cdef double** pointers = _parse_integranda(integranda)
     try:
         utils.dot_multi_moments(npoint, len(integranda), pointers,
-            <double*>points.data, <double*>center.data, lmax, mtype,
-            <long*>segments.data, <double*>output.data, nmoment)
+            &points[0, 0], &center[0], lmax, mtype,
+            &segments[0], &output[0, 0], nmoment)
     finally:
         free(pointers)
     if nsegment == 1:

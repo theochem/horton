@@ -31,13 +31,13 @@ cdef extern from "iter_gb.h":
         void update_shell()
         bint inc_prim()
         void update_prim()
-        void store(double *work, double *output, long dim)
+        void store(double* work, double* output, long dim)
 
         # 'public' iterator fields
         long shell_type0
         double con_coeff, alpha0
-        double *r0
-        double *scales0
+        double* r0
+        double* scales0
         long ibasis0
 
         # 'private' iterator fields
@@ -51,13 +51,15 @@ cdef extern from "iter_gb.h":
         void update_shell()
         bint inc_prim()
         void update_prim()
-        void store(double *work, double *output)
+        void store(double* work, double* output)
 
         # 'public' iterator fields
         long shell_type0, shell_type1
         double con_coeff, alpha0, alpha1
-        double *r0, *r1
-        double *scales0, *scales1
+        double* r0
+        double* r1
+        double* scales0
+        double* scales1
         long ibasis0, ibasis1
 
         # 'private' iterator fields
@@ -71,14 +73,20 @@ cdef extern from "iter_gb.h":
         void update_shell()
         bint inc_prim()
         void update_prim()
-        void store(double *work, double *output)
+        void store(double* work, double* output)
 
         # 'public' iterator fields
         long shell_type0, shell_type1, shell_type2, shell_type3
         long ishell3_max
         double con_coeff, alpha0, alpha1, alpha2, alpha3
-        double *r0, *r1, *r2, *r3
-        double *scales0, *scales1, *scales2, *scales3
+        double* r0
+        double* r1
+        double* r2
+        double* r3
+        double* scales0
+        double* scales1
+        double* scales2
+        double* scales3
         long ibasis0, ibasis1, ibasis2, ibasis3
 
         # 'private' iterator fields

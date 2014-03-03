@@ -84,7 +84,7 @@ cdef class LibXCWrapper(object):
         npoint = rho.shape[0]
         assert zk.flags['C_CONTIGUOUS']
         assert zk.shape[0] == npoint
-        xc_lda_exc(&self._func_unpol, npoint, <double*>rho.data, <double*>zk.data)
+        xc_lda_exc(&self._func_unpol, npoint, &rho[0], &zk[0])
 
     def compute_lda_exc_pol(self, np.ndarray[double, ndim=2] rho not None,
                                   np.ndarray[double, ndim=1] zk not None):
@@ -93,7 +93,7 @@ cdef class LibXCWrapper(object):
         assert rho.shape[1] == 2
         assert zk.flags['C_CONTIGUOUS']
         assert zk.shape[0] == npoint
-        xc_lda_exc(&self._func_pol, npoint, <double*>rho.data, <double*>zk.data)
+        xc_lda_exc(&self._func_pol, npoint, &rho[0, 0], &zk[0])
 
     def compute_lda_vxc_unpol(self, np.ndarray[double, ndim=1] rho not None,
                                     np.ndarray[double, ndim=1] vrho not None):
@@ -101,7 +101,7 @@ cdef class LibXCWrapper(object):
         npoint = rho.shape[0]
         assert vrho.flags['C_CONTIGUOUS']
         assert vrho.shape[0] == npoint
-        xc_lda_vxc(&self._func_unpol, npoint, <double*>rho.data, <double*>vrho.data)
+        xc_lda_vxc(&self._func_unpol, npoint, &rho[0], &vrho[0])
 
     def compute_lda_vxc_pol(self, np.ndarray[double, ndim=2] rho not None,
                                   np.ndarray[double, ndim=2] vrho not None):
@@ -111,7 +111,7 @@ cdef class LibXCWrapper(object):
         assert vrho.flags['C_CONTIGUOUS']
         assert vrho.shape[0] == npoint
         assert vrho.shape[1] == 2
-        xc_lda_vxc(&self._func_pol, npoint, <double*>rho.data, <double*>vrho.data)
+        xc_lda_vxc(&self._func_pol, npoint, &rho[0, 0], &vrho[0, 0])
 
     ## GGA
 
@@ -124,7 +124,7 @@ cdef class LibXCWrapper(object):
         assert sigma.shape[0] == npoint
         assert zk.flags['C_CONTIGUOUS']
         assert zk.shape[0] == npoint
-        xc_gga_exc(&self._func_unpol, npoint, <double*>rho.data, <double*>sigma.data, <double*>zk.data)
+        xc_gga_exc(&self._func_unpol, npoint, &rho[0], &sigma[0], &zk[0])
 
     def compute_gga_exc_pol(self, np.ndarray[double, ndim=2] rho not None,
                                   np.ndarray[double, ndim=2] sigma not None,
@@ -137,7 +137,7 @@ cdef class LibXCWrapper(object):
         assert sigma.shape[0] == npoint
         assert zk.flags['C_CONTIGUOUS']
         assert zk.shape[0] == npoint
-        xc_gga_exc(&self._func_pol, npoint, <double*>rho.data, <double*>sigma.data, <double*>zk.data)
+        xc_gga_exc(&self._func_pol, npoint, &rho[0, 0], &sigma[0, 0], &zk[0])
 
     def compute_gga_vxc_unpol(self, np.ndarray[double, ndim=1] rho not None,
                                     np.ndarray[double, ndim=1] sigma not None,
@@ -151,7 +151,7 @@ cdef class LibXCWrapper(object):
         assert vrho.shape[0] == npoint
         assert vsigma.flags['C_CONTIGUOUS']
         assert vsigma.shape[0] == npoint
-        xc_gga_vxc(&self._func_unpol, npoint, <double*>rho.data, <double*>sigma.data, <double*>vrho.data, <double*>vsigma.data)
+        xc_gga_vxc(&self._func_unpol, npoint, &rho[0], &sigma[0], &vrho[0], &vsigma[0])
 
     def compute_gga_vxc_pol(self, np.ndarray[double, ndim=2] rho not None,
                                   np.ndarray[double, ndim=2] sigma not None,
@@ -169,7 +169,7 @@ cdef class LibXCWrapper(object):
         assert vsigma.flags['C_CONTIGUOUS']
         assert vsigma.shape[0] == npoint
         assert vsigma.shape[1] == 3
-        xc_gga_vxc(&self._func_pol, npoint, <double*>rho.data, <double*>sigma.data, <double*>vrho.data, <double*>vsigma.data)
+        xc_gga_vxc(&self._func_pol, npoint, &rho[0, 0], &sigma[0, 0], &vrho[0, 0], &vsigma[0, 0])
 
     ## HYB GGA
 

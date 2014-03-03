@@ -52,7 +52,7 @@ class GBasis {
         GBasis(const double* centers, const long* shell_map, const long* nprims,
                const long* shell_types, const double* alphas, const double* con_coeffs,
                const long ncenter, const long nshell, const long nprim_total);
-        ~GBasis();
+        virtual ~GBasis();
         virtual const double normalization(const double alpha, const long* n) const =0;
         void init_scales();
         void compute_one_body(double* output, GB2Integral* integral);

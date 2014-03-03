@@ -26,9 +26,12 @@ cdef extern from "iter_pow.h":
     cdef cppclass IterPow1:
         void reset(long shell_type0)
         bint inc()
-        long n0[3], ibasis0
+        long n0[3]
+        long ibasis0
 
     cdef cppclass IterPow2:
         void reset(long shell_type0, long shell_type1)
         bint inc()
-        long n0[3], n1[3], offset, ibasis0, ibasis1
+        long n0[3]
+        long n1[3]
+        long offset, ibasis0, ibasis1

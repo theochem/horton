@@ -30,7 +30,8 @@ class IterPow1 {
     public:
         void reset(long shell_type0);
         int inc();
-        long n0[3], ibasis0;
+        long n0[3];
+        long ibasis0;
     };
 
 class IterPow2 {
@@ -39,7 +40,9 @@ class IterPow2 {
     public:
         void reset(long shell_type0, long shell_type1);
         int inc();
-        long n0[3], n1[3], offset, ibasis0, ibasis1;
+        long n0[3];
+        long n1[3];
+        long offset, ibasis0, ibasis1;
     };
 
 #endif

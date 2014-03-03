@@ -62,7 +62,7 @@ cdef class Cell:
             assert rvecs.shape[0] <= 3
             assert rvecs.shape[1] == 3
             nvec = rvecs.shape[0]
-            self._this = new cell.Cell(<double*>rvecs.data, nvec)
+            self._this = new cell.Cell(<double*>np.PyArray_DATA(rvecs), nvec)
 
     def __init__(self, np.ndarray[double, ndim=2] rvecs=None):
         pass
@@ -170,7 +170,7 @@ cdef class Cell:
         def __get__(self):
             cdef np.ndarray[double, ndim=2] result
             result = np.zeros((self.nvec, 3), float)
-            self._this.copy_rvecs(<double*>result.data)
+            self._this.copy_rvecs(<double*>np.PyArray_DATA(result))
             result.setflags(write=False)
             return result
 
@@ -179,7 +179,7 @@ cdef class Cell:
         def __get__(self):
             cdef np.ndarray[double, ndim=2] result
             result = np.zeros((self.nvec, 3), float)
-            self._this.copy_gvecs(<double*>result.data)
+            self._this.copy_gvecs(<double*>np.PyArray_DATA(result))
             result.setflags(write=False)
             return result
 
@@ -188,7 +188,7 @@ cdef class Cell:
         def __get__(self):
             cdef np.ndarray[double, ndim=1] result
             result = np.zeros(self.nvec, float)
-            self._this.copy_rlengths(<double*>result.data)
+            self._this.copy_rlengths(<double*>np.PyArray_DATA(result))
             result.setflags(write=False)
             return result
 
@@ -197,7 +197,7 @@ cdef class Cell:
         def __get__(self):
             cdef np.ndarray[double, ndim=1] result
             result = np.zeros(self.nvec, float)
-            self._this.copy_glengths(<double*>result.data)
+            self._this.copy_glengths(<double*>np.PyArray_DATA(result))
             result.setflags(write=False)
             return result
 
@@ -206,7 +206,7 @@ cdef class Cell:
         def __get__(self):
             cdef np.ndarray[double, ndim=1] result
             result = np.zeros(self.nvec, float)
-            self._this.copy_rspacings(<double*>result.data)
+            self._this.copy_rspacings(<double*>np.PyArray_DATA(result))
             result.setflags(write=False)
             return result
 
@@ -215,7 +215,7 @@ cdef class Cell:
         def __get__(self):
             cdef np.ndarray[double, ndim=1] result
             result = np.zeros(self.nvec, float)
-            self._this.copy_gspacings(<double*>result.data)
+            self._this.copy_gspacings(<double*>np.PyArray_DATA(result))
             result.setflags(write=False)
             return result
 
@@ -252,7 +252,7 @@ cdef class Cell:
         '''Apply the minimum image convention to delta in-place'''
         assert delta.flags['C_CONTIGUOUS']
         assert delta.size == 3
-        self._this.mic(<double*> delta.data)
+        self._this.mic(&delta[0])
 
     def to_frac(self, np.ndarray[double, ndim=1] cart not None):
         '''Return the corresponding fractional coordinates'''
@@ -260,7 +260,7 @@ cdef class Cell:
         assert cart.size == 3
         cdef np.ndarray[double, ndim=1] result
         result = np.zeros(3, float)
-        self._this.to_frac(<double*> cart.data, <double*> result.data)
+        self._this.to_frac(&cart[0], &result[0])
         return result
 
     def to_cart(self, np.ndarray[double, ndim=1] frac not None):
@@ -269,7 +269,7 @@ cdef class Cell:
         assert frac.size == 3
         cdef np.ndarray[double, ndim=1] result
         result = np.zeros(3, float)
-        self._this.to_cart(<double*> frac.data, <double*> result.data)
+        self._this.to_cart(&frac[0], &result[0])
         return result
 
     def g_lincomb(self, np.ndarray[double, ndim=1] coeffs not None):
@@ -278,7 +278,7 @@ cdef class Cell:
         assert coeffs.size == 3
         cdef np.ndarray[double, ndim=1] result
         result = np.zeros(3, float)
-        self._this.g_lincomb(<double*> coeffs.data, <double*> result.data)
+        self._this.g_lincomb(&coeffs[0], &result[0])
         return result
 
     def dot_rvecs(self, np.ndarray[double, ndim=1] cart not None):
@@ -287,7 +287,7 @@ cdef class Cell:
         assert cart.size == 3
         cdef np.ndarray[double, ndim=1] result
         result = np.zeros(3, float)
-        self._this.dot_rvecs(<double*> cart.data, <double*> result.data)
+        self._this.dot_rvecs(&cart[0], &result[0])
         return result
 
     def add_rvec(self, np.ndarray[double, ndim=1] delta not None,
@@ -297,7 +297,7 @@ cdef class Cell:
         assert delta.size == 3
         assert r.flags['C_CONTIGUOUS']
         assert r.size == self.nvec
-        self._this.add_rvec(<double*> delta.data, <long*> r.data)
+        self._this.add_rvec(&delta[0], <long*>np.PyArray_DATA(r))
 
     def get_ranges_rcut(self, np.ndarray[double, ndim=1] delta not None, double rcut):
         '''Return the integer ranges for linear combinations of cell vectors.
@@ -321,8 +321,8 @@ cdef class Cell:
         cdef np.ndarray[long, ndim=1] ranges_begin = np.zeros(self.nvec, int)
         cdef np.ndarray[long, ndim=1] ranges_end = np.zeros(self.nvec, int)
         self._this.set_ranges_rcut(
-            <double*>delta.data, rcut,  <long*>ranges_begin.data,
-            <long*>ranges_end.data)
+            &delta[0], rcut,  <long*>np.PyArray_DATA(ranges_begin),
+            <long*>np.PyArray_DATA(ranges_end))
         return ranges_begin, ranges_end
 
     def select_inside(self, np.ndarray[double, ndim=1] origin not None,
@@ -353,10 +353,12 @@ cdef class Cell:
         assert indexes.shape[1] == self.nvec
 
         return self._this.select_inside(
-            <double*>origin.data, <double*>center.data, rcut,
-            <long*>ranges_begin.data, <long*>ranges_end.data,
-            <long*>shape.data, <long*>pbc.data,
-            <long*>indexes.data)
+            &origin[0], &center[0], rcut,
+            <long*>np.PyArray_DATA(ranges_begin),
+            <long*>np.PyArray_DATA(ranges_end),
+            <long*>np.PyArray_DATA(shape),
+            <long*>np.PyArray_DATA(pbc),
+            <long*>np.PyArray_DATA(indexes))
 
 
 def smart_wrap(long i, long shape, long pbc ):
@@ -392,10 +394,10 @@ def fill_cartesian_polynomials(np.ndarray[double, ndim=1] output not None, long 
     assert output.flags['C_CONTIGUOUS']
     if output.shape[0] < ((lmax+1)*(lmax+2)*(lmax+3))/6-1:
         raise ValueError('The size of the output array is not sufficient to store the polynomials.')
-    return moments.fill_cartesian_polynomials(<double*>output.data, lmax)
+    return moments.fill_cartesian_polynomials(&output[0], lmax)
 
 
-def fill_pure_polynomials(output not None, long lmax):
+def fill_pure_polynomials(np.ndarray output not None, long lmax):
     '''Fill the output vector with pure polynomials
 
        **Arguments:**
@@ -414,16 +416,15 @@ def fill_pure_polynomials(output not None, long lmax):
        The index of the first element of the array that contains the polynomials
        of the outermost shell.
     '''
-    cdef np.ndarray tmp = output
-    assert tmp.flags['C_CONTIGUOUS']
-    if tmp.ndim == 1:
-        if tmp.shape[0] < (lmax+1)**2-1:
+    assert output.flags['C_CONTIGUOUS']
+    if output.ndim == 1:
+        if output.shape[0] < (lmax+1)**2-1:
             raise ValueError('The size of the output array is not sufficient to store the polynomials.')
-        return moments.fill_pure_polynomials(<double*>tmp.data, lmax)
-    elif tmp.ndim == 2:
-        if tmp.shape[1] < (lmax+1)**2-1:
+        return moments.fill_pure_polynomials(<double*>np.PyArray_DATA(output), lmax)
+    elif output.ndim == 2:
+        if output.shape[1] < (lmax+1)**2-1:
             raise ValueError('The size of the output array is not sufficient to store the polynomials.')
-        return moments.fill_pure_polynomials_array(<double*>tmp.data, lmax, tmp.shape[0], tmp.shape[1])
+        return moments.fill_pure_polynomials_array(<double*>np.PyArray_DATA(output), lmax, output.shape[0], output.shape[1])
     else:
         raise NotImplementedError
 
@@ -445,7 +446,7 @@ def fill_radial_polynomials(np.ndarray[double, ndim=1] output not None, long lma
     assert output.flags['C_CONTIGUOUS']
     if output.shape[0] < lmax:
         raise ValueError('The size of the output array is not sufficient to store the polynomials.')
-    moments.fill_radial_polynomials(<double*>output.data, lmax)
+    moments.fill_radial_polynomials(&output[0], lmax)
 
 
 
@@ -469,5 +470,5 @@ def compute_grid_nucpot(np.ndarray[long, ndim=1] numbers not None,
         assert points.shape[0] == npoint
         assert points.shape[1] == 3
         nucpot.compute_grid_nucpot(
-            <long*>numbers.data, <double*>coordinates.data, natom,
-            <double*>points.data, <double*>output.data, npoint)
+            &numbers[0], &coordinates[0,0], natom,
+            &points[0,0], &output[0], npoint)
