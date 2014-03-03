@@ -39,12 +39,14 @@ autogendoc:
 	HORTONDATA=../data PYTHONPATH=../ python updatelibdoc.py
 	HORTONDATA=../data PYTHONPATH=../ python updategrids.py
 	HORTONDATA=../data PYTHONPATH=../ python updateliterature.py
+	doxygen doxygen.conf
 
 clean:
 	-rm -rf $(BUILDDIR)/*
 	rm -f lib/horton*.rst
 	rm -f grids.rst.inc
 	rm -f ref_literature.rst
+	rm -rf doxyxml
 
 html: autogendoc
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html

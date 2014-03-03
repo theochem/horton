@@ -66,7 +66,6 @@ install relatively recent versions of the following programs/libraries:
 * h5py >= 2.1.1: http://code.google.com/p/h5py/
 * Scipy >= 0.10.0: http://www.scipy.org/
 * Cython >= 0.17.1 : http://www.cython.org/
-* Sphinx > 1.0: http://sphinx.pocoo.org/
 * Nosetests >= 1.1.2: http://readthedocs.org/docs/nose/en/latest/
 * Sympy >= 0.7.1: http://code.google.com/p/sympy/
 * The ``patch`` program >= 2.0: http://savannah.gnu.org/projects/patch/ (or any of its equivalents)
@@ -74,6 +73,13 @@ install relatively recent versions of the following programs/libraries:
 Optionally, one may also install Matplotlib:
 
 * Matplotlib >= 1.0: http://matplotlib.org/
+
+If one is interested in generating the documentation from source, the following
+packages are also needed:
+
+* Sphinx > 1.0: http://sphinx.pocoo.org/
+* Doxygen >= 1.8.6: http://www.doxygen.org/
+* Breathe >= 1.2.0: http://michaeljones.github.io/breathe/
 
 On a decent operating system, these programs/libraries can be easily installed
 with a package manager. First check this possibility before manually installing
@@ -86,6 +92,11 @@ On Ubuntu Linux::
 On Fedora Linux::
 
     sudo yum install python-devel gcc gcc-c++ gcc-gfortran numpy h5py scipy Cython python-sphinx python-nose sympy patch python-matplotlib
+
+Since Breathe is relatively new, it must be installed manually. For example, it
+is available through PyPI and can be installed as follows::
+
+    pip install --user breathe
 
 If the package manager of your operating system does not have the desired
 packages (or the right versions), one has to install them manually, e.g.

@@ -25,7 +25,7 @@ import sys, os
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.pngmath']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.pngmath', 'breathe']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -215,7 +215,10 @@ man_pages = [
      [u'Toon Verstraelen'], 1)
 ]
 
-# -- Options for manual page output --------------------------------------------
+# -- Custom Horton-specific settings -------------------------------------------
+
+breathe_projects = { "horton": "doxyxml" }
+breathe_default_project = "horton"
 
 pngmath_use_preview = True
 pngmath_dvipng_args = ['-gamma 1.6', '-D 120']
