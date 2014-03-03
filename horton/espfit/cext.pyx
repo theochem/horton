@@ -82,9 +82,9 @@ def setup_esp_cost_cube(horton.grid.cext.UniformGrid ugrid not None,
     assert gcut > 0
 
     if ugrid.pbc.sum() in [0,3]:
-        electrostatics.setup_esp_cost_cube(ugrid._this, <double*>vref.data,
-            <double*>weights.data, <double*>centers.data, <double*>A.data,
-            <double*>B.data, <double*>C.data, ncenter, rcut, alpha, gcut)
+        electrostatics.setup_esp_cost_cube(ugrid._this, &vref[0, 0, 0],
+            &weights[0, 0, 0], &centers[0, 0], &A[0, 0],
+            &B[0], <double*>np.PyArray_DATA(C), ncenter, rcut, alpha, gcut)
     else:
         raise NotImplementedError
 
@@ -108,8 +108,8 @@ def compute_esp_grid_cube(horton.grid.cext.UniformGrid ugrid not None,
     assert gcut > 0
 
     if ugrid.pbc.sum() in [0,3]:
-        electrostatics.compute_esp_cube(ugrid._this, <double*>esp.data,
-            <double*>centers.data, <double*>charges.data, ncenter, rcut, alpha,
+        electrostatics.compute_esp_cube(ugrid._this, &esp[0, 0, 0],
+            &centers[0, 0], &charges[0], ncenter, rcut, alpha,
             gcut)
     else:
         raise NotImplementedError
@@ -125,7 +125,7 @@ def pair_ewald(np.ndarray[double, ndim=1] delta not None,
     assert gcut > 0
 
     if cell.nvec == 3:
-        return electrostatics.pair_ewald3d(<double*>delta.data, cell._this, rcut, alpha, gcut)
+        return electrostatics.pair_ewald3d(&delta[0], cell._this, rcut, alpha, gcut)
     else:
         raise NotImplementedError
 
@@ -146,7 +146,7 @@ def multiply_dens_mask(np.ndarray[double, ndim=3] rho not None,
     cdef long npoint = weights.size
 
     log.cite('hu2007', 'the density-based weight function for ESP fitting')
-    mask.multiply_dens_mask(<double*>rho.data, lnrho0, sigma, <double*>weights.data, npoint)
+    mask.multiply_dens_mask(&rho[0, 0, 0], lnrho0, sigma, &weights[0, 0, 0], npoint)
 
 
 def multiply_near_mask(np.ndarray[double, ndim=1] center not None,
@@ -162,8 +162,8 @@ def multiply_near_mask(np.ndarray[double, ndim=1] center not None,
     assert weights.shape[1] == ugrid.shape[1]
     assert weights.shape[2] == ugrid.shape[2]
 
-    mask.multiply_near_mask(<double*>center.data, ugrid._this, r0, gamma,
-        <double*>weights.data)
+    mask.multiply_near_mask(&center[0], ugrid._this, r0, gamma,
+        &weights[0, 0, 0])
 
 
 def multiply_far_mask(np.ndarray[double, ndim=2] centers not None,
@@ -181,5 +181,5 @@ def multiply_far_mask(np.ndarray[double, ndim=2] centers not None,
     assert weights.shape[1] == ugrid.shape[1]
     assert weights.shape[2] == ugrid.shape[2]
 
-    mask.multiply_far_mask(<double*>centers.data, ncenter, ugrid._this,
-        r0, gamma, <double*>weights.data)
+    mask.multiply_far_mask(&centers[0, 0], ncenter, ugrid._this,
+        r0, gamma, &weights[0, 0, 0])

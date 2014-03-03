@@ -84,7 +84,7 @@ def cart_to_pure_low(np.ndarray[double] work_cart not None,
     assert work_cart.flags['C_CONTIGUOUS']
     assert work_pure.flags['C_CONTIGUOUS']
     cartpure.cart_to_pure_low(
-        <double*> work_cart.data, <double*> work_pure.data, shell_type, nant,
+        &work_cart[0], &work_pure[0], shell_type, nant,
         npost
     )
 
@@ -130,7 +130,7 @@ def nuclear_attraction_helper(np.ndarray[double, ndim=1] work_g not None,
                               double gamma_inv):
     assert work_g.flags['C_CONTIGUOUS']
     assert work_g.shape[0] == n0+n1+1
-    common.nuclear_attraction_helper(<double*>work_g.data, n0, n1, pa, pb, cp, gamma_inv)
+    common.nuclear_attraction_helper(&work_g[0], n0, n1, pa, pb, cp, gamma_inv)
 
 
 #
@@ -141,7 +141,7 @@ def nuclear_attraction_helper(np.ndarray[double, ndim=1] work_g not None,
 def gob_cart_normalization(double alpha, np.ndarray[long, ndim=1] n not None):
     assert n.flags['C_CONTIGUOUS']
     assert n.shape[0] == 3
-    return gbasis.gob_cart_normalization(alpha, <long*>n.data)
+    return gbasis.gob_cart_normalization(alpha, &n[0])
 
 
 def gob_pure_normalization(double alpha, long l):
@@ -448,7 +448,7 @@ cdef class GBasis:
         assert output.shape[0] == self.nbasis
         assert point.flags['C_CONTIGUOUS']
         assert point.shape[0] == 3
-        self._this.compute_grid_point1(<double*>output.data, <double*>point.data, grid_fn._this)
+        self._this.compute_grid_point1(&output[0], &point[0], grid_fn._this)
 
 
 cdef class GOBasis(GBasis):
@@ -484,23 +484,23 @@ cdef class GOBasis(GBasis):
 
     def compute_overlap(self, overlap):
         """Compute the overlap matrix in a Gaussian orbital basis."""
-        cdef np.ndarray output = overlap._array
+        cdef np.ndarray[double, ndim=2] output = overlap._array
         self.check_matrix_one_body(output)
         gobasis = <gbasis.GOBasis*>self._this
-        (<gbasis.GOBasis*>self._this).compute_overlap(<double*>output.data)
+        (<gbasis.GOBasis*>self._this).compute_overlap(&output[0, 0])
 
     def compute_kinetic(self, kinetic):
         """Compute the kinetic energy matrix in a Gaussian orbital basis."""
-        cdef np.ndarray output = kinetic._array
+        cdef np.ndarray[double, ndim=2] output = kinetic._array
         self.check_matrix_one_body(output)
-        (<gbasis.GOBasis*>self._this).compute_kinetic(<double*>output.data)
+        (<gbasis.GOBasis*>self._this).compute_kinetic(&output[0, 0])
 
     def compute_nuclear_attraction(self,
                                    np.ndarray[double, ndim=1] charges not None,
                                    np.ndarray[double, ndim=2] centers not None,
                                    nuclear_attraction):
         """Compute the kintic energy matrix in a Gaussian orbital basis."""
-        cdef np.ndarray output = nuclear_attraction._array
+        cdef np.ndarray[double, ndim=2] output = nuclear_attraction._array
         self.check_matrix_one_body(output)
         assert charges.flags['C_CONTIGUOUS']
         cdef long ncharge = charges.shape[0]
@@ -508,14 +508,14 @@ cdef class GOBasis(GBasis):
         assert centers.shape[0] == ncharge
         assert centers.shape[1] == 3
         (<gbasis.GOBasis*>self._this).compute_nuclear_attraction(
-            <double*>charges.data, <double*>centers.data, ncharge,
-            <double*>output.data
+            &charges[0], &centers[0, 0], ncharge,
+            &output[0, 0],
         )
 
     def compute_electron_repulsion(self, electron_repulsion):
-        cdef np.ndarray output = electron_repulsion._array
+        cdef np.ndarray[double, ndim=4] output = electron_repulsion._array
         self.check_matrix_two_body(output)
-        (<gbasis.GOBasis*>self._this).compute_electron_repulsion(<double*>output.data)
+        (<gbasis.GOBasis*>self._this).compute_electron_repulsion(&output[0, 0, 0, 0])
 
     def compute_grid_orbitals_exp(self, exp,
                                   np.ndarray[double, ndim=2] points not None,
@@ -541,7 +541,7 @@ cdef class GOBasis(GBasis):
 
            **Warning:** the results are added to the output array!
         '''
-        cdef np.ndarray coeffs = exp.coeffs
+        cdef np.ndarray[double, ndim=2] coeffs = exp.coeffs
         self.check_matrix_coeffs(coeffs)
         nfn = coeffs.shape[1]
         assert points.flags['C_CONTIGUOUS']
@@ -553,8 +553,8 @@ cdef class GOBasis(GBasis):
         assert orbs.shape[0] == npoint
         assert orbs.shape[1] == norb
         (<gbasis.GOBasis*>self._this).compute_grid1_exp(
-            nfn, <double*>coeffs.data, npoint, <double*>points.data,
-            norb, <long*>iorbs.data, <double*>orbs.data)
+            nfn, &coeffs[0, 0], npoint, &points[0, 0],
+            norb, &iorbs[0], &orbs[0, 0])
 
     def _compute_grid1_dm(self, dm, np.ndarray[double, ndim=2] points not None,
                           GB1DMGridFn grid_fn not None, np.ndarray output not None,
@@ -585,11 +585,11 @@ cdef class GOBasis(GBasis):
            be useful to combine results from different spin components.
         '''
         # Get the array of the density matrix
-        cdef np.ndarray dmar = dm._array
+        cdef np.ndarray[double, ndim=2] dmar = dm._array
         self.check_matrix_one_body(dmar)
 
         # Get the maximum of the absolute value over the rows
-        cdef np.ndarray dmmaxrow = np.abs(dmar).max(axis=0)
+        cdef np.ndarray[double, ndim=1] dmmaxrow = np.abs(dmar).max(axis=0)
 
         # Check the output array
         assert output.flags['C_CONTIGUOUS']
@@ -607,8 +607,9 @@ cdef class GOBasis(GBasis):
 
         # Go!
         (<gbasis.GOBasis*>self._this).compute_grid1_dm(
-            <double*>dmar.data, npoint, <double*>points.data,
-            grid_fn._this, <double*>output.data, epsilon, <double*>dmmaxrow.data)
+            &dmar[0, 0], npoint, &points[0, 0],
+            grid_fn._this, <double*>np.PyArray_DATA(output), epsilon,
+            &dmmaxrow[0])
 
     def compute_grid_density_dm(self, dm,
                                 np.ndarray[double, ndim=2] points not None,
@@ -688,7 +689,7 @@ cdef class GOBasis(GBasis):
            **Warning:** the results are added to the output array! This may
            be useful to combine results from different spin components.
         '''
-        cdef np.ndarray dmar = dm._array
+        cdef np.ndarray[double, ndim=2] dmar = dm._array
         self.check_matrix_one_body(dmar)
         assert output.flags['C_CONTIGUOUS']
         npoint = output.shape[0]
@@ -696,8 +697,8 @@ cdef class GOBasis(GBasis):
         assert points.shape[0] == npoint
         assert points.shape[1] == 3
         (<gbasis.GOBasis*>self._this).compute_grid2_dm(
-            <double*>dmar.data, npoint, <double*>points.data,
-            <double*>output.data)
+            &dmar[0, 0], npoint, &points[0, 0],
+            &output[0])
 
     def _compute_grid1_fock(self, np.ndarray[double, ndim=2] points not None,
                            np.ndarray[double, ndim=1] weights not None,
@@ -714,7 +715,7 @@ cdef class GOBasis(GBasis):
                 A Numpy array with integration weights, shape (npoint,).
 
            pots
-                A Numpy array with some data.
+                A Numpy array with potential data on the grid.
 
            grid_fn
                 A grid function.
@@ -725,7 +726,7 @@ cdef class GOBasis(GBasis):
 
            **Warning:** the results are added to the fock operator!
         '''
-        cdef np.ndarray output = fock._array
+        cdef np.ndarray[double, ndim=2] output = fock._array
         self.check_matrix_one_body(output)
         assert points.flags['C_CONTIGUOUS']
         npoint = points.shape[0]
@@ -743,9 +744,9 @@ cdef class GOBasis(GBasis):
             assert pots.strides[1] % 8 == 0
             pot_stride *= (pots.strides[1] / 8)
         (<gbasis.GOBasis*>self._this).compute_grid1_fock(
-            npoint, <double*>points.data, <double*>weights.data,
-            pot_stride, <double*>pots.data,
-            grid_fn._this, <double*>output.data)
+            npoint, &points[0, 0], &weights[0],
+            pot_stride, <double*>np.PyArray_DATA(pots),
+            grid_fn._this, &output[0, 0])
 
     def compute_grid_density_fock(self, np.ndarray[double, ndim=2] points not None,
                                   np.ndarray[double, ndim=1] weights not None,
@@ -889,7 +890,7 @@ cdef class GB2NuclearAttractionIntegral(GB2Integral):
         self._charges = charges
         self._centers = centers
         self._this = <ints.GB2Integral*>(new ints.GB2NuclearAttractionIntegral(
-            max_nbasis, <double*>charges.data, <double*>centers.data, ncharge
+            max_nbasis, &charges[0], &centers[0, 0], ncharge
         ))
 
 
@@ -1024,7 +1025,7 @@ cdef class GB1DMGridFn:
         assert r0.shape[0] == 3
         assert point.flags['C_CONTIGUOUS']
         assert point.shape[0] == 3
-        self._this.reset(shell_type0, <double*>r0.data, <double*>point.data)
+        self._this.reset(shell_type0, <double*>r0.data, &point[0])
 
     def add(self, double coeff, double alpha0,
             np.ndarray[double, ndim=1] scales0 not None):
@@ -1101,7 +1102,7 @@ cdef class IterGB1:
         assert work.flags['C_CONTIGUOUS']
         assert output.shape[0] == self._gbasis.nbasis
         assert output.flags['C_CONTIGUOUS']
-        self._this.store(<double*>work.data, <double*>output.data, dim)
+        self._this.store(&work[0], &output[0], dim)
 
     property public_fields:
         def __get__(self):
@@ -1156,7 +1157,7 @@ cdef class IterGB2:
         assert output.shape[0] == self._gbasis.nbasis
         assert output.shape[1] == self._gbasis.nbasis
         assert output.flags['C_CONTIGUOUS']
-        self._this.store(<double*>work.data, <double*>output.data)
+        self._this.store(&work[0, 0], &output[0, 0])
 
     property public_fields:
         def __get__(self):
@@ -1216,7 +1217,7 @@ cdef class IterGB4:
         assert output.shape[2] == self._gbasis.nbasis
         assert output.shape[3] == self._gbasis.nbasis
         assert output.flags['C_CONTIGUOUS']
-        self._this.store(<double*>work.data, <double*>output.data)
+        self._this.store(&work[0, 0, 0, 0], &output[0, 0, 0, 0])
 
     property public_fields:
         def __get__(self):
@@ -1249,7 +1250,7 @@ cdef class IterGB4:
 def iter_pow1_inc(np.ndarray[long, ndim=1] n not None):
     assert n.flags['C_CONTIGUOUS']
     assert n.shape[0] == 3
-    return iter_pow.iter_pow1_inc(<long*>n.data)
+    return iter_pow.iter_pow1_inc(&n[0])
 
 
 cdef class IterPow1:

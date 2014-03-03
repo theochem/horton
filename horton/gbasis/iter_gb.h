@@ -36,13 +36,13 @@ class IterGB1 {
         void update_shell();
         int inc_prim();
         void update_prim();
-        void store(const double *work, double *output, long dim);
+        void store(const double* work, double* output, long dim);
 
         // 'public' iterator fields
         long shell_type0;
         double con_coeff, alpha0;
-        const double *r0; // current centers
-        const double *scales0; // normalization constants
+        const double* r0; // current centers
+        const double* scales0; // normalization constants
         long ibasis0; // basis function counters (for output storage)
 
         // 'private' iterator fields
@@ -69,8 +69,10 @@ class IterGB2 {
         // 'public' iterator fields
         long shell_type0, shell_type1;
         double con_coeff, alpha0, alpha1;
-        const double *r0, *r1; // current centers
-        const double *scales0, *scales1; // normalization constants
+        const double* r0;// current centers
+        const double* r1; // current centers
+        const double* scales0; // normalization constants
+        const double* scales1; // normalization constants
         long ibasis0, ibasis1; // basis function counters (for output storage)
 
         // 'private' iterator fields
@@ -91,13 +93,19 @@ class IterGB4 {
         void update_shell();
         int inc_prim();
         void update_prim();
-        void store(const double *work, double *output);
+        void store(const double* work, double* output);
 
         // 'public' iterator fields
         long shell_type0, shell_type1, shell_type2, shell_type3;
         double con_coeff, alpha0, alpha1, alpha2, alpha3;
-        const double *r0, *r1, *r2, *r3; // current centers
-        const double *scales0, *scales1, *scales2, *scales3; // normalization constants
+        const double* r0; // current centers
+        const double* r1; // current centers
+        const double* r2; // current centers
+        const double* r3; // current centers
+        const double* scales0; // normalization constants
+        const double* scales1; // normalization constants
+        const double* scales2; // normalization constants
+        const double* scales3; // normalization constants
         long ibasis0, ibasis1, ibasis2, ibasis3; // basis function counters (for output storage)
 
         // 'private' iterator fields
