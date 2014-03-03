@@ -104,9 +104,8 @@ def reduce_ugrid(ugrid, stride, chop):
         raise ValueError('The stride is not commensurate with all three grid demsions.')
 
     new_shape = (ugrid.shape-chop)/stride
-    grid_rvecs = ugrid.grid_cell.rvecs*stride
+    grid_rvecs = ugrid.grid_rvecs*stride
     new_ugrid = UniformGrid(ugrid.origin, grid_rvecs, new_shape, ugrid.pbc)
-
     return new_ugrid
 
 
