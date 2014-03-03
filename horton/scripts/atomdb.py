@@ -341,14 +341,16 @@ class AtomProgram(object):
     def write_run_script(self):
         # write the script
         fn_script = 'run_%s.sh' % self.name
-        with open(fn_script, 'w') as f:
-            print >> f, self.run_script
-            for dn in sorted(glob("[01]??_??_[01]??_q[+-]??/mult??")):
-                print >> f, 'do_atom', dn
+        exists = os.path.isfile(fn_script)
+        if not exists:
+            with open(fn_script, 'w') as f:
+                print >> f, self.run_script
+            log('Written new:      ', fn_script)
+        else:
+            log('Not overwriting:  ', fn_script)
         # make the script executable
         os.chmod(fn_script, stat.S_IXUSR | os.stat(fn_script).st_mode)
-        if log.do_medium:
-            log('Written', fn_script)
+
 
     def _get_energy(self, system, dn_mult):
         return system.extra['energy']
@@ -369,10 +371,11 @@ class AtomProgram(object):
 run_gaussian_script = '''
 #!/bin/bash
 
-# make sure %(name)s is available before running this script.
+# make sure %(name)s and formchk are available before running this script.
 
 MISSING=0
 if ! which %(name)s &>/dev/null; then echo "%(name)s binary not found."; MISSING=1; fi
+if ! which formchk &>/dev/null; then echo "formchk binary not found."; MISSING=1; fi
 if [ $MISSING -eq 1 ]; then echo "The required programs are not present on your system. Giving up."; exit -1; fi
 
 function do_atom {
@@ -382,11 +385,23 @@ function do_atom {
         echo "Output file present in ${1}, not recomputing."
     else
         %(name)s atom.in > atom.out
-        formchk atom.chk atom.fchk
+        RETCODE=$?
+        if [ $RETCODE == 0 ]; then
+            formchk atom.chk atom.fchk
+            rm -f atom.out.failed
+        else
+            # Rename the output of the failed job such that it gets recomputed
+            # when the run script is executed again.
+            mv atom.out atom.out.failed
+        fi
         rm atom.chk
     fi
     cd -
 }
+
+for ATOMDIR in [01][0-9][0-9]_??_[01][0-9][0-9]_q[-+][0-9][0-9]/mult[0-9][0-9]; do
+    do_atom ${ATOMDIR}
+done
 '''
 
 
@@ -425,10 +440,22 @@ function do_atom {
         echo "Output file present in ${1}, not recomputing."
     else
         orca atom.in > atom.out
-        orca_2mkl atom -molden
+        RETCODE=$?
+        if [ $RETCODE == 0 ]; then
+            orca_2mkl atom -molden
+            rm -f atom.out.failed
+        else
+            # Rename the output of the failed job such that it gets recomputed
+            # when the run script is executed again.
+            mv atom.out atom.out.failed
+        fi
     fi
     cd -
 }
+
+for ATOMDIR in [01][0-9][0-9]_??_[01][0-9][0-9]_q[-+][0-9][0-9]/mult[0-9][0-9]; do
+    do_atom ${ATOMDIR}
+done
 '''
 
 
@@ -449,11 +476,32 @@ class OrcaAtomProgram(AtomProgram):
 run_cp2k_script = '''
 #!/bin/bash
 
-# make sure cp2k.sdbg is in the path before running this script.
+# Note: if you want to use an mpi-parallel CP2K binary, uncomment the following
+# line and fill in the right binary and mpirun script:
+#CP2K_BIN="mpirun -n4 cp2k.popt"
 
-MISSING=0
-if ! which cp2k.sdbg &>/dev/null; then echo "cp2k.sdbg binary not found."; MISSING=1; fi
-if [ $MISSING -eq 1 ]; then echo "The required programs are not present on your system. Giving up."; exit -1; fi
+# Find a non-mpi CP2K binary if needed.
+if [ -z $CP2K_BIN ]; then
+    # Find all potential non-mpi CP2K binaries in the $PATH
+    CP2K_BINS=$(find ${PATH//:/ } -name "cp2k.s*")
+
+    # Check for any known non-mpi cp2k binary name in order of preference:
+    for KNOWN_CP2K in cp2k.ssmp cp2k.sopt cp2k.sdbg; do
+        for TMP in ${CP2K_BINS}; do
+            if [ $(basename $TMP) == ${KNOWN_CP2K} ]; then
+                CP2K_BIN=$TMP
+                break
+            fi
+        done
+        if [ -n $CP2K_BIN ]; then break; fi
+    done
+
+    MISSING=0
+    if [ -z $CP2K_BIN ]; then echo "No non-mpi CP2K binary found."; MISSING=1; fi
+    if [ $MISSING -eq 1 ]; then echo "The required programs are not present on your system. Giving up."; exit -1; fi
+fi
+
+echo "Using the following CP2K binary: $CP2K_BIN"
 
 function do_atom {
     echo "Computing in ${1}"
@@ -461,10 +509,22 @@ function do_atom {
     if [ -e atom.cp2k.out ]; then
         echo "Output file present in ${1}, not recomputing."
     else
-        cp2k.sdbg atom.in > atom.cp2k.out
+        $CP2K_BIN atom.in > atom.cp2k.out
+        RETCODE=$?
+        if [ $RETCODE == 0 ]; then
+            rm -f atom.cp2k.out.failed
+        else
+            # Rename the output of the failed job such that it gets recomputed
+            # when the run script is executed again.
+            mv atom.cp2k.out atom.cp2k.out.failed
+        fi
     fi
     cd -
 }
+
+for ATOMDIR in [01][0-9][0-9]_??_[01][0-9][0-9]_q[-+][0-9][0-9]/mult[0-9][0-9]; do
+    do_atom ${ATOMDIR}
+done
 '''
 
 class CP2KAtomProgram(AtomProgram):
