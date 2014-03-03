@@ -384,14 +384,81 @@ The basic usage of ``horton-cpart.py`` is as follows::
 
     horton-cpart.py cube {h,hi,he} atoms.h5
 
-The ``cube`` argument can be a Gaussian03 or 09 cube file or a VASP CHGCAR file.
-The second argument refers to the partitioning scheme:
+The script takes three arguments:
 
-* ``h``: Hirshfeld partitioning. [hirshfeld1977]_
-* ``hi``: Iterative Hirshfeld partitioning. [bultinck2007]_
-* ``he``: Extended Hirshfeld partitioning. [verstraelen2013]_
+1. The ``cube`` argument can be a Gaussian cube file (possibly generated with
+   another program, e.g. CP2K). Some information must be added to the cube file
+   about the effective core charges that were used. This information is needed
+   to compute the correct net charges. (This is not only relevant for the final
+   output, but also for constructing the proper pro-atoms. When these numbers
+   are not set correctly, you'll get garbage output.)
 
-This script
+   For example, given an original cube file with the following header::
+
+           -Quickstep-
+            ELECTRON DENSITY
+              18    0.000000    0.000000    0.000000
+              54    0.183933    0.000000    0.000000
+              75    0.000000    0.187713    0.000000
+              81    0.000000    0.000000    0.190349
+               8    0.000000    0.000000    3.677294    0.000000
+               8    0.000000    4.966200   10.401166    0.000000
+               8    0.000000    0.000000   10.401166    0.000000
+               8    0.000000    4.966200    3.677294    0.000000
+               8    0.000000    2.483100    0.000000    2.243351
+               8    0.000000    7.449300    0.000000   13.174925
+               8    0.000000    2.483100    4.554391    4.206115
+               8    0.000000    2.483100    9.524087    4.206115
+               8    0.000000    7.449300    9.524087   11.212180
+               8    0.000000    7.449300    4.554391   11.212180
+               8    0.000000    4.966200    7.039230    7.709138
+               8    0.000000    0.000000    7.039230    7.709138
+              14    0.000000    2.483100    2.971972    1.606588
+              14    0.000000    2.483100   11.106506    1.606588
+              14    0.000000    7.449300   11.106506   13.811687
+              14    0.000000    7.449300    2.971972   13.811687
+              14    0.000000    2.483100    7.039230    5.959157
+              14    0.000000    7.449300    7.039230    9.459119
+
+   Now consider the case that 6 effective electrons were used for oxygen and 4
+   effective electrons for silicon. Then, the second column in the atom lines
+   has to be set to the effective core charge. (This number is not used in the
+   cube format.) In this case, one gets::
+
+           -Quickstep-
+            ELECTRON DENSITY
+              18    0.000000    0.000000    0.000000
+              54    0.183933    0.000000    0.000000
+              75    0.000000    0.187713    0.000000
+              81    0.000000    0.000000    0.190349
+               8    6.0         0.000000    3.677294    0.000000
+               8    6.0         4.966200   10.401166    0.000000
+               8    6.0         0.000000   10.401166    0.000000
+               8    6.0         4.966200    3.677294    0.000000
+               8    6.0         2.483100    0.000000    2.243351
+               8    6.0         7.449300    0.000000   13.174925
+               8    6.0         2.483100    4.554391    4.206115
+               8    6.0         2.483100    9.524087    4.206115
+               8    6.0         7.449300    9.524087   11.212180
+               8    6.0         7.449300    4.554391   11.212180
+               8    6.0         4.966200    7.039230    7.709138
+               8    6.0         0.000000    7.039230    7.709138
+              14    4.0         2.483100    2.971972    1.606588
+              14    4.0         2.483100   11.106506    1.606588
+              14    4.0         7.449300   11.106506   13.811687
+              14    4.0         7.449300    2.971972   13.811687
+              14    4.0         2.483100    7.039230    5.959157
+              14    4.0         7.449300    7.039230    9.459119
+
+2. The second argument refers to the partitioning scheme:
+
+        * ``h``: Hirshfeld partitioning. [hirshfeld1977]_
+        * ``hi``: Iterative Hirshfeld partitioning. [bultinck2007]_
+        * ``he``: Extended Hirshfeld partitioning. [verstraelen2013]_
+
+3. The third argument is the atom database generated with ``horton-atomdb.py``
+
+The ``horton-cpart.py`` script
 computes atomic weight functions and then derives all AIM observables that are
 implemented for that scheme. These results are stored in a HDF5 file with
 the same name as the ``cube`` file but with a ``_cpart.h5`` suffix. In this HDF5
