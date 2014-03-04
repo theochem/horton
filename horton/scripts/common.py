@@ -163,7 +163,7 @@ def check_output(fn_h5, grp_name, overwrite):
     if os.path.isfile(fn_h5):
         with safe_open_h5(fn_h5, 'r') as f:
             if grp_name in f and len(f[grp_name] > 0):
-                if ovewrite:
+                if overwrite:
                     if log.do_warning:
                         log.warn('Overwriting the contents of "%s" in the file "%s".' % (grp_name, fn_h5))
                     return False
