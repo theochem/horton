@@ -43,6 +43,22 @@ class ESPCost(object):
         # Rescale parameters not related to atomic charges
 
     @classmethod
+    def from_hdf5(cls, grp, lf):
+        return cls(
+            grp['A'][:],
+            grp['B'][:],
+            grp['C'][()],
+            grp['natom'][()],
+        )
+
+    def to_hdf5(self, grp):
+        grp.attrs['class'] = self.__class__.__name__
+        grp['A'] = self._A
+        grp['B'] = self._B
+        grp['C'] = self._C
+        grp['natom'] = self.natom
+
+    @classmethod
     def from_grid_data(cls, system, grid, vref, weights, rcut=20, alpha=None, gcut=None):
         if alpha is None:
             alpha = 3.0 / rcut

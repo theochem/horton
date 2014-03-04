@@ -25,8 +25,8 @@ import sys, argparse, os, numpy as np
 
 from horton import System, cpart_schemes, Cell, ProAtomDB, log, \
     symmetry_analysis, UniformGrid, __version__
-from horton.scripts.common import get_output_filename, reduce_data, \
-    store_args, parse_pbc, iter_elements, safe_open_h5, write_part_output
+from horton.scripts.common import reduce_data, store_args, parse_pbc, \
+    iter_elements, safe_open_h5, write_part_output, parse_h5, check_output
 
 
 # All, except underflows, is *not* fine.
@@ -41,6 +41,15 @@ def parse_args():
 
     parser.add_argument('cube',
         help='The cube file.')
+    parser.add_argument('output',
+        help='The output destination in the form file.h5:group. The colon and '
+             'the group name are optional. When omitted, the root group of the '
+             'HDF5 file is used. '
+             'To mimick the behavior of horton 1.2.0 scripts, use '
+             '"${prefix}_cpart.h5:cpart/${scheme}_r${stride}" where ${prefix} '
+             'is the name of the cube file without extension, ${scheme} is the '
+             'partitioning scheme used and ${stride} is the value of the '
+             'stride option.')
     parser.add_argument('scheme', choices=sorted(cpart_schemes.keys()),
         help='The scheme to be used for the partitioning')
     parser.add_argument('atoms',
@@ -55,9 +64,6 @@ def parse_args():
              'direction. For most codes this should be zero. For Crystal, this '
              'should be 1. [default=%(default)s]')
 
-    parser.add_argument('-o', '--output', default=None,
-        help='The HDF5 output filename. The default is to remove the extension '
-             'from the input file (if any) and to append \'_cpart.h5\'.')
     parser.add_argument('--overwrite', default=False, action='store_true',
         help='Overwrite existing output in the HDF5 file')
     parser.add_argument('--debug', default=False, action='store_true',
@@ -108,18 +114,10 @@ def parse_args():
 def main():
     args = parse_args()
 
-    # check if the folder is already present in the output file
-    fn_h5 = get_output_filename(args.cube, 'cpart', args.output)
-    grp_name = '%s_r%i' % (args.scheme, args.stride)
-    if args.suffix is not None:
-        grp_name += '_'+args.suffix
-
-    if os.path.isfile(fn_h5):
-        with safe_open_h5(fn_h5, 'r') as f:
-            if 'cpart/%s' % grp_name in f and not args.overwrite:
-                if log.do_warning:
-                    log.warn('Skipping because "%s" is already present in the output.' % grp_name)
-                return
+    fn_h5, grp_name = parse_h5(args.output, 'output')
+    # check if the group is already present (and not empty) in the output file
+    if check_output(fn_h5, grp_name, args.overwrite):
+        return
 
     # Load the system
     sys = System.from_file(args.cube)
@@ -164,7 +162,7 @@ def main():
         names.append('symmetry')
         sys.extra['symmetry'] = sym
 
-    write_part_output(fn_h5, 'cpart', cpart, grp_name, names, args)
+    write_part_output(fn_h5, grp_name, cpart, names, args)
 
 if __name__ == '__main__':
     main()

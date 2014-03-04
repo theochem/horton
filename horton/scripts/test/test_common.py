@@ -29,13 +29,6 @@ from horton.scripts.common import *
 from horton.test.common import tmpdir
 
 
-def test_get_output_filename():
-    assert get_output_filename('some.file', 'boo') == 'some_boo.h5'
-    assert get_output_filename('some_file', 'boo') == 'some_file_boo.h5'
-    assert get_output_filename('some.file', 'boo', 'bar') == 'bar'
-    assert get_output_filename('some_file', 'boo', 'bar.h5') == 'bar.h5'
-
-
 def test_iter_elements():
     assert list(iter_elements('1,2')) == [1, 2]
     assert list(iter_elements('H,2')) == [1, 2]
@@ -105,37 +98,6 @@ def test_parse_pbc():
     assert (parse_pbc('000') == [0, 0, 0]).all()
     assert (parse_pbc('101') == [1, 0, 1]).all()
     assert (parse_pbc('001') == [0, 0, 1]).all()
-
-
-def test_parse_ugrid_1():
-    rvecs = np.diag([3.0, 2.0, 1.0])*angstrom
-    cell = Cell(rvecs)
-    ugrid = parse_ugrid('0.1', cell)
-
-    assert (ugrid.origin == [0, 0, 0]).all()
-    assert abs(ugrid.grid_rvecs - np.identity(3, float)*0.1*angstrom).max() < 1e-10
-    assert (ugrid.shape == [30, 20, 10]).all()
-    assert (ugrid.pbc == 1).all()
-
-
-def test_parse_ugrid_2():
-    with tmpdir('horton.scripts.test.test_common.test_parse_ugrid_2') as dn:
-        fn_h5 = os.path.join(dn, 'test.h5')
-        origin = np.random.uniform(0, 1, 3)
-        grid_rvecs = np.random.uniform(0, 1, (3, 3))
-        shape = np.random.randint(10, 20, 3)
-        pbc = np.random.randint(0, 2, 3)
-        ugrid1 = UniformGrid(origin, grid_rvecs, shape, pbc)
-
-        with h5.File(fn_h5) as f:
-            ugrid1.to_hdf5(f)
-
-        ugrid2 = parse_ugrid('%s:/' % fn_h5, None)
-
-        assert (ugrid2.origin == origin).all()
-        assert (ugrid2.grid_rvecs == grid_rvecs).all()
-        assert (ugrid2.shape == shape).all()
-        assert (ugrid2.pbc == pbc).all()
 
 
 def test_store_args():

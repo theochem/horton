@@ -23,14 +23,16 @@
 
 import numpy as np
 
-from horton import System, angstrom
-from horton.scripts.common import reduce_data, reduce_ugrid
+from horton import System, angstrom, ESPCost
+from horton.scripts.common import reduce_data, reduce_ugrid, parse_h5, \
+    safe_open_h5
 from horton.part.proatomdb import ProAtomDB
 
 
 __all__ = [
     'parse_wdens', 'parse_wnear', 'parse_wfar',
-    'load_rho', 'save_weights', 'max_at_edge',
+    'load_rho', 'load_cost', 'load_charges',
+    'save_weights', 'max_at_edge',
 ]
 
 
@@ -145,6 +147,20 @@ def load_rho(system, fn_cube, ref_ugrid, stride, chop):
         if (ugrid.shape != ref_ugrid.shape).any():
             raise ValueError('The densities file does not contain the same amount if information as the potential file.')
     return rho
+
+
+def load_cost(arg_cost):
+    '''Load an ESP cost function given at the command line'''
+    fn_h5_in, grp_name_in = parse_h5(arg_cost, 'cost', path_optional=False)
+    with safe_open_h5(fn_h5_in, 'r') as f:
+        return ESPCost.from_hdf5(f[grp_name_in], None)
+
+
+def load_charges(arg_charges):
+    '''Load a charges given at the command line'''
+    fn_h5, ds_name = parse_h5(arg_charges, 'charges', path_optional=False)
+    with safe_open_h5(fn_h5, 'r') as f:
+        return f[ds_name][:]
 
 
 def save_weights(fn_cube, sys, ugrid, weights):

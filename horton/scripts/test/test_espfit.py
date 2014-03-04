@@ -63,21 +63,22 @@ def test_scripts():
     # Write the cube file to the tmpdir and run scripts (run 1)
     with tmpdir('horton.scripts.test.test_espfit.test_scripts') as dn:
         sys_esp.to_file(os.path.join(dn, 'esp.cube'))
-        check_script('horton-esp-cost.py esp.cube --wnear=0:1.0:0.5', dn)
-        check_files(dn, ['esp_espfit.h5'])
-        check_script('horton-esp-fit.py esp_espfit.h5:espfit/cost_r1 default', dn)
-        check_script('horton-esp-test.py esp_espfit.h5:espfit/cost_r1 esp_espfit.h5:espfit/cost_r1/default', dn)
-        check_script('horton-esp-gen.py esp_espfit.h5:espfit/cost_r1/default --grid=1.2', dn)
+        check_script('horton-esp-cost.py esp.cube esp.h5 --wnear=0:1.0:0.5', dn)
+        check_script('horton-esp-fit.py esp.h5:cost other.h5', dn)
+        check_script('horton-esp-test.py esp.h5:cost other.h5:charges foo.h5', dn)
+        check_script('horton-esp-gen.py other.h5:charges esp.cube gen.h5', dn)
+        check_files(dn, ['esp.h5', 'other.h5', 'foo.h5', 'gen.h5'])
 
     # Write the cube file to the tmpdir and run scripts (run 2)
-    with tmpdir('horton.scripts.test.test_espfit.test_scripts') as dn:
+    with tmpdir('horton.scripts.test.test_espfit.test_scripts2') as dn:
         sys_esp.to_file(os.path.join(dn, 'esp.cube'))
         sys_rho.to_file(os.path.join(dn, 'rho.cube'))
-        check_script('horton-esp-cost.py esp.cube --wnear=0:1.0:0.5 --wdens=rho.cube --wsave=weight.cube', dn)
-        check_files(dn, ['esp_espfit.h5', 'weight.cube'])
-        check_script('horton-esp-fit.py esp_espfit.h5:espfit/cost_r1 default', dn)
-        check_script('horton-esp-test.py esp_espfit.h5:espfit/cost_r1 esp_espfit.h5:espfit/cost_r1/default', dn)
-        check_script('horton-esp-gen.py esp_espfit.h5:espfit/cost_r1/default --grid=1.2', dn)
+        check_script('horton-esp-cost.py esp.cube esp.h5 --wnear=0:1.0:0.5 --wdens=rho.cube --wsave=weight.cube', dn)
+        check_files(dn, ['esp.h5', 'weight.cube'])
+        check_script('horton-esp-fit.py esp.h5:cost other.h5', dn)
+        check_script('horton-esp-test.py esp.h5:cost other.h5:charges foo.h5', dn)
+        check_script('horton-esp-gen.py other.h5:charges esp.cube gen.h5', dn)
+        check_files(dn, ['esp.h5', 'other.h5', 'foo.h5', 'gen.h5'])
 
 
 def test_scripts_symmetry():
@@ -87,13 +88,13 @@ def test_scripts_symmetry():
         sys = write_random_lta_cube(dn, 'esp.cube')
         copy_files(dn, ['lta_gulp.cif'])
         # run scripts
-        check_script('horton-esp-cost.py esp.cube --wnear=0:1.0:0.5 --rcut=4 --alpha-scale=0.1', dn)
-        check_files(dn, ['esp_espfit.h5'])
-        check_script('horton-esp-fit.py esp_espfit.h5:espfit/cost_r1 default --symmetry=lta_gulp.cif', dn)
-        with h5.File(os.path.join(dn, 'esp_espfit.h5')) as f:
-            assert 'symmetry' in f['system/extra']
-            assert 'symmetry' in f['espfit/cost_r1/default']
-            assert f['espfit/cost_r1/default/symmetry/charges'].shape == (sys.extra['symmetry'].natom, 2)
+        check_script('horton-esp-cost.py esp.cube esp.h5 --wnear=0:1.0:0.5 --rcut=4 --alpha-scale=0.1', dn)
+        check_files(dn, ['esp.h5'])
+        check_script('horton-esp-fit.py esp.h5:cost other.h5 --symmetry esp.cube lta_gulp.cif', dn)
+        sys_sym = System.from_file('%s/lta_gulp.cif' % dn)
+        with h5.File(os.path.join(dn, 'other.h5')) as f:
+            assert 'symmetry' in f
+            assert f['symmetry/charges'].shape == (sys_sym.extra['symmetry'].natom, 2)
 
 
 def test_max_at_edge():

@@ -23,9 +23,10 @@
 
 import sys, argparse, os, numpy as np
 
-from horton import System, ESPCost, log, dump_hdf5_low, symmetry_analysis, \
-    __version__
-from horton.scripts.common import parse_h5, store_args, safe_open_h5
+from horton import System, log, symmetry_analysis, __version__
+from horton.scripts.common import parse_h5, safe_open_h5, write_script_output, \
+    check_output
+from horton.scripts.espfit import load_cost
 
 
 # All, except underflows, is *not* fine.
@@ -38,27 +39,30 @@ def parse_args():
     parser.add_argument('-V', '--version', action='version',
         version="%%(prog)s (horton version %s)" % __version__)
 
-    parser.add_argument('h5',
-        help='[HDF5 filename]:[HDF5 group] The HDF5 file can be created with '
-             'horton-esp-cost.py. The group must contain matrices A, B and C '
-             'that define the quadratic cost function. The HDF5 file must also '
-             'contain a system group in which the atoms are defined with an '
-             'array numbers (for the atom numbers) and an array coordinates.')
-    parser.add_argument('group',
-        help='All results will be stored in this subgroup.')
+    parser.add_argument('cost',
+        help='The location of the cost function in the form '
+             '"file.h5:group/cost". This argument must be the same as the '
+             'output argument of the script horton-esp-cost.py.')
+    parser.add_argument('output',
+        help='The output destination in the form file.h5:group. The colon and '
+             'the group name are optional. When omitted, the root group of the '
+             'HDF5 file is used.')
+    parser.add_argument('--overwrite', default=False, action='store_true',
+        help='Overwrite existing output in the HDF5 file')
+
     parser.add_argument('--qtot', '-q', default=0.0, type=float,
         help='The total charge of the system. [default=%(default)s]')
     parser.add_argument('--ridge', default=0.0, type=float,
         help='The thikonov regularization strength used when solving the '
              'charges. [default=%(default)s]')
-    parser.add_argument('--symmetry', default=None, type=str,
+    parser.add_argument('--symmetry', default=None, type=str, nargs=2,
         help='Perform a symmetry analysis on the charges. This option '
-             'requires one argument: a CIF file with the generators of the '
-             'symmetry of this system and a primitive unit cell.')
+             'requires two arguments argument in the following order: the cube '
+             'file used to construct the ESP cost function and a CIF file with '
+             'the generators of the symmetry of this system and a primitive '
+             'unit cell.')
 
     # TODO: more constraint and restraint options
-    # TODO: When no group is given in h5 argument, run over all groups that
-    #       contain A, B and C.
 
     return parser.parse_args()
 
@@ -66,12 +70,13 @@ def parse_args():
 def main():
     args = parse_args()
 
+    fn_h5, grp_name = parse_h5(args.output, 'output')
+    # check if the group is already present (and not empty) in the output file
+    if check_output(fn_h5, grp_name, args.overwrite):
+        return
+
     # Load the cost function from the HDF5 file
-    fn_h5, grp_name = parse_h5(args.h5)
-    with safe_open_h5(fn_h5, 'r') as f:
-        grp = f[grp_name]
-        sys = System.from_file(f['system'], chk=None)
-        cost = ESPCost(grp['A'][:], grp['B'][:], grp['C'][()], sys.natom)
+    cost = load_cost(args.cost)
 
     # Find the optimal charges
     results = {}
@@ -103,30 +108,18 @@ def main():
 
     # Perform a symmetry analysis if requested
     if args.symmetry is not None:
-        sys_sym = System.from_file(args.symmetry)
+        sys = System.from_file(args.symmetry[0])
+        sys_sym = System.from_file(args.symmetry[1])
         sym = sys_sym.extra.get('symmetry')
         if sym is None:
-            raise ValueError('No symmetry information found in %s.' % args.symmetry)
+            raise ValueError('No symmetry information found in %s.' % args.symmetry[1])
         sys_results = {'charges': results['charges']}
         sym_results = symmetry_analysis(sys, sym, sys_results)
         results['symmetry'] = sym_results
         sys.extra['symmetry'] = sym
 
     # Store the results in an HDF5 file
-    with safe_open_h5(fn_h5) as f:
-        # rewrite system in case of symmetry analysis
-        if args.symmetry is not None:
-            del f['system']
-            sys.to_file(f.create_group('system'))
-
-        # Store results
-        dump_hdf5_low(f[grp_name], args.group, results)
-
-        # Store command line arguments
-        store_args(args, f[grp_name][args.group])
-
-        if log.do_medium:
-            log('Results written to %s:%s/%s' % (fn_h5, grp_name, args.group))
+    write_script_output(fn_h5, grp_name, results, args)
 
 
 if __name__ == '__main__':

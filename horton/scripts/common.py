@@ -27,37 +27,10 @@ from horton import UniformGrid, angstrom, periodic, Cell, log, dump_hdf5_low
 
 
 __all__ = [
-    'get_output_filename', 'iter_elements', 'reduce_ugrid', 'reduce_data',
-    'parse_h5', 'parse_ewald_args', 'parse_pbc', 'parse_ugrid', 'store_args',
-    'safe_open_h5', 'write_part_output'
+    'iter_elements', 'reduce_ugrid', 'reduce_data',
+    'parse_h5', 'parse_ewald_args', 'parse_pbc', 'store_args',
+    'safe_open_h5', 'write_part_output', 'write_script_output',
 ]
-
-
-def get_output_filename(fn_input, suffix, fn_output=None):
-    '''Routine to generate an output filename in case it is not specified
-
-       **Arguments:**
-
-       fn_input
-            The input filename.
-
-       suffix
-            A suffix specific for the script that calls this function.
-
-       **Optional arguments:**
-
-       fn_output
-            A user-specified output filename.
-    '''
-    if fn_output is not None:
-        return fn_output
-    else:
-        pos = fn_input.rfind('.')
-        if pos == -1:
-            prefix = fn_input
-        else:
-            prefix = fn_input[:pos]
-        return '%s_%s.h5' % (prefix, suffix)
 
 
 def iter_elements(elements_str):
@@ -138,10 +111,67 @@ def reduce_data(cube_data, ugrid, stride, chop):
     return new_cube_data, new_ugrid
 
 
-def parse_h5(arg_h5):
-    if arg_h5.count(':') != 1:
-        raise ValueError('An hdf5 argument must contain one colon.')
-    return arg_h5.split(':')
+def parse_h5(arg_h5, name, path_optional=True):
+    '''Parse an HDF5 command line argument of the form file.h5:group or file.h5:dataset
+
+       **Arguments**:
+
+       arg_h5
+            The command line argument that consists of two parts, the HDF5
+            filename and a path, separated by a colon. If the path is optional,
+            the default value is the root group.
+
+       name
+            The name of the argument to be used in error messages.
+
+       **Optional arguments:**
+
+       path_optional
+            Set this to False when a path in the HDF5 is not optional
+
+       **Returns:** the filename and the group
+    '''
+    if path_optional:
+        if arg_h5.count(':') == 1:
+            return arg_h5.split(':')
+        elif arg_h5.count(':') == 0:
+            return arg_h5, '/'
+        else:
+            raise ValueError('The hdf5 argument "%s" must contain at most one colon.' % name)
+    else:
+        if arg_h5.count(':') == 1:
+            return arg_h5.split(':')
+        else:
+            raise ValueError('The hdf5 argument "%s" must contain one colon.' % name)
+
+
+def check_output(fn_h5, grp_name, overwrite):
+    '''Check if the output is already present in print a warning if --overwrite is not used
+
+       **Arguments:**
+
+       fn_h5
+            The output HDF5 file
+
+       grp_name
+            The HDF5 group in which the output is stored.
+
+       overwrite
+            Whether the user wants to overwrite contents that were already
+            present.
+    '''
+    if os.path.isfile(fn_h5):
+        with safe_open_h5(fn_h5, 'r') as f:
+            if grp_name in f and len(f[grp_name] > 0):
+                if ovewrite:
+                    if log.do_warning:
+                        log.warn('Overwriting the contents of "%s" in the file "%s".' % (grp_name, fn_h5))
+                    return False
+                else:
+                    if log.do_warning:
+                        log.warn('Skipping because the group "%s" is already present in the file "%s" and it is not empty.' % (grp_name, fn_h5))
+                    return True
+    return False
 
 
 def parse_ewald_args(args):
@@ -160,38 +190,6 @@ def parse_pbc(spbc):
             raise ValueError('The pbc argument must consist of three characters, 0 or 1.')
         result[i] = int(spbc[i])
     return result
-
-
-def parse_ugrid(sgrid, cell):
-    '''Create a uniform integration grid based on the sgrid argument
-
-       **Arguments:**
-
-       sgrid
-            A string obtained from the command line
-
-       rvecs
-            The 3D cell vectors
-    '''
-    try:
-        spacing = float(sgrid)*angstrom
-    except ValueError:
-        spacing = None
-
-    if spacing is None:
-        fn_h5, path = sgrid.split(':')
-        with h5.File(fn_h5, 'r') as f:
-            return UniformGrid.from_hdf5(f[path], None)
-    else:
-        grid_rvecs = cell.rvecs.copy()
-        shape = np.zeros(3, int)
-        lengths, angles = cell.parameters
-        for i in xrange(3):
-            shape[i] = int(np.round(lengths[i]/spacing))
-            grid_rvecs[i] /= shape[i]
-        origin = np.zeros(3, float)
-        pbc = np.ones(3, int)
-        return UniformGrid(origin, grid_rvecs, shape, pbc)
 
 
 def store_args(args, grp):
@@ -237,7 +235,7 @@ def safe_open_h5(*args, **kwargs):
         f.close()
 
 
-def write_part_output(fn_h5, label, part, grp_name, names, args):
+def write_part_output(fn_h5, grp_name, part, names, args):
     '''Write the output of horton-wpart.py or horton-cpart.py
 
        **Arguments:**
@@ -245,16 +243,12 @@ def write_part_output(fn_h5, label, part, grp_name, names, args):
        fn_h5
             The filename for the HDF5 output file.
 
-       label
-            A label used for the partitioning method, which may be modified
-            by from the command line.
+       grp_name
+            the destination group
 
        part
             The partitioning object (instance of subclass of
             horton.part.base.Part)
-
-       grp_name
-            'wpart' or 'cpart'.
 
        names
             The names of the cached items that must go in the HDF5 outut file.
@@ -265,17 +259,13 @@ def write_part_output(fn_h5, label, part, grp_name, names, args):
     '''
     # Store the results in an HDF5 file
     with safe_open_h5(fn_h5) as f:
-        # Store system
-        sys_grp = f.require_group('system')
-        if 'cube_data' in part.system.extra:
-            del part.system.extra['cube_data'] # drop potentially large array
-        part.system.to_file(sys_grp)
-
         # Store results
-        grp_part = f.require_group(label)
-        if grp_name in grp_part:
-            del grp_part[grp_name]
-        grp = grp_part.create_group(grp_name)
+        if grp_name in f:
+            grp = f['grp_name']
+            for key in grp.keys():
+                del f[key]
+        else:
+            grp = f.create_group(grp_name)
         for name in names:
             dump_hdf5_low(grp, name, part[name])
 
@@ -293,4 +283,40 @@ def write_part_output(fn_h5, label, part, grp_name, names, args):
                     grp_debug[debug_name] = part.cache.load(*debug_key)
 
         if log.do_medium:
-            log('Results written to %s:%s/%s' % (fn_h5, label, grp_name))
+            log('Results written to %s:%s' % (fn_h5, grp_name))
+
+
+def write_script_output(fn_h5, grp_name, results, args):
+    '''Store the output of a script in an open HDF5 file
+
+       **Arguments:**
+
+       fn_h5
+            The HDF5 filename
+
+       grp_name
+            The name of the group where the results will be stored.
+
+       results
+            A dictionary with results.
+
+       args
+            The results of the command line parser. All arguments are stored
+            as attributes in the HDF5 output file.
+    '''
+    with safe_open_h5(fn_h5) as f:
+        # Store results
+        if grp_name in f:
+            grp = f[grp_name]
+            for key in grp.keys():
+                del f[key]
+        else:
+            grp = f.require_group(grp_name)
+        for key, value in results.iteritems():
+            dump_hdf5_low(grp, key, value)
+
+        # Store command-line arguments arguments
+        store_args(args, grp)
+
+        if log.do_medium:
+            log('Results written to %s:%s' % (fn_h5, grp_name))

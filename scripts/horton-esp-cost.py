@@ -23,10 +23,9 @@
 
 import sys, argparse, os, numpy as np
 
-from horton import System, angstrom, setup_weights, ESPCost, log, angstrom, \
-    dump_hdf5_low, __version__
-from horton.scripts.common import get_output_filename, reduce_data, \
-    parse_ewald_args, parse_pbc, store_args, safe_open_h5
+from horton import System, setup_weights, ESPCost, log, angstrom, __version__
+from horton.scripts.common import reduce_data, parse_ewald_args, parse_pbc, \
+    safe_open_h5, write_script_output, parse_h5, check_output
 from horton.scripts.espfit import parse_wdens, parse_wnear, parse_wfar, \
     load_rho, save_weights, max_at_edge
 from horton.grid.cext import UniformGrid
@@ -44,9 +43,19 @@ def parse_args():
 
     parser.add_argument('cube',
         help='The cube file.')
+    parser.add_argument('output',
+        help='The output destination in the form file.h5:group. The colon and '
+             'the group name are optional. When omitted, the root group of the '
+             'HDF5 file is used. '
+             'To mimick the behavior of horton 1.2.0 scripts, use '
+             '"${prefix}_espfit.h5:espfit/cost_r${stride}" where ${prefix} '
+             'is the name of the cube file without extension and ${stride} is '
+             'the value of the stride option.')
+    parser.add_argument('--overwrite', default=False, action='store_true',
+        help='Overwrite existing output in the HDF5 file')
+
     parser.add_argument('--sign', '-s', default=False, action='store_true',
         help='Change the sign of the ESP data. This is needed for CP2K and VASP.')
-
     parser.add_argument('--stride', default=1, type=int,
         help='Reduce the grid by subsamping with the given stride in all three '
              'directions. Zero and negative values are ignored. '
@@ -55,14 +64,6 @@ def parse_args():
         help='The number of layers to chop of the end of the grid in each '
              'direction. For most codes this should be zero. For Crystal, this '
              'should be 1.')
-
-    parser.add_argument('-o', '--output', default=None,
-        help='The HDF5 output filename. The default is to remove the extension '
-             'from the input file (if any) and to append \'_espfit.h5\'.')
-    parser.add_argument('--overwrite', default=False, action='store_true',
-        help='Overwrite existing output in the HDF5 file')
-    parser.add_argument('--suffix', default=None, type=str,
-        help='Add an additional suffix to the HDF5 output group.')
 
     parser.add_argument('--rcut', default=10.0, type=float,
         help='The real-space cutoff for the electrostatic interactions in '
@@ -114,18 +115,10 @@ def parse_args():
 def main():
     args = parse_args()
 
-    # check if the folder is already present in the output file
-    fn_h5 = get_output_filename(args.cube, 'espfit', args.output)
-    grp_name = 'cost_r%i' % args.stride
-    if args.suffix is not None:
-        grp_name += '_'+args.suffix
-
-    if os.path.isfile(fn_h5):
-        with safe_open_h5(fn_h5, 'r') as f:
-            if 'espfit/%s' % grp_name in f and not args.overwrite:
-                if log.do_warning:
-                    log.warn('Skipping because "%s" is already present in the output.' % grp_name)
-                return
+    fn_h5, grp_name = parse_h5(args.output, 'output')
+    # check if the group is already present (and not empty) in the output file
+    if check_output(fn_h5, grp_name, args.overwrite):
+        return
 
     # Load the system
     if log.do_medium:
@@ -217,9 +210,7 @@ def main():
 
     # Store cost function info
     results = {}
-    results['A'] = cost._A
-    results['B'] = cost._B
-    results['C'] = cost._C
+    results['cost'] = cost
 
     # Store cost function properties
     results['evals'] = np.linalg.eigvalsh(cost._A)
@@ -239,21 +230,7 @@ def main():
         log.hline()
 
     # Store the results in an HDF5 file
-    with safe_open_h5(fn_h5) as f:
-        # Store essential system info
-        sys_grp = f.require_group('system')
-        del sys.extra['cube_data'] # first drop potentially large array
-        sys.to_file(sys_grp)
-
-        # Store results
-        out_grp = f.require_group('espfit')
-        dump_hdf5_low(out_grp, grp_name, results)
-
-        # Store arguments
-        store_args(args, out_grp[grp_name])
-
-        if log.do_medium:
-            log('Results written to %s:espfit/%s' % (fn_h5, grp_name))
+    write_script_output(fn_h5, grp_name, results, args)
 
 
 if __name__ == '__main__':
