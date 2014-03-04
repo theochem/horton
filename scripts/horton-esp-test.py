@@ -87,14 +87,14 @@ def main():
     if results['cost'] < 0:
         results['rmsd'] = 0.0
     else:
-        results['rmsd'] = results['cost']**0.5/used_volume
+        results['rmsd'] = (results['cost']/used_volume)**0.5
 
     # Worst case stuff
     results['cost_worst'] = cost.worst(0.0)
     if results['cost_worst'] < 0:
         results['rmsd_worst'] = 0.0
     else:
-        results['rmsd_worst'] = results['cost_worst']**0.5/used_volume
+        results['rmsd_worst'] = (results['cost_worst']/used_volume)**0.5
 
     # Write some things on screen
     if log.do_medium:
