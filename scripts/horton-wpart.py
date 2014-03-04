@@ -78,6 +78,9 @@ def parse_args():
              'the Hirshfeld-I (hi) and Hirhfeld-E (he) schemes.')
     parser.add_argument('--lmax', default=3, type=int,
         help='The maximum angular momentum to consider in multipole expansions')
+    parser.add_argument('--slow', default=False, action='store_true',
+        help='Also compute the more expensive AIM properties that require the '
+             'AIM overlap matrices.')
 
     return parser.parse_args()
 

@@ -43,7 +43,7 @@ def check_proatomdb(system, proatomdb):
 
 class HirshfeldMixin(object):
     name = 'h'
-    options = ['lmax']
+    options = ['slow', 'lmax']
     linear = True
 
     def __init__(self, proatomdb):
@@ -118,10 +118,10 @@ class HirshfeldMixin(object):
 class HirshfeldWPart(HirshfeldMixin, StockholderWPart):
     options = HirshfeldMixin.options + ['epsilon']
 
-    def __init__(self, system, grid, proatomdb, local=True, lmax=3, epsilon=0):
+    def __init__(self, system, grid, proatomdb, local=True, slow=False, lmax=3, epsilon=0):
         check_proatomdb(system, proatomdb)
         HirshfeldMixin. __init__(self, proatomdb)
-        StockholderWPart.__init__(self, system, grid, local, lmax, epsilon)
+        StockholderWPart.__init__(self, system, grid, local, slow, lmax, epsilon)
 
 
 class HirshfeldCPart(HirshfeldMixin, StockholderCPart):

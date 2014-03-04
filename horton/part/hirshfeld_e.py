@@ -394,10 +394,10 @@ class HirshfeldEMixin(object):
 
 
 class HirshfeldEWPart(HirshfeldEMixin, HirshfeldIWPart):
-    def __init__(self, system, grid, proatomdb, local=True, lmax=3, epsilon=0, threshold=1e-6, maxiter=500, greedy=False):
+    def __init__(self, system, grid, proatomdb, local=True, slow=False, lmax=3, epsilon=0, threshold=1e-6, maxiter=500, greedy=False):
         hebasis = HEBasis(system.numbers, proatomdb)
         HirshfeldEMixin.__init__(self, hebasis)
-        HirshfeldIWPart.__init__(self, system, grid, proatomdb, local, lmax, epsilon, threshold, maxiter, greedy)
+        HirshfeldIWPart.__init__(self, system, grid, proatomdb, local, slow, lmax, epsilon, threshold, maxiter, greedy)
 
     def get_wcor_fit(self, index):
         return None

@@ -36,7 +36,7 @@ class Part(JustOnceClass):
     name = None
     linear = False # whether the populations are linear in the density matrix.
 
-    def __init__(self, system, grid, local, lmax, moldens=None):
+    def __init__(self, system, grid, local, slow, lmax, moldens=None):
         '''
            **Arguments:**
 
@@ -48,6 +48,10 @@ class Part(JustOnceClass):
 
            local
                 Whether or not to use local (non-periodic) grids.
+
+           slow
+                When ``True``, also the AIM properties are computed that use the
+                AIM overlap operators.
 
            lmax
                 The maximum angular momentum in multipole expansions.
@@ -61,6 +65,7 @@ class Part(JustOnceClass):
         self._system = system
         self._grid = grid
         self._local = local
+        self._slow = slow
         self._lmax = lmax
 
         # Caching stuff, to avoid recomputation of earlier results
@@ -97,6 +102,11 @@ class Part(JustOnceClass):
         return self._local
 
     local = property(_get_local)
+
+    def _get_slow(self):
+        return self._slow
+
+    slow = property(_get_slow)
 
     def _get_lmax(self):
         return self._lmax
@@ -327,10 +337,12 @@ class Part(JustOnceClass):
 
     def do_all(self):
         '''Computes all properties and return a list of their names.'''
+        slow_methods = ['do_overlap_operators', 'do_bond_order', 'do_noninteracting_response']
         for attr_name in dir(self):
             attr = getattr(self, attr_name)
             if callable(attr) and attr_name.startswith('do_') and attr_name != 'do_all':
-                attr()
+                if self._slow or (not attr_name in slow_methods):
+                    attr()
         return list(self.cache.iterkeys(tags='o'))
 
 
@@ -339,7 +351,7 @@ class WPart(Part):
     # user-provided grids.
 
     '''Base class for density partitioning schemes'''
-    def __init__(self, system, grid, local=True, lmax=3, epsilon=0):
+    def __init__(self, system, grid, local=True, slow=False, lmax=3, epsilon=0):
         '''
            **Arguments:**
 
@@ -352,6 +364,10 @@ class WPart(Part):
                 If ``True``: use the proper atomic grid for each AIM integral.
                 If ``False``: use the entire molecular grid for each AIM integral.
 
+           slow
+                When ``True``, also the AIM properties are computed that use the
+                AIM overlap operators.
+
            lmax
                 The maximum angular momentum in multipole expansions.
 
@@ -362,7 +378,7 @@ class WPart(Part):
         if local and grid.subgrids is None:
             raise ValueError('Atomic grids are discarded from molecular grid object, but are needed for local integrations.')
         self._epsilon = epsilon
-        Part.__init__(self, system, grid, local, lmax)
+        Part.__init__(self, system, grid, local, slow, lmax)
 
     def _get_epsilon(self):
         return self._epsilon
@@ -461,7 +477,7 @@ class CPart(Part):
             self._wcor_numbers = wcor_numbers
         self._wcor_rcut_max = wcor_rcut_max
         self._wcor_rcond = wcor_rcond
-        Part.__init__(self, system, grid, local, lmax, moldens)
+        Part.__init__(self, system, grid, local, True, lmax, moldens)
 
     def _get_wcor_numbers(self):
         return self._wcor_numbers
