@@ -69,7 +69,7 @@ cost function for a given set of charges.
 In the output of these three scripts, the following quantities are reported (if
 applicable):
 
-* :math:`\text{RMSD} = \sqrt{\text{COST}}/V_w`
+* :math:`\text{RMSD} = \sqrt{\text{COST}/V_w}`
 * :math:`\text{RRMSD} = \sqrt{\text{COST}/C}` (expressed as a percentage)
 
 where the cost is computed with a certain set of charges (and the optimal
@@ -77,10 +77,10 @@ where the cost is computed with a certain set of charges (and the optimal
 integral of the weight function. When these charges are the ESP fitted charges,
 :math:`\text{COST}`, :math:`\text{RMSD}` and :math:`\text{RRMSD}` are minimal.
 When the charges are all set to zero, one obtains the worst-case value for
-:math:`\text{COST}=C`, :math:`\text{RMSD}=\sqrt{C}/V_w` and
-:math:`\text{RRMSD}=1`. (One can can still obtain a higher COST, but only with
-completely insensible charges. When that is the case, it is better to set the
-charges to zero to model the ESP.)
+:math:`\text{COST}=C`, :math:`\text{RMSD}=\sqrt{C/V_w}` and
+:math:`\text{RRMSD}=100\%`. (One can can still obtain a higher
+:math:`\text{COST}`, but only with completely insensible charges. When that is
+the case, it is better to set the charges to zero to model the ESP.)
 
 
 ``horton-esp-cost.py`` -- Set up an ESP cost functions
