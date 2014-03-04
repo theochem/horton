@@ -126,3 +126,10 @@ ESP fitting
 * ``horton-esp-fit.py``: derive atomic charges from an ESP cost function
 * ``horton-esp-gen.py``: generate the electrostatic potential due to a set of charges
 * ``horton-esp-test.py``: test how well charges perform for a given cost function
+
+
+File conversion
+---------------
+
+* ``horton-convert.py``: convert between file formats supported by Horton
+* ``horton-hdf2csv.py``: convert the contents of an HDF5 file to a csv file

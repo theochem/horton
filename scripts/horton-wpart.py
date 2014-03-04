@@ -25,8 +25,8 @@ import sys, argparse, os, numpy as np
 
 from horton import System, wpart_schemes, Cell, ProAtomDB, log, BeckeMolGrid, \
     lebedev_laikov_npoints, AtomicGridSpec, __version__
-from horton.scripts.common import get_output_filename, store_args, \
-    safe_open_h5, write_part_output
+from horton.scripts.common import store_args, safe_open_h5, write_part_output, \
+    parse_h5, check_output
 
 
 # All, except underflows, is *not* fine.
@@ -41,14 +41,19 @@ def parse_args():
 
     parser.add_argument('wfn',
         help='The wfn file. Supported formats: fchk, mkl, molden.input, wfn')
+    parser.add_argument('output',
+        help='The output destination in the form file.h5:group. The colon and '
+             'the group name are optional. When omitted, the root group of the '
+             'HDF5 file is used. '
+             'To mimick the behavior of horton 1.2.0 scripts, use '
+             '"${prefix}_wpart.h5:wpart/${scheme}" where ${prefix} '
+             'is the name of the wfn file without extension and ${scheme} is '
+             'the partitioning scheme used.')
     parser.add_argument('scheme', choices=sorted(wpart_schemes.keys()),
         help='The scheme to be used for the partitioning')
     parser.add_argument('atoms', default=None, nargs='?',
         help='An HDF5 file with atomic reference densities.')
 
-    parser.add_argument('-o', '--output', default=None,
-        help='The HDF5 output filename. The default is to remove the extension '
-             'from the input file (if any) and to append \'_wpart.h5\'.')
     parser.add_argument('--overwrite', default=False, action='store_true',
         help='Overwrite existing output in the HDF5 file')
     parser.add_argument('--debug', default=False, action='store_true',
@@ -88,18 +93,10 @@ def parse_args():
 def main():
     args = parse_args()
 
-    # check if the folder is already present in the output file
-    fn_h5 = get_output_filename(args.wfn, 'wpart', args.output)
-    grp_name = args.scheme
-    if args.suffix is not None:
-        grp_name += '_' + args.suffix
-
-    if os.path.isfile(fn_h5):
-        with safe_open_h5(fn_h5, 'r') as f:
-            if 'wpart/%s' % grp_name in f and not args.overwrite:
-                if log.do_warning:
-                    log.warn('Skipping because "%s" is already present in the output.' % grp_name)
-                return
+    fn_h5, grp_name = parse_h5(args.output, 'output')
+    # check if the group is already present (and not empty) in the output file
+    if check_output(fn_h5, grp_name, args.overwrite):
+        return
 
     # Load the system
     sys = System.from_file(args.wfn)
@@ -123,7 +120,7 @@ def main():
     wpart = wpart_schemes[args.scheme](sys, molgrid, **kwargs)
     names = wpart.do_all()
 
-    write_part_output(fn_h5, 'wpart', wpart, grp_name, names, args)
+    write_part_output(fn_h5, grp_name, wpart, names, args)
 
 
 if __name__ == '__main__':

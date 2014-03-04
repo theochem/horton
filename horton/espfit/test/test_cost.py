@@ -21,7 +21,7 @@
 #pylint: skip-file
 
 
-import numpy as np
+import numpy as np, h5py as h5
 from horton import *
 from horton.test.common import check_delta
 
@@ -364,3 +364,14 @@ def test_consistent():
     assert cost.value_charges(charges) < 1e-7
     assert cost.value(x) < 1e-7
     assert abs(charges - x[:-1]).max() < 1e-4
+
+
+def test_hdf5():
+    with h5.File('horton.espfit.test.test_cost.test_hdf5.h5', driver='core', backing_store=False) as f:
+        cost1 = get_random_esp_cost_cube3d()
+        cost1.to_hdf5(f)
+        cost2 = ESPCost.from_hdf5(f, None)
+    assert abs(cost1._A - cost2._A).max() == 0
+    assert abs(cost1._B - cost2._B).max() == 0
+    assert cost1._C - cost2._C == 0
+    assert cost1.natom == cost2.natom

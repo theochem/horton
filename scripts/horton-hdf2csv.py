@@ -48,8 +48,9 @@ def parse_args():
         version="%%(prog)s (horton version %s)" % __version__)
 
     parser.add_argument('h5',
-        help='[HDF5 filename]:[HDF5 group] Specifies the part of the HDF5 file '
-             'that gets converted.')
+        help='Specifies (the part of) the HDF5 file that gets converted in the '
+             'form "file.h5:group". The colon and the group suffix are option. '
+             'When omitted, the entire file is converted.')
     parser.add_argument('csv',
         help='The name of the comma-separate value output file.')
 
@@ -59,7 +60,7 @@ def parse_args():
 def main():
     args = parse_args()
 
-    fn_h5, grp_name = parse_h5(args.h5)
+    fn_h5, grp_name = parse_h5(args.h5, 'h5')
     with safe_open_h5(fn_h5, 'r') as fin, open(args.csv, 'w') as fout:
         w = csv.writer(fout)
         w.writerow(['Converted data from %s' % args.h5])

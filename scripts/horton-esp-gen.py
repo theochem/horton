@@ -24,9 +24,10 @@
 import sys, argparse, os, numpy as np
 
 from horton import System, UniformGrid, log, Cell, angstrom, \
-    compute_esp_grid_cube, dump_hdf5_low, __version__
+    compute_esp_grid_cube, __version__
 from horton.scripts.common import parse_h5, parse_ewald_args, store_args, \
-    safe_open_h5, parse_ugrid
+    safe_open_h5, check_output, write_script_output
+from horton.scripts.espfit import load_charges
 
 
 # All, except underflows, is *not* fine.
@@ -35,26 +36,27 @@ np.seterr(divide='raise', over='raise', invalid='raise')
 
 def parse_args():
     parser = argparse.ArgumentParser(prog='horton-esp-gen.py',
-        description='Generate electrostatic potential grid data from charges.')
+        description='Generate electrostatic potential grid data from charges '
+                    'for a 3D periodic system.')
     parser.add_argument('-V', '--version', action='version',
         version="%%(prog)s (horton version %s)" % __version__)
 
-    parser.add_argument('h5_charges',
-        help='[HDF5 filename]:[HDF5 group] The HDF5 file with the charges. '
-             'The results of the test will be written in a subgroup "espgrid". '
-             'The HDF5 file must also contain a system group with coordinates '
-             'and a cell group.')
+    parser.add_argument('charges', type=str,
+        help='The atomic charges to be used in the form '
+             '"file.h5:group/charges". ')
+    parser.add_argument('grid', type=str,
+        help='Any type of file that contains a uniform grid specification and '
+             'atomic coordinates, e.g. a Gaussian cube file.')
+    parser.add_argument('output', type=str,
+        help='The output destination in the form file.h5:group. The colon and '
+             'the group name are optional. When omitted, the root group of the '
+             'HDF5 file is used.')
+    parser.add_argument('--overwrite', default=False, action='store_true',
+        help='Overwrite existing output in the HDF5 file')
+
     parser.add_argument('--qtot', '-q', default=None, type=float,
         help='The total charge of the system. When given, the charges from the '
-             'HDF5 file are corrected.')
-
-    parser.add_argument('--grid', default='0.1', type=str,
-        help='If only one number is given, this is the target grid spacing in '
-             'angstrom. [default=%(default)s] In this case, the cell vectors '
-             'from the system group are divided by integer numbers to obtain '
-             'grid spacings as close as possible to the target. Alternatively '
-             'one may refer to an existing grid with the following argument: '
-             'file.h5:group/with/grid.')
+             'HDF5 file are corrected after they are read in.')
     parser.add_argument('--rcut', default=10.0, type=float,
         help='The real-space cutoff for the electrostatic interactions in '
              'angstrom. [default=%(default)s]')
@@ -70,19 +72,25 @@ def parse_args():
     return parser.parse_args()
 
 
+def load_ugrid_coordinates(arg_grid):
+    sys = System.from_file(arg_grid)
+    return sys.grid, sys.coordinates
+
+
 def main():
     args = parse_args()
 
-    # Load the charges from the HDF5 file
-    fn_h5, grp_name = parse_h5(args.h5_charges)
-    with safe_open_h5(fn_h5, 'r') as f:
-        grp = f[grp_name]
-        charges = grp['charges'][:]
-        cell = Cell.from_hdf5(f['system/cell'], None)
-        sys = System(f['system/coordinates'][:], f['system/numbers'][:], cell=cell)
+    fn_h5, grp_name = parse_h5(args.output, 'output')
+    # check if the group is already present (and not empty) in the output file
+    if check_output(fn_h5, grp_name, args.overwrite):
+        return
 
-    if sys.cell.nvec != 3:
-        raise NotImplementedError('Only 3D periodic cells are suppported.')
+    # Load the charges from the HDF5 file
+    charges = load_charges(args.charges)
+
+    # Load the uniform grid and the coordintes
+    ugrid, coordinates = load_ugrid_coordinates(args.grid)
+    ugrid.pbc[:] = 1 # enforce 3D periodic
 
     # Fix total charge if requested
     if args.qtot is not None:
@@ -93,11 +101,7 @@ def main():
     results['qtot'] = charges.sum()
 
     # Determine the grid specification
-    ugrid = parse_ugrid(args.grid, cell)
     results['ugrid'] = ugrid
-
-    if ugrid.pbc.sum() != 3:
-        raise NotImplementedError('Only 3D periodic cells are suppported.')
 
     # Ewald parameters
     rcut, alpha, gcut = parse_ewald_args(args)
@@ -117,19 +121,11 @@ def main():
 
     # Allocate and compute ESP grid
     esp = np.zeros(ugrid.shape, float)
-    compute_esp_grid_cube(ugrid, esp, sys.coordinates, charges, rcut, alpha, gcut)
+    compute_esp_grid_cube(ugrid, esp, coordinates, charges, rcut, alpha, gcut)
     results['esp'] = esp
 
     # Store the results in an HDF5 file
-    with safe_open_h5(fn_h5) as f:
-        # Store results
-        dump_hdf5_low(f[grp_name], 'espgrid', results)
-
-        # Store command line arguments
-        store_args(args, f[grp_name]['espgrid'])
-
-        if log.do_medium:
-            log('Results written to %s:%s/espgrid' % (fn_h5, grp_name))
+    write_script_output(fn_h5, grp_name, results, args)
 
 
 if __name__ == '__main__':
