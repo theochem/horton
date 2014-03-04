@@ -59,17 +59,24 @@ class ESPCost(object):
         grp['natom'] = self.natom
 
     @classmethod
-    def from_grid_data(cls, system, grid, vref, weights, rcut=20, alpha=None, gcut=None):
+    def from_grid_data(cls, system, ugrid, vref, weights, rcut=20.0, alpha=None, gcut=None):
         if alpha is None:
             alpha = 3.0 / rcut
         if gcut is None:
             gcut = 1.1 * alpha
-        if isinstance(grid, UniformGrid):
-            A = np.zeros((system.natom+1, system.natom+1), float)
-            B = np.zeros(system.natom+1, float)
-            C = np.zeros((), float)
-            setup_esp_cost_cube(grid, vref, weights, system.coordinates, A, B, C, rcut, alpha, gcut)
-            return cls(A, B, C, system.natom)
+        if isinstance(ugrid, UniformGrid):
+            if (ugrid.pbc == [1, 1, 1]).all():
+                A = np.zeros((system.natom+1, system.natom+1), float)
+                B = np.zeros(system.natom+1, float)
+                C = np.zeros((), float)
+                setup_esp_cost_cube(ugrid, vref, weights, system.coordinates, A, B, C, rcut, alpha, gcut)
+                return cls(A, B, C, system.natom)
+            else:
+                A = np.zeros((system.natom, system.natom), float)
+                B = np.zeros(system.natom, float)
+                C = np.zeros((), float)
+                setup_esp_cost_cube(ugrid, vref, weights, system.coordinates, A, B, C, 0.0, 0.0, 0.0)
+                return cls(A, B, C, system.natom)
         else:
             raise NotImplementedError
 
@@ -78,7 +85,7 @@ class ESPCost(object):
 
     def value_charges(self, charges):
         if self.natom < len(self._A):
-            # Set up a system where all charges are fixed and the remaning
+            # Set up a system where all charges are fixed and the remaining
             # parameters are solved for.
             A = self._A[self.natom:,self.natom:]
             B = self._B[self.natom:] - np.dot(charges, self._A[:self.natom,self.natom:])

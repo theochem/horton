@@ -72,6 +72,7 @@ def get_random_esp_cost_cube0d():
 
 def check_costs(costs):
     assert abs(costs[0]._A).max() > 1e-3
+    print costs[0]._B
     assert abs(costs[0]._B).max() > 1e-3
     for i in xrange(9):
         assert abs(costs[i]._A - costs[i+1]._A).max() < 1e-9

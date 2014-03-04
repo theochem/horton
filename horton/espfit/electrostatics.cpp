@@ -19,6 +19,7 @@
 //--
 
 
+#include <cstdio>
 #include <cmath>
 #include <cstddef>
 #include "electrostatics.h"
@@ -27,16 +28,16 @@
 double pair_electrostatics(double* delta, const Cell* cell, double rcut,
     double alpha, double gcut) {
 
-    double result = 0;
+    double result = 0.0;
     int nvec = cell->get_nvec();
 
     if (nvec == 0) {
-        //0D pbc
+        // 0D pbc. Do not use cutoff. All pairs are included.
         result = 1.0/sqrt(delta[0]*delta[0] + delta[1]*delta[1] +
                           delta[2]*delta[2]);
     }
     else if (nvec == 3) {
-        //3D pbc
+        // 3D pbc
         result = pair_ewald3d(delta, cell, rcut, alpha, gcut);
     }
     return result;
@@ -110,7 +111,9 @@ void setup_esp_cost_cube(UniformGrid* ugrid, double* vref,
     double* weights, double* centers, double* A, double* B, double* C,
     long ncenter, double rcut, double alpha, double gcut) {
 
-    long neq = ncenter+1;
+    Cell* cell = ugrid->get_cell();
+    bool is3d = (cell->get_nvec() == 3);
+    long neq = ncenter + is3d;
     double* work = new double[neq];
     double grid_cart[3];
 
@@ -128,19 +131,18 @@ void setup_esp_cost_cube(UniformGrid* ugrid, double* vref,
         if (*weights > 0) {
             double sqrtw = sqrt(*weights);
 
-            // Do some ewald stuff
+            // Do some electrostatics
             for (long icenter=0; icenter<ncenter; icenter++) {
                 double delta[3];
                 delta[0] = centers[3*icenter]   - grid_cart[0];
                 delta[1] = centers[3*icenter+1] - grid_cart[1];
                 delta[2] = centers[3*icenter+2] - grid_cart[2];
 
-                work[icenter] = sqrtw*pair_electrostatics(delta, ugrid->get_cell(),
-                                                      rcut, alpha, gcut);
+                work[icenter] = sqrtw*pair_electrostatics(delta, cell, rcut, alpha, gcut);
             }
-            work[ncenter] = sqrtw;
+            if (is3d) work[ncenter] = sqrtw;
 
-            // Add the the quadratic cost function
+            // Add to the quadratic cost function
             double vrefw = (*vref)*sqrtw;
             for (long ic0=0; ic0<neq; ic0++) {
                 for (long ic1=0; ic1<neq; ic1++) {
