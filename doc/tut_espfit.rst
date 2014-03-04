@@ -69,15 +69,16 @@ cost function for a given set of charges.
 In the output of these three scripts, the following quantities are reported (if
 applicable):
 
-* :math:`\text{RMSD} = \sqrt{\text{COST}/V_w}`
+* :math:`\text{RMSD} = \sqrt{\text{COST}}/V_w`
 * :math:`\text{RRMSD} = \sqrt{\text{COST}/C}` (expressed as a percentage)
 
 where the cost is computed with a certain set of charges (and the optimal
 :math:`\Delta V_\text{ref}` when applicable). The parameter :math:`V_w` is the
 integral of the weight function. When these charges are the ESP fitted charges,
-COST, RMSD and RRMSD are minimal. When the charges are all set to the total
-charge divided by the number of atoms, one obtains the worst-case value for
-COST, RMSD and RRMSD. (One can can still obtain a higher COST, but only with
+:math:`\text{COST}`, :math:`\text{RMSD}` and :math:`\text{RRMSD}` are minimal.
+When the charges are all set to zero, one obtains the worst-case value for
+:math:`\text{COST}=C`, :math:`\text{RMSD}=\sqrt{C}/V_w` and
+:math:`\text{RRMSD}=1`. (One can can still obtain a higher COST, but only with
 completely insensible charges. When that is the case, it is better to set the
 charges to zero to model the ESP.)
 
@@ -129,7 +130,7 @@ The script ``horton-esp-cost.py`` has several more options. Run
 Once a cost function is constructed, it can be used estimate atomic charges by
 minimizing the cost function. A bare-bones fit can be carried out as follows::
 
-    horton-esp-fit.py cost.h5:cost charges.h5
+    horton-esp-fit.py cost.h5 charges.h5
 
 where the file ``cost.h5`` is constructed with the script
 ``horton-esp-cost.py``.
@@ -149,7 +150,7 @@ The script ``horton-esp-test.py`` can be used to test the quality of a set of
 charges for the reproduction of the ESP. These charges are typically obtained
 with ``horton-wpart.py`` or ``horton-cpart.py``. It can be used as follows::
 
-    horton-esp-test.py cost.h5:cost wpart.h5:hi/charges wpart_espcost.h5:hi
+    horton-esp-test.py cost.h5 wpart.h5:hi/charges wpart_espcost.h5:hi
 
 The first file, ``cost.h5``, is generated with the script
 ``horton-esp-cost.py``. The second file, ``wpart.h5`` is generated (for example)

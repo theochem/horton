@@ -112,6 +112,8 @@ void setup_esp_cost_cube(UniformGrid* ugrid, double* vref,
     long ncenter, double rcut, double alpha, double gcut) {
 
     Cell* cell = ugrid->get_cell();
+    Cell* grid_cell = ugrid->get_grid_cell();
+    double gvol = grid_cell->get_volume();
     bool is3d = (cell->get_nvec() == 3);
     long neq = ncenter + is3d;
     double* work = new double[neq];
@@ -129,7 +131,7 @@ void setup_esp_cost_cube(UniformGrid* ugrid, double* vref,
         ugrid->delta_grid_point(grid_cart, i);
 
         if (*weights > 0) {
-            double sqrtw = sqrt(*weights);
+            double sqrtw = sqrt((*weights)*gvol);
 
             // Do some electrostatics
             for (long icenter=0; icenter<ncenter; icenter++) {
@@ -159,6 +161,8 @@ void setup_esp_cost_cube(UniformGrid* ugrid, double* vref,
     }
 
     delete[] work;
+    delete cell;
+    delete grid_cell;
 }
 
 

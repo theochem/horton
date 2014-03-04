@@ -167,7 +167,6 @@ def main():
         log.hline()
         log.hline()
 
-
     # write the weights to a cube file if requested
     if args.wsave is not None:
         if log.do_medium:
@@ -179,16 +178,15 @@ def main():
         raise ValueError('No points with a non-zero weight were found')
     wmax = weights.min()
     wmin = weights.max()
-    weights /= weights.sum()
+    used_volume = ugrid.integrate(weights)
 
     # Some screen info
     if log.do_medium:
         log('Important parameters:')
         log.hline()
         log('Used number of grid points:   %12i' % (weights>0).sum())
-        volume = ugrid.integrate(weights)
-        log('Used volume:                      %12.5f' % volume)
-        log('Used volume/atom:                 %12.5f' % (volume/sys.natom))
+        log('Used volume:                      %12.5f' % used_volume)
+        log('Used volume/atom:                 %12.5f' % (used_volume/sys.natom))
         log('Lowest weight:                %12.5e' % wmin)
         log('Highest weight:               %12.5e' % wmax)
         log('Max weight at edge:           %12.5f' % max_at_edge(weights, ugrid.pbc))
@@ -211,6 +209,7 @@ def main():
     # Store cost function info
     results = {}
     results['cost'] = cost
+    results['used_volume'] = used_volume
 
     # Store cost function properties
     results['evals'] = np.linalg.eigvalsh(cost._A)
