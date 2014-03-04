@@ -70,14 +70,13 @@ def get_random_esp_cost_cube0d():
     return ESPCost.from_grid_data(sys, grid, vref, weights)
 
 
-def check_costs(costs):
-    assert abs(costs[0]._A).max() > 1e-3
-    print costs[0]._B
-    assert abs(costs[0]._B).max() > 1e-3
+def check_costs(costs, eps0=1e-3, eps1=1e-9):
+    assert abs(costs[0]._A).max() > eps0
+    assert abs(costs[0]._B).max() > eps0
     for i in xrange(9):
-        assert abs(costs[i]._A - costs[i+1]._A).max() < 1e-9
-        assert abs(costs[i]._B - costs[i+1]._B).max() < 1e-9
-        assert abs(costs[i]._C - costs[i+1]._C) < 1e-9
+        assert abs(costs[i]._A - costs[i+1]._A).max() < eps1
+        assert abs(costs[i]._B - costs[i+1]._B).max() < eps1
+        assert abs(costs[i]._C - costs[i+1]._C) < eps1
 
 
 def test_esp_cost_cube3d_invariance_origin():
@@ -193,7 +192,7 @@ def test_esp_cost_cube3d_invariance_rcut():
         cost = ESPCost.from_grid_data(sys, grid, vref, weights, rcut=rcut, alpha=alpha, gcut=gcut)
         costs.append(cost)
     # Compare the cost functions
-    check_costs(costs)
+    check_costs(costs, eps1=1e-8)
 
 
 def test_esp_cost_cube3d_gradient():
@@ -294,13 +293,14 @@ def test_compare_cubetools():
     cost = ESPCost.from_grid_data(sys, ugrid, esp, weights)
 
     # Sanity checks
-    assert abs(cost._A[-1, -1] - 1.0) < 1e-8
+    gvol = ugrid.get_grid_cell().volume
+    assert abs(cost._A[-1, -1] - gvol) < 1e-8
     assert abs(cost._A.T - cost._A).max() < 1e-10
 
     # Compare numbers withreference values obtained with cfit2.cubetools
-    assert abs(cost._A[0, 0] - 0.002211777956341868) < 1e-7
-    assert abs(cost._A[7, 3] - 1.5124537688153498E-4) < 1e-8
-    assert abs(cost._A[18, 2] - -0.028812329600683098) < 1e-6
+    assert abs(cost._A[0, 0] - 0.002211777956341868*gvol) < 1e-7
+    assert abs(cost._A[7, 3] - 1.5124537688153498E-4*gvol) < 1e-8
+    assert abs(cost._A[18, 2] - -0.028812329600683098*gvol) < 1e-6
 
 
 def test_worst():

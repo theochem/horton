@@ -69,7 +69,7 @@ def main():
         return
 
     # Load the cost function from the HDF5 file
-    cost = load_cost(args.cost)
+    cost, used_volume = load_cost(args.cost)
 
     # Load the charges from the HDF5 file
     charges = load_charges(args.charges)
@@ -87,14 +87,14 @@ def main():
     if results['cost'] < 0:
         results['rmsd'] = 0.0
     else:
-        results['rmsd'] = results['cost']**0.5
+        results['rmsd'] = results['cost']**0.5/used_volume
 
     # Worst case stuff
-    results['cost_worst'] = cost.worst(charges.sum())
+    results['cost_worst'] = cost.worst(0.0)
     if results['cost_worst'] < 0:
         results['rmsd_worst'] = 0.0
     else:
-        results['rmsd_worst'] = results['cost_worst']**0.5
+        results['rmsd_worst'] = results['cost_worst']**0.5/used_volume
 
     # Write some things on screen
     if log.do_medium:
