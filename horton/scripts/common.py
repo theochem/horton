@@ -280,7 +280,7 @@ def write_part_output(fn_h5, grp_name, part, names, args):
             for debug_key in part.cache.iterkeys():
                 debug_name = '_'.join(str(x) for x in debug_key)
                 if debug_name not in names:
-                    grp_debug[debug_name] = part.cache.load(*debug_key)
+                    grp_debug[debug_name] = part.cache.load(debug_key)
 
         if log.do_medium:
             log('Results written to %s:%s' % (fn_h5, grp_name))
