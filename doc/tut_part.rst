@@ -343,25 +343,34 @@ set.
 
 The basic usage of ``horton-wpart.py`` is as follows::
 
-    horton-wpart.py wfn {b,h,hi,he} [atoms.h5]
+    horton-wpart.py wfn output.h5[:group] {b,h,hi,he} [atoms.h5]
 
-The ``wfn`` argument can be a Gaussian03 or 09 formatted checkpoint file, a
-Molekel file or a Molden input file. The second argument refers to the
-partitioning scheme:
+This script has four important arguments:
 
-* ``b``: Becke partitioning. [becke1988_multicenter]_
-* ``h``: Hirshfeld partitioning. [hirshfeld1977]_
-* ``hi``: Iterative Hirshfeld partitioning. [bultinck2007]_
-* ``is``: Iterative Stockholder partitioning. [lillestolen2008]_
-* ``he``: Extended Hirshfeld partitioning. [verstraelen2013]_
+1. The ``wfn`` argument can be a Gaussian03 or 09 formatted checkpoint file, a
+   Molekel file or a Molden input file.
 
-The ``atoms.h5`` argument is only needed for the Hirshfeld variants, not for
-``b`` and ``is``. This script computes atomic weight functions and then derives
-all AIM observables that are implemented for that scheme. These results are
-stored in a HDF5 file with the same name as the ``wfn`` file but with a suffix
-``_wpart.h5``. In this HDF5 file, the results are written in the group
-``wpart/${SCHEME}`` where ``${SCHEME}`` is any of ``b``, ``h``, ``hi``, ``is``,
-``he``.
+2. The output file in which the partitioning results are written. The output
+   is written in HDF5 format. Usually, the output file has the extension
+   ``.h5``. The output file is optionally followed by a colon and a group
+   suffix. This suffix can be used to specify a group in the HDF5 output file
+   where the output is stored.
+
+3. The third argument refers to the partitioning scheme:
+
+    * ``b``: Becke partitioning. [becke1988_multicenter]_
+    * ``h``: Hirshfeld partitioning. [hirshfeld1977]_
+    * ``hi``: Iterative Hirshfeld partitioning. [bultinck2007]_
+    * ``is``: Iterative Stockholder partitioning. [lillestolen2008]_
+    * ``he``: Extended Hirshfeld partitioning. [verstraelen2013]_
+
+4. The ``atoms.h5`` argument is only needed for the Hirshfeld variants, not for
+   ``b`` and ``is``. This script computes atomic weight functions and then
+   derives all AIM observables that are implemented for that scheme. These
+   results are stored in a HDF5 file with the same name as the ``wfn`` file but
+   with a suffix ``_wpart.h5``. In this HDF5 file, the results are written in
+   the group ``wpart/${SCHEME}`` where ``${SCHEME}`` is any of ``b``, ``h``,
+   ``hi``, ``is``, ``he``.
 
 Run ``horton-wpart.py --help`` to get a complete list of all command-line
 options. The integration grid can be tuned with :ref:`ref_grid_option`.
@@ -370,11 +379,11 @@ options. The integration grid can be tuned with :ref:`ref_grid_option`.
 
     When a post Hartree-Fock level is used in Gaussian 03/09 (MP2, MP3, CC or
     CI), one must add the keyword ``Density=current`` to the commands in the
-    input file. This is needed to have the corresponding density matrix in the
-    formatted checkpoint file. When such a post HF density matrix is present,
-    Horton will load that density matrix instead of the SCF density matrix. Also
-    note that for some levels of theory, no 1RDM is constructed, including MP4,
-    MP5, ZINDO and QCISD(T).
+    Gaussian input file. This is needed to have the corresponding density matrix
+    in the formatted checkpoint file. When such a post HF density matrix is
+    present, Horton will load that density matrix instead of the SCF density
+    matrix. Also note that for some levels of theory, no 1RDM is constructed,
+    including MP4, MP5, ZINDO and QCISD(T).
 
 
 ``horton-cpart.py`` -- AIM analysis based on a cube file
@@ -382,7 +391,7 @@ options. The integration grid can be tuned with :ref:`ref_grid_option`.
 
 The basic usage of ``horton-cpart.py`` is as follows::
 
-    horton-cpart.py cube {h,hi,he} atoms.h5
+    horton-cpart.py cube output.h5:group {h,hi,he} atoms.h5
 
 The script takes three arguments:
 
@@ -450,13 +459,19 @@ The script takes three arguments:
               14    4.0         2.483100    7.039230    5.959157
               14    4.0         7.449300    7.039230    9.459119
 
-2. The second argument refers to the partitioning scheme:
+2. The output file in which the partitioning results are written. The output
+   is written in HDF5 format. Usually, the output file has the extension
+   ``.h5``. The output file is optionally followed by a colon and a group
+   suffix. This suffix can be used to specify a group in the HDF5 output file
+   where the output is stored.
+
+3. The third argument refers to the partitioning scheme:
 
         * ``h``: Hirshfeld partitioning. [hirshfeld1977]_
         * ``hi``: Iterative Hirshfeld partitioning. [bultinck2007]_
         * ``he``: Extended Hirshfeld partitioning. [verstraelen2013]_
 
-3. The third argument is the atom database generated with ``horton-atomdb.py``
+4. The fourth argument is the atom database generated with ``horton-atomdb.py``
 
 The ``horton-cpart.py`` script
 computes atomic weight functions and then derives all AIM observables that are
@@ -486,27 +501,6 @@ following options to control the efficiency of the program
 
 Run ``horton-cpart.py --help`` to get a complete list of all command-line
 options.
-
-
-``horton-hdf2csv.py`` -- Conversion of HDF5 files to CSV format
-===============================================================
-
-The script ``horton-hdf2csv.py`` is used as follows::
-
-    horton-hdf2csv.py somefile.h5:path/in/hdf5/file otherfile.csv
-
-For example, if ``horton-wpart.py`` was used to run an Extended Hirshfeld
-partitioning of a wavefunction in ``gaussian.fchk``, then the following would
-convert the results into CSV format::
-
-    horton-hdf2csv.py gaussian.fchk.h5:wpart/he extended_hirshfeld.csv
-
-This script was added for the sake of convenience for those who are not capable
-of processing the HDF5 output generated by the Horton scripts. If you know how,
-please process the HDF5 files directly with custom scripts. That is far easier
-than interfacing to the CSV files that this script generates. The `h5py
-<http://www.h5py.org/ library>`_ library is a great tool to make such custom
-scripts.
 
 
 Python interface to the partitioning code

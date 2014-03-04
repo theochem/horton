@@ -105,7 +105,7 @@ def parse_args():
              'field is optional and has 1.0 as default value')
     parser.add_argument('--wsave', default=None, type=str,
         help='Save the weights array to the given cube file.')
-    parser.add_argument('--pbc', default='111', type=str,
+    parser.add_argument('--pbc', default='111', type=str, choices=['000', '111'],
         help='Specify the periodicity. The three digits refer to a, b and c '
              'cell vectors. 1=periodic, 0=aperiodic.')
 
