@@ -42,7 +42,7 @@ def check_script_water_sto3g(scheme, do_deriv=True):
         fn_fchk = 'water_sto3g_hf_g03.fchk'
         copy_files(dn, [fn_fchk])
         if scheme == 'b':
-            check_script('horton-wpart.py %s water_sto3g_hf_g03_wpart.h5:wpart/%s %s' % (fn_fchk, scheme, scheme), dn)
+            check_script('horton-wpart.py %s water_sto3g_hf_g03_wpart.h5:wpart/%s %s --debug' % (fn_fchk, scheme, scheme), dn)
         else:
             write_atomdb_sto3g(dn, do_deriv)
             check_script('horton-wpart.py %s water_sto3g_hf_g03_wpart.h5:wpart/%s %s atoms.h5' % (fn_fchk, scheme, scheme), dn)
