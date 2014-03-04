@@ -59,6 +59,9 @@ def setup_esp_cost_cube(horton.grid.cext.UniformGrid ugrid not None,
                         np.ndarray[double, ndim=0] C not None,
                         double rcut, double alpha, double gcut):
 
+    is0d = (ugrid.pbc == [0, 0, 0]).all()
+    is3d = (ugrid.pbc == [1, 1, 1]).all()
+
     assert vref.flags['C_CONTIGUOUS']
     assert vref.shape[0] == ugrid.shape[0]
     assert vref.shape[1] == ugrid.shape[1]
@@ -72,21 +75,26 @@ def setup_esp_cost_cube(horton.grid.cext.UniformGrid ugrid not None,
     assert ncenter > 0
     assert centers.shape[1] == 3
     assert A.flags['C_CONTIGUOUS']
-    assert A.shape[0] == ncenter+1
-    assert A.shape[1] == ncenter+1
+    assert A.shape[0] == ncenter+is3d
+    assert A.shape[1] == ncenter+is3d
     assert B.flags['C_CONTIGUOUS']
-    assert B.shape[0] == ncenter+1
+    assert B.shape[0] == ncenter+is3d
     assert C.flags['C_CONTIGUOUS']
-    assert rcut > 0
-    assert alpha > 0
-    assert gcut > 0
-
-    if ugrid.pbc.sum() in [0,3]:
-        electrostatics.setup_esp_cost_cube(ugrid._this, &vref[0, 0, 0],
-            &weights[0, 0, 0], &centers[0, 0], &A[0, 0],
-            &B[0], <double*>np.PyArray_DATA(C), ncenter, rcut, alpha, gcut)
+    if is0d:
+        assert rcut == 0.0
+        assert alpha == 0.0
+        assert gcut == 0.0
+    elif is3d:
+        assert rcut > 0
+        assert alpha > 0
+        assert gcut > 0
     else:
         raise NotImplementedError
+
+    electrostatics.setup_esp_cost_cube(ugrid._this, &vref[0, 0, 0],
+        &weights[0, 0, 0], &centers[0, 0], &A[0, 0],
+        &B[0], <double*>np.PyArray_DATA(C), ncenter, rcut, alpha, gcut)
+
 
 def compute_esp_grid_cube(horton.grid.cext.UniformGrid ugrid not None,
                           np.ndarray[double, ndim=3] esp not None,
@@ -113,6 +121,7 @@ def compute_esp_grid_cube(horton.grid.cext.UniformGrid ugrid not None,
             gcut)
     else:
         raise NotImplementedError
+
 
 def pair_ewald(np.ndarray[double, ndim=1] delta not None,
                horton.cext.Cell cell not None,
