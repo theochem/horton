@@ -17,6 +17,8 @@ Tutorials
    tut_getting_started
    tut_cite
    tut_part
+   tut_espfit
+   tut_conversion
    tut_scf
    tut_gaussian_basis
 
