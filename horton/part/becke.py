@@ -35,13 +35,39 @@ __all__ = ['BeckeWPart']
 
 class BeckeWPart(WPart):
     name = 'b'
-    options = ['lmax', 'epsilon', 'k']
+    options = ['slow', 'lmax', 'epsilon', 'k']
     linear = True
 
     '''Class for Becke partitioning'''
-    def __init__(self, system, grid, local=True, lmax=3, epsilon=0, k=3):
+    def __init__(self, system, grid, local=True, slow=False, lmax=3, epsilon=0, k=3):
+        '''
+           **Arguments:**
+
+           grid
+                A Molecular integration grid
+
+           **Optional arguments:**
+
+           local
+                If ``True``: use the proper atomic grid for each AIM integral.
+                If ``False``: use the entire molecular grid for each AIM integral.
+
+           slow
+                When ``True``, also the AIM properties are computed that use the
+                AIM overlap operators.
+
+           lmax
+                The maximum angular momentum in multipole expansions.
+
+           epsilon
+                Allow errors on the computed electron density of this magnitude
+                for the sake of efficiency.
+
+           k
+                The order of the polynomials used in the Becke partitioning.
+        '''
         self._k = k
-        WPart.__init__(self, system, grid, local, lmax, epsilon)
+        WPart.__init__(self, system, grid, local, slow, lmax, epsilon)
 
     def _init_log_scheme(self):
         if log.do_medium:
