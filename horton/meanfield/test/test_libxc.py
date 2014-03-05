@@ -355,3 +355,13 @@ def test_hyb_gga_exx_fraction():
 def test_lda_c_vwn_present():
     t = LibXCLDA('c_vwn')     # The VWN 5 functional
     t = LibXCLDA('c_vwn_4')   # The VWN 4 functional
+
+
+def test_info():
+    t = LibXCWrapper('lda_x')
+    assert t.key == 'lda_x'
+    t.name
+    t.number
+    t.kind
+    t.family
+    t.refs
