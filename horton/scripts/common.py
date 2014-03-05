@@ -162,7 +162,7 @@ def check_output(fn_h5, grp_name, overwrite):
     '''
     if os.path.isfile(fn_h5):
         with safe_open_h5(fn_h5, 'r') as f:
-            if grp_name in f and len(f[grp_name] > 0):
+            if grp_name in f and len(f[grp_name]) > 0:
                 if overwrite:
                     if log.do_warning:
                         log.warn('Overwriting the contents of "%s" in the file "%s".' % (grp_name, fn_h5))
@@ -261,9 +261,9 @@ def write_part_output(fn_h5, grp_name, part, names, args):
     with safe_open_h5(fn_h5) as f:
         # Store results
         if grp_name in f:
-            grp = f['grp_name']
+            grp = f[grp_name]
             for key in grp.keys():
-                del f[key]
+                del grp[key]
         else:
             grp = f.create_group(grp_name)
         for name in names:
@@ -309,7 +309,7 @@ def write_script_output(fn_h5, grp_name, results, args):
         if grp_name in f:
             grp = f[grp_name]
             for key in grp.keys():
-                del f[key]
+                del grp[key]
         else:
             grp = f.require_group(grp_name)
         for key, value in results.iteritems():
