@@ -87,7 +87,7 @@ def test_energy_n2_hfs_sto3g():
 
 
 def test_fock_n2_hfs_sto3g():
-    # The fock operator is tested by doing an SCF an checking the converged
+    # The fock operator is tested by doing an SCF and checking the converged
     # energies
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
@@ -122,7 +122,7 @@ def test_fock_n2_hfs_sto3g():
 
 
 def test_fock_h3_hfs_321g():
-    # The fock operator is tested by doing an SCF an checking the converged
+    # The fock operator is tested by doing an SCF and checking the converged
     # energies
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
@@ -261,3 +261,12 @@ def test_add_term():
     term = KineticEnergy()
     ham.add_term(term)
     assert term._hamiltonian is ham
+
+
+def test_ghost_hf():
+    fn_fchk = context.get_fn('test/water_dimer_ghost.fchk')
+    sys = System.from_file(fn_fchk)
+    ham = Hamiltonian(sys, [Hartree(), HartreeFockExchange()])
+    # The convergence should be reasonable, not perfect because of limited
+    # precision in Gaussian fchk file:
+    assert convergence_error_eigen(ham) < 1e-5
