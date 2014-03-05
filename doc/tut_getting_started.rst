@@ -138,7 +138,7 @@ libraries suitable for static linking.
     sure you have the following versions installed:
 
     * libint (for mpqc) >= 2.0.3-stable
-    * libxc >= 2.0.2.
+    * libxc >= 2.0.3.
 
 
 Reference atoms
