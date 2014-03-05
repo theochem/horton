@@ -47,6 +47,7 @@ clean:
 	rm -f lib/horton*.rst
 	rm -f grids.rst.inc
 	rm -f ref_literature.rst
+	rm -f ref_functionals.rst
 	rm -rf doxyxml
 
 html: autogendoc
