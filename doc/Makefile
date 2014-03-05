@@ -39,6 +39,7 @@ autogendoc:
 	HORTONDATA=../data PYTHONPATH=../ python updatelibdoc.py
 	HORTONDATA=../data PYTHONPATH=../ python updategrids.py
 	HORTONDATA=../data PYTHONPATH=../ python updateliterature.py
+	HORTONDATA=../data PYTHONPATH=../ python updatefunctionals.py
 	doxygen doxygen.conf
 
 clean:

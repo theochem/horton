@@ -27,15 +27,24 @@ cimport numpy as np
 np.import_array()
 
 
-__all__ = ['LibXCWrapper']
+__all__ = [
+    'LibXCWrapper'
+]
 
 
 cdef extern from "xc.h":
     enum: XC_UNPOLARIZED
     enum: XC_POLARIZED
 
+    ctypedef struct xc_func_info_type:
+        int number
+        int kind
+        char* name
+        int family
+        char* refs
+
     ctypedef struct xc_func_type:
-        pass
+        xc_func_info_type* info
 
     int xc_functional_get_number(char *name)
     bint xc_func_init(xc_func_type *p, int functional, int nspin)
@@ -52,29 +61,57 @@ cdef class LibXCWrapper(object):
     cdef xc_func_type _func_pol
     cdef xc_func_type _func_unpol
     cdef int _func_id
+    cdef bytes _key
 
-    def __cinit__(self, bytes name):
+    def __cinit__(self, bytes key):
         '''
            **Arguments:**
 
-           name
-                The name of the functional in LibXC
+           key
+                The name of the functional in LibXC, e.g. lda_x
         '''
+        self._key = key
         self._func_id = -1
-        self._func_id = xc_functional_get_number(name)
+        self._func_id = xc_functional_get_number(key)
         if self._func_id < 0:
-            raise ValueError('Unknown LibXC functional name: %s' % name)
+            raise ValueError('Unknown LibXC functional: %s' % key)
         retcode = xc_func_init(&self._func_pol, self._func_id, XC_POLARIZED)
         if retcode != 0:
-            raise ValueError('Could not initialize polarized LibXC functional: %s' % name)
+            raise ValueError('Could not initialize polarized LibXC functional: %s' % key)
         retcode = xc_func_init(&self._func_unpol, self._func_id, XC_UNPOLARIZED)
         if retcode != 0:
-            raise ValueError('Could not initialize unpolarized LibXC functional: %s' % name)
+            raise ValueError('Could not initialize unpolarized LibXC functional: %s' % key)
 
     def __dealloc__(self):
         if self._func_id >= 0:
             xc_func_end(&self._func_pol)
             xc_func_end(&self._func_unpol)
+
+    ## INFO
+
+    property key:
+        def __get__(self):
+            return self._key
+
+    property number:
+        def __get__(self):
+            return self._func_id
+
+    property kind:
+        def __get__(self):
+            return self._func_unpol.info[0].kind
+
+    property name:
+        def __get__(self):
+            return self._func_unpol.info[0].name
+
+    property family:
+        def __get__(self):
+            return self._func_unpol.info[0].family
+
+    property refs:
+        def __get__(self):
+            return self._func_unpol.info[0].refs
 
     ## LDA
 

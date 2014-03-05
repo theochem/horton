@@ -46,6 +46,7 @@ Reference
    ref_features
    ref_grids
    ref_acronyms
+   ref_functionals
    ref_literature
    lib/*
 
