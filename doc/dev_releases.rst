@@ -1,6 +1,27 @@
 Release history
 ###############
 
+* **March XX, 2013. Version 1.2.1**
+
+   - Update to LibXC-2.0.3 plus overview of the supported functionals in the
+     documentation.
+   - Several bug fixes in the ESP fitting scripts.
+   - Hu-Lu-Yang ESP cost function
+   - Documentation for the ESP fitting scripts.
+   - Mandatory output argument for most ``horton-*.py`` scripts.
+   - Properly load fchk files from Gaussian calculations with Ghost atoms.
+   - New script: ``horton-convert.py``. (Conversion between different file formats supported in Horton.)
+   - New script: ``horton-cubehead.py``. (Part of the ESP fitting scripts. A tool te generate economic grid specs for cubegen.)
+   - Usability improvements in ``horton-atomdb.py``.
+   - Skip expensive AIM computatoins by default in ``horton-wpart.py``
+   - Documentation generation for C++ code with Doxygen and Breathe.
+   - More covalent and van der Waals radii.
+   - Several fixes in the CIF reader.
+   - Improved EDIIS
+   - Constructing a DFT/HF hamiltonian without Exchange term raises an error (unless idiot_proof is disable)
+   - Additional basis sets
+   - Several minor fixes and cleanups
+
 * **August 25, 2013. Version 1.2.0**
 
    - Gaussian/GAMESS wfn file reader. WFN files are now supported in
