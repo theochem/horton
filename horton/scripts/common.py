@@ -28,7 +28,7 @@ from horton import UniformGrid, angstrom, periodic, Cell, log, dump_hdf5_low
 
 __all__ = [
     'iter_elements', 'reduce_ugrid', 'reduce_data',
-    'parse_h5', 'parse_ewald_args', 'parse_pbc', 'store_args',
+    'parse_h5', 'check_output', 'parse_ewald_args', 'parse_pbc', 'store_args',
     'safe_open_h5', 'write_part_output', 'write_script_output',
 ]
 
