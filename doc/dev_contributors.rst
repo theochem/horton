@@ -13,6 +13,7 @@ version of Horton:
 * Ali Malek
 * Cristina González
 * Farnaz H. Zadeh
+* Katharina Boguslawski
 * Matthew Chan
 * Peter A. Limacher
 * Steven Vandenrbande
