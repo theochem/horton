@@ -135,3 +135,58 @@ def test_safe_open3():
     with assert_raises(ValueError):
         with safe_open_h5('horton.scripts.test.test_common.test_safe_open3.h5', driver='fubar', wait=0.1, count=3) as f:
             raise ValueError
+
+
+def test_check_output():
+    with tmpdir('horton.scripts.test.test_common.test_check_output') as dn:
+        assert not check_output('%s/foo.h5' % dn, '/', True)
+        assert not check_output('%s/foo.h5' % dn, '/bar', True)
+        assert not check_output('%s/foo.h5' % dn, '/', False)
+        assert not check_output('%s/foo.h5' % dn, '/bar', False)
+        with h5.File('%s/foo.h5' % dn) as f:
+            f.create_group('bork')
+        assert not check_output('%s/foo.h5' % dn, '/', True)
+        assert not check_output('%s/foo.h5' % dn, '/bork', True)
+        assert not check_output('%s/foo.h5' % dn, '/bar', True)
+        assert check_output('%s/foo.h5' % dn, '/', False)
+        assert not check_output('%s/foo.h5' % dn, '/bork', False)
+        assert not check_output('%s/foo.h5' % dn, '/bar', False)
+        with h5.File('%s/foo.h5' % dn) as f:
+            f['bork']['a'] = np.array([1, 2, 3])
+        assert not check_output('%s/foo.h5' % dn, '/', True)
+        assert not check_output('%s/foo.h5' % dn, '/bork', True)
+        assert not check_output('%s/foo.h5' % dn, '/bar', True)
+        assert check_output('%s/foo.h5' % dn, '/', False)
+        assert check_output('%s/foo.h5' % dn, '/bork', False)
+        assert not check_output('%s/foo.h5' % dn, '/bar', False)
+
+
+def test_write_script_output():
+    class Foo:
+        pass
+    def test_h5(fn_h5):
+        with h5.File(fn_h5, 'r') as f:
+            assert sorted(f.keys()) == ['a', 'c']
+            assert f['a'].keys() == ['b']
+            assert (f['a/b'][:] == np.array([1, 2, 3])).all()
+            assert (f['c'][:] == np.array([0.1, 0.2, 0.3])).all()
+            assert len(f.attrs) == 5
+    with tmpdir('horton.scripts.test.test_common.test_write_script_output') as dn:
+        fn_h5 = '%s/foo.h5' % dn
+        results = {'a': {'b': np.array([1, 2, 3])}, 'c': np.array([0.1, 0.2, 0.3])}
+        args = Foo()
+        args.bar = 'egg'
+        args.bork = 'kwak'
+        write_script_output(fn_h5, '/', results, args)
+        test_h5(fn_h5)
+        write_script_output(fn_h5, '/', results, args)
+        test_h5(fn_h5)
+        with h5.File(fn_h5) as f:
+            f['d'] = 5
+        write_script_output(fn_h5, '/', results, args)
+        test_h5(fn_h5)
+        with h5.File(fn_h5) as f:
+            for key in f.keys():
+                del f[key]
+        write_script_output(fn_h5, '/', results, args)
+        test_h5(fn_h5)
