@@ -392,6 +392,7 @@ class WPart(Part):
                 ('Molecular grid', self._grid),
                 ('System', self._system),
                 ('Using local grids', self._local),
+                ('Epsilon density:', self.epsilon),
                 ('Compute expensive properties (slow)', self._slow),
             ])
 
