@@ -24,7 +24,7 @@
 import sys, argparse, os, numpy as np
 
 from horton import System, log, symmetry_analysis, __version__
-from horton.scripts.common import parse_h5, safe_open_h5, write_script_output, \
+from horton.scripts.common import parse_h5, write_script_output, \
     check_output
 from horton.scripts.espfit import load_cost
 

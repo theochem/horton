@@ -26,7 +26,7 @@ import sys, argparse, os, numpy as np
 from horton import System, cpart_schemes, Cell, ProAtomDB, log, \
     symmetry_analysis, UniformGrid, __version__
 from horton.scripts.common import reduce_data, store_args, parse_pbc, \
-    iter_elements, safe_open_h5, write_part_output, parse_h5, check_output
+    iter_elements, write_part_output, parse_h5, check_output
 
 
 # All, except underflows, is *not* fine.

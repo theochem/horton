@@ -28,6 +28,7 @@ from horton.context import context
 from horton.grid.atgrid import AtomicGrid, AtomicGridSpec
 from horton.grid.cext import RTransform, CubicSpline
 from horton.grid.radial import RadialGrid
+from horton.io.lockedh5 import LockedH5File
 from horton.log import log, timer
 from horton.system import System
 
@@ -472,32 +473,34 @@ class ProAtomDB(object):
         '''
         # parse the argument
         if isinstance(filename, basestring):
-            f = h5.File(filename, 'w')
+            f = LockedH5File(filename, 'w')
             do_close = True
         elif isinstance(filename, h5.Group):
             f = filename
             do_close = False
-        # Write
-        for record in self._records:
-            name = 'Z=%i_Q=%+i' % (record.number, record.charge)
-            if name in f:
-                del f[name]
-            grp = f.create_group(name)
-            grp.attrs['number'] = record.number
-            grp.attrs['charge'] = record.charge
-            grp.attrs['energy'] = record.energy
-            if record.homo_energy is not None:
-                grp.attrs['homo_energy'] = record.homo_energy
-            grp.attrs['rtransform'] = record.rgrid.rtransform.to_string()
-            grp['rho'] = record.rho
-            if record.deriv is not None:
-                grp['deriv'] = record.deriv
-            grp.attrs['pseudo_number'] = record.pseudo_number
-            if record.ipot_energy is not None:
-                grp.attrs['ipot_energy'] = record.ipot_energy
-        # close
-        if do_close:
-            f.close()
+        try:
+            # Write
+            for record in self._records:
+                name = 'Z=%i_Q=%+i' % (record.number, record.charge)
+                if name in f:
+                    del f[name]
+                grp = f.create_group(name)
+                grp.attrs['number'] = record.number
+                grp.attrs['charge'] = record.charge
+                grp.attrs['energy'] = record.energy
+                if record.homo_energy is not None:
+                    grp.attrs['homo_energy'] = record.homo_energy
+                grp.attrs['rtransform'] = record.rgrid.rtransform.to_string()
+                grp['rho'] = record.rho
+                if record.deriv is not None:
+                    grp['deriv'] = record.deriv
+                grp.attrs['pseudo_number'] = record.pseudo_number
+                if record.ipot_energy is not None:
+                    grp.attrs['ipot_energy'] = record.ipot_energy
+        finally:
+            # close
+            if do_close:
+                f.close()
 
     def get_rho(self, number, parameters=0, combine='linear', do_deriv=False):
         '''Construct a proatom density on a grid.
@@ -663,7 +666,7 @@ def load_proatom_records_h5_group(f):
 
 def load_proatom_records_h5_file(filename):
     '''Load proatom records from the given HDF5 file'''
-    with h5.File(filename) as f:
+    with LockedH5File(filename) as f:
         return load_proatom_records_h5_group(f)
 
 
