@@ -25,7 +25,7 @@ import sys, argparse, os, numpy as np
 
 from horton import System, setup_weights, ESPCost, log, angstrom, __version__
 from horton.scripts.common import reduce_data, parse_ewald_args, parse_pbc, \
-    safe_open_h5, write_script_output, parse_h5, check_output
+    write_script_output, parse_h5, check_output
 from horton.scripts.espfit import parse_wdens, parse_wnear, parse_wfar, \
     load_rho, save_weights, max_at_edge
 from horton.grid.cext import UniformGrid
@@ -161,11 +161,6 @@ def main():
         near=parse_wnear(args.wnear),
         far=parse_wnear(args.wfar),
     )
-    # Some screen info
-    if log.do_medium:
-        log('Properties of the weight function:')
-        log.hline()
-        log.hline()
 
     # write the weights to a cube file if requested
     if args.wsave is not None:

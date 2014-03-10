@@ -23,9 +23,8 @@
 
 import numpy as np
 
-from horton import System, angstrom, ESPCost
-from horton.scripts.common import reduce_data, reduce_ugrid, parse_h5, \
-    safe_open_h5
+from horton import System, angstrom, ESPCost, LockedH5File
+from horton.scripts.common import reduce_data, reduce_ugrid, parse_h5
 from horton.part.proatomdb import ProAtomDB
 
 
@@ -152,14 +151,14 @@ def load_rho(system, fn_cube, ref_ugrid, stride, chop):
 def load_cost(arg_cost):
     '''Load an ESP cost function given at the command line'''
     fn_h5_in, grp_name_in = parse_h5(arg_cost, 'cost')
-    with safe_open_h5(fn_h5_in, 'r') as f:
+    with LockedH5File(fn_h5_in, 'r') as f:
         return ESPCost.from_hdf5(f[grp_name_in]['cost'], None), f[grp_name_in]['used_volume'][()]
 
 
 def load_charges(arg_charges):
     '''Load a charges given at the command line'''
     fn_h5, ds_name = parse_h5(arg_charges, 'charges', path_optional=False)
-    with safe_open_h5(fn_h5, 'r') as f:
+    with LockedH5File(fn_h5, 'r') as f:
         return f[ds_name][:]
 
 

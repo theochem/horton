@@ -21,15 +21,16 @@
 '''Code shared by several scripts'''
 
 
-import os, sys, datetime, numpy as np, h5py as h5, time, contextlib
+import os, sys, datetime, time, numpy as np, h5py as h5, fcntl
 
-from horton import UniformGrid, angstrom, periodic, Cell, log, dump_hdf5_low
+from horton import UniformGrid, angstrom, periodic, Cell, log, dump_hdf5_low, \
+    LockedH5File
 
 
 __all__ = [
     'iter_elements', 'reduce_ugrid', 'reduce_data',
     'parse_h5', 'check_output', 'parse_ewald_args', 'parse_pbc', 'store_args',
-    'safe_open_h5', 'write_part_output', 'write_script_output',
+    'write_part_output', 'write_script_output',
 ]
 
 
@@ -161,7 +162,7 @@ def check_output(fn_h5, grp_name, overwrite):
             present.
     '''
     if os.path.isfile(fn_h5):
-        with safe_open_h5(fn_h5, 'r') as f:
+        with LockedH5File(fn_h5, 'r') as f:
             if grp_name in f and len(f[grp_name]) > 0:
                 if overwrite:
                     if log.do_warning:
@@ -202,39 +203,6 @@ def store_args(args, grp):
             grp.attrs['arg_%s' % key] = val
 
 
-@contextlib.contextmanager
-def safe_open_h5(*args, **kwargs):
-    '''Try to open a file and 10 times wait a random time up to seconds between each attempt.
-
-       **Arguments:** the same as those of the h5py.File constructor.
-
-       **Optional keyword arguments:**
-
-       wait
-            The maximum number of seconds to wait between two attempts to open
-            the file. [default=10]
-
-       count
-            The number of attempts to open the file.
-    '''
-    wait = kwargs.pop('wait', 10.0)
-    counter = kwargs.pop('count', 10)
-    while True:
-        try:
-            f = h5.File(*args, **kwargs)
-            break
-        except:
-            counter -= 1
-            if counter <= 0:
-                raise
-            time.sleep(np.random.uniform(0, wait))
-            continue
-    try:
-        yield f
-    finally:
-        f.close()
-
-
 def write_part_output(fn_h5, grp_name, part, names, args):
     '''Write the output of horton-wpart.py or horton-cpart.py
 
@@ -258,7 +226,7 @@ def write_part_output(fn_h5, grp_name, part, names, args):
             as attributes in the HDF5 output file.
     '''
     # Store the results in an HDF5 file
-    with safe_open_h5(fn_h5) as f:
+    with LockedH5File(fn_h5) as f:
         # Store results
         if grp_name in f:
             grp = f[grp_name]
@@ -304,7 +272,7 @@ def write_script_output(fn_h5, grp_name, results, args):
             The results of the command line parser. All arguments are stored
             as attributes in the HDF5 output file.
     '''
-    with safe_open_h5(fn_h5) as f:
+    with LockedH5File(fn_h5) as f:
         # Store results
         if grp_name in f:
             grp = f[grp_name]

@@ -26,7 +26,7 @@ import sys, argparse, os, numpy as np
 from horton import System, UniformGrid, log, Cell, angstrom, \
     compute_esp_grid_cube, __version__
 from horton.scripts.common import parse_h5, parse_ewald_args, store_args, \
-    safe_open_h5, check_output, write_script_output
+    check_output, write_script_output
 from horton.scripts.espfit import load_charges
 
 
