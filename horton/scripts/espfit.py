@@ -24,7 +24,7 @@
 import numpy as np
 
 from horton import System, angstrom, ESPCost, LockedH5File
-from horton.scripts.common import reduce_data, reduce_ugrid, parse_h5
+from horton.scripts.common import reduce_data, parse_h5
 from horton.part.proatomdb import ProAtomDB
 
 

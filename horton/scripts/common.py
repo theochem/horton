@@ -21,9 +21,9 @@
 '''Code shared by several scripts'''
 
 
-import os, sys, datetime, time, numpy as np, h5py as h5, fcntl
+import os, sys, datetime, numpy as np
 
-from horton import UniformGrid, angstrom, periodic, Cell, log, dump_hdf5_low, \
+from horton import UniformGrid, angstrom, periodic, log, dump_hdf5_low, \
     LockedH5File
 
 
