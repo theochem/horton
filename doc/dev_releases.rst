@@ -1,7 +1,7 @@
 Release history
 ###############
 
-* **March XX, 2013. Version 1.2.1**
+* **March 17, 2014. Version 1.2.1**
 
    - Update to LibXC-2.0.3 plus overview of the supported functionals in the
      documentation.
