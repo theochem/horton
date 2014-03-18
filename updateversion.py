@@ -10,8 +10,8 @@ rules = [
     ('horton/log.py', '^.* Welcome to Horton (...+)!$'),
     ('doc/conf.py', '^version = \'(...+)\'$'),
     ('doc/conf.py', '^release = \'(...+)\'$'),
-    ('doc/tut_getting_started.rst', '^    http://users.ugent.be/~tovrstra/horton/horton-(...+).tar.gz.$'),
-    ('doc/tut_getting_started.rst', '^    wget http://users.ugent.be/~tovrstra/horton/horton-(...+).tar.gz$'),
+    ('doc/tut_getting_started.rst', '^    https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
+    ('doc/tut_getting_started.rst', '^    wget https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
     ('doc/tut_getting_started.rst', '^    tar -xvzf horton-(...+).tar.gz$'),
     ('doc/tut_getting_started.rst', '^    cd horton-(...+)$'),
     ('doc/tut_cite.rst', '^    Horton (...+), http://theochem.github.com/horton/,$'),
@@ -25,10 +25,12 @@ if __name__ == '__main__':
         r = re.compile(regex)
         with open(fn) as f:
             lines = f.readlines()
-        for i in xrange(len(lines)):
-            line = lines[i]
+        for iline in xrange(len(lines)):
+            line = lines[iline]
             m = r.match(line)
             if m is not None:
-                lines[i] = line[:m.start(1)] + newversion + line[m.end(1):]
+                for igroup in xrange(m.lastindex, 0, -1):
+                    line = line[:m.start(igroup)] + newversion + line[m.end(igroup):]
+                lines[iline] = line
         with open(fn, 'w') as f:
             f.writelines(lines)
