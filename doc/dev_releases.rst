@@ -5,6 +5,7 @@ Release history
 
    - Update to LibXC-2.0.3 plus overview of the supported functionals in the
      documentation.
+   - Update to h5py-2.2.1
    - Several bug fixes in the ESP fitting scripts.
    - Hu-Lu-Yang ESP cost function
    - Documentation for the ESP fitting scripts.

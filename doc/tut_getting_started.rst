@@ -63,7 +63,7 @@ install relatively recent versions of the following programs/libraries:
 * Python >= 2.7, < 3.0: http://www.python.org/ (also install `development files`)
 * GCC, G++ and GFortran >= 4.5: http://gcc.gnu.org/ (In principle the Intel compilers or any other of your favorite compilers should work. The GNU compilers are used for development and testing.)
 * Numpy > 1.0: http://www.scipy.org/
-* h5py >= 2.1.1: http://code.google.com/p/h5py/
+* h5py >= 2.2.1: http://www.h5py.org/
 * Scipy >= 0.10.0: http://www.scipy.org/
 * Cython >= 0.17.1 : http://www.cython.org/
 * Nosetests >= 1.1.2: http://readthedocs.org/docs/nose/en/latest/
