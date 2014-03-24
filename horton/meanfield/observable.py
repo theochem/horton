@@ -30,9 +30,12 @@ class Observable(object):
     require_grid = False
     exchange = False # Set to True for exhange functionals. Is needed for idiot proof option
 
-    def __init__(self, label):
+    def __init__(self, cache, lf, label):
+        self._cache = cache
         self.label = label
         self._hamiltonian = None
+        self._lf = lf
+        self._operator = None
 
     def set_hamiltonian(self, hamiltonian):
         if not self._hamiltonian is None:
@@ -47,9 +50,14 @@ class Observable(object):
 
     system = property(_get_system)
 
+    def _get_lf(self):
+        return self._lf
+
+    lf = property(_get_lf)
+
     def _get_cache(self):
         '''The cache of the hamiltonian object, cleared after a change in wfn.'''
-        return self._hamiltonian.cache
+        return self._hamiltonian.cache #FIXME: remove the hamiltonian dependency
 
     cache = property(_get_cache)
 

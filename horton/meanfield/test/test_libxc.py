@@ -32,10 +32,16 @@ def test_fock_n2_hfs_sto3g():
     sys = System.from_file(fn_fchk)
     sys.wfn.clear_dm()
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
-    libxc_term = LibXCLDA('x')
-    ham1 = Hamiltonian(sys, [Hartree(), libxc_term], grid)
-    builtin_term = DiracExchange()
-    ham2 = Hamiltonian(sys, [Hartree(), builtin_term], grid)
+    scf_cache = Cache()
+    libxc_term = LibXCLDA(scf_cache, sys.lf, sys.wfn, 'x')
+    ham1 = Hamiltonian(sys, scf_cache, [Hartree(scf_cache, sys.lf, sys.wfn,
+                                           sys.get_electron_repulsion()),
+                             libxc_term], grid)
+    builtin_term = DiracExchange(scf_cache, sys.lf, sys.wfn,
+                                           sys.get_electron_repulsion())
+    ham2 = Hamiltonian(sys, scf_cache, [Hartree(scf_cache, sys.lf, sys.wfn,
+                                           sys.get_electron_repulsion()),
+                             builtin_term], grid)
 
     # Compare the potential computed by libxc with the builtin implementation
     libxc_term._update_operator()
@@ -86,10 +92,16 @@ def test_hamiltonian_h3_hfs_321g():
     sys = System.from_file(fn_fchk)
     sys.wfn.clear_dm()
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
-    libxc_term = LibXCLDA('x')
-    ham1 = Hamiltonian(sys, [Hartree(), libxc_term], grid)
-    builtin_term = DiracExchange()
-    ham2 = Hamiltonian(sys, [Hartree(), builtin_term], grid)
+    scf_cache = Cache()
+    libxc_term = LibXCLDA(scf_cache, sys.lf, sys.wfn, 'x')
+    ham1 = Hamiltonian(sys, scf_cache, [Hartree(scf_cache, sys.lf, sys.wfn,
+                                           sys.get_electron_repulsion()),
+                             libxc_term], grid)
+    builtin_term = DiracExchange(scf_cache, sys.lf, sys.wfn,
+                                           sys.get_electron_repulsion())
+    ham2 = Hamiltonian(sys, scf_cache, [Hartree(scf_cache, sys.lf, sys.wfn,
+                                           sys.get_electron_repulsion()),
+                             builtin_term], grid)
 
     # Compare the potential computed by libxc with the builtin implementation
     libxc_term._update_operator()
@@ -143,9 +155,12 @@ def test_co_pbe_sto3g():
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
     sys = System.from_file(fn_fchk)
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'fine', random_rotate=False)
-    libxc_x_term = LibXCGGA('x_pbe')
-    libxc_c_term = LibXCGGA('c_pbe')
-    ham = Hamiltonian(sys, [Hartree(), libxc_x_term, libxc_c_term], grid)
+    scf_cache = Cache()
+    libxc_x_term = LibXCGGA(scf_cache, sys.lf, sys.wfn, 'x_pbe')
+    libxc_c_term = LibXCGGA(scf_cache, sys.lf, sys.wfn, 'c_pbe')
+    ham = Hamiltonian(sys, scf_cache, [Hartree(scf_cache, sys.lf, sys.wfn,
+                                           sys.get_electron_repulsion()),
+                            libxc_x_term, libxc_c_term], grid)
 
     # Test energy before scf
     ham.compute()
@@ -182,9 +197,12 @@ def test_h3_pbe_321g():
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
     sys = System.from_file(fn_fchk)
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
-    libxc_x_term = LibXCGGA('x_pbe')
-    libxc_c_term = LibXCGGA('c_pbe')
-    ham = Hamiltonian(sys, [Hartree(), libxc_x_term, libxc_c_term], grid)
+    scf_cache = Cache()
+    libxc_x_term = LibXCGGA(scf_cache, sys.lf, sys.wfn, 'x_pbe')
+    libxc_c_term = LibXCGGA(scf_cache, sys.lf, sys.wfn, 'c_pbe')
+    ham = Hamiltonian(sys, scf_cache, [Hartree(scf_cache, sys.lf, sys.wfn,
+                                           sys.get_electron_repulsion()),
+                            libxc_x_term, libxc_c_term], grid)
 
     # compute the energy before converging
     ham.compute()
@@ -224,9 +242,12 @@ def test_h3_pbe_321g():
 def test_cubic_interpolation_c_pbe_cs():
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
     sys = System.from_file(fn_fchk)
+    scf_cache = Cache()
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(), LibXCGGA('c_pbe')], grid, idiot_proof=False)
+    ham = Hamiltonian(sys, scf_cache, [Hartree(scf_cache, sys.lf, sys.wfn,
+                                           sys.get_electron_repulsion()),
+                            LibXCGGA(scf_cache, sys.lf, sys.wfn, 'c_pbe')], grid, idiot_proof=False)
 
     dm0 = sys.wfn.dm_alpha.copy()
     with assert_raises(NoSCFConvergence):
@@ -239,9 +260,12 @@ def test_cubic_interpolation_c_pbe_cs():
 def test_cubic_interpolation_x_pbe_cs():
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
     sys = System.from_file(fn_fchk)
+    scf_cache = Cache()
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(), LibXCGGA('x_pbe')], grid)
+    ham = Hamiltonian(sys, scf_cache, [Hartree(scf_cache, sys.lf, sys.wfn,
+                                           sys.get_electron_repulsion()),
+                            LibXCGGA(scf_cache, sys.lf, sys.wfn, 'x_pbe')], grid)
 
     dm0 = sys.wfn.dm_alpha.copy()
     with assert_raises(NoSCFConvergence):
@@ -254,9 +278,12 @@ def test_cubic_interpolation_x_pbe_cs():
 def test_cubic_interpolation_hfs_cs():
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
     sys = System.from_file(fn_fchk)
+    scf_cache = Cache()
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(), LibXCLDA('x')], grid)
+    ham = Hamiltonian(sys, scf_cache, [Hartree(scf_cache, sys.lf, sys.wfn,
+                                           sys.get_electron_repulsion()),
+                            LibXCLDA(scf_cache, sys.lf, sys.wfn, 'x')], grid)
 
     dm0 = sys.wfn.dm_alpha.copy()
     with assert_raises(NoSCFConvergence):
@@ -271,8 +298,11 @@ def test_cubic_interpolation_o3lyp_cs():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    libxc_term = LibXCHybridGGA('xc_o3lyp')
-    ham = Hamiltonian(sys, [HartreeFockExchange(libxc_term.get_exx_fraction()), libxc_term], grid)
+    scf_cache = Cache()
+    libxc_term = LibXCHybridGGA(scf_cache, sys.lf, sys.wfn, 'xc_o3lyp')
+    ham = Hamiltonian(sys, scf_cache, [HartreeFockExchange(scf_cache, sys.lf, sys.wfn,
+                                           sys.get_electron_repulsion(),
+                                           fraction_exchange=libxc_term.get_exx_fraction()), libxc_term], grid)
 
     dm0 = sys.wfn.dm_alpha.copy()
     with assert_raises(NoSCFConvergence):
@@ -281,13 +311,15 @@ def test_cubic_interpolation_o3lyp_cs():
 
     check_cubic_cs_wrapper(ham, dm0, dm1)
 
-
 def test_cubic_interpolation_c_pbe_os():
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
     sys = System.from_file(fn_fchk)
+    scf_cache = Cache()
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(), LibXCGGA('c_pbe')], grid, idiot_proof=False)
+    ham = Hamiltonian(sys, scf_cache, [Hartree(scf_cache, sys.lf, sys.wfn,
+                                           sys.get_electron_repulsion()),
+                            LibXCGGA(scf_cache, sys.lf, sys.wfn, 'c_pbe')], grid, idiot_proof=False)
 
     dma0 = sys.wfn.dm_alpha.copy()
     dmb0 = sys.wfn.dm_beta.copy()
@@ -302,9 +334,12 @@ def test_cubic_interpolation_c_pbe_os():
 def test_cubic_interpolation_x_pbe_os():
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
     sys = System.from_file(fn_fchk)
+    scf_cache = Cache()
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(), LibXCGGA('x_pbe')], grid)
+    ham = Hamiltonian(sys, scf_cache, [Hartree(scf_cache, sys.lf, sys.wfn,
+                                           sys.get_electron_repulsion()),
+                            LibXCGGA(scf_cache, sys.lf, sys.wfn, 'x_pbe')], grid)
 
     dma0 = sys.wfn.dm_alpha.copy()
     dmb0 = sys.wfn.dm_beta.copy()
@@ -319,9 +354,12 @@ def test_cubic_interpolation_x_pbe_os():
 def test_cubic_interpolation_hfs_os():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
+    scf_cache = Cache()
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(), LibXCLDA('x')], grid)
+    ham = Hamiltonian(sys, scf_cache, [Hartree(scf_cache, sys.lf, sys.wfn,
+                                           sys.get_electron_repulsion()),
+                            LibXCLDA(scf_cache, sys.lf, sys.wfn, 'x')], grid)
 
     dma0 = sys.wfn.dm_alpha.copy()
     dmb0 = sys.wfn.dm_beta.copy()
@@ -337,8 +375,11 @@ def test_cubic_interpolation_o3lyp_os():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    libxc_term = LibXCHybridGGA('xc_o3lyp')
-    ham = Hamiltonian(sys, [HartreeFockExchange(libxc_term.get_exx_fraction()), libxc_term], grid)
+    scf_cache = Cache()
+    libxc_term = LibXCHybridGGA(scf_cache, sys.lf, sys.wfn, 'xc_o3lyp')
+    ham = Hamiltonian(sys, scf_cache, [HartreeFockExchange(scf_cache, sys.lf, sys.wfn,
+                                           sys.get_electron_repulsion(),
+                                           fraction_exchange=libxc_term.get_exx_fraction()), libxc_term], grid)
 
     dma0 = sys.wfn.dm_alpha.copy()
     dmb0 = sys.wfn.dm_beta.copy()
@@ -350,13 +391,19 @@ def test_cubic_interpolation_o3lyp_os():
 
 
 def test_hyb_gga_exx_fraction():
-    t = LibXCHybridGGA('xc_pbeh') # The PBE0 functional
+    fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
+    sys = System.from_file(fn_fchk)
+    scf_cache = Cache()
+    t = LibXCHybridGGA(scf_cache, sys.lf, sys.wfn, 'xc_pbeh') # The PBE0 functional
     assert t.get_exx_fraction() == 0.25
 
 
 def test_lda_c_vwn_present():
-    t = LibXCLDA('c_vwn')     # The VWN 5 functional
-    t = LibXCLDA('c_vwn_4')   # The VWN 4 functional
+    fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
+    sys = System.from_file(fn_fchk)
+    scf_cache = Cache()
+    t = LibXCLDA(scf_cache, sys.lf, sys.wfn, 'c_vwn')     # The VWN 5 functional
+    t = LibXCLDA(scf_cache, sys.lf, sys.wfn, 'c_vwn_4')   # The VWN 4 functional
 
 
 def test_info():

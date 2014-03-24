@@ -28,7 +28,8 @@ for fn_fchk in fns_fchk:
     sys.props.clear()
 
     guess_hamiltonian_core(sys)
-    ham = Hamiltonian(sys, [HartreeFock()])
+    scf_cache = Cache()
+    ham = Hamiltonian(sys, scf_cache, [HartreeFock()])
     converged = converge_scf_oda(ham, max_iter=1024, threshold=1e-8, debug=False)
     error = sys.props['energy'] - g09_energy
     print '%30s  % 15.10e  % 15.10e  %+9.4f  %s' % (fn_fchk, sys.props['energy'], g09_energy, error, converged)

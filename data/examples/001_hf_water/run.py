@@ -11,8 +11,12 @@ setup_mean_field_wfn(sys, charge=0)
 # Initial WFN guess
 guess_hamiltonian_core(sys)
 
+# set up cache for Hamiltonian
+scf_cache = Cache()
+
 # Construct a Hamiltonian
-ham = Hamiltonian(sys, [HartreeFockExchange()])
+ham = Hamiltonian(sys, scf_cache, [HartreeFockExchange(scf_cache, sys.lf, sys.wfn,
+                                           sys.get_electron_repulsion())])
 
 # Converge WFN with SCF
 converged = converge_scf(ham)

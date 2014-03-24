@@ -99,7 +99,9 @@ def check_scf_hf_cs_hf(scf_wrapper):
     sys = System.from_file(fn_fchk)
 
     guess_hamiltonian_core(sys)
-    ham = Hamiltonian(sys, [HartreeFockExchange()])
+    scf_cache = Cache()
+    ham = Hamiltonian(sys, scf_cache, [HartreeFockExchange(scf_cache, sys.lf, sys.wfn,
+                                           sys.get_electron_repulsion())])
     assert scf_wrapper.convergence_error(ham) > scf_wrapper.kwargs['threshold']
     scf_wrapper(ham)
     assert scf_wrapper.convergence_error(ham) < scf_wrapper.kwargs['threshold']
@@ -124,9 +126,14 @@ def check_scf_hf_cs_hf(scf_wrapper):
 def check_scf_water_cs_hfs(scf_wrapper):
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
+    scf_cache = Cache()
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
+    ham = Hamiltonian(sys, scf_cache, [Hartree(scf_cache, sys.lf, sys.wfn,
+                                           sys.get_electron_repulsion()),
+                            DiracExchange(scf_cache, sys.lf, sys.wfn,
+                                           sys.get_electron_repulsion())],
+                      grid)
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file and different integration grids:

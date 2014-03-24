@@ -30,16 +30,29 @@ __all__ = [
 
 
 class KineticEnergy(LinearObservable):
-    def __init__(self, label='kin'):
-        LinearObservable.__init__(self, label)
+    def __init__(self, obasis, cache, lf, wfn, label='kin'):
+        LinearObservable.__init__(self, obasis, cache, lf, wfn, label)
 
     def get_operator(self):
-        return self.system.get_kinetic()
+        kinetic, new = self.cache.load('kin', alloc=self._lf.create_one_body,
+                                        tags='o')
+        if new:
+            self._obasis.compute_kinetic(kinetic)
+        return kinetic
 
 
 class ExternalPotential(LinearObservable):
-    def __init__(self, label='ne'):
-        LinearObservable.__init__(self, label)
+    def __init__(self, obasis, cache, lf, wfn, numbers, coordinates, label='ne'):
+        self.numbers = numbers
+        self.coordinates = coordinates
+        LinearObservable.__init__(self, obasis, cache, lf, wfn, label)
 
     def get_operator(self):
-        return self.system.get_nuclear_attraction()
+        nuclear_attraction, new = self.cache.load('na', alloc=self._lf.create_one_body,
+                                                  tags='o')
+        if new:
+            # TODO: ghost atoms and extra charges
+            self._obasis.compute_nuclear_attraction(self.numbers.astype(float),
+                                                   self.coordinates,
+                                                   nuclear_attraction)
+        return nuclear_attraction

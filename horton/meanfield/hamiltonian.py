@@ -34,7 +34,7 @@ __all__ = [
 
 
 class Hamiltonian(object):
-    def __init__(self, system, terms, grid=None, idiot_proof=True):
+    def __init__(self, system, scf_cache, terms, grid=None, idiot_proof=True):
         '''
            **Arguments:**
 
@@ -73,19 +73,26 @@ class Hamiltonian(object):
             # Add standard terms if missing
             #  1) Kinetic energy
             if sum(isinstance(term, KineticEnergy) for term in terms) == 0:
-                self.terms.append(KineticEnergy())
+                self.terms.append(KineticEnergy(system.obasis, system.cache,
+                                                system.lf, system.wfn)
+                                  )
             #  2) Hartree (or HatreeFock, which is a subclass of Hartree)
             if sum(isinstance(term, Hartree) for term in terms) == 0:
-                self.terms.append(Hartree())
+                self.terms.append(Hartree(scf_cache, system.lf, system.wfn,
+                                           system.get_electron_repulsion()))
             #  3) External Potential
             if sum(isinstance(term, ExternalPotential) for term in terms) == 0:
-                self.terms.append(ExternalPotential())
+                self.terms.append(ExternalPotential(system.obasis, system.cache,
+                                                    system.lf, system.wfn,
+                                                    system.numbers,
+                                                    system.coordinates)
+                                  )
 
 
         # Create a cache for shared intermediate results. This cache should only
         # be used for derived quantities that depend on the wavefunction and
         # need to be updated at each SCF cycle.
-        self.cache = Cache()
+        self.cache = scf_cache
 
         # bind the terms to this hamiltonian such that certain shared
         # intermediated results can be reused for the sake of efficiency.

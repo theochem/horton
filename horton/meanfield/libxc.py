@@ -34,13 +34,14 @@ __all__ = ['LibXCLDA', 'LibXCGGA', 'LibXCHybridGGA']
 
 
 class LibXCEnergy(Observable):
-    def __init__(self, prefix, name):
+    def __init__(self, cache, lf, wfn, prefix, name):
         self.exchange = name.startswith('x')
         name = '%s_%s' % (prefix, name)
         self._name = name
         self._libxc_wrapper = LibXCWrapper(name)
+        self._wfn = wfn
         log.cite('marques2012', 'using LibXC, the library of exchange and correlation functionals')
-        Observable.__init__(self, 'libxc_%s' % name)
+        Observable.__init__(self, cache, lf, 'libxc_%s' % name)
 
     def _update_operator(self, postpone_grid=False):
         raise NotImplementedError
@@ -49,7 +50,7 @@ class LibXCEnergy(Observable):
         self._update_operator(postpone_grid)
         if not postpone_grid:
             fock_alpha.iadd(self.cache.load('op_libxc_%s_alpha' % self._name), scale)
-            if isinstance(self.system.wfn, UnrestrictedWFN):
+            if isinstance(self._wfn, UnrestrictedWFN):
                 fock_beta.iadd(self.cache.load('op_libxc_%s_beta' % self._name, ), scale)
 
 
@@ -57,7 +58,8 @@ class LibXCLDA(LibXCEnergy):
     '''Any LDA functional from LibXC'''
 
     require_grid = True
-    def __init__(self, name):
+
+    def __init__(self, cache, lf, wfn, name):
         '''
            **Arguments:**
 
@@ -65,11 +67,11 @@ class LibXCLDA(LibXCEnergy):
                 The name of the functional in LibXC, without the ``lda_``
                 prefix.
         '''
-        LibXCEnergy.__init__(self, 'lda', name)
+        LibXCEnergy.__init__(self, cache, lf, wfn, 'lda', name)
 
     @timer.with_section('LDA pot')
     def _update_operator(self, postpone_grid=False):
-        if isinstance(self.system.wfn, RestrictedWFN):
+        if isinstance(self._wfn, RestrictedWFN):
             # In the closed-shell case, libxc expects the total density as input
             # and returns the potential for the alpha electrons.
             pot, new = self.cache.load('pot_libxc_%s_alpha' % self._name, alloc=self.grid.size)
@@ -91,7 +93,7 @@ class LibXCLDA(LibXCEnergy):
 
     @timer.with_section('LDA edens')
     def compute(self):
-        if isinstance(self.system.wfn, RestrictedWFN):
+        if isinstance(self._wfn, RestrictedWFN):
             # In the unpolarized case, libxc expects the total density as input
             # and returns the energy density per particle.
             rho = self.update_rho('full')
@@ -113,7 +115,7 @@ class LibXCLDA(LibXCEnergy):
 
 class LibXCGGA(LibXCEnergy):
     '''Any GGA functional from LibXC'''
-    def __init__(self, name):
+    def __init__(self, cache, lf, wfn, name):
         '''
            **Arguments:**
 
@@ -121,11 +123,11 @@ class LibXCGGA(LibXCEnergy):
                 The name of the functional in LibXC, without the ``gga_``
                 prefix.
         '''
-        LibXCEnergy.__init__(self, 'gga', name)
+        LibXCEnergy.__init__(self, cache, lf, wfn, 'gga', name)
 
     @timer.with_section('GGA pot')
     def _update_operator(self, postpone_grid=False):
-        if isinstance(self.system.wfn, RestrictedWFN):
+        if isinstance(self._wfn, RestrictedWFN):
             dpot, newd = self.cache.load('dpot_libxc_%s_alpha' % self._name, alloc=self.grid.size)
             spot, news = self.cache.load('spot_libxc_%s_alpha' % self._name, alloc=self.grid.size)
             if newd or news:
@@ -168,7 +170,7 @@ class LibXCGGA(LibXCEnergy):
 
     @timer.with_section('GGA edens')
     def compute(self):
-        if isinstance(self.system.wfn, RestrictedWFN):
+        if isinstance(self._wfn, RestrictedWFN):
             rho = self.update_rho('full')
             sigma = self.update_sigma('full')
             edens, new = self.cache.load('edens_libxc_%s_full' % self._name, alloc=self.grid.size)
@@ -187,7 +189,7 @@ class LibXCGGA(LibXCEnergy):
 
 class LibXCHybridGGA(LibXCGGA):
     '''Any Hybrid GGA functional from LibXC'''
-    def __init__(self, name):
+    def __init__(self, cache, lf, wfn, name):
         '''
            **Arguments:**
 
@@ -195,7 +197,7 @@ class LibXCHybridGGA(LibXCGGA):
                 The name of the functional in LibXC, without the ``hyb_gga_``
                 prefix.
         '''
-        LibXCEnergy.__init__(self, 'hyb_gga', name)
+        LibXCEnergy.__init__(self, cache, lf, wfn, 'hyb_gga', name)
 
     def get_exx_fraction(self):
         return self._libxc_wrapper.get_hyb_exx_fraction()

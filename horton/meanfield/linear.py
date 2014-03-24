@@ -32,7 +32,8 @@ __all__ = [
 
 
 class LinearObservable(Observable):
-    '''Abstract base class for all observables that are linear in the density matrix
+    '''Abstract base class for all observables that are linear in the
+       density matrix
 
        This is (technically) a special class because the Fock operator does not
        have to be recomputed when the density matrix changes. However, it must
@@ -41,19 +42,26 @@ class LinearObservable(Observable):
        A restriction of this implementation is that the fock operator for the
        alpha and the beta electrons are the same.
     '''
+    def __init__(self, obasis, cache, lf, wfn, label='kin'):
+        self._obasis = obasis
+        self._wfn = wfn
+        Observable.__init__(self, cache, lf, label)
+
     def get_operator(self):
-        # subclasses should override this method such that it returns the operator.
+        # subclasses should override this method such that it
+        # returns the operator.
         raise NotImplementedError
 
     def compute(self):
         '''See Observable.compute'''
         operator = self.get_operator()
-        if isinstance(self.system.wfn, RestrictedWFN):
-            return 2*operator.expectation_value(self.system.wfn.dm_alpha)
+        if isinstance(self._wfn, RestrictedWFN):
+            return 2 * operator.expectation_value(self._wfn.dm_alpha)
         else:
-            return operator.expectation_value(self.system.wfn.dm_full)
+            return operator.expectation_value(self._wfn.dm_full)
 
-    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1, postpone_grid=False):
+    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1,
+                        postpone_grid=False):
         '''See Observable.add_fock_matrix'''
         operator = self.get_operator()
         for fock in fock_alpha, fock_beta:
@@ -64,19 +72,21 @@ class LinearObservable(Observable):
 class CustomLinearObservable(LinearObservable):
     '''This is a user-defined observable that is linear in the density matrix
 
-       This term can be used to implemented custom perturbations by finite fields.
+       This term can be used to implemented custom perturbations by
+       finite fields.
     '''
-    def __init__(self, label, get_operator):
+    def __init__(self, obasis, cache, lf, wfn, label, get_operator):
         '''
            **Arguments:**
 
            get_operator
-                A function takes a system object as argument and that returns an
-                operator.
+                A function takes a system object as argument and that returns
+                an operator.
 
-                For the sake of convenience, this argument may also be a OneBody
-                object. However, this is an error prone practice, e.g. the
-                operator won't get updated when the basis set changes.
+                For the sake of convenience, this argument may also be a
+                OneBody object. However, this is an error prone practice,
+                e.g. the operator won't get updated when the
+                basis set changes.
         '''
         if isinstance(get_operator, OneBody):
             def my_get_operator(system):
@@ -86,7 +96,7 @@ class CustomLinearObservable(LinearObservable):
         else:
             TypeError('Could not interpret get_operator argument.')
         self.my_get_operator = my_get_operator
-        LinearObservable.__init__(self, label)
+        LinearObservable.__init__(self, obasis, cache, lf, wfn, label)
 
     def get_operator(self):
         return self.my_get_operator(self.system)
