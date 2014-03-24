@@ -39,7 +39,7 @@ from horton.matrix import DenseLinalgFactory, LinalgObject
 from horton.periodic import periodic
 
 
-__all__ = ['System']
+__all__ = ['System', 'compute_nucnuc']
 
 
 class System(object):
@@ -603,3 +603,29 @@ class System(object):
                 result += self.numbers[i]*self.numbers[j]/distance
         self._extra['energy_nn'] = result
         return result
+
+
+def compute_nucnuc(coordinates, numbers):
+    '''Compute interaction energy of the nuclei
+
+       coordinates
+            A (N, 3) float numpy array with Cartesian coordinates of the
+            atoms.
+
+       numbers
+            A (N,) numpy vector with the atomic numbers.
+    '''
+    if len(coordinates.shape) != 2 or coordinates.shape[1] != 3:
+        raise TypeError('coordinates argument must be a 2D array with three columns')
+    if len(numbers.shape) != 1:
+        raise TypeError('numbers must a vector of integers.')
+    if numbers.shape[0] != coordinates.shape[0]:
+        raise TypeError('numbers and coordinates must have compatible array shapes.')
+    # TODO: move this to low-level code one day.
+    result = 0.0
+    natom = len(numbers)
+    for i in xrange(natom):
+        for j in xrange(i):
+            distance = np.linalg.norm(coordinates[i]-coordinates[j])
+            result += numbers[i]*numbers[j]/distance
+    return result

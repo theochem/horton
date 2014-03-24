@@ -28,11 +28,13 @@ from horton import *
 
 def test_mulliken_operators_water_sto3g():
     fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
-    sys = System.from_file(fn_fchk)
-    operators = get_mulliken_operators(sys)
+    data = load_smart(fn_fchk)
+    operators = get_mulliken_operators(data['obasis'], data['lf'])
     for operator in operators:
         operator.check_symmetry()
-    populations = np.array([operator.expectation_value(sys.wfn.dm_full) for operator in operators])
-    charges = sys.numbers - populations
+    wfn = data['wfn']
+    numbers = data['numbers']
+    populations = np.array([operator.expectation_value(wfn.dm_full) for operator in operators])
+    charges = numbers - populations
     assert charges[0] < 0 # oxygen atom
     assert abs(charges.sum()) < 1e-3

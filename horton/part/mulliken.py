@@ -26,45 +26,46 @@ import numpy as np
 from horton.gbasis.cext import get_shell_nbasis
 
 
-__all__ = ['assign_mulliken_operator', 'get_mulliken_operators']
+__all__ = ['partition_mulliken', 'get_mulliken_operators']
 
 
-def assign_mulliken_operator(operator, system, index):
+def partition_mulliken(operator, obasis, index):
     '''Fill in the mulliken operator in the first argument
 
        **Arguments:**
 
        operator
-            A One body operator for the output
+            A One body operator to which the Mulliken mask is applied
 
-       system
-            The system for which the Mulliken operator is to be constructed
+       obasis
+            The localized orbital basis for which the Mulliken operator is to be
+            constructed
 
        index
             The index of the atom (center) for which the Mulliken operator
             needs to be constructed
 
-       This routine implies that the first ``natom`` centers in the object
-       system.obasis corresponds to the atoms in the system object.
+       This routine implies that the first ``natom`` centers in the obasis
+       corresponds to the atoms in the system.
     '''
-    mask = np.zeros(system.obasis.nbasis, dtype=bool)
+    mask = np.zeros(obasis.nbasis, dtype=bool)
     begin = 0
-    for ishell in xrange(system.obasis.nshell):
-        end = begin + get_shell_nbasis(system.obasis.shell_types[ishell])
-        if system.obasis.shell_map[ishell] != index:
+    for ishell in xrange(obasis.nshell):
+        end = begin + get_shell_nbasis(obasis.shell_types[ishell])
+        if obasis.shell_map[ishell] != index:
             mask[begin:end] = True
         begin = end
-    olp = system.get_overlap()
-    operator.assign(olp)
     operator._array[mask] = 0.0
     operator._array[:] = 0.5*(operator._array + operator._array.T)
 
 
-def get_mulliken_operators(system):
-    '''Return a list of Mulliken operators for the given system.'''
+def get_mulliken_operators(obasis, lf):
+    '''Return a list of Mulliken operators for the given obasis.'''
     operators = []
-    for icenter in xrange(system.obasis.ncenter):
-        operator = system.lf.create_one_body()
-        assign_mulliken_operator(operator, system, icenter)
+    olp = lf.create_one_body()
+    obasis.compute_overlap(olp)
+    for icenter in xrange(obasis.ncenter):
+        operator = olp.copy()
+        partition_mulliken(operator, obasis, icenter)
         operators.append(operator)
     return operators
