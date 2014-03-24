@@ -33,7 +33,7 @@ import h5py as h5
 
 from horton.cache import Cache
 from horton.cext import compute_grid_nucpot
-from horton.io import load_system_args, dump_system
+from horton.io import load_smart, dump_smart
 from horton.log import log, timer
 from horton.matrix import DenseLinalgFactory, LinalgObject
 from horton.periodic import periodic
@@ -45,7 +45,7 @@ __all__ = ['System']
 class System(object):
     def __init__(self, coordinates, numbers, obasis=None, grid=None, wfn=None,
                  lf=None, cache=None, extra=None, cell=None,
-                 pseudo_numbers=None, chk=None):
+                 pseudo_numbers=None):
         """
            **Arguments:**
 
@@ -96,14 +96,6 @@ class System(object):
 
            pseudo_numbers
                 The core charges of the pseudo potential, if applicable
-
-           chk
-                A filename for the checkpoint file or an open h5.File object.
-                If the file does not exist yet, it will be created. If the file
-                already exists, it must be an HDF5 file that is structured
-                such that it adheres to the format that Horton creates itself.
-                If chk is an open h5.File object, it will not be closed when the
-                System instance is deleted.
         """
 
         # A) Assign all attributes
@@ -150,18 +142,7 @@ class System(object):
         self._cell = cell
         self._pseudo_numbers = pseudo_numbers
 
-        # The checkpoint file
-        self._chk = None
-        self._close_chk = False
-        self.assign_chk(chk)
-
         self._log_init()
-
-    def __del__(self):
-        # Close the HD5 checkpoint file. This must be done carefully to avoid
-        # spurious error messages when an unrelated exception occurs.
-        if hasattr(self, '_chk') and self.chk is not None and self._close_chk:
-            self.chk.close()
 
     def _get_natom(self):
         '''The number of atoms'''
@@ -237,70 +218,35 @@ class System(object):
 
     pseudo_numbers = property(_get_pseudo_numbers)
 
-    def _get_chk(self):
-        '''A ``h5.File`` instance used as checkpoint file or ``None``'''
-        return self._chk
-
-    chk = property(_get_chk)
-
     @classmethod
     def from_file(cls, *args, **kwargs):
         """Create a System object from a file.
 
-           A list of filenames may be provided, which will be loaded in that
-           order. Each file complements or overrides the information loaded
-           from a previous file in the list. Furthermore, keyword arguments
-           may be used to specify additional constructor arguments.
+           A list of filenames may be provided, from which data will be loaded.
+           Furthermore, keyword arguments may be used to specify additional
+           constructor arguments.
 
            The ``lf`` optional argument is picked up from the kwargs list to
            contstruct (when needed) arrays to store the results loaded from
            file. When ``lf`` is not given, a DenseLinalgFactory is created by
            default.
-
-           The filenames may also contain checkpoint files and open h5.File
-           objects of checkpoint files. The last such checkpoint file will
-           automatically be used as a checkpoint file for this class. If you
-           want to override this behavior, provide the ``chk`` keyword argument
-           (may be None).
         """
-        constructor_args = {}
+        # This is just a temporary hack to let the code work with the new
+        # load_smart function.
         lf = kwargs.get('lf')
         if lf is None:
             lf = DenseLinalgFactory()
-        for fn in args:
-            fn_args = load_system_args(fn, lf)
-            constructor_args.update(fn_args)
+        constructor_args = load_smart(*args, lf=lf)
         constructor_args.update(kwargs)
-
-        # If the basis comes from an external code and some operators are
-        # loaded, rows and columns may need to be reordered. Similar for the
-        # orbital coefficients and the density matrices.
-        permutation = constructor_args.get('permutation')
-        if permutation is not None:
-            cache = constructor_args.get('cache')
-            if cache is not None:
-                for value, tags in cache.itervalues():
-                    if isinstance(value, LinalgObject):
-                        value.apply_basis_permutation(permutation)
-            wfn = constructor_args.get('wfn')
-            if wfn is not None:
-                wfn.apply_basis_permutation(permutation)
-            del constructor_args['permutation']
-
-        # After the permutation, correct for different sign conventions of the
-        # orbitals
-        signs = constructor_args.get('signs')
-        if signs is not None:
-            cache = constructor_args.get('cache')
-            if cache is not None:
-                for value, tags in cache.itervalues():
-                    if isinstance(value, LinalgObject):
-                        value.apply_basis_signs(signs)
-            wfn = constructor_args.get('wfn')
-            if wfn is not None:
-                wfn.apply_basis_signs(signs)
-            del constructor_args['signs']
-
+        extra = constructor_args.setdefault('extra', {})
+        constructor_keys = [
+            'coordinates', 'numbers', 'obasis', 'grid', 'wfn', 'lf',
+            'extra', 'cell', 'pseudo_numbers',
+        ]
+        for key in constructor_args.keys():
+            if key not in constructor_keys:
+                extra[key] = constructor_args[key]
+                del constructor_args[key]
         return cls(**constructor_args)
 
     def _log_init(self):
@@ -313,51 +259,12 @@ class System(object):
                 ('Linalg Factory', self._lf),
                 ('Orbital basis', self._obasis),
                 ('Wavefunction', self._wfn),
-                ('Checkpoint file', self._chk),
             ])
             if len(self._cache) > 0:
                 log('The following cached items are present: %s' % (', '.join(self._cache.iterkeys())))
             if len(self._extra) > 0:
                 log('The following extra attributes are present: %s' % (', '.join(self._extra.iterkeys())))
             log.blank()
-
-    def assign_chk(self, chk):
-        if self.chk is not None and self._close_chk:
-            self.chk.close()
-
-        if isinstance(chk, basestring):
-            # Suppose a filename is given. Create or open an HDF5 file.
-            self._chk = h5.File(chk)
-            self._close_chk = True
-        elif isinstance(chk, h5.Group) or chk is None:
-            self._chk = chk
-            self._close_chk = False
-        else:
-            raise TypeError('The chk argument, when not None, must be a filename or an open h5.Group object.')
-        self.update_chk()
-
-
-    def update_chk(self, field_name=None):
-        """Write (a part of) the system to the checkpoint file.
-
-           **Optional Argument:**
-
-           field
-                A field string that specifies which part must be written to the
-                checkpoint file. When not given, all possible fields are
-                written. The latter is only useful in specific cases, e.g. upon
-                initialization of the system. The available field names are
-                specified in the attribute register dictionary in the
-                module ``horton.checkpoint``.
-        """
-        if self._chk is not None:
-            from horton.checkpoint import attribute_register
-            if field_name is None:
-                for field_name, field in attribute_register.iteritems():
-                    field.write(self._chk, self)
-            else:
-                field = attribute_register[field_name]
-                field.write(self._chk, self)
 
     def to_file(self, filename):
         '''Write the system to a file
@@ -368,7 +275,19 @@ class System(object):
                 The name of the file to write to. The extension of the file
                 is used to determine the file format.
         '''
-        dump_system(filename, self)
+        # temporary hack before this class gets removed. This is how the new
+        # dump_smart is used.
+        constructor_keys = [
+            'coordinates', 'numbers', 'obasis', 'grid', 'wfn', 'cell',
+            'pseudo_numbers',
+        ]
+        data = {}
+        for key in constructor_keys:
+            value = getattr(self, key)
+            if value is not None:
+                data[key] = value
+        data.update(self.extra)
+        dump_smart(filename, data)
 
     def _get_charge(self):
         return self.pseudo_numbers.sum() - self.wfn.nel
@@ -467,7 +386,6 @@ class System(object):
         overlap, new = self.cache.load('olp', alloc=self.lf.create_one_body, tags='o')
         if new:
             self.obasis.compute_overlap(overlap)
-            self.update_chk('cache.olp')
         return overlap
 
     @timer.with_section('KIN integrals')
@@ -475,7 +393,6 @@ class System(object):
         kinetic, new = self.cache.load('kin', alloc=self.lf.create_one_body, tags='o')
         if new:
             self.obasis.compute_kinetic(kinetic)
-            self.update_chk('cache.kin')
         return kinetic
 
     @timer.with_section('NAI integrals')
@@ -484,7 +401,6 @@ class System(object):
         if new:
             # TODO: ghost atoms and extra charges
             self.obasis.compute_nuclear_attraction(self.numbers.astype(float), self.coordinates, nuclear_attraction)
-            self.update_chk('cache.na')
         return nuclear_attraction
 
     @timer.with_section('ER integrals')
@@ -492,9 +408,6 @@ class System(object):
         electron_repulsion, new = self.cache.load('er', alloc=self.lf.create_two_body, tags='o')
         if new:
             self.obasis.compute_electron_repulsion(electron_repulsion)
-            # ER integrals are not checkpointed by default because they are too heavy.
-            # Can be done manually by user if needed: ``system.update_chk('cache.er')``
-            #self.update_chk('cache.er')
         return electron_repulsion
 
     @timer.with_section('Orbitals grid')

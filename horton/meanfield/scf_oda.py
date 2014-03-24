@@ -311,8 +311,6 @@ def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):
             converged = True
             break
 
-        # Write intermediate wfn to checkpoint.
-        ham.system.update_chk('wfn')
         # counter
         counter += 1
 
@@ -324,8 +322,6 @@ def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):
     wfn.clear()
     wfn.update_exp(fock0, overlap, dm0)
     energy0 = ham.compute()
-    # Write final wfn to checkpoint.
-    ham.system.update_chk('wfn')
     if log.do_medium:
         log('%5i %20.13f  %12.5e  %10.5f' % (counter+1, energy0, error, mixing))
         log.blank()
@@ -534,8 +530,6 @@ def converge_scf_oda_os(ham, maxiter=128, threshold=1e-6, debug=False):
             converged = True
             break
 
-        # Write intermediate wfn to checkpoint.
-        ham.system.update_chk('wfn')
         # counter
         counter += 1
 
@@ -549,8 +543,6 @@ def converge_scf_oda_os(ham, maxiter=128, threshold=1e-6, debug=False):
     wfn.clear()
     wfn.update_exp(fock0a, fock0b, overlap, dm0a, dm0b)
     energy0 = ham.compute()
-    # Write final wfn to checkpoint.
-    ham.system.update_chk('wfn')
     if log.do_medium:
         log('%5i %20.13f  %12.5e  %12.5e  %10.5f' % (counter+1, energy0, errora, errorb, mixing))
         log.blank()

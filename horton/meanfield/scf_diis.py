@@ -312,9 +312,6 @@ def converge_scf_diis_cs(ham, DIISHistoryClass, maxiter=128, threshold=1e-6, nve
 
         energy = ham.compute() if history.need_energy else None
 
-        # Write intermediate results to checkpoint
-        ham.system.update_chk('wfn')
-
         # Add the current (dm, fock) pair to the history
         if log.do_high:
             log('          DIIS add')

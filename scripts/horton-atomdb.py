@@ -264,7 +264,7 @@ def main_convert(args):
 
         # Write system to Horton file if possible
         if system is not None:
-            system.assign_chk('%s/horton.h5' % dn_state)
+            system.to_file('%s/horton.h5' % dn_state)
 
         # Construct a record for the proatomdb
         records.append(ProAtomRecord.from_system(system, agspec))

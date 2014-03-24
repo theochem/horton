@@ -30,6 +30,7 @@ from horton.meanfield.test.common import check_cubic_cs_wrapper, check_cubic_os_
 def test_fock_n2_hfs_sto3g():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
+    sys.wfn.clear_dm()
     grid = BeckeMolGrid(sys, 'veryfine', random_rotate=False)
     libxc_term = LibXCLDA('x')
     ham1 = Hamiltonian(sys, [Hartree(), libxc_term], grid)
@@ -83,6 +84,7 @@ def test_fock_n2_hfs_sto3g():
 def test_hamiltonian_h3_hfs_321g():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
+    sys.wfn.clear_dm()
     grid = BeckeMolGrid(sys, 'veryfine', random_rotate=False)
     libxc_term = LibXCLDA('x')
     ham1 = Hamiltonian(sys, [Hartree(), libxc_term], grid)

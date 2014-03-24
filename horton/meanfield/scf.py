@@ -127,8 +127,6 @@ def converge_scf_cs(ham, maxiter=128, threshold=1e-8, skip_energy=False):
         wfn.update_exp(fock, overlap)
         # Let the hamiltonian know that the wavefunction has changed.
         ham.clear()
-        # Write intermediate results to checkpoint
-        ham.system.update_chk('wfn')
         # counter
         counter += 1
 
@@ -208,8 +206,6 @@ def converge_scf_os(ham, maxiter=128, threshold=1e-8, skip_energy=False):
         wfn.update_exp(fock_alpha, fock_beta, overlap)
         # Let the hamiltonian know that the wavefunction has changed.
         ham.clear()
-        # Write intermediate results to checkpoint
-        ham.system.update_chk('wfn')
         # counter
         counter += 1
 

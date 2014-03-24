@@ -23,8 +23,7 @@
 
 import os, sys, datetime, numpy as np
 
-from horton import UniformGrid, angstrom, periodic, log, dump_hdf5_low, \
-    LockedH5File
+from horton import UniformGrid, angstrom, periodic, log, dump_h5, LockedH5File
 
 
 __all__ = [
@@ -203,7 +202,7 @@ def store_args(args, grp):
             grp.attrs['arg_%s' % key] = val
 
 
-def write_part_output(fn_h5, grp_name, part, names, args):
+def write_part_output(fn_h5, grp_name, part, keys, args):
     '''Write the output of horton-wpart.py or horton-cpart.py
 
        **Arguments:**
@@ -218,37 +217,52 @@ def write_part_output(fn_h5, grp_name, part, names, args):
             The partitioning object (instance of subclass of
             horton.part.base.Part)
 
-       names
-            The names of the cached items that must go in the HDF5 outut file.
+       keys
+            The keys of the cached items that must go in the HDF5 outut file.
 
        args
             The results of the command line parser. All arguments are stored
             as attributes in the HDF5 output file.
     '''
+    def get_results(part, keys):
+        results = {}
+        for key in keys:
+            if isinstance(key, basestring):
+                results[key] = part[key]
+            elif isinstance(key, tuple):
+                assert len(key) == 2
+                index = key[1]
+                assert isinstance(index, int)
+                assert index >= 0
+                assert index < part.system.natom
+                atom_results = results.setdefault('atom_%05i' % index, {})
+                atom_results[key[0]] = part[key]
+        return results
+
     # Store the results in an HDF5 file
     with LockedH5File(fn_h5) as f:
+        # Transform results to a suitable dictionary structure
+        results = get_results(part, keys)
+
         # Store results
-        if grp_name in f:
-            grp = f[grp_name]
-            for key in grp.keys():
-                del grp[key]
-        else:
-            grp = f.create_group(grp_name)
-        for name in names:
-            dump_hdf5_low(grp, name, part[name])
+        grp = f.require_group(grp_name)
+        for key in grp.keys():
+            del grp[key]
+        dump_h5(grp, results)
 
         # Store command line arguments
         store_args(args, grp)
 
         if args.debug:
+            # Collect debug results
+            debug_keys = [key for key in part.cache.iterkeys() if key not in keys]
+            debug_results = get_results(part, debug_keys)
+
             # Store additional data for debugging
             if 'debug' in grp:
                 del grp['debug']
-            grp_debug = grp.create_group('debug')
-            for debug_key in part.cache.iterkeys():
-                debug_name = '_'.join(str(x) for x in debug_key)
-                if debug_name not in names:
-                    grp_debug[debug_name] = part.cache.load(debug_key)
+            debuggrp = f.create_group('debug')
+            dump_h5(debuggrp, debug_results)
 
         if log.do_medium:
             log('Results written to %s:%s' % (fn_h5, grp_name))
@@ -274,14 +288,10 @@ def write_script_output(fn_h5, grp_name, results, args):
     '''
     with LockedH5File(fn_h5) as f:
         # Store results
-        if grp_name in f:
-            grp = f[grp_name]
-            for key in grp.keys():
-                del grp[key]
-        else:
-            grp = f.require_group(grp_name)
-        for key, value in results.iteritems():
-            dump_hdf5_low(grp, key, value)
+        grp = f.require_group(grp_name)
+        for key in grp.keys():
+            del grp[key]
+        dump_h5(grp, results)
 
         # Store command-line arguments arguments
         store_args(args, grp)

@@ -247,8 +247,8 @@ class MeanFieldWFN(object):
     @classmethod
     def from_hdf5(cls, grp, lf):
         # make the wfn object
-        from horton.checkpoint import load_hdf5_low
-        occ_model = load_hdf5_low(grp['occ_model'], lf) if 'occ_model' in grp else None
+        from horton.io.internal import load_h5
+        occ_model = load_h5(grp['occ_model'], lf) if 'occ_model' in grp else None
         result = cls(lf, grp['nbasis'][()], occ_model, grp['norb'][()])
         # load stuff into cache
         for spin in 'alpha', 'beta':

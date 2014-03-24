@@ -186,6 +186,7 @@ def test_density_epsilon():
 def test_density_functional_deriv():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
+    sys.wfn.clear_dm()
     rtf = ExpRTransform(1e-3, 1e1, 10)
     rgrid = RadialGrid(rtf)
     grid = BeckeMolGrid(sys, (rgrid, 6), random_rotate=False, mode='keep')
@@ -309,6 +310,7 @@ def test_dm_gradient_h3_321g():
 def test_gradient_functional_deriv():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
+    sys.wfn.clear_dm()
     rtf = ExpRTransform(1e-3, 1e1, 10)
     rgrid = RadialGrid(rtf)
     grid = BeckeMolGrid(sys, (rgrid, 6), random_rotate=False, mode='keep')

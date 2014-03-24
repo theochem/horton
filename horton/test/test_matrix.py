@@ -30,7 +30,6 @@ def get_water_sto3g_hf(lf=None):
     if lf is None:
         lf = DenseLinalgFactory()
     fn = context.get_fn('test/water_sto3g_hf_g03.log')
-    results = load_operators_g09(fn, lf)
     coeffs = np.array([
         9.94099882E-01, 2.67799213E-02, 3.46630004E-03, -1.54676269E-15,
         2.45105601E-03, -6.08393842E-03, -6.08393693E-03, -2.32889095E-01,
@@ -60,8 +59,9 @@ def get_water_sto3g_hf(lf=None):
     assert (exp_alpha.occupations == np.array([1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0])).all()
     # convert the cache dictionary to a real cache object
     cache = Cache()
-    for key, (value, tags) in results['cache'].iteritems():
-        cache.dump(key, value, tags=tags)
+    data = load_operators_g09(fn, lf)
+    for key, value in data.iteritems():
+        cache.dump(key, value)
     return lf, cache, wfn
 
 

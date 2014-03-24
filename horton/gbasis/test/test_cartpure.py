@@ -173,17 +173,17 @@ def test_cart_pure_water_ccpvdz_hf():
     fn_fchk_cart = context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk')
     fn_log_cart = fn_fchk_cart[:-5] + '.log'
     # Also load fchk file to get reordering of matrix elements.
-    sys_pure = System.from_file(fn_fchk_pure, fn_log_pure)
-    sys_cart = System.from_file(fn_fchk_cart, fn_log_cart)
+    data_pure = load_smart(fn_fchk_pure, fn_log_pure)
+    data_cart = load_smart(fn_fchk_cart, fn_log_cart)
     for key in 'olp', 'kin', 'na':
-        block_pure = sys_pure.cache[key]._array[9:14,9:14]
-        block_cart = sys_cart.cache[key]._array[9:15,9:15]
+        block_pure = data_pure[key]._array[9:14,9:14]
+        block_cart = data_cart[key]._array[9:15,9:15]
         check_pure = np.dot(np.dot(tfs[2], block_cart), tfs[2].T)
         error = abs(block_pure - check_pure).max()
         assert error < 2e-5
 
-        block_pure = sys_pure.cache[key]._array[0,9:14]
-        block_cart = sys_cart.cache[key]._array[0,9:15]
+        block_pure = data_pure[key]._array[0,9:14]
+        block_cart = data_cart[key]._array[0,9:15]
         check_pure = np.dot(block_cart, tfs[2].T)
         error = abs(block_pure - check_pure).max()
         assert error < 1e-5

@@ -121,8 +121,6 @@ class Hamiltonian(object):
         self.system.extra['energy_nn'] = energy
         total += energy
         self.system.extra['energy'] = total
-        # Store result in chk file
-        self.system.update_chk('extra')
         return total
 
     def log_energy(self):
