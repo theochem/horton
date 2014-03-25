@@ -13,7 +13,7 @@ setup_mean_field_wfn(system, charge=0, mult=1)
 guess_hamiltonian_core(system)
 
 # Setup integration grids with default settings
-grid = BeckeMolGrid(system)
+grid = BeckeMolGrid(system.coordinates, system.numbers, system.pseudo_numbers)
 
 # Construction of Hamiltonian
 libxc_term = LibXCHybridGGA('xc_o3lyp')

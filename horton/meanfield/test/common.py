@@ -125,7 +125,7 @@ def check_scf_water_cs_hfs(scf_wrapper):
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
 
-    grid = BeckeMolGrid(sys, random_rotate=False)
+    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
 
     # The convergence should be reasonable, not perfect because of limited

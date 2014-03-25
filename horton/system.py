@@ -294,27 +294,6 @@ class System(object):
 
     charge = property(_get_charge)
 
-    def update_coordinates(self, coordinates=None):
-        '''Update all attributes that depend on coodinates and clear related parts of cache
-
-           **Optional arguments:**
-
-           coordinates
-                The new atomic coordinates
-
-           When one wants to set new coordintes, one may also edit the
-           system.coordinates array in-place and then call this method without
-           any arguments.
-        '''
-        if coordinates is not None:
-            self._coordinates[:] = coordinates
-        if self._obasis is not None:
-            self._obasis.centers[:] = self._coordinates
-        if self._grid is not None:
-            self._grid.update_centers(self)
-        self.cache.clear(tags='cog')
-        self._extra = {}
-
     def update_grid(self, grid=None):
         '''Define a new integration grid and clear related parts of the cache
 

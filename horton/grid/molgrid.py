@@ -29,7 +29,6 @@ from horton.grid.atgrid import AtomicGrid, AtomicGridSpec
 from horton.grid.cext import becke_helper_atom
 from horton.log import log, timer
 from horton.periodic import periodic
-from horton.system import System
 
 
 __all__ = [
@@ -42,16 +41,21 @@ class BeckeMolGrid(IntGrid):
     '''Molecular integration grid using Becke weights'''
 
     @timer.with_section('Becke-Lebedev')
-    def __init__(self, system, agspec='medium', k=3, random_rotate=True, mode='discard'):
+    def __init__(self, centers, numbers, pseudo_numbers=None, agspec='medium', k=3, random_rotate=True, mode='discard'):
         '''
            **Arguments:**
 
-           system
-                The System object for which the molecular grid must be made.
-                Alternatively, this may also be a tuple (centers, numbers,
-                pseudo_numbers).
+           centers
+                An array (N, 3) with centers for the atom-centered grids.
+
+           numbers
+                An array (N,) with atomic numbers.
 
            **Optional arguments:**
+
+           pseudo_numbers
+                An array (N,) with atomic point charges. When not given, this
+                defaults to ``numbers``.
 
            agspec
                 A specifications of the atomic grid. This can either be an
@@ -77,14 +81,19 @@ class BeckeMolGrid(IntGrid):
                   that the computation of the molecular integration weights
                   (based on the Becke partitioning) is skipped.
         '''
-        if isinstance(system, System):
-            self._centers = system.coordinates.copy()
-            self._numbers = system.numbers.copy()
-            self._pseudo_numbers = system.pseudo_numbers.copy()
-            natom = system.natom
+        natom = len(numbers)
+        if centers.shape != (natom, 3):
+            raise TypeError('The argument centers must be an array with shape (natom,3).')
+        if numbers.shape != (natom,):
+            raise TypeError('The argument numbers must be a vector with length natom.')
+        self._centers = centers
+        self._numbers = numbers
+        if pseudo_numbers is None:
+            self._pseudo_numbers = numbers
         else:
-            self._centers, self._numbers, self._pseudo_numbers = system
-            natom = len(self.centers)
+            if pseudo_numbers.shape != (natom,):
+                raise TypeError('The argument pseudo_numbers must be a vector with length natom.')
+            self._pseudo_numbers = pseudo_numbers
 
         # check if the mode argument is valid
         if mode not in ['discard', 'keep', 'only']:
@@ -150,7 +159,9 @@ class BeckeMolGrid(IntGrid):
     @classmethod
     def from_hdf5(cls, grp, lf):
         return BeckeMolGrid(
-            (grp['centers'][:], grp['numbers'][:], grp['psuedo_numbers'][:]),
+            grp['centers'][:],
+            grp['numbers'][:],
+            grp['psuedo_numbers'][:],
             AtomicGridSpec.from_hdf5(grp['agspec'], lf),
             grp['k'][()],
             grp['random_rotate'][()],
@@ -226,25 +237,3 @@ class BeckeMolGrid(IntGrid):
         if self.mode == 'only':
             raise NotImplementedError('When mode==\'only\', only the subgrids can be used for integration.')
         return IntGrid.integrate(self, *args, **kwargs)
-
-    def update_centers(self, system):
-        if self.subgrids is None:
-            raise RuntimeError('It is only possible to update the centers of a molecular grid when the subgrids are kept.')
-        if len(self.subgrids) != system.natom:
-            raise ValueError('The number of grid centers and the number of atoms does not match.')
-        if (self.numbers != system.numbers).any() or (self.pseudo_numbers != system.pseudo_numbers).any():
-            raise ValueError('The elements of the grid and the system do not match.')
-        offset = 0
-        # More recent covalent radii are used than in the original work of Becke.
-        self.centers[:] = system.coordinates
-        cov_radii = np.array([periodic[n].cov_radius for n in self.numbers])
-        for i in xrange(system.natom):
-            atgrid = self.subgrids[i]
-            atsize = atgrid.size
-            atgrid.update_center(self.centers[i])
-            self.weights[offset:offset+atsize] = atgrid.weights
-            becke_helper_atom(
-                self.points[offset:offset+atsize],
-                self.weights[offset:offset+atsize],
-                cov_radii, self.centers, i, self._k)
-            offset += atgrid.size

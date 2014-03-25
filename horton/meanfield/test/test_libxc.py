@@ -31,7 +31,7 @@ def test_fock_n2_hfs_sto3g():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
     sys.wfn.clear_dm()
-    grid = BeckeMolGrid(sys, 'veryfine', random_rotate=False)
+    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
     libxc_term = LibXCLDA('x')
     ham1 = Hamiltonian(sys, [Hartree(), libxc_term], grid)
     builtin_term = DiracExchange()
@@ -85,7 +85,7 @@ def test_hamiltonian_h3_hfs_321g():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
     sys.wfn.clear_dm()
-    grid = BeckeMolGrid(sys, 'veryfine', random_rotate=False)
+    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
     libxc_term = LibXCLDA('x')
     ham1 = Hamiltonian(sys, [Hartree(), libxc_term], grid)
     builtin_term = DiracExchange()
@@ -142,7 +142,7 @@ def test_hamiltonian_h3_hfs_321g():
 def test_co_pbe_sto3g():
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    grid = BeckeMolGrid(sys, 'fine', random_rotate=False)
+    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'fine', random_rotate=False)
     libxc_x_term = LibXCGGA('x_pbe')
     libxc_c_term = LibXCGGA('c_pbe')
     ham = Hamiltonian(sys, [Hartree(), libxc_x_term, libxc_c_term], grid)
@@ -181,7 +181,7 @@ def test_co_pbe_sto3g():
 def test_h3_pbe_321g():
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
     sys = System.from_file(fn_fchk)
-    grid = BeckeMolGrid(sys, 'veryfine', random_rotate=False)
+    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
     libxc_x_term = LibXCGGA('x_pbe')
     libxc_c_term = LibXCGGA('c_pbe')
     ham = Hamiltonian(sys, [Hartree(), libxc_x_term, libxc_c_term], grid)
@@ -225,7 +225,7 @@ def test_cubic_interpolation_c_pbe_cs():
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
     sys = System.from_file(fn_fchk)
 
-    grid = BeckeMolGrid(sys, random_rotate=False)
+    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(), LibXCGGA('c_pbe')], grid, idiot_proof=False)
 
     dm0 = sys.wfn.dm_alpha.copy()
@@ -240,7 +240,7 @@ def test_cubic_interpolation_x_pbe_cs():
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
     sys = System.from_file(fn_fchk)
 
-    grid = BeckeMolGrid(sys, random_rotate=False)
+    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(), LibXCGGA('x_pbe')], grid)
 
     dm0 = sys.wfn.dm_alpha.copy()
@@ -255,7 +255,7 @@ def test_cubic_interpolation_hfs_cs():
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
     sys = System.from_file(fn_fchk)
 
-    grid = BeckeMolGrid(sys, random_rotate=False)
+    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(), LibXCLDA('x')], grid)
 
     dm0 = sys.wfn.dm_alpha.copy()
@@ -270,7 +270,7 @@ def test_cubic_interpolation_o3lyp_cs():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
 
-    grid = BeckeMolGrid(sys, random_rotate=False)
+    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
     libxc_term = LibXCHybridGGA('xc_o3lyp')
     ham = Hamiltonian(sys, [HartreeFockExchange(libxc_term.get_exx_fraction()), libxc_term], grid)
 
@@ -286,7 +286,7 @@ def test_cubic_interpolation_c_pbe_os():
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
     sys = System.from_file(fn_fchk)
 
-    grid = BeckeMolGrid(sys, random_rotate=False)
+    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(), LibXCGGA('c_pbe')], grid, idiot_proof=False)
 
     dma0 = sys.wfn.dm_alpha.copy()
@@ -303,7 +303,7 @@ def test_cubic_interpolation_x_pbe_os():
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
     sys = System.from_file(fn_fchk)
 
-    grid = BeckeMolGrid(sys, random_rotate=False)
+    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(), LibXCGGA('x_pbe')], grid)
 
     dma0 = sys.wfn.dm_alpha.copy()
@@ -320,7 +320,7 @@ def test_cubic_interpolation_hfs_os():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
 
-    grid = BeckeMolGrid(sys, random_rotate=False)
+    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(), LibXCLDA('x')], grid)
 
     dma0 = sys.wfn.dm_alpha.copy()
@@ -336,7 +336,7 @@ def test_cubic_interpolation_o3lyp_os():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
 
-    grid = BeckeMolGrid(sys, random_rotate=False)
+    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
     libxc_term = LibXCHybridGGA('xc_o3lyp')
     ham = Hamiltonian(sys, [HartreeFockExchange(libxc_term.get_exx_fraction()), libxc_term], grid)
 

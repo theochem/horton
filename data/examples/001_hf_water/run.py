@@ -23,6 +23,6 @@ ham.compute()
 log.set_level(log.medium)
 
 # Partition the density with the Becke scheme
-grid = BeckeMolGrid(sys, mode='keep')
+grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, mode='keep')
 bp = BeckeWPart(sys, grid)
 bp.do_charges()

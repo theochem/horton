@@ -58,7 +58,7 @@ def test_scf_oda_water_hf_321g():
 def test_scf_oda_lih_hfs_321g():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     sys = System.from_file(fn_fchk)
-    grid = BeckeMolGrid(sys, random_rotate=False)
+    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
 
     # test continuation of interupted scf_oda

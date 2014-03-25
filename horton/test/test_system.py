@@ -169,52 +169,33 @@ def test_electron_repulsion_water_ccpvdz_cart_hf():
     check_electron_repulsion(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'))
 
 
-def check_grid_fn(fn_fchk, use_output_arg):
-    sys = System.from_file(fn_fchk)
-    grid = BeckeMolGrid(sys, 'tv-13.7-4', random_rotate=False)
-    if use_output_arg:
-        rhos = np.zeros(grid.size)
-        sys.compute_grid_density(grid.points, rhos)
-    else:
-        rhos = sys.compute_grid_density(grid.points)
+def check_grid_fn(fn_fchk):
+    data = load_smart(fn_fchk)
+    grid = BeckeMolGrid(data['coordinates'], data['numbers'], data['pseudo_numbers'], 'tv-13.7-4', random_rotate=False)
+    rhos = np.zeros(grid.size)
+    data['obasis'].compute_grid_density_dm(data['wfn'].dm_full, grid.points, rhos)
     pop = grid.integrate(rhos)
-    assert abs(pop-sys.wfn.nel) < 2e-3
+    assert abs(pop-data['wfn'].nel) < 2e-3
 
 
-def test_grid_fn_h_sto3g_T():
-    check_grid_fn(context.get_fn('test/h_sto3g.fchk'), True)
-
-def test_grid_fn_h_sto3g_F():
-    check_grid_fn(context.get_fn('test/h_sto3g.fchk'), False)
+def test_grid_fn_h_sto3g():
+    check_grid_fn(context.get_fn('test/h_sto3g.fchk'))
 
 
-def test_grid_fn_lih_321g_hf_T():
-    check_grid_fn(context.get_fn('test/li_h_3-21G_hf_g09.fchk'), True)
+def test_grid_fn_lih_321g_hf():
+    check_grid_fn(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
 
 
 def test_grid_fn_water_sto3g_hf_T():
-    check_grid_fn(context.get_fn('test/water_sto3g_hf_g03.fchk'), True)
-
-
-def test_grid_fn_water_ccpvdz_pure_hf_F():
-    check_grid_fn(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'), False)
-
-
-def test_grid_fn_water_ccpvdz_cart_hf_F():
-    check_grid_fn(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'), False)
+    check_grid_fn(context.get_fn('test/water_sto3g_hf_g03.fchk'))
 
 
 def test_grid_fn_co_ccpv5z_pure_hf_T():
-    check_grid_fn(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'), True)
+    check_grid_fn(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'))
 
-def test_grid_fn_co_ccpv5z_pure_hf_F():
-    check_grid_fn(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'), False)
 
 def test_grid_fn_co_ccpv5z_cart_hf_T():
-    check_grid_fn(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'), True)
-
-def test_grid_fn_co_ccpv5z_cart_hf_F():
-    check_grid_fn(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'), False)
+    check_grid_fn(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
 
 
 def check_normalization_dm_full_azirine(fn_fchk):
@@ -253,28 +234,3 @@ def test_update_obasis():
     assert len(sys.extra) == 0
     olp = sys.get_overlap()
     assert olp.nbasis == 13
-
-
-def test_update_coordinates1():
-    sys = System.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
-    olp = sys.get_overlap()
-    assert len(sys.extra) > 0
-    assert len(sys.cache) > 0
-    sys.update_coordinates(np.array([[0.0, 0.1, 0.2], [0.3, 0.4, 0.5], [0.6, 0.7, 0.8]]))
-    assert sys.coordinates[1,2] == 0.5
-    assert len(sys.extra) == 0
-    assert len(sys.cache) == 0
-    assert sys.obasis.centers[1,2] == 0.5
-
-
-def test_update_coordinates2():
-    sys = System.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
-    olp = sys.get_overlap()
-    assert len(sys.extra) > 0
-    assert len(sys.cache) > 0
-    sys.coordinates[:] = [[0.0, 0.1, 0.2], [0.3, 0.4, 0.5], [0.6, 0.7, 0.8]]
-    sys.update_coordinates()
-    assert sys.coordinates[1,2] == 0.5
-    assert len(sys.extra) == 0
-    assert len(sys.cache) == 0
-    assert sys.obasis.centers[1,2] == 0.5

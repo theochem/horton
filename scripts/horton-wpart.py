@@ -115,7 +115,7 @@ def main():
 
     # Run the partitioning
     agspec = AtomicGridSpec(args.grid)
-    molgrid = BeckeMolGrid(sys, agspec, mode='only')
+    molgrid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, agspec, mode='only')
     sys.update_grid(molgrid) # for the grid to be written to the output
     wpart = wpart_schemes[args.scheme](sys, molgrid, **kwargs)
     names = wpart.do_all()

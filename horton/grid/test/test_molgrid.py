@@ -30,12 +30,11 @@ from horton import *
 def test_integrate_hydrogen_single_1s():
     numbers = np.array([1], int)
     coordinates = np.array([[0.0, 0.0, -0.5]], float)
-    sys = System(coordinates, numbers)
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf)
 
-    mg = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False)
+    mg = BeckeMolGrid(coordinates, numbers, None, (rgrid, 110), random_rotate=False)
     dist0 = np.sqrt(((coordinates[0] - mg.points)**2).sum(axis=1))
     fn = np.exp(-2*dist0)/np.pi
     occupation = mg.integrate(fn)
@@ -45,12 +44,11 @@ def test_integrate_hydrogen_single_1s():
 def test_integrate_hydrogen_pair_1s():
     numbers = np.array([1, 1], int)
     coordinates = np.array([[0.0, 0.0, -0.5], [0.0, 0.0, 0.5]], float)
-    sys = System(coordinates, numbers)
     int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf)
 
-    mg = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False)
+    mg = BeckeMolGrid(coordinates, numbers, None, (rgrid, 110), random_rotate=False)
     dist0 = np.sqrt(((coordinates[0] - mg.points)**2).sum(axis=1))
     dist1 = np.sqrt(((coordinates[1] - mg.points)**2).sum(axis=1))
     fn = np.exp(-2*dist0)/np.pi + np.exp(-2*dist1)/np.pi
@@ -61,11 +59,10 @@ def test_integrate_hydrogen_pair_1s():
 def test_integrate_hydrogen_trimer_1s():
     numbers = np.array([1, 1, 1], int)
     coordinates = np.array([[0.0, 0.0, -0.5], [0.0, 0.0, 0.5], [0.0, 0.5, 0.0]], float)
-    sys = System(coordinates, numbers)
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf)
 
-    mg = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False)
+    mg = BeckeMolGrid(coordinates, numbers, None, (rgrid, 110), random_rotate=False)
     dist0 = np.sqrt(((coordinates[0] - mg.points)**2).sum(axis=1))
     dist1 = np.sqrt(((coordinates[1] - mg.points)**2).sum(axis=1))
     dist2 = np.sqrt(((coordinates[2] - mg.points)**2).sum(axis=1))
@@ -77,10 +74,9 @@ def test_integrate_hydrogen_trimer_1s():
 def test_molgrid_attrs_subgrid():
     numbers = np.array([6, 8], int)
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
-    sys = System(coordinates, numbers)
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf, TrapezoidIntegrator1D())
-    mg = BeckeMolGrid(sys, (rgrid, 110), mode='keep')
+    mg = BeckeMolGrid(coordinates, numbers, None, (rgrid, 110), mode='keep')
 
     assert mg.size == 2*110*100
     assert mg.points.shape == (mg.size, 3)
@@ -108,10 +104,9 @@ def test_molgrid_attrs_subgrid():
 def test_molgrid_attrs():
     numbers = np.array([6, 8], int)
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
-    sys = System(coordinates, numbers)
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf, TrapezoidIntegrator1D())
-    mg = BeckeMolGrid(sys, (rgrid, 110))
+    mg = BeckeMolGrid(coordinates, numbers, None, (rgrid, 110))
 
     assert mg.size == 2*110*100
     assert mg.points.shape == (mg.size, 3)
@@ -127,7 +122,7 @@ def test_custom_grid_linear_observable():
     int1d = SimpsonIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf)
-    grid = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False)
+    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, (rgrid, 110), random_rotate=False)
 
     # Without perturbation
     ham = Hamiltonian(sys, [HartreeFockExchange()])
@@ -169,40 +164,17 @@ def test_custom_grid_linear_observable():
 def test_family():
     numbers = np.array([6, 8], int)
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
-    sys = System(coordinates, numbers)
-    grid = BeckeMolGrid(sys, 'tv-13.7-3', random_rotate=False)
+    grid = BeckeMolGrid(coordinates, numbers, None, 'tv-13.7-3', random_rotate=False)
     assert grid.size == 1536+1612
-
-
-def test_update_centers():
-    numbers = np.array([6, 8], int)
-    coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
-    sys = System(coordinates, numbers)
-    grid = BeckeMolGrid(sys, 'tv-13.7-3', mode='keep')
-    sys.update_grid(grid)
-
-    def helper():
-        assert (grid.points[:1536] == grid.subgrids[0].points).all()
-        assert (grid.points[1536:] == grid.subgrids[1].points).all()
-        for subgrid in grid.subgrids:
-            assert abs(np.dot(subgrid.weights, subgrid.points)/subgrid.weights.sum() - subgrid.center).max() < 1e-10
-
-    helper()
-    coordinates = np.array([[0.3, 0.0, 0.1], [-0.1, -0.2, 0.3]], float)
-    sys.update_coordinates(coordinates)
-    assert (grid.subgrids[0].center == coordinates[0]).all()
-    assert (grid.subgrids[1].center == coordinates[1]).all()
-    helper()
 
 
 def test_molgrid_hdf5():
     # prepare a molgrid
     numbers = np.array([6, 8], int)
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
-    sys = System(coordinates, numbers)
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf)
-    mg1 = BeckeMolGrid(sys, (rgrid, 110), k=2, random_rotate=False, mode='keep')
+    mg1 = BeckeMolGrid(coordinates, numbers, None, (rgrid, 110), k=2, random_rotate=False, mode='keep')
 
     # run the routines that need testing
     with h5.File('horton.grid.test.test_molgrid.test_molgrid_hdf5', driver='core', backing_store=False) as f:

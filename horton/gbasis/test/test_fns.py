@@ -173,11 +173,13 @@ def test_grid_fn_d_contraction():
 
 def test_density_epsilon():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    sys = System.from_file(fn_fchk)
-    grid = BeckeMolGrid(sys, random_rotate=False)
-    rho1 = sys.compute_grid_density(grid.points)
+    data = load_smart(fn_fchk)
+    grid = BeckeMolGrid(data['coordinates'], data['numbers'], data['pseudo_numbers'], random_rotate=False)
+    rho1 = grid.zeros()
+    data['obasis'].compute_grid_density_dm(data['wfn'].dm_full, grid.points, rho1)
     for epsilon in 1e-10, 1e-5, 1e-3, 1e-1:
-        rho2 = sys.compute_grid_density(grid.points, epsilon=epsilon)
+        rho2 = grid.zeros()
+        data['obasis'].compute_grid_density_dm(data['wfn'].dm_full, grid.points, rho2, epsilon=epsilon)
         mask = (rho1 != rho2)
         assert ((rho1[mask] < epsilon) | (abs(rho1[mask]-rho2[mask]) < epsilon)).all()
         assert ((rho2[mask] == 0.0) | (abs(rho1[mask]-rho2[mask]) < epsilon)).all()
@@ -185,28 +187,33 @@ def test_density_epsilon():
 
 def test_density_functional_deriv():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    sys = System.from_file(fn_fchk)
-    sys.wfn.clear_dm()
+    data = load_smart(fn_fchk)
+    wfn = data['wfn']
+    obasis = data['obasis']
+
+    wfn.clear_dm()
     rtf = ExpRTransform(1e-3, 1e1, 10)
     rgrid = RadialGrid(rtf)
-    grid = BeckeMolGrid(sys, (rgrid, 6), random_rotate=False, mode='keep')
+    grid = BeckeMolGrid(data['coordinates'], data['numbers'], data['pseudo_numbers'], (rgrid, 6), random_rotate=False, mode='keep')
     pot = grid.points[:,2].copy()
 
     def fun(x):
-        sys.wfn.dm_full._array[:] = x.reshape(sys.obasis.nbasis, -1)
-        f = sys.compute_grid_density(grid.points)
+        wfn.dm_full._array[:] = x.reshape(obasis.nbasis, -1)
+        f = grid.zeros()
+        obasis.compute_grid_density_dm(wfn.dm_full, grid.points, f)
         return 0.5*grid.integrate(f, f, pot)
 
     def fun_deriv(x):
-        sys.wfn.dm_full._array[:] = x.reshape(sys.obasis.nbasis, -1)
-        result = sys.wfn.dm_full.copy()
+        wfn.dm_full._array[:] = x.reshape(obasis.nbasis, -1)
+        result = wfn.dm_full.copy()
         result.clear()
-        f = sys.compute_grid_density(grid.points)
-        sys.compute_grid_density_fock(grid.points, grid.weights, pot*f, result)
+        f = grid.zeros()
+        obasis.compute_grid_density_dm(wfn.dm_full, grid.points, f)
+        obasis.compute_grid_density_fock(grid.points, grid.weights, pot*f, result)
         return result._array.ravel()
 
     eps = 1e-4
-    x = sys.wfn.update_dm('full')._array.copy().ravel()
+    x = wfn.update_dm('full')._array.copy().ravel()
     dxs = []
     for i in xrange(100):
         dxs.append(np.random.uniform(-eps, +eps, x.shape)*x)
@@ -231,6 +238,7 @@ def test_density_gradient_n2_sto3g():
     data = load_smart(fn_fchk)
     obasis = data['obasis']
     wfn = data['wfn']
+    wfn.clear_dm()
 
     points = np.zeros((1,3), float)
     g = np.zeros((1,3), float)
@@ -324,30 +332,35 @@ def test_dm_gradient_h3_321g():
 
 def test_gradient_functional_deriv():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    sys = System.from_file(fn_fchk)
-    sys.wfn.clear_dm()
+    data = load_smart(fn_fchk)
+    obasis = data['obasis']
+    wfn = data['wfn']
+    wfn.clear_dm()
+
     rtf = ExpRTransform(1e-3, 1e1, 10)
     rgrid = RadialGrid(rtf)
-    grid = BeckeMolGrid(sys, (rgrid, 6), random_rotate=False, mode='keep')
+    grid = BeckeMolGrid(data['coordinates'], data['numbers'], data['pseudo_numbers'], (rgrid, 6), random_rotate=False, mode='keep')
     pot = grid.points[:,2].copy()
 
     def fun(x):
-        sys.wfn.dm_full._array[:] = x.reshape(sys.obasis.nbasis, -1)
-        f = sys.compute_grid_gradient(grid.points)
+        wfn.dm_full._array[:] = x.reshape(obasis.nbasis, -1)
+        f = np.zeros((grid.size, 3))
+        obasis.compute_grid_gradient_dm(wfn.dm_full, grid.points, f)
         tmp = (f*f).sum(axis=1)
         return 0.5*grid.integrate(tmp, pot)
 
     def fun_deriv(x):
-        sys.wfn.dm_full._array[:] = x.reshape(sys.obasis.nbasis, -1)
-        result = sys.wfn.dm_full.copy()
+        wfn.dm_full._array[:] = x.reshape(obasis.nbasis, -1)
+        result = wfn.dm_full.copy()
         result.clear()
-        tmp = sys.compute_grid_gradient(grid.points)
+        tmp = np.zeros((grid.size, 3))
+        obasis.compute_grid_gradient_dm(wfn.dm_full, grid.points, tmp)
         tmp *= pot.reshape(-1,1)
-        sys.compute_grid_gradient_fock(grid.points, grid.weights, tmp, result)
+        obasis.compute_grid_gradient_fock(grid.points, grid.weights, tmp, result)
         return result._array.ravel()
 
     eps = 1e-4
-    x = sys.wfn.update_dm('full')._array.copy().ravel()
+    x = wfn.update_dm('full')._array.copy().ravel()
     dxs = []
     for i in xrange(100):
         tmp = np.random.uniform(-eps, +eps, x.shape)*x

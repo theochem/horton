@@ -59,7 +59,7 @@ def test_energy_hydrogen():
 def test_energy_n2_hfs_sto3g():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    grid = BeckeMolGrid(sys, random_rotate=False)
+    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
     ham.compute()
 
@@ -91,7 +91,7 @@ def test_fock_n2_hfs_sto3g():
     # energies
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    grid = BeckeMolGrid(sys, 'veryfine', random_rotate=False)
+    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
 
     # The convergence should be reasonable, not perfect because of limited
@@ -126,7 +126,7 @@ def test_fock_h3_hfs_321g():
     # energies
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
-    grid = BeckeMolGrid(sys, 'veryfine', random_rotate=False)
+    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
 
     # The convergence should be reasonable, not perfect because of limited
@@ -164,7 +164,7 @@ def test_cubic_interpolation_hfs_cs():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
 
-    grid = BeckeMolGrid(sys, random_rotate=False)
+    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(), DiracExchange()], grid)
 
     dm0 = sys.lf.create_one_body()
@@ -230,7 +230,7 @@ def test_auto_complete():
     assert any(isinstance(term, ExternalPotential) for term in ham.terms)
 
     # DFT case
-    grid = BeckeMolGrid(sys, random_rotate=False)
+    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
     ham = Hamiltonian(sys, [DiracExchange()], grid)
     assert any(isinstance(term, KineticEnergy) for term in ham.terms)
     assert any(isinstance(term, ExternalPotential) for term in ham.terms)
@@ -246,7 +246,7 @@ def test_auto_complete():
 def test_exchange_missing():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
-    grid = BeckeMolGrid(sys)
+    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers)
 
     # Hartree model
     with assert_raises(ValueError):

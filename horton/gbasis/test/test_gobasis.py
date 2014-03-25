@@ -309,16 +309,24 @@ def test_grid_co_ccpv5z_pure_hf_esp_some_points():
 
 
 def test_grid_one_body_ne():
-    sys = System.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
+    data = load_smart(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
+    lf = data['lf']
+    obasis = data['obasis']
+    coordinates = data['coordinates']
+    numbers = data['numbers']
+    pseudo_numbers = data['numbers']
+
     rtf = ExpRTransform(1e-3, 2e1, 100)
     rgrid = RadialGrid(rtf)
-    grid = BeckeMolGrid(sys, (rgrid, 110), random_rotate=False)
-    dist0 = np.sqrt(((grid.points - sys.coordinates[0])**2).sum(axis=1))
-    dist1 = np.sqrt(((grid.points - sys.coordinates[1])**2).sum(axis=1))
-    pot = -sys.numbers[0]/dist0 - sys.numbers[1]/dist1
-    na_ana = sys.get_nuclear_attraction()
-    na_grid = sys.lf.create_one_body()
-    sys.obasis.compute_grid_density_fock(grid.points, grid.weights, pot, na_grid)
+    grid = BeckeMolGrid(coordinates, numbers, pseudo_numbers, (rgrid, 110), random_rotate=False)
+    dist0 = np.sqrt(((grid.points - coordinates[0])**2).sum(axis=1))
+    dist1 = np.sqrt(((grid.points - coordinates[1])**2).sum(axis=1))
+    pot = -numbers[0]/dist0 - numbers[1]/dist1
+    na_ana = lf.create_one_body()
+    obasis.compute_nuclear_attraction(numbers.astype(float), coordinates, na_ana)
+    na_grid = lf.create_one_body()
+    obasis.compute_grid_density_fock(grid.points, grid.weights, pot, na_grid)
+    # compare grid-based operator with analytical result
     assert abs(na_grid._array).max() > 8.0
     assert abs(na_ana._array-na_grid._array).max() < 2e-3
     # check symmetry
