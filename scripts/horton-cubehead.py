@@ -22,7 +22,7 @@
 
 
 import argparse, numpy as np
-from horton import System, __version__, angstrom
+from horton import load_smart, __version__, angstrom
 
 
 def parse_args():
@@ -49,9 +49,10 @@ def main():
     margin = args.margin*angstrom
     spacing = args.spacing*angstrom
 
-    sys = System.from_file(args.structure)
+    data = load_smart(args.structure)
+    coordinates = data['coordinates']
     # compute the shape tensor
-    shape = np.dot(sys.coordinates.transpose(), sys.coordinates)
+    shape = np.dot(coordinates.transpose(), coordinates)
     # diagonalize to obtain the x, y and z directions.
     evals, evecs = np.linalg.eigh(shape)
     axes = evecs.transpose()*spacing
@@ -60,7 +61,7 @@ def main():
     nrep = np.zeros(3, int)
     origin = np.zeros(3, float)
     for i in xrange(3):
-        projc = np.dot(sys.coordinates, evecs[:,i])
+        projc = np.dot(coordinates, evecs[:,i])
         nrep[i] = np.ceil((projc.max() - projc.min() + 2*margin)/spacing)+1
         origin += 0.5*(projc.max() + projc.min() - (nrep[i]-1)*spacing)*evecs[:,i]
 
