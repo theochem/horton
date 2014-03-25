@@ -61,7 +61,11 @@ def test_db_basics_pseudo():
     assert padb.get_charges(8, safe=True) == [2, 1, 0, -1]
     assert padb.get_charges(14) == [0]
     assert not padb.get_record(8, -2).safe
+    assert padb.get_rgrid(8) is padb.get_record(8, -2).rgrid
+    assert padb.get_rgrid(8) is padb.get_record(8, -1).rgrid
+    assert padb.get_rgrid(8) is padb.get_record(8, 0).rgrid
     assert padb.get_rgrid(8) is padb.get_record(8, 1).rgrid
+    assert padb.get_rgrid(8) is padb.get_record(8, 2).rgrid
     r1 = padb.get_record(8, -1)
     assert r1.safe
     assert abs(r1.energy - -15.866511882272) < 1e-8
@@ -77,8 +81,8 @@ def test_db_basics_pseudo():
 
 def test_record_basics_pseudo():
     fn_out = context.get_fn('test/atom_si.cp2k.out')
-    sys = System.from_file(fn_out)
-    r = ProAtomRecord.from_system(sys)
+    data = load_smart(fn_out)
+    r = ProAtomRecord.from_data(data)
     assert r.number == 14
     assert r.charge == 0
     assert abs(r.energy - -3.761587698067) < 1e-10

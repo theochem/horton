@@ -30,7 +30,7 @@ from horton.grid.cext import RTransform, CubicSpline
 from horton.grid.radial import RadialGrid
 from horton.io.lockedh5 import LockedH5File
 from horton.log import log, timer
-from horton.system import System
+from horton.io.smart import load_smart
 
 
 __all__ = ['ProAtomRecord', 'ProAtomDB']
@@ -38,14 +38,15 @@ __all__ = ['ProAtomRecord', 'ProAtomDB']
 
 class ProAtomRecord(object):
     '''A single proatomic density record'''
+
     @classmethod
-    def from_system(cls, system, agspec='fine'):
-        '''Construct a proatom record from a system and an atomic grid
+    def from_data(cls, data, agspec='fine'):
+        '''Construct a proatom record from a data dictionary and an atomic grid
 
            **Arguments:**
 
-           sys
-                The one-atom system.
+           data
+                Molecule data dictionary constructed with e.g. load_smart
 
            **Optional arguments:**
 
@@ -54,15 +55,65 @@ class ProAtomRecord(object):
                 instance of the AtomicGridSpec object, or the first argument
                 of its constructor.
         '''
-        if system.natom != 1:
-            raise ValueError('Can only construct a proatom record from a one-atom system.')
+        if len(data['numbers']) != 1:
+            raise ValueError('More than one atom found for pro-atom record.')
+        number = data['numbers'][0]
+
+        if 'pseudo_numbers' in data:
+            if len(data['pseudo_numbers']) != 1:
+                raise ValueError('More than one atom found for pro-atom record.')
+            pseudo_number = data['pseudo_numbers'][0]
+        else:
+            pseudo_number = number
+
+        if len(data['coordinates']) != 1:
+            raise ValueError('More than one atom found for pro-atom record.')
+        center = data['coordinates'][0]
+
+        return cls.from_wfn(center, number, pseudo_number, data['obasis'], data['wfn'], data.get('energy', 0.0), agspec)
+
+    @classmethod
+    def from_wfn(cls, center, number, pseudo_number, obasis, wfn, energy, agspec='fine'):
+        '''Construct a proatom record from a single-atom wfn and an atomic grid
+
+           **Arguments:**
+
+           center
+                The position of the nuclues (needed for spherical average)
+
+           number
+                The atomic number
+
+           pseudo_number
+                The effective core charges
+
+           obasis
+                The orbital basis
+
+           wfn
+                The WFN object
+
+           energy
+                The electronic energy of the atom
+
+           **Optional arguments:**
+
+           agspec
+                A specifications of the atomic grid. This can either be an
+                instance of the AtomicGridSpec object, or the first argument
+                of its constructor.
+        '''
+        if len(center) != 3:
+            raise TypeError('Center should be a vector with three elements.')
         if not isinstance(agspec, AtomicGridSpec):
             agspec = AtomicGridSpec(agspec)
 
         # Compute the density and the gradient on a grid
-        atgrid = AtomicGrid(system.numbers[0], system.pseudo_numbers[0], system.coordinates[0], agspec)
-        rho_all = system.compute_grid_density(atgrid.points)
-        grad_all = system.compute_grid_gradient(atgrid.points)
+        atgrid = AtomicGrid(number, pseudo_number, center, agspec)
+        rho_all = np.zeros(atgrid.size)
+        obasis.compute_grid_density_dm(wfn.dm_full, atgrid.points, rho_all)
+        grad_all = np.zeros((atgrid.size, 3))
+        obasis.compute_grid_gradient_dm(wfn.dm_full, atgrid.points, grad_all)
         rrgrad_all = ((atgrid.points-atgrid.center)*grad_all).sum(axis=1)
         # Compute spherical averages
         rho = atgrid.get_spherical_average(rho_all)
@@ -70,18 +121,15 @@ class ProAtomRecord(object):
 
         # Derive the number of electrions
         try:
-            nel = system.wfn.nel
+            nel = wfn.nel
         except NotImplementedError:
             nel = int(np.round(atgrid.rgrid.integrate(rho)))
 
         # Get all the other information from the atom
-        energy = system.extra['energy']
         try:
-            homo_energy = system.wfn.homo_energy
+            homo_energy = wfn.homo_energy
         except AttributeError:
             homo_energy = None
-        number = system.numbers[0]
-        pseudo_number = system.pseudo_numbers[0]
         charge = pseudo_number - nel
 
         # Create object
@@ -370,7 +418,7 @@ class ProAtomDB(object):
            **Arguments:**
 
            fns_chk
-                A list of system files.
+                A list of atomic output files.
 
            **Optional arguments:**
 
@@ -383,11 +431,11 @@ class ProAtomDB(object):
             agspec = AtomicGridSpec(agspec)
         records = []
         for fn in fns:
-            # Load system
+            # Load atomic data
             with timer.section('Load proatom'):
-                sys = System.from_file(fn, chk=None) # avoid rewriting in case of chk file
+                data = load_smart(fn)
             with timer.section('Proatom grid'):
-                records.append(ProAtomRecord.from_system(sys, agspec))
+                records.append(ProAtomRecord.from_data(data, agspec))
         return cls(records)
 
     @classmethod
@@ -418,7 +466,7 @@ class ProAtomDB(object):
                 instance of the AtomicGridSpec object, or the first argument
                 of its constructor.
         '''
-        # Load all the systems
+        # Search for all the relevant .h5 files of built-in reference atoms
         fns_chk = []
         for fn in context.glob('refatoms/*.h5'):
             name = os.path.basename(fn)
