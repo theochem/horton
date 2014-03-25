@@ -76,13 +76,12 @@ def test_generate():
 
 
 def test_identify():
-    sys1 = System.from_file(context.get_fn('test/lta_gulp.cif'))
-    sys2 = System.from_file(context.get_fn('test/aelta.cube'))
-    sys2._cell = sys1.cell # The cell parameters in aelta.cube are rubbish.
-    sym = sys1.extra['symmetry']
-    links = sym.identify(sys2)
-    for i in xrange(sys2.natom):
-        if sys2.numbers[i] == 14:
+    data1 = load_smart(context.get_fn('test/lta_gulp.cif'))
+    data2 = load_smart(context.get_fn('test/aelta.cube'))
+    sym = data1['symmetry']
+    links = sym.identify(data2['coordinates'], data1['cell']) # The cell parameters in aelta.cube are rubbish.
+    for i in xrange(len(data2['numbers'])):
+        if data2['numbers'][i] == 14:
             assert links[i,0] == 0
 
 
@@ -95,7 +94,7 @@ def test_hdf5():
 
 
 def test_symmetry_error():
-    sys1 = System.from_file(context.get_fn('test/lta_gulp.cif'))
-    sys2 = System.from_file(context.get_fn('test/lta_iza.cif'))
+    data1 = load_smart(context.get_fn('test/lta_gulp.cif'))
+    data2 = load_smart(context.get_fn('test/lta_iza.cif'))
     with assert_raises(SymmetryError):
-        sys1.extra['symmetry'].identify(sys2)
+        data1['symmetry'].identify(data2['coordinates'], data2['cell'])

@@ -23,11 +23,12 @@
 
 import sys, argparse, os, numpy as np
 
-from horton import System, setup_weights, ESPCost, log, angstrom, __version__
+from horton import load_smart, dump_smart, setup_weights, ESPCost, log, \
+    angstrom, __version__
 from horton.scripts.common import reduce_data, parse_ewald_args, parse_pbc, \
     write_script_output, parse_h5, check_output
 from horton.scripts.espfit import parse_wdens, parse_wnear, parse_wfar, \
-    load_rho, save_weights, max_at_edge
+    load_rho, max_at_edge
 from horton.grid.cext import UniformGrid
 
 
@@ -120,15 +121,18 @@ def main():
     if check_output(fn_h5, grp_name, args.overwrite):
         return
 
-    # Load the system
+    # Load the potential data
     if log.do_medium:
         log('Loading potential array')
-    sys = System.from_file(args.cube)
-    ugrid = sys.grid
+    data_pot = load_smart(args.cube)
+    ugrid = data_pot['grid']
+    coordinates = data_pot['coordinates']
+    numbers = data_pot['numbers']
+    natom = len(numbers)
     if not isinstance(ugrid, UniformGrid):
         raise TypeError('The specified file does not contain data on a rectangular grid.')
     ugrid.pbc[:] = parse_pbc(args.pbc) # correct pbc
-    esp = sys.extra['cube_data']
+    esp = data_pot['cube_data']
 
     # Reduce the grid if required
     if args.stride > 1:
@@ -152,11 +156,12 @@ def main():
     if wdens is not None:
         if log.do_medium:
             log('Loading density array')
-        rho = load_rho(sys, wdens[0], ugrid, args.stride, args.chop)
+        # either the provided density or a built-in prodensity
+        rho = load_rho(coordinates, numbers, wdens[0], ugrid, args.stride, args.chop)
         wdens = (rho,) + wdens[1:]
     if log.do_medium:
         log('Constructing weight function')
-    weights = setup_weights(sys, ugrid,
+    weights = setup_weights(coordinates, numbers, ugrid,
         dens=wdens,
         near=parse_wnear(args.wnear),
         far=parse_wnear(args.wfar),
@@ -166,7 +171,10 @@ def main():
     if args.wsave is not None:
         if log.do_medium:
             log('   Saving weights array   ')
-        save_weights(args.wsave, sys, ugrid, weights)
+        # construct a new data dictionary that contains all info for the cube file
+        data_weights = data_pot.copy()
+        data_weights['cube_data'] = weights
+        dump_smart(args.wsave, data_weights)
 
     # rescale weights such that the cost function is the mean-square-error
     if weights.max() == 0.0:
@@ -181,7 +189,7 @@ def main():
         log.hline()
         log('Used number of grid points:   %12i' % (weights>0).sum())
         log('Used volume:                      %12.5f' % used_volume)
-        log('Used volume/atom:                 %12.5f' % (used_volume/sys.natom))
+        log('Used volume/atom:                 %12.5f' % (used_volume/natom))
         log('Lowest weight:                %12.5e' % wmin)
         log('Highest weight:               %12.5e' % wmax)
         log('Max weight at edge:           %12.5f' % max_at_edge(weights, ugrid.pbc))
@@ -199,7 +207,7 @@ def main():
     # Construct the cost function
     if log.do_medium:
         log('Setting up cost function (may take a while)   ')
-    cost = ESPCost.from_grid_data(sys, ugrid, esp, weights, rcut, alpha, gcut)
+    cost = ESPCost.from_grid_data(coordinates, ugrid, esp, weights, rcut, alpha, gcut)
 
     # Store cost function info
     results = {}

@@ -59,24 +59,28 @@ class ESPCost(object):
         grp['natom'] = self.natom
 
     @classmethod
-    def from_grid_data(cls, system, ugrid, vref, weights, rcut=20.0, alpha=None, gcut=None):
+    def from_grid_data(cls, coordinates, ugrid, vref, weights, rcut=20.0, alpha=None, gcut=None):
+        if len(coordinates.shape) != 2 or coordinates.shape[1] != 3:
+            raise TypeError('The argument coordinates must be an array with three columns.')
+        natom = coordinates.shape[0]
         if alpha is None:
             alpha = 3.0 / rcut
         if gcut is None:
             gcut = 1.1 * alpha
         if isinstance(ugrid, UniformGrid):
+            natom = len(coordinates)
             if (ugrid.pbc == [1, 1, 1]).all():
-                A = np.zeros((system.natom+1, system.natom+1), float)
-                B = np.zeros(system.natom+1, float)
+                A = np.zeros((natom+1, natom+1), float)
+                B = np.zeros(natom+1, float)
                 C = np.zeros((), float)
-                setup_esp_cost_cube(ugrid, vref, weights, system.coordinates, A, B, C, rcut, alpha, gcut)
-                return cls(A, B, C, system.natom)
+                setup_esp_cost_cube(ugrid, vref, weights, coordinates, A, B, C, rcut, alpha, gcut)
+                return cls(A, B, C, natom)
             else:
-                A = np.zeros((system.natom, system.natom), float)
-                B = np.zeros(system.natom, float)
+                A = np.zeros((natom, natom), float)
+                B = np.zeros(natom, float)
                 C = np.zeros((), float)
-                setup_esp_cost_cube(ugrid, vref, weights, system.coordinates, A, B, C, 0.0, 0.0, 0.0)
-                return cls(A, B, C, system.natom)
+                setup_esp_cost_cube(ugrid, vref, weights, coordinates, A, B, C, 0.0, 0.0, 0.0)
+                return cls(A, B, C, natom)
         else:
             raise NotImplementedError
 
@@ -85,8 +89,8 @@ class ESPCost(object):
 
     def value_charges(self, charges):
         if self.natom < len(self._A):
-            # Set up a system where all charges are fixed and the remaining
-            # parameters are solved for.
+            # Set up a system of equations where all charges are fixed and the
+            # remaining parameters are solved for.
             A = self._A[self.natom:,self.natom:]
             B = self._B[self.natom:] - np.dot(charges, self._A[:self.natom,self.natom:])
             C = self._C \
@@ -106,7 +110,7 @@ class ESPCost(object):
            **Optional arguments:**
 
            qtot
-                The total charge of the system
+                The total charge of the molecule/crystal
 
            Higher values for the cost function are still possible but if that
            happens, it is better not to use charges at all.
@@ -137,13 +141,16 @@ class ESPCost(object):
         return x
 
 
-def setup_weights(system, grid, dens=None, near=None, far=None):
+def setup_weights(coordinates, numbers, grid, dens=None, near=None, far=None):
     '''Define a weight function for the ESPCost
 
        **Arguments:**
 
-       system
-            The system for which the weight function must be defined
+       coordinates
+            An array with shape (N, 3) containing atomic coordinates.
+
+       numbers
+            A vector with shape (N,) containing atomic numbers.
 
        grid
             A UniformGrid object.
@@ -171,6 +178,12 @@ def setup_weights(system, grid, dens=None, near=None, far=None):
        far
             Exclude points far away. This is a two-tuple: (R0, gamma).
     '''
+    if len(coordinates.shape) != 2 or coordinates.shape[1] != 3:
+        raise TypeError('The argument coordinates must be an array with three columns.')
+    natom = coordinates.shape[0]
+    if numbers.shape != (natom,):
+        raise TypeError('The arguments numbers must be a vector whose length matches the coordinates argument.')
+
     weights = np.ones(grid.shape)
 
     # combine three possible mask functions
@@ -180,8 +193,8 @@ def setup_weights(system, grid, dens=None, near=None, far=None):
         assert (rho.shape == grid.shape).all()
         multiply_dens_mask(rho, lnrho0, sigma, weights)
     if near is not None:
-        for i in xrange(system.natom):
-            pair = near.get(system.numbers[i])
+        for i in xrange(natom):
+            pair = near.get(numbers[i])
             if pair is None:
                 pair = near.get(0)
             if pair is None:
@@ -189,10 +202,10 @@ def setup_weights(system, grid, dens=None, near=None, far=None):
             r0, gamma = pair
             if r0 > 5*angstrom:
                 raise ValueError('The wnear radius is excessive. Please keep it below 5 angstrom.')
-            multiply_near_mask(system.coordinates[i], grid, r0, gamma, weights)
+            multiply_near_mask(coordinates[i], grid, r0, gamma, weights)
     if far is not None:
         r0, gamma = far
-        multiply_far_mask(system.coordinates, grid, r0, gamma, weights)
+        multiply_far_mask(coordinates, grid, r0, gamma, weights)
 
     # double that weight goes to zero at non-periodic edges
     return weights

@@ -36,7 +36,7 @@ __all__ = ['Symmetry']
 
 
 class Symmetry(object):
-    '''An optional symmetry descriptor for Horton System objects'''
+    '''An geometrical symmetry descriptor'''
     def __init__(self, name, generators, fracs, numbers, cell, labels=None):
         '''
            **Arguments:**
@@ -171,7 +171,7 @@ class Symmetry(object):
 
 
     def generate(self, threshold=0.001):
-        '''Returns a system object
+        '''Apply the generators to the primitive unit to obtain a full molecule.
 
            **Optional arguments:**
 
@@ -187,7 +187,7 @@ class Symmetry(object):
                 Cartesian coordinates for all atoms.
 
            numbers
-                Element numbers for all atoms.
+                Atomic numbers for all atoms.
 
            links
                 An array of indexes to connect each atom back with an atom in
@@ -215,14 +215,17 @@ class Symmetry(object):
 
         return np.array(coordinates), np.array(numbers), np.array(links)
 
-    def identify(self, system, threshold=0.1):
-        '''Connect atoms in the primitive unit with atoms in the system object
+    def identify(self, coordinates, cell, threshold=0.1):
+        '''Connect atoms in the primitive unit with atoms in the full molecule
 
            **Arguments:**
 
-           system
-                A system object where to atoms (with some minor deviation)
-                adhere to this symmetry.
+           coordinates
+                An (N, 3) array of atomic coordinates that adhere (with some
+                minor deviation) to this symmetry.
+
+           cell
+                A Cell instance describing the periodic boundary conditions
 
            **Optional arguments:**
 
@@ -237,17 +240,20 @@ class Symmetry(object):
                 the primitive cell (first column) and a generator (second
                 column).
 
-           If an atom in the System object can not be linked with an atom in
-           the primitive unit, a SymmetryError is raised. If the system contains
-           less atoms (e.g. a vacancy) than the perfect crystal, this method
-           will not complain.
+           If an atom in the full molecule can not be linked with an atom in
+           the primitive unit, a SymmetryError is raised. If the full molecule
+           contains less atoms than the perfect crystal (e.g. a vacancy), this
+           method will not complain.
         '''
+        if len(coordinates.shape) != 2 or coordinates.shape[1] != 3:
+            raise TypeError('The argument coordinates must be an array with three columns.')
+        natom = coordinates.shape[0]
         links = []
-        for k in xrange(system.natom):
+        for k in xrange(natom):
             match = False
-            for i, j, g, frac, cart in self._iter_images(system.cell):
-                delta = system.coordinates[k] - cart
-                system.cell.mic(delta)
+            for i, j, g, frac, cart in self._iter_images(cell):
+                delta = coordinates[k] - cart
+                cell.mic(delta)
                 #print i, j, np.linalg.norm(delta)
                 if np.linalg.norm(delta) < threshold:
                     match = True

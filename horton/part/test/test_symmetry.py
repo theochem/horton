@@ -38,18 +38,16 @@ def get_fake_example():
     cell = Cell(None)
     symmetry = Symmetry('fake', generators, fracs, numbers, cell)
     coordinates, numbers, links = symmetry.generate()
-    system = System(coordinates, numbers, extra={'links': links}, cell=cell)
-    assert system.natom == 3
-    return system, symmetry
+    return coordinates, numbers, links, cell, symmetry
 
 
 def test_symmetry_scalar():
-    system, symmetry = get_fake_example()
+    coordinates, numbers, links, cell, symmetry = get_fake_example()
     aim_results = {
         'charges': np.array([0.29, 0.31, -0.6]),
         'volumes': np.array([1.2, 1.4, 3.4]),
     }
-    sym_results = symmetry_analysis(system, symmetry, aim_results)
+    sym_results = symmetry_analysis(coordinates, cell, symmetry, aim_results)
     assert len(sym_results) == 2
     stats = sym_results['charges']
     assert abs(stats[:,0] - [0.3, -0.6]).max() < 1e-10
@@ -60,7 +58,7 @@ def test_symmetry_scalar():
 
 
 def test_symmetry_moments():
-    system, symmetry = get_fake_example()
+    coordinates, numbers, links, cell, symmetry = get_fake_example()
 
     # setup rotated multipole moments
     m0 = get_pentagon_moments()
@@ -78,7 +76,7 @@ def test_symmetry_moments():
     aim_results = {
         'cartesian_multipoles': np.array([m00, m01, m1]),
     }
-    sym_results = symmetry_analysis(system, symmetry, aim_results)
+    sym_results = symmetry_analysis(coordinates, cell, symmetry, aim_results)
 
     # check results
     assert len(sym_results) == 1

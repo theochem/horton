@@ -23,7 +23,7 @@
 
 import sys, argparse, os, numpy as np
 
-from horton import System, cpart_schemes, Cell, ProAtomDB, log, \
+from horton import System, load_smart, cpart_schemes, Cell, ProAtomDB, log, \
     symmetry_analysis, UniformGrid, __version__
 from horton.scripts.common import reduce_data, store_args, parse_pbc, \
     iter_elements, write_part_output, parse_h5, check_output
@@ -152,15 +152,14 @@ def main():
 
     # Do a symmetry analysis if requested.
     if args.symmetry is not None:
-        sys_sym = System.from_file(args.symmetry)
-        sym = sys_sym.extra.get('symmetry')
+        data_sym = load_smart(args.symmetry)
+        sym = data_sym.get('symmetry')
         if sym is None:
             raise ValueError('No symmetry information found in %s.' % args.symmetry)
-        sys_results = dict((name, cpart[name]) for name in names)
-        sym_results = symmetry_analysis(sys, sym, sys_results)
+        aim_results = dict((name, cpart[name]) for name in names)
+        sym_results = symmetry_analysis(sys.coordinates, sys.cell, sym, aim_results)
         cpart.cache.dump('symmetry', sym_results)
         names.append('symmetry')
-        sys.extra['symmetry'] = sym
 
     write_part_output(fn_h5, grp_name, cpart, names, args)
 

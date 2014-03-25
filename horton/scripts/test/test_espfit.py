@@ -57,12 +57,13 @@ def test_scripts():
     ugrid = UniformGrid(origin, grid_rvecs, shape, pbc)
     esp_cube_data = np.random.uniform(-1, 1, shape)
     rho_cube_data = np.random.uniform(-1, 1, shape)
-    sys_esp = System(coordinates, numbers, grid=ugrid, extra={'cube_data': esp_cube_data})
-    sys_rho = System(coordinates, numbers, grid=ugrid, extra={'cube_data': rho_cube_data})
+    data_esp = {'coordinates': coordinates, 'numbers': numbers, 'grid': ugrid, 'cube_data': esp_cube_data}
+    data_rho = data_esp.copy()
+    data_rho['cube_data'] = rho_cube_data
 
     # Write the cube file to the tmpdir and run scripts (run 1)
     with tmpdir('horton.scripts.test.test_espfit.test_scripts') as dn:
-        sys_esp.to_file(os.path.join(dn, 'esp.cube'))
+        dump_smart(os.path.join(dn, 'esp.cube'), data_esp)
         check_script('horton-esp-cost.py esp.cube esp.h5 --wnear=0:1.0:0.5', dn)
         check_script('horton-esp-fit.py esp.h5 other.h5', dn)
         check_script('horton-esp-test.py esp.h5 other.h5:charges foo.h5', dn)
@@ -71,8 +72,8 @@ def test_scripts():
 
     # Write the cube file to the tmpdir and run scripts (run 2)
     with tmpdir('horton.scripts.test.test_espfit.test_scripts2') as dn:
-        sys_esp.to_file(os.path.join(dn, 'esp.cube'))
-        sys_rho.to_file(os.path.join(dn, 'rho.cube'))
+        dump_smart(os.path.join(dn, 'esp.cube'), data_esp)
+        dump_smart(os.path.join(dn, 'rho.cube'), data_rho)
         check_script('horton-esp-cost.py esp.cube esp.h5 --wnear=0:1.0:0.5 --wdens=rho.cube --wsave=weight.cube', dn)
         check_files(dn, ['esp.h5', 'weight.cube'])
         check_script('horton-esp-fit.py esp.h5 other.h5', dn)
@@ -85,16 +86,16 @@ def test_scripts_symmetry():
     # Write the cube file to the tmpdir and run scripts
     with tmpdir('horton.scripts.test.test_espfit.test_scripts_symmetry') as dn:
         # prepare files
-        sys = write_random_lta_cube(dn, 'esp.cube')
+        write_random_lta_cube(dn, 'esp.cube')
         copy_files(dn, ['lta_gulp.cif'])
         # run scripts
         check_script('horton-esp-cost.py esp.cube esp.h5 --wnear=0:1.0:0.5 --rcut=4 --alpha-scale=0.1', dn)
         check_files(dn, ['esp.h5'])
         check_script('horton-esp-fit.py esp.h5 other.h5 --symmetry esp.cube lta_gulp.cif', dn)
-        sys_sym = System.from_file('%s/lta_gulp.cif' % dn)
+        data_sym = load_smart('%s/lta_gulp.cif' % dn)
         with h5.File(os.path.join(dn, 'other.h5')) as f:
             assert 'symmetry' in f
-            assert f['symmetry/charges'].shape == (sys_sym.extra['symmetry'].natom, 2)
+            assert f['symmetry/charges'].shape == (data_sym['symmetry'].natom, 2)
 
 
 def test_max_at_edge():

@@ -27,13 +27,17 @@ from horton.moments import rotate_cartesian_moments
 
 
 
-def symmetry_analysis(system, symmetry, aim_results):
+def symmetry_analysis(coordinates, cell, symmetry, aim_results):
     '''Compute averages and standard deviations on AIM results of equivalent atoms
 
        **Arguments:**
 
-       system
-            The system on which the partitioning was carried out.
+       coordinates
+            An (N, 3) array of atomic coordinates that adhere (with some minor
+            deviation) to this symmetry.
+
+       cell
+            A Cell instance describing the periodic boundary conditions
 
        symmetry
             The symmetry descriptor that is used to find the equivalent atoms.
@@ -50,13 +54,13 @@ def symmetry_analysis(system, symmetry, aim_results):
        array is one higher:
 
        * first dimension: number if unique atoms in the primitive unit, instead
-         of the number of atoms in the full system
+         of the number of atoms in the full molecule
        * second dimension: index can be 0 or 1. 0 refers to the mean over all
          equivalent atoms. 1 refers to the standard deviation
        * remaining dimensions are borrowed from the origin data in aim_results.
     '''
     # define masks to select atoms that match the one atom in the primitive cell.
-    links = symmetry.identify(system)
+    links = symmetry.identify(coordinates, cell)
     masks = []
     generators = []
     for iprim in xrange(symmetry.natom):

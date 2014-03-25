@@ -23,15 +23,14 @@
 
 import numpy as np
 
-from horton import System, angstrom, ESPCost, LockedH5File
+from horton import load_smart, angstrom, ESPCost, LockedH5File
 from horton.scripts.common import reduce_data, parse_h5
 from horton.part.proatomdb import ProAtomDB
 
 
 __all__ = [
-    'parse_wdens', 'parse_wnear', 'parse_wfar',
-    'load_rho', 'load_cost', 'load_charges',
-    'save_weights', 'max_at_edge',
+    'parse_wdens', 'parse_wnear', 'parse_wfar', 'load_rho', 'load_cost',
+    'load_charges', 'max_at_edge',
 ]
 
 
@@ -103,14 +102,16 @@ def parse_wfar(arg):
     return r0, gamma
 
 
-def load_rho(system, fn_cube, ref_ugrid, stride, chop):
+def load_rho(coordinates, numbers, fn_cube, ref_ugrid, stride, chop):
     '''Load densities from a file, reduce by stride, chop and check ugrid
 
        **Arguments:**
 
-       system
-            A Horton system object for the current system. This is only used
-            to construct the pro-density.
+       coordinates
+            An array with shape (N, 3) containing atomic coordinates.
+
+       numbers
+            A vector with shape (N,) containing atomic numbers.
 
        fn_cube
             The cube file with the electron density.
@@ -127,18 +128,19 @@ def load_rho(system, fn_cube, ref_ugrid, stride, chop):
     '''
     if fn_cube is None:
         # Load the built-in database of proatoms
-        numbers = np.unique(system.numbers)
+        natom = len(numbers)
+        numbers = np.unique(numbers)
         proatomdb = ProAtomDB.from_refatoms(numbers, max_kation=0, max_anion=0, agspec='fine')
         # Construct the pro-density
         rho = np.zeros(ref_ugrid.shape)
-        for i in xrange(system.natom):
-            spline = proatomdb.get_spline(system.numbers[i])
-            ref_ugrid.eval_spline(spline, system.coordinates[i], rho)
+        for i in xrange(natom):
+            spline = proatomdb.get_spline(numbers[i])
+            ref_ugrid.eval_spline(spline, coordinates[i], rho)
     else:
         # Load cube
-        sys = System.from_file(fn_cube)
-        rho = sys.extra['cube_data']
-        ugrid = sys.grid
+        data_rho = load_smart(fn_cube)
+        rho = data_rho['cube_data']
+        ugrid = data_rho['grid']
         # Reduce grid size
         if stride > 1:
             rho, ugrid = reduce_data(rho, ugrid, stride, chop)
@@ -160,30 +162,6 @@ def load_charges(arg_charges):
     fn_h5, ds_name = parse_h5(arg_charges, 'charges', path_optional=False)
     with LockedH5File(fn_h5, 'r') as f:
         return f[ds_name][:]
-
-
-def save_weights(fn_cube, sys, ugrid, weights):
-    '''Save the weights used for the ESP cost function to a cube file
-
-       **Arguments:**
-
-       fn_cube
-            The name of the cube file.
-
-       sys
-            A System instance.
-
-       ugrid
-            The uniform integration grid.
-
-       weights
-            The weights array to be saved.
-    '''
-    # construct a new system that contains all info for the cube file
-    my_sys = System(sys.coordinates, sys.numbers, pseudo_numbers=sys.pseudo_numbers, grid=ugrid)
-    my_sys.extra['cube_data'] = weights
-    # save to file
-    my_sys.to_file(fn_cube)
 
 
 def max_at_edge(weights, pbc):
