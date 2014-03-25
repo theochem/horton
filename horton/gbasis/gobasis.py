@@ -30,9 +30,46 @@ from horton.periodic import periodic
 
 
 __all__ = [
-    'GOBasisDesc', 'GOBasisFamily', 'go_basis_families',
-    'GOBasisAtom', 'GOBasisContraction'
+    'get_gobasis', 'GOBasisDesc', 'GOBasisFamily', 'go_basis_families',
+    'GOBasisAtom', 'GOBasisContraction',
 ]
+
+
+def get_gobasis(coordinates, numbers, default, element_map=None, index_map=None, pure=True):
+    '''Return GOBasis for a given molecule
+
+       **Arguments:**
+
+       coordinates
+            A (N, 3) float numpy array with Cartesian coordinates of the atoms.
+
+       numbers
+            A (N,) numpy vector with the atomic numbers.
+
+       default
+            The default basis set applied to each atom.
+
+       **Optional arguments:**
+
+       element_map
+            A dictionary with element names or numbers as keys, and basis sets
+            as values. These specs override the default basis
+
+       index_map
+            A dictionary with atomic indexes (based on the order of the atoms)
+            as keys and basis sets as values
+
+       pure
+            By default pure basis functions are used. Set this to false to
+            switch to Cartesian basis functions.
+
+       **Returns:** a GOBasis instance
+
+       Note that the geometry specified by the arguments may also contain ghost
+       atoms.
+    '''
+    gobasis_desc = GOBasisDesc(default, element_map, index_map, pure)
+    return gobasis_desc.apply_to(coordinates, numbers)
 
 
 class GOBasisDesc(object):
@@ -80,8 +117,28 @@ class GOBasisDesc(object):
                 self.element_map[number] = element_map[key]
                 del element_map[key]
 
-    def apply_to(self, system):
-        """Construct a GOBasis object for the system"""
+    def apply_to(self, coordinates, numbers):
+        """Construct a GOBasis object for the given molecular geometry
+
+           **Arguments:**
+
+           coordinates
+                A (N, 3) float numpy array with Cartesian coordinates of the
+                atoms.
+
+           numbers
+                A (N,) numpy vector with the atomic numbers.
+
+           Note that the geometry specified by the arguments may also contain
+           ghost atoms.
+        """
+        if len(coordinates.shape) != 2 or coordinates.shape[1] != 3:
+            raise TypeError('coordinates argument must be a 2D array with three columns')
+        if len(numbers.shape) != 1:
+            raise TypeError('numbers must a vector of integers.')
+        if numbers.shape[0] != coordinates.shape[0]:
+            raise TypeError('numbers and coordinates must have compatible array shapes.')
+
         shell_map = []
         nprims = []
         shell_types = []
@@ -122,14 +179,14 @@ class GOBasisDesc(object):
                 raise ValueError('Can not interpret %s as an atomic basis function.' % basis_x)
 
         # Loop over the atoms and fill in all the lists
-        for i in xrange(system.natom):
-            n = system.numbers[i]
+        for i in xrange(len(numbers)):
+            n = numbers[i]
             basis_x = get_basis(i, n)
             basis_atom = translate_basis(basis_x, n)
             basis_atom.extend(i, shell_map, nprims, shell_types, alphas, con_coeffs, self.pure)
 
         # Return the Gaussian basis object.
-        return GOBasis(system.coordinates, shell_map, nprims, shell_types, alphas, con_coeffs)
+        return GOBasis(coordinates, shell_map, nprims, shell_types, alphas, con_coeffs)
 
 
 class GOBasisFamily(object):

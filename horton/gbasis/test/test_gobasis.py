@@ -120,37 +120,49 @@ def test_grid_lih_321g_hf_density_some_points():
         [0.4, 0.2, 0.1, 0.018503681370],
     ])
     ref[:,:3] *= angstrom
-    sys = System.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
+    data = load_smart(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
+    obasis = data['obasis']
+    coordinates = data['coordinates']
+    wfn = data['wfn']
 
     # check for one point the compute_grid_point1 method
-    output = np.zeros(sys.obasis.nbasis, float)
+    output = np.zeros(obasis.nbasis, float)
     point = np.array([0.0, 0.0, 1.0])*angstrom
-    grid_fn = GB1DMGridDensityFn(sys.obasis.max_shell_type)
-    sys.obasis.compute_grid_point1(output, point, grid_fn)
+    grid_fn = GB1DMGridDensityFn(obasis.max_shell_type)
+    obasis.compute_grid_point1(output, point, grid_fn)
     # first basis function is contraction of three s-type gaussians
-    assert sys.obasis.nprims[0] == 3
-    scales = sys.obasis.get_scales()
+    assert obasis.nprims[0] == 3
+    scales = obasis.get_scales()
     total = 0.0
     for i in xrange(3):
-        alpha = sys.obasis.alphas[i]
-        coeff = sys.obasis.con_coeffs[i]
+        alpha = obasis.alphas[i]
+        coeff = obasis.con_coeffs[i]
         nrml = gob_cart_normalization(alpha, np.zeros(3, int))
         # check scale
         assert abs(scales[i] - nrml) < 1e-10
         # check that we are on the first atom
-        assert sys.obasis.shell_map[i] == 0
-        dsq = np.linalg.norm(point - sys.coordinates[0])**2
+        assert obasis.shell_map[i] == 0
+        dsq = np.linalg.norm(point - coordinates[0])**2
         gauss = nrml*np.exp(-alpha*dsq)
         total += coeff*gauss
     assert abs(total - output[0]) < 1e-10
 
     # check density matrix value
-    dm = sys.wfn.dm_full
+    dm = wfn.dm_full
     assert abs(dm._array[0,0] - 1.96589709) < 1e-7
 
     points = ref[:,:3].copy()
-    rhos = sys.compute_grid_density(points)
+    rhos = np.zeros(len(points))
+    obasis.compute_grid_density_dm(wfn.dm_full, points, rhos)
     assert abs(rhos - ref[:,3]).max() < 1e-5
+
+
+def check_grid_rho(fn, ref, eps):
+    data = load_smart(context.get_fn(fn))
+    points = ref[:,:3].copy()
+    rhos = np.zeros(len(points))
+    data['obasis'].compute_grid_density_dm(data['wfn'].dm_full, points, rhos)
+    assert abs(rhos - ref[:,3]).max() < eps
 
 
 def test_grid_co_ccpv5z_cart_hf_density_some_points():
@@ -165,10 +177,7 @@ def test_grid_co_ccpv5z_cart_hf_density_some_points():
         [ 0.4,  0.2, -0.1,   0.11912840380],
     ])
     ref[:,:3] *= angstrom
-    sys = System.from_file(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
-    points = ref[:,:3].copy()
-    rhos = sys.compute_grid_density(points)
-    assert abs(rhos - ref[:,3]).max() < 3e-3
+    check_grid_rho('test/co_ccpv5z_cart_hf_g03.fchk', ref, 3e-3)
 
 
 def test_grid_co_ccpv5z_pure_hf_density_some_points():
@@ -183,10 +192,16 @@ def test_grid_co_ccpv5z_pure_hf_density_some_points():
         [ 0.4,  0.2, -0.1,   0.11750780363],
     ])
     ref[:,:3] *= angstrom
-    sys = System.from_file(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'))
+    check_grid_rho('test/co_ccpv5z_pure_hf_g03.fchk', ref, 3e-3)
+
+
+def check_grid_gradient(fn, ref, eps):
+    data = load_smart(context.get_fn(fn))
     points = ref[:,:3].copy()
-    rhos = sys.compute_grid_density(points)
-    assert abs(rhos - ref[:,3]).max() < 3e-3
+    gradients = np.zeros((len(points), 3))
+    data['obasis'].compute_grid_gradient_dm(data['wfn'].dm_full, points, gradients)
+    print abs(gradients - ref[:,3:]).max()
+    assert abs(gradients - ref[:,3:]).max() < eps
 
 
 def test_grid_lih_321g_hf_gradient_some_points():
@@ -198,10 +213,7 @@ def test_grid_lih_321g_hf_gradient_some_points():
         [0.4, 0.2, 0.1, -0.057943497876, -0.028971748938,  0.069569174116],
     ])
     ref[:,:3] *= angstrom
-    sys = System.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
-    points = ref[:,:3].copy()
-    gradients = sys.compute_grid_gradient(points)
-    assert abs(gradients - ref[:,3:]).max() < 1e-6
+    check_grid_gradient('test/li_h_3-21G_hf_g09.fchk', ref, 1e-6)
 
 
 def test_grid_co_ccpv5z_cart_hf_gradient_some_points():
@@ -216,10 +228,7 @@ def test_grid_co_ccpv5z_cart_hf_gradient_some_points():
         [ 0.4,  0.2, -0.1,  -0.21837773815,  -0.16855926400,   0.15518115326],
     ])
     ref[:,:3] *= angstrom
-    sys = System.from_file(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
-    points = ref[:,:3].copy()
-    gradrhos = sys.compute_grid_gradient(points)
-    assert abs(gradrhos - ref[:,3:]).max() < 1e-2 # cubegen output somehow not reliable
+    check_grid_gradient('test/co_ccpv5z_cart_hf_g03.fchk', ref, 1e-2) # cubegen output somehow not reliable?
 
 
 def test_grid_co_ccpv5z_pure_hf_gradient_some_points():
@@ -234,10 +243,17 @@ def test_grid_co_ccpv5z_pure_hf_gradient_some_points():
         [ 0.4,  0.2, -0.1,  -0.21849813344,  -0.16098019809,   0.16093849962],
     ])
     ref[:,:3] *= angstrom
-    sys = System.from_file(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'))
+    check_grid_gradient('test/co_ccpv5z_pure_hf_g03.fchk', ref, 1e-4)
+
+
+def check_grid_esp(fn, ref, eps):
+    data = load_smart(context.get_fn(fn))
     points = ref[:,:3].copy()
-    gradrhos = sys.compute_grid_gradient(points)
-    assert abs(gradrhos - ref[:,3:]).max() < 1e-4
+    esps = np.zeros(len(points))
+    data['obasis'].compute_grid_hartree_dm(data['wfn'].dm_full, points, esps)
+    esps *= -1
+    compute_grid_nucpot(data['numbers'], data['coordinates'], points, esps)
+    assert abs(esps - ref[:,3]).max() < eps
 
 
 def test_grid_lih_321g_hf_esp_some_points():
@@ -249,22 +265,17 @@ def test_grid_lih_321g_hf_esp_some_points():
         [0.4, 0.2, 0.1, 0.796490099689],
     ])
     ref[:,:3] *= angstrom
-    sys = System.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
-
+    check_grid_esp('test/li_h_3-21G_hf_g09.fchk', ref, 1e-8)
     # check for one point the compute_grid_point2 method
-    if False: # TODO Write python interface to GB2GridHartreeFn
+    #if False: # TODO Write python interface to GB2GridHartreeFn
     #for row in ref:
-        point = row[:3]
-        grid_fn = GB2GridHartreeFn(sys.obasis.max_shell_type)
-        esp = sys.obasis.compute_grid_point2(sys.wfn.dm_full, point, grid_fn)
-        hartree = -esp
-        for n, pos in zip(sys.numbers, sys.coordinates):
-            hartree -= n/np.linalg.norm(pos - point)
-        assert abs(row[3] - hartree) < 1e-8
-
-    points = ref[:,:3].copy()
-    esps = sys.compute_grid_esp(points)
-    assert abs(esps - ref[:,3]).max() < 1e-8
+    #    point = row[:3]
+    #    grid_fn = GB2GridHartreeFn(sys.obasis.max_shell_type)
+    #    esp = sys.obasis.compute_grid_point2(sys.wfn.dm_full, point, grid_fn)
+    #    hartree = -esp
+    #    for n, pos in zip(sys.numbers, sys.coordinates):
+    #        hartree -= n/np.linalg.norm(pos - point)
+    #    assert abs(row[3] - hartree) < 1e-8
 
 
 def test_grid_co_ccpv5z_cart_hf_esp_some_points():
@@ -279,10 +290,7 @@ def test_grid_co_ccpv5z_cart_hf_esp_some_points():
         [ 0.4,  0.2, -0.1,   0.68524674809],
     ])
     ref[:,:3] *= angstrom
-    sys = System.from_file(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
-    points = ref[:,:3].copy()
-    esps = sys.compute_grid_esp(points)
-    assert abs(esps - ref[:,3]).max() < 1e-3 # cubegen output somehow not reliable
+    check_grid_esp('test/co_ccpv5z_cart_hf_g03.fchk', ref, 1e-3) # cubegen output somehow not reliable?
 
 
 def test_grid_co_ccpv5z_pure_hf_esp_some_points():
@@ -297,10 +305,7 @@ def test_grid_co_ccpv5z_pure_hf_esp_some_points():
         [ 0.4,  0.2, -0.1,   0.68524674809],
     ])
     ref[:,:3] *= angstrom
-    sys = System.from_file(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'))
-    points = ref[:,:3].copy()
-    esps = sys.compute_grid_esp(points)
-    assert abs(esps - ref[:,3]).max() < 1e-5
+    check_grid_esp('test/co_ccpv5z_pure_hf_g03.fchk', ref, 1e-5)
 
 
 def test_grid_one_body_ne():
@@ -313,7 +318,7 @@ def test_grid_one_body_ne():
     pot = -sys.numbers[0]/dist0 - sys.numbers[1]/dist1
     na_ana = sys.get_nuclear_attraction()
     na_grid = sys.lf.create_one_body()
-    sys.compute_grid_density_fock(grid.points, grid.weights, pot, na_grid)
+    sys.obasis.compute_grid_density_fock(grid.points, grid.weights, pot, na_grid)
     assert abs(na_grid._array).max() > 8.0
     assert abs(na_ana._array-na_grid._array).max() < 2e-3
     # check symmetry
@@ -335,10 +340,11 @@ def test_gob_normalization():
 
 
 def test_cart_pure_switch():
-    sys = System.from_file(context.get_fn('test/water.xyz'), obasis='aug-cc-pvdz')
-    assert sys.obasis.nbasis == 41
-    sys = System.from_file(context.get_fn('test/water.xyz'), obasis=GOBasisDesc('aug-cc-pvdz', pure=False))
-    assert sys.obasis.nbasis == 43
+    data = load_smart(context.get_fn('test/water.xyz'))
+    obasis = get_gobasis(data['coordinates'], data['numbers'], 'aug-cc-pvdz')
+    assert obasis.nbasis == 41
+    obasis = get_gobasis(data['coordinates'], data['numbers'], 'aug-cc-pvdz', pure=False)
+    assert obasis.nbasis == 43
 
 
 def get_olp(ob):
@@ -348,8 +354,9 @@ def get_olp(ob):
     return olp._array
 
 def test_concatenate1():
-    sys = System.from_file(context.get_fn('test/water.xyz'), obasis='3-21g')
-    ob = GOBasis.concatenate(sys.obasis, sys.obasis)
+    data = load_smart(context.get_fn('test/water.xyz'))
+    obtmp = get_gobasis(data['coordinates'], data['numbers'], '3-21g')
+    ob = GOBasis.concatenate(obtmp, obtmp)
     assert ob.ncenter == 3*2
     assert ob.nbasis == 13*2
     a = get_olp(ob)
@@ -359,16 +366,17 @@ def test_concatenate1():
 
 
 def test_concatenate2():
-    sys1 = System.from_file(context.get_fn('test/water.xyz'), obasis='3-21g')
-    sys2 = System.from_file(context.get_fn('test/water.xyz'), obasis='sto-3g')
-    obasis = GOBasis.concatenate(sys1.obasis, sys2.obasis)
+    data = load_smart(context.get_fn('test/water.xyz'))
+    obasis1 = get_gobasis(data['coordinates'], data['numbers'], '3-21g')
+    obasis2 = get_gobasis(data['coordinates'], data['numbers'], 'sto-3g')
+    obasis = GOBasis.concatenate(obasis1, obasis2)
     assert obasis.ncenter == 3*2
-    assert obasis.nbasis == sys1.obasis.nbasis+sys2.obasis.nbasis
+    assert obasis.nbasis == obasis1.nbasis + obasis2.nbasis
 
     a = get_olp(obasis)
-    a11 = get_olp(sys1.obasis)
-    a22 = get_olp(sys2.obasis)
-    N = sys1.obasis.nbasis
+    a11 = get_olp(obasis1)
+    a22 = get_olp(obasis2)
+    N = obasis1.nbasis
     assert (a[:N,:N] == a11).all()
     assert (a[N:,N:] == a22).all()
 
@@ -387,8 +395,9 @@ def test_abstract():
 
 def test_gobasis_desc_element_map():
     gobd = GOBasisDesc('3-21G', {'H': 'sto-3g', 2: 'cc-pVQZ'})
-    system = System(np.zeros([3, 3]), np.array([1, 2, 3]))
-    obasis = gobd.apply_to(system)
+    coordinates = np.zeros([3, 3])
+    numbers = np.array([1, 2, 3])
+    obasis = gobd.apply_to(coordinates, numbers)
     assert obasis.centers.shape == (3, 3)
     # H
     assert obasis.shell_map[0] == 0
@@ -403,8 +412,9 @@ def test_gobasis_desc_element_map():
 
 def test_gobasis_desc_index_map():
     gobd = GOBasisDesc('3-21G', index_map={1: 'sto-3g', 2: 'cc-pVQZ'})
-    system = System(np.zeros([3, 3]), np.array([1, 1, 1]))
-    obasis = gobd.apply_to(system)
+    coordinates = np.zeros([3, 3])
+    numbers = np.array([1, 1, 1])
+    obasis = gobd.apply_to(coordinates, numbers)
     assert obasis.centers.shape == (3, 3)
     # H
     assert (obasis.shell_map[:2] == 0).all()

@@ -355,7 +355,7 @@ class System(object):
         else:
             raise TypeError('Could not interpret the obasis argument.')
         if obasis_desc is not None:
-            obasis = obasis_desc.apply_to(self)
+            obasis = obasis_desc.apply_to(self.coordinates, self.numbers)
 
         # Discard or reset results that depend on orbital basis
         if self.obasis is not None:
