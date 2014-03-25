@@ -23,7 +23,7 @@
 
 import sys, argparse, os, numpy as np
 
-from horton import __version__, System
+from horton import __version__, load_smart, dump_smart
 
 
 # All, except underflows, is *not* fine.
@@ -63,8 +63,8 @@ def parse_args():
 
 def main():
     args = parse_args()
-    sys = System.from_file(args.input)
-    sys.to_file(args.output)
+    data = load_smart(args.input)
+    dump_smart(args.output, data)
 
 
 if __name__ == '__main__':
