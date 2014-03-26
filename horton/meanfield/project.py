@@ -35,7 +35,7 @@ class ProjectionError(Exception):
     pass
 
 
-def project_orbitals_mgs(system, old_wfn, old_obasis, eps=1e-10):
+def project_orbitals_mgs(obasis, wfn, old_wfn, old_obasis, eps=1e-10):
     '''Project orbitals from the ``old_wfn`` (wrt ``old_basis``) on the wfn of the ``system`` object with the modified Gram-Schmidt algorithm.
 
        **Arguments:**
@@ -62,18 +62,18 @@ def project_orbitals_mgs(system, old_wfn, old_obasis, eps=1e-10):
         log('Projecting the wavefunction on a new basis.')
         log.blank()
     if isinstance(old_wfn, RestrictedWFN):
-        assert isinstance(system.wfn, RestrictedWFN)
-        if 'exp_alpha' not in system.wfn._cache:
-            system.wfn.init_exp('alpha')
-        project_orbitals_mgs_low(old_obasis, system.obasis, old_wfn.exp_alpha, system.wfn.exp_alpha, eps)
+        assert isinstance(wfn, RestrictedWFN)
+        if 'exp_alpha' not in wfn._cache:
+            wfn.init_exp('alpha')
+        project_orbitals_mgs_low(old_obasis, obasis, old_wfn.exp_alpha, wfn.exp_alpha, eps)
     else:
-        assert isinstance(system.wfn, UnrestrictedWFN)
-        if 'exp_alpha' not in system.wfn._cache:
-            system.wfn.init_exp('alpha')
-            system.wfn.init_exp('beta')
-        project_orbitals_mgs_low(old_obasis, system.obasis, old_wfn.exp_alpha, system.wfn.exp_alpha, eps)
-        project_orbitals_mgs_low(old_obasis, system.obasis, old_wfn.exp_beta, system.wfn.exp_beta, eps)
-    system.wfn.clear_dm()
+        assert isinstance(wfn, UnrestrictedWFN)
+        if 'exp_alpha' not in wfn._cache:
+            wfn.init_exp('alpha')
+            wfn.init_exp('beta')
+        project_orbitals_mgs_low(old_obasis, obasis, old_wfn.exp_alpha, wfn.exp_alpha, eps)
+        project_orbitals_mgs_low(old_obasis, obasis, old_wfn.exp_beta, wfn.exp_beta, eps)
+    wfn.clear_dm()
 
 
 def project_orbitals_mgs_low(obasis0, obasis1, exp0, exp1, eps=1e-10):
