@@ -399,7 +399,7 @@ function do_atom {
     cd -
 }
 
-for ATOMDIR in [01][0-9][0-9]_??_[01][0-9][0-9]_q[-+][0-9][0-9]/mult[0-9][0-9]; do
+for ATOMDIR in [01][0-9][0-9]_*_[01][0-9][0-9]_q[-+][0-9][0-9]/mult[0-9][0-9]; do
     do_atom ${ATOMDIR}
 done
 '''
@@ -453,7 +453,7 @@ function do_atom {
     cd -
 }
 
-for ATOMDIR in [01][0-9][0-9]_??_[01][0-9][0-9]_q[-+][0-9][0-9]/mult[0-9][0-9]; do
+for ATOMDIR in [01][0-9][0-9]_*_[01][0-9][0-9]_q[-+][0-9][0-9]/mult[0-9][0-9]; do
     do_atom ${ATOMDIR}
 done
 '''
@@ -522,7 +522,7 @@ function do_atom {
     cd -
 }
 
-for ATOMDIR in [01][0-9][0-9]_??_[01][0-9][0-9]_q[-+][0-9][0-9]/mult[0-9][0-9]; do
+for ATOMDIR in [01][0-9][0-9]_*_[01][0-9][0-9]_q[-+][0-9][0-9]/mult[0-9][0-9]; do
     do_atom ${ATOMDIR}
 done
 '''
