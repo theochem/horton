@@ -25,7 +25,7 @@ from string import Template as BaseTemplate
 from glob import glob
 import re, os, stat
 
-from horton import periodic, log, load_smart
+from horton import periodic, log, Molecule
 from horton.scripts.common import iter_elements
 
 
@@ -352,8 +352,8 @@ class AtomProgram(object):
         os.chmod(fn_script, stat.S_IXUSR | os.stat(fn_script).st_mode)
 
 
-    def _get_energy(self, data, dn_mult):
-        return data['energy']
+    def _get_energy(self, mol, dn_mult):
+        return mol.energy
 
     def load_atom(self, dn_mult, ext):
         fn = '%s/atom.%s' % (dn_mult, ext)
@@ -361,11 +361,11 @@ class AtomProgram(object):
             return None, None
 
         try:
-            data = load_smart(fn)
+            mol = Molecule.from_file(fn)
         except:
             return None, None
-        data['energy'] = self._get_energy(data, dn_mult)
-        return data, data['energy']
+        mol.energy = self._get_energy(mol, dn_mult)
+        return mol, mol.energy
 
 
 run_gaussian_script = '''
@@ -463,7 +463,7 @@ class OrcaAtomProgram(AtomProgram):
     name = 'orca'
     run_script = run_orca_script
 
-    def _get_energy(self, data, dn_mult):
+    def _get_energy(self, mol, dn_mult):
         with open('%s/atom.out' % dn_mult) as f:
             for line in f:
                 if line.startswith('Total Energy       :'):

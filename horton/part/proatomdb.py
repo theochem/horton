@@ -30,7 +30,7 @@ from horton.grid.cext import RTransform, CubicSpline
 from horton.grid.radial import RadialGrid
 from horton.io.lockedh5 import LockedH5File
 from horton.log import log, timer
-from horton.io.smart import load_smart
+from horton.io.molecule import Molecule
 
 
 __all__ = ['ProAtomRecord', 'ProAtomDB']
@@ -40,13 +40,13 @@ class ProAtomRecord(object):
     '''A single proatomic density record'''
 
     @classmethod
-    def from_data(cls, data, agspec='fine'):
+    def from_molecule(cls, mol, agspec='fine'):
         '''Construct a proatom record from a data dictionary and an atomic grid
 
            **Arguments:**
 
-           data
-                Molecule data dictionary constructed with e.g. load_smart
+           mol
+                Molecule instance
 
            **Optional arguments:**
 
@@ -55,22 +55,13 @@ class ProAtomRecord(object):
                 instance of the AtomicGridSpec object, or the first argument
                 of its constructor.
         '''
-        if len(data['numbers']) != 1:
+        if mol.natom != 1:
             raise ValueError('More than one atom found for pro-atom record.')
-        number = data['numbers'][0]
-
-        if 'pseudo_numbers' in data:
-            if len(data['pseudo_numbers']) != 1:
-                raise ValueError('More than one atom found for pro-atom record.')
-            pseudo_number = data['pseudo_numbers'][0]
-        else:
-            pseudo_number = number
-
-        if len(data['coordinates']) != 1:
-            raise ValueError('More than one atom found for pro-atom record.')
-        center = data['coordinates'][0]
-
-        return cls.from_wfn(center, number, pseudo_number, data['obasis'], data['wfn'], data.get('energy', 0.0), agspec)
+        number = mol.numbers[0]
+        pseudo_number = mol.pseudo_numbers[0]
+        center = mol.coordinates[0]
+        energy = getattr(mol, 'energy', 0.0)
+        return cls.from_wfn(center, number, pseudo_number, mol.obasis, mol.wfn, energy, agspec)
 
     @classmethod
     def from_wfn(cls, center, number, pseudo_number, obasis, wfn, energy, agspec='fine'):
@@ -433,9 +424,9 @@ class ProAtomDB(object):
         for fn in fns:
             # Load atomic data
             with timer.section('Load proatom'):
-                data = load_smart(fn)
+                mol = Molecule.from_file(fn)
             with timer.section('Proatom grid'):
-                records.append(ProAtomRecord.from_data(data, agspec))
+                records.append(ProAtomRecord.from_molecule(mol, agspec))
         return cls(records)
 
     @classmethod

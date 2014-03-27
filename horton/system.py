@@ -33,7 +33,7 @@ import h5py as h5
 
 from horton.cache import Cache
 from horton.cext import compute_grid_nucpot
-from horton.io import load_smart, dump_smart
+from horton.io import Molecule
 from horton.log import log, timer
 from horton.matrix import DenseLinalgFactory, LinalgObject
 from horton.periodic import periodic
@@ -232,11 +232,16 @@ class System(object):
            default.
         """
         # This is just a temporary hack to let the code work with the new
-        # load_smart function.
+        # Molecule.from_file function.
         lf = kwargs.get('lf')
         if lf is None:
             lf = DenseLinalgFactory()
-        constructor_args = load_smart(*args, lf=lf)
+        mol = Molecule.from_file(*args, lf=lf)
+        constructor_args = vars(mol)
+        for key in constructor_args.keys():
+            if key[0] == '_':
+                constructor_args[key[1:]] = constructor_args[key]
+                del constructor_args[key]
         constructor_args.update(kwargs)
         extra = constructor_args.setdefault('extra', {})
         constructor_keys = [
@@ -276,18 +281,19 @@ class System(object):
                 is used to determine the file format.
         '''
         # temporary hack before this class gets removed. This is how the new
-        # dump_smart is used.
+        # Molecule.to_file is used.
         constructor_keys = [
             'coordinates', 'numbers', 'obasis', 'grid', 'wfn', 'cell',
             'pseudo_numbers',
         ]
-        data = {}
+        kwargs = {}
         for key in constructor_keys:
             value = getattr(self, key)
             if value is not None:
-                data[key] = value
-        data.update(self.extra)
-        dump_smart(filename, data)
+                kwargs[key] = value
+        kwargs.update(self.extra)
+        mol = Molecule(**kwargs)
+        mol.to_file(filename)
 
     def _get_charge(self):
         return self.pseudo_numbers.sum() - self.wfn.nel

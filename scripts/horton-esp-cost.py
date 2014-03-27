@@ -23,7 +23,7 @@
 
 import sys, argparse, os, numpy as np
 
-from horton import load_smart, dump_smart, setup_weights, ESPCost, log, \
+from horton import Molecule, setup_weights, ESPCost, log, \
     angstrom, __version__
 from horton.scripts.common import reduce_data, parse_ewald_args, parse_pbc, \
     write_script_output, parse_h5, check_output
@@ -124,19 +124,15 @@ def main():
     # Load the potential data
     if log.do_medium:
         log('Loading potential array')
-    data_pot = load_smart(args.cube)
-    ugrid = data_pot['grid']
-    coordinates = data_pot['coordinates']
-    numbers = data_pot['numbers']
-    natom = len(numbers)
-    if not isinstance(ugrid, UniformGrid):
+    mol_pot = Molecule.from_file(args.cube)
+    if not isinstance(mol_pot.grid, UniformGrid):
         raise TypeError('The specified file does not contain data on a rectangular grid.')
-    ugrid.pbc[:] = parse_pbc(args.pbc) # correct pbc
-    esp = data_pot['cube_data']
+    mol_pot.grid.pbc[:] = parse_pbc(args.pbc) # correct pbc
+    esp = mol_pot.cube_data
 
     # Reduce the grid if required
     if args.stride > 1:
-        esp, ugrid = reduce_data(esp, ugrid, args.stride, args.chop)
+        esp, mol_pot.grid = reduce_data(esp, mol_pot.grid, args.stride, args.chop)
 
     # Fix sign
     if args.sign:
@@ -146,9 +142,9 @@ def main():
     if log.do_medium:
         log('Important parameters:')
         log.hline()
-        log('Number of grid points:   %12i' % np.product(ugrid.shape))
-        log('Grid shape:                 [%8i, %8i, %8i]' % tuple(ugrid.shape))
-        log('PBC:                        [%8i, %8i, %8i]' % tuple(ugrid.pbc))
+        log('Number of grid points:   %12i' % np.product(mol_pot.grid.shape))
+        log('Grid shape:                 [%8i, %8i, %8i]' % tuple(mol_pot.grid.shape))
+        log('PBC:                        [%8i, %8i, %8i]' % tuple(mol_pot.grid.pbc))
         log.hline()
 
     # Construct the weights for the ESP Cost function.
@@ -157,11 +153,11 @@ def main():
         if log.do_medium:
             log('Loading density array')
         # either the provided density or a built-in prodensity
-        rho = load_rho(coordinates, numbers, wdens[0], ugrid, args.stride, args.chop)
+        rho = load_rho(mol_pot.coordinates, mol_pot.numbers, wdens[0], mol_pot.grid, args.stride, args.chop)
         wdens = (rho,) + wdens[1:]
     if log.do_medium:
         log('Constructing weight function')
-    weights = setup_weights(coordinates, numbers, ugrid,
+    weights = setup_weights(mol_pot.coordinates, mol_pot.numbers, mol_pot.grid,
         dens=wdens,
         near=parse_wnear(args.wnear),
         far=parse_wnear(args.wfar),
@@ -172,16 +168,16 @@ def main():
         if log.do_medium:
             log('   Saving weights array   ')
         # construct a new data dictionary that contains all info for the cube file
-        data_weights = data_pot.copy()
-        data_weights['cube_data'] = weights
-        dump_smart(args.wsave, data_weights)
+        mol_weights = mol_pot.copy()
+        mol_weights.cube_data = weights
+        mol_weights.to_file(args.wsave)
 
     # rescale weights such that the cost function is the mean-square-error
     if weights.max() == 0.0:
         raise ValueError('No points with a non-zero weight were found')
     wmax = weights.min()
     wmin = weights.max()
-    used_volume = ugrid.integrate(weights)
+    used_volume = mol_pot.grid.integrate(weights)
 
     # Some screen info
     if log.do_medium:
@@ -189,10 +185,10 @@ def main():
         log.hline()
         log('Used number of grid points:   %12i' % (weights>0).sum())
         log('Used volume:                      %12.5f' % used_volume)
-        log('Used volume/atom:                 %12.5f' % (used_volume/natom))
+        log('Used volume/atom:                 %12.5f' % (used_volume/mol_pot.natom))
         log('Lowest weight:                %12.5e' % wmin)
         log('Highest weight:               %12.5e' % wmax)
-        log('Max weight at edge:           %12.5f' % max_at_edge(weights, ugrid.pbc))
+        log('Max weight at edge:           %12.5f' % max_at_edge(weights, mol_pot.grid.pbc))
 
     # Ewald parameters
     rcut, alpha, gcut = parse_ewald_args(args)
@@ -207,7 +203,7 @@ def main():
     # Construct the cost function
     if log.do_medium:
         log('Setting up cost function (may take a while)   ')
-    cost = ESPCost.from_grid_data(coordinates, ugrid, esp, weights, rcut, alpha, gcut)
+    cost = ESPCost.from_grid_data(mol_pot.coordinates, mol_pot.grid, esp, weights, rcut, alpha, gcut)
 
     # Store cost function info
     results = {}

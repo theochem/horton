@@ -120,48 +120,45 @@ def test_grid_lih_321g_hf_density_some_points():
         [0.4, 0.2, 0.1, 0.018503681370],
     ])
     ref[:,:3] *= angstrom
-    data = load_smart(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
-    obasis = data['obasis']
-    coordinates = data['coordinates']
-    wfn = data['wfn']
+    mol = Molecule.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
 
     # check for one point the compute_grid_point1 method
-    output = np.zeros(obasis.nbasis, float)
+    output = np.zeros(mol.obasis.nbasis, float)
     point = np.array([0.0, 0.0, 1.0])*angstrom
-    grid_fn = GB1DMGridDensityFn(obasis.max_shell_type)
-    obasis.compute_grid_point1(output, point, grid_fn)
+    grid_fn = GB1DMGridDensityFn(mol.obasis.max_shell_type)
+    mol.obasis.compute_grid_point1(output, point, grid_fn)
     # first basis function is contraction of three s-type gaussians
-    assert obasis.nprims[0] == 3
-    scales = obasis.get_scales()
+    assert mol.obasis.nprims[0] == 3
+    scales = mol.obasis.get_scales()
     total = 0.0
     for i in xrange(3):
-        alpha = obasis.alphas[i]
-        coeff = obasis.con_coeffs[i]
+        alpha = mol.obasis.alphas[i]
+        coeff = mol.obasis.con_coeffs[i]
         nrml = gob_cart_normalization(alpha, np.zeros(3, int))
         # check scale
         assert abs(scales[i] - nrml) < 1e-10
         # check that we are on the first atom
-        assert obasis.shell_map[i] == 0
-        dsq = np.linalg.norm(point - coordinates[0])**2
+        assert mol.obasis.shell_map[i] == 0
+        dsq = np.linalg.norm(point - mol.coordinates[0])**2
         gauss = nrml*np.exp(-alpha*dsq)
         total += coeff*gauss
     assert abs(total - output[0]) < 1e-10
 
     # check density matrix value
-    dm = wfn.dm_full
+    dm = mol.wfn.dm_full
     assert abs(dm._array[0,0] - 1.96589709) < 1e-7
 
     points = ref[:,:3].copy()
     rhos = np.zeros(len(points))
-    obasis.compute_grid_density_dm(wfn.dm_full, points, rhos)
+    mol.obasis.compute_grid_density_dm(mol.wfn.dm_full, points, rhos)
     assert abs(rhos - ref[:,3]).max() < 1e-5
 
 
 def check_grid_rho(fn, ref, eps):
-    data = load_smart(context.get_fn(fn))
+    mol = Molecule.from_file(context.get_fn(fn))
     points = ref[:,:3].copy()
     rhos = np.zeros(len(points))
-    data['obasis'].compute_grid_density_dm(data['wfn'].dm_full, points, rhos)
+    mol.obasis.compute_grid_density_dm(mol.wfn.dm_full, points, rhos)
     assert abs(rhos - ref[:,3]).max() < eps
 
 
@@ -196,10 +193,10 @@ def test_grid_co_ccpv5z_pure_hf_density_some_points():
 
 
 def check_grid_gradient(fn, ref, eps):
-    data = load_smart(context.get_fn(fn))
+    mol = Molecule.from_file(context.get_fn(fn))
     points = ref[:,:3].copy()
     gradients = np.zeros((len(points), 3))
-    data['obasis'].compute_grid_gradient_dm(data['wfn'].dm_full, points, gradients)
+    mol.obasis.compute_grid_gradient_dm(mol.wfn.dm_full, points, gradients)
     print abs(gradients - ref[:,3:]).max()
     assert abs(gradients - ref[:,3:]).max() < eps
 
@@ -247,12 +244,12 @@ def test_grid_co_ccpv5z_pure_hf_gradient_some_points():
 
 
 def check_grid_esp(fn, ref, eps):
-    data = load_smart(context.get_fn(fn))
+    mol = Molecule.from_file(context.get_fn(fn))
     points = ref[:,:3].copy()
     esps = np.zeros(len(points))
-    data['obasis'].compute_grid_hartree_dm(data['wfn'].dm_full, points, esps)
+    mol.obasis.compute_grid_hartree_dm(mol.wfn.dm_full, points, esps)
     esps *= -1
-    compute_grid_nucpot(data['numbers'], data['coordinates'], points, esps)
+    compute_grid_nucpot(mol.numbers, mol.coordinates, points, esps)
     assert abs(esps - ref[:,3]).max() < eps
 
 
@@ -309,23 +306,17 @@ def test_grid_co_ccpv5z_pure_hf_esp_some_points():
 
 
 def test_grid_one_body_ne():
-    data = load_smart(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
-    lf = data['lf']
-    obasis = data['obasis']
-    coordinates = data['coordinates']
-    numbers = data['numbers']
-    pseudo_numbers = data['numbers']
-
+    mol = Molecule.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
     rtf = ExpRTransform(1e-3, 2e1, 100)
     rgrid = RadialGrid(rtf)
-    grid = BeckeMolGrid(coordinates, numbers, pseudo_numbers, (rgrid, 110), random_rotate=False)
-    dist0 = np.sqrt(((grid.points - coordinates[0])**2).sum(axis=1))
-    dist1 = np.sqrt(((grid.points - coordinates[1])**2).sum(axis=1))
-    pot = -numbers[0]/dist0 - numbers[1]/dist1
-    na_ana = lf.create_one_body()
-    obasis.compute_nuclear_attraction(numbers.astype(float), coordinates, na_ana)
-    na_grid = lf.create_one_body()
-    obasis.compute_grid_density_fock(grid.points, grid.weights, pot, na_grid)
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, (rgrid, 110), random_rotate=False)
+    dist0 = np.sqrt(((grid.points - mol.coordinates[0])**2).sum(axis=1))
+    dist1 = np.sqrt(((grid.points - mol.coordinates[1])**2).sum(axis=1))
+    pot = -mol.numbers[0]/dist0 - mol.numbers[1]/dist1
+    na_ana = mol.lf.create_one_body()
+    mol.obasis.compute_nuclear_attraction(mol.numbers.astype(float), mol.coordinates, na_ana)
+    na_grid = mol.lf.create_one_body()
+    mol.obasis.compute_grid_density_fock(grid.points, grid.weights, pot, na_grid)
     # compare grid-based operator with analytical result
     assert abs(na_grid._array).max() > 8.0
     assert abs(na_ana._array-na_grid._array).max() < 2e-3
@@ -348,10 +339,10 @@ def test_gob_normalization():
 
 
 def test_cart_pure_switch():
-    data = load_smart(context.get_fn('test/water.xyz'))
-    obasis = get_gobasis(data['coordinates'], data['numbers'], 'aug-cc-pvdz')
+    mol = Molecule.from_file(context.get_fn('test/water.xyz'))
+    obasis = get_gobasis(mol.coordinates, mol.numbers, 'aug-cc-pvdz')
     assert obasis.nbasis == 41
-    obasis = get_gobasis(data['coordinates'], data['numbers'], 'aug-cc-pvdz', pure=False)
+    obasis = get_gobasis(mol.coordinates, mol.numbers, 'aug-cc-pvdz', pure=False)
     assert obasis.nbasis == 43
 
 
@@ -362,8 +353,8 @@ def get_olp(ob):
     return olp._array
 
 def test_concatenate1():
-    data = load_smart(context.get_fn('test/water.xyz'))
-    obtmp = get_gobasis(data['coordinates'], data['numbers'], '3-21g')
+    mol = Molecule.from_file(context.get_fn('test/water.xyz'))
+    obtmp = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
     ob = GOBasis.concatenate(obtmp, obtmp)
     assert ob.ncenter == 3*2
     assert ob.nbasis == 13*2
@@ -374,9 +365,9 @@ def test_concatenate1():
 
 
 def test_concatenate2():
-    data = load_smart(context.get_fn('test/water.xyz'))
-    obasis1 = get_gobasis(data['coordinates'], data['numbers'], '3-21g')
-    obasis2 = get_gobasis(data['coordinates'], data['numbers'], 'sto-3g')
+    mol = Molecule.from_file(context.get_fn('test/water.xyz'))
+    obasis1 = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
+    obasis2 = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
     obasis = GOBasis.concatenate(obasis1, obasis2)
     assert obasis.ncenter == 3*2
     assert obasis.nbasis == obasis1.nbasis + obasis2.nbasis

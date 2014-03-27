@@ -23,7 +23,7 @@
 
 import sys, argparse, os, numpy as np
 
-from horton import load_smart, log, symmetry_analysis, __version__
+from horton import Molecule, log, symmetry_analysis, __version__
 from horton.scripts.common import parse_h5, write_script_output, \
     check_output
 from horton.scripts.espfit import load_cost
@@ -108,13 +108,12 @@ def main():
 
     # Perform a symmetry analysis if requested
     if args.symmetry is not None:
-        data_pot = load_smart(args.symmetry[0])
-        data_sym = load_smart(args.symmetry[1])
-        sym = data_sym.get('symmetry')
-        if sym is None:
+        mol_pot = Molecule.from_file(args.symmetry[0])
+        mol_sym = Molecule.from_file(args.symmetry[1])
+        if not hasattr(mol_sym, 'symmetry'):
             raise ValueError('No symmetry information found in %s.' % args.symmetry[1])
         aim_results = {'charges': results['charges']}
-        sym_results = symmetry_analysis(data_pot['coordinates'], data_pot['cell'], sym, aim_results)
+        sym_results = symmetry_analysis(mol_pot.coordinates, mol_pot.cell, mol_sym.symmetry, aim_results)
         results['symmetry'] = sym_results
 
     # Store the results in an HDF5 file

@@ -57,13 +57,13 @@ def test_scripts():
     ugrid = UniformGrid(origin, grid_rvecs, shape, pbc)
     esp_cube_data = np.random.uniform(-1, 1, shape)
     rho_cube_data = np.random.uniform(-1, 1, shape)
-    data_esp = {'coordinates': coordinates, 'numbers': numbers, 'grid': ugrid, 'cube_data': esp_cube_data}
-    data_rho = data_esp.copy()
-    data_rho['cube_data'] = rho_cube_data
+    mol_esp = Molecule(coordinates=coordinates, numbers=numbers, grid=ugrid, cube_data=esp_cube_data)
+    mol_rho = mol_esp.copy()
+    mol_rho.cube_data = rho_cube_data
 
     # Write the cube file to the tmpdir and run scripts (run 1)
     with tmpdir('horton.scripts.test.test_espfit.test_scripts') as dn:
-        dump_smart(os.path.join(dn, 'esp.cube'), data_esp)
+        mol_esp.to_file(os.path.join(dn, 'esp.cube'))
         check_script('horton-esp-cost.py esp.cube esp.h5 --wnear=0:1.0:0.5', dn)
         check_script('horton-esp-fit.py esp.h5 other.h5', dn)
         check_script('horton-esp-test.py esp.h5 other.h5:charges foo.h5', dn)
@@ -72,8 +72,8 @@ def test_scripts():
 
     # Write the cube file to the tmpdir and run scripts (run 2)
     with tmpdir('horton.scripts.test.test_espfit.test_scripts2') as dn:
-        dump_smart(os.path.join(dn, 'esp.cube'), data_esp)
-        dump_smart(os.path.join(dn, 'rho.cube'), data_rho)
+        mol_esp.to_file(os.path.join(dn, 'esp.cube'))
+        mol_rho.to_file(os.path.join(dn, 'rho.cube'))
         check_script('horton-esp-cost.py esp.cube esp.h5 --wnear=0:1.0:0.5 --wdens=rho.cube --wsave=weight.cube', dn)
         check_files(dn, ['esp.h5', 'weight.cube'])
         check_script('horton-esp-fit.py esp.h5 other.h5', dn)
@@ -92,10 +92,10 @@ def test_scripts_symmetry():
         check_script('horton-esp-cost.py esp.cube esp.h5 --wnear=0:1.0:0.5 --rcut=4 --alpha-scale=0.1', dn)
         check_files(dn, ['esp.h5'])
         check_script('horton-esp-fit.py esp.h5 other.h5 --symmetry esp.cube lta_gulp.cif', dn)
-        data_sym = load_smart('%s/lta_gulp.cif' % dn)
+        mol_sym = Molecule.from_file('%s/lta_gulp.cif' % dn)
         with h5.File(os.path.join(dn, 'other.h5')) as f:
             assert 'symmetry' in f
-            assert f['symmetry/charges'].shape == (data_sym['symmetry'].natom, 2)
+            assert f['symmetry/charges'].shape == (mol_sym.symmetry.natom, 2)
 
 
 def test_max_at_edge():

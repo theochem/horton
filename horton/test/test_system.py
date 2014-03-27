@@ -170,12 +170,12 @@ def test_electron_repulsion_water_ccpvdz_cart_hf():
 
 
 def check_grid_fn(fn_fchk):
-    data = load_smart(fn_fchk)
-    grid = BeckeMolGrid(data['coordinates'], data['numbers'], data['pseudo_numbers'], 'tv-13.7-4', random_rotate=False)
+    mol = Molecule.from_file(fn_fchk)
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'tv-13.7-4', random_rotate=False)
     rhos = np.zeros(grid.size)
-    data['obasis'].compute_grid_density_dm(data['wfn'].dm_full, grid.points, rhos)
+    mol.obasis.compute_grid_density_dm(mol.wfn.dm_full, grid.points, rhos)
     pop = grid.integrate(rhos)
-    assert abs(pop-data['wfn'].nel) < 2e-3
+    assert abs(pop-mol.wfn.nel) < 2e-3
 
 
 def test_grid_fn_h_sto3g():

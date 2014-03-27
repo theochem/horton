@@ -173,13 +173,13 @@ def test_grid_fn_d_contraction():
 
 def test_density_epsilon():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    data = load_smart(fn_fchk)
-    grid = BeckeMolGrid(data['coordinates'], data['numbers'], data['pseudo_numbers'], random_rotate=False)
+    mol = Molecule.from_file(fn_fchk)
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
     rho1 = grid.zeros()
-    data['obasis'].compute_grid_density_dm(data['wfn'].dm_full, grid.points, rho1)
+    mol.obasis.compute_grid_density_dm(mol.wfn.dm_full, grid.points, rho1)
     for epsilon in 1e-10, 1e-5, 1e-3, 1e-1:
         rho2 = grid.zeros()
-        data['obasis'].compute_grid_density_dm(data['wfn'].dm_full, grid.points, rho2, epsilon=epsilon)
+        mol.obasis.compute_grid_density_dm(mol.wfn.dm_full, grid.points, rho2, epsilon=epsilon)
         mask = (rho1 != rho2)
         assert ((rho1[mask] < epsilon) | (abs(rho1[mask]-rho2[mask]) < epsilon)).all()
         assert ((rho2[mask] == 0.0) | (abs(rho1[mask]-rho2[mask]) < epsilon)).all()
@@ -187,14 +187,14 @@ def test_density_epsilon():
 
 def test_density_functional_deriv():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    data = load_smart(fn_fchk)
-    wfn = data['wfn']
-    obasis = data['obasis']
+    mol = Molecule.from_file(fn_fchk)
+    wfn = mol.wfn
+    obasis = mol.obasis
 
     wfn.clear_dm()
     rtf = ExpRTransform(1e-3, 1e1, 10)
     rgrid = RadialGrid(rtf)
-    grid = BeckeMolGrid(data['coordinates'], data['numbers'], data['pseudo_numbers'], (rgrid, 6), random_rotate=False, mode='keep')
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, (rgrid, 6), random_rotate=False, mode='keep')
     pot = grid.points[:,2].copy()
 
     def fun(x):
@@ -235,9 +235,9 @@ def check_density_gradient(obasis, wfn, p0, p1):
 
 def test_density_gradient_n2_sto3g():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    data = load_smart(fn_fchk)
-    obasis = data['obasis']
-    wfn = data['wfn']
+    mol = Molecule.from_file(fn_fchk)
+    obasis = mol.obasis
+    wfn = mol.wfn
     wfn.clear_dm()
 
     points = np.zeros((1,3), float)
@@ -254,9 +254,9 @@ def test_density_gradient_n2_sto3g():
 
 def test_density_gradient_h3_321g():
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
-    data = load_smart(fn_fchk)
-    obasis = data['obasis']
-    wfn = data['wfn']
+    mol = Molecule.from_file(fn_fchk)
+    obasis = mol.obasis
+    wfn = mol.wfn
 
     eps = 1e-4
     check_density_gradient(obasis, wfn, np.array([0.1, 0.3, 0.2]), np.array([0.1+eps, 0.3, 0.2]))
@@ -267,9 +267,9 @@ def test_density_gradient_h3_321g():
 
 def test_density_gradient_co_ccpv5z_cart():
     fn_fchk = context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk')
-    data = load_smart(fn_fchk)
-    obasis = data['obasis']
-    wfn = data['wfn']
+    mol = Molecule.from_file(fn_fchk)
+    obasis = mol.obasis
+    wfn = mol.wfn
 
     eps = 1e-4
     check_density_gradient(obasis, wfn, np.array([0.1, 0.3, 0.2]), np.array([0.1+eps, 0.3, 0.2]))
@@ -280,9 +280,9 @@ def test_density_gradient_co_ccpv5z_cart():
 
 def test_density_gradient_co_ccpv5z_pure():
     fn_fchk = context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk')
-    data = load_smart(fn_fchk)
-    obasis = data['obasis']
-    wfn = data['wfn']
+    mol = Molecule.from_file(fn_fchk)
+    obasis = mol.obasis
+    wfn = mol.wfn
 
     eps = 1e-4
     check_density_gradient(obasis, wfn, np.array([0.1, 0.3, 0.2]), np.array([0.1+eps, 0.3, 0.2]))
@@ -310,9 +310,9 @@ def check_dm_gradient(obasis, wfn, p0, p1):
 
 def test_dm_gradient_n2_sto3g():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    data = load_smart(fn_fchk)
-    obasis = data['obasis']
-    wfn = data['wfn']
+    mol = Molecule.from_file(fn_fchk)
+    obasis = mol.obasis
+    wfn = mol.wfn
     eps = 1e-4
     check_dm_gradient(obasis, wfn, np.array([[-0.1, 0.4, 1.2]]), np.array([[-0.1+eps, 0.4, 1.2]]))
     check_dm_gradient(obasis, wfn, np.array([[-0.1, 0.4, 1.2]]), np.array([[-0.1, 0.4+eps, 1.2]]))
@@ -321,9 +321,9 @@ def test_dm_gradient_n2_sto3g():
 
 def test_dm_gradient_h3_321g():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
-    data = load_smart(fn_fchk)
-    obasis = data['obasis']
-    wfn = data['wfn']
+    mol = Molecule.from_file(fn_fchk)
+    obasis = mol.obasis
+    wfn = mol.wfn
     eps = 1e-4
     check_dm_gradient(obasis, wfn, np.array([[-0.1, 0.4, 1.2]]), np.array([[-0.1+eps, 0.4, 1.2]]))
     check_dm_gradient(obasis, wfn, np.array([[-0.1, 0.4, 1.2]]), np.array([[-0.1, 0.4+eps, 1.2]]))
@@ -332,14 +332,14 @@ def test_dm_gradient_h3_321g():
 
 def test_gradient_functional_deriv():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    data = load_smart(fn_fchk)
-    obasis = data['obasis']
-    wfn = data['wfn']
+    mol = Molecule.from_file(fn_fchk)
+    obasis = mol.obasis
+    wfn = mol.wfn
     wfn.clear_dm()
 
     rtf = ExpRTransform(1e-3, 1e1, 10)
     rgrid = RadialGrid(rtf)
-    grid = BeckeMolGrid(data['coordinates'], data['numbers'], data['pseudo_numbers'], (rgrid, 6), random_rotate=False, mode='keep')
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, (rgrid, 6), random_rotate=False, mode='keep')
     pot = grid.points[:,2].copy()
 
     def fun(x):
@@ -371,7 +371,7 @@ def test_gradient_functional_deriv():
     check_delta(fun, fun_deriv, x, dxs)
 
 
-def check_orbitals(data):
+def check_orbitals(mol):
     points = np.array([
         [0.1, 0.3, 0.2],
         [-0.1, 0.3, 0.2],
@@ -379,29 +379,24 @@ def check_orbitals(data):
         [-0.1, 0.4, 1.2],
     ])
 
-    # get some stuff out of data
-    obasis = data['obasis']
-    wfn = data['wfn']
-
-
     # just the standard usage (alpha)
     ad = np.zeros(len(points))
-    aiorbs = (wfn.exp_alpha.occupations > 0).nonzero()[0]
+    aiorbs = (mol.wfn.exp_alpha.occupations > 0).nonzero()[0]
     nalpha = len(aiorbs)
     aos = np.zeros((len(points), nalpha))
-    obasis.compute_grid_density_dm(wfn.dm_alpha, points, ad)
-    obasis.compute_grid_orbitals_exp(wfn.exp_alpha, points, aiorbs, aos)
+    mol.obasis.compute_grid_density_dm(mol.wfn.dm_alpha, points, ad)
+    mol.obasis.compute_grid_orbitals_exp(mol.wfn.exp_alpha, points, aiorbs, aos)
     ad_check = (aos**2).sum(axis=1)
     assert (abs(ad - ad_check)/abs(ad) < 1e-3).all()
 
-    if isinstance(wfn, UnrestrictedWFN):
+    if isinstance(mol.wfn, UnrestrictedWFN):
         # just the standard usage (beta)
         bd = np.zeros(len(points))
-        biorbs = (wfn.exp_beta.occupations > 0).nonzero()[0]
+        biorbs = (mol.wfn.exp_beta.occupations > 0).nonzero()[0]
         nbeta = len(biorbs)
         bos = np.zeros((len(points), nbeta))
-        obasis.compute_grid_density_dm(wfn.dm_beta, points, bd)
-        obasis.compute_grid_orbitals_exp(wfn.exp_beta, points, biorbs, bos)
+        mol.obasis.compute_grid_density_dm(mol.wfn.dm_beta, points, bd)
+        mol.obasis.compute_grid_orbitals_exp(mol.wfn.exp_beta, points, biorbs, bos)
         bd_check = (bos**2).sum(axis=1)
         assert (abs(bd - bd_check)/abs(bd) < 1e-3).all()
     else:
@@ -410,12 +405,12 @@ def check_orbitals(data):
 
     # compare with full density
     fd = np.zeros(len(points))
-    obasis.compute_grid_density_dm(wfn.dm_full, points, fd)
+    mol.obasis.compute_grid_density_dm(mol.wfn.dm_full, points, fd)
     fd_check = ad_check + bd_check
     assert (abs(fd - fd_check)/abs(fd) < 1e-3).all()
 
     # more detailed usage
-    exp_alpha = wfn.exp_alpha
+    exp_alpha = mol.wfn.exp_alpha
     assert aos.shape[1] == (exp_alpha.occupations > 0).sum()
     iorbs_alpha = (exp_alpha.occupations > 0).nonzero()[0]
     import random
@@ -423,8 +418,8 @@ def check_orbitals(data):
     iorbs_alpha2 = np.array([i for i in iorbs_alpha if i not in iorbs_alpha1])
     aos1 = np.zeros((len(points), len(iorbs_alpha1)))
     aos2 = np.zeros((len(points), len(iorbs_alpha2)))
-    obasis.compute_grid_orbitals_exp(wfn.exp_alpha, points, iorbs_alpha1, aos1)
-    obasis.compute_grid_orbitals_exp(wfn.exp_alpha, points, iorbs_alpha2, aos2)
+    mol.obasis.compute_grid_orbitals_exp(mol.wfn.exp_alpha, points, iorbs_alpha1, aos1)
+    mol.obasis.compute_grid_orbitals_exp(mol.wfn.exp_alpha, points, iorbs_alpha2, aos2)
     assert aos1.shape[1] == len(iorbs_alpha1)
     assert aos2.shape[1] == len(iorbs_alpha2)
     ad_check1 = (aos1**2).sum(axis=1)
@@ -434,16 +429,16 @@ def check_orbitals(data):
 
 def test_orbitals_n2_sto3g():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    check_orbitals(load_smart(fn_fchk))
+    check_orbitals(Molecule.from_file(fn_fchk))
 
 def test_orbitals_h3_321g():
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
-    check_orbitals(load_smart(fn_fchk))
+    check_orbitals(Molecule.from_file(fn_fchk))
 
 def test_orbitals_co_ccpv5z_cart():
     fn_fchk = context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk')
-    check_orbitals(load_smart(fn_fchk))
+    check_orbitals(Molecule.from_file(fn_fchk))
 
 def test_orbitals_co_ccpv5z_pure():
     fn_fchk = context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk')
-    check_orbitals(load_smart(fn_fchk))
+    check_orbitals(Molecule.from_file(fn_fchk))

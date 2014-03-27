@@ -23,7 +23,7 @@
 
 import numpy as np
 
-from horton import load_smart, angstrom, ESPCost, LockedH5File
+from horton import Molecule, angstrom, ESPCost, LockedH5File
 from horton.scripts.common import reduce_data, parse_h5
 from horton.part.proatomdb import ProAtomDB
 
@@ -138,9 +138,9 @@ def load_rho(coordinates, numbers, fn_cube, ref_ugrid, stride, chop):
             ref_ugrid.eval_spline(spline, coordinates[i], rho)
     else:
         # Load cube
-        data_rho = load_smart(fn_cube)
-        rho = data_rho['cube_data']
-        ugrid = data_rho['grid']
+        mol_rho = Molecule.from_file(fn_cube)
+        rho = mol_rho.cube_data
+        ugrid = mol_rho.grid
         # Reduce grid size
         if stride > 1:
             rho, ugrid = reduce_data(rho, ugrid, stride, chop)

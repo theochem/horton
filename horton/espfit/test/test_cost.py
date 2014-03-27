@@ -264,7 +264,7 @@ def test_esp_cost_solve_regularized():
 def test_compare_cubetools():
     # Load structure from cube file
     fn_cube = context.get_fn('test/jbw_coarse_aedens.cube')
-    data = load_smart(fn_cube)
+    mol = Molecule.from_file(fn_cube)
 
     # Use a different grid
     origin = np.array([0.0, 0.0, 0.0])
@@ -274,7 +274,7 @@ def test_compare_cubetools():
     ugrid = UniformGrid(origin, grid_rvecs, shape, pbc)
 
     # Generate weights
-    weights = setup_weights(data['coordinates'], data['numbers'], ugrid,
+    weights = setup_weights(mol.coordinates, mol.numbers, ugrid,
         near={8: (1.8*angstrom, 0.5*angstrom),
               14: (1.8*angstrom, 0.5*angstrom)})
     weights /= weights.sum()
@@ -283,7 +283,7 @@ def test_compare_cubetools():
     esp = np.random.uniform(-1, 1, shape)
 
     # Cost function
-    cost = ESPCost.from_grid_data(data['coordinates'], ugrid, esp, weights)
+    cost = ESPCost.from_grid_data(mol.coordinates, ugrid, esp, weights)
 
     # Sanity checks
     gvol = ugrid.get_grid_cell().volume
