@@ -42,7 +42,7 @@ class LinearObservable(Observable):
        A restriction of this implementation is that the fock operator for the
        alpha and the beta electrons are the same.
     '''
-    def __init__(self, obasis, cache, lf, wfn, label='kin'):
+    def __init__(self, obasis, cache, lf, wfn, label):
         self._obasis = obasis
         self._wfn = wfn
         Observable.__init__(self, cache, lf, label)
