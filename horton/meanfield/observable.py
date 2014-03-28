@@ -30,8 +30,7 @@ class Observable(object):
     require_grid = False
     exchange = False # Set to True for exhange functionals. Is needed for idiot proof option
 
-    def __init__(self, cache, lf, label):
-        self._cache = cache
+    def __init__(self, lf, label):
         self.label = label
         self._hamiltonian = None
         self._lf = lf

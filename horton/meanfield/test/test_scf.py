@@ -36,9 +36,8 @@ def test_scf_os():
     sys = System.from_file(fn_fchk)
 
     guess_hamiltonian_core(sys)
-    scf_cache = Cache()
-    ham = Hamiltonian(sys, scf_cache, [HartreeFockExchange(scf_cache, sys.lf, sys.wfn,
-                                           sys.get_electron_repulsion())])
+    ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
+                            sys.get_electron_repulsion())])
     assert convergence_error_eigen(ham) > 1e-8
     converge_scf(ham)
     assert convergence_error_eigen(ham) < 1e-8
@@ -69,8 +68,7 @@ def test_hf_water_321g_mistake():
     fn_xyz = context.get_fn('test/water.xyz')
     sys = System.from_file(fn_xyz, obasis='3-21G')
     setup_mean_field_wfn(sys, charge=0)
-    scf_cache = Cache()
-    ham = Hamiltonian(sys, scf_cache, [HartreeFockExchange(scf_cache, sys.lf, sys.wfn,
-                                           sys.get_electron_repulsion())])
+    ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
+                            sys.get_electron_repulsion())])
     with assert_raises(AttributeError):
         converge_scf(ham)

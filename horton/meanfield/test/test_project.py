@@ -62,9 +62,8 @@ def test_project_larger():
                 assert abs(dot) < 1e-5
 
     # Setup HF hamiltonian and compute energy
-    scf_cache = Cache()
-    ham = Hamiltonian(sys, scf_cache, [HartreeFockExchange(scf_cache, sys.lf, sys.wfn,
-                                           sys.get_electron_repulsion())])
+    ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
+                            sys.get_electron_repulsion())])
     energy1 = ham.compute()
 
     # Optimize wfn
@@ -110,9 +109,8 @@ def test_project_smaller():
                     assert abs(dot) < 1e-5
 
     # Setup HF hamiltonian and compute energy
-    scf_cache = Cache()
-    ham = Hamiltonian(sys, scf_cache, [HartreeFockExchange(scf_cache, sys.lf, sys.wfn,
-                                           sys.get_electron_repulsion())])
+    ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
+                            sys.get_electron_repulsion())])
     energy1 = ham.compute()
 
     # Optimize wfn

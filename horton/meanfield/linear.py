@@ -42,10 +42,10 @@ class LinearObservable(Observable):
        A restriction of this implementation is that the fock operator for the
        alpha and the beta electrons are the same.
     '''
-    def __init__(self, obasis, cache, lf, wfn, label):
+    def __init__(self, obasis, lf, wfn, label):
         self._obasis = obasis
         self._wfn = wfn
-        Observable.__init__(self, cache, lf, label)
+        Observable.__init__(self, lf, label)
 
     def get_operator(self):
         # subclasses should override this method such that it
@@ -75,7 +75,7 @@ class CustomLinearObservable(LinearObservable):
        This term can be used to implemented custom perturbations by
        finite fields.
     '''
-    def __init__(self, obasis, cache, lf, wfn, label, get_operator):
+    def __init__(self, obasis, lf, wfn, label, get_operator):
         '''
            **Arguments:**
 
@@ -96,7 +96,7 @@ class CustomLinearObservable(LinearObservable):
         else:
             TypeError('Could not interpret get_operator argument.')
         self.my_get_operator = my_get_operator
-        LinearObservable.__init__(self, obasis, cache, lf, wfn, label)
+        LinearObservable.__init__(self, obasis, lf, wfn, label)
 
     def get_operator(self):
         return self.my_get_operator(self.system)

@@ -16,12 +16,10 @@ guess_hamiltonian_core(system)
 grid = BeckeMolGrid(system.coordinates, system.numbers, system.pseudo_numbers)
 
 # Construction of Hamiltonian
-scf_cache = Cache()
-libxc_term = LibXCHybridGGA(scf_cache, system.lf, system.wfn, 'xc_o3lyp')
-ham = Hamiltonian(system, scf_cache, [HartreeFockExchange(scf_cache, system.lf,
-                                                          system.wfn, system.get_electron_repulsion(),
-                                                          fraction_exchange=libxc_term.get_exx_fraction()),
-                                      libxc_term], grid)
+libxc_term = LibXCHybridGGA(system.lf, system.wfn, 'xc_o3lyp')
+xhf_term = HartreeFockExchange(system.lf, system.wfn, system.get_electron_repulsion(),
+                               fraction_exchange=libxc_term.get_exx_fraction())
+ham = Hamiltonian(system, [xhf_term, libxc_term], grid)
 
 # Optimal damping SCF cycle
 converged = converge_scf_oda(ham)

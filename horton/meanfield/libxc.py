@@ -34,14 +34,14 @@ __all__ = ['LibXCLDA', 'LibXCGGA', 'LibXCHybridGGA']
 
 
 class LibXCEnergy(Observable):
-    def __init__(self, cache, lf, wfn, prefix, name):
+    def __init__(self, lf, wfn, prefix, name):
         self.exchange = name.startswith('x')
         name = '%s_%s' % (prefix, name)
         self._name = name
         self._libxc_wrapper = LibXCWrapper(name)
         self._wfn = wfn
         log.cite('marques2012', 'using LibXC, the library of exchange and correlation functionals')
-        Observable.__init__(self, cache, lf, 'libxc_%s' % name)
+        Observable.__init__(self, lf, 'libxc_%s' % name)
 
     def _update_operator(self, postpone_grid=False):
         raise NotImplementedError
@@ -59,7 +59,7 @@ class LibXCLDA(LibXCEnergy):
 
     require_grid = True
 
-    def __init__(self, cache, lf, wfn, name):
+    def __init__(self, lf, wfn, name):
         '''
            **Arguments:**
 
@@ -67,7 +67,7 @@ class LibXCLDA(LibXCEnergy):
                 The name of the functional in LibXC, without the ``lda_``
                 prefix.
         '''
-        LibXCEnergy.__init__(self, cache, lf, wfn, 'lda', name)
+        LibXCEnergy.__init__(self, lf, wfn, 'lda', name)
 
     @timer.with_section('LDA pot')
     def _update_operator(self, postpone_grid=False):
@@ -115,7 +115,7 @@ class LibXCLDA(LibXCEnergy):
 
 class LibXCGGA(LibXCEnergy):
     '''Any GGA functional from LibXC'''
-    def __init__(self, cache, lf, wfn, name):
+    def __init__(self, lf, wfn, name):
         '''
            **Arguments:**
 
@@ -123,7 +123,7 @@ class LibXCGGA(LibXCEnergy):
                 The name of the functional in LibXC, without the ``gga_``
                 prefix.
         '''
-        LibXCEnergy.__init__(self, cache, lf, wfn, 'gga', name)
+        LibXCEnergy.__init__(self, lf, wfn, 'gga', name)
 
     @timer.with_section('GGA pot')
     def _update_operator(self, postpone_grid=False):
@@ -189,7 +189,7 @@ class LibXCGGA(LibXCEnergy):
 
 class LibXCHybridGGA(LibXCGGA):
     '''Any Hybrid GGA functional from LibXC'''
-    def __init__(self, cache, lf, wfn, name):
+    def __init__(self, lf, wfn, name):
         '''
            **Arguments:**
 
@@ -197,7 +197,7 @@ class LibXCHybridGGA(LibXCGGA):
                 The name of the functional in LibXC, without the ``hyb_gga_``
                 prefix.
         '''
-        LibXCEnergy.__init__(self, cache, lf, wfn, 'hyb_gga', name)
+        LibXCEnergy.__init__(self, lf, wfn, 'hyb_gga', name)
 
     def get_exx_fraction(self):
         return self._libxc_wrapper.get_hyb_exx_fraction()

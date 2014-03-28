@@ -31,10 +31,10 @@ __all__ = ['Hartree', 'HartreeFockExchange', 'DiracExchange']
 
 
 class Hartree(Observable):
-    def __init__(self, cache, lf, wfn, eri, label='hartree'):
+    def __init__(self, lf, wfn, eri, label='hartree'):
         self._wfn = wfn
         self._eri = eri
-        Observable.__init__(self, cache, lf, label)
+        Observable.__init__(self, lf, label)
 
     def _update_hartree(self):
         '''Recompute the Hartree operator if it has become invalid'''
@@ -67,12 +67,12 @@ class Hartree(Observable):
 class HartreeFockExchange(Observable):
     exchange = True
 
-    def __init__(self, cache, lf, wfn, eri,
+    def __init__(self, lf, wfn, eri,
                  label='exchange_hartree_fock', fraction_exchange=1.0):
         self._wfn = wfn
         self._eri = eri
         self.fraction_exchange = fraction_exchange
-        Observable.__init__(self, cache, lf, label)
+        Observable.__init__(self, lf, label)
 
     def _update_exchange(self):
         '''Recompute the Exchange operator(s) if invalid'''
@@ -113,7 +113,7 @@ class DiracExchange(Observable):
     require_grid = True
     exchange = True
 
-    def __init__(self, cache, lf, wfn, eri,
+    def __init__(self, lf, wfn, eri,
                  label='exchange_dirac', coeff=None):
         '''
            **Arguments:**
@@ -134,7 +134,7 @@ class DiracExchange(Observable):
         else:
             self.coeff = coeff
         self.derived_coeff = -self.coeff * (4.0 / 3.0) * 2 ** (1.0 / 3.0)
-        Observable.__init__(self, cache, lf, label)
+        Observable.__init__(self, lf, label)
 
     def _update_exchange(self, postpone_grid=False):
         '''Recompute the Exchange operator(s) if invalid'''

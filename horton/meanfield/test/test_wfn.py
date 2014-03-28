@@ -62,9 +62,8 @@ def test_conversion_dm_exp():
     dm = sys.lf.create_one_body()
     dm.assign(sys.wfn.dm_alpha)
 
-    scf_cache = Cache()
-    ham = Hamiltonian(sys, scf_cache, [HartreeFockExchange(scf_cache, sys.lf, sys.wfn,
-                                           sys.get_electron_repulsion())])
+    ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
+                            sys.get_electron_repulsion())])
     fock = sys.lf.create_one_body()
     ham.compute_fock(fock, None)
     sys.wfn.clear()

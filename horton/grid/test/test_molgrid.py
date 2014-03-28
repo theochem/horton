@@ -119,15 +119,14 @@ def test_molgrid_attrs():
 def test_custom_grid_linear_observable():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    scf_cache = Cache()
     int1d = SimpsonIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf)
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, (rgrid, 110), random_rotate=False)
 
     # Without perturbation
-    ham = Hamiltonian(sys, scf_cache, [HartreeFockExchange(scf_cache, sys.lf, sys.wfn,
-                                           sys.get_electron_repulsion())])
+    ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
+                            sys.get_electron_repulsion())])
     assert convergence_error_eigen(ham) > 1e-8
     converge_scf(ham)
     assert convergence_error_eigen(ham) < 1e-8
@@ -146,13 +145,12 @@ def test_custom_grid_linear_observable():
         # With perturbation
         operator = sys.lf.create_one_body()
         sys.compute_grid_density_fock(grid.points, grid.weights, scale * potential, operator)
-        scf_cache = Cache()
         def get_operator(sys):
             return operator
-        perturbation = CustomLinearObservable(sys.obasis, sys.cache, sys.lf,
+        perturbation = CustomLinearObservable(sys.obasis, sys.lf,
                                               sys.wfn, 'pert', get_operator)
-        ham = Hamiltonian(sys, scf_cache, [HartreeFockExchange(scf_cache,sys.lf, sys.wfn,
-                                           sys.get_electron_repulsion()), perturbation])
+        ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
+                                sys.get_electron_repulsion()), perturbation])
         assert convergence_error_eigen(ham) > 1e-8
         converge_scf_oda(ham)
         assert convergence_error_eigen(ham) < 1e-8

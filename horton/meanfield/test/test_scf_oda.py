@@ -38,9 +38,8 @@ def test_scf_oda_cs_hfs():
 def test_scf_oda_water_hf_321g():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
-    scf_cache = Cache()
-    ham = Hamiltonian(sys, scf_cache, [HartreeFockExchange(scf_cache, sys.lf, sys.wfn,
-                                           sys.get_electron_repulsion())])
+    ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
+                            sys.get_electron_repulsion())])
 
     # test continuation of interupted scf_oda
     guess_hamiltonian_core(sys)
@@ -61,11 +60,10 @@ def test_scf_oda_lih_hfs_321g():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     sys = System.from_file(fn_fchk)
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    scf_cache = Cache()
-    ham = Hamiltonian(sys, scf_cache, [Hartree(scf_cache, sys.lf, sys.wfn,
-                                           sys.get_electron_repulsion()),
-                            DiracExchange(scf_cache, sys.lf, sys.wfn,
-                                           sys.get_electron_repulsion())],
+    ham = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
+                            sys.get_electron_repulsion()),
+                            DiracExchange(sys.lf, sys.wfn,
+                                          sys.get_electron_repulsion())],
                       grid)
 
     # test continuation of interupted scf_oda
@@ -117,9 +115,8 @@ def test_scf_oda_aufbau_spin():
     sys.wfn.occ_model = AufbauSpinOccModel(3)
 
     guess_hamiltonian_core(sys)
-    scf_cache = Cache()
-    ham = Hamiltonian(sys, scf_cache, [HartreeFockExchange(scf_cache, sys.lf, sys.wfn,
-                                           sys.get_electron_repulsion())])
+    ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
+                            sys.get_electron_repulsion())])
     converge_scf_oda(ham)
 
 

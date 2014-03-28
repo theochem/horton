@@ -15,14 +15,11 @@ guess_hamiltonian_core(system)
 # Setup integration grids with default settings
 grid = BeckeMolGrid(system.coordinates, system.numbers, system.pseudo_numbers)
 
-#setup cache object for the Hamiltonian
-scf_cache = Cache()
-
 # Construction of Hamiltonian
-ham = Hamiltonian(system, scf_cache,[Hartree(scf_cache, system.lf, system.wfn,
-                                           system.get_electron_repulsion()),
-                           DiracExchange(scf_cache, system.lf, system.wfn,
-                                           system.get_electron_repulsion())],
+ham = Hamiltonian(system, [Hartree(system.lf, system.wfn,
+                                   system.get_electron_repulsion()),
+                           DiracExchange(system.lf, system.wfn,
+                                         system.get_electron_repulsion())],
                   grid)
 
 # Optimal damping SCF cycle
