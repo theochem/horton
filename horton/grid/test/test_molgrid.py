@@ -125,8 +125,14 @@ def test_custom_grid_linear_observable():
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, (rgrid, 110), random_rotate=False)
 
     # Without perturbation
-    ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
-                            sys.get_electron_repulsion())])
+    er = sys.get_electron_repulsion()
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        HartreeFockExchange(sys.lf, sys.wfn, er),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms)
     assert convergence_error_eigen(ham) > 1e-8
     converge_scf(ham)
     assert convergence_error_eigen(ham) < 1e-8
@@ -147,8 +153,14 @@ def test_custom_grid_linear_observable():
         sys.compute_grid_density_fock(grid.points, grid.weights, scale * potential, operator)
         perturbation = CustomLinearObservable(sys.obasis, sys.lf,
                                               sys.wfn, 'pert', operator)
-        ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
-                                sys.get_electron_repulsion()), perturbation])
+        terms = [
+            KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+            Hartree(sys.lf, sys.wfn, er),
+            HartreeFockExchange(sys.lf, sys.wfn, er),
+            ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+            perturbation,
+        ]
+        ham = Hamiltonian(sys, terms)
         assert convergence_error_eigen(ham) > 1e-8
         converge_scf_oda(ham)
         assert convergence_error_eigen(ham) < 1e-8

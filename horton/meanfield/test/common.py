@@ -99,8 +99,14 @@ def check_scf_hf_cs_hf(scf_wrapper):
     sys = System.from_file(fn_fchk)
 
     guess_hamiltonian_core(sys)
-    ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
-                            sys.get_electron_repulsion())])
+    er = sys.get_electron_repulsion()
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        HartreeFockExchange(sys.lf, sys.wfn, er),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms)
     assert scf_wrapper.convergence_error(ham) > scf_wrapper.kwargs['threshold']
     scf_wrapper(ham)
     assert scf_wrapper.convergence_error(ham) < scf_wrapper.kwargs['threshold']
@@ -127,10 +133,14 @@ def check_scf_water_cs_hfs(scf_wrapper):
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
-                                    sys.get_electron_repulsion()),
-                            DiracExchange(sys.lf, sys.wfn)],
-                      grid)
+    er = sys.get_electron_repulsion()
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        DiracExchange(sys.lf, sys.wfn),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms, grid)
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file and different integration grids:

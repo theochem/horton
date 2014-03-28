@@ -44,6 +44,8 @@ class KineticEnergy(LinearObservable):
 
 
 class ExternalPotential(LinearObservable):
+    external = True
+
     def __init__(self, obasis, lf, wfn, numbers, coordinates, label='ne'):
         self.numbers = numbers
         self.coordinates = coordinates

@@ -4,22 +4,26 @@
 from horton import *
 
 # Loading system
-system = System.from_file('water.xyz', obasis='3-21G')
+sys = System.from_file('water.xyz', obasis='3-21G')
 
 # Allocate wavefuntion
-setup_mean_field_wfn(system, charge=0, mult=1)
+setup_mean_field_wfn(sys, charge=0, mult=1)
 
 # Initial guess
-guess_hamiltonian_core(system)
+guess_hamiltonian_core(sys)
 
 # Setup integration grids with default settings
-grid = BeckeMolGrid(system.coordinates, system.numbers, system.pseudo_numbers)
+grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers)
 
 # Construction of Hamiltonian
-ham = Hamiltonian(system, [Hartree(system.lf, system.wfn,
-                                   system.get_electron_repulsion()),
-                           DiracExchange(system.lf, system.wfn)],
-                  grid)
+er = sys.get_electron_repulsion()
+terms = [
+    KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+    Hartree(sys.lf, sys.wfn, er),
+    DiracExchange(sys.lf, sys.wfn),
+    ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+]
+ham = Hamiltonian(sys, terms, grid)
 
 # Optimal damping SCF cycle
 converged = converge_scf_oda(ham)

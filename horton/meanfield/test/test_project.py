@@ -62,8 +62,14 @@ def test_project_larger():
                 assert abs(dot) < 1e-5
 
     # Setup HF hamiltonian and compute energy
-    ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
-                            sys.get_electron_repulsion())])
+    er = sys.get_electron_repulsion()
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        HartreeFockExchange(sys.lf, sys.wfn, er),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms)
     energy1 = ham.compute()
 
     # Optimize wfn
@@ -109,8 +115,15 @@ def test_project_smaller():
                     assert abs(dot) < 1e-5
 
     # Setup HF hamiltonian and compute energy
-    ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
-                            sys.get_electron_repulsion())])
+    er = sys.get_electron_repulsion()
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        HartreeFockExchange(sys.lf, sys.wfn, er),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms)
+
     energy1 = ham.compute()
 
     # Optimize wfn

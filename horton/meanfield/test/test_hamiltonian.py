@@ -47,6 +47,7 @@ def test_energy_n2_hfs_sto3g():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
+    er = sys.get_electron_repulsion()
     terms = [
         KineticEnergy(sys.obasis, sys.lf, sys.wfn),
         Hartree(sys.lf, sys.wfn, er),
@@ -85,10 +86,14 @@ def test_fock_n2_hfs_sto3g():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
-                                    sys.get_electron_repulsion()),
-                            DiracExchange(sys.lf, sys.wfn)],
-                      grid)
+    er = sys.get_electron_repulsion()
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        DiracExchange(sys.lf, sys.wfn),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms, grid)
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
@@ -123,10 +128,14 @@ def test_fock_h3_hfs_321g():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
-                                    sys.get_electron_repulsion()),
-                            DiracExchange(sys.lf, sys.wfn)],
-                      grid)
+    er = sys.get_electron_repulsion()
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        DiracExchange(sys.lf, sys.wfn),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms, grid)
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
@@ -164,10 +173,14 @@ def test_cubic_interpolation_hfs_cs():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
-                                    sys.get_electron_repulsion()),
-                            DiracExchange(sys.lf, sys.wfn)],
-                      grid)
+    er = sys.get_electron_repulsion()
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        DiracExchange(sys.lf, sys.wfn),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms, grid)
 
     dm0 = sys.lf.create_one_body()
     dm0.assign(sys.wfn.dm_alpha)
@@ -183,8 +196,14 @@ def test_custom_observable():
     sys = System.from_file(fn_fchk)
 
     # Without perturbation
-    ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
-                            sys.get_electron_repulsion())])
+    er = sys.get_electron_repulsion()
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        HartreeFockExchange(sys.lf, sys.wfn, er),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms)
     assert convergence_error_eigen(ham) > 1e-8
     converge_scf(ham)
     assert convergence_error_eigen(ham) < 1e-8
@@ -209,9 +228,14 @@ def test_custom_observable():
         perturbation = CustomLinearObservable(sys.obasis, sys.lf,
                                               sys.wfn,'pert', tmp)
         # Hamiltonian
-        ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
-                                sys.get_electron_repulsion()),
-                                perturbation])
+        terms = [
+            KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+            Hartree(sys.lf, sys.wfn, er),
+            HartreeFockExchange(sys.lf, sys.wfn, er),
+            ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+            perturbation,
+        ]
+        ham = Hamiltonian(sys, terms)
         assert convergence_error_eigen(ham) > 1e-8
         converge_scf_oda(ham)
         assert convergence_error_eigen(ham) < 1e-8
@@ -223,46 +247,6 @@ def test_custom_observable():
             energy1_old = energy1
         else:
             assert abs(energy1 - energy1_old) < 1e-7
-
-
-def test_auto_complete():
-    fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
-    sys = System.from_file(fn_fchk)
-
-    # HF case
-    ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
-                            sys.get_electron_repulsion())])
-    assert any(isinstance(term, KineticEnergy) for term in ham.terms)
-    assert any(isinstance(term, Hartree) for term in ham.terms)
-    assert any(isinstance(term, ExternalPotential) for term in ham.terms)
-
-    # DFT case
-    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    ham = Hamiltonian(sys, [DiracExchange(sys.lf, sys.wfn)], grid)
-    assert any(isinstance(term, KineticEnergy) for term in ham.terms)
-    assert any(isinstance(term, ExternalPotential) for term in ham.terms)
-    assert any(isinstance(term, Hartree) for term in ham.terms)
-
-    # special behavior
-    ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
-                            sys.get_electron_repulsion())],
-                            idiot_proof=False)
-    assert not any(isinstance(term, KineticEnergy) for term in ham.terms)
-    assert not any(isinstance(term, Hartree) for term in ham.terms)
-    assert not any(isinstance(term, ExternalPotential) for term in ham.terms)
-
-
-def test_exchange_missing():
-    fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
-    sys = System.from_file(fn_fchk)
-    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers)
-
-    # Hartree model
-    with assert_raises(ValueError):
-        ham = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
-                                        sys.get_electron_repulsion()),
-                                LibXCLDA(sys.lf, sys.wfn, 'c_vwn')], grid)
-    ham = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn, sys.get_electron_repulsion())], idiot_proof=False)
 
 
 def test_add_term():
@@ -279,10 +263,14 @@ def test_add_term():
 def test_ghost_hf():
     fn_fchk = context.get_fn('test/water_dimer_ghost.fchk')
     sys = System.from_file(fn_fchk)
-    ham = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
-                                    sys.get_electron_repulsion()),
-                            HartreeFockExchange(sys.lf, sys.wfn,
-                                    sys.get_electron_repulsion())])
+    er = sys.get_electron_repulsion()
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        HartreeFockExchange(sys.lf, sys.wfn, er),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms)
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
     assert convergence_error_eigen(ham) < 1e-5

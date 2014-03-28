@@ -32,14 +32,25 @@ def test_fock_n2_hfs_sto3g():
     sys = System.from_file(fn_fchk)
     sys.wfn.clear_dm()
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
+    er = sys.get_electron_repulsion()
+
     libxc_term = LibXCLDA(sys.lf, sys.wfn, 'x')
-    ham1 = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
-                             sys.get_electron_repulsion()),
-                             libxc_term], grid)
+    terms1 = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        libxc_term,
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham1 = Hamiltonian(sys, terms1, grid)
+
     builtin_term = DiracExchange(sys.lf, sys.wfn)
-    ham2 = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
-                                     sys.get_electron_repulsion()),
-                             builtin_term], grid)
+    terms2 = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        builtin_term,
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham2 = Hamiltonian(sys, terms2, grid)
 
     # Compare the potential computed by libxc with the builtin implementation
     libxc_term._update_operator()
@@ -90,14 +101,25 @@ def test_hamiltonian_h3_hfs_321g():
     sys = System.from_file(fn_fchk)
     sys.wfn.clear_dm()
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
+    er = sys.get_electron_repulsion()
+
     libxc_term = LibXCLDA(sys.lf, sys.wfn, 'x')
-    ham1 = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
-                                     sys.get_electron_repulsion()),
-                             libxc_term], grid)
+    terms1 = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        libxc_term,
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham1 = Hamiltonian(sys, terms1, grid)
+
     builtin_term = DiracExchange(sys.lf, sys.wfn)
-    ham2 = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
-                                     sys.get_electron_repulsion()),
-                             builtin_term], grid)
+    terms2 = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        builtin_term,
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham2 = Hamiltonian(sys, terms2, grid)
 
     # Compare the potential computed by libxc with the builtin implementation
     libxc_term._update_operator()
@@ -151,11 +173,15 @@ def test_co_pbe_sto3g():
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
     sys = System.from_file(fn_fchk)
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'fine', random_rotate=False)
-    libxc_x_term = LibXCGGA(sys.lf, sys.wfn, 'x_pbe')
-    libxc_c_term = LibXCGGA(sys.lf, sys.wfn, 'c_pbe')
-    ham = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
-                                    sys.get_electron_repulsion()),
-                            libxc_x_term, libxc_c_term], grid)
+    er = sys.get_electron_repulsion()
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        LibXCGGA(sys.lf, sys.wfn, 'x_pbe'),
+        LibXCGGA(sys.lf, sys.wfn, 'c_pbe'),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms, grid)
 
     # Test energy before scf
     ham.compute()
@@ -192,11 +218,15 @@ def test_h3_pbe_321g():
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
     sys = System.from_file(fn_fchk)
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
-    libxc_x_term = LibXCGGA(sys.lf, sys.wfn, 'x_pbe')
-    libxc_c_term = LibXCGGA(sys.lf, sys.wfn, 'c_pbe')
-    ham = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
-                                    sys.get_electron_repulsion()),
-                            libxc_x_term, libxc_c_term], grid)
+    er = sys.get_electron_repulsion()
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        LibXCGGA(sys.lf, sys.wfn, 'x_pbe'),
+        LibXCGGA(sys.lf, sys.wfn, 'c_pbe'),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms, grid)
 
     # compute the energy before converging
     ham.compute()
@@ -238,9 +268,14 @@ def test_cubic_interpolation_c_pbe_cs():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
-                                    sys.get_electron_repulsion()),
-                            LibXCGGA(sys.lf, sys.wfn, 'c_pbe')], grid, idiot_proof=False)
+    er = sys.get_electron_repulsion()
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        LibXCGGA(sys.lf, sys.wfn, 'c_pbe'),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms, grid, idiot_proof=False)
 
     dm0 = sys.wfn.dm_alpha.copy()
     with assert_raises(NoSCFConvergence):
@@ -255,9 +290,14 @@ def test_cubic_interpolation_x_pbe_cs():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
-                                    sys.get_electron_repulsion()),
-                            LibXCGGA(sys.lf, sys.wfn, 'x_pbe')], grid)
+    er = sys.get_electron_repulsion()
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        LibXCGGA(sys.lf, sys.wfn, 'x_pbe'),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms, grid)
 
     dm0 = sys.wfn.dm_alpha.copy()
     with assert_raises(NoSCFConvergence):
@@ -272,9 +312,14 @@ def test_cubic_interpolation_hfs_cs():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
-                                    sys.get_electron_repulsion()),
-                            LibXCLDA(sys.lf, sys.wfn, 'x')], grid)
+    er = sys.get_electron_repulsion()
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        LibXCLDA(sys.lf, sys.wfn, 'x'),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms, grid)
 
     dm0 = sys.wfn.dm_alpha.copy()
     with assert_raises(NoSCFConvergence):
@@ -289,10 +334,16 @@ def test_cubic_interpolation_o3lyp_cs():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
+    er = sys.get_electron_repulsion()
     libxc_term = LibXCHybridGGA(sys.lf, sys.wfn, 'xc_o3lyp')
-    ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
-                            sys.get_electron_repulsion(),
-                            fraction_exchange=libxc_term.get_exx_fraction()), libxc_term], grid)
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        libxc_term,
+        HartreeFockExchange(sys.lf, sys.wfn, er, fraction_exchange=libxc_term.get_exx_fraction()),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms, grid)
 
     dm0 = sys.wfn.dm_alpha.copy()
     with assert_raises(NoSCFConvergence):
@@ -306,9 +357,14 @@ def test_cubic_interpolation_c_pbe_os():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
-                                    sys.get_electron_repulsion()),
-                            LibXCGGA(sys.lf, sys.wfn, 'c_pbe')], grid, idiot_proof=False)
+    er = sys.get_electron_repulsion()
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        LibXCGGA(sys.lf, sys.wfn, 'c_pbe'),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms, grid, idiot_proof=False)
 
     dma0 = sys.wfn.dm_alpha.copy()
     dmb0 = sys.wfn.dm_beta.copy()
@@ -325,9 +381,14 @@ def test_cubic_interpolation_x_pbe_os():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
-                                    sys.get_electron_repulsion()),
-                            LibXCGGA(sys.lf, sys.wfn, 'x_pbe')], grid)
+    er = sys.get_electron_repulsion()
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        LibXCGGA(sys.lf, sys.wfn, 'x_pbe'),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms, grid)
 
     dma0 = sys.wfn.dm_alpha.copy()
     dmb0 = sys.wfn.dm_beta.copy()
@@ -344,9 +405,14 @@ def test_cubic_interpolation_hfs_os():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
-                                    sys.get_electron_repulsion()),
-                            LibXCLDA(sys.lf, sys.wfn, 'x')], grid)
+    er = sys.get_electron_repulsion()
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        LibXCLDA(sys.lf, sys.wfn, 'x'),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms, grid)
 
     dma0 = sys.wfn.dm_alpha.copy()
     dmb0 = sys.wfn.dm_beta.copy()
@@ -362,10 +428,16 @@ def test_cubic_interpolation_o3lyp_os():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
+    er = sys.get_electron_repulsion()
     libxc_term = LibXCHybridGGA(sys.lf, sys.wfn, 'xc_o3lyp')
-    xhf_term = HartreeFockExchange(sys.lf, sys.wfn, sys.get_electron_repulsion(),
-                                   fraction_exchange=libxc_term.get_exx_fraction())
-    ham = Hamiltonian(sys, [xhf_term, libxc_term], grid)
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        libxc_term,
+        HartreeFockExchange(sys.lf, sys.wfn, er, fraction_exchange=libxc_term.get_exx_fraction()),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms, grid)
 
     dma0 = sys.wfn.dm_alpha.copy()
     dmb0 = sys.wfn.dm_beta.copy()

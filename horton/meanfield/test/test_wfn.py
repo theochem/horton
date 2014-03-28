@@ -62,8 +62,14 @@ def test_conversion_dm_exp():
     dm = sys.lf.create_one_body()
     dm.assign(sys.wfn.dm_alpha)
 
-    ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
-                            sys.get_electron_repulsion())])
+    er = sys.get_electron_repulsion()
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        HartreeFockExchange(sys.lf, sys.wfn, er),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms)
     fock = sys.lf.create_one_body()
     ham.compute_fock(fock, None)
     sys.wfn.clear()

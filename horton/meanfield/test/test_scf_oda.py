@@ -38,8 +38,14 @@ def test_scf_oda_cs_hfs():
 def test_scf_oda_water_hf_321g():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
-    ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
-                            sys.get_electron_repulsion())])
+    er = sys.get_electron_repulsion()
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        HartreeFockExchange(sys.lf, sys.wfn, er),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms)
 
     # test continuation of interupted scf_oda
     guess_hamiltonian_core(sys)
@@ -60,10 +66,14 @@ def test_scf_oda_lih_hfs_321g():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     sys = System.from_file(fn_fchk)
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
-                            sys.get_electron_repulsion()),
-                            DiracExchange(sys.lf, sys.wfn)],
-                      grid)
+    er = sys.get_electron_repulsion()
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        DiracExchange(sys.lf, sys.wfn),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms, grid)
 
     # test continuation of interupted scf_oda
     guess_hamiltonian_core(sys)
@@ -114,8 +124,15 @@ def test_scf_oda_aufbau_spin():
     sys.wfn.occ_model = AufbauSpinOccModel(3)
 
     guess_hamiltonian_core(sys)
-    ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
-                            sys.get_electron_repulsion())])
+    er = sys.get_electron_repulsion()
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        HartreeFockExchange(sys.lf, sys.wfn, er),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms)
+
     converge_scf_oda(ham)
 
 
