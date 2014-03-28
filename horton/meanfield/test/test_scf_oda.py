@@ -62,8 +62,7 @@ def test_scf_oda_lih_hfs_321g():
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
                             sys.get_electron_repulsion()),
-                            DiracExchange(sys.lf, sys.wfn,
-                                          sys.get_electron_repulsion())],
+                            DiracExchange(sys.lf, sys.wfn)],
                       grid)
 
     # test continuation of interupted scf_oda

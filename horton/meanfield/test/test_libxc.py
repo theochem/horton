@@ -36,8 +36,7 @@ def test_fock_n2_hfs_sto3g():
     ham1 = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
                              sys.get_electron_repulsion()),
                              libxc_term], grid)
-    builtin_term = DiracExchange(sys.lf, sys.wfn,
-                                 sys.get_electron_repulsion())
+    builtin_term = DiracExchange(sys.lf, sys.wfn)
     ham2 = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
                                      sys.get_electron_repulsion()),
                              builtin_term], grid)
@@ -95,8 +94,7 @@ def test_hamiltonian_h3_hfs_321g():
     ham1 = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
                                      sys.get_electron_repulsion()),
                              libxc_term], grid)
-    builtin_term = DiracExchange(sys.lf, sys.wfn,
-                                 sys.get_electron_repulsion())
+    builtin_term = DiracExchange(sys.lf, sys.wfn)
     ham2 = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
                                      sys.get_electron_repulsion()),
                              builtin_term], grid)

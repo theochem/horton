@@ -18,8 +18,7 @@ grid = BeckeMolGrid(system.coordinates, system.numbers, system.pseudo_numbers)
 # Construction of Hamiltonian
 ham = Hamiltonian(system, [Hartree(system.lf, system.wfn,
                                    system.get_electron_repulsion()),
-                           DiracExchange(system.lf, system.wfn,
-                                         system.get_electron_repulsion())],
+                           DiracExchange(system.lf, system.wfn)],
                   grid)
 
 # Optimal damping SCF cycle

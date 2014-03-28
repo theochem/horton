@@ -65,8 +65,7 @@ def test_energy_n2_hfs_sto3g():
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
                                     sys.get_electron_repulsion()),
-                            DiracExchange(sys.lf, sys.wfn,
-                                          sys.get_electron_repulsion())],
+                            DiracExchange(sys.lf, sys.wfn)],
                       grid)
     ham.compute()
 
@@ -101,8 +100,7 @@ def test_fock_n2_hfs_sto3g():
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
                                     sys.get_electron_repulsion()),
-                            DiracExchange(sys.lf, sys.wfn,
-                                          sys.get_electron_repulsion())],
+                            DiracExchange(sys.lf, sys.wfn)],
                       grid)
 
     # The convergence should be reasonable, not perfect because of limited
@@ -140,8 +138,7 @@ def test_fock_h3_hfs_321g():
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
                                     sys.get_electron_repulsion()),
-                            DiracExchange(sys.lf, sys.wfn,
-                                          sys.get_electron_repulsion())],
+                            DiracExchange(sys.lf, sys.wfn)],
                       grid)
 
     # The convergence should be reasonable, not perfect because of limited
@@ -182,8 +179,7 @@ def test_cubic_interpolation_hfs_cs():
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
     ham = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
                                     sys.get_electron_repulsion()),
-                            DiracExchange(sys.lf, sys.wfn,
-                                          sys.get_electron_repulsion())],
+                            DiracExchange(sys.lf, sys.wfn)],
                       grid)
 
     dm0 = sys.lf.create_one_body()
@@ -255,8 +251,7 @@ def test_auto_complete():
 
     # DFT case
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    ham = Hamiltonian(sys, [DiracExchange(sys.lf, sys.wfn,
-                            sys.get_electron_repulsion())], grid)
+    ham = Hamiltonian(sys, [DiracExchange(sys.lf, sys.wfn)], grid)
     assert any(isinstance(term, KineticEnergy) for term in ham.terms)
     assert any(isinstance(term, ExternalPotential) for term in ham.terms)
     assert any(isinstance(term, Hartree) for term in ham.terms)

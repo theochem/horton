@@ -113,8 +113,7 @@ class DiracExchange(Observable):
     require_grid = True
     exchange = True
 
-    def __init__(self, lf, wfn, eri,
-                 label='exchange_dirac', coeff=None):
+    def __init__(self, lf, wfn, label='exchange_dirac', coeff=None):
         '''
            **Arguments:**
 
@@ -128,7 +127,6 @@ class DiracExchange(Observable):
                 Cx = 3/4 (3/pi)^(1/3).
         '''
         self._wfn = wfn
-        self._eri = eri
         if coeff is None:
             self.coeff = 3.0 / 4.0 * (3.0 / np.pi) ** (1.0 / 3.0)
         else:
