@@ -44,7 +44,7 @@ def test_scf_os():
         HartreeFockExchange(sys.lf, sys.wfn, er),
         ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
     ]
-    ham = Hamiltonian(sys, terms, None, external)
+    ham = Hamiltonian(sys, terms, external)
 
     assert convergence_error_eigen(ham) > 1e-8
     converge_scf(ham)

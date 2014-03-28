@@ -39,7 +39,7 @@ def test_energy_hydrogen():
         ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
     ]
     external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
-    ham = Hamiltonian(sys, terms, None, external)
+    ham = Hamiltonian(sys, terms, external)
     ham.compute()
     assert abs(ham.cache['energy'] - -4.665818503844346E-01) < 1e-8
 
@@ -52,11 +52,13 @@ def test_energy_n2_hfs_sto3g():
     terms = [
         KineticEnergy(sys.obasis, sys.lf, sys.wfn),
         Hartree(sys.lf, sys.wfn, er),
-        DiracExchange(sys.lf, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+            DiracExchange(sys.wfn),
+        ]),
         ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
     ]
     external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
-    ham = Hamiltonian(sys, terms, grid, external)
+    ham = Hamiltonian(sys, terms, external)
     ham.compute()
 
     # Compare energies
@@ -92,11 +94,13 @@ def test_fock_n2_hfs_sto3g():
     terms = [
         KineticEnergy(sys.obasis, sys.lf, sys.wfn),
         Hartree(sys.lf, sys.wfn, er),
-        DiracExchange(sys.lf, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+            DiracExchange(sys.wfn),
+        ]),
         ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
     ]
     external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
-    ham = Hamiltonian(sys, terms, grid, external)
+    ham = Hamiltonian(sys, terms, external)
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
@@ -135,11 +139,13 @@ def test_fock_h3_hfs_321g():
     terms = [
         KineticEnergy(sys.obasis, sys.lf, sys.wfn),
         Hartree(sys.lf, sys.wfn, er),
-        DiracExchange(sys.lf, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+            DiracExchange(sys.wfn),
+        ]),
         ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
     ]
     external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
-    ham = Hamiltonian(sys, terms, grid, external)
+    ham = Hamiltonian(sys, terms, external)
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
@@ -181,10 +187,12 @@ def test_cubic_interpolation_hfs_cs():
     terms = [
         KineticEnergy(sys.obasis, sys.lf, sys.wfn),
         Hartree(sys.lf, sys.wfn, er),
-        DiracExchange(sys.lf, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+            DiracExchange(sys.wfn),
+        ]),
         ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
     ]
-    ham = Hamiltonian(sys, terms, grid)
+    ham = Hamiltonian(sys, terms)
 
     dm0 = sys.lf.create_one_body()
     dm0.assign(sys.wfn.dm_alpha)
@@ -257,7 +265,7 @@ def test_add_term():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
     ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
-                            sys.get_electron_repulsion())],
+                       sys.get_electron_repulsion())],
                       idiot_proof=False)
     term = KineticEnergy(sys.obasis, sys.lf, sys.wfn)
     ham.add_term(term)

@@ -34,20 +34,14 @@ __all__ = [
 
 
 class Hamiltonian(object):
-    def __init__(self, system, terms, grid=None, external=None, idiot_proof=True):
+    def __init__(self, system, terms, external=None, idiot_proof=True):
         '''
            **Arguments:**
-
-           system
-                The System object for which the energy must be computed.
 
            terms
                 The terms in the Hamiltonian.
 
            **Optional arguments:**
-
-           grid
-                The integration grid, in case some terms need one.
 
            external
                 A dictionary with external energy contributions that do not
@@ -63,14 +57,10 @@ class Hamiltonian(object):
         # check arguments:
         if len(terms) == 0:
             raise ValueError('At least one term must be present in the Hamiltonian.')
-        for term in terms:
-            if term.require_grid and grid is None:
-                raise TypeError('The term %s requires a grid, but not grid is given.' % term)
 
         # Assign attributes
         self.system = system
         self.terms = list(terms)
-        self.grid = grid
         self.external = {} if external is None else external
 
         if idiot_proof:
@@ -157,31 +147,6 @@ class Hamiltonian(object):
            In the case of a closed-shell computation, the argument fock_beta is
            ``None``.
         '''
-        # Loop over all terms and add contributions to the Fock matrix. Some
-        # terms will actually only evaluate potentials on grids and add these
-        # results to the total potential on a grid.
+        # Loop over all terms and add contributions to the Fock matrix.
         for term in self.terms:
-            term.add_fock_matrix(fock_alpha, fock_beta, postpone_grid=True)
-        # Collect all the total potentials and turn them into contributions
-        # for the fock matrix/matrices.
-
-        # Collect potentials for alpha electrons
-        # d = density
-        if 'dpot_total_alpha' in self.cache:
-            dpot = self.cache.load('dpot_total_alpha')
-            self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, dpot, fock_alpha)
-        # g = gradient
-        if 'gpot_total_alpha' in self.cache:
-            gpot = self.cache.load('gpot_total_alpha')
-            self.system.compute_grid_gradient_fock(self.grid.points, self.grid.weights, gpot, fock_alpha)
-
-        if isinstance(self.system.wfn, UnrestrictedWFN):
-            # Colect potentials for beta electrons
-            # d = density
-            if 'dpot_total_beta' in self.cache:
-                dpot = self.cache.load('dpot_total_beta')
-                self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, dpot, fock_beta)
-            # g = gradient
-            if 'gpot_total_beta' in self.cache:
-                gpot = self.cache.load('gpot_total_beta')
-                self.system.compute_grid_gradient_fock(self.grid.points, self.grid.weights, gpot, fock_beta)
+            term.add_fock_matrix(fock_alpha, fock_beta)

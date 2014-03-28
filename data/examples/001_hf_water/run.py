@@ -20,7 +20,7 @@ terms = [
     HartreeFockExchange(sys.lf, sys.wfn, er),
     ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
 ]
-ham = Hamiltonian(sys, terms, external=external)
+ham = Hamiltonian(sys, terms, external)
 
 # Converge WFN with SCF
 converged = converge_scf(ham)

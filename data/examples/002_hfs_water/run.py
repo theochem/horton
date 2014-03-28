@@ -21,10 +21,12 @@ external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
 terms = [
     KineticEnergy(sys.obasis, sys.lf, sys.wfn),
     Hartree(sys.lf, sys.wfn, er),
-    DiracExchange(sys.lf, sys.wfn),
+    GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+        DiracExchange(sys.wfn),
+    ]),
     ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
 ]
-ham = Hamiltonian(sys, terms, grid, external)
+ham = Hamiltonian(sys, terms, external)
 
 # Optimal damping SCF cycle
 converged = converge_scf_oda(ham)

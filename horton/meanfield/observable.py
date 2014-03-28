@@ -27,7 +27,6 @@ __all__ = [
 
 
 class Observable(object):
-    require_grid = False
     # The following are needed for the idiot-proof option of the Hamiltonian
     # class:
     kinetic = False    # Set to True for kinetic energys terms.
@@ -64,58 +63,10 @@ class Observable(object):
 
     cache = property(_get_cache)
 
-    def _get_grid(self):
-        '''The numerical integration grid for this hamiltonian.'''
-        return self._hamiltonian.grid #FIXME: remove the hamiltonian dependency
-
-    grid = property(_get_grid)
-
-    # Generic update routines that may be useful to various base classes
-    def update_rho(self, select):
-        if select == 'both':
-            # This is needed for libxc
-            rho, new = self.cache.load('rho_both', alloc=(self.grid.size, 2))
-            if new:
-                rho_alpha = self.update_rho('alpha')
-                rho_beta = self.update_rho('beta')
-                rho[:,0] = rho_alpha
-                rho[:,1] = rho_beta
-        else:
-            rho, new = self.cache.load('rho_%s' % select, alloc=self.grid.size)
-            if new:
-                self.system.compute_grid_density(self.grid.points, rhos=rho, select=select)
-        return rho
-
-    def update_grad_rho(self, select):
-        grad_rho, new = self.cache.load('grad_rho_%s' % select, alloc=(self.grid.size, 3))
-        if new:
-            self.system.compute_grid_gradient(self.grid.points, gradrhos=grad_rho, select=select)
-        return grad_rho
-
-    def update_sigma(self, select):
-        if select == 'all':
-            sigma, new = self.cache.load('sigma_all', alloc=(self.grid.size, 3))
-            sigma[:,0] = self.update_sigma('alpha')
-            sigma[:,1] = self.update_sigma('cross')
-            sigma[:,2] = self.update_sigma('beta')
-        else:
-            sigma, new = self.cache.load('sigma_%s' % select, alloc=self.grid.size)
-            if new:
-                if select == 'cross':
-                    grad_rho_alpha = self.update_grad_rho('alpha')
-                    grad_rho_beta = self.update_grad_rho('beta')
-                    # TODO: make more efficient (with output arguments)
-                    sigma[:] = (grad_rho_alpha*grad_rho_beta).sum(axis=1)
-                else:
-                    grad_rho = self.update_grad_rho(select)
-                    # TODO: make more efficient (with output arguments)
-                    sigma[:] = (grad_rho**2).sum(axis=1)
-        return sigma
-
     def compute(self):
         raise NotImplementedError
 
-    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1, postpone_grid=False):
+    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1):
         '''Add contributions to alpha (and beta) Fock matrix(es).
 
            **Arguments:**
@@ -131,99 +82,7 @@ class Observable(object):
            scale
                 A scale factor for this contribution
 
-           postpone_grid
-                When set to True, the grid-based observables will add their
-                potential on the grid to a total for the whole hamiltonian,
-                which can be converted to a fock matrix later. Note that the
-                scale argument will be ignored when this option is activated.
-
            In the case of a closed-shell computation, the argument fock_beta is
            ``None``.
         '''
         raise NotImplementedError
-
-    def _handle_dpot(self, dpot, postpone_grid, op_name, spin):
-        '''Take care of a density potential, either make a fock contribution or collect grid data
-
-           **Arguments:**
-
-           dpot
-                The potential grid data.
-
-           postpone_grid
-                Flag that determines how the potential is handled. When True,
-                the potential grid data is added to the total for the entire
-                hamiltonian. When False, the potential is converted into
-                a Fock matrix and stored under the given op_name in the cache.
-                When set to None, this method does nothing.
-
-           op_name
-                The name of the operator.
-
-           spin
-                'alpha', 'beta' or 'both'. This is only used if postpone_grid==True.
-        '''
-        if postpone_grid is True:
-            # Make sure this addition is done only once
-            tag = '%s_postponed_dpot' % op_name
-            if tag not in self.cache:
-                if spin == 'both':
-                    dpot_total_alpha = self.cache.load('dpot_total_alpha', alloc=self.grid.size)[0]
-                    dpot_total_alpha += dpot
-                    dpot_total_beta = self.cache.load('dpot_total_beta', alloc=self.grid.size)[0]
-                    dpot_total_beta += dpot
-                elif spin == 'alpha' or spin == 'beta':
-                    dpot_total = self.cache.load('dpot_total_%s' % spin, alloc=self.grid.size)[0]
-                    dpot_total += dpot
-                else:
-                    raise NotImplementedError
-                self.cache.dump(tag, True)
-        elif postpone_grid is False:
-            operator, new = self.cache.load(op_name, alloc=self._lf.create_one_body)
-            if new:
-                self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, dpot, operator)
-        elif postpone_grid is not None:
-            raise ValueError('postpone_grid must be True, False or None')
-
-    def _handle_gpot(self, gpot, postpone_grid, op_name, spin):
-        '''Take care of a gradient potential, either make a fock contribution or collect grid data
-
-           **Arguments:**
-
-           gpot
-                The potential grid data.
-
-           postpone_grid
-                Flag that determines how the potential is handled. When True,
-                the potential grid data is added to the total for the entire
-                hamiltonian. When False, the potential is converted into
-                a Fock matrix and stored under the given op_name in the cache.
-                When set to None, this method does nothing.
-
-           op_name
-                The name of the operator.
-
-           spin
-                'alpha', 'beta' or 'both'. This is only used if postpone_grid==True.
-        '''
-        if postpone_grid is True:
-            # Make sure this addition is done only once
-            tag = '%s_postponed_gpot' % op_name
-            if tag not in self.cache:
-                if spin == 'both':
-                    gpot_total_alpha = self.cache.load('gpot_total_alpha', alloc=(self.grid.size,3))[0]
-                    gpot_total_alpha += gpot
-                    gpot_total_beta = self.cache.load('gpot_total_beta', alloc=(self.grid.size,3))[0]
-                    gpot_total_beta += gpot
-                elif spin == 'alpha' or spin == 'beta':
-                    gpot_total = self.cache.load('gpot_total_%s' % spin, alloc=(self.grid.size,3))[0]
-                    gpot_total += gpot
-                else:
-                    raise NotImplementedError
-                self.cache.dump(tag, True)
-        elif postpone_grid is False:
-            operator, new = self.cache.load(op_name, alloc=self._lf.create_one_body)
-            if new:
-                self.system.compute_grid_gradient_fock(self.grid.points, self.grid.weights, gpot, operator)
-        elif postpone_grid is not None:
-            raise ValueError('postpone_grid must be True, False or None')

@@ -70,10 +70,12 @@ def test_scf_oda_lih_hfs_321g():
     terms = [
         KineticEnergy(sys.obasis, sys.lf, sys.wfn),
         Hartree(sys.lf, sys.wfn, er),
-        DiracExchange(sys.lf, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+            DiracExchange(sys.wfn),
+        ]),
         ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
     ]
-    ham = Hamiltonian(sys, terms, grid)
+    ham = Hamiltonian(sys, terms)
 
     # test continuation of interupted scf_oda
     guess_hamiltonian_core(sys)

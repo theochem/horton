@@ -24,6 +24,7 @@
 import numpy as np
 
 from horton.meanfield.observable import Observable
+from horton.meanfield.gridgroup import GridObservable
 from horton.meanfield.wfn import RestrictedWFN, UnrestrictedWFN
 
 
@@ -109,13 +110,11 @@ class HartreeFockExchange(Observable):
                             -self.fraction_exchange * scale)
 
 
-# TODO: Make base class for grid functionals where alpha and beta contributions are independent.
-class DiracExchange(Observable):
+class DiracExchange(GridObservable):
     '''An implementation of the Dirac Exchange Functional'''
-    require_grid = True
     exchange = True
 
-    def __init__(self, lf, wfn, label='exchange_dirac', coeff=None):
+    def __init__(self, wfn, label='exchange_dirac', coeff=None):
         '''
            **Arguments:**
 
@@ -134,33 +133,15 @@ class DiracExchange(Observable):
         else:
             self.coeff = coeff
         self.derived_coeff = -self.coeff * (4.0 / 3.0) * 2 ** (1.0 / 3.0)
-        Observable.__init__(self, lf, label)
+        GridObservable.__init__(self, label)
 
-    def _update_exchange(self, postpone_grid=False):
-        '''Recompute the Exchange operator(s) if invalid'''
-        def helper(select):
-            # update grid stuff
-            rho = self.update_rho(select)
-            pot, new = self.cache.load('pot_exchange_dirac_%s'
-                                       % select, alloc=self.grid.size)
-            if new:
-                pot[:] = self.derived_coeff * rho ** (1.0 / 3.0)
-
-            # update operator stuff
-            self._handle_dpot(pot, postpone_grid, 'op_exchange_dirac_%s'
-                              % select, select)
-
-        helper('alpha')
-        if isinstance(self._wfn, UnrestrictedWFN):
-            helper('beta')
-
-    def compute(self):
-        self._update_exchange(postpone_grid=None)
+    def compute_energy(self, cache, grid):
+        self._update_pot(cache, grid)
 
         def helper(select):
-            pot = self.cache.load('pot_exchange_dirac_%s' % select)
-            rho = self.cache.load('rho_%s' % select)
-            return self.grid.integrate(pot, rho)
+            pot = cache['pot_exchange_dirac_%s' % select]
+            rho = cache['rho_%s' % select]
+            return grid.integrate(pot, rho)
 
         energy = helper('alpha')
         if isinstance(self._wfn, RestrictedWFN):
@@ -170,10 +151,22 @@ class DiracExchange(Observable):
         energy *= 3.0 / 4.0
         return energy
 
-    def add_fock_matrix(self, fock_alpha, fock_beta,
-                        scale=1, postpone_grid=False):
-        self._update_exchange(postpone_grid)
-        if not postpone_grid:
-            fock_alpha.iadd(self.cache.load('op_exchange_dirac_alpha'), scale)
-            if fock_beta is not None:
-                fock_beta.iadd(self.cache.load('op_exchange_dirac_beta'), scale)
+    def _update_pot(self, cache, grid):
+        '''Recompute the Exchange potential(s) if invalid'''
+        def helper(select):
+            # update grid stuff
+            rho = cache['rho_%s' % select]
+            pot, new = cache.load('pot_exchange_dirac_%s' % select, alloc=grid.size)
+            if new:
+                pot[:] = self.derived_coeff * rho ** (1.0 / 3.0)
+
+        helper('alpha')
+        if isinstance(self._wfn, UnrestrictedWFN):
+            helper('beta')
+
+    def compute_pot(self, cache, grid):
+        '''Recompute the Exchange potential(s) if invalid'''
+        self._update_pot(cache, grid)
+        cache['dpot_total_alpha'] += cache['pot_exchange_dirac_alpha']
+        if isinstance(self._wfn, UnrestrictedWFN):
+            cache['dpot_total_beta'] += cache['pot_exchange_dirac_beta']

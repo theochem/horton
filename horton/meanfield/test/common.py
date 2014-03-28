@@ -107,7 +107,7 @@ def check_scf_hf_cs_hf(scf_wrapper):
         HartreeFockExchange(sys.lf, sys.wfn, er),
         ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
     ]
-    ham = Hamiltonian(sys, terms, None, external)
+    ham = Hamiltonian(sys, terms, external)
     assert scf_wrapper.convergence_error(ham) > scf_wrapper.kwargs['threshold']
     scf_wrapper(ham)
     assert scf_wrapper.convergence_error(ham) < scf_wrapper.kwargs['threshold']
@@ -139,10 +139,12 @@ def check_scf_water_cs_hfs(scf_wrapper):
     terms = [
         KineticEnergy(sys.obasis, sys.lf, sys.wfn),
         Hartree(sys.lf, sys.wfn, er),
-        DiracExchange(sys.lf, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+            DiracExchange(sys.wfn),
+        ]),
         ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
     ]
-    ham = Hamiltonian(sys, terms, grid, external)
+    ham = Hamiltonian(sys, terms, external)
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file and different integration grids:
