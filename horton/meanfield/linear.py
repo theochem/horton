@@ -26,9 +26,7 @@ from horton.meanfield.observable import Observable
 from horton.meanfield.wfn import RestrictedWFN
 
 
-__all__ = [
-    'LinearObservable', 'CustomLinearObservable',
-]
+__all__ = ['LinearObservable', 'CustomLinearObservable']
 
 
 class LinearObservable(Observable):
@@ -69,34 +67,22 @@ class LinearObservable(Observable):
                 fock.iadd(operator, scale)
 
 
+
 class CustomLinearObservable(LinearObservable):
     '''This is a user-defined observable that is linear in the density matrix
 
        This term can be used to implemented custom perturbations by
        finite fields.
     '''
-    def __init__(self, obasis, lf, wfn, label, get_operator):
+    def __init__(self, obasis, lf, wfn, label, operator):
         '''
            **Arguments:**
 
-           get_operator
-                A function takes a system object as argument and that returns
-                an operator.
-
-                For the sake of convenience, this argument may also be a
-                OneBody object. However, this is an error prone practice,
-                e.g. the operator won't get updated when the
-                basis set changes.
+           operator
+                A OneBody object.
         '''
-        if isinstance(get_operator, OneBody):
-            def my_get_operator(system):
-                return get_operator
-        elif callable(get_operator):
-            my_get_operator = get_operator
-        else:
-            TypeError('Could not interpret get_operator argument.')
-        self.my_get_operator = my_get_operator
+        self._operator = operator
         LinearObservable.__init__(self, obasis, lf, wfn, label)
 
     def get_operator(self):
-        return self.my_get_operator(self.system)
+        return self._operator

@@ -145,10 +145,8 @@ def test_custom_grid_linear_observable():
         # With perturbation
         operator = sys.lf.create_one_body()
         sys.compute_grid_density_fock(grid.points, grid.weights, scale * potential, operator)
-        def get_operator(sys):
-            return operator
         perturbation = CustomLinearObservable(sys.obasis, sys.lf,
-                                              sys.wfn, 'pert', get_operator)
+                                              sys.wfn, 'pert', operator)
         ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
                                 sys.get_electron_repulsion()), perturbation])
         assert convergence_error_eigen(ham) > 1e-8

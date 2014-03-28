@@ -34,7 +34,6 @@ class Observable(object):
         self.label = label
         self._hamiltonian = None
         self._lf = lf
-        self._operator = None
 
     def set_hamiltonian(self, hamiltonian):
         if not self._hamiltonian is None:
@@ -62,7 +61,7 @@ class Observable(object):
 
     def _get_grid(self):
         '''The numerical integration grid for this hamiltonian.'''
-        return self._hamiltonian.grid
+        return self._hamiltonian.grid #FIXME: remove the hamiltonian dependency
 
     grid = property(_get_grid)
 
@@ -175,7 +174,7 @@ class Observable(object):
                     raise NotImplementedError
                 self.cache.dump(tag, True)
         elif postpone_grid is False:
-            operator, new = self.cache.load(op_name, alloc=self.system.lf.create_one_body)
+            operator, new = self.cache.load(op_name, alloc=self._lf.create_one_body)
             if new:
                 self.system.compute_grid_density_fock(self.grid.points, self.grid.weights, dpot, operator)
         elif postpone_grid is not None:
@@ -218,7 +217,7 @@ class Observable(object):
                     raise NotImplementedError
                 self.cache.dump(tag, True)
         elif postpone_grid is False:
-            operator, new = self.cache.load(op_name, alloc=self.system.lf.create_one_body)
+            operator, new = self.cache.load(op_name, alloc=self._lf.create_one_body)
             if new:
                 self.system.compute_grid_gradient_fock(self.grid.points, self.grid.weights, gpot, operator)
         elif postpone_grid is not None:
