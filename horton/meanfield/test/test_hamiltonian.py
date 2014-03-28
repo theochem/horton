@@ -38,7 +38,8 @@ def test_energy_hydrogen():
         HartreeFockExchange(sys.lf, sys.wfn, er),
         ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
     ]
-    ham = Hamiltonian(sys, terms)
+    external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
+    ham = Hamiltonian(sys, terms, None, external)
     ham.compute()
     assert abs(ham.cache['energy'] - -4.665818503844346E-01) < 1e-8
 
@@ -54,7 +55,8 @@ def test_energy_n2_hfs_sto3g():
         DiracExchange(sys.lf, sys.wfn),
         ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
     ]
-    ham = Hamiltonian(sys, terms, grid)
+    external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
+    ham = Hamiltonian(sys, terms, grid, external)
     ham.compute()
 
     # Compare energies
@@ -93,7 +95,8 @@ def test_fock_n2_hfs_sto3g():
         DiracExchange(sys.lf, sys.wfn),
         ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
     ]
-    ham = Hamiltonian(sys, terms, grid)
+    external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
+    ham = Hamiltonian(sys, terms, grid, external)
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
@@ -135,7 +138,8 @@ def test_fock_h3_hfs_321g():
         DiracExchange(sys.lf, sys.wfn),
         ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
     ]
-    ham = Hamiltonian(sys, terms, grid)
+    external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
+    ham = Hamiltonian(sys, terms, grid, external)
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:

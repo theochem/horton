@@ -37,13 +37,14 @@ def test_scf_os():
 
     guess_hamiltonian_core(sys)
     er = sys.get_electron_repulsion()
+    external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
     terms = [
         KineticEnergy(sys.obasis, sys.lf, sys.wfn),
         Hartree(sys.lf, sys.wfn, er),
         HartreeFockExchange(sys.lf, sys.wfn, er),
         ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
     ]
-    ham = Hamiltonian(sys, terms)
+    ham = Hamiltonian(sys, terms, None, external)
 
     assert convergence_error_eigen(ham) > 1e-8
     converge_scf(ham)

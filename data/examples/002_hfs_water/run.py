@@ -17,13 +17,14 @@ grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers)
 
 # Construction of Hamiltonian
 er = sys.get_electron_repulsion()
+external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
 terms = [
     KineticEnergy(sys.obasis, sys.lf, sys.wfn),
     Hartree(sys.lf, sys.wfn, er),
     DiracExchange(sys.lf, sys.wfn),
     ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
 ]
-ham = Hamiltonian(sys, terms, grid)
+ham = Hamiltonian(sys, terms, grid, external)
 
 # Optimal damping SCF cycle
 converged = converge_scf_oda(ham)

@@ -13,13 +13,14 @@ guess_hamiltonian_core(sys)
 
 # Construct a Hamiltonian
 er = sys.get_electron_repulsion()
+external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
 terms = [
     KineticEnergy(sys.obasis, sys.lf, sys.wfn),
     Hartree(sys.lf, sys.wfn, er),
     HartreeFockExchange(sys.lf, sys.wfn, er),
     ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
 ]
-ham = Hamiltonian(sys, terms)
+ham = Hamiltonian(sys, terms, external=external)
 
 # Converge WFN with SCF
 converged = converge_scf(ham)

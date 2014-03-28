@@ -34,7 +34,7 @@ __all__ = [
 
 
 class Hamiltonian(object):
-    def __init__(self, system, terms, grid=None, idiot_proof=True):
+    def __init__(self, system, terms, grid=None, external=None, idiot_proof=True):
         '''
            **Arguments:**
 
@@ -48,6 +48,12 @@ class Hamiltonian(object):
 
            grid
                 The integration grid, in case some terms need one.
+
+           external
+                A dictionary with external energy contributions that do not
+                depend on the wavefunction, e.g. nuclear-nuclear interactions
+                or QM/MM mechanical embedding terms. Use ``nn`` as key for the
+                nuclear-nuclear term.
 
            idiot_proof
                 When set to False, the kinetic energy, external potential and
@@ -65,6 +71,7 @@ class Hamiltonian(object):
         self.system = system
         self.terms = list(terms)
         self.grid = grid
+        self.external = {} if external is None else external
 
         if idiot_proof:
             # Check if a kinetic energy term is present
@@ -115,9 +122,9 @@ class Hamiltonian(object):
             energy = term.compute()
             self.cache['energy_%s' % term.label] = energy
             total += energy
-        energy = self.system.compute_nucnuc()
-        self.cache['energy_nn'] = energy
-        total += energy
+        for key, energy in self.external.iteritems():
+            self.cache['energy_%s' % key] = energy
+            total += energy
         self.cache['energy'] = total
         return total
 
@@ -130,7 +137,8 @@ class Hamiltonian(object):
         for term in self.terms:
             energy = self.cache['energy_%s' % term.label]
             log('%50s  %20.12f' % (term.label, energy))
-        log('%50s  %20.12f' % ('nn', self.cache['energy_nn']))
+        for key, energy in self.external.iteritems():
+            log('%50s  %20.12f' % (key, energy))
         log('%50s  %20.12f' % ('total', self.cache['energy']))
         log.hline()
         log.blank()

@@ -33,6 +33,7 @@ def test_fock_n2_hfs_sto3g():
     sys.wfn.clear_dm()
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
     er = sys.get_electron_repulsion()
+    external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
 
     libxc_term = LibXCLDA(sys.lf, sys.wfn, 'x')
     terms1 = [
@@ -41,7 +42,7 @@ def test_fock_n2_hfs_sto3g():
         libxc_term,
         ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
     ]
-    ham1 = Hamiltonian(sys, terms1, grid)
+    ham1 = Hamiltonian(sys, terms1, grid, external)
 
     builtin_term = DiracExchange(sys.lf, sys.wfn)
     terms2 = [
@@ -50,7 +51,7 @@ def test_fock_n2_hfs_sto3g():
         builtin_term,
         ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
     ]
-    ham2 = Hamiltonian(sys, terms2, grid)
+    ham2 = Hamiltonian(sys, terms2, grid, external)
 
     # Compare the potential computed by libxc with the builtin implementation
     libxc_term._update_operator()
@@ -104,6 +105,7 @@ def test_hamiltonian_h3_hfs_321g():
     sys.wfn.clear_dm()
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
     er = sys.get_electron_repulsion()
+    external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
 
     libxc_term = LibXCLDA(sys.lf, sys.wfn, 'x')
     terms1 = [
@@ -112,7 +114,7 @@ def test_hamiltonian_h3_hfs_321g():
         libxc_term,
         ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
     ]
-    ham1 = Hamiltonian(sys, terms1, grid)
+    ham1 = Hamiltonian(sys, terms1, grid, external)
 
     builtin_term = DiracExchange(sys.lf, sys.wfn)
     terms2 = [
@@ -121,7 +123,7 @@ def test_hamiltonian_h3_hfs_321g():
         builtin_term,
         ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
     ]
-    ham2 = Hamiltonian(sys, terms2, grid)
+    ham2 = Hamiltonian(sys, terms2, grid, external)
 
     # Compare the potential computed by libxc with the builtin implementation
     libxc_term._update_operator()
@@ -178,6 +180,7 @@ def test_co_pbe_sto3g():
     sys = System.from_file(fn_fchk)
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'fine', random_rotate=False)
     er = sys.get_electron_repulsion()
+    external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
     terms = [
         KineticEnergy(sys.obasis, sys.lf, sys.wfn),
         Hartree(sys.lf, sys.wfn, er),
@@ -185,7 +188,7 @@ def test_co_pbe_sto3g():
         LibXCGGA(sys.lf, sys.wfn, 'c_pbe'),
         ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
     ]
-    ham = Hamiltonian(sys, terms, grid)
+    ham = Hamiltonian(sys, terms, grid, external)
 
     # Test energy before scf
     ham.compute()
@@ -223,6 +226,7 @@ def test_h3_pbe_321g():
     sys = System.from_file(fn_fchk)
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
     er = sys.get_electron_repulsion()
+    external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
     terms = [
         KineticEnergy(sys.obasis, sys.lf, sys.wfn),
         Hartree(sys.lf, sys.wfn, er),
@@ -230,7 +234,7 @@ def test_h3_pbe_321g():
         LibXCGGA(sys.lf, sys.wfn, 'c_pbe'),
         ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
     ]
-    ham = Hamiltonian(sys, terms, grid)
+    ham = Hamiltonian(sys, terms, grid, external)
 
     # compute the energy before converging
     ham.compute()

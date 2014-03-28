@@ -100,13 +100,14 @@ def check_scf_hf_cs_hf(scf_wrapper):
 
     guess_hamiltonian_core(sys)
     er = sys.get_electron_repulsion()
+    external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
     terms = [
         KineticEnergy(sys.obasis, sys.lf, sys.wfn),
         Hartree(sys.lf, sys.wfn, er),
         HartreeFockExchange(sys.lf, sys.wfn, er),
         ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
     ]
-    ham = Hamiltonian(sys, terms)
+    ham = Hamiltonian(sys, terms, None, external)
     assert scf_wrapper.convergence_error(ham) > scf_wrapper.kwargs['threshold']
     scf_wrapper(ham)
     assert scf_wrapper.convergence_error(ham) < scf_wrapper.kwargs['threshold']
@@ -134,13 +135,14 @@ def check_scf_water_cs_hfs(scf_wrapper):
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
     er = sys.get_electron_repulsion()
+    external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
     terms = [
         KineticEnergy(sys.obasis, sys.lf, sys.wfn),
         Hartree(sys.lf, sys.wfn, er),
         DiracExchange(sys.lf, sys.wfn),
         ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
     ]
-    ham = Hamiltonian(sys, terms, grid)
+    ham = Hamiltonian(sys, terms, grid, external)
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file and different integration grids:
