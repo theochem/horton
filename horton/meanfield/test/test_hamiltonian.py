@@ -40,7 +40,7 @@ def test_energy_hydrogen():
     ]
     ham = Hamiltonian(sys, terms)
     ham.compute()
-    assert abs(sys.extra['energy'] - -4.665818503844346E-01) < 1e-8
+    assert abs(ham.cache['energy'] - -4.665818503844346E-01) < 1e-8
 
 
 def test_energy_n2_hfs_sto3g():
@@ -58,11 +58,11 @@ def test_energy_n2_hfs_sto3g():
     ham.compute()
 
     # Compare energies
-    assert abs(sys.extra['energy_ne'] - -2.981579553570E+02) < 1e-6
-    assert abs(sys.extra['energy_kin'] - 1.061620887711E+02) < 1e-6
-    assert abs(sys.extra['energy_hartree'] + sys.extra['energy_exchange_dirac'] - 6.247259253877E+01) < 1e-4
-    assert abs(sys.extra['energy'] - -106.205213597) < 1e-4
-    assert abs(sys.extra['energy_nn'] - 23.3180604505) < 3e-9
+    assert abs(ham.cache['energy_ne'] - -2.981579553570E+02) < 1e-6
+    assert abs(ham.cache['energy_kin'] - 1.061620887711E+02) < 1e-6
+    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_exchange_dirac'] - 6.247259253877E+01) < 1e-4
+    assert abs(ham.cache['energy'] - -106.205213597) < 1e-4
+    assert abs(ham.cache['energy_nn'] - 23.3180604505) < 3e-9
 
 
     # Test if the grid potential data can be properly converted into an operator:
@@ -77,7 +77,7 @@ def test_energy_n2_hfs_sto3g():
 
     # When repeating, we should get the same
     ham.compute()
-    assert abs(sys.extra['energy'] - -106.205213597) < 1e-4
+    assert abs(ham.cache['energy'] - -106.205213597) < 1e-4
 
 
 def test_fock_n2_hfs_sto3g():
@@ -115,11 +115,11 @@ def test_fock_n2_hfs_sto3g():
 
     ham.compute()
     # compare with g09
-    assert abs(sys.extra['energy_ne'] - -2.981579553570E+02) < 1e-5
-    assert abs(sys.extra['energy_kin'] - 1.061620887711E+02) < 1e-5
-    assert abs(sys.extra['energy_hartree'] + sys.extra['energy_exchange_dirac'] - 6.247259253877E+01) < 1e-4
-    assert abs(sys.extra['energy'] - -106.205213597) < 1e-4
-    assert abs(sys.extra['energy_nn'] - 23.3180604505) < 1e-8
+    assert abs(ham.cache['energy_ne'] - -2.981579553570E+02) < 1e-5
+    assert abs(ham.cache['energy_kin'] - 1.061620887711E+02) < 1e-5
+    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_exchange_dirac'] - 6.247259253877E+01) < 1e-4
+    assert abs(ham.cache['energy'] - -106.205213597) < 1e-4
+    assert abs(ham.cache['energy_nn'] - 23.3180604505) < 1e-8
 
 
 def test_fock_h3_hfs_321g():
@@ -161,11 +161,11 @@ def test_fock_h3_hfs_321g():
 
     ham.compute()
     # compare with g09
-    assert abs(sys.extra['energy_ne'] - -6.832069993374E+00) < 1e-5
-    assert abs(sys.extra['energy_kin'] - 1.870784279014E+00) < 1e-5
-    assert abs(sys.extra['energy_hartree'] + sys.extra['energy_exchange_dirac'] - 1.658810998195E+00) < 1e-6
-    assert abs(sys.extra['energy'] - -1.412556114057104E+00) < 1e-5
-    assert abs(sys.extra['energy_nn'] - 1.8899186021) < 1e-8
+    assert abs(ham.cache['energy_ne'] - -6.832069993374E+00) < 1e-5
+    assert abs(ham.cache['energy_kin'] - 1.870784279014E+00) < 1e-5
+    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_exchange_dirac'] - 1.658810998195E+00) < 1e-6
+    assert abs(ham.cache['energy'] - -1.412556114057104E+00) < 1e-5
+    assert abs(ham.cache['energy_nn'] - 1.8899186021) < 1e-8
 
 
 def test_cubic_interpolation_hfs_cs():
@@ -240,7 +240,7 @@ def test_custom_observable():
         converge_scf_oda(ham)
         assert convergence_error_eigen(ham) < 1e-8
         energy1 = ham.compute()
-        energy1 -= sys.extra['energy_pert']
+        energy1 -= ham.cache['energy_pert']
 
         assert energy1 > energy0
         if energy1_old is None:

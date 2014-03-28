@@ -120,11 +120,11 @@ def check_scf_hf_cs_hf(scf_wrapper):
 
     ham.compute()
     # compare with g09
-    assert abs(sys.extra['energy'] - -9.856961609951867E+01) < 1e-8
-    assert abs(sys.extra['energy_kin'] - 9.766140786239E+01) < 2e-7
-    assert abs(sys.extra['energy_hartree'] + sys.extra['energy_exchange_hartree_fock'] - 4.561984106482E+01) < 1e-6
-    assert abs(sys.extra['energy_ne'] - -2.465756615329E+02) < 1e-6
-    assert abs(sys.extra['energy_nn'] - 4.7247965053) < 1e-8
+    assert abs(ham.cache['energy'] - -9.856961609951867E+01) < 1e-8
+    assert abs(ham.cache['energy_kin'] - 9.766140786239E+01) < 2e-7
+    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_exchange_hartree_fock'] - 4.561984106482E+01) < 1e-6
+    assert abs(ham.cache['energy_ne'] - -2.465756615329E+02) < 1e-6
+    assert abs(ham.cache['energy_nn'] - 4.7247965053) < 1e-8
 
 
 @log.with_level(log.high)
@@ -159,11 +159,11 @@ def check_scf_water_cs_hfs(scf_wrapper):
         ])
 
         assert abs(sys.wfn.exp_alpha.energies - expected_energies).max() < 2e-4
-        assert abs(sys.extra['energy_ne'] - -1.977921986200E+02) < 1e-7
-        assert abs(sys.extra['energy_kin'] - 7.525067610865E+01) < 1e-9
-        assert abs(sys.extra['energy_hartree'] + sys.extra['energy_exchange_dirac'] - 3.864299848058E+01) < 2e-4
-        assert abs(sys.extra['energy'] - -7.474134898935590E+01) < 2e-4
-        assert abs(sys.extra['energy_nn'] - 9.1571750414) < 2e-8
+        assert abs(ham.cache['energy_ne'] - -1.977921986200E+02) < 1e-7
+        assert abs(ham.cache['energy_kin'] - 7.525067610865E+01) < 1e-9
+        assert abs(ham.cache['energy_hartree'] + ham.cache['energy_exchange_dirac'] - 3.864299848058E+01) < 2e-4
+        assert abs(ham.cache['energy'] - -7.474134898935590E+01) < 2e-4
+        assert abs(ham.cache['energy_nn'] - 9.1571750414) < 2e-8
 
     # Converge from scratch
     guess_hamiltonian_core(sys)
@@ -171,7 +171,7 @@ def check_scf_water_cs_hfs(scf_wrapper):
     scf_wrapper(ham)
     assert scf_wrapper.convergence_error(ham) < scf_wrapper.kwargs['threshold']
 
-    assert abs(sys.extra['energy_ne'] - -1.977921986200E+02) < 1e-4
-    assert abs(sys.extra['energy_kin'] - 7.525067610865E+01) < 1e-4
-    assert abs(sys.extra['energy_hartree'] + sys.extra['energy_exchange_dirac'] - 3.864299848058E+01) < 2e-4
-    assert abs(sys.extra['energy'] - -7.474134898935590E+01) < 2e-4
+    assert abs(ham.cache['energy_ne'] - -1.977921986200E+02) < 1e-4
+    assert abs(ham.cache['energy_kin'] - 7.525067610865E+01) < 1e-4
+    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_exchange_dirac'] - 3.864299848058E+01) < 2e-4
+    assert abs(ham.cache['energy'] - -7.474134898935590E+01) < 2e-4

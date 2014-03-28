@@ -113,12 +113,12 @@ class Hamiltonian(object):
         total = 0.0
         for term in self.terms:
             energy = term.compute()
-            self.system.extra['energy_%s' % term.label] = energy
+            self.cache['energy_%s' % term.label] = energy
             total += energy
         energy = self.system.compute_nucnuc()
-        self.system.extra['energy_nn'] = energy
+        self.cache['energy_nn'] = energy
         total += energy
-        self.system.extra['energy'] = total
+        self.cache['energy'] = total
         return total
 
     def log_energy(self):
@@ -128,10 +128,10 @@ class Hamiltonian(object):
         log('                                       Energy term                 Value')
         log.hline()
         for term in self.terms:
-            energy = self.system.extra['energy_%s' % term.label]
+            energy = self.cache['energy_%s' % term.label]
             log('%50s  %20.12f' % (term.label, energy))
-        log('%50s  %20.12f' % ('nn', self.system.extra['energy_nn']))
-        log('%50s  %20.12f' % ('total', self.system.extra['energy']))
+        log('%50s  %20.12f' % ('nn', self.cache['energy_nn']))
+        log('%50s  %20.12f' % ('total', self.cache['energy']))
         log.hline()
         log.blank()
 

@@ -64,11 +64,11 @@ def test_scf_os():
 
     ham.compute()
     # compare with g09
-    assert abs(sys.extra['energy'] - -7.687331212191962E+00) < 1e-8
-    assert abs(sys.extra['energy_kin'] - 7.640603924034E+00) < 2e-7
-    assert abs(sys.extra['energy_hartree'] + sys.extra['energy_exchange_hartree_fock'] - 2.114420907894E+00) < 1e-7
-    assert abs(sys.extra['energy_ne'] - -1.811548789281E+01) < 2e-7
-    assert abs(sys.extra['energy_nn'] - 0.6731318487) < 1e-8
+    assert abs(ham.cache['energy'] - -7.687331212191962E+00) < 1e-8
+    assert abs(ham.cache['energy_kin'] - 7.640603924034E+00) < 2e-7
+    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_exchange_hartree_fock'] - 2.114420907894E+00) < 1e-7
+    assert abs(ham.cache['energy_ne'] - -1.811548789281E+01) < 2e-7
+    assert abs(ham.cache['energy_nn'] - 0.6731318487) < 1e-8
 
 
 def test_hf_water_321g_mistake():

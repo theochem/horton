@@ -74,7 +74,7 @@ def test_project_larger():
 
     # Optimize wfn
     converge_scf_oda(ham)
-    energy2 = sys.extra['energy']
+    energy2 = ham.cache['energy']
     assert energy2 < energy1 # the energy should decrease after scf convergence
 
     # Construct a core initial guess
@@ -128,7 +128,7 @@ def test_project_smaller():
 
     # Optimize wfn
     converge_scf_oda(ham)
-    energy2 = sys.extra['energy']
+    energy2 = ham.cache['energy']
     assert energy2 < energy1 # the energy should decrease after scf convergence
 
     # Construct a core initial guess
