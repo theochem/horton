@@ -89,14 +89,13 @@ class HartreeFockExchange(Observable):
 
     def compute(self):
         self._update_exchange()
+        xhf_fock_alpha = self.cache.load('op_exchange_hartree_fock_alpha')
         if isinstance(self._wfn, RestrictedWFN):
-            return -self.cache.load('op_exchange_hartree_fock_alpha'
-                                    ).expectation_value(self._wfn.dm_alpha)
+            return -self.fraction_exchange * xhf_fock_alpha.expectation_value(self._wfn.dm_alpha)
         else:
-            return -0.5 * self.cache.load('op_exchange_hartree_fock_alpha'
-                                          ).expectation_value(self._wfn.dm_alpha) \
-                   -0.5 * self.cache.load('op_exchange_hartree_fock_beta'
-                                          ).expectation_value(self._wfn.dm_beta)
+            xhf_fock_beta = self.cache.load('op_exchange_hartree_fock_beta')
+            return -0.5 * self.fraction_exchange * xhf_fock_alpha.expectation_value(self._wfn.dm_alpha) \
+                   -0.5 * self.fraction_exchange * xhf_fock_beta.expectation_value(self._wfn.dm_beta)
 
     def add_fock_matrix(self, fock_alpha, fock_beta, scale=1,
                          postpone_grid=False):
