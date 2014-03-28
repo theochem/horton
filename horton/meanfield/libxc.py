@@ -35,6 +35,7 @@ __all__ = ['LibXCLDA', 'LibXCGGA', 'LibXCHybridGGA']
 
 class LibXCEnergy(Observable):
     def __init__(self, lf, wfn, prefix, name):
+        self.kinetic = name.startswith('k')
         self.exchange = name.startswith('x')
         name = '%s_%s' % (prefix, name)
         self._name = name

@@ -28,7 +28,12 @@ __all__ = [
 
 class Observable(object):
     require_grid = False
-    exchange = False # Set to True for exhange functionals. Is needed for idiot proof option
+    # The following are needed for the idiot-proof option of the Hamiltonian
+    # class:
+    kinetic = False    # Set to True for kinetic energys terms.
+    hartree = False    # Set to True for hartree terms.
+    exchange = False   # Set to True for exhange terms.
+    external = False   # Set to True for an external potential.
 
     def __init__(self, lf, label):
         self.label = label

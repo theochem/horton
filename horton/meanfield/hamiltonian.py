@@ -67,23 +67,18 @@ class Hamiltonian(object):
         self.grid = grid
 
         if idiot_proof:
+            # Check if a kinetic energy term is present
+            if not any(term.kinetic for term in self.terms):
+                raise ValueError('No kinetic energy term is given and idiot_proof option is set to True.')
+            # Check if a hartree term is present
+            if not any(term.hartree for term in self.terms):
+                raise ValueError('No hartree term is given and idiot_proof option is set to True.')
             # Check if an exchange term is present
             if not any(term.exchange for term in self.terms):
                 raise ValueError('No exchange term is given and idiot_proof option is set to True.')
-            # Add standard terms if missing
-            #  1) Kinetic energy
-            if sum(isinstance(term, KineticEnergy) for term in terms) == 0:
-                self.terms.append(KineticEnergy(system.obasis, system.lf,
-                                                system.wfn))
-            #  2) Hartree (or HatreeFock, which is a subclass of Hartree)
-            if sum(isinstance(term, Hartree) for term in terms) == 0:
-                self.terms.append(Hartree(system.lf, system.wfn,
-                                          system.get_electron_repulsion()))
-            #  3) External Potential
-            if sum(isinstance(term, ExternalPotential) for term in terms) == 0:
-                self.terms.append(ExternalPotential(system.obasis, system.lf,
-                                                    system.wfn, system.numbers,
-                                                    system.coordinates))
+            # Check if an external potential term is present
+            if not any(term.external for term in self.terms):
+                raise ValueError('No external potential term is given and idiot_proof option is set to True.')
 
         # Create a cache for shared intermediate results. This cache should only
         # be used for derived quantities that depend on the wavefunction and

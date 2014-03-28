@@ -28,33 +28,17 @@ from horton import *
 from horton.meanfield.test.common import check_cubic_cs_wrapper
 
 
-def test_hamiltonian_init():
-    coordinates = np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 1.0]])
-    numbers = np.array([1, 1])
-    sys = System(coordinates, numbers, obasis='STO-3G')
-    setup_mean_field_wfn(sys, 0, 1)
-
-    # test if no terms gives a ValueError
-    with assert_raises(ValueError):
-        ham = Hamiltonian(sys, [])
-
-    # test if terms are added automagically
-    ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
-                            sys.get_electron_repulsion())])
-
-    assert sum(isinstance(term, KineticEnergy) for term in ham.terms) == 1
-    assert sum(isinstance(term, ExternalPotential) for term in ham.terms) == 1
-    assert sum(isinstance(term, Hartree) for term in ham.terms) == 1
-
-    # check attribute of HartreeFock term
-    assert ham.terms[0].fraction_exchange == 1.0
-
-
 def test_energy_hydrogen():
     fn_fchk = context.get_fn('test/h_sto3g.fchk')
     sys = System.from_file(fn_fchk)
-    ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
-                            sys.get_electron_repulsion())])
+    er = sys.get_electron_repulsion()
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        HartreeFockExchange(sys.lf, sys.wfn, er),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms)
     ham.compute()
     assert abs(sys.extra['energy'] - -4.665818503844346E-01) < 1e-8
 
@@ -63,10 +47,13 @@ def test_energy_n2_hfs_sto3g():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    ham = Hamiltonian(sys, [Hartree(sys.lf, sys.wfn,
-                                    sys.get_electron_repulsion()),
-                            DiracExchange(sys.lf, sys.wfn)],
-                      grid)
+    terms = [
+        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
+        Hartree(sys.lf, sys.wfn, er),
+        DiracExchange(sys.lf, sys.wfn),
+        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ]
+    ham = Hamiltonian(sys, terms, grid)
     ham.compute()
 
     # Compare energies

@@ -30,6 +30,8 @@ __all__ = [
 
 
 class KineticEnergy(LinearObservable):
+    kinetic = True
+
     def __init__(self, obasis, lf, wfn, label='kin'):
         LinearObservable.__init__(self, obasis, lf, wfn, label)
 
