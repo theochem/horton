@@ -46,12 +46,6 @@ class Observable(object):
 
     # The following four properties are added for convenience:
 
-    def _get_system(self):
-        '''The system for which the hamiltonian is defined.'''
-        return self._hamiltonian.system
-
-    system = property(_get_system)
-
     def _get_lf(self):
         return self._lf
 
