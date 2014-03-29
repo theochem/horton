@@ -265,8 +265,7 @@ def test_add_term():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
     ham = Hamiltonian(sys, [HartreeFockExchange(sys.lf, sys.wfn,
-                       sys.get_electron_repulsion())],
-                      idiot_proof=False)
+                       sys.get_electron_repulsion())])
     term = KineticEnergy(sys.obasis, sys.lf, sys.wfn)
     ham.add_term(term)
     assert term._hamiltonian is ham

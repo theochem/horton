@@ -27,13 +27,6 @@ __all__ = [
 
 
 class Observable(object):
-    # The following are needed for the idiot-proof option of the Hamiltonian
-    # class:
-    kinetic = False    # Set to True for kinetic energys terms.
-    hartree = False    # Set to True for hartree terms.
-    exchange = False   # Set to True for exhange terms.
-    external = False   # Set to True for an external potential.
-
     def __init__(self, lf, label):
         self.label = label
         self._hamiltonian = None

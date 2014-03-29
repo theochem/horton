@@ -32,8 +32,6 @@ __all__ = ['Hartree', 'HartreeFockExchange', 'DiracExchange']
 
 
 class Hartree(Observable):
-    hartree = True
-
     def __init__(self, lf, wfn, eri, label='hartree'):
         self._wfn = wfn
         self._eri = eri
@@ -68,8 +66,6 @@ class Hartree(Observable):
 
 
 class HartreeFockExchange(Observable):
-    exchange = True
-
     def __init__(self, lf, wfn, eri,
                  label='exchange_hartree_fock', fraction_exchange=1.0):
         self._wfn = wfn
@@ -112,8 +108,6 @@ class HartreeFockExchange(Observable):
 
 class DiracExchange(GridObservable):
     '''An implementation of the Dirac Exchange Functional'''
-    exchange = True
-
     def __init__(self, wfn, label='exchange_dirac', coeff=None):
         '''
            **Arguments:**

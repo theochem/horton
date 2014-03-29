@@ -42,26 +42,6 @@ class GridGroup(Observable):
 
     gga = property(_get_gga)
 
-    def _get_kinetic(self):
-        return any([grid_term.kinetic for grid_term in self.grid_terms])
-
-    kinetic = property(_get_kinetic)
-
-    def _get_hartree(self):
-        return any([grid_term.hartree for grid_term in self.grid_terms])
-
-    hartree = property(_get_hartree)
-
-    def _get_exchange(self):
-        return any([grid_term.exchange for grid_term in self.grid_terms])
-
-    exchange = property(_get_exchange)
-
-    def _get_external(self):
-        return any([grid_term.external for grid_term in self.grid_terms])
-
-    external = property(_get_external)
-
     def update_grid_data(self):
         def helper_rho(select):
             rho, new = self.cache.load('rho_%s' % select, alloc=self.grid.size)
@@ -178,12 +158,6 @@ class GridGroup(Observable):
 
 class GridObservable(object):
     gga = False
-    # The following are needed for the idiot-proof option of the Hamiltonian
-    # class:
-    kinetic = False    # Set to True for kinetic energys terms.
-    hartree = False    # Set to True for hartree terms.
-    exchange = False   # Set to True for exhange terms.
-    external = False   # Set to True for an external potential.
 
     def __init__(self, label):
         self.label = label

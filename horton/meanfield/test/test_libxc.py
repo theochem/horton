@@ -305,7 +305,7 @@ def test_cubic_interpolation_c_pbe_cs():
         ]),
         ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
     ]
-    ham = Hamiltonian(sys, terms, idiot_proof=False)
+    ham = Hamiltonian(sys, terms)
 
     dm0 = sys.wfn.dm_alpha.copy()
     with assert_raises(NoSCFConvergence):
@@ -400,7 +400,7 @@ def test_cubic_interpolation_c_pbe_os():
         ]),
         ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
     ]
-    ham = Hamiltonian(sys, terms, idiot_proof=False)
+    ham = Hamiltonian(sys, terms)
 
     dma0 = sys.wfn.dm_alpha.copy()
     dmb0 = sys.wfn.dm_beta.copy()

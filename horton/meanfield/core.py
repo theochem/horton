@@ -30,8 +30,6 @@ __all__ = [
 
 
 class KineticEnergy(LinearObservable):
-    kinetic = True
-
     def __init__(self, obasis, lf, wfn, label='kin'):
         LinearObservable.__init__(self, obasis, lf, wfn, label)
 
@@ -44,8 +42,6 @@ class KineticEnergy(LinearObservable):
 
 
 class ExternalPotential(LinearObservable):
-    external = True
-
     def __init__(self, obasis, lf, wfn, numbers, coordinates, label='ne'):
         self.numbers = numbers
         self.coordinates = coordinates

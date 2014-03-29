@@ -34,7 +34,7 @@ __all__ = [
 
 
 class Hamiltonian(object):
-    def __init__(self, system, terms, external=None, idiot_proof=True):
+    def __init__(self, system, terms, external=None):
         '''
            **Arguments:**
 
@@ -48,11 +48,6 @@ class Hamiltonian(object):
                 depend on the wavefunction, e.g. nuclear-nuclear interactions
                 or QM/MM mechanical embedding terms. Use ``nn`` as key for the
                 nuclear-nuclear term.
-
-           idiot_proof
-                When set to False, the kinetic energy, external potential and
-                Hartree terms are not added automatically and a error is raised
-                when no exchange is present.
         '''
         # check arguments:
         if len(terms) == 0:
@@ -62,20 +57,6 @@ class Hamiltonian(object):
         self.system = system
         self.terms = list(terms)
         self.external = {} if external is None else external
-
-        if idiot_proof:
-            # Check if a kinetic energy term is present
-            if not any(term.kinetic for term in self.terms):
-                raise ValueError('No kinetic energy term is given and idiot_proof option is set to True.')
-            # Check if a hartree term is present
-            if not any(term.hartree for term in self.terms):
-                raise ValueError('No hartree term is given and idiot_proof option is set to True.')
-            # Check if an exchange term is present
-            if not any(term.exchange for term in self.terms):
-                raise ValueError('No exchange term is given and idiot_proof option is set to True.')
-            # Check if an external potential term is present
-            if not any(term.external for term in self.terms):
-                raise ValueError('No external potential term is given and idiot_proof option is set to True.')
 
         # Create a cache for shared intermediate results. This cache should only
         # be used for derived quantities that depend on the wavefunction and
