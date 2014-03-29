@@ -45,7 +45,7 @@ def test_project_larger():
     sys.update_obasis('3-21G')
     obasis1 = sys.obasis
     setup_mean_field_wfn(sys, restricted=True)
-    project_orbitals_mgs(obasis1, sys.wfn, wfn0, obasis0)
+    project_orbitals_mgs(obasis0, obasis1, wfn0, sys.wfn)
     exp1 = sys.wfn.exp_alpha
     assert (exp1.energies == 0.0).all()
     assert exp0.occupations.sum() == exp1.occupations.sum()
@@ -94,7 +94,7 @@ def test_project_smaller():
     sys.update_obasis('sto-3g')
     obasis1 = sys.obasis
     setup_mean_field_wfn(sys, restricted=False)
-    project_orbitals_mgs(obasis1, sys.wfn, wfn0, obasis0)
+    project_orbitals_mgs(obasis0, obasis1, wfn0, sys.wfn)
     wfn1 = sys.wfn
     assert (wfn1.exp_alpha.energies == 0.0).all()
     assert (wfn1.exp_beta.energies == 0.0).all()
@@ -156,7 +156,7 @@ def test_inplace():
     setup_mean_field_wfn(sys, restricted=True)
 
     # Project from one to other:
-    project_orbitals_mgs(sys.obasis, sys.wfn, old_wfn, old_obasis)
+    project_orbitals_mgs(old_obasis, sys.obasis, old_wfn, sys.wfn)
     exp0 = sys.wfn.exp_alpha
     assert (exp0.energies == 0.0).all()
     assert (exp0.occupations == old_wfn.exp_alpha.occupations).all()
@@ -165,7 +165,7 @@ def test_inplace():
 
     # Project in-place:
     sys._wfn = old_wfn
-    project_orbitals_mgs(sys.obasis, sys.wfn, old_wfn, old_obasis)
+    project_orbitals_mgs(old_obasis, sys.obasis, old_wfn, sys.wfn)
     exp1 = sys.wfn.exp_alpha
     assert (exp1.energies == 0.0).all()
     assert (exp0.occupations == exp1.occupations).all()

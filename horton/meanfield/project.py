@@ -35,21 +35,22 @@ class ProjectionError(Exception):
     pass
 
 
-def project_orbitals_mgs(obasis, wfn, old_wfn, old_obasis, eps=1e-10):
-    '''Project orbitals from the ``old_wfn`` (wrt ``old_basis``) on the wfn of the ``system`` object with the modified Gram-Schmidt algorithm.
+def project_orbitals_mgs(obasis0, obasis1, wfn0, wfn1, eps=1e-10):
+    '''Project orbitals from old basis to new basis with modified Gram-Schmidt
 
        **Arguments:**
 
-       system
-            The system with the new orbital basis. It must have a
-            wavefunction object compatible with the old wavefunction (restricted
-            versus unrestricted).
+       obasis0
+            The old orbital basis
 
-       old_wfn
-            The old (mean-field) wavefunction object
+       obasis1
+            The new orbital basis
 
-       old_obasis
-            The orbital basis for the old wavefunction
+       wfn0
+            The old (mean-field) wavefunction
+
+       wfn1
+            The new (mean-field) wavefunction
 
        **Optional arguments:**
 
@@ -61,19 +62,20 @@ def project_orbitals_mgs(obasis, wfn, old_wfn, old_obasis, eps=1e-10):
     if log.do_medium:
         log('Projecting the wavefunction on a new basis.')
         log.blank()
-    if isinstance(old_wfn, RestrictedWFN):
-        assert isinstance(wfn, RestrictedWFN)
-        if 'exp_alpha' not in wfn._cache:
-            wfn.init_exp('alpha')
-        project_orbitals_mgs_low(old_obasis, obasis, old_wfn.exp_alpha, wfn.exp_alpha, eps)
+    if isinstance(wfn0, RestrictedWFN):
+        assert isinstance(wfn1, RestrictedWFN)
+        if 'exp_alpha' not in wfn1._cache:
+            wfn1.init_exp('alpha')
+        project_orbitals_mgs_low(obasis0, obasis1, wfn0.exp_alpha, wfn1.exp_alpha, eps)
     else:
-        assert isinstance(wfn, UnrestrictedWFN)
-        if 'exp_alpha' not in wfn._cache:
-            wfn.init_exp('alpha')
-            wfn.init_exp('beta')
-        project_orbitals_mgs_low(old_obasis, obasis, old_wfn.exp_alpha, wfn.exp_alpha, eps)
-        project_orbitals_mgs_low(old_obasis, obasis, old_wfn.exp_beta, wfn.exp_beta, eps)
-    wfn.clear_dm()
+        assert isinstance(wfn1, UnrestrictedWFN)
+        if 'exp_alpha' not in wfn1._cache:
+            wfn1.init_exp('alpha')
+            wfn1.init_exp('beta')
+        project_orbitals_mgs_low(obasis0, obasis1, wfn0.exp_alpha, wfn1.exp_alpha, eps)
+        project_orbitals_mgs_low(obasis0, obasis1, wfn0.exp_beta, wfn1.exp_beta, eps)
+    # since the orbitals were updated, the wfn1 density matrices are outdated.
+    wfn1.clear_dm()
 
 
 def project_orbitals_mgs_low(obasis0, obasis1, exp0, exp1, eps=1e-10):
