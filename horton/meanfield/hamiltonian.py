@@ -23,8 +23,6 @@
 
 from horton.log import log
 from horton.cache import Cache
-from horton.meanfield.core import KineticEnergy, ExternalPotential
-from horton.meanfield.builtin import Hartree
 from horton.meanfield.wfn import UnrestrictedWFN
 
 

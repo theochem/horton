@@ -23,87 +23,11 @@
 
 import numpy as np
 
-from horton.meanfield.observable import Observable
 from horton.meanfield.gridgroup import GridObservable
 from horton.meanfield.wfn import RestrictedWFN, UnrestrictedWFN
 
 
-__all__ = ['Hartree', 'HartreeFockExchange', 'DiracExchange']
-
-
-class Hartree(Observable):
-    def __init__(self, lf, wfn, eri, label='hartree'):
-        self._wfn = wfn
-        self._eri = eri
-        Observable.__init__(self, lf, label)
-
-    def _update_hartree(self):
-        '''Recompute the Hartree operator if it has become invalid'''
-        hartree, new = self.cache.load('op_hartree',
-                                        alloc=self.lf.create_one_body)
-        if new:
-            if isinstance(self._wfn, RestrictedWFN):
-                self._eri.apply_direct(self._wfn.dm_alpha, hartree)
-                hartree.iscale(2)
-            else:
-                self._eri.apply_direct(self._wfn.dm_full, hartree)
-
-    def compute(self):
-        self._update_hartree()
-        hartree = self.cache.load('op_hartree')
-        if isinstance(self._wfn, RestrictedWFN):
-            return hartree.expectation_value(self._wfn.dm_alpha)
-        else:
-            return 0.5 * hartree.expectation_value(self._wfn.dm_full)
-
-    def add_fock_matrix(self, fock_alpha, fock_beta,
-                        scale=1, postpone_grid=False):
-        self._update_hartree()
-        hartree = self.cache.load('op_hartree')
-        fock_alpha.iadd(hartree, scale)
-        if isinstance(self._wfn, UnrestrictedWFN):
-            fock_beta.iadd(hartree, scale)
-
-
-class HartreeFockExchange(Observable):
-    def __init__(self, lf, wfn, eri,
-                 label='exchange_hartree_fock', fraction_exchange=1.0):
-        self._wfn = wfn
-        self._eri = eri
-        self.fraction_exchange = fraction_exchange
-        Observable.__init__(self, lf, label)
-
-    def _update_exchange(self):
-        '''Recompute the Exchange operator(s) if invalid'''
-        def helper(select):
-            dm = self._wfn.get_dm(select)
-            exchange, new = self.cache.load('op_exchange_hartree_fock_%s'
-                                             % select, alloc=self._lf.create_one_body)
-            if new:
-                self._eri.apply_exchange(dm, exchange)
-
-        helper('alpha')
-        if isinstance(self._wfn, UnrestrictedWFN):
-            helper('beta')
-
-    def compute(self):
-        self._update_exchange()
-        xhf_fock_alpha = self.cache.load('op_exchange_hartree_fock_alpha')
-        if isinstance(self._wfn, RestrictedWFN):
-            return -self.fraction_exchange * xhf_fock_alpha.expectation_value(self._wfn.dm_alpha)
-        else:
-            xhf_fock_beta = self.cache.load('op_exchange_hartree_fock_beta')
-            return -0.5 * self.fraction_exchange * xhf_fock_alpha.expectation_value(self._wfn.dm_alpha) \
-                   -0.5 * self.fraction_exchange * xhf_fock_beta.expectation_value(self._wfn.dm_beta)
-
-    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1,
-                         postpone_grid=False):
-        self._update_exchange()
-        fock_alpha.iadd(self.cache.load('op_exchange_hartree_fock_alpha'),
-                         -self.fraction_exchange * scale)
-        if fock_beta is not None:
-            fock_beta.iadd(self.cache.load('op_exchange_hartree_fock_beta'),
-                            -self.fraction_exchange * scale)
+__all__ = ['DiracExchange']
 
 
 class DiracExchange(GridObservable):

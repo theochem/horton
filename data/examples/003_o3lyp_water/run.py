@@ -16,18 +16,20 @@ guess_hamiltonian_core(sys)
 grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers)
 
 # Construction of Hamiltonian
+kin = sys.get_kinetic()
+nai = sys.get_nuclear_attraction()
 er = sys.get_electron_repulsion()
 external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
 libxc_term = LibXCHybridGGA(sys.wfn, 'xc_o3lyp')
 terms = [
-    KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-    Hartree(sys.lf, sys.wfn, er),
+    OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+    DirectTerm(er, sys.lf, sys.wfn),
     GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
         libxc_term,
     ]),
-    HartreeFockExchange(sys.lf, sys.wfn, er,
-                        fraction_exchange=libxc_term.get_exx_fraction()),
-    ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    ExchangeTerm(er, sys.lf, sys.wfn,
+                 fraction_exchange=libxc_term.get_exx_fraction()),
+    OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
 ]
 ham = Hamiltonian(sys, terms, external)
 

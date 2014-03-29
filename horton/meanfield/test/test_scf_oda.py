@@ -38,12 +38,14 @@ def test_scf_oda_cs_hfs():
 def test_scf_oda_water_hf_321g():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
+    kin = sys.get_kinetic()
+    nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-        Hartree(sys.lf, sys.wfn, er),
-        HartreeFockExchange(sys.lf, sys.wfn, er),
-        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+        DirectTerm(er, sys.lf, sys.wfn),
+        ExchangeTerm(er, sys.lf, sys.wfn),
+        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(sys, terms)
 
@@ -66,14 +68,16 @@ def test_scf_oda_lih_hfs_321g():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     sys = System.from_file(fn_fchk)
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
+    kin = sys.get_kinetic()
+    nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-        Hartree(sys.lf, sys.wfn, er),
+        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+        DirectTerm(er, sys.lf, sys.wfn),
         GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
             DiracExchange(sys.wfn),
         ]),
-        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(sys, terms)
 
@@ -126,12 +130,14 @@ def test_scf_oda_aufbau_spin():
     sys.wfn.occ_model = AufbauSpinOccModel(3)
 
     guess_hamiltonian_core(sys)
+    kin = sys.get_kinetic()
+    nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-        Hartree(sys.lf, sys.wfn, er),
-        HartreeFockExchange(sys.lf, sys.wfn, er),
-        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+        DirectTerm(er, sys.lf, sys.wfn),
+        ExchangeTerm(er, sys.lf, sys.wfn),
+        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(sys, terms)
 

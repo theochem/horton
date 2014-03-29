@@ -12,13 +12,15 @@ setup_mean_field_wfn(sys, charge=0)
 guess_hamiltonian_core(sys)
 
 # Construct a Hamiltonian
+kin = sys.get_kinetic()
+nai = sys.get_nuclear_attraction()
 er = sys.get_electron_repulsion()
 external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
 terms = [
-    KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-    Hartree(sys.lf, sys.wfn, er),
-    HartreeFockExchange(sys.lf, sys.wfn, er),
-    ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+    DirectTerm(er, sys.lf, sys.wfn),
+    ExchangeTerm(er, sys.lf, sys.wfn),
+    OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
 ]
 ham = Hamiltonian(sys, terms, external)
 

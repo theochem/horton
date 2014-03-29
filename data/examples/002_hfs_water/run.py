@@ -16,15 +16,17 @@ guess_hamiltonian_core(sys)
 grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers)
 
 # Construction of Hamiltonian
+kin = sys.get_kinetic()
+nai = sys.get_nuclear_attraction()
 er = sys.get_electron_repulsion()
 external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
 terms = [
-    KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-    Hartree(sys.lf, sys.wfn, er),
+    OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+    DirectTerm(er, sys.lf, sys.wfn),
     GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
         DiracExchange(sys.wfn),
     ]),
-    ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+    OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
 ]
 ham = Hamiltonian(sys, terms, external)
 

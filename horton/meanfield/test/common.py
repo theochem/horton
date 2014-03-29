@@ -99,13 +99,15 @@ def check_scf_hf_cs_hf(scf_wrapper):
     sys = System.from_file(fn_fchk)
 
     guess_hamiltonian_core(sys)
+    kin = sys.get_kinetic()
+    nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
     terms = [
-        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-        Hartree(sys.lf, sys.wfn, er),
-        HartreeFockExchange(sys.lf, sys.wfn, er),
-        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+        DirectTerm(er, sys.lf, sys.wfn),
+        ExchangeTerm(er, sys.lf, sys.wfn),
+        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(sys, terms, external)
     assert scf_wrapper.convergence_error(ham) > scf_wrapper.kwargs['threshold']
@@ -134,15 +136,17 @@ def check_scf_water_cs_hfs(scf_wrapper):
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
+    kin = sys.get_kinetic()
+    nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
     terms = [
-        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-        Hartree(sys.lf, sys.wfn, er),
+        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+        DirectTerm(er, sys.lf, sys.wfn),
         GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
             DiracExchange(sys.wfn),
         ]),
-        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(sys, terms, external)
 

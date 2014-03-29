@@ -62,12 +62,14 @@ def test_conversion_dm_exp():
     dm = sys.lf.create_one_body()
     dm.assign(sys.wfn.dm_alpha)
 
+    kin = sys.get_kinetic()
+    nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-        Hartree(sys.lf, sys.wfn, er),
-        HartreeFockExchange(sys.lf, sys.wfn, er),
-        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+        DirectTerm(er, sys.lf, sys.wfn),
+        ExchangeTerm(er, sys.lf, sys.wfn),
+        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(sys, terms)
     fock = sys.lf.create_one_body()

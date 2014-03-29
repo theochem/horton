@@ -23,13 +23,11 @@
 
 from horton.meanfield.builtin import *
 from horton.meanfield.convergence import *
-from horton.meanfield.core import *
 from horton.meanfield.cext import *
 from horton.meanfield.gridgroup import *
 from horton.meanfield.guess import *
 from horton.meanfield.hamiltonian import *
 from horton.meanfield.libxc import *
-from horton.meanfield.linear import *
 from horton.meanfield.observable import *
 from horton.meanfield.project import *
 from horton.meanfield.scf import *

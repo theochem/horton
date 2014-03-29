@@ -32,28 +32,30 @@ def test_fock_n2_hfs_sto3g():
     sys = System.from_file(fn_fchk)
     sys.wfn.clear_dm()
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
+    kin = sys.get_kinetic()
+    nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
 
     libxc_term = LibXCLDA(sys.wfn, 'x')
     terms1 = [
-        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-        Hartree(sys.lf, sys.wfn, er),
+        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+        DirectTerm(er, sys.lf, sys.wfn),
         GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
             libxc_term,
         ]),
-        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     ham1 = Hamiltonian(sys, terms1, external)
 
     builtin_term = DiracExchange(sys.wfn)
     terms2 = [
-        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-        Hartree(sys.lf, sys.wfn, er),
+        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+        DirectTerm(er, sys.lf, sys.wfn),
         GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
             builtin_term,
         ]),
-        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     ham2 = Hamiltonian(sys, terms2, external)
 
@@ -111,28 +113,30 @@ def test_hamiltonian_h3_hfs_321g():
     sys = System.from_file(fn_fchk)
     sys.wfn.clear_dm()
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
+    kin = sys.get_kinetic()
+    nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
 
     libxc_term = LibXCLDA(sys.wfn, 'x')
     terms1 = [
-        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-        Hartree(sys.lf, sys.wfn, er),
+        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+        DirectTerm(er, sys.lf, sys.wfn),
         GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
             libxc_term,
         ]),
-        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     ham1 = Hamiltonian(sys, terms1, external)
 
     builtin_term = DiracExchange(sys.wfn)
     terms2 = [
-        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-        Hartree(sys.lf, sys.wfn, er),
+        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+        DirectTerm(er, sys.lf, sys.wfn),
         GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
             builtin_term,
         ]),
-        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     ham2 = Hamiltonian(sys, terms2, external)
 
@@ -195,16 +199,18 @@ def test_co_pbe_sto3g():
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
     sys = System.from_file(fn_fchk)
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'fine', random_rotate=False)
+    kin = sys.get_kinetic()
+    nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
     terms = [
-        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-        Hartree(sys.lf, sys.wfn, er),
+        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+        DirectTerm(er, sys.lf, sys.wfn),
         GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
             LibXCGGA(sys.wfn, 'x_pbe'),
             LibXCGGA(sys.wfn, 'c_pbe'),
         ]),
-        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(sys, terms, external)
 
@@ -243,16 +249,18 @@ def test_h3_pbe_321g():
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
     sys = System.from_file(fn_fchk)
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
+    kin = sys.get_kinetic()
+    nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
     terms = [
-        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-        Hartree(sys.lf, sys.wfn, er),
+        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+        DirectTerm(er, sys.lf, sys.wfn),
         GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
             LibXCGGA(sys.wfn, 'x_pbe'),
             LibXCGGA(sys.wfn, 'c_pbe'),
         ]),
-        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(sys, terms, external)
 
@@ -296,14 +304,16 @@ def test_cubic_interpolation_c_pbe_cs():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
+    kin = sys.get_kinetic()
+    nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-        Hartree(sys.lf, sys.wfn, er),
+        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+        DirectTerm(er, sys.lf, sys.wfn),
         GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
             LibXCGGA(sys.wfn, 'c_pbe'),
         ]),
-        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(sys, terms)
 
@@ -320,14 +330,16 @@ def test_cubic_interpolation_x_pbe_cs():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
+    kin = sys.get_kinetic()
+    nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-        Hartree(sys.lf, sys.wfn, er),
+        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+        DirectTerm(er, sys.lf, sys.wfn),
         GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
             LibXCGGA(sys.wfn, 'x_pbe'),
         ]),
-        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(sys, terms)
 
@@ -344,14 +356,16 @@ def test_cubic_interpolation_hfs_cs():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
+    kin = sys.get_kinetic()
+    nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-        Hartree(sys.lf, sys.wfn, er),
+        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+        DirectTerm(er, sys.lf, sys.wfn),
         GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
             LibXCLDA(sys.wfn, 'x'),
         ]),
-        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(sys, terms)
 
@@ -368,14 +382,16 @@ def test_cubic_interpolation_o3lyp_cs():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
+    kin = sys.get_kinetic()
+    nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     libxc_term = LibXCHybridGGA(sys.wfn, 'xc_o3lyp')
     terms = [
-        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-        Hartree(sys.lf, sys.wfn, er),
+        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+        DirectTerm(er, sys.lf, sys.wfn),
         GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [libxc_term]),
-        HartreeFockExchange(sys.lf, sys.wfn, er, fraction_exchange=libxc_term.get_exx_fraction()),
-        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+        ExchangeTerm(er, sys.lf, sys.wfn, fraction_exchange=libxc_term.get_exx_fraction()),
+        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(sys, terms)
 
@@ -391,14 +407,16 @@ def test_cubic_interpolation_c_pbe_os():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
+    kin = sys.get_kinetic()
+    nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-        Hartree(sys.lf, sys.wfn, er),
+        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+        DirectTerm(er, sys.lf, sys.wfn),
         GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
             LibXCGGA(sys.wfn, 'c_pbe'),
         ]),
-        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(sys, terms)
 
@@ -417,14 +435,16 @@ def test_cubic_interpolation_x_pbe_os():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
+    kin = sys.get_kinetic()
+    nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-        Hartree(sys.lf, sys.wfn, er),
+        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+        DirectTerm(er, sys.lf, sys.wfn),
         GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
             LibXCGGA(sys.wfn, 'x_pbe'),
         ]),
-        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(sys, terms)
 
@@ -443,14 +463,16 @@ def test_cubic_interpolation_hfs_os():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
+    kin = sys.get_kinetic()
+    nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-        Hartree(sys.lf, sys.wfn, er),
+        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+        DirectTerm(er, sys.lf, sys.wfn),
         GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
             LibXCLDA(sys.wfn, 'x'),
         ]),
-        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(sys, terms)
 
@@ -468,14 +490,16 @@ def test_cubic_interpolation_o3lyp_os():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
+    kin = sys.get_kinetic()
+    nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     libxc_term = LibXCHybridGGA(sys.wfn, 'xc_o3lyp')
     terms = [
-        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-        Hartree(sys.lf, sys.wfn, er),
+        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+        DirectTerm(er, sys.lf, sys.wfn),
         GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [libxc_term]),
-        HartreeFockExchange(sys.lf, sys.wfn, er, fraction_exchange=libxc_term.get_exx_fraction()),
-        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+        ExchangeTerm(er, sys.lf, sys.wfn, fraction_exchange=libxc_term.get_exx_fraction()),
+        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(sys, terms)
 

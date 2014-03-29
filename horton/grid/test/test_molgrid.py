@@ -125,12 +125,14 @@ def test_custom_grid_linear_observable():
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, (rgrid, 110), random_rotate=False)
 
     # Without perturbation
+    kin = sys.get_kinetic()
+    nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-        Hartree(sys.lf, sys.wfn, er),
-        HartreeFockExchange(sys.lf, sys.wfn, er),
-        ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+        DirectTerm(er, sys.lf, sys.wfn),
+        ExchangeTerm(er, sys.lf, sys.wfn),
+        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(sys, terms)
     assert convergence_error_eigen(ham) > 1e-8
@@ -151,13 +153,12 @@ def test_custom_grid_linear_observable():
         # With perturbation
         operator = sys.lf.create_one_body()
         sys.compute_grid_density_fock(grid.points, grid.weights, scale * potential, operator)
-        perturbation = CustomLinearObservable(sys.obasis, sys.lf,
-                                              sys.wfn, 'pert', operator)
+        perturbation = OneBodyTerm(operator, sys.lf, sys.wfn, 'pert')
         terms = [
-            KineticEnergy(sys.obasis, sys.lf, sys.wfn),
-            Hartree(sys.lf, sys.wfn, er),
-            HartreeFockExchange(sys.lf, sys.wfn, er),
-            ExternalPotential(sys.obasis, sys.lf, sys.wfn, sys.numbers, sys.coordinates),
+            OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
+            DirectTerm(er, sys.lf, sys.wfn),
+            ExchangeTerm(er, sys.lf, sys.wfn),
+            OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
             perturbation,
         ]
         ham = Hamiltonian(sys, terms)
