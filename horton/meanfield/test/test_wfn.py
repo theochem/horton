@@ -184,12 +184,16 @@ def test_homo_lumo_he():
 
 def test_setup_wfn_cs():
     sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
+    olp = sys.get_overlap()
+    kin = sys.get_kinetic()
+    nai = sys.get_nuclear_attraction()
+
     setup_mean_field_wfn(sys, 0, 1)
     assert isinstance(sys.wfn, RestrictedWFN)
     assert sys.wfn.nel == 6
     assert sys.wfn.occ_model.nalpha == 3
     assert sys.wfn.occ_model.nbeta == 3
-    guess_hamiltonian_core(sys)
+    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
     assert sys.wfn.nel == 6
 
     sys = System(np.zeros((1,3), float), np.array([6]), obasis='3-21g')
@@ -211,13 +215,17 @@ def test_setup_wfn_cs():
 
 def test_setup_wfn_os():
     sys = System(np.zeros((1,3), float), np.array([7]), obasis='3-21g')
+    olp = sys.get_overlap()
+    kin = sys.get_kinetic()
+    nai = sys.get_nuclear_attraction()
+
     setup_mean_field_wfn(sys, 0, 2)
     assert isinstance(sys.wfn, UnrestrictedWFN)
     assert sys.wfn.nalpha == 4
     assert sys.wfn.nbeta == 3
     assert sys.wfn.occ_model.nalpha == 4
     assert sys.wfn.occ_model.nbeta == 3
-    guess_hamiltonian_core(sys)
+    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
     assert sys.wfn.nalpha == 4
     assert sys.wfn.nbeta == 3
 

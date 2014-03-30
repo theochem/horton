@@ -62,6 +62,7 @@ def test_project_larger():
                 assert abs(dot) < 1e-5
 
     # Setup HF hamiltonian and compute energy
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -80,7 +81,7 @@ def test_project_larger():
     assert energy2 < energy1 # the energy should decrease after scf convergence
 
     # Construct a core initial guess
-    guess_hamiltonian_core(sys)
+    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
     ham.clear()
     energy3 = ham.compute()
     assert energy3 > energy1 # the projected guess should be better than the core guess
@@ -117,6 +118,7 @@ def test_project_smaller():
                     assert abs(dot) < 1e-5
 
     # Setup HF hamiltonian and compute energy
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -136,7 +138,7 @@ def test_project_smaller():
     assert energy2 < energy1 # the energy should decrease after scf convergence
 
     # Construct a core initial guess
-    guess_hamiltonian_core(sys)
+    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
     ham.clear()
     energy3 = ham.compute()
     assert energy3 > energy2 # the core guess should be worse than the converged
@@ -146,7 +148,10 @@ def test_inplace():
     # Create initial system
     sys = System.from_file(context.get_fn('test/water.xyz'), obasis='sto-3g')
     setup_mean_field_wfn(sys, restricted=True)
-    guess_hamiltonian_core(sys)
+    olp = sys.get_overlap()
+    kin = sys.get_kinetic()
+    nai = sys.get_nuclear_attraction()
+    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
 
     old_obasis = sys.obasis
     old_wfn = sys.wfn

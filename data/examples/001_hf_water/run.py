@@ -8,13 +8,16 @@ sys = System.from_file('water.xyz', obasis='3-21G')
 # Initialize the closed-shell wfn
 setup_mean_field_wfn(sys, charge=0)
 
-# Initial WFN guess
-guess_hamiltonian_core(sys)
-
-# Construct a Hamiltonian
+# Compute Gaussian integrals
+olp = sys.get_overlap()
 kin = sys.get_kinetic()
 nai = sys.get_nuclear_attraction()
 er = sys.get_electron_repulsion()
+
+# Initial guess
+guess_core_hamiltonian(sys.wfn, olp, kin, nai)
+
+# Construct the HF Hamiltonian
 external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
 terms = [
     OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),

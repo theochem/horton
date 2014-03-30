@@ -25,35 +25,41 @@ from horton.log import log, timer
 from horton.meanfield.wfn import RestrictedWFN, UnrestrictedWFN
 
 
-__all__ = ['guess_hamiltonian_core']
+__all__ = ['guess_core_hamiltonian']
 
 
 @timer.with_section('Initial Guess')
-def guess_hamiltonian_core(system):
+def guess_core_hamiltonian(wfn, overlap, *core):
+    '''Guess the wavefunction from a core hamiltonian
+
+       **Arguments:**
+
+       wfn
+            The wavefunction in which the orbitals are stored.
+
+       overlap
+            The overlap operator.
+
+       core1, core2, ...
+            A number of operators that add up to the core Hamiltonian. Any sum
+            of operators that resembles a Fock operator is fine.
+    '''
     if log.do_medium:
         log('Performing a hamiltonian core guess.')
         log.blank()
-    if isinstance(system.wfn, RestrictedWFN):
-        guess_hamiltonian_core_cs(system)
-    elif isinstance(system.wfn, UnrestrictedWFN):
-        guess_hamiltonian_core_os(system)
+    if len(core) == 0:
+        raise TypeError('At least one term is needed for the core Hamiltonian.')
+
+    # Take sum
+    hamcore = core[0].copy()
+    for term in core[1:]:
+        hamcore.iadd(term)
+
+    # Compute orbitals
+    wfn.clear()
+    if isinstance(wfn, RestrictedWFN):
+        wfn.update_exp(hamcore, overlap)
+    elif isinstance(wfn, UnrestrictedWFN):
+        wfn.update_exp(hamcore, hamcore, overlap)
     else:
         raise NotImplementedError
-
-
-def guess_hamiltonian_core_cs(system):
-    overlap = system.get_overlap()
-    hamcore = system.lf.create_one_body()
-    hamcore.iadd(system.get_kinetic())
-    hamcore.iadd(system.get_nuclear_attraction())
-    system.wfn.clear()
-    system.wfn.update_exp(hamcore, overlap)
-
-
-def guess_hamiltonian_core_os(system):
-    overlap = system.get_overlap()
-    hamcore = system.lf.create_one_body()
-    hamcore.iadd(system.get_kinetic())
-    hamcore.iadd(system.get_nuclear_attraction())
-    system.wfn.clear()
-    system.wfn.update_exp(hamcore, hamcore, overlap)

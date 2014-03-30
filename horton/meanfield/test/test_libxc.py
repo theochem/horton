@@ -32,6 +32,7 @@ def test_fock_n2_hfs_sto3g():
     sys = System.from_file(fn_fchk)
     sys.wfn.clear_dm()
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -84,7 +85,7 @@ def test_fock_n2_hfs_sto3g():
     assert convergence_error_eigen(ham2) < 1e-5
 
     # Converge from scratch
-    guess_hamiltonian_core(sys)
+    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
     assert convergence_error_commutator(ham1) > 1e-8
     converge_scf_ediis2(ham1, threshold=1e-8)
     assert convergence_error_commutator(ham1) < 1e-8
@@ -113,6 +114,7 @@ def test_hamiltonian_h3_hfs_321g():
     sys = System.from_file(fn_fchk)
     sys.wfn.clear_dm()
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -167,7 +169,7 @@ def test_hamiltonian_h3_hfs_321g():
     assert convergence_error_eigen(ham2) < 1e-5
 
     # Converge from scratch
-    guess_hamiltonian_core(sys)
+    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
     assert convergence_error_eigen(ham1) > 1e-8
     converge_scf_oda(ham1)
     assert convergence_error_eigen(ham1) < 1e-8
@@ -199,6 +201,7 @@ def test_co_pbe_sto3g():
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
     sys = System.from_file(fn_fchk)
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'fine', random_rotate=False)
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -223,7 +226,7 @@ def test_co_pbe_sto3g():
     assert convergence_error_eigen(ham) < 1e-5
 
     # Converge from scratch
-    guess_hamiltonian_core(sys)
+    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
     assert convergence_error_eigen(ham) > 1e-5
     converge_scf_oda(ham, threshold=1e-3)
     assert convergence_error_eigen(ham) < 1e-5
@@ -249,6 +252,7 @@ def test_h3_pbe_321g():
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
     sys = System.from_file(fn_fchk)
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -273,7 +277,7 @@ def test_h3_pbe_321g():
     assert convergence_error_eigen(ham) < 2e-6
 
     # Converge from scratch
-    guess_hamiltonian_core(sys)
+    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
     assert convergence_error_eigen(ham) > 1e-5
     converge_scf_oda(ham, threshold=1e-5)
     assert convergence_error_eigen(ham) < 1e-5
@@ -463,6 +467,7 @@ def test_cubic_interpolation_hfs_os():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -478,7 +483,8 @@ def test_cubic_interpolation_hfs_os():
 
     dma0 = sys.wfn.dm_alpha.copy()
     dmb0 = sys.wfn.dm_beta.copy()
-    guess_hamiltonian_core(sys)
+
+    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
     dma1 = sys.wfn.dm_alpha.copy()
     dmb1 = sys.wfn.dm_beta.copy()
 
@@ -490,6 +496,7 @@ def test_cubic_interpolation_o3lyp_os():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -505,7 +512,7 @@ def test_cubic_interpolation_o3lyp_os():
 
     dma0 = sys.wfn.dm_alpha.copy()
     dmb0 = sys.wfn.dm_beta.copy()
-    guess_hamiltonian_core(sys)
+    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
     dma1 = sys.wfn.dm_alpha.copy()
     dmb1 = sys.wfn.dm_beta.copy()
 

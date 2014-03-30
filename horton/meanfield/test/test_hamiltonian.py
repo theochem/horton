@@ -94,6 +94,7 @@ def test_fock_n2_hfs_sto3g():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     sys = System.from_file(fn_fchk)
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -113,7 +114,7 @@ def test_fock_n2_hfs_sto3g():
     assert convergence_error_eigen(ham) < 1e-5
 
     # Converge from scratch
-    guess_hamiltonian_core(sys)
+    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
     assert convergence_error_eigen(ham) > 1e-8
     converge_scf(ham)
     assert convergence_error_eigen(ham) < 1e-8
@@ -141,6 +142,7 @@ def test_fock_h3_hfs_321g():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -160,7 +162,7 @@ def test_fock_h3_hfs_321g():
     assert convergence_error_eigen(ham) < 1e-6
 
     # Converge from scratch
-    guess_hamiltonian_core(sys)
+    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
     assert convergence_error_eigen(ham) > 1e-8
     converge_scf(ham)
     assert convergence_error_eigen(ham) < 1e-8
@@ -191,6 +193,7 @@ def test_cubic_interpolation_hfs_cs():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -206,7 +209,7 @@ def test_cubic_interpolation_hfs_cs():
 
     dm0 = sys.lf.create_one_body()
     dm0.assign(sys.wfn.dm_alpha)
-    guess_hamiltonian_core(sys)
+    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
     dm1 = sys.lf.create_one_body()
     dm1.assign(sys.wfn.dm_alpha)
 

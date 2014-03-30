@@ -98,7 +98,7 @@ def check_scf_hf_cs_hf(scf_wrapper):
     fn_fchk = context.get_fn('test/hf_sto3g.fchk')
     sys = System.from_file(fn_fchk)
 
-    guess_hamiltonian_core(sys)
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -110,6 +110,8 @@ def check_scf_hf_cs_hf(scf_wrapper):
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(sys, terms, external)
+
+    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
     assert scf_wrapper.convergence_error(ham) > scf_wrapper.kwargs['threshold']
     scf_wrapper(ham)
     assert scf_wrapper.convergence_error(ham) < scf_wrapper.kwargs['threshold']
@@ -136,6 +138,7 @@ def check_scf_water_cs_hfs(scf_wrapper):
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -174,7 +177,7 @@ def check_scf_water_cs_hfs(scf_wrapper):
         assert abs(ham.cache['energy_nn'] - 9.1571750414) < 2e-8
 
     # Converge from scratch
-    guess_hamiltonian_core(sys)
+    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
     assert scf_wrapper.convergence_error(ham) > scf_wrapper.kwargs['threshold']
     scf_wrapper(ham)
     assert scf_wrapper.convergence_error(ham) < scf_wrapper.kwargs['threshold']

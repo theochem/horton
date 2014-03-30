@@ -35,7 +35,7 @@ def test_scf_os():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     sys = System.from_file(fn_fchk)
 
-    guess_hamiltonian_core(sys)
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -48,6 +48,7 @@ def test_scf_os():
     ]
     ham = Hamiltonian(sys, terms, external)
 
+    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
     assert convergence_error_eigen(ham) > 1e-8
     converge_scf(ham)
     assert convergence_error_eigen(ham) < 1e-8

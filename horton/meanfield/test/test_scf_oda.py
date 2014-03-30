@@ -38,6 +38,7 @@ def test_scf_oda_cs_hfs():
 def test_scf_oda_water_hf_321g():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -50,7 +51,7 @@ def test_scf_oda_water_hf_321g():
     ham = Hamiltonian(sys, terms)
 
     # test continuation of interupted scf_oda
-    guess_hamiltonian_core(sys)
+    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
     e0 = ham.compute()
     assert convergence_error_eigen(ham) > 1e-5
     with assert_raises(NoSCFConvergence):
@@ -68,6 +69,7 @@ def test_scf_oda_lih_hfs_321g():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     sys = System.from_file(fn_fchk)
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -82,7 +84,7 @@ def test_scf_oda_lih_hfs_321g():
     ham = Hamiltonian(sys, terms)
 
     # test continuation of interupted scf_oda
-    guess_hamiltonian_core(sys)
+    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
     e0 = ham.compute()
     assert convergence_error_eigen(ham) > 1e-5
     with assert_raises(NoSCFConvergence):
@@ -129,7 +131,7 @@ def test_scf_oda_aufbau_spin():
     sys = System.from_file(fn_fchk)
     sys.wfn.occ_model = AufbauSpinOccModel(3)
 
-    guess_hamiltonian_core(sys)
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -141,6 +143,7 @@ def test_scf_oda_aufbau_spin():
     ]
     ham = Hamiltonian(sys, terms)
 
+    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
     converge_scf_oda(ham)
 
 
