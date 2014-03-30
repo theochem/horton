@@ -78,17 +78,17 @@ def test_scf_os():
 def test_hf_water_321g_mistake():
     fn_xyz = context.get_fn('test/water.xyz')
     sys = System.from_file(fn_xyz, obasis='3-21G')
-    setup_mean_field_wfn(sys, charge=0)
+    wfn = setup_mean_field_wfn(sys.obasis.nbasis, sys.pseudo_numbers, sys.lf, charge=0)
     olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        ExchangeTerm(er, sys.lf, sys.wfn),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(kin, sys.lf, wfn, 'kin'),
+        DirectTerm(er, sys.lf, wfn),
+        ExchangeTerm(er, sys.lf, wfn),
+        OneBodyTerm(nai, sys.lf, wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
     with assert_raises(AttributeError):
-        converge_scf(ham, sys.wfn, sys.lf, olp)
+        converge_scf(ham, wfn, sys.lf, olp)

@@ -25,63 +25,66 @@ from horton import *
 
 
 def test_project_identical():
-    sys = System.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
-    exp = sys.lf.create_expansion()
-    project_orbitals_mgs_low(sys.obasis, sys.obasis, sys.wfn.exp_alpha, exp)
+    mol = Molecule.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+    exp = mol.lf.create_expansion()
+    project_orbitals_mgs_low(mol.obasis, mol.obasis, mol.wfn.exp_alpha, exp)
     assert (exp.energies == 0.0).all()
-    assert (exp.occupations == sys.wfn.exp_alpha.occupations).all()
-    assert abs(exp.coeffs[:,:-2] - sys.wfn.exp_alpha.coeffs[:,:-2]).max() < 1e-9
+    assert (exp.occupations == mol.wfn.exp_alpha.occupations).all()
+    assert abs(exp.coeffs[:,:-2] - mol.wfn.exp_alpha.coeffs[:,:-2]).max() < 1e-9
     assert (exp.coeffs[:,-2:] == 0.0).all()
 
 
 def test_project_larger():
     # Load STO3G system and keep essential results
-    sys = System.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
-    obasis0 = sys.obasis
-    wfn0 = sys.wfn
+    mol = Molecule.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+    obasis0 = mol.obasis
+    wfn0 = mol.wfn
     exp0 = wfn0.exp_alpha
 
     # Upgrade the basis to 3-21G and project
-    sys.update_obasis('3-21G')
-    obasis1 = sys.obasis
-    setup_mean_field_wfn(sys, restricted=True)
-    project_orbitals_mgs(obasis0, obasis1, wfn0, sys.wfn)
-    exp1 = sys.wfn.exp_alpha
+    obasis1 = get_gobasis(mol.coordinates, mol.numbers, '3-21G')
+    mol.lf.set_default_nbasis(obasis1.nbasis)
+    wfn1 = setup_mean_field_wfn(obasis1.nbasis, mol.pseudo_numbers, mol.lf, restricted=True)
+    project_orbitals_mgs(obasis0, obasis1, wfn0, wfn1)
+    exp1 = wfn1.exp_alpha
     assert (exp1.energies == 0.0).all()
     assert exp0.occupations.sum() == exp1.occupations.sum()
     assert (exp1.coeffs[:,5:] == 0.0).all()
 
     # Check the normalization of the projected orbitals
-    olp = sys.get_overlap()
+    olp = mol.lf.create_one_body()
+    obasis1.compute_overlap(olp)
     for i0 in xrange(5):
         for i1 in xrange(i0+1):
-            dot = olp.dot(sys.wfn.exp_alpha.coeffs[:,i0], sys.wfn.exp_alpha.coeffs[:,i1])
+            dot = olp.dot(wfn1.exp_alpha.coeffs[:,i0], wfn1.exp_alpha.coeffs[:,i1])
             if i0 == i1:
                 assert abs(dot-1) < 1e-5
             else:
                 assert abs(dot) < 1e-5
 
     # Setup HF hamiltonian and compute energy
-    olp = sys.get_overlap()
-    kin = sys.get_kinetic()
-    nai = sys.get_nuclear_attraction()
-    er = sys.get_electron_repulsion()
+    kin = mol.lf.create_one_body()
+    nai = mol.lf.create_one_body()
+    er = mol.lf.create_two_body()
+    obasis1.compute_kinetic(kin)
+    obasis1.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, nai)
+    obasis1.compute_electron_repulsion(er)
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        ExchangeTerm(er, sys.lf, sys.wfn),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(kin, mol.lf, wfn1, 'kin'),
+        DirectTerm(er, mol.lf, wfn1),
+        ExchangeTerm(er, mol.lf, wfn1),
+        OneBodyTerm(nai, mol.lf, wfn1, 'ne'),
     ]
     ham = Hamiltonian(terms)
     energy1 = ham.compute()
 
     # Optimize wfn
-    converge_scf_oda(ham, sys.wfn, sys.lf, olp)
+    converge_scf_oda(ham, wfn1, mol.lf, olp)
     energy2 = ham.cache['energy']
     assert energy2 < energy1 # the energy should decrease after scf convergence
 
     # Construct a core initial guess
-    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
+    guess_core_hamiltonian(wfn1, olp, kin, nai)
     ham.clear()
     energy3 = ham.compute()
     assert energy3 > energy1 # the projected guess should be better than the core guess
@@ -89,16 +92,15 @@ def test_project_larger():
 
 def test_project_smaller():
     # Load 3-21G system and keep essential results
-    sys = System.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
-    obasis0 = sys.obasis
-    wfn0 = sys.wfn
+    mol = Molecule.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
+    obasis0 = mol.obasis
+    wfn0 = mol.wfn
 
     # Downgrade the basis to sto-3g and project
-    sys.update_obasis('sto-3g')
-    obasis1 = sys.obasis
-    setup_mean_field_wfn(sys, restricted=False)
-    project_orbitals_mgs(obasis0, obasis1, wfn0, sys.wfn)
-    wfn1 = sys.wfn
+    obasis1 = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
+    mol.lf.set_default_nbasis(obasis1.nbasis)
+    wfn1 = setup_mean_field_wfn(obasis1.nbasis, mol.numbers, mol.lf, restricted=False)
+    project_orbitals_mgs(obasis0, obasis1, wfn0, wfn1)
     assert (wfn1.exp_alpha.energies == 0.0).all()
     assert (wfn1.exp_beta.energies == 0.0).all()
     assert wfn1.exp_alpha.occupations.sum() == 2
@@ -107,7 +109,8 @@ def test_project_smaller():
     assert (wfn1.exp_beta.coeffs[:,1:] == 0.0).all()
 
     # Check the normalization of the projected orbitals
-    olp = sys.get_overlap()
+    olp = mol.lf.create_one_body()
+    obasis1.compute_overlap(olp)
     for exp, nocc in (wfn1.exp_alpha, 2), (wfn1.exp_beta, 1):
         for i0 in xrange(nocc):
             for i1 in xrange(i0+1):
@@ -118,64 +121,56 @@ def test_project_smaller():
                     assert abs(dot) < 1e-5
 
     # Setup HF hamiltonian and compute energy
-    olp = sys.get_overlap()
-    kin = sys.get_kinetic()
-    nai = sys.get_nuclear_attraction()
-    er = sys.get_electron_repulsion()
+    kin = mol.lf.create_one_body()
+    nai = mol.lf.create_one_body()
+    er = mol.lf.create_two_body()
+    obasis1.compute_kinetic(kin)
+    obasis1.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, nai)
+    obasis1.compute_electron_repulsion(er)
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        ExchangeTerm(er, sys.lf, sys.wfn),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(kin, mol.lf, wfn1, 'kin'),
+        DirectTerm(er, mol.lf, wfn1),
+        ExchangeTerm(er, mol.lf, wfn1),
+        OneBodyTerm(nai, mol.lf, wfn1, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
     energy1 = ham.compute()
 
     # Optimize wfn
-    converge_scf_oda(ham, sys.wfn, sys.lf, olp)
+    converge_scf_oda(ham, wfn1, mol.lf, olp)
     energy2 = ham.cache['energy']
     assert energy2 < energy1 # the energy should decrease after scf convergence
 
     # Construct a core initial guess
-    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
+    guess_core_hamiltonian(wfn1, olp, kin, nai)
     ham.clear()
     energy3 = ham.compute()
     assert energy3 > energy2 # the core guess should be worse than the converged
 
 
-def test_inplace():
+def test_same_size():
     # Create initial system
-    sys = System.from_file(context.get_fn('test/water.xyz'), obasis='sto-3g')
-    setup_mean_field_wfn(sys, restricted=True)
-    olp = sys.get_overlap()
-    kin = sys.get_kinetic()
-    nai = sys.get_nuclear_attraction()
-    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
-
-    old_obasis = sys.obasis
-    old_wfn = sys.wfn
+    mol = Molecule.from_file(context.get_fn('test/water.xyz'))
+    obasis0 = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
+    lf = DenseLinalgFactory(obasis0.nbasis)
+    wfn0 = setup_mean_field_wfn(obasis0.nbasis, mol.pseudo_numbers, lf, restricted=True)
+    olp = lf.create_one_body()
+    kin = lf.create_one_body()
+    nai = lf.create_one_body()
+    obasis0.compute_overlap(olp)
+    obasis0.compute_kinetic(kin)
+    obasis0.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, nai)
+    guess_core_hamiltonian(wfn0, olp, kin, nai)
 
     # Change geometry
-    sys.coordinates[1,2] += 0.1
-    sys.update_obasis('sto-3g')
-
-    # Force new wfn object
-    sys._wfn = None
-    setup_mean_field_wfn(sys, restricted=True)
+    mol.coordinates[1,2] += 0.1
+    obasis1 = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
+    wfn1 = setup_mean_field_wfn(obasis1.nbasis, mol.pseudo_numbers, lf, restricted=True)
 
     # Project from one to other:
-    project_orbitals_mgs(old_obasis, sys.obasis, old_wfn, sys.wfn)
-    exp0 = sys.wfn.exp_alpha
-    assert (exp0.energies == 0.0).all()
-    assert (exp0.occupations == old_wfn.exp_alpha.occupations).all()
-    assert abs(exp0.coeffs[:,:5] - old_wfn.exp_alpha.coeffs[:,:5]).max() > 1e-3 # something should change
-    assert (exp0.coeffs[:,5:] == 0.0).all()
-
-    # Project in-place:
-    sys._wfn = old_wfn
-    project_orbitals_mgs(old_obasis, sys.obasis, old_wfn, sys.wfn)
-    exp1 = sys.wfn.exp_alpha
-    assert (exp1.energies == 0.0).all()
-    assert (exp0.occupations == exp1.occupations).all()
-    assert (exp0.coeffs == exp1.coeffs).all()
+    project_orbitals_mgs(obasis0, obasis1, wfn0, wfn1)
+    assert (wfn1.exp_alpha.energies == 0.0).all()
+    assert (wfn1.exp_alpha.occupations == wfn0.exp_alpha.occupations).all()
+    assert abs(wfn1.exp_alpha.coeffs[:,:5] - wfn0.exp_alpha.coeffs[:,:5]).max() > 1e-3 # something should change
+    assert (wfn1.exp_alpha.coeffs[:,5:] == 0.0).all()

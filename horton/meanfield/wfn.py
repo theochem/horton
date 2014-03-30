@@ -45,13 +45,19 @@ __all__ = [
 
 
 
-def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None, temperature=0):
-    '''Initialize a mean-field wavefunction and assign it to the given system.
+def setup_mean_field_wfn(nbasis, pseudo_numbers, lf, charge=0, mult=None, restricted=None, temperature=0):
+    '''Construct a mean-field wavefunction.
 
        **Arguments:**
 
-       system
-            A System instance.
+       nbasis
+            The number of basis functions.
+
+       pseudo_numbers
+            An array with effective core charges.
+
+       lf
+            A LinalgFactory instance.
 
        **Optional Arguments:**
 
@@ -75,13 +81,10 @@ def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None, temperatu
        If a wavefunction of the correct type is already present, it will be
        configured with the requested charge and multiplicity.
     '''
-    if system._obasis is None:
-        raise RuntimeError('A wavefunction can only be initialized when a basis is specified.')
-
     # Determine charge, spin, mult and restricted
     if charge is None:
         charge = 0
-    nel = system.numbers.sum() - charge
+    nel = pseudo_numbers.sum() - charge
     if isinstance(nel, int):
         if mult is None:
             mult = nel%2+1
@@ -128,34 +131,10 @@ def setup_mean_field_wfn(system, charge=0, mult=None, restricted=None, temperatu
         else:
             occ_model = FermiOccModel((nel + (mult-1))/2, (nel - (mult-1))/2, temperature)
 
-    if system._wfn is not None:
-        # Check if the existing wfn is consistent with the arguments
-        if not isinstance(system.wfn, MeanFieldWFN):
-            raise ValueError('A wavefunction is already present and it is not a mean-field wavefunction.')
-        elif system.wfn.nbasis != system.obasis.nbasis:
-            raise ValueError('The number of basis functions in the wfn is incorrect.')
-        elif restricted ^ isinstance(system.wfn, RestrictedWFN):
-            raise ValueError('The wfn does not match the restricted argument.')
-
-        # Assign occ_model
-        system.wfn.occ_model = occ_model
-
-        # If the wfn contains an expansion, update the occupations and remove
-        # density matrices. Otherwise clean up
-        if 'exp_alpha' in system.wfn._cache:
-            if restricted:
-                system.wfn.occ_model.assign(system.wfn.exp_alpha)
-            else:
-                system.wfn.occ_model.assign(system.wfn.exp_alpha, system.wfn.exp_beta)
-            system.wfn.clear_dm()
-        else:
-            system.wfn.clear()
+    if restricted:
+        return RestrictedWFN(lf, nbasis, occ_model)
     else:
-        # if the wfn does not exist yet, create a proper one.
-        if restricted:
-            system._wfn = RestrictedWFN(system.lf, system.obasis.nbasis, occ_model)
-        else:
-            system._wfn = UnrestrictedWFN(system.lf, system.obasis.nbasis, occ_model)
+        return UnrestrictedWFN(lf, nbasis, occ_model)
 
 
 def check_dm(dm, overlap, lf, name, eps=1e-4, occ_max=1.0):
@@ -170,8 +149,7 @@ def check_dm(dm, overlap, lf, name, eps=1e-4, occ_max=1.0):
             The overlap matrix
 
        lf
-            The LinalgFactory instance used for the diagonalization of the
-            density matrix.
+            A LinalgFactory instance.
 
        **Optional arguments:**
 
