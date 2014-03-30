@@ -36,26 +36,18 @@ __all__ = [
 
 
 class CSSCFStep(object):
-    def __init__(self, ham):
+    def __init__(self, ham, wfn, overlap):
         self.ham = ham
+        self.wfn = wfn
+        self.overlap = overlap
 
     def __call__(self, energy0, fock, fock_interpolated=False, debug=False):
         '''
            Note that ``fock`` is also used as output argument.
         '''
-        wfn = self.ham.system.wfn
-
-        # TODO, avoid reallocation by putting this in a class
-        overlap = self.ham.system.get_overlap()
-
-        #if fock_interpolated:
-        #    # Construct the Fock operator for the new DM
-        #    fock.clear()
-        #    self.ham.compute_fock(fock, None)
-
         # Construct the new DM (regular SCF step)
-        wfn.clear()
-        wfn.update_exp(fock, overlap)
+        self.wfn.clear()
+        self.wfn.update_exp(fock, self.overlap)
         self.ham.clear()
 
         # Construct the Fock operator for the new DM
@@ -66,16 +58,10 @@ class CSSCFStep(object):
         return 1.0
 
 
-
 class CSCubicODAStep(CSSCFStep):
     def __call__(self, energy0, fock, fock_interpolated=False, debug=False):
-        wfn = self.ham.system.wfn
-
-        # TODO, avoid reallocation by putting this in a class
-        overlap = self.ham.system.get_overlap()
-
         # keep copies of current state:
-        dm0 = wfn.dm_alpha.copy()
+        dm0 = self.wfn.dm_alpha.copy()
         fock0 = fock.copy()
         if fock_interpolated:
             # if the fock matrix was interpolated, recompute it from the
@@ -85,8 +71,8 @@ class CSCubicODAStep(CSSCFStep):
         if energy0 is None:
             energy0 = self.ham.compute()
 
-        wfn.clear()
-        wfn.update_exp(fock0, overlap)
+        self.wfn.clear()
+        self.wfn.update_exp(fock0, self.overlap)
         # Let the hamiltonian know that the wavefunction has changed.
         self.ham.clear()
 
@@ -97,7 +83,7 @@ class CSCubicODAStep(CSSCFStep):
         # Compute energy at new point
         energy1 = self.ham.compute()
         # take the density matrix
-        dm1 = wfn.dm_alpha.copy()
+        dm1 = self.wfn.dm_alpha.copy()
 
         # Compute the derivatives of the energy towards lambda at edges 0 and 1
         ev_00 = fock0.expectation_value(dm0)
@@ -118,20 +104,20 @@ class CSCubicODAStep(CSSCFStep):
             log('       mixing: % 10.7f' % mixing)
 
         if debug:
-            check_cubic_cs(self.ham, dm0, dm1, energy0, energy1, energy0_deriv, energy1_deriv)
+            check_cubic_cs(self.ham, self.wfn, dm0, dm1, energy0, energy1, energy0_deriv, energy1_deriv)
 
         # E) Construct the new dm
         # Put the mixed dm in dm_old, which is local in this routine.
         dm1.iscale(mixing)
         dm1.iadd(dm0, factor=1-mixing)
 
-        wfn.clear()
-        wfn.update_dm('alpha', dm1)
+        self.wfn.clear()
+        self.wfn.update_dm('alpha', dm1)
         self.ham.clear()
 
         fock.clear()
         self.ham.compute_fock(fock, None)
-        wfn.update_exp(fock, overlap, dm1)
+        self.wfn.update_exp(fock, self.overlap, dm1)
 
         # the mixing coefficient
         return mixing
@@ -139,13 +125,8 @@ class CSCubicODAStep(CSSCFStep):
 
 class CSQuadraticODAStep(CSSCFStep):
     def __call__(self, energy0, fock, fock_interpolated=False, debug=False):
-        wfn = self.ham.system.wfn
-
-        # TODO, avoid reallocation by putting this in a class
-        overlap = self.ham.system.get_overlap()
-
         # keep copies of current state:
-        dm0 = wfn.dm_alpha.copy()
+        dm0 = self.wfn.dm_alpha.copy()
         fock0 = fock.copy()
         if fock_interpolated:
             # if the fock matrix was interpolated, recompute it from the
@@ -153,8 +134,8 @@ class CSQuadraticODAStep(CSSCFStep):
             fock0.clear()
             self.ham.compute_fock(fock0, None)
 
-        wfn.clear()
-        wfn.update_exp(fock0, overlap)
+        self.wfn.clear()
+        self.wfn.update_exp(fock0, self.overlap)
         # Let the hamiltonian know that the wavefunction has changed.
         self.ham.clear()
 
@@ -163,7 +144,7 @@ class CSQuadraticODAStep(CSSCFStep):
         fock1.clear()
         self.ham.compute_fock(fock1, None)
         # take the density matrix
-        dm1 = wfn.dm_alpha.copy()
+        dm1 = self.wfn.dm_alpha.copy()
 
         # Compute the derivatives of the energy towards lambda at edges 0 and 1
         ev_00 = fock0.expectation_value(dm0)
@@ -188,25 +169,34 @@ class CSQuadraticODAStep(CSSCFStep):
         dm1.iscale(mixing)
         dm1.iadd(dm0, factor=1-mixing)
 
-        wfn.clear()
-        wfn.update_dm('alpha', dm1)
+        self.wfn.clear()
+        self.wfn.update_dm('alpha', dm1)
         self.ham.clear()
 
         fock.clear()
         self.ham.compute_fock(fock, None)
-        wfn.update_exp(fock, overlap, dm1)
+        self.wfn.update_exp(fock, self.overlap, dm1)
 
         # the mixing coefficient
         return mixing
 
 
-def converge_scf_diis_cs(ham, DIISHistoryClass, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, skip_energy=False, scf_step='regular'):
+def converge_scf_diis_cs(ham, wfn, lf, overlap, DIISHistoryClass, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, skip_energy=False, scf_step='regular'):
     '''Minimize the energy of the closed-shell wavefunction with EDIIS
 
        **Arguments:**
 
        ham
             A Hamiltonian instance.
+
+       wfn
+            The wavefunction object to be optimized.
+
+       lf
+            The linalg factory to be used.
+
+       overlap
+            The overlap operator.
 
        DIISHistoryClass
             A DIIS history class.
@@ -245,20 +235,17 @@ def converge_scf_diis_cs(ham, DIISHistoryClass, maxiter=128, threshold=1e-6, nve
        **Returns:** the number of iterations
     '''
     # allocated and define some one body operators
-    lf = ham.system.lf
-    wfn = ham.system.wfn
-    overlap = ham.system.get_overlap()
     history = DIISHistoryClass(lf, nvector, overlap)
     fock = lf.create_one_body()
     dm = lf.create_one_body()
 
     # The scf step
     if scf_step == 'regular':
-        cs_scf_step = CSSCFStep(ham)
+        cs_scf_step = CSSCFStep(ham, wfn, overlap)
     elif scf_step == 'oda2':
-        cs_scf_step = CSQuadraticODAStep(ham)
+        cs_scf_step = CSQuadraticODAStep(ham, wfn, overlap)
     elif scf_step == 'oda3':
-        cs_scf_step = CSCubicODAStep(ham)
+        cs_scf_step = CSCubicODAStep(ham, wfn, overlap)
     else:
         raise ValueError('scf_step argument not recognized: %s' % scf_step)
 
@@ -304,7 +291,7 @@ def converge_scf_diis_cs(ham, DIISHistoryClass, maxiter=128, threshold=1e-6, nve
 
         # Construct a new density matrix and fock matrix (based on the current
         # density matrix or fock matrix). The fock matrix is modified in-place
-        # while the density matrix is stored in ham.system.wfn
+        # while the density matrix is stored in wfn.
         mixing = cs_scf_step(energy, fock, fock_interpolated)
         if mixing == 0.0:
             converged = True
@@ -499,7 +486,7 @@ class DIISHistory(object):
                 The maximum size of the history.
 
            overlap
-                The overlap matrix of the system.
+                The overlap matrix.
 
            dots_matrices
                 Matrices in which dot products will be stored

@@ -25,10 +25,10 @@ terms = [
     ExchangeTerm(er, sys.lf, sys.wfn),
     OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
 ]
-ham = Hamiltonian(sys, terms, external)
+ham = Hamiltonian(terms, external)
 
 # Converge WFN with SCF
-converged = converge_scf(ham)
+converged = converge_scf(ham, sys.wfn, sys.lf, olp)
 
 # Compute the energy
 log.set_level(log.high)

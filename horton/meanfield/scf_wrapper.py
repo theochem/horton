@@ -68,7 +68,7 @@ class SCFWrapper(object):
         self.method = method
         self.kwargs = kwargs
 
-    def __call__(self, ham):
+    def __call__(self, ham, wfn, lf, overlap):
         '''Converge the SCF for the given Hamiltonian
 
            ham
@@ -76,7 +76,7 @@ class SCFWrapper(object):
 
            **Returns:** the number of iterations
         '''
-        return self.available_methods[self.method](ham, **self.kwargs)
+        return self.available_methods[self.method](ham, wfn, lf, overlap, **self.kwargs)
 
-    def convergence_error(self, ham):
-        return self.error_measures[self.method](ham)
+    def convergence_error(self, ham, wfn, lf, overlap):
+        return self.error_measures[self.method](ham, wfn, lf, overlap)

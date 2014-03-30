@@ -47,7 +47,7 @@ def test_fock_n2_hfs_sto3g():
         ]),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham1 = Hamiltonian(sys, terms1, external)
+    ham1 = Hamiltonian(terms1, external)
 
     builtin_term = DiracExchange(sys.wfn)
     terms2 = [
@@ -58,7 +58,7 @@ def test_fock_n2_hfs_sto3g():
         ]),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham2 = Hamiltonian(sys, terms2, external)
+    ham2 = Hamiltonian(terms2, external)
 
     # Compare the potential computed by libxc with the builtin implementation
     fock_alpha = sys.lf.create_one_body()
@@ -81,14 +81,14 @@ def test_fock_n2_hfs_sto3g():
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
-    assert convergence_error_eigen(ham1) < 1e-5
-    assert convergence_error_eigen(ham2) < 1e-5
+    assert convergence_error_eigen(ham1, sys.wfn, sys.lf, olp) < 1e-5
+    assert convergence_error_eigen(ham2, sys.wfn, sys.lf, olp) < 1e-5
 
     # Converge from scratch
     guess_core_hamiltonian(sys.wfn, olp, kin, nai)
-    assert convergence_error_commutator(ham1) > 1e-8
-    converge_scf_ediis2(ham1, threshold=1e-8)
-    assert convergence_error_commutator(ham1) < 1e-8
+    assert convergence_error_commutator(ham1, sys.wfn, sys.lf, olp) > 1e-8
+    converge_scf_ediis2(ham1, sys.wfn, sys.lf, olp, threshold=1e-8)
+    assert convergence_error_commutator(ham1, sys.wfn, sys.lf, olp) < 1e-8
 
     # test orbital energies
     expected_energies = np.array([
@@ -129,7 +129,7 @@ def test_hamiltonian_h3_hfs_321g():
         ]),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham1 = Hamiltonian(sys, terms1, external)
+    ham1 = Hamiltonian(terms1, external)
 
     builtin_term = DiracExchange(sys.wfn)
     terms2 = [
@@ -140,7 +140,7 @@ def test_hamiltonian_h3_hfs_321g():
         ]),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham2 = Hamiltonian(sys, terms2, external)
+    ham2 = Hamiltonian(terms2, external)
 
     # Compare the potential computed by libxc with the builtin implementation
     fock_alpha = sys.lf.create_one_body()
@@ -165,14 +165,14 @@ def test_hamiltonian_h3_hfs_321g():
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
-    assert convergence_error_eigen(ham1) < 1e-5
-    assert convergence_error_eigen(ham2) < 1e-5
+    assert convergence_error_eigen(ham1, sys.wfn, sys.lf, olp) < 1e-5
+    assert convergence_error_eigen(ham2, sys.wfn, sys.lf, olp) < 1e-5
 
     # Converge from scratch
     guess_core_hamiltonian(sys.wfn, olp, kin, nai)
-    assert convergence_error_eigen(ham1) > 1e-8
-    converge_scf_oda(ham1)
-    assert convergence_error_eigen(ham1) < 1e-8
+    assert convergence_error_eigen(ham1, sys.wfn, sys.lf, olp) > 1e-8
+    converge_scf_oda(ham1, sys.wfn, sys.lf, olp)
+    assert convergence_error_eigen(ham1, sys.wfn, sys.lf, olp) < 1e-8
 
     # test orbital energies
     expected_energies = np.array([
@@ -215,7 +215,7 @@ def test_co_pbe_sto3g():
         ]),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham = Hamiltonian(sys, terms, external)
+    ham = Hamiltonian(terms, external)
 
     # Test energy before scf
     ham.compute()
@@ -223,13 +223,13 @@ def test_co_pbe_sto3g():
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
-    assert convergence_error_eigen(ham) < 1e-5
+    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) < 1e-5
 
     # Converge from scratch
     guess_core_hamiltonian(sys.wfn, olp, kin, nai)
-    assert convergence_error_eigen(ham) > 1e-5
-    converge_scf_oda(ham, threshold=1e-3)
-    assert convergence_error_eigen(ham) < 1e-5
+    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) > 1e-5
+    converge_scf_oda(ham, sys.wfn, sys.lf, olp, threshold=1e-3)
+    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) < 1e-5
 
     # test orbital energies
     expected_energies = np.array([
@@ -266,7 +266,7 @@ def test_h3_pbe_321g():
         ]),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham = Hamiltonian(sys, terms, external)
+    ham = Hamiltonian(terms, external)
 
     # compute the energy before converging
     ham.compute()
@@ -274,13 +274,13 @@ def test_h3_pbe_321g():
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
-    assert convergence_error_eigen(ham) < 2e-6
+    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) < 2e-6
 
     # Converge from scratch
     guess_core_hamiltonian(sys.wfn, olp, kin, nai)
-    assert convergence_error_eigen(ham) > 1e-5
-    converge_scf_oda(ham, threshold=1e-5)
-    assert convergence_error_eigen(ham) < 1e-5
+    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) > 1e-5
+    converge_scf_oda(ham, sys.wfn, sys.lf, olp, threshold=1e-5)
+    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) < 1e-5
 
     # test orbital energies
     expected_energies = np.array([
@@ -308,6 +308,7 @@ def test_cubic_interpolation_c_pbe_cs():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -319,14 +320,14 @@ def test_cubic_interpolation_c_pbe_cs():
         ]),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham = Hamiltonian(sys, terms)
+    ham = Hamiltonian(terms)
 
     dm0 = sys.wfn.dm_alpha.copy()
     with assert_raises(NoSCFConvergence):
-        converge_scf_oda(ham, maxiter=1)
+        converge_scf_oda(ham, sys.wfn, sys.lf, olp, maxiter=1)
     dm1 = sys.wfn.dm_alpha.copy()
 
-    check_cubic_cs_wrapper(ham, dm0, dm1)
+    check_cubic_cs_wrapper(ham, sys.wfn, dm0, dm1)
 
 
 def test_cubic_interpolation_x_pbe_cs():
@@ -334,6 +335,7 @@ def test_cubic_interpolation_x_pbe_cs():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -345,14 +347,14 @@ def test_cubic_interpolation_x_pbe_cs():
         ]),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham = Hamiltonian(sys, terms)
+    ham = Hamiltonian(terms)
 
     dm0 = sys.wfn.dm_alpha.copy()
     with assert_raises(NoSCFConvergence):
-        converge_scf_oda(ham, maxiter=1)
+        converge_scf_oda(ham, sys.wfn, sys.lf, olp, maxiter=1)
     dm1 = sys.wfn.dm_alpha.copy()
 
-    check_cubic_cs_wrapper(ham, dm0, dm1)
+    check_cubic_cs_wrapper(ham, sys.wfn, dm0, dm1)
 
 
 def test_cubic_interpolation_hfs_cs():
@@ -360,6 +362,7 @@ def test_cubic_interpolation_hfs_cs():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -371,14 +374,14 @@ def test_cubic_interpolation_hfs_cs():
         ]),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham = Hamiltonian(sys, terms)
+    ham = Hamiltonian(terms)
 
     dm0 = sys.wfn.dm_alpha.copy()
     with assert_raises(NoSCFConvergence):
-        converge_scf_oda(ham, maxiter=1)
+        converge_scf_oda(ham, sys.wfn, sys.lf, olp, maxiter=1)
     dm1 = sys.wfn.dm_alpha.copy()
 
-    check_cubic_cs_wrapper(ham, dm0, dm1)
+    check_cubic_cs_wrapper(ham, sys.wfn, dm0, dm1)
 
 
 def test_cubic_interpolation_o3lyp_cs():
@@ -386,6 +389,7 @@ def test_cubic_interpolation_o3lyp_cs():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -397,20 +401,21 @@ def test_cubic_interpolation_o3lyp_cs():
         ExchangeTerm(er, sys.lf, sys.wfn, fraction_exchange=libxc_term.get_exx_fraction()),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham = Hamiltonian(sys, terms)
+    ham = Hamiltonian(terms)
 
     dm0 = sys.wfn.dm_alpha.copy()
     with assert_raises(NoSCFConvergence):
-        converge_scf_oda(ham, maxiter=1)
+        converge_scf_oda(ham, sys.wfn, sys.lf, olp, maxiter=1)
     dm1 = sys.wfn.dm_alpha.copy()
 
-    check_cubic_cs_wrapper(ham, dm0, dm1)
+    check_cubic_cs_wrapper(ham, sys.wfn, dm0, dm1)
 
 def test_cubic_interpolation_c_pbe_os():
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -422,16 +427,16 @@ def test_cubic_interpolation_c_pbe_os():
         ]),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham = Hamiltonian(sys, terms)
+    ham = Hamiltonian(terms)
 
     dma0 = sys.wfn.dm_alpha.copy()
     dmb0 = sys.wfn.dm_beta.copy()
     with assert_raises(NoSCFConvergence):
-        converge_scf_oda(ham, maxiter=1)
+        converge_scf_oda(ham, sys.wfn, sys.lf, olp, maxiter=1)
     dma1 = sys.wfn.dm_alpha.copy()
     dmb1 = sys.wfn.dm_beta.copy()
 
-    check_cubic_os_wrapper(ham, dma0, dmb0, dma1, dmb1)
+    check_cubic_os_wrapper(ham, sys.wfn, dma0, dmb0, dma1, dmb1)
 
 
 def test_cubic_interpolation_x_pbe_os():
@@ -439,6 +444,7 @@ def test_cubic_interpolation_x_pbe_os():
     sys = System.from_file(fn_fchk)
 
     grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -450,16 +456,16 @@ def test_cubic_interpolation_x_pbe_os():
         ]),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham = Hamiltonian(sys, terms)
+    ham = Hamiltonian(terms)
 
     dma0 = sys.wfn.dm_alpha.copy()
     dmb0 = sys.wfn.dm_beta.copy()
     with assert_raises(NoSCFConvergence):
-        converge_scf_oda(ham, maxiter=1)
+        converge_scf_oda(ham, sys.wfn, sys.lf, olp, maxiter=1)
     dma1 = sys.wfn.dm_alpha.copy()
     dmb1 = sys.wfn.dm_beta.copy()
 
-    check_cubic_os_wrapper(ham, dma0, dmb0, dma1, dmb1)
+    check_cubic_os_wrapper(ham, sys.wfn, dma0, dmb0, dma1, dmb1)
 
 
 def test_cubic_interpolation_hfs_os():
@@ -479,7 +485,7 @@ def test_cubic_interpolation_hfs_os():
         ]),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham = Hamiltonian(sys, terms)
+    ham = Hamiltonian(terms)
 
     dma0 = sys.wfn.dm_alpha.copy()
     dmb0 = sys.wfn.dm_beta.copy()
@@ -488,7 +494,7 @@ def test_cubic_interpolation_hfs_os():
     dma1 = sys.wfn.dm_alpha.copy()
     dmb1 = sys.wfn.dm_beta.copy()
 
-    check_cubic_os_wrapper(ham, dma0, dmb0, dma1, dmb1)
+    check_cubic_os_wrapper(ham, sys.wfn, dma0, dmb0, dma1, dmb1)
 
 
 def test_cubic_interpolation_o3lyp_os():
@@ -508,7 +514,7 @@ def test_cubic_interpolation_o3lyp_os():
         ExchangeTerm(er, sys.lf, sys.wfn, fraction_exchange=libxc_term.get_exx_fraction()),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham = Hamiltonian(sys, terms)
+    ham = Hamiltonian(terms)
 
     dma0 = sys.wfn.dm_alpha.copy()
     dmb0 = sys.wfn.dm_beta.copy()
@@ -516,7 +522,7 @@ def test_cubic_interpolation_o3lyp_os():
     dma1 = sys.wfn.dm_alpha.copy()
     dmb1 = sys.wfn.dm_beta.copy()
 
-    check_cubic_os_wrapper(ham, dma0, dmb0, dma1, dmb1)
+    check_cubic_os_wrapper(ham, sys.wfn, dma0, dmb0, dma1, dmb1)
 
 
 def test_hyb_gga_exx_fraction():

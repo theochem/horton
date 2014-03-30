@@ -30,9 +30,9 @@ __all__ = [
 ]
 
 
-def check_cubic_cs_wrapper(ham, dm0, dm1, do_plot=False):
-    wfn = ham.system.wfn
-    fock = ham.system.lf.create_one_body()
+def check_cubic_cs_wrapper(ham, wfn, dm0, dm1, do_plot=False):
+    fock = dm0.copy()
+    fock.clear()
 
     # evaluate stuff at dm0
     ham.clear()
@@ -56,13 +56,14 @@ def check_cubic_cs_wrapper(ham, dm0, dm1, do_plot=False):
     ev_11 = fock.expectation_value(dm1)
     g1 = 2*(ev_11 - ev_10)
 
-    check_cubic_cs(ham, dm0, dm1, e0, e1, g0, g1, do_plot)
+    check_cubic_cs(ham, wfn, dm0, dm1, e0, e1, g0, g1, do_plot)
 
 
-def check_cubic_os_wrapper(ham, dma0, dmb0, dma1, dmb1, do_plot=False):
-    wfn = ham.system.wfn
-    focka = ham.system.lf.create_one_body()
-    fockb = ham.system.lf.create_one_body()
+def check_cubic_os_wrapper(ham, wfn, dma0, dmb0, dma1, dmb1, do_plot=False):
+    focka = dma0.copy()
+    focka.clear()
+    fockb = dmb0.copy()
+    fockb.clear()
 
     # evaluate stuff at 0
     ham.clear()
@@ -90,7 +91,7 @@ def check_cubic_os_wrapper(ham, dma0, dmb0, dma1, dmb1, do_plot=False):
     ev_11 = focka.expectation_value(dma1) + fockb.expectation_value(dmb1)
     g1 = (ev_11 - ev_10)
 
-    check_cubic_os(ham, dma0, dmb0, dma1, dmb1, e0, e1, g0, g1, do_plot)
+    check_cubic_os(ham, wfn, dma0, dmb0, dma1, dmb1, e0, e1, g0, g1, do_plot)
 
 
 @log.with_level(log.high)
@@ -109,12 +110,12 @@ def check_scf_hf_cs_hf(scf_wrapper):
         ExchangeTerm(er, sys.lf, sys.wfn),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham = Hamiltonian(sys, terms, external)
+    ham = Hamiltonian(terms, external)
 
     guess_core_hamiltonian(sys.wfn, olp, kin, nai)
-    assert scf_wrapper.convergence_error(ham) > scf_wrapper.kwargs['threshold']
-    scf_wrapper(ham)
-    assert scf_wrapper.convergence_error(ham) < scf_wrapper.kwargs['threshold']
+    assert scf_wrapper.convergence_error(ham, sys.wfn, sys.lf, olp) > scf_wrapper.kwargs['threshold']
+    scf_wrapper(ham, sys.wfn, sys.lf, olp)
+    assert scf_wrapper.convergence_error(ham, sys.wfn, sys.lf, olp) < scf_wrapper.kwargs['threshold']
 
     # test orbital energies
     expected_energies = np.array([
@@ -151,11 +152,11 @@ def check_scf_water_cs_hfs(scf_wrapper):
         ]),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham = Hamiltonian(sys, terms, external)
+    ham = Hamiltonian(terms, external)
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file and different integration grids:
-    assert convergence_error_eigen(ham) < 3e-5
+    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) < 3e-5
 
     # The energies should also be in reasonable agreement. Repeated to check for
     # stupid bugs
@@ -178,9 +179,9 @@ def check_scf_water_cs_hfs(scf_wrapper):
 
     # Converge from scratch
     guess_core_hamiltonian(sys.wfn, olp, kin, nai)
-    assert scf_wrapper.convergence_error(ham) > scf_wrapper.kwargs['threshold']
-    scf_wrapper(ham)
-    assert scf_wrapper.convergence_error(ham) < scf_wrapper.kwargs['threshold']
+    assert scf_wrapper.convergence_error(ham, sys.wfn, sys.lf, olp) > scf_wrapper.kwargs['threshold']
+    scf_wrapper(ham, sys.wfn, sys.lf, olp)
+    assert scf_wrapper.convergence_error(ham, sys.wfn, sys.lf, olp) < scf_wrapper.kwargs['threshold']
 
     assert abs(ham.cache['energy_ne'] - -1.977921986200E+02) < 1e-4
     assert abs(ham.cache['energy_kin'] - 7.525067610865E+01) < 1e-4

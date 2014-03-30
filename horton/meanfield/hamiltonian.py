@@ -32,7 +32,7 @@ __all__ = [
 
 
 class Hamiltonian(object):
-    def __init__(self, system, terms, external=None):
+    def __init__(self, terms, external=None):
         '''
            **Arguments:**
 
@@ -52,7 +52,6 @@ class Hamiltonian(object):
             raise ValueError('At least one term must be present in the Hamiltonian.')
 
         # Assign attributes
-        self.system = system
         self.terms = list(terms)
         self.external = {} if external is None else external
 

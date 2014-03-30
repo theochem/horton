@@ -33,7 +33,7 @@ __all__ = ['converge_scf_ediis']
 
 
 @timer.with_section('SCF')
-def converge_scf_ediis(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, scf_step='regular'):
+def converge_scf_ediis(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, scf_step='regular'):
     '''Minimize the energy of the wavefunction with the EDIIS algorithm
 
        **Arguments:**
@@ -70,13 +70,13 @@ def converge_scf_ediis(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_st
        **Returns:** the number of iterations
     '''
     log.cite('kudin2002', 'using the energy DIIS SCF algorithm')
-    if isinstance(ham.system.wfn, RestrictedWFN):
-        return converge_scf_ediis_cs(ham, maxiter, threshold, nvector, prune_old_states, scf_step)
+    if isinstance(wfn, RestrictedWFN):
+        return converge_scf_ediis_cs(ham, wfn, lf, overlap, maxiter, threshold, nvector, prune_old_states, scf_step)
     else:
         raise NotImplementedError
 
 
-def converge_scf_ediis_cs(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, scf_step='regular'):
+def converge_scf_ediis_cs(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, scf_step='regular'):
     '''Minimize the energy of the closed-shell wavefunction with EDIIS
 
        **Arguments:**
@@ -113,7 +113,7 @@ def converge_scf_ediis_cs(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old
        **Returns:** the number of iterations
     '''
     log.cite('kudin2002', 'the use of the EDIIS method.')
-    return converge_scf_diis_cs(ham, EnergyDIISHistory, maxiter, threshold, nvector, prune_old_states, scf_step)
+    return converge_scf_diis_cs(ham, wfn, lf, overlap, EnergyDIISHistory, maxiter, threshold, nvector, prune_old_states, scf_step)
 
 
 class EnergyDIISHistory(DIISHistory):
@@ -132,7 +132,7 @@ class EnergyDIISHistory(DIISHistory):
                 The maximum size of the history.
 
            overlap
-                The overlap matrix of the system.
+                The overlap matrix.
         '''
         # A matrix with dot products of all density and fock matrices
         # Note that the dots matrix is not symmetric!

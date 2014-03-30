@@ -41,7 +41,7 @@ def test_energy_hydrogen():
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
-    ham = Hamiltonian(sys, terms, external)
+    ham = Hamiltonian(terms, external)
     ham.compute()
     assert abs(ham.cache['energy'] - -4.665818503844346E-01) < 1e-8
 
@@ -62,7 +62,7 @@ def test_energy_n2_hfs_sto3g():
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
-    ham = Hamiltonian(sys, terms, external)
+    ham = Hamiltonian(terms, external)
     ham.compute()
 
     # Compare energies
@@ -107,17 +107,17 @@ def test_fock_n2_hfs_sto3g():
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
-    ham = Hamiltonian(sys, terms, external)
+    ham = Hamiltonian(terms, external)
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
-    assert convergence_error_eigen(ham) < 1e-5
+    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) < 1e-5
 
     # Converge from scratch
     guess_core_hamiltonian(sys.wfn, olp, kin, nai)
-    assert convergence_error_eigen(ham) > 1e-8
-    converge_scf(ham)
-    assert convergence_error_eigen(ham) < 1e-8
+    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) > 1e-8
+    converge_scf(ham, sys.wfn, sys.lf, olp)
+    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) < 1e-8
 
     # test orbital energies
     expected_energies = np.array([
@@ -155,17 +155,17 @@ def test_fock_h3_hfs_321g():
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
     external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
-    ham = Hamiltonian(sys, terms, external)
+    ham = Hamiltonian(terms, external)
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
-    assert convergence_error_eigen(ham) < 1e-6
+    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) < 1e-6
 
     # Converge from scratch
     guess_core_hamiltonian(sys.wfn, olp, kin, nai)
-    assert convergence_error_eigen(ham) > 1e-8
-    converge_scf(ham)
-    assert convergence_error_eigen(ham) < 1e-8
+    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) > 1e-8
+    converge_scf(ham, sys.wfn, sys.lf, olp)
+    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) < 1e-8
 
     # test orbital energies
     expected_energies = np.array([
@@ -205,7 +205,7 @@ def test_cubic_interpolation_hfs_cs():
         ]),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham = Hamiltonian(sys, terms)
+    ham = Hamiltonian(terms)
 
     dm0 = sys.lf.create_one_body()
     dm0.assign(sys.wfn.dm_alpha)
@@ -213,7 +213,7 @@ def test_cubic_interpolation_hfs_cs():
     dm1 = sys.lf.create_one_body()
     dm1.assign(sys.wfn.dm_alpha)
 
-    check_cubic_cs_wrapper(ham, dm0, dm1)
+    check_cubic_cs_wrapper(ham, sys.wfn, dm0, dm1)
 
 
 def test_perturbation():
@@ -221,6 +221,7 @@ def test_perturbation():
     sys = System.from_file(fn_fchk)
 
     # Without perturbation
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -230,10 +231,10 @@ def test_perturbation():
         ExchangeTerm(er, sys.lf, sys.wfn),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham = Hamiltonian(sys, terms)
-    assert convergence_error_eigen(ham) > 1e-8
-    converge_scf(ham)
-    assert convergence_error_eigen(ham) < 1e-8
+    ham = Hamiltonian(terms)
+    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) > 1e-8
+    converge_scf(ham, sys.wfn, sys.lf, olp)
+    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) < 1e-8
     energy0 = ham.compute()
 
     # Construct a perturbation based on the Mulliken AIM operator
@@ -261,10 +262,10 @@ def test_perturbation():
             OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
             perturbation,
         ]
-        ham = Hamiltonian(sys, terms)
-        assert convergence_error_eigen(ham) > 1e-8
-        converge_scf_oda(ham)
-        assert convergence_error_eigen(ham) < 1e-8
+        ham = Hamiltonian(terms)
+        assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) > 1e-8
+        converge_scf_oda(ham, sys.wfn, sys.lf, olp)
+        assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) < 1e-8
         energy1 = ham.compute()
         energy1 -= ham.cache['energy_pert']
 
@@ -278,7 +279,7 @@ def test_perturbation():
 def test_add_term():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
-    ham = Hamiltonian(sys, [ExchangeTerm(sys.get_electron_repulsion(),
+    ham = Hamiltonian([ExchangeTerm(sys.get_electron_repulsion(),
                                          sys.lf, sys.wfn)])
     term = OneBodyTerm(sys.get_kinetic(), sys.lf, sys.wfn, 'kin')
     ham.add_term(term)
@@ -288,6 +289,7 @@ def test_add_term():
 def test_ghost_hf():
     fn_fchk = context.get_fn('test/water_dimer_ghost.fchk')
     sys = System.from_file(fn_fchk)
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -297,7 +299,7 @@ def test_ghost_hf():
         ExchangeTerm(er, sys.lf, sys.wfn),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham = Hamiltonian(sys, terms)
+    ham = Hamiltonian(terms)
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
-    assert convergence_error_eigen(ham) < 1e-5
+    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) < 1e-5

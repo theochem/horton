@@ -72,11 +72,11 @@ def test_project_larger():
         ExchangeTerm(er, sys.lf, sys.wfn),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham = Hamiltonian(sys, terms)
+    ham = Hamiltonian(terms)
     energy1 = ham.compute()
 
     # Optimize wfn
-    converge_scf_oda(ham)
+    converge_scf_oda(ham, sys.wfn, sys.lf, olp)
     energy2 = ham.cache['energy']
     assert energy2 < energy1 # the energy should decrease after scf convergence
 
@@ -128,12 +128,12 @@ def test_project_smaller():
         ExchangeTerm(er, sys.lf, sys.wfn),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham = Hamiltonian(sys, terms)
+    ham = Hamiltonian(terms)
 
     energy1 = ham.compute()
 
     # Optimize wfn
-    converge_scf_oda(ham)
+    converge_scf_oda(ham, sys.wfn, sys.lf, olp)
     energy2 = ham.cache['energy']
     assert energy2 < energy1 # the energy should decrease after scf convergence
 

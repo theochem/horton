@@ -31,10 +31,10 @@ terms = [
     ]),
     OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
 ]
-ham = Hamiltonian(sys, terms, external)
+ham = Hamiltonian(terms, external)
 
 # Optimal damping SCF cycle
-converged = converge_scf_oda(ham)
+converged = converge_scf_oda(ham, sys.wfn, sys.lf, olp)
 
 # Energy computation
 log.set_level(log.high)

@@ -62,6 +62,7 @@ def test_conversion_dm_exp():
     dm = sys.lf.create_one_body()
     dm.assign(sys.wfn.dm_alpha)
 
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -71,11 +72,11 @@ def test_conversion_dm_exp():
         ExchangeTerm(er, sys.lf, sys.wfn),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham = Hamiltonian(sys, terms)
+    ham = Hamiltonian(terms)
     fock = sys.lf.create_one_body()
     ham.compute_fock(fock, None)
     sys.wfn.clear()
-    sys.wfn.update_exp(fock, sys.get_overlap(), dm)
+    sys.wfn.update_exp(fock, olp, dm)
 
     assert abs(sys.wfn.exp_alpha.occupations.sum() - 5) < 1e-8
     assert abs(oes - sys.wfn.exp_alpha.energies).max() < 3e-8
@@ -105,7 +106,8 @@ def test_dm_lih_sto3g_hf():
 def test_spin_li_h():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     sys = System.from_file(fn_fchk)
-    sz, ssq = sys.wfn.get_spin(sys.get_overlap())
+    olp = sys.get_overlap()
+    sz, ssq = sys.wfn.get_spin(olp)
     assert sz == 0.5
     assert abs(ssq - 0.75) < 1e-7
     # swap the spins and test again
@@ -114,7 +116,7 @@ def test_spin_li_h():
     exp_beta = wfn.init_exp('beta')
     exp_alpha.assign(sys.wfn.exp_beta)
     exp_beta.assign(sys.wfn.exp_alpha)
-    sz, ssq = wfn.get_spin(sys.get_overlap())
+    sz, ssq = wfn.get_spin(olp)
     assert sz == -0.5
     assert abs(ssq - 0.75) < 1e-7
 

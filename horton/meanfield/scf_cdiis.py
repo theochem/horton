@@ -33,7 +33,7 @@ __all__ = ['converge_scf_cdiis']
 
 
 @timer.with_section('SCF')
-def converge_scf_cdiis(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, skip_energy=False, scf_step='regular'):
+def converge_scf_cdiis(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, skip_energy=False, scf_step='regular'):
     '''Minimize the energy of the wavefunction with the CDIIS algorithm
 
        **Arguments:**
@@ -73,13 +73,13 @@ def converge_scf_cdiis(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_st
        **Returns:** the number of iterations
     '''
     log.cite('pulay1980', 'using the commutator DIIS SCF algorithm')
-    if isinstance(ham.system.wfn, RestrictedWFN):
-        return converge_scf_cdiis_cs(ham, maxiter, threshold, nvector, prune_old_states, skip_energy, scf_step)
+    if isinstance(wfn, RestrictedWFN):
+        return converge_scf_cdiis_cs(ham, wfn, lf, overlap, maxiter, threshold, nvector, prune_old_states, skip_energy, scf_step)
     else:
         raise NotImplementedError
 
 
-def converge_scf_cdiis_cs(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, skip_energy=False, scf_step='regular'):
+def converge_scf_cdiis_cs(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, skip_energy=False, scf_step='regular'):
     '''Minimize the energy of the closed-shell wavefunction with CDIIS
 
        **Arguments:**
@@ -119,7 +119,7 @@ def converge_scf_cdiis_cs(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old
        **Returns:** the number of iterations
     '''
     log.cite('pulay1980', 'the use of the commutator DIIS method')
-    return converge_scf_diis_cs(ham, PulayDIISHistory, maxiter, threshold, nvector, prune_old_states, skip_energy, scf_step)
+    return converge_scf_diis_cs(ham, wfn, lf, overlap, PulayDIISHistory, maxiter, threshold, nvector, prune_old_states, skip_energy, scf_step)
 
 
 class PulayDIISHistory(DIISHistory):
@@ -141,7 +141,7 @@ class PulayDIISHistory(DIISHistory):
                 The maximum size of the history.
 
            overlap
-                The overlap matrix of the system.
+                The overlap matrix.
         '''
         self.cdots = np.empty((nvector, nvector))
         self.cdots.fill(np.nan)

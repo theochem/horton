@@ -35,7 +35,7 @@ __all__ = ['converge_scf_ediis2']
 
 
 @timer.with_section('SCF')
-def converge_scf_ediis2(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, scf_step='regular'):
+def converge_scf_ediis2(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, scf_step='regular'):
     '''Minimize the energy of the wavefunction with the EDIIS+DIIS algorithm
 
        **Arguments:**
@@ -72,13 +72,13 @@ def converge_scf_ediis2(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_s
        **Returns:** the number of iterations
     '''
     log.cite('kudin2002', 'using the EDIIS+DIIS SCF algorithm')
-    if isinstance(ham.system.wfn, RestrictedWFN):
-        return converge_scf_ediis2_cs(ham, maxiter, threshold, nvector, prune_old_states, scf_step)
+    if isinstance(wfn, RestrictedWFN):
+        return converge_scf_ediis2_cs(ham, wfn, lf, overlap, maxiter, threshold, nvector, prune_old_states, scf_step)
     else:
         raise NotImplementedError
 
 
-def converge_scf_ediis2_cs(ham, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, scf_step='regular'):
+def converge_scf_ediis2_cs(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, scf_step='regular'):
     '''Minimize the energy of the closed-shell wavefunction with EDIIS+DIIS
 
        **Arguments:**
@@ -115,7 +115,7 @@ def converge_scf_ediis2_cs(ham, maxiter=128, threshold=1e-6, nvector=6, prune_ol
        **Returns:** the number of iterations
     '''
     log.cite('kudin2002', 'For the use of the EDIIS+DIIS method.')
-    return converge_scf_diis_cs(ham, EnergyDIIS2History, maxiter, threshold, nvector, prune_old_states, scf_step)
+    return converge_scf_diis_cs(ham, wfn, lf, overlap, EnergyDIIS2History, maxiter, threshold, nvector, prune_old_states, scf_step)
 
 
 class EnergyDIIS2History(EnergyDIISHistory, PulayDIISHistory):
@@ -138,7 +138,7 @@ class EnergyDIIS2History(EnergyDIISHistory, PulayDIISHistory):
                 The maximum size of the history.
 
            overlap
-                The overlap matrix of the system.
+                The overlap matrix.
         '''
         # for the EDIIS part
         self.edots = np.empty((nvector, nvector))

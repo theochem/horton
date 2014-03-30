@@ -32,13 +32,22 @@ __all__ = ['check_cubic_cs', 'check_cubic_os', 'converge_scf_oda']
 
 
 @timer.with_section('SCF')
-def converge_scf_oda(ham, maxiter=128, threshold=1e-6, debug=False):
+def converge_scf_oda(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, debug=False):
     '''Minimize the energy of the wavefunction with optimal-damping SCF
 
        **Arguments:**
 
        ham
             A Hamiltonian instance.
+
+       wfn
+            The wavefunction object to be optimized.
+
+       lf
+            The linalg factory to be used.
+
+       overlap
+            The overlap operator.
 
        **Optional arguments:**
 
@@ -50,7 +59,7 @@ def converge_scf_oda(ham, maxiter=128, threshold=1e-6, debug=False):
             The convergence threshold for the wavefunction
 
        debug
-            Make debug plots with matplotlib of the linear interpolation
+            Make debug plots with matplotlib of the cubic interpolation
 
        **Raises:**
 
@@ -59,10 +68,10 @@ def converge_scf_oda(ham, maxiter=128, threshold=1e-6, debug=False):
             of iterations.
     '''
     log.cite('cances2001', 'using the optimal damping algorithm (ODA) SCF')
-    if isinstance(ham.system.wfn, RestrictedWFN):
-        return converge_scf_oda_cs(ham, maxiter, threshold, debug)
-    elif isinstance(ham.system.wfn, UnrestrictedWFN):
-        return converge_scf_oda_os(ham, maxiter, threshold, debug)
+    if isinstance(wfn, RestrictedWFN):
+        return converge_scf_oda_cs(ham, wfn, lf, overlap, maxiter, threshold, debug)
+    elif isinstance(wfn, UnrestrictedWFN):
+        return converge_scf_oda_os(ham, wfn, lf, overlap, maxiter, threshold, debug)
     else:
         raise NotImplementedError
 
@@ -144,7 +153,7 @@ def find_min_quadratic(g0, g1):
             return 1.0
 
 
-def check_cubic_cs(ham, dm0, dm1, e0, e1, g0, g1, do_plot=True):
+def check_cubic_cs(ham, wfn, dm0, dm1, e0, e1, g0, g1, do_plot=True):
     dm1 = dm1.copy()
 
     # coefficients of the polynomial a*x**3 + b*x**2 + c*x + d
@@ -153,8 +162,8 @@ def check_cubic_cs(ham, dm0, dm1, e0, e1, g0, g1, do_plot=True):
     a = g1 - 2*e1 + c + 2*d
     b = e1 - a - c - d
 
-    dm2 = ham.system.lf.create_one_body()
-    wfn = ham.system.wfn
+    dm2 = dm0.copy()
+    dm2.clear()
     xs = np.arange(0, 1.001, 0.1)
     energies = []
     for x in xs:
@@ -189,13 +198,22 @@ def check_cubic_cs(ham, dm0, dm1, e0, e1, g0, g1, do_plot=True):
         assert error < 0.01*oom
 
 
-def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):
+def converge_scf_oda_cs(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, debug=False):
     '''Minimize the energy of the closed-shell wavefunction with optimal damping
 
        **Arguments:**
 
        ham
             A Hamiltonian instance.
+
+       wfn
+            The wavefunction object to be optimized.
+
+       lf
+            The linalg factory to be used.
+
+       overlap
+            The overlap operator.
 
        **Optional arguments:**
 
@@ -207,7 +225,7 @@ def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):
             The convergence threshold for the wavefunction.
 
        debug
-            Make debug plots with matplotlib of the linear interpolation
+            Make debug plots with matplotlib of the cubic interpolation
 
        **Raises:**
 
@@ -223,9 +241,6 @@ def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):
         log.hline()
 
     # initialization of variables and datastructures
-    lf = ham.system.lf
-    wfn = ham.system.wfn
-    overlap = ham.system.get_overlap()
     # suffixes
     #    0 = current or initial state
     #    1 = state after conventional SCF step
@@ -291,7 +306,7 @@ def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):
         mixing = find_min_cubic(energy0, energy1, energy0_deriv, energy1_deriv)
 
         if debug:
-            check_cubic_cs(ham, dm0, dm1, energy0, energy1, energy0_deriv, energy1_deriv)
+            check_cubic_cs(ham, wfn, dm0, dm1, energy0, energy1, energy0_deriv, energy1_deriv)
 
         # E) Construct the new dm
         # Put the mixed dm in dm_old, which is local in this routine.
@@ -335,7 +350,7 @@ def converge_scf_oda_cs(ham, maxiter=128, threshold=1e-6, debug=False):
     return counter
 
 
-def check_cubic_os(ham, dm0a, dm0b, dm1a, dm1b, e0, e1, g0, g1, do_plot=True):
+def check_cubic_os(ham, wfn, dm0a, dm0b, dm1a, dm1b, e0, e1, g0, g1, do_plot=True):
     dm1a = dm1a.copy()
     dm1b = dm1b.copy()
 
@@ -345,9 +360,10 @@ def check_cubic_os(ham, dm0a, dm0b, dm1a, dm1b, e0, e1, g0, g1, do_plot=True):
     a = g1 - 2*e1 + c + 2*d
     b = e1 - a - c - d
 
-    dm2a = ham.system.lf.create_one_body()
-    dm2b = ham.system.lf.create_one_body()
-    wfn = ham.system.wfn
+    dm2a = dm0a.copy()
+    dm2a.clear()
+    dm2b = dm0b.copy()
+    dm2b.clear()
     xs = np.arange(0, 1.001, 0.1)
     energies = []
     for x in xs:
@@ -386,13 +402,22 @@ def check_cubic_os(ham, dm0a, dm0b, dm1a, dm1b, e0, e1, g0, g1, do_plot=True):
         assert error < 0.01*oom
 
 
-def converge_scf_oda_os(ham, maxiter=128, threshold=1e-6, debug=False):
+def converge_scf_oda_os(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, debug=False):
     '''Minimize the energy of the open-shell wavefunction with optimal damping
 
        **Arguments:**
 
        ham
             A Hamiltonian instance.
+
+       wfn
+            The wavefunction object to be optimized.
+
+       lf
+            The linalg factory to be used.
+
+       overlap
+            The overlap operator.
 
        **Optional arguments:**
 
@@ -404,7 +429,7 @@ def converge_scf_oda_os(ham, maxiter=128, threshold=1e-6, debug=False):
             The convergence threshold for the wavefunction.
 
        debug
-            Make debug plots with matplotlib of the linear interpolation
+            Make debug plots with matplotlib of the cubic interpolation
 
        **Raises:**
 
@@ -422,9 +447,6 @@ def converge_scf_oda_os(ham, maxiter=128, threshold=1e-6, debug=False):
         log.hline()
 
     # initialization of variables and datastructures
-    lf = ham.system.lf
-    wfn = ham.system.wfn
-    overlap = ham.system.get_overlap()
     # suffixes
     #    0 = current or initial state
     #    1 = state after conventional SCF step
@@ -505,7 +527,7 @@ def converge_scf_oda_os(ham, maxiter=128, threshold=1e-6, debug=False):
             log('       mixing: % 10.5f' % mixing)
 
         if debug:
-            check_cubic_os(ham, dm0a, dm0b, dm1a, dm1b, energy0, energy1, energy0_deriv, energy1_deriv)
+            check_cubic_os(ham, wfn, dm0a, dm0b, dm1a, dm1b, energy0, energy1, energy0_deriv, energy1_deriv)
 
         # E) Construct the new dm
         # Put the mixed dm in dm_old, which is local in this routine.

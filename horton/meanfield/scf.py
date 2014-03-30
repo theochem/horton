@@ -30,13 +30,22 @@ __all__ = ['converge_scf']
 
 
 @timer.with_section('SCF')
-def converge_scf(ham, maxiter=128, threshold=1e-8, skip_energy=False):
+def converge_scf(ham, wfn, lf, overlap, maxiter=128, threshold=1e-8, skip_energy=False):
     '''Minimize the energy of the wavefunction with basic SCF
 
        **Arguments:**
 
        ham
             A Hamiltonian instance.
+
+       wfn
+            The wavefunction object to be optimized.
+
+       lf
+            The linalg factory to be used.
+
+       overlap
+            The overlap operator.
 
        **Optional arguments:**
 
@@ -58,21 +67,30 @@ def converge_scf(ham, maxiter=128, threshold=1e-8, skip_energy=False):
 
        **Returns:** the number of iterations
     '''
-    if isinstance(ham.system.wfn, RestrictedWFN):
-        return converge_scf_cs(ham, maxiter, threshold)
-    elif isinstance(ham.system.wfn, UnrestrictedWFN):
-        return converge_scf_os(ham, maxiter, threshold)
+    if isinstance(wfn, RestrictedWFN):
+        return converge_scf_cs(ham, wfn, lf, overlap, maxiter, threshold)
+    elif isinstance(wfn, UnrestrictedWFN):
+        return converge_scf_os(ham, wfn, lf, overlap, maxiter, threshold)
     else:
         raise NotImplementedError
 
 
-def converge_scf_cs(ham, maxiter=128, threshold=1e-8, skip_energy=False):
+def converge_scf_cs(ham, wfn, lf, overlap, maxiter=128, threshold=1e-8, skip_energy=False):
     '''Minimize the energy of the wavefunction with basic closed-shell SCF
 
        **Arguments:**
 
        ham
             A Hamiltonian instance.
+
+       wfn
+            The wavefunction object to be optimized.
+
+       lf
+            The linalg factory to be used.
+
+       overlap
+            The overlap operator.
 
        **Optional arguments:**
 
@@ -103,9 +121,6 @@ def converge_scf_cs(ham, maxiter=128, threshold=1e-8, skip_energy=False):
     # Get rid of outdated stuff
     ham.clear()
 
-    lf = ham.system.lf
-    wfn = ham.system.wfn
-    overlap = ham.system.get_overlap()
     fock = lf.create_one_body()
     converged = False
     counter = 0
@@ -144,13 +159,22 @@ def converge_scf_cs(ham, maxiter=128, threshold=1e-8, skip_energy=False):
     return counter
 
 
-def converge_scf_os(ham, maxiter=128, threshold=1e-8, skip_energy=False):
+def converge_scf_os(ham, wfn, lf, overlap, maxiter=128, threshold=1e-8, skip_energy=False):
     '''Minimize the energy of the wavefunction with basic open-shell SCF
 
        **Arguments:**
 
        ham
             A Hamiltonian instance.
+
+       wfn
+            The wavefunction object to be optimized.
+
+       lf
+            The linalg factory to be used.
+
+       overlap
+            The overlap operator.
 
        **Optional arguments:**
 
@@ -179,9 +203,6 @@ def converge_scf_os(ham, maxiter=128, threshold=1e-8, skip_energy=False):
     # Get rid of outdated stuff
     ham.clear()
 
-    lf = ham.system.lf
-    wfn = ham.system.wfn
-    overlap = ham.system.get_overlap()
     fock_alpha = lf.create_one_body()
     fock_beta = lf.create_one_body()
     converged = False

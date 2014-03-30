@@ -116,65 +116,6 @@ def test_molgrid_attrs():
     assert mg.random_rotate
 
 
-def test_custom_grid_linear_observable():
-    fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    sys = System.from_file(fn_fchk)
-    int1d = SimpsonIntegrator1D()
-    rtf = ExpRTransform(1e-3, 1e1, 100)
-    rgrid = RadialGrid(rtf)
-    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, (rgrid, 110), random_rotate=False)
-
-    # Without perturbation
-    kin = sys.get_kinetic()
-    nai = sys.get_nuclear_attraction()
-    er = sys.get_electron_repulsion()
-    terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        ExchangeTerm(er, sys.lf, sys.wfn),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
-    ]
-    ham = Hamiltonian(sys, terms)
-    assert convergence_error_eigen(ham) > 1e-8
-    converge_scf(ham)
-    assert convergence_error_eigen(ham) < 1e-8
-    energy0 = ham.compute()
-
-    # Construct some becke weights for the first atom and use it as a potential.
-    potential = np.ones(grid.size, float)
-    radii = np.ones(sys.natom, float)
-    becke_helper_atom(grid.points, potential, radii, sys.coordinates, 0, 3)
-
-    # Apply the perturbation with oposite signs and check that, because of
-    # symmetry, the energy of the perturbed wavefunction is the same in both
-    # cases, and higher than the unperturbed.
-    energy1_old = None
-    for scale in 0.1, -0.1:
-        # With perturbation
-        operator = sys.lf.create_one_body()
-        sys.compute_grid_density_fock(grid.points, grid.weights, scale * potential, operator)
-        perturbation = OneBodyTerm(operator, sys.lf, sys.wfn, 'pert')
-        terms = [
-            OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-            DirectTerm(er, sys.lf, sys.wfn),
-            ExchangeTerm(er, sys.lf, sys.wfn),
-            OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
-            perturbation,
-        ]
-        ham = Hamiltonian(sys, terms)
-        assert convergence_error_eigen(ham) > 1e-8
-        converge_scf_oda(ham)
-        assert convergence_error_eigen(ham) < 1e-8
-        energy1 = ham.compute()
-        energy1 -= ham.cache['energy_pert']
-
-        assert energy1 > energy0
-        if energy1_old is None:
-            energy1_old = energy1
-        else:
-            assert abs(energy1 - energy1_old) < 1e-7
-
-
 def test_family():
     numbers = np.array([6, 8], int)
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)

@@ -46,12 +46,12 @@ def test_scf_os():
         ExchangeTerm(er, sys.lf, sys.wfn),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham = Hamiltonian(sys, terms, external)
+    ham = Hamiltonian(terms, external)
 
     guess_core_hamiltonian(sys.wfn, olp, kin, nai)
-    assert convergence_error_eigen(ham) > 1e-8
-    converge_scf(ham)
-    assert convergence_error_eigen(ham) < 1e-8
+    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) > 1e-8
+    converge_scf(ham, sys.wfn, sys.lf, olp)
+    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) < 1e-8
 
     expected_alpha_energies = np.array([
         -2.76116635E+00, -7.24564188E-01, -1.79148636E-01, -1.28235698E-01,
@@ -79,6 +79,7 @@ def test_hf_water_321g_mistake():
     fn_xyz = context.get_fn('test/water.xyz')
     sys = System.from_file(fn_xyz, obasis='3-21G')
     setup_mean_field_wfn(sys, charge=0)
+    olp = sys.get_overlap()
     kin = sys.get_kinetic()
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
@@ -88,6 +89,6 @@ def test_hf_water_321g_mistake():
         ExchangeTerm(er, sys.lf, sys.wfn),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham = Hamiltonian(sys, terms)
+    ham = Hamiltonian(terms)
     with assert_raises(AttributeError):
-        converge_scf(ham)
+        converge_scf(ham, sys.wfn, sys.lf, olp)

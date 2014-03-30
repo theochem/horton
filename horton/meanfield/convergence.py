@@ -36,7 +36,7 @@ __all__ = [
 ]
 
 
-def convergence_error_eigen(ham):
+def convergence_error_eigen(ham, wfn, lf, overlap):
     '''Compute the self-consistency error
 
        **Arguments:**
@@ -44,70 +44,38 @@ def convergence_error_eigen(ham):
        ham
             A Hamiltonian instance.
 
+       wfn
+            The wavefunction to be teste.
+
+       lf
+            The linalg factory to be used.
+
+       overlap
+            The overlap operator.
+
        **Returns:**
 
        error
             The SCF error. This measure (not this function) is also used
             in some SCF algorithms to check for convergence.
     '''
-    if isinstance(ham.system.wfn, RestrictedWFN):
-        return convergence_error_eigen_cs(ham)
-    elif isinstance(ham.system.wfn, UnrestrictedWFN):
-        return convergence_error_eigen_os(ham)
+    if isinstance(wfn, RestrictedWFN):
+        fock = lf.create_one_body()
+        # Construct the Fock operator
+        ham.compute_fock(fock, None)
+        # Compute error
+        return lf.error_eigen(fock, overlap, wfn.exp_alpha)
+    elif isinstance(wfn, UnrestrictedWFN):
+        fock_alpha = lf.create_one_body()
+        fock_beta = lf.create_one_body()
+        # Construct the Fock operators
+        ham.compute_fock(fock_alpha, fock_beta)
+        # Compute errors
+        error_alpha = lf.error_eigen(fock_alpha, overlap, wfn.exp_alpha)
+        error_beta = lf.error_eigen(fock_beta, overlap, wfn.exp_beta)
+        return max(error_alpha, error_beta)
     else:
         raise NotImplementedError
-
-
-def convergence_error_eigen_cs(ham):
-    '''Compute the self-consistency error for a closed-shell wavefunction
-
-       **Arguments:**
-
-       ham
-            A Hamiltonian instance.
-
-       **Returns:**
-
-       error
-            The SCF error. This measure (not this function) is also used
-            in some SCF algorithms to check for convergence.
-    '''
-    lf = ham.system.lf
-    wfn = ham.system.wfn
-    overlap = ham.system.get_overlap()
-    fock = lf.create_one_body()
-    # Construct the Fock operator
-    ham.compute_fock(fock, None)
-    # Compute error
-    return lf.error_eigen(fock, overlap, wfn.exp_alpha)
-
-
-def convergence_error_eigen_os(ham):
-    '''Compute the self-consistency error for an open-shell wavefunction
-
-       **Arguments:**
-
-       ham
-            A Hamiltonian instance.
-
-       **Returns:**
-
-       error
-            The maximum of the alpha and beta SCF errors. This measure (not this
-            function) is also used in some SCF algorithms to check for
-            convergence.
-    '''
-    lf = ham.system.lf
-    wfn = ham.system.wfn
-    overlap = ham.system.get_overlap()
-    fock_alpha = lf.create_one_body()
-    fock_beta = lf.create_one_body()
-    # Construct the Fock operators
-    ham.compute_fock(fock_alpha, fock_beta)
-    # Compute errors
-    error_alpha = lf.error_eigen(fock_alpha, overlap, wfn.exp_alpha)
-    error_beta = lf.error_eigen(fock_beta, overlap, wfn.exp_beta)
-    return max(error_alpha, error_beta)
 
 
 def compute_commutator(dm, fock, overlap, work, output):
@@ -142,7 +110,7 @@ def compute_commutator(dm, fock, overlap, work, output):
     output.iadd(work, factor=-1)
 
 
-def convergence_error_commutator(ham):
+def convergence_error_commutator(ham, wfn, lf, overlap):
     '''Compute the commutator error
 
        **Arguments:**
@@ -150,75 +118,43 @@ def convergence_error_commutator(ham):
        ham
             A Hamiltonian instance.
 
+       wfn
+            The wavefunction to be teste.
+
+       lf
+            The linalg factory to be used.
+
+       overlap
+            The overlap operator.
+
        **Returns:**
 
        error
             The commutator error. This measure (not this function) is also used
             in some SCF algorithms to check for convergence.
     '''
-    if isinstance(ham.system.wfn, RestrictedWFN):
-        return convergence_error_commutator_cs(ham)
-    elif isinstance(ham.system.wfn, UnrestrictedWFN):
-        return convergence_error_commutator_os(ham)
+    work = lf.create_one_body()
+    if isinstance(wfn, RestrictedWFN):
+        fock = lf.create_one_body()
+        commutator = lf.create_one_body()
+        # Construct the Fock operator
+        ham.compute_fock(fock, None)
+        # Compute commutator
+        compute_commutator(wfn.dm_alpha, fock, overlap, work, commutator)
+        # Compute norm
+        normsq = commutator.expectation_value(commutator)
+        return np.sqrt(normsq)
+    elif isinstance(wfn, UnrestrictedWFN):
+        fock_alpha = lf.create_one_body()
+        fock_beta = lf.create_one_body()
+        # Construct the Fock operators
+        ham.compute_fock(fock_alpha, fock_beta)
+        # Compute stuff for alpha
+        compute_commutator(wfn.dm_alpha, fock_alpha, overlap, work, commutator)
+        normsq_alpha = commutator.expectation_value(commutator)
+        # Compute stuff for beta
+        compute_commutator(wfn.dm_beta, fock_beta, overlap, work, commutator)
+        normsq_beta = commutator.expectation_value(commutator)
+        return np.sqrt(max(normsq_alpha, normsq_beta))
     else:
         raise NotImplementedError
-
-
-def convergence_error_commutator_cs(ham):
-    '''Compute the commutator error for a closed-shell wavefunction
-
-       **Arguments:**
-
-       ham
-            A Hamiltonian instance.
-
-       **Returns:**
-
-       error
-            The commutator error. This measure (not this function) is also used
-            in the SCF algorithm to check for convergence.
-    '''
-    lf = ham.system.lf
-    wfn = ham.system.wfn
-    overlap = ham.system.get_overlap()
-    fock = lf.create_one_body()
-    work = lf.create_one_body()
-    commutator = lf.create_one_body()
-    # Construct the Fock operator
-    ham.compute_fock(fock, None)
-    # Compute commutator
-    compute_commutator(wfn.dm_alpha, fock, overlap, work, commutator)
-    # Compute norm
-    normsq = commutator.expectation_value(commutator)
-    return np.sqrt(normsq)
-
-
-def convergence_error_commutator_os(ham):
-    '''Compute the commutator error for an open-shell wavefunction
-
-       **Arguments:**
-
-       ham
-            A Hamiltonian instance.
-
-       **Returns:**
-
-       error
-            The maximum of the alpha and beta commutator errors. This measure
-            (not this function) is also used in some SCF algorithms to check for
-            convergence.
-    '''
-    lf = ham.system.lf
-    wfn = ham.system.wfn
-    overlap = ham.system.get_overlap()
-    fock_alpha = lf.create_one_body()
-    fock_beta = lf.create_one_body()
-    # Construct the Fock operators
-    ham.compute_fock(fock_alpha, fock_beta)
-    # Compute stuff for alpha
-    compute_commutator(wfn.dm_alpha, fock_alpha, overlap, work, commutator)
-    normsq_alpha = commutator.expectation_value(commutator)
-    # Compute stuff for beta
-    compute_commutator(wfn.dm_beta, fock_beta, overlap, work, commutator)
-    normsq_beta = commutator.expectation_value(commutator)
-    return np.sqrt(max(normsq_alpha, normsq_beta))

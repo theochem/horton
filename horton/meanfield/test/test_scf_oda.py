@@ -48,18 +48,18 @@ def test_scf_oda_water_hf_321g():
         ExchangeTerm(er, sys.lf, sys.wfn),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham = Hamiltonian(sys, terms)
+    ham = Hamiltonian(terms)
 
     # test continuation of interupted scf_oda
     guess_core_hamiltonian(sys.wfn, olp, kin, nai)
     e0 = ham.compute()
-    assert convergence_error_eigen(ham) > 1e-5
+    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) > 1e-5
     with assert_raises(NoSCFConvergence):
-        converge_scf_oda(ham, threshold=1e-2, maxiter=3)
+        converge_scf_oda(ham, sys.wfn, sys.lf, olp, threshold=1e-2, maxiter=3)
     assert 'exp_alpha' in sys.wfn._cache
     e1 = ham.compute()
     with assert_raises(NoSCFConvergence):
-        converge_scf_oda(ham, threshold=1e-2, maxiter=3)
+        converge_scf_oda(ham, sys.wfn, sys.lf, olp, threshold=1e-2, maxiter=3)
     e2 = ham.compute()
     assert e1 < e0
     assert e2 < e1
@@ -81,24 +81,24 @@ def test_scf_oda_lih_hfs_321g():
         ]),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham = Hamiltonian(sys, terms)
+    ham = Hamiltonian(terms)
 
     # test continuation of interupted scf_oda
     guess_core_hamiltonian(sys.wfn, olp, kin, nai)
     e0 = ham.compute()
-    assert convergence_error_eigen(ham) > 1e-5
+    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) > 1e-5
     with assert_raises(NoSCFConvergence):
-        converge_scf_oda(ham, threshold=1e-8, maxiter=3)
+        converge_scf_oda(ham, sys.wfn, sys.lf, olp, threshold=1e-8, maxiter=3)
     assert 'exp_alpha' in sys.wfn._cache
     e1 = ham.compute()
     with assert_raises(NoSCFConvergence):
-        converge_scf_oda(ham, threshold=1e-8, maxiter=3)
+        converge_scf_oda(ham, sys.wfn, sys.lf, olp, threshold=1e-8, maxiter=3)
     e2 = ham.compute()
     assert e1 < e0
     assert e2 < e1
 
     # continue till convergence
-    converge_scf_oda(ham, threshold=1e-8)
+    converge_scf_oda(ham, sys.wfn, sys.lf, olp, threshold=1e-8)
 
 
 def test_find_min_cubic():
@@ -141,10 +141,10 @@ def test_scf_oda_aufbau_spin():
         ExchangeTerm(er, sys.lf, sys.wfn),
         OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
     ]
-    ham = Hamiltonian(sys, terms)
+    ham = Hamiltonian(terms)
 
     guess_core_hamiltonian(sys.wfn, olp, kin, nai)
-    converge_scf_oda(ham)
+    converge_scf_oda(ham, sys.wfn, sys.lf, olp)
 
 
 def test_check_dm():
