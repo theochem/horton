@@ -54,7 +54,7 @@ class BeckeMolGrid(IntGrid):
            **Optional arguments:**
 
            pseudo_numbers
-                An array (N,) with atomic point charges. When not given, this
+                An array (N,) with effective core charges. When not given, this
                 defaults to ``numbers``.
 
            agspec
