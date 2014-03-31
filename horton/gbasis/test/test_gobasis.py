@@ -25,6 +25,7 @@ import numpy as np
 from nose.tools import assert_raises
 
 from horton import *
+from horton.io.test.common import compare_operator
 
 
 def test_shell_nbasis():
@@ -424,3 +425,39 @@ def test_gobasis_desc_index_map():
     # Li
     assert (obasis.shell_map[3:] == 2).all()
     assert (obasis.nprims[3:] == [3, 1, 1, 1, 1, 1, 1, 1, 1, 1]).all()
+
+
+def test_gobasis_output_args_overlap():
+    mol = Molecule.from_file(context.get_fn('test/water.xyz'))
+    obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
+    olp1 = mol.lf.create_one_body(obasis.nbasis)
+    obasis.compute_overlap(olp1)
+    olp2 = obasis.compute_overlap(mol.lf)
+    compare_operator(olp1, olp2)
+
+
+def test_gobasis_output_args_kinetic():
+    mol = Molecule.from_file(context.get_fn('test/water.xyz'))
+    obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
+    kin1 = mol.lf.create_one_body(obasis.nbasis)
+    obasis.compute_kinetic(kin1)
+    kin2 = obasis.compute_kinetic(mol.lf)
+    compare_operator(kin1, kin2)
+
+
+def test_gobasis_output_args_nuclear_attraction():
+    mol = Molecule.from_file(context.get_fn('test/water.xyz'))
+    obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
+    nai1 = mol.lf.create_one_body(obasis.nbasis)
+    obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, nai1)
+    nai2 = obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    compare_operator(nai1, nai2)
+
+
+def test_gobasis_output_args_electron_repulsion():
+    mol = Molecule.from_file(context.get_fn('test/water.xyz'))
+    obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
+    er1 = mol.lf.create_two_body(obasis.nbasis)
+    obasis.compute_electron_repulsion(er1)
+    er2 = obasis.compute_electron_repulsion(mol.lf)
+    compare_operator(er1, er2)

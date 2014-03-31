@@ -38,6 +38,7 @@ cimport iter_pow
 import atexit
 
 from horton.log import log
+from horton.matrix import LinalgFactory
 
 
 __all__ = [
@@ -482,40 +483,80 @@ cdef class GOBasis(GBasis):
         assert matrix.shape[2] == self.nbasis
         assert matrix.shape[3] == self.nbasis
 
-    def compute_overlap(self, overlap):
-        """Compute the overlap matrix in a Gaussian orbital basis."""
-        cdef np.ndarray[double, ndim=2] output = overlap._array
-        self.check_matrix_one_body(output)
-        gobasis = <gbasis.GOBasis*>self._this
-        (<gbasis.GOBasis*>self._this).compute_overlap(&output[0, 0])
+    def compute_overlap(self, output):
+        """Compute the overlap matrix in a Gaussian orbital basis.
 
-    def compute_kinetic(self, kinetic):
+           **Arguments:**
+
+           output
+                This can either be a OneBody instance (used to write the output
+                to) or a LinalgFactory (used to allocate the output operator).
+                In both cases, the resulting operator is returned.
+        """
+        # prepare the output array
+        cdef np.ndarray[double, ndim=2] output_array
+        if isinstance(output, LinalgFactory):
+            lf = output
+            output = lf.create_one_body(self.nbasis)
+        output_array = output._array
+        self.check_matrix_one_body(output_array)
+        # call the low-level routine
+        (<gbasis.GOBasis*>self._this).compute_overlap(&output_array[0, 0])
+        # done
+        return output
+
+    def compute_kinetic(self, output):
         """Compute the kinetic energy matrix in a Gaussian orbital basis."""
-        cdef np.ndarray[double, ndim=2] output = kinetic._array
-        self.check_matrix_one_body(output)
-        (<gbasis.GOBasis*>self._this).compute_kinetic(&output[0, 0])
+        # prepare the output array
+        cdef np.ndarray[double, ndim=2] output_array
+        if isinstance(output, LinalgFactory):
+            lf = output
+            output = lf.create_one_body(self.nbasis)
+        output_array = output._array
+        self.check_matrix_one_body(output_array)
+        # call the low-level routine
+        (<gbasis.GOBasis*>self._this).compute_kinetic(&output_array[0, 0])
+        # done
+        return output
 
     def compute_nuclear_attraction(self,
                                    np.ndarray[double, ndim=1] charges not None,
                                    np.ndarray[double, ndim=2] centers not None,
-                                   nuclear_attraction):
+                                   output):
         """Compute the kintic energy matrix in a Gaussian orbital basis."""
-        cdef np.ndarray[double, ndim=2] output = nuclear_attraction._array
-        self.check_matrix_one_body(output)
+        # check arguments
         assert charges.flags['C_CONTIGUOUS']
         cdef long ncharge = charges.shape[0]
         assert centers.flags['C_CONTIGUOUS']
         assert centers.shape[0] == ncharge
         assert centers.shape[1] == 3
+        # prepare the output array
+        cdef np.ndarray[double, ndim=2] output_array
+        if isinstance(output, LinalgFactory):
+            lf = output
+            output = lf.create_one_body(self.nbasis)
+        output_array = output._array
+        self.check_matrix_one_body(output_array)
+        # call the low-level routine
         (<gbasis.GOBasis*>self._this).compute_nuclear_attraction(
             &charges[0], &centers[0, 0], ncharge,
-            &output[0, 0],
+            &output_array[0, 0],
         )
+        # done
+        return output
 
-    def compute_electron_repulsion(self, electron_repulsion):
-        cdef np.ndarray[double, ndim=4] output = electron_repulsion._array
-        self.check_matrix_two_body(output)
-        (<gbasis.GOBasis*>self._this).compute_electron_repulsion(&output[0, 0, 0, 0])
+    def compute_electron_repulsion(self, output):
+        # prepare the output array
+        cdef np.ndarray[double, ndim=4] output_array
+        if isinstance(output, LinalgFactory):
+            lf = output
+            output = lf.create_two_body(self.nbasis)
+        output_array = output._array
+        self.check_matrix_two_body(output_array)
+        # call the low-level routine
+        (<gbasis.GOBasis*>self._this).compute_electron_repulsion(&output_array[0, 0, 0, 0])
+        # done
+        return output
 
     def compute_grid_orbitals_exp(self, exp,
                                   np.ndarray[double, ndim=2] points not None,
