@@ -270,15 +270,15 @@ def test_uig_eval_spline_add_random():
 def test_weight_corrections():
     from horton.part.test.common import get_fake_co
 
-    sys, ugrid, mol_dens, proatomdb = get_fake_co()
+    coordinates, numbers, ugrid, mol_dens, proatomdb = get_fake_co()
 
     funcs = [
-        (sys.coordinates[0], [
+        (coordinates[0], [
             #proatomdb.get_spline(6, +1),
             proatomdb.get_spline(6,  0),
             #proatomdb.get_spline(6, -1),
         ]),
-        (sys.coordinates[1], [
+        (coordinates[1], [
             #proatomdb.get_spline(8, +1),
             proatomdb.get_spline(8,  0),
             #proatomdb.get_spline(8, -1),

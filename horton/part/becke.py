@@ -34,40 +34,23 @@ __all__ = ['BeckeWPart']
 
 
 class BeckeWPart(WPart):
+    '''Becke partitioning with Becke-Lebedev grids'''
+
     name = 'b'
-    options = ['slow', 'lmax', 'epsilon', 'k']
+    options = ['lmax', 'k']
     linear = True
 
-    '''Class for Becke partitioning'''
-    def __init__(self, system, grid, local=True, slow=False, lmax=3, epsilon=0, k=3):
+    def __init__(self, coordinates, numbers, pseudo_numbers, grid, moldens,
+                 spindens=None, local=True, lmax=3, k=3):
         '''
-           **Arguments:**
-
-           grid
-                A Molecular integration grid
-
-           **Optional arguments:**
-
-           local
-                If ``True``: use the proper atomic grid for each AIM integral.
-                If ``False``: use the entire molecular grid for each AIM integral.
-
-           slow
-                When ``True``, also the AIM properties are computed that use the
-                AIM overlap operators.
-
-           lmax
-                The maximum angular momentum in multipole expansions.
-
-           epsilon
-                Allow errors on the computed electron density of this magnitude
-                for the sake of efficiency.
+           **Optional arguments:** (that are not defined in ``WPart``)
 
            k
                 The order of the polynomials used in the Becke partitioning.
         '''
         self._k = k
-        WPart.__init__(self, system, grid, local, slow, lmax, epsilon)
+        WPart.__init__(self, coordinates, numbers, pseudo_numbers, grid,
+                       moldens, spindens, local, lmax)
 
     def _init_log_scheme(self):
         if log.do_medium:
@@ -86,7 +69,7 @@ class BeckeWPart(WPart):
         # The list of radii is constructed to be as close as possible to
         # the original values used by Becke.
         radii = []
-        for number in self.system.numbers:
+        for number in self.numbers:
             if number == 1:
                 radius = 0.35*angstrom # exception defined in Becke's paper
             else:
@@ -97,12 +80,12 @@ class BeckeWPart(WPart):
         radii = np.array(radii)
 
         # Actual work
-        pb = log.progress(self.system.natom)
-        for index in xrange(self.system.natom):
+        pb = log.progress(self.natom)
+        for index in xrange(self.natom):
             grid = self.get_grid(index)
             at_weights = self.cache.load('at_weights', index, alloc=grid.shape)[0]
             at_weights[:] = 1
-            becke_helper_atom(grid.points, at_weights, radii, self.system.coordinates, index, self._k)
+            becke_helper_atom(grid.points, at_weights, radii, self.coordinates, index, self._k)
             pb()
 
     def _get_k(self):

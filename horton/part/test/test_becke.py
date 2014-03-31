@@ -28,11 +28,12 @@ from horton import *
 
 def test_becke_n2_hfs_sto3g():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    sys = System.from_file(fn_fchk)
+    mol = Molecule.from_file(fn_fchk)
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf)
-    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, (rgrid, 110), random_rotate=False, mode='only')
-    bp = BeckeWPart(sys, grid)
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, (rgrid, 110), random_rotate=False, mode='only')
+    moldens = mol.obasis.compute_grid_density_dm(mol.wfn.dm_full, grid.points)
+    bp = BeckeWPart(mol.coordinates, mol.numbers, mol.pseudo_numbers, grid, moldens)
     bp.do_populations()
     assert abs(bp['populations'] - 7).max() < 1e-4
     bp.do_charges()
@@ -47,53 +48,29 @@ def test_becke_n2_hfs_sto3g():
 
 def test_becke_nonlocal_lih_hf_321g():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
-    sys = System.from_file(fn_fchk)
+    mol = Molecule.from_file(fn_fchk)
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf)
 
-    grid1 = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, (rgrid, 110), random_rotate=False, mode='only')
-    bp1 = BeckeWPart(sys, grid1)
+    grid1 = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, (rgrid, 110), random_rotate=False, mode='only')
+    moldens = mol.obasis.compute_grid_density_dm(mol.wfn.dm_full, grid1.points)
+    bp1 = BeckeWPart(mol.coordinates, mol.numbers, mol.pseudo_numbers, grid1, moldens)
 
-    grid2 = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, (rgrid, 110), random_rotate=False, mode='discard')
-    bp2 = BeckeWPart(sys, grid2, local=False)
+    grid2 = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, (rgrid, 110), random_rotate=False, mode='discard')
+    moldens = mol.obasis.compute_grid_density_dm(mol.wfn.dm_full, grid2.points)
+    bp2 = BeckeWPart(mol.coordinates, mol.numbers, mol.pseudo_numbers, grid2, moldens, local=False)
 
     bp1.do_charges()
     bp2.do_charges()
     assert abs(bp1['charges'] - bp2['charges']).max() < 5e-4
 
 
-def test_becke_update_grid_lih_hf_321g():
-    fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
-    sys = System.from_file(fn_fchk)
-
-    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'tv-13.7-3', random_rotate=True, mode='only')
-    bp = BeckeWPart(sys, grid)
-    bp.do_charges()
-    c1 = bp['charges']
-    md1 = bp['moldens']
-    bp.update_grid(grid)
-    assert c1 is bp['charges']
-    assert md1 is bp['moldens']
-    c1 = c1.copy() # c1 will be reused otherwise
-
-    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'tv-13.7-4', random_rotate=True, mode='only')
-    bp.update_grid(grid)
-    assert len(bp.cache) == 0
-    assert bp.grid is grid
-    bp.do_charges()
-    c2 = bp['charges']
-    md2 = bp['moldens']
-
-    assert not md1 is md2
-    assert not c1 is c2
-    assert abs(c1 - c2).max() > 0
-
-
 def check_becke_azirine(key, expected):
     fn_fchk = context.get_fn('test/2h-azirine-%s.fchk' % key)
-    sys = System.from_file(fn_fchk)
-    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False, mode='only')
-    bp = BeckeWPart(sys, grid)
+    mol = Molecule.from_file(fn_fchk)
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False, mode='only')
+    moldens = mol.obasis.compute_grid_density_dm(mol.wfn.dm_full, grid.points)
+    bp = BeckeWPart(mol.coordinates, mol.numbers, mol.pseudo_numbers, grid, moldens)
     bp.do_charges()
     c = bp['charges']
     assert abs(c[0] - expected[0]) < 1e-3
@@ -119,9 +96,11 @@ def test_becke_azirine_mp3():
 
 def test_becke_ch3_hf_sto3g():
     fn_fchk = context.get_fn('test/ch3_hf_sto3g.fchk')
-    sys = System.from_file(fn_fchk)
-    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False, mode='only')
-    bp = BeckeWPart(sys, grid)
+    mol = Molecule.from_file(fn_fchk)
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False, mode='only')
+    moldens = mol.obasis.compute_grid_density_dm(mol.wfn.dm_full, grid.points)
+    spindens = mol.obasis.compute_grid_density_dm(mol.wfn.dm_spin, grid.points)
+    bp = BeckeWPart(mol.coordinates, mol.numbers, mol.pseudo_numbers, grid, moldens, spindens)
     bp.do_all()
     sc = bp['spin_charges']
     assert abs(sc - [1.08458698, -0.02813376, -0.02813376, -0.02815979]).max() < 1e-3

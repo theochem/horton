@@ -34,7 +34,7 @@ class IterativeProatomMixin():
     def compute_change(self, propars1, propars2):
         '''Compute the difference between an old and a new proatoms'''
         msd = 0.0 # mean-square deviation
-        for index in xrange(self.system.natom):
+        for index in xrange(self.natom):
             rgrid = self.get_rgrid(index)
             rho1, deriv1 = self.get_proatom_rho(index, propars1)
             rho2, deriv2 = self.get_proatom_rho(index, propars2)
@@ -54,7 +54,7 @@ class IterativeProatomMixin():
         self.update_at_weights()
 
         # Update the proatoms
-        for index in xrange(self.system.natom):
+        for index in xrange(self.natom):
             self._update_propars_atom(index)
 
         # Keep track of history
@@ -67,19 +67,16 @@ class IterativeProatomMixin():
         charges = self._cache.load('charges')
         self.cache.dump('history_propars', np.array(self.history_propars), tags='o')
         self.cache.dump('history_charges', np.array(self.history_charges), tags='o')
-        self.cache.dump('populations', self.system.numbers - charges, tags='o')
-        self.cache.dump('pseudo_populations', self.system.pseudo_numbers - charges, tags='o')
+        self.cache.dump('populations', self.numbers - charges, tags='o')
+        self.cache.dump('pseudo_populations', self.pseudo_numbers - charges, tags='o')
 
     @just_once
     def do_partitioning(self):
         # Perform one general check in the beginning to avoid recomputation
-        new = any(('at_weights', i) not in self.cache for i in xrange(self.system.natom))
+        new = any(('at_weights', i) not in self.cache for i in xrange(self.natom))
         new |= 'niter' not in self.cache
         new |= 'change'not in self.cache
         if new:
-            # Need to compute density
-            self.do_moldens()
-
             propars = self._init_propars()
             if log.medium:
                 log.hline()
@@ -112,15 +109,30 @@ class IterativeProatomMixin():
 
 
 class IterativeStockholderWPart(IterativeProatomMixin, StockholderWPart):
-    '''Class for Iterative Stockholder Partitioning'''
+    '''Iterative Stockholder Partitioning with Becke-Lebedev grids'''
     name = 'is'
-    options = ['slow', 'lmax', 'threshold', 'maxiter', 'epsilon']
+    options = ['lmax', 'threshold', 'maxiter']
     linear = False
 
-    def __init__(self, system, grid, slow=False, lmax=3, epsilon=0, threshold=1e-6, maxiter=500):
+    def __init__(self, coordinates, numbers, pseudo_numbers, grid, moldens,
+                 spindens=None, lmax=3, threshold=1e-6, maxiter=500):
+        '''
+           **Optional arguments:** (that are not defined in ``WPart``)
+
+           threshold
+                The procedure is considered to be converged when the maximum
+                change of the charges between two iterations drops below this
+                threshold.
+
+           maxiter
+                The maximum number of iterations. If no convergence is reached
+                in the end, no warning is given.
+                Reduce the CPU cost at the expense of more memory consumption.
+        '''
         self._threshold = threshold
         self._maxiter = maxiter
-        StockholderWPart.__init__(self, system, grid, True, slow, lmax, epsilon)
+        StockholderWPart.__init__(self, coordinates, numbers, pseudo_numbers,
+                                  grid, moldens, spindens, True, lmax)
 
     def _init_log_scheme(self):
         if log.do_medium:
@@ -142,7 +154,7 @@ class IterativeStockholderWPart(IterativeProatomMixin, StockholderWPart):
     def _init_propars(self):
         IterativeProatomMixin._init_propars(self)
         self._ranges = [0]
-        for index in xrange(self.system.natom):
+        for index in xrange(self.natom):
             npoint = self.get_rgrid(index).size
             self._ranges.append(self._ranges[-1]+npoint)
         ntotal = self._ranges[-1]
@@ -163,5 +175,5 @@ class IterativeStockholderWPart(IterativeProatomMixin, StockholderWPart):
 
         # compute the new charge
         pseudo_population = radial_results.sum()
-        charges = self.cache.load('charges', alloc=self.system.natom, tags='o')[0]
-        charges[index] = self.system.pseudo_numbers[index] - pseudo_population
+        charges = self.cache.load('charges', alloc=self.natom, tags='o')[0]
+        charges[index] = self.pseudo_numbers[index] - pseudo_population

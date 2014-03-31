@@ -78,11 +78,11 @@ class StockHolderMixin(object):
         return CubicSpline(rho, deriv, rtf)
 
     def eval_spline(self, index, spline, output, grid=None, label='noname'):
-        center = self.system.coordinates[index]
+        center = self.coordinates[index]
         if grid is None:
             grid = self.get_grid(index)
         if log.do_debug:
-            number = self.system.numbers[index]
+            number = self.numbers[index]
             log('  Evaluating spline (%s) for atom %i (n=%i) on %i grid points' % (label, index, number, grid.size))
         grid.eval_spline(spline, center, output)
 
@@ -101,14 +101,14 @@ class StockHolderMixin(object):
 
         # update the promolecule density and store the proatoms in the at_weights
         # arrays for later.
-        for index in xrange(self.system.natom):
+        for index in xrange(self.natom):
             grid = self.get_grid(index)
             at_weights = self.cache.load('at_weights', index, alloc=grid.shape)[0]
             self.update_pro(index, at_weights, promoldens)
 
         # Compute the atomic weights by taking the ratios between proatoms and
         # promolecules.
-        for index in xrange(self.system.natom):
+        for index in xrange(self.natom):
             at_weights = self.cache.load('at_weights', index)
             at_weights /= self.to_atomic_grid(index, promoldens)
             np.clip(at_weights, 0, 1, out=at_weights)

@@ -35,8 +35,8 @@ def check_water_hf_sto3g(scheme, expecting, needs_padb=True, **kwargs):
 
     # Get the molecule
     fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
-    sys = System.from_file(fn_fchk)
-    sys.wfn.update_dm('alpha')
+    mol = Molecule.from_file(fn_fchk)
+    mol.wfn.update_dm('alpha')
 
     # Create a grid for the partitioning
     rtf = ExpRTransform(5e-4, 2e1, 120)
@@ -44,9 +44,10 @@ def check_water_hf_sto3g(scheme, expecting, needs_padb=True, **kwargs):
 
     # Do the partitioning
     mode = 'only' if kwargs.get('local', True) else 'discard'
-    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, (rgrid, 110), random_rotate=False, mode=mode)
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, (rgrid, 110), random_rotate=False, mode=mode)
+    moldens = mol.obasis.compute_grid_density_dm(mol.wfn.dm_full, grid.points)
     WPartClass = wpart_schemes[scheme]
-    wpart = WPartClass(sys, grid,  **kwargs)
+    wpart = WPartClass(mol.coordinates, mol.numbers, mol.pseudo_numbers, grid, moldens,  **kwargs)
     names = wpart.do_all()
     check_names(names, wpart)
     assert abs(wpart['charges'] - expecting).max() < 2e-3
@@ -119,7 +120,7 @@ def check_msa_hf_lan(scheme, expecting, needs_padb=True, **kwargs):
 
     # Get the molecule
     fn_fchk = context.get_fn('test/monosilicic_acid_hf_lan.fchk')
-    sys = System.from_file(fn_fchk)
+    mol = Molecule.from_file(fn_fchk)
 
     # Create a grid for the partitioning
     rtf = ExpRTransform(5e-4, 2e1, 120)
@@ -127,9 +128,10 @@ def check_msa_hf_lan(scheme, expecting, needs_padb=True, **kwargs):
 
     # Do the partitioning, both with local and global grids
     mode = 'only' if kwargs.get('local', True) else 'discard'
-    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, (rgrid, 110), random_rotate=False, mode=mode)
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, (rgrid, 110), random_rotate=False, mode=mode)
+    moldens = mol.obasis.compute_grid_density_dm(mol.wfn.dm_full, grid.points)
     WPartClass = wpart_schemes[scheme]
-    wpart = WPartClass(sys, grid, **kwargs)
+    wpart = WPartClass(mol.coordinates, mol.numbers, mol.pseudo_numbers, grid, moldens, **kwargs)
     wpart.do_charges()
     assert abs(wpart['charges'] - expecting).max() < 4e-3
 

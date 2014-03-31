@@ -33,24 +33,27 @@ def check_jbw_coarse(local):
 
     # Load the cube file
     fn_cube = context.get_fn('test/jbw_coarse_aedens.cube')
-    sys = System.from_file(fn_cube)
-    mol_dens = sys.extra['cube_data']
-    ugrid = sys.grid
+    mol = Molecule.from_file(fn_cube)
+    moldens = mol.cube_data
+    ugrid = mol.grid
 
     # Load some pro-atoms
     proatomdb = ProAtomDB.from_refatoms(numbers=[8,14], max_kation=0, max_anion=0)
 
     # Run the partitioning
-    cpart = HirshfeldCPart(sys, ugrid, local, mol_dens, proatomdb, range(119))
+    cpart = HirshfeldCPart(mol.coordinates, mol.numbers, mol.pseudo_numbers,
+                           ugrid, moldens, proatomdb, local=local,
+                           wcor_numbers=range(119))
 
     # Do some testing
+    assert cpart.local == local
     if local:
         names = cpart.do_all()
         check_names(names, cpart)
     else:
         cpart.do_charges()
         wcor = cpart.get_wcor()
-        assert abs(cpart['populations'].sum() - ugrid.integrate(wcor, mol_dens)) < 1e-10
+        assert abs(cpart['pseudo_populations'].sum() - ugrid.integrate(wcor, moldens)) < 1e-10
 
 
 def test_hirshfeld_jbw_coarse_local():
@@ -63,9 +66,10 @@ def test_hirshfeld_jbw_coarse_global():
 
 def check_fake(scheme, pseudo, dowcor, local, absmean, **kwargs):
     if pseudo:
-        sys, ugrid, mol_dens, proatomdb = get_fake_pseudo_oo()
+        coordinates, numbers, pseudo_numbers, ugrid, moldens, proatomdb = get_fake_pseudo_oo()
     else:
-        sys, ugrid, mol_dens, proatomdb = get_fake_co()
+        coordinates, numbers, ugrid, moldens, proatomdb = get_fake_co()
+        pseudo_numbers = numbers.astype(float)
 
     if dowcor:
         wcor_numbers = range(119)
@@ -73,8 +77,11 @@ def check_fake(scheme, pseudo, dowcor, local, absmean, **kwargs):
         wcor_numbers = []
 
     CPartClass = cpart_schemes[scheme]
-    cpart = CPartClass(sys, ugrid, local, mol_dens, proatomdb, wcor_numbers, **kwargs)
+    cpart = CPartClass(coordinates, numbers, pseudo_numbers, ugrid,
+                       moldens, proatomdb, local=local,
+                       wcor_numbers=wcor_numbers, **kwargs)
 
+    assert cpart.local == local
     cpart.do_charges()
     charges = cpart['charges']
     print abs(charges.sum()), abs(charges).mean(), abs(abs(charges).mean() - absmean)

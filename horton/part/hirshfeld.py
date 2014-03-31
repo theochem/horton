@@ -29,12 +29,12 @@ from horton.part.stockholder import StockholderWPart, StockholderCPart
 __all__ = ['HirshfeldWPart', 'HirshfeldCPart']
 
 
-def check_proatomdb(system, proatomdb):
+def check_proatomdb(numbers, pseudo_numbers, proatomdb):
     # Check if the same pseudo numbers (effective core charges) are used for the
-    # system and the proatoms.
-    for i in xrange(system.natom):
-        number = system.numbers[i]
-        pseudo_number = system.pseudo_numbers[i]
+    # molecule and the proatoms.
+    for i in xrange(len(numbers)):
+        number = numbers[i]
+        pseudo_number = pseudo_numbers[i]
         pseudo_number_expected = proatomdb.get_record(number, 0).pseudo_number
         if pseudo_number_expected != pseudo_number:
             raise ValueError('The pseudo number of atom %i does not match with the proatom database (%i!=%i)' % (
@@ -43,10 +43,11 @@ def check_proatomdb(system, proatomdb):
 
 class HirshfeldMixin(object):
     name = 'h'
-    options = ['slow', 'lmax']
+    options = ['lmax']
     linear = True
 
-    def __init__(self, proatomdb):
+    def __init__(self, numbers, pseudo_numbers, proatomdb):
+        check_proatomdb(numbers, pseudo_numbers, proatomdb)
         self._proatomdb = proatomdb
 
     def _init_log_scheme(self):
@@ -63,11 +64,11 @@ class HirshfeldMixin(object):
     proatomdb = property(_get_proatomdb)
 
     def get_rgrid(self, index):
-        number = self.system.numbers[index]
+        number = self.numbers[index]
         return self.proatomdb.get_rgrid(number)
 
     def get_proatom_rho(self, index):
-        return self.proatomdb.get_rho(self._system.numbers[index], do_deriv=True)
+        return self.proatomdb.get_rho(self.numbers[index], do_deriv=True)
 
     @just_once
     def do_dispersion(self):
@@ -91,9 +92,9 @@ class HirshfeldMixin(object):
             3175.0, 49: 779.0, 50: 659.0, 51: 492.0, 52: 445.0, 53: 385.0,
         }
 
-        volumes, new_volumes = self._cache.load('volumes', alloc=self.system.natom, tags='o')
-        volume_ratios, new_volume_ratios = self._cache.load('volume_ratios', alloc=self.system.natom, tags='o')
-        c6s, new_c6s = self._cache.load('c6s', alloc=self.system.natom, tags='o')
+        volumes, new_volumes = self._cache.load('volumes', alloc=self.natom, tags='o')
+        volume_ratios, new_volume_ratios = self._cache.load('volume_ratios', alloc=self.natom, tags='o')
+        c6s, new_c6s = self._cache.load('c6s', alloc=self.natom, tags='o')
 
         if new_volumes or new_volume_ratios or new_c6s:
             self.do_populations()
@@ -104,8 +105,8 @@ class HirshfeldMixin(object):
             if log.do_medium:
                 log('Computing atomic dispersion coefficients.')
 
-            for i in xrange(self.system.natom):
-                n = self.system.numbers[i]
+            for i in xrange(self.natom):
+                n = self.numbers[i]
                 volumes[i] = radial_moments[i,2]/populations[i]
                 ref_volume = self.proatomdb.get_record(n, 0).get_moment(3)/n
                 volume_ratios[i] = volumes[i]/ref_volume
@@ -116,22 +117,39 @@ class HirshfeldMixin(object):
 
 
 class HirshfeldWPart(HirshfeldMixin, StockholderWPart):
-    options = HirshfeldMixin.options + ['epsilon']
+    '''Hirshfeld partitioning with Becke-Lebedev grids'''
 
-    def __init__(self, system, grid, proatomdb, local=True, slow=False, lmax=3, epsilon=0):
-        check_proatomdb(system, proatomdb)
-        HirshfeldMixin. __init__(self, proatomdb)
-        StockholderWPart.__init__(self, system, grid, local, slow, lmax, epsilon)
+    def __init__(self, coordinates, numbers, pseudo_numbers, grid, moldens,
+                 proatomdb, spindens=None, local=True, lmax=3):
+        '''
+           **Arguments:** (that are not defined in ``WPart``)
+
+           proatomdb
+                In instance of ProAtomDB that contains all the reference atomic
+                densities.
+        '''
+        HirshfeldMixin. __init__(self, numbers, pseudo_numbers, proatomdb)
+        StockholderWPart.__init__(self, coordinates, numbers, pseudo_numbers,
+                                  grid, moldens, spindens, local, lmax)
 
 
 class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
-    def __init__(self, system, grid, local, moldens, proatomdb, wcor_numbers=None, wcor_rcut_max=2.0, wcor_rcond=0.1, lmax=3):
+    '''Hirshfeld partitioning with uniform grids'''
+
+    def __init__(self, coordinates, numbers, pseudo_numbers, grid, moldens,
+                 proatomdb, spindens=None, local=True, lmax=3,
+                 wcor_numbers=None, wcor_rcut_max=2.0, wcor_rcond=0.1):
         '''
-           See CPart base class for the description of the arguments.
+           **Arguments:** (that are not defined in ``CPart``)
+
+           proatomdb
+                In instance of ProAtomDB that contains all the reference atomic
+                densities.
         '''
-        check_proatomdb(system, proatomdb)
-        HirshfeldMixin. __init__(self, proatomdb)
-        StockholderCPart.__init__(self, system, grid, local, moldens, wcor_numbers, wcor_rcut_max, wcor_rcond, lmax)
+        HirshfeldMixin. __init__(self, numbers, pseudo_numbers, proatomdb)
+        StockholderCPart.__init__(self, coordinates, numbers, pseudo_numbers,
+                                  grid, moldens, spindens, local, lmax,
+                                  wcor_numbers, wcor_rcut_max, wcor_rcond)
 
     def get_cutoff_radius(self, index):
         '''The radius at which the weight function goes to zero'''
@@ -139,8 +157,8 @@ class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
         return rtf.radius(rtf.npoint-1)
 
     def get_wcor_funcs(self, index):
-        number = self.system.numbers[index]
+        number = self.numbers[index]
         if number in self.wcor_numbers:
-            return [(self._system.coordinates[index], [self._proatomdb.get_spline(number)])]
+            return [(self.coordinates[index], [self._proatomdb.get_spline(number)])]
         else:
             return []

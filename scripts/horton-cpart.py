@@ -21,9 +21,9 @@
 #--
 
 
-import sys, argparse, os, numpy as np
+import argparse, os, numpy as np
 
-from horton import System, Molecule, cpart_schemes, Cell, ProAtomDB, log, \
+from horton import Molecule, cpart_schemes, Cell, ProAtomDB, log, \
     symmetry_analysis, UniformGrid, __version__
 from horton.scripts.common import reduce_data, store_args, parse_pbc, \
     iter_elements, write_part_output, parse_h5, check_output
@@ -119,13 +119,13 @@ def main():
     if check_output(fn_h5, grp_name, args.overwrite):
         return
 
-    # Load the system
-    sys = System.from_file(args.cube)
-    ugrid = sys.grid
+    # Load the Molecule
+    mol = Molecule.from_file(args.cube)
+    ugrid = mol.grid
     if not isinstance(ugrid, UniformGrid):
         raise TypeError('The specified file does not contain data on a rectangular grid.')
     ugrid.pbc[:] = parse_pbc(args.pbc)
-    moldens = sys.extra['cube_data']
+    moldens = mol.cube_data
 
     # Reduce the grid if required
     if args.stride > 1 or args.chop > 0:
@@ -146,8 +146,9 @@ def main():
     # Run the partitioning
     kwargs = dict((key, val) for key, val in vars(args).iteritems() if key in CPartClass.options)
     cpart = cpart_schemes[args.scheme](
-        sys, ugrid, True, moldens, proatomdb, wcor_numbers,
-        args.wcor_rcut_max, args.wcor_rcond, **kwargs)
+        mol.coordinates, mol.numbers, mol.pseudo_numbers, ugrid, moldens, proatomdb,
+        local=True, wcor_numbers=wcor_numbers, wcor_rcut_max=args.wcor_rcut_max,
+        wcor_rcond=args.wcor_rcond, **kwargs)
     names = cpart.do_all()
 
     # Do a symmetry analysis if requested.
@@ -156,7 +157,7 @@ def main():
         if not hasattr(mol_sym, 'symmetry'):
             raise ValueError('No symmetry information found in %s.' % args.symmetry)
         aim_results = dict((name, cpart[name]) for name in names)
-        sym_results = symmetry_analysis(sys.coordinates, sys.cell, mol_sym.symmetry, aim_results)
+        sym_results = symmetry_analysis(mol.coordinates, mol.cell, mol_sym.symmetry, aim_results)
         cpart.cache.dump('symmetry', sym_results)
         names.append('symmetry')
 

@@ -234,7 +234,7 @@ def write_part_output(fn_h5, grp_name, part, keys, args):
                 index = key[1]
                 assert isinstance(index, int)
                 assert index >= 0
-                assert index < part.system.natom
+                assert index < part.natom
                 atom_results = results.setdefault('atom_%05i' % index, {})
                 atom_results[key[0]] = part[key]
         return results

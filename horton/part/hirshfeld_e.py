@@ -197,8 +197,8 @@ class HirshfeldEMixin(object):
     def get_memory_estimates(self):
         if self._greedy:
             return [
-                ('Constant', np.ones(self.system.natom), 0),
-                ('Basis', np.array([self.hebasis.get_atom_nbasis(i) for i in xrange(self.system.natom)]), 0),
+                ('Constant', np.ones(self.natom), 0),
+                ('Basis', np.array([self.hebasis.get_atom_nbasis(i) for i in xrange(self.natom)]), 0),
             ]
         else:
             return []
@@ -207,7 +207,7 @@ class HirshfeldEMixin(object):
         if propars is None:
             propars = self._cache.load('propars')
         lico = self.hebasis.get_total_lico(index, propars)
-        number = self._system.numbers[index]
+        number = self.numbers[index]
         return self._proatomdb.get_rho(number, lico, do_deriv=True)
 
     def get_constant(self, index, grid=None):
@@ -255,7 +255,7 @@ class HirshfeldEMixin(object):
     def _init_propars(self):
         self.history_propars = []
         self.history_charges = []
-        self.cache.load('charges', alloc=self._system.natom, tags='o')[0]
+        self.cache.load('charges', alloc=self.natom, tags='o')[0]
         propar_map, propar_names = self.hebasis.get_basis_info()
         self._cache.dump('propar_map', propar_map, tags='o')
         self._cache.dump('propar_names', np.array(propar_names), tags='o')
@@ -266,7 +266,7 @@ class HirshfeldEMixin(object):
 
     def _update_propars_atom(self, index):
         # Prepare some things
-        charges = self._cache.load('charges', alloc=self.system.natom, tags='o')[0]
+        charges = self._cache.load('charges', alloc=self.natom, tags='o')[0]
         begin = self.hebasis.get_atom_begin(index)
         nbasis = self.hebasis.get_atom_nbasis(index)
 
@@ -335,7 +335,7 @@ class HirshfeldEMixin(object):
         return charge, delta_aim
 
     def _get_he_system(self, index, delta_aim):
-        number = self.system.numbers[index]
+        number = self.numbers[index]
         nbasis = self.hebasis.get_atom_nbasis(index)
         grid = self.get_grid(index)
         wcor_fit = self.get_wcor_fit(index)
@@ -394,10 +394,36 @@ class HirshfeldEMixin(object):
 
 
 class HirshfeldEWPart(HirshfeldEMixin, HirshfeldIWPart):
-    def __init__(self, system, grid, proatomdb, local=True, slow=False, lmax=3, epsilon=0, threshold=1e-6, maxiter=500, greedy=False):
-        hebasis = HEBasis(system.numbers, proatomdb)
+    '''Extended Hirshfeld partitioning with Becke-Lebedev grids'''
+    def __init__(self, coordinates, numbers, pseudo_numbers, grid, moldens,
+                 proatomdb, spindens=None, local=True, lmax=3, threshold=1e-6,
+                 maxiter=500, greedy=False):
+        '''
+           **Arguments:** (that are not defined in ``WPart``)
+
+           proatomdb
+                In instance of ProAtomDB that contains all the reference atomic
+                densities.
+
+           **Optional arguments:** (that are not defined in ``WPart``)
+
+           threshold
+                The procedure is considered to be converged when the maximum
+                change of the charges between two iterations drops below this
+                threshold.
+
+           maxiter
+                The maximum number of iterations. If no convergence is reached
+                in the end, no warning is given.
+
+           greedy
+                Reduce the CPU cost at the expense of more memory consumption.
+        '''
+        hebasis = HEBasis(numbers, proatomdb)
         HirshfeldEMixin.__init__(self, hebasis)
-        HirshfeldIWPart.__init__(self, system, grid, proatomdb, local, slow, lmax, epsilon, threshold, maxiter, greedy)
+        HirshfeldIWPart.__init__(self, coordinates, numbers, pseudo_numbers,
+                                 grid, moldens, proatomdb, spindens, local,
+                                 lmax, threshold, maxiter, greedy)
 
     def get_wcor_fit(self, index):
         return None
@@ -416,19 +442,45 @@ class HirshfeldEWPart(HirshfeldEMixin, HirshfeldIWPart):
 
 
 class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
-    def __init__(self, system, grid, local, moldens, proatomdb, wcor_numbers=None, wcor_rcut_max=2.0, wcor_rcond=0.1, lmax=3, threshold=1e-6, maxiter=500, greedy=False):
+    '''Extended Hirshfeld partitioning with uniform grids'''
+
+    def __init__(self, coordinates, numbers, pseudo_numbers, grid, moldens,
+                 proatomdb, spindens=None, local=True, lmax=3,
+                 wcor_numbers=None, wcor_rcut_max=2.0, wcor_rcond=0.1,
+                 threshold=1e-6, maxiter=500, greedy=False):
         '''
-           See CPart base class for the description of the arguments.
+           **Arguments:** (that are not defined in ``CPart``)
+
+           proatomdb
+                In instance of ProAtomDB that contains all the reference atomic
+                densities.
+
+           **Optional arguments:** (that are not defined in ``CPart``)
+
+           threshold
+                The procedure is considered to be converged when the maximum
+                change of the charges between two iterations drops below this
+                threshold.
+
+           maxiter
+                The maximum number of iterations. If no convergence is reached
+                in the end, no warning is given.
+
+           greedy
+                Reduce the CPU cost at the expense of more memory consumption.
         '''
-        hebasis = HEBasis(system.numbers, proatomdb)
+        hebasis = HEBasis(numbers, proatomdb)
         HirshfeldEMixin.__init__(self, hebasis)
-        HirshfeldICPart.__init__(self, system, grid, local, moldens, proatomdb, wcor_numbers, wcor_rcut_max, wcor_rcond, lmax, threshold, maxiter, greedy)
+        HirshfeldICPart.__init__(self, coordinates, numbers, pseudo_numbers,
+                                 grid, moldens, proatomdb, spindens, local,
+                                 lmax, wcor_numbers, wcor_rcut_max, wcor_rcond,
+                                 threshold, maxiter, greedy)
 
     def get_memory_estimates(self):
         if self.local:
-            row = [('Weight corrections (fit)', np.array([n in self._wcor_numbers for n in self.system.numbers]), 0)]
+            row = [('Weight corrections (fit)', np.array([n in self._wcor_numbers for n in self.numbers]), 0)]
         else:
-            row = [('Weight corrections (fit)', np.zeros(self.system.natom), 1)]
+            row = [('Weight corrections (fit)', np.zeros(self.natom), 1)]
         return (
             HirshfeldCPart.get_memory_estimates(self) +
             HirshfeldEMixin.get_memory_estimates(self) +
@@ -437,10 +489,10 @@ class HirshfeldECPart(HirshfeldEMixin, HirshfeldICPart):
 
     def get_wcor_fit_funcs(self, index):
         # skip wcor if the element is not listed among those who need a correction:
-        if self._system.numbers[index] not in self.wcor_numbers:
+        if self.numbers[index] not in self.wcor_numbers:
             return []
 
-        center = self._system.coordinates[index]
+        center = self.coordinates[index]
         atom_nbasis = self.hebasis.get_atom_nbasis(index)
         rtf = self.get_rgrid(index).rtransform
         splines = []

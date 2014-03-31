@@ -42,7 +42,7 @@ ham.compute()
 log.set_level(log.medium)
 
 # Partition the density with the Becke scheme
-# TODO: fix this when horton.part rewrite is ready
-#grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, mode='keep')
-#bp = BeckeWPart(sys, grid)
-#bp.do_charges()
+grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, mode='keep')
+moldens = obasis.compute_grid_density_dm(wfn.dm_full, grid.points)
+bp = BeckeWPart(mol.coordinates, mol.numbers, mol.pseudo_numbers, grid, moldens)
+bp.do_charges()

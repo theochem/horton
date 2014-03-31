@@ -56,7 +56,6 @@ def get_fake_co():
     # Define system
     numbers = np.array([6, 8])
     coordinates = np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 2.132]])
-    sys = System(coordinates, numbers)
 
     # Load some pro-atoms
     proatomdb = ProAtomDB.from_refatoms(numbers=[6, 8], max_kation=1, max_anion=1)
@@ -74,20 +73,19 @@ def get_fake_co():
         (1, {+1: 0.1, 0: 0.4, -1: 0.5}),
     ]
     for i, lico in setup:
-        n = sys.numbers[i]
-        c = sys.coordinates[i]
+        n = numbers[i]
+        c = coordinates[i]
         spline = proatomdb.get_spline(n, lico)
         ugrid.eval_spline(spline, c, moldens)
 
-    return sys, ugrid, moldens, proatomdb
+    return coordinates, numbers, ugrid, moldens, proatomdb
 
 
 def get_fake_pseudo_oo():
     # Define system
     numbers = np.array([8, 8])
     coordinates = np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 2.132]])
-    pseudo_numbers = np.array([6, 6])
-    sys = System(coordinates, numbers, pseudo_numbers=pseudo_numbers)
+    pseudo_numbers = np.array([6.0, 6.0])
 
     # Load some pro-atoms
     proatomdb = get_proatomdb_cp2k()
@@ -105,12 +103,12 @@ def get_fake_pseudo_oo():
         (1, {+1: 0.1, 0: 0.4, -1: 0.5}),
     ]
     for i, lico in setup:
-        n = sys.numbers[i]
-        c = sys.coordinates[i]
+        n = numbers[i]
+        c = coordinates[i]
         spline = proatomdb.get_spline(n, lico)
         ugrid.eval_spline(spline, c, moldens)
 
-    return sys, ugrid, moldens, proatomdb
+    return coordinates, numbers, pseudo_numbers, ugrid, moldens, proatomdb
 
 
 def check_names(names, part):
@@ -119,7 +117,7 @@ def check_names(names, part):
 
 
 def check_proatom_splines(part):
-    for index in xrange(part.system.natom):
+    for index in xrange(part.natom):
         spline = part.get_proatom_spline(index)
         grid = part.get_grid(index)
         array1 = grid.zeros()
