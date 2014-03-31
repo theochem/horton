@@ -441,7 +441,7 @@ cdef class GBasis:
         tmp = np.PyArray_SimpleNewFromData(1, shape, np.NPY_DOUBLE, <void*> self._this.get_scales(0))
         return tmp.copy()
 
-    # low-level compute routines
+    # low-level compute routines, for debugging only
     def compute_grid_point1(self, np.ndarray[double, ndim=1] output not None,
                             np.ndarray[double, ndim=1] point not None,
                             GB1DMGridFn grid_fn not None):
@@ -561,8 +561,8 @@ cdef class GOBasis(GBasis):
     def compute_grid_orbitals_exp(self, exp,
                                   np.ndarray[double, ndim=2] points not None,
                                   np.ndarray[long, ndim=1] iorbs not None,
-                                  np.ndarray[double, ndim=2] orbs not None):
-        '''Compute the orbtials on a grid for a given set of expansion coefficients.
+                                  np.ndarray[double, ndim=2] output=None):
+        '''Compute the orbitals on a grid for a given set of expansion coefficients.
 
            **Arguments:**
 
@@ -576,12 +576,18 @@ cdef class GOBasis(GBasis):
                 The indexes of the orbitals to be computed. If not given, the
                 orbitals with a non-zero occupation number are computed
 
-           orbs
+           **Optional arguments:**
+
+           output
                 An output array, shape (npoint, len(iorbs)). The results are
-                added to this array.
+                added to this array. When not given, an output array is
+                allocated and the result is returned.
 
            **Warning:** the results are added to the output array!
+
+           **Returns:** the output array. (It is allocated when not given.)
         '''
+        # Do some type checking
         cdef np.ndarray[double, ndim=2] coeffs = exp.coeffs
         self.check_matrix_coeffs(coeffs)
         nfn = coeffs.shape[1]
@@ -590,12 +596,17 @@ cdef class GOBasis(GBasis):
         assert points.shape[1] == 3
         assert iorbs.flags['C_CONTIGUOUS']
         norb = iorbs.shape[0]
-        assert orbs.flags['C_CONTIGUOUS']
-        assert orbs.shape[0] == npoint
-        assert orbs.shape[1] == norb
+        if output is None:
+            output = np.zeros((npoint, norb), float)
+        else:
+            assert output.flags['C_CONTIGUOUS']
+            assert output.shape[0] == npoint
+            assert output.shape[1] == norb
+        # compute
         (<gbasis.GOBasis*>self._this).compute_grid1_exp(
             nfn, &coeffs[0, 0], npoint, &points[0, 0],
-            norb, &iorbs[0], &orbs[0, 0])
+            norb, &iorbs[0], &output[0, 0])
+        return output
 
     def _compute_grid1_dm(self, dm, np.ndarray[double, ndim=2] points not None,
                           GB1DMGridFn grid_fn not None, np.ndarray output not None,
@@ -654,7 +665,7 @@ cdef class GOBasis(GBasis):
 
     def compute_grid_density_dm(self, dm,
                                 np.ndarray[double, ndim=2] points not None,
-                                np.ndarray[double, ndim=1] rhos not None,
+                                np.ndarray[double, ndim=1] output=None,
                                 double epsilon=0):
         '''Compute the electron density on a grid for a given density matrix.
 
@@ -666,10 +677,11 @@ cdef class GOBasis(GBasis):
            points
                 A Numpy array with grid points, shape (npoint,3).
 
-           rhos
-                A Numpy array for the output, shape (npoint,).
-
            **Optional arguments:**
+
+           output
+                A Numpy array for the output, shape (npoint,). When not given,
+                an output array is allocated and returned.
 
            epsilon
                 Allow errors on the density of this magnitude for the sake of
@@ -677,12 +689,17 @@ cdef class GOBasis(GBasis):
 
            **Warning:** the results are added to the output array! This may
            be useful to combine results from different spin components.
+
+           **Returns:** the output array. (It is allocated when not given.)
         '''
-        self._compute_grid1_dm(dm, points, GB1DMGridDensityFn(self.max_shell_type), rhos, epsilon)
+        if output is None:
+            output = np.zeros(points.shape[0])
+        self._compute_grid1_dm(dm, points, GB1DMGridDensityFn(self.max_shell_type), output, epsilon)
+        return output
 
     def compute_grid_gradient_dm(self, dm,
                                  np.ndarray[double, ndim=2] points not None,
-                                 np.ndarray[double, ndim=2] gradrhos not None,
+                                 np.ndarray[double, ndim=2] output=None,
                                  double epsilon=0):
         '''Compute the electron density gradient on a grid for a given density matrix.
 
@@ -694,10 +711,11 @@ cdef class GOBasis(GBasis):
            points
                 A Numpy array with grid points, shape (npoint,3).
 
-           gradrhos
-                A Numpy array for the output, shape (npoint,3).
-
            **Optional arguments:**
+
+           output
+                A Numpy array for the output, shape (npoint,3). When not given,
+                it will be allocated.
 
            epsilon
                 Allow errors on the density of this magnitude for the sake of
@@ -706,11 +724,14 @@ cdef class GOBasis(GBasis):
            **Warning:** the results are added to the output array! This may
            be useful to combine results from different spin components.
         '''
-        self._compute_grid1_dm(dm, points, GB1DMGridGradientFn(self.max_shell_type), gradrhos, epsilon)
+        if output is None:
+            output = np.zeros((points.shape[0], 3), float)
+        self._compute_grid1_dm(dm, points, GB1DMGridGradientFn(self.max_shell_type), output, epsilon)
+        return output
 
     def compute_grid_hartree_dm(self, dm,
                                 np.ndarray[double, ndim=2] points not None,
-                                np.ndarray[double, ndim=1] output not None):
+                                np.ndarray[double, ndim=1] output=None):
         '''Compute the Hartree potential on a grid for a given density matrix.
 
            **Arguments:**
@@ -724,22 +745,31 @@ cdef class GOBasis(GBasis):
            grid_fn
                 A grid function.
 
+           **Optional arguments:**
+
            output
-                A Numpy array for the output.
+                A Numpy array for the output. When not given, it will be
+                allocated.
 
            **Warning:** the results are added to the output array! This may
            be useful to combine results from different spin components.
         '''
+        # type checking
         cdef np.ndarray[double, ndim=2] dmar = dm._array
         self.check_matrix_one_body(dmar)
-        assert output.flags['C_CONTIGUOUS']
-        npoint = output.shape[0]
         assert points.flags['C_CONTIGUOUS']
-        assert points.shape[0] == npoint
+        npoint = points.shape[0]
         assert points.shape[1] == 3
+        if output is None:
+            output = np.zeros(npoint, float)
+        else:
+            assert output.flags['C_CONTIGUOUS']
+            assert output.shape[0] == npoint
+        # compute
         (<gbasis.GOBasis*>self._this).compute_grid2_dm(
             &dmar[0, 0], npoint, &points[0, 0],
             &output[0])
+        return output
 
     def _compute_grid1_fock(self, np.ndarray[double, ndim=2] points not None,
                            np.ndarray[double, ndim=1] weights not None,

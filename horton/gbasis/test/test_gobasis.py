@@ -150,16 +150,14 @@ def test_grid_lih_321g_hf_density_some_points():
     assert abs(dm._array[0,0] - 1.96589709) < 1e-7
 
     points = ref[:,:3].copy()
-    rhos = np.zeros(len(points))
-    mol.obasis.compute_grid_density_dm(mol.wfn.dm_full, points, rhos)
+    rhos = mol.obasis.compute_grid_density_dm(mol.wfn.dm_full, points)
     assert abs(rhos - ref[:,3]).max() < 1e-5
 
 
 def check_grid_rho(fn, ref, eps):
     mol = Molecule.from_file(context.get_fn(fn))
     points = ref[:,:3].copy()
-    rhos = np.zeros(len(points))
-    mol.obasis.compute_grid_density_dm(mol.wfn.dm_full, points, rhos)
+    rhos = mol.obasis.compute_grid_density_dm(mol.wfn.dm_full, points)
     assert abs(rhos - ref[:,3]).max() < eps
 
 
@@ -196,8 +194,7 @@ def test_grid_co_ccpv5z_pure_hf_density_some_points():
 def check_grid_gradient(fn, ref, eps):
     mol = Molecule.from_file(context.get_fn(fn))
     points = ref[:,:3].copy()
-    gradients = np.zeros((len(points), 3))
-    mol.obasis.compute_grid_gradient_dm(mol.wfn.dm_full, points, gradients)
+    gradients = mol.obasis.compute_grid_gradient_dm(mol.wfn.dm_full, points)
     print abs(gradients - ref[:,3:]).max()
     assert abs(gradients - ref[:,3:]).max() < eps
 
@@ -247,8 +244,7 @@ def test_grid_co_ccpv5z_pure_hf_gradient_some_points():
 def check_grid_esp(fn, ref, eps):
     mol = Molecule.from_file(context.get_fn(fn))
     points = ref[:,:3].copy()
-    esps = np.zeros(len(points))
-    mol.obasis.compute_grid_hartree_dm(mol.wfn.dm_full, points, esps)
+    esps = mol.obasis.compute_grid_hartree_dm(mol.wfn.dm_full, points)
     esps *= -1
     compute_grid_nucpot(mol.numbers, mol.coordinates, points, esps)
     assert abs(esps - ref[:,3]).max() < eps
@@ -461,3 +457,40 @@ def test_gobasis_output_args_electron_repulsion():
     obasis.compute_electron_repulsion(er1)
     er2 = obasis.compute_electron_repulsion(mol.lf)
     compare_operator(er1, er2)
+
+
+def test_gobasis_output_args_grid_orbitals_exp():
+    mol = Molecule.from_file(context.get_fn('test/water_hfs_321g.fchk'))
+    points = np.random.uniform(-5, 5, (100, 3))
+    iorbs = np.array([2, 3])
+    orbs1 = np.zeros((100, 2), float)
+    mol.obasis.compute_grid_orbitals_exp(mol.wfn.exp_alpha, points, iorbs, orbs1)
+    orbs2 = mol.obasis.compute_grid_orbitals_exp(mol.wfn.exp_alpha, points, iorbs)
+    assert (orbs1 == orbs2).all()
+
+
+def test_gobasis_output_args_grid_density_dm():
+    mol = Molecule.from_file(context.get_fn('test/water_hfs_321g.fchk'))
+    points = np.random.uniform(-5, 5, (100, 3))
+    rhos1 = np.zeros(100, float)
+    mol.obasis.compute_grid_density_dm(mol.wfn.dm_full, points, rhos1)
+    rhos2 = mol.obasis.compute_grid_density_dm(mol.wfn.dm_full, points)
+    assert (rhos1 == rhos2).all()
+
+
+def test_gobasis_output_args_grid_gradient_dm():
+    mol = Molecule.from_file(context.get_fn('test/water_hfs_321g.fchk'))
+    points = np.random.uniform(-5, 5, (100, 3))
+    gradrhos1 = np.zeros((100, 3), float)
+    mol.obasis.compute_grid_gradient_dm(mol.wfn.dm_full, points, gradrhos1)
+    gradrhos2 = mol.obasis.compute_grid_gradient_dm(mol.wfn.dm_full, points)
+    assert (gradrhos1 == gradrhos2).all()
+
+
+def test_gobasis_output_args_grid_hartree_dm():
+    mol = Molecule.from_file(context.get_fn('test/water_hfs_321g.fchk'))
+    points = np.random.uniform(-5, 5, (100, 3))
+    pots1 = np.zeros(100, float)
+    mol.obasis.compute_grid_hartree_dm(mol.wfn.dm_full, points, pots1)
+    pots2 = mol.obasis.compute_grid_hartree_dm(mol.wfn.dm_full, points)
+    assert (pots1 == pots2).all()

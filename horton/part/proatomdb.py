@@ -101,10 +101,8 @@ class ProAtomRecord(object):
 
         # Compute the density and the gradient on a grid
         atgrid = AtomicGrid(number, pseudo_number, center, agspec)
-        rho_all = np.zeros(atgrid.size)
-        obasis.compute_grid_density_dm(wfn.dm_full, atgrid.points, rho_all)
-        grad_all = np.zeros((atgrid.size, 3))
-        obasis.compute_grid_gradient_dm(wfn.dm_full, atgrid.points, grad_all)
+        rho_all = obasis.compute_grid_density_dm(wfn.dm_full, atgrid.points)
+        grad_all = obasis.compute_grid_gradient_dm(wfn.dm_full, atgrid.points)
         rrgrad_all = ((atgrid.points-atgrid.center)*grad_all).sum(axis=1)
         # Compute spherical averages
         rho = atgrid.get_spherical_average(rho_all)
