@@ -29,12 +29,12 @@ __all__ = ['GridGroup', 'GridObservable']
 
 
 class GridGroup(Observable):
-    def __init__(self, obasis, grid, lf, wfn, grid_terms, label='grid_group'):
+    def __init__(self, obasis, grid, wfn, grid_terms, label='grid_group'):
         self.wfn = wfn
         self.grid_terms = grid_terms
         self.obasis = obasis
         self.grid = grid
-        Observable.__init__(self, lf, label)
+        Observable.__init__(self, label)
 
     def _get_gga(self):
         '''Flag indicating that density gradients are used'''

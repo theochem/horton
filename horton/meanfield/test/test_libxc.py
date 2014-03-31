@@ -40,23 +40,23 @@ def test_fock_n2_hfs_sto3g():
 
     libxc_term = LibXCLDA(sys.wfn, 'x')
     terms1 = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.wfn, [
             libxc_term,
         ]),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     ham1 = Hamiltonian(terms1, external)
 
     builtin_term = DiracExchange(sys.wfn)
     terms2 = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.wfn, [
             builtin_term,
         ]),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     ham2 = Hamiltonian(terms2, external)
 
@@ -122,23 +122,23 @@ def test_hamiltonian_h3_hfs_321g():
 
     libxc_term = LibXCLDA(sys.wfn, 'x')
     terms1 = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.wfn, [
             libxc_term,
         ]),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     ham1 = Hamiltonian(terms1, external)
 
     builtin_term = DiracExchange(sys.wfn)
     terms2 = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.wfn, [
             builtin_term,
         ]),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     ham2 = Hamiltonian(terms2, external)
 
@@ -207,13 +207,13 @@ def test_co_pbe_sto3g():
     er = sys.get_electron_repulsion()
     external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.wfn, [
             LibXCGGA(sys.wfn, 'x_pbe'),
             LibXCGGA(sys.wfn, 'c_pbe'),
         ]),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms, external)
 
@@ -258,13 +258,13 @@ def test_h3_pbe_321g():
     er = sys.get_electron_repulsion()
     external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.wfn, [
             LibXCGGA(sys.wfn, 'x_pbe'),
             LibXCGGA(sys.wfn, 'c_pbe'),
         ]),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms, external)
 
@@ -313,12 +313,12 @@ def test_cubic_interpolation_c_pbe_cs():
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.wfn, [
             LibXCGGA(sys.wfn, 'c_pbe'),
         ]),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
@@ -340,12 +340,12 @@ def test_cubic_interpolation_x_pbe_cs():
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.wfn, [
             LibXCGGA(sys.wfn, 'x_pbe'),
         ]),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
@@ -367,12 +367,12 @@ def test_cubic_interpolation_hfs_cs():
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.wfn, [
             LibXCLDA(sys.wfn, 'x'),
         ]),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
@@ -395,11 +395,11 @@ def test_cubic_interpolation_o3lyp_cs():
     er = sys.get_electron_repulsion()
     libxc_term = LibXCHybridGGA(sys.wfn, 'xc_o3lyp')
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [libxc_term]),
-        ExchangeTerm(er, sys.lf, sys.wfn, fraction_exchange=libxc_term.get_exx_fraction()),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.wfn, [libxc_term]),
+        ExchangeTerm(er, sys.wfn, fraction_exchange=libxc_term.get_exx_fraction()),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
@@ -420,12 +420,12 @@ def test_cubic_interpolation_c_pbe_os():
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.wfn, [
             LibXCGGA(sys.wfn, 'c_pbe'),
         ]),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
@@ -449,12 +449,12 @@ def test_cubic_interpolation_x_pbe_os():
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.wfn, [
             LibXCGGA(sys.wfn, 'x_pbe'),
         ]),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
@@ -478,12 +478,12 @@ def test_cubic_interpolation_hfs_os():
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.wfn, [
             LibXCLDA(sys.wfn, 'x'),
         ]),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
@@ -508,11 +508,11 @@ def test_cubic_interpolation_o3lyp_os():
     er = sys.get_electron_repulsion()
     libxc_term = LibXCHybridGGA(sys.wfn, 'xc_o3lyp')
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [libxc_term]),
-        ExchangeTerm(er, sys.lf, sys.wfn, fraction_exchange=libxc_term.get_exx_fraction()),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.wfn, [libxc_term]),
+        ExchangeTerm(er, sys.wfn, fraction_exchange=libxc_term.get_exx_fraction()),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 

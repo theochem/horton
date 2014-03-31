@@ -30,10 +30,9 @@ __all__ = [
 
 
 class Observable(object):
-    def __init__(self, lf, label):
+    def __init__(self, label):
         self.label = label
         self._hamiltonian = None
-        self._lf = lf
 
     def set_hamiltonian(self, hamiltonian):
         if not self._hamiltonian is None:
@@ -41,11 +40,6 @@ class Observable(object):
         self._hamiltonian = hamiltonian
 
     # The following four properties are added for convenience:
-
-    def _get_lf(self):
-        return self._lf
-
-    lf = property(_get_lf)
 
     def _get_cache(self):
         '''The cache of the hamiltonian object, cleared after a change in wfn.'''
@@ -84,10 +78,10 @@ class OneBodyTerm(Observable):
        A restriction of this implementation is that the fock operator for the
        alpha and the beta electrons are the same.
     '''
-    def __init__(self, operator, lf, wfn, label):
+    def __init__(self, operator, wfn, label):
         self._operator = operator
         self._wfn = wfn
-        Observable.__init__(self, lf, label)
+        Observable.__init__(self, label)
 
     def get_operator(self):
         # subclasses should override this method such that it
@@ -110,20 +104,23 @@ class OneBodyTerm(Observable):
 
 
 class DirectTerm(Observable):
-    def __init__(self, operator, lf, wfn, label='hartree'):
+    def __init__(self, operator, wfn, label='hartree'):
         self._operator = operator
         self._wfn = wfn
-        Observable.__init__(self, lf, label)
+        Observable.__init__(self, label)
 
     def _update_direct(self):
         '''Recompute the direct operator if it has become invalid'''
-        direct, new = self.cache.load('op_%s' % self.label,
-                                      alloc=self.lf.create_one_body)
-        if new:
-            if isinstance(self._wfn, RestrictedWFN):
+        if isinstance(self._wfn, RestrictedWFN):
+            direct, new = self.cache.load('op_%s' % self.label,
+                                          alloc=self._wfn.dm_alpha.new)
+            if new:
                 self._operator.apply_direct(self._wfn.dm_alpha, direct)
                 direct.iscale(2)
-            else:
+        else:
+            direct, new = self.cache.load('op_%s' % self.label,
+                                          alloc=self._wfn.dm_full.new)
+            if new:
                 self._operator.apply_direct(self._wfn.dm_full, direct)
 
     def compute(self):
@@ -144,19 +141,19 @@ class DirectTerm(Observable):
 
 
 class ExchangeTerm(Observable):
-    def __init__(self, operator, lf, wfn,
+    def __init__(self, operator, wfn,
                  label='exchange_hartree_fock', fraction_exchange=1.0):
         self._operator = operator
         self._wfn = wfn
         self.fraction_exchange = fraction_exchange
-        Observable.__init__(self, lf, label)
+        Observable.__init__(self, label)
 
     def _update_exchange(self):
         '''Recompute the Exchange operator(s) if invalid'''
         def helper(select):
             dm = self._wfn.get_dm(select)
             exchange, new = self.cache.load('op_%s_%s' % (self.label, select),
-                                            alloc=self._lf.create_one_body)
+                                            alloc=dm.new)
             if new:
                 self._operator.apply_exchange(dm, exchange)
 

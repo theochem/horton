@@ -31,14 +31,13 @@ grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers)
 external = {'nn': compute_nucnuc(mol.coordinates, mol.numbers)}
 libxc_term = LibXCHybridGGA(wfn, 'xc_o3lyp')
 terms = [
-    OneBodyTerm(kin, lf, wfn, 'kin'),
-    DirectTerm(er, lf, wfn),
-    GridGroup(obasis, grid, lf, wfn, [
+    OneBodyTerm(kin, wfn, 'kin'),
+    DirectTerm(er, wfn),
+    GridGroup(obasis, grid, wfn, [
         libxc_term,
     ]),
-    ExchangeTerm(er, lf, wfn,
-                 fraction_exchange=libxc_term.get_exx_fraction()),
-    OneBodyTerm(nai, lf, wfn, 'ne'),
+    ExchangeTerm(er, wfn, fraction_exchange=libxc_term.get_exx_fraction()),
+    OneBodyTerm(nai, wfn, 'ne'),
 ]
 ham = Hamiltonian(terms, external)
 

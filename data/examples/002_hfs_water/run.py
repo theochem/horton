@@ -30,12 +30,12 @@ grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers)
 # Construction of Hamiltonian
 external = {'nn': compute_nucnuc(mol.coordinates, mol.numbers)}
 terms = [
-    OneBodyTerm(kin, lf, wfn, 'kin'),
-    DirectTerm(er, lf, wfn),
-    GridGroup(obasis, grid, lf, wfn, [
+    OneBodyTerm(kin, wfn, 'kin'),
+    DirectTerm(er, wfn),
+    GridGroup(obasis, grid, wfn, [
         DiracExchange(wfn),
     ]),
-    OneBodyTerm(nai, lf, wfn, 'ne'),
+    OneBodyTerm(nai, wfn, 'ne'),
 ]
 ham = Hamiltonian(terms, external)
 

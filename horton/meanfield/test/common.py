@@ -105,10 +105,10 @@ def check_scf_hf_cs_hf(scf_wrapper):
     er = sys.get_electron_repulsion()
     external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        ExchangeTerm(er, sys.lf, sys.wfn),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        ExchangeTerm(er, sys.wfn),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms, external)
 
@@ -145,12 +145,12 @@ def check_scf_water_cs_hfs(scf_wrapper):
     er = sys.get_electron_repulsion()
     external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.wfn, [
             DiracExchange(sys.wfn),
         ]),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms, external)
 

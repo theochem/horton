@@ -41,10 +41,10 @@ def test_scf_os():
     er = sys.get_electron_repulsion()
     external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        ExchangeTerm(er, sys.lf, sys.wfn),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        ExchangeTerm(er, sys.wfn),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms, external)
 
@@ -84,10 +84,10 @@ def test_hf_water_321g_mistake():
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        OneBodyTerm(kin, sys.lf, wfn, 'kin'),
-        DirectTerm(er, sys.lf, wfn),
-        ExchangeTerm(er, sys.lf, wfn),
-        OneBodyTerm(nai, sys.lf, wfn, 'ne'),
+        OneBodyTerm(kin, wfn, 'kin'),
+        DirectTerm(er, wfn),
+        ExchangeTerm(er, wfn),
+        OneBodyTerm(nai, wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
     with assert_raises(AttributeError):

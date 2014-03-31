@@ -26,10 +26,10 @@ guess_core_hamiltonian(wfn, olp, kin, nai)
 # Construct the HF Hamiltonian
 external = {'nn': compute_nucnuc(mol.coordinates, mol.numbers)}
 terms = [
-    OneBodyTerm(kin, lf, wfn, 'kin'),
-    DirectTerm(er, lf, wfn),
-    ExchangeTerm(er, lf, wfn),
-    OneBodyTerm(nai, lf, wfn, 'ne'),
+    OneBodyTerm(kin, wfn, 'kin'),
+    DirectTerm(er, wfn),
+    ExchangeTerm(er, wfn),
+    OneBodyTerm(nai, wfn, 'ne'),
 ]
 ham = Hamiltonian(terms, external)
 

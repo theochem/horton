@@ -66,10 +66,10 @@ def test_project_larger():
     nai = obasis1.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
     er = obasis1.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, mol.lf, wfn1, 'kin'),
-        DirectTerm(er, mol.lf, wfn1),
-        ExchangeTerm(er, mol.lf, wfn1),
-        OneBodyTerm(nai, mol.lf, wfn1, 'ne'),
+        OneBodyTerm(kin, wfn1, 'kin'),
+        DirectTerm(er, wfn1),
+        ExchangeTerm(er, wfn1),
+        OneBodyTerm(nai, wfn1, 'ne'),
     ]
     ham = Hamiltonian(terms)
     energy1 = ham.compute()
@@ -120,10 +120,10 @@ def test_project_smaller():
     nai = obasis1.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
     er = obasis1.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, mol.lf, wfn1, 'kin'),
-        DirectTerm(er, mol.lf, wfn1),
-        ExchangeTerm(er, mol.lf, wfn1),
-        OneBodyTerm(nai, mol.lf, wfn1, 'ne'),
+        OneBodyTerm(kin, wfn1, 'kin'),
+        DirectTerm(er, wfn1),
+        ExchangeTerm(er, wfn1),
+        OneBodyTerm(nai, wfn1, 'ne'),
     ]
     ham = Hamiltonian(terms)
 

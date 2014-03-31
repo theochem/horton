@@ -35,10 +35,10 @@ def test_energy_hydrogen():
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        ExchangeTerm(er, sys.lf, sys.wfn),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        ExchangeTerm(er, sys.wfn),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
     ham = Hamiltonian(terms, external)
@@ -54,12 +54,12 @@ def test_energy_n2_hfs_sto3g():
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.wfn, [
             DiracExchange(sys.wfn),
         ]),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
     ham = Hamiltonian(terms, external)
@@ -99,12 +99,12 @@ def test_fock_n2_hfs_sto3g():
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.wfn, [
             DiracExchange(sys.wfn),
         ]),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
     ham = Hamiltonian(terms, external)
@@ -147,12 +147,12 @@ def test_fock_h3_hfs_321g():
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.wfn, [
             DiracExchange(sys.wfn),
         ]),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
     ham = Hamiltonian(terms, external)
@@ -198,12 +198,12 @@ def test_cubic_interpolation_hfs_cs():
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.wfn, [
             DiracExchange(sys.wfn),
         ]),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
@@ -226,10 +226,10 @@ def test_perturbation():
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        ExchangeTerm(er, sys.lf, sys.wfn),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        ExchangeTerm(er, sys.wfn),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
     assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) > 1e-8
@@ -253,13 +253,13 @@ def test_perturbation():
         # Perturbation
         tmp = operator.copy()
         tmp.iscale(scale)
-        perturbation = OneBodyTerm(tmp, sys.lf, sys.wfn, 'pert')
+        perturbation = OneBodyTerm(tmp, sys.wfn, 'pert')
         # Hamiltonian
         terms = [
-            OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-            DirectTerm(er, sys.lf, sys.wfn),
-            ExchangeTerm(er, sys.lf, sys.wfn),
-            OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+            OneBodyTerm(kin, sys.wfn, 'kin'),
+            DirectTerm(er, sys.wfn),
+            ExchangeTerm(er, sys.wfn),
+            OneBodyTerm(nai, sys.wfn, 'ne'),
             perturbation,
         ]
         ham = Hamiltonian(terms)
@@ -279,9 +279,8 @@ def test_perturbation():
 def test_add_term():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     sys = System.from_file(fn_fchk)
-    ham = Hamiltonian([ExchangeTerm(sys.get_electron_repulsion(),
-                                         sys.lf, sys.wfn)])
-    term = OneBodyTerm(sys.get_kinetic(), sys.lf, sys.wfn, 'kin')
+    ham = Hamiltonian([ExchangeTerm(sys.get_electron_repulsion(), sys.wfn)])
+    term = OneBodyTerm(sys.get_kinetic(), sys.wfn, 'kin')
     ham.add_term(term)
     assert term._hamiltonian is ham
 
@@ -294,10 +293,10 @@ def test_ghost_hf():
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        ExchangeTerm(er, sys.lf, sys.wfn),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        ExchangeTerm(er, sys.wfn),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
     # The convergence should be reasonable, not perfect because of limited

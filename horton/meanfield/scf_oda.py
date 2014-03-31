@@ -162,8 +162,7 @@ def check_cubic_cs(ham, wfn, dm0, dm1, e0, e1, g0, g1, do_plot=True):
     a = g1 - 2*e1 + c + 2*d
     b = e1 - a - c - d
 
-    dm2 = dm0.copy()
-    dm2.clear()
+    dm2 = dm0.new()
     xs = np.arange(0, 1.001, 0.1)
     energies = []
     for x in xs:
@@ -360,10 +359,8 @@ def check_cubic_os(ham, wfn, dm0a, dm0b, dm1a, dm1b, e0, e1, g0, g1, do_plot=Tru
     a = g1 - 2*e1 + c + 2*d
     b = e1 - a - c - d
 
-    dm2a = dm0a.copy()
-    dm2a.clear()
-    dm2b = dm0b.copy()
-    dm2b.clear()
+    dm2a = dm0a.new()
+    dm2b = dm0b.new()
     xs = np.arange(0, 1.001, 0.1)
     energies = []
     for x in xs:

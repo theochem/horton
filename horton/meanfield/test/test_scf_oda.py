@@ -43,10 +43,10 @@ def test_scf_oda_water_hf_321g():
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        ExchangeTerm(er, sys.lf, sys.wfn),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        ExchangeTerm(er, sys.wfn),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
@@ -74,12 +74,12 @@ def test_scf_oda_lih_hfs_321g():
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.lf, sys.wfn, [
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        GridGroup(sys.obasis, grid, sys.wfn, [
             DiracExchange(sys.wfn),
         ]),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
@@ -136,10 +136,10 @@ def test_scf_oda_aufbau_spin():
     nai = sys.get_nuclear_attraction()
     er = sys.get_electron_repulsion()
     terms = [
-        OneBodyTerm(kin, sys.lf, sys.wfn, 'kin'),
-        DirectTerm(er, sys.lf, sys.wfn),
-        ExchangeTerm(er, sys.lf, sys.wfn),
-        OneBodyTerm(nai, sys.lf, sys.wfn, 'ne'),
+        OneBodyTerm(kin, sys.wfn, 'kin'),
+        DirectTerm(er, sys.wfn),
+        ExchangeTerm(er, sys.wfn),
+        OneBodyTerm(nai, sys.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 

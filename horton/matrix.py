@@ -569,9 +569,20 @@ class DenseOneBody(OneBody):
         self._array[:] = other._array
 
     def copy(self):
+        '''Return a copy of the current one-body operator'''
         result = DenseOneBody(self.nbasis)
         result._array[:] = self._array
         return result
+
+    def new(self):
+        '''Return a new one-body operator with the same nbasis'''
+        return DenseOneBody(self.nbasis)
+
+    def _check_new_init_args(self, one_body, nbasis=None):
+        one_body.__check_init_args__(self.nbasis)
+
+    new.__check_init_args__ = _check_new_init_args
+
 
     def check_symmetry(self):
         '''Check the symmetry of the array. For testing only.'''
