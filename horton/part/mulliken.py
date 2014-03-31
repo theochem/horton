@@ -62,8 +62,7 @@ def partition_mulliken(operator, obasis, index):
 def get_mulliken_operators(obasis, lf):
     '''Return a list of Mulliken operators for the given obasis.'''
     operators = []
-    olp = lf.create_one_body()
-    obasis.compute_overlap(olp)
+    olp = obasis.compute_overlap(lf)
     for icenter in xrange(obasis.ncenter):
         operator = olp.copy()
         partition_mulliken(operator, obasis, icenter)

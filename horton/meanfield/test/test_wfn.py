@@ -106,8 +106,7 @@ def test_dm_lih_sto3g_hf():
 def check_spin(fn_fchk, sz0, ssq0, eps):
     path_fchk = context.get_fn('test/%s' % fn_fchk)
     mol = Molecule.from_file(path_fchk)
-    olp = mol.lf.create_one_body()
-    mol.obasis.compute_overlap(olp)
+    olp = mol.obasis.compute_overlap(mol.lf)
     sz, ssq = mol.wfn.get_spin(olp)
     assert abs(sz - sz0) < eps
     assert abs(ssq - ssq0) < eps

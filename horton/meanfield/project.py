@@ -116,8 +116,7 @@ def project_orbitals_mgs_low(obasis0, obasis1, exp0, exp1, eps=1e-10):
     # Compute the overlap matrix of the combined orbital basis
     obasis_both = GOBasis.concatenate(obasis0, obasis1)
     lf = DenseLinalgFactory(obasis_both.nbasis)
-    olp_both = lf.create_one_body()
-    obasis_both.compute_overlap(olp_both)
+    olp_both = obasis_both.compute_overlap(lf)
 
     # Select the blocks of interest from the big overlap matrix
     olp_21 = olp_both._array[obasis0.nbasis:, :obasis0.nbasis]

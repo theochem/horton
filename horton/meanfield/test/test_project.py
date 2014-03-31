@@ -52,8 +52,7 @@ def test_project_larger():
     assert (exp1.coeffs[:,5:] == 0.0).all()
 
     # Check the normalization of the projected orbitals
-    olp = mol.lf.create_one_body()
-    obasis1.compute_overlap(olp)
+    olp = obasis1.compute_overlap(mol.lf)
     for i0 in xrange(5):
         for i1 in xrange(i0+1):
             dot = olp.dot(wfn1.exp_alpha.coeffs[:,i0], wfn1.exp_alpha.coeffs[:,i1])
@@ -63,12 +62,9 @@ def test_project_larger():
                 assert abs(dot) < 1e-5
 
     # Setup HF hamiltonian and compute energy
-    kin = mol.lf.create_one_body()
-    nai = mol.lf.create_one_body()
-    er = mol.lf.create_two_body()
-    obasis1.compute_kinetic(kin)
-    obasis1.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, nai)
-    obasis1.compute_electron_repulsion(er)
+    kin = obasis1.compute_kinetic(mol.lf)
+    nai = obasis1.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    er = obasis1.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.lf, wfn1, 'kin'),
         DirectTerm(er, mol.lf, wfn1),
@@ -109,8 +105,7 @@ def test_project_smaller():
     assert (wfn1.exp_beta.coeffs[:,1:] == 0.0).all()
 
     # Check the normalization of the projected orbitals
-    olp = mol.lf.create_one_body()
-    obasis1.compute_overlap(olp)
+    olp = obasis1.compute_overlap(mol.lf)
     for exp, nocc in (wfn1.exp_alpha, 2), (wfn1.exp_beta, 1):
         for i0 in xrange(nocc):
             for i1 in xrange(i0+1):
@@ -121,12 +116,9 @@ def test_project_smaller():
                     assert abs(dot) < 1e-5
 
     # Setup HF hamiltonian and compute energy
-    kin = mol.lf.create_one_body()
-    nai = mol.lf.create_one_body()
-    er = mol.lf.create_two_body()
-    obasis1.compute_kinetic(kin)
-    obasis1.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, nai)
-    obasis1.compute_electron_repulsion(er)
+    kin = obasis1.compute_kinetic(mol.lf)
+    nai = obasis1.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    er = obasis1.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.lf, wfn1, 'kin'),
         DirectTerm(er, mol.lf, wfn1),
@@ -155,12 +147,10 @@ def test_same_size():
     obasis0 = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
     lf = DenseLinalgFactory(obasis0.nbasis)
     wfn0 = setup_mean_field_wfn(obasis0.nbasis, mol.pseudo_numbers, lf, restricted=True)
-    olp = lf.create_one_body()
-    kin = lf.create_one_body()
-    nai = lf.create_one_body()
-    obasis0.compute_overlap(olp)
-    obasis0.compute_kinetic(kin)
-    obasis0.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, nai)
+    olp = obasis0.compute_overlap(mol.lf)
+    kin = obasis0.compute_kinetic(mol.lf)
+    nai = obasis0.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    er = obasis0.compute_electron_repulsion(mol.lf)
     guess_core_hamiltonian(wfn0, olp, kin, nai)
 
     # Change geometry
