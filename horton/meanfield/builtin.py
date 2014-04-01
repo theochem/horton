@@ -57,7 +57,7 @@ class DiracExchange(GridObservable):
         self.derived_coeff = -self.coeff * (4.0 / 3.0) * 2 ** (1.0 / 3.0)
         GridObservable.__init__(self, label)
 
-    def compute_energy(self, cache, grid):
+    def compute(self, cache, grid):
         self._update_pot(cache, grid)
 
         def helper(select):
@@ -86,7 +86,7 @@ class DiracExchange(GridObservable):
         if isinstance(self._wfn, UnrestrictedWFN):
             helper('beta')
 
-    def compute_pot(self, cache, grid):
+    def add_pot(self, cache, grid):
         '''Recompute the Exchange potential(s) if invalid'''
         self._update_pot(cache, grid)
         cache['dpot_total_alpha'] += cache['pot_exchange_dirac_alpha']

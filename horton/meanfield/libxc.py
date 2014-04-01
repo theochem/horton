@@ -60,7 +60,7 @@ class LibXCLDA(LibXCEnergy):
         LibXCEnergy.__init__(self, wfn, 'lda', name)
 
     @timer.with_section('LDA edens')
-    def compute_energy(self, cache, grid):
+    def compute(self, cache, grid):
         if isinstance(self._wfn, RestrictedWFN):
             # In the unpolarized case, libxc expects the total density as input
             # and returns the energy density per particle.
@@ -81,7 +81,7 @@ class LibXCLDA(LibXCEnergy):
             return grid.integrate(edens, rho_full)
 
     @timer.with_section('LDA pot')
-    def compute_pot(self, cache, grid):
+    def add_pot(self, cache, grid):
         if isinstance(self._wfn, RestrictedWFN):
             # In the closed-shell case, libxc expects the total density as input
             # and returns the potential for the alpha electrons.
@@ -121,7 +121,7 @@ class LibXCGGA(LibXCEnergy):
         LibXCEnergy.__init__(self, wfn, 'gga', name)
 
     @timer.with_section('GGA edens')
-    def compute_energy(self, cache, grid):
+    def compute(self, cache, grid):
         if isinstance(self._wfn, RestrictedWFN):
             rho_full = cache['rho_full']
             edens, new = cache.load('edens_libxc_%s_full' % self._name, alloc=grid.size)
@@ -139,7 +139,7 @@ class LibXCGGA(LibXCEnergy):
             return grid.integrate(edens, rho_full)
 
     @timer.with_section('GGA pot')
-    def compute_pot(self, cache, grid):
+    def add_pot(self, cache, grid):
         if isinstance(self._wfn, RestrictedWFN):
             dpot, newd = cache.load('dpot_libxc_%s_alpha' % self._name, alloc=grid.size)
             spot, news = cache.load('spot_libxc_%s_alpha' % self._name, alloc=grid.size)

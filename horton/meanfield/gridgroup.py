@@ -112,7 +112,7 @@ class GridGroup(Observable):
         # compute energy terms and sum up
         result = 0.0
         for grid_term in self.grid_terms:
-            energy = grid_term.compute_energy(self.cache, self.grid)
+            energy = grid_term.compute(self.cache, self.grid)
             self.cache['energy_%s' % grid_term.label] = energy
             result += energy
         return result
@@ -133,7 +133,7 @@ class GridGroup(Observable):
         # Collect all the total potentials and turn them into contributions
         # for the fock matrix/matrices.
         for grid_term in self.grid_terms:
-            grid_term.compute_pot(self.cache, self.grid)
+            grid_term.add_pot(self.cache, self.grid)
 
         # d = density
         if 'dpot_total_alpha' in self.cache:
