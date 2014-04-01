@@ -32,13 +32,13 @@ def test_energy_hydrogen():
     fn_fchk = context.get_fn('test/h_sto3g.fchk')
     mol = Molecule.from_file(fn_fchk)
     kin = mol.obasis.compute_kinetic(mol.lf)
-    nai = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
         DirectTerm(er, mol.wfn, 'hartree'),
         ExchangeTerm(er, mol.wfn, 'x_hf'),
-        OneBodyTerm(nai, mol.wfn, 'ne'),
+        OneBodyTerm(na, mol.wfn, 'ne'),
     ]
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     ham = Hamiltonian(terms, external)
@@ -51,7 +51,7 @@ def test_energy_n2_hfs_sto3g():
     mol = Molecule.from_file(fn_fchk)
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
     kin = mol.obasis.compute_kinetic(mol.lf)
-    nai = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
@@ -59,7 +59,7 @@ def test_energy_n2_hfs_sto3g():
         GridGroup(mol.obasis, grid, mol.wfn, [
             DiracExchange(mol.wfn),
         ]),
-        OneBodyTerm(nai, mol.wfn, 'ne'),
+        OneBodyTerm(na, mol.wfn, 'ne'),
     ]
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     ham = Hamiltonian(terms, external)
@@ -96,7 +96,7 @@ def test_fock_n2_hfs_sto3g():
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'veryfine', random_rotate=False)
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
-    nai = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
@@ -104,7 +104,7 @@ def test_fock_n2_hfs_sto3g():
         GridGroup(mol.obasis, grid, mol.wfn, [
             DiracExchange(mol.wfn),
         ]),
-        OneBodyTerm(nai, mol.wfn, 'ne'),
+        OneBodyTerm(na, mol.wfn, 'ne'),
     ]
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     ham = Hamiltonian(terms, external)
@@ -114,7 +114,7 @@ def test_fock_n2_hfs_sto3g():
     assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) < 1e-5
 
     # Converge from scratch
-    guess_core_hamiltonian(mol.wfn, olp, kin, nai)
+    guess_core_hamiltonian(mol.wfn, olp, kin, na)
     assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) > 1e-8
     converge_scf(ham, mol.wfn, mol.lf, olp)
     assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) < 1e-8
@@ -144,7 +144,7 @@ def test_fock_h3_hfs_321g():
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'veryfine', random_rotate=False)
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
-    nai = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
@@ -152,7 +152,7 @@ def test_fock_h3_hfs_321g():
         GridGroup(mol.obasis, grid, mol.wfn, [
             DiracExchange(mol.wfn),
         ]),
-        OneBodyTerm(nai, mol.wfn, 'ne'),
+        OneBodyTerm(na, mol.wfn, 'ne'),
     ]
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     ham = Hamiltonian(terms, external)
@@ -162,7 +162,7 @@ def test_fock_h3_hfs_321g():
     assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) < 1e-6
 
     # Converge from scratch
-    guess_core_hamiltonian(mol.wfn, olp, kin, nai)
+    guess_core_hamiltonian(mol.wfn, olp, kin, na)
     assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) > 1e-8
     converge_scf(ham, mol.wfn, mol.lf, olp)
     assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) < 1e-8
@@ -195,7 +195,7 @@ def test_cubic_interpolation_hfs_cs():
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
-    nai = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
@@ -203,13 +203,13 @@ def test_cubic_interpolation_hfs_cs():
         GridGroup(mol.obasis, grid, mol.wfn, [
             DiracExchange(mol.wfn),
         ]),
-        OneBodyTerm(nai, mol.wfn, 'ne'),
+        OneBodyTerm(na, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
     dm0 = mol.lf.create_one_body()
     dm0.assign(mol.wfn.dm_alpha)
-    guess_core_hamiltonian(mol.wfn, olp, kin, nai)
+    guess_core_hamiltonian(mol.wfn, olp, kin, na)
     dm1 = mol.lf.create_one_body()
     dm1.assign(mol.wfn.dm_alpha)
 
@@ -223,13 +223,13 @@ def test_perturbation():
     # Without perturbation
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
-    nai = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
         DirectTerm(er, mol.wfn, 'hartree'),
         ExchangeTerm(er, mol.wfn, 'x_hf'),
-        OneBodyTerm(nai, mol.wfn, 'ne'),
+        OneBodyTerm(na, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
     assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) > 1e-8
@@ -259,7 +259,7 @@ def test_perturbation():
             OneBodyTerm(kin, mol.wfn, 'kin'),
             DirectTerm(er, mol.wfn, 'hartree'),
             ExchangeTerm(er, mol.wfn, 'x_hf'),
-            OneBodyTerm(nai, mol.wfn, 'ne'),
+            OneBodyTerm(na, mol.wfn, 'ne'),
             perturbation,
         ]
         ham = Hamiltonian(terms)
@@ -290,13 +290,13 @@ def test_ghost_hf():
     mol = Molecule.from_file(fn_fchk)
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
-    nai = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
         DirectTerm(er, mol.wfn, 'hartree'),
         ExchangeTerm(er, mol.wfn, 'x_hf'),
-        OneBodyTerm(nai, mol.wfn, 'ne'),
+        OneBodyTerm(na, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
     # The convergence should be reasonable, not perfect because of limited

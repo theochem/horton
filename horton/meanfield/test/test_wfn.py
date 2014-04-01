@@ -64,13 +64,13 @@ def test_conversion_dm_exp():
 
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
-    nai = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
         DirectTerm(er, mol.wfn, 'hartree'),
         ExchangeTerm(er, mol.wfn, 'x_hf'),
-        OneBodyTerm(nai, mol.wfn, 'ne'),
+        OneBodyTerm(na, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
     fock = mol.lf.create_one_body()

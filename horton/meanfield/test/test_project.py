@@ -63,13 +63,13 @@ def test_project_larger():
 
     # Setup HF hamiltonian and compute energy
     kin = obasis1.compute_kinetic(mol.lf)
-    nai = obasis1.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
+    na = obasis1.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = obasis1.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, wfn1, 'kin'),
         DirectTerm(er, wfn1, 'hartree'),
         ExchangeTerm(er, wfn1, 'x_hf'),
-        OneBodyTerm(nai, wfn1, 'ne'),
+        OneBodyTerm(na, wfn1, 'ne'),
     ]
     ham = Hamiltonian(terms)
     energy1 = ham.compute()
@@ -80,7 +80,7 @@ def test_project_larger():
     assert energy2 < energy1 # the energy should decrease after scf convergence
 
     # Construct a core initial guess
-    guess_core_hamiltonian(wfn1, olp, kin, nai)
+    guess_core_hamiltonian(wfn1, olp, kin, na)
     ham.clear()
     energy3 = ham.compute()
     assert energy3 > energy1 # the projected guess should be better than the core guess
@@ -117,13 +117,13 @@ def test_project_smaller():
 
     # Setup HF hamiltonian and compute energy
     kin = obasis1.compute_kinetic(mol.lf)
-    nai = obasis1.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
+    na = obasis1.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = obasis1.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, wfn1, 'kin'),
         DirectTerm(er, wfn1, 'hartree'),
         ExchangeTerm(er, wfn1, 'x_hf'),
-        OneBodyTerm(nai, wfn1, 'ne'),
+        OneBodyTerm(na, wfn1, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
@@ -135,7 +135,7 @@ def test_project_smaller():
     assert energy2 < energy1 # the energy should decrease after scf convergence
 
     # Construct a core initial guess
-    guess_core_hamiltonian(wfn1, olp, kin, nai)
+    guess_core_hamiltonian(wfn1, olp, kin, na)
     ham.clear()
     energy3 = ham.compute()
     assert energy3 > energy2 # the core guess should be worse than the converged
@@ -149,9 +149,9 @@ def test_same_size():
     wfn0 = setup_mean_field_wfn(obasis0.nbasis, mol.pseudo_numbers, lf, restricted=True)
     olp = obasis0.compute_overlap(lf)
     kin = obasis0.compute_kinetic(lf)
-    nai = obasis0.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
+    na = obasis0.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
     er = obasis0.compute_electron_repulsion(lf)
-    guess_core_hamiltonian(wfn0, olp, kin, nai)
+    guess_core_hamiltonian(wfn0, olp, kin, na)
 
     # Change geometry
     mol.coordinates[1,2] += 0.1

@@ -18,11 +18,11 @@ wfn = setup_mean_field_wfn(obasis.nbasis, mol.numbers, lf, charge=0)
 # Compute Gaussian integrals
 olp = obasis.compute_overlap(lf)
 kin = obasis.compute_kinetic(lf)
-nai = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
+na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
 er = obasis.compute_electron_repulsion(lf)
 
 # Initial guess
-guess_core_hamiltonian(wfn, olp, kin, nai)
+guess_core_hamiltonian(wfn, olp, kin, na)
 
 # Setup integration grids with default settings
 grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers)
@@ -35,7 +35,7 @@ terms = [
     GridGroup(obasis, grid, wfn, [
         DiracExchange(wfn),
     ]),
-    OneBodyTerm(nai, wfn, 'ne'),
+    OneBodyTerm(na, wfn, 'ne'),
 ]
 ham = Hamiltonian(terms, external)
 

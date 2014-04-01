@@ -40,18 +40,18 @@ def test_scf_oda_water_hf_321g():
     mol = Molecule.from_file(fn_fchk)
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
-    nai = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
         DirectTerm(er, mol.wfn, 'hartree'),
         ExchangeTerm(er, mol.wfn, 'x_hf'),
-        OneBodyTerm(nai, mol.wfn, 'ne'),
+        OneBodyTerm(na, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
     # test continuation of interupted scf_oda
-    guess_core_hamiltonian(mol.wfn, olp, kin, nai)
+    guess_core_hamiltonian(mol.wfn, olp, kin, na)
     e0 = ham.compute()
     assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) > 1e-5
     with assert_raises(NoSCFConvergence):
@@ -71,7 +71,7 @@ def test_scf_oda_lih_hfs_321g():
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
-    nai = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
@@ -79,12 +79,12 @@ def test_scf_oda_lih_hfs_321g():
         GridGroup(mol.obasis, grid, mol.wfn, [
             DiracExchange(mol.wfn),
         ]),
-        OneBodyTerm(nai, mol.wfn, 'ne'),
+        OneBodyTerm(na, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
     # test continuation of interupted scf_oda
-    guess_core_hamiltonian(mol.wfn, olp, kin, nai)
+    guess_core_hamiltonian(mol.wfn, olp, kin, na)
     e0 = ham.compute()
     assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) > 1e-5
     with assert_raises(NoSCFConvergence):
@@ -133,17 +133,17 @@ def test_scf_oda_aufbau_spin():
 
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
-    nai = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
         DirectTerm(er, mol.wfn, 'hartree'),
         ExchangeTerm(er, mol.wfn, 'x_hf'),
-        OneBodyTerm(nai, mol.wfn, 'ne'),
+        OneBodyTerm(na, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
-    guess_core_hamiltonian(mol.wfn, olp, kin, nai)
+    guess_core_hamiltonian(mol.wfn, olp, kin, na)
     converge_scf_oda(ham, mol.wfn, mol.lf, olp)
 
 

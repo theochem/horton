@@ -37,18 +37,18 @@ def test_scf_os():
 
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
-    nai = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
         DirectTerm(er, mol.wfn, 'hartree'),
         ExchangeTerm(er, mol.wfn, 'x_hf'),
-        OneBodyTerm(nai, mol.wfn, 'ne'),
+        OneBodyTerm(na, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms, external)
 
-    guess_core_hamiltonian(mol.wfn, olp, kin, nai)
+    guess_core_hamiltonian(mol.wfn, olp, kin, na)
     assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) > 1e-8
     converge_scf(ham, mol.wfn, mol.lf, olp)
     assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) < 1e-8
@@ -84,13 +84,13 @@ def test_hf_water_321g_mistake():
     lf = DenseLinalgFactory(obasis.nbasis)
     olp = obasis.compute_overlap(lf)
     kin = obasis.compute_kinetic(lf)
-    nai = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
+    na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
     er = obasis.compute_electron_repulsion(lf)
     terms = [
         OneBodyTerm(kin, wfn, 'kin'),
         DirectTerm(er, wfn, 'hartree'),
         ExchangeTerm(er, wfn, 'x_hf'),
-        OneBodyTerm(nai, wfn, 'ne'),
+        OneBodyTerm(na, wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
     with assert_raises(AttributeError):

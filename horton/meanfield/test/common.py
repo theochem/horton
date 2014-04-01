@@ -101,18 +101,18 @@ def check_scf_hf_cs_hf(scf_wrapper):
 
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
-    nai = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
         DirectTerm(er, mol.wfn, 'hartree'),
         ExchangeTerm(er, mol.wfn, 'x_hf'),
-        OneBodyTerm(nai, mol.wfn, 'ne'),
+        OneBodyTerm(na, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms, external)
 
-    guess_core_hamiltonian(mol.wfn, olp, kin, nai)
+    guess_core_hamiltonian(mol.wfn, olp, kin, na)
     assert scf_wrapper.convergence_error(ham, mol.wfn, mol.lf, olp) > scf_wrapper.kwargs['threshold']
     scf_wrapper(ham, mol.wfn, mol.lf, olp)
     assert scf_wrapper.convergence_error(ham, mol.wfn, mol.lf, olp) < scf_wrapper.kwargs['threshold']
@@ -141,7 +141,7 @@ def check_scf_water_cs_hfs(scf_wrapper):
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
-    nai = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
@@ -150,7 +150,7 @@ def check_scf_water_cs_hfs(scf_wrapper):
         GridGroup(mol.obasis, grid, mol.wfn, [
             DiracExchange(mol.wfn),
         ]),
-        OneBodyTerm(nai, mol.wfn, 'ne'),
+        OneBodyTerm(na, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms, external)
 
@@ -178,7 +178,7 @@ def check_scf_water_cs_hfs(scf_wrapper):
         assert abs(ham.cache['energy_nn'] - 9.1571750414) < 2e-8
 
     # Converge from scratch
-    guess_core_hamiltonian(mol.wfn, olp, kin, nai)
+    guess_core_hamiltonian(mol.wfn, olp, kin, na)
     assert scf_wrapper.convergence_error(ham, mol.wfn, mol.lf, olp) > scf_wrapper.kwargs['threshold']
     scf_wrapper(ham, mol.wfn, mol.lf, olp)
     assert scf_wrapper.convergence_error(ham, mol.wfn, mol.lf, olp) < scf_wrapper.kwargs['threshold']
