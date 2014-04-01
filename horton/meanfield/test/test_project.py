@@ -67,8 +67,8 @@ def test_project_larger():
     er = obasis1.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, wfn1, 'kin'),
-        DirectTerm(er, wfn1),
-        ExchangeTerm(er, wfn1),
+        DirectTerm(er, wfn1, 'hartree'),
+        ExchangeTerm(er, wfn1, 'x_hf'),
         OneBodyTerm(nai, wfn1, 'ne'),
     ]
     ham = Hamiltonian(terms)
@@ -121,8 +121,8 @@ def test_project_smaller():
     er = obasis1.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, wfn1, 'kin'),
-        DirectTerm(er, wfn1),
-        ExchangeTerm(er, wfn1),
+        DirectTerm(er, wfn1, 'hartree'),
+        ExchangeTerm(er, wfn1, 'x_hf'),
         OneBodyTerm(nai, wfn1, 'ne'),
     ]
     ham = Hamiltonian(terms)

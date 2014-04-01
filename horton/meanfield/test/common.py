@@ -106,8 +106,8 @@ def check_scf_hf_cs_hf(scf_wrapper):
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
-        ExchangeTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
+        ExchangeTerm(er, mol.wfn, 'x_hf'),
         OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms, external)
@@ -128,7 +128,7 @@ def check_scf_hf_cs_hf(scf_wrapper):
     # compare with g09
     assert abs(ham.cache['energy'] - -9.856961609951867E+01) < 1e-8
     assert abs(ham.cache['energy_kin'] - 9.766140786239E+01) < 2e-7
-    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_exchange_hartree_fock'] - 4.561984106482E+01) < 1e-6
+    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_x_hf'] - 4.561984106482E+01) < 1e-6
     assert abs(ham.cache['energy_ne'] - -2.465756615329E+02) < 1e-6
     assert abs(ham.cache['energy_nn'] - 4.7247965053) < 1e-8
 
@@ -146,7 +146,7 @@ def check_scf_water_cs_hfs(scf_wrapper):
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
         GridGroup(mol.obasis, grid, mol.wfn, [
             DiracExchange(mol.wfn),
         ]),

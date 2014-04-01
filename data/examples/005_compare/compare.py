@@ -33,8 +33,8 @@ def main(fns_fchk):
         guess_core_hamiltonian(wfn, olp, kin, na)
         terms = [
             OneBodyTerm(kin, wfn, 'kin'),
-            DirectTerm(er, wfn),
-            ExchangeTerm(er, wfn),
+            DirectTerm(er, wfn, 'hartree'),
+            ExchangeTerm(er, wfn, 'x_hf'),
             OneBodyTerm(na, wfn, 'ne'),
         ]
         ham = Hamiltonian(terms)

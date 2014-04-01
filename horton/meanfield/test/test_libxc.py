@@ -41,7 +41,7 @@ def test_fock_n2_hfs_sto3g():
     libxc_term = LibXCLDA(mol.wfn, 'x')
     terms1 = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
         GridGroup(mol.obasis, grid, mol.wfn, [
             libxc_term,
         ]),
@@ -52,7 +52,7 @@ def test_fock_n2_hfs_sto3g():
     builtin_term = DiracExchange(mol.wfn)
     terms2 = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
         GridGroup(mol.obasis, grid, mol.wfn, [
             builtin_term,
         ]),
@@ -123,7 +123,7 @@ def test_hamiltonian_h3_hfs_321g():
     libxc_term = LibXCLDA(mol.wfn, 'x')
     terms1 = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
         GridGroup(mol.obasis, grid, mol.wfn, [
             libxc_term,
         ]),
@@ -134,7 +134,7 @@ def test_hamiltonian_h3_hfs_321g():
     builtin_term = DiracExchange(mol.wfn)
     terms2 = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
         GridGroup(mol.obasis, grid, mol.wfn, [
             builtin_term,
         ]),
@@ -208,7 +208,7 @@ def test_co_pbe_sto3g():
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
         GridGroup(mol.obasis, grid, mol.wfn, [
             LibXCGGA(mol.wfn, 'x_pbe'),
             LibXCGGA(mol.wfn, 'c_pbe'),
@@ -259,7 +259,7 @@ def test_h3_pbe_321g():
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
         GridGroup(mol.obasis, grid, mol.wfn, [
             LibXCGGA(mol.wfn, 'x_pbe'),
             LibXCGGA(mol.wfn, 'c_pbe'),
@@ -314,7 +314,7 @@ def test_cubic_interpolation_c_pbe_cs():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
         GridGroup(mol.obasis, grid, mol.wfn, [
             LibXCGGA(mol.wfn, 'c_pbe'),
         ]),
@@ -341,7 +341,7 @@ def test_cubic_interpolation_x_pbe_cs():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
         GridGroup(mol.obasis, grid, mol.wfn, [
             LibXCGGA(mol.wfn, 'x_pbe'),
         ]),
@@ -368,7 +368,7 @@ def test_cubic_interpolation_hfs_cs():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
         GridGroup(mol.obasis, grid, mol.wfn, [
             LibXCLDA(mol.wfn, 'x'),
         ]),
@@ -396,9 +396,9 @@ def test_cubic_interpolation_o3lyp_cs():
     libxc_term = LibXCHybridGGA(mol.wfn, 'xc_o3lyp')
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
         GridGroup(mol.obasis, grid, mol.wfn, [libxc_term]),
-        ExchangeTerm(er, mol.wfn, fraction_exchange=libxc_term.get_exx_fraction()),
+        ExchangeTerm(er, mol.wfn, 'x_hf', libxc_term.get_exx_fraction()),
         OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
@@ -421,7 +421,7 @@ def test_cubic_interpolation_c_pbe_os():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
         GridGroup(mol.obasis, grid, mol.wfn, [
             LibXCGGA(mol.wfn, 'c_pbe'),
         ]),
@@ -450,7 +450,7 @@ def test_cubic_interpolation_x_pbe_os():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
         GridGroup(mol.obasis, grid, mol.wfn, [
             LibXCGGA(mol.wfn, 'x_pbe'),
         ]),
@@ -479,7 +479,7 @@ def test_cubic_interpolation_hfs_os():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
         GridGroup(mol.obasis, grid, mol.wfn, [
             LibXCLDA(mol.wfn, 'x'),
         ]),
@@ -509,9 +509,9 @@ def test_cubic_interpolation_o3lyp_os():
     libxc_term = LibXCHybridGGA(mol.wfn, 'xc_o3lyp')
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
         GridGroup(mol.obasis, grid, mol.wfn, [libxc_term]),
-        ExchangeTerm(er, mol.wfn, fraction_exchange=libxc_term.get_exx_fraction()),
+        ExchangeTerm(er, mol.wfn, 'x_hf', fraction_exchange=libxc_term.get_exx_fraction()),
         OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)

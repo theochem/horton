@@ -104,7 +104,7 @@ class OneBodyTerm(Observable):
 
 
 class DirectTerm(Observable):
-    def __init__(self, operator, wfn, label='hartree'):
+    def __init__(self, operator, wfn, label):
         self._operator = operator
         self._wfn = wfn
         Observable.__init__(self, label)
@@ -141,8 +141,7 @@ class DirectTerm(Observable):
 
 
 class ExchangeTerm(Observable):
-    def __init__(self, operator, wfn,
-                 label='exchange_hartree_fock', fraction_exchange=1.0):
+    def __init__(self, operator, wfn, label, fraction_exchange=1.0):
         self._operator = operator
         self._wfn = wfn
         self.fraction_exchange = fraction_exchange

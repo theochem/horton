@@ -44,8 +44,8 @@ def test_scf_oda_water_hf_321g():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
-        ExchangeTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
+        ExchangeTerm(er, mol.wfn, 'x_hf'),
         OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
@@ -75,7 +75,7 @@ def test_scf_oda_lih_hfs_321g():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
         GridGroup(mol.obasis, grid, mol.wfn, [
             DiracExchange(mol.wfn),
         ]),
@@ -137,8 +137,8 @@ def test_scf_oda_aufbau_spin():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
-        ExchangeTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
+        ExchangeTerm(er, mol.wfn, 'x_hf'),
         OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)

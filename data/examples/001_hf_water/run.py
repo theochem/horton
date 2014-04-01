@@ -27,8 +27,8 @@ guess_core_hamiltonian(wfn, olp, kin, nai)
 external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
 terms = [
     OneBodyTerm(kin, wfn, 'kin'),
-    DirectTerm(er, wfn),
-    ExchangeTerm(er, wfn),
+    DirectTerm(er, wfn, 'hartree'),
+    ExchangeTerm(er, wfn, 'x_hf'),
     OneBodyTerm(nai, wfn, 'ne'),
 ]
 ham = Hamiltonian(terms, external)

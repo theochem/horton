@@ -36,8 +36,8 @@ def test_energy_hydrogen():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
-        ExchangeTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
+        ExchangeTerm(er, mol.wfn, 'x_hf'),
         OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
@@ -55,7 +55,7 @@ def test_energy_n2_hfs_sto3g():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
         GridGroup(mol.obasis, grid, mol.wfn, [
             DiracExchange(mol.wfn),
         ]),
@@ -100,7 +100,7 @@ def test_fock_n2_hfs_sto3g():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
         GridGroup(mol.obasis, grid, mol.wfn, [
             DiracExchange(mol.wfn),
         ]),
@@ -148,7 +148,7 @@ def test_fock_h3_hfs_321g():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
         GridGroup(mol.obasis, grid, mol.wfn, [
             DiracExchange(mol.wfn),
         ]),
@@ -199,7 +199,7 @@ def test_cubic_interpolation_hfs_cs():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
         GridGroup(mol.obasis, grid, mol.wfn, [
             DiracExchange(mol.wfn),
         ]),
@@ -227,8 +227,8 @@ def test_perturbation():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
-        ExchangeTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
+        ExchangeTerm(er, mol.wfn, 'x_hf'),
         OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
@@ -257,8 +257,8 @@ def test_perturbation():
         # Hamiltonian
         terms = [
             OneBodyTerm(kin, mol.wfn, 'kin'),
-            DirectTerm(er, mol.wfn),
-            ExchangeTerm(er, mol.wfn),
+            DirectTerm(er, mol.wfn, 'hartree'),
+            ExchangeTerm(er, mol.wfn, 'x_hf'),
             OneBodyTerm(nai, mol.wfn, 'ne'),
             perturbation,
         ]
@@ -279,7 +279,7 @@ def test_perturbation():
 def test_add_term():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     mol = Molecule.from_file(fn_fchk)
-    ham = Hamiltonian([ExchangeTerm(mol.obasis.compute_electron_repulsion(mol.lf), mol.wfn)])
+    ham = Hamiltonian([ExchangeTerm(mol.obasis.compute_electron_repulsion(mol.lf), mol.wfn, 'x_hf')])
     term = OneBodyTerm(mol.obasis.compute_kinetic(mol.lf), mol.wfn, 'kin')
     ham.add_term(term)
     assert term._hamiltonian is ham
@@ -294,8 +294,8 @@ def test_ghost_hf():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
-        ExchangeTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
+        ExchangeTerm(er, mol.wfn, 'x_hf'),
         OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)

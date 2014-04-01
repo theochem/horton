@@ -31,7 +31,7 @@ grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers)
 external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
 terms = [
     OneBodyTerm(kin, wfn, 'kin'),
-    DirectTerm(er, wfn),
+    DirectTerm(er, wfn, 'hartree'),
     GridGroup(obasis, grid, wfn, [
         DiracExchange(wfn),
     ]),

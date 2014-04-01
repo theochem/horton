@@ -42,8 +42,8 @@ def test_scf_os():
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn),
-        ExchangeTerm(er, mol.wfn),
+        DirectTerm(er, mol.wfn, 'hartree'),
+        ExchangeTerm(er, mol.wfn, 'x_hf'),
         OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms, external)
@@ -70,7 +70,7 @@ def test_scf_os():
     # compare with g09
     assert abs(ham.cache['energy'] - -7.687331212191962E+00) < 1e-8
     assert abs(ham.cache['energy_kin'] - 7.640603924034E+00) < 2e-7
-    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_exchange_hartree_fock'] - 2.114420907894E+00) < 1e-7
+    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_x_hf'] - 2.114420907894E+00) < 1e-7
     assert abs(ham.cache['energy_ne'] - -1.811548789281E+01) < 2e-7
     assert abs(ham.cache['energy_nn'] - 0.6731318487) < 1e-8
 
@@ -88,8 +88,8 @@ def test_hf_water_321g_mistake():
     er = obasis.compute_electron_repulsion(lf)
     terms = [
         OneBodyTerm(kin, wfn, 'kin'),
-        DirectTerm(er, wfn),
-        ExchangeTerm(er, wfn),
+        DirectTerm(er, wfn, 'hartree'),
+        ExchangeTerm(er, wfn, 'x_hf'),
         OneBodyTerm(nai, wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
