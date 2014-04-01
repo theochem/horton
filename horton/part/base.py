@@ -27,6 +27,7 @@ from horton.cache import JustOnceClass, just_once, Cache
 from horton.log import log
 from horton.moments import get_ncart_cumul, get_npure_cumul
 from horton.meanfield.wfn import RestrictedWFN
+from horton.utils import typecheck_geo
 
 
 __all__ = ['Part', 'WPart', 'CPart']
@@ -66,23 +67,16 @@ class Part(JustOnceClass):
            lmax
                 The maximum angular momentum in multipole expansions.
         '''
+
         # Init base class
         JustOnceClass.__init__(self)
 
         # Some type checking for first three arguments
-        self._natom = len(numbers)
-        if coordinates.shape != (self._natom, 3):
-            raise TypeError('The argument centers must be an array with shape (natom,3).')
-        if numbers.shape != (self._natom,):
-            raise TypeError('The argument numbers must be a vector with length natom.')
+        natom, coordinates, numbers, pseudo_numbers = typecheck_geo(coordinates, numbers, pseudo_numbers)
+        self._natom = natom
         self._coordinates = coordinates
         self._numbers = numbers
-        if pseudo_numbers is None:
-            self._pseudo_numbers = numbers.astype(float)
-        else:
-            if pseudo_numbers.shape != (self._natom,):
-                raise TypeError('The argument pseudo_numbers must be a vector with length natom.')
-            self._pseudo_numbers = pseudo_numbers
+        self._pseudo_numbers = pseudo_numbers
 
         # Assign remaining arguments as attributes
         self._grid = grid

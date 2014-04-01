@@ -29,6 +29,7 @@ from horton.grid.atgrid import AtomicGrid, AtomicGridSpec
 from horton.grid.cext import becke_helper_atom
 from horton.log import log, timer
 from horton.periodic import periodic
+from horton.utils import typecheck_geo
 
 
 __all__ = [
@@ -81,19 +82,10 @@ class BeckeMolGrid(IntGrid):
                   that the computation of the molecular integration weights
                   (based on the Becke partitioning) is skipped.
         '''
-        natom = len(numbers)
-        if centers.shape != (natom, 3):
-            raise TypeError('The argument centers must be an array with shape (natom,3).')
-        if numbers.shape != (natom,):
-            raise TypeError('The argument numbers must be a vector with length natom.')
+        natom, centers, numbers, pseudo_numbers = typecheck_geo(centers, numbers, pseudo_numbers)
         self._centers = centers
         self._numbers = numbers
-        if pseudo_numbers is None:
-            self._pseudo_numbers = numbers
-        else:
-            if pseudo_numbers.shape != (natom,):
-                raise TypeError('The argument pseudo_numbers must be a vector with length natom.')
-            self._pseudo_numbers = pseudo_numbers
+        self._pseudo_numbers = pseudo_numbers
 
         # check if the mode argument is valid
         if mode not in ['discard', 'keep', 'only']:

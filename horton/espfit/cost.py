@@ -28,6 +28,7 @@ from horton.units import angstrom
 from horton.grid.cext import UniformGrid
 from horton.espfit.cext import setup_esp_cost_cube, multiply_dens_mask, \
     multiply_near_mask, multiply_far_mask
+from horton.utils import typecheck_geo
 
 
 __all__ = ['ESPCost', 'setup_weights']
@@ -178,12 +179,7 @@ def setup_weights(coordinates, numbers, grid, dens=None, near=None, far=None):
        far
             Exclude points far away. This is a two-tuple: (R0, gamma).
     '''
-    if len(coordinates.shape) != 2 or coordinates.shape[1] != 3:
-        raise TypeError('The argument coordinates must be an array with three columns.')
-    natom = coordinates.shape[0]
-    if numbers.shape != (natom,):
-        raise TypeError('The arguments numbers must be a vector whose length matches the coordinates argument.')
-
+    natom, coordinates, numbers = typecheck_geo(coordinates, numbers, need_pseudo_numbers=False)
     weights = np.ones(grid.shape)
 
     # combine three possible mask functions

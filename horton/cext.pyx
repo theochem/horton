@@ -30,6 +30,8 @@ cimport cell
 cimport moments
 cimport nucpot
 
+from horton.utils import typecheck_geo
+
 __all__ = [
     # cell.cpp
     'Cell', 'smart_wrap',
@@ -459,18 +461,18 @@ def compute_grid_nucpot(np.ndarray[double, ndim=2] coordinates not None,
                         np.ndarray[double, ndim=1] charges not None,
                         np.ndarray[double, ndim=2] points not None,
                         np.ndarray[double, ndim=1] output not None):
+    # type checking
     assert coordinates.flags['C_CONTIGUOUS']
-    cdef long natom = coordinates.shape[0]
-    assert coordinates.shape[1] == 3
     assert charges.flags['C_CONTIGUOUS']
-    assert charges.shape[0] == natom
+    ncharge, coordinates, charges = typecheck_geo(coordinates, None, charges, need_numbers=False)
     assert output.flags['C_CONTIGUOUS']
     cdef long npoint = output.shape[0]
     assert points.flags['C_CONTIGUOUS']
     assert points.shape[0] == npoint
     assert points.shape[1] == 3
+    # actual computation
     nucpot.compute_grid_nucpot(
-        &coordinates[0,0], &charges[0], natom,
+        &coordinates[0,0], &charges[0], ncharge,
         &points[0,0], &output[0], npoint)
 
 
@@ -485,15 +487,14 @@ def compute_nucnuc(np.ndarray[double, ndim=2] coordinates not None,
        charges
             A (N,) numpy vector with the atomic charges.
     '''
+    # type checking
     assert coordinates.flags['C_CONTIGUOUS']
-    cdef long natom = coordinates.shape[0]
-    assert coordinates.shape[1] == 3
     assert charges.flags['C_CONTIGUOUS']
-    assert charges.shape[0] == natom
+    ncharge, coordinates, charges = typecheck_geo(coordinates, None, charges, need_numbers=False)
     # TODO: move this to low-level code one day.
     result = 0.0
     natom = len(charges)
-    for i in xrange(natom):
+    for i in xrange(ncharge):
         for j in xrange(i):
             distance = np.linalg.norm(coordinates[i]-coordinates[j])
             result += charges[i]*charges[j]/distance

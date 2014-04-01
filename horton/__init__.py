@@ -42,3 +42,4 @@ from horton.periodic import *
 from horton.symmetry import *
 from horton.quadprog import *
 from horton.units import *
+from horton.utils import *

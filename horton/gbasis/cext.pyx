@@ -39,6 +39,7 @@ import atexit
 
 from horton.log import log
 from horton.matrix import LinalgFactory
+from horton.utils import typecheck_geo
 
 
 __all__ = [
@@ -524,12 +525,10 @@ cdef class GOBasis(GBasis):
                                    np.ndarray[double, ndim=1] charges not None,
                                    output):
         """Compute the kintic energy matrix in a Gaussian orbital basis."""
-        # check arguments
+        # type checking
         assert coordinates.flags['C_CONTIGUOUS']
-        cdef long ncharge = coordinates.shape[0]
-        assert coordinates.shape[1] == 3
         assert charges.flags['C_CONTIGUOUS']
-        assert charges.shape[0] == ncharge
+        ncharge, coordinates, charges = typecheck_geo(coordinates, None, charges, need_numbers=False)
         # prepare the output array
         cdef np.ndarray[double, ndim=2] output_array
         if isinstance(output, LinalgFactory):

@@ -27,6 +27,7 @@ from horton.context import context
 from horton.gbasis.cext import GOBasis
 from horton.gbasis.io import load_basis_atom_map_nwchem
 from horton.periodic import periodic
+from horton.utils import typecheck_geo
 
 
 __all__ = [
@@ -132,12 +133,7 @@ class GOBasisDesc(object):
            Note that the geometry specified by the arguments may also contain
            ghost atoms.
         """
-        if len(coordinates.shape) != 2 or coordinates.shape[1] != 3:
-            raise TypeError('coordinates argument must be a 2D array with three columns')
-        if len(numbers.shape) != 1:
-            raise TypeError('numbers must a vector of integers.')
-        if numbers.shape[0] != coordinates.shape[0]:
-            raise TypeError('numbers and coordinates must have compatible array shapes.')
+        natom, coordinates, numbers = typecheck_geo(coordinates, numbers, need_pseudo_numbers=False)
 
         shell_map = []
         nprims = []
@@ -179,7 +175,7 @@ class GOBasisDesc(object):
                 raise ValueError('Can not interpret %s as an atomic basis function.' % basis_x)
 
         # Loop over the atoms and fill in all the lists
-        for i in xrange(len(numbers)):
+        for i in xrange(natom):
             n = numbers[i]
             basis_x = get_basis(i, n)
             basis_atom = translate_basis(basis_x, n)
