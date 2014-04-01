@@ -22,6 +22,7 @@
 
 
 import numpy as np
+from nose.tools import assert_raises
 
 from horton import *
 
@@ -320,3 +321,13 @@ def test_naturals():
     assert exp_alpha.occupations.min() > -1e-6
     assert exp_alpha.occupations.max() < 1+1e-6
     exp_alpha.check_normalization(mol.obasis.compute_overlap(mol.lf))
+
+
+def test_linalg_objects_del():
+    lf = DenseLinalgFactory()
+    with assert_raises(TypeError):
+        exp = lf.create_expansion()
+    with assert_raises(TypeError):
+        op1 = lf.create_one_body()
+    with assert_raises(TypeError):
+        op2 = lf.create_two_body()

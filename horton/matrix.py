@@ -273,7 +273,8 @@ class DenseExpansion(LinalgObject):
 
     def __del__(self):
         if log is not None:
-            log.mem.denounce(self._coeffs.nbytes + self._energies.nbytes + self._occupations.nbytes)
+            if hasattr(self, '_coeffs') and hasattr(self, '_energies') and hasattr(self, '_occupations'):
+                log.mem.denounce(self._coeffs.nbytes + self._energies.nbytes + self._occupations.nbytes)
 
     def __check_init_args__(self, nbasis, nfn=None):
         if nfn is None:
@@ -526,7 +527,8 @@ class DenseOneBody(OneBody):
 
     def __del__(self):
         if log is not None:
-            log.mem.denounce(self._array.nbytes)
+            if hasattr(self, '_array'):
+                log.mem.denounce(self._array.nbytes)
 
     def __check_init_args__(self, nbasis):
         assert nbasis == self.nbasis
@@ -647,7 +649,8 @@ class DenseTwoBody(LinalgObject):
 
     def __del__(self):
         if log is not None:
-            log.mem.denounce(self._array.nbytes)
+            if hasattr(self, '_array'):
+                log.mem.denounce(self._array.nbytes)
 
     def __check_init_args__(self, nbasis):
         assert nbasis == self.nbasis
