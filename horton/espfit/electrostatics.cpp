@@ -174,6 +174,7 @@ void compute_esp_cube(UniformGrid* ugrid, double* esp,
     Cube3Iterator c3i = Cube3Iterator(NULL, ugrid->shape);
     long i[3];
     long npoint = c3i.get_npoint();
+    Cell* cell = ugrid->get_cell();
 
     for (long ipoint=0; ipoint<npoint; ipoint++) {
         // Compute the position of the grid point
@@ -190,12 +191,14 @@ void compute_esp_cube(UniformGrid* ugrid, double* esp,
             delta[0] = centers[3*icenter]   - grid_cart[0];
             delta[1] = centers[3*icenter+1] - grid_cart[1];
             delta[2] = centers[3*icenter+2] - grid_cart[2];
-            tmp += charges[icenter]*pair_electrostatics(delta,
-                            ugrid->get_cell(), rcut, alpha, gcut);
+            tmp += charges[icenter]*pair_electrostatics(delta, cell, rcut,
+                                                        alpha, gcut);
         }
         (*esp) = tmp;
 
         // move on
         esp++;
     }
+
+    delete cell;
 }

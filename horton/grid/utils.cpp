@@ -92,7 +92,10 @@ void dot_multi(long npoint, long nvector, double** data, long* segments, double*
 
 
 void dot_multi_moments_cube(long nvector, double** data, UniformGrid* ugrid, double* center, long lmax, long mtype, double* output, long nmoment) {
-    if (ugrid->get_cell()->get_nvec() != 0) {
+    Cell* cell = ugrid->get_cell();
+    long nvec = cell->get_nvec();
+    delete cell;
+    if (nvec != 0) {
         throw std::domain_error("dot_multi_moments_cube only works for non-periodic grids.");
     }
     if (lmax<0) {

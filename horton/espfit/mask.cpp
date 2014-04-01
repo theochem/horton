@@ -100,4 +100,5 @@ void multiply_far_mask(double* centers, long ncenter, UniformGrid* ugrid,
         }
     }
 
+    delete cell;
 }
