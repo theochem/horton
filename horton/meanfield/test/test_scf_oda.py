@@ -37,29 +37,29 @@ def test_scf_oda_cs_hfs():
 
 def test_scf_oda_water_hf_321g():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
-    sys = System.from_file(fn_fchk)
-    olp = sys.get_overlap()
-    kin = sys.get_kinetic()
-    nai = sys.get_nuclear_attraction()
-    er = sys.get_electron_repulsion()
+    mol = Molecule.from_file(fn_fchk)
+    olp = mol.obasis.compute_overlap(mol.lf)
+    kin = mol.obasis.compute_kinetic(mol.lf)
+    nai = mol.obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, sys.wfn, 'kin'),
-        DirectTerm(er, sys.wfn),
-        ExchangeTerm(er, sys.wfn),
-        OneBodyTerm(nai, sys.wfn, 'ne'),
+        OneBodyTerm(kin, mol.wfn, 'kin'),
+        DirectTerm(er, mol.wfn),
+        ExchangeTerm(er, mol.wfn),
+        OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
     # test continuation of interupted scf_oda
-    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
+    guess_core_hamiltonian(mol.wfn, olp, kin, nai)
     e0 = ham.compute()
-    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) > 1e-5
+    assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) > 1e-5
     with assert_raises(NoSCFConvergence):
-        converge_scf_oda(ham, sys.wfn, sys.lf, olp, threshold=1e-2, maxiter=3)
-    assert 'exp_alpha' in sys.wfn._cache
+        converge_scf_oda(ham, mol.wfn, mol.lf, olp, threshold=1e-2, maxiter=3)
+    assert 'exp_alpha' in mol.wfn._cache
     e1 = ham.compute()
     with assert_raises(NoSCFConvergence):
-        converge_scf_oda(ham, sys.wfn, sys.lf, olp, threshold=1e-2, maxiter=3)
+        converge_scf_oda(ham, mol.wfn, mol.lf, olp, threshold=1e-2, maxiter=3)
     e2 = ham.compute()
     assert e1 < e0
     assert e2 < e1
@@ -67,38 +67,38 @@ def test_scf_oda_water_hf_321g():
 
 def test_scf_oda_lih_hfs_321g():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
-    sys = System.from_file(fn_fchk)
-    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    olp = sys.get_overlap()
-    kin = sys.get_kinetic()
-    nai = sys.get_nuclear_attraction()
-    er = sys.get_electron_repulsion()
+    mol = Molecule.from_file(fn_fchk)
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
+    olp = mol.obasis.compute_overlap(mol.lf)
+    kin = mol.obasis.compute_kinetic(mol.lf)
+    nai = mol.obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, sys.wfn, 'kin'),
-        DirectTerm(er, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.wfn, [
-            DiracExchange(sys.wfn),
+        OneBodyTerm(kin, mol.wfn, 'kin'),
+        DirectTerm(er, mol.wfn),
+        GridGroup(mol.obasis, grid, mol.wfn, [
+            DiracExchange(mol.wfn),
         ]),
-        OneBodyTerm(nai, sys.wfn, 'ne'),
+        OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
     # test continuation of interupted scf_oda
-    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
+    guess_core_hamiltonian(mol.wfn, olp, kin, nai)
     e0 = ham.compute()
-    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) > 1e-5
+    assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) > 1e-5
     with assert_raises(NoSCFConvergence):
-        converge_scf_oda(ham, sys.wfn, sys.lf, olp, threshold=1e-8, maxiter=3)
-    assert 'exp_alpha' in sys.wfn._cache
+        converge_scf_oda(ham, mol.wfn, mol.lf, olp, threshold=1e-8, maxiter=3)
+    assert 'exp_alpha' in mol.wfn._cache
     e1 = ham.compute()
     with assert_raises(NoSCFConvergence):
-        converge_scf_oda(ham, sys.wfn, sys.lf, olp, threshold=1e-8, maxiter=3)
+        converge_scf_oda(ham, mol.wfn, mol.lf, olp, threshold=1e-8, maxiter=3)
     e2 = ham.compute()
     assert e1 < e0
     assert e2 < e1
 
     # continue till convergence
-    converge_scf_oda(ham, sys.wfn, sys.lf, olp, threshold=1e-8)
+    converge_scf_oda(ham, mol.wfn, mol.lf, olp, threshold=1e-8)
 
 
 def test_find_min_cubic():
@@ -128,23 +128,23 @@ def test_find_min_quadratic():
 
 def test_scf_oda_aufbau_spin():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
-    sys = System.from_file(fn_fchk)
-    sys.wfn.occ_model = AufbauSpinOccModel(3)
+    mol = Molecule.from_file(fn_fchk)
+    mol.wfn.occ_model = AufbauSpinOccModel(3)
 
-    olp = sys.get_overlap()
-    kin = sys.get_kinetic()
-    nai = sys.get_nuclear_attraction()
-    er = sys.get_electron_repulsion()
+    olp = mol.obasis.compute_overlap(mol.lf)
+    kin = mol.obasis.compute_kinetic(mol.lf)
+    nai = mol.obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, sys.wfn, 'kin'),
-        DirectTerm(er, sys.wfn),
-        ExchangeTerm(er, sys.wfn),
-        OneBodyTerm(nai, sys.wfn, 'ne'),
+        OneBodyTerm(kin, mol.wfn, 'kin'),
+        DirectTerm(er, mol.wfn),
+        ExchangeTerm(er, mol.wfn),
+        OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
-    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
-    converge_scf_oda(ham, sys.wfn, sys.lf, olp)
+    guess_core_hamiltonian(mol.wfn, olp, kin, nai)
+    converge_scf_oda(ham, mol.wfn, mol.lf, olp)
 
 
 def test_check_dm():

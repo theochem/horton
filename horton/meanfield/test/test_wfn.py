@@ -57,33 +57,33 @@ def test_clear_dm():
 
 def test_conversion_dm_exp():
     fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
-    sys = System.from_file(fn_fchk)
-    oes = sys.wfn.exp_alpha.energies.copy()
-    dm = sys.lf.create_one_body()
-    dm.assign(sys.wfn.dm_alpha)
+    mol = Molecule.from_file(fn_fchk)
+    oes = mol.wfn.exp_alpha.energies.copy()
+    dm = mol.lf.create_one_body()
+    dm.assign(mol.wfn.dm_alpha)
 
-    olp = sys.get_overlap()
-    kin = sys.get_kinetic()
-    nai = sys.get_nuclear_attraction()
-    er = sys.get_electron_repulsion()
+    olp = mol.obasis.compute_overlap(mol.lf)
+    kin = mol.obasis.compute_kinetic(mol.lf)
+    nai = mol.obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, sys.wfn, 'kin'),
-        DirectTerm(er, sys.wfn),
-        ExchangeTerm(er, sys.wfn),
-        OneBodyTerm(nai, sys.wfn, 'ne'),
+        OneBodyTerm(kin, mol.wfn, 'kin'),
+        DirectTerm(er, mol.wfn),
+        ExchangeTerm(er, mol.wfn),
+        OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
-    fock = sys.lf.create_one_body()
+    fock = mol.lf.create_one_body()
     ham.compute_fock(fock, None)
-    sys.wfn.clear()
-    sys.wfn.update_exp(fock, olp, dm)
+    mol.wfn.clear()
+    mol.wfn.update_exp(fock, olp, dm)
 
-    assert abs(sys.wfn.exp_alpha.occupations.sum() - 5) < 1e-8
-    assert abs(oes - sys.wfn.exp_alpha.energies).max() < 3e-8
-    assert (dm._array == sys.wfn.dm_alpha._array).all()
+    assert abs(mol.wfn.exp_alpha.occupations.sum() - 5) < 1e-8
+    assert abs(oes - mol.wfn.exp_alpha.energies).max() < 3e-8
+    assert (dm._array == mol.wfn.dm_alpha._array).all()
     # ugly hack
-    sys.wfn.clear_dm()
-    assert abs(dm._array - sys.wfn.dm_alpha._array).max() < 1e-9
+    mol.wfn.clear_dm()
+    assert abs(dm._array - mol.wfn.dm_alpha._array).max() < 1e-9
 
 
 def test_dm_lih_sto3g_hf():
@@ -317,11 +317,11 @@ def test_fermi_occ_model_hdf5():
 
 def test_level_shift():
     fn_fchk = context.get_fn('test/helium_hf_sto3g.fchk')
-    sys = System.from_file(fn_fchk)
-    overlap = sys.get_overlap()
-    dm_alpha1 = sys.wfn.dm_alpha.copy()
-    ls_alpha = sys.wfn.get_level_shift('alpha', overlap)
-    sys.wfn.clear()
-    sys.wfn.update_exp(ls_alpha, overlap)
-    dm_alpha2 = sys.wfn.dm_alpha.copy()
+    mol = Molecule.from_file(fn_fchk)
+    overlap = mol.obasis.compute_overlap(mol.lf)
+    dm_alpha1 = mol.wfn.dm_alpha.copy()
+    ls_alpha = mol.wfn.get_level_shift('alpha', overlap)
+    mol.wfn.clear()
+    mol.wfn.update_exp(ls_alpha, overlap)
+    dm_alpha2 = mol.wfn.dm_alpha.copy()
     assert abs(dm_alpha1._array - dm_alpha2._array) < 1e-5

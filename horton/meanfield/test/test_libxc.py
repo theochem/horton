@@ -29,39 +29,39 @@ from horton.meanfield.test.common import check_cubic_cs_wrapper, check_cubic_os_
 
 def test_fock_n2_hfs_sto3g():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    sys = System.from_file(fn_fchk)
-    sys.wfn.clear_dm()
-    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
-    olp = sys.get_overlap()
-    kin = sys.get_kinetic()
-    nai = sys.get_nuclear_attraction()
-    er = sys.get_electron_repulsion()
-    external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
+    mol = Molecule.from_file(fn_fchk)
+    mol.wfn.clear_dm()
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'veryfine', random_rotate=False)
+    olp = mol.obasis.compute_overlap(mol.lf)
+    kin = mol.obasis.compute_kinetic(mol.lf)
+    nai = mol.obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    er = mol.obasis.compute_electron_repulsion(mol.lf)
+    external = {'nn': compute_nucnuc(mol.coordinates, mol.numbers)}
 
-    libxc_term = LibXCLDA(sys.wfn, 'x')
+    libxc_term = LibXCLDA(mol.wfn, 'x')
     terms1 = [
-        OneBodyTerm(kin, sys.wfn, 'kin'),
-        DirectTerm(er, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.wfn, [
+        OneBodyTerm(kin, mol.wfn, 'kin'),
+        DirectTerm(er, mol.wfn),
+        GridGroup(mol.obasis, grid, mol.wfn, [
             libxc_term,
         ]),
-        OneBodyTerm(nai, sys.wfn, 'ne'),
+        OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham1 = Hamiltonian(terms1, external)
 
-    builtin_term = DiracExchange(sys.wfn)
+    builtin_term = DiracExchange(mol.wfn)
     terms2 = [
-        OneBodyTerm(kin, sys.wfn, 'kin'),
-        DirectTerm(er, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.wfn, [
+        OneBodyTerm(kin, mol.wfn, 'kin'),
+        DirectTerm(er, mol.wfn),
+        GridGroup(mol.obasis, grid, mol.wfn, [
             builtin_term,
         ]),
-        OneBodyTerm(nai, sys.wfn, 'ne'),
+        OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham2 = Hamiltonian(terms2, external)
 
     # Compare the potential computed by libxc with the builtin implementation
-    fock_alpha = sys.lf.create_one_body()
+    fock_alpha = mol.lf.create_one_body()
     ham1.compute_fock(fock_alpha, None)
     fock_alpha.clear()
     ham2.compute_fock(fock_alpha, None)
@@ -81,14 +81,14 @@ def test_fock_n2_hfs_sto3g():
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
-    assert convergence_error_eigen(ham1, sys.wfn, sys.lf, olp) < 1e-5
-    assert convergence_error_eigen(ham2, sys.wfn, sys.lf, olp) < 1e-5
+    assert convergence_error_eigen(ham1, mol.wfn, mol.lf, olp) < 1e-5
+    assert convergence_error_eigen(ham2, mol.wfn, mol.lf, olp) < 1e-5
 
     # Converge from scratch
-    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
-    assert convergence_error_commutator(ham1, sys.wfn, sys.lf, olp) > 1e-8
-    converge_scf_ediis2(ham1, sys.wfn, sys.lf, olp, threshold=1e-8)
-    assert convergence_error_commutator(ham1, sys.wfn, sys.lf, olp) < 1e-8
+    guess_core_hamiltonian(mol.wfn, olp, kin, nai)
+    assert convergence_error_commutator(ham1, mol.wfn, mol.lf, olp) > 1e-8
+    converge_scf_ediis2(ham1, mol.wfn, mol.lf, olp, threshold=1e-8)
+    assert convergence_error_commutator(ham1, mol.wfn, mol.lf, olp) < 1e-8
 
     # test orbital energies
     expected_energies = np.array([
@@ -96,7 +96,7 @@ def test_fock_n2_hfs_sto3g():
         -3.16017655E-01, -3.16017655E-01, -2.12998316E-01, 6.84030479E-02,
         6.84030479E-02, 7.50192517E-01,
     ])
-    assert abs(sys.wfn.exp_alpha.energies - expected_energies).max() < 3e-5
+    assert abs(mol.wfn.exp_alpha.energies - expected_energies).max() < 3e-5
 
     ham1.compute()
     # compare with g09
@@ -111,40 +111,40 @@ def test_fock_n2_hfs_sto3g():
 
 def test_hamiltonian_h3_hfs_321g():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
-    sys = System.from_file(fn_fchk)
-    sys.wfn.clear_dm()
-    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
-    olp = sys.get_overlap()
-    kin = sys.get_kinetic()
-    nai = sys.get_nuclear_attraction()
-    er = sys.get_electron_repulsion()
-    external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
+    mol = Molecule.from_file(fn_fchk)
+    mol.wfn.clear_dm()
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'veryfine', random_rotate=False)
+    olp = mol.obasis.compute_overlap(mol.lf)
+    kin = mol.obasis.compute_kinetic(mol.lf)
+    nai = mol.obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    er = mol.obasis.compute_electron_repulsion(mol.lf)
+    external = {'nn': compute_nucnuc(mol.coordinates, mol.numbers)}
 
-    libxc_term = LibXCLDA(sys.wfn, 'x')
+    libxc_term = LibXCLDA(mol.wfn, 'x')
     terms1 = [
-        OneBodyTerm(kin, sys.wfn, 'kin'),
-        DirectTerm(er, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.wfn, [
+        OneBodyTerm(kin, mol.wfn, 'kin'),
+        DirectTerm(er, mol.wfn),
+        GridGroup(mol.obasis, grid, mol.wfn, [
             libxc_term,
         ]),
-        OneBodyTerm(nai, sys.wfn, 'ne'),
+        OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham1 = Hamiltonian(terms1, external)
 
-    builtin_term = DiracExchange(sys.wfn)
+    builtin_term = DiracExchange(mol.wfn)
     terms2 = [
-        OneBodyTerm(kin, sys.wfn, 'kin'),
-        DirectTerm(er, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.wfn, [
+        OneBodyTerm(kin, mol.wfn, 'kin'),
+        DirectTerm(er, mol.wfn),
+        GridGroup(mol.obasis, grid, mol.wfn, [
             builtin_term,
         ]),
-        OneBodyTerm(nai, sys.wfn, 'ne'),
+        OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham2 = Hamiltonian(terms2, external)
 
     # Compare the potential computed by libxc with the builtin implementation
-    fock_alpha = sys.lf.create_one_body()
-    fock_beta = sys.lf.create_one_body()
+    fock_alpha = mol.lf.create_one_body()
+    fock_beta = mol.lf.create_one_body()
     ham1.compute_fock(fock_alpha, fock_beta)
     fock_alpha.clear()
     fock_beta.clear()
@@ -165,26 +165,26 @@ def test_hamiltonian_h3_hfs_321g():
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
-    assert convergence_error_eigen(ham1, sys.wfn, sys.lf, olp) < 1e-5
-    assert convergence_error_eigen(ham2, sys.wfn, sys.lf, olp) < 1e-5
+    assert convergence_error_eigen(ham1, mol.wfn, mol.lf, olp) < 1e-5
+    assert convergence_error_eigen(ham2, mol.wfn, mol.lf, olp) < 1e-5
 
     # Converge from scratch
-    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
-    assert convergence_error_eigen(ham1, sys.wfn, sys.lf, olp) > 1e-8
-    converge_scf_oda(ham1, sys.wfn, sys.lf, olp)
-    assert convergence_error_eigen(ham1, sys.wfn, sys.lf, olp) < 1e-8
+    guess_core_hamiltonian(mol.wfn, olp, kin, nai)
+    assert convergence_error_eigen(ham1, mol.wfn, mol.lf, olp) > 1e-8
+    converge_scf_oda(ham1, mol.wfn, mol.lf, olp)
+    assert convergence_error_eigen(ham1, mol.wfn, mol.lf, olp) < 1e-8
 
     # test orbital energies
     expected_energies = np.array([
         -4.93959157E-01, -1.13961330E-01, 2.38730924E-01, 7.44216538E-01,
         8.30143356E-01, 1.46613581E+00
     ])
-    assert abs(sys.wfn.exp_alpha.energies - expected_energies).max() < 1e-5
+    assert abs(mol.wfn.exp_alpha.energies - expected_energies).max() < 1e-5
     expected_energies = np.array([
         -4.34824166E-01, 1.84114514E-04, 3.24300545E-01, 7.87622756E-01,
         9.42415831E-01, 1.55175481E+00
     ])
-    assert abs(sys.wfn.exp_beta.energies - expected_energies).max() < 1e-5
+    assert abs(mol.wfn.exp_beta.energies - expected_energies).max() < 1e-5
 
     ham1.compute()
     # compare with g09
@@ -199,21 +199,21 @@ def test_hamiltonian_h3_hfs_321g():
 
 def test_co_pbe_sto3g():
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
-    sys = System.from_file(fn_fchk)
-    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'fine', random_rotate=False)
-    olp = sys.get_overlap()
-    kin = sys.get_kinetic()
-    nai = sys.get_nuclear_attraction()
-    er = sys.get_electron_repulsion()
-    external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
+    mol = Molecule.from_file(fn_fchk)
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'fine', random_rotate=False)
+    olp = mol.obasis.compute_overlap(mol.lf)
+    kin = mol.obasis.compute_kinetic(mol.lf)
+    nai = mol.obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    er = mol.obasis.compute_electron_repulsion(mol.lf)
+    external = {'nn': compute_nucnuc(mol.coordinates, mol.numbers)}
     terms = [
-        OneBodyTerm(kin, sys.wfn, 'kin'),
-        DirectTerm(er, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.wfn, [
-            LibXCGGA(sys.wfn, 'x_pbe'),
-            LibXCGGA(sys.wfn, 'c_pbe'),
+        OneBodyTerm(kin, mol.wfn, 'kin'),
+        DirectTerm(er, mol.wfn),
+        GridGroup(mol.obasis, grid, mol.wfn, [
+            LibXCGGA(mol.wfn, 'x_pbe'),
+            LibXCGGA(mol.wfn, 'c_pbe'),
         ]),
-        OneBodyTerm(nai, sys.wfn, 'ne'),
+        OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms, external)
 
@@ -223,13 +223,13 @@ def test_co_pbe_sto3g():
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
-    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) < 1e-5
+    assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) < 1e-5
 
     # Converge from scratch
-    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
-    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) > 1e-5
-    converge_scf_oda(ham, sys.wfn, sys.lf, olp, threshold=1e-3)
-    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) < 1e-5
+    guess_core_hamiltonian(mol.wfn, olp, kin, nai)
+    assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) > 1e-5
+    converge_scf_oda(ham, mol.wfn, mol.lf, olp, threshold=1e-3)
+    assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) < 1e-5
 
     # test orbital energies
     expected_energies = np.array([
@@ -237,7 +237,7 @@ def test_co_pbe_sto3g():
          -3.48686522E-01, -3.48686522E-01, -2.06049056E-01, 5.23730418E-02,
          5.23730418E-02, 6.61093726E-01
     ])
-    assert abs(sys.wfn.exp_alpha.energies - expected_energies).max() < 1e-2
+    assert abs(mol.wfn.exp_alpha.energies - expected_energies).max() < 1e-2
 
     ham.compute()
     # compare with g09
@@ -250,21 +250,21 @@ def test_co_pbe_sto3g():
 
 def test_h3_pbe_321g():
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
-    sys = System.from_file(fn_fchk)
-    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, 'veryfine', random_rotate=False)
-    olp = sys.get_overlap()
-    kin = sys.get_kinetic()
-    nai = sys.get_nuclear_attraction()
-    er = sys.get_electron_repulsion()
-    external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
+    mol = Molecule.from_file(fn_fchk)
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'veryfine', random_rotate=False)
+    olp = mol.obasis.compute_overlap(mol.lf)
+    kin = mol.obasis.compute_kinetic(mol.lf)
+    nai = mol.obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    er = mol.obasis.compute_electron_repulsion(mol.lf)
+    external = {'nn': compute_nucnuc(mol.coordinates, mol.numbers)}
     terms = [
-        OneBodyTerm(kin, sys.wfn, 'kin'),
-        DirectTerm(er, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.wfn, [
-            LibXCGGA(sys.wfn, 'x_pbe'),
-            LibXCGGA(sys.wfn, 'c_pbe'),
+        OneBodyTerm(kin, mol.wfn, 'kin'),
+        DirectTerm(er, mol.wfn),
+        GridGroup(mol.obasis, grid, mol.wfn, [
+            LibXCGGA(mol.wfn, 'x_pbe'),
+            LibXCGGA(mol.wfn, 'c_pbe'),
         ]),
-        OneBodyTerm(nai, sys.wfn, 'ne'),
+        OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms, external)
 
@@ -274,25 +274,25 @@ def test_h3_pbe_321g():
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
-    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) < 2e-6
+    assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) < 2e-6
 
     # Converge from scratch
-    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
-    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) > 1e-5
-    converge_scf_oda(ham, sys.wfn, sys.lf, olp, threshold=1e-5)
-    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) < 1e-5
+    guess_core_hamiltonian(mol.wfn, olp, kin, nai)
+    assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) > 1e-5
+    converge_scf_oda(ham, mol.wfn, mol.lf, olp, threshold=1e-5)
+    assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) < 1e-5
 
     # test orbital energies
     expected_energies = np.array([
         -5.41141676E-01, -1.56826691E-01, 2.13089637E-01, 7.13565167E-01,
         7.86810564E-01, 1.40663544E+00
     ])
-    assert abs(sys.wfn.exp_alpha.energies - expected_energies).max() < 2e-5
+    assert abs(mol.wfn.exp_alpha.energies - expected_energies).max() < 2e-5
     expected_energies = np.array([
         -4.96730336E-01, -5.81411249E-02, 2.73586652E-01, 7.41987185E-01,
         8.76161160E-01, 1.47488421E+00
     ])
-    assert abs(sys.wfn.exp_beta.energies - expected_energies).max() < 2e-5
+    assert abs(mol.wfn.exp_beta.energies - expected_energies).max() < 2e-5
 
     ham.compute()
     # compare with g09
@@ -305,238 +305,238 @@ def test_h3_pbe_321g():
 
 def test_cubic_interpolation_c_pbe_cs():
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
-    sys = System.from_file(fn_fchk)
+    mol = Molecule.from_file(fn_fchk)
 
-    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    olp = sys.get_overlap()
-    kin = sys.get_kinetic()
-    nai = sys.get_nuclear_attraction()
-    er = sys.get_electron_repulsion()
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
+    olp = mol.obasis.compute_overlap(mol.lf)
+    kin = mol.obasis.compute_kinetic(mol.lf)
+    nai = mol.obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, sys.wfn, 'kin'),
-        DirectTerm(er, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.wfn, [
-            LibXCGGA(sys.wfn, 'c_pbe'),
+        OneBodyTerm(kin, mol.wfn, 'kin'),
+        DirectTerm(er, mol.wfn),
+        GridGroup(mol.obasis, grid, mol.wfn, [
+            LibXCGGA(mol.wfn, 'c_pbe'),
         ]),
-        OneBodyTerm(nai, sys.wfn, 'ne'),
+        OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
-    dm0 = sys.wfn.dm_alpha.copy()
+    dm0 = mol.wfn.dm_alpha.copy()
     with assert_raises(NoSCFConvergence):
-        converge_scf_oda(ham, sys.wfn, sys.lf, olp, maxiter=1)
-    dm1 = sys.wfn.dm_alpha.copy()
+        converge_scf_oda(ham, mol.wfn, mol.lf, olp, maxiter=1)
+    dm1 = mol.wfn.dm_alpha.copy()
 
-    check_cubic_cs_wrapper(ham, sys.wfn, dm0, dm1)
+    check_cubic_cs_wrapper(ham, mol.wfn, dm0, dm1)
 
 
 def test_cubic_interpolation_x_pbe_cs():
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
-    sys = System.from_file(fn_fchk)
+    mol = Molecule.from_file(fn_fchk)
 
-    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    olp = sys.get_overlap()
-    kin = sys.get_kinetic()
-    nai = sys.get_nuclear_attraction()
-    er = sys.get_electron_repulsion()
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
+    olp = mol.obasis.compute_overlap(mol.lf)
+    kin = mol.obasis.compute_kinetic(mol.lf)
+    nai = mol.obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, sys.wfn, 'kin'),
-        DirectTerm(er, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.wfn, [
-            LibXCGGA(sys.wfn, 'x_pbe'),
+        OneBodyTerm(kin, mol.wfn, 'kin'),
+        DirectTerm(er, mol.wfn),
+        GridGroup(mol.obasis, grid, mol.wfn, [
+            LibXCGGA(mol.wfn, 'x_pbe'),
         ]),
-        OneBodyTerm(nai, sys.wfn, 'ne'),
+        OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
-    dm0 = sys.wfn.dm_alpha.copy()
+    dm0 = mol.wfn.dm_alpha.copy()
     with assert_raises(NoSCFConvergence):
-        converge_scf_oda(ham, sys.wfn, sys.lf, olp, maxiter=1)
-    dm1 = sys.wfn.dm_alpha.copy()
+        converge_scf_oda(ham, mol.wfn, mol.lf, olp, maxiter=1)
+    dm1 = mol.wfn.dm_alpha.copy()
 
-    check_cubic_cs_wrapper(ham, sys.wfn, dm0, dm1)
+    check_cubic_cs_wrapper(ham, mol.wfn, dm0, dm1)
 
 
 def test_cubic_interpolation_hfs_cs():
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
-    sys = System.from_file(fn_fchk)
+    mol = Molecule.from_file(fn_fchk)
 
-    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    olp = sys.get_overlap()
-    kin = sys.get_kinetic()
-    nai = sys.get_nuclear_attraction()
-    er = sys.get_electron_repulsion()
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
+    olp = mol.obasis.compute_overlap(mol.lf)
+    kin = mol.obasis.compute_kinetic(mol.lf)
+    nai = mol.obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, sys.wfn, 'kin'),
-        DirectTerm(er, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.wfn, [
-            LibXCLDA(sys.wfn, 'x'),
+        OneBodyTerm(kin, mol.wfn, 'kin'),
+        DirectTerm(er, mol.wfn),
+        GridGroup(mol.obasis, grid, mol.wfn, [
+            LibXCLDA(mol.wfn, 'x'),
         ]),
-        OneBodyTerm(nai, sys.wfn, 'ne'),
+        OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
-    dm0 = sys.wfn.dm_alpha.copy()
+    dm0 = mol.wfn.dm_alpha.copy()
     with assert_raises(NoSCFConvergence):
-        converge_scf_oda(ham, sys.wfn, sys.lf, olp, maxiter=1)
-    dm1 = sys.wfn.dm_alpha.copy()
+        converge_scf_oda(ham, mol.wfn, mol.lf, olp, maxiter=1)
+    dm1 = mol.wfn.dm_alpha.copy()
 
-    check_cubic_cs_wrapper(ham, sys.wfn, dm0, dm1)
+    check_cubic_cs_wrapper(ham, mol.wfn, dm0, dm1)
 
 
 def test_cubic_interpolation_o3lyp_cs():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
-    sys = System.from_file(fn_fchk)
+    mol = Molecule.from_file(fn_fchk)
 
-    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    olp = sys.get_overlap()
-    kin = sys.get_kinetic()
-    nai = sys.get_nuclear_attraction()
-    er = sys.get_electron_repulsion()
-    libxc_term = LibXCHybridGGA(sys.wfn, 'xc_o3lyp')
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
+    olp = mol.obasis.compute_overlap(mol.lf)
+    kin = mol.obasis.compute_kinetic(mol.lf)
+    nai = mol.obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    er = mol.obasis.compute_electron_repulsion(mol.lf)
+    libxc_term = LibXCHybridGGA(mol.wfn, 'xc_o3lyp')
     terms = [
-        OneBodyTerm(kin, sys.wfn, 'kin'),
-        DirectTerm(er, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.wfn, [libxc_term]),
-        ExchangeTerm(er, sys.wfn, fraction_exchange=libxc_term.get_exx_fraction()),
-        OneBodyTerm(nai, sys.wfn, 'ne'),
+        OneBodyTerm(kin, mol.wfn, 'kin'),
+        DirectTerm(er, mol.wfn),
+        GridGroup(mol.obasis, grid, mol.wfn, [libxc_term]),
+        ExchangeTerm(er, mol.wfn, fraction_exchange=libxc_term.get_exx_fraction()),
+        OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
-    dm0 = sys.wfn.dm_alpha.copy()
+    dm0 = mol.wfn.dm_alpha.copy()
     with assert_raises(NoSCFConvergence):
-        converge_scf_oda(ham, sys.wfn, sys.lf, olp, maxiter=1)
-    dm1 = sys.wfn.dm_alpha.copy()
+        converge_scf_oda(ham, mol.wfn, mol.lf, olp, maxiter=1)
+    dm1 = mol.wfn.dm_alpha.copy()
 
-    check_cubic_cs_wrapper(ham, sys.wfn, dm0, dm1)
+    check_cubic_cs_wrapper(ham, mol.wfn, dm0, dm1)
 
 def test_cubic_interpolation_c_pbe_os():
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
-    sys = System.from_file(fn_fchk)
+    mol = Molecule.from_file(fn_fchk)
 
-    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    olp = sys.get_overlap()
-    kin = sys.get_kinetic()
-    nai = sys.get_nuclear_attraction()
-    er = sys.get_electron_repulsion()
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
+    olp = mol.obasis.compute_overlap(mol.lf)
+    kin = mol.obasis.compute_kinetic(mol.lf)
+    nai = mol.obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, sys.wfn, 'kin'),
-        DirectTerm(er, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.wfn, [
-            LibXCGGA(sys.wfn, 'c_pbe'),
+        OneBodyTerm(kin, mol.wfn, 'kin'),
+        DirectTerm(er, mol.wfn),
+        GridGroup(mol.obasis, grid, mol.wfn, [
+            LibXCGGA(mol.wfn, 'c_pbe'),
         ]),
-        OneBodyTerm(nai, sys.wfn, 'ne'),
+        OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
-    dma0 = sys.wfn.dm_alpha.copy()
-    dmb0 = sys.wfn.dm_beta.copy()
+    dma0 = mol.wfn.dm_alpha.copy()
+    dmb0 = mol.wfn.dm_beta.copy()
     with assert_raises(NoSCFConvergence):
-        converge_scf_oda(ham, sys.wfn, sys.lf, olp, maxiter=1)
-    dma1 = sys.wfn.dm_alpha.copy()
-    dmb1 = sys.wfn.dm_beta.copy()
+        converge_scf_oda(ham, mol.wfn, mol.lf, olp, maxiter=1)
+    dma1 = mol.wfn.dm_alpha.copy()
+    dmb1 = mol.wfn.dm_beta.copy()
 
-    check_cubic_os_wrapper(ham, sys.wfn, dma0, dmb0, dma1, dmb1)
+    check_cubic_os_wrapper(ham, mol.wfn, dma0, dmb0, dma1, dmb1)
 
 
 def test_cubic_interpolation_x_pbe_os():
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
-    sys = System.from_file(fn_fchk)
+    mol = Molecule.from_file(fn_fchk)
 
-    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    olp = sys.get_overlap()
-    kin = sys.get_kinetic()
-    nai = sys.get_nuclear_attraction()
-    er = sys.get_electron_repulsion()
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
+    olp = mol.obasis.compute_overlap(mol.lf)
+    kin = mol.obasis.compute_kinetic(mol.lf)
+    nai = mol.obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, sys.wfn, 'kin'),
-        DirectTerm(er, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.wfn, [
-            LibXCGGA(sys.wfn, 'x_pbe'),
+        OneBodyTerm(kin, mol.wfn, 'kin'),
+        DirectTerm(er, mol.wfn),
+        GridGroup(mol.obasis, grid, mol.wfn, [
+            LibXCGGA(mol.wfn, 'x_pbe'),
         ]),
-        OneBodyTerm(nai, sys.wfn, 'ne'),
+        OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
-    dma0 = sys.wfn.dm_alpha.copy()
-    dmb0 = sys.wfn.dm_beta.copy()
+    dma0 = mol.wfn.dm_alpha.copy()
+    dmb0 = mol.wfn.dm_beta.copy()
     with assert_raises(NoSCFConvergence):
-        converge_scf_oda(ham, sys.wfn, sys.lf, olp, maxiter=1)
-    dma1 = sys.wfn.dm_alpha.copy()
-    dmb1 = sys.wfn.dm_beta.copy()
+        converge_scf_oda(ham, mol.wfn, mol.lf, olp, maxiter=1)
+    dma1 = mol.wfn.dm_alpha.copy()
+    dmb1 = mol.wfn.dm_beta.copy()
 
-    check_cubic_os_wrapper(ham, sys.wfn, dma0, dmb0, dma1, dmb1)
+    check_cubic_os_wrapper(ham, mol.wfn, dma0, dmb0, dma1, dmb1)
 
 
 def test_cubic_interpolation_hfs_os():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
-    sys = System.from_file(fn_fchk)
+    mol = Molecule.from_file(fn_fchk)
 
-    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    olp = sys.get_overlap()
-    kin = sys.get_kinetic()
-    nai = sys.get_nuclear_attraction()
-    er = sys.get_electron_repulsion()
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
+    olp = mol.obasis.compute_overlap(mol.lf)
+    kin = mol.obasis.compute_kinetic(mol.lf)
+    nai = mol.obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, sys.wfn, 'kin'),
-        DirectTerm(er, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.wfn, [
-            LibXCLDA(sys.wfn, 'x'),
+        OneBodyTerm(kin, mol.wfn, 'kin'),
+        DirectTerm(er, mol.wfn),
+        GridGroup(mol.obasis, grid, mol.wfn, [
+            LibXCLDA(mol.wfn, 'x'),
         ]),
-        OneBodyTerm(nai, sys.wfn, 'ne'),
+        OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
-    dma0 = sys.wfn.dm_alpha.copy()
-    dmb0 = sys.wfn.dm_beta.copy()
+    dma0 = mol.wfn.dm_alpha.copy()
+    dmb0 = mol.wfn.dm_beta.copy()
 
-    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
-    dma1 = sys.wfn.dm_alpha.copy()
-    dmb1 = sys.wfn.dm_beta.copy()
+    guess_core_hamiltonian(mol.wfn, olp, kin, nai)
+    dma1 = mol.wfn.dm_alpha.copy()
+    dmb1 = mol.wfn.dm_beta.copy()
 
-    check_cubic_os_wrapper(ham, sys.wfn, dma0, dmb0, dma1, dmb1)
+    check_cubic_os_wrapper(ham, mol.wfn, dma0, dmb0, dma1, dmb1)
 
 
 def test_cubic_interpolation_o3lyp_os():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
-    sys = System.from_file(fn_fchk)
+    mol = Molecule.from_file(fn_fchk)
 
-    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    olp = sys.get_overlap()
-    kin = sys.get_kinetic()
-    nai = sys.get_nuclear_attraction()
-    er = sys.get_electron_repulsion()
-    libxc_term = LibXCHybridGGA(sys.wfn, 'xc_o3lyp')
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
+    olp = mol.obasis.compute_overlap(mol.lf)
+    kin = mol.obasis.compute_kinetic(mol.lf)
+    nai = mol.obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    er = mol.obasis.compute_electron_repulsion(mol.lf)
+    libxc_term = LibXCHybridGGA(mol.wfn, 'xc_o3lyp')
     terms = [
-        OneBodyTerm(kin, sys.wfn, 'kin'),
-        DirectTerm(er, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.wfn, [libxc_term]),
-        ExchangeTerm(er, sys.wfn, fraction_exchange=libxc_term.get_exx_fraction()),
-        OneBodyTerm(nai, sys.wfn, 'ne'),
+        OneBodyTerm(kin, mol.wfn, 'kin'),
+        DirectTerm(er, mol.wfn),
+        GridGroup(mol.obasis, grid, mol.wfn, [libxc_term]),
+        ExchangeTerm(er, mol.wfn, fraction_exchange=libxc_term.get_exx_fraction()),
+        OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms)
 
-    dma0 = sys.wfn.dm_alpha.copy()
-    dmb0 = sys.wfn.dm_beta.copy()
-    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
-    dma1 = sys.wfn.dm_alpha.copy()
-    dmb1 = sys.wfn.dm_beta.copy()
+    dma0 = mol.wfn.dm_alpha.copy()
+    dmb0 = mol.wfn.dm_beta.copy()
+    guess_core_hamiltonian(mol.wfn, olp, kin, nai)
+    dma1 = mol.wfn.dm_alpha.copy()
+    dmb1 = mol.wfn.dm_beta.copy()
 
-    check_cubic_os_wrapper(ham, sys.wfn, dma0, dmb0, dma1, dmb1)
+    check_cubic_os_wrapper(ham, mol.wfn, dma0, dmb0, dma1, dmb1)
 
 
 def test_hyb_gga_exx_fraction():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
-    sys = System.from_file(fn_fchk)
-    t = LibXCHybridGGA(sys.wfn, 'xc_pbeh') # The PBE0 functional
+    mol = Molecule.from_file(fn_fchk)
+    t = LibXCHybridGGA(mol.wfn, 'xc_pbeh') # The PBE0 functional
     assert t.get_exx_fraction() == 0.25
 
 
 def test_lda_c_vwn_present():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
-    sys = System.from_file(fn_fchk)
-    t = LibXCLDA(sys.wfn, 'c_vwn')     # The VWN 5 functional
-    t = LibXCLDA(sys.wfn, 'c_vwn_4')   # The VWN 4 functional
+    mol = Molecule.from_file(fn_fchk)
+    t = LibXCLDA(mol.wfn, 'c_vwn')     # The VWN 5 functional
+    t = LibXCLDA(mol.wfn, 'c_vwn_4')   # The VWN 4 functional
 
 
 def test_info():

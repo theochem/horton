@@ -33,25 +33,25 @@ def test_scf_cs_hf():
 
 def test_scf_os():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
-    sys = System.from_file(fn_fchk)
+    mol = Molecule.from_file(fn_fchk)
 
-    olp = sys.get_overlap()
-    kin = sys.get_kinetic()
-    nai = sys.get_nuclear_attraction()
-    er = sys.get_electron_repulsion()
-    external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
+    olp = mol.obasis.compute_overlap(mol.lf)
+    kin = mol.obasis.compute_kinetic(mol.lf)
+    nai = mol.obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    er = mol.obasis.compute_electron_repulsion(mol.lf)
+    external = {'nn': compute_nucnuc(mol.coordinates, mol.numbers)}
     terms = [
-        OneBodyTerm(kin, sys.wfn, 'kin'),
-        DirectTerm(er, sys.wfn),
-        ExchangeTerm(er, sys.wfn),
-        OneBodyTerm(nai, sys.wfn, 'ne'),
+        OneBodyTerm(kin, mol.wfn, 'kin'),
+        DirectTerm(er, mol.wfn),
+        ExchangeTerm(er, mol.wfn),
+        OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms, external)
 
-    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
-    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) > 1e-8
-    converge_scf(ham, sys.wfn, sys.lf, olp)
-    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) < 1e-8
+    guess_core_hamiltonian(mol.wfn, olp, kin, nai)
+    assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) > 1e-8
+    converge_scf(ham, mol.wfn, mol.lf, olp)
+    assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) < 1e-8
 
     expected_alpha_energies = np.array([
         -2.76116635E+00, -7.24564188E-01, -1.79148636E-01, -1.28235698E-01,
@@ -63,8 +63,8 @@ def test_scf_os():
         -1.25264964E-01, -1.24605870E-02, 5.12761388E-03, 7.70499854E-03,
         7.70499854E-03, 2.85176080E-02, 1.13197479E+00,
     ])
-    assert abs(sys.wfn.exp_alpha.energies - expected_alpha_energies).max() < 1e-5
-    assert abs(sys.wfn.exp_beta.energies - expected_beta_energies).max() < 1e-5
+    assert abs(mol.wfn.exp_alpha.energies - expected_alpha_energies).max() < 1e-5
+    assert abs(mol.wfn.exp_beta.energies - expected_beta_energies).max() < 1e-5
 
     ham.compute()
     # compare with g09
@@ -77,12 +77,14 @@ def test_scf_os():
 
 def test_hf_water_321g_mistake():
     fn_xyz = context.get_fn('test/water.xyz')
-    sys = System.from_file(fn_xyz, obasis='3-21G')
-    wfn = setup_mean_field_wfn(sys.obasis.nbasis, sys.pseudo_numbers, sys.lf, charge=0)
-    olp = sys.get_overlap()
-    kin = sys.get_kinetic()
-    nai = sys.get_nuclear_attraction()
-    er = sys.get_electron_repulsion()
+    mol = Molecule.from_file(fn_xyz)
+    obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21G')
+    wfn = setup_mean_field_wfn(obasis.nbasis, mol.numbers, mol.lf, charge=0)
+    lf = DenseLinalgFactory(obasis.nbasis)
+    olp = obasis.compute_overlap(lf)
+    kin = obasis.compute_kinetic(lf)
+    nai = obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, lf)
+    er = obasis.compute_electron_repulsion(lf)
     terms = [
         OneBodyTerm(kin, wfn, 'kin'),
         DirectTerm(er, wfn),
@@ -91,4 +93,4 @@ def test_hf_water_321g_mistake():
     ]
     ham = Hamiltonian(terms)
     with assert_raises(AttributeError):
-        converge_scf(ham, wfn, sys.lf, olp)
+        converge_scf(ham, wfn, lf, olp)

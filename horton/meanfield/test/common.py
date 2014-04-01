@@ -97,32 +97,32 @@ def check_cubic_os_wrapper(ham, wfn, dma0, dmb0, dma1, dmb1, do_plot=False):
 @log.with_level(log.high)
 def check_scf_hf_cs_hf(scf_wrapper):
     fn_fchk = context.get_fn('test/hf_sto3g.fchk')
-    sys = System.from_file(fn_fchk)
+    mol = Molecule.from_file(fn_fchk)
 
-    olp = sys.get_overlap()
-    kin = sys.get_kinetic()
-    nai = sys.get_nuclear_attraction()
-    er = sys.get_electron_repulsion()
-    external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
+    olp = mol.obasis.compute_overlap(mol.lf)
+    kin = mol.obasis.compute_kinetic(mol.lf)
+    nai = mol.obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    er = mol.obasis.compute_electron_repulsion(mol.lf)
+    external = {'nn': compute_nucnuc(mol.coordinates, mol.numbers)}
     terms = [
-        OneBodyTerm(kin, sys.wfn, 'kin'),
-        DirectTerm(er, sys.wfn),
-        ExchangeTerm(er, sys.wfn),
-        OneBodyTerm(nai, sys.wfn, 'ne'),
+        OneBodyTerm(kin, mol.wfn, 'kin'),
+        DirectTerm(er, mol.wfn),
+        ExchangeTerm(er, mol.wfn),
+        OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms, external)
 
-    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
-    assert scf_wrapper.convergence_error(ham, sys.wfn, sys.lf, olp) > scf_wrapper.kwargs['threshold']
-    scf_wrapper(ham, sys.wfn, sys.lf, olp)
-    assert scf_wrapper.convergence_error(ham, sys.wfn, sys.lf, olp) < scf_wrapper.kwargs['threshold']
+    guess_core_hamiltonian(mol.wfn, olp, kin, nai)
+    assert scf_wrapper.convergence_error(ham, mol.wfn, mol.lf, olp) > scf_wrapper.kwargs['threshold']
+    scf_wrapper(ham, mol.wfn, mol.lf, olp)
+    assert scf_wrapper.convergence_error(ham, mol.wfn, mol.lf, olp) < scf_wrapper.kwargs['threshold']
 
     # test orbital energies
     expected_energies = np.array([
         -2.59083334E+01, -1.44689996E+00, -5.57467136E-01, -4.62288194E-01,
         -4.62288194E-01, 5.39578910E-01,
     ])
-    assert abs(sys.wfn.exp_alpha.energies - expected_energies).max() < 1e-5
+    assert abs(mol.wfn.exp_alpha.energies - expected_energies).max() < 1e-5
 
     ham.compute()
     # compare with g09
@@ -136,27 +136,27 @@ def check_scf_hf_cs_hf(scf_wrapper):
 @log.with_level(log.high)
 def check_scf_water_cs_hfs(scf_wrapper):
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
-    sys = System.from_file(fn_fchk)
+    mol = Molecule.from_file(fn_fchk)
 
-    grid = BeckeMolGrid(sys.coordinates, sys.numbers, sys.pseudo_numbers, random_rotate=False)
-    olp = sys.get_overlap()
-    kin = sys.get_kinetic()
-    nai = sys.get_nuclear_attraction()
-    er = sys.get_electron_repulsion()
-    external = {'nn': compute_nucnuc(sys.coordinates, sys.numbers)}
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
+    olp = mol.obasis.compute_overlap(mol.lf)
+    kin = mol.obasis.compute_kinetic(mol.lf)
+    nai = mol.obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    er = mol.obasis.compute_electron_repulsion(mol.lf)
+    external = {'nn': compute_nucnuc(mol.coordinates, mol.numbers)}
     terms = [
-        OneBodyTerm(kin, sys.wfn, 'kin'),
-        DirectTerm(er, sys.wfn),
-        GridGroup(sys.obasis, grid, sys.wfn, [
-            DiracExchange(sys.wfn),
+        OneBodyTerm(kin, mol.wfn, 'kin'),
+        DirectTerm(er, mol.wfn),
+        GridGroup(mol.obasis, grid, mol.wfn, [
+            DiracExchange(mol.wfn),
         ]),
-        OneBodyTerm(nai, sys.wfn, 'ne'),
+        OneBodyTerm(nai, mol.wfn, 'ne'),
     ]
     ham = Hamiltonian(terms, external)
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file and different integration grids:
-    assert convergence_error_eigen(ham, sys.wfn, sys.lf, olp) < 3e-5
+    assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) < 3e-5
 
     # The energies should also be in reasonable agreement. Repeated to check for
     # stupid bugs
@@ -170,7 +170,7 @@ def check_scf_water_cs_hfs(scf_wrapper):
             2.71995350E+00
         ])
 
-        assert abs(sys.wfn.exp_alpha.energies - expected_energies).max() < 2e-4
+        assert abs(mol.wfn.exp_alpha.energies - expected_energies).max() < 2e-4
         assert abs(ham.cache['energy_ne'] - -1.977921986200E+02) < 1e-7
         assert abs(ham.cache['energy_kin'] - 7.525067610865E+01) < 1e-9
         assert abs(ham.cache['energy_hartree'] + ham.cache['energy_exchange_dirac'] - 3.864299848058E+01) < 2e-4
@@ -178,10 +178,10 @@ def check_scf_water_cs_hfs(scf_wrapper):
         assert abs(ham.cache['energy_nn'] - 9.1571750414) < 2e-8
 
     # Converge from scratch
-    guess_core_hamiltonian(sys.wfn, olp, kin, nai)
-    assert scf_wrapper.convergence_error(ham, sys.wfn, sys.lf, olp) > scf_wrapper.kwargs['threshold']
-    scf_wrapper(ham, sys.wfn, sys.lf, olp)
-    assert scf_wrapper.convergence_error(ham, sys.wfn, sys.lf, olp) < scf_wrapper.kwargs['threshold']
+    guess_core_hamiltonian(mol.wfn, olp, kin, nai)
+    assert scf_wrapper.convergence_error(ham, mol.wfn, mol.lf, olp) > scf_wrapper.kwargs['threshold']
+    scf_wrapper(ham, mol.wfn, mol.lf, olp)
+    assert scf_wrapper.convergence_error(ham, mol.wfn, mol.lf, olp) < scf_wrapper.kwargs['threshold']
 
     assert abs(ham.cache['energy_ne'] - -1.977921986200E+02) < 1e-4
     assert abs(ham.cache['energy_kin'] - 7.525067610865E+01) < 1e-4
