@@ -20,15 +20,14 @@
 #--
 '''EDIIS+DIIS Self-Consistent Field algorithm'''
 
+
 import numpy as np
 
 from horton.log import log, timer
-from horton.exceptions import NoSCFConvergence
 from horton.meanfield.wfn import RestrictedWFN
 from horton.meanfield.scf_diis import DIISHistory, converge_scf_diis_cs
-from horton.meanfield.scf_cdiis import solve_cdiis, PulayDIISHistory
+from horton.meanfield.scf_cdiis import PulayDIISHistory
 from horton.meanfield.scf_ediis import EnergyDIISHistory
-from horton.quadprog import QPSolver
 
 
 __all__ = ['converge_scf_ediis2']

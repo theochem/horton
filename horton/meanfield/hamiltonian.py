@@ -23,7 +23,6 @@
 
 from horton.log import log
 from horton.cache import Cache
-from horton.meanfield.wfn import UnrestrictedWFN
 
 
 __all__ = [

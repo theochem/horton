@@ -26,7 +26,6 @@ import numpy as np
 from horton.cache import JustOnceClass, just_once, Cache
 from horton.log import log
 from horton.moments import get_ncart_cumul, get_npure_cumul
-from horton.meanfield.wfn import RestrictedWFN
 from horton.utils import typecheck_geo
 
 

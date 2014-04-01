@@ -26,7 +26,7 @@ import numpy as np
 from horton.log import log, timer
 from horton.meanfield.gridgroup import GridObservable
 from horton.meanfield.cext import LibXCWrapper
-from horton.meanfield.wfn import RestrictedWFN, UnrestrictedWFN
+from horton.meanfield.wfn import RestrictedWFN
 
 
 __all__ = ['LibXCLDA', 'LibXCGGA', 'LibXCHybridGGA']

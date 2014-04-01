@@ -21,9 +21,6 @@
 '''Utility functions'''
 
 
-import numpy as np
-
-
 __all__ = ['typecheck_geo']
 
 
