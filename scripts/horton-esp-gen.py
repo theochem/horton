@@ -23,7 +23,7 @@
 
 import sys, argparse, os, numpy as np
 
-from horton import Molecule, UniformGrid, log, Cell, angstrom, \
+from horton import Molecule, UniformGrid, log, angstrom, \
     compute_esp_grid_cube, __version__
 from horton.scripts.common import parse_h5, parse_ewald_args, store_args, \
     check_output, write_script_output

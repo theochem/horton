@@ -23,7 +23,7 @@
 
 import argparse, os, numpy as np
 
-from horton import Molecule, cpart_schemes, Cell, ProAtomDB, log, \
+from horton import Molecule, cpart_schemes, ProAtomDB, log, \
     symmetry_analysis, UniformGrid, __version__
 from horton.scripts.common import reduce_data, store_args, parse_pbc, \
     iter_elements, write_part_output, parse_h5, check_output
@@ -157,7 +157,7 @@ def main():
         if not hasattr(mol_sym, 'symmetry'):
             raise ValueError('No symmetry information found in %s.' % args.symmetry)
         aim_results = dict((name, cpart[name]) for name in names)
-        sym_results = symmetry_analysis(mol.coordinates, mol.cell, mol_sym.symmetry, aim_results)
+        sym_results = symmetry_analysis(mol.coordinates, ugrid.get_cell(), mol_sym.symmetry, aim_results)
         cpart.cache.dump('symmetry', sym_results)
         names.append('symmetry')
 
