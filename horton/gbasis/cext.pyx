@@ -39,6 +39,7 @@ import atexit
 
 from horton.log import log
 from horton.matrix import LinalgFactory
+from horton.cext import compute_grid_nucpot
 from horton.utils import typecheck_geo
 
 
@@ -768,6 +769,46 @@ cdef class GOBasis(GBasis):
         (<gbasis.GOBasis*>self._this).compute_grid2_dm(
             &dmar[0, 0], npoint, &points[0, 0],
             &output[0])
+        return output
+
+    def compute_grid_esp_dm(self, dm,
+                            np.ndarray[double, ndim=2] coordinates not None,
+                            np.ndarray[double, ndim=1] charges not None,
+                            np.ndarray[double, ndim=2] points not None,
+                            np.ndarray[double, ndim=1] output=None):
+        '''Compute the electrostatic potential on a grid for a given density
+           matrix.
+
+           **Arguments:**
+
+           dm
+                A density matrix. For now, this must be a DenseOneBody object.
+
+           coordinates
+                A (N, 3) float numpy array with Cartesian coordinates of the
+                atoms.
+
+           charges
+                A (N,) numpy vector with the atomic charges.
+
+           points
+                A Numpy array with grid points, shape (npoint,3).
+
+           grid_fn
+                A grid function.
+
+           **Optional arguments:**
+
+           output
+                A Numpy array for the output. When not given, it will be
+                allocated.
+
+           **Warning:** the results are added to the output array! This may
+           be useful to combine results from different spin components.
+        '''
+        output = self.compute_grid_hartree_dm(dm, points, output)
+        output *= -1
+        compute_grid_nucpot(coordinates, charges, points, output)
         return output
 
     def _compute_grid1_fock(self, np.ndarray[double, ndim=2] points not None,

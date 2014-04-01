@@ -461,6 +461,22 @@ def compute_grid_nucpot(np.ndarray[double, ndim=2] coordinates not None,
                         np.ndarray[double, ndim=1] charges not None,
                         np.ndarray[double, ndim=2] points not None,
                         np.ndarray[double, ndim=1] output not None):
+    '''Compute the potential due to a set of (nuclear) point charges
+
+       coordinates
+            A (N, 3) float numpy array with Cartesian coordinates of the
+            atoms.
+
+       charges
+            A (N,) numpy vector with the atomic charges.
+
+       points
+            An (M, 3) array with grid points where the potential must be
+            computed.
+
+       output
+            An (M,) output array in which the potential is stored.
+    '''
     # type checking
     assert coordinates.flags['C_CONTIGUOUS']
     assert charges.flags['C_CONTIGUOUS']

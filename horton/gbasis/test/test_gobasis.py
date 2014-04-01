@@ -244,9 +244,7 @@ def test_grid_co_ccpv5z_pure_hf_gradient_some_points():
 def check_grid_esp(fn, ref, eps):
     mol = Molecule.from_file(context.get_fn(fn))
     points = ref[:,:3].copy()
-    esps = mol.obasis.compute_grid_hartree_dm(mol.wfn.dm_full, points)
-    esps *= -1
-    compute_grid_nucpot(mol.coordinates, mol.pseudo_numbers, points, esps)
+    esps = mol.obasis.compute_grid_esp_dm(mol.wfn.dm_full, mol.coordinates, mol.pseudo_numbers, points)
     assert abs(esps - ref[:,3]).max() < eps
 
 
