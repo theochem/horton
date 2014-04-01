@@ -42,16 +42,16 @@ class GridGroup(Observable):
 
     gga = property(_get_gga)
 
-    def update_grid_data(self):
+    def update_grid_data(self, cache):
         def helper_rho(select):
-            rho, new = self.cache.load('rho_%s' % select, alloc=self.grid.size)
+            rho, new = cache.load('rho_%s' % select, alloc=self.grid.size)
             if new:
                 dm = self.wfn.get_dm(select)
                 self.obasis.compute_grid_density_dm(dm, self.grid.points, rho)
             return rho
 
         def helper_grad(select):
-            grad_rho, new = self.cache.load('grad_rho_%s' % select, alloc=(self.grid.size, 3))
+            grad_rho, new = cache.load('grad_rho_%s' % select, alloc=(self.grid.size, 3))
             if new:
                 dm = self.wfn.get_dm(select)
                 self.obasis.compute_grid_gradient_dm(dm, self.grid.points, grad_rho)
@@ -59,30 +59,30 @@ class GridGroup(Observable):
 
         if isinstance(self.wfn, RestrictedWFN):
             rho_alpha = helper_rho('alpha')
-            rho_full, new = self.cache.load('rho_full', alloc=self.grid.size)
+            rho_full, new = cache.load('rho_full', alloc=self.grid.size)
             if new:
                 rho_full[:] = rho_alpha
                 rho_full *= 2
             if self.gga:
                 grad_rho_alpha = helper_grad('alpha')
-                sigma_alpha, new = self.cache.load('sigma_alpha', alloc=self.grid.size)
+                sigma_alpha, new = cache.load('sigma_alpha', alloc=self.grid.size)
                 if new:
                     sigma_alpha[:] = (grad_rho_alpha**2).sum(axis=1)
-                grad_rho_full, new = self.cache.load('grad_rho_full', alloc=(self.grid.size, 3))
+                grad_rho_full, new = cache.load('grad_rho_full', alloc=(self.grid.size, 3))
                 if new:
                     grad_rho_full[:] = grad_rho_alpha
                     grad_rho_full *= 2
-                sigma_full, new = self.cache.load('sigma_full', alloc=self.grid.size)
+                sigma_full, new = cache.load('sigma_full', alloc=self.grid.size)
                 if new:
                     sigma_full[:] = (grad_rho_full**2).sum(axis=1)
         else:
             rho_alpha = helper_rho('alpha')
             rho_beta = helper_rho('beta')
-            rho_full, new = self.cache.load('rho_full', alloc=self.grid.size)
+            rho_full, new = cache.load('rho_full', alloc=self.grid.size)
             if new:
                 rho_full[:] = rho_alpha
                 rho_full += rho_beta
-            rho_both, new = self.cache.load('rho_both', alloc=(self.grid.size, 2))
+            rho_both, new = cache.load('rho_both', alloc=(self.grid.size, 2))
             if new:
                 rho_both[:,0] = rho_alpha
                 rho_both[:,1] = rho_beta
@@ -90,69 +90,69 @@ class GridGroup(Observable):
             if self.gga:
                 grad_rho_alpha = helper_grad('alpha')
                 grad_rho_beta = helper_grad('beta')
-                sigma_alpha, new = self.cache.load('sigma_alpha', alloc=self.grid.size)
+                sigma_alpha, new = cache.load('sigma_alpha', alloc=self.grid.size)
                 if new:
                     sigma_alpha[:] = (grad_rho_alpha**2).sum(axis=1)
-                sigma_beta, new = self.cache.load('sigma_beta', alloc=self.grid.size)
+                sigma_beta, new = cache.load('sigma_beta', alloc=self.grid.size)
                 if new:
                     sigma_beta[:] = (grad_rho_beta**2).sum(axis=1)
-                sigma_cross, new = self.cache.load('sigma_cross', alloc=self.grid.size)
+                sigma_cross, new = cache.load('sigma_cross', alloc=self.grid.size)
                 if new:
                     sigma_cross[:] = (grad_rho_alpha*grad_rho_beta).sum(axis=1)
-                sigma_all, new = self.cache.load('sigma_all', alloc=(self.grid.size, 3))
+                sigma_all, new = cache.load('sigma_all', alloc=(self.grid.size, 3))
                 if new:
                     sigma_all[:,0] = sigma_alpha
                     sigma_all[:,1] = sigma_cross
                     sigma_all[:,2] = sigma_beta
 
-    def compute(self):
+    def compute(self, cache):
         # compute stuff on the grid that the grid_observables may use
-        self.update_grid_data()
+        self.update_grid_data(cache)
 
         # compute energy terms and sum up
         result = 0.0
         for grid_term in self.grid_terms:
-            energy = grid_term.compute(self.cache, self.grid)
-            self.cache['energy_%s' % grid_term.label] = energy
+            energy = grid_term.compute(cache, self.grid)
+            cache['energy_%s' % grid_term.label] = energy
             result += energy
         return result
 
-    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1):
+    def add_fock_matrix(self, cache, fock_alpha, fock_beta, scale=1):
         # compute stuff on the grid that the grid_observables may use
-        self.update_grid_data()
+        self.update_grid_data(cache)
 
         # Reset total potentials
-        self.cache.load('dpot_total_alpha', alloc=self.grid.size)[0][:] = 0.0
+        cache.load('dpot_total_alpha', alloc=self.grid.size)[0][:] = 0.0
         if self.gga:
-            self.cache.load('gpot_total_alpha', alloc=(self.grid.size, 3))[0][:] = 0.0
+            cache.load('gpot_total_alpha', alloc=(self.grid.size, 3))[0][:] = 0.0
         if isinstance(self.wfn, UnrestrictedWFN):
-            self.cache.load('dpot_total_beta', alloc=self.grid.size)[0][:] = 0.0
+            cache.load('dpot_total_beta', alloc=self.grid.size)[0][:] = 0.0
             if self.gga:
-                self.cache.load('gpot_total_beta', alloc=(self.grid.size,3))[0][:] = 0.0
+                cache.load('gpot_total_beta', alloc=(self.grid.size,3))[0][:] = 0.0
 
         # Collect all the total potentials and turn them into contributions
         # for the fock matrix/matrices.
         for grid_term in self.grid_terms:
-            grid_term.add_pot(self.cache, self.grid)
+            grid_term.add_pot(cache, self.grid)
 
         # d = density
-        if 'dpot_total_alpha' in self.cache:
-            dpot = self.cache.load('dpot_total_alpha')
+        if 'dpot_total_alpha' in cache:
+            dpot = cache.load('dpot_total_alpha')
             self.obasis.compute_grid_density_fock(self.grid.points, self.grid.weights, scale*dpot, fock_alpha)
         # g = gradient
-        if 'gpot_total_alpha' in self.cache:
-            gpot = self.cache.load('gpot_total_alpha')
+        if 'gpot_total_alpha' in cache:
+            gpot = cache.load('gpot_total_alpha')
             self.obasis.compute_grid_gradient_fock(self.grid.points, self.grid.weights, scale*gpot, fock_alpha)
 
         if isinstance(self.wfn, UnrestrictedWFN):
             # Colect potentials for beta electrons
             # d = density
-            if 'dpot_total_beta' in self.cache:
-                dpot = self.cache.load('dpot_total_beta')
+            if 'dpot_total_beta' in cache:
+                dpot = cache.load('dpot_total_beta')
                 self.obasis.compute_grid_density_fock(self.grid.points, self.grid.weights, scale*dpot, fock_beta)
             # g = gradient
-            if 'gpot_total_beta' in self.cache:
-                gpot = self.cache.load('gpot_total_beta')
+            if 'gpot_total_beta' in cache:
+                gpot = cache.load('gpot_total_beta')
                 self.obasis.compute_grid_gradient_fock(self.grid.points, self.grid.weights, scale*gpot, fock_beta)
 
 

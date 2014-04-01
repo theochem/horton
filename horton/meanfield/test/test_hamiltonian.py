@@ -276,15 +276,6 @@ def test_perturbation():
             assert abs(energy1 - energy1_old) < 1e-7
 
 
-def test_add_term():
-    fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
-    mol = Molecule.from_file(fn_fchk)
-    ham = Hamiltonian([ExchangeTerm(mol.obasis.compute_electron_repulsion(mol.lf), mol.wfn, 'x_hf')])
-    term = OneBodyTerm(mol.obasis.compute_kinetic(mol.lf), mol.wfn, 'kin')
-    ham.add_term(term)
-    assert term._hamiltonian is ham
-
-
 def test_ghost_hf():
     fn_fchk = context.get_fn('test/water_dimer_ghost.fchk')
     mol = Molecule.from_file(fn_fchk)

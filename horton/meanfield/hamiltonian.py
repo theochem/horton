@@ -59,16 +59,6 @@ class Hamiltonian(object):
         # need to be updated at each SCF cycle.
         self.cache = Cache()
 
-        # bind the terms to this hamiltonian such that certain shared
-        # intermediated results can be reused for the sake of efficiency.
-        for term in self.terms:
-            term.set_hamiltonian(self)
-
-    def add_term(self, term):
-        '''Add a new term to the hamiltonian'''
-        self.terms.append(term)
-        term.set_hamiltonian(self)
-
     def clear(self):
         '''Mark the properties derived from the wfn as outdated.
 
@@ -86,7 +76,7 @@ class Hamiltonian(object):
         '''
         total = 0.0
         for term in self.terms:
-            energy = term.compute()
+            energy = term.compute(self.cache)
             self.cache['energy_%s' % term.label] = energy
             total += energy
         for key, energy in self.external.iteritems():
@@ -126,4 +116,4 @@ class Hamiltonian(object):
         '''
         # Loop over all terms and add contributions to the Fock matrix.
         for term in self.terms:
-            term.add_fock_matrix(fock_alpha, fock_beta)
+            term.add_fock_matrix(self.cache, fock_alpha, fock_beta)
