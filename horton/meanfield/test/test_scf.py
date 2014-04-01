@@ -37,9 +37,9 @@ def test_scf_os():
 
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
-    nai = mol.obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    nai = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
-    external = {'nn': compute_nucnuc(mol.coordinates, mol.numbers)}
+    external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
         OneBodyTerm(kin, mol.wfn, 'kin'),
         DirectTerm(er, mol.wfn),
@@ -83,7 +83,7 @@ def test_hf_water_321g_mistake():
     lf = DenseLinalgFactory(obasis.nbasis)
     olp = obasis.compute_overlap(lf)
     kin = obasis.compute_kinetic(lf)
-    nai = obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, lf)
+    nai = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
     er = obasis.compute_electron_repulsion(lf)
     terms = [
         OneBodyTerm(kin, wfn, 'kin'),

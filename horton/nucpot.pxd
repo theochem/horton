@@ -20,5 +20,5 @@
 #--
 
 cdef extern from "nucpot.h":
-    void compute_grid_nucpot(long* numbers, double* coordinates, long natom,
+    void compute_grid_nucpot(double* coordinates, double* charges, long natom,
                              double* points, double* output, long npoint)

@@ -520,16 +520,16 @@ cdef class GOBasis(GBasis):
         return output
 
     def compute_nuclear_attraction(self,
+                                   np.ndarray[double, ndim=2] coordinates not None,
                                    np.ndarray[double, ndim=1] charges not None,
-                                   np.ndarray[double, ndim=2] centers not None,
                                    output):
         """Compute the kintic energy matrix in a Gaussian orbital basis."""
         # check arguments
+        assert coordinates.flags['C_CONTIGUOUS']
+        cdef long ncharge = coordinates.shape[0]
+        assert coordinates.shape[1] == 3
         assert charges.flags['C_CONTIGUOUS']
-        cdef long ncharge = charges.shape[0]
-        assert centers.flags['C_CONTIGUOUS']
-        assert centers.shape[0] == ncharge
-        assert centers.shape[1] == 3
+        assert charges.shape[0] == ncharge
         # prepare the output array
         cdef np.ndarray[double, ndim=2] output_array
         if isinstance(output, LinalgFactory):
@@ -539,7 +539,7 @@ cdef class GOBasis(GBasis):
         self.check_matrix_one_body(output_array)
         # call the low-level routine
         (<gbasis.GOBasis*>self._this).compute_nuclear_attraction(
-            &charges[0], &centers[0, 0], ncharge,
+            &charges[0], &coordinates[0, 0], ncharge,
             &output_array[0, 0],
         )
         # done

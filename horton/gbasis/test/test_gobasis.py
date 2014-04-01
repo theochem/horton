@@ -246,7 +246,7 @@ def check_grid_esp(fn, ref, eps):
     points = ref[:,:3].copy()
     esps = mol.obasis.compute_grid_hartree_dm(mol.wfn.dm_full, points)
     esps *= -1
-    compute_grid_nucpot(mol.numbers, mol.coordinates, points, esps)
+    compute_grid_nucpot(mol.coordinates, mol.pseudo_numbers, points, esps)
     assert abs(esps - ref[:,3]).max() < eps
 
 
@@ -311,7 +311,7 @@ def test_grid_one_body_ne():
     dist1 = np.sqrt(((grid.points - mol.coordinates[1])**2).sum(axis=1))
     pot = -mol.numbers[0]/dist0 - mol.numbers[1]/dist1
     na_ana = mol.lf.create_one_body()
-    mol.obasis.compute_nuclear_attraction(mol.numbers.astype(float), mol.coordinates, na_ana)
+    mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, na_ana)
     na_grid = mol.lf.create_one_body()
     mol.obasis.compute_grid_density_fock(grid.points, grid.weights, pot, na_grid)
     # compare grid-based operator with analytical result
@@ -445,8 +445,8 @@ def test_gobasis_output_args_nuclear_attraction():
     mol = Molecule.from_file(context.get_fn('test/water.xyz'))
     obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
     nai1 = mol.lf.create_one_body(obasis.nbasis)
-    obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, nai1)
-    nai2 = obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, nai1)
+    nai2 = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     compare_operator(nai1, nai2)
 
 

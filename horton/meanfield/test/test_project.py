@@ -63,7 +63,7 @@ def test_project_larger():
 
     # Setup HF hamiltonian and compute energy
     kin = obasis1.compute_kinetic(mol.lf)
-    nai = obasis1.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    nai = obasis1.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = obasis1.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, wfn1, 'kin'),
@@ -117,7 +117,7 @@ def test_project_smaller():
 
     # Setup HF hamiltonian and compute energy
     kin = obasis1.compute_kinetic(mol.lf)
-    nai = obasis1.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    nai = obasis1.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = obasis1.compute_electron_repulsion(mol.lf)
     terms = [
         OneBodyTerm(kin, wfn1, 'kin'),
@@ -149,7 +149,7 @@ def test_same_size():
     wfn0 = setup_mean_field_wfn(obasis0.nbasis, mol.pseudo_numbers, lf, restricted=True)
     olp = obasis0.compute_overlap(mol.lf)
     kin = obasis0.compute_kinetic(mol.lf)
-    nai = obasis0.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    nai = obasis0.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = obasis0.compute_electron_repulsion(mol.lf)
     guess_core_hamiltonian(wfn0, olp, kin, nai)
 

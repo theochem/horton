@@ -17,14 +17,14 @@ wfn = setup_mean_field_wfn(obasis.nbasis, mol.numbers, lf, charge=0)
 # Compute Gaussian integrals
 olp = obasis.compute_overlap(lf)
 kin = obasis.compute_kinetic(lf)
-nai = obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, lf)
+nai = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
 er = obasis.compute_electron_repulsion(lf)
 
 # Initial guess
 guess_core_hamiltonian(wfn, olp, kin, nai)
 
 # Construct the HF Hamiltonian
-external = {'nn': compute_nucnuc(mol.coordinates, mol.numbers)}
+external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
 terms = [
     OneBodyTerm(kin, wfn, 'kin'),
     DirectTerm(er, wfn),

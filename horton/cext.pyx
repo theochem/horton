@@ -455,46 +455,46 @@ def fill_radial_polynomials(np.ndarray[double, ndim=1] output not None, long lma
 #
 
 
-def compute_grid_nucpot(np.ndarray[long, ndim=1] numbers not None,
-                        np.ndarray[double, ndim=2] coordinates not None,
+def compute_grid_nucpot(np.ndarray[double, ndim=2] coordinates not None,
+                        np.ndarray[double, ndim=1] charges not None,
                         np.ndarray[double, ndim=2] points not None,
                         np.ndarray[double, ndim=1] output not None):
-    assert numbers.flags['C_CONTIGUOUS']
-    cdef long natom = numbers.shape[0]
     assert coordinates.flags['C_CONTIGUOUS']
-    assert coordinates.shape[0] == natom
+    cdef long natom = coordinates.shape[0]
     assert coordinates.shape[1] == 3
+    assert charges.flags['C_CONTIGUOUS']
+    assert charges.shape[0] == natom
     assert output.flags['C_CONTIGUOUS']
     cdef long npoint = output.shape[0]
     assert points.flags['C_CONTIGUOUS']
     assert points.shape[0] == npoint
     assert points.shape[1] == 3
     nucpot.compute_grid_nucpot(
-        &numbers[0], &coordinates[0,0], natom,
+        &coordinates[0,0], &charges[0], natom,
         &points[0,0], &output[0], npoint)
 
 
 def compute_nucnuc(np.ndarray[double, ndim=2] coordinates not None,
-                   np.ndarray[long, ndim=1] numbers not None):
+                   np.ndarray[double, ndim=1] charges not None):
     '''Compute interaction energy of the nuclei
 
        coordinates
             A (N, 3) float numpy array with Cartesian coordinates of the
             atoms.
 
-       numbers
-            A (N,) numpy vector with the atomic numbers.
+       charges
+            A (N,) numpy vector with the atomic charges.
     '''
-    assert numbers.flags['C_CONTIGUOUS']
-    cdef long natom = numbers.shape[0]
     assert coordinates.flags['C_CONTIGUOUS']
-    assert coordinates.shape[0] == natom
+    cdef long natom = coordinates.shape[0]
     assert coordinates.shape[1] == 3
+    assert charges.flags['C_CONTIGUOUS']
+    assert charges.shape[0] == natom
     # TODO: move this to low-level code one day.
     result = 0.0
-    natom = len(numbers)
+    natom = len(charges)
     for i in xrange(natom):
         for j in xrange(i):
             distance = np.linalg.norm(coordinates[i]-coordinates[j])
-            result += numbers[i]*numbers[j]/distance
+            result += charges[i]*charges[j]/distance
     return result

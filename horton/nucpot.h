@@ -25,13 +25,13 @@
 /** @brief
         Compute the electrostatic potential due to the nuclei on a grid.
 
-    @param numbers
-        The pointer to an array with atomic numbers. This array contains natom
-        elements.
-
     @param coordinates
         The pointer to an array with atomic coordinates. This array contains
         3*natom elements of an (atom,3) array in row-major ordering.
+
+    @param charges
+        The pointer to an array with atomic core charges. This array contains
+        natom elements.
 
     @param natom
         The number of atoms.
@@ -47,7 +47,7 @@
         The number of grid points.
 
  */
-void compute_grid_nucpot(long* numbers, double* coordinates, long natom,
+void compute_grid_nucpot(double* coordinates, double* charges, long natom,
                          double* points, double* output, long npoint);
 
 #endif

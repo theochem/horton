@@ -2158,7 +2158,7 @@ def test_kinetic_co_ccpv5z_cart_hf():
 def check_g09_nuclear_attraction(fn_fchk):
     fn_log = fn_fchk[:-5] + '.log'
     mol = Molecule.from_file(fn_fchk, fn_log)
-    na1 = mol.obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    na1 = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     na2 = mol.na
     mask = abs(na1._array) > 1e-5
     expect = na1._array

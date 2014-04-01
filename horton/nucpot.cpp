@@ -22,7 +22,7 @@
 #include <cmath>
 #include "nucpot.h"
 
-void compute_grid_nucpot(long* numbers, double* coordinates, long natom,
+void compute_grid_nucpot(double* coordinates, double* charges, long natom,
                          double* points, double* output, long npoint) {
     for (long ipoint=npoint-1; ipoint >= 0; ipoint--) {
         double tmp = 0.0;
@@ -33,7 +33,7 @@ void compute_grid_nucpot(long* numbers, double* coordinates, long natom,
             dsq += delta*delta;
             delta = points[2]-coordinates[3*iatom+2];
             dsq += delta*delta;
-            tmp += numbers[iatom]/sqrt(dsq);
+            tmp += charges[iatom]/sqrt(dsq);
         }
         *output += tmp;
 
