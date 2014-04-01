@@ -50,6 +50,9 @@ class LibXCLDA(LibXCEnergy):
         '''
            **Arguments:**
 
+           wfn
+                A Wavefunction object.
+
            name
                 The name of the functional in LibXC, without the ``lda_``
                 prefix.
@@ -107,6 +110,9 @@ class LibXCGGA(LibXCEnergy):
     def __init__(self, wfn, name):
         '''
            **Arguments:**
+
+           wfn
+                A Wavefunction object.
 
            name
                 The name of the functional in LibXC, without the ``gga_``
@@ -181,6 +187,9 @@ class LibXCHybridGGA(LibXCGGA):
     def __init__(self, wfn, name):
         '''
            **Arguments:**
+
+           wfn
+                A Wavefunction object.
 
            name
                 The name of the functional in LibXC, without the ``hyb_gga_``

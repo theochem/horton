@@ -36,9 +36,13 @@ class DiracExchange(GridObservable):
         '''
            **Arguments:**
 
-
+           wfn
+                A Wavefunction object.
 
            **Optional arguments:**
+
+           label
+                A label for this observable.
 
            coeff
                 The coefficient Cx in front of the Dirac exchange energy.
