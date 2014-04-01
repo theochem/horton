@@ -95,8 +95,7 @@ class OneBodyTerm(Observable):
         else:
             return self._operator.expectation_value(self._wfn.dm_full)
 
-    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1,
-                        postpone_grid=False):
+    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1):
         '''See Observable.add_fock_matrix'''
         for fock in fock_alpha, fock_beta:
             if fock is not None:
@@ -131,8 +130,7 @@ class DirectTerm(Observable):
         else:
             return 0.5 * direct.expectation_value(self._wfn.dm_full)
 
-    def add_fock_matrix(self, fock_alpha, fock_beta,
-                        scale=1, postpone_grid=False):
+    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1):
         self._update_direct()
         direct = self.cache.load('op_%s' % self.label)
         fock_alpha.iadd(direct, scale)
@@ -170,8 +168,7 @@ class ExchangeTerm(Observable):
             return -0.5 * self.fraction_exchange * exchange_alpha.expectation_value(self._wfn.dm_alpha) \
                    -0.5 * self.fraction_exchange * exchange_beta.expectation_value(self._wfn.dm_beta)
 
-    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1,
-                         postpone_grid=False):
+    def add_fock_matrix(self, fock_alpha, fock_beta, scale=1):
         self._update_exchange()
         fock_alpha.iadd(self.cache.load('op_%s_alpha' % self.label),
                         -self.fraction_exchange * scale)
