@@ -39,3 +39,8 @@ def test_example_003_o3lyp_water():
 
 def test_example_004_wpart():
     check_script('./run.py', context.get_fn('examples/004_wpart'))
+
+
+def test_example_005_compare():
+    fn_fchk = context.get_fn('test/helium_hf_sto3g.fchk')
+    check_script('./compare.py %s' % fn_fchk, context.get_fn('examples/005_compare'))
