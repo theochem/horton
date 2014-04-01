@@ -7,6 +7,8 @@
 doc/lib/*.rst
 doc/grids.rst.inc
 doc/ref_literature.rst
+doc/doxyxml
+doc/ref_functionals.rst
 
 # Ignore (in-place) build results
 cext.cpp
