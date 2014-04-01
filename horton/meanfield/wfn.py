@@ -85,7 +85,8 @@ def setup_mean_field_wfn(nbasis, pseudo_numbers, lf, charge=0, mult=None, restri
     if charge is None:
         charge = 0
     nel = pseudo_numbers.sum() - charge
-    if isinstance(nel, int):
+    if isinstance(nel, int) or int(nel) == nel:
+        nel = int(nel)
         if mult is None:
             mult = nel%2+1
         elif mult != 'free' and ((nel%2 == 0) ^ (mult%2 != 0)):

@@ -174,7 +174,7 @@ def test_homo_lumo_he():
 
 
 def test_setup_wfn_cs():
-    numbers = np.array([6])
+    numbers = np.array([6.0])
     nbasis = 10
     lf = DenseLinalgFactory
 
