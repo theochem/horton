@@ -27,9 +27,6 @@
 '''
 
 
-# TODO: remove duplicate code with gobasis, e.g. get_shell_nbasis
-
-
 import numpy as np
 
 

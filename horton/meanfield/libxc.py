@@ -166,13 +166,11 @@ class LibXCGGA(LibXCEnergy):
 
             gpot_alpha, new = cache.load('gpot_libxc_%s_alpha' % self._name, alloc=(grid.size,3))
             if new:
-                # TODO: make more efficient
                 gpot_alpha[:] = (2*spot_all[:,0].reshape(-1,1))*cache['grad_rho_alpha']
                 gpot_alpha[:] += (spot_all[:,1].reshape(-1,1))*cache['grad_rho_beta']
 
             gpot_beta, new = cache.load('gpot_libxc_%s_beta' % self._name, alloc=(grid.size,3))
             if new:
-                # TODO: make more efficient
                 gpot_beta[:] = (2*spot_all[:,2].reshape(-1,1))*cache['grad_rho_beta']
                 gpot_beta[:] += (spot_all[:,1].reshape(-1,1))*cache['grad_rho_alpha']
 

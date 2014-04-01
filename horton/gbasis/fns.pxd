@@ -20,9 +20,6 @@
 #--
 
 
-# TODO: Derive GB1DMGridFn and GB2DMGridFn from GBCalculator (in its own pxd file)
-#       Use the same class hierarchy in cext.pyx
-
 cdef extern from "fns.h":
     cdef cppclass GB1DMGridFn:
         long get_nwork()

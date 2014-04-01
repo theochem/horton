@@ -32,8 +32,6 @@ from horton.cext import Cell
 __all__ = ['IntGrid']
 
 
-# TODO: put some decent class hierarchy in place for all integration grids.
-
 class IntGrid(object):
     '''Base class for real-space integration grids in Horton'''
     def __init__(self, points, weights, subgrids=None):

@@ -300,7 +300,7 @@ class Part(JustOnceClass):
                 # 2) Compute the AIM
                 aim = self.get_moldens(i)*self.cache.load('at_weights', i)
 
-                # 3) Compute weight corrections (TODO: needs to be assessed!)
+                # 3) Compute weight corrections
                 wcor = self.get_wcor(i)
 
                 # 4) Compute Cartesian multipole moments
@@ -330,9 +330,6 @@ class Part(JustOnceClass):
 
 
 class WPart(Part):
-    # TODO: add framework to evaluate AIM weights (and maybe other things) on
-    # user-provided grids.
-
     '''Base class for density partitioning schemes'''
     def __init__(self, coordinates, numbers, pseudo_numbers, grid, moldens,
                  spindens=None, local=True, lmax=3):

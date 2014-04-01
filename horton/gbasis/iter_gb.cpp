@@ -61,7 +61,7 @@ int IterGB1::inc_shell() {
 void IterGB1::update_shell() {
     // Update fields that depend on shell and related counters.
     nprim0 = gbasis->nprims[ishell0];
-    // Update indexes in output array (TODO: get them directly from the basis.)
+    // Update indexes in output array
     ibasis0 = basis_offsets[ishell0];
     // update centers
     r0 = gbasis->centers + 3*gbasis->shell_map[ishell0];
@@ -150,7 +150,7 @@ void IterGB2::update_shell() {
     // Update fields that depend on shell and related counters.
     nprim0 = gbasis->nprims[ishell0];
     nprim1 = gbasis->nprims[ishell1];
-    // Update indexes in output array (TODO: get them directly from the basis.)
+    // Update indexes in output array
     ibasis0 = basis_offsets[ishell0];
     ibasis1 = basis_offsets[ishell1];
     // update centers
@@ -337,7 +337,7 @@ void IterGB4::update_shell() {
     nprim1 = gbasis->nprims[ishell1];
     nprim2 = gbasis->nprims[ishell2];
     nprim3 = gbasis->nprims[ishell3];
-    // Update indexes in output array (TODO: get them directly from the basis.)
+    // Update indexes in output array
     ibasis0 = basis_offsets[ishell0];
     ibasis1 = basis_offsets[ishell1];
     ibasis2 = basis_offsets[ishell2];

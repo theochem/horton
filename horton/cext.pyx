@@ -507,7 +507,7 @@ def compute_nucnuc(np.ndarray[double, ndim=2] coordinates not None,
     assert coordinates.flags['C_CONTIGUOUS']
     assert charges.flags['C_CONTIGUOUS']
     ncharge, coordinates, charges = typecheck_geo(coordinates, None, charges, need_numbers=False)
-    # TODO: move this to low-level code one day.
+    # actual computation
     result = 0.0
     natom = len(charges)
     for i in xrange(ncharge):

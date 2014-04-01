@@ -84,7 +84,7 @@ def check_fake(scheme, pseudo, dowcor, local, absmean, **kwargs):
     assert cpart.local == local
     cpart.do_charges()
     charges = cpart['charges']
-    print abs(charges.sum()), abs(charges).mean(), abs(abs(charges).mean() - absmean)
+    #print abs(charges.sum()), abs(charges).mean(), abs(abs(charges).mean() - absmean)
     assert abs(charges.sum()) < 1e-2
     assert abs(abs(charges).mean() - absmean) < 1e-3
 

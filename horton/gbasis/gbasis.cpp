@@ -126,13 +126,6 @@ void GBasis::init_scales() {
 }
 
 void GBasis::compute_one_body(double* output, GB2Integral* integral) {
-    /*
-        TODO
-             When multiple different memory storage schemes are implemented for
-             the operators, the iterator must also become an argument for this
-             function
-
-    */
     IterGB2 iter = IterGB2(this);
     iter.update_shell();
     do {
@@ -147,13 +140,6 @@ void GBasis::compute_one_body(double* output, GB2Integral* integral) {
 }
 
 void GBasis::compute_two_body(double* output, GB4Integral* integral) {
-    /*
-        TODO
-             When multiple different memory storage schemes are implemented for
-             the operators, the iterator must also become an argument for this
-             function
-
-    */
     IterGB4 iter = IterGB4(this);
     iter.update_shell();
     do {
@@ -170,13 +156,6 @@ void GBasis::compute_two_body(double* output, GB4Integral* integral) {
 }
 
 void GBasis::compute_grid_point1(double* output, double* point, GB1GridFn* grid_fn) {
-    /*
-        TODO
-             When multiple different memory storage schemes are implemented for
-             the operators, the iterator must also become an argument for this
-             function
-
-    */
     IterGB1 iter = IterGB1(this);
     iter.update_shell();
     do {
@@ -191,13 +170,6 @@ void GBasis::compute_grid_point1(double* output, double* point, GB1GridFn* grid_
 }
 
 double GBasis::compute_grid_point2(double* dm, double* point, GB2DMGridFn* grid_fn) {
-    /*
-        TODO
-             When multiple different memory storage schemes are implemented for
-             the operators, the iterator must also become an argument for this
-             function
-
-    */
     double result = 0.0;
     IterGB2 iter = IterGB2(this);
     iter.update_shell();

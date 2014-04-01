@@ -195,7 +195,6 @@ def check_grid_gradient(fn, ref, eps):
     mol = Molecule.from_file(context.get_fn(fn))
     points = ref[:,:3].copy()
     gradients = mol.obasis.compute_grid_gradient_dm(mol.wfn.dm_full, points)
-    print abs(gradients - ref[:,3:]).max()
     assert abs(gradients - ref[:,3:]).max() < eps
 
 
@@ -258,16 +257,6 @@ def test_grid_lih_321g_hf_esp_some_points():
     ])
     ref[:,:3] *= angstrom
     check_grid_esp('test/li_h_3-21G_hf_g09.fchk', ref, 1e-8)
-    # check for one point the compute_grid_point2 method
-    #if False: # TODO Write python interface to GB2GridHartreeFn
-    #for row in ref:
-    #    point = row[:3]
-    #    grid_fn = GB2GridHartreeFn(sys.obasis.max_shell_type)
-    #    esp = sys.obasis.compute_grid_point2(sys.wfn.dm_full, point, grid_fn)
-    #    hartree = -esp
-    #    for n, pos in zip(sys.numbers, sys.coordinates):
-    #        hartree -= n/np.linalg.norm(pos - point)
-    #    assert abs(row[3] - hartree) < 1e-8
 
 
 def test_grid_co_ccpv5z_cart_hf_esp_some_points():

@@ -246,20 +246,17 @@ def test_gb4_electron_repulsion_integral_class_pppm2():
 def test_gb4_electron_repulsion_integral_class_ppmp():
     work0, work1 = gb4_helper(1, 1, -1, 1)
     work0 = np.tensordot(work0, tfs[2], ([2,1])).transpose(0,1,3,2)
-    print work0.shape, work1.shape
     assert work0.shape == work1.shape
     assert abs(work0-work1).max() < 1e-10
 
 def test_gb4_electron_repulsion_integral_class_pmpp():
     work0, work1 = gb4_helper(1, -1, 1, 1)
     work0 = np.tensordot(work0, tfs[3], ([1,1])).transpose(0,3,1,2)
-    print work0.shape, work1.shape
     assert work0.shape == work1.shape
     assert abs(work0-work1).max() < 1e-10
 
 def test_gb4_electron_repulsion_integral_class_mppp():
     work0, work1 = gb4_helper(-1, 1, 1, 1)
     work0 = np.tensordot(work0, tfs[4], ([0,1])).transpose(3,0,1,2)
-    print work0.shape, work1.shape
     assert work0.shape == work1.shape
     assert abs(work0-work1).max() < 1e-10

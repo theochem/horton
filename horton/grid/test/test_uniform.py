@@ -93,9 +93,6 @@ def test_uig_eval_spline_simple1():
     uig.eval_spline(cs, np.zeros(3), data2)
     data2 = data2.ravel()
 
-    print data1.min(), data1.max()
-    print data2.min(), data2.max()
-
     assert abs(data1 - data2).max() == 0.0
 
 
@@ -162,7 +159,6 @@ def test_uig_eval_spline_3d_random():
         center2 = center1 + np.dot(np.random.randint(-3, 3, 3), rvecs)
         uig.eval_spline(cs, center2, output2)
 
-        print abs(output1 - output2).max()
         assert abs(output1 - output2).max() < 1e-10
 
 

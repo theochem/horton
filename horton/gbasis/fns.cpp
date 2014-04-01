@@ -83,7 +83,6 @@ void GB1GridFn::cart_to_pure() {
 
 
 void GB1ExpGridOrbitalFn::add(double coeff, double alpha0, const double* scales0) {
-    // TODO: this is just copy-pasted from GB1DMGridDensityFn
     double pre, poly;
     pre = coeff*exp(-alpha0*dist_sq(r0, point));
     i1p.reset(abs(shell_type0));
@@ -92,7 +91,6 @@ void GB1ExpGridOrbitalFn::add(double coeff, double alpha0, const double* scales0
         printf("n=[%i,%i,%i]\n", i1p.n0[0], i1p.n0[1], i1p.n0[2]);
 #endif
         // For now, simple and inefficient evaluation of polynomial.
-        // TODO: make more efficient by moving evaluation of poly to reset
         poly = 1.0;
         for (long j=0; j<3; j++) {
             double tmp = point[j] - r0[j];
@@ -220,7 +218,6 @@ void GB1DMGridGradientFn::add(double coeff, double alpha0, const double* scales0
         double pre0 = pre*scales0[i1p.ibasis0];
 
         // For now, simple and inefficient evaluation of polynomial.
-        // TODO: make more efficient by moving evaluation of poly to reset
         double poly_x = 1.0;
         double poly_1x = 1.0;
         poly_helper(x, i1p.n0[0], &poly_x, &poly_1x);
@@ -369,7 +366,6 @@ GB2DMGridHartreeFn::~GB2DMGridHartreeFn() {
 
 
 void GB2DMGridHartreeFn::add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1) {
-    // TODO: this is just copy-pasted from GB2NuclearAttractionIntegral with some minor changes. Very bad idea! Works for now ...
     double pre, gamma, gamma_inv, arg;
     double gpt_center[3], pa[3], pb[3], pc[3];
 

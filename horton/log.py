@@ -28,8 +28,6 @@
    Horton objects.
 '''
 
-# TODO: - use the logger in all current code
-
 import sys, os, datetime, getpass, time, atexit, traceback, resource
 from contextlib import contextmanager
 import horton

@@ -98,8 +98,6 @@ class RadialGrid(object):
                 at the grid points, that must be multiplied and integrated.
 
         '''
-        # TODO: eliminate duplicate code with similar routines in other integration grid
-        # process arguments:
         args = [arg.ravel() for arg in args if arg is not None]
         args.append(self.weights)
         return dot_multi(*args)

@@ -43,9 +43,6 @@ cimport utils
 cimport horton.cext
 
 
-# TODO: make extension types (un)picklable
-# See https://groups.google.com/forum/?fromgroups=#!topic/cython-users/vzG58m0Yr2Y
-
 __all__ = [
     # lebedev_laikov
     'lebedev_laikov_npoint', 'lebedev_laikov_sphere', 'lebedev_laikov_npoints',
@@ -1143,7 +1140,6 @@ cdef class UniformGrid(object):
         self._this.delta_grid_point(&result[0], &indexes[0])
         return result
 
-    # TODO: move this to cpart
     def compute_weight_corrections(self, funcs, rcut_scale=0.9, rcut_max=2.0, rcond=0.1, output=None):
         '''Computes corrections to the integration weights.
 
