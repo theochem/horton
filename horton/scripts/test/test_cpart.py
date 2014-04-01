@@ -60,7 +60,7 @@ def check_script_lta(fn_sym, suffix):
 
         # write a random cube file
         fn_cube = 'dens.cube'
-        sys = write_random_lta_cube(dn, fn_cube)
+        mol = write_random_lta_cube(dn, fn_cube)
 
         # run the script
         fn_h5 = '%s_cpart.h5' % fn_cube[:-5]
@@ -79,7 +79,7 @@ def check_script_lta(fn_sym, suffix):
                 assert 'charges' in f['cpart/h_r1/symmetry']
                 assert 'cartesian_multipoles' in f['cpart/h_r1/symmetry']
                 for name, ds in f['cpart/h_r1/symmetry'].iteritems():
-                    assert ds.shape[0] == sys.extra['symmetry'].natom
+                    assert ds.shape[0] == mol.symmetry.natom
                     assert ds.shape[1] == 2
 
 

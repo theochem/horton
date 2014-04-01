@@ -2089,3 +2089,155 @@ def test_electron_repulsion_4_3_2_1():
         [0.0389816, -0.01461239, 0.32867428], [0.0156239, -0.02040629,
         -0.07047258], [-0.01363156, -0.1012887, 1.73232784], [-0.00589741,
         -0.00412306, -0.41232763], [0.06147983, -0.06748816, 2.6480163]]]]))
+
+
+def check_g09_overlap(fn_fchk):
+    fn_log = fn_fchk[:-5] + '.log'
+    mol = Molecule.from_file(fn_fchk, fn_log)
+    olp1 = mol.obasis.compute_overlap(mol.lf)
+    olp2 = mol.olp
+    mask = abs(olp1._array) > 1e-5
+    delta = olp1._array - olp2._array
+    expect = olp1._array
+    error = (delta[mask]/expect[mask]).max()
+    assert error < 1e-5
+
+
+def test_overlap_water_sto3g_hf():
+    check_g09_overlap(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+
+
+def test_overlap_water_ccpvdz_pure_hf():
+    check_g09_overlap(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'))
+
+
+def test_overlap_water_ccpvdz_cart_hf():
+    check_g09_overlap(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'))
+
+
+def test_overlap_co_ccpv5z_pure_hf():
+    check_g09_overlap(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'))
+
+
+def test_overlap_co_ccpv5z_cart_hf():
+    check_g09_overlap(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
+
+
+def check_g09_kinetic(fn_fchk):
+    fn_log = fn_fchk[:-5] + '.log'
+    mol = Molecule.from_file(fn_fchk, fn_log)
+    kin1 = mol.obasis.compute_kinetic(mol.lf)
+    kin2 = mol.kin
+    mask = abs(kin1._array) > 1e-5
+    delta = kin1._array - kin2._array
+    expect = kin1._array
+    error = (delta[mask]/expect[mask]).max()
+    assert error < 1e-5
+
+
+def test_kinetic_water_sto3g_hf():
+    check_g09_kinetic(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+
+
+def test_kinetic_water_ccpvdz_pure_hf():
+    check_g09_kinetic(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'))
+
+
+def test_kinetic_water_ccpvdz_cart_hf():
+    check_g09_kinetic(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'))
+
+
+def test_kinetic_co_ccpv5z_pure_hf():
+    check_g09_kinetic(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'))
+
+
+def test_kinetic_co_ccpv5z_cart_hf():
+    check_g09_kinetic(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
+
+
+def check_g09_nuclear_attraction(fn_fchk):
+    fn_log = fn_fchk[:-5] + '.log'
+    mol = Molecule.from_file(fn_fchk, fn_log)
+    na1 = mol.obasis.compute_nuclear_attraction(mol.pseudo_numbers, mol.coordinates, mol.lf)
+    na2 = mol.na
+    mask = abs(na1._array) > 1e-5
+    expect = na1._array
+    result = na2._array
+    delta = -expect - result
+    error = (delta[mask]/expect[mask]).max()
+    assert error < 4e-5
+
+
+def test_nuclear_attraction_water_sto3g_hf():
+    check_g09_nuclear_attraction(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+
+
+def test_nuclear_attraction_water_ccpvdz_pure_hf():
+    check_g09_nuclear_attraction(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'))
+
+
+def test_nuclear_attraction_water_ccpvdz_cart_hf():
+    check_g09_nuclear_attraction(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'))
+
+
+def test_nuclear_attraction_co_ccpv5z_pure_hf():
+    check_g09_nuclear_attraction(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'))
+
+
+def test_nuclear_attraction_co_ccpv5z_cart_hf():
+    check_g09_nuclear_attraction(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
+
+
+def check_g09_electron_repulsion(fn_fchk, check_g09_zeros=False):
+    fn_log = fn_fchk[:-5] + '.log'
+    mol = Molecule.from_file(fn_fchk, fn_log)
+    er1 = mol.obasis.compute_electron_repulsion(mol.lf)
+    er2 = mol.er
+    mask = abs(er1._array) > 1e-6
+    expect = er1._array
+    got = er2._array
+    if check_g09_zeros:
+        assert ((expect == 0.0) == (got == 0.0)).all()
+    delta = expect - got
+    error = (delta[mask]/expect[mask]).max()
+    assert error < 1e-5
+
+
+def test_electron_repulsion_water_sto3g_hf():
+    check_g09_electron_repulsion(context.get_fn('test/water_sto3g_hf_g03.fchk'), True)
+
+
+def test_electron_repulsion_water_ccpvdz_pure_hf():
+    check_g09_electron_repulsion(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'))
+
+
+def test_electron_repulsion_water_ccpvdz_cart_hf():
+    check_g09_electron_repulsion(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'))
+
+
+def check_g09_grid_fn(fn_fchk):
+    mol = Molecule.from_file(fn_fchk)
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'tv-13.7-4', random_rotate=False)
+    rhos = mol.obasis.compute_grid_density_dm(mol.wfn.dm_full, grid.points)
+    pop = grid.integrate(rhos)
+    assert abs(pop-mol.wfn.nel) < 2e-3
+
+
+def test_grid_fn_h_sto3g():
+    check_g09_grid_fn(context.get_fn('test/h_sto3g.fchk'))
+
+
+def test_grid_fn_lih_321g_hf():
+    check_g09_grid_fn(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
+
+
+def test_grid_fn_water_sto3g_hf_T():
+    check_g09_grid_fn(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+
+
+def test_grid_fn_co_ccpv5z_pure_hf_T():
+    check_g09_grid_fn(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'))
+
+
+def test_grid_fn_co_ccpv5z_cart_hf_T():
+    check_g09_grid_fn(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
