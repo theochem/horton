@@ -228,7 +228,7 @@ def test_dense_expansion():
     exp5 = c.load('egg')
     assert exp1 is exp5
     # default_nbasis
-    lf.set_default_nbasis(5)
+    lf.default_nbasis = 5
     with assert_raises(TypeError):
         c.load('egg', alloc=lf.create_expansion)
     c.clear()
@@ -269,7 +269,7 @@ def test_dense_one_body():
     op5 = c.load('egg')
     assert op1 is op5
     # default_nbasis
-    lf.set_default_nbasis(5)
+    lf.default_nbasis = 5
     with assert_raises(TypeError):
         c.load('egg', alloc=lf.create_one_body)
     c.clear()
@@ -309,7 +309,7 @@ def test_dense_two_body():
     op5 = c.load('egg')
     assert op1 is op5
     # default_nbasis
-    lf.set_default_nbasis(5)
+    lf.default_nbasis = 5
     with assert_raises(TypeError):
         c.load('egg', alloc=lf.create_two_body)
     c.clear()

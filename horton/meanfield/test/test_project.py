@@ -43,7 +43,7 @@ def test_project_larger():
 
     # Upgrade the basis to 3-21G and project
     obasis1 = get_gobasis(mol.coordinates, mol.numbers, '3-21G')
-    mol.lf.set_default_nbasis(obasis1.nbasis)
+    mol.lf.default_nbasis = obasis1.nbasis
     wfn1 = setup_mean_field_wfn(obasis1.nbasis, mol.pseudo_numbers, mol.lf, restricted=True)
     project_orbitals_mgs(obasis0, obasis1, wfn0, wfn1)
     exp1 = wfn1.exp_alpha
@@ -94,7 +94,7 @@ def test_project_smaller():
 
     # Downgrade the basis to sto-3g and project
     obasis1 = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
-    mol.lf.set_default_nbasis(obasis1.nbasis)
+    mol.lf.default_nbasis = obasis1.nbasis
     wfn1 = setup_mean_field_wfn(obasis1.nbasis, mol.numbers, mol.lf, restricted=False)
     project_orbitals_mgs(obasis0, obasis1, wfn0, wfn1)
     assert (wfn1.exp_alpha.energies == 0.0).all()
@@ -147,10 +147,10 @@ def test_same_size():
     obasis0 = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
     lf = DenseLinalgFactory(obasis0.nbasis)
     wfn0 = setup_mean_field_wfn(obasis0.nbasis, mol.pseudo_numbers, lf, restricted=True)
-    olp = obasis0.compute_overlap(mol.lf)
-    kin = obasis0.compute_kinetic(mol.lf)
-    nai = obasis0.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
-    er = obasis0.compute_electron_repulsion(mol.lf)
+    olp = obasis0.compute_overlap(lf)
+    kin = obasis0.compute_kinetic(lf)
+    nai = obasis0.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
+    er = obasis0.compute_electron_repulsion(lf)
     guess_core_hamiltonian(wfn0, olp, kin, nai)
 
     # Change geometry

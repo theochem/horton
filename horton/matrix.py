@@ -75,10 +75,7 @@ class LinalgFactory(object):
                 The default basis size when constructing new
                 operators/expansions.
         '''
-        self._default_nbasis = default_nbasis
-
-    def set_default_nbasis(self, nbasis):
-        self._default_nbasis = nbasis
+        self.default_nbasis = default_nbasis
 
     def create_expansion(self, nbasis=None):
         raise NotImplementedError
@@ -168,33 +165,33 @@ class OneBody(LinalgObject):
 
 class DenseLinalgFactory(LinalgFactory):
     def create_expansion(self, nbasis=None, nfn=None):
-        nbasis = nbasis or self._default_nbasis
+        nbasis = nbasis or self.default_nbasis
         return DenseExpansion(nbasis, nfn)
 
     def _check_expansion_init_args(self, expansion, nbasis=None, nfn=None):
-        nbasis = nbasis or self._default_nbasis
+        nbasis = nbasis or self.default_nbasis
         expansion.__check_init_args__(nbasis, nfn)
 
     create_expansion.__check_init_args__ = _check_expansion_init_args
 
 
     def create_one_body(self, nbasis=None):
-        nbasis = nbasis or self._default_nbasis
+        nbasis = nbasis or self.default_nbasis
         return DenseOneBody(nbasis)
 
     def _check_one_body_init_args(self, one_body, nbasis=None):
-        nbasis = nbasis or self._default_nbasis
+        nbasis = nbasis or self.default_nbasis
         one_body.__check_init_args__(nbasis)
 
     create_one_body.__check_init_args__ = _check_one_body_init_args
 
 
     def create_two_body(self, nbasis=None):
-        nbasis = nbasis or self._default_nbasis
+        nbasis = nbasis or self.default_nbasis
         return DenseTwoBody(nbasis)
 
     def _check_two_body_init_args(self, two_body, nbasis=None):
-        nbasis = nbasis or self._default_nbasis
+        nbasis = nbasis or self.default_nbasis
         two_body.__check_init_args__(nbasis)
 
     create_two_body.__check_init_args__ = _check_two_body_init_args

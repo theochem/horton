@@ -220,12 +220,10 @@ def test_dense_one_body_iscale():
 
 def test_dense_linalg_factory_properties():
     lf = DenseLinalgFactory(5)
-    assert lf._default_nbasis == 5
-    lf.set_default_nbasis(6)
-    assert lf._default_nbasis == 6
+    assert lf.default_nbasis == 5
     lf = DenseLinalgFactory()
-    assert lf._default_nbasis is None
-    lf.set_default_nbasis(10)
+    assert lf.default_nbasis is None
+    lf.default_nbasis = 10
     ex = lf.create_expansion()
     assert ex.nbasis == 10
     assert ex.nfn == 10
