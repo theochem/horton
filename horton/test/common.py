@@ -32,9 +32,8 @@ __all__ = [
     'check_script', 'check_delta',
     'get_random_cell', 'get_pentagon_moments',
     'compare_expansions', 'compare_all_expansions', 'compare_dms',
-    'compare_all_dms', 'compare_one_body', 'compare_two_body',
-    'compare_occ_model', 'compare_wfns', 'compare_systems',
-    'compare_symmetries',
+    'compare_all_dms', 'compare_operators', 'compare_occ_model', 'compare_wfns',
+    'compare_mols', 'compare_symmetries',
     'tmpdir',
 ]
 
@@ -205,34 +204,13 @@ def compare_all_dms(wfn1, wfn2):
     compare_dms(wfn1, wfn2, 'spin')
 
 
-def compare_one_body(sys1, sys2, key):
-    if key in sys1.cache:
-        assert key in sys2.cache
-        op1 = sys1.cache[key]
-        op2 = sys2.cache[key]
-        if isinstance(op1, DenseOneBody):
-            assert isinstance(op2, DenseOneBody)
-            assert op1.nbasis == op2.nbasis
-            assert (op1._array == op2._array).all()
-        else:
-            raise NotImplementedError
+def compare_operators(op1, op2):
+    if isinstance(op1, DenseOneBody) or isinstance(op1, DenseTwoBody):
+        assert isinstance(op2, op1.__class__)
+        assert op1.nbasis == op2.nbasis
+        assert (op1._array == op2._array).all()
     else:
-        assert key not in sys2.cache
-
-
-def compare_two_body(sys1, sys2, key):
-    if key in sys1.cache:
-        assert key in sys2.cache
-        op1 = sys1.cache[key]
-        op2 = sys2.cache[key]
-        if isinstance(op1, DenseTwoBody):
-            assert isinstance(op2, DenseTwoBody)
-            assert op1.nbasis == op2.nbasis
-            assert (op1._array == op2._array).all()
-        else:
-            raise NotImplementedError
-    else:
-        assert key not in sys2.cache
+        raise NotImplementedError
 
 
 def compare_occ_model(occ_model1, occ_model2):
@@ -267,27 +245,28 @@ def compare_wfns(wfn1, wfn2):
         raise NotImplementedError
 
 
-def compare_systems(sys1, sys2):
-    assert (sys1.numbers == sys2.numbers).all()
-    assert (sys1.coordinates == sys2.coordinates).all()
+def compare_mols(mol1, mol2):
+    assert (mol1.numbers == mol2.numbers).all()
+    assert (mol1.coordinates == mol2.coordinates).all()
     # orbital basis
-    if sys1.obasis is not None:
-        assert (sys1.obasis.centers == sys2.obasis.centers).all()
-        assert (sys1.obasis.shell_map == sys2.obasis.shell_map).all()
-        assert (sys1.obasis.nprims == sys2.obasis.nprims).all()
-        assert (sys1.obasis.shell_types == sys2.obasis.shell_types).all()
-        assert (sys1.obasis.alphas == sys2.obasis.alphas).all()
-        assert (sys1.obasis.con_coeffs == sys2.obasis.con_coeffs).all()
+    if mol1.obasis is not None:
+        assert (mol1.obasis.centers == mol2.obasis.centers).all()
+        assert (mol1.obasis.shell_map == mol2.obasis.shell_map).all()
+        assert (mol1.obasis.nprims == mol2.obasis.nprims).all()
+        assert (mol1.obasis.shell_types == mol2.obasis.shell_types).all()
+        assert (mol1.obasis.alphas == mol2.obasis.alphas).all()
+        assert (mol1.obasis.con_coeffs == mol2.obasis.con_coeffs).all()
     else:
-        assert sys2.obasis is None
+        assert mol2.obasis is None
     # wfn
-    compare_wfns(sys1.wfn, sys2.wfn)
-    # one-body operators
-    compare_one_body(sys1, sys2, 'olp')
-    compare_one_body(sys1, sys2, 'kin')
-    compare_one_body(sys1, sys2, 'na')
-    # two-body operators
-    compare_two_body(sys1, sys2, 'er')
+    compare_wfns(mol1.wfn, mol2.wfn)
+    # operators
+    for key in 'olp', 'kin', 'na', 'er':
+        if hasattr(mol1, key):
+            assert hasattr(mol2, key)
+            compare_operators(getattr(mol1, key), getattr(mol2, key))
+        else:
+            assert not hasattr(mol2, key)
 
 
 def compare_symmetries(s0, s1):

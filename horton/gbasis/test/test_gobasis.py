@@ -25,7 +25,7 @@ import numpy as np
 from nose.tools import assert_raises
 
 from horton import *
-from horton.io.test.common import compare_operator
+from horton.test.common import compare_operators
 
 
 def test_shell_nbasis():
@@ -428,7 +428,7 @@ def test_gobasis_output_args_overlap():
     olp1 = lf.create_one_body(obasis.nbasis)
     obasis.compute_overlap(olp1)
     olp2 = obasis.compute_overlap(lf)
-    compare_operator(olp1, olp2)
+    compare_operators(olp1, olp2)
 
 
 def test_gobasis_output_args_kinetic():
@@ -438,7 +438,7 @@ def test_gobasis_output_args_kinetic():
     kin1 = lf.create_one_body(obasis.nbasis)
     obasis.compute_kinetic(kin1)
     kin2 = obasis.compute_kinetic(lf)
-    compare_operator(kin1, kin2)
+    compare_operators(kin1, kin2)
 
 
 def test_gobasis_output_args_nuclear_attraction():
@@ -448,7 +448,7 @@ def test_gobasis_output_args_nuclear_attraction():
     nai1 = lf.create_one_body(obasis.nbasis)
     obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, nai1)
     nai2 = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
-    compare_operator(nai1, nai2)
+    compare_operators(nai1, nai2)
 
 
 def test_gobasis_output_args_electron_repulsion():
@@ -458,7 +458,7 @@ def test_gobasis_output_args_electron_repulsion():
     er1 = lf.create_two_body(obasis.nbasis)
     obasis.compute_electron_repulsion(er1)
     er2 = obasis.compute_electron_repulsion(lf)
-    compare_operator(er1, er2)
+    compare_operators(er1, er2)
 
 
 def test_gobasis_output_args_grid_orbitals_exp():
