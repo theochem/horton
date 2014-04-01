@@ -21,7 +21,9 @@
 #pylint: skip-file
 
 
-import os, subprocess
+import os, subprocess, importlib
+from glob import glob
+from nose.tools import assert_raises
 
 from horton import context
 
@@ -43,3 +45,30 @@ def test_data_files():
             line = line.strip()
             if len(line) != 0:
                 raise ValueError('The following file is not checked in: %s' % line)
+
+
+def test_do_not_use_molecule():
+    # Check for the use of the Molecule class outside horton.io, horton.scripts
+    # or horton.part.proatomdb.
+
+    # find packages
+    packages = {'horton': []}
+    for fn in glob('horton/*/__init__.py'):
+        subpackage = fn.split('/')[1]
+        if subpackage in ['test', 'io', 'scripts']:
+            continue
+        packages['horton.%s' % subpackage] = []
+    # find modules
+    for package, modules in packages.iteritems():
+        stub = package.replace('.', '/')
+        for fn in sorted(glob('%s/*.py' % stub) + glob('%s/*.so' % stub)):
+            module = fn.split('/')[-1][:-3]
+            if module in ['__init__', 'proatomdb']:
+                continue
+            modules.append(module)
+    # try to import Molecule
+    for package, modules in packages.iteritems():
+        for module in modules:
+            m = importlib.import_module('%s.%s' % (package, module))
+            with assert_raises(AttributeError):
+                m.Molecule
