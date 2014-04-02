@@ -81,11 +81,6 @@ class OneBodyTerm(Observable):
         self._wfn = wfn
         Observable.__init__(self, label)
 
-    def get_operator(self):
-        # subclasses should override this method such that it
-        # returns the operator.
-        raise NotImplementedError
-
     def compute(self, cache):
         '''See Observable.compute'''
         if isinstance(self._wfn, RestrictedWFN):
