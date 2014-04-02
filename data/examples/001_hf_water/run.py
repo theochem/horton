@@ -26,12 +26,12 @@ guess_core_hamiltonian(wfn, olp, kin, na)
 # Construct the HF Hamiltonian
 external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
 terms = [
-    OneBodyTerm(kin, wfn, 'kin'),
-    DirectTerm(er, wfn, 'hartree'),
-    ExchangeTerm(er, wfn, 'x_hf'),
-    OneBodyTerm(na, wfn, 'ne'),
+    RestrictedOneBodyTerm(kin, 'kin'),
+    RestrictedDirectTerm(er, 'hartree'),
+    RestrictedExchangeTerm(er, 'x_hf'),
+    RestrictedOneBodyTerm(na, 'ne'),
 ]
-ham = Hamiltonian(terms, external)
+ham = RestrictedEffectiveHamiltonian(terms, external)
 
 # Converge WFN with SCF
 converged = converge_scf(ham, wfn, lf, olp)

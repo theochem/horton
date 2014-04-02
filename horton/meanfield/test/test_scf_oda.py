@@ -43,15 +43,16 @@ def test_scf_oda_water_hf_321g():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        ExchangeTerm(er, mol.wfn, 'x_hf'),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        RestrictedOneBodyTerm(kin, 'kin'),
+        RestrictedDirectTerm(er, 'hartree'),
+        RestrictedExchangeTerm(er, 'x_hf'),
+        RestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham = Hamiltonian(terms)
+    ham = RestrictedEffectiveHamiltonian(terms)
 
     # test continuation of interupted scf_oda
     guess_core_hamiltonian(mol.wfn, olp, kin, na)
+    ham.reset(mol.wfn.dm_alpha)
     e0 = ham.compute()
     assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) > 1e-5
     with assert_raises(NoSCFConvergence):
@@ -74,17 +75,18 @@ def test_scf_oda_lih_hfs_321g():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        GridGroup(mol.obasis, grid, mol.wfn, [
-            DiracExchange(mol.wfn),
+        UnrestrictedOneBodyTerm(kin, 'kin'),
+        UnrestrictedDirectTerm(er, 'hartree'),
+        UnrestrictedGridGroup(mol.obasis, grid, [
+            UnrestrictedDiracExchange(),
         ]),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        UnrestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham = Hamiltonian(terms)
+    ham = UnrestrictedEffectiveHamiltonian(terms)
 
     # test continuation of interupted scf_oda
     guess_core_hamiltonian(mol.wfn, olp, kin, na)
+    ham.reset(mol.wfn.dm_alpha, mol.wfn.dm_beta)
     e0 = ham.compute()
     assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) > 1e-5
     with assert_raises(NoSCFConvergence):
@@ -136,12 +138,12 @@ def test_scf_oda_aufbau_spin():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        ExchangeTerm(er, mol.wfn, 'x_hf'),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        UnrestrictedOneBodyTerm(kin, 'kin'),
+        UnrestrictedDirectTerm(er, 'hartree'),
+        UnrestrictedExchangeTerm(er,'x_hf'),
+        UnrestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham = Hamiltonian(terms)
+    ham = UnrestrictedEffectiveHamiltonian(terms)
 
     guess_core_hamiltonian(mol.wfn, olp, kin, na)
     converge_scf_oda(ham, mol.wfn, mol.lf, olp)

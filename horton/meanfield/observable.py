@@ -21,12 +21,24 @@
 '''Base classes for energy terms and other observables of the wavefunction'''
 
 
-from horton.meanfield.wfn import RestrictedWFN, UnrestrictedWFN
-
-
 __all__ = [
-    'Observable', 'OneBodyTerm', 'DirectTerm', 'ExchangeTerm',
+    'compute_dm_full',
+    'Observable',
+    'RestrictedOneBodyTerm', 'UnrestrictedOneBodyTerm',
+    'RestrictedDirectTerm', 'UnrestrictedDirectTerm',
+    'RestrictedExchangeTerm', 'UnrestrictedExchangeTerm',
 ]
+
+
+def compute_dm_full(cache):
+    '''Add the spin-summed density matrix to the cache unless it is already present.'''
+    dm_alpha = cache['dm_alpha']
+    dm_beta = cache['dm_beta']
+    dm_full, new = cache.load('dm_full', alloc=dm_alpha.new)
+    if new:
+        dm_full.assign(dm_alpha)
+        dm_full.iadd(dm_beta)
+    return dm_full
 
 
 class Observable(object):
@@ -44,8 +56,8 @@ class Observable(object):
         '''
         raise NotImplementedError
 
-    def add_fock_matrix(self, cache, fock_alpha, fock_beta, scale=1):
-        '''Add contributions to alpha (and beta) Fock matrix(es).
+    def add_fock(self, cache, *focks):
+        '''Add contributions to the Fock matrices.
 
            **Arguments:**
 
@@ -53,118 +65,186 @@ class Observable(object):
                 A cache object used to store intermediate results that can be
                 reused or inspected later.
 
-           fock_alpha
-                A One-Body operator output argument for the alpha fock matrix.
-
-           fock_alpha
-                A One-Body operator output argument for the beta fock matrix.
-
-           **Optional arguments:**
-
-           scale
-                A scale factor for this contribution
-
-           In the case of a closed-shell computation, the argument fock_beta is
-           ``None``.
+           fock1, fock2, ...
+                A list of output fock operators. The caller is responsible for
+                setting these operators initially to zero (if desired).
         '''
         raise NotImplementedError
 
 
-class OneBodyTerm(Observable):
-    '''Class for all observables that are linear in the density matrix
-
-       A restriction of this implementation is that the fock operator for the
-       alpha and the beta electrons are the same.
+class RestrictedOneBodyTerm(Observable):
+    '''Class for all observables that are linear in the density matrix of a
+       restricted wavefunction.
     '''
-    def __init__(self, operator, wfn, label):
-        self._operator = operator
-        self._wfn = wfn
+    def __init__(self, op_alpha, label):
+        self.op_alpha = op_alpha
         Observable.__init__(self, label)
 
     def compute(self, cache):
-        '''See Observable.compute'''
-        if isinstance(self._wfn, RestrictedWFN):
-            return 2 * self._operator.expectation_value(self._wfn.dm_alpha)
+        '''See ``Observable.compute``'''
+        return 2 * self.op_alpha.expectation_value(cache['dm_alpha'])
+
+    def add_fock(self, cache, fock_alpha):
+        '''See ``Observable.add_fock``'''
+        fock_alpha.iadd(self.op_alpha)
+
+
+class UnrestrictedOneBodyTerm(Observable):
+    '''Class for all observables that are linear in the density matrix of an
+       unrestricted wavefunction.
+    '''
+    def __init__(self, op_alpha, label, op_beta=None):
+        self.op_alpha = op_alpha
+        self.op_beta = op_alpha if op_beta is None else op_beta
+        Observable.__init__(self, label)
+
+    def compute(self, cache):
+        '''See ``Observable.compute``'''
+        if self.op_alpha is self.op_beta:
+            # when both operators are references to the same object, take a
+            # shortcut
+            compute_dm_full(cache)
+            return self.op_alpha.expectation_value(cache['dm_full'])
         else:
-            return self._operator.expectation_value(self._wfn.dm_full)
+            # If the operator is different for different spins, do the normal
+            # thing.
+            return self.op_alpha.expectation_value(cache['dm_alpha']) + \
+                   self.op_beta.expectation_value(cache['dm_beta'])
 
-    def add_fock_matrix(self, cache, fock_alpha, fock_beta, scale=1):
-        '''See Observable.add_fock_matrix'''
-        for fock in fock_alpha, fock_beta:
-            if fock is not None:
-                fock.iadd(self._operator, scale)
+    def add_fock(self, cache, fock_alpha, fock_beta):
+        '''See ``Observable.add_fock``'''
+        fock_alpha.iadd(self.op_alpha)
+        fock_beta.iadd(self.op_beta)
 
 
-class DirectTerm(Observable):
-    def __init__(self, operator, wfn, label):
-        self._operator = operator
-        self._wfn = wfn
+class RestrictedDirectTerm(Observable):
+    def __init__(self, op_alpha, label):
+        self.op_alpha = op_alpha
         Observable.__init__(self, label)
 
     def _update_direct(self, cache):
         '''Recompute the direct operator if it has become invalid'''
-        if isinstance(self._wfn, RestrictedWFN):
-            direct, new = cache.load('op_%s' % self.label,
-                                     alloc=self._wfn.dm_alpha.new)
-            if new:
-                self._operator.apply_direct(self._wfn.dm_alpha, direct)
-                direct.iscale(2)
-        else:
-            direct, new = cache.load('op_%s' % self.label,
-                                     alloc=self._wfn.dm_full.new)
-            if new:
-                self._operator.apply_direct(self._wfn.dm_full, direct)
+        dm_alpha = cache['dm_alpha']
+        direct, new = cache.load('op_%s_alpha' % self.label, alloc=dm_alpha.new)
+        if new:
+            self.op_alpha.apply_direct(dm_alpha, direct)
+            direct.iscale(2) # contribution from beta electrons is identical
 
     def compute(self, cache):
         self._update_direct(cache)
-        direct = cache.load('op_%s' % self.label)
-        if isinstance(self._wfn, RestrictedWFN):
-            return direct.expectation_value(self._wfn.dm_alpha)
-        else:
-            return 0.5 * direct.expectation_value(self._wfn.dm_full)
+        direct = cache.load('op_%s_alpha' % self.label)
+        return direct.expectation_value(cache['dm_alpha'])
 
-    def add_fock_matrix(self, cache, fock_alpha, fock_beta, scale=1):
+    def add_fock(self, cache, fock_alpha):
         self._update_direct(cache)
-        direct = cache.load('op_%s' % self.label)
-        fock_alpha.iadd(direct, scale)
-        if isinstance(self._wfn, UnrestrictedWFN):
-            fock_beta.iadd(direct, scale)
+        direct = cache.load('op_%s_alpha' % self.label)
+        fock_alpha.iadd(direct)
 
 
-class ExchangeTerm(Observable):
-    def __init__(self, operator, wfn, label, fraction_exchange=1.0):
-        self._operator = operator
-        self._wfn = wfn
-        self.fraction_exchange = fraction_exchange
+class UnrestrictedDirectTerm(Observable):
+    def __init__(self, op_alpha, label, op_beta=None):
+        self.op_alpha = op_alpha
+        self.op_beta = op_alpha if op_beta is None else op_beta
+        Observable.__init__(self, label)
+
+    def _update_direct(self, cache):
+        '''Recompute the direct operator(s) if it/they has/have become invalid'''
+        if self.op_alpha is self.op_beta:
+            # This branch is nearly always going to be followed in practice.
+            dm_full = compute_dm_full(cache)
+            direct, new = cache.load('op_%s' % self.label, alloc=dm_full.new)
+            if new:
+                self.op_alpha.apply_direct(dm_full, direct)
+        else:
+            # This is probably never going to happen. In case it does, please
+            # add the proper code here.
+            raise NotImplementedError
+
+    def compute(self, cache):
+        self._update_direct(cache)
+        if self.op_alpha is self.op_beta:
+            # This branch is nearly always going to be followed in practice.
+            direct = cache['op_%s' % self.label]
+            dm_full = cache['dm_full']
+            return 0.5 * direct.expectation_value(dm_full)
+        else:
+            # This is probably never going to happen. In case it does, please
+            # add the proper code here.
+            raise NotImplementedError
+
+    def add_fock(self, cache, fock_alpha, fock_beta):
+        self._update_direct(cache)
+        if self.op_alpha is self.op_beta:
+            # This branch is nearly always going to be followed in practice.
+            direct = cache['op_%s' % self.label]
+            fock_alpha.iadd(direct)
+            fock_beta.iadd(direct)
+        else:
+            # This is probably never going to happen. In case it does, please
+            # add the proper code here.
+            raise NotImplementedError
+
+
+class RestrictedExchangeTerm(Observable):
+    def __init__(self, op_alpha, label, fraction=1.0):
+        self.op_alpha = op_alpha
+        self.fraction = fraction
+        Observable.__init__(self, label)
+
+    def _update_exchange(self, cache):
+        '''Recompute the Exchange operator if invalid'''
+        dm_alpha = cache['dm_alpha']
+        exchange_alpha, new = cache.load('op_%s_alpha' % self.label,
+                                         alloc=dm_alpha.new)
+        if new:
+            self.op_alpha.apply_exchange(dm_alpha, exchange_alpha)
+
+    def compute(self, cache):
+        self._update_exchange(cache)
+        exchange_alpha = cache['op_%s_alpha' % self.label]
+        dm_alpha = cache['dm_alpha']
+        return -self.fraction * exchange_alpha.expectation_value(dm_alpha)
+
+    def add_fock(self, cache, fock_alpha):
+        self._update_exchange(cache)
+        exchange_alpha = cache['op_%s_alpha' % self.label]
+        fock_alpha.iadd(exchange_alpha, -self.fraction)
+
+
+class UnrestrictedExchangeTerm(Observable):
+    def __init__(self, op_alpha, label, fraction=1.0, op_beta=None):
+        self.op_alpha = op_alpha
+        self.op_beta = op_alpha if op_beta is None else op_beta
+        self.fraction = fraction
         Observable.__init__(self, label)
 
     def _update_exchange(self, cache):
         '''Recompute the Exchange operator(s) if invalid'''
-        def helper(select):
-            dm = self._wfn.get_dm(select)
-            exchange, new = cache.load('op_%s_%s' % (self.label, select),
-                                       alloc=dm.new)
-            if new:
-                self._operator.apply_exchange(dm, exchange)
-
-        helper('alpha')
-        if isinstance(self._wfn, UnrestrictedWFN):
-            helper('beta')
+        # alpha
+        dm_alpha = cache['dm_alpha']
+        exchange_alpha, new = cache.load('op_%s_alpha' % self.label,
+                                         alloc=dm_alpha.new)
+        if new:
+            self.op_alpha.apply_exchange(dm_alpha, exchange_alpha)
+        # beta
+        dm_beta = cache['dm_beta']
+        exchange_beta, new = cache.load('op_%s_beta' % self.label,
+                                         alloc=dm_beta.new)
+        if new:
+            self.op_beta.apply_exchange(dm_beta, exchange_beta)
 
     def compute(self, cache):
         self._update_exchange(cache)
-        exchange_alpha = cache.load('op_%s_alpha' % self.label)
-        if isinstance(self._wfn, RestrictedWFN):
-            return -self.fraction_exchange * exchange_alpha.expectation_value(self._wfn.dm_alpha)
-        else:
-            exchange_beta = cache.load('op_%s_beta' % self.label)
-            return -0.5 * self.fraction_exchange * exchange_alpha.expectation_value(self._wfn.dm_alpha) \
-                   -0.5 * self.fraction_exchange * exchange_beta.expectation_value(self._wfn.dm_beta)
+        exchange_alpha = cache['op_%s_alpha' % self.label]
+        exchange_beta = cache['op_%s_beta' % self.label]
+        dm_alpha = cache['dm_alpha']
+        dm_beta = cache['dm_beta']
+        return -0.5 * self.fraction * exchange_alpha.expectation_value(dm_alpha) \
+               -0.5 * self.fraction * exchange_beta.expectation_value(dm_beta)
 
-    def add_fock_matrix(self, cache, fock_alpha, fock_beta, scale=1):
+    def add_fock(self, cache, fock_alpha, fock_beta):
         self._update_exchange(cache)
-        fock_alpha.iadd(cache.load('op_%s_alpha' % self.label),
-                        -self.fraction_exchange * scale)
-        if fock_beta is not None:
-            fock_beta.iadd(cache.load('op_%s_beta' % self.label),
-                           -self.fraction_exchange * scale)
+        exchange_alpha = cache['op_%s_alpha' % self.label]
+        fock_alpha.iadd(exchange_alpha, -self.fraction)
+        exchange_beta = cache['op_%s_beta' % self.label]
+        fock_beta.iadd(exchange_beta, -self.fraction)

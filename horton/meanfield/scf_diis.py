@@ -27,6 +27,7 @@ from horton.log import log
 from horton.exceptions import NoSCFConvergence
 from horton.meanfield.convergence import compute_commutator
 from horton.meanfield.scf_oda import find_min_cubic, find_min_quadratic, check_cubic_cs
+from horton.meanfield.hamiltonian import RestrictedEffectiveHamiltonian
 
 
 __all__ = [
@@ -48,11 +49,11 @@ class CSSCFStep(object):
         # Construct the new DM (regular SCF step)
         self.wfn.clear()
         self.wfn.update_exp(fock, self.overlap)
-        self.ham.clear()
+        self.ham.reset(self.wfn.dm_alpha)
 
         # Construct the Fock operator for the new DM
         fock.clear()
-        self.ham.compute_fock(fock, None)
+        self.ham.compute_fock(fock)
 
         # the mixing coefficient
         return 1.0
@@ -67,19 +68,19 @@ class CSCubicODAStep(CSSCFStep):
             # if the fock matrix was interpolated, recompute it from the
             # interpolated density matrix.
             fock0.clear()
-            self.ham.compute_fock(fock0, None)
+            self.ham.compute_fock(fock0)
         if energy0 is None:
             energy0 = self.ham.compute()
 
         self.wfn.clear()
         self.wfn.update_exp(fock0, self.overlap)
         # Let the hamiltonian know that the wavefunction has changed.
-        self.ham.clear()
+        self.ham.reset(self.wfn.dm_alpha)
 
         # second point
         fock1 = fock0.copy()
         fock1.clear()
-        self.ham.compute_fock(fock1, None)
+        self.ham.compute_fock(fock1)
         # Compute energy at new point
         energy1 = self.ham.compute()
         # take the density matrix
@@ -113,10 +114,10 @@ class CSCubicODAStep(CSSCFStep):
 
         self.wfn.clear()
         self.wfn.update_dm('alpha', dm1)
-        self.ham.clear()
+        self.ham.reset(self.wfn.dm_alpha)
 
         fock.clear()
-        self.ham.compute_fock(fock, None)
+        self.ham.compute_fock(fock)
         self.wfn.update_exp(fock, self.overlap, dm1)
 
         # the mixing coefficient
@@ -132,17 +133,17 @@ class CSQuadraticODAStep(CSSCFStep):
             # if the fock matrix was interpolated, recompute it from the
             # interpolated density matrix.
             fock0.clear()
-            self.ham.compute_fock(fock0, None)
+            self.ham.compute_fock(fock0)
 
         self.wfn.clear()
         self.wfn.update_exp(fock0, self.overlap)
         # Let the hamiltonian know that the wavefunction has changed.
-        self.ham.clear()
+        self.ham.reset(self.wfn.dm_alpha)
 
         # second point
         fock1 = fock0.copy()
         fock1.clear()
-        self.ham.compute_fock(fock1, None)
+        self.ham.compute_fock(fock1)
         # take the density matrix
         dm1 = self.wfn.dm_alpha.copy()
 
@@ -171,10 +172,10 @@ class CSQuadraticODAStep(CSSCFStep):
 
         self.wfn.clear()
         self.wfn.update_dm('alpha', dm1)
-        self.ham.clear()
+        self.ham.reset(self.wfn.dm_alpha)
 
         fock.clear()
-        self.ham.compute_fock(fock, None)
+        self.ham.compute_fock(fock)
         self.wfn.update_exp(fock, self.overlap, dm1)
 
         # the mixing coefficient
@@ -250,7 +251,7 @@ def converge_scf_diis_cs(ham, wfn, lf, overlap, DIISHistoryClass, maxiter=128, t
         raise ValueError('scf_step argument not recognized: %s' % scf_step)
 
     # Get rid of outdated stuff
-    ham.clear()
+    ham.reset(wfn.dm_alpha)
 
     if log.do_medium:
         log('Starting restricted closed-shell %s-SCF' % history.name)
@@ -265,7 +266,7 @@ def converge_scf_diis_cs(ham, wfn, lf, overlap, DIISHistoryClass, maxiter=128, t
         if history.nused == 0:
             # Update the Fock matrix
             fock.clear()
-            ham.compute_fock(fock, None)
+            ham.compute_fock(fock)
             # Put this state also in the history
             energy = ham.compute() if history.need_energy else None
             # Add the current fock+dm pair to the history
@@ -348,7 +349,7 @@ def converge_scf_diis_cs(ham, wfn, lf, overlap, DIISHistoryClass, maxiter=128, t
                 history._build_combinations(x_coeffs, tmp, None)
                 wfn.clear()
                 wfn.update_dm('alpha', tmp)
-                ham.clear()
+                ham.reset(wfn.dm_alpha)
                 energies2.append(ham.compute())
                 print x, energies1[-1], energies2[-1]
             pt.clf()
@@ -360,7 +361,7 @@ def converge_scf_diis_cs(ham, wfn, lf, overlap, DIISHistoryClass, maxiter=128, t
 
         wfn.clear()
         wfn.update_dm('alpha', dm)
-        ham.clear()
+        ham.reset(wfn.dm_alpha)
 
         if energy_approx is not None:
             energy_change = energy_approx - min(state.energy for state in history.stack)
@@ -403,7 +404,7 @@ def converge_scf_diis_cs(ham, wfn, lf, overlap, DIISHistoryClass, maxiter=128, t
         if not history.need_energy:
             ham.compute()
         if log.do_medium:
-            ham.log_energy()
+            ham.log()
 
     if not converged:
         raise NoSCFConvergence

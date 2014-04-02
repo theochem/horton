@@ -38,35 +38,33 @@ def test_fock_n2_hfs_sto3g():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
 
-    libxc_term = LibXCLDA(mol.wfn, 'x')
+    libxc_term = RestrictedLibXCLDA('x')
     terms1 = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        GridGroup(mol.obasis, grid, mol.wfn, [
-            libxc_term,
-        ]),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        RestrictedOneBodyTerm(kin, 'kin'),
+        RestrictedDirectTerm(er, 'hartree'),
+        RestrictedGridGroup(mol.obasis, grid, [libxc_term]),
+        RestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham1 = Hamiltonian(terms1, external)
+    ham1 = RestrictedEffectiveHamiltonian(terms1, external)
 
-    builtin_term = DiracExchange(mol.wfn)
+    builtin_term = RestrictedDiracExchange()
     terms2 = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        GridGroup(mol.obasis, grid, mol.wfn, [
-            builtin_term,
-        ]),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        RestrictedOneBodyTerm(kin, 'kin'),
+        RestrictedDirectTerm(er, 'hartree'),
+        RestrictedGridGroup(mol.obasis, grid, [builtin_term]),
+        RestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham2 = Hamiltonian(terms2, external)
+    ham2 = RestrictedEffectiveHamiltonian(terms2, external)
 
     # Compare the potential computed by libxc with the builtin implementation
     fock_alpha = mol.lf.create_one_body()
-    ham1.compute_fock(fock_alpha, None)
+    ham1.reset(mol.wfn.dm_alpha)
+    ham1.compute_fock(fock_alpha)
     fock_alpha.clear()
-    ham2.compute_fock(fock_alpha, None)
+    ham2.reset(mol.wfn.dm_alpha)
+    ham2.compute_fock(fock_alpha)
     libxc_pot = ham1.cache.load('pot_libxc_lda_x_alpha')
-    builtin_pot = ham2.cache.load('pot_exchange_dirac_alpha')
+    builtin_pot = ham2.cache.load('pot_x_dirac_alpha')
     rho = ham1.cache['rho_alpha']
     # Libxc apparently approximates values of the potential below 1e-4 with zero.
     assert abs(libxc_pot - builtin_pot).max() < 1e-4
@@ -75,7 +73,7 @@ def test_fock_n2_hfs_sto3g():
     energy1 = ham1.compute()
     ex1 = ham1.cache['energy_libxc_lda_x']
     energy2 = ham2.compute()
-    ex2 = ham2.cache['energy_exchange_dirac']
+    ex2 = ham2.cache['energy_x_dirac']
     assert abs(ex1 - ex2) < 1e-10
     assert abs(energy1 - energy2) < 1e-10
 
@@ -99,6 +97,7 @@ def test_fock_n2_hfs_sto3g():
     assert abs(mol.wfn.exp_alpha.energies - expected_energies).max() < 3e-5
 
     ham1.compute()
+    ham2.compute()
     # compare with g09
     for ham in ham1, ham2:
         assert abs(ham.cache['energy_ne'] - -2.981579553570E+02) < 1e-5
@@ -106,7 +105,7 @@ def test_fock_n2_hfs_sto3g():
         assert abs(ham.cache['energy'] - -106.205213597) < 1e-4
         assert abs(ham.cache['energy_nn'] - 23.3180604505) < 1e-8
     assert abs(ham1.cache['energy_hartree'] + ham1.cache['energy_libxc_lda_x'] - 6.247259253877E+01) < 1e-4
-    assert abs(ham2.cache['energy_hartree'] + ham2.cache['energy_exchange_dirac'] - 6.247259253877E+01) < 1e-4
+    assert abs(ham2.cache['energy_hartree'] + ham2.cache['energy_x_dirac'] - 6.247259253877E+01) < 1e-4
 
 
 def test_hamiltonian_h3_hfs_321g():
@@ -120,37 +119,35 @@ def test_hamiltonian_h3_hfs_321g():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
 
-    libxc_term = LibXCLDA(mol.wfn, 'x')
+    libxc_term = UnrestrictedLibXCLDA('x')
     terms1 = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        GridGroup(mol.obasis, grid, mol.wfn, [
-            libxc_term,
-        ]),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        UnrestrictedOneBodyTerm(kin, 'kin'),
+        UnrestrictedDirectTerm(er, 'hartree'),
+        UnrestrictedGridGroup(mol.obasis, grid, [libxc_term]),
+        UnrestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham1 = Hamiltonian(terms1, external)
+    ham1 = UnrestrictedEffectiveHamiltonian(terms1, external)
 
-    builtin_term = DiracExchange(mol.wfn)
+    builtin_term = UnrestrictedDiracExchange()
     terms2 = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        GridGroup(mol.obasis, grid, mol.wfn, [
-            builtin_term,
-        ]),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        UnrestrictedOneBodyTerm(kin, 'kin'),
+        UnrestrictedDirectTerm(er, 'hartree'),
+        UnrestrictedGridGroup(mol.obasis, grid, [builtin_term]),
+        UnrestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham2 = Hamiltonian(terms2, external)
+    ham2 = UnrestrictedEffectiveHamiltonian(terms2, external)
 
     # Compare the potential computed by libxc with the builtin implementation
+    ham1.reset(mol.wfn.dm_alpha, mol.wfn.dm_beta)
     fock_alpha = mol.lf.create_one_body()
     fock_beta = mol.lf.create_one_body()
     ham1.compute_fock(fock_alpha, fock_beta)
+    ham2.reset(mol.wfn.dm_alpha, mol.wfn.dm_beta)
     fock_alpha.clear()
     fock_beta.clear()
     ham2.compute_fock(fock_alpha, fock_beta)
     libxc_pot = ham1.cache.load('pot_libxc_lda_x_both')[:,0]
-    builtin_pot = ham2.cache.load('pot_exchange_dirac_alpha')
+    builtin_pot = ham2.cache.load('pot_x_dirac_alpha')
     rho = ham1.cache['rho_alpha']
     # Libxc apparently approximates values of the potential below 1e-4 with zero.
     assert abs(libxc_pot - builtin_pot).max() < 1e-4
@@ -159,7 +156,7 @@ def test_hamiltonian_h3_hfs_321g():
     energy1 = ham1.compute()
     ex1 = ham1.cache['energy_libxc_lda_x']
     energy2 = ham2.compute()
-    ex2 = ham2.cache['energy_exchange_dirac']
+    ex2 = ham2.cache['energy_x_dirac']
     assert abs(ex1 - ex2) < 1e-10
     assert abs(energy1 - energy2) < 1e-10
 
@@ -187,6 +184,7 @@ def test_hamiltonian_h3_hfs_321g():
     assert abs(mol.wfn.exp_beta.energies - expected_energies).max() < 1e-5
 
     ham1.compute()
+    ham2.compute()
     # compare with g09
     for ham in ham1, ham2:
         assert abs(ham.cache['energy_ne'] - -6.832069993374E+00) < 1e-5
@@ -194,7 +192,7 @@ def test_hamiltonian_h3_hfs_321g():
         assert abs(ham.cache['energy'] - -1.412556114057104E+00) < 1e-5
         assert abs(ham.cache['energy_nn'] - 1.8899186021) < 1e-8
     assert abs(ham1.cache['energy_hartree'] + ham1.cache['energy_libxc_lda_x'] - 1.658810998195E+00) < 1e-6
-    assert abs(ham2.cache['energy_hartree'] + ham2.cache['energy_exchange_dirac'] - 1.658810998195E+00) < 1e-6
+    assert abs(ham2.cache['energy_hartree'] + ham2.cache['energy_x_dirac'] - 1.658810998195E+00) < 1e-6
 
 
 def test_co_pbe_sto3g():
@@ -207,17 +205,18 @@ def test_co_pbe_sto3g():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        GridGroup(mol.obasis, grid, mol.wfn, [
-            LibXCGGA(mol.wfn, 'x_pbe'),
-            LibXCGGA(mol.wfn, 'c_pbe'),
+        RestrictedOneBodyTerm(kin, 'kin'),
+        RestrictedDirectTerm(er, 'hartree'),
+        RestrictedGridGroup(mol.obasis, grid, [
+            RestrictedLibXCGGA('x_pbe'),
+            RestrictedLibXCGGA('c_pbe'),
         ]),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        RestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham = Hamiltonian(terms, external)
+    ham = RestrictedEffectiveHamiltonian(terms, external)
 
     # Test energy before scf
+    ham.reset(mol.wfn.dm_alpha)
     ham.compute()
     assert abs(ham.cache['energy'] - -1.116465967841901E+02) < 1e-4
 
@@ -258,17 +257,18 @@ def test_h3_pbe_321g():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        GridGroup(mol.obasis, grid, mol.wfn, [
-            LibXCGGA(mol.wfn, 'x_pbe'),
-            LibXCGGA(mol.wfn, 'c_pbe'),
+        UnrestrictedOneBodyTerm(kin, 'kin'),
+        UnrestrictedDirectTerm(er, 'hartree'),
+        UnrestrictedGridGroup(mol.obasis, grid, [
+            UnrestrictedLibXCGGA('x_pbe'),
+            UnrestrictedLibXCGGA('c_pbe'),
         ]),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        UnrestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham = Hamiltonian(terms, external)
+    ham = UnrestrictedEffectiveHamiltonian(terms, external)
 
     # compute the energy before converging
+    ham.reset(mol.wfn.dm_alpha, mol.wfn.dm_beta)
     ham.compute()
     assert abs(ham.cache['energy'] - -1.593208400939354E+00) < 1e-5
 
@@ -313,21 +313,21 @@ def test_cubic_interpolation_c_pbe_cs():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        GridGroup(mol.obasis, grid, mol.wfn, [
-            LibXCGGA(mol.wfn, 'c_pbe'),
+        RestrictedOneBodyTerm(kin, 'kin'),
+        RestrictedDirectTerm(er, 'hartree'),
+        RestrictedGridGroup(mol.obasis, grid, [
+            RestrictedLibXCGGA('c_pbe'),
         ]),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        RestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham = Hamiltonian(terms)
+    ham = RestrictedEffectiveHamiltonian(terms)
 
     dm0 = mol.wfn.dm_alpha.copy()
     with assert_raises(NoSCFConvergence):
         converge_scf_oda(ham, mol.wfn, mol.lf, olp, maxiter=1)
     dm1 = mol.wfn.dm_alpha.copy()
 
-    check_cubic_cs_wrapper(ham, mol.wfn, dm0, dm1)
+    check_cubic_cs_wrapper(ham, dm0, dm1)
 
 
 def test_cubic_interpolation_x_pbe_cs():
@@ -340,21 +340,21 @@ def test_cubic_interpolation_x_pbe_cs():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        GridGroup(mol.obasis, grid, mol.wfn, [
-            LibXCGGA(mol.wfn, 'x_pbe'),
+        RestrictedOneBodyTerm(kin, 'kin'),
+        RestrictedDirectTerm(er, 'hartree'),
+        RestrictedGridGroup(mol.obasis, grid, [
+            RestrictedLibXCGGA('x_pbe'),
         ]),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        RestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham = Hamiltonian(terms)
+    ham = RestrictedEffectiveHamiltonian(terms)
 
     dm0 = mol.wfn.dm_alpha.copy()
     with assert_raises(NoSCFConvergence):
         converge_scf_oda(ham, mol.wfn, mol.lf, olp, maxiter=1)
     dm1 = mol.wfn.dm_alpha.copy()
 
-    check_cubic_cs_wrapper(ham, mol.wfn, dm0, dm1)
+    check_cubic_cs_wrapper(ham, dm0, dm1)
 
 
 def test_cubic_interpolation_hfs_cs():
@@ -367,21 +367,21 @@ def test_cubic_interpolation_hfs_cs():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        GridGroup(mol.obasis, grid, mol.wfn, [
-            LibXCLDA(mol.wfn, 'x'),
+        RestrictedOneBodyTerm(kin, 'kin'),
+        RestrictedDirectTerm(er, 'hartree'),
+        RestrictedGridGroup(mol.obasis, grid, [
+            RestrictedLibXCLDA('x'),
         ]),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        RestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham = Hamiltonian(terms)
+    ham = RestrictedEffectiveHamiltonian(terms)
 
     dm0 = mol.wfn.dm_alpha.copy()
     with assert_raises(NoSCFConvergence):
         converge_scf_oda(ham, mol.wfn, mol.lf, olp, maxiter=1)
     dm1 = mol.wfn.dm_alpha.copy()
 
-    check_cubic_cs_wrapper(ham, mol.wfn, dm0, dm1)
+    check_cubic_cs_wrapper(ham, dm0, dm1)
 
 
 def test_cubic_interpolation_o3lyp_cs():
@@ -393,22 +393,23 @@ def test_cubic_interpolation_o3lyp_cs():
     kin = mol.obasis.compute_kinetic(mol.lf)
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
-    libxc_term = LibXCHybridGGA(mol.wfn, 'xc_o3lyp')
+    libxc_term = RestrictedLibXCHybridGGA('xc_o3lyp')
     terms = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        GridGroup(mol.obasis, grid, mol.wfn, [libxc_term]),
-        ExchangeTerm(er, mol.wfn, 'x_hf', libxc_term.get_exx_fraction()),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        RestrictedOneBodyTerm(kin, 'kin'),
+        RestrictedDirectTerm(er, 'hartree'),
+        RestrictedGridGroup(mol.obasis, grid, [libxc_term]),
+        RestrictedExchangeTerm(er, 'x_hf', libxc_term.get_exx_fraction()),
+        RestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham = Hamiltonian(terms)
+    ham = RestrictedEffectiveHamiltonian(terms)
 
     dm0 = mol.wfn.dm_alpha.copy()
     with assert_raises(NoSCFConvergence):
         converge_scf_oda(ham, mol.wfn, mol.lf, olp, maxiter=1)
     dm1 = mol.wfn.dm_alpha.copy()
 
-    check_cubic_cs_wrapper(ham, mol.wfn, dm0, dm1)
+    check_cubic_cs_wrapper(ham, dm0, dm1)
+
 
 def test_cubic_interpolation_c_pbe_os():
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
@@ -420,14 +421,14 @@ def test_cubic_interpolation_c_pbe_os():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        GridGroup(mol.obasis, grid, mol.wfn, [
-            LibXCGGA(mol.wfn, 'c_pbe'),
+        UnrestrictedOneBodyTerm(kin, 'kin'),
+        UnrestrictedDirectTerm(er, 'hartree'),
+        UnrestrictedGridGroup(mol.obasis, grid, [
+            UnrestrictedLibXCGGA('c_pbe'),
         ]),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        UnrestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham = Hamiltonian(terms)
+    ham = UnrestrictedEffectiveHamiltonian(terms)
 
     dma0 = mol.wfn.dm_alpha.copy()
     dmb0 = mol.wfn.dm_beta.copy()
@@ -436,7 +437,7 @@ def test_cubic_interpolation_c_pbe_os():
     dma1 = mol.wfn.dm_alpha.copy()
     dmb1 = mol.wfn.dm_beta.copy()
 
-    check_cubic_os_wrapper(ham, mol.wfn, dma0, dmb0, dma1, dmb1)
+    check_cubic_os_wrapper(ham, dma0, dmb0, dma1, dmb1)
 
 
 def test_cubic_interpolation_x_pbe_os():
@@ -449,14 +450,14 @@ def test_cubic_interpolation_x_pbe_os():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        GridGroup(mol.obasis, grid, mol.wfn, [
-            LibXCGGA(mol.wfn, 'x_pbe'),
+        UnrestrictedOneBodyTerm(kin, 'kin'),
+        UnrestrictedDirectTerm(er, 'hartree'),
+        UnrestrictedGridGroup(mol.obasis, grid, [
+            UnrestrictedLibXCGGA('x_pbe'),
         ]),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        UnrestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham = Hamiltonian(terms)
+    ham = UnrestrictedEffectiveHamiltonian(terms)
 
     dma0 = mol.wfn.dm_alpha.copy()
     dmb0 = mol.wfn.dm_beta.copy()
@@ -465,7 +466,7 @@ def test_cubic_interpolation_x_pbe_os():
     dma1 = mol.wfn.dm_alpha.copy()
     dmb1 = mol.wfn.dm_beta.copy()
 
-    check_cubic_os_wrapper(ham, mol.wfn, dma0, dmb0, dma1, dmb1)
+    check_cubic_os_wrapper(ham, dma0, dmb0, dma1, dmb1)
 
 
 def test_cubic_interpolation_hfs_os():
@@ -478,14 +479,14 @@ def test_cubic_interpolation_hfs_os():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        GridGroup(mol.obasis, grid, mol.wfn, [
-            LibXCLDA(mol.wfn, 'x'),
+        UnrestrictedOneBodyTerm(kin, 'kin'),
+        UnrestrictedDirectTerm(er, 'hartree'),
+        UnrestrictedGridGroup(mol.obasis, grid, [
+            UnrestrictedLibXCLDA('x'),
         ]),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        UnrestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham = Hamiltonian(terms)
+    ham = UnrestrictedEffectiveHamiltonian(terms)
 
     dma0 = mol.wfn.dm_alpha.copy()
     dmb0 = mol.wfn.dm_beta.copy()
@@ -494,7 +495,7 @@ def test_cubic_interpolation_hfs_os():
     dma1 = mol.wfn.dm_alpha.copy()
     dmb1 = mol.wfn.dm_beta.copy()
 
-    check_cubic_os_wrapper(ham, mol.wfn, dma0, dmb0, dma1, dmb1)
+    check_cubic_os_wrapper(ham, dma0, dmb0, dma1, dmb1)
 
 
 def test_cubic_interpolation_o3lyp_os():
@@ -506,15 +507,15 @@ def test_cubic_interpolation_o3lyp_os():
     kin = mol.obasis.compute_kinetic(mol.lf)
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
-    libxc_term = LibXCHybridGGA(mol.wfn, 'xc_o3lyp')
+    libxc_term = UnrestrictedLibXCHybridGGA('xc_o3lyp')
     terms = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        GridGroup(mol.obasis, grid, mol.wfn, [libxc_term]),
-        ExchangeTerm(er, mol.wfn, 'x_hf', fraction_exchange=libxc_term.get_exx_fraction()),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        UnrestrictedOneBodyTerm(kin, 'kin'),
+        UnrestrictedDirectTerm(er, 'hartree'),
+        UnrestrictedGridGroup(mol.obasis, grid, [libxc_term]),
+        UnrestrictedExchangeTerm(er, 'x_hf', libxc_term.get_exx_fraction()),
+        UnrestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham = Hamiltonian(terms)
+    ham = UnrestrictedEffectiveHamiltonian(terms)
 
     dma0 = mol.wfn.dm_alpha.copy()
     dmb0 = mol.wfn.dm_beta.copy()
@@ -522,25 +523,28 @@ def test_cubic_interpolation_o3lyp_os():
     dma1 = mol.wfn.dm_alpha.copy()
     dmb1 = mol.wfn.dm_beta.copy()
 
-    check_cubic_os_wrapper(ham, mol.wfn, dma0, dmb0, dma1, dmb1)
+    check_cubic_os_wrapper(ham, dma0, dmb0, dma1, dmb1)
 
 
 def test_hyb_gga_exx_fraction():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     mol = Molecule.from_file(fn_fchk)
-    t = LibXCHybridGGA(mol.wfn, 'xc_pbeh') # The PBE0 functional
+    # xc_pbeh = The PBE0 functional
+    t = RestrictedLibXCHybridGGA('xc_pbeh')
+    assert t.get_exx_fraction() == 0.25
+    t = UnrestrictedLibXCHybridGGA('xc_pbeh')
     assert t.get_exx_fraction() == 0.25
 
 
 def test_lda_c_vwn_present():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     mol = Molecule.from_file(fn_fchk)
-    t = LibXCLDA(mol.wfn, 'c_vwn')     # The VWN 5 functional
-    t = LibXCLDA(mol.wfn, 'c_vwn_4')   # The VWN 4 functional
+    t = RestrictedLibXCLDA('c_vwn')     # The VWN 5 functional
+    t = RestrictedLibXCLDA('c_vwn_4')   # The VWN 4 functional
 
 
 def test_info():
-    t = LibXCWrapper('lda_x')
+    t = RestrictedLibXCWrapper('lda_x')
     assert t.key == 'lda_x'
     t.name
     t.number

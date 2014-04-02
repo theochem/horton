@@ -67,14 +67,15 @@ def test_conversion_dm_exp():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        ExchangeTerm(er, mol.wfn, 'x_hf'),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        RestrictedOneBodyTerm(kin, 'kin'),
+        RestrictedDirectTerm(er, 'hartree'),
+        RestrictedExchangeTerm(er, 'x_hf'),
+        RestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham = Hamiltonian(terms)
+    ham = RestrictedEffectiveHamiltonian(terms)
     fock = mol.lf.create_one_body()
-    ham.compute_fock(fock, None)
+    ham.reset(mol.wfn.dm_alpha)
+    ham.compute_fock(fock)
     mol.wfn.clear()
     mol.wfn.update_exp(fock, olp, dm)
 

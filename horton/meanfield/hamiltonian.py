@@ -26,11 +26,14 @@ from horton.cache import Cache
 
 
 __all__ = [
-    'Hamiltonian',
+    'RestrictedEffectiveHamiltonian', 'UnrestrictedEffectiveHamiltonian'
 ]
 
 
-class Hamiltonian(object):
+class EffectiveHamiltonian(object):
+    # The number of input density matrices (and output fock matrices).
+    ndm = None
+
     def __init__(self, terms, external=None):
         '''
            **Arguments:**
@@ -59,20 +62,25 @@ class Hamiltonian(object):
         # need to be updated at each SCF cycle.
         self.cache = Cache()
 
-    def clear(self):
-        '''Mark the properties derived from the wfn as outdated.
+    def reset(self, *dms):
+        '''Clear intermediate results from the cache and specify new input density matrices.
 
-           This method does not recompute anything, but just marks operators
-           as outdated. They are recomputed as they are needed.
+           **Arguments:**
+
+           dm1, dm2, ...
+                The input density matrices. Their interpretation is fixed in
+                derived classes.
         '''
-        self.cache.clear()
+        raise NotImplementedError
 
     def compute(self):
-        '''Compute the energy.
+        '''Compute the expectation value.
 
-           **Returns:**
+           The input for this method must be provided through the ``reset``
+           method.
 
-           The total energy, including nuclear-nuclear repulsion.
+           **Returns:** The expectation value, including the constant terms
+           defined through the ``external`` argument of the constructor
         '''
         total = 0.0
         for term in self.terms:
@@ -85,11 +93,11 @@ class Hamiltonian(object):
         self.cache['energy'] = total
         return total
 
-    def log_energy(self):
-        '''Write an overview of the last energy computation on screen'''
+    def log(self):
+        '''Write an overview of the last computation on screen'''
         log('Contributions to the energy:')
         log.hline()
-        log('                                       Energy term                 Value')
+        log('                                              term                 Value')
         log.hline()
         for term in self.terms:
             energy = self.cache['energy_%s' % term.label]
@@ -100,20 +108,51 @@ class Hamiltonian(object):
         log.hline()
         log.blank()
 
-    def compute_fock(self, fock_alpha, fock_beta):
-        '''Compute alpha (and beta) Fock matrix(es).
+    def compute_fock(self, *focks):
+        '''Compute the fock matrices, defined is derivatives of the expectation
+           value toward the components of the input density matrices.
 
            **Arguments:**
 
-           fock_alpha
-                A One-Body operator output argument for the alpha fock matrix.
+           fock1, fock2, ....
+                A list of output fock operators. The caller is responsible for
+                setting these operators initially to zero (if desired).
 
-           fock_alpha
-                A One-Body operator output argument for the beta fock matrix.
-
-           In the case of a closed-shell computation, the argument fock_beta is
-           ``None``.
+           The input for this method must be provided through the ``reset``
+           method.
         '''
         # Loop over all terms and add contributions to the Fock matrix.
         for term in self.terms:
-            term.add_fock_matrix(self.cache, fock_alpha, fock_beta)
+            term.add_fock(self.cache, *focks)
+
+
+class RestrictedEffectiveHamiltonian(EffectiveHamiltonian):
+    ndm = 1
+
+    def reset(self, in_dm_alpha):
+        '''See ``EffectiveHamiltonian.reset``'''
+        self.cache.clear()
+        # Take a copy of the input alpha density matrix in the cache.
+        dm_alpha = self.cache.load('dm_alpha', alloc=in_dm_alpha.new)[0]
+        dm_alpha.assign(in_dm_alpha)
+
+    def compute_fock(self, fock_alpha):
+        '''See ``EffectiveHamiltonian.compute_fock``'''
+        EffectiveHamiltonian.compute_fock(self, fock_alpha)
+
+
+class UnrestrictedEffectiveHamiltonian(EffectiveHamiltonian):
+    ndm = 2
+
+    def reset(self, in_dm_alpha, in_dm_beta):
+        '''See ``EffectiveHamiltonian.reset``'''
+        self.cache.clear()
+        # Take copies of the input alpha and beta density matrices in the cache.
+        dm_alpha = self.cache.load('dm_alpha', alloc=in_dm_alpha.new)[0]
+        dm_alpha.assign(in_dm_alpha)
+        dm_beta = self.cache.load('dm_beta', alloc=in_dm_beta.new)[0]
+        dm_beta.assign(in_dm_beta)
+
+    def compute_fock(self, fock_alpha, fock_beta):
+        '''See ``EffectiveHamiltonian.compute_fock``'''
+        EffectiveHamiltonian.compute_fock(self, fock_alpha, fock_beta)

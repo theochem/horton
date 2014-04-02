@@ -31,13 +31,22 @@ def main(fns_fchk):
         er = mol.obasis.compute_electron_repulsion(mol.lf)
 
         guess_core_hamiltonian(wfn, olp, kin, na)
-        terms = [
-            OneBodyTerm(kin, wfn, 'kin'),
-            DirectTerm(er, wfn, 'hartree'),
-            ExchangeTerm(er, wfn, 'x_hf'),
-            OneBodyTerm(na, wfn, 'ne'),
-        ]
-        ham = Hamiltonian(terms)
+        if isinstance(wfn, RestrictedWFN):
+            terms = [
+                RestrictedOneBodyTerm(kin, 'kin'),
+                RestrictedDirectTerm(er, 'hartree'),
+                RestrictedExchangeTerm(er, 'x_hf'),
+                RestrictedOneBodyTerm(na, 'ne'),
+            ]
+            ham = RestrictedEffectiveHamiltonian(terms)
+        else:
+            terms = [
+                UnrestrictedOneBodyTerm(kin, 'kin'),
+                UnrestrictedDirectTerm(er, 'hartree'),
+                UnrestrictedExchangeTerm(er, 'x_hf'),
+                UnrestrictedOneBodyTerm(na, 'ne'),
+            ]
+            ham = UnrestrictedEffectiveHamiltonian(terms)
         converged = converge_scf_oda(ham, wfn, mol.lf, olp, maxiter=1024, threshold=1e-8, debug=False)
         horton_energy = ham.cache['energy']
         error = horton_energy - g09_energy

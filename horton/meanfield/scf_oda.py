@@ -26,6 +26,8 @@ import numpy as np
 from horton.log import log, timer
 from horton.exceptions import NoSCFConvergence
 from horton.meanfield.wfn import RestrictedWFN, UnrestrictedWFN, check_dm
+from horton.meanfield.hamiltonian import RestrictedEffectiveHamiltonian, \
+    UnrestrictedEffectiveHamiltonian
 
 
 __all__ = ['check_cubic_cs', 'check_cubic_os', 'converge_scf_oda']
@@ -69,8 +71,10 @@ def converge_scf_oda(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, debug=F
     '''
     log.cite('cances2001', 'using the optimal damping algorithm (ODA) SCF')
     if isinstance(wfn, RestrictedWFN):
+        assert isinstance(ham, RestrictedEffectiveHamiltonian)
         return converge_scf_oda_cs(ham, wfn, lf, overlap, maxiter, threshold, debug)
     elif isinstance(wfn, UnrestrictedWFN):
+        assert isinstance(ham, UnrestrictedEffectiveHamiltonian)
         return converge_scf_oda_os(ham, wfn, lf, overlap, maxiter, threshold, debug)
     else:
         raise NotImplementedError
@@ -153,7 +157,7 @@ def find_min_quadratic(g0, g1):
             return 1.0
 
 
-def check_cubic_cs(ham, wfn, dm0, dm1, e0, e1, g0, g1, do_plot=True):
+def check_cubic_cs(ham, dm0, dm1, e0, e1, g0, g1, do_plot=True):
     dm1 = dm1.copy()
 
     # coefficients of the polynomial a*x**3 + b*x**2 + c*x + d
@@ -169,10 +173,7 @@ def check_cubic_cs(ham, wfn, dm0, dm1, e0, e1, g0, g1, do_plot=True):
         dm2.assign(dm0)
         dm2.iscale(1-x)
         dm2.iadd(dm1, x)
-
-        wfn.clear()
-        wfn.update_dm('alpha', dm2)
-        ham.clear()
+        ham.reset(dm2)
         e2 = ham.compute()
         energies.append(e2)
     energies = np.array(energies)
@@ -253,7 +254,7 @@ def converge_scf_oda_cs(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, debu
     error = None
 
     # Get rid of outdated stuff
-    ham.clear()
+    ham.reset(wfn.dm_alpha)
 
     # If an input density matrix is present, check if it sensible. This avoids
     # redundant testing of a density matrix that is derived here from the
@@ -265,7 +266,7 @@ def converge_scf_oda_cs(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, debu
     while maxiter is None or counter < maxiter:
         # A) Construct Fock operator, compute energy and keep dm at current/initial point
         fock0.clear()
-        ham.compute_fock(fock0, None)
+        ham.compute_fock(fock0)
         energy0 = ham.compute()
         dm0.assign(wfn.dm_alpha)
 
@@ -279,11 +280,11 @@ def converge_scf_oda_cs(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, debu
         wfn.clear()
         wfn.update_exp(fock0, overlap)
         # Let the hamiltonian know that the wavefunction has changed.
-        ham.clear()
+        ham.reset(wfn.dm_alpha)
 
         # C) Compute Fock matrix at new point (lambda=1)
         fock1.clear()
-        ham.compute_fock(fock1, None)
+        ham.compute_fock(fock1)
         # Compute energy at new point
         energy1 = ham.compute()
         # take the density matrix
@@ -305,7 +306,7 @@ def converge_scf_oda_cs(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, debu
         mixing = find_min_cubic(energy0, energy1, energy0_deriv, energy1_deriv)
 
         if debug:
-            check_cubic_cs(ham, wfn, dm0, dm1, energy0, energy1, energy0_deriv, energy1_deriv)
+            check_cubic_cs(ham, dm0, dm1, energy0, energy1, energy0_deriv, energy1_deriv)
 
         # E) Construct the new dm
         # Put the mixed dm in dm_old, which is local in this routine.
@@ -316,7 +317,7 @@ def converge_scf_oda_cs(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, debu
         # Wipe the caches and use the interpolated density matrix
         wfn.clear()
         wfn.update_dm('alpha', dm2)
-        ham.clear()
+        ham.reset(wfn.dm_alpha)
 
         error = dm2.distance(dm0)
         if error < threshold:
@@ -332,7 +333,7 @@ def converge_scf_oda_cs(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, debu
     # Note: suffix 0 is used for final state here
     dm0.assign(wfn.dm_alpha)
     fock0.clear()
-    ham.compute_fock(fock0, None)
+    ham.compute_fock(fock0)
     wfn.clear()
     wfn.update_exp(fock0, overlap, dm0)
     energy0 = ham.compute()
@@ -341,7 +342,7 @@ def converge_scf_oda_cs(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, debu
         log.blank()
 
     if log.do_medium:
-        ham.log_energy()
+        ham.log()
 
     if not converged:
         raise NoSCFConvergence
@@ -349,7 +350,7 @@ def converge_scf_oda_cs(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, debu
     return counter
 
 
-def check_cubic_os(ham, wfn, dm0a, dm0b, dm1a, dm1b, e0, e1, g0, g1, do_plot=True):
+def check_cubic_os(ham, dm0a, dm0b, dm1a, dm1b, e0, e1, g0, g1, do_plot=True):
     dm1a = dm1a.copy()
     dm1b = dm1b.copy()
 
@@ -370,11 +371,7 @@ def check_cubic_os(ham, wfn, dm0a, dm0b, dm1a, dm1b, e0, e1, g0, g1, do_plot=Tru
         dm2b.assign(dm0b)
         dm2b.iscale(1-x)
         dm2b.iadd(dm1b, x)
-
-        wfn.clear()
-        wfn.update_dm('alpha', dm2a)
-        wfn.update_dm('beta', dm2b)
-        ham.clear()
+        ham.reset(dm2a, dm2b)
         e2 = ham.compute()
         energies.append(e2)
     energies = np.array(energies)
@@ -464,7 +461,7 @@ def converge_scf_oda_os(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, debu
     errorb = None
 
     # Get rid of outdated stuff
-    ham.clear()
+    ham.reset(wfn.dm_alpha, wfn.dm_beta)
 
     # If an input density matrix is present, check if it sensible. This avoids
     # redundant testing of a density matrix that is derived here from the
@@ -494,7 +491,7 @@ def converge_scf_oda_os(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, debu
         wfn.clear()
         wfn.update_exp(fock0a, fock0b, overlap)
         # Let the hamiltonian know that the wavefunction has changed.
-        ham.clear()
+        ham.reset(wfn.dm_alpha, wfn.dm_beta)
 
         # C) Compute Fock matrix at state 1
         fock1a.clear()
@@ -524,7 +521,7 @@ def converge_scf_oda_os(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, debu
             log('       mixing: % 10.5f' % mixing)
 
         if debug:
-            check_cubic_os(ham, wfn, dm0a, dm0b, dm1a, dm1b, energy0, energy1, energy0_deriv, energy1_deriv)
+            check_cubic_os(ham, dm0a, dm0b, dm1a, dm1b, energy0, energy1, energy0_deriv, energy1_deriv)
 
         # E) Construct the new dm
         # Put the mixed dm in dm_old, which is local in this routine.
@@ -539,7 +536,7 @@ def converge_scf_oda_os(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, debu
         wfn.clear()
         wfn.update_dm('alpha', dm2a)
         wfn.update_dm('beta', dm2b)
-        ham.clear()
+        ham.reset(wfn.dm_alpha, wfn.dm_beta)
 
         errora = dm2a.distance(dm0a)
         errorb = dm2b.distance(dm0b)
@@ -567,7 +564,7 @@ def converge_scf_oda_os(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, debu
         log.blank()
 
     if log.do_medium:
-        ham.log_energy()
+        ham.log()
 
     if not converged:
         raise NoSCFConvergence

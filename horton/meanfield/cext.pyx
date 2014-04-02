@@ -28,7 +28,7 @@ np.import_array()
 
 
 __all__ = [
-    'LibXCWrapper'
+    'RestrictedLibXCWrapper', 'UnrestrictedLibXCWrapper'
 ]
 
 
@@ -56,10 +56,8 @@ cdef extern from "xc.h":
     double xc_hyb_exx_coef(xc_func_type *p)
 
 
-
 cdef class LibXCWrapper(object):
-    cdef xc_func_type _func_pol
-    cdef xc_func_type _func_unpol
+    cdef xc_func_type _func
     cdef int _func_id
     cdef bytes _key
 
@@ -75,17 +73,10 @@ cdef class LibXCWrapper(object):
         self._func_id = xc_functional_get_number(key)
         if self._func_id < 0:
             raise ValueError('Unknown LibXC functional: %s' % key)
-        retcode = xc_func_init(&self._func_pol, self._func_id, XC_POLARIZED)
-        if retcode != 0:
-            raise ValueError('Could not initialize polarized LibXC functional: %s' % key)
-        retcode = xc_func_init(&self._func_unpol, self._func_id, XC_UNPOLARIZED)
-        if retcode != 0:
-            raise ValueError('Could not initialize unpolarized LibXC functional: %s' % key)
 
     def __dealloc__(self):
         if self._func_id >= 0:
-            xc_func_end(&self._func_pol)
-            xc_func_end(&self._func_unpol)
+            xc_func_end(&self._func)
 
     ## INFO
 
@@ -99,87 +90,75 @@ cdef class LibXCWrapper(object):
 
     property kind:
         def __get__(self):
-            return self._func_unpol.info[0].kind
+            return self._func.info[0].kind
 
     property name:
         def __get__(self):
-            return self._func_unpol.info[0].name
+            return self._func.info[0].name
 
     property family:
         def __get__(self):
-            return self._func_unpol.info[0].family
+            return self._func.info[0].family
 
     property refs:
         def __get__(self):
-            return self._func_unpol.info[0].refs
+            return self._func.info[0].refs
+
+    ## HYB GGA
+
+    def get_hyb_exx_fraction(self):
+        return xc_hyb_exx_coef(&self._func)
+
+
+
+cdef class RestrictedLibXCWrapper(LibXCWrapper):
+    def __cinit__(self, bytes key):
+        '''
+           **Arguments:**
+
+           key
+                The name of the functional in LibXC, e.g. lda_x
+        '''
+        retcode = xc_func_init(&self._func, self._func_id, XC_UNPOLARIZED)
+        if retcode != 0:
+            self._func_id = -1
+            raise ValueError('Could not initialize unpolarized LibXC functional: %s' % key)
 
     ## LDA
 
-    def compute_lda_exc_unpol(self, np.ndarray[double, ndim=1] rho not None,
-                                    np.ndarray[double, ndim=1] zk not None):
+    def compute_lda_exc(self, np.ndarray[double, ndim=1] rho not None,
+                              np.ndarray[double, ndim=1] zk not None):
         assert rho.flags['C_CONTIGUOUS']
         npoint = rho.shape[0]
         assert zk.flags['C_CONTIGUOUS']
         assert zk.shape[0] == npoint
-        xc_lda_exc(&self._func_unpol, npoint, &rho[0], &zk[0])
+        xc_lda_exc(&self._func, npoint, &rho[0], &zk[0])
 
-    def compute_lda_exc_pol(self, np.ndarray[double, ndim=2] rho not None,
-                                  np.ndarray[double, ndim=1] zk not None):
-        assert rho.flags['C_CONTIGUOUS']
-        npoint = rho.shape[0]
-        assert rho.shape[1] == 2
-        assert zk.flags['C_CONTIGUOUS']
-        assert zk.shape[0] == npoint
-        xc_lda_exc(&self._func_pol, npoint, &rho[0, 0], &zk[0])
-
-    def compute_lda_vxc_unpol(self, np.ndarray[double, ndim=1] rho not None,
-                                    np.ndarray[double, ndim=1] vrho not None):
+    def compute_lda_vxc(self, np.ndarray[double, ndim=1] rho not None,
+                              np.ndarray[double, ndim=1] vrho not None):
         assert rho.flags['C_CONTIGUOUS']
         npoint = rho.shape[0]
         assert vrho.flags['C_CONTIGUOUS']
         assert vrho.shape[0] == npoint
-        xc_lda_vxc(&self._func_unpol, npoint, &rho[0], &vrho[0])
-
-    def compute_lda_vxc_pol(self, np.ndarray[double, ndim=2] rho not None,
-                                  np.ndarray[double, ndim=2] vrho not None):
-        assert rho.flags['C_CONTIGUOUS']
-        npoint = rho.shape[0]
-        assert rho.shape[1] == 2
-        assert vrho.flags['C_CONTIGUOUS']
-        assert vrho.shape[0] == npoint
-        assert vrho.shape[1] == 2
-        xc_lda_vxc(&self._func_pol, npoint, &rho[0, 0], &vrho[0, 0])
+        xc_lda_vxc(&self._func, npoint, &rho[0], &vrho[0])
 
     ## GGA
 
-    def compute_gga_exc_unpol(self, np.ndarray[double, ndim=1] rho not None,
-                                    np.ndarray[double, ndim=1] sigma not None,
-                                    np.ndarray[double, ndim=1] zk not None):
+    def compute_gga_exc(self, np.ndarray[double, ndim=1] rho not None,
+                              np.ndarray[double, ndim=1] sigma not None,
+                              np.ndarray[double, ndim=1] zk not None):
         assert rho.flags['C_CONTIGUOUS']
         npoint = rho.shape[0]
         assert sigma.flags['C_CONTIGUOUS']
         assert sigma.shape[0] == npoint
         assert zk.flags['C_CONTIGUOUS']
         assert zk.shape[0] == npoint
-        xc_gga_exc(&self._func_unpol, npoint, &rho[0], &sigma[0], &zk[0])
+        xc_gga_exc(&self._func, npoint, &rho[0], &sigma[0], &zk[0])
 
-    def compute_gga_exc_pol(self, np.ndarray[double, ndim=2] rho not None,
-                                  np.ndarray[double, ndim=2] sigma not None,
-                                  np.ndarray[double, ndim=1] zk not None):
-        assert rho.flags['C_CONTIGUOUS']
-        npoint = rho.shape[0]
-        assert rho.shape[1] == 2
-        assert sigma.flags['C_CONTIGUOUS']
-        assert sigma.shape[1] == 3
-        assert sigma.shape[0] == npoint
-        assert zk.flags['C_CONTIGUOUS']
-        assert zk.shape[0] == npoint
-        xc_gga_exc(&self._func_pol, npoint, &rho[0, 0], &sigma[0, 0], &zk[0])
-
-    def compute_gga_vxc_unpol(self, np.ndarray[double, ndim=1] rho not None,
-                                    np.ndarray[double, ndim=1] sigma not None,
-                                    np.ndarray[double, ndim=1] vrho not None,
-                                    np.ndarray[double, ndim=1] vsigma not None):
+    def compute_gga_vxc(self, np.ndarray[double, ndim=1] rho not None,
+                              np.ndarray[double, ndim=1] sigma not None,
+                              np.ndarray[double, ndim=1] vrho not None,
+                              np.ndarray[double, ndim=1] vsigma not None):
         assert rho.flags['C_CONTIGUOUS']
         npoint = rho.shape[0]
         assert sigma.flags['C_CONTIGUOUS']
@@ -188,12 +167,62 @@ cdef class LibXCWrapper(object):
         assert vrho.shape[0] == npoint
         assert vsigma.flags['C_CONTIGUOUS']
         assert vsigma.shape[0] == npoint
-        xc_gga_vxc(&self._func_unpol, npoint, &rho[0], &sigma[0], &vrho[0], &vsigma[0])
+        xc_gga_vxc(&self._func, npoint, &rho[0], &sigma[0], &vrho[0], &vsigma[0])
 
-    def compute_gga_vxc_pol(self, np.ndarray[double, ndim=2] rho not None,
-                                  np.ndarray[double, ndim=2] sigma not None,
-                                  np.ndarray[double, ndim=2] vrho not None,
-                                  np.ndarray[double, ndim=2] vsigma not None):
+
+cdef class UnrestrictedLibXCWrapper(LibXCWrapper):
+    def __cinit__(self, bytes key):
+        '''
+           **Arguments:**
+
+           key
+                The name of the functional in LibXC, e.g. lda_x
+        '''
+        retcode = xc_func_init(&self._func, self._func_id, XC_POLARIZED)
+        if retcode != 0:
+            self._func_id = -1
+            raise ValueError('Could not initialize unpolarized LibXC functional: %s' % key)
+
+    ## LDA
+
+    def compute_lda_exc(self, np.ndarray[double, ndim=2] rho not None,
+                              np.ndarray[double, ndim=1] zk not None):
+        assert rho.flags['C_CONTIGUOUS']
+        npoint = rho.shape[0]
+        assert rho.shape[1] == 2
+        assert zk.flags['C_CONTIGUOUS']
+        assert zk.shape[0] == npoint
+        xc_lda_exc(&self._func, npoint, &rho[0, 0], &zk[0])
+
+    def compute_lda_vxc(self, np.ndarray[double, ndim=2] rho not None,
+                              np.ndarray[double, ndim=2] vrho not None):
+        assert rho.flags['C_CONTIGUOUS']
+        npoint = rho.shape[0]
+        assert rho.shape[1] == 2
+        assert vrho.flags['C_CONTIGUOUS']
+        assert vrho.shape[0] == npoint
+        assert vrho.shape[1] == 2
+        xc_lda_vxc(&self._func, npoint, &rho[0, 0], &vrho[0, 0])
+
+    ## GGA
+
+    def compute_gga_exc(self, np.ndarray[double, ndim=2] rho not None,
+                              np.ndarray[double, ndim=2] sigma not None,
+                              np.ndarray[double, ndim=1] zk not None):
+        assert rho.flags['C_CONTIGUOUS']
+        npoint = rho.shape[0]
+        assert rho.shape[1] == 2
+        assert sigma.flags['C_CONTIGUOUS']
+        assert sigma.shape[1] == 3
+        assert sigma.shape[0] == npoint
+        assert zk.flags['C_CONTIGUOUS']
+        assert zk.shape[0] == npoint
+        xc_gga_exc(&self._func, npoint, &rho[0, 0], &sigma[0, 0], &zk[0])
+
+    def compute_gga_vxc(self, np.ndarray[double, ndim=2] rho not None,
+                              np.ndarray[double, ndim=2] sigma not None,
+                              np.ndarray[double, ndim=2] vrho not None,
+                              np.ndarray[double, ndim=2] vsigma not None):
         assert rho.flags['C_CONTIGUOUS']
         npoint = rho.shape[0]
         assert rho.shape[1] == 2
@@ -206,9 +235,4 @@ cdef class LibXCWrapper(object):
         assert vsigma.flags['C_CONTIGUOUS']
         assert vsigma.shape[0] == npoint
         assert vsigma.shape[1] == 3
-        xc_gga_vxc(&self._func_pol, npoint, &rho[0, 0], &sigma[0, 0], &vrho[0, 0], &vsigma[0, 0])
-
-    ## HYB GGA
-
-    def get_hyb_exx_fraction(self):
-        return xc_hyb_exx_coef(&self._func_pol)
+        xc_gga_vxc(&self._func, npoint, &rho[0, 0], &sigma[0, 0], &vrho[0, 0], &vsigma[0, 0])

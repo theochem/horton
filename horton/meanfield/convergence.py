@@ -62,13 +62,15 @@ def convergence_error_eigen(ham, wfn, lf, overlap):
     if isinstance(wfn, RestrictedWFN):
         fock = lf.create_one_body()
         # Construct the Fock operator
-        ham.compute_fock(fock, None)
+        ham.reset(wfn.dm_alpha)
+        ham.compute_fock(fock)
         # Compute error
         return lf.error_eigen(fock, overlap, wfn.exp_alpha)
     elif isinstance(wfn, UnrestrictedWFN):
         fock_alpha = lf.create_one_body()
         fock_beta = lf.create_one_body()
         # Construct the Fock operators
+        ham.reset(wfn.dm_alpha, wfn.dm_beta)
         ham.compute_fock(fock_alpha, fock_beta)
         # Compute errors
         error_alpha = lf.error_eigen(fock_alpha, overlap, wfn.exp_alpha)
@@ -138,7 +140,8 @@ def convergence_error_commutator(ham, wfn, lf, overlap):
         fock = lf.create_one_body()
         commutator = lf.create_one_body()
         # Construct the Fock operator
-        ham.compute_fock(fock, None)
+        ham.reset(wfn.dm_alpha)
+        ham.compute_fock(fock)
         # Compute commutator
         compute_commutator(wfn.dm_alpha, fock, overlap, work, commutator)
         # Compute norm
@@ -148,6 +151,7 @@ def convergence_error_commutator(ham, wfn, lf, overlap):
         fock_alpha = lf.create_one_body()
         fock_beta = lf.create_one_body()
         # Construct the Fock operators
+        ham.reset(wfn.dm_alpha, wfn.dm_beta)
         ham.compute_fock(fock_alpha, fock_beta)
         # Compute stuff for alpha
         compute_commutator(wfn.dm_alpha, fock_alpha, overlap, work, commutator)

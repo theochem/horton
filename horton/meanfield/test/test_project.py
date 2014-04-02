@@ -66,12 +66,15 @@ def test_project_larger():
     na = obasis1.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = obasis1.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, wfn1, 'kin'),
-        DirectTerm(er, wfn1, 'hartree'),
-        ExchangeTerm(er, wfn1, 'x_hf'),
-        OneBodyTerm(na, wfn1, 'ne'),
+        RestrictedOneBodyTerm(kin, 'kin'),
+        RestrictedDirectTerm(er, 'hartree'),
+        RestrictedExchangeTerm(er, 'x_hf'),
+        RestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham = Hamiltonian(terms)
+    ham = RestrictedEffectiveHamiltonian(terms)
+
+    # Compute energy before SCF
+    ham.reset(wfn1.dm_alpha)
     energy1 = ham.compute()
 
     # Optimize wfn
@@ -81,7 +84,7 @@ def test_project_larger():
 
     # Construct a core initial guess
     guess_core_hamiltonian(wfn1, olp, kin, na)
-    ham.clear()
+    ham.reset(wfn1.dm_alpha)
     energy3 = ham.compute()
     assert energy3 > energy1 # the projected guess should be better than the core guess
 
@@ -120,13 +123,15 @@ def test_project_smaller():
     na = obasis1.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = obasis1.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, wfn1, 'kin'),
-        DirectTerm(er, wfn1, 'hartree'),
-        ExchangeTerm(er, wfn1, 'x_hf'),
-        OneBodyTerm(na, wfn1, 'ne'),
+        UnrestrictedOneBodyTerm(kin, 'kin'),
+        UnrestrictedDirectTerm(er, 'hartree'),
+        UnrestrictedExchangeTerm(er, 'x_hf'),
+        UnrestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham = Hamiltonian(terms)
+    ham = UnrestrictedEffectiveHamiltonian(terms)
 
+    # Compute energy before SCF
+    ham.reset(wfn1.dm_alpha, wfn1.dm_beta)
     energy1 = ham.compute()
 
     # Optimize wfn
@@ -136,7 +141,7 @@ def test_project_smaller():
 
     # Construct a core initial guess
     guess_core_hamiltonian(wfn1, olp, kin, na)
-    ham.clear()
+    ham.reset(wfn1.dm_alpha, wfn1.dm_beta)
     energy3 = ham.compute()
     assert energy3 > energy2 # the core guess should be worse than the converged
 

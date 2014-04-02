@@ -30,46 +30,39 @@ __all__ = [
 ]
 
 
-def check_cubic_cs_wrapper(ham, wfn, dm0, dm1, do_plot=False):
+def check_cubic_cs_wrapper(ham, dm0, dm1, do_plot=False):
     fock = dm0.copy()
     fock.clear()
 
     # evaluate stuff at dm0
-    ham.clear()
-    wfn.clear()
-    wfn.update_dm('alpha', dm0)
+    ham.reset(dm0)
     e0 = ham.compute()
     fock.clear()
-    ham.compute_fock(fock, None)
+    ham.compute_fock(fock)
     ev_00 = fock.expectation_value(dm0)
     ev_01 = fock.expectation_value(dm1)
     g0 = 2*(ev_01 - ev_00)
 
     # evaluate stuff at dm1
-    ham.clear()
-    wfn.clear()
-    wfn.update_dm('alpha', dm1)
+    ham.reset(dm1)
     e1 = ham.compute()
     fock.clear()
-    ham.compute_fock(fock, None)
+    ham.compute_fock(fock)
     ev_10 = fock.expectation_value(dm0)
     ev_11 = fock.expectation_value(dm1)
     g1 = 2*(ev_11 - ev_10)
 
-    check_cubic_cs(ham, wfn, dm0, dm1, e0, e1, g0, g1, do_plot)
+    check_cubic_cs(ham, dm0, dm1, e0, e1, g0, g1, do_plot)
 
 
-def check_cubic_os_wrapper(ham, wfn, dma0, dmb0, dma1, dmb1, do_plot=False):
+def check_cubic_os_wrapper(ham, dma0, dmb0, dma1, dmb1, do_plot=False):
     focka = dma0.copy()
     focka.clear()
     fockb = dmb0.copy()
     fockb.clear()
 
     # evaluate stuff at 0
-    ham.clear()
-    wfn.clear()
-    wfn.update_dm('alpha', dma0)
-    wfn.update_dm('beta', dmb0)
+    ham.reset(dma0, dmb0)
     e0 = ham.compute()
     focka.clear()
     fockb.clear()
@@ -79,10 +72,7 @@ def check_cubic_os_wrapper(ham, wfn, dma0, dmb0, dma1, dmb1, do_plot=False):
     g0 = (ev_01 - ev_00)
 
     # evaluate stuff at 1
-    ham.clear()
-    wfn.clear()
-    wfn.update_dm('alpha', dma1)
-    wfn.update_dm('beta', dmb1)
+    ham.reset(dma1, dmb1)
     e1 = ham.compute()
     focka.clear()
     fockb.clear()
@@ -91,7 +81,7 @@ def check_cubic_os_wrapper(ham, wfn, dma0, dmb0, dma1, dmb1, do_plot=False):
     ev_11 = focka.expectation_value(dma1) + fockb.expectation_value(dmb1)
     g1 = (ev_11 - ev_10)
 
-    check_cubic_os(ham, wfn, dma0, dmb0, dma1, dmb1, e0, e1, g0, g1, do_plot)
+    check_cubic_os(ham, dma0, dmb0, dma1, dmb1, e0, e1, g0, g1, do_plot)
 
 
 @log.with_level(log.high)
@@ -105,12 +95,12 @@ def check_scf_hf_cs_hf(scf_wrapper):
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        ExchangeTerm(er, mol.wfn, 'x_hf'),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        RestrictedOneBodyTerm(kin, 'kin'),
+        RestrictedDirectTerm(er, 'hartree'),
+        RestrictedExchangeTerm(er, 'x_hf'),
+        RestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham = Hamiltonian(terms, external)
+    ham = RestrictedEffectiveHamiltonian(terms, external)
 
     guess_core_hamiltonian(mol.wfn, olp, kin, na)
     assert scf_wrapper.convergence_error(ham, mol.wfn, mol.lf, olp) > scf_wrapper.kwargs['threshold']
@@ -145,14 +135,14 @@ def check_scf_water_cs_hfs(scf_wrapper):
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        GridGroup(mol.obasis, grid, mol.wfn, [
-            DiracExchange(mol.wfn),
+        RestrictedOneBodyTerm(kin, 'kin'),
+        RestrictedDirectTerm(er, 'hartree'),
+        RestrictedGridGroup(mol.obasis, grid, [
+            RestrictedDiracExchange(),
         ]),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        RestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham = Hamiltonian(terms, external)
+    ham = RestrictedEffectiveHamiltonian(terms, external)
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file and different integration grids:
@@ -161,7 +151,7 @@ def check_scf_water_cs_hfs(scf_wrapper):
     # The energies should also be in reasonable agreement. Repeated to check for
     # stupid bugs
     for i in xrange(2):
-        ham.clear()
+        ham.reset(mol.wfn.dm_alpha)
         ham.compute()
         expected_energies = np.array([
             -1.83691041E+01, -8.29412411E-01, -4.04495188E-01, -1.91740814E-01,
@@ -173,7 +163,7 @@ def check_scf_water_cs_hfs(scf_wrapper):
         assert abs(mol.wfn.exp_alpha.energies - expected_energies).max() < 2e-4
         assert abs(ham.cache['energy_ne'] - -1.977921986200E+02) < 1e-7
         assert abs(ham.cache['energy_kin'] - 7.525067610865E+01) < 1e-9
-        assert abs(ham.cache['energy_hartree'] + ham.cache['energy_exchange_dirac'] - 3.864299848058E+01) < 2e-4
+        assert abs(ham.cache['energy_hartree'] + ham.cache['energy_x_dirac'] - 3.864299848058E+01) < 2e-4
         assert abs(ham.cache['energy'] - -7.474134898935590E+01) < 2e-4
         assert abs(ham.cache['energy_nn'] - 9.1571750414) < 2e-8
 
@@ -183,7 +173,8 @@ def check_scf_water_cs_hfs(scf_wrapper):
     scf_wrapper(ham, mol.wfn, mol.lf, olp)
     assert scf_wrapper.convergence_error(ham, mol.wfn, mol.lf, olp) < scf_wrapper.kwargs['threshold']
 
+    ham.compute()
     assert abs(ham.cache['energy_ne'] - -1.977921986200E+02) < 1e-4
     assert abs(ham.cache['energy_kin'] - 7.525067610865E+01) < 1e-4
-    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_exchange_dirac'] - 3.864299848058E+01) < 2e-4
+    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_x_dirac'] - 3.864299848058E+01) < 2e-4
     assert abs(ham.cache['energy'] - -7.474134898935590E+01) < 2e-4

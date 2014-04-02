@@ -26,6 +26,7 @@ import numpy as np
 from horton.log import log, timer
 from horton.meanfield.scf_diis import DIISHistory, converge_scf_diis_cs
 from horton.meanfield.wfn import RestrictedWFN
+from horton.meanfield.hamiltonian import RestrictedEffectiveHamiltonian
 from horton.quadprog import solve_safe
 
 
@@ -74,6 +75,7 @@ def converge_scf_cdiis(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, nvect
     '''
     log.cite('pulay1980', 'using the commutator DIIS SCF algorithm')
     if isinstance(wfn, RestrictedWFN):
+        assert isinstance(ham, RestrictedEffectiveHamiltonian)
         return converge_scf_cdiis_cs(ham, wfn, lf, overlap, maxiter, threshold, nvector, prune_old_states, skip_energy, scf_step)
     else:
         raise NotImplementedError

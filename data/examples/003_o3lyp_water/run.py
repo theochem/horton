@@ -29,17 +29,17 @@ grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers)
 
 # Construction of Hamiltonian
 external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
-libxc_term = LibXCHybridGGA(wfn, 'xc_o3lyp')
+libxc_term = RestrictedLibXCHybridGGA('xc_o3lyp')
 terms = [
-    OneBodyTerm(kin, wfn, 'kin'),
-    DirectTerm(er, wfn, 'hartree'),
-    GridGroup(obasis, grid, wfn, [
+    RestrictedOneBodyTerm(kin, 'kin'),
+    RestrictedDirectTerm(er, 'hartree'),
+    RestrictedGridGroup(obasis, grid, [
         libxc_term,
     ]),
-    ExchangeTerm(er, wfn, 'x_hf', libxc_term.get_exx_fraction()),
-    OneBodyTerm(na, wfn, 'ne'),
+    RestrictedExchangeTerm(er, 'x_hf', libxc_term.get_exx_fraction()),
+    RestrictedOneBodyTerm(na, 'ne'),
 ]
-ham = Hamiltonian(terms, external)
+ham = RestrictedEffectiveHamiltonian(terms, external)
 
 # Optimal damping SCF cycle
 converged = converge_scf_oda(ham, wfn, lf, olp)

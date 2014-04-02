@@ -25,175 +25,219 @@ import numpy as np
 
 from horton.log import log, timer
 from horton.meanfield.gridgroup import GridObservable
-from horton.meanfield.cext import LibXCWrapper
-from horton.meanfield.wfn import RestrictedWFN
+from horton.meanfield.cext import RestrictedLibXCWrapper, UnrestrictedLibXCWrapper
 
 
-__all__ = ['LibXCLDA', 'LibXCGGA', 'LibXCHybridGGA']
-
+__all__ = [
+    'RestrictedLibXCLDA', 'UnrestrictedLibXCLDA',
+    'RestrictedLibXCGGA', 'UnrestrictedLibXCGGA',
+    'RestrictedLibXCHybridGGA', 'UnrestrictedLibXCHybridGGA',
+]
 
 
 class LibXCEnergy(GridObservable):
-    def __init__(self, wfn, prefix, name):
-        name = '%s_%s' % (prefix, name)
+    prefix = None
+    LibXCWrapper = None
+
+    def __init__(self, name):
+        '''
+           **Arguments:**
+
+           wfn
+                A Wavefunction object.
+
+           name
+                The name of the functional in LibXC, without the ``lda_``,
+                ``gga_`` or ``hyb_gga_`` prefix. (The type of functional is
+                determined by the subclass.)
+        '''
+        name = '%s_%s' % (self.prefix, name)
         self._name = name
-        self._libxc_wrapper = LibXCWrapper(name)
-        self._wfn = wfn
+        self._libxc_wrapper = self.LibXCWrapper(name)
         log.cite('marques2012', 'using LibXC, the library of exchange and correlation functionals')
         GridObservable.__init__(self, 'libxc_%s' % name)
 
 
-class LibXCLDA(LibXCEnergy):
-    '''Any LDA functional from LibXC'''
 
-    def __init__(self, wfn, name):
-        '''
-           **Arguments:**
-
-           wfn
-                A Wavefunction object.
-
-           name
-                The name of the functional in LibXC, without the ``lda_``
-                prefix.
-        '''
-        LibXCEnergy.__init__(self, wfn, 'lda', name)
+class RestrictedLibXCLDA(LibXCEnergy):
+    '''Any LDA functional from LibXC for restricted wavefunctions'''
+    prefix = 'lda'
+    LibXCWrapper = RestrictedLibXCWrapper
 
     @timer.with_section('LDA edens')
     def compute(self, cache, grid):
-        if isinstance(self._wfn, RestrictedWFN):
-            # In the unpolarized case, libxc expects the total density as input
-            # and returns the energy density per particle.
-            rho_full = cache['rho_full']
-            edens, new = cache.load('edens_libxc_%s_full' % self._name, alloc=grid.size)
-            if new:
-                self._libxc_wrapper.compute_lda_exc_unpol(rho_full, edens)
-            return grid.integrate(edens, rho_full)
-        else:
-            # In case of spin-polarized computations, alpha and beta densities
-            # go in and the 'total' energy density comes out.
-            edens, new = cache.load('edens_libxc_%s_full' % self._name, alloc=grid.size)
-            if new:
-                rho_both = cache['rho_both']
-                self._libxc_wrapper.compute_lda_exc_pol(rho_both, edens)
-
-            rho_full = cache['rho_full']
-            return grid.integrate(edens, rho_full)
+        # LibXC expects the following input:
+        #   - total density
+        # LibXC computes:
+        #   - the energy density per electron.
+        rho_full = cache['rho_full']
+        edens, new = cache.load('edens_libxc_%s_full' % self._name, alloc=grid.size)
+        if new:
+            self._libxc_wrapper.compute_lda_exc(rho_full, edens)
+        return grid.integrate(edens, rho_full)
 
     @timer.with_section('LDA pot')
-    def add_pot(self, cache, grid):
-        if isinstance(self._wfn, RestrictedWFN):
-            # In the closed-shell case, libxc expects the total density as input
-            # and returns the potential for the alpha electrons.
-            pot, new = cache.load('pot_libxc_%s_alpha' % self._name, alloc=grid.size)
-            if new:
-                rho_full = cache['rho_full']
-                self._libxc_wrapper.compute_lda_vxc_unpol(rho_full, pot)
-
-            cache['dpot_total_alpha'] += pot
-        else:
-            # In case of spin-polarized computations, alpha and beta densities
-            # go in and the alpha and beta potentials come out.
-            pot_both, new = cache.load('pot_libxc_%s_both' % self._name, alloc=(grid.size, 2))
-            if new:
-                rho_both = cache['rho_both']
-                self._libxc_wrapper.compute_lda_vxc_pol(rho_both, pot_both)
-
-            cache['dpot_total_alpha'] += pot_both[:,0]
-            cache['dpot_total_beta'] += pot_both[:,1]
+    def add_pot(self, cache, grid, dpot_alpha):
+        # LibXC expects the following input:
+        #   - total density
+        # LibXC computes:
+        #   - the potential for the alpha electrons.
+        pot, new = cache.load('pot_libxc_%s_alpha' % self._name, alloc=grid.size)
+        if new:
+            self._libxc_wrapper.compute_lda_vxc(cache['rho_full'], pot)
+        dpot_alpha += pot
 
 
-class LibXCGGA(LibXCEnergy):
+class UnrestrictedLibXCLDA(LibXCEnergy):
+    '''Any LDA functional from LibXC for unrestricted wavefunctions'''
+    prefix = 'lda'
+    LibXCWrapper = UnrestrictedLibXCWrapper
+
+    @timer.with_section('LDA edens')
+    def compute(self, cache, grid):
+        # LibXC expects the following input:
+        #   - alpha density
+        #   - beta density
+        # LibXC computes:
+        #   - the energy density per electron.
+
+        # In case of spin-polarized computations, alpha and beta densities
+        # go in and the 'total' energy density comes out.
+        edens, new = cache.load('edens_libxc_%s_full' % self._name, alloc=grid.size)
+        if new:
+            self._libxc_wrapper.compute_lda_exc(cache['rho_both'], edens)
+        return grid.integrate(edens, cache['rho_full'])
+
+    @timer.with_section('LDA pot')
+    def add_pot(self, cache, grid, dpot_alpha, dpot_beta):
+        # LibXC expects the following input:
+        #   - alpha density
+        #   - beta density
+        # LibXC computes:
+        #   - potential for the alpha electrons
+        #   - potential for the beta electrons
+        pot_both, new = cache.load('pot_libxc_%s_both' % self._name, alloc=(grid.size, 2))
+        if new:
+            self._libxc_wrapper.compute_lda_vxc(cache['rho_both'], pot_both)
+        dpot_alpha += pot_both[:,0]
+        dpot_beta += pot_both[:,1]
+
+
+class RestrictedLibXCGGA(LibXCEnergy):
     gga = True
-
-    '''Any GGA functional from LibXC'''
-    def __init__(self, wfn, name):
-        '''
-           **Arguments:**
-
-           wfn
-                A Wavefunction object.
-
-           name
-                The name of the functional in LibXC, without the ``gga_``
-                prefix.
-        '''
-        LibXCEnergy.__init__(self, wfn, 'gga', name)
+    prefix = 'gga'
+    LibXCWrapper = RestrictedLibXCWrapper
 
     @timer.with_section('GGA edens')
     def compute(self, cache, grid):
-        if isinstance(self._wfn, RestrictedWFN):
-            rho_full = cache['rho_full']
-            edens, new = cache.load('edens_libxc_%s_full' % self._name, alloc=grid.size)
-            if new:
-                sigma_full = cache['sigma_full']
-                self._libxc_wrapper.compute_gga_exc_unpol(rho_full, sigma_full, edens)
-            return grid.integrate(edens, rho_full)
-        else:
-            rho_both = cache['rho_both']
-            edens, new = cache.load('edens_libxc_%s_full' % self._name, alloc=grid.size)
-            if new:
-                sigma_all = cache['sigma_all']
-                self._libxc_wrapper.compute_gga_exc_pol(rho_both, sigma_all, edens)
-            rho_full = cache['rho_full']
-            return grid.integrate(edens, rho_full)
+        # LibXC expects the following input:
+        #   - total density
+        #   - norm squared of the gradient of the total density
+        # LibXC computes:
+        #   - energy density per electron
+        rho_full = cache['rho_full']
+        edens, new = cache.load('edens_libxc_%s_full' % self._name, alloc=grid.size)
+        if new:
+            sigma_full = cache['sigma_full']
+            self._libxc_wrapper.compute_gga_exc(rho_full, sigma_full, edens)
+        return grid.integrate(edens, rho_full)
 
     @timer.with_section('GGA pot')
-    def add_pot(self, cache, grid):
-        if isinstance(self._wfn, RestrictedWFN):
-            dpot, newd = cache.load('dpot_libxc_%s_alpha' % self._name, alloc=grid.size)
-            spot, news = cache.load('spot_libxc_%s_alpha' % self._name, alloc=grid.size)
-            if newd or news:
-                rho_full = cache['rho_full']
-                sigma_full = cache['sigma_full']
-                self._libxc_wrapper.compute_gga_vxc_unpol(rho_full, sigma_full, dpot, spot)
+    def add_pot(self, cache, grid, dpot_alpha, gpot_alpha):
+        # LibXC expects the following input:
+        #   - total density
+        #   - norm of the gradient of the total density
+        # LibXC computes:
+        #   - the derivative of the energy towards the alpha density.
+        #   - the derivative of the energy towards the norm squared of the alpha density.
+        dpot, newd = cache.load('dpot_libxc_%s_alpha' % self._name, alloc=grid.size)
+        spot, news = cache.load('spot_libxc_%s_alpha' % self._name, alloc=grid.size)
+        if newd or news:
+            rho_full = cache['rho_full']
+            sigma_full = cache['sigma_full']
+            self._libxc_wrapper.compute_gga_vxc(rho_full, sigma_full, dpot, spot)
 
-            gpot, new = cache.load('gpot_libxc_%s_alpha' % self._name, alloc=(grid.size,3))
-            if new:
-                grad_rho = cache['grad_rho_full']
-                np.multiply(grad_rho, spot.reshape(-1,1), out=gpot)
-                gpot *= 2
+        gpot, new = cache.load('gpot_libxc_%s_alpha' % self._name, alloc=(grid.size,3))
+        if new:
+            grad_rho = cache['grad_rho_full']
+            np.multiply(grad_rho, spot.reshape(-1,1), out=gpot)
+            gpot *= 2
 
-            cache['dpot_total_alpha'] += dpot
-            cache['gpot_total_alpha'] += gpot
-        else:
-            dpot_both, newd = cache.load('dpot_libxc_%s_both' % self._name, alloc=(grid.size, 2))
-            spot_all, newt = cache.load('spot_libxc_%s_all' % self._name, alloc=(grid.size, 3))
-            if newd or newt:
-                rho_both = cache['rho_both']
-                sigma_all = cache['sigma_all']
-                self._libxc_wrapper.compute_gga_vxc_pol(rho_both, sigma_all, dpot_both, spot_all)
-
-            gpot_alpha, new = cache.load('gpot_libxc_%s_alpha' % self._name, alloc=(grid.size,3))
-            if new:
-                gpot_alpha[:] = (2*spot_all[:,0].reshape(-1,1))*cache['grad_rho_alpha']
-                gpot_alpha[:] += (spot_all[:,1].reshape(-1,1))*cache['grad_rho_beta']
-
-            gpot_beta, new = cache.load('gpot_libxc_%s_beta' % self._name, alloc=(grid.size,3))
-            if new:
-                gpot_beta[:] = (2*spot_all[:,2].reshape(-1,1))*cache['grad_rho_beta']
-                gpot_beta[:] += (spot_all[:,1].reshape(-1,1))*cache['grad_rho_alpha']
-
-            cache['dpot_total_alpha'] += dpot_both[:,0]
-            cache['dpot_total_beta'] += dpot_both[:,1]
-            cache['gpot_total_alpha'] += gpot_alpha
-            cache['gpot_total_beta'] += gpot_beta
+        dpot_alpha += dpot
+        gpot_alpha += gpot
 
 
-class LibXCHybridGGA(LibXCGGA):
-    '''Any Hybrid GGA functional from LibXC'''
-    def __init__(self, wfn, name):
-        '''
-           **Arguments:**
+class UnrestrictedLibXCGGA(LibXCEnergy):
+    gga = True
+    prefix = 'gga'
+    LibXCWrapper = UnrestrictedLibXCWrapper
 
-           wfn
-                A Wavefunction object.
+    @timer.with_section('GGA edens')
+    def compute(self, cache, grid):
+        # LibXC expects the following input:
+        #   - alpha density
+        #   - beta density
+        #   - norm squared of the gradient of the alpha density
+        #   - dot product of the gradient of the alpha and beta densities
+        #   - norm squared of the gradient of the beta density
+        # LibXC computes:
+        #   - energy density per electron
+        edens, new = cache.load('edens_libxc_%s_full' % self._name, alloc=grid.size)
+        if new:
+            rho_both = cache['rho_both']
+            sigma_all = cache['sigma_all']
+            self._libxc_wrapper.compute_gga_exc(rho_both, sigma_all, edens)
+        rho_full = cache['rho_full']
+        return grid.integrate(edens, rho_full)
 
-           name
-                The name of the functional in LibXC, without the ``hyb_gga_``
-                prefix.
-        '''
-        LibXCEnergy.__init__(self, wfn, 'hyb_gga', name)
+    @timer.with_section('GGA pot')
+    def add_pot(self, cache, grid, dpot_alpha, dpot_beta, gpot_alpha, gpot_beta):
+        # LibXC expects the following input:
+        #   - alpha density
+        #   - beta density
+        #   - norm squared of the gradient of the alpha density
+        #   - dot product of the gradient of the alpha and beta densities
+        #   - norm squared of the gradient of the beta density
+        # LibXC computes:
+        #   - the derivative of the energy towards the alpha density.
+        #   - the derivative of the energy towards the beta density.
+        #   - the derivative of the energy towards the norm squared of the alpha density.
+        #   - the derivative of the energy towards the dot product of the alpha and beta densities.
+        #   - the derivative of the energy towards the norm squared of the beta density.
+        dpot_both, newd = cache.load('dpot_libxc_%s_both' % self._name, alloc=(grid.size, 2))
+        spot_all, newt = cache.load('spot_libxc_%s_all' % self._name, alloc=(grid.size, 3))
+        if newd or newt:
+            rho_both = cache['rho_both']
+            sigma_all = cache['sigma_all']
+            self._libxc_wrapper.compute_gga_vxc(rho_both, sigma_all, dpot_both, spot_all)
+
+        gpot_xc_alpha, new = cache.load('gpot_libxc_%s_alpha' % self._name, alloc=(grid.size,3))
+        if new:
+            gpot_xc_alpha[:] = (2*spot_all[:,0].reshape(-1,1))*cache['grad_rho_alpha']
+            gpot_xc_alpha[:] += (spot_all[:,1].reshape(-1,1))*cache['grad_rho_beta']
+
+        gpot_xc_beta, new = cache.load('gpot_libxc_%s_beta' % self._name, alloc=(grid.size,3))
+        if new:
+            gpot_xc_beta[:] = (2*spot_all[:,2].reshape(-1,1))*cache['grad_rho_beta']
+            gpot_xc_beta[:] += (spot_all[:,1].reshape(-1,1))*cache['grad_rho_alpha']
+
+        dpot_alpha += dpot_both[:,0]
+        dpot_beta += dpot_both[:,1]
+        gpot_alpha += gpot_xc_alpha
+        gpot_beta += gpot_xc_beta
+
+
+class RestrictedLibXCHybridGGA(RestrictedLibXCGGA):
+    '''Any Hybrid GGA functional from LibXC for restricted wavefunctions'''
+    prefix = 'hyb_gga'
+
+    def get_exx_fraction(self):
+        return self._libxc_wrapper.get_hyb_exx_fraction()
+
+
+class UnrestrictedLibXCHybridGGA(UnrestrictedLibXCGGA):
+    '''Any Hybrid GGA functional from LibXC for unrestricted wavefunctions'''
+    prefix = 'hyb_gga'
 
     def get_exx_fraction(self):
         return self._libxc_wrapper.get_hyb_exx_fraction()

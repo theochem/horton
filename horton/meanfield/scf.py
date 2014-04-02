@@ -24,6 +24,8 @@
 from horton.log import log, timer
 from horton.exceptions import NoSCFConvergence
 from horton.meanfield.wfn import RestrictedWFN, UnrestrictedWFN
+from horton.meanfield.hamiltonian import RestrictedEffectiveHamiltonian, \
+    UnrestrictedEffectiveHamiltonian
 
 
 __all__ = ['converge_scf']
@@ -68,8 +70,10 @@ def converge_scf(ham, wfn, lf, overlap, maxiter=128, threshold=1e-8, skip_energy
        **Returns:** the number of iterations
     '''
     if isinstance(wfn, RestrictedWFN):
+        assert isinstance(ham, RestrictedEffectiveHamiltonian)
         return converge_scf_cs(ham, wfn, lf, overlap, maxiter, threshold)
     elif isinstance(wfn, UnrestrictedWFN):
+        assert isinstance(ham, UnrestrictedEffectiveHamiltonian)
         return converge_scf_os(ham, wfn, lf, overlap, maxiter, threshold)
     else:
         raise NotImplementedError
@@ -118,16 +122,15 @@ def converge_scf_cs(ham, wfn, lf, overlap, maxiter=128, threshold=1e-8, skip_ene
         log('Iter  Error(alpha)')
         log.hline()
 
-    # Get rid of outdated stuff
-    ham.clear()
-
     fock = lf.create_one_body()
     converged = False
     counter = 0
     while maxiter is None or counter < maxiter:
+        # feed the latest density matrices in the hamiltonian
+        ham.reset(wfn.dm_alpha)
         # Construct the Fock operator
         fock.clear()
-        ham.compute_fock(fock, None)
+        ham.compute_fock(fock)
         # Check for convergence
         error = lf.error_eigen(fock, overlap, wfn.exp_alpha)
 
@@ -140,8 +143,6 @@ def converge_scf_cs(ham, wfn, lf, overlap, maxiter=128, threshold=1e-8, skip_ene
         # Diagonalize the fock operator
         wfn.clear() # discard previous wfn state
         wfn.update_exp(fock, overlap)
-        # Let the hamiltonian know that the wavefunction has changed.
-        ham.clear()
         # counter
         counter += 1
 
@@ -151,7 +152,7 @@ def converge_scf_cs(ham, wfn, lf, overlap, maxiter=128, threshold=1e-8, skip_ene
     if not skip_energy:
         ham.compute()
         if log.do_medium:
-            ham.log_energy()
+            ham.log()
 
     if not converged:
         raise NoSCFConvergence
@@ -199,15 +200,13 @@ def converge_scf_os(ham, wfn, lf, overlap, maxiter=128, threshold=1e-8, skip_ene
         log.hline()
         log('Iter  Error(alpha)  Error(beta)')
         log.hline()
-
-    # Get rid of outdated stuff
-    ham.clear()
-
     fock_alpha = lf.create_one_body()
     fock_beta = lf.create_one_body()
     converged = False
     counter = 0
     while maxiter is None or counter < maxiter:
+        # feed the latest density matrices in the hamiltonian
+        ham.reset(wfn.dm_alpha, wfn.dm_beta)
         # Construct the Fock operators
         fock_alpha.clear()
         fock_beta.clear()
@@ -225,8 +224,6 @@ def converge_scf_os(ham, wfn, lf, overlap, maxiter=128, threshold=1e-8, skip_ene
         # Diagonalize the fock operators
         wfn.clear()
         wfn.update_exp(fock_alpha, fock_beta, overlap)
-        # Let the hamiltonian know that the wavefunction has changed.
-        ham.clear()
         # counter
         counter += 1
 
@@ -236,7 +233,7 @@ def converge_scf_os(ham, wfn, lf, overlap, maxiter=128, threshold=1e-8, skip_ene
     if not skip_energy:
         ham.compute()
         if log.do_medium:
-            ham.log_energy()
+            ham.log()
 
     if not converged:
         raise NoSCFConvergence

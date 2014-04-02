@@ -35,13 +35,14 @@ def test_energy_hydrogen():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        ExchangeTerm(er, mol.wfn, 'x_hf'),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        UnrestrictedOneBodyTerm(kin, 'kin'),
+        UnrestrictedDirectTerm(er, 'hartree'),
+        UnrestrictedExchangeTerm(er, 'x_hf'),
+        UnrestrictedOneBodyTerm(na, 'ne'),
     ]
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
-    ham = Hamiltonian(terms, external)
+    ham = UnrestrictedEffectiveHamiltonian(terms, external)
+    ham.reset(mol.wfn.dm_alpha, mol.wfn.dm_beta)
     ham.compute()
     assert abs(ham.cache['energy'] - -4.665818503844346E-01) < 1e-8
 
@@ -54,27 +55,28 @@ def test_energy_n2_hfs_sto3g():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        GridGroup(mol.obasis, grid, mol.wfn, [
-            DiracExchange(mol.wfn),
+        RestrictedOneBodyTerm(kin, 'kin'),
+        RestrictedDirectTerm(er, 'hartree'),
+        RestrictedGridGroup(mol.obasis, grid, [
+            RestrictedDiracExchange(),
         ]),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        RestrictedOneBodyTerm(na, 'ne'),
     ]
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
-    ham = Hamiltonian(terms, external)
+    ham = RestrictedEffectiveHamiltonian(terms, external)
+    ham.reset(mol.wfn.dm_alpha)
     ham.compute()
 
     # Compare energies
     assert abs(ham.cache['energy_ne'] - -2.981579553570E+02) < 1e-6
     assert abs(ham.cache['energy_kin'] - 1.061620887711E+02) < 1e-6
-    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_exchange_dirac'] - 6.247259253877E+01) < 1e-4
+    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_x_dirac'] - 6.247259253877E+01) < 1e-4
     assert abs(ham.cache['energy'] - -106.205213597) < 1e-4
     assert abs(ham.cache['energy_nn'] - 23.3180604505) < 3e-9
 
 
     # Test if the grid potential data can be properly converted into an operator:
-    pot = ham.cache.load('pot_exchange_dirac_alpha')
+    pot = ham.cache.load('pot_x_dirac_alpha')
     ev1 = grid.integrate(pot, ham.cache.load('rho_alpha'))
     op = mol.lf.create_one_body()
     mol.obasis.compute_grid_density_fock(grid.points, grid.weights, pot, op)
@@ -99,15 +101,15 @@ def test_fock_n2_hfs_sto3g():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        GridGroup(mol.obasis, grid, mol.wfn, [
-            DiracExchange(mol.wfn),
+        RestrictedOneBodyTerm(kin, 'kin'),
+        RestrictedDirectTerm(er, 'hartree'),
+        RestrictedGridGroup(mol.obasis, grid, [
+            RestrictedDiracExchange(),
         ]),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        RestrictedOneBodyTerm(na, 'ne'),
     ]
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
-    ham = Hamiltonian(terms, external)
+    ham = RestrictedEffectiveHamiltonian(terms, external)
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
@@ -131,7 +133,7 @@ def test_fock_n2_hfs_sto3g():
     # compare with g09
     assert abs(ham.cache['energy_ne'] - -2.981579553570E+02) < 1e-5
     assert abs(ham.cache['energy_kin'] - 1.061620887711E+02) < 1e-5
-    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_exchange_dirac'] - 6.247259253877E+01) < 1e-4
+    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_x_dirac'] - 6.247259253877E+01) < 1e-4
     assert abs(ham.cache['energy'] - -106.205213597) < 1e-4
     assert abs(ham.cache['energy_nn'] - 23.3180604505) < 1e-8
 
@@ -147,15 +149,15 @@ def test_fock_h3_hfs_321g():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        GridGroup(mol.obasis, grid, mol.wfn, [
-            DiracExchange(mol.wfn),
+        UnrestrictedOneBodyTerm(kin, 'kin'),
+        UnrestrictedDirectTerm(er, 'hartree'),
+        UnrestrictedGridGroup(mol.obasis, grid, [
+            UnrestrictedDiracExchange(),
         ]),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        UnrestrictedOneBodyTerm(na, 'ne'),
     ]
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
-    ham = Hamiltonian(terms, external)
+    ham = UnrestrictedEffectiveHamiltonian(terms, external)
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
@@ -183,7 +185,7 @@ def test_fock_h3_hfs_321g():
     # compare with g09
     assert abs(ham.cache['energy_ne'] - -6.832069993374E+00) < 1e-5
     assert abs(ham.cache['energy_kin'] - 1.870784279014E+00) < 1e-5
-    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_exchange_dirac'] - 1.658810998195E+00) < 1e-6
+    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_x_dirac'] - 1.658810998195E+00) < 1e-6
     assert abs(ham.cache['energy'] - -1.412556114057104E+00) < 1e-5
     assert abs(ham.cache['energy_nn'] - 1.8899186021) < 1e-8
 
@@ -198,14 +200,14 @@ def test_cubic_interpolation_hfs_cs():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        GridGroup(mol.obasis, grid, mol.wfn, [
-            DiracExchange(mol.wfn),
+        RestrictedOneBodyTerm(kin, 'kin'),
+        RestrictedDirectTerm(er, 'hartree'),
+        RestrictedGridGroup(mol.obasis, grid, [
+            RestrictedDiracExchange(),
         ]),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        RestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham = Hamiltonian(terms)
+    ham = RestrictedEffectiveHamiltonian(terms)
 
     dm0 = mol.lf.create_one_body()
     dm0.assign(mol.wfn.dm_alpha)
@@ -213,7 +215,7 @@ def test_cubic_interpolation_hfs_cs():
     dm1 = mol.lf.create_one_body()
     dm1.assign(mol.wfn.dm_alpha)
 
-    check_cubic_cs_wrapper(ham, mol.wfn, dm0, dm1)
+    check_cubic_cs_wrapper(ham, dm0, dm1)
 
 
 def test_perturbation():
@@ -226,12 +228,12 @@ def test_perturbation():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        ExchangeTerm(er, mol.wfn, 'x_hf'),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        RestrictedOneBodyTerm(kin, 'kin'),
+        RestrictedDirectTerm(er, 'hartree'),
+        RestrictedExchangeTerm(er, 'x_hf'),
+        RestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham = Hamiltonian(terms)
+    ham = RestrictedEffectiveHamiltonian(terms)
     assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) > 1e-8
     converge_scf(ham, mol.wfn, mol.lf, olp)
     assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) < 1e-8
@@ -253,16 +255,16 @@ def test_perturbation():
         # Perturbation
         tmp = operator.copy()
         tmp.iscale(scale)
-        perturbation = OneBodyTerm(tmp, mol.wfn, 'pert')
+        perturbation = RestrictedOneBodyTerm(tmp, 'pert')
         # Hamiltonian
         terms = [
-            OneBodyTerm(kin, mol.wfn, 'kin'),
-            DirectTerm(er, mol.wfn, 'hartree'),
-            ExchangeTerm(er, mol.wfn, 'x_hf'),
-            OneBodyTerm(na, mol.wfn, 'ne'),
+            RestrictedOneBodyTerm(kin, 'kin'),
+            RestrictedDirectTerm(er, 'hartree'),
+            RestrictedExchangeTerm(er, 'x_hf'),
+            RestrictedOneBodyTerm(na, 'ne'),
             perturbation,
         ]
-        ham = Hamiltonian(terms)
+        ham = RestrictedEffectiveHamiltonian(terms)
         assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) > 1e-8
         converge_scf_oda(ham, mol.wfn, mol.lf, olp)
         assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) < 1e-8
@@ -284,12 +286,12 @@ def test_ghost_hf():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        ExchangeTerm(er, mol.wfn, 'x_hf'),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        RestrictedOneBodyTerm(kin, 'kin'),
+        RestrictedDirectTerm(er, 'hartree'),
+        RestrictedExchangeTerm(er, 'x_hf'),
+        RestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham = Hamiltonian(terms)
+    ham = RestrictedEffectiveHamiltonian(terms)
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
     assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) < 1e-5

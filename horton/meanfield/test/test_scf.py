@@ -41,12 +41,12 @@ def test_scf_os():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
-        OneBodyTerm(kin, mol.wfn, 'kin'),
-        DirectTerm(er, mol.wfn, 'hartree'),
-        ExchangeTerm(er, mol.wfn, 'x_hf'),
-        OneBodyTerm(na, mol.wfn, 'ne'),
+        UnrestrictedOneBodyTerm(kin, 'kin'),
+        UnrestrictedDirectTerm(er, 'hartree'),
+        UnrestrictedExchangeTerm(er, 'x_hf'),
+        UnrestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham = Hamiltonian(terms, external)
+    ham = UnrestrictedEffectiveHamiltonian(terms, external)
 
     guess_core_hamiltonian(mol.wfn, olp, kin, na)
     assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) > 1e-8
@@ -87,11 +87,11 @@ def test_hf_water_321g_mistake():
     na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
     er = obasis.compute_electron_repulsion(lf)
     terms = [
-        OneBodyTerm(kin, wfn, 'kin'),
-        DirectTerm(er, wfn, 'hartree'),
-        ExchangeTerm(er, wfn, 'x_hf'),
-        OneBodyTerm(na, wfn, 'ne'),
+        RestrictedOneBodyTerm(kin, 'kin'),
+        RestrictedDirectTerm(er, 'hartree'),
+        RestrictedExchangeTerm(er, 'x_hf'),
+        RestrictedOneBodyTerm(na, 'ne'),
     ]
-    ham = Hamiltonian(terms)
+    ham = RestrictedEffectiveHamiltonian(terms)
     with assert_raises(AttributeError):
         converge_scf(ham, wfn, lf, olp)

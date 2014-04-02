@@ -24,21 +24,15 @@
 import numpy as np
 
 from horton.meanfield.gridgroup import GridObservable
-from horton.meanfield.wfn import RestrictedWFN, UnrestrictedWFN
 
 
-__all__ = ['DiracExchange']
+__all__ = ['RestrictedDiracExchange', 'UnrestrictedDiracExchange']
 
 
 class DiracExchange(GridObservable):
-    '''An implementation of the Dirac Exchange Functional'''
-    def __init__(self, wfn, label='exchange_dirac', coeff=None):
+    '''Common code for the Dirac Exchange Functional implementations'''
+    def __init__(self, label='x_dirac', coeff=None):
         '''
-           **Arguments:**
-
-           wfn
-                A Wavefunction object.
-
            **Optional arguments:**
 
            label
@@ -49,7 +43,6 @@ class DiracExchange(GridObservable):
                 It defaults to the uniform electron gas value, i.e.
                 Cx = 3/4 (3/pi)^(1/3).
         '''
-        self._wfn = wfn
         if coeff is None:
             self.coeff = 3.0 / 4.0 * (3.0 / np.pi) ** (1.0 / 3.0)
         else:
@@ -57,38 +50,52 @@ class DiracExchange(GridObservable):
         self.derived_coeff = -self.coeff * (4.0 / 3.0) * 2 ** (1.0 / 3.0)
         GridObservable.__init__(self, label)
 
+    def _update_pot(self, cache, grid, select):
+        '''Recompute an Exchange potential if invalid
+
+           cache
+                A cache instance in which the potential is stored.
+
+           grid
+                The integration grid.
+
+           select
+                'alpha' or 'beta'
+        '''
+        rho = cache['rho_%s' % select]
+        pot, new = cache.load('pot_x_dirac_%s' % select, alloc=grid.size)
+        if new:
+            pot[:] = self.derived_coeff * rho ** (1.0 / 3.0)
+        return pot
+
+
+class RestrictedDiracExchange(DiracExchange):
+    '''The Dirac Exchange Functional for restricted wavefunctions'''
+
     def compute(self, cache, grid):
-        self._update_pot(cache, grid)
+        '''See ``GridObservable.compute``'''
+        pot = self._update_pot(cache, grid, 'alpha')
+        rho = cache['rho_alpha']
+        return (3.0 / 2.0) * grid.integrate(pot, rho)
 
-        def helper(select):
-            pot = cache['pot_exchange_dirac_%s' % select]
-            rho = cache['rho_%s' % select]
-            return grid.integrate(pot, rho)
+    def add_pot(self, cache, grid, dpot_alpha):
+        '''See ``GridObservable.add_pot``'''
+        dpot_alpha += self._update_pot(cache, grid, 'alpha')
 
-        energy = helper('alpha')
-        if isinstance(self._wfn, RestrictedWFN):
-            energy *= 2
-        else:
-            energy += helper('beta')
-        energy *= 3.0 / 4.0
-        return energy
 
-    def _update_pot(self, cache, grid):
-        '''Recompute the Exchange potential(s) if invalid'''
-        def helper(select):
-            # update grid stuff
-            rho = cache['rho_%s' % select]
-            pot, new = cache.load('pot_exchange_dirac_%s' % select, alloc=grid.size)
-            if new:
-                pot[:] = self.derived_coeff * rho ** (1.0 / 3.0)
+class UnrestrictedDiracExchange(DiracExchange):
+    '''The Dirac Exchange Functional for unrestricted wavefunctions'''
 
-        helper('alpha')
-        if isinstance(self._wfn, UnrestrictedWFN):
-            helper('beta')
+    def compute(self, cache, grid):
+        '''See ``GridObservable.compute``'''
+        pot_alpha = self._update_pot(cache, grid, 'alpha')
+        pot_beta = self._update_pot(cache, grid, 'beta')
+        rho_alpha = cache['rho_alpha']
+        rho_beta = cache['rho_beta']
+        return (3.0 / 4.0) * (grid.integrate(pot_alpha, rho_alpha) +
+                              grid.integrate(pot_beta, rho_beta))
 
-    def add_pot(self, cache, grid):
-        '''Recompute the Exchange potential(s) if invalid'''
-        self._update_pot(cache, grid)
-        cache['dpot_total_alpha'] += cache['pot_exchange_dirac_alpha']
-        if isinstance(self._wfn, UnrestrictedWFN):
-            cache['dpot_total_beta'] += cache['pot_exchange_dirac_beta']
+    def add_pot(self, cache, grid, dpot_alpha, dpot_beta):
+        '''See ``GridObservable.add_pot``'''
+        dpot_alpha += self._update_pot(cache, grid, 'alpha')
+        dpot_beta += self._update_pot(cache, grid, 'beta')

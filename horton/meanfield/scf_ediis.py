@@ -26,6 +26,7 @@ from horton.log import log, timer
 from horton.exceptions import NoSCFConvergence
 from horton.meanfield.scf_diis import DIISHistory, converge_scf_diis_cs
 from horton.meanfield.wfn import RestrictedWFN
+from horton.meanfield.hamiltonian import RestrictedEffectiveHamiltonian
 from horton.quadprog import QPSolver
 
 
@@ -71,6 +72,7 @@ def converge_scf_ediis(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, nvect
     '''
     log.cite('kudin2002', 'using the energy DIIS SCF algorithm')
     if isinstance(wfn, RestrictedWFN):
+        assert isinstance(ham, RestrictedEffectiveHamiltonian)
         return converge_scf_ediis_cs(ham, wfn, lf, overlap, maxiter, threshold, nvector, prune_old_states, scf_step)
     else:
         raise NotImplementedError
