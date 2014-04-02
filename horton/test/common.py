@@ -32,7 +32,7 @@ __all__ = [
     'check_script', 'check_delta',
     'get_random_cell', 'get_pentagon_moments',
     'compare_expansions', 'compare_all_expansions', 'compare_dms',
-    'compare_all_dms', 'compare_operators', 'compare_occ_model', 'compare_wfns',
+    'compare_all_dms', 'compare_operators', 'compare_occ_model', 'compare_exps',
     'compare_mols', 'compare_symmetries',
     'tmpdir',
 ]
@@ -224,25 +224,12 @@ def compare_occ_model(occ_model1, occ_model2):
         raise NotImplementedError
 
 
-def compare_wfns(wfn1, wfn2):
-    if isinstance(wfn1, RestrictedWFN):
-        assert isinstance(wfn2, RestrictedWFN)
-        assert wfn1.nbasis == wfn2.nbasis
-        assert wfn1.norb == wfn2.norb
-        compare_all_expansions(wfn1, wfn2)
-        compare_all_dms(wfn1, wfn2)
-        compare_occ_model(wfn1.occ_model, wfn2.occ_model)
-    elif isinstance(wfn1, UnrestrictedWFN):
-        assert isinstance(wfn2, UnrestrictedWFN)
-        assert wfn1.nbasis == wfn2.nbasis
-        assert wfn1.norb == wfn2.norb
-        compare_all_expansions(wfn1, wfn2)
-        compare_all_dms(wfn1, wfn2)
-        compare_occ_model(wfn1.occ_model, wfn2.occ_model)
-    elif wfn1 is None:
-        assert wfn2 is None
-    else:
-        raise NotImplementedError
+def compare_exps(exp1, exp2):
+    assert exp1.nbasis == exp2.nbasis
+    assert exp1.nfn == exp2.nfn
+    assert (exp1.coeffs == exp2.coeffs).all()
+    assert (exp1.energies == exp2.energies).all()
+    assert (exp1.occupations == exp2.occupations).all()
 
 
 def compare_mols(mol1, mol2):
@@ -259,9 +246,16 @@ def compare_mols(mol1, mol2):
     else:
         assert mol2.obasis is None
     # wfn
-    compare_wfns(mol1.wfn, mol2.wfn)
+    for key in 'exp_alpha', 'exp_beta':
+        if hasattr(mol1, key):
+            assert hasattr(mol2, key)
+            compare_exps(getattr(mol1, key), getattr(mol2, key))
+        else:
+            assert not hasattr(mol2, key)
     # operators
-    for key in 'olp', 'kin', 'na', 'er':
+    for key in 'olp', 'kin', 'na', 'er', 'dm_full_mp2', 'dm_spin_mp2', \
+               'dm_full_mp3', 'dm_spin_mp3', 'dm_full_ci', 'dm_spin_ci', \
+               'dm_full_cc', 'dm_spin_cc', 'dm_full_scf', 'dm_spin_scf':
         if hasattr(mol1, key):
             assert hasattr(mol2, key)
             compare_operators(getattr(mol1, key), getattr(mol2, key))

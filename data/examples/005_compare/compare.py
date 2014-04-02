@@ -3,12 +3,12 @@
 import os, numpy as np, sys
 from glob import glob
 from horton import *
-from horton.meanfield.test.common import check_cubic_os_wrapper, check_cubic_cs_wrapper
+from horton.meanfield.test.common import check_cubic_wrapper
 
 #log.set_level(log.high)
 log.set_level(log.silent)
 
-debug = False
+debug = True
 
 def main(fns_fchk):
     np.set_printoptions(suppress=True, linewidth=100)
@@ -17,12 +17,7 @@ def main(fns_fchk):
     for fn_fchk in fns_fchk:
         # Get stuff from g09
         mol = Molecule.from_file(fn_fchk)
-        if debug:
-            dma0 = mol.wfn.dm_alpha.copy()
-            if isinstance(mol.wfn, UnrestrictedWFN):
-                dmb0 = mol.wfn.dm_beta.copy()
         g09_energy = mol.energy
-        wfn = mol.wfn
 
         # compute Gaussian integrals
         olp = mol.obasis.compute_overlap(mol.lf)
@@ -30,8 +25,20 @@ def main(fns_fchk):
         na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
         er = mol.obasis.compute_electron_repulsion(mol.lf)
 
-        guess_core_hamiltonian(wfn, olp, kin, na)
-        if isinstance(wfn, RestrictedWFN):
+        # make a list of the expansion objects
+        exps = [mol.exp_alpha]
+        if hasattr(mol, 'exp_beta'):
+            exps.append(mol.exp_beta)
+
+        # keep the g09 dms
+        if debug:
+            dms_g09 = [exp.to_dm() for exp in exps]
+
+        # construct an initial guess
+        guess_core_hamiltonian(olp, kin, na, *exps)
+
+        # define the effective hamiltonian
+        if len(exps) == 1:
             terms = [
                 RestrictedOneBodyTerm(kin, 'kin'),
                 RestrictedDirectTerm(er, 'hartree'),
@@ -47,22 +54,28 @@ def main(fns_fchk):
                 UnrestrictedOneBodyTerm(na, 'ne'),
             ]
             ham = UnrestrictedEffectiveHamiltonian(terms)
-        converged = converge_scf_oda(ham, wfn, mol.lf, olp, maxiter=1024, threshold=1e-8, debug=False)
+
+        # construct initial density matrices
+        dms = [exp.to_dm() for exp in exps]
+
+        # configure orbital occupations
+        occ_model = AufbauOccModel(*[exp.occupations.sum() for exp in exps])
+
+        # Converge the SCF
+        scf_solver = ODASCFSolver(1e-8, 1024)
+        niter = scf_solver(ham, mol.lf, olp, occ_model, *dms)
+
+        # Analyze results
         horton_energy = ham.cache['energy']
         error = horton_energy - g09_energy
-        if isinstance(mol.wfn, RestrictedWFN):
+        if len(exps) == 1:
             prefix = 'r'
         else:
             prefix = 'u'
-        print '%s %30s  % 15.10e  % 15.10e  %+9.4f  %s' % (prefix, fn_fchk, horton_energy, g09_energy, error, converged)
+        print '%s %30s  % 15.10e  % 15.10e  %+9.4f  %s' % (prefix, fn_fchk, horton_energy, g09_energy, error, niter)
 
         if debug:
-            dma1 = mol.wfn.dm_alpha.copy()
-            if isinstance(mol.wfn, UnrestrictedWFN):
-                dmb1 = mol.wfn.dm_beta.copy()
-                check_cubic_os_wrapper(ham, wfn, dma0, dmb0, dma1, dmb1, do_plot=True)
-            else:
-                check_cubic_cs_wrapper(ham, wfn, dma0, dma1, do_plot=True)
+            check_cubic_wrapper(ham, dms_g09, dms, do_plot=True)
 
 
 if __name__ == '__main__':

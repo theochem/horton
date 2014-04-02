@@ -23,116 +23,29 @@
 
 import numpy as np
 
-from horton.log import log, timer
-from horton.meanfield.scf_diis import DIISHistory, converge_scf_diis_cs
-from horton.meanfield.wfn import RestrictedWFN
-from horton.meanfield.hamiltonian import RestrictedEffectiveHamiltonian
+from horton.log import log
+from horton.meanfield.scf_diis import DIISHistory, DIISSCFSolver
 from horton.quadprog import solve_safe
 
 
-__all__ = ['converge_scf_cdiis']
+__all__ = ['CDIISSCFSolver']
 
 
-@timer.with_section('SCF')
-def converge_scf_cdiis(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, skip_energy=False, scf_step='regular'):
-    '''Minimize the energy of the wavefunction with the CDIIS algorithm
-
-       **Arguments:**
-
-       ham
-            A Hamiltonian instance.
-
-       **Optional arguments:**
-
-       maxiter
-            The maximum number of iterations. When set to None, the SCF loop
-            will go one until convergence is reached.
-
-       threshold
-            The convergence threshold for the wavefunction
-
-       prune_old_states
-            When set to True, old states are pruned from the history when their
-            coefficient is zero. Pruning starts at the oldest state and stops
-            as soon as a state is encountered with a non-zero coefficient. Even
-            if some newer states have a zero coefficient.
-
-       skip_energy
-            When set to True, the final energy is not computed.
-
-       scf_step
-            The type of SCF step to take after the interpolated states was
-            create from the DIIS history. This can be 'regular', 'oda2' or
-            'oda3'.
-
-       **Raises:**
-
-       NoSCFConvergence
-            if the convergence criteria are not met within the specified number
-            of iterations.
-
-       **Returns:** the number of iterations
-    '''
-    log.cite('pulay1980', 'using the commutator DIIS SCF algorithm')
-    if isinstance(wfn, RestrictedWFN):
-        assert isinstance(ham, RestrictedEffectiveHamiltonian)
-        return converge_scf_cdiis_cs(ham, wfn, lf, overlap, maxiter, threshold, nvector, prune_old_states, skip_energy, scf_step)
-    else:
-        raise NotImplementedError
+class CDIISSCFSolver(DIISSCFSolver):
+    def __init__(self, threshold=1e-6, maxiter=128, nvector=6, skip_energy=False, prune_old_states=False):
+        log.cite('pulay1980', 'the commutator DIIS SCF algorithm')
+        DIISSCFSolver.__init__(self, CDIISHistory, threshold, maxiter, nvector, skip_energy, prune_old_states)
 
 
-def converge_scf_cdiis_cs(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, skip_energy=False, scf_step='regular'):
-    '''Minimize the energy of the closed-shell wavefunction with CDIIS
+class CDIISHistory(DIISHistory):
+    '''A commutator DIIS history object that keeps track of previous SCF solutions
 
-       **Arguments:**
-
-       ham
-            A Hamiltonian instance.
-
-       **Optional arguments:**
-
-       maxiter
-            The maximum number of iterations. When set to None, the SCF loop
-            will go one until convergence is reached.
-
-       threshold
-            The convergence threshold for the wavefunction
-
-       prune_old_states
-            When set to True, old states are pruned from the history when their
-            coefficient is zero. Pruning starts at the oldest state and stops
-            as soon as a state is encountered with a non-zero coefficient. Even
-            if some newer states have a zero coefficient.
-
-       skip_energy
-            When set to True, the final energy is not computed.
-
-       scf_step
-            The type of SCF step to take after the interpolated states was
-            create from the DIIS history. This can be 'regular', 'oda2' or
-            'oda3'.
-
-       **Raises:**
-
-       NoSCFConvergence
-            if the convergence criteria are not met within the specified number
-            of iterations.
-
-       **Returns:** the number of iterations
-    '''
-    log.cite('pulay1980', 'the use of the commutator DIIS method')
-    return converge_scf_diis_cs(ham, wfn, lf, overlap, PulayDIISHistory, maxiter, threshold, nvector, prune_old_states, skip_energy, scf_step)
-
-
-class PulayDIISHistory(DIISHistory):
-    '''A Pulay DIIS history object that keeps track of previous SCF solutions
-
-       This type of DIIS is also called commutator DIIS, hence the name CDIIS.
+       This type of DIIS is also called Pulay DIIS.
     '''
     name = 'CDIIS'
     need_energy = False
 
-    def __init__(self, lf, nvector, overlap):
+    def __init__(self, lf, nvector, ndm, overlap):
         '''
            **Arguments:**
 
@@ -142,12 +55,16 @@ class PulayDIISHistory(DIISHistory):
            nvector
                 The maximum size of the history.
 
+           ndm
+                The number of density matrices (and fock matrices) in one
+                state.
+
            overlap
                 The overlap matrix.
         '''
         self.cdots = np.empty((nvector, nvector))
         self.cdots.fill(np.nan)
-        DIISHistory.__init__(self, lf, nvector, overlap, [self.cdots])
+        DIISHistory.__init__(self, lf, nvector, ndm, overlap, [self.cdots])
 
     def _complete_cdots_matrix(self):
         '''Complete the matrix of dot products between commutators
@@ -157,27 +74,29 @@ class PulayDIISHistory(DIISHistory):
         '''
         for i0 in xrange(self.nused-1, -1, -1):
             state0 = self.stack[i0]
-            self.cdots[i0,i0] = state0.norm
+            self.cdots[i0,i0] = state0.normsq
             # Compute off-diagonal coefficients
             for i1 in xrange(i0):
                 if np.isfinite(self.cdots[i0,i1]):
                     return
                 state1 = self.stack[i1]
-                cdot = state0.commutator.expectation_value(state1.commutator)
+                cdot = 0.0
+                for j in xrange(self.ndm):
+                    cdot += state0.commutators[j].expectation_value(state1.commutators[j])
                 self.cdots[i0,i1] = cdot
                 self.cdots[i1,i0] = cdot
 
-    def solve(self, dm_output, fock_output):
-        '''Extrapolate a new density and/or fock matrix that should have the smallest commutator norm.
+    def solve(self, dms_output, focks_output):
+        '''Extrapolate a new density and/or fock matrices that should have the smallest commutator norm.
 
            **Arguments:**
 
-           dm_output
-                The output for the density matrix. If set to None, this is
+           dms_output
+                The output for the density matrices. If set to None, this is
                 argument is ignored.
 
-           fock_output
-                The output for the Fock matrix. If set to None, this is
+           focks_output
+                The output for the Fock matrices. If set to None, this is
                 argument is ignored.
         '''
         # extrapolation only makes sense if there are two points
@@ -189,7 +108,7 @@ class PulayDIISHistory(DIISHistory):
         absevals = abs(np.linalg.eigvalsh(self.cdots[:self.nused,:self.nused]))
         cn = absevals.max()/absevals.min()
         # assign extrapolated fock
-        self._build_combinations(coeffs, dm_output, fock_output)
+        self._build_combinations(coeffs, dms_output, focks_output)
         return None, coeffs, cn, 'C'
 
 

@@ -31,10 +31,10 @@ def test_guess_hamcore_cs():
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
-    guess_core_hamiltonian(mol.wfn, olp, kin, na)
+    guess_core_hamiltonian(olp, kin, na, mol.exp_alpha)
     # just a few simple checks
-    assert abs(mol.wfn.exp_alpha.energies[0] - (-2.59083334E+01)) > 1e-5 # values from fchk must be overwritten
-    assert (mol.wfn.exp_alpha.energies.argsort() == np.arange(mol.obasis.nbasis)).all()
+    assert abs(mol.exp_alpha.energies[0] - (-2.59083334E+01)) > 1e-5 # values from fchk must be overwritten
+    assert (mol.exp_alpha.energies.argsort() == np.arange(mol.obasis.nbasis)).all()
 
 
 def test_guess_hamcore_os():
@@ -43,10 +43,10 @@ def test_guess_hamcore_os():
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
-    guess_core_hamiltonian(mol.wfn, olp, kin, na)
+    guess_core_hamiltonian(olp, kin, na, mol.exp_alpha, mol.exp_beta)
     # just a few simple checks
-    assert abs(mol.wfn.exp_alpha.energies[0] - (-2.76116635E+00)) > 1e-5 # values from fchk must be overwritten
-    assert abs(mol.wfn.exp_beta.energies[0] - (-2.76031162E+00)) > 1e-5 # values from fchk must be overwritten
-    assert (mol.wfn.exp_alpha.energies.argsort() == np.arange(mol.obasis.nbasis)).all()
-    assert abs(mol.wfn.exp_alpha.energies - mol.wfn.exp_beta.energies).max() < 1e-10
-    assert abs(mol.wfn.exp_alpha.coeffs - mol.wfn.exp_beta.coeffs).max() < 1e-10
+    assert abs(mol.exp_alpha.energies[0] - (-2.76116635E+00)) > 1e-5 # values from fchk must be overwritten
+    assert abs(mol.exp_beta.energies[0] - (-2.76031162E+00)) > 1e-5 # values from fchk must be overwritten
+    assert (mol.exp_alpha.energies.argsort() == np.arange(mol.obasis.nbasis)).all()
+    assert abs(mol.exp_alpha.energies - mol.exp_beta.energies).max() < 1e-10
+    assert abs(mol.exp_alpha.coeffs - mol.exp_beta.coeffs).max() < 1e-10

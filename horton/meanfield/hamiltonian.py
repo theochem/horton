@@ -33,6 +33,12 @@ __all__ = [
 class EffectiveHamiltonian(object):
     # The number of input density matrices (and output fock matrices).
     ndm = None
+    # In principle, the fock matrix is the derivative of the expectation value
+    # towards the density matrix elements. In practice, this is not always the
+    # case. Depending on the type of effective Hamiltonian, the fock matrices
+    # must be multiplied with a factor to obtain proper derivatives. This
+    # factor is stored in the class attribute deriv_scale. It defaults to 1.0.
+    deriv_scale = 1.0
 
     def __init__(self, terms, external=None):
         '''
@@ -128,6 +134,7 @@ class EffectiveHamiltonian(object):
 
 class RestrictedEffectiveHamiltonian(EffectiveHamiltonian):
     ndm = 1
+    deriv_scale = 2.0
 
     def reset(self, in_dm_alpha):
         '''See ``EffectiveHamiltonian.reset``'''

@@ -61,11 +61,12 @@ class ProAtomRecord(object):
         pseudo_number = mol.pseudo_numbers[0]
         center = mol.coordinates[0]
         energy = getattr(mol, 'energy', 0.0)
-        return cls.from_wfn(center, number, pseudo_number, mol.obasis, mol.wfn, energy, agspec)
+        dm_full = mol.get_dm_full()
+        return cls.from_dm(center, number, pseudo_number, mol.obasis, dm_full, energy, agspec)
 
     @classmethod
-    def from_wfn(cls, center, number, pseudo_number, obasis, wfn, energy, agspec='fine'):
-        '''Construct a proatom record from a single-atom wfn and an atomic grid
+    def from_dm(cls, center, number, pseudo_number, obasis, dm_full, energy, agspec='fine'):
+        '''Construct a proatom record from a single-atom density matrix
 
            **Arguments:**
 
@@ -81,8 +82,8 @@ class ProAtomRecord(object):
            obasis
                 The orbital basis
 
-           wfn
-                The WFN object
+           dm_full
+                The spin-summed density matrix object
 
            energy
                 The electronic energy of the atom
@@ -101,30 +102,25 @@ class ProAtomRecord(object):
 
         # Compute the density and the gradient on a grid
         atgrid = AtomicGrid(number, pseudo_number, center, agspec)
-        rho_all = obasis.compute_grid_density_dm(wfn.dm_full, atgrid.points)
-        grad_all = obasis.compute_grid_gradient_dm(wfn.dm_full, atgrid.points)
+        rho_all = obasis.compute_grid_density_dm(dm_full, atgrid.points)
+        grad_all = obasis.compute_grid_gradient_dm(dm_full, atgrid.points)
         rrgrad_all = ((atgrid.points-atgrid.center)*grad_all).sum(axis=1)
         # Compute spherical averages
         rho = atgrid.get_spherical_average(rho_all)
         deriv = atgrid.get_spherical_average(rrgrad_all)/atgrid.rgrid.rtransform.get_radii()
 
-        # Derive the number of electrions
-        try:
-            nel = wfn.nel
-        except NotImplementedError:
-            nel = int(np.round(atgrid.rgrid.integrate(rho)))
-
-        # Get all the other information from the atom
-        try:
-            homo_energy = wfn.homo_energy
-        except AttributeError:
-            homo_energy = None
+        # Derive the number of electrions and the charge
+        overlap = dm_full.new()
+        obasis.compute_overlap(overlap)
+        nel = overlap.expectation_value(dm_full)
+        assert abs(nel - int(np.round(nel))) < 1e-4 # only integer nel are supported
+        nel = int(np.round(nel))
         charge = pseudo_number - nel
 
         # Create object
-        return cls(number, charge, energy, homo_energy, atgrid.rgrid, rho, deriv, pseudo_number)
+        return cls(number, charge, energy, atgrid.rgrid, rho, deriv, pseudo_number)
 
-    def __init__(self, number, charge, energy, homo_energy, rgrid, rho, deriv=None, pseudo_number=None, ipot_energy=None):
+    def __init__(self, number, charge, energy, rgrid, rho, deriv=None, pseudo_number=None, ipot_energy=None):
         '''
            **Arguments:**
 
@@ -158,7 +154,6 @@ class ProAtomRecord(object):
         self._number = number
         self._charge = charge
         self._energy = energy
-        self._homo_energy = homo_energy
         self._rho = rho
         self._deriv = deriv
         self._rgrid = rgrid
@@ -189,12 +184,6 @@ class ProAtomRecord(object):
         return self._energy
 
     energy = property(_get_energy)
-
-    def _get_homo_energy(self):
-        '''The HOMO energy'''
-        return self._homo_energy
-
-    homo_energy = property(_get_homo_energy)
 
     def _get_ipot_energy(self):
         '''The ionization potential'''
@@ -307,7 +296,6 @@ class ProAtomRecord(object):
         return (self.number == other.number and
                 self.charge == other.charge and
                 self.energy == other.energy and
-                self.homo_energy == other.homo_energy and
                 (self.rho == other.rho).all() and
                 ((self.deriv is None and other.deriv is None) or (self.deriv is not None and other.deriv is not None and self.deriv == other.deriv).all()) and
                 self.rgrid == other.rgrid and
@@ -525,8 +513,6 @@ class ProAtomDB(object):
                 grp.attrs['number'] = record.number
                 grp.attrs['charge'] = record.charge
                 grp.attrs['energy'] = record.energy
-                if record.homo_energy is not None:
-                    grp.attrs['homo_energy'] = record.homo_energy
                 grp.attrs['rtransform'] = record.rgrid.rtransform.to_string()
                 grp['rho'] = record.rho
                 if record.deriv is not None:
@@ -691,7 +677,6 @@ def load_proatom_records_h5_group(f):
             number=grp.attrs['number'],
             charge=grp.attrs['charge'],
             energy=grp.attrs['energy'],
-            homo_energy=grp.attrs.get('homo_energy'),
             rgrid=RadialGrid(RTransform.from_string(grp.attrs['rtransform'])),
             rho=grp['rho'][:],
             deriv=deriv,
@@ -738,7 +723,7 @@ def load_proatom_records_atdens(filename):
                 population = int(words[1])
                 charge = number - population
                 rho = read_numbers(f, npoint)[1:]
-                record = ProAtomRecord(number, charge, 0.0, 0.0, rgrid, rho)
+                record = ProAtomRecord(number, charge, 0.0, rgrid, rho)
                 records.append(record)
             except StopIteration:
                 break

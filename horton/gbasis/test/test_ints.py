@@ -2218,9 +2218,11 @@ def test_electron_repulsion_water_ccpvdz_cart_hf():
 def check_g09_grid_fn(fn_fchk):
     mol = Molecule.from_file(fn_fchk)
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'tv-13.7-4', random_rotate=False)
-    rhos = mol.obasis.compute_grid_density_dm(mol.wfn.dm_full, grid.points)
+    dm_full = mol.get_dm_full()
+    rhos = mol.obasis.compute_grid_density_dm(dm_full, grid.points)
     pop = grid.integrate(rhos)
-    assert abs(pop-mol.wfn.nel) < 2e-3
+    nel = mol.obasis.compute_overlap(mol.lf).expectation_value(dm_full)
+    assert abs(pop-nel) < 2e-3
 
 
 def test_grid_fn_h_sto3g():

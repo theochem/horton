@@ -23,259 +23,154 @@
 
 import numpy as np
 
-from horton.log import log
+from horton.log import log, timer
 from horton.exceptions import NoSCFConvergence
-from horton.meanfield.convergence import compute_commutator
-from horton.meanfield.scf_oda import find_min_cubic, find_min_quadratic, check_cubic_cs
-from horton.meanfield.hamiltonian import RestrictedEffectiveHamiltonian
+from horton.meanfield.utils import compute_commutator, check_dm
+from horton.meanfield.convergence import convergence_error_commutator
 
 
-__all__ = [
-    'CSSCFStep', 'CSCubicODAStep', 'CSQuadraticODAStep'
-]
+__all__ = []
 
 
+class DIISSCFSolver(object):
+    '''Base class for all DIIS SCF solvers'''
+    kind = 'dm'
 
-class CSSCFStep(object):
-    def __init__(self, ham, wfn, overlap):
-        self.ham = ham
-        self.wfn = wfn
-        self.overlap = overlap
-
-    def __call__(self, energy0, fock, fock_interpolated=False, debug=False):
+    def __init__(self, DIISHistoryClass, threshold=1e-6, maxiter=128, nvector=6, skip_energy=False, prune_old_states=False):
         '''
-           Note that ``fock`` is also used as output argument.
+           **Arguments:**
+
+           DIISHistoryClass
+                A DIIS history class.
+
+           **Optional arguments:**
+
+           maxiter
+                The maximum number of iterations. When set to None, the SCF loop
+                will go one until convergence is reached.
+
+           threshold
+                The convergence threshold for the wavefunction
+
+           skip_energy
+                When set to True, the final energy is not computed. Note that some
+                DIIS variants need to compute the energy anyway. for these methods
+                this option is irrelevant.
+
+           prune_old_states
+                When set to True, old states are pruned from the history when their
+                coefficient is zero. Pruning starts at the oldest state and stops
+                as soon as a state is encountered with a non-zero coefficient. Even
+                if some newer states have a zero coefficient.
         '''
-        # Construct the new DM (regular SCF step)
-        self.wfn.clear()
-        self.wfn.update_exp(fock, self.overlap)
-        self.ham.reset(self.wfn.dm_alpha)
+        self.DIISHistoryClass = DIISHistoryClass
+        self.threshold = threshold
+        self.maxiter = maxiter
+        self.nvector = nvector
+        self.skip_energy = skip_energy
+        self.prune_old_states = prune_old_states
 
-        # Construct the Fock operator for the new DM
-        fock.clear()
-        self.ham.compute_fock(fock)
+    @timer.with_section('SCF')
+    def __call__(self, ham, lf, overlap, occ_model, *dms):
+        '''Minimize the energy of the closed-shell wavefunction with EDIIS
 
-        # the mixing coefficient
-        return 1.0
+           **Arguments:**
 
+           ham
+                A Hamiltonian instance.
 
-class CSCubicODAStep(CSSCFStep):
-    def __call__(self, energy0, fock, fock_interpolated=False, debug=False):
-        # keep copies of current state:
-        dm0 = self.wfn.dm_alpha.copy()
-        fock0 = fock.copy()
-        if fock_interpolated:
-            # if the fock matrix was interpolated, recompute it from the
-            # interpolated density matrix.
-            fock0.clear()
-            self.ham.compute_fock(fock0)
-        if energy0 is None:
-            energy0 = self.ham.compute()
+           lf
+                The linalg factory to be used.
 
-        self.wfn.clear()
-        self.wfn.update_exp(fock0, self.overlap)
-        # Let the hamiltonian know that the wavefunction has changed.
-        self.ham.reset(self.wfn.dm_alpha)
+           overlap
+                The overlap operator.
 
-        # second point
-        fock1 = fock0.copy()
-        fock1.clear()
-        self.ham.compute_fock(fock1)
-        # Compute energy at new point
-        energy1 = self.ham.compute()
-        # take the density matrix
-        dm1 = self.wfn.dm_alpha.copy()
+           occ_model
+                Model for the orbital occupations.
 
-        # Compute the derivatives of the energy towards lambda at edges 0 and 1
-        ev_00 = fock0.expectation_value(dm0)
-        ev_10 = fock1.expectation_value(dm0)
-        ev_01 = fock0.expectation_value(dm1)
-        ev_11 = fock1.expectation_value(dm1)
-        energy0_deriv = 2*(ev_01-ev_00)
-        energy1_deriv = 2*(ev_11-ev_10)
+           dm1, dm2, ...
+                The initial density matrices. The number of dms must match
+                ham.ndm.
+        '''
+        # Some type checking
+        if ham.ndm != len(dms):
+            raise TypeError('The number of initial density matrices does not match the Hamiltonian.')
 
-        # find the lambda that minimizes the cubic polynomial in the range [0,1]
-        if log.do_high:
-            log('           E0: % 10.3e     D0: % 10.3e' % (energy0, energy0_deriv))
-            log('        E1-E0: % 10.3e     D1: % 10.3e' % (energy1-energy0, energy1_deriv))
-        mixing = find_min_cubic(energy0, energy1, energy0_deriv, energy1_deriv)
-        if mixing == 0:
-            mixing = 0.1
-        if log.do_high:
-            log('       mixing: % 10.7f' % mixing)
+        # Check input density matrices.
+        for i in xrange(ham.ndm):
+            check_dm(dms[i], overlap, lf)
+        occ_model.check_dms(overlap, *dms)
 
-        if debug:
-            check_cubic_cs(self.ham, self.wfn, dm0, dm1, energy0, energy1, energy0_deriv, energy1_deriv)
+        history = self.DIISHistoryClass(lf, self.nvector, ham.ndm, overlap)
+        focks = [lf.create_one_body() for i in xrange(ham.ndm)]
+        exps = [lf.create_expansion() for i in xrange(ham.ndm)]
 
-        # E) Construct the new dm
-        # Put the mixed dm in dm_old, which is local in this routine.
-        dm1.iscale(mixing)
-        dm1.iadd(dm0, factor=1-mixing)
+        if log.do_medium:
+            log('Starting restricted closed-shell %s-SCF' % history.name)
+            log.hline()
+            log('Iter         Error        CN         Last nv Method          Energy       Change')
+            log.hline()
 
-        self.wfn.clear()
-        self.wfn.update_dm('alpha', dm1)
-        self.ham.reset(self.wfn.dm_alpha)
+        converged = False
+        counter = 0
+        while self.maxiter is None or counter < self.maxiter:
+            # Construct the Fock operator from scratch if the history is empty:
+            if history.nused == 0:
+                # feed the latest density matrices in the hamiltonian
+                ham.reset(*dms)
+                # Construct the Fock operators
+                for fock in focks:
+                    fock.clear()
+                ham.compute_fock(*focks)
+                # Compute the energy if needed by the history
+                energy = ham.compute() if history.need_energy else None
+                # Add the current fock+dm pair to the history
+                error = history.add(energy, dms, focks)
 
-        fock.clear()
-        self.ham.compute_fock(fock)
-        self.wfn.update_exp(fock, self.overlap, dm1)
+                # Screen logging
+                if log.do_high:
+                    log('          DIIS add')
+                if error < self.threshold:
+                    converged = True
+                    break
+                if log.do_high:
+                    log.blank()
+                if log.do_medium:
+                    energy_str = ' '*20 if energy is None else '% 20.13f' % energy
+                    log('%4i %12.5e                         %2i   %20s' % (
+                        counter, error, history.nused, energy_str
+                    ))
+                if log.do_high:
+                    log.blank()
+                fock_interpolated = False
+            else:
+                energy = None
+                fock_interpolated = True
 
-        # the mixing coefficient
-        return mixing
-
-
-class CSQuadraticODAStep(CSSCFStep):
-    def __call__(self, energy0, fock, fock_interpolated=False, debug=False):
-        # keep copies of current state:
-        dm0 = self.wfn.dm_alpha.copy()
-        fock0 = fock.copy()
-        if fock_interpolated:
-            # if the fock matrix was interpolated, recompute it from the
-            # interpolated density matrix.
-            fock0.clear()
-            self.ham.compute_fock(fock0)
-
-        self.wfn.clear()
-        self.wfn.update_exp(fock0, self.overlap)
-        # Let the hamiltonian know that the wavefunction has changed.
-        self.ham.reset(self.wfn.dm_alpha)
-
-        # second point
-        fock1 = fock0.copy()
-        fock1.clear()
-        self.ham.compute_fock(fock1)
-        # take the density matrix
-        dm1 = self.wfn.dm_alpha.copy()
-
-        # Compute the derivatives of the energy towards lambda at edges 0 and 1
-        ev_00 = fock0.expectation_value(dm0)
-        ev_10 = fock1.expectation_value(dm0)
-        ev_01 = fock0.expectation_value(dm1)
-        ev_11 = fock1.expectation_value(dm1)
-        energy0_deriv = 2*(ev_01-ev_00)
-        energy1_deriv = 2*(ev_11-ev_10)
-
-        # find the lambda that minimizes the cubic polynomial in the range [0,1]
-        if log.do_high:
-            log('           D0: % 10.3e' % (energy0_deriv))
-            log('           D1: % 10.3e' % (energy1_deriv))
-        mixing = find_min_quadratic(energy0_deriv, energy1_deriv)
-        if mixing == 0:
-            mixing = 0.1
-        if log.do_high:
-            log('       mixing: % 10.7f' % mixing)
-
-        # E) Construct the new dm
-        # Put the mixed dm in dm_old, which is local in this routine.
-        dm1.iscale(mixing)
-        dm1.iadd(dm0, factor=1-mixing)
-
-        self.wfn.clear()
-        self.wfn.update_dm('alpha', dm1)
-        self.ham.reset(self.wfn.dm_alpha)
-
-        fock.clear()
-        self.ham.compute_fock(fock)
-        self.wfn.update_exp(fock, self.overlap, dm1)
-
-        # the mixing coefficient
-        return mixing
-
-
-def converge_scf_diis_cs(ham, wfn, lf, overlap, DIISHistoryClass, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, skip_energy=False, scf_step='regular'):
-    '''Minimize the energy of the closed-shell wavefunction with EDIIS
-
-       **Arguments:**
-
-       ham
-            A Hamiltonian instance.
-
-       wfn
-            The wavefunction object to be optimized.
-
-       lf
-            The linalg factory to be used.
-
-       overlap
-            The overlap operator.
-
-       DIISHistoryClass
-            A DIIS history class.
-
-       **Optional arguments:**
-
-       maxiter
-            The maximum number of iterations. When set to None, the SCF loop
-            will go one until convergence is reached.
-
-       threshold
-            The convergence threshold for the wavefunction
-
-       prune_old_states
-            When set to True, old states are pruned from the history when their
-            coefficient is zero. Pruning starts at the oldest state and stops
-            as soon as a state is encountered with a non-zero coefficient. Even
-            if some newer states have a zero coefficient.
-
-       skip_energy
-            When set to True, the final energy is not computed. Note that some
-            DIIS variants need to compute the energy anyway. for these methods
-            this option is irrelevant.
-
-       scf_step
-            The type of SCF step to take after the interpolated states was
-            create from the DIIS history. This can be 'regular', 'oda2' or
-            'oda3'.
-
-       **Raises:**
-
-       NoSCFConvergence
-            if the convergence criteria are not met within the specified number
-            of iterations.
-
-       **Returns:** the number of iterations
-    '''
-    # allocated and define some one body operators
-    history = DIISHistoryClass(lf, nvector, overlap)
-    fock = lf.create_one_body()
-    dm = lf.create_one_body()
-
-    # The scf step
-    if scf_step == 'regular':
-        cs_scf_step = CSSCFStep(ham, wfn, overlap)
-    elif scf_step == 'oda2':
-        cs_scf_step = CSQuadraticODAStep(ham, wfn, overlap)
-    elif scf_step == 'oda3':
-        cs_scf_step = CSCubicODAStep(ham, wfn, overlap)
-    else:
-        raise ValueError('scf_step argument not recognized: %s' % scf_step)
-
-    # Get rid of outdated stuff
-    ham.reset(wfn.dm_alpha)
-
-    if log.do_medium:
-        log('Starting restricted closed-shell %s-SCF' % history.name)
-        log.hline()
-        log('Iter  Error(alpha) CN(alpha)  Last(alpha) nv Method          Energy       Change')
-        log.hline()
-
-    converged = False
-    counter = 0
-    while maxiter is None or counter < maxiter:
-        # Construct the Fock operator from scratch:
-        if history.nused == 0:
-            # Update the Fock matrix
-            fock.clear()
-            ham.compute_fock(fock)
-            # Put this state also in the history
+            # Take a regular SCF step using the current fock matrix. Then
+            # construct a new density matrix and fock matrix.
+            for i in xrange(ham.ndm):
+                exps[i].from_fock(focks[i], overlap)
+            occ_model.assign(*exps)
+            for i in xrange(ham.ndm):
+                exps[i].to_dm(dms[i])
+            ham.reset(*dms)
             energy = ham.compute() if history.need_energy else None
-            # Add the current fock+dm pair to the history
-            error = history.add(energy, wfn.dm_alpha, fock)
+            for i in xrange(ham.ndm):
+                focks[i].clear()
+            ham.compute_fock(*focks)
+
+            # Add the current (dm, fock) pair to the history
             if log.do_high:
                 log('          DIIS add')
-            if error < threshold:
+            error = history.add(energy, dms, focks)
+
+            # break when converged
+            if error < self.threshold:
                 converged = True
                 break
+
+            # Screen logging
             if log.do_high:
                 log.blank()
             if log.do_medium:
@@ -285,141 +180,110 @@ def converge_scf_diis_cs(ham, wfn, lf, overlap, DIISHistoryClass, maxiter=128, t
                 ))
             if log.do_high:
                 log.blank()
-            fock_interpolated = False
-        else:
-            energy = None
-            fock_interpolated = True
 
-        # Construct a new density matrix and fock matrix (based on the current
-        # density matrix or fock matrix). The fock matrix is modified in-place
-        # while the density matrix is stored in wfn.
-        mixing = cs_scf_step(energy, fock, fock_interpolated)
-        if mixing == 0.0:
-            converged = True
-            break
-
-        energy = ham.compute() if history.need_energy else None
-
-        # Add the current (dm, fock) pair to the history
-        if log.do_high:
-            log('          DIIS add')
-        error = history.add(energy, wfn.dm_alpha, fock)
-
-        # break when converged
-        if error < threshold:
-            converged = True
-            break
-
-        if log.do_high:
-            log.blank()
-        if log.do_medium:
-            energy_str = ' '*20 if energy is None else '% 20.13f' % energy
-            log('%4i %12.5e                         %2i   %20s' % (
-                counter, error, history.nused, energy_str
-            ))
-        if log.do_high:
-            log.blank()
-
-        # get extra/intra-polated Fock matrix
-        while True:
-            energy_approx, coeffs, cn, method = history.solve(dm, fock)
-            #if coeffs[coeffs<0].sum() < -1:
-            #    if log.do_high:
-            #        log('          DIIS (coeffs too negative) -> drop %i and retry' % history.stack[0].identity)
-            #    history.shrink()
-            if history.nused <= 2:
-                break
-            if coeffs[-1] == 0.0:
-                if log.do_high:
-                    log('          DIIS (last coeff zero) -> drop %i and retry' % history.stack[0].identity)
-                history.shrink()
-            else:
-                break
-
-        if False and len(coeffs) == 2:
-            tmp = dm.copy()
-            import matplotlib.pyplot as pt
-            xs = np.linspace(0.0, 1.0, 25)
-            a, b = history._setup_equations()
-            energies1 = []
-            energies2 = []
-            for x in xs:
-                x_coeffs = np.array([1-x, x])
-                energies1.append(np.dot(x_coeffs, 0.5*np.dot(a, x_coeffs) - b))
-                history._build_combinations(x_coeffs, tmp, None)
-                wfn.clear()
-                wfn.update_dm('alpha', tmp)
-                ham.reset(wfn.dm_alpha)
-                energies2.append(ham.compute())
-                print x, energies1[-1], energies2[-1]
-            pt.clf()
-            pt.plot(xs, energies1, label='est')
-            pt.plot(xs, energies2, label='ref')
-            pt.axvline(coeffs[1], color='k')
-            pt.legend(loc=0)
-            pt.savefig('ediis2_test_%05i.png' % counter)
-
-        wfn.clear()
-        wfn.update_dm('alpha', dm)
-        ham.reset(wfn.dm_alpha)
-
-        if energy_approx is not None:
-            energy_change = energy_approx - min(state.energy for state in history.stack)
-        else:
-            energy_change = None
-
-        # log
-        if log.do_high:
-            history.log(coeffs)
-
-        if log.do_medium:
-            change_str = ' '*10 if energy_change is None else '% 12.7f' % energy_change
-            log('%4i              %10.3e %12.7f %2i %s                      %12s' % (
-                counter, cn, coeffs[-1], history.nused, method,
-                change_str
-            ))
-
-        if log.do_high:
-            log.blank()
-
-        if prune_old_states:
-            # get rid of old states with zero coeff
-            for i in xrange(history.nused):
-                if coeffs[i] == 0.0:
+            # get extra/intra-polated Fock matrix
+            while True:
+                # The following method writes the interpolated dms and focks
+                # in-place.
+                energy_approx, coeffs, cn, method = history.solve(dms, focks)
+                #if coeffs[coeffs<0].sum() < -1:
+                #    if log.do_high:
+                #        log('          DIIS (coeffs too negative) -> drop %i and retry' % history.stack[0].identity)
+                #    history.shrink()
+                if history.nused <= 2:
+                    break
+                if coeffs[-1] == 0.0:
                     if log.do_high:
-                        log('          DIIS insignificant -> drop %i' % history.stack[0].identity)
+                        log('          DIIS (last coeff zero) -> drop %i and retry' % history.stack[0].identity)
                     history.shrink()
                 else:
                     break
 
-        # counter
-        counter += 1
+            if False and len(coeffs) == 2:
+                dms_tmp = [dm.copy() for dm in dms]
+                import matplotlib.pyplot as pt
+                xs = np.linspace(0.0, 1.0, 25)
+                a, b = history._setup_equations()
+                energies1 = []
+                energies2 = []
+                for x in xs:
+                    x_coeffs = np.array([1-x, x])
+                    energies1.append(np.dot(x_coeffs, 0.5*np.dot(a, x_coeffs) - b))
+                    history._build_combinations(x_coeffs, dms_tmp, None)
+                    ham.reset(*dms_tmp)
+                    energies2.append(ham.compute())
+                    print x, energies1[-1], energies2[-1]
+                pt.clf()
+                pt.plot(xs, energies1, label='est')
+                pt.plot(xs, energies2, label='ref')
+                pt.axvline(coeffs[1], color='k')
+                pt.legend(loc=0)
+                pt.savefig('diis_test_%05i.png' % counter)
 
-    if log.do_medium:
-        if converged:
-            log('%4i %12.5e (converged)' % (counter, error))
-        log.blank()
+            if energy_approx is not None:
+                energy_change = energy_approx - min(state.energy for state in history.stack)
+            else:
+                energy_change = None
 
-    if not skip_energy or history.need_energy:
-        if not history.need_energy:
-            ham.compute()
+            # log
+            if log.do_high:
+                history.log(coeffs)
+
+            if log.do_medium:
+                change_str = ' '*10 if energy_change is None else '% 12.7f' % energy_change
+                log('%4i              %10.3e %12.7f %2i %s                      %12s' % (
+                    counter, cn, coeffs[-1], history.nused, method,
+                    change_str
+                ))
+
+            if log.do_high:
+                log.blank()
+
+            if self.prune_old_states:
+                # get rid of old states with zero coeff
+                for i in xrange(history.nused):
+                    if coeffs[i] == 0.0:
+                        if log.do_high:
+                            log('          DIIS insignificant -> drop %i' % history.stack[0].identity)
+                        history.shrink()
+                    else:
+                        break
+
+            # counter
+            counter += 1
+
         if log.do_medium:
-            ham.log()
+            if converged:
+                log('%4i %12.5e (converged)' % (counter, error))
+            log.blank()
 
-    if not converged:
-        raise NoSCFConvergence
+        if not self.skip_energy or history.need_energy:
+            if not history.need_energy:
+                ham.compute()
+            if log.do_medium:
+                ham.log()
 
-    return counter
+        if not converged:
+            raise NoSCFConvergence
+
+        return counter
+
+    def error(self, ham, lf, overlap, *dms):
+        return convergence_error_commutator(ham, lf, overlap, *dms)
 
 
 class DIISState(object):
     '''A single record (vector) in a DIIS history object.'''
-    def __init__(self, lf, work, overlap):
+    def __init__(self, lf, ndm, work, overlap):
         '''
            **Arguments:**
 
            lf
                 The LinalgFactor used to create the one-body operators.
+
+           ndm
+                The number of density matrices (and fock matrices) in one
+                state.
 
            work
                 A one body operator to be used as a temporary variable. This
@@ -429,24 +293,26 @@ class DIISState(object):
                 The overlap matrix.
         '''
         # Not all of these need to be used.
+        self.ndm = ndm
         self.work = work
         self.overlap = overlap
         self.energy = np.nan
-        self.norm = np.nan
-        self.dm = lf.create_one_body()
-        self.fock = lf.create_one_body()
-        self.commutator = lf.create_one_body()
+        self.normsq = np.nan
+        self.dms = [lf.create_one_body() for i in xrange(self.ndm)]
+        self.focks = [lf.create_one_body() for i in xrange(self.ndm)]
+        self.commutators = [lf.create_one_body() for i in xrange(self.ndm)]
         self.identity = None # every state has a different id.
 
     def clear(self):
         '''Reset this record.'''
         self.energy = np.nan
-        self.norm = np.nan
-        self.dm.clear()
-        self.fock.clear()
-        self.commutator.clear()
+        self.normsq = np.nan
+        for i in xrange(self.ndm):
+            self.dms[i].clear()
+            self.focks[i].clear()
+            self.commutators[i].clear()
 
-    def assign(self, identity, energy, dm, fock):
+    def assign(self, identity, energy, dms, focks):
         '''Assign a new state.
 
            **Arguments:**
@@ -465,10 +331,12 @@ class DIISState(object):
         '''
         self.identity = identity
         self.energy = energy
-        self.dm.assign(dm)
-        self.fock.assign(fock)
-        compute_commutator(dm, fock, self.overlap, self.work, self.commutator)
-        self.norm = self.commutator.expectation_value(self.commutator)
+        self.normsq = 0.0
+        for i in xrange(self.ndm):
+            self.dms[i].assign(dms[i])
+            self.focks[i].assign(focks[i])
+            compute_commutator(dms[i], focks[i], self.overlap, self.work, self.commutators[i])
+            self.normsq += self.commutators[i].expectation_value(self.commutators[i])
 
 
 class DIISHistory(object):
@@ -476,7 +344,7 @@ class DIISHistory(object):
     name = None
     need_energy = None
 
-    def __init__(self, lf, nvector, overlap, dots_matrices):
+    def __init__(self, lf, nvector, ndm, overlap, dots_matrices):
         '''
            **Arguments:**
 
@@ -485,6 +353,10 @@ class DIISHistory(object):
 
            nvector
                 The maximum size of the history.
+
+           ndm
+                The number of density matrices (and fock matrices) in one
+                state.
 
            overlap
                 The overlap matrix.
@@ -498,7 +370,8 @@ class DIISHistory(object):
                 The actual number of vectors in the history.
         '''
         self.work = lf.create_one_body()
-        self.stack = [DIISState(lf, self.work, overlap) for i in xrange(nvector)]
+        self.stack = [DIISState(lf, ndm, self.work, overlap) for i in xrange(nvector)]
+        self.ndm = ndm
         self.overlap = overlap
         self.dots_matrices = dots_matrices
         self.nused = 0
@@ -514,16 +387,19 @@ class DIISHistory(object):
     def log(self, coeffs):
         eref = min(state.energy for state in self.stack[:self.nused])
         if eref is None:
-            log('          DIIS history          norm         coeff         id')
+            log('          DIIS history          normsq       coeff         id')
             for i in xrange(self.nused):
                 state = self.stack[i]
-                log('          DIIS history  %12.5e  %12.7f   %8i' % (state.norm, coeffs[i], state.identity))
+                log('          DIIS history  %12.5e  %12.7f   %8i' % (state.normsq, coeffs[i], state.identity))
         else:
-            log('          DIIS history          norm        energy         coeff         id')
+            log('          DIIS history          normsq      energy         coeff         id')
             for i in xrange(self.nused):
                 state = self.stack[i]
-                log('          DIIS history  %12.5e  %12.5e  %12.7f   %8i' % (state.norm, state.energy-eref, coeffs[i], state.identity))
+                log('          DIIS history  %12.5e  %12.5e  %12.7f   %8i' % (state.normsq, state.energy-eref, coeffs[i], state.identity))
         log.blank()
+
+    def solve(self, dms_output, focks_output):
+        raise NotImplementedError
 
     def shrink(self):
         '''Remove the oldest item from the history'''
@@ -537,7 +413,7 @@ class DIISHistory(object):
             dots[-1] = np.nan
             dots[:,-1] = np.nan
 
-    def add(self, energy, dm, fock):
+    def add(self, energy, dms, focks):
         '''Add new state to the history.
 
            **Arguments:**
@@ -545,31 +421,41 @@ class DIISHistory(object):
            energy
                 The energy of the new state.
 
-           dm
-                The density matrix of the new state.
+           dms
+                A list of density matrices of the new state.
 
-           fock
-                The Fock matrix of the new state.
+           focks
+                A list of Fock matrix of the new state.
         '''
-        # There must be a free spot
+        if len(dms) != self.ndm or len(focks) != self.ndm:
+            raise TypeError('The number of density and Fock matrices must match the ndm parameter.')
+        # There must be a free spot. If needed, make one.
         if self.nused == self.nvector:
             self.shrink()
 
         # assign dm and fock
         state = self.stack[self.nused]
-        state.assign(self.idcounter, energy, dm, fock)
+        state.assign(self.idcounter, energy, dms, focks)
         self.idcounter += 1
 
         # prepare for next iteration
         self.nused += 1
-        return np.sqrt(state.norm)
+        return np.sqrt(state.normsq)
 
-    def _build_combinations(self, coeffs, dm_output, fock_output):
+    def _build_combinations(self, coeffs, dms_output, focks_output):
         '''Construct a linear combination of density/fock matrices'''
-        if dm_output is not None:
-            self._linear_combination(coeffs, [self.stack[i].dm for i in xrange(self.nused)], dm_output)
-        if fock_output is not None:
-            self._linear_combination(coeffs, [self.stack[i].fock for i in xrange(self.nused)], fock_output)
+        if dms_output is not None:
+            if len(dms_output) != self.ndm:
+                raise TypeError('The number of density matrices must match the ndm parameter.')
+            for i in xrange(self.ndm):
+                dms_stack = [self.stack[j].dms[i] for j in xrange(self.nused)]
+                self._linear_combination(coeffs, dms_stack, dms_output[i])
+        if focks_output is not None:
+            if len(focks_output) != self.ndm:
+                raise TypeError('The number of Fock matrices must match the ndm parameter.')
+            for i in xrange(self.ndm):
+                focks_stack = [self.stack[j].focks[i] for j in xrange(self.nused)]
+                self._linear_combination(coeffs, focks_stack, focks_output[i])
 
     def _linear_combination(self, coeffs, ops, output):
         '''Make a linear combination of one-body objects'''

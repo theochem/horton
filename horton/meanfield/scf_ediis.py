@@ -22,116 +22,36 @@
 
 import numpy as np
 
-from horton.log import log, timer
+from horton.log import log
 from horton.exceptions import NoSCFConvergence
-from horton.meanfield.scf_diis import DIISHistory, converge_scf_diis_cs
-from horton.meanfield.wfn import RestrictedWFN
-from horton.meanfield.hamiltonian import RestrictedEffectiveHamiltonian
+from horton.meanfield.scf_diis import DIISHistory, DIISSCFSolver
 from horton.quadprog import QPSolver
 
 
-__all__ = ['converge_scf_ediis']
+__all__ = ['EDIISSCFSolver']
 
 
-@timer.with_section('SCF')
-def converge_scf_ediis(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, scf_step='regular'):
-    '''Minimize the energy of the wavefunction with the EDIIS algorithm
-
-       **Arguments:**
-
-       ham
-            A Hamiltonian instance.
-
-       **Optional arguments:**
-
-       maxiter
-            The maximum number of iterations. When set to None, the SCF loop
-            will go one until convergence is reached.
-
-       threshold
-            The convergence threshold for the wavefunction
-
-       prune_old_states
-            When set to True, old states are pruned from the history when their
-            coefficient is zero. Pruning starts at the oldest state and stops
-            as soon as a state is encountered with a non-zero coefficient. Even
-            if some newer states have a zero coefficient.
-
-       scf_step
-            The type of SCF step to take after the interpolated states was
-            create from the DIIS history. This can be 'regular', 'oda2' or
-            'oda3'.
-
-       **Raises:**
-
-       NoSCFConvergence
-            if the convergence criteria are not met within the specified number
-            of iterations.
-
-       **Returns:** the number of iterations
-    '''
-    log.cite('kudin2002', 'using the energy DIIS SCF algorithm')
-    if isinstance(wfn, RestrictedWFN):
-        assert isinstance(ham, RestrictedEffectiveHamiltonian)
-        return converge_scf_ediis_cs(ham, wfn, lf, overlap, maxiter, threshold, nvector, prune_old_states, scf_step)
-    else:
-        raise NotImplementedError
+class EDIISSCFSolver(DIISSCFSolver):
+    def __init__(self, threshold=1e-6, maxiter=128, nvector=6, skip_energy=False, prune_old_states=False):
+        log.cite('kudin2002', 'the EDIIS method.')
+        DIISSCFSolver.__init__(self, EDIISHistory, threshold, maxiter, nvector, skip_energy, prune_old_states)
 
 
-def converge_scf_ediis_cs(ham, wfn, lf, overlap, maxiter=128, threshold=1e-6, nvector=6, prune_old_states=False, scf_step='regular'):
-    '''Minimize the energy of the closed-shell wavefunction with EDIIS
-
-       **Arguments:**
-
-       ham
-            A Hamiltonian instance.
-
-       **Optional arguments:**
-
-       maxiter
-            The maximum number of iterations. When set to None, the SCF loop
-            will go one until convergence is reached.
-
-       threshold
-            The convergence threshold for the wavefunction
-
-       prune_old_states
-            When set to True, old states are pruned from the history when their
-            coefficient is zero. Pruning starts at the oldest state and stops
-            as soon as a state is encountered with a non-zero coefficient. Even
-            if some newer states have a zero coefficient.
-
-       scf_step
-            The type of SCF step to take after the interpolated states was
-            create from the DIIS history. This can be 'regular', 'oda2' or
-            'oda3'.
-
-       **Raises:**
-
-       NoSCFConvergence
-            if the convergence criteria are not met within the specified number
-            of iterations.
-
-       **Returns:** the number of iterations
-    '''
-    log.cite('kudin2002', 'the use of the EDIIS method.')
-    return converge_scf_diis_cs(ham, wfn, lf, overlap, EnergyDIISHistory, maxiter, threshold, nvector, prune_old_states, scf_step)
-
-
-class EnergyDIISHistory(DIISHistory):
+class EDIISHistory(DIISHistory):
     '''A Energy DIIS history object that keeps track of previous SCF solutions'''
     name = 'EDIIS'
     need_energy = True
 
-    def __init__(self, lf, nvector, overlap):
+    def __init__(self, lf, nvector, ndm, overlap):
         '''
            **Arguments:**
 
            lf
                 The LinalgFactor used to create the one-body operators.
 
-           nvector
-                The maximum size of the history.
+           ndm
+                The number of density matrices (and fock matrices) in one
+                state.
 
            overlap
                 The overlap matrix.
@@ -140,7 +60,7 @@ class EnergyDIISHistory(DIISHistory):
         # Note that the dots matrix is not symmetric!
         self.edots = np.empty((nvector, nvector))
         self.edots.fill(np.nan)
-        DIISHistory.__init__(self, lf, nvector, overlap, [self.edots])
+        DIISHistory.__init__(self, lf, nvector, ndm, overlap, [self.edots])
 
     def _complete_edots_matrix(self):
         '''Complete the matrix of dot products between density and fock matrices
@@ -156,10 +76,14 @@ class EnergyDIISHistory(DIISHistory):
             state0 = self.stack[i0]
             for i1 in xrange(i0+1):
                 state1 = self.stack[i1]
-                self.edots[i0,i1] = state0.fock.expectation_value(state1.dm)
+                self.edots[i0,i1] = 0.0
+                for j in xrange(self.ndm):
+                    self.edots[i0,i1] += state0.focks[j].expectation_value(state1.dms[j])
                 if i0 != i1:
                     # Note that this matrix is not symmetric!
-                    self.edots[i1,i0] = state0.dm.expectation_value(state1.fock)
+                    self.edots[i1,i0] = 0.0
+                    for j in xrange(self.ndm):
+                        self.edots[i1,i0] += state1.focks[j].expectation_value(state0.dms[j])
 
     def _setup_equations(self):
         b = np.zeros((self.nused, self.nused), float)
@@ -172,17 +96,17 @@ class EnergyDIISHistory(DIISHistory):
                     b[i1, i0] = b[i0, i1]
         return b, e
 
-    def solve(self, dm_output, fock_output):
+    def solve(self, dms_output, focks_output):
         '''Extrapolate a new density and/or fock matrix that should have the smallest commutator norm.
 
            **Arguments:**
 
-           dm_output
-                The output for the density matrix. If set to None, this is
+           dms_output
+                The output for the density matrices. If set to None, this is
                 argument is ignored.
 
-           fock_output
-                The output for the Fock matrix. If set to None, this is
+           focks_output
+                The output for the Fock matrices. If set to None, this is
                 argument is ignored.
         '''
         # interpolation only makes sense if there are two points
@@ -204,7 +128,7 @@ class EnergyDIISHistory(DIISHistory):
             guess = np.zeros(self.nused)
             guess[e.argmax()] = 1.0
             energy, coeffs = qps.find_local(guess, 1.0)
-        # for debugging purposes
+        # for debugging purposes (negligible computational overhead)
         try:
             qps.check_solution(coeffs)
         except:
@@ -212,5 +136,5 @@ class EnergyDIISHistory(DIISHistory):
             raise
         cn = qps.compute_cn(coeffs != 0.0)
         # assign extrapolated fock
-        self._build_combinations(coeffs, dm_output, fock_output)
+        self._build_combinations(coeffs, dms_output, focks_output)
         return energy, coeffs, cn, 'E'

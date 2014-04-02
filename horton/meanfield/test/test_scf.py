@@ -24,64 +24,26 @@
 import numpy as np
 from nose.tools import assert_raises
 from horton import *
-from horton.meanfield.test.common import check_scf_hf_cs_hf
+from horton.meanfield.test.common import check_hf_cs_hf, check_lih_os_hf
 
 
-def test_scf_cs_hf():
-    check_scf_hf_cs_hf(SCFWrapper('plain', threshold=1e-10))
+def test_hf_cs_hf():
+    check_hf_cs_hf(PlainSCFSolver(threshold=1e-10))
 
 
-def test_scf_os():
-    fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
-    mol = Molecule.from_file(fn_fchk)
-
-    olp = mol.obasis.compute_overlap(mol.lf)
-    kin = mol.obasis.compute_kinetic(mol.lf)
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
-    er = mol.obasis.compute_electron_repulsion(mol.lf)
-    external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
-    terms = [
-        UnrestrictedOneBodyTerm(kin, 'kin'),
-        UnrestrictedDirectTerm(er, 'hartree'),
-        UnrestrictedExchangeTerm(er, 'x_hf'),
-        UnrestrictedOneBodyTerm(na, 'ne'),
-    ]
-    ham = UnrestrictedEffectiveHamiltonian(terms, external)
-
-    guess_core_hamiltonian(mol.wfn, olp, kin, na)
-    assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) > 1e-8
-    converge_scf(ham, mol.wfn, mol.lf, olp)
-    assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) < 1e-8
-
-    expected_alpha_energies = np.array([
-        -2.76116635E+00, -7.24564188E-01, -1.79148636E-01, -1.28235698E-01,
-        -1.28235698E-01, -7.59817520E-02, -1.13855167E-02, 6.52484445E-03,
-        6.52484445E-03, 7.52201895E-03, 9.70893294E-01,
-    ])
-    expected_beta_energies = np.array([
-        -2.76031162E+00, -2.08814026E-01, -1.53071066E-01, -1.25264964E-01,
-        -1.25264964E-01, -1.24605870E-02, 5.12761388E-03, 7.70499854E-03,
-        7.70499854E-03, 2.85176080E-02, 1.13197479E+00,
-    ])
-    assert abs(mol.wfn.exp_alpha.energies - expected_alpha_energies).max() < 1e-5
-    assert abs(mol.wfn.exp_beta.energies - expected_beta_energies).max() < 1e-5
-
-    ham.compute()
-    # compare with g09
-    assert abs(ham.cache['energy'] - -7.687331212191962E+00) < 1e-8
-    assert abs(ham.cache['energy_kin'] - 7.640603924034E+00) < 2e-7
-    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_x_hf'] - 2.114420907894E+00) < 1e-7
-    assert abs(ham.cache['energy_ne'] - -1.811548789281E+01) < 2e-7
-    assert abs(ham.cache['energy_nn'] - 0.6731318487) < 1e-8
+def test_lih_os_hf():
+    check_lih_os_hf(PlainSCFSolver(threshold=1e-10))
 
 
 def test_hf_water_321g_mistake():
+    # When one forgets to construct the initial guess, some error must be
+    # raised...
     fn_xyz = context.get_fn('test/water.xyz')
     mol = Molecule.from_file(fn_xyz)
     obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21G')
     lf = DenseLinalgFactory(obasis.nbasis)
-    wfn = setup_mean_field_wfn(obasis.nbasis, mol.numbers, lf, charge=0)
-    lf = DenseLinalgFactory(obasis.nbasis)
+    occ_model = AufbauOccModel(5)
+    exp_alpha = lf.create_expansion(obasis.nbasis)
     olp = obasis.compute_overlap(lf)
     kin = obasis.compute_kinetic(lf)
     na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
@@ -93,5 +55,6 @@ def test_hf_water_321g_mistake():
         RestrictedOneBodyTerm(na, 'ne'),
     ]
     ham = RestrictedEffectiveHamiltonian(terms)
-    with assert_raises(AttributeError):
-        converge_scf(ham, wfn, lf, olp)
+    scf_solver = PlainSCFSolver()
+    with assert_raises(AssertionError):
+        scf_solver(ham, lf, olp, occ_model, exp_alpha)

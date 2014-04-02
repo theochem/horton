@@ -22,63 +22,18 @@
 
 
 import numpy as np
-from horton.log import log
 from horton.matrix import DenseLinalgFactory
 from horton.gbasis.cext import GOBasis
-from horton.meanfield.wfn import RestrictedWFN, UnrestrictedWFN
 
 
-__all__ = ['ProjectionError', 'project_orbitals_mgs', 'project_orbitals_mgs_low']
+__all__ = ['ProjectionError', 'project_orbitals_mgs']
 
 
 class ProjectionError(Exception):
     pass
 
 
-def project_orbitals_mgs(obasis0, obasis1, wfn0, wfn1, eps=1e-10):
-    '''Project orbitals from old basis to new basis with modified Gram-Schmidt
-
-       **Arguments:**
-
-       obasis0
-            The old orbital basis
-
-       obasis1
-            The new orbital basis
-
-       wfn0
-            The old (mean-field) wavefunction
-
-       wfn1
-            The new (mean-field) wavefunction
-
-       **Optional arguments:**
-
-       eps
-            A threshold for the renormalization in the Gram-Schmidt procedure.
-
-       See ``project_orbitals_mgs_low`` for details.
-    '''
-    if log.do_medium:
-        log('Projecting the wavefunction on a new basis.')
-        log.blank()
-    if isinstance(wfn0, RestrictedWFN):
-        assert isinstance(wfn1, RestrictedWFN)
-        if 'exp_alpha' not in wfn1._cache:
-            wfn1.init_exp('alpha')
-        project_orbitals_mgs_low(obasis0, obasis1, wfn0.exp_alpha, wfn1.exp_alpha, eps)
-    else:
-        assert isinstance(wfn1, UnrestrictedWFN)
-        if 'exp_alpha' not in wfn1._cache:
-            wfn1.init_exp('alpha')
-            wfn1.init_exp('beta')
-        project_orbitals_mgs_low(obasis0, obasis1, wfn0.exp_alpha, wfn1.exp_alpha, eps)
-        project_orbitals_mgs_low(obasis0, obasis1, wfn0.exp_beta, wfn1.exp_beta, eps)
-    # since the orbitals were updated, the wfn1 density matrices are outdated.
-    wfn1.clear_dm()
-
-
-def project_orbitals_mgs_low(obasis0, obasis1, exp0, exp1, eps=1e-10):
+def project_orbitals_mgs(obasis0, obasis1, exp0, exp1, eps=1e-10):
     '''Project the orbitals in ``exp0`` (wrt ``obasis0``) on ``obasis1`` and store in ``exp1`` with the modified Gram-Schmidt algorithm.
 
        **Arguments:**

@@ -32,7 +32,8 @@ def test_mulliken_operators_water_sto3g():
     operators = get_mulliken_operators(mol.obasis, mol.lf)
     for operator in operators:
         operator.check_symmetry()
-    populations = np.array([operator.expectation_value(mol.wfn.dm_full) for operator in operators])
+    dm_full = mol.get_dm_full()
+    populations = np.array([operator.expectation_value(dm_full) for operator in operators])
     charges = mol.numbers - populations
     assert charges[0] < 0 # oxygen atom
     assert abs(charges.sum()) < 1e-3

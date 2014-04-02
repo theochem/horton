@@ -29,7 +29,7 @@ from horton import *
 
 def get_water_sto3g_hf(lf=None):
     if lf is None:
-        lf = DenseLinalgFactory()
+        lf = DenseLinalgFactory(7)
     fn = context.get_fn('test/water_sto3g_hf_g03.log')
     coeffs = np.array([
         9.94099882E-01, 2.67799213E-02, 3.46630004E-03, -1.54676269E-15,
@@ -51,9 +51,7 @@ def get_water_sto3g_hf(lf=None):
         -3.87671783E-01, 6.03082408E-01, 7.66134805E-01
     ])
     occ_model = AufbauOccModel(5)
-    wfn = RestrictedWFN(lf, 7, occ_model)
-    wfn.init_exp('alpha')
-    exp_alpha = wfn.exp_alpha
+    exp_alpha = lf.create_expansion()
     exp_alpha.coeffs[:] = coeffs
     exp_alpha.energies[:] = epsilons
     occ_model.assign(exp_alpha)
@@ -63,18 +61,18 @@ def get_water_sto3g_hf(lf=None):
     data = load_operators_g09(fn, lf)
     for key, value in data.iteritems():
         cache.dump(key, value)
-    return lf, cache, wfn
+    return lf, cache, exp_alpha
 
 
 def test_fock_matrix_eigen():
-    lf, cache, wfn = get_water_sto3g_hf()
+    lf, cache, exp_alpha = get_water_sto3g_hf()
     nbasis = cache['olp'].nbasis
 
     hartree = lf.create_one_body(nbasis)
     exchange = lf.create_one_body(nbasis)
-    dm = wfn.dm_alpha
-    cache['er'].apply_direct(dm, hartree)
-    cache['er'].apply_exchange(dm, exchange)
+    dm_alpha = exp_alpha.to_dm()
+    cache['er'].apply_direct(dm_alpha, hartree)
+    cache['er'].apply_exchange(dm_alpha, exchange)
 
     # Construct the Fock operator
     fock = lf.create_one_body(nbasis)
@@ -84,28 +82,27 @@ def test_fock_matrix_eigen():
     fock.iadd(exchange, -1)
 
     # Check for convergence
-    exp_alpha = wfn.exp_alpha
     error = lf.error_eigen(fock, cache['olp'], exp_alpha)
     assert error > 0
     assert error < 1e-4
 
     # Check self-consistency of the orbital energies
     old_energies = exp_alpha.energies.copy()
-    exp_alpha.derive_from_fock_matrix(fock, cache['olp'])
+    exp_alpha.from_fock(fock, cache['olp'])
     assert abs(exp_alpha.energies - old_energies).max() < 1e-4
 
 
 
 def test_kinetic_energy_water_sto3g():
-    lf, cache, wfn = get_water_sto3g_hf()
-    dm = wfn.dm_full
+    lf, cache, exp_alpha = get_water_sto3g_hf()
+    dm = exp_alpha.to_dm()
+    dm.iscale(2)
     ekin = cache['kin'].expectation_value(dm)
     assert abs(ekin - 74.60736832935) < 1e-4
 
 
 def test_ortho_water_sto3g():
-    lf, cache, wfn = get_water_sto3g_hf()
-    exp_alpha = wfn.exp_alpha
+    lf, cache, exp_alpha = get_water_sto3g_hf()
     for i0 in xrange(7):
         orb0 = exp_alpha.coeffs[:,i0]
         for i1 in xrange(i0+1):
@@ -115,18 +112,19 @@ def test_ortho_water_sto3g():
 
 
 def test_potential_energy_water_sto3g_hf():
-    lf, cache, wfn = get_water_sto3g_hf()
-    dm = wfn.dm_full
+    lf, cache, exp_alpha = get_water_sto3g_hf()
+    dm = exp_alpha.to_dm()
+    dm.iscale(2)
     #epot = -nuclear_attraction.expectation_value(dm)
     epot = -cache['na'].expectation_value(dm)
     assert abs(epot - (-197.1170963957)) < 2e-3
 
 
 def test_electron_electron_water_sto3g_hf():
-    lf, cache, wfn = get_water_sto3g_hf()
-    hartree = lf.create_one_body(7)
-    exchange = lf.create_one_body(7)
-    dm = wfn.dm_alpha
+    lf, cache, exp_alpha = get_water_sto3g_hf()
+    hartree = lf.create_one_body()
+    exchange = lf.create_one_body()
+    dm = exp_alpha.to_dm()
     cache['er'].apply_direct(dm, hartree)
     cache['er'].apply_exchange(dm, exchange)
     eee = 2*hartree.expectation_value(dm) \
@@ -135,58 +133,54 @@ def test_electron_electron_water_sto3g_hf():
 
 
 def test_hartree_fock_water():
-    lf, cache, wfn0 = get_water_sto3g_hf()
-    nbasis = cache['olp'].nbasis
+    lf, cache, exp_alpha0 = get_water_sto3g_hf()
 
-    # Construct a wavefunction
-    occ_model = AufbauOccModel(5)
-    wfn = RestrictedWFN(lf, nbasis, occ_model)
+    # Neutral water molecule
+    nalpha = 5
 
     # Construct the hamiltonian core guess
-    hamcore = lf.create_one_body(nbasis)
+    hamcore = lf.create_one_body()
     hamcore.iadd(cache['kin'], 1)
     hamcore.iadd(cache['na'], -1)
-    wfn.clear()
-    exp_alpha1 = wfn.update_exp(hamcore, cache['olp'])
-    assert (exp_alpha1.energies != 0.0).any()
-
+    exp_alpha1 = lf.create_expansion()
+    exp_alpha1.from_fock(hamcore, cache['olp'])
+    exp_alpha1.occupations[:nalpha] = 1.0
+    assert (exp_alpha1.energies != 0.0).all()
 
     # The SCF loop
-    hartree = lf.create_one_body(nbasis)
-    exchange = lf.create_one_body(nbasis)
-    fock = lf.create_one_body(nbasis)
-    #dm = lf.create_one_body(nbasis)
+    hartree = lf.create_one_body()
+    exchange = lf.create_one_body()
+    fock = lf.create_one_body()
     for i in xrange(1000):
+        # Derive the density matrix
+        dm_alpha = exp_alpha1.to_dm()
         # Construct the Fock operator
         fock.clear()
         fock.iadd(hamcore, 1)
-        cache['er'].apply_direct(wfn.dm_alpha, hartree)
-        cache['er'].apply_exchange(wfn.dm_alpha, exchange)
+        cache['er'].apply_direct(dm_alpha, hartree)
+        cache['er'].apply_exchange(dm_alpha, exchange)
         fock.iadd(hartree, 2)
         fock.iadd(exchange, -1)
         # Check for convergence
-        error = lf.error_eigen(fock, cache['olp'], wfn.exp_alpha)
+        error = lf.error_eigen(fock, cache['olp'], exp_alpha1)
         if error < 1e-10:
             break
         # Derive the expansion and the density matrix from the fock operator
-        wfn.clear()
-        wfn.update_exp(fock, cache['olp'])
+        exp_alpha1.from_fock(fock, cache['olp'])
 
-    exp_alpha = wfn.exp_alpha
-    exp_alpha0 = wfn0.exp_alpha
-    assert abs(exp_alpha.energies - exp_alpha0.energies).max() < 1e-4
+    assert abs(exp_alpha0.energies - exp_alpha1.energies).max() < 1e-4
 
     # Check the hartree-fock energy
-    dm = wfn.dm_alpha
+    dm_alpha = exp_alpha1.to_dm()
     hf1 = sum([
-        -2*hartree.expectation_value(dm),
-        +1*exchange.expectation_value(dm),
-    ]) + exp_alpha.energies[:wfn.nep].sum()*2
+        -2*hartree.expectation_value(dm_alpha),
+        +1*exchange.expectation_value(dm_alpha),
+    ]) + exp_alpha1.energies[:nalpha].sum()*2
     hf2 = sum([
-        2*cache['kin'].expectation_value(dm),
-        -2*cache['na'].expectation_value(dm),
-        +2*hartree.expectation_value(dm),
-        -exchange.expectation_value(dm),
+        2*cache['kin'].expectation_value(dm_alpha),
+        -2*cache['na'].expectation_value(dm_alpha),
+        +2*hartree.expectation_value(dm_alpha),
+        -exchange.expectation_value(dm_alpha),
     ])
     enn = 9.2535672047 # nucleus-nucleus interaction
     assert abs(hf1 + enn - (-74.9592923284)) < 1e-4
@@ -292,35 +286,36 @@ def test_dense_expansion_copy():
 def test_homo_lumo_ch3_hf():
     fn_fchk = context.get_fn('test/ch3_hf_sto3g.fchk')
     mol = Molecule.from_file(fn_fchk)
-    assert mol.wfn.exp_alpha.get_homo_index() == 4
-    assert mol.wfn.exp_beta.get_homo_index() == 3
-    assert mol.wfn.exp_alpha.get_lumo_index() == 5
-    assert mol.wfn.exp_beta.get_lumo_index() == 4
-    assert mol.wfn.exp_alpha.get_homo_index(1) == 3
-    assert mol.wfn.exp_beta.get_homo_index(1) == 2
-    assert mol.wfn.exp_alpha.get_lumo_index(1) == 6
-    assert mol.wfn.exp_beta.get_lumo_index(1) == 5
-    assert abs(mol.wfn.exp_alpha.get_homo_energy() - -3.63936540E-01) < 1e-8
-    assert abs(mol.wfn.exp_alpha.get_homo_energy(1) - -5.37273275E-01) < 1e-8
-    assert abs(mol.wfn.exp_alpha.get_lumo_energy() - 6.48361367E-01) < 1e-8
-    assert abs(mol.wfn.exp_beta.get_homo_energy() - -5.18988806E-01) < 1e-8
-    assert abs(mol.wfn.exp_beta.get_homo_energy(1) - -5.19454722E-01) < 1e-8
-    assert abs(mol.wfn.exp_beta.get_lumo_energy() - 3.28562907E-01) < 1e-8
-    assert abs(mol.wfn.exp_alpha.homo_energy - -3.63936540E-01) < 1e-8
-    assert abs(mol.wfn.exp_alpha.lumo_energy - 6.48361367E-01) < 1e-8
-    assert abs(mol.wfn.exp_beta.homo_energy - -5.18988806E-01) < 1e-8
-    assert abs(mol.wfn.exp_beta.lumo_energy - 3.28562907E-01) < 1e-8
+    assert mol.exp_alpha.get_homo_index() == 4
+    assert mol.exp_beta.get_homo_index() == 3
+    assert mol.exp_alpha.get_lumo_index() == 5
+    assert mol.exp_beta.get_lumo_index() == 4
+    assert mol.exp_alpha.get_homo_index(1) == 3
+    assert mol.exp_beta.get_homo_index(1) == 2
+    assert mol.exp_alpha.get_lumo_index(1) == 6
+    assert mol.exp_beta.get_lumo_index(1) == 5
+    assert abs(mol.exp_alpha.get_homo_energy() - -3.63936540E-01) < 1e-8
+    assert abs(mol.exp_alpha.get_homo_energy(1) - -5.37273275E-01) < 1e-8
+    assert abs(mol.exp_alpha.get_lumo_energy() - 6.48361367E-01) < 1e-8
+    assert abs(mol.exp_beta.get_homo_energy() - -5.18988806E-01) < 1e-8
+    assert abs(mol.exp_beta.get_homo_energy(1) - -5.19454722E-01) < 1e-8
+    assert abs(mol.exp_beta.get_lumo_energy() - 3.28562907E-01) < 1e-8
+    assert abs(mol.exp_alpha.homo_energy - -3.63936540E-01) < 1e-8
+    assert abs(mol.exp_alpha.lumo_energy - 6.48361367E-01) < 1e-8
+    assert abs(mol.exp_beta.homo_energy - -5.18988806E-01) < 1e-8
+    assert abs(mol.exp_beta.lumo_energy - 3.28562907E-01) < 1e-8
 
 
 def test_naturals():
     fn_fchk = context.get_fn('test/ch3_hf_sto3g.fchk')
     mol = Molecule.from_file(fn_fchk)
-    mol.wfn.clear_exp()
-    exp_alpha = mol.wfn.init_exp('alpha')
-    exp_alpha.derive_naturals(mol.wfn.dm_alpha, mol.obasis.compute_overlap(mol.lf))
-    assert exp_alpha.occupations.min() > -1e-6
-    assert exp_alpha.occupations.max() < 1+1e-6
-    exp_alpha.check_normalization(mol.obasis.compute_overlap(mol.lf))
+    overlap = mol.obasis.compute_overlap(mol.lf)
+    dm = mol.exp_alpha.to_dm()
+    exp = mol.lf.create_expansion()
+    exp.derive_naturals(dm, overlap)
+    assert exp.occupations.min() > -1e-6
+    assert exp.occupations.max() < 1+1e-6
+    exp.check_normalization(overlap)
 
 
 def test_linalg_objects_del():

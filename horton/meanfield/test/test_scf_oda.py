@@ -24,83 +24,37 @@
 import numpy as np
 from nose.tools import assert_raises
 from horton import *
-from horton.meanfield.test.common import check_scf_hf_cs_hf, check_scf_water_cs_hfs
+from horton.meanfield.test.common import check_hf_cs_hf, check_lih_os_hf, \
+    check_water_cs_hfs, check_n2_cs_hfs, check_h3_os_hfs, check_h3_os_pbe, \
+    check_co_cs_pbe
 
 
-def test_scf_oda_cs_hf():
-    check_scf_hf_cs_hf(SCFWrapper('oda', threshold=1e-7))
+def test_hf_cs_hf():
+    check_hf_cs_hf(ODASCFSolver(threshold=1e-7))
 
 
-def test_scf_oda_cs_hfs():
-    check_scf_water_cs_hfs(SCFWrapper('oda', threshold=1e-6))
+def test_lih_os_hf():
+    check_lih_os_hf(ODASCFSolver(threshold=1e-7))
 
 
-def test_scf_oda_water_hf_321g():
-    fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
-    mol = Molecule.from_file(fn_fchk)
-    olp = mol.obasis.compute_overlap(mol.lf)
-    kin = mol.obasis.compute_kinetic(mol.lf)
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
-    er = mol.obasis.compute_electron_repulsion(mol.lf)
-    terms = [
-        RestrictedOneBodyTerm(kin, 'kin'),
-        RestrictedDirectTerm(er, 'hartree'),
-        RestrictedExchangeTerm(er, 'x_hf'),
-        RestrictedOneBodyTerm(na, 'ne'),
-    ]
-    ham = RestrictedEffectiveHamiltonian(terms)
-
-    # test continuation of interupted scf_oda
-    guess_core_hamiltonian(mol.wfn, olp, kin, na)
-    ham.reset(mol.wfn.dm_alpha)
-    e0 = ham.compute()
-    assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) > 1e-5
-    with assert_raises(NoSCFConvergence):
-        converge_scf_oda(ham, mol.wfn, mol.lf, olp, threshold=1e-2, maxiter=3)
-    assert 'exp_alpha' in mol.wfn._cache
-    e1 = ham.compute()
-    with assert_raises(NoSCFConvergence):
-        converge_scf_oda(ham, mol.wfn, mol.lf, olp, threshold=1e-2, maxiter=3)
-    e2 = ham.compute()
-    assert e1 < e0
-    assert e2 < e1
+def test_water_cs_hfs():
+    check_water_cs_hfs(ODASCFSolver(threshold=1e-6))
 
 
-def test_scf_oda_lih_hfs_321g():
-    fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
-    mol = Molecule.from_file(fn_fchk)
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
-    olp = mol.obasis.compute_overlap(mol.lf)
-    kin = mol.obasis.compute_kinetic(mol.lf)
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
-    er = mol.obasis.compute_electron_repulsion(mol.lf)
-    terms = [
-        UnrestrictedOneBodyTerm(kin, 'kin'),
-        UnrestrictedDirectTerm(er, 'hartree'),
-        UnrestrictedGridGroup(mol.obasis, grid, [
-            UnrestrictedDiracExchange(),
-        ]),
-        UnrestrictedOneBodyTerm(na, 'ne'),
-    ]
-    ham = UnrestrictedEffectiveHamiltonian(terms)
+def test_n2_cs_hfs():
+    check_n2_cs_hfs(ODASCFSolver(threshold=1e-6))
 
-    # test continuation of interupted scf_oda
-    guess_core_hamiltonian(mol.wfn, olp, kin, na)
-    ham.reset(mol.wfn.dm_alpha, mol.wfn.dm_beta)
-    e0 = ham.compute()
-    assert convergence_error_eigen(ham, mol.wfn, mol.lf, olp) > 1e-5
-    with assert_raises(NoSCFConvergence):
-        converge_scf_oda(ham, mol.wfn, mol.lf, olp, threshold=1e-8, maxiter=3)
-    assert 'exp_alpha' in mol.wfn._cache
-    e1 = ham.compute()
-    with assert_raises(NoSCFConvergence):
-        converge_scf_oda(ham, mol.wfn, mol.lf, olp, threshold=1e-8, maxiter=3)
-    e2 = ham.compute()
-    assert e1 < e0
-    assert e2 < e1
 
-    # continue till convergence
-    converge_scf_oda(ham, mol.wfn, mol.lf, olp, threshold=1e-8)
+def test_h3_os_hfs():
+    check_h3_os_hfs(ODASCFSolver(threshold=1e-6))
+
+
+def test_co_cs_pbe():
+    check_co_cs_pbe(ODASCFSolver(threshold=1e-5))
+
+
+def test_h3_os_pbe():
+    check_h3_os_pbe(ODASCFSolver(threshold=1e-6))
 
 
 def test_find_min_cubic():
@@ -128,10 +82,10 @@ def test_find_min_quadratic():
     assert find_min_quadratic(1.0, -1.5) == 1.0
 
 
-def test_scf_oda_aufbau_spin():
+def test_aufbau_spin():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     mol = Molecule.from_file(fn_fchk)
-    mol.wfn.occ_model = AufbauSpinOccModel(3)
+    occ_model = AufbauSpinOccModel(3)
 
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
@@ -145,8 +99,19 @@ def test_scf_oda_aufbau_spin():
     ]
     ham = UnrestrictedEffectiveHamiltonian(terms)
 
-    guess_core_hamiltonian(mol.wfn, olp, kin, na)
-    converge_scf_oda(ham, mol.wfn, mol.lf, olp)
+    # Construct an initial state with instable spin polarization
+    guess_core_hamiltonian(olp, kin, na, mol.exp_alpha, mol.exp_beta)
+    mol.exp_alpha.occupations[:3] = 1
+    mol.exp_beta.occupations[:] = 0
+    dms = [mol.exp_alpha.to_dm(), mol.exp_beta.to_dm()]
+
+    # converge scf and check the spins
+    scf_solver = ODASCFSolver()
+    scf_solver(ham, mol.lf, olp, occ_model, *dms)
+    assert scf_solver.error(ham, mol.lf, olp, *dms) < scf_solver.threshold
+    assert abs(olp.expectation_value(dms[0]) - 2) < 1e-10
+    assert abs(olp.expectation_value(dms[1]) - 1) < 1e-10
+
 
 
 def test_check_dm():
@@ -163,12 +128,12 @@ def test_check_dm():
     op1 = lf.create_one_body()
     op1._array = np.dot(v*[-0.1, 0.5], v.T)
     with assert_raises(ValueError):
-        check_dm(op1, olp, lf, 'foo')
+        check_dm(op1, olp, lf)
     op1._array = np.dot(v*[0.1, 1.5], v.T)
     with assert_raises(ValueError):
-        check_dm(op1, olp, lf, 'foo')
+        check_dm(op1, olp, lf)
     op1._array = np.dot(v*[-0.1, 1.5], v.T)
     with assert_raises(ValueError):
-        check_dm(op1, olp, lf, 'foo')
+        check_dm(op1, olp, lf)
     op1._array = np.dot(v*[0.1, 0.5], v.T)
-    check_dm(op1, olp, lf, 'foo')
+    check_dm(op1, olp, lf)

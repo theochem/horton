@@ -12,17 +12,17 @@ obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21G')
 # Create a linalg factory
 lf = DenseLinalgFactory(obasis.nbasis)
 
-# Initialize the closed-shell wfn
-wfn = setup_mean_field_wfn(obasis.nbasis, mol.numbers, lf, charge=0)
-
 # Compute Gaussian integrals
 olp = obasis.compute_overlap(lf)
 kin = obasis.compute_kinetic(lf)
 na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
 er = obasis.compute_electron_repulsion(lf)
 
+# Create alpha orbitals
+exp_alpha = lf.create_expansion()
+
 # Initial guess
-guess_core_hamiltonian(wfn, olp, kin, na)
+guess_core_hamiltonian(olp, kin, na, exp_alpha)
 
 # Setup integration grids with default settings
 grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers)
@@ -41,10 +41,13 @@ terms = [
 ]
 ham = RestrictedEffectiveHamiltonian(terms, external)
 
-# Optimal damping SCF cycle
-converged = converge_scf_oda(ham, wfn, lf, olp)
+# Decide how to occupy the orbitals (5 alpha electrons)
+occ_model = AufbauOccModel(5)
+occ_model.assign(exp_alpha)
 
-# Energy computation
-log.set_level(log.high)
-ham.compute()
-log.set_level(log.medium)
+# Optimal damping SCF cycle
+# - construct the initial density matrix
+dm_alpha = exp_alpha.to_dm()
+# - scf solver
+scf_solver = ODASCFSolver(1e-6)
+scf_solver(ham, lf, olp, occ_model, dm_alpha)

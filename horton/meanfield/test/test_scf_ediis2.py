@@ -23,28 +23,34 @@
 
 import numpy as np
 from horton import *
-from horton.meanfield.test.common import check_scf_hf_cs_hf, check_scf_water_cs_hfs
+from horton.meanfield.test.common import check_hf_cs_hf, check_lih_os_hf, \
+    check_water_cs_hfs, check_n2_cs_hfs, check_h3_os_hfs, check_h3_os_pbe, \
+    check_co_cs_pbe
 
 
-def test_scf_ediis2_cs_hf():
-    check_scf_hf_cs_hf(SCFWrapper('ediis2', threshold=1e-10, nvector=20))
+def test_hf_cs_hf():
+    check_hf_cs_hf(EDIIS2SCFSolver(threshold=1e-7))
 
 
-def test_scf_ediis2_cs_hf_oda2():
-    check_scf_hf_cs_hf(SCFWrapper('ediis2', threshold=1e-10, nvector=20, scf_step='oda2'))
+def test_lih_os_hf():
+    check_lih_os_hf(EDIIS2SCFSolver(threshold=1e-7))
 
 
-def test_scf_ediis2_cs_hf_oda3():
-    check_scf_hf_cs_hf(SCFWrapper('ediis2', threshold=1e-10, nvector=20, scf_step='oda3'))
+def test_water_cs_hfs():
+    check_water_cs_hfs(EDIIS2SCFSolver(threshold=1e-6))
 
 
-def test_scf_ediis2_cs_hfs():
-    check_scf_water_cs_hfs(SCFWrapper('ediis2', threshold=1e-10, nvector=20))
+def test_n2_cs_hfs():
+    check_n2_cs_hfs(EDIIS2SCFSolver(threshold=1e-6))
 
 
-def test_scf_ediis2_cs_hfs_oda2():
-    check_scf_water_cs_hfs(SCFWrapper('ediis2', threshold=1e-10, nvector=20, scf_step='oda3'))
+def test_h3_os_hfs():
+    check_h3_os_hfs(EDIIS2SCFSolver(threshold=1e-6))
 
 
-def test_scf_ediis2_cs_hfs_oda3():
-    check_scf_water_cs_hfs(SCFWrapper('ediis2', threshold=1e-10, nvector=20, scf_step='oda3'))
+def test_co_cs_pbe():
+    check_co_cs_pbe(EDIIS2SCFSolver(threshold=1e-5))
+
+
+def test_h3_os_pbe():
+    check_h3_os_pbe(EDIIS2SCFSolver(threshold=1e-6))

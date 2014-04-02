@@ -25,18 +25,15 @@
 '''
 
 
-import numpy as np
-
-from horton.meanfield.wfn import RestrictedWFN, UnrestrictedWFN
+from horton.meanfield.utils import compute_commutator
 
 
 __all__ = [
-    'convergence_error_eigen', 'compute_commutator',
-    'convergence_error_commutator'
+    'convergence_error_eigen', 'convergence_error_commutator',
 ]
 
 
-def convergence_error_eigen(ham, wfn, lf, overlap):
+def convergence_error_eigen(ham, lf, overlap, *exps):
     '''Compute the self-consistency error
 
        **Arguments:**
@@ -44,14 +41,15 @@ def convergence_error_eigen(ham, wfn, lf, overlap):
        ham
             A Hamiltonian instance.
 
-       wfn
-            The wavefunction to be teste.
-
        lf
             The linalg factory to be used.
 
        overlap
             The overlap operator.
+
+       exp1, exp2, ...
+            A list of wavefunction expansion objects. (The number must match
+            ham.ndm.)
 
        **Returns:**
 
@@ -59,60 +57,19 @@ def convergence_error_eigen(ham, wfn, lf, overlap):
             The SCF error. This measure (not this function) is also used
             in some SCF algorithms to check for convergence.
     '''
-    if isinstance(wfn, RestrictedWFN):
-        fock = lf.create_one_body()
-        # Construct the Fock operator
-        ham.reset(wfn.dm_alpha)
-        ham.compute_fock(fock)
-        # Compute error
-        return lf.error_eigen(fock, overlap, wfn.exp_alpha)
-    elif isinstance(wfn, UnrestrictedWFN):
-        fock_alpha = lf.create_one_body()
-        fock_beta = lf.create_one_body()
-        # Construct the Fock operators
-        ham.reset(wfn.dm_alpha, wfn.dm_beta)
-        ham.compute_fock(fock_alpha, fock_beta)
-        # Compute errors
-        error_alpha = lf.error_eigen(fock_alpha, overlap, wfn.exp_alpha)
-        error_beta = lf.error_eigen(fock_beta, overlap, wfn.exp_beta)
-        return max(error_alpha, error_beta)
-    else:
-        raise NotImplementedError
+    if len(exps) != ham.ndm:
+        raise TypeError('Expecting %i expansions, got %i.' % (ham.ndm, len(exps)))
+    dms = [exp.to_dm() for exp in exps]
+    ham.reset(*dms)
+    focks = [lf.create_one_body() for i in xrange(ham.ndm)]
+    ham.compute_fock(*focks)
+    error = 0.0
+    for i in xrange(ham.ndm):
+        error += lf.error_eigen(focks[i], overlap, exps[i])
+    return error
 
 
-def compute_commutator(dm, fock, overlap, work, output):
-    '''Compute the dm-fock commutator, including an overlap matrix
-
-       **Arguments:** (all OneBody objects)
-
-       dm
-            A density matrix
-
-       fock
-            A fock matrix
-
-       overlap
-            An overlap matrix
-
-       work
-            A temporary matrix
-
-       output
-            The output matrix in which the commutator, S.D.F-F.D.S, is stored.
-    '''
-    # construct sdf
-    work.assign(overlap)
-    work.idot(dm)
-    work.idot(fock)
-    output.assign(work)
-    # construct fds and subtract
-    work.assign(fock)
-    work.idot(dm)
-    work.idot(overlap)
-    output.iadd(work, factor=-1)
-
-
-def convergence_error_commutator(ham, wfn, lf, overlap):
+def convergence_error_commutator(ham, lf, overlap, *dms):
     '''Compute the commutator error
 
        **Arguments:**
@@ -120,14 +77,14 @@ def convergence_error_commutator(ham, wfn, lf, overlap):
        ham
             A Hamiltonian instance.
 
-       wfn
-            The wavefunction to be teste.
-
        lf
             The linalg factory to be used.
 
        overlap
             The overlap operator.
+
+       dm1, dm2, ...
+            A list of density matrices. The numbers of dms must match ham.ndm.
 
        **Returns:**
 
@@ -135,30 +92,16 @@ def convergence_error_commutator(ham, wfn, lf, overlap):
             The commutator error. This measure (not this function) is also used
             in some SCF algorithms to check for convergence.
     '''
+    if len(dms) != ham.ndm:
+        raise TypeError('Expecting %i density matrices, got %i.' % (ham.ndm, len(dms)))
+    ham.reset(*dms)
+    focks = [lf.create_one_body() for i in xrange(ham.ndm)]
+    ham.compute_fock(*focks)
+    error = 0.0
     work = lf.create_one_body()
-    if isinstance(wfn, RestrictedWFN):
-        fock = lf.create_one_body()
-        commutator = lf.create_one_body()
-        # Construct the Fock operator
-        ham.reset(wfn.dm_alpha)
-        ham.compute_fock(fock)
-        # Compute commutator
-        compute_commutator(wfn.dm_alpha, fock, overlap, work, commutator)
-        # Compute norm
-        normsq = commutator.expectation_value(commutator)
-        return np.sqrt(normsq)
-    elif isinstance(wfn, UnrestrictedWFN):
-        fock_alpha = lf.create_one_body()
-        fock_beta = lf.create_one_body()
-        # Construct the Fock operators
-        ham.reset(wfn.dm_alpha, wfn.dm_beta)
-        ham.compute_fock(fock_alpha, fock_beta)
-        # Compute stuff for alpha
-        compute_commutator(wfn.dm_alpha, fock_alpha, overlap, work, commutator)
-        normsq_alpha = commutator.expectation_value(commutator)
-        # Compute stuff for beta
-        compute_commutator(wfn.dm_beta, fock_beta, overlap, work, commutator)
-        normsq_beta = commutator.expectation_value(commutator)
-        return np.sqrt(max(normsq_alpha, normsq_beta))
-    else:
-        raise NotImplementedError
+    commutator = lf.create_one_body()
+    errorsq = 0.0
+    for i in xrange(ham.ndm):
+        compute_commutator(dms[i], focks[i], overlap, work, commutator)
+        errorsq += commutator.expectation_value(commutator)
+    return errorsq**0.5

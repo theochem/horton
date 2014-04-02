@@ -10,7 +10,7 @@ mol = Molecule.from_file(fn_fchk)
 
 # Partition the density with the Becke scheme
 grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, mode='only')
-moldens = mol.obasis.compute_grid_density_dm(mol.wfn.dm_full, grid.points)
+moldens = mol.obasis.compute_grid_density_dm(mol.get_dm_full(), grid.points)
 bp = BeckeWPart(mol.coordinates, mol.numbers, mol.pseudo_numbers, grid, moldens, local=True)
 bp.do_charges()
 

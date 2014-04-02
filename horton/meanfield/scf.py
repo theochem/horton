@@ -23,219 +23,80 @@
 
 from horton.log import log, timer
 from horton.exceptions import NoSCFConvergence
-from horton.meanfield.wfn import RestrictedWFN, UnrestrictedWFN
-from horton.meanfield.hamiltonian import RestrictedEffectiveHamiltonian, \
-    UnrestrictedEffectiveHamiltonian
+from horton.meanfield.convergence import convergence_error_eigen
 
 
-__all__ = ['converge_scf']
+__all__ = ['PlainSCFSolver']
 
 
-@timer.with_section('SCF')
-def converge_scf(ham, wfn, lf, overlap, maxiter=128, threshold=1e-8, skip_energy=False):
-    '''Minimize the energy of the wavefunction with basic SCF
+class PlainSCFSolver(object):
+    kind = 'exp' # basic variable is the wfn expansion
 
-       **Arguments:**
+    def __init__(self, threshold=1e-8, maxiter=128, skip_energy=False):
+        self.maxiter = maxiter,
+        self.threshold = threshold
+        self.skip_energy = skip_energy
 
-       ham
-            A Hamiltonian instance.
-
-       wfn
-            The wavefunction object to be optimized.
-
-       lf
-            The linalg factory to be used.
-
-       overlap
-            The overlap operator.
-
-       **Optional arguments:**
-
-       maxiter
-            The maximum number of iterations. When set to None, the SCF loop
-            will go one until convergence is reached.
-
-       threshold
-            The convergence threshold for the wavefunction
-
-       skip_energy
-            When set to True, the final energy is not computed.
-
-       **Raises:**
-
-       NoSCFConvergence
-            if the convergence criteria are not met within the specified number
-            of iterations.
-
-       **Returns:** the number of iterations
-    '''
-    if isinstance(wfn, RestrictedWFN):
-        assert isinstance(ham, RestrictedEffectiveHamiltonian)
-        return converge_scf_cs(ham, wfn, lf, overlap, maxiter, threshold)
-    elif isinstance(wfn, UnrestrictedWFN):
-        assert isinstance(ham, UnrestrictedEffectiveHamiltonian)
-        return converge_scf_os(ham, wfn, lf, overlap, maxiter, threshold)
-    else:
-        raise NotImplementedError
-
-
-def converge_scf_cs(ham, wfn, lf, overlap, maxiter=128, threshold=1e-8, skip_energy=False):
-    '''Minimize the energy of the wavefunction with basic closed-shell SCF
-
-       **Arguments:**
-
-       ham
-            A Hamiltonian instance.
-
-       wfn
-            The wavefunction object to be optimized.
-
-       lf
-            The linalg factory to be used.
-
-       overlap
-            The overlap operator.
-
-       **Optional arguments:**
-
-       maxiter
-            The maximum number of iterations. When set to None, the SCF loop
-            will go one until convergence is reached.
-
-       threshold
-            The convergence threshold for the wavefunction.
-
-       skip_energy
-            When set to True, the final energy is not computed.
-
-       **Raises:**
-
-       NoSCFConvergence
-            if the convergence criteria are not met within the specified number
-            of iterations.
-
-       **Returns:** the number of iterations
-    '''
-    if log.do_medium:
-        log('Starting restricted closed-shell SCF')
-        log.hline()
-        log('Iter  Error(alpha)')
-        log.hline()
-
-    fock = lf.create_one_body()
-    converged = False
-    counter = 0
-    while maxiter is None or counter < maxiter:
-        # feed the latest density matrices in the hamiltonian
-        ham.reset(wfn.dm_alpha)
-        # Construct the Fock operator
-        fock.clear()
-        ham.compute_fock(fock)
-        # Check for convergence
-        error = lf.error_eigen(fock, overlap, wfn.exp_alpha)
+    @timer.with_section('SCF')
+    def __call__(self, ham, lf, overlap, occ_model, *exps):
+        # Some type checking
+        if ham.ndm != len(exps):
+            raise TypeError('The number of initial orbital expansions does not match the Hamiltonian.')
+        # Impose the requested occupation numbers
+        occ_model.assign(*exps)
+        # Check the orthogonality of the orbitals
+        for exp in exps:
+            exp.check_normalization(overlap)
 
         if log.do_medium:
-            log('%4i  %12.5e' % (counter, error))
+            log('Starting plain SCF solver. ndm=%i' % ham.ndm)
+            log.hline()
+            log('Iter         Error')
+            log.hline()
 
-        if error < threshold:
-            converged = True
-            break
-        # Diagonalize the fock operator
-        wfn.clear() # discard previous wfn state
-        wfn.update_exp(fock, overlap)
-        # counter
-        counter += 1
-
-    if log.do_medium:
-        log.blank()
-
-    if not skip_energy:
-        ham.compute()
-        if log.do_medium:
-            ham.log()
-
-    if not converged:
-        raise NoSCFConvergence
-
-    return counter
-
-
-def converge_scf_os(ham, wfn, lf, overlap, maxiter=128, threshold=1e-8, skip_energy=False):
-    '''Minimize the energy of the wavefunction with basic open-shell SCF
-
-       **Arguments:**
-
-       ham
-            A Hamiltonian instance.
-
-       wfn
-            The wavefunction object to be optimized.
-
-       lf
-            The linalg factory to be used.
-
-       overlap
-            The overlap operator.
-
-       **Optional arguments:**
-
-       maxiter
-            The maximum number of iterations. When set to None, the SCF loop
-            will go one until convergence is reached.
-
-       threshold
-            The convergence threshold for the wavefunction.
-
-       skip_energy
-            When set to True, the final energy is not computed.
-
-       **Raises:**
-
-       NoSCFConvergence
-            if the convergence criteria are not met within the specified number
-            of iterations.
-    '''
-    if log.do_medium:
-        log('Starting unrestricted open-shell SCF')
-        log.hline()
-        log('Iter  Error(alpha)  Error(beta)')
-        log.hline()
-    fock_alpha = lf.create_one_body()
-    fock_beta = lf.create_one_body()
-    converged = False
-    counter = 0
-    while maxiter is None or counter < maxiter:
-        # feed the latest density matrices in the hamiltonian
-        ham.reset(wfn.dm_alpha, wfn.dm_beta)
-        # Construct the Fock operators
-        fock_alpha.clear()
-        fock_beta.clear()
-        ham.compute_fock(fock_alpha, fock_beta)
-        # Check for convergence
-        error_alpha = lf.error_eigen(fock_alpha, overlap, wfn.exp_alpha)
-        error_beta = lf.error_eigen(fock_beta, overlap, wfn.exp_beta)
+        focks = [lf.create_one_body() for i in xrange(ham.ndm)]
+        dms = [lf.create_one_body() for i in xrange(ham.ndm)]
+        converged = False
+        counter = 0
+        while self.maxiter is None or counter < self.maxiter:
+            # convert the orbital expansions to density matrices
+            for i in xrange(ham.ndm):
+                exps[i].to_dm(dms[i])
+            # feed the latest density matrices in the hamiltonian
+            ham.reset(*dms)
+            # Construct the Fock operator
+            for fock in focks:
+                fock.clear()
+            ham.compute_fock(*focks)
+            # Check for convergence
+            error = 0.0
+            for i in xrange(ham.ndm):
+                error += lf.error_eigen(focks[i], overlap, exps[i])
+            if log.do_medium:
+                log('%4i  %12.5e' % (counter, error))
+            if error < self.threshold:
+                converged = True
+                break
+            # Diagonalize the fock operators to obtain new orbitals and
+            for i in xrange(ham.ndm):
+                exps[i].from_fock(focks[i], overlap)
+            # Assign new occupation numbers.
+            occ_model.assign(*exps)
+            # counter
+            counter += 1
 
         if log.do_medium:
-            log('%4i  %12.5e  %12.5e' % (counter, error_alpha, error_beta))
+            log.blank()
 
-        if error_alpha < threshold and error_beta < threshold:
-            converged = True
-            break
-        # Diagonalize the fock operators
-        wfn.clear()
-        wfn.update_exp(fock_alpha, fock_beta, overlap)
-        # counter
-        counter += 1
+        if not self.skip_energy:
+            ham.compute()
+            if log.do_medium:
+                ham.log()
 
-    if log.do_medium:
-        log.blank()
+        if not converged:
+            raise NoSCFConvergence
 
-    if not skip_energy:
-        ham.compute()
-        if log.do_medium:
-            ham.log()
+        return counter
 
-    if not converged:
-        raise NoSCFConvergence
-
-    return counter
+    def error(self, ham, lf, overlap, *exps):
+        return convergence_error_eigen(ham, lf, overlap, *exps)

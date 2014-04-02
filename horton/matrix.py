@@ -243,7 +243,7 @@ class DenseLinalgFactory(LinalgFactory):
         return nbasis**4*8
 
 
-class DenseExpansion(LinalgObject):
+class DenseExpansion(Expansion):
     """An expansion of several functions in a basis with a dense matrix of
        coefficients. The implementation is such that the columns of self._array
        contain the orbitals.
@@ -282,12 +282,16 @@ class DenseExpansion(LinalgObject):
         assert nbasis == self.nbasis
         assert nfn == self.nfn
 
-    def read_from_hdf5(self, grp):
-        if grp.attrs['class'] != self.__class__.__name__:
+    @classmethod
+    def from_hdf5(cls, grp, lf):
+        if grp.attrs['class'] != cls.__name__:
             raise TypeError('The class of the expansion in the HDF5 file does not match.')
-        grp['coeffs'].read_direct(self._coeffs)
-        grp['energies'].read_direct(self._energies)
-        grp['occupations'].read_direct(self._occupations)
+        nbasis, nfn = grp['coeffs'].shape
+        result = cls(nbasis, nfn)
+        grp['coeffs'].read_direct(result._coeffs)
+        grp['energies'].read_direct(result._energies)
+        grp['occupations'].read_direct(result._occupations)
+        return result
 
     def to_hdf5(self, grp):
         grp.attrs['class'] = self.__class__.__name__
@@ -357,69 +361,38 @@ class DenseExpansion(LinalgObject):
             #print i, norm
             assert abs(norm-1) < eps, 'The orbitals are not normalized!'
 
-    def compute_density_matrix(self, dm, factor=None):
+    def to_dm(self, output=None, factor=None):
         """Compute the density matrix
 
-           **Arguments:**
-
-           dm
-                An output density matrix. This must be a DenseOneBody instance.
-
            **Optional arguments:**
+
+           output
+                An output density matrix (DenseOneBody instance).
 
            factor
                 When given, the density matrix is added with the given prefactor
                 to the output argument. If not given, the original contents of
-                dm are overwritten.
+                dm are overwritten. This argument implies that the dm output
+                argument must also be present.
         """
+        # parse first argument
+        if output is None:
+            dm = DenseOneBody(self.nbasis)
+            if factor is not None:
+                raise TypeError('When the factor argument is given, the output argument must be a density matrix.')
+        else:
+            dm = output
         if factor is None:
             dm._array[:] = np.dot(self._coeffs*self.occupations, self._coeffs.T)
         else:
             dm._array[:] += factor*np.dot(self._coeffs*self.occupations, self._coeffs.T)
+        return dm
 
-    def derive_from_fock_matrix(self, fock, overlap):
+    def from_fock(self, fock, overlap):
         '''Diagonalize a Fock matrix to obtain orbitals and energies'''
         evals, evecs = DenseLinalgFactory.diagonalize(fock, overlap)
         self._energies[:] = evals[:self.nfn]
         self._coeffs[:] = evecs[:,:self.nfn]
-
-    def derive_from_density_and_fock_matrix(self, dm, fock, overlap, scale=-0.001):
-        '''
-           **Arguments**:
-
-           dm
-                A DenseOneBody object with the density matrix
-
-           fock
-                A DenseOneBody object with the Fock matrix
-
-           overlap
-                A DenseOneBody object with the overlap matrix
-
-           **Optional arguments:**
-
-           scale
-                The linear coefficient for the density matrix. It is added to
-                the Fock matrix as in level shifting to obtain a set of orbitals
-                that diagonalizes both matrices.
-
-           This only works well for slater determinants without (fractional)
-           holes below the Fermi level.
-        '''
-        # Construct a level-shifted fock matrix to separate out the degenerate
-        # orbitals with different occupations
-        occ = overlap.copy()
-        occ.idot(dm)
-        occ.idot(overlap)
-        tmp = fock.copy()
-        tmp.iadd(occ, factor=scale)
-        # diagonalize and compute eigenvalues
-        evals, evecs = DenseLinalgFactory.diagonalize(tmp, overlap)
-        self._coeffs[:] = evecs[:,:self.nfn]
-        for i in xrange(self.nfn):
-            orb = evecs[:,i]
-            self._energies[i] = fock.dot(orb, orb)
-            self._occupations[i] = occ.dot(orb, orb)
 
     def derive_naturals(self, dm, overlap):
         '''
@@ -539,11 +512,6 @@ class DenseOneBody(OneBody):
         result = cls(nbasis)
         grp['array'].read_direct(result._array)
         return result
-
-    def read_from_hdf5(self, grp):
-        if grp.attrs['class'] != self.__class__.__name__:
-            raise TypeError('The class of the one-body operator in the HDF5 file does not match.')
-        grp['array'].read_direct(self._array)
 
     def to_hdf5(self, grp):
         grp.attrs['class'] = self.__class__.__name__

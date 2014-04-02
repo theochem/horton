@@ -32,7 +32,8 @@ def test_base_exceptions():
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf)
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, (rgrid, 110), random_rotate=False, mode='discard')
-    moldens = mol.obasis.compute_grid_density_dm(mol.wfn.dm_full, grid.points)
+    dm_full = mol.get_dm_full()
+    moldens = mol.obasis.compute_grid_density_dm(dm_full, grid.points)
     with assert_raises(ValueError):
         # the default setting is local=true, which is not compatible with mode='discard'.
         dp = WPart(mol.coordinates, mol.numbers, mol.pseudo_numbers, grid, moldens)

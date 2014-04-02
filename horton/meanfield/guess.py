@@ -22,44 +22,55 @@
 
 
 from horton.log import log, timer
-from horton.meanfield.wfn import RestrictedWFN, UnrestrictedWFN
+from horton.matrix import OneBody, Expansion
 
 
 __all__ = ['guess_core_hamiltonian']
 
 
 @timer.with_section('Initial Guess')
-def guess_core_hamiltonian(wfn, overlap, *core):
-    '''Guess the wavefunction from a core hamiltonian
+def guess_core_hamiltonian(overlap, *args):
+    '''Guess the orbitals by diagonalizing a core Hamiltonian
 
        **Arguments:**
-
-       wfn
-            The wavefunction in which the orbitals are stored.
 
        overlap
             The overlap operator.
 
        core1, core2, ...
-            A number of operators that add up to the core Hamiltonian. Any sum
-            of operators that resembles a Fock operator is fine.
+            A number of operators that add up to the core Hamiltonian. Any set
+            of operators whose sum resembles a Fock operator is fine.
+
+       exp1, exp2, ...
+            A list of wavefunction expansion objects (output arguments)
     '''
     if log.do_medium:
-        log('Performing a hamiltonian core guess.')
+        log('Performing a core Hamiltonian guess.')
         log.blank()
+
+    core = []
+    exps = []
+    for arg in args:
+        if isinstance(arg, OneBody):
+            core.append(arg)
+        elif isinstance(arg, Expansion):
+            exps.append(arg)
+        else:
+            raise TypeError('argument of unsupported type: %s' % arg)
+
     if len(core) == 0:
         raise TypeError('At least one term is needed for the core Hamiltonian.')
+    if len(exps) == 0:
+        raise TypeError('At least one wavefunction expansion is needed.')
 
-    # Take sum
+    # Take sum of operators for core hamiltonian
     hamcore = core[0].copy()
     for term in core[1:]:
         hamcore.iadd(term)
 
-    # Compute orbitals
-    wfn.clear()
-    if isinstance(wfn, RestrictedWFN):
-        wfn.update_exp(hamcore, overlap)
-    elif isinstance(wfn, UnrestrictedWFN):
-        wfn.update_exp(hamcore, hamcore, overlap)
-    else:
-        raise NotImplementedError
+    # Compute orbitals.
+    exps[0].from_fock(hamcore, overlap)
+    # Copy to other expansions.
+    for i in xrange(1, len(exps)):
+        exps[i].coeffs[:] = exps[0].coeffs
+        exps[i].energies[:] = exps[0].energies

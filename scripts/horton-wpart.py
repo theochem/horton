@@ -116,7 +116,8 @@ def main():
     # Run the partitioning
     agspec = AtomicGridSpec(args.grid)
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, agspec, mode='only')
-    moldens = mol.obasis.compute_grid_density_dm(mol.wfn.dm_full, grid.points, epsilon=args.epsilon)
+    dm_full = mol.get_dm_full()
+    moldens = mol.obasis.compute_grid_density_dm(dm_full, grid.points, epsilon=args.epsilon)
     wpart = wpart_schemes[args.scheme](mol.coordinates, mol.numbers, mol.pseudo_numbers,grid, moldens, **kwargs)
     names = wpart.do_all()
 
