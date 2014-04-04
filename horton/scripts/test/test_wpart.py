@@ -42,15 +42,18 @@ def check_script_water_sto3g(scheme, do_deriv=True):
         fn_fchk = 'water_sto3g_hf_g03.fchk'
         copy_files(dn, [fn_fchk])
         if scheme == 'b':
-            check_script('horton-wpart.py %s water_sto3g_hf_g03_wpart.h5:wpart/%s %s --debug' % (fn_fchk, scheme, scheme), dn)
+            check_script('horton-wpart.py %s water_sto3g_hf_g03_wpart.h5:wpart %s --debug' % (fn_fchk, scheme), dn)
         else:
             write_atomdb_sto3g(dn, do_deriv)
-            check_script('horton-wpart.py %s water_sto3g_hf_g03_wpart.h5:wpart/%s %s atoms.h5' % (fn_fchk, scheme, scheme), dn)
+            check_script('horton-wpart.py %s water_sto3g_hf_g03_wpart.h5:wpart %s atoms.h5' % (fn_fchk, scheme), dn)
         fn_h5 = 'water_sto3g_hf_g03_wpart.h5'
         check_files(dn, [fn_h5])
         with h5.File(os.path.join(dn, fn_h5)) as f:
             assert 'wpart' in f
-            assert scheme in f['wpart']
+            print f['wpart/charges'][:], f['wpart/charges'][:].sum()
+            assert abs(f['wpart/charges'][:].sum()) < 1e-2
+            assert 'wpart/spin_charges' not in f
+
 
 
 def test_script_water_sto3g_b():
@@ -79,3 +82,48 @@ def test_script_water_sto3g_he():
 
 def test_script_water_sto3g_he_noderiv():
     check_script_water_sto3g('he', do_deriv=False)
+
+
+def check_script_ch3_rohf_sto3g(scheme, do_deriv=True):
+    with tmpdir('horton.scripts.test.test_wpart.test_script_ch3_rohf_sto3g_%s' % scheme) as dn:
+        fn_fchk = 'ch3_rohf_sto3g_g03.fchk'
+        copy_files(dn, [fn_fchk])
+        if scheme == 'b':
+            check_script('horton-wpart.py %s foo.h5:wpart %s --debug' % (fn_fchk, scheme), dn)
+        else:
+            write_atomdb_sto3g(dn, do_deriv)
+            check_script('horton-wpart.py %s foo.h5:wpart %s atoms.h5' % (fn_fchk, scheme), dn)
+        fn_h5 = 'foo.h5'
+        check_files(dn, [fn_h5])
+        with h5.File(os.path.join(dn, fn_h5)) as f:
+            assert 'wpart' in f
+            assert abs(f['wpart/charges'][:].sum()) < 1e-2
+            assert abs(f['wpart/spin_charges'][:].sum() - 1) < 1e-2
+
+
+def test_script_ch3_rohf_sto3g_b():
+    check_script_ch3_rohf_sto3g('b')
+
+
+def test_script_ch3_rohf_sto3g_h():
+    check_script_ch3_rohf_sto3g('h')
+
+
+def test_script_ch3_rohf_sto3g_h_noderiv():
+    check_script_ch3_rohf_sto3g('h', do_deriv=False)
+
+
+def test_script_ch3_rohf_sto3g_hi():
+    check_script_ch3_rohf_sto3g('hi')
+
+
+def test_script_ch3_rohf_sto3g_hi_noderiv():
+    check_script_ch3_rohf_sto3g('hi', do_deriv=False)
+
+
+def test_script_ch3_rohf_sto3g_he():
+    check_script_ch3_rohf_sto3g('he')
+
+
+def test_script_ch3_rohf_sto3g_he_noderiv():
+    check_script_ch3_rohf_sto3g('he', do_deriv=False)

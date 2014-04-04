@@ -118,6 +118,9 @@ def main():
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, agspec, mode='only')
     dm_full = mol.get_dm_full()
     moldens = mol.obasis.compute_grid_density_dm(dm_full, grid.points, epsilon=args.epsilon)
+    dm_spin = mol.get_dm_spin()
+    if dm_spin is not None:
+        kwargs['spindens'] = mol.obasis.compute_grid_density_dm(dm_spin, grid.points, epsilon=args.epsilon)
     wpart = wpart_schemes[args.scheme](mol.coordinates, mol.numbers, mol.pseudo_numbers,grid, moldens, **kwargs)
     names = wpart.do_all()
 
