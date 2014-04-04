@@ -119,8 +119,6 @@ class DIISSCFSolver(object):
                 # feed the latest density matrices in the hamiltonian
                 ham.reset(*dms)
                 # Construct the Fock operators
-                for fock in focks:
-                    fock.clear()
                 ham.compute_fock(*focks)
                 # Compute the energy if needed by the history
                 energy = ham.compute() if history.need_energy else None
@@ -156,8 +154,6 @@ class DIISSCFSolver(object):
                 exps[i].to_dm(dms[i])
             ham.reset(*dms)
             energy = ham.compute() if history.need_energy else None
-            for i in xrange(ham.ndm):
-                focks[i].clear()
             ham.compute_fock(*focks)
 
             # Add the current (dm, fock) pair to the history

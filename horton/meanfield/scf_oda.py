@@ -149,8 +149,6 @@ class ODASCFSolver(object):
             # feed the latest density matrices in the hamiltonian
             ham.reset(*dm0s)
             # Construct the Fock operators in point 0
-            for fock0 in fock0s:
-                fock0.clear()
             ham.compute_fock(*fock0s)
             # Compute the energy in point 0
             energy0 = ham.compute()
@@ -173,8 +171,6 @@ class ODASCFSolver(object):
             # feed the latest density matrices in the hamiltonian
             ham.reset(*dm1s)
             # Compute the fock matrices in point 1
-            for fock1 in fock1s:
-                fock1.clear()
             ham.compute_fock(*fock1s)
             # Compute the energy in point 1
             energy1 = ham.compute()

@@ -37,8 +37,6 @@ def check_cubic_wrapper(ham, dm0s, dm1s, do_plot=False):
     # evaluate stuff at dm0
     ham.reset(*dm0s)
     e0 = ham.compute()
-    for fock in focks:
-        fock.clear()
     ham.compute_fock(*focks)
     g0 = 0.0
     for i in xrange(ham.ndm):
@@ -49,8 +47,6 @@ def check_cubic_wrapper(ham, dm0s, dm1s, do_plot=False):
     # evaluate stuff at dm1
     ham.reset(*dm1s)
     e1 = ham.compute()
-    for fock in focks:
-        fock.clear()
     ham.compute_fock(*focks)
     g1 = 0.0
     for i in xrange(ham.ndm):

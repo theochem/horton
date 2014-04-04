@@ -65,8 +65,6 @@ class PlainSCFSolver(object):
             # feed the latest density matrices in the hamiltonian
             ham.reset(*dms)
             # Construct the Fock operator
-            for fock in focks:
-                fock.clear()
             ham.compute_fock(*focks)
             # Check for convergence
             error = 0.0

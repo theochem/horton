@@ -121,12 +121,13 @@ class EffectiveHamiltonian(object):
            **Arguments:**
 
            fock1, fock2, ....
-                A list of output fock operators. The caller is responsible for
-                setting these operators initially to zero (if desired).
+                A list of output fock operators. Old content is discarded.
 
            The input for this method must be provided through the ``reset``
            method.
         '''
+        for fock in focks:
+            fock.clear()
         # Loop over all terms and add contributions to the Fock matrix.
         for term in self.terms:
             term.add_fock(self.cache, *focks)
