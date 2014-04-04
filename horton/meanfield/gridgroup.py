@@ -25,13 +25,33 @@ from horton.meanfield.observable import Observable
 
 
 __all__ = [
-    'GridGroup', 'RGridGroup', 'UGridGroup',
-    'GridObservable'
+    'GridGroup', 'RGridGroup', 'UGridGroup', 'GridObservable'
 ]
 
 
 class GridGroup(Observable):
+    '''A group of terms for the effective Hamiltonian that use numerical integration'''
     def __init__(self, obasis, grid, grid_terms, label='grid_group'):
+        '''
+           **Arguments:**
+
+           obasis
+                The orbital basis.
+
+           grid
+                A numerical integration grid. (must have ``points`` attribute
+                and ``integrate`` method.)
+
+           grid_terms
+                The contributions to the effective Hamiltonian. This must be
+                a list of instances of subclasses of
+                :py:class:`GridObservable`.
+
+           **Optional arguments:**
+
+           label
+                A label for the group.
+        '''
         self.grid_terms = grid_terms
         self.obasis = obasis
         self.grid = grid
@@ -44,9 +64,26 @@ class GridGroup(Observable):
     gga = property(_get_gga)
 
     def _get_potentials(self, cache):
+        '''Get list of output arrays passed to ```GridObservable.add_pot```.
+
+           **Arguments:**
+
+           cache
+                An instance of Cache, used to store intermediate results.
+        '''
         raise NotImplementedError
 
     def _update_rho(self, cache, select):
+        '''Recompute a density when not present in the cache.
+
+           **Arguments:**
+
+           cache
+                An instance of Cache, used to store intermediate results.
+
+           select
+                'alpha' or 'beta'.
+        '''
         rho, new = cache.load('rho_%s' % select, alloc=self.grid.size)
         if new:
             dm = cache['dm_%s' % select]
@@ -54,6 +91,16 @@ class GridGroup(Observable):
         return rho
 
     def _update_grad(self, cache, select):
+        '''Recompute a density gradient when not present in the cache.
+
+           **Arguments:**
+
+           cache
+                An instance of Cache, used to store intermediate results.
+
+           select
+                'alpha' or 'beta'.
+        '''
         grad_rho, new = cache.load('grad_rho_%s' % select, alloc=(self.grid.size, 3))
         if new:
             dm = cache['dm_%s' % select]
@@ -61,9 +108,26 @@ class GridGroup(Observable):
         return grad_rho
 
     def _update_grid_data(self, cache):
+        '''Compute all grid data used as input for GridObservable instances
+
+           **Arguments:**
+
+           cache
+                An instance of Cache, used to store intermediate results.
+        '''
         raise NotImplementedError
 
     def compute(self, cache):
+        '''Compute the sum of the expectation values.
+
+           **Arguments:**
+
+           cache
+                An instance of Cache, used to store intermediate results.
+
+           This method basically dispatches the work to all ``GridObservable``
+           instances in ``self.grid_terms``.
+        '''
         # compute stuff on the grid that the grid_observables may use
         self._update_grid_data(cache)
 
@@ -76,6 +140,16 @@ class GridGroup(Observable):
         return result
 
     def add_fock(self, cache, *focks):
+        '''Add contributions to the Fock matrix
+
+           **Arguments:**
+
+           cache
+                An instance of Cache, used to store intermediate results.
+
+           This method basically dispatches the work to all ``GridObservable``
+           instances in ``self.grid_terms``.
+        '''
         # Get the potentials. If they are not yet evaluated, some computations
         # are needed.
         dpots, gpots, new = self._get_potentials(cache)
@@ -101,7 +175,37 @@ class GridGroup(Observable):
 
 
 class RGridGroup(GridGroup):
+    '''GridGroup for restricted wavefunctions.
+
+       When the ``compute`` and ``add_pot`` methods of
+       :py:class:`GridObservable` instances is called, the following functions
+       are pre-computed in the integration grid and stored in the cache:
+
+       **When LDA and/or GGA functionals are used:**
+
+       rho_alpha
+            The alpha electron density.
+
+       rho_full
+            The spin-summed electron density.
+
+       **When LDA and/or GGA functionals are used:**
+
+       grad_rho_alpha
+            The gradient of the alpha electron density.
+
+       grad_rho_full
+            The gradient of the spin-summed electron density.
+
+       sigma_alpha
+            The norm-squared of the gradient of the alpha electron density.
+
+       sigma_full
+            The norm-squared of the gradient of the spin-summed electron density.
+    '''
+
     def _get_potentials(self, cache):
+        '''See :py:meth:`GridGroup._get_potentials`.'''
         dpot, new = cache.load('dpot_total_alpha', alloc=self.grid.size)
         dpots = [dpot]
         if self.gga:
@@ -117,6 +221,7 @@ class RGridGroup(GridGroup):
         return dpots, gpots, new
 
     def _update_grid_data(self, cache):
+        '''See :py:meth:`GridGroup._update_grid_data`.'''
         rho_alpha = self._update_rho(cache, 'alpha')
         rho_full, new = cache.load('rho_full', alloc=self.grid.size)
         if new:
@@ -137,7 +242,51 @@ class RGridGroup(GridGroup):
 
 
 class UGridGroup(GridGroup):
+    '''GridGroup for unrestricted wavefunctions.
+
+       When the ``compute`` and ``add_pot`` methods of
+       :py:class:`GridObservable` instances is called, the following functions
+       are pre-computed in the integration grid and stored in the cache:
+
+       **When LDA and/or GGA functionals are used:**
+
+       rho_alpha
+            The alpha electron density.
+
+       rho_beta
+            The beta electron density.
+
+       rho_full
+            The spin-summed electron density.
+
+       rho_both
+            An array with alpha and beta electron densities. Shape=(grid.size,
+            2). This is mostly useful for LibXC.
+
+       **When LDA and/or GGA functionals are used:**
+
+       grad_rho_alpha
+            The gradient of the alpha electron density.
+
+       grad_rho_beta
+            The gradient of the alpha electron density.
+
+       sigma_alpha
+            The norm-squared of the gradient of the alpha electron density.
+
+       sigma_cross
+            The dot product of the gradient of alpha and beta electron
+            densities.
+
+       sigma_beta
+            The norm-squared of the gradient of the beta electron density.
+
+       sigma_all
+            An array with all three sigma quantities combined. Shape=(grid.size,
+            3). This is mostly useful for LibXC
+    '''
     def _get_potentials(self, cache):
+        '''See :py:meth:`GridGroup._get_potentials`.'''
         dpot_alpha, newa = cache.load('dpot_total_alpha', alloc=self.grid.size)
         dpot_beta, newb = cache.load('dpot_total_beta', alloc=self.grid.size)
         dpots = [dpot_alpha, dpot_beta]
@@ -158,6 +307,7 @@ class UGridGroup(GridGroup):
         return dpots, gpots, new
 
     def _update_grid_data(self, cache):
+        '''See :py:meth:`GridGroup._update_grid_data`.'''
         rho_alpha = self._update_rho(cache, 'alpha')
         rho_beta = self._update_rho(cache, 'beta')
         rho_full, new = cache.load('rho_full', alloc=self.grid.size)
@@ -189,13 +339,67 @@ class UGridGroup(GridGroup):
 
 
 class GridObservable(object):
+    '''Base class for contributions to the GridGroup object'''
     gga = False
 
     def __init__(self, label):
+        '''
+           **Arguments:**
+
+           label
+                A unique label for this contribution
+        '''
         self.label = label
 
     def compute(self, cache, grid):
+        '''Compute the expectation value using numerical integration
+
+           **Arguments:**
+
+           cache
+                A Cache instance used to share intermediate results between
+                the ``compute`` and ``add_pot`` methods. This cache will also
+                contain pre-computed functions evaluate on the grid. See
+                :py:class:`RGridGroup` and :py:class:`UGridGroup` for more
+                details.
+
+           grid
+                A numerical integration grid
+        '''
         raise NotImplementedError
 
     def add_pot(self, cache, grid, *args):
+        '''Add the potential to the output arguments
+
+           **Arguments:**
+
+           cache
+                A Cache instance used to share intermediate results between
+                the ``compute`` and ``add_pot`` methods. This cache will also
+                contain pre-computed functions evaluate on the grid. See
+                :py:class:`RGridGroup` and :py:class:`UGridGroup` for more
+                details.
+
+           grid
+                A numerical integration grid
+
+           **Possible arguments:** depending on the subclass some of these may
+           not be applicable.
+
+           dpot_alpha
+                The functional derivative of the expectation value toward the
+                density of the alpha electron density. Shape = (grid.size,)
+
+           dpot_beta
+                The functional derivative of the expectation value toward the
+                density of the beta electron density. Shape = (grid.size,)
+
+           gpot_alpha
+                The functional derivative of the expectation value toward the
+                gradient of the alpha electron density. Shape = (grid.size, 3)
+
+           gpot_beta
+                The functional derivative of the expectation value toward the
+                gradient of the beta electron density. Shape = (grid.size, 3)
+        '''
         raise NotImplementedError

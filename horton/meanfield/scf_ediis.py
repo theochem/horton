@@ -32,7 +32,30 @@ __all__ = ['EDIISSCFSolver']
 
 
 class EDIISSCFSolver(DIISSCFSolver):
+    '''The Energy DIIS SCF solver [kudin2002]_'''
+
     def __init__(self, threshold=1e-6, maxiter=128, nvector=6, skip_energy=False, prune_old_states=False):
+        '''
+           **Optional arguments:**
+
+           maxiter
+                The maximum number of iterations. When set to None, the SCF loop
+                will go one until convergence is reached.
+
+           threshold
+                The convergence threshold for the wavefunction
+
+           skip_energy
+                When set to True, the final energy is not computed. Note that some
+                DIIS variants need to compute the energy anyway. for these methods
+                this option is irrelevant.
+
+           prune_old_states
+                When set to True, old states are pruned from the history when their
+                coefficient is zero. Pruning starts at the oldest state and stops
+                as soon as a state is encountered with a non-zero coefficient. Even
+                if some newer states have a zero coefficient.
+        '''
         log.cite('kudin2002', 'the EDIIS method.')
         DIISSCFSolver.__init__(self, EDIISHistory, threshold, maxiter, nvector, skip_energy, prune_old_states)
 
@@ -86,6 +109,7 @@ class EDIISHistory(DIISHistory):
                         self.edots[i1,i0] += state1.focks[j].expectation_value(state0.dms[j])
 
     def _setup_equations(self):
+        '''Compute the equations for the quadratic programming problem.'''
         b = np.zeros((self.nused, self.nused), float)
         e = np.zeros(self.nused, float)
         for i0 in xrange(self.nused):
@@ -97,18 +121,7 @@ class EDIISHistory(DIISHistory):
         return b, e
 
     def solve(self, dms_output, focks_output):
-        '''Extrapolate a new density and/or fock matrix that should have the smallest commutator norm.
-
-           **Arguments:**
-
-           dms_output
-                The output for the density matrices. If set to None, this is
-                argument is ignored.
-
-           focks_output
-                The output for the Fock matrices. If set to None, this is
-                argument is ignored.
-        '''
+        '''See :py:meth:`horton.meanfield.scf_diis.DIISHistory.solve`.'''
         # interpolation only makes sense if there are two points
         assert self.nused >= 2
         # Fill in the missing commutators

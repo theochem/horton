@@ -48,6 +48,8 @@ def check_dm(dm, overlap, lf, eps=1e-4, occ_max=1.0):
 
        occ_max
             The maximum occupation.
+
+       A ValueError is raised when the density matrix has illegal eigenvalues.
     '''
     tmp = overlap.copy()
     tmp.idot(dm)
@@ -69,6 +71,8 @@ def get_level_shift(dm, overlap):
 
        overlap
             The overlap matrix
+
+       **Returns:** The level-shift operator.
     '''
     level_shift = overlap.copy()
     level_shift.idot(dm)

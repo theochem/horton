@@ -32,7 +32,7 @@ __all__ = ['RDiracExchange', 'UDiracExchange']
 class DiracExchange(GridObservable):
     '''Common code for the Dirac Exchange Functional implementations'''
     def __init__(self, label='x_dirac', coeff=None):
-        '''
+        r'''
            **Optional arguments:**
 
            label
@@ -41,7 +41,7 @@ class DiracExchange(GridObservable):
            coeff
                 The coefficient Cx in front of the Dirac exchange energy.
                 It defaults to the uniform electron gas value, i.e.
-                Cx = 3/4 (3/pi)^(1/3).
+                :math:`C_x = \frac{3}{4} \left(\frac{3}{\pi}\right)^{1/3}`.
         '''
         if coeff is None:
             self.coeff = 3.0 / 4.0 * (3.0 / np.pi) ** (1.0 / 3.0)
@@ -73,13 +73,13 @@ class RDiracExchange(DiracExchange):
     '''The Dirac Exchange Functional for restricted wavefunctions'''
 
     def compute(self, cache, grid):
-        '''See ``GridObservable.compute``'''
+        '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.compute`.'''
         pot = self._update_pot(cache, grid, 'alpha')
         rho = cache['rho_alpha']
         return (3.0 / 2.0) * grid.integrate(pot, rho)
 
     def add_pot(self, cache, grid, dpot_alpha):
-        '''See ``GridObservable.add_pot``'''
+        '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.add_pot`.'''
         dpot_alpha += self._update_pot(cache, grid, 'alpha')
 
 
@@ -87,7 +87,7 @@ class UDiracExchange(DiracExchange):
     '''The Dirac Exchange Functional for unrestricted wavefunctions'''
 
     def compute(self, cache, grid):
-        '''See ``GridObservable.compute``'''
+        '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.compute`.'''
         pot_alpha = self._update_pot(cache, grid, 'alpha')
         pot_beta = self._update_pot(cache, grid, 'beta')
         rho_alpha = cache['rho_alpha']
@@ -96,6 +96,6 @@ class UDiracExchange(DiracExchange):
                               grid.integrate(pot_beta, rho_beta))
 
     def add_pot(self, cache, grid, dpot_alpha, dpot_beta):
-        '''See ``GridObservable.add_pot``'''
+        '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.add_pot`.'''
         dpot_alpha += self._update_pot(cache, grid, 'alpha')
         dpot_beta += self._update_pot(cache, grid, 'beta')

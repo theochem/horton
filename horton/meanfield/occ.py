@@ -34,7 +34,45 @@ __all__ = [
 ]
 
 
-class AufbauOccModel(object):
+class OccModel(object):
+    '''Base class for the occupation models'''
+
+    def assign(self, *exps):
+        '''Assign occupation numbers to the expansion objects
+
+           **Arguments:**
+
+           exp_alpha, exp_beta, ...
+                Expansion objects
+        '''
+        raise NotImplementedError
+
+    def check_dms(self, overlap, *dms, **kwargs):
+        '''Test if the given density matrices contain the right number of electrons
+
+           **Arguments:**
+
+           overlap
+                The overlap operator.
+
+           dm1, dm2, ...
+                Density matrices to be tested.
+
+           **Optional keyword arguments:**
+
+           eps (default=1e-4)
+                The allowed deviation.
+        '''
+        raise NotImplementedError
+
+class AufbauOccModel(OccModel):
+    '''The standard Aufbau occupation number model.
+
+       This model just fills up all the lowest lying orbitals. When the total
+       number of electrons in one channel is fractional, the fractional electron
+       is put in the HOMO orbital.
+    '''
+
     def __init__(self, *noccs):
         '''
            **Arguments:**
@@ -50,13 +88,7 @@ class AufbauOccModel(object):
         self.noccs = noccs
 
     def assign(self, *exps):
-        '''apply occupation numbers to the expansion objects
-
-           **Arguments:**
-
-           exp_alpha, exp_beta, ...
-                Expansion objects
-        '''
+        '''See :py:meth:`OccModel.assign`.'''
         if len(exps) != len(self.noccs):
             raise TypeError('Expected %i expansion objects, got %i.' % (len(self.nocc), len(exps)))
         for exp, nocc in zip(exps, self.noccs):
@@ -72,14 +104,17 @@ class AufbauOccModel(object):
                 exp.occupations[int(np.ceil(nocc)):] = 0.0
 
     def check_dms(self, overlap, *dms, **kwargs):
+        '''See :py:meth:`OccModel.check_dms`.'''
         eps = kwargs.pop('eps', 1e-4)
         if len(kwargs) > 0:
             raise TypeError('Unexpected keyword arguments: %s' % kwargs.keys())
+        if len(dms) != len(self.noccs):
+            raise TypeError('The number of density matrices is incorrect.')
         for dm, nocc in zip(dms, self.noccs):
             assert abs(overlap.expectation_value(dm) - nocc) < eps
 
 
-class AufbauSpinOccModel(object):
+class AufbauSpinOccModel(OccModel):
     '''This Aufbau model only applies to unrestricted wavefunctions'''
     def __init__(self, nel):
         '''
@@ -93,13 +128,7 @@ class AufbauSpinOccModel(object):
         self.nel = nel
 
     def assign(self, exp_alpha, exp_beta):
-        '''apply occupation numbers to the expansion objects
-
-           **Arguments:**
-
-           exp_alpha, exp_beta, ...
-                Expansion objects
-        '''
+        '''See :py:meth:`OccModel.assign`.'''
         nel = self.nel
         ialpha = 0
         ibeta = 0
@@ -113,14 +142,15 @@ class AufbauSpinOccModel(object):
             nel -= 1
 
     def check_dms(self, overlap, *dms, **kwargs):
+        '''See :py:meth:`OccModel.check_dms`.'''
         eps = kwargs.pop('eps', 1e-4)
         if len(kwargs) > 0:
             raise TypeError('Unexpected keyword arguments: %s' % kwargs.keys())
         assert abs(sum(overlap.expectation_value(dm) for dm in dms) - self.nel) < eps
 
 
-class FermiBase(object):
-    '''Base class for Fermi smearing occupation models'''
+class FermiMixin(object):
+    '''Mixin class for Fermi smearing occupation models'''
     def __init__(self, temperature=300, eps=1e-8):
         '''
            **Optional arguments:**
@@ -140,7 +170,7 @@ class FermiBase(object):
         self.eps = eps
 
 
-class FermiOccModel(FermiBase, AufbauOccModel):
+class FermiOccModel(FermiMixin, AufbauOccModel):
     '''Fermi smearing electron occupation model'''
     def __init__(self, *noccs, **kwargs):
         '''
@@ -162,17 +192,11 @@ class FermiOccModel(FermiBase, AufbauOccModel):
         eps = kwargs.pop('eps', 1e-8)
         if len(kwargs) > 0:
             raise TypeError('Unknown keyword arguments: %s' % kwargs.keys())
-        FermiBase.__init__(self, temperature, eps)
+        FermiMixin.__init__(self, temperature, eps)
         AufbauOccModel.__init__(self, *noccs)
 
     def assign(self, *exps):
-        '''apply occupation numbers to the expansion objects
-
-           **Arguments:**
-
-           exp_alpha, exp_beta, ...
-                Expansion objects
-        '''
+        '''See :py:meth:`OccModel.assign`.'''
         beta = 1.0/self.temperature/boltzmann
         for exp, nocc in zip(exps, self.noccs):
             def get_occ(mu):

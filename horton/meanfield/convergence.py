@@ -51,11 +51,8 @@ def convergence_error_eigen(ham, lf, overlap, *exps):
             A list of wavefunction expansion objects. (The number must match
             ham.ndm.)
 
-       **Returns:**
-
-       error
-            The SCF error. This measure (not this function) is also used
-            in some SCF algorithms to check for convergence.
+       **Returns:** The SCF error. This measure (not this function) is also used
+       in some SCF algorithms to check for convergence.
     '''
     if len(exps) != ham.ndm:
         raise TypeError('Expecting %i expansions, got %i.' % (ham.ndm, len(exps)))
@@ -86,11 +83,8 @@ def convergence_error_commutator(ham, lf, overlap, *dms):
        dm1, dm2, ...
             A list of density matrices. The numbers of dms must match ham.ndm.
 
-       **Returns:**
-
-       error
-            The commutator error. This measure (not this function) is also used
-            in some SCF algorithms to check for convergence.
+       **Returns:** The commutator error. This measure (not this function) is
+       also used in some SCF algorithms to check for convergence.
     '''
     if len(dms) != ham.ndm:
         raise TypeError('Expecting %i density matrices, got %i.' % (ham.ndm, len(dms)))

@@ -36,6 +36,8 @@ __all__ = [
 
 
 class LibXCEnergy(GridObservable):
+    '''Base class for LibXC functionals'''
+
     prefix = None
     LibXCWrapper = None
 
@@ -61,11 +63,13 @@ class LibXCEnergy(GridObservable):
 
 class RLibXCLDA(LibXCEnergy):
     '''Any LDA functional from LibXC for restricted wavefunctions'''
+
     prefix = 'lda'
     LibXCWrapper = RLibXCWrapper
 
     @timer.with_section('LDA edens')
     def compute(self, cache, grid):
+        '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.compute`.'''
         # LibXC expects the following input:
         #   - total density
         # LibXC computes:
@@ -78,6 +82,7 @@ class RLibXCLDA(LibXCEnergy):
 
     @timer.with_section('LDA pot')
     def add_pot(self, cache, grid, dpot_alpha):
+        '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.add_pot`.'''
         # LibXC expects the following input:
         #   - total density
         # LibXC computes:
@@ -95,6 +100,7 @@ class ULibXCLDA(LibXCEnergy):
 
     @timer.with_section('LDA edens')
     def compute(self, cache, grid):
+        '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.compute`.'''
         # LibXC expects the following input:
         #   - alpha density
         #   - beta density
@@ -110,6 +116,7 @@ class ULibXCLDA(LibXCEnergy):
 
     @timer.with_section('LDA pot')
     def add_pot(self, cache, grid, dpot_alpha, dpot_beta):
+        '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.add_pot`.'''
         # LibXC expects the following input:
         #   - alpha density
         #   - beta density
@@ -130,6 +137,7 @@ class RLibXCGGA(LibXCEnergy):
 
     @timer.with_section('GGA edens')
     def compute(self, cache, grid):
+        '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.compute`.'''
         # LibXC expects the following input:
         #   - total density
         #   - norm squared of the gradient of the total density
@@ -144,6 +152,7 @@ class RLibXCGGA(LibXCEnergy):
 
     @timer.with_section('GGA pot')
     def add_pot(self, cache, grid, dpot_alpha, gpot_alpha):
+        '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.add_pot`.'''
         # LibXC expects the following input:
         #   - total density
         #   - norm of the gradient of the total density
@@ -174,6 +183,7 @@ class ULibXCGGA(LibXCEnergy):
 
     @timer.with_section('GGA edens')
     def compute(self, cache, grid):
+        '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.compute`.'''
         # LibXC expects the following input:
         #   - alpha density
         #   - beta density
@@ -192,6 +202,7 @@ class ULibXCGGA(LibXCEnergy):
 
     @timer.with_section('GGA pot')
     def add_pot(self, cache, grid, dpot_alpha, dpot_beta, gpot_alpha, gpot_beta):
+        '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.add_pot`.'''
         # LibXC expects the following input:
         #   - alpha density
         #   - beta density
@@ -232,6 +243,7 @@ class RLibXCHybridGGA(RLibXCGGA):
     prefix = 'hyb_gga'
 
     def get_exx_fraction(self):
+        '''Return the fraction of Hartree-Fock exchange for this functional'''
         return self._libxc_wrapper.get_hyb_exx_fraction()
 
 
@@ -240,4 +252,5 @@ class ULibXCHybridGGA(ULibXCGGA):
     prefix = 'hyb_gga'
 
     def get_exx_fraction(self):
+        '''Return the fraction of Hartree-Fock exchange for this functional'''
         return self._libxc_wrapper.get_hyb_exx_fraction()

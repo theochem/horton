@@ -33,7 +33,30 @@ __all__ = ['EDIIS2SCFSolver']
 
 
 class EDIIS2SCFSolver(DIISSCFSolver):
+    '''The EDIIS+DIIS SCF solver [kudin2002]_'''
+
     def __init__(self, threshold=1e-6, maxiter=128, nvector=6, skip_energy=False, prune_old_states=False):
+        '''
+           **Optional arguments:**
+
+           maxiter
+                The maximum number of iterations. When set to None, the SCF loop
+                will go one until convergence is reached.
+
+           threshold
+                The convergence threshold for the wavefunction
+
+           skip_energy
+                When set to True, the final energy is not computed. Note that some
+                DIIS variants need to compute the energy anyway. for these methods
+                this option is irrelevant.
+
+           prune_old_states
+                When set to True, old states are pruned from the history when their
+                coefficient is zero. Pruning starts at the oldest state and stops
+                as soon as a state is encountered with a non-zero coefficient. Even
+                if some newer states have a zero coefficient.
+        '''
         log.cite('kudin2002', 'the EDIIS method.')
         DIISSCFSolver.__init__(self, EDIIS2History, threshold, maxiter, nvector, skip_energy, prune_old_states)
 
@@ -73,18 +96,7 @@ class EDIIS2History(EDIISHistory, CDIISHistory):
         DIISHistory.__init__(self, lf, nvector, ndm, overlap, [self.edots, self.cdots])
 
     def solve(self, dms_output, focks_output):
-        '''Extrapolate a new density and/or fock matrix that should have the smallest commutator norm.
-
-           **Arguments:**
-
-           dms_output
-                The output for the density matrices. If set to None, this is
-                argument is ignored.
-
-           focks_output
-                The output for the Fock matrices. If set to None, this is
-                argument is ignored.
-        '''
+        '''See :py:meth:`horton.meanfield.scf_diis.DIISHistory.solve`.'''
         errmax = max(state.normsq for state in self.stack)
         if errmax > 1e-1:
             return EDIISHistory.solve(self, dms_output, focks_output)

@@ -110,9 +110,29 @@ def find_min_quadratic(g0, g1):
 
 
 class ODASCFSolver(object):
-    kind = 'dm' # basic variable is the density matrix
+    '''Optimal damping SCF algorithm (with cubic interpolation)'''
+    kind = 'dm' # input/output variable is the density matrix
 
     def __init__(self, threshold=1e-8, maxiter=128, skip_energy=False, debug=False):
+        '''
+           **Optional arguments:**
+
+           maxiter
+                The maximum number of iterations. When set to None, the SCF loop
+                will go one until convergence is reached.
+
+           threshold
+                The convergence threshold for the wavefunction
+
+           skip_energy
+                When set to True, the final energy is not computed. Note that some
+                DIIS variants need to compute the energy anyway. for these methods
+                this option is irrelevant.
+
+           debug
+                When set to True, for each mixing step, a plot is made to double
+                check the cubic interpolation.
+        '''
         self.maxiter = maxiter
         self.threshold = threshold
         self.skip_energy = skip_energy
@@ -120,6 +140,26 @@ class ODASCFSolver(object):
 
     @timer.with_section('SCF')
     def __call__(self, ham, lf, overlap, occ_model, *dm0s):
+        '''Find a self-consistent set of density matrices.
+
+           **Arguments:**
+
+           ham
+                An effective Hamiltonian.
+
+           lf
+                The linalg factory to be used.
+
+           overlap
+                The overlap operator.
+
+           occ_model
+                Model for the orbital occupations.
+
+           dm1, dm2, ...
+                The initial density matrices. The number of dms must match
+                ham.ndm.
+        '''
         # Some type checking
         if ham.ndm != len(dm0s):
             raise TypeError('The number of initial density matrices does not match the Hamiltonian.')
@@ -227,10 +267,50 @@ class ODASCFSolver(object):
         return counter
 
     def error(self, ham, lf, overlap, *dms):
+        '''See :py:func:`horton.meanfield.convergence.convergence_error_commutator`.'''
         return convergence_error_commutator(ham, lf, overlap, *dms)
 
 
 def check_cubic(ham, dm0s, dm1s, e0, e1, g0, g1, do_plot=True):
+    '''Method to test the correctness of the cubic interpolation
+
+       **Arguments:**
+
+       ham
+            An effective Hamiltonian.
+
+       dm0s
+            A list of density matrices for the initial state.
+
+       dm1s
+            A list of density matrices for the final state.
+
+       e0
+            The energy of the initial state.
+
+       e1
+            The energy of the final state.
+
+       g0
+            The derivative of the energy for the initial state.
+
+       g1
+            The derivative of the energy for the initial state.
+
+       This method interpolates between two state with a parameter lambda going
+       from 0 to 1. The arguments g0 and g1 are derivatives toward this
+       parameter lambda.
+
+       **Optional arguments:**
+
+       do_plot
+            When set to True, a plot is made to visualize the interpolation.
+            Otherwise, an AssertionError is made if the error on the
+            interpolation. is too large.
+
+       This function is mainly useful as a tool to double check the
+       implementation of Fock matrices.
+    '''
     # coefficients of the polynomial a*x**3 + b*x**2 + c*x + d
     d = e0
     c = g0

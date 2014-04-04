@@ -34,7 +34,7 @@ __all__ = []
 
 class DIISSCFSolver(object):
     '''Base class for all DIIS SCF solvers'''
-    kind = 'dm'
+    kind = 'dm' # input/output variable is the density matrix
 
     def __init__(self, DIISHistoryClass, threshold=1e-6, maxiter=128, nvector=6, skip_energy=False, prune_old_states=False):
         '''
@@ -72,12 +72,12 @@ class DIISSCFSolver(object):
 
     @timer.with_section('SCF')
     def __call__(self, ham, lf, overlap, occ_model, *dms):
-        '''Minimize the energy of the closed-shell wavefunction with EDIIS
+        '''Find a self-consistent set of density matrices.
 
            **Arguments:**
 
            ham
-                A Hamiltonian instance.
+                An effective Hamiltonian.
 
            lf
                 The linalg factory to be used.
@@ -271,11 +271,13 @@ class DIISSCFSolver(object):
         return counter
 
     def error(self, ham, lf, overlap, *dms):
+        '''See :py:func:`horton.meanfield.convergence.convergence_error_commutator`.'''
         return convergence_error_commutator(ham, lf, overlap, *dms)
 
 
 class DIISState(object):
     '''A single record (vector) in a DIIS history object.'''
+
     def __init__(self, lf, ndm, work, overlap):
         '''
            **Arguments:**
@@ -401,6 +403,18 @@ class DIISHistory(object):
         log.blank()
 
     def solve(self, dms_output, focks_output):
+        '''Inter- or extrapolate new density and/or fock matrices.
+
+           **Arguments:**
+
+           dms_output
+                The output for the density matrices. If set to None, this is
+                argument is ignored.
+
+           focks_output
+                The output for the Fock matrices. If set to None, this is
+                argument is ignored.
+        '''
         raise NotImplementedError
 
     def shrink(self):
@@ -445,7 +459,22 @@ class DIISHistory(object):
         return np.sqrt(state.normsq)
 
     def _build_combinations(self, coeffs, dms_output, focks_output):
-        '''Construct a linear combination of density/fock matrices'''
+        '''Construct a linear combination of density/fock matrices
+
+           **Arguments:**
+
+           coeffs
+                The linear mixing coefficients for the previous SCF states.
+
+           dms_output
+                A list of output density matrices. (Ignored if None)
+
+           focks_output
+                A list of output density matrices. (Ignored if None)
+
+           **Returns:** the commutator error, only when both dms_output and
+           focks_output are given.
+        '''
         if dms_output is not None:
             if len(dms_output) != self.ndm:
                 raise TypeError('The number of density matrices must match the ndm parameter.')
@@ -466,7 +495,19 @@ class DIISHistory(object):
             return errorsq**0.5
 
     def _linear_combination(self, coeffs, ops, output):
-        '''Make a linear combination of one-body objects'''
+        '''Make a linear combination of one-body objects
+
+           **Arguments:**
+
+           coeffs
+                The linear mixing coefficients for the previous SCF states.
+
+           ops
+                A list of input operators.
+
+           output
+                The output operator.
+        '''
         output.clear()
         for i in xrange(self.nused):
             output.iadd(ops[i], factor=coeffs[i])

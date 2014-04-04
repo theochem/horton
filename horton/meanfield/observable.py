@@ -81,11 +81,11 @@ class ROneBodyTerm(Observable):
         Observable.__init__(self, label)
 
     def compute(self, cache):
-        '''See ``Observable.compute``'''
+        '''See :py:meth:`Observable.compute`.'''
         return 2 * self.op_alpha.expectation_value(cache['dm_alpha'])
 
     def add_fock(self, cache, fock_alpha):
-        '''See ``Observable.add_fock``'''
+        '''See py:meth:`Observable.add_fock`.'''
         fock_alpha.iadd(self.op_alpha)
 
 
@@ -99,7 +99,7 @@ class UOneBodyTerm(Observable):
         Observable.__init__(self, label)
 
     def compute(self, cache):
-        '''See ``Observable.compute``'''
+        '''See :py:meth:`Observable.compute`.'''
         if self.op_alpha is self.op_beta:
             # when both operators are references to the same object, take a
             # shortcut
@@ -112,7 +112,7 @@ class UOneBodyTerm(Observable):
                    self.op_beta.expectation_value(cache['dm_beta'])
 
     def add_fock(self, cache, fock_alpha, fock_beta):
-        '''See ``Observable.add_fock``'''
+        '''See py:meth:`Observable.add_fock`.'''
         fock_alpha.iadd(self.op_alpha)
         fock_beta.iadd(self.op_beta)
 
@@ -131,11 +131,13 @@ class RDirectTerm(Observable):
             direct.iscale(2) # contribution from beta electrons is identical
 
     def compute(self, cache):
+        '''See :py:meth:`Observable.compute`.'''
         self._update_direct(cache)
         direct = cache.load('op_%s_alpha' % self.label)
         return direct.expectation_value(cache['dm_alpha'])
 
     def add_fock(self, cache, fock_alpha):
+        '''See py:meth:`Observable.add_fock`.'''
         self._update_direct(cache)
         direct = cache.load('op_%s_alpha' % self.label)
         fock_alpha.iadd(direct)
@@ -161,6 +163,7 @@ class UDirectTerm(Observable):
             raise NotImplementedError
 
     def compute(self, cache):
+        '''See :py:meth:`Observable.compute`.'''
         self._update_direct(cache)
         if self.op_alpha is self.op_beta:
             # This branch is nearly always going to be followed in practice.
@@ -173,6 +176,7 @@ class UDirectTerm(Observable):
             raise NotImplementedError
 
     def add_fock(self, cache, fock_alpha, fock_beta):
+        '''See py:meth:`Observable.add_fock`.'''
         self._update_direct(cache)
         if self.op_alpha is self.op_beta:
             # This branch is nearly always going to be followed in practice.
@@ -200,12 +204,14 @@ class RExchangeTerm(Observable):
             self.op_alpha.apply_exchange(dm_alpha, exchange_alpha)
 
     def compute(self, cache):
+        '''See :py:meth:`Observable.compute`.'''
         self._update_exchange(cache)
         exchange_alpha = cache['op_%s_alpha' % self.label]
         dm_alpha = cache['dm_alpha']
         return -self.fraction * exchange_alpha.expectation_value(dm_alpha)
 
     def add_fock(self, cache, fock_alpha):
+        '''See py:meth:`Observable.add_fock`.'''
         self._update_exchange(cache)
         exchange_alpha = cache['op_%s_alpha' % self.label]
         fock_alpha.iadd(exchange_alpha, -self.fraction)
@@ -234,6 +240,7 @@ class UExchangeTerm(Observable):
             self.op_beta.apply_exchange(dm_beta, exchange_beta)
 
     def compute(self, cache):
+        '''See :py:meth:`Observable.compute`.'''
         self._update_exchange(cache)
         exchange_alpha = cache['op_%s_alpha' % self.label]
         exchange_beta = cache['op_%s_beta' % self.label]
@@ -243,6 +250,7 @@ class UExchangeTerm(Observable):
                -0.5 * self.fraction * exchange_beta.expectation_value(dm_beta)
 
     def add_fock(self, cache, fock_alpha, fock_beta):
+        '''See py:meth:`Observable.add_fock`.'''
         self._update_exchange(cache)
         exchange_alpha = cache['op_%s_alpha' % self.label]
         fock_alpha.iadd(exchange_alpha, -self.fraction)

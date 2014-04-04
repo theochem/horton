@@ -30,15 +30,50 @@ __all__ = ['PlainSCFSolver']
 
 
 class PlainSCFSolver(object):
-    kind = 'exp' # basic variable is the wfn expansion
+    '''A bare-bones SCF solver without mixing.'''
+    kind = 'exp' # input/output variable is the wfn expansion
 
     def __init__(self, threshold=1e-8, maxiter=128, skip_energy=False):
+        '''
+           **Optional arguments:**
+
+           maxiter
+                The maximum number of iterations. When set to None, the SCF loop
+                will go one until convergence is reached.
+
+           threshold
+                The convergence threshold for the wavefunction
+
+           skip_energy
+                When set to True, the final energy is not computed. Note that some
+                DIIS variants need to compute the energy anyway. for these methods
+                this option is irrelevant.
+        '''
         self.maxiter = maxiter,
         self.threshold = threshold
         self.skip_energy = skip_energy
 
     @timer.with_section('SCF')
     def __call__(self, ham, lf, overlap, occ_model, *exps):
+        '''Find a self-consistent set of orbitals.
+
+           **Arguments:**
+
+           ham
+                An effective Hamiltonian.
+
+           lf
+                The linalg factory to be used.
+
+           overlap
+                The overlap operator.
+
+           occ_model
+                Model for the orbital occupations.
+
+           exp1, exp2, ...
+                The initial orbitals. The number of dms must match ham.ndm.
+        '''
         # Some type checking
         if ham.ndm != len(exps):
             raise TypeError('The number of initial orbital expansions does not match the Hamiltonian.')
@@ -97,4 +132,5 @@ class PlainSCFSolver(object):
         return counter
 
     def error(self, ham, lf, overlap, *exps):
+        '''See :py:func:`horton.meanfield.convergence.convergence_error_eigen`.'''
         return convergence_error_eigen(ham, lf, overlap, *exps)

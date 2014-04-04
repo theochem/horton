@@ -31,13 +31,23 @@ __all__ = [
 
 
 class EffHam(object):
-    # The number of input density matrices (and output fock matrices).
+    '''Base class for the effective Hamiltonians
+
+       **Attributes:**
+
+       ndm
+            The number of input density matrices and output fock matrices (e.g.
+            ndm=1 for restricted wfns, ndm=2 for unrestricted wfns.)
+
+       deriv_scale
+            In principle, the fock matrix is the derivative of the expectation
+            value towards the density matrix elements. In practice, this is not
+            always the case. Depending on the type of effective Hamiltonian, the
+            fock matrices must be multiplied with a factor to obtain proper
+            derivatives. This factor is stored in the class attribute
+            ``deriv_scale``. It defaults to 1.0.
+    '''
     ndm = None
-    # In principle, the fock matrix is the derivative of the expectation value
-    # towards the density matrix elements. In practice, this is not always the
-    # case. Depending on the type of effective Hamiltonian, the fock matrices
-    # must be multiplied with a factor to obtain proper derivatives. This
-    # factor is stored in the class attribute deriv_scale. It defaults to 1.0.
     deriv_scale = 1.0
 
     def __init__(self, terms, external=None):
@@ -138,14 +148,14 @@ class REffHam(EffHam):
     deriv_scale = 2.0
 
     def reset(self, in_dm_alpha):
-        '''See ``EffHam.reset``'''
+        '''See :py:meth:`EffHam.reset`.'''
         self.cache.clear()
         # Take a copy of the input alpha density matrix in the cache.
         dm_alpha = self.cache.load('dm_alpha', alloc=in_dm_alpha.new)[0]
         dm_alpha.assign(in_dm_alpha)
 
     def compute_fock(self, fock_alpha):
-        '''See ``EffHam.compute_fock``'''
+        '''See :py:meth:`EffHam.compute_fock`.'''
         EffHam.compute_fock(self, fock_alpha)
 
 
@@ -153,7 +163,7 @@ class UEffHam(EffHam):
     ndm = 2
 
     def reset(self, in_dm_alpha, in_dm_beta):
-        '''See ``EffHam.reset``'''
+        '''See :py:meth:`EffHam.reset`.'''
         self.cache.clear()
         # Take copies of the input alpha and beta density matrices in the cache.
         dm_alpha = self.cache.load('dm_alpha', alloc=in_dm_alpha.new)[0]
@@ -162,5 +172,5 @@ class UEffHam(EffHam):
         dm_beta.assign(in_dm_beta)
 
     def compute_fock(self, fock_alpha, fock_beta):
-        '''See ``EffHam.compute_fock``'''
+        '''See :py:meth:`EffHam.compute_fock`.'''
         EffHam.compute_fock(self, fock_alpha, fock_beta)
