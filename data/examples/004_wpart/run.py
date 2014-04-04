@@ -15,4 +15,4 @@ wpart = BeckeWPart(mol.coordinates, mol.numbers, mol.pseudo_numbers, grid, molde
 wpart.do_charges()
 
 # Write the result to a file
-np.savetxt('charges.txt', bp['charges'])
+np.savetxt('charges.txt', wpart['charges'])
