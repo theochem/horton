@@ -37,14 +37,14 @@ def test_cubic_interpolation_c_pbe_cs():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        RestrictedOneBodyTerm(kin, 'kin'),
-        RestrictedDirectTerm(er, 'hartree'),
-        RestrictedGridGroup(mol.obasis, grid, [
-            RestrictedLibXCGGA('c_pbe'),
+        ROneBodyTerm(kin, 'kin'),
+        RDirectTerm(er, 'hartree'),
+        RGridGroup(mol.obasis, grid, [
+            RLibXCGGA('c_pbe'),
         ]),
-        RestrictedOneBodyTerm(na, 'ne'),
+        ROneBodyTerm(na, 'ne'),
     ]
-    ham = RestrictedEffectiveHamiltonian(terms)
+    ham = REffHam(terms)
     check_interpolation(ham, mol.lf, olp, kin, na, [mol.exp_alpha])
 
 
@@ -58,14 +58,14 @@ def test_cubic_interpolation_x_pbe_cs():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        RestrictedOneBodyTerm(kin, 'kin'),
-        RestrictedDirectTerm(er, 'hartree'),
-        RestrictedGridGroup(mol.obasis, grid, [
-            RestrictedLibXCGGA('x_pbe'),
+        ROneBodyTerm(kin, 'kin'),
+        RDirectTerm(er, 'hartree'),
+        RGridGroup(mol.obasis, grid, [
+            RLibXCGGA('x_pbe'),
         ]),
-        RestrictedOneBodyTerm(na, 'ne'),
+        ROneBodyTerm(na, 'ne'),
     ]
-    ham = RestrictedEffectiveHamiltonian(terms)
+    ham = REffHam(terms)
     check_interpolation(ham, mol.lf, olp, kin, na, [mol.exp_alpha])
 
 
@@ -79,14 +79,14 @@ def test_cubic_interpolation_hfs_cs():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        RestrictedOneBodyTerm(kin, 'kin'),
-        RestrictedDirectTerm(er, 'hartree'),
-        RestrictedGridGroup(mol.obasis, grid, [
-            RestrictedLibXCLDA('x'),
+        ROneBodyTerm(kin, 'kin'),
+        RDirectTerm(er, 'hartree'),
+        RGridGroup(mol.obasis, grid, [
+            RLibXCLDA('x'),
         ]),
-        RestrictedOneBodyTerm(na, 'ne'),
+        ROneBodyTerm(na, 'ne'),
     ]
-    ham = RestrictedEffectiveHamiltonian(terms)
+    ham = REffHam(terms)
     check_interpolation(ham, mol.lf, olp, kin, na, [mol.exp_alpha])
 
 
@@ -99,15 +99,15 @@ def test_cubic_interpolation_o3lyp_cs():
     kin = mol.obasis.compute_kinetic(mol.lf)
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
-    libxc_term = RestrictedLibXCHybridGGA('xc_o3lyp')
+    libxc_term = RLibXCHybridGGA('xc_o3lyp')
     terms = [
-        RestrictedOneBodyTerm(kin, 'kin'),
-        RestrictedDirectTerm(er, 'hartree'),
-        RestrictedGridGroup(mol.obasis, grid, [libxc_term]),
-        RestrictedExchangeTerm(er, 'x_hf', libxc_term.get_exx_fraction()),
-        RestrictedOneBodyTerm(na, 'ne'),
+        ROneBodyTerm(kin, 'kin'),
+        RDirectTerm(er, 'hartree'),
+        RGridGroup(mol.obasis, grid, [libxc_term]),
+        RExchangeTerm(er, 'x_hf', libxc_term.get_exx_fraction()),
+        ROneBodyTerm(na, 'ne'),
     ]
-    ham = RestrictedEffectiveHamiltonian(terms)
+    ham = REffHam(terms)
     check_interpolation(ham, mol.lf, olp, kin, na, [mol.exp_alpha])
 
 
@@ -121,14 +121,14 @@ def test_cubic_interpolation_c_pbe_os():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        UnrestrictedOneBodyTerm(kin, 'kin'),
-        UnrestrictedDirectTerm(er, 'hartree'),
-        UnrestrictedGridGroup(mol.obasis, grid, [
-            UnrestrictedLibXCGGA('c_pbe'),
+        UOneBodyTerm(kin, 'kin'),
+        UDirectTerm(er, 'hartree'),
+        UGridGroup(mol.obasis, grid, [
+            ULibXCGGA('c_pbe'),
         ]),
-        UnrestrictedOneBodyTerm(na, 'ne'),
+        UOneBodyTerm(na, 'ne'),
     ]
-    ham = UnrestrictedEffectiveHamiltonian(terms)
+    ham = UEffHam(terms)
     check_interpolation(ham, mol.lf, olp, kin, na, [mol.exp_alpha, mol.exp_beta])
 
 
@@ -142,14 +142,14 @@ def test_cubic_interpolation_x_pbe_os():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        UnrestrictedOneBodyTerm(kin, 'kin'),
-        UnrestrictedDirectTerm(er, 'hartree'),
-        UnrestrictedGridGroup(mol.obasis, grid, [
-            UnrestrictedLibXCGGA('x_pbe'),
+        UOneBodyTerm(kin, 'kin'),
+        UDirectTerm(er, 'hartree'),
+        UGridGroup(mol.obasis, grid, [
+            ULibXCGGA('x_pbe'),
         ]),
-        UnrestrictedOneBodyTerm(na, 'ne'),
+        UOneBodyTerm(na, 'ne'),
     ]
-    ham = UnrestrictedEffectiveHamiltonian(terms)
+    ham = UEffHam(terms)
     check_interpolation(ham, mol.lf, olp, kin, na, [mol.exp_alpha, mol.exp_beta])
 
 
@@ -163,14 +163,14 @@ def test_cubic_interpolation_hfs_os():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        UnrestrictedOneBodyTerm(kin, 'kin'),
-        UnrestrictedDirectTerm(er, 'hartree'),
-        UnrestrictedGridGroup(mol.obasis, grid, [
-            UnrestrictedLibXCLDA('x'),
+        UOneBodyTerm(kin, 'kin'),
+        UDirectTerm(er, 'hartree'),
+        UGridGroup(mol.obasis, grid, [
+            ULibXCLDA('x'),
         ]),
-        UnrestrictedOneBodyTerm(na, 'ne'),
+        UOneBodyTerm(na, 'ne'),
     ]
-    ham = UnrestrictedEffectiveHamiltonian(terms)
+    ham = UEffHam(terms)
     check_interpolation(ham, mol.lf, olp, kin, na, [mol.exp_alpha, mol.exp_beta])
 
 
@@ -183,15 +183,15 @@ def test_cubic_interpolation_o3lyp_os():
     kin = mol.obasis.compute_kinetic(mol.lf)
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
-    libxc_term = UnrestrictedLibXCHybridGGA('xc_o3lyp')
+    libxc_term = ULibXCHybridGGA('xc_o3lyp')
     terms = [
-        UnrestrictedOneBodyTerm(kin, 'kin'),
-        UnrestrictedDirectTerm(er, 'hartree'),
-        UnrestrictedGridGroup(mol.obasis, grid, [libxc_term]),
-        UnrestrictedExchangeTerm(er, 'x_hf', libxc_term.get_exx_fraction()),
-        UnrestrictedOneBodyTerm(na, 'ne'),
+        UOneBodyTerm(kin, 'kin'),
+        UDirectTerm(er, 'hartree'),
+        UGridGroup(mol.obasis, grid, [libxc_term]),
+        UExchangeTerm(er, 'x_hf', libxc_term.get_exx_fraction()),
+        UOneBodyTerm(na, 'ne'),
     ]
-    ham = UnrestrictedEffectiveHamiltonian(terms)
+    ham = UEffHam(terms)
     check_interpolation(ham, mol.lf, olp, kin, na, [mol.exp_alpha, mol.exp_beta])
 
 
@@ -199,21 +199,21 @@ def test_hyb_gga_exx_fraction():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     mol = Molecule.from_file(fn_fchk)
     # xc_pbeh = The PBE0 functional
-    t = RestrictedLibXCHybridGGA('xc_pbeh')
+    t = RLibXCHybridGGA('xc_pbeh')
     assert t.get_exx_fraction() == 0.25
-    t = UnrestrictedLibXCHybridGGA('xc_pbeh')
+    t = ULibXCHybridGGA('xc_pbeh')
     assert t.get_exx_fraction() == 0.25
 
 
 def test_lda_c_vwn_present():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     mol = Molecule.from_file(fn_fchk)
-    t = RestrictedLibXCLDA('c_vwn')     # The VWN 5 functional
-    t = RestrictedLibXCLDA('c_vwn_4')   # The VWN 4 functional
+    t = RLibXCLDA('c_vwn')     # The VWN 5 functional
+    t = RLibXCLDA('c_vwn_4')   # The VWN 4 functional
 
 
 def test_info():
-    t = RestrictedLibXCWrapper('lda_x')
+    t = RLibXCWrapper('lda_x')
     assert t.key == 'lda_x'
     t.name
     t.number

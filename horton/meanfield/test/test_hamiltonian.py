@@ -35,13 +35,13 @@ def test_energy_hydrogen():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        UnrestrictedOneBodyTerm(kin, 'kin'),
-        UnrestrictedDirectTerm(er, 'hartree'),
-        UnrestrictedExchangeTerm(er, 'x_hf'),
-        UnrestrictedOneBodyTerm(na, 'ne'),
+        UOneBodyTerm(kin, 'kin'),
+        UDirectTerm(er, 'hartree'),
+        UExchangeTerm(er, 'x_hf'),
+        UOneBodyTerm(na, 'ne'),
     ]
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
-    ham = UnrestrictedEffectiveHamiltonian(terms, external)
+    ham = UEffHam(terms, external)
     helper_compute(ham, mol.lf, mol.exp_alpha, mol.exp_beta)
     assert abs(ham.cache['energy'] - -4.665818503844346E-01) < 1e-8
 
@@ -56,14 +56,14 @@ def test_cubic_interpolation_hfs_cs():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        RestrictedOneBodyTerm(kin, 'kin'),
-        RestrictedDirectTerm(er, 'hartree'),
-        RestrictedGridGroup(mol.obasis, grid, [
-            RestrictedDiracExchange(),
+        ROneBodyTerm(kin, 'kin'),
+        RDirectTerm(er, 'hartree'),
+        RGridGroup(mol.obasis, grid, [
+            RDiracExchange(),
         ]),
-        RestrictedOneBodyTerm(na, 'ne'),
+        ROneBodyTerm(na, 'ne'),
     ]
-    ham = RestrictedEffectiveHamiltonian(terms)
+    ham = REffHam(terms)
 
     check_interpolation(ham, mol.lf, olp, kin, na, [mol.exp_alpha])
 
@@ -79,12 +79,12 @@ def test_perturbation():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        RestrictedOneBodyTerm(kin, 'kin'),
-        RestrictedDirectTerm(er, 'hartree'),
-        RestrictedExchangeTerm(er, 'x_hf'),
-        RestrictedOneBodyTerm(na, 'ne'),
+        ROneBodyTerm(kin, 'kin'),
+        RDirectTerm(er, 'hartree'),
+        RExchangeTerm(er, 'x_hf'),
+        ROneBodyTerm(na, 'ne'),
     ]
-    ham = RestrictedEffectiveHamiltonian(terms)
+    ham = REffHam(terms)
     occ_model = AufbauOccModel(7)
 
     assert convergence_error_eigen(ham, mol.lf, olp, mol.exp_alpha) > 1e-8
@@ -108,16 +108,16 @@ def test_perturbation():
         # Perturbation
         tmp = operator.copy()
         tmp.iscale(scale)
-        perturbation = RestrictedOneBodyTerm(tmp, 'pert')
+        perturbation = ROneBodyTerm(tmp, 'pert')
         # Hamiltonian
         terms = [
-            RestrictedOneBodyTerm(kin, 'kin'),
-            RestrictedDirectTerm(er, 'hartree'),
-            RestrictedExchangeTerm(er, 'x_hf'),
-            RestrictedOneBodyTerm(na, 'ne'),
+            ROneBodyTerm(kin, 'kin'),
+            RDirectTerm(er, 'hartree'),
+            RExchangeTerm(er, 'x_hf'),
+            ROneBodyTerm(na, 'ne'),
             perturbation,
         ]
-        ham = RestrictedEffectiveHamiltonian(terms)
+        ham = REffHam(terms)
         assert convergence_error_eigen(ham, mol.lf, olp, mol.exp_alpha) > 1e-8
         scf_solver(ham, mol.lf, olp, occ_model, mol.exp_alpha)
         assert convergence_error_eigen(ham, mol.lf, olp, mol.exp_alpha) < 1e-8
@@ -139,12 +139,12 @@ def test_ghost_hf():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        RestrictedOneBodyTerm(kin, 'kin'),
-        RestrictedDirectTerm(er, 'hartree'),
-        RestrictedExchangeTerm(er, 'x_hf'),
-        RestrictedOneBodyTerm(na, 'ne'),
+        ROneBodyTerm(kin, 'kin'),
+        RDirectTerm(er, 'hartree'),
+        RExchangeTerm(er, 'x_hf'),
+        ROneBodyTerm(na, 'ne'),
     ]
-    ham = RestrictedEffectiveHamiltonian(terms)
+    ham = REffHam(terms)
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
     assert convergence_error_eigen(ham, mol.lf, olp, mol.exp_alpha) < 1e-5

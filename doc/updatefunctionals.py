@@ -56,7 +56,7 @@ for splitkey in splitkeys:
 
 # make a rst table of all functionals
 
-from horton import RestrictedLibXCWrapper
+from horton import RLibXCWrapper
 from cStringIO import StringIO
 from common import write_if_changed
 
@@ -72,7 +72,7 @@ print >> s, '(The MGGA functionals are not supported yet in Horton.)'
 print >> s
 for key in keys:
     print >> s, '**%s**' % key
-    w = RestrictedLibXCWrapper(key)
+    w = RLibXCWrapper(key)
     print >> s, '   | %s' % w.name
     for line in w.refs.split('\n'):
         print >> s, '   | *%s*' % line

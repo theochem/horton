@@ -25,7 +25,7 @@ from horton.meanfield.observable import Observable
 
 
 __all__ = [
-    'GridGroup', 'RestrictedGridGroup', 'UnrestrictedGridGroup',
+    'GridGroup', 'RGridGroup', 'UGridGroup',
     'GridObservable'
 ]
 
@@ -100,7 +100,7 @@ class GridGroup(Observable):
                     gpots[ichannel], focks[ichannel])
 
 
-class RestrictedGridGroup(GridGroup):
+class RGridGroup(GridGroup):
     def _get_potentials(self, cache):
         dpot, new = cache.load('dpot_total_alpha', alloc=self.grid.size)
         dpots = [dpot]
@@ -136,7 +136,7 @@ class RestrictedGridGroup(GridGroup):
                 sigma_full[:] = (grad_rho_full**2).sum(axis=1)
 
 
-class UnrestrictedGridGroup(GridGroup):
+class UGridGroup(GridGroup):
     def _get_potentials(self, cache):
         dpot_alpha, newa = cache.load('dpot_total_alpha', alloc=self.grid.size)
         dpot_beta, newb = cache.load('dpot_total_beta', alloc=self.grid.size)

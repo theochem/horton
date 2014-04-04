@@ -29,14 +29,14 @@ grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers)
 # A closed-shell DFT effective Hamiltonian (LDA)
 external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
 terms = [
-    RestrictedOneBodyTerm(kin, 'kin'),
-    RestrictedDirectTerm(er, 'hartree'),
-    RestrictedGridGroup(obasis, grid, [
-        RestrictedDiracExchange(),
+    ROneBodyTerm(kin, 'kin'),
+    RDirectTerm(er, 'hartree'),
+    RGridGroup(obasis, grid, [
+        RDiracExchange(),
     ]),
-    RestrictedOneBodyTerm(na, 'ne'),
+    ROneBodyTerm(na, 'ne'),
 ]
-ham = RestrictedEffectiveHamiltonian(terms, external)
+ham = REffHam(terms, external)
 
 # Decide how to occupy the orbitals (5 alpha electrons)
 occ_model = AufbauOccModel(5)

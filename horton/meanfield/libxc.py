@@ -25,13 +25,13 @@ import numpy as np
 
 from horton.log import log, timer
 from horton.meanfield.gridgroup import GridObservable
-from horton.meanfield.cext import RestrictedLibXCWrapper, UnrestrictedLibXCWrapper
+from horton.meanfield.cext import RLibXCWrapper, ULibXCWrapper
 
 
 __all__ = [
-    'RestrictedLibXCLDA', 'UnrestrictedLibXCLDA',
-    'RestrictedLibXCGGA', 'UnrestrictedLibXCGGA',
-    'RestrictedLibXCHybridGGA', 'UnrestrictedLibXCHybridGGA',
+    'RLibXCLDA', 'ULibXCLDA',
+    'RLibXCGGA', 'ULibXCGGA',
+    'RLibXCHybridGGA', 'ULibXCHybridGGA',
 ]
 
 
@@ -59,10 +59,10 @@ class LibXCEnergy(GridObservable):
 
 
 
-class RestrictedLibXCLDA(LibXCEnergy):
+class RLibXCLDA(LibXCEnergy):
     '''Any LDA functional from LibXC for restricted wavefunctions'''
     prefix = 'lda'
-    LibXCWrapper = RestrictedLibXCWrapper
+    LibXCWrapper = RLibXCWrapper
 
     @timer.with_section('LDA edens')
     def compute(self, cache, grid):
@@ -88,10 +88,10 @@ class RestrictedLibXCLDA(LibXCEnergy):
         dpot_alpha += pot
 
 
-class UnrestrictedLibXCLDA(LibXCEnergy):
+class ULibXCLDA(LibXCEnergy):
     '''Any LDA functional from LibXC for unrestricted wavefunctions'''
     prefix = 'lda'
-    LibXCWrapper = UnrestrictedLibXCWrapper
+    LibXCWrapper = ULibXCWrapper
 
     @timer.with_section('LDA edens')
     def compute(self, cache, grid):
@@ -123,10 +123,10 @@ class UnrestrictedLibXCLDA(LibXCEnergy):
         dpot_beta += pot_both[:,1]
 
 
-class RestrictedLibXCGGA(LibXCEnergy):
+class RLibXCGGA(LibXCEnergy):
     gga = True
     prefix = 'gga'
-    LibXCWrapper = RestrictedLibXCWrapper
+    LibXCWrapper = RLibXCWrapper
 
     @timer.with_section('GGA edens')
     def compute(self, cache, grid):
@@ -167,10 +167,10 @@ class RestrictedLibXCGGA(LibXCEnergy):
         gpot_alpha += gpot
 
 
-class UnrestrictedLibXCGGA(LibXCEnergy):
+class ULibXCGGA(LibXCEnergy):
     gga = True
     prefix = 'gga'
-    LibXCWrapper = UnrestrictedLibXCWrapper
+    LibXCWrapper = ULibXCWrapper
 
     @timer.with_section('GGA edens')
     def compute(self, cache, grid):
@@ -227,7 +227,7 @@ class UnrestrictedLibXCGGA(LibXCEnergy):
         gpot_beta += gpot_xc_beta
 
 
-class RestrictedLibXCHybridGGA(RestrictedLibXCGGA):
+class RLibXCHybridGGA(RLibXCGGA):
     '''Any Hybrid GGA functional from LibXC for restricted wavefunctions'''
     prefix = 'hyb_gga'
 
@@ -235,7 +235,7 @@ class RestrictedLibXCHybridGGA(RestrictedLibXCGGA):
         return self._libxc_wrapper.get_hyb_exx_fraction()
 
 
-class UnrestrictedLibXCHybridGGA(UnrestrictedLibXCGGA):
+class ULibXCHybridGGA(ULibXCGGA):
     '''Any Hybrid GGA functional from LibXC for unrestricted wavefunctions'''
     prefix = 'hyb_gga'
 

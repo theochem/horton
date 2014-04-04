@@ -29,17 +29,17 @@ grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers)
 
 # Construction of Hamiltonian
 external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
-libxc_term = RestrictedLibXCHybridGGA('xc_o3lyp')
+libxc_term = RLibXCHybridGGA('xc_o3lyp')
 terms = [
-    RestrictedOneBodyTerm(kin, 'kin'),
-    RestrictedDirectTerm(er, 'hartree'),
-    RestrictedGridGroup(obasis, grid, [
+    ROneBodyTerm(kin, 'kin'),
+    RDirectTerm(er, 'hartree'),
+    RGridGroup(obasis, grid, [
         libxc_term,
     ]),
-    RestrictedExchangeTerm(er, 'x_hf', libxc_term.get_exx_fraction()),
-    RestrictedOneBodyTerm(na, 'ne'),
+    RExchangeTerm(er, 'x_hf', libxc_term.get_exx_fraction()),
+    ROneBodyTerm(na, 'ne'),
 ]
-ham = RestrictedEffectiveHamiltonian(terms, external)
+ham = REffHam(terms, external)
 
 # Decide how to occupy the orbitals (5 alpha electrons)
 occ_model = AufbauOccModel(5)

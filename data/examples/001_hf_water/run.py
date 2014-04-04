@@ -26,12 +26,12 @@ guess_core_hamiltonian(olp, kin, na, exp_alpha)
 # Construct the restricted HF effective Hamiltonian
 external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
 terms = [
-    RestrictedOneBodyTerm(kin, 'kin'),
-    RestrictedDirectTerm(er, 'hartree'),
-    RestrictedExchangeTerm(er, 'x_hf'),
-    RestrictedOneBodyTerm(na, 'ne'),
+    ROneBodyTerm(kin, 'kin'),
+    RDirectTerm(er, 'hartree'),
+    RExchangeTerm(er, 'x_hf'),
+    ROneBodyTerm(na, 'ne'),
 ]
-ham = RestrictedEffectiveHamiltonian(terms, external)
+ham = REffHam(terms, external)
 
 # Decide how to occupy the orbitals (5 alpha electrons)
 occ_model = AufbauOccModel(5)

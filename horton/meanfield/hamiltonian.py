@@ -26,11 +26,11 @@ from horton.cache import Cache
 
 
 __all__ = [
-    'RestrictedEffectiveHamiltonian', 'UnrestrictedEffectiveHamiltonian'
+    'REffHam', 'UEffHam'
 ]
 
 
-class EffectiveHamiltonian(object):
+class EffHam(object):
     # The number of input density matrices (and output fock matrices).
     ndm = None
     # In principle, the fock matrix is the derivative of the expectation value
@@ -133,27 +133,27 @@ class EffectiveHamiltonian(object):
             term.add_fock(self.cache, *focks)
 
 
-class RestrictedEffectiveHamiltonian(EffectiveHamiltonian):
+class REffHam(EffHam):
     ndm = 1
     deriv_scale = 2.0
 
     def reset(self, in_dm_alpha):
-        '''See ``EffectiveHamiltonian.reset``'''
+        '''See ``EffHam.reset``'''
         self.cache.clear()
         # Take a copy of the input alpha density matrix in the cache.
         dm_alpha = self.cache.load('dm_alpha', alloc=in_dm_alpha.new)[0]
         dm_alpha.assign(in_dm_alpha)
 
     def compute_fock(self, fock_alpha):
-        '''See ``EffectiveHamiltonian.compute_fock``'''
-        EffectiveHamiltonian.compute_fock(self, fock_alpha)
+        '''See ``EffHam.compute_fock``'''
+        EffHam.compute_fock(self, fock_alpha)
 
 
-class UnrestrictedEffectiveHamiltonian(EffectiveHamiltonian):
+class UEffHam(EffHam):
     ndm = 2
 
     def reset(self, in_dm_alpha, in_dm_beta):
-        '''See ``EffectiveHamiltonian.reset``'''
+        '''See ``EffHam.reset``'''
         self.cache.clear()
         # Take copies of the input alpha and beta density matrices in the cache.
         dm_alpha = self.cache.load('dm_alpha', alloc=in_dm_alpha.new)[0]
@@ -162,5 +162,5 @@ class UnrestrictedEffectiveHamiltonian(EffectiveHamiltonian):
         dm_beta.assign(in_dm_beta)
 
     def compute_fock(self, fock_alpha, fock_beta):
-        '''See ``EffectiveHamiltonian.compute_fock``'''
-        EffectiveHamiltonian.compute_fock(self, fock_alpha, fock_beta)
+        '''See ``EffHam.compute_fock``'''
+        EffHam.compute_fock(self, fock_alpha, fock_beta)

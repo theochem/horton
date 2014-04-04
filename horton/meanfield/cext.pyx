@@ -28,7 +28,7 @@ np.import_array()
 
 
 __all__ = [
-    'RestrictedLibXCWrapper', 'UnrestrictedLibXCWrapper'
+    'RLibXCWrapper', 'ULibXCWrapper'
 ]
 
 
@@ -111,7 +111,7 @@ cdef class LibXCWrapper(object):
 
 
 
-cdef class RestrictedLibXCWrapper(LibXCWrapper):
+cdef class RLibXCWrapper(LibXCWrapper):
     def __cinit__(self, bytes key):
         '''
            **Arguments:**
@@ -170,7 +170,7 @@ cdef class RestrictedLibXCWrapper(LibXCWrapper):
         xc_gga_vxc(&self._func, npoint, &rho[0], &sigma[0], &vrho[0], &vsigma[0])
 
 
-cdef class UnrestrictedLibXCWrapper(LibXCWrapper):
+cdef class ULibXCWrapper(LibXCWrapper):
     def __cinit__(self, bytes key):
         '''
            **Arguments:**

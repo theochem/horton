@@ -26,7 +26,7 @@ import numpy as np
 from horton.meanfield.gridgroup import GridObservable
 
 
-__all__ = ['RestrictedDiracExchange', 'UnrestrictedDiracExchange']
+__all__ = ['RDiracExchange', 'UDiracExchange']
 
 
 class DiracExchange(GridObservable):
@@ -69,7 +69,7 @@ class DiracExchange(GridObservable):
         return pot
 
 
-class RestrictedDiracExchange(DiracExchange):
+class RDiracExchange(DiracExchange):
     '''The Dirac Exchange Functional for restricted wavefunctions'''
 
     def compute(self, cache, grid):
@@ -83,7 +83,7 @@ class RestrictedDiracExchange(DiracExchange):
         dpot_alpha += self._update_pot(cache, grid, 'alpha')
 
 
-class UnrestrictedDiracExchange(DiracExchange):
+class UDiracExchange(DiracExchange):
     '''The Dirac Exchange Functional for unrestricted wavefunctions'''
 
     def compute(self, cache, grid):

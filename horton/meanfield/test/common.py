@@ -103,12 +103,12 @@ def check_hf_cs_hf(scf_solver):
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
-        RestrictedOneBodyTerm(kin, 'kin'),
-        RestrictedDirectTerm(er, 'hartree'),
-        RestrictedExchangeTerm(er, 'x_hf'),
-        RestrictedOneBodyTerm(na, 'ne'),
+        ROneBodyTerm(kin, 'kin'),
+        RDirectTerm(er, 'hartree'),
+        RExchangeTerm(er, 'x_hf'),
+        ROneBodyTerm(na, 'ne'),
     ]
-    ham = RestrictedEffectiveHamiltonian(terms, external)
+    ham = REffHam(terms, external)
     occ_model = AufbauOccModel(5)
 
     check_solve(ham, scf_solver, occ_model, mol.lf, olp, kin, na, mol.exp_alpha)
@@ -140,12 +140,12 @@ def check_lih_os_hf(scf_solver):
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
-        UnrestrictedOneBodyTerm(kin, 'kin'),
-        UnrestrictedDirectTerm(er, 'hartree'),
-        UnrestrictedExchangeTerm(er, 'x_hf'),
-        UnrestrictedOneBodyTerm(na, 'ne'),
+        UOneBodyTerm(kin, 'kin'),
+        UDirectTerm(er, 'hartree'),
+        UExchangeTerm(er, 'x_hf'),
+        UOneBodyTerm(na, 'ne'),
     ]
-    ham = UnrestrictedEffectiveHamiltonian(terms, external)
+    ham = UEffHam(terms, external)
     occ_model = AufbauOccModel(2, 1)
 
     check_solve(ham, scf_solver, occ_model, mol.lf, olp, kin, na, mol.exp_alpha, mol.exp_beta)
@@ -184,14 +184,14 @@ def check_water_cs_hfs(scf_solver):
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
-        RestrictedOneBodyTerm(kin, 'kin'),
-        RestrictedDirectTerm(er, 'hartree'),
-        RestrictedGridGroup(mol.obasis, grid, [
-            RestrictedDiracExchange(),
+        ROneBodyTerm(kin, 'kin'),
+        RDirectTerm(er, 'hartree'),
+        RGridGroup(mol.obasis, grid, [
+            RDiracExchange(),
         ]),
-        RestrictedOneBodyTerm(na, 'ne'),
+        ROneBodyTerm(na, 'ne'),
     ]
-    ham = RestrictedEffectiveHamiltonian(terms, external)
+    ham = REffHam(terms, external)
 
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file and different integration grids:
@@ -241,23 +241,23 @@ def check_n2_cs_hfs(scf_solver):
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
 
-    libxc_term = RestrictedLibXCLDA('x')
+    libxc_term = RLibXCLDA('x')
     terms1 = [
-        RestrictedOneBodyTerm(kin, 'kin'),
-        RestrictedDirectTerm(er, 'hartree'),
-        RestrictedGridGroup(mol.obasis, grid, [libxc_term]),
-        RestrictedOneBodyTerm(na, 'ne'),
+        ROneBodyTerm(kin, 'kin'),
+        RDirectTerm(er, 'hartree'),
+        RGridGroup(mol.obasis, grid, [libxc_term]),
+        ROneBodyTerm(na, 'ne'),
     ]
-    ham1 = RestrictedEffectiveHamiltonian(terms1, external)
+    ham1 = REffHam(terms1, external)
 
-    builtin_term = RestrictedDiracExchange()
+    builtin_term = RDiracExchange()
     terms2 = [
-        RestrictedOneBodyTerm(kin, 'kin'),
-        RestrictedDirectTerm(er, 'hartree'),
-        RestrictedGridGroup(mol.obasis, grid, [builtin_term]),
-        RestrictedOneBodyTerm(na, 'ne'),
+        ROneBodyTerm(kin, 'kin'),
+        RDirectTerm(er, 'hartree'),
+        RGridGroup(mol.obasis, grid, [builtin_term]),
+        ROneBodyTerm(na, 'ne'),
     ]
-    ham2 = RestrictedEffectiveHamiltonian(terms2, external)
+    ham2 = REffHam(terms2, external)
 
     # Compare the potential computed by libxc with the builtin implementation
     energy1, focks1 = helper_compute(ham1, mol.lf, mol.exp_alpha)
@@ -310,23 +310,23 @@ def check_h3_os_hfs(scf_solver):
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
 
-    libxc_term = UnrestrictedLibXCLDA('x')
+    libxc_term = ULibXCLDA('x')
     terms1 = [
-        UnrestrictedOneBodyTerm(kin, 'kin'),
-        UnrestrictedDirectTerm(er, 'hartree'),
-        UnrestrictedGridGroup(mol.obasis, grid, [libxc_term]),
-        UnrestrictedOneBodyTerm(na, 'ne'),
+        UOneBodyTerm(kin, 'kin'),
+        UDirectTerm(er, 'hartree'),
+        UGridGroup(mol.obasis, grid, [libxc_term]),
+        UOneBodyTerm(na, 'ne'),
     ]
-    ham1 = UnrestrictedEffectiveHamiltonian(terms1, external)
+    ham1 = UEffHam(terms1, external)
 
-    builtin_term = UnrestrictedDiracExchange()
+    builtin_term = UDiracExchange()
     terms2 = [
-        UnrestrictedOneBodyTerm(kin, 'kin'),
-        UnrestrictedDirectTerm(er, 'hartree'),
-        UnrestrictedGridGroup(mol.obasis, grid, [builtin_term]),
-        UnrestrictedOneBodyTerm(na, 'ne'),
+        UOneBodyTerm(kin, 'kin'),
+        UDirectTerm(er, 'hartree'),
+        UGridGroup(mol.obasis, grid, [builtin_term]),
+        UOneBodyTerm(na, 'ne'),
     ]
-    ham2 = UnrestrictedEffectiveHamiltonian(terms2, external)
+    ham2 = UEffHam(terms2, external)
 
     # Compare the potential computed by libxc with the builtin implementation
     energy1, focks1 = helper_compute(ham1, mol.lf, mol.exp_alpha, mol.exp_beta)
@@ -385,15 +385,15 @@ def check_co_cs_pbe(scf_solver):
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
-        RestrictedOneBodyTerm(kin, 'kin'),
-        RestrictedDirectTerm(er, 'hartree'),
-        RestrictedGridGroup(mol.obasis, grid, [
-            RestrictedLibXCGGA('x_pbe'),
-            RestrictedLibXCGGA('c_pbe'),
+        ROneBodyTerm(kin, 'kin'),
+        RDirectTerm(er, 'hartree'),
+        RGridGroup(mol.obasis, grid, [
+            RLibXCGGA('x_pbe'),
+            RLibXCGGA('c_pbe'),
         ]),
-        RestrictedOneBodyTerm(na, 'ne'),
+        ROneBodyTerm(na, 'ne'),
     ]
-    ham = RestrictedEffectiveHamiltonian(terms, external)
+    ham = REffHam(terms, external)
 
     # Test energy before scf
     energy, focks = helper_compute(ham, mol.lf, mol.exp_alpha)
@@ -435,15 +435,15 @@ def check_h3_os_pbe(scf_solver):
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
-        UnrestrictedOneBodyTerm(kin, 'kin'),
-        UnrestrictedDirectTerm(er, 'hartree'),
-        UnrestrictedGridGroup(mol.obasis, grid, [
-            UnrestrictedLibXCGGA('x_pbe'),
-            UnrestrictedLibXCGGA('c_pbe'),
+        UOneBodyTerm(kin, 'kin'),
+        UDirectTerm(er, 'hartree'),
+        UGridGroup(mol.obasis, grid, [
+            ULibXCGGA('x_pbe'),
+            ULibXCGGA('c_pbe'),
         ]),
-        UnrestrictedOneBodyTerm(na, 'ne'),
+        UOneBodyTerm(na, 'ne'),
     ]
-    ham = UnrestrictedEffectiveHamiltonian(terms, external)
+    ham = UEffHam(terms, external)
 
     # compute the energy before converging
     dm_alpha = mol.exp_alpha.to_dm()

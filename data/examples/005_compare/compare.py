@@ -40,20 +40,20 @@ def main(fns_fchk):
         # define the effective hamiltonian
         if len(exps) == 1:
             terms = [
-                RestrictedOneBodyTerm(kin, 'kin'),
-                RestrictedDirectTerm(er, 'hartree'),
-                RestrictedExchangeTerm(er, 'x_hf'),
-                RestrictedOneBodyTerm(na, 'ne'),
+                ROneBodyTerm(kin, 'kin'),
+                RDirectTerm(er, 'hartree'),
+                RExchangeTerm(er, 'x_hf'),
+                ROneBodyTerm(na, 'ne'),
             ]
-            ham = RestrictedEffectiveHamiltonian(terms)
+            ham = REffHam(terms)
         else:
             terms = [
-                UnrestrictedOneBodyTerm(kin, 'kin'),
-                UnrestrictedDirectTerm(er, 'hartree'),
-                UnrestrictedExchangeTerm(er, 'x_hf'),
-                UnrestrictedOneBodyTerm(na, 'ne'),
+                UOneBodyTerm(kin, 'kin'),
+                UDirectTerm(er, 'hartree'),
+                UExchangeTerm(er, 'x_hf'),
+                UOneBodyTerm(na, 'ne'),
             ]
-            ham = UnrestrictedEffectiveHamiltonian(terms)
+            ham = UEffHam(terms)
 
         # construct initial density matrices
         dms = [exp.to_dm() for exp in exps]

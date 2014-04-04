@@ -65,12 +65,12 @@ def test_project_larger():
     na = obasis1.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf1)
     er = obasis1.compute_electron_repulsion(lf1)
     terms = [
-        RestrictedOneBodyTerm(kin, 'kin'),
-        RestrictedDirectTerm(er, 'hartree'),
-        RestrictedExchangeTerm(er, 'x_hf'),
-        RestrictedOneBodyTerm(na, 'ne'),
+        ROneBodyTerm(kin, 'kin'),
+        RDirectTerm(er, 'hartree'),
+        RExchangeTerm(er, 'x_hf'),
+        ROneBodyTerm(na, 'ne'),
     ]
-    ham = RestrictedEffectiveHamiltonian(terms)
+    ham = REffHam(terms)
 
     # Compute energy after projection
     energy1 = helper_compute(ham, lf1, exp1)[0]
@@ -125,12 +125,12 @@ def test_project_smaller():
     na = obasis1.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf1)
     er = obasis1.compute_electron_repulsion(lf1)
     terms = [
-        UnrestrictedOneBodyTerm(kin, 'kin'),
-        UnrestrictedDirectTerm(er, 'hartree'),
-        UnrestrictedExchangeTerm(er, 'x_hf'),
-        UnrestrictedOneBodyTerm(na, 'ne'),
+        UOneBodyTerm(kin, 'kin'),
+        UDirectTerm(er, 'hartree'),
+        UExchangeTerm(er, 'x_hf'),
+        UOneBodyTerm(na, 'ne'),
     ]
-    ham = UnrestrictedEffectiveHamiltonian(terms)
+    ham = UEffHam(terms)
 
     # Compute energy before SCF
     energy1 = helper_compute(ham, lf1, exp1_alpha, exp1_beta)[0]

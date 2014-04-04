@@ -24,9 +24,9 @@
 __all__ = [
     'compute_dm_full',
     'Observable',
-    'RestrictedOneBodyTerm', 'UnrestrictedOneBodyTerm',
-    'RestrictedDirectTerm', 'UnrestrictedDirectTerm',
-    'RestrictedExchangeTerm', 'UnrestrictedExchangeTerm',
+    'ROneBodyTerm', 'UOneBodyTerm',
+    'RDirectTerm', 'UDirectTerm',
+    'RExchangeTerm', 'UExchangeTerm',
 ]
 
 
@@ -72,7 +72,7 @@ class Observable(object):
         raise NotImplementedError
 
 
-class RestrictedOneBodyTerm(Observable):
+class ROneBodyTerm(Observable):
     '''Class for all observables that are linear in the density matrix of a
        restricted wavefunction.
     '''
@@ -89,7 +89,7 @@ class RestrictedOneBodyTerm(Observable):
         fock_alpha.iadd(self.op_alpha)
 
 
-class UnrestrictedOneBodyTerm(Observable):
+class UOneBodyTerm(Observable):
     '''Class for all observables that are linear in the density matrix of an
        unrestricted wavefunction.
     '''
@@ -117,7 +117,7 @@ class UnrestrictedOneBodyTerm(Observable):
         fock_beta.iadd(self.op_beta)
 
 
-class RestrictedDirectTerm(Observable):
+class RDirectTerm(Observable):
     def __init__(self, op_alpha, label):
         self.op_alpha = op_alpha
         Observable.__init__(self, label)
@@ -141,7 +141,7 @@ class RestrictedDirectTerm(Observable):
         fock_alpha.iadd(direct)
 
 
-class UnrestrictedDirectTerm(Observable):
+class UDirectTerm(Observable):
     def __init__(self, op_alpha, label, op_beta=None):
         self.op_alpha = op_alpha
         self.op_beta = op_alpha if op_beta is None else op_beta
@@ -185,7 +185,7 @@ class UnrestrictedDirectTerm(Observable):
             raise NotImplementedError
 
 
-class RestrictedExchangeTerm(Observable):
+class RExchangeTerm(Observable):
     def __init__(self, op_alpha, label, fraction=1.0):
         self.op_alpha = op_alpha
         self.fraction = fraction
@@ -211,7 +211,7 @@ class RestrictedExchangeTerm(Observable):
         fock_alpha.iadd(exchange_alpha, -self.fraction)
 
 
-class UnrestrictedExchangeTerm(Observable):
+class UExchangeTerm(Observable):
     def __init__(self, op_alpha, label, fraction=1.0, op_beta=None):
         self.op_alpha = op_alpha
         self.op_beta = op_alpha if op_beta is None else op_beta

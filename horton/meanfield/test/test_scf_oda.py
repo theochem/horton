@@ -92,12 +92,12 @@ def test_aufbau_spin():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        UnrestrictedOneBodyTerm(kin, 'kin'),
-        UnrestrictedDirectTerm(er, 'hartree'),
-        UnrestrictedExchangeTerm(er,'x_hf'),
-        UnrestrictedOneBodyTerm(na, 'ne'),
+        UOneBodyTerm(kin, 'kin'),
+        UDirectTerm(er, 'hartree'),
+        UExchangeTerm(er,'x_hf'),
+        UOneBodyTerm(na, 'ne'),
     ]
-    ham = UnrestrictedEffectiveHamiltonian(terms)
+    ham = UEffHam(terms)
 
     # Construct an initial state with instable spin polarization
     guess_core_hamiltonian(olp, kin, na, mol.exp_alpha, mol.exp_beta)
