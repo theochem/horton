@@ -81,17 +81,13 @@ au = 1.0
 
 coulomb = 1.0/1.602176462e-19
 
-# Mol
-
-mol = avogadro
-
 # *** Mass ***
 
 kilogram = 1.0/9.10938188e-31
 
 gram = 1.0e-3*kilogram
 miligram = 1.0e-6*kilogram
-unified = 1.0e-3*kilogram/mol
+unified = 1.0e-3*kilogram/avogadro
 amu = unified
 
 # *** Length ***
@@ -115,8 +111,8 @@ liter = decimeter**3
 joule = 1/4.35974381e-18
 
 calorie = 4.184*joule
-kjmol = 1.0e3*joule/mol
-kcalmol = 1.0e3*calorie/mol
+kjmol = 1.0e3*joule/avogadro
+kcalmol = 1.0e3*calorie/avogadro
 electronvolt = (1.0/coulomb)*joule
 rydberg = 0.5
 

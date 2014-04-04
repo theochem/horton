@@ -11,8 +11,8 @@ mol = Molecule.from_file(fn_fchk)
 # Partition the density with the Becke scheme
 grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, mode='only')
 moldens = mol.obasis.compute_grid_density_dm(mol.get_dm_full(), grid.points)
-bp = BeckeWPart(mol.coordinates, mol.numbers, mol.pseudo_numbers, grid, moldens, local=True)
-bp.do_charges()
+wpart = BeckeWPart(mol.coordinates, mol.numbers, mol.pseudo_numbers, grid, moldens, local=True)
+wpart.do_charges()
 
 # Write the result to a file
 np.savetxt('charges.txt', bp['charges'])
