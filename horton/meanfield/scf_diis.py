@@ -185,7 +185,13 @@ class DIISSCFSolver(object):
             while True:
                 # The following method writes the interpolated dms and focks
                 # in-place.
-                energy_approx, coeffs, cn, method = history.solve(dms, focks)
+                energy_approx, coeffs, cn, method, error = history.solve(dms, focks)
+                # if the error is small on the interpolated state, we have
+                # converged to a solution that may have fractional occupation
+                # numbers.
+                if error < self.threshold:
+                    converged = True
+                    break
                 #if coeffs[coeffs<0].sum() < -1:
                 #    if log.do_high:
                 #        log('          DIIS (coeffs too negative) -> drop %i and retry' % history.stack[0].identity)
@@ -456,6 +462,12 @@ class DIISHistory(object):
             for i in xrange(self.ndm):
                 focks_stack = [self.stack[j].focks[i] for j in xrange(self.nused)]
                 self._linear_combination(coeffs, focks_stack, focks_output[i])
+        if not (dms_output is None or focks_output is None):
+            errorsq = 0.0
+            for i in xrange(self.ndm):
+                compute_commutator(dms_output[i], focks_output[i], self.overlap, self.work, self.commutator)
+                errorsq += self.commutator.expectation_value(self.commutator)
+            return errorsq**0.5
 
     def _linear_combination(self, coeffs, ops, output):
         '''Make a linear combination of one-body objects'''

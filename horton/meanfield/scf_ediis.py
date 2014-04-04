@@ -136,5 +136,5 @@ class EDIISHistory(DIISHistory):
             raise
         cn = qps.compute_cn(coeffs != 0.0)
         # assign extrapolated fock
-        self._build_combinations(coeffs, dms_output, focks_output)
-        return energy, coeffs, cn, 'E'
+        error = self._build_combinations(coeffs, dms_output, focks_output)
+        return energy, coeffs, cn, 'E', error

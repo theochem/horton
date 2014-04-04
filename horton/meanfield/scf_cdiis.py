@@ -108,8 +108,8 @@ class CDIISHistory(DIISHistory):
         absevals = abs(np.linalg.eigvalsh(self.cdots[:self.nused,:self.nused]))
         cn = absevals.max()/absevals.min()
         # assign extrapolated fock
-        self._build_combinations(coeffs, dms_output, focks_output)
-        return None, coeffs, cn, 'C'
+        error = self._build_combinations(coeffs, dms_output, focks_output)
+        return None, coeffs, cn, 'C', error
 
 
 def solve_cdiis(a):

@@ -91,8 +91,8 @@ class EDIIS2History(EDIISHistory, CDIISHistory):
         elif errmax < 1e-4:
             return CDIISHistory.solve(self, dms_output, focks_output)
         else:
-            energy1, coeffs1, cn1, method1 = CDIISHistory.solve(self, None, None)
-            energy2, coeffs2, cn2, method2 = EDIISHistory.solve(self, None, None)
+            energy1, coeffs1, cn1, method1, error = CDIISHistory.solve(self, None, None)
+            energy2, coeffs2, cn2, method2, error = EDIISHistory.solve(self, None, None)
             coeffs = 10*errmax*coeffs2 + (1-10*errmax)*coeffs1
-            self._build_combinations(coeffs, dms_output, focks_output)
-            return None, coeffs, max(cn1, cn2), 'M'
+            error = self._build_combinations(coeffs, dms_output, focks_output)
+            return None, coeffs, max(cn1, cn2), 'M', error
