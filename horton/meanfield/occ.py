@@ -71,10 +71,6 @@ class AufbauOccModel(object):
                 exp.occupations[int(np.floor(nocc))] = nocc - np.floor(nocc)
                 exp.occupations[int(np.ceil(nocc)):] = 0.0
 
-    def log(self):
-        log('Occupation model: %s' % self)
-        log.deflist([('nalpha', self.nalpha), ('nbeta', self.nbeta)])
-
     def check_dms(self, overlap, *dms, **kwargs):
         eps = kwargs.pop('eps', 1e-4)
         if len(kwargs) > 0:
@@ -115,10 +111,6 @@ class AufbauSpinOccModel(object):
                 exp_beta.occupations[ibeta] = min(1.0, nel)
                 ibeta += 1
             nel -= 1
-
-    def log(self):
-        log('Occupation model: %s' % self)
-        log.deflist([('nel', self.nel)])
 
     def check_dms(self, overlap, *dms, **kwargs):
         eps = kwargs.pop('eps', 1e-4)
@@ -211,12 +203,3 @@ class FermiOccModel(FermiBase, AufbauOccModel):
             else:
                 mu, error = find_1d_root(error, (mu0, error0), (mu1, error1), eps=self.eps)
                 exp.occupations[:] = get_occ(mu)
-
-    def log(self):
-        log('Occupation model: %s' % self)
-        log.deflist([
-            ('nalpha', self.nalpha),
-            ('nbeta', self.nbeta),
-            ('temperature', self.temperature),
-            ('eps', self.eps),
-        ])
