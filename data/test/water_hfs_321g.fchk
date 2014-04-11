@@ -1,5 +1,5 @@
-water                                                                   
-SP        RHFS                                                        3-21G               
+water
+SP        RHFS                                                        3-21G
 Number of atoms                            I                3
 Charge                                     I                0
 Multiplicity                               I                1
@@ -114,3 +114,6 @@ Dipole Moment                              R   N=           3
 Quadrupole Moment                          R   N=           6
  -8.89536026E-01  1.14114241E+00 -2.51606382E-01  8.28408371E-17  4.89353090E-17
  -5.47382213E-48
+Polarizability                             R   N=           6
+  7.23806684E+00  6.06514838E-11  8.04213953E+00  1.42180046E-10  1.20021770E-10
+  6.89222663E+00
