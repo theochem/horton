@@ -85,7 +85,7 @@ def symmetry_analysis(coordinates, cell, symmetry, aim_results):
     # associate analysis functions with certain fields
     cases = [
         (scalar_analysis,
-         ['charges', 'populations', 'pseudo_populations',
+         ['charges', 'populations', 'pseudo_populations', 'spin_charges',
           'radial_moments', 'volumes', 'volume_ratios', 'c6s']),
         (cartesian_multipole_analysis,
          ['cartesian_multipoles']),

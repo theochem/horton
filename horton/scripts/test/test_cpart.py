@@ -51,7 +51,7 @@ def test_script_jbw_coarse_h():
     check_script_jbw_coarse('h')
 
 
-def check_script_lta(fn_sym, suffix):
+def check_script_lta(fn_sym, suffix, do_spin=False):
     with tmpdir('horton.scripts.test.test_cpart.test_script_lta_coarse_h_%s' % suffix) as dn:
         # prepare files
         if fn_sym is not None:
@@ -62,21 +62,33 @@ def check_script_lta(fn_sym, suffix):
         fn_cube = 'dens.cube'
         mol = write_random_lta_cube(dn, fn_cube)
 
+        # if needed, write a random spin cube file
+        if do_spin:
+            fn_spin = 'spin.cube'
+            molspin = write_random_lta_cube(dn, fn_spin)
+
         # run the script
         fn_h5 = '%s_cpart.h5' % fn_cube[:-5]
-        if fn_sym is None:
-            check_script('horton-cpart.py %s %s:cpart/h_r1 h atoms.h5' % (fn_cube, fn_h5), dn)
-        else:
-            check_script('horton-cpart.py %s %s:cpart/h_r1 h atoms.h5 --symmetry=%s' % (fn_cube, fn_h5, fn_sym), dn)
+        opts = ''
+        if not (fn_sym is None):
+            opts += ' --symmetry=%s' % fn_sym
+        if do_spin:
+            opts += ' --spindens=%s' % fn_spin
+        check_script('horton-cpart.py %s %s:cpart/h_r1 h atoms.h5 %s' % (fn_cube, fn_h5, opts), dn)
 
         # check the output
         check_files(dn, [fn_h5])
         with h5.File(os.path.join(dn, fn_h5)) as f:
             assert 'cpart' in f
             assert 'h_r1' in f['cpart']
+            assert 'charges' in f['cpart/h_r1']
+            if do_spin:
+                assert 'spin_charges' in f['cpart/h_r1']
             if fn_sym is not None:
                 assert 'symmetry' in f['cpart/h_r1']
                 assert 'charges' in f['cpart/h_r1/symmetry']
+                if do_spin:
+                    assert 'spin_charges' in f['cpart/h_r1/symmetry']
                 assert 'cartesian_multipoles' in f['cpart/h_r1/symmetry']
                 for name, ds in f['cpart/h_r1/symmetry'].iteritems():
                     assert ds.shape[0] == mol.symmetry.natom
@@ -87,5 +99,13 @@ def test_script_lta():
     check_script_lta(None, 'nosym')
 
 
+def test_script_lta_spin():
+    check_script_lta(None, 'nosym_spin', True)
+
+
 def test_script_lta_sym():
     check_script_lta('lta_gulp.cif', 'sym')
+
+
+def test_script_lta_sym_spin():
+    check_script_lta('lta_gulp.cif', 'sym_spin', True)

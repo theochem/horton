@@ -78,6 +78,10 @@ def parse_args():
         help='Perform a symmetry analysis on the AIM results. This option '
              'requires one argument: a CIF file with the generators of the '
              'symmetry of this system and a primitive unit cell.')
+    parser.add_argument('--spindens', default=None, type=str,
+        help='A cube file (compatible with the cube argument) that contains '
+             'the spin density. When given, also the spin charges are '
+             'computed.')
 
     parser.add_argument('--compact', default=None, type=float,
         help='Reduce the cutoff radius of the proatoms such that the tail with '
@@ -97,6 +101,7 @@ def parse_args():
         help='The regularization strength used for the weight corrections')
     parser.add_argument('--maxiter', '-i', default=500, type=int,
         help='The maximum allowed number of iterations. [default=%(default)s]')
+
     parser.add_argument('--threshold', '-t', default=1e-6, type=float,
         help='The iterative scheme is converged when the maximum change of '
              'the charges between two iterations drops below this threshold. '
@@ -123,13 +128,26 @@ def main():
     mol = Molecule.from_file(args.cube)
     ugrid = mol.grid
     if not isinstance(ugrid, UniformGrid):
-        raise TypeError('The specified file does not contain data on a rectangular grid.')
+        raise TypeError('The density cube file does not contain data on a rectangular grid.')
     ugrid.pbc[:] = parse_pbc(args.pbc)
     moldens = mol.cube_data
 
     # Reduce the grid if required
     if args.stride > 1 or args.chop > 0:
         moldens, ugrid = reduce_data(moldens, ugrid, args.stride, args.chop)
+
+    # Load the spin density (optional)
+    if args.spindens is not None:
+        molspin = Molecule.from_file(args.spindens)
+        if not isinstance(molspin.grid, UniformGrid):
+            raise TypeError('The spin cube file does not contain data on a rectangular grid.')
+        spindens = molspin.cube_data
+        if args.stride > 1 or args.chop > 0:
+            spindens = reduce_data(spindens, molspin.grid, args.stride, args.chop)[0]
+        if spindens.shape != moldens.shape:
+            raise TypeError('The shape of the spin cube does not match the shape of the density cube.')
+    else:
+        spindens = None
 
     # Load the proatomdb and make pro-atoms more compact if that is requested
     proatomdb = ProAtomDB.from_file(args.atoms)
@@ -146,9 +164,9 @@ def main():
     # Run the partitioning
     kwargs = dict((key, val) for key, val in vars(args).iteritems() if key in CPartClass.options)
     cpart = cpart_schemes[args.scheme](
-        mol.coordinates, mol.numbers, mol.pseudo_numbers, ugrid, moldens, proatomdb,
-        local=True, wcor_numbers=wcor_numbers, wcor_rcut_max=args.wcor_rcut_max,
-        wcor_rcond=args.wcor_rcond, **kwargs)
+        mol.coordinates, mol.numbers, mol.pseudo_numbers, ugrid, moldens,
+        proatomdb, spindens=spindens, local=True, wcor_numbers=wcor_numbers,
+        wcor_rcut_max=args.wcor_rcut_max, wcor_rcond=args.wcor_rcond, **kwargs)
     names = cpart.do_all()
 
     # Do a symmetry analysis if requested.
