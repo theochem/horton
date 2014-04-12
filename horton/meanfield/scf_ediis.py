@@ -65,7 +65,7 @@ class EDIISHistory(DIISHistory):
     name = 'EDIIS'
     need_energy = True
 
-    def __init__(self, lf, nvector, ndm, overlap):
+    def __init__(self, lf, nvector, ndm, deriv_scale, overlap):
         '''
            **Arguments:**
 
@@ -76,6 +76,9 @@ class EDIISHistory(DIISHistory):
                 The number of density matrices (and fock matrices) in one
                 state.
 
+           deriv_scale
+                The deriv_scale attribute of the Effective Hamiltonian
+
            overlap
                 The overlap matrix.
         '''
@@ -83,7 +86,7 @@ class EDIISHistory(DIISHistory):
         # Note that the dots matrix is not symmetric!
         self.edots = np.empty((nvector, nvector))
         self.edots.fill(np.nan)
-        DIISHistory.__init__(self, lf, nvector, ndm, overlap, [self.edots])
+        DIISHistory.__init__(self, lf, nvector, ndm, deriv_scale, overlap, [self.edots])
 
     def _complete_edots_matrix(self):
         '''Complete the matrix of dot products between density and fock matrices
@@ -115,7 +118,7 @@ class EDIISHistory(DIISHistory):
         for i0 in xrange(self.nused):
             e[i0] = -self.stack[i0].energy
             for i1 in xrange(i0+1):
-                b[i0, i1] = -(self.edots[i0,i0] + self.edots[i1,i1] - self.edots[i0,i1] - self.edots[i1,i0])
+                b[i0, i1] = -0.5*self.deriv_scale*(self.edots[i0,i0] + self.edots[i1,i1] - self.edots[i0,i1] - self.edots[i1,i0])
                 if i0 != i1:
                     b[i1, i0] = b[i0, i1]
         return b, e

@@ -101,12 +101,13 @@ class DIISSCFSolver(object):
             check_dm(dms[i], overlap, lf)
         occ_model.check_dms(overlap, *dms)
 
-        history = self.DIISHistoryClass(lf, self.nvector, ham.ndm, overlap)
-        focks = [lf.create_one_body() for i in xrange(ham.ndm)]
-        exps = [lf.create_expansion() for i in xrange(ham.ndm)]
+        # keep local variables as attributes for inspection/debugging by caller
+        self._history = self.DIISHistoryClass(lf, self.nvector, ham.ndm, ham.deriv_scale, overlap)
+        self._focks = [lf.create_one_body() for i in xrange(ham.ndm)]
+        self._exps = [lf.create_expansion() for i in xrange(ham.ndm)]
 
         if log.do_medium:
-            log('Starting restricted closed-shell %s-SCF' % history.name)
+            log('Starting restricted closed-shell %s-SCF' % self._history.name)
             log.hline()
             log('Iter         Error        CN         Last nv Method          Energy       Change')
             log.hline()
@@ -115,15 +116,15 @@ class DIISSCFSolver(object):
         counter = 0
         while self.maxiter is None or counter < self.maxiter:
             # Construct the Fock operator from scratch if the history is empty:
-            if history.nused == 0:
+            if self._history.nused == 0:
                 # feed the latest density matrices in the hamiltonian
                 ham.reset(*dms)
                 # Construct the Fock operators
-                ham.compute_fock(*focks)
+                ham.compute_fock(*self._focks)
                 # Compute the energy if needed by the history
-                energy = ham.compute() if history.need_energy else None
+                energy = ham.compute() if self._history.need_energy else None
                 # Add the current fock+dm pair to the history
-                error = history.add(energy, dms, focks)
+                error = self._history.add(energy, dms, self._focks)
 
                 # Screen logging
                 if log.do_high:
@@ -136,7 +137,7 @@ class DIISSCFSolver(object):
                 if log.do_medium:
                     energy_str = ' '*20 if energy is None else '% 20.13f' % energy
                     log('%4i %12.5e                         %2i   %20s' % (
-                        counter, error, history.nused, energy_str
+                        counter, error, self._history.nused, energy_str
                     ))
                 if log.do_high:
                     log.blank()
@@ -148,18 +149,18 @@ class DIISSCFSolver(object):
             # Take a regular SCF step using the current fock matrix. Then
             # construct a new density matrix and fock matrix.
             for i in xrange(ham.ndm):
-                exps[i].from_fock(focks[i], overlap)
-            occ_model.assign(*exps)
+                self._exps[i].from_fock(self._focks[i], overlap)
+            occ_model.assign(*self._exps)
             for i in xrange(ham.ndm):
-                exps[i].to_dm(dms[i])
+                self._exps[i].to_dm(dms[i])
             ham.reset(*dms)
-            energy = ham.compute() if history.need_energy else None
-            ham.compute_fock(*focks)
+            energy = ham.compute() if self._history.need_energy else None
+            ham.compute_fock(*self._focks)
 
             # Add the current (dm, fock) pair to the history
             if log.do_high:
                 log('          DIIS add')
-            error = history.add(energy, dms, focks)
+            error = self._history.add(energy, dms, self._focks)
 
             # break when converged
             if error < self.threshold:
@@ -172,7 +173,7 @@ class DIISSCFSolver(object):
             if log.do_medium:
                 energy_str = ' '*20 if energy is None else '% 20.13f' % energy
                 log('%4i %12.5e                         %2i   %20s' % (
-                    counter, error, history.nused, energy_str
+                    counter, error, self._history.nused, energy_str
                 ))
             if log.do_high:
                 log.blank()
@@ -181,7 +182,7 @@ class DIISSCFSolver(object):
             while True:
                 # The following method writes the interpolated dms and focks
                 # in-place.
-                energy_approx, coeffs, cn, method, error = history.solve(dms, focks)
+                energy_approx, coeffs, cn, method, error = self._history.solve(dms, self._focks)
                 # if the error is small on the interpolated state, we have
                 # converged to a solution that may have fractional occupation
                 # numbers.
@@ -190,14 +191,14 @@ class DIISSCFSolver(object):
                     break
                 #if coeffs[coeffs<0].sum() < -1:
                 #    if log.do_high:
-                #        log('          DIIS (coeffs too negative) -> drop %i and retry' % history.stack[0].identity)
-                #    history.shrink()
-                if history.nused <= 2:
+                #        log('          DIIS (coeffs too negative) -> drop %i and retry' % self._history.stack[0].identity)
+                #    self._history.shrink()
+                if self._history.nused <= 2:
                     break
                 if coeffs[-1] == 0.0:
                     if log.do_high:
-                        log('          DIIS (last coeff zero) -> drop %i and retry' % history.stack[0].identity)
-                    history.shrink()
+                        log('          DIIS (last coeff zero) -> drop %i and retry' % self._history.stack[0].identity)
+                    self._history.shrink()
                 else:
                     break
 
@@ -205,13 +206,13 @@ class DIISSCFSolver(object):
                 dms_tmp = [dm.copy() for dm in dms]
                 import matplotlib.pyplot as pt
                 xs = np.linspace(0.0, 1.0, 25)
-                a, b = history._setup_equations()
+                a, b = self._history._setup_equations()
                 energies1 = []
                 energies2 = []
                 for x in xs:
                     x_coeffs = np.array([1-x, x])
                     energies1.append(np.dot(x_coeffs, 0.5*np.dot(a, x_coeffs) - b))
-                    history._build_combinations(x_coeffs, dms_tmp, None)
+                    self._history._build_combinations(x_coeffs, dms_tmp, None)
                     ham.reset(*dms_tmp)
                     energies2.append(ham.compute())
                     print x, energies1[-1], energies2[-1]
@@ -223,18 +224,18 @@ class DIISSCFSolver(object):
                 pt.savefig('diis_test_%05i.png' % counter)
 
             if energy_approx is not None:
-                energy_change = energy_approx - min(state.energy for state in history.stack)
+                energy_change = energy_approx - min(state.energy for state in self._history.stack)
             else:
                 energy_change = None
 
             # log
             if log.do_high:
-                history.log(coeffs)
+                self._history.log(coeffs)
 
             if log.do_medium:
                 change_str = ' '*10 if energy_change is None else '% 12.7f' % energy_change
                 log('%4i              %10.3e %12.7f %2i %s                      %12s' % (
-                    counter, cn, coeffs[-1], history.nused, method,
+                    counter, cn, coeffs[-1], self._history.nused, method,
                     change_str
                 ))
 
@@ -243,11 +244,11 @@ class DIISSCFSolver(object):
 
             if self.prune_old_states:
                 # get rid of old states with zero coeff
-                for i in xrange(history.nused):
+                for i in xrange(self._history.nused):
                     if coeffs[i] == 0.0:
                         if log.do_high:
-                            log('          DIIS insignificant -> drop %i' % history.stack[0].identity)
-                        history.shrink()
+                            log('          DIIS insignificant -> drop %i' % self._history.stack[0].identity)
+                        self._history.shrink()
                     else:
                         break
 
@@ -259,8 +260,8 @@ class DIISSCFSolver(object):
                 log('%4i %12.5e (converged)' % (counter, error))
             log.blank()
 
-        if not self.skip_energy or history.need_energy:
-            if not history.need_energy:
+        if not self.skip_energy or self._history.need_energy:
+            if not self._history.need_energy:
                 ham.compute()
             if log.do_medium:
                 ham.log()
@@ -348,7 +349,7 @@ class DIISHistory(object):
     name = None
     need_energy = None
 
-    def __init__(self, lf, nvector, ndm, overlap, dots_matrices):
+    def __init__(self, lf, nvector, ndm, deriv_scale, overlap, dots_matrices):
         '''
            **Arguments:**
 
@@ -361,6 +362,9 @@ class DIISHistory(object):
            ndm
                 The number of density matrices (and fock matrices) in one
                 state.
+
+           deriv_scale
+                The deriv_scale attribute of the Effective Hamiltonian
 
            overlap
                 The overlap matrix.
@@ -376,6 +380,7 @@ class DIISHistory(object):
         self.work = lf.create_one_body()
         self.stack = [DIISState(lf, ndm, self.work, overlap) for i in xrange(nvector)]
         self.ndm = ndm
+        self.deriv_scale = deriv_scale
         self.overlap = overlap
         self.dots_matrices = dots_matrices
         self.nused = 0

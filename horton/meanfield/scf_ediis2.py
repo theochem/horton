@@ -70,7 +70,7 @@ class EDIIS2History(EDIISHistory, CDIISHistory):
     name = 'EDIIS+DIIS'
     need_energy = True
 
-    def __init__(self, lf, nvector, ndm, overlap):
+    def __init__(self, lf, nvector, ndm, deriv_scale, overlap):
         '''
            **Arguments:**
 
@@ -84,6 +84,9 @@ class EDIIS2History(EDIISHistory, CDIISHistory):
                 The number of density matrices (and fock matrices) in one
                 state.
 
+           deriv_scale
+                The deriv_scale attribute of the Effective Hamiltonian
+
            overlap
                 The overlap matrix.
         '''
@@ -93,7 +96,7 @@ class EDIIS2History(EDIISHistory, CDIISHistory):
         # for the CDIIS part
         self.cdots = np.empty((nvector, nvector))
         self.cdots.fill(np.nan)
-        DIISHistory.__init__(self, lf, nvector, ndm, overlap, [self.edots, self.cdots])
+        DIISHistory.__init__(self, lf, nvector, ndm, deriv_scale, overlap, [self.edots, self.cdots])
 
     def solve(self, dms_output, focks_output):
         '''See :py:meth:`horton.meanfield.scf_diis.DIISHistory.solve`.'''

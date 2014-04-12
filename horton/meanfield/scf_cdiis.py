@@ -68,7 +68,7 @@ class CDIISHistory(DIISHistory):
     name = 'CDIIS'
     need_energy = False
 
-    def __init__(self, lf, nvector, ndm, overlap):
+    def __init__(self, lf, nvector, ndm, deriv_scale, overlap):
         '''
            **Arguments:**
 
@@ -82,12 +82,15 @@ class CDIISHistory(DIISHistory):
                 The number of density matrices (and fock matrices) in one
                 state.
 
+           deriv_scale
+                The deriv_scale attribute of the Effective Hamiltonian
+
            overlap
                 The overlap matrix.
         '''
         self.cdots = np.empty((nvector, nvector))
         self.cdots.fill(np.nan)
-        DIISHistory.__init__(self, lf, nvector, ndm, overlap, [self.cdots])
+        DIISHistory.__init__(self, lf, nvector, ndm, deriv_scale, overlap, [self.cdots])
 
     def _complete_cdots_matrix(self):
         '''Complete the matrix of dot products between commutators
