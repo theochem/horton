@@ -89,7 +89,7 @@ def parse_args():
              'option is to improve the computational efficiency with a minimal '
              'effect on the results. A typical value is 0.01.')
 
-    parser.add_argument('--wcor', default='1-118', type=str,
+    parser.add_argument('--wcor', default='0', type=str,
         help='The elements for which weight corrections are used. This can be '
              'a comma-separated list of element symbols and/or numbers that '
              'includes ranges. For example, "B,7-9" corresponds to boron, '
@@ -159,7 +159,10 @@ def main():
     CPartClass = cpart_schemes[args.scheme]
 
     # List of element numbers for which weight corrections are needed:
-    wcor_numbers = list(iter_elements(args.wcor))
+    if args.wcor == '0':
+        wcor_numbers = []
+    else:
+        wcor_numbers = list(iter_elements(args.wcor))
 
     # Run the partitioning
     kwargs = dict((key, val) for key, val in vars(args).iteritems() if key in CPartClass.options)
