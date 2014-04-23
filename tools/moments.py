@@ -116,7 +116,8 @@ def write_cart_rotation_code(f):
             py1 = get_power(term, y)
             pz1 = get_power(term, z)
             prs = [get_power(term, R[i]) for i in xrange(9)]
-            col = cartesian_powers.index((px1, py1, pz1))
+            col = cartesian_powers.index((px1, py1, pz1)) - cartesian_powers.index((px1+py1+pz1, 0, 0))
+            assert col >= 0
             coeff = 1
             if isinstance(term, Mul):
                 for factor in term.args:
@@ -152,7 +153,7 @@ def write_cart_rotation_code(f):
 
 
 if __name__ == "__main__":
-    with file("cart_poly.inc.cpp", "w") as f:
-        write_cart_poly_code(f)
-    #with file("cart_rotate.inc.py", "w") as f:
-    #    write_cart_rotation_code(f)
+    #with file("cart_poly.inc.cpp", "w") as f:
+    #    write_cart_poly_code(f)
+    with file("cart_rotate.inc.py", "w") as f:
+        write_cart_rotation_code(f)
