@@ -30,7 +30,7 @@ from horton.constants import boltzmann
 
 
 __all__ = [
-    'AufbauOccModel', 'AufbauSpinOccModel', 'FermiOccModel',
+    'FixedOccModel', 'AufbauOccModel', 'AufbauSpinOccModel', 'FermiOccModel',
 ]
 
 
@@ -64,6 +64,30 @@ class OccModel(object):
                 The allowed deviation.
         '''
         raise NotImplementedError
+
+
+class FixedOccModel(OccModel):
+    def __init__(self, *occ_arrays):
+        self.occ_arrays = occ_arrays
+
+    def assign(self, *exps):
+        '''See :py:meth:`OccModel.assign`.'''
+        if len(exps) != len(self.occ_arrays):
+            raise TypeError('Expected %i expansion objects, got %i.' % (len(self.nocc), len(exps)))
+        for exp, occ_array in zip(exps, self.occ_arrays):
+            exp.occupations[:len(occ_array)] = occ_array
+            exp.occupations[len(occ_array):] = 0.0
+
+    def check_dms(self, overlap, *dms, **kwargs):
+        '''See :py:meth:`OccModel.check_dms`.'''
+        eps = kwargs.pop('eps', 1e-4)
+        if len(kwargs) > 0:
+            raise TypeError('Unexpected keyword arguments: %s' % kwargs.keys())
+        if len(dms) != len(self.occ_arrays):
+            raise TypeError('The number of density matrices is incorrect.')
+        for dm, occ_array in zip(dms, self.occ_arrays):
+            assert abs(overlap.expectation_value(dm) - occ_array.sum()) < eps
+
 
 class AufbauOccModel(OccModel):
     '''The standard Aufbau occupation number model.

@@ -95,3 +95,17 @@ def test_fermi_occ_model_os():
         occ_b = mol.exp_beta.occupations
         assert abs(occ_b.sum() - 1.1) < 1e-8
         assert (occ_b[1:] <= occ_b[:-1]).all()
+
+
+def test_fixed_occ_model_os():
+    fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
+    mol = Molecule.from_file(fn_fchk)
+    occs_alpha = np.array([2.0, 0.0, 0.5])
+    occs_beta = np.array([0.0, 0.5, 0.0, 0.0])
+    occ_model = FixedOccModel(occs_alpha, occs_beta)
+    mol.exp_alpha.occupations[:] = 0.2
+    occ_model.assign(mol.exp_alpha, mol.exp_beta)
+    assert (mol.exp_alpha.occupations[:len(occs_alpha)] == occs_alpha).all()
+    assert (mol.exp_alpha.occupations[len(occs_alpha):] == 0.0).all()
+    assert (mol.exp_beta.occupations[:len(occs_beta)] == occs_beta).all()
+    assert (mol.exp_beta.occupations[len(occs_beta):] == 0.0).all()
