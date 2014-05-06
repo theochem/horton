@@ -424,3 +424,72 @@ def test_orbitals_co_ccpv5z_cart():
 def test_orbitals_co_ccpv5z_pure():
     fn_fchk = context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk')
     check_orbitals(Molecule.from_file(fn_fchk))
+
+
+def check_dm_kinetic(fn, eps=1e-100):
+    mol = Molecule.from_file(context.get_fn(fn))
+    lf = mol.lf
+    obasis = mol.obasis
+    dm = mol.get_dm_full()
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'fine', random_rotate=False)
+
+    kin = obasis.compute_kinetic(lf)
+    ekin1 = kin.expectation_value(dm)
+    kindens = obasis.compute_grid_kinetic_dm(dm, grid.points)
+    ekin2 = grid.integrate(kindens)
+    assert abs(ekin1 - ekin2) < eps
+
+    tmp = kin.new()
+    obasis.compute_grid_kinetic_fock(grid.points, grid.weights, np.random.uniform(-1, 1, grid.size), tmp)
+    tmp.check_symmetry()
+
+    kinn = kin.new()
+    obasis.compute_grid_kinetic_fock(grid.points, grid.weights, np.ones(grid.size), kinn)
+    kinn.check_symmetry()
+    ekin3 = kinn.expectation_value(dm)
+    assert abs(ekin1 - ekin3) < eps
+
+
+def test_dm_kinetic_n2_sto3g():
+    check_dm_kinetic('test/n2_hfs_sto3g.fchk', 1e-3)
+
+def test_dm_kinetic_h3_321g():
+    check_dm_kinetic('test/h3_pbe_321g.fchk', 5e-5)
+
+def test_dm_kinetic_co_ccpv5z_cart():
+    check_dm_kinetic('test/co_ccpv5z_cart_hf_g03.fchk', 4e-4)
+
+def test_dm_kinetic_co_ccpv5z_pure():
+    check_dm_kinetic('test/co_ccpv5z_pure_hf_g03.fchk', 4e-4)
+
+
+def test_kinetic_functional_deriv():
+    fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
+    mol = Molecule.from_file(fn_fchk)
+    obasis = mol.obasis
+    dm_full = mol.get_dm_full()
+
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False, mode='keep')
+    pot = grid.points[:,2]
+
+    def fun(x):
+        dm_full._array[:] = x.reshape(obasis.nbasis, -1)
+        f = obasis.compute_grid_kinetic_dm(dm_full, grid.points)
+        return 0.5*grid.integrate(f, f, pot)
+
+    def fun_deriv(x):
+        dm_full._array[:] = x.reshape(obasis.nbasis, -1)
+        result = dm_full.new()
+        tmp = obasis.compute_grid_kinetic_dm(dm_full, grid.points)*pot
+        obasis.compute_grid_kinetic_fock(grid.points, grid.weights, tmp, result)
+        return result._array.ravel()
+
+    eps = 1e-4
+    x = dm_full._array.copy().ravel()
+    dxs = []
+    for i in xrange(100):
+        tmp = np.random.uniform(-eps, +eps, x.shape)*x
+        dxs.append(tmp)
+
+    from horton.test.common import check_delta
+    check_delta(fun, fun_deriv, x, dxs)

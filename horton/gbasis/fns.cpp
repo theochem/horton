@@ -286,6 +286,88 @@ void GB1DMGridGradientFn::compute_fock_from_pot(double* pot, double* work_basis,
 
 
 /*
+    GB1DMGridKineticFn
+*/
+
+
+void GB1DMGridKineticFn::add(double coeff, double alpha0, const double* scales0) {
+    double x = point[0] - r0[0];
+    double y = point[1] - r0[1];
+    double z = point[2] - r0[2];
+    double pre = coeff*exp(-alpha0*(x*x+y*y+z*z));
+    i1p.reset(abs(shell_type0));
+    do {
+        double pre0 = pre*scales0[i1p.ibasis0];
+
+        // For now, simple and inefficient evaluation of polynomial.
+        double poly_x = 1.0;
+        double poly_1x = 1.0;
+        poly_helper(x, i1p.n0[0], &poly_x, &poly_1x);
+        double poly_y = 1.0;
+        double poly_1y = 1.0;
+        poly_helper(y, i1p.n0[1], &poly_y, &poly_1y);
+        double poly_z = 1.0;
+        double poly_1z = 1.0;
+        poly_helper(z, i1p.n0[2], &poly_z, &poly_1z);
+
+        double tmp0 = pre0*poly_x*poly_y*poly_z;
+        double tmp1;
+        // Basis function derivative towards x
+        tmp0 *= -2.0*alpha0;
+        tmp1 = x*tmp0;
+        if (i1p.n0[0] > 0) tmp1 += i1p.n0[0]*pre0*poly_1x*poly_y*poly_z;
+        work_cart[i1p.ibasis0*3  ] += tmp1;
+        // Basis function derivative towards y
+        tmp1 = y*tmp0;
+        if (i1p.n0[1] > 0) tmp1 += i1p.n0[1]*pre0*poly_x*poly_1y*poly_z;
+        work_cart[i1p.ibasis0*3+1] += tmp1;
+        // Basis function derivative towards z
+        tmp1 = z*tmp0;
+        if (i1p.n0[2] > 0) tmp1 += i1p.n0[2]*pre0*poly_x*poly_y*poly_1z;
+        work_cart[i1p.ibasis0*3+2] += tmp1;
+    } while (i1p.inc());
+}
+
+void GB1DMGridKineticFn::compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output, double epsilon, double* dmmaxrow) {
+    double tau = 0.0;
+    for (long ibasis0=0; ibasis0<nbasis; ibasis0++) {
+        double tmp_x = 0;
+        double tmp_y = 0;
+        double tmp_z = 0;
+        for (long ibasis1=0; ibasis1<ibasis0; ibasis1++) {
+            tmp_x += work_basis[ibasis1*3  ]*dm[ibasis0*nbasis+ibasis1];
+            tmp_y += work_basis[ibasis1*3+1]*dm[ibasis0*nbasis+ibasis1];
+            tmp_z += work_basis[ibasis1*3+2]*dm[ibasis0*nbasis+ibasis1];
+        }
+        tmp_x += 0.5*work_basis[ibasis0*3  ]*dm[ibasis0*nbasis+ibasis0];
+        tmp_y += 0.5*work_basis[ibasis0*3+1]*dm[ibasis0*nbasis+ibasis0];
+        tmp_z += 0.5*work_basis[ibasis0*3+2]*dm[ibasis0*nbasis+ibasis0];
+        tau += tmp_x*work_basis[ibasis0*3  ] +
+               tmp_y*work_basis[ibasis0*3+1] +
+               tmp_z*work_basis[ibasis0*3+2];
+    }
+    *output += tau;
+}
+
+void GB1DMGridKineticFn::compute_fock_from_pot(double* pot, double* work_basis, long nbasis, double* output) {
+    for (long ibasis0=0; ibasis0<nbasis; ibasis0++) {
+        double tmp_x = 0.5*(*pot)*work_basis[ibasis0*3  ];
+        double tmp_y = 0.5*(*pot)*work_basis[ibasis0*3+1];
+        double tmp_z = 0.5*(*pot)*work_basis[ibasis0*3+2];
+        for (long ibasis1=0; ibasis1<=ibasis0; ibasis1++) {
+            double result = tmp_x*work_basis[ibasis1*3  ] +
+                            tmp_y*work_basis[ibasis1*3+1] +
+                            tmp_z*work_basis[ibasis1*3+2];
+            output[ibasis1*nbasis+ibasis0] += result;
+            if (ibasis0 != ibasis1) {
+                output[ibasis0*nbasis+ibasis1] += result;
+            }
+        }
+    }
+}
+
+
+/*
     GB2DMGridFn
 */
 

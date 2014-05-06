@@ -822,6 +822,37 @@ cdef class GOBasis(GBasis):
         self._compute_grid1_dm(dm, points, GB1DMGridGradientFn(self.max_shell_type), output, epsilon)
         return output
 
+    def compute_grid_kinetic_dm(self, dm,
+                                np.ndarray[double, ndim=2] points not None,
+                                np.ndarray[double, ndim=1] output=None):
+        '''Compute the kinetic energy density on a grid for a given density matrix.
+
+           **Arguments:**
+
+           dm
+                A density matrix. For now, this must be a DenseOneBody object.
+
+           points
+                A Numpy array with grid points, shape (npoint,3).
+
+           **Optional arguments:**
+
+           output
+                A Numpy array for the output, shape (npoint,). When not given,
+                it will be allocated.
+
+           **Returns:** An array with shape (npoint,) containing the kinetic
+           energy density. When an output array is given, it is also used as
+           return value.
+
+           **Warning:** the results are added to the output array! This may
+           be useful to combine results from different spin components.
+        '''
+        if output is None:
+            output = np.zeros((points.shape[0],), float)
+        self._compute_grid1_dm(dm, points, GB1DMGridKineticFn(self.max_shell_type), output)
+        return output
+
     def compute_grid_hartree_dm(self, dm,
                                 np.ndarray[double, ndim=2] points not None,
                                 np.ndarray[double, ndim=1] output=None):
@@ -979,7 +1010,7 @@ cdef class GOBasis(GBasis):
     def compute_grid_gradient_fock(self, np.ndarray[double, ndim=2] points not None,
                                    np.ndarray[double, ndim=1] weights not None,
                                    np.ndarray[double, ndim=2] pots not None, fock):
-        '''Compute a one-body operator based on a density potential grid in real-space
+        '''Compute a one-body operator based on a density gradient potential grid in real-space
 
            **Arguments:**
 
@@ -999,6 +1030,31 @@ cdef class GOBasis(GBasis):
            **Warning:** the results are added to the fock operator!
         '''
         self._compute_grid1_fock(points, weights, pots, GB1DMGridGradientFn(self.max_shell_type), fock)
+
+#
+    def compute_grid_kinetic_fock(self, np.ndarray[double, ndim=2] points not None,
+                                  np.ndarray[double, ndim=1] weights not None,
+                                  np.ndarray[double, ndim=1] pots not None, fock):
+        '''Compute a one-body operator based on a kientic energy density potential grid in real-space
+
+           **Arguments:**
+
+           points
+                A Numpy array with grid points, shape (npoint,3).
+
+           weights
+                A Numpy array with integration weights, shape (npoint,).
+
+           pots
+                A Numpy array with kinetic energy density potential data, shape (npoint, 3).
+
+           fock
+                A one-body operator. For now, this must be a DenseOneBody
+                object.
+
+           **Warning:** the results are added to the fock operator!
+        '''
+        self._compute_grid1_fock(points, weights, pots, GB1DMGridKineticFn(self.max_shell_type), fock)
 
 #
 # ints wrappers (for testing only)
@@ -1268,6 +1324,11 @@ cdef class GB1DMGridDensityFn(GB1DMGridFn):
 cdef class GB1DMGridGradientFn(GB1DMGridFn):
     def __cinit__(self, long max_nbasis):
         self._this = <fns.GB1DMGridFn*>(new fns.GB1DMGridGradientFn(max_nbasis))
+
+
+cdef class GB1DMGridKineticFn(GB1DMGridFn):
+    def __cinit__(self, long max_nbasis):
+        self._this = <fns.GB1DMGridFn*>(new fns.GB1DMGridKineticFn(max_nbasis))
 
 
 #

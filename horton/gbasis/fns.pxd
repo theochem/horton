@@ -40,6 +40,9 @@ cdef extern from "fns.h":
     cdef cppclass GB1DMGridGradientFn:
         GB1DMGridGradientFn(long max_shell_type) except +
 
+    cdef cppclass GB1DMGridKineticFn:
+        GB1DMGridKineticFn(long max_shell_type) except +
+
     cdef cppclass GB2DMGridFn:
         long get_nwork()
         long get_max_shell_type()

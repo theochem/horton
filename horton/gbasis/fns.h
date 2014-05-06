@@ -103,6 +103,16 @@ class GB1DMGridGradientFn : public GB1DMGridFn  {
     };
 
 
+class GB1DMGridKineticFn : public GB1DMGridFn  {
+    public:
+        GB1DMGridKineticFn(long max_shell_type): GB1DMGridFn(max_shell_type, 3, 1) {};
+
+        virtual void add(double coeff, double alpha0, const double* scales0);
+        virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output, double epsilon, double* dmmaxrow);
+        virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis, double* output);
+    };
+
+
 
 
 class GB2DMGridFn : public GBCalculator  {
