@@ -161,9 +161,24 @@ def get_pentagon_moments(rmat=None, lmax=4):
         alpha = 2.0*np.pi/5.0
         vec = np.array([1+np.cos(alpha), np.sin(alpha), 0])
         vec = np.dot(rmat, vec)
-        for i in xrange(ncart):
-            px, py, pz = cartesian_powers[i]
-            result[i] = vec[0]**px + vec[1]**py + vec[2]**pz
+        for j in xrange(ncart):
+            px, py, pz = cartesian_powers[j]
+            result[j] += vec[0]**px * vec[1]**py * vec[2]**pz
+    return result
+
+
+def get_point_moments(coordinates, rmat=None, lmax=4):
+    if rmat is None:
+        rmat = np.identity(3, float)
+
+    cartesian_powers = get_cartesian_powers(lmax)
+    ncart = cartesian_powers.shape[0]
+    result = np.zeros(ncart)
+    for i in xrange(len(coordinates)):
+        vec = np.dot(rmat, coordinates[i])
+        for j in xrange(ncart):
+            px, py, pz = cartesian_powers[j]
+            result[j] += vec[0]**px * vec[1]**py * vec[2]**pz
     return result
 
 
