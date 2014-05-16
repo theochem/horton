@@ -263,6 +263,7 @@ go_basis_families = [
     GOBasisFamily('cc-pVDZ', filename=context.get_fn('basis/cc-pvdz.nwchem')),
     GOBasisFamily('cc-pVTZ', filename=context.get_fn('basis/cc-pvtz.nwchem')),
     GOBasisFamily('cc-pVQZ', filename=context.get_fn('basis/cc-pvqz.nwchem')),
+    GOBasisFamily('def2-tzvpd', filename=context.get_fn('basis/def2-tzvpd.nwchem')),
 ]
 go_basis_families = dict((bf.name.lower(), bf) for bf in go_basis_families)
 
