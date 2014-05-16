@@ -675,7 +675,7 @@ class DenseTwoBody(LinalgObject):
             raise TypeError('The dm argument must be a DenseOneBody class')
         if not isinstance(output, DenseOneBody):
             raise TypeError('The output argument must be a DenseOneBody class')
-        output._array[:] = np.tensordot(self._array, dm._array, ([1,3], [1,0]))
+        np.einsum('ijkl,lj', self._array, dm._array, out=output._array)
 
     def apply_exchange(self, dm, output):
         """Compute the exchange dot product with a density matrix."""
@@ -683,7 +683,7 @@ class DenseTwoBody(LinalgObject):
             raise TypeError('The dm argument must be a DenseOneBody class')
         if not isinstance(output, DenseOneBody):
             raise TypeError('The output argument must be a DenseOneBody class')
-        output._array[:] = np.tensordot(self._array, dm._array, ([1,2], [1,0]))
+        np.einsum('ijkl,kj', self._array, dm._array, out=output._array)
 
     def clear(self):
         self._array[:] = 0.0
