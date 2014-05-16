@@ -31,7 +31,8 @@ import numpy as np
 
 
 __all__ = ['get_cartesian_powers', 'get_ncart', 'get_ncart_cumul',
-           'rotate_cartesian_moments', 'get_npure', 'get_npure_cumul']
+           'rotate_cartesian_multipole', 'rotate_cartesian_moments_all',
+           'get_npure', 'get_npure_cumul']
 
 
 def get_cartesian_powers(lmax):
@@ -69,22 +70,11 @@ def get_ncart_cumul(lmax):
     return ((lmax+1)*(lmax+2)*(lmax+3))/6
 
 
-
-# Each item in the following list:
-#  - defines how a cartesian multipole is transformed.
-#  - corresponds to the multipole moments defined by get_cartesian_powers.
-#  - consists of a list of rules.
-# Each rule contains at least two integer and corresponds to a single term
-# in the linear transformation.
-#  - first an index for the multipole that contributes to rotated multipole,
-#    relative to the first moment in this shell.
-#  - second an integer linear coefficient for thus term.
-#  - then a number of indexes that refer to coefficients in the rotation matrix
-#    that occur as factors in the term.
-
-
 cartesian_transforms = [
+  [
     [[ 0,  1]],
+  ],
+  [
     [[ 0,  1,  0],
      [ 1,  1,  1],
      [ 2,  1,  2]],
@@ -94,6 +84,8 @@ cartesian_transforms = [
     [[ 0,  1,  6],
      [ 1,  1,  7],
      [ 2,  1,  8]],
+  ],
+  [
     [[ 0,  1,  0,  0],
      [ 1,  2,  0,  1],
      [ 2,  2,  0,  2],
@@ -139,6 +131,8 @@ cartesian_transforms = [
      [ 3,  1,  7,  7],
      [ 4,  2,  7,  8],
      [ 5,  1,  8,  8]],
+  ],
+  [
     [[ 0,  1,  0,  0,  0],
      [ 1,  3,  0,  0,  1],
      [ 2,  3,  0,  0,  2],
@@ -304,6 +298,8 @@ cartesian_transforms = [
      [ 7,  3,  7,  7,  8],
      [ 8,  3,  7,  8,  8],
      [ 9,  1,  8,  8,  8]],
+  ],
+  [
     [[ 0,  1,  0,  0,  0,  0],
      [ 1,  4,  0,  0,  0,  1],
      [ 2,  4,  0,  0,  0,  2],
@@ -799,61 +795,84 @@ cartesian_transforms = [
      [12,  6,  7,  7,  8,  8],
      [13,  4,  7,  8,  8,  8],
      [14,  1,  8,  8,  8,  8]],
+  ],
 ]
 
 
-def rotate_cartesian_moments(moments, rmat):
+def rotate_cartesian_multipole(rmat, moments, mode):
+    '''Compute rotated Cartesian multipole moment/expansion.
+
+       **Arguments:**
+
+       rmat
+            A (3,3) rotation matrix.
+
+       moments
+            A multipole moment/coeffs. The angular momentum is derived from the
+            length of this vector.
+
+       mode
+            A string containing either 'moments' or 'coeffs'. In case if
+            'moments', a Cartesian multipole moment rotation is carried out. In
+            case of 'coeffs', the coefficients of a Cartesian multipole basis
+            are rotated.
+
+       **Returns:** rotated multipole.
+    '''
+    l = ((9 + 8*(len(moments)-1))**0.5-3)/2
+    if l - np.round(l) > 1e-10:
+        raise ValueError('Could not determine l from number of moments.')
+    l = int(np.round(l))
+
+    if mode == 'coeffs':
+        rcoeffs = rmat.T.ravel()
+    elif mode == 'moments':
+        rcoeffs = rmat.ravel()
+    else:
+        raise NotImplementedError
+    result = np.zeros(len(moments))
+    for i0 in xrange(len(moments)):
+        rules = cartesian_transforms[l][i0]
+        for rule in rules:
+            i1 = rule[0]
+            factor = rule[1]
+            for j in rule[2:]:
+               factor *= rcoeffs[j]
+            if mode == 'coeffs':
+                result[i1] += moments[i0]*factor
+            elif mode == 'moments':
+                result[i0] += moments[i1]*factor
+            else:
+                raise NotImplementedError
+    return result
+
+
+def rotate_cartesian_moments_all(rmat, moments):
     '''Rotate cartesian moments
 
        **Arguments:**
 
-       moments
-            A row vector with a series of cartesian multipole moments. Items in
-            this vector should follow the same order as defined by the function
-            ``get_cartesian_powers``.
-
        rmat
             A (3,3) rotation matrix.
+
+       moments
+            A row vector with a series of cartesian multipole moments, starting
+            from l=0 up to l=lmax. Items in this vector should follow the same
+            order as defined by the function ``get_cartesian_powers``.
+
+       **Returns:** A similar vector with rotated multipole moments
     '''
     ncart = moments.shape[0]
     result = np.zeros(ncart)
 
-    icart0 = 0
+    icart = 0
     nshell = 1
-    counter = 2
-    for icart in xrange(ncart):
-        if icart >= icart0 + nshell:
-            icart0 += nshell
-            nshell += counter
-            counter += 1
-        result[icart] = rotate_moments_low(cartesian_transforms[icart], rmat, moments[icart0:icart0+nshell])
-    return result
-
-
-def rotate_moments_low(rules, rmat, moments):
-    '''Return rotated a multipole based on the given rules
-
-       **Arguments:**
-
-       moments
-            A row vector with a series of cartesian multipole moments. Items in
-            this vector should follow the same order as defined by the function
-            ``get_cartesian_powers``.
-
-       rules
-            An item from the list cartesian_transforms.
-
-       rmat
-            A (3,3) rotation matrix.
-    '''
-    rcoeffs = rmat.ravel()
-    result = 0
-    for rule in rules:
-        i = rule[0]
-        factor = rule[1]
-        for j in rule[2:]:
-           factor *= rcoeffs[j]
-        result += moments[i]*factor
+    ishell = 0
+    while icart < ncart:
+        result[icart:icart+nshell] = rotate_cartesian_multipole(rmat, moments[icart:icart+nshell], 'moments')
+        icart += nshell
+        ishell += 1
+        nshell += ishell+1
     return result
 
 

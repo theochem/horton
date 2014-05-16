@@ -64,13 +64,14 @@ def test_get_cartesian_powers():
 
 
 def test_rotate_cartesian_moments_pentagon_mult():
-    for mult in 2, 3, 4, 5, 6, 7:
+    for mult in 2, 3, 4, 5:
         axis = np.random.normal(0, 1, 3)
-        rmat = get_rotation_matrix(axis, 2.0*np.pi/mult)
+        rmat = get_rotation_matrix(axis, np.pi/mult)
         m0 = get_pentagon_moments()
         m1 = get_pentagon_moments()
         for i in xrange(mult):
-            m1 = rotate_cartesian_moments(m1, rmat)
+            m1 = rotate_cartesian_moments_all(rmat, m1)
+            m1 = rotate_cartesian_moments_all(rmat, m1)
         assert abs(m0 - m1).max() < 1e-10
 
 
@@ -79,20 +80,21 @@ def test_rotate_cartesian_moments_pentagon_general():
         rmat = get_random_rotation()
         m0 = get_pentagon_moments()
         m1 = get_pentagon_moments(rmat)
-        m2 = rotate_cartesian_moments(m0, rmat)
+        m2 = rotate_cartesian_moments_all(rmat, m0)
         assert abs(m1 - m2).max() < 1e-10
 
 
 def test_rotate_cartesian_moments_random_mult():
     for i in xrange(10):
         coordinates = np.random.normal(0, 1, (10, 3))
-        for mult in 2, 3, 4, 5, 6, 7:
+        for mult in 2, 3, 4, 5:
             axis = np.random.normal(0, 1, 3)
-            rmat = get_rotation_matrix(axis, 2.0*np.pi/mult)
+            rmat = get_rotation_matrix(axis, np.pi/mult)
             m0 = get_point_moments(coordinates)
             m1 = get_point_moments(coordinates)
             for i in xrange(mult):
-                m1 = rotate_cartesian_moments(m1, rmat)
+                m1 = rotate_cartesian_moments_all(rmat, m1)
+                m1 = rotate_cartesian_moments_all(rmat, m1)
             assert abs(m0 - m1).max() < 1e-10
 
 
@@ -102,8 +104,28 @@ def test_rotate_cartesian_moments_random_general():
         rmat = get_random_rotation()
         m0 = get_point_moments(coordinates)
         m1 = get_point_moments(coordinates, rmat)
-        m2 = rotate_cartesian_moments(m0, rmat)
+        m2 = rotate_cartesian_moments_all(rmat, m0)
         assert abs(m1 - m2).max() < 1e-10
+
+
+def test_rotate_simple_moments():
+    rmat = get_rotation_matrix(np.array([0, 0, 1]), np.pi/4)
+    m0 = np.array([1, 0, 0])
+    m1 = rotate_cartesian_multipole(rmat, m0, 'moments')
+    assert abs(m1 - [0.5**0.5, 0.5**0.5, 0.0]).max() < 1e-10
+    m0 = np.array([1, 0, 0, 0, 0, 0])
+    m1 = rotate_cartesian_multipole(rmat, m0, 'moments')
+    assert abs(m1 - [0.5, 0.5, 0, 0.5, 0.0, 0.0]).max() < 1e-10
+
+
+def test_rotate_simple_coeffs():
+    rmat = get_rotation_matrix(np.array([0, 0, 1]), np.pi/4)
+    m0 = np.array([1, 0, 0])
+    m1 = rotate_cartesian_multipole(rmat, m0, 'coeffs')
+    assert abs(m1 - [0.5**0.5, 0.5**0.5, 0.0]).max() < 1e-10
+    m0 = np.array([1, 0, 0, 0, 0, 0])
+    m1 = rotate_cartesian_multipole(rmat, m0, 'coeffs')
+    assert abs(m1 - [0.5, 1.0, 0, 0.5, 0.0, 0.0]).max() < 1e-10
 
 
 def test_fill_cartesian_polynomials():

@@ -81,6 +81,7 @@ def write_cart_rotation_code(f):
 
     lmax = 4
     cartesian_powers = [tuple(row) for row in get_cartesian_powers(lmax)]
+    print cartesian_powers
     ncart = len(cartesian_powers)
 
 
@@ -95,36 +96,42 @@ def write_cart_rotation_code(f):
         else:
             return int(d[p])
 
+    icart = 0
+    for ishell in xrange(lmax+1):
+        shell_rules = []
+        transforms.append(shell_rules)
+        for ifn in xrange(((ishell+1)*(ishell+2))/2):
+            px0, py0, pz0 = cartesian_powers[icart]
+            rules = []
+            shell_rules.append(rules)
+            poly = (
+                 (R[0]*x + R[1]*y + R[2]*z)**px0
+                *(R[3]*x + R[4]*y + R[5]*z)**py0
+                *(R[6]*x + R[7]*y + R[8]*z)**pz0
+            ).expand()
+            print poly
 
-    for px0, py0, pz0 in cartesian_powers:
-        rules = []
-        transforms.append(rules)
-        poly = (
-             (R[0]*x + R[1]*y + R[2]*z)**px0
-            *(R[3]*x + R[4]*y + R[5]*z)**py0
-            *(R[6]*x + R[7]*y + R[8]*z)**pz0
-        ).expand()
-        print poly
+            if isinstance(poly, Add):
+                terms = poly.args
+            else:
+                terms = [poly]
 
-        if isinstance(poly, Add):
-            terms = poly.args
-        else:
-            terms = [poly]
+            for term in terms:
+                px1 = get_power(term, x)
+                py1 = get_power(term, y)
+                pz1 = get_power(term, z)
+                prs = [get_power(term, R[i]) for i in xrange(9)]
+                col = cartesian_powers.index((px1, py1, pz1)) - cartesian_powers.index((px1+py1+pz1, 0, 0))
+                assert col >= 0
+                coeff = 1
+                if isinstance(term, Mul):
+                    for factor in term.args:
+                        if isinstance(factor, Integer):
+                            coeff *= int(factor)
+                rule = (col, coeff, prs)
+                rules.append(rule)
 
-        for term in terms:
-            px1 = get_power(term, x)
-            py1 = get_power(term, y)
-            pz1 = get_power(term, z)
-            prs = [get_power(term, R[i]) for i in xrange(9)]
-            col = cartesian_powers.index((px1, py1, pz1)) - cartesian_powers.index((px1+py1+pz1, 0, 0))
-            assert col >= 0
-            coeff = 1
-            if isinstance(term, Mul):
-                for factor in term.args:
-                    if isinstance(factor, Integer):
-                        coeff *= int(factor)
-            rule = (col, coeff, prs)
-            rules.append(rule)
+            icart += 1
 
 
     def format_rule(rule):
@@ -140,15 +147,18 @@ def write_cart_rotation_code(f):
 
 
     print >> f, 'cartesian_transforms = ['
-    for rules in transforms:
-        if len(rules) == 1:
-            print >> f, '    [%s],' % format_rule(rules[0])
-        else:
-            rules = sorted(rules)
-            print >> f, '    [%s,' % format_rule(rules[0])
-            for rule in rules[1:-1]:
-                print >> f, '     %s,' % format_rule(rule)
-            print >> f, '     %s],' % format_rule(rules[-1])
+    for shell_rules in transforms:
+        print >> f, '  ['
+        for rules in shell_rules:
+            if len(rules) == 1:
+                print >> f, '    [%s],' % format_rule(rules[0])
+            else:
+                rules = sorted(rules)
+                print >> f, '    [%s,' % format_rule(rules[0])
+                for rule in rules[1:-1]:
+                    print >> f, '     %s,' % format_rule(rule)
+                print >> f, '     %s],' % format_rule(rules[-1])
+        print >> f, '  ],'
     print >> f, ']'
 
 

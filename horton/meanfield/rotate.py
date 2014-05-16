@@ -22,7 +22,8 @@
 
 
 import numpy as np
-from horton.moments import rotate_moments_low, cartesian_transforms
+from horton.gbasis.cext import fac2
+from horton.moments import rotate_cartesian_multipole, get_cartesian_powers
 
 
 __all__ = ['rotate_coeffs']
@@ -45,19 +46,37 @@ def rotate_coeffs(coeffs, obasis, rmat):
     '''
     if obasis.nbasis != coeffs.shape[0]:
         raise TypeError('The shape of the coefficients array does not match the basis set size')
+    if obasis.shell_types.min() < 0:
+        raise TypeError('Pure functions are not supported in rotate_coeffs.')
+
     result = np.zeros(coeffs.shape)
 
-    ibasis0 = 0
+    # 1) undo the part normalization of the basis functions due to the cartesian powers
+    lmax = obasis.shell_types.max()
+    powers = get_cartesian_powers(lmax)
+    factors = []
     for ishell in xrange(obasis.nshell):
         shell_type = obasis.shell_types[ishell]
-        if shell_type < 0:
-            raise TypeError('Pure functions are not supported in rotate_coeffs.')
         icart0 = ((shell_type+2)*(shell_type+1)*(shell_type))/6
         shellsize = ((shell_type+2)*(shell_type+1))/2
         for ifn in xrange(shellsize):
-            rules = cartesian_transforms[icart0+ifn]
-            for iorb in xrange(coeffs.shape[1]):
-                result[ibasis0+ifn, iorb] = rotate_moments_low(rules, rmat, coeffs[ibasis0:ibasis0+shellsize, iorb])
+            ipow = icart0+ifn
+            factors.append(np.sqrt(fac2(2*powers[ipow,0]-1)*fac2(2*powers[ipow,1]-1)*fac2(2*powers[ipow,2]-1)))
+    factors = np.array(factors)
+    # replace the array coeffs by the one with undone normalization
+    coeffs = coeffs/factors.reshape(-1,1)
+
+    # 2) the actual rotation
+    ibasis0 = 0
+    for ishell in xrange(obasis.nshell):
+        shell_type = obasis.shell_types[ishell]
+        icart0 = ((shell_type+2)*(shell_type+1)*(shell_type))/6
+        shellsize = ((shell_type+2)*(shell_type+1))/2
+        for iorb in xrange(coeffs.shape[1]):
+            result[ibasis0:ibasis0+shellsize, iorb] = rotate_cartesian_multipole(rmat, coeffs[ibasis0:ibasis0+shellsize, iorb], 'coeffs')
         ibasis0 += shellsize
+
+    # 3) apply the part of the normalization of the basis functions due to the cartesian powers
+    result *= factors.reshape(-1,1)
 
     return result
