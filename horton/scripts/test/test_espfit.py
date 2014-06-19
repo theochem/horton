@@ -21,7 +21,7 @@
 #pylint: skip-file
 
 
-import os, h5py as h5
+import os, h5py as h5, numpy as np
 
 from horton import *
 from horton.test.common import check_script, tmpdir

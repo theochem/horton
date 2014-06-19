@@ -21,7 +21,10 @@
 #pylint: skip-file
 
 
+import numpy as np
+
 from horton import *
+
 
 def test_basics1():
     rtf = ExpRTransform(0.1, 1e1, 4)

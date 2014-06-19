@@ -21,7 +21,9 @@
 #pylint: skip-file
 
 
+import numpy as np
 from nose.tools import assert_raises
+
 from horton import *
 from horton.test.common import get_pentagon_moments
 

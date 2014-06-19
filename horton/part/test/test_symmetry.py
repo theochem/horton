@@ -21,6 +21,8 @@
 #pylint: skip-file
 
 
+import numpy as np
+
 from horton import *
 from horton.test.common import get_pentagon_moments
 

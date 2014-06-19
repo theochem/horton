@@ -26,6 +26,9 @@ import numpy as np
 from horton.grid.cext import dot_multi
 
 
+__all__ = ['RadialGrid']
+
+
 class RadialGrid(object):
     '''An integration grid for the radial component of a spherical coordinate system'''
 

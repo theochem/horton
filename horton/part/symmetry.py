@@ -26,6 +26,8 @@ import numpy as np
 from horton.moments import rotate_cartesian_moments
 
 
+__all__ = ['symmetry_analysis']
+
 
 def symmetry_analysis(coordinates, cell, symmetry, aim_results):
     '''Compute averages and standard deviations on AIM results of equivalent atoms
