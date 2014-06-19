@@ -27,6 +27,7 @@ from horton import Molecule, wpart_schemes, Cell, ProAtomDB, log, BeckeMolGrid, 
     lebedev_laikov_npoints, AtomicGridSpec, __version__
 from horton.scripts.common import store_args, write_part_output, parse_h5, \
     check_output
+from horton.scripts.wpart import wpart_slow_analysis
 
 
 # All, except underflows, is *not* fine.
@@ -123,6 +124,11 @@ def main():
         kwargs['spindens'] = mol.obasis.compute_grid_density_dm(dm_spin, grid.points, epsilon=args.epsilon)
     wpart = wpart_schemes[args.scheme](mol.coordinates, mol.numbers, mol.pseudo_numbers,grid, moldens, **kwargs)
     keys = wpart.do_all()
+
+    if args.slow:
+        # ugly hack for the slow analysis involving the AIM overlap operators.
+        wpart_slow_analysis(wpart, mol)
+        keys = list(wpart.cache.iterkeys(tags='o'))
 
     write_part_output(fn_h5, grp_name, wpart, keys, args)
 
