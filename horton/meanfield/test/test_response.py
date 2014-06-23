@@ -33,6 +33,7 @@ def check_response(fn):
         exps.append(mol.exp_beta)
     for exp in exps:
         response = compute_noninteracting_response(mol.exp_alpha, operators)
+        assert np.isfinite(response).all()
         assert abs(response.sum(axis=0)).max() < 1e-3
         evals = np.linalg.eigvalsh(response)
         assert (evals[:2] < 0).all()
@@ -46,4 +47,9 @@ def test_response_water_sto3g():
 
 def test_response_h3_321g():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
+    check_response(fn_fchk)
+
+
+def test_response_benzene():
+    fn_fchk = context.get_fn('test/benzene-sto3g.fchk')
     check_response(fn_fchk)

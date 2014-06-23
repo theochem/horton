@@ -47,7 +47,10 @@ def compute_noninteracting_response(exp, operators, work=None):
             the number of occupied and virtual orbitals.
 
        **Returns:** a symmetric matrix where each element corresponds to a pair
-       of operators.
+       of operators. Note that this function is only reliable when no degenerate
+       orbitals are present at the fermi level. For example, in case of
+       fractional occupations in DFT, this method does not give the correct
+       non-interacting response matrix.
     '''
     # Convert the operators to the orbital basis
     coeffs = exp.coeffs
@@ -64,8 +67,13 @@ def compute_noninteracting_response(exp, operators, work=None):
     occupations = exp.occupations
     with np.errstate(invalid='ignore'):
         prefacs = np.subtract.outer(occupations, occupations)/np.subtract.outer(energies, energies)
-    for iorb in xrange(norb):
-        prefacs[iorb,iorb] = 0.0
+    # Purge divisions by zero. If degeneracies occur at the fermi level, this
+    # way of computing the noninteracting response matrix is not correct anyway.
+    #for iorb in xrange(norb):
+    #    prefacs[iorb,iorb] = 0.0
+    mask = occupations == occupations.reshape(-1, 1)
+    mask |= energies == energies.reshape(-1, 1)
+    prefacs[mask] = 0.0
 
     # Double loop over all pairs for operators. The diagonal element is computed
     # as a double check
