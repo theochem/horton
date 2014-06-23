@@ -491,3 +491,69 @@ def test_gobasis_output_args_grid_hartree_dm():
     mol.obasis.compute_grid_hartree_dm(dm_full, points, pots1)
     pots2 = mol.obasis.compute_grid_hartree_dm(dm_full, points)
     assert (pots1 == pots2).all()
+
+
+def test_subset_simple():
+    mol = Molecule.from_file(context.get_fn('test/water_hfs_321g.fchk'))
+    # select a basis set for the first hydrogen atom
+    sub_obasis, ibasis_list = mol.obasis.get_subset([0,1])
+    assert sub_obasis.ncenter == 1
+    assert sub_obasis.nshell == 2
+    assert (sub_obasis.centers[0] == mol.obasis.centers[0]).all()
+    assert (sub_obasis.shell_map == mol.obasis.shell_map[:2]).all()
+    assert (sub_obasis.nprims == mol.obasis.nprims[:2]).all()
+    assert (sub_obasis.shell_types == mol.obasis.shell_types[:2]).all()
+    assert sub_obasis.nprim_total == 3
+    assert (sub_obasis.alphas == mol.obasis.alphas[:3]).all()
+    assert (sub_obasis.con_coeffs == mol.obasis.con_coeffs[:3]).all()
+    assert (ibasis_list == [0, 1]).all()
+
+
+def test_subset_simple_reverse():
+    mol = Molecule.from_file(context.get_fn('test/water_hfs_321g.fchk'))
+    # select a basis set for the first hydrogen atom
+    sub_obasis, ibasis_list = mol.obasis.get_subset([1,0])
+    assert sub_obasis.ncenter == 1
+    assert sub_obasis.nshell == 2
+    assert (sub_obasis.centers[0] == mol.obasis.centers[0]).all()
+    assert (sub_obasis.shell_map == mol.obasis.shell_map[1::-1]).all()
+    assert (sub_obasis.nprims == mol.obasis.nprims[1::-1]).all()
+    assert (sub_obasis.shell_types == mol.obasis.shell_types[1::-1]).all()
+    assert sub_obasis.nprim_total == 3
+    assert (sub_obasis.alphas[:1] == mol.obasis.alphas[2:3]).all()
+    assert (sub_obasis.alphas[1:] == mol.obasis.alphas[:2]).all()
+    assert (sub_obasis.con_coeffs[:1] == mol.obasis.con_coeffs[2:3]).all()
+    assert (sub_obasis.con_coeffs[1:] == mol.obasis.con_coeffs[:2]).all()
+    assert (ibasis_list == [1, 0]).all()
+
+
+def test_subset():
+    mol = Molecule.from_file(context.get_fn('test/water_hfs_321g.fchk'))
+    # select a basis set for the first hydrogen atom
+    sub_obasis, ibasis_list = mol.obasis.get_subset([7, 3, 4, 8])
+    assert sub_obasis.ncenter == 2
+    assert sub_obasis.nshell == 4
+    assert (sub_obasis.centers[0] == mol.obasis.centers[1]).all()
+    assert (sub_obasis.centers[1] == mol.obasis.centers[2]).all()
+    assert (sub_obasis.shell_map == mol.obasis.shell_map[[7, 3, 4, 8]]-1).all()
+    assert (sub_obasis.nprims == mol.obasis.nprims[[7, 3, 4, 8]]).all()
+    assert (sub_obasis.shell_types == mol.obasis.shell_types[[7, 3, 4, 8]]).all()
+    assert sub_obasis.nprim_total == 7
+    for b0, e0, b1, e1 in (12, 14, 0, 2), (6, 8, 2, 4), (8, 10, 4, 6), (14, 15, 6, 7):
+        assert (sub_obasis.alphas[b1:e1] == mol.obasis.alphas[b0:e0]).all()
+        assert (sub_obasis.con_coeffs[b1:e1] == mol.obasis.con_coeffs[b0:e0]).all()
+    assert (ibasis_list == [11, 3, 4, 5, 6, 12]).all()
+
+
+def test_basis_atoms():
+    mol = Molecule.from_file(context.get_fn('test/water_hfs_321g.fchk'))
+    basis_atoms = mol.obasis.get_basis_atoms(mol.coordinates)
+    assert len(basis_atoms) == 3
+    icenter = 0
+    ibasis_all = []
+    for sub_obasis, ibasis_list in basis_atoms:
+        assert sub_obasis.ncenter == 1
+        assert (sub_obasis.centers[0] == mol.obasis.centers[icenter]).all()
+        icenter += 1
+        ibasis_all.extend(ibasis_list)
+    assert ibasis_all == range(mol.obasis.nbasis)

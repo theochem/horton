@@ -394,7 +394,7 @@ cdef class GBasis:
 
     property nprim_total:
         def __get__(self):
-            return self.nprim_total.shape[0]
+            return self.nprims.sum()
 
     # Other properties
 
@@ -452,6 +452,99 @@ cdef class GBasis:
         assert point.flags['C_CONTIGUOUS']
         assert point.shape[0] == 3
         self._this.compute_grid_point1(&output[0], &point[0], grid_fn._this)
+
+    def get_subset(self, ishells):
+        '''Construct a sub basis set for a selection of shells
+
+           **Argument:**
+
+           ishells
+                A list of indexes of shells to be retained in the sub basis set
+
+           **Returns:** An instance of the same class as self containing only
+           the basis functions of self that correspond to the select shells in
+           the ``ishells`` list.
+        '''
+        # find the centers corresponding to ishells
+        icenters = set([])
+        for ishell in ishells:
+            if ishell < 0:
+                raise ValueError('ishell out of range: %i < 0' % ishell)
+            if ishell >= self.nshell:
+                raise ValueError('ishell out of range: %i >= %s' % (ishell, self.nshell))
+            icenters.add(self.shell_map[ishell])
+        icenters = sorted(icenters) # fix the order
+        new_centers = self.centers[icenters]
+        # construct the new shell_map, nprims, shell_types
+        new_shell_map = np.zeros(len(ishells), int)
+        new_nprims = np.zeros(len(ishells), int)
+        new_shell_types = np.zeros(len(ishells), int)
+        for new_ishell, ishell in enumerate(ishells):
+            new_shell_map[new_ishell] = icenters.index(self.shell_map[ishell])
+            new_nprims[new_ishell] = self.nprims[ishell]
+            new_shell_types[new_ishell] = self.shell_types[ishell]
+        # construct the new alphas and con_coeffs
+        new_nprim_total = new_nprims.sum()
+        new_alphas = np.zeros(new_nprim_total, float)
+        new_con_coeffs = np.zeros(new_nprim_total, float)
+        new_iprim = 0
+        for new_ishell, ishell in enumerate(ishells):
+            nprim = new_nprims[new_ishell]
+            old_iprim = self.nprims[:ishell].sum()
+            new_alphas[new_iprim:new_iprim+nprim] = self.alphas[old_iprim:old_iprim+nprim]
+            new_con_coeffs[new_iprim:new_iprim+nprim] = self.con_coeffs[old_iprim:old_iprim+nprim]
+            new_iprim += nprim
+        # make a mapping between the indices of old and new basis functions
+        ibasis_list = []
+        for new_ishell, ishell in enumerate(ishells):
+            ibasis_old = sum(common.get_shell_nbasis(self.shell_types[i]) for i in xrange(ishell))
+            nbasis = common.get_shell_nbasis(self.shell_types[ishell])
+            ibasis_list.extend(range(ibasis_old, ibasis_old+nbasis))
+        ibasis_list = np.array(ibasis_list)
+        # create the basis set object
+        basis = self.__class__(new_centers, new_shell_map, new_nprims,
+                               new_shell_types, new_alphas, new_con_coeffs)
+        # return stuff
+        return basis, ibasis_list
+
+    def get_basis_atoms(self, coordinates):
+        '''Return a list of atomic basis sets for a given geometry
+
+           **Arguments:**
+
+           coordinates
+                An (N, 3) array with atomic coordinates, used to find the
+                centers associated with atoms. An exact match of the Cartesian
+                coordinates is required to properly select a shell.
+
+           **Returns:** A list with one tuple for every atom: (gbasis,
+           ibasis_list), where gbasis is a basis set object for the atom and
+           ibasis_list is a list of basis set indexes that can be used to
+           substitute results from the atomic basis set back into the molecular
+           basis set. For example, when a density matrix for the atom is
+           obtained and it needs to be plugged back into the molecular density
+           matrix, one can do the following::
+
+               mol_dm._array[ibasis_list,ibasis_list.reshape(-1,1)] = atom_dm._array
+        '''
+        result = []
+        for c in coordinates:
+            # find the corresponding center(s).
+            icenters = []
+            for icenter in xrange(self.ncenter):
+                # require an exact match of the coordinates
+                if (self.centers[icenter] == c).all():
+                    icenters.append(icenter)
+            icenters = set(icenters)
+            # find the shells on these centers
+            ishells = []
+            for ishell in xrange(self.nshell):
+                if self.shell_map[ishell] in icenters:
+                    ishells.append(ishell)
+            # construct a sub basis
+            sub_basis, ibasis_list = self.get_subset(ishells)
+            result.append((sub_basis, ibasis_list))
+        return result
 
 
 cdef class GOBasis(GBasis):
