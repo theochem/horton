@@ -535,6 +535,10 @@ class DenseOneBody(OneBody):
             raise TypeError('The other object must also be DenseOneBody instance.')
         self._array[:] = other._array
 
+    def set_diagonal(self, value):
+        '''Set diagonal elements to value'''
+        np.fill_diagonal(self._array, value)
+
     def copy(self):
         '''Return a copy of the current one-body operator'''
         result = DenseOneBody(self.nbasis)

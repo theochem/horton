@@ -18,29 +18,16 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''The main Horton Package'''
+'''Input and output routines
+
+   All input routines begin with ``load_``. All output routines begin with
+   ``dump_``.
+
+   This package also contains a ``Molecule`` class to facilitate reading from
+   and writing to different file formats. It contains the methods ``from_file``
+   and ``to_file`` that automatically determine the file format based on the
+   prefix or extension of the filename.
+'''
 
 
-__version__ = '1.2.1'
-
-
-from horton.cache import *
-from horton.cext import *
-from horton.constants import *
-from horton.context import *
-from horton.part import *
-from horton.espfit import *
-from horton.exceptions import *
-from horton.gbasis import *
-from horton.grid import *
-from horton.io import *
-from horton.log import *
-from horton.matrix import *
-from horton.meanfield import *
-from horton.moments import *
-from horton.periodic import *
-from horton.symmetry import *
-from horton.quadprog import *
-from horton.units import *
-from horton.utils import *
-from horton.modelhamiltonians import *
+from horton.modelhamiltonians.physmodham import Hubbard
