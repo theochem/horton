@@ -138,7 +138,7 @@ def wpart_slow_analysis(wpart, mol):
     if dm_spin is None:
         if not hasattr(mol, 'exp_alpha'):
             return
-        xs_response = compute_noninteracting_response(mol.exp_alpha, operators)
+        xs_response = 2*compute_noninteracting_response(mol.exp_alpha, operators)
     else:
         if not (hasattr(mol, 'exp_alpha') and hasattr(mol, 'exp_beta')):
             return

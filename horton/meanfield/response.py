@@ -76,7 +76,15 @@ def compute_noninteracting_response(exp, operators, work=None):
     prefacs[mask] = 0.0
 
     # Double loop over all pairs for operators. The diagonal element is computed
-    # as a double check
+    # as a double check. Note that by construction the first term and its
+    # complex conjugate of the SOS expressions,
+    #
+    #     X_s = \sum_\substrack{i \in \text{occ} \\ j \in \text{virt}}
+    #               (< phi_i | A | phi_j > < phi_j | B | phi_i >)/(\epsilon_i - \epsilon_j)
+    #           + c.c.
+    #
+    # are included. (The first term corresponds to the lower diagonal of prefacs
+    # while the complex conjugate corresponds to the upper diagonal of prefacs.)
     result = np.zeros((nop, nop), float)
     for iop0 in xrange(nop):
         for iop1 in xrange(iop0+1):
