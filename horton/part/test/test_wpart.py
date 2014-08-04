@@ -113,6 +113,11 @@ def test_is_water_hf_sto3g():
     check_water_hf_sto3g('is', expecting, needs_padb=False)
 
 
+def test_mbis_water_hf_sto3g():
+    expecting = np.array([-0.61891067, 0.3095756, 0.30932584])
+    check_water_hf_sto3g('mbis', expecting, needs_padb=False)
+
+
 def check_msa_hf_lan(scheme, expecting, needs_padb=True, **kwargs):
     if needs_padb:
         proatomdb = get_proatomdb_hf_lan()

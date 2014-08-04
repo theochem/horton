@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Horton is a development platform for electronic structure methods.
 # Copyright (C) 2011-2013 Toon Verstraelen <Toon.Verstraelen@UGent.be>
@@ -18,30 +19,20 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Package for density-based partitioning (fuzzy atoms)'''
+#pylint: skip-file
 
 
-from horton.part.base import *
-from horton.part.becke import *
-from horton.part.hirshfeld import *
-from horton.part.hirshfeld_i import *
-from horton.part.hirshfeld_e import *
-from horton.part.iterstock import *
-from horton.part.mbis import *
-from horton.part.mulliken import *
-from horton.part.proatomdb import *
-from horton.part.stockholder import *
-from horton.part.symmetry import *
+from horton import *
+from horton.part.mbis import _get_nshell, _get_initial_mbis_propars
 
 
-wpart_schemes = {}
-for o in globals().values():
-    if isinstance(o, type) and issubclass(o, WPart) and o.name is not None:
-        wpart_schemes[o.name] = o
+def test_get_nshell():
+    assert _get_nshell(1) == 1
+    assert _get_nshell(2) == 1
+    assert _get_nshell(3) == 2
 
-cpart_schemes = {}
-for o in globals().values():
-    if isinstance(o, type) and issubclass(o, CPart) and o.name is not None:
-        cpart_schemes[o.name] = o
 
-del o
+def test_get_initial_mbis_propars():
+    assert (_get_initial_mbis_propars(1) == [1.0, 2.0]).all()
+    assert (_get_initial_mbis_propars(2) == [2.0, 4.0]).all()
+    assert (_get_initial_mbis_propars(3) == [2.0, 6.0, 1.0, 2.0]).all()
