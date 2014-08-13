@@ -24,3 +24,8 @@ depends/*.*
 # Ignore results in the tools directory
 data/examples/005_compare/0*
 data/examples/005_compare/*.png
+
+# Ignore eclipse files
+.settings
+.pydevproject
+.project
