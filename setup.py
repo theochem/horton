@@ -117,7 +117,7 @@ setup(
               'horton.io', 'horton.io.test',
               'horton.meanfield', 'horton.meanfield.test',
               'horton.part', 'horton.part.test',
-              'horton.scripts', 'horton.scripts.test'
+              'horton.scripts', 'horton.scripts.test',
               'horton.modelhamiltonians',
               'horton.modelhamiltonians.test'],
     cmdclass = {'build_ext': build_ext, 'install_data': my_install_data},

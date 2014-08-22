@@ -21,11 +21,9 @@
 #pylint: skip-file
 
 
-import numpy as np
 from horton import *
-from nose.tools import assert_raises
 
-def test_1D_Hubbard_hamiltonian():
+def test_1d_hubbard_hamiltonian():
     # Test the half-filled 1-D Hubbard model Hamiltonian
     # with 10 sites for U=2 and using PBC
 
@@ -53,7 +51,7 @@ def test_1D_Hubbard_hamiltonian():
     assert (abs(energy --7.94427) < 1e-4)
 
 
-def test_1D_Hubbard_hamiltonian_no_pbc():
+def test_1d_hubbard_hamiltonian_no_pbc():
     # Test the half-filled 1-D Hubbard model Hamiltonian
     # with 10 sites for U=2 without PBC
 

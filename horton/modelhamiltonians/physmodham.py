@@ -20,9 +20,11 @@
 #--
 '''Physical Model Hamiltonian'''
 
+
 __all__ = [
     'PhysModHam', 'Hubbard'
 ]
+
 
 class PhysModHam(object):
     '''Base class for the Physical Model Hamiltonians: 1-D Hubbard,
@@ -55,6 +57,7 @@ class PhysModHam(object):
     def compute_overlap(self, lf):
         '''Calculate overlap of the 1D Hubbard Hamiltonian, (identity matrix)'''
         raise NotImplementedError
+
 
 class Hubbard(PhysModHam):
     '''The 1-D Hubbard class Hamiltonian'''
