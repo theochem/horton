@@ -1,0 +1,31 @@
+// Horton is a development platform for electronic structure methods.
+// Copyright (C) 2011-2013 Toon Verstraelen <Toon.Verstraelen@UGent.be>
+//
+// This file is part of Horton.
+//
+// Horton is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 3
+// of the License, or (at your option) any later version.
+//
+// Horton is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, see <http://www.gnu.org/licenses/>
+//
+//--
+
+#ifndef CHOLESKY_H
+#define CHOLESKY_H
+
+#include <vector>
+#include "gbw.h"
+
+// TODO: function signature needs to change: rather return pointer to contiguous
+// 3-index object.
+std::vector<double*> cholesky(GB4IntegralWrapper* gbw4, double threshold);
+
+#endif
