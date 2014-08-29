@@ -89,7 +89,14 @@ GBasis::GBasis(const double* centers, const long* shell_map, const long* nprims,
     shell_nbasis = get_shell_nbasis(shell_types[nshell-1]);
     nbasis = basis_offsets[nshell-1] + shell_nbasis;
 
-    //shell_lookup
+    // prim_offsets
+    prim_offsets = new long[nshell];
+    prim_offsets[0] = 0;
+    for (long ishell=1; ishell<nshell; ishell++) {
+        prim_offsets[ishell] = prim_offsets[ishell-1] + nprims[ishell-1];
+    }
+
+    // shell_lookup
     shell_lookup = new long[nbasis];
     long ishell = 0;
     for (long i=0; i<nbasis; i++){
@@ -112,6 +119,8 @@ GBasis::GBasis(const double* centers, const long* shell_map, const long* nprims,
 
 GBasis::~GBasis() {
     delete[] basis_offsets;
+    delete[] prim_offsets;
+    delete[] shell_lookup;
     delete[] scales;
     delete[] scales_offsets;
 }

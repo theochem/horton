@@ -34,6 +34,7 @@ class GBasis {
     private:
         // Auxiliary arrays that contain convenient derived information.
         long* basis_offsets;
+        long* prim_offsets;
         long* shell_lookup;
         long* scales_offsets;
         double* scales; // pre-computed normalization constants.
@@ -65,6 +66,7 @@ class GBasis {
         const long get_nscales() const {return nscales;};
         const long get_max_shell_type() const {return max_shell_type;};
         const long* get_basis_offsets() const {return basis_offsets;};
+        const long* get_prim_offsets() const {return prim_offsets;};
         const long* get_shell_lookup() const {return shell_lookup;};
         const double* get_scales(long iprim) const {return scales + scales_offsets[iprim];};
     };
