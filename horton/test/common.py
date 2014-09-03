@@ -257,7 +257,7 @@ def compare_mols(mol1, mol2):
         assert (mol1.obasis.nprims == mol2.obasis.nprims).all()
         assert (mol1.obasis.shell_types == mol2.obasis.shell_types).all()
         assert (mol1.obasis.alphas == mol2.obasis.alphas).all()
-        assert (mol1.obasis.con_coeffs == mol2.obasis.con_coeffs).all()
+        assert abs(mol1.obasis.con_coeffs - mol2.obasis.con_coeffs).max() < 1e-8
     else:
         assert mol2.obasis is None
     # wfn
