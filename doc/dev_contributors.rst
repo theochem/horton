@@ -15,5 +15,6 @@ version of Horton:
 * Farnaz H. Zadeh
 * Katharina Boguslawski
 * Matthew Chan
+* Pawel Tecmer
 * Peter A. Limacher
-* Steven Vandenrbande
+* Steven Vandenbrande

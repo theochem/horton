@@ -490,7 +490,8 @@ head_banner = """\
 
          This version contains contributions from Ali Malek (2),
          Cristina Gonzalez (2), Farnaz H. Zadeh (2), Katharina Boguslawski (2),
-         Matthew Chan (2), Peter A. Limacher (2) and Steven Vandenrbande (1).
+         Matthew Chan (2), Pawel Tecmer (2), Peter A. Limacher (2) and Steven
+         Vandenbrande (1).
 
          (1) Center for Molecular Modeling, Ghent University, Belgium.
          (2) The Ayers Group at McMaster University, Ontario, Canada.
