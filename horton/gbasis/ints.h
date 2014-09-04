@@ -96,7 +96,7 @@ typedef struct {
     double alpha;
 } libint_arg_t;
 
-class GB4ElectronReuplsionIntegralLibInt : public GB4Integral {
+class GB4ElectronRepulsionIntegralLibInt : public GB4Integral {
     private:
         Libint_eri_t erieval;
         libint_arg_t libint_args[4];
@@ -104,8 +104,8 @@ class GB4ElectronReuplsionIntegralLibInt : public GB4Integral {
         double ab[3], cd[3];
         double ab2, cd2;
     public:
-        GB4ElectronReuplsionIntegralLibInt(long max_shell_type);
-        ~GB4ElectronReuplsionIntegralLibInt();
+        GB4ElectronRepulsionIntegralLibInt(long max_shell_type);
+        ~GB4ElectronRepulsionIntegralLibInt();
         virtual void reset(long shell_type0, long shell_type1, long shell_type2, long shell_type3, const double* r0, const double* r1, const double* r2, const double* r3);
         virtual void add(double coeff, double alpha0, double alpha1, double alpha2, double alpha3, const double* scales0, const double* scales1, const double* scales2, const double* scales3);
     };

@@ -1,0 +1,60 @@
+# -*- coding: utf-8 -*-
+# Horton is a development platform for electronic structure methods.
+# Copyright (C) 2011-2013 Toon Verstraelen <Toon.Verstraelen@UGent.be>
+#
+# This file is part of Horton.
+#
+# Horton is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 3
+# of the License, or (at your option) any later version.
+#
+# Horton is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>
+#
+#--
+
+import numpy as np
+from nose.tools import assert_raises
+
+from horton import *
+
+def get_h2o_er():
+    fn = context.get_fn('test/water.xyz')
+    mol = Molecule.from_file(fn)
+    obasis = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
+    lf = DenseLinalgFactory(obasis.nbasis)
+    return obasis, obasis.compute_electron_repulsion(lf)._array
+
+def pcholesky4(A, thresh=1e-8):
+    for i in A.shape: #assumes square matrix
+        assert i == A.shape[0]
+    Ls = []
+    d = np.inf
+    counter=1
+    while True:
+        d = np.einsum('iijj->ij',A) - sum([i*i for i in Ls],np.zeros(A.shape[0:2]))
+        idx_d = np.unravel_index(np.argmax(d),A.shape[0:2])
+        print "Iteration " , counter, " selected d: ", d[idx_d]
+        if d[idx_d] < thresh:
+            print "Condition met. Exiting loop"
+            break
+        past_L = sum([i*i[idx_d] for i in Ls], np.zeros(A.shape[0:2]))
+        Ls.append((d[idx_d]**-0.5)*(A[:, idx_d[0], :,idx_d[1]] - past_L)) #ugly
+
+        counter += 1
+        print ""
+    return Ls
+
+def test_cholesky():
+    obasis, ref_er = get_h2o_er()
+
+    vecs = compute_cholesky(obasis, 1e-8)
+    test_er = np.einsum('kac,kbd->abcd', vecs, vecs)
+
+    assert np.allclose(ref_er, test_er), (ref_er,test_er)

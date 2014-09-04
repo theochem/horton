@@ -24,8 +24,6 @@
 #include <vector>
 #include "gbw.h"
 
-// TODO: function signature needs to change: rather return pointer to contiguous
-// 3-index object.
-std::vector<double*> cholesky(GB4IntegralWrapper* gbw4, double threshold);
+long cholesky(GB4IntegralWrapper* gbw4, double** uninit_result, double threshold);
 
 #endif

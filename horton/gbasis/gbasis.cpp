@@ -232,7 +232,7 @@ void GOBasis::compute_nuclear_attraction(double* charges, double* centers, long 
 }
 
 void GOBasis::compute_electron_repulsion(double* output) {
-    GB4ElectronReuplsionIntegralLibInt integral = GB4ElectronReuplsionIntegralLibInt(get_max_shell_type());
+    GB4ElectronRepulsionIntegralLibInt integral = GB4ElectronRepulsionIntegralLibInt(get_max_shell_type());
     compute_two_body(output, &integral);
 }
 

@@ -41,6 +41,8 @@ cdef extern from "gbasis.h":
         long get_nscales()
         long get_max_shell_type()
         double* get_scales(long iprim)
+        long* get_shell_lookup()
+        long* get_basis_offsets()
 
         # low-level compute routines
         void compute_grid_point1(double* output, double* point, fns.GB1DMGridFn* grid_fn)

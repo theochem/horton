@@ -46,7 +46,7 @@ class GB4IntegralWrapper {
         //void compute(bool* mask);
         void compute();
         void compute_diagonal(double* diagonal);
-        void get_2index_slice(long index0, long index2, double* slice);
+        double* get_2index_slice(long index0, long index2);
 };
 
 #endif

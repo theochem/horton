@@ -55,8 +55,8 @@ cdef extern from "ints.h":
         long get_shell_type3()
         double* get_work()
 
-    cdef cppclass GB4ElectronReuplsionIntegralLibInt:
-        GB4ElectronReuplsionIntegralLibInt(long max_shell_type) except +
+    cdef cppclass GB4ElectronRepulsionIntegralLibInt:
+        GB4ElectronRepulsionIntegralLibInt(long max_shell_type) except +
 
 
 cdef extern from "libint2.h":

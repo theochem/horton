@@ -35,8 +35,8 @@ class GBasis {
         // Auxiliary arrays that contain convenient derived information.
         long* basis_offsets;
         long* prim_offsets;
-        long* shell_lookup;
         long* scales_offsets;
+        long* shell_lookup;
         double* scales; // pre-computed normalization constants.
         long nbasis, nscales;
         long max_shell_type;

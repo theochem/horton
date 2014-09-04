@@ -27,13 +27,13 @@ GB4IntegralWrapper::GB4IntegralWrapper(GOBasis* gobasis, GB4Integral* gb4int) :
 {
     max_shell_size = get_shell_nbasis(gobasis->get_max_shell_type());
     slice_size = gobasis->get_nbasis()*gobasis->get_nbasis();
-    // mamimum number of 2-index objects computed in one go with libint = max_shell_size*max_shell_size
+    // maximum number of 2-index objects computed in one go with libint = max_shell_size*max_shell_size
     // size of 2-index object = nbasis*nbasis
-    integrals = new double[max_shell_size*max_shell_size*slice_size];
+integrals = new double[max_shell_size*max_shell_size*slice_size];
 }
 
 GB4IntegralWrapper::~GB4IntegralWrapper() {
-    delete integrals;
+    delete[] integrals;
 }
 
 void GB4IntegralWrapper::select_2index(long index0, long index2,
@@ -55,8 +55,8 @@ void GB4IntegralWrapper::compute() {
         for (long ishell3 = 0; ishell3 < gobasis->nshell; ishell3++) {
             gb4int->reset(gobasis->shell_types[ishell0], gobasis->shell_types[ishell1],
                           gobasis->shell_types[ishell2], gobasis->shell_types[ishell3],
-                          gobasis->centers + ishell0*3, gobasis->centers + ishell1*3,
-                          gobasis->centers + ishell2*3, gobasis->centers + ishell3*3);
+                          gobasis->centers + gobasis->shell_map[ishell0]*3, gobasis->centers + gobasis->shell_map[ishell1]*3,
+                          gobasis->centers + gobasis->shell_map[ishell2]*3, gobasis->centers + gobasis->shell_map[ishell3]*3);
 
             for (long iprim0 = 0; iprim0 < gobasis->nprims[ishell0]; iprim0++) {
                 for (long iprim1 = 0; iprim1 < gobasis->nprims[ishell1]; iprim1++) {
@@ -109,8 +109,8 @@ void GB4IntegralWrapper::compute_diagonal(double* diagonal) {
         for (long ishell3 = 0; ishell3 < gobasis->nshell; ishell3++) {
             gb4int->reset(gobasis->shell_types[ishell1], gobasis->shell_types[ishell1],
                           gobasis->shell_types[ishell3], gobasis->shell_types[ishell3],
-                          gobasis->centers + ishell1*3, gobasis->centers + ishell1*3,
-                          gobasis->centers + ishell3*3, gobasis->centers + ishell3*3);
+                          gobasis->centers + gobasis->shell_map[ishell1]*3, gobasis->centers + gobasis->shell_map[ishell1]*3,
+                          gobasis->centers + gobasis->shell_map[ishell3]*3, gobasis->centers + gobasis->shell_map[ishell3]*3);
 
             for (long iprim0 = 0; iprim0 < gobasis->nprims[ishell1]; iprim0++) {
                 for (long iprim1 = 0; iprim1 < gobasis->nprims[ishell1]; iprim1++) {
@@ -150,6 +150,6 @@ void GB4IntegralWrapper::compute_diagonal(double* diagonal) {
     }
 }
 
-void GB4IntegralWrapper::get_2index_slice(long index0, long index2, double* slice) {
-    slice = integrals + ((index0-begin0)*max_shell_size + (index2-begin2))*slice_size;
+double* GB4IntegralWrapper::get_2index_slice(long index0, long index2) {
+    return integrals + ((index0-begin0)*max_shell_size + (index2-begin2))*slice_size;
 }

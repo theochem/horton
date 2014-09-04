@@ -205,7 +205,7 @@ def gb4_helper(sign0, sign1, sign2, sign3):
     scales2 = np.ones(6, float)
     scales3 = np.ones(6, float)
 
-    gb4oi = GB4ElectronReuplsionIntegralLibInt(max_shell_type)
+    gb4oi = GB4ElectronRepulsionIntegralLibInt(max_shell_type)
     assert gb4oi.max_nbasis == max_nbasis
     assert gb4oi.nwork == max_nbasis**4
 

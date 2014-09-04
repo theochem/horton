@@ -26,6 +26,8 @@ import numpy as np
 cimport numpy as np
 np.import_array()
 
+cimport libc.string
+
 cimport boys
 cimport cartpure
 cimport common
@@ -34,11 +36,13 @@ cimport ints
 cimport fns
 cimport iter_gb
 cimport iter_pow
+cimport cholesky
+cimport gbw
 
 import atexit
 
 from horton.log import log
-from horton.matrix import LinalgFactory
+from horton.matrix import LinalgFactory, CholeskyLinalgFactory
 from horton.cext import compute_grid_nucpot
 from horton.utils import typecheck_geo
 
@@ -48,16 +52,20 @@ __all__ = [
     'boys_function',
     # cartpure
     'cart_to_pure_low',
+    #cholesky
+    'compute_cholesky',
     # common
     'fac', 'fac2', 'binom', 'get_shell_nbasis', 'get_max_shell_type',
     'gpt_coeff', 'gb_overlap_int1d', 'nuclear_attraction_helper',
     # gbasis
     'gob_cart_normalization', 'gob_pure_normalization',
     'GOBasis',
+    # gbw (testing)
+    'get_2index_slice', 'compute_diagonal', 'select_2index',
     # ints
     'GB2OverlapIntegral', 'GB2KineticIntegral',
     'GB2NuclearAttractionIntegral',
-    'GB4ElectronReuplsionIntegralLibInt',
+    'GB4ElectronRepulsionIntegralLibInt',
     # fns
     'GB1DMGridDensityFn', 'GB1DMGridGradientFn',
     # iter_gb
@@ -90,6 +98,120 @@ def cart_to_pure_low(np.ndarray[double] work_cart not None,
         &work_cart[0], &work_pure[0], shell_type, nant,
         npost
     )
+
+#
+# cholesky wrappers
+#
+
+def compute_cholesky(GOBasis gobasis, double threshold, lf = None):
+    cdef ints.GB4ElectronRepulsionIntegralLibInt* gb4int = NULL
+    cdef gbw.GB4IntegralWrapper* gb4w = NULL
+    cdef double* data = NULL
+    cdef np.npy_intp dims[3]
+    cdef np.ndarray result
+
+    try:
+        gb4int = new ints.GB4ElectronRepulsionIntegralLibInt(
+                            gobasis.max_shell_type)
+        gb4w = new gbw.GB4IntegralWrapper((<gbasis.GOBasis* > gobasis._this),
+                            <ints.GB4Integral*> gb4int)
+        nvec = cholesky.cholesky(gb4w, &data, threshold)
+        dims[0] = <np.npy_intp> nvec
+        dims[1] = <np.npy_intp> gobasis.nbasis
+        dims[2] = <np.npy_intp> gobasis.nbasis
+        result = np.PyArray_SimpleNewFromData(3, dims, np.NPY_DOUBLE, data)
+    finally:
+        if gb4int is not NULL:
+            del gb4int
+        if gb4w is not NULL:
+            del gb4w
+
+    if lf is not None and isinstance(lf, CholeskyLinalgFactory):
+        result = lf.create_two_body(gobasis.nbasis, array=result)
+
+    return result
+
+#
+# gbw wrappers #TODO:move
+#
+def select_2index(GOBasis gobasis, long index0, long index2):
+    assert index0 >= 0 and index0 < gobasis.nbasis
+    assert index2 >= 0 and index2 < gobasis.nbasis
+
+    cdef ints.GB4ElectronRepulsionIntegralLibInt* gb4int = NULL
+    cdef gbw.GB4IntegralWrapper* gb4w = NULL
+
+    cdef long pbegin0
+    cdef long pend0
+    cdef long pbegin2
+    cdef long pend2
+
+    try:
+        gb4int = new ints.GB4ElectronRepulsionIntegralLibInt(
+                            gobasis.max_shell_type)
+        gb4w = new gbw.GB4IntegralWrapper((<gbasis.GOBasis* > gobasis._this),
+                            <ints.GB4Integral*> gb4int)
+        gb4w.select_2index(index0, index2, &pbegin0, &pend0, &pbegin2, &pend2)
+    finally:
+        if gb4int is not NULL:
+            del gb4int
+        if gb4w is not NULL:
+            del gb4w
+    return pbegin0, pend0, pbegin2, pend2
+
+
+def compute_diagonal(GOBasis gobasis, np.ndarray[double, ndim=2] diagonal not
+        None):
+    cdef ints.GB4ElectronRepulsionIntegralLibInt* gb4int = NULL
+    cdef gbw.GB4IntegralWrapper* gb4w = NULL
+    cdef np.ndarray[double, ndim=2] output
+    output = diagonal
+
+    try:
+        gb4int = new ints.GB4ElectronRepulsionIntegralLibInt(
+                            gobasis.max_shell_type)
+        gb4w = new gbw.GB4IntegralWrapper((<gbasis.GOBasis* > gobasis._this),
+                            <ints.GB4Integral*> gb4int)
+        gb4w.compute_diagonal(&output[0, 0])
+
+    finally:
+        if gb4int is not NULL:
+            del gb4int
+        if gb4w is not NULL:
+            del gb4w
+
+def get_2index_slice(GOBasis gobasis, long index0, long index2,
+                        np.ndarray[double, ndim=2] slice not None):
+    cdef ints.GB4ElectronRepulsionIntegralLibInt* gb4int = NULL
+    cdef gbw.GB4IntegralWrapper* gb4w = NULL
+    assert slice.flags['C_CONTIGUOUS']
+    assert slice.shape[0] == gobasis.nbasis
+    assert slice.shape[1] == gobasis.nbasis
+
+    cdef long pbegin0
+    cdef long pend0
+    cdef long pbegin2
+    cdef long pend2
+    cdef double* output
+    try:
+        gb4int = new ints.GB4ElectronRepulsionIntegralLibInt(
+                            gobasis.max_shell_type)
+        gb4w = new gbw.GB4IntegralWrapper((<gbasis.GOBasis* > gobasis._this),
+                            <ints.GB4Integral*> gb4int)
+        gb4w.select_2index(index0, index2, &pbegin0, &pend0, &pbegin2, &pend2)
+        gb4w.compute()
+        output = gb4w.get_2index_slice(index0, index2)
+        print output[0]
+        print sizeof(double)*gobasis.nbasis*gobasis.nbasis
+        libc.string.memcpy(&slice[0,0], output,
+                sizeof(double)*gobasis.nbasis*gobasis.nbasis)
+        print slice[0,0]
+
+    finally:
+        if gb4int is not NULL:
+            del gb4int
+        if gb4w is not NULL:
+            del gb4w
 
 
 #
@@ -401,6 +523,20 @@ cdef class GBasis:
     property nbasis:
         def __get__(self):
             return self._this.get_nbasis()
+
+    property shell_lookups:
+        def __get__(self):
+            cdef np.npy_intp* shape = [self.nbasis]
+            tmp = np.PyArray_SimpleNewFromData(1, shape,
+                    np.NPY_LONG, <void*> self._this.get_shell_lookup())
+            return tmp.copy()
+
+    property basis_offsets:
+        def __get__(self):
+            cdef np.npy_intp* shape = [self.nshell]
+            tmp = np.PyArray_SimpleNewFromData(1, shape, np.NPY_LONG,
+                        <void*> self._this.get_basis_offsets())
+            return tmp.copy()
 
     property nscales:
         def __get__(self):
@@ -1236,11 +1372,11 @@ cdef class GB4Integral:
         return tmp.copy()
 
 
-cdef class GB4ElectronReuplsionIntegralLibInt(GB4Integral):
-    '''Wrapper for ints.GB4ElectronReuplsionIntegralLibInt, for testing only'''
+cdef class GB4ElectronRepulsionIntegralLibInt(GB4Integral):
+    '''Wrapper for ints.GB4ElectronRepulsionIntegralLibInt, for testing only'''
 
     def __cinit__(self, long max_nbasis):
-        self._this = <ints.GB4Integral*>(new ints.GB4ElectronReuplsionIntegralLibInt(max_nbasis))
+        self._this = <ints.GB4Integral*>(new ints.GB4ElectronRepulsionIntegralLibInt(max_nbasis))
 
 
 

@@ -280,6 +280,25 @@ class DenseLinalgFactory(LinalgFactory):
     def get_memory_two_body(self, nbasis=None):
         return nbasis**4*8
 
+class CholeskyLinalgFactory(DenseLinalgFactory):
+    def create_two_body(self, nbasis=None, nvec=None, array=None):
+        nbasis = nbasis or self.default_nbasis
+
+        if array is not None:
+            if nvec is not None:
+                assert array.shape[0] == nvec
+            return CholeskyTwoBody(nbasis=nbasis, array=array)
+        elif nvec is not None:
+            return CholeskyTwoBody(nbasis=nbasis, nvec=nvec)
+        else:
+            raise NotImplementedError
+
+    def _check_two_body_init_args(self, two_body, nbasis=None, nvec=None, array=None):
+        nbasis = nbasis or self.default_nbasis
+        two_body.__check_init_args__(nbasis)
+
+    create_two_body.__check_init_args__ = _check_two_body_init_args
+
 
 class DenseExpansion(Expansion):
     """An expansion of several functions in a basis with a dense matrix of
@@ -1659,25 +1678,34 @@ class CholeskyTwoBody(DenseTwoBody):
        computer time. Due to its simplicity, it is trivial to implement. This
        implementation mainly serves as a reference for testing purposes.
     """
-    def __init__(self, nbasis):
+    def __init__(self, nbasis, nvec=None, array=None):
         """
            **Arguments:**
 
            nbasis
                 The number of basis functions.
         """
-        nvec = 1000 #FIXME
-        self._array = np.zeros((nvec,nbasis, nbasis), float) #FIXME
-        self._array2 = self._array #set to same member at first
-        log.mem.announce(self._array.nbytes)
+        self._array = None
+        self._array2 = self._array
+
+        if array is not None:
+            self.assign_array(array)
+        elif nvec is not None:
+            self.assign_array(np.zeros([nvec, nbasis, nbasis]))
+
+        if self._array is not None:
+            log.mem.announce(self._array.nbytes)
 
     def __del__(self):
         if log is not None:
             if hasattr(self, '_array'):
                 log.mem.denounce(self._array.nbytes)
+                if self._array2 is not self._array:
+                    log.mem.denounce(self._array2.nbytes)
 
     def __check_init_args__(self, nbasis):
-        assert nbasis == self.nbasis #FIXME
+        assert nbasis == self.nbasis
+        assert self._array is not None
 
     def reset_array2(self):
         """ Deallocates the second cholesky vector and sets it to match the first.
@@ -1754,7 +1782,12 @@ class CholeskyTwoBody(DenseTwoBody):
 
     def assign_array(self, other):
         ''''''
-        raise NotImplementedError
+        if not isinstance(other, np.ndarray):
+            raise TypeError('The other object must be np.ndarray instance. . Got ', type(other), ' instead.')
+
+        self._array = other.copy() #maybe copy not needed?
+        self._array2 = self._array
+
 
     def iscale(self, factor):
         self._array *= np.sqrt(factor)
@@ -1821,6 +1854,7 @@ class CholeskyTwoBody(DenseTwoBody):
             if self._array is self._array2:
                 #must allocate memory first
                 self._array2 = np.zeros_like(self._array)
+                log.mem.announce(self._array2.nbytes)
             self._array2[:] = np.tensordot(ao_integrals._array, aorb.coeffs, axes=([1],[0]))
             self._array2[:] = np.tensordot(self._array2, aorb.coeffs, axes=([1],[0]))
 
@@ -1850,6 +1884,7 @@ class CholeskyTwoBody(DenseTwoBody):
             if self._array is self._array2:
                 #must allocate memory first
                 self._array2 = np.zeros_like(self._array)
+                log.mem.announce(self._array2.nbytes)
             self._array2[:] = np.einsum('ai,kab->kib',aorb.coeffs,ao_integrals._array2)
             self._array2[:] = np.einsum('bj,kib->kij',aorb.coeffs,self._array2)
 

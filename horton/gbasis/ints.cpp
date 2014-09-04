@@ -352,7 +352,7 @@ void GB4Integral::cart_to_pure() {
 
 /*
 
-   GB4ElectronReuplsionIntegralLibInt
+   GB4ElectronRepulsionIntegralLibInt
 
 */
 
@@ -368,17 +368,17 @@ void GB4Integral::cart_to_pure() {
 #error LibInt must be compiled with an angular momentum limit of at least MAX_SHELL_TYPE.
 #endif
 
-GB4ElectronReuplsionIntegralLibInt::GB4ElectronReuplsionIntegralLibInt(long max_shell_type) :
+GB4ElectronRepulsionIntegralLibInt::GB4ElectronRepulsionIntegralLibInt(long max_shell_type) :
     GB4Integral(max_shell_type) {
     libint2_init_eri(&erieval, max_shell_type, 0);
     erieval.contrdepth = 1;
 }
 
-GB4ElectronReuplsionIntegralLibInt::~GB4ElectronReuplsionIntegralLibInt() {
+GB4ElectronRepulsionIntegralLibInt::~GB4ElectronRepulsionIntegralLibInt() {
     libint2_cleanup_eri(&erieval);
 }
 
-void GB4ElectronReuplsionIntegralLibInt::reset(
+void GB4ElectronRepulsionIntegralLibInt::reset(
     long _shell_type0, long _shell_type1, long _shell_type2, long _shell_type3,
     const double* _r0, const double* _r1, const double* _r2, const double* _r3)
 {
@@ -479,7 +479,7 @@ void GB4ElectronReuplsionIntegralLibInt::reset(
 }
 
 
-void GB4ElectronReuplsionIntegralLibInt::add(
+void GB4ElectronRepulsionIntegralLibInt::add(
     double coeff, double alpha0, double alpha1, double alpha2, double alpha3,
     const double* scales0, const double* scales1, const double* scales2,
     const double* scales3) {

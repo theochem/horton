@@ -1212,7 +1212,7 @@ def test_gb4_erilibint_class():
     r2 = np.array([1.456687, 0.132147, -0.13572])
     r3 = np.array([0.798754, 0.456465, 0.465736])
 
-    gb4i = GB4ElectronReuplsionIntegralLibInt(max_shell_type)
+    gb4i = GB4ElectronRepulsionIntegralLibInt(max_shell_type)
     assert gb4i.max_shell_type == max_shell_type
     assert gb4i.max_nbasis == max_nbasis
     assert gb4i.nwork == max_nbasis**4
@@ -1223,7 +1223,7 @@ def check_electron_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3,
     # PyQuante.
     max_shell_type = 4
     max_nbasis = get_shell_nbasis(max_shell_type)
-    gb4i = GB4ElectronReuplsionIntegralLibInt(max_shell_type)
+    gb4i = GB4ElectronRepulsionIntegralLibInt(max_shell_type)
     assert gb4i.max_nbasis == max_nbasis
     assert gb4i.nwork == max_nbasis**4
 
