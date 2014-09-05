@@ -368,7 +368,7 @@ class AtomProgram(object):
         return mol, mol.energy
 
 
-run_gaussian_script = '''
+run_gaussian_script = '''\
 #!/bin/bash
 
 # make sure %(name)s and formchk are available before running this script.
@@ -423,7 +423,7 @@ class G03AtomProgram(G09AtomProgram):
     run_script = run_gaussian_script % {'name': 'g03'}
 
 
-run_orca_script = '''
+run_orca_script = '''\
 #!/bin/bash
 
 # make sure orca and orca2mkl are available before running this script.
@@ -473,7 +473,7 @@ class OrcaAtomProgram(AtomProgram):
         return AtomProgram.load_atom(self, dn_mult, 'molden.input')
 
 
-run_cp2k_script = '''
+run_cp2k_script = '''\
 #!/bin/bash
 
 # Note: if you want to use an mpi-parallel CP2K binary, uncomment the following
@@ -481,7 +481,7 @@ run_cp2k_script = '''
 #CP2K_BIN="mpirun -n4 cp2k.popt"
 
 # Find a non-mpi CP2K binary if needed.
-if [ -z $CP2K_BIN ]; then
+if [ -z "$CP2K_BIN" ]; then
     # Find all potential non-mpi CP2K binaries in the $PATH
     CP2K_BINS=$(find ${PATH//:/ } -name "cp2k.s*")
 
