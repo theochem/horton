@@ -68,8 +68,6 @@ def parse_args():
         help='Overwrite existing output in the HDF5 file')
     parser.add_argument('--debug', default=False, action='store_true',
         help='Add additional internal results to a debug subgroup.')
-    parser.add_argument('--suffix', default=None, type=str,
-        help='Add an additional suffix to the HDF5 output group.')
 
     parser.add_argument('--pbc', default='111', type=str,
         help='Specify the periodicity. The three digits refer to a, b and c '
