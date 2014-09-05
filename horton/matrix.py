@@ -57,7 +57,8 @@ from horton.log import log
 
 __all__ = [
     'LinalgFactory', 'LinalgObject', 'Expansion', 'OneBody',
-    'DenseLinalgFactory', 'DenseExpansion', 'DenseOneBody', 'DenseTwoBody', 'CholeskyTwoBody', 'DenseThreeBody'
+    'DenseLinalgFactory', 'CholeskyLinalgFactory', 'DenseExpansion',
+    'DenseOneBody', 'DenseTwoBody', 'CholeskyTwoBody', 'DenseThreeBody'
 ]
 
 

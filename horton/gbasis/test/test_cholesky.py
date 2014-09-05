@@ -24,11 +24,11 @@ from nose.tools import assert_raises
 
 from horton import *
 
-def get_h2o_er():
+def get_h2o_er(linalg_factory=DenseLinalgFactory):
     fn = context.get_fn('test/water.xyz')
     mol = Molecule.from_file(fn)
     obasis = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
-    lf = DenseLinalgFactory(obasis.nbasis)
+    lf = linalg_factory(obasis.nbasis)
     return obasis, obasis.compute_electron_repulsion(lf)._array
 
 def pcholesky4(A, thresh=1e-8):
@@ -51,10 +51,18 @@ def pcholesky4(A, thresh=1e-8):
         print ""
     return Ls
 
-def test_cholesky():
+def test_cholesky_array():
     obasis, ref_er = get_h2o_er()
 
-    vecs = compute_cholesky(obasis, 1e-8)
+    vecs = compute_cholesky(obasis)
+    test_er = np.einsum('kac,kbd->abcd', vecs, vecs)
+
+    assert np.allclose(ref_er, test_er), (ref_er,test_er)
+
+def test_cholesky_from_gbasis():
+    obasis, ref_er = get_h2o_er()
+    obasis2, vecs = get_h2o_er(CholeskyLinalgFactory)
+
     test_er = np.einsum('kac,kbd->abcd', vecs, vecs)
 
     assert np.allclose(ref_er, test_er), (ref_er,test_er)

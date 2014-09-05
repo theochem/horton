@@ -103,7 +103,7 @@ def cart_to_pure_low(np.ndarray[double] work_cart not None,
 # cholesky wrappers
 #
 
-def compute_cholesky(GOBasis gobasis, double threshold, lf = None):
+def compute_cholesky(GOBasis gobasis, double threshold=1e-8, lf = None):
     cdef ints.GB4ElectronRepulsionIntegralLibInt* gb4int = NULL
     cdef gbw.GB4IntegralWrapper* gb4w = NULL
     cdef double* data = NULL
@@ -127,92 +127,10 @@ def compute_cholesky(GOBasis gobasis, double threshold, lf = None):
             del gb4w
 
     if lf is not None and isinstance(lf, CholeskyLinalgFactory):
-        result = lf.create_two_body(gobasis.nbasis, array=result)
-
-    return result
-
-#
-# gbw wrappers #TODO:move
-#
-def select_2index(GOBasis gobasis, long index0, long index2):
-    assert index0 >= 0 and index0 < gobasis.nbasis
-    assert index2 >= 0 and index2 < gobasis.nbasis
-
-    cdef ints.GB4ElectronRepulsionIntegralLibInt* gb4int = NULL
-    cdef gbw.GB4IntegralWrapper* gb4w = NULL
-
-    cdef long pbegin0
-    cdef long pend0
-    cdef long pbegin2
-    cdef long pend2
-
-    try:
-        gb4int = new ints.GB4ElectronRepulsionIntegralLibInt(
-                            gobasis.max_shell_type)
-        gb4w = new gbw.GB4IntegralWrapper((<gbasis.GOBasis* > gobasis._this),
-                            <ints.GB4Integral*> gb4int)
-        gb4w.select_2index(index0, index2, &pbegin0, &pend0, &pbegin2, &pend2)
-    finally:
-        if gb4int is not NULL:
-            del gb4int
-        if gb4w is not NULL:
-            del gb4w
-    return pbegin0, pend0, pbegin2, pend2
-
-
-def compute_diagonal(GOBasis gobasis, np.ndarray[double, ndim=2] diagonal not
-        None):
-    cdef ints.GB4ElectronRepulsionIntegralLibInt* gb4int = NULL
-    cdef gbw.GB4IntegralWrapper* gb4w = NULL
-    cdef np.ndarray[double, ndim=2] output
-    output = diagonal
-
-    try:
-        gb4int = new ints.GB4ElectronRepulsionIntegralLibInt(
-                            gobasis.max_shell_type)
-        gb4w = new gbw.GB4IntegralWrapper((<gbasis.GOBasis* > gobasis._this),
-                            <ints.GB4Integral*> gb4int)
-        gb4w.compute_diagonal(&output[0, 0])
-
-    finally:
-        if gb4int is not NULL:
-            del gb4int
-        if gb4w is not NULL:
-            del gb4w
-
-def get_2index_slice(GOBasis gobasis, long index0, long index2,
-                        np.ndarray[double, ndim=2] slice not None):
-    cdef ints.GB4ElectronRepulsionIntegralLibInt* gb4int = NULL
-    cdef gbw.GB4IntegralWrapper* gb4w = NULL
-    assert slice.flags['C_CONTIGUOUS']
-    assert slice.shape[0] == gobasis.nbasis
-    assert slice.shape[1] == gobasis.nbasis
-
-    cdef long pbegin0
-    cdef long pend0
-    cdef long pbegin2
-    cdef long pend2
-    cdef double* output
-    try:
-        gb4int = new ints.GB4ElectronRepulsionIntegralLibInt(
-                            gobasis.max_shell_type)
-        gb4w = new gbw.GB4IntegralWrapper((<gbasis.GOBasis* > gobasis._this),
-                            <ints.GB4Integral*> gb4int)
-        gb4w.select_2index(index0, index2, &pbegin0, &pend0, &pbegin2, &pend2)
-        gb4w.compute()
-        output = gb4w.get_2index_slice(index0, index2)
-        print output[0]
-        print sizeof(double)*gobasis.nbasis*gobasis.nbasis
-        libc.string.memcpy(&slice[0,0], output,
-                sizeof(double)*gobasis.nbasis*gobasis.nbasis)
-        print slice[0,0]
-
-    finally:
-        if gb4int is not NULL:
-            del gb4int
-        if gb4w is not NULL:
-            del gb4w
-
+        result_py = lf.create_two_body(gobasis.nbasis, array=result)
+        return result_py
+    else:
+        return result
 
 #
 # common wrappers
@@ -776,6 +694,11 @@ cdef class GOBasis(GBasis):
 
     def compute_electron_repulsion(self, output):
         # prepare the output array
+        if isinstance(output, CholeskyLinalgFactory):
+            lf = output
+            print type(output)
+            output = compute_cholesky(self, lf=lf)
+            return output
         cdef np.ndarray[double, ndim=4] output_array
         if isinstance(output, LinalgFactory):
             lf = output
@@ -1167,7 +1090,6 @@ cdef class GOBasis(GBasis):
         '''
         self._compute_grid1_fock(points, weights, pots, GB1DMGridGradientFn(self.max_shell_type), fock)
 
-#
     def compute_grid_kinetic_fock(self, np.ndarray[double, ndim=2] points not None,
                                   np.ndarray[double, ndim=1] weights not None,
                                   np.ndarray[double, ndim=1] pots not None, fock):
@@ -1191,6 +1113,91 @@ cdef class GOBasis(GBasis):
            **Warning:** the results are added to the fock operator!
         '''
         self._compute_grid1_fock(points, weights, pots, GB1DMGridKineticFn(self.max_shell_type), fock)
+
+
+#
+# gbw wrappers
+#
+
+def select_2index(GOBasis gobasis, long index0, long index2):
+    assert index0 >= 0 and index0 < gobasis.nbasis
+    assert index2 >= 0 and index2 < gobasis.nbasis
+
+    cdef ints.GB4ElectronRepulsionIntegralLibInt* gb4int = NULL
+    cdef gbw.GB4IntegralWrapper* gb4w = NULL
+
+    cdef long pbegin0
+    cdef long pend0
+    cdef long pbegin2
+    cdef long pend2
+
+    try:
+        gb4int = new ints.GB4ElectronRepulsionIntegralLibInt(
+                            gobasis.max_shell_type)
+        gb4w = new gbw.GB4IntegralWrapper((<gbasis.GOBasis* > gobasis._this),
+                            <ints.GB4Integral*> gb4int)
+        gb4w.select_2index(index0, index2, &pbegin0, &pend0, &pbegin2, &pend2)
+    finally:
+        if gb4int is not NULL:
+            del gb4int
+        if gb4w is not NULL:
+            del gb4w
+    return pbegin0, pend0, pbegin2, pend2
+
+
+def compute_diagonal(GOBasis gobasis, np.ndarray[double, ndim=2] diagonal not
+        None):
+    cdef ints.GB4ElectronRepulsionIntegralLibInt* gb4int = NULL
+    cdef gbw.GB4IntegralWrapper* gb4w = NULL
+    cdef np.ndarray[double, ndim=2] output
+    output = diagonal
+
+    try:
+        gb4int = new ints.GB4ElectronRepulsionIntegralLibInt(
+                            gobasis.max_shell_type)
+        gb4w = new gbw.GB4IntegralWrapper((<gbasis.GOBasis* > gobasis._this),
+                            <ints.GB4Integral*> gb4int)
+        gb4w.compute_diagonal(&output[0, 0])
+
+    finally:
+        if gb4int is not NULL:
+            del gb4int
+        if gb4w is not NULL:
+            del gb4w
+
+def get_2index_slice(GOBasis gobasis, long index0, long index2,
+                        np.ndarray[double, ndim=2] slice not None):
+    cdef ints.GB4ElectronRepulsionIntegralLibInt* gb4int = NULL
+    cdef gbw.GB4IntegralWrapper* gb4w = NULL
+    assert slice.flags['C_CONTIGUOUS']
+    assert slice.shape[0] == gobasis.nbasis
+    assert slice.shape[1] == gobasis.nbasis
+
+    cdef long pbegin0
+    cdef long pend0
+    cdef long pbegin2
+    cdef long pend2
+    cdef double* output
+    try:
+        gb4int = new ints.GB4ElectronRepulsionIntegralLibInt(
+                            gobasis.max_shell_type)
+        gb4w = new gbw.GB4IntegralWrapper((<gbasis.GOBasis* > gobasis._this),
+                            <ints.GB4Integral*> gb4int)
+        gb4w.select_2index(index0, index2, &pbegin0, &pend0, &pbegin2, &pend2)
+        gb4w.compute()
+        output = gb4w.get_2index_slice(index0, index2)
+        print output[0]
+        print sizeof(double)*gobasis.nbasis*gobasis.nbasis
+        libc.string.memcpy(&slice[0,0], output,
+                sizeof(double)*gobasis.nbasis*gobasis.nbasis)
+        print slice[0,0]
+
+    finally:
+        if gb4int is not NULL:
+            del gb4int
+        if gb4w is not NULL:
+            del gb4w
+
 
 #
 # ints wrappers (for testing only)
