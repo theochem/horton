@@ -540,6 +540,64 @@ class CP2KAtomProgram(AtomProgram):
         return AtomProgram.load_atom(self, dn_mult, 'cp2k.out')
 
 
+run_psi4_script = '''\
+#!/bin/bash
+
+# make sure psi4 is available before running this script.
+
+MISSING=0
+if ! which psi4 &>/dev/null; then echo "psi4 binary not found."; MISSING=1; fi
+if [ $MISSING -eq 1 ]; then echo "The required programs are not present on your system. Giving up."; exit -1; fi
+
+function do_atom {
+    echo "Computing in ${1}"
+    cd ${1}
+    if [ -e atom.out ]; then
+        echo "Output file present in ${1}, not recomputing."
+    else
+        psi4 atom.in
+        RETCODE=$?
+        if [ $RETCODE == 0 ]; then
+            rm -f atom.out.failed
+        else
+            # Rename the output of the failed job such that it gets recomputed
+            # when the run script is executed again.
+            mv atom.out atom.out.failed
+        fi
+    fi
+    cd -
+}
+
+for ATOMDIR in [01][0-9][0-9]_*_[01][0-9][0-9]_q[-+][0-9][0-9]/mult[0-9][0-9]; do
+    do_atom ${ATOMDIR}
+done
+'''
+
+
+class Psi4AtomProgram(AtomProgram):
+    name = 'psi4'
+    run_script = run_psi4_script
+
+    def _get_energy(self, mol, dn_mult):
+        with open('%s/atom.out' % dn_mult) as f:
+            for line in f:
+                if 'Final Energy' in line:
+                    return float(line.split()[-1])
+
+    def write_input(self, number, charge, mult, template, do_overwrite):
+        found = False
+        for line in template.template.split('\n'):
+            words = line.lower().split()
+            if 'molden_write' in words and 'true' in words:
+                found = True
+                break
+        if not found:
+            raise ValueError('The template must contain a line with \'molden_write true\'.')
+        return AtomProgram.write_input(self, number, charge, mult, template, do_overwrite)
+
+    def load_atom(self, dn_mult):
+        return AtomProgram.load_atom(self, dn_mult, 'default.molden')
+
 
 atom_programs = {}
 for APC in globals().values():

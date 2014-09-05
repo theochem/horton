@@ -29,12 +29,16 @@ Command-line script      ``horton-wpart.py``         ``horton-cpart.py``
 2D                                                   X
 3D                                                   X
 **Input file formats**
-Gaussian03/09 fchk       X                                                       http://www.gaussian.com/
+fchk (Gaussian03/09)     X                                                       http://www.gaussian.com/
 Molekel (Orca)           X                                                       http://cec.mpg.de/forum/
-Molden input (Orca)      X                                                       http://cec.mpg.de/forum/
-Gaussian/GAMESS wfn      X                                                       http://www.gaussian.com/ http://www.msg.ameslab.gov/gamess/
-Gaussian03/09 cube                                   X                           http://www.gaussian.com/
-Vasp CHGCAR                                          X                           https://www.vasp.at/
+Molden (Molden)          X                                                       http://cec.mpg.de/forum/
+Molden (Molpro)          X                                                       http://www.molpro.net/
+Molden (Orca)            X                                                       http://cec.mpg.de/forum/
+Molden (PSI4)            X                                                       http://www.psicode.org/
+wfn (Gaussian)           X                                                       http://www.gaussian.com/
+wfn (GAMESS)             X                                                       http://www.msg.ameslab.gov/gamess/
+cube (Gaussian03/09)                                 X                           http://www.gaussian.com/
+CHGCAR (Vasp)                                        X                           https://www.vasp.at/
 **AIM schemes**
 Becke                    X                                                       [becke1988_multicenter]_
 Hirshfeld                X                           X                           [hirshfeld1977]_
@@ -88,7 +92,7 @@ frequently asked questions about partitioning with Horton.
 The usage of the script ``horton-atomdb.py`` consists of three steps:
 
 1) **Generate input files** for isolated atom computations for one of the following
-   codes: Gaussian03/09, Orca or CP2K. The following example generates
+   codes: Gaussian03/09, Orca, PSI4 or CP2K. The following example generates
    Gaussian09 inputs for hydrogen, carbon, nitrogen and oxygen::
 
     horton-atomdb.py input g09 1,6-8 template.com
@@ -122,7 +126,11 @@ One may remove some directories with atomic computations before or after
 executing the ``run_PROGRAM.sh`` script. The corresponding atoms will not be
 included in the database. Similarly, one may rerun ``horton-atomdb.py input``
 to generate more input files. In that case ``run_PROGRAM.sh`` will only consider
-the atomic computations that are not completed yet.
+the atomic computations that are not completed yet. In some cases, custom
+modifications are needed in the ``run_PROGRAM.sh`` script, e.g. one may want to
+use ``mpirun`` to run the each atomic computation in parallel. When such
+modifications are made, subsequent runs of ``horton-atomdb.py input ...`` will
+not overwrite the ``run_PROGRAM.sh`` script.
 
 
 Template files
@@ -341,6 +349,35 @@ set.
     014_012_01 1s2
     014_013_02 1s2 2p1
     014_014_03 1s2 2p2
+
+
+Simple template file for PSI4
+-----------------------------
+
+The following template file use the BLYP functionals and the built-in
+``cc-pvdz`` basis set of PSI4::
+
+    molecule {
+     ${charge} ${mult}
+     ${element} 0.0 0.0 0.0
+    }
+
+    set {
+     basis cc-pvdz
+     scf_type df
+     guess sad
+     molden_write true
+     reference uhf
+    }
+
+    energy('blyp')
+
+Note that the flags ``molden_write true`` and ``reference uhf`` are required.
+The former instructs the SCF program to write the orbitals, which Horton picks
+up to compute atomic densities. The latter is needed because usually most of the
+atomic computations are open-shell systems. Because PSI4 only writes a Molden
+file for SCF computations, it is not possible to prepare atomic densities with
+other levels of theory.
 
 
 ``horton-wpart.py`` -- AIM analysis based on a wavefunction file

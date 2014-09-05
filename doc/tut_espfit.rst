@@ -140,7 +140,7 @@ the ESP cost function, for example by adding constraints, restraints,
 transforming to bond-charge increments, fitting to several different molecules
 concurrently, etc. Such advanced features are not supported in
 ``horton-esp-fit.py`` but one is free to implement these in customized scripts
-that use the the ESP cust functions obtained with ``horton-esp-cost.py``.
+that use the the ESP cost functions obtained with ``horton-esp-cost.py``.
 
 
 ``horton-esp-test.py`` -- Test the ESP quality of a given set of charges
