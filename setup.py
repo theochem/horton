@@ -97,7 +97,7 @@ if os.path.isfile('%s/lib/.libs/libint2.a' % libintdir):
     libint_libraries = []
 else:
     libint_extra_objects = []
-    libint_include_dirs = []
+    libint_include_dirs = ['/usr/include/libint2']
     libint_libraries = ['int2']
 
 
@@ -141,8 +141,10 @@ setup(
             sources=get_sources('horton/gbasis') + ['horton/moments.cpp'],
             depends=get_depends('horton/gbasis') + ['horton/moments.pxd', 'horton/moments.h'],
             extra_objects=libint_extra_objects,
-            libraries=libint_libraries,
-            include_dirs=[np.get_include(), 'horton'] + libint_include_dirs,
+            libraries=libint_libraries+['atlas','cblas'],
+            include_dirs=[np.get_include(), 'horton'] + libint_include_dirs +
+            ['/usr/include/atlas-x86_64-sse3'],
+            library_dirs=['/usr/lib64/atlas-sse3'],
             language="c++"),
         Extension("horton.grid.cext",
             sources=get_sources('horton/grid') + [
