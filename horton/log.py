@@ -455,23 +455,67 @@ class MemoryLogger(object):
         self._big = 0
         self.log = log
 
+    def _assign_unit(self, amount):
+        unitKB = float(1024)
+        unitMB = float(1024*unitKB)
+        unitGB = float(1024*unitMB)
+
+        if amount/unitGB > 1.:
+            unit = unitGB
+            label = "GB"
+        elif amount/unitMB > 1.:
+            unit = unitMB
+            label = "MB"
+        elif amount/unitKB > 1.:
+            unit = unitKB
+            label = "KB"
+        else:
+            unit = 1
+            label = "B"
+
+        return unit, label
+
     def announce(self, amount):
-        unit = float(1024*1024)
         if self.log.do_debug:
-            self.log('Allocated:    %.1f MB. Current: %.1f MB. RSS: %.1f MB' %(
-                amount/unit, self._big/unit, self.get_rss()/unit
-            ))
+            result={}
+
+            unit, label = self._assign_unit(amount)
+            result["allc_val"] = amount/unit
+            result["allc_lbl"] = label
+
+            unit, label = self._assign_unit(self._big)
+            result["cur_val"] = self._big/unit
+            result["cur_lbl"] = label
+
+            unit, label = self._assign_unit(self.get_rss())
+            result["rss_val"] = self.get_rss()/unit
+            result["rss_lbl"] = label
+
+            self.log('Allocated:    %(allc_val).3f %(allc_lbl)s. Current: %(cur_val).3f %(cur_lbl)s. RSS: %(rss_val).3f %(rss_lbl)s' % result)
             self._big += amount
         if self.log.do_debug:
             traceback.print_stack()
             self.log.blank()
 
     def denounce(self, amount):
-        unit = float(1024*1024)
         if self.log.do_debug:
-            self.log('Deallocated:  %.1f MB. Current: %.1f MB. RSS: %.1f MB' %(
-                amount/unit, self._big/unit, self.get_rss()/unit
-            ))
+            result={}
+
+            unit, label = self._assign_unit(amount)
+            result["allc_val"] = amount/unit
+            result["allc_lbl"] = label
+
+            unit, label = self._assign_unit(self._big)
+            result["cur_val"] = self._big/unit
+            result["cur_lbl"] = label
+
+            unit, label = self._assign_unit(self.get_rss())
+            result["rss_val"] = self.get_rss()/unit
+            result["rss_lbl"] = label
+
+
+            self.log('Deallocated:    %(allc_val).3f %(allc_lbl)s. Current: %(cur_val).3f %(cur_lbl)s. RSS: %(rss_val).3f %(rss_lbl)s' % result
+            )
             self._big -= amount
         if self.log.do_debug:
             traceback.print_stack()

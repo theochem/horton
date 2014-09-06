@@ -367,7 +367,7 @@ class Geminal(object):
            indextrans
                Choice of 4-index transformation. Default 'tensordot'.
         '''
-        two_mo = self._lf.create_two_body()
+        two_mo = two_ao.copy()
         if indextrans == 'einstein':
             two_mo.apply_four_index_transform_einsum(two_ao, orb, orb2, orb3, orb4)
         elif indextrans == 'tensordot':

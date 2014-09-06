@@ -696,7 +696,6 @@ cdef class GOBasis(GBasis):
         # prepare the output array
         if isinstance(output, CholeskyLinalgFactory):
             lf = output
-            print type(output)
             output = compute_cholesky(self, lf=lf)
             return output
         cdef np.ndarray[double, ndim=4] output_array

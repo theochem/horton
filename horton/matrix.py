@@ -1492,6 +1492,12 @@ class DenseTwoBody(LinalgObject):
         '''Assign a dense numpy array to the underlying representation.'''
         self._array[:] = other[:]
 
+    def copy(self):
+        '''Return a copy of the current two-body operator'''
+        result = DenseTwoBody(self.nbasis)
+        result.assign(self)
+        return result
+
     def iscale(self, factor):
         self._array *= factor
 
@@ -1773,12 +1779,20 @@ class CholeskyTwoBody(DenseTwoBody):
     def assign(self, other):
         if not isinstance(other, CholeskyTwoBody):
             raise TypeError('The other object must also be CholeskyTwoBody instance. . Got ', type(other), ' instead.')
+        if self._array is None:
+            self._array = np.ndarray(other._array.shape)
+            log.mem.announce(self._array.nbytes)
+
         self._array[:] = other._array
         if other._array is other._array2:
             #arrays are the same
             self._array2 = self._array
         else:
             #arrays have been transformed
+            if self._array is None:
+                self._array2 = np.ndarray(other._array2.shape)
+                log.mem.announce(self._array2.nbytes)
+
             self._array2[:] = other._array2
 
     def assign_array(self, other):
@@ -1789,6 +1803,11 @@ class CholeskyTwoBody(DenseTwoBody):
         self._array = other.copy() #maybe copy not needed?
         self._array2 = self._array
 
+    def copy(self):
+        '''Return a copy of the current two-body operator'''
+        result = CholeskyTwoBody(self.nbasis)
+        result.assign(self)
+        return result
 
     def iscale(self, factor):
         self._array *= np.sqrt(factor)
@@ -1820,7 +1839,8 @@ class CholeskyTwoBody(DenseTwoBody):
             raise TypeError('The dm argument must be a DenseOneBody class. Got ', type(dm), ' instead.')
         if not isinstance(output, DenseOneBody):
             raise TypeError('The output argument must be a DenseOneBody class. Got ', type(output), ' instead.')
-        output.assign_array(np.einsum('kab,kij,ji', self._array, self._array2, dm._get_dense()))
+        result = np.tensordot(self._array, np.tensordot(self._array2, dm._get_dense(), axes=([(1,2),(1,0)])), [0,0])
+        output.assign_array(result)
 
     def apply_exchange(self, dm, output):
         """Compute the exchange dot product with a density matrix."""
@@ -1828,7 +1848,8 @@ class CholeskyTwoBody(DenseTwoBody):
             raise TypeError('The dm argument must be a DenseOneBody class. Got ', type(dm), ' instead.')
         if not isinstance(output, DenseOneBody):
             raise TypeError('The output argument must be a DenseOneBody class. Got ', type(output), ' instead.')
-        output.assign_array(np.einsum('kaj,kbi,ji', self._array, self._array2, dm._get_dense()))
+        result = np.tensordot(self._array, np.tensordot(self._array2, dm._get_dense(), axes=([2,1])), ([0,2],[0,2]))
+        output.assign_array(result)
 
     def apply_four_index_transform_tensordot(self, ao_integrals, aorb, aorb2=None, aorb3=None, aorb4=None):
         '''Perform four index transformation using np.tensordot.

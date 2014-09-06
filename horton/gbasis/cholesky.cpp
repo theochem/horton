@@ -30,7 +30,8 @@ long cholesky(GB4IntegralWrapper* gbw4, double** uninit_result, double threshold
   double* diagerr = new double[nbasis*nbasis];  //  "
 //  double* slice = new double[nbasis*nbasis];   //  "
   double* slice = NULL;   //  "
-  std::vector<double*> vectors;
+  std::vector<double>* vectors = new std::vector<double>;
+  vectors->reserve(nbasis*nbasis*nbasis*nbasis*0.15);
   //bool* mask = NULL;        // 2-index object
 
 
@@ -57,6 +58,7 @@ long cholesky(GB4IntegralWrapper* gbw4, double** uninit_result, double threshold
       }
   }
   //std::cout << std::endl << std::endl << "initial maxdiag " << maxdiag << std::endl;
+  unsigned long nvec=0;
   do {
     // call wrapper to let it select a pair of shells.
     long begin1;
@@ -72,7 +74,6 @@ long cholesky(GB4IntegralWrapper* gbw4, double** uninit_result, double threshold
         // break if there are no slices left in the selected shell
         slice = gbw4->get_2index_slice(index1, index2);
         // construct new cholesky vector
-        double* vector = new double[nbasis*nbasis];
         double* pastvector_sum = new double[nbasis*nbasis];
         memset(pastvector_sum, 0, sizeof(double)*nbasis*nbasis);
         maxdiag = 1.0 / sqrt(maxdiag);
@@ -81,31 +82,29 @@ long cholesky(GB4IntegralWrapper* gbw4, double** uninit_result, double threshold
     //std::cout << "indices " << index1 << " " << index2 << std::endl;
 
     //compute sum of past Ls
-    for (unsigned long l=0; l<vectors.size(); l++){
+    for (unsigned long l=0; l<nvec; l++){
             for (long i=0; i<nbasis; i++){
                 for (long j=0; j<nbasis; j++){
-                    pastvector_sum[i*nbasis + j] += vectors[l][index1*nbasis + index2]
-                                                        * vectors[l][i*nbasis + j];
+                    pastvector_sum[i*nbasis + j] += (*vectors)[(l*nbasis*nbasis) + index1*nbasis + index2]
+                                    * (*vectors)[(l*nbasis*nbasis) + i*nbasis + j];
                 }
             }
-        }
+    }
 
     //compute current L
         for (long i=0; i<nbasis; i++){
             for (long j=0; j<nbasis; j++){
-                vector[i*nbasis + j] = maxdiag * (slice[i*nbasis + j]
-                                                    - pastvector_sum[i*nbasis + j]);
+                vectors->push_back(maxdiag * (slice[i*nbasis + j] - pastvector_sum[i*nbasis + j]));
             }
         }
 
         // update diagerr
         for (long i=0; i<nbasis; i++){
             for (long j=0; j<nbasis; j++){
-                diagerr[i*nbasis + j] -= vector[i*nbasis + j]*vector[i*nbasis + j];
+                diagerr[i*nbasis + j] -= (*vectors)[(nvec*nbasis*nbasis) + i*nbasis + j] * (*vectors)[(nvec*nbasis*nbasis) + i*nbasis + j];
             }
         }
-        //store vector
-        vectors.push_back(vector);
+    nvec++;
         // Decide which 2-index within the shell, i.e. largest error.
         // Here, begin1, end1, begin2 and end2 are used to limit the search for
         // the maximum to the select shells.
@@ -138,14 +137,9 @@ long cholesky(GB4IntegralWrapper* gbw4, double** uninit_result, double threshold
   } while (maxdiag > threshold);
 
   // Concatenate results array. Not efficient!
-  double* result = new double[vectors.size()*nbasis*nbasis];
-  //std::cout << vectors.size() << std::endl;
-  for (unsigned long i=0; i < vectors.size(); i++){
-      memcpy(result+(i*nbasis*nbasis), vectors[i], sizeof(double)*nbasis*nbasis);
-  }
-  *uninit_result = result;
+  *uninit_result = &((*vectors)[0]);
 
-  return vectors.size();
+  return nvec;
 }
 
 /*
