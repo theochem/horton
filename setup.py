@@ -100,6 +100,22 @@ else:
     libint_include_dirs = ['/usr/include/libint2']
     libint_libraries = ['int2']
 
+# Switches to MKL BLAS from default ATLAS BLAS. Specify with environmental variable
+# USE_MKL=1. You are responsible for setting the CPATH and configuring ldconfig yourself.
+if os.getenv("USE_MKL") == "1":
+    blas_include_dirs = []
+    blas_lib_dirs = []
+    blas_libraries = ['mkl_intel_lp64', 'mkl_core', 'mkl_sequential', 'pthread',
+            'm']
+    blas_precompiler = ("CBLAS_CPP", "<mkl.h>")
+else:
+    blas_include_dirs = ["/usr/include/atlas-x86_64-sse3"]
+    blas_lib_dirs = ['/usr/lib64/atlas-sse3']
+#    blas_lib_dirs = []
+    blas_libraries = ['atlas','cblas']
+    blas_precompiler = ("CBLAS_C", "<cblas.h>")
+
+
 
 setup(
     name='horton',
@@ -141,10 +157,11 @@ setup(
             sources=get_sources('horton/gbasis') + ['horton/moments.cpp'],
             depends=get_depends('horton/gbasis') + ['horton/moments.pxd', 'horton/moments.h'],
             extra_objects=libint_extra_objects,
-            libraries=libint_libraries+['atlas','cblas'],
+            libraries=libint_libraries+blas_libraries,
             include_dirs=[np.get_include(), 'horton'] + libint_include_dirs +
-            ['/usr/include/atlas-x86_64-sse3'],
-            library_dirs=['/usr/lib64/atlas-sse3'],
+            blas_include_dirs,
+            library_dirs = blas_lib_dirs,
+            define_macros = [blas_precompiler],
             language="c++"),
         Extension("horton.grid.cext",
             sources=get_sources('horton/grid') + [

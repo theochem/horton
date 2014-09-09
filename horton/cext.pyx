@@ -29,18 +29,79 @@ np.import_array()
 cimport cell
 cimport moments
 cimport nucpot
+cimport matrix
 
 from horton.utils import typecheck_geo
 
 __all__ = [
     # cell.cpp
     'Cell', 'smart_wrap',
+    #matrix.cpp
+    'compute_slice_abcc','compute_slice_abbc','subtract_slice_abbc',
     # moments.cpp
     'fill_cartesian_polynomials', 'fill_pure_polynomials', 'fill_radial_polynomials',
     # nucpot.cpp
     'compute_grid_nucpot', 'compute_nucnuc',
 ]
 
+#
+# matrix.cpp
+#
+
+def compute_slice_abcc(np.ndarray[double, ndim=3] inp not None,
+                        np.ndarray[double, ndim=3] inp2 not None,
+                        np.ndarray[double, ndim=3] out not None,
+                       long nbasis, long nvec):
+
+    assert inp.flags['C_CONTIGUOUS']
+    assert inp2.flags['C_CONTIGUOUS']
+    assert out.flags['C_CONTIGUOUS']
+
+    assert inp.shape[0] == nvec
+    assert inp.shape[1] == inp.shape[2] == nbasis
+
+    assert inp2.shape[0] == nvec
+    assert inp2.shape[1] == inp2.shape[2] == nbasis
+    assert out.shape[0] == out.shape[1] == out.shape[2] == nbasis
+
+    matrix.get_slice_abcc(&inp[0, 0, 0], &inp2[0, 0, 0], &out[0, 0, 0], nbasis, nvec)
+    return out
+
+def compute_slice_abbc(np.ndarray[double, ndim=3] inp not None,
+                        np.ndarray[double, ndim=3] inp2 not None,
+                        np.ndarray[double, ndim=3] out not None,
+                        long nbasis, long nvec):
+
+    assert inp.flags['C_CONTIGUOUS']
+    assert inp2.flags['C_CONTIGUOUS']
+    assert out.flags['C_CONTIGUOUS']
+
+    assert inp.shape[0] == nvec
+    assert inp.shape[1] == inp.shape[2] == nbasis
+    assert inp2.shape[0] == nvec
+    assert inp2.shape[1] == inp2.shape[2] == nbasis
+    assert out.shape[0] == out.shape[1] == out.shape[2] == nbasis
+
+    matrix.get_slice_abbc(&inp[0, 0, 0], &inp2[0, 0, 0], &out[0, 0, 0], nbasis,nvec)
+    return out
+
+def subtract_slice_abbc(np.ndarray[double, ndim=3] inp not None,
+                         np.ndarray[double, ndim=3] inp2 not None,
+                         np.ndarray[double, ndim=3] out not None,
+                         long nbasis, long nvec):
+
+    assert inp.flags['C_CONTIGUOUS']
+    assert inp2.flags['C_CONTIGUOUS']
+    assert out.flags['C_CONTIGUOUS']
+
+    assert inp.shape[0] == nvec
+    assert inp.shape[1] == inp.shape[2] == nbasis
+    assert inp2.shape[0] == nvec
+    assert inp2.shape[1] == inp2.shape[2] == nbasis
+    assert out.shape[0] == out.shape[1] == out.shape[2] == nbasis
+
+    matrix.sub_slice_abbc(&inp[0, 0, 0], &inp2[0, 0, 0], &out[0, 0, 0], nbasis,nvec)
+    return out
 
 #
 # cell.cpp

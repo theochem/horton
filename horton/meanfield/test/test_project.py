@@ -65,10 +65,10 @@ def test_project_larger():
     na = obasis1.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf1)
     er = obasis1.compute_electron_repulsion(lf1)
     terms = [
-        ROneBodyTerm(kin, 'kin'),
+        RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
         RExchangeTerm(er, 'x_hf'),
-        ROneBodyTerm(na, 'ne'),
+        RTwoIndexTerm(na, 'ne'),
     ]
     ham = REffHam(terms)
 
@@ -125,10 +125,10 @@ def test_project_smaller():
     na = obasis1.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf1)
     er = obasis1.compute_electron_repulsion(lf1)
     terms = [
-        UOneBodyTerm(kin, 'kin'),
+        UTwoIndexTerm(kin, 'kin'),
         UDirectTerm(er, 'hartree'),
         UExchangeTerm(er, 'x_hf'),
-        UOneBodyTerm(na, 'ne'),
+        UTwoIndexTerm(na, 'ne'),
     ]
     ham = UEffHam(terms)
 

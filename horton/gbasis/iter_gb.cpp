@@ -122,7 +122,7 @@ IterGB2::IterGB2(GBasis* gbasis) :
 
 int IterGB2::inc_shell() {
     // Increment shell and related counters. This loop takes into account the
-    // symmetry of the one-body operator
+    // symmetry of the two-index operator
     if (ishell1 < ishell0) {
         ishell1++;
         oprim1 += nprim1;
@@ -276,7 +276,7 @@ IterGB4::IterGB4(GBasis* gbasis) :
 
 int IterGB4::inc_shell() {
     // Increment shell and related counters. This loop takes into account the
-    // symmetry of the two-body operator:
+    // symmetry of the four-index operator:
     //   <ij|kl> = <ji|lk> = <kl|ij> = <lk|ji> =
     //   <il|kj> = <jk|li> = <kj|il> = <li|jk>
     if (ishell0==ishell1) {

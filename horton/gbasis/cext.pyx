@@ -127,7 +127,7 @@ def compute_cholesky(GOBasis gobasis, double threshold=1e-8, lf = None):
             del gb4w
 
     if lf is not None and isinstance(lf, CholeskyLinalgFactory):
-        result_py = lf.create_two_body(gobasis.nbasis, array=result)
+        result_py = lf.create_four_index(gobasis.nbasis, array=result)
         return result_py
     else:
         return result
@@ -618,13 +618,13 @@ cdef class GOBasis(GBasis):
         if nocc is not None:
             assert matrix.shape[1] >= nocc
 
-    def check_matrix_one_body(self, matrix):
+    def check_matrix_two_index(self, matrix):
         assert matrix.ndim == 2
         assert matrix.flags['C_CONTIGUOUS']
         assert matrix.shape[0] == self.nbasis
         assert matrix.shape[1] == self.nbasis
 
-    def check_matrix_two_body(self, matrix):
+    def check_matrix_four_index(self, matrix):
         assert matrix.ndim == 4
         assert matrix.flags['C_CONTIGUOUS']
         assert matrix.shape[0] == self.nbasis
@@ -638,7 +638,7 @@ cdef class GOBasis(GBasis):
            **Arguments:**
 
            output
-                This can either be a OneBody instance (used to write the output
+                This can either be a TwoIndex instance (used to write the output
                 to) or a LinalgFactory (used to allocate the output operator).
                 In both cases, the resulting operator is returned.
         """
@@ -646,9 +646,9 @@ cdef class GOBasis(GBasis):
         cdef np.ndarray[double, ndim=2] output_array
         if isinstance(output, LinalgFactory):
             lf = output
-            output = lf.create_one_body(self.nbasis)
+            output = lf.create_two_index(self.nbasis)
         output_array = output._array
-        self.check_matrix_one_body(output_array)
+        self.check_matrix_two_index(output_array)
         # call the low-level routine
         (<gbasis.GOBasis*>self._this).compute_overlap(&output_array[0, 0])
         # done
@@ -660,9 +660,9 @@ cdef class GOBasis(GBasis):
         cdef np.ndarray[double, ndim=2] output_array
         if isinstance(output, LinalgFactory):
             lf = output
-            output = lf.create_one_body(self.nbasis)
+            output = lf.create_two_index(self.nbasis)
         output_array = output._array
-        self.check_matrix_one_body(output_array)
+        self.check_matrix_two_index(output_array)
         # call the low-level routine
         (<gbasis.GOBasis*>self._this).compute_kinetic(&output_array[0, 0])
         # done
@@ -681,9 +681,9 @@ cdef class GOBasis(GBasis):
         cdef np.ndarray[double, ndim=2] output_array
         if isinstance(output, LinalgFactory):
             lf = output
-            output = lf.create_one_body(self.nbasis)
+            output = lf.create_two_index(self.nbasis)
         output_array = output._array
-        self.check_matrix_one_body(output_array)
+        self.check_matrix_two_index(output_array)
         # call the low-level routine
         (<gbasis.GOBasis*>self._this).compute_nuclear_attraction(
             &charges[0], &coordinates[0, 0], ncharge,
@@ -701,9 +701,9 @@ cdef class GOBasis(GBasis):
         cdef np.ndarray[double, ndim=4] output_array
         if isinstance(output, LinalgFactory):
             lf = output
-            output = lf.create_two_body(self.nbasis)
+            output = lf.create_four_index(self.nbasis)
         output_array = output._array
-        self.check_matrix_two_body(output_array)
+        self.check_matrix_four_index(output_array)
         # call the low-level routine
         (<gbasis.GOBasis*>self._this).compute_electron_repulsion(&output_array[0, 0, 0, 0])
         # done
@@ -767,7 +767,7 @@ cdef class GOBasis(GBasis):
            **Arguments:**
 
            dm
-                A density matrix. For now, this must be a DenseOneBody object.
+                A density matrix. For now, this must be a DenseTwoIndex object.
 
            points
                 A Numpy array with grid points, shape (npoint,3).
@@ -789,7 +789,7 @@ cdef class GOBasis(GBasis):
         '''
         # Get the array of the density matrix
         cdef np.ndarray[double, ndim=2] dmar = dm._array
-        self.check_matrix_one_body(dmar)
+        self.check_matrix_two_index(dmar)
 
         # Get the maximum of the absolute value over the rows
         cdef np.ndarray[double, ndim=1] dmmaxrow = np.abs(dmar).max(axis=0)
@@ -823,7 +823,7 @@ cdef class GOBasis(GBasis):
            **Arguments:**
 
            dm
-                A density matrix. For now, this must be a DenseOneBody object.
+                A density matrix. For now, this must be a DenseTwoIndex object.
 
            points
                 A Numpy array with grid points, shape (npoint,3).
@@ -857,7 +857,7 @@ cdef class GOBasis(GBasis):
            **Arguments:**
 
            dm
-                A density matrix. For now, this must be a DenseOneBody object.
+                A density matrix. For now, this must be a DenseTwoIndex object.
 
            points
                 A Numpy array with grid points, shape (npoint,3).
@@ -888,7 +888,7 @@ cdef class GOBasis(GBasis):
            **Arguments:**
 
            dm
-                A density matrix. For now, this must be a DenseOneBody object.
+                A density matrix. For now, this must be a DenseTwoIndex object.
 
            points
                 A Numpy array with grid points, shape (npoint,3).
@@ -919,7 +919,7 @@ cdef class GOBasis(GBasis):
            **Arguments:**
 
            dm
-                A density matrix. For now, this must be a DenseOneBody object.
+                A density matrix. For now, this must be a DenseTwoIndex object.
 
            points
                 A Numpy array with grid points, shape (npoint,3).
@@ -938,7 +938,7 @@ cdef class GOBasis(GBasis):
         '''
         # type checking
         cdef np.ndarray[double, ndim=2] dmar = dm._array
-        self.check_matrix_one_body(dmar)
+        self.check_matrix_two_index(dmar)
         assert points.flags['C_CONTIGUOUS']
         npoint = points.shape[0]
         assert points.shape[1] == 3
@@ -964,7 +964,7 @@ cdef class GOBasis(GBasis):
            **Arguments:**
 
            dm
-                A density matrix. For now, this must be a DenseOneBody object.
+                A density matrix. For now, this must be a DenseTwoIndex object.
 
            coordinates
                 A (N, 3) float numpy array with Cartesian coordinates of the
@@ -997,7 +997,7 @@ cdef class GOBasis(GBasis):
                            np.ndarray[double, ndim=1] weights not None,
                            np.ndarray pots not None,
                            GB1DMGridFn grid_fn not None, fock):
-        '''Compute a one-body operator based on some potential grid in real-space
+        '''Compute a two-index operator based on some potential grid in real-space
 
            **Arguments:**
 
@@ -1014,13 +1014,13 @@ cdef class GOBasis(GBasis):
                 A grid function.
 
            fock
-                A one-body operator. For now, this must be a DenseOneBody
+                A two-index operator. For now, this must be a DenseTwoIndex
                 object.
 
            **Warning:** the results are added to the fock operator!
         '''
         cdef np.ndarray[double, ndim=2] output = fock._array
-        self.check_matrix_one_body(output)
+        self.check_matrix_two_index(output)
         assert points.flags['C_CONTIGUOUS']
         npoint = points.shape[0]
         assert points.shape[1] == 3
@@ -1044,7 +1044,7 @@ cdef class GOBasis(GBasis):
     def compute_grid_density_fock(self, np.ndarray[double, ndim=2] points not None,
                                   np.ndarray[double, ndim=1] weights not None,
                                   np.ndarray[double, ndim=1] pots not None, fock):
-        '''Compute a one-body operator based on a density potential grid in real-space
+        '''Compute a two-index operator based on a density potential grid in real-space
 
            **Arguments:**
 
@@ -1058,7 +1058,7 @@ cdef class GOBasis(GBasis):
                 A Numpy array with density potential data, shape (npoint,).
 
            fock
-                A one-body operator. For now, this must be a DenseOneBody
+                A two-index operator. For now, this must be a DenseTwoIndex
                 object.
 
            **Warning:** the results are added to the fock operator!
@@ -1068,7 +1068,7 @@ cdef class GOBasis(GBasis):
     def compute_grid_gradient_fock(self, np.ndarray[double, ndim=2] points not None,
                                    np.ndarray[double, ndim=1] weights not None,
                                    np.ndarray[double, ndim=2] pots not None, fock):
-        '''Compute a one-body operator based on a density gradient potential grid in real-space
+        '''Compute a two-index operator based on a density potential grid in real-space
 
            **Arguments:**
 
@@ -1082,7 +1082,7 @@ cdef class GOBasis(GBasis):
                 A Numpy array with gradient potential data, shape (npoint, 3).
 
            fock
-                A one-body operator. For now, this must be a DenseOneBody
+                A two-index operator. For now, this must be a DenseTwoIndex
                 object.
 
            **Warning:** the results are added to the fock operator!
@@ -1092,7 +1092,7 @@ cdef class GOBasis(GBasis):
     def compute_grid_kinetic_fock(self, np.ndarray[double, ndim=2] points not None,
                                   np.ndarray[double, ndim=1] weights not None,
                                   np.ndarray[double, ndim=1] pots not None, fock):
-        '''Compute a one-body operator based on a kientic energy density potential grid in real-space
+        '''Compute a two-index operator based on a kientic energy density potential grid in real-space
 
            **Arguments:**
 

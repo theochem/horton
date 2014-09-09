@@ -24,7 +24,7 @@
 __all__ = [
     'compute_dm_full',
     'Observable',
-    'ROneBodyTerm', 'UOneBodyTerm',
+    'RTwoIndexTerm', 'UTwoIndexTerm',
     'RDirectTerm', 'UDirectTerm',
     'RExchangeTerm', 'UExchangeTerm',
 ]
@@ -72,7 +72,7 @@ class Observable(object):
         raise NotImplementedError
 
 
-class ROneBodyTerm(Observable):
+class RTwoIndexTerm(Observable):
     '''Class for all observables that are linear in the density matrix of a
        restricted wavefunction.
     '''
@@ -89,7 +89,7 @@ class ROneBodyTerm(Observable):
         fock_alpha.iadd(self.op_alpha)
 
 
-class UOneBodyTerm(Observable):
+class UTwoIndexTerm(Observable):
     '''Class for all observables that are linear in the density matrix of an
        unrestricted wavefunction.
     '''

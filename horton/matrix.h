@@ -18,23 +18,11 @@
 //
 //--
 
-#ifndef CHOLESKY_H
-#define CHOLESKY_H
+#ifndef HORTON_MATRIX_H
+#define HORTON_MATRIX_H
 
-#include <vector>
-#include "gbw.h"
-
-#ifdef CBLAS_C
-extern "C"
-{
-    #include CBLAS_C
-}
-#endif
-#ifdef CBLAS_CPP
-    #include CBLAS_CPP
-#endif
-
-
-long cholesky(GB4IntegralWrapper* gbw4, double** uninit_result, double threshold);
+void get_slice_abcc(double* inp, double* inp2, double* out, long nbasis, long nvec);
+void get_slice_abbc(double* inp, double* inp2, double* out, long nbasis, long nvec);
+void sub_slice_abbc(double* inp, double* inp2, double* out, long nbasis, long nvec);
 
 #endif

@@ -57,8 +57,8 @@ class GBasis {
         virtual ~GBasis();
         virtual const double normalization(const double alpha, const long* n) const =0;
         void init_scales();
-        void compute_one_body(double* output, GB2Integral* integral);
-        void compute_two_body(double* output, GB4Integral* integral);
+        void compute_two_index(double* output, GB2Integral* integral);
+        void compute_four_index(double* output, GB4Integral* integral);
         void compute_grid_point1(double* output, double* point, GB1GridFn* grid_fn);
         double compute_grid_point2(double* dm, double* point, GB2DMGridFn* grid_fn);
 

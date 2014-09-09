@@ -92,10 +92,10 @@ def test_aufbau_spin():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        UOneBodyTerm(kin, 'kin'),
+        UTwoIndexTerm(kin, 'kin'),
         UDirectTerm(er, 'hartree'),
         UExchangeTerm(er,'x_hf'),
-        UOneBodyTerm(na, 'ne'),
+        UTwoIndexTerm(na, 'ne'),
     ]
     ham = UEffHam(terms)
 
@@ -122,10 +122,10 @@ def test_check_dm():
     v = np.array([v1, v2]).T
 
     lf = DenseLinalgFactory(2)
-    olp = lf.create_one_body()
+    olp = lf.create_two_index()
     olp._array = np.identity(2)
 
-    op1 = lf.create_one_body()
+    op1 = lf.create_two_index()
     op1._array = np.dot(v*[-0.1, 0.5], v.T)
     with assert_raises(ValueError):
         check_dm(op1, olp, lf)

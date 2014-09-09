@@ -40,8 +40,8 @@ def test_becke_hartree_n2_hfs_sto3g():
     energy2 = ham2.compute()
     assert abs(energy1 - energy2) < 1e-3
 
-    op1 = mol.lf.create_one_body()
-    op2 = mol.lf.create_one_body()
+    op1 = mol.lf.create_two_index()
+    op2 = mol.lf.create_two_index()
     ham1.compute_fock(op1)
     ham2.compute_fock(op2)
     assert op1.distance(op2) < 1e-3
@@ -64,10 +64,10 @@ def test_becke_hartree_h3_hfs_321g():
     energy2 = ham2.compute()
     assert abs(energy1 - energy2) < 1e-3
 
-    fock_alpha1 = mol.lf.create_one_body()
-    fock_beta1 = mol.lf.create_one_body()
-    fock_alpha2 = mol.lf.create_one_body()
-    fock_beta2 = mol.lf.create_one_body()
+    fock_alpha1 = mol.lf.create_two_index()
+    fock_beta1 = mol.lf.create_two_index()
+    fock_alpha2 = mol.lf.create_two_index()
+    fock_beta2 = mol.lf.create_two_index()
     ham1.compute_fock(fock_alpha1, fock_beta1)
     ham2.compute_fock(fock_alpha2, fock_beta2)
     assert fock_alpha1.distance(fock_alpha2) < 1e-3

@@ -75,7 +75,7 @@ class EDIIS2History(EDIISHistory, CDIISHistory):
            **Arguments:**
 
            lf
-                The LinalgFactor used to create the one-body operators.
+                The LinalgFactor used to create the two-index operators.
 
            nvector
                 The maximum size of the history.

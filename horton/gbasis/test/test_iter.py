@@ -458,7 +458,7 @@ def test_itergb2_store():
 def test_itergb4_idea():
     # # This is just a test for a loop structure idea.
     # # Note: physicists notation is used.
-    # a counter for each element of a two-body operator with 5 DOF:
+    # a counter for each element of a four-index operator with 5 DOF:
     tboc = np.zeros((5, 5, 5, 5), int)
     # quadruple loop over all unique elements:
     for i in xrange(5):
@@ -518,7 +518,7 @@ def test_itergb4_idea_inc_shell():
     # # Note: physicists notation is used.
     i4, gobasis = get_itergb4()
     N = gobasis.nshell
-    # a counter for each element of a two-body operator with 5 DOF:
+    # a counter for each element of a four-index operator with 5 DOF:
     tboc = np.zeros((N, N, N, N), int)
     # quadruple loop over all unique elements:
     i4.update_shell()

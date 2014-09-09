@@ -135,7 +135,7 @@ def get_homo_lumo(*exps):
 def compute_commutator(dm, fock, overlap, work, output):
     '''Compute the dm-fock commutator, including an overlap matrix
 
-       **Arguments:** (all OneBody objects)
+       **Arguments:** (all TwoIndex objects)
 
        dm
             A density matrix

@@ -89,8 +89,8 @@ class PlainSCFSolver(object):
             log('Iter         Error')
             log.hline()
 
-        focks = [lf.create_one_body() for i in xrange(ham.ndm)]
-        dms = [lf.create_one_body() for i in xrange(ham.ndm)]
+        focks = [lf.create_two_index() for i in xrange(ham.ndm)]
+        dms = [lf.create_two_index() for i in xrange(ham.ndm)]
         converged = False
         counter = 0
         while self.maxiter is None or counter < self.maxiter:

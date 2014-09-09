@@ -175,9 +175,9 @@ class ODASCFSolver(object):
             log(' Iter               Energy         Error      Mixing')
             log.hline()
 
-        fock0s = [lf.create_one_body() for i in xrange(ham.ndm)]
-        fock1s = [lf.create_one_body() for i in xrange(ham.ndm)]
-        dm1s = [lf.create_one_body() for i in xrange(ham.ndm)]
+        fock0s = [lf.create_two_index() for i in xrange(ham.ndm)]
+        fock1s = [lf.create_two_index() for i in xrange(ham.ndm)]
+        dm1s = [lf.create_two_index() for i in xrange(ham.ndm)]
         exps = [lf.create_expansion() for i in xrange(ham.ndm)]
         work = dm0s[0].new()
         commutator = dm0s[0].new()

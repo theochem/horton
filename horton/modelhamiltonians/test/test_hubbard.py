@@ -39,7 +39,7 @@ def test_1d_hubbard_hamiltonian():
     # Guess
     guess_core_hamiltonian(olp, kin, exp_alpha)
     terms = [
-        ROneBodyTerm(kin, 'kin'),
+        RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
         RExchangeTerm(er, 'x_hf'),
     ]
@@ -67,7 +67,7 @@ def test_1d_hubbard_hamiltonian_no_pbc():
     # Guess
     guess_core_hamiltonian(olp, kin, exp_alpha)
     terms = [
-        ROneBodyTerm(kin, 'kin'),
+        RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
         RExchangeTerm(er, 'x_hf'),
     ]

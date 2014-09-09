@@ -211,7 +211,7 @@ class RStepSearch(StepSearch):
                 A wfn instance.
 
            one/two
-                One and Two-body Hamiltonian.
+                Two and Four-index Hamiltonian.
 
            exps
                 A AO/MO expansion.
@@ -260,7 +260,7 @@ class RStepSearch(StepSearch):
                 A wfn instance.
 
            one/two
-                One and Two-body Hamiltonian.
+                Two and Four-index Hamiltonian.
 
            exps
                 A AO/MO expansion.

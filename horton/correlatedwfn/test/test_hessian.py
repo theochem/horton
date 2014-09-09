@@ -39,21 +39,21 @@ def test_hessian_ap1rog_cs_scf():
     er = obasis.compute_electron_repulsion(lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
-        ROneBodyTerm(kin, 'kin'),
+        RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
         RExchangeTerm(er, 'x_hf'),
-        ROneBodyTerm(na, 'ne'),
+        RTwoIndexTerm(na, 'ne'),
     ]
     ham = REffHam(terms, external)
     occ_model.assign(exp_alpha)
     dm_alpha = exp_alpha.to_dm()
     scf_solver = EDIIS2SCFSolver()
     scf_solver(ham, lf, olp, occ_model, dm_alpha)
-    focks = [lf.create_one_body() for i in xrange(ham.ndm)]
+    focks = [lf.create_two_index() for i in xrange(ham.ndm)]
     ham.compute_fock(*focks)
     exp_alpha.from_fock(focks[0], olp)
 
-    one = lf.create_one_body(obasis.nbasis)
+    one = lf.create_two_index(obasis.nbasis)
     one.iadd(kin)
     one.iadd(na)
 
@@ -84,8 +84,8 @@ def test_hessian_ap1rog_cs_scf():
 #                           hessian._array[i,j,k,j] -= tmp3i3._array[i,j,k]
 #       hessian2 = np.zeros((self.nbasis*(self.nbasis-1)/2,self.nbasis*(self.nbasis-1)/2))
 #       dim = (self.nbasis*(self.nbasis-1))/2
-#       output = self.lf.create_one_body(dim, dim)
-#       output.assign_tril_twobody(hessian, self.nbasis)
+#       output = self.lf.create_two_index(dim, dim)
+#       output.assign_tril_fourindex(hessian, self.nbasis)
 #       tmp = (hessian._array[:,:,tril[0],tril[1]])
 #       ind1 = 0
 #       for p in range(self.nbasis):

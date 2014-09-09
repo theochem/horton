@@ -35,7 +35,7 @@ def partition_mulliken(operator, obasis, index):
        **Arguments:**
 
        operator
-            A One body operator to which the Mulliken mask is applied
+            A Two index operator to which the Mulliken mask is applied
 
        obasis
             The localized orbital basis for which the Mulliken operator is to be

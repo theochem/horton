@@ -103,7 +103,7 @@ class DIISSCFSolver(object):
 
         # keep local variables as attributes for inspection/debugging by caller
         self._history = self.DIISHistoryClass(lf, self.nvector, ham.ndm, ham.deriv_scale, overlap)
-        self._focks = [lf.create_one_body() for i in xrange(ham.ndm)]
+        self._focks = [lf.create_two_index() for i in xrange(ham.ndm)]
         self._exps = [lf.create_expansion() for i in xrange(ham.ndm)]
 
         if log.do_medium:
@@ -284,14 +284,14 @@ class DIISState(object):
            **Arguments:**
 
            lf
-                The LinalgFactor used to create the one-body operators.
+                The LinalgFactor used to create the two-index operators.
 
            ndm
                 The number of density matrices (and fock matrices) in one
                 state.
 
            work
-                A one body operator to be used as a temporary variable. This
+                A two index operator to be used as a temporary variable. This
                 object is allocated by the history object.
 
            overlap
@@ -303,9 +303,9 @@ class DIISState(object):
         self.overlap = overlap
         self.energy = np.nan
         self.normsq = np.nan
-        self.dms = [lf.create_one_body() for i in xrange(self.ndm)]
-        self.focks = [lf.create_one_body() for i in xrange(self.ndm)]
-        self.commutators = [lf.create_one_body() for i in xrange(self.ndm)]
+        self.dms = [lf.create_two_index() for i in xrange(self.ndm)]
+        self.focks = [lf.create_two_index() for i in xrange(self.ndm)]
+        self.commutators = [lf.create_two_index() for i in xrange(self.ndm)]
         self.identity = None # every state has a different id.
 
     def clear(self):
@@ -354,7 +354,7 @@ class DIISHistory(object):
            **Arguments:**
 
            lf
-                The LinalgFactor used to create the one-body operators.
+                The LinalgFactor used to create the two-index operators.
 
            nvector
                 The maximum size of the history.
@@ -377,7 +377,7 @@ class DIISHistory(object):
            used
                 The actual number of vectors in the history.
         '''
-        self.work = lf.create_one_body()
+        self.work = lf.create_two_index()
         self.stack = [DIISState(lf, ndm, self.work, overlap) for i in xrange(nvector)]
         self.ndm = ndm
         self.deriv_scale = deriv_scale
@@ -385,7 +385,7 @@ class DIISHistory(object):
         self.dots_matrices = dots_matrices
         self.nused = 0
         self.idcounter = 0
-        self.commutator = lf.create_one_body()
+        self.commutator = lf.create_two_index()
 
     def _get_nvector(self):
         '''The maximum size of the history'''
@@ -500,7 +500,7 @@ class DIISHistory(object):
             return errorsq**0.5
 
     def _linear_combination(self, coeffs, ops, output):
-        '''Make a linear combination of one-body objects
+        '''Make a linear combination of two-index objects
 
            **Arguments:**
 

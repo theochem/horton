@@ -25,8 +25,8 @@
    operations.
 
    Two-dimensional matrices are supposed to be symmetric and are used to
-   represent one-body operators and 1DRDMs. Four-dimensional matrices are used
-   to represent two-body operators, which are invariant under the following
+   represent two-index operators and 1DRDMs. Four-dimensional matrices are used
+   to represent four-index operators, which are invariant under the following
    interchanges of indexes::
 
             <ij|kl> = <ji|lk> = <kl|ij> = <lk|ji> =
@@ -53,12 +53,12 @@
 import numpy as np
 
 from horton.log import log
-
+from horton.cext import compute_slice_abcc, compute_slice_abbc, subtract_slice_abbc
 
 __all__ = [
-    'LinalgFactory', 'LinalgObject', 'Expansion', 'OneBody',
+    'LinalgFactory', 'LinalgObject', 'Expansion', 'TwoIndex',
     'DenseLinalgFactory', 'CholeskyLinalgFactory', 'DenseExpansion',
-    'DenseOneBody', 'DenseTwoBody', 'CholeskyTwoBody', 'DenseThreeBody'
+    'DenseTwoIndex', 'DenseFourIndex', 'CholeskyFourIndex', 'DenseThreeIndex'
 ]
 
 
@@ -84,13 +84,13 @@ class LinalgFactory(object):
     def create_expansion(self, nbasis=None):
         raise NotImplementedError
 
-    def create_one_body(self, nbasis=None, nfn=None):
+    def create_two_index(self, nbasis=None, nfn=None):
         raise NotImplementedError
 
-    def create_two_body(self, nbasis=None):
+    def create_four_index(self, nbasis=None):
         raise NotImplementedError
 
-    def create_three_body(self, nbasis=None):
+    def create_three_index(self, nbasis=None):
         raise NotImplementedError
 
     def error_eigen(self, ham, overlap, expansion, epsilons):
@@ -99,10 +99,10 @@ class LinalgFactory(object):
     def diagonalize(self, ham, overlap, expansion, epsilons):
         raise NotImplementedError
 
-    def get_memory_one_body(self, nbasis=None):
+    def get_memory_two_index(self, nbasis=None):
         raise NotImplementedError
 
-    def get_memory_two_body(self, nbasis=None):
+    def get_memory_four_index(self, nbasis=None):
         raise NotImplementedError
 
 
@@ -141,13 +141,13 @@ class Expansion(LinalgObject):
         raise NotImplementedError
 
 
-class ZeroBody(LinalgObject):
+class OneIndex(LinalgObject):
     '''vector class'''
     def __init__(self, nbasis):
         raise NotImplementedError
 
 
-class OneBody(LinalgObject):
+class TwoIndex(LinalgObject):
     def __init__(self, nbasis):
         raise NotImplementedError
 
@@ -190,50 +190,50 @@ class DenseLinalgFactory(LinalgFactory):
     create_expansion.__check_init_args__ = _check_expansion_init_args
 
 
-    def create_one_body(self, nbasis=None, nfn=None):
+    def create_two_index(self, nbasis=None, nfn=None):
         nbasis = nbasis or self.default_nbasis
         nfn = nfn or self.default_nbasis
-        return DenseOneBody(nbasis, nfn)
+        return DenseTwoIndex(nbasis, nfn)
 
-    def _check_one_body_init_args(self, one_body, nbasis=None, nfn=None):
+    def _check_two_index_init_args(self, two_index, nbasis=None, nfn=None):
         nbasis = nbasis or self.default_nbasis
         nfn = nfn or self.default_nbasis
-        one_body.__check_init_args__(nbasis)
+        two_index.__check_init_args__(nbasis)
 
-    create_one_body.__check_init_args__ = _check_one_body_init_args
+    create_two_index.__check_init_args__ = _check_two_index_init_args
 
 
-    def create_zero_body(self, nbasis=None):
+    def create_one_index(self, nbasis=None):
         nbasis = nbasis or self.default_nbasis
-        return DenseZeroBody(nbasis)
+        return DenseOneIndex(nbasis)
 
-    def _check_zero_body_init_args(self, one_body, nbasis=None):
+    def _check_one_index_init_args(self, two_index, nbasis=None):
         nbasis = nbasis or self.default_nbasis
-        one_body.__check_init_args__(nbasis)
+        two_index.__check_init_args__(nbasis)
 
-    create_zero_body.__check_init_args__ = _check_zero_body_init_args
+    create_one_index.__check_init_args__ = _check_one_index_init_args
 
 
-    def create_two_body(self, nbasis=None):
+    def create_four_index(self, nbasis=None):
         nbasis = nbasis or self.default_nbasis
-        return DenseTwoBody(nbasis)
+        return DenseFourIndex(nbasis)
 
-    def _check_two_body_init_args(self, two_body, nbasis=None):
+    def _check_four_index_init_args(self, four_index, nbasis=None):
         nbasis = nbasis or self.default_nbasis
-        two_body.__check_init_args__(nbasis)
+        four_index.__check_init_args__(nbasis)
 
-    create_two_body.__check_init_args__ = _check_two_body_init_args
+    create_four_index.__check_init_args__ = _check_four_index_init_args
 
 
-    def create_three_body(self, nbasis=None):
+    def create_three_index(self, nbasis=None):
         nbasis = nbasis or self.default_nbasis
-        return DenseThreeBody(nbasis)
+        return DenseThreeIndex(nbasis)
 
-    def _check_three_body_init_args(self, three_body, nbasis=None):
+    def _check_three_index_init_args(self, three_index, nbasis=None):
         nbasis = nbasis or self.default_nbasis
-        three_body.__check_init_args__(nbasis)
+        three_index.__check_init_args__(nbasis)
 
-    create_three_body.__check_init_args__ = _check_three_body_init_args
+    create_three_index.__check_init_args__ = _check_three_index_init_args
 
 
     @staticmethod
@@ -243,10 +243,10 @@ class DenseLinalgFactory(LinalgFactory):
            **Arguments:**
 
            fock
-                A DenseOneBody Hamiltonian (or Fock) operator.
+                A DenseTwoIndex Hamiltonian (or Fock) operator.
 
            overlap
-                A DenseOneBody overlap operator.
+                A DenseTwoIndex overlap operator.
 
            expansion
                 An expansion object containing the current orbitals/eginvectors.
@@ -263,10 +263,10 @@ class DenseLinalgFactory(LinalgFactory):
            **Arguments:**
 
            fock
-                A DenseOneBody Hamiltonian (or Fock) operator.
+                A DenseTwoIndex Hamiltonian (or Fock) operator.
 
            overlap
-                A DenseOneBody overlap operator.
+                A DenseTwoIndex overlap operator.
 
         """
         from scipy.linalg import eigh
@@ -275,30 +275,30 @@ class DenseLinalgFactory(LinalgFactory):
         else:
             return eigh(fock._get_dense(), overlap._get_dense())
 
-    def get_memory_one_body(self, nbasis=None):
+    def get_memory_two_index(self, nbasis=None):
         return nbasis**2*8
 
-    def get_memory_two_body(self, nbasis=None):
+    def get_memory_four_index(self, nbasis=None):
         return nbasis**4*8
 
 class CholeskyLinalgFactory(DenseLinalgFactory):
-    def create_two_body(self, nbasis=None, nvec=None, array=None):
+    def create_four_index(self, nbasis=None, nvec=None, array=None):
         nbasis = nbasis or self.default_nbasis
 
         if array is not None:
             if nvec is not None:
                 assert array.shape[0] == nvec
-            return CholeskyTwoBody(nbasis=nbasis, array=array)
+            return CholeskyFourIndex(nbasis=nbasis, array=array)
         elif nvec is not None:
-            return CholeskyTwoBody(nbasis=nbasis, nvec=nvec)
+            return CholeskyFourIndex(nbasis=nbasis, nvec=nvec)
         else:
             raise NotImplementedError
 
-    def _check_two_body_init_args(self, two_body, nbasis=None, nvec=None, array=None):
+    def _check_four_index_init_args(self, four_index, nbasis=None, nvec=None, array=None):
         nbasis = nbasis or self.default_nbasis
-        two_body.__check_init_args__(nbasis)
+        four_index.__check_init_args__(nbasis)
 
-    create_two_body.__check_init_args__ = _check_two_body_init_args
+    create_four_index.__check_init_args__ = _check_four_index_init_args
 
 
 class DenseExpansion(Expansion):
@@ -415,7 +415,7 @@ class DenseExpansion(Expansion):
            **Arguments:**
 
            olp
-                The overlap one_body operators
+                The overlap two_index operators
 
            **Optional arguments:**
 
@@ -436,7 +436,7 @@ class DenseExpansion(Expansion):
            **Optional arguments:**
 
            output
-                An output density matrix (DenseOneBody instance).
+                An output density matrix (DenseTwoIndex instance).
 
            factor
                 When given, the density matrix is added with the given prefactor
@@ -446,7 +446,7 @@ class DenseExpansion(Expansion):
         """
         # parse first argument
         if output is None:
-            dm = DenseOneBody(self.nbasis, self.nbasis)
+            dm = DenseTwoIndex(self.nbasis, self.nbasis)
             if factor is not None:
                 raise TypeError('When the factor argument is given, the output argument must be a density matrix.')
         else:
@@ -474,10 +474,10 @@ class DenseExpansion(Expansion):
            **Arguments**:
 
            dm
-                A DenseOneBody object with the density matrix
+                A DenseTwoIndex object with the density matrix
 
            overlap
-                A DenseOneBody object with the overlap matrix
+                A DenseTwoIndex object with the overlap matrix
 
            **Optional arguments:**
         '''
@@ -496,13 +496,13 @@ class DenseExpansion(Expansion):
            **Arguments**:
 
            dm
-                A DenseOneBody object with the density matrix
+                A DenseTwoIndex object with the density matrix
 
            fock
-                A DenseOneBody object with the Fock matrix
+                A DenseTwoIndex object with the Fock matrix
 
            overlap
-                A DenseOneBody object with the overlap matrix
+                A DenseTwoIndex object with the overlap matrix
 
            **Optional arguments:**
 
@@ -693,7 +693,7 @@ class DenseExpansion(Expansion):
         # Get new AO/MO coefficient matrix from S^{-1/2}*Sr^{1/2}*C that satisfies C^T*S*C=1
         self.coeffs[:] = np.dot(overlap12inv.real, tmp)
 
-class DenseZeroBody(ZeroBody):
+class DenseOneIndex(OneIndex):
     """Dense one-dimensional matrix (vector), also used for (diagonal) density matrices.
     """
     def __init__(self, nbasis):
@@ -722,7 +722,7 @@ class DenseZeroBody(ZeroBody):
 
 #   def read_from_hdf5(self, grp):
 #       if grp.attrs['class'] != self.__class__.__name__:
-#           raise TypeError('The class of the one-body operator in the HDF5 file does not match.')
+#           raise TypeError('The class of the two-index operator in the HDF5 file does not match.')
 #       grp['array'].read_direct(self._array)
 
 #   def to_hdf5(self, grp):
@@ -745,18 +745,18 @@ class DenseZeroBody(ZeroBody):
         self._array[ind1:ind2] = value
 
     def assign(self, other):
-        if not isinstance(other, DenseZeroBody):
-            raise TypeError('The other object must also be DenseOneBody instance. Got ', type(other), ' instead.')
+        if not isinstance(other, DenseOneIndex):
+            raise TypeError('The other object must also be DenseTwoIndex instance. Got ', type(other), ' instead.')
         self._array[:] = other._array
 
     def copy(self):
-        result = DenseZeroBody(self.nbasis)
+        result = DenseOneIndex(self.nbasis)
         result._array[:] = self._array
         return result
 
     def copyview(self, ind1, ind2):
         dim = ind2-ind1
-        result = DenseZeroBody(dim)
+        result = DenseOneIndex(dim)
         result._array[:] = self._array[ind1:ind2]
         return result
 
@@ -781,13 +781,13 @@ class DenseZeroBody(ZeroBody):
     def distance(self, other):
         return np.linalg.norm((self._array.ravel() - other._array.ravel()))
 
-    def contract_onebody(self, other, select, factor=1.0, *args):
-        '''Contract OneBody to ZeroBody.
+    def contract_twoindex(self, other, select, factor=1.0, *args):
+        '''Contract TwoIndex to OneIndex.
 
            **Arguments:**
 
            other
-                A DenseOneBody object.
+                A DenseTwoIndex object.
 
            select:
                 '1': contract first index
@@ -805,13 +805,13 @@ class DenseZeroBody(ZeroBody):
         else:
             raise NotImplementedError
 
-    def contract_2onebody(self, other, other2, select, factor=1.0):
-        '''Contract two OneBody to ZeroBody.
+    def contract_2twoindex(self, other, other2, select, factor=1.0):
+        '''Contract two TwoIndex to OneIndex.
 
            **Arguments:**
 
            other/other2
-                A DenseOneBody object.
+                A DenseTwoIndex object.
 
            select:
                 '1': contract first index
@@ -837,7 +837,7 @@ class DenseZeroBody(ZeroBody):
         nd_geminal = geminal._get_dense()
 
         nocc = nd_geminal.shape[0]
-        value = 1+geminal.contract_onebody(lagrange)
+        value = 1+geminal.contract_twoindex(lagrange)
 
         self._array[:nocc] = value-np.einsum("ia,ia->i", nd_lagrange, nd_geminal)[np.newaxis].T
         self._array[nocc:] = np.einsum("ia,ia->a", nd_lagrange, nd_geminal)[np.newaxis].T
@@ -854,7 +854,7 @@ class DenseZeroBody(ZeroBody):
         self.iscale(factor)
 
 
-class DenseOneBody(OneBody):
+class DenseTwoIndex(TwoIndex):
     """Dense symmetric two-dimensional matrix, also used for density matrices.
 
        This is the most inefficient implementation in terms of memory usage and
@@ -920,13 +920,13 @@ class DenseOneBody(OneBody):
         return b
 
     def assign(self, other):
-        if not isinstance(other, DenseOneBody):
-            raise TypeError('The other object must also be DenseOneBody instance. Got ', type(other), ' instead.')
+        if not isinstance(other, DenseTwoIndex):
+            raise TypeError('The other object must also be DenseTwoIndex instance. Got ', type(other), ' instead.')
         self._array[:] = other._array
 
     def set_diagonal(self, value):
         '''Set diagonal elements to value'''
-        if isinstance(value, DenseZeroBody):
+        if isinstance(value, DenseOneIndex):
             np.fill_diagonal(self._array, value._array.T)
         else:
             np.fill_diagonal(self._array, value)
@@ -966,20 +966,20 @@ class DenseOneBody(OneBody):
 
 
     def copy(self):
-        '''Return a copy of the current one-body operator'''
-        result = DenseOneBody(self.nbasis, self.nfn)
+        '''Return a copy of the current two-index operator'''
+        result = DenseTwoIndex(self.nbasis, self.nfn)
         result._array[:] = self._array
         return result
 
     def copyview(self, ind1, ind2, ind3, ind4, factor=1.0):
         dim1 = ind2-ind1
         dim2 = ind4-ind3
-        result = DenseOneBody(dim1, dim2)
+        result = DenseTwoIndex(dim1, dim2)
         result._array[:] = self._array[ind1:ind2, ind3:ind4]*factor
         return result
 
     def copydiag(self, factor=1.0):
-        result = DenseZeroBody(self.nbasis)
+        result = DenseOneIndex(self.nbasis)
         result._array[:] = (self._array.diagonal())[np.newaxis].T*factor
         return result
 
@@ -990,16 +990,16 @@ class DenseOneBody(OneBody):
             raise NotImplementedError
         return self._array[ind]
 
-    def assign_tril_twobody(self, other, dim):
+    def assign_tril_fourindex(self, other, dim):
         tril = np.tril_indices(dim, -1)
         self._array[:] = (other._array[:,:,tril[0],tril[1]])[tril]
 
     def new(self):
-        '''Return a new one-body operator with the same nbasis'''
-        return DenseOneBody(self.nbasis, self.nbasis)
+        '''Return a new two-index operator with the same nbasis'''
+        return DenseTwoIndex(self.nbasis, self.nbasis)
 
-    def _check_new_init_args(self, one_body, nbasis=None):
-        one_body.__check_init_args__(self.nbasis)
+    def _check_new_init_args(self, two_index, nbasis=None):
+        two_index.__check_init_args__(self.nbasis)
 
     new.__check_init_args__ = _check_new_init_args
 
@@ -1013,17 +1013,17 @@ class DenseOneBody(OneBody):
         return np.allclose(self._array, self._array.T)
 
     def isymmetrize(self):
-        '''Symmetrize DenseOneBody using M_sym=(M+M^\dagger)/2'''
+        '''Symmetrize DenseTwoIndex using M_sym=(M+M^\dagger)/2'''
         self._array = (self._array+self._array.T)/2.0
 
     def symmetrize(self, factor=1.0):
-        '''Symmetrize DenseOneBody using M_sym=(M+M^\dagger)/2'''
-        result = DenseOneBody(self.nbasis, self.nfn)
+        '''Symmetrize DenseTwoIndex using M_sym=(M+M^\dagger)/2'''
+        result = DenseTwoIndex(self.nbasis, self.nfn)
         result._array[:] = (self._array+self._array.T)*factor/2.0
         return result
 
     def check_if_empty(self):
-        '''Check if DenseOneBody is empty.'''
+        '''Check if DenseTwoIndex is empty.'''
         return (self._array == 0.0).all()
 
     def clear(self):
@@ -1044,10 +1044,10 @@ class DenseOneBody(OneBody):
 
 
     def iadd(self, other, factor=1):
-        '''Inplace addition of other DenseOneBody
+        '''Inplace addition of other DenseTwoIndex
             ** Arguments: **
             other
-                An instance of a DenseOneBody object
+                An instance of a DenseTwoIndex object
             factor
                 A float or int for scaling
         '''
@@ -1058,29 +1058,29 @@ class DenseOneBody(OneBody):
         self._array[:] += number*factor
 
     def iaddt(self, other, factor=1):
-        '''Inplace addition of transposed other DenseOneBody'''
+        '''Inplace addition of transposed other DenseTwoIndex'''
         self._array += other._array.T*factor
 
     def iaddview(self, other, factor=1, *args):
-        '''Inplace addition of view of other DenseOneBody'''
+        '''Inplace addition of view of other DenseTwoIndex'''
         ind = []
         for arg in args:
             ind.append(arg)
         self._array += other._array[ind[0]:ind[1],ind[2]:ind[3]]*factor
 
     def iaddtosubmatrix(self, other, factor=1, *args):
-        '''Inplace addition of other DenseOneBody'''
+        '''Inplace addition of other DenseTwoIndex'''
         ind = []
         for arg in args:
             ind.append(arg)
         self._array[ind[0]:ind[1], ind[2]:ind[3]] += other._array*factor
 
     def iaddouter(self, other, other2, factor=1):
-        '''Inplace addition of outer product of two other DenseOneBody'''
+        '''Inplace addition of outer product of two other DenseTwoIndex'''
         self._array += np.outer(other._array.ravel(), other2._array.ravel())*factor
 
     def iaddkron(self, other, other2, factor=1):
-        '''Inplace addition of kronecker product of two other DenseOneBody'''
+        '''Inplace addition of kronecker product of two other DenseTwoIndex'''
         self._array += np.kron(other._array, other2._array)*factor
 
     def imakecomplexfock(self, factor=1):
@@ -1091,7 +1091,7 @@ class DenseOneBody(OneBody):
         self._array[triu] += self._array[triu]*1j*factor
 
     def contract(self, select, factor=1, *args):
-        '''Contract any view of DenseOneBody'''
+        '''Contract any view of DenseTwoIndex'''
         ind = []
         for arg in args:
             ind.append(arg)
@@ -1104,8 +1104,8 @@ class DenseOneBody(OneBody):
         else:
             raise NotImplementedError
 
-    def contract_zerobody(self, other, other2, select, factor=1.0):
-        '''Contract with other DenseOneBody and DenseZeroBody'''
+    def contract_oneindex(self, other, other2, select, factor=1.0):
+        '''Contract with other DenseTwoIndex and DenseOneIndex'''
         if select == 'b-ab':
             self._array[:] += np.einsum('ab,b->ab', other._array, other2._array.ravel())*factor
         elif select == 'a-ab':
@@ -1113,11 +1113,11 @@ class DenseOneBody(OneBody):
         else:
             raise NotImplementedError
 
-    def contract_onebody(self, other, factor=1.0):
-        '''Contract with other DenseOneBody
+    def contract_twoindex(self, other, factor=1.0):
+        '''Contract with other DenseTwoIndex
             ** Arguments: **
                 other
-                    An instance of the DenseOneBody class
+                    An instance of the DenseTwoIndex class
                 factor
                     A float to scale the contraction by
 
@@ -1129,17 +1129,17 @@ class DenseOneBody(OneBody):
 
             ** Arguments: **
                 other3
-                    An instance of the DenseThreeBody class
+                    An instance of the DenseThreeIndex class
                 other2
-                    An instance of the DenseOneBody class
+                    An instance of the DenseTwoIndex class
                 index
                     The index to contract over
                 factor
                     A float to scale the contraction by
 
         '''
-        if not isinstance(other3, DenseThreeBody):
-            raise TypeError('The other object must also be DenseThreeBody instance. Got ', type(other3), ' instead.')
+        if not isinstance(other3, DenseThreeIndex):
+            raise TypeError('The other object must also be DenseThreeIndex instance. Got ', type(other3), ' instead.')
 
         if index == '13':
             self._array += other3.contract('ab->ac', other2._array)*factor
@@ -1225,22 +1225,22 @@ class DenseOneBody(OneBody):
         self._array[:] = np.dot(self._array, exp.coeffs*block)
 
     def dotexpto(self, other, exp, block):
-        '''Dot product of transposed block of Expansion with OneBody'''
+        '''Dot product of transposed block of Expansion with TwoIndex'''
         self._array[:] = np.dot((exp.coeffs*block).T, other._array)
 
     def cdot(self, other):
         self._array[:] = np.dot(self._array, other.coeffs)
 
     def iadddot(self, other, other2, factor=1.0):
-        '''Inplace addition of dot product of two other DenseOneBody'''
+        '''Inplace addition of dot product of two other DenseTwoIndex'''
         self._array[:] += np.dot(other._array, other2._array)*factor
 
     def iaddtdot(self, other, other2, factor=1.0):
-        '''Inplace addition of dot product of one tansposed DenseOneBody'''
+        '''Inplace addition of dot product of one tansposed DenseTwoIndex'''
         self._array[:] += np.dot(other._array.T, other2._array)*factor
 
     def iadddott(self, other, other2, factor=1.0):
-        '''Inplace addition of dot product of one tansposed DenseOneBody'''
+        '''Inplace addition of dot product of one tansposed DenseTwoIndex'''
         self._array[:] += np.dot(other._array, other2._array.T)*factor
 
     def idotexpt(self, other):
@@ -1267,7 +1267,7 @@ class DenseOneBody(OneBody):
         self._array *= other._array.T*factor
 
     def distance(self, other):
-        '''Maximum difference between self and other one body object'''
+        '''Maximum difference between self and other two index object'''
         return abs(self._array.ravel() - other._array.ravel()).max()
 
     def iabsolute(self):
@@ -1285,26 +1285,26 @@ class DenseOneBody(OneBody):
         self._array *= signs.reshape(-1,1)
 
     def apply_sorting_aabb(self, other):
-        if not isinstance(other, DenseTwoBody):
-            raise TypeError('The other object must also be DenseTwoBody instance. Got ', type(other), ' instead.')
+        if not isinstance(other, DenseFourIndex):
+            raise TypeError('The other object must also be DenseFourIndex instance. Got ', type(other), ' instead.')
         self._array[:] = other.get_slice('aabb->ab')
         return self._array
 
     def apply_sorting_abab(self, other):
-        if not isinstance(other, DenseTwoBody):
-            raise TypeError('The other object must also be DenseTwoBody instance. Got ', type(other), ' instead.')
+        if not isinstance(other, DenseFourIndex):
+            raise TypeError('The other object must also be DenseFourIndex instance. Got ', type(other), ' instead.')
         self._array[:] = other.get_slice('abab->ab')
         return self._array
 
     def apply_sorting_abba(self, other):
-        if not isinstance(other, DenseTwoBody):
-            raise TypeError('The other object must also be DenseTwoBody instance. Got ', type(other), ' instead.')
+        if not isinstance(other, DenseFourIndex):
+            raise TypeError('The other object must also be DenseFourIndex instance. Got ', type(other), ' instead.')
         self._array[:] = other.get_slice('abba->ab')
         return self._array
 
     def apply_sorting_pq(self, other):
-        if not isinstance(other, DenseTwoBody):
-            raise TypeError('The other object must also be DenseTwoBody instance. Got ', type(other), ' instead.')
+        if not isinstance(other, DenseFourIndex):
+            raise TypeError('The other object must also be DenseFourIndex instance. Got ', type(other), ' instead.')
         self._array[:] = 2.0*other.get_slice('abab->ab') \
                                 - other.get_slice('abba->ab')
         return self._array
@@ -1321,13 +1321,13 @@ class DenseOneBody(OneBody):
 
            ** Arguments **
            one_dm
-               A 1DM. A OneBody instance.
+               A 1DM. A TwoIndex instance.
 
            geminal
-               The geminal coefficient matrix. A OneBody instance.
+               The geminal coefficient matrix. A TwoIndex instance.
 
            lagrange
-               The lagrange multipliers. A OneBody instance.
+               The lagrange multipliers. A TwoIndex instance.
 
            select
                Either 'ppqq' or 'pqpq'. Note that the elements (iiii), i.e.,
@@ -1335,7 +1335,7 @@ class DenseOneBody(OneBody):
                stored in ppqq.
         '''
         nocc = geminal._array.shape[0]
-        ldotc = geminal.contract_onebody(lagrange)
+        ldotc = geminal.contract_twoindex(lagrange)
         if select == 'ppqq':
             self._array[:nocc,:nocc] = np.einsum("ja,ia->ij", lagrange._array, geminal._array)
             np.fill_diagonal(self._array[:nocc,:nocc],0)
@@ -1363,7 +1363,7 @@ class DenseOneBody(OneBody):
         '''Compute PS2-type 2-RDM for AP1roG.
         '''
         nocc = geminal._array.shape[0]
-        ldotc = geminal.contract_onebody(lagrange)
+        ldotc = geminal.contract_twoindex(lagrange)
         value = 1+ldotc
         if select == 'ppqq':
             self._array[:nocc,:nocc] = np.einsum("ia,ja->ij", lagrange._array, geminal._array)
@@ -1398,7 +1398,7 @@ class DenseOneBody(OneBody):
             np.fill_diagonal(self._array[:nocc,:nocc], 0)
 
 
-class DenseTwoBody(LinalgObject):
+class DenseFourIndex(LinalgObject):
     """Dense symmetric four-dimensional matrix.
 
        This is the most inefficient implementation in terms of memory usage and
@@ -1453,16 +1453,16 @@ class DenseTwoBody(LinalgObject):
         self._array[l,i,j,k] = value
 
     def copy(self):
-        '''Return a copy of the current one-body operator'''
-        result = DenseTwoBody(self.nbasis)
+        '''Return a copy of the current two-index operator'''
+        result = DenseFourIndex(self.nbasis)
         result._array[:] = self._array
         return result
 
     def get_element(self, i, j, k, l):
         return self._array[i,j, k, l]
 
-    def get_slice(self, indices):
-        """Returns a numpy array 2-index slice of the twobody object.
+    def get_slice(self, indices, out=None, subtract=False, clear=False):
+        """Returns a numpy array 2-index slice of the fourindex object.
 
             ** Arguments **
                 indc_in
@@ -1480,12 +1480,20 @@ class DenseTwoBody(LinalgObject):
         assert len(indc_in) == 4
         assert set(indc_in) == set(indc_out)
         assert len(set("xyz") & set(indc_in)) == 0
-
-        return np.einsum(indices, self._array)
+        if out is not None:
+            if clear:
+                out[:] = 0.0
+            if subtract:
+                out -= np.einsum(indices,self._array)
+            else:
+                out += np.einsum(indices, self._array)
+            return out
+        else:
+            return np.einsum(indices, self._array)
 
     def assign(self, other):
-        if not isinstance(other, DenseTwoBody):
-            raise TypeError('The other object must also be DenseTwoBody instance. Got ', type(other), ' instead.')
+        if not isinstance(other, DenseFourIndex):
+            raise TypeError('The other object must also be DenseFourIndex instance. Got ', type(other), ' instead.')
         self._array[:] = other._array
 
     def assign_array(self, other):
@@ -1493,8 +1501,8 @@ class DenseTwoBody(LinalgObject):
         self._array[:] = other[:]
 
     def copy(self):
-        '''Return a copy of the current two-body operator'''
-        result = DenseTwoBody(self.nbasis)
+        '''Return a copy of the current four-index operator'''
+        result = DenseFourIndex(self.nbasis)
         result.assign(self)
         return result
 
@@ -1532,16 +1540,16 @@ class DenseTwoBody(LinalgObject):
             self._array[i,:,:,i] += other5._array[i,:,:]
             self._array[i,:,i,:] -= other5._array[i,:,:]
 
-    def contract_onebody(self, other, other2, select, factor=1.0):
-        '''Contract other TwoBody with OneBody.
+    def contract_twoindex(self, other, other2, select, factor=1.0):
+        '''Contract other FourIndex with TwoIndex.
 
            **Arguments:**
 
            other
-                A DenseTwoBody object.
+                A DenseFourIndex object.
 
            other2
-                A DenseOneBody object.
+                A DenseTwoIndex object.
 
            select:
                 Contraction type
@@ -1582,14 +1590,14 @@ class DenseTwoBody(LinalgObject):
             raise NotImplementedError
 
     def contract(self, indices, arr):
-        ''' Contracts a dense 2-dim array with this DenseOneBody term.
+        ''' Contracts a dense 2-dim array with this DenseTwoIndex term.
 
             ** Arguments: **
 
             indices
                 A string with two sets of letters and "->" separating them.
                 These are the indices of the 2-dim array and the output.
-                The indices of this DenseTwoBody term will be "abcd".
+                The indices of this DenseFourIndex term will be "abcd".
                 See numpy einsum notation documentation for more details.
 
             arr
@@ -1604,22 +1612,22 @@ class DenseTwoBody(LinalgObject):
 
     def apply_direct(self, dm, output):
         """Compute the direct dot product with a density matrix."""
-        if not isinstance(dm, DenseOneBody):
-            raise TypeError('The dm argument must be a DenseOneBody class. Got ', type(dm), ' instead.')
-        if not isinstance(output, DenseOneBody):
-            raise TypeError('The output argument must be a DenseOneBody class. Got ', type(output), ' instead.')
+        if not isinstance(dm, DenseTwoIndex):
+            raise TypeError('The dm argument must be a DenseTwoIndex class. Got ', type(dm), ' instead.')
+        if not isinstance(output, DenseTwoIndex):
+            raise TypeError('The output argument must be a DenseTwoIndex class. Got ', type(output), ' instead.')
         output.assign_array(np.tensordot(self._array, dm._get_dense(), ([1,3], [1,0])))
 
     def apply_exchange(self, dm, output):
         """Compute the exchange dot product with a density matrix."""
-        if not isinstance(dm, DenseOneBody):
-            raise TypeError('The dm argument must be a DenseOneBody class. Got ', type(dm), ' instead.')
-        if not isinstance(output, DenseOneBody):
-            raise TypeError('The output argument must be a DenseOneBody class. Got ', type(output), ' instead.')
+        if not isinstance(dm, DenseTwoIndex):
+            raise TypeError('The dm argument must be a DenseTwoIndex class. Got ', type(dm), ' instead.')
+        if not isinstance(output, DenseTwoIndex):
+            raise TypeError('The output argument must be a DenseTwoIndex class. Got ', type(output), ' instead.')
         output.assign_array(np.tensordot(self._array, dm._get_dense(), ([1,2], [1,0])))
 
     def add_exchange_part(self):
-        '''Sort two-body exchange integrals for OAP1roG (<ij||kj> -> <ijk>)
+        '''Sort four-index exchange integrals for OAP1roG (<ij||kj> -> <ijk>)
         '''
         tmp = np.einsum('abcd->abdc', self._array)
         self._array[:] = self._array-tmp
@@ -1636,8 +1644,8 @@ class DenseTwoBody(LinalgObject):
         if not aorb4:
             aorb4 = aorb
 
-        if not isinstance(ao_integrals, DenseTwoBody):
-            raise TypeError('The AO integral argument must be a DenseTwoBody class. Got ', type(ao_integrals), ' instead.')
+        if not isinstance(ao_integrals, DenseFourIndex):
+            raise TypeError('The AO integral argument must be a DenseFourIndex class. Got ', type(ao_integrals), ' instead.')
         self._array[:] = np.tensordot(ao_integrals._array,aorb2.coeffs,axes=([0],[0]))
         self._array[:] = np.tensordot(self._array,aorb.coeffs,axes=([0],[0]))
         self._array[:] = np.tensordot(self._array,aorb4.coeffs,axes=([0],[0]))
@@ -1653,8 +1661,8 @@ class DenseTwoBody(LinalgObject):
         if not aorb4:
             aorb4 = aorb
 
-        if not isinstance(ao_integrals, DenseTwoBody):
-            raise TypeError('The AO integral argument must be a DenseTwoBody class. Got ', type(ao_integrals), ' instead.')
+        if not isinstance(ao_integrals, DenseFourIndex):
+            raise TypeError('The AO integral argument must be a DenseFourIndex class. Got ', type(ao_integrals), ' instead.')
         self._array[:] = np.einsum('st,pqrt->pqrs',aorb.coeffs.T,ao_integrals._array,order='C',casting='no')
         self._array[:] = np.einsum('rs,pqst->pqrt',aorb2.coeffs.T,self._array,casting='no',order='C')
         self._array[:] = np.einsum('qr,prst->pqst',aorb3.coeffs.T,self._array,casting='no',order='C')
@@ -1678,7 +1686,7 @@ class DenseTwoBody(LinalgObject):
         self._array *= signs.reshape(-1,-1,1)
         self._array *= signs.reshape(-1,-1,-1,1)
 
-class CholeskyTwoBody(DenseTwoBody):
+class CholeskyFourIndex(DenseFourIndex):
     """Dense symmetric four-dimensional matrix.
 
        This is the most inefficient implementation in terms of memory usage and
@@ -1744,8 +1752,8 @@ class CholeskyTwoBody(DenseTwoBody):
     def get_element(self, i, j, k, l):
         return np.dot(self._array[:,i,k], self._array2[:,j,l])
 
-    def get_slice(self, indices):
-        """Returns a numpy array 2-index slice of the twobody object.
+    def get_slice(self, indices, out=None, subtract=False, clear=True):
+        """Returns a numpy array 2-index slice of the fourindex object.
 
             ** Arguments **
                 indc_in
@@ -1757,40 +1765,68 @@ class CholeskyTwoBody(DenseTwoBody):
                     A string, comprised of the same letters in indc_in.
                     These are the output indices. Reversed order will give a transpose.
                     See numpy einstein summation documentation for an example.
+
+            ** Optional Arguments **
+                out
+                    A numpy array for storing the results.
+                factor
+                    A scaling factor to multiply the results being stored to out
+                clear
+                    A boolean that determines whether the output array is
+                    cleared. Defaults to True.
         """
 
-        if indices == 'abcc->bac': #acbc
-            result = np.zeros([self.nbasis, self.nbasis, self.nbasis])
-            for i in np.arange(self._array.shape[0]):
-                result += np.einsum('ac,bc->bac', self._array[i,:,:],
-                                        self._array2[i,:,:])
+        indc_in,indc_out = "".join(indices.split()).split("->")
+        assert len(indc_in) == 4
+        assert set(indc_in) == set(indc_out)
+        assert len(set("xyz") & set(indc_in)) == 0
+
+
+        if out is None:
+            dims = [self.nbasis, self.nbasis]
+            if len(indc_out) == 3:
+                dims += [self.nbasis]
+            out = np.zeros(dims)
+        elif clear:
+            out[:] = 0.0
+
+        if indices == 'abbc->abc': #abbc
+            if subtract:
+                subtract_slice_abbc(self._array, self._array2, out, self.nbasis,
+                                        self._array.shape[0])
+            else:
+                compute_slice_abbc(self._array, self._array2, out, self.nbasis,
+                                        self._array.shape[0])
+#            for i in np.arange(self._array.shape[0]):
+#                out += np.einsum('ab,bc->abc',self._array[i,:,:],
+#                                        self._array2[i,:,:])
+        elif subtract:
+            raise NotImplementedError
+        elif indices == 'abcc->bac': #acbc
+            print self._array.shape, self._array2.shape, out.shape, self.nbasis
+            compute_slice_abcc(self._array, self._array2, out, self.nbasis,
+                                                    self._array.shape[0])
+            out = out.swapaxes(0,1) #DOES THIS WORK?
+#            for i in np.arange(self._array.shape[0]):
+#                out += np.einsum('ac,bc->bac', self._array[i,:,:],
+#                                        self._array2[i,:,:])
         elif indices == 'abcc->abc': #acbc
-            result = np.zeros([self.nbasis, self.nbasis, self.nbasis])
-            for i in np.arange(self._array.shape[0]):
-                result += np.einsum('ac,bc->abc', self._array[i,:,:],
-                                        self._array2[i,:,:])
+            compute_slice_abcc(self._array, self._array2, out, self.nbasis,
+                                self._array.shape[0])
+#            for i in np.arange(self._array.shape[0]):
+#                out += np.einsum('ac,bc->abc', self._array[i,:,:],
+#                                        self._array2[i,:,:])
         elif indices == 'abcb->abc': #acbb
             L_r = np.diagonal(self._array2, axis1=1, axis2=2)
-            temp = np.tensordot(self._array, L_r, [0,0])
-            result = temp.swapaxes(1,2)
-        elif indices == 'abbc->abc': #abbc
-            result = np.zeros([self.nbasis, self.nbasis, self.nbasis])
-            for i in np.arange(self._array.shape[0]):
-                result += np.einsum('ab,bc->abc',self._array[i,:,:],
-                                        self._array2[i,:,:])
+            out[:] = np.tensordot(self._array, L_r, [0,0]).swapaxes(1,2)
         else:
             #error checking
-            indc_in,indc_out = "".join(indices.split()).split("->")
-            assert len(indc_in) == 4
-            assert set(indc_in) == set(indc_out)
-            assert len(set("xyz") & set(indc_in)) == 0
-
             idx_string = "x{},x{}->{}".format(indc_in[0]+indc_in[2],
                                                indc_in[1]+indc_in[3],
                                                indc_out)
 
-            result = np.einsum(idx_string, self._array, self._array2)
-        return result
+            out[:] = np.einsum(idx_string, self._array, self._array2)
+        return out
 
     def _get_dense(self):
         ''' ONLY FOR TESTING. Super expensive operation!
@@ -1798,8 +1834,8 @@ class CholeskyTwoBody(DenseTwoBody):
         return np.einsum('kac,kbd->abcd', self._array, self._array2)
 
     def assign(self, other):
-        if not isinstance(other, CholeskyTwoBody):
-            raise TypeError('The other object must also be CholeskyTwoBody instance. . Got ', type(other), ' instead.')
+        if not isinstance(other, CholeskyFourIndex):
+            raise TypeError('The other object must also be CholeskyFourIndex instance. . Got ', type(other), ' instead.')
         if self._array is None:
             self._array = np.ndarray(other._array.shape)
             log.mem.announce(self._array.nbytes)
@@ -1825,8 +1861,8 @@ class CholeskyTwoBody(DenseTwoBody):
         self._array2 = self._array
 
     def copy(self):
-        '''Return a copy of the current two-body operator'''
-        result = CholeskyTwoBody(self.nbasis)
+        '''Return a copy of the current four-index operator'''
+        result = CholeskyFourIndex(self.nbasis)
         result.assign(self)
         return result
 
@@ -1856,19 +1892,19 @@ class CholeskyTwoBody(DenseTwoBody):
 
     def apply_direct(self, dm, output):
         """Compute the direct dot product with a density matrix."""
-        if not isinstance(dm, DenseOneBody):
-            raise TypeError('The dm argument must be a DenseOneBody class. Got ', type(dm), ' instead.')
-        if not isinstance(output, DenseOneBody):
-            raise TypeError('The output argument must be a DenseOneBody class. Got ', type(output), ' instead.')
+        if not isinstance(dm, DenseTwoIndex):
+            raise TypeError('The dm argument must be a DenseTwoIndex class. Got ', type(dm), ' instead.')
+        if not isinstance(output, DenseTwoIndex):
+            raise TypeError('The output argument must be a DenseTwoIndex class. Got ', type(output), ' instead.')
         result = np.tensordot(self._array, np.tensordot(self._array2, dm._get_dense(), axes=([(1,2),(1,0)])), [0,0])
         output.assign_array(result)
 
     def apply_exchange(self, dm, output):
         """Compute the exchange dot product with a density matrix."""
-        if not isinstance(dm, DenseOneBody):
-            raise TypeError('The dm argument must be a DenseOneBody class. Got ', type(dm), ' instead.')
-        if not isinstance(output, DenseOneBody):
-            raise TypeError('The output argument must be a DenseOneBody class. Got ', type(output), ' instead.')
+        if not isinstance(dm, DenseTwoIndex):
+            raise TypeError('The dm argument must be a DenseTwoIndex class. Got ', type(dm), ' instead.')
+        if not isinstance(output, DenseTwoIndex):
+            raise TypeError('The output argument must be a DenseTwoIndex class. Got ', type(output), ' instead.')
         result = np.tensordot(self._array, np.tensordot(self._array2, dm._get_dense(), axes=([2,1])), ([0,2],[0,2]))
         output.assign_array(result)
 
@@ -1888,8 +1924,8 @@ class CholeskyTwoBody(DenseTwoBody):
         if aorb != aorb3 or aorb2 != aorb4:
             raise NotImplementedError
 
-        if not isinstance(ao_integrals, CholeskyTwoBody):
-            raise TypeError('The AO integral argument must be a CholeskyTwoBody class. Got ', type(ao_integrals), ' instead.')
+        if not isinstance(ao_integrals, CholeskyFourIndex):
+            raise TypeError('The AO integral argument must be a CholeskyFourIndex class. Got ', type(ao_integrals), ' instead.')
         self._array[:] = np.tensordot(ao_integrals._array, aorb2.coeffs, axes=([1],[0]))
         self._array[:] = np.tensordot(self._array, aorb2.coeffs, axes=([1],[0]))
 
@@ -1918,8 +1954,8 @@ class CholeskyTwoBody(DenseTwoBody):
         if aorb != aorb3 or aorb2 != aorb4:
             raise NotImplementedError
 
-        if not isinstance(ao_integrals, CholeskyTwoBody):
-            raise TypeError('The AO integral argument must be a CholeskyTwoBody class. Got ', type(ao_integrals), ' instead.')
+        if not isinstance(ao_integrals, CholeskyFourIndex):
+            raise TypeError('The AO integral argument must be a CholeskyFourIndex class. Got ', type(ao_integrals), ' instead.')
         self._array[:] = np.einsum('ai,kab->kib',aorb2.coeffs,ao_integrals._array)
         self._array[:] = np.einsum('bj,kib->kij',aorb2.coeffs,self._array)
 
@@ -1946,12 +1982,12 @@ class CholeskyTwoBody(DenseTwoBody):
         raise NotImplementedError
 
     def add_exchange_part(self):
-        '''Sort two-body exchange integrals for OAP1roG (<ij||kj> -> <ijk>)
+        '''Sort four-index exchange integrals for OAP1roG (<ij||kj> -> <ijk>)
         '''
         raise NotImplementedError
 
 
-class DenseThreeBody(LinalgObject):
+class DenseThreeIndex(LinalgObject):
     """Dense three-dimensional object.
 
        This is the most inefficient implementation in terms of memory usage and
@@ -2010,14 +2046,14 @@ class DenseThreeBody(LinalgObject):
         self._array[:] = other[:]
 
     def contract(self, indices, arr):
-        ''' Contracts a dense 2-dim array with this DenseThreeBody term.
+        ''' Contracts a dense 2-dim array with this DenseThreeIndex term.
 
             ** Arguments: **
 
             indices
                 A string with two sets of letters and "->" separating them.
                 These are the indices of the 2-dim array and the output.
-                The indices of this DenseThreeBody term will be "abc".
+                The indices of this DenseThreeIndex term will be "abc".
                 See numpy einsum notation documentation for more details.
 
             arr
@@ -2030,16 +2066,16 @@ class DenseThreeBody(LinalgObject):
 
         return np.einsum('abc,'+indices, self._array,arr)
 
-    def expand_tothreebody(self, other, other2, select, factor=1.0):
-        '''Expand One and ZeroBody to ThreeBody.
+    def expand_tothreeindex(self, other, other2, select, factor=1.0):
+        '''Expand One and OneIndex to ThreeIndex.
 
            **Arguments:**
 
            other
-                A DenseOneBody object.
+                A DenseTwoIndex object.
 
            other2
-                A DenseZeroBody object.
+                A DenseOneIndex object.
 
            select:
                 Contraction type
@@ -2051,16 +2087,16 @@ class DenseThreeBody(LinalgObject):
         else:
             raise NotImplementedError
 
-    def contract_onebody(self, other, other2, select, factor=1.0):
-        '''Contract other ThreeBody with OneBody.
+    def contract_twoindex(self, other, other2, select, factor=1.0):
+        '''Contract other ThreeIndex with TwoIndex.
 
            **Arguments:**
 
            other
-                A DenseThreeBody object.
+                A DenseThreeIndex object.
 
            other2
-                A DenseOneBody object.
+                A DenseTwoIndex object.
 
            select:
                 Contraction type
@@ -2077,47 +2113,47 @@ class DenseThreeBody(LinalgObject):
             raise NotImplementedError
 
     def apply_sorting_ijkk(self, other, switch=False):
-        ''' Sort two-body integrals for OAP1roG (<ij|kk> -> <ijk>)
+        ''' Sort four-index integrals for OAP1roG (<ij|kk> -> <ijk>)
 
             ** Arguments: **
 
             other
-                An instance of a DenseTwoBody object.
+                An instance of a DenseFourIndex object.
             switch
                 A boolean #FIXME
 
         '''
-        if not isinstance(other, DenseTwoBody):
-            raise TypeError('The other object must also be DenseTwoBody instance. Got ', type(other), ' instead.')
+        if not isinstance(other, DenseFourIndex):
+            raise TypeError('The other object must also be DenseFourIndex instance. Got ', type(other), ' instead.')
         if switch:
-            self._array = other.get_slice('abcc->bac')
+            other.get_slice('abcc->bac', out=self._array)
         else:
-            self._array = other.get_slice('abcc->abc')
-        return self._array
+            other.get_slice('abcc->abc', out=self._array)
 
     def apply_sorting_pqrq_woexchange(self, other):
-        '''Sort two-body integrals for OAP1roG (<ij|kj> -> <ijk>)
+        '''Sort four-index integrals for OAP1roG (<ij|kj> -> <ijk>)
         '''
-        if not isinstance(other, DenseTwoBody):
-            raise TypeError('The other object must also be DenseTwoBody instance.')
-        self._array = np.einsum('abcb->abc', other._array)
-        return self._array
+        if not isinstance(other, DenseFourIndex):
+            raise TypeError('The other object must also be DenseFourIndex instance.')
+        other.get_slice('abcb->abc', out=self._array)
 
     def apply_sorting_pqrq_exchange(self, other):
-        '''Sort two-body exchange integrals for OAP1roG (<ij||kj> -> <ijk>)
+        '''Sort four-index exchange integrals for OAP1roG (<ij||kj> -> <ijk>)
         '''
-        if not isinstance(other, DenseTwoBody):
-            raise TypeError('The other object must also be DenseTwoBody instance.')
-        self._array[:] = np.einsum('abcb->abc', other._array)-np.einsum('abbc->abc', other._array)
+        if not isinstance(other, DenseFourIndex):
+            raise TypeError('The other object must also be DenseFourIndex instance.')
+        other.get_slice('abcb->abc', out=self._array)
+        other.get_slice('abbc->abc', out=self._array, subtract=True, clear=False)
         return self._array
 
     def apply_sorting_pqrq(self, other):
-        '''Sort two-body exchange integrals for OAP1roG (<ij||kj> -> <ijk>)
+        '''Sort four-index exchange integrals for OAP1roG (<ij||kj> -> <ijk>)
         '''
-        if not isinstance(other, DenseTwoBody):
-            raise TypeError('The other object must also be DenseTwoBody instance. Got ', type(other), ' instead.')
-        self._array[:] = 2.0*other.get_slice('abcb->abc')\
-                                - other.get_slice('abbc->abc')
+        if not isinstance(other, DenseFourIndex):
+            raise TypeError('The other object must also be DenseFourIndex instance. Got ', type(other), ' instead.')
+        other.get_slice('abcb->abc', out=self._array)
+        self._array *= 2.0
+        other.get_slice('abbc->abc', out=self._array, subtract=True, clear=False)
         return self._array
 
     def compute_response_three_dm_ap1rog(self, geminal, lagrange, select):
@@ -2128,17 +2164,17 @@ class DenseThreeBody(LinalgObject):
            **Arguments:**
 
            geminal
-                A DenseOneBody Geminal coefficient matrix.
+                A DenseTwoIndex Geminal coefficient matrix.
 
            lagrange
-                A DenseOneBody instance of Lagrange multipliers.
+                A DenseTwoIndex instance of Lagrange multipliers.
 
            select
                 Block of 3-DM; uuu, uud, uudoff, udd, uddoff
         '''
         nocc = geminal._array.shape[0]
         nvirt = geminal._array.shape[1]
-        ldotc = geminal.contract_onebody(lagrange)
+        ldotc = geminal.contract_twoindex(lagrange)
         nd_lagrange = lagrange._get_dense()
         nd_geminal = geminal._get_dense()
         if select == 'uuu':

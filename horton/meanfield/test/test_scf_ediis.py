@@ -66,10 +66,10 @@ def test_interpol_hf_cs_hf():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
-        ROneBodyTerm(kin, 'kin'),
+        RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
         RExchangeTerm(er, 'x_hf'),
-        ROneBodyTerm(na, 'ne'),
+        RTwoIndexTerm(na, 'ne'),
     ]
     ham = REffHam(terms, external)
     occ_model = AufbauOccModel(5)
@@ -88,10 +88,10 @@ def test_interpol_lih_os_hf():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
-        UOneBodyTerm(kin, 'kin'),
+        UTwoIndexTerm(kin, 'kin'),
         UDirectTerm(er, 'hartree'),
         UExchangeTerm(er, 'x_hf'),
-        UOneBodyTerm(na, 'ne'),
+        UTwoIndexTerm(na, 'ne'),
     ]
     ham = UEffHam(terms, external)
     occ_model = AufbauOccModel(2, 1)

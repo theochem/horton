@@ -293,7 +293,7 @@ def test_grid_co_ccpv5z_pure_hf_esp_some_points():
     check_grid_esp('test/co_ccpv5z_pure_hf_g03.fchk', ref, 1e-5)
 
 
-def test_grid_one_body_ne():
+def test_grid_two_index_ne():
     mol = Molecule.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
     rtf = ExpRTransform(1e-3, 2e1, 100)
     rgrid = RadialGrid(rtf)
@@ -301,9 +301,9 @@ def test_grid_one_body_ne():
     dist0 = np.sqrt(((grid.points - mol.coordinates[0])**2).sum(axis=1))
     dist1 = np.sqrt(((grid.points - mol.coordinates[1])**2).sum(axis=1))
     pot = -mol.numbers[0]/dist0 - mol.numbers[1]/dist1
-    na_ana = mol.lf.create_one_body()
+    na_ana = mol.lf.create_two_index()
     mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, na_ana)
-    na_grid = mol.lf.create_one_body()
+    na_grid = mol.lf.create_two_index()
     mol.obasis.compute_grid_density_fock(grid.points, grid.weights, pot, na_grid)
     # compare grid-based operator with analytical result
     assert abs(na_grid._array).max() > 8.0
@@ -336,7 +336,7 @@ def test_cart_pure_switch():
 
 def get_olp(ob):
     lf = DenseLinalgFactory(ob.nbasis)
-    olp = lf.create_one_body()
+    olp = lf.create_two_index()
     ob.compute_overlap(olp)
     return olp._array
 
@@ -418,7 +418,7 @@ def test_gobasis_output_args_overlap():
     mol = Molecule.from_file(context.get_fn('test/water.xyz'))
     obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
     lf = DenseLinalgFactory(obasis.nbasis)
-    olp1 = lf.create_one_body(obasis.nbasis)
+    olp1 = lf.create_two_index(obasis.nbasis)
     obasis.compute_overlap(olp1)
     olp2 = obasis.compute_overlap(lf)
     compare_operators(olp1, olp2)
@@ -428,7 +428,7 @@ def test_gobasis_output_args_kinetic():
     mol = Molecule.from_file(context.get_fn('test/water.xyz'))
     obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
     lf = DenseLinalgFactory(obasis.nbasis)
-    kin1 = lf.create_one_body(obasis.nbasis)
+    kin1 = lf.create_two_index(obasis.nbasis)
     obasis.compute_kinetic(kin1)
     kin2 = obasis.compute_kinetic(lf)
     compare_operators(kin1, kin2)
@@ -438,7 +438,7 @@ def test_gobasis_output_args_nuclear_attraction():
     mol = Molecule.from_file(context.get_fn('test/water.xyz'))
     obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
     lf = DenseLinalgFactory(obasis.nbasis)
-    nai1 = lf.create_one_body(obasis.nbasis)
+    nai1 = lf.create_two_index(obasis.nbasis)
     obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, nai1)
     nai2 = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
     compare_operators(nai1, nai2)
@@ -448,7 +448,7 @@ def test_gobasis_output_args_electron_repulsion():
     mol = Molecule.from_file(context.get_fn('test/water.xyz'))
     obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
     lf = DenseLinalgFactory(obasis.nbasis)
-    er1 = lf.create_two_body(obasis.nbasis)
+    er1 = lf.create_four_index(obasis.nbasis)
     obasis.compute_electron_repulsion(er1)
     er2 = obasis.compute_electron_repulsion(lf)
     compare_operators(er1, er2)

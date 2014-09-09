@@ -26,10 +26,10 @@ guess_core_hamiltonian(olp, kin, na, exp_alpha)
 # Construct the restricted HF effective Hamiltonian
 external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
 terms = [
-    ROneBodyTerm(kin, 'kin'),
+    RTwoIndexTerm(kin, 'kin'),
     RDirectTerm(er, 'hartree'),
     RExchangeTerm(er, 'x_hf'),
-    ROneBodyTerm(na, 'ne'),
+    RTwoIndexTerm(na, 'ne'),
 ]
 ham = REffHam(terms, external)
 

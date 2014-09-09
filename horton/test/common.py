@@ -220,7 +220,7 @@ def compare_all_dms(wfn1, wfn2):
 
 
 def compare_operators(op1, op2):
-    if isinstance(op1, DenseOneBody) or isinstance(op1, DenseTwoBody):
+    if isinstance(op1, DenseTwoIndex) or isinstance(op1, DenseFourIndex):
         assert isinstance(op2, op1.__class__)
         assert op1.nbasis == op2.nbasis
         assert (op1._array == op2._array).all()

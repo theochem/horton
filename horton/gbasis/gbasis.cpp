@@ -144,7 +144,7 @@ void GBasis::init_scales() {
     }
 }
 
-void GBasis::compute_one_body(double* output, GB2Integral* integral) {
+void GBasis::compute_two_index(double* output, GB2Integral* integral) {
     IterGB2 iter = IterGB2(this);
     iter.update_shell();
     do {
@@ -158,7 +158,7 @@ void GBasis::compute_one_body(double* output, GB2Integral* integral) {
     } while (iter.inc_shell());
 }
 
-void GBasis::compute_two_body(double* output, GB4Integral* integral) {
+void GBasis::compute_four_index(double* output, GB4Integral* integral) {
     IterGB4 iter = IterGB4(this);
     iter.update_shell();
     do {
@@ -218,22 +218,22 @@ const double GOBasis::normalization(const double alpha, const long* n) const {
 
 void GOBasis::compute_overlap(double* output) {
     GB2OverlapIntegral integral = GB2OverlapIntegral(get_max_shell_type());
-    compute_one_body(output, &integral);
+    compute_two_index(output, &integral);
 }
 
 void GOBasis::compute_kinetic(double* output) {
     GB2KineticIntegral integral = GB2KineticIntegral(get_max_shell_type());
-    compute_one_body(output, &integral);
+    compute_two_index(output, &integral);
 }
 
 void GOBasis::compute_nuclear_attraction(double* charges, double* centers, long ncharge, double* output) {
     GB2NuclearAttractionIntegral integral = GB2NuclearAttractionIntegral(get_max_shell_type(), charges, centers, ncharge);
-    compute_one_body(output, &integral);
+    compute_two_index(output, &integral);
 }
 
 void GOBasis::compute_electron_repulsion(double* output) {
     GB4ElectronRepulsionIntegralLibInt integral = GB4ElectronRepulsionIntegralLibInt(get_max_shell_type());
-    compute_two_body(output, &integral);
+    compute_four_index(output, &integral);
 }
 
 void GOBasis::compute_grid1_exp(long nfn, double* coeffs, long npoint, double* points, long norb, long* iorbs, double* output) {

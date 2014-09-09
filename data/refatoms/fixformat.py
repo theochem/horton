@@ -10,12 +10,12 @@ for fn_h5 in glob('*.h5'):
             dm_spin = f['wfn/dm_alpha/array'][:] - f['wfn/dm_beta/array'][:]
             g = f.create_group('dm_spin')
             g['array'] = dm_spin
-            g.attrs['class'] = 'DenseOneBody'
+            g.attrs['class'] = 'DenseTwoIndex'
         else:
             dm_full = f['wfn/dm_alpha/array'][:]*2
         g = f.create_group('dm_full')
         g['array'] = dm_full
-        g.attrs['class'] = 'DenseOneBody'
+        g.attrs['class'] = 'DenseTwoIndex'
         del f['wfn']
         if 'props' in f:
             for key, value in f['props'].iteritems():

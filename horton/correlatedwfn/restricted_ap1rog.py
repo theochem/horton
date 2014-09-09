@@ -33,7 +33,7 @@ from horton.cache import Cache
 from horton.log import log, timer
 from horton.correlatedwfn.geminal import Geminal
 from horton.correlatedwfn.stepsearch import RStepSearch
-from horton.matrix import OneBody
+from horton.matrix import TwoIndex
 
 from itertools import permutations
 from operator import mul
@@ -59,7 +59,7 @@ class RAp1rog(Geminal):
            **Arguments:**
 
            one, two
-                One- and two-body integrals (some Hamiltonian matrix elements)
+                One- and four-index integrals (some Hamiltonian matrix elements)
                 expressed in the AO basis (primitives).
 
            core
@@ -69,7 +69,7 @@ class RAp1rog(Geminal):
                 An expansion instance. It contains the AO/MO coefficients.
 
            olp
-                The AO overlap matrix. A OneBody instance.
+                The AO overlap matrix. A TwoIndex instance.
 
            orb
                 A boolean. Initializes orbital optimization.
@@ -89,7 +89,7 @@ class RAp1rog(Geminal):
            **Arguments:**
 
            one, two
-                One- and two-body integrals (some Hamiltonian matrix elements)
+                One- and four-index integrals (some Hamiltonian matrix elements)
                 expressed in the AO basis (primitives).
 
            core
@@ -99,7 +99,7 @@ class RAp1rog(Geminal):
                 An expansion instance. It contains the AO/MO coefficients.
 
            olp
-                The AO overlap matrix. A OneBody instance.
+                The AO overlap matrix. A TwoIndex instance.
 
            **Keywords:**
                 indextrans: 4-index Transformation (tensordot).
@@ -185,7 +185,7 @@ class RAp1rog(Geminal):
            **Arguments:**
 
            one, two
-                One- and two-body integrals (some Hamiltonian matrix elements)
+                One- and four-index integrals (some Hamiltonian matrix elements)
                 expressed in the AO basis (primitives).
 
            core
@@ -195,7 +195,7 @@ class RAp1rog(Geminal):
                 An expansion instance. It contains the AO/MO coefficients.
 
            olp
-                The AO overlap matrix. A OneBody instance.
+                The AO overlap matrix. A TwoIndex instance.
 
            **Keywords:**
                 indextrans: 4-index Transformation (tensordot).
@@ -523,7 +523,7 @@ class RAp1rog(Geminal):
            **Arguments:**
 
            one, two
-                One- and two-body integrals (some Hamiltonian matrix elements)
+                One- and four-index integrals (some Hamiltonian matrix elements)
                 expressed in the AO basis (primitives).
 
            exps
@@ -595,9 +595,9 @@ class RAp1rog(Geminal):
         if select not in ['t', 'vpp', 'v', 'va', 'vpq', 'vpqrq', 'vpqrr']:
             raise ValueError('The select argument must be one of .')
         if select in ['vpqrq', 'vpqrr']:
-            matrix, new = self._cache.load('matrix_%s' % select, alloc=(self._lf.create_three_body, self.nbasis), tags='m')
+            matrix, new = self._cache.load('matrix_%s' % select, alloc=(self._lf.create_three_index, self.nbasis), tags='m')
         else:
-            matrix, new = self._cache.load('matrix_%s' % select, alloc=(self._lf.create_one_body, self.nbasis), tags='m')
+            matrix, new = self._cache.load('matrix_%s' % select, alloc=(self._lf.create_two_index, self.nbasis), tags='m')
         if not new:
             raise RuntimeError('The matrix matrix_%s already exists. Call wfn.clear prior to updating the wfn.' % select)
         return matrix
@@ -696,10 +696,10 @@ class RAp1rog(Geminal):
         '''
         if coeff is None:
             coeff = self.geminal
-        if isinstance(coeff, OneBody):
+        if isinstance(coeff, TwoIndex):
             tmp = coeff.copy()
         else:
-            tmp = self.lf.create_one_body(self.npairs, self.nvirt)
+            tmp = self.lf.create_two_index(self.npairs, self.nvirt)
             tmp.assign_array(coeff, self.npairs, self.nvirt)
         kmat = self.get_matrix('vpp')
         kia = kmat.copyview(0, self.npairs, self.npairs, self.nbasis, 1.0)
@@ -781,7 +781,7 @@ class RAp1rog(Geminal):
         '''Construct vector function for nonlinear optimization of coefficients
            for restricted AP1roG.
         '''
-        gmat = self.lf.create_one_body(self.npairs, self.nvirt)
+        gmat = self.lf.create_two_index(self.npairs, self.nvirt)
         gmat.assign_array(coeff, self.npairs, self.nvirt)
 
         en = energy+self.get_correlation_energy(gmat)
@@ -789,20 +789,20 @@ class RAp1rog(Geminal):
         kia = kmatrix.copyview(0, self.npairs, self.npairs, self.nbasis)
         kij = kmatrix.copyview(0, self.npairs, 0, self.npairs)
         kab = kmatrix.copyview(self.npairs, self.nbasis, self.npairs, self.nbasis)
-        kca = self.lf.create_zero_body(self.nvirt)
-        kci = self.lf.create_zero_body(self.npairs)
-        kii = self.lf.create_zero_body(self.npairs)
-        kaa = self.lf.create_zero_body(self.nvirt)
-        oneaa = self.lf.create_zero_body(self.nvirt)
-        oneii = self.lf.create_zero_body(self.npairs)
-        vaa = self.lf.create_zero_body(self.nvirt)
-        vii = self.lf.create_zero_body(self.npairs)
-        va = self.lf.create_zero_body(self.nvirt)
-        vi = self.lf.create_zero_body(self.npairs)
-        va_a = self.lf.create_zero_body(self.nvirt)
-        vi_a = self.lf.create_zero_body(self.npairs)
-        kci.contract_2onebody(kia, gmat, 2)
-        kca.contract_2onebody(kia, gmat, 1)
+        kca = self.lf.create_one_index(self.nvirt)
+        kci = self.lf.create_one_index(self.npairs)
+        kii = self.lf.create_one_index(self.npairs)
+        kaa = self.lf.create_one_index(self.nvirt)
+        oneaa = self.lf.create_one_index(self.nvirt)
+        oneii = self.lf.create_one_index(self.npairs)
+        vaa = self.lf.create_one_index(self.nvirt)
+        vii = self.lf.create_one_index(self.npairs)
+        va = self.lf.create_one_index(self.nvirt)
+        vi = self.lf.create_one_index(self.npairs)
+        va_a = self.lf.create_one_index(self.nvirt)
+        vi_a = self.lf.create_one_index(self.npairs)
+        kci.contract_2twoindex(kia, gmat, 2)
+        kca.contract_2twoindex(kia, gmat, 1)
         kii.assign_diagonal(kij)
         kaa.assign_diagonal(kab)
         oneaa.assign_diagonal(one_mo, 1, self.npairs, self.nbasis)
@@ -811,19 +811,19 @@ class RAp1rog(Geminal):
         vii.assign_diagonal(vmatrix, 1, 0, self.npairs)
         vai = vmatrix.copyview(0, self.npairs, self.npairs, self.nbasis)
         vaia = vmatrixa.copyview(0, self.npairs, self.npairs, self.nbasis)
-        va.contract_onebody(vmatrix, 1, 1.0, 0, self.npairs, self.npairs, self.nbasis)
-        vi.contract_onebody(vmatrix, 2, 1.0, 0, self.npairs, 0, self.npairs)
-        va_a.contract_onebody(vmatrixa, 1, 1.0, 0, self.npairs, self.npairs, self.nbasis)
-        vi_a.contract_onebody(vmatrixa, 2, 1.0, 0, self.npairs, 0, self.npairs)
-        kgeminal = kia.contract_onebody(gmat)
+        va.contract_twoindex(vmatrix, 1, 1.0, 0, self.npairs, self.npairs, self.nbasis)
+        vi.contract_twoindex(vmatrix, 2, 1.0, 0, self.npairs, 0, self.npairs)
+        va_a.contract_twoindex(vmatrixa, 1, 1.0, 0, self.npairs, self.npairs, self.nbasis)
+        vi_a.contract_twoindex(vmatrixa, 2, 1.0, 0, self.npairs, 0, self.npairs)
+        kgeminal = kia.contract_twoindex(gmat)
 
         tmp = gmat.copy()
         tmp.imultiply(gmat)
         tmp.imultiply(kia)
-        tmp2 = self.lf.create_one_body(self.npairs, self.npairs)
+        tmp2 = self.lf.create_two_index(self.npairs, self.npairs)
         tmp2.iadddott(gmat, kia, 1.0)
 
-        result = self.lf.create_one_body(self.npairs,self.nvirt)
+        result = self.lf.create_two_index(self.npairs,self.nvirt)
         # Kai:
         result.iadd(kia, 1.0)
         result.iadddot(kij, gmat, 1.0)
@@ -854,59 +854,59 @@ class RAp1rog(Geminal):
     def jacobian_ap1rog(self, coeff, kmatrix, vmatrix, vmatrixa, one_mo, energy):
         '''Construct Jacobian for nonlinear optimization of coefficients for restricted AP1roG.
         '''
-        jacobian = self.lf.create_one_body((self.npairs*self.nvirt),(self.npairs*self.nvirt))
+        jacobian = self.lf.create_two_index((self.npairs*self.nvirt),(self.npairs*self.nvirt))
 
-        geminal = self.lf.create_one_body(self.npairs, self.nvirt)
+        geminal = self.lf.create_two_index(self.npairs, self.nvirt)
         geminal.assign_array(coeff, self.npairs, self.nvirt)
         en = energy+self.get_correlation_energy(geminal)
         kmat = kmatrix.copyview(0, self.npairs, self.npairs, self.nbasis)
         kij = kmatrix.copyview(0, self.npairs, 0, self.npairs)
         kab = kmatrix.copyview(self.npairs, self.nbasis, self.npairs, self.nbasis)
-        gmat = self.lf.create_one_body(self.npairs, self.nvirt)
+        gmat = self.lf.create_two_index(self.npairs, self.nvirt)
         gmat.set_value(1.0)
-        oneaa = self.lf.create_zero_body(self.nvirt)
-        oneii = self.lf.create_zero_body(self.npairs)
-        vaa = self.lf.create_zero_body(self.nvirt)
-        vii = self.lf.create_zero_body(self.npairs)
-        va = self.lf.create_zero_body(self.nvirt)
-        vi = self.lf.create_zero_body(self.npairs)
-        va_a = self.lf.create_zero_body(self.nvirt)
-        vi_a = self.lf.create_zero_body(self.npairs)
+        oneaa = self.lf.create_one_index(self.nvirt)
+        oneii = self.lf.create_one_index(self.npairs)
+        vaa = self.lf.create_one_index(self.nvirt)
+        vii = self.lf.create_one_index(self.npairs)
+        va = self.lf.create_one_index(self.nvirt)
+        vi = self.lf.create_one_index(self.npairs)
+        va_a = self.lf.create_one_index(self.nvirt)
+        vi_a = self.lf.create_one_index(self.npairs)
         oneaa.assign_diagonal(one_mo, 1, self.npairs, self.nbasis)
         oneii.assign_diagonal(one_mo, 1, 0, self.npairs)
         vaa.assign_diagonal(vmatrix, 1, self.npairs, self.nbasis)
         vii.assign_diagonal(vmatrix, 1, 0, self.npairs)
         vai = vmatrix.copyview(0, self.npairs, self.npairs, self.nbasis)
         vaia = vmatrixa.copyview(0, self.npairs, self.npairs, self.nbasis)
-        va.contract_onebody(vmatrix, 1, 1.0, 0, self.npairs, self.npairs, self.nbasis)
-        vi.contract_onebody(vmatrix, 2, 1.0, 0, self.npairs, 0, self.npairs)
-        va_a.contract_onebody(vmatrixa, 1, 1.0, 0, self.npairs, self.npairs, self.nbasis)
-        vi_a.contract_onebody(vmatrixa, 2, 1.0, 0, self.npairs, 0, self.npairs)
-        kcab = self.lf.create_one_body(self.nvirt, self.nvirt)
-        kcij = self.lf.create_one_body(self.npairs, self.npairs)
-        kcib = self.lf.create_zero_body(self.npairs)
-        kcja = self.lf.create_zero_body(self.nvirt)
-        kcib.contract_2onebody(kmat, geminal, 2)
-        kcja.contract_2onebody(kmat, geminal, 1)
+        va.contract_twoindex(vmatrix, 1, 1.0, 0, self.npairs, self.npairs, self.nbasis)
+        vi.contract_twoindex(vmatrix, 2, 1.0, 0, self.npairs, 0, self.npairs)
+        va_a.contract_twoindex(vmatrixa, 1, 1.0, 0, self.npairs, self.npairs, self.nbasis)
+        vi_a.contract_twoindex(vmatrixa, 2, 1.0, 0, self.npairs, 0, self.npairs)
+        kcab = self.lf.create_two_index(self.nvirt, self.nvirt)
+        kcij = self.lf.create_two_index(self.npairs, self.npairs)
+        kcib = self.lf.create_one_index(self.npairs)
+        kcja = self.lf.create_one_index(self.nvirt)
+        kcib.contract_2twoindex(kmat, geminal, 2)
+        kcja.contract_2twoindex(kmat, geminal, 1)
         kcab.iaddtdot(geminal, kmat)
         kcij.iadddott(geminal, kmat)
-        eyeocc = self.lf.create_one_body(self.npairs, self.npairs)
-        eyevir = self.lf.create_one_body(self.nvirt, self.nvirt)
-        onesocc = self.lf.create_one_body(self.npairs, self.npairs)
-        onesvir = self.lf.create_one_body(self.nvirt, self.nvirt)
-        kronvir = self.lf.create_one_body((self.npairs*self.nvirt),(self.npairs*self.nvirt))
-        kronocc = self.lf.create_one_body((self.npairs*self.nvirt),(self.npairs*self.nvirt))
+        eyeocc = self.lf.create_two_index(self.npairs, self.npairs)
+        eyevir = self.lf.create_two_index(self.nvirt, self.nvirt)
+        onesocc = self.lf.create_two_index(self.npairs, self.npairs)
+        onesvir = self.lf.create_two_index(self.nvirt, self.nvirt)
+        kronvir = self.lf.create_two_index((self.npairs*self.nvirt),(self.npairs*self.nvirt))
+        kronocc = self.lf.create_two_index((self.npairs*self.nvirt),(self.npairs*self.nvirt))
         eyeocc.set_diagonal(1.0)
         eyevir.set_diagonal(1.0)
         onesocc.set_value(1.0)
         onesvir.set_value(1.0)
         kronocc.iaddkron(eyeocc, onesvir)
         kronvir.iaddkron(onesocc, eyevir)
-        tmp = self.lf.create_one_body((self.npairs*self.nvirt),(self.npairs*self.nvirt))
+        tmp = self.lf.create_two_index((self.npairs*self.nvirt),(self.npairs*self.nvirt))
         tmp.iaddouter(geminal, kmat, -2.0)
 
-        result = self.lf.create_one_body(self.npairs,self.nvirt)
-        factor = kmat.contract_onebody(geminal)
+        result = self.lf.create_two_index(self.npairs,self.nvirt)
+        factor = kmat.contract_twoindex(geminal)
         result.multiplyt(gmat, oneaa, 2.0)
         result.multiply(gmat, oneii, -2.0)
         result.multiplyt(gmat, vaa, 2.0)
@@ -939,32 +939,32 @@ class RAp1rog(Geminal):
         '''Construct vector function for optimization of Lagrange multipliers
            for restricted OAP1roG.
         '''
-        gmat = self.lf.create_one_body(self.npairs, self.nvirt)
+        gmat = self.lf.create_two_index(self.npairs, self.nvirt)
         gmat.assign_array(coeff, self.npairs, self.nvirt)
         en = energy+self.get_correlation_energy(coeff)
 
-        lmat = self.lf.create_one_body(self.npairs, self.nvirt)
+        lmat = self.lf.create_two_index(self.npairs, self.nvirt)
         lmat.assign_array(lambdacoeff, self.npairs, self.nvirt)
 
         kia = kmatrix.copyview(0, self.npairs, self.npairs, self.nbasis)
         kij = kmatrix.copyview(0, self.npairs, 0, self.npairs)
         kab = kmatrix.copyview(self.npairs, self.nbasis, self.npairs, self.nbasis)
-        kca = self.lf.create_zero_body(self.nvirt)
-        kci = self.lf.create_zero_body(self.npairs)
-        kii = self.lf.create_zero_body(self.npairs)
-        kaa = self.lf.create_zero_body(self.nvirt)
-        lca = self.lf.create_zero_body(self.nvirt)
-        lci = self.lf.create_zero_body(self.npairs)
-        oneaa = self.lf.create_zero_body(self.nvirt)
-        oneii = self.lf.create_zero_body(self.npairs)
-        vaa = self.lf.create_zero_body(self.nvirt)
-        vii = self.lf.create_zero_body(self.npairs)
-        va = self.lf.create_zero_body(self.nvirt)
-        vi = self.lf.create_zero_body(self.npairs)
-        va_a = self.lf.create_zero_body(self.nvirt)
-        vi_a = self.lf.create_zero_body(self.npairs)
-        kci.contract_2onebody(kia, gmat, 2)
-        kca.contract_2onebody(kia, gmat, 1)
+        kca = self.lf.create_one_index(self.nvirt)
+        kci = self.lf.create_one_index(self.npairs)
+        kii = self.lf.create_one_index(self.npairs)
+        kaa = self.lf.create_one_index(self.nvirt)
+        lca = self.lf.create_one_index(self.nvirt)
+        lci = self.lf.create_one_index(self.npairs)
+        oneaa = self.lf.create_one_index(self.nvirt)
+        oneii = self.lf.create_one_index(self.npairs)
+        vaa = self.lf.create_one_index(self.nvirt)
+        vii = self.lf.create_one_index(self.npairs)
+        va = self.lf.create_one_index(self.nvirt)
+        vi = self.lf.create_one_index(self.npairs)
+        va_a = self.lf.create_one_index(self.nvirt)
+        vi_a = self.lf.create_one_index(self.npairs)
+        kci.contract_2twoindex(kia, gmat, 2)
+        kca.contract_2twoindex(kia, gmat, 1)
         kii.assign_diagonal(kij)
         kaa.assign_diagonal(kab)
         oneaa.assign_diagonal(one_mo, 1, self.npairs, self.nbasis)
@@ -973,23 +973,23 @@ class RAp1rog(Geminal):
         vii.assign_diagonal(vmatrix, 1, 0, self.npairs)
         vai = vmatrix.copyview(0, self.npairs, self.npairs, self.nbasis)
         vaia = vmatrixa.copyview(0, self.npairs, self.npairs, self.nbasis)
-        va.contract_onebody(vmatrix, 1, 1.0, 0, self.npairs, self.npairs, self.nbasis)
-        vi.contract_onebody(vmatrix, 2, 1.0, 0, self.npairs, 0, self.npairs)
-        va_a.contract_onebody(vmatrixa, 1, 1.0, 0, self.npairs, self.npairs, self.nbasis)
-        vi_a.contract_onebody(vmatrixa, 2, 1.0, 0, self.npairs, 0, self.npairs)
-        lci.contract_2onebody(gmat, lmat, 2, 1.0)
-        lca.contract_2onebody(gmat, lmat, 1, 1.0)
-        kgeminal = kia.contract_onebody(gmat)
+        va.contract_twoindex(vmatrix, 1, 1.0, 0, self.npairs, self.npairs, self.nbasis)
+        vi.contract_twoindex(vmatrix, 2, 1.0, 0, self.npairs, 0, self.npairs)
+        va_a.contract_twoindex(vmatrixa, 1, 1.0, 0, self.npairs, self.npairs, self.nbasis)
+        vi_a.contract_twoindex(vmatrixa, 2, 1.0, 0, self.npairs, 0, self.npairs)
+        lci.contract_2twoindex(gmat, lmat, 2, 1.0)
+        lca.contract_2twoindex(gmat, lmat, 1, 1.0)
+        kgeminal = kia.contract_twoindex(gmat)
 
         tmp = lmat.copy()
         tmp.imultiply(gmat)
         tmp.imultiply(kia)
-        tmp2 = self.lf.create_one_body(self.npairs, self.npairs)
+        tmp2 = self.lf.create_two_index(self.npairs, self.npairs)
         tmp2.iadddott(kia, gmat, 1.0)
-        tmp3 = self.lf.create_one_body(self.npairs, self.npairs)
+        tmp3 = self.lf.create_two_index(self.npairs, self.npairs)
         tmp3.iadddott(lmat, gmat, 1.0)
 
-        result = self.lf.create_one_body(self.npairs,self.nvirt)
+        result = self.lf.create_two_index(self.npairs,self.nvirt)
         # Kai:
         result.iadd(kia, 1.0)
         result.iadddot(kij, lmat, 1.0)
@@ -1026,59 +1026,59 @@ class RAp1rog(Geminal):
     def jacobian_lambda(self, lambdacoeff, cicoeff, kmatrix, vmatrix, vmatrixa, one_mo, energy):
         '''Construct Jacobian for nonlinear optimization of Lagrange multipliers for restricted OAP1roG.
         '''
-        jacobian = self.lf.create_one_body((self.npairs*self.nvirt),(self.npairs*self.nvirt))
+        jacobian = self.lf.create_two_index((self.npairs*self.nvirt),(self.npairs*self.nvirt))
 
-        geminal = self.lf.create_one_body(self.npairs, self.nvirt)
+        geminal = self.lf.create_two_index(self.npairs, self.nvirt)
         geminal.assign_array(cicoeff, self.npairs, self.nvirt)
         en = energy+self.get_correlation_energy()
         kmat = kmatrix.copyview(0, self.npairs, self.npairs, self.nbasis)
         kij = kmatrix.copyview(0, self.npairs, 0, self.npairs)
         kab = kmatrix.copyview(self.npairs, self.nbasis, self.npairs, self.nbasis)
-        gmat = self.lf.create_one_body(self.npairs, self.nvirt)
+        gmat = self.lf.create_two_index(self.npairs, self.nvirt)
         gmat.set_value(1.0)
-        oneaa = self.lf.create_zero_body(self.nvirt)
-        oneii = self.lf.create_zero_body(self.npairs)
-        vaa = self.lf.create_zero_body(self.nvirt)
-        vii = self.lf.create_zero_body(self.npairs)
-        va = self.lf.create_zero_body(self.nvirt)
-        vi = self.lf.create_zero_body(self.npairs)
-        va_a = self.lf.create_zero_body(self.nvirt)
-        vi_a = self.lf.create_zero_body(self.npairs)
+        oneaa = self.lf.create_one_index(self.nvirt)
+        oneii = self.lf.create_one_index(self.npairs)
+        vaa = self.lf.create_one_index(self.nvirt)
+        vii = self.lf.create_one_index(self.npairs)
+        va = self.lf.create_one_index(self.nvirt)
+        vi = self.lf.create_one_index(self.npairs)
+        va_a = self.lf.create_one_index(self.nvirt)
+        vi_a = self.lf.create_one_index(self.npairs)
         oneaa.assign_diagonal(one_mo, 1, self.npairs, self.nbasis)
         oneii.assign_diagonal(one_mo, 1, 0, self.npairs)
         vaa.assign_diagonal(vmatrix, 1, self.npairs, self.nbasis)
         vii.assign_diagonal(vmatrix, 1, 0, self.npairs)
         vai = vmatrix.copyview(0, self.npairs, self.npairs, self.nbasis)
         vaia = vmatrixa.copyview(0, self.npairs, self.npairs, self.nbasis)
-        va.contract_onebody(vmatrix, 1, 1.0, 0, self.npairs, self.npairs, self.nbasis)
-        vi.contract_onebody(vmatrix, 2, 1.0, 0, self.npairs, 0, self.npairs)
-        va_a.contract_onebody(vmatrixa, 1, 1.0, 0, self.npairs, self.npairs, self.nbasis)
-        vi_a.contract_onebody(vmatrixa, 2, 1.0, 0, self.npairs, 0, self.npairs)
-        kcab = self.lf.create_one_body(self.nvirt, self.nvirt)
-        kcij = self.lf.create_one_body(self.npairs, self.npairs)
-        kcib = self.lf.create_zero_body(self.npairs)
-        kcja = self.lf.create_zero_body(self.nvirt)
-        kcib.contract_2onebody(kmat, geminal, 2)
-        kcja.contract_2onebody(kmat, geminal, 1)
+        va.contract_twoindex(vmatrix, 1, 1.0, 0, self.npairs, self.npairs, self.nbasis)
+        vi.contract_twoindex(vmatrix, 2, 1.0, 0, self.npairs, 0, self.npairs)
+        va_a.contract_twoindex(vmatrixa, 1, 1.0, 0, self.npairs, self.npairs, self.nbasis)
+        vi_a.contract_twoindex(vmatrixa, 2, 1.0, 0, self.npairs, 0, self.npairs)
+        kcab = self.lf.create_two_index(self.nvirt, self.nvirt)
+        kcij = self.lf.create_two_index(self.npairs, self.npairs)
+        kcib = self.lf.create_one_index(self.npairs)
+        kcja = self.lf.create_one_index(self.nvirt)
+        kcib.contract_2twoindex(kmat, geminal, 2)
+        kcja.contract_2twoindex(kmat, geminal, 1)
         kcab.iaddtdot(kmat, geminal)
         kcij.iadddott(kmat, geminal)
-        eyeocc = self.lf.create_one_body(self.npairs, self.npairs)
-        eyevir = self.lf.create_one_body(self.nvirt, self.nvirt)
-        onesocc = self.lf.create_one_body(self.npairs, self.npairs)
-        onesvir = self.lf.create_one_body(self.nvirt, self.nvirt)
-        kronvir = self.lf.create_one_body((self.npairs*self.nvirt),(self.npairs*self.nvirt))
-        kronocc = self.lf.create_one_body((self.npairs*self.nvirt),(self.npairs*self.nvirt))
+        eyeocc = self.lf.create_two_index(self.npairs, self.npairs)
+        eyevir = self.lf.create_two_index(self.nvirt, self.nvirt)
+        onesocc = self.lf.create_two_index(self.npairs, self.npairs)
+        onesvir = self.lf.create_two_index(self.nvirt, self.nvirt)
+        kronvir = self.lf.create_two_index((self.npairs*self.nvirt),(self.npairs*self.nvirt))
+        kronocc = self.lf.create_two_index((self.npairs*self.nvirt),(self.npairs*self.nvirt))
         eyeocc.set_diagonal(1.0)
         eyevir.set_diagonal(1.0)
         onesocc.set_value(1.0)
         onesvir.set_value(1.0)
         kronocc.iaddkron(eyeocc, onesvir)
         kronvir.iaddkron(onesocc, eyevir)
-        tmp2 = self.lf.create_one_body((self.npairs*self.nvirt),(self.npairs*self.nvirt))
+        tmp2 = self.lf.create_two_index((self.npairs*self.nvirt),(self.npairs*self.nvirt))
         tmp2.iaddouter(kmat, geminal, -2.0)
 
-        result = self.lf.create_one_body(self.npairs,self.nvirt)
-        factor = kmat.contract_onebody(geminal)
+        result = self.lf.create_two_index(self.npairs,self.nvirt)
+        factor = kmat.contract_twoindex(geminal)
         result.multiplyt(gmat, oneaa, 2.0)
         result.multiply(gmat, oneii, -2.0)
         result.multiplyt(gmat, vaa, 2.0)
@@ -1130,7 +1130,7 @@ class RAp1rog(Geminal):
             twodmpqpq = self.two_dm_rpqpq
             twodmppqq = self.two_dm_rppqq
 
-        gradient = self.lf.create_one_body(self.nbasis, self.nbasis)
+        gradient = self.lf.create_two_index(self.nbasis, self.nbasis)
 
         two_dm_av = twodmppqq.symmetrize()
         gradient.contract_three2one(vpqrq, twodmpqpq, '13', 4)
@@ -1176,16 +1176,16 @@ class RAp1rog(Geminal):
         twodmpqpq.set_diagonal(0.0)
         one = onedm.copy()
 
-        one_diag = self.lf.create_zero_body(self.nbasis)
-        two_c = self.lf.create_zero_body(self.nbasis)
-        two_ca = self.lf.create_zero_body(self.nbasis)
-        vmatdiag = self.lf.create_zero_body(self.nbasis)
+        one_diag = self.lf.create_one_index(self.nbasis)
+        two_c = self.lf.create_one_index(self.nbasis)
+        two_ca = self.lf.create_one_index(self.nbasis)
+        vmatdiag = self.lf.create_one_index(self.nbasis)
         vmatdiag.assign_diagonal(vmat)
         one_diag.assign_diagonal(one_mo)
-        two_c.contract_2onebody(vpq, twodmpqpq, 2, 1.0)
-        two_ca.contract_2onebody(vpp, two_dm_av, 2, 1.0)
+        two_c.contract_2twoindex(vpq, twodmpqpq, 2, 1.0)
+        two_ca.contract_2twoindex(vpp, two_dm_av, 2, 1.0)
 
-        hessian = self.lf.create_one_body(self.nbasis, self.nbasis)
+        hessian = self.lf.create_two_index(self.nbasis, self.nbasis)
         # <qt> G_pt
         hessian.iadddot(vpq, twodmpqpq, 4.0)
         # <pt> G_qt
@@ -1243,9 +1243,9 @@ class RAp1rog(Geminal):
         one_mo = self.get_matrix('t')
         twomoa = twomo.copy()
         twomoa.add_exchange_part()
-        vpqr = self.lf.create_three_body()
-        vpqra = self.lf.create_three_body()
-        vppr = self.lf.create_three_body()
+        vpqr = self.lf.create_three_index()
+        vpqra = self.lf.create_three_index()
+        vppr = self.lf.create_three_index()
         # Prepare 2el integrals
         vpqr.apply_sorting_pqrq_woexchange(twomo)
         vpqra.apply_sorting_pqrq_exchange(twomo)
@@ -1265,47 +1265,47 @@ class RAp1rog(Geminal):
         twodmpqpq.set_diagonal(onedm)
         two_dm_av.set_diagonal(0)
 
-        hessian = self.lf.create_two_body()
-        tmp2i = self.lf.create_one_body()
-        tmp3i = self.lf.create_three_body()
-        tmp3i2 = self.lf.create_three_body()
-        tmp3i3 = self.lf.create_three_body()
-        tmp3i4 = self.lf.create_three_body()
+        hessian = self.lf.create_four_index()
+        tmp2i = self.lf.create_two_index()
+        tmp3i = self.lf.create_three_index()
+        tmp3i2 = self.lf.create_three_index()
+        tmp3i3 = self.lf.create_three_index()
+        tmp3i4 = self.lf.create_three_index()
 
         # (1)
         # aa
-        hessian.contract_onebody(twomoa, twodmpqpqaa, 'cd-acbd', 4)
-        hessian.contract_onebody(twomoa, twodmpqpqaa, 'ab-acdb', -4)
-        hessian.contract_onebody(twomoa, twodmpqpqaa, 'cd-acdb', -4)
-        hessian.contract_onebody(twomoa, twodmpqpqaa, 'ab-acbd', 4)
+        hessian.contract_twoindex(twomoa, twodmpqpqaa, 'cd-acbd', 4)
+        hessian.contract_twoindex(twomoa, twodmpqpqaa, 'ab-acdb', -4)
+        hessian.contract_twoindex(twomoa, twodmpqpqaa, 'cd-acdb', -4)
+        hessian.contract_twoindex(twomoa, twodmpqpqaa, 'ab-acbd', 4)
         # ab
-        hessian.contract_onebody(twomo, twodmpqpq, 'cd-acbd', 4)
-        hessian.contract_onebody(twomo, twodmpqpq, 'ab-acdb', -4)
-        hessian.contract_onebody(twomo, twodmpqpq, 'cd-acdb', -4)
-        hessian.contract_onebody(twomo, twodmpqpq, 'ab-acbd', 4)
+        hessian.contract_twoindex(twomo, twodmpqpq, 'cd-acbd', 4)
+        hessian.contract_twoindex(twomo, twodmpqpq, 'ab-acdb', -4)
+        hessian.contract_twoindex(twomo, twodmpqpq, 'cd-acdb', -4)
+        hessian.contract_twoindex(twomo, twodmpqpq, 'ab-acbd', 4)
         # (2)
         # aa
-        hessian.contract_onebody(twomoa, twodmpqpqaa, 'cb-acdb', 4)
-        hessian.contract_onebody(twomoa, twodmpqpqaa, 'ad-acbd', -4)
-        hessian.contract_onebody(twomoa, twodmpqpqaa, 'cb-acbd', -4)
-        hessian.contract_onebody(twomoa, twodmpqpqaa, 'ad-acdb', 4)
+        hessian.contract_twoindex(twomoa, twodmpqpqaa, 'cb-acdb', 4)
+        hessian.contract_twoindex(twomoa, twodmpqpqaa, 'ad-acbd', -4)
+        hessian.contract_twoindex(twomoa, twodmpqpqaa, 'cb-acbd', -4)
+        hessian.contract_twoindex(twomoa, twodmpqpqaa, 'ad-acdb', 4)
         # ab
-        hessian.contract_onebody(twomo, twodmpqpq, 'cb-acdb', 4)
-        hessian.contract_onebody(twomo, twodmpqpq, 'ad-acbd', -4)
-        hessian.contract_onebody(twomo, twodmpqpq, 'cb-acbd', -4)
-        hessian.contract_onebody(twomo, twodmpqpq, 'ad-acdb', 4)
+        hessian.contract_twoindex(twomo, twodmpqpq, 'cb-acdb', 4)
+        hessian.contract_twoindex(twomo, twodmpqpq, 'ad-acbd', -4)
+        hessian.contract_twoindex(twomo, twodmpqpq, 'cb-acbd', -4)
+        hessian.contract_twoindex(twomo, twodmpqpq, 'ad-acdb', 4)
         # (3)
-        hessian.contract_onebody(twomo, two_dm_av, 'bd-abcd', 4)
-        hessian.contract_onebody(twomo, two_dm_av, 'ad-abcd', -4)
-        hessian.contract_onebody(twomo, two_dm_av, 'bd-abdc', -4)
-        hessian.contract_onebody(twomo, two_dm_av, 'ac-abcd', 4)
-        hessian.contract_onebody(twomo, two_dm_av, 'bc-abdc', 4)
-        hessian.contract_onebody(twomo, two_dm_av, 'ac-abdc', -4)
-        hessian.contract_onebody(twomo, two_dm_av, 'bc-abcd', -4)
-        hessian.contract_onebody(twomo, two_dm_av, 'ad-abdc', 4)
+        hessian.contract_twoindex(twomo, two_dm_av, 'bd-abcd', 4)
+        hessian.contract_twoindex(twomo, two_dm_av, 'ad-abcd', -4)
+        hessian.contract_twoindex(twomo, two_dm_av, 'bd-abdc', -4)
+        hessian.contract_twoindex(twomo, two_dm_av, 'ac-abcd', 4)
+        hessian.contract_twoindex(twomo, two_dm_av, 'bc-abdc', 4)
+        hessian.contract_twoindex(twomo, two_dm_av, 'ac-abdc', -4)
+        hessian.contract_twoindex(twomo, two_dm_av, 'bc-abcd', -4)
+        hessian.contract_twoindex(twomo, two_dm_av, 'ad-abdc', 4)
         # Apq,qw (pw) (qv) (-qw) (-pv)
-        tmp2i.contract_zerobody(one_mo, onedm, 'b-ab', 2)
-        tmp2i.contract_zerobody(one_mo, onedm, 'a-ab', 2)
+        tmp2i.contract_oneindex(one_mo, onedm, 'b-ab', 2)
+        tmp2i.contract_oneindex(one_mo, onedm, 'a-ab', 2)
         # aa
         tmp2i.contract_three2one(vpqra, twodmpqpqaa, '132', 2)
         tmp2i.contract_three2one(vpqra, twodmpqpqaa, '13', 2)
@@ -1315,24 +1315,24 @@ class RAp1rog(Geminal):
         tmp2i.contract_three2one(vppr, two_dm_av, '12', 2)
         tmp2i.contract_three2one(vppr, two_dm_av, '21', 2)
         # Apq,qw (pq,qw) (-pq,vq)
-        tmp3i.expand_tothreebody(one_mo, onedm, 'cab', -4)
+        tmp3i.expand_tothreeindex(one_mo, onedm, 'cab', -4)
         # aa
-        tmp3i3.contract_onebody(vpqra, twodmpqpqaa, 'db-adc', -4)
+        tmp3i3.contract_twoindex(vpqra, twodmpqpqaa, 'db-adc', -4)
         # ab
-        tmp3i3.contract_onebody(vpqr, twodmpqpq, 'db-adc', -4)
-        tmp3i3.contract_onebody(vppr, two_dm_av, 'dc-adb', -4)
+        tmp3i3.contract_twoindex(vpqr, twodmpqpq, 'db-adc', -4)
+        tmp3i3.contract_twoindex(vppr, two_dm_av, 'dc-adb', -4)
         # Apq,qw (pq,vp) (-pq,pw)
-        tmp3i2.expand_tothreebody(one_mo, onedm, 'acb', -4)
+        tmp3i2.expand_tothreeindex(one_mo, onedm, 'acb', -4)
         # aa
-        tmp3i4.contract_onebody(vpqra, twodmpqpqaa, 'db-dac', -4)
+        tmp3i4.contract_twoindex(vpqra, twodmpqpqaa, 'db-dac', -4)
         # ab
-        tmp3i4.contract_onebody(vpqr, twodmpqpq, 'db-dac', -4)
-        tmp3i4.contract_onebody(vppr, two_dm_av, 'dc-dab', -4)
+        tmp3i4.contract_twoindex(vpqr, twodmpqpq, 'db-dac', -4)
+        tmp3i4.contract_twoindex(vppr, two_dm_av, 'dc-dab', -4)
 
         hessian.assign_hessian(tmp2i, tmp3i, tmp3i2, tmp3i3, tmp3i4)
         dim = (self.nbasis*(self.nbasis-1))/2
-        output = self.lf.create_one_body(dim, dim)
-        output.assign_tril_twobody(hessian, self.nbasis)
+        output = self.lf.create_two_index(dim, dim)
+        output.assign_tril_fourindex(hessian, self.nbasis)
 
         return output.pass_array()
 

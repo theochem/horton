@@ -29,12 +29,12 @@ grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers)
 # A closed-shell DFT effective Hamiltonian (LDA)
 external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
 terms = [
-    ROneBodyTerm(kin, 'kin'),
+    RTwoIndexTerm(kin, 'kin'),
     RDirectTerm(er, 'hartree'),
     RGridGroup(obasis, grid, [
         RDiracExchange(),
     ]),
-    ROneBodyTerm(na, 'ne'),
+    RTwoIndexTerm(na, 'ne'),
 ]
 ham = REffHam(terms, external)
 

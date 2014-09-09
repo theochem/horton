@@ -67,7 +67,7 @@ def wpart_slow_analysis(wpart, mol):
         overlap_operators = {}
         for l in xrange(wpart.lmax+1):
             for m in xrange(-l, l+1):
-                op = mol.lf.create_one_body()
+                op = mol.lf.create_two_index()
                 if counter > 0:
                     tmp = at_weights*work[:,counter-1]
                 else:
@@ -80,7 +80,7 @@ def wpart_slow_analysis(wpart, mol):
 
     # Correct the s-type overlap operators such that the sum is exactly
     # equal to the total overlap.
-    error_overlap = mol.lf.create_one_body()
+    error_overlap = mol.lf.create_two_index()
     for index in xrange(wpart.natom):
         atom_overlap = wpart.cache.load('overlap_operators', index)['olp_00000']
         error_overlap.iadd(atom_overlap)

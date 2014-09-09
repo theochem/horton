@@ -63,7 +63,7 @@ class Hubbard(PhysModHam):
     '''The 1-D Hubbard class Hamiltonian'''
     def compute_kinetic(self, lf, tparam):
         '''Calculate the one-body term of the 1D Hubbard Hamiltonian'''
-        result = lf.create_one_body(lf.default_nbasis)
+        result = lf.create_two_index(lf.default_nbasis)
         for i in range (lf.default_nbasis-1):
             result.set_element(i, i+1, tparam)
         if  self.pbc == True:
@@ -72,13 +72,13 @@ class Hubbard(PhysModHam):
 
     def compute_er(self, lf, uparam):
         '''Calculate the the-body term of the 1D Hubbard Hamiltonian'''
-        result = lf.create_two_body(lf.default_nbasis)
+        result = lf.create_four_index(lf.default_nbasis)
         for i in range (lf.default_nbasis):
             result.set_element(i, i, i, i, uparam)
         return result
 
     def compute_overlap(self, lf):
         '''Calculate overlap of the 1D Hubbard Hamiltonian, (identity matrix)'''
-        result = lf.create_one_body(lf.default_nbasis)
+        result = lf.create_two_index(lf.default_nbasis)
         result.set_diagonal(1.0)
         return result

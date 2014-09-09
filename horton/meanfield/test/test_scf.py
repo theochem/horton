@@ -49,10 +49,10 @@ def test_hf_water_321g_mistake():
     na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
     er = obasis.compute_electron_repulsion(lf)
     terms = [
-        ROneBodyTerm(kin, 'kin'),
+        RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
         RExchangeTerm(er, 'x_hf'),
-        ROneBodyTerm(na, 'ne'),
+        RTwoIndexTerm(na, 'ne'),
     ]
     ham = REffHam(terms)
     scf_solver = PlainSCFSolver()

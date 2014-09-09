@@ -39,16 +39,16 @@ def test_gradient_ap1rog_cs_scf():
     er = obasis.compute_electron_repulsion(lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
-        ROneBodyTerm(kin, 'kin'),
+        RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
         RExchangeTerm(er, 'x_hf'),
-        ROneBodyTerm(na, 'ne'),
+        RTwoIndexTerm(na, 'ne'),
     ]
     ham = REffHam(terms, external)
     scf_solver = PlainSCFSolver()
     scf_solver(ham, lf, olp, occ_model, exp_alpha)
 
-    one = lf.create_one_body(obasis.nbasis)
+    one = lf.create_two_index(obasis.nbasis)
     one.iadd(kin)
     one.iadd(na)
 

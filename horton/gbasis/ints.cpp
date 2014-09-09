@@ -32,7 +32,7 @@ using std::abs;
 
 /*
 
-    The implementation of the one-body operators in this module are based on
+    The implementation of the two-index operators in this module are based on
     the paper "Gaussian-Expansion Methods for Molecular Integrals", H. Taketa,
     S. Huzinga, K. O-ohata, Journal of the Physical Society of Japan, vol. 21,
     p. 2313, y. 1996. Be aware that there are some misprints in the paper:
@@ -402,7 +402,7 @@ void GB4ElectronRepulsionIntegralLibInt::reset(
     /*
         Figure out the ordering of the shell quartet that is compatible with
         libint. Note that libint uses the chemist's notation, while horton uses
-        the physicists notation for the indexes of a two-body operator.
+        the physicists notation for the indexes of a four-index operator.
 
         The arguments must be reordered such that the following conditions are
         met:

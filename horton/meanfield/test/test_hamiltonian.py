@@ -35,10 +35,10 @@ def test_energy_hydrogen():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        UOneBodyTerm(kin, 'kin'),
+        UTwoIndexTerm(kin, 'kin'),
         UDirectTerm(er, 'hartree'),
         UExchangeTerm(er, 'x_hf'),
-        UOneBodyTerm(na, 'ne'),
+        UTwoIndexTerm(na, 'ne'),
     ]
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     ham = UEffHam(terms, external)
@@ -56,12 +56,12 @@ def test_cubic_interpolation_hfs_cs():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        ROneBodyTerm(kin, 'kin'),
+        RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
         RGridGroup(mol.obasis, grid, [
             RDiracExchange(),
         ]),
-        ROneBodyTerm(na, 'ne'),
+        RTwoIndexTerm(na, 'ne'),
     ]
     ham = REffHam(terms)
 
@@ -79,10 +79,10 @@ def test_perturbation():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        ROneBodyTerm(kin, 'kin'),
+        RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
         RExchangeTerm(er, 'x_hf'),
-        ROneBodyTerm(na, 'ne'),
+        RTwoIndexTerm(na, 'ne'),
     ]
     ham = REffHam(terms)
     occ_model = AufbauOccModel(7)
@@ -108,13 +108,13 @@ def test_perturbation():
         # Perturbation
         tmp = operator.copy()
         tmp.iscale(scale)
-        perturbation = ROneBodyTerm(tmp, 'pert')
+        perturbation = RTwoIndexTerm(tmp, 'pert')
         # Hamiltonian
         terms = [
-            ROneBodyTerm(kin, 'kin'),
+            RTwoIndexTerm(kin, 'kin'),
             RDirectTerm(er, 'hartree'),
             RExchangeTerm(er, 'x_hf'),
-            ROneBodyTerm(na, 'ne'),
+            RTwoIndexTerm(na, 'ne'),
             perturbation,
         ]
         ham = REffHam(terms)
@@ -139,10 +139,10 @@ def test_ghost_hf():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        ROneBodyTerm(kin, 'kin'),
+        RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
         RExchangeTerm(er, 'x_hf'),
-        ROneBodyTerm(na, 'ne'),
+        RTwoIndexTerm(na, 'ne'),
     ]
     ham = REffHam(terms)
     # The convergence should be reasonable, not perfect because of limited

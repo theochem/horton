@@ -40,18 +40,18 @@ def main(fns_fchk):
         # define the effective hamiltonian
         if len(exps) == 1:
             terms = [
-                ROneBodyTerm(kin, 'kin'),
+                RTwoIndexTerm(kin, 'kin'),
                 RDirectTerm(er, 'hartree'),
                 RExchangeTerm(er, 'x_hf'),
-                ROneBodyTerm(na, 'ne'),
+                RTwoIndexTerm(na, 'ne'),
             ]
             ham = REffHam(terms)
         else:
             terms = [
-                UOneBodyTerm(kin, 'kin'),
+                UTwoIndexTerm(kin, 'kin'),
                 UDirectTerm(er, 'hartree'),
                 UExchangeTerm(er, 'x_hf'),
-                UOneBodyTerm(na, 'ne'),
+                UTwoIndexTerm(na, 'ne'),
             ]
             ham = UEffHam(terms)
 

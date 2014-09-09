@@ -30,10 +30,10 @@ na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
 er = obasis.compute_electron_repulsion(lf)
 external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
 terms = [
-    ROneBodyTerm(kin, 'kin'),
+    RTwoIndexTerm(kin, 'kin'),
     RDirectTerm(er, 'hartree'),
     RExchangeTerm(er, 'x_hf'),
-    ROneBodyTerm(na, 'ne'),
+    RTwoIndexTerm(na, 'ne'),
 ]
 ham = REffHam(terms, external)
 ###########################################################################################
@@ -49,7 +49,7 @@ scf_solver(ham, lf, olp, occ_model, exp_alpha)
 ###########################################################################################
 ## Combine to single one-electron Hamiltonian #############################################
 ###########################################################################################
-one = lf.create_one_body(obasis.nbasis)
+one = lf.create_two_index(obasis.nbasis)
 one.iadd(kin)
 one.iadd(na)
 

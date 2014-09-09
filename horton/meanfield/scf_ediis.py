@@ -70,7 +70,7 @@ class EDIISHistory(DIISHistory):
            **Arguments:**
 
            lf
-                The LinalgFactor used to create the one-body operators.
+                The LinalgFactor used to create the two-index operators.
 
            ndm
                 The number of density matrices (and fock matrices) in one

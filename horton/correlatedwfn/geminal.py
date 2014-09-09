@@ -28,7 +28,7 @@ import numpy as np
 import math as math
 
 from horton.cache import Cache
-from horton.matrix import DenseOneBody, OneBody, Expansion, DenseExpansion
+from horton.matrix import DenseTwoIndex, TwoIndex, Expansion, DenseExpansion
 from horton.log import log, timer
 
 
@@ -78,8 +78,8 @@ class Geminal(object):
         self._npairs = occ_model.noccs[0]
         self._cache = Cache()
         self._ecore = 0
-        self._geminal = lf.create_one_body(self._npairs, nvirt)
-        self._lagrange = lf.create_one_body(self._npairs, nvirt)
+        self._geminal = lf.create_two_index(self._npairs, nvirt)
+        self._lagrange = lf.create_two_index(self._npairs, nvirt)
 
     def __call__(self, one, two, core, exps, orb, **kwargs):
         raise NotImplementedError
@@ -167,7 +167,7 @@ class Geminal(object):
         if geminal is None:
             raise NotImplementedError
         else:
-            if isinstance(geminal, DenseOneBody):
+            if isinstance(geminal, DenseTwoIndex):
                 self._geminal.assign(geminal)
             else:
                 self._geminal.assign_array(geminal, self.nocc, self.nvirt)
@@ -184,7 +184,7 @@ class Geminal(object):
         if lagrange is None:
             raise NotImplementedError
         else:
-            if isinstance(lagrange, DenseOneBody):
+            if isinstance(lagrange, DenseTwoIndex):
                 self._lagrange.assign(lagrange)
             else:
                 self._lagrange.assign_array(lagrange, dim1, dim2)
@@ -197,7 +197,7 @@ class Geminal(object):
         raise NotImplementedError
 
     def init_one_dm(self, select):
-        '''Initialize 1-RDM as ZeroBody object
+        '''Initialize 1-RDM as OneIndex object
 
            The 1-RDM expressed in the natural orbital basis is diagonal and
            only the diagonal elements are stored.
@@ -209,13 +209,13 @@ class Geminal(object):
         '''
         if select not in ['ps2', 'response']:
             raise ValueError('The select argument must be one of ps2 or response.')
-        dm, new = self._cache.load('one_dm_%s' % select, alloc=(self._lf.create_zero_body, self.nbasis), tags='d')
+        dm, new = self._cache.load('one_dm_%s' % select, alloc=(self._lf.create_one_index, self.nbasis), tags='d')
         if not new:
             raise RuntimeError('The density matrix one_dm_%s already exists. Call one_dm_%s.clear prior to updating the 1DM.' % select)
         return dm
 
     def init_two_dm(self, select):
-        '''Initialize 2-RDM as OneBody object
+        '''Initialize 2-RDM as TwoIndex object
 
            Only the symmetry-unique elements of the (response) 2-RDM are
            stored. These are matrix elements of type
@@ -231,13 +231,13 @@ class Geminal(object):
         '''
         if select not in ['ppqq', 'pqpq', 'rppqq', 'rpqpq']:
             raise ValueError('The select argument must be one of ppqq, pqpq, rppqq, or rpqpq.')
-        dm, new = self._cache.load('two_dm_%s' % select, alloc=(self._lf.create_one_body, self.nbasis), tags='d')
+        dm, new = self._cache.load('two_dm_%s' % select, alloc=(self._lf.create_two_index, self.nbasis), tags='d')
         if not new:
             raise RuntimeError('The density matrix two_dm_%s already exists. Call two_dm_%s.clear prior to updating the 2DM.' % select)
         return dm
 
     def init_three_dm(self, select):
-        '''Initialize 3-RDM as ThreeBody object
+        '''Initialize 3-RDM as ThreeIndex object
 
            **Arguments**
 
@@ -246,14 +246,14 @@ class Geminal(object):
         '''
         if select not in ['uuu', 'uudoff', 'uud', 'udd', 'uddoff']:
             raise ValueError('The select argument must be one of uuu, uud, udd, uudoff, uddoff.')
-        dm, new = self._cache.load('three_dm_%s' % select, alloc=(self._lf.create_three_body, self.nbasis), tags='d')
+        dm, new = self._cache.load('three_dm_%s' % select, alloc=(self._lf.create_three_index, self.nbasis), tags='d')
         if not new:
             raise RuntimeError('The density matrix three_dm_%s already exists. Call three_dm_%s.clear prior to updating the 3DM.' % select)
         return dm
 
     def init_four_dm(self, select):
-        '''Initialize 4-RDM as SomeBody object. Currently, only one block is
-           supported (stored as OneBody).
+        '''Initialize 4-RDM as SomeIndex object. Currently, only one block is
+           supported (stored as TwoIndex).
 
            **Arguments**
 
@@ -262,7 +262,7 @@ class Geminal(object):
         '''
         if select not in ['udud']:
             raise ValueError('The select argument must be one of udud.')
-        dm, new = self._cache.load('four_dm_%s' % select, alloc=(self._lf.create_one_body, self.nbasis), tags='d')
+        dm, new = self._cache.load('four_dm_%s' % select, alloc=(self._lf.create_two_index, self.nbasis), tags='d')
         if not new:
             raise RuntimeError('The density matrix four_dm_%s already exists. Call four_dm_%s.clear prior to updating the 4DM.' % select)
         return dm
@@ -410,7 +410,7 @@ class Geminal(object):
                 two_mo.append(self.apply_4index_trans(two, exp[i], exp[j], exp[i], exp[j], indextrans))
 
         # Set up one-electron part of the Hamiltonian and transform it to MO basis
-            tmp = self.lf.create_one_body()
+            tmp = self.lf.create_two_index()
             tmp.apply_2index_trans(one, exps[i])
             one_mo.append(tmp)
         return one_mo, two_mo

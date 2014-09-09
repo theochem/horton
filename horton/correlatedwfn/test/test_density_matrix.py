@@ -39,17 +39,17 @@ lagrange = np.array([[-2.26329664e-05,-4.41712415e-04,-4.41712415e-04,-1.5341714
 
 def test_response_3dm_uuu():
     lf = DenseLinalgFactory()
-    onebody1 = lf.create_one_body(6,4)
-    onebody2 = lf.create_one_body(6,4)
-    threebody = lf.create_three_body(10)
-    onebody1.assign_array(geminal)
-    onebody2.assign_array(lagrange)
-    threebody.compute_response_three_dm_ap1rog(onebody1, onebody2, 'uuu')
+    twoindex1 = lf.create_two_index(6,4)
+    twoindex2 = lf.create_two_index(6,4)
+    threeindex = lf.create_three_index(10)
+    twoindex1.assign_array(geminal)
+    twoindex2.assign_array(lagrange)
+    threeindex.compute_response_three_dm_ap1rog(twoindex1, twoindex2, 'uuu')
 
     # c_ab = c_ai.c_ib:
     passc = False
     check = np.zeros((10,10,10))
-    product = onebody1.contract_onebody(onebody2)
+    product = twoindex1.contract_twoindex(twoindex2)
     for i in range(6):
         for j in range(6):
             for k in range(6):
@@ -76,21 +76,21 @@ def test_response_3dm_uuu():
                     check[i,(a+6),j] = val
                     check[i,j,(a+6)] = val
                     passc = False
-    assert np.allclose(check, threebody._array)
+    assert np.allclose(check, threeindex._array)
 
 def test_response_3dm_uud():
 
     lf = DenseLinalgFactory()
-    onebody1 = lf.create_one_body(6,4)
-    onebody2 = lf.create_one_body(6,4)
-    threebody = lf.create_three_body(10)
-    onebody1.assign_array(geminal)
-    onebody2.assign_array(lagrange)
-    threebody.compute_response_three_dm_ap1rog(onebody1, onebody2, 'uud')
+    twoindex1 = lf.create_two_index(6,4)
+    twoindex2 = lf.create_two_index(6,4)
+    threeindex = lf.create_three_index(10)
+    twoindex1.assign_array(geminal)
+    twoindex2.assign_array(lagrange)
+    threeindex.compute_response_three_dm_ap1rog(twoindex1, twoindex2, 'uud')
 
     # c_ab = c_ai.c_ib:
     check = np.zeros((10,10,10))
-    product = onebody1.contract_onebody(onebody2)
+    product = twoindex1.contract_twoindex(twoindex2)
     for i in range(6):
         for j in range(6):
             for k in range(6):
@@ -118,21 +118,21 @@ def test_response_3dm_uud():
                     val += geminal[l,a]*lagrange[l,a]
             check[(a+6),i,(a+6)] = val
             check[i,(a+6),(a+6)] = val
-    assert np.allclose(check, threebody._array)
+    assert np.allclose(check, threeindex._array)
 
 def test_response_3dm_uud_offdiagonal():
 
     lf = DenseLinalgFactory()
-    onebody1 = lf.create_one_body(6,4)
-    onebody2 = lf.create_one_body(6,4)
-    threebody = lf.create_three_body(10)
-    onebody1.assign_array(geminal)
-    onebody2.assign_array(lagrange)
-    threebody.compute_response_three_dm_ap1rog(onebody1, onebody2, 'uudoff')
+    twoindex1 = lf.create_two_index(6,4)
+    twoindex2 = lf.create_two_index(6,4)
+    threeindex = lf.create_three_index(10)
+    twoindex1.assign_array(geminal)
+    twoindex2.assign_array(lagrange)
+    threeindex.compute_response_three_dm_ap1rog(twoindex1, twoindex2, 'uudoff')
 
     # c_ab = c_ai.c_ib:
     check = np.zeros((10,10,10))
-    product = onebody1.contract_onebody(onebody2)
+    product = twoindex1.contract_twoindex(twoindex2)
     for i in range(6):
         for j in range(6):
             for k in range(6):
@@ -168,21 +168,21 @@ def test_response_3dm_uud_offdiagonal():
                         val += geminal[l,b]*lagrange[l,a]
                 check[i,(a+6),(b+6)] = val
         check[i,i,i] = 0.0
-    assert np.allclose(check, threebody._array)
+    assert np.allclose(check, threeindex._array)
 
 def test_response_3dm_udd():
 
     lf = DenseLinalgFactory()
-    onebody1 = lf.create_one_body(6,4)
-    onebody2 = lf.create_one_body(6,4)
-    threebody = lf.create_three_body(10)
-    onebody1.assign_array(geminal)
-    onebody2.assign_array(lagrange)
-    threebody.compute_response_three_dm_ap1rog(onebody1, onebody2, 'udd')
+    twoindex1 = lf.create_two_index(6,4)
+    twoindex2 = lf.create_two_index(6,4)
+    threeindex = lf.create_three_index(10)
+    twoindex1.assign_array(geminal)
+    twoindex2.assign_array(lagrange)
+    threeindex.compute_response_three_dm_ap1rog(twoindex1, twoindex2, 'udd')
 
     # c_ab = c_ai.c_ib:
     check = np.zeros((10,10,10))
-    product = onebody1.contract_onebody(onebody2)
+    product = twoindex1.contract_twoindex(twoindex2)
     for i in range(6):
         for j in range(6):
             for k in range(6):
@@ -215,21 +215,21 @@ def test_response_3dm_udd():
                     val += geminal[l,a]*lagrange[l,a]
             check[(a+6),i,(a+6)] = val
             check[i,(a+6),(a+6)] = val
-    assert np.allclose(check, threebody._array)
+    assert np.allclose(check, threeindex._array)
 
 def test_response_3dm_udd_offdiagonal():
 
     lf = DenseLinalgFactory()
-    onebody1 = lf.create_one_body(6,4)
-    onebody2 = lf.create_one_body(6,4)
-    threebody = lf.create_three_body(10)
-    onebody1.assign_array(geminal)
-    onebody2.assign_array(lagrange)
-    threebody.compute_response_three_dm_ap1rog(onebody1, onebody2, 'uddoff')
+    twoindex1 = lf.create_two_index(6,4)
+    twoindex2 = lf.create_two_index(6,4)
+    threeindex = lf.create_three_index(10)
+    twoindex1.assign_array(geminal)
+    twoindex2.assign_array(lagrange)
+    threeindex.compute_response_three_dm_ap1rog(twoindex1, twoindex2, 'uddoff')
 
     # c_ab = c_ai.c_ib:
     check = np.zeros((10,10,10))
-    product = onebody1.contract_onebody(onebody2)
+    product = twoindex1.contract_twoindex(twoindex2)
     for i in range(6):
         for j in range(6):
             for k in range(6):
@@ -264,26 +264,26 @@ def test_response_3dm_udd_offdiagonal():
                         val += geminal[l,b]*lagrange[l,a]
                 check[(a+6),(b+6),i] = val
         check[i,i,i] = 0.0
-    assert np.allclose(check, threebody._array)
+    assert np.allclose(check, threeindex._array)
 
 def test_response_4dm_udud():
 
     lf = DenseLinalgFactory()
-    onebody1 = lf.create_one_body(6,4)
-    onebody2 = lf.create_one_body(6,4)
-    onebody1.assign_array(geminal)
-    onebody2.assign_array(lagrange)
-    onedm = lf.create_zero_body(10)
-    twodm = lf.create_one_body(10)
-    onedm.compute_response_one_dm_ap1rog(onebody1, onebody2)
-    twodm.compute_response_two_dm_ap1rog(onedm, onebody1, onebody2, 'pqpq')
-    fourbody = lf.create_one_body(10)
-    fourbody.compute_response_four_dm_ap1rog(twodm, onebody1, onebody2, 'udud')
+    twoindex1 = lf.create_two_index(6,4)
+    twoindex2 = lf.create_two_index(6,4)
+    twoindex1.assign_array(geminal)
+    twoindex2.assign_array(lagrange)
+    onedm = lf.create_one_index(10)
+    twodm = lf.create_two_index(10)
+    onedm.compute_response_one_dm_ap1rog(twoindex1, twoindex2)
+    twodm.compute_response_two_dm_ap1rog(onedm, twoindex1, twoindex2, 'pqpq')
+    fourindex = lf.create_two_index(10)
+    fourindex.compute_response_four_dm_ap1rog(twodm, twoindex1, twoindex2, 'udud')
 
     # c_ab = c_ai.c_ib:
     passc = False
     check = np.zeros((10,10))
-    product = onebody1.contract_onebody(onebody2)
+    product = twoindex1.contract_twoindex(twoindex2)
     for i in range(6):
         for j in range(6):
             val = 0.0
@@ -306,4 +306,4 @@ def test_response_4dm_udud():
                 check[(a+6),i] = val
                 check[i,(a+6)] = val
                 passc = False
-    assert np.allclose(check, fourbody._array)
+    assert np.allclose(check, fourindex._array)

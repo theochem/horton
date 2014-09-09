@@ -39,16 +39,16 @@ def test_ap1rog_two_dm():
     er = obasis.compute_electron_repulsion(lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
-        ROneBodyTerm(kin, 'kin'),
+        RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
         RExchangeTerm(er, 'x_hf'),
-        ROneBodyTerm(na, 'ne'),
+        RTwoIndexTerm(na, 'ne'),
     ]
     ham = REffHam(terms, external)
     scf_solver = PlainSCFSolver()
     scf_solver(ham, lf, olp, occ_model, exp_alpha)
 
-    one = lf.create_one_body(obasis.nbasis)
+    one = lf.create_two_index(obasis.nbasis)
     one.iadd(kin)
     one.iadd(na)
 
@@ -57,7 +57,7 @@ def test_ap1rog_two_dm():
     energy, g, l = geminal_solver(one, er, external['nn'], exp_alpha, olp, True, **{'solver': {'wfn': 'hybr', 'lagrange': 'hybr'}, 'checkpoint': -1, 'maxiter': {'orbiter': 10}})
 
     one_mo = []
-    one_mo.append(lf.create_one_body())
+    one_mo.append(lf.create_two_index())
     one_mo[0].apply_2index_trans(one, exp_alpha)
     two_mo_ = []
     two_mo_.append(geminal_solver.apply_4index_trans(er, exp_alpha, exp_alpha, exp_alpha, exp_alpha))
@@ -68,7 +68,7 @@ def test_ap1rog_two_dm():
 
 def fun(x, ham, one_mo):
     two_mo = []
-    two_mo.append(ham.lf.create_two_body())
+    two_mo.append(ham.lf.create_four_index())
     two_mo[0].assign_array(x)
 
     ham.clear_matrix()
@@ -87,7 +87,7 @@ def fun(x, ham, one_mo):
 
 def fun_deriv(x, ham, one_mo):
     two_mo = []
-    two_mo.append(ham.lf.create_two_body())
+    two_mo.append(ham.lf.create_four_index())
     two_mo[0].assign_array(x)
     ham.clear_matrix()
     ham.update_matrix('all-scf', two_mo, one_mo)
@@ -98,17 +98,17 @@ def fun_deriv(x, ham, one_mo):
 
     # Optimize OAP1roG Lagrange multipliers (lambda equations):
     lcoeff = ham.solve_for_lagrange(guesst[0], {'lagrange': 'hybr'}, 10e-12, 128)
-    onebody1 = ham.lf.create_one_body(3,25)
-    onebody2 = ham.lf.create_one_body(3,25)
-    onebody1.assign_array(coeff, 3, 25)
-    onebody2.assign_array(lcoeff, 3,25)
+    twoindex1 = ham.lf.create_two_index(3,25)
+    twoindex2 = ham.lf.create_two_index(3,25)
+    twoindex1.assign_array(coeff, 3, 25)
+    twoindex2.assign_array(lcoeff, 3,25)
 
-    onedm = ham.lf.create_zero_body()
-    onedm.compute_response_one_dm_ap1rog(onebody1, onebody2, factor=1.0)
-    twodm1 = ham.lf.create_one_body()
-    twodm1.compute_response_two_dm_ap1rog(onedm, onebody1, onebody2, 'ppqq')
-    twodm2 = ham.lf.create_one_body()
-    twodm2.compute_response_two_dm_ap1rog(onedm, onebody1, onebody2, 'pqpq')
+    onedm = ham.lf.create_one_index()
+    onedm.compute_response_one_dm_ap1rog(twoindex1, twoindex2, factor=1.0)
+    twodm1 = ham.lf.create_two_index()
+    twodm1.compute_response_two_dm_ap1rog(onedm, twoindex1, twoindex2, 'ppqq')
+    twodm2 = ham.lf.create_two_index()
+    twodm2.compute_response_two_dm_ap1rog(onedm, twoindex1, twoindex2, 'pqpq')
     a = np.zeros((28,28,28,28))
     for i in range(28):
         for j in range(28):

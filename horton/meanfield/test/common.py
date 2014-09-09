@@ -77,7 +77,7 @@ def check_solve(ham, scf_solver, occ_model, lf, olp, kin, na, *exps):
         assert scf_solver.error(ham, lf, olp, *dms) > scf_solver.threshold
         scf_solver(ham, lf, olp, occ_model, *dms)
         assert scf_solver.error(ham, lf, olp, *dms) < scf_solver.threshold
-        focks = [lf.create_one_body() for i in xrange(ham.ndm)]
+        focks = [lf.create_two_index() for i in xrange(ham.ndm)]
         ham.compute_fock(*focks)
         for i in xrange(ham.ndm):
             exps[i].from_fock(focks[i], olp)
@@ -89,7 +89,7 @@ def helper_compute(ham, lf, *exps):
     dms = [exp.to_dm() for exp in exps]
     ham.reset(*dms)
     ham.compute()
-    focks = [lf.create_one_body() for exp in exps]
+    focks = [lf.create_two_index() for exp in exps]
     ham.compute_fock(*focks)
     return ham.cache['energy'], focks
 
@@ -105,10 +105,10 @@ def check_hf_cs_hf(scf_solver):
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
-        ROneBodyTerm(kin, 'kin'),
+        RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
         RExchangeTerm(er, 'x_hf'),
-        ROneBodyTerm(na, 'ne'),
+        RTwoIndexTerm(na, 'ne'),
     ]
     ham = REffHam(terms, external)
     occ_model = AufbauOccModel(5)
@@ -142,10 +142,10 @@ def check_lih_os_hf(scf_solver):
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
-        UOneBodyTerm(kin, 'kin'),
+        UTwoIndexTerm(kin, 'kin'),
         UDirectTerm(er, 'hartree'),
         UExchangeTerm(er, 'x_hf'),
-        UOneBodyTerm(na, 'ne'),
+        UTwoIndexTerm(na, 'ne'),
     ]
     ham = UEffHam(terms, external)
     occ_model = AufbauOccModel(2, 1)
@@ -186,12 +186,12 @@ def check_water_cs_hfs(scf_solver):
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
-        ROneBodyTerm(kin, 'kin'),
+        RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
         RGridGroup(mol.obasis, grid, [
             RDiracExchange(),
         ]),
-        ROneBodyTerm(na, 'ne'),
+        RTwoIndexTerm(na, 'ne'),
     ]
     ham = REffHam(terms, external)
 
@@ -203,7 +203,7 @@ def check_water_cs_hfs(scf_solver):
     dm_alpha = mol.exp_alpha.to_dm()
     ham.reset(dm_alpha)
     ham.compute()
-    fock_alpha = mol.lf.create_one_body()
+    fock_alpha = mol.lf.create_two_index()
     ham.compute_fock(fock_alpha)
     mol.exp_alpha.from_fock(fock_alpha, olp)
 
@@ -245,19 +245,19 @@ def check_n2_cs_hfs(scf_solver):
 
     libxc_term = RLibXCLDA('x')
     terms1 = [
-        ROneBodyTerm(kin, 'kin'),
+        RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
         RGridGroup(mol.obasis, grid, [libxc_term]),
-        ROneBodyTerm(na, 'ne'),
+        RTwoIndexTerm(na, 'ne'),
     ]
     ham1 = REffHam(terms1, external)
 
     builtin_term = RDiracExchange()
     terms2 = [
-        ROneBodyTerm(kin, 'kin'),
+        RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
         RGridGroup(mol.obasis, grid, [builtin_term]),
-        ROneBodyTerm(na, 'ne'),
+        RTwoIndexTerm(na, 'ne'),
     ]
     ham2 = REffHam(terms2, external)
 
@@ -314,19 +314,19 @@ def check_h3_os_hfs(scf_solver):
 
     libxc_term = ULibXCLDA('x')
     terms1 = [
-        UOneBodyTerm(kin, 'kin'),
+        UTwoIndexTerm(kin, 'kin'),
         UDirectTerm(er, 'hartree'),
         UGridGroup(mol.obasis, grid, [libxc_term]),
-        UOneBodyTerm(na, 'ne'),
+        UTwoIndexTerm(na, 'ne'),
     ]
     ham1 = UEffHam(terms1, external)
 
     builtin_term = UDiracExchange()
     terms2 = [
-        UOneBodyTerm(kin, 'kin'),
+        UTwoIndexTerm(kin, 'kin'),
         UDirectTerm(er, 'hartree'),
         UGridGroup(mol.obasis, grid, [builtin_term]),
-        UOneBodyTerm(na, 'ne'),
+        UTwoIndexTerm(na, 'ne'),
     ]
     ham2 = UEffHam(terms2, external)
 
@@ -387,13 +387,13 @@ def check_co_cs_pbe(scf_solver):
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
-        ROneBodyTerm(kin, 'kin'),
+        RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
         RGridGroup(mol.obasis, grid, [
             RLibXCGGA('x_pbe'),
             RLibXCGGA('c_pbe'),
         ]),
-        ROneBodyTerm(na, 'ne'),
+        RTwoIndexTerm(na, 'ne'),
     ]
     ham = REffHam(terms, external)
 
@@ -437,13 +437,13 @@ def check_h3_os_pbe(scf_solver):
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
-        UOneBodyTerm(kin, 'kin'),
+        UTwoIndexTerm(kin, 'kin'),
         UDirectTerm(er, 'hartree'),
         UGridGroup(mol.obasis, grid, [
             ULibXCGGA('x_pbe'),
             ULibXCGGA('c_pbe'),
         ]),
-        UOneBodyTerm(na, 'ne'),
+        UTwoIndexTerm(na, 'ne'),
     ]
     ham = UEffHam(terms, external)
 

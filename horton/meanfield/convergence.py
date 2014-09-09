@@ -58,7 +58,7 @@ def convergence_error_eigen(ham, lf, overlap, *exps):
         raise TypeError('Expecting %i expansions, got %i.' % (ham.ndm, len(exps)))
     dms = [exp.to_dm() for exp in exps]
     ham.reset(*dms)
-    focks = [lf.create_one_body() for i in xrange(ham.ndm)]
+    focks = [lf.create_two_index() for i in xrange(ham.ndm)]
     ham.compute_fock(*focks)
     error = 0.0
     for i in xrange(ham.ndm):
@@ -89,11 +89,11 @@ def convergence_error_commutator(ham, lf, overlap, *dms):
     if len(dms) != ham.ndm:
         raise TypeError('Expecting %i density matrices, got %i.' % (ham.ndm, len(dms)))
     ham.reset(*dms)
-    focks = [lf.create_one_body() for i in xrange(ham.ndm)]
+    focks = [lf.create_two_index() for i in xrange(ham.ndm)]
     ham.compute_fock(*focks)
     error = 0.0
-    work = lf.create_one_body()
-    commutator = lf.create_one_body()
+    work = lf.create_two_index()
+    commutator = lf.create_two_index()
     errorsq = 0.0
     for i in xrange(ham.ndm):
         compute_commutator(dms[i], focks[i], overlap, work, commutator)

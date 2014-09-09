@@ -68,14 +68,14 @@ def test_fock_matrix_eigen():
     lf, cache, exp_alpha = get_water_sto3g_hf()
     nbasis = cache['olp'].nbasis
 
-    hartree = lf.create_one_body(nbasis)
-    exchange = lf.create_one_body(nbasis)
+    hartree = lf.create_two_index(nbasis)
+    exchange = lf.create_two_index(nbasis)
     dm_alpha = exp_alpha.to_dm()
     cache['er'].apply_direct(dm_alpha, hartree)
     cache['er'].apply_exchange(dm_alpha, exchange)
 
     # Construct the Fock operator
-    fock = lf.create_one_body(nbasis)
+    fock = lf.create_two_index(nbasis)
     fock.iadd(cache['kin'], 1)
     fock.iadd(cache['na'], -1)
     fock.iadd(hartree, 2)
@@ -122,8 +122,8 @@ def test_potential_energy_water_sto3g_hf():
 
 def test_electron_electron_water_sto3g_hf():
     lf, cache, exp_alpha = get_water_sto3g_hf()
-    hartree = lf.create_one_body()
-    exchange = lf.create_one_body()
+    hartree = lf.create_two_index()
+    exchange = lf.create_two_index()
     dm = exp_alpha.to_dm()
     cache['er'].apply_direct(dm, hartree)
     cache['er'].apply_exchange(dm, exchange)
@@ -139,7 +139,7 @@ def test_hartree_fock_water():
     nalpha = 5
 
     # Construct the hamiltonian core guess
-    hamcore = lf.create_one_body()
+    hamcore = lf.create_two_index()
     hamcore.iadd(cache['kin'], 1)
     hamcore.iadd(cache['na'], -1)
     exp_alpha1 = lf.create_expansion()
@@ -148,9 +148,9 @@ def test_hartree_fock_water():
     assert (exp_alpha1.energies != 0.0).all()
 
     # The SCF loop
-    hartree = lf.create_one_body()
-    exchange = lf.create_one_body()
-    fock = lf.create_one_body()
+    hartree = lf.create_two_index()
+    exchange = lf.create_two_index()
+    fock = lf.create_two_index()
     for i in xrange(1000):
         # Derive the density matrix
         dm_alpha = exp_alpha1.to_dm()
@@ -187,26 +187,26 @@ def test_hartree_fock_water():
     assert abs(hf2 + enn - (-74.9592923284)) < 1e-4
 
 
-def test_dense_one_body_trace():
+def test_dense_two_index_trace():
     lf = DenseLinalgFactory()
-    op1 = lf.create_one_body(3)
+    op1 = lf.create_two_index(3)
     op1._array[:] = np.random.uniform(-1, 1, (3,3))
     assert op1.trace() == op1._array[0,0] + op1._array[1,1] + op1._array[2,2]
 
 
-def test_dense_one_body_itranspose():
+def test_dense_two_index_itranspose():
     lf = DenseLinalgFactory()
-    op1 = lf.create_one_body(3)
-    op2 = lf.create_one_body(3)
+    op1 = lf.create_two_index(3)
+    op2 = lf.create_two_index(3)
     op1._array[:] = np.random.uniform(-1, 1, (3,3))
     op2._array[:] = op1._array
     op2.itranspose()
     assert op1._array[0,1] == op2._array[1,0]
 
 
-def test_dense_one_body_iscale():
+def test_dense_two_index_iscale():
     lf = DenseLinalgFactory()
-    op = lf.create_one_body(3)
+    op = lf.create_two_index(3)
     op._array[:] = np.random.uniform(-1, 1, (3,3))
     tmp = op._array.copy()
     op.iscale(3.0)
@@ -224,9 +224,9 @@ def test_dense_linalg_factory_properties():
     assert ex.nfn == 10
     assert ex.energies.shape == (10,)
     assert ex.occupations.shape == (10,)
-    op1 = lf.create_one_body()
+    op1 = lf.create_two_index()
     assert op1.nbasis == 10
-    op2 = lf.create_two_body()
+    op2 = lf.create_four_index()
     assert op2.nbasis == 10
 
 
@@ -240,32 +240,32 @@ def test_dense_expansion_properties():
     assert ex.occupations.shape == (8,)
 
 
-def test_dense_one_body_properties():
+def test_dense_two_index_properties():
     lf = DenseLinalgFactory()
-    op = lf.create_one_body(3)
+    op = lf.create_two_index(3)
     assert op.nbasis == 3
     op.set_element(0, 1, 1.2)
     assert op.get_element(0, 1) == 1.2
 
 
-def test_dense_two_body_properties():
+def test_dense_four_index_properties():
     lf = DenseLinalgFactory()
-    op = lf.create_two_body(3)
+    op = lf.create_four_index(3)
     assert op.nbasis == 3
 
 
-def test_dense_one_body_assign():
+def test_dense_two_index_assign():
     lf = DenseLinalgFactory()
-    op1 = lf.create_one_body(3)
-    op2 = lf.create_one_body(3)
+    op1 = lf.create_two_index(3)
+    op2 = lf.create_two_index(3)
     op1._array[:] = np.random.uniform(0, 1, (3, 3))
     op2.assign(op1)
     assert (op1._array == op2._array).all()
 
 
-def test_dense_one_body_copy():
+def test_dense_two_index_copy():
     lf = DenseLinalgFactory()
-    op1 = lf.create_one_body(3)
+    op1 = lf.create_two_index(3)
     op1._array[:] = np.random.uniform(0, 1, (3, 3))
     op2 = op1.copy()
     assert (op1._array == op2._array).all()
@@ -323,15 +323,15 @@ def test_linalg_objects_del():
     with assert_raises(TypeError):
         exp = lf.create_expansion()
     with assert_raises(TypeError):
-        op1 = lf.create_one_body()
+        op1 = lf.create_two_index()
     with assert_raises(TypeError):
-        op2 = lf.create_two_body()
+        op2 = lf.create_four_index()
 
 
 def test_trace_product():
     lf = DenseLinalgFactory()
-    op1 = lf.create_one_body(3)
-    op2 = lf.create_one_body(3)
+    op1 = lf.create_two_index(3)
+    op2 = lf.create_two_index(3)
     op1._array[:] = np.random.uniform(0, 1, (3, 3))
     op2._array[:] = np.random.uniform(0, 1, (3, 3))
 
@@ -347,11 +347,11 @@ def get_four_cho_dens(nbasis=10, nvec=8):
         vec = np.random.normal(0, 1, (nbasis, nbasis))
         vec = (vec+vec.T)/2
         vecs.append(vec)
-    chob = CholeskyTwoBody(nbasis)
+    chob = CholeskyFourIndex(nbasis)
     chob._array = np.array(vecs)
     chob._array2 = chob._array
     chob._nvec = nvec
-    erb = DenseTwoBody(nbasis)
+    erb = DenseFourIndex(nbasis)
     erb._array[:] = np.einsum('kac,kbd->abcd', chob._array, chob._array2)
     return chob, erb
 
@@ -362,6 +362,11 @@ def test_cholesky_get_slice():
     indices = "abab->ab"
     indices2 = "aabb-> ba"
     indices3 = "abba->ab"
+
+    indices4 = 'abcc->bac'
+    indices5 = 'abcc->abc'
+    indices6 = 'abcb->abc'
+    indices7 = 'abbc->abc'
 
     indices4 = 'abcc->bac'
     indices5 = 'abcc->abc'
@@ -383,11 +388,11 @@ def test_cholesky_apply_direct():
     chob, erb = get_four_cho_dens()
 
     A = np.random.random((erb.nbasis, erb.nbasis))
-    dm = DenseOneBody(A.shape[0])
+    dm = DenseTwoIndex(A.shape[0])
     dm._array = A
 
-    out = DenseOneBody(A.shape[0])
-    out2 = DenseOneBody(A.shape[0])
+    out = DenseTwoIndex(A.shape[0])
+    out2 = DenseTwoIndex(A.shape[0])
 
     erb.apply_direct(dm, out)
     chob.apply_direct(dm, out2)
@@ -398,11 +403,11 @@ def test_cholesky_apply_exchange():
     chob, erb = get_four_cho_dens()
 
     A = np.random.random((erb.nbasis,erb.nbasis))
-    dm = DenseOneBody(A.shape[0])
+    dm = DenseTwoIndex(A.shape[0])
     dm._array = A
 
-    out = DenseOneBody(A.shape[0])
-    out2 = DenseOneBody(A.shape[0])
+    out = DenseTwoIndex(A.shape[0])
+    out2 = DenseTwoIndex(A.shape[0])
 
     erb.apply_exchange(dm, out)
     chob.apply_exchange(dm, out2)
@@ -425,8 +430,8 @@ def test_cholesky_four_index_transform_tensordot():
     de2 = DenseExpansion(A2.shape[0])
     de2._coeffs = A2
 
-    mo1 = DenseTwoBody(erb.nbasis)
-    mo2 = CholeskyTwoBody(erb.nbasis)
+    mo1 = DenseFourIndex(erb.nbasis)
+    mo2 = CholeskyFourIndex(erb.nbasis)
     mo2._array = np.zeros_like(chob._array)
     mo2.reset_array2()
     mo2._nvec = chob._array.shape[2]
@@ -447,8 +452,8 @@ def test_cholesky_four_index_transform_einsum():
     de2 = DenseExpansion(A2.shape[0])
     de2._coeffs = A2
 
-    mo1 = DenseTwoBody(erb.nbasis)
-    mo2 = CholeskyTwoBody(erb.nbasis)
+    mo1 = DenseFourIndex(erb.nbasis)
+    mo2 = CholeskyFourIndex(erb.nbasis)
     mo2._array = np.zeros_like(chob._array)
     mo2.reset_array2()
     mo2._nvec = chob._array.shape[2]

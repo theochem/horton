@@ -22,7 +22,7 @@
 
 
 from horton.log import log, timer
-from horton.matrix import OneBody, Expansion
+from horton.matrix import TwoIndex, Expansion
 
 
 __all__ = ['guess_core_hamiltonian']
@@ -70,7 +70,7 @@ def guess_core_hamiltonian(overlap, *args, **kwargs):
     core = []
     exps = []
     for arg in args:
-        if isinstance(arg, OneBody):
+        if isinstance(arg, TwoIndex):
             core.append(arg)
         elif isinstance(arg, Expansion):
             exps.append(arg)

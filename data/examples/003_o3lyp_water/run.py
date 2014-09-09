@@ -31,13 +31,13 @@ grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers)
 external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
 libxc_term = RLibXCHybridGGA('xc_o3lyp')
 terms = [
-    ROneBodyTerm(kin, 'kin'),
+    RTwoIndexTerm(kin, 'kin'),
     RDirectTerm(er, 'hartree'),
     RGridGroup(obasis, grid, [
         libxc_term,
     ]),
     RExchangeTerm(er, 'x_hf', libxc_term.get_exx_fraction()),
-    ROneBodyTerm(na, 'ne'),
+    RTwoIndexTerm(na, 'ne'),
 ]
 ham = REffHam(terms, external)
 
