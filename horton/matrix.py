@@ -1732,7 +1732,7 @@ class CholeskyTwoBody(DenseTwoBody):
 
     def _get_nbasis(self):
         '''The number of basis functions'''
-        return self._array.shape[0]
+        return self._array.shape[1]
 
     nbasis = property(_get_nbasis)
 
@@ -1759,17 +1759,38 @@ class CholeskyTwoBody(DenseTwoBody):
                     See numpy einstein summation documentation for an example.
         """
 
-        #error checking
-        indc_in,indc_out = "".join(indices.split()).split("->")
-        assert len(indc_in) == 4
-        assert set(indc_in) == set(indc_out)
-        assert len(set("xyz") & set(indc_in)) == 0
+        if indices == 'abcc->bac': #acbc
+            result = np.zeros([self.nbasis, self.nbasis, self.nbasis])
+            for i in np.arange(self._array.shape[0]):
+                result += np.einsum('ac,bc->bac', self._array[i,:,:],
+                                        self._array2[i,:,:])
+        elif indices == 'abcc->abc': #acbc
+            result = np.zeros([self.nbasis, self.nbasis, self.nbasis])
+            for i in np.arange(self._array.shape[0]):
+                result += np.einsum('ac,bc->abc', self._array[i,:,:],
+                                        self._array2[i,:,:])
+        elif indices == 'abcb->abc': #acbb
+            L_r = np.diagonal(self._array2, axis1=1, axis2=2)
+            temp = np.tensordot(self._array, L_r, [0,0])
+            result = temp.swapaxes(1,2)
+        elif indices == 'abbc->abc': #abbc
+            result = np.zeros([self.nbasis, self.nbasis, self.nbasis])
+            for i in np.arange(self._array.shape[0]):
+                result += np.einsum('ab,bc->abc',self._array[i,:,:],
+                                        self._array2[i,:,:])
+        else:
+            #error checking
+            indc_in,indc_out = "".join(indices.split()).split("->")
+            assert len(indc_in) == 4
+            assert set(indc_in) == set(indc_out)
+            assert len(set("xyz") & set(indc_in)) == 0
 
-        idx_string = "x{},x{}->{}".format(indc_in[0]+indc_in[2],
-                                           indc_in[1]+indc_in[3],
-                                           indc_out)
+            idx_string = "x{},x{}->{}".format(indc_in[0]+indc_in[2],
+                                               indc_in[1]+indc_in[3],
+                                               indc_out)
 
-        return np.einsum(idx_string, self._array, self._array2)
+            result = np.einsum(idx_string, self._array, self._array2)
+        return result
 
     def _get_dense(self):
         ''' ONLY FOR TESTING. Super expensive operation!

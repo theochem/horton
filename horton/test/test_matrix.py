@@ -361,9 +361,18 @@ def test_cholesky_get_slice():
 
     indices = "abab->ab"
     indices2 = "aabb-> ba"
+    indices3 = "abba->ab"
 
-    assert np.allclose(erb.get_slice(indices),chob.get_slice(indices))
-    assert np.allclose(erb.get_slice(indices2), chob.get_slice(indices2))
+    indices4 = 'abcc->bac'
+    indices5 = 'abcc->abc'
+    indices6 = 'abcb->abc'
+    indices7 = 'abbc->abc'
+
+    list_indices = [indices, indices2, indices3, indices4, indices5, indices6,
+            indices7]
+
+    for i in list_indices:
+        assert np.allclose(erb.get_slice(i),chob.get_slice(i))
 
 def test_cholesky_esum():
     chob, erb = get_four_cho_dens()
