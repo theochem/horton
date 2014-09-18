@@ -32,7 +32,7 @@ from Cython.Distutils import build_ext
 
 
 libintdir = 'depends/libint-2.0.3-stable'
-libxcdir = 'depends/libxc-2.0.3'
+libxcdir = 'depends/libxc-2.1.0'
 execfile('customize.py')
 
 

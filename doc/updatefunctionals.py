@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-libxc_version = '2.0.3'
+libxc_version = '2.1.0'
 
 # find all the functional keys by processing funcs_key.c
 
@@ -56,7 +56,7 @@ for splitkey in splitkeys:
 
 # make a rst table of all functionals
 
-from horton import RLibXCWrapper
+from horton import ULibXCWrapper
 from cStringIO import StringIO
 from common import write_if_changed
 
@@ -71,11 +71,16 @@ print >> s, 'The following functionals are available in Horton through `LibXC <h
 print >> s, '(The MGGA functionals are not supported yet in Horton.)'
 print >> s
 for key in keys:
-    print >> s, '**%s**' % key
-    w = RLibXCWrapper(key)
-    print >> s, '   | %s' % w.name
-    for line in w.refs.split('\n'):
-        print >> s, '   | *%s*' % line
-    print >> s
+    try:
+        w = ULibXCWrapper(key)
+        print >> s, '**%s**' % key
+        print >> s, '   | %s' % w.name
+        for line in w.refs.split('\n'):
+            print >> s, '   | *%s*' % line
+        print >> s
+    except ValueError:
+        # A bug in libxc-2.1.0 ...
+        print 'FAILED to load functional', key
+        pass
 
 write_if_changed('ref_functionals.rst', s.getvalue())
