@@ -127,6 +127,7 @@ setup(
     scripts=glob("scripts/*.py"),
     package_dir = {'horton': 'horton'},
     packages=['horton', 'horton.test',
+              'horton.correlatedwfn',
               'horton.espfit', 'horton.espfit.test',
               'horton.gbasis', 'horton.gbasis.test',
               'horton.grid', 'horton.grid.test',
