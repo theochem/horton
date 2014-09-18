@@ -22,11 +22,8 @@
 
 
 import numpy as np
-from scipy import optimize as opt
-from scipy import linalg as linalg
 import math as math
 from copy import deepcopy
-from random import random
 
 from horton.log import log, timer
 from horton.correlatedwfn.trustregionopt import Dogleg, TruncatedCG, LevelShiftedNewton

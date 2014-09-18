@@ -28,8 +28,8 @@ import numpy as np
 import math as math
 
 from horton.cache import Cache
-from horton.matrix import DenseTwoIndex, TwoIndex, Expansion, DenseExpansion
-from horton.log import log, timer
+from horton.matrix import DenseTwoIndex, Expansion
+from horton.log import timer
 
 
 __all__ = [

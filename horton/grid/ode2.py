@@ -21,7 +21,6 @@
 '''Finite element second order ODE solver'''
 
 
-import numpy as np
 from scipy.sparse.linalg import spsolve
 from scipy.sparse import csc_matrix
 

@@ -21,7 +21,6 @@
 
 
 import numpy as np
-from nose.tools import assert_raises
 from horton import *
 
 def test_gradient_ap1rog_cs_scf():

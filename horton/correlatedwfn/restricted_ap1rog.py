@@ -29,7 +29,6 @@ import math as math
 from scipy import optimize as opt
 import warnings
 
-from horton.cache import Cache
 from horton.log import log, timer
 from horton.correlatedwfn.geminal import Geminal
 from horton.correlatedwfn.stepsearch import RStepSearch

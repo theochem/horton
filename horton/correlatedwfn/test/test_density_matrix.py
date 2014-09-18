@@ -21,7 +21,6 @@
 
 
 import numpy as np
-from nose.tools import assert_raises
 from horton import *
 
 geminal = np.array([[ 1.92138675e-06,-4.28103597e-04,-4.28103597e-04,-1.53442827e-03],
