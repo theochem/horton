@@ -1452,12 +1452,6 @@ class DenseFourIndex(LinalgObject):
         self._array[k,j,i,l] = value
         self._array[l,i,j,k] = value
 
-    def copy(self):
-        '''Return a copy of the current two-index operator'''
-        result = DenseFourIndex(self.nbasis)
-        result._array[:] = self._array
-        return result
-
     def get_element(self, i, j, k, l):
         return self._array[i,j, k, l]
 

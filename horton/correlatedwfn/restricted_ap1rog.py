@@ -686,7 +686,6 @@ class RAp1rog(Geminal):
         '''
         if not 'matrix_%s' % select in self._cache:
             raise NotImplementedError
-            self.update_matrix(select, two_mo)
         return self._cache.load('matrix_%s' % select)
 
     # Functions for energy evaluation:
