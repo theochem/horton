@@ -21,7 +21,7 @@
 #pylint: skip-file
 
 
-import numpy as np
+import numpy as np, os
 from nose.tools import assert_raises
 
 from horton import *
@@ -109,6 +109,7 @@ def test_gobasis_consistency():
 
 def test_load_basis():
     for go_basis_family in go_basis_families.itervalues():
+        assert os.path.basename(go_basis_family.filename).islower()
         go_basis_family.load()
 
 

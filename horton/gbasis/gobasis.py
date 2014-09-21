@@ -251,19 +251,26 @@ class GOBasisFamily(object):
 
 go_basis_families = [
     GOBasisFamily('STO-3G', filename=context.get_fn('basis/sto-3g.nwchem')),
+    GOBasisFamily('STO-6G', filename=context.get_fn('basis/sto-6g.nwchem')),
     GOBasisFamily('3-21G', filename=context.get_fn('basis/3-21g.nwchem')),
     GOBasisFamily('3-21++G*', filename=context.get_fn('basis/3-21++g*.nwchem')),
+    GOBasisFamily('4-31G', filename=context.get_fn('basis/4-31g.nwchem')),
     GOBasisFamily('6-31++G**', filename=context.get_fn('basis/6-31++g**.nwchem')),
+    GOBasisFamily('6-31G', filename=context.get_fn('basis/6-31g.nwchem')),
     GOBasisFamily('6-31G**', filename=context.get_fn('basis/6-31g**.nwchem')),
     GOBasisFamily('6-31+G*', filename=context.get_fn('basis/6-31+g*.nwchem')),
     GOBasisFamily('ANO', filename=context.get_fn('basis/ano-rcc.nwchem')),
     GOBasisFamily('aug-cc-pVDZ', filename=context.get_fn('basis/aug-cc-pvdz.nwchem')),
-    GOBasisFamily('aug-cc-pVTZ', filename=context.get_fn('basis/aug-cc-pvtz.nwchem')),
-    GOBasisFamily('aug-cc-pVQZ', filename=context.get_fn('basis/aug-cc-pvqz.nwchem')),
     GOBasisFamily('cc-pVDZ', filename=context.get_fn('basis/cc-pvdz.nwchem')),
+    GOBasisFamily('cc-pCVDZ', filename=context.get_fn('basis/cc-pcvdz.nwchem')),
     GOBasisFamily('cc-pVTZ', filename=context.get_fn('basis/cc-pvtz.nwchem')),
+    GOBasisFamily('cc-pCVTZ', filename=context.get_fn('basis/cc-pcvtz.nwchem')),
     GOBasisFamily('cc-pVQZ', filename=context.get_fn('basis/cc-pvqz.nwchem')),
     GOBasisFamily('def2-tzvpd', filename=context.get_fn('basis/def2-tzvpd.nwchem')),
+    GOBasisFamily('aug-cc-pVTZ', filename=context.get_fn('basis/aug-cc-pvtz.nwchem')),
+    GOBasisFamily('aug-cc-pCVTZ', filename=context.get_fn('basis/aug-cc-pcvtz.nwchem')),
+    GOBasisFamily('aug-cc-pVQZ', filename=context.get_fn('basis/aug-cc-pvqz.nwchem')),
+    GOBasisFamily('aug-cc-pCVDZ', filename=context.get_fn('basis/aug-cc-pcvdz.nwchem')),
 ]
 go_basis_families = dict((bf.name.lower(), bf) for bf in go_basis_families)
 
