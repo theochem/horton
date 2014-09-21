@@ -29,7 +29,7 @@ __all__ = ['guess_core_hamiltonian']
 
 
 @timer.with_section('Initial Guess')
-def guess_core_hamiltonian(overlap, *args):
+def guess_core_hamiltonian(overlap, *args, **kwargs):
     '''Guess the orbitals by diagonalizing a core Hamiltonian
 
        **Arguments:**
@@ -43,7 +43,26 @@ def guess_core_hamiltonian(overlap, *args):
 
        exp1, exp2, ...
             A list of wavefunction expansion objects (output arguments)
+
+       **Keyword Arguments:**
+
+       mixing
+            When True, a Givens rotation is applied to the Homo-Lumo orbitals
+            (alpha-spin). (Default is False)
+
+       unitary
+            When True, a random unitary rotation is applied to the orbitals
+            (alpha-spin). (Default is False)
+
+       rotate
+            Givens rotation of orbital pair by specified angle (alpha-spin).
     '''
+    mixing = kwargs.pop('mixing', False)
+    unitary = kwargs.pop('unitary', False)
+    rotate = kwargs.pop('rotate', [])
+    if len(kwargs) != 0:
+        raise TypeError('Unknown keyword arguments: %s' % kwargs.keys())
+
     if log.do_medium:
         log('Performing a core Hamiltonian guess.')
         log.blank()
@@ -74,3 +93,15 @@ def guess_core_hamiltonian(overlap, *args):
     for i in xrange(1, len(exps)):
         exps[i].coeffs[:] = exps[0].coeffs
         exps[i].energies[:] = exps[0].energies
+    if unitary:
+        if log.do_medium:
+            log(' Performing random unitary transformation of alpha orbitals')
+        exps[0].unitary_rotation()
+    if mixing:
+        if log.do_medium:
+            log(' Homo-Lumo mixing of alpha orbitals by angle %f.' %mixing)
+        exps[0].mixing()
+    if rotate:
+        if log.do_medium:
+            log(' Givens rotation of alpha orbitals:')
+        exps[0].apply_givens_rotation(rotate)
