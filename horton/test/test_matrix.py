@@ -338,3 +338,113 @@ def test_trace_product():
     value = op1.trace_product(op2)
     op1.idot(op2)
     assert abs(op1.trace() - value) < 1e-10
+
+
+def get_four_cho_dens(nbasis=10, nvec=8):
+    '''Create random cholesky vectors and matching dense four-index object'''
+    vecs = []
+    for ivec in xrange(nvec):
+        vec = np.random.normal(0, 1, (nbasis, nbasis))
+        vec = (vec+vec.T)/2
+        vecs.append(vec)
+    chob = CholeskyTwoBody(nbasis)
+    chob._array = np.array(vecs)
+    chob._array2 = chob._array
+    chob._nvec = nvec
+    erb = DenseTwoBody(nbasis)
+    erb._array[:] = np.einsum('kac,kbd->abcd', chob._array, chob._array2)
+    return chob, erb
+
+
+def test_cholesky_get_slice():
+    chob, erb = get_four_cho_dens()
+
+    indices = "abab->ab"
+    indices2 = "aabb-> ba"
+
+    assert np.allclose(erb.get_slice(indices),chob.get_slice(indices))
+    assert np.allclose(erb.get_slice(indices2), chob.get_slice(indices2))
+
+def test_cholesky_esum():
+    chob, erb = get_four_cho_dens()
+
+    assert np.allclose(erb.esum(), chob.esum())
+
+def test_cholesky_apply_direct():
+    chob, erb = get_four_cho_dens()
+
+    A = np.random.random((erb.nbasis, erb.nbasis))
+    dm = DenseOneBody(A.shape[0])
+    dm._array = A
+
+    out = DenseOneBody(A.shape[0])
+    out2 = DenseOneBody(A.shape[0])
+
+    erb.apply_direct(dm, out)
+    chob.apply_direct(dm, out2)
+
+    assert np.allclose(out._array, out2._array)
+
+def test_cholesky_apply_exchange():
+    chob, erb = get_four_cho_dens()
+
+    A = np.random.random((erb.nbasis,erb.nbasis))
+    dm = DenseOneBody(A.shape[0])
+    dm._array = A
+
+    out = DenseOneBody(A.shape[0])
+    out2 = DenseOneBody(A.shape[0])
+
+    erb.apply_exchange(dm, out)
+    chob.apply_exchange(dm, out2)
+
+    assert np.allclose(out._array, out2._array)
+
+def test_cholesky_get_dense():
+    chob, erb = get_four_cho_dens()
+
+    assert np.allclose(erb._array, chob._get_dense())
+
+def test_cholesky_four_index_transform_tensordot():
+    chob, erb = get_four_cho_dens()
+
+    A = np.random.random((erb.nbasis, erb.nbasis))
+    de = DenseExpansion(A.shape[0])
+    de._coeffs = A
+
+    A2 = np.random.random((erb.nbasis, erb.nbasis))
+    de2 = DenseExpansion(A2.shape[0])
+    de2._coeffs = A2
+
+    mo1 = DenseTwoBody(erb.nbasis)
+    mo2 = CholeskyTwoBody(erb.nbasis)
+    mo2._array = np.zeros_like(chob._array)
+    mo2.reset_array2()
+    mo2._nvec = chob._array.shape[2]
+
+    mo1.apply_four_index_transform_tensordot(erb, de, de2, de, de2)
+    mo2.apply_four_index_transform_tensordot(chob, de, de2, de, de2)
+
+    assert np.allclose(mo1._array, mo2._get_dense())
+
+def test_cholesky_four_index_transform_einsum():
+    chob, erb = get_four_cho_dens()
+
+    A = np.random.random((erb.nbasis,erb.nbasis))
+    de = DenseExpansion(A.shape[0])
+    de._coeffs = A
+
+    A2 = np.random.random((erb.nbasis,erb.nbasis))
+    de2 = DenseExpansion(A2.shape[0])
+    de2._coeffs = A2
+
+    mo1 = DenseTwoBody(erb.nbasis)
+    mo2 = CholeskyTwoBody(erb.nbasis)
+    mo2._array = np.zeros_like(chob._array)
+    mo2.reset_array2()
+    mo2._nvec = chob._array.shape[2]
+
+    mo1.apply_four_index_transform_einsum(erb, de, de2, de, de2)
+    mo2.apply_four_index_transform_einsum(chob, de, de2, de, de2)
+
+    assert np.allclose(mo1._array, mo2._get_dense())
