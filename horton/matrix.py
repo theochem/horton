@@ -55,6 +55,7 @@ import numpy as np
 from horton.log import log
 from horton.cext import compute_slice_abcc, compute_slice_abbc, subtract_slice_abbc
 
+
 __all__ = [
     'LinalgFactory', 'LinalgObject', 'Expansion', 'TwoIndex',
     'DenseLinalgFactory', 'CholeskyLinalgFactory', 'DenseExpansion',
@@ -402,9 +403,6 @@ class DenseExpansion(Expansion):
     def copy_occ_model(self, other):
         self._occupations[:] = other._occupations[:]
 
-    def set_identity(self):
-        self._coeffs[:] = np.identity(self.nbasis)
-
     def dotarray(self, other, array):
         '''Dot product of other DenseExpansion and numpy array'''
         self._coeffs[:] = np.dot(other.coeffs, array)
@@ -491,49 +489,6 @@ class DenseExpansion(Expansion):
         self._occupations[:] = evals
         self._energies[:] = 0.0
 
-    def derive_from_fock_matrix_with_lshift(self, coeffs, fock, overlap, level_shift, norb, shift=0.1):
-        '''
-           **Arguments**:
-
-           dm
-                A DenseTwoIndex object with the density matrix
-
-           fock
-                A DenseTwoIndex object with the Fock matrix
-
-           overlap
-                A DenseTwoIndex object with the overlap matrix
-
-           **Optional arguments:**
-
-           scale
-                The linear coefficient for the density matrix. It is added to
-                the Fock matrix as in level shifting to obtain a set of orbitals
-                that diagonalizes both matrices.
-
-           scale
-
-           This only works well for slater determinants without (fractional)
-           holes below the Fermi level.
-        '''
-        # Construct a level-shifted fock matrix to separate out the degenerate
-        # orbitals with different occupations
-        level_shift.set_diagonal(shift, norb)
-        occ = overlap.copy()
-        occ.idotexp(coeffs)
-        occ.idot(level_shift)
-        occ.idotexpt(coeffs)
-        occ.idot(overlap)
-        tmp = fock.copy()
-        tmp.iadd(occ)
-        # diagonalize and compute eigenvalues
-        evals, evecs = DenseLinalgFactory.diagonalize(tmp, overlap)
-        self._coeffs[:] = evecs[:,:self.nfn]
-        for i in xrange(self.nfn):
-            orb = evecs[:,i]
-            self._energies[i] = fock.dot(orb, orb)
-            self._occupations[i] = occ.dot(orb, orb)
-
     def apply_basis_permutation(self, permutation):
         '''Reorder the coefficients for a given permutation of basis functions.
         '''
@@ -598,25 +553,18 @@ class DenseExpansion(Expansion):
 
     lumo_energy = property(get_lumo_energy)
 
-    def iadd_to_expansion(self, other, factor=1.0):
-        '''Add other expansion to expansion coefficients.
-           Use this only to modify a starting guess for subsequent SCF!
-        '''
-        self.coeffs[:] += other.coeffs[:]*factor
-        self.coeffs[:] /= np.sqrt(2)
-
     def unitary_rotation(self, n=None):
         '''Apply random unitary transformation distributed with Haar measure'''
         from scipy import linalg as linalg
         from scipy import randn, diagonal, absolute, multiply
         if n is None:
             n = self.nbasis
-        z = (randn(n,n))
-        q,r = linalg.qr(z)
+        z = randn(n, n)
+        q, r = linalg.qr(z)
         d = diagonal(r)
         ph = d/absolute(d)
-        q = multiply(q,ph,q)
-        self.coeffs[:] = np.dot(self.coeffs,q)
+        q = multiply(q, ph, q)
+        self.coeffs[:] = np.dot(self.coeffs, q)
 
     def mixing(self, angle=45, index1=None, index2=None):
         '''Mix Homo and Lumo orbitals with angle 'angle'.
@@ -671,27 +619,6 @@ class DenseExpansion(Expansion):
             givens = self.compute_rotation(index1, index2, angle)
             self.coeffs[:] = np.dot(self.coeffs, givens)
 
-    def from_file(self, olp, fileorb='./orbitals.dat',
-                                fileolp='./overlap.dat'):
-        '''Read orbitals from file for restart
-        '''
-        from scipy import linalg as linalg
-        # Read AO overlap matrix Sr from previous calculation:
-        overlapread = np.fromfile(fileolp, dtype=float)
-        overlapr = overlapread.reshape(self.nbasis, self.nbasis)
-        # Calculate Sr^{1/2}
-        overlap12read = linalg.sqrtm(overlapr)
-        # Get current AO overlap matrix
-        overlap12 = linalg.sqrtm(olp._get_dense())
-        # Calculate S^{-1/2}
-        overlap12inv = np.linalg.inv(overlap12)
-        # Read orbitals C
-        orbread = np.fromfile(fileorb, dtype=float)
-        orb = orbread.reshape(self.nbasis, self.nbasis)
-        # Calculate Sr^{1/2}*C
-        tmp = np.dot(overlap12read.real, orb)
-        # Get new AO/MO coefficient matrix from S^{-1/2}*Sr^{1/2}*C that satisfies C^T*S*C=1
-        self.coeffs[:] = np.dot(overlap12inv.real, tmp)
 
 class DenseOneIndex(OneIndex):
     """Dense one-dimensional matrix (vector), also used for (diagonal) density matrices.
@@ -713,21 +640,21 @@ class DenseOneIndex(OneIndex):
     def __check_init_args__(self, nbasis):
         assert nbasis == self.nbasis
 
-#   @classmethod
-#   def from_hdf5(cls, grp, lf):
-#       nbasis = grp['array'].shape[0]
-#       result = cls(nbasis)
-#       grp['array'].read_direct(result._array)
-#       return result
+    @classmethod
+    def from_hdf5(cls, grp, lf):
+        nbasis = grp['array'].shape[0]
+        result = cls(nbasis)
+        grp['array'].read_direct(result._array)
+        return result
 
-#   def read_from_hdf5(self, grp):
-#       if grp.attrs['class'] != self.__class__.__name__:
-#           raise TypeError('The class of the two-index operator in the HDF5 file does not match.')
-#       grp['array'].read_direct(self._array)
+    def read_from_hdf5(self, grp):
+        if grp.attrs['class'] != self.__class__.__name__:
+            raise TypeError('The class of the one-index object in the HDF5 file does not match.')
+        grp['array'].read_direct(self._array)
 
-#   def to_hdf5(self, grp):
-#       grp.attrs['class'] = self.__class__.__name__
-#       grp['array'] = self._array
+    def to_hdf5(self, grp):
+        grp.attrs['class'] = self.__class__.__name__
+        grp['array'] = self._array
 
     def _get_nbasis(self):
         '''The number of basis functions'''
@@ -947,9 +874,6 @@ class DenseTwoIndex(TwoIndex):
         else:
             self._array[:] = other
 
-    def set_identity(self):
-        self._array[:] = np.identity(self.nbasis)
-
     def set_value(self, val):
         self._array[:] = val
 
@@ -964,7 +888,6 @@ class DenseTwoIndex(TwoIndex):
         assert isinstance(arr, np.ndarray)
         self._array[:] = arr
 
-
     def copy(self):
         '''Return a copy of the current two-index operator'''
         result = DenseTwoIndex(self.nbasis, self.nfn)
@@ -977,18 +900,6 @@ class DenseTwoIndex(TwoIndex):
         result = DenseTwoIndex(dim1, dim2)
         result._array[:] = self._array[ind1:ind2, ind3:ind4]*factor
         return result
-
-    def copydiag(self, factor=1.0):
-        result = DenseOneIndex(self.nbasis)
-        result._array[:] = (self._array.diagonal())[np.newaxis].T*factor
-        return result
-
-    def copyblock2array(self, block):
-        if block in ['tril']:
-            ind = np.tril_indices(self.nbasis, -1)
-        else:
-            raise NotImplementedError
-        return self._array[ind]
 
     def assign_tril_fourindex(self, other, dim):
         tril = np.tril_indices(dim, -1)
@@ -1008,10 +919,6 @@ class DenseTwoIndex(TwoIndex):
         '''Check the symmetry of the array. For testing only.'''
         assert abs(self._array - self._array.T).max() == 0.0
 
-    def check_close_symmetry(self):
-        '''Check if symmetry of array is within acceptance.'''
-        return np.allclose(self._array, self._array.T)
-
     def isymmetrize(self):
         '''Symmetrize DenseTwoIndex using M_sym=(M+M^\dagger)/2'''
         self._array = (self._array+self._array.T)/2.0
@@ -1021,10 +928,6 @@ class DenseTwoIndex(TwoIndex):
         result = DenseTwoIndex(self.nbasis, self.nfn)
         result._array[:] = (self._array+self._array.T)*factor/2.0
         return result
-
-    def check_if_empty(self):
-        '''Check if DenseTwoIndex is empty.'''
-        return (self._array == 0.0).all()
 
     def clear(self):
         '''Resets array to zeros element-wise.'''
@@ -1041,7 +944,6 @@ class DenseTwoIndex(TwoIndex):
         if not isinstance(arr, np.ndarray):
             raise TypeError('The arr object must be a numpy nd.array instance. Got ', type(arr), ' instead.')
         self._array += arr*factor
-
 
     def iadd(self, other, factor=1):
         '''Inplace addition of other DenseTwoIndex
@@ -1061,13 +963,6 @@ class DenseTwoIndex(TwoIndex):
         '''Inplace addition of transposed other DenseTwoIndex'''
         self._array += other._array.T*factor
 
-    def iaddview(self, other, factor=1, *args):
-        '''Inplace addition of view of other DenseTwoIndex'''
-        ind = []
-        for arg in args:
-            ind.append(arg)
-        self._array += other._array[ind[0]:ind[1],ind[2]:ind[3]]*factor
-
     def iaddtosubmatrix(self, other, factor=1, *args):
         '''Inplace addition of other DenseTwoIndex'''
         ind = []
@@ -1082,13 +977,6 @@ class DenseTwoIndex(TwoIndex):
     def iaddkron(self, other, other2, factor=1):
         '''Inplace addition of kronecker product of two other DenseTwoIndex'''
         self._array += np.kron(other._array, other2._array)*factor
-
-    def imakecomplexfock(self, factor=1):
-        '''Inplace construction of complex Fock matrix'''
-        tril = np.tril_indices(self.nbasis, -1)
-        triu = np.triu_indices(self.nbasis, 1)
-        self._array[tril] -= self._array[tril]*1j*factor
-        self._array[triu] += self._array[triu]*1j*factor
 
     def contract(self, select, factor=1, *args):
         '''Contract any view of DenseTwoIndex'''
@@ -1171,32 +1059,6 @@ class DenseTwoIndex(TwoIndex):
         '''Return the trace of the product of this operator and of the given operator'''
         return np.dot(self._array.ravel(), other._array.T.ravel())
 
-    def strace(self, npairs, select, factor=1):
-        '''Trace over slice of DenseOneBody'''
-        if select == 'oo':
-            return np.trace(self._array[:npairs,:npairs])*factor
-        elif select == 'ov':
-            return np.trace(self._array[:npairs,npairs:])*factor
-        elif select == 'vo':
-            return np.trace(self._array[npairs:,:npairs])*factor
-        elif select == 'vv':
-            return np.trace(self._array[npairs:,npairs:])*factor
-        else:
-            raise NotImplementedError
-
-    def ssum(self, npairs, select, factor=1):
-        '''Sum over all elements of slice of DenseOneBody'''
-        if select == 'oo':
-            return np.sum(self._array[:npairs,:npairs].ravel())*factor
-        elif select == 'ov':
-            return np.sum(self._array[:npairs,npairs:].ravel())*factor
-        elif select == 'vo':
-            return np.sum(self._array[npairs:,:npairs].ravel())*factor
-        elif select == 'vv':
-            return np.sum(self._array[npairs:,npairs:].ravel())*factor
-        else:
-            raise NotImplementedError
-
     def itranspose(self):
         '''In-place transpose'''
         self._array = self._array.T
@@ -1220,17 +1082,6 @@ class DenseTwoIndex(TwoIndex):
         '''Inplace dot operator'''
         self._array[:] = np.dot(self._array, other._array)
 
-    def idotexp(self, exp, block=1.0):
-        '''Inplace dot product with Expansion'''
-        self._array[:] = np.dot(self._array, exp.coeffs*block)
-
-    def dotexpto(self, other, exp, block):
-        '''Dot product of transposed block of Expansion with TwoIndex'''
-        self._array[:] = np.dot((exp.coeffs*block).T, other._array)
-
-    def cdot(self, other):
-        self._array[:] = np.dot(self._array, other.coeffs)
-
     def iadddot(self, other, other2, factor=1.0):
         '''Inplace addition of dot product of two other DenseTwoIndex'''
         self._array[:] += np.dot(other._array, other2._array)*factor
@@ -1242,9 +1093,6 @@ class DenseTwoIndex(TwoIndex):
     def iadddott(self, other, other2, factor=1.0):
         '''Inplace addition of dot product of one tansposed DenseTwoIndex'''
         self._array[:] += np.dot(other._array, other2._array.T)*factor
-
-    def idotexpt(self, other):
-        self._array[:] = np.dot(self._array, other.coeffs.T)
 
     def multiply(self, other, vec, factor=1.0):
         '''Inplace addition of element-wise multiplication'''
@@ -1286,25 +1134,25 @@ class DenseTwoIndex(TwoIndex):
 
     def apply_sorting_aabb(self, other):
         if not isinstance(other, DenseFourIndex):
-            raise TypeError('The other object must also be DenseFourIndex instance. Got ', type(other), ' instead.')
+            raise TypeError('The other object must be a DenseFourIndex instance. Got ', type(other), ' instead.')
         self._array[:] = other.get_slice('aabb->ab')
         return self._array
 
     def apply_sorting_abab(self, other):
         if not isinstance(other, DenseFourIndex):
-            raise TypeError('The other object must also be DenseFourIndex instance. Got ', type(other), ' instead.')
+            raise TypeError('The other object must be a DenseFourIndex instance. Got ', type(other), ' instead.')
         self._array[:] = other.get_slice('abab->ab')
         return self._array
 
     def apply_sorting_abba(self, other):
         if not isinstance(other, DenseFourIndex):
-            raise TypeError('The other object must also be DenseFourIndex instance. Got ', type(other), ' instead.')
+            raise TypeError('The other object must be a DenseFourIndex instance. Got ', type(other), ' instead.')
         self._array[:] = other.get_slice('abba->ab')
         return self._array
 
     def apply_sorting_pq(self, other):
         if not isinstance(other, DenseFourIndex):
-            raise TypeError('The other object must also be DenseFourIndex instance. Got ', type(other), ' instead.')
+            raise TypeError('The other object must be ac DenseFourIndex instance. Got ', type(other), ' instead.')
         self._array[:] = 2.0*other.get_slice('abab->ab') \
                                 - other.get_slice('abba->ab')
         return self._array
@@ -1453,7 +1301,7 @@ class DenseFourIndex(LinalgObject):
         self._array[l,i,j,k] = value
 
     def get_element(self, i, j, k, l):
-        return self._array[i,j, k, l]
+        return self._array[i, j, k, l]
 
     def get_slice(self, indices, out=None, subtract=False, clear=False):
         """Returns a numpy array 2-index slice of the fourindex object.
@@ -1877,9 +1725,6 @@ class CholeskyFourIndex(DenseFourIndex):
             temp = self._array
             self._array = self._array2
             self._array2 = temp
-
-    def imake_complex(self):
-        raise NotImplementedError
 
     def esum(self):
         return np.tensordot(self._array, self._array2,(0,0)).sum() #expensive!!
