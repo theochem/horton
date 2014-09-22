@@ -342,7 +342,7 @@ def test_consistency_h5():
         d = np.random.normal(0, 1, 10)
         cs1 = CubicSpline(y, d, rtf, PowerExtrapolation(2))
         cs1.to_hdf5(chk)
-        cs2 = CubicSpline.from_hdf5(chk, None)
+        cs2 = CubicSpline.from_hdf5(chk)
         assert (cs1.y == cs2.y).all()
         assert (cs1.dx == cs2.dx).all()
         assert (cs1.dt == cs2.dt).all()

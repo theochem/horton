@@ -325,7 +325,7 @@ def test_agspec_hdf5_coarse():
     agspec1 = AtomicGridSpec('coarse')
     with h5.File('horton.grid.test.test_atgrid.test_agspec_hdf5_coarse', driver='core', backing_store=False) as f:
         agspec1.to_hdf5(f)
-        agspec2 = AtomicGridSpec.from_hdf5(f, None)
+        agspec2 = AtomicGridSpec.from_hdf5(f)
     assert sorted(agspec1.members.keys()) == sorted(agspec2.members.keys())
     for number, cases1 in agspec1.members.iteritems():
         cases2 = agspec2.members[number]

@@ -173,7 +173,7 @@ class DenseExpansion(Expansion):
         assert nfn == self.nfn
 
     @classmethod
-    def from_hdf5(cls, grp, lf):
+    def from_hdf5(cls, grp):
         if grp.attrs['class'] != cls.__name__:
             raise TypeError('The class of the expansion in the HDF5 file does not match.')
         nbasis, nfn = grp['coeffs'].shape
@@ -472,7 +472,7 @@ class DenseOneIndex(OneIndex):
         assert nbasis == self.nbasis
 
     @classmethod
-    def from_hdf5(cls, grp, lf):
+    def from_hdf5(cls, grp):
         nbasis = grp['array'].shape[0]
         result = cls(nbasis)
         grp['array'].read_direct(result._array)
@@ -640,7 +640,7 @@ class DenseTwoIndex(TwoIndex):
         assert nbasis == self.nbasis
 
     @classmethod
-    def from_hdf5(cls, grp, lf):
+    def from_hdf5(cls, grp):
         nbasis = grp['array'].shape[0]
         result = cls(nbasis)
         grp['array'].read_direct(result._array)
@@ -1102,7 +1102,7 @@ class DenseThreeIndex(ThreeIndex):
         assert nbasis == self.nbasis
 
     @classmethod
-    def from_hdf5(cls, grp, lf):
+    def from_hdf5(cls, grp):
         nbasis = grp['array'].shape[0]
         result = cls(nbasis)
         grp['array'].read_direct(result._array)
@@ -1470,7 +1470,7 @@ class DenseFourIndex(FourIndex):
         assert nbasis == self.nbasis
 
     @classmethod
-    def from_hdf5(cls, grp, lf):
+    def from_hdf5(cls, grp):
         nbasis = grp['array'].shape[0]
         result = cls(nbasis)
         grp['array'].read_direct(result._array)

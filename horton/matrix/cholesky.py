@@ -94,7 +94,7 @@ class CholeskyFourIndex(DenseFourIndex):
         self._array2 = self._array
 
     @classmethod
-    def from_hdf5(cls, grp, lf):
+    def from_hdf5(cls, grp):
         nbasis = grp['array'].shape[0]
         result = cls(nbasis)
         grp['array'].read_direct(result._array)

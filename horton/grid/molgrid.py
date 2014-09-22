@@ -149,12 +149,12 @@ class BeckeMolGrid(IntGrid):
             log.mem.denounce(self.points.nbytes + self.weights.nbytes)
 
     @classmethod
-    def from_hdf5(cls, grp, lf):
+    def from_hdf5(cls, grp):
         return BeckeMolGrid(
             grp['centers'][:],
             grp['numbers'][:],
             grp['psuedo_numbers'][:],
-            AtomicGridSpec.from_hdf5(grp['agspec'], lf),
+            AtomicGridSpec.from_hdf5(grp['agspec']),
             grp['k'][()],
             grp['random_rotate'][()],
             grp.attrs['mode'],

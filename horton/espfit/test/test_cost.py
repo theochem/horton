@@ -363,7 +363,7 @@ def test_hdf5():
     with h5.File('horton.espfit.test.test_cost.test_hdf5.h5', driver='core', backing_store=False) as f:
         cost1 = get_random_esp_cost_cube3d()
         cost1.to_hdf5(f)
-        cost2 = ESPCost.from_hdf5(f, None)
+        cost2 = ESPCost.from_hdf5(f)
     assert abs(cost1._A - cost2._A).max() == 0
     assert abs(cost1._B - cost2._B).max() == 0
     assert cost1._C - cost2._C == 0

@@ -89,7 +89,7 @@ def test_hdf5():
     s0 = get_fake_symmetry()
     with h5.File('horton.test.test_symmetry.test_hdf5.h5', driver='core', backing_store=False) as f:
         s0.to_hdf5(f)
-        s1 = Symmetry.from_hdf5(f, lf=None)
+        s1 = Symmetry.from_hdf5(f)
         compare_symmetries(s0, s1)
 
 

@@ -96,14 +96,14 @@ class Symmetry(object):
         self._labels = np.array(labels)
 
     @classmethod
-    def from_hdf5(cls, grp, lf):
+    def from_hdf5(cls, grp):
         '''Construct a Symmetry object from a HDF5 group'''
         return cls(
             grp['name'][()],
             grp['generators'][:],
             grp['fracs'][:],
             grp['numbers'][:],
-            Cell.from_hdf5(grp['cell'], lf),
+            Cell.from_hdf5(grp['cell']),
             grp['labels'][:],
         )
 

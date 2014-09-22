@@ -44,7 +44,7 @@ class ESPCost(object):
         # Rescale parameters not related to atomic charges
 
     @classmethod
-    def from_hdf5(cls, grp, lf):
+    def from_hdf5(cls, grp):
         return cls(
             grp['A'][:],
             grp['B'][:],

@@ -378,7 +378,7 @@ cdef class GBasis:
         return cls(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
 
     @classmethod
-    def from_hdf5(cls, grp, lf):
+    def from_hdf5(cls, grp):
         return cls(
             np.array(grp['centers']),
             np.array(grp['shell_map']),

@@ -82,7 +82,7 @@ class LinalgObject(object):
         raise NotImplementedError
 
     @classmethod
-    def from_hdf5(cls, grp, lf):
+    def from_hdf5(cls, grp):
         raise NotImplementedError
 
     def to_hdf5(self, grp):

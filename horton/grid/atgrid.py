@@ -383,7 +383,7 @@ class AtomicGridSpec(object):
             raise ValueError('Could not parse the definition of the atomic grid specification.')
 
     @classmethod
-    def from_hdf5(cls, grp, lf):
+    def from_hdf5(cls, grp):
         records = []
         for ds in grp.itervalues():
             rtransform = RTransform.from_string(ds.attrs['rtransform'])

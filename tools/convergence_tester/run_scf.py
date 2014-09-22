@@ -42,7 +42,7 @@ class SCFOpt(Method):
     def solve(self):
         return self.scf_solver(self.ham, self.lf, self.olp, self.occ_model, self.dm)
 
-def load_exp(fn_h5, mixing, name_case, lf):
+def load_exp(fn_h5, mixing, name_case):
     with h5.File(fn_h5) as f:
         name_mixing = '%08.5f' % (-np.log10(mixing))
         group_mixing = f[name_mixing]
@@ -50,7 +50,7 @@ def load_exp(fn_h5, mixing, name_case, lf):
         # cheating is nice ...
         class_name = group_case.attrs.get('class')
         cls = __import__('horton', fromlist=[class_name]).__dict__[class_name]
-        return cls.from_hdf5(group_case, lf)
+        return cls.from_hdf5(group_case)
 
 def run(irandom, mixing, method):
     nfail = 0
@@ -81,7 +81,7 @@ def run(irandom, mixing, method):
     occ_model = AufbauOccModel(5)
     
     for i in mixing[::-1]:
-        exp_alpha = load_exp('guesses.h5', i, 'case_%03i' % irandom, lf)
+        exp_alpha = load_exp('guesses.h5', i, 'case_%03i' % irandom)
         print "mixing: " + str(i)
         
         dm_alpha = exp_alpha.to_dm()

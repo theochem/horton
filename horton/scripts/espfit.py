@@ -154,7 +154,7 @@ def load_cost(arg_cost):
     '''Load an ESP cost function given at the command line'''
     fn_h5_in, grp_name_in = parse_h5(arg_cost, 'cost')
     with LockedH5File(fn_h5_in, 'r') as f:
-        return ESPCost.from_hdf5(f[grp_name_in]['cost'], None), f[grp_name_in]['used_volume'][()]
+        return ESPCost.from_hdf5(f[grp_name_in]['cost']), f[grp_name_in]['used_volume'][()]
 
 
 def load_charges(arg_charges):

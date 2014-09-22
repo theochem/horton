@@ -350,7 +350,7 @@ cdef class CubicSpline(object):
         del self._this
 
     @classmethod
-    def from_hdf5(cls, grp, lf):
+    def from_hdf5(cls, grp):
         return cls(
             grp['y'][:],
             grp['d'][:],
@@ -1213,7 +1213,7 @@ cdef class UniformGrid(object):
         return result
 
     @classmethod
-    def from_hdf5(cls, grp, lf):
+    def from_hdf5(cls, grp):
         return cls(
             grp['origin'][:],
             grp['grid_rvecs'][:],

@@ -136,7 +136,7 @@ def test_molgrid_hdf5():
     # run the routines that need testing
     with h5.File('horton.grid.test.test_molgrid.test_molgrid_hdf5', driver='core', backing_store=False) as f:
         mg1.to_hdf5(f)
-        mg2 = BeckeMolGrid.from_hdf5(f, None)
+        mg2 = BeckeMolGrid.from_hdf5(f)
 
     assert (mg1.centers == mg2.centers).all()
     assert (mg1.numbers == mg2.numbers).all()

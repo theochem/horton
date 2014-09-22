@@ -78,7 +78,7 @@ cdef class Cell:
             del self._this
 
     @classmethod
-    def from_hdf5(cls, grp, lf):
+    def from_hdf5(cls, grp):
         if grp['rvecs'].size > 0:
             rvecs = np.array(grp['rvecs'])
             return cls(rvecs)
