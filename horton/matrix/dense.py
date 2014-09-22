@@ -18,163 +18,18 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-"""Two- and four-dimensional matrix implementations
-
-   The purpose of this module is to provide a generic API for different
-   implementations of real-valued double precision matrix storage and
-   operations.
-
-   Two-dimensional matrices are supposed to be symmetric and are used to
-   represent two-index operators and 1DRDMs. Four-dimensional matrices are used
-   to represent four-index operators, which are invariant under the following
-   interchanges of indexes::
-
-            <ij|kl> = <ji|lk> = <kl|ij> = <lk|ji> =
-            <il|kj> = <jk|li> = <kj|il> = <li|jk>
-
-   This module assumes physicists notation for the two-particle operators. It is
-   up to the specific implementations of the matrices to make use of these
-   symmetries.
-
-   One should use these matrix implementations without accessing the internals
-   of each class, i.e. without accessing attributes or methods that start with
-   an underscore.
-
-   In order to avoid temporaries when working with arrays, the methods do
-   not return arrays. Instead such methods are an in place operation or have
-   output arguments. This forces the user to allocate all memory in advance,
-   which can then be moved out of the loops. The initial implementation (the
-   Dense... classes) are just a proof of concept and may therefore contain
-   internals that still make temporaries. This fixed later with an alternative
-   implementation.
-"""
+"""Dense matrix implementations"""
 
 
 import numpy as np
-
 from horton.log import log
-from horton.cext import compute_slice_abcc, compute_slice_abbc, subtract_slice_abbc
+from horton.matrix.base import LinalgFactory, LinalgObject, Expansion, OneIndex, TwoIndex
 
 
 __all__ = [
-    'LinalgFactory', 'LinalgObject', 'Expansion', 'TwoIndex',
-    'DenseLinalgFactory', 'CholeskyLinalgFactory', 'DenseExpansion',
-    'DenseTwoIndex', 'DenseFourIndex', 'CholeskyFourIndex', 'DenseThreeIndex'
+    'DenseLinalgFactory', 'DenseExpansion',
+    'DenseOneIndex', 'DenseTwoIndex', 'DenseThreeIndex', 'DenseFourIndex'
 ]
-
-
-class LinalgFactory(object):
-    """A collection of compatible matrix and linear algebra routines.
-
-       This is just an abstract base class that serves as a template for
-       specific implementations.
-    """
-    def __init__(self, default_nbasis=None):
-        '''
-           **Optional arguments:**
-
-           default_nbasis
-                The default basis size when constructing new
-                operators/expansions.
-        '''
-        self.default_nbasis = default_nbasis
-
-    def set_default_nbasis(self, nbasis):
-        self.default_nbasis = nbasis
-
-    def create_expansion(self, nbasis=None):
-        raise NotImplementedError
-
-    def create_two_index(self, nbasis=None, nfn=None):
-        raise NotImplementedError
-
-    def create_four_index(self, nbasis=None):
-        raise NotImplementedError
-
-    def create_three_index(self, nbasis=None):
-        raise NotImplementedError
-
-    def error_eigen(self, ham, overlap, expansion, epsilons):
-        raise NotImplementedError
-
-    def diagonalize(self, ham, overlap, expansion, epsilons):
-        raise NotImplementedError
-
-    def get_memory_two_index(self, nbasis=None):
-        raise NotImplementedError
-
-    def get_memory_four_index(self, nbasis=None):
-        raise NotImplementedError
-
-
-class LinalgObject(object):
-    def apply_basis_permutation(self, permutation):
-        raise NotImplementedError
-
-    def apply_basis_signs(self, signs):
-        raise NotImplementedError
-
-    @classmethod
-    def from_hdf5(cls, grp, lf):
-        raise NotImplementedError
-
-    def to_hdf5(self, grp):
-        raise NotImplementedError
-
-    def __clear__(self):
-        self.clear()
-
-    def clear(self):
-        raise NotImplementedError
-
-    def copy(self):
-        raise NotImplementedError
-
-    def assign(self, other):
-        raise NotImplementedError
-
-
-class Expansion(LinalgObject):
-    def __init__(self, nbasis, nfn=None):
-        raise NotImplementedError
-
-    def check_normalization(self, olp, eps=1e-4):
-        raise NotImplementedError
-
-
-class OneIndex(LinalgObject):
-    '''vector class'''
-    def __init__(self, nbasis):
-        raise NotImplementedError
-
-
-class TwoIndex(LinalgObject):
-    def __init__(self, nbasis):
-        raise NotImplementedError
-
-    def set_element(self, i, j, value):
-        raise NotImplementedError
-
-    def get_element(self, i, j):
-        raise NotImplementedError
-
-    def iadd(self, other, factor=1):
-        raise NotImplementedError
-
-    def expectation_value(self, dm):
-        raise NotImplementedError
-
-    def trace(self):
-        raise NotImplementedError
-
-    def itranspose(self):
-        raise NotImplementedError
-
-    def iscale(self, factor):
-        raise NotImplementedError
-
-    def dot(self, vec0, vec1):
-        raise NotImplementedError
 
 
 class DenseLinalgFactory(LinalgFactory):
@@ -190,7 +45,6 @@ class DenseLinalgFactory(LinalgFactory):
 
     create_expansion.__check_init_args__ = _check_expansion_init_args
 
-
     def create_two_index(self, nbasis=None, nfn=None):
         nbasis = nbasis or self.default_nbasis
         nfn = nfn or self.default_nbasis
@@ -203,7 +57,6 @@ class DenseLinalgFactory(LinalgFactory):
 
     create_two_index.__check_init_args__ = _check_two_index_init_args
 
-
     def create_one_index(self, nbasis=None):
         nbasis = nbasis or self.default_nbasis
         return DenseOneIndex(nbasis)
@@ -213,7 +66,6 @@ class DenseLinalgFactory(LinalgFactory):
         two_index.__check_init_args__(nbasis)
 
     create_one_index.__check_init_args__ = _check_one_index_init_args
-
 
     def create_four_index(self, nbasis=None):
         nbasis = nbasis or self.default_nbasis
@@ -225,7 +77,6 @@ class DenseLinalgFactory(LinalgFactory):
 
     create_four_index.__check_init_args__ = _check_four_index_init_args
 
-
     def create_three_index(self, nbasis=None):
         nbasis = nbasis or self.default_nbasis
         return DenseThreeIndex(nbasis)
@@ -235,7 +86,6 @@ class DenseLinalgFactory(LinalgFactory):
         three_index.__check_init_args__(nbasis)
 
     create_three_index.__check_init_args__ = _check_three_index_init_args
-
 
     @staticmethod
     def error_eigen(fock, overlap, expansion):
@@ -281,25 +131,6 @@ class DenseLinalgFactory(LinalgFactory):
 
     def get_memory_four_index(self, nbasis=None):
         return nbasis**4*8
-
-class CholeskyLinalgFactory(DenseLinalgFactory):
-    def create_four_index(self, nbasis=None, nvec=None, array=None):
-        nbasis = nbasis or self.default_nbasis
-
-        if array is not None:
-            if nvec is not None:
-                assert array.shape[0] == nvec
-            return CholeskyFourIndex(nbasis=nbasis, array=array)
-        elif nvec is not None:
-            return CholeskyFourIndex(nbasis=nbasis, nvec=nvec)
-        else:
-            raise NotImplementedError
-
-    def _check_four_index_init_args(self, four_index, nbasis=None, nvec=None, array=None):
-        nbasis = nbasis or self.default_nbasis
-        four_index.__check_init_args__(nbasis)
-
-    create_four_index.__check_init_args__ = _check_four_index_init_args
 
 
 class DenseExpansion(Expansion):
@@ -1246,586 +1077,6 @@ class DenseTwoIndex(TwoIndex):
             np.fill_diagonal(self._array[:nocc,:nocc], 0)
 
 
-class DenseFourIndex(LinalgObject):
-    """Dense symmetric four-dimensional matrix.
-
-       This is the most inefficient implementation in terms of memory usage and
-       computer time. Due to its simplicity, it is trivial to implement. This
-       implementation mainly serves as a reference for testing purposes.
-    """
-    def __init__(self, nbasis):
-        """
-           **Arguments:**
-
-           nbasis
-                The number of basis functions.
-        """
-        self._array = np.zeros((nbasis, nbasis, nbasis, nbasis))
-        log.mem.announce(self._array.nbytes)
-
-    def __del__(self):
-        if log is not None:
-            if hasattr(self, '_array'):
-                log.mem.denounce(self._array.nbytes)
-
-    def __check_init_args__(self, nbasis):
-        assert nbasis == self.nbasis
-
-    @classmethod
-    def from_hdf5(cls, grp, lf):
-        nbasis = grp['array'].shape[0]
-        result = cls(nbasis)
-        grp['array'].read_direct(result._array)
-        return result
-
-    def to_hdf5(self, grp):
-        grp.attrs['class'] = self.__class__.__name__
-        grp['array'] = self._array
-
-    def _get_nbasis(self):
-        '''The number of basis functions'''
-        return self._array.shape[0]
-
-    nbasis = property(_get_nbasis)
-
-    def set_element(self, i, j, k, l, value):
-        #    <ij|kl> = <ji|lk> = <kl|ij> = <lk|ji> =
-        #    <il|kj> = <jk|li> = <kj|il> = <li|jk>
-        self._array[i,j,k,l] = value
-        self._array[j,i,l,k] = value
-        self._array[k,l,i,j] = value
-        self._array[l,k,j,i] = value
-        self._array[i,l,k,j] = value
-        self._array[j,k,l,i] = value
-        self._array[k,j,i,l] = value
-        self._array[l,i,j,k] = value
-
-    def get_element(self, i, j, k, l):
-        return self._array[i, j, k, l]
-
-    def get_slice(self, indices, out=None, subtract=False, clear=False):
-        """Returns a numpy array 2-index slice of the fourindex object.
-
-            ** Arguments **
-                indc_in
-                    A string of length 4, comprised of some combination of letters.
-                    These are the indices that will be read from the two electron integrals.
-                    The letters "x,y,z" are reserved for internal use.
-                    See numpy einstein summation documentation for an example.
-                indc_out
-                    A string, comprised of the same letters in indc_in.
-                    These are the output indices. Reversed order will give a transpose.
-                    See numpy einstein summation documentation for an example.
-        """
-        #error checking
-        indc_in,indc_out = "".join(indices.split()).split("->")
-        assert len(indc_in) == 4
-        assert set(indc_in) == set(indc_out)
-        assert len(set("xyz") & set(indc_in)) == 0
-        if out is not None:
-            if clear:
-                out[:] = 0.0
-            if subtract:
-                out -= np.einsum(indices,self._array)
-            else:
-                out += np.einsum(indices, self._array)
-            return out
-        else:
-            return np.einsum(indices, self._array)
-
-    def assign(self, other):
-        if not isinstance(other, DenseFourIndex):
-            raise TypeError('The other object must also be DenseFourIndex instance. Got ', type(other), ' instead.')
-        self._array[:] = other._array
-
-    def assign_array(self, other):
-        '''Assign a dense numpy array to the underlying representation.'''
-        self._array[:] = other[:]
-
-    def copy(self):
-        '''Return a copy of the current four-index operator'''
-        result = DenseFourIndex(self.nbasis)
-        result.assign(self)
-        return result
-
-    def iscale(self, factor):
-        self._array *= factor
-
-    def check_symmetry(self):
-        """Check the symmetry of the array."""
-        assert abs(self._array - self._array.transpose(1,0,3,2)).max() == 0.0
-        assert abs(self._array - self._array.transpose(2,3,0,1)).max() == 0.0
-        assert abs(self._array - self._array.transpose(3,2,1,0)).max() == 0.0
-        assert abs(self._array - self._array.transpose(2,1,0,3)).max() == 0.0
-        assert abs(self._array - self._array.transpose(3,0,1,2)).max() == 0.0
-        assert abs(self._array - self._array.transpose(0,3,2,1)).max() == 0.0
-        assert abs(self._array - self._array.transpose(1,2,3,0)).max() == 0.0
-
-    def transpose(self):
-        self._array = self._array.transpose(1,0,3,2)
-
-    def esum(self):
-        return np.sum(self._array)
-
-    def assign_hessian(self, other1, other2, other3, other4, other5):
-        for i in range(self.nbasis):
-            self._array[:,i,i,:] += other1._array
-            self._array[i,:,:,i] += other1._array
-            self._array[i,:,i,:] -= other1._array
-            self._array[:,i,:,i] -= other1._array
-            self._array[i,:,i,:] -= other2._array[i,:,:]
-            self._array[i,:,:,i] += other2._array[i,:,:]
-            self._array[:,i,:,i] -= other3._array[:,i,:]
-            self._array[:,i,i,:] += other3._array[:,i,:]
-            self._array[:,i,i,:] += other4._array[:,i,:]
-            self._array[:,i,:,i] -= other4._array[:,i,:]
-            self._array[i,:,:,i] += other5._array[i,:,:]
-            self._array[i,:,i,:] -= other5._array[i,:,:]
-
-    def contract_twoindex(self, other, other2, select, factor=1.0):
-        '''Contract other FourIndex with TwoIndex.
-
-           **Arguments:**
-
-           other
-                A DenseFourIndex object.
-
-           other2
-                A DenseTwoIndex object.
-
-           select:
-                Contraction type
-        '''
-        if select == 'cd-acbd':
-            self._array[:] += other.contract('cd->acbd', other2._array)*factor
-        elif select == 'cd-acdb':
-            self._array[:] += other.contract('cd->acdb', other2._array)*factor
-        elif select == 'cb-acdb':
-            self._array[:] += other.contract('cb->acdb', other2._array)*factor
-        elif select == 'cb-acbd':
-            self._array[:] += other.contract('cb->acbd', other2._array)*factor
-        elif select == 'ab-acbd':
-            self._array[:] += other.contract('ab->acbd', other2._array)*factor
-        elif select == 'ab-acdb':
-            self._array[:] += other.contract('ab->acdb', other2._array)*factor
-        elif select == 'ad-acbd':
-            self._array[:] += other.contract('ad->acbd', other2._array)*factor
-        elif select == 'ad-acdb':
-            self._array[:] += other.contract('ad->acdb', other2._array)*factor
-        elif select == 'ad-abcd':
-            self._array[:] += other.contract('ad->abcd', other2._array)*factor
-        elif select == 'ad-abdc':
-            self._array[:] += other.contract('ad->abdc', other2._array)*factor
-        elif select == 'bd-abcd':
-            self._array[:] += other.contract('bd->abcd', other2._array)*factor
-        elif select == 'bd-abdc':
-            self._array[:] += other.contract('bd->abdc', other2._array)*factor
-        elif select == 'bc-abdc':
-            self._array[:] += other.contract('bc->abdc', other2._array)*factor
-        elif select == 'bc-abcd':
-            self._array[:] += other.contract('bc->abcd', other2._array)*factor
-        elif select == 'ac-abcd':
-            self._array[:] += other.contract('ac->abcd', other2._array)*factor
-        elif select == 'ac-abdc':
-            self._array[:] += other.contract('ac->abdc', other2._array)*factor
-        else:
-            raise NotImplementedError
-
-    def contract(self, indices, arr):
-        ''' Contracts a dense 2-dim array with this DenseTwoIndex term.
-
-            ** Arguments: **
-
-            indices
-                A string with two sets of letters and "->" separating them.
-                These are the indices of the 2-dim array and the output.
-                The indices of this DenseFourIndex term will be "abcd".
-                See numpy einsum notation documentation for more details.
-
-            arr
-                The 2-dim dense numpy array to be contracted over.
-
-        '''
-        indc_in,indc_out = "".join(indices.split()).split("->")
-        assert len(indc_in) == 2 and len(indc_out) == 4
-        #TODO: add safety checks for indices? Einsum already checks...
-
-        return np.einsum('abcd,'+indices, self._array, arr)
-
-    def apply_direct(self, dm, output):
-        """Compute the direct dot product with a density matrix."""
-        if not isinstance(dm, DenseTwoIndex):
-            raise TypeError('The dm argument must be a DenseTwoIndex class. Got ', type(dm), ' instead.')
-        if not isinstance(output, DenseTwoIndex):
-            raise TypeError('The output argument must be a DenseTwoIndex class. Got ', type(output), ' instead.')
-        output.assign_array(np.tensordot(self._array, dm._get_dense(), ([1,3], [1,0])))
-
-    def apply_exchange(self, dm, output):
-        """Compute the exchange dot product with a density matrix."""
-        if not isinstance(dm, DenseTwoIndex):
-            raise TypeError('The dm argument must be a DenseTwoIndex class. Got ', type(dm), ' instead.')
-        if not isinstance(output, DenseTwoIndex):
-            raise TypeError('The output argument must be a DenseTwoIndex class. Got ', type(output), ' instead.')
-        output.assign_array(np.tensordot(self._array, dm._get_dense(), ([1,2], [1,0])))
-
-    def add_exchange_part(self):
-        '''Sort four-index exchange integrals for OAP1roG (<ij||kj> -> <ijk>)
-        '''
-        tmp = np.einsum('abcd->abdc', self._array)
-        self._array[:] = self._array-tmp
-        del tmp
-        return self._array
-
-    def apply_four_index_transform_tensordot(self, ao_integrals, aorb, aorb2=None, aorb3=None, aorb4=None):
-        '''Perform four index transformation using np.tensordot.
-        '''
-        if not aorb2:
-            aorb2 = aorb
-        if not aorb3:
-            aorb3 = aorb
-        if not aorb4:
-            aorb4 = aorb
-
-        if not isinstance(ao_integrals, DenseFourIndex):
-            raise TypeError('The AO integral argument must be a DenseFourIndex class. Got ', type(ao_integrals), ' instead.')
-        self._array[:] = np.tensordot(ao_integrals._array,aorb2.coeffs,axes=([0],[0]))
-        self._array[:] = np.tensordot(self._array,aorb.coeffs,axes=([0],[0]))
-        self._array[:] = np.tensordot(self._array,aorb4.coeffs,axes=([0],[0]))
-        self._array[:] = np.tensordot(self._array,aorb3.coeffs,axes=([0],[0]))
-
-    def apply_four_index_transform_einsum(self, ao_integrals, aorb, aorb2=None, aorb3=None, aorb4=None):
-        '''Perform four index transformation using np.einsum.
-        '''
-        if not aorb2:
-            aorb2 = aorb
-        if not aorb3:
-            aorb3 = aorb
-        if not aorb4:
-            aorb4 = aorb
-
-        if not isinstance(ao_integrals, DenseFourIndex):
-            raise TypeError('The AO integral argument must be a DenseFourIndex class. Got ', type(ao_integrals), ' instead.')
-        self._array[:] = np.einsum('st,pqrt->pqrs',aorb.coeffs.T,ao_integrals._array,order='C',casting='no')
-        self._array[:] = np.einsum('rs,pqst->pqrt',aorb2.coeffs.T,self._array,casting='no',order='C')
-        self._array[:] = np.einsum('qr,prst->pqst',aorb3.coeffs.T,self._array,casting='no',order='C')
-        self._array[:] = np.einsum('ab,bqrs->aqrs',aorb4.coeffs.T,self._array,casting='no',order='C')
-
-    def clear(self):
-        self._array[:] = 0.0
-
-    def apply_basis_permutation(self, permutation):
-        '''Reorder the coefficients for a given permutation of basis functions.
-        '''
-        self._array[:] = self._array[permutation]
-        self._array[:] = self._array[:,permutation]
-        self._array[:] = self._array[:,:,permutation]
-        self._array[:] = self._array[:,:,:,permutation]
-
-    def apply_basis_signs(self, signs):
-        '''Correct for different sign conventions of the basis functions.'''
-        self._array *= signs
-        self._array *= signs.reshape(-1,1)
-        self._array *= signs.reshape(-1,-1,1)
-        self._array *= signs.reshape(-1,-1,-1,1)
-
-class CholeskyFourIndex(DenseFourIndex):
-    """Dense symmetric four-dimensional matrix.
-
-       This is the most inefficient implementation in terms of memory usage and
-       computer time. Due to its simplicity, it is trivial to implement. This
-       implementation mainly serves as a reference for testing purposes.
-    """
-    def __init__(self, nbasis, nvec=None, array=None):
-        """
-           **Arguments:**
-
-           nbasis
-                The number of basis functions.
-        """
-        self._array = None
-        self._array2 = self._array
-
-        if array is not None:
-            self.assign_array(array)
-        elif nvec is not None:
-            self.assign_array(np.zeros([nvec, nbasis, nbasis]))
-
-        if self._array is not None:
-            log.mem.announce(self._array.nbytes)
-
-    def __del__(self):
-        if log is not None:
-            if hasattr(self, '_array'):
-                log.mem.denounce(self._array.nbytes)
-                if self._array2 is not self._array:
-                    log.mem.denounce(self._array2.nbytes)
-
-    def __check_init_args__(self, nbasis):
-        assert nbasis == self.nbasis
-        assert self._array is not None
-
-    def reset_array2(self):
-        """ Deallocates the second cholesky vector and sets it to match the first.
-        """
-        self._array2 = self._array
-
-    @classmethod
-    def from_hdf5(cls, grp, lf):
-        nbasis = grp['array'].shape[0]
-        result = cls(nbasis)
-        grp['array'].read_direct(result._array)
-        return result
-
-    def to_hdf5(self, grp):
-        grp.attrs['class'] = self.__class__.__name__
-        grp['array'] = self._array
-
-    def _get_nbasis(self):
-        '''The number of basis functions'''
-        return self._array.shape[1]
-
-    nbasis = property(_get_nbasis)
-
-    def set_element(self, i, j, k, l, value):
-        #    <ij|kl> = <ji|lk> = <kl|ij> = <lk|ji> =
-        #    <il|kj> = <jk|li> = <kj|il> = <li|jk>
-        raise NotImplementedError
-
-    def get_element(self, i, j, k, l):
-        return np.dot(self._array[:,i,k], self._array2[:,j,l])
-
-    def get_slice(self, indices, out=None, subtract=False, clear=True):
-        """Returns a numpy array 2-index slice of the fourindex object.
-
-            ** Arguments **
-                indc_in
-                    A string of length 4, comprised of some combination of letters.
-                    These are the indices that will be read from the two electron integrals.
-                    The letters "x,y,z" are reserved for internal use.
-                    See numpy einstein summation documentation for an example.
-                indc_out
-                    A string, comprised of the same letters in indc_in.
-                    These are the output indices. Reversed order will give a transpose.
-                    See numpy einstein summation documentation for an example.
-
-            ** Optional Arguments **
-                out
-                    A numpy array for storing the results.
-                factor
-                    A scaling factor to multiply the results being stored to out
-                clear
-                    A boolean that determines whether the output array is
-                    cleared. Defaults to True.
-        """
-
-        indc_in,indc_out = "".join(indices.split()).split("->")
-        assert len(indc_in) == 4
-        assert set(indc_in) == set(indc_out)
-        assert len(set("xyz") & set(indc_in)) == 0
-
-
-        if out is None:
-            dims = [self.nbasis, self.nbasis]
-            if len(indc_out) == 3:
-                dims += [self.nbasis]
-            out = np.zeros(dims)
-        elif clear:
-            out[:] = 0.0
-
-        if indices == 'abbc->abc': #abbc
-            if subtract:
-                subtract_slice_abbc(self._array, self._array2, out, self.nbasis,
-                                        self._array.shape[0])
-            else:
-                compute_slice_abbc(self._array, self._array2, out, self.nbasis,
-                                        self._array.shape[0])
-#            for i in np.arange(self._array.shape[0]):
-#                out += np.einsum('ab,bc->abc',self._array[i,:,:],
-#                                        self._array2[i,:,:])
-        elif subtract:
-            raise NotImplementedError
-        elif indices == 'abcc->bac': #acbc
-            print self._array.shape, self._array2.shape, out.shape, self.nbasis
-            compute_slice_abcc(self._array, self._array2, out, self.nbasis,
-                                                    self._array.shape[0])
-            out = out.swapaxes(0,1) #DOES THIS WORK?
-#            for i in np.arange(self._array.shape[0]):
-#                out += np.einsum('ac,bc->bac', self._array[i,:,:],
-#                                        self._array2[i,:,:])
-        elif indices == 'abcc->abc': #acbc
-            compute_slice_abcc(self._array, self._array2, out, self.nbasis,
-                                self._array.shape[0])
-#            for i in np.arange(self._array.shape[0]):
-#                out += np.einsum('ac,bc->abc', self._array[i,:,:],
-#                                        self._array2[i,:,:])
-        elif indices == 'abcb->abc': #acbb
-            L_r = np.diagonal(self._array2, axis1=1, axis2=2)
-            out[:] = np.tensordot(self._array, L_r, [0,0]).swapaxes(1,2)
-        else:
-            #error checking
-            idx_string = "x{},x{}->{}".format(indc_in[0]+indc_in[2],
-                                               indc_in[1]+indc_in[3],
-                                               indc_out)
-
-            out[:] = np.einsum(idx_string, self._array, self._array2)
-        return out
-
-    def _get_dense(self):
-        ''' ONLY FOR TESTING. Super expensive operation!
-        '''
-        return np.einsum('kac,kbd->abcd', self._array, self._array2)
-
-    def assign(self, other):
-        if not isinstance(other, CholeskyFourIndex):
-            raise TypeError('The other object must also be CholeskyFourIndex instance. . Got ', type(other), ' instead.')
-        if self._array is None:
-            self._array = np.ndarray(other._array.shape)
-            log.mem.announce(self._array.nbytes)
-
-        self._array[:] = other._array
-        if other._array is other._array2:
-            #arrays are the same
-            self._array2 = self._array
-        else:
-            #arrays have been transformed
-            if self._array is None:
-                self._array2 = np.ndarray(other._array2.shape)
-                log.mem.announce(self._array2.nbytes)
-
-            self._array2[:] = other._array2
-
-    def assign_array(self, other):
-        ''''''
-        if not isinstance(other, np.ndarray):
-            raise TypeError('The other object must be np.ndarray instance. . Got ', type(other), ' instead.')
-
-        self._array = other.copy() #maybe copy not needed?
-        self._array2 = self._array
-
-    def copy(self):
-        '''Return a copy of the current four-index operator'''
-        result = CholeskyFourIndex(self.nbasis)
-        result.assign(self)
-        return result
-
-    def iscale(self, factor):
-        self._array *= np.sqrt(factor)
-
-        if self._array is not self._array2:
-            #arrays have been transformed
-            self._array2 *= np.sqrt(factor)
-
-    def check_symmetry(self):
-        """Check the symmetry of the array."""
-        raise NotImplementedError
-
-    def transpose(self):
-        if self._array is not self._array2:
-            #arrays have been transformed
-            temp = self._array
-            self._array = self._array2
-            self._array2 = temp
-
-    def esum(self):
-        return np.tensordot(self._array, self._array2,(0,0)).sum() #expensive!!
-
-    def apply_direct(self, dm, output):
-        """Compute the direct dot product with a density matrix."""
-        if not isinstance(dm, DenseTwoIndex):
-            raise TypeError('The dm argument must be a DenseTwoIndex class. Got ', type(dm), ' instead.')
-        if not isinstance(output, DenseTwoIndex):
-            raise TypeError('The output argument must be a DenseTwoIndex class. Got ', type(output), ' instead.')
-        result = np.tensordot(self._array, np.tensordot(self._array2, dm._get_dense(), axes=([(1,2),(1,0)])), [0,0])
-        output.assign_array(result)
-
-    def apply_exchange(self, dm, output):
-        """Compute the exchange dot product with a density matrix."""
-        if not isinstance(dm, DenseTwoIndex):
-            raise TypeError('The dm argument must be a DenseTwoIndex class. Got ', type(dm), ' instead.')
-        if not isinstance(output, DenseTwoIndex):
-            raise TypeError('The output argument must be a DenseTwoIndex class. Got ', type(output), ' instead.')
-        result = np.tensordot(self._array, np.tensordot(self._array2, dm._get_dense(), axes=([2,1])), ([0,2],[0,2]))
-        output.assign_array(result)
-
-    def apply_four_index_transform_tensordot(self, ao_integrals, aorb, aorb2=None, aorb3=None, aorb4=None):
-        '''Perform four index transformation using np.tensordot.
-        '''
-        if aorb2 is None and aorb4 is None:
-            aorb2 = aorb
-        else:
-            aorb2 = aorb4
-
-        if aorb3 is None:
-            aorb3 = aorb
-        if aorb4 is None:
-            aorb4 = aorb2
-
-        if aorb != aorb3 or aorb2 != aorb4:
-            raise NotImplementedError
-
-        if not isinstance(ao_integrals, CholeskyFourIndex):
-            raise TypeError('The AO integral argument must be a CholeskyFourIndex class. Got ', type(ao_integrals), ' instead.')
-        self._array[:] = np.tensordot(ao_integrals._array, aorb2.coeffs, axes=([1],[0]))
-        self._array[:] = np.tensordot(self._array, aorb2.coeffs, axes=([1],[0]))
-
-        if aorb != aorb2 and aorb3 != aorb4:
-            if self._array is self._array2:
-                #must allocate memory first
-                self._array2 = np.zeros_like(self._array)
-                log.mem.announce(self._array2.nbytes)
-            self._array2[:] = np.tensordot(ao_integrals._array, aorb.coeffs, axes=([1],[0]))
-            self._array2[:] = np.tensordot(self._array2, aorb.coeffs, axes=([1],[0]))
-
-
-    def apply_four_index_transform_einsum(self, ao_integrals, aorb, aorb2=None, aorb3=None, aorb4=None):
-        '''Perform four index transformation using np.einsum.
-        '''
-        if aorb2 is None and aorb4 is None:
-            aorb2 = aorb
-        else:
-            aorb2 = aorb4
-
-        if aorb3 is None:
-            aorb3 = aorb
-        if aorb4 is None:
-            aorb4 = aorb2
-
-        if aorb != aorb3 or aorb2 != aorb4:
-            raise NotImplementedError
-
-        if not isinstance(ao_integrals, CholeskyFourIndex):
-            raise TypeError('The AO integral argument must be a CholeskyFourIndex class. Got ', type(ao_integrals), ' instead.')
-        self._array[:] = np.einsum('ai,kab->kib',aorb2.coeffs,ao_integrals._array)
-        self._array[:] = np.einsum('bj,kib->kij',aorb2.coeffs,self._array)
-
-        if aorb != aorb2 and aorb3 != aorb4:
-            if self._array is self._array2:
-                #must allocate memory first
-                self._array2 = np.zeros_like(self._array)
-                log.mem.announce(self._array2.nbytes)
-            self._array2[:] = np.einsum('ai,kab->kib',aorb.coeffs,ao_integrals._array2)
-            self._array2[:] = np.einsum('bj,kib->kij',aorb.coeffs,self._array2)
-
-    def clear(self):
-        self._array[:] = 0.0
-        if self._array is not self._array2:
-            self._array2[:] = 0.0
-
-    def apply_basis_permutation(self, permutation):
-        '''Reorder the coefficients for a given permutation of basis functions.
-        '''
-        raise NotImplementedError
-
-    def apply_basis_signs(self, signs):
-        '''Correct for different sign conventions of the basis functions.'''
-        raise NotImplementedError
-
-    def add_exchange_part(self):
-        '''Sort four-index exchange integrals for OAP1roG (<ij||kj> -> <ijk>)
-        '''
-        raise NotImplementedError
-
-
 class DenseThreeIndex(LinalgObject):
     """Dense three-dimensional object.
 
@@ -2191,3 +1442,286 @@ class DenseThreeIndex(LinalgObject):
                     self._array[(a+nocc),i,i] = 0.0
         else:
             raise NotImplementedError
+
+
+class DenseFourIndex(LinalgObject):
+    """Dense symmetric four-dimensional matrix.
+
+       This is the most inefficient implementation in terms of memory usage and
+       computer time. Due to its simplicity, it is trivial to implement. This
+       implementation mainly serves as a reference for testing purposes.
+    """
+    def __init__(self, nbasis):
+        """
+           **Arguments:**
+
+           nbasis
+                The number of basis functions.
+        """
+        self._array = np.zeros((nbasis, nbasis, nbasis, nbasis))
+        log.mem.announce(self._array.nbytes)
+
+    def __del__(self):
+        if log is not None:
+            if hasattr(self, '_array'):
+                log.mem.denounce(self._array.nbytes)
+
+    def __check_init_args__(self, nbasis):
+        assert nbasis == self.nbasis
+
+    @classmethod
+    def from_hdf5(cls, grp, lf):
+        nbasis = grp['array'].shape[0]
+        result = cls(nbasis)
+        grp['array'].read_direct(result._array)
+        return result
+
+    def to_hdf5(self, grp):
+        grp.attrs['class'] = self.__class__.__name__
+        grp['array'] = self._array
+
+    def _get_nbasis(self):
+        '''The number of basis functions'''
+        return self._array.shape[0]
+
+    nbasis = property(_get_nbasis)
+
+    def set_element(self, i, j, k, l, value):
+        #    <ij|kl> = <ji|lk> = <kl|ij> = <lk|ji> =
+        #    <il|kj> = <jk|li> = <kj|il> = <li|jk>
+        self._array[i,j,k,l] = value
+        self._array[j,i,l,k] = value
+        self._array[k,l,i,j] = value
+        self._array[l,k,j,i] = value
+        self._array[i,l,k,j] = value
+        self._array[j,k,l,i] = value
+        self._array[k,j,i,l] = value
+        self._array[l,i,j,k] = value
+
+    def get_element(self, i, j, k, l):
+        return self._array[i, j, k, l]
+
+    def get_slice(self, indices, out=None, subtract=False, clear=False):
+        """Returns a numpy array 2-index slice of the fourindex object.
+
+            ** Arguments **
+                indc_in
+                    A string of length 4, comprised of some combination of letters.
+                    These are the indices that will be read from the two electron integrals.
+                    The letters "x,y,z" are reserved for internal use.
+                    See numpy einstein summation documentation for an example.
+                indc_out
+                    A string, comprised of the same letters in indc_in.
+                    These are the output indices. Reversed order will give a transpose.
+                    See numpy einstein summation documentation for an example.
+        """
+        #error checking
+        indc_in,indc_out = "".join(indices.split()).split("->")
+        assert len(indc_in) == 4
+        assert set(indc_in) == set(indc_out)
+        assert len(set("xyz") & set(indc_in)) == 0
+        if out is not None:
+            if clear:
+                out[:] = 0.0
+            if subtract:
+                out -= np.einsum(indices,self._array)
+            else:
+                out += np.einsum(indices, self._array)
+            return out
+        else:
+            return np.einsum(indices, self._array)
+
+    def assign(self, other):
+        if not isinstance(other, DenseFourIndex):
+            raise TypeError('The other object must also be DenseFourIndex instance. Got ', type(other), ' instead.')
+        self._array[:] = other._array
+
+    def assign_array(self, other):
+        '''Assign a dense numpy array to the underlying representation.'''
+        self._array[:] = other[:]
+
+    def copy(self):
+        '''Return a copy of the current four-index operator'''
+        result = DenseFourIndex(self.nbasis)
+        result.assign(self)
+        return result
+
+    def iscale(self, factor):
+        self._array *= factor
+
+    def check_symmetry(self):
+        """Check the symmetry of the array."""
+        assert abs(self._array - self._array.transpose(1,0,3,2)).max() == 0.0
+        assert abs(self._array - self._array.transpose(2,3,0,1)).max() == 0.0
+        assert abs(self._array - self._array.transpose(3,2,1,0)).max() == 0.0
+        assert abs(self._array - self._array.transpose(2,1,0,3)).max() == 0.0
+        assert abs(self._array - self._array.transpose(3,0,1,2)).max() == 0.0
+        assert abs(self._array - self._array.transpose(0,3,2,1)).max() == 0.0
+        assert abs(self._array - self._array.transpose(1,2,3,0)).max() == 0.0
+
+    def transpose(self):
+        self._array = self._array.transpose(1,0,3,2)
+
+    def esum(self):
+        return np.sum(self._array)
+
+    def assign_hessian(self, other1, other2, other3, other4, other5):
+        for i in range(self.nbasis):
+            self._array[:,i,i,:] += other1._array
+            self._array[i,:,:,i] += other1._array
+            self._array[i,:,i,:] -= other1._array
+            self._array[:,i,:,i] -= other1._array
+            self._array[i,:,i,:] -= other2._array[i,:,:]
+            self._array[i,:,:,i] += other2._array[i,:,:]
+            self._array[:,i,:,i] -= other3._array[:,i,:]
+            self._array[:,i,i,:] += other3._array[:,i,:]
+            self._array[:,i,i,:] += other4._array[:,i,:]
+            self._array[:,i,:,i] -= other4._array[:,i,:]
+            self._array[i,:,:,i] += other5._array[i,:,:]
+            self._array[i,:,i,:] -= other5._array[i,:,:]
+
+    def contract_twoindex(self, other, other2, select, factor=1.0):
+        '''Contract other FourIndex with TwoIndex.
+
+           **Arguments:**
+
+           other
+                A DenseFourIndex object.
+
+           other2
+                A DenseTwoIndex object.
+
+           select:
+                Contraction type
+        '''
+        if select == 'cd-acbd':
+            self._array[:] += other.contract('cd->acbd', other2._array)*factor
+        elif select == 'cd-acdb':
+            self._array[:] += other.contract('cd->acdb', other2._array)*factor
+        elif select == 'cb-acdb':
+            self._array[:] += other.contract('cb->acdb', other2._array)*factor
+        elif select == 'cb-acbd':
+            self._array[:] += other.contract('cb->acbd', other2._array)*factor
+        elif select == 'ab-acbd':
+            self._array[:] += other.contract('ab->acbd', other2._array)*factor
+        elif select == 'ab-acdb':
+            self._array[:] += other.contract('ab->acdb', other2._array)*factor
+        elif select == 'ad-acbd':
+            self._array[:] += other.contract('ad->acbd', other2._array)*factor
+        elif select == 'ad-acdb':
+            self._array[:] += other.contract('ad->acdb', other2._array)*factor
+        elif select == 'ad-abcd':
+            self._array[:] += other.contract('ad->abcd', other2._array)*factor
+        elif select == 'ad-abdc':
+            self._array[:] += other.contract('ad->abdc', other2._array)*factor
+        elif select == 'bd-abcd':
+            self._array[:] += other.contract('bd->abcd', other2._array)*factor
+        elif select == 'bd-abdc':
+            self._array[:] += other.contract('bd->abdc', other2._array)*factor
+        elif select == 'bc-abdc':
+            self._array[:] += other.contract('bc->abdc', other2._array)*factor
+        elif select == 'bc-abcd':
+            self._array[:] += other.contract('bc->abcd', other2._array)*factor
+        elif select == 'ac-abcd':
+            self._array[:] += other.contract('ac->abcd', other2._array)*factor
+        elif select == 'ac-abdc':
+            self._array[:] += other.contract('ac->abdc', other2._array)*factor
+        else:
+            raise NotImplementedError
+
+    def contract(self, indices, arr):
+        ''' Contracts a dense 2-dim array with this DenseTwoIndex term.
+
+            ** Arguments: **
+
+            indices
+                A string with two sets of letters and "->" separating them.
+                These are the indices of the 2-dim array and the output.
+                The indices of this DenseFourIndex term will be "abcd".
+                See numpy einsum notation documentation for more details.
+
+            arr
+                The 2-dim dense numpy array to be contracted over.
+
+        '''
+        indc_in,indc_out = "".join(indices.split()).split("->")
+        assert len(indc_in) == 2 and len(indc_out) == 4
+        #TODO: add safety checks for indices? Einsum already checks...
+
+        return np.einsum('abcd,'+indices, self._array, arr)
+
+    def apply_direct(self, dm, output):
+        """Compute the direct dot product with a density matrix."""
+        if not isinstance(dm, DenseTwoIndex):
+            raise TypeError('The dm argument must be a DenseTwoIndex class. Got ', type(dm), ' instead.')
+        if not isinstance(output, DenseTwoIndex):
+            raise TypeError('The output argument must be a DenseTwoIndex class. Got ', type(output), ' instead.')
+        output.assign_array(np.tensordot(self._array, dm._get_dense(), ([1,3], [1,0])))
+
+    def apply_exchange(self, dm, output):
+        """Compute the exchange dot product with a density matrix."""
+        if not isinstance(dm, DenseTwoIndex):
+            raise TypeError('The dm argument must be a DenseTwoIndex class. Got ', type(dm), ' instead.')
+        if not isinstance(output, DenseTwoIndex):
+            raise TypeError('The output argument must be a DenseTwoIndex class. Got ', type(output), ' instead.')
+        output.assign_array(np.tensordot(self._array, dm._get_dense(), ([1,2], [1,0])))
+
+    def add_exchange_part(self):
+        '''Sort four-index exchange integrals for OAP1roG (<ij||kj> -> <ijk>)
+        '''
+        tmp = np.einsum('abcd->abdc', self._array)
+        self._array[:] = self._array-tmp
+        del tmp
+        return self._array
+
+    def apply_four_index_transform_tensordot(self, ao_integrals, aorb, aorb2=None, aorb3=None, aorb4=None):
+        '''Perform four index transformation using np.tensordot.
+        '''
+        if not aorb2:
+            aorb2 = aorb
+        if not aorb3:
+            aorb3 = aorb
+        if not aorb4:
+            aorb4 = aorb
+
+        if not isinstance(ao_integrals, DenseFourIndex):
+            raise TypeError('The AO integral argument must be a DenseFourIndex class. Got ', type(ao_integrals), ' instead.')
+        self._array[:] = np.tensordot(ao_integrals._array,aorb2.coeffs,axes=([0],[0]))
+        self._array[:] = np.tensordot(self._array,aorb.coeffs,axes=([0],[0]))
+        self._array[:] = np.tensordot(self._array,aorb4.coeffs,axes=([0],[0]))
+        self._array[:] = np.tensordot(self._array,aorb3.coeffs,axes=([0],[0]))
+
+    def apply_four_index_transform_einsum(self, ao_integrals, aorb, aorb2=None, aorb3=None, aorb4=None):
+        '''Perform four index transformation using np.einsum.
+        '''
+        if not aorb2:
+            aorb2 = aorb
+        if not aorb3:
+            aorb3 = aorb
+        if not aorb4:
+            aorb4 = aorb
+
+        if not isinstance(ao_integrals, DenseFourIndex):
+            raise TypeError('The AO integral argument must be a DenseFourIndex class. Got ', type(ao_integrals), ' instead.')
+        self._array[:] = np.einsum('st,pqrt->pqrs',aorb.coeffs.T,ao_integrals._array,order='C',casting='no')
+        self._array[:] = np.einsum('rs,pqst->pqrt',aorb2.coeffs.T,self._array,casting='no',order='C')
+        self._array[:] = np.einsum('qr,prst->pqst',aorb3.coeffs.T,self._array,casting='no',order='C')
+        self._array[:] = np.einsum('ab,bqrs->aqrs',aorb4.coeffs.T,self._array,casting='no',order='C')
+
+    def clear(self):
+        self._array[:] = 0.0
+
+    def apply_basis_permutation(self, permutation):
+        '''Reorder the coefficients for a given permutation of basis functions.
+        '''
+        self._array[:] = self._array[permutation]
+        self._array[:] = self._array[:,permutation]
+        self._array[:] = self._array[:,:,permutation]
+        self._array[:] = self._array[:,:,:,permutation]
+
+    def apply_basis_signs(self, signs):
+        '''Correct for different sign conventions of the basis functions.'''
+        self._array *= signs
+        self._array *= signs.reshape(-1,1)
+        self._array *= signs.reshape(-1,-1,1)
+        self._array *= signs.reshape(-1,-1,-1,1)

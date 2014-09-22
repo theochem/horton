@@ -17,17 +17,19 @@
 // along with this program; if not, see <http://www.gnu.org/licenses/>
 //
 //--
+
 #include <iostream>
+#include "slicing.h"
 
 void get_slice_abcc(double* inp, double* inp2, double* out, long nbasis, long nvec){
     for (long k=0; k<nvec; k++){
         for (long a=0; a<nbasis; a++){
             for (long b=0; b<nbasis; b++){
                 for (long c=0; c<nbasis; c++){
-            out[a*nbasis*nbasis + b*nbasis + c] += inp[k*nbasis*nbasis + a*nbasis + c] * inp2[k*nbasis*nbasis + b*nbasis + c];
+                    out[a*nbasis*nbasis + b*nbasis + c] += inp[k*nbasis*nbasis + a*nbasis + c] * inp2[k*nbasis*nbasis + b*nbasis + c];
+                }
+            }
         }
-        }
-    }
     }
 }
 void get_slice_abbc(double* inp, double* inp2, double* out, long nbasis, long nvec){
@@ -35,10 +37,10 @@ void get_slice_abbc(double* inp, double* inp2, double* out, long nbasis, long nv
         for (long a=0; a<nbasis; a++){
             for (long c=0; c<nbasis; c++){
                 for (long b=0; b<nbasis; b++){
-            out[a*nbasis*nbasis + b*nbasis + c] += inp[k*nbasis*nbasis + a*nbasis + b] * inp2[k*nbasis*nbasis + b*nbasis + c];
+                    out[a*nbasis*nbasis + b*nbasis + c] += inp[k*nbasis*nbasis + a*nbasis + b] * inp2[k*nbasis*nbasis + b*nbasis + c];
+                }
+            }
         }
-        }
-    }
     }
 
 }
@@ -48,10 +50,10 @@ void sub_slice_abbc(double* inp, double* inp2, double* out, long nbasis, long nv
         for (long a=0; a<nbasis; a++){
             for (long c=0; c<nbasis; c++){
                 for (long b=0; b<nbasis; b++){
-            out[a*nbasis*nbasis + b*nbasis + c] -= inp[k*nbasis*nbasis + a*nbasis + b] * inp2[k*nbasis*nbasis + b*nbasis + c];
+                    out[a*nbasis*nbasis + b*nbasis + c] -= inp[k*nbasis*nbasis + a*nbasis + b] * inp2[k*nbasis*nbasis + b*nbasis + c];
+                }
+            }
         }
-        }
-    }
     }
 
 }

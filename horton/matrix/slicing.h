@@ -18,8 +18,8 @@
 //
 //--
 
-#ifndef HORTON_MATRIX_H
-#define HORTON_MATRIX_H
+#ifndef HORTON_MATRIX_SLICING_H
+#define HORTON_MATRIX_SLICING_H
 
 void get_slice_abcc(double* inp, double* inp2, double* out, long nbasis, long nvec);
 void get_slice_abbc(double* inp, double* inp2, double* out, long nbasis, long nvec);

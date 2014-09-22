@@ -18,9 +18,3 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-
-
-cdef extern from "matrix.h":
-    void get_slice_abcc(double* inp, double* inp2, double* out, long nbasis, long nvec)
-    void get_slice_abbc(double* inp, double* inp2, double* out, long nbasis, long nvec)
-    void sub_slice_abbc(double* inp, double* inp2, double* out, long nbasis, long nvec)
