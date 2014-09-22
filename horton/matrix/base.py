@@ -23,6 +23,7 @@
 
 __all__ = [
     'LinalgFactory', 'LinalgObject', 'Expansion', 'OneIndex', 'TwoIndex',
+    'ThreeIndex', 'FourIndex',
 ]
 
 
@@ -71,6 +72,9 @@ class LinalgFactory(object):
 
 
 class LinalgObject(object):
+    def __check_init_args__(self, nbasis):
+        raise NotImplementedError
+
     def apply_basis_permutation(self, permutation):
         raise NotImplementedError
 
@@ -85,6 +89,7 @@ class LinalgObject(object):
         raise NotImplementedError
 
     def __clear__(self):
+        '''Part of the API specified in horton.cache'''
         self.clear()
 
     def clear(self):
@@ -105,23 +110,30 @@ class Expansion(LinalgObject):
         raise NotImplementedError
 
 
-class OneIndex(LinalgObject):
-    '''vector class'''
+class NIndexObject(LinalgObject):
     def __init__(self, nbasis):
         raise NotImplementedError
 
-
-class TwoIndex(LinalgObject):
-    def __init__(self, nbasis):
+    def iadd(self, other, factor=1):
         raise NotImplementedError
 
+    def iscale(self, factor):
+        raise NotImplementedError
+
+
+class OneIndex(NIndexObject):
+    def set_element(self, i, value):
+        raise NotImplementedError
+
+    def get_element(self, i):
+        raise NotImplementedError
+
+
+class TwoIndex(NIndexObject):
     def set_element(self, i, j, value):
         raise NotImplementedError
 
     def get_element(self, i, j):
-        raise NotImplementedError
-
-    def iadd(self, other, factor=1):
         raise NotImplementedError
 
     def expectation_value(self, dm):
@@ -133,8 +145,21 @@ class TwoIndex(LinalgObject):
     def itranspose(self):
         raise NotImplementedError
 
-    def iscale(self, factor):
+    def dot(self, vec0, vec1):
         raise NotImplementedError
 
-    def dot(self, vec0, vec1):
+
+class ThreeIndex(NIndexObject):
+    def set_element(self, i, j, k, value):
+        raise NotImplementedError
+
+    def get_element(self, i, j, k):
+        raise NotImplementedError
+
+
+class FourIndex(NIndexObject):
+    def set_element(self, i, j, k, l, value):
+        raise NotImplementedError
+
+    def get_element(self, i, j, k, l):
         raise NotImplementedError

@@ -23,7 +23,7 @@
 
 import numpy as np
 from horton.log import log
-from horton.matrix.base import LinalgFactory, LinalgObject, Expansion, OneIndex, TwoIndex
+from horton.matrix.base import LinalgFactory, LinalgObject, Expansion, OneIndex, TwoIndex, ThreeIndex, FourIndex
 
 
 __all__ = [
@@ -1077,7 +1077,7 @@ class DenseTwoIndex(TwoIndex):
             np.fill_diagonal(self._array[:nocc,:nocc], 0)
 
 
-class DenseThreeIndex(LinalgObject):
+class DenseThreeIndex(ThreeIndex):
     """Dense three-dimensional object.
 
        This is the most inefficient implementation in terms of memory usage and
@@ -1444,7 +1444,7 @@ class DenseThreeIndex(LinalgObject):
             raise NotImplementedError
 
 
-class DenseFourIndex(LinalgObject):
+class DenseFourIndex(FourIndex):
     """Dense symmetric four-dimensional matrix.
 
        This is the most inefficient implementation in terms of memory usage and
