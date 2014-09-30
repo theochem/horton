@@ -62,7 +62,7 @@ def convergence_error_eigen(ham, lf, overlap, *exps):
     ham.compute_fock(*focks)
     error = 0.0
     for i in xrange(ham.ndm):
-        error += lf.error_eigen(focks[i], overlap, exps[i])
+        error += exps[i].error_eigen(focks[i], overlap)
     return error
 
 
@@ -97,5 +97,5 @@ def convergence_error_commutator(ham, lf, overlap, *dms):
     errorsq = 0.0
     for i in xrange(ham.ndm):
         compute_commutator(dms[i], focks[i], overlap, work, commutator)
-        errorsq += commutator.expectation_value(commutator)
+        errorsq += commutator.contract_two('ab,ab', commutator)
     return errorsq**0.5

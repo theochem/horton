@@ -6,8 +6,5 @@ rm -vr dist
 rm -vr build
 rm -vr doctrees
 rm -v horton/cext.cpp
-rm -v horton/gbasis/cext.cpp
-rm -v horton/grid/cext.cpp
-rm -v horton/meanfield/cext.cpp
-rm -v horton/espfit/cext.cpp
+rm -v horton/*/cext.cpp
 exit 0

@@ -27,11 +27,11 @@ import numpy as np
 def test_rotation_energy():
     mol = Molecule.from_file(context.get_fn('test/he_spdf_orbital.fchk'))
     kin = mol.obasis.compute_kinetic(mol.lf)
-    e0 = kin.expectation_value(mol.exp_alpha.to_dm())
+    e0 = kin.contract_two('ab,ba', mol.exp_alpha.to_dm())
     for irep in xrange(100):
         rmat = get_random_rotation()
         mol.exp_alpha.coeffs[:] = rotate_coeffs(mol.exp_alpha.coeffs, mol.obasis, rmat)
-        e1 = kin.expectation_value(mol.exp_alpha.to_dm())
+        e1 = kin.contract_two('ab,ba', mol.exp_alpha.to_dm())
         assert abs(e0 - e1) < 1e-10
 
 

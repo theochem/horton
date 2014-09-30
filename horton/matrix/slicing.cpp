@@ -18,42 +18,61 @@
 //
 //--
 
-#include <iostream>
+#include <cstring>
 #include "slicing.h"
 
-void get_slice_abcc(double* inp, double* inp2, double* out, long nbasis, long nvec){
+void slice_to_three_abbc_abc(double* inp, double* inp2, double* out, double factor, bool clear, long nbasis, long nvec) {
+    if (clear) {
+        memset(out, 0, sizeof(double)*nbasis*nbasis*nbasis);
+    }
+    for (long k=0; k<nvec; k++){
+        for (long a=0; a<nbasis; a++){
+            for (long c=0; c<nbasis; c++){
+                for (long b=0; b<nbasis; b++){
+                    out[(a*nbasis + b)*nbasis + c] +=
+                        factor *
+                        inp[(k*nbasis + a)*nbasis + b] *
+                        inp2[(k*nbasis + b)*nbasis + c];
+                }
+            }
+        }
+    }
+}
+
+
+void slice_to_three_abcc_bac(double* inp, double* inp2, double* out, double factor, bool clear, long nbasis, long nvec) {
+    if (clear) {
+        memset(out, 0, sizeof(double)*nbasis*nbasis*nbasis);
+    }
     for (long k=0; k<nvec; k++){
         for (long a=0; a<nbasis; a++){
             for (long b=0; b<nbasis; b++){
                 for (long c=0; c<nbasis; c++){
-                    out[a*nbasis*nbasis + b*nbasis + c] += inp[k*nbasis*nbasis + a*nbasis + c] * inp2[k*nbasis*nbasis + b*nbasis + c];
+                    out[(b*nbasis + a)*nbasis + c] +=
+                        factor *
+                        inp[(k*nbasis + a)*nbasis + c] *
+                        inp2[(k*nbasis + b)*nbasis + c];
                 }
             }
         }
     }
 }
-void get_slice_abbc(double* inp, double* inp2, double* out, long nbasis, long nvec){
+
+
+void slice_to_three_abcc_abc(double* inp, double* inp2, double* out, double factor, bool clear, long nbasis, long nvec) {
+    if (clear) {
+        memset(out, 0, sizeof(double)*nbasis*nbasis*nbasis);
+    }
     for (long k=0; k<nvec; k++){
         for (long a=0; a<nbasis; a++){
-            for (long c=0; c<nbasis; c++){
-                for (long b=0; b<nbasis; b++){
-                    out[a*nbasis*nbasis + b*nbasis + c] += inp[k*nbasis*nbasis + a*nbasis + b] * inp2[k*nbasis*nbasis + b*nbasis + c];
+            for (long b=0; b<nbasis; b++){
+                for (long c=0; c<nbasis; c++){
+                    out[(a*nbasis + b)*nbasis + c] +=
+                        factor *
+                        inp[(k*nbasis + a)*nbasis + c] *
+                        inp2[(k*nbasis + b)*nbasis + c];
                 }
             }
         }
     }
-
-}
-
-void sub_slice_abbc(double* inp, double* inp2, double* out, long nbasis, long nvec){
-    for (long k=0; k<nvec; k++){
-        for (long a=0; a<nbasis; a++){
-            for (long c=0; c<nbasis; c++){
-                for (long b=0; b<nbasis; b++){
-                    out[a*nbasis*nbasis + b*nbasis + c] -= inp[k*nbasis*nbasis + a*nbasis + b] * inp2[k*nbasis*nbasis + b*nbasis + c];
-                }
-            }
-        }
-    }
-
 }

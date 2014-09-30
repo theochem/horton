@@ -85,7 +85,7 @@ class FixedOccModel(OccModel):
         if len(dms) != len(self.occ_arrays):
             raise TypeError('The number of density matrices is incorrect.')
         for dm, occ_array in zip(dms, self.occ_arrays):
-            assert abs(overlap.expectation_value(dm) - occ_array.sum()) < eps
+            assert abs(overlap.contract_two('ab,ba', dm) - occ_array.sum()) < eps
 
 
 class AufbauOccModel(OccModel):
@@ -134,7 +134,7 @@ class AufbauOccModel(OccModel):
         if len(dms) != len(self.noccs):
             raise TypeError('The number of density matrices is incorrect.')
         for dm, nocc in zip(dms, self.noccs):
-            assert abs(overlap.expectation_value(dm) - nocc) < eps
+            assert abs(overlap.contract_two('ab,ba', dm) - nocc) < eps
 
 
 class AufbauSpinOccModel(OccModel):
@@ -169,7 +169,7 @@ class AufbauSpinOccModel(OccModel):
         eps = kwargs.pop('eps', 1e-4)
         if len(kwargs) > 0:
             raise TypeError('Unexpected keyword arguments: %s' % kwargs.keys())
-        assert abs(sum(overlap.expectation_value(dm) for dm in dms) - self.nel) < eps
+        assert abs(sum(overlap.contract_two('ab,ba', dm) for dm in dms) - self.nel) < eps
 
 
 class FermiMixin(object):

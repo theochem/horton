@@ -434,7 +434,7 @@ def check_dm_kinetic(fn, eps=1e-100):
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'fine', random_rotate=False)
 
     kin = obasis.compute_kinetic(lf)
-    ekin1 = kin.expectation_value(dm)
+    ekin1 = kin.contract_two('ab,ab', dm)
     kindens = obasis.compute_grid_kinetic_dm(dm, grid.points)
     ekin2 = grid.integrate(kindens)
     assert abs(ekin1 - ekin2) < eps
@@ -446,7 +446,7 @@ def check_dm_kinetic(fn, eps=1e-100):
     kinn = kin.new()
     obasis.compute_grid_kinetic_fock(grid.points, grid.weights, np.ones(grid.size), kinn)
     kinn.check_symmetry()
-    ekin3 = kinn.expectation_value(dm)
+    ekin3 = kinn.contract_two('ab,ab', dm)
     assert abs(ekin1 - ekin3) < eps
 
 

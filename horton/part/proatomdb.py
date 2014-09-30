@@ -109,7 +109,7 @@ class ProAtomRecord(object):
         # Derive the number of electrions and the charge
         overlap = dm_full.new()
         obasis.compute_overlap(overlap)
-        nel = overlap.expectation_value(dm_full)
+        nel = overlap.contract_two('ab,ba', dm_full)
         assert abs(nel - int(np.round(nel))) < 1e-4 # only integer nel are supported
         nel = int(np.round(nel))
         charge = pseudo_number - nel

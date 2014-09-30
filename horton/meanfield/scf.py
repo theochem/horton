@@ -104,7 +104,7 @@ class PlainSCFSolver(object):
             # Check for convergence
             error = 0.0
             for i in xrange(ham.ndm):
-                error += lf.error_eigen(focks[i], overlap, exps[i])
+                error += exps[i].error_eigen(focks[i], overlap)
             if log.do_medium:
                 log('%4i  %12.5e' % (counter, error))
             if error < self.threshold:

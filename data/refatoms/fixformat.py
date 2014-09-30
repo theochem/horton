@@ -11,11 +11,13 @@ for fn_h5 in glob('*.h5'):
             g = f.create_group('dm_spin')
             g['array'] = dm_spin
             g.attrs['class'] = 'DenseTwoIndex'
+            g.attrs['is_hermitian'] = True
         else:
             dm_full = f['wfn/dm_alpha/array'][:]*2
         g = f.create_group('dm_full')
         g['array'] = dm_full
         g.attrs['class'] = 'DenseTwoIndex'
+        g.attrs['is_hermitian'] = True
         del f['wfn']
         if 'props' in f:
             for key, value in f['props'].iteritems():

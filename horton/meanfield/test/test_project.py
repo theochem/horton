@@ -54,7 +54,7 @@ def test_project_larger():
     olp = obasis1.compute_overlap(lf1)
     for i0 in xrange(5):
         for i1 in xrange(i0+1):
-            dot = olp.dot(exp1.coeffs[:,i0], exp1.coeffs[:,i1])
+            dot = olp.inner(exp1.coeffs[:,i0], exp1.coeffs[:,i1])
             if i0 == i1:
                 assert abs(dot-1) < 1e-5
             else:
@@ -114,7 +114,7 @@ def test_project_smaller():
     for exp, nocc in (exp1_alpha, 2), (exp1_beta, 1):
         for i0 in xrange(nocc):
             for i1 in xrange(i0+1):
-                dot = olp.dot(exp.coeffs[:,i0], exp.coeffs[:,i1])
+                dot = olp.inner(exp.coeffs[:,i0], exp.coeffs[:,i1])
                 if i0 == i1:
                     assert abs(dot-1) < 1e-5
                 else:

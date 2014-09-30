@@ -51,14 +51,13 @@ def check_dm(dm, overlap, lf, eps=1e-4, occ_max=1.0):
 
        A ValueError is raised when the density matrix has illegal eigenvalues.
     '''
-    tmp = overlap.copy()
-    tmp.idot(dm)
-    tmp.idot(overlap)
-    evals = lf.diagonalize(tmp, overlap)[0]
-    if evals.min() < -eps:
-        raise ValueError('The density matrix has eigenvalues considerably smaller than zero. error=%e' % (evals.min()))
-    if evals.max() > occ_max+eps:
-        raise ValueError('The density matrix has eigenvalues considerably larger than one. error=%e' % (evals.max()-1))
+    # construct natural orbitals
+    exp = lf.create_expansion()
+    exp.derive_naturals(dm, overlap)
+    if exp.occupations.min() < -eps:
+        raise ValueError('The density matrix has eigenvalues considerably smaller than zero. error=%e' % (exp.occupations.min()))
+    if exp.occupations.max() > occ_max+eps:
+        raise ValueError('The density matrix has eigenvalues considerably larger than one. error=%e' % (exp.occupations.max()-1))
 
 
 def get_level_shift(dm, overlap):
@@ -103,8 +102,8 @@ def get_spin(exp_alpha, exp_beta, overlap):
         for ibeta in xrange(exp_beta.nfn):
             if exp_beta.occupations[ibeta] == 0.0:
                 continue
-            correction += overlap.dot(exp_alpha.coeffs[:,ialpha],
-                                      exp_beta.coeffs[:,ibeta])**2
+            correction += overlap.inner(exp_alpha.coeffs[:,ialpha],
+                                        exp_beta.coeffs[:,ibeta])**2
 
     ssq = sz*(sz+1) + nbeta - correction
     print sz, ssq

@@ -341,7 +341,7 @@ class DIISState(object):
             self.dms[i].assign(dms[i])
             self.focks[i].assign(focks[i])
             compute_commutator(dms[i], focks[i], self.overlap, self.work, self.commutators[i])
-            self.normsq += self.commutators[i].expectation_value(self.commutators[i])
+            self.normsq += self.commutators[i].contract_two('ab,ab', self.commutators[i])
 
 
 class DIISHistory(object):
@@ -496,7 +496,7 @@ class DIISHistory(object):
             errorsq = 0.0
             for i in xrange(self.ndm):
                 compute_commutator(dms_output[i], focks_output[i], self.overlap, self.work, self.commutator)
-                errorsq += self.commutator.expectation_value(self.commutator)
+                errorsq += self.commutator.contract_two('ab,ab', self.commutator)
             return errorsq**0.5
 
     def _linear_combination(self, coeffs, ops, output):

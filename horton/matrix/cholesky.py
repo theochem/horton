@@ -23,8 +23,12 @@
 
 import numpy as np
 from horton.log import log
-from horton.matrix.cext import compute_slice_abcc, compute_slice_abbc, subtract_slice_abbc
-from horton.matrix.dense import DenseLinalgFactory, DenseTwoIndex, DenseFourIndex
+from horton.utils import check_type, check_options
+from horton.matrix.base import parse_four_index_transform_exps, FourIndex
+from horton.matrix.cext import slice_to_three_abbc_abc, \
+    slice_to_three_abcc_bac, slice_to_three_abcc_abc
+from horton.matrix.dense import DenseLinalgFactory, DenseExpansion, \
+    DenseTwoIndex, DenseThreeIndex, DenseFourIndex
 
 
 __all__ = [
@@ -33,76 +37,240 @@ __all__ = [
 
 
 class CholeskyLinalgFactory(DenseLinalgFactory):
-    def create_four_index(self, nbasis=None, nvec=None, array=None):
+    def create_four_index(self, nbasis=None, nvec=None, array=None, array2=None, hermitian_vecs=True):
         nbasis = nbasis or self.default_nbasis
+        return CholeskyFourIndex(nbasis, nvec, array, array2, hermitian_vecs)
 
-        if array is not None:
-            if nvec is not None:
-                assert array.shape[0] == nvec
-            return CholeskyFourIndex(nbasis=nbasis, array=array)
-        elif nvec is not None:
-            return CholeskyFourIndex(nbasis=nbasis, nvec=nvec)
-        else:
-            raise NotImplementedError
-
-    def _check_four_index_init_args(self, four_index, nbasis=None, nvec=None, array=None):
+    def _check_four_index_init_args(self, four_index, nbasis=None, nvec=None, array=None, hermitian_vecs=True):
         nbasis = nbasis or self.default_nbasis
-        four_index.__check_init_args__(nbasis)
+        four_index.__check_init_args__(nbasis, nvec, hermitian_vecs)
 
     create_four_index.__check_init_args__ = _check_four_index_init_args
 
 
-class CholeskyFourIndex(DenseFourIndex):
-    """Dense symmetric four-dimensional matrix.
-
-       This is the most inefficient implementation in terms of memory usage and
-       computer time. Due to its simplicity, it is trivial to implement. This
-       implementation mainly serves as a reference for testing purposes.
+class CholeskyFourIndex(FourIndex):
+    """Cholesky symmetric four-dimensional matrix.
     """
-    def __init__(self, nbasis, nvec=None, array=None):
+
+    #
+    # Constructor and destructor
+    #
+
+    def __init__(self, nbasis, nvec=None, array=None, array2=None, hermitian_vecs=True):
         """
            **Arguments:**
 
            nbasis
                 The number of basis functions.
+
+           **Optional arguments:**
+
+           nvec
+                The number of (2-index) Cholesky vectors.
+
+           array
+                The array with Cholesky vectors, shape = (nvec, nbasis, nbasis).
+
+           array2
+                The second set of Cholesky vectors, if different from the first.
+
+           hermitian_vecs
+                Indicates that the Cholesky vectors should be Hermitian 2-index
+                objects.
+
+           Either nvec or array must be given (or both).
         """
-        self._array = None
-        self._array2 = self._array
+        def check_array(a, name):
+            if a.ndim != 3:
+                raise TypeError('Argument %s has %i dimensions, expecting 3.' % (name, a.ndim))
+            if nvec is not None and nvec != a.shape[0]:
+                raise TypeError('nvec does not match %s.shape[0].' % name)
+            if not (nbasis == a.shape[1] and nbasis == a.shape[2]):
+                raise TypeError('nbasis does not match %s.shape[1] or %s.shape[2].' % (name, name))
 
-        if array is not None:
-            self.assign_array(array)
-        elif nvec is not None:
-            self.assign_array(np.zeros([nvec, nbasis, nbasis]))
-
-        if self._array is not None:
+        if array is None:
+            self._self_alloc = True
+            if nvec is None:
+                raise TypeError('Either nvec or array must be given (or both).')
+            if array2 is not None:
+                raise TypeError('Argument array2 only allowed when array is given.')
+            self._array = np.zeros([nvec, nbasis, nbasis])
             log.mem.announce(self._array.nbytes)
+            self._array2 = self._array
+        else:
+            self._self_alloc = False
+            check_array(array, 'array')
+            self._array = array
+            if array2 is None:
+                self._array2 = self._array
+            else:
+                check_array(array2, 'array2')
+                self._array2 = array2
+
+        self._hermitian_vecs = hermitian_vecs
 
     def __del__(self):
         if log is not None:
-            if hasattr(self, '_array'):
-                log.mem.denounce(self._array.nbytes)
-                if self._array2 is not self._array:
-                    log.mem.denounce(self._array2.nbytes)
+            if hasattr(self, '_array') and hasattr(self, '_self_alloc'):
+                if self._self_alloc:
+                    log.mem.denounce(self._array.nbytes)
+                    if hasattr(self, '_array2') and self._array2 is not self._array:
+                        log.mem.denounce(self._array2.nbytes)
 
-    def __check_init_args__(self, nbasis):
-        assert nbasis == self.nbasis
+    #
+    # Properties
+    #
+
+    def _get_shape(self):
+        '''The shape of the object'''
+        return (self._array.shape[1], self._array2.shape[1], self._array.shape[2], self._array2.shape[2])
+
+    shape = property(_get_shape)
+
+    #
+    # Methods from base class
+    #
+
+    def __check_init_args__(self, nbasis, nvec, hermitian_vecs):
+        '''Is self compatible with the given constructor arguments?'''
         assert self._array is not None
+        assert nbasis == self.nbasis
+        assert nvec == self.nvec
+        assert hermitian_vecs == self._hermitian_vecs
 
-    def reset_array2(self):
-        """ Deallocates the second cholesky vector and sets it to match the first.
-        """
-        self._array2 = self._array
+    def __eq__(self, other):
+        '''Compare self with other'''
+        return isinstance(other, CholeskyFourIndex) and \
+            other.nbasis == self.nbasis and \
+            other.nvec == self.nvec and \
+            other.hermitian_vecs == self.hermitian_vecs and \
+            other.is_decoupled == self.is_decoupled and \
+            (other._array == self._array).all() and \
+            (other._array2 == self._array2).all()
 
     @classmethod
     def from_hdf5(cls, grp):
-        nbasis = grp['array'].shape[0]
-        result = cls(nbasis)
+        '''Construct an instance from data previously stored in an h5py.Group.
+
+           **Arguments:**
+
+           grp
+                An h5py.Group object.
+        '''
+        nvec = grp['array'].shape[0]
+        nbasis = grp['array'].shape[1]
+        result = cls(nbasis, nvec)
         grp['array'].read_direct(result._array)
+        if 'array2' in grp:
+            result.decouple_array2()
+            grp['array2'].read_direct(result._array2)
         return result
 
     def to_hdf5(self, grp):
+        '''Dump this object in an h5py.Group
+
+           **Arguments:**
+
+           grp
+                An h5py.Group object.
+        '''
         grp.attrs['class'] = self.__class__.__name__
         grp['array'] = self._array
+        if self._array is not self._array:
+            grp['array2'] = self._array2
+
+    def new(self):
+        '''Return a new four-index object with the same nbasis'''
+        return CholeskyFourIndex(self.nbasis, self.nvec, hermitian_vecs=self.hermitian_vecs)
+
+    def _check_new_init_args(self, other):
+        '''Check whether an already initialized object is compatible'''
+        other.__check_init_args__(self.nbasis, self.nvec, hermitian_vecs=self.hermitian_vecs)
+
+    new.__check_init_args__ = _check_new_init_args
+
+    def clear(self):
+        '''Reset all elements to zero.'''
+        self._array[:] = 0.0
+        if self._array is not self._array2:
+            self._array2[:] = 0.0
+
+    def copy(self):
+        '''Return a copy of the current four-index operator'''
+        result = CholeskyFourIndex(self.nbasis, self.nvec)
+        result.assign(self)
+        return result
+
+    def assign(self, other):
+        '''Assign with the contents of another object
+
+           **Arguments:**
+
+           other
+                Another CholeskyFourIndex object.
+        '''
+        check_type('other', other, CholeskyFourIndex)
+        self._hermitian_vecs = other.hermitian_vecs
+        self._array[:] = other._array
+        if other._array is other._array2:
+            self.reset_array2()
+        else:
+            self.decouple_array2()
+            self._array2[:] = other._array2
+
+    def randomize(self):
+        '''Fill with random normal data'''
+        self._array[:] = np.random.normal(0, 1, self._array.shape)
+        if self._hermitian_vecs:
+            self._array[:] += self._array.swapaxes(1, 2)
+            self._array *= 0.5
+        if self.is_decoupled:
+            self._array2[:] = np.random.normal(0, 1, self._array2.shape)
+            if self._hermitian_vecs:
+                self._array2[:] += self._array2.swapaxes(1, 2)
+                self._array2 *= 0.5
+
+
+    def permute_basis(self, permutation):
+        '''Reorder the coefficients for a given permutation of basis functions.
+        '''
+        # Easy enough but irrelevant
+        raise NotImplementedError
+
+    def change_basis_signs(self, signs):
+        '''Correct for different sign conventions of the basis functions.'''
+        # Easy enough but irrelevant
+        raise NotImplementedError
+
+    def iadd(self, other, factor):
+        '''This method is not supported due to the Cholesky decomposition.'''
+        raise NotImplementedError
+
+    def iscale(self, factor):
+        '''In-place multiplication with a scalar
+
+           **Arguments:**
+
+           factor
+                A scalar factor.
+        '''
+        self._array *= np.sqrt(factor)
+
+        if self._array is not self._array2:
+            #arrays have been transformed
+            self._array2 *= np.sqrt(factor)
+
+    def get_element(self, i, j, k, l):
+        '''Return a matrix element'''
+        return np.dot(self._array[:,i,k], self._array2[:,j,l])
+
+    def set_element(self, i, j, k, l, value):
+        '''This method is not supported due to the Cholesky decomposition.'''
+        raise NotImplementedError
+
+    #
+    # Properties
+    #
 
     def _get_nbasis(self):
         '''The number of basis functions'''
@@ -110,241 +278,237 @@ class CholeskyFourIndex(DenseFourIndex):
 
     nbasis = property(_get_nbasis)
 
-    def set_element(self, i, j, k, l, value):
-        #    <ij|kl> = <ji|lk> = <kl|ij> = <lk|ji> =
-        #    <il|kj> = <jk|li> = <kj|il> = <li|jk>
-        raise NotImplementedError
+    def _get_nvec(self):
+        '''The number of Cholesky vectors'''
+        return self._array.shape[0]
 
-    def get_element(self, i, j, k, l):
-        return np.dot(self._array[:,i,k], self._array2[:,j,l])
+    nvec = property(_get_nvec)
 
-    def get_slice(self, indices, out=None, subtract=False, clear=True):
-        """Returns a numpy array 2-index slice of the fourindex object.
+    def _get_hermitian_vecs(self):
+        return self._hermitian_vecs
 
-            ** Arguments **
-                indc_in
-                    A string of length 4, comprised of some combination of letters.
-                    These are the indices that will be read from the two electron integrals.
-                    The letters "x,y,z" are reserved for internal use.
-                    See numpy einstein summation documentation for an example.
-                indc_out
-                    A string, comprised of the same letters in indc_in.
-                    These are the output indices. Reversed order will give a transpose.
-                    See numpy einstein summation documentation for an example.
+    hermitian_vecs = property(_get_hermitian_vecs)
 
-            ** Optional Arguments **
-                out
-                    A numpy array for storing the results.
-                factor
-                    A scaling factor to multiply the results being stored to out
-                clear
-                    A boolean that determines whether the output array is
-                    cleared. Defaults to True.
-        """
+    def _get_is_decoupled(self):
+        return self._array is not self._array2
 
-        indc_in,indc_out = "".join(indices.split()).split("->")
-        assert len(indc_in) == 4
-        assert set(indc_in) == set(indc_out)
-        assert len(set("xyz") & set(indc_in)) == 0
+    is_decoupled = property(_get_is_decoupled)
 
-
-        if out is None:
-            dims = [self.nbasis, self.nbasis]
-            if len(indc_out) == 3:
-                dims += [self.nbasis]
-            out = np.zeros(dims)
-        elif clear:
-            out[:] = 0.0
-
-        if indices == 'abbc->abc': #abbc
-            if subtract:
-                subtract_slice_abbc(self._array, self._array2, out, self.nbasis,
-                                        self._array.shape[0])
-            else:
-                compute_slice_abbc(self._array, self._array2, out, self.nbasis,
-                                        self._array.shape[0])
-#            for i in np.arange(self._array.shape[0]):
-#                out += np.einsum('ab,bc->abc',self._array[i,:,:],
-#                                        self._array2[i,:,:])
-        elif subtract:
-            raise NotImplementedError
-        elif indices == 'abcc->bac': #acbc
-            print self._array.shape, self._array2.shape, out.shape, self.nbasis
-            compute_slice_abcc(self._array, self._array2, out, self.nbasis,
-                                                    self._array.shape[0])
-            out = out.swapaxes(0,1) #DOES THIS WORK?
-#            for i in np.arange(self._array.shape[0]):
-#                out += np.einsum('ac,bc->bac', self._array[i,:,:],
-#                                        self._array2[i,:,:])
-        elif indices == 'abcc->abc': #acbc
-            compute_slice_abcc(self._array, self._array2, out, self.nbasis,
-                                self._array.shape[0])
-#            for i in np.arange(self._array.shape[0]):
-#                out += np.einsum('ac,bc->abc', self._array[i,:,:],
-#                                        self._array2[i,:,:])
-        elif indices == 'abcb->abc': #acbb
-            L_r = np.diagonal(self._array2, axis1=1, axis2=2)
-            out[:] = np.tensordot(self._array, L_r, [0,0]).swapaxes(1,2)
-        else:
-            #error checking
-            idx_string = "x{},x{}->{}".format(indc_in[0]+indc_in[2],
-                                               indc_in[1]+indc_in[3],
-                                               indc_out)
-
-            out[:] = np.einsum(idx_string, self._array, self._array2)
-        return out
-
-    def _get_dense(self):
-        ''' ONLY FOR TESTING. Super expensive operation!
-        '''
-        return np.einsum('kac,kbd->abcd', self._array, self._array2)
-
-    def assign(self, other):
-        if not isinstance(other, CholeskyFourIndex):
-            raise TypeError('The other object must also be CholeskyFourIndex instance. . Got ', type(other), ' instead.')
-        if self._array is None:
-            self._array = np.ndarray(other._array.shape)
-            log.mem.announce(self._array.nbytes)
-
-        self._array[:] = other._array
-        if other._array is other._array2:
-            #arrays are the same
-            self._array2 = self._array
-        else:
-            #arrays have been transformed
-            if self._array is None:
-                self._array2 = np.ndarray(other._array2.shape)
-                log.mem.announce(self._array2.nbytes)
-
-            self._array2[:] = other._array2
-
-    def assign_array(self, other):
-        ''''''
-        if not isinstance(other, np.ndarray):
-            raise TypeError('The other object must be np.ndarray instance. . Got ', type(other), ' instead.')
-
-        self._array = other.copy() #maybe copy not needed?
-        self._array2 = self._array
-
-    def copy(self):
-        '''Return a copy of the current four-index operator'''
-        result = CholeskyFourIndex(self.nbasis)
-        result.assign(self)
+    def _get_symmetry(self):
+        '''The number of symmetries'''
+        result = 1
+        if not self.is_decoupled:
+            result *= 2
+        if self._hermitian_vecs:
+            result *= 4
         return result
 
-    def iscale(self, factor):
-        self._array *= np.sqrt(factor)
+    symmetry = property(_get_symmetry)
 
-        if self._array is not self._array2:
-            #arrays have been transformed
-            self._array2 *= np.sqrt(factor)
+    #
+    # New methods for this implementation
+    # TODO: consider adding these to base class
+    #
+
+    def decouple_array2(self):
+        '''Allocates a second Cholesky vector if not done yet'''
+        if self._array2 is self._array:
+            self._array2 = self._array.copy()
+            log.mem.announce(self._array2.nbytes)
+
+    def reset_array2(self):
+        """Deallocates the second cholesky vector and sets it to match the first.
+        """
+        if self._array2 is not self._array:
+            log.mem.denounce(self._array2.nbytes)
+            self._array2 = self._array
+
+    def get_dense(self):
+        '''Return the DenseFourIndex equivalent. ONLY FOR TESTING. SUPER SLOW.
+        '''
+        result = DenseFourIndex(self.nbasis)
+        np.einsum('kac,kbd->abcd', self._array, self._array2, out=result._array)
+        return result
 
     def check_symmetry(self):
         """Check the symmetry of the array."""
-        raise NotImplementedError
+        if self.hermitian_vecs:
+            assert (self._array == self._array.swapaxes(1,2)).all()
+            if self.is_decoupled:
+                assert (self._array2 == self._array2.swapaxes(1,2)).all()
 
-    def transpose(self):
-        if self._array is not self._array2:
-            #arrays have been transformed
-            temp = self._array
-            self._array = self._array2
-            self._array2 = temp
+    def itranspose(self):
+        '''In-place transpose: ``0,1,2,3 -> 1,0,3,2``'''
+        if self.is_decoupled:
+            self._array, self._array2 = self._array2, self._array
 
-    def esum(self):
+    def sum(self):
+        '''Return the sum of all elements. EXPENSIVE!'''
         return np.tensordot(self._array, self._array2,(0,0)).sum() #expensive!!
 
-    def apply_direct(self, dm, output):
-        """Compute the direct dot product with a density matrix."""
-        if not isinstance(dm, DenseTwoIndex):
-            raise TypeError('The dm argument must be a DenseTwoIndex class. Got ', type(dm), ' instead.')
-        if not isinstance(output, DenseTwoIndex):
-            raise TypeError('The output argument must be a DenseTwoIndex class. Got ', type(output), ' instead.')
-        result = np.tensordot(self._array, np.tensordot(self._array2, dm._get_dense(), axes=([(1,2),(1,0)])), [0,0])
-        output.assign_array(result)
+    def iadd_exchange(self):
+        '''In-place addition of its own exchange contribution'''
+        raise NotImplementedError
 
-    def apply_exchange(self, dm, output):
-        """Compute the exchange dot product with a density matrix."""
-        if not isinstance(dm, DenseTwoIndex):
-            raise TypeError('The dm argument must be a DenseTwoIndex class. Got ', type(dm), ' instead.')
-        if not isinstance(output, DenseTwoIndex):
-            raise TypeError('The output argument must be a DenseTwoIndex class. Got ', type(output), ' instead.')
-        result = np.tensordot(self._array, np.tensordot(self._array2, dm._get_dense(), axes=([2,1])), ([0,2],[0,2]))
-        output.assign_array(result)
+    def slice_to_two(self, subscripts, out=None, factor=1.0, clear=True):
+        """Returns a two-index contraction of the four-index object.
 
-    def apply_four_index_transform_tensordot(self, ao_integrals, aorb, aorb2=None, aorb3=None, aorb4=None):
-        '''Perform four index transformation using np.tensordot.
-        '''
-        if aorb2 is None and aorb4 is None:
-            aorb2 = aorb
+           **Arguments:**
+
+           subscripts
+                Any of ``aabb->ab``, ``abab->ab``, ``abba->ab``
+
+           **Optional arguments:**
+
+           out, factor, clear
+                See :py:meth:`DenseLinalgFactory.einsum`
+        """
+        # Error checking
+        check_options('subscripts', subscripts, 'aabb->ab', 'abab->ab', 'abba->ab')
+        # Handle output argument
+        if out is None:
+            out = DenseTwoIndex(self.nbasis)
         else:
-            aorb2 = aorb4
+            check_type('out', out, DenseTwoIndex)
+            if clear:
+                out.clear()
+        # Actual computation
+        if subscripts == 'aabb->ab':
+            out._array[:] += factor*np.einsum('xab,xab->ab', self._array, self._array2)
+        elif subscripts == 'abab->ab':
+            out._array[:] += factor*np.einsum('xaa,xbb->ab', self._array, self._array2)
+        elif subscripts == 'abba->ab':
+            out._array[:] += factor*np.einsum('xab,xba->ab', self._array, self._array2)
+        return out
 
-        if aorb3 is None:
-            aorb3 = aorb
-        if aorb4 is None:
-            aorb4 = aorb2
+    def slice_to_three(self, subscripts, out=None, factor=1.0, clear=True):
+        """Returns a three-index contraction of the four-index object.
 
-        if aorb != aorb3 or aorb2 != aorb4:
-            raise NotImplementedError
+           **Arguments:**
 
-        if not isinstance(ao_integrals, CholeskyFourIndex):
-            raise TypeError('The AO integral argument must be a CholeskyFourIndex class. Got ', type(ao_integrals), ' instead.')
-        self._array[:] = np.tensordot(ao_integrals._array, aorb2.coeffs, axes=([1],[0]))
-        self._array[:] = np.tensordot(self._array, aorb2.coeffs, axes=([1],[0]))
+           subscripts
+                Any of ``abcc->bac``, ``abcc->abc``, ``abcb->abc``, ``abbc->abc``
 
-        if aorb != aorb2 and aorb3 != aorb4:
-            if self._array is self._array2:
-                #must allocate memory first
-                self._array2 = np.zeros_like(self._array)
-                log.mem.announce(self._array2.nbytes)
-            self._array2[:] = np.tensordot(ao_integrals._array, aorb.coeffs, axes=([1],[0]))
-            self._array2[:] = np.tensordot(self._array2, aorb.coeffs, axes=([1],[0]))
+           **Optional arguments:**
 
-
-    def apply_four_index_transform_einsum(self, ao_integrals, aorb, aorb2=None, aorb3=None, aorb4=None):
-        '''Perform four index transformation using np.einsum.
-        '''
-        if aorb2 is None and aorb4 is None:
-            aorb2 = aorb
+           out, factor, clear
+                See :py:meth:`DenseLinalgFactory.einsum`
+        """
+        # Error checking
+        check_options('subscripts', subscripts, 'abcc->bac', 'abcc->abc', 'abcb->abc', 'abbc->abc')
+        if out is None:
+            out = DenseThreeIndex(self.nbasis)
         else:
-            aorb2 = aorb4
+            check_type('out', out, DenseThreeIndex)
+            if clear:
+                out.clear()
+        # Actual computation
+        if subscripts == 'abbc->abc':
+            slice_to_three_abbc_abc(self._array, self._array2, out._array, factor, clear)
+        elif subscripts == 'abcc->bac':
+            slice_to_three_abcc_bac(self._array, self._array2, out._array, factor, clear)
+        elif subscripts == 'abcc->abc':
+            slice_to_three_abcc_abc(self._array, self._array2, out._array, factor, clear)
+        elif subscripts == 'abcb->abc':
+            L_r = np.diagonal(self._array2, axis1=1, axis2=2)
+            out._array[:] += factor*np.tensordot(self._array, L_r, [(0,),(0,)]).swapaxes(1,2)
+        return out
 
-        if aorb3 is None:
-            aorb3 = aorb
-        if aorb4 is None:
-            aorb4 = aorb2
+    def contract_two_to_four(self, subscripts, two, out=None, factor=1.0, clear=True):
+        '''Contracts with a two-index object to obtain a four-index object.
 
-        if aorb != aorb3 or aorb2 != aorb4:
-            raise NotImplementedError
+           **Arguments:**
 
-        if not isinstance(ao_integrals, CholeskyFourIndex):
-            raise TypeError('The AO integral argument must be a CholeskyFourIndex class. Got ', type(ao_integrals), ' instead.')
-        self._array[:] = np.einsum('ai,kab->kib',aorb2.coeffs,ao_integrals._array)
-        self._array[:] = np.einsum('bj,kib->kij',aorb2.coeffs,self._array)
+           subscripts
+                Any of ``abcd,cd->acbd``, ``abcd,cd->acdb``, ``abcd,cb->acdb``,
+                ``abcd,cb->acbd``, ``abcd,ab->acbd``, ``abcd,ab->acdb``,
+                ``abcd,ad->acbd``, ``abcd,ad->acdb``, ``abcd,ad->abcd``,
+                ``abcd,ad->abdc``, ``abcd,bd->abcd``, ``abcd,bd->abdc``,
+                ``abcd,bc->abdc``, ``abcd,bc->abcd``, ``abcd,ac->abcd``,
+                ``abcd,ac->abdc``
 
-        if aorb != aorb2 and aorb3 != aorb4:
-            if self._array is self._array2:
-                #must allocate memory first
-                self._array2 = np.zeros_like(self._array)
-                log.mem.announce(self._array2.nbytes)
-            self._array2[:] = np.einsum('ai,kab->kib',aorb.coeffs,ao_integrals._array2)
-            self._array2[:] = np.einsum('bj,kib->kij',aorb.coeffs,self._array2)
+           two
+                An instance of DenseTwoIndex.
 
-    def clear(self):
-        self._array[:] = 0.0
-        if self._array is not self._array2:
-            self._array2[:] = 0.0
+           **Optional arguments:**
 
-    def apply_basis_permutation(self, permutation):
-        '''Reorder the coefficients for a given permutation of basis functions.
+           out, factor, clear
+                See :py:meth:`DenseLinalgFactory.einsum`
         '''
+        check_options('subscripts', subscripts, 'abcd,cd->acbd',
+            'abcd,cd->acdb', 'abcd,cb->acdb', 'abcd,cb->acbd', 'abcd,ab->acbd',
+            'abcd,ab->acdb', 'abcd,ad->acbd', 'abcd,ad->acdb', 'abcd,ad->abcd',
+            'abcd,ad->abdc', 'abcd,bd->abcd', 'abcd,bd->abdc', 'abcd,bc->abdc',
+            'abcd,bc->abcd', 'abcd,ac->abcd', 'abcd,ac->abdc')
         raise NotImplementedError
 
-    def apply_basis_signs(self, signs):
-        '''Correct for different sign conventions of the basis functions.'''
-        raise NotImplementedError
+    def contract_two_to_two(self, subscripts, two, out=None, factor=1.0, clear=True):
+        """Contract self with a two-index to obtain a two-index.
 
-    def add_exchange_part(self):
-        '''Sort four-index exchange integrals for OAP1roG (<ij||kj> -> <ijk>)
+           **Arguments:**
+
+           subscripts
+                Any of ``abcd,bd->ac`` (direct), ``abcd,cb->ad`` (exchange)
+
+           two
+                The input two-index object. (DenseTwoIndex)
+
+           **Optional arguments:**
+
+           out, factor, clear
+                See :py:meth:`DenseLinalgFactory.einsum`
+        """
+        check_options('subscripts', subscripts, 'abcd,bd->ac', 'abcd,cb->ad')
+        if out is None:
+            out = DenseTwoIndex(self.nbasis)
+            if clear:
+                out.clear()
+        else:
+            check_type('out', out, DenseTwoIndex)
+        if subscripts == 'abcd,bd->ac':
+            tmp = np.tensordot(self._array2, two._array, axes=([(1,2),(1,0)]))
+            out._array[:] += factor*np.tensordot(self._array, tmp, [0,0])
+        elif subscripts == 'abcd,cb->ad':
+            tmp = np.tensordot(self._array2, two._array, axes=([1,1]))
+            out._array[:] += factor*np.tensordot(self._array, tmp, ([0,2],[0,2]))
+        return out
+
+    def assign_four_index_transform(self, ao_integrals, exp0, exp1=None, exp2=None, exp3=None, method='tensordot'):
+        '''Perform four index transformation.
+
+           **Arguments:**
+
+           oa_integrals
+                A CholeskyFourIndex with integrals in atomic orbitals.
+
+           exp0
+                A DenseExpansion object with molecular orbitals
+
+           **Optional arguments:**
+
+           exp1, exp2, exp3
+                Can be provided to transform each index differently. See
+                ``parse_four_index_transform_exps`` for details.
+
+           method
+                Either ``einsum`` or ``tensordot`` (default).
         '''
-        raise NotImplementedError
+        check_type('ao_integrals', ao_integrals, CholeskyFourIndex)
+        exp0, exp1, exp2, exp3 = parse_four_index_transform_exps(exp0, exp1, exp2, exp3, DenseExpansion)
+        self._hermitian_vecs = ao_integrals.hermitian_vecs and (exp0 is exp2) and (exp1 is exp3)
+        if method == 'einsum':
+            if ao_integrals.is_decoupled or not (exp0 is exp1 and exp2 is exp3):
+                self.decouple_array2()
+                self._array2[:] = np.einsum('bi,kbd->kid', exp1.coeffs, ao_integrals._array2)
+                self._array2[:] = np.einsum('dj,kid->kij', exp3.coeffs, self._array2)
+            self._array[:] = np.einsum('ai,kac->kic', exp0.coeffs, ao_integrals._array)
+            self._array[:] = np.einsum('cj,kic->kij', exp2.coeffs, self._array)
+        elif method == 'tensordot':
+            if ao_integrals.is_decoupled or not (exp0 is exp1 and exp2 is exp3):
+                self.decouple_array2()
+                self._array2[:] = np.tensordot(ao_integrals._array2, exp1.coeffs, axes=([1],[0]))
+                self._array2[:] = np.tensordot(self._array2, exp3.coeffs, axes=([1],[0]))
+            self._array[:] = np.tensordot(ao_integrals._array, exp0.coeffs, axes=([1],[0]))
+            self._array[:] = np.tensordot(self._array, exp2.coeffs, axes=([1],[0]))
+        else:
+            raise ValueError('The method must either be \'einsum\' or \'tensordot\'.')

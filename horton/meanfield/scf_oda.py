@@ -220,10 +220,10 @@ class ODASCFSolver(object):
             deriv0 = 0.0
             deriv1 = 0.0
             for i in xrange(ham.ndm):
-                deriv0 += fock0s[i].expectation_value(dm1s[i])
-                deriv0 -= fock0s[i].expectation_value(dm0s[i])
-                deriv1 += fock1s[i].expectation_value(dm1s[i])
-                deriv1 -= fock1s[i].expectation_value(dm0s[i])
+                deriv0 += fock0s[i].contract_two('ab,ab', dm1s[i])
+                deriv0 -= fock0s[i].contract_two('ab,ab', dm0s[i])
+                deriv1 += fock1s[i].contract_two('ab,ab', dm1s[i])
+                deriv1 -= fock1s[i].contract_two('ab,ab', dm0s[i])
             deriv0 *= ham.deriv_scale
             deriv1 *= ham.deriv_scale
 
@@ -247,7 +247,7 @@ class ODASCFSolver(object):
             errorsq = 0.0
             for i in xrange(ham.ndm):
                 compute_commutator(dm0s[i], fock0s[i], overlap, work, commutator)
-                errorsq += commutator.expectation_value(commutator)
+                errorsq += commutator.contract_two('ab,ab', commutator)
             error = errorsq**0.5
             if error < self.threshold:
                 converged = True

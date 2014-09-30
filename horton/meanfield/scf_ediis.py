@@ -104,12 +104,12 @@ class EDIISHistory(DIISHistory):
                 state1 = self.stack[i1]
                 self.edots[i0,i1] = 0.0
                 for j in xrange(self.ndm):
-                    self.edots[i0,i1] += state0.focks[j].expectation_value(state1.dms[j])
+                    self.edots[i0,i1] += state0.focks[j].contract_two('ab,ba', state1.dms[j])
                 if i0 != i1:
                     # Note that this matrix is not symmetric!
                     self.edots[i1,i0] = 0.0
                     for j in xrange(self.ndm):
-                        self.edots[i1,i0] += state1.focks[j].expectation_value(state0.dms[j])
+                        self.edots[i1,i0] += state1.focks[j].contract_two('ab,ba', state0.dms[j])
 
     def _setup_equations(self):
         '''Compute the equations for the quadratic programming problem.'''

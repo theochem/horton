@@ -109,8 +109,8 @@ def test_aufbau_spin():
     scf_solver = ODASCFSolver(1e-6) # On some machines, 1e-8 does not work.
     scf_solver(ham, mol.lf, olp, occ_model, *dms)
     assert scf_solver.error(ham, mol.lf, olp, *dms) < scf_solver.threshold
-    assert abs(olp.expectation_value(dms[0]) - 2) < 1e-10
-    assert abs(olp.expectation_value(dms[1]) - 1) < 1e-10
+    assert abs(olp.contract_two('ab,ba', dms[0]) - 2) < 1e-10
+    assert abs(olp.contract_two('ab,ba', dms[1]) - 1) < 1e-10
 
 
 

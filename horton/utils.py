@@ -21,7 +21,7 @@
 '''Utility functions'''
 
 
-__all__ = ['typecheck_geo']
+__all__ = ['typecheck_geo', 'check_type', 'check_options']
 
 
 def typecheck_geo(coordinates, numbers, pseudo_numbers=None,
@@ -102,3 +102,59 @@ def typecheck_geo(coordinates, numbers, pseudo_numbers=None,
     if need_pseudo_numbers:
         result.append(pseudo_numbers)
     return result
+
+
+    def iadd_exchange(self):
+        '''In-place addition of its own exchange contribution'''
+        self._array -= np.einsum('abcd->abdc', self._array)
+
+
+def check_type(name, instance, *Classes):
+    '''Check type of argument with given name against list of types
+
+       **Arguments:**
+
+       name
+            The name of the argument being checked.
+
+       instance
+            The object being checked.
+
+       *Classes
+            A list of allowed types.
+    '''
+    if len(Classes) == 0:
+        raise TypeError('Type checking with an empty list of classes. This is a simple bug!')
+    match = False
+    for Class in Classes:
+        if isinstance(instance, Class):
+            match = True
+            break
+    if not match:
+        classes_parts = ['\'', Classes[0].__name__, '\'']
+        for Class in Classes[1:-1]:
+            classes_parts.extend([', ``', Class.__name__, '\''])
+        if len(Classes) > 1:
+            classes_parts.extend(['or \'', Class.__name__, '\''])
+        raise TypeError('The argument \'%s\' must be an instance of %s. Got a \'%s\' instance instead.' % (
+            name, ''.join(classes_parts), instance.__class__.__name__
+        ))
+
+
+def check_options(name, select, *options):
+    '''Check if a select is in the list of options. If not raise ValueError
+
+       **Arguments:**
+
+       name
+            The name of the argument.
+
+       select
+            The value of the argument.
+
+       options
+            A list of allowed options.
+    '''
+    if select not in options:
+        formatted = ', '.join(['\'%s\'' % option for option in options])
+        raise ValueError('The argument \'%s\' must be one of: %s' % (select, formatted))

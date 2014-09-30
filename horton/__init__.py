@@ -46,4 +46,3 @@ from horton.quadprog import *
 from horton.units import *
 from horton.utils import *
 from horton.modelhamiltonians import *
-from horton.correlatedwfn import *

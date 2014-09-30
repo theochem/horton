@@ -80,5 +80,5 @@ class Hubbard(PhysModHam):
     def compute_overlap(self, lf):
         '''Calculate overlap of the 1D Hubbard Hamiltonian, (identity matrix)'''
         result = lf.create_two_index(lf.default_nbasis)
-        result.set_diagonal(1.0)
+        result.assign_diagonal(1.0)
         return result

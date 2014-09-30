@@ -19,8 +19,9 @@
 #
 #--
 
+cimport libcpp
 
 cdef extern from "slicing.h":
-    void get_slice_abcc(double* inp, double* inp2, double* out, long nbasis, long nvec)
-    void get_slice_abbc(double* inp, double* inp2, double* out, long nbasis, long nvec)
-    void sub_slice_abbc(double* inp, double* inp2, double* out, long nbasis, long nvec)
+    void slice_to_three_abbc_abc(double* inp, double* inp2, double* out, double factor, libcpp.bool clear, long nbasis, long nvec)
+    void slice_to_three_abcc_bac(double* inp, double* inp2, double* out, double factor, libcpp.bool clear, long nbasis, long nvec)
+    void slice_to_three_abcc_abc(double* inp, double* inp2, double* out, double factor, libcpp.bool clear, long nbasis, long nvec)

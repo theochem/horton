@@ -42,8 +42,8 @@ def check_cubic_wrapper(ham, dm0s, dm1s, do_plot=False):
     ham.compute_fock(*focks)
     g0 = 0.0
     for i in xrange(ham.ndm):
-        g0 += focks[i].expectation_value(dm1s[i])
-        g0 -= focks[i].expectation_value(dm0s[i])
+        g0 += focks[i].contract_two('ab,ba', dm1s[i])
+        g0 -= focks[i].contract_two('ab,ba', dm0s[i])
     g0 *= ham.deriv_scale
 
     # evaluate stuff at dm1
@@ -52,8 +52,8 @@ def check_cubic_wrapper(ham, dm0s, dm1s, do_plot=False):
     ham.compute_fock(*focks)
     g1 = 0.0
     for i in xrange(ham.ndm):
-        g1 += focks[i].expectation_value(dm1s[i])
-        g1 -= focks[i].expectation_value(dm0s[i])
+        g1 += focks[i].contract_two('ab,ba', dm1s[i])
+        g1 -= focks[i].contract_two('ab,ba', dm0s[i])
     g1 *= ham.deriv_scale
 
     check_cubic(ham, dm0s, dm1s, e0, e1, g0, g1, do_plot)

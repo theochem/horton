@@ -2221,7 +2221,7 @@ def check_g09_grid_fn(fn_fchk):
     dm_full = mol.get_dm_full()
     rhos = mol.obasis.compute_grid_density_dm(dm_full, grid.points)
     pop = grid.integrate(rhos)
-    nel = mol.obasis.compute_overlap(mol.lf).expectation_value(dm_full)
+    nel = mol.obasis.compute_overlap(mol.lf).contract_two('ab,ab', dm_full)
     assert abs(pop-nel) < 2e-3
 
 

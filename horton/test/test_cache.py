@@ -277,6 +277,11 @@ def test_dense_two_index():
     assert new
     assert not op5 is op6
     assert op6.nbasis == 5
+    # the new method of the two-index object
+    op7, new = c.load('bork', alloc=op6.new)
+    assert new
+    assert not op5 is op7
+    assert op7.nbasis == 5
 
 
 def test_dense_four_index():

@@ -108,7 +108,7 @@ class CDIISHistory(DIISHistory):
                 state1 = self.stack[i1]
                 cdot = 0.0
                 for j in xrange(self.ndm):
-                    cdot += state0.commutators[j].expectation_value(state1.commutators[j])
+                    cdot += state0.commutators[j].contract_two('ab,ab', state1.commutators[j])
                 self.cdots[i0,i1] = cdot
                 self.cdots[i1,i0] = cdot
 

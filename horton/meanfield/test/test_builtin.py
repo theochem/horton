@@ -43,7 +43,7 @@ def test_becke_hartree_n2_hfs_sto3g():
     op2 = mol.lf.create_two_index()
     ham1.compute_fock(op1)
     ham2.compute_fock(op2)
-    assert op1.distance(op2) < 1e-3
+    assert op1.distance_inf(op2) < 1e-3
 
 
 def test_becke_hartree_h3_hfs_321g():
@@ -69,5 +69,5 @@ def test_becke_hartree_h3_hfs_321g():
     fock_beta2 = mol.lf.create_two_index()
     ham1.compute_fock(fock_alpha1, fock_beta1)
     ham2.compute_fock(fock_alpha2, fock_beta2)
-    assert fock_alpha1.distance(fock_alpha2) < 1e-3
-    assert fock_beta1.distance(fock_beta2) < 1e-3
+    assert fock_alpha1.distance_inf(fock_alpha2) < 1e-3
+    assert fock_beta1.distance_inf(fock_beta2) < 1e-3

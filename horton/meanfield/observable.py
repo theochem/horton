@@ -82,7 +82,7 @@ class RTwoIndexTerm(Observable):
 
     def compute(self, cache):
         '''See :py:meth:`Observable.compute`.'''
-        return 2 * self.op_alpha.expectation_value(cache['dm_alpha'])
+        return 2 * self.op_alpha.contract_two('ab,ab', cache['dm_alpha'])
 
     def add_fock(self, cache, fock_alpha):
         '''See py:meth:`Observable.add_fock`.'''
@@ -104,12 +104,12 @@ class UTwoIndexTerm(Observable):
             # when both operators are references to the same object, take a
             # shortcut
             compute_dm_full(cache)
-            return self.op_alpha.expectation_value(cache['dm_full'])
+            return self.op_alpha.contract_two('ab,ab', cache['dm_full'])
         else:
             # If the operator is different for different spins, do the normal
             # thing.
-            return self.op_alpha.expectation_value(cache['dm_alpha']) + \
-                   self.op_beta.expectation_value(cache['dm_beta'])
+            return self.op_alpha.contract_two('ab,ab', cache['dm_alpha']) + \
+                   self.op_beta.contract_two('ab,ab', cache['dm_beta'])
 
     def add_fock(self, cache, fock_alpha, fock_beta):
         '''See py:meth:`Observable.add_fock`.'''
@@ -127,14 +127,14 @@ class RDirectTerm(Observable):
         dm_alpha = cache['dm_alpha']
         direct, new = cache.load('op_%s_alpha' % self.label, alloc=dm_alpha.new)
         if new:
-            self.op_alpha.apply_direct(dm_alpha, direct)
+            self.op_alpha.contract_two_to_two('abcd,bd->ac', dm_alpha, direct)
             direct.iscale(2) # contribution from beta electrons is identical
 
     def compute(self, cache):
         '''See :py:meth:`Observable.compute`.'''
         self._update_direct(cache)
         direct = cache.load('op_%s_alpha' % self.label)
-        return direct.expectation_value(cache['dm_alpha'])
+        return direct.contract_two('ab,ab', cache['dm_alpha'])
 
     def add_fock(self, cache, fock_alpha):
         '''See py:meth:`Observable.add_fock`.'''
@@ -156,7 +156,7 @@ class UDirectTerm(Observable):
             dm_full = compute_dm_full(cache)
             direct, new = cache.load('op_%s' % self.label, alloc=dm_full.new)
             if new:
-                self.op_alpha.apply_direct(dm_full, direct)
+                self.op_alpha.contract_two_to_two('abcd,bd->ac', dm_full, direct)
         else:
             # This is probably never going to happen. In case it does, please
             # add the proper code here.
@@ -169,7 +169,7 @@ class UDirectTerm(Observable):
             # This branch is nearly always going to be followed in practice.
             direct = cache['op_%s' % self.label]
             dm_full = cache['dm_full']
-            return 0.5 * direct.expectation_value(dm_full)
+            return 0.5 * direct.contract_two('ab,ab', dm_full)
         else:
             # This is probably never going to happen. In case it does, please
             # add the proper code here.
@@ -201,14 +201,14 @@ class RExchangeTerm(Observable):
         exchange_alpha, new = cache.load('op_%s_alpha' % self.label,
                                          alloc=dm_alpha.new)
         if new:
-            self.op_alpha.apply_exchange(dm_alpha, exchange_alpha)
+            self.op_alpha.contract_two_to_two('abcd,cb->ad', dm_alpha, exchange_alpha)
 
     def compute(self, cache):
         '''See :py:meth:`Observable.compute`.'''
         self._update_exchange(cache)
         exchange_alpha = cache['op_%s_alpha' % self.label]
         dm_alpha = cache['dm_alpha']
-        return -self.fraction * exchange_alpha.expectation_value(dm_alpha)
+        return -self.fraction * exchange_alpha.contract_two('ab,ab', dm_alpha)
 
     def add_fock(self, cache, fock_alpha):
         '''See py:meth:`Observable.add_fock`.'''
@@ -231,13 +231,13 @@ class UExchangeTerm(Observable):
         exchange_alpha, new = cache.load('op_%s_alpha' % self.label,
                                          alloc=dm_alpha.new)
         if new:
-            self.op_alpha.apply_exchange(dm_alpha, exchange_alpha)
+            self.op_alpha.contract_two_to_two('abcd,cb->ad', dm_alpha, exchange_alpha)
         # beta
         dm_beta = cache['dm_beta']
         exchange_beta, new = cache.load('op_%s_beta' % self.label,
                                          alloc=dm_beta.new)
         if new:
-            self.op_beta.apply_exchange(dm_beta, exchange_beta)
+            self.op_beta.contract_two_to_two('abcd,cb->ad', dm_beta, exchange_beta)
 
     def compute(self, cache):
         '''See :py:meth:`Observable.compute`.'''
@@ -246,8 +246,8 @@ class UExchangeTerm(Observable):
         exchange_beta = cache['op_%s_beta' % self.label]
         dm_alpha = cache['dm_alpha']
         dm_beta = cache['dm_beta']
-        return -0.5 * self.fraction * exchange_alpha.expectation_value(dm_alpha) \
-               -0.5 * self.fraction * exchange_beta.expectation_value(dm_beta)
+        return -0.5 * self.fraction * exchange_alpha.contract_two('ab,ab', dm_alpha) \
+               -0.5 * self.fraction * exchange_beta.contract_two('ab,ab', dm_beta)
 
     def add_fock(self, cache, fock_alpha, fock_beta):
         '''See py:meth:`Observable.add_fock`.'''

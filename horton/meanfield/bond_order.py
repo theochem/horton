@@ -145,14 +145,14 @@ def _compute_bond_orders_low(dm, operators):
     precomputed = []
     for i0 in xrange(n):
         # compute population
-        populations[i0] = operators[i0].expectation_value(dm)
+        populations[i0] = operators[i0].contract_two('ab,ab', dm)
         # precompute a dot product
         tmp = dm.copy()
         tmp.idot(operators[i0])
         precomputed.append(tmp)
         for i1 in xrange(i0+1):
             # compute bond orders
-            bond_orders[i0, i1] = 2*precomputed[i0].trace_product(precomputed[i1])
+            bond_orders[i0, i1] = 2*precomputed[i0].contract_two('ab,ba', precomputed[i1])
             bond_orders[i1, i0] = bond_orders[i0, i1]
 
     return bond_orders, populations
@@ -184,5 +184,5 @@ def _compute_valences_low(dm, populations, operators):
         # valence for atom i
         tmp = dm.copy()
         tmp.idot(operators[i])
-        valences[i] = 2*populations[i] - tmp.trace_product(tmp)
+        valences[i] = 2*populations[i] - tmp.contract_two('ab,ba', tmp)
     return valences
