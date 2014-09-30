@@ -54,8 +54,8 @@ __all__ = [
 cdef class Cell:
     '''Representation of periodic boundary conditions.
 
-       0, 1, 2 and 3 dimensional systems are supported. The cell vectors need
-       not to be orthogonal.
+       0, 1, 2 and 3 dimensional systems are supported. The cell vectors don't
+       need to be orthogonal.
     '''
 
     def __cinit__(self, np.ndarray[double, ndim=2] rvecs=None, initvoid=False):
@@ -79,6 +79,7 @@ cdef class Cell:
 
     @classmethod
     def from_hdf5(cls, grp):
+        '''Construct a Cell object from data in an HDF5 group'''
         if grp['rvecs'].size > 0:
             rvecs = np.array(grp['rvecs'])
             return cls(rvecs)
@@ -86,6 +87,7 @@ cdef class Cell:
             return cls(None)
 
     def to_hdf5(self, grp):
+        '''Write the cell object to an HDF5 group'''
         grp.create_dataset('rvecs', data=self.rvecs, maxshape=(None,None))
 
     @classmethod
@@ -226,15 +228,19 @@ cdef class Cell:
             return result
 
     def get_rlength(self, int i):
+        '''Get the length of the i-the real-space cell vector.'''
         return self._this.get_rlength(i);
 
     def get_glength(self, int i):
+        '''Get the length of the i-the reciprocal cell vector.'''
         return self._this.get_glength(i);
 
     def get_rspacing(self, int i):
+        '''Get the spacing between the i-the real-space cell planes.'''
         return self._this.get_rspacing(i);
 
     def get_gspacing(self, int i):
+        '''Get the spacing between the i-the reciprocal cell planes.'''
         return self._this.get_gspacing(i);
 
     property parameters:
@@ -305,29 +311,29 @@ cdef class Cell:
         assert r.size == self.nvec
         self._this.add_rvec(&delta[0], <long*>np.PyArray_DATA(r))
 
-    def get_ranges_rcut(self, np.ndarray[double, ndim=1] delta not None, double rcut):
+    def get_ranges_rcut(self, np.ndarray[double, ndim=1] center not None, double rcut):
         '''Return the integer ranges for linear combinations of cell vectors.
 
            **Arguments:**
 
-           delta
-                The relative vector between two (interaction) centers
+           center
+                The origin of the cutoff sphere
 
            rcut
                 A cutoff radius
 
            The returned ranges span the linear combination of cell vectors that
            can be added to delta to obtain all periodic images within the cutoff
-           sphere centered at the origin.
+           sphere.
         '''
-        assert delta.flags['C_CONTIGUOUS']
-        assert delta.size == 3
+        assert center.flags['C_CONTIGUOUS']
+        assert center.size == 3
         assert rcut >= 0
 
         cdef np.ndarray[long, ndim=1] ranges_begin = np.zeros(self.nvec, int)
         cdef np.ndarray[long, ndim=1] ranges_end = np.zeros(self.nvec, int)
         self._this.set_ranges_rcut(
-            &delta[0], rcut,  <long*>np.PyArray_DATA(ranges_begin),
+            &center[0], rcut,  <long*>np.PyArray_DATA(ranges_begin),
             <long*>np.PyArray_DATA(ranges_end))
         return ranges_begin, ranges_end
 
@@ -339,6 +345,30 @@ cdef class Cell:
                       np.ndarray[long, ndim=1] shape not None,
                       np.ndarray[long, ndim=1] pbc not None,
                       np.ndarray[long, ndim=2] indexes not None):
+        '''Select the indexes of periodic images inside a cutoff sphere
+
+           **Arguments:**
+
+           origin
+                The origin of a supercell.
+
+           center
+                The center of the cutoff sphere.
+
+           rcut
+                The cutoff radius.
+
+           ranges_begin, ranges_end
+                As obtained with :py:meth:`horton.cext.Cell.get_ranges_rcut`.
+
+           shape
+                The shape of the supercell
+
+           indexes
+                A sufficiently large output array. The number of rows is the
+                product of the lengths of the ranges specified by ranges_begin
+                and ranges_end. The number of columns equals ``nvec``.
+        '''
 
         assert origin.flags['C_CONTIGUOUS']
         assert origin.size == 3
@@ -367,7 +397,8 @@ cdef class Cell:
             <long*>np.PyArray_DATA(indexes))
 
 
-def smart_wrap(long i, long shape, long pbc ):
+def smart_wrap(long i, long shape, long pbc):
+    '''Returned a standardize modulo operation i % shape if pbc is nonzero, -1 otherwise.'''
     return cell.smart_wrap(i, shape, pbc)
 
 
@@ -499,6 +530,8 @@ def compute_grid_nucpot(np.ndarray[double, ndim=2] coordinates not None,
 def compute_nucnuc(np.ndarray[double, ndim=2] coordinates not None,
                    np.ndarray[double, ndim=1] charges not None):
     '''Compute interaction energy of the nuclei
+
+       **Arguments:**
 
        coordinates
             A (N, 3) float numpy array with Cartesian coordinates of the

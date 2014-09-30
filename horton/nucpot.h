@@ -18,6 +18,8 @@
 //
 //--
 
+// UPDATELIBDOCTITLE: Low-level implementation of nuclear potential on a grid
+
 
 #ifndef HORTON_NUCPOT_H
 #define HORTON_NUCPOT_H

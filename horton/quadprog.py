@@ -51,7 +51,7 @@ r'''A light-weight quadratic programming solver
    Notation
    ........
 
-   The following naming conventions are used:
+   The following naming conventions are used in the quadprog code:
 
    free
         Refers to the components of the solution that is not constrained to

@@ -173,36 +173,6 @@ Cell::Cell(double* _rvecs, int _nvec) {
 }
 
 
-double Cell::get_rspacing(int i) const {
-    if ((i < 0) || (i > 3)) {
-        throw std::domain_error("Index must be 0, 1 or 2.");
-    }
-    return rspacings[i];
-}
-
-
-double Cell::get_gspacing(int i) const {
-    if ((i < 0) || (i > 3)) {
-        throw std::domain_error("Index must be 0, 1 or 2.");
-    }
-    return gspacings[i];
-}
-
-double Cell::get_rlength(int i) const {
-    if ((i < 0) || (i > 3)) {
-        throw std::domain_error("Index must be 0, 1 or 2.");
-    }
-    return rlengths[i];
-}
-
-double Cell::get_glength(int i) const {
-    if ((i < 0) || (i > 3)) {
-        throw std::domain_error("Index must be 0, 1 or 2.");
-    }
-    return glengths[i];
-}
-
-
 void Cell::mic(double* delta) const {
     // Applies the Minimum Image Convention. Well, sort of. It does not always work like this.
     // This function contains an unrolled loop for speed.
@@ -239,6 +209,7 @@ void Cell::to_cart(double* frac, double* cart) const {
     cart[2] = rvecs[2]*frac[0] + rvecs[5]*frac[1] + rvecs[8]*frac[2];
 }
 
+
 void Cell::g_lincomb(double* coeffs, double* gvec) const {
     // Make a linear combination of reciprocal cell vectors
     gvec[0] = gvecs[0]*coeffs[0] + gvecs[3]*coeffs[1] + gvecs[6]*coeffs[2];
@@ -246,29 +217,60 @@ void Cell::g_lincomb(double* coeffs, double* gvec) const {
     gvec[2] = gvecs[2]*coeffs[0] + gvecs[5]*coeffs[1] + gvecs[8]*coeffs[2];
 }
 
-void Cell::dot_rvecs(double* cart, double* dot_rvecs) const {
+
+void Cell::dot_rvecs(double* cart, double* dots) const {
     // Take dot product with real cell vectors
-    dot_rvecs[0] = rvecs[0]*cart[0] + rvecs[1]*cart[1] + rvecs[2]*cart[2];
-    dot_rvecs[1] = rvecs[3]*cart[0] + rvecs[4]*cart[1] + rvecs[5]*cart[2];
-    dot_rvecs[2] = rvecs[6]*cart[0] + rvecs[7]*cart[1] + rvecs[8]*cart[2];
+    dots[0] = rvecs[0]*cart[0] + rvecs[1]*cart[1] + rvecs[2]*cart[2];
+    dots[1] = rvecs[3]*cart[0] + rvecs[4]*cart[1] + rvecs[5]*cart[2];
+    dots[2] = rvecs[6]*cart[0] + rvecs[7]*cart[1] + rvecs[8]*cart[2];
 }
 
 
-void Cell::add_rvec(double* delta, long* r) const {
+void Cell::add_rvec(double* delta, long* coeffs) const {
     // Simply adds an linear combination of real cell vectors to delta.
     // This function contains an unrolled loop for speed.
     if (nvec == 0) return;
-    delta[0] += r[0]*rvecs[0];
-    delta[1] += r[0]*rvecs[1];
-    delta[2] += r[0]*rvecs[2];
+    delta[0] += coeffs[0]*rvecs[0];
+    delta[1] += coeffs[0]*rvecs[1];
+    delta[2] += coeffs[0]*rvecs[2];
     if (nvec == 1) return;
-    delta[0] += r[1]*rvecs[3];
-    delta[1] += r[1]*rvecs[4];
-    delta[2] += r[1]*rvecs[5];
+    delta[0] += coeffs[1]*rvecs[3];
+    delta[1] += coeffs[1]*rvecs[4];
+    delta[2] += coeffs[1]*rvecs[5];
     if (nvec == 2) return;
-    delta[0] += r[2]*rvecs[6];
-    delta[1] += r[2]*rvecs[7];
-    delta[2] += r[2]*rvecs[8];
+    delta[0] += coeffs[2]*rvecs[6];
+    delta[1] += coeffs[2]*rvecs[7];
+    delta[2] += coeffs[2]*rvecs[8];
+}
+
+
+double Cell::get_rspacing(int i) const {
+    if ((i < 0) || (i > 3)) {
+        throw std::domain_error("Index must be 0, 1 or 2.");
+    }
+    return rspacings[i];
+}
+
+
+double Cell::get_gspacing(int i) const {
+    if ((i < 0) || (i > 3)) {
+        throw std::domain_error("Index must be 0, 1 or 2.");
+    }
+    return gspacings[i];
+}
+
+double Cell::get_rlength(int i) const {
+    if ((i < 0) || (i > 3)) {
+        throw std::domain_error("Index must be 0, 1 or 2.");
+    }
+    return rlengths[i];
+}
+
+double Cell::get_glength(int i) const {
+    if ((i < 0) || (i > 3)) {
+        throw std::domain_error("Index must be 0, 1 or 2.");
+    }
+    return glengths[i];
 }
 
 
@@ -302,18 +304,10 @@ void Cell::copy_gspacings(double* _gspacings) const {
 }
 
 
-void Cell::set_ranges_rcut(double* delta, double rcut,  long* ranges_begin,
+void Cell::set_ranges_rcut(double* center, double rcut,  long* ranges_begin,
     long* ranges_end) const {
-    /*
-        Define the ranges for the linear combinations of cell vectors that must
-        be added to delta, to obtain all periodic images off delta that lie
-        within the cutoff sphere centered at the origin.
-
-        The ranges are such that some images may fall outside the cutoff sphere
-        but it is assured that not periodic images overlooked.
-    */
     double frac[3];
-    to_frac(delta, frac);
+    to_frac(center, frac);
     for (int i=nvec-1; i>=0; i--) {
         double step = rcut/rspacings[i];
         ranges_begin[i] = ceil(-frac[i]-step);
@@ -402,7 +396,7 @@ long smart_wrap(long i, long shape, long pbc) {
     if ((i < 0) || (i >= shape)) {
         if (pbc) {
             long j = i%shape;
-            if (j < 0) j += shape; // just to make sure that this works on all c++ compilers.
+            if (j < 0) j += shape; // just to make sure that this works on all compilers.
             return j;
         } else {
             return -1;

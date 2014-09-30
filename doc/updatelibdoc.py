@@ -60,6 +60,14 @@ def get_first_docline(module):
     return 'FIXME! Write module docstring.'
 
 
+def get_first_doxygenline(fn_h):
+    with open('../%s' % fn_h) as f:
+        for line in f:
+            if line.startswith('// UPDATELIBDOCTITLE:'):
+                return line[21:].strip()
+        return 'Missing UPDATELIBDOCTITLE. Please fix!'
+
+
 def underline(line, char, f):
     print >> f, line
     print >> f, char*len(line)
@@ -86,7 +94,7 @@ def main():
             if module.endswith('.h'):
                 #full = package + '/' + module
                 fn_h = package.replace('.', '/') + '/' + module
-                underline('``%s``' % fn_h, '=', f)
+                underline('``%s`` -- %s' % (fn_h, get_first_doxygenline(fn_h)), '=', f)
                 print >> f, '.. doxygenfile::', fn_h
                 print >> f, '    :project: horton'
                 print >> f
