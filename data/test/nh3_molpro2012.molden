@@ -1,4 +1,6 @@
 [Molden Format]
+[Title]
+ This title was manually added for the tests
 [Molpro variables]
 _NUMVAR=  785.0000000000000
 _AVOGAD= 0.6022136736000000E+24

@@ -248,6 +248,7 @@ def compare_exps(exp1, exp2):
 
 
 def compare_mols(mol1, mol2):
+    assert (getattr(mol1, 'title') == getattr(mol2, 'title'))
     assert (mol1.numbers == mol2.numbers).all()
     assert (mol1.coordinates == mol2.coordinates).all()
     # orbital basis

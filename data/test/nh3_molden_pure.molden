@@ -1,4 +1,6 @@
 [Molden Format]
+[Title]
+ This title was manually added for the tests
 [Atoms] Angs
  N     1  7    -0.007455     0.044763     0.054913
  H     2  1     0.791232     0.011334     0.023580
