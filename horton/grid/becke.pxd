@@ -20,7 +20,7 @@
 #--
 
 
-cdef extern from "becke.h":
+cdef extern from "horton/grid/becke.h":
     void becke_helper_atom(int npoint, double* points, double* weights,
                            int natom, double* radii, double* centers, int
                            select, int order)

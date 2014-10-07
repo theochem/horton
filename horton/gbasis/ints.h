@@ -22,9 +22,9 @@
 #ifndef HORTON_GBASIS_INTS_H
 #define HORTON_GBASIS_INTS_H
 
-#include "calc.h"
-#include "iter_pow.h"
 #include "libint2.h"
+#include "horton/gbasis/calc.h"
+#include "horton/gbasis/iter_pow.h"
 
 
 class GB2Integral : public GBCalculator {

@@ -21,7 +21,7 @@
 
 #include <cmath>
 #include <cstddef>
-#include "mask.h"
+#include "horton/espfit/mask.h"
 
 
 double switch_fn(double x, double a) {

@@ -19,16 +19,15 @@
 #
 #--
 
-cimport cell
-cimport uniform
+cimport horton.grid.uniform
 
-cdef extern from "mask.h":
+cdef extern from "horton/espfit/mask.h":
     void multiply_dens_mask(double* rho, double lnrho0, double sigma,
         double* weights, long npoint)
 
-    void multiply_near_mask(double* center, uniform.UniformGrid* ugrid,
-        double r0, double gamma, double* weights)
+    void multiply_near_mask(double* center, horton.grid.uniform.UniformGrid*
+        ugrid, double r0, double gamma, double* weights)
 
     void multiply_far_mask(double* centers, long ncenter,
-        uniform.UniformGrid* ugrid, double r0, double gamma,
+        horton.grid.uniform.UniformGrid* ugrid, double r0, double gamma,
         double* weights)

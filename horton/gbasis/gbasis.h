@@ -22,8 +22,8 @@
 #ifndef HORTON_GBASIS_GBASIS_H
 #define HORTON_GBASIS_GBASIS_H
 
-#include "ints.h"
-#include "fns.h"
+#include "horton/gbasis/ints.h"
+#include "horton/gbasis/fns.h"
 
 
 const double gob_cart_normalization(const double alpha, const long* n);

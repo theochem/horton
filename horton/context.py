@@ -33,7 +33,7 @@
 '''
 
 
-import os
+import os, sys
 from glob import glob
 
 
@@ -47,6 +47,7 @@ class Context(object):
        pseudo potentials.
     '''
     def __init__(self):
+        # Determine data directory (also for in-place build)
         self.data_dir = os.getenv('HORTONDATA')
         if self.data_dir is None:
             fn_data_dir = os.path.join(os.path.dirname(__file__), 'data_dir.txt')
@@ -56,6 +57,15 @@ class Context(object):
         if self.data_dir is None:
             self.data_dir = './data'
         self.data_dir = os.path.abspath(self.data_dir)
+        # Determine include directory
+        self.include_dir = os.getenv('HORTONINCLUDE')
+        if self.include_dir is None:
+            fn_data_dir = os.path.join(os.path.dirname(__file__), 'data_dir.txt')
+            if os.path.isfile(fn_data_dir):
+                with open(fn_data_dir) as f:
+                    self.include_dir = os.path.join(
+                        f.read().strip(), 
+                        'include/python%i.%i' % (sys.version_info.major, sys.version_info.minor))
         if not os.path.isdir(self.data_dir):
             raise IOError('Can not find the data files. The directory %s does not exist.' % self.data_dir)
 
@@ -66,6 +76,10 @@ class Context(object):
     def glob(self, pattern):
         '''Return all files in the data directory that match the given pattern.'''
         return glob(self.get_fn(pattern))
+
+    def get_include(self):
+        '''Return the list with directories containing header files (.h and .pxd)'''
+        return self.include_dir
 
 
 context = Context()

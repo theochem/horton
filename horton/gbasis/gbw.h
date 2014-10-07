@@ -21,8 +21,8 @@
 #ifndef GBW4_H
 #define GBW4_H
 
-#include "gbasis.h"
-#include "ints.h"
+#include "horton/gbasis/gbasis.h"
+#include "horton/gbasis/ints.h"
 
 class GB4IntegralWrapper {
     private:

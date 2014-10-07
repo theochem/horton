@@ -24,10 +24,10 @@
 #include <cstring>
 #include <stdexcept>
 #include <cstdlib>
-#include "boys.h"
-#include "cartpure.h"
-#include "common.h"
-#include "ints.h"
+#include "horton/gbasis/boys.h"
+#include "horton/gbasis/cartpure.h"
+#include "horton/gbasis/common.h"
+#include "horton/gbasis/ints.h"
 using std::abs;
 
 /*

@@ -20,5 +20,5 @@
 #--
 
 
-cdef extern from "boys.h":
+cdef extern from "horton/gbasis/boys.h":
     double boys_function(long m, double t) except +

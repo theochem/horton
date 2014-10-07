@@ -21,7 +21,6 @@
 
 
 cimport uniform
-cimport horton.cext
 
 cdef class UniformGrid:
     cdef uniform.UniformGrid* _this

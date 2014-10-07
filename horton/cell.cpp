@@ -27,7 +27,7 @@
 
 #include <cmath>
 #include <stdexcept>
-#include "cell.h"
+#include "horton/cell.h"
 
 
 Cell::Cell(double* _rvecs, int _nvec) {

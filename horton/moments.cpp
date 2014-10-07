@@ -20,7 +20,8 @@
 
 
 #include <stdexcept>
-#include <math.h>
+#include <cmath>
+#include "horton/moments.h"
 
 
 long fill_cartesian_polynomials(double* output, long lmax) {

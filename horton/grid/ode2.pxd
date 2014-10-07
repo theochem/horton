@@ -19,9 +19,10 @@
 #
 #--
 
+
 cimport libcpp
 
-cdef extern from "ode2.h":
+cdef extern from "horton/grid/ode2.h":
     double hermite_overlap2(long xmax, long i0, libcpp.bool deriv0, long i1, libcpp.bool deriv1)
     double hermite_overlap3(long xmax, long i0, libcpp.bool deriv0, long i1, libcpp.bool deriv1, long i2, libcpp.bool deriv2)
     double hermite_node(long x, long center, libcpp.bool kind, libcpp.bool deriv)

@@ -19,8 +19,8 @@
 //--
 
 
-#include "common.h"
 #include <cmath>
+#include "horton/gbasis/common.h"
 
 
 long fac(long n) {

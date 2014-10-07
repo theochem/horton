@@ -22,7 +22,7 @@
 #define CHOLESKY_H
 
 #include <vector>
-#include "gbw.h"
+#include "horton/gbasis/gbw.h"
 
 #ifdef CBLAS_C
 extern "C"

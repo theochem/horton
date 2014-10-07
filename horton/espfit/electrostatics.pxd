@@ -19,20 +19,20 @@
 #
 #--
 
-cimport cell
-cimport uniform
+cimport horton.cell
+cimport horton.grid.uniform
 
-cdef extern from "electrostatics.h":
-    double pair_electrostatics(double* delta, cell.Cell* cell, double rcut,
+cdef extern from "horton/espfit/electrostatics.h":
+    double pair_electrostatics(double* delta, horton.cell.Cell* cell, double rcut,
         double alpha, double gcut)
 
-    double pair_ewald3d(double* delta, cell.Cell* cell, double rcut,
+    double pair_ewald3d(double* delta, horton.cell.Cell* cell, double rcut,
         double alpha, double gcut)
 
-    void setup_esp_cost_cube(uniform.UniformGrid* ugrid,
+    void setup_esp_cost_cube(horton.grid.uniform.UniformGrid* ugrid,
         double* vref, double* weights, double* centers, double* A, double* B,
         double* C, long ncenter, double rcut, double alpha, double gcut) except +
 
-    void compute_esp_cube(uniform.UniformGrid* ugrid, double* esp,
+    void compute_esp_cube(horton.grid.uniform.UniformGrid* ugrid, double* esp,
         double* centers, double* charges, long ncenter, double rcut,
         double alpha, double gcut)

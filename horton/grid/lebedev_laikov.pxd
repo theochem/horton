@@ -20,5 +20,5 @@
 #--
 
 
-cdef extern from "lebedev_laikov.h":
+cdef extern from "horton/grid/lebedev_laikov.h":
     void lebedev_laikov_sphere(int npoint, double* points, double* weights) except +

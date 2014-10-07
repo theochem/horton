@@ -22,9 +22,9 @@
 #ifndef HORTON_GBASIS_FNS_H
 #define HORTON_GBASIS_FNS_H
 
-#include "calc.h"
-#include "common.h"
-#include "iter_pow.h"
+#include "horton/gbasis/calc.h"
+#include "horton/gbasis/common.h"
+#include "horton/gbasis/iter_pow.h"
 
 
 class GB1GridFn : public GBCalculator  {

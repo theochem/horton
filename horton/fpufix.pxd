@@ -20,5 +20,5 @@
 #--
 
 
-cdef extern from "fpufix.h":
+cdef extern from "horton/fpufix.h":
     void fpufix()

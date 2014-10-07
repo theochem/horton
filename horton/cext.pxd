@@ -20,8 +20,8 @@
 #--
 
 
-cimport cell
+cimport horton.cell
 
 
 cdef class Cell:
-    cdef cell.Cell* _this
+    cdef horton.cell.Cell* _this

@@ -22,7 +22,7 @@
 #ifndef HORTON_GBASIS_ITER_GB_H
 #define HORTON_GBASIS_ITER_GB_H
 
-#include "gbasis.h"
+#include "horton/gbasis/gbasis.h"
 
 class IterGB1 {
     private:

@@ -22,7 +22,7 @@
 
 cimport fns
 
-cdef extern from "gbasis.h":
+cdef extern from "horton/gbasis/gbasis.h":
     double gob_cart_normalization(double alpha, long* n)
     double gob_pure_normalization(double alpha, long l)
 

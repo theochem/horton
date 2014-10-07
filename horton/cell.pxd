@@ -20,7 +20,7 @@
 #--
 
 
-cdef extern from "cell.h":
+cdef extern from "horton/cell.h":
     cdef cppclass Cell:
         Cell(double* _rvecs, int _nvec) except +
         void mic(double* delta)

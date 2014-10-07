@@ -27,8 +27,8 @@
 
 #include <cmath>
 #include <stdexcept>
-#include "utils.h"
-#include "moments.h"
+#include "horton/moments.h"
+#include "horton/grid/utils.h"
 
 
 /*

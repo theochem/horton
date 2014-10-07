@@ -18,10 +18,10 @@
 //
 //--
 
-#include "cholesky.h"
 #include <cstddef>
 #include <cstring>
 #include <cmath>
+#include "horton/gbasis/cholesky.h"
 
 
 long cholesky(GB4IntegralWrapper* gbw4, double** uninit_result, double threshold) {

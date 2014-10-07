@@ -27,6 +27,7 @@ from glob import glob
 from distutils.core import setup
 from distutils.extension import Extension
 from distutils.command.install_data import install_data
+from distutils.command.install_headers import install_headers
 from Cython.Distutils import build_ext
 
 
@@ -37,6 +38,7 @@ execfile('customize.py')
 
 
 def get_sources(dirname):
+    '''Get all cpp files and the cext.pyx file of a package'''
     # avoid accidental inclusion of in-place build files and inc files
     result = [fn for fn in glob('%s/*.cpp' % dirname)
               if not (('ext.cpp' in fn) or ('_inc.cpp' in fn))]
@@ -45,12 +47,18 @@ def get_sources(dirname):
 
 
 def get_depends(dirname):
+    '''Get all files that should trigger a recompilation of the C extension of a package'''
     result = glob('%s/*.h' % dirname)
     result += glob('%s/*.pxd' % dirname)
-    result += glob('%s/*_inc.pxd' % dirname)
     return result
 
 
+def get_headers():
+    '''Get all header-like files that need to be installed'''
+    result = []
+    for dn in ['horton/'] + glob('horton/*/'):
+        result.extend(glob('%s/*.h' % dn))
+    return result
 
 
 class my_install_data(install_data):
@@ -73,6 +81,22 @@ class my_install_data(install_data):
                     f = file(destination, "w")
                     print >> f, self.install_dir
                     f.close()
+
+
+class my_install_headers(install_headers):
+    def run(self):
+        headers = self.distribution.headers
+        if not headers:
+            return
+
+        self.mkpath(self.install_dir)
+        for header in headers:
+            dest = os.path.join(os.path.dirname(self.install_dir), header)
+            dest_dn = os.path.dirname(dest)
+            if not os.path.isdir(dest_dn):
+                self.mkpath(dest_dn)
+            (out, _) = self.copy_file(header, dest)
+            self.outfiles.append(out)
 
 
 
@@ -138,7 +162,11 @@ setup(
               'horton.scripts', 'horton.scripts.test',
               'horton.modelhamiltonians',
               'horton.modelhamiltonians.test'],
-    cmdclass = {'build_ext': build_ext, 'install_data': my_install_data},
+    cmdclass = {
+        'build_ext': build_ext,
+        'install_data': my_install_data,
+        'install_headers': my_install_headers,
+    },
     data_files=[
         ('share/horton/', glob('data/*.*')),
         ('share/horton/test', glob('data/test/*.*')),
@@ -149,23 +177,29 @@ setup(
         ('share/horton/examples/%s' % os.path.basename(dn[:-1]), glob('%s/*.py' % dn) + glob('%s/*.xyz' % dn))
         for dn in glob('data/examples/*/')
     ],
+    package_data={
+        'horton': ['*.pxd'],
+        'horton.espfit': ['*.pxd'],
+        'horton.gbasis': ['*.pxd'],
+        'horton.grid': ['*.pxd'],
+    },
     ext_modules=[
         Extension("horton.cext",
             sources=get_sources('horton'),
             depends=get_depends('horton'),
-            include_dirs=[np.get_include()],
+            include_dirs=[np.get_include(), '.'],
             language="c++"),
         Extension("horton.matrix.cext",
             sources=get_sources('horton/matrix'),
             depends=get_depends('horton/matrix'),
-            include_dirs=[np.get_include()],
+            include_dirs=[np.get_include(), '.'],
             language="c++"),
         Extension("horton.gbasis.cext",
             sources=get_sources('horton/gbasis') + ['horton/moments.cpp'],
             depends=get_depends('horton/gbasis') + ['horton/moments.pxd', 'horton/moments.h'],
             extra_objects=libint_extra_objects,
             libraries=libint_libraries+blas_libraries,
-            include_dirs=[np.get_include(), 'horton'] + libint_include_dirs +
+            include_dirs=[np.get_include(), '.'] + libint_include_dirs +
             blas_include_dirs,
             library_dirs = blas_lib_dirs,
             define_macros = [blas_precompiler],
@@ -177,7 +211,7 @@ setup(
             depends=get_depends('horton/grid') + [
                 'horton/cell.pxd', 'horton/cell.h',
                 'horton/moments.pxd', 'horton/moments.h'],
-            include_dirs=[np.get_include(), 'horton'],
+            include_dirs=[np.get_include(), '.'],
             #extra_compile_args=["-fopenmp"],
             #extra_link_args=["-fopenmp"],
             language="c++",),
@@ -186,7 +220,7 @@ setup(
             depends=get_depends('horton/meanfield'),
             extra_objects=libxc_extra_objects,
             libraries=libcx_libraries,
-            include_dirs=[np.get_include()] + libxc_include_dirs,
+            include_dirs=[np.get_include(), '.'] + libxc_include_dirs,
             language="c++"),
         Extension("horton.espfit.cext",
             sources=get_sources('horton/espfit') + [
@@ -195,9 +229,10 @@ setup(
             depends=get_depends('horton/espfit') + [
                 'horton/cell.pxd', 'horton/cell.h',
                 'horton/grid/uniform.pxd', 'horton/grid/uniform.h'],
-            include_dirs=[np.get_include(), 'horton', 'horton/grid'],
+            include_dirs=[np.get_include(), '.'],
             language="c++"),
     ],
+    headers=get_headers(),
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Console',

@@ -26,9 +26,9 @@
 #include <cmath>
 #include <cstdlib>
 #include <stdexcept>
-#include "calc.h"
-#include "cartpure.h"
-#include "common.h"
+#include "horton/gbasis/calc.h"
+#include "horton/gbasis/cartpure.h"
+#include "horton/gbasis/common.h"
 using namespace std;
 
 

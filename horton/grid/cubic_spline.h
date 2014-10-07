@@ -23,7 +23,7 @@
 #define HORTON_GRID_CUBIC_SPLINE_H
 
 
-#include "rtransform.h"
+#include "horton/grid/rtransform.h"
 
 
 void tridiagsym_solve(double* diag_mid, double* diag_up, double* right, double* solution, int n);

@@ -27,10 +27,10 @@
 #include <cstdlib>
 #include <cstring>
 #include <stdexcept>
-#include "boys.h"
-#include "cartpure.h"
-#include "fns.h"
-#include "moments.h"
+#include "horton/moments.h"
+#include "horton/gbasis/boys.h"
+#include "horton/gbasis/cartpure.h"
+#include "horton/gbasis/fns.h"
 using namespace std;
 
 

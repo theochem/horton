@@ -22,8 +22,8 @@
 #ifndef HORTON_ESPFIT_MASK
 #define HORTON_ESPFIT_MASK
 
-#include "cell.h"
-#include "uniform.h"
+#include "horton/cell.h"
+#include "horton/grid/uniform.h"
 
 void multiply_dens_mask(double* rho, double lnrho0, double sigma, double* weights, long npoint);
 

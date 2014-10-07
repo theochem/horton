@@ -22,7 +22,7 @@
 #include <cstdio>
 #include <cmath>
 #include <cstddef>
-#include "electrostatics.h"
+#include "horton/espfit/electrostatics.h"
 
 
 double pair_electrostatics(double* delta, const Cell* cell, double rcut,

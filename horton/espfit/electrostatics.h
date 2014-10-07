@@ -22,8 +22,8 @@
 #ifndef HORTON_ESPFIT_ELECTROSTATICS_H
 #define HORTON_ESPFIT_ELECTROSTATICS_H
 
-#include "cell.h"
-#include "uniform.h"
+#include "horton/cell.h"
+#include "horton/grid/uniform.h"
 
 double pair_electrostatics(double* delta, const Cell* cell, double rcut, double alpha,
     double gcut);

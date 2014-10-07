@@ -20,7 +20,7 @@
 
 
 #include <fpu_control.h>
-#include "fpufix.h"
+#include "horton/fpufix.h"
 
 void fpufix() {
     #if __GNUC__

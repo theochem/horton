@@ -19,9 +19,14 @@
 //--
 
 
+#ifndef HORTON_GRID_ODE2_H
+#define HORTON_GRID_ODE2_H
+
 double hermite_overlap2(long xmax, long i0, bool deriv0, long i1, bool deriv1);
 double hermite_overlap3(long xmax, long i0, bool deriv0, long i1, bool deriv1, long i2, bool deriv2);
 double hermite_node(long x, long center, bool kind, bool deriv);
 double hermite_product2(long x, long i0, bool deriv0, long i1, bool deriv1);
 void build_ode2(double* b, double* a, double *f, double** bcs, double* coeffs,
                 double* rhs, long npoint);
+
+#endif

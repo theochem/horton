@@ -22,8 +22,8 @@
 #ifndef HORTON_GRID_UNIFORM_H
 #define HORTON_GRID_UNIFORM_H
 
-#include "cell.h"
-#include "cubic_spline.h"
+#include "horton/cell.h"
+#include "horton/grid/cubic_spline.h"
 
 
 class UniformGrid {

@@ -20,9 +20,9 @@
 #--
 
 
-cimport cell
+cimport horton.cell
 
-cdef extern from "uniform.h":
+cdef extern from "horton/grid/uniform.h":
     cdef cppclass UniformGrid:
         double origin[3]
         double grid_rvecs[9]
@@ -31,8 +31,8 @@ cdef extern from "uniform.h":
 
         UniformGrid(double* _origin, double* _grid_rvecs, long* _shape, long* _pbc)
 
-        cell.Cell* get_cell()
-        cell.Cell* get_grid_cell()
+        horton.cell.Cell* get_cell()
+        horton.cell.Cell* get_grid_cell()
 
         void set_ranges_rcut(double* center, double rcut, long* ranges_begin, long* ranges_end)
         double dist_grid_point(double* center, long* i)

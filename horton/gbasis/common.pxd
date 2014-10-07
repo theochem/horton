@@ -20,7 +20,7 @@
 #--
 
 
-cdef extern from "common.h":
+cdef extern from "horton/gbasis/common.h":
     long fac(long n)
     long fac2(long n)
     long binom(long n, long m)

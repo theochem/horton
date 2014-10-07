@@ -26,8 +26,8 @@
 
 #include <cmath>
 #include <stdexcept>
-#include "evaluate.h"
-#include "moments.h"
+#include "horton/moments.h"
+#include "horton/grid/evaluate.h"
 
 
 void eval_spline_cube(CubicSpline* spline, double* center, double* output,
