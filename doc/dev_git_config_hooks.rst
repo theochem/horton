@@ -1,0 +1,2 @@
+Git configuration and hooks
+###########################

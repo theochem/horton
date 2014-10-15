@@ -1,4 +1,3 @@
-
 Gaussian basis functions
 ########################
 

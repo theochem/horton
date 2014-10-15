@@ -1,5 +1,5 @@
-Getting started
-###############
+Getting started on Linux (Fedora and Ubuntu)
+############################################
 
 
 .. contents::
