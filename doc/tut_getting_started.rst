@@ -79,7 +79,8 @@ packages are also needed:
 
 * Sphinx > 1.0: http://sphinx.pocoo.org/
 * Doxygen >= 1.8.6: http://www.doxygen.org/
-* Breathe >= 1.2.0: http://michaeljones.github.io/breathe/
+* Breathe >= 1.2.0: http://breathe.readthedocs.org/en/latest/
+* Docutils >= 0.11: http://docutils.sourceforge.net/
 
 On a decent operating system, these programs/libraries can be easily installed
 with a package manager. First check this possibility before manually installing
@@ -87,11 +88,11 @@ the dependencies.
 
 On Ubuntu Linux::
 
-    sudo apt-get install python-dev gcc g++ gfortran python-numpy python-h5py python-scipy cython python-sphinx python-nose python-sympy patch python-matplotlib
+    sudo apt-get install python-dev gcc g++ gfortran python-numpy python-h5py python-scipy cython python-sphinx python-nose python-sympy patch python-matplotlib doxygen python-pip preview-latex-style python-docutils
 
 On Fedora Linux::
 
-    sudo yum install python-devel gcc gcc-c++ gcc-gfortran numpy h5py scipy Cython python-sphinx python-nose sympy patch python-matplotlib
+    sudo yum install python-devel gcc gcc-c++ gcc-gfortran numpy h5py scipy Cython python-sphinx python-nose sympy patch python-matplotlib doxygen python-pip tex-preview python-docutils
 
 Since Breathe is relatively new, it must be installed manually. For example, it
 is available through PyPI and can be installed as follows::
