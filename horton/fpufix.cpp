@@ -19,14 +19,19 @@
 //--
 
 
-#include <fpu_control.h>
 #include "horton/fpufix.h"
 
+#if __GNUC__
+#if __i386__
+#include <fpu_control.h>
+#endif
+#endif
+
 void fpufix() {
-    #if __GNUC__
-    #if __i386__
-    fpu_control_t fpu_control = 0x027f ;
+#if __GNUC__
+#if __i386__
+    fpu_control_t fpu_control = 0x027f;
     _FPU_SETCW(fpu_control);
-    #endif
-    #endif
+#endif
+#endif
 }
