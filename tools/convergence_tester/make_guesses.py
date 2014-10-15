@@ -12,7 +12,7 @@ def store_wfn(fn_h5, mixing, name_case, exp):
         name_mixing = '%08.5f' % (-np.log10(mixing))
         grp = f.require_group(name_mixing)
         grp = grp.require_group(name_case)
-        
+
         # clear the group if anything was present
         for key in grp.keys():
             del grp[key]
@@ -48,25 +48,25 @@ def main():
         os.remove("guesses.h5")
     except OSError:
         pass
-    
+
     fn_name = context.get_fn('test/2h-azirine.xyz')
 
     mol = Molecule.from_file(fn_name)
     obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21G')
     lf = DenseLinalgFactory(obasis.nbasis)
-    
+
     # Compute Gaussian integrals
     olp = obasis.compute_overlap(lf)
     kin = obasis.compute_kinetic(lf)
     na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
     er = obasis.compute_electron_repulsion(lf)
-    
+
     # Create alpha orbitals
     exp_alpha = lf.create_expansion()
-    
+
     # Initial guess
     guess_core_hamiltonian(olp, kin, na, exp_alpha)
-    
+
     # Construct the restricted HF effective Hamiltonian
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
@@ -76,10 +76,10 @@ def main():
         ROneBodyTerm(na, 'ne'),
     ]
     ham = REffHam(terms, external)
-    
+
     # Decide how to occupy the orbitals (5 alpha electrons)
     occ_model = AufbauOccModel(5)
-    
+
     # Converge WFN with plain SCF
     scf_solver = PlainSCFSolver(1e-6)
     scf_solver(ham, lf, olp, occ_model, exp_alpha)
@@ -120,7 +120,7 @@ def main():
             exp_alpha_temp = lf.create_expansion()
             exp_alpha_temp.derive_naturals(dm_mixed, olp)
             # store the wfn in the h5 file
-            
+
             store_wfn('guesses.h5', mixing, 'case_%03i' % irandom, exp_alpha_temp)
 
 

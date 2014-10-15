@@ -38,7 +38,7 @@ class SCFOpt(Method):
         self.olp = olp
         self.occ_model = occ_model
         self.dm = dm_alpha
-        
+
     def solve(self):
         return self.scf_solver(self.ham, self.lf, self.olp, self.occ_model, self.dm)
 
@@ -61,13 +61,13 @@ def run(irandom, mixing, method):
     mol = Molecule.from_file(fn_name)
     obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21G')
     lf = DenseLinalgFactory(obasis.nbasis)
-    
-    
+
+
     olp = obasis.compute_overlap(lf)
     kin = obasis.compute_kinetic(lf)
     na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
     er = obasis.compute_electron_repulsion(lf)
-    
+
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
         ROneBodyTerm(kin, 'kin'),
@@ -76,20 +76,20 @@ def run(irandom, mixing, method):
         ROneBodyTerm(na, 'ne'),
     ]
     ham = REffHam(terms, external)
-    
+
     # Decide how to occupy the orbitals (5 alpha electrons)
     occ_model = AufbauOccModel(5)
-    
+
     for i in mixing[::-1]:
         exp_alpha = load_exp('guesses.h5', i, 'case_%03i' % irandom)
         print "mixing: " + str(i)
-        
+
         dm_alpha = exp_alpha.to_dm()
         ham.reset(dm_alpha)
-        
+
         energy0 = ham.compute()
         solver = method(ham, lf, olp, occ_model, dm_alpha)
-        
+
         try:
             niter = solver.solve()
             mix_iters.append(niter)
@@ -98,7 +98,7 @@ def run(irandom, mixing, method):
             if nfail > 2:
                 padding = ["inf"]*(len(mixing) - len(mix_iters))
                 return mix_iters + padding
-    
+
         print 'run %3i: %8.5f %3i %12.6f %12.6f' % (
             irandom, -np.log10(i), niter, energy0, ham.compute()
             )
@@ -109,22 +109,22 @@ def main():
         os.remove("scf_results.txt")
     except OSError:
         pass
-#     
+#
 #     res =  run(5, mixings, SCFOpt)
 #     print [str(mix) +" " + str(iter) for mix,iter in zip(reversed(mixings[-len(res):]), res)]
-    
+
     fseq = [futures.submit(run, i, mixings, SCFOpt) for i in xrange(nrandom)]
-          
+
     not_done = ["dummy"]
     while not_done:
         done, not_done = futures.wait(fseq, None, "FIRST_COMPLETED")
-              
+
         for i in done:
             with open('scf_results.txt', 'a') as f:
                 line = [str(mix) +" "+ str(iter) for mix,iter in zip(reversed(mixings[-len(i.result()):]), i.result())]
                 print >> f, '\n'.join(line)
             fseq.remove(i)
-    
+
 if __name__ == '__main__':
     mixings = np.array([1, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8])
     nrandom = 20
