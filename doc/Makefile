@@ -3,7 +3,7 @@
 
 # You can set these variables from the command line.
 SPHINXOPTS    =
-SPHINXBUILD   = PYTHONPATH=../ sphinx-build
+SPHINXBUILD   = PYTHONPATH=../:$(PYTHONPATH) sphinx-build
 PAPER         =
 BUILDDIR      = _build
 
@@ -36,10 +36,10 @@ help:
 autogendoc:
 	cd ..; python setup.py build_ext -i
 	mkdir -p lib
-	HORTONDATA=../data PYTHONPATH=../ python updatelibdoc.py
-	HORTONDATA=../data PYTHONPATH=../ python updategrids.py
-	HORTONDATA=../data PYTHONPATH=../ python updateliterature.py
-	HORTONDATA=../data PYTHONPATH=../ python updatefunctionals.py
+	HORTONDATA=../data PYTHONPATH=../:$(PYTHONPATH) python updatelibdoc.py
+	HORTONDATA=../data PYTHONPATH=../:$(PYTHONPATH) python updategrids.py
+	HORTONDATA=../data PYTHONPATH=../:$(PYTHONPATH) python updateliterature.py
+	HORTONDATA=../data PYTHONPATH=../:$(PYTHONPATH) python updatefunctionals.py
 	doxygen doxygen.conf
 
 clean:
