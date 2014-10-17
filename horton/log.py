@@ -238,15 +238,22 @@ class Timer(object):
     def __init__(self):
         self.cpu = 0.0
         self._start = None
+        # The _depth attribute is needed for timed recursive functions.
+        self._depth = 0
 
     def start(self):
-        assert self._start is None
-        self._start = time.clock()
+        if self._depth == 0:
+            assert self._start is None
+            self._start = time.clock()
+        self._depth += 1
 
     def stop(self):
-        assert self._start is not None
-        self.cpu += time.clock() - self._start
-        self._start = None
+        if self._depth > 0:
+            assert self._start is not None
+            self._depth -= 1
+        if self._depth == 0:
+            self.cpu += time.clock() - self._start
+            self._start = None
 
 
 class SubTimer(object):
