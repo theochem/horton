@@ -65,3 +65,6 @@ def test_periodic():
     # check derived becke radius
     assert periodic[1].becke_radius == periodic[1].cov_radius_slater
     assert periodic[2].becke_radius == periodic[2].cov_radius_cordero
+    # check pauling electronegativity
+    assert periodic[1].eneg_pauling == 2.2
+    assert periodic[9].eneg_pauling == 3.98

@@ -137,7 +137,7 @@ class Element(object):
         'cov_radius_cordero', 'cov_radius_bragg', 'cov_radius_slater',
         'vdw_radius_bondi', 'vdw_radius_truhlar', 'vdw_radius_rt',
         'vdw_radius_batsanov', 'vdw_radius_dreiding', 'vdw_radius_uff',
-        'vdw_radius_mm3', 'wc_radius', 'cr_radius',
+        'vdw_radius_mm3', 'wc_radius', 'cr_radius', 'eneg_pauling',
     ]
 
     def __init__(self, number=None, symbol=None, **kwargs):
