@@ -57,6 +57,8 @@ def check_water_hf_sto3g(scheme, expecting, needs_padb=True, **kwargs):
     if kwargs.get('greedy', False):
         check_proatom_splines(wpart)
 
+    return wpart
+
 
 def test_hirshfeld_water_hf_sto3g_local():
     expecting = np.array([-0.246171541212, 0.123092011074, 0.123079530138]) # from HiPart
@@ -115,7 +117,11 @@ def test_is_water_hf_sto3g():
 
 def test_mbis_water_hf_sto3g():
     expecting = np.array([-0.61891067, 0.3095756, 0.30932584])
-    check_water_hf_sto3g('mbis', expecting, needs_padb=False)
+    wpart = check_water_hf_sto3g('mbis', expecting, needs_padb=False)
+    assert (wpart['charges'] == wpart['valence_charges'] + wpart['core_charges']).all()
+    assert (wpart['core_charges'] > 0).all()
+    assert (wpart['valence_charges'] < 0).all()
+    assert (wpart['valence_widths'] > 0).all()
 
 
 def check_msa_hf_lan(scheme, expecting, needs_padb=True, **kwargs):

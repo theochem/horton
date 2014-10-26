@@ -151,19 +151,36 @@ class MBISWPart(IterativeProatomMixin, StockholderWPart):
             propars[self._ranges[iatom]:self._ranges[iatom+1]] = _get_initial_mbis_propars(self.numbers[iatom])
         return propars
 
-    def _update_propars_atom(self, index):
+    def _update_propars_atom(self, iatom):
         # compute spherical average
-        atgrid = self.get_grid(index)
+        atgrid = self.get_grid(iatom)
         rgrid = atgrid.rgrid
-        dens = self.get_moldens(index)
-        at_weights = self.cache.load('at_weights', index)
+        dens = self.get_moldens(iatom)
+        at_weights = self.cache.load('at_weights', iatom)
         spherical_average = np.clip(atgrid.get_spherical_average(at_weights, dens), 1e-100, np.inf)
 
         # assign as new propars
-        my_propars = self.cache.load('propars')[self._ranges[index]:self._ranges[index+1]]
+        my_propars = self.cache.load('propars')[self._ranges[iatom]:self._ranges[iatom+1]]
         my_propars[:] = _opt_mbis_propars(spherical_average, my_propars.copy(), rgrid, self._threshold)
 
         # compute the new charge
         pseudo_population = rgrid.integrate(spherical_average)
         charges = self.cache.load('charges', alloc=self.natom, tags='o')[0]
-        charges[index] = self.pseudo_numbers[index] - pseudo_population
+        charges[iatom] = self.pseudo_numbers[iatom] - pseudo_population
+
+    def _finalize_propars(self):
+        IterativeProatomMixin._finalize_propars(self)
+        propars = self.cache.load('propars')
+        core_charges = []
+        valence_charges = []
+        valence_widths = []
+        for iatom in xrange(self.natom):
+            my_propars = propars[self._ranges[iatom]:self._ranges[iatom+1]]
+            valence_charges.append(-my_propars[-2])
+            valence_widths.append(1.0/my_propars[-1])
+        valence_charges = np.array(valence_charges)
+        valence_widths = np.array(valence_widths)
+        core_charges = self._cache.load('charges') - valence_charges
+        self.cache.dump('core_charges', core_charges, tags='o')
+        self.cache.dump('valence_charges', valence_charges, tags='o')
+        self.cache.dump('valence_widths', valence_widths, tags='o')
