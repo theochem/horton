@@ -25,7 +25,7 @@ import numpy as np
 
 from horton.context import context
 from horton.gbasis.cext import GOBasis
-from horton.gbasis.io import load_basis_atom_map_nwchem
+from horton.gbasis.iobas import load_basis_atom_map_nwchem
 from horton.periodic import periodic
 from horton.utils import typecheck_geo
 

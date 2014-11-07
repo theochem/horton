@@ -23,4 +23,4 @@
 
 from horton.gbasis.cext import *
 from horton.gbasis.gobasis import *
-from horton.gbasis.io import *
+from horton.gbasis.iobas import *
