@@ -70,7 +70,7 @@
 
 
 import numpy as np
-from scipy.linalg import eigh
+from scipy.linalg import eigh, sqrtm, inv
 from horton.log import log
 from horton.utils import check_type, check_options
 from horton.matrix.base import LinalgFactory, LinalgObject, OneIndex, \
@@ -162,7 +162,7 @@ class DenseLinalgFactory(LinalgFactory):
         return DenseTwoIndex(nbasis, nfn)
 
     def _check_two_index_init_args(self, other, nbasis=None, nfn=None):
-        '''Is an object is compatible the constructor arguments?'''
+        '''Is an object compatible the constructor arguments?'''
         nbasis = nbasis or self.default_nbasis
         # Don't replace nfn by self.default_nbasis when it is None! It is
         # a genuine optional argument.
@@ -174,7 +174,7 @@ class DenseLinalgFactory(LinalgFactory):
     # DenseThreeIndex constructor with default arguments
     #
 
-    def create_three_index(self, nbasis=None):
+    def create_three_index(self, nbasis=None, nbasis1=None, nbasis2=None):
         '''Create a DenseThreeIndex with defaults from the LinalgFactory
 
            **Optional arguments:**
@@ -185,12 +185,16 @@ class DenseLinalgFactory(LinalgFactory):
                 used.
         '''
         nbasis = nbasis or self.default_nbasis
-        return DenseThreeIndex(nbasis)
+        # Don't replace nbasis1, nbasis2 by self.default_nbasis when None! They
+        # are genuine optional arguments.
+        return DenseThreeIndex(nbasis, nbasis1, nbasis2)
 
-    def _check_three_index_init_args(self, other, nbasis=None):
+    def _check_three_index_init_args(self, other, nbasis=None, nbasis1=None, nbasis2=None):
         '''Is an object is compatible the constructor arguments?'''
         nbasis = nbasis or self.default_nbasis
-        other.__check_init_args__(nbasis)
+        # Don't replace nbasis1, nbasis2 by self.default_nbasis when None! They
+        # are genuine optional arguments.
+        other.__check_init_args__(nbasis, nbasis1, nbasis2)
 
     create_three_index.__check_init_args__ = _check_three_index_init_args
 
@@ -198,7 +202,7 @@ class DenseLinalgFactory(LinalgFactory):
     # DenseFourIndex constructor with default arguments
     #
 
-    def create_four_index(self, nbasis=None):
+    def create_four_index(self, nbasis=None, nbasis1=None, nbasis2=None, nbasis3=None, symmetry=8):
         '''Create a DenseFourIndex with defaults from the LinalgFactory
 
            **Optional arguments:**
@@ -209,12 +213,14 @@ class DenseLinalgFactory(LinalgFactory):
                 used.
         '''
         nbasis = nbasis or self.default_nbasis
-        return DenseFourIndex(nbasis)
+        # Don't replace nbasis1, nbasis2, nbasis3 by self.default_nbasis when None! They
+        # are genuine optional arguments.
+        return DenseFourIndex(nbasis, nbasis1, nbasis2, nbasis3, symmetry)
 
-    def _check_four_index_init_args(self, other, nbasis=None):
+    def _check_four_index_init_args(self, other, nbasis=None, nbasis1=None, nbasis2=None, nbasis3=None):
         '''Is an object is compatible the constructor arguments?'''
         nbasis = nbasis or self.default_nbasis
-        other.__check_init_args__(nbasis)
+        other.__check_init_args__(nbasis, nbasis1, nbasis2, nbasis3)
 
     create_four_index.__check_init_args__ = _check_four_index_init_args
 
@@ -236,13 +242,13 @@ class DenseLinalgFactory(LinalgFactory):
 
            **Returns:** the output argument.
         '''
-        if len(outshape) == 3 and not (outshape[0] == outshape[1] and
-                                       outshape[0] == outshape[2]):
-            raise TypeError('A 3-index object must have the same size in all indexes.')
-        if len(outshape) == 4 and not (outshape[0] == outshape[1] and
-                                       outshape[0] == outshape[2] and
-                                       outshape[0] == outshape[3]):
-            raise TypeError('A 4-index object must have the same size in all indexes.')
+#       if len(outshape) == 3 and not (outshape[0] == outshape[1] and
+#                                      outshape[0] == outshape[2]):
+#           raise TypeError('A 3-index object must have the same size in all indexes.')
+#       if len(outshape) == 4 and not (outshape[0] == outshape[1] and
+#                                      outshape[0] == outshape[2] and
+#                                      outshape[0] == outshape[3]):
+#           raise TypeError('A 4-index object must have the same size in all indexes.')
 
         # Handle the output argument
         if out is None:
@@ -255,7 +261,8 @@ class DenseLinalgFactory(LinalgFactory):
             elif len(outshape) == 3:
                 out = DenseThreeIndex(outshape[0])
             elif len(outshape) == 4:
-                out = DenseFourIndex(outshape[0])
+                out = DenseFourIndex(*outshape)
+#               out = DenseFourIndex(outshape[0])
             else:
                 raise TypeError('The outshape must have length 0, 1, 2, 3 or 4.')
         else:
@@ -506,6 +513,7 @@ class DenseOneIndex(OneIndex):
         grp.attrs['class'] = self.__class__.__name__
         grp['array'] = self._array
 
+    # FIXME: rename into clean_copy
     def new(self):
         '''Return a new one-index object with the same nbasis'''
         return DenseOneIndex(self.nbasis)
@@ -535,18 +543,25 @@ class DenseOneIndex(OneIndex):
         result._array[:] = self._array[begin:end]
         return result
 
-    def assign(self, other):
+    def assign(self, other, begin0=0, end0=None):
         '''Assign with the contents of another object
 
            **Arguments:**
 
            other
                 Another DenseOneIndex object or a scalar.
+
+           **Optional arguments:**
+
+           begin0, end0
+                If specified, only a sublock of self is assigned.
         '''
+        if end0 is None:
+            end0 = self.nbasis
         if isinstance(other, DenseOneIndex):
-            self._array[:] = other._array
-        elif isinstance(other, float) or isinstance(other, int):
-            self._array[:] = other
+            self._array[begin0:end0] = other._array
+        elif isinstance(other, float) or isinstance(other, int) or isinstance(other, np.ndarray):
+            self._array[begin0:end0] = other
         else:
             raise TypeError('Do not know how to assign object of type %s.' % type(other))
 
@@ -603,13 +618,119 @@ class DenseOneIndex(OneIndex):
         check_type('factor', factor, float, int)
         self._array *= factor
 
+    def norm(self):
+        '''Calculate L2 norm'''
+        return np.linalg.norm(self._array)
+
+    def trace(self, begin0=0, end0=None):
+        '''Calculate trace
+
+           **Optional arguments:**
+
+           begin0, end0
+                Can be used to select a subblock of the object. When not given,
+                the full range is used.
+        '''
+        if end0 is None:
+            end0 = self.nbasis
+        return np.sum(self._array[begin0:end0])
+
     def get_element(self, i):
         '''Return a matrix element'''
         return self._array[i]
 
+    def get_max(self, abs=True):
+        '''Return maximum (absolute) element'''
+        return np.max(np.abs(self._array))
+
     def set_element(self, i, value):
         '''Set a matrix element'''
         self._array[i] = value
+
+    def sort_indices(self, reverse=False):
+        '''Return indices of sorted arguments in decreasing order
+
+           **Optional arguements**
+
+           reverse
+                If True search order is reversed to increasing arguements
+        '''
+        if reverse:
+            return np.argsort(self._array, axis=-1, kind='mergesort', order=None)
+        else:
+            return np.argsort(self._array, axis=-1, kind='mergesort', order=None)[::-1]
+
+    def mult(self, other, out=None, factor=1.0):
+        '''Muliply with other DenseOneIndex object, multiplied by factor
+
+           **Arguments:**
+
+           other
+                A DenseOneIndex instance to be added
+
+           **Optional arguments:**
+
+           out
+                The output argument (DenseOneIndex with proper size).
+
+           factor
+                A scalar factor
+        '''
+        check_type('other', other, DenseOneIndex)
+        check_type('factor', factor, float, int)
+        if out is None:
+            out = DenseOneIndex(self.shape[0])
+        else:
+            check_type('out', out, DenseOneIndex)
+            if out.shape != self.shape:
+                raise TypeError('The output argument has the incorrect shape.')
+        out._array[:] = self._array*other._array*factor
+        return out
+
+    def dot(self, other, factor=1.0):
+        '''Dot product with other DenseOneIndex object, multiplied by factor
+
+           **Arguments:**
+
+           other
+                A DenseOneIndex instance to be added
+
+           **Optional arguments:**
+
+           factor
+                A scalar factor
+        '''
+        check_type('other', other, DenseOneIndex)
+        check_type('factor', factor, float, int)
+        return np.dot(self._array, other._array)*factor
+
+    def divide(self, other, factor=1.0, out=None):
+        '''Divide two DenseOneIndex object, multiplied by factor, and return
+           output
+
+           **Arguments:**
+
+           other
+                A DenseOneIndex instance to be divided
+
+           **Optional arguments:**
+
+           factor
+                A scalar factor
+
+           out
+                The output DenseOneIndex
+        '''
+        check_type('other', other, DenseOneIndex)
+        check_type('factor', factor, float, int)
+        if out is None:
+            out = DenseOneIndex(other.shape[0])
+        else:
+            check_type('out', out, DenseOneIndex)
+            if out.shape != self.shape or out.shape != other.shape:
+                raise TypeError('The output argument has the incorrect shape.')
+        out._array[:] = np.divide(self._array, other._array)*factor
+        return out
 
     #
     # Properties
@@ -626,6 +747,37 @@ class DenseOneIndex(OneIndex):
         return self._array.shape
 
     shape = property(_get_shape)
+
+    #
+    # Geminal Methods
+    #
+    def compute_1dm_ap1rog(self, mat1, mat2, factor=1.0, response=True):
+        '''Compute 1-RDMs for AP1roG
+
+           **Arguments:**
+
+           mat1, mat2
+                A DenseTwoIndex instance used to calculated 1-DM. For response
+                DM, mat1 is the geminal matrix, mat2 the Lagrange multipliers
+
+           **Optional arguments:**
+
+           factor
+                A scalar factor
+
+           select
+                Switch between response (True) and PS2 (False) 1-DM
+        '''
+        nocc = mat1.shape[0]
+
+        if response:
+            summand = 1
+        else:
+            summand = 1+mat1.contract_two('ab,ab', mat2)
+
+        self._array[:nocc] = summand-np.einsum('ab,ab->a', mat1._array, mat2._array)
+        self._array[nocc:] = np.einsum('ab,ab->b', mat1._array, mat2._array)
+        self.iscale(factor)
 
 
 class DenseExpansion(Expansion):
@@ -717,6 +869,7 @@ class DenseExpansion(Expansion):
         grp['energies'] = self._energies
         grp['occupations'] = self._occupations
 
+    # FIXME: rename into clean_copy
     def new(self):
         '''Return a new expansion object with the same nbasis and nfn'''
         return DenseExpansion(self.nbasis, self.nfn)
@@ -747,12 +900,35 @@ class DenseExpansion(Expansion):
            **Arguments:**
 
            other
-                Another DenseExpansion object.
+                Another DenseExpansion or DenseTwoIndex object.
+                If DenseTwoIndex, energies and occupations are set to zero.
         '''
-        check_type('other', other, DenseExpansion)
-        self._coeffs[:] = other._coeffs
-        self._energies[:] = other._energies
-        self._occupations[:] = other._occupations
+        check_type('other', other, DenseExpansion, DenseTwoIndex)
+        if isinstance(other, DenseExpansion):
+            self._coeffs[:] = other._coeffs
+            self._energies[:] = other._energies
+            self._occupations[:] = other._occupations
+        else:
+            self._coeffs[:] = other._array
+            self._energies[:] = 0.0
+            self._occupations[:] = 0.0
+
+    def itranspose(self):
+        '''In-place transpose'''
+        self._coeffs[:] = self._coeffs.T
+
+    def imul(self, other):
+        '''Inplace multiplication with other DenseOneIndex.
+
+           The attributes ``energies`` and ``occupations`` are not altered.
+
+           **Arguments:**
+
+           other
+                A DenseOneIndex object.
+        '''
+        check_type('other', other, DenseOneIndex)
+        self._coeffs[:] *= other._array
 
     def randomize(self):
         '''Fill with random normal data'''
@@ -760,16 +936,25 @@ class DenseExpansion(Expansion):
         self._energies[:] = np.random.normal(0, 1, self._energies.shape)
         self._occupations[:] = np.random.normal(0, 1, self._occupations.shape)
 
-    def permute_basis(self, permutation):
-        '''Reorder the coefficients for a given permutation of basis functions.
+    def permute_basis(self, permutation, cols=False):
+        '''Reorder the coefficients for a given permutation of basis functions
+           (rows).
 
            **Arguments:**
 
            permutation
                 An integer numpy array that defines the new order of the basis
                 functions.
+
+           **Optional arguments:**
+
+           cols
+                Boolean, if True, columns are permuted
         '''
-        self._coeffs[:] = self.coeffs[permutation]
+        if cols:
+            self._coeffs[:] = self.coeffs[:,permutation]
+        else:
+            self._coeffs[:] = self.coeffs[permutation]
 
     def change_basis_signs(self, signs):
         '''Correct for different sign conventions of the basis functions.
@@ -1029,6 +1214,19 @@ class DenseExpansion(Expansion):
             raise TypeError('The shape of the two-index object is incompatible with that of the expansions.')
         self._coeffs[:] = np.dot(other.coeffs, tf2._array)
 
+    def assign_occupations(self, occupation):
+        '''Assign orbital occupations
+
+           **Arguments:**
+
+           occupation
+                The orbital occupations to be updated. An OneIndex instance
+        '''
+        check_type('occupation', occupation, DenseOneIndex)
+        if not (self.nbasis == occupation.nbasis):
+            raise TypeError('The expansion and one-index object must have the same number of basis functions.')
+        self._occupations[:] = occupation._array
+
     def rotate_random(self):
         '''Apply random unitary transformation distributed with Haar measure
 
@@ -1085,6 +1283,29 @@ class DenseExpansion(Expansion):
             self.occupations[index0], self.occupations[index1] =\
                 self.occupations[index1], self.occupations[index0]
 
+    # This is temporary
+    # Delete asap
+    def from_file(self, olp, fileorb='./orbitals.dat',
+                                fileolp='./overlap.dat'):
+        '''Read orbitals from file for restart
+        '''
+        from scipy import linalg as linalg
+        # Read AO overlap matrix Sr from previous calculation:
+        overlapread = np.fromfile(fileolp, dtype=float)
+        overlapr = overlapread.reshape(self.nbasis, self.nbasis)
+        # Calculate Sr^{1/2}
+        overlap12read = linalg.sqrtm(overlapr)
+        # Get current AO overlap matrix
+        overlap12 = linalg.sqrtm(olp._array)
+        # Calculate S^{-1/2}
+        overlap12inv = np.linalg.inv(overlap12)
+        # Read orbitals C
+        orbread = np.fromfile(fileorb, dtype=float)
+        orb = orbread.reshape(self.nbasis, self.nbasis)
+        # Calculate Sr^{1/2}*C
+        tmp = np.dot(overlap12read.real, orb)
+        # Get new AO/MO coefficient matrix from S^{-1/2}*Sr^{1/2}*C that satisfies C^T*S*C=1
+        self.coeffs[:] = np.dot(overlap12inv.real, tmp)
 
 class DenseTwoIndex(TwoIndex):
     """Dense symmetric two-dimensional matrix, also used for density matrices.
@@ -1173,6 +1394,7 @@ class DenseTwoIndex(TwoIndex):
         grp.attrs['is_hermitian'] = self._is_hermitian
         grp['array'] = self._array
 
+    # FIXME: rename into clean_copy
     def new(self):
         '''Return a new two-index object with the same nbasis (and nfn)'''
         return DenseTwoIndex(self.nbasis, self.nfn)
@@ -1207,20 +1429,55 @@ class DenseTwoIndex(TwoIndex):
         result._array[:] = self._array[begin0:end0, begin1:end1]
         return result
 
-    def assign(self, other):
+    def assign(self, other, ind=None):
         '''Assign a new contents to the two-index object
 
            **Arguments:**
 
            other
-                The new data, may be DenseTwoIndex or a scalar value.
+                The new data, may be DenseTwoIndex, DenseOneIndex, a scalar
+                value, or an ndarray.
+
+           ind
+                If provided, only these elements (of DenseOneIndex) are
+                assigned
         '''
         if isinstance(other, DenseTwoIndex):
             self._array[:] = other._array
+        elif isinstance(other, DenseOneIndex):
+            if ind is None:
+                raise TypeError('Do not know how to assign object of type %s.' % type(other))
+            self._array[ind] = other._array
         elif isinstance(other, float) or isinstance(other, int):
             self._array[:] = other
+        elif isinstance(other, np.ndarray):
+            if other.shape == self.shape:
+                self._array[:] = other
+            else:
+                self._array[:] = other.reshape((self.nbasis, self.nfn))
         else:
             raise TypeError('Do not know how to assign object of type %s.' % type(other))
+
+    def assign_dot(self, other, tf2):
+        '''Dot product of orbitals in a DenseExpansion and TwoIndex object
+
+           **Arguments:**
+
+           other
+                An expansion object with input orbitals
+
+           tf2
+                A two-index object
+
+           The transformed array is stored in self.
+        '''
+        check_type('other', other, DenseExpansion)
+        check_type('tf2', tf2, DenseTwoIndex)
+        if not (self.nbasis == other.nbasis):
+            raise TypeError('Both expansions must have the same number of basis functions.')
+        if not (tf2.shape[0] == other.nfn and tf2.shape[1] == self.shape[1]):
+            raise TypeError('The shape of the two-index object is incompatible with that of the expansions.')
+        self._array[:] = np.dot(other.coeffs, tf2._array)
 
     def iadd(self, other, factor=1.0, begin0=0, end0=None, begin1=0, end1=None, transpose=False):
         '''Add another DenseTwoIndex object in-place, multiplied by factor
@@ -1248,6 +1505,37 @@ class DenseTwoIndex(TwoIndex):
                 self._array[begin0:end0, begin1:end1] += other._array*factor
         elif isinstance(other, float):
             self._array[begin0:end0, begin1:end1] += other*factor
+        elif isinstance(other, DenseOneIndex):
+            if transpose:
+                self._array[begin0:end0, begin1:end1] += other._array*factor
+            else:
+                self._array[begin0:end0, begin1:end1] += other._array[np.newaxis].T*factor
+        else:
+            raise TypeError('Do not know how to add in-place an object of type %s.' % type(other))
+
+    def iadd_slice(self, other, factor=1.0, begin0=0, end0=None, begin1=0, end1=None):
+        '''Add another DenseTwoIndex object in-place, multiplied by factor
+
+           **Arguments:**
+
+           other
+                A DenseTwoIndex instance to be added
+
+           **Optional arguments:**
+
+           factor
+                A scalar factor
+
+           begin0, end0, begin1, end1
+                When given, specify the ranges of contribution to be
+                added. When not given, the full range is used.
+        '''
+        check_type('factor', factor, float, int)
+        end0, end1 = other._fix_ends(end0, end1)
+        if isinstance(other, DenseTwoIndex):
+            self._array[:] += other._array[begin0:end0,begin1:end1]*factor
+        elif isinstance(other, float):
+            self._array[:] += other*factor
         else:
             raise TypeError('Do not know how to add in-place an object of type %s.' % type(other))
 
@@ -1261,6 +1549,15 @@ class DenseTwoIndex(TwoIndex):
         '''
         check_type('factor', factor, float, int)
         self._array *= factor
+
+    def iortho(self):
+        '''In-place orthogonalization
+
+           **Arguments:**
+
+        '''
+        q,r = np.linalg.qr(self._array, mode='full')
+        self._array[:] = q
 
     def randomize(self):
         '''Fill with random normal data'''
@@ -1357,6 +1654,24 @@ class DenseTwoIndex(TwoIndex):
                 type(vec0), type(vec1)
             ))
 
+    def sqrt(self):
+        '''Return the square root of two-index object'''
+        out = DenseTwoIndex(self.nbasis, self.nfn)
+        out._array[:] = sqrtm(self._array).real
+        return out
+
+    def inverse(self):
+        '''Return the inverse of two-index object'''
+        out = DenseTwoIndex(self.nbasis, self.nfn)
+        out._array[:] = inv(self._array)
+        return out
+
+    def diagonalize(self):
+        '''Return eigenvalues of two-index object'''
+        from scipy.linalg import eigvals
+        evalue = eigvals(self._array)
+        return evalue
+
     #
     # Properties
     #
@@ -1433,11 +1748,39 @@ class DenseTwoIndex(TwoIndex):
         out._array[:] = np.diagonal(self._array[begin:end,begin:end])
         return out
 
+    def copy_slice(self, ind, out=None):
+        '''Copy slice of the two-index object into one-index object
+
+           **Arguments:**
+
+           ind
+                Tuple of arrays containing indices of TwoIndex object.
+
+           **Optional arguments:**
+
+           out
+                The output argument (DenseOneIndex with proper size).
+        '''
+        if not ind[0].shape == ind[1].shape:
+            raise TypeError('Number of array indices not identical.')
+        if out is None:
+            out = DenseOneIndex(len(ind[0]))
+        else:
+            check_type('out', out, DenseOneIndex)
+            if out.shape != ind[0].shape:
+                raise TypeError('The output argument has the incorrect shape.')
+        out._array[:] = self._array[ind]
+        return out
+
     def check_symmetry(self):
         '''Check the symmetry of the array. For testing only.'''
         if not self._is_hermitian:
             raise RuntimeError('This makes no sense for a matrix that is not supposed to be Hermitian.')
-        assert (self._array == self._array.T).all()
+        try:
+            assert (self._array == self._array.T).all()
+        except:
+            assert np.allclose(self._array, self._array.T)
+
 
     def symmetrize(self, factor=1.0):
         '''Symmetrize DenseTwoIndex using M_sym=(M+M^\dagger)/2
@@ -1476,9 +1819,10 @@ class DenseTwoIndex(TwoIndex):
            **Returns:** the contracted one-index object.
         '''
         check_options('subscripts', subscripts, 'ab->b', 'ab->a')
+        end0, end1 = self._fix_ends(end0, end1)
         return DenseLinalgFactory.einsum(subscripts, out, factor, clear, (self, (begin0, end0, begin1, end1)))
 
-    def contract_two_to_one(self, subscripts, other, out=None, factor=1.0, clear=True):
+    def contract_two_to_one(self, subscripts, other, out=None, factor=1.0, clear=True, begin0=0, end0=None, begin1=0, end1=None):
         '''Contract two TwoIndex objects to a one OneIndex.
 
            **Arguments:**
@@ -1498,7 +1842,8 @@ class DenseTwoIndex(TwoIndex):
            **Returns:** the contracted one-index object.
         '''
         check_options('subscripts', subscripts, 'ab,ab->b', 'ab,ab->a')
-        return DenseLinalgFactory.einsum(subscripts, out, factor, clear, self, other)
+        end0, end1 = other._fix_ends(end0, end1)
+        return DenseLinalgFactory.einsum(subscripts, out, factor, clear, self, (other, (begin0, end0, begin1, end1)))
 
     def iadd_t(self, other, factor=1.0, begin0=0, end0=None, begin1=0, end1=None):
         '''See :py:meth:`DenseTwoIndex.iadd`, transpose=True'''
@@ -1541,7 +1886,7 @@ class DenseTwoIndex(TwoIndex):
         check_type('factor', factor, float, int)
         self._array += np.kron(other0._array, other1._array)*factor
 
-    def iadd_dot(self, other0, other1, factor=1.0):
+    def iadd_dot(self, other0, other1, factor=1.0, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None, begin3=0, end3=None):
         '''In-place addition of dot product: ``other0 * other1``
 
            **Arguments:**
@@ -1553,11 +1898,17 @@ class DenseTwoIndex(TwoIndex):
 
            factor
                 The term added is scaled by this factor.
+
+           begin0, end0, begin1, end1
+                Can be used to select a subblock of the (other1) object. When
+                not given, the full range is used.
         '''
         check_type('other0', other0, DenseTwoIndex)
         check_type('other1', other1, DenseTwoIndex)
         check_type('factor', factor, float, int)
-        self._array[:] += np.dot(other0._array, other1._array)*factor
+        end0, end1 = other0._fix_ends(end0, end1)
+        end2, end3 = other1._fix_ends(end2, end3)
+        self._array[:] += np.dot(other0._array[begin0:end0,begin1:end1], other1._array[begin2:end2,begin3:end3])*factor
 
     def iadd_tdot(self, other0, other1, factor=1.0):
         '''In-place addition of dot product: ``other0.T * other1``
@@ -1595,8 +1946,71 @@ class DenseTwoIndex(TwoIndex):
         check_type('factor', factor, float, int)
         self._array[:] += np.dot(other0._array, other1._array.T)*factor
 
+    def iadd_mult(self, other0, other1, factor=1.0, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None, begin3=0, end3=None, transpose0=False, transpose1=False):
+        '''In-place addition of multiplication: ``other0 * other1``
+
+           **Arguments:**
+
+           other0, other1
+                Two-index objects that go into the product.
+
+           **Optional arguments:**
+
+           factor
+                The term added is scaled by this factor.
+
+           begin0, end0, begin1, end1
+                Can be used to select a subblock of the (other1) object. When
+                not given, the full range is used.
+        '''
+        check_type('other0', other0, DenseTwoIndex)
+        check_type('other1', other1, DenseTwoIndex)
+        check_type('factor', factor, float, int)
+        check_type('transpose0', transpose0, bool)
+        check_type('transpose1', transpose1, bool)
+        end0, end1 = other1._fix_ends(end0, end1)
+        end2, end3 = other0._fix_ends(end2, end3)
+        if transpose0 and transpose1:
+            self._array[:] += (other0._array[begin2:end2,begin3:end3].T*other1._array[begin0:end0,begin1:end1].T)*factor
+        elif transpose0:
+            self._array[:] += (other0._array[begin2:end2,begin3:end3].T*other1._array[begin0:end0,begin1:end1])*factor
+        elif transpose1:
+            self._array[:] += (other0._array[begin2:end2,begin3:end3]*other1._array[begin0:end0,begin1:end1].T)*factor
+        else:
+            self._array[:] += (other0._array[begin2:end2,begin3:end3]*other1._array[begin0:end0,begin1:end1])*factor
+
+    def iadd_one_mult(self, other0, other1, factor=1.0, transpose0=False, transpose1=False):
+        '''In-place addition of multiplication: ``other0 * other1``
+
+           **Arguments:**
+
+           other0, other1
+                One-index objects that go into the product.
+
+           **Optional arguments:**
+
+           factor
+                The term added is scaled by this factor.
+
+           transpose0, transpose1
+                Can be used to select transpose of one-index objects.
+        '''
+        check_type('other0', other0, DenseOneIndex)
+        check_type('other1', other1, DenseOneIndex)
+        check_type('factor', factor, float, int)
+        check_type('transpose0', transpose0, bool)
+        check_type('transpose1', transpose1, bool)
+        if transpose0 and transpose1:
+            self._array[:] += (other0._array[np.newaxis].T*other1._array[np.newaxis].T)*factor
+        elif transpose0:
+            self._array[:] += (other0._array[np.newaxis].T*other1._array)*factor
+        elif transpose1:
+            self._array[:] += (other0._array*other1._array[np.newaxis].T)*factor
+        else:
+            self._array[:] += (other0._array*other1._array)*factor
+
     def iadd_shift(self, lshift):
-        '''Add positive shift to elements. If negative replace by shift
+        '''Add positive shift to elements. If negative subtract shift
 
            **Arguments:**
 
@@ -1605,9 +2019,9 @@ class DenseTwoIndex(TwoIndex):
         '''
         check_type('lshift', lshift, float, int)
         self._array[self._array >= 0] += lshift
-        self._array[self._array < 0] = lshift
+        self._array[self._array < 0] -= lshift
 
-    def iadd_contract_two_one(self, subscripts, two, one, factor=1.0):
+    def iadd_contract_two_one(self, subscripts, two, one, factor=1.0, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None):
         '''In-place addition of a contraction of a two- and one-index object
 
            **Arguments:**
@@ -1624,11 +2038,17 @@ class DenseTwoIndex(TwoIndex):
 
            factor
                 The term added is scaled by this factor.
+
+           begin0, end0
+                Can be used to select a subblock of the (one-index) object. When
+                not given, the full range is used.
         '''
         check_options('subscripts', subscripts, 'ab,b->ab', 'ab,a->ab', 'ba,a->ab')
-        DenseLinalgFactory.einsum(subscripts, self, factor, False, two, one)
+        end0, end1 = two._fix_ends(end0, end1)
+        end2 = one._fix_ends(end2)[0]
+        DenseLinalgFactory.einsum(subscripts, self, factor, False, (two, (begin0, end0, begin1, end1)), (one, (begin2, end2)))
 
-    def contract_two(self, subscripts, two):
+    def contract_two(self, subscripts, two, begin0=0, end0=None, begin1=0, end1=None):
         '''Compute the trace using with other two-index objects
 
            **Arguments:**
@@ -1639,9 +2059,38 @@ class DenseTwoIndex(TwoIndex):
 
            two
                 A DenseTwoIndex instance
+
+           begin0, end0, begin1, end1
+                Can be used to select a subblock of the (other) object. When
+                not given, the full range is used.
         '''
         check_options('subscripts', subscripts, 'ab,ab', 'ab,ba')
-        return DenseLinalgFactory.einsum(subscripts, None, 1.0, True, self, two)
+        end0, end1 = two._fix_ends(end0, end1)
+        return DenseLinalgFactory.einsum(subscripts, None, 1.0, True, self, (two, (begin0, end0, begin1, end1)))
+
+    def contract_two_to_two(self, subscripts, other, out=None, factor=1.0, clear=True, begin0=0, end0=None, begin1=0, end1=None):
+        '''Contract two TwoIndex objects to a one twoIndex.
+
+           **Arguments:**
+
+           subscripts:
+                ``ab,cb->ac``, ``ab,ca->cb``, ``ab,bc->ac``, ``ab,ac->cb``,
+                ``ab,ac->bc``, ``ab,cb->ca``
+
+           other
+                The second DenseTwoIndex object.
+
+           **Optional arguments:**
+
+           out, factor, clear
+                See :py:meth:`DenseLinalgFactory.einsum`
+
+           **Returns:** the contracted one-index object.
+        '''
+        check_options('subscripts', subscripts, 'ab,cb->ac', 'ab,ca->cb',
+            'ab,bc->ac', 'ab,ac->cb', 'ab,ac->bc', 'ab,cb->ca')
+        end0, end1 = other._fix_ends(end0, end1)
+        return DenseLinalgFactory.einsum(subscripts, out, factor, clear, self, (other, (begin0, end0, begin1, end1)))
 
     def idot(self, other):
         '''In-place dot product: self = self * other
@@ -1651,10 +2100,13 @@ class DenseTwoIndex(TwoIndex):
            other
                 The other array
         '''
-        check_type('other', other, DenseTwoIndex)
-        self._array[:] = np.dot(self._array, other._array)
+        check_type('other', other, DenseTwoIndex, DenseExpansion)
+        if isinstance(other, DenseTwoIndex):
+            self._array[:] = np.dot(self._array, other._array)
+        else:
+            self._array[:] = np.dot(self._array, other.coeffs)
 
-    def imul(self, other, factor=1.0):
+    def imul(self, other, factor=1.0, begin0=0, end0=None, begin1=0, end1=None):
         '''In-place element-wise multiplication: ``self *= other * factor``
 
            **Arguments:**
@@ -1666,13 +2118,18 @@ class DenseTwoIndex(TwoIndex):
 
            factor
                 The two-index object is scaled by this factor.
+
+           begin0, end0, begin1, end1
+                Can be used to select a subblock of the (other) object. When
+                not given, the full range is used.
         '''
         check_type('other', other, DenseTwoIndex)
         check_type('factor', factor, float, int)
-        self._array *= other._array
+        end0, end1 = self._fix_ends(end0, end1)
+        self._array *= other._array[begin0:end0,begin1:end1]
         self.iscale(factor)
 
-    def imul_t(self, other, factor=1.0):
+    def imul_t(self, other, factor=1.0, begin0=0, end0=None, begin1=0, end1=None):
         '''In-place element-wise multiplication: ``self *= other.T * factor``
 
            **Arguments:**
@@ -1684,10 +2141,15 @@ class DenseTwoIndex(TwoIndex):
 
            factor
                 The two-index object is scaled by this factor.
+
+           begin0, end0, begin1, end1
+                Can be used to select a subblock of the (other) object. When
+                not given, the full range is used.
         '''
         check_type('other', other, DenseTwoIndex)
         check_type('factor', factor, float, int)
-        self._array *= other._array.T
+        end0, end1 = self._fix_ends(end0, end1)
+        self._array *= other._array[begin0:end0,begin1:end1].T
         self.iscale(factor)
 
     def distance_inf(self, other):
@@ -1731,8 +2193,63 @@ class DenseTwoIndex(TwoIndex):
         if self._is_hermitian:
             # Matrix product does not respect symmetry.
             # FIXME: Is there a better way to solve this?
-            self._array += self._array.T
+            # Don't change the following line or code will break. Possible bug
+            # in numpy?
+            self._array = self._array+self._array.T
             self._array *= 0.5
+
+    #
+    # Geminal Method
+    #
+    def compute_2dm_ap1rog(self, dm1, mat1, mat2, select, response=True):
+        '''Compute response 2-RDM for AP1roG
+
+           ** Arguments **
+           one_dm
+               A 1DM. A OneIndex instance.
+
+           mat1, mat2
+               TwoIndex instances used to calculate 2DM. To get the response
+               DM, mat1 is the geminal coefficient matrix, mat2 are the
+               Lagrange multipliers
+
+           select
+               Either 'ppqq' or 'pqpq'. Note that the elements (iiii), i.e.,
+               the 1DM, are stored in pqpq, while the elements (aaaa) are
+               stored in ppqq.
+
+           response
+               If True, calculate response 2DM. Otherwise the PS2 2DM is
+               calculated.
+        '''
+        nocc = mat1.shape[0]
+        lc = mat1.contract_two('ab,ab', mat2)
+        if response:
+            factor1 = 1.0-lc
+        else:
+            factor1 = 1.0
+        if select == 'ppqq':
+            self._array[:nocc,:nocc] = np.einsum("ja,ia->ij", mat2._array, mat1._array)
+            np.fill_diagonal(self._array[:nocc,:nocc],0)
+            self._array[nocc:,nocc:] = np.einsum("ip,iq->pq", mat2._array, mat1._array)
+            self._array[nocc:,:nocc] = mat2._array.T
+            self._array[:nocc,nocc:] = mat1._array*factor1
+            self._array[:nocc,nocc:] += mat1._array*lc
+            self._array[:nocc,nocc:] += 1*np.dot(mat1._array,np.dot(mat2._array.T,mat1._array))
+            self._array[:nocc,nocc:] -= 2*np.einsum("ip,ip->i",mat2._array,mat1._array)[np.newaxis].T*mat1._array
+            self._array[:nocc,nocc:] -= 2*np.einsum("ip,ip->p",mat2._array,mat1._array)*mat1._array
+            self._array[:nocc,nocc:] += 2*mat2._array*mat1._array*mat1._array
+        elif select == 'pqpq':
+            for i in range(nocc):
+                for j in range(i+1,nocc):
+                    tmp = np.dot(mat2._array[i,:],mat1._array[i,:].T)+np.dot(mat2._array[j,:],mat1._array[j,:].T)
+                    self._array[i,j] = factor1+lc-tmp
+                    self._array[j,i] = factor1+lc-tmp
+                self._array[i,i] = factor1+lc-np.dot(mat2._array[i,:], mat1._array[i,:].T)
+            self._array[:nocc,nocc:] = (dm1._array[nocc:])[np.newaxis]-mat2._array*mat1._array
+            self._array[nocc:,:nocc] = (dm1._array[nocc:])[np.newaxis].T-mat1._array.T*mat2._array.T
+        else:
+            raise NotImplementedError
 
 
 class DenseThreeIndex(ThreeIndex):
@@ -1747,14 +2264,18 @@ class DenseThreeIndex(ThreeIndex):
     # Constructor and destructor
     #
 
-    def __init__(self, nbasis):
+    def __init__(self, nbasis, nbasis1=None, nbasis2=None):
         """
            **Arguments:**
 
            nbasis
                 The number of basis functions.
         """
-        self._array = np.zeros((nbasis, nbasis, nbasis), float)
+        if nbasis1 is None:
+            nbasis1 = nbasis
+        if nbasis2 is None:
+            nbasis2 = nbasis
+        self._array = np.zeros((nbasis, nbasis1, nbasis2), float)
         log.mem.announce(self._array.nbytes)
 
     def __del__(self):
@@ -1766,14 +2287,22 @@ class DenseThreeIndex(ThreeIndex):
     # Methods from base class
     #
 
-    def __check_init_args__(self, nbasis):
+    def __check_init_args__(self, nbasis, nbasis1=None, nbasis2=None):
         '''Is self compatible with the given constructor arguments?'''
+        if nbasis1 is None:
+            nbasis1 = nbasis
+        if nbasis2 is None:
+            nbasis2 = nbasis
         assert nbasis == self.nbasis
+        assert nbasis1 == self.nbasis1
+        assert nbasis2 == self.nbasis2
 
     def __eq__(self, other):
         '''Compare self with other'''
         return isinstance(other, DenseThreeIndex) and \
             other.nbasis == self.nbasis and \
+            other.nbasis1 == self.nbasis1 and \
+            other.nbasis2 == self.nbasis2 and \
             (other._array == self._array).all()
 
     @classmethod
@@ -1786,7 +2315,9 @@ class DenseThreeIndex(ThreeIndex):
                 An h5py.Group object.
         '''
         nbasis = grp['array'].shape[0]
-        result = cls(nbasis)
+        nbasis1 = grp['array'].shape[1]
+        nbasis2 = grp['array'].shape[2]
+        result = cls(nbasis, nbasis1, nbasis2)
         grp['array'].read_direct(result._array)
         return result
 
@@ -1801,13 +2332,14 @@ class DenseThreeIndex(ThreeIndex):
         grp.attrs['class'] = self.__class__.__name__
         grp['array'] = self._array
 
+    # FIXME: rename into clean_copy
     def new(self):
         '''Return a new three-index object with the same nbasis'''
-        return DenseThreeIndex(self.nbasis)
+        return DenseThreeIndex(self.nbasis, self.nbasis1, self.nbasis2)
 
     def _check_new_init_args(self, other):
         '''Check whether an already initialized object is compatible'''
-        other.__check_init_args__(self.nbasis)
+        other.__check_init_args__(self.nbasis, self.nbasis1, self.nbasis2)
 
     new.__check_init_args__ = _check_new_init_args
 
@@ -1825,11 +2357,11 @@ class DenseThreeIndex(ThreeIndex):
                 the full range is used.
         '''
         end0, end1, end2 = self._fix_ends(end0, end1, end2)
-        if end1 - begin1 != end0 - begin0:
-            raise TypeError('The shape of the result must be the same along all indexes.')
-        if end2 - begin2 != end0 - begin0:
-            raise TypeError('The shape of the result must be the same along all indexes.')
-        result = DenseThreeIndex(end0 - begin0)
+#       if end1 - begin1 != end0 - begin0:
+#           raise TypeError('The shape of the result must be the same along all indexes.')
+#       if end2 - begin2 != end0 - begin0:
+#           raise TypeError('The shape of the result must be the same along all indexes.')
+        result = DenseThreeIndex(end0-begin0,end1-begin1,end2-begin2)
         result._array[:] = self._array[begin0:end0, begin1:end1, begin2:end2]
         return result
 
@@ -1890,6 +2422,27 @@ class DenseThreeIndex(ThreeIndex):
         check_type('factor', factor, float, int)
         self._array += other._array*factor
 
+    def iadd_slice(self, other, factor=1.0, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None):
+        '''Add slice of another DenseThreeIndex object in-place, multiplied by factor
+
+           **Arguments:**
+
+           other
+                A DenseThreeIndex instance to be added
+
+           **Optional arguments:**
+
+           factor
+                The added term is scaled by this factor.
+
+           begin0, end0, begin1, end1, begin2, end2
+                Can be used to add only a part of the three-index object
+        '''
+        check_type('other', other, DenseThreeIndex)
+        check_type('factor', factor, float, int)
+        end0, end1, end2 = other._fix_ends(end0, end1, end2)
+        self._array += other._array[begin0:end0, begin1:end1, begin2:end2]*factor
+
     def iscale(self, factor):
         '''In-place multiplication with a scalar
 
@@ -1918,6 +2471,18 @@ class DenseThreeIndex(ThreeIndex):
         return self._array.shape[0]
 
     nbasis = property(_get_nbasis)
+
+    def _get_nbasis1(self):
+        '''The number of basis functions'''
+        return self._array.shape[1]
+
+    nbasis1 = property(_get_nbasis1)
+
+    def _get_nbasis2(self):
+        '''The number of basis functions'''
+        return self._array.shape[2]
+
+    nbasis2 = property(_get_nbasis2)
 
     def _get_shape(self):
         '''The shape of the object'''
@@ -1951,6 +2516,31 @@ class DenseThreeIndex(ThreeIndex):
             'abc,bc->ba', 'abc,bc->ab', 'abc,cb->ac')
         return DenseLinalgFactory.einsum(subscripts, out, factor, clear, self, inp)
 
+    def contract_two_to_three(self, subscripts, two, out=None, factor=1.0, clear=True, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None):
+        '''Contracts with two-index to obtain three-index.
+
+           **Arguments:**
+
+           subscripts
+                One of ``abc,ad->cdb``, ``abc,ad->cbd``, ``abc,da->dbc``,
+                ``abc,da->bdc``
+
+           inp
+                A DenseTwoIndex input object.
+
+           **Optional arguments:**
+
+           out, factor, clear
+                See :py:meth:`DenseLinalgFactory.einsum`
+
+           begin0, end0, begin1, end1
+                Can be used to contract only a part of the three-index object
+        '''
+        check_options('subscripts', subscripts, 'abc,ad->cdb', 'abc,ad->cbd',
+            'abc,da->dbc', 'abc,da->bdc')
+        end0, end1, end2 = self._fix_ends(end0, end1, end2)
+        return DenseLinalgFactory.einsum(subscripts, out, factor, clear, (self, (begin0, end0, begin1, end1, begin2, end2)), two)
+
     # FIXME: can this be avoided by reorganizing with later contractions? This eats memory.
     def iadd_expand_two_one(self, subscripts, two, one, factor=1.0):
         '''In-place addition of expanded two-index and one-index to three-index.
@@ -1974,29 +2564,78 @@ class DenseThreeIndex(ThreeIndex):
         check_options('subscripts', subscripts, 'ab,c->cab', 'ab,c->acb')
         DenseLinalgFactory.einsum(subscripts, self, factor, False, two, one)
 
-    def iadd_contract_three_two(self, subscripts, three, two, factor=1.0):
-        '''In-place addition of a contraction of three-index with two-index.
+    def iadd_expand_two_two(self, subscripts, two0, two1, factor=1.0, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None, begin3=0, end3=None):
+        '''In-place addition of expanded two-index and two-index to three-index.
 
            **Arguments:**
 
            subscripts
-                Contraction type: ``abc,db->adc``, ``abc,dc->adb``,
-                ``abc,db->dac``, ``abc,dc->dab``.
+                Contraction type: ``ac,bc->abc``, ``ab,bc->abc``,
+                ``ab,ac->acb``, ``cb,ac->acb``, ``ac,ab->abc``, ``ab,ac->abc``
 
-           three
-                A DenseThreeIndex object.
-
-           two
+           two0, two1
                 A DenseTwoIndex object.
 
            **Optional arguments:**
 
            factor
                 The added term is scaled by this factor.
+
+           begin0, end0, begin1, end1
+                Can be used to contract only a part of the three-index object
         '''
-        check_options('subscripts', subscripts, 'abc,db->adc', 'abc,dc->adb',
-            'abc,db->dac', 'abc,dc->dab')
-        DenseLinalgFactory.einsum(subscripts, self, factor, False, three, two)
+        check_options('subscripts', subscripts, 'ac,bc->abc', 'ac,bc->abc',
+            'ab,bc->abc', 'ab,ac->acb', 'cb,ac->acb', 'ac,ab->abc',
+            'ab,ac->abc')
+        end0, end1 = two1._fix_ends(end0, end1)
+        end2, end3 = two0._fix_ends(end2, end3)
+        DenseLinalgFactory.einsum(subscripts, self, factor, False, (two0, (begin2, end2, begin3, end3)), (two1, (begin0, end0, begin1, end1)))
+
+#   def iadd_contract_three_two(self, subscripts, three, two, factor=1.0):
+#       '''In-place addition of a contraction of three-index with two-index.
+
+#          **Arguments:**
+
+#          subscripts
+#               Contraction type: ``abc,db->adc``, ``abc,dc->adb``,
+#               ``abc,db->dac``, ``abc,dc->dab``.
+
+#          three
+#               A DenseThreeIndex object.
+
+#          two
+#               A DenseTwoIndex object.
+
+#          **Optional arguments:**
+
+#          factor
+#               The added term is scaled by this factor.
+#       '''
+#       check_options('subscripts', subscripts, 'abc,db->adc', 'abc,dc->adb',
+#           'abc,db->dac', 'abc,dc->dab')
+#       DenseLinalgFactory.einsum(subscripts, self, factor, False, three, two)
+
+    def contract_to_two(self, subscripts, out=None, factor=1.0, clear=True, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None):
+        '''Contract self to TwoIndex.
+
+           **Arguments:**
+
+           subscripts
+                ``abc->ac``: contract first index.
+
+           **Optional arguments**
+
+           out, factor, clear
+                See :py:meth:`DenseLinalgFactory.einsum`
+
+           begin0, end0, begin1, end1
+                Can be used to contract only a part of the three-index object
+
+           **Returns:** the contracted two-index object.
+        '''
+        check_options('subscripts', subscripts, 'abc->ac')
+        end0, end1, end2 = self._fix_ends(end0, end1, end2)
+        return DenseLinalgFactory.einsum(subscripts, out, factor, clear, (self, (begin0, end0, begin1, end1, begin2, end2)))
 
 
 class DenseFourIndex(FourIndex):
@@ -2011,7 +2650,7 @@ class DenseFourIndex(FourIndex):
     # Constructor and destructor
     #
 
-    def __init__(self, nbasis, symmetry=8):
+    def __init__(self, nbasis, nbasis1=None, nbasis2=None, nbasis3=None, symmetry=8):
         """
            **Arguments:**
 
@@ -2030,8 +2669,14 @@ class DenseFourIndex(FourIndex):
                 * ``2``: symmetric with respect to swapping two electrons.
                 * ``1``: no symmetries.
         """
+        if nbasis1 is None:
+            nbasis1 = nbasis
+        if nbasis2 is None:
+            nbasis2 = nbasis
+        if nbasis3 is None:
+            nbasis3 = nbasis
         check_options('symmetry', symmetry, 1, 2, 4, 8)
-        self._array = np.zeros((nbasis, nbasis, nbasis, nbasis))
+        self._array = np.zeros((nbasis, nbasis1, nbasis2, nbasis3))
         self._symmetry = symmetry
         log.mem.announce(self._array.nbytes)
 
@@ -2044,15 +2689,27 @@ class DenseFourIndex(FourIndex):
     # Methods from base class
     #
 
-    def __check_init_args__(self, nbasis, symmetry=8):
+    def __check_init_args__(self, nbasis, nbasis1=None, nbasis2=None, nbasis3=None, symmetry=8):
         '''Is self compatible with the given constructor arguments?'''
+        if nbasis1 is None:
+            nbasis1 = nbasis
+        if nbasis2 is None:
+            nbasis2 = nbasis
+        if nbasis3 is None:
+            nbasis3 = nbasis
         assert nbasis == self.nbasis
+        assert nbasis1 == self.nbasis1
+        assert nbasis2 == self.nbasis2
+        assert nbasis3 == self.nbasis3
         assert symmetry == self.symmetry
 
     def __eq__(self, other):
         '''Compare self with other'''
         return isinstance(other, DenseFourIndex) and \
             other.nbasis == self.nbasis and \
+            other.nbasis1 == self.nbasis1 and \
+            other.nbasis2 == self.nbasis2 and \
+            other.nbasis3 == self.nbasis3 and \
             other.symmetry == self.symmetry and \
             (other._array == self._array).all()
 
@@ -2066,8 +2723,11 @@ class DenseFourIndex(FourIndex):
                 An h5py.Group object.
         '''
         nbasis = grp['array'].shape[0]
+        nbasis1 = grp['array'].shape[1]
+        nbasis2 = grp['array'].shape[2]
+        nbasis3 = grp['array'].shape[3]
         symmetry = grp.attrs['symmetry']
-        result = cls(nbasis, symmetry)
+        result = cls(nbasis, nbasis1, nbasis2, nbasis3, symmetry)
         grp['array'].read_direct(result._array)
         return result
 
@@ -2083,13 +2743,14 @@ class DenseFourIndex(FourIndex):
         grp.attrs['symmetry'] = self.symmetry
         grp['array'] = self._array
 
+    # FIXME: rename into clean_copy
     def new(self):
         '''Return a new four-index object with the same nbasis'''
-        return DenseFourIndex(self.nbasis, self.symmetry)
+        return DenseFourIndex(self.nbasis, self.nbasis1, self.nbasis2, self.nbasis3, self.symmetry)
 
     def _check_new_init_args(self, other):
         '''Check whether an already initialized object is compatible'''
-        other.__check_init_args__(self.nbasis, self.symmetry)
+        other.__check_init_args__(self.nbasis, self.nbasis1, self.nbasis2, self.nbasis3, self.symmetry)
 
     new.__check_init_args__ = _check_new_init_args
 
@@ -2097,7 +2758,7 @@ class DenseFourIndex(FourIndex):
         '''Reset all elements to zero.'''
         self._array[:] = 0.0
 
-    def copy(self, begin=0, end=None):
+    def copy(self, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None, begin3=0, end3=None):
         '''Return a copy of (a part of) the object
 
            **Optional arguments:**
@@ -2107,11 +2768,33 @@ class DenseFourIndex(FourIndex):
                 the full range is used. The same begin and end is applied to
                 all indexes to maintain the eight-fold symmetry.
         '''
-        if end is None:
-            end = self._array.shape[0]
-        result = DenseFourIndex(end - begin)
-        result._array[:] = self._array[begin:end, begin:end, begin:end, begin:end]
+        end0, end1, end2, end3 = self._fix_ends(end0, end1, end2, end3)
+        result = DenseFourIndex(end0-begin0, end1-begin1, end2-begin2, end3-begin3, symmetry=self.symmetry)
+        result._array[:] = self._array[begin0:end0,begin1:end1,begin2:end2,begin3:end3]
         return result
+
+    def reshape(self, shape):
+        '''Reshape array
+
+           **Optional arguments:**
+
+           begin, end
+                Can be used to select a subblock of the object. When not given,
+                the full range is used. The same begin and end is applied to
+                all indexes to maintain the eight-fold symmetry.
+        '''
+        if len(shape) == 0:
+            raise TypeError('No array shape given.')
+        elif len(shape) == 1:
+            out = DenseOneIndex(shape[0])
+        elif len(shape) == 2:
+            out = DenseTwoIndex(shape[0],shape[1])
+        elif len(shape) == 3:
+            out = DenseThreeIndex(shape[0],shape[1],shape[2])
+        elif len(shape) == 4:
+            out = DenseFourIndex(shape[0],shape[1],shape[2],shape[3])
+        out._array[:] = np.reshape(self._array, shape, order='C')
+        return out
 
     def assign(self, other):
         '''Assign with the contents of another object
@@ -2119,11 +2802,22 @@ class DenseFourIndex(FourIndex):
            **Arguments:**
 
            other
-                Another DenseFourIndex object or a scalar.
+                Another DenseFourIndex object or a np ndarrray.
         '''
-        check_type('other', other, DenseFourIndex)
-        self._array[:] = other._array
-        self._symmetry = other.symmetry
+        check_type('other', other, DenseFourIndex, np.ndarray)
+        if isinstance(other, DenseFourIndex):
+            self._array[:] = other._array
+            self._symmetry = other.symmetry
+        # FIXME: assign proper symmetry
+        elif isinstance(other, np.ndarray):
+            if other.shape == self.shape:
+                self._array[:] = other
+                self._symmetry = 1
+            else:
+                self._array[:] = other.reshape((self.nbasis, self.nbasis1, self.nbasis2, self.nbasis3))
+                self._symmetry = 1
+        else:
+            raise TypeError('Do not know how to assign object of type %s.' % type(other))
 
     def randomize(self):
         '''Fill with random normal data'''
@@ -2186,6 +2880,29 @@ class DenseFourIndex(FourIndex):
         self._symmetry = from_mask(to_mask(self.symmetry) & to_mask(other.symmetry))
         self._array += other._array*factor
 
+    def imul(self, other, factor=1.0):
+        '''In-place element-wise multiplication: ``self *= other * factor``
+
+           **Arguments:**
+
+           other
+                A DenseFourIndex instance.
+
+           **Optional arguments:**
+
+           factor
+                The four-index object is scaled by this factor.
+        '''
+        check_type('other', other, DenseFourIndex)
+        check_type('factor', factor, float, int)
+        def from_mask(mask):
+            return {0: 1, 1: 2, 2: 4, 3: 8}[mask]
+        def to_mask(sym):
+            return {1: 0, 2: 1, 4: 2, 8: 3}[sym]
+        self._symmetry = from_mask(to_mask(self.symmetry) & to_mask(other.symmetry))
+        self._array *= other._array
+        self.iscale(factor)
+
     def iscale(self, factor):
         '''In-place multiplication with a scalar
 
@@ -2229,6 +2946,24 @@ class DenseFourIndex(FourIndex):
 
     nbasis = property(_get_nbasis)
 
+    def _get_nbasis1(self):
+        '''The number of basis functions'''
+        return self._array.shape[1]
+
+    nbasis1 = property(_get_nbasis1)
+
+    def _get_nbasis2(self):
+        '''The number of basis functions'''
+        return self._array.shape[2]
+
+    nbasis2 = property(_get_nbasis2)
+
+    def _get_nbasis3(self):
+        '''The number of basis functions'''
+        return self._array.shape[3]
+
+    nbasis3 = property(_get_nbasis3)
+
     def _get_shape(self):
         '''The shape of the object'''
         return self._array.shape
@@ -2268,10 +3003,30 @@ class DenseFourIndex(FourIndex):
 
     def iadd_exchange(self):
         '''In-place addition of its own exchange contribution'''
-        self._array -= np.einsum('abcd->abdc', self._array)
+        # Don't change the following line. We cannot do inplace einsum without
+        # breaking the code
+        self._array = self._array-np.einsum('abcd->abdc', self._array)
         self._symmetry = {8:2, 4:1, 2:2, 1:1}[self._symmetry]
 
-    def slice_to_two(self, subscripts, out=None, factor=1.0, clear=True):
+    def slice_to_four(self, subscripts, out=None, factor=1.0, clear=True, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None, begin3=0, end3=None):
+        """Returns a four-index contraction of the four-index object.
+
+           **Arguments:**
+
+           superscripts
+                Any of ``abcd->abcd``
+
+           **Optional arguments:**
+
+           out, factor, clear
+                See :py:meth:`DenseLinalgFactory.einsum`
+        """
+        check_options('subscripts', subscripts, 'abcd->abcd', 'abcd->acbd',
+            'abcd->cadb')
+        end0, end1, end2, end3 = self._fix_ends(end0, end1, end2, end3)
+        return DenseLinalgFactory.einsum(subscripts, out, factor, clear, (self, (begin0, end0, begin1, end1, begin2, end2, begin3, end3)))
+
+    def slice_to_two(self, subscripts, out=None, factor=1.0, clear=True, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None, begin3=0, end3=None):
         """Returns a two-index contraction of the four-index object.
 
            **Arguments:**
@@ -2285,7 +3040,8 @@ class DenseFourIndex(FourIndex):
                 See :py:meth:`DenseLinalgFactory.einsum`
         """
         check_options('subscripts', subscripts, 'aabb->ab', 'abab->ab', 'abba->ab')
-        return DenseLinalgFactory.einsum(subscripts, out, factor, clear, self)
+        end0, end1, end2, end3 = self._fix_ends(end0, end1, end2, end3)
+        return DenseLinalgFactory.einsum(subscripts, out, factor, clear, (self, (begin0, end0, begin1, end1, begin2, end2, begin3, end3)))
 
     def slice_to_three(self, subscripts, out=None, factor=1.0, clear=True):
         """Returns a three-index contraction of the four-index object.
@@ -2303,7 +3059,53 @@ class DenseFourIndex(FourIndex):
         check_options('subscripts', subscripts, 'abcc->bac', 'abcc->abc', 'abcb->abc', 'abbc->abc')
         return DenseLinalgFactory.einsum(subscripts, out, factor, clear, self)
 
-    def contract_two_to_four(self, subscripts, two, out=None, factor=1.0, clear=True):
+    def contract_two(self, subscripts, other, factor=1.0, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None, begin3=0, end3=None):
+        '''Compute () diagonal trace with two-index objects
+
+           **Arguments:**
+
+           subscripts
+                ``aabb,ab``.
+
+           other
+                A DenseFourIndex instance
+        '''
+        check_options('subscripts', subscripts, 'aabb,ab')
+        end0, end1, end2, end3 = self._fix_ends(end0, end1, end2, end3)
+        return DenseLinalgFactory.einsum(subscripts, None, factor, True, (self, (begin0, end0, begin1, end1, begin2, end2, begin3, end3)), other)
+
+    def contract_to_two(self, subscripts, out=None, factor=1.0, clear=True, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None, begin3=0, end3=None):
+        '''Contract four-index object to two-index object
+
+           **Arguments:**
+
+           subscripts
+                ``abcb->ac``, ``abbc->ac``
+
+        '''
+        check_options('subscripts', subscripts, 'abcb->ac', 'abbc->ac')
+        end0, end1, end2, end3  = self._fix_ends(end0, end1, end2, end3)
+        return DenseLinalgFactory.einsum(subscripts, out, factor, clear, (self, (begin0, end0, begin1, end1, begin2, end2, begin3, end3)))
+
+    def contract_four(self, subscripts, other, factor=1.0, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None, begin3=0, end3=None):
+        '''Compute the trace using with other four-index objects
+
+           **Arguments:**
+
+           subscripts
+                ``abcd,abcd``, ``abcd,adcb``, ``abcd,acbd``, ``abcd,acdb``
+
+           other
+                A DenseFourIndex instance
+        '''
+        check_options('subscripts', subscripts, 'abcd,abcd', 'abcd,adcb', 'abab,abab',
+            'abad,abad', 'abdb,abdb', 'abcd,acbd', 'abcd,acdb')
+        end0, end1, end2, end3  = other._fix_ends(end0, end1, end2, end3)
+        return DenseLinalgFactory.einsum(subscripts, None, factor, True, self, (other, (begin0, end0, begin1, end1, begin2, end2, begin3, end3)))
+
+    def contract_two_to_four(self, subscripts, two, out=None, factor=1.0,
+        clear=True, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None,
+        begin3=0, end3=None, begin4=0, end4=None, begin5=0, end5=None):
         '''Contracts with a two-index object to obtain a four-index object.
 
            **Arguments:**
@@ -2314,7 +3116,18 @@ class DenseFourIndex(FourIndex):
                 ``abcd,ad->acbd``, ``abcd,ad->acdb``, ``abcd,ad->abcd``,
                 ``abcd,ad->abdc``, ``abcd,bd->abcd``, ``abcd,bd->abdc``,
                 ``abcd,bc->abdc``, ``abcd,bc->abcd``, ``abcd,ac->abcd``,
-                ``abcd,ac->abdc``
+                ``abcd,ac->abdc``, ``abcd,bd->cabd``, ``abcd,bc->dabc``,
+                ``abcd,ca->cabd``, ``abcd,da->dabc``, ``abcd,dc->dabc``,
+                ``abcd,ba->dabc``, ``aabc,dc->adbc``, ``aabc,db->adbc``,
+                ``abcc,ad->abcd``, ``abcc,bd->abcd``, ``abcd,bc->acbd``,
+                ``abcd,eb->aecd``, ``abcd,eb->cdae``, ``abcd,ed->ceab``,
+                ``abcd,ed->abce``, ``abcd,ae->cdeb``, ``abcd,ae->ebcd``,
+                ``abcd,ce->edab``, ``abcd,ce->abed``, ``abcd,ab->abcd``,
+                ``abcd,cb->abcd``, ``abcd,ec->eadb``, ``abcd,ec->dbea``,
+                ``abcd,ae->cedb``, ``abcd,ae->dbce``, ``abcd,ec->ebad``,
+                ``abcd,ed->ebac``, ``abcd,ec->adeb``, ``abcd,ed->aceb``,
+                ``abcd,ae->debc``, ``abcd,ae->cebd``, ``abcd,ae->bcde``,
+                ``abcd,ae->bdce``
 
            two
                 An instance of DenseTwoIndex.
@@ -2328,16 +3141,32 @@ class DenseFourIndex(FourIndex):
             'abcd,cd->acdb', 'abcd,cb->acdb', 'abcd,cb->acbd', 'abcd,ab->acbd',
             'abcd,ab->acdb', 'abcd,ad->acbd', 'abcd,ad->acdb', 'abcd,ad->abcd',
             'abcd,ad->abdc', 'abcd,bd->abcd', 'abcd,bd->abdc', 'abcd,bc->abdc',
-            'abcd,bc->abcd', 'abcd,ac->abcd', 'abcd,ac->abdc')
-        return DenseLinalgFactory.einsum(subscripts, out, factor, clear, self, two)
+            'abcd,bc->abcd', 'abcd,ac->abcd', 'abcd,ac->abdc', 'abcd,bd->cabd',
+            'abcd,bc->dabc', 'abcd,ca->cabd', 'abcd,da->dabc', 'abcd,dc->dabc',
+            'abcd,ba->dabc', 'abcd,ac->acbd', 'abcd,cd->abcd', 'abcc,ad->abcd',
+            'aabc,dc->adbc', 'aabc,db->adbc', 'abcc,ad->abcd', 'abcc,bd->abcd',
+            'abcd,bc->acbd', 'abcd,eb->aecd', 'abcd,eb->cdae', 'abcd,ed->ceab',
+            'abcd,ed->abce', 'abcd,ae->cdeb', 'abcd,ae->ebcd', 'abcd,ce->edab',
+            'abcd,ce->abed', 'abcd,ab->abcd', 'abcd,cb->abcd', 'abcd,ec->eadb',
+            'abcd,ec->dbea', 'abcd,ae->cedb', 'abcd,ae->dbce', 'abcd,ec->ebad',
+            'abcd,ed->ebac', 'abcd,ec->adeb', 'abcd,ed->aceb', 'abcd,ae->debc',
+            'abcd,ae->cebd', 'abcd,ae->bcde', 'abcd,ae->bdce')
+        end0, end1, end2, end3  = self._fix_ends(end0, end1, end2, end3)
+        end4, end5  = two._fix_ends(end4, end5)
+        return DenseLinalgFactory.einsum(subscripts, out, factor, clear, (self, (begin0, end0, begin1, end1, begin2, end2, begin3, end3)), (two, (begin4, end4, begin5, end5)))
 
-    def contract_two_to_two(self, subscripts, two, out=None, factor=1.0, clear=True):
+    def contract_two_to_two(self, subscripts, two, out=None, factor=1.0, clear=True, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None, begin3=0, end3=None, begin4=0, end4=None, begin5=0, end5=None):
         """Contract self with a two-index to obtain a two-index.
 
            **Arguments:**
 
            subscripts
-                Any of ``abcd,bd->ac`` (direct), ``abcd,cb->ad`` (exchange)
+                Any of ``abcd,bd->ac`` (direct), ``abcd,cb->ad`` (exchange),
+                ``aabb,cb->ac``, ``abcc,bc->ab``, ``aabc,ab->bc``,
+                ``aabc,ac->bc``, ``abcc,ac->ab``, ``abcb,cb->ac``,
+                ``abcb,ab->ac``, ``abcc,bc->ba``, ``abcc,bc->ab``,
+                ``abcd,ac->db``, ``abcd,ad->cb``, ``abcd,ac->bd``,
+                ``abcd,ad->bc``, ``abcd,ab->cd``
 
            two
                 The input two-index object. (DenseTwoIndex)
@@ -2347,12 +3176,200 @@ class DenseFourIndex(FourIndex):
            out, factor, clear
                 See :py:meth:`DenseLinalgFactory.einsum`
         """
-        check_options('subscripts', subscripts, 'abcd,bd->ac', 'abcd,cb->ad')
-#        return DenseLinalgFactory.einsum(subscripts, out, factor, clear, self, two)
+        check_options('subscripts', subscripts, 'abcd,bd->ac', 'abcd,cb->ad',
+            'aabb,cb->ac', 'aabb,cb->ca', 'abcc,bc->ab', 'aabc,ab->bc',
+            'aabc,ac->bc', 'abcc,ac->ab', 'abcb,cb->ac', 'abcb,ab->ac',
+            'abcc,bc->ba', 'abcc,bc->ab', 'abcd,ac->db', 'abcd,ad->cb',
+            'abcd,ac->bd', 'abcd,ad->bc', 'abcd,ab->cd')
         if subscripts == 'abcd,bd->ac':
             return DenseLinalgFactory.tensordot(self, two, ([1,3], [1,0]), out, factor, clear)
-        elif subscripts == 'abcd,cb->ad':
-            return DenseLinalgFactory.tensordot(self, two, ([1,2], [1,0]), out, factor, clear)
+#       elif subscripts == 'abcd,cb->ad':
+#           return DenseLinalgFactory.tensordot(self, two, ([1,2], [1,0]), out, factor, clear)
+        else:
+            end0, end1, end2, end3  = self._fix_ends(end0, end1, end2, end3)
+            end4, end5  = two._fix_ends(end4, end5)
+            return DenseLinalgFactory.einsum(subscripts, out, factor, clear, (self, (begin0, end0, begin1, end1, begin2, end2, begin3, end3)), (two, (begin4, end4, begin5, end5)))
+
+    def contract_two_to_three(self, subscripts, two, out=None, factor=1.0, clear=True, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None, begin3=0, end3=None):
+        '''Contracts with a two-index object to obtain a four-index object.
+
+           **Arguments:**
+
+           subscripts
+                Any of ``aabc,ad->bcd``, ``'abcd,ac->bdc``, ``abcd,ad->bcd``,
+                ``abcd,bc->abd``, ``abcd,ac->abd``, ``abcc,dc->dab``,
+                ``abcd,ac->bcd``, ``abcc,cd->dab``, ``abcc,dc->abd``,
+                ``abcb,db->adc``, ``abcc,dc->adb``, ``abcb,db->dac``,
+                ``abcc,cd->abd``
+
+           two
+                An instance of DenseTwoIndex.
+
+           **Optional arguments:**
+
+           out, factor, clear
+                See :py:meth:`DenseLinalgFactory.einsum`
+        '''
+        check_options('subscripts', subscripts, 'aabc,ad->bcd', 'abcd,ac->bdc',
+            'abcd,ad->bcd', 'abcd,bc->abd', 'abcd,ac->abd', 'abcc,dc->dab',
+            'abcd,ac->bcd', 'abcc,cd->dab', 'abcc,dc->abd', 'abcb,db->adc',
+            'abcc,dc->adb', 'abcb,db->dac',
+            'abbc,db->dac', 'abcc,cd->abd')
+        end0, end1, end2, end3  = self._fix_ends(end0, end1, end2, end3)
+        return DenseLinalgFactory.einsum(subscripts, out, factor, clear, (self, (begin0, end0, begin1, end1, begin2, end2, begin3, end3)), two)
+
+    def contract_three_to_three(self, subscripts, three, out=None, factor=1.0, clear=True, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None):
+        '''Contracts with a three-index object to obtain a three-index object.
+
+           **Arguments:**
+
+           subscripts
+                Any of ``abcd,ace->ebd``, ``abcd,ebd->ace``
+
+           four
+                An instance of DenseFourIndex.
+
+           **Optional arguments:**
+
+           out, factor, clear
+                See :py:meth:`DenseLinalgFactory.einsum`
+        '''
+        check_options('subscripts', subscripts, 'abcd,ace->ebd',
+            'abcd,ebd->ace')
+        end0, end1, end2  = three._fix_ends(end0, end1, end2)
+        return DenseLinalgFactory.einsum(subscripts, out, factor, clear, self, (three, (begin0, end0, begin1, end1, begin2, end2)))
+
+    def contract_four_to_two(self, subscripts, four, out=None, factor=1.0, clear=True, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None, begin3=0, end3=None):
+        '''Contracts with a two-index object to obtain a four-index object.
+
+           **Arguments:**
+
+           subscripts
+                Any of ``abcd,aced->be``, ``abcd,acde->be``, ``abcd,aced->eb``,
+                ``abcd,acde->eb``, ``abcd,ecbd->ae``, ``abcd,ecdb->ae``,
+                ``abcd,ecdb->ea``, ``abcd,ecbd->ea``, ``abcd,acbe->ed``,
+                ``abcd,aceb->ed``, ``abcd,aebd->ce``, ``abcd,aedb->ce``
+
+           four
+                An instance of DenseFourIndex.
+
+           **Optional arguments:**
+
+           out, factor, clear
+                See :py:meth:`DenseLinalgFactory.einsum`
+        '''
+        check_options('subscripts', subscripts, 'abcd,aced->be',
+            'abcd,acde->be', 'abcd,aced->eb', 'abcd,acde->eb',
+            'abcd,ecbd->ae', 'abcd,ecdb->ae', 'abcd,ecdb->ea',
+            'abcd,ecbd->ea', 'abcd,acbe->ed', 'abcd,aceb->ed',
+            'abcd,aebd->ce', 'abcd,aedb->ce')
+        end0, end1, end2, end3  = four._fix_ends(end0, end1, end2, end3)
+        return DenseLinalgFactory.einsum(subscripts, out, factor, clear, self, (four, (begin0, end0, begin1, end1, begin2, end2, begin3, end3)))
+
+    def contract_four_to_four(self, subscripts, four, out=None, factor=1.0, clear=True, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None, begin3=0, end3=None):
+        '''Contracts with a two-index object to obtain a four-index object.
+
+           **Arguments:**
+
+           subscripts
+                Any of ``abcd,cedf->abfe``, ``abcd,cefd->abfe``,
+                ``abcd,cedf->feab``, ``abcd,cefd->feab``, ``abcd,eadf->fbce``,
+                ``abcd,eadf->cefb``, ``abcd,aedf->cbfe``, ``abcd,aedf->fecb``,
+                ``abcd,acef->ebfd``, ``abcd,bdef->aecf``, ``abcd,cedf->abef``,
+                ``abcd,cefd->abef``, ``abcd,cedf->efab``, ``abcd,cefd->efab``,
+                ``abcd,eadf->ebcf``, ``abcd,eadf->cfeb``, ``abcd,eadf->cbef``,
+                ``abcd,eadf->efcb``, ``abcd,eafd->cbef``, ``abcd,eafd->efcb``
+
+           four
+                An instance of DenseFourIndex.
+
+           **Optional arguments:**
+
+           out, factor, clear
+                See :py:meth:`DenseLinalgFactory.einsum`
+        '''
+        check_options('subscripts', subscripts, 'abcd,cedf->abfe',
+            'abcd,cefd->abfe', 'abcd,cedf->feab', 'abcd,cefd->feab',
+            'abcd,eadf->fbce', 'abcd,eadf->cefb', 'abcd,aedf->cbfe',
+            'abcd,aedf->fecb', 'abcd,acef->ebfd', 'abcd,bdef->aecf',
+            'abcd,cedf->abef', 'abcd,cefd->abef', 'abcd,cedf->efab',
+            'abcd,cefd->efab', 'abcd,eadf->ebcf', 'abcd,eadf->cfeb',
+            'abcd,eadf->cbef', 'abcd,eadf->efcb', 'abcd,eafd->cbef',
+            'abcd,eafd->efcb')
+        end0, end1, end2, end3  = four._fix_ends(end0, end1, end2, end3)
+        return DenseLinalgFactory.einsum(subscripts, out, factor, clear, self, (four, (begin0, end0, begin1, end1, begin2, end2, begin3, end3)))
+
+    def iadd_expand_two_to_four(self, axis, two, factor=1.0, begin0=0, end0=None, begin1=0, end1=None):
+        '''Expand two-index object along one axis and add it to four-index
+           object.
+
+           **Arguments:**
+
+           axis
+                Any of ``1-3``, ``diag``
+
+           three
+                An instance of DenseThreeIndex.
+
+           **Optional arguments:**
+
+           factor
+                See :py:meth:`DenseLinalgFactory.einsum`
+        '''
+        check_options('axis', axis, '1-3', '0-2', '0-3', '1-2', 'diag')
+        end0, end1 = two._fix_ends(end0, end1)
+        if axis == '0-2':
+            for i in range(self.nbasis):
+                self._array[:,i,:,i] += two._array[begin0:end0,begin1:end1]*factor
+        elif axis == '0-3':
+            for i in range(self.nbasis):
+                self._array[:,i,i,:] += two._array[begin0:end0,begin1:end1]*factor
+        elif axis == '1-2':
+            for i in range(self.nbasis):
+                self._array[i,:,:,i] += two._array[begin0:end0,begin1:end1]*factor
+        elif axis == '1-3':
+            for i in range(self.nbasis):
+                self._array[i,:,i,:] += two._array[begin0:end0,begin1:end1]*factor
+        elif axis == 'diag':
+            for i in range(self.nbasis):
+                for a in range(self.nbasis1):
+                    self._array[i,a,i,a] += two._array[i, a]*factor
+
+    def iadd_expand_three_to_four(self, axis, three, factor=1.0):
+        '''Expand three-index object along one axis and add it to four-index
+           object.
+
+           **Arguments:**
+
+           axis
+                Any of ``1-3-1-2``, ``1-2-1-2``, ``0-2-0-2``, ``0-3-0-2``,
+                ``0-2-0-1``
+
+           three
+                An instance of DenseThreeIndex.
+
+           **Optional arguments:**
+
+           factor
+                See :py:meth:`DenseLinalgFactory.einsum`
+        '''
+        check_options('axis', axis, '1-3-1-2', '0-2-0-1', '1-2-1-2', '0-2-0-2',
+            '0-3-0-2')
+        if axis == '1-3-1-2':
+            for i in range(self.nbasis):
+                self._array[i,:,i,:] += three._array[i,:,:]*factor
+        elif axis == '1-2-1-2':
+            for i in range(self.nbasis):
+                self._array[i,:,:,i] += three._array[i,:,:]*factor
+        elif axis == '0-2-0-2':
+            for i in range(self.nbasis):
+                self._array[:,i,:,i] += three._array[:,i,:]*factor
+        elif axis == '0-3-0-2':
+            for i in range(self.nbasis):
+                self._array[:,i,i,:] += three._array[:,i,:]*factor
+        elif axis == '0-2-0-1':
+            for i in range(self.nbasis1):
+                self._array[:,i,:,i] += three._array[:,:,i]*factor
 
     def assign_four_index_transform(self, ao_integrals, exp0, exp1=None, exp2=None, exp3=None, method='tensordot'):
         '''Perform four index transformation.

@@ -998,11 +998,11 @@ def test_two_index_iadd_shift():
     op = orig.copy()
     shift = 0.3
     op.iadd_shift(shift)
-    assert op._array.min() >= shift
+    assert abs(op._array.min()) >= shift
     for i in xrange(5):
         for j in xrange(5):
             if orig.get_element(i, j) < 0.0:
-                assert op.get_element(i, j) == shift
+                assert op.get_element(i, j) == orig.get_element(i, j) - shift
             else:
                 assert op.get_element(i, j) == orig.get_element(i, j) + shift
 
@@ -1238,7 +1238,8 @@ def test_three_index_iadd_expand_two_one():
     assert np.allclose(three._array, orig._array + 0.7*np.einsum('ab,c->acb', two._array, one._array))
 
 
-def test_three_index_iadd_contract_three_two():
+#def test_three_index_iadd_contract_three_two():
+def test_three_index_contract_two_to_three():
     # Test only for one case of subscripts
     lf = DenseLinalgFactory(3)
     a = lf.create_three_index()
@@ -1248,12 +1249,13 @@ def test_three_index_iadd_contract_three_two():
     b.randomize()
     two.randomize()
     orig = b.copy()
-    b.iadd_contract_three_two('abc,db->adc', a, two, factor=0.7)
-    assert np.allclose(b._array, orig._array + 0.7*np.einsum('abc,db->adc', a._array, two._array))
+#   b.iadd_contract_three_two('abc,db->adc', a, two, factor=0.7)
+    a.contract_two_to_three('abc,ad->cdb', two, b, factor=0.7, clear=False)
+    assert np.allclose(b._array, orig._array + 0.7*np.einsum('abc,ad->cdb', a._array, two._array))
     # try other cases blindly
-    b.iadd_contract_three_two('abc,dc->adb', a, two, factor=0.7)
-    b.iadd_contract_three_two('abc,db->dac', a, two, factor=0.7)
-    b.iadd_contract_three_two('abc,dc->dab', a, two, factor=0.7)
+#   b.iadd_contract_three_two('abc,dc->adb', a, two, factor=0.7)
+#   b.iadd_contract_three_two('abc,db->dac', a, two, factor=0.7)
+#   b.iadd_contract_three_two('abc,dc->dab', a, two, factor=0.7)
 
 
 #

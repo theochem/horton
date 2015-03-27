@@ -46,3 +46,7 @@ from horton.quadprog import *
 from horton.units import *
 from horton.utils import *
 from horton.modelhamiltonians import *
+from horton.correlatedwfn import *
+from horton.orbital_utils import *
+#from horton.localization import *
+#from horton.orbitalentanglement import *
