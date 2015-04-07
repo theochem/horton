@@ -20,5 +20,4 @@ used for the sake of clarity. Unit conversion constants are not abbreviated.
 * NA -- Nuclear Attraction
 * OLP -- Overlap
 * SQ (as suffix, e.g. ``dist_sq``) -- Squared
-* SYS -- System, i.e. a molecular system with a certain wavefunction etc.
 * WFN -- Wave Function

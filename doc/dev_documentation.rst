@@ -17,10 +17,7 @@ There is a makefile to generate the documentation based in the source code::
 
     toony@poony ~/.../horton:master> cd doc
     toony@poony ~/.../horton/doc:master> make html
-    toony@poony ~/.../horton/doc:master> make pdf
 
-Whenever you add a new feature, make sure that at least files
-``lib_horton*.rst`` are up to date. With more serious work, please also write
-a tutorial, e.g. like this one, to explain how your new feature can be used
-effectively. If you added a significant feature, also update the file
-``ref_features.rst``.
+Whenever you add a new feature, please add the corresponding documentation to
+explain how your new feature can be used effectively. When you add a significant
+feature, also update the file ``ref_features.rst`` and ``ref_releases.rst``.
