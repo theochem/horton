@@ -1,5 +1,5 @@
-Getting started on Linux (Fedora and Ubuntu)
-############################################
+Download and installation on Linux (Fedora and Ubuntu)
+######################################################
 
 
 .. contents::
@@ -183,8 +183,8 @@ The documentation is compiled and viewed as follows::
     cd ..
 
 
-Testing
-=======
+Running the tests
+=================
 
 Move to a directory outside the source tree and call nosetests as follows::
 

@@ -20,3 +20,15 @@ convenient) to directly type the atomic coordinates in the python script.
 In addition to this Python interface of Horton, several Python scripts were also
 developed (``horton-*.py``) that are easier to use but only have a limited
 functionality compared to the Python interface
+
+TODO: more examples needed. Becke stuff should be removed.
+
+How to add a custom external potential to a mean-field Hamiltonian
+==================================================================
+
+TODO
+
+How to project orbitals on a new basis
+======================================
+
+TODO
