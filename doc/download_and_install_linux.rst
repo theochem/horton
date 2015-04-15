@@ -5,8 +5,8 @@ Download and installation on Linux (Fedora and Ubuntu)
 Disclaimer
 ==========
 
-Horton is mainly developed and tested on Linux systems. If you run any other
-operating system, some of the instructions below may not work.
+Horton is mainly developed and tested on Linux systems. If you run OS X, please follow the instructions 
+for Mac OS X.  If you run any other operating system, some of the instructions below may not work.
 
 
 Download the code
