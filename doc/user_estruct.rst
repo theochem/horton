@@ -5,5 +5,5 @@ Electronic Structure Methods
    :maxdepth: 3
    :numbered:
 
-   user_scf
+   user_hf_dft
    user_ap1rog
