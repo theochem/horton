@@ -2,9 +2,6 @@ Download and installation on Linux (Fedora and Ubuntu)
 ######################################################
 
 
-.. contents::
-
-
 Disclaimer
 ==========
 
@@ -54,11 +51,11 @@ There is also a web interface to Horton's git repository:
 https://github.com/theochem/horton
 
 
-Common dependencies
-===================
+Dependencies for building, installing and testing Horton
+========================================================
 
-In order to compile and test Horton, one needs to
-install relatively recent versions of the following programs/libraries:
+In order to compile and test Horton, one needs to install relatively recent
+versions of the following programs/libraries:
 
 * Python >= 2.7, < 3.0: http://www.python.org/ (also install `development files`)
 * GCC, G++ and GFortran >= 4.5: http://gcc.gnu.org/ (In principle the Intel compilers or any other of your favorite compilers should work. The GNU compilers are used for development and testing.)
@@ -68,78 +65,74 @@ install relatively recent versions of the following programs/libraries:
 * Cython >= 0.17.1 : http://www.cython.org/
 * Nosetests >= 1.1.2: http://readthedocs.org/docs/nose/en/latest/
 * Sympy >= 0.7.1: http://code.google.com/p/sympy/
-* The ``patch`` program >= 2.0: http://savannah.gnu.org/projects/patch/ (or any of its equivalents)
-
-Optionally, one may also install Matplotlib:
-
 * Matplotlib >= 1.0: http://matplotlib.org/
+* LibXC >= 2.1.0: http://www.tddft.org/programs/octopus/wiki/index.php/Libxc
+* LibInt2 >= 2.0.3: http://sourceforge.net/p/libint/home
+* Atlas >= 3.10.1: http://math-atlas.sourceforge.net/ (or any other BLAS implementation that you like more)
 
-If one is interested in generating the documentation from source, the following
-packages are also needed:
 
-* Sphinx > 1.0: http://sphinx.pocoo.org/
-* Doxygen >= 1.8.6: http://www.doxygen.org/
-* Breathe >= 1.2.0: http://breathe.readthedocs.org/en/latest/
-* Docutils >= 0.11: http://docutils.sourceforge.net/
+Installing dependencies with a package manager
+----------------------------------------------
 
-On a decent operating system, these programs/libraries can be easily installed
-with a package manager. First check this possibility before manually installing
-the dependencies.
+With the popular Linux distributions, most of these dependencies can be
+installed with a package manager:
 
-On Ubuntu Linux::
+**Ubuntu Linux** (does not have a libint2 package)::
 
-    sudo apt-get install python-dev gcc g++ gfortran python-numpy python-h5py python-scipy cython python-sphinx python-nose python-sympy patch python-matplotlib doxygen python-pip preview-latex-style python-docutils
+    sudo apt-get install python-dev gcc g++ gfortran python-numpy python-h5py python-scipy cython python-nose python-sympy python-matplotlib libxc-dev libatlas-dev
 
-On Fedora Linux::
+**Fedora Linux**::
 
-    sudo yum install python-devel gcc gcc-c++ gcc-gfortran numpy h5py scipy Cython python-sphinx python-nose sympy patch python-matplotlib doxygen python-pip tex-preview python-docutils
+    sudo yum install python-devel gcc gcc-c++ gcc-gfortran numpy h5py scipy Cython python-sphinx python-nose sympy python-matplotlib libint2-devel libxc-devel libatlas-devel
 
-Since Breathe is relatively new, it must be installed manually. For example, it
-is available through PyPI and can be installed as follows::
 
-    pip install --user breathe
+Installing dependencies manually
+--------------------------------
 
-If the package manager of your operating system does not have the desired
+If the package manager of your Linux distribution does not have the desired
 packages (or the right versions), one has to install them manually, e.g.
 download and execute an installer, or download and unpack a binary package. On
-HPC environments a compilation from scratch is recommended. In some cases, Pip,
-the Python package manager, may be a good choice to install the most recent
-versions of the Python packages in the list of dependencies. Assuming that you
-have installed some compilers, the Python development files and HDF5 development
-files, the following command installs the remaining dependencies in your home
-directory::
+HPC environments a compilation from scratch is recommended.
+
+**BLAS**
+
+In principle, any BLAS implementation may be used. In case of a custom build,
+some environment variables must be set prior to building Horton, as discussed
+below.
+
+
+**LibXC**
+
+The directory ``depends`` of the Horton source tree contains a make file that
+will download and LibXC, which will work on most systems::
+
+    (cd depends; make libxc)
+
+This results in a libxc library suitable for static linking. If this fails,
+consult your local Linux guru to build LibXC. For more info about LibXC, check
+the website: http://www.tddft.org/programs/octopus/wiki/index.php/Libxc
+
+**LibInt2**
+
+The directory ``depends`` of the Horton source tree contains a make file that
+will download and LibInt2, which will work on most systems::
+
+    (cd depends; make libint)
+
+The compilation of libint takes a few minutes and results in a library for
+static linking. If this fails, consult your local Linux guru to build LibInt2.
+For more info about LibInt2, check the website:
+http://sourceforge.net/p/libint/home
+
+**Python dependencies**
+
+In some cases, Pip, the Python package manager, may be a good choice to install
+the most recent versions of the Python packages in the list of dependencies.
+Assuming that you have installed some compilers, the Python development files
+and HDF5 development files, the following command installs the remaining
+dependencies in your home directory::
 
     pip install --user numpy scipy cython h5py sphinx nose sympy
-
-
-Specific dependencies
-=====================
-
-The directory ``depends`` of the Horton source tree is used to build specific
-dependencies from source. For the moment, there are two such dependencies,
-namely `libint2 <http://sourceforge.net/p/libint/>`_ and `libxc
-<http://www.tddft.org/programs/octopus/wiki/index.php/Libxc>`_
-[marques2012]_. The directory ``depends``
-contains a ``Makefile`` that takes care of downloading the right version and
-compiling it. The following should get you the proper versions of libint and
-libxc::
-
-    cd depends
-    make libint
-    make libxc
-    cd ..
-
-The compilation of libint takes a few minutes. These commands will build
-libraries suitable for static linking.
-
-.. note::
-
-    Alternatively, it is also possible to link libint and libxc dynamically. This
-    requires some familiarity with software compilation on Unix systems. Make
-    sure you have the following versions installed:
-
-    * libint (for mpqc) >= 2.0.3-stable
-    * libxc >= 2.1.0
 
 
 Reference atoms
@@ -152,35 +145,36 @@ Several parts of Horton make use of reference atomic computations. These files
 are too large to be included in the git revision system. Therefore, they must be
 downloaded separately when compiling a development version of Horton::
 
-    cd data/refatoms
-    make all
-    cd ../..
+    (cd data/refatoms; make all)
 
 
 Compilation and installation
 ============================
 
-The regular build and install is as done follows::
+Build and install
+-----------------
+
+The regular build and install is done as follows::
 
     ./setup.py install --user
 
 The ``horton-*.py`` scripts are installed in ``~/.local/bin`` and you have to
 add this directory to your ``PATH`` environment variable to make them accessible
-from any directory.
+from any directory. The rest of the Horton library is installed into a default
+location in your home directory.
 
-.. note::
+The ``setup.py`` script does a reasonable attempt to configure the compiler and
+linker settings for the LibXC, LibInt2 and BLAS libraries. However, this does
+not work in all environments. In case of a faillure, or if another configuration
+than the default is desired, read the following section.
 
-    When libint and libxc are compiled for static linking (as explained above),
-    these libraries are found automatically. In case of dynamic linking,
-    it may be necessary to specify explicitly the location of the shared objects
-    and the header files with the options ``-I`` and ``-L`` of the setup script.
 
-The documentation is compiled and viewed as follows::
+Overriding default compiler/linker settings for LibXC, LibInt2 and BLAS
+-----------------------------------------------------------------------
 
-    cd doc
-    make html
-    firefox _build/html/index.html
-    cd ..
+The manual configuration of the compiler and linker settings is described here:
+:ref:`setup_cfg`. Only read this section if the default build and install did
+not work.
 
 
 Running the tests
@@ -188,10 +182,45 @@ Running the tests
 
 Move to a directory outside the source tree and call nosetests as follows::
 
-    cd ~
-    nosetests -v horton
+    (cd ~; nosetests -v horton)
 
 In case one is testing horton on a system without an X Server, one has to
 configure matplotlib to use a backend that does not rely on an X Server. This
-can be done by adding a line ``backend: agg`` to the file
-``~/.matplotlib/matplotlibrc``.
+can be done by adding a line ``backend: agg`` to the ``matplotlibrc`` file.
+This file is located in ``~/.matplotlib`` or ``~/.config/matplotlib``.
+
+
+Dependencies for building the documentation
+===========================================
+
+If one is interested in generating the documentation from source, the following
+packages are also needed:
+
+* Sphinx > 1.0: http://sphinx.pocoo.org/
+* Doxygen >= 1.8.6: http://www.doxygen.org/
+* Breathe >= 1.2.0: http://breathe.readthedocs.org/en/latest/
+* Docutils >= 0.11: http://docutils.sourceforge.net/
+
+**Ubuntu Linux**::
+
+    sudo apt-get install python-sphinx doxygen preview-latex-style python-docutils python-pip
+
+**Fedora Linux**::
+
+    sudo yum install python-sphinx doxygen tex-preview python-docutils python-pip
+
+Since Breathe is relatively new, it must be installed manually. For example, it
+is available through PyPI and can be installed as follows::
+
+    pip install --user breathe
+
+
+Building the documentation
+==========================
+
+The documentation is compiled and viewed as follows::
+
+    cd doc
+    make html
+    firefox _build/html/index.html
+    cd ..

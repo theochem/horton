@@ -21,7 +21,7 @@
 #--
 
 
-import os
+import os, sys, platform, ConfigParser, subprocess
 import numpy as np
 from glob import glob
 from distutils.core import setup
@@ -31,11 +31,8 @@ from distutils.command.install_headers import install_headers
 from Cython.Distutils import build_ext
 
 
-
-libintdir = 'depends/libint-2.0.3-stable'
-libxcdir = 'depends/libxc-2.1.0'
-execfile('customize.py')
-
+# Utility functions
+# -----------------
 
 def get_sources(dirname):
     '''Get all cpp files and the cext.pyx file of a package'''
@@ -99,47 +96,203 @@ class my_install_headers(install_headers):
             self.outfiles.append(out)
 
 
+# Library configuration functions
+# -------------------------------
 
-# Configure the linkage of the extension that use libint and libxc. If the
-# libararies are compiled in the depends directory, these are used for
-# static linking. The user may also change the directories in which the
-# hand-compiled libraries are found, i.e. by making the necessary changes
-# in customize.py Otherwhise, dynamic linking is attempted.
+lib_config_keys = ['include_dirs', 'library_dirs', 'libraries', 'extra_objects',
+                   'extra_compile_args', 'extra_link_args']
 
-if os.path.isfile('%s/src/.libs/libxc.a' % libxcdir):
-    libxc_extra_objects = ['%s/src/.libs/libxc.a' % libxcdir]
-    libxc_include_dirs = ['%s/src' % libxcdir, libxcdir]
-    libcx_libraries = []
+
+def print_lib_config(heading, lib_config):
+    '''Print (partial) lib_config'''
+    print '   %s' % heading
+    if len(lib_config) == 0:
+        print '      -'
+    else:
+        for key, value in sorted(lib_config.iteritems()):
+            if len(value) > 0:
+                print '      %s: %s' % (key, value)
+
+
+def get_lib_config_setup(prefix, fn_setup_cfg):
+    '''Get library configuration from a setup.cfg'''
+    lib_config = {}
+    if os.path.isfile(fn_setup_cfg):
+        config = ConfigParser.ConfigParser()
+        config.read(fn_setup_cfg)
+        if config.has_section(prefix):
+            for key in lib_config_keys:
+                if config.has_option(prefix, key):
+                    value = config.get(prefix, key).strip()
+                    if value is not None and len(value) > 0:
+                        lib_config[key] = value.split(':')
+    print_lib_config('From %s' % fn_setup_cfg, lib_config)
+    return lib_config
+
+def get_lib_config_env(prefix):
+    '''Read library config from the environment variables'''
+    lib_config = {}
+    for key in lib_config_keys:
+        varname = ('%s_%s' % (prefix, key)).upper()
+        value = os.getenv(varname)
+        if value is not None:
+            lib_config[key] = value.split(':')
+    print_lib_config('From environment variables', lib_config)
+    return lib_config
+
+
+class PkgConfigError(Exception):
+    pass
+
+
+def run_pkg_config(libname, option):
+    '''Safely try to call pkg-config'''
+    try:
+        return subprocess.check_output(['pkg-config', libname, '--'+option],
+                                       stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError:
+        raise PkgConfigError('pkg-config did not exit properly')
+
+
+def get_lib_config_pkg(libname):
+    '''Get library config from the pkg-config program'''
+    lib_config = {
+        'include_dirs': [word[2:] for word in run_pkg_config(libname, 'cflags-only-I').split()],
+        'library_dirs': [word[2:] for word in run_pkg_config(libname, 'libs-only-L').split()],
+        'libraries': [word[2:] for word in run_pkg_config(libname, 'libs-only-l').split()],
+        'extra_compile_args': run_pkg_config(libname, 'cflags-only-other').split(),
+        'extra_link_args': run_pkg_config(libname, 'libs-only-other').split(),
+    }
+    print_lib_config('From pkg-config', lib_config)
+    return lib_config
+
+
+def all_empty(lib_config):
+    '''Test if all lib_config fields are empty'''
+    return all(len(value)==0 for value in lib_config.itervalues())
+
+
+def all_exist(lib_config):
+    '''Test if all paths in the lib_config exist'''
+    for key, value in lib_config.iteritems():
+        for path in value:
+            if not os.path.exists(path):
+                return False
+    return True
+
+
+def detect_machine():
+    '''Return a description of the machine name, used for data/setup_cfgs/...'''
+    if sys.platform == 'linux2':
+        dist = platform.linux_distribution()
+        return 'Linux-%s-%s-%s' % (dist[0], dist[1], platform.machine())
+    elif sys.platform == 'darwin':
+        mac_ver = platform.mac_ver()
+        return 'Darwin-%s-%s-%s' % (mac_ver[0], mac_ver[2], patform.machine())
+    else:
+        return 'unknown'
+
+
+def lib_config_magic(prefix, libname, static_config={}):
+    '''Detect the configuration of a given library
+
+       **Arguments:**
+
+       prefix
+            The prefix for this library. This is a name that Horton uses to
+            refer to the library.
+
+       libname
+            The library name as it is known to the compiler and to pkg-config.
+            For example, if the shared object is libfoo.so, then the library
+            name is foo.
+
+       **Optional arguments**
+
+       static_config
+            If given, this static library configuration is attempted. Ignored
+            when empty, or when it contains non-existing files.
+    '''
+    print '%s Configuration' % prefix.upper()
+
+    # Start out empty
+    lib_config = dict((key, []) for key in lib_config_keys)
+
+    # Update with info from setup.cfg
+    lib_config.update(get_lib_config_setup(prefix, 'setup.cfg'))
+
+    # Override with environment variables
+    lib_config.update(get_lib_config_env(prefix))
+
+    # If no environment variables were set, attempt to guess the right settings.
+    if all_empty(lib_config):
+        if all_exist(static_config) and not all_empty(static_config):
+            # If the static build is present, use it.
+            lib_config.update(static_config)
+        else:
+            try:
+                # Try to get dynamic link info from pkg-config
+                lib_config.update(get_lib_config_pkg(libname))
+            except PkgConfigError:
+                # Try to find a machine-specific config file
+                machine = detect_machine()
+                fn_setup_cfg = 'data/setup_cfgs/setup.%s.cfg' % machine
+                lib_config.update(get_lib_config_setup(prefix, fn_setup_cfg))
+                if all_empty(lib_config):
+                    # Uber-dumb fall back
+                    lib_config['libraries'] = [libname]
+
+    print_lib_config('Final', lib_config)
+    return lib_config
+
+
+# Configuration of LibXC
+# ----------------------
+
+# Static build info in the depends directory to check for:
+libxc_dir = 'depends/libxc-2.1.0'
+libxc_static_config = {
+    'extra_objects': ['%s/src/.libs/libxc.a' % libxc_dir],
+    'include_dirs': ['%s/src' % libxc_dir, libxc_dir],
+}
+# Detect the configuration for LibXC
+libxc_config = lib_config_magic('libxc', 'xc', libxc_static_config)
+
+
+# Configuration of LibInt2
+# ------------------------
+
+libint2_dir = 'depends/libint-2.0.3-stable'
+libint2_static_config = {
+    'extra_objects': ['%s/lib/.libs/libint2.a' % libint2_dir],
+    'include_dirs': ['%s/include' % libint2_dir],
+}
+libint2_config = lib_config_magic('libint2', 'int2', libint2_static_config)
+
+
+# Configuration of BLAS
+# ---------------------
+
+# First try to get the BLAS Configuration from environment variables.
+blas_config = lib_config_magic('blas', 'atlas')
+
+# Detect which BLAS implementation is used and set a corresponding preprocessor
+# flag.
+blas_names = blas_config['libraries'] + blas_config['extra_objects']
+if any(('mkl' in l) for l in blas_names):
+    blas_precompiler = ('BLAS_MKL', '1')
+elif any(('atlas' in l) for l in blas_names):
+    blas_precompiler = ('BLAS_ATLAS', '1')
+elif any(('openblas' in l) for l in blas_names):
+    blas_precompiler = ('BLAS_OPENBLAS', '1')
 else:
-    libxc_extra_objects = []
-    libxc_include_dirs = []
-    libcx_libraries = ['xc']
-
-if os.path.isfile('%s/lib/.libs/libint2.a' % libintdir):
-    libint_extra_objects = ['%s/lib/.libs/libint2.a' % libintdir]
-    libint_include_dirs = ['%s/include' % libintdir]
-    libint_libraries = []
-else:
-    libint_extra_objects = []
-    libint_include_dirs = ['/usr/include/libint2']
-    libint_libraries = ['int2']
-
-# Switches to MKL BLAS from default ATLAS BLAS. Specify with environmental variable
-# USE_MKL=1. You are responsible for setting the CPATH and configuring ldconfig yourself.
-if os.getenv("USE_MKL") == "1":
-    blas_include_dirs = []
-    blas_lib_dirs = []
-    blas_libraries = ['mkl_intel_lp64', 'mkl_core', 'mkl_sequential', 'pthread',
-            'm']
-    blas_precompiler = ("CBLAS_CPP", "<mkl.h>")
-else:
-    blas_include_dirs = ["/usr/include/atlas-x86_64-sse3"]
-    blas_lib_dirs = ['/usr/lib64/atlas-sse3']
-#    blas_lib_dirs = []
-    blas_libraries = ['atlas','cblas']
-    blas_precompiler = ("CBLAS_C", "<cblas.h>")
+    print '   Unknown BLAS implementation. Assuming Netlib-compatible headers.'
+    blas_precompiler = ('BLAS_OTHER', '1')
+print 'BLAS precompiler directive: -D%s' % blas_precompiler[0]
 
 
+# Call distutils setup
+# --------------------
 
 setup(
     name='horton',
@@ -196,12 +349,19 @@ setup(
         Extension("horton.gbasis.cext",
             sources=get_sources('horton/gbasis') + ['horton/moments.cpp'],
             depends=get_depends('horton/gbasis') + ['horton/moments.pxd', 'horton/moments.h'],
-            extra_objects=libint_extra_objects,
-            libraries=libint_libraries+blas_libraries,
-            include_dirs=[np.get_include(), '.'] + libint_include_dirs +
-            blas_include_dirs,
-            library_dirs = blas_lib_dirs,
-            define_macros = [blas_precompiler],
+            include_dirs=[np.get_include(), '.'] +
+                          libint2_config['include_dirs'] +
+                          blas_config['include_dirs'],
+            library_dirs=libint2_config['library_dirs'] +
+                         blas_config['library_dirs'],
+            libraries=libint2_config['libraries'] + blas_config['libraries'],
+            extra_objects=libint2_config['extra_objects'] +
+                          blas_config['extra_objects'],
+            extra_compile_args=libint2_config['extra_compile_args'] +
+                                blas_config['extra_compile_args'],
+            extra_link_args=libint2_config['extra_link_args'] +
+                             blas_config['extra_link_args'],
+            define_macros=[blas_precompiler],
             language="c++"),
         Extension("horton.grid.cext",
             sources=get_sources('horton/grid') + [
@@ -217,9 +377,12 @@ setup(
         Extension("horton.meanfield.cext",
             sources=get_sources('horton/meanfield'),
             depends=get_depends('horton/meanfield'),
-            extra_objects=libxc_extra_objects,
-            libraries=libcx_libraries,
-            include_dirs=[np.get_include(), '.'] + libxc_include_dirs,
+            include_dirs=[np.get_include(), '.'] + libxc_config['include_dirs'],
+            library_dirs=libxc_config['library_dirs'],
+            libraries=libxc_config['libraries'],
+            extra_objects=libxc_config['extra_objects'],
+            extra_compile_args=libxc_config['extra_compile_args'],
+            extra_link_args=libxc_config['extra_link_args'],
             language="c++"),
         Extension("horton.espfit.cext",
             sources=get_sources('horton/espfit') + [

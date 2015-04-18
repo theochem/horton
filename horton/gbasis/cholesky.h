@@ -24,14 +24,13 @@
 #include <vector>
 #include "horton/gbasis/gbw.h"
 
-#ifdef CBLAS_C
+#ifdef BLAS_MKL
+#include <mkl.h>
+#else
 extern "C"
 {
-    #include CBLAS_C
+#include <cblas.h>
 }
-#endif
-#ifdef CBLAS_CPP
-    #include CBLAS_CPP
 #endif
 
 

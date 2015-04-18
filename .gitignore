@@ -29,3 +29,6 @@ data/examples/005_compare/*.png
 .settings
 .pydevproject
 .project
+
+# Ignore user configuration for libraries
+setup.cfg
