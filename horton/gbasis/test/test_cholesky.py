@@ -57,7 +57,7 @@ def test_cholesky_array():
     vecs = compute_cholesky(obasis)
     test_er = np.einsum('kac,kbd->abcd', vecs, vecs)
 
-    assert np.allclose(ref_er, test_er), (ref_er,test_er)
+    assert np.allclose(ref_er, test_er), abs(ref_er - test_er).max()
 
 def test_cholesky_from_gbasis():
     obasis, ref_er = get_h2o_er()
@@ -65,4 +65,4 @@ def test_cholesky_from_gbasis():
 
     test_er = np.einsum('kac,kbd->abcd', vecs, vecs)
 
-    assert np.allclose(ref_er, test_er), (ref_er,test_er)
+    assert np.allclose(ref_er, test_er), abs(ref_er - test_er).max()

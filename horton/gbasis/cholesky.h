@@ -18,12 +18,15 @@
 //
 //--
 
+// UPDATELIBDOCTITLE: Cholesky decomposition of (any) four-center integrals
+
 #ifndef CHOLESKY_H
 #define CHOLESKY_H
 
 #include <vector>
 #include "horton/gbasis/gbw.h"
 
+// Include the CBLAS headers
 #ifdef BLAS_MKL
 #include <mkl.h>
 #else
@@ -33,7 +36,30 @@ extern "C"
 }
 #endif
 
+/**
+    @brief
+        Computes Cholesky vectors for a four-index object
 
-long cholesky(GB4IntegralWrapper* gbw4, double** uninit_result, double threshold);
+    Only the 4-center integrals relevant for the decomposition are actually
+    computed. This implementation computes slices of the four-index object for
+    a pair of shells at a time. (This is because most implementations of a
+    four-center work like that.)
+
+    @param gbw4
+        A wrapper around a definition of the 4-center integral. See gbw.h
+
+    @param uninit_result
+        An output pointer. The Cholesky vectors will be allocated as part of
+        this routine and the pointer to the Cholesky vectors is assigned to this
+        output argument.
+
+    @param threshold
+        A threshold for the error on the (double) diagonal of the four-center
+        object. The Cholesky decomposition stops when sufficient vectors are
+        generated such that the error on the diagonal falls below this
+        threshold.
+*/
+long cholesky(GB4IntegralWrapper* gbw4, double** uninit_result,
+    double threshold);
 
 #endif
