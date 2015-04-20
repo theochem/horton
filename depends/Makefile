@@ -19,13 +19,13 @@ libint-2.0.3-stable: libint-2.0.3-stable.tgz
 	tar -xzvf libint-2.0.3-stable.tgz
 
 libint-2.0.3-stable.tgz:
-	wget 'http://downloads.sourceforge.net/project/libint/libint-for-mpqc/libint-2.0.3-stable.tgz' -O libint-2.0.3-stable.tgz
+	curl -OL 'http://downloads.sourceforge.net/project/libint/libint-for-mpqc/libint-2.0.3-stable.tgz'
 
 
 # Binary compilation (mainly for Travis CI)
 
 libint-2.0.3-bin-horton-linux-x86_64-gcc-4.7.2.tar.bz2:
-	wget http://users.ugent.be/~tovrstra/horton/libint-2.0.3-bin-horton-linux-x86_64-gcc-4.7.2.tar.bz2
+	curl -O http://users.ugent.be/~tovrstra/horton/libint-2.0.3-bin-horton-linux-x86_64-gcc-4.7.2.tar.bz2
 
 libint-linux-x86_64-gcc-4.7.2: libint-2.0.3-bin-horton-linux-x86_64-gcc-4.7.2.tar.bz2
 	tar -xjf libint-2.0.3-bin-horton-linux-x86_64-gcc-4.7.2.tar.bz2
@@ -34,7 +34,7 @@ libint-linux-x86_64-gcc-4.7.2: libint-2.0.3-bin-horton-linux-x86_64-gcc-4.7.2.ta
 # Build libxc from scratch
 
 libxc-2.1.0.tar.gz:
-	wget 'http://www.tddft.org/programs/octopus/down.php?file=libxc/libxc-2.1.0.tar.gz' -O libxc-2.1.0.tar.gz
+	curl -OL 'http://www.tddft.org/programs/octopus/down.php?file=libxc/libxc-2.1.0.tar.gz'
 
 libxc-2.1.0: libxc-2.1.0.tar.gz
 	tar -xzvf libxc-2.1.0.tar.gz
