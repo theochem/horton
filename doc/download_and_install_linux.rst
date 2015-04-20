@@ -5,8 +5,8 @@ Download and installation on Linux (Fedora and Ubuntu)
 Disclaimer
 ==========
 
-Horton is mainly developed and tested on Linux systems. If you run OS X, please follow the instructions 
-for Mac OS X.  If you run any other operating system, some of the instructions below may not work.
+Horton has been tested on Fedora and Ubuntu Linux. If you run any
+other operating system, some of the instructions below may not work.
 
 
 Download the code
@@ -23,7 +23,7 @@ Choose a suitable directory, e.g. ``~/build``, download and unpack the archive::
 
     mkdir -p ~/build
     cd ~/build
-    wget https://github.com/theochem/horton/releases/download/1.2.1/horton-1.2.1.tar.gz
+    curl -O https://github.com/theochem/horton/releases/download/1.2.1/horton-1.2.1.tar.gz
     tar -xvzf horton-1.2.1.tar.gz
     cd horton-1.2.1
 
@@ -36,8 +36,18 @@ your own changes, you need to work with git. Git is a version control system
 that makes life easy when a group of people are working on a common source code.
 All information about git (including downloads and tutorials) can be found here:
 http://git-scm.com/. The official git URL of Horton is:
-git://github.com/theochem/horton.git. In order to `clone` the public Horton
-repository, run this command::
+``git://github.com/theochem/horton.git.`` On most Lunx distributions, git can be
+installed with the package manager:
+
+**Ubuntu Linux**::
+
+    sudo apt-get install git
+
+**Fedora Linux**::
+
+    sudo yum install git
+
+In order to `clone` the public Horton repository, run this command::
 
     git clone git://github.com/theochem/horton.git
     cd horton
@@ -58,17 +68,19 @@ In order to compile and test Horton, one needs to install relatively recent
 versions of the following programs/libraries:
 
 * Python >= 2.7, < 3.0: http://www.python.org/ (also install `development files`)
-* GCC, G++ and GFortran >= 4.5: http://gcc.gnu.org/ (In principle the Intel compilers or any other of your favorite compilers should work. The GNU compilers are used for development and testing.)
+* Nosetests >= 1.1.2: http://readthedocs.org/docs/nose/en/latest/
+* GCC, G++ and GFortran >= 4.5: http://gcc.gnu.org/ (In principle the Intel compilers or
+  any other of your favorite compilers should work. The GNU compilers are used for
+  development and testing.)
+* Atlas >= 3.10.1: http://math-atlas.sourceforge.net/ (or any other BLAS implementation that you like more)
 * Numpy > 1.0: http://www.scipy.org/
-* h5py >= 2.2.1: http://www.h5py.org/
 * Scipy >= 0.10.0: http://www.scipy.org/
 * Cython >= 0.17.1 : http://www.cython.org/
-* Nosetests >= 1.1.2: http://readthedocs.org/docs/nose/en/latest/
+* h5py >= 2.2.1: http://www.h5py.org/
 * Sympy >= 0.7.1: http://code.google.com/p/sympy/
 * Matplotlib >= 1.0: http://matplotlib.org/
 * LibXC >= 2.1.0: http://www.tddft.org/programs/octopus/wiki/index.php/Libxc
 * LibInt2 >= 2.0.3: http://sourceforge.net/p/libint/home
-* Atlas >= 3.10.1: http://math-atlas.sourceforge.net/ (or any other BLAS implementation that you like more)
 
 
 Installing dependencies with a package manager
@@ -77,7 +89,7 @@ Installing dependencies with a package manager
 With the popular Linux distributions, most of these dependencies can be
 installed with a package manager:
 
-**Ubuntu Linux** (does not have a libint2 package)::
+**Ubuntu Linux** (does not have a libint2 package, see next section)::
 
     sudo apt-get install python-dev gcc g++ gfortran python-numpy python-h5py python-scipy cython python-nose python-sympy python-matplotlib libxc-dev libatlas-dev
 
@@ -158,11 +170,6 @@ The regular build and install is done as follows::
 
     ./setup.py install --user
 
-The ``horton-*.py`` scripts are installed in ``~/.local/bin`` and you have to
-add this directory to your ``PATH`` environment variable to make them accessible
-from any directory. The rest of the Horton library is installed into a default
-location in your home directory.
-
 The ``setup.py`` script does a reasonable attempt to configure the compiler and
 linker settings for the LibXC, LibInt2 and BLAS libraries. However, this does
 not work in all environments. In case of a faillure, or if another configuration
@@ -177,10 +184,21 @@ The manual configuration of the compiler and linker settings is described here:
 not work.
 
 
+Runtime Environmental variables
+-------------------------------
+
+We need to set the following variable in ``~/.bashrc to use Horton::
+
+    export PATH=${HOME}/.local/bin:${PATH}
+    # If you used special link options for LibXC, LibInt2 or BLAS, something along
+    # the following lines may also be needed:
+    # export LD_LIBRARY_PATH=some_dir/with/shared_objects/${LD_LIBRARY_PATH}
+
+
 Running the tests
 =================
 
-Move to a directory outside the source tree and call nosetests as follows::
+Change to a directory outside the source tree and call nosetests as follows::
 
     (cd ~; nosetests -v horton)
 
@@ -190,8 +208,11 @@ can be done by adding a line ``backend: agg`` to the ``matplotlibrc`` file.
 This file is located in ``~/.matplotlib`` or ``~/.config/matplotlib``.
 
 
-Dependencies for building the documentation
-===========================================
+Building the documentation
+==========================
+
+Dependencies
+------------
 
 If one is interested in generating the documentation from source, the following
 packages are also needed:
@@ -200,23 +221,34 @@ packages are also needed:
 * Doxygen >= 1.8.6: http://www.doxygen.org/
 * Breathe >= 1.2.0: http://breathe.readthedocs.org/en/latest/
 * Docutils >= 0.11: http://docutils.sourceforge.net/
+* A latex distribution (Texlive)
+* DVIpng >= 1.14: http://savannah.nongnu.org/projects/dvipng/
+* The Preview style for Latex (preview.sty)
+
+
+Installing the dependencies with a package manager and PIP
+----------------------------------------------------------
 
 **Ubuntu Linux**::
 
-    sudo apt-get install python-sphinx doxygen preview-latex-style python-docutils python-pip
+    sudo apt-get install python-sphinx doxygen preview-latex-style python-docutils python-pip dvipng preview-latex-style
 
 **Fedora Linux**::
 
-    sudo yum install python-sphinx doxygen tex-preview python-docutils python-pip
+    sudo yum install python-sphinx doxygen tex-preview python-docutils python-pip dvipng tex-preview
 
 Since Breathe is relatively new, it must be installed manually. For example, it
 is available through PyPI and can be installed as follows::
 
     pip install --user breathe
 
+One must also build LibXC statically in the ``depends`` directory, as explained
+above, to generate the list of DFT functionals in the documentation.
 
-Building the documentation
-==========================
+
+
+Actual build
+------------
 
 The documentation is compiled and viewed as follows::
 
