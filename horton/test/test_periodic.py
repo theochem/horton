@@ -25,6 +25,7 @@ from horton import periodic
 from horton.units import angstrom
 
 def test_periodic():
+    # check basic info of the elements
     assert periodic['si'].number == 14
     assert periodic['He'].number == 2
     assert periodic['h'].symbol == 'H'
@@ -32,6 +33,13 @@ def test_periodic():
     assert periodic['5'].symbol == 'B'
     assert periodic[' 5'].symbol == 'B'
     assert periodic[' B '].symbol == 'B'
+    assert periodic['Be'].name == 'Beryllium'
+    assert periodic['B '].name == 'Boron'
+    assert periodic[6].group == 14
+    assert periodic['P'].group == 15
+    assert periodic[6].period == 2
+    assert periodic['P'].period == 3
+    # All sorts of radii
     assert periodic[97].cov_radius is None
     assert periodic['cu'].cov_radius == 1.32*angstrom
     assert periodic['cu'].cov_radius_cordero == 1.32*angstrom
@@ -68,3 +76,15 @@ def test_periodic():
     # check pauling electronegativity
     assert periodic[1].eneg_pauling == 2.2
     assert periodic[9].eneg_pauling == 3.98
+    # check dipole polarizability
+    assert periodic[2].pold == periodic[2].pold_crc
+    assert periodic[2].pold == 0.204956*angstrom**3
+    assert periodic[2].pold_chu == 1.38
+    assert periodic[9].pold == periodic[9].pold_crc
+    assert periodic[9].pold == 0.557*angstrom**3
+    assert periodic[9].pold_chu == 3.8
+    # check c6-coefficients
+    assert periodic[3].c6 == periodic[3].c6_chu
+    assert periodic[3].c6 == 1392.0
+    assert periodic[15].c6 == periodic[15].c6_chu
+    assert periodic[15].c6 == 185.0

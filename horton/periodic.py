@@ -51,10 +51,19 @@ class Element(object):
        The following attributes are supported for all elements:
 
        number
-            The atomic number
+            The atomic number.
 
        symbol
             A string with the symbol of the element.
+
+       name
+            The full element name.
+
+       group
+            The group of the element (not for actinides and lanthanides).
+
+       period
+            The row of the periodic system.
 
        The following attributes are present for some elements. When a parameter
        is not known for a given element, the attribute is set to None.
@@ -115,6 +124,27 @@ class Element(object):
             Reinhardt, J. Chem. Phys. 47, 1300 (1967), URL
             http://dx.doi.org/10.1063/1.1712084
 
+       pold_crc
+            Isolated atom dipole polarizability. CRC Handbook of Chemistry and
+            Physics (CRC, Boca Raton, FL, 2003). If multiple values were present
+            in the CRC book, the value used in Erin's postg code is taken.
+
+       pold_chu
+            Isolated atom dipole polarizability. X. Chu & A. Dalgarno, J. Chem.
+            Phys., 121(9), 4083–4088 (2004), URL
+            http://dx.doi.org/10.1063/1.1779576 Theoretical value for hydrogen
+            from this paper: A.D. Buckingham, K.L. Clarke; Chem. Phys. Lett.
+            57(3), 321--325 (1978), URL
+            http://dx.doi.org/10.1016/0009-2614(78)85517-1
+
+       c6_chu
+            Isolated atom C_6 dispersion coefficient. X. Chu & A. Dalgarno, J. Chem.
+            Phys., 121(9), 4083–4088 (2004), URL
+            http://dx.doi.org/10.1063/1.1779576 Theoretical value for hydrogen
+            from this paper: K. T. Tang, J. M. Norbeck and P. R. Certain; J.
+            Chem. Phys. 64, 3063 (1976), URL #
+            http://dx.doi.org/10.1063/1.432569
+
        The following attribute is derived from the data given above:
 
        cov_radius:
@@ -131,13 +161,21 @@ class Element(object):
             cov_radius_slater if present
             else cov_radius_cordero if present
             else None
+
+       pold:
+            pold_crc
+
+       c6:
+            c6_chu
     '''
 
     attribute_names = [
+        'name', 'group', 'period',
         'cov_radius_cordero', 'cov_radius_bragg', 'cov_radius_slater',
         'vdw_radius_bondi', 'vdw_radius_truhlar', 'vdw_radius_rt',
         'vdw_radius_batsanov', 'vdw_radius_dreiding', 'vdw_radius_uff',
         'vdw_radius_mm3', 'wc_radius', 'cr_radius', 'eneg_pauling',
+        'pold_crc', 'pold_chu', 'c6_chu'
     ]
 
     def __init__(self, number=None, symbol=None, **kwargs):
@@ -165,6 +203,9 @@ class Element(object):
             self.becke_radius = self.cov_radius_cordero
         else:
             self.becke_radius = None
+
+        self.pold = self.pold_crc
+        self.c6 = self.c6_chu
 
 
 class Periodic(object):
@@ -208,9 +249,11 @@ def load_periodic():
     convertor_types = {
         'int': (lambda s: int(s)),
         'float': (lambda s : float(s)),
+        'au': (lambda s : float(s)),    # just for clarity, atomic units
         'str': (lambda s: s.strip()),
         'angstrom': (lambda s: float(s)*angstrom),
         '2angstrom': (lambda s: float(s)*angstrom/2),
+        'angstrom**3': (lambda s: float(s)*angstrom**3)
     }
 
     with open(context.get_fn('elements.csv'),'r') as f:
