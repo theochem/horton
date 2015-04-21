@@ -936,7 +936,7 @@ class DenseExpansion(Expansion):
         self._energies[:] = np.random.normal(0, 1, self._energies.shape)
         self._occupations[:] = np.random.normal(0, 1, self._occupations.shape)
 
-    def permute_basis(self, permutation, cols=False):
+    def permute_basis(self, permutation):
         '''Reorder the coefficients for a given permutation of basis functions
            (rows).
 
@@ -945,16 +945,20 @@ class DenseExpansion(Expansion):
            permutation
                 An integer numpy array that defines the new order of the basis
                 functions.
-
-           **Optional arguments:**
-
-           cols
-                Boolean, if True, columns are permuted
         '''
-        if cols:
-            self._coeffs[:] = self.coeffs[:,permutation]
-        else:
-            self._coeffs[:] = self.coeffs[permutation]
+        self._coeffs[:] = self.coeffs[permutation]
+
+    def permute_orbitals(self, permutation):
+        '''Reorder the coefficients for a given permutation of orbitals
+           (columns).
+
+           **Arguments:**
+
+           permutation
+                An integer numpy array that defines the new order of the
+                orbitals.
+        '''
+        self._coeffs[:] = self.coeffs[:,permutation]
 
     def change_basis_signs(self, signs):
         '''Correct for different sign conventions of the basis functions.
@@ -1283,29 +1287,6 @@ class DenseExpansion(Expansion):
             self.occupations[index0], self.occupations[index1] =\
                 self.occupations[index1], self.occupations[index0]
 
-    # This is temporary
-    # Delete asap
-    def from_file(self, olp, fileorb='./orbitals.dat',
-                                fileolp='./overlap.dat'):
-        '''Read orbitals from file for restart
-        '''
-        from scipy import linalg as linalg
-        # Read AO overlap matrix Sr from previous calculation:
-        overlapread = np.fromfile(fileolp, dtype=float)
-        overlapr = overlapread.reshape(self.nbasis, self.nbasis)
-        # Calculate Sr^{1/2}
-        overlap12read = linalg.sqrtm(overlapr)
-        # Get current AO overlap matrix
-        overlap12 = linalg.sqrtm(olp._array)
-        # Calculate S^{-1/2}
-        overlap12inv = np.linalg.inv(overlap12)
-        # Read orbitals C
-        orbread = np.fromfile(fileorb, dtype=float)
-        orb = orbread.reshape(self.nbasis, self.nbasis)
-        # Calculate Sr^{1/2}*C
-        tmp = np.dot(overlap12read.real, orb)
-        # Get new AO/MO coefficient matrix from S^{-1/2}*Sr^{1/2}*C that satisfies C^T*S*C=1
-        self.coeffs[:] = np.dot(overlap12inv.real, tmp)
 
 class DenseTwoIndex(TwoIndex):
     """Dense symmetric two-dimensional matrix, also used for density matrices.
@@ -1480,12 +1461,14 @@ class DenseTwoIndex(TwoIndex):
         self._array[:] = np.dot(other.coeffs, tf2._array)
 
     def iadd(self, other, factor=1.0, begin0=0, end0=None, begin1=0, end1=None, transpose=False):
-        '''Add another DenseTwoIndex object in-place, multiplied by factor
+        '''Add another DenseTwoIndex object in-place, multiplied by factor. If
+           begin0, end0, begin1, end1 are specified, other is added to the
+           selected range.
 
            **Arguments:**
 
            other
-                A DenseTwoIndex instance to be added
+                A DenseTwoIndex, DenseOneIndex instance or float to be added
 
            **Optional arguments:**
 
@@ -1514,12 +1497,13 @@ class DenseTwoIndex(TwoIndex):
             raise TypeError('Do not know how to add in-place an object of type %s.' % type(other))
 
     def iadd_slice(self, other, factor=1.0, begin0=0, end0=None, begin1=0, end1=None):
-        '''Add another DenseTwoIndex object in-place, multiplied by factor
+        '''Add slice of another DenseTwoIndex object in-place, multiplied by
+           factor. The slice of other is added to the full range of the array.
 
            **Arguments:**
 
            other
-                A DenseTwoIndex instance to be added
+                A DenseTwoIndex instance or float to be added
 
            **Optional arguments:**
 
@@ -1655,7 +1639,7 @@ class DenseTwoIndex(TwoIndex):
             ))
 
     def sqrt(self):
-        '''Return the square root of two-index object'''
+        '''Return the real part of the square root of two-index object'''
         out = DenseTwoIndex(self.nbasis, self.nfn)
         out._array[:] = sqrtm(self._array).real
         return out
@@ -1754,7 +1738,8 @@ class DenseTwoIndex(TwoIndex):
            **Arguments:**
 
            ind
-                Tuple of arrays containing indices of TwoIndex object.
+                2-Tuple of 1-dim arrays with row and column indices of TwoIndex
+                object to be copied.
 
            **Optional arguments:**
 
@@ -1839,6 +1824,10 @@ class DenseTwoIndex(TwoIndex):
            out, factor, clear
                 See :py:meth:`DenseLinalgFactory.einsum`
 
+           begin0, end0, begin1, end1
+                Can be used to contract only a part of the other two-index
+                object. When not given, the full range is taken.
+
            **Returns:** the contracted one-index object.
         '''
         check_options('subscripts', subscripts, 'ab,ab->b', 'ab,ab->a')
@@ -1900,7 +1889,11 @@ class DenseTwoIndex(TwoIndex):
                 The term added is scaled by this factor.
 
            begin0, end0, begin1, end1
-                Can be used to select a subblock of the (other1) object. When
+                Can be used to select a subblock of the other0 object. When
+                not given, the full range is used.
+
+           begin2, end2, begin3, end3
+                Can be used to select a subblock of the other1 object. When
                 not given, the full range is used.
         '''
         check_type('other0', other0, DenseTwoIndex)
@@ -1960,8 +1953,15 @@ class DenseTwoIndex(TwoIndex):
                 The term added is scaled by this factor.
 
            begin0, end0, begin1, end1
-                Can be used to select a subblock of the (other1) object. When
+                Can be used to select a subblock of the other1 object. When
                 not given, the full range is used.
+
+           begin2, end2, begin3, end3
+                Can be used to select a subblock of the other0 object. When
+                not given, the full range is used.
+
+           transpose0, transpose1
+                Can be used to select transpose of other0, other1 objects
         '''
         check_type('other0', other0, DenseTwoIndex)
         check_type('other1', other1, DenseTwoIndex)
@@ -2039,9 +2039,13 @@ class DenseTwoIndex(TwoIndex):
            factor
                 The term added is scaled by this factor.
 
-           begin0, end0
-                Can be used to select a subblock of the (one-index) object. When
-                not given, the full range is used.
+           begin0, end0, begin1, end1
+                Can be used to select a subblock of the two-index object (two).
+                When not given, the full range is used.
+
+           begin2, end2
+                Can be used to select a subblock of the one-index object (one).
+                When not given, the full range is used.
         '''
         check_options('subscripts', subscripts, 'ab,b->ab', 'ab,a->ab', 'ba,a->ab')
         end0, end1 = two._fix_ends(end0, end1)
@@ -2085,7 +2089,11 @@ class DenseTwoIndex(TwoIndex):
            out, factor, clear
                 See :py:meth:`DenseLinalgFactory.einsum`
 
-           **Returns:** the contracted one-index object.
+           begin0, end0, begin1, end1
+                Can be used to select a subblock of the (other) object. When
+                not given, the full range is used.
+
+           **Returns:** the contracted two-index object.
         '''
         check_options('subscripts', subscripts, 'ab,cb->ac', 'ab,ca->cb',
             'ab,bc->ac', 'ab,ac->cb', 'ab,ac->bc', 'ab,cb->ca')
@@ -2193,8 +2201,10 @@ class DenseTwoIndex(TwoIndex):
         if self._is_hermitian:
             # Matrix product does not respect symmetry.
             # FIXME: Is there a better way to solve this?
-            # Don't change the following line or code will break. Possible bug
-            # in numpy?
+            # broken code, don't use:
+            # self._array += self._array.T
+            # Instead, use the following to prevent code from breaking:
+            # (possible bug in numpy?)
             self._array = self._array+self._array.T
             self._array *= 0.5
 
@@ -2357,10 +2367,6 @@ class DenseThreeIndex(ThreeIndex):
                 the full range is used.
         '''
         end0, end1, end2 = self._fix_ends(end0, end1, end2)
-#       if end1 - begin1 != end0 - begin0:
-#           raise TypeError('The shape of the result must be the same along all indexes.')
-#       if end2 - begin2 != end0 - begin0:
-#           raise TypeError('The shape of the result must be the same along all indexes.')
         result = DenseThreeIndex(end0-begin0,end1-begin1,end2-begin2)
         result._array[:] = self._array[begin0:end0, begin1:end1, begin2:end2]
         return result
@@ -2533,7 +2539,7 @@ class DenseThreeIndex(ThreeIndex):
            out, factor, clear
                 See :py:meth:`DenseLinalgFactory.einsum`
 
-           begin0, end0, begin1, end1
+           begin0, end0, begin1, end1, begin2, end2
                 Can be used to contract only a part of the three-index object
         '''
         check_options('subscripts', subscripts, 'abc,ad->cdb', 'abc,ad->cbd',
@@ -2582,7 +2588,12 @@ class DenseThreeIndex(ThreeIndex):
                 The added term is scaled by this factor.
 
            begin0, end0, begin1, end1
-                Can be used to contract only a part of the three-index object
+                Can be used to contract only a part of the two1 object. When
+                not given, the full range is used.
+
+           begin2, end2, begin3, end3
+                Can be used to contract only a part of the two0 object. When
+                not given, the full range is used.
         '''
         check_options('subscripts', subscripts, 'ac,bc->abc', 'ac,bc->abc',
             'ab,bc->abc', 'ab,ac->acb', 'cb,ac->acb', 'ac,ab->abc',
@@ -2590,30 +2601,6 @@ class DenseThreeIndex(ThreeIndex):
         end0, end1 = two1._fix_ends(end0, end1)
         end2, end3 = two0._fix_ends(end2, end3)
         DenseLinalgFactory.einsum(subscripts, self, factor, False, (two0, (begin2, end2, begin3, end3)), (two1, (begin0, end0, begin1, end1)))
-
-#   def iadd_contract_three_two(self, subscripts, three, two, factor=1.0):
-#       '''In-place addition of a contraction of three-index with two-index.
-
-#          **Arguments:**
-
-#          subscripts
-#               Contraction type: ``abc,db->adc``, ``abc,dc->adb``,
-#               ``abc,db->dac``, ``abc,dc->dab``.
-
-#          three
-#               A DenseThreeIndex object.
-
-#          two
-#               A DenseTwoIndex object.
-
-#          **Optional arguments:**
-
-#          factor
-#               The added term is scaled by this factor.
-#       '''
-#       check_options('subscripts', subscripts, 'abc,db->adc', 'abc,dc->adb',
-#           'abc,db->dac', 'abc,dc->dab')
-#       DenseLinalgFactory.einsum(subscripts, self, factor, False, three, two)
 
     def contract_to_two(self, subscripts, out=None, factor=1.0, clear=True, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None):
         '''Contract self to TwoIndex.
@@ -2628,8 +2615,9 @@ class DenseThreeIndex(ThreeIndex):
            out, factor, clear
                 See :py:meth:`DenseLinalgFactory.einsum`
 
-           begin0, end0, begin1, end1
-                Can be used to contract only a part of the three-index object
+           begin0, end0, begin1, end1, begin2, end2
+                Can be used to contract only a part of the three-index object.
+                When not given, the full range is used.
 
            **Returns:** the contracted two-index object.
         '''
@@ -2763,10 +2751,9 @@ class DenseFourIndex(FourIndex):
 
            **Optional arguments:**
 
-           begin, end
+           begin0, end0, begin1, end1, begin2, end2, begin3, end3
                 Can be used to select a subblock of the object. When not given,
-                the full range is used. The same begin and end is applied to
-                all indexes to maintain the eight-fold symmetry.
+                the full range is used.
         '''
         end0, end1, end2, end3 = self._fix_ends(end0, end1, end2, end3)
         result = DenseFourIndex(end0-begin0, end1-begin1, end2-begin2, end3-begin3, symmetry=self.symmetry)
@@ -3003,8 +2990,9 @@ class DenseFourIndex(FourIndex):
 
     def iadd_exchange(self):
         '''In-place addition of its own exchange contribution'''
-        # Don't change the following line. We cannot do inplace einsum without
-        # breaking the code
+        # Broken code, don't use
+        # self._array -= np.einsum('abcd->abdc', self._array)
+        # We cannot do inplace einsum. Instead use (and don't change):
         self._array = self._array-np.einsum('abcd->abdc', self._array)
         self._symmetry = {8:2, 4:1, 2:2, 1:1}[self._symmetry]
 
@@ -3020,6 +3008,10 @@ class DenseFourIndex(FourIndex):
 
            out, factor, clear
                 See :py:meth:`DenseLinalgFactory.einsum`
+
+           begin0, end0, begin1, end1, begin2, end2, begin3, end3
+                Can be used to select a subblock of the object. When not given,
+                the full range is used.
         """
         check_options('subscripts', subscripts, 'abcd->abcd', 'abcd->acbd',
             'abcd->cadb')
@@ -3038,6 +3030,10 @@ class DenseFourIndex(FourIndex):
 
            out, factor, clear
                 See :py:meth:`DenseLinalgFactory.einsum`
+
+           begin0, end0, begin1, end1, begin2, end2, begin3, end3
+                Can be used to select a subblock of the object. When not given,
+                the full range is used.
         """
         check_options('subscripts', subscripts, 'aabb->ab', 'abab->ab', 'abba->ab')
         end0, end1, end2, end3 = self._fix_ends(end0, end1, end2, end3)
@@ -3056,11 +3052,12 @@ class DenseFourIndex(FourIndex):
            out, factor, clear
                 See :py:meth:`DenseLinalgFactory.einsum`
         """
-        check_options('subscripts', subscripts, 'abcc->bac', 'abcc->abc', 'abcb->abc', 'abbc->abc')
+        check_options('subscripts', subscripts, 'abcc->bac', 'abcc->abc',
+            'abcb->abc', 'abbc->abc')
         return DenseLinalgFactory.einsum(subscripts, out, factor, clear, self)
 
     def contract_two(self, subscripts, other, factor=1.0, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None, begin3=0, end3=None):
-        '''Compute () diagonal trace with two-index objects
+        '''Compute diagonal trace with two-index objects
 
            **Arguments:**
 
@@ -3068,7 +3065,16 @@ class DenseFourIndex(FourIndex):
                 ``aabb,ab``.
 
            other
-                A DenseFourIndex instance
+                A DenseTwoIndex instance
+
+           **Optional arguments:**
+
+           factor
+                A scalar factor. See :py:meth:`DenseLinalgFactory.einsum`
+
+           begin0, end0, begin1, end1, begin2, end2, begin3, end3
+                Can be used to select a subblock of the four-index object. When
+                not given, the full range is used.
         '''
         check_options('subscripts', subscripts, 'aabb,ab')
         end0, end1, end2, end3 = self._fix_ends(end0, end1, end2, end3)
@@ -3082,13 +3088,21 @@ class DenseFourIndex(FourIndex):
            subscripts
                 ``abcb->ac``, ``abbc->ac``
 
+           **Optional arguments:**
+
+           out, factor, clear
+                See :py:meth:`DenseLinalgFactory.einsum`
+
+           begin0, end0, begin1, end1, begin2, end2, begin3, end3
+                Can be used to select a subblock of the object. When not given,
+                the full range is used.
         '''
         check_options('subscripts', subscripts, 'abcb->ac', 'abbc->ac')
         end0, end1, end2, end3  = self._fix_ends(end0, end1, end2, end3)
         return DenseLinalgFactory.einsum(subscripts, out, factor, clear, (self, (begin0, end0, begin1, end1, begin2, end2, begin3, end3)))
 
     def contract_four(self, subscripts, other, factor=1.0, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None, begin3=0, end3=None):
-        '''Compute the trace using with other four-index objects
+        '''Compute the trace with other four-index object
 
            **Arguments:**
 
@@ -3097,9 +3111,18 @@ class DenseFourIndex(FourIndex):
 
            other
                 A DenseFourIndex instance
+
+           **Optional arguments:**
+
+           factor
+                A scalar factor
+
+           begin0, end0, begin1, end1, begin2, end2, begin3, end3
+                Can be used to select a subblock of the other object. When not
+                given, the full range is used.
         '''
-        check_options('subscripts', subscripts, 'abcd,abcd', 'abcd,adcb', 'abab,abab',
-            'abad,abad', 'abdb,abdb', 'abcd,acbd', 'abcd,acdb')
+        check_options('subscripts', subscripts, 'abcd,abcd', 'abcd,adcb',
+            'abab,abab', 'abad,abad', 'abdb,abdb', 'abcd,acbd', 'abcd,acdb')
         end0, end1, end2, end3  = other._fix_ends(end0, end1, end2, end3)
         return DenseLinalgFactory.einsum(subscripts, None, factor, True, self, (other, (begin0, end0, begin1, end1, begin2, end2, begin3, end3)))
 
@@ -3136,6 +3159,14 @@ class DenseFourIndex(FourIndex):
 
            out, factor, clear
                 See :py:meth:`DenseLinalgFactory.einsum`
+
+           begin0, end0, begin1, end1, begin2, end2, begin3, end3
+                Can be used to select a subblock of the four-index object. When
+                not given, the full range is used.
+
+           begin4, end4, begin5, end5
+                Can be used to select a subblock of the two-index object (two).
+                When not given, the full range is used.
         '''
         check_options('subscripts', subscripts, 'abcd,cd->acbd',
             'abcd,cd->acdb', 'abcd,cb->acdb', 'abcd,cb->acbd', 'abcd,ab->acbd',
@@ -3175,6 +3206,14 @@ class DenseFourIndex(FourIndex):
 
            out, factor, clear
                 See :py:meth:`DenseLinalgFactory.einsum`
+
+           begin0, end0, begin1, end1, begin2, end2, begin3, end3
+                Can be used to select a subblock of the four-index object. When
+                not given, the full range is used.
+
+           begin4, end4, begin5, end5
+                Can be used to select a subblock of the two-index object (two).
+                When not given, the full range is used.
         """
         check_options('subscripts', subscripts, 'abcd,bd->ac', 'abcd,cb->ad',
             'aabb,cb->ac', 'aabb,cb->ca', 'abcc,bc->ab', 'aabc,ab->bc',
@@ -3183,15 +3222,13 @@ class DenseFourIndex(FourIndex):
             'abcd,ac->bd', 'abcd,ad->bc', 'abcd,ab->cd')
         if subscripts == 'abcd,bd->ac':
             return DenseLinalgFactory.tensordot(self, two, ([1,3], [1,0]), out, factor, clear)
-#       elif subscripts == 'abcd,cb->ad':
-#           return DenseLinalgFactory.tensordot(self, two, ([1,2], [1,0]), out, factor, clear)
         else:
             end0, end1, end2, end3  = self._fix_ends(end0, end1, end2, end3)
             end4, end5  = two._fix_ends(end4, end5)
             return DenseLinalgFactory.einsum(subscripts, out, factor, clear, (self, (begin0, end0, begin1, end1, begin2, end2, begin3, end3)), (two, (begin4, end4, begin5, end5)))
 
     def contract_two_to_three(self, subscripts, two, out=None, factor=1.0, clear=True, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None, begin3=0, end3=None):
-        '''Contracts with a two-index object to obtain a four-index object.
+        '''Contracts with a two-index object to obtain a three-index object.
 
            **Arguments:**
 
@@ -3209,6 +3246,10 @@ class DenseFourIndex(FourIndex):
 
            out, factor, clear
                 See :py:meth:`DenseLinalgFactory.einsum`
+
+           begin0, end0, begin1, end1, begin2, end2, begin3, end3
+                Can be used to select a subblock of the four-index object. When
+                not given, the full range is used.
         '''
         check_options('subscripts', subscripts, 'aabc,ad->bcd', 'abcd,ac->bdc',
             'abcd,ad->bcd', 'abcd,bc->abd', 'abcd,ac->abd', 'abcc,dc->dab',
@@ -3226,13 +3267,17 @@ class DenseFourIndex(FourIndex):
            subscripts
                 Any of ``abcd,ace->ebd``, ``abcd,ebd->ace``
 
-           four
+           three
                 An instance of DenseFourIndex.
 
            **Optional arguments:**
 
            out, factor, clear
                 See :py:meth:`DenseLinalgFactory.einsum`
+
+           begin0, end0, begin1, end1, begin2, end2
+                Can be used to select a subblock of the three-index object
+                (three). When not given, the full range is used.
         '''
         check_options('subscripts', subscripts, 'abcd,ace->ebd',
             'abcd,ebd->ace')
@@ -3240,7 +3285,7 @@ class DenseFourIndex(FourIndex):
         return DenseLinalgFactory.einsum(subscripts, out, factor, clear, self, (three, (begin0, end0, begin1, end1, begin2, end2)))
 
     def contract_four_to_two(self, subscripts, four, out=None, factor=1.0, clear=True, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None, begin3=0, end3=None):
-        '''Contracts with a two-index object to obtain a four-index object.
+        '''Contracts with a four-index object to obtain a two-index object.
 
            **Arguments:**
 
@@ -3257,6 +3302,10 @@ class DenseFourIndex(FourIndex):
 
            out, factor, clear
                 See :py:meth:`DenseLinalgFactory.einsum`
+
+           begin0, end0, begin1, end1, begin2, end2, begin3, end3
+                Can be used to select a subblock of the other four-index object
+                (four). When not given, the full range is used.
         '''
         check_options('subscripts', subscripts, 'abcd,aced->be',
             'abcd,acde->be', 'abcd,aced->eb', 'abcd,acde->eb',
@@ -3267,7 +3316,7 @@ class DenseFourIndex(FourIndex):
         return DenseLinalgFactory.einsum(subscripts, out, factor, clear, self, (four, (begin0, end0, begin1, end1, begin2, end2, begin3, end3)))
 
     def contract_four_to_four(self, subscripts, four, out=None, factor=1.0, clear=True, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None, begin3=0, end3=None):
-        '''Contracts with a two-index object to obtain a four-index object.
+        '''Contracts with a four-index object to obtain a four-index object.
 
            **Arguments:**
 
@@ -3287,6 +3336,10 @@ class DenseFourIndex(FourIndex):
 
            out, factor, clear
                 See :py:meth:`DenseLinalgFactory.einsum`
+
+           begin0, end0, begin1, end1, begin2, end2, begin3, end3
+                Can be used to select a subblock of the other four-index object
+                (four). When not given, the full range is used.
         '''
         check_options('subscripts', subscripts, 'abcd,cedf->abfe',
             'abcd,cefd->abfe', 'abcd,cedf->feab', 'abcd,cefd->feab',
@@ -3300,21 +3353,28 @@ class DenseFourIndex(FourIndex):
         return DenseLinalgFactory.einsum(subscripts, out, factor, clear, self, (four, (begin0, end0, begin1, end1, begin2, end2, begin3, end3)))
 
     def iadd_expand_two_to_four(self, axis, two, factor=1.0, begin0=0, end0=None, begin1=0, end1=None):
-        '''Expand two-index object along one axis and add it to four-index
+        '''Expand two-index object along two axes and add it to four-index
            object.
 
            **Arguments:**
 
            axis
-                Any of ``1-3``, ``diag``
+                Any of ``1-3`` (abac += bc), ``0-2`` (abcb += ac),
+                ``0-3`` (abbc += ac), ``1-2`` (abca += bc),
+                ``diag`` (abab += ab). The expansion is performed for the
+                repeated indices in the four-index object
 
-           three
-                An instance of DenseThreeIndex.
+           two
+                An instance of DenseTwoIndex.
 
            **Optional arguments:**
 
            factor
                 See :py:meth:`DenseLinalgFactory.einsum`
+
+           begin0, end0, begin1, end1
+                Can be used to select a subblock of the two-index object (two).
+                When not given, the full range is used.
         '''
         check_options('axis', axis, '1-3', '0-2', '0-3', '1-2', 'diag')
         end0, end1 = two._fix_ends(end0, end1)
@@ -3342,8 +3402,10 @@ class DenseFourIndex(FourIndex):
            **Arguments:**
 
            axis
-                Any of ``1-3-1-2``, ``1-2-1-2``, ``0-2-0-2``, ``0-3-0-2``,
-                ``0-2-0-1``
+                Any of ``1-3-1-2`` (abac += abc), ``1-2-1-2`` (abca += abc),
+                ``0-2-0-2`` (abcb += abc), ``0-3-0-2`` (abbc += abc),
+                ``0-2-0-1`` (abcb += acb). The expansion is performed for
+                repeated indices in the four-index object
 
            three
                 An instance of DenseThreeIndex.
