@@ -7,3 +7,4 @@ Electronic Structure Methods
 
    user_hf_dft
    user_ap1rog
+   user_perturbation

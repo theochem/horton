@@ -1,8 +1,7 @@
+.. _howtoscf:
+
 How to use Horton as an Hartree-Fock/DFT program
 ################################################
-
-Note that this part of Horton is very experimental and will undergo a
-serious redesign in the near future.
 
 Basic example
 =============

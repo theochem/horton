@@ -19,6 +19,7 @@ User documentation
    :numbered:
 
    download_and_install
+   user_hamiltonian
    user_estruct
    user_postproc
    user_library

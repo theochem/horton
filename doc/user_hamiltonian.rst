@@ -1,0 +1,12 @@
+Defining a Hamiltonian
+######################
+
+.. toctree::
+   :maxdepth: 3
+   :numbered:
+
+   user_molecularham
+   user_modelham
+   user_externalham
+   user_molgeometry
+   user_basissets

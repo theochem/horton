@@ -8,3 +8,6 @@ Post processing
    user_part
    user_espfit
    user_conversion
+   user_localization
+   user_orbitalentanglement
+   user_hamiltonianio
