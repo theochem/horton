@@ -318,14 +318,14 @@ Most can be installed directly with MacPorts. The following list of ports is rec
 For Breathe, one can use the PIP installer. The following commands will install everything
 as suggested::
 
-	sudo port install py27-sphinx
-	sudo port select --set sphinx py27-sphinx
-	sudo port install doxygen
-	sudo port install dviping
-	sudo port install texlive-latex-extra
-	sudo port install py27-pip
-	sudo port select --set pip pip27
-	pip install breathe --user
+    sudo port install py27-sphinx
+    sudo port select --set sphinx py27-sphinx
+    sudo port install doxygen
+    sudo port install dviping
+    sudo port install texlive-latex-extra
+    sudo port install py27-pip
+    sudo port select --set pip pip27
+    pip install breathe --user
 
 One must also build LibXC statically in the ``depends`` directory, as explained
 above, to generate the list of DFT functionals in the documentation.
