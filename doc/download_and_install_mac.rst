@@ -231,9 +231,7 @@ Several parts of Horton make use of reference atomic computations. These files
 are too large to be included in the git revision system. Therefore, they must be
 downloaded separately when compiling a development version of Horton::
 
-    cd data/refatoms
-    make all
-    cd ../..
+    (cd data/refatoms; make all)
 
 
 Compilation and installation
@@ -321,7 +319,7 @@ as suggested::
     sudo port install py27-sphinx
     sudo port select --set sphinx py27-sphinx
     sudo port install doxygen
-    sudo port install dviping
+    sudo port install dvipng
     sudo port install texlive-latex-extra
     sudo port install py27-pip
     sudo port select --set pip pip27

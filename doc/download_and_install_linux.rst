@@ -129,7 +129,7 @@ the website: http://www.tddft.org/programs/octopus/wiki/index.php/Libxc
 The directory ``depends`` of the Horton source tree contains a make file that
 will download and LibInt2, which will work on most systems::
 
-    (cd depends; make libint)
+    (cd depends; make libint -j4)
 
 The compilation of libint takes a few minutes and results in a library for
 static linking. If this fails, consult your local Linux guru to build LibInt2.
