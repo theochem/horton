@@ -1633,7 +1633,7 @@ class RAp1rog(Geminal):
         order = onedm.sort_indices()
         orderref = np.arange(self.nbasis)
         if not (order == orderref).all():
-            exps.permute_basis(order, True)
+            exps.permute_orbitals(order)
 
     def print_solution(self, cithresh=0.01, excitationlevel=2,
                        amplitudestofile=False, filename="./ap1rog_amplitudes"):
