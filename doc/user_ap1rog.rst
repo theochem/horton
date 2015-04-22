@@ -79,7 +79,7 @@ To optimize an AP1roG wavefunction, the module requires a Hamiltonian and an ini
     2. In-house calculation of model Hamiltonians. Supported model Hamiltonians are summarized in FIXME. If the model Hamiltonian contains separate one-electron contributions, they have to be combined to a single operator as shown under point 1.
 
 
-    3. External (one- and two-electron) integrals (in an orthonormal basis) and core energy can be read from file. The integral file must use the Molpro FCIDUMP file format (see :ref:`readintegrals` for more details).
+    3. External (one- and two-electron) integrals (in an orthonormal basis) and core energy can be read from file. The integral file must use the Molpro FCIDUMP file format (see :ref:`readhamfromfile` for more details).
 
         .. code-block:: python
 
@@ -93,8 +93,7 @@ To optimize an AP1roG wavefunction, the module requires a Hamiltonian and an ini
 
         :filename: (str) the filename of the fcidump file (default ``FCIDUMP``)
 
-      The function ``integrals_from_file`` has three return values; a list of one-electron integrals (``one``) stored as a ``TwoIndex`` object, a list of two-electron integrals (``two``) stored as a ``FourIndex`` object, and the core energy (``coreenergy``, float). Each list contains the integrals for different spin-combinations. For restricted orbitals, the list contains only one spin-component.
-
+      The function ``integrals_from_file`` has three return values; the one-electron integrals (``one``) stored as a ``TwoIndex`` object, the two-electron integrals (``two``) stored as a ``FourIndex`` object, and the core energy (``coreenergy``, float).
 
 A set of initial guess orbitals can be either generated in Horton (including the AO overlap matrix) or read from disk (see :ref:`restart-ap1rog` to use orbitals generated in Horton as initial guess). Examples for initial guess orbitals are:
 
@@ -289,10 +288,10 @@ Horton supports the calculation of the response 1- and 2-particle reduced densit
 .. math::
     \gamma_p = \langle \Psi_0| (1+\hat{\Lambda}) a^\dagger_p a_p | \textrm{AP1roG} \rangle,
 
-where :math:`\hat{\Lambda}` is the deexcitation operator,
+where :math:`\hat{\Lambda}` contains the deexcitation operator,
 
 .. math::
-    \hat{\Lambda} = \sum_{ia} \lambda_i^a a^\dagger_i a^\dagger_{\bar{i}} a_{\bar{a}} a_a.
+    \hat{\Lambda} = \sum_{ia} \lambda_i^a (a^\dagger_i a^\dagger_{\bar{i}} a_{\bar{a}} a_a - c_i^a).
 
 The response 1-RDM (a ``OneIndex`` instance) can be calculated in Horton as follows
 
@@ -678,7 +677,7 @@ This is a basic example on how to perform an orbital-optimized AP1roG calculatio
     ## Do OO-AP1roG optimization ##################################################
     ###############################################################################
     ap1rog = RAp1rog(lf, occ_model)
-    energy, g, l = ap1rog(one, er, external['nn'], moceoff, olp, True)
+    energy, c, l = ap1rog(one, two, core, moceoff, olp, True)
 
 
 AP1roG using model Hamiltonians
