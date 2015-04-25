@@ -252,7 +252,7 @@ def lib_config_magic(prefix, libname, static_config={}):
 # ----------------------
 
 # Static build info in the depends directory to check for:
-libxc_dir = 'depends/libxc-2.1.0'
+libxc_dir = 'depends/libxc-2.2.2'
 libxc_static_config = {
     'extra_objects': ['%s/src/.libs/libxc.a' % libxc_dir],
     'include_dirs': ['%s/src' % libxc_dir, libxc_dir],

@@ -6,7 +6,7 @@ default:
 
 libint: libint-2.0.3-stable/lib/libint2.a
 
-libxc: libxc-2.1.0/src/.libs/libxc.a
+libxc: libxc-2.2.2/src/.libs/libxc.a
 
 
 # Build libint from scratch
@@ -33,14 +33,14 @@ libint-linux-x86_64-gcc-4.7.2: libint-2.0.3-bin-horton-linux-x86_64-gcc-4.7.2.ta
 
 # Build libxc from scratch
 
-libxc-2.1.0.tar.gz:
-	curl -OL 'http://www.tddft.org/programs/octopus/down.php?file=libxc/libxc-2.1.0.tar.gz'
+libxc-2.2.2.tar.gz:
+	curl -OL 'http://www.tddft.org/programs/octopus/down.php?file=libxc/libxc-2.2.2.tar.gz'
 
-libxc-2.1.0: libxc-2.1.0.tar.gz
-	tar -xzvf libxc-2.1.0.tar.gz
+libxc-2.2.2: libxc-2.2.2.tar.gz
+	tar -xzvf libxc-2.2.2.tar.gz
 
-libxc-2.1.0/src/.libs/libxc.a: libxc-2.1.0
-	cd libxc-2.1.0 && CFLAGS='-fPIC' CPPFLAGS='-fPIC' FCCPP=-ffreestanding ./configure
-	cd libxc-2.1.0 && $(MAKE)
+libxc-2.2.2/src/.libs/libxc.a: libxc-2.2.2
+	cd libxc-2.2.2 && CFLAGS='-fPIC' CPPFLAGS='-fPIC' FCCPP=-ffreestanding ./configure
+	cd libxc-2.2.2 && $(MAKE)
 
 

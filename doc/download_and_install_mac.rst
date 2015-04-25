@@ -140,7 +140,7 @@ install relatively recent versions of the following programs/libraries:
 * h5py >= 2.2.1: http://www.h5py.org/
 * Sympy >= 0.7.1: http://code.google.com/p/sympy/
 * Matplotlib >= 1.0: http://matplotlib.org/
-* LibXC >= 2.1.0: http://www.tddft.org/programs/octopus/wiki/index.php/Libxc
+* LibXC >= 2.2.2: http://www.tddft.org/programs/octopus/wiki/index.php/Libxc
 * LibInt2 >= 2.0.3: http://sourceforge.net/p/libint/home
 
 
