@@ -78,19 +78,17 @@ class AtomicGrid(IntGrid):
         self._rgrid, self._nlls = self._agspec.get(number, pseudo_number)
         self._random_rotate = random_rotate
 
+        # Obtain the total size and allocate arrays for this grid.
         size = self._nlls.sum()
         if points is None:
             points = np.zeros((size, 3), float)
         else:
             assert len(points) == size
         weights = np.zeros(size, float)
+        # _av_weights is used for the computation of spherical averages.
         self._av_weights = np.zeros(size, float)
 
-        self._init_low(points, weights)
-        IntGrid.__init__(self, points, weights)
-        self._log_init()
-
-    def _init_low(self, points, weights):
+        # Fill the points, weights and _av_weights arrays
         offset = 0
         nsphere = len(self._nlls)
         radii = self._rgrid.radii
@@ -113,6 +111,9 @@ class AtomicGrid(IntGrid):
             offset += nll
 
         points[:] += self.center
+
+        IntGrid.__init__(self, points, weights)
+        self._log_init()
 
     def _get_number(self):
         '''The element number of the grid.'''
@@ -280,10 +281,6 @@ class AtomicGrid(IntGrid):
                 counter += 1
 
         return results
-
-    def update_center(self, center):
-        self._center[:] = center
-        self._init_low(self.points, self.weights)
 
 
 def get_rotation_matrix(axis, angle):
