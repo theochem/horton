@@ -18,17 +18,21 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Package for density-based partitioning (fuzzy atoms)'''
+'''Utility functions for the ``horton-cpart.py`` script'''
 
 
-from horton.part.base import *
-from horton.part.becke import *
-from horton.part.hirshfeld import *
-from horton.part.hirshfeld_i import *
-from horton.part.hirshfeld_e import *
-from horton.part.iterstock import *
-from horton.part.mbis import *
-from horton.part.mulliken import *
-from horton.part.proatomdb import *
-from horton.part.stockholder import *
-from horton.part.symmetry import *
+__all__ = ['cpart_schemes']
+
+
+def get_cpart_schemes():
+    '''Return a dictionary with all cpart schemes'''
+    import horton.part
+    from horton.part.base import CPart
+    cpart_schemes = {}
+    for o in vars(horton.part).itervalues():
+        if isinstance(o, type) and issubclass(o, CPart) and o.name is not None:
+            cpart_schemes[o.name] = o
+    return cpart_schemes
+
+
+cpart_schemes = get_cpart_schemes()

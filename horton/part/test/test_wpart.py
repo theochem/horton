@@ -26,6 +26,7 @@ import numpy as np
 from horton import *
 from horton.part.test.common import check_names, check_proatom_splines, \
     get_proatomdb_hf_sto3g, get_proatomdb_hf_lan
+from horton.scripts.wpart import wpart_schemes
 
 
 def check_water_hf_sto3g(scheme, expecting, needs_padb=True, **kwargs):

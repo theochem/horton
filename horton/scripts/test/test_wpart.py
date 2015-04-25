@@ -23,9 +23,26 @@
 
 import os, h5py as h5
 
+from horton import *
 from horton.test.common import check_script, tmpdir
-from horton.scripts.test.common import copy_files, check_files
 from horton.part.test.common import get_proatomdb_hf_sto3g
+from horton.scripts.test.common import copy_files, check_files
+from horton.scripts.wpart import wpart_schemes
+
+
+def test_wpart_schemes():
+    assert 'b' in wpart_schemes
+    assert 'h' in wpart_schemes
+    assert 'hi' in wpart_schemes
+    assert 'he' in wpart_schemes
+    assert wpart_schemes['hi'] is HirshfeldIWPart
+    assert wpart_schemes['hi'].options == ['lmax', 'threshold', 'maxiter', 'greedy']
+    assert not wpart_schemes['hi'].linear
+    assert wpart_schemes['h'].linear
+    assert wpart_schemes['b'].linear
+
+    for WPartClass in wpart_schemes.itervalues():
+        assert hasattr(WPartClass, 'options')
 
 
 def write_atomdb_sto3g(dn, do_deriv=True):

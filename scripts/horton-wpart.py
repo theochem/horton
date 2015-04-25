@@ -23,11 +23,11 @@
 
 import argparse, os, numpy as np
 
-from horton import Molecule, wpart_schemes, Cell, ProAtomDB, log, BeckeMolGrid, \
+from horton import Molecule, Cell, ProAtomDB, log, BeckeMolGrid, \
     lebedev_laikov_npoints, AtomicGridSpec, __version__
 from horton.scripts.common import store_args, write_part_output, parse_h5, \
     check_output
-from horton.scripts.wpart import wpart_slow_analysis
+from horton.scripts.wpart import wpart_slow_analysis, wpart_schemes
 
 
 # All, except underflows, is *not* fine.

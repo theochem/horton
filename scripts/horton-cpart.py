@@ -23,10 +23,11 @@
 
 import argparse, os, numpy as np
 
-from horton import Molecule, cpart_schemes, ProAtomDB, log, \
-    symmetry_analysis, UniformGrid, __version__
+from horton import Molecule, ProAtomDB, log, symmetry_analysis, UniformGrid, \
+    __version__
 from horton.scripts.common import reduce_data, store_args, parse_pbc, \
     iter_elements, write_part_output, parse_h5, check_output
+from horton.scripts.cpart import cpart_schemes
 
 
 # All, except underflows, is *not* fine.

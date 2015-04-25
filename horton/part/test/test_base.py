@@ -52,29 +52,3 @@ def test_base_exceptions():
     with assert_raises(NotImplementedError):
         # It should not be possible to create instances of the base class.
         dp = WPart(mol.coordinates, mol.numbers, mol.pseudo_numbers, grid, moldens, local=False)
-
-
-def test_wpart_schemes():
-    assert 'b' in wpart_schemes
-    assert 'h' in wpart_schemes
-    assert 'hi' in wpart_schemes
-    assert 'he' in wpart_schemes
-    assert wpart_schemes['hi'] is HirshfeldIWPart
-    assert wpart_schemes['hi'].options == ['lmax', 'threshold', 'maxiter', 'greedy']
-    assert not wpart_schemes['hi'].linear
-    assert wpart_schemes['h'].linear
-    assert wpart_schemes['b'].linear
-
-    for WPartClass in wpart_schemes.itervalues():
-        assert hasattr(WPartClass, 'options')
-
-
-def test_cpart_schemes():
-    assert 'h' in cpart_schemes
-    assert 'hi' in cpart_schemes
-    assert 'he' in cpart_schemes
-    assert cpart_schemes['hi'] is HirshfeldICPart
-
-    for CPartClass in cpart_schemes.itervalues():
-        print CPartClass
-        assert hasattr(CPartClass, 'options')

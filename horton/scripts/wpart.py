@@ -18,14 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''An additional and optional analysis for horton-wpart.py
-
-   This is currently not included in horton/part because it would imply
-   additional changes in the API. Another reason is that the current
-   implementation passes on an instance of the Molecule class, which is unclean.
-   This will be cleaned up once a more final post-processing-friendly Horton
-   API is in place.
-'''
+'''Utility functions for the ``horton-wpart.py`` script'''
 
 
 import numpy as np
@@ -38,9 +31,40 @@ from horton.meanfield.bond_order import compute_bond_orders_cs, \
     compute_bond_orders_os
 
 
-__all__ = ['wpart_slow_analysis']
+__all__ = ['wpart_schemes', 'wpart_slow_analysis']
+
+
+def get_wpart_schemes():
+    '''Return a dictionary with all wpart schemes'''
+    import horton.part
+    from horton.part.base import WPart
+    wpart_schemes = {}
+    for o in vars(horton.part).itervalues():
+        if isinstance(o, type) and issubclass(o, WPart) and o.name is not None:
+            wpart_schemes[o.name] = o
+    return wpart_schemes
+
+
+wpart_schemes = get_wpart_schemes()
+
 
 def wpart_slow_analysis(wpart, mol):
+    '''An additional and optional analysis for horton-wpart.py
+
+       This analysis is currently not included in horton/part because it would
+       imply additional changes in the API.
+
+       **Arguments:**
+
+       wpart
+            An instance of a WPart class
+
+       mol
+            An instance of a Molecule object. This instance must at least
+            contain an obasis, exp_alpha and exp_beta (in case of unrestricted
+            spin) object.
+    '''
+
     # A) Compute AIM overlap operators
     # --------------------------------
     # These are not included in the output by default because they occupy too
