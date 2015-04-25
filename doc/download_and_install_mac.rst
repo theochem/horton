@@ -110,8 +110,10 @@ your computer, you can easily get it from MacPorts::
 
     port install git
 
-In order to `clone` the public Horton repository, run this command::
+In order to `clone` the public Horton repository, run these commands::
 
+    mkdir -p ~/build
+    cd ~/build
     git clone git://github.com/theochem/horton.git
     cd horton
 
@@ -334,7 +336,4 @@ Actual build
 
 The documentation is compiled and viewed as follows::
 
-    cd doc
-    make html
-    open _build/html/index.html
-    cd ..
+    (cd doc; make html; open _build/html/index.html)

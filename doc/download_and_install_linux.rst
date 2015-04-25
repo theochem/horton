@@ -47,8 +47,10 @@ installed with the package manager:
 
     sudo yum install git
 
-In order to `clone` the public Horton repository, run this command::
+In order to `clone` the public Horton repository, run these commands::
 
+    mkdir -p ~/build
+    cd ~/build
     git clone git://github.com/theochem/horton.git
     cd horton
 
@@ -81,6 +83,7 @@ versions of the following programs/libraries:
 * Matplotlib >= 1.0: http://matplotlib.org/
 * LibXC >= 2.2.2: http://www.tddft.org/programs/octopus/wiki/index.php/Libxc
 * LibInt2 >= 2.0.3: http://sourceforge.net/p/libint/home
+* Curl: http://curl.haxx.se/
 
 
 Installing dependencies with a package manager
@@ -91,11 +94,11 @@ installed with a package manager:
 
 **Ubuntu Linux** (does not have a libint2 package, see next section)::
 
-    sudo apt-get install python-dev gcc g++ gfortran python-numpy python-h5py python-scipy cython python-nose python-sympy python-matplotlib libxc-dev libatlas-dev
+    sudo apt-get install python-dev gcc g++ gfortran python-numpy python-h5py python-scipy cython python-nose python-sympy python-matplotlib libxc-dev libatlas-base-dev curl
 
 **Fedora Linux**::
 
-    sudo yum install python-devel gcc gcc-c++ gcc-gfortran numpy h5py scipy Cython python-sphinx python-nose sympy python-matplotlib libint2-devel libxc-devel libatlas-devel
+    sudo yum install python-devel gcc gcc-c++ gcc-gfortran numpy h5py scipy Cython python-sphinx python-nose sympy python-matplotlib libint2-devel libxc-devel libatlas-devel curl
 
 
 Installing dependencies manually
@@ -252,7 +255,4 @@ Actual build
 
 The documentation is compiled and viewed as follows::
 
-    cd doc
-    make html
-    firefox _build/html/index.html
-    cd ..
+    (cd doc; make html; firefox _build/html/index.html)
