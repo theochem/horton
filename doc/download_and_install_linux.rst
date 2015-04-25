@@ -98,7 +98,7 @@ installed with a package manager:
 
 **Fedora Linux**::
 
-    sudo yum install python-devel gcc gcc-c++ gcc-gfortran numpy h5py scipy Cython python-sphinx python-nose sympy python-matplotlib libint2-devel libxc-devel libatlas-devel curl
+    sudo yum install python-devel gcc gcc-c++ gcc-gfortran numpy h5py scipy Cython python-sphinx python-nose sympy python-matplotlib libint2-devel libxc-devel atlas-devel curl
 
 
 Installing dependencies manually
