@@ -92,7 +92,6 @@ def test_molgrid_attrs_subgrid():
         assert atgrid.size == 100*110
         assert atgrid.points.shape == (100*110, 3)
         assert atgrid.weights.shape == (100*110,)
-        assert atgrid.av_weights.shape == (100*110,)
         assert atgrid.subgrids is None
         assert atgrid.number == numbers[i]
         assert (atgrid.center == coordinates[i]).all()

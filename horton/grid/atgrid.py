@@ -85,10 +85,8 @@ class AtomicGrid(IntGrid):
         else:
             assert len(points) == size
         weights = np.zeros(size, float)
-        # _av_weights is used for the computation of spherical averages.
-        self._av_weights = np.zeros(size, float)
 
-        # Fill the points, weights and _av_weights arrays
+        # Fill the points and weights arrays
         offset = 0
         nsphere = len(self._nlls)
         radii = self._rgrid.radii
@@ -97,15 +95,13 @@ class AtomicGrid(IntGrid):
         for i in xrange(nsphere):
             nll = self._nlls[i]
             my_points = points[offset:offset+nll]
-            my_av_weights = self._av_weights[offset:offset+nll]
             my_weights = weights[offset:offset+nll]
 
-            lebedev_laikov_sphere(my_points, my_av_weights)
+            lebedev_laikov_sphere(my_points, my_weights)
             my_points *= radii[i]
             if self.random_rotate:
                 rotmat = get_random_rotation()
                 my_points[:] = np.dot(my_points, rotmat)
-            my_weights[:] = my_av_weights
             my_weights *= rweights[i]
 
             offset += nll
@@ -156,12 +152,6 @@ class AtomicGrid(IntGrid):
         return self._random_rotate
 
     random_rotate = property(_get_random_rotate)
-
-    def _get_av_weights(self):
-        '''The weights needed to compute spherical averages.'''
-        return self._av_weights
-
-    av_weights = property(_get_av_weights)
 
     def _log_init(self):
         if log.do_high:

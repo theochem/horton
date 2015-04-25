@@ -161,7 +161,6 @@ def test_atomic_grid_basics1():
         assert ag0.nsphere == 4
         assert (ag0.lmaxs == 3).all()
         assert abs(ag0.weights - ag1.weights).max() < 1e-10
-        assert abs(ag0.av_weights - ag1.av_weights).max() < 1e-10
         assert (abs(ag0.points - ag1.points).max() < 1e-10) ^ random_rotate
 
 
@@ -304,7 +303,6 @@ def test_atgrid_attrs():
     assert ag.size == 50*26
     assert ag.points.shape == (50*26, 3)
     assert ag.weights.shape == (50*26,)
-    assert ag.av_weights.shape == (50*26,)
     assert ag.subgrids is None
     assert ag.number == 3
     assert (ag.center == center).all()
