@@ -54,7 +54,7 @@ def typecheck_geo(coordinates=None, numbers=None, pseudo_numbers=None,
             When set to False, the pseudo_numbers can be None, are not type
             checked and not returned.
 
-       **Returns:** [natom] + all arguments that were type checked. The
+       **Returns:** ``[natom]`` + all arguments that were type checked. The
        pseudo_numbers argument is converted to a floating point array.
     '''
     # Determine natom
@@ -120,7 +120,7 @@ def check_type(name, instance, *Classes):
        instance
             The object being checked.
 
-       *Classes
+       Classes
             A list of allowed types.
     '''
     if len(Classes) == 0:

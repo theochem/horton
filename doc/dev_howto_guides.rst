@@ -6,7 +6,6 @@ Developer howto guides
    :maxdepth: 3
    :numbered:
 
-   dev_contribute
    dev_guidelines
    dev_documentation
    dev_unit_tests

@@ -261,7 +261,7 @@ not work.
 Runtime Environmental variables
 -------------------------------
 
-We need to set the following variables in ``~/.bash_profile to use Horton::
+We need to set the following variables in ``~/.bash_profile`` to use Horton::
 
     export PATH=${HOME}/Library/Python/2.7/bin:${PATH}
     # I did not have to set the following two.

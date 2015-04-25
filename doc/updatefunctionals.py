@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-libxc_version = '2.1.0'
+libxc_version = '2.2.2'
 
 # find all the functional keys by processing funcs_key.c
 
@@ -79,7 +79,7 @@ for key in keys:
             print >> s, '   | *%s*' % line
         print >> s
     except ValueError:
-        # A bug in libxc-2.1.0 ...
+        # A bug in libxc ...
         print 'FAILED to load functional', key
         pass
 

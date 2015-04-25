@@ -187,7 +187,7 @@ not work.
 Runtime Environmental variables
 -------------------------------
 
-We need to set the following variable in ``~/.bashrc to use Horton::
+We need to set the following variable in ``~/.bashrc`` to use Horton::
 
     export PATH=${HOME}/.local/bin:${PATH}
     # If you used special link options for LibXC, LibInt2 or BLAS, something along

@@ -126,11 +126,11 @@ class Cell {
         /** @brief
                 Add a linear combination of cell vectors to delta.
 
-            @param cart
+            @param delta
                 A pointer to 3 doubles for the real-space vector to which the
                 linear combination is added inplace.
 
-            @param dots
+            @param coeffs
                 A pointer to 3 doubles with the coefficients of the linear
                 combination.
          */

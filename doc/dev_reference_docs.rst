@@ -5,7 +5,7 @@ Reference Documentation
    :maxdepth: 3
    :numbered:
 
-   ref_beta
+   ref_stable_beta
    ref_features
    ref_contributors
    ref_releases
