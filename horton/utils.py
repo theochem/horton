@@ -24,7 +24,7 @@
 __all__ = ['typecheck_geo', 'check_type', 'check_options']
 
 
-def typecheck_geo(coordinates, numbers, pseudo_numbers=None,
+def typecheck_geo(coordinates=None, numbers=None, pseudo_numbers=None,
                   need_coordinates=True, need_numbers=True,
                   need_pseudo_numbers=True):
     '''Type check a molecular geometry specification
@@ -51,21 +51,21 @@ def typecheck_geo(coordinates, numbers, pseudo_numbers=None,
             and not returned.
 
        need_pseudo_numbers
-            When set to False, the pseudo_numbers can be None, are not type checked
-            and not returned.
+            When set to False, the pseudo_numbers can be None, are not type
+            checked and not returned.
 
        **Returns:** [natom] + all arguments that were type checked. The
-       pseudo_numbers argument is converted to a float.
+       pseudo_numbers argument is converted to a floating point array.
     '''
     # Determine natom
-    if numbers is not None:
-        natom = len(numbers)
-    elif coordinates is not None:
+    if coordinates is not None:
         natom = len(coordinates)
+    elif numbers is not None:
+        natom = len(numbers)
     elif pseudo_numbers is not None:
-        return len(pseudo_numbers)
+        natom = len(pseudo_numbers)
     else:
-        raise TypeError('At least one argument should not be None')
+        raise TypeError('At least one argument is required and should not be None')
 
     # Typecheck coordinates:
     if coordinates is None:
@@ -91,7 +91,7 @@ def typecheck_geo(coordinates, numbers, pseudo_numbers=None,
         if pseudo_numbers.shape != (natom,):
             raise TypeError('The argument pseudo_numbers must be a vector with length natom.')
         if not issubclass(pseudo_numbers.dtype.type, float):
-            pseudo_numbers = numbers.astype(float)
+            pseudo_numbers = pseudo_numbers.astype(float)
 
     # Collect return values
     result = [natom, ]
