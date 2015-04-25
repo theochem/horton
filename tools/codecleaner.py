@@ -11,19 +11,26 @@ def clean_code(fn):
     with open(fn) as f:
         lines = f.readlines()
 
+    # this will be set to true if something really changes. if not, the file
+    # is not rewritten.
+    changed = False
+
     # line-by-line stripping of rubish
     for i in xrange(len(lines)):
         line = lines[i].replace('\t', '    ')
-        line = line.rstrip()
-        lines[i] = line + '\n'
+        line = line.rstrip() + '\n'
+        changed |= (line != lines[i])
+        lines[i] = line
 
     # remove empty lines from end of file
     while lines[-1] == '\n':
+        changed = True
         lines.pop(-1)
 
-    # write lines
-    with open(fn, 'w') as f:
-        f.writelines(lines)
+    if changed:
+        # write lines
+        with open(fn, 'w') as f:
+            f.writelines(lines)
 
 
 if __name__ == '__main__':
