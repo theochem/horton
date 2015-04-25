@@ -21,11 +21,6 @@
 #cython: embedsignature=True
 '''C++ extensions'''
 
-# Make sure the fpufix is called as soon as possible
-cimport fpufix
-fpufix.fpufix()
-
-
 import numpy as np
 cimport numpy as np
 np.import_array()

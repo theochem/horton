@@ -54,7 +54,7 @@ def test_basics2():
 
 
 def test_integrate_gauss():
-    rtf = PowerRTransform(0.001, 1e1, 100)
+    rtf = PowerRTransform(0.0005, 1e1, 100)
     grid = RadialGrid(rtf)
     assert isinstance(grid.int1d, StubIntegrator1D)
 

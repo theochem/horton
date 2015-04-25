@@ -164,8 +164,8 @@ def test_four_index_get():
         for i1 in xrange(dense.shape[1]):
             for i2 in xrange(dense.shape[2]):
                 for i3 in xrange(dense.shape[3]):
-                    assert cho.get_element(i0, i1, i2, i3) == \
-                           dense.get_element(i0, i1, i2, i3)
+                    assert abs(cho.get_element(i0, i1, i2, i3) -
+                               dense.get_element(i0, i1, i2, i3)) < 1e-10
 
 
 def test_four_index_check_symmetry():

@@ -174,7 +174,7 @@ def test_power_basics():
     cases = get_power_cases()
     for rmin, rmax in cases:
         rtf = PowerRTransform(rmin, rmax, 100)
-        assert abs(rtf.radius(99) - rmax) < 1e-10
+        assert abs(rtf.radius(99) - rmax) < 1e-9
         check_consistency(rtf)
         check_deriv(rtf)
         check_chop(rtf)
