@@ -152,6 +152,8 @@ def run_pkg_config(libname, option):
                                        stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError:
         raise PkgConfigError('pkg-config did not exit properly')
+    except OSError:
+        raise PkgConfigError('pkg-config not installed')
 
 
 def get_lib_config_pkg(libname):
