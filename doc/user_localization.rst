@@ -1,12 +1,12 @@
 .. _localization:
 
-The localization of molecular orbitals
+Localization of molecular orbitals
 ######################################
 
 .. contents::
 
 
-In general, the localization algorithm optimizes the localization functions using an orthogonal transformation between the orbitals :math:`\vert i \rangle` ,
+In general, the localization algorithm optimizes the localization function using an orthogonal transformation between the orbitals :math:`\vert i \rangle` ,
 
 .. math::
 
@@ -36,18 +36,18 @@ In the Pipek-Mezey scheme, the localization function is maximized to obtain a se
 
 an atomic population matrix :math:`\mathbf{Q}^A` is needed which can be calculated using projectors for atomic basis functions.
 
-If the Mulliken population analysis is used, the Mulliken projectors can be constructed as follow
+If the Mulliken population analysis is used, the Mulliken projectors can be constructed as follows
 
 .. code-block:: python
 
-    mulliken = get_mulliken_operators(obasis, lf)
+    projector = get_mulliken_operators(obasis, lf)
 
 where
 
-    :obasis: (A ``GOBasis`` instance) the Gaussian orbital basis
+    :obasis: (``GOBasis`` instance) the Gaussian orbital basis
     :lf: A ``LinalgFactory`` instance. One of ``DenseLinalgFactory`` or ``CholeskyLinalgFactory``
 
-After defining the projectors, an instance of the ``PipekMezey`` class can be created,
+The return value (**projector**) is a list of projectors for the atomic basis functions which are stored as ``TwoIndex`` instances. After defining the projectors, an instance of the ``PipekMezey`` class can be created,
 
 .. code-block:: python
 

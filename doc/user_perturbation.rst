@@ -60,7 +60,7 @@ First, create an instance of the ``RMP2`` class
 
 with arguments
 
-    :lf: A ``LinalgFactory`` instance (see FIXME)
+    :lf: A ``LinalgFactory`` instance (see FIXME). Only ``DenseLinalgFactory`` is supported
     :occ_model: (``AufbauOccModel`` instance) an Aufbau occupation model
 
 A function call initiates an MP2 calculation,
@@ -78,7 +78,7 @@ with arguments
 and keyword arguments
 
     :eref: (float) the Hartree-Fock reference energy (default ``float('nan')``) (see :ref:`getstartedmp2`)
-    :indextrans: (str, optional) the 4-index transformation. One of ``tensordot`` (default), ``einsum``
+    :indextrans: (str, optional) the 4-index transformation. Choice between ``tensordot`` (default) and ``einsum``. ``tensordot`` is faster than ``einsum``, requires, however, more memory. If ``DenseLinalgFactory`` is used, the memory requirement scales as :math:`2N^4` for ``einsum`` and :math:`3N^4` for ``tensordot``, respectively. Due to the storage of the two-electron integrals, the total amount of memory increases to :math:`3N^4` for ``einsum`` and :math:`4N^4` for ``tensordot``, respectively.
 
 The function call gives 2 return values:
 
@@ -110,7 +110,7 @@ First, create an instance of the ``PTa`` class
 
 with arguments
 
-    :lf: A ``LinalgFactory`` instance (see FIXME)
+    :lf: A ``LinalgFactory`` instance (see FIXME). Only ``DenseLinalgFactory`` is supported
     :occ_model: (``AufbauOccModel`` instance) an Aufbau occupation model
 
 A function call initiates an PTa calculation,
@@ -130,7 +130,7 @@ and keyword arguments
 
     :eref: (float) the AP1roG reference energy (default ``float('nan')``) (see :ref:`ooap1rog` how to get the AP1roG reference energy)
     :ecore: (float) the core energy (default ``float('nan')``). Usually, the nuclear repulsion term
-    :indextrans: (str, optional) the 4-index transformation. One of ``tensordot`` (default), ``einsum``
+    :indextrans: (str, optional) the 4-index transformation. Choice between ``tensordot`` (default) and ``einsum``. ``tensordot`` is faster than ``einsum``, requires, however, more memory. If ``DenseLinalgFactory`` is used, the memory requirement scales as :math:`2N^4` for ``einsum`` and :math:`3N^4` for ``tensordot``, respectively. Due to the storage of the two-electron integrals, the total amount of memory increases to :math:`3N^4` for ``einsum`` and :math:`4N^4` for ``tensordot``, respectively.
 
 The function call gives 2 return values:
 
@@ -161,7 +161,7 @@ First, create an instance of the ``PTb`` class
 
 with arguments
 
-    :lf: A ``LinalgFactory`` instance (see FIXME)
+    :lf: A ``LinalgFactory`` instance (see FIXME). Only ``DenseLinalgFactory`` is supported
     :occ_model: (``AufbauOccModel`` instance) an Aufbau occupation model
 
 A function call initiates an PTb calculation,

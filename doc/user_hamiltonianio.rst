@@ -25,7 +25,7 @@ To write a Hamiltonian with the one- and two-electron integrals ``one`` and ``tw
 
 .. code-block:: python
 
-    integrals_to_file(lf, one, two, ecore, mocoeff, filename, **kwargs)
+    integrals_to_file(lf, one, two, ecore, mocoeff, filename[, **kwargs])
 
 with arguments
 

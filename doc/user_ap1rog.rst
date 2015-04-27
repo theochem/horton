@@ -37,7 +37,7 @@ If not mentioned otherwise, the AP1roG module supports spin-restricted orbitals 
 
     1. Optimization of AP1roG (eq. :eq:`ap1rog`) with (see :ref:`ooap1rog`) and without orbital optimization (see :ref:`ap1rog`) for a given Hamiltonian (see :ref:`preamble`).
     2. Variational orbital optimization and PS2c orbital optimization (see :ref:`keywords-oo-ap1rog` to choose the orbital optimizer)
-    3. Calculation of one- and two-particle reduced density matrices (see :ref:`responsedms`)
+    3. Calculation of response one- and two-particle reduced density matrices (see :ref:`responsedms`)
     4. Determination of AP1roG natural orbitals and occupation numbers (see :ref:`responsedms` and :ref:`natorb`)
     5. Calculation of the exact orbital Hessian (see :ref:`exacthessian`). Note that the orbital optimizer uses only a diagonal Hessian. The exact orbital Hessian can only be evaluated in combination with the ``DenseLinalgFactory``.
 
@@ -79,7 +79,7 @@ To optimize an AP1roG wavefunction, the module requires a Hamiltonian and an ini
     2. In-house calculation of model Hamiltonians. Supported model Hamiltonians are summarized in FIXME. If the model Hamiltonian contains separate one-electron contributions, they have to be combined to a single operator as shown under point 1.
 
 
-    3. External (one- and two-electron) integrals (in an orthonormal basis) and core energy can be read from file. The integral file must use the Molpro FCIDUMP file format (see :ref:`readhamfromfile` for more details).
+    3. External (one- and two-electron) integrals (in an orthonormal basis) and core energy can be read from file. The integral file must use the Molpro file format (see :ref:`readhamfromfile` for more details). To load a Hamiltonina from file, run
 
         .. code-block:: python
 
@@ -95,7 +95,7 @@ To optimize an AP1roG wavefunction, the module requires a Hamiltonian and an ini
 
       The function ``integrals_from_file`` has three return values; the one-electron integrals (``one``) stored as a ``TwoIndex`` object, the two-electron integrals (``two``) stored as a ``FourIndex`` object, and the core energy (``coreenergy``, float).
 
-A set of initial guess orbitals can be either generated in Horton (including the AO overlap matrix) or read from disk (see :ref:`restart-ap1rog` to use orbitals generated in Horton as initial guess). Examples for initial guess orbitals are:
+- A set of initial guess orbitals can be either generated in Horton (including the AO overlap matrix) or read from disk (see :ref:`restart-ap1rog` to use orbitals generated in Horton as initial guess). Examples for initial guess orbitals are:
 
     1. Restricted canonical Hartree-Fock orbitals (see :ref:`howtoscf`)
 
@@ -141,7 +141,7 @@ and optional arguments
     :npairs: (int) number of electron pairs. If not specified, the number of pairs equals the number of occupied orbitals in the ``AufbauOccModel``
     :nvirt: (int) number of virtual orbitals. If not specified, the number of virtual orbitals is calculated from the total number of basis functions minus the number of electron pairs.
 
-Note that no optional arguments need to be specified for the AP1roG model and the number of electron pairs and virtual orbitals is automatically determined using the ``AufbauOccModel``. A restricted, orbital-optimized AP1roG calculation can be initiated with a function call:
+Note that no optional arguments need to be specified for the AP1roG model and the number of electron pairs and virtual orbitals is automatically determined using the ``AufbauOccModel``. A restricted, orbital-optimized AP1roG calculation can be initiated with a function call,
 
 .. code-block:: python
 
@@ -156,9 +156,9 @@ with arguments
     :olp: (``TwoIndex`` instance) the AO overlap matrix or, in case of an orthonormal basis, the identity matrix
     :orb: (boolean) if ``True``, orbitals are optimized
 
-The keyword arguments contain optimization-specific options (like the number of orbital optimization step, etc.). Their default values are chosen to give reasonable performance and can be adjusted if convergence difficulties are encountered. All keyword arguments are summarized in the following section (:ref:`keywords-oo-ap1rog`).
+The keyword arguments are optional and contain optimization-specific options (like the number of orbital optimization steps, etc.) as well as orbital manipulation schemes (Givens rotations, swapping orbitals in reference determinant, etc.). Their default values are chosen to give reasonable performance and can be adjusted if convergence difficulties are encountered. All keyword arguments are summarized in the following section (:ref:`keywords-oo-ap1rog`).
 
-The function call gives 3 return values:
+The function call gives 3 return values,
 
     :energy: (float) the total AP1roG electronic energy (the **external** term included)
     :c: (``TwoIndex`` instance) the geminal coefficient matrix (without the diagonal occupied sub-block, see :ref:`introap1rog`)
@@ -177,7 +177,7 @@ Summary of keyword arguments
 
     :guess: (dictionary) initial guess specifications:
 
-             :type: (str) guess type. One of ``random`` (random numbers, default), ``const`` (constant numbers)
+             :type: (str) guess type. One of ``random`` (random numbers, default), ``const`` (``1.0`` scaled by **factor**)
              :factor: (float) a scaling factor for the initial guess of type ``type`` (default ``-0.1``)
              :geminal: (1-dim np.array) external guess for geminal coefficients (default ``None``). If provided, **type** and **factor** are ignored. The elements of the geminal matrix of eq. :eq:`cia` have to be indexed in C-like order. Note that the identity block is not required. The size of the 1-dim np.array is thus equal to the number of unknowns, that is, :math:`n_{\rm pairs}*n_{\rm virtuals}`.
              :lagrange: (1-dim np.array) external guess for Lagrange multipliers (default ``None``). If provided, **type** and **factor** are ignored. The elements have to be indexed in C-like order. The size of the 1-dim np.array is equal to the number of unknowns, that is, :math:`n_{\rm pairs}*n_{\rm virtuals}`.
@@ -252,7 +252,7 @@ Summary of keyword arguments
 How to restart
 ^^^^^^^^^^^^^^
 
-To restart an AP1roG calculation (for instance, using the orbitals from a different molecular geometry as initial guess or from a previous calculation using the same molecular geometry), the molecular orbitals (of the previous wavefunction run) need to be read from disk:
+To restart an AP1roG calculation (for instance, using the orbitals from a different molecular geometry as initial guess or from a previous calculation using the same molecular geometry), the molecular orbitals (of the previous wavefunction run) need to be read from disk,
 
 .. code-block:: python
 
@@ -358,7 +358,7 @@ The natural occupation numbers, the eigenvalues of the response 1-RDM (see :ref:
 The exact orbital Hessian
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Although the orbital optimizer uses a diagonal approximation to the exact orbital Hessian, the exact orbital Hessian can be evaluated after an AP1roG calculation. Note that this feature is only available for the ``DenseLinalgFactory``. The ``CholeskyLinalgFactory`` does not allow for the calculation of the exact orbital Hessian. Thus, this feature is limited by the memory bottleneck of the 4-index transformation of ``DenseLinalgFactory`` (see also :ref:`keywords-oo-ap1rog`). To calculate the exact orbital Hessian, the one-electron (``one``) and two-electron integrals (``two``) need to be transformed into the AP1roG MO basis first,
+Although the orbital optimizer uses a diagonal approximation to the exact orbital Hessian, the exact orbital Hessian can be evaluated after an AP1roG calculation. Note that this feature is only available for the ``DenseLinalgFactory``. The ``CholeskyLinalgFactory`` does not allow for the calculation of the exact orbital Hessian. Thus, this feature is limited by the memory bottleneck of the 4-index transformation of ``DenseLinalgFactory`` (see also ``indextrans`` in :ref:`keywords-oo-ap1rog`). To calculate the exact orbital Hessian, the one-electron (``one``) and two-electron integrals (``two``) need to be transformed into the AP1roG MO basis first,
 
 .. code-block:: python
 
