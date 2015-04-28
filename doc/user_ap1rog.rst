@@ -76,7 +76,7 @@ To optimize an AP1roG wavefunction, the module requires a Hamiltonian and an ini
             one.iadd(na)
 
 
-    2. In-house calculation of model Hamiltonians. Supported model Hamiltonians are summarized in FIXME. If the model Hamiltonian contains separate one-electron contributions, they have to be combined to a single operator as shown under point 1.
+    2. In-house calculation of model Hamiltonians. Supported model Hamiltonians are summarized in :ref:`modphysham`. If the model Hamiltonian contains separate one-electron contributions, they have to be combined to a single operator as shown under point 1.
 
 
     3. External (one- and two-electron) integrals (in an orthonormal basis) and core energy can be read from file. The integral file must use the Molpro file format (see :ref:`readhamfromfile` for more details). To load a Hamiltonina from file, run
@@ -649,7 +649,7 @@ This is the same example as above, but all keyword arguments are mentioned expli
 AP1roG with external integrals
 ------------------------------
 
-This is a basic example on how to perform an orbital-optimized AP1roG calculation using one- and two-electron integrals from an external file. The number of doubly-occupied orbitals is ``5``, while the total number of basis functions is ``28``.
+This is a basic example on how to perform an orbital-optimized AP1roG calculation using one- and two-electron integrals from an external file. The number of doubly-occupied orbitals is ``5``, while the total number of basis functions is ``28``. See :ref:`modphysham`.
 
 .. code-block:: python
 
@@ -682,3 +682,57 @@ This is a basic example on how to perform an orbital-optimized AP1roG calculatio
 
 AP1roG using model Hamiltonians
 -------------------------------
+
+This is a basic example on how to perform an orbital-optimized AP1roG calculation using 1-D Hubbard model
+Hamiltonian. The number of doubly-occupied sites is ``3``, the total number of sites is ``6``. The ``t``
+parameter is set to -1, the ``U`` parameter is set to 2, and periodic boundary conditions are employed.
+
+.. code-block:: python
+
+    from horton import *
+
+    ###############################################################################
+    ## Define Occupation model, expansion coefficients and overlap ################
+    ###############################################################################
+    lf = DenseLinalgFactory(6)
+    occ_model = AufbauOccModel(3)
+    modelham = Hubbard(pbc=True)
+    exp_alpha = lf.create_expansion(6)
+    olp = modelham.compute_overlap(lf)
+    ###############################################################################
+    # t-param, t = -1
+    ###############################################################################
+    kin = modelham.compute_kinetic(lf, -1)
+    ###############################################################################
+    # U-param, U = 2
+    ###############################################################################
+    er = modelham.compute_er(lf, 2)
+    ###############################################################################
+    ## Perform initial guess ######################################################
+    ###############################################################################
+    guess_core_hamiltonian(olp, kin, exp_alpha)
+    terms = [
+        RTwoIndexTerm(kin, 'kin'),
+        RDirectTerm(er, 'hartree'),
+        RExchangeTerm(er, 'x_hf'),
+    ]
+    ham = REffHam(terms)
+    exp_alpha.from_file(olp)
+    #read_orbitals(exp_alpha, olp)
+    ###########################################################################################
+    ## Do a Hartree-Fockk calculation #########################################################
+    ###########################################################################################
+    scf_solver = PlainSCFSolver()
+    scf_solver(ham, lf, olp, occ_model, exp_alpha)
+    energy = ham.compute()
+    ###############################################################################
+    ## Do OO-AP1roG optimization ##################################################
+    ###############################################################################
+    ap1rog = RAp1rog(lf, occ_model)
+    energy, g, l = ap1rog(kin, er, 0, exp_alpha, olp, True)
+
+Note that for the calculation of ap1rog energy, the external potential has to be set to ``0``,
+
+.. code-block:: python
+
+    energy, g, l = ap1rog(kin, er, 0, exp_alpha, olp, True)
