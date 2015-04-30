@@ -3268,7 +3268,7 @@ class DenseFourIndex(FourIndex):
                 Any of ``abcd,ace->ebd``, ``abcd,ebd->ace``
 
            three
-                An instance of DenseFourIndex.
+                An instance of DenseThreeIndex.
 
            **Optional arguments:**
 
