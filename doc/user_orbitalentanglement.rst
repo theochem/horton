@@ -124,7 +124,7 @@ This is a basic example on how to perform an orbital entanglement analysis in Ho
     ###############################################################################
     lf = DenseLinalgFactory(obasis.nbasis)
     occ_model = AufbauOccModel(5)
-    moceoff = lf.create_expansion(obasis.nbasis)
+    orb = lf.create_expansion(obasis.nbasis)
     olp = obasis.compute_overlap(lf)
     ###############################################################################
     ## Construct Hamiltonian ######################################################
@@ -143,12 +143,12 @@ This is a basic example on how to perform an orbital entanglement analysis in Ho
     ###############################################################################
     ## Perform initial guess ######################################################
     ###############################################################################
-    guess_core_hamiltonian(olp, kin, na, moceoff)
+    guess_core_hamiltonian(olp, kin, na, orb)
     ###############################################################################
     ## Do a Hartree-Fock calculation ##############################################
     ###############################################################################
     scf_solver = PlainSCFSolver(1e-6)
-    scf_solver(ham, lf, olp, occ_model, moceoff)
+    scf_solver(ham, lf, olp, occ_model, orb)
     ###############################################################################
     ## Combine one-electron integrals to single Hamiltonian #######################
     ###############################################################################
@@ -159,13 +159,13 @@ This is a basic example on how to perform an orbital entanglement analysis in Ho
     ## Do OO-AP1roG optimization ##################################################
     ###############################################################################
     ap1rog = RAp1rog(lf, occ_model)
-    energy, g, l = ap1rog(one, er, external['nn'], moceoff, olp, True)
+    energy, g, l = ap1rog(one, er, external['nn'], orb, olp, True)
 
     ###############################################################################
     ## Calculate response density matrices ########################################
     ###############################################################################
     one_dm = lf.create_one_index()
-    one_dm.assign(exp_alpha.occupations)
+    one_dm.assign(orb.occupations)
     twoppqq = lf.create_two_index()
     twopqpq = lf.create_two_index()
     twoppqq.compute_2dm_ap1rog(one_dm, g, l, 'ppqq')

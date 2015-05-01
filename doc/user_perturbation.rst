@@ -67,13 +67,13 @@ A function call initiates an MP2 calculation,
 
 .. code-block:: python
 
-    emp2, tmp2 = mp2(one, two, mocoeff, **{'eref': ehf, 'indextrans': 'tensordot'})
+    emp2, tmp2 = mp2(one, two, orb, **{'eref': ehf, 'indextrans': 'tensordot'})
 
 with arguments
 
     :one: (``TwoIndex`` instance) the one-electron integrals
     :two: (``FourIndex`` instance) the two-electron integrals
-    :mocoeff: (``Expansion`` instance) the AO/MO coefficient matrix
+    :orb: (``Expansion`` instance) the AO/MO coefficient matrix
 
 and keyword arguments
 
@@ -117,13 +117,13 @@ A function call initiates an PTa calculation,
 
 .. code-block:: python
 
-    epta, tpta = pta(one, two, mocoeff, c, **{'eref': energy, 'ecore': ecore, 'indextrans': 'tensordot'})
+    epta, tpta = pta(one, two, orb, c, **{'eref': energy, 'ecore': ecore, 'indextrans': 'tensordot'})
 
 with arguments
 
     :one: (``TwoIndex`` instance) the one-electron integrals (the same integrals as used in the AP1roG module :ref:`introap1rog`)
     :two: (``FourIndex`` instance) the two-electron integrals (the same integrals as used in the AP1roG module :ref:`introap1rog`)
-    :mocoeff: (``Expansion`` instance) the optimized AP1roG MO coefficient matrix
+    :orb: (``Expansion`` instance) the optimized AP1roG MO coefficient matrix
     :c: (``TwoIndex`` instance) the geminal coefficients (see :ref:`ooap1rog`)
 
 and keyword arguments
@@ -168,13 +168,13 @@ A function call initiates an PTb calculation,
 
 .. code-block:: python
 
-    eptb, tptb = ptb(one, two, mocoeff, c, **{'eref': energy, 'ecore': ecore})
+    eptb, tptb = ptb(one, two, orb, c, **{'eref': energy, 'ecore': ecore})
 
 with arguments
 
     :one: (``TwoIndex`` instance) the one-electron integrals (the same integrals as used in the AP1roG module :ref:`introap1rog`)
     :two: (``FourIndex`` instance) the two-electron integrals (the same integrals as used in the AP1roG module :ref:`introap1rog`)
-    :mocoeff: (``Expansion`` instance) the optimized AP1roG MO coefficient matrix
+    :orb: (``Expansion`` instance) the optimized AP1roG MO coefficient matrix
     :c: (``TwoIndex`` instance) the geminal coefficients (see :ref:`ooap1rog`)
 
 Note that optional keyword arguments have been omitted. All keyword arguments are summarized in :ref:`ptbkeywords`.
@@ -223,7 +223,7 @@ This is a basic example on how to perform a RMP2 calculation in Horton. This scr
     ###############################################################################
     lf = DenseLinalgFactory(obasis.nbasis)
     occ_model = AufbauOccModel(5)
-    moceoff = lf.create_expansion(obasis.nbasis)
+    orb = lf.create_expansion(obasis.nbasis)
     olp = obasis.compute_overlap(lf)
     ###############################################################################
     ## Construct Hamiltonian ######################################################
@@ -242,12 +242,12 @@ This is a basic example on how to perform a RMP2 calculation in Horton. This scr
     ###############################################################################
     ## Perform initial guess ######################################################
     ###############################################################################
-    guess_core_hamiltonian(olp, kin, na, moceoff)
+    guess_core_hamiltonian(olp, kin, na, orb)
     ###############################################################################
     ## Do a Hartree-Fock calculation ##############################################
     ###############################################################################
     scf_solver = PlainSCFSolver(1e-6)
-    scf_solver(ham, lf, olp, occ_model, moceoff)
+    scf_solver(ham, lf, olp, occ_model, orb)
     ###############################################################################
     ## Get Hartree-Fock energy ####################################################
     ###############################################################################
@@ -262,7 +262,7 @@ This is a basic example on how to perform a RMP2 calculation in Horton. This scr
     ## Do RMP2 calculation ########################################################
     ###############################################################################
     mp2 = RMP2(lf, occ_model)
-    emp2, tmp2 = mp2(one, er, mocoeff, **{'eref': ehf})
+    emp2, tmp2 = mp2(one, er, orb, **{'eref': ehf})
 
 PTa calculation on the water molecule
 -------------------------------------
@@ -282,7 +282,7 @@ This is a basic example on how to perform a PTa calculation in Horton. This scri
     ###############################################################################
     lf = DenseLinalgFactory(obasis.nbasis)
     occ_model = AufbauOccModel(5)
-    moceoff = lf.create_expansion(obasis.nbasis)
+    orb = lf.create_expansion(obasis.nbasis)
     olp = obasis.compute_overlap(lf)
     ###############################################################################
     ## Construct Hamiltonian ######################################################
@@ -301,12 +301,12 @@ This is a basic example on how to perform a PTa calculation in Horton. This scri
     ###############################################################################
     ## Perform initial guess ######################################################
     ###############################################################################
-    guess_core_hamiltonian(olp, kin, na, moceoff)
+    guess_core_hamiltonian(olp, kin, na, orb)
     ###############################################################################
     ## Do a Hartree-Fock calculation ##############################################
     ###############################################################################
     scf_solver = PlainSCFSolver(1e-6)
-    scf_solver(ham, lf, olp, occ_model, moceoff)
+    scf_solver(ham, lf, olp, occ_model, orb)
     ###############################################################################
     ## Combine one-electron integrals to single Hamiltonian #######################
     ###############################################################################
@@ -317,13 +317,13 @@ This is a basic example on how to perform a PTa calculation in Horton. This scri
     ## Do OO-AP1roG optimization ##################################################
     ###############################################################################
     ap1rog = RAp1rog(lf, occ_model)
-    energy, g, l = ap1rog(one, er, external['nn'], moceoff, olp, True)
+    energy, g, l = ap1rog(one, er, external['nn'], orb, olp, True)
 
     ###############################################################################
     ## Do PTa calculation #########################################################
     ###############################################################################
     pta = PTa(lf, occ_model)
-    energypta, amplitudes = pta(one, er, mocoeff, g, **{'eref': energy, 'ecore': external['nn']})
+    energypta, amplitudes = pta(one, er, orb, g, **{'eref': energy, 'ecore': external['nn']})
 
 
 PTb calculation on the water molecule
@@ -344,7 +344,7 @@ This is a basic example on how to perform a PTb calculation in Horton. This scri
     ###############################################################################
     lf = DenseLinalgFactory(obasis.nbasis)
     occ_model = AufbauOccModel(5)
-    moceoff = lf.create_expansion(obasis.nbasis)
+    orb = lf.create_expansion(obasis.nbasis)
     olp = obasis.compute_overlap(lf)
     ###############################################################################
     ## Construct Hamiltonian ######################################################
@@ -363,12 +363,12 @@ This is a basic example on how to perform a PTb calculation in Horton. This scri
     ###############################################################################
     ## Perform initial guess ######################################################
     ###############################################################################
-    guess_core_hamiltonian(olp, kin, na, moceoff)
+    guess_core_hamiltonian(olp, kin, na, orb)
     ###############################################################################
     ## Do a Hartree-Fock calculation ##############################################
     ###############################################################################
     scf_solver = PlainSCFSolver(1e-6)
-    scf_solver(ham, lf, olp, occ_model, moceoff)
+    scf_solver(ham, lf, olp, occ_model, orb)
     ###############################################################################
     ## Combine one-electron integrals to single Hamiltonian #######################
     ###############################################################################
@@ -379,10 +379,10 @@ This is a basic example on how to perform a PTb calculation in Horton. This scri
     ## Do OO-AP1roG optimization ##################################################
     ###############################################################################
     ap1rog = RAp1rog(lf, occ_model)
-    energy, g, l = ap1rog(one, er, external['nn'], moceoff, olp, True)
+    energy, g, l = ap1rog(one, er, external['nn'], orb, olp, True)
 
     ###############################################################################
     ## Do PTb calculation #########################################################
     ###############################################################################
     ptb = PTb(lf, occ_model)
-    energyptb, amplitudes = ptb(one, er, moceoff, g, **{'eref': energy, 'ecore': external['nn'], 'threshold': 1e-6})
+    energyptb, amplitudes = ptb(one, er, orb, g, **{'eref': energy, 'ecore': external['nn'], 'threshold': 1e-6})

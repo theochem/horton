@@ -62,11 +62,11 @@ To localize the orbitals, use a function call of the ``PipekMezey`` instance
 
 .. code-block:: python
 
-    loc(mocoeff, select[, **kwargs])
+    loc(orb, select[, **kwargs])
 
 with arguments
 
-    :mocoeff: (``Expansion`` instance) the MO coefficient matrix to be localized
+    :orb: (``Expansion`` instance) the MO coefficient matrix to be localized
     :select: (str) the orbital block to be localized. One of ``occ`` (occupied orbitals), ``virt`` (virtual orbitals)
 
 The **select** argument specifies the orbital block to be localized (either the occupied or the virtual Hartree-Fock orbitals). If both the occupied and virtual Hartree-Fock orbitals are to be localized, two consecutive function calls are required. Note that each function call optimizes the orbitals through orbital rotations within the orbital block of interest (either ``occ`` or ``virt``).
@@ -83,10 +83,9 @@ The keyword arguments contain optimization-specific parameters. Specifying keywo
 
               :method: (str) step search method used. One of ``trust-region`` (default), ``None``,  ``backtracking``
               :optimizer: (str) optimizes step to boundary of trust radius in ``trust-region``. One of ``pcg`` (preconditioned conjugate gradient), ``dogleg`` (Powell's single dogleg step), ``ddl`` (Powell's double-dogleg step) (default ``ddl``)
-              :stepa: (float) scaling factor for Newton step. Used in ``backtracking`` and ``None`` method (default ``0.75``)
+              :alpha: (float) scaling factor for Newton step. Used in ``backtracking`` and ``None`` method (default ``1.00``)
               :c1: (float) parameter used in the Armijo condition of ``backtracking`` (default ``1e-4``)
-              :maxstep: (float) maximum step length/trust radius (default ``0.75``)
-              :minstep: (float) minimum step length used in ``backracking`` (default ``1e-6``). If step length falls below **minstep**, the ``backtracking`` line search is terminated and the most recent step is accepted
+              :minalpha: (float) minimum step length used in ``backracking`` (default ``1e-6``). If step length falls below **minalpha**, the ``backtracking`` line search is terminated and the most recent step is accepted
               :maxiterouter: (int) maximum number of iterations to optimize orbital rotation step  (default ``10``)
               :maxiterinner: (int) maximum number of optimization steps in each step search (used only in ``pcg``, default ``500``)
               :maxeta: (float) upper bound for estimated vs. actual change in ``trust-region`` (default ``0.75``)
@@ -97,7 +96,7 @@ The keyword arguments contain optimization-specific parameters. Specifying keywo
               :maxtrustradius: (float) maximum trust radius (default ``0.75``)
               :threshold: (float) trust-region optimization threshold, only used in ``pcg`` (default ``1e-8``)
 
-The optimized set of orbitals is stored in **mocoeff** (an ``Expansion`` instance). Note that the initial orbitals **mocoeff** are overwritten.
+The optimized set of orbitals is stored in **orb** (an ``Expansion`` instance). Note that the initial orbitals **orb** are overwritten.
 
 
 Example input files
@@ -121,7 +120,7 @@ This is a basic example on how to perform a Pipek-Mezey localization in Horton. 
     ###############################################################################
     lf = DenseLinalgFactory(obasis.nbasis)
     occ_model = AufbauOccModel(5)
-    moceoff = lf.create_expansion(obasis.nbasis)
+    orb = lf.create_expansion(obasis.nbasis)
     olp = obasis.compute_overlap(lf)
     ###############################################################################
     ## Construct Hamiltonian ######################################################
@@ -140,12 +139,12 @@ This is a basic example on how to perform a Pipek-Mezey localization in Horton. 
     ###############################################################################
     ## Perform initial guess ######################################################
     ###############################################################################
-    guess_core_hamiltonian(olp, kin, na, moceoff)
+    guess_core_hamiltonian(olp, kin, na, orb)
     ###############################################################################
     ## Do a Hartree-Fock calculation ##############################################
     ###############################################################################
     scf_solver = PlainSCFSolver(1e-6)
-    scf_solver(ham, lf, olp, occ_model, moceoff)
+    scf_solver(ham, lf, olp, occ_model, orb)
     ###############################################################################
     ## Define Mulliken projectors #################################################
     ###############################################################################
@@ -158,8 +157,8 @@ This is a basic example on how to perform a Pipek-Mezey localization in Horton. 
     ###############################################################################
     ## occupied block #############################################################
     ###############################################################################
-    loc(mocoeff, 'occ')
+    loc(orb, 'occ')
     ###############################################################################
     ## virtual block ##############################################################
     ###############################################################################
-    loc(mocoeff, 'virt')
+    loc(orb, 'virt')

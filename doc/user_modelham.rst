@@ -122,7 +122,7 @@ To generate the initial orbitals for the `n` lattice sites, run
 
 .. code-block:: python
 
-    orbitals = lf.create_expansion(n)
+    orb = lf.create_expansion(n)
 
 where
 
@@ -155,7 +155,7 @@ This example shows a restricted Hartree-Fock calculation for the half-filled Hub
     lf = DenseLinalgFactory(6)
     occ_model = AufbauOccModel(3)
     modelham = Hubbard(pbc=True)
-    orbitals = lf.create_expansion(6)
+    orb = lf.create_expansion(6)
     olp = modelham.compute_overlap(lf)
     ###############################################################################
     # t-param, t = -1
@@ -168,7 +168,7 @@ This example shows a restricted Hartree-Fock calculation for the half-filled Hub
     ###############################################################################
     ## Perform initial guess ######################################################
     ###############################################################################
-    guess_core_hamiltonian(olp, hopping, orbitals)
+    guess_core_hamiltonian(olp, hopping, orb)
     terms = [
         RTwoIndexTerm(hopping, 'kin'),
         RDirectTerm(onsite, 'hartree'),
@@ -179,4 +179,4 @@ This example shows a restricted Hartree-Fock calculation for the half-filled Hub
     ## Do a Hartree-Fockk calculation #############################################
     ###############################################################################
     scf_solver = PlainSCFSolver()
-    scf_solver(ham, lf, olp, occ_model, orbitals)
+    scf_solver(ham, lf, olp, occ_model, orb)

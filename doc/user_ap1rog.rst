@@ -105,10 +105,10 @@ To optimize an AP1roG wavefunction, the module requires a Hamiltonian and an ini
 
         .. code-block:: python
 
-            moceoff = lf.create_expansion(nbasis)
+            orb = lf.create_expansion(nbasis)
             olp = lf.create_two_index(nbasis)
             olp.assign_diagonal(1.0)
-            moceoff.assign_diagonal(1.0)
+            orb.assign_diagonal(1.0)
 
       where ``nbasis`` is the number of basis function (total number of orbitals in the active space).
 
@@ -145,16 +145,16 @@ Note that no optional arguments need to be specified for the AP1roG model and th
 
 .. code-block:: python
 
-    energy, c, l = ap1rog(one, two, external, aomoceoff, olp, orb, **keywords)
+    energy, c, l = ap1rog(one, two, external, orb, olp, scf, **keywords)
 
 with arguments
 
     :one: (``TwoIndex`` instance) the one-electron integrals
     :two: (``FourIndex`` or ``CholeskyLinalgFactory`` instance) the two-electron integrals
     :external: (float) energy contribution due to an external potential, e.g., nuclear-nuclear repulsion term, etc.
-    :mocoeff: (``Expansion`` instance) the AO/MO or MO/MO coefficient matrix. It also contains information about orbital energies (not defined in the AP1roG model) and occupation numbers
+    :orb: (``Expansion`` instance) the AO/MO or MO/MO coefficient matrix. It also contains information about orbital energies (not defined in the AP1roG model) and occupation numbers
     :olp: (``TwoIndex`` instance) the AO overlap matrix or, in case of an orthonormal basis, the identity matrix
-    :orb: (boolean) if ``True``, orbitals are optimized
+    :scf: (boolean) if ``True``, orbitals are optimized
 
 The keyword arguments are optional and contain optimization-specific options (like the number of orbital optimization steps, etc.) as well as orbital manipulation schemes (Givens rotations, swapping orbitals in reference determinant, etc.). Their default values are chosen to give reasonable performance and can be adjusted if convergence difficulties are encountered. All keyword arguments are summarized in the following section (:ref:`keywords-oo-ap1rog`).
 
@@ -218,10 +218,9 @@ Summary of keyword arguments
 
               :method: (str) step search method used. One of ``trust-region`` (default), ``None``,  ``backtracking``
               :optimizer: (str) optimizes step to boundary of trust radius in ``trust-region``. One of ``pcg`` (preconditioned conjugate gradient), ``dogleg`` (Powell's single dogleg step), ``ddl`` (Powell's double-dogleg step) (default ``ddl``)
-              :stepa: (float) scaling factor for Newton step. Used in ``backtracking`` and ``None`` method (default ``0.75``)
+              :alpha: (float) scaling factor for Newton step. Used in ``backtracking`` and ``None`` method (default ``1.00``)
               :c1: (float) parameter used in the Armijo condition of ``backtracking`` (default ``1e-4``)
-              :maxstep: (float) maximum step length/trust radius (default ``0.75``)
-              :minstep: (float) minimum step length used in ``backracking`` (default ``1e-6``). If step length falls below **minstep**, the ``backtracking`` line search is terminated and the most recent step is accepted
+              :minalpha: (float) minimum step length used in ``backracking`` (default ``1e-6``). If step length falls below **minalpha**, the ``backtracking`` line search is terminated and the most recent step is accepted
               :maxiterouter: (int) maximum number of iterations to optimize orbital rotation step  (default ``10``)
               :maxiterinner: (int) maximum number of optimization steps in each step search (used only in ``pcg``, default ``500``)
               :maxeta: (float) upper bound for estimated vs. actual change in ``trust-region`` (default ``0.75``)
@@ -244,7 +243,7 @@ Summary of keyword arguments
 
     :givensrot: (2-dim np.array) rotate two orbitals using a Givens rotation. Each row in **givensrot** contains 2 orbital indices and the rotation angle in deg (default ``np.array([[]])``). Orbitals are rotated sequentially according to the rows in **givensrot**. If a sequence of Givens rotation is performed, note that the indices in **givensrot** refer to the already rotated orbital basis. If **givensrot** is combined with **swapa**, all orbitals are swapped prior to any Givens rotation
 
-    :orbitaloptimizer: (str) switch variational orbital optimization on (``variational``) or off (any other value). Only, ``variational`` and PS2c (``ps2c``) are supported (default ``variational``)
+    :orbitaloptimizer: (str) switch between variational orbital optimization (``variational``) and PS2c orbital optimization (``ps2c``) (default ``variational``)
 
 
 .. _restart-ap1rog:
@@ -256,11 +255,11 @@ To restart an AP1roG calculation (for instance, using the orbitals from a differ
 
 .. code-block:: python
 
-    read_orbitals(mocoeff, olp, orbfile="./orb.hdf5", olpfile="./olp.hdf5")
+    read_orbitals(orb, olp, orbfile="./orb.hdf5", olpfile="./olp.hdf5")
 
 with arguments
 
-    :mocoeff: (``Expansion`` instance) the current AO/MO coefficient matrix to be updated
+    :orb: (``Expansion`` instance) the current AO/MO coefficient matrix to be updated
     :olp: (``TwoIndex`` instance) the current AO overlap matrix
 
 and optional arguments
@@ -268,12 +267,12 @@ and optional arguments
     :orbfile: (str) filename of AO/MO coefficient matrix to be read (default ``./orb.hdf5``)
     :olpfile: (str) filename of AO overlap matrix to be read (default ``./olp.hdf5``)
 
-Note that **mocoeff** is overwritten by the function call ``read_orbitals``. Then, generate an instance of the ``RAp1rog`` class and perform a function call:
+Note that **orb** is overwritten by the function call ``read_orbitals``. Then, generate an instance of the ``RAp1rog`` class and perform a function call:
 
 .. code-block:: python
 
     apr1og =  RAp1rog(lf, occ_model)
-    energy, c, l = ap1rog(one, two, external, mocoeff, olp, True)
+    energy, c, l = ap1rog(one, two, external, orb, olp, True)
 
 Note that all optional arguments have been omitted and ``orb`` was set to ``True``.
 
@@ -345,13 +344,13 @@ Note that, in Horton, :math:`\Gamma_{p\bar{p}q\bar{q}} = 0 \, \forall \, p=q \in
 Natural orbitals and occupation numbers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If AP1roG converges, the final orbitals are the AP1roG natural orbitals and are stored in ``mocoeff`` (see :ref:`ooap1rog` how to obtain ``mocoeff``). The natural orbitals can be exported to the molden file format (see FIXME) and visualized using, for instance, `Jmol <http://jmol.sourceforge.net>`_ or `VESTA <http://jp-minerals.org/vesta/en/>`_.
+If AP1roG converges, the final orbitals are the AP1roG natural orbitals and are stored in ``orb`` (see :ref:`ooap1rog` how to obtain ``orb``). The natural orbitals can be exported to the molden file format (see FIXME) and visualized using, for instance, `Jmol <http://jmol.sourceforge.net>`_ or `VESTA <http://jp-minerals.org/vesta/en/>`_.
 
-The natural occupation numbers, the eigenvalues of the response 1-RDM (see :ref:`responsedms` for how to calculate response RDMs) are stored in the ``occupations`` attribute (a 1-dim np.array) of ``mocoeff`` and can be directly accessed after an AP1roG calculation using
+The natural occupation numbers, the eigenvalues of the response 1-RDM (see :ref:`responsedms` for how to calculate response RDMs) are stored in the ``occupations`` attribute (a 1-dim np.array) of ``orb`` and can be directly accessed after an AP1roG calculation using
 
 .. code-block:: python
 
-    mocoeff.occupations
+    orb.occupations
 
 .. _exacthessian:
 
@@ -362,14 +361,14 @@ Although the orbital optimizer uses a diagonal approximation to the exact orbita
 
 .. code-block:: python
 
-    onemo, twomo = transform_integrals(one, two, indextrans, mocoeff)
+    onemo, twomo = transform_integrals(one, two, indextrans, orb)
 
 with arguments
 
     :one: (``TwoIndex`` instance) the one-electron integrals
     :two: (``FourIndex`` instance) the two-electron integrals
     :indextrans: (str) the 4-index transformation, either ``tensordot`` (preferred) or ``einsum``
-    :mocoeff: (``Expansion`` instance) the AO/MO coefficient matrix
+    :orb: (``Expansion`` instance) the AO/MO coefficient matrix
 
 and return values
 
@@ -410,7 +409,7 @@ The geminal coefficients can be optimized as follows
 
     .. code-block:: python
 
-        energy, c = ap1rog(one, two, external, mocoeff, olp, False, **keywords)
+        energy, c = ap1rog(one, two, external, orb, olp, False, **keywords)
 
     where we have used the same abbreviations for function arguments as in :ref:`ooap1rog`. The keyword arguments contain optimisation-specific options and are summarized in :ref:`keywordsap1rog`.
 
@@ -425,7 +424,7 @@ The geminal coefficients can be optimized as follows
 
     .. code-block:: python
 
-        energy, c, l = ap1rog(one, two, external, aomoceoff, olp, True, **{
+        energy, c, l = ap1rog(one, two, external, orb, olp, True, **{
             'maxiter': {'orbiter': 0}
         })
 
@@ -536,7 +535,7 @@ This is a basic example on how to perform an orbital-optimized AP1roG calculatio
     ###############################################################################
     lf = DenseLinalgFactory(obasis.nbasis)
     occ_model = AufbauOccModel(5)
-    moceoff = lf.create_expansion(obasis.nbasis)
+    orb = lf.create_expansion(obasis.nbasis)
     olp = obasis.compute_overlap(lf)
     ###############################################################################
     ## Construct Hamiltonian ######################################################
@@ -555,12 +554,12 @@ This is a basic example on how to perform an orbital-optimized AP1roG calculatio
     ###############################################################################
     ## Perform initial guess ######################################################
     ###############################################################################
-    guess_core_hamiltonian(olp, kin, na, moceoff)
+    guess_core_hamiltonian(olp, kin, na, orb)
     ###############################################################################
     ## Do a Hartree-Fock calculation ##############################################
     ###############################################################################
     scf_solver = PlainSCFSolver(1e-6)
-    scf_solver(ham, lf, olp, occ_model, moceoff)
+    scf_solver(ham, lf, olp, occ_model, orb)
     ###############################################################################
     ## Combine one-electron integrals to single Hamiltonian #######################
     ###############################################################################
@@ -571,7 +570,7 @@ This is a basic example on how to perform an orbital-optimized AP1roG calculatio
     ## Do OO-AP1roG optimization ##################################################
     ###############################################################################
     ap1rog = RAp1rog(lf, occ_model)
-    energy, g, l = ap1rog(one, er, external['nn'], moceoff, olp, True)
+    energy, g, l = ap1rog(one, er, external['nn'], orb, olp, True)
 
 The water molecule (with all default keyword arguments)
 -------------------------------------------------------
@@ -591,7 +590,7 @@ This is the same example as above, but all keyword arguments are mentioned expli
     ###############################################################################
     lf = DenseLinalgFactory(obasis.nbasis)
     occ_model = AufbauOccModel(5)
-    moceoff = lf.create_expansion(obasis.nbasis)
+    orb = lf.create_expansion(obasis.nbasis)
     olp = obasis.compute_overlap(lf)
     ###############################################################################
     ## Construct Hamiltonian ######################################################
@@ -610,12 +609,12 @@ This is the same example as above, but all keyword arguments are mentioned expli
     ###############################################################################
     ## Perform initial guess ######################################################
     ###############################################################################
-    guess_core_hamiltonian(olp, kin, na, moceoff)
+    guess_core_hamiltonian(olp, kin, na, orb)
     ###############################################################################
     ## Do a Hartree-Fock calculation ##############################################
     ###############################################################################
     scf_solver = PlainSCFSolver(1e-6)
-    scf_solver(ham, lf, olp, occ_model, moceoff)
+    scf_solver(ham, lf, olp, occ_model, orb)
     ###############################################################################
     ## Combine one-electron integrals to single Hamiltonian #######################
     ###############################################################################
@@ -626,7 +625,7 @@ This is the same example as above, but all keyword arguments are mentioned expli
     ## Do OO-AP1roG optimization ##################################################
     ###############################################################################
     ap1rog = RAp1rog(lf, occ_model)
-    energy, g, l = ap1rog(one, er, external['nn'], moceoff, olp, True, **{
+    energy, g, l = ap1rog(one, er, external['nn'], orb, olp, True, **{
         'indextrans': 'tensordot',
         'warning': False,
         'checkpoint': 1,
@@ -638,10 +637,10 @@ This is the same example as above, but all keyword arguments are mentioned expli
         'guess': {'type': 'random', 'factor': -0.1, 'geminal': None, 'lagrange': None},
         'solver': {'wfn': 'krylov', 'lagrange': 'krylov'},
         'maxiter': {'wfniter': 200, 'orbiter': 100},
-        'dumpci': {'amplitudestofile': False, 'amplitudesfilename': "./ap1rog_amplitudes.dat"},
+        'dumpci': {'amplitudestofile': False, 'amplitudesfilename': './ap1rog_amplitudes.dat'},
         'thresh': {'wfn':  1e-12, 'energy': 1e-8, 'gradientnorm': 1e-4, 'gradientmax': 5e-5},
         'printoptions': {'geminal': True, 'ci': 0.01, 'excitationlevel': 1},
-        'stepsearch': {'method': 'trust-region', 'stepa': 1.0, 'c1': 0.0001, 'maxstep': 0.75, 'minstep': 1e-6, 'maxiterouter': 10, 'maxiterinner': 500, 'maxeta': 0.75, 'mineta': 0.25, 'upscale': 2.0, 'downscale': 0.25, 'trustradius': 0.75, 'maxtrustradius': 0.75, 'threshold': 1e-8, 'optimizer': 'ddl'},
+        'stepsearch': {'method': 'trust-region', 'alpha': 1.0, 'c1': 0.0001, 'minalpha': 1e-6, 'maxiterouter': 10, 'maxiterinner': 500, 'maxeta': 0.75, 'mineta': 0.25, 'upscale': 2.0, 'downscale': 0.25, 'trustradius': 0.75, 'maxtrustradius': 0.75, 'threshold': 1e-8, 'optimizer': 'ddl'},
         'orbitaloptimizer': 'variational'
     }
 
@@ -664,10 +663,10 @@ This is a basic example on how to perform an orbital-optimized AP1roG calculatio
     ###############################################################################
     lf = DenseLinalgFactory(nbasis)
     occ_model = AufbauOccModel(nocc)
-    moceoff = lf.create_expansion(nbasis)
+    orb = lf.create_expansion(nbasis)
     olp = lf.create_two_index(nbasis)
     olp.assign_diagonal(1.0)
-    moceoff.assign_diagonal(1.0)
+    orb.assign_diagonal(1.0)
     ###############################################################################
     ## Read Hamiltonian from file 'FCIDUMP' #######################################
     ###############################################################################
@@ -677,7 +676,7 @@ This is a basic example on how to perform an orbital-optimized AP1roG calculatio
     ## Do OO-AP1roG optimization ##################################################
     ###############################################################################
     ap1rog = RAp1rog(lf, occ_model)
-    energy, c, l = ap1rog(one, two, core, moceoff, olp, True)
+    energy, c, l = ap1rog(one, two, core, orb, olp, True)
 
 
 AP1roG using model Hamiltonians
@@ -697,42 +696,39 @@ parameter is set to -1, the ``U`` parameter is set to 2, and periodic boundary c
     lf = DenseLinalgFactory(6)
     occ_model = AufbauOccModel(3)
     modelham = Hubbard(pbc=True)
-    exp_alpha = lf.create_expansion(6)
+    orb = lf.create_expansion(6)
     olp = modelham.compute_overlap(lf)
     ###############################################################################
-    # t-param, t = -1
+    # t-param, t = -1 #############################################################
     ###############################################################################
     kin = modelham.compute_kinetic(lf, -1)
     ###############################################################################
-    # U-param, U = 2
+    # U-param, U = 2 ##############################################################
     ###############################################################################
     er = modelham.compute_er(lf, 2)
     ###############################################################################
     ## Perform initial guess ######################################################
     ###############################################################################
-    guess_core_hamiltonian(olp, kin, exp_alpha)
+    guess_core_hamiltonian(olp, kin, orb)
     terms = [
         RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
         RExchangeTerm(er, 'x_hf'),
     ]
     ham = REffHam(terms)
-    exp_alpha.from_file(olp)
-    #read_orbitals(exp_alpha, olp)
-    ###########################################################################################
-    ## Do a Hartree-Fockk calculation #########################################################
-    ###########################################################################################
+    ###############################################################################
+    ## Do a Hartree-Fock calculation ##############################################
+    ###############################################################################
     scf_solver = PlainSCFSolver()
-    scf_solver(ham, lf, olp, occ_model, exp_alpha)
-    energy = ham.compute()
+    scf_solver(ham, lf, olp, occ_model, orb)
     ###############################################################################
     ## Do OO-AP1roG optimization ##################################################
     ###############################################################################
     ap1rog = RAp1rog(lf, occ_model)
-    energy, g, l = ap1rog(kin, er, 0, exp_alpha, olp, True)
+    energy, g, l = ap1rog(kin, er, 0, orb, olp, True)
 
-Note that for the calculation of ap1rog energy, the external potential has to be set to ``0``,
+Note that for the Hubbard model, the external potential has to be set to ``0``,
 
 .. code-block:: python
 
-    energy, g, l = ap1rog(kin, er, 0, exp_alpha, olp, True)
+    energy, g, l = ap1rog(kin, er, 0, orb, olp, True)

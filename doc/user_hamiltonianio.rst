@@ -25,7 +25,7 @@ To write a Hamiltonian with the one- and two-electron integrals ``one`` and ``tw
 
 .. code-block:: python
 
-    integrals_to_file(lf, one, two, ecore, mocoeff, filename[, **kwargs])
+    integrals_to_file(lf, one, two, ecore, orb, filename[, **kwargs])
 
 with arguments
 
@@ -33,10 +33,10 @@ with arguments
     :one: (``TwoIndex`` instance) the one-electron integrals
     :two: (``FourIndex`` instance) the two-electron integrals (electron repulsion integrals)
     :ecore: (float) energy contribution due to an external potential, e.g., nuclear-nuclear repulsion term, etc.
-    :mocoeff: (``Expansion`` instance) the MO coefficient matrix
+    :orb: (``Expansion`` instance) the MO coefficient matrix
     :filename: (str, optional) the filename containing the Hamiltonian (default ``FCIDUMP``)
 
-If ``mocoeff`` is passed, the one- and two-electron integrals are transformed to the ``mocoeff`` basis. The integral transformation can be skipped if ``mocoeff=None``.
+If ``orb`` is passed, the one- and two-electron integrals are transformed to the ``orb`` basis. The integral transformation can be skipped if ``orb=None``.
 
 The keyword arguments contain system specific information.
 
@@ -84,7 +84,7 @@ This example shows how to export the molecular Hamiltonian for the dinotrogen mo
     ###########################################################################################
     lf = DenseLinalgFactory(obasis.nbasis)
     occ_model = AufbauOccModel(7)
-    moceoff = lf.create_expansion(obasis.nbasis)
+    orb = lf.create_expansion(obasis.nbasis)
     olp = obasis.compute_overlap(lf)
     ###########################################################################################
     ## Construct Hamiltonian ##################################################################
@@ -103,12 +103,12 @@ This example shows how to export the molecular Hamiltonian for the dinotrogen mo
     ###########################################################################################
     ## Perform initial guess ##################################################################
     ###########################################################################################
-    guess_core_hamiltonian(olp, kin, na, moceoff)
+    guess_core_hamiltonian(olp, kin, na, orb)
     ###########################################################################################
     ## Do a Hartree-Fockk calculation #########################################################
     ###########################################################################################
     scf_solver = PlainSCFSolver(1e-6)
-    scf_solver(ham, lf, olp, occ_model, moceoff)
+    scf_solver(ham, lf, olp, occ_model, orb)
     ###########################################################################################
     ## Combine to single one-electron Hamiltonian #############################################
     ###########################################################################################
@@ -118,10 +118,10 @@ This example shows how to export the molecular Hamiltonian for the dinotrogen mo
     ###########################################################################################
     ## Export Hamiltonian in Hartree-Fock molecular orbital basis (all orbitals active) #######
     ###########################################################################################
-    integrals_to_file(lf, one, er, external['nn'], mocoeff, 'FCIDUMP')
+    integrals_to_file(lf, one, er, external['nn'], orb, 'FCIDUMP')
 
     ###########################################################################################
     ## Export Hamiltonian in Hartree-Fock molecular orbital basis for CAS(8,8) ################
     ###########################################################################################
-    integrals_to_file(lf, one, er, external['nn'], mocoeff, 'FCIDUMP8-8',
+    integrals_to_file(lf, one, er, external['nn'], orb, 'FCIDUMP8-8',
                       **{'nel': 8, 'ncore': 2, 'nactive': 8})
