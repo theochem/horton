@@ -104,7 +104,7 @@ def fun_deriv(x, ham, two_mo):
     onebody2.assign(lcoeff)
 
     onedm = ham.lf.create_one_index()
-    onedm.compute_1dm_ap1rog(onebody1, onebody2, factor=1.0)
+    ham.compute_1dm(onedm, onebody1, onebody2, factor=1.0)
     a = np.zeros((28,28))
     np.fill_diagonal(a, onedm._array.T)
     return a
