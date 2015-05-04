@@ -297,9 +297,10 @@ The response 1-RDM (a ``OneIndex`` instance) can be calculated in Horton as foll
 .. code-block:: python
 
     one_dm = lf.create_one_index()
-    one_dm.compute_1dm_ap1rog(c, l, factor=2.0, response=True)
+    ap1rog.compute_1dm(one_dm, c, l, factor=2.0, response=True)
 
-with arguments (see also :ref:`setup-oo-ap1rog` to get ``c`` and ``l``)
+where ap1rog is an instance of the ``RAp1rog`` class and (see also :ref:`setup-oo-ap1rog` to get ``c`` and ``l``)
+    :one_dm: (``OneIndex`` instance) output argument that contains the response 1-RDM in the _array attribute
     :c: (``TwoIndex`` instance) the geminal coefficient matrix (without the diagonal occupied sub-block, see :ref:`introap1rog`)
     :l: (``TwoIndex`` instance) the Lagrange multipliers
 
@@ -321,14 +322,15 @@ In Horton, only the non-zero elements of the response 2-RDM are calculated, whic
     ###############################################################################
     ## Gamma_ppqq #################################################################
     ###############################################################################
-    twoppqq.compute_2dm_ap1rog(one_dm, c, l, 'ppqq', response=True)
+    ap1rog.compute_2dm(twoppqq, one_dm, c, l, 'ppqq', response=True)
     ###############################################################################
     ## Gamma_pqpq #################################################################
     ###############################################################################
-    twopqpq.compute_2dm_ap1rog(one_dm, c, l, 'pqpq', response=True)
+    ap1rog.compute_2dm(twopqpq, one_dm, c, l, 'pqpq', response=True)
 
 with arguments (see again :ref:`setup-oo-ap1rog` to get ``c`` and ``l``)
 
+    :twopqpq/twoppqq: (``TwoIndex`` instance) output argument that contains the response 2-RDM
     :one_dm: (``OneIndex`` instance) the response 1-RDM
     :c: (``TwoIndex`` instance) the geminal coefficient matrix (without the diagonal occupied sub-block, see :ref:`introap1rog`)
     :l: (``TwoIndex`` instance) the Lagrange multipliers
