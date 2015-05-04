@@ -593,9 +593,9 @@ class RAp1rog(Geminal):
         cached_one_dm = self.init_one_dm(select)
         if one_dm is None:
             if select == 'ps2':
-                cached_one_dm.compute_1dm_ap1rog(self.geminal, self.geminal, 1, False)
+                self.compute_1dm(cached_one_dm, self.geminal, self.geminal, 1, False)
             elif select == 'response':
-                cached_one_dm.compute_1dm_ap1rog(self.geminal, self.lagrange, 1, True)
+                self.compute_1dm(cached_one_dm, self.geminal, self.lagrange, 1, True)
             else:
                 raise NotImplementedError
         else:
@@ -614,17 +614,147 @@ class RAp1rog(Geminal):
             raise NotImplementedError
         if select == 'response':
             cached_2dm1 = self.init_two_dm('rppqq')
-            cached_2dm1.compute_2dm_ap1rog(self.one_dm_response, self.geminal, self.lagrange, 'ppqq', True)
+            self.compute_2dm(cached_2dm1, self.one_dm_response, self.geminal, self.lagrange, 'ppqq', True)
             cached_2dm2 = self.init_two_dm('rpqpq')
-            cached_2dm2.compute_2dm_ap1rog(self.one_dm_response, self.geminal, self.lagrange, 'pqpq', True)
+            self.compute_2dm(cached_2dm2, self.one_dm_response, self.geminal, self.lagrange, 'pqpq', True)
         elif select == 'ps2':
             cached_2dm1 = self.init_two_dm('ppqq')
-            cached_2dm1.compute_2dm_ap1rog(self.one_dm_ps2, self.geminal, self.geminal, 'ppqq', False)
+            self.compute_2dm(cached_2dm1, self.one_dm_ps2, self.geminal, self.geminal, 'ppqq', False)
             cached_2dm2 = self.init_two_dm('pqpq')
-            cached_2dm2.compute_2dm_ap1rog(self.one_dm_ps2, self.geminal, self.geminal, 'pqpq', False)
+            self.compute_2dm(cached_2dm1, self.one_dm_ps2, self.geminal, self.geminal, 'pqpq', False)
             return cached_2dm1, cached_2dm2
         else:
             raise NotImplementedError
+
+    def compute_1dm(self, dmout, mat1, mat2, factor=1.0, response=True):
+        '''Compute 1-RDMs for AP1roG
+
+           **Arguments:**
+
+           mat1, mat2
+                A DenseTwoIndex instance used to calculated 1-DM. For response
+                DM, mat1 is the geminal matrix, mat2 the Lagrange multipliers
+
+           **Optional arguments:**
+
+           factor
+                A scalar factor
+
+           select
+                Switch between response (True) and PS2 (False) 1-DM
+        '''
+        summand = 1.0
+        if not response:
+            summand = 1+mat1.contract_two('ab,ab', mat2)
+
+        #
+        # Calculate occupied block
+        #
+        tmpocc = self.lf.create_one_index(self.nocc)
+        tmpocc.assign(summand)
+        mat1.contract_two_to_one('ab,ab->a', mat2, tmpocc, -1.0, False)
+
+        #
+        # Calculate virtual block
+        #
+        tmpvir = self.lf.create_one_index(self.nvirt)
+        mat1.contract_two_to_one('ab,ab->b', mat2, tmpvir, 1.0, True)
+
+        #
+        # Combine both blocks and scale
+        #
+        dmout.assign(tmpocc, 0, self.nocc)
+        dmout.assign(tmpvir, self.nocc, self.nbasis)
+        dmout.iscale(factor)
+
+    def compute_2dm(self, dmout, dm1, mat1, mat2, select, response=True):
+        '''Compute response 2-RDM for AP1roG
+
+           ** Arguments **
+           one_dm
+               A 1DM. A OneIndex instance.
+
+           mat1, mat2
+               TwoIndex instances used to calculate 2DM. To get the response
+               DM, mat1 is the geminal coefficient matrix, mat2 are the
+               Lagrange multipliers
+
+           select
+               Either 'ppqq' or 'pqpq'. Note that the elements (iiii), i.e.,
+               the 1DM, are stored in pqpq, while the elements (aaaa) are
+               stored in ppqq.
+
+           response
+               If True, calculate response 2DM. Otherwise the PS2 2DM is
+               calculated.
+        '''
+        check_options('select', select, 'ppqq','pqpq')
+        lc = mat1.contract_two('ab,ab', mat2)
+        factor1 = 1.0
+        if response:
+            factor1 = factor1-lc
+        if select == 'ppqq':
+            #
+            # temporary storage
+            #
+            tmpvv = self.lf.create_two_index(self.nvirt, self.nvirt)
+            tmpoo = self.lf.create_two_index(self.nocc, self.nocc)
+            tmpvv2 = self.lf.create_two_index(self.nvirt, self.nvirt)
+            tmpov = self.lf.create_two_index(self.nocc, self.nvirt)
+            tmpo = self.lf.create_one_index(self.nocc)
+            tmpv = self.lf.create_one_index(self.nvirt)
+
+            #
+            # o-o block
+            #
+            mat2.contract_two_to_two('ab,cb->ca', mat1, tmpoo, 1.0, True)
+            tmpoo.assign_diagonal(0.0)
+            dmout.iadd(tmpoo, 1.0, 0, self.nocc, 0, self.nocc)
+            #
+            # v-v block
+            #
+            mat2.contract_two_to_two('ab,ac->bc', mat1, tmpvv, 1.0, True)
+            dmout.iadd(tmpvv, 1.0, self.nocc, self.nbasis, self.nocc, self.nbasis)
+            #
+            # v-o block
+            #
+            dmout.iadd_t(mat2, 1.0, self.nocc, self.nbasis, 0, self.nocc)
+            #
+            # o-v block
+            #
+            tmpvv2.iadd_tdot(mat2, mat1)
+            tmpov.iadd_dot(mat1, tmpvv2)
+            mat2.contract_two_to_one('ab,ab->a', mat1, tmpo, 1.0, True)
+            tmpov.iadd_contract_two_one('ab,a->ab', mat1, tmpo, -2.0)
+            mat2.contract_two_to_one('ab,ab->b', mat1, tmpv, 1.0, True)
+            tmpov.iadd_contract_two_one('ab,b->ab', mat1, tmpv, -2.0)
+            mat2_ = mat2.copy()
+            mat2_.imul(mat1)
+            mat2_.imul(mat1)
+            tmpov.iadd(mat2_, 2.0)
+
+            dmout.iadd(mat1, (factor1+lc), 0, self.nocc, self.nocc, self.nbasis)
+            dmout.iadd(tmpov, 1.0, 0, self.nocc, self.nocc, self.nbasis)
+        elif select == 'pqpq':
+            #
+            # temporary storage
+            #
+            tmpo = self.lf.create_one_index(self.nocc)
+            mat2.contract_two_to_one('ab,ab->a', mat1, tmpo, 1.0, True)
+            dm1v = dm1.copy(self.nocc, self.nbasis)
+            mat2_ = mat2.copy()
+            mat2_.imul(mat1)
+            for i in range(self.nocc):
+                for j in range(i+1,self.nocc):
+                    value = factor1+lc-tmpo.get_element(i)-tmpo.get_element(j)
+                    dmout.set_element(i,j, value)
+                    dmout.set_element(j,i, value)
+                value = factor1+lc-tmpo.get_element(i)
+                dmout.set_element(i,i, value)
+            dmout.iadd_t(dm1v, 1.0, 0, self.nocc, self.nocc, self.nbasis)
+            dmout.iadd(mat2_,-1.0, 0, self.nocc, self.nocc, self.nbasis)
+            dmout.iadd(dm1v, 1.0, self.nocc, self.nbasis, 0, self.nocc)
+            dmout.iadd_t(mat2_,-1.0, self.nocc, self.nbasis, 0, self.nocc)
 
     def update_three_dm(self, select, three_dm=None):
         '''Update 3-RDM

@@ -748,36 +748,6 @@ class DenseOneIndex(OneIndex):
 
     shape = property(_get_shape)
 
-    #
-    # Geminal Methods
-    #
-    def compute_1dm_ap1rog(self, mat1, mat2, factor=1.0, response=True):
-        '''Compute 1-RDMs for AP1roG
-
-           **Arguments:**
-
-           mat1, mat2
-                A DenseTwoIndex instance used to calculated 1-DM. For response
-                DM, mat1 is the geminal matrix, mat2 the Lagrange multipliers
-
-           **Optional arguments:**
-
-           factor
-                A scalar factor
-
-           select
-                Switch between response (True) and PS2 (False) 1-DM
-        '''
-        nocc = mat1.shape[0]
-
-        if response:
-            summand = 1
-        else:
-            summand = 1+mat1.contract_two('ab,ab', mat2)
-
-        self._array[:nocc] = summand-np.einsum('ab,ab->a', mat1._array, mat2._array)
-        self._array[nocc:] = np.einsum('ab,ab->b', mat1._array, mat2._array)
-        self.iscale(factor)
 
 
 class DenseExpansion(Expansion):
@@ -2208,58 +2178,6 @@ class DenseTwoIndex(TwoIndex):
             self._array = self._array+self._array.T
             self._array *= 0.5
 
-    #
-    # Geminal Method
-    #
-    def compute_2dm_ap1rog(self, dm1, mat1, mat2, select, response=True):
-        '''Compute response 2-RDM for AP1roG
-
-           ** Arguments **
-           one_dm
-               A 1DM. A OneIndex instance.
-
-           mat1, mat2
-               TwoIndex instances used to calculate 2DM. To get the response
-               DM, mat1 is the geminal coefficient matrix, mat2 are the
-               Lagrange multipliers
-
-           select
-               Either 'ppqq' or 'pqpq'. Note that the elements (iiii), i.e.,
-               the 1DM, are stored in pqpq, while the elements (aaaa) are
-               stored in ppqq.
-
-           response
-               If True, calculate response 2DM. Otherwise the PS2 2DM is
-               calculated.
-        '''
-        nocc = mat1.shape[0]
-        lc = mat1.contract_two('ab,ab', mat2)
-        if response:
-            factor1 = 1.0-lc
-        else:
-            factor1 = 1.0
-        if select == 'ppqq':
-            self._array[:nocc,:nocc] = np.einsum("ja,ia->ij", mat2._array, mat1._array)
-            np.fill_diagonal(self._array[:nocc,:nocc],0)
-            self._array[nocc:,nocc:] = np.einsum("ip,iq->pq", mat2._array, mat1._array)
-            self._array[nocc:,:nocc] = mat2._array.T
-            self._array[:nocc,nocc:] = mat1._array*factor1
-            self._array[:nocc,nocc:] += mat1._array*lc
-            self._array[:nocc,nocc:] += 1*np.dot(mat1._array,np.dot(mat2._array.T,mat1._array))
-            self._array[:nocc,nocc:] -= 2*np.einsum("ip,ip->i",mat2._array,mat1._array)[np.newaxis].T*mat1._array
-            self._array[:nocc,nocc:] -= 2*np.einsum("ip,ip->p",mat2._array,mat1._array)*mat1._array
-            self._array[:nocc,nocc:] += 2*mat2._array*mat1._array*mat1._array
-        elif select == 'pqpq':
-            for i in range(nocc):
-                for j in range(i+1,nocc):
-                    tmp = np.dot(mat2._array[i,:],mat1._array[i,:].T)+np.dot(mat2._array[j,:],mat1._array[j,:].T)
-                    self._array[i,j] = factor1+lc-tmp
-                    self._array[j,i] = factor1+lc-tmp
-                self._array[i,i] = factor1+lc-np.dot(mat2._array[i,:], mat1._array[i,:].T)
-            self._array[:nocc,nocc:] = (dm1._array[nocc:])[np.newaxis]-mat2._array*mat1._array
-            self._array[nocc:,:nocc] = (dm1._array[nocc:])[np.newaxis].T-mat1._array.T*mat2._array.T
-        else:
-            raise NotImplementedError
 
 
 class DenseThreeIndex(ThreeIndex):
