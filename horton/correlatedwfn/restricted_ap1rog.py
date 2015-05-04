@@ -51,7 +51,7 @@ from horton.correlatedwfn.geminal import Geminal
 from horton.correlatedwfn.stepsearch import RStepSearch
 from horton.utils import check_type, check_options
 
-from copy import deepcopy
+from copy import copy
 
 
 __all__ = [
@@ -64,7 +64,7 @@ class RAp1rog(Geminal):
     '''Restricted AP1roG wavefunction class'''
 
     @timer.with_section('AP1roG')
-    def solve(self, one, two, core, exps, olp, **kwargs):
+    def solve(self, one, two, core, orb, olp, **kwargs):
         '''Optimize AP1roG coefficients for some Hamiltonian.
            For restricted, closed-shell AP1roG.
 
@@ -78,7 +78,7 @@ class RAp1rog(Geminal):
            core
                 The core energy (not included in 'one' and 'two'); a float.
 
-           exps
+           orb
                 An expansion instance. It contains the AO/MO coefficients.
 
            olp
@@ -169,7 +169,7 @@ class RAp1rog(Geminal):
         #
         # Do restart and swap orbitals if needed:
         #
-        self.start_up(exps, swapa)
+        self.start_up(orb, swapa)
 
         #
         # Generate Guess
@@ -188,17 +188,17 @@ class RAp1rog(Geminal):
         #
         # Solve for wavefunction
         #
-        self.solve_wfn(one, two, exps, **{'maxiter': maxiter, 'thresh': thresh,
-                       'guess': initial_guess,
-                       'solver': solver, 'indextrans': indextrans,
-                       'orbitaloptimizer': False})
+        self.solve_model(one, two, orb, **{'maxiter': maxiter, 'thresh': thresh,
+                         'guess': initial_guess,
+                         'solver': solver, 'indextrans': indextrans,
+                         'orbitaloptimizer': False})
 
         #
         # Final print statements:
         #
         if log.do_medium:
             self.print_final()
-            self.dump_final(exps, olp, printoptions, dumpci, -1)
+            self.dump_final(orb, olp, printoptions, dumpci, -1)
         #
         # Sanity check for correlation energy:
         #
@@ -209,7 +209,7 @@ class RAp1rog(Geminal):
         return self.compute_total_energy(), self.geminal
 
     @timer.with_section('AP1roG-SCF')
-    def solve_scf(self, one, two, core, exps, olp, **kwargs):
+    def solve_scf(self, one, two, core, orb, olp, **kwargs):
         '''Find Geminal expansion coefficient for some Hamiltonian.
            For restricted, closed-shell AP1roG.
            Perform orbital optimization.
@@ -223,7 +223,7 @@ class RAp1rog(Geminal):
            core
                 The core energy (not included in 'one' and 'two').
 
-           exps
+           orb
                 An expansion instance. It contains the AO/MO coefficients.
 
            olp
@@ -276,18 +276,16 @@ class RAp1rog(Geminal):
                                                   wfn amplitudes are reconstructed
                                                   (int) (default 1)
                 :stepsearch: line search options (dictionary) containing:
-                              *method: linesearch method used (str). One of
+                              *method: step search method used (str). One of
                                         ``trust-region`` (default), ``None``,
                                         ``backtracking``
-                              *stepa: scaling factor for Newton step (float),
+                              *alpha: scaling factor for Newton step (float),
                                       used in ``backtracking`` and ``None``
-                                      method (default 0.75)
+                                      method (default 1.00)
                               *c1: parameter used in ``backtracking`` (float)
                                    (default 1e-4)
-                              *maxstep: maximum step length/trustradius (float)
-                                        (default 0.75)
-                              *minstep: minimum step length used in ``backracking``
-                                        (float) (default 1e-6)
+                              *minalpha: minimum scaling factor used in ``backracking``
+                                         (float) (default 1e-6)
                               *maxiterouter: maximum number of line search steps
                                              (int) (default 10)
                               *maxiterinner: maximum number of optimization
@@ -302,7 +300,9 @@ class RAp1rog(Geminal):
                               *upscale: scaling factor to increase trustradius
                                         in ``trust-region`` (float) (default 2.0)
                               *downscale: scaling factor to decrease trustradius
-                                          in ``trust-region`` (float) (default 0.25)
+                                          in ``trust-region`` and step length
+                                          in ``backtracking`` (float)
+                                          (default 0.25)
                               *trustradius: initial trustradius (float) (default 0.75)
                               *maxtrustradius: maximum trustradius (float)
                                                (default 0.75)
@@ -329,8 +329,8 @@ class RAp1rog(Geminal):
                             (default np.array([[]]))
                 :orbitaloptimizer: (str) switch variational orbital optimization
                                    on (``variational``) or off (any other value).
-                                   Only, ``variational`` and PS2 are supported
-                                   (default ``variational``).
+                                   Only, ``variational`` and PS2c (``ps2c``)are
+                                   supported (default ``variational``).
         '''
         if log.do_medium:
             log.hline('=')
@@ -376,10 +376,9 @@ class RAp1rog(Geminal):
         printoptions.setdefault('excitationlevel', 1)
         stepsearch = _helper('stepsearch', dict({}))
         stepsearch.setdefault('method', 'trust-region')
-        stepsearch.setdefault('stepa', 1.0)
+        stepsearch.setdefault('alpha', 1.0)
         stepsearch.setdefault('c1', 0.0001)
-        stepsearch.setdefault('maxstep', 0.75)
-        stepsearch.setdefault('minstep', 1e-6)
+        stepsearch.setdefault('minalpha', 1e-6)
         stepsearch.setdefault('maxiterouter', 10)
         stepsearch.setdefault('maxiterinner', 500)
         stepsearch.setdefault('maxeta', 0.75)
@@ -429,7 +428,7 @@ class RAp1rog(Geminal):
         #
         # Modify starting orbitals if needed:
         #
-        self.start_up(exps, swapa, givensrot)
+        self.start_up(orb, swapa, givensrot)
 
         #
         # Update core energy
@@ -439,10 +438,10 @@ class RAp1rog(Geminal):
         #
         # First iteration:
         #
-        self.solve_wfn(one, two, exps, **{'maxiter': maxiter, 'thresh': thresh,
-                       'guess': initial_guess[0], 'guesslm': initial_guess[0],
-                       'solver': solver, 'indextrans': indextrans,
-                       'orbitaloptimizer': orbitaloptimizer})
+        self.solve_model(one, two, orb, **{'maxiter': maxiter, 'thresh': thresh,
+                         'guess': initial_guess[0], 'guesslm': initial_guess[0],
+                         'solver': solver, 'indextrans': indextrans,
+                         'orbitaloptimizer': orbitaloptimizer})
 
         #
         # Update total/corr energy
@@ -457,9 +456,9 @@ class RAp1rog(Geminal):
             log('Entering orbital optimization of AP1roG...')
             log.hline(' ')
             if stepsearch['method']=='trust-region':
-                log('%3s %10s %14s  %10s     %10s   %8s   %6s    %6s    %10s'
+                log('%3s %10s %14s  %10s     %10s   %8s   %6s   %10s'
                      %('step', 'Etot', 'D(Etot)', 'Ecorr', 'D(Ecorr)', 'Max(Grad)',
-                       '|Grad|', 'Step','TrustRegion'))
+                       '|Grad|', 'TrustRegion'))
             else:
                 log('%3s %10s %14s  %10s     %10s   %8s   %6s     %4s' %('step',
                     'Etot', 'D(Etot)', 'Ecorr', 'D(Ecorr)', 'Max(Grad)', '|Grad|',
@@ -470,13 +469,13 @@ class RAp1rog(Geminal):
         #
         # Initialize step search
         #
-        linesearch = RStepSearch(self.lf, **stepsearch)
+        stepsearch_ = RStepSearch(self.lf, **stepsearch)
         while i < maxiter['orbiter']:
             #
             # Copy energies from previous iteration step
             #
-            etot_old = deepcopy(etot)
-            ecorr_old = deepcopy(ecorr)
+            etot_old = copy(etot)
+            ecorr_old = copy(ecorr)
 
             #
             # Calculate orbital gradient and diagonal approximation to the Hessian
@@ -488,22 +487,22 @@ class RAp1rog(Geminal):
             #
             # Apply line search to orbital rotation step 'kappa'
             #
-            linesearch(self, one, two, exps,
-                       **{'kappa': kappa, 'thresh': thresh, 'maxiter': maxiter,
-                          'gradient': gradient, 'hessian': hessian,
-                          'guess': initial_guess[0], 'guesslm': initial_guess[1],
-                          'solver': solver, 'indextrans': indextrans,
-                          'orbitaloptimizer': orbitaloptimizer})
+            stepsearch_(self, one, two, orb,
+                        **{'kappa': kappa, 'thresh': thresh, 'maxiter': maxiter,
+                           'gradient': gradient, 'hessian': hessian,
+                           'guess': initial_guess[0], 'guesslm': initial_guess[1],
+                           'solver': solver, 'indextrans': indextrans,
+                           'orbitaloptimizer': orbitaloptimizer})
 
             #
             # reorder orbitals according to natural occupation numbers
             # works only for varitiational orbital optimization
             #
             if sort and orbitaloptimizer == 'variational':
-                self.sort_natural_orbitals(exps)
+                self.sort_natural_orbitals(orb)
                 # Recalculate WFN:
                 # FIXME: this slows us down.
-                self.solve_wfn(one, two, exps, **{'maxiter': maxiter, 'thresh': thresh,
+                self.solve_model(one, two, orb, **{'maxiter': maxiter, 'thresh': thresh,
                     'guess': initial_guess[0], 'guesslm': initial_guess[0],
                     'solver': solver, 'indextrans': indextrans,
                     'orbitaloptimizer': orbitaloptimizer})
@@ -516,22 +515,21 @@ class RAp1rog(Geminal):
             #
             if log.do_medium:
                 if stepsearch['method']=='trust-region':
-                    log('%3i  %14.8f  %11.8f  %10.8f  %11.8f   %6.5f   %5.2e   %1.2e   %1.2e' %(i+1, (etot), (etot-etot_old),
+                    log('%3i  %14.8f  %11.8f  %10.8f  %11.8f   %6.5f   %5.2e   %1.2e' %(i+1, (etot), (etot-etot_old),
                          ecorr, (ecorr-ecorr_old),
                          gradient.get_max(),
-                         gradient.norm(), linesearch.stepa,
-                         linesearch.trustradius))
+                         gradient.norm(), stepsearch_.trustradius))
                 else:
                     log('%3i  %14.8f  %11.8f  %10.8f  %11.8f   %6.5f   %5.2e   %1.2e' %(i+1, (etot), (etot-etot_old), ecorr,
                          (ecorr-ecorr_old),
                          gradient.get_max(),
-                         gradient.norm(), linesearch.stepa))
+                         gradient.norm(), stepsearch_.alpha))
 
             #
             # Checkpoint for orbitals
             #
             if (i+1)%checkpoint == 0 and checkpoint > 0 and (etot < etot_old):
-                self.do_checkpoint(exps, olp)
+                self.do_checkpoint(orb, olp)
 
             #
             # Check convergence
@@ -542,7 +540,7 @@ class RAp1rog(Geminal):
                     log('Orbital optimization converged in %i iterations' %(i+1))
                     log.hline(' ')
                 break
-            elif self.check_stepsearch(linesearch):
+            elif self.check_stepsearch(stepsearch_):
                 if log.do_medium:
                     log.hline(' ')
                     log('Trustradius too small. Orbital optimization aborted!')
@@ -567,7 +565,7 @@ class RAp1rog(Geminal):
         #
         if log.do_medium:
             self.print_final()
-            self.dump_final(exps, olp, printoptions, dumpci, checkpoint)
+            self.dump_final(orb, olp, printoptions, dumpci, checkpoint)
 
         return self.compute_total_energy(), self.geminal, self.lagrange
 
@@ -779,8 +777,8 @@ class RAp1rog(Geminal):
     #
     # WFN and Lagrange solvers:
     #
-    def solve_wfn(self, one, two, exps, **kwargs):
-        '''Solve for wavefunction.
+    def solve_model(self, one, two, orb, **kwargs):
+        '''Solve for geminal model.
 
            **Arguments:**
 
@@ -788,7 +786,7 @@ class RAp1rog(Geminal):
                 One- and two-body integrals (some Hamiltonian matrix elements)
                 expressed in the AO basis. A TwoIndex and FourIndex instance
 
-           exps
+           orb
                 An expansion instance which contains the AO/MO coefficients.
 
            **Keywords:**
@@ -813,7 +811,7 @@ class RAp1rog(Geminal):
         #
         # Transform integrals into MO basis
         #
-        one_mo, two_mo = transform_integrals(one, two, indextrans, exps)
+        one_mo, two_mo = transform_integrals(one, two, indextrans, orb)
 
         #
         # Generate auxiliary matrices needed for optimization
@@ -840,7 +838,7 @@ class RAp1rog(Geminal):
             #
             self.clear_dm()
             self.update_one_dm('response')
-            exps.assign_occupations(self.one_dm_response)
+            orb.assign_occupations(self.one_dm_response)
 
 
     @timer.with_section('ProjectedSEq')
@@ -1111,23 +1109,24 @@ class RAp1rog(Geminal):
                Orbital otimization method (str) (default 'variational')
 
         '''
+        check_options('orbitaloptimizer', optimizer, 'variational', 'ps2c')
+        #
+        # Switch between different orbital optimization schemes
+        #
+        ps2c = (optimizer == 'ps2c')
+        #
         # Calculate orbital gradient and diagonal approximation to the Hessian
-        if optimizer == 'variational':
-            grad = self.compute_orbital_gradient()
-            #
-            # We use a diagonal Hessian
-            #
-            hessian = self.compute_orbital_hessian(lshift, pos)
-            kappa = grad.divide(hessian, -1.0)
-        elif optimizer == 'ps2c':
-            grad = self.compute_orbital_gradient(True)
-            #
-            # We use a diagonal Hessian
-            #
-            hessian = self.compute_orbital_hessian(lshift, pos, True)
-            kappa = grad.divide(hessian, -1.0)
-        else:
-            raise NotImplementedError
+        #
+        grad = self.compute_orbital_gradient(ps2c)
+        #
+        # We use a diagonal Hessian
+        #
+        hessian = self.compute_orbital_hessian(lshift, pos, ps2c)
+        #
+        # Orbital rotation step
+        #
+        kappa = grad.divide(hessian, -1.0)
+
         return kappa, grad, hessian
 
     #
@@ -1596,8 +1595,6 @@ class RAp1rog(Geminal):
         hessian.iadd_one_mult(vmatdiag, onedm, -4.0, True, True)
         hessian.iadd_one_mult(vmatdiag, onedm, -4.0, False, False)
 
-        self.clear_dm()
-
         #
         # Make everything positive
         #
@@ -1628,7 +1625,7 @@ class RAp1rog(Geminal):
                 FourIndex instances)
         '''
         #
-        # exact orbital Hessia output hessian_pq,rs
+        # exact orbital Hessian output hessian_pq,rs
         #
         hessian = self.lf.create_four_index()
         #
@@ -1746,24 +1743,24 @@ class RAp1rog(Geminal):
 
         return out._array
 
-    def sort_natural_orbitals(self, exps):
+    def sort_natural_orbitals(self, orb):
         '''Sort orbitals w.r.t. the natural occupation numbers
 
            **Arguments:**
 
-           exps
+           orb
                 The AO/MO coefficients (natural orbitals) and the natural
                 occupation numbers (Expansion instance)
         '''
         #
-        # Take natural occupation numbers from exps.occupations
+        # Take natural occupation numbers from orb.occupations
         #
         onedm = self.lf.create_one_index()
-        onedm.assign(exps.occupations)
+        onedm.assign(orb.occupations)
         order = onedm.sort_indices()
         orderref = np.arange(self.nbasis)
         if not (order == orderref).all():
-            exps.permute_orbitals(order)
+            orb.permute_orbitals(order)
 
     def print_solution(self, cithresh=0.01, excitationlevel=2,
                        amplitudestofile=False, filename="./ap1rog_amplitudes"):
@@ -1795,12 +1792,9 @@ class RAp1rog(Geminal):
         for i in range(excitationlevel):
             it.append(np.nditer(coeff,flags=['multi_index']))
         if amplitudestofile:
-            filea = open(filename, 'w')
-            filea.write('{0:30} {1:20}'.format('Determinant','Amplitude\n'))
-            filea.write('{0:1} {1:20.16f}'.format(self.get_slater_determinant((-1,-1)), 1.0))
-            filea.close()
-            filea = open(filename, 'a')
-            filea.write("\n")
+            with open(filename, 'w') as filea:
+                filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant((-1,-1)), 1.0))
+                filea.write("\n")
         else:
             print '{0:10} {1:20.16f}'.format(self.get_slater_determinant((-1,-1)), 1.0)
         for i in range(excitationlevel):
@@ -1808,8 +1802,9 @@ class RAp1rog(Geminal):
                 for ci in it[0]:
                     if math.fabs(ci) >= (cithresh):
                         if amplitudestofile is True:
-                            filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index), float(ci)))
-                            filea.write("\n")
+                            with open(filename, 'a') as filea:
+                                filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index), float(ci)))
+                                filea.write("\n")
                         else:
                             print '{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index), float(ci))
             if self.nocc > 1:
@@ -1829,8 +1824,9 @@ class RAp1rog(Geminal):
                                         amplitude = self.perm(matrix)
                                         if (math.fabs(amplitude) >= cithresh):
                                             if amplitudestofile is True:
-                                                filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index), amplitude))
-                                                filea.write("\n")
+                                                with open(filename, 'a') as filea:
+                                                    filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index), amplitude))
+                                                    filea.write("\n")
                                             else:
                                                 print '{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index), amplitude)
                                         matrix = np.identity(self.nocc)
@@ -1860,14 +1856,13 @@ class RAp1rog(Geminal):
                                                     amplitude = self.perm(matrix)
                                                     if (math.fabs(amplitude) >= cithresh):
                                                         if amplitudestofile is True:
-                                                            filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
-                                                                                                                           it[2].multi_index),
-                                                                                               amplitude))
-                                                            filea.write("\n")
+                                                            with open(filename, 'a') as filea:
+                                                                filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
+                                                                                                                                   it[2].multi_index), amplitude))
+                                                                filea.write("\n")
                                                         else:
                                                             print '{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
-                                                                                                                      it[2].multi_index),
-                                                                                          amplitude)
+                                                                                                                         it[2].multi_index), amplitude)
                                                     matrix = np.identity(self.nocc)
                 if i==3:
                     for ci in it[0]:
@@ -1907,10 +1902,10 @@ class RAp1rog(Geminal):
                                                                 amplitude = self.perm(matrix)
                                                                 if (math.fabs(amplitude) >= cithresh):
                                                                     if amplitudestofile is True:
-                                                                        filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
-                                                                                                                                       it[2].multi_index,it[3].multi_index),
-                                                                                                           amplitude))
-                                                                        filea.write("\n")
+                                                                        with open(filename, 'a') as filea:
+                                                                            filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
+                                                                                        it[2].multi_index,it[3].multi_index), amplitude))
+                                                                            filea.write("\n")
                                                                     else:
                                                                         print '{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
                                                                                                                                   it[2].multi_index,it[3].multi_index),
@@ -1968,16 +1963,14 @@ class RAp1rog(Geminal):
                                                             amplitude = self.perm(matrix)
                                                             if (math.fabs(amplitude) >= cithresh):
                                                                 if amplitudestofile is True:
-                                                                    filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
-                                                                                                                                   it[2].multi_index,it[3].multi_index,
-                                                                                                                                   it[4].multi_index),
-                                                                                                       amplitude))
-                                                                    filea.write("\n")
+                                                                    with open(filename, 'a') as filea:
+                                                                        filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
+                                                                                    it[2].multi_index,it[3].multi_index, it[4].multi_index), amplitude))
+                                                                        filea.write("\n")
                                                                 else:
                                                                     print '{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
-                                                                                                                              it[2].multi_index,it[3].multi_index,
-                                                                                                                              it[4].multi_index),
-                                                                                                  amplitude)
+                                                                                                     it[2].multi_index,it[3].multi_index, it[4].multi_index),
+                                                                                                     amplitude)
                                                             matrix = np.identity(self.nocc)
                 if i==5:
                     for ci in it[0]:
@@ -2048,16 +2041,16 @@ class RAp1rog(Geminal):
                                                                     amplitude = self.perm(matrix)
                                                                     if (math.fabs(amplitude) >= cithresh):
                                                                         if amplitudestofile is True:
-                                                                            filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
-                                                                                                                                           it[2].multi_index,it[3].multi_index,
-                                                                                                                                           it[4].multi_index,it[5].multi_index),
-                                                                                                               amplitude))
-                                                                            filea.write("\n")
+                                                                            with open(filename, 'a') as filea:
+                                                                                filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
+                                                                                            it[2].multi_index,it[3].multi_index, it[4].multi_index,it[5].multi_index),
+                                                                                            amplitude))
+                                                                                filea.write("\n")
                                                                         else:
                                                                             print '{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
-                                                                                                                                      it[2].multi_index,it[3].multi_index,
-                                                                                                                                      it[4].multi_index,it[5].multi_index),
-                                                                                                          amplitude)
+                                                                                                             it[2].multi_index,it[3].multi_index,
+                                                                                                             it[4].multi_index,it[5].multi_index),
+                                                                                                             amplitude)
                                                                     matrix = np.identity(self.nocc)
                 if i==6:
                     for ci in it[0]:
@@ -2145,18 +2138,16 @@ class RAp1rog(Geminal):
                                                                             amplitude = self.perm(matrix)
                                                                             if (math.fabs(amplitude) >= cithresh):
                                                                                 if amplitudestofile is True:
-                                                                                    filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
-                                                                                                                                                      it[2].multi_index,it[3].multi_index,
-                                                                                                                                                      it[4].multi_index,it[5].multi_index,
-                                                                                                                                                      it[6].multi_index),
-                                                                                                                          amplitude))
-                                                                                    filea.write("\n")
+                                                                                    with open(filename, 'a') as filea:
+                                                                                        filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
+                                                                                                    it[2].multi_index,it[3].multi_index, it[4].multi_index,it[5].multi_index,
+                                                                                                    it[6].multi_index), amplitude))
+                                                                                        filea.write("\n")
                                                                                 else:
                                                                                     print '{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
                                                                                                                                               it[2].multi_index,it[3].multi_index,
                                                                                                                                               it[4].multi_index,it[5].multi_index,
-                                                                                                                                              it[6].multi_index),
-                                                                                                                  amplitude)
+                                                                                                                                              it[6].multi_index), amplitude)
                                                                             matrix = np.identity(self.nocc)
             if (amplitudestofile is True):
                 filea.close()
@@ -2191,12 +2182,12 @@ class RAp1rog(Geminal):
 
         return str(sd).translate(None, ", ")
 
-    def do_checkpoint(self, exps, olp):
+    def do_checkpoint(self, orb, olp):
         '''Dump orbitals for restart
 
            **Arguments:**
 
-           exps
+           orb
                 An expansion instance. AO/MO coefficients stored to disk
 
            olp
@@ -2204,12 +2195,10 @@ class RAp1rog(Geminal):
                 at different molecular geometry.
         '''
         import h5py
-        forb = h5py.File("orb.hdf5", "w")
-        folp = h5py.File("olp.hdf5", "w")
-        exps.to_hdf5(forb)
-        forb.close()
-        olp.to_hdf5(folp)
-        folp.close()
+        with h5py.File("orb.hdf5", "w") as forb:
+            orb.to_hdf5(forb)
+        with h5py.File("olp.hdf5", "w") as folp:
+            olp.to_hdf5(folp)
 
     def print_final(self, s='Final'):
         '''Print energies
@@ -2226,13 +2215,13 @@ class RAp1rog(Geminal):
         log('%s total Energy:         %16.12f' %(s, (self.compute_total_energy())))
         log.hline('=')
 
-    def dump_final(self, exps, olp, printoptions, dumpci, checkpoint):
+    def dump_final(self, orb, olp, printoptions, dumpci, checkpoint):
         '''Dump final solution (orbitals, wavefunction amplitudes, geminal
            coefficients)
 
            **Arguments:**
 
-           exps
+           orb
                 An expansion instance. AO/MO coefficients stored to disk
 
            olp
@@ -2247,7 +2236,7 @@ class RAp1rog(Geminal):
         if checkpoint > 0:
             if log.do_medium:
                 log('Writing orbitals to file')
-            self.do_checkpoint(exps, olp)
+            self.do_checkpoint(orb, olp)
             if log.do_medium:
                 log.hline('-')
                 log('Final solution for coefficients: (only printed if |c_i| > %f)' %printoptions['ci'])
@@ -2352,23 +2341,16 @@ class RAp1rog(Geminal):
                 log('  max number of optimizations: %i' %stepsearch['maxiterinner'])
                 log('  optimization threshold:      %1.2e' %stepsearch['threshold'])
                 log('  optimizer:                   %s' %stepsearch['optimizer'])
-            elif stepsearch['method']=='wolfe':
-                log('Apply line search:')
-                log('  line search method:          %s' %stepsearch['method'])
-                log('  initial step size:           %1.3f' %stepsearch['stepa'])
-                log('  maximum step size:           %2.3f' %stepsearch['maxstep'])
-                log('  contraction factor:          %1.3f' %stepsearch['downscale'])
-                log('  c1 factor:                   %1.3e' %stepsearch['c1'])
             elif stepsearch['method']=='backtracking':
                 log('Apply line search:')
                 log('  line search method:          %s' %stepsearch['method'])
-                log('  initial step size:           %1.3f' %stepsearch['stepa'])
+                log('  initial scaling factor:      %1.3f' %stepsearch['alpha'])
                 log('  contraction factor:          %1.3f' %stepsearch['downscale'])
                 log('  c1 factor:                   %1.3e' %stepsearch['c1'])
-                log('  minimum step size:           %1.3e' %stepsearch['minstep'])
+                log('  minimum scaling factor:      %1.3e' %stepsearch['minalpha'])
             else:
-                log('No linesearch selected:')
-                log('  step size:                   %1.3f' %stepsearch['stepa'])
+                log('No step search selected:')
+                log('  scaling factor:              %1.3f' %stepsearch['alpha'])
             log('Optimization thresholds:')
             log('  wavefunction:                %1.2e' %thresh['wfn'])
             log('  energy:                      %1.2e' %thresh['energy'])
@@ -2378,7 +2360,7 @@ class RAp1rog(Geminal):
             log('  c_i:                         %1.2e' %printoptions['ci'])
             log('  excitation level:            %i' %printoptions['excitationlevel'])
 
-    def start_up(self, exps, swapa, givensrot=np.array([[]])):
+    def start_up(self, orb, swapa, givensrot=np.array([[]])):
         '''Modify orbitals prior to optimization
 
            **Arguments:**
@@ -2399,7 +2381,7 @@ class RAp1rog(Geminal):
             if log.do_medium:
                 log.hline('~')
                 log('Swap orbitals:')
-            exps.swap_orbitals(swapa)
+            orb.swap_orbitals(swapa)
         if givensrot.any():
             if log.do_medium:
                 log.hline('~')
@@ -2410,7 +2392,7 @@ class RAp1rog(Geminal):
                 index0, index1, angle = givensrot[irot]
                 if log.do_medium:
                     log('Rotating orbitals %i and %i' %(index0, index1))
-                exps.rotate_2orbitals(angle, index0, index1)
+                orb.rotate_2orbitals(angle, index0, index1)
 
     def compute_objective_function(self, coeff=None):
         '''Objective function for line search optimization

@@ -41,6 +41,8 @@ from horton.log import log, timer
 from horton.cache import Cache
 from horton.utils import check_type, check_options
 from horton.orbital_utils import transform_integrals
+from horton.matrix.base import LinalgFactory, LinalgObject, OneIndex, \
+    Expansion, TwoIndex, ThreeIndex, FourIndex
 
 
 __all__ = [
@@ -174,17 +176,19 @@ class Perturbation(object):
                Hamiltonian matrix elements) expressed in the AO basis.
 
            args
-               If Psi_0 = RHF, first arguement are the AO/MO coefficients
-               (Expansion instance), if Psi_0 = AP1roG, the second arguement
-               are the geminal coefficients (TwoIndex).
+               If Psi_0 = RHF, first argument is the AO/MO coefficient matrix
+               (Expansion instance), if Psi_0 = AP1roG, the second argument
+               is the geminal coefficient matrix (TwoIndex).
 
            **Keywords:**
                Contains reference energy and solver specific input parameters:
-                * eref: (float) reference energy (default value floate('nan'))
-                * ecore: (float) core energy (default value floate('nan'))
+                * eref: (float) reference energy (default value float('nan'))
+                * ecore: (float) core energy (default value float('nan'))
                 * threshold: (float) tolerance for amplitudes (default 1e-6)
                 * maxiter: (int) maximum number of iterations (default 200)
                 * guess: (np.array) initial guess (default None)
+                * indextrans: (str) 4-index transformation. One of ``einsum``,
+                              ``tensordot`` (default ``tensordot``)
 
            **Returns**
                 List of energy contributions (total energy, seniority-0,
@@ -208,7 +212,7 @@ class Perturbation(object):
         self.check_input(**kwargs)
 
         #
-        # Append arguements, used as arguments in root finding:
+        # Append arguments, used as arguments in root finding:
         #
         fargs = []
         for arg in args:
@@ -217,19 +221,20 @@ class Perturbation(object):
         #
         # Transform integrals:
         #
-        mo1, mo2 = transform_integrals(one, two, 'tensordot', fargs[0])
+        indextrans = kwargs.get('indextrans', 'tensordot')
+        mo1, mo2 = transform_integrals(one, two, indextrans, fargs[0])
         for int1 in mo1:
             fargs.append(int1)
         for int2 in mo2:
             fargs.append(int2)
 
         #
-        # Construct auxilary matrices:
+        # Construct auxiliary matrices (checks also type of arguments):
         #
         matrix = self.calculate_aux_matrix(fargs)
 
         #
-        # Append arguements, used as arguments in root finding:
+        # Append arguments, used as arguments in root finding:
         #
         for mat in matrix:
             fargs.append(mat)
@@ -247,7 +252,7 @@ class Perturbation(object):
         self.print_energy(**kwargs)
 
         #
-        # Make sanity checks. If somethings is wrong, abord calculation:
+        # Make sanity checks. If somethings is wrong, abort calculation:
         #
         self.check_result(**kwargs)
 
@@ -284,6 +289,9 @@ class RMP2(Perturbation):
                 :eref: reference energy
                 :threshold: threshold for symmetry check of MP2 amplitudes
         '''
+        check_type('args[0]', args[0], Expansion)
+        check_type('args[1]', args[1], TwoIndex)
+        check_type('args[2]', args[2], FourIndex)
         #
         # Calculate excitation matrix <jb|kc>
         #
@@ -499,6 +507,17 @@ class PTa(Perturbation):
                     * [9]:  dcjb auxilary matrix
 
         '''
+        check_type('args[0]', args[0], Expansion)
+        check_type('args[1]', args[1], TwoIndex)
+        check_type('args[2]', args[2], TwoIndex)
+        check_type('args[3]', args[3], FourIndex)
+        check_type('args[4]', args[4], TwoIndex)
+        check_type('args[5]', args[5], ThreeIndex)
+        check_type('args[6]', args[6], ThreeIndex)
+        check_type('args[7]', args[7], ThreeIndex)
+        check_type('args[8]', args[8], ThreeIndex)
+        check_type('args[9]', args[9], TwoIndex)
+
         e0 = kwargs.get('eref')-kwargs.get('ecore')
 
         #
@@ -653,6 +672,9 @@ class PTa(Perturbation):
                 List of arguements. Only geminal coefficients [1], one- [2] and
                 two-body [3] integrals are used.
         '''
+        check_type('args[1]', args[1], TwoIndex)
+        check_type('args[2]', args[2], TwoIndex)
+        check_type('args[3]', args[3], FourIndex)
         self.clear_aux_matrix()
         return self.update_aux_matrix(args[2], args[3], args[1])
 
@@ -824,7 +846,7 @@ class PTa(Perturbation):
     def check_input(self, **kwargs):
         '''Check input parameters.'''
         for name, value in kwargs.items():
-            check_options(name, name, 'ecore', 'eref', 'threshold')
+            check_options(name, name, 'ecore', 'eref', 'threshold', 'indextrans')
         eref = kwargs.get('eref', float('nan'))
         ecore = kwargs.get('ecore', float('nan'))
         if math.isnan(eref):
@@ -876,10 +898,24 @@ class PTb(Perturbation):
         initguess = kwargs.get('guess', None)
 
         #
-        # Append el energy of principle det to function arguements:
+        # Append el energy of principle det to function arguments:
         #
         args.append((eref-ecore))
 
+        #
+        # Check argument type prior optimization:
+        #
+        check_type('args[0]', args[0], Expansion)
+        check_type('args[1]', args[1], TwoIndex)
+        check_type('args[2]', args[2], TwoIndex)
+        check_type('args[3]', args[3], FourIndex)
+        check_type('args[4]', args[4], TwoIndex)
+        check_type('args[5]', args[5], ThreeIndex)
+        check_type('args[6]', args[6], ThreeIndex)
+        check_type('args[7]', args[7], ThreeIndex)
+        check_type('args[8]', args[8], ThreeIndex)
+        check_type('args[9]', args[9], TwoIndex)
+        check_type('args[10]', args[10], float)
         #
         # Get initial guess:
         #
@@ -1202,6 +1238,9 @@ class PTb(Perturbation):
            args
                 List of arguements. Only geminal coefficients are used.
         '''
+        check_type('args[1]', args[1], TwoIndex)
+        check_type('args[2]', args[2], TwoIndex)
+        check_type('args[3]', args[3], FourIndex)
         self.clear_aux_matrix()
         return self.update_aux_matrix(args[2], args[3], args[1])
 
