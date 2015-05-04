@@ -46,7 +46,7 @@ class ScreenLog(object):
     debug = 5
 
     # screen parameter
-    width = 80
+    width = 100
 
     def __init__(self, name, version, head_banner, foot_banner, timer, f=None):
         self.name = name

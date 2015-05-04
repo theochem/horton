@@ -1765,7 +1765,7 @@ class RAp1rog(Geminal):
     def print_solution(self, cithresh=0.01, excitationlevel=2,
                        amplitudestofile=False, filename="./ap1rog_amplitudes"):
         '''Print coefficients {ci} and Slater Determinant if |ci| > threshold.
-           Prints up to heptuply excited pairs.
+           Prints up to hextuply excited pairs.
 
            **Optional arguments:**
 
@@ -1796,7 +1796,7 @@ class RAp1rog(Geminal):
                 filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant((-1,-1)), 1.0))
                 filea.write("\n")
         else:
-            print '{0:10} {1:20.16f}'.format(self.get_slater_determinant((-1,-1)), 1.0)
+            log('%s %20.16f' %(self.get_slater_determinant((-1,-1)), 1.0))
         for i in range(excitationlevel):
             if i==0:
                 for ci in it[0]:
@@ -1806,7 +1806,7 @@ class RAp1rog(Geminal):
                                 filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index), float(ci)))
                                 filea.write("\n")
                         else:
-                            print '{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index), float(ci))
+                            log('%s %20.16f' %(self.get_slater_determinant(it[0].multi_index), float(ci)))
             if self.nocc > 1:
                 for index in range((i+1)):
                     it[index] = np.nditer(coeff,flags=['multi_index'])
@@ -1828,7 +1828,7 @@ class RAp1rog(Geminal):
                                                     filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index), amplitude))
                                                     filea.write("\n")
                                             else:
-                                                print '{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index), amplitude)
+                                                log('%s %20.16f' %(self.get_slater_determinant(it[0].multi_index,it[1].multi_index), amplitude))
                                         matrix = np.identity(self.nocc)
                 if i==2:
                     for ci in it[0]:
@@ -1861,8 +1861,8 @@ class RAp1rog(Geminal):
                                                                                                                                    it[2].multi_index), amplitude))
                                                                 filea.write("\n")
                                                         else:
-                                                            print '{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
-                                                                                                                         it[2].multi_index), amplitude)
+                                                            log('%s %20.16f' %(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
+                                                                                                           it[2].multi_index), amplitude))
                                                     matrix = np.identity(self.nocc)
                 if i==3:
                     for ci in it[0]:
@@ -1907,9 +1907,8 @@ class RAp1rog(Geminal):
                                                                                         it[2].multi_index,it[3].multi_index), amplitude))
                                                                             filea.write("\n")
                                                                     else:
-                                                                        print '{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
-                                                                                                                                  it[2].multi_index,it[3].multi_index),
-                                                                                                      amplitude)
+                                                                        log('%s %20.16f' %(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
+                                                                                           it[2].multi_index,it[3].multi_index), amplitude))
                                                                 matrix = np.identity(self.nocc)
                 if i==4:
                     for ci in it[0]:
@@ -1968,9 +1967,8 @@ class RAp1rog(Geminal):
                                                                                     it[2].multi_index,it[3].multi_index, it[4].multi_index), amplitude))
                                                                         filea.write("\n")
                                                                 else:
-                                                                    print '{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
-                                                                                                     it[2].multi_index,it[3].multi_index, it[4].multi_index),
-                                                                                                     amplitude)
+                                                                    log('%s %20.16f' %(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
+                                                                                       it[2].multi_index,it[3].multi_index, it[4].multi_index), amplitude))
                                                             matrix = np.identity(self.nocc)
                 if i==5:
                     for ci in it[0]:
@@ -2047,10 +2045,9 @@ class RAp1rog(Geminal):
                                                                                             amplitude))
                                                                                 filea.write("\n")
                                                                         else:
-                                                                            print '{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
-                                                                                                             it[2].multi_index,it[3].multi_index,
-                                                                                                             it[4].multi_index,it[5].multi_index),
-                                                                                                             amplitude)
+                                                                            log('%s %20.16f' %(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
+                                                                                               it[2].multi_index,it[3].multi_index, it[4].multi_index,it[5].multi_index),
+                                                                                               amplitude))
                                                                     matrix = np.identity(self.nocc)
                 if i==6:
                     for ci in it[0]:
@@ -2144,13 +2141,11 @@ class RAp1rog(Geminal):
                                                                                                     it[6].multi_index), amplitude))
                                                                                         filea.write("\n")
                                                                                 else:
-                                                                                    print '{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
-                                                                                                                                              it[2].multi_index,it[3].multi_index,
-                                                                                                                                              it[4].multi_index,it[5].multi_index,
-                                                                                                                                              it[6].multi_index), amplitude)
+                                                                                    log('%s %20.16f' %(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
+                                                                                                       it[2].multi_index,it[3].multi_index,
+                                                                                                       it[4].multi_index,it[5].multi_index,
+                                                                                                       it[6].multi_index), amplitude))
                                                                             matrix = np.identity(self.nocc)
-            if (amplitudestofile is True):
-                filea.close()
 
     def get_slater_determinant(self, *indices):
         '''Return excited Slater Determinant.
@@ -2254,17 +2249,16 @@ class RAp1rog(Geminal):
     def print_geminal_coefficients(self):
         '''Print geminal coefficients
         '''
-        count = 1
-        print "      ",
-        for nvirti in range(self.nvirt):
-            print "%9i" %(nvirti+1+self.nocc),
-        print
+        log.hline('')
+        s = ''.join(str('%11i' %(i+1+self.nocc)) for i in range(self.nvirt))
+        log("  "+s)
+        log.hline('')
         for line in range(self.nocc):
-            print "%5i %s" %(count,":  "),
+            s = str('%2i :     ' %(line+1))
+            s2 = ''
             for row in range(self.nvirt):
-                print "%9.6f" %self.geminal.get_element(line, row),
-            print
-            count = count+1
+                s2 += ' '+str('%10.6f' %(self.geminal.get_element(line, row)))
+            log(s+s2)
 
     def print_options(self, guess, solver, maxiter, thresh,
                       printoptions, indextrans):
