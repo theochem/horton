@@ -106,7 +106,7 @@ class Geminal(object):
         self._geminal = lf.create_two_index(npairs, nvirt)
         self._lagrange = lf.create_two_index(npairs, nvirt)
 
-    def __call__(self, one, two, core, exps, olp, orb, **kwargs):
+    def __call__(self, one, two, core, orb, olp, scf, **kwargs):
         '''Optimize geminal coefficients and---if required---find
            optimal set of orbitals.
 
@@ -119,28 +119,29 @@ class Geminal(object):
            core
                 The core energy (not included in 'one' and 'two').
 
-           exps
-                An expansion instance. It contains the AO/MO coefficients.
+           orb
+                An expansion instance. It contains the AO/MO coefficients
+                (orbitals).
 
            olp
                 The AO overlap matrix. A TwoIndex instance.
 
-           orb
+           scf
                 A boolean. If True: Initializes orbital optimization.
 
            **Keywords:**
                 See :py:meth:`RAp1rog.solve`
                 and :py:meth:`RAp1rog.solve_scf`
         '''
-        if orb:
-            return self.solve_scf(one, two, core, exps, olp, **kwargs)
+        if scf:
+            return self.solve_scf(one, two, core, orb, olp, **kwargs)
         else:
-            return self.solve(one, two, core, exps, olp, **kwargs)
+            return self.solve(one, two, core, orb, olp, **kwargs)
 
-    def solve(self, one, two, core, exps, olp, **kwargs):
+    def solve(self, one, two, core, orb, olp, **kwargs):
         raise NotImplementedError
 
-    def solve_scf(self, one, two, core, exps, olp, **kwargs):
+    def solve_scf(self, one, two, core, orb, olp, **kwargs):
         raise NotImplementedError
 
     def _get_nbasis(self):

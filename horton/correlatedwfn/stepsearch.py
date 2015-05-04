@@ -18,9 +18,12 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Linesearch Methods
+'''Step search methods for orbital rotations
 
-   Optimize step length for orbital optimization
+   Optimize step length for orbital optimization (``kappa``) and rotate orbitals.
+
+   Works only with diagonal approximation to the Hessian which is stored as a
+   OneIndex instance.
 '''
 
 
@@ -45,18 +48,16 @@ class StepSearch(object):
                 A LinalgFactory instance
 
            **Keywords:**
-                :method: linesearch method used, one of ``trust-region``
+                :method: step search method used, one of ``trust-region``
                          (default), ``None``, ``backtracking``
-                :stepa: scaling factor for step, used in ``backtracking`` and
+                :alpha: scaling factor for step, used in ``backtracking`` and
                         ``None`` method (default 0.75)
                 :c1: parameter used in ``backtracking`` (default 1e-4)
-                :maxstep: maximum step length used in ``backtracking``
-                          (default 0.75)
-                :minstep: minimum step length used in ``backracking``
-                          (default 1e-6)
-                :maxiterouter: maximum number of line search steps (default 10)
+                :minalpha: minimum step length used in ``backracking``
+                           (default 1e-6)
+                :maxiterouter: maximum number of step search steps (default 10)
                 :maxiterinner: maximum number of optimization steps in each
-                               line search step (used only in pcg, default 500)
+                               step search step (used only in pcg, default 500)
                 :maxeta: upper bound for estimated vs actual change in
                          ``trust-region`` (default 0.75)
                 :mineta: lower bound for estimated vs actual change in
@@ -73,15 +74,35 @@ class StepSearch(object):
                             ``pcg``, ``dogleg``, ``ddl`` (default ddl)
         """
         self.lf = lf
-        names = ["method", "maxstep", "maxeta", "mineta",
-                 "upscale", "downscale", "maxiterouter", "maxiterinner",
-                 "stepa", "stepb", "c1", "minstep", "trustradius",
-                 "threshold", "optimizer", "maxtrustradius"]
+        #
+        # Check keywords and set default arguments
+        #
+        names = []
+        def _helper(x,y):
+            names.append(x)
+            kw.setdefault(x,y)
+        _helper('method', 'trust-region')
+        _helper('alpha', 1.0)
+        _helper('c1', 0.0001)
+        _helper('minalpha', 1e-6)
+        _helper('maxiterouter', 10)
+        _helper('maxiterinner', 500)
+        _helper('maxeta', 0.75)
+        _helper('mineta', 0.25)
+        _helper('upscale', 2.0)
+        _helper('downscale', 0.25)
+        _helper('trustradius', 0.75)
+        _helper('maxtrustradius', 0.75)
+        _helper('threshold', 1e-8)
+        _helper('optimizer', 'ddl')
+
         for name, value in kw.items():
             if name not in names:
                 raise ValueError("Unknown keyword argument %s" % name)
             if value is not None:
                 setattr(self, name, kw[name])
+
+        self.alpha0 = kw.get('alpha')
 
         def _get_lf(self):
             return self.lf
@@ -92,11 +113,6 @@ class StepSearch(object):
             return kw.pop('method')
 
         method = property(_get_method)
-
-        def _get_maxstep(self):
-            return kw.pop('maxstep')
-
-        maxstep = property(_get_maxstep)
 
         def _get_maxeta(self):
             return kw.pop('maxeta')
@@ -128,15 +144,15 @@ class StepSearch(object):
 
         maxiterinner = property(_get_maxiterinner)
 
-        def _get_stepa(self):
-            return kw.pop('stepa')
+        def _get_alpha(self):
+            return kw.pop('alpha')
 
-        stepa = property(_get_stepa)
+        alpha = property(_get_alpha)
 
-        def _get_minstep(self):
-            return kw.pop('minstep')
+        def _get_minalpha(self):
+            return kw.pop('minalpha')
 
-        minstep = property(_get_minstep)
+        minalpha = property(_get_minalpha)
 
         def _get_c1(self):
             return kw.pop('c1')
@@ -168,18 +184,18 @@ class StepSearch(object):
         '''
         self.trustradius = new
 
-    def update_stepa(self, new):
-        '''Update current stepsize (for alpha-spin)
+    def update_alpha(self, new):
+        '''Update current scaling factor
         '''
-        self.stepa = new
+        self.alpha = new
 
-    def __call__(self, obj, one, two, exps, **kwargs):
+    def __call__(self, obj, one, two, orb, **kwargs):
         raise NotImplementedError
 
 
 class RStepSearch(StepSearch):
     @timer.with_section('Linesearch')
-    def __call__(self, obj, one, two, exps, **kwargs):
+    def __call__(self, obj, one, two, orb, **kwargs):
         '''Optimize Newton-Rapshon step.
 
            **Arguments:**
@@ -190,141 +206,158 @@ class RStepSearch(StepSearch):
            one, two
                 One- and Two-electron integrals
 
-           exps
+           orb
                 An Expansion instance. Contains the AO/MO coefficients
 
            **Keywords:**
 
         '''
         if self.method == 'None':
-            self.do_no_linesearch(obj, one, two, exps, **kwargs)
+            self.do_no_stepsearch(obj, one, two, orb, **kwargs)
         elif self.method == 'backtracking':
-            self.do_backtracking(obj, one, two, exps, **kwargs)
+            self.do_backtracking(obj, one, two, orb, **kwargs)
         elif self.method == 'trust-region':
-            self.do_trust_region(obj, one, two, exps, **kwargs)
+            self.do_trust_region(obj, one, two, orb, **kwargs)
         else:
             raise NotImplementedError
 
-    def do_no_linesearch(self, obj, one, two, exps, **kwargs):
-        '''Scale step size with factor self.stepa
+    def do_no_stepsearch(self, obj, one, two, orb, **kwargs):
+        '''Scale step size with factor self.alpha
 
            **Arguments:**
 
            obj
-                A class instance containing the wfn.
+                A class instance containing the objective function.
 
            one, two
                 One- and Two-electron integrals
 
-           exps
+           orb
                 An Expansion instance. Contains the AO/MO coefficients
 
            **Keywords:**
-                :kappa: Initial step size
-
+                :kappa: Initial step size (OneIndex instance)
         '''
         kappa = kwargs.get('kappa')
 
         #
         # Scale current optimization step, rotate orbitals
         #
-        kappa.iscale(self.stepa)
+        kappa.iscale(self.alpha)
         rotation = obj.compute_rotation_matrix(kappa)
-        rotate_orbitals(exps, rotation)
+        rotate_orbitals(orb, rotation)
 
         #
-        # Solve for wfn
+        # Solve for wfn/population model
         #
-        obj.solve_wfn(one, two, exps, **kwargs)
+        try:
+            obj.solve_model(one, two, orb, **kwargs)
+        except:
+            pass
 
-    def do_backtracking(self, obj, one, two, exps, **kwargs):
+    def do_backtracking(self, obj, one, two, orb, **kwargs):
         '''Backtracking line search.
 
            **Arguments:**
 
            obj
-                A class instance containing the wfn.
+                A class instance containing the objctive function.
 
            one, two
                 One- and Two-electron integrals
 
-           exps
+           orb
                 An Expansion instance. Contains the AO/MO coefficients
 
            **Keywords:**
-                :kappa: Initial step size
-                :gradient: Orbital gradient
+                :kappa: Initial step size (OneIndex instance)
+                :gradient: Orbital gradient (OneIndex instance)
         '''
         kappa = kwargs.get('kappa')
         gradient = kwargs.get('gradient', None)
 
-        self.update_stepa(self.maxstep)
+        #
+        # Update scaling factor to initial value
+        #
+        self.update_alpha(self.alpha0)
+
+        #
+        # Calculate objective function
+        #
         ofun_ref = obj.compute_objective_function()
+
         #
         # Copy current orbitals
         #
-        orb = exps.copy()
+        orb_ = orb.copy()
         #
         # Initial rotation
         #
-        kappa.iscale(self.stepa)
+        kappa.iscale(self.alpha)
         rotation = obj.compute_rotation_matrix(kappa)
-        rotate_orbitals(orb, rotation)
+        rotate_orbitals(orb_, rotation)
 
         #
-        # Solve for wfn
+        # Solve for wfn/population model if required
         #
-        obj.solve_wfn(one, two, orb, **kwargs)
+        try:
+            obj.solve_model(one, two, orb_, **kwargs)
+        except:
+            pass
 
+        #
+        # Calculate objective function for rotated orbitals
+        #
         ofun = obj.compute_objective_function()
 
         #
         # reduce step size until line search condition is satisfied
         #
         while self.check_line_search_condition(ofun, ofun_ref, kappa, gradient):
-            self.update_stepa(self.stepa*self.downscale)
+            self.update_alpha(self.alpha*self.downscale)
             #
             # New rotation
             #
-            kappa.iscale(self.stepa)
+            kappa.iscale(self.alpha)
             rotation = obj.compute_rotation_matrix(kappa)
-            orb = exps.copy()
-            rotate_orbitals(orb, rotation)
-
+            orb_ = orb.copy()
+            rotate_orbitals(orb_, rotation)
             #
-            # Solve for wfn
+            # Solve for wfn/population model if required
             #
-            obj.solve_wfn(one, two, orb, **kwargs)
-
+            try:
+                obj.solve_model(one, two, orb_, **kwargs)
+            except:
+                pass
+            #
+            # Calculate objective function for scaled rotation
+            #
             ofun = obj.compute_objective_function()
-
             #
             # Abort if scaling factor falls below threshold
             #
-            if self.stepa < self.minstep:
-                exps.assign(orb)
+            if self.alpha < self.minalpha:
                 break
-        exps.assign(orb)
+        orb.assign(orb_)
 
-    def do_trust_region(self, obj, one, two, exps, **kwargs):
+    def do_trust_region(self, obj, one, two, orb, **kwargs):
         '''Do trust-region optimization.
 
            **Arguments:**
 
            obj
-                A wfn instance.
+                A class instance containing the objective function.
 
            one/two
                 One and Two-body Hamiltonian.
 
-           exps
-                A AO/MO expansion.
-
+           orb
+                (Expansion instance) An AO/MO expansion
 
            **Keywords:**
-                :kappa: Initial step size
-                :gradient: Orbital gradient
-                :hessian: Orbital Hessian
+                :kappa: Initial step size (OneIndex instance)
+                :gradient: Orbital gradient (OneIndex instance)
+                :hessian: Orbital Hessian (OneIndex instance)
         '''
         kappa = kwargs.get('kappa')
         gradient = kwargs.get('gradient', None)
@@ -369,14 +402,20 @@ class RStepSearch(StepSearch):
             # New rotation
             #
             rotation = obj.compute_rotation_matrix(stepn)
-            orb = exps.copy()
-            rotate_orbitals(orb, rotation)
+            orb_ = orb.copy()
+            rotate_orbitals(orb_, rotation)
 
             #
-            # Solve for wfn
+            # Solve for wfn/population model if required
             #
-            obj.solve_wfn(one, two, orb, **kwargs)
+            try:
+                obj.solve_model(one, two, orb_, **kwargs)
+            except:
+                pass
 
+            #
+            # Calculate objective function after rotation
+            #
             ofun = obj.compute_objective_function()
 
             #
@@ -398,20 +437,20 @@ class RStepSearch(StepSearch):
                 #
                 new = min(self.upscale*self.trustradius,self.maxtrustradius)
                 self.update_trustradius(new)
-                exps.assign(orb)
+                orb.assign(orb_)
                 break
             elif rho >= self.mineta and rho <= self.maxeta and De <= 0.0:
                 #
                 # Do nothing with trust radius:
                 #
-                exps.assign(orb)
+                orb.assign(orb_)
                 break
             elif rho > 0 and rho < self.mineta and De <= 0.0:
                 #
                 # Decrease trust radius:
                 #
                 self.update_trustradius(self.downscale*self.trustradius)
-                exps.assign(orb)
+                orb.assign(orb_)
                 break
             else:
                 #
@@ -423,15 +462,12 @@ class RStepSearch(StepSearch):
             iteri = iteri+1
             if iteri > self.maxiterouter:
                 log('Warning: Trust region search not converged after %i iterations. Trust region search aborted.' %self.maxiterouter)
-                self.update_stepa(stepn.norm())
-                exps.assign(orb)
+                orb.assign(orb_)
                 break
-        self.update_stepa(stepn.norm())
 
     def check_line_search_condition(self, cetot, petot, kappa, grad):
+        '''Check if Armijo condition is satisfied
+           (e_tot(0+alpha*kappa)-e_tot(0) <= c1*alpha*(kappa,grad))
         '''
-        '''
-        term = self.c1*self.stepa*kappa.dot(grad)
-        if ((cetot - petot - term) <= 0):
-            return False
-        return True
+        term = self.c1*self.alpha*kappa.dot(grad)
+        return (cetot - petot - term) > 0
