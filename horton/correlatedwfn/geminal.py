@@ -26,8 +26,6 @@ import numpy as np
 import math as math
 
 from horton.cache import Cache
-from horton.matrix import DenseTwoIndex, TwoIndex, DenseExpansion, Expansion
-from horton.log import log, timer
 from horton.utils import check_options, check_type
 
 from itertools import permutations
@@ -113,14 +111,13 @@ class Geminal(object):
            **Arguments:**
 
            one, two
-                One- and two-body integrals (some Hamiltonian matrix elements)
-                expressed in the AO basis.
+                One- and two-body integrals (some Hamiltonian matrix elements).
 
            core
                 The core energy (not included in 'one' and 'two').
 
            orb
-                An expansion instance. It contains the AO/MO coefficients
+                An expansion instance. It contains the MO coefficients
                 (orbitals).
 
            olp
@@ -233,7 +230,6 @@ class Geminal(object):
             raise NotImplementedError
         else:
             self._geminal.assign(geminal)
-        return geminal
 
     def update_lagrange(self, lagrange=None, dim1=None, dim2=None):
         '''Update Lagragne multipliers
@@ -247,7 +243,6 @@ class Geminal(object):
             raise NotImplementedError
         else:
             self.lagrange.assign(lagrange)
-        return lagrange
 
     def update_auxmatrix(self, select, two_mo, one_mo=None):
         '''Update auxiliary matrices'''
@@ -361,8 +356,8 @@ class Geminal(object):
 
     one_dm_ps2 = PropertyHelper(get_one_dm, 'ps2', 'Alpha 1-RDM')
     one_dm_response = PropertyHelper(get_one_dm, 'response', 'Alpha 1-RDM')
-    two_dm_ppqq = PropertyHelper(get_two_dm, 'ppqq', 'Alpha-beta (ppqq) 2-RDM')
-    two_dm_pqpq = PropertyHelper(get_two_dm, 'pqpq', 'Alpha-beta (pqpq) 2-RDM')
+    two_dm_ppqq = PropertyHelper(get_two_dm, 'ppqq', 'Alpha-beta PS2 (ppqq) 2-RDM')
+    two_dm_pqpq = PropertyHelper(get_two_dm, 'pqpq', 'Alpha-beta PS2 (pqpq) 2-RDM')
     two_dm_rppqq = PropertyHelper(get_two_dm, 'rppqq', 'Alpha-beta (ppqq) 2-RDM')
     two_dm_rpqpq = PropertyHelper(get_two_dm, 'rpqpq', 'Alpha-beta (pqpq) 2-RDM')
 
@@ -420,14 +415,16 @@ class Geminal(object):
            dim
                Length of guess.
         '''
+        check_options('guess.type', guess['type'], 'random', 'const')
+        check_type('guess.factor', guess['factor'], int, float)
+        if guess['factor'] == 0:
+            raise ValueError('Scaling factor must be different from 0.')
         if dim is None:
             dim = self.dimension
         if guess['type'] == 'random':
             return np.random.random(dim)*guess['factor']
         elif guess['type'] == 'const':
             return np.ones(dim)*guess['factor']
-        else:
-            raise ValueError('Guess not supported.')
 
     def compute_rotation_matrix(self, coeff):
         '''Compute orbital rotation matrix'''

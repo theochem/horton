@@ -71,15 +71,14 @@ class RAp1rog(Geminal):
            **Arguments:**
 
            one, two
-                One- (TwoIndex instance) and two-body integrals (FourIndex
-                instances) (some Hamiltonian matrix elements)
-                expressed in the AO basis.
+                One- (TwoIndex instance) and two-body integrals (FourIndex or
+                Cholesky instance) (some Hamiltonian matrix elements)
 
            core
                 The core energy (not included in 'one' and 'two'); a float.
 
            orb
-                An expansion instance. It contains the AO/MO coefficients.
+                An expansion instance. It contains the MO coefficients.
 
            olp
                 The AO overlap matrix. A TwoIndex instance.
@@ -142,13 +141,11 @@ class RAp1rog(Geminal):
         guess.setdefault('geminal', None)
         solver = _helper('solver', dict({'wfn': 'krylov'}))
         solver.setdefault('wfn', 'krylov')
-        maxiter = _helper('maxiter', dict({}))
-        maxiter.setdefault('wfniter', 200)
+        maxiter = _helper('maxiter', dict({'wfniter', 200}))
         dumpci = _helper('dumpci', dict({}))
         dumpci.setdefault('amplitudestofile', False)
         dumpci.setdefault('amplitudesfilename', "./ap1rog_amplitudes.dat")
-        thresh = _helper('thresh', dict({}))
-        thresh.setdefault('wfn',  1e-12)
+        thresh = _helper('thresh', dict({'wfn',  1e-12}))
         printoptions = _helper('printoptions', dict({}))
         printoptions.setdefault('geminal', True)
         printoptions.setdefault('ci', 0.01)
@@ -157,8 +154,17 @@ class RAp1rog(Geminal):
             if name not in names:
                 raise ValueError("Unknown keyword argument %s" % name)
 
-        if warning is False:
+        #
+        # Check dictionaries in keyword arguments
+        #
+        self.check_keywords(guess, solver, maxiter, dumpci, thresh,
+                            printoptions)
+        check_options('warning', warning, False, True, 0, 1)
+        check_type('checkpoint', checkpoint, int)
+
+        if warning:
             warnings.filterwarnings('ignore')
+
         #
         # Print optimization parameters
         #
@@ -177,7 +183,9 @@ class RAp1rog(Geminal):
         if guess['geminal'] is None:
             initial_guess = self.generate_guess(guess)
         else:
-            check_type('geminalguess', guess['geminal'], np.ndarray)
+            check_type('guess.geminal', guess['geminal'], np.ndarray)
+            if not guess['geminal'].shape[0] == self.dimension:
+                raise ValueError('Size of geminal guess array does not match number of unknowns.')
             initial_guess = guess['geminal']
 
         #
@@ -217,14 +225,14 @@ class RAp1rog(Geminal):
            **Arguments:**
 
            one, two
-                One- and two-body integrals (some Hamiltonian matrix elements)
-                expressed in the AO basis.
+                One- (TwoIndex instance) and two-body integrals (FourIndex or
+                Cholesky instance) (some Hamiltonian matrix elements)
 
            core
                 The core energy (not included in 'one' and 'two').
 
            orb
-                An expansion instance. It contains the AO/MO coefficients.
+                An expansion instance. It contains the MO coefficients.
 
            olp
                 The AO overlap matrix. A TwoIndex instance.
@@ -275,7 +283,7 @@ class RAp1rog(Geminal):
                                                   reference determinant for which
                                                   wfn amplitudes are reconstructed
                                                   (int) (default 1)
-                :stepsearch: line search options (dictionary) containing:
+                :stepsearch: step search options (dictionary) containing:
                               *method: step search method used (str). One of
                                         ``trust-region`` (default), ``None``,
                                         ``backtracking``
@@ -286,10 +294,10 @@ class RAp1rog(Geminal):
                                    (default 1e-4)
                               *minalpha: minimum scaling factor used in ``backracking``
                                          (float) (default 1e-6)
-                              *maxiterouter: maximum number of line search steps
+                              *maxiterouter: maximum number of search steps
                                              (int) (default 10)
                               *maxiterinner: maximum number of optimization
-                                             step in each line search step (int)
+                                             step in each search step (int)
                                              (used only in ``pcg``, default 500)
                               *maxeta: upper bound for estimated vs actual
                                        change in ``trust-region`` (float)
@@ -327,17 +335,17 @@ class RAp1rog(Geminal):
                 :givensrot: rotate two orbitals (numpy 2-dim array) each row
                             contains 2 orbital indices and rotation angle
                             (default np.array([[]]))
-                :orbitaloptimizer: (str) switch variational orbital optimization
-                                   on (``variational``) or off (any other value).
-                                   Only, ``variational`` and PS2c (``ps2c``)are
-                                   supported (default ``variational``).
+                :orbitaloptimizer: (str) switch between variational orbital
+                                   optimization (``variational``) and PS2c
+                                   (``ps2c``) (default ``variational``).
         '''
         if log.do_medium:
             log.hline('=')
             log('Entering orbital-optimized AP1roG module')
 
         #
-        # Assign keyword arguements
+        # Assign keyword arguements, checks only name of dictionary, keys and
+        # values are checked below.
         #
         names = []
         def _helper(x,y):
@@ -396,9 +404,20 @@ class RAp1rog(Geminal):
                 raise ValueError("Unknown keyword argument %s" % name)
 
         #
+        # Check dictionaries in keyword arguments
+        #
+        self.check_keywords_scf(guess, solver, maxiter, dumpci, thresh,
+                                printoptions, stepsearch)
+        check_options('warning', warning, False, True, 0, 1)
+        check_type('checkpoint', checkpoint, int)
+        check_type('levelshift', lshift, float, int)
+        check_options('absolute', pos, False, True, 0, 1)
+        check_options('sort', sort, True, False, 0, 1)
+
+        #
         # Set optimization parameters
         #
-        if warning is False:
+        if warning:
             warnings.filterwarnings('ignore')
         if maxiter['orbiter'] < 0:
             raise ValueError('Number of iterations must be greater/equal 0!')
@@ -412,18 +431,22 @@ class RAp1rog(Geminal):
                                    indextrans, orbitaloptimizer, sort)
 
         #
-        # Generate Guess
+        # Generate Guess [geminal, lagrange]
         #
         if guess['geminal'] is None:
             initial_guess = [self.generate_guess(guess)]
         else:
-            check_type('geminalguess', guess['geminal'], np.ndarray)
+            check_type('guess.geminal', guess['geminal'], np.ndarray)
+            if not guess['geminal'].shape[0] == self.dimension:
+                raise ValueError('Size of geminal guess array does not match number of unknowns.')
             initial_guess = [guess['geminal']]
         if guess['lagrange'] is None:
             initial_guess.append(self.generate_guess(guess))
         else:
-            check_type('lagrangeguess', guess['lagragne'], np.ndarray)
-            initial_guess.append([guess['lagrange']])
+            check_type('guess.lagrange', guess['lagrange'], np.ndarray)
+            if not guess['lagrange'].shape[0] == self.dimension:
+                raise ValueError('Size of Lagrange guess array does not match number of unknowns.')
+            initial_guess.append(guess['lagrange'])
 
         #
         # Modify starting orbitals if needed:
@@ -485,7 +508,7 @@ class RAp1rog(Geminal):
                                                                   orbitaloptimizer)
 
             #
-            # Apply line search to orbital rotation step 'kappa'
+            # Apply step search to orbital rotation step 'kappa'
             #
             stepsearch_(self, one, two, orb,
                         **{'kappa': kappa, 'thresh': thresh, 'maxiter': maxiter,
@@ -546,8 +569,7 @@ class RAp1rog(Geminal):
                     log('Trustradius too small. Orbital optimization aborted!')
                     log.hline(' ')
                 break
-            else:
-                i = i+1
+            i = i+1
 
         #
         # Check convergence if i = maxorbiter:
@@ -583,6 +605,11 @@ class RAp1rog(Geminal):
     def update_one_dm(self, select, one_dm=None):
         '''Update 1-RDM
 
+           **Arguments:**
+
+           select
+                One of ``ps2``, ``response``
+
            **Optional arguments:**
 
            one_dm
@@ -590,18 +617,21 @@ class RAp1rog(Geminal):
         '''
         cached_one_dm = self.init_one_dm(select)
         if one_dm is None:
+            check_options('one_dm', select, 'ps2', 'response')
             if select == 'ps2':
                 self.compute_1dm(cached_one_dm, self.geminal, self.geminal, 1, False)
             elif select == 'response':
                 self.compute_1dm(cached_one_dm, self.geminal, self.lagrange, 1, True)
-            else:
-                raise NotImplementedError
         else:
             cached_one_dm.assign(one_dm)
-        return cached_one_dm
 
     def update_two_dm(self, select, two_dm=None):
         '''Update 2-RDM
+
+           **Arguments:**
+
+           select
+                One of ``ps2``, ``response``
 
            **Optional arguments:**
 
@@ -610,6 +640,7 @@ class RAp1rog(Geminal):
         '''
         if two_dm is not None:
             raise NotImplementedError
+        check_options('two_dm', select, 'ps2', 'response')
         if select == 'response':
             cached_2dm1 = self.init_two_dm('rppqq')
             self.compute_2dm(cached_2dm1, self.one_dm_response, self.geminal, self.lagrange, 'ppqq', True)
@@ -620,18 +651,15 @@ class RAp1rog(Geminal):
             self.compute_2dm(cached_2dm1, self.one_dm_ps2, self.geminal, self.geminal, 'ppqq', False)
             cached_2dm2 = self.init_two_dm('pqpq')
             self.compute_2dm(cached_2dm1, self.one_dm_ps2, self.geminal, self.geminal, 'pqpq', False)
-            return cached_2dm1, cached_2dm2
-        else:
-            raise NotImplementedError
 
     def compute_1dm(self, dmout, mat1, mat2, factor=1.0, response=True):
-        '''Compute 1-RDMs for AP1roG
+        '''Compute 1-RDM for AP1roG
 
            **Arguments:**
 
            mat1, mat2
-                A DenseTwoIndex instance used to calculated 1-DM. For response
-                DM, mat1 is the geminal matrix, mat2 the Lagrange multipliers
+                A DenseTwoIndex instance used to calculated 1-RDM. For response
+                RDM, mat1 is the geminal matrix, mat2 the Lagrange multipliers
 
            **Optional arguments:**
 
@@ -639,7 +667,7 @@ class RAp1rog(Geminal):
                 A scalar factor
 
            select
-                Switch between response (True) and PS2 (False) 1-DM
+                Switch between response (True) and PS2 (False) 1-RDM
         '''
         summand = 1.0
         if not response:
@@ -648,7 +676,7 @@ class RAp1rog(Geminal):
         #
         # Calculate occupied block
         #
-        tmpocc = self.lf.create_one_index(self.nocc)
+        tmpocc = self.lf.create_one_index(self.npairs)
         tmpocc.assign(summand)
         mat1.contract_two_to_one('ab,ab->a', mat2, tmpocc, -1.0, False)
 
@@ -661,8 +689,8 @@ class RAp1rog(Geminal):
         #
         # Combine both blocks and scale
         #
-        dmout.assign(tmpocc, 0, self.nocc)
-        dmout.assign(tmpvir, self.nocc, self.nbasis)
+        dmout.assign(tmpocc, 0, self.npairs)
+        dmout.assign(tmpvir, self.npairs, self.nbasis)
         dmout.iscale(factor)
 
     def compute_2dm(self, dmout, dm1, mat1, mat2, select, response=True):
@@ -673,8 +701,8 @@ class RAp1rog(Geminal):
                A 1DM. A OneIndex instance.
 
            mat1, mat2
-               TwoIndex instances used to calculate 2DM. To get the response
-               DM, mat1 is the geminal coefficient matrix, mat2 are the
+               TwoIndex instances used to calculate the 2-RDM. To get the
+               response DM, mat1 is the geminal coefficient matrix, mat2 are the
                Lagrange multipliers
 
            select
@@ -683,7 +711,7 @@ class RAp1rog(Geminal):
                stored in ppqq.
 
            response
-               If True, calculate response 2DM. Otherwise the PS2 2DM is
+               If True, calculate response 2-RDM. Otherwise the PS2 2-RDM is
                calculated.
         '''
         check_options('select', select, 'ppqq','pqpq')
@@ -696,10 +724,10 @@ class RAp1rog(Geminal):
             # temporary storage
             #
             tmpvv = self.lf.create_two_index(self.nvirt, self.nvirt)
-            tmpoo = self.lf.create_two_index(self.nocc, self.nocc)
+            tmpoo = self.lf.create_two_index(self.npairs, self.npairs)
             tmpvv2 = self.lf.create_two_index(self.nvirt, self.nvirt)
-            tmpov = self.lf.create_two_index(self.nocc, self.nvirt)
-            tmpo = self.lf.create_one_index(self.nocc)
+            tmpov = self.lf.create_two_index(self.npairs, self.nvirt)
+            tmpo = self.lf.create_one_index(self.npairs)
             tmpv = self.lf.create_one_index(self.nvirt)
 
             #
@@ -707,16 +735,16 @@ class RAp1rog(Geminal):
             #
             mat2.contract_two_to_two('ab,cb->ca', mat1, tmpoo, 1.0, True)
             tmpoo.assign_diagonal(0.0)
-            dmout.iadd(tmpoo, 1.0, 0, self.nocc, 0, self.nocc)
+            dmout.iadd(tmpoo, 1.0, 0, self.npairs, 0, self.npairs)
             #
             # v-v block
             #
             mat2.contract_two_to_two('ab,ac->bc', mat1, tmpvv, 1.0, True)
-            dmout.iadd(tmpvv, 1.0, self.nocc, self.nbasis, self.nocc, self.nbasis)
+            dmout.iadd(tmpvv, 1.0, self.npairs, self.nbasis, self.npairs, self.nbasis)
             #
             # v-o block
             #
-            dmout.iadd_t(mat2, 1.0, self.nocc, self.nbasis, 0, self.nocc)
+            dmout.iadd_t(mat2, 1.0, self.npairs, self.nbasis, 0, self.npairs)
             #
             # o-v block
             #
@@ -731,28 +759,28 @@ class RAp1rog(Geminal):
             mat2_.imul(mat1)
             tmpov.iadd(mat2_, 2.0)
 
-            dmout.iadd(mat1, (factor1+lc), 0, self.nocc, self.nocc, self.nbasis)
-            dmout.iadd(tmpov, 1.0, 0, self.nocc, self.nocc, self.nbasis)
+            dmout.iadd(mat1, (factor1+lc), 0, self.npairs, self.npairs, self.nbasis)
+            dmout.iadd(tmpov, 1.0, 0, self.npairs, self.npairs, self.nbasis)
         elif select == 'pqpq':
             #
             # temporary storage
             #
-            tmpo = self.lf.create_one_index(self.nocc)
+            tmpo = self.lf.create_one_index(self.npairs)
             mat2.contract_two_to_one('ab,ab->a', mat1, tmpo, 1.0, True)
-            dm1v = dm1.copy(self.nocc, self.nbasis)
+            dm1v = dm1.copy(self.npairs, self.nbasis)
             mat2_ = mat2.copy()
             mat2_.imul(mat1)
-            for i in range(self.nocc):
-                for j in range(i+1,self.nocc):
+            for i in range(self.npairs):
+                for j in range(i+1,self.npairs):
                     value = factor1+lc-tmpo.get_element(i)-tmpo.get_element(j)
                     dmout.set_element(i,j, value)
                     dmout.set_element(j,i, value)
                 value = factor1+lc-tmpo.get_element(i)
                 dmout.set_element(i,i, value)
-            dmout.iadd_t(dm1v, 1.0, 0, self.nocc, self.nocc, self.nbasis)
-            dmout.iadd(mat2_,-1.0, 0, self.nocc, self.nocc, self.nbasis)
-            dmout.iadd(dm1v, 1.0, self.nocc, self.nbasis, 0, self.nocc)
-            dmout.iadd_t(mat2_,-1.0, self.nocc, self.nbasis, 0, self.nocc)
+            dmout.iadd_t(dm1v, 1.0, 0, self.npairs, self.npairs, self.nbasis)
+            dmout.iadd(mat2_,-1.0, 0, self.npairs, self.npairs, self.nbasis)
+            dmout.iadd(dm1v, 1.0, self.npairs, self.nbasis, 0, self.npairs)
+            dmout.iadd_t(mat2_,-1.0, self.npairs, self.nbasis, 0, self.npairs)
 
     def update_three_dm(self, select, three_dm=None):
         '''Update 3-RDM
@@ -783,11 +811,11 @@ class RAp1rog(Geminal):
            **Arguments:**
 
            one, two
-                One- and two-body integrals (some Hamiltonian matrix elements)
-                expressed in the AO basis. A TwoIndex and FourIndex instance
+                One- and two-body integrals (some Hamiltonian matrix elements).
+                A TwoIndex and FourIndex/Cholesky instance
 
            orb
-                An expansion instance which contains the AO/MO coefficients.
+                An expansion instance which contains the MO coefficients.
 
            **Keywords:**
                 guess: initial guess for wfn (1-dim np.array)
@@ -868,7 +896,7 @@ class RAp1rog(Geminal):
                        args=(iiaa, iaia, one, fock),
                        jac=self.jacobian_ap1rog,
                        method=solver['wfn'],
-                       options={'xtol': wfnthreshold,'maxfev': wfnmaxiter},
+                       options={'xtol': wfnthreshold, 'maxiter': wfnmaxiter},
                        callback=None)
         if not sol.success:
             raise ValueError('ERROR: program terminated. Error in solving \
@@ -906,7 +934,7 @@ class RAp1rog(Geminal):
                        method=solver['lagrange'],
                        jac=self.jacobian_lambda,
                        callback=None,
-                       options={'xtol': wfnthreshold, 'maxfev': wfnmaxiter})
+                       options={'xtol': wfnthreshold, 'maxiter': wfnmaxiter})
         if not sol.success:
             raise ValueError('ERROR: program terminated. Error in solving \
                               Lagrange multipliers: %s' %sol.message)
@@ -1453,8 +1481,6 @@ class RAp1rog(Geminal):
         #
         gradient.iadd_contract_two_one('ab,b->ab', one, onedm,-4.0)
 
-        self.clear_dm()
-
         ind = np.tril_indices(self.nbasis, -1)
 
         #
@@ -1788,7 +1814,7 @@ class RAp1rog(Geminal):
         '''
         it = []
         coeff = self.geminal._array.copy()
-        matrix = np.identity(self.nocc)
+        matrix = np.identity(self.npairs)
         for i in range(excitationlevel):
             it.append(np.nditer(coeff,flags=['multi_index']))
         if amplitudestofile:
@@ -1807,7 +1833,7 @@ class RAp1rog(Geminal):
                                 filea.write("\n")
                         else:
                             log('%s %20.16f' %(self.get_slater_determinant(it[0].multi_index), float(ci)))
-            if self.nocc > 1:
+            if self.npairs > 1:
                 for index in range((i+1)):
                     it[index] = np.nditer(coeff,flags=['multi_index'])
                 if i==1:
@@ -1829,7 +1855,7 @@ class RAp1rog(Geminal):
                                                     filea.write("\n")
                                             else:
                                                 log('%s %20.16f' %(self.get_slater_determinant(it[0].multi_index,it[1].multi_index), amplitude))
-                                        matrix = np.identity(self.nocc)
+                                        matrix = np.identity(self.npairs)
                 if i==2:
                     for ci in it[0]:
                         if math.fabs(ci) >= (cithresh/excitationlevel):
@@ -1863,7 +1889,7 @@ class RAp1rog(Geminal):
                                                         else:
                                                             log('%s %20.16f' %(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
                                                                                                            it[2].multi_index), amplitude))
-                                                    matrix = np.identity(self.nocc)
+                                                    matrix = np.identity(self.npairs)
                 if i==3:
                     for ci in it[0]:
                         if math.fabs(ci) >= (cithresh/excitationlevel):
@@ -1909,7 +1935,7 @@ class RAp1rog(Geminal):
                                                                     else:
                                                                         log('%s %20.16f' %(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
                                                                                            it[2].multi_index,it[3].multi_index), amplitude))
-                                                                matrix = np.identity(self.nocc)
+                                                                matrix = np.identity(self.npairs)
                 if i==4:
                     for ci in it[0]:
                         if math.fabs(ci) >= (cithresh/excitationlevel):
@@ -1969,7 +1995,7 @@ class RAp1rog(Geminal):
                                                                 else:
                                                                     log('%s %20.16f' %(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
                                                                                        it[2].multi_index,it[3].multi_index, it[4].multi_index), amplitude))
-                                                            matrix = np.identity(self.nocc)
+                                                            matrix = np.identity(self.npairs)
                 if i==5:
                     for ci in it[0]:
                         if math.fabs(ci) >= (cithresh/excitationlevel):
@@ -2048,7 +2074,7 @@ class RAp1rog(Geminal):
                                                                             log('%s %20.16f' %(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
                                                                                                it[2].multi_index,it[3].multi_index, it[4].multi_index,it[5].multi_index),
                                                                                                amplitude))
-                                                                    matrix = np.identity(self.nocc)
+                                                                    matrix = np.identity(self.npairs)
                 if i==6:
                     for ci in it[0]:
                         if math.fabs(ci) >= (cithresh/excitationlevel):
@@ -2145,7 +2171,7 @@ class RAp1rog(Geminal):
                                                                                                        it[2].multi_index,it[3].multi_index,
                                                                                                        it[4].multi_index,it[5].multi_index,
                                                                                                        it[6].multi_index), amplitude))
-                                                                            matrix = np.identity(self.nocc)
+                                                                            matrix = np.identity(self.npairs)
 
     def get_slater_determinant(self, *indices):
         '''Return excited Slater Determinant.
@@ -2161,7 +2187,7 @@ class RAp1rog(Geminal):
         excited = []
         for ind in indices:
             orb_ref.append(ind[0])
-            excited.append(ind[1]+self.nocc)
+            excited.append(ind[1]+self.npairs)
 
         sd = []
         for i in range(self.nbasis):
@@ -2170,7 +2196,7 @@ class RAp1rog(Geminal):
             elif i in excited:
                 sd.append(2)
             else:
-                if i < self.nocc:
+                if i < self.npairs:
                     sd.append(2)
                 else:
                     sd.append(0)
@@ -2250,15 +2276,134 @@ class RAp1rog(Geminal):
         '''Print geminal coefficients
         '''
         log.hline('')
-        s = ''.join(str('%11i' %(i+1+self.nocc)) for i in range(self.nvirt))
+        s = ''.join(str('%11i' %(i+1+self.npairs)) for i in range(self.nvirt))
         log("  "+s)
         log.hline('')
-        for line in range(self.nocc):
+        for line in range(self.npairs):
             s = str('%2i :     ' %(line+1))
             s2 = ''
             for row in range(self.nvirt):
                 s2 += ' '+str('%10.6f' %(self.geminal.get_element(line, row)))
             log(s+s2)
+
+    def check_keywords(self, guess, solver, maxiter, dumpci, thresh,
+                       printoptions):
+        '''Check dictionaries if they contain proper keys.
+
+           **Arguments:**
+
+           guess, solver, maxiter, dumpci, thresh, printoptions
+                See :py:meth:`RAp1rog.solve`
+
+        '''
+        #
+        # Check guess, values are checked separately
+        #
+        for key in guess:
+            check_options('guess', key, 'type', 'factor', 'geminal')
+        #
+        # Check solver
+        #
+        for key in solver:
+            check_options('solver', key, 'wfn')
+        #
+        # Check maxiter
+        #
+        for key, value in maxiter.items():
+            check_options('maxiter', key, 'wfniter')
+            check_type('maxiter', value, int)
+        #
+        # Check thresh
+        #
+        for key, value in thresh.items():
+            check_options('thresh', key, 'wfn')
+            check_type('thresh', value, float)
+            if value < 0:
+                raise ValueError('Negative convergence threshold for %s is not allowed!' %key)
+        #
+        # Check printoptions
+        #
+        for key, value in printoptions.items():
+            check_options('printoptions', key, 'geminal', 'ci', 'excitationlevel')
+            if key == 'geminal':
+                check_options('printoptions.geminal', value, False, True, 0, 1)
+            elif key == 'ci':
+                check_type('printoptions.ci', value, float)
+            elif key == 'excitationlevel':
+                check_type('printoptions.excitationlevel', value, int)
+        #
+        # Check dumpci
+        #
+        for key, value in dumpci.items():
+            check_options('dumpci', key, 'amplitudestofile', 'amplitudesfilename')
+            if key == 'amplitudestofile':
+                check_options('dumpci.amplitudestofile', value, False, True, 0, 1)
+            if key == 'amplitudesfilename':
+                check_type('dumpci.amplitudesfilename', value, str)
+
+    def check_keywords_scf(self, guess, solver, maxiter, dumpci, thresh,
+                           printoptions, stepsearch):
+        '''Check dictionaries if they contain proper keys.
+
+           **Arguments:**
+
+           guess, solver, maxiter, dumpci, thresh, printoptions, stepseach
+                See :py:meth:`RAp1rog.solve_scf`
+
+        '''
+        #
+        # Check guess, values are checked separately
+        #
+        for key in guess:
+            check_options('guess', key, 'type', 'factor', 'geminal', 'lagrange')
+        #
+        # Check solver
+        #
+        for key in solver:
+            check_options('solver', key, 'wfn', 'lagrange')
+        #
+        # Check maxiter
+        #
+        for key, value in maxiter.items():
+            check_options('maxiter', key, 'wfniter', 'orbiter')
+            check_type('maxiter', value, int)
+        #
+        # Check thresh
+        #
+        for key, value in thresh.items():
+            check_options('thresh', key, 'wfn', 'energy', 'gradientnorm',
+                          'gradientmax')
+            check_type('thresh', value, float)
+            if value < 0:
+                raise ValueError('Negative convergence threshold for %s is not allowed!' %key)
+        #
+        # Check printoptions
+        #
+        for key, value in printoptions.items():
+            check_options('printoptions', key, 'geminal', 'ci', 'excitationlevel')
+            if key == 'geminal':
+                check_options('printoptions.geminal', value, False, True, 0, 1)
+            elif key == 'ci':
+                check_type('printoptions.ci', value, float)
+            elif key == 'excitationlevel':
+                check_type('printoptions.excitationlevel', value, int)
+        #
+        # Check dumpci
+        #
+        for key, value in dumpci.items():
+            check_options('dumpci', key, 'amplitudestofile', 'amplitudesfilename')
+            if key == 'amplitudestofile':
+                check_options('dumpci.amplitudestofile', value, False, True, 0, 1)
+            if key == 'amplitudesfilename':
+                check_type('dumpci.amplitudesfilename', value, str)
+        #
+        # Check stepsearch, values are checked separately
+        #
+        for key in stepsearch:
+            check_options('stepsearch', key, 'method', 'optimizer', 'alpha',
+                'c1', 'minalpha', 'maxiterouter', 'maxiterinner', 'maxeta',
+                'mineta', 'upscale', 'downscale', 'trustradius', 'maxtrustradius',
+                'threshold')
 
     def print_options(self, guess, solver, maxiter, thresh,
                       printoptions, indextrans):
