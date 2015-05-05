@@ -32,6 +32,7 @@ import numpy as np
 from horton.log import log, timer
 from horton.orbital_utils import rotate_orbitals
 from horton.correlatedwfn.trustregionopt import Dogleg, DoubleDogleg, TruncatedCG
+from horton.utils import check_type, check_options
 
 __all__ = [
     'StepSearch',
@@ -62,20 +63,22 @@ class StepSearch(object):
                          ``trust-region`` (default 0.75)
                 :mineta: lower bound for estimated vs actual change in
                          ``trust-region`` (default 0.25)
-                :upscale: scaling factor to increase trustradius in
+                :upscale: scaling factor to increase trust radius in
                           ``trust-region`` (default 2.0)
-                :downscale: scaling factor to decrease trustradius in
-                            ``trust-region`` (default 0.25)
-                :trustradius: initial trustradius (default 0.75)
-                :maxtrustradius: maximum trustradius (default 0.75)
+                :downscale: scaling factor to decrease trust radius in
+                            ``trust-region`` and step length in ``backtracking``
+                            (float) (default 0.25)
+                :trustradius: initial trust radius (default 0.75)
+                :maxtrustradius: maximum trust radius (default 0.75)
                 :threshold: trust-region optimization threshold, only used in
                             ``pcg`` method of ``trust-region``
-                :optimizer: optimizes step to boundary of trustradius. One of
+                :optimizer: optimizes step to boundary of trust radius. One of
                             ``pcg``, ``dogleg``, ``ddl`` (default ddl)
         """
         self.lf = lf
         #
-        # Check keywords and set default arguments
+        # Check keywords and set default arguments, types and options are also
+        # checked
         #
         names = []
         def _helper(x,y):
@@ -100,9 +103,26 @@ class StepSearch(object):
             if name not in names:
                 raise ValueError("Unknown keyword argument %s" % name)
             if value is not None:
+                if value < 0:
+                    raise ValueError('Cannot set attribute %s because of illegal value %s' %(name, value))
                 setattr(self, name, kw[name])
 
-        self.alpha0 = kw.get('alpha')
+        check_options('method', self.method, 'None', 'backtracking', 'trust-region')
+        check_options('optimizer', self.optimizer, 'pcg', 'dogleg', 'ddl')
+        check_type('alpha', self.alpha, int, float)
+        check_type('c1', self.c1, int, float)
+        check_type('minalpha', self.minalpha, int, float)
+        check_type('maxiterouter', self.maxiterouter, int)
+        check_type('maxiterinner', self.maxiterinner, int)
+        check_type('maxeta', self.maxeta, int, float)
+        check_type('mineta', self.mineta, int, float)
+        check_type('upscale', self.upscale, float)
+        check_type('downscale', self.downscale, float)
+        check_type('trustradius', self.trustradius, float)
+        check_type('maxtrustradius', self.maxtrustradius, float)
+        check_type('threshold', self.threshold, float)
+
+        self.alpha0 = self.alpha
 
         def _get_lf(self):
             return self.lf
@@ -201,13 +221,14 @@ class RStepSearch(StepSearch):
            **Arguments:**
 
            obj
-                A class instance containing the wfn.
+                A class instance containing the objective function.
 
            one, two
-                One- and Two-electron integrals
+                One- and Two-electron integrals (TwoIndex and FourIndex/Cholesky
+                instances)
 
            orb
-                An Expansion instance. Contains the AO/MO coefficients
+                An Expansion instance. Contains the MO coefficients
 
            **Keywords:**
 
@@ -218,8 +239,6 @@ class RStepSearch(StepSearch):
             self.do_backtracking(obj, one, two, orb, **kwargs)
         elif self.method == 'trust-region':
             self.do_trust_region(obj, one, two, orb, **kwargs)
-        else:
-            raise NotImplementedError
 
     def do_no_stepsearch(self, obj, one, two, orb, **kwargs):
         '''Scale step size with factor self.alpha
@@ -230,10 +249,11 @@ class RStepSearch(StepSearch):
                 A class instance containing the objective function.
 
            one, two
-                One- and Two-electron integrals
+                One- and Two-electron integrals (TwoIndex and FourIndex/Cholesky
+                instances)
 
            orb
-                An Expansion instance. Contains the AO/MO coefficients
+                An Expansion instance. Contains the MO coefficients
 
            **Keywords:**
                 :kappa: Initial step size (OneIndex instance)
@@ -264,17 +284,18 @@ class RStepSearch(StepSearch):
                 A class instance containing the objctive function.
 
            one, two
-                One- and Two-electron integrals
+                One- and Two-electron integrals (TwoIndex and FourIndex/Cholesky
+                instances)
 
            orb
-                An Expansion instance. Contains the AO/MO coefficients
+                An Expansion instance. Contains the MO coefficients
 
            **Keywords:**
                 :kappa: Initial step size (OneIndex instance)
                 :gradient: Orbital gradient (OneIndex instance)
         '''
         kappa = kwargs.get('kappa')
-        gradient = kwargs.get('gradient', None)
+        gradient = kwargs.get('gradient')
 
         #
         # Update scaling factor to initial value
@@ -349,10 +370,11 @@ class RStepSearch(StepSearch):
                 A class instance containing the objective function.
 
            one/two
-                One and Two-body Hamiltonian.
+                One and Two-body Hamiltonian (TwoIndex and FourIndex/Cholesky
+                instances)
 
            orb
-                (Expansion instance) An AO/MO expansion
+                (Expansion instance) An MO expansion
 
            **Keywords:**
                 :kappa: Initial step size (OneIndex instance)
@@ -360,8 +382,8 @@ class RStepSearch(StepSearch):
                 :hessian: Orbital Hessian (OneIndex instance)
         '''
         kappa = kwargs.get('kappa')
-        gradient = kwargs.get('gradient', None)
-        hessian = kwargs.get('hessian', None)
+        gradient = kwargs.get('gradient')
+        hessian = kwargs.get('hessian')
 
         iteri = 1
         ofun_ref = obj.compute_objective_function()
@@ -378,26 +400,24 @@ class RStepSearch(StepSearch):
                 #
                 # Preconditioned conjugate gradient
                 #
-                if self.optimizer in ['pcg']:
+                if self.optimizer == 'pcg':
                     optimizer = TruncatedCG(self.lf, gradient, hessian, self.trustradius)
                     optimizer(**{'niter': self.maxiterinner, 'abstol': self.threshold})
                     stepn = optimizer.step
                 #
                 # Powell's dogleg optimization:
                 #
-                elif self.optimizer in ['dogleg']:
+                elif self.optimizer == 'dogleg':
                     optimizer = Dogleg(kappa, gradient, hessian, self.trustradius)
                     optimizer()
                     stepn = optimizer.step
                 #
                 # Powell's double dogleg optimization:
                 #
-                elif self.optimizer in ['ddl']:
+                elif self.optimizer == 'ddl':
                     optimizer = DoubleDogleg(kappa, gradient, hessian, self.trustradius)
                     optimizer()
                     stepn = optimizer.step
-                else:
-                    raise NotImplementedError
             #
             # New rotation
             #

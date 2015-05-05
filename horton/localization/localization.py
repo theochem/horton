@@ -32,6 +32,7 @@ from horton.matrix import Expansion
 from horton.log import log, timer
 from horton.orbital_utils import rotate_orbitals, compute_unitary_matrix
 from horton.correlatedwfn.stepsearch import RStepSearch
+from horton.utils import check_options
 
 
 __all__ = [
@@ -70,7 +71,7 @@ class Localization(object):
         self._popmatrix = None
 
     @timer.with_section('Localization')
-    def __call__(self, exps, select, **kwargs):
+    def __call__(self, orb, select, **kwargs):
         '''Localizes the orbitals using a unitary transformation to rotate the
            AO/MO coefficient matrix. The orbitals are optimized by minimizing
            an objective function.
@@ -79,36 +80,34 @@ class Localization(object):
 
            **Arguments:**
 
-           exps
+           orb
                 The AO/MO coefficients. An Expansion instance.
 
            select
-                The orbital block to be localised. Any of ``occ`` (occupied
+                The orbital block to be localised (str). Any of ``occ`` (occupied
                 orbitals), ``virt`` (virtual orbitals)
 
            **Keywords:**
            :maxiter: (int) maximum number of iterations for localization
                      (default 2000)
            :threshold: (float) localization threshold for objective function
-                       (default 1e-8)
+                       (default 1e-6)
            :levelshift: level shift of Hessian (float) (default 1e-8)
-           :stepsearch: line search options (dictionary) containing:
-                              *method: linesearch method used (str). One of
+           :stepsearch: step search options (dictionary) containing:
+                              *method: step search method used (str). One of
                                         ``trust-region`` (default), ``None``,
                                         ``backtracking``
-                              *stepa: scaling factor for Newton step (float),
+                              *alpha: scaling factor for Newton step (float),
                                       used in ``backtracking`` and ``None``
                                       method (default 0.75)
                               *c1: parameter used in ``backtracking`` (float)
                                    (default 1e-4)
-                              *maxstep: maximum step length/trustradius (float)
-                                        (default 0.75)
-                              *minstep: minimum step length used in ``backracking``
+                              *minalpha: minimum step length used in ``backracking``
                                         (float) (default 1e-6)
-                              *maxiterouter: maximum number of line search steps
+                              *maxiterouter: maximum number of search steps
                                              (int) (default 10)
                               *maxiterinner: maximum number of optimization
-                                             step in each line search step (int)
+                                             steps in each search step (int)
                                              (used only in ``pcg``, default 500)
                               *maxeta: upper bound for estimated vs actual
                                        change in ``trust-region`` (float)
@@ -119,7 +118,9 @@ class Localization(object):
                               *upscale: scaling factor to increase trustradius
                                         in ``trust-region`` (float) (default 2.0)
                               *downscale: scaling factor to decrease trustradius
-                                          in ``trust-region`` (float) (default 0.25)
+                                          in ``trust-region`` (float) and
+                                          scaling factor in ``backtracking``
+                                          (default 0.25)
                               *trustradius: initial trustradius (float) (default 0.75)
                               *maxtrustradius: maximum trustradius (float)
                                                (default 0.75)
@@ -144,9 +145,8 @@ class Localization(object):
         lshift = _helper('levelshift', 1e-8)
         stepsearch = _helper('stepsearch', dict({}))
         stepsearch.setdefault('method', 'trust-region')
-        stepsearch.setdefault('maxstep', 0.75)
-        stepsearch.setdefault('minstep', 1e-6)
-        stepsearch.setdefault('stepa', 1.0)
+        stepsearch.setdefault('minalpha', 1e-6)
+        stepsearch.setdefault('alpha', 1.0)
         stepsearch.setdefault('c1', 0.0001)
         stepsearch.setdefault('maxiterouter', 10)
         stepsearch.setdefault('maxiterinner', 500)
@@ -162,6 +162,8 @@ class Localization(object):
         for name, value in kwargs.items():
             if name not in names:
                 raise ValueError("Unknown keyword argument %s" % name)
+            if value < 0:
+                raise ValueError('Illegal value for %s: %s' %(name, value))
 
         #
         # Update information about localization block
@@ -173,11 +175,11 @@ class Localization(object):
         #
         # Initialize step search
         #
-        linesearch = RStepSearch(self.lf, **stepsearch)
+        stepsearch_ = RStepSearch(self.lf, **stepsearch)
         #
         # Calculate initial objective function
         #
-        self.solve_wfn(exps)
+        self.solve_model(orb)
         objfct_ref = self.compute_objective_function()
 
         maxThresh = True
@@ -187,16 +189,16 @@ class Localization(object):
             #
             # Update population matrix for new orbitals
             #
-            self.compute_population_matrix(exps)
+            self.compute_population_matrix(orb)
             #
             # Calculate orbital gradient and diagonal approximation to the Hessian
             #
             kappa, gradient, hessian = self.orbital_rotation_step(lshift)
             #
-            # Apply line search to orbital rotation step 'kappa' and perform
+            # Apply steps search to orbital rotation step 'kappa' and perform
             # orbital rotation
             #
-            linesearch(self, None, None, exps,
+            stepsearch_(self, None, None, orb,
                        **{'kappa': kappa, 'gradient': gradient, 'hessian': hessian
                          })
             #
@@ -208,7 +210,7 @@ class Localization(object):
             # Print localization progress
             #
             if log.do_medium:
-                log('%4i   %14.8f   %14.3e' %(it, abs(objfct-objfct_ref), linesearch.stepa))
+                log('%4i   %14.8f' %(it, abs(objfct-objfct_ref)))
             #
             # Check convergence
             #
@@ -338,13 +340,12 @@ class PipekMezey(Localization):
 
     def assign_locblock(self):
         '''Get localization block. A OneIndex instance'''
+        check_options('block', self.locblock, 'occ', 'virt')
         block = self.lf.create_one_index()
         if self.locblock=='occ':
             block.assign(1.0, end0=self.nocc)
         elif self.locblock=='virt':
             block.assign(1.0, begin0=self.nocc)
-        else:
-            raise ValueError('Orbital block not supported for localization')
         return block
 
     def grad(self):
@@ -430,9 +431,9 @@ class PipekMezey(Localization):
 
     #
     # Don't change function name or implementation will break. The function
-    # ``solve_wfn`` is used in the linesearch module.
+    # ``solve_model`` is used in the StepSearch module.
     #
-    def solve_wfn(self, *args, **kwargs):
+    def solve_model(self, *args, **kwargs):
         '''Update population matrix used to calculate objective function'''
         for arg in args:
             if isinstance(arg, Expansion):
