@@ -2885,8 +2885,20 @@ class DenseFourIndex(FourIndex):
     # TODO: consider adding these to base class
     #
 
-    def check_symmetry(self):
-        """Check the symmetry of the array."""
+    def check_symmetry(self, threshold=1e-5, select=None):
+        """Check the symmetry of the array.
+
+           **Optional arguments:**
+
+           threshold
+                Absolute threshold for np.allclose (float)
+
+           select
+                Check for symmetry of type select (str) using np.allclose. The
+                array elements are reorder according to the ``np.einsum``
+                semantic
+        """
+        # TODO: change assert to np.allclose
         if self.symmetry in (2, 8):
             assert (self._array == self._array.transpose(1,0,3,2)).all()
         if self.symmetry in (4, 8):
@@ -2897,6 +2909,9 @@ class DenseFourIndex(FourIndex):
             assert (self._array == self._array.transpose(3,2,1,0)).all()
             assert (self._array == self._array.transpose(3,0,1,2)).all()
             assert (self._array == self._array.transpose(1,2,3,0)).all()
+        if select:
+            check_options('select', select, 'cdab')
+            return np.allclose(self._array, np.einsum(select, self._array), atol=threshold)
 
     def itranspose(self):
         '''In-place transpose: ``0,1,2,3 -> 1,0,3,2``'''

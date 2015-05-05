@@ -159,7 +159,9 @@ class Perturbation(object):
            **Arguments:**
 
            select
-                'fock'.
+                Suffix of auxiliary matrix. See :py:meth:`RMP2.init_aux_matrix`,
+                :py:meth:`PTa.init_aux_matrix`, and
+                :py:meth:`PTb.init_aux_matrix` for possible choices
         '''
         if not '%s' % select in self._cache:
             raise ValueError("The auxmatrix %s not found in cache. Did you use init_aux_matrix?" %select)
@@ -173,17 +175,18 @@ class Perturbation(object):
 
            one, two
                One- (TwoIndex) and two-body (FourIndex) integrals (some
-               Hamiltonian matrix elements) expressed in the AO basis.
+               Hamiltonian matrix elements)
 
            args
-               If Psi_0 = RHF, first argument is the AO/MO coefficient matrix
-               (Expansion instance), if Psi_0 = AP1roG, the second argument
-               is the geminal coefficient matrix (TwoIndex).
+               If Psi_0 = RHF, first argument is the MO coefficient matrix
+               (Expansion instance), if Psi_0 = AP1roG, first argument is again
+               the MO coefficient matrix the second argument is the geminal
+               coefficient matrix (TwoIndex).
 
            **Keywords:**
                Contains reference energy and solver specific input parameters:
-                * eref: (float) reference energy (default value float('nan'))
-                * ecore: (float) core energy (default value float('nan'))
+                * eref: (float) reference energy (default float('nan'))
+                * ecore: (float) core energy (default float('nan'))
                 * threshold: (float) tolerance for amplitudes (default 1e-6)
                 * maxiter: (int) maximum number of iterations (default 200)
                 * guess: (np.array) initial guess (default None)
@@ -231,7 +234,7 @@ class Perturbation(object):
         #
         # Construct auxiliary matrices (checks also type of arguments):
         #
-        matrix = self.calculate_aux_matrix(fargs)
+        matrix = self.calculate_aux_matrix(*fargs)
 
         #
         # Append arguments, used as arguments in root finding:
@@ -242,7 +245,7 @@ class Perturbation(object):
         #
         # Solve for energy and amplitudes:
         #
-        energy, amplitudes = self.solve(fargs, **kwargs)
+        energy, amplitudes = self.solve(*fargs, **kwargs)
         self.update_energy(energy)
         self.update_amplitudes(amplitudes)
 
@@ -266,7 +269,7 @@ class Perturbation(object):
 
 
 class RMP2(Perturbation):
-    '''Moller-Plesset Perturbation Theory
+    '''Moller-Plesset Perturbation Theory of second order
 
        Purpose:
        Optimize amplitudes and determine energy correction to Hartree-Fock
@@ -274,7 +277,7 @@ class RMP2(Perturbation):
     '''
 
     @timer.with_section('MP2Solver')
-    def solve(self, args, **kwargs):
+    def solve(self, *args, **kwargs):
         '''Solve for energy and amplitudes
 
            **Arguments:**
@@ -344,7 +347,7 @@ class RMP2(Perturbation):
         amplitudes.imul(matrix)
         return amplitudes
 
-    def calculate_aux_matrix(self, args):
+    def calculate_aux_matrix(self, *args):
         '''Compute auxiliary matrices
 
            **Arguments:**
@@ -353,6 +356,8 @@ class RMP2(Perturbation):
                 One- and two-electron integrals (some Hamiltonian matrix
                 elements) in the MO basis.
         '''
+        check_type('args[1]', args[1], TwoIndex)
+        check_type('args[2]', args[2], FourIndex)
         self.clear_aux_matrix()
         return self.update_aux_matrix(args[1], args[2])
 
@@ -442,12 +447,8 @@ class RMP2(Perturbation):
     def check_result(self, **kwargs):
         '''Check if amplitudes are symmetric (within a given threshold).'''
         thresh = kwargs.get('threshold', 1e-6)
-        amplitudes = self.amplitudes[0]
 
-        #
-        # FIXME: use matrix class to check symmetry of amplitudes:
-        #
-        if not np.allclose(amplitudes._array,np.einsum('cdab',amplitudes._array), atol=thresh):
+        if not self.amplitudes[0].check_symmetry(thresh, 'cdab'):
             raise ValueError('Warning: Cluster amplitudes not symmetric!')
 
 
@@ -456,7 +457,7 @@ class RMP2(Perturbation):
 class PTa(Perturbation):
 
     @timer.with_section('PTaSolver')
-    def solve(self, args, **kwargs):
+    def solve(self, *args, **kwargs):
         '''Solve for energy and amplitudes
 
            **Arguments:**
@@ -473,7 +474,7 @@ class PTa(Perturbation):
         #
         # Get "excitation" matrices w.r.t. |AP1roG> (psi0)
         #
-        exjbkc = self.vfunction_psi0(args, **kwargs)
+        exjbkc = self.vfunction_psi0(*args, **kwargs)
         #
         # Calculate amplitudes
         #
@@ -482,12 +483,12 @@ class PTa(Perturbation):
         # Calculate energy contributions of different seniority sectors
         # and total energy
         #
-        energy = self.calculate_energy(amplitudes, args)
+        energy = self.calculate_energy(amplitudes, *args)
 
         return energy, amplitudes
 
     @timer.with_section('VecFctPTa')
-    def vfunction_psi0(self, args, **kwargs):
+    def vfunction_psi0(self, *args, **kwargs):
         '''Elements of <bcjk|H|AP1roG>.
 
            **Arguments:**
@@ -613,7 +614,7 @@ class PTa(Perturbation):
 
         return out
 
-    def vfunction_0(self, args):
+    def vfunction_0(self, *args):
         '''Elements of <bcjk|H|0>.
 
            **Arguments:**
@@ -663,7 +664,7 @@ class PTa(Perturbation):
         amplitudes.imul(matrix)
         return amplitudes
 
-    def calculate_aux_matrix(self, args):
+    def calculate_aux_matrix(self, *args):
         '''Compute auxiliary matrices
 
            **Arguments:**
@@ -788,7 +789,7 @@ class PTa(Perturbation):
         else:
             self.amplitudes.append(new)
 
-    def calculate_energy(self, amplitudes, args):
+    def calculate_energy(self, amplitudes, *args):
         '''Calculate PT energy and energy contribution of seniority sectors
 
            **Arguments:**
@@ -803,7 +804,7 @@ class PTa(Perturbation):
         #
         # Get "excitation" matrices w.r.t. |HF> (0)
         #
-        exjbkc0 = self.vfunction_0(args)
+        exjbkc0 = self.vfunction_0(*args)
         #
         # Seniority-0 sector
         #
@@ -857,15 +858,14 @@ class PTa(Perturbation):
     def check_result(self, **kwargs):
         '''Check if amplitudes are reasonable.'''
         thresh = kwargs.get('threshold', 1e-6)
-        # FIXME: Use matrix class
-        amplitudes = self.amplitudes[0]._array
 
         # check symmetry of amplitudes:
-        if not np.allclose(amplitudes,np.einsum('cdab',amplitudes), atol=thresh):
+        if not self.amplitudes[0].check_symmetry(thresh, 'cdab'):
             raise ValueError('Warning: Cluster amplitudes not symmetric. Aborting optimization!')
 
         # check if diagonal amplitudes are zero:
-        if np.einsum('abab',amplitudes) > thresh:
+        tmp = self.amplitudes[0].slice_to_two('abab->ab')
+        if tmp.sum() > thresh:
             raise ValueError('Warning: Diagonal cluster amplitudes not negligible. Aborting optimization!')
 
 
@@ -874,7 +874,7 @@ class PTa(Perturbation):
 class PTb(Perturbation):
 
     @timer.with_section('PTbSolver')
-    def solve(self, args, **kwargs):
+    def solve(self, *args, **kwargs):
         '''Solve for energy and amplitudes
 
            **Arguments:**
@@ -900,7 +900,7 @@ class PTb(Perturbation):
         #
         # Append el energy of principle det to function arguments:
         #
-        args.append((eref-ecore))
+        args += ((eref-ecore),)
 
         #
         # Check argument type prior optimization:
@@ -947,12 +947,12 @@ class PTb(Perturbation):
         #
         # Get correction to reference energy:
         #
-        energy = self.calculate_energy(ptamplitudes, args)
+        energy = self.calculate_energy(ptamplitudes, *args)
 
         return energy, ptamplitudes
 
     @timer.with_section('VecFctPTb')
-    def vfunction(self, amplitudes, args):
+    def vfunction(self, amplitudes, *args):
         '''.
 
            **Arguments:**
@@ -1103,7 +1103,7 @@ class PTb(Perturbation):
 
         return out._array.ravel(order='C')
 
-    def vfunction_psi0(self, args, **kwargs):
+    def vfunction_psi0(self, *args, **kwargs):
         '''Elements of <bcjk|H|AP1roG>.
 
            **Arguments:**
@@ -1226,7 +1226,7 @@ class PTb(Perturbation):
         np.fill_diagonal(tmp, 0.0)
         return tmp.ravel()
 
-    def calculate_aux_matrix(self, args):
+    def calculate_aux_matrix(self, *args):
         '''Compute auxiliary matrices
 
            **Arguments:**
@@ -1353,7 +1353,7 @@ class PTb(Perturbation):
         else:
             self.amplitudes.append(new)
 
-    def calculate_energy(self, amplitudes, args):
+    def calculate_energy(self, amplitudes, *args):
         '''Calculate PT energy and energy contribution of seniority sectors
 
            **Arguments:**
@@ -1368,7 +1368,7 @@ class PTb(Perturbation):
         #
         # Get "excitation" matrices w.r.t. |AP1roG> (psi0)
         #
-        exjbkc0 = self.vfunction_psi0(args)
+        exjbkc0 = self.vfunction_psi0(*args)
         #
         # Seniority-0 sector
         #
@@ -1430,6 +1430,8 @@ class PTb(Perturbation):
         guess = kwargs.get('guess', None)
         if guess is not None:
             check_type('guess', guess, np.ndarray)
+            if not len(guess) == self.nocc*self.nocc*self.nvirt*self.nvirt:
+                raise ValueError('Length of guess array does not agree with number of unknowns')
         if math.isnan(eref):
             raise ValueError('Warning: Cannot find reference energy in PTb module!')
         if math.isnan(ecore):
@@ -1438,9 +1440,7 @@ class PTb(Perturbation):
     def check_result(self, **kwargs):
         '''Check if amplitudes are reasonable.'''
         thresh = kwargs.get('threshold', 1e-6)
-        # FIXME: use matrix class
-        amplitudes = self.amplitudes[0]._array
 
         # check symmetry of amplitudes:
-        if not np.allclose(amplitudes,np.einsum('cdab',amplitudes), atol=thresh*10):
-            raise ValueError('Warning: Cluster amplitudes not symmetric. Aborting optimization!')
+        if not self.amplitudes[0].check_symmetry(thresh, 'cdab'):
+            raise ValueError('Warning: Cluster amplitudes not symmetric!')
