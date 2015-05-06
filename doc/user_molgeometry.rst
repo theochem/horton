@@ -2,7 +2,7 @@ Specifying the molecular geometry
 #################################
 
 .. contents::
-
+.. _setup-molgeometry:
 
 Supported file formats
 ======================
@@ -27,6 +27,8 @@ x                                                    LOCPOT
 CP2K                     .cp2k
 CIF                      .cif
 ======================== =========================== ===========================
+
+.. _read-molgeometry:
 
 Reading the molecular geometry from file
 ========================================

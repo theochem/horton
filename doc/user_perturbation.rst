@@ -96,7 +96,7 @@ The PTa module
 Getting started
 ---------------
 
-PTa adds dynamic electron correlation effects on top of an AP1roG wavefunction (see :ref:`introap1rog`). You have to optimize an AP1roG wavefunction (see :ref:`ooap1rog` or :ref:`ap1rog`), before the PTa energy correction can be determined.
+PTa [Limacher2014]_ adds dynamic electron correlation effects on top of an AP1roG wavefunction (see :ref:`introap1rog`). You have to optimize an AP1roG wavefunction (see :ref:`ooap1rog` or :ref:`ap1rog`), before the PTa energy correction can be determined.
 
 
 How to set-up a calculation
@@ -148,7 +148,7 @@ The PTb module
 Getting started
 ---------------
 
-PTb represents a different flavor to add dynamic electron correlation effects on top of an AP1roG wavefunction (see :ref:`introap1rog`). Similarly to PTa (:ref:`pta`), you have to optimize an AP1roG wavefunction (see :ref:`ooap1rog` or :ref:`ap1rog`), before the PTb energy correction can be determined.
+PTb [Limacher2014]_ represents a different flavor to add dynamic electron correlation effects on top of an AP1roG wavefunction (see :ref:`introap1rog`). Similarly to PTa (:ref:`pta`), you have to optimize an AP1roG wavefunction (see :ref:`ooap1rog` or :ref:`ap1rog`), before the PTb energy correction can be determined.
 
 How to set-up a calculation
 ---------------------------
