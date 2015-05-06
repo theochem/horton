@@ -108,7 +108,7 @@ To optimize an AP1roG wavefunction, the module requires a Hamiltonian and an ini
             orb = lf.create_expansion(nbasis)
             olp = lf.create_two_index(nbasis)
             olp.assign_diagonal(1.0)
-            orb.assign_diagonal(1.0)
+            orb.assign(olp)
 
       where ``nbasis`` is the number of basis function (total number of orbitals in the active space).
 
@@ -582,6 +582,7 @@ This is the same example as above, but all keyword arguments are mentioned expli
 .. code-block:: python
 
     from horton import *
+    import numpy as np
     ###############################################################################
     ## Set up molecule, define basis set ##########################################
     ###############################################################################
@@ -627,12 +628,12 @@ This is the same example as above, but all keyword arguments are mentioned expli
     ## Do OO-AP1roG optimization ##################################################
     ###############################################################################
     ap1rog = RAp1rog(lf, occ_model)
-    energy, g, l = ap1rog(one, er, external['nn'], orb, olp, True, **{
+    energy, c, l = ap1rog(one, er, external['nn'], orb, olp, True, **{
         'indextrans': 'tensordot',
         'warning': False,
         'checkpoint': 1,
-        'lshift': 1e-8,
-        'pos': False,
+        'levelshift': 1e-8,
+        'absolute': False,
         'givensrot': np.array([[]]),
         'swapa': np.array([[]]),
         'sort': True,
@@ -645,6 +646,7 @@ This is the same example as above, but all keyword arguments are mentioned expli
         'stepsearch': {'method': 'trust-region', 'alpha': 1.0, 'c1': 0.0001, 'minalpha': 1e-6, 'maxiterouter': 10, 'maxiterinner': 500, 'maxeta': 0.75, 'mineta': 0.25, 'upscale': 2.0, 'downscale': 0.25, 'trustradius': 0.75, 'maxtrustradius': 0.75, 'threshold': 1e-8, 'optimizer': 'ddl'},
         'orbitaloptimizer': 'variational'
     }
+    )
 
 
 AP1roG with external integrals
@@ -668,11 +670,11 @@ This is a basic example on how to perform an orbital-optimized AP1roG calculatio
     orb = lf.create_expansion(nbasis)
     olp = lf.create_two_index(nbasis)
     olp.assign_diagonal(1.0)
-    orb.assign_diagonal(1.0)
+    orb.assign(olp)
     ###############################################################################
     ## Read Hamiltonian from file 'FCIDUMP' #######################################
     ###############################################################################
-    one, two, core = read_integrals(lf, './FCIDUMP')
+    one, two, core = integrals_from_file(lf, './FCIDUMP')
 
     ###############################################################################
     ## Do OO-AP1roG optimization ##################################################
