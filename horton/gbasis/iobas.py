@@ -25,7 +25,8 @@ from horton.periodic import periodic
 
 
 __all__ = [
-    'str_to_shell_types', 'shell_type_to_str', 'load_basis_atom_map_nwchem',
+    'str_to_shell_types', 'shell_type_to_str', 'fortran_float',
+    'load_basis_atom_map_nwchem',
 ]
 
 
@@ -41,6 +42,11 @@ def str_to_shell_types(s, pure=False):
 def shell_type_to_str(shell_type):
     """Convert a shell type into a character"""
     return {0: 's', 1: 'p', 2: 'd', 3: 'f', 4: 'g', 5: 'h', 6: 'i'}[abs(shell_type)]
+
+
+def fortran_float(s):
+    '''Convert a string to a float. Works also with D before the mantissa'''
+    return float(s.replace('D', 'E').replace('d', 'e'))
 
 
 def load_basis_atom_map_nwchem(filename):
@@ -73,8 +79,8 @@ def load_basis_atom_map_nwchem(filename):
                 ba.bcs.extend(bcs)
         else:
             # An extra primitive for the current contraction(s).
-            exponent = float(words[0])
-            coeffs = [float(w) for w in words[1:]]
+            exponent = fortran_float(words[0])
+            coeffs = [fortran_float(w) for w in words[1:]]
             for i, bc in enumerate(bcs):
                 bc.alphas.append(exponent)
                 bc.con_coeffs.append(coeffs[i::len(bcs)])

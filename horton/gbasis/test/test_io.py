@@ -50,6 +50,13 @@ def test_shell_type_to_str():
     assert shell_type_to_str(4) == 'g'
 
 
+def test_fortran_float():
+    assert fortran_float('1e-2') == fortran_float('1d-2')
+    assert float('1e-2') == fortran_float('1d-2')
+    assert fortran_float('1E-2') == fortran_float('1D-2')
+    assert float('1E-2') == fortran_float('1D-2')
+
+
 def test_go_basis_desc_neon_sto3g():
     obasis = get_gobasis(np.array([[0.0,0.0,0.0]]), np.array([2]), 'STO-3G')
     assert (obasis.shell_map == np.array([0])).all()
