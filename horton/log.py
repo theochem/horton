@@ -28,7 +28,7 @@
    Horton objects.
 '''
 
-import sys, os, datetime, getpass, time, atexit, traceback, resource
+import sys, os, datetime, getpass, time, atexit, traceback, resource, urllib
 from contextlib import contextmanager
 import horton
 
@@ -393,7 +393,7 @@ class Reference(object):
         if self.kind == 'article':
             url = self.get_url()
             if len(url) > 0:
-                url = '; `%s <%s>`_' % (url, url)
+                url = '; `%s <%s>`_' % (url, url[:8] + urllib.quote(url[8:]))
             return '"%s", %s; *%s* **%s** (v. %s pp. %s)%s' % (
                 self.tags['title'],
                 self.tags['author'].replace(' and', ';'), self.tags['journal'],

@@ -29,6 +29,7 @@ The Hubbard model Hamiltonian is the simplest model of interacting particles on 
     \hat{H}_{\rm Hub} = -t\sum_{j,\sigma} \left( a_{(j+1)\sigma}^{\dagger}a_{j\sigma}
     + a_{j\sigma}^{\dagger}a_{(j+1)\sigma} \right )
     +U\sum_j n_{j\uparrow} n_{j\downarrow},
+
 where the first term is a one-electron term and accounts for nearest-neighbor hopping, while the second term is the repulsive on-site interaction. :math:`t` and :math:`U` are user specified parameters and :math:`\sigma` is the electron spin.
 
 
