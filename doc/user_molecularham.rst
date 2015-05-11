@@ -1,10 +1,10 @@
 Molecular Hamiltonians
 ######################
 
-A molecular Hamiltonian is typically set up in three steps. First one loads
-a molecular geometry, or constructs the arrays with coordinates from scratch.
-Then one generates a Gaussian basis set for this molecule. Finally, all kinds
-of matrix elements can be computed with that basis to define a Hamiltonian.
+A molecular Hamiltonian is typically set up in three steps. First one loads or
+constructs a molecular geometry. Then one generates a Gaussian basis set for
+this molecule. Finally, all kinds of matrix elements can be computed with that
+basis to define a Hamiltonian.
 
 
 .. _setup-molgeometry:
@@ -250,16 +250,70 @@ for Lithium (without polarization functions):
     ba = GOBasisAtom(bcs)
     obasis = get_gobasis(np.array([[0.0, 0.0, 0.0]]), np.array([3]), default=ba)
 
-All basis functions are just single s-type primitives, i.e. no contactions are
-used. In the end of the example, the basis set is constructed for a single Li
-atom in the origin.
+All basis functions in this example are just single s-type primitives, i.e. no
+contactions are used. At the end of the example, the basis set is constructed
+for a single Li atom in the origin.
 
 Note that ``get_gobasis`` also accepts instances of GOBasisAtom for the
-arguments ``default``, ``element_map`` and ``index_map``, as shown in the above
-example.
+arguments ``default``, ``element_map`` and ``index_map``.
+
+
+Loading geometry and basis set info from one file
+-------------------------------------------------
+
+When post-processing results from other programs, it may be desirable to use
+exactly the same basis set as was used in the other program (Gaussian, ORCA,
+PSI4, etc.) This can be acchieved by loading the geometry, basis set and
+wavefunction from one of the following formats: ``.mkl``, ``.molden``, or
+``.fchk``. In principle, it is also possible to load the basis set from a
+``.wfn`` file, but keep in mind that this format does not support contracted
+basis functions, so Horton will then use a decontracted basis set, which is less
+efficient.
+
+One simply uses the ``Molecule.from_file`` method to load the file. The orbital
+basis object is then available in the ``obasis`` attribute if the return value.
+For example:
+
+.. code-block:: python
+
+    # Load the geometry, orbital basis and wavefunction from a Gaussian
+    # formatted checkpoint file:
+    mol = Molecule.from_file('water.fchk')
+
+    # Print the number of basis functions
+    print mol.obasis.nbasis
 
 
 Computing (Hamiltonian) Matrix elements
 =======================================
 
-TODO
+Given a ``GOBasis`` instance (the ``obasis`` object from the
+examples in the previous section), one can generate the two-index and four-index
+objects for the molecular electronic Hamiltonian. It may be useful to construct
+also the overlap operator as the Gaussian basis sets are not orthonormal.
+
+Before computing the matrix elements, one first has to specify how the two- and four-index
+objects will be represented. The default in Horton is to use a dense
+matrix representation, which is implemented in the ``DenseLinalgFactory`` class.
+An instance of this class must be passed to the methods that compute the matrix
+elements. Alternatively, one may also use the ``CholeskyLinalgFactory``, which
+represents all four-index objects with a Cholesky decomposition.
+
+This is a basic example:
+
+.. code-block:: python
+
+    # ... assuming some of the preceding code has created the obasis object
+
+    # Create a linalg factory with dense matrices.
+    lf = DenseLinalgFactory(obasis.nbasis)
+
+    # Compute the overlap, kinetic energy, nuclear attraction and electron repulsion
+    # integrals.
+    olp = obasis.compute_overlap(lf)
+    kin = obasis.compute_kinetic(lf)
+    na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
+    er = obasis.compute_electron_repulsion(lf)
+
+For the nuclear attraction integrals, one also has to specify arrays with atomic
+coordinates and nuclear charges.
