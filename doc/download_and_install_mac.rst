@@ -260,8 +260,8 @@ The manual configuration of the compiler and linker settings is described here:
 not work.
 
 
-Runtime Environmental variables
--------------------------------
+Runtime Configuration
+---------------------
 
 We need to set the following variables in ``~/.bash_profile`` to use Horton::
 
@@ -271,6 +271,17 @@ We need to set the following variables in ``~/.bash_profile`` to use Horton::
     # where Python will find it without setting environment variables. ~Toon
     export PYTHONPATH=${PYTHONPATH}:${HOME}/path-to-horton-installation/
     export HORTONDATA=${HOME}/path-to-horton-installation/data/
+
+If you run Horton on a headless node, i.e. without an X server, you need to
+configure Matplotlib to use a backend that does not require a graphical user
+interface. (See http://matplotlib.org/faq/usage_faq.html#what-is-a-backend for
+more details on the Matplotlib backends.) This can be done by adding the
+following line to your ``matplotlibrc`` file::
+
+    backend: agg
+
+This file is located either in ``${HOME}/.matplotlib`` or
+``${HOME}/.config/matplotlib``.
 
 
 Running the tests
