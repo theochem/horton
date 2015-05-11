@@ -8,5 +8,3 @@ Defining a Hamiltonian
    user_molecularham
    user_modelham
    user_externalham
-   user_molgeometry
-   user_basissets
