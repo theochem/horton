@@ -249,7 +249,7 @@ class GOBasisFamily(object):
 
 
 
-go_basis_families = [
+go_basis_families_list = [
     GOBasisFamily('STO-3G', filename=context.get_fn('basis/sto-3g.nwchem')),
     GOBasisFamily('STO-6G', filename=context.get_fn('basis/sto-6g.nwchem')),
     GOBasisFamily('3-21G', filename=context.get_fn('basis/3-21g.nwchem')),
@@ -281,7 +281,7 @@ go_basis_families = [
     GOBasisFamily('def2-qzvpd', filename=context.get_fn('basis/def2-qzvpd.nwchem')),
     GOBasisFamily('ANO-RCC', filename=context.get_fn('basis/ano-rcc.nwchem')),
 ]
-go_basis_families = dict((bf.name.lower(), bf) for bf in go_basis_families)
+go_basis_families = dict((bf.name.lower(), bf) for bf in go_basis_families_list)
 
 
 class GOBasisAtom(object):

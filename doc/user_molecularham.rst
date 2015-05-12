@@ -83,40 +83,7 @@ Most of the popular basis sets can be loaded automatically. A list of currently 
 
 .. cssclass:: table-striped
 
-======================== =========================== ===========================
-Common basis name           Horton library name         Supported elements
-======================== =========================== ===========================
-STO-3G                     ``sto-3g``                         H--Kr
-STO-6G                   ``sto-6g``                      H--Kr
-3-21G                    ``3-21g``                       H--Kr
-3-21G*                   ``3-21g*``                      Na--Ar
-3-21+G*                  ``3-21+g*``                     Na--Ar
-4-31G                    ``4-31g``                       H--Ne, P, S, Cl
-6-31G                    ``6-31g``                       H--Zn
-6-31G*                   ``6-31g*``                      H--Zn
-6-31G**                  ``6-31g**``                     H--Zn
-6-31+G                   ``6-31+g``                      H--Ca
-6-31+G*                  ``6-31+g*``                     H--Ca
-6-31++G*                 ``6-31++g*``                    H--Ca
-6-31++G**                ``6-31++g**``                   H, Li--Ca
-cc-pVDZ                  ``cc-pvdz``                     H--Ar, Ca-Kr
-cc-pVTZ                  ``cc-pvtz``                     H--Ar, Ca-Kr
-cc-pVQZ                  ``cc-pvqz``                     H--Ar, Ca-Kr
-cc-pCVDZ                 ``cc-cpvdz``                    Li--Ar
-cc-pCVTZ                 ``cc-cpvtz``                    Li--Ar
-cc-pCVQZ                 ``cc-cpvqz``                    Li--Ar
-aug-cc-pVDZ              ``aug-cc-pvdz``                 H--Ar, Sc--Kr
-aug-cc-pVTZ              ``aug-cc-pvtz``                 H--Ar, Sc--Kr
-aug-cc-pVQZ              ``aug-cc-pvqz``                 H--Ar, Sc--Kr
-aug-cc-pCVDZ             ``aug-cc-cpvdz``                Li--Ar
-aug-cc-pCVTZ             ``aug-cc-cpvtz``                Li--Ar
-aug-cc-pCVQZ             ``aug-cc-cpvqz``                Li--Ar
-def2-svpd                ``def2-svpd``                   H--Kr
-def2-tzvp                ``def2-tzvp``                   H--Kr
-def2-tzvpd               ``def2-tzvpd``                  H--Kr
-def2-qzvp                ``def2-qzvp``                   H--Kr
-def2-qzvpd               ``def2-qzvpd``                  H--Kr
-======================== =========================== ===========================
+.. include:: basis.rst.inc
 
 Note that the basis set names are case-insensitive in Horton. These basis sets
 were taken from the EMSL library (https://bse.pnl.gov/bse/portal). When
