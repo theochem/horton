@@ -339,7 +339,7 @@ repulsion energy to the total energy reported by the effective Hamiltonian.
           RTwoIndexTerm(kin, 'kin'),
           RDirectTerm(er, 'hartree'),
           RGridGroup(obasis, grid, [
-              RLibXCLDA('x', 'x_dirac'),
+              RLibXCLDA('x'),
           ]),
           RTwoIndexTerm(na, 'ne'),
       ]
@@ -412,9 +412,9 @@ three options:
   .. code-block:: python
 
       # Restricted case
-      occ = FixedOccModel(np.array([1.0, 1.0, 0.5, 0.5, 0.0]))
+      occ_model = FixedOccModel(np.array([1.0, 1.0, 0.5, 0.5, 0.0]))
       # Unrestricted case
-      occ = FixedOccModel(np.array([1.0, 1.0, 0.5, 0.5, 0.0]), np.array([1.0, 0.7, 1.0, 0.0, 0.3]))
+      occ_model = FixedOccModel(np.array([1.0, 1.0, 0.5, 0.5, 0.0]), np.array([1.0, 0.7, 1.0, 0.0, 0.3]))
 
 
 * :py:class:`~horton.meanfield.occ.AufbauOccModel`. Fill all orbitals according
@@ -424,9 +424,9 @@ three options:
   .. code-block:: python
 
       # Restricted case (three alpha and three beta electrons)
-      occ = AufbauOccModel(3.0)
+      occ_model = AufbauOccModel(3.0)
       # Unrestricted case (two alpha and three beta electrons)
-      occ = AufbauOccModel(2.0, 3.0)
+      occ_model = AufbauOccModel(2.0, 3.0)
 
 
 * :py:class:`~horton.meanfield.occ.FermiOccModel`. Use the Fermi-smearing method
@@ -436,9 +436,9 @@ three options:
   .. code-block:: python
 
       # Restricted case (three alpha and three beta electrons, 300K)
-      occ = FermiOccModel(3.0, temperature=300)
+      occ_model = FermiOccModel(3.0, temperature=300)
       # Unrestricted case (two alpha and three beta electrons, 500K)
-      occ = AufbauOccModel(2.0, 3.0, temperature=500)
+      occ_model = AufbauOccModel(2.0, 3.0, temperature=500)
 
 
 Self-consistent field algorithms
@@ -475,30 +475,21 @@ TODO: add code snipts of how to call the SCF solver
 Complete examples
 =================
 
-Just give an overview of the complete examples but avoid litteral includes as
-this would make the documentation excessively long. Following examples are
-of interest.
+The following is a basic example of a restricted Hartree-Fock calculation of
+water. It contains all the steps discussed in the previous sections.
 
-Basic:
+.. literalinclude:: ../data/examples/hf_dft/rhf_water_dense.py
+    :caption: data/examples/hf_dft/rhf_water_dense.py
+    :lines: 7-
 
-- Basic RHF with Dense matrices
-- Basic UHF with Dense matrices
-- Basic RHF with Cholesky
-- Basic UHF with Cholesky
-- Basic RKS with LDA + ERI
-- Basic UKS with LDA + ERI
-- Basic RKS with GGA + ERI
-- Basic UKS with GGA + ERI
-- Basic RKS with Hybrid GGA + ERI
-- Basic UKS with Hybrid GGA + ERI
+The directory ``data/examples/hf_dft`` contains many more examples that use the
+different options discussed above. The following table shows which features are
+used in which example.
 
-Advanced
+.. include:: hf_dft_examples.rst.inc
 
-- Example of Fermi broadening
-- Example with model hamiltonian
-- Example with integrals read from FCI Dump
-- RKS with GGA + Numer Hartree
-- UKS with GGA + Numer Hartree
-- RHF with Fermi smearing followed by normal occuptions
-- UHF with Fermi smearing followed by normal occuptions
-- Chromium dimer with EDIIS
+A more elaborate example can be found in ``data/examples/hf_compare``. It
+contains a script that systemtically computes all elements in the periodic table
+(for different charges and multiplicities), and compares the results with
+outputs obtained with Gaussian. See the ``README`` file for instructions how to
+run this example.

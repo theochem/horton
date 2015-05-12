@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+#JSON {"lot": "RHF/cc-pVDZ",
+#JSON  "scf": "PlainSCFSolver",
+#JSON  "linalg": "CholeskyLinalgFactory",
+#JSON  "difficulty": 2,
+#JSON  "description": "Basic RHF example with Cholesky decomposition of the ERI"}
 
 from horton import *
 
@@ -6,10 +11,10 @@ from horton import *
 mol = Molecule.from_file('water.xyz')
 
 # Create a Gaussian basis set
-obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21G')
+obasis = get_gobasis(mol.coordinates, mol.numbers, 'cc-pVDZ')
 
 # Create a linalg factory
-lf = DenseLinalgFactory(obasis.nbasis)
+lf = CholeskyLinalgFactory(obasis.nbasis)
 
 # Compute Gaussian integrals
 olp = obasis.compute_overlap(lf)
@@ -40,14 +45,15 @@ occ_model = AufbauOccModel(5)
 scf_solver = PlainSCFSolver(1e-6)
 scf_solver(ham, lf, olp, occ_model, exp_alpha)
 
-# Partition the density with the Becke scheme
-# - construct a numerical integration grid
-grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, mode='keep')
-# - compute the electron density on a grid
-dm_alpha = exp_alpha.to_dm()
-moldens = 2*obasis.compute_grid_density_dm(dm_alpha, grid.points)
-# - initialize the partitioning code
-wpart = BeckeWPart(mol.coordinates, mol.numbers, mol.pseudo_numbers, grid, moldens)
-# - compute and print the charges
-wpart.do_charges()
-print wpart['charges']
+# Assign results to the molecule object and write it to a file, e.g. for
+# later analysis
+mol.title = 'RHF computation on water'
+mol.energy = ham.cache['energy']
+mol.obasis = obasis
+mol.exp_alpha = exp_alpha
+mol.dm_alpha = ham.cache['dm_alpha']
+
+# useful for visualization:
+mol.to_file('water.molden')
+# useful for post-processing (results stored in double precision)
+mol.to_file('water.h5')

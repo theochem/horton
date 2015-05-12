@@ -553,7 +553,7 @@ Python interface that allows one to run a more customized analysis. The script
 ``data/examples/004_wpart/run.py`` is a simple example that runs a Becke partitioning
 where only the charges are computed and written to a simple text file.
 
-.. literalinclude:: ../data/examples/004_wpart/run.py
+.. literalinclude:: ../data/examples/wpart/becke.py
 
 The unit tests in the source code contain many small examples that can be used
 as a starting point for similar scripts. These unit tests can be found in

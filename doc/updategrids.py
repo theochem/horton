@@ -26,7 +26,7 @@ from cStringIO import StringIO
 import os
 from horton import periodic
 
-from common import write_if_changed
+from common import write_rst_table, write_if_changed
 
 elements = set([])
 grids = set([])
@@ -51,24 +51,20 @@ grids = sorted(grids)
 alts = ['coarse', 'medium', 'fine', 'veryfine', 'ultrafine', 'insane']
 elements = sorted(elements)
 
-f = StringIO()
-
-def print_markers():
-    print >> f, '======= === ====', ' '.join(['=========']*len(grids))
-
-print_markers()
-print >> f, 'Element   Z Zeff', ' '.join([grid.ljust(9) for grid in grids])
-print >> f, '\         \ \   ', ' '.join([alt.ljust(9) for alt in alts])
-print_markers()
+table = [
+    ['Element', 'Z', 'Zeff'] + grids,
+    [' ', ' ', ' '] + alts,
+]
 for z, zeff in elements:
-    print >> f, '%7s %3i %4i' % (periodic[z].symbol, z, zeff),
+    row = [periodic[z].symbol, str(z), str(zeff)]
     for grid in grids:
         npoint = npoints.get((z, zeff, grid))
         if npoint is None:
-            print >> f, '--       ',
+            row.append('--')
         else:
-            print >> f, '%9i' % npoint,
-    print >> f
-print_markers()
+            row.append(str(npoint))
+    table.append(row)
 
+f = StringIO()
+write_rst_table(f, table, nhead=2)
 write_if_changed('grids.rst.inc', f.getvalue())

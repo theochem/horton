@@ -25,22 +25,62 @@ from horton.test.common import check_script
 from horton import context
 
 
-def test_example_001_hf_water():
-    check_script('./run.py', context.get_fn('examples/001_hf_water'))
+def test_example_rhf_cr2_cholesky():
+    check_script('./rhf_cr2_cholesky.py', context.get_fn('examples/hf_dft'))
 
 
-def test_example_002_hfs_water():
-    check_script('./run.py', context.get_fn('examples/002_hfs_water'))
+def test_example_rhf_water_cholesky():
+    check_script('./rhf_water_cholesky.py', context.get_fn('examples/hf_dft'))
 
 
-def test_example_003_o3lyp_water():
-    check_script('./run.py', context.get_fn('examples/003_o3lyp_water'))
+def test_example_rhf_water_dense():
+    check_script('./rhf_water_dense.py', context.get_fn('examples/hf_dft'))
 
 
-def test_example_004_wpart():
-    check_script('./run.py', context.get_fn('examples/004_wpart'))
+def test_example_rks_water_gga():
+    check_script('./rks_water_gga.py', context.get_fn('examples/hf_dft'))
 
 
-def test_example_005_compare():
+def test_example_rks_water_hybgga():
+    check_script('./rks_water_hybgga.py', context.get_fn('examples/hf_dft'))
+
+
+def test_example_rks_water_lda():
+    check_script('./rks_water_lda.py', context.get_fn('examples/hf_dft'))
+
+
+def test_example_rks_water_numlda():
+    check_script('./rks_water_numlda.py', context.get_fn('examples/hf_dft'))
+
+
+def test_example_uhf_methyl_cholesky():
+    check_script('./uhf_methyl_cholesky.py', context.get_fn('examples/hf_dft'))
+
+
+def test_example_uhf_methyl_dense():
+    check_script('./uhf_methyl_dense.py', context.get_fn('examples/hf_dft'))
+
+
+def test_example_uks_methyl_gga():
+    check_script('./uks_methyl_gga.py', context.get_fn('examples/hf_dft'))
+
+
+def test_example_uks_methyl_hybgga():
+    check_script('./uks_methyl_hybgga.py', context.get_fn('examples/hf_dft'))
+
+
+def test_example_uks_methyl_lda():
+    check_script('./uks_methyl_lda.py', context.get_fn('examples/hf_dft'))
+
+
+def test_example_uks_methyl_numlda():
+    check_script('./uks_methyl_numlda.py', context.get_fn('examples/hf_dft'))
+
+
+def test_example_wpart():
+    check_script('./becke.py', context.get_fn('examples/wpart'))
+
+
+def test_example_hf_compare():
     fn_fchk = context.get_fn('test/helium_hf_sto3g.fchk')
-    check_script('./compare.py %s' % fn_fchk, context.get_fn('examples/005_compare'))
+    check_script('./compare.py %s' % fn_fchk, context.get_fn('examples/hf_compare'))

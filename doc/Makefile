@@ -40,6 +40,7 @@ autogendoc:
 	HORTONDATA=../data PYTHONPATH=../:$(PYTHONPATH) python updategrids.py
 	HORTONDATA=../data PYTHONPATH=../:$(PYTHONPATH) python updateliterature.py
 	HORTONDATA=../data PYTHONPATH=../:$(PYTHONPATH) python updatefunctionals.py
+	python update_hf_dft_examples.py
 	doxygen doxygen.conf
 
 clean:
