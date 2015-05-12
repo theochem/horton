@@ -36,10 +36,10 @@ help:
 autogendoc:
 	cd ..; python setup.py build_ext -i
 	mkdir -p lib
-	HORTONDATA=../data PYTHONPATH=../:$(PYTHONPATH) python updatelibdoc.py
-	HORTONDATA=../data PYTHONPATH=../:$(PYTHONPATH) python updategrids.py
-	HORTONDATA=../data PYTHONPATH=../:$(PYTHONPATH) python updateliterature.py
-	HORTONDATA=../data PYTHONPATH=../:$(PYTHONPATH) python updatefunctionals.py
+	HORTONDATA=../data PYTHONPATH=../:$(PYTHONPATH) python update_lib_doc.py
+	HORTONDATA=../data PYTHONPATH=../:$(PYTHONPATH) python update_grids.py
+	HORTONDATA=../data PYTHONPATH=../:$(PYTHONPATH) python update_literature.py
+	HORTONDATA=../data PYTHONPATH=../:$(PYTHONPATH) python update_functionals.py
 	python update_hf_dft_examples.py
 	doxygen doxygen.conf
 
