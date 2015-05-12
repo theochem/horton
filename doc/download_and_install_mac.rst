@@ -21,37 +21,6 @@ https://www.macports.org/install.php. This guide was tested with MacPorts 2.3.3 
 it should also work with newer version.
 
 
-Some hints for installing MacPorts
-----------------------------------
-
-It is recommended to place the MacPort ``bin`` and ``sbin`` directories in the beginning
-of the ``PATH`` variable, such that they take precedence over other directories in the
-``PATH``. This reduces the risk of conflicts with other software. For example, put the
-following in your ``~/.bash_profile``::
-
-    MACPORTSHOME=/opt/local
-    export PATH=${MACPORTSHOME}/bin:${MACPORTSHOME}/sbin:${PATH}
-    export CPATH=${MACPORTSHOME}/include:${CPATH}
-
-The ``CPATH`` variable is required for the compilation of Horton. It tells the compiler
-where to look for C/C++ header files (besides the standard locations).
-
-It is possible to install MacPorts in user space. This offers some advantages, e.g. no
-need for ``sudo`` and root permissions, easier to clean up in case of epic failures, etc.
-Only do this if you feel comfortable with non-standard installs. Otherwise, just use the
-default installation of MacPorts.
-
-To do a user-space install, download the MacPorts source code, unpack it, and install
-as follows::
-
-    export MACPORTSHOME=${HOME}/macports
-    ./configure --prefix=${MACPORTSHOME} --with-applications-dir=${MACPORTSHOME}/Applications --with-install-user=${USER} --with-install-group=$(id -gn) --with-no-root-privileges
-    make install
-
-Finally, set the ``MACPORTSHOME`` directory in the ``.bash_profile`` and open a fresh
-terminal such that your new ``.bash_profile`` is in effect.
-
-
 Quick guideline through MacPorts
 --------------------------------
 
