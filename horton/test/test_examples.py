@@ -25,6 +25,14 @@ from horton.test.common import check_script
 from horton import context
 
 
+def test_example_hydrogen_ring():
+    check_script('./hydrogen_ring.py', context.get_fn('examples/hamiltonian'))
+
+
+def test_example_even_tempered_li():
+    check_script('./even_tempered_li.py', context.get_fn('examples/hamiltonian'))
+
+
 def test_example_rhf_cr2_cholesky():
     check_script('./rhf_cr2_cholesky.py', context.get_fn('examples/hf_dft'))
 

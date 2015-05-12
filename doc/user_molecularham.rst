@@ -61,27 +61,9 @@ One may also generate molecular geometries with Python code. The
 following example constructs a ring of Hydrogen atoms and writes it to an
 XYZ file
 
-.. code-block:: python
-
-    import numpy as np
-    from horton import *
-
-    # define the ring
-    natom = 11
-    spacing = 1.3 # distance between two neighboring atoms in bohr
-    radius = spacing/(2*np.sin(np.pi/natom))
-
-    # define the coordinates and elements
-    coordinates = np.zeros((natom, 3))
-    numbers = np.ones(natom, dtype=int) # must be integers
-    for iatom in xrange(natom):
-        angle = (2*np.pi/natom)*iatom
-        coordinates[iatom, 0] = radius*np.cos(angle)
-        coordinates[iatom, 1] = radius*np.sin(angle)
-
-    # write the molecule to an XYZ file (optional)
-    mol = Molecule(coordinates=coordinates, numbers=numbers)
-    mol.to_file('ring.xyz')
+.. literalinclude:: ../data/examples/hamiltonian/hydrogen_ring.py
+    :lines: 2-
+    :caption: data/examples/hamiltonian/hydrogen_ring.py
 
 
 Specifying the basis set
@@ -226,29 +208,9 @@ In some circumstances it may be useful to generate the basis set with some
 Python code. For example, the following code generates an even tempered basis
 for Lithium (without polarization functions):
 
-.. code-block:: python
-
-    import numpy as np
-    from horton import *
-
-    # specify the even tempered basis set
-    alpha_low = 5e-3
-    alpha_high = 5e2
-    nbasis = 30
-    lnratio = (np.log(alpha_high) - np.log(alpha_low))/(nbasis-1)
-
-    # build a list of "contractions". These aren't real contractions as every
-    # constraction only contains one basis function.
-    bcs = []
-    for ibasis in xrange(nbasis):
-        alpha = alpha_low**lnratio
-        # arguments of GOBasisContraction:
-        #     shell_type, list of exponents, list of contraction coefficients
-        bcs.append(GOBasisContraction(0, [alpha], [1.0]))
-
-    # Finish setting up the basis set:
-    ba = GOBasisAtom(bcs)
-    obasis = get_gobasis(np.array([[0.0, 0.0, 0.0]]), np.array([3]), default=ba)
+.. literalinclude:: ../data/examples/hamiltonian/even_tempered_li.py
+    :lines: 2-
+    :caption: data/examples/hamiltonian/even_tempered_li.py
 
 All basis functions in this example are just single s-type primitives, i.e. no
 contactions are used. At the end of the example, the basis set is constructed
