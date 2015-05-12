@@ -25,7 +25,7 @@ Moller-Plesset perturbation theory of second order
 Getting started
 ---------------
 
-The RMP2 module requires a restricted Hartree-Fock reference wavefunction (see :ref:`howtoscf`), its energy, and the one- and two-electron integrals as input arguments.
+The RMP2 module requires a restricted Hartree-Fock reference wavefunction (see :ref:`user_hf_dft`), its energy, and the one- and two-electron integrals as input arguments.
 
 The Hartree-Fock energy can be calculated after SCF convergence as follows
 

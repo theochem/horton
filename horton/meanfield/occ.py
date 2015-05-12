@@ -217,6 +217,7 @@ class FermiOccModel(FermiMixin, AufbauOccModel):
             raise TypeError('Unknown keyword arguments: %s' % kwargs.keys())
         FermiMixin.__init__(self, temperature, eps)
         AufbauOccModel.__init__(self, *noccs)
+        log.cite('rabuck1999', 'the Fermi broading method to assign orbital occupations')
 
     def assign(self, *exps):
         '''See :py:meth:`OccModel.assign`.'''

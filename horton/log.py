@@ -301,6 +301,7 @@ class TimerGroup(object):
             def wrapper(*args, **kwargs):
                 with self.section(label):
                     return fn(*args, **kwargs)
+            wrapper.__doc__ = fn.__doc__
             return wrapper
         return decorator
 

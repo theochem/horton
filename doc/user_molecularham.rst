@@ -258,17 +258,19 @@ Note that ``get_gobasis`` also accepts instances of GOBasisAtom for the
 arguments ``default``, ``element_map`` and ``index_map``.
 
 
+.. _user_molecularham_geom_and_basis:
+
 Loading geometry and basis set info from one file
 -------------------------------------------------
 
 When post-processing results from other programs, it may be desirable to use
 exactly the same basis set as was used in the other program (Gaussian, ORCA,
 PSI4, etc.) This can be acchieved by loading the geometry, basis set and
-wavefunction from one of the following formats: ``.mkl``, ``.molden``, or
-``.fchk``. In principle, it is also possible to load the basis set from a
-``.wfn`` file, but keep in mind that this format does not support contracted
-basis functions, so Horton will then use a decontracted basis set, which is less
-efficient.
+wavefunction from one of the following formats: ``.mkl``, ``.molden``,
+``.fchk``, or Horton's internal ``.h5`` format. In principle, it is also
+possible to load the basis set from a ``.wfn`` file, but keep in mind that this
+format does not support contracted basis functions, so Horton will then use a
+decontracted basis set, which is less efficient.
 
 One simply uses the ``Molecule.from_file`` method to load the file. The orbital
 basis object is then available in the ``obasis`` attribute if the return value.
@@ -283,6 +285,8 @@ For example:
     # Print the number of basis functions
     print mol.obasis.nbasis
 
+
+.. _user_molecularham_matrix_elements:
 
 Computing (Hamiltonian) Matrix elements
 =======================================

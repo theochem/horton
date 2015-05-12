@@ -39,7 +39,8 @@ def guess_core_hamiltonian(overlap, *args, **kwargs):
 
        core1, core2, ...
             A number of operators that add up to the core Hamiltonian. Any set
-            of operators whose sum resembles a Fock operator is fine.
+            of operators whose sum resembles a Fock operator is fine. Usually,
+            one passes the kinetic energy and nuclear attraction integrals.
 
        exp1, exp2, ...
             A list of wavefunction expansion objects (output arguments)
@@ -56,6 +57,9 @@ def guess_core_hamiltonian(overlap, *args, **kwargs):
 
        rotate
             Givens rotation of orbital pair by specified angle (alpha-spin).
+
+       This method only modifies the expansion coefficients and the orbital
+       energies.
     '''
     mixing = kwargs.pop('mixing', False)
     unitary = kwargs.pop('unitary', False)

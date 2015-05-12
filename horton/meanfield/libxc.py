@@ -45,9 +45,6 @@ class LibXCEnergy(GridObservable):
         '''
            **Arguments:**
 
-           wfn
-                A Wavefunction object.
-
            name
                 The name of the functional in LibXC, without the ``lda_``,
                 ``gga_`` or ``hyb_gga_`` prefix. (The type of functional is

@@ -60,7 +60,7 @@ To optimize an AP1roG wavefunction, the module requires a Hamiltonian and an ini
 
 - The Hamiltonian is divided into three contributions: the one- and two-electron integrals as well as an external term (also referred to as core energy). Possible choices are:
 
-    1. In-house calculation of the quantum chemical Hamiltonian expressed in the AO basis (kinetic energy of the electrons, electron-nuclear attraction, electron-electron repulsion, and nuclear-nuclear repulsion). All terms are calculated separately in Horton (see :ref:`getaointegrals` for documentation). Note, however, that all one-electron terms have to be combined into one single operator term. This can be done in the following way
+    1. In-house calculation of the quantum chemical Hamiltonian expressed in the AO basis (kinetic energy of the electrons, electron-nuclear attraction, electron-electron repulsion, and nuclear-nuclear repulsion). All terms are calculated separately in Horton (see :ref:`user_molecularham_matrix_elements` for documentation). Note, however, that all one-electron terms have to be combined into one single operator term. This can be done in the following way
 
         .. code-block:: python
 
@@ -97,7 +97,7 @@ To optimize an AP1roG wavefunction, the module requires a Hamiltonian and an ini
 
 - A set of initial guess orbitals can be either generated in Horton (including the AO overlap matrix) or read from disk (see :ref:`restart-ap1rog` to use orbitals generated in Horton as initial guess). Examples for initial guess orbitals are:
 
-    1. Restricted canonical Hartree-Fock orbitals (see :ref:`howtoscf`)
+    1. Restricted canonical Hartree-Fock orbitals (see :ref:`user_hf_dft`)
 
     2. Localized orbitals. Horton supports Pipek-Mezey localization of canonical Hartree-Fock orbitals. See :ref:`localization` for documentation.
 
