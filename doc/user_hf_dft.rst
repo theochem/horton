@@ -274,7 +274,7 @@ constructor arguments.
       :py:class:`~horton.meanfield.builtin.UBeckeHartree`.
 
   Integration grids are discussed in more detail in the section
-  :ref:`user_integration_grids`. A list of the supported LibXC functionals can
+  :ref:`user_integration_grids_specify`. A list of the supported LibXC functionals can
   be found in :ref:`ref_functionals`. Note that Horton does not support the
   MGGA's yet.
 

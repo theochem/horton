@@ -33,6 +33,10 @@ def test_example_even_tempered_li():
     check_script('./even_tempered_li.py', context.get_fn('examples/hamiltonian'))
 
 
+def test_example_expectation_r():
+    check_script('./expectation_r.py', context.get_fn('examples/grid'))
+
+
 def test_example_rhf_cr2_cholesky():
     check_script('./rhf_cr2_cholesky.py', context.get_fn('examples/hf_dft'))
 

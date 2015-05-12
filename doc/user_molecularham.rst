@@ -66,6 +66,8 @@ XYZ file
     :caption: data/examples/hamiltonian/hydrogen_ring.py
 
 
+.. _user_molecularham_basis:
+
 Specifying the basis set
 ========================
 
@@ -73,7 +75,6 @@ Basis set format
 ----------------
 Horton supports basis sets consisting of generally contracted Cartesian Gaussian functions up to a maximum angular momentum of seven (I functions).
 Horton is using the same basis set format as NWChem, and the basis sets can be downloaded from the EMSL webpage (https://bse.pnl.gov/bse/portal).
-
 
 .. _horton-basis-library:
 
