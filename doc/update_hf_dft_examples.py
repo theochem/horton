@@ -15,7 +15,6 @@ for fn_py in sorted(glob('../data/examples/hf_dft/*.py')):
                 s += line[5:]
     if len(s) == 0:
         raise RuntimeError('Could not find JSON line in HF/DFT example script.')
-    print (s,)
     meta = json.loads(s)
     case = [meta['difficulty'], os.path.basename(fn_py), meta['lot'],
             meta['scf'], meta['description']]
