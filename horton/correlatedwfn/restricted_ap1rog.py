@@ -135,18 +135,18 @@ class RAp1rog(Geminal):
         indextrans = _helper('indextrans', 'tensordot')
         warning = _helper('warning', False)
         swapa = _helper('swapa', np.array([[]]))
-        guess = _helper('guess', dict({}))
+        guess = _helper('guess', {})
         guess.setdefault('type', 'random')
         guess.setdefault('factor', -0.1)
         guess.setdefault('geminal', None)
-        solver = _helper('solver', dict({'wfn': 'krylov'}))
+        solver = _helper('solver', {'wfn': 'krylov'})
         solver.setdefault('wfn', 'krylov')
-        maxiter = _helper('maxiter', dict({'wfniter', 200}))
-        dumpci = _helper('dumpci', dict({}))
+        maxiter = _helper('maxiter', {'wfniter': 200})
+        dumpci = _helper('dumpci', {})
         dumpci.setdefault('amplitudestofile', False)
         dumpci.setdefault('amplitudesfilename', "./ap1rog_amplitudes.dat")
-        thresh = _helper('thresh', dict({'wfn',  1e-12}))
-        printoptions = _helper('printoptions', dict({}))
+        thresh = _helper('thresh', {'wfn':  1e-12})
+        printoptions = _helper('printoptions', {})
         printoptions.setdefault('geminal', True)
         printoptions.setdefault('ci', 0.01)
         printoptions.setdefault('excitationlevel', 1)
@@ -160,9 +160,8 @@ class RAp1rog(Geminal):
         self.check_keywords(guess, solver, maxiter, dumpci, thresh,
                             printoptions)
         check_options('warning', warning, False, True, 0, 1)
-        check_type('checkpoint', checkpoint, int)
 
-        if warning:
+        if not warning:
             warnings.filterwarnings('ignore')
 
         #
@@ -359,30 +358,30 @@ class RAp1rog(Geminal):
         givensrot = _helper('givensrot', np.array([[]]))
         swapa = _helper('swapa', np.array([[]]))
         sort = _helper('sort', True)
-        guess = _helper('guess', dict({}))
+        guess = _helper('guess', {})
         guess.setdefault('type', 'random')
         guess.setdefault('factor', -0.1)
         guess.setdefault('geminal', None)
         guess.setdefault('lagrange', None)
-        solver = _helper('solver', dict({}))
+        solver = _helper('solver', {})
         solver.setdefault('wfn', 'krylov')
         solver.setdefault('lagrange', 'krylov')
-        maxiter = _helper('maxiter', dict({}))
+        maxiter = _helper('maxiter', {})
         maxiter.setdefault('wfniter', 200)
         maxiter.setdefault('orbiter', 100)
-        dumpci = _helper('dumpci', dict({}))
+        dumpci = _helper('dumpci', {})
         dumpci.setdefault('amplitudestofile', False)
         dumpci.setdefault('amplitudesfilename', "./ap1rog_amplitudes.dat")
-        thresh = _helper('thresh', dict({}))
+        thresh = _helper('thresh', {})
         thresh.setdefault('wfn',  1e-12)
         thresh.setdefault('energy', 1e-8)
         thresh.setdefault('gradientnorm', 1e-4)
         thresh.setdefault('gradientmax', 5e-5)
-        printoptions = _helper('printoptions', dict({}))
+        printoptions = _helper('printoptions', {})
         printoptions.setdefault('geminal', True)
         printoptions.setdefault('ci', 0.01)
         printoptions.setdefault('excitationlevel', 1)
-        stepsearch = _helper('stepsearch', dict({}))
+        stepsearch = _helper('stepsearch', {})
         stepsearch.setdefault('method', 'trust-region')
         stepsearch.setdefault('alpha', 1.0)
         stepsearch.setdefault('c1', 0.0001)
@@ -417,7 +416,7 @@ class RAp1rog(Geminal):
         #
         # Set optimization parameters
         #
-        if warning:
+        if not warning:
             warnings.filterwarnings('ignore')
         if maxiter['orbiter'] < 0:
             raise ValueError('Number of iterations must be greater/equal 0!')
@@ -894,7 +893,6 @@ class RAp1rog(Geminal):
         sol = opt.root(self.vector_function_geminal,
                        guess,
                        args=(iiaa, iaia, one, fock),
-                       jac=self.jacobian_ap1rog,
                        method=solver['wfn'],
                        options={'xtol': wfnthreshold, 'maxiter': wfnmaxiter},
                        callback=None)
@@ -932,7 +930,6 @@ class RAp1rog(Geminal):
                        guess,
                        args=(self.geminal, iiaa, iaia, one, fock),
                        method=solver['lagrange'],
-                       jac=self.jacobian_lambda,
                        callback=None,
                        options={'xtol': wfnthreshold, 'maxiter': wfnmaxiter})
         if not sol.success:
