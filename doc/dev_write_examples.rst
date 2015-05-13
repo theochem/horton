@@ -1,15 +1,11 @@
 Writing examples scripts
 ########################
 
-The examples are located in the ``data/examples`` directory. Each example is located
-in a subdirectory ``XXX_some_name``, where ``XXX`` is a counter. In each
-subdirectory there is an executable script ``run.py`` that demonstrates a
-feature. Additional input files may be provided here for the example to work.
-For each example, there is also a corresponding test in
-``horton/test/test_examples.py`` Please, follow these conventions when adding a
-new example.
-
-The file ``run.py`` should not contain more than 50 lines of functional Python
-code, preferably even less. Put excessive comments before each line to explain
-how the example work. Also write the test such that it does not take more than a
-second to complete.
+The examples are located in the ``data/examples`` directory. The first level of
+subdirectories is grouping the examples by category. Additional (small) input
+files may be provided next to the example scripts. Make sure that each script
+properly executes in a few seconds and that it does not require input that can't
+be included in the examples directory (because it is too big or binary). Keep
+the examples short and put excessive comments before each line to explain how
+the example work. For each example, one should also add a corresponding test in
+``horton/test/test_examples.py`` that just executes the example.
