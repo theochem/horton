@@ -126,7 +126,9 @@ def get_lib_config_setup(prefix, fn_setup_cfg):
                     value = config.get(prefix, key).strip()
                     if value is not None and len(value) > 0:
                         lib_config[key] = value.split(':')
-    print_lib_config('From %s' % fn_setup_cfg, lib_config)
+        print_lib_config('From %s' % fn_setup_cfg, lib_config)
+    else:
+        print '   File %s not found. Skipping.' % fn_setup_cfg
     return lib_config
 
 def get_lib_config_env(prefix):
