@@ -18,6 +18,7 @@
 //
 //--
 
+// UPDATELIBDOCTITLE: Computation of weights for ESP cost functions
 
 #ifndef HORTON_ESPFIT_MASK
 #define HORTON_ESPFIT_MASK

@@ -1,2 +1,2 @@
-How to user the matrix package
-##############################
+How to use the matrix package
+#############################

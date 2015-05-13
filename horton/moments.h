@@ -18,6 +18,8 @@
 //
 //--
 
+// UPDATELIBDOCTITLE: Efficient evaluation of various of polynomials
+
 #ifndef HORTON_MOMENTS_H
 #define HORTON_MOMENTS_H
 

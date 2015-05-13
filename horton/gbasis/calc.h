@@ -18,6 +18,7 @@
 //
 //--
 
+// UPDATELIBDOCTITLE: Base class for any integral/evaluation of Gaussian functions
 
 #ifndef HORTON_GBASIS_CALC_H
 #define HORTON_GBASIS_CALC_H

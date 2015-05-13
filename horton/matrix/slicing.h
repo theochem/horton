@@ -18,6 +18,8 @@
 //
 //--
 
+// UPDATELIBDOCTITLE: Low-level routines for ``CholeskyLinalgFactory``
+
 #ifndef HORTON_MATRIX_SLICING_H
 #define HORTON_MATRIX_SLICING_H
 

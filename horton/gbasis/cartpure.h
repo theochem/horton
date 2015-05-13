@@ -18,6 +18,7 @@
 //
 //--
 
+// UPDATELIBDOCTITLE: Conversion of Cartesian to Pure Gaussian functions
 
 #ifndef HORTON_GBASIS_CARTPURE_H
 #define HORTON_GBASIS_CARTPURE_H

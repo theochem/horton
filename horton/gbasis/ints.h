@@ -18,6 +18,7 @@
 //
 //--
 
+// UPDATELIBDOCTITLE: Evaluation of integrals of Gaussian basis functions
 
 #ifndef HORTON_GBASIS_INTS_H
 #define HORTON_GBASIS_INTS_H

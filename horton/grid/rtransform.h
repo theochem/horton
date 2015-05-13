@@ -18,6 +18,7 @@
 //
 //--
 
+// UPDATELIBDOCTITLE: Transformation from uniform 1D to non-uniform 1D grids
 
 #ifndef HORTON_GRID_RTRANSFORM_H
 #define HORTON_GRID_RTRANSFORM_H

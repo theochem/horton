@@ -18,7 +18,7 @@
 //
 //--
 
-
+// UPDATELIBDOCTITLE: Evaluation of splines on grids
 
 #ifndef HORTON_GRID_EVALUATE_H
 #define HORTON_GRID_EVALUATE_H

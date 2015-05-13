@@ -18,6 +18,7 @@
 //
 //--
 
+// UPDATELIBDOCTITLE: Iterators over Cartesian polynomials in one shell
 
 #ifndef HORTON_GBASIS_ITER_POW_H
 #define HORTON_GBASIS_ITER_POW_H

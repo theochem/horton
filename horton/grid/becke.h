@@ -18,6 +18,7 @@
 //
 //--
 
+// UPDATELIBDOCTITLE: Becke partitioning weight function
 
 #ifndef HORTON_GRID_BECKE_H
 #define HORTON_GRID_BECKE_H

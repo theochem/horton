@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-
+'''Evaluation of response functions'''
 
 import numpy as np
 

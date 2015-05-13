@@ -18,6 +18,8 @@
 //
 //--
 
+// UPDATELIBDOCTITLE: Auxiliary functions
+
 #ifndef HORTON_GRID_UTILS_H
 #define HORTON_GRID_UTILS_H
 

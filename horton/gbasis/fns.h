@@ -18,6 +18,7 @@
 //
 //--
 
+// UPDATELIBDOCTITLE: Evaluation of functions expanded in a Gaussian basis
 
 #ifndef HORTON_GBASIS_FNS_H
 #define HORTON_GBASIS_FNS_H

@@ -65,7 +65,7 @@ def get_first_doxygenline(fn_h):
         for line in f:
             if line.startswith('// UPDATELIBDOCTITLE:'):
                 return line[21:].strip()
-        return 'Missing UPDATELIBDOCTITLE. Please fix!'
+        return 'FIXME: Missing UPDATELIBDOCTITLE'
 
 
 def underline(line, char, f):

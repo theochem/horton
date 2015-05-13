@@ -18,6 +18,7 @@
 //
 //--
 
+// UPDATELIBDOCTITLE: Grids for quadrature on a sphere
 
 #ifndef HORTON_GRID_LEBEDEV_LAIKOV_H
 #define HORTON_GRID_LEBEDEV_LAIKOV_H

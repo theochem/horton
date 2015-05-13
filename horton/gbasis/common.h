@@ -18,6 +18,7 @@
 //
 //--
 
+// UPDATELIBDOCTITLE: Auxiliary functions
 
 #ifndef HORTON_GBASIS_COMMON_H
 #define HORTON_GBASIS_COMMON_H

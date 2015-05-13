@@ -18,6 +18,7 @@
 //
 //--
 
+// UPDATELIBDOCTITLE: Uniform 3D grids
 
 #ifndef HORTON_GRID_UNIFORM_H
 #define HORTON_GRID_UNIFORM_H

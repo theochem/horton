@@ -18,6 +18,7 @@
 //
 //--
 
+// UPDATELIBDOCTITLE: Gaussian basis set classes
 
 #ifndef HORTON_GBASIS_GBASIS_H
 #define HORTON_GBASIS_GBASIS_H

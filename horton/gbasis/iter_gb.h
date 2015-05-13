@@ -18,6 +18,7 @@
 //
 //--
 
+// UPDATELIBDOCTITLE: Iterators over Gaussian basis functions
 
 #ifndef HORTON_GBASIS_ITER_GB_H
 #define HORTON_GBASIS_ITER_GB_H

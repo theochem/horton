@@ -18,6 +18,7 @@
 //
 //--
 
+// UPDATELIBDOCTITLE: Computation of ESP cost functions
 
 #ifndef HORTON_ESPFIT_ELECTROSTATICS_H
 #define HORTON_ESPFIT_ELECTROSTATICS_H

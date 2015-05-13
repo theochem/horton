@@ -18,6 +18,7 @@
 //
 //--
 
+// UPDATELIBDOCTITLE: The Boys function
 
 #ifndef HORTON_GBASIS_BOYS_H
 #define HORTON_GBASIS_BOYS_H

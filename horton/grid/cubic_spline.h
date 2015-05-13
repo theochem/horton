@@ -18,10 +18,10 @@
 //
 //--
 
+// UPDATELIBDOCTITLE: One-dimensional cubic splines (on uniform grids)
 
 #ifndef HORTON_GRID_CUBIC_SPLINE_H
 #define HORTON_GRID_CUBIC_SPLINE_H
-
 
 #include "horton/grid/rtransform.h"
 

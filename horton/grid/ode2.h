@@ -18,6 +18,7 @@
 //
 //--
 
+// UPDATELIBDOCTITLE: Second-order finite-element ODE solver using Hermite polynomials
 
 #ifndef HORTON_GRID_ODE2_H
 #define HORTON_GRID_ODE2_H
