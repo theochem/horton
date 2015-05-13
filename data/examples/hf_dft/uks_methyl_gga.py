@@ -48,8 +48,8 @@ ham = UEffHam(terms, external)
 # Decide how to occupy the orbitals (5 alpha electrons, 4 beta electrons)
 occ_model = AufbauOccModel(5, 4)
 
-# Converge WFN with plain Optimal damping algorithm (ODA) SCF
-# - Construct the initial density matrix (neede for ODA).
+# Converge WFN with CDIIS SCF
+# - Construct the initial density matrix (needed for CDIIS).
 occ_model.assign(exp_alpha, exp_beta)
 dm_alpha = exp_alpha.to_dm()
 dm_beta = exp_beta.to_dm()

@@ -68,24 +68,15 @@ to assign the same orbitals are assigned for the alpha and beta spins.
 
 The guess for a restricted wavefunction is done as follows:
 
-.. code-block:: python
-
-    # Create alpha orbitals
-    exp_alpha = lf.create_expansion()
-
-    # Initial guess
-    guess_core_hamiltonian(olp, kin, na, exp_alpha)
+.. literalinclude:: ../data/examples/hf_dft/rhf_water_dense.py
+    :lines: 25-29
+    :caption: data/examples/hf_dft/rhf_water_dense.py, lines 25--29
 
 For a unrestricted wavefunction, the procedure is very similar:
 
-.. code-block:: python
-
-    # Create alpha and beta orbitals
-    exp_alpha = lf.create_expansion()
-    exp_beta = lf.create_expansion()
-
-    # Initial guess
-    guess_core_hamiltonian(olp, kin, na, exp_alpha, exp_beta)
+.. literalinclude:: ../data/examples/hf_dft/uhf_methyl_dense.py
+    :lines: 25-30
+    :caption: data/examples/hf_dft/uhf_methyl_dense.py, lines 25--30
 
 The arguments ``exp_alpha`` and ``exp_beta`` are treated as output arguments.
 Instead of ``kin`` and ``na``, one may provide just any set of one-body
@@ -304,98 +295,42 @@ repulsion energy to the total energy reported by the effective Hamiltonian.
 
 * Restricted Hartree-Fock:
 
-  .. code-block:: python
-
-      external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
-      terms = [
-          RTwoIndexTerm(kin, 'kin'),
-          RDirectTerm(er, 'hartree'),
-          RExchangeTerm(er, 'x_hf'),
-          RTwoIndexTerm(na, 'ne'),
-      ]
-      ham = REffHam(terms, external)
-
+  .. literalinclude:: ../data/examples/hf_dft/rhf_water_dense.py
+      :lines: 32-39
+      :caption: data/examples/hf_dft/rhf_water_dense.py, lines 32--39
 
 * Unrestricted Hartree-Fock:
 
-  .. code-block:: python
+  .. literalinclude:: ../data/examples/hf_dft/uhf_methyl_dense.py
+      :lines: 33-40
+      :caption: data/examples/hf_dft/uhf_methyl_dense.py, lines 33--40
 
-      external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
-      terms = [
-          UTwoIndexTerm(kin, 'kin'),
-          UDirectTerm(er, 'hartree'),
-          UExchangeTerm(er, 'x_hf'),
-          UTwoIndexTerm(na, 'ne'),
-      ]
-      ham = UEffHam(terms, external)
+* Restricted Kohn-Sham DFT with the Dirac exchange and the VWN correlation
+  functionals:
 
-
-* Restricted Kohn-Sham DFT with the Dirac exchange functional:
-
-  .. code-block:: python
-
-      external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
-      terms = [
-          RTwoIndexTerm(kin, 'kin'),
-          RDirectTerm(er, 'hartree'),
-          RGridGroup(obasis, grid, [
-              RLibXCLDA('x'),
-          ]),
-          RTwoIndexTerm(na, 'ne'),
-      ]
-      ham = REffHam(terms, external)
-
+  .. literalinclude:: ../data/examples/hf_dft/rks_water_lda.py
+      :lines: 35-45
+      :caption: data/examples/hf_dft/rks_water_lda.py, lines 35--45
 
 * Unrestricted Kohn-Sham DFT with the PBE GGA exchange and correlation
   functionals:
 
-  .. code-block:: python
-
-      external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
-      terms = [
-          UTwoIndexTerm(kin, 'kin'),
-          UDirectTerm(er, 'hartree'),
-          UGridGroup(obasis, grid, [
-              ULibXCGGA('x_pbe'),
-              ULibXCGGA('c_pbe'),
-          ]),
-          UTwoIndexTerm(na, 'ne'),
-      ]
-      ham = UEffHam(terms, external)
-
+  .. literalinclude:: ../data/examples/hf_dft/uks_methyl_gga.py
+      :lines: 36-46
+      :caption: data/examples/hf_dft/uks_methyl_gga.py, lines 36--46
 
 * Restricted Kohn-Sham DFT with the Hybrid GGA functional B3LYP:
 
-  .. code-block:: python
+  .. literalinclude:: ../data/examples/hf_dft/rks_water_hybgga.py
+      :lines: 35-44
+      :caption: data/examples/hf_dft/rks_water_hybgga.py, lines 35--44
 
-      external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
-      libxc_term = RLibXCHybridGGA('xc_b3lyp')
-      terms = [
-          RTwoIndexTerm(kin, 'kin'),
-          RDirectTerm(er, 'hartree'),
-          RGridGroup(obasis, grid, [libxc_term]),
-          RExchangeTerm(er, 'x_hf', libxc_term.get_exx_fraction()),
-          RTwoIndexTerm(na, 'ne'),
-      ]
-      ham = REffHam(terms, external)
-
-
-* Unrestricted Kohn-Sham DFT with the PBE GGA exchange and correlation
+* Unrestricted Kohn-Sham DFT with LDA exchange and correlation
   functionals and with a numerical integration of the Hartree term:
 
-  .. code-block:: python
-
-      external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
-      terms = [
-          UTwoIndexTerm(kin, 'kin'),
-          UGridGroup(obasis, grid, [
-              UBeckeHartree(lmax=5, 'hartree_becke'),
-              ULibXCGGA('x_pbe'),
-              ULibXCGGA('c_pbe'),
-          ]),
-          UTwoIndexTerm(na, 'ne'),
-      ]
-      ham = UEffHam(terms, external)
+  .. literalinclude:: ../data/examples/hf_dft/uks_methyl_numlda.py
+      :lines: 36-46
+      :caption: data/examples/hf_dft/uks_methyl_numlda.py, lines 36--46
 
 
 Models for orbital occupations
@@ -469,7 +404,35 @@ Horton supports the following SCF algorithms:
   CDIIS and EDIIS. [kudin2002]_ This method tries to combine the benefits of
   both approaches.
 
-TODO: add code snipts of how to call the SCF solver
+The plain SCF solver starts from an initial guess of the orbitals and updates
+this in-place.
+
+* Usage in the restricted case:
+
+  .. literalinclude:: ../data/examples/hf_dft/rhf_water_dense.py
+      :lines: 44-46
+      :caption: data/examples/hf_dft/rhf_water_dense.py, lines 44--46
+
+* Usage in the unrestricted case:
+
+  .. literalinclude:: ../data/examples/hf_dft/uhf_methyl_dense.py
+      :lines: 45-47
+      :caption: data/examples/hf_dft/uhf_methyl_dense.py, lines 45--47
+
+All other solvers start from an initial guess of the density matrix and update
+that quantity in-place. The usage pattern is as follow:
+
+* Usage in the restricted case:
+
+  .. literalinclude:: ../data/examples/hf_dft/rks_water_lda.py
+      :lines: 50-56
+      :caption: data/examples/hf_dft/rks_water_lda.py, lines 50--56
+
+* Usage in the unrestricted case:
+
+  .. literalinclude:: ../data/examples/hf_dft/uks_methyl_lda.py
+      :lines: 51-58
+      :caption: data/examples/hf_dft/uks_methyl_lda.py, lines 51--58
 
 
 Complete examples

@@ -47,8 +47,8 @@ ham = UEffHam(terms, external)
 # Decide how to occupy the orbitals (5 alpha electrons, 4 beta electrons)
 occ_model = AufbauOccModel(5, 4)
 
-# Converge WFN with plain Optimal damping algorithm (ODA) SCF
-# - Construct the initial density matrix (neede for ODA).
+# Converge WFN with CDIIS+EDIIS SCF
+# - Construct the initial density matrix (needed for CDIIS+EDIIS).
 occ_model.assign(exp_alpha, exp_beta)
 dm_alpha = exp_alpha.to_dm()
 dm_beta = exp_beta.to_dm()
@@ -57,8 +57,8 @@ scf_solver = EDIIS2SCFSolver(1e-6)
 scf_solver(ham, lf, olp, occ_model, dm_alpha, dm_beta)
 
 # Assign results to the molecule object and write it to a file, e.g. for
-# later analysis. Note that the EDIIS algorithm can only really construct an
-# optimized density matrix and no orbitals.
+# later analysis. Note that the CDIIS+EDIIS algorithm can only really construct
+# an optimized density matrix and no orbitals.
 mol.title = 'UHF computation on water'
 mol.energy = ham.cache['energy']
 mol.obasis = obasis
