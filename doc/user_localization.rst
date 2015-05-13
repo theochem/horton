@@ -3,9 +3,6 @@
 Localization of molecular orbitals
 ######################################
 
-.. contents::
-
-
 In general, the localization algorithm optimizes the localization function using an orthogonal transformation between the orbitals :math:`\vert i \rangle` ,
 
 .. math::

@@ -3,8 +3,6 @@
 How to export a Hamiltonian
 ###########################
 
-.. contents::
-
 
 Export a Hamiltonian in ASCII format
 ====================================

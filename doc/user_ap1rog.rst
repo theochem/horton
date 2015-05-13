@@ -1,8 +1,6 @@
 The AP1roG module
 #################
 
-.. contents::
-
 .. _introap1rog:
 
 The AP1roG model

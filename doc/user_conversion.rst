@@ -1,8 +1,6 @@
 Conversion between file formats
 ###############################
 
-.. contents::
-
 
 ``horton-convert.py`` -- Conversion between file formats supported by Horton
 ============================================================================

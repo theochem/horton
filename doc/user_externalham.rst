@@ -1,8 +1,6 @@
 Loading external Hamiltonians
 #############################
 
-.. contents::
-
 
 Supported features
 ==================

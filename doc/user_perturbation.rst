@@ -1,8 +1,6 @@
 The perturbation theory module
 ##############################
 
-.. contents::
-
 Supported features
 ==================
 

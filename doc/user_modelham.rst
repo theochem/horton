@@ -2,9 +2,6 @@
 
 Model Hamiltonians
 ##################
-.. contents::
-
-
 
 Supported features
 ==================

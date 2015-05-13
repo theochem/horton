@@ -1,10 +1,6 @@
 Atoms-in-Molecules (AIM) analysis
 #################################
 
-
-.. contents::
-
-
 Introduction
 ============
 

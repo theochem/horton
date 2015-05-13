@@ -1,8 +1,6 @@
 Electrostatic potential fitting
 ###############################
 
-.. contents::
-
 
 Introduction
 ============

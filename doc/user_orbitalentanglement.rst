@@ -1,8 +1,6 @@
 Orbital entanglement analysis
 #############################
 
-.. contents::
-
 .. _orbitalentanglement:
 
 Orbital entanglement and orbital correlation
