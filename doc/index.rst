@@ -22,7 +22,7 @@ User documentation
    user_hamiltonian
    user_estruct
    user_postproc
-   user_library
+   user_other_topics
 
 
 Technical stuff

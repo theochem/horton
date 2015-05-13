@@ -37,9 +37,10 @@ def parse_args():
         help='The output filename to write the header to.')
 
     parser.add_argument('--spacing', default=0.2, type=float,
-        help='The grid spacing in angstrom')
+        help='The grid spacing in angstrom [default=%(default)s]')
     parser.add_argument('--margin', default=5.0, type=float,
-        help='The margin between the box edges and the nuclei in angstrom')
+        help='The margin between the box edges and the nuclei in angstrom '
+             '[default=%(default)s]')
 
     return parser.parse_args()
 

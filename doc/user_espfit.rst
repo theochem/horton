@@ -2,6 +2,8 @@ Electrostatic potential fitting
 ###############################
 
 
+.. _user_espfit_introduction:
+
 Introduction
 ============
 
@@ -154,3 +156,63 @@ The first file, ``cost.h5``, is generated with the script
 ``horton-esp-cost.py``. The second file, ``wpart.h5`` is generated (for example)
 with ``horton-wpart.py gaussian.fchk wpart.h5:hi hi atoms.h5``. The last file,
 ``wpart_espcost.h5`` will contain the output in the HDF5 group ``hi``.
+
+
+Making nice cube files with Gaussian
+====================================
+
+Horton contains an auxiliary tool, ``horton-cubehead.py`` to prepare an input
+header for a cube file aligned with the molecule of interest. This is more
+efficient than the default settings in of cubegen, which begins to matter in
+terms of disk space when working with molecular databases. For occasional use,
+``horton-cubehead.py`` is probably overkill. The script is used as follows::
+
+    horton-cubehead.py structure.xyz cubehead.txt
+
+The file ``cubehead.txt`` will contain something along the following lines::
+
+    0   16.5695742234   -2.4411573645  -11.3378429796
+  -61   -0.0000100512    0.0000288090    0.3779452256
+   61   -0.2210334948    0.3065726468   -0.0000292468
+   65   -0.3065726480   -0.2210334949    0.0000086952
+
+This file can be used for the cubegen utility as follows::
+
+    cubegen 0 fdensity=scf somefile.fchk rho.cube -1 < cubehead.txt
+    cubegen 0 potential=scf somefile.fchk esp.cube -1 < cubehead.txt
+
+where ``scf`` must be replaced by the type of wavefunction to be analyzed. Read
+the `cubegen manual <http://www.gaussian.com/g_tech/g_ur/u_cubegen.htm>`_ for
+more details.
+
+
+Python interface to the ESP fitting code
+========================================
+
+One can use the ESP cost function constructed with ``horton-esp-cost.py`` to
+implement customized charge fitting protocols, e.g. using bond-charge
+increments, constraints or hyperbolic restraints. At the beginning of such
+a custom script, the cost function can be loaded as follows:
+
+.. code-block:: python
+
+    cost = load_h5("cost.h5")['cost']
+
+The object ``cost`` is an instance of the
+:py:class:`horton.espfit.cost.ESPCost` (follow link for documentation). This
+instance can, for example, be used to evaluate the ESP cost or its gradient of a
+given array of atomic charges:
+
+.. code-block:: python
+
+    print cost.value(charges)
+    print cost.gradient(charges)
+
+If desired, one can also directly access :math:`A`, :math:`B`, :math:`C` that
+define the quadratic cost functions: (See :ref:`user_espfit_introduction`.)
+
+.. code-block:: python
+
+    print cost._A
+    print cost._B
+    print cost._C
