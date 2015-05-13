@@ -275,7 +275,7 @@ Dependencies
 If one is interested in generating the documentation from source, the following
 packages are also needed:
 
-* Sphinx > 1.0: http://sphinx.pocoo.org/
+* Sphinx >= 1.3.1: http://sphinx.pocoo.org/
 * Doxygen >= 1.8.6: http://www.doxygen.org/
 * Breathe >= 1.2.0: http://breathe.readthedocs.org/en/latest/
 * Docutils >= 0.11: http://docutils.sourceforge.net/
