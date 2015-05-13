@@ -96,4 +96,4 @@ There are convenience functions to add/multiply a string of matrices together
 as well. Contact the authors for more details.
 
 Many operations have been implemented in the Matrix class. See
-:mod:`.Matrix.dense` for details.
+:py:mod:`horton.matrix.dense` for details.
