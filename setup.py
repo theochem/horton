@@ -250,6 +250,12 @@ def lib_config_magic(prefix, libname, static_config={}):
     return lib_config
 
 
+# Print the Machine name on screen
+# --------------------------------
+
+print 'MACHINE=%s' % detect_machine()
+
+
 # Configuration of LibXC
 # ----------------------
 
