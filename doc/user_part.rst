@@ -112,6 +112,12 @@ The usage of the script ``horton-atomdb.py`` consists of three steps:
 
     ./run_g09.sh
 
+   Note that the ``run_PROGRAM.sh`` scripts assume a default installation of
+   the corresponding software. In the case of non-standard installations or
+   when special calls or environment variables are needed, one must modify this
+   script first. (It will not be overwritten when `horton-atomdb.py input ...``
+   is executed again.)
+
 3) **Convert the output** of the external programs into a database of
    spherically averaged pro-atom densities (``atoms.h5``). Just run::
 
