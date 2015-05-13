@@ -6,6 +6,7 @@ Developer howto guides
    :maxdepth: 3
 
    dev_guidelines
+   dev_howto_use_git
    dev_documentation
    dev_unit_tests
    dev_write_examples
@@ -16,5 +17,3 @@ Developer howto guides
    dev_profiling
    dev_hdf5
    dev_io_code
-   dev_git_config_hooks
-   dev_pull_requests
