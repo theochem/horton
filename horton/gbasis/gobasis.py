@@ -66,7 +66,11 @@ def get_gobasis(coordinates, numbers, default, element_map=None, index_map=None,
 
        **Returns:** a GOBasis instance
 
-       Note that the geometry specified by the arguments may also contain ghost
+       In the argument ``default``, ``element_map`` and ``index_map``, basis
+       may either refer to None, a string representation like ``"STO-3G"``,
+       a GOBasisFamily instance or a GOBasisAtom instance.
+
+       Note that the geometry specified by the arguments can also contain ghost
        atoms.
     '''
     gobasis_desc = GOBasisDesc(default, element_map, index_map, pure)
@@ -96,9 +100,9 @@ class GOBasisDesc(object):
                 By default pure basis functions are used. Set this to false to
                 switch to Cartesian basis functions.
 
-           In all three arguments, basis may either refer to None, a string
-           representation (STO-3G), a GOBasisFamily instance or a GOBasisAtom
-           instance.
+           In the argument ``default``, ``element_map`` and ``index_map``, basis
+           may either refer to None, a string representation like ``"STO-3G"``,
+           a GOBasisFamily instance or a GOBasisAtom instance.
         """
         self.default = default
         if element_map is None:

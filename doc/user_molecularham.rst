@@ -43,15 +43,13 @@ filename.
 Reading the molecular geometry from file
 ----------------------------------------
 
-The molecular geometry can be read from file using the ``Molecule`` class,
+The molecular geometry can be read from file using the method
+:py:meth:`horton.io.molecule.Molecule.from_file` of the
+``Molecule`` class,
 
 .. code-block:: python
 
     mol = Molecule.from_file(filename)
-
-with arguments
-
-    :filename: (str) the filename with proper extension or prefix
 
 
 Constructing a molecular geometry from scratch
@@ -91,23 +89,8 @@ were taken from the EMSL library (https://bse.pnl.gov/bse/portal). When
 publishing results obtained with these basis sets, please cite the following
 references [feller1996]_ and [Didier2007]_.
 
-The basis sets are loaded using the following function call.
+The basis set for a given molecule is constructed with the function :py:func:`horton.gbasis.gobasis.get_gobasis`
 
-.. code-block:: python
-
-   get_gobasis(coordinates, numbers, default, element_map=None, index_map=None, pure=True)
-
-with arguments
-
-    :coordinates: (float)  A (N, 3) numpy array with Cartesian coordinates of the atoms (see :ref:`read-molgeometry`)
-    :numbers: (int) A (N,) numpy vector with the atomic numbers (see :ref:`read-molgeometry`)
-    :default: (str) The basis set name applied to each atom.
-
-with optional arguments
-
-    :element_map: (str) A dictionary with element names or numbers as keys, and basis sets as values. These specs override the default basis
-    :index_map: (str) A dictionary with atomic indexes (based on the order of the atoms) as keys and basis sets as values
-    :pure: (bool) By default pure (spherical) basis functions are used. Set this to false to switch to Cartesian basis functions
 
 Unique basis set for all atoms
 ------------------------------
@@ -233,21 +216,12 @@ An instance of this class must be passed to the methods that compute the matrix
 elements. Alternatively, one may also use the ``CholeskyLinalgFactory``, which
 represents all four-index objects with a Cholesky decomposition.
 
-This is a basic example:
+This is a basic example, assuming some of the preceding code has created the
+``obasis`` object:
 
-.. code-block:: python
-
-    # ... assuming some of the preceding code has created the obasis object
-
-    # Create a linalg factory with dense matrices.
-    lf = DenseLinalgFactory(obasis.nbasis)
-
-    # Compute the overlap, kinetic energy, nuclear attraction and electron repulsion
-    # integrals.
-    olp = obasis.compute_overlap(lf)
-    kin = obasis.compute_kinetic(lf)
-    na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
-    er = obasis.compute_electron_repulsion(lf)
+.. literalinclude:: ../data/examples/hf_dft/rhf_water_dense.py
+    :lines: 16-23
+    :caption: data/examples/hf_dft/rhf_water_dense.py, lines 16--23
 
 For the nuclear attraction integrals, one also has to specify arrays with atomic
 coordinates and nuclear charges.
