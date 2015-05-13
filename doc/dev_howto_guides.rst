@@ -4,7 +4,6 @@ Developer howto guides
 
 .. toctree::
    :maxdepth: 3
-   :numbered:
 
    dev_guidelines
    dev_documentation

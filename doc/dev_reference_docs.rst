@@ -3,7 +3,6 @@ Reference Documentation
 
 .. toctree::
    :maxdepth: 3
-   :numbered:
 
    ref_stable_beta
    ref_features

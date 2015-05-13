@@ -3,7 +3,6 @@ Electronic Structure Methods
 
 .. toctree::
    :maxdepth: 3
-   :numbered:
 
    user_hf_dft
    user_ap1rog

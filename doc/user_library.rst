@@ -3,7 +3,6 @@ Horton as a software library
 
 .. toctree::
    :maxdepth: 3
-   :numbered:
 
    user_part_python
    user_espfit_python
