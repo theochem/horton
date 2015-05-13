@@ -205,15 +205,15 @@ toward the density matrix elements.
 
   .. math::
       D^\alpha &\rightarrow E(D^\alpha) \\
-               &\rightarrow F^\alpha_{ij} = \frac{1}{2}\frac{\partial E}{\partial D^\alpha_{ji}}
+               &\rightarrow F^\alpha_{\mu\nu} = \frac{1}{2}\frac{\partial E}{\partial D^\alpha_{\nu\mu}}
 
 * For the unrestricted case, the alpha and beta density matrices are allowed to
   be different. Hence, there are also alpha and beta Fock matrices.
 
   .. math::
       D^\alpha, D^\beta &\rightarrow E(D^\alpha, D^\beta) \\
-                        &\rightarrow F^\alpha_{ij} = \frac{\partial E}{\partial D^\alpha_{ji}} \\
-                        &\rightarrow F^\beta_{ij} = \frac{\partial E}{\partial D^\beta_{ji}}
+                        &\rightarrow F^\alpha_{\mu\nu} = \frac{\partial E}{\partial D^\alpha_{\nu\mu}} \\
+                        &\rightarrow F^\beta_{\mu\nu} = \frac{\partial E}{\partial D^\beta_{\nu\mu}}
 
 This generic API is implemented in the class
 :py:class:`horton.meanfield.hamiltonian.REffHam` and

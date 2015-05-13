@@ -1103,7 +1103,8 @@ cdef class GOBasis(GBasis):
                 A Numpy array with integration weights, shape (npoint,).
 
            pots
-                A Numpy array with kinetic energy density potential data, shape (npoint, 3).
+                A Numpy array with kinetic energy density potential data, shape
+                (npoint,).
 
            fock
                 A one-body operator. For now, this must be a DenseOneBody
