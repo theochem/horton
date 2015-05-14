@@ -141,12 +141,12 @@ publish.
     Although this seems to be a cumbersome approach, it does save time for
     everyone involved.
 
-The instructions below are written for the general public that has access to
-github. When you work with Clifford, the internal development server, make the
-following substitutions below:
+The instructions below are written for the general public, i.e. people that do
+not have access the Clifford server. When you work with Clifford, the internal
+development server, make the following substitutions below:
 
 * ``master`` branch => ``prerelease`` branch
-* Read-only ``origin`` repository at github with URL ``https://github.com/theochem/horton.git`` =>
+* Read-only ``origin`` repository at Github with URL ``https://github.com/theochem/horton.git`` =>
   Read-only ``origin`` repository with URL ``ssh://clifford/horton-release``
 * Writable repository ``review`` for uploading your branches with a URL you created =>
   Writable repository ``review`` on clifford with URL ``ssh://clifford/horton-2``
@@ -244,7 +244,7 @@ available by pushing it to a remote server. One may use `Github
 
    .. code-block:: bash
 
-      git push remote bar:bar
+      git push review bar:bar
 
 Now send the URL of your remote server and the name of the branch to a peer for
 review. If you are looking for someone to review your code, post a request on
