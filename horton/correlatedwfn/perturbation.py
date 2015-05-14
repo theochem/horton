@@ -496,17 +496,17 @@ class PTa(Perturbation):
            args
                 All function arguments needed to calculate the vector
                 function:
-                    * [0]:  wfn expansion coefficients
-                    * [1]:  geminal coefficients
-                    * [2]:  1-el MO integrals
-                    * [3]:  2-el MO integrals
-                    * [4]:  inactive Fock matrix
-                    * [5]:  ocjbc auxilary matrix
-                    * [6]:  vcjkb auxilary matrix
-                    * [7]:  vcjbc auxilary matrix
-                    * [8]:  ocjkb auxilary matrix
-                    * [9]:  dcjb auxilary matrix
 
+                * [0]:  wfn expansion coefficients
+                * [1]:  geminal coefficients
+                * [2]:  1-el MO integrals
+                * [3]:  2-el MO integrals
+                * [4]:  inactive Fock matrix
+                * [5]:  ocjbc auxilary matrix
+                * [6]:  vcjkb auxilary matrix
+                * [7]:  vcjbc auxilary matrix
+                * [8]:  ocjkb auxilary matrix
+                * [9]:  dcjb auxilary matrix
         '''
         check_type('args[0]', args[0], Expansion)
         check_type('args[1]', args[1], TwoIndex)
@@ -622,16 +622,16 @@ class PTa(Perturbation):
            args
                 All function arguments needed to calculate the vector
                 function:
-                    * [0]:  wfn expansion coefficients
-                    * [1]:  geminal coefficients
-                    * [2]:  1-el MO integrals
-                    * [3]:  2-el MO integrals
-                    * [4]:  inactive Fock matrix
-                    * [5]:  ocjbc auxilary matrix
-                    * [6]:  vcjkb auxilary matrix
-                    * [7]:  vcjbc auxilary matrix
-                    * [8]:  ocjkb auxilary matrix
 
+                * [0]:  wfn expansion coefficients
+                * [1]:  geminal coefficients
+                * [2]:  1-el MO integrals
+                * [3]:  2-el MO integrals
+                * [4]:  inactive Fock matrix
+                * [5]:  ocjbc auxilary matrix
+                * [6]:  vcjkb auxilary matrix
+                * [7]:  vcjbc auxilary matrix
+                * [8]:  ocjkb auxilary matrix
         '''
         #
         # B_jb|kc
@@ -960,21 +960,21 @@ class PTb(Perturbation):
            amplitudes
                 Cluster amplitudes. Need to be determined.
 
-           *args
+           args
                 All function arguments needed to calculated the vector
                 function:
-                    * [0]:  wfn expansion coefficients
-                    * [1]:  geminal coefficients
-                    * [2]:  1-el MO integrals
-                    * [3]:  2-el MO integrals
-                    * [4]:  inactive Fock matrix
-                    * [5]:  ocjbc auxilary matrix
-                    * [6]:  vcjkb auxilary matrix
-                    * [7]:  vcjbc auxilary matrix
-                    * [8]:  ocjkb auxilary matrix
-                    * [9]:  dcjb auxilary matrix
-                    * [10]: eref-ecore
 
+                * [0]:  wfn expansion coefficients
+                * [1]:  geminal coefficients
+                * [2]:  1-el MO integrals
+                * [3]:  2-el MO integrals
+                * [4]:  inactive Fock matrix
+                * [5]:  ocjbc auxilary matrix
+                * [6]:  vcjkb auxilary matrix
+                * [7]:  vcjbc auxilary matrix
+                * [8]:  ocjkb auxilary matrix
+                * [9]:  dcjb auxilary matrix
+                * [10]: eref-ecore
         '''
         e0 = args[10]
 
@@ -1111,18 +1111,18 @@ class PTb(Perturbation):
            args
                 All function arguments needed to calculate the vector
                 function:
-                    * [0]:  wfn expansion coefficients
-                    * [1]:  geminal coefficients
-                    * [2]:  1-el MO integrals
-                    * [3]:  2-el MO integrals
-                    * [4]:  inactive Fock matrix
-                    * [5]:  ocjbc auxilary matrix
-                    * [6]:  vcjkb auxilary matrix
-                    * [7]:  vcjbc auxilary matrix
-                    * [8]:  ocjkb auxilary matrix
-                    * [9]:  dcjb auxilary matrix
-                    * [10]: eref-ecore
 
+                * [0]:  wfn expansion coefficients
+                * [1]:  geminal coefficients
+                * [2]:  1-el MO integrals
+                * [3]:  2-el MO integrals
+                * [4]:  inactive Fock matrix
+                * [5]:  ocjbc auxilary matrix
+                * [6]:  vcjkb auxilary matrix
+                * [7]:  vcjbc auxilary matrix
+                * [8]:  ocjkb auxilary matrix
+                * [9]:  dcjb auxilary matrix
+                * [10]: eref-ecore
         '''
         e0 = args[10]
 
