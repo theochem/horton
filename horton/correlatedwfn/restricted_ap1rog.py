@@ -84,42 +84,55 @@ class RAp1rog(Geminal):
                 The AO overlap matrix. A TwoIndex instance.
 
            **Keywords:**
-                :indextrans: 4-index Transformation (str). Choice between
-                             ``tensordot`` (default) and ``einsum``
-                :warning: Print warnings (boolean) (default False)
-                :guess: initial guess (dictionary) containing:
-                         *type: guess type (str). One of ``random`` (random
-                                numbers, default), ``const`` (a constant scaled
-                                by a factor)
-                         *factor: a scaling factor (float) (default -0.1)
-                         *geminal: external guess for geminal coefficients
-                                   (1-d np.array); if provided, 'type' is
-                                   ignored (default None)
-                :solver: wfn solver (dictionary) containing:
-                          *wfn: wavefunction solver (str) (default ``krylov``)
-                :maxiter: max number of iterations (dictionary) containing:
-                           *wfniter: maximum number of iterations (int) for wfn
-                                     solver (default 200)
-                :dumpci: dump ci coefficients (dictionary):
-                          *amplitudestofile: write wfn amplitudes to file
-                                             (boolean) (default False)
-                          *amplitudesfilename: (str) (default ap1rog_amplitudes.dat)
-                :thresh: optimization thresholds (dictionary) containing:
-                          *wfn: threshold for geminal coefficients (float)
-                                (default 1e-12)
-                :printoptions: print level (dictionary) containing:
-                               *geminal: (boolean), if True, geminal matrix is
-                                         printed (default True)
-                               *ci: threshold for CI coefficients (float) (requires
-                                    evaluation of a permanent), all coefficients
-                                    (for a given excitation order) larger than
-                                    'ci' are printed (default 0.01)
-                               *excitationlevel: number of excited pairs w.r.t.
-                                                reference determinant for which
-                                                wfn amplitudes are
-                                                reconstructed (int) (default 1)
-                :swapa: swap orbitals (numpy 2-dim array), each row contains 2
-                        orbital indices to be swapped (default np.array([[]]))
+
+            :indextrans: 4-index Transformation (str). Choice between
+                         ``tensordot`` (default) and ``einsum``
+            :warning: Print warnings (boolean) (default False)
+            :guess: initial guess (dictionary) containing:
+
+                    * type: guess type (str). One of ``random`` (random
+                      numbers, default), ``const`` (a constant scaled
+                      by a factor)
+                    * factor: a scaling factor (float) (default -0.1)
+                    * geminal: external guess for geminal coefficients
+                      (1-d np.array); if provided, 'type' is
+                      ignored (default None)
+
+            :solver: wfn solver (dictionary) containing:
+
+                     * wfn: wavefunction solver (str) (default ``krylov``)
+
+            :maxiter: max number of iterations (dictionary) containing:
+
+                      * wfniter: maximum number of iterations (int) for wfn
+                        solver (default 200)
+
+            :dumpci: dump ci coefficients (dictionary):
+
+                     * amplitudestofile: write wfn amplitudes to file
+                       (boolean) (default False)
+                     * amplitudesfilename: (str) (default ap1rog_amplitudes.dat)
+
+            :thresh: optimization thresholds (dictionary) containing:
+
+                     * wfn: threshold for geminal coefficients (float)
+                       (default 1e-12)
+
+            :printoptions: print level (dictionary) containing:
+
+                           * geminal: (boolean), if True, geminal matrix is
+                             printed (default True)
+
+                           * ci: threshold for CI coefficients (float) (requires
+                             evaluation of a permanent), all coefficients
+                             (for a given excitation order) larger than
+                             'ci' are printed (default 0.01)
+                           * excitationlevel: number of excited pairs w.r.t.
+                             reference determinant for which wfn amplitudes
+                             are reconstructed (int) (default 1)
+
+            :swapa: swap orbitals (numpy 2-dim array), each row contains 2
+                    orbital indices to be swapped (default np.array([[]]))
         '''
         if log.do_medium:
             log.hline('=')
@@ -237,106 +250,117 @@ class RAp1rog(Geminal):
                 The AO overlap matrix. A TwoIndex instance.
 
            **Keywords:**
-                :indextrans: 4-index Transformation (str). Choice between
-                             ``tensordot`` (default) and ``einsum``
-                :warning: print warnings (boolean) (default False)
-                :guess: initial guess (dictionary) containing:
-                         *type: guess type (str). One of ``random`` (random
-                                numbers, default), ``const`` (a constant scaled
-                                by a factor)
-                         *factor: a scaling factor (float) (default -0.1)
-                         *geminal: external guess for geminal coefficients
-                                   (1-dim np.array) (default None)
-                         *lagrange: external guess for Lagrange multipliers
-                                    (1-dim np.array) (default None)
-                :solver: wfn/Lagrange solver (dictionary) containing:
-                          *wfn: wavefunction solver (str) (default ``krylov``)
-                          *lagrange: Lagrange multiplier solver (str)
-                                     (default krylov)
-                :maxiter: max number of iterations (dictionary) containing:
-                           *wfniter: maximum number of iterations for
-                                     wfn/lagrange solver (int) (default 200)
-                           *orbiter: maximum number of orbital optimization
-                                     steps (int) (default 100)
-                :dumpci: dump ci coefficient (dictionary) containing:
-                          *amplitudestofile: write wfn amplitudes to file
-                                             (boolean) (default False)
-                          *amplitudesfilename: (str) (default ap1rog_amplitudes.dat)
-                :thresh: optimization thresholds (dictionary) containing:
-                          *wfn: threshold for geminal coefficients and
-                                Lagrange multipliers (float) (defaulf 1e-12)
-                          *energy: convergence threshold for energy (float)
-                                   (default 1e-8)
-                          *gradientnorm: convergence threshold for norm of
-                                         orbital gradient (float) (default 1e-4)
-                          *gradientmax: threshold for maximum absolute value of
-                                        orbital gradient (float) (default 5e-5)
-                :printoptions: print level; dictionary containing:
-                                *geminal: (boolean) if True, geminal matrix is
-                                          printed (default True)
-                                *ci: threshold for CI coefficients (requires
-                                     evaluation of a permanent) (float). All
-                                     coefficients (for a given excitation order)
-                                     larger than ci are printed (default 0.01)
-                                *excitationlevel: number of excited pairs w.r.t.
-                                                  reference determinant for which
-                                                  wfn amplitudes are reconstructed
-                                                  (int) (default 1)
-                :stepsearch: step search options (dictionary) containing:
-                              *method: step search method used (str). One of
-                                        ``trust-region`` (default), ``None``,
-                                        ``backtracking``
-                              *alpha: scaling factor for Newton step (float),
-                                      used in ``backtracking`` and ``None``
-                                      method (default 1.00)
-                              *c1: parameter used in ``backtracking`` (float)
-                                   (default 1e-4)
-                              *minalpha: minimum scaling factor used in ``backracking``
-                                         (float) (default 1e-6)
-                              *maxiterouter: maximum number of search steps
-                                             (int) (default 10)
-                              *maxiterinner: maximum number of optimization
-                                             step in each search step (int)
-                                             (used only in ``pcg``, default 500)
-                              *maxeta: upper bound for estimated vs actual
-                                       change in ``trust-region`` (float)
-                                       (default 0.75)
-                              *mineta: lower bound for estimated vs actual
-                                       change in ``trust-region`` (float)
-                                       (default 0.25)
-                              *upscale: scaling factor to increase trustradius
-                                        in ``trust-region`` (float) (default 2.0)
-                              *downscale: scaling factor to decrease trustradius
-                                          in ``trust-region`` and step length
-                                          in ``backtracking`` (float)
-                                          (default 0.25)
-                              *trustradius: initial trustradius (float) (default 0.75)
-                              *maxtrustradius: maximum trustradius (float)
-                                               (default 0.75)
-                              *threshold: trust-region optimization threshold,
-                                          only used in ``pcg`` (float)
-                                          (default 1e-8)
-                              *optimizer: optimizes step to boundary of
-                                          trustradius (str). One of ``pcg``,
-                                           ``dogleg``, ``ddl`` (default ddl)
-                :checkpoint: frequency of checkpointing (int). If > 0, writes
-                             orbitals (``orb.hdf5``) and overlap (``olp.hdf5``)
-                             to disk (default 1)
-                :levelshift: level shift of Hessian (float) (default 1e-8)
-                :absolute: (boolean), if True, take absolute values of Hessian
-                           (default False)
-                :sort: (boolean), if True, orbitals are sorted according to their
-                       natural occupation numbers. This requires us to solve for
-                       the wavefunction again. Works only if orbitaloptimizer
-                       is set to ``variational``. (default True)
-                :swapa: swap orbitals (numpy 2-dim array) each row contains 2
-                        orbital indices to be swapped (default np.array([[]]))
-                :givensrot: rotate two orbitals (numpy 2-dim array) each row
-                            contains 2 orbital indices and rotation angle
-                            (default np.array([[]]))
-                :orbitaloptimizer: (str) switch between variational orbital
-                                   optimization (``variational``) and PS2c
-                                   (``ps2c``) (default ``variational``).
+
+            :indextrans: 4-index Transformation (str). Choice between
+                         ``tensordot`` (default) and ``einsum``
+            :warning: print warnings (boolean) (default False)
+            :guess: initial guess (dictionary) containing:
+
+                    * type: guess type (str). One of ``random`` (random
+                      numbers, default), ``const`` (a constant scaled by a
+                      factor)
+                    * factor: a scaling factor (float) (default -0.1)
+                    * geminal: external guess for geminal coefficients
+                      (1-dim np.array) (default None)
+                    * lagrange: external guess for Lagrange multipliers
+                      (1-dim np.array) (default None)
+
+            :solver: wfn/Lagrange solver (dictionary) containing:
+
+                     * wfn: wavefunction solver (str) (default ``krylov``)
+                     * lagrange: Lagrange multiplier solver (str)
+                       (default krylov)
+
+            :maxiter: max number of iterations (dictionary) containing:
+
+                      * wfniter: maximum number of iterations for
+                                 wfn/lagrange solver (int) (default 200)
+                      * orbiter: maximum number of orbital optimization
+                                 steps (int) (default 100)
+            :dumpci: dump ci coefficient (dictionary) containing:
+
+                     * amplitudestofile: write wfn amplitudes to file
+                       (boolean) (default False)
+                     * amplitudesfilename: (str) (default ap1rog_amplitudes.dat)
+
+            :thresh: optimization thresholds (dictionary) containing:
+
+                     * wfn: threshold for geminal coefficients and
+                       Lagrange multipliers (float) (defaulf 1e-12)
+                     * energy: convergence threshold for energy (float)
+                       (default 1e-8)
+                     * gradientnorm: convergence threshold for norm of
+                       orbital gradient (float) (default 1e-4)
+                     * gradientmax: threshold for maximum absolute value of
+                       orbital gradient (float) (default 5e-5)
+
+            :printoptions: print level; dictionary containing:
+
+                           * geminal: (boolean) if True, geminal matrix is
+                             printed (default True)
+                           * ci: threshold for CI coefficients (requires
+                             evaluation of a permanent) (float). All
+                             coefficients (for a given excitation order)
+                             larger than ci are printed (default 0.01)
+                           * excitationlevel: number of excited pairs w.r.t.
+                             reference determinant for which
+                             wfn amplitudes are reconstructed
+                             (int) (default 1)
+
+            :stepsearch: step search options (dictionary) containing:
+
+                         * method: step search method used (str). One of
+                           ``trust-region`` (default), ``None``,
+                           ``backtracking``
+                         * alpha: scaling factor for Newton step (float),
+                           used in ``backtracking`` and ``None`` method (default
+                           1.00)
+                         * c1: parameter used in ``backtracking`` (float)
+                           (default 1e-4)
+                         * minalpha: minimum scaling factor used in
+                           ``backracking`` (float) (default 1e-6)
+                         * maxiterouter: maximum number of search steps
+                           (int) (default 10)
+                         * maxiterinner: maximum number of optimization
+                           step in each search step (int) (used only in ``pcg``,
+                           default 500)
+                         * maxeta: upper bound for estimated vs actual
+                           change in ``trust-region`` (float) (default 0.75)
+                         * mineta: lower bound for estimated vs actual change in
+                           ``trust-region`` (float) (default 0.25)
+                         * upscale: scaling factor to increase trustradius
+                           in ``trust-region`` (float) (default 2.0)
+                         * downscale: scaling factor to decrease trustradius
+                           in ``trust-region`` and step length in
+                           ``backtracking`` (float) (default 0.25)
+                         * trustradius: initial trustradius (float) (default
+                           0.75)
+                         * maxtrustradius: maximum trustradius (float) (default
+                           0.75)
+                         * threshold: trust-region optimization threshold, only
+                           used in ``pcg`` (float) (default 1e-8)
+                         * optimizer: optimizes step to boundary of trustradius
+                           (str). One of ``pcg``, ``dogleg``, ``ddl`` (default
+                           ddl)
+
+            :checkpoint: frequency of checkpointing (int). If > 0, writes
+                         orbitals (``orb.hdf5``) and overlap (``olp.hdf5``)
+                         to disk (default 1)
+            :levelshift: level shift of Hessian (float) (default 1e-8)
+            :absolute: (boolean), if True, take absolute values of Hessian
+                       (default False)
+            :sort: (boolean), if True, orbitals are sorted according to their
+                   natural occupation numbers. This requires us to solve for
+                   the wavefunction again. Works only if orbitaloptimizer
+                   is set to ``variational``. (default True)
+            :swapa: swap orbitals (numpy 2-dim array) each row contains 2
+                    orbital indices to be swapped (default np.array([[]]))
+            :givensrot: rotate two orbitals (numpy 2-dim array) each row
+                        contains 2 orbital indices and rotation angle
+                        (default np.array([[]]))
+            :orbitaloptimizer: (str) switch between variational orbital
+                               optimization (``variational``) and PS2c
+                               (``ps2c``) (default ``variational``).
         '''
         if log.do_medium:
             log.hline('=')
@@ -696,6 +720,7 @@ class RAp1rog(Geminal):
         '''Compute response 2-RDM for AP1roG
 
            ** Arguments **
+
            one_dm
                A 1DM. A OneIndex instance.
 
@@ -1787,7 +1812,7 @@ class RAp1rog(Geminal):
 
     def print_solution(self, cithresh=0.01, excitationlevel=2,
                        amplitudestofile=False, filename="./ap1rog_amplitudes"):
-        '''Print coefficients {ci} and Slater Determinant if |ci| > threshold.
+        '''Print coefficients :math:`{ci}` and Slater Determinant if :math:`|ci|` > threshold.
            Prints up to hextuply excited pairs.
 
            **Optional arguments:**
@@ -2439,9 +2464,7 @@ class RAp1rog(Geminal):
 
            **Arguments:**
 
-           guess, solver, maxiter, lshift, stepsearch, thresh, printoptions,
-           checkpoint, indextrans, orbitaloptimizer, sort
-                See :py:meth:`RAp1rog.solve_scf`
+           See :py:meth:`RAp1rog.solve_scf`
 
         '''
         if log.do_medium:

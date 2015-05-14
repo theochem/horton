@@ -270,14 +270,22 @@ class Geminal(object):
         return dm
 
     def init_two_dm(self, select):
-        '''Initialize 2-RDM as TwoIndex object
+        r'''Initialize 2-RDM as TwoIndex object
 
            Only the symmetry-unique elements of the (response) 2-RDM are
            stored. These are matrix elements of type
-                Gamma_{p\bar{q}p\bar{q}} (spin-up and spin-down (bar-sign)),
-           or
+
+           .. math::
+
+                Gamma_{p\bar{q}p\bar{q}}
+
+           (spin-up and spin-down (bar-sign)) or
+
+           .. math::
                 Gamma_{p\bar{p}q\bar{q}}
-           and are stored as elements {pq} of two_dm_pqpq, and two_dm_ppqq.
+
+           and are stored as elements :math:`{pq}` of two_dm_pqpq, and
+           two_dm_ppqq.
 
            **Arguments**
 

@@ -88,48 +88,45 @@ class Localization(object):
                 orbitals), ``virt`` (virtual orbitals)
 
            **Keywords:**
+
            :maxiter: (int) maximum number of iterations for localization
                      (default 2000)
            :threshold: (float) localization threshold for objective function
                        (default 1e-6)
            :levelshift: level shift of Hessian (float) (default 1e-8)
            :stepsearch: step search options (dictionary) containing:
-                              *method: step search method used (str). One of
-                                        ``trust-region`` (default), ``None``,
-                                        ``backtracking``
-                              *alpha: scaling factor for Newton step (float),
-                                      used in ``backtracking`` and ``None``
-                                      method (default 0.75)
-                              *c1: parameter used in ``backtracking`` (float)
-                                   (default 1e-4)
-                              *minalpha: minimum step length used in ``backracking``
-                                        (float) (default 1e-6)
-                              *maxiterouter: maximum number of search steps
-                                             (int) (default 10)
-                              *maxiterinner: maximum number of optimization
-                                             steps in each search step (int)
-                                             (used only in ``pcg``, default 500)
-                              *maxeta: upper bound for estimated vs actual
-                                       change in ``trust-region`` (float)
-                                       (default 0.75)
-                              *mineta: lower bound for estimated vs actual
-                                       change in ``trust-region`` (float)
-                                       (default 0.25)
-                              *upscale: scaling factor to increase trustradius
-                                        in ``trust-region`` (float) (default 2.0)
-                              *downscale: scaling factor to decrease trustradius
-                                          in ``trust-region`` (float) and
-                                          scaling factor in ``backtracking``
-                                          (default 0.25)
-                              *trustradius: initial trustradius (float) (default 0.75)
-                              *maxtrustradius: maximum trustradius (float)
-                                               (default 0.75)
-                              *threshold: trust-region optimization threshold,
-                                          only used in ``pcg`` (float)
-                                          (default 1e-8)
-                              *optimizer: optimizes step to boundary of
-                                          trustradius (str). One of ``pcg``,
-                                           ``dogleg``, ``ddl`` (default ddl)
+
+                        * method: step search method used (str). One of
+                          ``trust-region`` (default), ``None``, ``backtracking``
+                        * alpha: scaling factor for Newton step (float), used in
+                          ``backtracking`` and ``None`` method (default 0.75)
+                        * c1: parameter used in ``backtracking`` (float)
+                          (default 1e-4)
+                        * minalpha: minimum step length used in ``backracking``
+                          (float) (default 1e-6)
+                        * maxiterouter: maximum number of search steps (int)
+                          (default 10)
+                        * maxiterinner: maximum number of optimization
+                          steps in each search step (int) (used only in ``pcg``,
+                          default 500)
+                        * maxeta: upper bound for estimated vs actual change in
+                          ``trust-region`` (float) (default 0.75)
+                        * mineta: lower bound for estimated vs actual change in
+                          ``trust-region`` (float) (default 0.25)
+                        * upscale: scaling factor to increase trustradius in
+                          ``trust-region`` (float) (default 2.0)
+                        * downscale: scaling factor to decrease trustradius in
+                          ``trust-region`` (float) and scaling factor in
+                          ``backtracking`` (default 0.25)
+                        * trustradius: initial trustradius (float) (default
+                          0.75)
+                        * maxtrustradius: maximum trustradius (float) (default
+                          0.75)
+                        * threshold: trust-region optimization threshold, only
+                          used in ``pcg`` (float) (default 1e-8)
+                        * optimizer: optimizes step to boundary of trustradius
+                          (str). One of ``pcg``, ``dogleg``, ``ddl`` (default
+                          ddl)
         '''
         if log.do_medium:
             log('Performing localization of %s block' %(select))
