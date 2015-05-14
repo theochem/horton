@@ -1,12 +1,12 @@
-Download and installation on Linux (Fedora and Ubuntu)
+Download and Installation on Linux (Fedora and Ubuntu)
 ######################################################
 
 
 Disclaimer
 ==========
 
-Horton has been tested on Fedora and Ubuntu Linux. If you run any
-other operating system, some of the instructions below may not work.
+Horton has been tested on Fedora and Ubuntu Linux. If you are running 
+any other operating system, some of the instructions below may not work.
 
 
 Download the code
@@ -36,8 +36,8 @@ your own changes, you need to work with git. Git is a version control system
 that makes life easy when a group of people are working on a common source code.
 All information about git (including downloads and tutorials) can be found here:
 http://git-scm.com/. The official git URL of Horton is:
-``git://github.com/theochem/horton.git.`` On most Lunx distributions, git can be
-installed with the package manager:
+``git://github.com/theochem/horton.git.`` On most Linux distributions, git can be
+installed with a package manager:
 
 **Ubuntu Linux**::
 
@@ -66,7 +66,7 @@ https://github.com/theochem/horton
 Dependencies for building, installing and testing Horton
 ========================================================
 
-In order to compile and test Horton, one needs to install relatively recent
+In order to compile and test Horton, you need to install relatively recent
 versions of the following programs/libraries:
 
 * Python >= 2.7, < 3.0: http://www.python.org/ (also install `development files`)
@@ -89,10 +89,10 @@ versions of the following programs/libraries:
 Installing dependencies with a package manager
 ----------------------------------------------
 
-With the popular Linux distributions, most of these dependencies can be
-installed with a package manager:
+With popular Linux distributions, most of these dependencies can be installed
+with a package manager:
 
-**Ubuntu Linux** (does not have a libint2 package, see next section)::
+**Ubuntu Linux** (does not have a libint2 package, see section :ref:`manual-dependency-install`)::
 
     sudo apt-get install python-dev gcc g++ gfortran python-numpy python-h5py python-scipy cython python-nose python-sympy python-matplotlib libxc-dev libatlas-base-dev curl
 
@@ -100,12 +100,13 @@ installed with a package manager:
 
     sudo yum install python-devel gcc gcc-c++ gcc-gfortran numpy h5py scipy Cython python-sphinx python-nose sympy python-matplotlib libint2-devel libxc-devel atlas-devel curl
 
+.. _manual-dependency-install:
 
 Installing dependencies manually
 --------------------------------
 
 If the package manager of your Linux distribution does not have the desired
-packages (or the right versions), one has to install them manually, e.g.
+packages (or the right versions), you have to install them manually, e.g.
 download and execute an installer, or download and unpack a binary package. On
 HPC environments a compilation from scratch is recommended.
 
@@ -113,13 +114,13 @@ HPC environments a compilation from scratch is recommended.
 
 In principle, any BLAS implementation may be used. In case of a custom build,
 some environment variables must be set prior to building Horton, as discussed
-below.
+in :ref:`compile_install`.
 
 
 **LibXC**
 
 The directory ``depends`` of the Horton source tree contains a make file that
-will download and LibXC, which will work on most systems::
+will download and build LibXC, which will work on most systems::
 
     (cd depends; make libxc)
 
@@ -130,7 +131,7 @@ the website: http://www.tddft.org/programs/octopus/wiki/index.php/Libxc
 **LibInt2**
 
 The directory ``depends`` of the Horton source tree contains a make file that
-will download and LibInt2, which will work on most systems::
+will download and build LibInt2, which will work on most systems::
 
     (cd depends; make libint -j4)
 
@@ -162,6 +163,7 @@ downloaded separately when compiling a development version of Horton::
 
     (cd data/refatoms; make all)
 
+.. _compile_install:
 
 Compilation and installation
 ============================
@@ -173,9 +175,9 @@ The regular build and install is done as follows::
 
     ./setup.py install --user
 
-The ``setup.py`` script does a reasonable attempt to configure the compiler and
+The ``setup.py`` script makes a reasonable attempt at configuring the compiler and
 linker settings for the LibXC, LibInt2 and BLAS libraries. However, this does
-not work in all environments. In case of a faillure, or if another configuration
+not work in all environments. In case of a failure, or if a configuration other
 than the default is desired, read the following section.
 
 
@@ -183,8 +185,8 @@ Overriding default compiler/linker settings for LibXC, LibInt2 and BLAS
 -----------------------------------------------------------------------
 
 The manual configuration of the compiler and linker settings is described here:
-:ref:`setup_cfg`. Only read this section if the default build and install did
-not work.
+:ref:`setup_cfg`. You should read this section if the default build and install 
+failed or if you would like to select specific libraries to use.
 
 
 Runtime Configuration
@@ -206,21 +208,17 @@ following line to your ``matplotlibrc`` file::
 
     backend: agg
 
-This file is located either in ``${HOME}/.matplotlib`` or
+This file is located in either ``${HOME}/.matplotlib`` or
 ``${HOME}/.config/matplotlib``.
 
 
 Running the tests
 =================
 
-Change to a directory outside the source tree and call nosetests as follows::
+Change to a directory outside of the source tree and call nosetests as follows::
 
     (cd ~; nosetests -v horton)
 
-In case one is testing horton on a system without an X Server, one has to
-configure matplotlib to use a backend that does not rely on an X Server. This
-can be done by adding a line ``backend: agg`` to the ``matplotlibrc`` file.
-This file is located in ``~/.matplotlib`` or ``~/.config/matplotlib``.
 
 
 Building the documentation
@@ -229,7 +227,7 @@ Building the documentation
 Dependencies
 ------------
 
-If one is interested in generating the documentation from source, the following
+If you are interested in generating the documentation from source, the following
 packages are also needed:
 
 * Sphinx >= 1.3.1: http://sphinx.pocoo.org/
@@ -263,8 +261,7 @@ any other PyPI package::
 
     pip install --user sphinx-autobuild
 
-
-One must also build LibXC statically in the ``depends`` directory, as explained
+You must also build LibXC statically in the ``depends`` directory, as explained
 above, to generate the list of DFT functionals in the documentation.
 
 
