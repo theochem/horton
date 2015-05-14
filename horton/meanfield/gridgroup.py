@@ -159,9 +159,11 @@ class GridGroup(Observable):
             self._update_grid_data(cache)
 
             # Collect the total potentials.
-            args = dpots + gpots
             for grid_term in self.grid_terms:
-                grid_term.add_pot(cache, self.grid, *args)
+                if grid_term.gga:
+                    grid_term.add_pot(cache, self.grid, *(dpots + gpots))
+                else:
+                    grid_term.add_pot(cache, self.grid, *dpots)
 
         for ichannel in xrange(len(focks)):
             # d = density
