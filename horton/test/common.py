@@ -43,6 +43,20 @@ np.seterr(divide='raise', over='raise', invalid='raise')
 
 
 def check_script(command, workdir):
+    '''Change to workdir and try to run the given command.
+
+       This can be used to test whether a script runs properly, with exit code
+       0. When the example generates an output file in the source tree, make
+       sure this file is in ``.gitignore``.
+
+       **Arguments:**
+
+       command
+            The command to be executed as a single string.
+
+       workdir
+            The work directory where the command needs to be executed.
+    '''
     env = dict(os.environ)
     root_dir = os.getcwd()
     env['PYTHONPATH'] = root_dir + ':' + env.get('PYTHONPATH', '')
