@@ -65,6 +65,10 @@ def test_example_rks_water_numlda():
     check_script('./rks_water_numlda.py', context.get_fn('examples/hf_dft'))
 
 
+def test_example_rks_water_numgga():
+    check_script('./rks_water_numgga.py', context.get_fn('examples/hf_dft'))
+
+
 def test_example_uhf_methyl_cholesky():
     check_script('./uhf_methyl_cholesky.py', context.get_fn('examples/hf_dft'))
 
@@ -87,6 +91,10 @@ def test_example_uks_methyl_lda():
 
 def test_example_uks_methyl_numlda():
     check_script('./uks_methyl_numlda.py', context.get_fn('examples/hf_dft'))
+
+
+def test_example_uks_methyl_numgga():
+    check_script('./uks_methyl_numgga.py', context.get_fn('examples/hf_dft'))
 
 
 def test_example_wpart():

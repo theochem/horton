@@ -174,6 +174,29 @@ def test_cubic_interpolation_hfs_os():
     check_interpolation(ham, mol.lf, olp, kin, na, [mol.exp_alpha, mol.exp_beta])
 
 
+def test_cubic_interpolation_x_pbe_c_vwn_os():
+    # mixing of LDA and GGA
+    fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
+    mol = Molecule.from_file(fn_fchk)
+
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
+    olp = mol.obasis.compute_overlap(mol.lf)
+    kin = mol.obasis.compute_kinetic(mol.lf)
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
+    er = mol.obasis.compute_electron_repulsion(mol.lf)
+    terms = [
+        UTwoIndexTerm(kin, 'kin'),
+        UDirectTerm(er, 'hartree'),
+        UGridGroup(mol.obasis, grid, [
+            ULibXCGGA('x_pbe'),
+            ULibXCLDA('c_vwn'),
+        ]),
+        UTwoIndexTerm(na, 'ne'),
+    ]
+    ham = UEffHam(terms)
+    check_interpolation(ham, mol.lf, olp, kin, na, [mol.exp_alpha, mol.exp_beta])
+
+
 def test_cubic_interpolation_o3lyp_os():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     mol = Molecule.from_file(fn_fchk)
