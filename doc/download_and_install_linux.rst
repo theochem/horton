@@ -215,15 +215,11 @@ This file is located in either ``${HOME}/.matplotlib`` or
 Running the tests
 =================
 
-You should change to a directory outside of the source tree and call nosetests
-as follows::
+To test Horton was installed properly and can be accessed from any directory,
+you should change to a directory outside of the source tree and call nosetests as follows::
 
     (cd ~; nosetests -v horton)
 
-In case you are testing Horton on a system without an X Server, you have to
-configure matplotlib to use a backend that does not rely on an X Server. This
-can be done by adding a line ``backend: agg`` to the ``matplotlibrc`` file.
-This file is located in ``~/.matplotlib`` or ``~/.config/matplotlib``.
 
 
 Building the documentation
