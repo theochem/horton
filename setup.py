@@ -189,7 +189,7 @@ def detect_machine():
     '''Return a description of the machine name, used for data/setup_cfgs/...'''
     if sys.platform == 'linux2':
         dist = platform.linux_distribution()
-        return 'Linux-%s-%s-%s' % (dist[0], dist[1], platform.machine())
+        return ('Linux-%s-%s-%s' % (dist[0], dist[1], platform.machine())).replace(' ', '_')
     elif sys.platform == 'darwin':
         mac_ver = platform.mac_ver()
         return 'Darwin-%s-%s' % (mac_ver[0], mac_ver[2])
