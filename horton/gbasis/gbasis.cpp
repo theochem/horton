@@ -104,7 +104,7 @@ GBasis::GBasis(const double* centers, const long* shell_map, const long* nprims,
     long ishell = 0;
     for (long ibasis=0; ibasis<nbasis; ibasis++){
         shell_lookup[ibasis] = ishell;
-        if ((ishell < nshell-1) && (ibasis == basis_offsets[ishell])) {
+        if ((ishell < nshell-1) && (ibasis+1 == basis_offsets[ishell+1])) {
             ishell++;
         }
     }

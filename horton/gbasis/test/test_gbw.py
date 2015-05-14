@@ -35,7 +35,7 @@ def get_h2o_er():
 def test_select_2index():
     obasis, er = get_h2o_er()
 
-    lookups = obasis.shell_lookups
+    lookups = obasis.shell_lookup
     print lookups, obasis.basis_offsets
     for index0 in np.arange(obasis.nbasis):
         for index2 in np.arange(obasis.nbasis):
