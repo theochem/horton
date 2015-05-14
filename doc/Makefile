@@ -2,10 +2,11 @@
 #
 
 # You can set these variables from the command line.
-SPHINXOPTS    =
-SPHINXBUILD   = PYTHONPATH=../:$(PYTHONPATH) sphinx-build
-PAPER         =
-BUILDDIR      = _build
+SPHINXOPTS        =
+SPHINXBUILD       = PYTHONPATH=../:$(PYTHONPATH) sphinx-build
+SPHINXAUTOBUILD   = PYTHONPATH=../:$(PYTHONPATH) sphinx-autobuild
+PAPER             =
+BUILDDIR          = _build
 
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
@@ -56,6 +57,9 @@ html: autogendoc
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
+
+livehtml:
+	$(SPHINXAUTOBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 
 dirhtml: autogendoc
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml
