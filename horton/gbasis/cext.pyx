@@ -442,7 +442,7 @@ cdef class GBasis:
         def __get__(self):
             return self._this.get_nbasis()
 
-    property shell_lookups:
+    property shell_lookup:
         def __get__(self):
             cdef np.npy_intp* shape = [self.nbasis]
             tmp = np.PyArray_SimpleNewFromData(1, shape,

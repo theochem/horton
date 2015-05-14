@@ -52,6 +52,10 @@ def test_gobasis_consistency():
     assert gobasis.max_shell_type == 3
     scales = gobasis.get_scales()
     assert abs(scales[0] - gob_cart_normalization(alphas[0], np.array([2, 0, 0]))) < 1e-10
+    assert (gobasis.basis_offsets == np.array([0, 6, 9, 10, 15, 25, 26])).all()
+    assert (gobasis.shell_lookup == np.array([0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 3,
+                                              3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4,
+                                              4, 4, 4, 5, 6, 6, 6])).all()
 
     shell_types = np.array([1, 1, 0, -2, -2, 0, 1])
     gobasis = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
