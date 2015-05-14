@@ -307,6 +307,12 @@ as suggested::
     sudo port select --set pip pip27
     pip install breathe --user
 
+If you don't want to rebuild sphinx every time you make a change you can use the
+`sphinx-autobuild` tool available through PyPI. Installation is pretty much like
+any other PyPI package::
+
+    pip install --user sphinx-autobuild
+
 One must also build LibXC statically in the ``depends`` directory, as explained
 above, to generate the list of DFT functionals in the documentation.
 
@@ -317,3 +323,10 @@ Actual build
 The documentation is compiled and viewed as follows::
 
     (cd doc; make html; open _build/html/index.html)
+
+If you are using `sphinx-autobuild`  the command is as follows::
+
+    (cd doc; firefox http://localhost:8000; make livehtml)
+
+This sets up a server at `localhost:800` and makes browser update whenever you make a change to the
+source files, as any other process you can stop it with `^C`
