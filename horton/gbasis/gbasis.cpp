@@ -79,7 +79,8 @@ GBasis::GBasis(const double* centers, const long* shell_map, const long* nprims,
         }
     }
 
-    // basis_offsets
+    // basis_offsets: the index of the first basis function for every shell of
+    // contracted Gaussians.
     basis_offsets = new long[nshell];
     basis_offsets[0] = 0;
     for (long ishell=1; ishell<nshell; ishell++) {
@@ -89,19 +90,21 @@ GBasis::GBasis(const double* centers, const long* shell_map, const long* nprims,
     shell_nbasis = get_shell_nbasis(shell_types[nshell-1]);
     nbasis = basis_offsets[nshell-1] + shell_nbasis;
 
-    // prim_offsets
+    // prim_offsets: the index of the first primitive for every shell of
+    // contracted Gaussians.
     prim_offsets = new long[nshell];
     prim_offsets[0] = 0;
     for (long ishell=1; ishell<nshell; ishell++) {
         prim_offsets[ishell] = prim_offsets[ishell-1] + nprims[ishell-1];
     }
 
-    // shell_lookup
+    // shell_lookup: the index of the contracted shell of Gaussians for every
+    // basis function.
     shell_lookup = new long[nbasis];
     long ishell = 0;
-    for (long i=0; i<nbasis; i++){
-        shell_lookup[i] = ishell;
-        if (i+1 == basis_offsets[ishell+1]){
+    for (long ibasis=0; ibasis<nbasis; ibasis++){
+        shell_lookup[ibasis] = ishell;
+        if ((ishell < nshell-1) && (ibasis == basis_offsets[ishell])) {
             ishell++;
         }
     }
