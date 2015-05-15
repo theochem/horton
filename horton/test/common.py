@@ -29,7 +29,7 @@ from horton import *
 
 
 __all__ = [
-    'check_script', 'check_delta',
+    'check_script', 'check_script_in_tmp', 'check_delta',
     'get_random_cell', 'get_pentagon_moments',
     'compare_expansions', 'compare_all_expansions', 'compare_dms',
     'compare_all_dms', 'compare_operators', 'compare_occ_model', 'compare_exps',
@@ -46,8 +46,8 @@ def check_script(command, workdir):
     '''Change to workdir and try to run the given command.
 
        This can be used to test whether a script runs properly, with exit code
-       0. When the example generates an output file in the source tree, make
-       sure this file is in ``.gitignore``.
+       0. When the example generates an output file, then use
+       :py:function:`horton.test.common.check_script_in_tmp` instead.
 
        **Arguments:**
 
@@ -66,10 +66,12 @@ def check_script(command, workdir):
     env['PATH'] = os.path.join(root_dir, 'scripts') + ':' + env.get('PATH', '')
     command = shlex.split(command)
     try:
-        proc = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=workdir, env=env)
+        proc = subprocess.Popen(command, stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                cwd=workdir, env=env)
         outdata, errdata = proc.communicate()
     except OSError:
-        raise AssertionError('The script %s could not be found for testing. Is your PATH variable set correctly? (See documentation.)' % command[0])
+        raise AssertionError('The script %s could not be found for testing.' % command[0])
     if proc.returncode != 0:
         print 'Standard output'
         print '+'*80
@@ -80,6 +82,32 @@ def check_script(command, workdir):
         print errdata
         print '+'*80
         assert False
+
+
+def check_script_in_tmp(command, required, expected):
+    '''Test a script in a tmp dir
+
+       **Arguments:**
+
+       command
+            The command to be executed in a tmp dir.
+
+       required
+            The required files to be copied to the tmp dir.
+
+       expected
+            A list of files expected to be present in the tmp dir after
+            execution.
+    '''
+    with tmpdir('check_scrip_in_tmp-%s' % os.path.basename(command)) as dn:
+        # copy files into tmp
+        for fn in required:
+            shutil.copy(fn, os.path.join(dn, os.path.basename(fn)))
+        # run the script
+        check_script(command, dn)
+        # check the output files
+        for fn in expected:
+            assert os.path.exists(os.path.join(dn, fn))
 
 
 def check_delta(fun, fun_deriv, x, dxs):
