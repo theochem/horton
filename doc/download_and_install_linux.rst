@@ -5,7 +5,7 @@ Download and Installation on Linux (Fedora and Ubuntu)
 Disclaimer
 ==========
 
-Horton has been tested on Fedora and Ubuntu Linux. If you are running 
+Horton has been tested on Fedora and Ubuntu Linux. If you are running
 any other operating system, some of the instructions below may not work.
 
 
@@ -185,7 +185,7 @@ Overriding default compiler/linker settings for LibXC, LibInt2 and BLAS
 -----------------------------------------------------------------------
 
 The manual configuration of the compiler and linker settings is described here:
-:ref:`setup_cfg`. You should read this section if the default build and install 
+:ref:`setup_cfg`. You should read this section if the default build and install
 failed or if you would like to select specific libraries to use.
 
 
@@ -219,6 +219,10 @@ Change to a directory outside of the source tree and call nosetests as follows::
 
     (cd ~; nosetests -v horton)
 
+In case you are testing Horton on a system without an X Server, you have to configure
+matplotlib to use a backend that does not rely on an X Server. This can be done by
+adding a line ``backend: agg`` to the matplotlibrc file. This file is located in
+``~/.matplotlib`` or ``~/.config/matplotlib``.
 
 
 Building the documentation
@@ -242,18 +246,21 @@ packages are also needed:
 Installing the dependencies with a package manager and PIP
 ----------------------------------------------------------
 
-**Ubuntu Linux**::
+**Ubuntu packages**::
 
-    sudo apt-get install python-sphinx doxygen preview-latex-style python-docutils python-pip dvipng preview-latex-style
+    sudo apt-get install doxygen preview-latex-style python-docutils python-pip dvipng preview-latex-style
 
-**Fedora Linux**::
+**Fedora packages**::
 
-    sudo yum install python-sphinx doxygen tex-preview python-docutils python-pip dvipng tex-preview
+    sudo yum install doxygen tex-preview python-docutils python-pip dvipng tex-preview
 
-Since Breathe is relatively new, it must be installed manually. For example, it
-is available through PyPI and can be installed as follows::
+Since Breathe (>=1.2.0) and Sphinx (>=1.3.1) may not be available through the Linux
+repositories, it should be installed manually. For example, it is available through
+PyPI.
 
-    pip install --user breathe
+**Pip packages**::
+
+    pip install --user --upgrade sphinx breathe
 
 If you don't want to rebuild sphinx every time you make a change you can use the
 `sphinx-autobuild` tool available through PyPI. Installation is pretty much like
