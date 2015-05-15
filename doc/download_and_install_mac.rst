@@ -235,11 +235,6 @@ Runtime Configuration
 We need to set the following variables in ``~/.bash_profile`` to use Horton::
 
     export PATH=${HOME}/Library/Python/2.7/bin:${PATH}
-    # I did not have to set the following two.
-    # The --user option of the setup.py script normally installs stuff in a place
-    # where Python will find it without setting environment variables. ~Toon
-    export PYTHONPATH=${PYTHONPATH}:${HOME}/path-to-horton-installation/
-    export HORTONDATA=${HOME}/path-to-horton-installation/data/
 
 If you run Horton on a headless node, i.e. without an X server, you need to
 configure Matplotlib to use a backend that does not require a graphical user
