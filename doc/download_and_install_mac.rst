@@ -1,24 +1,24 @@
-Download and installation on Mac OS X (10.8 - 10.10)
+Download and Installation on Mac OS X (10.8 - 10.10)
 ####################################################
 
 Disclaimer
 ==========
 
 Horton has been tested on Mac OS X 10.8 - 10.10 using MacPorts. If you
-run any other version of OS X, some of the instructions below may not
-work.
+are running any other version of OS X or using other package managers,
+some of the instructions below may not work.
 
 
 MacPorts
 =========
 
-We strongly recommend to install all the packages required by Horton
-through MacPorts. We also advise to uninstall/remove all python packages
-installed outside MacPorts (e.g., Canopy).
+We strongly recommend that you install all of the packages required by Horton
+through MacPorts. We also advise you to uninstall/remove all python packages
+installed through package managers other than MacPorts (e.g., Canopy).
 
 The latest version of MacPorts can be downloaded from the web:
-https://www.macports.org/install.php. This guide was tested with MacPorts 2.3.3 but
-it should also work with newer version.
+https://www.macports.org/install.php. This guide has been tested using
+MacPorts 2.3.3 but should also work with newer versions.
 
 
 Quick guideline through MacPorts
@@ -29,6 +29,10 @@ Here are some basic MacPort commands:
 * updating ports (recommended)::
 
     sudo port -v selfupdate
+
+* upgrade ports::
+
+    sudo port upgrade outdated
 
 * finding ports (e.g, port_name = python27)::
 
@@ -74,8 +78,7 @@ your own changes, you need to work with git. Git is a version control system
 that makes life easy when a group of people are working on a common source code.
 All information about git (including downloads and tutorials) can be found here:
 http://git-scm.com/. The official public git URL of Horton is:
-``git://github.com/theochem/horton.git.`` If you don't have git installed on
-your computer, you can easily get it from MacPorts::
+``git://github.com/theochem/horton.git.`` Git can be installed through MacPorts::
 
     port install git
 
@@ -98,8 +101,8 @@ https://github.com/theochem/horton
 Dependencies for building, installing and testing Horton
 ========================================================
 
-In order to compile and test Horton, one needs to
-install relatively recent versions of the following programs/libraries:
+In order to compile and test Horton, you need to install relatively recent
+versions of the following programs/libraries:
 
 * GCC, G++ and GFortran >= 4.5: http://gcc.gnu.org/
 * Python >= 2.7, < 3.0: http://www.python.org/
@@ -118,8 +121,8 @@ install relatively recent versions of the following programs/libraries:
 Installing the dependencies with MacPorts
 -----------------------------------------
 
-All dependencies can be installed with MacPorts, except for LibInt2. We recommend the
-following ports:
+All dependencies can be installed with MacPorts, except for LibInt2. We recommend
+the following ports:
 
 * ``gcc49``, https://trac.macports.org/browser/trunk/dports/lang/gcc47/Portfile
 * ``python27``, https://trac.macports.org/browser/trunk/dports/lang/python27/Portfile
@@ -153,10 +156,11 @@ space, the ``sudo`` can be omitted.)::
     sudo port install py27-matplotlib
     sudo port install libxc
 
-LibInt2 cannot be installed with MacPorts yet and must be installed manually, as
-explained in the next section. The GNU compilers are in fact only used to compile
-Fortran code as the default C/C++ compiler on the Mac is ``clang``.
+LibInt2 is yet unavailable on MacPorts and must be installed manually, as
+explained in :ref:`manual-dependency-install`. The GNU compilers are only used
+to compile Fortran code as the default C/C++ compiler on the Mac is ``clang``.
 
+.. _manual-dependency-install:
 
 Installing dependencies manually
 --------------------------------
@@ -165,13 +169,14 @@ Installing dependencies manually
 
 In principle, any BLAS implementation may be used. In case of a custom build,
 some environment variables must be set prior to building Horton, as discussed
-below. Also keep in mind that MacPorts only supports Atlas for building NumPy and SciPy.
+in :ref:`compile_install`. Also, Keep in mind that MacPorts only supports Atlas
+for building NumPy and SciPy.
 
 
 **LibXC**
 
 The directory ``depends`` of the Horton source tree contains a make file that
-will download and LibXC, which will work on most systems::
+will download and build LibXC, which will work on most systems::
 
     (cd depends; make libxc)
 
@@ -182,7 +187,7 @@ the website: http://www.tddft.org/programs/octopus/wiki/index.php/Libxc
 **LibInt2**
 
 The directory ``depends`` of the Horton source tree contains a make file that
-will download and LibInt2, which will work on most systems::
+will download and build LibInt2, which will work on most systems::
 
     (cd depends; make libint -j4)
 
@@ -195,7 +200,7 @@ http://sourceforge.net/p/libint/home
 Reference atoms
 ===============
 
-This step can be skipped when compiling a stable release because each stable
+This step can be skipped when compiling the stable release because each stable
 release already contains reference atoms.
 
 Several parts of Horton make use of reference atomic computations. These files
@@ -204,6 +209,7 @@ downloaded separately when compiling a development version of Horton::
 
     (cd data/refatoms; make all)
 
+.. _compile_install:
 
 Compilation and installation
 ============================
@@ -215,9 +221,9 @@ The regular build and install is done as follows::
 
     ./setup.py install --user
 
-The ``setup.py`` script does a reasonable attempt to configure the compiler and
+The ``setup.py`` script makes a reasonable attemp configuring the compiler and
 linker settings for the LibXC, LibInt2 and BLAS libraries. However, this does
-not work in all environments. In case of a faillure, or if another configuration
+not work in all environments. In case of a faillure, or if a configuration other
 than the default is desired, read the following section.
 
 
@@ -225,16 +231,22 @@ Overriding default compiler/linker settings for LibXC, LibInt2 and BLAS
 -----------------------------------------------------------------------
 
 The manual configuration of the compiler and linker settings is described here:
-:ref:`setup_cfg`. Only read this section if the default build and install did
-not work.
+:ref:`setup_cfg`. You should read this section if the default build and install
+failed or if you would like to specify which libraries to use.
 
 
 Runtime Configuration
 ---------------------
 
-We need to set the following variables in ``~/.bash_profile`` to use Horton::
+We need to set some environment variables to use Horton. Add the following to
+``~/.bash_profile`` if it exists, otherwise add them to ``~/.profile``::
 
     export PATH=${HOME}/Library/Python/2.7/bin:${PATH}
+    # I did not have to set the following two.
+    # The --user option of the setup.py script normally installs stuff in a place
+    # where Python will find it without setting environment variables. ~Toon
+    export PYTHONPATH=${PYTHONPATH}:${HOME}/path-to-horton-installation/
+    export HORTONDATA=${HOME}/path-to-horton-installation/data/
 
 If you run Horton on a headless node, i.e. without an X server, you need to
 configure Matplotlib to use a backend that does not require a graphical user
@@ -251,11 +263,12 @@ This file is located either in ``${HOME}/.matplotlib`` or
 Running the tests
 =================
 
-Change to a directory outside the source tree and call nosetests as follows::
+You should change to a directory outside of the source tree and call nosetests
+as follows::
 
     (cd ~; nosetests -v horton)
 
-In case one is testing horton on a system without an X Server, one has to
+In case you are testing horton on a system without an X Server, you have to
 configure matplotlib to use a backend that does not rely on an X Server. This
 can be done by adding a line ``backend: agg`` to the ``matplotlibrc`` file.
 This file is located in ``~/.matplotlib`` or ``~/.config/matplotlib``.
@@ -267,9 +280,10 @@ Building the documentation
 Dependencies
 ------------
 
-If one is interested in generating the documentation from source, the following
+If you are interested in generating the documentation from source, the following
 packages are also needed:
 
+* PIP >= NEED SUPPORT HERE
 * Sphinx >= 1.3.1: http://sphinx.pocoo.org/
 * Doxygen >= 1.8.6: http://www.doxygen.org/
 * Breathe >= 1.2.0: http://breathe.readthedocs.org/en/latest/
@@ -284,23 +298,23 @@ Installing the dependencies with MacPorts and PIP
 
 Most can be installed directly with MacPorts. The following list of ports is recommended:
 
-* ``py27-sphinx`` (also install Docutils): https://trac.macports.org/browser/trunk/dports/python/py-sphinx/Portfile
 * ``doxygen``: https://trac.macports.org/browser/trunk/dports/textproc/doxygen/Portfile
 * ``dving`` (installs texlive as dependency): https://trac.macports.org/browser/trunk/dports/tex/dvipng/Portfile
 * ``texlive-latex-extra`` (contains ``preview.sty``): https://trac.macports.org/browser/trunk/dports/tex/texlive-latex-extra/Portfile
-* ``py27-pip`` (neede for Breathe): https://trac.macports.org/browser/trunk/dports/python/py-pip/Portfile
+* ``py27-pip``: https://trac.macports.org/browser/trunk/dports/python/py-pip/Portfile
 
-For Breathe, one can use the PIP installer. The following commands will install everything
-as suggested::
+The following commands will install the ports::
 
-    sudo port install py27-sphinx
-    sudo port select --set sphinx py27-sphinx
     sudo port install doxygen
     sudo port install dvipng
     sudo port install texlive-latex-extra
     sudo port install py27-pip
     sudo port select --set pip pip27
-    pip install breathe --user
+
+Since Breathe (>=1.2.0) and Sphinx (>=1.3.1) may not be available through MacPort,
+it should be installed through PIP::
+
+    pip install --user --upgrade sphinx breathe
 
 If you don't want to rebuild sphinx every time you make a change you can use the
 `sphinx-autobuild` tool available through PyPI. Installation is pretty much like
@@ -308,7 +322,7 @@ any other PyPI package::
 
     pip install --user sphinx-autobuild
 
-One must also build LibXC statically in the ``depends`` directory, as explained
+You must also build LibXC statically in the ``depends`` directory, as explained
 above, to generate the list of DFT functionals in the documentation.
 
 
@@ -325,3 +339,13 @@ If you are using `sphinx-autobuild`  the command is as follows::
 
 This sets up a server at `localhost:800` and makes browser update whenever you make a change to the
 source files, as any other process you can stop it with `^C`
+
+
+Common Problems
+===============
+
+* If you get errors saying that you do not have a file or script when you have
+clearly installed it beforehand, it may not be named appropriately. You can fix
+this by symbolically linking that file to the appropriate name. E.g.::
+
+     some example
