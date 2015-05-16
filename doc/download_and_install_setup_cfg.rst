@@ -6,50 +6,50 @@ Controlling dynamic/static linking against LibXC, LibInt2 and BLAS
 Introduction
 ============
 
-The script ``setup.py`` also compiles C++ code into
-Python extensions. Some of these extension are linked against LibXC, LibInt2,
-a BLAS library or a combination of these. The ``setup.py`` script attempts
-to detect all compiler and linker settings for these libraries automatically.
+The script ``setup.py`` also compiles C++ code into Python extensions. Some of
+these extension are linked against LibXC, LibInt2, BLAS library or a combination
+of these. The ``setup.py`` script attempts to detect all of the compiler and
+linker settings for these libraries automatically.
 
-For every library, the following attempts are made (in given order) to detect
-the compiler and linker flags. If a given step results in such flags, further
-steps are not considered.
+For each library, following attempts are made (in the given order) to detect
+the compiler and linker flags. If an attempt gives a set of satisfactory flags,
+further steps are not considered for that library.
 
 1. If a file ``setup.cfg`` is present in the root of the source tree, and it
-   contains compile and link options for a given library, as documented below,
-   the automatic configuration for that library is skipped. One can override the
-   settings in ``setup.cfg`` with equivalent environment variables.
+   contains compile and link options for a given library, as documented in
+   :ref:`cfgfile`, the automatic configuration for that library is skipped. One
+   can override the settings in ``setup.cfg`` with equivalent environment variables.
 
 2. For LibXC and LibInt2, ``setup.py`` will try to use the static link libraries
    in the ``depends`` directory.
 
-3. An attempt is made to get all compiler and linker flags with the program
-   ``pkg-config``. See http://www.freedesktop.org/wiki/Software/pkg-config/ for
+3. The program ``pkg-config`` tries to get all of the compiler and linker flags
+   for each library. See http://www.freedesktop.org/wiki/Software/pkg-config/ for
    more details.
 
-4. Based on the operating systems and CPU architecture, a ``setup.*.cfg`` file
-   is taken from the directory ``data/setup_cfgs``. If the right file is
-   present, it is used.
+4. If you have a ``setup.*.cfg`` file in the directory ``data/setup_cfgs`` that
+   corresponds to your operating system and CPU architecture, then it is used.
 
 5. A default library name is used for dynamic linking: ``xc``, ``int2`` and
    ``atlas``, for LibXC, LibInt2 and BLAS, respectively.
 
-However, if for some library, these steps do not result in decent
-compiler/linker options or the dependencies are not installed, the compilation
-will fail and you will get a compiler error message.
+However, if these steps do not result in decent compiler/linker options for some
+library or the dependencies are not installed, then the compilation will fail
+and you will get a compiler error message.
 
 The following sections explain how one can override the default guesses of the
 ``setup.py`` script.
 
+.. _cfgfile:
 
 ``setup.cfg`` and environment variables
 =======================================
 
 For each library, a section can be added to the file ``setup.cfg`` to configure
-compiler and linker options. By default, no such file is present in the root
+the compiler and linker options. By default, no such file is present in the root
 of the source tree, so you have to create a new one. Several examples can be
-found in ``data/setup_cfgs``. For example, this is the file to compile the
-extensions properly on a 64 bit version of Fedora 21:
+found in ``data/setup_cfgs``. For example, this file would compile and link the
+extensions on a 64 bit version of Fedora 21:
 
 ``data/setup_cfgs/setup.Linux-Fedora-21-x86_64.cfg``
 
@@ -80,7 +80,7 @@ The purpose of each keyword is summarized below:
     Linux, the variable ``LD_LIBRARY_PATH`` must be set accordingly.
 
 ``libraries``
-    A list of shard objects to link with.
+    A list of shared objects to link with.
 
 ``extra_objects``
     Extra object files for static linking.
