@@ -148,7 +148,7 @@ space, the ``sudo`` can be omitted.)::
     sudo port install atlas
     sudo port install py27-numpy +atlas
     sudo port install py27-scipy +atlas
-    sudo port install cython
+    sudo port install py27-cython
     sudo port select --set cython cython27
     sudo port install py27-h5py
     sudo port install py27-sympy
