@@ -208,43 +208,46 @@ static void poly_helper(double x, long n, double* poly, double* poly1) {
 }
 
 
+void GB1DMGridGradientFn::reset(long _shell_type0, const double* _r0, const double* _point) {
+    GB1GridFn::reset(_shell_type0, _r0, _point);
+    poly_work[0] = 1.0;
+    poly_work[1] = point[0] - r0[0];
+    poly_work[2] = point[1] - r0[1];
+    poly_work[3] = point[2] - r0[2];
+    // One order higher polynomials are required because of first derivative.
+    offset_h1 = fill_cartesian_polynomials(poly_work+1, abs(shell_type0)+1)+1;
+    offset = offset_h1 - ((abs(shell_type0)+1)*(abs(shell_type0)+2))/2;
+    offset_l1 = offset - ((abs(shell_type0))*(abs(shell_type0)+1))/2;
+#ifdef DEBUG
+    printf("shell_type0=%li offset_h1=%li offset=%li offset_l1=%li\n", shell_type0, offset_h1, offset, offset_l1);
+#endif
+}
+
 void GB1DMGridGradientFn::add(double coeff, double alpha0, const double* scales0) {
-    double x = point[0] - r0[0];
-    double y = point[1] - r0[1];
-    double z = point[2] - r0[2];
-    double pre = coeff*exp(-alpha0*(x*x+y*y+z*z));
+    double pre = coeff*exp(-alpha0*dist_sq(r0, point));
     i1p.reset(abs(shell_type0));
     do {
         double pre0 = pre*scales0[i1p.ibasis0];
+        double pre0_h = -pre0*2.0*alpha0;
+        long nnotx = i1p.n0[1] + i1p.n0[2];
 
-        // For now, simple and inefficient evaluation of polynomial.
-        double poly_x = 1.0;
-        double poly_1x = 1.0;
-        poly_helper(x, i1p.n0[0], &poly_x, &poly_1x);
-        double poly_y = 1.0;
-        double poly_1y = 1.0;
-        poly_helper(y, i1p.n0[1], &poly_y, &poly_1y);
-        double poly_z = 1.0;
-        double poly_1z = 1.0;
-        poly_helper(z, i1p.n0[2], &poly_z, &poly_1z);
+        // Orbital
+        work_cart[4*i1p.ibasis0] += pre0*poly_work[i1p.ibasis0+offset];
 
-        double tmp0 = pre0*poly_x*poly_y*poly_z;
-        double tmp1;
-        // Basis function value
-        work_cart[i1p.ibasis0*4] += tmp0;
-        // Basis function derivative towards x
-        tmp0 *= -2.0*alpha0;
-        tmp1 = x*tmp0;
-        if (i1p.n0[0] > 0) tmp1 += i1p.n0[0]*pre0*poly_1x*poly_y*poly_z;
-        work_cart[i1p.ibasis0*4+1] += tmp1;
-        // Basis function derivative towards y
-        tmp1 = y*tmp0;
-        if (i1p.n0[1] > 0) tmp1 += i1p.n0[1]*pre0*poly_x*poly_1y*poly_z;
-        work_cart[i1p.ibasis0*4+2] += tmp1;
-        // Basis function derivative towards z
-        tmp1 = z*tmp0;
-        if (i1p.n0[2] > 0) tmp1 += i1p.n0[2]*pre0*poly_x*poly_y*poly_1z;
-        work_cart[i1p.ibasis0*4+3] += tmp1;
+        // Orbital derived toward x
+        work_cart[4*i1p.ibasis0+1] += pre0_h*poly_work[i1p.ibasis0+offset_h1];
+        if (i1p.n0[0] > 0)
+            work_cart[4*i1p.ibasis0+1] += i1p.n0[0]*pre0*poly_work[i1p.ibasis0+offset_l1];
+
+        // Orbital derived toward y
+        work_cart[4*i1p.ibasis0+2] += pre0_h*poly_work[i1p.ibasis0+1+nnotx+offset_h1];
+        if (i1p.n0[1] > 0)
+            work_cart[4*i1p.ibasis0+2] += i1p.n0[1]*pre0*poly_work[i1p.ibasis0-nnotx+offset_l1];
+
+        // Orbital derived toward z
+        work_cart[4*i1p.ibasis0+3] += pre0_h*poly_work[i1p.ibasis0+2+nnotx+offset_h1];
+        if (i1p.n0[2] > 0)
+            work_cart[4*i1p.ibasis0+3] += i1p.n0[2]*pre0*poly_work[i1p.ibasis0-nnotx-1+offset_l1];
     } while (i1p.inc());
 }
 

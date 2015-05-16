@@ -25,6 +25,7 @@ from nose.plugins.attrib import attr
 from nose.tools import assert_raises
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from horton.test.common import check_delta
 
 
 def test_exceptions():
@@ -217,13 +218,15 @@ def test_density_functional_deriv():
     check_delta(fun, fun_deriv, x, dxs)
 
 
-def check_density_gradient(obasis, dm_full, p0, p1):
-    points = np.array([p0, p1])
-    d = obasis.compute_grid_density_dm(dm_full, points)
-    g = obasis.compute_grid_gradient_dm(dm_full, points)
-    f1 = d[0] - d[1]
-    f2 = np.dot(p0-p1,g[0]+g[1])/2
-    assert abs(f1 - f2) < 1e-3*abs(f1)
+def check_density_gradient(obasis, dm_full, point, eps):
+    def fun(p):
+        return obasis.compute_grid_density_dm(dm_full, np.array([p]))[0]
+
+    def fun_deriv(p):
+        return obasis.compute_grid_gradient_dm(dm_full, np.array([p]))[0]
+
+    dpoints = np.random.uniform(-eps, eps, (100, 3))
+    check_delta(fun, fun_deriv, point, dpoints)
 
 
 def test_density_gradient_n2_sto3g():
@@ -237,10 +240,10 @@ def test_density_gradient_n2_sto3g():
     assert abs(g).max() < 1e-10
 
     eps = 1e-4
-    check_density_gradient(obasis, dm_full, np.array([0.1, 0.3, 0.2]), np.array([0.1+eps, 0.3, 0.2]))
-    check_density_gradient(obasis, dm_full, np.array([-0.1, 0.3, 0.2]), np.array([-0.1+eps, 0.3, 0.2]))
-    check_density_gradient(obasis, dm_full, np.array([-0.1, 0.4, 0.2]), np.array([-0.1+eps, 0.4, 0.2]))
-    check_density_gradient(obasis, dm_full, np.array([-0.1, 0.4, 1.2]), np.array([-0.1+eps, 0.4, 1.2]))
+    check_density_gradient(obasis, dm_full, np.array([0.1, 0.3, 0.2]), eps)
+    check_density_gradient(obasis, dm_full, np.array([-0.1, 0.3, 0.2]), eps)
+    check_density_gradient(obasis, dm_full, np.array([-0.1, 0.4, 0.2]), eps)
+    check_density_gradient(obasis, dm_full, np.array([-0.1, 0.4, 1.2]), eps)
 
 
 def test_density_gradient_h3_321g():
@@ -250,10 +253,10 @@ def test_density_gradient_h3_321g():
     dm_full = mol.get_dm_full()
 
     eps = 1e-4
-    check_density_gradient(obasis, dm_full, np.array([0.1, 0.3, 0.2]), np.array([0.1+eps, 0.3, 0.2]))
-    check_density_gradient(obasis, dm_full, np.array([-0.1, 0.3, 0.2]), np.array([-0.1+eps, 0.3, 0.2]))
-    check_density_gradient(obasis, dm_full, np.array([-0.1, 0.4, 0.2]), np.array([-0.1+eps, 0.4, 0.2]))
-    check_density_gradient(obasis, dm_full, np.array([-0.1, 0.4, 1.2]), np.array([-0.1+eps, 0.4, 1.2]))
+    check_density_gradient(obasis, dm_full, np.array([0.1, 0.3, 0.2]), eps)
+    check_density_gradient(obasis, dm_full, np.array([-0.1, 0.3, 0.2]), eps)
+    check_density_gradient(obasis, dm_full, np.array([-0.1, 0.4, 0.2]), eps)
+    check_density_gradient(obasis, dm_full, np.array([-0.1, 0.4, 1.2]), eps)
 
 
 def test_density_gradient_co_ccpv5z_cart():
@@ -263,10 +266,10 @@ def test_density_gradient_co_ccpv5z_cart():
     dm_full = mol.get_dm_full()
 
     eps = 1e-4
-    check_density_gradient(obasis, dm_full, np.array([0.1, 0.3, 0.2]), np.array([0.1+eps, 0.3, 0.2]))
-    check_density_gradient(obasis, dm_full, np.array([-0.1, 0.3, 0.2]), np.array([-0.1+eps, 0.3, 0.2]))
-    check_density_gradient(obasis, dm_full, np.array([-0.1, 0.4, 0.2]), np.array([-0.1+eps, 0.4, 0.2]))
-    check_density_gradient(obasis, dm_full, np.array([-0.1, 0.4, 1.2]), np.array([-0.1+eps, 0.4, 1.2]))
+    check_density_gradient(obasis, dm_full, np.array([0.1, 0.3, 0.2]), eps)
+    check_density_gradient(obasis, dm_full, np.array([-0.1, 0.3, 0.2]), eps)
+    check_density_gradient(obasis, dm_full, np.array([-0.1, 0.4, 0.2]), eps)
+    check_density_gradient(obasis, dm_full, np.array([-0.1, 0.4, 1.2]), eps)
 
 
 def test_density_gradient_co_ccpv5z_pure():
@@ -276,10 +279,10 @@ def test_density_gradient_co_ccpv5z_pure():
     dm_full = mol.get_dm_full()
 
     eps = 1e-4
-    check_density_gradient(obasis, dm_full, np.array([0.1, 0.3, 0.2]), np.array([0.1+eps, 0.3, 0.2]))
-    check_density_gradient(obasis, dm_full, np.array([-0.1, 0.3, 0.2]), np.array([-0.1+eps, 0.3, 0.2]))
-    check_density_gradient(obasis, dm_full, np.array([-0.1, 0.4, 0.2]), np.array([-0.1+eps, 0.4, 0.2]))
-    check_density_gradient(obasis, dm_full, np.array([-0.1, 0.4, 1.2]), np.array([-0.1+eps, 0.4, 1.2]))
+    check_density_gradient(obasis, dm_full, np.array([0.1, 0.3, 0.2]), eps)
+    check_density_gradient(obasis, dm_full, np.array([-0.1, 0.3, 0.2]), eps)
+    check_density_gradient(obasis, dm_full, np.array([-0.1, 0.4, 0.2]), eps)
+    check_density_gradient(obasis, dm_full, np.array([-0.1, 0.4, 1.2]), eps)
 
 
 def check_dm_gradient(obasis, dm_full, p0, p1):
@@ -529,3 +532,36 @@ def test_concept_gradient():
             s = moms[l][i] + 'z'
             nnotx = sum([alpha != 'x' for alpha in moms[l][i]])
             assert s == moms[l+1][i+2+nnotx]
+
+
+def check_gradient_systematic(pure):
+    # Create fake basis set.
+    alpha = 1.5
+    bcs = []
+    for shell_type in xrange(2):
+        # not properly normalized. So what.
+        bcs.append(GOBasisContraction(shell_type, np.array([alpha, alpha/2]), np.array([0.5, 0.5])))
+    goba = GOBasisAtom(bcs)
+    obasis = get_gobasis(np.array([[-0.5, 0.0, 0.0], [0.5, 0.0, 0.0]]), np.array([1, 1]), goba, pure=pure)
+
+    # create fake dm
+    lf = DenseLinalgFactory(obasis.nbasis)
+    dm = lf.create_two_index()
+
+    # Run derivative tests for each DM matrix element.
+    eps = 1e-4
+    for ibasis0 in xrange(obasis.nbasis):
+        for ibasis1 in xrange(ibasis0+1):
+            dm.set_element(ibasis0, ibasis1, 1.2)
+            for irep in xrange(5):
+                point = np.random.normal(0.0, 1.0, 3)
+                check_density_gradient(obasis, dm, point, eps)
+            dm.set_element(ibasis0, ibasis1, 0.0)
+
+
+def test_gradient_systematic_cart():
+    check_gradient_systematic(False)
+
+
+def test_gradient_systematic_pure():
+    check_gradient_systematic(True)

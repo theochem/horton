@@ -95,9 +95,15 @@ class GB1DMGridDensityFn : public GB1DMGridFn  {
 
 
 class GB1DMGridGradientFn : public GB1DMGridFn  {
+    private:
+        double poly_work[MAX_NCART_CUMUL_D];
+        long offset; // offset for the polynomials for the density
+        long offset_l1; // lower offset for the polynomials for the gradient
+        long offset_h1; // higher offset for the polynomials for the gradient
     public:
         GB1DMGridGradientFn(long max_shell_type): GB1DMGridFn(max_shell_type, 4, 3) {};
 
+        virtual void reset(long _shell_type0, const double* _r0, const double* _point);
         virtual void add(double coeff, double alpha0, const double* scales0);
         virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output, double epsilon, double* dmmaxrow);
         virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis, double* output);
