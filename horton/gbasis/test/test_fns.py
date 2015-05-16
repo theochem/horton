@@ -214,7 +214,6 @@ def test_density_functional_deriv():
     for i in xrange(100):
         dxs.append(np.random.uniform(-eps, +eps, x.shape)*x)
 
-    from horton.test.common import check_delta
     check_delta(fun, fun_deriv, x, dxs)
 
 
@@ -357,7 +356,6 @@ def test_gradient_functional_deriv():
         tmp = (tmp+tmp.T)/2
         dxs.append(tmp)
 
-    from horton.test.common import check_delta
     check_delta(fun, fun_deriv, x, dxs)
 
 
@@ -497,7 +495,6 @@ def test_kinetic_functional_deriv():
         tmp = np.random.uniform(-eps, +eps, x.shape)*x
         dxs.append(tmp)
 
-    from horton.test.common import check_delta
     check_delta(fun, fun_deriv, x, dxs)
 
 
@@ -622,3 +619,54 @@ def test_hessian_systematic_cart():
 
 def test_hessian_systematic_pure():
     check_hessian_systematic(True)
+
+
+def check_hessian_functional_deriv(comp):
+    fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
+    mol = IOData.from_file(fn_fchk)
+    obasis = mol.obasis
+    dm_full = mol.get_dm_full()
+
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'coarse', random_rotate=False, mode='keep')
+    pot = grid.points[:,2]
+
+    def fun(x):
+        dm_full._array[:] = x.reshape(obasis.nbasis, -1)
+        f = obasis.compute_grid_hessian_dm(dm_full, grid.points)
+        return 0.5*grid.integrate(f[:, comp], f[:, comp])
+
+    def fun_deriv(x):
+        dm_full._array[:] = x.reshape(obasis.nbasis, -1)
+        result = dm_full.new()
+        tmp = obasis.compute_grid_hessian_dm(dm_full, grid.points)
+        tmp[:,:comp] = 0.0
+        tmp[:,comp+1:] = 0.0
+        obasis.compute_grid_hessian_fock(grid.points, grid.weights, tmp, result)
+        return result._array.ravel()
+
+    eps = 1e-4
+    x = dm_full._array.copy().ravel()
+    dxs = []
+    for i in xrange(100):
+        tmp = np.random.uniform(-eps, +eps, x.shape)*x
+        dxs.append(tmp)
+
+    check_delta(fun, fun_deriv, x, dxs)
+
+def test_hessian_functional_deriv_0():
+    check_hessian_functional_deriv(0)
+
+def test_hessian_functional_deriv_1():
+    check_hessian_functional_deriv(1)
+
+def test_hessian_functional_deriv_2():
+    check_hessian_functional_deriv(2)
+
+def test_hessian_functional_deriv_3():
+    check_hessian_functional_deriv(3)
+
+def test_hessian_functional_deriv_4():
+    check_hessian_functional_deriv(4)
+
+def test_hessian_functional_deriv_5():
+    check_hessian_functional_deriv(5)

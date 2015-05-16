@@ -491,7 +491,31 @@ void GB1DMGridHessianFn::compute_point_from_dm(double* work_basis, double* dm, l
 }
 
 void GB1DMGridHessianFn::compute_fock_from_pot(double* pot, double* work_basis, long nbasis, double* output) {
-    throw std::runtime_error("NotImplementedError");
+    for (long ibasis0=0; ibasis0<nbasis; ibasis0++) {
+        double tmp = pot[0]*work_basis[ibasis0*10+4]
+                    +pot[1]*work_basis[ibasis0*10+5]//*2.0
+                    +pot[2]*work_basis[ibasis0*10+6]//*2.0
+                    +pot[3]*work_basis[ibasis0*10+7]
+                    +pot[4]*work_basis[ibasis0*10+8]//*2.0
+                    +pot[5]*work_basis[ibasis0*10+9];
+        double tmp_x = pot[0]*work_basis[ibasis0*10+1]
+                      +pot[1]*work_basis[ibasis0*10+2]
+                      +pot[2]*work_basis[ibasis0*10+3];
+        double tmp_y = pot[1]*work_basis[ibasis0*10+1]
+                      +pot[3]*work_basis[ibasis0*10+2]
+                      +pot[4]*work_basis[ibasis0*10+3];
+        double tmp_z = pot[2]*work_basis[ibasis0*10+1]
+                      +pot[4]*work_basis[ibasis0*10+2]
+                      +pot[5]*work_basis[ibasis0*10+3];
+        for (long ibasis1=0; ibasis1<nbasis; ibasis1++) {
+            double result = tmp*work_basis[ibasis1*10]
+                           +tmp_x*work_basis[ibasis1*10+1]
+                           +tmp_y*work_basis[ibasis1*10+2]
+                           +tmp_z*work_basis[ibasis1*10+3];
+            output[ibasis1*nbasis+ibasis0] += result;
+            output[ibasis0*nbasis+ibasis1] += result;
+        }
+    }
 }
 
 
