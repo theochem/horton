@@ -82,28 +82,24 @@ void GB1GridFn::cart_to_pure() {
 */
 
 
+void GB1ExpGridOrbitalFn::reset(long _shell_type0, const double* _r0, const double* _point) {
+    GB1GridFn::reset(_shell_type0, _r0, _point);
+    poly_work[0] = 1.0;
+    if (shell_type0!=0) {
+        poly_work[1] = point[0] - r0[0];
+        poly_work[2] = point[1] - r0[1];
+        poly_work[3] = point[2] - r0[2];
+        offset = fill_cartesian_polynomials(poly_work+1, abs(shell_type0))+1;
+    } else {
+        offset = 0;
+    }
+}
+
 void GB1ExpGridOrbitalFn::add(double coeff, double alpha0, const double* scales0) {
-    double pre, poly;
-    pre = coeff*exp(-alpha0*dist_sq(r0, point));
-    i1p.reset(abs(shell_type0));
-    do {
-#ifdef DEBUG
-        printf("n=[%i,%i,%i]\n", i1p.n0[0], i1p.n0[1], i1p.n0[2]);
-#endif
-        // For now, simple and inefficient evaluation of polynomial.
-        poly = 1.0;
-        for (long j=0; j<3; j++) {
-            double tmp = point[j] - r0[j];
-            for (long i=0; i<i1p.n0[j]; i++) poly *= tmp;
-        }
-        work_cart[i1p.ibasis0] += pre*scales0[i1p.ibasis0]*poly;
-#ifdef DEBUG
-        printf("poly=%f ibasis0=%i scale=%f work[]=%f\n", poly, i1p.ibasis0, scales0[i1p.ibasis0], work_cart[i1p.ibasis0]);
-#endif
-    } while (i1p.inc());
-#ifdef DEBUG
-    printf("\n");
-#endif
+    double pre = coeff*exp(-alpha0*dist_sq(r0, point));
+    for (long ibasis0=get_shell_nbasis(abs(shell_type0))-1; ibasis0>=0; ibasis0--) {
+        work_cart[ibasis0] += pre*scales0[ibasis0]*poly_work[ibasis0+offset];
+    }
 }
 
 void GB1ExpGridOrbitalFn::compute_point_from_exp(double* work_basis, double* coeffs, long nbasis, double* output) {

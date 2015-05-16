@@ -61,10 +61,13 @@ class GB1ExpGridFn : public GB1GridFn  {
 
 class GB1ExpGridOrbitalFn : public GB1ExpGridFn  {
     protected:
+        double poly_work[MAX_NCART_CUMUL];
+        long offset;
         long* iorbs;
         long norb;
     public:
         GB1ExpGridOrbitalFn(long max_shell_type, long nfn, long* iorbs, long norb) : GB1ExpGridFn(max_shell_type, nfn, 1, norb), iorbs(iorbs), norb(norb) {};
+        virtual void reset(long _shell_type0, const double* _r0, const double* _point);
         virtual void add(double coeff, double alpha0, const double* scales0);
         virtual void compute_point_from_exp(double* work_basis, double* coeffs, long nbasis, double* output);
     };
