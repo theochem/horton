@@ -204,7 +204,7 @@ are available for the following two chain rules:
         \right) d\mathbf{r} \\
     \frac{\partial E[\tau]}{\partial D_{\nu\mu}} & =
         \frac{1}{2}\int \frac{\delta E[\tau]}{\delta \tau(\mathbf{r})}
-        \nabla b_\nu^*(\mathbf{r}) b_\mu(\mathbf{r}) d\mathbf{r}
+        \nabla b_\nu^*(\mathbf{r}) \nabla b_\mu(\mathbf{r}) d\mathbf{r}
 
 where :math:`\tau(\mathbf{r})` is the kinetic energy density:
 
