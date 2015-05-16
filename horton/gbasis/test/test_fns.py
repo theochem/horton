@@ -496,3 +496,36 @@ def test_kinetic_functional_deriv():
 
     from horton.test.common import check_delta
     check_delta(fun, fun_deriv, x, dxs)
+
+
+def test_concept_gradient():
+    # This is not testing a part of Horten directly but it does test a concept
+    # used for the evaluation of derivatives of the density.
+
+    # A) Build alphabetically sorted combinations of X, Y and Z
+    moms = [[], ['x', 'y', 'z']]
+    for l in xrange(2, 8):
+        curmoms = []
+        for alpha in 'xyz':
+            for oldmom in moms[l-1]:
+                if alpha <= oldmom[0]:
+                    curmoms.append(alpha + oldmom)
+        moms.append(curmoms)
+
+    # B) Test the rules to get the position of a polynomial of higher order
+    #    by adding X, Y or Z
+    for l in xrange(1, 7):
+        # rule for x
+        for i in xrange(len(moms[l])):
+            s = 'x' + moms[l][i]
+            assert s == moms[l+1][i]
+        # rule for y
+        for i in xrange(len(moms[l])):
+            s = ''.join(sorted('y' + moms[l][i]))
+            nnotx = sum([alpha != 'x' for alpha in moms[l][i]])
+            assert s == moms[l+1][i+1+nnotx]
+        # rule for z
+        for i in xrange(len(moms[l])):
+            s = moms[l][i] + 'z'
+            nnotx = sum([alpha != 'x' for alpha in moms[l][i]])
+            assert s == moms[l+1][i+2+nnotx]
