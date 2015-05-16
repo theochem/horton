@@ -142,7 +142,7 @@ http://sourceforge.net/p/libint/home
 
 **Python dependencies**
 
-In some cases, Pip, the Python package manager, may be a good choice to install
+In some cases, PIP, the Python package manager, may be a good choice to install
 the most recent versions of the Python packages in the list of dependencies.
 Assuming that you have installed some compilers, the Python development files
 and HDF5 development files, the following command installs the remaining
@@ -186,7 +186,7 @@ Overriding default compiler/linker settings for LibXC, LibInt2 and BLAS
 
 The manual configuration of the compiler and linker settings is described here:
 :ref:`setup_cfg`. You should read this section if the default build and install
-failed or if you would like to select specific libraries to use.
+failed or if you would like to specify which libraries to use.
 
 
 Runtime Configuration
@@ -215,14 +215,15 @@ This file is located in either ``${HOME}/.matplotlib`` or
 Running the tests
 =================
 
-Change to a directory outside of the source tree and call nosetests as follows::
+You should change to a directory outside of the source tree and call nosetests
+as follows::
 
     (cd ~; nosetests -v horton)
 
-In case you are testing Horton on a system without an X Server, you have to configure
-matplotlib to use a backend that does not rely on an X Server. This can be done by
-adding a line ``backend: agg`` to the matplotlibrc file. This file is located in
-``~/.matplotlib`` or ``~/.config/matplotlib``.
+In case you are testing Horton on a system without an X Server, you have to
+configure matplotlib to use a backend that does not rely on an X Server. This
+can be done by adding a line ``backend: agg`` to the ``matplotlibrc`` file.
+This file is located in ``~/.matplotlib`` or ``~/.config/matplotlib``.
 
 
 Building the documentation
@@ -254,11 +255,11 @@ Installing the dependencies with a package manager and PIP
 
     sudo yum install doxygen tex-preview python-docutils python-pip dvipng tex-preview
 
-Since Breathe (>=1.2.0) and Sphinx (>=1.3.1) may not be available through the Linux
-repositories, it should be installed manually. For example, it is available through
-PyPI.
+Since Breathe (>=1.2.0) and Sphinx (>=1.3.1) may not be available through the
+Linux repositories, it should be installed manually. For example, it is
+available through PyPI.
 
-**Pip packages**::
+**PIP packages**::
 
     pip install --user --upgrade sphinx breathe
 
