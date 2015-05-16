@@ -565,3 +565,60 @@ def test_gradient_systematic_cart():
 
 def test_gradient_systematic_pure():
     check_gradient_systematic(True)
+
+
+def check_density_hessian(obasis, dm_full, point, eps):
+    def fun(p):
+        return obasis.compute_grid_gradient_dm(dm_full, np.array([p]))[0]
+
+    def fun_deriv(p):
+        row = obasis.compute_grid_hessian_dm(dm_full, np.array([p]))[0]
+        result = np.zeros((3, 3), float)
+        result[0, 0] = row[0]
+        result[0, 1] = row[1]
+        result[1, 0] = row[1]
+        result[0, 2] = row[2]
+        result[2, 0] = row[2]
+        result[1, 1] = row[3]
+        result[1, 2] = row[4]
+        result[2, 1] = row[4]
+        result[2, 2] = row[5]
+        return result
+
+    dpoints = np.random.uniform(-eps, eps, (100, 3))
+    check_delta(fun, fun_deriv, point, dpoints)
+
+
+def check_hessian_systematic(pure):
+    # Create fake basis set.
+    alpha = 1.5
+    bcs = []
+    for shell_type in xrange(2):
+        # not properly normalized. So what.
+        bcs.append(GOBasisContraction(shell_type, np.array([alpha, alpha/2]), np.array([0.5, 0.5])))
+    goba = GOBasisAtom(bcs)
+    obasis = get_gobasis(np.array([[-0.5, 0.0, 0.0], [0.5, 0.0, 0.0]]), np.array([1, 1]), goba, pure=pure)
+
+    # create fake dm
+    lf = DenseLinalgFactory(obasis.nbasis)
+    dm = lf.create_two_index()
+
+    # Run derivative tests for each DM matrix element.
+    eps = 1e-4
+    for ibasis0 in xrange(obasis.nbasis):
+        for ibasis1 in xrange(ibasis0+1):
+            dm.set_element(ibasis0, ibasis1, 1.2)
+            dm.set_element(ibasis1, ibasis0, 1.2)
+            for irep in xrange(5):
+                point = np.random.normal(0.0, 1.0, 3)
+                check_density_hessian(obasis, dm, point, eps)
+            dm.set_element(ibasis0, ibasis1, 0.0)
+            dm.set_element(ibasis1, ibasis0, 0.0)
+
+
+def test_hessian_systematic_cart():
+    check_hessian_systematic(False)
+
+
+def test_hessian_systematic_pure():
+    check_hessian_systematic(True)

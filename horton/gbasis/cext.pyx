@@ -66,7 +66,8 @@ __all__ = [
     'GB2NuclearAttractionIntegral',
     'GB4ElectronRepulsionIntegralLibInt',
     # fns
-    'GB1DMGridDensityFn', 'GB1DMGridGradientFn',
+    'GB1DMGridDensityFn', 'GB1DMGridGradientFn', 'GB1DMGridKineticFn',
+    'GB1DMGridHessianFn',
     # iter_gb
     'IterGB1', 'IterGB2', 'IterGB4',
     # iter_pow
@@ -1005,6 +1006,38 @@ cdef class GOBasis(GBasis):
         self._compute_grid1_dm(dm, points, GB1DMGridKineticFn(self.max_shell_type), output)
         return output
 
+    def compute_grid_hessian_dm(self, dm,
+                                np.ndarray[double, ndim=2] points not None,
+                                np.ndarray[double, ndim=2] output=None,
+                                double epsilon=0):
+        '''Compute the electron density gradient on a grid for a given density matrix.
+
+           **Arguments:**
+
+           dm
+                A density matrix. For now, this must be a DenseTwoIndex object.
+
+           points
+                A Numpy array with grid points, shape (npoint,6).
+
+           **Optional arguments:**
+
+           output
+                A Numpy array for the output, shape (npoint,6). When not given,
+                it will be allocated.
+
+           epsilon
+                Allow errors on the density of this magnitude for the sake of
+                efficiency.
+
+           **Warning:** the results are added to the output array! This may
+           be useful to combine results from different spin components.
+        '''
+        if output is None:
+            output = np.zeros((points.shape[0], 6), float)
+        self._compute_grid1_dm(dm, points, GB1DMGridHessianFn(self.max_shell_type), output, epsilon)
+        return output
+
     def compute_grid_hartree_dm(self, dm,
                                 np.ndarray[double, ndim=2] points not None,
                                 np.ndarray[double, ndim=1] output=None):
@@ -1566,6 +1599,12 @@ cdef class GB1DMGridGradientFn(GB1DMGridFn):
 cdef class GB1DMGridKineticFn(GB1DMGridFn):
     def __cinit__(self, long max_nbasis):
         self._this = <fns.GB1DMGridFn*>(new fns.GB1DMGridKineticFn(max_nbasis))
+
+
+cdef class GB1DMGridHessianFn(GB1DMGridFn):
+    def __cinit__(self, long max_nbasis):
+        self._this = <fns.GB1DMGridFn*>(new fns.GB1DMGridHessianFn(max_nbasis))
+
 
 
 #

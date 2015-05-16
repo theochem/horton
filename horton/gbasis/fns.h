@@ -120,6 +120,25 @@ class GB1DMGridKineticFn : public GB1DMGridFn  {
     };
 
 
+class GB1DMGridHessianFn : public GB1DMGridFn  {
+    private:
+        double poly_work[MAX_NCART_CUMUL_DD];
+        long offset; // offset for the polynomials for the density
+        long offset_l1; // lower offset for the polynomials for the gradient
+        long offset_h1; // higher offset for the polynomials for the gradient
+        long offset_l2; // lower offset for the polynomials for the hessian
+        long offset_h2; // higher offset for the polynomials for the hessian
+    public:
+        GB1DMGridHessianFn(long max_shell_type): GB1DMGridFn(max_shell_type, 10, 6) {};
+
+        virtual void reset(long _shell_type0, const double* _r0, const double* _point);
+        virtual void add(double coeff, double alpha0, const double* scales0);
+        virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output, double epsilon, double* dmmaxrow);
+        virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis, double* output);
+    };
+
+
+
 
 
 class GB2DMGridFn : public GBCalculator  {
