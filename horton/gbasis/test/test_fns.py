@@ -323,7 +323,7 @@ def test_dm_gradient_h3_321g():
     check_dm_gradient(obasis, dm_full, np.array([[-0.1, 0.4, 1.2]]), np.array([[-0.1, 0.4, 1.2+eps]]))
 
 
-def test_gradient_functional_deriv():
+def check_gradient_functional_deriv(comp):
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     mol = IOData.from_file(fn_fchk)
     obasis = mol.obasis
@@ -332,19 +332,18 @@ def test_gradient_functional_deriv():
     rtf = ExpRTransform(1e-3, 1e1, 10)
     rgrid = RadialGrid(rtf)
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, (rgrid, 6), random_rotate=False, mode='keep')
-    pot = grid.points[:,2].copy()
 
     def fun(x):
         dm_full._array[:] = x.reshape(obasis.nbasis, -1)
         f = obasis.compute_grid_gradient_dm(dm_full, grid.points)
-        tmp = (f*f).sum(axis=1)
-        return 0.5*grid.integrate(tmp, pot)
+        return 0.5*grid.integrate(f[:,comp], f[:,comp])
 
     def fun_deriv(x):
         dm_full._array[:] = x.reshape(obasis.nbasis, -1)
         result = dm_full.new()
         tmp = obasis.compute_grid_gradient_dm(dm_full, grid.points)
-        tmp *= pot.reshape(-1,1)
+        tmp[:,:comp] = 0.0
+        tmp[:,comp+1:] = 0.0
         obasis.compute_grid_gradient_fock(grid.points, grid.weights, tmp, result)
         return result._array.ravel()
 
@@ -357,6 +356,18 @@ def test_gradient_functional_deriv():
         dxs.append(tmp)
 
     check_delta(fun, fun_deriv, x, dxs)
+
+
+def test_gradient_functional_deriv_0():
+    check_gradient_functional_deriv(0)
+
+
+def test_gradient_functional_deriv_1():
+    check_gradient_functional_deriv(1)
+
+
+def test_gradient_functional_deriv_2():
+    check_gradient_functional_deriv(2)
 
 
 def check_orbitals(mol):
