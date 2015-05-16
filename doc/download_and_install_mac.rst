@@ -345,7 +345,7 @@ Common Problems
 ===============
 
 * If you get errors saying that you do not have a file or script when you have
-  clearly installed it beforehand, it may not be named appropriately. You can
-  fix this by symbolically linking that file to the appropriate name. E.g.::
+  clearly installed it beforehand, it may not be named appropriately. You can fix
+  this by symbolically linking that file to the appropriate name. E.g.::
 
      some example
