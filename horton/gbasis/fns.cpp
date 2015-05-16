@@ -122,23 +122,21 @@ void GB1ExpGridOrbitalFn::compute_point_from_exp(double* work_basis, double* coe
 
 void GB1DMGridDensityFn::reset(long _shell_type0, const double* _r0, const double* _point) {
     GB1GridFn::reset(_shell_type0, _r0, _point);
+    poly_work[0] = 1.0;
     if (shell_type0!=0) {
-        poly_work[0] = point[0] - r0[0];
-        poly_work[1] = point[1] - r0[1];
-        poly_work[2] = point[2] - r0[2];
-        offset = fill_cartesian_polynomials(poly_work, abs(shell_type0));
+        poly_work[1] = point[0] - r0[0];
+        poly_work[2] = point[1] - r0[1];
+        poly_work[3] = point[2] - r0[2];
+        offset = fill_cartesian_polynomials(poly_work+1, abs(shell_type0))+1;
+    } else {
+        offset = 0;
     }
 }
 
 void GB1DMGridDensityFn::add(double coeff, double alpha0, const double* scales0) {
-    double pre;
-    pre = coeff*exp(-alpha0*dist_sq(r0, point));
-    if (shell_type0==0) {
-        work_cart[0] += pre*scales0[0];
-    } else {
-        for (long ibasis0=get_shell_nbasis(abs(shell_type0))-1; ibasis0>=0; ibasis0--) {
-            work_cart[ibasis0] += pre*scales0[ibasis0]*poly_work[ibasis0+offset];
-        }
+    double pre = coeff*exp(-alpha0*dist_sq(r0, point));
+    for (long ibasis0=get_shell_nbasis(abs(shell_type0))-1; ibasis0>=0; ibasis0--) {
+        work_cart[ibasis0] += pre*scales0[ibasis0]*poly_work[ibasis0+offset];
     }
 }
 

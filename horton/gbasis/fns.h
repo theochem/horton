@@ -82,7 +82,7 @@ class GB1DMGridFn : public GB1GridFn  {
 
 class GB1DMGridDensityFn : public GB1DMGridFn  {
     private:
-        double poly_work[MAX_NCART_CUMUL-1];
+        double poly_work[MAX_NCART_CUMUL];
         long offset;
     public:
         GB1DMGridDensityFn(long max_shell_type): GB1DMGridFn(max_shell_type, 1, 1) {};
