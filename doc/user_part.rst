@@ -6,14 +6,14 @@ Introduction
 
 Horton supports several real-space atoms-in-molecules (AIM) schemes. A
 wavefunction or an electronic density on a grid can be loaded from several
-file formats. With this input, several AIM schemes can be used to derive AIM
+file formats. With such input, several AIM schemes can be used to derive AIM
 observables, e.g. atomic charge, atomic multipole expansion, etc.
 
 Horton supports two different approaches to perform the partitioning: WPart
 (based on wavefunction files) and CPart (based on cube files). Both
 implementations build on the same algorithms but use different types of
 grids for the numerical integrals. An overview of both implementations is
-given in the following table:
+given by the following table:
 
 ======================== =========================== =========================== ============
 Feature                  WPart                       CPart                       References
@@ -50,19 +50,19 @@ Radial moments           X                           X
 Dispersion coefficients  X                           X                           [tkatchenko2009]_
 spherical decomposition  X
 ESP due to each AIM      X                                                       [becke1988_poisson]_
-ESP due to proatom       X                           X                           [becke1988_poisson]_
+ESP due to pro-atom       X                           X                           [becke1988_poisson]_
 Wiberg bond order        X
 Kohn-Sham response       X
 **Extra options**
 Symmetry analysis                                    X
 ======================== =========================== =========================== ============
 
-Note that Gaussian cube files can be generated with many other codes like CPMD, ADF,
+Note that Gaussian cube files can be generated from other programs like CPMD, ADF,
 Siesta, Crystal, etc. The output of all these program should be compatible with
 Horton. Horton can partition all-electron and pseudo-potential wavefunctions.
-However, for all-electron partitioning with CPart, very fine grids are required.
+However, very fine grids are required for all-electron partitioning with CPart.
 
-For all the Hirshfeld variants, one must first set up a database of proatomic
+For all the Hirshfeld variants, you must first set up a database of pro-atomic
 densities, preferably at the same level of theory used for the molecular
 computation. The script ``horton-atomdb.py`` facilitate the setup of such a
 database.
@@ -75,21 +75,23 @@ with Python scripts. The script ``horton-hdf2csv.py`` can be used to convert
 supported by most spreadsheet software.
 
 The usage of the four scripts (``horton-atomdb.py``, ``horton-wpart.py``,
-``horton-cpart.py`` and ``horton-hdf2csv.py``) will be discussed in the
-following sections. All scripts have a ``--help`` option that prints out a
-complete list of all options. The penultimate section shows how one can use the
-partitioning code through the Python interface. The last section answers some
-frequently asked questions about partitioning with Horton.
+``horton-cpart.py`` and ``horton-hdf2csv.py``) will be discussed in :ref:`atomdb`,
+:ref:`wpart`, :ref:`cpart`, and NOTAVAILABLE, respectively. All scripts have
+a ``--help`` option that prints out a complete list of options. The penultimate
+section, :ref:`partition`, shows to use the partitioning code through the
+Python interface. The last section, :ref:`faq`, answers some frequently asked
+questions about partitioning with Horton.
 
+.. _atomdb:
 
-``horton-atomdb.py`` -- Set up a database of proatoms
+``horton-atomdb.py`` -- Set up a database of pro-atoms
 =====================================================
 
 The usage of the script ``horton-atomdb.py`` consists of three steps:
 
-1) **Generate input files** for isolated atom computations for one of the following
-   codes: Gaussian03/09, Orca, PSI4 or CP2K. The following example generates
-   Gaussian09 inputs for hydrogen, carbon, nitrogen and oxygen::
+1) **Generate input files** for isolated atom computations for one of the
+   following codes: Gaussian03/09, Orca, PSI4 or CP2K. The following example
+   generates Gaussian09 inputs for hydrogen, carbon, nitrogen and oxygen::
 
     horton-atomdb.py input g09 1,6-8 template.com
 
@@ -97,8 +99,8 @@ The usage of the script ``horton-atomdb.py`` consists of three steps:
    be discussed in detail below. A series of directories is created with input
    files for the atomic computations: ``001__h_001_q+00``, ``001__h_002_q-01``,
    ``001__h_003_q-02``, ... Optional arguments can be used to control the range
-   of cations and anions, the spin multiplicities considered, etc. Also a script
-   ``run_g09.sh`` is present that takes care of the next step.
+   of cations and anions, the spin multiplicities, etc. Also a script
+   ``run_g09.sh`` is generated to take care of the next step.
 
    Run ``horton-atomdb.py input --help`` to obtain a complete list of all
    options.
@@ -110,7 +112,7 @@ The usage of the script ``horton-atomdb.py`` consists of three steps:
 
    Note that the ``run_PROGRAM.sh`` scripts assume a default installation of
    the corresponding software. In the case of non-standard installations or
-   when special calls or environment variables are needed, one must modify this
+   when special calls or environment variables are needed, you must modify this
    script first. (It will not be overwritten when `horton-atomdb.py input ...``
    is executed again.)
 
@@ -120,50 +122,50 @@ The usage of the script ``horton-atomdb.py`` consists of three steps:
     ./horton-atomdb.py convert
 
    This script also generates figures of the radial densities and Fukui
-   functions if ``matplotlib`` is installed. In this step, one may use
+   functions if ``matplotlib`` is installed. In this step, you may use
    :ref:`ref_grid_option`, although the default setting should be fine for
    nearly all cases.
 
-One may remove some directories with atomic computations before or after
+You may remove some directories for the atomic computations before or after
 executing the ``run_PROGRAM.sh`` script. The corresponding atoms will not be
-included in the database. Similarly, one may rerun ``horton-atomdb.py input``
+included in the database. Similarly, you may rerun ``horton-atomdb.py input``
 to generate more input files. In that case ``run_PROGRAM.sh`` will only consider
-the atomic computations that are not completed yet. In some cases, custom
-modifications are needed in the ``run_PROGRAM.sh`` script, e.g. one may want to
-use ``mpirun`` to run the each atomic computation in parallel. When such
-modifications are made, subsequent runs of ``horton-atomdb.py input ...`` will
-not overwrite the ``run_PROGRAM.sh`` script.
+the atomic computations that have not been completed yet. In some cases,
+``run_PROGRAM.sh`` script needs to be customized, e.g. you may want to use
+``mpirun`` to run the atomic computations in parallel. When such modifications
+are made, subsequent runs of ``horton-atomdb.py input ...`` will not overwrite
+the ``run_PROGRAM.sh`` script.
 
 
 Template files
 --------------
 
 A template file is simply an input file for an atomic computation, where the
-critical parameters (element, charge, ...) are replaced keys that are recognized
-by the input generator of ``horton-atomdb.py``. These keys are:
+critical parameters (element, charge, ...) are replaced by keys that are
+recognized by the input generator of ``horton-atomdb.py``. These keys are:
 
 * ``${element}``: The element symbol of the atom.
-* ``${number}``: The element number of the atom.
-* ``${charge}``: The charge of the atom (or kation, or anion).
+* ``${number}``: The atomic number of the atom.
+* ``${charge}``: The charge of the atom (or cation, or anion).
 * ``${mult}``: The spin multiplicity of the atom
 
-For the more advanced cases, one may include (parts of) other files with generic
+For more advanced cases, you may include (parts of) other files with generic
 keys, e.g. for basis sets that are different for every element:
 
 * ``${file:filename}``: This is replaced by the contents of
-  ``filename.NNN_PPP_MM``, where ``NNN`` is the element number, ``PPP`` is the
+  ``filename.NNN_PPP_MM``, where ``NNN`` is the atomic number, ``PPP`` is the
   atomic population and ``MM`` is the spin multiplicity. These numbers are
   left-padded with zeros to fix the the length. If a field in the filename is
-  zero, it is considered as a wild card. For example, one may use
+  zero, it is considered as a wild card. For example, you may use
   ``${file:basis}`` in the template file and store a basis set specification for
   oxygen in the file ``basis.008_000_00``.
 
-* ``${line:filename}``. This comparable to the previous, except that all
-  replacements are stored in one file. Each (non-empty) line in that file starts
-  with ``NNN_PPP_MM``, which is then followed by the string that will be filled
-  into the field.
+* ``${line:filename}``: This is comparable to the previous key, except that all
+  replacements are stored in one file. Each (non-empty) line in this file that
+  starts with ``NNN_PPP_MM`` has a string that will be filled into the field of
+  the file that corresponds to the specified ``NNN_PPP_MM``.
 
-None of the keys is mandatory, although ``${element}`` (or ``${number}``,
+None of the keys are mandatory, although ``${element}`` (or ``${number}``),
 ``${charge}`` and ``${mult}`` must be present to obtain sensible results.
 
 
@@ -188,8 +190,8 @@ wavefunction in the ``convert`` step of ``horton-atomdb.py``.
 Advanced template file for Gaussian 03/09
 -----------------------------------------
 
-When custom basis sets are specified with the ``Gen`` keyword in Gaussian, one
-has to use keys that include other files. For a database with H, C and O, one
+When custom basis sets are specified with the ``Gen`` keyword in Gaussian, you
+have to use keys that include other files. For a database with H, C and O, you
 could use the following template:
 
 * ``template.com``::
@@ -266,14 +268,14 @@ The following template file use the built-in ``cc_pVQZ`` basis set of ORCA::
 Template file for CP2K
 ----------------------
 
-One must use ``CP2K`` version 2.4-r12857 (or newer). The computation of proatoms
-with ``CP2K`` is more involved because one has to specify the occupation
-of each subshell. The ``ATOM`` program of ``CP2K`` does not simply follow the Aufbau
-rule to assign to orbital occupations. For now, only the computation of atomic
-densities with contracted basis sets and pseudopotentials is supported, mainly
-because this is case where ``CP2K`` offers additional functionality.
+You must use ``CP2K`` version 2.4-r12857 (or newer). The computation of pro-atoms
+with ``CP2K`` is more involved because you have to specify the occupation
+of each subshell. The ``ATOM`` program of ``CP2K`` does not simply follow the
+Aufbau rule to assign to orbital occupations. For now, only the computation of
+atomic densities with contracted basis sets and pseudopotentials is supported,
+mainly because this is a case where ``CP2K`` offers additional functionality.
 
-The following example can be used to generator a proatomic database with the
+The following example can be used to generate a pro-atomic database with the
 elements, O, Na, Al and Si with the GTH pseudopotential and the MolOpt basis
 set.
 
@@ -377,10 +379,11 @@ The following template file use the BLYP functionals and the built-in
 Note that the flags ``molden_write true`` and ``reference uhf`` are required.
 The former instructs the SCF program to write the orbitals, which Horton picks
 up to compute atomic densities. The latter is needed because usually most of the
-atomic computations are open-shell systems. Because PSI4 only writes a Molden
-file for SCF computations, it is not possible to prepare atomic densities with
+atomic computations are open-shell systems. Because PSI4 only writes Molden
+files for SCF computations, it is not possible to prepare atomic densities with
 other levels of theory.
 
+.. _wpart:
 
 ``horton-wpart.py`` -- AIM analysis based on a wavefunction file
 ================================================================
@@ -422,13 +425,14 @@ options. The integration grid can be tuned with :ref:`ref_grid_option`.
 .. note::
 
     When a post Hartree-Fock level is used in Gaussian 03/09 (MP2, MP3, CC or
-    CI), one must add the keyword ``Density=current`` to the commands in the
+    CI), you must add the keyword ``Density=current`` to the commands in the
     Gaussian input file. This is needed to have the corresponding density matrix
     in the formatted checkpoint file. When such a post HF density matrix is
     present, Horton will load that density matrix instead of the SCF density
     matrix. Also note that for some levels of theory, no 1RDM is constructed,
     including MP4, MP5, ZINDO and QCISD(T).
 
+.. _cpart:
 
 ``horton-cpart.py`` -- AIM analysis based on a cube file
 ========================================================
@@ -476,7 +480,7 @@ The script takes three arguments:
    Now consider the case that 6 effective electrons were used for oxygen and 4
    effective electrons for silicon. Then, the second column in the atom lines
    has to be set to the effective core charge. (This number is not used in the
-   cube format.) In this case, one gets::
+   cube format.) In this case, you get::
 
            -Quickstep-
             ELECTRON DENSITY
@@ -517,16 +521,16 @@ The script takes three arguments:
 
 4. The fourth argument is the atom database generated with ``horton-atomdb.py``
 
-The ``horton-cpart.py`` script
-computes atomic weight functions and then derives all AIM observables that are
-implemented for that scheme. These results are stored in a HDF5 file with
-the same name as the ``cube`` file but with a ``_cpart.h5`` suffix. In this HDF5
-file, the results are written in the group ``cpart/${SCHEME}_r${STRIDE}`` where
-``${SCHEME}`` is any of ``h``, ``hi``, ``he`` and ``${STRIDE}`` is an optional
-argument of the script ``horton-cpart.py`` that is discussed below.
+The ``horton-cpart.py`` script computes atomic weight functions and then derives
+all AIM observables that are implemented for that scheme. These results are
+stored in a HDF5 file with the same name as the ``cube`` file but with a
+``_cpart.h5`` suffix. In this HDF5 file, the results are written in the group
+``cpart/${SCHEME}_r${STRIDE}`` where ``${SCHEME}`` is any one of ``h``, ``hi``,
+``he`` and ``${STRIDE}`` is an optional argument of the script
+``horton-cpart.py`` that is discussed below.
 
 The ``horton-cpart.py`` script is somewhat experimental. Always make sure that the
-numbers have converged with an increasing number of grid points. One may need to
+numbers converge with an increase in the number of grid points. You may need the
 following options to control the efficiency of the program
 
 * ``--compact COMPACT``. Automatically determine cutoff radii for the pro-atoms,
@@ -546,12 +550,13 @@ following options to control the efficiency of the program
 Run ``horton-cpart.py --help`` to get a complete list of all command-line
 options.
 
+.. _partition:
 
 Python interface to the partitioning code
 =========================================
 
 The ``horton-wpart.py`` and ``horton-cpart.py`` scripts have a rather intuitive
-Python interface that allows one to run a more customized analysis. The script
+Python interface that allows you to run a more customized analysis. The script
 ``data/examples/004_wpart/run.py`` is a simple example that runs a Becke partitioning
 where only the charges are computed and written to a simple text file.
 
@@ -561,6 +566,7 @@ The unit tests in the source code contain many small examples that can be used
 as a starting point for similar scripts. These unit tests can be found in
 ``horton/part/test/test_wpart.py`` and ``horton/part/test/test_cpart.py``.
 
+.. _faq:
 
 Frequently asked questions
 ==========================
@@ -573,9 +579,9 @@ Frequently asked questions
     communities. Try to stay away from such fanboyism as it has little to do
     with good science.
 
-    In practice, the choice depends on the purposes one has in mind. One should
+    In practice, the choice depends on the purposes you have in mind. You should
     try to select a scheme that shows some desirable behavior.
-    Typically, one would like to have a compromise between some of the following
+    Typically, you would like to have a compromise between some of the following
     features:
 
     * Numerical stability.
@@ -616,15 +622,15 @@ Frequently asked questions
     If you have more suggestions, please drop me a note: Toon.Verstraelen@UGent.be.
 
 
-**What is the recommended level of theory for the computation of the database of proatoms?**
+**What is the recommended level of theory for the computation of the database of pro-atoms?**
 
     This question is relevant the following methods implemented in Horton:
     Hirshfeld, Hirshfeld-I and Hirshfeld-E. They are referred to in this answer
     as Hirshfeld-like schemes.
 
-    In principle, one is free to choose any level of theory one prefers. In
+    In principle, you are free to choose any level of theory you prefer. In
     practice, several papers tend to be consistent in the level of theory (and
-    basis set) that is used for the molecular and proatomic computations.
+    basis set) that is used for the molecular and pro-atomic computations.
     See for example: [bultinck2007]_, [verstraelen2009]_, [verstraelen2011a]_,
     [verstraelen2011b]_, [vanduyfhuys2012]_, [verstraelen2012a]_,
     [verstraelen2012b]_, [verstraelen2013]_.
@@ -634,22 +640,22 @@ Frequently asked questions
     pro-atoms. [nalewajski2000]_ (Technically speaking, the sum over all atoms
     of the `Kullback-Leibler divergence
     <https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence>`_
-    between the atom-in-molecule and proatom is minimized.)
+    between the atom-in-molecule and pro-atom is minimized.)
     This principle is (or should be) one of the reasons that Hirhsfeld-like
-    charges are somewhat transferable between chemically similar atoms. One
+    charges are somewhat transferable between chemically similar atoms. You
     could hope that the Kullback-Leibler divergence is easier to minimize when
-    the molecular and proatomic densities are computed as consistently as
+    the molecular and pro-atomic densities are computed as consistently as
     possible, hence with the same level of theory and basis set.
 
-    Another motivation is that such consistency may lead to a degree of error
-    cancellation when comparing Hirshfeld-like charges computed at different
+    Another motivation is that such consistency may result in, to some degree,
+    cancellation of errors, when comparing Hirshfeld-like charges computed at different
     levels of theory. For example, it is found that Hirshfeld-I charges have
     only a small basis set dependence. [bultinck2007b]_ In this work, the
-    molecular and proatomic densities were computed consistently.
+    molecular and pro-atomic densities were computed consistently.
 
-    At last, one could also argue that without the consistency in level of
-    theory, there are some many possible combinations that it becomes impossible
+    At last, you could also argue that without the consistency in level of
+    theory, there are so many possible combinations that it becomes impossible
     to make a well-motivated choice. Then again, this is a problem that
     computational chemist usually embrace with open arms in the hope that they
-    will find a weird combination of levels of theory that turns out to be
+    will find a unique combination of levels of theory that turns out to be
     useful.
