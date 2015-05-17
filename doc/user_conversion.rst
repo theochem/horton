@@ -10,6 +10,8 @@ between different file formats supported by Horton. Run ``horton-convert.py
 --help`` for more details.
 
 
+.. _hdf2csv:
+
 ``horton-hdf2csv.py`` -- Conversion of HDF5 files to CSV format
 ===============================================================
 
