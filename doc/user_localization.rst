@@ -1,99 +1,88 @@
 .. _localization:
 
 Localization of molecular orbitals
-######################################
+##################################
 
-In general, the localization algorithm optimizes the localization function using an orthogonal transformation between the orbitals :math:`\vert i \rangle` ,
+In general, the localization algorithm optimizes some localization function by
+orthogonal transformation of the orbitals. Many of the localization schemes, and thus
+the result of the localization, differ by the localization function. The localization
+function somehow measures the localization of the orbitals. So far, Horton only
+supports the Pipek-Mezey localization.
+
+i.e. Given orbitals :math:`\vert i \rangle`, the localized orbital :math:`\vert \tilde{i} \rangle`
+can be obtained by some transformation
 
 .. math::
 
     \vert \tilde{i} \rangle = \sum_k \vert k \rangle \exp(-\mathbf{\kappa})_{ki},
 
-where :math:`\mathbf{\kappa}` is the generator of orbital rotations
+where 
 
 .. math::
 
     \mathbf{\kappa} = \sum_{k > l} \kappa_{kl} (a^\dagger_k a_l - a^\dagger_l a_k)
 
-This version of Horton supports
-
-1. :ref:`Pipek-Mezey <pipek-mezey>` localization
+and :math:`\kappa_{kl}` is determined by the optimization of the localization function.
 
 
 .. _pipek-mezey:
 
-Pipek-Mezey localization of restricted Hartree-Fock orbitals
-============================================================
+Pipek-Mezey localization
+========================
 
-In the Pipek-Mezey scheme, the localization function is maximized to obtain a set of orbitals that are on average most local. To evaluate the Pipek-Mezey localization function,
+In the Pipek-Mezey scheme, the Pipek-Mezey localization function, :math:`D`, is maximized.
 
 .. math::
 
     D = \sum_{i} \sum_{A \in \textrm{atoms}} (Q_{ii}^A)^2,
 
-an atomic population matrix :math:`\mathbf{Q}^A` is needed which can be calculated using projectors for atomic basis functions.
+where :math:`\mathbf{Q}^A` is the atomic population matrix. The atomic population
+matrix can be obtained from the overlap of the atomic basis, the expansion of the molecular
+orbitals from the atomic basis, the occupation of each molecular orbital, and
+some weighted projection of atomic basis function within each atom.
 
-If the Mulliken population analysis is used, the Mulliken projectors can be constructed as follows
+For example, if the Mulliken population analysis is used, the projectors are
+obtained through ``horton.part.mulliken.get_mulliken_operators``
 
 .. code-block:: python
 
     projector = get_mulliken_operators(obasis, lf)
 
-where
+where:
 
-    :obasis: (``GOBasis`` instance) the Gaussian orbital basis
-    :lf: A ``LinalgFactory`` instance. One of ``DenseLinalgFactory`` or ``CholeskyLinalgFactory``
+:obasis: a ``GOBasis`` instance that describes the Gaussian orbital basis
+:lf: a ``LinalgFactory`` instance 
 
-The return value (**projector**) is a list of projectors for the atomic basis functions which are stored as ``TwoIndex`` instances. After defining the projectors, an instance of the ``PipekMezey`` class can be created,
+Then the Pipek-Mezey localization function and the optimization are obtained through
+``PipekMezey`` instance.
 
 .. code-block:: python
 
     loc = PipekMezey(lf, occ_model, projector)
 
-where **lf** is again the ``LinalgFactory`` instance and
+where:
 
-    :occ_model: (``AufbauOccModel`` instance) an Aufbau occupation model
-    :projector: (list of ``TwoIndex`` instances) the projectors for atomic basis functions
+:lf: a ``LinalgFactory`` instance
+:occ_model: an ``AufbauOccModel`` instance
+:projector: a list of ``TwoIndex`` instances that contains the projectors
 
-To localize the orbitals, use a function call of the ``PipekMezey`` instance
+A function call of this instance results in localization.
 
-.. code-block:: python
+.. code-bloc:: python
+   
+   loc(orb, select)
 
-    loc(orb, select[, **kwargs])
+where:
 
-with arguments
+:orb: an ``Expansion`` instance that contains the expansion of molecular orbitals
+   with respect to the atomic basis.
+:select: either 'occ' or 'vir' that controls the localization of the occupied and
+   virtual molecular orbitals, respectively.
 
-    :orb: (``Expansion`` instance) the MO coefficient matrix to be localized
-    :select: (str) the orbital block to be localized. One of ``occ`` (occupied orbitals), ``virt`` (virtual orbitals)
-
-The **select** argument specifies the orbital block to be localized (either the occupied or the virtual Hartree-Fock orbitals). If both the occupied and virtual Hartree-Fock orbitals are to be localized, two consecutive function calls are required. Note that each function call optimizes the orbitals through orbital rotations within the orbital block of interest (either ``occ`` or ``virt``).
-
-The keyword arguments contain optimization-specific parameters. Specifying keyword arguments is optional. The list of acceptable keyword arguments is as follows
-
-    :maxiter: (int) maximum number of iterations (that is, orbital rotation steps) for localization (default ``2000``)
-
-    :threshold: (float)  localization threshold for objective function (default ``1e-6``)
-
-    :levelshift: (float) level shift of Hessian (default ``1e-8``). Absolute value of elements of the orbital Hessian smaller than **levelshift** are shifted by **levelshift**
-
-    :stepsearch: (dictionary) optimizes an orbital rotation step:
-
-              :method: (str) step search method used. One of ``trust-region`` (default), ``None``,  ``backtracking``
-              :optimizer: (str) optimizes step to boundary of trust radius in ``trust-region``. One of ``pcg`` (preconditioned conjugate gradient), ``dogleg`` (Powell's single dogleg step), ``ddl`` (Powell's double-dogleg step) (default ``ddl``)
-              :alpha: (float) scaling factor for Newton step. Used in ``backtracking`` and ``None`` method (default ``1.00``)
-              :c1: (float) parameter used in the Armijo condition of ``backtracking`` (default ``1e-4``)
-              :minalpha: (float) minimum step length used in ``backracking`` (default ``1e-6``). If step length falls below **minalpha**, the ``backtracking`` line search is terminated and the most recent step is accepted
-              :maxiterouter: (int) maximum number of iterations to optimize orbital rotation step  (default ``10``)
-              :maxiterinner: (int) maximum number of optimization steps in each step search (used only in ``pcg``, default ``500``)
-              :maxeta: (float) upper bound for estimated vs. actual change in ``trust-region`` (default ``0.75``)
-              :mineta: (float) lower bound for estimated vs. actual change in ``trust-region`` (default ``0.25``)
-              :upscale: (float) scaling factor to increase trust radius in ``trust-region`` (default ``2.0``)
-              :downscale: (float) scaling factor to decrease trust radius in ``trust-region`` (default ``0.25``)
-              :trustradius: (float) initial trust radius (default ``0.75``)
-              :maxtrustradius: (float) maximum trust radius (default ``0.75``)
-              :threshold: (float) trust-region optimization threshold, only used in ``pcg`` (default ``1e-8``)
-
-The optimized set of orbitals is stored in **orb** (an ``Expansion`` instance). Note that the initial orbitals **orb** are overwritten.
+Note that the localized orbitals are stored in **orb**, where the initial orbitals
+are overwritten.
+               
+Please see documentation in ``horton.localization.Localization`` for more detail.
 
 
 Example input files
