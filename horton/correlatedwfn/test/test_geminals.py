@@ -1,4 +1,5 @@
 from horton import *
+import numpy as np
 
 def test_ap1rog_cs():
     fn_xyz = context.get_fn('test/h2.xyz')
@@ -30,7 +31,8 @@ def test_ap1rog_cs():
 
     # Do AP1roG optimization:
     geminal_solver = RAp1rog(lf, occ_model)
-    energy, g = geminal_solver(one, er, external['nn'], exp_alpha, olp, False, **{'solver': {'wfn': 'krylov'}})
+    guess = np.array([-0.08, -0.05, -0.03])
+    energy, g = geminal_solver(one, er, external['nn'], exp_alpha, olp, False, **{'guess': {'geminal': guess}})
     assert (abs(energy - -1.143420629378) < 1e-6)
 
 def test_ap1rog_cs_scf():
@@ -63,5 +65,6 @@ def test_ap1rog_cs_scf():
 
     # Do AP1roG optimization:
     geminal_solver = RAp1rog(lf, occ_model)
-    energy, g, l = geminal_solver(one, er, external['nn'], exp_alpha, olp, True, **{'checkpoint': -1, 'solver': {'wfn': 'krylov', 'lagrange': 'krylov'}})
+    guess = np.array([-0.1, -0.05, -0.02])
+    energy, g, l = geminal_solver(one, er, external['nn'], exp_alpha, olp, True, **{'checkpoint': -1, 'guess': {'geminal': guess}})
     assert (abs(energy - -1.151686291339) < 1e-6)
