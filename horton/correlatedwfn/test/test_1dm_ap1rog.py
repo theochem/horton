@@ -54,7 +54,7 @@ def test_ap1rog_one_dm():
 
     # Do AP1roG optimization:
     geminal_solver = RAp1rog(lf, occ_model)
-    energy, g, l = geminal_solver(one, er, external['nn'], exp_alpha, olp, True, **{'solver': {'wfn': 'krylov', 'lagrange': 'krylov'}, 'checkpoint': -1, 'maxiter': {'orbiter': 5}})
+    energy, g, l = geminal_solver(one, er, external['nn'], exp_alpha, olp, True, **{'checkpoint': -1, 'maxiter': {'orbiter': 0}})
 
     one_mo_ = lf.create_two_index()
     one_mo_.assign_two_index_transform(one, exp_alpha)
@@ -104,7 +104,7 @@ def fun_deriv(x, ham, two_mo):
     onebody2.assign(lcoeff)
 
     onedm = ham.lf.create_one_index()
-    ham.compute_1dm(onedm, onebody1, onebody2, factor=1.0)
+    ham.compute_1dm(onedm, onebody1, onebody2, factor=2.0)
     a = np.zeros((28,28))
     np.fill_diagonal(a, onedm._array.T)
     return a
