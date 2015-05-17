@@ -76,7 +76,7 @@ supported by most spreadsheet software.
 
 The usage of the four scripts (``horton-atomdb.py``, ``horton-wpart.py``,
 ``horton-cpart.py`` and ``horton-hdf2csv.py``) will be discussed in :ref:`atomdb`,
-:ref:`wpart`, :ref:`cpart`, and NOTAVAILABLE, respectively. All scripts have
+:ref:`wpart`, :ref:`cpart`, and :ref:`hdf2csv`, respectively. All scripts have
 a ``--help`` option that prints out a complete list of options. The penultimate
 section, :ref:`partition`, shows to use the partitioning code through the
 Python interface. The last section, :ref:`faq`, answers some frequently asked
