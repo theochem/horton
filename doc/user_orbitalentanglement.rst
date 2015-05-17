@@ -23,8 +23,9 @@ one-orbital reduced density matrix (RDM)
 
 The one-orbital RDM is obtained from the N-particle RDM by tracing out all
 other orbital degrees of freedom except those of orbital *i*. This leads to an
-RDM whose dimension is equal to the dimension of the one-orbital Fock space
-(4-dimensional for spatial orbitals).
+RDM whose dimension is equal to the dimension of the one-orbital Fock space. For
+spatial orbitals, the one-orbital Fock space has a dimension of 4 (one for unoccupied,
+one for doubly occupied and two for singly occupied).
 
 Similarly, the two-orbital entropy :math:`s(2)_{i,j}` quantifies the interaction
 of an orbital pair :math:`i,j` and all other orbitals. It is calculated from the
