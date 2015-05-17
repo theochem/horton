@@ -7,7 +7,7 @@ Electrostatic potential fitting
 Introduction
 ============
 
-The general idea behind the ESP fitting tools in Horton is to allow fitting
+The general idea behind the electrostatic potential (ESP) fitting tools in Horton is to allow fitting
 and assessment of charges in isolated and 3D-periodic systems with compatible
 methodologies. Furthermore, the procedure is broken into different steps, such
 that one can carry out more specialized ESP fits.
@@ -21,26 +21,25 @@ is constructed. In Horton, this ESP cost function takes the following form:
 
 where the symbols have the following meaning:
 
-* :math:`\{q\}`: the atomic charges
+* :math:`\{q\}`: the set of the atomic charges
 * :math:`V`: the volume where the point-charge ESP is compared with the
   reference ESP. In periodic systems, this is the volume of a single primitive
   cell. In isolated systems, this is some volume surrounding the molecule.
-* :math:`w(\mathbf{r})` the weight function with range [0, 1] that selects the
+* :math:`w(\mathbf{r})`: the weight function with range [0, 1] that selects the
   relevant parts of the volume for the ESP fit. In Horton, the weight function
   of Hu, Lu and Yang is used. [hu2007]_ This weight function is zero far away
   from and inside the atoms. It becomes one in the part of the electron density
   tail where non-bonding contacts are typically found. The weight function
   smoothly varies from 0 to 1. In the Hu-Lu-Yang paper, a pro-density is
-  recommended for this purpose while we recommend to use a proper all-electron
+  recommended for this purpose while we recommend the use of a proper all-electron
   density or a corrected pseudo-density.
-* :math:`V_\text{ai}(\mathbf{r})` is the ab initio ESP computed with some other
+* :math:`V_\text{ai}(\mathbf{r})`: the ab initio ESP computed with some other
   program, e.g. Gaussian, CP2K, VASP, etc.
-* :math:`q_A` are the atomic charges
-* :math:`V_\text{point}(\mathbf{r} - \mathbf{R}_A)` is the electrostatic
-  potential due to a unit point charge. In an isolated molecule, this is simply
-  :math:`1/|\mathbf{r} - \mathbf{R}_A|` (in atomic units). For periodic systems,
-  this part is quite a bit more involved.
-* :math:`\Delta V_\text{ref}` is a constant that may account for differences in
+* :math:`q_A`: the charge of atom :math:`A`.
+* :math:`V_\text{point}(\mathbf{r} - \mathbf{R}_A)`: the ESP due to a unit point
+  charge. In an isolated molecule, this is simply :math:`1/|\mathbf{r} - \mathbf{R}_A|`
+  (in atomic units). For periodic systems, this part is quite a bit more involved.
+* :math:`\Delta V_\text{ref}`: constant that may account for differences in
   reference between the ab initio ESP and the point charge ESP.
   The need for such a term was established in the REPEAT paper for ESP fitting
   in 3D periodic systems. [campana2009]_
@@ -54,14 +53,14 @@ function is based on an all-electron density, there is no need to define atomic
 radii as is done usually in ESP fitting.
 
 The cost function is obviously a quadratic function of the unknown parameters,
-:math:`X`: the charges (and :math:`\Delta V_\text{ref}` in the case of
+:math:`X`, the charges (and :math:`\Delta V_\text{ref}` in the case of
 a 3D periodic system), which we can always write as follows:
 
 .. math::
     \text{COST}(X) = X^T A X - 2 B^T X - C
 
-The script ``horton-esp-cost.py`` construct the matrix :math:``A``, the vector
-:math:`B` and the constant :math`C`. These results are stored in an HDF5 file
+The script ``horton-esp-cost.py`` construct the matrix :math:`A`, the vector
+:math:`B` and the constant :math:`C`. These results are stored in an HDF5 file
 that is subsequently used by the script ``horton-esp-fit.py`` to obtain
 ESP-fitted charges or by the script ``horton-esp-test.py`` to evaluate the
 cost function for a given set of charges.
@@ -96,13 +95,13 @@ The recommended usage for an all-electron computation is as follows::
 where ``esp.cube`` is a Gaussian cube file containing the ESP data. The results will
 be written in ``cost.h5``. The option ``--wdens=rho.cube`` implies that the
 weight function is constructed with the Hu-Lu-Yang method using the given
-density cube file. [hu2007]_ The opton ``--pbc`` can be used to construct a cost
+density cube file. [hu2007]_ The option ``--pbc`` can be used to construct a cost
 function for an isolated system (``000``) or a 3D periodic system (``111``).
 
 When a pseudo-potential computation is used, the density cube file contains
 regions of low electron density close to the nucleus. These regions may not be
 excluded from the fit with the Hu-Lu-Yang weight function. Therefore, Horton
-allows one to build up the weight function as a product of several factors:
+allows one to build the weight function as a product of several factors:
 :math:`w(\mathbf{r}) = w_1(\mathbf{r})w_2(\mathbf{r})w_3(\mathbf{r})w_4(\mathbf{r}) \ldots`, where the
 first one is typically the Hu-Lu-Yang weight function and additional weight
 functions can be included for every pseudo-core,
@@ -136,7 +135,7 @@ where the file ``cost.h5`` is constructed with the script
 ``horton-esp-cost.py``.
 
 Useful ESP fitted charges typically involve much more advanced minimizations of
-the ESP cost function, for example by adding constraints, restraints,
+the ESP cost function, for example, by adding constraints, restraints,
 transforming to bond-charge increments, fitting to several different molecules
 concurrently, etc. Such advanced features are not supported in
 ``horton-esp-fit.py`` but one is free to implement these in customized scripts
@@ -163,9 +162,9 @@ Making nice cube files with Gaussian
 
 Horton contains an auxiliary tool, ``horton-cubehead.py`` to prepare an input
 header for a cube file aligned with the molecule of interest. This is more
-efficient than the default settings in of cubegen, which begins to matter in
-terms of disk space when working with molecular databases. For occasional use,
-``horton-cubehead.py`` is probably overkill. The script is used as follows::
+efficient than the default settings of cubegen, which makes a significant difference in
+disk space when working with molecular databases. For occasional use,
+``horton-cubehead.py`` is probably an overkill. The script is used as follows::
 
     horton-cubehead.py structure.xyz cubehead.txt
 
