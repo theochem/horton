@@ -8,14 +8,14 @@ How to work with integration grids in Horton
 Specifiying an integration grid
 ===============================
 
-Horton primarily makes use of Becke-Lebedev grids for numerical integrals of
+Horton primarily makes use of Becke-Lebedev grids for numerical integrals over
 molecular volumes. If you are not familiar with this concept, then first read
 Becke's paper: [becke1988_multicenter]_
 
 In a nutshell, a Becke-Lebedev grid works as follows. Say, one is interested in
 computing the integral of :math:`f(\mathbf{r})` over a molecular volume. In
 practice, the integrand is often derived from the density and thus also contains
-sharp spikes close to the atomic nuclei because. In order to integrate all these
+sharp spikes close to the atomic nuclei. In order to integrate all these
 unsmooth spikes properly, the molecular integral is first split into atomic
 contributions:
 
@@ -24,10 +24,11 @@ contributions:
 
 where :math:`w_A(\mathbf{r})` is the atomic weight function for atom A. It is
 1 close the nucleus of atom A and goes to zero inside the other atoms. Every
-atomic integral is then computed on a grid in spherical coordinates. This is
-typically a product grid, where different one-dimensional radial grids are
-possible and the Lebedev-Laikov grids are always used for the angular part. In
-the end, can always write the numerical integration as follows:
+atomic integral is then computed on a grid in spherical coordinates centered at
+the nucleus of that atom. This is typically a product grid, where different
+one-dimensional radial grids are possible and the Lebedev-Laikov grids
+[lebedev1999]_ are always used for the angular part. In the end, one can always
+write the numerical integration as follows:
 
 .. math::
     \int f(\mathbf{r}) d\mathbf{r} \approx \sum_{i=1}^{N_\text{grid}} w_i f(\mathbf{r}_i)
@@ -37,8 +38,9 @@ integration grid weights and :math:`\mathbf{r}_i` are the integration grid
 points.
 
 Horton can automatically construct Becke-Lebedev integration grids for a given
-molecular geometry. These are needed for a DFT computation or for an
-atoms-in-molecules analysis. The default grid is constructed as follows:
+molecular geometry. These are needed for a DFT computation (typically for
+evaluation of the exchange-correlation functional) or for an atoms-in-molecules
+analysis. The default grid is constructed as follows:
 
 .. code-block:: python
 
@@ -64,7 +66,8 @@ grid, e.g.:
 The available levels of accuracy for the built-in integration grids are
 documented here: :ref:`ref_grids`. One can also control in more detail the
 radial and angular components of the integration grids. See the API
-documentation of :py:class:`horton.grid.molgrid.BeckeMolGrid` for more details.
+documentation of :py:class:`horton.grid.molgrid.BeckeMolGrid` and
+:py:class:`horton.grid.atgrid.AtomicGridSpec` for more details.
 
 
 Computing a numerical integral involving the electron density
@@ -137,15 +140,15 @@ Constructing a one-body operator from a real-space potential
 This section assumes that the following objects are already available:
 
 * ``obasis``: an orbital basis set
-* ``lf``: an instance if ``DenseLinalgFactory`` or ``CholeskyLinalgFactory``
+* ``lf``: an instance of ``DenseLinalgFactory`` or ``CholeskyLinalgFactory``
 * ``dm_full``: the spin-summed density matrix
-* ``grid``: a Becke-Lebedev integration grid as introduce above.
+* ``grid``: a Becke-Lebedev integration grid as introduced above.
 
 If you are not familiar with the ``obasis`` or ``lf``, go through the section
 :ref:`user_molecularham_basis`. The density matrix can either be read from a
 file or computed with Horton, see :ref:`user_hf_dft`.
 
-Given a multplicative potential, one may write its expectation value as:
+Given a multiplicative potential, one may write its expectation value as:
 
 .. math::
 
@@ -166,7 +169,7 @@ where :math:`D_{\mu\nu}` is the spin-summed density matrix. The matrix
 
 where :math:`b_\mu(\mathbf{r})` are the orbital basis functions. Such matrices
 can be constructed with the method
-:py:meth:`horton.gbasis.cext.GOBasis.compute_grid_density_fock`. This is method
+:py:meth:`horton.gbasis.cext.GOBasis.compute_grid_density_fock`. This method is
 also useful when applying the chain rule to construct the contribution
 to a Fock matrix from a density functional:
 
