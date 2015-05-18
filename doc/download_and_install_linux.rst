@@ -92,7 +92,7 @@ Installing dependencies with a package manager
 With popular Linux distributions, most of these dependencies can be installed
 with a package manager:
 
-**Ubuntu Linux** (does not have a libint2 package, see section :ref:`manual-dependency-install`)::
+**Ubuntu Linux** (does not have a libint2 package, see section :ref:`linux_manual_dependency_install`)::
 
     sudo apt-get install python-dev gcc g++ gfortran python-numpy python-h5py python-scipy cython python-nose python-sympy python-matplotlib libxc-dev libatlas-base-dev curl
 
@@ -100,7 +100,7 @@ with a package manager:
 
     sudo yum install python-devel gcc gcc-c++ gcc-gfortran numpy h5py scipy Cython python-sphinx python-nose sympy python-matplotlib libint2-devel libxc-devel atlas-devel curl
 
-.. _manual-dependency-install:
+.. _linux_manual_dependency_install:
 
 Installing dependencies manually
 --------------------------------
@@ -114,7 +114,7 @@ HPC environments a compilation from scratch is recommended.
 
 In principle, any BLAS implementation may be used. In case of a custom build,
 some environment variables must be set prior to building Horton, as discussed
-in :ref:`compile_install`.
+in :ref:`linux_compile_install`.
 
 
 **LibXC**
@@ -163,7 +163,7 @@ downloaded separately when compiling a development version of Horton::
 
     (cd data/refatoms; make all)
 
-.. _compile_install:
+.. _linux_compile_install:
 
 Compilation and installation
 ============================

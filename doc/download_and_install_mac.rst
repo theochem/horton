@@ -157,10 +157,10 @@ space, the ``sudo`` can be omitted.)::
     sudo port install libxc
 
 LibInt2 is yet unavailable on MacPorts and must be installed manually, as
-explained in :ref:`manual-dependency-install`. The GNU compilers are only used
+explained in :ref:`mac_manual_dependency_install`. The GNU compilers are only used
 to compile Fortran code as the default C/C++ compiler on the Mac is ``clang``.
 
-.. _manual-dependency-install:
+.. _mac_manual_dependency_install:
 
 Installing dependencies manually
 --------------------------------
@@ -169,7 +169,7 @@ Installing dependencies manually
 
 In principle, any BLAS implementation may be used. In case of a custom build,
 some environment variables must be set prior to building Horton, as discussed
-in :ref:`compile_install`. Also, Keep in mind that MacPorts only supports Atlas
+in :ref:`mac_compile_install`. Also, Keep in mind that MacPorts only supports Atlas
 for building NumPy and SciPy.
 
 
@@ -209,7 +209,7 @@ downloaded separately when compiling a development version of Horton::
 
     (cd data/refatoms; make all)
 
-.. _compile_install:
+.. _mac_compile_install:
 
 Compilation and installation
 ============================
@@ -345,7 +345,7 @@ Common Problems
 ===============
 
 * If you get errors saying that you do not have a file or script when you have
-clearly installed it beforehand, it may not be named appropriately. You can fix
-this by symbolically linking that file to the appropriate name. E.g.::
+  clearly installed it beforehand, it may not be named appropriately. You can
+  fix this by symbolically linking that file to the appropriate name. E.g.::
 
      some example
