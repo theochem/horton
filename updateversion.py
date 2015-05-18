@@ -31,11 +31,15 @@ rules = [
     ('horton/log.py', '^.* Welcome to Horton (...+)!$'),
     ('doc/conf.py', '^version = \'(...+)\'$'),
     ('doc/conf.py', '^release = \'(...+)\'$'),
-    ('doc/tut_getting_started.rst', '^    https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
-    ('doc/tut_getting_started.rst', '^    wget https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
-    ('doc/tut_getting_started.rst', '^    tar -xvzf horton-(...+).tar.gz$'),
-    ('doc/tut_getting_started.rst', '^    cd horton-(...+)$'),
-    ('doc/tut_cite.rst', '^    Horton (...+), http://theochem.github.com/horton/,$'),
+    ('doc/download_and_install_linux.rst', '^    https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
+    ('doc/download_and_install_linux.rst', '^    curl -O https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
+    ('doc/download_and_install_linux.rst', '^    tar -xvzf horton-(...+).tar.gz$'),
+    ('doc/download_and_install_linux.rst', '^    cd horton-(...+)$'),
+    ('doc/download_and_install_mac.rst', '^    https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
+    ('doc/download_and_install_mac.rst', '^    curl -O https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
+    ('doc/download_and_install_mac.rst', '^    tar -xvzf horton-(...+).tar.gz$'),
+    ('doc/download_and_install_mac.rst', '^    cd horton-(...+)$'),
+    ('doc/index.rst', '^    Horton (...+), http://theochem.github.com/horton/,$'),
 ]
 
 
