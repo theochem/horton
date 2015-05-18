@@ -64,7 +64,9 @@ commit:
     fi
 
 Copy this script into the directory ``.git/hooks/pre-commit`` and make it
-executable. The last part of the pre-commit script checks for python ``print``
+executable. If you encounter errors related to trailing whitespace, you can
+run the ``./cleancode.sh`` script in the root of the Horton source tree to get
+rid of them. The last part of the pre-commit script checks for python ``print``
 lines. These should not be used in the Horton library. If you think you have
 legitimate reasons to ignore this test, use the ``--no-verify`` option when
 comitting.
