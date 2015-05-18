@@ -66,26 +66,14 @@ def fix_c(lines, header_lines):
         lines.insert(0, ('// '+hline).strip() + '\n')
 
 
+
+def iter_subdirs(root):
+    for dn, subdns, fns in os.walk(root):
+        yield dn
+
+
 def main():
-    source_dirs = [
-        '.',
-        'horton',
-        'horton/test',
-        'horton/espfit',
-        'horton/espfit/test',
-        'horton/grid',
-        'horton/grid/test',
-        'horton/gbasis',
-        'horton/gbasis/test',
-        'horton/hamiltonian',
-        'horton/hamiltonian/test',
-        'horton/io',
-        'horton/io/test',
-        'horton/part',
-        'horton/part/test',
-        'horton/scripts',
-        'horton/scripts/test',
-    ]
+    source_dirs = ['.'] + list(iter_subdirs('horton'))
 
     fixers = [
         ('.py', fix_python),
