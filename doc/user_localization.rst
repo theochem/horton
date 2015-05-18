@@ -16,7 +16,7 @@ can be obtained by some transformation
 
     \vert \tilde{i} \rangle = \sum_k \vert k \rangle \exp(-\mathbf{\kappa})_{ki},
 
-where 
+where
 
 .. math::
 
@@ -51,7 +51,7 @@ obtained through ``horton.part.mulliken.get_mulliken_operators``
 where:
 
 :obasis: a ``GOBasis`` instance that describes the Gaussian orbital basis
-:lf: a ``LinalgFactory`` instance 
+:lf: a ``LinalgFactory`` instance
 
 Then the Pipek-Mezey localization function and the optimization are obtained through
 ``PipekMezey`` instance.
@@ -69,7 +69,7 @@ where:
 A function call of this instance results in localization.
 
 .. code-block:: python
-   
+
    loc(orb, select)
 
 where:
@@ -81,7 +81,7 @@ where:
 
 Note that the localized orbitals are stored in **orb**, where the initial orbitals
 are overwritten.
-               
+
 Please see documentation in ``horton.localization.Localization`` for more detail.
 
 
