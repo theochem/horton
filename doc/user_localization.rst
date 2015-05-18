@@ -68,7 +68,7 @@ where:
 
 A function call of this instance results in localization.
 
-.. code-bloc:: python
+.. code-block:: python
    
    loc(orb, select)
 

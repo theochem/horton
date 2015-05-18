@@ -85,7 +85,7 @@ questions about partitioning with Horton.
 .. _atomdb:
 
 ``horton-atomdb.py`` -- Set up a database of pro-atoms
-=====================================================
+======================================================
 
 The usage of the script ``horton-atomdb.py`` consists of three steps:
 
