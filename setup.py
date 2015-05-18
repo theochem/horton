@@ -306,7 +306,7 @@ print 'BLAS precompiler directive: -D%s' % blas_precompiler[0]
 
 setup(
     name='horton',
-    version='1.2.1',
+    version='2.0.0',
     description='Horton is a development platform for electronic structure methods.',
     author='Toon Verstraelen',
     author_email='Toon.Verstraelen@UGent.be',

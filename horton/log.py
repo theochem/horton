@@ -536,7 +536,7 @@ class MemoryLogger(object):
 head_banner = """\
 ================================================================================
  _ __ _
-/ (..) \ Welcome to Horton 1.2.1!
+/ (..) \ Welcome to Horton 2.0.0!
 \/ || \/
  |_''_|  Horton is written and maintained by by Toon Verstraelen (1).
 

@@ -17,15 +17,15 @@ Stable release (recommended)
 
 The latest stable source code release of Horton can be downloaded here:
 
-    https://github.com/theochem/horton/releases/download/1.2.1/horton-1.2.1.tar.gz
+    https://github.com/theochem/horton/releases/download/2.0.0/horton-2.0.0.tar.gz
 
 Choose a suitable directory, e.g. ``~/build``, download and unpack the archive::
 
     mkdir -p ~/build
     cd ~/build
-    curl -O https://github.com/theochem/horton/releases/download/1.2.1/horton-1.2.1.tar.gz
-    tar -xvzf horton-1.2.1.tar.gz
-    cd horton-1.2.1
+    curl -O https://github.com/theochem/horton/releases/download/2.0.0/horton-2.0.0.tar.gz
+    tar -xvzf horton-2.0.0.tar.gz
+    cd horton-2.0.0
 
 
 Latest development code (experts only)
