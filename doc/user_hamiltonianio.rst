@@ -7,19 +7,23 @@ How to export a Hamiltonian
 Export a Hamiltonian in ASCII format
 ====================================
 
-Horton can export a Hamiltonian in ASCII format that uses the Molpro FCIDUMP file convention (see :ref:`molprohamformat` for more details). If the Hamiltonian of the system contains several one-electron terms (kinetic energy of electrons, electron-nuclear attraction, etc.), all terms have to be combined to a single contribution. This can be done as follows
+Horton can export a Hamiltonian in ASCII format that uses the Molpro FCIDUMP file
+convention (see :ref:`molprohamformat` for more details). If the Hamiltonian of
+the system contains several one-electron terms (kinetic energy of electrons,
+electron-nuclear attraction, etc.), they have to be combined to a single
+contribution. For example, the kinetic energy and electron-nuclear
+attraction terms can be combined as follows
 
 .. code-block:: python
 
     one = kin.copy()
     one.iadd(na)
-    .
-    .
-    .
 
-where ``kin`` and ``na`` are the electronic kinetic energy and the electron-nuclear repulsion term, respectively.
+where ``kin`` and ``na`` are the electronic kinetic energy and the electron-nuclear
+attraction terms, respectively.
 
-To write a Hamiltonian with the one- and two-electron integrals ``one`` and ``two`` to file, run
+To write a Hamiltonian with the one- and two-electron integrals ``one`` and
+``two`` to file, run
 
 .. code-block:: python
 
@@ -27,30 +31,35 @@ To write a Hamiltonian with the one- and two-electron integrals ``one`` and ``tw
 
 with arguments
 
-    :lf: A ``LinalgFactory`` instance. Must be of type ``DenseLinalgFactory``. Note that ``CholeskyLinalgFactory`` is not supported
-    :one: (``TwoIndex`` instance) the one-electron integrals
-    :two: (``FourIndex`` instance) the two-electron integrals (electron repulsion integrals)
-    :ecore: (float) energy contribution due to an external potential, e.g., nuclear-nuclear repulsion term, etc.
-    :orb: (``Expansion`` instance) the MO coefficient matrix
-    :filename: (str, optional) the filename containing the Hamiltonian (default ``FCIDUMP``)
+    :lf: ``DenseLinalgFactory`` instance. Note that ``CholeskyLinalgFactory`` is not supported
+    :one: ``TwoIndex`` instance that contains the one-electron integrals
+    :two: ``FourIndex`` instance that contains the two-electron integrals (electron repulsion integrals)
+    :ecore: ``float`` that describes the energy contribution due to an external potential, e.g., nuclear-nuclear repulsion term, etc.
+    :orb: ``Expansion`` instance that contains the MO coefficient matrix
+    :filename: (optional) ``str`` of the ouptut filename containing the Hamiltonian (default ``FCIDUMP``)
 
-If ``orb`` is passed, the one- and two-electron integrals are transformed to the ``orb`` basis. The integral transformation can be skipped if ``orb=None``.
+If ``orb`` is passed, the one- and two-electron integrals are transformed to
+the ``orb`` basis. This transformation is skipped if ``orb=None``.
 
 The keyword arguments contain system specific information.
 
-    :nel: (int) total number of electrons in active space (default ``0``)
-    :ncore: (int) number of frozen core orbitals (default ``0``)
-    :ms2: (float) spin multiplicity (default ``0``)
-    :nactive: (int) number of active orbitals (default ``one.nbasis``, that is, the total number of basis functions)
-    :indextrans: (str) 4-index transformation. One of ``tensordot``, ``einsum`` (default ``tensordot``)
+    :nel: ``int`` for the total number of electrons in active space (default ``0``)
+    :ncore: ``int`` for the number of frozen core orbitals (default ``0``)
+    :ms2: ``float`` for the spin multiplicity (default ``0``)
+    :nactive: ``int`` for the number of active orbitals (default ``one.nbasis``, that is, the total number of basis functions)
+    :indextrans: ``str`` for the type of 4-index transformation. One of ``tensordot``, ``einsum`` (default ``tensordot``)
 
-If **ncore** and **nactive** are given, the Hamiltonian of the specified active space CAS(**nel**, **nactive**) is written to file. By default, all orbitals are active and no frozen core is specified. In case of an active space, the one-electron integrals :math:`t_{pq}` are
+If **ncore** and **nactive** are given, the Hamiltonian of the specified active
+space CAS(**nel**, **nactive**) is written to file. By default, all orbitals are
+active and no frozen core is specified. In case of an active space, the one-electron
+integrals :math:`t_{pq}` are
 
 .. math::
 
     t_{pq} = \textrm{one}_{pq} + \sum_{i \in \textrm{ncore}} ( 2 \langle pi \vert qi \rangle - \langle pi \vert iq \rangle),
 
-where :math:`\textrm{one}_{pq}` are elements :math:`pq` of ``one`` and :math:`\langle pi \vert qi \rangle` are the two-electron integrals.
+where :math:`\textrm{one}_{pq}` is the element :math:`pq` of :math:`\mathbf{one}` and
+:math:`\langle pi \vert qi \rangle` is the appropriate two-electron integrals in physicist's notation.
 
 The core energy of the active space is calculated as
 
@@ -58,7 +67,9 @@ The core energy of the active space is calculated as
 
     e_{\rm core} = \textrm{ecore} + 2\sum_{i \in \textrm{ncore}} \textrm{one}_{ii} + \sum_{i, j \in \textrm{ncore}} (2 \langle ij \vert ij \rangle - \langle ij \vert ji \rangle)
 
-while the two-electron integrals :math:`\langle pq \vert rs \rangle` contain only elements with active orbital indices :math:`p,q,r,s`. Note that only the symmetry-unique elements of the one- and two-electron integrals are exported.
+where the two-electron integrals :math:`\langle pq \vert rs \rangle` contain only the
+elements with active orbital indices :math:`p,q,r,s`. Note that only the symmetry-unique
+elements of the one- and two-electron integrals are exported.
 
 
 Example input files
@@ -67,7 +78,10 @@ Example input files
 Exporting a Hamiltonian in ASCII format
 ---------------------------------------
 
-This example shows how to export the molecular Hamiltonian for the dinotrogen molecule and the cc-pVDZ basis in the Hartree-Fock orbital basis. The Hamiltonian with all active orbitals is written to ``FCIDUMP``, while the Hamiltonian in an active space of CAS(8,8) is written to ``FCIDUMP8-8``.
+In this example, we export the molecular Hamiltonian for the dinotrogen molecule
+in the cc-pVDZ basis in the Hartree-Fock orbital basis. The Hamiltonian with all
+active orbitals is written to ``FCIDUMP``, while the Hamiltonian in an active
+space of CAS(8,8) is written to ``FCIDUMP8-8``.
 
 .. code-block:: python
 
