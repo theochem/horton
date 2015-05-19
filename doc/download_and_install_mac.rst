@@ -283,7 +283,7 @@ Dependencies
 If you are interested in generating the documentation from source, the following
 packages are also needed:
 
-* PIP >= NEED SUPPORT HERE
+* PIP >= 6.1.1: https://pypi.python.org/pypi/pip
 * Sphinx >= 1.3.1: http://sphinx.pocoo.org/
 * Doxygen >= 1.8.6: http://www.doxygen.org/
 * Breathe >= 1.2.0: http://breathe.readthedocs.org/en/latest/
