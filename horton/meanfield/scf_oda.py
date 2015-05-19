@@ -320,7 +320,7 @@ def check_cubic(ham, dm0s, dm1s, e0, e1, g0, g1, do_plot=True):
     ndm = len(dm0s)
     assert ndm == len(dm1s)
     dm2s = [dm1.new() for dm1 in dm1s]
-    xs = np.arange(0, 1.001, 0.1)
+    xs = np.array([0.001, 0.002, 0.003, 0.004, 0.005, 0.995, 0.996, 0.997, 0.998, 0.999])
     energies = []
     for x in xs:
         for i in xrange(ndm):
@@ -334,19 +334,29 @@ def check_cubic(ham, dm0s, dm1s, e0, e1, g0, g1, do_plot=True):
 
     if do_plot:
         # make a nice figure
-        xxs = np.arange(0, 1.00001, 0.001)
+        xxs = np.concatenate([np.linspace(0, 0.006, 60), np.linspace(0.994, 1.0, 60)])
         poly = a*xxs**3+b*xxs**2+c*xxs+d
         import matplotlib.pyplot as pt
         pt.clf()
+        pt.subplot(121)
         pt.plot(xxs, poly, 'k-', label='cubic')
         pt.plot(xs, energies, 'ro', label='ref')
         pt.plot([0,1],[e0,e1], 'b--', label='linear')
-        pt.ylim(min(energies.min(), poly.min()), max(energies.max(), poly.max()))
+        pt.xlim(0, 0.006)
+        pt.ylim(min(energies[:5].min(), poly[:60].min()), max(energies[:5].max(), poly[:60].max()))
         pt.legend(loc=0)
-        pt.savefig('check_cubic_cs_%+024.17f.png' % e0)
+        pt.subplot(122)
+        pt.plot(xxs, poly, 'k-', label='cubic')
+        pt.plot(xs, energies, 'ro', label='ref')
+        pt.plot([0,1],[e0,e1], 'b--', label='linear')
+        pt.xlim(0.994, 1.0)
+        pt.ylim(min(energies[-5:].min(), poly[-60:].min()), max(energies[-5:].max(), poly[-60:].max()))
+        pt.legend(loc=0)
+        pt.savefig('check_cubic_%+024.17f.png' % e0)
     else:
         # if not plotting, check that the errors are not too large
         poly = a*xs**3+b*xs**2+c*xs+d
-        error = abs(poly-energies).max()
-        oom = energies.max() - energies.min()
-        assert error < 0.01*oom
+        relative_errors = abs(poly[:5]-energies[:5])/(energies[:5] - e0)
+        assert relative_errors.max() < 0.03
+        relative_errors = abs(poly[-5:]-energies[-5:])/(energies[-5:] - e1)
+        assert relative_errors.max() < 0.03

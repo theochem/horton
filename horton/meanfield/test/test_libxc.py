@@ -37,12 +37,9 @@ def test_cubic_interpolation_c_pbe_cs():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        RTwoIndexTerm(kin, 'kin'),
-        RDirectTerm(er, 'hartree'),
         RGridGroup(mol.obasis, grid, [
             RLibXCGGA('c_pbe'),
         ]),
-        RTwoIndexTerm(na, 'ne'),
     ]
     ham = REffHam(terms)
     check_interpolation(ham, mol.lf, olp, kin, na, [mol.exp_alpha])
@@ -58,12 +55,9 @@ def test_cubic_interpolation_x_pbe_cs():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        RTwoIndexTerm(kin, 'kin'),
-        RDirectTerm(er, 'hartree'),
         RGridGroup(mol.obasis, grid, [
             RLibXCGGA('x_pbe'),
         ]),
-        RTwoIndexTerm(na, 'ne'),
     ]
     ham = REffHam(terms)
     check_interpolation(ham, mol.lf, olp, kin, na, [mol.exp_alpha])
@@ -79,12 +73,46 @@ def test_cubic_interpolation_hfs_cs():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        RTwoIndexTerm(kin, 'kin'),
-        RDirectTerm(er, 'hartree'),
         RGridGroup(mol.obasis, grid, [
             RLibXCLDA('x'),
         ]),
-        RTwoIndexTerm(na, 'ne'),
+    ]
+    ham = REffHam(terms)
+    check_interpolation(ham, mol.lf, olp, kin, na, [mol.exp_alpha])
+
+
+def test_cubic_interpolation_x_pbe_c_vwn_cs():
+    # mixing of LDA and GGA
+    fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
+    mol = Molecule.from_file(fn_fchk)
+
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
+    olp = mol.obasis.compute_overlap(mol.lf)
+    kin = mol.obasis.compute_kinetic(mol.lf)
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
+    terms = [
+        RGridGroup(mol.obasis, grid, [
+            RLibXCGGA('x_pbe'),
+            RLibXCLDA('c_vwn'),
+        ]),
+    ]
+    ham = REffHam(terms)
+    check_interpolation(ham, mol.lf, olp, kin, na, [mol.exp_alpha])
+
+
+def test_cubic_interpolation_c_vwn_cs():
+    # mixing of LDA and GGA
+    fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
+    mol = Molecule.from_file(fn_fchk)
+
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
+    olp = mol.obasis.compute_overlap(mol.lf)
+    kin = mol.obasis.compute_kinetic(mol.lf)
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
+    terms = [
+        RGridGroup(mol.obasis, grid, [
+            RLibXCLDA('c_vwn'),
+        ]),
     ]
     ham = REffHam(terms)
     check_interpolation(ham, mol.lf, olp, kin, na, [mol.exp_alpha])
@@ -101,11 +129,8 @@ def test_cubic_interpolation_o3lyp_cs():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     libxc_term = RLibXCHybridGGA('xc_o3lyp')
     terms = [
-        RTwoIndexTerm(kin, 'kin'),
-        RDirectTerm(er, 'hartree'),
         RGridGroup(mol.obasis, grid, [libxc_term]),
         RExchangeTerm(er, 'x_hf', libxc_term.get_exx_fraction()),
-        RTwoIndexTerm(na, 'ne'),
     ]
     ham = REffHam(terms)
     check_interpolation(ham, mol.lf, olp, kin, na, [mol.exp_alpha])
@@ -121,12 +146,9 @@ def test_cubic_interpolation_c_pbe_os():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        UTwoIndexTerm(kin, 'kin'),
-        UDirectTerm(er, 'hartree'),
         UGridGroup(mol.obasis, grid, [
             ULibXCGGA('c_pbe'),
         ]),
-        UTwoIndexTerm(na, 'ne'),
     ]
     ham = UEffHam(terms)
     check_interpolation(ham, mol.lf, olp, kin, na, [mol.exp_alpha, mol.exp_beta])
@@ -142,12 +164,9 @@ def test_cubic_interpolation_x_pbe_os():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        UTwoIndexTerm(kin, 'kin'),
-        UDirectTerm(er, 'hartree'),
         UGridGroup(mol.obasis, grid, [
             ULibXCGGA('x_pbe'),
         ]),
-        UTwoIndexTerm(na, 'ne'),
     ]
     ham = UEffHam(terms)
     check_interpolation(ham, mol.lf, olp, kin, na, [mol.exp_alpha, mol.exp_beta])
@@ -163,12 +182,9 @@ def test_cubic_interpolation_hfs_os():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        UTwoIndexTerm(kin, 'kin'),
-        UDirectTerm(er, 'hartree'),
         UGridGroup(mol.obasis, grid, [
             ULibXCLDA('x'),
         ]),
-        UTwoIndexTerm(na, 'ne'),
     ]
     ham = UEffHam(terms)
     check_interpolation(ham, mol.lf, olp, kin, na, [mol.exp_alpha, mol.exp_beta])
@@ -185,13 +201,10 @@ def test_cubic_interpolation_x_pbe_c_vwn_os():
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
-        UTwoIndexTerm(kin, 'kin'),
-        UDirectTerm(er, 'hartree'),
         UGridGroup(mol.obasis, grid, [
             ULibXCGGA('x_pbe'),
             ULibXCLDA('c_vwn'),
         ]),
-        UTwoIndexTerm(na, 'ne'),
     ]
     ham = UEffHam(terms)
     check_interpolation(ham, mol.lf, olp, kin, na, [mol.exp_alpha, mol.exp_beta])
@@ -208,11 +221,8 @@ def test_cubic_interpolation_o3lyp_os():
     er = mol.obasis.compute_electron_repulsion(mol.lf)
     libxc_term = ULibXCHybridGGA('xc_o3lyp')
     terms = [
-        UTwoIndexTerm(kin, 'kin'),
-        UDirectTerm(er, 'hartree'),
         UGridGroup(mol.obasis, grid, [libxc_term]),
         UExchangeTerm(er, 'x_hf', libxc_term.get_exx_fraction()),
-        UTwoIndexTerm(na, 'ne'),
     ]
     ham = UEffHam(terms)
     check_interpolation(ham, mol.lf, olp, kin, na, [mol.exp_alpha, mol.exp_beta])
