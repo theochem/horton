@@ -87,7 +87,11 @@ do so, put one of the following in your ``~/.bashrc`` file:
       GIT_PS='$(__git_ps1 ":%s")'
       export PS1="\[\033[2;32m\]\u@\h\[\033[00m\]:\[\033[2;34m\]\w\[\033[3;31m\]${GIT_PS}\[\033[00m\]$ "
 
-You can customize to your taste. You may also want to add a line ``export
+You may get an error like ``__git_ps1: command not found...`` if you sourced
+``git-completion.bash.bash``. Then, you need to add
+``source /usr/share/git-core/contrib/completion/git-prompt.sh`` before setting
+the ``GIT_PS``.
+You can customize it to your taste. You may also want to add a line ``export
 PROMPT_DIRTRIM=3`` to keep the shell prompt short.
 
 
