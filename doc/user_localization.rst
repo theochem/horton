@@ -43,47 +43,12 @@ orbitals from the atomic basis, the occupation of each molecular orbital, and
 some weighted projection of atomic basis function within each atom.
 
 For example, if the Mulliken population analysis is used, the projectors are
-obtained through ``horton.part.mulliken.get_mulliken_operators``
-
-.. code-block:: python
-
-    projector = get_mulliken_operators(obasis, lf)
-
-where:
-
-:obasis: a ``GOBasis`` instance that describes the Gaussian orbital basis
-:lf: a ``LinalgFactory`` instance
-
+obtained through :py:meth:`horton.part.mulliken.get_mulliken_operators`.
 Then the Pipek-Mezey localization function and the optimization are obtained through
-``PipekMezey`` instance.
-
-.. code-block:: python
-
-    loc = PipekMezey(lf, occ_model, projector)
-
-where:
-
-:lf: a ``LinalgFactory`` instance
-:occ_model: an ``AufbauOccModel`` instance
-:projector: a list of ``TwoIndex`` instances that contains the projectors
-
-A function call of this instance results in localization.
-
-.. code-block:: python
-
-   loc(orb, select)
-
-where:
-
-:orb: an ``Expansion`` instance that contains the expansion of molecular orbitals
-   with respect to the atomic basis.
-:select: either 'occ' or 'vir' that controls the localization of the occupied and
-   virtual molecular orbitals, respectively.
-
-Note that the localized orbitals are stored in **orb**, where the initial orbitals
-are overwritten.
-
-Please see documentation in ``horton.localization.Localization`` for more detail.
+:py:class:`horton.localization.localization.PipekMezey`. Function call,
+:py:meth:`horton.localization.localization.Localization.__call__`, of this
+instance results in localization.
+Please see documentation in :py:module:`horton.localization.localization` for more detail.
 
 
 Example input files
