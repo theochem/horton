@@ -348,4 +348,9 @@ Common Problems
   clearly installed it beforehand, it may not be named appropriately. You can fix
   this by symbolically linking that file to the appropriate name. E.g.::
 
-     some example
+     ln -s something something
+
+* If you get an error, saying you have not installed xcode, install xcode.
+  E.g.::
+
+    some example
