@@ -3,13 +3,14 @@ How to use Git
 
 Horton uses `Git <http://git-scm.com/>`_ for version control.
 
-This section goes through the basics. Although the commands below are specific
-for Git, most of the good practices are general and also apply to other modern
-VCSs such Bazaar or Mercurial.
+This section goes through the basics of version control. Although the commands
+below are specific to Git, the following entails good practices that can be
+generalized and applied to other modern version control systems (VCS) such Bazaar
+or Mercurial.
 
-The purpose of a VCS is to allow many different people to make modifications in the same
-program without messing things up. VCS software also makes life much easier for
-someone who has to merge different developments into one common source tree.
+A VCS allows many people to store and modify the same program while keeping track
+of all the changes. VCS software also helps you merge different developments into
+one common source tree.
 
 
 Git configuration
@@ -64,15 +65,13 @@ commit:
     fi
 
 Copy this script into the directory ``.git/hooks/pre-commit`` and make it
-executable. If you encounter errors related to trailing whitespace, you can
-run the ``./cleancode.sh`` script in the root of the Horton source tree to get
-rid of them. The last part of the pre-commit script checks for python ``print``
+executable. The last part of the pre-commit script checks for python ``print``
 lines. These should not be used in the Horton library. If you think you have
 legitimate reasons to ignore this test, use the ``--no-verify`` option when
 comitting.
 
-Furthermore, it is useful to include the current branch in your shell promt. Put
-one of the following in your ``~/.bashrc`` file:
+Furthermore, it is useful to include the current branch in your shell prompt. To
+do so, put one of the following in your ``~/.bashrc`` file:
 
 * For terminals with a dark background:
 
@@ -88,7 +87,7 @@ one of the following in your ``~/.bashrc`` file:
       GIT_PS='$(__git_ps1 ":%s")'
       export PS1="\[\033[2;32m\]\u@\h\[\033[00m\]:\[\033[2;34m\]\w\[\033[3;31m\]${GIT_PS}\[\033[00m\]$ "
 
-Add salt and pepper to your taste. You may also want to add a line ``export
+You can customize to your taste. You may also want to add a line ``export
 PROMPT_DIRTRIM=3`` to keep the shell prompt short.
 
 
@@ -102,16 +101,16 @@ Patch
 
 `SHA-1 <http://en.wikipedia.org/wiki/SHA-1>`_ hash
     A `numerical` checksum of a given length in bytes (in this case 256) for a
-    much larger amount of data, e.g. a very long character string. One tries to
-    design hashing algorithms such that they are doing two things very well: (i)
-    it is not possible to derive the original data from a hash and (ii) a small
-    change in the original data completely changes the hash. The `MD5
+    much larger amount of data, e.g. a very long character string. There are usually
+    two main goals when designing hashing algorithms: (i) it is not possible to
+    derive the original data from a hash and (ii) a small change in the original
+    data completely changes the hash. The `MD5
     <http://en.wikipedia.org/wiki/MD5>`_ checksum is well known and often used
-    from CD images, but it is not great in terms of the above two hashing
+    for CD images, but it is not great in terms of the above two hashing
     objectives.
 
 Commit
-    A patch with a some extra information: author, timestamp, a SHA1 hash of the
+    A patch with some extra information: author, timestamp, a SHA1 hash of the
     code to which it applies, and some other things.
 
 Branch
@@ -119,7 +118,7 @@ Branch
 
     In realistic projects, the source code history is not linear, but contains
     many deviations from the `master branch` where people try to implement a
-    new feature. It is however useful to have only one official linear history.
+    new feature. It is, however, useful to have only one official linear history.
     We will show below how this can be done with git.
 
 Branch head
@@ -130,16 +129,16 @@ Work flow for adding a new feature
 ==================================
 
 The development of a new feature typically consists of three large steps: (i)
-modifications to the code in a separate branch, (ii) review of the new code,
+modifications of the code in a separate branch, (ii) review of the new code,
 fixing problems and (iii) rebase your branch on top of the `master` branch and
 publish.
 
 .. note::
 
     Try to keep the amount of work in one branch as low as possible and get it
-    too review/merge as early as possible. This takes some planning, as you have to
+    reviewed/merged as early as possible. This takes some planning, as you have to
     figure out how to break your big plans up into smaller steps. In general
-    that is a good exercise that will force you to write more modular code.
+    this is a good exercise that will help you to write more modular code.
     Although this seems to be a cumbersome approach, it does save time for
     everyone involved.
 
@@ -260,7 +259,7 @@ this iterative process has converged, it is time to move to the next step.
 Rebase your branch on top of the master branch
 ----------------------------------------------
 
-It is likely that during the development of your feature, the master branch
+It is likely that while developing your branch, the master branch
 has evolved with new commits added by other developers. You need to append your
 branch to the new HEAD of the master branch with ``git rebase``
 
@@ -275,6 +274,7 @@ branch to the new HEAD of the master branch with ``git rebase``
 
    .. code-block:: bash
 
+      $ ~/.../horton:master> git fetch
       $ ~/.../horton:master> git pull
 
 3. Switch to your working branch:
@@ -300,7 +300,7 @@ branch to the new HEAD of the master branch with ``git rebase``
 
     This command will try to apply the patches from your working branch to the
     master branch. It may happen that changes in the master branch are not
-    compatible with yours, such that your patches do no longer simply apply.
+    compatible with yours, such that your patches cannot be simply applied.
     When that is the case, the ``git rebase`` script will interrupt and tell you
     what to do. Do not panic when this happens. If you feel uncertain about how
     to resolve conflicts, it is time to call your git-savvy friends for help.
@@ -314,6 +314,6 @@ branch to the new HEAD of the master branch with ``git rebase``
 
       $ ~/.../horton:bar-1> git push review bar-1:bar-1
 
-Now you can get in touch with one of the Horton developers (at the `Horton
+Now, you can get in touch with one of the Horton developers (at the `Horton
 mailing list <https://groups.google.com/d/forum/horton-discuss>`_) to transfer
 these new patches to the public master branch of Horton.
