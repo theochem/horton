@@ -19,6 +19,7 @@
 #
 #--
 '''Base classes for energy terms and other observables of the wavefunction'''
+from horton.utils import doc_inherit
 
 
 __all__ = [
@@ -80,10 +81,12 @@ class RTwoIndexTerm(Observable):
         self.op_alpha = op_alpha
         Observable.__init__(self, label)
 
+    @doc_inherit(Observable)
     def compute(self, cache):
         '''See :py:meth:`Observable.compute`.'''
         return 2 * self.op_alpha.contract_two('ab,ab', cache['dm_alpha'])
 
+    @doc_inherit(Observable)
     def add_fock(self, cache, fock_alpha):
         '''See py:meth:`Observable.add_fock`.'''
         fock_alpha.iadd(self.op_alpha)
@@ -98,6 +101,7 @@ class UTwoIndexTerm(Observable):
         self.op_beta = op_alpha if op_beta is None else op_beta
         Observable.__init__(self, label)
 
+    @doc_inherit(Observable)
     def compute(self, cache):
         '''See :py:meth:`Observable.compute`.'''
         if self.op_alpha is self.op_beta:
@@ -111,6 +115,7 @@ class UTwoIndexTerm(Observable):
             return self.op_alpha.contract_two('ab,ab', cache['dm_alpha']) + \
                    self.op_beta.contract_two('ab,ab', cache['dm_beta'])
 
+    @doc_inherit(Observable)
     def add_fock(self, cache, fock_alpha, fock_beta):
         '''See py:meth:`Observable.add_fock`.'''
         fock_alpha.iadd(self.op_alpha)
@@ -130,12 +135,14 @@ class RDirectTerm(Observable):
             self.op_alpha.contract_two_to_two('abcd,bd->ac', dm_alpha, direct)
             direct.iscale(2) # contribution from beta electrons is identical
 
+    @doc_inherit(Observable)
     def compute(self, cache):
         '''See :py:meth:`Observable.compute`.'''
         self._update_direct(cache)
         direct = cache.load('op_%s_alpha' % self.label)
         return direct.contract_two('ab,ab', cache['dm_alpha'])
 
+    @doc_inherit(Observable)
     def add_fock(self, cache, fock_alpha):
         '''See py:meth:`Observable.add_fock`.'''
         self._update_direct(cache)
@@ -162,6 +169,7 @@ class UDirectTerm(Observable):
             # add the proper code here.
             raise NotImplementedError
 
+    @doc_inherit(Observable)
     def compute(self, cache):
         '''See :py:meth:`Observable.compute`.'''
         self._update_direct(cache)
@@ -175,6 +183,7 @@ class UDirectTerm(Observable):
             # add the proper code here.
             raise NotImplementedError
 
+    @doc_inherit(Observable)
     def add_fock(self, cache, fock_alpha, fock_beta):
         '''See py:meth:`Observable.add_fock`.'''
         self._update_direct(cache)
@@ -203,6 +212,7 @@ class RExchangeTerm(Observable):
         if new:
             self.op_alpha.contract_two_to_two('abcd,cb->ad', dm_alpha, exchange_alpha)
 
+    @doc_inherit(Observable)
     def compute(self, cache):
         '''See :py:meth:`Observable.compute`.'''
         self._update_exchange(cache)
@@ -210,6 +220,7 @@ class RExchangeTerm(Observable):
         dm_alpha = cache['dm_alpha']
         return -self.fraction * exchange_alpha.contract_two('ab,ab', dm_alpha)
 
+    @doc_inherit(Observable)
     def add_fock(self, cache, fock_alpha):
         '''See py:meth:`Observable.add_fock`.'''
         self._update_exchange(cache)
@@ -239,6 +250,7 @@ class UExchangeTerm(Observable):
         if new:
             self.op_beta.contract_two_to_two('abcd,cb->ad', dm_beta, exchange_beta)
 
+    @doc_inherit(Observable)
     def compute(self, cache):
         '''See :py:meth:`Observable.compute`.'''
         self._update_exchange(cache)
@@ -249,6 +261,7 @@ class UExchangeTerm(Observable):
         return -0.5 * self.fraction * exchange_alpha.contract_two('ab,ab', dm_alpha) \
                -0.5 * self.fraction * exchange_beta.contract_two('ab,ab', dm_beta)
 
+    @doc_inherit(Observable)
     def add_fock(self, cache, fock_alpha, fock_beta):
         '''See py:meth:`Observable.add_fock`.'''
         self._update_exchange(cache)

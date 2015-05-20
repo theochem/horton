@@ -26,6 +26,7 @@ from horton.log import log
 from horton.exceptions import NoSCFConvergence
 from horton.meanfield.scf_diis import DIISHistory, DIISSCFSolver
 from horton.quadprog import QPSolver
+from horton.utils import doc_inherit
 
 
 __all__ = ['EDIISSCFSolver']
@@ -123,6 +124,7 @@ class EDIISHistory(DIISHistory):
                     b[i1, i0] = b[i0, i1]
         return b, e
 
+    @doc_inherit(DIISHistory)
     def solve(self, dms_output, focks_output):
         '''See :py:meth:`horton.meanfield.scf_diis.DIISHistory.solve`.'''
         # interpolation only makes sense if there are two points
