@@ -143,38 +143,6 @@ Restricted Hartree-Fock calculations using the 1-dim Hubbard model Hamiltonian w
 
 This example shows a restricted Hartree-Fock calculation for the half-filled Hubbard model. Both the number of electron spins and sites is 6. The :math:`t` parameter is set to -1, while the :math:`U` parameter is equal to 2. Periodic boundary conditions are used.
 
-.. code-block:: python
-
-    from horton import *
-
-    ###############################################################################
-    ## Define Occupation model, expansion coefficients and overlap ################
-    ###############################################################################
-    lf = DenseLinalgFactory(6)
-    occ_model = AufbauOccModel(3)
-    modelham = Hubbard(pbc=True)
-    orb = lf.create_expansion(6)
-    olp = modelham.compute_overlap(lf)
-    ###############################################################################
-    # t-param, t = -1
-    ###############################################################################
-    hopping = modelham.compute_kinetic(lf, -1)
-    ###############################################################################
-    # U-param, U = 2
-    ###############################################################################
-    onsite = modelham.compute_er(lf, 2)
-    ###############################################################################
-    ## Perform initial guess ######################################################
-    ###############################################################################
-    guess_core_hamiltonian(olp, hopping, orb)
-    terms = [
-        RTwoIndexTerm(hopping, 'kin'),
-        RDirectTerm(onsite, 'hartree'),
-        RExchangeTerm(onsite, 'x_hf'),
-    ]
-    ham = REffHam(terms)
-    ###############################################################################
-    ## Do a Hartree-Fockk calculation #############################################
-    ###############################################################################
-    scf_solver = PlainSCFSolver()
-    scf_solver(ham, lf, olp, occ_model, orb)
+.. literalinclude:: ../data/examples/hamiltonian/hubbard.py
+    :caption: data/examples/hamiltonian/hubbard.py
+    :lines: 2-

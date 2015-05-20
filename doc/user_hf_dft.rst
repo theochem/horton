@@ -69,14 +69,14 @@ to assign the same orbitals are assigned for the alpha and beta spins.
 The guess for a restricted wavefunction is done as follows:
 
 .. literalinclude:: ../data/examples/hf_dft/rhf_water_dense.py
-    :lines: 25-29
-    :caption: data/examples/hf_dft/rhf_water_dense.py, lines 25--29
+    :lines: 27-31
+    :caption: data/examples/hf_dft/rhf_water_dense.py, lines 27--31
 
 For a unrestricted wavefunction, the procedure is very similar:
 
 .. literalinclude:: ../data/examples/hf_dft/uhf_methyl_dense.py
-    :lines: 25-30
-    :caption: data/examples/hf_dft/uhf_methyl_dense.py, lines 25--30
+    :lines: 27-32
+    :caption: data/examples/hf_dft/uhf_methyl_dense.py, lines 27--32
 
 The arguments ``exp_alpha`` and ``exp_beta`` are treated as output arguments.
 Instead of ``kin`` and ``na``, one may provide just any set of one-body
@@ -296,41 +296,41 @@ repulsion energy to the total energy reported by the effective Hamiltonian.
 * Restricted Hartree-Fock:
 
   .. literalinclude:: ../data/examples/hf_dft/rhf_water_dense.py
-      :lines: 32-39
-      :caption: data/examples/hf_dft/rhf_water_dense.py, lines 32--39
+      :lines: 34-41
+      :caption: data/examples/hf_dft/rhf_water_dense.py, lines 34--41
 
 * Unrestricted Hartree-Fock:
 
   .. literalinclude:: ../data/examples/hf_dft/uhf_methyl_dense.py
-      :lines: 33-40
-      :caption: data/examples/hf_dft/uhf_methyl_dense.py, lines 33--40
+      :lines: 35-42
+      :caption: data/examples/hf_dft/uhf_methyl_dense.py, lines 35--42
 
 * Restricted Kohn-Sham DFT with the Dirac exchange and the VWN correlation
   functionals:
 
   .. literalinclude:: ../data/examples/hf_dft/rks_water_lda.py
-      :lines: 35-45
-      :caption: data/examples/hf_dft/rks_water_lda.py, lines 35--45
+      :lines: 37-47
+      :caption: data/examples/hf_dft/rks_water_lda.py, lines 37--47
 
 * Unrestricted Kohn-Sham DFT with the PBE GGA exchange and correlation
   functionals:
 
   .. literalinclude:: ../data/examples/hf_dft/uks_methyl_gga.py
-      :lines: 36-46
-      :caption: data/examples/hf_dft/uks_methyl_gga.py, lines 36--46
+      :lines: 38-48
+      :caption: data/examples/hf_dft/uks_methyl_gga.py, lines 38--48
 
 * Restricted Kohn-Sham DFT with the Hybrid GGA functional B3LYP:
 
   .. literalinclude:: ../data/examples/hf_dft/rks_water_hybgga.py
-      :lines: 35-44
-      :caption: data/examples/hf_dft/rks_water_hybgga.py, lines 35--44
+      :lines: 37-46
+      :caption: data/examples/hf_dft/rks_water_hybgga.py, lines 37--46
 
 * Unrestricted Kohn-Sham DFT with LDA exchange and correlation
   functionals and with a numerical integration of the Hartree term:
 
   .. literalinclude:: ../data/examples/hf_dft/uks_methyl_numlda.py
-      :lines: 36-46
-      :caption: data/examples/hf_dft/uks_methyl_numlda.py, lines 36--46
+      :lines: 38-48
+      :caption: data/examples/hf_dft/uks_methyl_numlda.py, lines 38--48
 
 
 Models for orbital occupations
@@ -410,14 +410,14 @@ this in-place.
 * Usage in the restricted case:
 
   .. literalinclude:: ../data/examples/hf_dft/rhf_water_dense.py
-      :lines: 44-46
-      :caption: data/examples/hf_dft/rhf_water_dense.py, lines 44--46
+      :lines: 46-48
+      :caption: data/examples/hf_dft/rhf_water_dense.py, lines 46--48
 
 * Usage in the unrestricted case:
 
   .. literalinclude:: ../data/examples/hf_dft/uhf_methyl_dense.py
-      :lines: 45-47
-      :caption: data/examples/hf_dft/uhf_methyl_dense.py, lines 45--47
+      :lines: 47-49
+      :caption: data/examples/hf_dft/uhf_methyl_dense.py, lines 47--49
 
 All other solvers start from an initial guess of the density matrix and update
 that quantity in-place. The usage pattern is as follow:
@@ -425,14 +425,14 @@ that quantity in-place. The usage pattern is as follow:
 * Usage in the restricted case:
 
   .. literalinclude:: ../data/examples/hf_dft/rks_water_lda.py
-      :lines: 50-56
-      :caption: data/examples/hf_dft/rks_water_lda.py, lines 50--56
+      :lines: 52-58
+      :caption: data/examples/hf_dft/rks_water_lda.py, lines 52--58
 
 * Usage in the unrestricted case:
 
   .. literalinclude:: ../data/examples/hf_dft/uks_methyl_lda.py
-      :lines: 51-58
-      :caption: data/examples/hf_dft/uks_methyl_lda.py, lines 51--58
+      :lines: 53-60
+      :caption: data/examples/hf_dft/uks_methyl_lda.py, lines 53--60
 
 
 Complete examples
