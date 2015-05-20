@@ -226,10 +226,13 @@ pngmath_dvipng_args = ['-gamma 1.6', '-D 120']
 
 sys.path.append('../')
 os.environ['HORTONDATA'] = '../data'
-autoclass_content = "both"
-autodoc_member_order = "bysource"
+autoclass_content = "class"
+autodoc_member_order = "groupwise"
+autodoc_default_flags = ['members', 'undoc-members', 'inherited-members', 'show-inheritance']
 
 def autodoc_skip_member(app, what, name, obj, skip, options):
+    if what=="class" and name=="__init__":
+        return False
     if what=="class" and name=="__call__":
         return False
     if what=="class" and name=="__getitem__":

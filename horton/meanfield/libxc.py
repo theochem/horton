@@ -24,11 +24,13 @@
 import numpy as np
 
 from horton.log import log, timer
+from horton.utils import doc_inherit
 from horton.meanfield.gridgroup import GridObservable
 from horton.meanfield.cext import RLibXCWrapper, ULibXCWrapper
 
 
 __all__ = [
+    'LibXCEnergy',
     'RLibXCLDA', 'ULibXCLDA',
     'RLibXCGGA', 'ULibXCGGA',
     'RLibXCHybridGGA', 'ULibXCHybridGGA',
@@ -65,8 +67,8 @@ class RLibXCLDA(LibXCEnergy):
     LibXCWrapper = RLibXCWrapper
 
     @timer.with_section('LDA edens')
+    @doc_inherit(LibXCEnergy)
     def compute(self, cache, grid):
-        '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.compute`.'''
         # LibXC expects the following input:
         #   - total density
         # LibXC computes:
@@ -78,8 +80,8 @@ class RLibXCLDA(LibXCEnergy):
         return grid.integrate(edens, rho_full)
 
     @timer.with_section('LDA pot')
+    @doc_inherit(LibXCEnergy)
     def add_pot(self, cache, grid, dpot_alpha):
-        '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.add_pot`.'''
         # LibXC expects the following input:
         #   - total density
         # LibXC computes:
@@ -96,8 +98,8 @@ class ULibXCLDA(LibXCEnergy):
     LibXCWrapper = ULibXCWrapper
 
     @timer.with_section('LDA edens')
+    @doc_inherit(LibXCEnergy)
     def compute(self, cache, grid):
-        '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.compute`.'''
         # LibXC expects the following input:
         #   - alpha density
         #   - beta density
@@ -112,8 +114,8 @@ class ULibXCLDA(LibXCEnergy):
         return grid.integrate(edens, cache['rho_full'])
 
     @timer.with_section('LDA pot')
+    @doc_inherit(LibXCEnergy)
     def add_pot(self, cache, grid, dpot_alpha, dpot_beta):
-        '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.add_pot`.'''
         # LibXC expects the following input:
         #   - alpha density
         #   - beta density
@@ -133,8 +135,8 @@ class RLibXCGGA(LibXCEnergy):
     LibXCWrapper = RLibXCWrapper
 
     @timer.with_section('GGA edens')
+    @doc_inherit(LibXCEnergy)
     def compute(self, cache, grid):
-        '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.compute`.'''
         # LibXC expects the following input:
         #   - total density
         #   - norm squared of the gradient of the total density
@@ -148,8 +150,8 @@ class RLibXCGGA(LibXCEnergy):
         return grid.integrate(edens, rho_full)
 
     @timer.with_section('GGA pot')
+    @doc_inherit(LibXCEnergy)
     def add_pot(self, cache, grid, dpot_alpha, gpot_alpha):
-        '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.add_pot`.'''
         # LibXC expects the following input:
         #   - total density
         #   - norm of the gradient of the total density
@@ -179,8 +181,8 @@ class ULibXCGGA(LibXCEnergy):
     LibXCWrapper = ULibXCWrapper
 
     @timer.with_section('GGA edens')
+    @doc_inherit(LibXCEnergy)
     def compute(self, cache, grid):
-        '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.compute`.'''
         # LibXC expects the following input:
         #   - alpha density
         #   - beta density
@@ -197,9 +199,9 @@ class ULibXCGGA(LibXCEnergy):
         rho_full = cache['rho_full']
         return grid.integrate(edens, rho_full)
 
+    @doc_inherit(LibXCEnergy)
     @timer.with_section('GGA pot')
     def add_pot(self, cache, grid, dpot_alpha, dpot_beta, gpot_alpha, gpot_beta):
-        '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.add_pot`.'''
         # LibXC expects the following input:
         #   - alpha density
         #   - beta density

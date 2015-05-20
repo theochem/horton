@@ -82,3 +82,6 @@ The following problems are often encountered:
           Blah blah blah.
         * This is the next
         Some paragraph after
+
+**Overriden methods in subclasses do not get inherited docstrings**
+    Please use the :py:func:`horton.utils.doc_inherit` decorator.
