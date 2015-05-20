@@ -1473,7 +1473,7 @@ class DenseTwoIndex(TwoIndex):
            **Arguments:**
 
            other
-                A DenseTwoIndex instance or float to be added
+                A DenseTwoIndex instance to be added
 
            **Optional arguments:**
 
@@ -1485,13 +1485,9 @@ class DenseTwoIndex(TwoIndex):
                 added. When not given, the full range is used.
         '''
         check_type('factor', factor, float, int)
+        check_type('other', other, DenseTwoIndex)
         end0, end1 = other._fix_ends(end0, end1)
-        if isinstance(other, DenseTwoIndex):
-            self._array[:] += other._array[begin0:end0,begin1:end1]*factor
-        elif isinstance(other, float):
-            self._array[:] += other*factor
-        else:
-            raise TypeError('Do not know how to add in-place an object of type %s.' % type(other))
+        self._array[:] += other._array[begin0:end0,begin1:end1]*factor
 
     def iscale(self, factor):
         '''In-place multiplication with a scalar
@@ -2683,10 +2679,8 @@ class DenseFourIndex(FourIndex):
 
            **Optional arguments:**
 
-           begin, end
-                Can be used to select a subblock of the object. When not given,
-                the full range is used. The same begin and end is applied to
-                all indexes to maintain the eight-fold symmetry.
+           shape
+                List containing the new dimension of each axis.
         '''
         if len(shape) == 0:
             raise TypeError('No array shape given.')

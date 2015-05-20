@@ -21,7 +21,7 @@
 #pylint: skip-file
 
 
-import numpy as np, h5py as h5
+import numpy as np, h5py as h5, scipy as scipy
 from nose.tools import assert_raises
 
 from horton import *
@@ -349,6 +349,13 @@ def test_one_index_copy_new_randomize_clear_assign():
         assert a == b
         b.assign(c)
         assert b == c
+        e = b.copy(1,3)
+        assert e._array.shape[0] == 2
+        assert (e._array == b._array[1:3]).all()
+        b.clear()
+        b.assign(e, 1, 3)
+        assert (e._array == b._array[1:3]).all()
+        assert ((e._array-b._array[1:3]) == 0).all()
 
 
 def test_one_index_permute_basis():
@@ -399,11 +406,83 @@ def test_one_index_iscale():
     assert abs(op._array - 3*tmp).max() < 1e-10
 
 
+def test_one_index_norm():
+    lf = DenseLinalgFactory(6)
+    op = lf.create_one_index()
+    op.randomize()
+    norm = op.norm()
+    assert (norm - np.linalg.norm(op._array)) < 1e-10
+
+
 def test_one_index_get_set():
     lf = DenseLinalgFactory()
     op = lf.create_one_index(3)
     op.set_element(1, 1.2)
     assert op.get_element(1) == 1.2
+
+
+def test_one_index_trace():
+    lf = DenseLinalgFactory(5)
+    inp = lf.create_one_index()
+    inp.randomize()
+    out = inp.trace()
+    assert out == np.sum(inp._array)
+    out = inp.trace(1, 3)
+    assert out == np.sum(inp._array[1:3])
+
+
+def test_one_index_get_max():
+    lf = DenseLinalgFactory(5)
+    inp = lf.create_one_index()
+    inp.randomize()
+    out = inp.get_max()
+    assert out == np.max(np.abs(inp._array))
+
+
+def test_one_index_sort_indices():
+    lf = DenseLinalgFactory(5)
+    op = lf.create_one_index()
+    op.randomize()
+    sortedlist = op.sort_indices(False)
+    assert (sortedlist == np.argsort(op._array, axis=-1, kind='mergesort', order=None)[::-1]).all()
+    sortedlistreverse = op.sort_indices(True)
+    assert (sortedlistreverse == np.argsort(op._array, axis=-1, kind='mergesort', order=None)).all()
+
+
+def test_one_index_mult():
+    lf = DenseLinalgFactory(5)
+    inp = lf.create_one_index()
+    one = lf.create_one_index()
+    inp.randomize()
+    one.randomize()
+    out = inp.mult(one, factor=1.3)
+    assert np.allclose(out._array, 1.3*(inp._array*one._array))
+    foo = inp.mult(one, out=out, factor=1.4)
+    assert foo is out
+    assert np.allclose(out._array, 1.4*(inp._array*one._array))
+
+
+def test_one_index_dot():
+    lf = DenseLinalgFactory(5)
+    inp = lf.create_one_index()
+    one = lf.create_one_index()
+    inp.randomize()
+    one.randomize()
+    out = inp.dot(one, factor=1.3)
+    assert out == 1.3*np.dot(inp._array, one._array)
+
+
+def test_one_index_divide():
+    lf = DenseLinalgFactory(5)
+    inp = lf.create_one_index()
+    one = lf.create_one_index()
+    inp.randomize()
+    one.randomize()
+    out = inp.divide(one, factor=1.3)
+    assert np.allclose(out._array, 1.3*np.divide(inp._array, one._array))
+    foo = inp.divide(one, factor=1.4, out=out)
+    assert foo is out
+    assert np.allclose(out._array, 1.4*np.divide(inp._array, one._array))
 
 
 #
@@ -452,6 +531,30 @@ def test_expansion_copy():
     assert (exp1._occupations == exp2._occupations).all()
 
 
+def test_expansion_itranspose():
+    lf = DenseLinalgFactory(5)
+    orig = lf.create_expansion()
+    one = lf.create_one_index()
+    orig.randomize()
+    out = orig.copy()
+    out.itranspose()
+    assert out.coeffs[0,1] == orig.coeffs[1,0]
+    assert out.coeffs[2,1] == orig.coeffs[1,2]
+    assert out.coeffs[3,2] == orig.coeffs[2,3]
+    assert out.coeffs[4,2] == orig.coeffs[2,4]
+
+
+def test_expansion_imul():
+    lf = DenseLinalgFactory(5)
+    orig = lf.create_expansion()
+    one = lf.create_one_index()
+    orig.randomize()
+    one.randomize()
+    out = orig.copy()
+    out.imul(one)
+    assert np.allclose(out.coeffs, orig.coeffs*one._array)
+
+
 def test_expansion_permute_basis():
     lf = DenseLinalgFactory(5)
     for i in xrange(10):
@@ -462,6 +565,19 @@ def test_expansion_permute_basis():
         b.permute_basis(forth)
         assert a != b
         b.permute_basis(back)
+        assert a == b
+
+
+def test_expansion_permute_orbitals():
+    lf = DenseLinalgFactory(5)
+    for i in xrange(10):
+        forth, back = get_forth_back(5)
+        a = lf.create_expansion()
+        a.randomize()
+        b = a.copy()
+        b.permute_orbitals(forth)
+        assert a != b
+        b.permute_orbitals(back)
         assert a == b
 
 
@@ -586,6 +702,16 @@ def test_expansion_assign_dot():
     assert np.allclose(exp1.coeffs, np.dot(exp0.coeffs, tf2._array))
 
 
+def test_expansion_assign_occupations():
+    lf = DenseLinalgFactory(6)
+    exp0 = lf.create_expansion()
+    one = lf.create_one_index()
+    exp0.randomize()
+    one.randomize()
+    exp0.assign_occupations(one)
+    assert np.allclose(exp0.occupations, one._array)
+
+
 def test_expansion_rotate_random():
     lf = DenseLinalgFactory(5)
     exp0, olp = get_random_exp(lf)
@@ -660,6 +786,10 @@ def test_two_index_copy_new_randomize_clear_assign():
         assert a == b
         b.assign(c)
         assert b == c
+        e = b.copy(0, 3, 2, 4)
+        assert e._array.shape[0] == 3
+        assert e._array.shape[1] == 2
+        assert (e._array == b._array[0:3, 2:4]).all()
 
 
 def test_two_index_assign():
@@ -758,6 +888,56 @@ def test_two_index_iadd():
                 assert b.get_element(i0, i1) == c.get_element(i0, i1)
 
 
+def test_two_index_iadd_slice():
+    lf = DenseLinalgFactory()
+    a = lf.create_two_index(5, 5)
+    a.randomize()
+    b = lf.create_two_index(8, 8)
+    b.randomize()
+    c = a.copy()
+    factor = np.random.uniform(1, 2)
+    # normal usage
+    c.iadd_slice(b, factor, 1, 6, 3, 8)
+    for i0 in xrange(5):
+        for i1 in xrange(5):
+            assert factor*b.get_element(i0+1, i1+3) + a.get_element(i0, i1) == c.get_element(i0, i1)
+
+
+def test_two_index_iadd_one_mult():
+    lf = DenseLinalgFactory()
+    inp = lf.create_two_index(5, 5)
+    inp.randomize()
+    orig = inp.copy()
+    one1 = lf.create_one_index(5)
+    one1.randomize()
+    one2 = lf.create_one_index(5)
+    one2.randomize()
+    factor = np.random.uniform(1, 2)
+    # normal usage
+    inp.iadd_one_mult(one1, one2, factor)
+    for i0 in xrange(5):
+        for i1 in xrange(5):
+            assert abs(orig.get_element(i0, i1) + factor*one1.get_element(i1)*one2.get_element(i1) - inp.get_element(i0, i1)) < 1e-10
+    # transpose usage
+    inp.assign(orig)
+    inp.iadd_one_mult(one1, one2, factor, transpose0=True)
+    for i0 in xrange(5):
+        for i1 in xrange(5):
+            assert abs(orig.get_element(i0, i1) + factor*one1.get_element(i0)*one2.get_element(i1) - inp.get_element(i0, i1)) < 1e-10
+    # transpose usage
+    inp.assign(orig)
+    inp.iadd_one_mult(one1, one2, factor, transpose1=True)
+    for i0 in xrange(5):
+        for i1 in xrange(5):
+            assert abs(orig.get_element(i0, i1) + factor*one1.get_element(i1)*one2.get_element(i0) - inp.get_element(i0, i1)) < 1e-10
+    # transpose usage
+    inp.assign(orig)
+    inp.iadd_one_mult(one1, one2, factor, transpose0=True, transpose1=True)
+    for i0 in xrange(5):
+        for i1 in xrange(5):
+            assert abs(orig.get_element(i0, i1) + factor*one1.get_element(i0)*one2.get_element(i0) - inp.get_element(i0, i1)) < 1e-10
+
+
 def test_two_index_iscale():
     lf = DenseLinalgFactory()
     op = lf.create_two_index(3)
@@ -817,6 +997,27 @@ def test_two_index_inner():
     assert abs(op.inner(vec0._array, vec1._array) - np.dot(vec0._array, np.dot(op._array, vec1._array))) < 1e-10
 
 
+def test_two_index_sqrt():
+    lf = DenseLinalgFactory(3)
+    op = lf.create_two_index()
+    op.randomize()
+    op.imul(op)
+    root = op.sqrt()
+    assert np.allclose(root._array, scipy.linalg.sqrtm(op._array).real)
+
+
+def test_two_index_inverse():
+    a = np.array([[0.3,0.4,1.2],[3.0,1.2,0.5],[0.4,1.4,3.1]])
+    lf = DenseLinalgFactory(3)
+    op = lf.create_two_index()
+    op.assign(a)
+    unitm = op.new()
+    unitm.assign_diagonal(1.0)
+    inverse = op.inverse()
+    assert np.allclose(np.dot(inverse._array, op._array), unitm._array)
+    assert np.allclose(np.dot(op._array, inverse._array), unitm._array)
+
+
 def test_two_index_assign_diagonal():
     lf = DenseLinalgFactory(3)
     op = lf.create_two_index()
@@ -852,6 +1053,37 @@ def test_two_index_copy_diagonal():
     assert vec.shape == (2,)
     assert op.get_element(1, 1) == vec.get_element(0)
     assert op.get_element(2, 2) == vec.get_element(1)
+
+
+def test_two_index_copy_slice():
+    lf = DenseLinalgFactory(5)
+    inp = lf.create_two_index()
+    inp.randomize()
+    ind = np.tril_indices(5, -1)
+    out = inp.copy_slice(ind)
+    assert inp.get_element(1, 0) == out.get_element(0)
+    assert inp.get_element(2, 0) == out.get_element(1)
+    assert inp.get_element(2, 1) == out.get_element(2)
+    assert inp.get_element(3, 0) == out.get_element(3)
+    assert inp.get_element(3, 1) == out.get_element(4)
+    assert inp.get_element(3, 2) == out.get_element(5)
+    assert inp.get_element(4, 0) == out.get_element(6)
+    assert inp.get_element(4, 1) == out.get_element(7)
+    assert inp.get_element(4, 2) == out.get_element(8)
+    assert inp.get_element(4, 3) == out.get_element(9)
+    foo = inp.copy_diagonal()
+    foo = inp.copy_slice(ind, out)
+    assert foo is out
+    assert foo.get_element(0) == out.get_element(0)
+    assert foo.get_element(1) == out.get_element(1)
+    assert foo.get_element(2) == out.get_element(2)
+    assert foo.get_element(3) == out.get_element(3)
+    assert foo.get_element(4) == out.get_element(4)
+    assert foo.get_element(5) == out.get_element(5)
+    assert foo.get_element(6) == out.get_element(6)
+    assert foo.get_element(7) == out.get_element(7)
+    assert foo.get_element(8) == out.get_element(8)
+    assert foo.get_element(9) == out.get_element(9)
 
 
 def test_two_index_check_symmetry():
@@ -918,30 +1150,56 @@ def test_two_index_contract_two_to_one():
     lf = DenseLinalgFactory(5)
     a = lf.create_two_index()
     b = lf.create_two_index()
+    c = lf.create_two_index(4, 4)
     a.randomize()
     b.randomize()
+    c.randomize()
     # regular use
     vec = a.contract_two_to_one('ab,ab->a', b)
-    assert np.allclose(vec._array, (a._array*b._array).sum(axis=0))
-    vec = a.contract_two_to_one('ab,ab->b', b)
     assert np.allclose(vec._array, (a._array*b._array).sum(axis=1))
+    vec = a.contract_two_to_one('ab,ab->b', b)
+    assert np.allclose(vec._array, (a._array*b._array).sum(axis=0))
     # with output, clear=True
     factor = np.random.uniform(1, 2)
     foo = a.contract_two_to_one('ab,ab->a', b, vec, factor)
     assert foo is vec
-    assert np.allclose(vec._array, factor*(a._array*b._array).sum(axis=0))
-    a.contract_two_to_one('ab,ab->b', b, vec, factor)
     assert np.allclose(vec._array, factor*(a._array*b._array).sum(axis=1))
+    a.contract_two_to_one('ab,ab->b', b, vec, factor)
+    assert np.allclose(vec._array, factor*(a._array*b._array).sum(axis=0))
     # with output, clear=False
     factor = np.random.uniform(1, 2)
     orig = lf.create_one_index()
     orig.randomize()
     vec = orig.copy()
     a.contract_two_to_one('ab,ab->a', b, vec, factor, False)
-    assert np.allclose(vec._array, orig._array + factor*(a._array*b._array).sum(axis=0))
+    assert np.allclose(vec._array, orig._array + factor*(a._array*b._array).sum(axis=1))
     vec = orig.copy()
     a.contract_two_to_one('ab,ab->b', b, vec, factor, False)
-    assert np.allclose(vec._array, orig._array + factor*(a._array*b._array).sum(axis=1))
+    assert np.allclose(vec._array, orig._array + factor*(a._array*b._array).sum(axis=0))
+    # with ranges
+    vec = c.contract_two_to_one('ab,ab->a', b, end1=4, begin0=1)
+    assert vec.shape == (4,)
+    assert np.allclose(vec._array, (c._array*b._array[1:,:4]).sum(axis=1))
+    vec = c.contract_two_to_one('ab,ab->b', b, end1=4, begin0=1)
+    assert vec.shape == (4,)
+    assert np.allclose(vec._array, (c._array*b._array[1:,:4]).sum(axis=0))
+    # with ranges, output, clear=True
+    factor = np.random.uniform(1, 2)
+    foo = c.contract_two_to_one('ab,ab->a', b, vec, factor, end1=4, begin0=1)
+    assert foo is vec
+    assert np.allclose(vec._array, factor*(c._array*b._array[1:,:4]).sum(axis=1))
+    c.contract_two_to_one('ab,ab->b', b, vec, factor, end1=4, begin0=1)
+    assert np.allclose(vec._array, factor*(c._array*b._array[1:,:4]).sum(axis=0))
+    # with ranges, output, clear=False
+    factor = np.random.uniform(1, 2)
+    orig = lf.create_one_index(4)
+    orig.randomize()
+    vec = orig.copy()
+    c.contract_two_to_one('ab,ab->a', b, vec, factor, False, end1=4, begin0=1)
+    assert np.allclose(vec._array, orig._array + factor*(c._array*b._array[1:,:4]).sum(axis=1))
+    vec = orig.copy()
+    c.contract_two_to_one('ab,ab->b', b, vec, factor, False, end1=4, begin0=1)
+    assert np.allclose(vec._array, orig._array + factor*(c._array*b._array[1:,:4]).sum(axis=0))
 
 
 def test_two_index_iadd_outer():
@@ -989,6 +1247,53 @@ def test_two_index_iadd_dot_all():
     out = orig.copy()
     out.iadd_dott(a, b)
     assert np.allclose(out._array, orig._array + np.dot(a._array, b._array.T))
+    # with ranges
+    a = lf.create_two_index(7)
+    b = lf.create_two_index(9)
+    a.randomize()
+    b.randomize()
+    out = orig.copy()
+    out.iadd_dot(a, b, begin1=2, end1=7, begin0=0, end0=5, begin2=3, end2=8, begin3=4, end3=9)
+    assert np.allclose(out._array, orig._array + np.dot(a._array[:5,2:7], b._array[3:8,4:9]))
+
+
+def test_two_index_iadd_mult():
+    lf = DenseLinalgFactory(5)
+    a = lf.create_two_index()
+    b = lf.create_two_index()
+    a.randomize()
+    b.randomize()
+    orig = lf.create_two_index()
+    orig.randomize()
+    out = orig.copy()
+    out.iadd_mult(a, b)
+    assert np.allclose(out._array, orig._array + (a._array*b._array))
+    out = orig.copy()
+    out.iadd_mult(a, b, transpose0=True)
+    assert np.allclose(out._array, orig._array + (a._array.T*b._array))
+    out = orig.copy()
+    out.iadd_mult(a, b, transpose1=True)
+    assert np.allclose(out._array, orig._array + (a._array*b._array.T))
+    out = orig.copy()
+    out.iadd_mult(a, b, transpose0=True, transpose1=True)
+    assert np.allclose(out._array, orig._array + (a._array.T*b._array.T))
+    # with ranges
+    a = lf.create_two_index(7)
+    b = lf.create_two_index(9)
+    a.randomize()
+    b.randomize()
+    out = orig.copy()
+    out.iadd_mult(b, a, begin1=2, end1=7, begin0=0, end0=5, begin2=3, end2=8, begin3=4, end3=9)
+    assert np.allclose(out._array, orig._array + (b._array[3:8,4:9]*a._array[:5,2:7]))
+    out = orig.copy()
+    out.iadd_mult(b, a, begin1=2, end1=7, begin0=0, end0=5, begin2=3, end2=8, begin3=4, end3=9, transpose0=True)
+    assert np.allclose(out._array, orig._array + (b._array[3:8,4:9].T*a._array[:5,2:7]))
+    out = orig.copy()
+    out.iadd_mult(b, a, begin1=2, end1=7, begin0=0, end0=5, begin2=3, end2=8, begin3=4, end3=9, transpose1=True)
+    assert np.allclose(out._array, orig._array + (b._array[3:8,4:9]*a._array[:5,2:7].T))
+    out = orig.copy()
+    out.iadd_mult(b, a, begin1=2, end1=7, begin0=0, end0=5, begin2=3, end2=8, begin3=4, end3=9, transpose1=True, transpose0=True)
+    assert np.allclose(out._array, orig._array + (b._array[3:8,4:9].T*a._array[:5,2:7].T))
 
 
 def test_two_index_iadd_shift():
@@ -1024,6 +1329,52 @@ def test_two_index_iadd_contract_two_one():
     z = orig.copy()
     z.iadd_contract_two_one('ba,a->ab', x, y, 3.4)
     assert np.allclose(z._array, orig._array + 3.4*x._array.T*y._array[:,None])
+    # with ranges
+    x = lf.create_two_index(7)
+    y = lf.create_one_index(9)
+    x.randomize()
+    y.randomize()
+    z = orig.copy()
+    z.iadd_contract_two_one('ab,b->ab', x, y, 3.4, 2, 7, 0, 5, 3, 8)
+    assert np.allclose(z._array, orig._array + 3.4*x._array[2:7,:5]*y._array[3:8])
+    z = orig.copy()
+    z.iadd_contract_two_one('ab,a->ab', x, y, 3.4, 2, 7, 0, 5, 3, 8)
+    assert np.allclose(z._array, orig._array + 3.4*x._array[2:7,:5]*y._array[3:8,None])
+    z = orig.copy()
+    z.iadd_contract_two_one('ba,a->ab', x, y, 3.4, 2, 7, 0, 5, 3, 8)
+    assert np.allclose(z._array, orig._array + 3.4*x._array[2:7,:5].T*y._array[3:8,None])
+
+
+def test_two_index_contract_two_to_two():
+    # Test in detail 'ab,cb->ac'
+    lf = DenseLinalgFactory(5)
+    inp = lf.create_two_index()
+    two = lf.create_two_index()
+    inp.randomize()
+    two.randomize()
+    out = inp.contract_two_to_two('ab,cb->ac', two, factor=1.3)
+    assert np.allclose(out._array, 1.3*np.einsum('ab,cb->ac', inp._array, two._array))
+    foo = inp.contract_two_to_two('ab,cb->ac', two, out, factor=1.4)
+    assert foo is out
+    assert np.allclose(out._array, 1.4*np.einsum('ab,cb->ac', inp._array, two._array))
+    inp.contract_two_to_two('ab,cb->ac', two, out, factor=1.4, clear=False)
+    assert np.allclose(out._array, 2.8*np.einsum('ab,cb->ac', inp._array, two._array))
+    # Blind test on all other cases
+    others = ['ab,ca->cb', 'ab,bc->ac', 'ab,ac->cb', 'ab,ac->bc', 'ab,cb->ca']
+    for subscripts in others:
+        inp.contract_two_to_two(subscripts, two, factor=1.7)
+    # with ranges
+    two = lf.create_two_index(9)
+    two.randomize()
+    out = inp.contract_two_to_two('ab,cb->ac', two, factor=1.3, begin1=1, end1=6, begin0=3, end0=8)
+    assert np.allclose(out._array, 1.3*np.einsum('ab,cb->ac', inp._array, two._array[3:8, 1:6]))
+    foo = inp.contract_two_to_two('ab,cb->ac', two, out, factor=1.4, begin1=1, end1=6, begin0=3, end0=8)
+    assert foo is out
+    assert np.allclose(out._array, 1.4*np.einsum('ab,cb->ac', inp._array, two._array[3:8, 1:6]))
+    # Blind test on all other cases
+    others = ['ab,ca->cb', 'ab,bc->ac', 'ab,ac->cb', 'ab,ac->bc', 'ab,cb->ca']
+    for subscripts in others:
+        inp.contract_two_to_two(subscripts, two, factor=1.7, begin1=1, end1=6, begin0=3, end0=8)
 
 
 def test_two_index_contract_two_abba():
@@ -1036,6 +1387,11 @@ def test_two_index_contract_two_abba():
     value = op1.contract_two('ab,ba', op2)
     op1.idot(op2)
     assert abs(op1.trace() - value) < 1e-10
+    # with ranges
+    op2 = lf.create_two_index(5)
+    op2._array[:] = np.random.uniform(0, 1, (5, 5))
+    value = op1.contract_two('ab,ba', op2, 0, 3, 2, 5)
+    assert abs(np.dot(op1._array, op2._array[:3, 2:5]).trace() - value) < 1e-10
 
 
 def test_two_index_contract_two_abab():
@@ -1049,6 +1405,11 @@ def test_two_index_contract_two_abab():
     op2.itranspose()
     op1.idot(op2)
     assert abs(op1.trace() - value) < 1e-10
+    # with ranges
+    op2 = lf.create_two_index(5)
+    op2._array[:] = np.random.uniform(0, 1, (5, 5))
+    value = op1.contract_two('ab,ab', op2, 0, 3, 2, 5)
+    assert abs(np.dot(op1._array.ravel(), op2._array[:3, 2:5].ravel()) - value) < 1e-10
 
 
 def test_two_index_idot():
@@ -1074,6 +1435,15 @@ def test_two_index_imul():
     op1 = orig.copy()
     op1.imul_t(op2, 1.3)
     assert np.allclose(op1._array, orig._array*op2._array.T*1.3)
+    # with ranges
+    op2 = lf.create_two_index(5)
+    op2.randomize()
+    op1 = orig.copy()
+    op1.imul(op2, 1.3, 0, 3, 2, 5)
+    assert np.allclose(op1._array, orig._array*op2._array[:3,2:5]*1.3)
+    op1 = orig.copy()
+    op1.imul_t(op2, 1.3, 0, 3, 2, 5)
+    assert np.allclose(op1._array, orig._array*op2._array[:3,2:5].T*1.3)
 
 
 def test_two_index_distance_inf():
@@ -1142,6 +1512,9 @@ def test_three_index_copy_new_randomize_clear_assign():
         assert a == d
         b.clear()
         assert a == b
+        b.randomize()
+        e = b.copy(begin0=1, end1=2, begin2=3)
+        assert (e._array == b._array[1:,:2,3:]).all()
 
 
 def test_three_index_permute_basis():
@@ -1183,6 +1556,21 @@ def test_three_index_iadd():
         for i1 in xrange(5):
             for i2 in xrange(5):
                 assert factor*a.get_element(i0, i1, i2) + b.get_element(i0, i1, i2) == c.get_element(i0, i1, i2)
+
+
+def test_three_index_iadd_slice():
+    lf = DenseLinalgFactory(5)
+    a = lf.create_three_index(9)
+    a.randomize()
+    b = lf.create_three_index()
+    b.randomize()
+    c = b.copy()
+    factor = np.random.uniform(1, 2)
+    c.iadd_slice(a, factor, 0, 5, 3, 8, 4, 9)
+    for i0 in xrange(5):
+        for i1 in xrange(5):
+            for i2 in xrange(5):
+                assert factor*a.get_element(i0, i1+3, i2+4) + b.get_element(i0, i1, i2) == c.get_element(i0, i1, i2)
 
 
 def test_three_index_iscale():
@@ -1238,7 +1626,38 @@ def test_three_index_iadd_expand_two_one():
     assert np.allclose(three._array, orig._array + 0.7*np.einsum('ab,c->acb', two._array, one._array))
 
 
-#def test_three_index_iadd_contract_three_two():
+def test_three_index_iadd_expand_two_two():
+    # Only test output for two cases: 'ac,bc->abc', 'cb,ac->acb'
+    lf = DenseLinalgFactory(3)
+    three = lf.create_three_index()
+    two1 = lf.create_two_index()
+    two2 = lf.create_two_index()
+    three.randomize()
+    two1.randomize()
+    two2.randomize()
+    orig = three.copy()
+    three.iadd_expand_two_two('ac,bc->abc', two1, two2, factor=0.7)
+    assert np.allclose(three._array, orig._array + 0.7*np.einsum('ac,bc->abc', two1._array, two2._array))
+    # blind test for remaining contractions
+    others = ['ac,bc->abc', 'ab,bc->abc', 'ab,ac->acb', 'cb,ac->acb',
+              'ac,ab->abc', 'ab,ac->abc']
+    for select in others:
+        three.iadd_expand_two_two(select, two1, two2, factor=0.7)
+    # with ranges
+    two1 = lf.create_two_index(5)
+    two2 = lf.create_two_index(7)
+    two1.randomize()
+    two2.randomize()
+    orig = three.copy()
+    three.iadd_expand_two_two('cb,ac->acb', two1, two2, factor=0.7, end0=3, begin1=3, end1=6, begin2=2, end2=5, begin3=2)
+    assert np.allclose(three._array, orig._array + 0.7*np.einsum('cb,ac->acb', two1._array[2:5,2:], two2._array[:3,3:6]))
+    # blind test for remaining contractions
+    others = ['ac,bc->abc', 'ab,bc->abc', 'ab,ac->acb', 'cb,ac->acb',
+              'ac,ab->abc', 'ab,ac->abc']
+    for select in others:
+        three.iadd_expand_two_two(select, two1, two2, factor=0.7, end0=3, begin1=3, end1=6, begin2=2, end2=5, begin3=2)
+
+
 def test_three_index_contract_two_to_three():
     # Test only for one case of subscripts
     lf = DenseLinalgFactory(3)
@@ -1249,13 +1668,48 @@ def test_three_index_contract_two_to_three():
     b.randomize()
     two.randomize()
     orig = b.copy()
-#   b.iadd_contract_three_two('abc,db->adc', a, two, factor=0.7)
     a.contract_two_to_three('abc,ad->cdb', two, b, factor=0.7, clear=False)
     assert np.allclose(b._array, orig._array + 0.7*np.einsum('abc,ad->cdb', a._array, two._array))
+    out = a.contract_two_to_three('abc,ad->cdb', two, b, factor=0.7, clear=True)
+    assert out is b
+    assert np.allclose(b._array, 0.7*np.einsum('abc,ad->cdb', a._array, two._array))
     # try other cases blindly
-#   b.iadd_contract_three_two('abc,dc->adb', a, two, factor=0.7)
-#   b.iadd_contract_three_two('abc,db->dac', a, two, factor=0.7)
-#   b.iadd_contract_three_two('abc,dc->dab', a, two, factor=0.7)
+    others = ['abc,ad->cbd', 'abc,da->dbc', 'abc,da->bdc']
+    for select in others:
+        a.contract_two_to_three(select, two, b, factor=0.7)
+    # with ranges
+    a = lf.create_three_index(9)
+    a.randomize()
+    out = a.contract_two_to_three('abc,ad->cdb', two, b, factor=0.7, clear=True, end0=3, begin1=2, end1=5, begin2=6, end2=9)
+    assert out is b
+    assert np.allclose(b._array, 0.7*np.einsum('abc,ad->cdb', a._array[:3, 2:5, 6:9], two._array))
+    out = a.contract_two_to_three('abc,ad->cdb', two, b, factor=0.7, clear=False, end0=3, begin1=2, end1=5, begin2=6, end2=9)
+    assert np.allclose(b._array, 1.4*np.einsum('abc,ad->cdb', a._array[:3, 2:5, 6:9], two._array))
+
+
+def test_three_index_contract_to_two():
+    # Test only for one case of subscripts
+    lf = DenseLinalgFactory(3)
+    a = lf.create_three_index()
+    b = lf.create_two_index()
+    a.randomize()
+    b.randomize()
+    out = a.contract_to_two('abc->ac', b, factor=0.7, clear=True)
+    assert out is b
+    assert np.allclose(b._array, 0.7*np.einsum('abc->ac', a._array))
+    orig = b.copy()
+    out = a.contract_to_two('abc->ac', b, factor=0.7, clear=False)
+    assert out is b
+    assert np.allclose(b._array, orig._array + 0.7*np.einsum('abc->ac', a._array))
+    # with ranges
+    a = lf.create_three_index(9)
+    a.randomize()
+    out = a.contract_to_two('abc->ac', b, factor=0.7, clear=True, end0=3, begin1=2, end1=5, begin2=6, end2=9)
+    assert np.allclose(b._array, 0.7*np.einsum('abc->ac', a._array[:3, 2:5, 6:9]))
+    orig = b.copy()
+    out = a.contract_to_two('abc->ac', b, factor=0.7, clear=False, end0=3, begin1=2, end1=5, begin2=6, end2=9)
+    assert out is b
+    assert np.allclose(b._array, orig._array + 0.7*np.einsum('abc->ac', a._array[:3, 2:5, 6:9]))
 
 
 #
@@ -1288,6 +1742,9 @@ def test_four_index_copy_new_randomize_clear_assign():
         assert a == d
         b.assign(c)
         assert b == c
+        b.randomize()
+        e = b.copy(0, 1, 2, 4, 2)
+        assert (e._array == b._array[:1,2:4,2:]).all()
 
 
 def test_four_index_permute_basis():
@@ -1393,7 +1850,7 @@ def test_four_index_iadd_exchange():
 
 def test_four_index_slice_to_two():
     # test in detail for aabb->ab
-    lf = DenseLinalgFactory(4)
+    lf = DenseLinalgFactory(6)
     four = lf.create_four_index()
     four.randomize()
     two = four.slice_to_two('aabb->ab', factor=1.3)
@@ -1406,6 +1863,17 @@ def test_four_index_slice_to_two():
     # Blind test on all other cases
     four.slice_to_two('abab->ab', factor=1.3)
     four.slice_to_two('abba->ab', factor=1.3)
+    # with ranges
+    two = four.slice_to_two('aabb->ab', factor=1.3, end0=3, end1=3, begin2=2, begin3=2)
+    assert np.allclose(two._array, 1.3*np.einsum('aabb->ab', four._array[:3,:3,2:,2:]))
+    foo = four.slice_to_two('aabb->ab', two, factor=1.4, end0=3, end1=3, begin2=2, begin3=2)
+    assert foo is two
+    assert np.allclose(two._array, 1.4*np.einsum('aabb->ab', four._array[:3,:3,2:,2:]))
+    four.slice_to_two('aabb->ab', two, factor=1.4, clear=False, end0=3, end1=3, begin2=2, begin3=2)
+    assert np.allclose(two._array, 2.8*np.einsum('aabb->ab', four._array[:3,:3,2:,2:]))
+    # Blind test on all other cases
+    four.slice_to_two('abab->ab', factor=1.3, end0=3, begin1=2, end2=3, begin3=2)
+    four.slice_to_two('abba->ab', factor=1.3, end0=3, begin1=2, begin2=2, end3=3)
 
 
 def test_four_index_slice_to_three():
@@ -1426,9 +1894,113 @@ def test_four_index_slice_to_three():
     four.slice_to_three('abbc->abc', factor=1.3)
 
 
+def test_four_index_slice_to_four():
+    # test in detail for abcd->abcd'
+    lf = DenseLinalgFactory(6)
+    four = lf.create_four_index()
+    four.randomize()
+    four2 = four.slice_to_four('abcd->abcd', factor=1.3)
+    assert np.allclose(four2._array, 1.3*np.einsum('abcd->abcd', four._array))
+    foo = four.slice_to_four('abcd->abcd', four2, factor=1.4)
+    assert foo is four2
+    assert np.allclose(four2._array, 1.4*np.einsum('abcd->abcd', four._array))
+    four.slice_to_four('abcd->abcd', four2, factor=1.4, clear=False)
+    assert np.allclose(four2._array, 2.8*np.einsum('abcd->abcd', four._array))
+    # Blind test on all other cases
+    four.slice_to_four('abcd->acbd', factor=1.3)
+    four.slice_to_four('abcd->cadb', factor=1.3)
+    # with ranges
+    four2 = four.slice_to_four('abcd->abcd', factor=1.3, end0=3, begin1=2, begin2=2, end2=5)
+    assert np.allclose(four2._array, 1.3*np.einsum('abcd->abcd', four._array[:3,2:,2:5,:]))
+    foo = four.slice_to_four('abcd->abcd', four2, factor=1.4, end0=3, begin1=2, begin2=2, end2=5)
+    assert foo is four2
+    assert np.allclose(four2._array, 1.4*np.einsum('abcd->abcd', four._array[:3,2:,2:5,:]))
+    four.slice_to_four('abcd->abcd', four2, factor=1.4, clear=False, end0=3, begin1=2, begin2=2, end2=5)
+    assert np.allclose(four2._array, 2.8*np.einsum('abcd->abcd', four._array[:3,2:,2:5,:]))
+    # Blind test on all other cases
+    four.slice_to_four('abcd->acbd', factor=1.3, end0=3, begin1=2, begin2=2, end2=5)
+    four.slice_to_four('abcd->cadb', factor=1.3, end0=3, begin1=2, begin2=2, end2=5)
+
+
+def test_four_index_contract_two():
+    # test in detail for aabb,ab
+    lf = DenseLinalgFactory(6)
+    inp = lf.create_four_index()
+    two = lf.create_two_index()
+    inp.randomize()
+    two.randomize()
+    out = inp.contract_two('aabb,ab', two, factor=1.3)
+    assert out == 1.3*np.einsum('aabb,ab', inp._array, two._array)
+    # with ranges
+    two = lf.create_two_index(3)
+    two.randomize()
+    out = inp.contract_two('aabb,ab', two, factor=1.3, end0=3, end1=3, begin2=2, begin3=2, end2=5, end3=5)
+    assert out == 1.3*np.einsum('aabb,ab', inp._array[:3,:3,2:5,2:5], two._array)
+
+
+def test_four_index_contract_four():
+    # test in detail for abcd,abcd
+    lf = DenseLinalgFactory(3)
+    inp = lf.create_four_index()
+    four = lf.create_four_index()
+    inp.randomize()
+    four.randomize()
+    out = inp.contract_four('abcd,abcd', four, factor=1.3)
+    assert out == 1.3*np.einsum('abcd,abcd', inp._array, four._array)
+    # Blind test on all other cases
+    others = ['abcd,abcd', 'abcd,adcb', 'abab,abab', 'abad,abad', 'abdb,abdb',
+              'abcd,acbd', 'abcd,acdb']
+    for subscripts in others:
+        inp.contract_four(subscripts, four, factor=1.7)
+    # with ranges
+    four = lf.create_four_index(5)
+    four.randomize()
+    out = inp.contract_four('abcd,abcd', four, factor=1.3, end0=3, begin1=2, begin2=1, end2=4, begin3=2)
+    assert out == 1.3*np.einsum('abcd,abcd', inp._array, four._array[:3,2:,1:4,2:])
+    # Blind test on all other cases
+    others = ['abcd,abcd', 'abcd,adcb', 'abab,abab', 'abad,abad', 'abdb,abdb',
+              'abcd,acbd', 'abcd,acdb']
+    for subscripts in others:
+        inp.contract_four(subscripts, four, factor=1.7, end0=3, begin1=2, begin2=1, end2=4, begin3=2)
+
+
+def test_four_index_contract_to_two():
+    # test in detail for 'abcb->ac', 'abbc->ac'
+    lf = DenseLinalgFactory(5)
+    inp = lf.create_four_index()
+    two = lf.create_two_index()
+    inp.randomize()
+    two.randomize()
+    out = inp.contract_to_two('abcb->ac', two, factor=1.3)
+    assert np.allclose(out._array, 1.3*np.einsum('abcb->ac', inp._array))
+    foo = inp.contract_to_two('abcb->ac', out, factor=1.4)
+    assert foo is out
+    assert np.allclose(out._array, 1.4*np.einsum('abcb->ac', inp._array))
+    inp.contract_to_two('abcb->ac', out, factor=1.4, clear=False)
+    assert np.allclose(out._array, 2.8*np.einsum('abcb->ac', inp._array))
+    # Blind test on all other cases
+    others = ['abbc->ac']
+    for subscripts in others:
+        inp.contract_to_two(subscripts, two, factor=1.7)
+    # with ranges
+    two = lf.create_two_index(3)
+    inp.randomize()
+    out = inp.contract_to_two('abcb->ac', two, factor=1.3, end0=3, begin1=2, begin2=1, end2=4, begin3=2)
+    assert np.allclose(out._array, 1.3*np.einsum('abcb->ac', inp._array[:3,2:,1:4,2:]))
+    foo = inp.contract_to_two('abcb->ac', out, factor=1.4, end0=3, begin1=2, begin2=1, end2=4, begin3=2)
+    assert foo is out
+    assert np.allclose(out._array, 1.4*np.einsum('abcb->ac', inp._array[:3,2:,1:4,2:]))
+    inp.contract_to_two('abcb->ac', out, factor=1.4, clear=False, end0=3, begin1=2, begin2=1, end2=4, begin3=2)
+    assert np.allclose(out._array, 2.8*np.einsum('abcb->ac', inp._array[:3,2:,1:4,2:]))
+    # Blind test on all other cases
+    others = ['abbc->ac']
+    for subscripts in others:
+        inp.contract_to_two(subscripts, two, factor=1.7, end0=3, begin1=2, begin2=1, end2=4, begin3=2)
+
+
 def test_four_index_contract_two_to_four():
     # test in detail for abcd,cd->acbd
-    lf = DenseLinalgFactory(4)
+    lf = DenseLinalgFactory(6)
     inp = lf.create_four_index()
     two = lf.create_two_index()
     inp.randomize()
@@ -1441,18 +2013,44 @@ def test_four_index_contract_two_to_four():
     inp.contract_two_to_four('abcd,cd->acbd', two, out, factor=1.4, clear=False)
     assert np.allclose(out._array, 2.8*np.einsum('abcd,cd->acbd', inp._array, two._array))
     # Blind test on all other cases
-    others = ['abcd,cd->acdb', 'abcd,cb->acdb', 'abcd,cb->acbd',
-              'abcd,ab->acbd', 'abcd,ab->acdb', 'abcd,ad->acbd',
-              'abcd,ad->acdb', 'abcd,ad->abcd', 'abcd,ad->abdc',
-              'abcd,bd->abcd', 'abcd,bd->abdc', 'abcd,bc->abdc',
-              'abcd,bc->abcd', 'abcd,ac->abcd', 'abcd,ac->abdc']
+    others = ['abcd,cd->acdb', 'abcd,cb->acdb', 'abcd,cb->acbd', 'abcd,ab->acbd',
+            'abcd,ab->acdb', 'abcd,ad->acbd', 'abcd,ad->acdb', 'abcd,ad->abcd',
+            'abcd,ad->abdc', 'abcd,bd->abcd', 'abcd,bd->abdc', 'abcd,bc->abdc',
+            'abcd,bc->abcd', 'abcd,ac->abcd', 'abcd,ac->abdc', 'abcd,bd->cabd',
+            'abcd,bc->dabc', 'abcd,ca->cabd', 'abcd,da->dabc', 'abcd,dc->dabc',
+            'abcd,ba->dabc', 'abcd,ac->acbd', 'abcd,cd->abcd', 'abcc,ad->abcd',
+            'aabc,dc->adbc', 'aabc,db->adbc', 'abcc,ad->abcd', 'abcc,bd->abcd',
+            'abcd,bc->acbd', 'abcd,eb->aecd', 'abcd,eb->cdae', 'abcd,ed->ceab',
+            'abcd,ed->abce', 'abcd,ae->cdeb', 'abcd,ae->ebcd', 'abcd,ce->edab',
+            'abcd,ce->abed', 'abcd,ab->abcd', 'abcd,cb->abcd', 'abcd,ec->eadb',
+            'abcd,ec->dbea', 'abcd,ae->cedb', 'abcd,ae->dbce', 'abcd,ec->ebad',
+            'abcd,ed->ebac', 'abcd,ec->adeb', 'abcd,ed->aceb', 'abcd,ae->debc',
+            'abcd,ae->cebd', 'abcd,ae->bcde', 'abcd,ae->bdce']
     for subscripts in others:
         inp.contract_two_to_four(subscripts, two, factor=1.7)
+    # with ranges
+    out = inp.contract_two_to_four('abcd,cd->acbd', two, factor=1.3,
+        begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5,
+        begin3=3, end3=6, begin4=2, end4=5, begin5=3, end5=6)
+    assert np.allclose(out._array, 1.3*np.einsum('abcd,cd->acbd', inp._array[:3,1:4,2:5,3:6], two._array[2:5,3:6]))
+    foo = inp.contract_two_to_four('abcd,cd->acbd', two, out, factor=1.4,
+        begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5,
+        begin3=3, end3=6, begin4=2, end4=5, begin5=3, end5=6)
+    assert foo is out
+    assert np.allclose(out._array, 1.4*np.einsum('abcd,cd->acbd', inp._array[:3,1:4,2:5,3:6], two._array[2:5,3:6]))
+    inp.contract_two_to_four('abcd,cd->acbd', two, out, factor=1.4, clear=False,
+        begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5,
+        begin3=3, end3=6, begin4=2, end4=5, begin5=3, end5=6)
+    assert np.allclose(out._array, 2.8*np.einsum('abcd,cd->acbd', inp._array[:3,1:4,2:5,3:6], two._array[2:5,3:6]))
+    for subscripts in others:
+        inp.contract_two_to_four(subscripts, two, factor=1.7,
+            begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5,
+            begin3=3, end3=6, begin4=2, end4=5, begin5=3, end5=6)
 
 
 def test_four_index_contract_two_to_two():
-    # test in detail for aabb->ab
-    lf = DenseLinalgFactory(4)
+    # test in detail for abcd,bd->ac
+    lf = DenseLinalgFactory(6)
     inp = lf.create_four_index()
     two = lf.create_two_index()
     inp.randomize()
@@ -1465,7 +2063,256 @@ def test_four_index_contract_two_to_two():
     inp.contract_two_to_two('abcd,bd->ac', two, out, factor=1.4, clear=False)
     assert np.allclose(out._array, 2.8*np.einsum('abcd,bd->ac', inp._array, two._array))
     # Blind test on all other cases
-    inp.contract_two_to_two('abcd,cb->ad', two, factor=1.7)
+    others = ['abcd,cb->ad',
+              'aabb,cb->ac', 'aabb,cb->ca', 'abcc,bc->ab', 'aabc,ab->bc',
+              'aabc,ac->bc', 'abcc,ac->ab', 'abcb,cb->ac', 'abcb,ab->ac',
+              'abcc,bc->ba', 'abcc,bc->ab', 'abcd,ac->db', 'abcd,ad->cb',
+              'abcd,ac->bd', 'abcd,ad->bc', 'abcd,ab->cd']
+    for subscripts in others:
+        inp.contract_two_to_two(subscripts, two, factor=1.7)
+    # with ranges
+    out = inp.contract_two_to_two('abcd,cb->ad', two, factor=1.3,
+        begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5,
+        begin3=3, end3=6, begin4=2, end4=5, begin5=3, end5=6)
+    assert np.allclose(out._array, 1.3*np.einsum('abcd,cb->ad', inp._array[:3,1:4,2:5,3:6], two._array[2:5,3:6]))
+    foo = inp.contract_two_to_two('abcd,cb->ad', two, out, factor=1.4,
+        begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5,
+        begin3=3, end3=6, begin4=2, end4=5, begin5=3, end5=6)
+    assert foo is out
+    assert np.allclose(out._array, 1.4*np.einsum('abcd,cb->ad', inp._array[:3,1:4,2:5,3:6], two._array[2:5,3:6]))
+    inp.contract_two_to_two('abcd,cb->ad', two, out, factor=1.4, clear=False,
+        begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5,
+        begin3=3, end3=6, begin4=2, end4=5, begin5=3, end5=6)
+    assert np.allclose(out._array, 2.8*np.einsum('abcd,cb->ad', inp._array[:3,1:4,2:5,3:6], two._array[2:5,3:6]))
+    # Blind test on all other cases
+    for subscripts in others:
+        inp.contract_two_to_two('abcd,cb->ad', two, out, factor=1.7,
+            begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5,
+            begin3=3, end3=6, begin4=2, end4=5, begin5=3, end5=6)
+
+
+def test_four_index_contract_two_to_three():
+    # test in detail for 'aabc,ad->bcd'
+    lf = DenseLinalgFactory(6)
+    inp = lf.create_four_index()
+    two = lf.create_two_index()
+    inp.randomize()
+    two.randomize()
+    out = inp.contract_two_to_three('aabc,ad->bcd', two, factor=1.3)
+    assert np.allclose(out._array, 1.3*np.einsum('aabc,ad->bcd', inp._array, two._array))
+    foo = inp.contract_two_to_three('aabc,ad->bcd', two, out, factor=1.4)
+    assert foo is out
+    assert np.allclose(out._array, 1.4*np.einsum('aabc,ad->bcd', inp._array, two._array))
+    inp.contract_two_to_three('aabc,ad->bcd', two, out, factor=1.4, clear=False)
+    assert np.allclose(out._array, 2.8*np.einsum('aabc,ad->bcd', inp._array, two._array))
+    # Blind test on all other cases
+    others = [ 'abcd,ac->bdc',
+               'abcd,ad->bcd', 'abcd,bc->abd', 'abcd,ac->abd', 'abcc,dc->dab',
+               'abcd,ac->bcd', 'abcc,cd->dab', 'abcc,dc->abd', 'abcb,db->adc',
+               'abcc,dc->adb', 'abcb,db->dac',
+               'abbc,db->dac', 'abcc,cd->abd']
+    for subscripts in others:
+        inp.contract_two_to_three(subscripts, two, factor=1.7)
+    # with ranges
+    two = lf.create_two_index(3)
+    two.randomize()
+    out = inp.contract_two_to_three('aabc,ad->bcd', two, factor=1.3,
+            begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5,
+            begin3=3, end3=6)
+    assert np.allclose(out._array, 1.3*np.einsum('aabc,ad->bcd', inp._array[:3,1:4,2:5,3:6], two._array))
+    foo = inp.contract_two_to_three('aabc,ad->bcd', two, out, factor=1.4,
+            begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5,
+            begin3=3, end3=6)
+    assert foo is out
+    assert np.allclose(out._array, 1.4*np.einsum('aabc,ad->bcd', inp._array[:3,1:4,2:5,3:6], two._array))
+    inp.contract_two_to_three('aabc,ad->bcd', two, out, factor=1.4, clear=False,
+            begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5,
+            begin3=3, end3=6)
+    assert np.allclose(out._array, 2.8*np.einsum('aabc,ad->bcd', inp._array[:3,1:4,2:5,3:6], two._array))
+    # Blind test on all other cases
+    for subscripts in others:
+        inp.contract_two_to_three(subscripts, two, factor=1.7,
+            begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5,
+            begin3=3, end3=6)
+
+
+def test_four_index_contract_three_to_three():
+    # test in detail for 'abcd,ace->ebd',
+    lf = DenseLinalgFactory(3)
+    inp = lf.create_four_index()
+    three = lf.create_three_index()
+    inp.randomize()
+    three.randomize()
+    out = inp.contract_three_to_three('abcd,ace->ebd', three, factor=1.3)
+    assert np.allclose(out._array, 1.3*np.einsum('abcd,ace->ebd', inp._array, three._array))
+    foo = inp.contract_three_to_three('abcd,ace->ebd', three, out, factor=1.4)
+    assert foo is out
+    assert np.allclose(out._array, 1.4*np.einsum('abcd,ace->ebd', inp._array, three._array))
+    inp.contract_three_to_three('abcd,ace->ebd', three, out, factor=1.4, clear=False)
+    assert np.allclose(out._array, 2.8*np.einsum('abcd,ace->ebd', inp._array, three._array))
+    # Blind test on all other cases
+    others = [ 'abcd,ebd->ace']
+    for subscripts in others:
+        inp.contract_three_to_three(subscripts, three, factor=1.7)
+    # with ranges
+    three = lf.create_three_index(6)
+    three.randomize()
+    out = inp.contract_three_to_three('abcd,ace->ebd', three, factor=1.3,
+            begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5)
+    assert np.allclose(out._array, 1.3*np.einsum('abcd,ace->ebd', inp._array, three._array[:3,1:4,2:5]))
+    foo = inp.contract_three_to_three('abcd,ace->ebd', three, out, factor=1.4,
+            begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5)
+    assert foo is out
+    assert np.allclose(out._array, 1.4*np.einsum('abcd,ace->ebd', inp._array, three._array[:3,1:4,2:5]))
+    inp.contract_three_to_three('abcd,ace->ebd', three, out, factor=1.4, clear=False,
+            begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5)
+    assert np.allclose(out._array, 2.8*np.einsum('abcd,ace->ebd', inp._array, three._array[:3,1:4,2:5]))
+    for subscripts in others:
+        inp.contract_three_to_three(subscripts, three, factor=1.7,
+            begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5)
+
+
+def test_four_index_contract_four_to_two():
+    # test in detail for 'abcd,aced->be',
+    lf = DenseLinalgFactory(3)
+    inp = lf.create_four_index()
+    four = lf.create_four_index()
+    inp.randomize()
+    four.randomize()
+    out = inp.contract_four_to_two('abcd,aced->be', four, factor=1.3)
+    assert np.allclose(out._array, 1.3*np.einsum('abcd,aced->be', inp._array, four._array))
+    foo = inp.contract_four_to_two('abcd,aced->be', four, out, factor=1.4)
+    assert foo is out
+    assert np.allclose(out._array, 1.4*np.einsum('abcd,aced->be', inp._array, four._array))
+    inp.contract_four_to_two('abcd,aced->be', four, out, factor=1.4, clear=False)
+    assert np.allclose(out._array, 2.8*np.einsum('abcd,aced->be', inp._array, four._array))
+    # Blind test on all other cases
+    others = ['abcd,acde->be', 'abcd,aced->eb', 'abcd,acde->eb',
+              'abcd,ecbd->ae', 'abcd,ecdb->ae', 'abcd,ecdb->ea',
+              'abcd,ecbd->ea', 'abcd,acbe->ed', 'abcd,aceb->ed',
+              'abcd,aebd->ce', 'abcd,aedb->ce']
+    for subscripts in others:
+        inp.contract_four_to_two(subscripts, four, factor=1.7)
+    # with ranges
+    four = lf.create_four_index(6)
+    four.randomize()
+    out = inp.contract_four_to_two('abcd,aced->be', four, factor=1.3,
+            begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5,
+            begin3=3, end3=6)
+    assert np.allclose(out._array, 1.3*np.einsum('abcd,aced->be', inp._array, four._array[:3,1:4,2:5,3:6]))
+    foo = inp.contract_four_to_two('abcd,aced->be', four, out, factor=1.4,
+            begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5,
+            begin3=3, end3=6)
+    assert foo is out
+    assert np.allclose(out._array, 1.4*np.einsum('abcd,aced->be', inp._array, four._array[:3,1:4,2:5,3:6]))
+    inp.contract_four_to_two('abcd,aced->be', four, out, factor=1.4, clear=False,
+            begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5,
+            begin3=3, end3=6)
+    assert np.allclose(out._array, 2.8*np.einsum('abcd,aced->be', inp._array, four._array[:3,1:4,2:5,3:6]))
+    # Blind test on all other cases
+    for subscripts in others:
+        inp.contract_four_to_two(subscripts, four, factor=1.7,
+            begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5,
+            begin3=3, end3=6)
+
+
+def test_four_index_contract_four_to_four():
+    # test in detail for 'abcd,cedf->abfe',
+    lf = DenseLinalgFactory(3)
+    inp = lf.create_four_index()
+    four = lf.create_four_index()
+    inp.randomize()
+    four.randomize()
+    out = inp.contract_four_to_four('abcd,cedf->abfe', four, factor=1.3)
+    assert np.allclose(out._array, 1.3*np.einsum('abcd,cedf->abfe', inp._array, four._array))
+    foo = inp.contract_four_to_four('abcd,cedf->abfe', four, out, factor=1.4)
+    assert foo is out
+    assert np.allclose(out._array, 1.4*np.einsum('abcd,cedf->abfe', inp._array, four._array))
+    inp.contract_four_to_four('abcd,cedf->abfe', four, out, factor=1.4, clear=False)
+    assert np.allclose(out._array, 2.8*np.einsum('abcd,cedf->abfe', inp._array, four._array))
+    # Blind test on all other cases
+    others = ['abcd,cefd->abfe', 'abcd,cedf->feab', 'abcd,cefd->feab',
+              'abcd,eadf->fbce', 'abcd,eadf->cefb', 'abcd,aedf->cbfe',
+              'abcd,aedf->fecb', 'abcd,acef->ebfd', 'abcd,bdef->aecf',
+              'abcd,cedf->abef', 'abcd,cefd->abef', 'abcd,cedf->efab',
+              'abcd,cefd->efab', 'abcd,eadf->ebcf', 'abcd,eadf->cfeb',
+              'abcd,eadf->cbef', 'abcd,eadf->efcb', 'abcd,eafd->cbef',
+              'abcd,eafd->efcb']
+    for subscripts in others:
+        inp.contract_four_to_four(subscripts, four, factor=1.7)
+    # with ranges
+    four = lf.create_four_index(6)
+    four.randomize()
+    out = inp.contract_four_to_four('abcd,cedf->abfe', four, factor=1.3,
+            begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5,
+            begin3=3, end3=6)
+    assert np.allclose(out._array, 1.3*np.einsum('abcd,cedf->abfe', inp._array, four._array[:3,1:4,2:5,3:6]))
+    foo = inp.contract_four_to_four('abcd,cedf->abfe', four, out, factor=1.4,
+            begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5,
+            begin3=3, end3=6)
+    assert foo is out
+    assert np.allclose(out._array, 1.4*np.einsum('abcd,cedf->abfe', inp._array, four._array[:3,1:4,2:5,3:6]))
+    inp.contract_four_to_four('abcd,cedf->abfe', four, out, factor=1.4, clear=False,
+            begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5,
+            begin3=3, end3=6)
+    assert np.allclose(out._array, 2.8*np.einsum('abcd,cedf->abfe', inp._array, four._array[:3,1:4,2:5,3:6]))
+    # Blind test on all other cases
+    for subscripts in others:
+        inp.contract_four_to_four(subscripts, four, factor=1.7,
+            begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5,
+            begin3=3, end3=6)
+
+
+def test_four_index_iadd_expand_two_to_four():
+    # test in detail for 0-2
+    lf = DenseLinalgFactory(4)
+    inp = lf.create_four_index()
+    two = lf.create_two_index()
+    inp.randomize()
+    out = inp.copy()
+    two.randomize()
+    inp.iadd_expand_two_to_four('0-2', two, factor=1.3)
+    for i in range(4):
+        for j in range(4):
+            for k in range(4):
+                out._array[j,i,k,i] += two._array[j,k]*1.3
+    assert np.allclose(out._array, inp._array)
+    # Blind test on all other cases
+    others = ['1-3', '0-3', '1-2', 'diag']
+    for subscripts in others:
+        inp.iadd_expand_two_to_four(subscripts, two, factor=1.7)
+    # with ranges
+    two = lf.create_two_index(8)
+    two.randomize()
+    out = inp.copy()
+    inp.iadd_expand_two_to_four('0-2', two, factor=1.3, begin0=3, end0=7, end1=4)
+    for i in range(4):
+        for j in range(4):
+            for k in range(4):
+                out._array[j,i,k,i] += two._array[j+3,k]*1.3
+    assert np.allclose(out._array, inp._array)
+    # Blind test on all other cases
+    for subscripts in others:
+        inp.iadd_expand_two_to_four(subscripts, two, factor=1.7, begin0=3, end0=7, end1=4)
+
+
+def test_four_index_iadd_expand_three_to_four():
+    # test in detail for '1-3-1-2'
+    lf = DenseLinalgFactory(4)
+    inp = lf.create_four_index()
+    three = lf.create_three_index()
+    inp.randomize()
+    out = inp.copy()
+    three.randomize()
+    inp.iadd_expand_three_to_four('1-3-1-2', three, factor=1.3)
+    for i in range(4):
+        for j in range(4):
+            for k in range(4):
+                out._array[i,j,i,k] += three._array[i,j,k]*1.3
+    # Blind test on all other cases
+    others = ['0-2-0-1', '1-2-1-2', '0-2-0-2', '0-3-0-2']
+    for subscripts in others:
+        inp.iadd_expand_three_to_four(subscripts, three, factor=1.7)
 
 
 def test_four_index_assign_four_index_transform():
