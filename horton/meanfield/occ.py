@@ -27,6 +27,7 @@ from horton.exceptions import ElectronCountError
 from horton.quadprog import find_1d_root
 from horton.constants import boltzmann
 from horton.log import log
+from horton.utils import doc_inherit
 
 
 __all__ = [
@@ -70,6 +71,7 @@ class FixedOccModel(OccModel):
     def __init__(self, *occ_arrays):
         self.occ_arrays = occ_arrays
 
+    @doc_inherit(OccModel)
     def assign(self, *exps):
         '''See :py:meth:`OccModel.assign`.'''
         if len(exps) != len(self.occ_arrays):
@@ -78,6 +80,7 @@ class FixedOccModel(OccModel):
             exp.occupations[:len(occ_array)] = occ_array
             exp.occupations[len(occ_array):] = 0.0
 
+    @doc_inherit(OccModel)
     def check_dms(self, overlap, *dms, **kwargs):
         '''See :py:meth:`OccModel.check_dms`.'''
         eps = kwargs.pop('eps', 1e-4)
@@ -111,6 +114,7 @@ class AufbauOccModel(OccModel):
             raise ElectronCountError('At least one electron is required.')
         self.noccs = noccs
 
+    @doc_inherit(OccModel)
     def assign(self, *exps):
         '''See :py:meth:`OccModel.assign`.'''
         if len(exps) != len(self.noccs):
@@ -127,6 +131,7 @@ class AufbauOccModel(OccModel):
                 exp.occupations[int(np.floor(nocc))] = nocc - np.floor(nocc)
                 exp.occupations[int(np.ceil(nocc)):] = 0.0
 
+    @doc_inherit(OccModel)
     def check_dms(self, overlap, *dms, **kwargs):
         '''See :py:meth:`OccModel.check_dms`.'''
         eps = kwargs.pop('eps', 1e-4)
@@ -151,6 +156,7 @@ class AufbauSpinOccModel(OccModel):
             raise ElectronCountError('The number of electron must be positive.')
         self.nel = nel
 
+    @doc_inherit(OccModel)
     def assign(self, exp_alpha, exp_beta):
         '''See :py:meth:`OccModel.assign`.'''
         nel = self.nel
@@ -165,6 +171,7 @@ class AufbauSpinOccModel(OccModel):
                 ibeta += 1
             nel -= 1
 
+    @doc_inherit(OccModel)
     def check_dms(self, overlap, *dms, **kwargs):
         '''See :py:meth:`OccModel.check_dms`.'''
         eps = kwargs.pop('eps', 1e-4)
@@ -220,6 +227,7 @@ class FermiOccModel(FermiMixin, AufbauOccModel):
         AufbauOccModel.__init__(self, *noccs)
         log.cite('rabuck1999', 'the Fermi broading method to assign orbital occupations')
 
+    @doc_inherit(OccModel)
     def assign(self, *exps):
         '''See :py:meth:`OccModel.assign`.'''
         beta = 1.0/self.temperature/boltzmann

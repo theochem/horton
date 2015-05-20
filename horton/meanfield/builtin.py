@@ -26,6 +26,7 @@ import numpy as np
 from horton.meanfield.gridgroup import GridObservable
 from horton.grid.molgrid import BeckeMolGrid
 from horton.grid.poisson import solve_poisson_becke
+from horton.utils import doc_inherit
 
 
 __all__ = ['RBeckeHartree', 'UBeckeHartree', 'RDiracExchange', 'UDiracExchange']
@@ -67,6 +68,7 @@ class BeckeHartree(GridObservable):
                 begin = end
         return pot
 
+    @doc_inherit(GridObservable)
     def compute(self, cache, grid):
         pot = self._update_pot(cache, grid)
         rho = cache['rho_full']
@@ -74,12 +76,14 @@ class BeckeHartree(GridObservable):
 
 
 class RBeckeHartree(BeckeHartree):
+    @doc_inherit(BeckeHartree)
     def add_pot(self, cache, grid, dpot_alpha):
         pot = self._update_pot(cache, grid)
         dpot_alpha += pot
 
 
 class UBeckeHartree(BeckeHartree):
+    @doc_inherit(BeckeHartree)
     def add_pot(self, cache, grid, dpot_alpha, dpot_beta):
         pot = self._update_pot(cache, grid)
         dpot_alpha += pot
@@ -129,12 +133,14 @@ class DiracExchange(GridObservable):
 class RDiracExchange(DiracExchange):
     '''The Dirac Exchange Functional for restricted wavefunctions'''
 
+    @doc_inherit(GridObservable)
     def compute(self, cache, grid):
         '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.compute`.'''
         pot = self._update_pot(cache, grid, 'alpha')
         rho = cache['rho_alpha']
         return (3.0 / 2.0) * grid.integrate(pot, rho)
 
+    @doc_inherit(GridObservable)
     def add_pot(self, cache, grid, dpot_alpha):
         '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.add_pot`.'''
         dpot_alpha += self._update_pot(cache, grid, 'alpha')
@@ -143,6 +149,7 @@ class RDiracExchange(DiracExchange):
 class UDiracExchange(DiracExchange):
     '''The Dirac Exchange Functional for unrestricted wavefunctions'''
 
+    @doc_inherit(GridObservable)
     def compute(self, cache, grid):
         '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.compute`.'''
         pot_alpha = self._update_pot(cache, grid, 'alpha')
@@ -152,6 +159,7 @@ class UDiracExchange(DiracExchange):
         return (3.0 / 4.0) * (grid.integrate(pot_alpha, rho_alpha) +
                               grid.integrate(pot_beta, rho_beta))
 
+    @doc_inherit(GridObservable)
     def add_pot(self, cache, grid, dpot_alpha, dpot_beta):
         '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.add_pot`.'''
         dpot_alpha += self._update_pot(cache, grid, 'alpha')

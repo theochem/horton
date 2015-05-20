@@ -22,6 +22,7 @@
 
 
 from horton.meanfield.observable import Observable
+from horton.utils import doc_inherit
 
 
 __all__ = [
@@ -206,6 +207,7 @@ class RGridGroup(GridGroup):
             The norm-squared of the gradient of the spin-summed electron density.
     '''
 
+    @doc_inherit(GridGroup)
     def _get_potentials(self, cache):
         '''See :py:meth:`GridGroup._get_potentials`.'''
         dpot, new = cache.load('dpot_total_alpha', alloc=self.grid.size)
@@ -222,6 +224,7 @@ class RGridGroup(GridGroup):
                 gpot[:] = 0.0
         return dpots, gpots, new
 
+    @doc_inherit(GridGroup)
     def _update_grid_data(self, cache):
         '''See :py:meth:`GridGroup._update_grid_data`.'''
         rho_alpha = self._update_rho(cache, 'alpha')
@@ -287,6 +290,7 @@ class UGridGroup(GridGroup):
             An array with all three sigma quantities combined. Shape=(grid.size,
             3). This is mostly useful for LibXC
     '''
+    @doc_inherit(GridGroup)
     def _get_potentials(self, cache):
         '''See :py:meth:`GridGroup._get_potentials`.'''
         dpot_alpha, newa = cache.load('dpot_total_alpha', alloc=self.grid.size)
@@ -308,6 +312,7 @@ class UGridGroup(GridGroup):
                 gpot_beta[:] = 0.0
         return dpots, gpots, new
 
+    @doc_inherit(GridGroup)
     def _update_grid_data(self, cache):
         '''See :py:meth:`GridGroup._update_grid_data`.'''
         rho_alpha = self._update_rho(cache, 'alpha')

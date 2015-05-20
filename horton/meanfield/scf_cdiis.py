@@ -26,6 +26,7 @@ import numpy as np
 from horton.log import log
 from horton.meanfield.scf_diis import DIISHistory, DIISSCFSolver
 from horton.quadprog import solve_safe
+from horton.utils import doc_inherit
 
 
 __all__ = ['CDIISSCFSolver']
@@ -112,6 +113,7 @@ class CDIISHistory(DIISHistory):
                 self.cdots[i0,i1] = cdot
                 self.cdots[i1,i0] = cdot
 
+    @doc_inherit(DIISHistory)
     def solve(self, dms_output, focks_output):
         '''See :py:meth:`horton.meanfield.scf_diis.DIISHistory.solve`.'''
         # extrapolation only makes sense if there are two points

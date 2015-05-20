@@ -27,6 +27,7 @@ from horton.log import log
 from horton.meanfield.scf_diis import DIISHistory, DIISSCFSolver
 from horton.meanfield.scf_cdiis import CDIISHistory
 from horton.meanfield.scf_ediis import EDIISHistory
+from horton.utils import doc_inherit
 
 
 __all__ = ['EDIIS2SCFSolver']
@@ -98,6 +99,7 @@ class EDIIS2History(EDIISHistory, CDIISHistory):
         self.cdots.fill(np.nan)
         DIISHistory.__init__(self, lf, nvector, ndm, deriv_scale, overlap, [self.edots, self.cdots])
 
+    @doc_inherit(DIISHistory)
     def solve(self, dms_output, focks_output):
         '''See :py:meth:`horton.meanfield.scf_diis.DIISHistory.solve`.'''
         errmax = max(state.normsq for state in self.stack)

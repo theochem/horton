@@ -23,7 +23,7 @@
 
 import numpy as np
 from horton.log import log
-from horton.utils import check_type, check_options
+from horton.utils import check_type, check_options, doc_inherit
 from horton.matrix.base import parse_four_index_transform_exps, FourIndex
 from horton.matrix.cext import slice_to_three_abbc_abc, \
     slice_to_three_abcc_bac, slice_to_three_abcc_abc
@@ -37,10 +37,12 @@ __all__ = [
 
 
 class CholeskyLinalgFactory(DenseLinalgFactory):
+    @doc_inherit(DenseLinalgFactory)
     def create_four_index(self, nbasis=None, nvec=None, array=None, array2=None, hermitian_vecs=True):
         nbasis = nbasis or self.default_nbasis
         return CholeskyFourIndex(nbasis, nvec, array, array2, hermitian_vecs)
 
+    @doc_inherit(DenseLinalgFactory)
     def _check_four_index_init_args(self, four_index, nbasis=None, nvec=None, array=None, hermitian_vecs=True):
         nbasis = nbasis or self.default_nbasis
         four_index.__check_init_args__(nbasis, nvec, hermitian_vecs)

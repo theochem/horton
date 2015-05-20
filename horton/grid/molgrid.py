@@ -29,7 +29,7 @@ from horton.grid.atgrid import AtomicGrid, AtomicGridSpec
 from horton.grid.cext import becke_helper_atom
 from horton.log import log, timer
 from horton.periodic import periodic
-from horton.utils import typecheck_geo
+from horton.utils import typecheck_geo, doc_inherit
 
 
 __all__ = [
@@ -231,6 +231,7 @@ class BeckeMolGrid(IntGrid):
         log.cite('becke1988_multicenter', 'the multicenter integration scheme used for the molecular integration grid')
         log.cite('cordero2008', 'the covalent radii used for the Becke-Lebedev molecular integration grid')
 
+    @doc_inherit(IntGrid)
     def integrate(self, *args, **kwargs):
         if self.mode == 'only':
             raise NotImplementedError('When mode==\'only\', only the subgrids can be used for integration.')

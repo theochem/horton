@@ -23,6 +23,7 @@
 
 from horton.log import log
 from horton.cache import Cache
+from horton.utils import doc_inherit
 
 
 __all__ = [
@@ -147,6 +148,7 @@ class REffHam(EffHam):
     ndm = 1
     deriv_scale = 2.0
 
+    @doc_inherit(EffHam)
     def reset(self, in_dm_alpha):
         '''See :py:meth:`EffHam.reset`.'''
         self.cache.clear()
@@ -154,6 +156,7 @@ class REffHam(EffHam):
         dm_alpha = self.cache.load('dm_alpha', alloc=in_dm_alpha.new)[0]
         dm_alpha.assign(in_dm_alpha)
 
+    @doc_inherit(EffHam)
     def compute_fock(self, fock_alpha):
         '''See :py:meth:`EffHam.compute_fock`.'''
         EffHam.compute_fock(self, fock_alpha)
@@ -162,6 +165,7 @@ class REffHam(EffHam):
 class UEffHam(EffHam):
     ndm = 2
 
+    @doc_inherit(EffHam)
     def reset(self, in_dm_alpha, in_dm_beta):
         '''See :py:meth:`EffHam.reset`.'''
         self.cache.clear()
@@ -171,6 +175,7 @@ class UEffHam(EffHam):
         dm_beta = self.cache.load('dm_beta', alloc=in_dm_beta.new)[0]
         dm_beta.assign(in_dm_beta)
 
+    @doc_inherit(EffHam)
     def compute_fock(self, fock_alpha, fock_beta):
         '''See :py:meth:`EffHam.compute_fock`.'''
         EffHam.compute_fock(self, fock_alpha, fock_beta)
