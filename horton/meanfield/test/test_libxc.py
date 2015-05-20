@@ -82,7 +82,7 @@ def test_cubic_interpolation_hfs_cs():
 
 
 def test_cubic_interpolation_x_pbe_c_vwn_cs():
-    # mixing of LDA and GGA
+    # mixing of GGA and LDA
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     mol = Molecule.from_file(fn_fchk)
 
@@ -101,7 +101,6 @@ def test_cubic_interpolation_x_pbe_c_vwn_cs():
 
 
 def test_cubic_interpolation_c_vwn_cs():
-    # mixing of LDA and GGA
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     mol = Molecule.from_file(fn_fchk)
 
