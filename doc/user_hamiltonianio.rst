@@ -23,23 +23,9 @@ where ``kin`` and ``na`` are the electronic kinetic energy and the electron-nucl
 attraction terms, respectively.
 
 To write a Hamiltonian with the one- and two-electron integrals ``one`` and
-``two`` to file, run :py:function:`horton.io.integrals_io.integrals_to_file`.
-
-If ``orb`` is passed, the one- and two-electron integrals are transformed to
-the ``orb`` basis. This transformation is skipped if ``orb=None``.
-
-The keyword arguments contain system specific information.
-
-    :nel: ``int`` for the total number of electrons in active space (default ``0``)
-    :ncore: ``int`` for the number of frozen core orbitals (default ``0``)
-    :ms2: ``float`` for the spin multiplicity (default ``0``)
-    :nactive: ``int`` for the number of active orbitals (default ``one.nbasis``, that is, the total number of basis functions)
-    :indextrans: ``str`` for the type of 4-index transformation. One of ``tensordot``, ``einsum`` (default ``tensordot``)
-
-If **ncore** and **nactive** are given, the Hamiltonian of the specified active
-space CAS(**nel**, **nactive**) is written to file. By default, all orbitals are
-active and no frozen core is specified. In case of an active space, the one-electron
-integrals :math:`t_{pq}` are
+``two`` to file, run :py:func:`horton.io.integrals_io.integrals_to_file`.
+Note that you can specify an active space, if you'd like (it isn't used by default).
+In case of an active space, the one-electron integrals :math:`t_{pq}` are
 
 .. math::
 

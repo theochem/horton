@@ -48,7 +48,7 @@ Then the Pipek-Mezey localization function and the optimization are obtained thr
 :py:class:`horton.localization.localization.PipekMezey`. Function call,
 :py:meth:`horton.localization.localization.Localization.__call__`, of this
 instance results in localization.
-Please see documentation in :py:module:`horton.localization.localization` for more detail.
+Please see documentation in :py:mod:`horton.localization.localization` for more detail.
 
 
 Example input files
