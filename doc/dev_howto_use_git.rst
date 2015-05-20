@@ -64,7 +64,7 @@ commit:
         exit 1
     fi
 
-Copy this script into the directory ``.git/hooks/pre-commit`` and make it
+Copy this script into the directory ``.git/hooks/`` as ``pre-commit`` and make it
 executable. The last part of the pre-commit script checks for python ``print``
 lines. These should not be used in the Horton library. If you think you have
 legitimate reasons to ignore this test, use the ``--no-verify`` option when
@@ -87,10 +87,6 @@ do so, put one of the following in your ``~/.bashrc`` file:
       GIT_PS='$(__git_ps1 ":%s")'
       export PS1="\[\033[2;32m\]\u@\h\[\033[00m\]:\[\033[2;34m\]\w\[\033[3;31m\]${GIT_PS}\[\033[00m\]$ "
 
-You may get an error like ``__git_ps1: command not found...`` if you sourced
-``git-completion.bash.bash``. Then, you need to add
-``source /usr/share/git-core/contrib/completion/git-prompt.sh`` before setting
-the ``GIT_PS``.
 You can customize it to your taste. You may also want to add a line ``export
 PROMPT_DIRTRIM=3`` to keep the shell prompt short.
 
@@ -321,3 +317,14 @@ branch to the new HEAD of the master branch with ``git rebase``
 Now, you can get in touch with one of the Horton developers (at the `Horton
 mailing list <https://groups.google.com/d/forum/horton-discuss>`_) to transfer
 these new patches to the public master branch of Horton.
+
+Common Issues
+=============
+* Make sure you set the ``pre-commit`` hook and use ``cleancode.sh``. You should be removing
+  whitespaces because they're ugly (and may cause problems with sphinx) and be following
+  other formatting protocols that is guided by the ``pre-commit``.
+* When you're customizing your bash prompt, you may get a bash error like
+  ``__git_ps1: command not found...`` if you sourced ``git-completion.bash.bash``.
+  Then, you need to add ``source /usr/share/git-core/contrib/completion/git-prompt.sh``
+  before setting the ``GIT_PS``. If you cannot find this file, you can
+  get it from ``https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh``.
