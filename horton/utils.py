@@ -21,7 +21,10 @@
 '''Utility functions'''
 
 
-__all__ = ['typecheck_geo', 'check_type', 'check_options']
+from functools import wraps
+
+
+__all__ = ['typecheck_geo', 'check_type', 'check_options', 'doc_inherit']
 
 
 def typecheck_geo(coordinates=None, numbers=None, pseudo_numbers=None,
@@ -158,3 +161,34 @@ def check_options(name, select, *options):
     if select not in options:
         formatted = ', '.join(['\'%s\'' % option for option in options])
         raise ValueError('The argument \'%s\' must be one of: %s' % (select, formatted))
+
+
+def doc_inherit(base_class):
+    """Docstring inheriting method descriptor
+
+       doc_inherit decorator
+
+       Usage:
+
+       .. code-block:: python
+
+            class Foo(object):
+                def foo(self):
+                    "Frobber"
+                    pass
+
+            class Bar(Foo):
+                @doc_inherit(Foo)
+                def foo(self):
+                    pass
+
+       Now, ``Bar.foo.__doc__ == Bar().foo.__doc__ == Foo.foo.__doc__ ==
+       "Frobber"``
+    """
+    def decorator(method):
+        overridden = getattr(base_class, method.__name__, None)
+        if overridden is None:
+            raise NameError('Can\'t find method \'%s\' in base class.')
+        method.__doc__ = overridden.__doc__
+        return method
+    return decorator

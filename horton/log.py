@@ -30,6 +30,7 @@
 
 import sys, os, datetime, getpass, time, atexit, traceback, resource, urllib
 from contextlib import contextmanager
+from functools import wraps
 import horton
 
 
@@ -298,10 +299,10 @@ class TimerGroup(object):
 
     def with_section(self, label):
         def decorator(fn):
+            @wraps(fn)
             def wrapper(*args, **kwargs):
                 with self.section(label):
                     return fn(*args, **kwargs)
-            wrapper.__doc__ = fn.__doc__
             return wrapper
         return decorator
 
