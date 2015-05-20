@@ -23,20 +23,7 @@ where ``kin`` and ``na`` are the electronic kinetic energy and the electron-nucl
 attraction terms, respectively.
 
 To write a Hamiltonian with the one- and two-electron integrals ``one`` and
-``two`` to file, run
-
-.. code-block:: python
-
-    integrals_to_file(lf, one, two, ecore, orb, filename[, **kwargs])
-
-with arguments
-
-    :lf: ``DenseLinalgFactory`` instance. Note that ``CholeskyLinalgFactory`` is not supported
-    :one: ``TwoIndex`` instance that contains the one-electron integrals
-    :two: ``FourIndex`` instance that contains the two-electron integrals (electron repulsion integrals)
-    :ecore: ``float`` that describes the energy contribution due to an external potential, e.g., nuclear-nuclear repulsion term, etc.
-    :orb: ``Expansion`` instance that contains the MO coefficient matrix
-    :filename: (optional) ``str`` of the ouptut filename containing the Hamiltonian (default ``FCIDUMP``)
+``two`` to file, run :py:function:`horton.io.integrals_io.integrals_to_file`.
 
 If ``orb`` is passed, the one- and two-electron integrals are transformed to
 the ``orb`` basis. This transformation is skipped if ``orb=None``.
