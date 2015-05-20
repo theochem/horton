@@ -273,6 +273,52 @@ void GB1DMGridGradientFn::compute_fock_from_pot(double* pot, double* work_basis,
 
 
 /*
+    GB1DMGridGGAFn
+*/
+
+void GB1DMGridGGAFn::compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output, double epsilon, double* dmmaxrow) {
+    double rho = 0, rho_x = 0, rho_y = 0, rho_z = 0;
+    for (long ibasis0=0; ibasis0<nbasis; ibasis0++) {
+        double row = 0;
+        for (long ibasis1=0; ibasis1<nbasis; ibasis1++) {
+            row += work_basis[ibasis1*4]*dm[ibasis0*nbasis+ibasis1];
+        }
+        rho += row*work_basis[ibasis0*4];
+        rho_x += row*work_basis[ibasis0*4+1];
+        rho_y += row*work_basis[ibasis0*4+2];
+        rho_z += row*work_basis[ibasis0*4+3];
+    }
+    output[0] += rho;
+    output[1] += 2*rho_x;
+    output[2] += 2*rho_y;
+    output[3] += 2*rho_z;
+}
+
+void GB1DMGridGGAFn::compute_fock_from_pot(double* pot, double* work_basis, long nbasis, double* output) {
+    for (long ibasis0=0; ibasis0<nbasis; ibasis0++) {
+        double tmp0 = pot[0]*work_basis[ibasis0*4] +
+                      pot[1]*work_basis[ibasis0*4+1] +
+                      pot[2]*work_basis[ibasis0*4+2] +
+                      pot[3]*work_basis[ibasis0*4+3];
+        double tmp1 = pot[1]*work_basis[ibasis0*4];
+        double tmp2 = pot[2]*work_basis[ibasis0*4];
+        double tmp3 = pot[3]*work_basis[ibasis0*4];
+        for (long ibasis1=0; ibasis1<=ibasis0; ibasis1++) {
+            double result = tmp0*work_basis[ibasis1*4] +
+                            tmp1*work_basis[ibasis1*4+1] +
+                            tmp2*work_basis[ibasis1*4+2] +
+                            tmp3*work_basis[ibasis1*4+3];
+            output[ibasis1*nbasis+ibasis0] += result;
+            if (ibasis1!=ibasis0) {
+                // Enforce symmetry
+                output[ibasis0*nbasis+ibasis1] += result;
+            }
+        }
+    }
+}
+
+
+/*
     GB1DMGridKineticFn
 */
 

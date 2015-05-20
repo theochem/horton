@@ -66,8 +66,8 @@ __all__ = [
     'GB2NuclearAttractionIntegral',
     'GB4ElectronRepulsionIntegralLibInt',
     # fns
-    'GB1DMGridDensityFn', 'GB1DMGridGradientFn', 'GB1DMGridKineticFn',
-    'GB1DMGridHessianFn',
+    'GB1DMGridDensityFn', 'GB1DMGridGradientFn', 'GB1DMGridGGAFn',
+    'GB1DMGridKineticFn', 'GB1DMGridHessianFn',
     # iter_gb
     'IterGB1', 'IterGB2', 'IterGB4',
     # iter_pow
@@ -1004,13 +1004,7 @@ cdef class GOBasis(GBasis):
         '''
         if output is None:
             output = np.zeros((points.shape[0], 4), float)
-        # This is to be replaced by something more efficient
-        rho = np.zeros(points.shape[0], float)
-        self._compute_grid1_dm(dm, points, GB1DMGridDensityFn(self.max_shell_type), rho, epsilon)
-        output[:,0] = rho
-        grad = np.zeros((points.shape[0],3), float)
-        self._compute_grid1_dm(dm, points, GB1DMGridGradientFn(self.max_shell_type), grad, epsilon)
-        output[:,1:4] = grad
+        self._compute_grid1_dm(dm, points, GB1DMGridGGAFn(self.max_shell_type), output, epsilon)
         return output
 
     def compute_grid_kinetic_dm(self, dm,
@@ -1277,8 +1271,7 @@ cdef class GOBasis(GBasis):
            **Warning:** the results are added to the fock operator!
         '''
         # To be replaced by something more efficient
-        self._compute_grid1_fock(points, weights, pots[:,0].copy(), GB1DMGridDensityFn(self.max_shell_type), fock)
-        self._compute_grid1_fock(points, weights, pots[:,1:4].copy(), GB1DMGridGradientFn(self.max_shell_type), fock)
+        self._compute_grid1_fock(points, weights, pots, GB1DMGridGGAFn(self.max_shell_type), fock)
 
     def compute_grid_kinetic_fock(self, np.ndarray[double, ndim=2] points not None,
                                   np.ndarray[double, ndim=1] weights not None,
@@ -1685,6 +1678,11 @@ cdef class GB1DMGridDensityFn(GB1DMGridFn):
 cdef class GB1DMGridGradientFn(GB1DMGridFn):
     def __cinit__(self, long max_nbasis):
         self._this = <fns.GB1DMGridFn*>(new fns.GB1DMGridGradientFn(max_nbasis))
+
+
+cdef class GB1DMGridGGAFn(GB1DMGridFn):
+    def __cinit__(self, long max_nbasis):
+        self._this = <fns.GB1DMGridFn*>(new fns.GB1DMGridGGAFn(max_nbasis))
 
 
 cdef class GB1DMGridKineticFn(GB1DMGridFn):
