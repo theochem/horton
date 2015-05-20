@@ -20,11 +20,10 @@ attraction terms can be combined as follows
     one.iadd(na)
 
 where ``kin`` and ``na`` are the electronic kinetic energy and the electron-nuclear
-attraction terms, respectively.
-
-To write a Hamiltonian with the one- and two-electron integrals ``one`` and
+attraction terms, respectively. To write a Hamiltonian with the one- and two-electron integrals ``one`` and
 ``two`` to file, run :py:func:`horton.io.integrals_io.integrals_to_file`.
-Note that you can specify an active space, if you'd like (it isn't used by default).
+
+Note that you can specify an active space (it isn't used by default).
 In case of an active space, the one-electron integrals :math:`t_{pq}` are
 
 .. math::
@@ -33,7 +32,6 @@ In case of an active space, the one-electron integrals :math:`t_{pq}` are
 
 where :math:`\textrm{one}_{pq}` is the element :math:`pq` of :math:`\mathbf{one}` and
 :math:`\langle pi \vert qi \rangle` is the appropriate two-electron integrals in physicist's notation.
-
 The core energy of the active space is calculated as
 
 .. math::
