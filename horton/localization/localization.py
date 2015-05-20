@@ -131,6 +131,7 @@ class Localization(object):
         '''
         if log.do_medium:
             log('Performing localization of %s block' %(select))
+        log.cite('pipek1989', 'the Pipek-Mezey localization scheme')
         #
         # Assign default keyword arguements
         #
