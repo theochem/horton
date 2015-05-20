@@ -33,18 +33,18 @@ The Hartree-Fock energy can be calculated after SCF convergence as follows
 
 where ``ham`` is an instance of the restricted effective Hamiltonian class ``REffHam`` (see FIXME), which contains all one- and two-electron terms. Note that all one-electron terms have to be combined into one single operator term. This can be done in the following way if the Hamiltonian contains the kinetic energy of the electrons and the electron-nuclear attraction,
 
-        .. code-block:: python
+.. code-block:: python
 
-            ###############################################################################
-            ## Calculate kinetic energy (kin) and nuclear attraction (na) term ############
-            ###############################################################################
-            kin = obasis.compute_kinetic(lf)
-            na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
-            ###############################################################################
-            ## Combine one-electron integrals to single Hamiltonian #######################
-            ###############################################################################
-            one = kin.copy()
-            one.iadd(na)
+    ###############################################################################
+    ## Calculate kinetic energy (kin) and nuclear attraction (na) term ############
+    ###############################################################################
+    kin = obasis.compute_kinetic(lf)
+    na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
+    ###############################################################################
+    ## Combine one-electron integrals to single Hamiltonian #######################
+    ###############################################################################
+    one = kin.copy()
+    one.iadd(na)
 
 
 How to set-up an MP2 calculation
@@ -208,120 +208,19 @@ MP2 calculation on the water molecule
 
 This is a basic example on how to perform a RMP2 calculation in Horton. This script performs a RMP2 calculation on the water molecule using the cc-pVDZ basis set.
 
-.. code-block:: python
+.. literalinclude:: ../data/examples/perturbation_theory/water_mp2.py
+    :caption: data/examples/perturbation_theory/water_mp2.py
+    :lines: 2-
 
-    from horton import *
-    ###############################################################################
-    ## Set up molecule, define basis set ##########################################
-    ###############################################################################
-    mol = Molecule.from_file('mol.xyz')
-    obasis = get_gobasis(mol.coordinates, mol.numbers, 'cc-pvdz')
-    ###############################################################################
-    ## Define Occupation model, expansion coefficients and overlap ################
-    ###############################################################################
-    lf = DenseLinalgFactory(obasis.nbasis)
-    occ_model = AufbauOccModel(5)
-    orb = lf.create_expansion(obasis.nbasis)
-    olp = obasis.compute_overlap(lf)
-    ###############################################################################
-    ## Construct Hamiltonian ######################################################
-    ###############################################################################
-    kin = obasis.compute_kinetic(lf)
-    na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
-    er = obasis.compute_electron_repulsion(lf)
-    external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
-    terms = [
-        RTwoIndexTerm(kin, 'kin'),
-        RDirectTerm(er, 'hartree'),
-        RExchangeTerm(er, 'x_hf'),
-        RTwoIndexTerm(na, 'ne'),
-    ]
-    ham = REffHam(terms, external)
-    ###############################################################################
-    ## Perform initial guess ######################################################
-    ###############################################################################
-    guess_core_hamiltonian(olp, kin, na, orb)
-    ###############################################################################
-    ## Do a Hartree-Fock calculation ##############################################
-    ###############################################################################
-    scf_solver = PlainSCFSolver(1e-6)
-    scf_solver(ham, lf, olp, occ_model, orb)
-    ###############################################################################
-    ## Get Hartree-Fock energy ####################################################
-    ###############################################################################
-    ehf = ham.compute()
-    ###############################################################################
-    ## Combine one-electron integrals to single Hamiltonian #######################
-    ###############################################################################
-    one = kin.copy()
-    one.iadd(na)
-
-    ###############################################################################
-    ## Do RMP2 calculation ########################################################
-    ###############################################################################
-    mp2 = RMP2(lf, occ_model)
-    emp2, tmp2 = mp2(one, er, orb, **{'eref': ehf})
 
 PTa calculation on the water molecule
 -------------------------------------
 
 This is a basic example on how to perform a PTa calculation in Horton. This script performs a PTa calculation on the water molecule using the cc-pVDZ basis set.
 
-.. code-block:: python
-
-    from horton import *
-    ###############################################################################
-    ## Set up molecule, define basis set ##########################################
-    ###############################################################################
-    mol = Molecule.from_file('mol.xyz')
-    obasis = get_gobasis(mol.coordinates, mol.numbers, 'cc-pvdz')
-    ###############################################################################
-    ## Define Occupation model, expansion coefficients and overlap ################
-    ###############################################################################
-    lf = DenseLinalgFactory(obasis.nbasis)
-    occ_model = AufbauOccModel(5)
-    orb = lf.create_expansion(obasis.nbasis)
-    olp = obasis.compute_overlap(lf)
-    ###############################################################################
-    ## Construct Hamiltonian ######################################################
-    ###############################################################################
-    kin = obasis.compute_kinetic(lf)
-    na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
-    er = obasis.compute_electron_repulsion(lf)
-    external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
-    terms = [
-        RTwoIndexTerm(kin, 'kin'),
-        RDirectTerm(er, 'hartree'),
-        RExchangeTerm(er, 'x_hf'),
-        RTwoIndexTerm(na, 'ne'),
-    ]
-    ham = REffHam(terms, external)
-    ###############################################################################
-    ## Perform initial guess ######################################################
-    ###############################################################################
-    guess_core_hamiltonian(olp, kin, na, orb)
-    ###############################################################################
-    ## Do a Hartree-Fock calculation ##############################################
-    ###############################################################################
-    scf_solver = PlainSCFSolver(1e-6)
-    scf_solver(ham, lf, olp, occ_model, orb)
-    ###############################################################################
-    ## Combine one-electron integrals to single Hamiltonian #######################
-    ###############################################################################
-    one = kin.copy()
-    one.iadd(na)
-
-    ###############################################################################
-    ## Do OO-AP1roG optimization ##################################################
-    ###############################################################################
-    ap1rog = RAp1rog(lf, occ_model)
-    energy, g, l = ap1rog(one, er, external['nn'], orb, olp, True)
-
-    ###############################################################################
-    ## Do PTa calculation #########################################################
-    ###############################################################################
-    pta = PTa(lf, occ_model)
-    energypta, amplitudes = pta(one, er, orb, g, **{'eref': energy, 'ecore': external['nn']})
+.. literalinclude:: ../data/examples/perturbation_theory/water_pta.py
+    :caption: data/examples/perturbation_theory/water_pta.py
+    :lines: 2-
 
 
 PTb calculation on the water molecule
@@ -329,58 +228,6 @@ PTb calculation on the water molecule
 
 This is a basic example on how to perform a PTb calculation in Horton. This script performs a PTb calculation on the water molecule using the cc-pVDZ basis set.
 
-.. code-block:: python
-
-    from horton import *
-    ###############################################################################
-    ## Set up molecule, define basis set ##########################################
-    ###############################################################################
-    mol = Molecule.from_file('mol.xyz')
-    obasis = get_gobasis(mol.coordinates, mol.numbers, 'cc-pvdz')
-    ###############################################################################
-    ## Define Occupation model, expansion coefficients and overlap ################
-    ###############################################################################
-    lf = DenseLinalgFactory(obasis.nbasis)
-    occ_model = AufbauOccModel(5)
-    orb = lf.create_expansion(obasis.nbasis)
-    olp = obasis.compute_overlap(lf)
-    ###############################################################################
-    ## Construct Hamiltonian ######################################################
-    ###############################################################################
-    kin = obasis.compute_kinetic(lf)
-    na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
-    er = obasis.compute_electron_repulsion(lf)
-    external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
-    terms = [
-        RTwoIndexTerm(kin, 'kin'),
-        RDirectTerm(er, 'hartree'),
-        RExchangeTerm(er, 'x_hf'),
-        RTwoIndexTerm(na, 'ne'),
-    ]
-    ham = REffHam(terms, external)
-    ###############################################################################
-    ## Perform initial guess ######################################################
-    ###############################################################################
-    guess_core_hamiltonian(olp, kin, na, orb)
-    ###############################################################################
-    ## Do a Hartree-Fock calculation ##############################################
-    ###############################################################################
-    scf_solver = PlainSCFSolver(1e-6)
-    scf_solver(ham, lf, olp, occ_model, orb)
-    ###############################################################################
-    ## Combine one-electron integrals to single Hamiltonian #######################
-    ###############################################################################
-    one = kin.copy()
-    one.iadd(na)
-
-    ###############################################################################
-    ## Do OO-AP1roG optimization ##################################################
-    ###############################################################################
-    ap1rog = RAp1rog(lf, occ_model)
-    energy, g, l = ap1rog(one, er, external['nn'], orb, olp, True)
-
-    ###############################################################################
-    ## Do PTb calculation #########################################################
-    ###############################################################################
-    ptb = PTb(lf, occ_model)
-    energyptb, amplitudes = ptb(one, er, orb, g, **{'eref': energy, 'ecore': external['nn'], 'threshold': 1e-6})
+.. literalinclude:: ../data/examples/perturbation_theory/water_ptb.py
+    :caption: data/examples/perturbation_theory/water_ptb.py
+    :lines: 2-

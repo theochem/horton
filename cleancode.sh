@@ -3,4 +3,4 @@ echo Cleaning python code in \'`pwd`\' and subdirectories
 # split output of find at newlines.
 IFS=$'\n'
 # send all relevant files to the code cleaner
-find data doc horton tools scripts *.py *.sh | egrep "(\.rst$)|(README)|(\.bib$)|(\.py$)|(\.c$)|(\.h$)|(\.nwchem)|(\.pyx$)|(\.pxd$)|(\.cpp)|(\.sh)|(\.cfg)" | xargs ./tools/codecleaner.py
+find data doc horton tools scripts *.py *.sh | egrep "(\.rst$)|(README)|(\.bib$)|(\.py$)|(\.c$)|(\.h$)|(\.nwchem)|(\.pyx$)|(\.pxd$)|(\.cpp)|(\.sh)|(\.cfg)|(\.gitignore)" | xargs ./tools/codecleaner.py

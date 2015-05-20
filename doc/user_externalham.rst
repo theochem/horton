@@ -93,19 +93,5 @@ Example input files
 
 This is a basic example on how to read a Hamiltonian, which is stored using the Molpro file convention, from file ``FCIDUMP``. Similar to the example above, the number of electrons is ``46`` with ``23`` doubly-occupied orbitals, while the total number of basis functions is ``115``.
 
-.. code-block:: python
-
-    from horton import *
-    ###############################################################################
-    ## Define number of occupied orbitals and total number of basis functions #####
-    ###############################################################################
-    nocc = 23
-    nbasis = 115
-    ###############################################################################
-    ## Define linalg factory ######################################################
-    ###############################################################################
-    lf = DenseLinalgFactory(nbasis)
-    ###############################################################################
-    ## Read Hamiltonian from file 'FCIDUMP' #######################################
-    ###############################################################################
-    one, two, core = integrals_from_file(lf, 'FCIDUMP')
+.. literalinclude:: ../data/examples/hamiltonian/fcidump.py
+    :caption: data/examples/hamiltonian/fcidump.py

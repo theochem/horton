@@ -2,7 +2,7 @@
 
 from horton import *
 
-# Load the Gaussian output from file
+# Load the Gaussian output from file from Horton's test data directory.
 fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
 # Replace the previous line with any other fchk file, e.g. fn_fchk = 'yourfile.fchk'.
 mol = Molecule.from_file(fn_fchk)

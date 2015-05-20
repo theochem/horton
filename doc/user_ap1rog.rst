@@ -522,129 +522,19 @@ The water molecule (a minimum input example)
 
 This is a basic example on how to perform an orbital-optimized AP1roG calculation in Horton. This script performs an orbital-optimized AP1roG calculation on the water molecule using the cc-pVDZ basis set and RHF orbitals as initial orbitals.
 
-.. code-block:: python
+.. literalinclude:: ../data/examples/ap1rog/water_minimal.py
+    :caption: data/examples/ap1rog/water_minimal.py
+    :lines: 2-
 
-    from horton import *
-    ###############################################################################
-    ## Set up molecule, define basis set ##########################################
-    ###############################################################################
-    mol = Molecule.from_file('mol.xyz')
-    obasis = get_gobasis(mol.coordinates, mol.numbers, 'cc-pvdz')
-    ###############################################################################
-    ## Define Occupation model, expansion coefficients and overlap ################
-    ###############################################################################
-    lf = DenseLinalgFactory(obasis.nbasis)
-    occ_model = AufbauOccModel(5)
-    orb = lf.create_expansion(obasis.nbasis)
-    olp = obasis.compute_overlap(lf)
-    ###############################################################################
-    ## Construct Hamiltonian ######################################################
-    ###############################################################################
-    kin = obasis.compute_kinetic(lf)
-    na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
-    er = obasis.compute_electron_repulsion(lf)
-    external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
-    terms = [
-        RTwoIndexTerm(kin, 'kin'),
-        RDirectTerm(er, 'hartree'),
-        RExchangeTerm(er, 'x_hf'),
-        RTwoIndexTerm(na, 'ne'),
-    ]
-    ham = REffHam(terms, external)
-    ###############################################################################
-    ## Perform initial guess ######################################################
-    ###############################################################################
-    guess_core_hamiltonian(olp, kin, na, orb)
-    ###############################################################################
-    ## Do a Hartree-Fock calculation ##############################################
-    ###############################################################################
-    scf_solver = PlainSCFSolver(1e-6)
-    scf_solver(ham, lf, olp, occ_model, orb)
-    ###############################################################################
-    ## Combine one-electron integrals to single Hamiltonian #######################
-    ###############################################################################
-    one = kin.copy()
-    one.iadd(na)
-
-    ###############################################################################
-    ## Do OO-AP1roG optimization ##################################################
-    ###############################################################################
-    ap1rog = RAp1rog(lf, occ_model)
-    energy, g, l = ap1rog(one, er, external['nn'], orb, olp, True)
 
 The water molecule (with all default keyword arguments)
 -------------------------------------------------------
 
 This is the same example as above, but all keyword arguments are mentioned explicitly using their default values.
 
-.. code-block:: python
-
-    from horton import *
-    import numpy as np
-    ###############################################################################
-    ## Set up molecule, define basis set ##########################################
-    ###############################################################################
-    mol = Molecule.from_file('mol.xyz')
-    obasis = get_gobasis(mol.coordinates, mol.numbers, 'cc-pvdz')
-    ###############################################################################
-    ## Define Occupation model, expansion coefficients and overlap ################
-    ###############################################################################
-    lf = DenseLinalgFactory(obasis.nbasis)
-    occ_model = AufbauOccModel(5)
-    orb = lf.create_expansion(obasis.nbasis)
-    olp = obasis.compute_overlap(lf)
-    ###############################################################################
-    ## Construct Hamiltonian ######################################################
-    ###############################################################################
-    kin = obasis.compute_kinetic(lf)
-    na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
-    er = obasis.compute_electron_repulsion(lf)
-    external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
-    terms = [
-        RTwoIndexTerm(kin, 'kin'),
-        RDirectTerm(er, 'hartree'),
-        RExchangeTerm(er, 'x_hf'),
-        RTwoIndexTerm(na, 'ne'),
-    ]
-    ham = REffHam(terms, external)
-    ###############################################################################
-    ## Perform initial guess ######################################################
-    ###############################################################################
-    guess_core_hamiltonian(olp, kin, na, orb)
-    ###############################################################################
-    ## Do a Hartree-Fock calculation ##############################################
-    ###############################################################################
-    scf_solver = PlainSCFSolver(1e-6)
-    scf_solver(ham, lf, olp, occ_model, orb)
-    ###############################################################################
-    ## Combine one-electron integrals to single Hamiltonian #######################
-    ###############################################################################
-    one = kin.copy()
-    one.iadd(na)
-
-    ###############################################################################
-    ## Do OO-AP1roG optimization ##################################################
-    ###############################################################################
-    ap1rog = RAp1rog(lf, occ_model)
-    energy, c, l = ap1rog(one, er, external['nn'], orb, olp, True, **{
-        'indextrans': 'tensordot',
-        'warning': False,
-        'checkpoint': 1,
-        'levelshift': 1e-8,
-        'absolute': False,
-        'givensrot': np.array([[]]),
-        'swapa': np.array([[]]),
-        'sort': True,
-        'guess': {'type': 'random', 'factor': -0.1, 'geminal': None, 'lagrange': None},
-        'solver': {'wfn': 'krylov', 'lagrange': 'krylov'},
-        'maxiter': {'wfniter': 200, 'orbiter': 100},
-        'dumpci': {'amplitudestofile': False, 'amplitudesfilename': './ap1rog_amplitudes.dat'},
-        'thresh': {'wfn':  1e-12, 'energy': 1e-8, 'gradientnorm': 1e-4, 'gradientmax': 5e-5},
-        'printoptions': {'geminal': True, 'ci': 0.01, 'excitationlevel': 1},
-        'stepsearch': {'method': 'trust-region', 'alpha': 1.0, 'c1': 0.0001, 'minalpha': 1e-6, 'maxiterouter': 10, 'maxiterinner': 500, 'maxeta': 0.75, 'mineta': 0.25, 'upscale': 2.0, 'downscale': 0.25, 'trustradius': 0.75, 'maxtrustradius': 0.75, 'threshold': 1e-8, 'optimizer': 'ddl'},
-        'orbitaloptimizer': 'variational'
-    }
-    )
+.. literalinclude:: ../data/examples/ap1rog/water_default.py
+    :caption: data/examples/ap1rog/water_default.py
+    :lines: 2-
 
 
 AP1roG with external integrals
@@ -652,33 +542,9 @@ AP1roG with external integrals
 
 This is a basic example on how to perform an orbital-optimized AP1roG calculation using one- and two-electron integrals from an external file. The number of doubly-occupied orbitals is ``5``, while the total number of basis functions is ``28``. See :ref:`modphysham`.
 
-.. code-block:: python
-
-    from horton import *
-    ###############################################################################
-    ## Define number of occupied orbitals and total number of basis functions #####
-    ###############################################################################
-    nocc = 5
-    nbasis = 28
-    ###############################################################################
-    ## Define Occupation model, expansion coefficients and overlap ################
-    ###############################################################################
-    lf = DenseLinalgFactory(nbasis)
-    occ_model = AufbauOccModel(nocc)
-    orb = lf.create_expansion(nbasis)
-    olp = lf.create_two_index(nbasis)
-    olp.assign_diagonal(1.0)
-    orb.assign(olp)
-    ###############################################################################
-    ## Read Hamiltonian from file 'FCIDUMP' #######################################
-    ###############################################################################
-    one, two, core = integrals_from_file(lf, './FCIDUMP')
-
-    ###############################################################################
-    ## Do OO-AP1roG optimization ##################################################
-    ###############################################################################
-    ap1rog = RAp1rog(lf, occ_model)
-    energy, c, l = ap1rog(one, two, core, orb, olp, True)
+.. literalinclude:: ../data/examples/ap1rog/extham.py
+    :caption: data/examples/ap1rog/extham.py
+    :lines: 2-
 
 
 AP1roG using model Hamiltonians
@@ -688,46 +554,10 @@ This is a basic example on how to perform an orbital-optimized AP1roG calculatio
 Hamiltonian. The number of doubly-occupied sites is ``3``, the total number of sites is ``6``. The ``t``
 parameter is set to -1, the ``U`` parameter is set to 2, and periodic boundary conditions are employed.
 
-.. code-block:: python
+.. literalinclude:: ../data/examples/ap1rog/hubbard.py
+    :caption: data/examples/ap1rog/hubbard.py
+    :lines: 2-
 
-    from horton import *
-
-    ###############################################################################
-    ## Define Occupation model, expansion coefficients and overlap ################
-    ###############################################################################
-    lf = DenseLinalgFactory(6)
-    occ_model = AufbauOccModel(3)
-    modelham = Hubbard(pbc=True)
-    orb = lf.create_expansion(6)
-    olp = modelham.compute_overlap(lf)
-    ###############################################################################
-    # t-param, t = -1 #############################################################
-    ###############################################################################
-    kin = modelham.compute_kinetic(lf, -1)
-    ###############################################################################
-    # U-param, U = 2 ##############################################################
-    ###############################################################################
-    er = modelham.compute_er(lf, 2)
-    ###############################################################################
-    ## Perform initial guess ######################################################
-    ###############################################################################
-    guess_core_hamiltonian(olp, kin, orb)
-    terms = [
-        RTwoIndexTerm(kin, 'kin'),
-        RDirectTerm(er, 'hartree'),
-        RExchangeTerm(er, 'x_hf'),
-    ]
-    ham = REffHam(terms)
-    ###############################################################################
-    ## Do a Hartree-Fock calculation ##############################################
-    ###############################################################################
-    scf_solver = PlainSCFSolver()
-    scf_solver(ham, lf, olp, occ_model, orb)
-    ###############################################################################
-    ## Do OO-AP1roG optimization ##################################################
-    ###############################################################################
-    ap1rog = RAp1rog(lf, occ_model)
-    energy, g, l = ap1rog(kin, er, 0, orb, olp, True)
 
 Note that for the Hubbard model, the external potential has to be set to ``0``,
 

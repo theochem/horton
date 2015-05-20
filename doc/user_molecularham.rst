@@ -220,8 +220,8 @@ This is a basic example, assuming some of the preceding code has created the
 ``obasis`` object:
 
 .. literalinclude:: ../data/examples/hf_dft/rhf_water_dense.py
-    :lines: 16-23
-    :caption: data/examples/hf_dft/rhf_water_dense.py, lines 16--23
+    :lines: 18-25
+    :caption: data/examples/hf_dft/rhf_water_dense.py, lines 18--25
 
 For the nuclear attraction integrals, one also has to specify arrays with atomic
 coordinates and nuclear charges.
