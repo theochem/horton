@@ -51,20 +51,31 @@ __all__ = [
 class OrbitalEntanglement(object):
     def __init__(self, lf, one_dm, two_dm, three_dm=None, four_dm=None):
         '''
-           **Arguments:**
+            **Arguments:**
 
-           one_dm
-                A 1-RDM.
+            lf
+                Instance of :py:class:`horton.matrix.dense.DenseLinalgFactory` or :py:class:`horton.matrix.cholesky.CholeskyLinalgFactory`
 
-           two_dm
-                A 2-RDM.
+            one_dm
+                Instance of :py:class:`horton.matrix.base.OneIndex`
+
+                A 1-RDM
+
+            two_dm
+                List of instances of :py:class:`horton.matrix.base.TwoIndex`
+
+                List of 2-RDM's. e.g. [:math:`\Gamma_{pp}^{qq}`, :math:`\Gamma_{pq}^{pq}`]
 
            **Optional arguments:**
 
            three_dm
+                Instance of :py:class:`horton.matrix.base.ThreeIndex`
+
                 A 3-RDM.
 
            four_dm
+                Instance of :py:class:`horton.matrix.base.FourIndex`
+
                 A 4-RDM.
         '''
         self._lf = lf
@@ -80,6 +91,11 @@ class OrbitalEntanglement(object):
         self._mutualinfo = lf.create_two_index()
 
     def __call__(self):
+        """dumps single-orbital entropy and orbital-pair mututal information
+
+        see :py:meth:`horton.orbitalentanglement.orbital_entanglement.OrbitalEntanglement.dump_output` for more info
+        """
+
         if log.do_medium:
             log(' ')
             log('Calculating orbital entanglement measures')
@@ -342,14 +358,29 @@ class OrbitalEntanglement(object):
         return out
 
     def dump_output(self, file1='s1.dat', file2='i12.dat'):
-        '''Dump entanglement output files for postprocessing.
-           Output files can be visualized using the
-           build_orbital_entanglement_diagrams.sh script, which uses gnuplot.
+        ''' Dump entanglement output files for postprocessing.
+            Output files can be visualized using the
+            build_orbital_entanglement_diagrams.sh script, which uses gnuplot.
 
-           **Optional arguments:**
+            **Optional arguments:**
 
-           file1, file2
-                Filenames for single-orbital entropy and mutual information
+            file1
+                string
+
+                Filename for storing single-orbital entropy
+
+                Default: s1.dat
+
+                Format: First column is orbital index. Second column is single-orbital entropy
+
+            file2
+                string
+
+                Filename for storing orbital-pair mutual information
+
+                Default: i12.dat
+
+                Format: First two columns are orbital indices. Second column is corresponding orbital-pair mutual information
         '''
         #
         # Write single-orbital entropy to file:
