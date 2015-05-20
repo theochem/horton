@@ -4,12 +4,8 @@ Localization of molecular orbitals
 ##################################
 
 In general, the localization algorithm optimizes some localization function by
-orthogonal transformation of the orbitals. Many of the localization schemes, and thus
-the result of the localization, differ by the localization function. The localization
-function somehow measures the localization of the orbitals. So far, Horton only
-supports the Pipek-Mezey localization.
-
-i.e. Given orbitals :math:`\vert i \rangle`, the localized orbital :math:`\vert \tilde{i} \rangle`
+orthogonal transformation of the orbitals. Given orbitals
+:math:`\vert i \rangle`, the localized orbital :math:`\vert \tilde{i} \rangle`
 can be obtained by some transformation
 
 .. math::
@@ -23,6 +19,11 @@ where
     \mathbf{\kappa} = \sum_{k > l} \kappa_{kl} (a^\dagger_k a_l - a^\dagger_l a_k)
 
 and :math:`\kappa_{kl}` is determined by the optimization of the localization function.
+
+Many of the localization schemes, and thus
+the result of the localization, differ by the localization function. The localization
+function somehow measures the localization of the orbitals. So far, Horton only
+supports the Pipek-Mezey localization. [pipek1989]_
 
 
 .. _pipek-mezey:
@@ -95,11 +96,14 @@ This is a basic example on how to perform a Pipek-Mezey localization in Horton. 
 
 .. code-block:: python
 
+    #!/usr/bin/env python
+
     from horton import *
+
     ###############################################################################
     ## Set up molecule, define basis set ##########################################
     ###############################################################################
-    mol = Molecule.from_file('mol.xyz')
+    mol = Molecule.from_file(context.get_fn('test/water.xyz'))
     obasis = get_gobasis(mol.coordinates, mol.numbers, 'cc-pvdz')
     ###############################################################################
     ## Define Occupation model, expansion coefficients and overlap ################
