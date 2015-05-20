@@ -59,7 +59,7 @@ a 3D periodic system), which we can always write as follows:
 .. math::
     \text{COST}(X) = X^T A X - 2 B^T X - C
 
-The script ``horton-esp-cost.py`` construct the matrix :math:`A`, the vector
+The script ``horton-esp-cost.py`` constructs the matrix :math:`A`, the vector
 :math:`B` and the constant :math:`C`. These results are stored in an HDF5 file
 that is subsequently used by the script ``horton-esp-fit.py`` to obtain
 ESP-fitted charges or by the script ``horton-esp-test.py`` to evaluate the
@@ -73,7 +73,7 @@ applicable):
 
 where the cost is computed with a certain set of charges (and the optimal
 :math:`\Delta V_\text{ref}` when applicable). The parameter :math:`V_w` is the
-integral of the weight function. When these charges are the ESP fitted charges,
+integral of the weight function. When these charges are the ESP-fitted charges,
 :math:`\text{COST}`, :math:`\text{RMSD}` and :math:`\text{RRMSD}` are minimal.
 When the charges are all set to zero, one obtains the worst-case value for
 :math:`\text{COST}=C`, :math:`\text{RMSD}=\sqrt{C/V_w}` and
@@ -115,9 +115,9 @@ argument. One such argument must be present for every element in the system for
 which a pseudo potential is used. The parameter ``Z1`` is the atomic number. The
 parameter ``r1`` is the radius of the core region that one would like to
 exclude. The parameter ``gamma1`` determines how quickly the weight factor for
-elements ``Z1`` switch from 0 (inside a sphere with radius ``r1``) to 1 (outside
-a sphere with radius ``r1``). Both ``r1`` and ``gamma1`` must be given in
-angstrom.
+elements ``Z1`` switches from 0 (inside a sphere with radius ``r1``) to 1
+(outside a sphere with radius ``r1``). Both ``r1`` and ``gamma1`` must be given
+in angstrom.
 
 The script ``horton-esp-cost.py`` has several more options. Run
 ``horton-esp-cost.py --help`` for more details.
@@ -134,7 +134,7 @@ minimizing the cost function. A bare-bones fit can be carried out as follows::
 where the file ``cost.h5`` is constructed with the script
 ``horton-esp-cost.py``.
 
-Useful ESP fitted charges typically involve much more advanced minimizations of
+Useful ESP-fitted charges typically involve much more advanced minimizations of
 the ESP cost function, for example, by adding constraints, restraints,
 transforming to bond-charge increments, fitting to several different molecules
 concurrently, etc. Such advanced features are not supported in

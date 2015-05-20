@@ -159,11 +159,14 @@ molecule using the cc-pVDZ basis set.
 
 .. code-block:: python
 
+    #!/usr/bin/env python
+
     from horton import *
+
     ###############################################################################
     ## Set up molecule, define basis set ##########################################
     ###############################################################################
-    mol = Molecule.from_file('mol.xyz')
+    mol = Molecule.from_file(context.get_fn('test/water.xyz'))
     obasis = get_gobasis(mol.coordinates, mol.numbers, 'cc-pvdz')
     ###############################################################################
     ## Define Occupation model, expansion coefficients and overlap ################
@@ -214,8 +217,8 @@ molecule using the cc-pVDZ basis set.
     one_dm.assign(orb.occupations)
     twoppqq = lf.create_two_index()
     twopqpq = lf.create_two_index()
-    twoppqq.compute_2dm_ap1rog(one_dm, g, l, 'ppqq')
-    twopqpq.compute_2dm_ap1rog(one_dm, g, l, 'pqpq')
+    ap1rog.compute_2dm(twoppqq, one_dm, g, l, 'ppqq')
+    ap1rog.compute_2dm(twopqpq, one_dm, g, l, 'pqpq')
 
     ###############################################################################
     ## Do orbital entanglement analysis ###########################################
