@@ -238,7 +238,7 @@ failed or if you would like to specify which libraries to use.
 Runtime Configuration
 ---------------------
 
-We need to set some environment variables to use Horton. Add the following to
+You need to set some environment variables to use Horton. Add the following to
 ``~/.bash_profile`` if it exists, otherwise add them to ``~/.profile``::
 
     export PATH=${HOME}/Library/Python/2.7/bin:${PATH}
@@ -263,15 +263,11 @@ This file is located either in ``${HOME}/.matplotlib`` or
 Running the tests
 =================
 
-You should change to a directory outside of the source tree and call nosetests
-as follows::
+To test that Horton was installed properly and that you can can access it from
+other directories, you should change to a directory outside of the source tree
+and call nosetests as follows::
 
     (cd ~; nosetests -v horton)
-
-In case you are testing horton on a system without an X Server, you have to
-configure matplotlib to use a backend that does not rely on an X Server. This
-can be done by adding a line ``backend: agg`` to the ``matplotlibrc`` file.
-This file is located in ``~/.matplotlib`` or ``~/.config/matplotlib``.
 
 
 Building the documentation
@@ -316,7 +312,8 @@ it should be installed through PIP::
 
     pip install --user --upgrade sphinx breathe
 
-If you don't want to rebuild sphinx every time you make a change you can use the
+If you don't want to rebuild the documentations with sphinx every time you
+make a change, you can use the
 `sphinx-autobuild` tool available through PyPI. Installation is pretty much like
 any other PyPI package::
 
@@ -338,7 +335,7 @@ If you are using `sphinx-autobuild`  the command is as follows::
     (cd doc; firefox http://localhost:8000; make livehtml)
 
 This sets up a server at `localhost:800` and makes browser update whenever you make a change to the
-source files, as any other process you can stop it with `^C`
+source files, as any other process you can stop it with `Ctrl-C`
 
 
 Common Problems
