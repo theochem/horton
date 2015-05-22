@@ -192,7 +192,7 @@ failed or if you would like to specify which libraries to use.
 Runtime Configuration
 ---------------------
 
-We need to set the following variable in ``~/.bashrc`` to use Horton::
+You need to set the following variable in ``~/.bashrc`` to use Horton::
 
     export PATH=${HOME}/.local/bin:${PATH}
 
@@ -219,8 +219,6 @@ To test Horton was installed properly and can be accessed from any directory,
 you should change to a directory outside of the source tree and call nosetests as follows::
 
     (cd ~; nosetests -v horton)
-
-
 
 Building the documentation
 ==========================
@@ -259,7 +257,8 @@ available through PyPI.
 
     pip install --user --upgrade sphinx breathe
 
-If you don't want to rebuild sphinx every time you make a change you can use the
+If you don't want to rebuild the documentations with sphinx every time you make
+a change, you can use the
 `sphinx-autobuild` tool available through PyPI. Installation is pretty much like
 any other PyPI package::
 
@@ -282,4 +281,4 @@ If you are using `sphinx-autobuild`  the command is as follows::
     (cd doc; firefox http://localhost:8000; make livehtml)
 
 This sets up a server at `localhost:800` and makes browser update whenever you make a change to the
-source files, as any other process you can stop it with `^C`
+source files, as any other process you can stop it with `Ctrl-C`
