@@ -19,7 +19,9 @@ The latest stable source code release of Horton can be downloaded here:
 
     https://github.com/theochem/horton/releases/download/2.0.0/horton-2.0.0.tar.gz
 
-Choose a suitable directory, e.g. ``~/build``, download and unpack the archive::
+Choose a suitable directory, e.g. ``~/build``, download and unpack the archive
+
+.. code-block:: bash
 
     mkdir -p ~/build
     cd ~/build
@@ -39,15 +41,21 @@ http://git-scm.com/. The official git URL of Horton is:
 ``git://github.com/theochem/horton.git.`` On most Linux distributions, git can be
 installed with a package manager:
 
-**Ubuntu Linux**::
+* **Ubuntu Linux**:
 
-    sudo apt-get install git
+  .. code-block:: bash
 
-**Fedora Linux**::
+     sudo apt-get install git
 
-    sudo yum install git
+* **Fedora Linux**:
 
-In order to `clone` the public Horton repository, run these commands::
+  .. code-block:: bash
+
+     sudo yum install git
+
+In order to `clone` the public Horton repository, run these commands:
+
+.. code-block:: bash
 
     mkdir -p ~/build
     cd ~/build
@@ -55,7 +63,9 @@ In order to `clone` the public Horton repository, run these commands::
     cd horton
 
 The version history can be updated with the latest patches with the following
-command::
+command:
+
+.. code-block:: bash
 
     git pull
 
@@ -92,13 +102,21 @@ Installing dependencies with a package manager
 With popular Linux distributions, most of these dependencies can be installed
 with a package manager:
 
-**Ubuntu Linux** (does not have a libint2 package, see section :ref:`linux_manual_dependency_install`)::
+* **Ubuntu Linux** (does not have a libint2 package, see section :ref:`linux_manual_dependency_install`):
 
-    sudo apt-get install python-dev gcc g++ gfortran python-numpy python-h5py python-scipy cython python-nose python-sympy python-matplotlib libxc-dev libatlas-base-dev curl
+  .. code-block:: bash
 
-**Fedora Linux**::
+    sudo apt-get install python-dev gcc g++ gfortran python-numpy python-h5py \
+                         python-scipy cython python-nose python-sympy \
+                         python-matplotlib libxc-dev libatlas-base-dev curl
 
-    sudo yum install python-devel gcc gcc-c++ gcc-gfortran numpy h5py scipy Cython python-sphinx python-nose sympy python-matplotlib libint2-devel libxc-devel atlas-devel curl
+* **Fedora Linux**:
+
+  .. code-block:: bash
+
+    sudo yum install python-devel gcc gcc-c++ gcc-gfortran numpy h5py scipy \
+                     Cython python-sphinx python-nose sympy python-matplotlib \
+                     libint2-devel libxc-devel atlas-devel curl
 
 .. _linux_manual_dependency_install:
 
@@ -120,7 +138,9 @@ in :ref:`linux_compile_install`.
 **LibXC**
 
 The directory ``depends`` of the Horton source tree contains a make file that
-will download and build LibXC, which will work on most systems::
+will download and build LibXC, which will work on most systems:
+
+.. code-block:: bash
 
     (cd depends; make libxc)
 
@@ -131,7 +151,9 @@ the website: http://www.tddft.org/programs/octopus/wiki/index.php/Libxc
 **LibInt2**
 
 The directory ``depends`` of the Horton source tree contains a make file that
-will download and build LibInt2, which will work on most systems::
+will download and build LibInt2, which will work on most systems:
+
+.. code-block:: bash
 
     (cd depends; make libint -j4)
 
@@ -146,7 +168,9 @@ In some cases, PIP, the Python package manager, may be a good choice to install
 the most recent versions of the Python packages in the list of dependencies.
 Assuming that you have installed some compilers, the Python development files
 and HDF5 development files, the following command installs the remaining
-dependencies in your home directory::
+dependencies in your home directory:
+
+.. code-block:: bash
 
     pip install --user numpy scipy cython h5py sphinx nose sympy
 
@@ -159,7 +183,9 @@ release already contains reference atoms.
 
 Several parts of Horton make use of reference atomic computations. These files
 are too large to be included in the git revision system. Therefore, they must be
-downloaded separately when compiling a development version of Horton::
+downloaded separately when compiling a development version of Horton:
+
+.. code-block:: bash
 
     (cd data/refatoms; make all)
 
@@ -171,7 +197,9 @@ Compilation and installation
 Build and install
 -----------------
 
-The regular build and install is done as follows::
+The regular build and install is done as follows:
+
+.. code-block:: bash
 
     ./setup.py install --user
 
@@ -192,7 +220,9 @@ failed or if you would like to specify which libraries to use.
 Runtime Configuration
 ---------------------
 
-You need to set the following variable in ``~/.bashrc`` to use Horton::
+You need to set the following variable in ``~/.bashrc`` to use Horton:
+
+.. code-block:: bash
 
     export PATH=${HOME}/.local/bin:${PATH}
 
@@ -216,7 +246,10 @@ Running the tests
 =================
 
 To test Horton was installed properly and can be accessed from any directory,
-you should change to a directory outside of the source tree and call nosetests as follows::
+you should change to a directory outside of the source tree and call nosetests
+as follows:
+
+.. code-block:: bash
 
     (cd ~; nosetests -v horton)
 
@@ -241,26 +274,35 @@ packages are also needed:
 Installing the dependencies with a package manager and PIP
 ----------------------------------------------------------
 
-**Ubuntu packages**::
+* **Ubuntu packages**:
 
-    sudo apt-get install doxygen preview-latex-style python-docutils python-pip dvipng preview-latex-style
+  .. code-block:: bash
 
-**Fedora packages**::
+      sudo apt-get install doxygen preview-latex-style python-docutils \
+                           python-pip dvipng preview-latex-style
 
-    sudo yum install doxygen tex-preview python-docutils python-pip dvipng tex-preview
+* **Fedora packages**:
+
+  .. code-block:: bash
+
+      sudo yum install doxygen tex-preview python-docutils python-pip dvipng \
+                       tex-preview
 
 Since Breathe (>=1.2.0) and Sphinx (>=1.3.1) may not be available through the
 Linux repositories, it should be installed manually. For example, it is
 available through PyPI.
 
-**PIP packages**::
+**PIP packages**:
+
+.. code-block:: bash
 
     pip install --user --upgrade sphinx breathe
 
 If you don't want to rebuild the documentations with sphinx every time you make
-a change, you can use the
-`sphinx-autobuild` tool available through PyPI. Installation is pretty much like
-any other PyPI package::
+a change, you can use the `sphinx-autobuild` tool available through PyPI.
+Installation is pretty much like any other PyPI package:
+
+.. code-block:: bash
 
     pip install --user sphinx-autobuild
 
@@ -272,11 +314,15 @@ above, to generate the list of DFT functionals in the documentation.
 Actual build
 ------------
 
-The documentation is compiled and viewed as follows::
+The documentation is compiled and viewed as follows:
+
+.. code-block:: bash
 
     (cd doc; make html; firefox _build/html/index.html)
 
-If you are using `sphinx-autobuild`  the command is as follows::
+If you are using `sphinx-autobuild`  the command is as follows:
+
+.. code-block:: bash
 
     (cd doc; firefox http://localhost:8000; make livehtml)
 
