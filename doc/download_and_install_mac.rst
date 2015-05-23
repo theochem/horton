@@ -26,27 +26,39 @@ Quick guideline through MacPorts
 
 Here are some basic MacPort commands:
 
-* updating ports (recommended)::
+* updating ports (recommended):
+
+.. code-block:: bash
 
     sudo port -v selfupdate
 
-* upgrade ports::
+* upgrade ports:
+
+.. code-block:: bash
 
     sudo port upgrade outdated
 
-* finding ports (e.g, port_name = python27)::
+* finding ports (e.g, port_name = python27):
+
+.. code-block:: bash
 
     sudo port list python27
 
-* searching ports (e.g, port_name = python27)::
+* searching ports (e.g, port_name = python27):
+
+.. code-block:: bash
 
     port search python27
 
-* installing ports (e.g, port_name = python27)::
+* installing ports (e.g, port_name = python27):
+
+.. code-block:: bash
 
     sudo port install python27
 
-* selecting ports (e.g, select python27 as python)::
+* selecting ports (e.g, select python27 as python):
+
+.. code-block:: bash
 
     sudo port select --set python python27
 
@@ -61,7 +73,9 @@ The latest stable source code release of Horton can be downloaded here:
 
     https://github.com/theochem/horton/releases/download/2.0.0/horton-2.0.0.tar.gz
 
-Choose a suitable directory, e.g. ``~/build``, download and unpack the archive::
+Choose a suitable directory, e.g. ``~/build``, download and unpack the archive:
+
+.. code-block:: bash
 
     mkdir -p ~/build
     cd ~/build
@@ -78,11 +92,15 @@ your own changes, you need to work with git. Git is a version control system
 that makes life easy when a group of people are working on a common source code.
 All information about git (including downloads and tutorials) can be found here:
 http://git-scm.com/. The official public git URL of Horton is:
-``git://github.com/theochem/horton.git.`` Git can be installed through MacPorts::
+``git://github.com/theochem/horton.git.`` Git can be installed through MacPorts:
+
+.. code-block:: bash
 
     port install git
 
-In order to `clone` the public Horton repository, run these commands::
+In order to `clone` the public Horton repository, run these commands:
+
+.. code-block:: bash
 
     mkdir -p ~/build
     cd ~/build
@@ -90,7 +108,9 @@ In order to `clone` the public Horton repository, run these commands::
     cd horton
 
 The version history can be updated with the latest patches with the following
-command::
+command:
+
+.. code-block:: bash
 
     git pull
 
@@ -137,7 +157,9 @@ the following ports:
 * ``libxc``, https://trac.macports.org/browser/trunk/dports/science/libxc/Portfile
 
 These are installed with the following commands. (When MacPorts is installed in user
-space, the ``sudo`` can be omitted.)::
+space, the ``sudo`` can be omitted.):
+
+.. code-block:: bash
 
     sudo port install gcc49
     sudo port select --set gcc mp-gcc49
@@ -176,7 +198,9 @@ for building NumPy and SciPy.
 **LibXC**
 
 The directory ``depends`` of the Horton source tree contains a make file that
-will download and build LibXC, which will work on most systems::
+will download and build LibXC, which will work on most systems:
+
+.. code-block:: bash
 
     (cd depends; make libxc)
 
@@ -187,7 +211,9 @@ the website: http://www.tddft.org/programs/octopus/wiki/index.php/Libxc
 **LibInt2**
 
 The directory ``depends`` of the Horton source tree contains a make file that
-will download and build LibInt2, which will work on most systems::
+will download and build LibInt2, which will work on most systems:
+
+.. code-block:: bash
 
     (cd depends; make libint -j4)
 
@@ -205,7 +231,9 @@ release already contains reference atoms.
 
 Several parts of Horton make use of reference atomic computations. These files
 are too large to be included in the git revision system. Therefore, they must be
-downloaded separately when compiling a development version of Horton::
+downloaded separately when compiling a development version of Horton:
+
+.. code-block:: bash
 
     (cd data/refatoms; make all)
 
@@ -217,7 +245,9 @@ Compilation and installation
 Build and install
 -----------------
 
-The regular build and install is done as follows::
+The regular build and install is done as follows:
+
+.. code-block:: bash
 
     ./setup.py install --user
 
@@ -239,7 +269,10 @@ Runtime Configuration
 ---------------------
 
 You need to set some environment variables to use Horton. Add the following to
-``~/.bash_profile`` if it exists, otherwise add them to ``~/.profile``::
+``~/.bash_profile`` if it exists, otherwise add them to ``~/.profile``:
+
+
+.. code-block:: bash
 
     export PATH=${HOME}/Library/Python/2.7/bin:${PATH}
     # I did not have to set the following two.
@@ -266,6 +299,8 @@ Running the tests
 To test that Horton was installed properly and that you can can access it from
 other directories, you should change to a directory outside of the source tree
 and call nosetests as follows::
+
+.. code-block:: bash
 
     (cd ~; nosetests -v horton)
 
@@ -299,7 +334,9 @@ Most can be installed directly with MacPorts. The following list of ports is rec
 * ``texlive-latex-extra`` (contains ``preview.sty``): https://trac.macports.org/browser/trunk/dports/tex/texlive-latex-extra/Portfile
 * ``py27-pip``: https://trac.macports.org/browser/trunk/dports/python/py-pip/Portfile
 
-The following commands will install the ports::
+The following commands will install the ports:
+
+.. code-block:: bash
 
     sudo port install doxygen
     sudo port install dvipng
@@ -308,14 +345,17 @@ The following commands will install the ports::
     sudo port select --set pip pip27
 
 Since Breathe (>=1.2.0) and Sphinx (>=1.3.1) may not be available through MacPort,
-it should be installed through PIP::
+it should be installed through PIP:
+
+.. code-block:: bash
 
     pip install --user --upgrade sphinx breathe
 
 If you don't want to rebuild the documentations with sphinx every time you
-make a change, you can use the
-`sphinx-autobuild` tool available through PyPI. Installation is pretty much like
-any other PyPI package::
+make a change, you can use the `sphinx-autobuild` tool available through PyPI.
+Installation is pretty much like any other PyPI package:
+
+.. code-block:: bash
 
     pip install --user sphinx-autobuild
 
@@ -326,16 +366,21 @@ above, to generate the list of DFT functionals in the documentation.
 Actual build
 ------------
 
-The documentation is compiled and viewed as follows::
+The documentation is compiled and viewed as follows:
+
+.. code-block:: bash
 
     (cd doc; make html; open _build/html/index.html)
 
-If you are using `sphinx-autobuild`  the command is as follows::
+If you are using `sphinx-autobuild`  the command is as follows:
+
+.. code-block:: bash
 
     (cd doc; firefox http://localhost:8000; make livehtml)
 
-This sets up a server at `localhost:800` and makes browser update whenever you make a change to the
-source files, as any other process you can stop it with `Ctrl-C`
+This sets up a server at `localhost:800` and makes browser update whenever you
+make a change to the source files, as any other process you can stop it with
+`Ctrl-C`
 
 
 Common Problems
