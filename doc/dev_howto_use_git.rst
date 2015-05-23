@@ -292,7 +292,7 @@ branch to the new HEAD of the master branch with ``git rebase``
       $ ~/.../horton:bar-1>
 
 
-4. `Rebase` your commits on top of the latest master branch:
+5. `Rebase` your commits on top of the latest master branch:
 
    .. code-block:: bash
 
@@ -305,10 +305,10 @@ branch to the new HEAD of the master branch with ``git rebase``
     what to do. Do not panic when this happens. If you feel uncertain about how
     to resolve conflicts, it is time to call your git-savvy friends for help.
 
-5. After the rebase procedure is completed, run all tests again. If needed, fix
+6. After the rebase procedure is completed, run all tests again. If needed, fix
    problems and commit the changes.
 
-6. Upload the commits to your remote server:
+7. Upload the commits to your remote server:
 
    .. code-block:: bash
 
@@ -318,11 +318,15 @@ Now, you can get in touch with one of the Horton developers (at the `Horton
 mailing list <https://groups.google.com/d/forum/horton-discuss>`_) to transfer
 these new patches to the public master branch of Horton.
 
+
 Common Issues
 =============
-* Make sure you set the ``pre-commit`` hook and use ``cleancode.sh``. You should be removing
-  whitespaces because they're ugly (and may cause problems with sphinx) and be following
-  other formatting protocols that is guided by the ``pre-commit``.
+
+* Make sure you set the ``pre-commit`` hook. If this causes error messages when
+  committing, use the script ``cleancode.sh``. This removes all sorts of
+  trailing white-space and convert every tab to four spaces. These conventions
+  make diffstats more meaningful and make it easier to merge and rebase commits.
+
 * When you're customizing your bash prompt, you may get a bash error like
   ``__git_ps1: command not found...`` if you sourced ``git-completion.bash.bash``.
   Then, you need to add ``source /usr/share/git-core/contrib/completion/git-prompt.sh``
