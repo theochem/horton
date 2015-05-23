@@ -220,8 +220,8 @@ Supported energy terms for the effective Hamiltonians
 
 All classes below take a ``label`` argument to give each term in the Hamiltonian
 a name, e.g. used for storing/displaying results. For each class listed below,
-follow the hyperlinks to he corresponding documentation for a description of the
-constructor arguments.
+follow the hyperlinks to the corresponding documentation for a description of
+the constructor arguments.
 
 * Simple one-body terms are specified with
   :py:class:`~horton.meanfield.observable.RTwoIndexTerm`, or
@@ -338,7 +338,7 @@ Models for orbital occupations
 
 Before calling an SCF solver, one has to select a scheme to set the orbital
 occupations after each SCF iteration, even when the occuption numbers are to
-remain fixed throughout the calculation. One has can use any of the following
+remain fixed throughout the calculation. One can use any of the following
 three options:
 
 * :py:class:`~horton.meanfield.occ.FixedOccModel`. Keep all occupation numbers
