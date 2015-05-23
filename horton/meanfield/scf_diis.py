@@ -272,7 +272,6 @@ class DIISSCFSolver(object):
         return counter
 
     def error(self, ham, lf, overlap, *dms):
-        '''See :py:func:`horton.meanfield.convergence.convergence_error_commutator`.'''
         return convergence_error_commutator(ham, lf, overlap, *dms)
 
 

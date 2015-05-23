@@ -209,7 +209,6 @@ class RGridGroup(GridGroup):
 
     @doc_inherit(GridGroup)
     def _get_potentials(self, cache):
-        '''See :py:meth:`GridGroup._get_potentials`.'''
         dpot, new = cache.load('dpot_total_alpha', alloc=self.grid.size)
         dpots = [dpot]
         if self.gga:
@@ -226,7 +225,6 @@ class RGridGroup(GridGroup):
 
     @doc_inherit(GridGroup)
     def _update_grid_data(self, cache):
-        '''See :py:meth:`GridGroup._update_grid_data`.'''
         rho_alpha = self._update_rho(cache, 'alpha')
         rho_full, new = cache.load('rho_full', alloc=self.grid.size)
         if new:
@@ -292,7 +290,6 @@ class UGridGroup(GridGroup):
     '''
     @doc_inherit(GridGroup)
     def _get_potentials(self, cache):
-        '''See :py:meth:`GridGroup._get_potentials`.'''
         dpot_alpha, newa = cache.load('dpot_total_alpha', alloc=self.grid.size)
         dpot_beta, newb = cache.load('dpot_total_beta', alloc=self.grid.size)
         dpots = [dpot_alpha, dpot_beta]
@@ -314,7 +311,6 @@ class UGridGroup(GridGroup):
 
     @doc_inherit(GridGroup)
     def _update_grid_data(self, cache):
-        '''See :py:meth:`GridGroup._update_grid_data`.'''
         rho_alpha = self._update_rho(cache, 'alpha')
         rho_beta = self._update_rho(cache, 'beta')
         rho_full, new = cache.load('rho_full', alloc=self.grid.size)

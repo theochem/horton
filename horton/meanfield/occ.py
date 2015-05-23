@@ -73,7 +73,6 @@ class FixedOccModel(OccModel):
 
     @doc_inherit(OccModel)
     def assign(self, *exps):
-        '''See :py:meth:`OccModel.assign`.'''
         if len(exps) != len(self.occ_arrays):
             raise TypeError('Expected %i expansion objects, got %i.' % (len(self.nocc), len(exps)))
         for exp, occ_array in zip(exps, self.occ_arrays):
@@ -82,7 +81,6 @@ class FixedOccModel(OccModel):
 
     @doc_inherit(OccModel)
     def check_dms(self, overlap, *dms, **kwargs):
-        '''See :py:meth:`OccModel.check_dms`.'''
         eps = kwargs.pop('eps', 1e-4)
         if len(kwargs) > 0:
             raise TypeError('Unexpected keyword arguments: %s' % kwargs.keys())
@@ -116,7 +114,6 @@ class AufbauOccModel(OccModel):
 
     @doc_inherit(OccModel)
     def assign(self, *exps):
-        '''See :py:meth:`OccModel.assign`.'''
         if len(exps) != len(self.noccs):
             raise TypeError('Expected %i expansion objects, got %i.' % (len(self.nocc), len(exps)))
         for exp, nocc in zip(exps, self.noccs):
@@ -133,7 +130,6 @@ class AufbauOccModel(OccModel):
 
     @doc_inherit(OccModel)
     def check_dms(self, overlap, *dms, **kwargs):
-        '''See :py:meth:`OccModel.check_dms`.'''
         eps = kwargs.pop('eps', 1e-4)
         if len(kwargs) > 0:
             raise TypeError('Unexpected keyword arguments: %s' % kwargs.keys())
@@ -158,7 +154,6 @@ class AufbauSpinOccModel(OccModel):
 
     @doc_inherit(OccModel)
     def assign(self, exp_alpha, exp_beta):
-        '''See :py:meth:`OccModel.assign`.'''
         nel = self.nel
         ialpha = 0
         ibeta = 0
@@ -173,7 +168,6 @@ class AufbauSpinOccModel(OccModel):
 
     @doc_inherit(OccModel)
     def check_dms(self, overlap, *dms, **kwargs):
-        '''See :py:meth:`OccModel.check_dms`.'''
         eps = kwargs.pop('eps', 1e-4)
         if len(kwargs) > 0:
             raise TypeError('Unexpected keyword arguments: %s' % kwargs.keys())
@@ -229,7 +223,6 @@ class FermiOccModel(FermiMixin, AufbauOccModel):
 
     @doc_inherit(OccModel)
     def assign(self, *exps):
-        '''See :py:meth:`OccModel.assign`.'''
         beta = 1.0/self.temperature/boltzmann
         for exp, nocc in zip(exps, self.noccs):
             def get_occ(mu):
