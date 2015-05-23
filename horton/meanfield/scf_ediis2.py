@@ -101,7 +101,6 @@ class EDIIS2History(EDIISHistory, CDIISHistory):
 
     @doc_inherit(DIISHistory)
     def solve(self, dms_output, focks_output):
-        '''See :py:meth:`horton.meanfield.scf_diis.DIISHistory.solve`.'''
         errmax = max(state.normsq for state in self.stack)
         if errmax > 1e-1:
             return EDIISHistory.solve(self, dms_output, focks_output)

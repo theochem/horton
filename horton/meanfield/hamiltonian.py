@@ -150,7 +150,6 @@ class REffHam(EffHam):
 
     @doc_inherit(EffHam)
     def reset(self, in_dm_alpha):
-        '''See :py:meth:`EffHam.reset`.'''
         self.cache.clear()
         # Take a copy of the input alpha density matrix in the cache.
         dm_alpha = self.cache.load('dm_alpha', alloc=in_dm_alpha.new)[0]
@@ -158,7 +157,6 @@ class REffHam(EffHam):
 
     @doc_inherit(EffHam)
     def compute_fock(self, fock_alpha):
-        '''See :py:meth:`EffHam.compute_fock`.'''
         EffHam.compute_fock(self, fock_alpha)
 
 
@@ -167,7 +165,6 @@ class UEffHam(EffHam):
 
     @doc_inherit(EffHam)
     def reset(self, in_dm_alpha, in_dm_beta):
-        '''See :py:meth:`EffHam.reset`.'''
         self.cache.clear()
         # Take copies of the input alpha and beta density matrices in the cache.
         dm_alpha = self.cache.load('dm_alpha', alloc=in_dm_alpha.new)[0]
@@ -177,5 +174,4 @@ class UEffHam(EffHam):
 
     @doc_inherit(EffHam)
     def compute_fock(self, fock_alpha, fock_beta):
-        '''See :py:meth:`EffHam.compute_fock`.'''
         EffHam.compute_fock(self, fock_alpha, fock_beta)

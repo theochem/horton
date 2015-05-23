@@ -135,14 +135,12 @@ class RDiracExchange(DiracExchange):
 
     @doc_inherit(GridObservable)
     def compute(self, cache, grid):
-        '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.compute`.'''
         pot = self._update_pot(cache, grid, 'alpha')
         rho = cache['rho_alpha']
         return (3.0 / 2.0) * grid.integrate(pot, rho)
 
     @doc_inherit(GridObservable)
     def add_pot(self, cache, grid, dpot_alpha):
-        '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.add_pot`.'''
         dpot_alpha += self._update_pot(cache, grid, 'alpha')
 
 
@@ -151,7 +149,6 @@ class UDiracExchange(DiracExchange):
 
     @doc_inherit(GridObservable)
     def compute(self, cache, grid):
-        '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.compute`.'''
         pot_alpha = self._update_pot(cache, grid, 'alpha')
         pot_beta = self._update_pot(cache, grid, 'beta')
         rho_alpha = cache['rho_alpha']
@@ -161,6 +158,5 @@ class UDiracExchange(DiracExchange):
 
     @doc_inherit(GridObservable)
     def add_pot(self, cache, grid, dpot_alpha, dpot_beta):
-        '''See :py:meth:`horton.meanfield.gridgroup.GridObservable.add_pot`.'''
         dpot_alpha += self._update_pot(cache, grid, 'alpha')
         dpot_beta += self._update_pot(cache, grid, 'beta')

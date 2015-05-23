@@ -126,7 +126,6 @@ class EDIISHistory(DIISHistory):
 
     @doc_inherit(DIISHistory)
     def solve(self, dms_output, focks_output):
-        '''See :py:meth:`horton.meanfield.scf_diis.DIISHistory.solve`.'''
         # interpolation only makes sense if there are two points
         assert self.nused >= 2
         # Fill in the missing commutators

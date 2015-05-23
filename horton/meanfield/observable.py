@@ -83,12 +83,10 @@ class RTwoIndexTerm(Observable):
 
     @doc_inherit(Observable)
     def compute(self, cache):
-        '''See :py:meth:`Observable.compute`.'''
         return 2 * self.op_alpha.contract_two('ab,ab', cache['dm_alpha'])
 
     @doc_inherit(Observable)
     def add_fock(self, cache, fock_alpha):
-        '''See py:meth:`Observable.add_fock`.'''
         fock_alpha.iadd(self.op_alpha)
 
 
@@ -103,7 +101,6 @@ class UTwoIndexTerm(Observable):
 
     @doc_inherit(Observable)
     def compute(self, cache):
-        '''See :py:meth:`Observable.compute`.'''
         if self.op_alpha is self.op_beta:
             # when both operators are references to the same object, take a
             # shortcut
@@ -117,7 +114,6 @@ class UTwoIndexTerm(Observable):
 
     @doc_inherit(Observable)
     def add_fock(self, cache, fock_alpha, fock_beta):
-        '''See py:meth:`Observable.add_fock`.'''
         fock_alpha.iadd(self.op_alpha)
         fock_beta.iadd(self.op_beta)
 
@@ -137,14 +133,12 @@ class RDirectTerm(Observable):
 
     @doc_inherit(Observable)
     def compute(self, cache):
-        '''See :py:meth:`Observable.compute`.'''
         self._update_direct(cache)
         direct = cache.load('op_%s_alpha' % self.label)
         return direct.contract_two('ab,ab', cache['dm_alpha'])
 
     @doc_inherit(Observable)
     def add_fock(self, cache, fock_alpha):
-        '''See py:meth:`Observable.add_fock`.'''
         self._update_direct(cache)
         direct = cache.load('op_%s_alpha' % self.label)
         fock_alpha.iadd(direct)
@@ -171,7 +165,6 @@ class UDirectTerm(Observable):
 
     @doc_inherit(Observable)
     def compute(self, cache):
-        '''See :py:meth:`Observable.compute`.'''
         self._update_direct(cache)
         if self.op_alpha is self.op_beta:
             # This branch is nearly always going to be followed in practice.
@@ -185,7 +178,6 @@ class UDirectTerm(Observable):
 
     @doc_inherit(Observable)
     def add_fock(self, cache, fock_alpha, fock_beta):
-        '''See py:meth:`Observable.add_fock`.'''
         self._update_direct(cache)
         if self.op_alpha is self.op_beta:
             # This branch is nearly always going to be followed in practice.
@@ -214,7 +206,6 @@ class RExchangeTerm(Observable):
 
     @doc_inherit(Observable)
     def compute(self, cache):
-        '''See :py:meth:`Observable.compute`.'''
         self._update_exchange(cache)
         exchange_alpha = cache['op_%s_alpha' % self.label]
         dm_alpha = cache['dm_alpha']
@@ -222,7 +213,6 @@ class RExchangeTerm(Observable):
 
     @doc_inherit(Observable)
     def add_fock(self, cache, fock_alpha):
-        '''See py:meth:`Observable.add_fock`.'''
         self._update_exchange(cache)
         exchange_alpha = cache['op_%s_alpha' % self.label]
         fock_alpha.iadd(exchange_alpha, -self.fraction)
@@ -252,7 +242,6 @@ class UExchangeTerm(Observable):
 
     @doc_inherit(Observable)
     def compute(self, cache):
-        '''See :py:meth:`Observable.compute`.'''
         self._update_exchange(cache)
         exchange_alpha = cache['op_%s_alpha' % self.label]
         exchange_beta = cache['op_%s_beta' % self.label]
@@ -263,7 +252,6 @@ class UExchangeTerm(Observable):
 
     @doc_inherit(Observable)
     def add_fock(self, cache, fock_alpha, fock_beta):
-        '''See py:meth:`Observable.add_fock`.'''
         self._update_exchange(cache)
         exchange_alpha = cache['op_%s_alpha' % self.label]
         fock_alpha.iadd(exchange_alpha, -self.fraction)
