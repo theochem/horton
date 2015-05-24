@@ -81,7 +81,7 @@ To optimize an AP1roG wavefunction, the module requires a Hamiltonian and an ini
 
         .. code-block:: python
 
-             one, two, coreenergy = integrals_from_file(lf, filename='./FCIDUMP')
+             one, two, coreenergy = load_fcidump(lf, filename='./FCIDUMP')
 
       with arguments
 
@@ -91,7 +91,7 @@ To optimize an AP1roG wavefunction, the module requires a Hamiltonian and an ini
 
         :filename: (str) the filename of the fcidump file (default ``FCIDUMP``)
 
-      The function ``integrals_from_file`` has three return values; the one-electron integrals (``one``) stored as a ``TwoIndex`` object, the two-electron integrals (``two``) stored as a ``FourIndex`` object, and the core energy (``coreenergy``, float).
+      The function ``load_fcidump`` has three return values; the one-electron integrals (``one``) stored as a ``TwoIndex`` object, the two-electron integrals (``two``) stored as a ``FourIndex`` object, and the core energy (``coreenergy``, float).
 
 - A set of initial guess orbitals can be either generated in Horton (including the AO overlap matrix) or read from disk (see :ref:`restart-ap1rog` to use orbitals generated in Horton as initial guess). Examples for initial guess orbitals are:
 

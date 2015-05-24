@@ -75,7 +75,7 @@ If the Hamiltonian is stored in ASCII format (see :ref:`molprohamformat` for fur
 
 .. code-block:: python
 
-    one, two, coreenergy = integrals_from_file(lf, filename='./FCIDUMP')
+    one, two, coreenergy = load_fcidump(lf, filename='./FCIDUMP')
 
 with arguments
 
@@ -85,7 +85,7 @@ and optional arguments
 
     :filename: (str) the filename containing the Hamiltonian (default ``FCIDUMP``)
 
-The function ``integrals_from_file`` has 3 return values; the one-electron integrals (``one``) stored as a ``TwoIndex`` object, the two-electron integrals (``two``) stored as a ``FourIndex`` object, and the core energy (``coreenergy``, float).
+The function ``load_fcidump`` has 3 return values; the one-electron integrals (``one``) stored as a ``TwoIndex`` object, the two-electron integrals (``two``) stored as a ``FourIndex`` object, and the core energy (``coreenergy``, float).
 
 
 Example input files
