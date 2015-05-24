@@ -23,9 +23,11 @@
 
 from horton.log import timer
 from horton.matrix import TwoIndex, Expansion
+from horton.utils import check_type, check_options
 
 
-__all__ = ['rotate_orbitals', 'compute_unitary_matrix', 'transform_integrals']
+__all__ = ['rotate_orbitals', 'compute_unitary_matrix', 'transform_integrals',
+           'split_core_active']
 
 
 def rotate_orbitals(*args):
@@ -135,3 +137,95 @@ def transform_integrals(one, two, indextrans='tensordot', *exps):
         out2ind.assign_two_index_transform(one, exps[i])
         one_mo.append(out2ind)
     return one_mo, two_mo
+
+
+def split_core_active(one, two, ecore, orb, ncore, nactive, indextrans='tensordot'):
+    '''Reduce a Hamiltonian to an active space
+
+       Works only for restricted wavefunctions.
+
+       **Arguments:**
+
+       one/two
+            One and two-electron integrals.
+
+       ecore
+            The core energy of the given Hamiltonian. In the case of a standard
+            molecular system, this is the nuclear nuclear repulsion.
+
+       orb
+            The MO expansion coefficients. An Expansion instance. If None,
+            integrals are assued to be already transformed into the mo basis
+            and no transformation is carried out in this function.
+
+       ncore
+            The number of frozen core orbitals (int)
+
+       nactive
+            The number of active orbitals (int)
+
+       **Optional arguments:**
+
+       indextrans
+            4-index transformation (str). One of ``tensordot``, ``einsum``
+
+       **Returns** a tuple with three values:
+
+       one_small
+            The one-body operator in the small space
+
+       two_small
+            The two-body operator in the small space
+
+       ecore
+            The core energy, i.e. the sum of the given core energy and HF
+            contributions from the core orbitals.
+    '''
+    #
+    # Check type/option of arguments
+    #
+    check_type('ncore', ncore, int)
+    check_type('nactive', nactive, int)
+    check_options('indextrans', indextrans, 'tensordot', 'einsum')
+    if ncore <= 0 or nactive <= 0:
+        raise ValueError('ncore and nactive must be strictly positive.')
+    if nactive+ncore > one.nbasis:
+        raise ValueError('More active orbitals than basis functions.')
+
+    #
+    # Optional transformation to mo basis
+    #
+    if orb is None:
+        one_mo = one
+        two_mo = two
+    else:
+        # No need to check orb. This is done in transform_integrals function
+        (one_mo,), (two_mo,) = transform_integrals(one, two, indextrans, orb)
+
+    # Core energy
+    norb = one.nbasis
+    #   One body term
+    ecore += 2*one_mo.trace(0, ncore, 0, ncore)
+    #   Direct part
+    ecore += two_mo.slice_to_two('abab->ab', None, 2.0, True, 0, ncore, 0, ncore, 0, ncore, 0, ncore).sum()
+    #   Exchange part
+    ecore += two_mo.slice_to_two('abba->ab', None,-1.0, True, 0, ncore, 0, ncore, 0, ncore, 0, ncore).sum()
+
+    # Active space one-body integrals
+    one_mo_corr = one_mo.new()
+    #   Direct part
+    two_mo.contract_to_two('abcb->ac', one_mo_corr, 2.0, True, 0, norb, 0, ncore, 0, norb, 0, ncore)
+    #   Exchange part
+    two_mo.contract_to_two('abbc->ac', one_mo_corr,-1.0, False, 0, norb, 0, ncore, 0, ncore, 0, norb)
+    one_mo.iadd(one_mo_corr, 1.0)
+    #one_mo.iadd_t(one_mo_corr, 1.0)
+
+    #
+    # Store in smaller n-index objects
+    #
+    one_mo_small = one_mo.copy(ncore, ncore+nactive, ncore, ncore+nactive)
+    two_mo_small = two_mo.copy(ncore, ncore+nactive, ncore, ncore+nactive,
+                               ncore, ncore+nactive, ncore, ncore+nactive)
+
+    # Done
+    return one_mo_small, two_mo_small, ecore
