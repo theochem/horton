@@ -345,8 +345,9 @@ class RAp1rog(Geminal):
                            ddl)
 
             :checkpoint: frequency of checkpointing (int). If > 0, writes
-                         orbitals (``orb.hdf5``) and overlap (``olp.hdf5``)
-                         to disk (default 1)
+                         orbitals and overlap to a checkpont file (defatul 1)
+            :checkpoint_fn: filename to use for the checkpoint file (default
+                            "checkpoint.h5")
             :levelshift: level shift of Hessian (float) (default 1e-8)
             :absolute: (boolean), if True, take absolute values of Hessian
                        (default False)
@@ -378,6 +379,7 @@ class RAp1rog(Geminal):
         indextrans = _helper('indextrans', 'tensordot')
         warning = _helper('warning', False)
         checkpoint = _helper('checkpoint', 1)
+        checkpoint_fn = _helper('checkpoint_fn', 'checkpoint.h5')
         lshift = _helper('levelshift', 1e-8)
         pos = _helper('absolute', False)
         givensrot = _helper('givensrot', np.array([[]]))
@@ -434,6 +436,7 @@ class RAp1rog(Geminal):
                                 printoptions, stepsearch)
         check_options('warning', warning, False, True, 0, 1)
         check_type('checkpoint', checkpoint, int)
+        check_type('checkpoint_fn', checkpoint_fn, str)
         check_type('levelshift', lshift, float, int)
         check_options('absolute', pos, False, True, 0, 1)
         check_options('sort', sort, True, False, 0, 1)
@@ -452,7 +455,8 @@ class RAp1rog(Geminal):
         if log.do_medium:
             self.print_options_scf(guess, solver, maxiter, lshift, stepsearch,
                                    thresh, printoptions, checkpoint,
-                                   indextrans, orbitaloptimizer, sort)
+                                   checkpoint_fn, indextrans, orbitaloptimizer,
+                                   sort)
 
         #
         # Generate Guess [geminal, lagrange]
@@ -576,7 +580,7 @@ class RAp1rog(Geminal):
             # Checkpoint for orbitals
             #
             if (i+1)%checkpoint == 0 and checkpoint > 0 and (etot < etot_old):
-                self.do_checkpoint(orb, olp)
+                self.do_checkpoint(orb, olp, checkpoint_fn)
 
             #
             # Check convergence
@@ -611,7 +615,7 @@ class RAp1rog(Geminal):
         #
         if log.do_medium:
             self.print_final()
-            self.dump_final(orb, olp, printoptions, dumpci, checkpoint)
+            self.dump_final(orb, olp, printoptions, dumpci, checkpoint, checkpoint_fn)
 
         return self.compute_total_energy(), self.geminal, self.lagrange
 
@@ -2226,7 +2230,7 @@ class RAp1rog(Geminal):
 
         return str(sd).translate(None, ", ")
 
-    def do_checkpoint(self, orb, olp):
+    def do_checkpoint(self, orb, olp, checkpoint_fn):
         '''Dump orbitals for restart
 
            **Arguments:**
@@ -2237,12 +2241,14 @@ class RAp1rog(Geminal):
            olp
                 A TwoIndex instance. The AO overlap matrix. Required for restart
                 at different molecular geometry.
+
+           checkpoint_fn
+                The filename of the checkpoint file.
         '''
-        import h5py
-        with h5py.File("orb.hdf5", "w") as forb:
-            orb.to_hdf5(forb)
-        with h5py.File("olp.hdf5", "w") as folp:
-            olp.to_hdf5(folp)
+        # Use the horton.io interface to write the checkpoint file
+        from horton.io.molecule import Molecule
+        mol = Molecule(olp=olp, exp_alpha=orb)
+        mol.to_file(checkpoint_fn)
 
     def print_final(self, s='Final'):
         '''Print energies
@@ -2259,7 +2265,7 @@ class RAp1rog(Geminal):
         log('%s total Energy:         %16.12f' %(s, (self.compute_total_energy())))
         log.hline('=')
 
-    def dump_final(self, orb, olp, printoptions, dumpci, checkpoint):
+    def dump_final(self, orb, olp, printoptions, dumpci, checkpoint, checkpoint_fn='checkpoint.h5'):
         '''Dump final solution (orbitals, wavefunction amplitudes, geminal
            coefficients)
 
@@ -2276,11 +2282,14 @@ class RAp1rog(Geminal):
 
            checkpoint:
                 An integer. See :py:meth:`RAp1rog.solve_scf`
+
+           checkpoint_fn
+                The filename of the checkpoint file.
         '''
         if checkpoint > 0:
             if log.do_medium:
                 log('Writing orbitals to file')
-            self.do_checkpoint(orb, olp)
+            self.do_checkpoint(orb, olp, checkpoint_fn)
             if log.do_medium:
                 log.hline('-')
                 log('Final solution for coefficients: (only printed if |c_i| > %f)' %printoptions['ci'])
@@ -2459,8 +2468,8 @@ class RAp1rog(Geminal):
         log('  excitation level:          %i' %printoptions['excitationlevel'])
 
     def print_options_scf(self, guess, solver, maxiter, lshift, stepsearch,
-                          thresh, printoptions, checkpoint, indextrans,
-                          orbitaloptimizer, sort):
+                          thresh, printoptions, checkpoint, checkpoint_fn,
+                          indextrans, orbitaloptimizer, sort):
         '''Print optimization options.
 
            **Arguments:**
@@ -2486,6 +2495,7 @@ class RAp1rog(Geminal):
             log('  orbital optimization:        %s' %orbitaloptimizer)
             log('Number of iterations:          %i' %maxiter['orbiter'])
             log('Checkpointing:                 %i' %checkpoint)
+            log('Checkpoint file:               %s' %checkpoint_fn)
             log('4-index transformation:        %s' %indextrans)
             log('Level shift:                   %3.3e' %lshift)
             log('Sorting natural orbitals:      %s' %sort)

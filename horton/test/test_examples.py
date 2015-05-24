@@ -58,26 +58,26 @@ def test_example_expectation_r():
 
 def test_example_ap1rog_hubbard():
     required = [context.get_fn('examples/ap1rog/hubbard.py')]
-    expected = ['olp.hdf5', 'orb.hdf5']
+    expected = ['checkpoint.h5']
     check_script_in_tmp('./hubbard.py', required, expected)
 
 
 def test_example_ap1rog_extham():
     required = [context.get_fn('examples/ap1rog/extham.py'),
                 context.get_fn('examples/hamiltonian/export.py')]
-    expected = ['olp.hdf5', 'orb.hdf5']
+    expected = ['checkpoint.h5']
     check_script_in_tmp('./export.py; ./extham.py', required, expected)
 
 
 def test_example_ap1rog_water_default():
     required = [context.get_fn('examples/ap1rog/water_default.py')]
-    expected = ['olp.hdf5', 'orb.hdf5']
+    expected = ['checkpoint.h5']
     check_script_in_tmp('./water_default.py', required, expected)
 
 
 def test_example_ap1rog_water_minimal():
     required = [context.get_fn('examples/ap1rog/water_minimal.py')]
-    expected = ['olp.hdf5', 'orb.hdf5']
+    expected = ['checkpoint.h5']
     check_script_in_tmp('./water_minimal.py', required, expected)
 
 
@@ -91,19 +91,19 @@ def test_example_pt_water_mp2():
 
 def test_example_pt_water_pta():
     required = [context.get_fn('examples/perturbation_theory/water_pta.py')]
-    expected = ['olp.hdf5', 'orb.hdf5']
+    expected = ['checkpoint.h5']
     check_script_in_tmp('./water_pta.py', required, expected)
 
 
 def test_example_pt_water_ptb():
     required = [context.get_fn('examples/perturbation_theory/water_ptb.py')]
-    expected = ['olp.hdf5', 'orb.hdf5']
+    expected = ['checkpoint.h5']
     check_script_in_tmp('./water_ptb.py', required, expected)
 
 
 def test_example_oe_water():
     required = [context.get_fn('examples/orbitalentanglement/water.py')]
-    expected = ['i12.dat', 'olp.hdf5', 'orb.hdf5', 's1.dat']
+    expected = ['i12.dat', 'checkpoint.h5', 's1.dat']
     check_script_in_tmp('./water.py', required, expected)
 
 
