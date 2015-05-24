@@ -47,10 +47,12 @@ one.iadd(na)
 ###########################################################################################
 ## Export Hamiltonian in Hartree-Fock molecular orbital basis (all orbitals active) #######
 ###########################################################################################
-dump_fcidump(lf, one, er, external['nn'], orb, 'FCIDUMP')
+mol.core_energy = external['nn']
+(mol.one_mo,), (mol.two_mo,) = transform_integrals(one, er, 'tensordot', orb)
+mol.to_file('FCIDUMP')
 
 ###########################################################################################
 ## Export Hamiltonian in Hartree-Fock molecular orbital basis for CAS(8,8) ################
 ###########################################################################################
-dump_fcidump(lf, one, er, external['nn'], orb, 'FCIDUMP8-8',
-             **{'nel': 8, 'ncore': 2, 'nactive': 8})
+mol.one_mo, mol.two_mo, mol.core_energy = split_core_active(one, er, external['nn'], orb, 2, 8)
+mol.to_file('FCIDUMP8-8')

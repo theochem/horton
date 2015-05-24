@@ -91,7 +91,4 @@ The function ``load_fcidump`` has 3 return values; the one-electron integrals (`
 Example input files
 ===================
 
-This is a basic example on how to read a Hamiltonian, which is stored using the Molpro file convention, from file ``FCIDUMP``. Similar to the example above, the number of electrons is ``46`` with ``23`` doubly-occupied orbitals, while the total number of basis functions is ``115``.
-
-.. literalinclude:: ../data/examples/hamiltonian/fcidump.py
-    :caption: data/examples/hamiltonian/fcidump.py
+TODO: This will be done differently, i.e. quote few lines from a complete example.

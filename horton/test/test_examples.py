@@ -41,13 +41,6 @@ def test_example_export():
     check_script_in_tmp('./export.py', required, expected)
 
 
-def test_example_fcidump():
-    required = [context.get_fn('examples/hamiltonian/fcidump.py'),
-                context.get_fn('examples/hamiltonian/export.py')]
-    expected = ['FCIDUMP', 'FCIDUMP8-8']
-    check_script_in_tmp('./export.py; ./fcidump.py', required, expected)
-
-
 def test_example_hubbard():
     check_script('./hubbard.py', context.get_fn('examples/hamiltonian'))
 
