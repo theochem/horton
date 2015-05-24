@@ -22,6 +22,7 @@
 
 
 import numpy as np
+from horton.matrix.base import TwoIndex
 from horton.matrix import DenseLinalgFactory
 from horton.gbasis.cext import GOBasis
 
@@ -118,16 +119,18 @@ def project_orbitals_mgs(obasis0, obasis1, exp0, exp1, eps=1e-10):
         orb /= norm
 
 
-def project_orbitals_ortho(obasis0, obasis1, exp0, exp1):
+def project_orbitals_ortho(olp0, olp1, exp0, exp1):
     r'''Re-orthogonalize the orbitals in ``exp0`` (wrt ``obasis0``) on ``obasis1`` and store in ``exp1``.
 
        **Arguments:**
 
-       obasis0
-            The orbital basis for the original wavefunction expansion.
+       olp0
+            A TwoIndex object with the overlap matrix (or alternatively the
+            orbital basis) for the original wavefunction expansion.
 
-       obasis1
-            The new orbital basis for the projected wavefunction expansion.
+       olp1
+            A TwoIndex object with the overlap matrix (or alternatively the
+            orbital basis) for the projected wavefunction expansion.
 
        exp0
             The expansion of the original orbitals.
@@ -153,11 +156,22 @@ def project_orbitals_ortho(obasis0, obasis1, exp0, exp1):
        old and new atomic basis sets are very similar, e.g. for small geometric
        changes.
     '''
-    if obasis0.nbasis != obasis1.nbasis:
+    if olp0.nbasis != olp1.nbasis:
         raise ValueError('The two basis sets must have the same size')
-    lf = DenseLinalgFactory(obasis0.nbasis)
-    olp0 = obasis0.compute_overlap(lf)
-    olp1 = obasis1.compute_overlap(lf)
+
+    def helper_olp(olp):
+        if isinstance(olp, GOBasis):
+            obasis = olp
+            lf = DenseLinalgFactory(obasis.nbasis)
+            olp = obasis.compute_overlap(lf)
+        elif isinstance(olp, TwoIndex):
+            obasis = None
+        else:
+            raise TypeError('The olp arguments must be an instance of TwoIndex or GOBasis.')
+        return olp, obasis
+
+    olp0, obasis0 = helper_olp(olp0)
+    olp1, obasis1 = helper_olp(olp1)
 
     tmp = olp0.inverse()
     tmp.idot(olp1)
