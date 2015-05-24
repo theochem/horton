@@ -21,7 +21,7 @@ attraction terms can be combined as follows
 
 where ``kin`` and ``na`` are the electronic kinetic energy and the electron-nuclear
 attraction terms, respectively. To write a Hamiltonian with the one- and two-electron integrals ``one`` and
-``two`` to file, run :py:func:`horton.io.integrals_io.integrals_to_file`.
+``two`` to file, run :py:func:`horton.io.integrals_io.dump_fcidump`.
 
 Note that you can specify an active space (it isn't used by default).
 In case of an active space, the one-electron integrals :math:`t_{pq}` are
@@ -104,10 +104,10 @@ space of CAS(8,8) is written to ``FCIDUMP8-8``.
     ###########################################################################################
     ## Export Hamiltonian in Hartree-Fock molecular orbital basis (all orbitals active) #######
     ###########################################################################################
-    integrals_to_file(lf, one, er, external['nn'], orb, 'FCIDUMP')
+    dump_fcidump(lf, one, er, external['nn'], orb, 'FCIDUMP')
 
     ###########################################################################################
     ## Export Hamiltonian in Hartree-Fock molecular orbital basis for CAS(8,8) ################
     ###########################################################################################
-    integrals_to_file(lf, one, er, external['nn'], orb, 'FCIDUMP8-8',
+    dump_fcidump(lf, one, er, external['nn'], orb, 'FCIDUMP8-8',
                       **{'nel': 8, 'ncore': 2, 'nactive': 8})

@@ -10,4 +10,4 @@ nbasis = 115
 lf = DenseLinalgFactory(nbasis)
 
 # Read Hamiltonian from file 'FCIDUMP'
-one, two, core = integrals_from_file(lf, 'FCIDUMP')
+one, two, core = load_fcidump(lf, 'FCIDUMP')
