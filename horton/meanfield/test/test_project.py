@@ -35,8 +35,20 @@ def test_project_msg_identical():
     assert (exp.coeffs[:,-2:] == 0.0).all()
 
 
-def test_project_ortho_identical():
+def test_project_ortho_basis_identical():
     mol = Molecule.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+    exp = mol.lf.create_expansion()
+    project_orbitals_ortho(mol.obasis, mol.obasis, mol.exp_alpha, exp)
+    assert (exp.energies == 0.0).all()
+    assert (exp.occupations == mol.exp_alpha.occupations).all()
+    assert abs(exp.coeffs - mol.exp_alpha.coeffs).max() < 1e-9
+
+
+def test_project_ortho_olp_identical():
+    mol = Molecule.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+    olp = mol.lf.create_two_index()
+    for i in xrange(olp.nbasis):
+        olp.set_element(i, i, 1.0)
     exp = mol.lf.create_expansion()
     project_orbitals_ortho(mol.obasis, mol.obasis, mol.exp_alpha, exp)
     assert (exp.energies == 0.0).all()
@@ -181,11 +193,28 @@ def test_project_msg_geometry():
     exp1.check_orthonormality(obasis1.compute_overlap(lf))
 
 
-def test_project_ortho_geometry():
+def test_project_ortho_basis_geometry():
     obasis0, obasis1, exp0, exp1, lf = get_basis_pair_geometry()
 
     # Project from one to other:
     project_orbitals_ortho(obasis0, obasis1, exp0, exp1)
+
+    # Basic checks
+    assert (exp1.energies == 0.0).all()
+    assert (exp1.occupations == exp0.occupations).all()
+    assert abs(exp1.coeffs[:,:5] - exp0.coeffs[:,:5]).max() > 1e-3 # something should change
+
+    # Check orthonormality
+    exp1.check_orthonormality(obasis1.compute_overlap(lf))
+
+
+def test_project_ortho_olp_geometry():
+    obasis0, obasis1, exp0, exp1, lf = get_basis_pair_geometry()
+
+    # Project from one to other:
+    olp0 = obasis0.compute_overlap(lf)
+    olp1 = obasis1.compute_overlap(lf)
+    project_orbitals_ortho(olp0, olp1, exp0, exp1)
 
     # Basic checks
     assert (exp1.energies == 0.0).all()
