@@ -177,10 +177,8 @@ def project_orbitals_ortho(olp0, olp1, exp0, exp1):
     tmp.idot(olp1)
     tf = tmp.sqrt()
 
-    # TODO: this is ugly. Just add a routine for the transforming orbital
-    # coefficients with a given two-index object as transformation matrix.
-    tf.idot(exp0)
-    exp1.assign(tf)
+    # Transform the coefficients
+    exp1.assign_dot(exp0, tf)
 
     # Clear the energies in exp1 as they can not be defined in a meaningful way
     exp1.energies[:] = 0.0
