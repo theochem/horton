@@ -162,7 +162,7 @@ The function call gives 3 return values,
     :c: (``TwoIndex`` instance) the geminal coefficient matrix (without the diagonal occupied sub-block, see :ref:`introap1rog`)
     :l: (``TwoIndex`` instance) the Lagrange multipliers (can be used to calculated the response 1-RDM)
 
-After the AP1roG calculation is finished (because AP1roG converged or the maximum number of iterations was reached), the orbitals (``orb.hdf5``) and the overlap matrix (``olp.hdf5``) are, by default, stored to disk and can be used for a subsequent restart. Note that the geminal coefficient matrix and Lagrange multipliers are not stored after the calculation is completed.
+After the AP1roG calculation is finished (because AP1roG converged or the maximum number of iterations was reached), the orbitals and the overlap matrix are, by default, stored in a checkpoint file ``checkpoint.h5`` and can be used for a subsequent restart. Note that the geminal coefficient matrix and Lagrange multipliers are not stored after the calculation is completed.
 
 .. _keywords-oo-ap1rog:
 
@@ -253,19 +253,21 @@ To restart an AP1roG calculation (for instance, using the orbitals from a differ
 
 .. code-block:: python
 
-    read_orbitals(orb, olp, orbfile="./orb.hdf5", olpfile="./olp.hdf5")
+    old = Molecule.from_file('checkpoint.h5')
 
-with arguments
 
-    :orb: (``Expansion`` instance) the current AO/MO coefficient matrix to be updated
-    :olp: (``TwoIndex`` instance) the current AO overlap matrix
+If this checkpoint file is used as an initial guess for a new geometry, the
+orbitals must be re-orthogonalized w.r.t. the new basis:
 
-and optional arguments
+.. code-block:: python
 
-    :orbfile: (str) filename of AO/MO coefficient matrix to be read (default ``./orb.hdf5``)
-    :olpfile: (str) filename of AO overlap matrix to be read (default ``./olp.hdf5``)
+    # It is assume that the following two variables available:
+    #   olp: the overlap matrix of the new basis (geometry)
+    #   orb: an instance of DenseExpansion to which the new orbitals will be
+    #        written
+    project_orbitals_ortho(old.olp, olp, old.exp_alpha, orb)
 
-Note that **orb** is overwritten by the function call ``read_orbitals``. Then, generate an instance of the ``RAp1rog`` class and perform a function call:
+Then, generate an instance of the ``RAp1rog`` class and perform a function call:
 
 .. code-block:: python
 
