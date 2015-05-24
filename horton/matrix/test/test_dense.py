@@ -600,6 +600,12 @@ def test_expansion_check_normalization():
     exp.check_normalization(olp)
 
 
+def test_expansion_check_orthonormality():
+    lf = DenseLinalgFactory(5)
+    exp, olp = get_random_exp(lf)
+    exp.check_orthonormality(olp)
+
+
 def test_expansion_error_eigen():
     lf = DenseLinalgFactory(5)
     exp = lf.create_expansion()

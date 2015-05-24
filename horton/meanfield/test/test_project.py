@@ -25,7 +25,7 @@ from horton import *
 from horton.meanfield.test.common import helper_compute
 
 
-def test_project_identical():
+def test_project_msg_identical():
     mol = Molecule.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
     exp = mol.lf.create_expansion()
     project_orbitals_mgs(mol.obasis, mol.obasis, mol.exp_alpha, exp)
@@ -35,7 +35,16 @@ def test_project_identical():
     assert (exp.coeffs[:,-2:] == 0.0).all()
 
 
-def test_project_larger():
+def test_project_ortho_identical():
+    mol = Molecule.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+    exp = mol.lf.create_expansion()
+    project_orbitals_ortho(mol.obasis, mol.obasis, mol.exp_alpha, exp)
+    assert (exp.energies == 0.0).all()
+    assert (exp.occupations == mol.exp_alpha.occupations).all()
+    assert abs(exp.coeffs - mol.exp_alpha.coeffs).max() < 1e-9
+
+
+def test_project_msg_larger():
     # Load STO3G system and keep essential results
     mol = Molecule.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
     obasis0 = mol.obasis
@@ -52,13 +61,7 @@ def test_project_larger():
 
     # Check the normalization of the projected orbitals
     olp = obasis1.compute_overlap(lf1)
-    for i0 in xrange(5):
-        for i1 in xrange(i0+1):
-            dot = olp.inner(exp1.coeffs[:,i0], exp1.coeffs[:,i1])
-            if i0 == i1:
-                assert abs(dot-1) < 1e-5
-            else:
-                assert abs(dot) < 1e-5
+    exp1.check_orthonormality(olp)
 
     # Setup HF hamiltonian and compute energy
     kin = obasis1.compute_kinetic(lf1)
@@ -88,7 +91,7 @@ def test_project_larger():
     assert energy3 > energy1 # the projected guess should be better than the core guess
 
 
-def test_project_smaller():
+def test_project_msg_smaller():
     # Load 3-21G system and keep essential results
     mol = Molecule.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
     obasis0 = mol.obasis
@@ -111,14 +114,8 @@ def test_project_smaller():
 
     # Check the normalization of the projected orbitals
     olp = obasis1.compute_overlap(lf1)
-    for exp, nocc in (exp1_alpha, 2), (exp1_beta, 1):
-        for i0 in xrange(nocc):
-            for i1 in xrange(i0+1):
-                dot = olp.inner(exp.coeffs[:,i0], exp.coeffs[:,i1])
-                if i0 == i1:
-                    assert abs(dot-1) < 1e-5
-                else:
-                    assert abs(dot) < 1e-5
+    exp1_alpha.check_orthonormality(olp)
+    exp1_beta.check_orthonormality(olp)
 
     # Setup HF hamiltonian and compute energy
     kin = obasis1.compute_kinetic(lf1)
@@ -142,28 +139,58 @@ def test_project_smaller():
     assert energy2 < energy1 # the energy should decrease after scf convergence
 
 
-def test_same_size():
+def get_basis_pair_geometry():
+    '''Prepare two basis sets that only differ in geometry'''
     # Create initial system
     mol = Molecule.from_file(context.get_fn('test/water.xyz'))
     obasis0 = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
     lf = DenseLinalgFactory(obasis0.nbasis)
     exp0 = lf.create_expansion()
 
-
+    # core-hamiltonian guess
     olp = obasis0.compute_overlap(lf)
     kin = obasis0.compute_kinetic(lf)
     na = obasis0.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
     er = obasis0.compute_electron_repulsion(lf)
     guess_core_hamiltonian(olp, kin, na, exp0)
 
+    # Internal consistency check
+    exp0.check_orthonormality(obasis0.compute_overlap(lf))
+
     # Change geometry
     mol.coordinates[1,2] += 0.1
     obasis1 = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
     exp1 = lf.create_expansion()
 
+    return obasis0, obasis1, exp0, exp1, lf
+
+
+def test_project_msg_geometry():
+    obasis0, obasis1, exp0, exp1, lf = get_basis_pair_geometry()
+
     # Project from one to other:
     project_orbitals_mgs(obasis0, obasis1, exp0, exp1)
+
+    # Basic checks
     assert (exp1.energies == 0.0).all()
     assert (exp1.occupations == exp0.occupations).all()
     assert abs(exp1.coeffs[:,:5] - exp0.coeffs[:,:5]).max() > 1e-3 # something should change
     assert (exp1.coeffs[:,5:] == 0.0).all()
+
+    # Check orthonormality
+    exp1.check_orthonormality(obasis1.compute_overlap(lf))
+
+
+def test_project_ortho_geometry():
+    obasis0, obasis1, exp0, exp1, lf = get_basis_pair_geometry()
+
+    # Project from one to other:
+    project_orbitals_ortho(obasis0, obasis1, exp0, exp1)
+
+    # Basic checks
+    assert (exp1.energies == 0.0).all()
+    assert (exp1.occupations == exp0.occupations).all()
+    assert abs(exp1.coeffs[:,:5] - exp0.coeffs[:,:5]).max() > 1e-3 # something should change
+
+    # Check orthonormality
+    exp1.check_orthonormality(obasis1.compute_overlap(lf))
