@@ -25,12 +25,7 @@ from horton.log import timer
 from horton.matrix import TwoIndex, Expansion
 
 
-__all__ = ['rotate_orbitals',
-           'compute_unitary_matrix',
-           'transform_integrals',
-           'read_orbitals',
-          ]
-
+__all__ = ['rotate_orbitals', 'compute_unitary_matrix', 'transform_integrals']
 
 
 def rotate_orbitals(*args):
@@ -140,53 +135,3 @@ def transform_integrals(one, two, indextrans='tensordot', *exps):
         out2ind.assign_two_index_transform(one, exps[i])
         one_mo.append(out2ind)
     return one_mo, two_mo
-
-
-def read_orbitals(exp, olp, orbfile="./orb.hdf5", olpfile="./olp.hdf5"):
-    '''Read orbitals from hdf5-file. Function can be used if orbitals from
-       different geometries are used as initial guess.
-
-       **Arguments:**
-
-       exp
-            The wfn expansion coefficients (Expansion instance)
-
-       olp
-            The AO overlap matrix (TwoIndex instance)
-
-       orbfile
-            The filename of the orbitals (str)
-
-       olpfile
-            The filename of the overlap matrix (str)
-    '''
-    import h5py
-    forb = h5py.File(orbfile, "r")
-    folp = h5py.File(olpfile, "r")
-    newexp = exp.from_hdf5(forb)
-    newolp = olp.from_hdf5(folp)
-    #
-    # Calculate Sr^{1/2}
-    #
-    newolp12 = newolp.sqrt()
-    #
-    # Get square root of current AO overlap matrix
-    #
-    olp12 = olp.sqrt()
-    #
-    # Calculate S^{-1/2}
-    #
-    olpinv = olp12.inverse()
-    #
-    # Calculate Sr^{1/2}*C
-    #
-    newolp12.idot(newexp)
-    #
-    # Get new AO/MO coefficient matrix from S^{-1/2}*Sr^{1/2}*C that
-    # satisfies C^T*S*C=1
-    #
-    olpinv.idot(newolp12)
-    exp.assign(olpinv)
-
-    forb.close()
-    folp.close()
