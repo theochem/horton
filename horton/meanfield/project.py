@@ -26,7 +26,7 @@ from horton.matrix import DenseLinalgFactory
 from horton.gbasis.cext import GOBasis
 
 
-__all__ = ['ProjectionError', 'project_orbitals_mgs']
+__all__ = ['ProjectionError', 'project_orbitals_mgs', 'project_orbitals_ortho']
 
 
 class ProjectionError(Exception):
@@ -116,3 +116,59 @@ def project_orbitals_mgs(obasis0, obasis1, exp0, exp1, eps=1e-10):
         if norm < eps:
             raise ProjectionError('The norm of a vector in the MGS algorithm becomes too small. Orbitals are redundant in new basis.')
         orb /= norm
+
+
+def project_orbitals_ortho(obasis0, obasis1, exp0, exp1):
+    r'''Re-orthogonalize the orbitals in ``exp0`` (wrt ``obasis0``) on ``obasis1`` and store in ``exp1``.
+
+       **Arguments:**
+
+       obasis0
+            The orbital basis for the original wavefunction expansion.
+
+       obasis1
+            The new orbital basis for the projected wavefunction expansion.
+
+       exp0
+            The expansion of the original orbitals.
+
+       exp1 (output)
+            An output argument in which the projected orbitals will be stored.
+
+       This projection just transforms the old orbitals to an orthogonal basis
+       by a multiplicatoin with the square root of the old overlap matrix. The
+       orbitals in this basis are then again multiplied with the inverse square
+       root of the new overlap matrix:
+
+       .. math ::
+
+            C_\text{new} = S_\text{new}^{-1/2} S_\text{old}^{1/2} C_\text{old}
+
+       This garuantees that :math:`C_\text{new}^T S_\text{new} C_\text{new} = I`
+       if :math:`C_\text{old}^T S_\text{old} C_\text{old} = I`. This approach is
+       simple and robust but the current implementation has some limitations: it
+       only works for projections between basis sets of the same size and it
+       assumes that there is some similarity between the new and old
+       orthogonalized atomic basis sets. The latter is only the case when the
+       old and new atomic basis sets are very similar, e.g. for small geometric
+       changes.
+    '''
+    if obasis0.nbasis != obasis1.nbasis:
+        raise ValueError('The two basis sets must have the same size')
+    lf = DenseLinalgFactory(obasis0.nbasis)
+    olp0 = obasis0.compute_overlap(lf)
+    olp1 = obasis1.compute_overlap(lf)
+
+    tmp = olp0.inverse()
+    tmp.idot(olp1)
+    tf = tmp.sqrt()
+
+    # TODO: this is ugly. Just add a routine for the transforming orbital
+    # coefficients with a given two-index object as transformation matrix.
+    tf.idot(exp0)
+    exp1.assign(tf)
+
+    # Clear the energies in exp1 as they can not be defined in a meaningful way
+    exp1.energies[:] = 0.0
+    # Just copy the occupation numbers and hope for the best
+    exp1.occupations[:] = exp0.occupations

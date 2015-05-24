@@ -941,7 +941,7 @@ class DenseExpansion(Expansion):
         self._coeffs *= signs.reshape(-1,1)
 
     def check_normalization(self, overlap, eps=1e-4):
-        '''Run an internal test to see if the orbitals are normalized
+        '''Check that the occupied orbitals are normalized.
 
            **Arguments:**
 
@@ -960,6 +960,32 @@ class DenseExpansion(Expansion):
             norm = overlap.inner(self._coeffs[:,i], self._coeffs[:,i])
             #print i, norm
             assert abs(norm-1) < eps, 'The orbitals are not normalized!'
+
+    def check_orthonormality(self, overlap, eps=1e-4):
+        '''Check that the occupied orbitals are orthogonal and normalized.
+
+           **Arguments:**
+
+           overlap
+                The overlap two-index operator
+
+           **Optional arguments:**
+
+           eps
+                The allowed deviation from unity, very loose by default.
+        '''
+        check_type('overlap', overlap, DenseTwoIndex)
+        for i0 in xrange(self.nfn):
+            if self.occupations[i0] == 0:
+                continue
+            for i1 in xrange(i0+1):
+                if self.occupations[i1] == 0:
+                    continue
+                dot = overlap.inner(self.coeffs[:,i0], self.coeffs[:,i1])
+                if i0 == i1:
+                    assert abs(dot-1) < eps
+                else:
+                    assert abs(dot) < eps
 
     def error_eigen(self, fock, overlap):
         """Compute the error of the orbitals with respect to the eigenproblem
