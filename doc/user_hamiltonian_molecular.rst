@@ -1,5 +1,5 @@
-Molecular Hamiltonians
-######################
+Defining a molecular Hamiltonian
+################################
 
 A molecular Hamiltonian is typically set up in three steps. First one loads or
 constructs a molecular geometry. Then one generates a Gaussian basis set for

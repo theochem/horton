@@ -9,4 +9,3 @@ Post processing
    user_conversion
    user_localization
    user_orbitalentanglement
-   user_hamiltonianio

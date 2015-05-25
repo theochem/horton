@@ -1,7 +1,7 @@
 .. _exportintegrals:
 
-How to export a Hamiltonian
-###########################
+Dumping a Hamiltonian to a file
+###############################
 
 
 Export a Hamiltonian in ASCII format
