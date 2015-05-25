@@ -35,14 +35,28 @@ def test_example_even_tempered_li():
     check_script('./even_tempered_li.py', context.get_fn('examples/hamiltonian'))
 
 
-def test_example_export():
-    required = [context.get_fn('examples/hamiltonian/export.py')]
-    expected = ['FCIDUMP', 'FCIDUMP8-8']
-    check_script_in_tmp('./export.py', required, expected)
-
-
 def test_example_hubbard():
     check_script('./hubbard.py', context.get_fn('examples/hamiltonian'))
+
+
+def test_hamiltonian_fcidump_ao():
+    required = [context.get_fn('examples/hamiltonian/dump_fcidump_ao.py'),
+                context.get_fn('examples/hamiltonian/load_fcidump_ao.py')]
+    expected = ['hamiltonian_ao.FCIDUMP']
+    check_script_in_tmp('./dump_fcidump_ao.py; ./load_fcidump_ao.py', required, expected)
+
+
+def test_hamiltonian_internal_ao():
+    required = [context.get_fn('examples/hamiltonian/dump_internal_ao.py'),
+                context.get_fn('examples/hamiltonian/load_internal_ao.py')]
+    expected = ['hamiltonian_ao.h5']
+    check_script_in_tmp('./dump_internal_ao.py; ./load_internal_ao.py', required, expected)
+
+
+def test_hamiltonian_internal_ao_fcidump():
+    required = [context.get_fn('examples/hamiltonian/dump_internal_ao_fcidump.py')]
+    expected = ['hamiltonian_ao_fcidump.h5']
+    check_script_in_tmp('./dump_internal_ao_fcidump.py', required, expected)
 
 
 def test_example_expectation_r():
@@ -57,9 +71,10 @@ def test_example_ap1rog_hubbard():
 
 def test_example_ap1rog_extham():
     required = [context.get_fn('examples/ap1rog/extham.py'),
-                context.get_fn('examples/hamiltonian/export.py')]
-    expected = ['checkpoint.h5']
-    check_script_in_tmp('./export.py; ./extham.py', required, expected)
+                context.get_fn('examples/hf_dft/rhf_n2_dense.py')]
+    expected = ['checkpoint.h5', 'n2-scf.molden', 'n2-scf.h5',
+                'n2-cas8-8.FCIDUMP', 'n2-cas8-8.h5', 'n2.FCIDUMP', 'n2.h5']
+    check_script_in_tmp('./rhf_n2_dense.py; ./extham.py', required, expected)
 
 
 def test_example_ap1rog_water_default():
@@ -104,6 +119,13 @@ def test_example_rhf_water_cholesky():
     required = [context.get_fn('examples/hf_dft/rhf_water_cholesky.py')]
     expected = ['water.h5', 'water.molden']
     check_script_in_tmp('./rhf_water_cholesky.py', required, expected)
+
+
+def test_example_rhf_n2_dense():
+    required = [context.get_fn('examples/hf_dft/rhf_n2_dense.py')]
+    expected = ['n2-scf.molden', 'n2-scf.h5', 'n2-cas8-8.FCIDUMP',
+                'n2-cas8-8.h5', 'n2.FCIDUMP', 'n2.h5']
+    check_script_in_tmp('./rhf_n2_dense.py', required, expected)
 
 
 def test_example_rhf_water_dense():
