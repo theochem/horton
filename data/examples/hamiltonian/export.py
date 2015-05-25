@@ -55,4 +55,5 @@ mol.to_file('FCIDUMP')
 ## Export Hamiltonian in Hartree-Fock molecular orbital basis for CAS(8,8) ################
 ###########################################################################################
 mol.one_mo, mol.two_mo, mol.core_energy = split_core_active(one, er, external['nn'], orb, 2, 8)
+mol.nelec = 8
 mol.to_file('FCIDUMP8-8')
