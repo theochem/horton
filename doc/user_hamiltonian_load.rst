@@ -1,5 +1,5 @@
-Loading external Hamiltonians
-#############################
+Loading a Hamiltonian from a file
+#################################
 
 
 Supported features

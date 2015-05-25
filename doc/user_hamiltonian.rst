@@ -1,11 +1,12 @@
 .. _user_hamiltonian:
 
-Defining a Hamiltonian
-######################
+Hamiltonians
+############
 
 .. toctree::
    :maxdepth: 3
 
-   user_molecularham
-   user_modelham
-   user_externalham
+   user_hamiltonian_molecular
+   user_hamiltonian_model
+   user_hamiltonian_dump
+   user_hamiltonian_load

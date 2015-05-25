@@ -1,7 +1,7 @@
 .. _modphysham:
 
-Model Hamiltonians
-##################
+Defining a model Hamiltonian
+############################
 
 Supported features
 ==================
