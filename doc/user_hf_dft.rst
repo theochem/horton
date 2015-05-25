@@ -435,14 +435,102 @@ that quantity in-place. The usage pattern is as follow:
       :caption: data/examples/hf_dft/uks_methyl_lda.py, lines 53--60
 
 
+Conversion of density and Fock matrix to orbitals
+=================================================
+
+TODO!! (both code and docs. This function is not yet in Horton and thus needs to be written. It should support fractional occupation numbers.)
+
+
+Writing SCF results to a file
+=============================
+
+TODO!! (docs only)
+
+
+.. _user_hf_dft_preparing_posthf:
+
+Preparing for a Post-Hartree-Fock calculation
+=============================================
+
+Once the SCF has converged and you have obtained a set of orbitals, one can use these orbitals to convert the integrals in the atomic-orbital (AO) basis to integrals in the molecular-orbital (MO) basis. There are two ways to do so: (i) using all molecular orbitals or (ii) by specifing a frozen core and active set of orbitals. A full example, which covers both options and which includes dumping the transformed integrals to a file, is given in the section :ref:`hf_dft_complete_examples` below.
+
+The conversion to an MO basis is useful for post-HF calculations. For such purposes, it is also of interest to sum all one-body operators into a single term. This can be done in two ways:
+
+1. When the operators are computed, e.g.:
+
+   .. code-block:: python
+
+        lf = DenseLinalgFactory(obasis.nbasis)
+        one = lf.create_two_index()
+        obasis.compute_kinetic(one)
+        obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, one)
+
+2. After the operators are computed, e.g.:
+
+   .. code-block:: python
+
+        lf = DenseLinalgFactory(obasis.nbasis)
+        kin = obasis.compute_kinetic(lf)
+        na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
+        one = kin.copy()
+        one.iadd(na)
+
+
+Transforming the Hamiltonian to the molecular-orbital (MO) basis
+----------------------------------------------------------------
+
+The function :py:func:`horton.orbital_utils.transform_integrals` can be used for
+this purpose. There are two use cases:
+
+1. Restricted (Hartree-Fock) orbitals:
+
+   .. code-block:: python
+
+       (one_mo,), (two_mo,) = transform_integrals(one, er, 'tensordot', exp_alpha)
+
+
+2. Unrestricted (Hartree-Fock) orbitals:
+
+   .. code-block:: python
+
+       one_mo_ops, two_mo_ops = transform_integrals(one, er, 'tensordot', exp_alpha, exp_beta)
+       one_mo_alpha, one_mo_beta = one_mo_ops
+       two_mo_alpha_alpha, two_mo_alpha_beta, two_mo_beta_beta = two_mo_ops
+
+
+Reducing the Hamiltonian to an active space
+-------------------------------------------
+
+In case of an active space, the new one-electron integrals :math:`\tilde{t}_{pq}` become
+
+.. math::
+
+    \tilde{t}_{pq} = t_{pq} + \sum_{i \in \textrm{ncore}} ( 2 \langle pi \vert qi \rangle - \langle pi \vert iq \rangle),
+
+where :math:`t_{pq}` is the element :math:`pq` of the old one-electron integrals and :math:`\langle pi \vert qi \rangle` is the appropriate two-electron integral in physicist's notation. The core energy of the active space is calculated as
+
+.. math::
+
+    e_\text{core} = e_\text{nn} + 2\sum_{i \in \textrm{ncore}} t_{ii} + \sum_{i, j \in \textrm{ncore}} (2 \langle ij \vert ij \rangle - \langle ij \vert ji \rangle)
+
+where the two-electron integrals :math:`\langle pq \vert rs \rangle` contain only the elements with active orbital indices :math:`p,q,r,s`. This type of conversion is implemented in the function :py:func:`horton.orbital_utils.split_core_active`. It is used as follows:
+
+.. code-block:: python
+
+     one_small, two_small, core_energy = split_core_active(one, er,
+        external['nn'], exp_alpha, ncore, nactive)
+
+
+.. _hf_dft_complete_examples:
+
 Complete examples
 =================
 
 The following is a basic example of a restricted Hartree-Fock calculation of
 water. It contains all the steps discussed in the previous sections.
 
-.. literalinclude:: ../data/examples/hf_dft/rhf_water_dense.py
-    :caption: data/examples/hf_dft/rhf_water_dense.py
+.. literalinclude:: ../data/examples/hf_dft/rhf_n2_dense.py
+    :caption: data/examples/hf_dft/rhf_n2_dense.py
     :lines: 7-
 
 The directory ``data/examples/hf_dft`` contains many more examples that use the

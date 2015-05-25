@@ -1,113 +1,137 @@
-.. _exportintegrals:
+.. _hamiltonian_dump:
 
 Dumping a Hamiltonian to a file
 ###############################
 
+Horton supports two formats for storing a Hamiltonian in a file: (i) an internal binary format based on HDF5 (extension ``.h5``) and Molpro's FCIDUMP text format (containing ``FCIDUMP`` somewhere in the file name). The internal format is more flexible and can store a Hamiltonian on various different ways. The FCIDUMP format as more restrictive but can be used to interoperate with different codes, e.g. Molpro.
 
-Export a Hamiltonian in ASCII format
-====================================
+All input and output of data in Horton is done through the :py:class:`horton.io.molecule.Molecule` class. Dumping data to a file takes the following three steps:
 
-Horton can export a Hamiltonian in ASCII format that uses the Molpro FCIDUMP file
-convention (see :ref:`molprohamformat` for more details). If the Hamiltonian of
-the system contains several one-electron terms (kinetic energy of electrons,
-electron-nuclear attraction, etc.), they have to be combined to a single
-contribution. For example, the kinetic energy and electron-nuclear
-attraction terms can be combined as follows
+1. Create an instance of the ``Molecule`` class (from scratch, or by loading it from a file),
+2. Sets some attributes,
+3. Call the :py:meth:`~horton.io.molecule.Molecule.to_file` method to actually dump the info to the file.
 
-.. code-block:: python
+One can also combine steps 1 and 2 by passing the attributes of interest to the constructor. These steps will be illustrated in the examples below.
 
-    one = kin.copy()
-    one.iadd(na)
+The list of attributes recognized by (some) output formats is documented here: :py:class:`horton.io.molecule.Molecule`. The method :py:meth:`~horton.io.molecule.Molecule.to_file` just takes the filename as argument. The filename is used to determine the file format. When it has the extension ``.h5``, the internal format is used. When the file contains ``FCIDUMP``, the FCIDUMP format is used.
 
-where ``kin`` and ``na`` are the electronic kinetic energy and the electron-nuclear
-attraction terms, respectively. To write a Hamiltonian with the one- and two-electron integrals ``one`` and
-``two`` to file, run :py:func:`horton.io.integrals_io.dump_fcidump`.
+.. _hamiltonian_dump_internal:
 
-Note that you can specify an active space (it isn't used by default).
-In case of an active space, the one-electron integrals :math:`t_{pq}` are
+Horton's Internal format
+========================
 
-.. math::
+One can store all the separate operators in the atomic-orbital (AO) basis, here using a Cholesky decomposition of the four-center integrals, as follows:
 
-    t_{pq} = \textrm{one}_{pq} + \sum_{i \in \textrm{ncore}} ( 2 \langle pi \vert qi \rangle - \langle pi \vert iq \rangle),
+.. literalinclude :: ../data/examples/hamiltonian/dump_internal_ao.py
+    :caption: data/examples/hamiltonian/dump_internal_ao.py
+    :lines: 2-
 
-where :math:`\textrm{one}_{pq}` is the element :math:`pq` of :math:`\mathbf{one}` and
-:math:`\langle pi \vert qi \rangle` is the appropriate two-electron integrals in physicist's notation.
-The core energy of the active space is calculated as
+Note that the attributes ``coordinates``, ``numbers`` and ``title``, which were loaded from the ``.xyz`` file, will also be dumped in the internal format, unless you explicitly remove them first with e.g. ``del mol.title``. The internal format will just store any attribute of the ``Molecule`` object, not just the ones that are documented, see :py:class:`horton.io.molecule.Molecule`. So, you may assign other attributes as well, e.g. ``obasis`` or ``olp``, if that is convenient.
 
-.. math::
+In the HDF5 file, all data is stored binary in full precision. The layout of the
+HDF5 file in this example is as follows:
 
-    e_{\rm core} = \textrm{ecore} + 2\sum_{i \in \textrm{ncore}} \textrm{one}_{ii} + \sum_{i, j \in \textrm{ncore}} (2 \langle ij \vert ij \rangle - \langle ij \vert ji \rangle)
+.. code-block:: text
 
-where the two-electron integrals :math:`\langle pq \vert rs \rangle` contain only the
-elements with active orbital indices :math:`p,q,r,s`. Note that only the symmetry-unique
-elements of the one- and two-electron integrals are exported.
+    $ h5dump -n hamiltonian_ao.h5
+    HDF5 "hamiltonian.h5" {
+    FILE_CONTENTS {
+     group      /
+     dataset    /coordinates
+     dataset    /core_energy
+     group      /er
+     dataset    /er/array
+     group      /kin
+     dataset    /kin/array
+     group      /na
+     dataset    /na/array
+     dataset    /numbers
+     dataset    /title
+     }
+    }
+
+The attributes used for the FCIDUMP format, ``one_mo``, ``two_mo``, ``core_energy``, ``nelec`` and ``ms2`` can also be used for the internal format. The following example shows how this can be done with a ``Molecule`` object created from scratch.
+
+.. literalinclude::  ../data/examples/hamiltonian/dump_internal_ao_fcidump.py
+    :caption: data/examples/hamiltonian/dump_internal_ao_fcidump.py
+    :lines: 2-
+
+which results in the following HD5 layout:
+
+.. code-block:: text
+
+    $ h5dump -n hamiltonian_ao_fcidump.h5
+    HDF5 "hamiltonian_ao_fcidump.h5" {
+    FILE_CONTENTS {
+     group      /
+     dataset    /core_energy
+     dataset    /ms2
+     dataset    /nelec
+     group      /one_mo
+     dataset    /one_mo/array
+     group      /two_mo
+     dataset    /two_mo/array
+     }
+    }
+
+Note that the integrals in this example are actually stored in the AO basis (unlike the ``_mo`` suffix suggests). Read the section :ref:`user_hf_dft_preparing_posthf` if you want to compute (and store) integrals in the molecular-orbital (MO) basis.
 
 
-Example input files
-===================
+.. _hamiltonian_dump_fcidump:
 
-Exporting a Hamiltonian in ASCII format
----------------------------------------
+FCIDUMP format
+==============
 
-In this example, we export the molecular Hamiltonian for the dinotrogen molecule
-in the cc-pVDZ basis in the Hartree-Fock orbital basis. The Hamiltonian with all
-active orbitals is written to ``FCIDUMP``, while the Hamiltonian in an active
-space of CAS(8,8) is written to ``FCIDUMP8-8``.
+The FCIDUMP format is mainly useful for exchanging Hamiltonians with different codes. Compared to the internal format, there are some restrictions:
 
-.. code-block:: python
+1. The one-body terms must all be added into a single operator.
+2. The integrals can only be stored in a restricted (MO) basis set, i.e. so no different basis sets for the alpha and beta orbitals are possible.
+3. The two-electron integrals must be stored in a ``DenseFourIndex`` object, so the Cholesky decomposition of the ERI is not supported.
 
-    #!/usr/bin/env python
+The FCIDUMP format is normally only used for storing integrals in the MO basis but the example here will only consider the AO basis. Read the section :ref:`user_hf_dft_preparing_posthf` if you want to compute (and store) integrals in the molecular-orbital (MO) basis. The usage is as follows:
 
-    from horton import *
+.. literalinclude :: ../data/examples/hamiltonian/dump_fcidump_ao.py
+    :caption: data/examples/hamiltonian/dump_fcidump_ao.py
+    :lines: 2-
 
-    ###############################################################################
-    ## Set up molecule, define basis set ##########################################
-    ###############################################################################
-    mol = Molecule.from_file(context.get_fn('test/water.xyz'))
-    obasis = get_gobasis(mol.coordinates, mol.numbers, 'cc-pvdz')
-    ###########################################################################################
-    ## Define Occupation model, expansion coefficients and overlap ############################
-    ###########################################################################################
-    lf = DenseLinalgFactory(obasis.nbasis)
-    occ_model = AufbauOccModel(7)
-    orb = lf.create_expansion(obasis.nbasis)
-    olp = obasis.compute_overlap(lf)
-    ###########################################################################################
-    ## Construct Hamiltonian ##################################################################
-    ###########################################################################################
-    kin = obasis.compute_kinetic(lf)
-    na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
-    er = obasis.compute_electron_repulsion(lf)
-    external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
-    terms = [
-        RTwoIndexTerm(kin, 'kin'),
-        RDirectTerm(er, 'hartree'),
-        RExchangeTerm(er, 'x_hf'),
-        RTwoIndexTerm(na, 'ne'),
-    ]
-    ham = REffHam(terms, external)
-    ###########################################################################################
-    ## Perform initial guess ##################################################################
-    ###########################################################################################
-    guess_core_hamiltonian(olp, kin, na, orb)
-    ###########################################################################################
-    ## Do a Hartree-Fock calculation #########################################################
-    ###########################################################################################
-    scf_solver = PlainSCFSolver(1e-6)
-    scf_solver(ham, lf, olp, occ_model, orb)
-    ###########################################################################################
-    ## Combine to single one-electron Hamiltonian #############################################
-    ###########################################################################################
-    one = kin.copy()
-    one.iadd(na)
+This example shows how the ``Molecule`` attributes can be set by giving keyword arguments to the constructor. The file ``hamiltonian_ao.FCIDUMP`` will contain the following:
 
-    ###########################################################################################
-    ## Export Hamiltonian in Hartree-Fock molecular orbital basis (all orbitals active) #######
-    ###########################################################################################
-    dump_fcidump(lf, one, er, external['nn'], orb, 'FCIDUMP')
+.. code-block:: text
 
-    ###########################################################################################
-    ## Export Hamiltonian in Hartree-Fock molecular orbital basis for CAS(8,8) ################
-    ###########################################################################################
-    dump_fcidump(lf, one, er, external['nn'], orb, 'FCIDUMP8-8',
-                      **{'nel': 8, 'ncore': 2, 'nactive': 8})
+     &FCI NORB=28,NELEC=20,MS2=0,
+      ORBSYM= 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+      ISYM=1
+     &END
+     5.9786161694613265e+00    1    1    1    1
+    -1.0433683639500952e+00    2    1    1    1
+     1.9823368119430076e-01    2    1    2    1
+     6.1978840317716133e-01    2    2    1    1
+    .
+    .
+    .
+    -1.4611205008249136e+01   27   27    0    0
+    -8.5804159203863803e-12   28   14    0    0
+    -1.4611205008249140e+01   28   28    0    0
+     2.0000000000000000e+01    0    0    0    0
+
+The input file is divided into two blocks. The first block (between ``&FCI`` and ``&END``) contains system-specific information:
+
+    :NORB: number of orbitals/basis functions
+    :NELEC: number of electrons
+    :MS2: spin projection
+    :ORBSYM: irreducible representation of each orbital
+    :ISYM: total symmetry of the wavefunction
+
+The second block (after ``&END``) contains the one- and two-electron integrals as well as the core energy:
+
+* First, all symmetry-unique elements of the two-electron integrals are listed, where the first column is the value of the integral, followed by the orbital indices. (Orbital indices start counting from one.) Note that the orbital indices (``i j k l``) in an FCIDUMP file are written in chemists' notation,
+
+  .. math::
+
+      (ij\vert kl) = \langle ik \vert jl \rangle = \int \phi_i^*(\mathbf{x}_1) \phi_k^*(\mathbf{x}_2) \frac{1}{r_{12}} \phi_j(\mathbf{x}_1) \phi_l(\mathbf{x}_2) d\mathbf{x}_1 d\mathbf{x}_2
+
+* Second, all symmetry-unique elements of the one-electron integrals are listed, where again the first column is the value of the integral, followed by the orbital indices. Note that the last two columns contain zeros.
+
+* The core energy (for instance, the nuclear repulsion term, etc.) is written on the last line with all orbital indices equal 0.
+
+If any of the value of an integral is zero, the corresponding line is not included in the the FCIDUMP file.
