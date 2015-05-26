@@ -38,7 +38,7 @@
 
 
 from horton.context import context
-from horton.units import angstrom
+from horton.units import angstrom, amu
 
 
 __all__ = ['periodic', 'Element', 'Periodic']
@@ -145,6 +145,13 @@ class Element(object):
             Chem. Phys. 64, 3063 (1976), URL #
             http://dx.doi.org/10.1063/1.432569
 
+       mass
+            The IUPAC atomic masses (wieghts) of 2013.
+            T.B. Coplen, W.A. Brand, J. Meija, M. Gröning, N.E. Holden, M.
+            Berglund, P. De Bièvre, R.D. Loss, T. Prohaska, and T. Walczyk.
+            http://ciaaw.org, http://www.ciaaw.org/pubs/TSAW2013_xls.xls,
+            When ranges are provided, the middle of the range is used.
+
        The following attribute is derived from the data given above:
 
        cov_radius:
@@ -169,20 +176,11 @@ class Element(object):
             c6_chu
     '''
 
-    attribute_names = [
-        'name', 'group', 'period',
-        'cov_radius_cordero', 'cov_radius_bragg', 'cov_radius_slater',
-        'vdw_radius_bondi', 'vdw_radius_truhlar', 'vdw_radius_rt',
-        'vdw_radius_batsanov', 'vdw_radius_dreiding', 'vdw_radius_uff',
-        'vdw_radius_mm3', 'wc_radius', 'cr_radius', 'eneg_pauling',
-        'pold_crc', 'pold_chu', 'c6_chu'
-    ]
-
     def __init__(self, number=None, symbol=None, **kwargs):
         self.number = number
         self.symbol = symbol
-        for name in self.attribute_names:
-            setattr(self, name, kwargs.get(name))
+        for name, value in kwargs.iteritems():
+            setattr(self, name, value)
 
         self.cov_radius = self.cov_radius_cordero
 
@@ -253,7 +251,8 @@ def load_periodic():
         'str': (lambda s: s.strip()),
         'angstrom': (lambda s: float(s)*angstrom),
         '2angstrom': (lambda s: float(s)*angstrom/2),
-        'angstrom**3': (lambda s: float(s)*angstrom**3)
+        'angstrom**3': (lambda s: float(s)*angstrom**3),
+        'amu': (lambda s: float(s)*amu),
     }
 
     with open(context.get_fn('elements.csv'),'r') as f:
@@ -275,6 +274,8 @@ def load_periodic():
                 cell = row[i]
                 if len(cell) > 0:
                     kwargs[names[i]] = convertors[i](cell)
+                else:
+                    kwargs[names[i]] = None
             elements.append(Element(**kwargs))
 
     return Periodic(elements)
