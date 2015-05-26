@@ -22,7 +22,8 @@
 
 
 from horton import periodic
-from horton.units import angstrom
+from horton.units import angstrom, amu
+
 
 def test_periodic():
     # check basic info of the elements
@@ -88,3 +89,6 @@ def test_periodic():
     assert periodic[3].c6 == 1392.0
     assert periodic[15].c6 == periodic[15].c6_chu
     assert periodic[15].c6 == 185.0
+    # check atomic masses
+    assert periodic[7].mass == 14.006855*amu
+    assert periodic[41].mass == 92.90637*amu
