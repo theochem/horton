@@ -165,6 +165,15 @@ def test_four_index_is_symmetric():
         cho = get_four_cho_dense(sym=sym)[0]
         assert cho.is_symmetric(sym)
 
+def test_four_index_symmetrize():
+    lf = CholeskyLinalgFactory(20)
+    op = lf.create_four_index(nvec=8)
+    for symmetry in 1, 2, 4, 8:
+        op.decouple_array2()
+        op.randomize()
+        op.symmetrize(symmetry)
+        assert op.is_symmetric(symmetry, 0, 0)
+
 
 def test_four_index_itranspose():
     for sym in 1, 2, 4, 8:

@@ -325,9 +325,9 @@ class CholeskyFourIndex(FourIndex):
         check_options('symmetry', symmetry, 1, 2, 4, 8)
         if symmetry in (2, 8) and self.is_decoupled:
             # This is a different type of symmetrization than in the dense case!
-            self._array[:] += self.array2
+            self._array[:] += self._array2
             self._array *= 0.5
-            self.decouple()
+            self.reset_array2()
         if symmetry in (4, 8):
             self._array[:] = self._array + self._array.transpose(0,2,1)
             if self.is_decoupled:

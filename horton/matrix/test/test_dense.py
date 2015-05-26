@@ -1849,6 +1849,15 @@ def test_four_index_is_symmetric():
     assert op.is_symmetric(1)
 
 
+def test_four_index_symmetrize():
+    lf = DenseLinalgFactory(8)
+    op = lf.create_four_index()
+    for symmetry in 1, 2, 4, 8:
+        op.randomize()
+        op.symmetrize(symmetry)
+        assert op.is_symmetric(symmetry, 0, 0)
+
+
 def test_four_index_itranspose():
     lf = DenseLinalgFactory(8)
     for i in xrange(10):
