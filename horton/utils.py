@@ -160,7 +160,7 @@ def check_options(name, select, *options):
     '''
     if select not in options:
         formatted = ', '.join(['\'%s\'' % option for option in options])
-        raise ValueError('The argument \'%s\' must be one of: %s' % (select, formatted))
+        raise ValueError('The argument \'%s\' must be one of: %s' % (name, formatted))
 
 
 def doc_inherit(base_class):
