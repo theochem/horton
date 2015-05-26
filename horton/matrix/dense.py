@@ -2984,6 +2984,8 @@ class DenseFourIndex(FourIndex):
                 more details.
         '''
         check_options('symmetry', symmetry, 1, 2, 4, 8)
+        # The implementation is relatively expensive (in terms of memory) but
+        # results in exactly symmetrized four-index objects.
         if not self.is_shape_symmetric(symmetry):
             raise ValueError('FourIndex object does not have the right shape for symmetrization')
         if symmetry in (2, 8):

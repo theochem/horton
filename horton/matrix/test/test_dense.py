@@ -1858,6 +1858,17 @@ def test_four_index_symmetrize():
         assert op.is_symmetric(symmetry, 0, 0)
 
 
+def test_four_index_symmetrize_order_of_operations():
+    lf = DenseLinalgFactory(8)
+    op = lf.create_four_index()
+    for symmetry in 1, 2, 4, 8:
+        # ugly hack to have matrix elements with very different order of
+        # magnitudes
+        op._array[:] = 10**np.random.uniform(-20,20, (8,8,8,8))
+        op.symmetrize(symmetry)
+        assert op.is_symmetric(symmetry, 0, 0)
+
+
 def test_four_index_itranspose():
     lf = DenseLinalgFactory(8)
     for i in xrange(10):
