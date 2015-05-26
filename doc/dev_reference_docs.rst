@@ -8,6 +8,7 @@ Reference Documentation
    ref_features
    ref_contributors
    ref_releases
+   ref_file_formats
    ref_grids
    ref_gaussian_basis
    ref_acronyms
