@@ -200,7 +200,7 @@ class DenseLinalgFactory(LinalgFactory):
     # DenseTwoIndex constructor with default arguments
     #
 
-    def create_two_index(self, nbasis=None, nfn=None):
+    def create_two_index(self, nbasis=None, nbasis1=None):
         '''Create a DenseTwoIndex with defaults from the LinalgFactory
 
            **Optional arguments:**
@@ -210,21 +210,21 @@ class DenseLinalgFactory(LinalgFactory):
                 default_nbasis value of the DenseLinalgFactory instance will be
                 used.
 
-           nfn
-                The number of foo. When not given, the default_nbasis
-                value of the DenseLinalgFactory instance will be used.
+           nbasis1
+                The number of basis functions for the second axis if it differes
+                from ``nbasis``.
         '''
         nbasis = nbasis or self.default_nbasis
-        # Don't replace nfn by self.default_nbasis when it is None! It is
+        # Don't replace nbasis1 by self.default_nbasis when it is None! It is
         # a genuine optional argument.
-        return DenseTwoIndex(nbasis, nfn)
+        return DenseTwoIndex(nbasis, nbasis1)
 
-    def _check_two_index_init_args(self, other, nbasis=None, nfn=None):
+    def _check_two_index_init_args(self, other, nbasis=None, nbasis1=None):
         '''Is an object compatible the constructor arguments?'''
         nbasis = nbasis or self.default_nbasis
-        # Don't replace nfn by self.default_nbasis when it is None! It is
+        # Don't replace nbasis1 by self.default_nbasis when it is None! It is
         # a genuine optional argument.
-        other.__check_init_args__(nbasis, nfn)
+        other.__check_init_args__(nbasis, nbasis1)
 
     create_two_index.__check_init_args__ = _check_two_index_init_args
 
@@ -1352,25 +1352,25 @@ class DenseTwoIndex(TwoIndex):
     # Constructor and destructor
     #
 
-    def __init__(self, nbasis, nfn=None):
+    def __init__(self, nbasis, nbasis1=None):
         """
            **Arguments:**
 
            nbasis
                 The number of basis functions. (Number of rows. Also number of
-                columns, unless nfn is given.)
+                columns, unless nbasis1 is given.)
 
            **Optional arguments:**
 
-           nfn
+           nbasis1
                 When given, this is the number of columns (second index).
 
            Note that by default the two-index object is assumed to be Hermitian.
-           Only when nfn is given, this assumption is dropped.
+           Only when nbasis1 is given, this assumption is dropped.
         """
-        if nfn is None:
-            nfn = nbasis
-        self._array = np.zeros((nbasis, nfn))
+        if nbasis1 is None:
+            nbasis1 = nbasis
+        self._array = np.zeros((nbasis, nbasis1))
         log.mem.announce(self._array.nbytes)
 
     def __del__(self):
@@ -1382,18 +1382,18 @@ class DenseTwoIndex(TwoIndex):
     # Methods from base class
     #
 
-    def __check_init_args__(self, nbasis, nfn=None):
+    def __check_init_args__(self, nbasis, nbasis1=None):
         '''Is self compatible with the given constructor arguments?'''
-        if nfn is None:
-            nfn = nbasis
+        if nbasis1 is None:
+            nbasis1 = nbasis
         assert nbasis == self.nbasis
-        assert nfn == self.nfn
+        assert nbasis1 == self.nbasis1
 
     def __eq__(self, other):
         '''Compare self with other'''
         return isinstance(other, DenseTwoIndex) and \
             other.nbasis == self.nbasis and \
-            other.nfn == self.nfn and \
+            other.nbasis1 == self.nbasis1 and \
             (other._array == self._array).all()
 
     @classmethod
@@ -1406,8 +1406,8 @@ class DenseTwoIndex(TwoIndex):
                 An h5py.Group object.
         '''
         nbasis = grp['array'].shape[0]
-        nfn = grp['array'].shape[1]
-        result = cls(nbasis, nfn)
+        nbasis1 = grp['array'].shape[1]
+        result = cls(nbasis, nbasis1)
         grp['array'].read_direct(result._array)
         return result
 
@@ -1424,12 +1424,12 @@ class DenseTwoIndex(TwoIndex):
 
     # FIXME: rename into clean_copy
     def new(self):
-        '''Return a new two-index object with the same nbasis (and nfn)'''
-        return DenseTwoIndex(self.nbasis, self.nfn)
+        '''Return a new two-index object with the same nbasis (and nbasis1)'''
+        return DenseTwoIndex(self.nbasis, self.nbasis1)
 
     def _check_new_init_args(self, other):
         '''Check whether an already initialized object is compatible'''
-        other.__check_init_args__(self.nbasis, self.nfn)
+        other.__check_init_args__(self.nbasis, self.nbasis1)
 
     new.__check_init_args__ = _check_new_init_args
 
@@ -1449,8 +1449,8 @@ class DenseTwoIndex(TwoIndex):
         '''
         end0, end1 = self._fix_ends(end0, end1)
         nbasis = end0 - begin0
-        nfn = end1 - begin1
-        result = DenseTwoIndex(nbasis, nfn)
+        nbasis1 = end1 - begin1
+        result = DenseTwoIndex(nbasis, nbasis1)
         result._array[:] = self._array[begin0:end0, begin1:end1]
         return result
 
@@ -1479,7 +1479,7 @@ class DenseTwoIndex(TwoIndex):
             if other.shape == self.shape:
                 self._array[:] = other
             else:
-                self._array[:] = other.reshape((self.nbasis, self.nfn))
+                self._array[:] = other.reshape((self.nbasis, self.nbasis1))
         else:
             raise TypeError('Do not know how to assign object of type %s.' % type(other))
 
@@ -1500,7 +1500,7 @@ class DenseTwoIndex(TwoIndex):
         check_type('tf2', tf2, DenseTwoIndex)
         if not (self.nbasis == other.nbasis):
             raise TypeError('Both expansions must have the same number of basis functions.')
-        if not (tf2.shape[0] == other.nfn and tf2.shape[1] == self.shape[1]):
+        if not (tf2.shape[0] == other.nbasis1 and tf2.shape[1] == self.shape[1]):
             raise TypeError('The shape of the two-index object is incompatible with that of the expansions.')
         self._array[:] = np.dot(other.coeffs, tf2._array)
 
@@ -1692,13 +1692,13 @@ class DenseTwoIndex(TwoIndex):
 
     def sqrt(self):
         '''Return the real part of the square root of two-index object'''
-        out = DenseTwoIndex(self.nbasis, self.nfn)
+        out = DenseTwoIndex(self.nbasis, self.nbasis1)
         out._array[:] = sqrtm(self._array).real
         return out
 
     def inverse(self):
         '''Return the inverse of two-index object'''
-        out = DenseTwoIndex(self.nbasis, self.nfn)
+        out = DenseTwoIndex(self.nbasis, self.nbasis1)
         out._array[:] = inv(self._array)
         return out
 
@@ -1718,11 +1718,11 @@ class DenseTwoIndex(TwoIndex):
 
     nbasis = property(_get_nbasis)
 
-    def _get_nfn(self):
+    def _get_nbasis1(self):
         '''The other size of the two-index object'''
         return self.shape[1]
 
-    nfn = property(_get_nfn)
+    nbasis1 = property(_get_nbasis1)
 
     def _get_shape(self):
         '''The shape of the object'''
@@ -1821,7 +1821,7 @@ class DenseTwoIndex(TwoIndex):
 
     def is_shape_symmetric(self, symmetry):
         '''Check whether the symmetry argument matches the shape'''
-        return symmetry == 1 or self.nbasis == self.nfn
+        return symmetry == 1 or self.nbasis == self.nbasis1
 
     def symmetrize(self, symmetry=2):
         '''Symmetrize in-place
