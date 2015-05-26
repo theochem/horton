@@ -165,12 +165,26 @@ def test_four_index_is_symmetric():
         cho = get_four_cho_dense(sym=sym)[0]
         assert cho.is_symmetric(sym)
 
+
 def test_four_index_symmetrize():
     lf = CholeskyLinalgFactory(20)
     op = lf.create_four_index(nvec=8)
     for symmetry in 1, 2, 4, 8:
         op.decouple_array2()
         op.randomize()
+        op.symmetrize(symmetry)
+        assert op.is_symmetric(symmetry, 0, 0)
+
+
+def test_four_index_symmetrize_order_of_operations():
+    lf = CholeskyLinalgFactory(20)
+    op = lf.create_four_index(nvec=8)
+    for symmetry in 1, 2, 4, 8:
+        op.decouple_array2()
+        # ugly hack to have matrix elements with very different order of
+        # magnitudes
+        op._array[:] = 10**np.random.uniform(-20,20, (8,20,20))
+        op._array2[:] = 10**np.random.uniform(-20,20, (8,20,20))
         op.symmetrize(symmetry)
         assert op.is_symmetric(symmetry, 0, 0)
 
