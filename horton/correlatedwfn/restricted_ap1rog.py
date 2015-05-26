@@ -1482,7 +1482,8 @@ class RAp1rog(Geminal):
         #
         # Symmetrize G(amma)_ppqq 2-RDM. This reduces the number of operations
         #
-        two_dm_av = twodmppqq.symmetrize()
+        two_dm_av = twodmppqq.copy()
+        two_dm_av.symmetrize()
         #
         # L_uptp*G_up
         #
@@ -1563,7 +1564,8 @@ class RAp1rog(Geminal):
         #
         # Symmetrize G(amma)_ppqq 2-RDM
         #
-        two_dm_av = twodmppqq.symmetrize()
+        two_dm_av = twodmppqq.copy()
+        two_dm_av.symmetrize()
         #
         # Modify diagonal elements to simplify contractions
         #
@@ -1699,8 +1701,8 @@ class RAp1rog(Geminal):
         #
         # Symmetrize 2DM
         #
-        dm2av = dm2ppqq.symmetrize()
-        dm2pqpqex = dm2pqpq.copy()
+        dm2av = dm2ppqq.copy()
+        dm2av.symmetrize()
         #
         # Reset diagonal elements of DMs
         #

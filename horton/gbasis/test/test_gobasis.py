@@ -313,7 +313,7 @@ def test_grid_two_index_ne():
     assert abs(na_grid._array).max() > 8.0
     assert abs(na_ana._array-na_grid._array).max() < 2e-3
     # check symmetry
-    na_grid.check_symmetry()
+    assert na_grid.is_symmetric()
 
 
 def test_gob_normalization():

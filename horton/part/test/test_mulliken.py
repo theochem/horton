@@ -31,7 +31,7 @@ def test_mulliken_operators_water_sto3g():
     mol = Molecule.from_file(fn_fchk)
     operators = get_mulliken_operators(mol.obasis, mol.lf)
     for operator in operators:
-        operator.check_symmetry()
+        assert operator.is_symmetric()
     dm_full = mol.get_dm_full()
     populations = np.array([operator.contract_two('ab,ba', dm_full) for operator in operators])
     charges = mol.numbers - populations

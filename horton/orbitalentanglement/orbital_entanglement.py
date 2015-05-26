@@ -332,7 +332,7 @@ class OrbitalEntanglement(object):
         self.mutual_info.iadd_t(self.so_entropy, -1.0)
         self.mutual_info.iscale(-0.5)
         self.mutual_info.assign_diagonal(0.0)
-        self.mutual_info.check_symmetry()
+        assert self.mutual_info.is_symmetric()
 
     def diagonalize(self, mat):
         '''Returns eigenvalues of a TwoIndex instance. Only real eigenvalues
