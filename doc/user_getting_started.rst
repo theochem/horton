@@ -134,6 +134,20 @@ Writing data to a file is done by first creating a :py:class:`~horton.io.molecul
 A Complete list of supported file formats for data input or output can be found here: :ref:`ref_file_formats`, including a list of :py:class:`~horton.io.molecule.Molecule` attributes supported by each file format. A definition of all possible :py:class:`~horton.io.molecule.Molecule` attributes can be found here: :py:class:`horton.io.molecule.Molecule`.
 
 
+The periodic table
+------------------
+
+Horton has a periodic table of elements with several atomic properties that can be of interst for computations. Details can be found here: :py:mod:`horton.periodic`. The following example prints some information for Carbon:
+
+.. code-block:: python
+
+    print periodic[6].mass/amu                # The mass in atomic mass units
+    print periodic['C'].cov_radius/angstrom   # The covalent radius in angstrom
+    print periodic['c '].c6                   # The C6 coefficient in atomic units
+
+Note that you can be relatively sloppy with the index to refer to elements of the periodic table.
+
+
 A complete example
 ------------------
 
