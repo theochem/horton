@@ -152,28 +152,28 @@ class Element(object):
             http://ciaaw.org, http://www.ciaaw.org/pubs/TSAW2013_xls.xls,
             When ranges are provided, the middle of the range is used.
 
-       The following attribute is derived from the data given above:
+       The following attributes are derived from the data given above:
 
        cov_radius:
-            equals cov_radius_cordero
+            | equals cov_radius_cordero
 
        vdw_radius:
-            vdw_radius_truhlar if present
-            else vdw_radius_bondi if present
-            else vdw_radius_batsanov if present
-            else vdw_radius_mm3 if present
-            else None
+            | vdw_radius_truhlar if present
+            | else vdw_radius_bondi if present
+            | else vdw_radius_batsanov if present
+            | else vdw_radius_mm3 if present
+            | else None
 
        becke_radius:
-            cov_radius_slater if present
-            else cov_radius_cordero if present
-            else None
+            | cov_radius_slater if present
+            | else cov_radius_cordero if present
+            | else None
 
        pold:
-            pold_crc
+            | pold_crc
 
        c6:
-            c6_chu
+            | c6_chu
     '''
 
     def __init__(self, number=None, symbol=None, **kwargs):
