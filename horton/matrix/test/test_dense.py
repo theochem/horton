@@ -135,17 +135,17 @@ def test_linalg_factory_constructors():
     lf.create_two_index.__check_init_args__(lf, op2)
     assert op2.nbasis == 10
     assert op2.shape == (10, 10)
-    assert op2.nfn == 10
+    assert op2.nbasis1 == 10
     op2 = lf.create_two_index(12)
     lf.create_two_index.__check_init_args__(lf, op2, 12)
     assert op2.nbasis == 12
     assert op2.shape == (12, 12)
-    assert op2.nfn == 12
+    assert op2.nbasis1 == 12
     op2 = lf.create_two_index(10, 12)
     lf.create_two_index.__check_init_args__(lf, op2, 10, 12)
     assert op2.shape == (10, 12)
     assert op2.nbasis == 10
-    assert op2.nfn == 12
+    assert op2.nbasis1 == 12
 
     # Three-index tests
     op3 = lf.create_three_index()
