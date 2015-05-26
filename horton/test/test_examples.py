@@ -25,6 +25,12 @@ from horton.test.common import check_script, check_script_in_tmp
 from horton import context
 
 
+def test_example_first():
+    required = [context.get_fn('examples/getting_started/first.py')]
+    expected = ['water.h5']
+    check_script_in_tmp('./first.py', required, expected)
+
+
 def test_example_hydrogen_ring():
     required = [context.get_fn('examples/hamiltonian/hydrogen_ring.py')]
     expected = ['ring.xyz']
