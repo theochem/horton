@@ -441,11 +441,11 @@ def check_dm_kinetic(fn, eps=1e-100):
 
     tmp = kin.new()
     obasis.compute_grid_kinetic_fock(grid.points, grid.weights, np.random.uniform(-1, 1, grid.size), tmp)
-    tmp.check_symmetry()
+    assert tmp.is_symmetric()
 
     kinn = kin.new()
     obasis.compute_grid_kinetic_fock(grid.points, grid.weights, np.ones(grid.size), kinn)
-    kinn.check_symmetry()
+    assert kinn.is_symmetric()
     ekin3 = kinn.contract_two('ab,ab', dm)
     assert abs(ekin1 - ekin3) < eps
 

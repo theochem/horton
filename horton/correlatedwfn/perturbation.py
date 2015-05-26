@@ -322,7 +322,7 @@ class RMP2(Perturbation):
                2-el MO integrals
         '''
         # B_jk|bc
-        out = self.lf.create_four_index(self.nocc, self.nvirt, self.nocc, self.nvirt, 1)
+        out = self.lf.create_four_index(self.nocc, self.nvirt, self.nocc, self.nvirt)
         mo2.slice_to_four('abcd->acbd', out, 1.0, True, 0, self.nocc, 0, self.nocc, self.nocc, self.nbasis, self.nocc, self.nbasis)
         return out
 
@@ -336,7 +336,7 @@ class RMP2(Perturbation):
                Sliced 2-el MO integrals
         '''
         fock = self.get_aux_matrix('fock')
-        amplitudes = self.lf.create_four_index(self.nocc, self.nvirt, self.nocc, self.nvirt, 1)
+        amplitudes = self.lf.create_four_index(self.nocc, self.nvirt, self.nocc, self.nvirt)
         for i in range(self.nocc):
             for j in range(self.nocc):
                 for a in range(self.nvirt):
@@ -344,7 +344,7 @@ class RMP2(Perturbation):
                         val = 1.0/(fock.get_element(i)+fock.get_element(j) \
                                   -fock.get_element(self.nocc+a) \
                                   -fock.get_element(self.nocc+b))
-                        amplitudes.set_element(i,a,j,b,val)
+                        amplitudes.set_element(i,a,j,b,val, symmetry=1)
         amplitudes.imul(matrix)
         return amplitudes
 
@@ -449,7 +449,7 @@ class RMP2(Perturbation):
         '''Check if amplitudes are symmetric (within a given threshold).'''
         thresh = kwargs.get('threshold', 1e-6)
 
-        if not self.amplitudes[0].check_symmetry(thresh, 'cdab'):
+        if not self.amplitudes[0].is_symmetric('cdab', thresh):
             raise ValueError('Warning: Cluster amplitudes not symmetric!')
 
 
@@ -525,11 +525,11 @@ class PTa(Perturbation):
         #
         # output
         #
-        out = self.lf.create_four_index(self.nocc, self.nvirt, self.nocc, self.nvirt, 1)
+        out = self.lf.create_four_index(self.nocc, self.nvirt, self.nocc, self.nvirt)
         #
         # temporary storage
         #
-        tmp4ind = self.lf.create_four_index(self.nocc, self.nvirt, self.nocc, self.nvirt, 1)
+        tmp4ind = self.lf.create_four_index(self.nocc, self.nvirt, self.nocc, self.nvirt)
         tmp3ind0 = self.lf.create_three_index(self.nocc, self.nvirt, self.nvirt)
         tmp3ind1 = self.lf.create_three_index(self.nocc, self.nocc, self.nvirt)
         onesum = args[2].trace(0, self.nocc, 0, self.nocc)
@@ -637,7 +637,7 @@ class PTa(Perturbation):
         #
         # B_jb|kc
         #
-        out = self.lf.create_four_index(self.nocc, self.nvirt, self.nocc, self.nvirt, 1)
+        out = self.lf.create_four_index(self.nocc, self.nvirt, self.nocc, self.nvirt)
         args[3].slice_to_four('abcd->cadb', out, 1.0, True, self.nocc, self.nbasis, self.nocc, self.nbasis, 0, self.nocc, 0, self.nocc)
         return out
 
@@ -651,7 +651,7 @@ class PTa(Perturbation):
                 A FourIndex instance.
         '''
         fock = self.get_aux_matrix('fock')
-        amplitudes = self.lf.create_four_index(self.nocc, self.nvirt, self.nocc, self.nvirt, 1)
+        amplitudes = self.lf.create_four_index(self.nocc, self.nvirt, self.nocc, self.nvirt)
         for i in range(self.nocc):
             for j in range(self.nocc):
                 for a in range(self.nvirt):
@@ -661,7 +661,7 @@ class PTa(Perturbation):
                         val = 1.0/(fock.get_element(i,i)+fock.get_element(j,j) \
                                   -fock.get_element(aa,aa) \
                                   -fock.get_element(bb,bb))
-                        amplitudes.set_element(i,a,j,b,val)
+                        amplitudes.set_element(i,a,j,b,val, symmetry=1)
         amplitudes.imul(matrix)
         return amplitudes
 
@@ -738,7 +738,7 @@ class PTa(Perturbation):
         #
         # oc_jbc = sum_m <mm|bc> c_jm^bc
         #
-        tmp = self.lf.create_four_index(self.nocc, self.nocc, self.nvirt, self.nvirt, 1)
+        tmp = self.lf.create_four_index(self.nocc, self.nocc, self.nvirt, self.nvirt)
         auxmat2 = self.init_aux_matrix('ocjbc', cia.nbasis, cia.nfn)
         mo2.contract_two_to_four('aabc,db->adbc', cia, tmp, 1.0, True, 0, self.nocc, 0, self.nocc, self.nocc, self.nbasis, self.nocc, self.nbasis)
         tmp.contract_two_to_three('abcd,ad->bcd', cia, auxmat2, 1.0, True)
@@ -861,7 +861,7 @@ class PTa(Perturbation):
         thresh = kwargs.get('threshold', 1e-6)
 
         # check symmetry of amplitudes:
-        if not self.amplitudes[0].check_symmetry(thresh, 'cdab'):
+        if not self.amplitudes[0].is_symmetric('cdab', thresh):
             raise ValueError('Warning: Cluster amplitudes not symmetric. Aborting optimization!')
 
         # check if diagonal amplitudes are zero:
@@ -942,7 +942,7 @@ class PTb(Perturbation):
         #
         # Store amplitudes
         #
-        ptamplitudes = self.lf.create_four_index(self.nocc, self.nvirt, self.nocc, self.nvirt, 1)
+        ptamplitudes = self.lf.create_four_index(self.nocc, self.nvirt, self.nocc, self.nvirt)
         ptamplitudes.assign(amplitudes.x)
 
         #
@@ -982,11 +982,11 @@ class PTb(Perturbation):
         #
         # output
         #
-        out = self.lf.create_four_index(self.nocc, self.nvirt, self.nocc, self.nvirt, 1)
+        out = self.lf.create_four_index(self.nocc, self.nvirt, self.nocc, self.nvirt)
         #
         # temporary storage
         #
-        tmp4ind = self.lf.create_four_index(self.nocc, self.nvirt, self.nocc, self.nvirt, 1)
+        tmp4ind = self.lf.create_four_index(self.nocc, self.nvirt, self.nocc, self.nvirt)
         tmp3ind0 = self.lf.create_three_index(self.nocc, self.nvirt, self.nvirt)
         tmp3ind1 = self.lf.create_three_index(self.nocc, self.nocc, self.nvirt)
         onesum = args[2].trace(0, self.nocc, 0, self.nocc)
@@ -994,7 +994,7 @@ class PTb(Perturbation):
         #
         # PT amplitudes
         #
-        ptamplitudes = self.lf.create_four_index(self.nocc, self.nvirt, self.nocc, self.nvirt, 1)
+        ptamplitudes = self.lf.create_four_index(self.nocc, self.nvirt, self.nocc, self.nvirt)
         ptamplitudes.assign(amplitudes)
 
         #
@@ -1130,11 +1130,11 @@ class PTb(Perturbation):
         #
         # output
         #
-        out = self.lf.create_four_index(self.nocc, self.nvirt, self.nocc, self.nvirt, 1)
+        out = self.lf.create_four_index(self.nocc, self.nvirt, self.nocc, self.nvirt)
         #
         # temporary storage
         #
-        tmp4ind = self.lf.create_four_index(self.nocc, self.nvirt, self.nocc, self.nvirt, 1)
+        tmp4ind = self.lf.create_four_index(self.nocc, self.nvirt, self.nocc, self.nvirt)
         tmp3ind0 = self.lf.create_three_index(self.nocc, self.nvirt, self.nvirt)
         tmp3ind1 = self.lf.create_three_index(self.nocc, self.nocc, self.nvirt)
         onesum = args[2].trace(0, self.nocc, 0, self.nocc)
@@ -1302,7 +1302,7 @@ class PTb(Perturbation):
         #
         # oc_jbc = sum_m <mm|bc> c_jm^bc
         #
-        tmp = self.lf.create_four_index(self.nocc, self.nocc, self.nvirt, self.nvirt, 1)
+        tmp = self.lf.create_four_index(self.nocc, self.nocc, self.nvirt, self.nvirt)
         auxmat2 = self.init_aux_matrix('ocjbc', cia.nbasis, cia.nfn)
         mo2.contract_two_to_four('aabc,db->adbc', cia, tmp, 1.0, True, 0, self.nocc, 0, self.nocc, self.nocc, self.nbasis, self.nocc, self.nbasis)
         tmp.contract_two_to_three('abcd,ad->bcd', cia, auxmat2, 1.0, True)
@@ -1443,5 +1443,5 @@ class PTb(Perturbation):
         thresh = kwargs.get('threshold', 1e-6)
 
         # check symmetry of amplitudes:
-        if not self.amplitudes[0].check_symmetry(thresh, 'cdab'):
+        if not self.amplitudes[0].is_symmetric('cdab', thresh):
             raise ValueError('Warning: Cluster amplitudes not symmetric!')

@@ -38,14 +38,14 @@ __all__ = [
 
 class CholeskyLinalgFactory(DenseLinalgFactory):
     @doc_inherit(DenseLinalgFactory)
-    def create_four_index(self, nbasis=None, nvec=None, array=None, array2=None, hermitian_vecs=True):
+    def create_four_index(self, nbasis=None, nvec=None, array=None, array2=None):
         nbasis = nbasis or self.default_nbasis
-        return CholeskyFourIndex(nbasis, nvec, array, array2, hermitian_vecs)
+        return CholeskyFourIndex(nbasis, nvec, array, array2)
 
     @doc_inherit(DenseLinalgFactory)
-    def _check_four_index_init_args(self, four_index, nbasis=None, nvec=None, array=None, hermitian_vecs=True):
+    def _check_four_index_init_args(self, four_index, nbasis=None, nvec=None, array=None):
         nbasis = nbasis or self.default_nbasis
-        four_index.__check_init_args__(nbasis, nvec, hermitian_vecs)
+        four_index.__check_init_args__(nbasis, nvec)
 
     create_four_index.__check_init_args__ = _check_four_index_init_args
 
@@ -58,7 +58,7 @@ class CholeskyFourIndex(FourIndex):
     # Constructor and destructor
     #
 
-    def __init__(self, nbasis, nvec=None, array=None, array2=None, hermitian_vecs=True):
+    def __init__(self, nbasis, nvec=None, array=None, array2=None):
         """
            **Arguments:**
 
@@ -75,10 +75,6 @@ class CholeskyFourIndex(FourIndex):
 
            array2
                 The second set of Cholesky vectors, if different from the first.
-
-           hermitian_vecs
-                Indicates that the Cholesky vectors should be Hermitian 2-index
-                objects.
 
            Either nvec or array must be given (or both).
         """
@@ -109,8 +105,6 @@ class CholeskyFourIndex(FourIndex):
                 check_array(array2, 'array2')
                 self._array2 = array2
 
-        self._hermitian_vecs = hermitian_vecs
-
     def __del__(self):
         if log is not None:
             if hasattr(self, '_array') and hasattr(self, '_self_alloc'):
@@ -133,19 +127,17 @@ class CholeskyFourIndex(FourIndex):
     # Methods from base class
     #
 
-    def __check_init_args__(self, nbasis, nvec, hermitian_vecs):
+    def __check_init_args__(self, nbasis, nvec):
         '''Is self compatible with the given constructor arguments?'''
         assert self._array is not None
         assert nbasis == self.nbasis
         assert nvec == self.nvec
-        assert hermitian_vecs == self._hermitian_vecs
 
     def __eq__(self, other):
         '''Compare self with other'''
         return isinstance(other, CholeskyFourIndex) and \
             other.nbasis == self.nbasis and \
             other.nvec == self.nvec and \
-            other.hermitian_vecs == self.hermitian_vecs and \
             other.is_decoupled == self.is_decoupled and \
             (other._array == self._array).all() and \
             (other._array2 == self._array2).all()
@@ -183,11 +175,11 @@ class CholeskyFourIndex(FourIndex):
 
     def new(self):
         '''Return a new four-index object with the same nbasis'''
-        return CholeskyFourIndex(self.nbasis, self.nvec, hermitian_vecs=self.hermitian_vecs)
+        return CholeskyFourIndex(self.nbasis, self.nvec)
 
     def _check_new_init_args(self, other):
         '''Check whether an already initialized object is compatible'''
-        other.__check_init_args__(self.nbasis, self.nvec, hermitian_vecs=self.hermitian_vecs)
+        other.__check_init_args__(self.nbasis, self.nvec)
 
     new.__check_init_args__ = _check_new_init_args
 
@@ -212,7 +204,6 @@ class CholeskyFourIndex(FourIndex):
                 Another CholeskyFourIndex object.
         '''
         check_type('other', other, CholeskyFourIndex)
-        self._hermitian_vecs = other.hermitian_vecs
         self._array[:] = other._array
         if other._array is other._array2:
             self.reset_array2()
@@ -223,15 +214,8 @@ class CholeskyFourIndex(FourIndex):
     def randomize(self):
         '''Fill with random normal data'''
         self._array[:] = np.random.normal(0, 1, self._array.shape)
-        if self._hermitian_vecs:
-            self._array[:] += self._array.swapaxes(1, 2)
-            self._array *= 0.5
         if self.is_decoupled:
             self._array2[:] = np.random.normal(0, 1, self._array2.shape)
-            if self._hermitian_vecs:
-                self._array2[:] += self._array2.swapaxes(1, 2)
-                self._array2 *= 0.5
-
 
     def permute_basis(self, permutation):
         '''Reorder the coefficients for a given permutation of basis functions.
@@ -286,26 +270,10 @@ class CholeskyFourIndex(FourIndex):
 
     nvec = property(_get_nvec)
 
-    def _get_hermitian_vecs(self):
-        return self._hermitian_vecs
-
-    hermitian_vecs = property(_get_hermitian_vecs)
-
     def _get_is_decoupled(self):
         return self._array is not self._array2
 
     is_decoupled = property(_get_is_decoupled)
-
-    def _get_symmetry(self):
-        '''The number of symmetries'''
-        result = 1
-        if not self.is_decoupled:
-            result *= 2
-        if self._hermitian_vecs:
-            result *= 4
-        return result
-
-    symmetry = property(_get_symmetry)
 
     #
     # New methods for this implementation
@@ -332,12 +300,38 @@ class CholeskyFourIndex(FourIndex):
         np.einsum('kac,kbd->abcd', self._array, self._array2, out=result._array)
         return result
 
-    def check_symmetry(self):
-        """Check the symmetry of the array."""
-        if self.hermitian_vecs:
-            assert (self._array == self._array.swapaxes(1,2)).all()
+    def is_symmetric(self, symmetry=2, rtol=1e-5, atol=1e-8):
+        '''Check the symmetry of the array.
+
+           **Optional arguments:**
+
+           symmetry
+                The symmetry to check. See :ref:`dense_matrix_symmetry`
+                for more details.
+
+           rtol and atol
+                relative and absolute tolerance. See to ``np.allclose``.
+        '''
+        if self.is_decoupled and symmetry in (2, 8):
+            return False
+        if symmetry in (4, 8):
+            if not np.allclose(self._array, self._array.swapaxes(1,2), rtol, atol):
+                return False
+            if self.is_decoupled and not np.allclose(self._array2, self._array2.swapaxes(1,2), rtol, atol):
+                return False
+        return True
+
+    def symmetrize(self, symmetry=8):
+        check_options('symmetry', symmetry, 1, 2, 4, 8)
+        if symmetry in (2, 8) and self.is_decoupled:
+            # This is a different type of symmetrization than in the dense case!
+            self._array[:] += self.array2
+            self._array *= 0.5
+            self.decouple()
+        if symmetry in (4, 8):
+            self._array[:] = self._array + self._array.transpose(0,2,1)
             if self.is_decoupled:
-                assert (self._array2 == self._array2.swapaxes(1,2)).all()
+                self._array2[:] = self._array2 + self._array2.transpose(0,2,1)
 
     def itranspose(self):
         '''In-place transpose: ``0,1,2,3 -> 1,0,3,2``'''
@@ -497,7 +491,6 @@ class CholeskyFourIndex(FourIndex):
         '''
         check_type('ao_integrals', ao_integrals, CholeskyFourIndex)
         exp0, exp1, exp2, exp3 = parse_four_index_transform_exps(exp0, exp1, exp2, exp3, DenseExpansion)
-        self._hermitian_vecs = ao_integrals.hermitian_vecs and (exp0 is exp2) and (exp1 is exp3)
         if method == 'einsum':
             if ao_integrals.is_decoupled or not (exp0 is exp1 and exp2 is exp3):
                 self.decouple_array2()

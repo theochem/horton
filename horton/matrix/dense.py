@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-"""Dense matrix implementations
+r"""Dense matrix implementations
 
 
    Naming scheme for the contract, slice or expand methods
@@ -65,7 +65,65 @@
    * All ``contract`` and ``expand`` methods never touch the internals of
      higher-index objects.
 
-   For more details, see the docstrings.
+   For more specific information, read the documentation of the individual
+   classes and methods below.
+
+
+   .. _dense_matrix_symmetry:
+
+   Handling of index symmetry
+   --------------------------
+
+   The dense matrix classes do not exploit matrix symmetry to reduce memory
+   needs. Instead they will happily store non-symmetric data if need be. There
+   are however a few methods in the :py:class:`DenseTwoIndex` and
+   :py:class:`DenseFourIndex` classes below that take a ``symmetry`` argument to
+   check or enforce a certain index symmetry.
+
+   The symmetry argument is always an integer that corresponds to the redundancy
+   of the off-diagonal matrix elements in the dense storage. In practice this
+   means the following:
+
+   * :py:class:`DenseTwoIndex`
+
+     * ``symmetry=1``: Nothing is checked/enforced
+
+     * ``symmetry=2``: Hermitian index symmetry is
+       checked/enforced (default), i.e. :math:`\langle i \vert A \vert j
+       \rangle = ` :math:`\langle j \vert A \vert i \rangle`
+
+   * :py:class:`DenseFourIndex`
+
+     * ``symmetry=1``: Nothing is checked/enforced
+
+     * ``symmetry=2``: Dummy index symmetry is
+       checked/enforced, i.e.
+       :math:`\langle ij \vert B \vert k\ell \rangle =`
+       :math:`\langle ji \vert B \vert \ell k \rangle`
+
+     * ``symmetry=4``: Hermitian and real index symmetry are checked/enforced,
+       i.e.
+       :math:`\langle ij \vert B \vert k\ell \rangle =`
+       :math:`\langle k\ell \vert B \vert ij \rangle =`
+       :math:`\langle kj \vert B \vert i\ell \rangle =`
+       :math:`\langle i\ell \vert B \vert kj \rangle`.
+       (This only makes sense because the basis functions are assumed to be
+       real.)
+
+     * ``symmetry=8``: All possible symmetries are checked/enforced, i.e.
+       :math:`\langle ij \vert B \vert k\ell \rangle =`
+       :math:`\langle k\ell \vert B \vert ij \rangle =`
+       :math:`\langle kj \vert B \vert i\ell \rangle =`
+       :math:`\langle i\ell \vert B \vert kj \rangle =`
+       :math:`\langle ji \vert B \vert \ell k \rangle =`
+       :math:`\langle \ell k \vert B \vert ji \rangle =`
+       :math:`\langle jk \vert B \vert \ell i \rangle =`
+       :math:`\langle \ell i \vert B \vert jk \rangle`.
+       (This only makes sense because the basis functions are assumed to be
+       real.)
+
+   Dense matrix classes
+   --------------------
 """
 
 
@@ -202,7 +260,7 @@ class DenseLinalgFactory(LinalgFactory):
     # DenseFourIndex constructor with default arguments
     #
 
-    def create_four_index(self, nbasis=None, nbasis1=None, nbasis2=None, nbasis3=None, symmetry=8):
+    def create_four_index(self, nbasis=None, nbasis1=None, nbasis2=None, nbasis3=None):
         '''Create a DenseFourIndex with defaults from the LinalgFactory
 
            **Optional arguments:**
@@ -215,7 +273,7 @@ class DenseLinalgFactory(LinalgFactory):
         nbasis = nbasis or self.default_nbasis
         # Don't replace nbasis1, nbasis2, nbasis3 by self.default_nbasis when None! They
         # are genuine optional arguments.
-        return DenseFourIndex(nbasis, nbasis1, nbasis2, nbasis3, symmetry)
+        return DenseFourIndex(nbasis, nbasis1, nbasis2, nbasis3)
 
     def _check_four_index_init_args(self, other, nbasis=None, nbasis1=None, nbasis2=None, nbasis3=None):
         '''Is an object is compatible the constructor arguments?'''
@@ -1177,8 +1235,6 @@ class DenseExpansion(Expansion):
                 out = DenseTwoIndex(self.nbasis, self.nbasis)
         else:
             check_type('out', out, DenseTwoIndex)
-            if other is not None and out.is_hermitian:
-                raise TypeError('A transfer density matrix can only be stored in a non-Hermitian DenseTwoIndex.')
 
         # actual computation
         if clear:
@@ -1314,9 +1370,6 @@ class DenseTwoIndex(TwoIndex):
         """
         if nfn is None:
             nfn = nbasis
-            self._is_hermitian = True
-        else:
-            self._is_hermitian = False
         self._array = np.zeros((nbasis, nfn))
         log.mem.announce(self._array.nbytes)
 
@@ -1331,6 +1384,8 @@ class DenseTwoIndex(TwoIndex):
 
     def __check_init_args__(self, nbasis, nfn=None):
         '''Is self compatible with the given constructor arguments?'''
+        if nfn is None:
+            nfn = nbasis
         assert nbasis == self.nbasis
         assert nfn == self.nfn
 
@@ -1351,10 +1406,7 @@ class DenseTwoIndex(TwoIndex):
                 An h5py.Group object.
         '''
         nbasis = grp['array'].shape[0]
-        if grp.attrs['is_hermitian']:
-            nfn = None
-        else:
-            nfn = grp['array'].shape[1]
+        nfn = grp['array'].shape[1]
         result = cls(nbasis, nfn)
         grp['array'].read_direct(result._array)
         return result
@@ -1368,7 +1420,6 @@ class DenseTwoIndex(TwoIndex):
                 An h5py.Group object.
         '''
         grp.attrs['class'] = self.__class__.__name__
-        grp.attrs['is_hermitian'] = self._is_hermitian
         grp['array'] = self._array
 
     # FIXME: rename into clean_copy
@@ -1398,10 +1449,7 @@ class DenseTwoIndex(TwoIndex):
         '''
         end0, end1 = self._fix_ends(end0, end1)
         nbasis = end0 - begin0
-        if self._is_hermitian and begin0 == begin1 and end0 == end1:
-            nfn = None
-        else:
-            nfn = end1 - begin1
+        nfn = end1 - begin1
         result = DenseTwoIndex(nbasis, nfn)
         result._array[:] = self._array[begin0:end0, begin1:end1]
         return result
@@ -1538,12 +1586,11 @@ class DenseTwoIndex(TwoIndex):
     def randomize(self):
         '''Fill with random normal data'''
         self._array[:] = np.random.normal(0, 1, self.shape)
-        if self._is_hermitian:
-            self._array += self._array.T
-            self._array *= 0.5
 
     def permute_basis(self, permutation):
         '''Reorder the coefficients for a given permutation of basis functions.
+
+           The same permutation is applied to all indexes.
 
            **Arguments:**
 
@@ -1551,9 +1598,8 @@ class DenseTwoIndex(TwoIndex):
                 An integer numpy array that defines the new order of the basis
                 functions.
         '''
-        self._array[:] = self._array[permutation]
-        if self._is_hermitian:
-            self._array[:] = self._array[:, permutation]
+        self._array[:] = self._array.take(permutation, axis=0)
+        self._array[:] = self._array.take(permutation, axis=1)
 
     def change_basis_signs(self, signs):
         '''Correct for different sign conventions of the basis functions.
@@ -1564,21 +1610,35 @@ class DenseTwoIndex(TwoIndex):
                 A numpy array with sign changes indicated by +1 and -1.
         '''
         self._array *= signs
-        if self._is_hermitian:
-            self._array *= signs.reshape(-1, 1)
+        self._array *= signs.reshape(-1, 1)
 
     def get_element(self, i, j):
         '''Return a matrix element'''
         return self._array[i, j]
 
-    def set_element(self, i, j, value):
+    def set_element(self, i, j, value, symmetry=2):
         '''Set a matrix element
 
-           If the two-index object is Hermitian, also the (j,i) element will
-           be set appropriately.
+           **Arguments:**
+
+           i, j
+                The matrix indexes to be set
+
+           value
+                The value to be assigned to the matrix element.
+
+           **Optional arguments:**
+
+           symmetry
+                When 2 (the default), the element (j,i) is set to the same
+                value. When set to 1 the opposite off-diagonal is not set. See
+                :ref:`dense_matrix_symmetry` for more details.
         '''
+        check_options('symmetry', symmetry, 1, 2)
+        if not self.is_shape_symmetric(symmetry):
+            raise ValueError('TwoIndex object does not have the right shape to impose the selected symmetry')
         self._array[i, j] = value
-        if self._is_hermitian:
+        if symmetry == 2:
             self._array[j, i] = value
 
     def sum(self, begin0=0, end0=None, begin1=0, end1=None):
@@ -1660,18 +1720,9 @@ class DenseTwoIndex(TwoIndex):
 
     def _get_nfn(self):
         '''The other size of the two-index object'''
-        if self._is_hermitian:
-            return None
-        else:
-            return self.shape[1]
+        return self.shape[1]
 
     nfn = property(_get_nfn)
-
-    def _get_is_hermitian(self):
-        '''Whether the two-index object is _supposed_ to be Hermitian.'''
-        return self._is_hermitian
-
-    is_hermitian = property(_get_is_hermitian)
 
     def _get_shape(self):
         '''The shape of the object'''
@@ -1749,32 +1800,44 @@ class DenseTwoIndex(TwoIndex):
         out._array[:] = self._array[ind]
         return out
 
-    def check_symmetry(self):
-        '''Check the symmetry of the array. For testing only.'''
-        if not self._is_hermitian:
-            raise RuntimeError('This makes no sense for a matrix that is not supposed to be Hermitian.')
-        try:
-            assert (self._array == self._array.T).all()
-        except:
-            assert np.allclose(self._array, self._array.T)
-
-
-    def symmetrize(self, factor=1.0):
-        '''Symmetrize DenseTwoIndex using M_sym=(M+M^\dagger)/2
+    def is_symmetric(self, symmetry=2, rtol=1e-5, atol=1e-8):
+        '''Check the symmetry of the array.
 
            **Optional arguments:**
 
-           factor
-                Multiply the result by the given factor.
+           symmetry
+                The symmetry to check. See :ref:`dense_matrix_symmetry`
+                for more details.
+
+           rtol and atol
+                relative and absolute tolerance. See to ``np.allclose``.
         '''
-        check_type('factor', factor, float, int)
-        if self.shape[0] != self.shape[1]:
-            raise TypeError('Can not symmetrize a rectangular two-index object.')
-        result = DenseTwoIndex(self.nbasis)
-        result._array[:] = self._array
-        result._array += self._array.T
-        result.iscale(factor/2.0)
-        return result
+        check_options('symmetry', symmetry, 1, 2)
+        if not self.is_shape_symmetric(symmetry):
+            return False
+        if symmetry == 2:
+            return np.allclose(self._array, self._array.T, rtol, atol)
+        return True
+
+    def is_shape_symmetric(self, symmetry):
+        '''Check whether the symmetry argument matches the shape'''
+        return symmetry == 1 or self.nbasis == self.nfn
+
+    def symmetrize(self, symmetry=2):
+        '''Symmetrize in-place
+
+           **Optional arguments:**
+
+           symmetry
+                The symmetry to impose. See :ref:`dense_matrix_symmetry` for
+                more details.
+        '''
+        check_options('symmetry', symmetry, 1, 2)
+        if not self.is_shape_symmetric(symmetry):
+            raise ValueError('TwoIndex object does not have the right shape for symmetrization')
+        if symmetry == 2:
+            self._array[:] = self._array + self._array.T
+            self.iscale(0.5)
 
     def contract_to_one(self, subscripts, out=None, factor=1.0, clear=True, begin0=0, end0=None, begin1=0, end1=None):
         '''Contract self to OneIndex.
@@ -2020,7 +2083,6 @@ class DenseTwoIndex(TwoIndex):
 
            two, one
                 The two- and one-index objects, respectively. Instances of
-                DenseTwoIndex and DenseOneIndex respectively.
 
            subscripts
                 ``ab,b->ab``: contract with the first index of the two-index object.
@@ -2186,20 +2248,7 @@ class DenseTwoIndex(TwoIndex):
         '''
         if exp1 is None:
             exp1 = exp0
-            self._is_hermitian = ao_integrals.is_hermitian
-        else:
-            self._is_hermitian = False
         self._array[:] = reduce(np.dot, [exp0.coeffs.T, ao_integrals._array, exp1.coeffs])
-        if self._is_hermitian:
-            # Matrix product does not respect symmetry.
-            # FIXME: Is there a better way to solve this?
-            # broken code, don't use:
-            # self._array += self._array.T
-            # Instead, use the following to prevent code from breaking:
-            # (possible bug in numpy?)
-            self._array = self._array+self._array.T
-            self._array *= 0.5
-
 
 
 class DenseThreeIndex(ThreeIndex):
@@ -2335,9 +2384,9 @@ class DenseThreeIndex(ThreeIndex):
                 An integer numpy array that defines the new order of the basis
                 functions.
         '''
-        self._array[:] = self._array[permutation]
-        self._array[:] = self._array[:, permutation]
-        self._array[:] = self._array[:, :, permutation]
+        self._array[:] = self._array.take(permutation, axis=0)
+        self._array[:] = self._array.take(permutation, axis=1)
+        self._array[:] = self._array.take(permutation, axis=2)
 
     def change_basis_signs(self, signs):
         '''Correct for different sign conventions of the basis functions.
@@ -2349,7 +2398,7 @@ class DenseThreeIndex(ThreeIndex):
         '''
         self._array *= signs
         self._array *= signs.reshape(-1, 1)
-        self._array *= signs.reshape(-1, 1, 1)
+        self._array *= signs.reshape(-1,1,1)
 
     def iadd(self, other, factor=1.0):
         '''Add another DenseThreeIndex object in-place, multiplied by factor
@@ -2578,7 +2627,7 @@ class DenseFourIndex(FourIndex):
     # Constructor and destructor
     #
 
-    def __init__(self, nbasis, nbasis1=None, nbasis2=None, nbasis3=None, symmetry=8):
+    def __init__(self, nbasis, nbasis1=None, nbasis2=None, nbasis3=None):
         """
            **Arguments:**
 
@@ -2587,15 +2636,7 @@ class DenseFourIndex(FourIndex):
 
            **Optional arguments:**
 
-           symmetry
-                The supposed symmetry number of the four-index object.
-
-                * ``8``: all possible symmtries with respect to index
-                         permutations apply.
-                * ``4``: symmetric with respect to swapping two indexes of the
-                         same electron.
-                * ``2``: symmetric with respect to swapping two electrons.
-                * ``1``: no symmetries.
+           nbasis1, nbasis2, nbasis3
         """
         if nbasis1 is None:
             nbasis1 = nbasis
@@ -2603,9 +2644,7 @@ class DenseFourIndex(FourIndex):
             nbasis2 = nbasis
         if nbasis3 is None:
             nbasis3 = nbasis
-        check_options('symmetry', symmetry, 1, 2, 4, 8)
         self._array = np.zeros((nbasis, nbasis1, nbasis2, nbasis3))
-        self._symmetry = symmetry
         log.mem.announce(self._array.nbytes)
 
     def __del__(self):
@@ -2617,7 +2656,7 @@ class DenseFourIndex(FourIndex):
     # Methods from base class
     #
 
-    def __check_init_args__(self, nbasis, nbasis1=None, nbasis2=None, nbasis3=None, symmetry=8):
+    def __check_init_args__(self, nbasis, nbasis1=None, nbasis2=None, nbasis3=None):
         '''Is self compatible with the given constructor arguments?'''
         if nbasis1 is None:
             nbasis1 = nbasis
@@ -2629,7 +2668,6 @@ class DenseFourIndex(FourIndex):
         assert nbasis1 == self.nbasis1
         assert nbasis2 == self.nbasis2
         assert nbasis3 == self.nbasis3
-        assert symmetry == self.symmetry
 
     def __eq__(self, other):
         '''Compare self with other'''
@@ -2638,7 +2676,6 @@ class DenseFourIndex(FourIndex):
             other.nbasis1 == self.nbasis1 and \
             other.nbasis2 == self.nbasis2 and \
             other.nbasis3 == self.nbasis3 and \
-            other.symmetry == self.symmetry and \
             (other._array == self._array).all()
 
     @classmethod
@@ -2654,8 +2691,7 @@ class DenseFourIndex(FourIndex):
         nbasis1 = grp['array'].shape[1]
         nbasis2 = grp['array'].shape[2]
         nbasis3 = grp['array'].shape[3]
-        symmetry = grp.attrs['symmetry']
-        result = cls(nbasis, nbasis1, nbasis2, nbasis3, symmetry)
+        result = cls(nbasis, nbasis1, nbasis2, nbasis3)
         grp['array'].read_direct(result._array)
         return result
 
@@ -2668,17 +2704,16 @@ class DenseFourIndex(FourIndex):
                 An h5py.Group object.
         '''
         grp.attrs['class'] = self.__class__.__name__
-        grp.attrs['symmetry'] = self.symmetry
         grp['array'] = self._array
 
     # FIXME: rename into clean_copy
     def new(self):
         '''Return a new four-index object with the same nbasis'''
-        return DenseFourIndex(self.nbasis, self.nbasis1, self.nbasis2, self.nbasis3, self.symmetry)
+        return DenseFourIndex(self.nbasis, self.nbasis1, self.nbasis2, self.nbasis3)
 
     def _check_new_init_args(self, other):
         '''Check whether an already initialized object is compatible'''
-        other.__check_init_args__(self.nbasis, self.nbasis1, self.nbasis2, self.nbasis3, self.symmetry)
+        other.__check_init_args__(self.nbasis, self.nbasis1, self.nbasis2, self.nbasis3)
 
     new.__check_init_args__ = _check_new_init_args
 
@@ -2696,7 +2731,7 @@ class DenseFourIndex(FourIndex):
                 the full range is used.
         '''
         end0, end1, end2, end3 = self._fix_ends(end0, end1, end2, end3)
-        result = DenseFourIndex(end0-begin0, end1-begin1, end2-begin2, end3-begin3, symmetry=self.symmetry)
+        result = DenseFourIndex(end0-begin0, end1-begin1, end2-begin2, end3-begin3)
         result._array[:] = self._array[begin0:end0,begin1:end1,begin2:end2,begin3:end3]
         return result
 
@@ -2732,29 +2767,17 @@ class DenseFourIndex(FourIndex):
         check_type('other', other, DenseFourIndex, np.ndarray)
         if isinstance(other, DenseFourIndex):
             self._array[:] = other._array
-            self._symmetry = other.symmetry
-        # FIXME: assign proper symmetry
         elif isinstance(other, np.ndarray):
             if other.shape == self.shape:
                 self._array[:] = other
-                self._symmetry = 1
             else:
                 self._array[:] = other.reshape((self.nbasis, self.nbasis1, self.nbasis2, self.nbasis3))
-                self._symmetry = 1
         else:
             raise TypeError('Do not know how to assign object of type %s.' % type(other))
 
     def randomize(self):
         '''Fill with random normal data'''
         self._array[:] = np.random.normal(0, 1, self.shape)
-        if self.symmetry in (2, 8):
-            self._array[:] += self._array.transpose(1,0,3,2)
-            self._array *= 0.5
-        if self.symmetry in (4, 8):
-            self._array[:] += self._array.transpose(2,3,0,1)
-            self._array *= 0.5
-            self._array[:] += self._array.transpose(1,2,3,0)
-            self._array *= 0.5
 
     def permute_basis(self, permutation):
         '''Reorder the coefficients for a given permutation of basis functions.
@@ -2765,10 +2788,10 @@ class DenseFourIndex(FourIndex):
                 An integer numpy array that defines the new order of the basis
                 functions.
         '''
-        self._array[:] = self._array[permutation]
-        self._array[:] = self._array[:,permutation]
-        self._array[:] = self._array[:,:,permutation]
-        self._array[:] = self._array[:,:,:,permutation]
+        self._array[:] = self._array.take(permutation, axis=0)
+        self._array[:] = self._array.take(permutation, axis=1)
+        self._array[:] = self._array.take(permutation, axis=2)
+        self._array[:] = self._array.take(permutation, axis=3)
 
     def change_basis_signs(self, signs):
         '''Correct for different sign conventions of the basis functions.
@@ -2779,7 +2802,7 @@ class DenseFourIndex(FourIndex):
                 A numpy array with sign changes indicated by +1 and -1.
         '''
         self._array *= signs
-        self._array *= signs.reshape(-1,1)
+        self._array *= signs.reshape(-1, 1)
         self._array *= signs.reshape(-1,1,1)
         self._array *= signs.reshape(-1,1,1,1)
 
@@ -2798,11 +2821,6 @@ class DenseFourIndex(FourIndex):
         '''
         check_type('other', other, DenseFourIndex)
         check_type('factor', factor, float, int)
-        def from_mask(mask):
-            return {0: 1, 1: 2, 2: 4, 3: 8}[mask]
-        def to_mask(sym):
-            return {1: 0, 2: 1, 4: 2, 8: 3}[sym]
-        self._symmetry = from_mask(to_mask(self.symmetry) & to_mask(other.symmetry))
         self._array += other._array*factor
 
     def imul(self, other, factor=1.0):
@@ -2824,7 +2842,6 @@ class DenseFourIndex(FourIndex):
             return {0: 1, 1: 2, 2: 4, 3: 8}[mask]
         def to_mask(sym):
             return {1: 0, 2: 1, 4: 2, 8: 3}[sym]
-        self._symmetry = from_mask(to_mask(self.symmetry) & to_mask(other.symmetry))
         self._array *= other._array
         self.iscale(factor)
 
@@ -2843,20 +2860,34 @@ class DenseFourIndex(FourIndex):
         '''Return a matrix element'''
         return self._array[i, j, k, l]
 
-    def set_element(self, i, j, k, l, value):
+    def set_element(self, i, j, k, l, value, symmetry=8):
         '''Set a matrix element
 
-           If self.symmetry is larger than 1, other matrix elements are also
-           set to maintain the proper symmetry.
+           **Arguments:**
+
+           i, j, k, l
+                The matrix indexes to be set
+
+           value
+                The value to be assigned to the matrix element.
+
+           **Optional arguments:**
+
+           symmetry
+                The level of symmetry to be enforced when setting the matrix
+                element. See :ref:`dense_matrix_symmetry` for more details.
         '''
+        check_options('symmetry', symmetry, 1, 2, 4, 8)
+        if not self.is_shape_symmetric(symmetry):
+            raise ValueError('FourIndex object does not have the right shape to impose the selected symmetry')
         self._array[i,j,k,l] = value
-        if self.symmetry in (2, 8):
+        if symmetry in (2, 8):
             self._array[j,i,l,k] = value
-        if self.symmetry in (4, 8):
+        if symmetry in (4, 8):
             self._array[k,j,i,l] = value
             self._array[i,l,k,j] = value
             self._array[k,l,i,j] = value
-        if self.symmetry == 8:
+        if symmetry == 8:
             self._array[l,k,j,i] = value
             self._array[j,k,l,i] = value
             self._array[l,i,j,k] = value
@@ -2895,43 +2926,73 @@ class DenseFourIndex(FourIndex):
 
     shape = property(_get_shape)
 
-    def _get_symmetry(self):
-        return self._symmetry
-
-    symmetry = property(_get_symmetry)
-
     #
     # New methods for this implementation
     # TODO: consider adding these to base class
     #
 
-    def check_symmetry(self, threshold=1e-5, select=None):
-        """Check the symmetry of the array.
+    def is_symmetric(self, symmetry=8, rtol=1e-5, atol=1e-8):
+        '''Check the symmetry of the array.
 
            **Optional arguments:**
 
-           threshold
-                Absolute threshold for np.allclose (float)
+           symmetry
+                The symmetry to check. See :ref:`dense_matrix_symmetry`
+                for more details. In addition to 1, 2, 4, 8, also 'cdab' is
+                supported.
 
-           select
-                Check for symmetry of type select (str) using np.allclose. The
-                array elements are reorder according to the ``np.einsum``
-                semantic
-        """
-        # TODO: change assert to np.allclose
-        if self.symmetry in (2, 8):
-            assert (self._array == self._array.transpose(1,0,3,2)).all()
-        if self.symmetry in (4, 8):
-            assert (self._array == self._array.transpose(2,3,0,1)).all()
-            assert (self._array == self._array.transpose(2,1,0,3)).all()
-            assert (self._array == self._array.transpose(0,3,2,1)).all()
-        if self.symmetry == 8:
-            assert (self._array == self._array.transpose(3,2,1,0)).all()
-            assert (self._array == self._array.transpose(3,0,1,2)).all()
-            assert (self._array == self._array.transpose(1,2,3,0)).all()
-        if select:
-            check_options('select', select, 'cdab')
-            return np.allclose(self._array, np.einsum(select, self._array), atol=threshold)
+           rtol and atol
+                relative and absolute tolerance. See to ``np.allclose``.
+        '''
+        if not self.is_shape_symmetric(symmetry):
+            return False
+        result = True
+        if symmetry in (2, 8):
+            result &= np.allclose(self._array, self._array.transpose(1,0,3,2), rtol, atol)
+        if symmetry in (4, 8):
+            result &= np.allclose(self._array, self._array.transpose(2,3,0,1), rtol, atol)
+            result &= np.allclose(self._array, self._array.transpose(2,1,0,3), rtol, atol)
+            result &= np.allclose(self._array, self._array.transpose(0,3,2,1), rtol, atol)
+        if symmetry == 8:
+            result &= np.allclose(self._array, self._array.transpose(3,2,1,0), rtol, atol)
+            result &= np.allclose(self._array, self._array.transpose(3,0,1,2), rtol, atol)
+            result &= np.allclose(self._array, self._array.transpose(1,2,3,0), rtol, atol)
+        if symmetry == 'cdab':
+            result &= np.allclose(self._array, self._array.transpose(2,3,0,1), rtol, atol)
+        return result
+
+    def is_shape_symmetric(self, symmetry):
+        '''Check whether the symmetry argument matches the shape'''
+        result = True
+        if symmetry in (2, 8):
+            result &= self.nbasis == self.nbasis1
+            result &= self.nbasis2 == self.nbasis3
+        if symmetry in (4, 8):
+            result &= self.nbasis == self.nbasis2
+            result &= self.nbasis1 == self.nbasis3
+            result &= self.nbasis == self.nbasis3
+            result &= self.nbasis1 == self.nbasis2
+        return result
+
+    def symmetrize(self, symmetry=8):
+        '''Symmetrize in-place
+
+           **Optional arguments:**
+
+           symmetry
+                The symmetry to impose. See :ref:`dense_matrix_symmetry` for
+                more details.
+        '''
+        check_options('symmetry', symmetry, 1, 2, 4, 8)
+        if not self.is_shape_symmetric(symmetry):
+            raise ValueError('FourIndex object does not have the right shape for symmetrization')
+        if symmetry in (2, 8):
+            self._array[:] = self._array + self._array.transpose(1,0,3,2)
+            self.iscale(0.5)
+        if symmetry in (4, 8):
+            self._array[:] = self._array + self._array.transpose(2,3,0,1)
+            self._array[:] = self._array + self._array.transpose(0,3,2,1)
+            self.iscale(0.25)
 
     def itranspose(self):
         '''In-place transpose: ``0,1,2,3 -> 1,0,3,2``'''
@@ -2947,7 +3008,6 @@ class DenseFourIndex(FourIndex):
         # self._array -= np.einsum('abcd->abdc', self._array)
         # We cannot do inplace einsum. Instead use (and don't change):
         self._array = self._array-np.einsum('abcd->abdc', self._array)
-        self._symmetry = {8:2, 4:1, 2:2, 1:1}[self._symmetry]
 
     def slice_to_four(self, subscripts, out=None, factor=1.0, clear=True, begin0=0, end0=None, begin1=0, end1=None, begin2=0, end2=None, begin3=0, end3=None):
         """Returns a four-index contraction of the four-index object.
@@ -3408,13 +3468,6 @@ class DenseFourIndex(FourIndex):
         # parse arguments
         check_type('ao_integrals', ao_integrals, DenseFourIndex)
         exp0, exp1, exp2, exp3 = parse_four_index_transform_exps(exp0, exp1, exp2, exp3, DenseExpansion)
-        # update self.symmetry
-        if not (exp0 is exp1 and exp2 is exp3):
-            # 8->4, 2->1
-            self._symmetry = {8:4, 4:4, 2:1, 1:1}[self.symmetry]
-        if not (exp0 is exp2 and exp1 is exp3):
-            # 8->2, 4->1
-            self._symmetry = {8:2, 4:1, 2:2, 1:1}[self.symmetry]
         # actual transform
         if method == 'einsum':
             # The order of the dot products is according to literature

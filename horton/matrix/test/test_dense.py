@@ -135,20 +135,17 @@ def test_linalg_factory_constructors():
     lf.create_two_index.__check_init_args__(lf, op2)
     assert op2.nbasis == 10
     assert op2.shape == (10, 10)
-    assert op2.nfn is None
-    assert op2.is_hermitian
+    assert op2.nfn == 10
     op2 = lf.create_two_index(12)
     lf.create_two_index.__check_init_args__(lf, op2, 12)
     assert op2.nbasis == 12
     assert op2.shape == (12, 12)
-    assert op2.nfn is None
-    assert op2.is_hermitian
+    assert op2.nfn == 12
     op2 = lf.create_two_index(10, 12)
     lf.create_two_index.__check_init_args__(lf, op2, 10, 12)
     assert op2.shape == (10, 12)
     assert op2.nbasis == 10
     assert op2.nfn == 12
-    assert not op2.is_hermitian
 
     # Three-index tests
     op3 = lf.create_three_index()
@@ -203,7 +200,6 @@ def test_allocate_check_output():
     re = lf._allocate_check_output(None, (5, 5))
     assert isinstance(re, DenseTwoIndex)
     assert re.shape == (5, 5)
-    assert not re.is_hermitian
 
     # ThreeIndex
     lf = DenseLinalgFactory(5)
@@ -676,7 +672,7 @@ def test_expansion_to_dm1():
     dm = mol.exp_alpha.to_dm()
     dm.iscale(2)
     assert dm.distance_inf(mol.get_dm_full()) < 1e-4
-    assert dm.is_hermitian
+    assert dm.is_symmetric()
 
 
 def test_expansion_to_dm2():
@@ -687,14 +683,14 @@ def test_expansion_to_dm2():
     assert dm1 is dm
     olp = mol.obasis.compute_overlap(mol.lf)
     assert dm.distance_inf(mol.get_dm_full()) < 1e-4
-    assert dm.is_hermitian
+    assert dm.is_symmetric()
 
 
 def test_expansion_to_dm3():
     fn_fchk = context.get_fn('test/ch3_hf_sto3g.fchk')
     mol = Molecule.from_file(fn_fchk)
     dm = mol.exp_alpha.to_dm(other=mol.exp_beta)
-    assert not dm.is_hermitian
+    assert not dm.is_symmetric()
 
 
 def test_expansion_assign_dot():
@@ -818,12 +814,14 @@ def test_two_index_copy():
 def test_two_index_permute_basis():
     lf = DenseLinalgFactory(5)
     for i in xrange(10):
+        i0, i1 = np.random.randint(0, 5, 2)
         forth, back = get_forth_back(5)
         a = lf.create_two_index()
         a.randomize()
         b = a.copy()
         b.permute_basis(forth)
         assert a != b
+        assert a.get_element(i0, i1) == b.get_element(back[i0], back[i1])
         b.permute_basis(back)
         assert a == b
 
@@ -960,7 +958,7 @@ def test_two_index_get_set():
     assert op.get_element(0, 1) == 1.2
     assert op.get_element(1, 0) == 1.2
     op = lf.create_two_index(3, 3)
-    op.set_element(0, 1, 1.2)
+    op.set_element(0, 1, 1.2, symmetry=1)
     assert op.get_element(0, 1) == 1.2
     assert op.get_element(1, 0) == 0.0
 
@@ -982,13 +980,14 @@ def test_two_index_trace():
 
 
 def test_two_index_itranspose():
-    lf = DenseLinalgFactory()
-    op1 = lf.create_two_index(3)
-    op2 = lf.create_two_index(3)
-    op1._array[:] = np.random.uniform(-1, 1, (3,3))
-    op2._array[:] = op1._array
-    op2.itranspose()
-    assert op1._array[0,1] == op2._array[1,0]
+    lf = DenseLinalgFactory(8)
+    for i in xrange(10):
+        op = lf.create_two_index()
+        op.randomize()
+        i0, i1, = np.random.randint(0, 4, 2)
+        x = op.get_element(i0, i1)
+        op.itranspose()
+        assert op.get_element(i1, i0) == x
 
 
 def test_two_index_inner():
@@ -1092,26 +1091,27 @@ def test_two_index_copy_slice():
     assert foo.get_element(9) == out.get_element(9)
 
 
-def test_two_index_check_symmetry():
-    lf = DenseLinalgFactory(3)
+def test_two_index_is_symmetric():
+    lf = DenseLinalgFactory(4)
     op = lf.create_two_index()
-    op.randomize()
-    op.check_symmetry()
-    op._array[2,0] = 0.0
-    op._array[0,2] = 1.0
-    with assert_raises(AssertionError):
-        op.check_symmetry()
+    op.set_element(2, 3, 3.1234)
+    assert op.is_symmetric()
+    op.set_element(2, 3, 3.1, symmetry=1)
+    assert not op.is_symmetric()
+    assert op.is_symmetric(1)
 
 
 def test_two_index_symmetrize():
     lf = DenseLinalgFactory(3)
     op = lf.create_two_index()
     op.randomize()
+    assert not op.is_symmetric()
+    op.symmetrize()
     x = op.get_element(1,2)
-    op._array[2,0] = 0.0
-    op._array[0,2] = 1.0
-    op = op.symmetrize()
-    op.check_symmetry()
+    op.set_element(2, 0, 0.0, symmetry=1)
+    op.set_element(0, 2, 1.0, symmetry=1)
+    op.symmetrize()
+    op.is_symmetric()
     assert op.get_element(1,2) == x
     assert op.get_element(0,2) == 0.5
 
@@ -1120,6 +1120,7 @@ def test_two_index_contract_to_one():
     lf = DenseLinalgFactory(5)
     op = lf.create_two_index()
     op.randomize()
+    op.symmetrize()
     # regular use
     vec = op.contract_to_one('ab->a')
     assert np.allclose(vec._array, op._array.sum(axis=0))
@@ -1158,8 +1159,11 @@ def test_two_index_contract_two_to_one():
     b = lf.create_two_index()
     c = lf.create_two_index(4, 4)
     a.randomize()
+    a.symmetrize()
     b.randomize()
+    b.symmetrize()
     c.randomize()
+    c.symmetrize()
     # regular use
     vec = a.contract_two_to_one('ab,ab->a', b)
     assert np.allclose(vec._array, (a._array*b._array).sum(axis=1))
@@ -1477,15 +1481,16 @@ def test_two_index_assign_two_index_transform():
     e0 = lf.create_expansion()
     e1 = lf.create_expansion()
     a.randomize()
+    a.symmetrize()
     e0.randomize()
     e1.randomize()
     b = a.new()
     b.assign_two_index_transform(a, e0)
     assert np.allclose(b._array, b._array.T)
-    b.check_symmetry()
+    assert b.is_symmetric()
     assert np.allclose(b._array, np.dot(e0.coeffs.T, np.dot(a._array, e0.coeffs)))
     b.assign_two_index_transform(a, e0, e1)
-    assert not b.is_hermitian
+    assert not b.is_symmetric()
     assert np.allclose(b._array, np.dot(e0.coeffs.T, np.dot(a._array, e1.coeffs)))
 
 
@@ -1818,23 +1823,41 @@ def test_four_index_get_set():
     assert op.get_element(3, 2, 1, 0) == 1.2
 
 
-def test_four_index_check_symmetry():
+def test_four_index_is_symmetric():
     lf = DenseLinalgFactory(4)
     op = lf.create_four_index()
-    op.randomize()
-    op.check_symmetry()
-    op._array[0,0,0,1] += 0.1
-    with assert_raises(AssertionError):
-        op.check_symmetry()
+    op.set_element(0, 1, 2, 3, 1.234)
+    assert op.is_symmetric(8)
+    assert op.is_symmetric(4)
+    assert op.is_symmetric(2)
+    assert op.is_symmetric(1)
+    op.set_element(0, 1, 2, 3, 1.0, symmetry=4)
+    assert not op.is_symmetric(8)
+    assert not op.is_symmetric(2)
+    assert op.is_symmetric(4)
+    assert op.is_symmetric(1)
+    op.set_element(0, 1, 2, 3, 1.234)
+    op.set_element(0, 1, 2, 3, 0.5, symmetry=2)
+    assert not op.is_symmetric(8)
+    assert not op.is_symmetric(4)
+    assert op.is_symmetric(2)
+    assert op.is_symmetric(1)
+    op.set_element(0, 1, 2, 3, 0.3, symmetry=1)
+    assert not op.is_symmetric(8)
+    assert not op.is_symmetric(4)
+    assert not op.is_symmetric(2)
+    assert op.is_symmetric(1)
 
 
 def test_four_index_itranspose():
-    # Blind test
-    lf = DenseLinalgFactory(4)
-    op = lf.create_four_index()
-    op.randomize()
-    op.itranspose()
-    op.check_symmetry()
+    lf = DenseLinalgFactory(8)
+    for i in xrange(10):
+        op = lf.create_four_index()
+        op.randomize()
+        i0, i1, i2, i3 = np.random.randint(0, 4, 4)
+        x = op.get_element(i0, i1, i2, i3)
+        op.itranspose()
+        assert op.get_element(i1, i0, i3, i2) == x
 
 
 def test_four_index_sum():
@@ -1850,8 +1873,9 @@ def test_four_index_iadd_exchange():
     lf = DenseLinalgFactory(4)
     op = lf.create_four_index()
     op.randomize()
+    op.symmetrize()
     op.iadd_exchange()
-    op.check_symmetry()
+    op.is_symmetric()
 
 
 def test_four_index_slice_to_two():
@@ -2060,7 +2084,9 @@ def test_four_index_contract_two_to_two():
     inp = lf.create_four_index()
     two = lf.create_two_index()
     inp.randomize()
+    inp.symmetrize()
     two.randomize()
+    two.symmetrize()
     out = inp.contract_two_to_two('abcd,bd->ac', two, factor=1.3)
     assert np.allclose(out._array, 1.3*np.einsum('abcd,bd->ac', inp._array, two._array))
     foo = inp.contract_two_to_two('abcd,bd->ac', two, out, factor=1.4)
@@ -2330,6 +2356,7 @@ def test_four_index_assign_four_index_transform():
         e2 = lf.create_expansion()
         e3 = lf.create_expansion()
         a.randomize()
+        a.symmetrize()
         e0.randomize()
         e1.randomize()
         e2.randomize()

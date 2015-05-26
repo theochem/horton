@@ -42,34 +42,30 @@ def test_linalg_factory_constructors():
     assert op4.nvec == 8
     assert op4.shape == (10, 10, 10, 10)
     assert not op4.is_decoupled
-    assert op4.hermitian_vecs
 
     op4 = lf.create_four_index(8, 4)
     lf.create_four_index.__check_init_args__(lf, op4, 8, 4)
     assert op4.nbasis == 8
     assert op4.nvec == 4
     assert not op4.is_decoupled
-    assert op4.hermitian_vecs
 
     array = np.random.normal(0, 1, (5, 10, 10))
-    op4 = lf.create_four_index(10, array=array, hermitian_vecs=False)
-    lf.create_four_index.__check_init_args__(lf, op4, nvec=5, hermitian_vecs=False)
+    op4 = lf.create_four_index(10, array=array)
+    lf.create_four_index.__check_init_args__(lf, op4, nvec=5)
     assert op4._array is array
     assert op4._array2 is array
     assert op4.nbasis == 10
     assert op4.nvec == 5
     assert not op4.is_decoupled
-    assert not op4.hermitian_vecs
 
     array2 = np.random.normal(0, 1, (5, 10, 10))
-    op4 = lf.create_four_index(10, array=array, array2=array2, hermitian_vecs=False)
-    lf.create_four_index.__check_init_args__(lf, op4, nvec=5, hermitian_vecs=False)
+    op4 = lf.create_four_index(10, array=array, array2=array2)
+    lf.create_four_index.__check_init_args__(lf, op4, nvec=5)
     assert op4._array is array
     assert op4._array2 is array2
     assert op4.nbasis == 10
     assert op4.nvec == 5
     assert op4.is_decoupled
-    assert not op4.hermitian_vecs
 
 
 def test_linalg_objects_del():
@@ -95,23 +91,19 @@ def get_four_cho_dense(nbasis=10, nvec=8, sym=8):
             The number of Cholesky vectors
 
        sym
-            The amount of symmetries in the FourIndex object:
-
-            * ``8``: all possible symmtries with respect to index permutations
-                     apply.
-            * ``4``: symmetric with respect to swapping two indexes of the same
-                     electron.
-            * ``2``: symmetric with respect to swapping two electrons.
-            * ``1``: no symmetries.
+            The amount of symmetries in the FourIndex object. See
+            :ref:`dense_matrix_symmetry` for more details.
     '''
     check_options('sym', sym, 1, 2, 4, 8)
-    hermitian_vecs = sym>2
-    cho = CholeskyFourIndex(nbasis, nvec, hermitian_vecs=sym>2)
-    if sym == 1 or sym == 4:
+    cho = CholeskyFourIndex(nbasis, nvec)
+    if sym in (1, 4):
         cho.decouple_array2()
     cho.randomize()
-    dense = DenseFourIndex(nbasis, symmetry=cho.symmetry)
+    cho.symmetrize(sym)
+    dense = DenseFourIndex(nbasis)
     dense._array[:] = np.einsum('kac,kbd->abcd', cho._array, cho._array2)
+    assert dense.is_symmetric(sym)
+    assert cho.is_symmetric(sym)
     return cho, dense
 
 
@@ -168,18 +160,17 @@ def test_four_index_get():
                                dense.get_element(i0, i1, i2, i3)) < 1e-10
 
 
-def test_four_index_check_symmetry():
+def test_four_index_is_symmetric():
     for sym in 1, 2, 4, 8:
         cho = get_four_cho_dense(sym=sym)[0]
-        cho.check_symmetry()
-        assert cho.symmetry == sym
+        assert cho.is_symmetric(sym)
 
 
 def test_four_index_itranspose():
     for sym in 1, 2, 4, 8:
         cho = get_four_cho_dense(sym=sym)[0]
         cho.itranspose()
-        cho.check_symmetry()
+        assert cho.is_symmetric(sym)
 
 
 def check_four_sum(sym):
@@ -333,6 +324,19 @@ def test_four_contract_two_to_two_exchange_8():
 
 
 def check_four_index_transform(sym_in, sym_exp, method):
+    '''Test driver for four-index transform
+
+       **Arguments:**
+
+       sym_in
+            The symmetry of the four-index object in the AO basis.
+
+       sym_exp
+            The symmetry of the orbitals used for the four-index transform.
+
+       method
+            'tensordot' or 'einsum'
+    '''
     cho, dense = get_four_cho_dense(sym=sym_in)
     dense_mo = dense.new()
     cho_mo = cho.new()
@@ -342,7 +346,6 @@ def check_four_index_transform(sym_in, sym_exp, method):
         dense_mo.assign_four_index_transform(dense, exp0, method=method)
         cho_mo.assign_four_index_transform(cho, exp0, method=method)
         assert cho_mo.is_decoupled == cho.is_decoupled
-        assert cho_mo.hermitian_vecs == cho.hermitian_vecs
     elif sym_exp == 4:
         exp0 = DenseExpansion(dense.nbasis)
         exp0.randomize()
@@ -351,7 +354,6 @@ def check_four_index_transform(sym_in, sym_exp, method):
         dense_mo.assign_four_index_transform(dense, exp0, exp1, method=method)
         cho_mo.assign_four_index_transform(cho, exp0, exp1, method=method)
         assert cho_mo.is_decoupled
-        assert cho_mo.hermitian_vecs == cho.hermitian_vecs
     elif sym_exp == 2:
         exp0 = DenseExpansion(dense.nbasis)
         exp0.randomize()
@@ -360,7 +362,6 @@ def check_four_index_transform(sym_in, sym_exp, method):
         dense_mo.assign_four_index_transform(dense, exp0, exp2=exp2, method=method)
         cho_mo.assign_four_index_transform(cho, exp0, exp2=exp2, method=method)
         assert cho_mo.is_decoupled == cho.is_decoupled
-        assert not cho_mo.hermitian_vecs
     elif sym_exp == 1:
         exp0 = DenseExpansion(dense.nbasis)
         exp0.randomize()
@@ -373,11 +374,20 @@ def check_four_index_transform(sym_in, sym_exp, method):
         dense_mo.assign_four_index_transform(dense, exp0, exp1, exp2, exp3, method=method)
         cho_mo.assign_four_index_transform(cho, exp0, exp1, exp2, exp3, method=method)
         assert cho_mo.is_decoupled
-        assert not cho_mo.hermitian_vecs
     else:
         raise ValueError
     assert np.allclose(dense_mo._array, cho_mo.get_dense()._array)
-    assert dense_mo.symmetry == cho_mo.symmetry
+    sym_and = symmetry_and(sym_in, sym_exp)
+    assert cho_mo.is_symmetric(sym_and)
+    assert dense_mo.is_symmetric(sym_and)
+
+
+def symmetry_and(sym1, sym2):
+    def to_mask(sym):
+        return {1: 0, 2: 1, 4: 2, 8: 3}[sym]
+    def from_mask(mask):
+        return {0: 1, 1: 2, 2: 4, 3: 8}[mask]
+    return from_mask(to_mask(sym1) & to_mask(sym2))
 
 
 def test_four_index_transform_8_8_tensordot():
