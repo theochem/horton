@@ -285,7 +285,9 @@ If you run Horton on a headless node, i.e. without an X server, you need to
 configure Matplotlib to use a backend that does not require a graphical user
 interface. (See http://matplotlib.org/faq/usage_faq.html#what-is-a-backend for
 more details on the Matplotlib backends.) This can be done by adding the
-following line to your ``matplotlibrc`` file::
+following line to your ``matplotlibrc`` file:
+
+.. code-block:: text
 
     backend: agg
 
