@@ -51,16 +51,15 @@ of the source tree, so you have to create a new one. Several examples can be
 found in ``data/setup_cfgs``. For example, this file would compile and link the
 extensions on a 64 bit version of Fedora 21:
 
-``data/setup_cfgs/setup.Linux-Fedora-21-x86_64.cfg``
-
 .. literalinclude:: ../data/setup_cfgs/setup.Linux-Fedora-21-x86_64.cfg
+    :caption: data/setup_cfgs/setup.Linux-Fedora-21-x86_64.cfg
+
 
 This is a setup.cfg file for a compilation with the Intel MKL libraries on
 Fedora:
 
-``data/setup_cfgs/setup.Linux-Fedora-MKL.cfg``
-
 .. literalinclude:: ../data/setup_cfgs/setup.Linux-Fedora-MKL.cfg
+    :caption: data/setup_cfgs/setup.Linux-Fedora-MKL.cfg
 
 In each section one can define the following variables: ``include_dirs``,
 ``library_dirs``, ``libraries``, ``extra_objects``, ``extra_compile_args`` and
