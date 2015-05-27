@@ -38,7 +38,7 @@ your own changes, you need to work with git. Git is a version control system
 that makes life easy when a group of people are working on a common source code.
 All information about git (including downloads and tutorials) can be found here:
 http://git-scm.com/. The official git URL of Horton is:
-``git://github.com/theochem/horton.git.`` On most Linux distributions, git can be
+``git://github.com/theochem/horton.git``. On most Linux distributions, git can be
 installed with a package manager:
 
 * **Ubuntu Linux**:
@@ -214,7 +214,7 @@ Overriding default compiler/linker settings for LibXC, LibInt2 and BLAS
 
 The manual configuration of the compiler and linker settings is described here:
 :ref:`setup_cfg`. You should read this section if the default build and install
-failed or if you would like to specify which libraries to use.
+has failed or if you would like to specify which libraries to use.
 
 
 Runtime Configuration
@@ -245,7 +245,7 @@ This file is located in either ``${HOME}/.matplotlib`` or
 Running the tests
 =================
 
-To test Horton was installed properly and can be accessed from any directory,
+To test if Horton was installed properly and if it can be accessed from any directory,
 you should change to a directory outside of the source tree and call nosetests
 as follows:
 

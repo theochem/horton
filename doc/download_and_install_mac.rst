@@ -92,7 +92,7 @@ your own changes, you need to work with git. Git is a version control system
 that makes life easy when a group of people are working on a common source code.
 All information about git (including downloads and tutorials) can be found here:
 http://git-scm.com/. The official public git URL of Horton is:
-``git://github.com/theochem/horton.git.`` Git can be installed through MacPorts:
+``git://github.com/theochem/horton.git``. Git can be installed through MacPorts:
 
 .. code-block:: bash
 
@@ -298,7 +298,7 @@ Running the tests
 
 To test that Horton was installed properly and that you can can access it from
 other directories, you should change to a directory outside of the source tree
-and call nosetests as follows::
+and call nosetests as follows:
 
 .. code-block:: bash
 
