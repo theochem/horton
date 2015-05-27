@@ -162,7 +162,7 @@ versions of the following programs/libraries:
 Installing the dependencies with MacPorts
 -----------------------------------------
 
-All dependencies can be installed with MacPorts, except for LibInt2. We recommend
+All dependencies can be installed with MacPorts. We recommend
 the following ports:
 
 * ``gcc49``, https://trac.macports.org/browser/trunk/dports/lang/gcc47/Portfile
@@ -176,6 +176,7 @@ the following ports:
 * ``py27-sympy``, https://trac.macports.org/browser/trunk/dports/python/py-sympy/Portfile
 * ``py27-matplotlib``, https://trac.macports.org/browser/trunk/dports/python/py-matplotlib/Portfile
 * ``libxc``, https://trac.macports.org/browser/trunk/dports/science/libxc/Portfile
+* ``libint``, https://trac.macports.org/browser/trunk/dports/science/libint/Portfile
 
 These are installed with the following commands. (When MacPorts is installed in user
 space, the ``sudo`` can be omitted.):
@@ -198,10 +199,10 @@ space, the ``sudo`` can be omitted.):
     sudo port select --set py-sympy py27-sympy
     sudo port install py27-matplotlib
     sudo port install libxc
+    sudo port install libint
 
-LibInt2 is yet unavailable on MacPorts and must be installed manually, as
-explained in :ref:`mac_manual_dependency_install`. The GNU compilers are only used
-to compile Fortran code as the default C/C++ compiler on the Mac is ``clang``.
+The GNU compilers are only used to compile Fortran code as the default C/C++
+compiler on the Mac is ``clang``.
 
 .. _mac_manual_dependency_install:
 
