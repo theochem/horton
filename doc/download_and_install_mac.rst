@@ -346,8 +346,8 @@ The following commands will install the ports:
     sudo port install py27-pip
     sudo port select --set pip pip27
 
-Since Breathe (>=1.2.0) and Sphinx (>=1.3.1) may not be available through MacPort,
-it should be installed through PIP:
+Since Breathe (>=1.2.0) and Sphinx (>=1.3.1) may not be available through
+MacPort, they should be installed through PIP:
 
 .. code-block:: bash
 

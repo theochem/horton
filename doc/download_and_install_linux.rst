@@ -291,8 +291,8 @@ Installing the dependencies with a package manager and PIP
                        tex-preview
 
 Since Breathe (>=1.2.0) and Sphinx (>=1.3.1) may not be available through the
-Linux repositories, it should be installed manually. For example, it is
-available through PyPI.
+Fedora or Ubuntu repositories, they should be installed manually. For example,
+They are available through PyPI.
 
 **PIP packages**:
 
