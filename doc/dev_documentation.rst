@@ -45,8 +45,9 @@ If you are using `sphinx-autobuild`  the command is as follows:
 
     (cd doc; firefox http://localhost:8000 &; make livehtml)
 
-This sets up a server at `localhost:800` and makes browser update whenever you make a change to the
-source files, as any other process you can stop it with `Ctrl-C`
+This sets up a server at `localhost:8000` and rebuilds website whenever you
+make a change to the source files. Just like any other process, you can stop it
+with `Ctrl-C`
 
 Common issues
 =============
