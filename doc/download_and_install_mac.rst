@@ -332,8 +332,6 @@ Installing the dependencies with MacPorts and PIP
 Most can be installed directly with MacPorts. The following list of ports is recommended:
 
 * ``doxygen``: https://trac.macports.org/browser/trunk/dports/textproc/doxygen/Portfile
-* ``dving`` (installs texlive as dependency): https://trac.macports.org/browser/trunk/dports/tex/dvipng/Portfile
-* ``texlive-latex-extra`` (contains ``preview.sty``): https://trac.macports.org/browser/trunk/dports/tex/texlive-latex-extra/Portfile
 * ``py27-pip``: https://trac.macports.org/browser/trunk/dports/python/py-pip/Portfile
 
 The following commands will install the ports:
@@ -341,8 +339,6 @@ The following commands will install the ports:
 .. code-block:: bash
 
     sudo port install doxygen
-    sudo port install dvipng
-    sudo port install texlive-latex-extra
     sudo port install py27-pip
     sudo port select --set pip pip27
 
