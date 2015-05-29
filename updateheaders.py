@@ -66,6 +66,19 @@ def fix_c(lines, header_lines):
         lines.insert(0, ('// '+hline).strip() + '\n')
 
 
+def fix_rst(lines, header_lines):
+    # check for an exception line
+    for line in lines:
+        if 'no_update_headers' in line:
+            return
+    # remove the current header
+    strip_header(lines, '    : --\n')
+    # add new header (insert must be in reverse order)
+    for hline in header_lines[::-1]:
+        lines.insert(0, ('    : '+hline).rstrip() + '\n')
+    # add comment instruction
+    lines.insert(0, '..\n')
+
 
 def iter_subdirs(root):
     for dn, subdns, fns in os.walk(root):
@@ -73,7 +86,7 @@ def iter_subdirs(root):
 
 
 def main():
-    source_dirs = ['.'] + list(iter_subdirs('horton'))
+    source_dirs = ['.', 'doc'] + list(iter_subdirs('horton'))
 
     fixers = [
         ('.py', fix_python),
@@ -82,6 +95,7 @@ def main():
         ('.c', fix_c),
         ('.cpp', fix_c),
         ('.h', fix_c),
+        ('.rst', fix_rst),
     ]
 
     f = open('HEADER')

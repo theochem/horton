@@ -10,6 +10,9 @@ please refer to Horton as follows:
     Horton 2.0.0, http://theochem.github.com/horton/,
     **2013**
 
+Horton is distributed under the conditions of the GPL License version 3. See
+:ref:`license_information` for more details.
+
 
 User documentation
 ==================
