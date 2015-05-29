@@ -268,7 +268,6 @@ packages are also needed:
 * Doxygen >= 1.8.6: http://www.doxygen.org/
 * Breathe >= 1.2.0: http://breathe.readthedocs.org/en/latest/
 * Docutils >= 0.11: http://docutils.sourceforge.net/
-* A latex distribution (Texlive)
 
 
 Installing the dependencies with a package manager and PIP
