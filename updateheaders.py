@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Horton is a development platform for electronic structure methods.
-# Copyright (C) 2011-2013 Toon Verstraelen <Toon.Verstraelen@UGent.be>
+# Copyright (C) 2011-2015 The Horton Development Team
 #
 # This file is part of Horton.
 #
