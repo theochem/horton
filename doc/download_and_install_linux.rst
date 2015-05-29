@@ -277,15 +277,13 @@ Installing the dependencies with a package manager and PIP
 
   .. code-block:: bash
 
-      sudo apt-get install doxygen preview-latex-style python-docutils \
-                           python-pip dvipng preview-latex-style
+      sudo apt-get install doxygen python-docutils python-pip
 
 * **Fedora packages**:
 
   .. code-block:: bash
 
-      sudo yum install doxygen tex-preview python-docutils python-pip dvipng \
-                       tex-preview
+      sudo yum install doxygen python-docutils python-pip
 
 Since Breathe (>=1.2.0) and Sphinx (>=1.3.1) may not be available through the
 Fedora or Ubuntu repositories, they should be installed manually. For example,
