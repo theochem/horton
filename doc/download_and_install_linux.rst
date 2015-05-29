@@ -85,7 +85,7 @@ versions of the following programs/libraries:
   any other of your favorite compilers should work. The GNU compilers are used for
   development and testing.)
 * Atlas >= 3.10.1: http://math-atlas.sourceforge.net/ (or any other BLAS implementation that you like more)
-* Numpy >= 1.7.0: http://www.numpy.org/
+* Numpy >= 1.9.1: http://www.numpy.org/
 * Scipy >= 0.10.0: http://www.scipy.org/
 * Cython >= 0.17.1 : http://www.cython.org/
 * h5py >= 2.2.1: http://www.h5py.org/
@@ -102,7 +102,7 @@ Installing dependencies with a package manager
 With popular Linux distributions, most of these dependencies can be installed
 with a package manager:
 
-* **Ubuntu Linux** (does not have a libint2 package, see section :ref:`linux_manual_dependency_install`):
+* **Ubuntu Linux 15.04**:
 
   .. code-block:: bash
 
@@ -110,7 +110,11 @@ with a package manager:
                          python-scipy cython python-nose python-sympy \
                          python-matplotlib libxc-dev libatlas-base-dev curl
 
-* **Fedora Linux**:
+  Note that Ubuntu 15.04 does not have a libint2 package and will install a
+  Numpy version that is too old. Go to the section
+  :ref:`linux_manual_dependency_install` to resolve these issues.
+
+* **Fedora Linux 22**:
 
   .. code-block:: bash
 
@@ -166,13 +170,29 @@ http://sourceforge.net/p/libint/home
 
 In some cases, PIP, the Python package manager, may be a good choice to install
 the most recent versions of the Python packages in the list of dependencies.
-Assuming that you have installed some compilers, the Python development files
-and HDF5 development files, the following command installs the remaining
-dependencies in your home directory:
+Here are some examples on how to use ``pip`` to install newer versions of
+dependencies on Linux distributions that have outdated packages:
 
-.. code-block:: bash
+* **Ubuntu 15.04 and 14.04**:
 
-    pip install --user numpy scipy cython h5py sphinx nose sympy
+  .. code-block:: bash
+
+      sudo apt-get install python-pip
+      pip install --user --upgrade numpy
+
+* **Ubuntu 12.04**:
+
+  .. code-block:: bash
+
+      sudo apt-get install python-pip
+      pip install --user --upgrade numpy h5py
+
+* **Fedora 20 and 21**:
+
+  .. code-block:: bash
+
+      sudo yum install python-pip
+      pip install --user --upgrade numpy
 
 
 Reference atoms
