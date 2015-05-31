@@ -279,7 +279,16 @@ Hamiltonian file formats
 The Molpro 2012 ``FCIDUMP`` format
 ----------------------------------
 
-TODO (after merging the IO cleanup)
+======================== =======================================================
+Load                     Yes
+Dump                     Yes
+Recognized by            File name contains ``FCIDUMP``
+Interoperation           `Molpro <https://www.molpro.net/>`_,
+                         `PSI4 <http://www.psicode.org/>`_
+Always **loading**       ``lf`` ``nelec`` ``ms2`` ``one_mo`` ``two_mo`` ``core_energy``
+Required for **dumping** ``one_mo`` ``two_mo``
+Optional for **dumping** ``core_energy`` ``nelec`` ``ms``
+======================== =======================================================
 
 
 The Gaussian ``.log`` file
