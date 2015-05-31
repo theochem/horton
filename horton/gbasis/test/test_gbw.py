@@ -26,7 +26,7 @@ from horton import *
 
 def get_h2o_er():
     fn = context.get_fn('test/water.xyz')
-    mol = Molecule.from_file(fn)
+    mol = IOData.from_file(fn)
     obasis = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
     lf = DenseLinalgFactory(obasis.nbasis)
     return obasis, obasis.compute_electron_repulsion(lf)._array

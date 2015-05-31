@@ -25,7 +25,7 @@ import numpy as np
 
 
 def test_rotation_energy():
-    mol = Molecule.from_file(context.get_fn('test/he_spdf_orbital.fchk'))
+    mol = IOData.from_file(context.get_fn('test/he_spdf_orbital.fchk'))
     kin = mol.obasis.compute_kinetic(mol.lf)
     e0 = kin.contract_two('ab,ba', mol.exp_alpha.to_dm())
     for irep in xrange(100):
@@ -36,7 +36,7 @@ def test_rotation_energy():
 
 
 def test_rotation_sp():
-    mol = Molecule.from_file(context.get_fn('test/he_sp_orbital.fchk'))
+    mol = IOData.from_file(context.get_fn('test/he_sp_orbital.fchk'))
     rmat = np.array([[0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]])
     assert (mol.exp_alpha.coeffs[5:7,3:5] == [[0, 1], [1, 0]]).all()
     mol.exp_alpha.coeffs[:] = rotate_coeffs(mol.exp_alpha.coeffs, mol.obasis, rmat)

@@ -24,7 +24,7 @@ from horton import *
 
 
 def check_bond_orders(fn):
-    mol = Molecule.from_file(fn)
+    mol = IOData.from_file(fn)
     operators = get_mulliken_operators(mol.obasis, mol.lf)
     dm_full = mol.get_dm_full()
     if dm_full is not None:

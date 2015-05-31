@@ -34,7 +34,7 @@ def check_jbw_coarse(local):
 
     # Load the cube file
     fn_cube = context.get_fn('test/jbw_coarse_aedens.cube')
-    mol = Molecule.from_file(fn_cube)
+    mol = IOData.from_file(fn_cube)
     moldens = mol.cube_data
     ugrid = mol.grid
 

@@ -39,7 +39,7 @@ def test_hf_water_321g_mistake():
     # When one forgets to construct the initial guess, some error must be
     # raised...
     fn_xyz = context.get_fn('test/water.xyz')
-    mol = Molecule.from_file(fn_xyz)
+    mol = IOData.from_file(fn_xyz)
     obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21G')
     lf = DenseLinalgFactory(obasis.nbasis)
     occ_model = AufbauOccModel(5)

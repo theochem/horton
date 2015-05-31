@@ -274,7 +274,7 @@ To restart an AP1roG calculation (for instance, using the orbitals from a differ
 
 .. code-block:: python
 
-    old = Molecule.from_file('checkpoint.h5')
+    old = IOData.from_file('checkpoint.h5')
 
 
 If this checkpoint file is used as an initial guess for a new geometry, the

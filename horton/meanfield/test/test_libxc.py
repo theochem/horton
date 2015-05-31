@@ -29,7 +29,7 @@ from horton.meanfield.test.common import check_interpolation
 
 def test_cubic_interpolation_c_pbe_cs():
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
 
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
     olp = mol.obasis.compute_overlap(mol.lf)
@@ -47,7 +47,7 @@ def test_cubic_interpolation_c_pbe_cs():
 
 def test_cubic_interpolation_x_pbe_cs():
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
 
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
     olp = mol.obasis.compute_overlap(mol.lf)
@@ -65,7 +65,7 @@ def test_cubic_interpolation_x_pbe_cs():
 
 def test_cubic_interpolation_hfs_cs():
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
 
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
     olp = mol.obasis.compute_overlap(mol.lf)
@@ -84,7 +84,7 @@ def test_cubic_interpolation_hfs_cs():
 def test_cubic_interpolation_x_pbe_c_vwn_cs():
     # mixing of GGA and LDA
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
 
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
     olp = mol.obasis.compute_overlap(mol.lf)
@@ -102,7 +102,7 @@ def test_cubic_interpolation_x_pbe_c_vwn_cs():
 
 def test_cubic_interpolation_c_vwn_cs():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
 
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
     olp = mol.obasis.compute_overlap(mol.lf)
@@ -119,7 +119,7 @@ def test_cubic_interpolation_c_vwn_cs():
 
 def test_cubic_interpolation_o3lyp_cs():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
 
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
     olp = mol.obasis.compute_overlap(mol.lf)
@@ -137,7 +137,7 @@ def test_cubic_interpolation_o3lyp_cs():
 
 def test_cubic_interpolation_c_pbe_os():
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
 
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
     olp = mol.obasis.compute_overlap(mol.lf)
@@ -155,7 +155,7 @@ def test_cubic_interpolation_c_pbe_os():
 
 def test_cubic_interpolation_x_pbe_os():
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
 
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
     olp = mol.obasis.compute_overlap(mol.lf)
@@ -173,7 +173,7 @@ def test_cubic_interpolation_x_pbe_os():
 
 def test_cubic_interpolation_hfs_os():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
 
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
     olp = mol.obasis.compute_overlap(mol.lf)
@@ -192,7 +192,7 @@ def test_cubic_interpolation_hfs_os():
 def test_cubic_interpolation_x_pbe_c_vwn_os():
     # mixing of LDA and GGA
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
 
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
     olp = mol.obasis.compute_overlap(mol.lf)
@@ -211,7 +211,7 @@ def test_cubic_interpolation_x_pbe_c_vwn_os():
 
 def test_cubic_interpolation_o3lyp_os():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
 
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
     olp = mol.obasis.compute_overlap(mol.lf)
@@ -229,7 +229,7 @@ def test_cubic_interpolation_o3lyp_os():
 
 def test_hyb_gga_exx_fraction():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     # xc_pbeh = The PBE0 functional
     t = RLibXCHybridGGA('xc_pbeh')
     assert t.get_exx_fraction() == 0.25
@@ -239,7 +239,7 @@ def test_hyb_gga_exx_fraction():
 
 def test_lda_c_vwn_present():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     t = RLibXCLDA('c_vwn')     # The VWN 5 functional
     t = RLibXCLDA('c_vwn_4')   # The VWN 4 functional
 

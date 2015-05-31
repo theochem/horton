@@ -47,8 +47,8 @@ def test_data_files():
                 raise ValueError('The following file is not checked in: %s' % line)
 
 
-def test_do_not_use_molecule():
-    # Check for the use of the Molecule class outside horton.io, horton.scripts
+def test_do_not_use_iodata():
+    # Check for the use of the IOData class outside horton.io, horton.scripts
     # or horton.part.proatomdb.
 
     # find packages
@@ -66,9 +66,9 @@ def test_do_not_use_molecule():
             if module in ['__init__', 'proatomdb']:
                 continue
             modules.append(module)
-    # try to import Molecule
+    # try to import IOData
     for package, modules in packages.iteritems():
         for module in modules:
             m = importlib.import_module('%s.%s' % (package, module))
             with assert_raises(AttributeError):
-                m.Molecule
+                m.IOData

@@ -60,9 +60,8 @@ def wpart_slow_analysis(wpart, mol):
             An instance of a WPart class
 
        mol
-            An instance of a Molecule object. This instance must at least
-            contain an obasis, exp_alpha and exp_beta (in case of unrestricted
-            spin) object.
+            An instance of IOData. This instance must at least contain an
+            obasis, exp_alpha and exp_beta (in case of unrestricted spin) object.
     '''
 
     # A) Compute AIM overlap operators

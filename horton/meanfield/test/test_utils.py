@@ -26,7 +26,7 @@ from horton import *
 
 def check_spin(fn_fchk, sz0, ssq0, eps):
     path_fchk = context.get_fn('test/%s' % fn_fchk)
-    mol = Molecule.from_file(path_fchk)
+    mol = IOData.from_file(path_fchk)
     olp = mol.obasis.compute_overlap(mol.lf)
     if hasattr(mol, 'exp_beta'):
         sz, ssq = get_spin(mol.exp_alpha, mol.exp_beta, olp)
@@ -61,7 +61,7 @@ def test_spin_water_hf():
 
 
 def check_homo_lumo(fn_fchk, homo_energy0, lumo_energy0, eps=1e-8):
-    mol = Molecule.from_file(context.get_fn('test/%s' % fn_fchk))
+    mol = IOData.from_file(context.get_fn('test/%s' % fn_fchk))
     exps = [mol.exp_alpha]
     if hasattr(mol, 'exp_beta'):
         exps.append(mol.exp_beta)
@@ -91,7 +91,7 @@ def test_homo_lumo_he():
 
 def test_level_shift():
     fn_fchk = context.get_fn('test/helium_hf_sto3g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     overlap = mol.obasis.compute_overlap(mol.lf)
     dm_alpha1 = mol.exp_alpha.to_dm()
     ls_alpha = get_level_shift(dm_alpha1, overlap)

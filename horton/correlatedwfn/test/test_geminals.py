@@ -27,7 +27,7 @@ import numpy as np
 
 def prepare_mol(basis, scale=1.0):
     fn_xyz = context.get_fn('test/h2.xyz')
-    mol = Molecule.from_file(fn_xyz)
+    mol = IOData.from_file(fn_xyz)
     mol.coordinates *= scale
     obasis = get_gobasis(mol.coordinates, mol.numbers, basis)
     lf = DenseLinalgFactory(obasis.nbasis)
@@ -94,7 +94,7 @@ def test_ap1rog_cs_scf_restart():
                                       checkpoint_fn=checkpoint_fn)
         assert (abs(energy - -1.151686291339) < 1e-6)
 
-        old = Molecule.from_file(checkpoint_fn)
+        old = IOData.from_file(checkpoint_fn)
 
     assert hasattr(old, 'olp')
     assert hasattr(old, 'exp_alpha')

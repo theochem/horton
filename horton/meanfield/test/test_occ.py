@@ -66,7 +66,7 @@ def test_occ_aufbau_os():
 
 def test_fermi_occ_model_cs_helium():
     fn_fchk = context.get_fn('test/helium_hf_sto3g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     occ_model = FermiOccModel(1.0)
     occ_model.assign(mol.exp_alpha)
     assert (mol.exp_alpha.occupations == [1.0]).all()
@@ -74,7 +74,7 @@ def test_fermi_occ_model_cs_helium():
 
 def test_fermi_occ_model_cs():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     for temperature in 300, 3000, 10000, 30000:
         occ_model = FermiOccModel(5.0, temperature=temperature)
         occ_model.assign(mol.exp_alpha)
@@ -85,7 +85,7 @@ def test_fermi_occ_model_cs():
 
 def test_fermi_occ_model_os():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     for temperature in 300, 3000, 10000, 30000:
         occ_model = FermiOccModel(1.9, 1.1, temperature=temperature)
         occ_model.assign(mol.exp_alpha, mol.exp_beta)
@@ -99,7 +99,7 @@ def test_fermi_occ_model_os():
 
 def test_fixed_occ_model_os():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     occs_alpha = np.array([2.0, 0.0, 0.5])
     occs_beta = np.array([0.0, 0.5, 0.0, 0.0])
     occ_model = FixedOccModel(occs_alpha, occs_beta)

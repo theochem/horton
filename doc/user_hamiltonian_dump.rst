@@ -26,15 +26,15 @@ Dumping a Hamiltonian to a file
 
 Horton supports two formats for storing a Hamiltonian in a file: (i) an internal binary format based on HDF5 (extension ``.h5``) and Molpro's FCIDUMP text format (containing ``FCIDUMP`` somewhere in the file name). The internal format is more flexible and can store a Hamiltonian on various different ways. The FCIDUMP format as more restrictive but can be used to interoperate with different codes, e.g. Molpro.
 
-All input and output of data in Horton is done through the :py:class:`horton.io.molecule.Molecule` class. Dumping data to a file takes the following three steps:
+All input and output of data in Horton is done through the :py:class:`horton.io.iodata.IOData` class. Dumping data to a file takes the following three steps:
 
-1. Create an instance of the ``Molecule`` class (from scratch, or by loading it from a file),
+1. Create an instance of the ``IOData`` class (from scratch, or by loading it from a file),
 2. Sets some attributes,
-3. Call the :py:meth:`~horton.io.molecule.Molecule.to_file` method to actually dump the info to the file.
+3. Call the :py:meth:`~horton.io.iodata.IOData.to_file` method to actually dump the info to the file.
 
 One can also combine steps 1 and 2 by passing the attributes of interest to the constructor. These steps will be illustrated in the examples below.
 
-The list of attributes recognized by (some) output formats is documented here: :py:class:`horton.io.molecule.Molecule`. The method :py:meth:`~horton.io.molecule.Molecule.to_file` just takes the filename as argument. The filename is used to determine the file format. When it has the extension ``.h5``, the internal format is used. When the file contains ``FCIDUMP``, the FCIDUMP format is used.
+The list of attributes recognized by (some) output formats is documented here: :py:class:`horton.io.iodata.IOData`. The method :py:meth:`~horton.io.iodata.IOData.to_file` just takes the filename as argument. The filename is used to determine the file format. When it has the extension ``.h5``, the internal format is used. When the file contains ``FCIDUMP``, the FCIDUMP format is used.
 
 .. _hamiltonian_dump_internal:
 
@@ -47,7 +47,7 @@ One can store all the separate operators in the atomic-orbital (AO) basis, here 
     :caption: data/examples/hamiltonian/dump_internal_ao.py
     :lines: 2-
 
-Note that the attributes ``coordinates``, ``numbers`` and ``title``, which were loaded from the ``.xyz`` file, will also be dumped in the internal format, unless you explicitly remove them first with e.g. ``del mol.title``. The internal format will just store any attribute of the ``Molecule`` object, not just the ones that are documented, see :py:class:`horton.io.molecule.Molecule`. So, you may assign other attributes as well, e.g. ``obasis`` or ``olp``, if that is convenient.
+Note that the attributes ``coordinates``, ``numbers`` and ``title``, which were loaded from the ``.xyz`` file, will also be dumped in the internal format, unless you explicitly remove them first with e.g. ``del mol.title``. The internal format will just store any attribute of the ``IOData`` object, not just the ones that are documented, see :py:class:`horton.io.iodata.IOData`. So, you may assign other attributes as well, e.g. ``obasis`` or ``olp``, if that is convenient.
 
 In the HDF5 file, all data is stored binary in full precision. The layout of the
 HDF5 file in this example is as follows:
@@ -71,7 +71,7 @@ HDF5 file in this example is as follows:
      }
     }
 
-The attributes used for the FCIDUMP format, ``one_mo``, ``two_mo``, ``core_energy``, ``nelec`` and ``ms2`` can also be used for the internal format. The following example shows how this can be done with a ``Molecule`` object created from scratch.
+The attributes used for the FCIDUMP format, ``one_mo``, ``two_mo``, ``core_energy``, ``nelec`` and ``ms2`` can also be used for the internal format. The following example shows how this can be done with a ``IOData`` object created from scratch.
 
 .. literalinclude::  ../data/examples/hamiltonian/dump_internal_ao_fcidump.py
     :caption: data/examples/hamiltonian/dump_internal_ao_fcidump.py
@@ -115,7 +115,7 @@ The FCIDUMP format is normally only used for storing integrals in the MO basis b
     :caption: data/examples/hamiltonian/dump_fcidump_ao.py
     :lines: 2-
 
-This example shows how the ``Molecule`` attributes can be set by giving keyword arguments to the constructor. The file ``hamiltonian_ao.FCIDUMP`` will contain the following:
+This example shows how the ``IOData`` attributes can be set by giving keyword arguments to the constructor. The file ``hamiltonian_ao.FCIDUMP`` will contain the following:
 
 .. code-block:: text
 
@@ -153,6 +153,6 @@ The second block (after ``&END``) contains the one- and two-electron integrals a
 
 * Second, all symmetry-unique elements of the one-electron integrals are listed, where again the first column is the value of the integral, followed by the orbital indices. Note that the last two columns contain zeros.
 
-* The core energy (for instance, the nuclear repulsion term, etc.) is written on the last line with all orbital indices equal 0.
+* Finally, the core energy (for instance, the nuclear repulsion term, etc.) is written on the last line with all orbital indices equal 0.
 
 If any of the value of an integral is zero, the corresponding line is not included in the the FCIDUMP file.

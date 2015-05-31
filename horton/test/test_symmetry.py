@@ -76,8 +76,8 @@ def test_generate():
 
 
 def test_identify():
-    mol1 = Molecule.from_file(context.get_fn('test/lta_gulp.cif'))
-    mol2 = Molecule.from_file(context.get_fn('test/aelta.cube'))
+    mol1 = IOData.from_file(context.get_fn('test/lta_gulp.cif'))
+    mol2 = IOData.from_file(context.get_fn('test/aelta.cube'))
     sym = mol1.symmetry
     links = sym.identify(mol2.coordinates, mol1.cell) # The cell parameters in aelta.cube are rubbish.
     for i in xrange(mol2.natom):
@@ -94,7 +94,7 @@ def test_hdf5():
 
 
 def test_symmetry_error():
-    mol1 = Molecule.from_file(context.get_fn('test/lta_gulp.cif'))
-    mol2 = Molecule.from_file(context.get_fn('test/lta_iza.cif'))
+    mol1 = IOData.from_file(context.get_fn('test/lta_gulp.cif'))
+    mol2 = IOData.from_file(context.get_fn('test/lta_iza.cif'))
     with assert_raises(SymmetryError):
         mol1.symmetry.identify(mol2.coordinates, mol2.cell)

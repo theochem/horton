@@ -23,7 +23,7 @@
 
 import sys, argparse, os, numpy as np
 
-from horton import Molecule, UniformGrid, log, angstrom, \
+from horton import IOData, UniformGrid, log, angstrom, \
     compute_esp_grid_cube, __version__
 from horton.scripts.common import parse_h5, parse_ewald_args, store_args, \
     check_output, write_script_output
@@ -73,7 +73,7 @@ def parse_args():
 
 
 def load_ugrid_coordinates(arg_grid):
-    mol = Molecule.from_file(arg_grid)
+    mol = IOData.from_file(arg_grid)
     return mol.grid, mol.coordinates
 
 

@@ -2093,7 +2093,7 @@ def test_electron_repulsion_4_3_2_1():
 
 def check_g09_overlap(fn_fchk):
     fn_log = fn_fchk[:-5] + '.log'
-    mol = Molecule.from_file(fn_fchk, fn_log)
+    mol = IOData.from_file(fn_fchk, fn_log)
     olp1 = mol.obasis.compute_overlap(mol.lf)
     olp2 = mol.olp
     mask = abs(olp1._array) > 1e-5
@@ -2125,7 +2125,7 @@ def test_overlap_co_ccpv5z_cart_hf():
 
 def check_g09_kinetic(fn_fchk):
     fn_log = fn_fchk[:-5] + '.log'
-    mol = Molecule.from_file(fn_fchk, fn_log)
+    mol = IOData.from_file(fn_fchk, fn_log)
     kin1 = mol.obasis.compute_kinetic(mol.lf)
     kin2 = mol.kin
     mask = abs(kin1._array) > 1e-5
@@ -2157,7 +2157,7 @@ def test_kinetic_co_ccpv5z_cart_hf():
 
 def check_g09_nuclear_attraction(fn_fchk):
     fn_log = fn_fchk[:-5] + '.log'
-    mol = Molecule.from_file(fn_fchk, fn_log)
+    mol = IOData.from_file(fn_fchk, fn_log)
     na1 = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     na2 = mol.na
     mask = abs(na1._array) > 1e-5
@@ -2190,7 +2190,7 @@ def test_nuclear_attraction_co_ccpv5z_cart_hf():
 
 def check_g09_electron_repulsion(fn_fchk, check_g09_zeros=False):
     fn_log = fn_fchk[:-5] + '.log'
-    mol = Molecule.from_file(fn_fchk, fn_log)
+    mol = IOData.from_file(fn_fchk, fn_log)
     er1 = mol.obasis.compute_electron_repulsion(mol.lf)
     er2 = mol.er
     mask = abs(er1._array) > 1e-6
@@ -2216,7 +2216,7 @@ def test_electron_repulsion_water_ccpvdz_cart_hf():
 
 
 def check_g09_grid_fn(fn_fchk):
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'tv-13.7-4', random_rotate=False)
     dm_full = mol.get_dm_full()
     rhos = mol.obasis.compute_grid_density_dm(dm_full, grid.points)

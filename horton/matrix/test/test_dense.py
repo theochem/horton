@@ -633,7 +633,7 @@ def test_expansion_from_fock():
 
 def test_expansion_naturals():
     fn_fchk = context.get_fn('test/ch3_hf_sto3g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     overlap = mol.obasis.compute_overlap(mol.lf)
     dm = mol.exp_alpha.to_dm()
     exp = mol.lf.create_expansion()
@@ -645,7 +645,7 @@ def test_expansion_naturals():
 
 def test_expansion_homo_lumo_ch3_hf():
     fn_fchk = context.get_fn('test/ch3_hf_sto3g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     assert mol.exp_alpha.get_homo_index() == 4
     assert mol.exp_beta.get_homo_index() == 3
     assert mol.exp_alpha.get_lumo_index() == 5
@@ -668,7 +668,7 @@ def test_expansion_homo_lumo_ch3_hf():
 
 def test_expansion_to_dm1():
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     dm = mol.exp_alpha.to_dm()
     dm.iscale(2)
     assert dm.distance_inf(mol.get_dm_full()) < 1e-4
@@ -677,7 +677,7 @@ def test_expansion_to_dm1():
 
 def test_expansion_to_dm2():
     fn_fchk = context.get_fn('test/ch3_hf_sto3g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     dm = mol.exp_alpha.to_dm()
     dm1 = mol.exp_beta.to_dm(dm, 1.0, False)
     assert dm1 is dm
@@ -688,7 +688,7 @@ def test_expansion_to_dm2():
 
 def test_expansion_to_dm3():
     fn_fchk = context.get_fn('test/ch3_hf_sto3g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     dm = mol.exp_alpha.to_dm(other=mol.exp_beta)
     assert not dm.is_symmetric()
 
@@ -2542,7 +2542,7 @@ def test_electron_electron_water_sto3g_hf():
 def test_hartree_fock_water():
     lf, cache, exp_alpha0 = get_water_sto3g_hf()
 
-    # Neutral water molecule
+    # Neutral water IOData
     nalpha = 5
 
     # Construct the hamiltonian core guess

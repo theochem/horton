@@ -264,7 +264,7 @@ def test_esp_cost_solve_regularized():
 def test_compare_cubetools():
     # Load structure from cube file
     fn_cube = context.get_fn('test/jbw_coarse_aedens.cube')
-    mol = Molecule.from_file(fn_cube)
+    mol = IOData.from_file(fn_cube)
 
     # Use a different grid
     origin = np.array([0.0, 0.0, 0.0])

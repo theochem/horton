@@ -23,7 +23,7 @@
 
 import sys, argparse, os, numpy as np
 
-from horton import __version__, Molecule
+from horton import __version__, IOData
 
 
 # All, except underflows, is *not* fine.
@@ -63,7 +63,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    mol = Molecule.from_file(args.input)
+    mol = IOData.from_file(args.input)
     mol.to_file(args.output)
 
 

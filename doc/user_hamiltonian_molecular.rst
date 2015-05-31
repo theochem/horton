@@ -65,12 +65,12 @@ Reading the molecular geometry from file
 ----------------------------------------
 
 The molecular geometry can be read from file using the method
-:py:meth:`horton.io.molecule.Molecule.from_file` of the
-``Molecule`` class,
+:py:meth:`horton.io.iodata.IOData.from_file` of the
+``IOData`` class,
 
 .. code-block:: python
 
-    mol = Molecule.from_file(filename)
+    mol = IOData.from_file(filename)
 
 
 Constructing a molecular geometry from scratch
@@ -206,7 +206,7 @@ possible to load the basis set from a ``.wfn`` file, but keep in mind that this
 format does not support contracted basis functions, so Horton will then use a
 decontracted basis set, which is less efficient.
 
-One simply uses the ``Molecule.from_file`` method to load the file. The orbital
+One simply uses the ``IOData.from_file`` method to load the file. The orbital
 basis object is then available in the ``obasis`` attribute if the return value.
 For example:
 
@@ -214,7 +214,7 @@ For example:
 
     # Load the geometry, orbital basis and wavefunction from a Gaussian
     # formatted checkpoint file:
-    mol = Molecule.from_file('water.fchk')
+    mol = IOData.from_file('water.fchk')
 
     # Print the number of basis functions
     print mol.obasis.nbasis

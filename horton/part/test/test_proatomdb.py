@@ -78,8 +78,8 @@ def test_db_basics_pseudo():
 
 def test_record_basics_pseudo():
     fn_out = context.get_fn('test/atom_si.cp2k.out')
-    mol = Molecule.from_file(fn_out)
-    r = ProAtomRecord.from_molecule(mol)
+    mol = IOData.from_file(fn_out)
+    r = ProAtomRecord.from_iodata(mol)
     assert r.number == 14
     assert r.charge == 0
     assert abs(r.energy - -3.761587698067) < 1e-10

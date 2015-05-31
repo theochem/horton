@@ -173,7 +173,7 @@ def test_grid_fn_d_contraction():
 
 def test_density_epsilon():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
     dm_full = mol.get_dm_full()
     rho1 = mol.obasis.compute_grid_density_dm(dm_full, grid.points)
@@ -186,7 +186,7 @@ def test_density_epsilon():
 
 def test_density_functional_deriv():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     dm_full = mol.get_dm_full()
     obasis = mol.obasis
 
@@ -228,7 +228,7 @@ def check_density_gradient(obasis, dm_full, p0, p1):
 
 def test_density_gradient_n2_sto3g():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     obasis = mol.obasis
     dm_full = mol.get_dm_full()
 
@@ -245,7 +245,7 @@ def test_density_gradient_n2_sto3g():
 
 def test_density_gradient_h3_321g():
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     obasis = mol.obasis
     dm_full = mol.get_dm_full()
 
@@ -258,7 +258,7 @@ def test_density_gradient_h3_321g():
 
 def test_density_gradient_co_ccpv5z_cart():
     fn_fchk = context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     obasis = mol.obasis
     dm_full = mol.get_dm_full()
 
@@ -271,7 +271,7 @@ def test_density_gradient_co_ccpv5z_cart():
 
 def test_density_gradient_co_ccpv5z_pure():
     fn_fchk = context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     obasis = mol.obasis
     dm_full = mol.get_dm_full()
 
@@ -301,7 +301,7 @@ def check_dm_gradient(obasis, dm_full, p0, p1):
 
 def test_dm_gradient_n2_sto3g():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     obasis = mol.obasis
     dm_full = mol.get_dm_full()
     eps = 1e-4
@@ -312,7 +312,7 @@ def test_dm_gradient_n2_sto3g():
 
 def test_dm_gradient_h3_321g():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     obasis = mol.obasis
     dm_full = mol.get_dm_full()
     eps = 1e-4
@@ -323,7 +323,7 @@ def test_dm_gradient_h3_321g():
 
 def test_gradient_functional_deriv():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     obasis = mol.obasis
     dm_full = mol.get_dm_full()
 
@@ -411,23 +411,23 @@ def check_orbitals(mol):
 
 def test_orbitals_n2_sto3g():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    check_orbitals(Molecule.from_file(fn_fchk))
+    check_orbitals(IOData.from_file(fn_fchk))
 
 def test_orbitals_h3_321g():
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
-    check_orbitals(Molecule.from_file(fn_fchk))
+    check_orbitals(IOData.from_file(fn_fchk))
 
 def test_orbitals_co_ccpv5z_cart():
     fn_fchk = context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk')
-    check_orbitals(Molecule.from_file(fn_fchk))
+    check_orbitals(IOData.from_file(fn_fchk))
 
 def test_orbitals_co_ccpv5z_pure():
     fn_fchk = context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk')
-    check_orbitals(Molecule.from_file(fn_fchk))
+    check_orbitals(IOData.from_file(fn_fchk))
 
 
 def check_dm_kinetic(fn, eps=1e-100):
-    mol = Molecule.from_file(context.get_fn(fn))
+    mol = IOData.from_file(context.get_fn(fn))
     lf = mol.lf
     obasis = mol.obasis
     dm = mol.get_dm_full()
@@ -465,7 +465,7 @@ def test_dm_kinetic_co_ccpv5z_pure():
 
 def test_kinetic_functional_deriv():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     obasis = mol.obasis
     dm_full = mol.get_dm_full()
 

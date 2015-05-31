@@ -26,7 +26,7 @@ from horton.meanfield.test.common import helper_compute
 
 
 def test_project_msg_identical():
-    mol = Molecule.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+    mol = IOData.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
     exp = mol.lf.create_expansion()
     project_orbitals_mgs(mol.obasis, mol.obasis, mol.exp_alpha, exp)
     assert (exp.energies == 0.0).all()
@@ -36,7 +36,7 @@ def test_project_msg_identical():
 
 
 def test_project_ortho_basis_identical():
-    mol = Molecule.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+    mol = IOData.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
     exp = mol.lf.create_expansion()
     project_orbitals_ortho(mol.obasis, mol.obasis, mol.exp_alpha, exp)
     assert (exp.energies == 0.0).all()
@@ -45,7 +45,7 @@ def test_project_ortho_basis_identical():
 
 
 def test_project_ortho_olp_identical():
-    mol = Molecule.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+    mol = IOData.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
     olp = mol.lf.create_two_index()
     for i in xrange(olp.nbasis):
         olp.set_element(i, i, 1.0)
@@ -58,7 +58,7 @@ def test_project_ortho_olp_identical():
 
 def test_project_msg_larger():
     # Load STO3G system and keep essential results
-    mol = Molecule.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+    mol = IOData.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
     obasis0 = mol.obasis
     exp0 = mol.exp_alpha
 
@@ -105,7 +105,7 @@ def test_project_msg_larger():
 
 def test_project_msg_smaller():
     # Load 3-21G system and keep essential results
-    mol = Molecule.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
+    mol = IOData.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
     obasis0 = mol.obasis
     exp0_alpha = mol.exp_alpha
     exp0_beta = mol.exp_beta
@@ -154,7 +154,7 @@ def test_project_msg_smaller():
 def get_basis_pair_geometry():
     '''Prepare two basis sets that only differ in geometry'''
     # Create initial system
-    mol = Molecule.from_file(context.get_fn('test/water.xyz'))
+    mol = IOData.from_file(context.get_fn('test/water.xyz'))
     obasis0 = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
     lf = DenseLinalgFactory(obasis0.nbasis)
     exp0 = lf.create_expansion()

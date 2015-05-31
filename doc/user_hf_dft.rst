@@ -161,7 +161,7 @@ checkpoint file may be loaded as follows:
 .. code-block:: python
 
     # Load fchk file
-    mol = Molecule.from_file('water.fchk')
+    mol = IOData.from_file('water.fchk')
 
     # Print the number of alpha orbitals (occupied and virtual)
     print mol.exp_aplha.nfn
@@ -183,7 +183,7 @@ try to use these as initial guess after projecting the orbitals onto the
 larger basis set. This is exactly what the function
 :py:func:`horton.meanfield.project.project_orbitals_mgs` does. The following
 snippet assumes that the ``obasis0`` and ``exp_alpha0`` are the small basis set
-and a set of orbitals in that basis for the ``Molecule`` instance ``mol``.
+and a set of orbitals in that basis for the ``IOData`` instance ``mol``.
 
 .. code-block:: python
 

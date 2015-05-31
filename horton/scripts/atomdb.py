@@ -25,7 +25,7 @@ from string import Template as BaseTemplate
 from glob import glob
 import re, os, stat
 
-from horton import periodic, log, Molecule
+from horton import periodic, log, IOData
 from horton.scripts.common import iter_elements
 
 
@@ -361,7 +361,7 @@ class AtomProgram(object):
             return None, None
 
         try:
-            mol = Molecule.from_file(fn)
+            mol = IOData.from_file(fn)
         except:
             return None, None
         mol.energy = self._get_energy(mol, dn_mult)

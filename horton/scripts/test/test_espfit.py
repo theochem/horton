@@ -57,7 +57,7 @@ def test_scripts():
     ugrid = UniformGrid(origin, grid_rvecs, shape, pbc)
     esp_cube_data = np.random.uniform(-1, 1, shape)
     rho_cube_data = np.random.uniform(-1, 1, shape)
-    mol_esp = Molecule(coordinates=coordinates, numbers=numbers, grid=ugrid, cube_data=esp_cube_data)
+    mol_esp = IOData(coordinates=coordinates, numbers=numbers, grid=ugrid, cube_data=esp_cube_data)
     mol_rho = mol_esp.copy()
     mol_rho.cube_data = rho_cube_data
 
@@ -92,7 +92,7 @@ def test_scripts_symmetry():
         check_script('horton-esp-cost.py esp.cube esp.h5 --wnear=0:1.0:0.5 --rcut=4 --alpha-scale=0.1', dn)
         check_files(dn, ['esp.h5'])
         check_script('horton-esp-fit.py esp.h5 other.h5 --symmetry esp.cube lta_gulp.cif', dn)
-        mol_sym = Molecule.from_file('%s/lta_gulp.cif' % dn)
+        mol_sym = IOData.from_file('%s/lta_gulp.cif' % dn)
         with h5.File(os.path.join(dn, 'other.h5')) as f:
             assert 'symmetry' in f
             assert f['symmetry/charges'].shape == (mol_sym.symmetry.natom, 2)

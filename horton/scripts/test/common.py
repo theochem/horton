@@ -23,7 +23,7 @@
 
 import shutil, os, numpy as np
 
-from horton import context, UniformGrid, Molecule
+from horton import context, UniformGrid, IOData
 
 
 __all__ = ['copy_files', 'check_files', 'write_random_lta_cube']
@@ -42,7 +42,7 @@ def check_files(dn, fns):
 def write_random_lta_cube(dn, fn_cube):
     '''Write a randomized cube file'''
     # start from an existing cube file
-    mol = Molecule.from_file(context.get_fn('test/lta_gulp.cif'))
+    mol = IOData.from_file(context.get_fn('test/lta_gulp.cif'))
     # Define a uniform grid with only 1000 points, to make the tests fast.
     ugrid = UniformGrid(np.zeros(3, float), mol.cell.rvecs*0.1, np.array([10, 10, 10]), np.array([1, 1, 1]))
     # Write to the file dn/fn_cube
