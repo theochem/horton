@@ -18,6 +18,7 @@
     : along with this program; if not, see <http://www.gnu.org/licenses/>
     :
     : --
+
 .. _hamiltonian_load:
 
 Loading a Hamiltonian from a file

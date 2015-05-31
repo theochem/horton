@@ -73,6 +73,9 @@ def fix_rst(lines, header_lines):
             return
     # remove the current header
     strip_header(lines, '    : --\n')
+    # add an empty line after header if needed
+    if len(lines[1].strip()) > 0:
+      lines.insert(1, '\n')
     # add new header (insert must be in reverse order)
     for hline in header_lines[::-1]:
         lines.insert(0, ('    : '+hline).rstrip() + '\n')
