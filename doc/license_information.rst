@@ -39,7 +39,7 @@ other things, this has the following practical implications:
   their contribution, they agree to do so under the conditions of the GPL
   License version 3.
 
-The complete License text is given below and the above two interpretations are
-just provided for your convenience:
+The complete License text is given below and the above interpretations are just
+provided for your convenience:
 
 .. literalinclude:: ../COPYING
