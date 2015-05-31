@@ -990,6 +990,17 @@ def test_two_index_itranspose():
         assert op.get_element(i1, i0) == x
 
 
+def test_two_index_assign_dot():
+    lf = DenseLinalgFactory(2)
+    exp0 = lf.create_expansion()
+    a = lf.create_two_index()
+    tf2 = lf.create_two_index()
+    exp0.randomize()
+    tf2.randomize()
+    a.assign_dot(exp0, tf2)
+    assert np.allclose(a._array, np.dot(exp0.coeffs, tf2._array))
+
+
 def test_two_index_inner():
     lf = DenseLinalgFactory(3)
     op = lf.create_two_index()

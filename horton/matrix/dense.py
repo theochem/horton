@@ -1500,7 +1500,7 @@ class DenseTwoIndex(TwoIndex):
         check_type('tf2', tf2, DenseTwoIndex)
         if not (self.nbasis == other.nbasis):
             raise TypeError('Both expansions must have the same number of basis functions.')
-        if not (tf2.shape[0] == other.nbasis1 and tf2.shape[1] == self.shape[1]):
+        if not (tf2.shape[0] == other.nfn and tf2.shape[1] == self.shape[1]):
             raise TypeError('The shape of the two-index object is incompatible with that of the expansions.')
         self._array[:] = np.dot(other.coeffs, tf2._array)
 
