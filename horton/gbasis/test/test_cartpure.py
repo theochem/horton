@@ -173,8 +173,8 @@ def test_cart_pure_water_ccpvdz_hf():
     fn_fchk_cart = context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk')
     fn_log_cart = fn_fchk_cart[:-5] + '.log'
     # Also load fchk file to get reordering of matrix elements.
-    mol_pure = Molecule.from_file(fn_fchk_pure, fn_log_pure)
-    mol_cart = Molecule.from_file(fn_fchk_cart, fn_log_cart)
+    mol_pure = IOData.from_file(fn_fchk_pure, fn_log_pure)
+    mol_cart = IOData.from_file(fn_fchk_cart, fn_log_cart)
     for key in 'olp', 'kin', 'na':
         block_pure = getattr(mol_pure, key)._array[9:14,9:14]
         block_cart = getattr(mol_cart, key)._array[9:15,9:15]

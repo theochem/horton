@@ -26,7 +26,7 @@ from horton import *
 
 def test_ap1rog_lagrange():
     fn_xyz = context.get_fn('test/li2.xyz')
-    mol = Molecule.from_file(fn_xyz)
+    mol = IOData.from_file(fn_xyz)
     obasis = get_gobasis(mol.coordinates, mol.numbers, 'cc-pvdz')
     lf = DenseLinalgFactory(obasis.nbasis)
     occ_model = AufbauOccModel(3)

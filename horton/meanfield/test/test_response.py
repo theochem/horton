@@ -26,7 +26,7 @@ from horton import *
 
 
 def check_response(fn):
-    mol = Molecule.from_file(fn)
+    mol = IOData.from_file(fn)
     operators = get_mulliken_operators(mol.obasis, mol.lf)
     exps = [mol.exp_alpha]
     if hasattr(mol, 'exp_beta'):

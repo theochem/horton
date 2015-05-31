@@ -25,7 +25,7 @@ from horton import *
 
 def test_becke_hartree_n2_hfs_sto3g():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False, mode='keep')
 
     er = mol.obasis.compute_electron_repulsion(mol.lf)
@@ -48,7 +48,7 @@ def test_becke_hartree_n2_hfs_sto3g():
 
 def test_becke_hartree_h3_hfs_321g():
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False, mode='keep')
 
     er = mol.obasis.compute_electron_repulsion(mol.lf)

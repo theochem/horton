@@ -25,7 +25,7 @@ import sys, argparse, numpy as np
 from glob import glob
 
 from horton import log, lebedev_laikov_npoints, ProAtomDB, angstrom, periodic, \
-    AtomicGridSpec, ProAtomRecord, __version__, Molecule
+    AtomicGridSpec, ProAtomRecord, __version__, IOData
 from horton.scripts.atomdb import *
 
 
@@ -243,12 +243,12 @@ def main_convert(args):
         for dn_mult in sorted(glob('%s/mult??' % dn_state)):
             if log.do_medium:
                 log('Loading from', dn_mult)
-            mol, energy = program.load_atom(dn_mult)
+            data, energy = program.load_atom(dn_mult)
             if energy is None:
                 if log.do_medium:
                     log('No (sensible) results found:  ', dn_mult)
                 continue
-            cases.append((energy, mol))
+            cases.append((energy, data))
 
         if len(cases) == 0:
             if log.do_medium:
@@ -257,20 +257,20 @@ def main_convert(args):
 
         # Get the lowest in energy and write to chk file
         cases.sort()
-        energy, mol = cases[0]
+        energy, data = cases[0]
 
         # Add case to energy table
         energy_table.add(number, pop, energy)
 
         # Write atom to Horton file if possible
-        if mol is not None:
-            mol.to_file('%s/horton.h5' % dn_state)
+        if data is not None:
+            data.to_file('%s/horton.h5' % dn_state)
 
         # Construct a record for the proatomdb
-        records.append(ProAtomRecord.from_molecule(mol, agspec))
+        records.append(ProAtomRecord.from_iodata(data, agspec))
 
         # Release memory
-        mol = None
+        data = None
         del cases
 
         # Let user know we are alive.

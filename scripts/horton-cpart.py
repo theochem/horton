@@ -23,7 +23,7 @@
 
 import argparse, os, numpy as np
 
-from horton import Molecule, ProAtomDB, log, symmetry_analysis, UniformGrid, \
+from horton import IOData, ProAtomDB, log, symmetry_analysis, UniformGrid, \
     __version__
 from horton.scripts.common import reduce_data, store_args, parse_pbc, \
     iter_elements, write_part_output, parse_h5, check_output
@@ -123,8 +123,8 @@ def main():
     if check_output(fn_h5, grp_name, args.overwrite):
         return
 
-    # Load the Molecule
-    mol = Molecule.from_file(args.cube)
+    # Load the IOData
+    mol = IOData.from_file(args.cube)
     ugrid = mol.grid
     if not isinstance(ugrid, UniformGrid):
         raise TypeError('The density cube file does not contain data on a rectangular grid.')
@@ -137,7 +137,7 @@ def main():
 
     # Load the spin density (optional)
     if args.spindens is not None:
-        molspin = Molecule.from_file(args.spindens)
+        molspin = IOData.from_file(args.spindens)
         if not isinstance(molspin.grid, UniformGrid):
             raise TypeError('The spin cube file does not contain data on a rectangular grid.')
         spindens = molspin.cube_data
@@ -173,7 +173,7 @@ def main():
 
     # Do a symmetry analysis if requested.
     if args.symmetry is not None:
-        mol_sym = Molecule.from_file(args.symmetry)
+        mol_sym = IOData.from_file(args.symmetry)
         if not hasattr(mol_sym, 'symmetry'):
             raise ValueError('No symmetry information found in %s.' % args.symmetry)
         aim_results = dict((key, cpart[key]) for key in keys)

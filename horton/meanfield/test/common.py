@@ -97,7 +97,7 @@ def helper_compute(ham, lf, *exps):
 @log.with_level(log.high)
 def check_hf_cs_hf(scf_solver):
     fn_fchk = context.get_fn('test/hf_sto3g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
 
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
@@ -134,7 +134,7 @@ def check_hf_cs_hf(scf_solver):
 @log.with_level(log.high)
 def check_lih_os_hf(scf_solver):
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
 
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
@@ -177,7 +177,7 @@ def check_lih_os_hf(scf_solver):
 @log.with_level(log.high)
 def check_water_cs_hfs(scf_solver):
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
 
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
     olp = mol.obasis.compute_overlap(mol.lf)
@@ -235,7 +235,7 @@ def check_water_cs_hfs(scf_solver):
 @log.with_level(log.high)
 def check_n2_cs_hfs(scf_solver):
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'veryfine', random_rotate=False)
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
@@ -304,7 +304,7 @@ def check_n2_cs_hfs(scf_solver):
 @log.with_level(log.high)
 def check_h3_os_hfs(scf_solver):
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'veryfine', random_rotate=False)
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
@@ -379,7 +379,7 @@ def check_h3_os_hfs(scf_solver):
 @log.with_level(log.high)
 def check_co_cs_pbe(scf_solver):
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'fine', random_rotate=False)
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
@@ -429,7 +429,7 @@ def check_co_cs_pbe(scf_solver):
 @log.with_level(log.high)
 def check_h3_os_pbe(scf_solver):
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'veryfine', random_rotate=False)
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)

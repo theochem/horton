@@ -34,9 +34,9 @@ def check_water_hf_sto3g(scheme, expecting, needs_padb=True, **kwargs):
         proatomdb = get_proatomdb_hf_sto3g()
         kwargs['proatomdb'] = proatomdb
 
-    # Get the molecule
+    # Get the IOData
     fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     dm_full = mol.get_dm_full()
 
     # Create a grid for the partitioning
@@ -130,9 +130,9 @@ def check_msa_hf_lan(scheme, expecting, needs_padb=True, **kwargs):
         proatomdb = get_proatomdb_hf_lan()
         kwargs['proatomdb'] = proatomdb
 
-    # Get the molecule
+    # Get the IOData
     fn_fchk = context.get_fn('test/monosilicic_acid_hf_lan.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     dm_full = mol.get_dm_full()
 
     # Create a grid for the partitioning

@@ -27,7 +27,7 @@ from horton import *
 
 
 def test_solve_poisson_becke_n2():
-    mol = Molecule.from_file(context.get_fn('test/n2_hfs_sto3g.fchk'))
+    mol = IOData.from_file(context.get_fn('test/n2_hfs_sto3g.fchk'))
     lmaxmax = 4
 
     # compute hartree potential on a molecular grid

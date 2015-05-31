@@ -86,7 +86,7 @@ Variable names and prefixes
     A ``LinalgFactory`` instance.
 
 :index:`mol`
-    A ``Molecule`` instance.
+    A ``IOData`` instance.
 
 :index:`moldens`
     The spin-summed electron density (typically as an array of electron density

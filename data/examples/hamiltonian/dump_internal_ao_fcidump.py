@@ -20,10 +20,10 @@ core_energy = compute_nucnuc(coordinates, numbers.astype(float))
 
 # Write to a HDF5 file
 # --------------------
-mol = Molecule()
-mol.one_mo = one_mo
-mol.two_mo = two_mo
-mol.core_energy = core_energy
-mol.nelec = 10
-mol.ms2 = 0
-mol.to_file('hamiltonian_ao_fcidump.h5')
+data = IOData()
+data.one_mo = one_mo
+data.two_mo = two_mo
+data.core_energy = core_energy
+data.nelec = 10
+data.ms2 = 0
+data.to_file('hamiltonian_ao_fcidump.h5')

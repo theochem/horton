@@ -28,7 +28,7 @@ from horton import *
 
 def test_becke_n2_hfs_sto3g():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf)
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, (rgrid, 110), random_rotate=False, mode='only')
@@ -49,7 +49,7 @@ def test_becke_n2_hfs_sto3g():
 
 def test_becke_nonlocal_lih_hf_321g():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf)
     dm_full = mol.get_dm_full()
@@ -69,7 +69,7 @@ def test_becke_nonlocal_lih_hf_321g():
 
 def check_becke_azirine(key, expected):
     fn_fchk = context.get_fn('test/2h-azirine-%s.fchk' % key)
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False, mode='only')
     dm_full = mol.get_dm_full()
     moldens = mol.obasis.compute_grid_density_dm(dm_full, grid.points)
@@ -99,7 +99,7 @@ def test_becke_azirine_mp3():
 
 def test_becke_ch3_hf_sto3g():
     fn_fchk = context.get_fn('test/ch3_hf_sto3g.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False, mode='only')
     dm_full = mol.get_dm_full()
     dm_spin = mol.get_dm_spin()

@@ -84,7 +84,7 @@ def test_find_min_quadratic():
 
 def test_aufbau_spin():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     occ_model = AufbauSpinOccModel(3)
 
     olp = mol.obasis.compute_overlap(mol.lf)

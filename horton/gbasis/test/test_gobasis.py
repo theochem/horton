@@ -126,7 +126,7 @@ def test_grid_lih_321g_hf_density_some_points():
         [0.4, 0.2, 0.1, 0.018503681370],
     ])
     ref[:,:3] *= angstrom
-    mol = Molecule.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
+    mol = IOData.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
 
     # check for one point the compute_grid_point1 method
     output = np.zeros(mol.obasis.nbasis, float)
@@ -160,7 +160,7 @@ def test_grid_lih_321g_hf_density_some_points():
 
 
 def check_grid_rho(fn, ref, eps):
-    mol = Molecule.from_file(context.get_fn(fn))
+    mol = IOData.from_file(context.get_fn(fn))
     points = ref[:,:3].copy()
     dm_full = mol.get_dm_full()
     rhos = mol.obasis.compute_grid_density_dm(dm_full, points)
@@ -198,7 +198,7 @@ def test_grid_co_ccpv5z_pure_hf_density_some_points():
 
 
 def check_grid_gradient(fn, ref, eps):
-    mol = Molecule.from_file(context.get_fn(fn))
+    mol = IOData.from_file(context.get_fn(fn))
     points = ref[:,:3].copy()
     dm_full = mol.get_dm_full()
     gradients = mol.obasis.compute_grid_gradient_dm(dm_full, points)
@@ -248,7 +248,7 @@ def test_grid_co_ccpv5z_pure_hf_gradient_some_points():
 
 
 def check_grid_esp(fn, ref, eps):
-    mol = Molecule.from_file(context.get_fn(fn))
+    mol = IOData.from_file(context.get_fn(fn))
     points = ref[:,:3].copy()
     dm_full = mol.get_dm_full()
     esps = mol.obasis.compute_grid_esp_dm(dm_full, mol.coordinates, mol.pseudo_numbers, points)
@@ -298,7 +298,7 @@ def test_grid_co_ccpv5z_pure_hf_esp_some_points():
 
 
 def test_grid_two_index_ne():
-    mol = Molecule.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
+    mol = IOData.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
     rtf = ExpRTransform(1e-3, 2e1, 100)
     rgrid = RadialGrid(rtf)
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, (rgrid, 110), random_rotate=False)
@@ -331,7 +331,7 @@ def test_gob_normalization():
 
 
 def test_cart_pure_switch():
-    mol = Molecule.from_file(context.get_fn('test/water.xyz'))
+    mol = IOData.from_file(context.get_fn('test/water.xyz'))
     obasis = get_gobasis(mol.coordinates, mol.numbers, 'aug-cc-pvdz')
     assert obasis.nbasis == 41
     obasis = get_gobasis(mol.coordinates, mol.numbers, 'aug-cc-pvdz', pure=False)
@@ -345,7 +345,7 @@ def get_olp(ob):
     return olp._array
 
 def test_concatenate1():
-    mol = Molecule.from_file(context.get_fn('test/water.xyz'))
+    mol = IOData.from_file(context.get_fn('test/water.xyz'))
     obtmp = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
     ob = GOBasis.concatenate(obtmp, obtmp)
     assert ob.ncenter == 3*2
@@ -357,7 +357,7 @@ def test_concatenate1():
 
 
 def test_concatenate2():
-    mol = Molecule.from_file(context.get_fn('test/water.xyz'))
+    mol = IOData.from_file(context.get_fn('test/water.xyz'))
     obasis1 = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
     obasis2 = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
     obasis = GOBasis.concatenate(obasis1, obasis2)
@@ -419,7 +419,7 @@ def test_gobasis_desc_index_map():
 
 
 def test_gobasis_output_args_overlap():
-    mol = Molecule.from_file(context.get_fn('test/water.xyz'))
+    mol = IOData.from_file(context.get_fn('test/water.xyz'))
     obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
     lf = DenseLinalgFactory(obasis.nbasis)
     olp1 = lf.create_two_index(obasis.nbasis)
@@ -429,7 +429,7 @@ def test_gobasis_output_args_overlap():
 
 
 def test_gobasis_output_args_kinetic():
-    mol = Molecule.from_file(context.get_fn('test/water.xyz'))
+    mol = IOData.from_file(context.get_fn('test/water.xyz'))
     obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
     lf = DenseLinalgFactory(obasis.nbasis)
     kin1 = lf.create_two_index(obasis.nbasis)
@@ -439,7 +439,7 @@ def test_gobasis_output_args_kinetic():
 
 
 def test_gobasis_output_args_nuclear_attraction():
-    mol = Molecule.from_file(context.get_fn('test/water.xyz'))
+    mol = IOData.from_file(context.get_fn('test/water.xyz'))
     obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
     lf = DenseLinalgFactory(obasis.nbasis)
     nai1 = lf.create_two_index(obasis.nbasis)
@@ -449,7 +449,7 @@ def test_gobasis_output_args_nuclear_attraction():
 
 
 def test_gobasis_output_args_electron_repulsion():
-    mol = Molecule.from_file(context.get_fn('test/water.xyz'))
+    mol = IOData.from_file(context.get_fn('test/water.xyz'))
     obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
     lf = DenseLinalgFactory(obasis.nbasis)
     er1 = lf.create_four_index(obasis.nbasis)
@@ -459,7 +459,7 @@ def test_gobasis_output_args_electron_repulsion():
 
 
 def test_gobasis_output_args_grid_orbitals_exp():
-    mol = Molecule.from_file(context.get_fn('test/water_hfs_321g.fchk'))
+    mol = IOData.from_file(context.get_fn('test/water_hfs_321g.fchk'))
     points = np.random.uniform(-5, 5, (100, 3))
     iorbs = np.array([2, 3])
     orbs1 = np.zeros((100, 2), float)
@@ -469,7 +469,7 @@ def test_gobasis_output_args_grid_orbitals_exp():
 
 
 def test_gobasis_output_args_grid_density_dm():
-    mol = Molecule.from_file(context.get_fn('test/water_hfs_321g.fchk'))
+    mol = IOData.from_file(context.get_fn('test/water_hfs_321g.fchk'))
     points = np.random.uniform(-5, 5, (100, 3))
     rhos1 = np.zeros(100, float)
     dm_full = mol.get_dm_full()
@@ -479,7 +479,7 @@ def test_gobasis_output_args_grid_density_dm():
 
 
 def test_gobasis_output_args_grid_gradient_dm():
-    mol = Molecule.from_file(context.get_fn('test/water_hfs_321g.fchk'))
+    mol = IOData.from_file(context.get_fn('test/water_hfs_321g.fchk'))
     points = np.random.uniform(-5, 5, (100, 3))
     gradrhos1 = np.zeros((100, 3), float)
     dm_full = mol.get_dm_full()
@@ -489,7 +489,7 @@ def test_gobasis_output_args_grid_gradient_dm():
 
 
 def test_gobasis_output_args_grid_hartree_dm():
-    mol = Molecule.from_file(context.get_fn('test/water_hfs_321g.fchk'))
+    mol = IOData.from_file(context.get_fn('test/water_hfs_321g.fchk'))
     points = np.random.uniform(-5, 5, (100, 3))
     pots1 = np.zeros(100, float)
     dm_full = mol.get_dm_full()
@@ -499,7 +499,7 @@ def test_gobasis_output_args_grid_hartree_dm():
 
 
 def test_subset_simple():
-    mol = Molecule.from_file(context.get_fn('test/water_hfs_321g.fchk'))
+    mol = IOData.from_file(context.get_fn('test/water_hfs_321g.fchk'))
     # select a basis set for the first hydrogen atom
     sub_obasis, ibasis_list = mol.obasis.get_subset([0,1])
     assert sub_obasis.ncenter == 1
@@ -515,7 +515,7 @@ def test_subset_simple():
 
 
 def test_subset_simple_reverse():
-    mol = Molecule.from_file(context.get_fn('test/water_hfs_321g.fchk'))
+    mol = IOData.from_file(context.get_fn('test/water_hfs_321g.fchk'))
     # select a basis set for the first hydrogen atom
     sub_obasis, ibasis_list = mol.obasis.get_subset([1,0])
     assert sub_obasis.ncenter == 1
@@ -533,7 +533,7 @@ def test_subset_simple_reverse():
 
 
 def test_subset():
-    mol = Molecule.from_file(context.get_fn('test/water_hfs_321g.fchk'))
+    mol = IOData.from_file(context.get_fn('test/water_hfs_321g.fchk'))
     # select a basis set for the first hydrogen atom
     sub_obasis, ibasis_list = mol.obasis.get_subset([7, 3, 4, 8])
     assert sub_obasis.ncenter == 2
@@ -551,7 +551,7 @@ def test_subset():
 
 
 def test_basis_atoms():
-    mol = Molecule.from_file(context.get_fn('test/water_hfs_321g.fchk'))
+    mol = IOData.from_file(context.get_fn('test/water_hfs_321g.fchk'))
     basis_atoms = mol.obasis.get_basis_atoms(mol.coordinates)
     assert len(basis_atoms) == 3
     icenter = 0

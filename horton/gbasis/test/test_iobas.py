@@ -101,7 +101,7 @@ def test_go_basis_desc_lithium_321g():
 
 def test_go_basis_desc_water_sto3g():
     fn = context.get_fn('test/water_element.xyz')
-    mol = Molecule.from_file(fn)
+    mol = IOData.from_file(fn)
     obasis = get_gobasis(mol.coordinates, mol.numbers, 'STO-3G')
     assert (obasis.shell_map == np.array([0,1,1,1,2])).all()
     assert (obasis.nprims == np.array([3,3,3,3,3])).all()

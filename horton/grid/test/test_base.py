@@ -325,7 +325,7 @@ def test_eval_spline_grid_add_random():
 
 def test_density_decomposition_n2():
     # compute reference density and becke_weights for the first atom
-    mol = Molecule.from_file(context.get_fn('test/n2_hfs_sto3g.fchk'))
+    mol = IOData.from_file(context.get_fn('test/n2_hfs_sto3g.fchk'))
     molgrid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'veryfine', random_rotate=False, mode='only')
     atgrid = molgrid.subgrids[0]
     dm_full = mol.get_dm_full()

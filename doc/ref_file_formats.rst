@@ -33,12 +33,12 @@ formats can be used for input and output, others only for input or for output.
 The formats are always used in the same way:
 
 * To load data from a file, one uses the
-  :py:meth:`~horton.io.molecule.Molecule.from_file` method of the ``Molecule``
+  :py:meth:`~horton.io.iodata.IOData.from_file` method of the ``IOData``
   class:
 
   .. code-block:: python
 
-    mol = Molecule.from_file('example.xyz')
+    mol = IOData.from_file('example.xyz')
 
   The format is recognized through the file extension (or in somecases by a
   prefix, as indicated in the following sections). The loaded data are
@@ -52,28 +52,28 @@ The formats are always used in the same way:
   data read from the file. For some formats, the available attributes may also
   depend on the data available in the file.
 
-* To dump data into a file, one creates a ``Molecule`` instance, assigns
+* To dump data into a file, one creates a ``IOData`` instance, assigns
   attributes to this instance and one calls the
-  :py:meth:`~horton.io.molecule.Molecule.to_file` method, e.g.:
+  :py:meth:`~horton.io.iodata.IOData.to_file` method, e.g.:
 
   .. code-block:: python
 
-    mol = Molecule(title='Example')
+    mol = IOData(title='Example')
     mol.numbers = np.array([10])
     mol.coordinates = np.array([[0.0, 0.0, 0.0]])
-    mol = Molecule.to_file('example.xyz')
+    mol = IOData.to_file('example.xyz')
 
   As shown in the above example, there are two ways to set the attributes: (i)
-  by passing them as arguments to the constructor of the ``Molecule`` class
-  (first line) or by setting the attributes after creating a ``Molecule``
+  by passing them as arguments to the constructor of the ``IOData`` class
+  (first line) or by setting the attributes after creating a ``IOData``
   instance (second and third line). Again, the file format is deduced from the
   file name. If not all required attributes for a given format are set, the
   ``to_file`` method will raise an ``AtributeError``.
 
 The complete list of all possible attributes (the superset for all supported
-formats) is documented here: :py:class:`horton.io.molecule.Molecule`. Note that
+formats) is documented here: :py:class:`horton.io.iodata.IOData`. Note that
 Horton's internal format supports all of these and any other attribute that one
-assigns to a ``Molecule`` instance.
+assigns to a ``IOData`` instance.
 
 
 .. _ref_file_formats_geo:
@@ -189,7 +189,7 @@ All wavefunction formats share the following behavior
 
   .. code-block:: python
 
-        mol = Molecule.from_file('foo.fchk', 'foo.log')
+        mol = IOData.from_file('foo.fchk', 'foo.log')
 
   In this case, ``permutation`` is deduced from the file ``foo.fchk`` but is
   also applied to reorder the matrix elements loaded from ``foo.log``, for the

@@ -7,7 +7,7 @@ from horton import *
 ###############################################################################
 # The required FCIDUMP file can be generated with the script
 # data/examples/hf_dft/rhf_n2_dense.py
-mol = Molecule.from_file('n2.FCIDUMP')
+mol = IOData.from_file('n2.FCIDUMP')
 
 ###############################################################################
 ## Define number of occupied orbitals and total number of basis functions #####

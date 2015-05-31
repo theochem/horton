@@ -22,7 +22,7 @@
 
 
 import argparse, numpy as np
-from horton import Molecule, __version__, angstrom
+from horton import IOData, __version__, angstrom
 
 
 def parse_args():
@@ -50,7 +50,7 @@ def main():
     margin = args.margin*angstrom
     spacing = args.spacing*angstrom
 
-    mol = Molecule.from_file(args.structure)
+    mol = IOData.from_file(args.structure)
     # compute the shape tensor
     shape = np.dot(mol.coordinates.transpose(), mol.coordinates)
     # diagonalize to obtain the x, y and z directions.

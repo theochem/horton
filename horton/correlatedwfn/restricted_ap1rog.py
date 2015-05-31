@@ -2248,8 +2248,8 @@ class RAp1rog(Geminal):
                 The filename of the checkpoint file.
         '''
         # Use the horton.io interface to write the checkpoint file
-        from horton.io.molecule import Molecule
-        mol = Molecule(olp=olp, exp_alpha=orb)
+        from horton.io.iodata import IOData
+        mol = IOData(olp=olp, exp_alpha=orb)
         mol.to_file(checkpoint_fn)
 
     def print_final(self, s='Final'):

@@ -23,7 +23,7 @@
 
 import sys, argparse, os, numpy as np
 
-from horton import Molecule, setup_weights, ESPCost, log, \
+from horton import IOData, setup_weights, ESPCost, log, \
     angstrom, __version__
 from horton.scripts.common import reduce_data, parse_ewald_args, parse_pbc, \
     write_script_output, parse_h5, check_output
@@ -124,7 +124,7 @@ def main():
     # Load the potential data
     if log.do_medium:
         log('Loading potential array')
-    mol_pot = Molecule.from_file(args.cube)
+    mol_pot = IOData.from_file(args.cube)
     if not isinstance(mol_pot.grid, UniformGrid):
         raise TypeError('The specified file does not contain data on a rectangular grid.')
     mol_pot.grid.pbc[:] = parse_pbc(args.pbc) # correct pbc

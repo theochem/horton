@@ -28,7 +28,7 @@ from horton import *
 
 def test_mulliken_operators_water_sto3g():
     fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
-    mol = Molecule.from_file(fn_fchk)
+    mol = IOData.from_file(fn_fchk)
     operators = get_mulliken_operators(mol.obasis, mol.lf)
     for operator in operators:
         assert operator.is_symmetric()

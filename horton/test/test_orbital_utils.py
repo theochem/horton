@@ -26,7 +26,7 @@ import numpy as np
 
 def check_core_active(mol, basis_str, ncore, nactive):
     #
-    # Run a simple HF calculation on the given molecule in the given basis
+    # Run a simple HF calculation on the given IOData in the given basis
     #
 
     # Input structure
@@ -121,7 +121,7 @@ def check_core_active(mol, basis_str, ncore, nactive):
 
 
 def test_core_active_neon():
-    mol = Molecule(
+    mol = IOData(
         coordinates=np.zeros((1, 3), float),
         numbers=np.array([10], int)
     )
@@ -129,10 +129,10 @@ def test_core_active_neon():
 
 
 def test_core_active_water():
-    mol = Molecule.from_file(context.get_fn('test/water.xyz'))
+    mol = IOData.from_file(context.get_fn('test/water.xyz'))
     check_core_active(mol, '6-31+g*', 1, 6)
 
 
 def test_core_active_2h_azirine():
-    mol = Molecule.from_file(context.get_fn('test/2h-azirine.xyz'))
+    mol = IOData.from_file(context.get_fn('test/2h-azirine.xyz'))
     check_core_active(mol, '3-21g', 3, 15)

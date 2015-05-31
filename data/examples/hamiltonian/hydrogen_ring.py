@@ -17,5 +17,5 @@ for iatom in xrange(natom):
     coordinates[iatom, 1] = radius*np.sin(angle)
 
 # write the molecule to an XYZ file (optional)
-mol = Molecule(coordinates=coordinates, numbers=numbers, title='H Ring')
+mol = IOData(coordinates=coordinates, numbers=numbers, title='H Ring')
 mol.to_file('ring.xyz')

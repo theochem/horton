@@ -30,7 +30,7 @@ from horton.grid.cext import RTransform, CubicSpline
 from horton.grid.radial import RadialGrid
 from horton.io.lockedh5 import LockedH5File
 from horton.log import log, timer
-from horton.io.molecule import Molecule
+from horton.io.iodata import IOData
 
 
 __all__ = ['ProAtomRecord', 'ProAtomDB']
@@ -40,13 +40,13 @@ class ProAtomRecord(object):
     '''A single proatomic density record'''
 
     @classmethod
-    def from_molecule(cls, mol, agspec='fine'):
+    def from_iodata(cls, iodata, agspec='fine'):
         '''Construct a proatom record from a data dictionary and an atomic grid
 
            **Arguments:**
 
-           mol
-                Molecule instance
+           iodata
+                IOData instance
 
            **Optional arguments:**
 
@@ -55,14 +55,14 @@ class ProAtomRecord(object):
                 instance of the AtomicGridSpec object, or the first argument
                 of its constructor.
         '''
-        if mol.natom != 1:
+        if iodata.natom != 1:
             raise ValueError('More than one atom found for pro-atom record.')
-        number = mol.numbers[0]
-        pseudo_number = mol.pseudo_numbers[0]
-        center = mol.coordinates[0]
-        energy = getattr(mol, 'energy', 0.0)
-        dm_full = mol.get_dm_full()
-        return cls.from_dm(center, number, pseudo_number, mol.obasis, dm_full, energy, agspec)
+        number = iodata.numbers[0]
+        pseudo_number = iodata.pseudo_numbers[0]
+        center = iodata.coordinates[0]
+        energy = getattr(iodata, 'energy', 0.0)
+        dm_full = iodata.get_dm_full()
+        return cls.from_dm(center, number, pseudo_number, iodata.obasis, dm_full, energy, agspec)
 
     @classmethod
     def from_dm(cls, center, number, pseudo_number, obasis, dm_full, energy, agspec='fine'):
@@ -407,9 +407,9 @@ class ProAtomDB(object):
         for fn in fns:
             # Load atomic data
             with timer.section('Load proatom'):
-                mol = Molecule.from_file(fn)
+                mol = IOData.from_file(fn)
             with timer.section('Proatom grid'):
-                records.append(ProAtomRecord.from_molecule(mol, agspec))
+                records.append(ProAtomRecord.from_iodata(mol, agspec))
         return cls(records)
 
     @classmethod

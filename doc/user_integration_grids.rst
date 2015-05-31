@@ -74,7 +74,7 @@ available when one loads a molecule from a file. For example:
 
 .. code-block:: python
 
-    mol = Molecule.from_file('water.xyz')
+    mol = IOData.from_file('water.xyz')
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers)
 
 A fourth argument can be provided to control the accuracy of the integration

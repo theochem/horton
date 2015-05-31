@@ -23,7 +23,7 @@
 
 import argparse, os, numpy as np
 
-from horton import Molecule, Cell, ProAtomDB, log, BeckeMolGrid, \
+from horton import IOData, Cell, ProAtomDB, log, BeckeMolGrid, \
     lebedev_laikov_npoints, AtomicGridSpec, __version__
 from horton.scripts.common import store_args, write_part_output, parse_h5, \
     check_output
@@ -100,7 +100,7 @@ def main():
         return
 
     # Load the system
-    mol = Molecule.from_file(args.wfn)
+    mol = IOData.from_file(args.wfn)
 
     # Define a list of optional arguments for the WPartClass:
     WPartClass = wpart_schemes[args.scheme]

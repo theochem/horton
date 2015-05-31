@@ -16,7 +16,7 @@ def main(fns_fchk):
     print '----------------------------------------------------------------------------------------------'
     for fn_fchk in fns_fchk:
         # Get stuff from g09
-        mol = Molecule.from_file(fn_fchk)
+        mol = IOData.from_file(fn_fchk)
         g09_energy = mol.energy
 
         # compute Gaussian integrals

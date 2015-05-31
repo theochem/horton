@@ -14,7 +14,7 @@ import numpy as np
 
 # Construct a molecule from scratch
 bond_length = 1.098*angstrom
-mol = Molecule(title='dinitrogen')
+mol = IOData(title='dinitrogen')
 mol.coordinates = np.array([[0.0, 0.0, 0.0], [0.0, 0.0, bond_length]])
 mol.numbers = np.array([7, 7])
 
@@ -80,7 +80,7 @@ two = er
 (one_mo,), (two_mo,) = transform_integrals(one, two, 'tensordot', mol.exp_alpha)
 
 # Write files
-mol_all_active = Molecule(core_energy=external['nn'], one_mo=one_mo, two_mo=two_mo)
+mol_all_active = IOData(core_energy=external['nn'], one_mo=one_mo, two_mo=two_mo)
 # useful for exchange with other codes
 mol_all_active.to_file('n2.FCIDUMP')
 # useful for exchange with other Horton scripts
@@ -95,7 +95,7 @@ one_small, two_small, core_energy = split_core_active(one, er,
     external['nn'], exp_alpha, ncore=2, nactive=8)
 
 # Write files
-mol_cas88 = Molecule(core_energy=core_energy, one_mo=one_mo, two_mo=two_mo, nelec=8, ms2=0)
+mol_cas88 = IOData(core_energy=core_energy, one_mo=one_mo, two_mo=two_mo, nelec=8, ms2=0)
 # useful for exchange with other codes
 mol_cas88.to_file('n2-cas8-8.FCIDUMP')
 # useful for exchange with other Horton scripts
