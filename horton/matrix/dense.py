@@ -98,27 +98,27 @@ r"""Dense matrix implementations
 
      * ``symmetry=2``: Dummy index symmetry is
        checked/enforced, i.e.
-       :math:`\langle ij \vert B \vert k\ell \rangle =`
-       :math:`\langle ji \vert B \vert \ell k \rangle`
+       :math:`\langle ij \vert B \vert kl \rangle =`
+       :math:`\langle ji \vert B \vert lk \rangle`
 
      * ``symmetry=4``: Hermitian and real index symmetry are checked/enforced,
        i.e.
-       :math:`\langle ij \vert B \vert k\ell \rangle =`
-       :math:`\langle k\ell \vert B \vert ij \rangle =`
-       :math:`\langle kj \vert B \vert i\ell \rangle =`
-       :math:`\langle i\ell \vert B \vert kj \rangle`.
+       :math:`\langle ij \vert B \vert kl \rangle =`
+       :math:`\langle kl \vert B \vert ij \rangle =`
+       :math:`\langle kj \vert B \vert il \rangle =`
+       :math:`\langle il \vert B \vert kj \rangle`.
        (This only makes sense because the basis functions are assumed to be
        real.)
 
      * ``symmetry=8``: All possible symmetries are checked/enforced, i.e.
-       :math:`\langle ij \vert B \vert k\ell \rangle =`
-       :math:`\langle k\ell \vert B \vert ij \rangle =`
-       :math:`\langle kj \vert B \vert i\ell \rangle =`
-       :math:`\langle i\ell \vert B \vert kj \rangle =`
-       :math:`\langle ji \vert B \vert \ell k \rangle =`
-       :math:`\langle \ell k \vert B \vert ji \rangle =`
-       :math:`\langle jk \vert B \vert \ell i \rangle =`
-       :math:`\langle \ell i \vert B \vert jk \rangle`.
+       :math:`\langle ij \vert B \vert kl \rangle =`
+       :math:`\langle kl \vert B \vert ij \rangle =`
+       :math:`\langle kj \vert B \vert il \rangle =`
+       :math:`\langle il \vert B \vert kj \rangle =`
+       :math:`\langle ji \vert B \vert lk \rangle =`
+       :math:`\langle lk \vert B \vert ji \rangle =`
+       :math:`\langle jk \vert B \vert li \rangle =`
+       :math:`\langle li \vert B \vert jk \rangle`.
        (This only makes sense because the basis functions are assumed to be
        real.)
 
