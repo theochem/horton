@@ -18,6 +18,7 @@
     : along with this program; if not, see <http://www.gnu.org/licenses/>
     :
     : --
+
 .. _hamiltonian_dump:
 
 Dumping a Hamiltonian to a file
