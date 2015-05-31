@@ -739,7 +739,7 @@ class PTa(Perturbation):
         # oc_jbc = sum_m <mm|bc> c_jm^bc
         #
         tmp = self.lf.create_four_index(self.nocc, self.nocc, self.nvirt, self.nvirt)
-        auxmat2 = self.init_aux_matrix('ocjbc', cia.nbasis, cia.nfn)
+        auxmat2 = self.init_aux_matrix('ocjbc', cia.nbasis, cia.nbasis1)
         mo2.contract_two_to_four('aabc,db->adbc', cia, tmp, 1.0, True, 0, self.nocc, 0, self.nocc, self.nocc, self.nbasis, self.nocc, self.nbasis)
         tmp.contract_two_to_three('abcd,ad->bcd', cia, auxmat2, 1.0, True)
         mo2.contract_two_to_four('aabc,dc->adbc', cia, tmp, 1.0, True, 0, self.nocc, 0, self.nocc, self.nocc, self.nbasis, self.nocc, self.nbasis)
@@ -747,7 +747,7 @@ class PTa(Perturbation):
         #
         # vc_jkb = sum_d <dd|jk> c_jk^bd
         #
-        auxmat3 = self.init_aux_matrix('vcjkb', cia.nbasis, cia.nfn)
+        auxmat3 = self.init_aux_matrix('vcjkb', cia.nbasis, cia.nbasis1)
         mo2.contract_two_to_four('abcc,ad->abcd', cia, tmp, 1.0, True, 0, self.nocc, 0, self.nocc, self.nocc, self.nbasis, self.nocc, self.nbasis)
         tmp.contract_two_to_three('abcd,bc->abd', cia, auxmat3, 1.0, True)
         mo2.contract_two_to_four('abcc,bd->abcd', cia, tmp, 1.0, True, 0, self.nocc, 0, self.nocc, self.nocc, self.nbasis, self.nocc, self.nbasis)
@@ -755,17 +755,17 @@ class PTa(Perturbation):
         #
         # vc_jbc = sum_d <bc|dd> c_j^d
         #
-        auxmat4 = self.init_aux_matrix('vcjbc', cia.nbasis, cia.nfn)
+        auxmat4 = self.init_aux_matrix('vcjbc', cia.nbasis, cia.nbasis1)
         mo2.contract_two_to_three('abcc,dc->dab', cia, auxmat4, 1.0, True, self.nocc, self.nbasis, self.nocc, self.nbasis, self.nocc, self.nbasis, self.nocc, self.nbasis)
         #
         # oc_jkb = sum_m <mm|jk> c_m^b
         #
-        auxmat5 = self.init_aux_matrix('ocjkb', cia.nbasis, cia.nfn)
+        auxmat5 = self.init_aux_matrix('ocjkb', cia.nbasis, cia.nbasis1)
         mo2.contract_two_to_three('aabc,ad->bcd', cia, auxmat5, 1.0, True, 0, self.nocc, 0, self.nocc, 0, self.nocc, 0, self.nocc)
         #
         # dc_jb = sum_md <mm|dd> c_jm^bd
         #
-        auxmat6= self.init_aux_matrix('dcjb', cia.nbasis, cia.nfn)
+        auxmat6= self.init_aux_matrix('dcjb', cia.nbasis, cia.nbasis1)
         tmp = self.lf.create_two_index(self.nbasis, self.nbasis)
         tmp2 = self.lf.create_two_index(self.nocc, self.nocc)
         # There is a bug in np.einsum that forces us to slice first...
@@ -1303,7 +1303,7 @@ class PTb(Perturbation):
         # oc_jbc = sum_m <mm|bc> c_jm^bc
         #
         tmp = self.lf.create_four_index(self.nocc, self.nocc, self.nvirt, self.nvirt)
-        auxmat2 = self.init_aux_matrix('ocjbc', cia.nbasis, cia.nfn)
+        auxmat2 = self.init_aux_matrix('ocjbc', cia.nbasis, cia.nbasis1)
         mo2.contract_two_to_four('aabc,db->adbc', cia, tmp, 1.0, True, 0, self.nocc, 0, self.nocc, self.nocc, self.nbasis, self.nocc, self.nbasis)
         tmp.contract_two_to_three('abcd,ad->bcd', cia, auxmat2, 1.0, True)
         mo2.contract_two_to_four('aabc,dc->adbc', cia, tmp, 1.0, True, 0, self.nocc, 0, self.nocc, self.nocc, self.nbasis, self.nocc, self.nbasis)
@@ -1311,7 +1311,7 @@ class PTb(Perturbation):
         #
         # vc_jkb = sum_d <dd|jk> c_jk^bd
         #
-        auxmat3 = self.init_aux_matrix('vcjkb', cia.nbasis, cia.nfn)
+        auxmat3 = self.init_aux_matrix('vcjkb', cia.nbasis, cia.nbasis1)
         mo2.contract_two_to_four('abcc,ad->abcd', cia, tmp, 1.0, True, 0, self.nocc, 0, self.nocc, self.nocc, self.nbasis, self.nocc, self.nbasis)
         tmp.contract_two_to_three('abcd,bc->abd', cia, auxmat3, 1.0, True)
         mo2.contract_two_to_four('abcc,bd->abcd', cia, tmp, 1.0, True, 0, self.nocc, 0, self.nocc, self.nocc, self.nbasis, self.nocc, self.nbasis)
@@ -1319,17 +1319,17 @@ class PTb(Perturbation):
         #
         # vc_jbc = sum_d <bc|dd> c_j^d
         #
-        auxmat4 = self.init_aux_matrix('vcjbc', cia.nbasis, cia.nfn)
+        auxmat4 = self.init_aux_matrix('vcjbc', cia.nbasis, cia.nbasis1)
         mo2.contract_two_to_three('abcc,dc->dab', cia, auxmat4, 1.0, True, self.nocc, self.nbasis, self.nocc, self.nbasis, self.nocc, self.nbasis, self.nocc, self.nbasis)
         #
         # oc_jkb = sum_m <mm|jk> c_m^b
         #
-        auxmat5 = self.init_aux_matrix('ocjkb', cia.nbasis, cia.nfn)
+        auxmat5 = self.init_aux_matrix('ocjkb', cia.nbasis, cia.nbasis1)
         mo2.contract_two_to_three('aabc,ad->bcd', cia, auxmat5, 1.0, True, 0, self.nocc, 0, self.nocc, 0, self.nocc, 0, self.nocc)
         #
         # dc_jb = sum_md <mm|dd> c_jm^bd
         #
-        auxmat6= self.init_aux_matrix('dcjb', cia.nbasis, cia.nfn)
+        auxmat6= self.init_aux_matrix('dcjb', cia.nbasis, cia.nbasis1)
         tmp = self.lf.create_two_index(self.nbasis, self.nbasis)
         tmp2 = self.lf.create_two_index(self.nocc, self.nocc)
         # There is a bug in np.einsum that forces us to slice first...
