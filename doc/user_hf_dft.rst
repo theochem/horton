@@ -136,7 +136,11 @@ that come out of a failed SCF.)
       exp_alpha.rotate_2orbitals()
 
       # Rotate 1st and 6th orbital by 30 deg
-      exp._alpha.rotate_2orbitals(np.pi/6, 0, 5)
+      exp._alpha.rotate_2orbitals(30*deg, 0, 5)
+
+  Note that Horton uses radians as unit for angles, i.e. ``30*deg == np.pi/6``.
+  Also, zero-based indices are used for everything, so the arguments ``0, 5``
+  refer to the first and the sixth orbital.
 
 * The method :py:meth:`horton.matrix.dense.DenseExpansion.swap_orbitals` allows
   on to swap several orbitals. It takes as an argument an array where each row
