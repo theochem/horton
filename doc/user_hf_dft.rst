@@ -82,10 +82,12 @@ This guess involves only the one-body terms of the electronic Hamiltonian and
 completely neglects electron-electron interactions. The orbitals for such a
 one-body Hamiltonian can be computed without any prior guess.
 
-The function :py:func:`horton.meanfield.guess.guess_core_hamiltonian` can be used
-to compute core hamiltonian guess. The guess does not depend on occupation
-numbers and in the case of a unrestricted calculation, the default behavior is
-to assign the same orbitals are assigned for the alpha and beta spins.
+The function :py:func:`horton.meanfield.guess.guess_core_hamiltonian` can be
+used to compute core hamiltonian guess. This type of guess does only relies on a
+simple one-body Hamiltonian, usually consisting of the kinetic energy and the
+interaction with the external field. In case of an unrestricted calculation,
+this means that the same initial orbital guess is made for the alpha and beta
+spins.
 
 The guess for a restricted wavefunction is done as follows:
 
@@ -107,9 +109,9 @@ operators to construct different types of guesses.
 Randomizing an initial guess
 ----------------------------
 
-The method :py:meth:`horton.matrix.dense.DenseExpansion.rotate_random` can be used to
-apply a random unitary rotation all orbitals (occupied and virtual). The orbital
-energies and occupation numbers are not affected. For example, after
+The method :py:meth:`horton.matrix.dense.DenseExpansion.rotate_random` can be
+used to apply a random unitary rotation to all orbitals (occupied and virtual).
+The orbital energies and occupation numbers are not affected. For example, after
 constructing a :ref:`user_hf_dft_core_guess`, the following line randomizes the
 orbitals:
 
@@ -122,7 +124,7 @@ orbitals:
 Modifying the initial guess
 ---------------------------
 
-If needed one may fine-tune the initial guess by making fine-grained
+If needed, one may fine-tune the initial guess by making fine-grained
 modifications to the orbitals. (These may also be useful for fixing the orbitals
 that come out of a failed SCF.)
 
