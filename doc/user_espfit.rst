@@ -206,6 +206,12 @@ the `cubegen manual <http://www.gaussian.com/g_tech/g_ur/u_cubegen.htm>`_ for
 more details.
 
 
+Making cube files with CP2K
+===========================
+
+CP2K can generate cube files for periodic systems. One has to use the input sections `E_DENSITY_CUBE <http://manual.cp2k.org/trunk/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/E_DENSITY_CUBE.html>`_ and `V_HARTREE_CUBE <http://manual.cp2k.org/trunk/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/V_HARTREE_CUBE.html>`_ for density and ESP cube files, respectively. (The name ``V_HARTREE_CUBE`` is misleading. CP2K will print out the potential due to the electrons `and` the nuclei felt by a point charge with charge :math:`-e`.)
+
+
 Python interface to the ESP fitting code
 ========================================
 
