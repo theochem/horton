@@ -59,7 +59,7 @@ scf_solver(ham, lf, olp, occ_model, dm_alpha)
 # Assign results to the molecule object and write it to a file, e.g. for
 # later analysis. Note that the CDIIS_EDIIS algorithm can only really construct
 # an optimized density matrix and no orbitals.
-mol.title = 'RHF computation on water'
+mol.title = 'RKS computation on water'
 mol.energy = ham.cache['energy']
 mol.obasis = obasis
 mol.dm_alpha = ham.cache['dm_alpha']
