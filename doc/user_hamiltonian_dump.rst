@@ -24,17 +24,9 @@
 Dumping a Hamiltonian to a file
 ###############################
 
-Horton supports two formats for storing a Hamiltonian in a file: (i) an internal binary format based on HDF5 (extension ``.h5``) and Molpro's FCIDUMP text format (containing ``FCIDUMP`` somewhere in the file name). The internal format is more flexible and can store a Hamiltonian on various different ways. The FCIDUMP format as more restrictive but can be used to interoperate with different codes, e.g. Molpro.
+Horton supports two formats for storing a Hamiltonian in a file: (i) an internal binary format based on HDF5 (extension ``.h5``) and Molpro's FCIDUMP text format (containing ``FCIDUMP`` somewhere in the file name). The internal format is more flexible and can store a Hamiltonian in various different ways. The FCIDUMP format is more restrictive but can be used to interoperate with different codes, e.g. Molpro.
 
-All input and output of data in Horton is done through the :py:class:`horton.io.iodata.IOData` class. Dumping data to a file takes the following three steps:
-
-1. Create an instance of the ``IOData`` class (from scratch, or by loading it from a file),
-2. Sets some attributes,
-3. Call the :py:meth:`~horton.io.iodata.IOData.to_file` method to actually dump the info to the file.
-
-One can also combine steps 1 and 2 by passing the attributes of interest to the constructor. These steps will be illustrated in the examples below.
-
-The list of attributes recognized by (some) output formats is documented here: :py:class:`horton.io.iodata.IOData`. The method :py:meth:`~horton.io.iodata.IOData.to_file` just takes the filename as argument. The filename is used to determine the file format. When it has the extension ``.h5``, the internal format is used. When the file contains ``FCIDUMP``, the FCIDUMP format is used.
+For a general information on how to load and dump data with Horton in different data file formats, refer to :ref:`ref_file_formats`.
 
 .. _hamiltonian_dump_internal:
 
@@ -103,13 +95,13 @@ Note that the integrals in this example are actually stored in the AO basis (unl
 FCIDUMP format
 ==============
 
-The FCIDUMP format is mainly useful for exchanging Hamiltonians with different codes. Compared to the internal format, there are some restrictions:
+The FCIDUMP format is mainly useful when exchanging Hamiltonians with different codes. Compared to the internal format, there are some restrictions:
 
 1. The one-body terms must all be added into a single operator.
 2. The integrals can only be stored in a restricted (MO) basis set, i.e. so no different basis sets for the alpha and beta orbitals are possible.
 3. The two-electron integrals must be stored in a ``DenseFourIndex`` object, so the Cholesky decomposition of the ERI is not supported.
 
-The FCIDUMP format is normally only used for storing integrals in the MO basis but the example here will only consider the AO basis. Read the section :ref:`user_hf_dft_preparing_posthf` if you want to compute (and store) integrals in the molecular-orbital (MO) basis. The usage is as follows:
+The FCIDUMP format is normally only used for storing integrals in the MO basis but the example here will use the AO basis. Read the section :ref:`user_hf_dft_preparing_posthf` if you want to compute (and store) integrals in the molecular-orbital (MO) basis. The usage is as follows:
 
 .. literalinclude :: ../data/examples/hamiltonian/dump_fcidump_ao.py
     :caption: data/examples/hamiltonian/dump_fcidump_ao.py
@@ -155,4 +147,4 @@ The second block (after ``&END``) contains the one- and two-electron integrals a
 
 * Finally, the core energy (for instance, the nuclear repulsion term, etc.) is written on the last line with all orbital indices equal 0.
 
-If any of the value of an integral is zero, the corresponding line is not included in the the FCIDUMP file.
+If the value of an integral is zero, the corresponding line is not included in the the FCIDUMP file.

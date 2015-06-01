@@ -33,30 +33,10 @@ basis to define a Hamiltonian.
 Specifying the molecular geometry
 =================================
 
-Supported file formats
-----------------------
-
 Horton can load/dump the molecular geometry from/to different file formats. The
 file format is determined automatically using the extension or prefix of the
-filename.
-
-================================ ========================= =============== ======================= ======================
- File format                      Extension                 Prefix           Read (``from_file``)    Write (``to_file``)
-================================ ========================= =============== ======================= ======================
- HDF5 file or h5py.Group object   .h5                                        X                       X
- xyz                              .xyz                                       X                       X
- Gaussian                         .fchk                                      X
- Gaussian                         .log                                       X
- Gaussian cube                    .cube                                      X                       X
- Gaussian wfn                     .wfn                                       X
- Molekel                          .mkl                                       X
- Molden                           .molen.input or .molden                    X                       X
- VASP                                                       POSCAR           X                       X
- VASP                                                       CHGCAR, AECCAR   X
- VASP                                                       LOCPOT           X
- CP2K (atom)                      .cp2k                                      X
- CIF (partially working)          .cif                                       X
-================================ ========================= =============== ======================= ======================
+filename. For more information on supported file formats, refer to
+:ref:`ref_file_formats`.
 
 
 .. _read-molgeometry:
@@ -65,8 +45,7 @@ Reading the molecular geometry from file
 ----------------------------------------
 
 The molecular geometry can be read from file using the method
-:py:meth:`horton.io.iodata.IOData.from_file` of the
-``IOData`` class,
+:py:meth:`horton.io.iodata.IOData.from_file` of the ``IOData`` class,
 
 .. code-block:: python
 

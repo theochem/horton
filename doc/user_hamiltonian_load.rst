@@ -26,12 +26,7 @@ Loading a Hamiltonian from a file
 
 Loading a Hamiltonian from a file is just the reverse process of :ref:`hamiltonian_dump`. For loading, the same two formats are supported: (i) an internal binary format based on HDF5 (extension ``.h5``) and Molpro's FCIDUMP text format (containing ``FCIDUMP`` somewhere in the file name).
 
-All input and output of data in Horton is done through the :py:class:`horton.io.iodata.IOData` class. Loading a file from disk is done with the following two steps:
-
-1. Load the file by creating a ``IOData`` instance with :py:meth:`horton.io.IOData.from_file`.
-2. Access the attribuates of the of ``IOData`` instance.
-
-The list of attributes is documented here: :py:class:`horton.io.iodata.IOData`. (Not all of them are supported by each format.) The method :py:meth:`~horton.io.iodata.IOData.from_file` takes one or more filenames as argument. The filename is used to determine the file format. When it has the extension ``.h5``, the internal format is used. When the file contains ``FCIDUMP``, the FCIDUMP format is used.
+For a general information on how to load and dump data with Horton in different data file formats, refer to :ref:`ref_file_formats`.
 
 
 Horton's Internal format
