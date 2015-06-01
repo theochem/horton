@@ -477,10 +477,31 @@ All SCF solvers support the following two options:
 Click on the links of the SCF solver classes above for more optional arguments
 and their default values.
 
+
 Conversion of density and Fock matrix to orbitals
 =================================================
 
-TODO!! (both code and docs. This function is not yet in Horton and thus needs to be written. It should support fractional occupation numbers.)
+The :py:class:`~horton.meanfield.scf.PlainSCFSolver` iteratively updates the orbitals. Hence, for this SCF solver, there is no need to reconstruct the orbitals after SCF convergence. All other SCF algorithms, however, iteratively update the density matrix and one explicitly needs to reconstruct the orbitals after SCF convergence.
+
+.. note::
+
+    SCF algorithms that update the density matrix, may produce a converged
+    density matrix with fractional occupations for degenerate orbitals at the
+    Fermi level. The code snippets below properly handle such cases as well. For
+    more details, refer to
+    :py:meth:`~horton.matrix.dense.DenseExpansion.from_fock_and_dm`.
+
+* Usage in the restricted case:
+
+  .. literalinclude:: ../data/examples/hf_dft/rks_water_lda.py
+      :lines: 60-66
+      :caption: data/examples/hf_dft/rks_water_lda.py, lines 60--67
+
+* Usage in the unrestricted case:
+
+  .. literalinclude:: ../data/examples/hf_dft/uks_methyl_lda.py
+      :lines: 62-70
+      :caption: data/examples/hf_dft/uks_methyl_lda.py, lines 62--71
 
 
 Writing SCF results to a file
