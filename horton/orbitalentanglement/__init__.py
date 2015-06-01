@@ -18,4 +18,6 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
+'''Methods for measuring orbital entanglement'''
+
 from horton.orbitalentanglement.orbital_entanglement import *

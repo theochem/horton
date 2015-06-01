@@ -18,6 +18,8 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
+'''Methods for correlated wavefunctions'''
+
 from horton.correlatedwfn.geminal import *
 from horton.correlatedwfn.restricted_ap1rog import *
 from horton.correlatedwfn.trustregionopt import *
