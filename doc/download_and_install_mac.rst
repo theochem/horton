@@ -343,9 +343,6 @@ packages are also needed:
 * Doxygen >= 1.8.6: http://www.doxygen.org/
 * Breathe >= 1.2.0: http://breathe.readthedocs.org/en/latest/
 * Docutils >= 0.11: http://docutils.sourceforge.net/
-* A latex distribution (Texlive)
-* DVIpng >= 1.14: http://savannah.nongnu.org/projects/dvipng/
-* The Preview style for Latex (preview.sty)
 
 
 Installing the dependencies with MacPorts and PIP
