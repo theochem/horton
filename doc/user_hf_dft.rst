@@ -431,7 +431,7 @@ Horton supports the following SCF algorithms:
   both approaches.
 
 The plain SCF solver starts from an initial guess of the orbitals and updates
-this in-place.
+these in-place.
 
 * Usage in the restricted case:
 
@@ -460,6 +460,20 @@ that quantity in-place. The usage pattern is as follow:
       :lines: 53-60
       :caption: data/examples/hf_dft/uks_methyl_lda.py, lines 53--60
 
+All SCF solvers support the following two options:
+
+  :threshold: The convergence threshold for the SCF solver. The exact meaning
+              of this threshold is algorithm-dependent. In case of the
+              ``PlainSCFSolver``, convergence is tested with the RSMD error on
+              the Rothaan equations. In all other cases, the square root of
+              the commutator of the density and the Fock matrix is tested.
+
+  :maxiter: The maximum allowed number of SCF iterations. If convergence is not
+            reached within this number of iterations, a ``NoSCFConvergence``
+            error is raised.
+
+Click on the links of the SCF solver classes above for more optional arguments
+and their default values.
 
 Conversion of density and Fock matrix to orbitals
 =================================================

@@ -446,6 +446,9 @@ class DIISHistory(object):
 
            focks
                 A list of Fock matrix of the new state.
+
+           **Returns**: the square root of commutator error for the given pairs
+           of density and Fock matrices.
         '''
         if len(dms) != self.ndm or len(focks) != self.ndm:
             raise TypeError('The number of density and Fock matrices must match the ndm parameter.')
