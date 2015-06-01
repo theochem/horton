@@ -677,6 +677,13 @@ def test_expansion_from_fock_and_dm():
         exp.rotate_2orbitals(np.pi/18.0, 1, 2)
         check_case(exp)
 
+    # Case 4: incompatible degeneracies, fractional occupations and rotated
+    # degenerate orbitals
+    exp.occupations[:] = [1.5, 0.7, 0.3, 0, 0]
+    for i in xrange(36):
+        exp.rotate_2orbitals(np.pi/18.0, 1, 2)
+        check_case(exp)
+
 
 def test_expansion_naturals():
     fn_fchk = context.get_fn('test/ch3_hf_sto3g.fchk')
