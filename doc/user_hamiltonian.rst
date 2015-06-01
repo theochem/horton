@@ -29,5 +29,4 @@ Hamiltonians
 
    user_hamiltonian_molecular
    user_hamiltonian_model
-   user_hamiltonian_dump
-   user_hamiltonian_load
+   user_hamiltonian_io
