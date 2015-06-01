@@ -19,12 +19,31 @@
     :
     : --
 
-Gaussian basis functions
-########################
+Gaussian basis sets
+###################
 
+.. _ref_gaussian_basis_standard_sets:
+
+Standard basis sets supported in Horton
+=======================================
+
+A list of currently supported built-in basis sets is tabulated below.
+
+.. cssclass:: table-striped
+
+.. include:: basis.rst.inc
+
+Note that the basis set names are case-insensitive in Horton. These basis sets
+were taken from the EMSL library (https://bse.pnl.gov/bse/portal). When
+publishing results obtained with these basis sets, please cite the following
+references [feller1996]_ and [Didier2007]_.
+
+
+Collected notes on Gaussian basis sets
+======================================
 
 Introduction
-============
+------------
 
 
 Horton supports contracted Gaussian basis functions, which have in general the
@@ -60,7 +79,7 @@ that are needed for the implementation in Horton.
 
 
 Cartesian
-=========
+---------
 
 
 When the polynomial consists of a single term as follows:
@@ -100,7 +119,7 @@ G      4                15 :math:`xxxx`, :math:`xxxy`, :math:`xxxz`, :math:`xxyy
 
 
 Pure or Harmonic
-================
+----------------
 
 When the polynomial is a real regular solid harmonic, one speaks of `pure
 Gaussian basis functions`:
@@ -170,7 +189,7 @@ G      4                9  :math:`C_{40}`, :math:`C_{41}`, :math:`S_{41}`, :math
 
 
 Transformation from Cartesian to pure
-=====================================
+-------------------------------------
 
 Let us now derive convenient expressions for these real solid harmonics in terms
 of Cartesian coordinates. The function :math:`P_\ell^m` is the
@@ -359,7 +378,7 @@ matrix products for angular momenta up to :math:`\ell=9`.
 
 
 Recursion relations for real regular solid harmonics
-====================================================
+----------------------------------------------------
 
 Recurrence relations for :math:`\Pi_{\ell m}(z,r^2)` can be derived from the
 recurrence relations for the associated Legendre polynomials:

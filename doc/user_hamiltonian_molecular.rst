@@ -69,27 +69,10 @@ XYZ file
 Specifying the basis set
 ========================
 
-Basis set format
-----------------
 Horton supports basis sets consisting of generally contracted Cartesian Gaussian functions up to a maximum angular momentum of seven (I functions).
 Horton is using the same basis set format as NWChem, and the basis sets can be downloaded from the EMSL webpage (https://bse.pnl.gov/bse/portal).
 
-.. _horton-basis-library:
-
-Basis set library
------------------
-Most of the popular basis sets can be loaded automatically. A list of currently supported built-in sets is tabulated below.
-
-.. cssclass:: table-striped
-
-.. include:: basis.rst.inc
-
-Note that the basis set names are case-insensitive in Horton. These basis sets
-were taken from the EMSL library (https://bse.pnl.gov/bse/portal). When
-publishing results obtained with these basis sets, please cite the following
-references [feller1996]_ and [Didier2007]_.
-
-The basis set for a given molecule is constructed with the function :py:func:`horton.gbasis.gobasis.get_gobasis`
+Most of the popular basis sets can be loaded automatically. A list of currently supported built-in sets can be found here: :ref:`ref_gaussian_basis_standard_sets`. The basis set for a given molecule is constructed with the function :py:func:`horton.gbasis.gobasis.get_gobasis`
 
 
 Unique basis set for all atoms
@@ -114,7 +97,7 @@ In some cases one wants to specify different basis sets for different atoms. For
     obasis = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g',
                          element_map={'H':'3-21g', 'C':'6-31g'})
 
-where `mol.coordinates` and `mol.numbers` are read from file (see :ref:`read-molgeometry`),  and ``sto-3g``, ``3-21g`` and ``6-31g`` are the basis set names (see :ref:`horton-basis-library`)
+where `mol.coordinates` and `mol.numbers` are read from file (see :ref:`read-molgeometry`),  and ``sto-3g``, ``3-21g`` and ``6-31g`` are the basis set names (see :ref:`ref_gaussian_basis_standard_sets`)
 
 Alternatively, the same result can be obtained by substituting the H and C symbols with their atomic numbers:
 
