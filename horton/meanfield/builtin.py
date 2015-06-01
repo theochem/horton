@@ -69,7 +69,7 @@ class BeckeHartree(GridObservable):
         return pot
 
     @doc_inherit(GridObservable)
-    def compute(self, cache, grid):
+    def compute_energy(self, cache, grid):
         pot = self._update_pot(cache, grid)
         rho = cache['rho_full']
         return 0.5*grid.integrate(pot, rho)
@@ -134,7 +134,7 @@ class RDiracExchange(DiracExchange):
     '''The Dirac Exchange Functional for restricted wavefunctions'''
 
     @doc_inherit(GridObservable)
-    def compute(self, cache, grid):
+    def compute_energy(self, cache, grid):
         pot = self._update_pot(cache, grid, 'alpha')
         rho = cache['rho_alpha']
         return (3.0 / 2.0) * grid.integrate(pot, rho)
@@ -148,7 +148,7 @@ class UDiracExchange(DiracExchange):
     '''The Dirac Exchange Functional for unrestricted wavefunctions'''
 
     @doc_inherit(GridObservable)
-    def compute(self, cache, grid):
+    def compute_energy(self, cache, grid):
         pot_alpha = self._update_pot(cache, grid, 'alpha')
         pot_beta = self._update_pot(cache, grid, 'beta')
         rho_alpha = cache['rho_alpha']

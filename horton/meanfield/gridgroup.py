@@ -118,7 +118,7 @@ class GridGroup(Observable):
         '''
         raise NotImplementedError
 
-    def compute(self, cache):
+    def compute_energy(self, cache):
         '''Compute the sum of the expectation values.
 
            **Arguments:**
@@ -135,7 +135,7 @@ class GridGroup(Observable):
         # compute energy terms and sum up
         result = 0.0
         for grid_term in self.grid_terms:
-            energy = grid_term.compute(cache, self.grid)
+            energy = grid_term.compute_energy(cache, self.grid)
             cache['energy_%s' % grid_term.label] = energy
             result += energy
         return result
@@ -354,7 +354,7 @@ class GridObservable(object):
         '''
         self.label = label
 
-    def compute(self, cache, grid):
+    def compute_energy(self, cache, grid):
         '''Compute the expectation value using numerical integration
 
            **Arguments:**

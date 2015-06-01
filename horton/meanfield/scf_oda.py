@@ -189,7 +189,7 @@ class ODASCFSolver(object):
             # Construct the Fock operators in point 0
             ham.compute_fock(*fock0s)
             # Compute the energy in point 0
-            energy0 = ham.compute()
+            energy0 = ham.compute_energy()
 
             if log.do_medium:
                 if mixing is None:
@@ -211,7 +211,7 @@ class ODASCFSolver(object):
             # Compute the fock matrices in point 1
             ham.compute_fock(*fock1s)
             # Compute the energy in point 1
-            energy1 = ham.compute()
+            energy1 = ham.compute_energy()
 
             # Compute the derivatives of the energy at point 0 and 1 for a
             # linear interpolation of the density matrices
@@ -326,7 +326,7 @@ def check_cubic(ham, dm0s, dm1s, e0, e1, g0, g1, do_plot=True):
             dm2s[i].iscale(1-x)
             dm2s[i].iadd(dm1s[i], x)
         ham.reset(*dm2s)
-        e2 = ham.compute()
+        e2 = ham.compute_energy()
         energies.append(e2)
     energies = np.array(energies)
 

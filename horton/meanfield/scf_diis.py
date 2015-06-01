@@ -122,7 +122,8 @@ class DIISSCFSolver(object):
                 # Construct the Fock operators
                 ham.compute_fock(*self._focks)
                 # Compute the energy if needed by the history
-                energy = ham.compute() if self._history.need_energy else None
+                energy = ham.compute_energy() if self._history.need_energy \
+                         else None
                 # Add the current fock+dm pair to the history
                 error = self._history.add(energy, dms, self._focks)
 
@@ -154,7 +155,7 @@ class DIISSCFSolver(object):
             for i in xrange(ham.ndm):
                 self._exps[i].to_dm(dms[i])
             ham.reset(*dms)
-            energy = ham.compute() if self._history.need_energy else None
+            energy = ham.compute_energy() if self._history.need_energy else None
             ham.compute_fock(*self._focks)
 
             # Add the current (dm, fock) pair to the history
@@ -214,7 +215,7 @@ class DIISSCFSolver(object):
                     energies1.append(np.dot(x_coeffs, 0.5*np.dot(a, x_coeffs) - b))
                     self._history._build_combinations(x_coeffs, dms_tmp, None)
                     ham.reset(*dms_tmp)
-                    energies2.append(ham.compute())
+                    energies2.append(ham.compute_energy())
                     print x, energies1[-1], energies2[-1]
                 pt.clf()
                 pt.plot(xs, energies1, label='est')
@@ -262,7 +263,7 @@ class DIISSCFSolver(object):
 
         if not self.skip_energy or self._history.need_energy:
             if not self._history.need_energy:
-                ham.compute()
+                ham.compute_energy()
             if log.do_medium:
                 ham.log()
 

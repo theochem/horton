@@ -124,7 +124,7 @@ def check_interpol_hf(ham, lf, exps, olp, kin, na, occ_model):
         # compute the hf energy
         scf_solver._history._build_combinations(x, dms, None)
         ham.reset(*dms)
-        energies_hf[ipt] = ham.compute()
+        energies_hf[ipt] = ham.compute_energy()
     if False:
         import matplotlib.pyplot as pt
         pt.clf()

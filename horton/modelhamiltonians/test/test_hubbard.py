@@ -46,7 +46,7 @@ def test_1d_hubbard_hamiltonian():
     ham = REffHam(terms)
     scf_solver = PlainSCFSolver()
     scf_solver(ham, lf, olp, occ_model, exp_alpha)
-    energy = ham.compute()
+    energy = ham.compute_energy()
 
     assert (abs(energy --7.94427) < 1e-4)
 
@@ -74,6 +74,6 @@ def test_1d_hubbard_hamiltonian_no_pbc():
     ham = REffHam(terms)
     scf_solver = PlainSCFSolver()
     scf_solver(ham, lf, olp, occ_model, exp_alpha)
-    energy = ham.compute()
+    energy = ham.compute_energy()
 
     assert (abs(energy --7.0533) < 1e-4)

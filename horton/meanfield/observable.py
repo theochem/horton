@@ -46,7 +46,7 @@ class Observable(object):
     def __init__(self, label):
         self.label = label
 
-    def compute(self, cache):
+    def compute_energy(self, cache):
         '''Compute the expectation value of the observable
 
            **Arguments:**
@@ -82,7 +82,7 @@ class RTwoIndexTerm(Observable):
         Observable.__init__(self, label)
 
     @doc_inherit(Observable)
-    def compute(self, cache):
+    def compute_energy(self, cache):
         return 2 * self.op_alpha.contract_two('ab,ab', cache['dm_alpha'])
 
     @doc_inherit(Observable)
@@ -100,7 +100,7 @@ class UTwoIndexTerm(Observable):
         Observable.__init__(self, label)
 
     @doc_inherit(Observable)
-    def compute(self, cache):
+    def compute_energy(self, cache):
         if self.op_alpha is self.op_beta:
             # when both operators are references to the same object, take a
             # shortcut
@@ -132,7 +132,7 @@ class RDirectTerm(Observable):
             direct.iscale(2) # contribution from beta electrons is identical
 
     @doc_inherit(Observable)
-    def compute(self, cache):
+    def compute_energy(self, cache):
         self._update_direct(cache)
         direct = cache.load('op_%s_alpha' % self.label)
         return direct.contract_two('ab,ab', cache['dm_alpha'])
@@ -164,7 +164,7 @@ class UDirectTerm(Observable):
             raise NotImplementedError
 
     @doc_inherit(Observable)
-    def compute(self, cache):
+    def compute_energy(self, cache):
         self._update_direct(cache)
         if self.op_alpha is self.op_beta:
             # This branch is nearly always going to be followed in practice.
@@ -205,7 +205,7 @@ class RExchangeTerm(Observable):
             self.op_alpha.contract_two_to_two('abcd,cb->ad', dm_alpha, exchange_alpha)
 
     @doc_inherit(Observable)
-    def compute(self, cache):
+    def compute_energy(self, cache):
         self._update_exchange(cache)
         exchange_alpha = cache['op_%s_alpha' % self.label]
         dm_alpha = cache['dm_alpha']
@@ -241,7 +241,7 @@ class UExchangeTerm(Observable):
             self.op_beta.contract_two_to_two('abcd,cb->ad', dm_beta, exchange_beta)
 
     @doc_inherit(Observable)
-    def compute(self, cache):
+    def compute_energy(self, cache):
         self._update_exchange(cache)
         exchange_alpha = cache['op_%s_alpha' % self.label]
         exchange_beta = cache['op_%s_beta' % self.label]

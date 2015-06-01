@@ -90,7 +90,7 @@ def test_perturbation():
     assert convergence_error_eigen(ham, mol.lf, olp, mol.exp_alpha) > 1e-8
     scf_solver(ham, mol.lf, olp, occ_model, mol.exp_alpha)
     assert convergence_error_eigen(ham, mol.lf, olp, mol.exp_alpha) < 1e-8
-    energy0 = ham.compute()
+    energy0 = ham.compute_energy()
 
     # Construct a perturbation based on the Mulliken AIM operator
     assert mol.obasis.nbasis % 2 == 0
@@ -121,7 +121,7 @@ def test_perturbation():
         assert convergence_error_eigen(ham, mol.lf, olp, mol.exp_alpha) > 1e-8
         scf_solver(ham, mol.lf, olp, occ_model, mol.exp_alpha)
         assert convergence_error_eigen(ham, mol.lf, olp, mol.exp_alpha) < 1e-8
-        energy1 = ham.compute()
+        energy1 = ham.compute_energy()
         energy1 -= ham.cache['energy_pert']
 
         assert energy1 > energy0

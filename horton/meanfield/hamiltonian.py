@@ -90,7 +90,7 @@ class EffHam(object):
         '''
         raise NotImplementedError
 
-    def compute(self):
+    def compute_energy(self):
         '''Compute the expectation value.
 
            The input for this method must be provided through the ``reset``
@@ -101,7 +101,7 @@ class EffHam(object):
         '''
         total = 0.0
         for term in self.terms:
-            energy = term.compute(self.cache)
+            energy = term.compute_energy(self.cache)
             self.cache['energy_%s' % term.label] = energy
             total += energy
         for key, energy in self.external.iteritems():

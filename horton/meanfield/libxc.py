@@ -68,7 +68,7 @@ class RLibXCLDA(LibXCEnergy):
 
     @timer.with_section('LDA edens')
     @doc_inherit(LibXCEnergy)
-    def compute(self, cache, grid):
+    def compute_energy(self, cache, grid):
         # LibXC expects the following input:
         #   - total density
         # LibXC computes:
@@ -99,7 +99,7 @@ class ULibXCLDA(LibXCEnergy):
 
     @timer.with_section('LDA edens')
     @doc_inherit(LibXCEnergy)
-    def compute(self, cache, grid):
+    def compute_energy(self, cache, grid):
         # LibXC expects the following input:
         #   - alpha density
         #   - beta density
@@ -136,7 +136,7 @@ class RLibXCGGA(LibXCEnergy):
 
     @timer.with_section('GGA edens')
     @doc_inherit(LibXCEnergy)
-    def compute(self, cache, grid):
+    def compute_energy(self, cache, grid):
         # LibXC expects the following input:
         #   - total density
         #   - norm squared of the gradient of the total density
@@ -182,7 +182,7 @@ class ULibXCGGA(LibXCEnergy):
 
     @timer.with_section('GGA edens')
     @doc_inherit(LibXCEnergy)
-    def compute(self, cache, grid):
+    def compute_energy(self, cache, grid):
         # LibXC expects the following input:
         #   - alpha density
         #   - beta density
