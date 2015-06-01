@@ -19,13 +19,13 @@
     :
     : --
 
-Download and Installation on Mac OS X (10.8 - 10.10)
-####################################################
+Download and Installation on Mac OS X (10.8--10.10)
+###################################################
 
 Disclaimer
 ==========
 
-Horton has been tested on Mac OS X 10.8 - 10.10 using MacPorts. If you
+Horton has been tested on Mac OS X 10.8--10.10 using MacPorts. If you
 are running any other version of OS X or using other package managers,
 some of the instructions below may not work.
 
@@ -34,16 +34,20 @@ MacPorts
 =========
 
 We strongly recommend that you install all of the packages required by Horton
-through MacPorts. We also advise you to uninstall/remove all python packages
-installed through package managers other than MacPorts (e.g., Canopy).
-
-The latest version of MacPorts can be downloaded from the web:
+through MacPorts. The latest version of MacPorts can be downloaded from the web:
 https://www.macports.org/install.php. This guide has been tested using
 MacPorts 2.3.3 but should also work with newer versions.
 
+.. note ::
 
-Quick guideline through MacPorts
---------------------------------
+    If you have already installed a Python distribution (with another package
+    manager than MacPorts), such as Canopy, it may interfere with the one
+    installed through MacPorts. The instructions below assume that no such other
+    installation of Python is present.
+
+
+Quick tour through MacPorts
+---------------------------
 
 Here are some basic MacPort commands:
 
