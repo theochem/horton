@@ -144,7 +144,7 @@ This example shows how the ``IOData`` attributes can be set by giving keyword ar
     -1.4611205008249140e+01   28   28    0    0
      2.0000000000000000e+01    0    0    0    0
 
-The input file is divided into two blocks. The first block (between ``&FCI`` and ``&END``) contains system-specific information:
+The file is divided into two blocks. The first block (between ``&FCI`` and ``&END``) contains system-specific information:
 
     :NORB: number of orbitals/basis functions
     :NELEC: number of electrons

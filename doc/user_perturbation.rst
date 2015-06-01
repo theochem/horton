@@ -221,8 +221,8 @@ Summary of keyword arguments
 
     :guess: (1-dim np.array) initial guess (default ``None``). In not provided, an initial guess containing random numbers in the interval :math:`(0,0.01]` is generated. The random guess preserves the symmetry of the PTb amplitudes, that is, :math:`t_{ij}^{ab}=t_{ji}^{ba}`. If a user-defined guess is provided, the elements of :math:`t_{ij}^{ab}` have to be indexed in C-like order
 
-Example input files
-===================
+Example Python scripts
+======================
 
 MP2 calculation on the water molecule
 -------------------------------------
