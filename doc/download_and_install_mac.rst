@@ -380,18 +380,3 @@ The documentation is compiled and viewed as follows:
 .. code-block:: bash
 
     (cd doc; make html; open _build/html/index.html)
-
-
-Common Problems
-===============
-
-* If you get errors saying that you do not have a file or script when you have
-  clearly installed it beforehand, it may not be named appropriately. You can fix
-  this by symbolically linking that file to the appropriate name. E.g.::
-
-     ln -s something something
-
-* If you get an error, saying you have not installed xcode, install xcode.
-  E.g.::
-
-    some example
