@@ -386,8 +386,9 @@ three options:
 
 
 * :py:class:`~horton.meanfield.occ.FermiOccModel`. Use the Fermi-smearing method
-  to fill up the orbitals. [rabuck1999]_
-  Example usage:
+  to fill up the orbitals. [rabuck1999]_ Only part of the methodology presented
+  Rabuck is implemented. See :py:class:`~horton.meanfield.occ.FermiOccModel` for
+  details. Example usage:
 
   .. code-block:: python
 

@@ -174,31 +174,10 @@ class AufbauSpinOccModel(OccModel):
         assert abs(sum(overlap.contract_two('ab,ba', dm) for dm in dms) - self.nel) < eps
 
 
-class FermiMixin(object):
-    '''Mixin class for Fermi smearing occupation models'''
-    def __init__(self, temperature=300, eps=1e-8):
-        '''
-           **Optional arguments:**
-
-           temperature
-                Controls the width of the distribution (derivative)
-
-           eps
-                The error on the sum of the occupation number when searching for
-                the right Fermi level.
-        '''
-        if temperature <= 0:
-            raise ValueError('The temperature must be strictly positive')
-        if eps <= 0:
-            raise ValueError('The root-finder threshold (eps) must be strictly positive.')
-        self.temperature = float(temperature)
-        self.eps = eps
-
-
-class FermiOccModel(FermiMixin, AufbauOccModel):
+class FermiOccModel(AufbauOccModel):
     '''Fermi smearing electron occupation model'''
     def __init__(self, *noccs, **kwargs):
-        '''
+        r'''
            **Arguments:**
 
            nalpha, nbeta, ...
@@ -212,12 +191,35 @@ class FermiOccModel(FermiMixin, AufbauOccModel):
            eps
                 The error on the sum of the occupation number when searching for
                 the right Fermi level.
+
+           For each channel, the orbital occupations are assigned with the Fermi
+           distribution:
+
+           .. math::
+
+                n_i = \frac{1}{1 + e^{(\epsilon_i - \mu)/k_B T}}
+
+           where, for a given set of energy levels, :math:`\{\epsilon_i\}`, the
+           chemical potential, :math:`\mu`, is optimized as to satisfy the
+           following constraint:
+
+           .. math::
+
+               \sum_i n_i = n_\text{occ}
+
+           where :math:`n_\text{occ}` can be set per (spin) channel. This is
+           only a part of the methodology presented in [rabuck1999]_.
         '''
         temperature = kwargs.pop('temperature', 300)
         eps = kwargs.pop('eps', 1e-8)
         if len(kwargs) > 0:
             raise TypeError('Unknown keyword arguments: %s' % kwargs.keys())
-        FermiMixin.__init__(self, temperature, eps)
+        if temperature <= 0:
+            raise ValueError('The temperature must be strictly positive')
+        if eps <= 0:
+            raise ValueError('The root-finder threshold (eps) must be strictly positive.')
+        self.temperature = float(temperature)
+        self.eps = eps
         AufbauOccModel.__init__(self, *noccs)
         log.cite('rabuck1999', 'the Fermi broading method to assign orbital occupations')
 
