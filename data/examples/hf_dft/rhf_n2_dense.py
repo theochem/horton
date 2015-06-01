@@ -59,6 +59,7 @@ scf_solver(ham, lf, olp, occ_model, exp_alpha)
 
 # Assign results to the molecule object and write it to a file, e.g. for
 # later analysis
+mol.title = 'RHF computation on dinitrogen'
 mol.energy = ham.cache['energy']
 mol.obasis = obasis
 mol.exp_alpha = exp_alpha

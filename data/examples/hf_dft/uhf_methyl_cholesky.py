@@ -50,7 +50,7 @@ scf_solver(ham, lf, olp, occ_model, exp_alpha, exp_beta)
 
 # Assign results to the molecule object and write it to a file, e.g. for
 # later analysis
-mol.title = 'UHF computation on water'
+mol.title = 'UHF computation on methyl'
 mol.energy = ham.cache['energy']
 mol.obasis = obasis
 mol.exp_alpha = exp_alpha
