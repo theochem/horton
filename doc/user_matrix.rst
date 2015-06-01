@@ -35,7 +35,7 @@ are two main reasons for such implementation:
    code without rewriting the Geminals code.
 2. Numpy, the conventional linear algbebra module in Python, may not manage memory
    effectively for large structures, such as the 2-electron integrals. For
-   example, Numpy creates a temporary object when evaluating ``a += b``, which
+   example, Numpy allocates temporary memory when evaluating ``a += b``, which
    is costly when  ``a`` or ``b`` is very large. We developed a Matrix module
    (using the Numpy module) geared towards memory management of quantum chemistry
    calculations, and we use that module (Matrix module) instead of Numpy directly.
@@ -54,11 +54,11 @@ How to use this abstraction layer
 
 The Matrix module is organized (in ``horton/matrix``) as follows:
 
-At the top level, the module is split by the methods in which the data is stored
-and manipulated (backend). So far, there are two such methods, a dense Numpy storage
-and Cholesky decomposition of the Numpy storage. Because these backends treat
-data in fundamentally different ways, each method used by the higher-level code
-(listed in the `base.py`) must be written differently.
+At the top level, the module is split by the ways in which the data is stored
+and manipulated (backend). So far, there are two such ways, a dense Numpy
+storage and Cholesky decomposition of the Numpy storage. Because these
+backends treat data in fundamentally different ways, each method used by the
+higher-level code (listed in the `base.py`) must be written differently.
 
 Then, the code for each backend is organized by the type of data that is manipulated.
 So far, objects for 2-index tensor, 3-index tensor, 4-index tensor, and wavefunction
@@ -67,8 +67,8 @@ expansion have been implemented.
 To avoid reallocation of memory, we use a :class:`.LinalgFactory` instance to
 create these objects (e.g. 2-index tensor). This instance will allocate memory
 for these objects, and then, the operations performed on these objects will modify
-their attributes directly. Most of the operations are in-place, i.e. modifies
-input and stores output within a constant storage space.
+their own attributes directly. Most of the operations are in-place, i.e.
+modifies their own data based on input and returns no output.
 
 For example, to create and modify a dense two index tensor, we first create a
 LinalgFactory instance:
@@ -129,4 +129,6 @@ We can also allocate different objects, if implemented, using the Factory:
 
 Many functions and objects have been implemented into the Matrix class. It may
 help to read over some of the (hopefully) documented backend files to see if a
-desired function has already been implemented. Contact the authors for more details.
+desired function has already been implemented. In the event that a
+desired function has not been implemented, please contact the authors to
+make a feature request or for more details on implementing it yourself.
