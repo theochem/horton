@@ -50,7 +50,7 @@ The Hartree-Fock energy can be calculated after SCF convergence as follows
 
 .. code-block:: python
 
-    ehf = ham.compute()
+    ehf = ham.compute_energy()
 
 where ``ham`` is an instance of the restricted effective Hamiltonian class ``REffHam`` (see FIXME), which contains all one- and two-electron terms. Note that all one-electron terms have to be combined into one single operator term. This can be done in the following way if the Hamiltonian contains the kinetic energy of the electrons and the electron-nuclear attraction,
 

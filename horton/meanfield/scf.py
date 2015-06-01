@@ -122,7 +122,7 @@ class PlainSCFSolver(object):
             log.blank()
 
         if not self.skip_energy:
-            ham.compute()
+            ham.compute_energy()
             if log.do_medium:
                 ham.log()
 

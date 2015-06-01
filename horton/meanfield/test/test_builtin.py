@@ -35,8 +35,8 @@ def test_becke_hartree_n2_hfs_sto3g():
     dm_alpha = mol.exp_alpha.to_dm()
     ham1.reset(dm_alpha)
     ham2.reset(dm_alpha)
-    energy1 = ham1.compute()
-    energy2 = ham2.compute()
+    energy1 = ham1.compute_energy()
+    energy2 = ham2.compute_energy()
     assert abs(energy1 - energy2) < 1e-3
 
     op1 = mol.lf.create_two_index()
@@ -59,8 +59,8 @@ def test_becke_hartree_h3_hfs_321g():
     dm_beta = mol.exp_beta.to_dm()
     ham1.reset(dm_alpha, dm_beta)
     ham2.reset(dm_alpha, dm_beta)
-    energy1 = ham1.compute()
-    energy2 = ham2.compute()
+    energy1 = ham1.compute_energy()
+    energy2 = ham2.compute_energy()
     assert abs(energy1 - energy2) < 1e-3
 
     fock_alpha1 = mol.lf.create_two_index()

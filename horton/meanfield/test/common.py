@@ -38,7 +38,7 @@ def check_cubic_wrapper(ham, dm0s, dm1s, do_plot=False):
 
     # evaluate stuff at dm0
     ham.reset(*dm0s)
-    e0 = ham.compute()
+    e0 = ham.compute_energy()
     ham.compute_fock(*focks)
     g0 = 0.0
     for i in xrange(ham.ndm):
@@ -48,7 +48,7 @@ def check_cubic_wrapper(ham, dm0s, dm1s, do_plot=False):
 
     # evaluate stuff at dm1
     ham.reset(*dm1s)
-    e1 = ham.compute()
+    e1 = ham.compute_energy()
     ham.compute_fock(*focks)
     g1 = 0.0
     for i in xrange(ham.ndm):
@@ -88,7 +88,7 @@ def helper_compute(ham, lf, *exps):
     # Test energy before scf
     dms = [exp.to_dm() for exp in exps]
     ham.reset(*dms)
-    ham.compute()
+    ham.compute_energy()
     focks = [lf.create_two_index() for exp in exps]
     ham.compute_fock(*focks)
     return ham.cache['energy'], focks
@@ -122,7 +122,7 @@ def check_hf_cs_hf(scf_solver):
     ])
     assert abs(mol.exp_alpha.energies - expected_energies).max() < 1e-5
 
-    ham.compute()
+    ham.compute_energy()
     # compare with g09
     assert abs(ham.cache['energy'] - -9.856961609951867E+01) < 1e-8
     assert abs(ham.cache['energy_kin'] - 9.766140786239E+01) < 2e-7
@@ -165,7 +165,7 @@ def check_lih_os_hf(scf_solver):
     assert abs(mol.exp_alpha.energies - expected_alpha_energies).max() < 1e-5
     assert abs(mol.exp_beta.energies - expected_beta_energies).max() < 1e-5
 
-    ham.compute()
+    ham.compute_energy()
     # compare with g09
     assert abs(ham.cache['energy'] - -7.687331212191962E+00) < 1e-8
     assert abs(ham.cache['energy_kin'] - 7.640603924034E+00) < 2e-7
@@ -202,7 +202,7 @@ def check_water_cs_hfs(scf_solver):
     # Recompute the orbitals and orbital energies. This should be reasonably OK.
     dm_alpha = mol.exp_alpha.to_dm()
     ham.reset(dm_alpha)
-    ham.compute()
+    ham.compute_energy()
     fock_alpha = mol.lf.create_two_index()
     ham.compute_fock(fock_alpha)
     mol.exp_alpha.from_fock(fock_alpha, olp)
@@ -225,7 +225,7 @@ def check_water_cs_hfs(scf_solver):
     occ_model = AufbauOccModel(5)
     check_solve(ham, scf_solver, occ_model, mol.lf, olp, kin, na, mol.exp_alpha)
 
-    ham.compute()
+    ham.compute_energy()
     assert abs(ham.cache['energy_ne'] - -1.977921986200E+02) < 1e-4
     assert abs(ham.cache['energy_kin'] - 7.525067610865E+01) < 1e-4
     assert abs(ham.cache['energy_hartree'] + ham.cache['energy_x_dirac'] - 3.864299848058E+01) < 2e-4
@@ -292,7 +292,7 @@ def check_n2_cs_hfs(scf_solver):
         ])
         assert abs(mol.exp_alpha.energies - expected_energies).max() < 3e-5
 
-        ham.compute()
+        ham.compute_energy()
         assert abs(ham.cache['energy_ne'] - -2.981579553570E+02) < 1e-5
         assert abs(ham.cache['energy_kin'] - 1.061620887711E+02) < 1e-5
         assert abs(ham.cache['energy'] - -106.205213597) < 1e-4
@@ -365,7 +365,7 @@ def check_h3_os_hfs(scf_solver):
         ])
         assert abs(mol.exp_beta.energies - expected_energies).max() < 1e-5
 
-        ham.compute()
+        ham.compute_energy()
         # compare with g09
         assert abs(ham.cache['energy_ne'] - -6.832069993374E+00) < 1e-5
         assert abs(ham.cache['energy_kin'] - 1.870784279014E+00) < 1e-5
@@ -417,7 +417,7 @@ def check_co_cs_pbe(scf_solver):
     ])
     assert abs(mol.exp_alpha.energies - expected_energies).max() < 1e-2
 
-    ham.compute()
+    ham.compute_energy()
     # compare with g09
     assert abs(ham.cache['energy_ne'] - -3.072370116827E+02) < 1e-2
     assert abs(ham.cache['energy_kin'] - 1.103410779827E+02) < 1e-2
@@ -451,7 +451,7 @@ def check_h3_os_pbe(scf_solver):
     dm_alpha = mol.exp_alpha.to_dm()
     dm_beta = mol.exp_beta.to_dm()
     ham.reset(dm_alpha, dm_beta)
-    ham.compute()
+    ham.compute_energy()
     assert abs(ham.cache['energy'] - -1.593208400939354E+00) < 1e-5
 
     # The convergence should be reasonable, not perfect because of limited
@@ -474,7 +474,7 @@ def check_h3_os_pbe(scf_solver):
     ])
     assert abs(mol.exp_beta.energies - expected_energies).max() < 2e-5
 
-    ham.compute()
+    ham.compute_energy()
     # compare with g09
     assert abs(ham.cache['energy_ne'] - -6.934705182067E+00) < 1e-5
     assert abs(ham.cache['energy_kin'] - 1.948808793424E+00) < 1e-5

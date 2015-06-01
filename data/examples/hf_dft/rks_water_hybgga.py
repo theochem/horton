@@ -60,7 +60,7 @@ scf_solver(ham, lf, olp, occ_model, dm_alpha)
 # matrices. The energy is also computed to store it in the output file below.
 fock_alpha = lf.create_two_index()
 ham.reset(dm_alpha)
-ham.compute()
+ham.compute_energy()
 ham.compute_fock(fock_alpha)
 exp_alpha.from_fock_and_dm(fock_alpha, dm_alpha, olp)
 
