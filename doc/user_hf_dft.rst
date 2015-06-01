@@ -507,7 +507,38 @@ The :py:class:`~horton.meanfield.scf.PlainSCFSolver` iteratively updates the orb
 Writing SCF results to a file
 =============================
 
-TODO!! (docs only)
+Once you have obtained a converged set of molecular orbitals, they can be stored
+in a file. Two file formats can be used: (i) Horton's internal format based on
+HDF5 and (ii) the Molden format. The internal format has the advantage that all
+data is stored in full precision and that you can include as much additional
+information as you like. The Molden format is useful for visualization purposes
+or when you would like to use the orbitals in another quantum chemistry code.
+Both formats can be used to store the wavefunction and to use it as an initial
+guess afterwards. For more background information on data formats in Horton,
+refer to :ref:`ref_file_formats`.
+
+The two code snippets below show how a wavefunction can be written to a file.
+In both examples, the object ``mol`` is an instance of ``IOData`` that was
+created earlier in the script by loading an ``.xyz`` file as follows:
+
+.. code-block:: python
+
+    mol = IOData.from_file('some_molecule.xyz')
+
+When the ``.xyz`` file is loaded, the attributes ``numbers`` and ``coordinates``
+of the object ``mol`` are already set as required for the ``.molden`` format.
+
+* Usage in the restricted case:
+
+  .. literalinclude:: ../data/examples/hf_dft/rks_water_lda.py
+      :lines: 68-80
+      :caption: data/examples/hf_dft/rks_water_lda.py, lines 68--80
+
+* Usage in the unrestricted case:
+
+  .. literalinclude:: ../data/examples/hf_dft/uks_methyl_lda.py
+      :lines: 72-86
+      :caption: data/examples/hf_dft/uks_methyl_lda.py, lines 72--86
 
 
 .. _user_hf_dft_preparing_posthf:
