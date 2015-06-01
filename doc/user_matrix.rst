@@ -25,73 +25,72 @@ How to use the matrix package
 Introduction
 ============
 
-Horton chooses to separate high-level quantum chemistry code from low-level
-linear algebra code with an abstraction layer known as the Matrix module. The
-reason for this is to keep the algorithm separate from the low-level
-implementation details and also to share frequent operations between different
-parts of code. This allows Horton to implement new linear algebra operations
-(ie Cholesky decomposition of the 2-electron integrals) without rewriting any
-high-level code (ie Geminals). Another reason for this module is to keep the
-allocation of memory controlled. By default, Numpy will create temporary
-objects when evaluating a statement like ``a += b``. This is clearly not
-acceptable when ``a`` or ``b`` is a 2-electron integral, since the temporary
-object will be hundreds of gigabytes in some cases. The downside to this
-approach is a different programming style, a small performance penalty and the
-need to implement new operations within the Matrix module.
+In Horton, we use our own Matrix module (abstraction layer) to implement the
+linear algebra code (low-level) into the quantum chemistry code (high-level). There
+are two main reasons for such implementation:
 
-See below for an image representation of this concept.
+1. We can develop new linear algebra operations without breaking the higher-level
+   code. For example, if we implemented Cholesky decomposition for the transformation
+   of 2-electron integrals, we should be able to use this method in the Geminals
+   code without rewriting the Geminals code.
+2. Numpy, the conventional linear algbebra module in Python, may not manage memory
+   effectively for large structures, such as the 2-electron integrals. For
+   example, Numpy creates a temporary object when evaluating ``a += b``, which
+   is costly when  ``a`` or ``b`` is very large. We developed a Matrix module
+   (using the Numpy module) geared towards memory management of quantum chemistry
+   calculations, and we use that module (Matrix module) instead of Numpy directly.
+
+Though such an abstraction layer seems pedantic and ostentatious, and requires
+a tedious implementation all new operations into the Matrix module, the small
+penalty in performance and the ease of implementing different concepts into the
+low-level areas of Horton make it well worth the effort.
+
+Below conceptualizes the organization of Horton:
 
 .. image:: matrix_concept.png
 
 How to use this abstraction layer
 =================================
 
-The Matrix module is split into several types.
+The Matrix module is organized (in ``horton/matrix``) as follows:
 
-First, the module is split according to backend, (ie dense Numpy storage,
-Cholesky decomposed Numpy storage, etc) and then according to the type of
-object being stored (ie wavefunction expansion, 2-index tensor, 3-index
-tensor, 4-index tensor, etc). This distinction can be seen in the files of
-the ``horton/matrix`` directory. Each file is a different backend and within
-each file, there are classes for different objects.
+At the top level, the module is split by the methods in which the data is stored
+and manipulated (backend). So far, there are two such methods, a dense Numpy storage
+and Cholesky decomposition of the Numpy storage. Because these backends treat
+data in fundamentally different ways, each method used by the higher-level code
+(listed in the `base.py`) must be written differently.
 
-The instances of the matrix classes are created from a :class:`.LinalgFactory`
-object. As a user, you will need to instantiate one of these Factories when
-you start writing your program. This is because most of the other parts of
-Horton will ask for a LinalgFactory to allocate memory.
+Then, the code for each backend is organized by the type of data that is manipulated.
+So far, objects for 2-index tensor, 3-index tensor, 4-index tensor, and wavefunction
+expansion have been implemented.
 
-You can create a LinalgFactory instance.
+To avoid reallocation of memory, we use a :class:`.LinalgFactory` instance to
+create these objects (e.g. 2-index tensor). This instance will allocate memory
+for these objects, and then, the operations performed on these objects will modify
+their attributes directly. Most of the operations are in-place, i.e. modifies
+input and stores output within a constant storage space.
 
-.. code-block:: python
-
-    lf = DenseLinalgFactory()
-
-Note that other choices of Factories are valid here too. Any child class of
-the "Matrix" class is possible.
-
-.. code-block:: python
-
-    lf = CholeskyLinalgFactory()
-
-You can then use the Factory as an argument to other parts of the code.
+For example, to create and modify a dense two index tensor, we first create a
+LinalgFactory instance:
 
 .. code-block:: python
 
     lf = DenseLinalgFactory()
-    er = obasis.compute_electron_repulsion(lf)
 
-Allocation of new objects can be done by calling one of the functions
-starting with ``create_`` within the Factory.
+We use the Factory to allocate a two index tensor object:
 
 .. code-block:: python
 
     A = lf.create_two_index() #matrix
-    A4 = lf.create_four_index() #4_rank_tensor
-    wfn = lf.create_expansion() #wavefunction expansion
 
+We can also pass the Factory as an argument to other parts of the code, which
+uses it to allocate an object.
 
-Operations are a little bit unusual because we want to avoid allocating
-temporary memory. Most of the operations are of the in-place variety.
+.. code-block:: python
+
+    er = obasis.compute_electron_repulsion(lf)
+
+We can modify the two-tensor object by some in-place operations:
 
 .. code-block:: python
 
@@ -101,20 +100,33 @@ temporary memory. Most of the operations are of the in-place variety.
     #A = A * B
     A.idot(A)
 
-Operations that are not in-place operations are usually not available because
-they create temporary objects. Instead, they can be broken up into a series
-of operations, starting with one that explicitly allocates memory.
-
-.. code-block:: python
-
     #A = B + C (NOT POSSIBLE)
     #A = A + B
     #A = A + C
     A.iadd(B)
     A.iadd(C)
 
-There are convenience functions to add/multiply a string of matrices together
-as well. Contact the authors for more details.
+Note that more complex operations, such as (`A = B + C`), can be broken up into
+a series of in-place operations, that deal with explicitly allocated memory.
 
-Many operations have been implemented in the Matrix class. See
-:py:mod:`horton.matrix.dense` for details.
+We can appreciate the simplicity of implementing different backends by playing
+with the different backends available (two). For example, we could have used
+
+.. code-block:: python
+
+    lf = CholeskyLinalgFactory()
+
+in place of the ``DenseLinalgFactory`` above. Making this change will not change
+any of the succeeding code, provided that the same objects are implemented into
+this backend as well.
+
+We can also allocate different objects, if implemented, using the Factory:
+
+.. code-block:: python
+
+    A4 = lf.create_four_index() #4_rank_tensor
+    wfn = lf.create_expansion() #wavefunction expansion
+
+Many functions and objects have been implemented into the Matrix class. It may
+help to read over some of the (hopefully) documented backend files to see if a
+desired function has already been implemented. Contact the authors for more details.
