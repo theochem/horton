@@ -18,23 +18,13 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Two-, three- and four-dimensional matrix implementations
+'''One-, Two-, three- and four-dimensional matrix implementations
 
    The purpose of this package is to provide a generic API for different
    implementations of real-valued double precision matrix storage and
    operations.
 
-   Two-dimensional matrices are supposed to be symmetric and are used to
-   represent two-index operators and 1DRDMs. Four-dimensional matrices are used
-   to represent four-index operators, which are invariant under the following
-   interchanges of indexes::
-
-            <ij|kl> = <ji|lk> = <kl|ij> = <lk|ji> =
-            <il|kj> = <jk|li> = <kj|il> = <li|jk>
-
-   This module assumes physicists notation for the two-particle operators. It is
-   up to the specific implementations of the matrices to make use of these
-   symmetries.
+   This module assumes physicists notation for the two-particle operators.
 
    One should use these matrix implementations without accessing the internals
    of each class, i.e. without accessing attributes or methods that start with
