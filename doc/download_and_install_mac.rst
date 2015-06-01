@@ -91,9 +91,6 @@ Here are some basic MacPort commands:
 Download the code
 =================
 
-Stable release (recommended)
-----------------------------
-
 The latest stable source code release of Horton can be downloaded here:
 
     https://github.com/theochem/horton/releases/download/2.0.0/horton-2.0.0.tar.gz
@@ -107,40 +104,6 @@ Choose a suitable directory, e.g. ``~/build``, download and unpack the archive:
     curl -O https://github.com/theochem/horton/releases/download/2.0.0/horton-2.0.0.tar.gz
     tar -xvzf horton-2.0.0.tar.gz
     cd horton-2.0.0
-
-
-Latest development code (experts only)
---------------------------------------
-
-In order to get the latest development version of the source code, and to upload
-your own changes, you need to work with git. Git is a version control system
-that makes life easy when a group of people are working on a common source code.
-All information about git (including downloads and tutorials) can be found here:
-http://git-scm.com/. The official public git URL of Horton is:
-``git://github.com/theochem/horton.git``. Git can be installed through MacPorts:
-
-.. code-block:: bash
-
-    port install git
-
-In order to `clone` the public Horton repository, run these commands:
-
-.. code-block:: bash
-
-    mkdir -p ~/build
-    cd ~/build
-    git clone git://github.com/theochem/horton.git
-    cd horton
-
-The version history can be updated with the latest patches with the following
-command:
-
-.. code-block:: bash
-
-    git pull
-
-There is also a web interface to Horton's git repository:
-https://github.com/theochem/horton
 
 
 Dependencies for building, installing and testing Horton
@@ -164,6 +127,8 @@ versions of the following programs/libraries:
 * LibXC >= 2.2.2: http://www.tddft.org/programs/octopus/wiki/index.php/Libxc
 * LibInt2 >= 2.0.3: http://sourceforge.net/p/libint/home
 
+
+.. _mac_compile_install:
 
 Installing the dependencies with MacPorts
 -----------------------------------------
@@ -207,6 +172,7 @@ space, the ``sudo`` can be omitted.):
     sudo port install libxc
     sudo port install libint
 
+
 .. _mac_manual_dependency_install:
 
 Installing dependencies manually
@@ -247,22 +213,6 @@ static linking. If this fails, consult your local Mac guru to build LibInt2.
 For more info about LibInt2, check the website:
 http://sourceforge.net/p/libint/home
 
-
-Reference atoms
-===============
-
-This step can be skipped when compiling the stable release because each stable
-release already contains reference atoms.
-
-Several parts of Horton make use of reference atomic computations. These files
-are too large to be included in the git revision system. Therefore, they must be
-downloaded separately when compiling a development version of Horton:
-
-.. code-block:: bash
-
-    (cd data/refatoms; make all)
-
-.. _mac_compile_install:
 
 Compilation and installation
 ============================
