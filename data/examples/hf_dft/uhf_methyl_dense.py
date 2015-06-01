@@ -55,8 +55,6 @@ mol.energy = ham.cache['energy']
 mol.obasis = obasis
 mol.exp_alpha = exp_alpha
 mol.exp_beta = exp_beta
-mol.dm_alpha = ham.cache['dm_alpha']
-mol.dm_beta = ham.cache['dm_beta']
 
 # useful for visualization:
 mol.to_file('methyl.molden')

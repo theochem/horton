@@ -63,7 +63,6 @@ mol.title = 'RHF computation on dinitrogen'
 mol.energy = ham.cache['energy']
 mol.obasis = obasis
 mol.exp_alpha = exp_alpha
-mol.dm_alpha = ham.cache['dm_alpha']
 
 # useful for visualization:
 mol.to_file('n2-scf.molden')

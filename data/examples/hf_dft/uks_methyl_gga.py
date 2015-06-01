@@ -59,14 +59,26 @@ dm_beta = exp_beta.to_dm()
 scf_solver = CDIISSCFSolver(1e-6)
 scf_solver(ham, lf, olp, occ_model, dm_alpha, dm_beta)
 
+# Derive orbitals (coeffs, energies and occupations) from the Fock and density
+# matrices. The energy is also computed to store it in the output file below.
+fock_alpha = lf.create_two_index()
+fock_beta = lf.create_two_index()
+ham.reset(dm_alpha, dm_beta)
+ham.compute()
+ham.compute_fock(fock_alpha, fock_beta)
+exp_alpha.from_fock_and_dm(fock_alpha, dm_alpha, olp)
+exp_beta.from_fock_and_dm(fock_beta, dm_beta, olp)
+
 # Assign results to the molecule object and write it to a file, e.g. for
 # later analysis. Note that the CDIIS algorithm can only really construct an
 # optimized density matrix and no orbitals.
 mol.title = 'UKS computation on methyl'
 mol.energy = ham.cache['energy']
 mol.obasis = obasis
-mol.dm_alpha = ham.cache['dm_alpha']
-mol.dm_beta = ham.cache['dm_beta']
+mol.exp_alpha = exp_alpha
+mol.exp_beta = exp_beta
+mol.dm_alpha = dm_alpha
+mol.dm_beta = dm_beta
 
 # useful for post-processing (results stored in double precision):
 mol.to_file('methyl.h5')
