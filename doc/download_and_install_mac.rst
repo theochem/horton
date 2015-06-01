@@ -145,7 +145,9 @@ Dependencies for building, installing and testing Horton
 In order to compile and test Horton, you need to install relatively recent
 versions of the following programs/libraries:
 
-* GCC, G++ and GFortran >= 4.5: http://gcc.gnu.org/
+* GCC, G++ and GFortran >= 4.5: http://gcc.gnu.org/ (The GNU compilers are only
+  used to compile Fortran code in some of the Horton dependencies as the default
+  C/C++ compiler on the Mac is ``clang``.)
 * Python >= 2.7, < 3.0: http://www.python.org/
 * Nosetests >= 1.1.2: http://readthedocs.org/docs/nose/en/latest/
 * Atlas >= 3.10.1: http://math-atlas.sourceforge.net/ (or any other BLAS implementation that you like more)
@@ -200,9 +202,6 @@ space, the ``sudo`` can be omitted.):
     sudo port install py27-matplotlib
     sudo port install libxc
     sudo port install libint
-
-The GNU compilers are only used to compile Fortran code as the default C/C++
-compiler on the Mac is ``clang``.
 
 .. _mac_manual_dependency_install:
 
