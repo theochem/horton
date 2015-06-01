@@ -19,19 +19,24 @@
     :
     : --
 
-.. _hamiltonian_dump:
+.. _hamiltonian_io:
 
-Dumping a Hamiltonian to a file
-###############################
+Dumping/Loading a Hamiltonian to/from a file
+############################################
 
-Horton supports two formats for storing a Hamiltonian in a file: (i) an internal binary format based on HDF5 (extension ``.h5``) and Molpro's FCIDUMP text format (containing ``FCIDUMP`` somewhere in the file name). The internal format is more flexible and can store a Hamiltonian in various different ways. The FCIDUMP format is more restrictive but can be used to interoperate with different codes, e.g. Molpro.
+Horton supports two formats for Hamiltonians: (i) an internal binary format based on HDF5 (extension ``.h5``) and Molpro's FCIDUMP text format (containing ``FCIDUMP`` somewhere in the file name). The internal format is more flexible and can store a Hamiltonian in various different ways. The FCIDUMP format is more restrictive but can be used to interoperate with different codes, e.g. Molpro. (Horton can also load integrals from a Gaussian log file but this is
+absolutely not recommended for any serious calculation.)
 
-For a general information on how to load and dump data with Horton in different data file formats, refer to :ref:`ref_file_formats`.
+For general information on how to load and dump data with Horton in different data file formats, refer to :ref:`ref_file_formats`.
 
-.. _hamiltonian_dump_internal:
+
+.. _hamiltonian_io_internal:
 
 Horton's Internal format
 ========================
+
+Dumping
+-------
 
 One can store all the separate operators in the atomic-orbital (AO) basis, here using a Cholesky decomposition of the four-center integrals, as follows:
 
@@ -39,7 +44,7 @@ One can store all the separate operators in the atomic-orbital (AO) basis, here 
     :caption: data/examples/hamiltonian/dump_internal_ao.py
     :lines: 2-
 
-Note that the attributes ``coordinates``, ``numbers`` and ``title``, which were loaded from the ``.xyz`` file, will also be dumped in the internal format, unless you explicitly remove them first with e.g. ``del mol.title``. The internal format will just store any attribute of the ``IOData`` object, not just the ones that are documented, see :py:class:`horton.io.iodata.IOData`. So, you may assign other attributes as well, e.g. ``obasis`` or ``olp``, if that is convenient.
+Note that the attributes ``coordinates``, ``numbers`` and ``title``, which were loaded from the ``.xyz`` file, will also be dumped in the internal format, unless you explicitly remove them first with e.g. ``del mol.title``. The internal format will just store any attribute of an ``IOData`` instance, not just the ones that are documented, see :py:class:`horton.io.iodata.IOData`. So, you may assign other attributes as well, e.g. ``obasis`` or ``olp``, if that is convenient.
 
 In the HDF5 file, all data is stored binary in full precision. The layout of the
 HDF5 file in this example is as follows:
@@ -89,11 +94,23 @@ which results in the following HD5 layout:
 
 Note that the integrals in this example are actually stored in the AO basis (unlike the ``_mo`` suffix suggests). Read the section :ref:`user_hf_dft_preparing_posthf` if you want to compute (and store) integrals in the molecular-orbital (MO) basis.
 
+Loading
+-------
 
-.. _hamiltonian_dump_fcidump:
+You can load integrals, stored in Horton's internal format, as follows:
+
+.. literalinclude :: ../data/examples/hamiltonian/load_internal_ao.py
+    :caption: data/examples/hamiltonian/load_internal_ao.py
+    :lines: 2-
+
+
+.. _hamiltonian_io_fcidump:
 
 FCIDUMP format
 ==============
+
+Dumping
+-------
 
 The FCIDUMP format is mainly useful when exchanging Hamiltonians with different codes. Compared to the internal format, there are some restrictions:
 
@@ -148,3 +165,12 @@ The second block (after ``&END``) contains the one- and two-electron integrals a
 * Finally, the core energy (for instance, the nuclear repulsion term, etc.) is written on the last line with all orbital indices equal 0.
 
 If the value of an integral is zero, the corresponding line is not included in the the FCIDUMP file.
+
+Loading
+-------
+
+You can load integrals, stored in an FCIDUMP file, as follows:
+
+.. literalinclude :: ../data/examples/hamiltonian/load_fcidump_ao.py
+    :caption: data/examples/hamiltonian/load_fcidump_ao.py
+    :lines: 2-

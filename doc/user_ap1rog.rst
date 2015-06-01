@@ -64,7 +64,7 @@ The AP1roG wave function and its response density matrices can then be used for 
 
     1. A posteriori addition of dynamic electron correlation using the perturbation module (see :ref:`pta` and :ref:`ptb` for documentation)
     2. Analysis of orbital correlations in the AP1roG wave function using the orbital entanglement module (see :ref:`orbitalentanglementseniorityzero` for documentation)
-    3. Dump the Hamiltonian (collection of one- and two-electron integrals and the energy term due to core electrons and external potentials) in the AP1roG MO basis. The one- and two-electron integrals can be calculated for any pre-defined active space, that is, a selected number of active electrons and orbitals. The Hamiltonian is stored in the Molpro file format (see :ref:`hamiltonian_dump` for documentation)
+    3. Dump the Hamiltonian (collection of one- and two-electron integrals and the energy term due to core electrons and external potentials) in the AP1roG MO basis. The one- and two-electron integrals can be calculated for any pre-defined active space, that is, a selected number of active electrons and orbitals. The Hamiltonian is stored in the Molpro file format (see :ref:`hamiltonian_io` for documentation)
 
 
 Input structure
@@ -98,7 +98,7 @@ To optimize an AP1roG wavefunction, the module requires a Hamiltonian and an ini
     2. In-house calculation of model Hamiltonians. Supported model Hamiltonians are summarized in :ref:`modphysham`. If the model Hamiltonian contains separate one-electron contributions, they have to be combined to a single operator as shown under point 1.
 
 
-    3. External (one- and two-electron) integrals (in an orthonormal basis) and core energy can be read from file. The integral file must use the Molpro file format (see :ref:`hamiltonian_load` for more details). To load a Hamiltonina from file, run
+    3. External (one- and two-electron) integrals (in an orthonormal basis) and core energy can be read from file. The integral file must use the Molpro file format (see :ref:`hamiltonian_io` for more details). To load a Hamiltonina from file, run
 
         .. code-block:: python
 
