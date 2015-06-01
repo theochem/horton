@@ -537,8 +537,8 @@ Troubleshooting in AP1roG-SCF calculations
   where orbitals with indices **orbindex1a** and **orbindex1b** are rotated by angle **angle1**, etc. Givens rotations between orbital pairs can be used if, for instance, the orbital optimizer converges to a saddle point.
 
 
-Example input files
-===================
+Example Python scripts
+======================
 
 The water molecule (a minimum input example)
 --------------------------------------------

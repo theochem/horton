@@ -156,8 +156,8 @@ The overlap matrix of the Hubbard model can be computed as follows
 where **modelham** is an instance of ``Hubbard`` and **lf** is the linear algebra factory used.
 
 
-Example input file
-===================
+Example Python script
+=====================
 
 Restricted Hartree-Fock calculations using the 1-dim Hubbard model Hamiltonian with PBC
 ---------------------------------------------------------------------------------------

@@ -26,18 +26,17 @@ Introduction
 ============
 
 Horton supports several real-space atoms-in-molecules (AIM) schemes. A
-wavefunction or an electronic density on a grid can be loaded from several
-file formats. With such input, several AIM schemes can be used to derive AIM
-observables, e.g. atomic charge, atomic multipole expansion, etc.
+wavefunction or an electronic density on a grid can be loaded from several file
+formats. An overview of all supported file formats can be found here:
+:ref:`ref_file_formats`. For a given wavefunction or cube file, several AIM
+:schemes can be used to derive AIM observables, e.g. atomic charge, atomic
+:multipole expansion, etc.
 
 Horton supports two different approaches to perform the partitioning: WPart
-(based on wavefunction files) and CPart (based on cube files). Several
-wavefunction and cube file formats are supported as documented in
-:ref:`ref_file_formats`.
-
-The WPart and CPart implementations build on the same algorithms but use
-different types of grids for numerical integration. An overview of both
-implementations is given by the following table:
+(based on wavefunction files) and CPart (based on cube files). The WPart and
+CPart implementations build on the same algorithms but use different types of
+grids for numerical integration. An overview of both implementations is given by
+the following table:
 
 ======================== =========================== =========================== ============
 Feature                  WPart                       CPart                       References

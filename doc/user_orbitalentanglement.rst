@@ -143,8 +143,8 @@ If provided, the mutual information will be plotted for orbital indices in the
 interval [init_index, final_index].
 
 
-Example input files
-===================
+Example Python scripts
+======================
 
 Orbital entanglement analysis of an AP1roG wavefunction
 -------------------------------------------------------

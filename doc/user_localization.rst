@@ -72,8 +72,8 @@ instance results in localization.
 Please see documentation in :py:mod:`horton.localization.localization` for more detail.
 
 
-Example input files
-===================
+Example Python scripts
+======================
 
 Pipek-Mezey localization of restricted Hartree-Fock orbitals for the water molecule
 -----------------------------------------------------------------------------------
