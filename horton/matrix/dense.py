@@ -1106,6 +1106,9 @@ class DenseExpansion(Expansion):
     def from_fock(self, fock, overlap):
         '''Diagonalize a Fock matrix to obtain orbitals and energies
 
+           This method updated the attributes ``coeffs`` and ``energies``
+           in-place.
+
            **Arguments:**
 
            fock
@@ -1120,7 +1123,40 @@ class DenseExpansion(Expansion):
         self._energies[:] = evals[:self.nfn]
         self._coeffs[:] = evecs[:,:self.nfn]
 
-    def from_fock_and_dm(self, fock, dm, overlap, epstol=1e-5):
+    def from_fock_and_dm(self, fock, dm, overlap, epstol=1e-8):
+        '''Combined Diagonalization of a Fock and a density matrix
+
+           This routine first diagonalizes the Fock matrix to obtain orbitals
+           and orbital energies. Then, using first order (degenerate)
+           perturbation theory, the occupation numbers are computed and, if
+           needed, the the degeneracies of the Fock orbitals are lifted.
+           It is assumed that the Fock and the density matrices commute.
+           This method updated the attributes ``coeffs``, ``energies`` and
+           ``occupations`` in-place.
+
+           **Arguments:**
+
+           fock
+                The fock matrix, an instance of DenseTwoIndex.
+
+           dm
+                The density matrix, an instance of DenseTwoIndex.
+
+           overlap
+                The overlap matrix, an instance of DenseTwoIndex.
+
+           **Optional arguments:**
+
+           epstol
+                The threshold for recognizing degenerate energy levels. When two
+                subsequent energy levels are separated by an orbital energy less
+                than ``epstol``, they are considered to be degenerate. When a
+                series of energy levels have an orbital energy spacing between
+                subsequent levels that is smaller than ``epstol``, they are all
+                considered to be part of the same degenerate group. For every
+                degenerate set of orbitals, the density matrix is used to (try
+                to) lift the degeneracy.
+        '''
         # Diagonalize the Fock Matrix
         self.from_fock(fock, overlap)
 
