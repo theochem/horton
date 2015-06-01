@@ -33,9 +33,6 @@ any other operating system, some of the instructions below may not work.
 Download the code
 =================
 
-Stable release (recommended)
-----------------------------
-
 The latest stable source code release of Horton can be downloaded here:
 
     https://github.com/theochem/horton/releases/download/2.0.0/horton-2.0.0.tar.gz
@@ -49,49 +46,6 @@ Choose a suitable directory, e.g. ``~/build``, download and unpack the archive
     curl -O https://github.com/theochem/horton/releases/download/2.0.0/horton-2.0.0.tar.gz
     tar -xvzf horton-2.0.0.tar.gz
     cd horton-2.0.0
-
-
-Latest development code (experts only)
---------------------------------------
-
-In order to get the latest development version of the source code, and to upload
-your own changes, you need to work with git. Git is a version control system
-that makes life easy when a group of people are working on a common source code.
-All information about git (including downloads and tutorials) can be found here:
-http://git-scm.com/. The official git URL of Horton is:
-``git://github.com/theochem/horton.git``. On most Linux distributions, git can be
-installed with a package manager:
-
-* **Ubuntu Linux**:
-
-  .. code-block:: bash
-
-     sudo apt-get install git
-
-* **Fedora Linux**:
-
-  .. code-block:: bash
-
-     sudo yum install git
-
-In order to `clone` the public Horton repository, run these commands:
-
-.. code-block:: bash
-
-    mkdir -p ~/build
-    cd ~/build
-    git clone git://github.com/theochem/horton.git
-    cd horton
-
-The version history can be updated with the latest patches with the following
-command:
-
-.. code-block:: bash
-
-    git pull
-
-There is also a web interface to Horton's git repository:
-https://github.com/theochem/horton
 
 
 Dependencies for building, installing and testing Horton
@@ -215,20 +169,6 @@ dependencies on Linux distributions that have outdated packages:
       sudo yum install python-pip
       pip install --user --upgrade numpy
 
-
-Reference atoms
-===============
-
-This step can be skipped when compiling a stable release because each stable
-release already contains reference atoms.
-
-Several parts of Horton make use of reference atomic computations. These files
-are too large to be included in the git revision system. Therefore, they must be
-downloaded separately when compiling a development version of Horton:
-
-.. code-block:: bash
-
-    (cd data/refatoms; make all)
 
 .. _linux_compile_install:
 

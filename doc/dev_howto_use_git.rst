@@ -26,12 +26,36 @@ Horton uses `Git <http://git-scm.com/>`_ for version control.
 
 This section goes through the basics of version control. Although the commands
 below are specific to Git, the following entails good practices that can be
-generalized and applied to other modern version control systems (VCS) such Bazaar
-or Mercurial.
+generalized and applied to other modern version control systems (VCS) such
+Bazaar or Mercurial.
 
-A VCS allows many people to store and modify the same program while keeping track
-of all the changes. VCS software also helps you merge different developments into
-one common source tree.
+A VCS allows many people to store and modify the same program while keeping
+track of all the changes. VCS software also helps you merge different
+developments into one common source tree.
+
+
+Installing Git
+==============
+
+On most Linux distributions, git can be installed with a package manager:
+
+* **Ubuntu Linux**:
+
+  .. code-block:: bash
+
+     sudo apt-get install git
+
+* **Fedora Linux**:
+
+  .. code-block:: bash
+
+     sudo yum install git
+
+On OS/X, an up-to-date version of git can be installed through MacPorts:
+
+.. code-block:: bash
+
+    sudo port install git
 
 
 Git configuration
@@ -144,6 +168,41 @@ Branch
 
 Branch head
     The last commit in a branch.
+
+
+Cloning the Horton git repository
+=================================
+
+In order to `clone` the public Horton repository, run these commands:
+
+.. code-block:: bash
+
+    mkdir ~/code
+    cd ~/code
+    git clone git://github.com/theochem/horton.git
+    cd horton
+
+The version history can be updated with the latest patches with the following
+command:
+
+.. code-block:: bash
+
+    git pull
+
+There is also a web interface to Horton's git repository:
+https://github.com/theochem/horton
+
+
+Additional steps required to build the development version of Horton
+====================================================================
+
+Several parts of Horton make use of reference atomic computations. These files
+are too large to be included in the git revision system. Therefore, they must be
+downloaded separately when compiling a development version of Horton:
+
+.. code-block:: bash
+
+    (cd data/refatoms; make all)
 
 
 Work flow for adding a new feature
