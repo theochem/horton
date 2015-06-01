@@ -31,10 +31,13 @@ file formats. With such input, several AIM schemes can be used to derive AIM
 observables, e.g. atomic charge, atomic multipole expansion, etc.
 
 Horton supports two different approaches to perform the partitioning: WPart
-(based on wavefunction files) and CPart (based on cube files). Both
-implementations build on the same algorithms but use different types of
-grids for the numerical integrals. An overview of both implementations is
-given by the following table:
+(based on wavefunction files) and CPart (based on cube files). Several
+wavefunction and cube file formats are supported as documented in
+:ref:`ref_file_formats`.
+
+The WPart and CPart implementations build on the same algorithms but use
+different types of grids for numerical integration. An overview of both
+implementations is given by the following table:
 
 ======================== =========================== =========================== ============
 Feature                  WPart                       CPart                       References
@@ -45,17 +48,6 @@ Command-line script      ``horton-wpart.py``         ``horton-cpart.py``
 1D                                                   X
 2D                                                   X
 3D                                                   X
-**Input file formats**
-fchk (Gaussian03/09)     X                                                       http://www.gaussian.com/
-Molekel (Orca)           X                                                       http://cec.mpg.de/forum/
-Molden (Molden)          X                                                       http://cec.mpg.de/forum/
-Molden (Molpro)          X                                                       http://www.molpro.net/
-Molden (Orca)            X                                                       http://cec.mpg.de/forum/
-Molden (PSI4)            X                                                       http://www.psicode.org/
-wfn (Gaussian)           X                                                       http://www.gaussian.com/
-wfn (GAMESS)             X                                                       http://www.msg.ameslab.gov/gamess/
-cube (Gaussian03/09)                                 X                           http://www.gaussian.com/
-CHGCAR (Vasp)                                        X                           https://www.vasp.at/
 **AIM schemes**
 Becke                    X                                                       [becke1988_multicenter]_
 Hirshfeld                X                           X                           [hirshfeld1977]_
@@ -78,10 +70,11 @@ Kohn-Sham response       X
 Symmetry analysis                                    X
 ======================== =========================== =========================== ============
 
-Note that Gaussian cube files can be generated from other programs like CPMD, ADF,
-Siesta, Crystal, etc. The output of all these program should be compatible with
-Horton. Horton can partition all-electron and pseudo-potential wavefunctions.
-However, very fine grids are required for all-electron partitioning with CPart.
+Note that Gaussian cube files can be generated from other programs like CPMD,
+ADF, Siesta, Crystal, etc. The output of all these program should be compatible
+with Horton. Horton can partition all-electron and pseudo-potential
+wavefunctions. However, very fine grids are required for all-electron
+partitioning with CPart.
 
 For all the Hirshfeld variants, you must first set up a database of pro-atomic
 densities, preferably at the same level of theory used for the molecular
@@ -683,4 +676,4 @@ Frequently asked questions
 
 **How can one generate Cube files with CP2K?**
 
-    Electron density cube files can be generated with CP2K by adding the following section to the CP2K the input file: `E_DENSITY_CUBE <http://manual.cp2k.org/trunk/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/E_DENSITY_CUBE.html>`_
+    Electron density cube files can be generated with CP2K by adding the following section to the CP2K the input file: `E_DENSITY_CUBE <http://manual.cp2k.org/trunk/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/E_DENSITY_CUBE.html>`_.
