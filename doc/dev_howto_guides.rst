@@ -27,7 +27,7 @@ Developer howto guides
    :maxdepth: 3
 
    dev_guidelines
-   dev_howto_use_git
+   dev_git
    dev_documentation
    dev_unit_tests
    dev_write_examples
