@@ -679,3 +679,8 @@ Frequently asked questions
     computational chemists usually embrace with open arms in the hope that they
     will find a unique combination of levels of theory that turns out to be
     useful.
+
+
+**How can one generate Cube files with CP2K?**
+
+    Electron density cube files can be generated with CP2K by adding the following section to the CP2K the input file: `E_DENSITY_CUBE <http://manual.cp2k.org/trunk/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/E_DENSITY_CUBE.html>`_
