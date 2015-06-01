@@ -631,6 +631,53 @@ def test_expansion_from_fock():
     assert exp.error_eigen(fock, olp) < 1e-5
 
 
+def test_expansion_from_fock_and_dm():
+    natom = 5
+    lf = DenseLinalgFactory(natom)
+
+    # Use a simple Huckel-like model to construct degenerate levels
+    fock = lf.create_two_index()
+    olp = lf.create_two_index()
+    for i in xrange(natom):
+        fock.set_element(i, i, 0.6)
+        fock.set_element(i, (i+1)%natom, -0.2)
+        olp.set_element(i, i, 1.0)
+        olp.set_element(i, (i+1)%natom, 0.2)
+
+    # Create orbitals that will be used to construct various density matrices
+    exp = lf.create_expansion()
+    exp.from_fock(fock, olp)
+
+    # Checks for every case
+    def check_case(exp0):
+        dm = lf.create_two_index()
+        exp0.to_dm(dm)
+        exp1 = lf.create_expansion()
+        exp1.from_fock_and_dm(fock, dm, olp)
+        assert np.allclose(exp0.occupations, exp1.occupations)
+        assert exp1.error_eigen(fock, olp) < 1e-5
+        sds = olp.copy()
+        sds.itranspose()
+        sds.idot(dm)
+        sds.idot(olp)
+        exp1.energies[:] = exp1.occupations
+        assert exp1.error_eigen(sds, olp) < 1e-5
+
+    # Case 1: not difficult, i.e. compatible degeneracies
+    exp.occupations[:] = [1, 1, 1, 0, 0]
+    check_case(exp)
+
+    # Case 2: incompatible degeneracies
+    exp.occupations[:] = [2, 2, 1, 0, 0]
+    check_case(exp)
+
+    # Case 3: incompatible degeneracies and rotated degenerate orbitals
+    exp.occupations[:] = [2, 1, 0, 0, 0]
+    for i in xrange(36):
+        exp.rotate_2orbitals(np.pi/18.0, 1, 2)
+        check_case(exp)
+
+
 def test_expansion_naturals():
     fn_fchk = context.get_fn('test/ch3_hf_sto3g.fchk')
     mol = IOData.from_file(fn_fchk)

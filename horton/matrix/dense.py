@@ -1120,6 +1120,52 @@ class DenseExpansion(Expansion):
         self._energies[:] = evals[:self.nfn]
         self._coeffs[:] = evecs[:,:self.nfn]
 
+    def from_fock_and_dm(self, fock, dm, overlap, epstol=1e-5):
+        # Diagonalize the Fock Matrix
+        self.from_fock(fock, overlap)
+
+        # Build clusters of degenerate orbitals. Rely on the fact that the
+        # energy levels are sorted (one way or the other).
+        clusters = []
+        begin = 0
+        for ifn in xrange(1, self.nfn):
+            if abs(self.energies[ifn] - self.energies[ifn-1]) > epstol:
+                end = ifn
+                clusters.append([begin, end])
+                begin = ifn
+        end = self.nfn
+        clusters.append([begin, end])
+
+        # Lift degeneracies using the density matrix
+        sds = overlap.copy()
+        sds.itranspose()
+        sds.idot(dm)
+        sds.idot(overlap)
+        for begin, end in clusters:
+            if end - begin == 1:
+                self.occupations[begin] = sds.inner(
+                    self.coeffs[:,begin], self.coeffs[:,begin])
+            else:
+                # Build matrix
+                mat = np.zeros((end-begin, end-begin), float)
+                for i0 in xrange(end-begin):
+                    for i1 in xrange(i0+1):
+                        mat[i0, i1] = sds.inner(
+                            self.coeffs[:,begin+i0], self.coeffs[:,begin+i1])
+                        mat[i1, i0] = mat[i0, i1]
+                # Diagonalize and reverse order
+                evals, evecs = np.linalg.eigh(mat)
+                evals = evals[::-1]
+                evecs = evecs[:,::-1]
+                # Rotate the orbitals
+                self.coeffs[:,begin:end] = np.dot(
+                    self.coeffs[:,begin:end], evecs)
+                # Compute expectation values
+                for i0 in xrange(end-begin):
+                    self.occupations[begin+i0] = evals[i0]
+                    self.energies[begin+i0] = fock.inner(
+                        self.coeffs[:,begin+i0], self.coeffs[:,begin+i0])
+
     def derive_naturals(self, dm, overlap):
         '''
            **Arguments**:
@@ -1220,12 +1266,12 @@ class DenseExpansion(Expansion):
                 The density matrix is multiplied by the given scalar.
 
            clear
-                When set to False, the output density matrix is not zeroed first.
+                When set to False, the output density matrix is not zeroed
+                first.
 
            other
                 Another DenseExpansion object to construct a transfer-density
-                matrix. When combined with an output argument, it may not be
-                a Hermitian two-index object.
+                matrix.
         """
         # parse first argument
         if out is None:
