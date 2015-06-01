@@ -26,7 +26,6 @@ Reference Documentation
    :maxdepth: 3
 
    ref_stable_beta
-   ref_features
    ref_contributors
    ref_releases
    ref_file_formats
