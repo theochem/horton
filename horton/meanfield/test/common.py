@@ -34,7 +34,8 @@ from horton.meanfield.convergence import convergence_error_eigen
 from horton.meanfield.gridgroup import RGridGroup, UGridGroup
 from horton.meanfield.guess import guess_core_hamiltonian
 from horton.meanfield.hamiltonian import REffHam, UEffHam
-from horton.meanfield.libxc import RLibXCLDA, ULibXCLDA, RLibXCGGA, ULibXCGGA
+from horton.meanfield.libxc import RLibXCLDA, ULibXCLDA, RLibXCGGA, ULibXCGGA, \
+    ULibXCMGGA, RLibXCHybridMGGA
 from horton.meanfield.observable import RTwoIndexTerm, RDirectTerm, RExchangeTerm
 from horton.meanfield.observable import UTwoIndexTerm, UDirectTerm, UExchangeTerm
 from horton.meanfield.occ import AufbauOccModel, FixedOccModel
@@ -45,7 +46,7 @@ __all__ = [
     'check_cubic_wrapper', 'check_interpolation', 'check_solve', 'helper_compute',
     'check_hf_cs_hf', 'check_lih_os_hf', 'check_water_cs_hfs',
     'check_n2_cs_hfs', 'check_h3_os_hfs', 'check_h3_os_pbe', 'check_co_cs_pbe',
-    'check_vanadium_sc_hf',
+    'check_vanadium_sc_hf', 'check_water_cs_m05', 'check_methyl_os_tpss',
 ]
 
 
@@ -546,3 +547,123 @@ def check_vanadium_sc_hf(scf_solver):
 
     # SCF test
     check_solve(ham, scf_solver, occ_model, lf, olp, kin, na, exp_alpha)
+
+
+@log.with_level(log.high)
+def check_water_cs_m05(scf_solver):
+    """Try to converge the SCF for the water molecule with the M05 functional.
+
+    Parameters
+    ----------
+    scf_solver : one of the SCFSolver types in HORTON
+                 A configured SCF solver that must be tested.
+    """
+    fn_fchk = context.get_fn('test/water_m05_321g.fchk')
+    mol = IOData.from_file(fn_fchk)
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'fine',
+                        random_rotate=False)
+    olp = mol.obasis.compute_overlap(mol.lf)
+    kin = mol.obasis.compute_kinetic(mol.lf)
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
+    er = mol.obasis.compute_electron_repulsion(mol.lf)
+    external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
+    libxc_term = RLibXCHybridMGGA('xc_m05')
+    terms = [
+        RTwoIndexTerm(kin, 'kin'),
+        RDirectTerm(er, 'hartree'),
+        RGridGroup(mol.obasis, grid, [libxc_term]),
+        RExchangeTerm(er, 'x_hf', libxc_term.get_exx_fraction()),
+        RTwoIndexTerm(na, 'ne'),
+    ]
+    ham = REffHam(terms, external)
+
+    # compute the energy before converging
+    dm_alpha = mol.exp_alpha.to_dm()
+    ham.reset(dm_alpha)
+    ham.compute_energy()
+    assert abs(ham.cache['energy'] - -75.9532086800) < 1e-3
+
+    # The convergence should be reasonable, not perfect because of limited
+    # precision in the molden file:
+    assert convergence_error_eigen(ham, mol.lf, olp, mol.exp_alpha) < 1e-3
+
+    # keep a copy of the orbital energies
+    expected_alpha_energies = mol.exp_alpha.energies.copy()
+
+    # Converge from scratch
+    occ_model = AufbauOccModel(5)
+    check_solve(ham, scf_solver, occ_model, mol.lf, olp, kin, na, mol.exp_alpha)
+
+    # test orbital energies
+    assert abs(mol.exp_alpha.energies - expected_alpha_energies).max() < 2e-3
+
+    ham.compute_energy()
+    # compare with
+    assert abs(ham.cache['energy_kin'] - 75.54463056278) < 1e-2
+    assert abs(ham.cache['energy_ne'] - -198.3003887880) < 1e-2
+    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_x_hf'] +
+               ham.cache['energy_libxc_hyb_mgga_xc_m05'] - 3.764537450376E+01) < 1e-2
+    assert abs(ham.cache['energy'] - -75.9532086800) < 1e-3
+    assert abs(ham.cache['energy_nn'] - 9.1571750414) < 1e-5
+
+
+@log.with_level(log.high)
+def check_methyl_os_tpss(scf_solver):
+    """Try to converge the SCF for the methyl radical molecule with the TPSS functional.
+
+    Parameters
+    ----------
+    scf_solver : one of the SCFSolver types in HORTON
+                 A configured SCF solver that must be tested.
+    """
+    fn_fchk = context.get_fn('test/methyl_tpss_321g.fchk')
+    mol = IOData.from_file(fn_fchk)
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'fine',
+                        random_rotate=False)
+    olp = mol.obasis.compute_overlap(mol.lf)
+    kin = mol.obasis.compute_kinetic(mol.lf)
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
+    er = mol.obasis.compute_electron_repulsion(mol.lf)
+    external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
+    terms = [
+        UTwoIndexTerm(kin, 'kin'),
+        UDirectTerm(er, 'hartree'),
+        UGridGroup(mol.obasis, grid, [
+            ULibXCMGGA('x_tpss'),
+            ULibXCMGGA('c_tpss'),
+        ]),
+        UTwoIndexTerm(na, 'ne'),
+    ]
+    ham = UEffHam(terms, external)
+
+    # compute the energy before converging
+    dm_alpha = mol.exp_alpha.to_dm()
+    dm_beta = mol.exp_beta.to_dm()
+    ham.reset(dm_alpha, dm_beta)
+    ham.compute_energy()
+    assert abs(ham.cache['energy'] - -39.6216986265) < 1e-3
+
+    # The convergence should be reasonable, not perfect because of limited
+    # precision in the molden file:
+    assert convergence_error_eigen(ham, mol.lf, olp, mol.exp_alpha, mol.exp_beta) < 1e-3
+
+    # keep a copy of the orbital energies
+    expected_alpha_energies = mol.exp_alpha.energies.copy()
+    expected_beta_energies = mol.exp_beta.energies.copy()
+
+    # Converge from scratch
+    occ_model = AufbauOccModel(5, 4)
+    check_solve(ham, scf_solver, occ_model, mol.lf, olp, kin, na, mol.exp_alpha, mol.exp_beta)
+
+    # test orbital energies
+    assert abs(mol.exp_alpha.energies - expected_alpha_energies).max() < 2e-3
+    assert abs(mol.exp_beta.energies - expected_beta_energies).max() < 2e-3
+
+    ham.compute_energy()
+    # compare with
+    assert abs(ham.cache['energy_kin'] - 38.98408965928) < 1e-2
+    assert abs(ham.cache['energy_ne'] - -109.2368837076) < 1e-2
+    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_libxc_mgga_x_tpss'] +
+               ham.cache['energy_libxc_mgga_c_tpss'] - 21.55131145126) < 1e-2
+    assert abs(ham.cache['energy'] - -39.6216986265) < 1e-3
+    assert abs(ham.cache['energy_nn'] - 9.0797839705) < 1e-5

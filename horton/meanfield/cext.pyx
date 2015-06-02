@@ -52,20 +52,27 @@ cdef extern from "xc.h":
     void xc_lda_vxc(xc_func_type *p, int npoint, double *rho, double *vrho)
     void xc_gga_exc(xc_func_type *p, int npoint, double *rho, double *sigma, double *zk)
     void xc_gga_vxc(xc_func_type *p, int npoint, double *rho, double *sigma, double *vrho, double *vsigma)
+    void xc_mgga_exc(xc_func_type *p, int npoint, double *rho, double *sigma, double *lapl, double *tau, double *zk)
+    void xc_mgga_vxc(xc_func_type *p, int npoint, double *rho, double *sigma, double *lapl, double *tau,
+                     double* vrho, double* vsigma, double* vlapl, double* vtau);
     double xc_hyb_exx_coef(xc_func_type *p)
 
 
 cdef class LibXCWrapper(object):
+    """Base class for restricted and unrestricted LibXC wrappers."""
+
     cdef xc_func_type _func
     cdef int _func_id
     cdef bytes _key
 
     def __cinit__(self, bytes key):
-        '''
-           **Arguments:**
+        '''Initialize a LibXCWrapper.
 
-           key
-                The name of the functional in LibXC, e.g. lda_x
+        Parameters
+        ----------
+
+        key : str
+            The name of the functional in LibXC, e.g. `"lda_x"`.
         '''
         self._key = key
         self._func_id = -1
@@ -74,6 +81,7 @@ cdef class LibXCWrapper(object):
             raise ValueError('Unknown LibXC functional: %s' % key)
 
     def __dealloc__(self):
+        """Deallocate low-level stuff."""
         if self._func_id >= 0:
             xc_func_end(&self._func)
 
@@ -106,17 +114,20 @@ cdef class LibXCWrapper(object):
     ## HYB GGA
 
     def get_hyb_exx_fraction(self):
+        """Return the amount of Hartree-Fock exchange to be used."""
         return xc_hyb_exx_coef(&self._func)
 
 
 
 cdef class RLibXCWrapper(LibXCWrapper):
     def __cinit__(self, bytes key):
-        '''
-           **Arguments:**
+        '''Initialize a RLibXCWrapper.
 
-           key
-                The name of the functional in LibXC, e.g. lda_x
+        Parameters
+        ----------
+
+        key : str
+            The name of the functional in LibXC, e.g. `"lda_x"`.
         '''
         retcode = xc_func_init(&self._func, self._func_id, XC_UNPOLARIZED)
         if retcode != 0:
@@ -127,6 +138,16 @@ cdef class RLibXCWrapper(LibXCWrapper):
 
     def compute_lda_exc(self, np.ndarray[double, ndim=1] rho not None,
                               np.ndarray[double, ndim=1] zk not None):
+        """Compute the LDA energy density.
+
+        Parameters
+        ----------
+
+        rho : np.ndarray, shape=(npoint,)
+            The total electron density.
+        zk : np.ndarray, shape=(npoint,), output
+            The energy density.
+        """
         assert rho.flags['C_CONTIGUOUS']
         npoint = rho.shape[0]
         assert zk.flags['C_CONTIGUOUS']
@@ -135,6 +156,16 @@ cdef class RLibXCWrapper(LibXCWrapper):
 
     def compute_lda_vxc(self, np.ndarray[double, ndim=1] rho not None,
                               np.ndarray[double, ndim=1] vrho not None):
+        """Compute the LDA potential.
+
+        Parameters
+        ----------
+
+        rho : np.ndarray, shape=(npoint,)
+            The total electron density.
+        vrho : np.ndarray, shape=(npoint,), output
+            The LDA potential.
+        """
         assert rho.flags['C_CONTIGUOUS']
         npoint = rho.shape[0]
         assert vrho.flags['C_CONTIGUOUS']
@@ -146,6 +177,18 @@ cdef class RLibXCWrapper(LibXCWrapper):
     def compute_gga_exc(self, np.ndarray[double, ndim=1] rho not None,
                               np.ndarray[double, ndim=1] sigma not None,
                               np.ndarray[double, ndim=1] zk not None):
+        """Compute the GGA energy density.
+
+        Parameters
+        ----------
+
+        rho : np.ndarray, shape=(npoint,)
+            The total electron density.
+        sigma : np.ndarray, shape=(npoint,)
+            The reduced density gradient norm.
+        zk : np.ndarray, shape=(npoint,), output
+            The energy density.
+        """
         assert rho.flags['C_CONTIGUOUS']
         npoint = rho.shape[0]
         assert sigma.flags['C_CONTIGUOUS']
@@ -158,6 +201,21 @@ cdef class RLibXCWrapper(LibXCWrapper):
                               np.ndarray[double, ndim=1] sigma not None,
                               np.ndarray[double, ndim=1] vrho not None,
                               np.ndarray[double, ndim=1] vsigma not None):
+        """Compute the GGA potential"s".
+
+        Parameters
+        ----------
+
+        rho : np.ndarray, shape=(npoint,)
+            The total electron density.
+        sigma : np.ndarray, shape=(npoint,)
+            The reduced density gradient norm.
+        vrho : np.ndarray, shape=(npoint,), output
+            The LDA part of the potential.
+        vsigma : np.ndarray, shape=(npoint,), output
+            The GGA part of the potential, i.e. derivatives of the density w.r.t. the
+            reduced gradient norm.
+        """
         assert rho.flags['C_CONTIGUOUS']
         npoint = rho.shape[0]
         assert sigma.flags['C_CONTIGUOUS']
@@ -168,14 +226,100 @@ cdef class RLibXCWrapper(LibXCWrapper):
         assert vsigma.shape[0] == npoint
         xc_gga_vxc(&self._func, npoint, &rho[0], &sigma[0], &vrho[0], &vsigma[0])
 
+    ## MGGA
+
+    def compute_mgga_exc(self, np.ndarray[double, ndim=1] rho not None,
+                               np.ndarray[double, ndim=1] sigma not None,
+                               np.ndarray[double, ndim=1] lapl not None,
+                               np.ndarray[double, ndim=1] tau not None,
+                               np.ndarray[double, ndim=1] zk not None):
+        """Compute the MGGA energy density.
+
+        Parameters
+        ----------
+
+        rho : np.ndarray, shape=(npoint,)
+            The total electron density.
+        sigma : np.ndarray, shape=(npoint,)
+            The reduced density gradient norm.
+        lapl : np.ndarray, shape=(npoint,)
+            The laplacian of the density.
+        tau : np.ndarray, shape=(npoint,)
+            The kinetic energy density.
+        zk : np.ndarray, shape=(npoint,), output
+            The energy density.
+        """
+        assert rho.flags['C_CONTIGUOUS']
+        npoint = rho.shape[0]
+        assert sigma.flags['C_CONTIGUOUS']
+        assert sigma.shape[0] == npoint
+        assert lapl.flags['C_CONTIGUOUS']
+        assert lapl.shape[0] == npoint
+        assert tau.flags['C_CONTIGUOUS']
+        assert tau.shape[0] == npoint
+        assert zk.flags['C_CONTIGUOUS']
+        assert zk.shape[0] == npoint
+        xc_mgga_exc(&self._func, npoint, &rho[0], &sigma[0], &lapl[0], &tau[0], &zk[0])
+
+    def compute_mgga_vxc(self, np.ndarray[double, ndim=1] rho not None,
+                               np.ndarray[double, ndim=1] sigma not None,
+                               np.ndarray[double, ndim=1] lapl not None,
+                               np.ndarray[double, ndim=1] tau not None,
+                               np.ndarray[double, ndim=1] vrho not None,
+                               np.ndarray[double, ndim=1] vsigma not None,
+                               np.ndarray[double, ndim=1] vlapl not None,
+                               np.ndarray[double, ndim=1] vtau not None,):
+        """Compute the MGGA potential"s".
+
+        Parameters
+        ----------
+
+        rho : np.ndarray, shape=(npoint,)
+            The total electron density.
+        sigma : np.ndarray, shape=(npoint,)
+            The reduced density gradient norm.
+        lapl : np.ndarray, shape=(npoint,)
+            The laplacian of the density.
+        tau : np.ndarray, shape=(npoint,)
+            The kinetic energy density.
+        vrho : np.ndarray, shape=(npoint,)
+            The derivative of the energy w.r.t. the electron density.
+        vsigma : np.ndarray, shape=(npoint,)
+            The derivative of the energy w.r.t. the reduced density gradient norm.
+        vlapl : np.ndarray, shape=(npoint,)
+            The derivative of the energy w.r.t. the laplacian of the density.
+        vtau : np.ndarray, shape=(npoint,)
+            The derivative of the energy w.r.t. the kinetic energy density.
+        """
+        assert rho.flags['C_CONTIGUOUS']
+        npoint = rho.shape[0]
+        assert sigma.flags['C_CONTIGUOUS']
+        assert sigma.shape[0] == npoint
+        assert lapl.flags['C_CONTIGUOUS']
+        assert lapl.shape[0] == npoint
+        assert tau.flags['C_CONTIGUOUS']
+        assert tau.shape[0] == npoint
+        assert vrho.flags['C_CONTIGUOUS']
+        assert vrho.shape[0] == npoint
+        assert vsigma.flags['C_CONTIGUOUS']
+        assert vsigma.shape[0] == npoint
+        assert vlapl.flags['C_CONTIGUOUS']
+        assert vlapl.shape[0] == npoint
+        assert vtau.flags['C_CONTIGUOUS']
+        assert vtau.shape[0] == npoint
+        xc_mgga_vxc(&self._func, npoint, &rho[0], &sigma[0], &lapl[0], &tau[0], &vrho[0],
+                    &vsigma[0], &vlapl[0], &vtau[0])
+
 
 cdef class ULibXCWrapper(LibXCWrapper):
     def __cinit__(self, bytes key):
-        '''
-           **Arguments:**
+        '''Initialize a ULibXCWrapper.
 
-           key
-                The name of the functional in LibXC, e.g. lda_x
+        Parameters
+        ----------
+
+        key
+            The name of the functional in LibXC, e.g. lda_x
         '''
         retcode = xc_func_init(&self._func, self._func_id, XC_POLARIZED)
         if retcode != 0:
@@ -186,6 +330,16 @@ cdef class ULibXCWrapper(LibXCWrapper):
 
     def compute_lda_exc(self, np.ndarray[double, ndim=2] rho not None,
                               np.ndarray[double, ndim=1] zk not None):
+        """Compute the LDA energy density.
+
+        Parameters
+        ----------
+
+        rho : np.ndarray, shape=(npoint, 2)
+            The alpha and beta electron density.
+        zk : np.ndarray, shape=(npoint,), output
+            The energy density.
+        """
         assert rho.flags['C_CONTIGUOUS']
         npoint = rho.shape[0]
         assert rho.shape[1] == 2
@@ -195,6 +349,17 @@ cdef class ULibXCWrapper(LibXCWrapper):
 
     def compute_lda_vxc(self, np.ndarray[double, ndim=2] rho not None,
                               np.ndarray[double, ndim=2] vrho not None):
+        """Compute the LDA potential.
+
+        Parameters
+        ----------
+
+        rho : np.ndarray, shape=(npoint, 2)
+            The alpha and beta electron density.
+        vrho : np.ndarray, shape=(npoint, 2), output
+            The SLDA potential, i.e. derivative of the energy w.r.t. alpha and beta
+            density.
+        """
         assert rho.flags['C_CONTIGUOUS']
         npoint = rho.shape[0]
         assert rho.shape[1] == 2
@@ -208,6 +373,19 @@ cdef class ULibXCWrapper(LibXCWrapper):
     def compute_gga_exc(self, np.ndarray[double, ndim=2] rho not None,
                               np.ndarray[double, ndim=2] sigma not None,
                               np.ndarray[double, ndim=1] zk not None):
+        """Compute the GGA energy density.
+
+        Parameters
+        ----------
+
+        rho : np.ndarray, shape=(npoint, 2)
+            The alpha and beta electron density.
+        sigma : np.ndarray, shape=(npoint, 3)
+            The reduced density gradient norms (alpha, alpha), (alpha, beta) and (beta,
+            beta).
+        zk : np.ndarray, shape=(npoint,), output
+            The energy density.
+        """
         assert rho.flags['C_CONTIGUOUS']
         npoint = rho.shape[0]
         assert rho.shape[1] == 2
@@ -222,6 +400,21 @@ cdef class ULibXCWrapper(LibXCWrapper):
                               np.ndarray[double, ndim=2] sigma not None,
                               np.ndarray[double, ndim=2] vrho not None,
                               np.ndarray[double, ndim=2] vsigma not None):
+        """Compute the GGA potential"s".
+
+        Parameters
+        ----------
+
+        rho : np.ndarray, shape=(npoint, 2)
+            The alpha and beta electron density.
+        sigma : np.ndarray, shape=(npoint, 3)
+            The reduced density gradient norms (alpha, alpha), (alpha, beta) and (beta,
+            beta).
+        vrho : np.ndarray, shape=(npoint, 2), output
+            Derivative of the energy w.r.t. alpha and beta density
+        vsigma : np.ndarray, shape=(npoint, 3), output
+            Derivative of the energy w.r.t reduced density gradient norms.
+        """
         assert rho.flags['C_CONTIGUOUS']
         npoint = rho.shape[0]
         assert rho.shape[1] == 2
@@ -234,4 +427,102 @@ cdef class ULibXCWrapper(LibXCWrapper):
         assert vsigma.flags['C_CONTIGUOUS']
         assert vsigma.shape[0] == npoint
         assert vsigma.shape[1] == 3
-        xc_gga_vxc(&self._func, npoint, &rho[0, 0], &sigma[0, 0], &vrho[0, 0], &vsigma[0, 0])
+        xc_gga_vxc(&self._func, npoint, &rho[0, 0], &sigma[0, 0], &vrho[0, 0],
+                   &vsigma[0, 0])
+
+    ## MGGA
+
+    def compute_mgga_exc(self, np.ndarray[double, ndim=2] rho not None,
+                               np.ndarray[double, ndim=2] sigma not None,
+                               np.ndarray[double, ndim=2] lapl not None,
+                               np.ndarray[double, ndim=2] tau not None,
+                               np.ndarray[double, ndim=1] zk not None):
+        """Compute the MGGA energy density.
+
+        Parameters
+        ----------
+
+        rho : np.ndarray, shape=(npoint, 2)
+            The alpha and beta electron density.
+        sigma : np.ndarray, shape=(npoint, 3)
+            The reduced density gradient norms (alpha, alpha), (alpha, beta) and (beta, beta).
+        lapl : np.ndarray, shape=(npoint, 2)
+            The laplacian of the alpha and beta density.
+        tau : np.ndarray, shape=(npoint, 2)
+            The alph and beta kinetic energy density.
+        zk : np.ndarray, shape=(npoint,), output
+            The energy density.
+        """
+        assert rho.flags['C_CONTIGUOUS']
+        npoint = rho.shape[0]
+        assert rho.shape[1] == 2
+        assert sigma.flags['C_CONTIGUOUS']
+        assert sigma.shape[0] == npoint
+        assert sigma.shape[1] == 3
+        assert lapl.flags['C_CONTIGUOUS']
+        assert lapl.shape[0] == npoint
+        assert lapl.shape[1] == 2
+        assert tau.flags['C_CONTIGUOUS']
+        assert tau.shape[0] == npoint
+        assert tau.shape[1] == 2
+        assert zk.flags['C_CONTIGUOUS']
+        assert zk.shape[0] == npoint
+        xc_mgga_exc(&self._func, npoint, &rho[0, 0], &sigma[0, 0], &lapl[0, 0],
+                    &tau[0, 0], &zk[0])
+
+    def compute_mgga_vxc(self, np.ndarray[double, ndim=2] rho not None,
+                               np.ndarray[double, ndim=2] sigma not None,
+                               np.ndarray[double, ndim=2] lapl not None,
+                               np.ndarray[double, ndim=2] kin not None,
+                               np.ndarray[double, ndim=2] vrho not None,
+                               np.ndarray[double, ndim=2] vsigma not None,
+                               np.ndarray[double, ndim=2] vlapl not None,
+                               np.ndarray[double, ndim=2] vtau not None):
+        """Compute the MGGA potential"s".
+
+        Parameters
+        ----------
+
+        rho : np.ndarray, shape=(npoint, 2)
+            The alpha and beta electron density.
+        sigma : np.ndarray, shape=(npoint, 3)
+            The reduced density gradient norms (alpha, alpha), (alpha, beta) and (beta, beta).
+        lapl : np.ndarray, shape=(npoint, 2)
+            The laplacian of the alpha and beta density.
+        tau : np.ndarray, shape=(npoint, 2)
+            The alph and beta kinetic energy density.
+        vrho : np.ndarray, shape=(npoint,)
+            The derivative of the energy w.r.t. the alpha and beta electron density.
+        vsigma : np.ndarray, shape=(npoint,)
+            The derivative of the energy w.r.t. the reduced density gradient norms.
+        vlapl : np.ndarray, shape=(npoint,)
+            The derivative of the energy w.r.t. the laplacian of the alpha and beta density.
+        vtau : np.ndarray, shape=(npoint,)
+            The derivative of the energy w.r.t. the alpha and beta kinetic energy density.
+        """
+        assert rho.flags['C_CONTIGUOUS']
+        npoint = rho.shape[0]
+        assert rho.shape[1] == 2
+        assert sigma.flags['C_CONTIGUOUS']
+        assert sigma.shape[0] == npoint
+        assert sigma.shape[1] == 3
+        assert lapl.flags['C_CONTIGUOUS']
+        assert lapl.shape[0] == npoint
+        assert lapl.shape[1] == 2
+        assert kin.flags['C_CONTIGUOUS']
+        assert kin.shape[0] == npoint
+        assert kin.shape[1] == 2
+        assert vrho.flags['C_CONTIGUOUS']
+        assert vrho.shape[0] == npoint
+        assert vrho.shape[1] == 2
+        assert vsigma.flags['C_CONTIGUOUS']
+        assert vsigma.shape[0] == npoint
+        assert vsigma.shape[1] == 3
+        assert vlapl.flags['C_CONTIGUOUS']
+        assert vlapl.shape[0] == npoint
+        assert vlapl.shape[1] == 2
+        assert vtau.flags['C_CONTIGUOUS']
+        assert vtau.shape[0] == npoint
+        assert vtau.shape[1] == 2
+        xc_mgga_vxc(&self._func, npoint, &rho[0, 0], &sigma[0, 0], &lapl[0, 0],
+                    &kin[0, 0], &vrho[0, 0], &vsigma[0, 0], &vlapl[0, 0], &vtau[0, 0])
