@@ -52,6 +52,9 @@ cdef extern from "xc.h":
     void xc_lda_vxc(xc_func_type *p, int npoint, double *rho, double *vrho)
     void xc_gga_exc(xc_func_type *p, int npoint, double *rho, double *sigma, double *zk)
     void xc_gga_vxc(xc_func_type *p, int npoint, double *rho, double *sigma, double *vrho, double *vsigma)
+    void xc_mgga_exc(xc_func_type *p, int npoint, double *rho, double *sigma, double *lapl, double *tau, double *zk)
+    void xc_mgga_vxc(xc_func_type *p, int npoint, double *rho, double *sigma, double *lapl, double *tau,
+                     double* vrho, double* vsigma, double* vlapl, double* vtau);
     double xc_hyb_exx_coef(xc_func_type *p)
 
 
@@ -168,6 +171,51 @@ cdef class RLibXCWrapper(LibXCWrapper):
         assert vsigma.shape[0] == npoint
         xc_gga_vxc(&self._func, npoint, &rho[0], &sigma[0], &vrho[0], &vsigma[0])
 
+    ## MGGA
+
+    def compute_mgga_exc(self, np.ndarray[double, ndim=1] rho not None,
+                               np.ndarray[double, ndim=1] sigma not None,
+                               np.ndarray[double, ndim=1] lapl not None,
+                               np.ndarray[double, ndim=1] kin not None,
+                               np.ndarray[double, ndim=1] zk not None):
+        assert rho.flags['C_CONTIGUOUS']
+        npoint = rho.shape[0]
+        assert sigma.flags['C_CONTIGUOUS']
+        assert sigma.shape[0] == npoint
+        assert lapl.flags['C_CONTIGUOUS']
+        assert lapl.shape[0] == npoint
+        assert kin.flags['C_CONTIGUOUS']
+        assert kin.shape[0] == npoint
+        assert zk.flags['C_CONTIGUOUS']
+        assert zk.shape[0] == npoint
+        xc_mgga_exc(&self._func, npoint, &rho[0], &sigma[0], &lapl[0], &kin[0], &zk[0])
+
+    def compute_mgga_vxc(self, np.ndarray[double, ndim=1] rho not None,
+                               np.ndarray[double, ndim=1] sigma not None,
+                               np.ndarray[double, ndim=1] lapl not None,
+                               np.ndarray[double, ndim=1] kin not None,
+                               np.ndarray[double, ndim=1] vrho not None,
+                               np.ndarray[double, ndim=1] vsigma not None,
+                               np.ndarray[double, ndim=1] vlapl not None,
+                               np.ndarray[double, ndim=1] vkin not None,):
+        assert rho.flags['C_CONTIGUOUS']
+        npoint = rho.shape[0]
+        assert sigma.flags['C_CONTIGUOUS']
+        assert sigma.shape[0] == npoint
+        assert lapl.flags['C_CONTIGUOUS']
+        assert lapl.shape[0] == npoint
+        assert kin.flags['C_CONTIGUOUS']
+        assert kin.shape[0] == npoint
+        assert vrho.flags['C_CONTIGUOUS']
+        assert vrho.shape[0] == npoint
+        assert vsigma.flags['C_CONTIGUOUS']
+        assert vsigma.shape[0] == npoint
+        assert vlapl.flags['C_CONTIGUOUS']
+        assert vlapl.shape[0] == npoint
+        assert vkin.flags['C_CONTIGUOUS']
+        assert vkin.shape[0] == npoint
+        xc_mgga_vxc(&self._func, npoint, &rho[0], &sigma[0], &lapl[0], &kin[0], &vrho[0], &vsigma[0], &vlapl[0], &vkin[0])
+
 
 cdef class ULibXCWrapper(LibXCWrapper):
     def __cinit__(self, bytes key):
@@ -235,3 +283,60 @@ cdef class ULibXCWrapper(LibXCWrapper):
         assert vsigma.shape[0] == npoint
         assert vsigma.shape[1] == 3
         xc_gga_vxc(&self._func, npoint, &rho[0, 0], &sigma[0, 0], &vrho[0, 0], &vsigma[0, 0])
+
+    ## MGGA
+
+    def compute_mgga_exc(self, np.ndarray[double, ndim=2] rho not None,
+                               np.ndarray[double, ndim=2] sigma not None,
+                               np.ndarray[double, ndim=2] lapl not None,
+                               np.ndarray[double, ndim=2] kin not None,
+                               np.ndarray[double, ndim=1] zk not None):
+        assert rho.flags['C_CONTIGUOUS']
+        npoint = rho.shape[0]
+        assert rho.shape[1] == 2
+        assert sigma.flags['C_CONTIGUOUS']
+        assert sigma.shape[0] == npoint
+        assert sigma.shape[1] == 3
+        assert lapl.flags['C_CONTIGUOUS']
+        assert lapl.shape[0] == npoint
+        assert lapl.shape[1] == 2
+        assert kin.flags['C_CONTIGUOUS']
+        assert kin.shape[0] == npoint
+        assert kin.shape[1] == 2
+        assert zk.flags['C_CONTIGUOUS']
+        assert zk.shape[0] == npoint
+        xc_mgga_exc(&self._func, npoint, &rho[0, 0], &sigma[0, 0], &lapl[0, 0], &kin[0, 0], &zk[0])
+
+    def compute_mgga_vxc(self, np.ndarray[double, ndim=2] rho not None,
+                               np.ndarray[double, ndim=2] sigma not None,
+                               np.ndarray[double, ndim=2] lapl not None,
+                               np.ndarray[double, ndim=2] kin not None,
+                               np.ndarray[double, ndim=2] vrho not None,
+                               np.ndarray[double, ndim=2] vsigma not None,
+                               np.ndarray[double, ndim=2] vlapl not None,
+                               np.ndarray[double, ndim=2] vkin not None):
+        assert rho.flags['C_CONTIGUOUS']
+        npoint = rho.shape[0]
+        assert rho.shape[1] == 2
+        assert sigma.flags['C_CONTIGUOUS']
+        assert sigma.shape[0] == npoint
+        assert sigma.shape[1] == 3
+        assert lapl.flags['C_CONTIGUOUS']
+        assert lapl.shape[0] == npoint
+        assert lapl.shape[1] == 2
+        assert kin.flags['C_CONTIGUOUS']
+        assert kin.shape[0] == npoint
+        assert kin.shape[1] == 2
+        assert vrho.flags['C_CONTIGUOUS']
+        assert vrho.shape[0] == npoint
+        assert vrho.shape[1] == 2
+        assert vsigma.flags['C_CONTIGUOUS']
+        assert vsigma.shape[0] == npoint
+        assert vsigma.shape[1] == 3
+        assert vlapl.flags['C_CONTIGUOUS']
+        assert vlapl.shape[0] == npoint
+        assert vlapl.shape[1] == 2
+        assert vkin.flags['C_CONTIGUOUS']
+        assert vkin.shape[0] == npoint
+        assert vkin.shape[1] == 2
+        xc_mgga_vxc(&self._func, npoint, &rho[0, 0], &sigma[0, 0], &lapl[0, 0], &kin[0, 0], &vrho[0, 0], &vsigma[0, 0], &vlapl[0, 0], &vkin[0, 0])

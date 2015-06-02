@@ -26,7 +26,7 @@ from horton.utils import doc_inherit
 
 
 __all__ = [
-    'DF_LEVEL_LDA', 'DF_LEVEL_GGA',
+    'DF_LEVEL_LDA', 'DF_LEVEL_GGA', 'DF_LEVEL_MGGA',
     'GridGroup', 'RGridGroup', 'UGridGroup', 'GridObservable'
 ]
 
@@ -34,8 +34,11 @@ __all__ = [
 # Define a few `levels` of density functionals. These are used to determine
 # which properties need to be computed when using certain functionals. For LDA,
 # only the density is needed. For GGA the density and the gradient are needed.
+# For MGGA, the density, the gradient, the laplacian and the kinetic energy
+# density are needed.
 DF_LEVEL_LDA = 0
 DF_LEVEL_GGA = 1
+DF_LEVEL_MGGA = 2
 
 
 class GridGroup(Observable):
@@ -71,8 +74,9 @@ class GridGroup(Observable):
 
            The value can be:
 
-           * ``DF_LEVEL_LDA``: only LDA functionals are used
-           * ``DF_LEVEL_GGA``: GGA (and LDA) functionals are used
+           * ``DF_LEVEL_LDA``: only LDA functionals are used.
+           * ``DF_LEVEL_GGA``: GGA (and LDA) functionals are used.
+           * ``DF_LEVEL_MGGA``: MGGA (and LDA and/or GGA) functionals are used.
         '''
         return max([grid_term.df_level for grid_term in self.grid_terms])
 
@@ -109,6 +113,11 @@ class GridGroup(Observable):
             if new:
                 dm = cache['dm_%s' % select]
                 self.obasis.compute_grid_gga_dm(dm, self.grid.points, all_basics)
+        elif self.df_level == DF_LEVEL_MGGA:
+            all_basics, new = cache.load('all_%s' % select, alloc=(self.grid.size,6))
+            if new:
+                dm = cache['dm_%s' % select]
+                self.obasis.compute_grid_mgga_dm(dm, self.grid.points, all_basics)
         else:
             raise ValueError('Internal error: non-existent DF level.')
         return all_basics
@@ -158,7 +167,7 @@ class GridGroup(Observable):
         '''
         # Get the potentials. If they are not yet evaluated, some computations
         # are needed.
-        lda_pots, gga_pots, new = self._get_potentials(cache)
+        lda_pots, gga_pots, mgga_pots, new = self._get_potentials(cache)
 
         if new:
             # compute stuff on the grid that the grid_observables may use
@@ -170,6 +179,8 @@ class GridGroup(Observable):
                     grid_term.add_pot(cache, self.grid, *lda_pots)
                 elif grid_term.df_level == DF_LEVEL_GGA:
                     grid_term.add_pot(cache, self.grid, *gga_pots)
+                elif grid_term.df_level == DF_LEVEL_MGGA:
+                    grid_term.add_pot(cache, self.grid, *mgga_pots)
                 else:
                     raise ValueError('Internal error: non-existent DF level.')
 
@@ -182,6 +193,10 @@ class GridGroup(Observable):
                 self.obasis.compute_grid_gga_fock(
                     self.grid.points, self.grid.weights,
                     gga_pots[ichannel], focks[ichannel])
+            elif self.df_level == DF_LEVEL_MGGA:
+                self.obasis.compute_grid_mgga_fock(
+                    self.grid.points, self.grid.weights,
+                    mgga_pots[ichannel], focks[ichannel])
             else:
                 raise ValueError('Internal error: non-existent DF level.')
 
@@ -194,12 +209,12 @@ class RGridGroup(GridGroup):
        are pre-computed on the integration grid and stored in the cache in
        contiguous arrays (as required by LibXC):
 
-       **When LDA or GGA functionals are used:**
+       **When LDA, GGA or MGGA functionals are used:**
 
        rho_full
             The spin-summed electron density.
 
-       **When GGA (or GGA combined with LDA) functionals are used:**
+       **When MGGA or GGA (combined with LDA) functionals are used:**
 
        grad_rho_full
             The spin-summed density gradient.
@@ -207,14 +222,24 @@ class RGridGroup(GridGroup):
        sigma_full
             The norm-squared of the gradient of the spin-summed electron density.
 
+       **When MGGA (combined with LDA/GGA) functionals are used:**
+
+       lapl_full
+            The spin-summed density Laplacian.
+
+       tau_full
+            The spin-summed kinetic energy density
+
        **Combined arrays, content depends on the types of functionals being
-       used**
+       used:**
 
        all_alpha
             An array with all relevant density data:
 
-            * column 0: alpha density
+            * column  0:   alpha density
             * columns 1-3: alpha density gradient (x, y, z)
+            * column  4:   alpha density Laplacian
+            * column  5:   alpha kinetic energy density
     '''
 
     @doc_inherit(GridGroup)
@@ -223,12 +248,17 @@ class RGridGroup(GridGroup):
             lda_pot_alpha, new = cache.load('lda_pot_total_alpha', alloc=self.grid.size)
             if new:
                 lda_pot_alpha[:] = 0.0
-            return (lda_pot_alpha,), (None,), new
+            return (lda_pot_alpha,), (None,), (None,), new
         elif self.df_level == DF_LEVEL_GGA:
             gga_pot_alpha, new = cache.load('gga_pot_total_alpha', alloc=(self.grid.size, 4))
             if new:
                 gga_pot_alpha[:] = 0.0
-            return (gga_pot_alpha[:,0],), (gga_pot_alpha,), new
+            return (gga_pot_alpha[:,0],), (gga_pot_alpha,), (None,), new
+        elif self.df_level == DF_LEVEL_MGGA:
+            mgga_pot_alpha, new = cache.load('mgga_pot_total_alpha', alloc=(self.grid.size, 6))
+            if new:
+                mgga_pot_alpha[:] = 0.0
+            return (mgga_pot_alpha[:,0],), (mgga_pot_alpha[:,:4],), (mgga_pot_alpha,), new
         else:
             raise ValueError('Internal error: non-existent DF level.')
 
@@ -236,12 +266,11 @@ class RGridGroup(GridGroup):
     def _update_grid_data(self, cache):
         all_alpha = self._update_grid_basics(cache, 'alpha')
         # Compute some derived quantities
-        rho_full, new = cache.load('rho_full', alloc=self.grid.size)
-        if new:
-            rho_full[:] = 2*all_alpha[:,0]
-        if self.df_level == DF_LEVEL_LDA:
-            pass
-        elif self.df_level == DF_LEVEL_GGA:
+        if self.df_level >= DF_LEVEL_LDA:
+            rho_full, new = cache.load('rho_full', alloc=self.grid.size)
+            if new:
+                rho_full[:] = 2*all_alpha[:,0]
+        if self.df_level >= DF_LEVEL_GGA:
             grad_rho_full, new = cache.load('grad_rho_full', alloc=(self.grid.size,3))
             if new:
                 grad_rho_full[:] = all_alpha[:,1:4]
@@ -249,8 +278,13 @@ class RGridGroup(GridGroup):
             sigma_full, new = cache.load('sigma_full', alloc=self.grid.size)
             if new:
                 sigma_full[:] = 4*(all_alpha[:,1:4]**2).sum(axis=1)
-        else:
-            raise ValueError('Internal error: non-existent DF level.')
+        if self.df_level >= DF_LEVEL_MGGA:
+            lapl_full, new = cache.load('lapl_full', alloc=self.grid.size)
+            if new:
+                lapl_full[:] = 2*all_alpha[:,4]
+            tau_full, new = cache.load('tau_full', alloc=self.grid.size)
+            if new:
+                tau_full[:] = 2*all_alpha[:,5]
 
 
 class UGridGroup(GridGroup):
@@ -261,7 +295,7 @@ class UGridGroup(GridGroup):
        are pre-computed on the integration grid and stored in the cache in
        contiguous arrays (as required by LibXC):
 
-       **When LDA or GGA functionals are used:**
+       **When LDA, GGA or MGGA functionals are used:**
 
        rho_full
             The spin-summed electron density.
@@ -270,7 +304,7 @@ class UGridGroup(GridGroup):
             An array with alpha and beta electron densities. Shape=(grid.size,
             2). This is mostly useful for LibXC.
 
-       **When GGA (or GGA combined with LDA) functionals are used:**
+       **When MGGA or GGA (combined with LDA) functionals are used:**
 
        grad_rho_full
             The spin-summed density gradient.
@@ -279,14 +313,26 @@ class UGridGroup(GridGroup):
             An array with all three sigma quantities combined. Shape=(grid.size,
             3). This is mostly useful for LibXC
 
+       **When MGGA (combined with LDA/GGA) functionals are used:**
+
+       lapl_both
+            The Laplacian of the alpha and the beta density. Shape=(grid.size,
+            2). This is mostly useful for LibXC.
+
+       tau_both
+            The alpha and beta kinetic energy density. Shape=(grid.size, 2).
+            This is mostly useful for LibXC.
+
        **Combined arrays, content depends on the types of functionals being
-       used**
+       used:**
 
        all_alpha, all_beta
             An array with all relevant density data:
 
-            * column 0: alpha/beta density
+            * column  0:   alpha/beta density
             * columns 1-3: alpha/beta density gradient (x, y, z)
+            * column  4:   alpha/beta density Laplacian
+            * column  5:   alpha/beta kinetic energy density
     '''
     @doc_inherit(GridGroup)
     def _get_potentials(self, cache):
@@ -297,7 +343,7 @@ class UGridGroup(GridGroup):
             lda_pot_beta, newb = cache.load('lda_pot_total_beta', alloc=self.grid.size)
             if newb:
                 lda_pot_beta[:] = 0.0
-            return (lda_pot_alpha, lda_pot_beta), (None, None), (newa or newb)
+            return (lda_pot_alpha, lda_pot_beta), (None, None), (None, None), (newa or newb)
         elif self.df_level == DF_LEVEL_GGA:
             gga_pot_alpha, newa = cache.load('gga_pot_total_alpha', alloc=(self.grid.size, 4))
             if newa:
@@ -305,7 +351,15 @@ class UGridGroup(GridGroup):
             gga_pot_beta, newb = cache.load('gga_pot_total_beta', alloc=(self.grid.size, 4))
             if newb:
                 gga_pot_beta[:] = 0.0
-            return (gga_pot_alpha[:,0], gga_pot_beta[:,0]), (gga_pot_alpha, gga_pot_beta), (newa or newb)
+            return (gga_pot_alpha[:,0], gga_pot_beta[:,0]), (gga_pot_alpha, gga_pot_beta), (None, None), (newa or newb)
+        elif self.df_level == DF_LEVEL_MGGA:
+            mgga_pot_alpha, newa = cache.load('mgga_pot_total_alpha', alloc=(self.grid.size, 6))
+            if newa:
+                mgga_pot_alpha[:] = 0.0
+            mgga_pot_beta, newb = cache.load('mgga_pot_total_beta', alloc=(self.grid.size, 6))
+            if newb:
+                mgga_pot_beta[:] = 0.0
+            return (mgga_pot_alpha[:,0], mgga_pot_beta[:,0]), (mgga_pot_alpha[:,:4], mgga_pot_beta[:,:4]), (mgga_pot_alpha, mgga_pot_beta), (newa or newb)
         else:
             raise ValueError('Internal error: non-existent DF level.')
 
@@ -314,16 +368,15 @@ class UGridGroup(GridGroup):
         all_alpha = self._update_grid_basics(cache, 'alpha')
         all_beta = self._update_grid_basics(cache, 'beta')
         # Compute some derived quantities
-        rho_full, new = cache.load('rho_full', alloc=self.grid.size)
-        if new:
-            rho_full[:] = all_alpha[:,0] + all_beta[:,0]
-        rho_both, new = cache.load('rho_both', alloc=(self.grid.size, 2))
-        if new:
-            rho_both[:,0] = all_alpha[:,0]
-            rho_both[:,1] = all_beta[:,0]
-        if self.df_level == DF_LEVEL_LDA:
-            pass
-        elif self.df_level == DF_LEVEL_GGA:
+        if self.df_level >= DF_LEVEL_LDA:
+            rho_full, new = cache.load('rho_full', alloc=self.grid.size)
+            if new:
+                rho_full[:] = all_alpha[:,0] + all_beta[:,0]
+            rho_both, new = cache.load('rho_both', alloc=(self.grid.size, 2))
+            if new:
+                rho_both[:,0] = all_alpha[:,0]
+                rho_both[:,1] = all_beta[:,0]
+        if self.df_level >= DF_LEVEL_GGA:
             grad_rho_full, new = cache.load('grad_rho_full', alloc=(self.grid.size,3))
             if new:
                 grad_rho_full[:] = all_alpha[:,1:4]
@@ -333,8 +386,15 @@ class UGridGroup(GridGroup):
                 sigma_all[:,0] = (all_alpha[:,1:4]**2).sum(axis=1)
                 sigma_all[:,1] = (all_alpha[:,1:4]*all_beta[:,1:4]).sum(axis=1)
                 sigma_all[:,2] = (all_beta[:,1:4]**2).sum(axis=1)
-        else:
-            raise ValueError('Internal error: non-existent DF level.')
+        if self.df_level >= DF_LEVEL_MGGA:
+            lapl_both, new = cache.load('lapl_both', alloc=(self.grid.size, 2))
+            if new:
+                lapl_both[:,0] = all_alpha[:,4]
+                lapl_both[:,1] = all_beta[:,4]
+            tau_both, new = cache.load('tau_both', alloc=(self.grid.size, 2))
+            if new:
+                tau_both[:,0] = all_alpha[:,5]
+                tau_both[:,1] = all_beta[:,5]
 
 
 class GridObservable(object):
