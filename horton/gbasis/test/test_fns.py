@@ -681,3 +681,70 @@ def test_hessian_functional_deriv_4():
 
 def test_hessian_functional_deriv_5():
     check_hessian_functional_deriv(5)
+
+
+def check_gga_evaluation(fn):
+    # Tests density and gradient by comparing with separate density and gradient
+    # evaluation.
+    points = np.random.uniform(-5, 5, (1000, 3))
+    mol = IOData.from_file(fn)
+    dm_full = mol.get_dm_full()
+
+    for i in xrange(5):
+        # combined computation of density and gradient
+        gga = mol.obasis.compute_grid_gga_dm(dm_full, points)
+
+        # separate computation of density and gradient
+        rho = mol.obasis.compute_grid_density_dm(dm_full, points)
+        grad = mol.obasis.compute_grid_gradient_dm(dm_full, points)
+
+        assert np.allclose(rho, gga[:,0], atol=1e-10)
+        assert np.allclose(grad, gga[:,1:4], atol=1e-10)
+
+        # fill the density matrix with random numbers, symmetrize
+        dm_full.randomize()
+        dm_full.symmetrize()
+
+
+def test_gga_evaluation_co_ccpv5z_cart():
+    fn_fchk = context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk')
+    check_gga_evaluation(fn_fchk)
+
+
+def test_gga_evaluation_co_ccpv5z_pure():
+    fn_fchk = context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk')
+    check_gga_evaluation(fn_fchk)
+
+
+def check_gga_fock(fn):
+    # Tests density and gradient by comparing with separate density and gradient
+    # evaluation.
+    mol = IOData.from_file(fn)
+
+    for i in xrange(5):
+        # random integration grid
+        points = np.random.uniform(-5, 5, (100, 3))
+        weights = np.random.uniform(1, 2, 100)
+        # combined functional derivatives of toward density and gradient
+        pot = np.random.uniform(-1, 1, (100, 4))
+
+        # combined fock matrix build
+        fock1 = mol.lf.create_two_index()
+        mol.obasis.compute_grid_gga_fock(points, weights, pot, fock1)
+
+        # separate fock matrix build
+        fock2 = mol.lf.create_two_index()
+        mol.obasis.compute_grid_density_fock(points, weights, pot[:,0], fock2)
+        mol.obasis.compute_grid_gradient_fock(points, weights, pot[:,1:4], fock2)
+
+        assert fock1.distance_inf(fock2) < 1e-10
+
+
+def test_gga_fock_co_ccpv5z_cart():
+    fn_fchk = context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk')
+    check_gga_fock(fn_fchk)
+
+
+def test_gga_fock_co_ccpv5z_pure():
+    fn_fchk = context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk')
+    check_gga_fock(fn_fchk)
