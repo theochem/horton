@@ -643,7 +643,30 @@ void GB1DMGridMGGAFn::compute_point_from_dm(double* work_basis, double* dm, long
 }
 
 void GB1DMGridMGGAFn::compute_fock_from_pot(double* pot, double* work_basis, long nbasis, double* output) {
-    throw std::runtime_error("Gak!");
+    double auxpot = 0.5*pot[4] + 2.0*pot[5];
+    for (long ibasis0=0; ibasis0<nbasis; ibasis0++) {
+        double tmp0 = pot[0]*work_basis[ibasis0*5] +
+                      pot[1]*work_basis[ibasis0*5+1] +
+                      pot[2]*work_basis[ibasis0*5+2] +
+                      pot[3]*work_basis[ibasis0*5+3] +
+                      pot[5]*work_basis[ibasis0*5+4];
+        double tmp1 = pot[1]*work_basis[ibasis0*5] + auxpot*work_basis[ibasis0*5+1];
+        double tmp2 = pot[2]*work_basis[ibasis0*5] + auxpot*work_basis[ibasis0*5+2];
+        double tmp3 = pot[3]*work_basis[ibasis0*5] + auxpot*work_basis[ibasis0*5+3];
+        double tmp4 = pot[5]*work_basis[ibasis0*5];
+        for (long ibasis1=0; ibasis1<=ibasis0; ibasis1++) {
+            double result = tmp0*work_basis[ibasis1*5] +
+                            tmp1*work_basis[ibasis1*5+1] +
+                            tmp2*work_basis[ibasis1*5+2] +
+                            tmp3*work_basis[ibasis1*5+3] +
+                            tmp4*work_basis[ibasis1*5+4];
+            output[ibasis1*nbasis+ibasis0] += result;
+            if (ibasis1!=ibasis0) {
+                // Enforce symmetry
+                output[ibasis0*nbasis+ibasis1] += result;
+            }
+        }
+    }
 }
 
 

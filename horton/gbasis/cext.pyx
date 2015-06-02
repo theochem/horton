@@ -1333,11 +1333,10 @@ cdef class GOBasis(GBasis):
         '''
         self._compute_grid1_fock(points, weights, pots, GB1DMGridKineticFn(self.max_shell_type), fock)
 
-
     def compute_grid_hessian_fock(self, np.ndarray[double, ndim=2] points not None,
                                   np.ndarray[double, ndim=1] weights not None,
                                   np.ndarray[double, ndim=2] pots not None, fock):
-        '''Compute a two-index operator based on a hessian potential grid in real-space
+        '''Compute a two-index operator based on a hessian potential in real-space
 
            **Arguments:**
 
@@ -1359,6 +1358,32 @@ cdef class GOBasis(GBasis):
            **Warning:** the results are added to the fock operator!
         '''
         self._compute_grid1_fock(points, weights, pots, GB1DMGridHessianFn(self.max_shell_type), fock)
+
+    def compute_grid_mgga_fock(self, np.ndarray[double, ndim=2] points not None,
+                                np.ndarray[double, ndim=1] weights not None,
+                                np.ndarray[double, ndim=2] pots not None, fock):
+        '''Compute a two-index operator based on an MGGA potential in real-space
+
+           **Arguments:**
+
+           points
+                A Numpy array with grid points, shape (npoint,3).
+
+           weights
+                A Numpy array with integration weights, shape (npoint,).
+
+           pots
+                A Numpy array with MGGA potential data, i.e. derivative of
+                functional toward density, gradient, kinetic energy density and
+                laplacian (npoint, 5).
+
+           fock
+                A one-body operator. For now, this must be a DenseOneBody
+                object.
+
+           **Warning:** the results are added to the fock operator!
+        '''
+        self._compute_grid1_fock(points, weights, pots, GB1DMGridMGGAFn(self.max_shell_type), fock)
 
 
 #

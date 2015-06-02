@@ -786,3 +786,93 @@ def test_mgga_evaluation_co_ccpv5z_cart():
 def test_mgga_evaluation_co_ccpv5z_pure():
     fn_fchk = context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk')
     check_mgga_evaluation(fn_fchk)
+
+
+def check_mgga_fock(fn):
+    # Tests density and gradient by comparing with separate density and gradient
+    # evaluation.
+    mol = IOData.from_file(fn)
+
+    for i in xrange(5):
+        # random integration grid
+        points = np.random.uniform(-5, 5, (100, 3))
+        weights = np.random.uniform(1, 2, 100)
+        # combined functional derivatives of toward density and gradient
+        pot = np.random.uniform(-1, 1, (100, 6))
+
+        # combined fock matrix build
+        fock1 = mol.lf.create_two_index()
+        mol.obasis.compute_grid_mgga_fock(points, weights, pot, fock1)
+
+        # separate fock matrix build
+        fock2 = mol.lf.create_two_index()
+        mol.obasis.compute_grid_density_fock(points, weights, pot[:,0], fock2)
+        mol.obasis.compute_grid_gradient_fock(points, weights, pot[:,1:4], fock2)
+        mol.obasis.compute_grid_kinetic_fock(points, weights, pot[:,4], fock2)
+        hessian_pot = np.zeros((100, 6), float)
+        hessian_pot[:,0] = pot[:,5]
+        hessian_pot[:,3] = pot[:,5]
+        hessian_pot[:,5] = pot[:,5]
+        mol.obasis.compute_grid_hessian_fock(points, weights, hessian_pot, fock2)
+
+        assert fock1.distance_inf(fock2) < 1e-10
+
+
+def test_mgga_fock_co_ccpv5z_cart():
+    fn_fchk = context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk')
+    check_mgga_fock(fn_fchk)
+
+
+def test_mgga_fock_co_ccpv5z_pure():
+    fn_fchk = context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk')
+    check_mgga_fock(fn_fchk)
+
+def check_mgga_functional_deriv(comp):
+    fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
+    mol = IOData.from_file(fn_fchk)
+    obasis = mol.obasis
+    dm_full = mol.get_dm_full()
+
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'coarse', random_rotate=False, mode='keep')
+    pot = grid.points[:,2]
+
+    def fun(x):
+        dm_full._array[:] = x.reshape(obasis.nbasis, -1)
+        f = obasis.compute_grid_mgga_dm(dm_full, grid.points)
+        return 0.5*grid.integrate(f[:, comp], f[:, comp])
+
+    def fun_deriv(x):
+        dm_full._array[:] = x.reshape(obasis.nbasis, -1)
+        result = dm_full.new()
+        tmp = obasis.compute_grid_mgga_dm(dm_full, grid.points)
+        tmp[:,:comp] = 0.0
+        tmp[:,comp+1:] = 0.0
+        obasis.compute_grid_mgga_fock(grid.points, grid.weights, tmp, result)
+        return result._array.ravel()
+
+    eps = 1e-4
+    x = dm_full._array.copy().ravel()
+    dxs = []
+    for i in xrange(100):
+        tmp = np.random.uniform(-eps, +eps, x.shape)*x
+        dxs.append(tmp)
+
+    check_delta(fun, fun_deriv, x, dxs)
+
+def test_mgga_functional_deriv_0():
+    check_mgga_functional_deriv(0)
+
+def test_mgga_functional_deriv_1():
+    check_mgga_functional_deriv(1)
+
+def test_mgga_functional_deriv_2():
+    check_mgga_functional_deriv(2)
+
+def test_mgga_functional_deriv_3():
+    check_mgga_functional_deriv(3)
+
+def test_mgga_functional_deriv_4():
+    check_mgga_functional_deriv(4)
+
+def test_mgga_functional_deriv_5():
+    check_mgga_functional_deriv(5)
