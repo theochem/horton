@@ -1,13 +1,19 @@
 recursive-include horton *.pyx *.pxd *.h *.cpp
 recursive-exclude horton cext.cpp
-include examples/*/run.py
-include examples/*/*.xyz
+
+include data/setup_cfgs/*.cfg
+include data/setup_cfgs/README
+
 include doc/*.rst
-include doc/conf.py
+include doc/*.py
+include doc/doxygen.conf
+include doc/*.png
+include doc/*.svg
 include doc/Makefile
+
 include depends/Makefile
-include depends/*.patch
+
 include README
 include COPYING
-include tools/*.py
-include customize.py
+
+recursive-include tools *.py
