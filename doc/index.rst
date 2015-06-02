@@ -35,12 +35,10 @@ Horton is distributed under the conditions of the GPL License version 3. See
 :ref:`license_information` for more details.
 
 
-User documentation
-==================
-
 .. toctree::
    :maxdepth: 2
    :numbered:
+   :caption: User documentation
 
    download_and_install
    user_getting_started
@@ -50,12 +48,10 @@ User documentation
    user_other_topics
 
 
-Technical stuff
-===============
-
 .. toctree::
    :maxdepth: 2
    :numbered:
+   :caption: Technical stuff
 
    dev_howto_guides
    dev_reference_docs
