@@ -613,7 +613,7 @@ void GB1DMGridMGGAFn::add(double coeff, double alpha0, const double* scales0) {
 
 void GB1DMGridMGGAFn::compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output, double epsilon, double* dmmaxrow) {
     double rho = 0, rho_x = 0, rho_y = 0, rho_z = 0;
-    double tau2 = 0.0, lapl_part = 0;
+    double lapl_part = 0, tau2 = 0.0;
     for (long ibasis0=0; ibasis0<nbasis; ibasis0++) {
         double row = 0;
         double tmp_x = 0;
@@ -629,31 +629,31 @@ void GB1DMGridMGGAFn::compute_point_from_dm(double* work_basis, double* dm, long
         rho_x += row*work_basis[ibasis0*5+1];
         rho_y += row*work_basis[ibasis0*5+2];
         rho_z += row*work_basis[ibasis0*5+3];
+        lapl_part += row*work_basis[ibasis0*5+4];
         tau2 += tmp_x*work_basis[ibasis0*5+1] +
                 tmp_y*work_basis[ibasis0*5+2] +
                 tmp_z*work_basis[ibasis0*5+3];
-        lapl_part += row*work_basis[ibasis0*5+4];
     }
     output[0] += rho;
     output[1] += 2*rho_x;
     output[2] += 2*rho_y;
     output[3] += 2*rho_z;
-    output[4] += 0.5*tau2;
-    output[5] += 2*lapl_part + 2*tau2;
+    output[4] += 2*lapl_part + 2*tau2;
+    output[5] += 0.5*tau2;
 }
 
 void GB1DMGridMGGAFn::compute_fock_from_pot(double* pot, double* work_basis, long nbasis, double* output) {
-    double auxpot = 0.5*pot[4] + 2.0*pot[5];
+    double auxpot = 0.5*pot[5] + 2.0*pot[4];
     for (long ibasis0=0; ibasis0<nbasis; ibasis0++) {
         double tmp0 = pot[0]*work_basis[ibasis0*5] +
                       pot[1]*work_basis[ibasis0*5+1] +
                       pot[2]*work_basis[ibasis0*5+2] +
                       pot[3]*work_basis[ibasis0*5+3] +
-                      pot[5]*work_basis[ibasis0*5+4];
+                      pot[4]*work_basis[ibasis0*5+4];
         double tmp1 = pot[1]*work_basis[ibasis0*5] + auxpot*work_basis[ibasis0*5+1];
         double tmp2 = pot[2]*work_basis[ibasis0*5] + auxpot*work_basis[ibasis0*5+2];
         double tmp3 = pot[3]*work_basis[ibasis0*5] + auxpot*work_basis[ibasis0*5+3];
-        double tmp4 = pot[5]*work_basis[ibasis0*5];
+        double tmp4 = pot[4]*work_basis[ibasis0*5];
         for (long ibasis1=0; ibasis1<=ibasis0; ibasis1++) {
             double result = tmp0*work_basis[ibasis1*5] +
                             tmp1*work_basis[ibasis1*5+1] +

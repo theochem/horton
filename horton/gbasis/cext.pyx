@@ -1076,8 +1076,8 @@ cdef class GOBasis(GBasis):
                              double epsilon=0):
         '''Compute the MGGA quantities for a given density matrix.
 
-           This includes the density, the gradient, the kinetic energy density
-           and the Laplacian.
+           This includes the density, the gradient, the Laplacian and the
+           kinetic energy density.
 
            **Arguments:**
 
@@ -1374,8 +1374,8 @@ cdef class GOBasis(GBasis):
 
            pots
                 A Numpy array with MGGA potential data, i.e. derivative of
-                functional toward density, gradient, kinetic energy density and
-                laplacian (npoint, 5).
+                functional toward density, gradient, Laplacian and kinetic
+                energy density (npoint, 5).
 
            fock
                 A one-body operator. For now, this must be a DenseOneBody

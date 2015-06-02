@@ -701,14 +701,14 @@ def check_mgga_evaluation(fn):
         # separate computation of density and gradient
         rho = mol.obasis.compute_grid_density_dm(dm_full, points)
         grad = mol.obasis.compute_grid_gradient_dm(dm_full, points)
-        kin = mol.obasis.compute_grid_kinetic_dm(dm_full, points)
         hess = mol.obasis.compute_grid_hessian_dm(dm_full, points)
         lapl = hess[:,0] + hess[:,3] + hess[:,5]
+        kin = mol.obasis.compute_grid_kinetic_dm(dm_full, points)
 
         assert np.allclose(rho, mgga[:,0], atol=1e-10)
         assert np.allclose(grad, mgga[:,1:4], atol=1e-10)
-        assert np.allclose(kin, mgga[:,4], atol=1e-10)
-        assert np.allclose(lapl, mgga[:,5], atol=1e-10)
+        assert np.allclose(lapl, mgga[:,4], atol=1e-10)
+        assert np.allclose(kin, mgga[:,5], atol=1e-10)
 
         # fill the density matrix with random numbers, symmetrize
         dm_full.randomize()
@@ -745,12 +745,12 @@ def check_mgga_fock(fn):
         fock2 = mol.lf.create_two_index()
         mol.obasis.compute_grid_density_fock(points, weights, pot[:,0], fock2)
         mol.obasis.compute_grid_gradient_fock(points, weights, pot[:,1:4], fock2)
-        mol.obasis.compute_grid_kinetic_fock(points, weights, pot[:,4], fock2)
         hessian_pot = np.zeros((100, 6), float)
-        hessian_pot[:,0] = pot[:,5]
-        hessian_pot[:,3] = pot[:,5]
-        hessian_pot[:,5] = pot[:,5]
+        hessian_pot[:,0] = pot[:,4]
+        hessian_pot[:,3] = pot[:,4]
+        hessian_pot[:,5] = pot[:,4]
         mol.obasis.compute_grid_hessian_fock(points, weights, hessian_pot, fock2)
+        mol.obasis.compute_grid_kinetic_fock(points, weights, pot[:,5], fock2)
 
         assert fock1.distance_inf(fock2) < 1e-10
 
