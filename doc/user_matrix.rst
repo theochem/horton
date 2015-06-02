@@ -41,7 +41,7 @@ are two main reasons for such implementation:
    chemistry calculations, and we use that package (Matrix package) instead of Numpy
    directly.
 
-Though such an abstraction layer seems pedantic and ostentatious, and requires
+Although such an abstraction layer seems pedantic and ostentatious, and requires
 a tedious implementation of all new operations into the Matrix package, the
 small penalty in performance and the ease of implementing different concepts
 into the low-level areas of Horton make it well worth the effort.
@@ -55,12 +55,11 @@ How to use this abstraction layer
 
 The Matrix package is organized (in ``horton/matrix``) as follows:
 
-At the top level, the package is split into modules in which the
-implementation of the data storage and manipulation (backend). So far, there are
-two such modules, a dense Numpy storage and Cholesky decomposition of the
-Numpy storage. Because these modules treat data in fundamentally different
-ways, each method used by the higher-level module (listed in the `base.py`)
-must be implemented.
+The package consists of `backend` modules, each with their own implementation of
+the data storage and manipulation. So far, there are two such modules, a dense
+Numpy storage and Cholesky decomposition of the Numpy storage. Because these
+modules treat data in fundamentally different ways, each method used by the
+higher-level module (listed in the ``base.py``) must be implemented.
 
 Then, the code for each module is organized by the type of data that is
 manipulated within a class. So far, classes for 1-index tensor, 2-index tensor,
@@ -71,9 +70,9 @@ To avoid reallocation of memory, we use a :class:`.LinalgFactory` instance to
 create these objects (e.g. 2-index tensor). This instance will allocate memory
 for these objects, and then, the operations performed on these objects will modify
 their own attributes directly. Most of the operations are in-place, i.e.
-modifies their own data based on input and returns no output.
+modifying their own data based on input and not returning any output.
 
-For example, to create and modify a dense two index tensor, we first create a
+For example, to create and modify a dense two-index tensor, we first create a
 LinalgFactory instance and call it ``lf``:
 
 .. code-block:: python
@@ -101,19 +100,19 @@ We can modify the two-tensor object by some in-place operations:
     A.iadd(B)
 
     #A = A * B
-    A.idot(A)
+    A.idot(B)
 
     #A = B + C (NOT POSSIBLE)
     #A = A + B
-    #A = A + C
     A.iadd(B)
+    #A = A + C
     A.iadd(C)
 
 Note that more complex operations, such as (`A = B + C`), can be broken up into
 a series of in-place operations, that deal with explicitly allocated memory.
 
 We can appreciate the simplicity of implementing different modules by playing
-with the different modules available (two). For example, we could have used
+with the different `backend` modules available. For example, we could have used
 
 .. code-block:: python
 
