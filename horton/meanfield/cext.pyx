@@ -176,7 +176,7 @@ cdef class RLibXCWrapper(LibXCWrapper):
     def compute_mgga_exc(self, np.ndarray[double, ndim=1] rho not None,
                                np.ndarray[double, ndim=1] sigma not None,
                                np.ndarray[double, ndim=1] lapl not None,
-                               np.ndarray[double, ndim=1] kin not None,
+                               np.ndarray[double, ndim=1] tau not None,
                                np.ndarray[double, ndim=1] zk not None):
         assert rho.flags['C_CONTIGUOUS']
         npoint = rho.shape[0]
@@ -184,37 +184,37 @@ cdef class RLibXCWrapper(LibXCWrapper):
         assert sigma.shape[0] == npoint
         assert lapl.flags['C_CONTIGUOUS']
         assert lapl.shape[0] == npoint
-        assert kin.flags['C_CONTIGUOUS']
-        assert kin.shape[0] == npoint
+        assert tau.flags['C_CONTIGUOUS']
+        assert tau.shape[0] == npoint
         assert zk.flags['C_CONTIGUOUS']
         assert zk.shape[0] == npoint
-        xc_mgga_exc(&self._func, npoint, &rho[0], &sigma[0], &lapl[0], &kin[0], &zk[0])
+        xc_mgga_exc(&self._func, npoint, &rho[0], &sigma[0], &lapl[0], &tau[0], &zk[0])
 
     def compute_mgga_vxc(self, np.ndarray[double, ndim=1] rho not None,
                                np.ndarray[double, ndim=1] sigma not None,
                                np.ndarray[double, ndim=1] lapl not None,
-                               np.ndarray[double, ndim=1] kin not None,
+                               np.ndarray[double, ndim=1] tau not None,
                                np.ndarray[double, ndim=1] vrho not None,
                                np.ndarray[double, ndim=1] vsigma not None,
                                np.ndarray[double, ndim=1] vlapl not None,
-                               np.ndarray[double, ndim=1] vkin not None,):
+                               np.ndarray[double, ndim=1] vtau not None,):
         assert rho.flags['C_CONTIGUOUS']
         npoint = rho.shape[0]
         assert sigma.flags['C_CONTIGUOUS']
         assert sigma.shape[0] == npoint
         assert lapl.flags['C_CONTIGUOUS']
         assert lapl.shape[0] == npoint
-        assert kin.flags['C_CONTIGUOUS']
-        assert kin.shape[0] == npoint
+        assert tau.flags['C_CONTIGUOUS']
+        assert tau.shape[0] == npoint
         assert vrho.flags['C_CONTIGUOUS']
         assert vrho.shape[0] == npoint
         assert vsigma.flags['C_CONTIGUOUS']
         assert vsigma.shape[0] == npoint
         assert vlapl.flags['C_CONTIGUOUS']
         assert vlapl.shape[0] == npoint
-        assert vkin.flags['C_CONTIGUOUS']
-        assert vkin.shape[0] == npoint
-        xc_mgga_vxc(&self._func, npoint, &rho[0], &sigma[0], &lapl[0], &kin[0], &vrho[0], &vsigma[0], &vlapl[0], &vkin[0])
+        assert vtau.flags['C_CONTIGUOUS']
+        assert vtau.shape[0] == npoint
+        xc_mgga_vxc(&self._func, npoint, &rho[0], &sigma[0], &lapl[0], &tau[0], &vrho[0], &vsigma[0], &vlapl[0], &vtau[0])
 
 
 cdef class ULibXCWrapper(LibXCWrapper):
@@ -289,7 +289,7 @@ cdef class ULibXCWrapper(LibXCWrapper):
     def compute_mgga_exc(self, np.ndarray[double, ndim=2] rho not None,
                                np.ndarray[double, ndim=2] sigma not None,
                                np.ndarray[double, ndim=2] lapl not None,
-                               np.ndarray[double, ndim=2] kin not None,
+                               np.ndarray[double, ndim=2] tau not None,
                                np.ndarray[double, ndim=1] zk not None):
         assert rho.flags['C_CONTIGUOUS']
         npoint = rho.shape[0]
@@ -300,12 +300,12 @@ cdef class ULibXCWrapper(LibXCWrapper):
         assert lapl.flags['C_CONTIGUOUS']
         assert lapl.shape[0] == npoint
         assert lapl.shape[1] == 2
-        assert kin.flags['C_CONTIGUOUS']
-        assert kin.shape[0] == npoint
-        assert kin.shape[1] == 2
+        assert tau.flags['C_CONTIGUOUS']
+        assert tau.shape[0] == npoint
+        assert tau.shape[1] == 2
         assert zk.flags['C_CONTIGUOUS']
         assert zk.shape[0] == npoint
-        xc_mgga_exc(&self._func, npoint, &rho[0, 0], &sigma[0, 0], &lapl[0, 0], &kin[0, 0], &zk[0])
+        xc_mgga_exc(&self._func, npoint, &rho[0, 0], &sigma[0, 0], &lapl[0, 0], &tau[0, 0], &zk[0])
 
     def compute_mgga_vxc(self, np.ndarray[double, ndim=2] rho not None,
                                np.ndarray[double, ndim=2] sigma not None,
@@ -314,7 +314,7 @@ cdef class ULibXCWrapper(LibXCWrapper):
                                np.ndarray[double, ndim=2] vrho not None,
                                np.ndarray[double, ndim=2] vsigma not None,
                                np.ndarray[double, ndim=2] vlapl not None,
-                               np.ndarray[double, ndim=2] vkin not None):
+                               np.ndarray[double, ndim=2] vtau not None):
         assert rho.flags['C_CONTIGUOUS']
         npoint = rho.shape[0]
         assert rho.shape[1] == 2
@@ -336,7 +336,7 @@ cdef class ULibXCWrapper(LibXCWrapper):
         assert vlapl.flags['C_CONTIGUOUS']
         assert vlapl.shape[0] == npoint
         assert vlapl.shape[1] == 2
-        assert vkin.flags['C_CONTIGUOUS']
-        assert vkin.shape[0] == npoint
-        assert vkin.shape[1] == 2
-        xc_mgga_vxc(&self._func, npoint, &rho[0, 0], &sigma[0, 0], &lapl[0, 0], &kin[0, 0], &vrho[0, 0], &vsigma[0, 0], &vlapl[0, 0], &vkin[0, 0])
+        assert vtau.flags['C_CONTIGUOUS']
+        assert vtau.shape[0] == npoint
+        assert vtau.shape[1] == 2
+        xc_mgga_vxc(&self._func, npoint, &rho[0, 0], &sigma[0, 0], &lapl[0, 0], &kin[0, 0], &vrho[0, 0], &vsigma[0, 0], &vlapl[0, 0], &vtau[0, 0])

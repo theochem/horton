@@ -703,12 +703,12 @@ def check_mgga_evaluation(fn):
         grad = mol.obasis.compute_grid_gradient_dm(dm_full, points)
         hess = mol.obasis.compute_grid_hessian_dm(dm_full, points)
         lapl = hess[:,0] + hess[:,3] + hess[:,5]
-        kin = mol.obasis.compute_grid_kinetic_dm(dm_full, points)
+        tau = mol.obasis.compute_grid_kinetic_dm(dm_full, points)
 
         assert np.allclose(rho, mgga[:,0], atol=1e-10)
         assert np.allclose(grad, mgga[:,1:4], atol=1e-10)
         assert np.allclose(lapl, mgga[:,4], atol=1e-10)
-        assert np.allclose(kin, mgga[:,5], atol=1e-10)
+        assert np.allclose(tau, mgga[:,5], atol=1e-10)
 
         # fill the density matrix with random numbers, symmetrize
         dm_full.randomize()
