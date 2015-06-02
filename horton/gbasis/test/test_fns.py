@@ -28,6 +28,42 @@ from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.test.common import check_delta
 
 
+def check_functional_deriv(fn, comp, dm_method, fock_method):
+    fn_fchk = context.get_fn(fn)
+    mol = IOData.from_file(fn_fchk)
+    obasis = mol.obasis
+    dm_full = mol.get_dm_full()
+
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'coarse', random_rotate=False, mode='keep')
+    pot = grid.points[:,2]
+
+    def fun(x):
+        dm_full._array[:] = x.reshape(obasis.nbasis, -1)
+        f = dm_method(obasis, dm_full, grid.points)
+        f = f.reshape((grid.size, -1))
+        return 0.5*grid.integrate(f[:, comp], f[:, comp])
+
+    def fun_deriv(x):
+        dm_full._array[:] = x.reshape(obasis.nbasis, -1)
+        result = dm_full.new()
+        tmp = dm_method(obasis, dm_full, grid.points)
+        orig_shape = tmp.shape
+        tmp = tmp.reshape((grid.size, -1))
+        tmp[:,:comp] = 0.0
+        tmp[:,comp+1:] = 0.0
+        tmp.shape = orig_shape
+        fock_method(obasis, grid.points, grid.weights, tmp, result)
+        return result._array.ravel()
+
+    eps = 1e-4
+    x = dm_full._array.copy().ravel()
+    dxs = []
+    for i in xrange(100):
+        tmp = np.random.uniform(-eps, +eps, x.shape)*x
+        dxs.append(tmp)
+
+    check_delta(fun, fun_deriv, x, dxs)
+
 def test_exceptions():
     with assert_raises(ValueError):
         grid_fn = GB1DMGridDensityFn(-1)
@@ -186,35 +222,7 @@ def test_density_epsilon():
 
 
 def test_density_functional_deriv():
-    fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    mol = IOData.from_file(fn_fchk)
-    dm_full = mol.get_dm_full()
-    obasis = mol.obasis
-
-    rtf = ExpRTransform(1e-3, 1e1, 10)
-    rgrid = RadialGrid(rtf)
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, (rgrid, 6), random_rotate=False, mode='keep')
-    pot = grid.points[:,2].copy()
-
-    def fun(x):
-        dm_full._array[:] = x.reshape(obasis.nbasis, -1)
-        f = obasis.compute_grid_density_dm(dm_full, grid.points)
-        return 0.5*grid.integrate(f, f, pot)
-
-    def fun_deriv(x):
-        dm_full._array[:] = x.reshape(obasis.nbasis, -1)
-        result = dm_full.new()
-        f = obasis.compute_grid_density_dm(dm_full, grid.points)
-        obasis.compute_grid_density_fock(grid.points, grid.weights, pot*f, result)
-        return result._array.ravel()
-
-    eps = 1e-4
-    x = dm_full._array.copy().ravel()
-    dxs = []
-    for i in xrange(100):
-        dxs.append(np.random.uniform(-eps, +eps, x.shape)*x)
-
-    check_delta(fun, fun_deriv, x, dxs)
+    check_functional_deriv('test/n2_hfs_sto3g.fchk', 0, GOBasis.compute_grid_density_dm, GOBasis.compute_grid_density_fock)
 
 
 def check_density_gradient(obasis, dm_full, point, eps):
@@ -323,51 +331,20 @@ def test_dm_gradient_h3_321g():
     check_dm_gradient(obasis, dm_full, np.array([[-0.1, 0.4, 1.2]]), np.array([[-0.1, 0.4, 1.2+eps]]))
 
 
-def check_gradient_functional_deriv(comp):
-    fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    mol = IOData.from_file(fn_fchk)
-    obasis = mol.obasis
-    dm_full = mol.get_dm_full()
-
-    rtf = ExpRTransform(1e-3, 1e1, 10)
-    rgrid = RadialGrid(rtf)
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, (rgrid, 6), random_rotate=False, mode='keep')
-
-    def fun(x):
-        dm_full._array[:] = x.reshape(obasis.nbasis, -1)
-        f = obasis.compute_grid_gradient_dm(dm_full, grid.points)
-        return 0.5*grid.integrate(f[:,comp], f[:,comp])
-
-    def fun_deriv(x):
-        dm_full._array[:] = x.reshape(obasis.nbasis, -1)
-        result = dm_full.new()
-        tmp = obasis.compute_grid_gradient_dm(dm_full, grid.points)
-        tmp[:,:comp] = 0.0
-        tmp[:,comp+1:] = 0.0
-        obasis.compute_grid_gradient_fock(grid.points, grid.weights, tmp, result)
-        return result._array.ravel()
-
-    eps = 1e-4
-    x = dm_full._array.copy().ravel()
-    dxs = []
-    for i in xrange(100):
-        tmp = np.random.uniform(-eps, +eps, x.shape)*x
-        tmp = (tmp+tmp.T)/2
-        dxs.append(tmp)
-
-    check_delta(fun, fun_deriv, x, dxs)
+def check_gradient_functional_deriv(fn, comp):
+    check_functional_deriv(fn, comp, GOBasis.compute_grid_gradient_dm, GOBasis.compute_grid_gradient_fock)
 
 
 def test_gradient_functional_deriv_0():
-    check_gradient_functional_deriv(0)
+    check_gradient_functional_deriv('test/n2_hfs_sto3g.fchk', 0)
 
 
 def test_gradient_functional_deriv_1():
-    check_gradient_functional_deriv(1)
+    check_gradient_functional_deriv('test/n2_hfs_sto3g.fchk', 1)
 
 
 def test_gradient_functional_deriv_2():
-    check_gradient_functional_deriv(2)
+    check_gradient_functional_deriv('test/n2_hfs_sto3g.fchk', 2)
 
 
 def check_orbitals(mol):
@@ -479,34 +456,7 @@ def test_dm_kinetic_co_ccpv5z_pure():
 
 @attr('slow')
 def test_kinetic_functional_deriv():
-    fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    mol = IOData.from_file(fn_fchk)
-    obasis = mol.obasis
-    dm_full = mol.get_dm_full()
-
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False, mode='keep')
-    pot = grid.points[:,2]
-
-    def fun(x):
-        dm_full._array[:] = x.reshape(obasis.nbasis, -1)
-        f = obasis.compute_grid_kinetic_dm(dm_full, grid.points)
-        return 0.5*grid.integrate(f, f, pot)
-
-    def fun_deriv(x):
-        dm_full._array[:] = x.reshape(obasis.nbasis, -1)
-        result = dm_full.new()
-        tmp = obasis.compute_grid_kinetic_dm(dm_full, grid.points)*pot
-        obasis.compute_grid_kinetic_fock(grid.points, grid.weights, tmp, result)
-        return result._array.ravel()
-
-    eps = 1e-4
-    x = dm_full._array.copy().ravel()
-    dxs = []
-    for i in xrange(100):
-        tmp = np.random.uniform(-eps, +eps, x.shape)*x
-        dxs.append(tmp)
-
-    check_delta(fun, fun_deriv, x, dxs)
+    check_functional_deriv('test/n2_hfs_sto3g.fchk', 0, GOBasis.compute_grid_kinetic_dm, GOBasis.compute_grid_kinetic_fock)
 
 
 def test_concept_gradient():
@@ -632,55 +582,26 @@ def test_hessian_systematic_pure():
     check_hessian_systematic(True)
 
 
-def check_hessian_functional_deriv(comp):
-    fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
-    mol = IOData.from_file(fn_fchk)
-    obasis = mol.obasis
-    dm_full = mol.get_dm_full()
-
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'coarse', random_rotate=False, mode='keep')
-    pot = grid.points[:,2]
-
-    def fun(x):
-        dm_full._array[:] = x.reshape(obasis.nbasis, -1)
-        f = obasis.compute_grid_hessian_dm(dm_full, grid.points)
-        return 0.5*grid.integrate(f[:, comp], f[:, comp])
-
-    def fun_deriv(x):
-        dm_full._array[:] = x.reshape(obasis.nbasis, -1)
-        result = dm_full.new()
-        tmp = obasis.compute_grid_hessian_dm(dm_full, grid.points)
-        tmp[:,:comp] = 0.0
-        tmp[:,comp+1:] = 0.0
-        obasis.compute_grid_hessian_fock(grid.points, grid.weights, tmp, result)
-        return result._array.ravel()
-
-    eps = 1e-4
-    x = dm_full._array.copy().ravel()
-    dxs = []
-    for i in xrange(100):
-        tmp = np.random.uniform(-eps, +eps, x.shape)*x
-        dxs.append(tmp)
-
-    check_delta(fun, fun_deriv, x, dxs)
+def check_hessian_functional_deriv(fn, comp):
+    check_functional_deriv(fn, comp, GOBasis.compute_grid_hessian_dm, GOBasis.compute_grid_hessian_fock)
 
 def test_hessian_functional_deriv_0():
-    check_hessian_functional_deriv(0)
+    check_hessian_functional_deriv('test/water_sto3g_hf_g03.fchk', 0)
 
 def test_hessian_functional_deriv_1():
-    check_hessian_functional_deriv(1)
+    check_hessian_functional_deriv('test/water_sto3g_hf_g03.fchk', 1)
 
 def test_hessian_functional_deriv_2():
-    check_hessian_functional_deriv(2)
+    check_hessian_functional_deriv('test/water_sto3g_hf_g03.fchk', 2)
 
 def test_hessian_functional_deriv_3():
-    check_hessian_functional_deriv(3)
+    check_hessian_functional_deriv('test/water_sto3g_hf_g03.fchk', 3)
 
 def test_hessian_functional_deriv_4():
-    check_hessian_functional_deriv(4)
+    check_hessian_functional_deriv('test/water_sto3g_hf_g03.fchk', 4)
 
 def test_hessian_functional_deriv_5():
-    check_hessian_functional_deriv(5)
+    check_hessian_functional_deriv('test/water_sto3g_hf_g03.fchk', 5)
 
 
 def check_gga_evaluation(fn):
@@ -748,6 +669,22 @@ def test_gga_fock_co_ccpv5z_cart():
 def test_gga_fock_co_ccpv5z_pure():
     fn_fchk = context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk')
     check_gga_fock(fn_fchk)
+
+
+def check_gga_functional_deriv(fn, comp):
+    check_functional_deriv(fn, comp, GOBasis.compute_grid_gga_dm, GOBasis.compute_grid_gga_fock)
+
+def test_gga_functional_deriv_0():
+    check_gga_functional_deriv('test/water_sto3g_hf_g03.fchk', 0)
+
+def test_gga_functional_deriv_1():
+    check_gga_functional_deriv('test/water_sto3g_hf_g03.fchk', 1)
+
+def test_gga_functional_deriv_2():
+    check_gga_functional_deriv('test/water_sto3g_hf_g03.fchk', 2)
+
+def test_gga_functional_deriv_3():
+    check_hessian_functional_deriv('test/water_sto3g_hf_g03.fchk', 3)
 
 
 def check_mgga_evaluation(fn):
@@ -827,52 +764,23 @@ def test_mgga_fock_co_ccpv5z_pure():
     fn_fchk = context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk')
     check_mgga_fock(fn_fchk)
 
-def check_mgga_functional_deriv(comp):
-    fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
-    mol = IOData.from_file(fn_fchk)
-    obasis = mol.obasis
-    dm_full = mol.get_dm_full()
-
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'coarse', random_rotate=False, mode='keep')
-    pot = grid.points[:,2]
-
-    def fun(x):
-        dm_full._array[:] = x.reshape(obasis.nbasis, -1)
-        f = obasis.compute_grid_mgga_dm(dm_full, grid.points)
-        return 0.5*grid.integrate(f[:, comp], f[:, comp])
-
-    def fun_deriv(x):
-        dm_full._array[:] = x.reshape(obasis.nbasis, -1)
-        result = dm_full.new()
-        tmp = obasis.compute_grid_mgga_dm(dm_full, grid.points)
-        tmp[:,:comp] = 0.0
-        tmp[:,comp+1:] = 0.0
-        obasis.compute_grid_mgga_fock(grid.points, grid.weights, tmp, result)
-        return result._array.ravel()
-
-    eps = 1e-4
-    x = dm_full._array.copy().ravel()
-    dxs = []
-    for i in xrange(100):
-        tmp = np.random.uniform(-eps, +eps, x.shape)*x
-        dxs.append(tmp)
-
-    check_delta(fun, fun_deriv, x, dxs)
+def check_mgga_functional_deriv(fn, comp):
+    check_functional_deriv(fn, comp, GOBasis.compute_grid_mgga_dm, GOBasis.compute_grid_mgga_fock)
 
 def test_mgga_functional_deriv_0():
-    check_mgga_functional_deriv(0)
+    check_mgga_functional_deriv('test/water_sto3g_hf_g03.fchk', 0)
 
 def test_mgga_functional_deriv_1():
-    check_mgga_functional_deriv(1)
+    check_mgga_functional_deriv('test/water_sto3g_hf_g03.fchk', 1)
 
 def test_mgga_functional_deriv_2():
-    check_mgga_functional_deriv(2)
+    check_mgga_functional_deriv('test/water_sto3g_hf_g03.fchk', 2)
 
 def test_mgga_functional_deriv_3():
-    check_mgga_functional_deriv(3)
+    check_mgga_functional_deriv('test/water_sto3g_hf_g03.fchk', 3)
 
 def test_mgga_functional_deriv_4():
-    check_mgga_functional_deriv(4)
+    check_mgga_functional_deriv('test/water_sto3g_hf_g03.fchk', 4)
 
 def test_mgga_functional_deriv_5():
-    check_mgga_functional_deriv(5)
+    check_mgga_functional_deriv('test/water_sto3g_hf_g03.fchk', 5)
