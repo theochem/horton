@@ -552,18 +552,20 @@ Preparing for a Post-Hartree-Fock calculation
 =============================================
 
 Once the SCF has converged and you have obtained a set of orbitals, you can use
-these orbitals to convert the integrals in the atomic-orbital (AO) basis to
-integrals in the molecular-orbital (MO) basis. There are two ways to do so: (i)
-by using all molecular orbitals or (ii) by specifying a frozen core and set of
-active orbitals. A full example, which covers both options and which includes dumping
-the transformed integrals to a file, is given in the section
-:ref:`hf_dft_complete_examples` below.
+these orbitals to convert the integrals from the atomic-orbital (AO) basis to
+the molecular-orbital (MO) basis. There are two ways to do so: (i) using all
+molecular orbitals or (ii) by specifing a frozen core and active set of
+orbitals. A full example, ``rhf_n2_dense.py``, which covers both options and
+which includes dumping the transformed integrals to a file, is given in the
+section :ref:`hf_dft_complete_examples` below.
 
-The conversion to an MO basis is useful for post-HF calculations. For such purposes,
-it is also of interest to sum all one-body operators into a single term. This
-can be done in two ways:
+The conversion to an MO basis is useful for post-HF calculations. For such
+purposes, it is also of interest to sum all one-body operators into a single
+term. This can be done in two ways:
 
-1. When the operators are computed, e.g.:
+1. You can create a one-body operator (two-index object) and use it as the
+   output argument for the ``compute_`` methods. These ``compute_`` methods will
+   add the integrals in-place. For example:
 
    .. code-block:: python
 
@@ -572,7 +574,8 @@ can be done in two ways:
         obasis.compute_kinetic(one)
         obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, one)
 
-2. After the operators are computed, e.g.:
+2. You can also compute separate one-body operators and add them *a posteriori*,
+   e.g.:
 
    .. code-block:: python
 
